@@ -648,10 +648,14 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   background-color: -moz-field;
 }
 
-.tabmail-tab[type="chat"],
-.alltabs-item[type="chat"] {
+.tabmail-tab[type="chat"] {
   list-style-image: url("chrome://messenger/skin/icons/chat.svg");
-  -moz-context-properties: fill;
+}
+
+.alltabs-item[style*="chat.svg"],
+.tabmail-tab[type="chat"] > .tab-stack > .tab-content > .tab-icon-image {
+  -moz-context-properties: fill, stroke-opacity;
+  stroke-opacity: 0;
   fill: currentColor;
 }
 

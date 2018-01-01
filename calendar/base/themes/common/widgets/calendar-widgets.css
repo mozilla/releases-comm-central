@@ -28,7 +28,9 @@ treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox
 }
 
 .view-navigation-button {
-  list-style-image: url(chrome://calendar-common/skin/widgets/view-navigation.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+  list-style-image: url(chrome://calendar-common/skin/view-cycler.svg);
   -moz-user-focus: normal;
 }
 
@@ -42,7 +44,7 @@ treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox
 }
 
 .view-navigation-button > .toolbarbutton-icon {
-  margin: 0px !important;
+  margin: 0 !important;
 }
 
 .view-navigation-button > .toolbarbutton-text  {

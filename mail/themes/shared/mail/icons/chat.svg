@@ -1,6 +1,7 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-  <path fill="context-fill" fill-opacity="context-fill-opacity" d="M 15,4 C 15,2.8 14.2,2 13,2 H 3 C 1.8,2 1,2.8 1,4 v 5 c 0,1.2 0.789,2 2,2 h 2 v 3.5 L 8.5,11 H 13 c 1.2,0 2,-0.8 2,-2 z"/>
+<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <path fill="context-fill" fill-opacity="context-fill-opacity" d="M12 16a1 1 0 0 1-.77-.37L8.26 12H2.42A2.43 2.43 0 0 1 0 9.58V3.42A2.43 2.43 0 0 1 2.42 1h11.16A2.43 2.43 0 0 1 16 3.42v6.16A2.43 2.43 0 0 1 13.58 12H13v3a1 1 0 0 1-1 1zM2.42 3a.42.42 0 0 0-.42.42v6.16c0 .232.188.42.42.42h6.31a1 1 0 0 1 .77.37l1.5 1.82V11a1 1 0 0 1 1-1h1.58a.42.42 0 0 0 .42-.42V3.42a.42.42 0 0 0-.42-.42H2.42z"/>
+  <path fill="context-fill" fill-opacity="context-stroke-opacity" d="M2.42 3a.42.42 0 0 0-.42.42v6.16c0 .232.188.42.42.42h6.31a1 1 0 0 1 .77.37l1.5 1.82V11c0-.55.45-1 1-1h1.58c.23 0 .42-.188.42-.42V3.42c0-.232-.19-.42-.42-.42z"/>
 </svg>

@@ -138,6 +138,8 @@
 }
 
 #button-chat {
+  -moz-context-properties: fill, fill-opacity, stroke-opacity;
+  stroke-opacity: 0;
   list-style-image: url("chrome://messenger/skin/icons/chat.svg");
 }
 
@@ -165,6 +167,7 @@
 
 #button-chat[unreadMessages="true"] {
   fill: var(--toolbarbutton-icon-fill-attention);
+  stroke-opacity: 0.5;
   color: #0969b2;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }

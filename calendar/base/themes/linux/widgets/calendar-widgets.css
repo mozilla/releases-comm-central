@@ -25,10 +25,6 @@ calendar-list-tree .tree-scrollable-columns {
   padding-inline-start: 18px;
 }
 
-.view-navigation-button:hover {
-  list-style-image: url(chrome://calendar-common/skin/widgets/view-navigation-hov.svg);
-}
-
 .toolbarbutton-icon-begin {
   margin-inline-end: 5px;
 }

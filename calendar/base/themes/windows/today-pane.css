@@ -15,11 +15,9 @@
 }
 
 .today-pane-cycler {
-  list-style-image: url("chrome://calendar-common/skin/today-pane-cycler.svg#normal");
-}
-
-.today-pane-cycler:-moz-lwtheme-brighttext {
-  list-style-image: url("chrome://calendar-common/skin/today-pane-cycler.svg#inverted");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  list-style-image: url("chrome://calendar-common/skin/view-cycler.svg");
 }
 
 .today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,

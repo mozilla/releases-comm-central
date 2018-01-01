@@ -7,15 +7,20 @@
 
 # mail
 chrome/chat/content/chat/conv.html
+chrome/classic/skin/classic/messenger/icons/accounts.svg
 chrome/classic/skin/classic/messenger/icons/address.svg
 chrome/classic/skin/classic/messenger/icons/attach.svg
 chrome/classic/skin/classic/messenger/icons/delete.svg
 chrome/classic/skin/classic/messenger/icons/new-mail-alert.png
+chrome/classic/skin/classic/messenger/icons/newmsg.svg
 chrome/classic/skin/classic/messenger/icons/print.svg
 chrome/classic/skin/classic/messenger/icons/save.svg
 chrome/classic/skin/classic/messenger/icons/security.svg
 chrome/classic/skin/classic/messenger/icons/spelling.svg
 chrome/classic/skin/classic/messenger/icons/tag.svg
+chrome/classic/skin/classic/messenger/shared/in-content/account.svg
+chrome/classic/skin/classic/messenger/shared/in-content/calendar.svg
+chrome/classic/skin/classic/messenger/shared/in-content/compose.svg
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/branding/icon64.png
 chrome/messenger/content/messenger/cloudfile/Box/management.js
@@ -38,9 +43,11 @@ chrome/icons/default/default64.png
 # calendar addon
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/address.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/attach.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/calendar-tab.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/category.svg
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/delete.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/complete.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/delete.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/edit.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/print.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/save.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/security.svg
@@ -69,9 +76,11 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calend
 # calendar on Release and Beta
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/address.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/attach.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/calendar-tab.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/category.svg
-distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/delete.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/complete.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/delete.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/edit.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/print.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/save.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/security.svg
