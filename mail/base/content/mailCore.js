@@ -481,7 +481,7 @@ function openAddonsMgr(aView)
  */
 function openAddonPrefs(aURL, aOptionsType) {
   if (aOptionsType == 3) {
-    switchToTabHavingURI(aURL);
+    switchToTabHavingURI(aURL, true);
   } else {
     let instantApply = Services.prefs
                                .getBoolPref("browser.preferences.instantApply");
