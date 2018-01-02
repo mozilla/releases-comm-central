@@ -20,5 +20,3 @@ ac_add_options --enable-calendar
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
-
-ac_add_options --disable-stdcxx-compat
