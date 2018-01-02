@@ -184,7 +184,7 @@
         <tabpanel orient="vertical">
 
           <hbox align="baseline">
-            <label value="&messageStyleTheme.label;" control="themename"
+            <label value="&messageStyleTheme.label;" control="messagestyle-themename"
                    accesskey="&messageStyleTheme.accesskey;"/>
             <menulist id="messagestyle-themename"
                       flex="1" crop="end"
