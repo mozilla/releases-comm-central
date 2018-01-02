@@ -937,6 +937,12 @@ nsresult nsParseMailMessageState::ParseHeaders ()
 {
   char *buf = m_headers.GetBuffer();
   uint32_t buf_length = m_headers.GetBufferPos();
+  if (buf_length == 0)
+  {
+    // No header of an expected type is present. Consider this a successful
+    // parse so email still shows on summary and can be accessed and deleted.
+    return NS_OK;
+  }
   char *buf_end = buf + buf_length;
   if (!(buf_length > 1 && (buf[buf_length - 1] == '\r' ||
         buf[buf_length - 1] == '\n')))
