@@ -3,21 +3,4 @@
 TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
 
 . "$TOOLTOOL_DIR/build/unix/mozconfig.linux"
-. "$TOOLTOOL_DIR/build/mozconfig.stylo"
-. "$TOOLTOOL_DIR/suite/config/mozconfigs/common"
-
-# Disable webrender on Linux buildbot builders to avoid the Rust requirement
-# of libX11 version > 1.4.99.1 (see bug 1350011).
-ac_add_options --disable-webrender
-
-ac_add_options --with-l10n-base=../../l10n
-ac_add_options --enable-application=suite
-ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
-
-# Build lightning locales
-ac_add_options --enable-calendar
-
-# Needed to enable breakpad in application.ini
-export MOZILLA_OFFICIAL=1
-
-ac_add_options --disable-stdcxx-compat
+. "$TOOLTOOL_DIR/suite/config/mozconfigs/mozconfig.linux.l10n.common"
