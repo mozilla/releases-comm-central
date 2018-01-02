@@ -33,8 +33,9 @@ public:
 
   virtual ~nsMsgBodyHandler();
 
-  // returns next message line in buf
-  int32_t GetNextLine(nsCString &buf);
+  // Returns next message line in buf and the applicable charset, if found.
+  // The return value is the length of 'buf' or -1 for EOF.
+  int32_t GetNextLine(nsCString &buf, nsCString &charset);
 
   // Transformations
   void SetStripHtml (bool strip) { m_stripHtml = strip; }
@@ -98,6 +99,7 @@ protected:
   bool m_partIsText;      // true if the current part is text/*
 
   nsTArray<nsCString> m_boundaries;  // The boundary strings to look for
+  nsCString m_partCharset; // The charset found in the part
 
   // See implementation for comments
   int32_t ApplyTransformations (const nsCString &line, int32_t length,

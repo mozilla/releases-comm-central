@@ -88,7 +88,7 @@ nsMsgBodyHandler::~nsMsgBodyHandler()
 {
 }
 
-int32_t nsMsgBodyHandler::GetNextLine (nsCString &buf)
+int32_t nsMsgBodyHandler::GetNextLine (nsCString &buf, nsCString &charset)
 {
   int32_t length = -1;          // length of incoming line or -1 eof
   int32_t outLength = -1;       // length of outgoing line or -1 eof
@@ -129,6 +129,7 @@ int32_t nsMsgBodyHandler::GetNextLine (nsCString &buf)
     outLength = ApplyTransformations(buf, buf.Length(), eatThisLine, buf);
   }
 
+  charset = m_partCharset;
   return outLength;
 }
 
@@ -227,7 +228,6 @@ int32_t nsMsgBodyHandler::GetNextLocalLine(nsCString &buf)
 int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t length,
                                                 bool &eatThisLine, nsCString &buf)
 {
-  int32_t newLength = length;
   eatThisLine = false;
 
   if (!m_pastPartHeaders)  // line is a line from the part headers
@@ -323,10 +323,9 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
   if (m_stripHtml && m_partIsHtml)
   {
     StripHtml (buf);
-    newLength = buf.Length();
   }
 
-  return newLength;
+  return buf.Length();
 }
 
 void nsMsgBodyHandler::StripHtml (nsCString &pBufInOut)
@@ -401,6 +400,7 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
         m_partIsText = false;
       }
       m_isMultipart = true;
+      m_partCharset.Truncate();
     }
     else if (lowerCaseLine.Find("text/", /* ignoreCase = */ true) != -1)
       m_partIsText = true;
@@ -408,11 +408,11 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
       m_partIsText = false; // We have disproved our assumption
   }
 
+  int32_t start;
   if (m_isMultipart &&
-      lowerCaseLine.Find("boundary=", /* ignoreCase = */ true) != -1)
+      (start = lowerCaseLine.Find("boundary=", /* ignoreCase = */ true)) != -1)
   {
-    int32_t start = lowerCaseLine.Find("boundary=", /* ignoreCase = */ true);
-    start += 9;
+    start += 9;  // strlen("boundary=")
     if (line[start] == '\"')
       start++;
     int32_t end = line.RFindChar('\"');
@@ -424,9 +424,20 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
     // structure from the message. Keep it simple ;-)
     nsCString boundary;
     boundary.AssignLiteral("--");
-    boundary.Append(Substring(line,start,end-start));
+    boundary.Append(Substring(line, start, end-start));
     if (!m_boundaries.Contains(boundary))
       m_boundaries.AppendElement(boundary);
+  }
+
+  if (m_isMultipart &&
+      (start = lowerCaseLine.Find("charset=", /* ignoreCase = */ true)) != -1)
+  {
+    start += 8;  // strlen("charset=")
+    int32_t end = line.RFindChar(';');
+    if (end == -1)
+      end = line.Length();
+
+    m_partCharset.Assign(Substring(line, start, end-start));
   }
 
   if (StringBeginsWith(lowerCaseLine,

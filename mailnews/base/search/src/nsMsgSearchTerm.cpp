@@ -787,7 +787,8 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader (nsIMsgSearchScopeTerm *scope,
 
   while (searchingHeaders)
   {
-    if (bodyHandler->GetNextLine(buf) < 0 || EMPTY_MESSAGE_LINE(buf))
+    nsCString charsetIgnored;
+    if (bodyHandler->GetNextLine(buf, charsetIgnored) < 0 || EMPTY_MESSAGE_LINE(buf))
       searchingHeaders = false;
     bool isContinuationHeader = searchingHeaders ? NS_IsAsciiWhitespace(buf.CharAt(0))
                                                    : false;
@@ -957,9 +958,10 @@ nsresult nsMsgSearchTerm::MatchBody (nsIMsgSearchScopeTerm *scope, uint64_t offs
     (PL_strchr (m_value.string, '=') == nullptr);
 
   nsCString compare;
+  nsCString charset;
   while (!endOfFile && result == boolContinueLoop)
   {
-    if (bodyHan->GetNextLine(buf) >= 0)
+    if (bodyHan->GetNextLine(buf, charset) >= 0)
     {
       bool softLineBreak = false;
       // Do in-place decoding of quoted printable
@@ -984,7 +986,9 @@ nsresult nsMsgSearchTerm::MatchBody (nsIMsgSearchScopeTerm *scope, uint64_t offs
         char startChar = (char) compare.CharAt(0);
         if (startChar != '\r' && startChar != '\n')
         {
-          rv = MatchString(compare, folderCharset, &result);
+          rv = MatchString(compare,
+                           charset.IsEmpty() ? folderCharset : charset.get(),
+                           &result);
           lines++;
         }
         compare.Truncate();

@@ -36,6 +36,7 @@ var Files =
   "../../../data/multipart-base64-2",
   "../../../data/bug132340",
 
+  // Base64 encoded bodies.
   "../../../data/01-plaintext.eml",
   "../../../data/02-plaintext+attachment.eml",
   "../../../data/03-HTML.eml",
@@ -45,7 +46,19 @@ var Files =
   "../../../data/07-plaintext+(HTML+embedded-image).eml",
   "../../../data/08-plaintext+HTML+attachment.eml",
   "../../../data/09-(HTML+embedded-image)+attachment.eml",
-  "../../../data/10-plaintext+(HTML+embedded-image)+attachment.eml"
+  "../../../data/10-plaintext+(HTML+embedded-image)+attachment.eml",
+
+  // Bodies with non-ASCII characters in UTF-8 and other charsets.
+  "../../../data/11-plaintext.eml",
+  "../../../data/12-plaintext+attachment.eml",  // using ISO-8859-7 (Greek)
+  "../../../data/13-HTML.eml",
+  "../../../data/14-HTML+attachment.eml",
+  "../../../data/15-HTML+embedded-image.eml",
+  "../../../data/16-plaintext+HMTL.eml",                   // text part is base64 encoded
+  "../../../data/17-plaintext+(HTML+embedded-image).eml",  // HTML part is base64 encoded
+  "../../../data/18-plaintext+HTML+attachment.eml",
+  "../../../data/19-(HTML+embedded-image)+attachment.eml",
+  "../../../data/20-plaintext+(HTML+embedded-image)+attachment.eml"  // using windows-1252
 ]
 var Tests =
 [
@@ -77,6 +90,14 @@ var Tests =
   // The base64 of the plaintext and HTML parts contains "U2VhcmNoIGZ"
   // and we don't want to find that.
   { value: "U2VhcmNoIGZ", op: Contains, count: 0 },
+
+  // Messages 11 and 13 to 20 contain "hühü" once.
+  { value: "hühü", op: Contains, count: 9 },
+  // Message 12 contains Καλησπέρα (good evening in Greek).
+  { value: "Καλησπέρα", op: Contains, count: 1 },
+
+  // Messages 16, 17, 18, 20 contain "hïhï" in the plaintext part.
+  { value: "hïhï", op: Contains, count: 4 },
 ];
 
 function fixFile(file) {
