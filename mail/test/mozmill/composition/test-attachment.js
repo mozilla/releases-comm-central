@@ -23,6 +23,7 @@ var filePrefix;
 
 var os = {};
 ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var rawAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
@@ -305,7 +306,6 @@ function test_forward_message_with_attachments_as_attachment() {
   close_compose_window(cwc);
 }
 
-
 /**
  * Check that the compose window has the attachments we expect.
  *
@@ -321,19 +321,74 @@ function check_attachment_names(aController, aNames) {
 }
 
 /**
- * Execute given actions on attachments and check the expected results.
+ * Execute a test of opening and closing reorderAttachmentsPanel via keyboard.
  *
- * @param aController       The controller for the compose window
- * @param aReorder_actions  An array of objects specifying reordering action:
+ * @param aCwc        The controller for the compose window
+ * @param aActions    An array of objects specifying an action of opening the
+ *                    panel via keyboard.
+ *                    { focusEl: the element to be focused for keypresses
+ *                      key:     keycode of key to press
+ *                      key_modifiers: { accelKey: bool, ctrlKey: bool
+ *                                       shiftKey: bool, altKey: bool, etc. },
+ *                    }
+ */
+function subtest_reordering_panel_keyboard(aCwc, aActions) {
+  let panel = aCwc.e("reorderAttachmentsPanel");
+  let bucket = aCwc.e("attachmentBucket");
+
+  for (let action of aActions) {
+    aCwc.keypress(new elib.Elem(action.focusEl),
+                  action.key, action.key_modifiers);
+    wait_for_popup_to_open(panel);
+    aCwc.sleep(0);
+
+    // Press ESC which should close the panel.
+    aCwc.keypress(null, "VK_ESCAPE", {});
+    aCwc.sleep(0);
+    aCwc.waitFor(() => panel.state == "closed",
+                 "Reordering panel didn't close when Escape was pressed.");
+  }
+}
+
+/**
+ * Execute a test of attachment reordering actions and check the resulting order.
+ *
+ * @param aCwc              The controller for the compose window
+ * @param aInitialAttachmentNames  An array of attachment names specifying the
+ *                                 initial set of attachments to be created
+ * @param aReorder_actions  An array of objects specifying a reordering action:
  *                          { select: array of attachment item indexes to select,
  *                            button: ID of button to click in the reordering menu,
- *                            key:    key to press instead of a click,
- *                            key_modifiers: { shiftKey: bool, accelKey: bool, ctrlKey: bool, altKey: bool },
- *                            result: an array of attachment names that should result
+ *                            key:    keycode of key to press instead of a click,
+ *                            key_modifiers: { accelKey: bool, ctrlKey: bool
+ *                                             shiftKey: bool, altKey: bool, etc.},
+ *                            result: an array of attachment names in the new
+ *                                    order that should result
  *                          }
+ * @param openPanel {boolean}   Whether to open reorderAttachmentsPanel for the test
  */
-function subtest_check_reordering_actions(aController, aReorder_actions) {
-  let bucket = aController.e("attachmentBucket");
+function subtest_reordering(aCwc, aInitialAttachmentNames,
+                            aReorder_actions, aOpenPanel = true) {
+  let bucket = aCwc.e("attachmentBucket");
+  let panel;
+
+  // Create a set of attachments for the test.
+  const size = 1234;
+  for (let name of aInitialAttachmentNames) {
+    add_attachment(aCwc, filePrefix + name, size);
+  }
+  aCwc.sleep(0);
+  assert_equals(aCwc.window.attachmentsCount(), aInitialAttachmentNames.length);
+  check_attachment_names(aCwc, aInitialAttachmentNames);
+
+  if (aOpenPanel) {
+    // Bring up the reordering panel.
+    aCwc.window.showReorderAttachmentsPanel();
+    aCwc.sleep(0);
+    panel = aCwc.e("reorderAttachmentsPanel");
+    wait_for_popup_to_open(panel);
+  }
+
   for (let action of aReorder_actions) {
     // Ensure selection.
     bucket.clearSelection();
@@ -342,42 +397,85 @@ function subtest_check_reordering_actions(aController, aReorder_actions) {
     }
     // Take action.
     if ("button" in action)
-      aController.click(aController.eid(action.button));
+      aCwc.click(aCwc.eid(action.button));
     else if ("key" in action)
-      aController.keypress(null, action.key, action.key_modifiers);
-
+      aCwc.keypress(null, action.key, action.key_modifiers);
+    aCwc.sleep(0);
     // Check result.
-    check_attachment_names(aController, action.result);
+    check_attachment_names(aCwc, action.result);
   }
+
+  if (aOpenPanel) {
+    // Close the panel.
+    panel.hidePopup();
+    aCwc.waitFor(() => panel.state == "closed",
+      "Reordering panel didn't close");
+  }
+
+  // Clean up for a new set of attachments.
+  aCwc.window.RemoveAllAttachments();
 }
 
 /**
- * Bug 663695
- * Check simple attachment reordering operations.
+ * Bug 663695, Bug 1417856, Bug 1426344, Bug 1425891, Bug 1427037.
+ * Check basic and advanced attachment reordering operations.
+ * This is the main function of this test.
  */
 function test_attachment_reordering() {
   let cwc = open_compose_new_mail();
-
-  // Create a set of attachments.
-  const size = 1234;
-  let initialAttachmentNames = ["a", "C", "B", "b", "bb", "x"];
-  for (let name of initialAttachmentNames) {
-    add_attachment(cwc, filePrefix + name, size);
-  }
-
-  assert_equals(cwc.window.attachmentsCount(), initialAttachmentNames.length);
-  check_attachment_names(cwc, initialAttachmentNames);
-
-  // Bring up the reordering panel.
+  let editorEl = cwc.window.GetCurrentEditorElement();
   let bucket = cwc.e("attachmentBucket");
+  let panel = cwc.e("reorderAttachmentsPanel");
+  const openReorderPanelModifiers =
+    (AppConstants.platform == "macosx") ? { controlKey: true }
+                                        : { altKey: true };
+
+  // First, some checks if the 'Reorder Attachments' panel
+  // opens and closes correctly.
+
+  // Create two attachments as otherwise the reordering panel won't open.
+  const size = 1234;
+  const initialAttachmentNames_0 = ["A1", "A2"];
+  for (let name of initialAttachmentNames_0) {
+    add_attachment(cwc, filePrefix + name, size);
+    cwc.sleep(0);
+  }
+  assert_equals(cwc.window.attachmentsCount(), initialAttachmentNames_0.length);
+  check_attachment_names(cwc, initialAttachmentNames_0);
+
+  // Show 'Reorder Attachments' panel via mouse clicks.
   cwc.rightClick(new elib.Elem(bucket.getItemAtIndex(1)));
   cwc.click_menus_in_sequence(cwc.e("msgComposeAttachmentItemContext"),
                               [{ id: "composeAttachmentContext_reorderItem" }]);
-  let panel = cwc.e("reorderAttachmentsPanel");
   wait_for_popup_to_open(panel);
 
-  // Check various moving operations.
-  const reorder_actions_basic = [
+  // Click on the editor which should close the panel.
+  cwc.click(new elib.Elem(editorEl));
+  cwc.waitFor(() => panel.state == "closed",
+    "Reordering panel didn't close when editor was clicked.");
+
+  // Show 'Reorder Attachments' panel via keyboard.
+  // key_reorderAttachments, Bug 1427037
+  const openPanelActions = [
+    { focusEl: editorEl,
+      key: "x",
+      key_modifiers: openReorderPanelModifiers },
+    { focusEl: bucket,
+      key: "x",
+      key_modifiers: openReorderPanelModifiers }
+  ];
+
+  // XXX this doesn't work on any platform yet, ESC doesn't close the panel.
+  // Execute test of opening 'Reorder Attachments' panel via keyboard.
+  // subtest_reordering_panel_keyboard(cwc, openPanelActions);
+
+  // Clean up for a new set of attachments.
+  cwc.window.RemoveAllAttachments();
+
+  // Define checks for various moving operations.
+  // Check 1: basic, mouse-only.
+  const initialAttachmentNames_1 = ["a", "C", "B", "b", "bb", "x"];
+  const reorderActions_1 = [
     { select: [1, 2, 3],
       button: "btn_sortAttachmentsToggle",
       result: ["a", "b", "B", "C", "bb", "x"] },
@@ -388,8 +486,7 @@ function test_attachment_reordering() {
       button: "btn_moveAttachmentTop",
       result: ["x", "a", "b", "B", "bb", "C"] },
     { select: [0],
-      key:    "VK_DOWN",
-      key_modifiers: { altKey: true },
+      button: "btn_moveAttachmentDown",
       result: ["a", "x", "b", "B", "bb", "C"] },
     { select: [1],
       button: "btn_moveAttachmentBottom",
@@ -403,11 +500,267 @@ function test_attachment_reordering() {
       result: ["a", "b", "B", "bb", "C", "x"] }
   ];
 
-  subtest_check_reordering_actions(cwc, reorder_actions_basic);
+  // Check 2: basic and advanced, mouse-only.
+  const initialAttachmentNames_2 = ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"];
+  const reorderActions_2 = [
+    // For starters: moving a single attachment around in the list.
+    { select: [1],
+      button: "btn_moveAttachmentUp",
+      result: ["x", "a", "C", "y1", "y2", "B", "b", "z", "bb"] },
+    { select: [0],
+      button: "btn_moveAttachmentBottom",
+      result: ["a", "C", "y1", "y2", "B", "b", "z", "bb", "x"] },
+    { select: [8],
+      button: "btn_moveAttachmentTop",
+      result: ["x", "a", "C", "y1", "y2", "B", "b", "z", "bb"] },
+    { select: [0],
+      button: "btn_moveAttachmentDown",
+      result: ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"] },
 
-  // Click on the editor which should close the panel.
-  cwc.click(new elib.Elem(cwc.window.GetCurrentEditorElement()));
-  cwc.waitFor(() => panel.state == "closed", "Reordering panel didn't close");
+    // Moving multiple, disjunct selection with inner block up/down as-is.
+    // This feature can be useful for multiple disjunct selection patterns
+    // in an alternating list of attachments like
+    // {photo1.jpg, description1.txt, photo2.jpg, description2.txt},
+    // where the order of alternation should be inverted to become
+    // {description1.txt, photo1.jpg, description2.txt, photo2.txt}.
+    { select: [1, 3, 4, 7],
+      button: "btn_moveAttachmentDown",
+      result: ["a", "C", "x", "B", "y1", "y2", "b", "bb", "z"] },
+    { select: [2, 4, 5, 8],
+      button: "btn_moveAttachmentUp",
+      result: ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"] },
+    { select: [1, 3, 4, 7],
+      button: "btn_moveAttachmentUp",
+      result: ["x", "a", "y1", "y2", "C", "B", "z", "b", "bb"] },
+
+    // Folding multiple, disjunct selection with inner block towards top/bottom.
+    { select: [0, 2, 3, 6],
+      button: "btn_moveAttachmentUp",
+      result: ["x", "y1", "y2", "a", "C", "z", "B", "b", "bb"] },
+    { select: [0, 1, 2, 5],
+      button: "btn_moveAttachmentUp",
+      result: ["x", "y1", "y2", "a", "z", "C", "B", "b", "bb"] },
+    { select: [0, 1, 2, 4],
+      button: "btn_moveAttachmentUp",
+      result: ["x", "y1", "y2", "z", "a", "C", "B", "b", "bb"] },
+    { select: [3, 5, 6, 8],
+      button: "btn_moveAttachmentDown",
+      result: ["x", "y1", "y2", "a", "z", "b", "C", "B", "bb"] },
+    { select: [4, 6, 7, 8],
+      button: "btn_moveAttachmentDown",
+      result: ["x", "y1", "y2", "a", "b", "z", "C", "B", "bb"] },
+
+    // Prepare scenario for and test 'Group together' (upwards).
+    { select: [1, 2],
+      button: "btn_moveAttachmentDown",
+      result: ["x", "a", "y1", "y2", "b", "z", "C", "B", "bb"] },
+    { select: [0, 2, 3, 5],
+      button: "btn_moveAttachmentDown",
+      result: ["a", "x", "b", "y1", "y2", "C", "z", "B", "bb"] },
+    { select: [1, 3, 4, 6],
+      button: "btn_moveAttachmentBundleUp",
+      result: ["a", "x", "y1", "y2", "z", "b", "C", "B", "bb"] },
+    // 'Group together' (downwards) is not tested here because it is
+    // only available via keyboard shortcuts, e.g. Alt+Cursor Right.
+
+    // Sort selected attachments only.
+    // Unsorted multiple selection must be collapsed upwards first if disjunct,
+    // then sorted ascending.
+    { select: [0, 5, 6, 8],
+      button: "btn_sortAttachmentsToggle",
+      result: ["a", "b", "bb", "C", "x", "y1", "y2", "z", "B"] },
+    // Sorted multiple block selection must be sorted the other way round.
+    { select: [0, 1, 2, 3],
+      button: "btn_sortAttachmentsToggle",
+      result: ["C", "bb", "b", "a", "x", "y1", "y2", "z", "B"] },
+    // Sorted, multiple, disjunct selection must just be collapsed upwards.
+    { select: [3, 8],
+      button: "btn_sortAttachmentsToggle",
+      result: ["C", "bb", "b", "a", "B", "x", "y1", "y2", "z"] },
+    { select: [0, 2, 3],
+      button: "btn_sortAttachmentsToggle",
+      result: ["C", "b", "a", "bb", "B", "x", "y1", "y2", "z"] },
+
+    // Bug 1417856: Sort all attachments when 1 or no attachment selected.
+    { select: [1],
+      button: "btn_sortAttachmentsToggle",
+      result: ["a", "b", "B", "bb", "C", "x", "y1", "y2", "z"] },
+    { select: [],
+      button: "btn_sortAttachmentsToggle",
+      result: ["z", "y2", "y1", "x", "C", "bb", "B", "b", "a"] },
+
+    // Collapsing multiple, disjunct selection with inner block to top/bottom.
+    { select: [3, 5, 6, 8],
+      button: "btn_moveAttachmentTop",
+      result: ["x", "bb", "B", "a", "z", "y2", "y1", "C", "b"] },
+    { select: [0, 2, 3, 7],
+      button: "btn_moveAttachmentBottom",
+      result: ["bb", "z", "y2", "y1", "b", "x", "B", "a", "C"] }
+  ];
+
+  // Check 3: basic and advanced, keyboard-only.
+  const initialAttachmentNames_3 = ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"];
+  const modAlt = { altKey: true };
+  const modifiers2 = (AppConstants.platform == "macosx") ? { accelKey: true,
+                                                             altKey: true }
+                                                         : { altKey: true };
+  const reorderActions_3 = [
+    // For starters: moving a single attachment around in the list.
+    { select: [1],
+      // key_moveAttachmentUp
+      key:    "VK_UP",
+      key_modifiers: modAlt,
+      result: ["x", "a", "C", "y1", "y2", "B", "b", "z", "bb"] },
+    { select: [0],
+      // key_moveAttachmentBottom
+      key:    (AppConstants.platform == "macosx") ? "VK_DOWN" : "VK_END",
+      key_modifiers: modifiers2,
+      result: ["a", "C", "y1", "y2", "B", "b", "z", "bb", "x"] },
+    { select: [8],
+      // key_moveAttachmentTop
+      key:    (AppConstants.platform == "macosx") ? "VK_UP" : "VK_HOME",
+      key_modifiers: modifiers2,
+      result: ["x", "a", "C", "y1", "y2", "B", "b", "z", "bb"] },
+    { select: [0],
+      // key_moveAttachmentBottom2 (secondary shortcut on MAC, same as Win primary)
+      key:    "VK_END",
+      key_modifiers: modAlt,
+      result: ["a", "C", "y1", "y2", "B", "b", "z", "bb", "x"] },
+    { select: [8],
+      // key_moveAttachmentTop2 (secondary shortcut on MAC, same as Win primary)
+      key:    "VK_HOME",
+      key_modifiers: modAlt,
+      result: ["x", "a", "C", "y1", "y2", "B", "b", "z", "bb"] },
+    { select: [0],
+      // key_moveAttachmentDown
+      key:    "VK_DOWN",
+      key_modifiers: modAlt,
+      result: ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"] },
+
+    // Moving multiple, disjunct selection with inner block up/down as-is.
+    // This feature can be useful for multiple disjunct selection patterns
+    // in an alternating list of attachments like
+    // {photo1.jpg, description1.txt, photo2.jpg, description2.txt},
+    // where the order of alternation should be inverted to become
+    // {description1.txt, photo1.jpg, description2.txt, photo2.txt}.
+    { select: [1, 3, 4, 7],
+      // key_moveAttachmentDown
+      key:    "VK_DOWN",
+      key_modifiers: modAlt,
+      result: ["a", "C", "x", "B", "y1", "y2", "b", "bb", "z"] },
+    { select: [2, 4, 5, 8],
+      // key_moveAttachmentUp
+      key:    "VK_UP",
+      key_modifiers: modAlt,
+      result: ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"] },
+    { select: [1, 3, 4, 7],
+      // key_moveAttachmentUp
+      key:    "VK_UP",
+      key_modifiers: modAlt,
+      result: ["x", "a", "y1", "y2", "C", "B", "z", "b", "bb"] },
+
+    // Folding multiple, disjunct selection with inner block towards top/bottom.
+    { select: [0, 2, 3, 6],
+      // key_moveAttachmentUp
+      key:    "VK_UP",
+      key_modifiers: modAlt,
+      result: ["x", "y1", "y2", "a", "C", "z", "B", "b", "bb"] },
+    { select: [0, 1, 2, 5],
+      // key_moveAttachmentUp
+      key:    "VK_UP",
+      key_modifiers: modAlt,
+      result: ["x", "y1", "y2", "a", "z", "C", "B", "b", "bb"] },
+    { select: [0, 1, 2, 4],
+      // key_moveAttachmentUp
+      key:    "VK_UP",
+      key_modifiers: modAlt,
+      result: ["x", "y1", "y2", "z", "a", "C", "B", "b", "bb"] },
+    { select: [3, 5, 6, 8],
+      // key_moveAttachmentDown
+      key:    "VK_DOWN",
+      key_modifiers: modAlt,
+      result: ["x", "y1", "y2", "a", "z", "b", "C", "B", "bb"] },
+    { select: [4, 6, 7, 8],
+      // key_moveAttachmentDown
+      key:    "VK_DOWN",
+      key_modifiers: modAlt,
+      result: ["x", "y1", "y2", "a", "b", "z", "C", "B", "bb"] },
+
+    // Prepare scenario for and test 'Group together' (upwards/downwards).
+    { select: [1, 2],
+      // key_moveAttachmentDown
+      key:    "VK_DOWN",
+      key_modifiers: modAlt,
+      result: ["x", "a", "y1", "y2", "b", "z", "C", "B", "bb"] },
+    { select: [0, 2, 3, 5],
+      // key_moveAttachmentDown
+      key:    "VK_DOWN",
+      key_modifiers: modAlt,
+      result: ["a", "x", "b", "y1", "y2", "C", "z", "B", "bb"] },
+    { select: [1, 3, 4, 6],
+      // key_moveAttachmentBundleUp
+      key:    "VK_LEFT",
+      key_modifiers: modAlt,
+      result: ["a", "x", "y1", "y2", "z", "b", "C", "B", "bb"] },
+    { select: [5, 6],
+      // key_moveAttachmentUp
+      key:    "VK_UP",
+      key_modifiers: modAlt,
+      result: ["a", "x", "y1", "y2", "b", "C", "z", "B", "bb"] },
+    { select: [0, 4, 5, 7],
+      // key_moveAttachmentBundleDown
+      key:    "VK_RIGHT",
+      key_modifiers: modAlt,
+      result: ["x", "y1", "y2", "z", "a", "b", "C", "B", "bb"] },
+
+    // Collapsing multiple, disjunct selection with inner block to top/bottom.
+    { select: [0, 4, 5, 7],
+      // key_moveAttachmentTop
+      key:    (AppConstants.platform == "macosx") ? "VK_UP" : "VK_HOME",
+      key_modifiers: modifiers2,
+      result: ["x", "a", "b", "B", "y1", "y2", "z", "C", "bb"] },
+    { select: [0, 4, 5, 6],
+      // key_moveAttachmentBottom
+      key:    (AppConstants.platform == "macosx") ? "VK_DOWN" : "VK_END",
+      key_modifiers: modifiers2,
+      result: ["a", "b", "B", "C", "bb", "x", "y1", "y2", "z"] },
+    { select: [0, 1, 3, 4],
+      // key_moveAttachmentBottom2 (secondary shortcut on MAC, same as Win primary)
+      key:    "VK_END",
+      key_modifiers: modAlt,
+      result: ["B", "x", "y1", "y2", "z", "a", "b", "C", "bb"] },
+    { select: [5, 6, 7, 8],
+      // key_moveAttachmentTop2 (secondary shortcut on MAC, same as Win primary)
+      key:    "VK_HOME",
+      key_modifiers: modAlt,
+      result: ["a", "b", "C", "bb", "B", "x", "y1", "y2", "z"] }
+  ];
+
+  // Check 4: Alt+Y keyboard shortcut for sorting (Bug 1425891).
+  const initialAttachmentNames_4 = ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"];
+
+  const reorderActions_4 = [
+    { select: [1],
+      // key_sortAttachmentsToggle
+      key:    "y",
+      key_modifiers: modAlt,
+      result: ["a", "b", "B", "bb", "C", "x", "y1", "y2", "z"] }
+  ];
+
+  // Execute the tests of reordering actions as defined above.
+  subtest_reordering(cwc, initialAttachmentNames_1, reorderActions_1);
+  subtest_reordering(cwc, initialAttachmentNames_2, reorderActions_2);
+  // Check 3 (keyboard-only) with panel open.
+  subtest_reordering(cwc, initialAttachmentNames_3, reorderActions_3);
+  // Check 3 (keyboard-only) without panel.
+  subtest_reordering(cwc, initialAttachmentNames_3, reorderActions_3, false);
+  // Check 4 (Alt+Y keyboard shortcut for sorting) without panel.
+  subtest_reordering(cwc, initialAttachmentNames_4, reorderActions_4, false);
+  // Check 4 (Alt+Y keyboard shortcut for sorting) with panel open.
+  subtest_reordering(cwc, initialAttachmentNames_4, reorderActions_4);
+  // XXX When the root problem of bug 1425891 has been found and fixed, we should
+  // test here if the panel stays open as it should, esp. on Windows.
+
   close_compose_window(cwc);
 }
 
