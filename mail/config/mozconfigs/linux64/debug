@@ -28,4 +28,4 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
 
-. "$topsrcdir/build/mozconfig.cache"
+. "$commtopsrcdir/build/mozconfig.sccache"

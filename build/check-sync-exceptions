@@ -9,6 +9,9 @@ mozconfig.cache
 mozconfig.comm-support
 virtualenv_packages.txt
 
+# Use comm-central buckets for sccache.
+mozconfig.sccache
+
 # Ignore detritus left lying around by editing tools.
 *~
 .#*

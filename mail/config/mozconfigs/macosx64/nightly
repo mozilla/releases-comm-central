@@ -23,7 +23,7 @@ MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_ADDON_SIGNING=0
 
-. "$topsrcdir/build/mozconfig.cache"
+. "$commtopsrcdir/build/mozconfig.sccache"
 
 if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
   # XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1382262)
