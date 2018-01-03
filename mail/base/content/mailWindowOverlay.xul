@@ -2165,8 +2165,8 @@
                           key="key_devtoolsToolbox"
                           oncommand="BrowserToolboxProcess.init();"/>
                 <menuitem id="appmenu_addonDebugging"
-                          label="&addonDebugCmd.label;"
-                          accesskey="&addonDebugCmd.accesskey;"
+                          label="&debugAddonsCmd.label;"
+                          accesskey="&debugAddonsCmd.accesskey;"
                           oncommand="openAboutDebugging('addons')"/>
                 <menuitem id="appmenu_tabsDebugging"
                           label="&tabsDebugCmd.label;"
@@ -3093,8 +3093,8 @@
                       key="key_devtoolsToolbox"
                       oncommand="BrowserToolboxProcess.init();"/>
             <menuitem id="addonDebugging"
-                      label="&addonDebugCmd.label;"
-                      accesskey="&addonDebugCmd.accesskey;"
+                      label="&debugAddonsCmd.label;"
+                      accesskey="&debugAddonsCmd.accesskey;"
                       oncommand="openAboutDebugging('addons')"/>
             <menuitem id="tabsDebugging"
                       label="&tabsDebugCmd.label;"
