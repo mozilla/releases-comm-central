@@ -3240,6 +3240,25 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(const nsAString& chvalue)
         oldFolder->ClearFlag(nsMsgFolderFlags::Trash);
     }
   }
+
+  // If the user configured delete mode (model) is currently "move to trash",
+  // mark the newly designated trash folder name as the active trash
+  // destination folder.
+  int32_t deleteModel;
+  rv = GetDeleteModel(&deleteModel);
+  if (NS_SUCCEEDED(rv) && (deleteModel == nsMsgImapDeleteModels::MoveToTrash))
+  {
+    nsAutoCString newTrashNameUtf7;
+    rv = CopyUTF16toMUTF7(PromiseFlatString(chvalue), newTrashNameUtf7);
+    if (NS_SUCCEEDED(rv))
+    {
+      nsCOMPtr<nsIMsgFolder> newTrashFolder;
+      rv = GetFolder(newTrashNameUtf7, getter_AddRefs(newTrashFolder));
+      if (NS_SUCCEEDED(rv) && newTrashFolder)
+        newTrashFolder->SetFlag(nsMsgFolderFlags::Trash);
+    }
+  }
+
   return SetUnicharValue(PREF_TRASH_FOLDER_PATH, chvalue);
 }
 
