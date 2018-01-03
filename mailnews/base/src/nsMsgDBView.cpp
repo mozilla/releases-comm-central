@@ -422,10 +422,21 @@ nsMsgDBView::FetchAuthor(nsIMsgDBHdr * aHdr,
   {
     // We can't use the display name in the card; use the name contained in
     // the header or email address.
-    if (!name.IsEmpty())
-      aSenderString = name;
-    else
+    if (name.IsEmpty()) {
       CopyUTF8toUTF16(emailAddress, aSenderString);
+    } else {
+      uint32_t atPos;
+      if ((atPos = name.FindChar('@')) == kNotFound ||
+          name.FindChar('.', atPos) == kNotFound) {
+        aSenderString = name;
+      } else {
+        // Found @ followed by a dot, so this looks like a spoofing case.
+        aSenderString = name;
+        aSenderString.AppendLiteral(" <");
+        AppendUTF8toUTF16(emailAddress, aSenderString);
+        aSenderString.Append('>');
+      }
+    }
   }
 
   UpdateCachedName(aHdr, "sender_name", aSenderString);
