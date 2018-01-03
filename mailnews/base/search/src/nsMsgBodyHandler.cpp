@@ -433,7 +433,12 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
       (start = lowerCaseLine.Find("charset=", /* ignoreCase = */ true)) != -1)
   {
     start += 8;  // strlen("charset=")
-    int32_t end = line.RFindChar(';');
+    bool foundQuote = false;
+    if (line[start] == '\"') {
+      start++;
+      foundQuote = true;
+    }
+    int32_t end = line.FindChar(foundQuote ? '\"' : ';', start);
     if (end == -1)
       end = line.Length();
 
