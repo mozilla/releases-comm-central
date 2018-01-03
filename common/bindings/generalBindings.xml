@@ -38,4 +38,15 @@
                 onset="this.setAttribute('src',val); return val;"/>
     </implementation>
   </binding>
+
+  <binding id="dialogheader">
+    <resources>
+      <stylesheet src="chrome://global/skin/dialog.css"/>
+    </resources>
+    <content>
+      <xul:label class="dialogheader-title" xbl:inherits="value=title,crop" crop="right" flex="1"/>
+      <xul:label class="dialogheader-description" xbl:inherits="value=description"/>
+    </content>
+  </binding>
+
 </bindings>

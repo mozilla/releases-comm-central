@@ -87,3 +87,22 @@ description {
 #archiveTree > treechildren {
   background-color: #FFFFFF;
 }
+
+/* ::::: dialog header ::::: */
+
+dialogheader {
+  -moz-binding: url("chrome://messenger/content/generalBindings.xml#dialogheader");
+  margin: 0 5px 5px;
+  padding: 5px 8px;
+}
+
+.dialogheader-title {
+  margin: 0 !important;
+  font-size: larger;
+  font-weight: bold;
+  display: none;
+}
+
+.dialogheader-description {
+  font-weight: bold !important;
+}
