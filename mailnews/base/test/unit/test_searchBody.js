@@ -58,7 +58,19 @@ var Files =
   "../../../data/17-plaintext+(HTML+embedded-image).eml",  // HTML part is base64 encoded
   "../../../data/18-plaintext+HTML+attachment.eml",
   "../../../data/19-(HTML+embedded-image)+attachment.eml",
-  "../../../data/20-plaintext+(HTML+embedded-image)+attachment.eml"  // using windows-1252
+  "../../../data/20-plaintext+(HTML+embedded-image)+attachment.eml",  // using windows-1252
+
+  // Bodies with non-ASCII characters in UTF-8 and other charsets, all encoded with quoted printable.
+  "../../../data/21-plaintext.eml",
+  "../../../data/22-plaintext+attachment.eml",  // using ISO-8859-7 (Greek)
+  "../../../data/23-HTML.eml",
+  "../../../data/24-HTML+attachment.eml",
+  "../../../data/25-HTML+embedded-image.eml",
+  "../../../data/26-plaintext+HMTL.eml",                   // text part is base64 encoded
+  "../../../data/27-plaintext+(HTML+embedded-image).eml",  // HTML part is base64 encoded
+  "../../../data/28-plaintext+HTML+attachment.eml",
+  "../../../data/29-(HTML+embedded-image)+attachment.eml",
+  "../../../data/30-plaintext+(HTML+embedded-image)+attachment.eml"  // using windows-1252
 ]
 var Tests =
 [
@@ -98,6 +110,14 @@ var Tests =
 
   // Messages 16, 17, 18, 20 contain "hïhï" in the plaintext part.
   { value: "hïhï", op: Contains, count: 4 },
+
+  // Messages 21 and 23 to 30 contain "höhö" once.
+  { value: "höhö", op: Contains, count: 9 },
+  // Message 22 contains Καλημέρα (good morning in Greek).
+  { value: "Καλημέρα", op: Contains, count: 1 },
+
+  // Messages 16, 17, 18, 20 contain "hähä" in the plaintext part.
+  { value: "hähä", op: Contains, count: 4 },
 ];
 
 function fixFile(file) {
