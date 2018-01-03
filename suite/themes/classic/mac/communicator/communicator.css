@@ -207,3 +207,19 @@ treecols:-moz-lwtheme {
 .messageImage[value="blocked-badware-page"] {
   list-style-image: url("chrome://global/skin/icons/blacklist_favicon.png");
 }
+
+/* ::::: status bar panels ::::: */
+
+.statusbarpanel-iconic {
+  padding: 0px;
+}
+
+.statusbarpanel-backgroundbox {
+  -moz-box-align: stretch;
+  padding: 0px;
+}
+
+.statusbarpanel-backgroundbox > .statusbarpanel-contentbox {
+  padding: 0px 1px;
+  -moz-box-align: center;
+}

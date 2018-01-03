@@ -125,14 +125,6 @@ statusbarpanel {
   padding: 0px;
 }
 
-.statusbarpanel-iconic {
-  padding: 0px;
-}
-
-.statusbarpanel-text {
-  margin: 0px !important;
-}
-
 /* Override resizer.css for "normal" resizers */
 resizer {
   background-color: transparent;

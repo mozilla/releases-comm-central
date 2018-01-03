@@ -166,6 +166,14 @@ prefwindow[overflow="auto"] prefpane > .content-box {
   overflow: auto;
 }
 
+.statusbarpanel-iconic {
+  -moz-binding: url("chrome://communicator/content/bindings/general.xml#statusbarpanel-iconic");
+}
+
+.statusbarpanel-iconic-text {
+  -moz-binding: url("chrome://communicator/content/bindings/general.xml#statusbarpanel-iconic-text");
+}
+
 .statusbarpanel-backgroundbox {
   -moz-binding: url("chrome://communicator/content/bindings/general.xml#statusbarpanel-backgroundbox");
 }
