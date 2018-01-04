@@ -710,9 +710,6 @@ interface nsIMsgFolder : nsISupports {
   void ListDescendants(in nsIMutableArray aDescendants);
   void Shutdown(in boolean shutdownChildren);
 
-  // XXX inVFEditSearchScope only used by Seamonkey for the virtualFolderProperties.js
-  readonly attribute boolean inVFEditSearchScope;
-  void setInVFEditSearchScope(in boolean aSearchThisFolder, in boolean aSetOnSubFolders);
   void copyDataToOutputStreamForAppend(in nsIInputStream aIStream,
                      in long aLength, in nsIOutputStream outputStream);
   void copyDataDone();

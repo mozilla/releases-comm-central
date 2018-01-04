@@ -16,6 +16,6 @@ treechildren::-moz-tree-image(selectedColumn) {
   list-style-image: url("chrome://global/skin/checkbox/cbox.gif");
 }
 
-treechildren::-moz-tree-image(selectedColumn, inVFEditSearchScope-true) {
+treechildren::-moz-tree-image(selectedColumn, selected-true) {
   list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
 }

@@ -25,7 +25,7 @@ var gSelectVirtual = {
 
       let properties = "selectedColumn";
       if (gSelectVirtual._selectedList.has(this._folder))
-        properties += " inVFEditSearchScope-true";
+        properties += " selected-true";
 
       return properties;
     }

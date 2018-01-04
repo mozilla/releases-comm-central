@@ -39,7 +39,6 @@ extern const nsLiteralCString kDefaultServer;
 extern const nsLiteralCString kFlagged;
 extern const nsLiteralCString kFolderFlag;
 extern const nsLiteralCString kFolderSize;
-extern const nsLiteralCString kInVFEditSearchScope;
 extern const nsLiteralCString kIsDeferred;
 extern const nsLiteralCString kIsSecure;
 extern const nsLiteralCString kJunkStatusChanged;
@@ -253,8 +252,6 @@ protected:
   nsString mName;
   nsCOMPtr<nsIFile> mPath;
   nsCString mBaseMessageURI; //The uri with the message scheme
-
-  bool mInVFEditSearchScope ; // non persistant state used by the virtual folder UI
 
   // static stuff for cross-instance objects like atoms
   static NS_MSG_BASE_STATIC_MEMBER_(nsrefcnt) gInstanceCount;

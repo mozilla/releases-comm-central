@@ -108,7 +108,6 @@ NS_NAMED_LITERAL_CSTRING(kDefaultServer, "DefaultServer");
 NS_NAMED_LITERAL_CSTRING(kFlagged, "Flagged");
 NS_NAMED_LITERAL_CSTRING(kFolderFlag, "FolderFlag");
 NS_NAMED_LITERAL_CSTRING(kFolderSize, "FolderSize");
-NS_NAMED_LITERAL_CSTRING(kInVFEditSearchScope, "inVFEditSearchScope");
 NS_NAMED_LITERAL_CSTRING(kIsDeferred, "isDeferred");
 NS_NAMED_LITERAL_CSTRING(kIsSecure, "isSecure");
 NS_NAMED_LITERAL_CSTRING(kJunkStatusChanged, "JunkStatusChanged");
@@ -161,8 +160,7 @@ nsMsgDBFolder::nsMsgDBFolder(void)
   mNumNewBiffMessages(0),
   mHaveParsedURI(false),
   mIsServerIsValid(false),
-  mIsServer(false),
-  mInVFEditSearchScope (false)
+  mIsServer(false)
 {
   if (mInstanceCount++ <=0) {
     initializeStrings();
@@ -5437,20 +5435,6 @@ NS_IMETHODIMP nsMsgDBFolder::CompareSortKeys(nsIMsgFolder *aFolder, int32_t *sor
   PR_Free(sortKey1);
   PR_Free(sortKey2);
   return rv;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::GetInVFEditSearchScope (bool *aInVFEditSearchScope)
-{
-  *aInVFEditSearchScope = mInVFEditSearchScope;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::SetInVFEditSearchScope (bool aInVFEditSearchScope, bool aSetOnSubFolders)
-{
-  bool oldInVFEditSearchScope = mInVFEditSearchScope;
-  mInVFEditSearchScope = aInVFEditSearchScope;
-  NotifyBoolPropertyChanged(kInVFEditSearchScope, oldInVFEditSearchScope, mInVFEditSearchScope);
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::FetchMsgPreviewText(nsMsgKey *aKeysToFetch, uint32_t aNumKeys,
