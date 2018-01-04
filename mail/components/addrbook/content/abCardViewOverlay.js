@@ -248,7 +248,7 @@ function DisplayCardViewPane(realCard)
   if (visible)
     mapURLList.initMapAddressFromCard(card, "Home");
 
-  cvSetVisible(data.cvbHomeMapItBox, !!mapURLList.mapURL);
+  cvSetVisible(data.cvbHomeMapItBox, visible && !!mapURLList.mapURL);
 
   visible = HandleLink(data.cvHomeWebPage, "", card.getProperty("WebPage2"),
                        data.cvHomeWebPageBox, card.getProperty("WebPage2")) ||
@@ -378,7 +378,7 @@ function DisplayCardViewPane(realCard)
   if (addressVisible)
     mapURLList.initMapAddressFromCard(card, "Work");
 
-  cvSetVisible(data.cvbWorkMapItBox, !!mapURLList.mapURL);
+  cvSetVisible(data.cvbWorkMapItBox, addressVisible && !!mapURLList.mapURL);
 
         visible = HandleLink(data.cvWorkWebPage, "",
                              card.getProperty("WebPage1"),
