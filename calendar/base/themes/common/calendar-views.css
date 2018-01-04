@@ -864,12 +864,6 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
     border: solid ThreeDShadow;
 }
 
-#view-tabs .tabs-left,
-#view-tabs .tabs-right {
-    border-bottom: 1px solid ThreeDShadow;
-    -moz-border-bottom-colors: none;
-}
-
 tab[calview] {
     -moz-appearance: none;
     border-top-left-radius: 4px;

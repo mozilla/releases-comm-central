@@ -59,11 +59,6 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
     border-width: 0 0 0 1px;
 }
 
-#view-tabs .tabs-left,
-#view-tabs .tabs-right {
-    width: 0;
-}
-
 #view-tabs {
     padding-right: 20px;
 }
@@ -91,7 +86,7 @@ tab[calview][selected="true"]:hover {
 }
 
 tab[calview]:hover {
-    background-color: #F6F6F6;    
+    background-color: #F6F6F6;
 }
 
 tab[calview] > .tab-middle {
