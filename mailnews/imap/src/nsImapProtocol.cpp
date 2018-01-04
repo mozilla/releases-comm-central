@@ -6928,12 +6928,12 @@ bool nsImapProtocol::RenameHierarchyByHand(const char *oldParentMailboxName,
         // calculate the new name and do the rename
         nsCString newChildName(newParentMailboxName);
         newChildName += (currentName + PL_strlen(oldParentMailboxName));
-        RenameMailboxRespectingSubscriptions(currentName,
-                                             newChildName.get(),
-                                             nonHierarchicalRename);
-        // pass in xNonHierarchicalRename to determine if we should really
-        // reanme, or just move subscriptions
-        renameSucceeded = GetServerStateParser().LastCommandSuccessful();
+        // Pass in 'nonHierarchicalRename' to determine if we should really
+        // reanme, or just move subscriptions.
+        renameSucceeded =
+          RenameMailboxRespectingSubscriptions(currentName,
+                                               newChildName.get(),
+                                               nonHierarchicalRename);
         PR_FREEIF(currentName);
     }
 

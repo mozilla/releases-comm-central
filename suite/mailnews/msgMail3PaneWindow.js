@@ -297,6 +297,8 @@ var folderListener =
         HandleCompactCompleted(folder);
       }
       else if (event == "RenameCompleted") {
+        // Clear this so we don't try to clear its new messages.
+        gMsgFolderSelected = null;
         SelectFolder(folder.URI);
       }
       else if (event == "JunkStatusChanged") {
