@@ -357,7 +357,6 @@
 @RESPATH@/components/layout_xul.xpt
 @RESPATH@/components/xulapp.xpt
 @RESPATH@/components/xul.xpt
-@RESPATH@/components/xultmpl.xpt
 
 @RESPATH@/components/inspector.xpt
 
