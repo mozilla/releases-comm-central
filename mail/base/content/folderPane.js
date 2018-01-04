@@ -2,12 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Implements a tree of folders. It shows icons depending on folder type
+// and other fancy styling.
+// This is used in the main folder pane, but also some dialogs that need
+// to show a nice list of folders.
+
 Components.utils.import("resource:///modules/folderUtils.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/MailUtils.js");
 Components.utils.import("resource:///modules/IOUtils.js");
+Components.utils.import("resource:///modules/FeedUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+
+if (typeof FeedMessageHandler != "object")
+  Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/newsblogOverlay.js");
 
 var kDefaultMode = "all";
 
@@ -180,9 +189,6 @@ var gFolderTreeView = {
    * onload.  That means removing our listener and serializing our JSON.
    */
   unload: function ftv_unload(aJSONFile) {
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
-
     // Remove our listener
     MailServices.mailSession.RemoveFolderListener(this);
 
@@ -278,6 +284,8 @@ var gFolderTreeView = {
    *                to the pref, not toggle them.
    */
   toggleCols: function(aSetup = false) {
+    if (this._treeElement.getAttribute("simplelist") == "true")
+      return;
     let hide = Services.prefs.getBoolPref("mail.folderpane.showColumns");
     if (aSetup)
       hide = !hide;
@@ -286,6 +294,8 @@ var gFolderTreeView = {
                             "folderTotalCol", "folderSizeCol"])
     {
       let column = document.getElementById(columnName);
+      if (!column)
+        continue;
       if (hide) {
         column.setAttribute("hideheader", "true");
         column.removeAttribute("label");
@@ -368,17 +378,23 @@ var gFolderTreeView = {
     let menuitem = document.getElementById("menu_compactFolderView");
     let appmenuitem = document.getElementById("appmenu_compactFolderView");
     if (checked) {
-      menuitem.setAttribute("checked", "true");
-      appmenuitem.setAttribute("checked", "true");
+      if (menuitem)
+       menuitem.setAttribute("checked", "true");
+      if (appmenuitem)
+        appmenuitem.setAttribute("checked", "true");
     } else {
-      menuitem.removeAttribute("checked");
-      appmenuitem.removeAttribute("checked");
+      if (menuitem)
+        menuitem.removeAttribute("checked");
+      if (appmenuitem)
+        appmenuitem.removeAttribute("checked");
     }
     let baseMode = this.baseMode(aMode);
     let compactToggleable = (baseMode in this._modes) &&
                             (this.fullMode(baseMode, true) in this._modes);
-    menuitem.disabled = !compactToggleable;
-    appmenuitem.disabled = !compactToggleable;
+    if (menuitem)
+      menuitem.disabled = !compactToggleable;
+    if (appmenuitem)
+      appmenuitem.disabled = !compactToggleable;
   },
 
   /**
@@ -936,9 +952,13 @@ var gFolderTreeView = {
       this._tree.invalidateRow(aRow);
     });
 
-    // Cache empty string initiallly to return default while getting favicon,
+    // Cache empty string initially to return default while getting favicon,
     // so as to never return here. Alternatively, a blank image could be cached.
     this.setFolderCacheProperty(folder, "favicon", "");
+
+
+    if (this._treeElement.getAttribute("simplelist") == "true")
+      return;
 
     // On startup, allow the ui to paint first before spawning potentially
     // many requests for favicons, even though they are async.
@@ -1100,6 +1120,10 @@ var gFolderTreeView = {
         this._tree.rowCountChanged(aIndex + 1, this._rowMap.length - oldCount);
         this._tree.invalidateRow(aIndex);
       }
+
+      if (this._treeElement.getAttribute("simplelist") == "true")
+        return;
+
       // if this was a server that was expanded, let it update its counts
       let folder = this._rowMap[aIndex]._folder;
       if (aExpandServer) {
@@ -2243,8 +2267,7 @@ var gFolderTreeView = {
 /**
  * The ftvItem object represents a single row in the tree view. Because I'm lazy
  * I'm just going to define the expected interface here.  You are free to return
- * an alternative object in a _mapGenerator, provided that it matches this
- * interface:
+ * an alternative object, provided that it matches this interface:
  *
  * id (attribute) - a unique string for this object. Must persist over sessions
  * text (attribute) - the text to display in the tree
@@ -2303,10 +2326,15 @@ ftvItem.prototype = {
           text = this._folder.server.prettyName;
         else {
           text = this._folder.abbreviatedName;
-          if (this.addServerName)
+          if (this.addServerName) {
             text = gFolderTreeView.messengerBundle.getFormattedString(
               "folderWithAccount", [text, this._folder.server.prettyName]);
+          }
         }
+
+        // In a simple list tree we don't care for attributes other than folder name.
+        if (gFolderTreeView._treeElement.getAttribute("simplelist") == "true")
+          return text;
 
         // If the unread column is shown, we don't need to add the count
         // to the name.
@@ -2499,7 +2527,6 @@ var gFolderTreeController = {
       this.editVirtualFolder(folder);
       return;
     }
-
     let title = gFolderTreeView.messengerBundle
                                .getString("folderProperties");
 

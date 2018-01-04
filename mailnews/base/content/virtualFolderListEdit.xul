@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+   -->
+
+<?xml-stylesheet href="chrome://messenger/skin/virtualFolderListDialog.css" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/virtualFolderListDialog.dtd">
+
+<dialog id="searchFolderWindow"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&virtualFolderListTitle.title;"
+        windowtype="mailnews:virtualFolderList"
+        style="width: 27em; height: 25em;"
+        persist="width height screenX screenY"
+        onload="gSelectVirtual.load();"
+        ondialogaccept="return gSelectVirtual.onAccept();"
+        ondialogcancel="return gSelectVirtual.onCancel();">
+
+  <script type="application/javascript"
+          src="chrome://messenger/content/virtualFolderListEdit.js"/>
+  <script type="application/javascript"
+          src="chrome://messenger/content/folderPane.js"/>
+
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+  </stringbundleset>
+
+  <label control="folderPickerTree">&virtualFolderDesc.label;</label>
+
+    <tree id="folderPickerTree"
+          flex="1"
+          hidecolumnpicker="true"
+          seltype="multiple"
+          disableKeyNavigation="true"
+          simplelist="true"
+          mode="virtual"
+          onkeypress="gSelectVirtual.onKeyPress(event);"
+          onclick="gSelectVirtual.onClick(event);">
+      <treecols>
+        <treecol id="folderNameCol" label="&folderName.label;"
+                 flex="10" primary="true" crop="center"/>
+        <treecol id="selectedCol" label="&folderSearch.label;" flex="1" cycler="true"/>
+      </treecols>
+
+      <treechildren/>
+    </tree>
+</dialog>

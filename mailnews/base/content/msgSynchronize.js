@@ -33,7 +33,6 @@ function OnLoad()
 
 function syncOkButton()
 {
-
     var syncMail = document.getElementById("syncMail").checked;
     var syncNews = document.getElementById("syncNews").checked;
     var sendMessage = document.getElementById("sendMessage").checked;
@@ -56,10 +55,12 @@ function syncOkButton()
 
 function OnSelect()
 {
-   top.window.openDialog("chrome://messenger/content/msgSelectOffline.xul", "",
+   top.window.openDialog("chrome://messenger/content/msgSelectOfflineFolders.xul", "",
                          "centerscreen,chrome,modal,titlebar,resizable=yes");
    return true;
 }
+
+// All the code below is only used by Seamonkey.
 
 function selectOkButton()
 {

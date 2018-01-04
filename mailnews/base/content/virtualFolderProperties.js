@@ -223,7 +223,7 @@ function chooseFoldersToSearch()
   // if we have some search folders already, then root the folder picker dialog off the account
   // for those folders. Otherwise fall back to the preselectedfolderURI which is the parent folder
   // for this new virtual folder.
-  var dialog = window.openDialog("chrome://messenger/content/virtualFolderListDialog.xul", "",
+  var dialog = window.openDialog("chrome://messenger/content/virtualFolderListEdit.xul", "",
                                  "chrome,titlebar,modal,centerscreen,resizable",
                                  {searchFolderURIs:gSearchFolderURIs,
                                   okCallback:onFolderListDialogCallback});

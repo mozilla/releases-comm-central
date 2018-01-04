@@ -1,0 +1,107 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var gSelectOffline = {
+  _treeElement: null,
+  _rollbackMap: new Map(),
+
+  load: function() {
+    let oldProps = ftvItem.prototype.getProperties;
+    ftvItem.prototype.getProperties = function(aColumn) {
+      if (!aColumn || aColumn.id != "syncCol")
+        return oldProps.call(this, aColumn);
+
+      let properties = "syncCol";
+
+      if (this._folder.isServer)
+        return " isServer-true";
+
+      if (this._folder.getFlag(nsMsgFolderFlags.Offline))
+        properties += " synchronize-true";
+
+      return properties;
+    }
+
+    let modeOffline = {
+      __proto__: IFolderTreeMode,
+
+      generateMap: function(ftv) {
+        let filterOffline = function(aFolder) { return aFolder.supportsOffline; }
+        let accounts = gFolderTreeView._sortedAccounts()
+                         .filter(acct => filterOffline(acct.incomingServer.rootFolder));
+        // Force each root folder to do its local subfolder discovery.
+        MailUtils.discoverFolders();
+        return accounts.map(acct => new ftvItem(acct.incomingServer.rootFolder,
+                                                filterOffline));
+      }
+    };
+
+    this._treeElement = document.getElementById("synchronizeTree");
+
+    gFolderTreeView.registerFolderTreeMode(this._treeElement.getAttribute("mode"),
+                                           modeOffline, "Offline Folders");
+    gFolderTreeView.load(this._treeElement);
+
+  },
+
+  onKeyPress: function(aEvent) {
+    // For now, only do something on space key.
+    if (aEvent.charCode != Components.interfaces.nsIDOMKeyEvent.DOM_VK_SPACE)
+      return;
+
+    let selection = this._treeElement.view.selection;
+    let start = {};
+    let end = {};
+    let numRanges = selection.getRangeCount();
+
+    for (let range = 0; range < numRanges; range++) {
+      selection.getRangeAt(range, start, end);
+      for (let i = start.value; i <= end.value; i++) {
+        this._toggle(i);
+      }
+    }
+  },
+
+  onClick: function(aEvent) {
+    // We only care about button 0 (left click) events.
+    if (aEvent.button != 0)
+      return;
+
+    let row = {};
+    let col = {};
+    this._treeElement.treeBoxObject
+        .getCellAt(aEvent.clientX, aEvent.clientY, row, col, {});
+
+    if (row.value == -1 || col.value.id != "syncCol")
+      return;
+
+    this._toggle(row.value);
+  },
+
+  _toggle: function(aRow) {
+    let folder = gFolderTreeView._rowMap[aRow]._folder;
+
+    if (folder.isServer)
+      return;
+
+    // Save our current state for rollback, if necessary.
+    if (!this._rollbackMap.has(folder))
+      this._rollbackMap.set(folder, folder.getFlag(nsMsgFolderFlags.Offline));
+
+    folder.toggleFlag(nsMsgFolderFlags.Offline);
+    gFolderTreeView._tree.invalidateRow(aRow);
+  },
+
+  onAccept: function() {
+    gFolderTreeView.unload();
+  },
+
+  onCancel: function() {
+    gFolderTreeView.unload();
+    for (let [folder, value] of this._rollbackMap) {
+      if (value != folder.getFlag(nsMsgFolderFlags.Offline))
+        folder.toggleFlag(nsMsgFolderFlags.Offline);
+    }
+  }
+};

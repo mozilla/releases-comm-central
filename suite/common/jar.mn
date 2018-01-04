@@ -41,7 +41,7 @@ comm.jar:
 % overlay chrome://messenger/content/AccountManager.xul chrome://communicator/content/helpMessengerOverlay.xul
 % overlay chrome://messenger/content/FilterEditor.xul chrome://communicator/content/helpMessengerOverlay.xul
 % overlay chrome://messenger/content/junkMailInfo.xul chrome://communicator/content/helpMessengerOverlay.xul
-% overlay chrome://messenger/content/msgSelectOffline.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/msgSelectOfflineFolders.xul chrome://communicator/content/helpMessengerOverlay.xul
 % overlay chrome://messenger/content/subscribe.xul chrome://communicator/content/helpMessengerOverlay.xul
 % overlay chrome://messenger/content/mailViewList.xul chrome://communicator/content/helpMessengerOverlay.xul
 % overlay chrome://messenger/content/mailViewSetup.xul chrome://communicator/content/helpMessengerOverlay.xul
