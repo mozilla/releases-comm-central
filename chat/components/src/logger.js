@@ -197,7 +197,7 @@ LogWriter.prototype = {
       header = JSON.stringify(header) + "\n";
     }
     else {
-      const dateTimeFormatter = Services.intl.createDateTimeFormat("en-US", {
+      const dateTimeFormatter = new Services.intl.DateTimeFormat("en-US", {
         dateStyle: "full", timeStyle: "long"
       });
       header = "Conversation with " + this._conv.name +
@@ -335,7 +335,7 @@ function SystemLogWriter(aAccount) {
   this._account = aAccount;
   this.path = OS.Path.join(getLogFolderPathForAccount(aAccount), ".system",
                            getNewLogFileName());
-  const dateTimeFormatter = Services.intl.createDateTimeFormat("en-US", {
+  const dateTimeFormatter = new Services.intl.DateTimeFormat("en-US", {
     dateStyle: "full", timeStyle: "long"
   });
   let header = "System log for account " + aAccount.name +

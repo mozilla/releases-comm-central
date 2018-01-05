@@ -1150,7 +1150,7 @@ Account.prototype = {
       time_zone: null,
       protected: normalizeBool,
       created_at: function(aDate) {
-        const dateFormatter = Services.intl.createDateTimeFormat(undefined, {
+        const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
           dateStyle: "short"
         });
         return dateFormatter.format(new Date(aDate));

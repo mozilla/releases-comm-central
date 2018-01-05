@@ -487,13 +487,13 @@
            let date = new Date(node._originalMsg.time * 1000);
            let text;
            if ((new Date()).toDateString() == date.toDateString()) {
-             const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+             const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
                timeStyle: "long"
              });
              text = dateTimeFormatter.format(date);
            }
            else {
-             const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+             const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
                dateStyle: "short", timeStyle: "long"
              });
              text = dateTimeFormatter.format(date);

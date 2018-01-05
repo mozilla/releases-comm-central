@@ -35,13 +35,13 @@ var gTemplateUtilsStrings = new PluralStringFormatter(
   "chrome://messenger/locale/templateUtils.properties"
 );
 
-const _dateFormatter = Services.intl.createDateTimeFormat(undefined,
+const _dateFormatter = new Services.intl.DateTimeFormat(undefined,
   { dateStyle: "short" });
-const _dayMonthFormatter = Services.intl.createDateTimeFormat(undefined,
+const _dayMonthFormatter = new Services.intl.DateTimeFormat(undefined,
   { month: "long", day: "numeric" });
-const _timeFormatter = Services.intl.createDateTimeFormat(undefined,
+const _timeFormatter = new Services.intl.DateTimeFormat(undefined,
   { timeStyle: "short" });
-const _weekdayFormatter = Services.intl.createDateTimeFormat(undefined,
+const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined,
   { weekday: "long" });
 
 /**

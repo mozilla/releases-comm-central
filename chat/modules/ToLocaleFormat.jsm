@@ -82,13 +82,13 @@ function ToLocaleFormat(aFormat, aDate) {
     return timeZoneNamePart ? timeZoneNamePart.value : "";
   }
 
-  let dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+  let dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
     dateStyle: "full", timeStyle: "long"
   });
-  let dateFormatter = Services.intl.createDateTimeFormat(undefined, {
+  let dateFormatter = new Services.intl.DateTimeFormat(undefined, {
     dateStyle: "full"
   });
-  let timeFormatter = Services.intl.createDateTimeFormat(undefined, {
+  let timeFormatter = new Services.intl.DateTimeFormat(undefined, {
     timeStyle: "long"
   });
 

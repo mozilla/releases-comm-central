@@ -1206,13 +1206,13 @@ chatLogTreeView.prototype = {
     let dateFormatBundle = document.getElementById("bundle_dateformat");
     let placesBundle = document.getElementById("bundle_places");
     let formatDate = function(aDate) {
-      const dateFormatter = Services.intl.createDateTimeFormat(undefined, {
+      const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
         dateStyle: "short"
       });
       return dateFormatter.format(aDate);
     };
     let formatDateTime = function(aDate) {
-      const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+      const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
         dateStyle: "short", timeStyle: "short"
       });
       return dateTimeFormatter.format(aDate);

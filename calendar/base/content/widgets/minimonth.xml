@@ -881,7 +881,7 @@
             this.mDayMap = {};
             let defaultTz = cal.calendarDefaultTimezone();
             let dateFormatter =
-                Services.intl.createDateTimeFormat(undefined, { dateStyle: "long" });
+                new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
             for (let k = 1; k < 7; k++) {
                 // Set the week number.
                 let firstElement = this._getCalBoxNode(k, 0);
@@ -1086,7 +1086,7 @@
             let label;
             if (this.mValue) {
                 let dateFormatter =
-                    Services.intl.createDateTimeFormat(undefined, { dateStyle: "long" });
+                    new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
                 label = dateFormatter.format(this.mValue);
             } else {
                 label = cal.calGetString("calendar", "minimonthNoSelectedDate");

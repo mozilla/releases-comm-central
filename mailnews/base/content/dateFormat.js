@@ -22,7 +22,7 @@ function initLocaleShortDateFormat()
   gSearchDateLeadingZeros = true;
 
   try {
-    const dateFormatter = Services.intl.createDateTimeFormat(undefined,
+    const dateFormatter = new Services.intl.DateTimeFormat(undefined,
       { dateStyle: "short" });
     var aDate = new Date(1999, 11, 1);
     var dateString = dateFormatter.format(aDate);

@@ -562,7 +562,7 @@
               // Find the locale strings for the AM/PM prefix/suffix.
               let amTime = new Date(2000, 0, 1, 6, 12, 34);
               let pmTime = new Date(2000, 0, 1, 18, 12, 34);
-              let formatter = Services.intl.createDateTimeFormat(undefined, this.kTimeFormatObject);
+              let formatter = new Services.intl.DateTimeFormat(undefined, this.kTimeFormatObject);
               amTime = formatter.format(amTime);
               pmTime = formatter.format(pmTime);
               let amLabel = this.parseTimeRegExp.exec(amTime)[this.ampmIndex] || "AM";
@@ -1784,7 +1784,7 @@
             const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8; // eslint-disable-line no-unused-vars
             let amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
             let pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
-            let formatter = Services.intl.createDateTimeFormat(undefined, this.kTimeFormatObject);
+            let formatter = new Services.intl.DateTimeFormat(undefined, this.kTimeFormatObject);
             let amProbeString = formatter.format(amProbeTime);
             let pmProbeString = formatter.format(pmProbeTime);
             let amFormatExpr = null, pmFormatExpr = null;
@@ -1876,7 +1876,7 @@
       <method name="formatTime">
         <parameter name="aValue"/>
         <body><![CDATA[
-            let formatter = Services.intl.createDateTimeFormat(undefined, this.kTimeFormatObject);
+            let formatter = new Services.intl.DateTimeFormat(undefined, this.kTimeFormatObject);
             return formatter.format(aValue);
         ]]></body>
       </method>

@@ -114,7 +114,7 @@
           for (let dbgMsg of account.getDebugMessages()) {
             let m = dbgMsg.message;
             let time = new Date(m.timeStamp);
-            const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+            const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
               dateStyle: "short", timeStyle: "long"
             });
             time = dateTimeFormatter.format(time);

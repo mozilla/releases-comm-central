@@ -50,7 +50,7 @@ function Startup()
     if(Date.parse(lastmod))
     {
       try {
-        const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+        const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
           dateStyle: "long", timeStyle: "short"
         });
 

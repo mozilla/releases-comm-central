@@ -76,7 +76,7 @@ calDateTimeFormatter.prototype = {
             aOptions.timeZone = timezone.tzid;
         }
 
-        let formatter = Services.intl.createDateTimeFormat(undefined, aOptions);
+        let formatter = new Services.intl.DateTimeFormat(undefined, aOptions);
         return formatter.format(cal.dateTimeToJsDate(aDate));
     },
 

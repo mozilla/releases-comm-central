@@ -237,7 +237,7 @@
         <parameter name="time"/>
         <body>
           <![CDATA[
-            const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+            const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
               dateStyle: "long", timeStyle: "short"
             });
 

@@ -240,7 +240,7 @@ var gAccountManager = {
     let text = account.getDebugMessages().map(function(dbgMsg) {
       let m = dbgMsg.message;
       let time = new Date(m.timeStamp);
-      const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+      const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
         dateStyle: "short", timeStyle: "long"
       });
       time = dateTimeFormatter.format(time);
