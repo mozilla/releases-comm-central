@@ -69,7 +69,10 @@ py-flake8:
     treeherder:
         symbol: f8
     run:
-        mach: lint -f treeherder -l flake8 -n comm/taskcluster comm/mail/check-sync-dirs.py
+        mach: >
+            lint -f treeherder -l flake8 -n
+            comm/taskcluster comm/mail/check-sync-dirs.py
+            comm/mail/test/resources/installmozmill.py
     when:
         files-changed:
             - '**/*.py'
