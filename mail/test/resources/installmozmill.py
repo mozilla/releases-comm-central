@@ -12,6 +12,8 @@ import os
 import sys
 from subprocess import call
 
+import buildconfig
+
 
 # utility functions for cross-platform
 
@@ -61,12 +63,16 @@ def main(args=None):
     source = os.path.abspath(os.path.dirname(__file__))
 
     # directory to install to
-    if len(args) == 2:
+    if len(args) == 1:
         destination = os.path.abspath(args[0])
-        mozbase = os.path.abspath(args[1])
     else:
-        print "Usage: %s destination path/to/mozbase" % sys.argv[0]
+        print "Usage: %s destination" % sys.argv[0]
         sys.exit(1)
+
+    topsrcdir = buildconfig.substs['top_srcdir']
+
+    mozbase = os.path.join(topsrcdir, "testing/mozbase")
+    mozpython = os.path.join(topsrcdir, "python")
 
     os.chdir(source)
 
@@ -93,23 +99,19 @@ def main(args=None):
         sys.exit(returncode)
     pip = entry_point_path(destination, 'pip')
 
-    # Install mozbase packages to the virtualenv
+    # Install packages to the virtualenv
     mozbase_packages = [
-        'manifestparser', 'mozfile', 'mozinfo', 'mozlog',
-        'mozprofile', 'mozcrash', 'moznetwork', 'mozprocess', 'mozdevice',
-        'mozrunner',
+        'manifestparser', 'mozfile', 'mozinfo', 'mozlog', 'mozprofile',
+        'mozcrash', 'moznetwork', 'mozprocess', 'mozdevice', 'mozrunner',
     ]
-    returncode = call(
-        [pip, 'install'] +
-        [os.path.join(mozbase, package) for package in mozbase_packages], env=env)
-    if returncode:
-        print 'Failure to install packages'
-        sys.exit(returncode)
+    python_packages = ['mozterm']
 
-    # Install mozmill
     returncode = call(
         [pip, 'install'] +
-        [os.path.abspath(package) for package in packages], env=env)
+        [os.path.join(mozbase, package) for package in mozbase_packages] +
+        [os.path.join(mozpython, package) for package in python_packages] +
+        [os.path.abspath(package) for package in packages],
+        env=env)
     if returncode:
         print 'Failure to install packages'
         sys.exit(returncode)
