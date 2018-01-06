@@ -5,11 +5,5 @@
 loader: comm_taskgraph:reference_loader
 base-path: taskcluster/ci
 
-kind-dependencies:
-    - packages
-
 jobs:
-    - desktop-build
-    - desktop1604-test
-    - lint
-    - toolchain-build
+    - deb7-python
