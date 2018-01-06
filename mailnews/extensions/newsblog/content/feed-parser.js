@@ -978,16 +978,17 @@ FeedParser.prototype =
   },
 
   /**
-   * Ensure <link> type tags start with http[s]:// for values stored in mail
-   * headers (content-base and remote enclosures), particularly to prevent
-   * data: uris, javascript, and other spoofing.
+   * Ensure <link> type tags start with http[s]://, ftp:// or magnet:
+   * for values stored in mail headers (content-base and remote enclosures),
+   * particularly to prevent data: uris, javascript, and other spoofing.
    *
    * @param {String} link - An intended http url string.
-   * @return {String}     - A clean string starting with http, else null.
+   * @return {String}     - A clean string starting with http, ftp or magnet,
+   *                        else null.
    */
   validLink: function(link)
   {
-    if (/^https?:\/\//.test(link))
+    if (/^((https?|ftp):\/\/|magnet:)/.test(link))
       return this.removeUnprintableASCII(link.trim());
 
     return null;
