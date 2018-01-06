@@ -16,4 +16,5 @@ index:
     products:
         - thunderbird
 
-try: {}
+try:
+    ridealong-builds: {}
