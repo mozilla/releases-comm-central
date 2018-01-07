@@ -25,11 +25,7 @@ mozmill-virtualenv: $(_DEST_DIR)
 	unset MACOSX_DEPLOYMENT_TARGET && \
 	$(PYTHON) $(_DEST_DIR)/resources/installmozmill.py $(VIRTUALENV_DIR) $(moztopsrcdir)/testing/mozbase
 
-ifndef MOZ_AUTOMATION
-# We don't run mozmill tests as part of the build in automation, so skip
-# creating a virtualenv for them.
 libs:: mozmill-virtualenv
-endif
 
 PKG_STAGE = $(DIST)/test-stage
 
