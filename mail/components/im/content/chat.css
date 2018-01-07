@@ -20,11 +20,13 @@ imcontact {
   cursor: pointer;
   -moz-user-focus: ignore;
   color: initial;
+}
+
+.startChatBubble {
   display: none;
 }
 
-imcontact[cansend]:hover .startChatBubble,
-imconv:hover .closeConversationButton {
+imcontact[cansend]:hover .startChatBubble {
   display: -moz-box;
 }
 

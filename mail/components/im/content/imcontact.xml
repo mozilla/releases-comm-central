@@ -16,6 +16,7 @@
 
   <binding id="contact" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
+      <xul:vbox class="box-line" xbl:inherits="selected"/>
       <xul:stack class="prplBuddyIcon" mousethrough="always">
         <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
         <xul:image class="statusIcon" xbl:inherits="status"/>

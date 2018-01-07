@@ -1,8 +1,39 @@
+%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%endif
 
 %include ../../../components/im/themes/chat.css
+
+#chatTabPanel {
+  --imbox-selected-text-color: -moz-FieldText;
+  --imbox-selected-background-color: -moz-Field;
+  --imbox-selected-border-color: #bdbdbd;
+  --imgroup-selected-background-color: ThreeDLightShadow;
+}
+
+imgroup[selected] {
+  -moz-appearance: -moz-mac-source-list-selection;
+  -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
+}
+
+.convUnreadCount,
+.contactDisplayName,
+.convDisplayName,
+.contactStatusText,
+.convStatusText {
+  margin-top: 3px;
+}
+
+#contactlistbox {
+  /* border-inline-start because of the inverted direction */
+  border-inline-start: 1px solid var(--imbox-selected-border-color);
+}
+
+#contactlistbox > scrollbox {
+  margin-inline-start: -1px;
+}
 
 #statusTypeIcon:-moz-locale-dir(ltr) {
   border-top-right-radius: 0;
@@ -51,7 +82,7 @@
 }
 
 #listSplitter {
-  border-inline-start: 1px solid #bdbdbd;
+  border-inline-start: 1px solid transparent;
   /* make only the splitter border visible */
   margin-inline-end: -4px;
 }
@@ -178,24 +209,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
   #statusTypeIcon .button-icon {
     width: 16px;
     height: 16px;
-  }
-}
-
-@media not all and (-moz-mac-yosemite-theme) {
-  :-moz-any(imconv, imcontact, imgroup)[selected] {
-    -moz-appearance: -moz-mac-active-source-list-selection;
-    -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
-  }
-}
-
-@media (-moz-mac-yosemite-theme) {
-  :-moz-any(imconv, imcontact, imgroup) {
-    font-family: 'Helvetica Neue';
-  }
-
-  :-moz-any(imconv, imcontact, imgroup)[selected] {
-    -moz-appearance: -moz-mac-source-list-selection;
-    -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
   }
 }
 

@@ -68,20 +68,35 @@
   padding-left: 10px !important;
 }
 
+#listPaneBox {
+  border-inline-end: 1px solid var(--imbox-selected-border-color);
+}
+
 #contactlistbox {
-  margin: 0 0;
+  margin: 0;
+  /* make it possible to let the childs overwrite the end border.
+     margin-inline-start because of the inverted direction */
+  margin-inline-start: -1px;
+}
+
+/* move the scrollbar to the left */
+#contactlistbox:-moz-locale-dir(ltr),
+#contactlistbox:-moz-locale-dir(rtl) > scrollbox > .scrollbox-innerbox {
+  direction: rtl;
+}
+
+#contactlistbox:-moz-locale-dir(rtl),
+#contactlistbox:-moz-locale-dir(ltr) > scrollbox > .scrollbox-innerbox {
+  direction: ltr;
 }
 
 imgroup {
   padding-inline-start: 4px;
+  margin-inline-end: 1px;
 }
 
 imgroup > label {
   margin-inline-start: 4px;
-}
-
-imcontact, imconv {
-  padding-inline-start: 23px;
 }
 
 imgroup,
@@ -91,6 +106,44 @@ imconv[unread] {
 
 imconv[attention] {
   color: blue;
+}
+
+imgroup[selected] {
+  background-color: var(--imgroup-selected-background-color);
+}
+
+imconv,
+imcontact {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  -moz-box-align: stretch;
+}
+
+.box-line {
+  width: 2px;
+}
+
+imcontact > .box-line {
+  /* equalize the space, the .closeConversationButton uses */
+  margin-inline-end: 22px;
+}
+
+.box-line[selected=true] {
+  background-color: var(--tab-line-color);
+}
+
+:-moz-any(imconv, imcontact, imgroup):not([selected=true]):hover {
+  background-color: rgba(0,0,0,.1);
+}
+
+imconv[selected=true],
+imcontact[selected=true] {
+  background-color: var(--imbox-selected-background-color);
+  border-color: var(--imbox-selected-border-color);
+}
+
+imconv:not(:hover) > .closeConversationButton {
+  visibility: hidden;
 }
 
 /* From instantbird/themes/blist.css */
@@ -112,7 +165,11 @@ imconv[attention] {
 .convUnreadTargetedCount {
   color: hsl(0, 100%, 27%);
   background-color: hsl(0, 100%, 87%);
+%ifdef XP_WIN
   padding: 0 7px;
+%else
+  padding: 2px 7px;
+%endif
   border-radius: 50px;
   margin: 1px 3px;
   margin-inline-start: 1ch;
@@ -150,7 +207,6 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 .closeConversationButton {
-  margin-inline-end: 2px;
   -moz-stack-sizing: ignore;
 }
 
@@ -562,7 +618,7 @@ imgroup .twisty {
   width: 9px; /* The image's width is 9 pixels */
   height: 9px;
   margin-inline-end: 3px;
-  margin-inline-start: 3px;
+  margin-inline-start: 5px;
   background: url("chrome://global/skin/tree/twisty.svg#open") no-repeat center;
 }
 
@@ -574,8 +630,8 @@ imgroup[closed] .twisty {
 imgroup .twisty {
   width: 9px;
   height: 9px;
-  margin-inline-end: 3px;
-  margin-inline-start: 3px;
+  margin-inline-end: 2px;
+  margin-inline-start: 5px;
   background: url("chrome://global/skin/arrow/arrow-dn-sharp.gif") no-repeat center;
 }
 
@@ -585,6 +641,7 @@ imgroup[closed] .twisty {
 %else
 imgroup .twisty {
   -moz-appearance: treetwistyopen;
+  margin-inline-start: 5px;
 }
 
 imgroup[closed] .twisty {

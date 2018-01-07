@@ -1,8 +1,25 @@
+%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%endif
 
 %include ../../../components/im/themes/chat.css
+
+#chatTabPanel {
+  --imbox-selected-text-color: -moz-FieldText;
+  --imbox-selected-background-color: -moz-Field;
+  --imbox-selected-border-color: ThreeDShadow;
+  --imgroup-selected-background-color: ThreeDLightShadow;
+}
+
+.convUnreadCount,
+.contactDisplayName,
+.convDisplayName,
+.contactStatusText,
+.convStatusText {
+  margin-top: 2px;
+}
 
 /* Adaptation of #folderpane_splitter -> #listSplitter, #threadpane-splitter -> #contextSplitter */
 #listSplitter, #contextSplitter {
@@ -17,7 +34,7 @@
 }
 
 #listSplitter {
-  border-inline-start: 1px solid ThreeDShadow;
+  border-inline-start: 1px solid transparent;
   /* make only the splitter border visible */
   margin-inline-end: -5px;
 }
@@ -62,27 +79,6 @@
   color: -moz-DialogText;
   background-color: -moz-Dialog;
   padding-inline-start: 3px;
-}
-
-imconv,
-imcontact {
-  padding-inline-start: 2px;
-  padding-inline-end: 2px;
-}
-
-:-moz-any(imconv, imcontact, imgroup) {
-  border: 1px solid transparent;
-}
-
-:-moz-any(imconv, imcontact, imgroup)[selected] {
-  background-color: -moz-cellhighlight;
-  color: -moz-cellhighlighttext;
-}
-
-#contactlistbox:focus > :-moz-any(imconv, imcontact, imgroup)[selected] {
-  background-color: Highlight;
-  color: HighlightText;
-  border: 1px dotted #F3D982;
 }
 
 .startChatBubble > .button-box > .button-icon,
