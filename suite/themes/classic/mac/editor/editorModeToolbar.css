@@ -27,3 +27,60 @@
   list-style-image: url("chrome://editor/skin/icons/editmode-preview.gif"); 
 }
 
+#EditModeTabs {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0;
+  margin: 0;
+  border-top: 2px solid;
+  -moz-border-top-colors: #888 rgba(0, 0, 0, 0.08);
+  -moz-box-align: start;
+  font: message-box;
+}
+#EditModeTabs > .tabs-left {
+  -moz-box-flex: 0;
+}
+
+.tab-bottom {
+  -moz-appearance: none;
+  margin: -1px 0 0;
+  padding: 0 0 2px 0;
+  position: relative;
+  border-inline-end: 1px solid rgba(0, 0, 0, 0.19);
+}
+
+.tab-bottom > .tab-middle {
+  padding: 1px 2px 0 2px;
+}
+
+.tab-bottom:not([visuallyselected=true]):hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-inline-end-color: rgba(0, 0, 0, 0.1);
+}
+
+.tab-bottom[visuallyselected=true] {
+  color: #000;
+  text-shadow: none;
+  border: solid #888;
+  border-width: 0 2px 2px;
+  border-radius: 2px;
+  -moz-border-left-colors: rgba(0, 0, 0, 0.08) #888;
+  -moz-border-right-colors: rgba(0, 0, 0, 0.08) #888;
+  -moz-border-bottom-colors: rgba(0, 0, 0, 0.08) #888;
+  margin-inline-end: -1px;
+  margin-top: -2px;
+  margin-bottom: 1px;
+  padding: 0;
+}
+
+.tab-bottom[beforeselected=true] {
+  border-inline-end-color: transparent;
+  margin-inline-end: -2px;
+}
+
+.tab-bottom:first-of-type[visuallyselected=true] {
+  margin-inline-start: -2px;
+}
+
+.tab-bottom[visuallyselected=true] > .tab-middle {
+  -moz-appearance: dialog;
+}
