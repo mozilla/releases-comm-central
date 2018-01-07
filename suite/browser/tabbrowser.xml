@@ -2305,7 +2305,7 @@
             // autoscroll the tab strip if we drag over the scroll buttons,
             // even if we aren't dragging a tab
             var pixelsToScroll = 0;
-            var tabStrip = this.mTabContainer.mTabstrip;
+            var tabStrip = this.mTabContainer.arrowScrollbox;
             var ltr = window.getComputedStyle(this, null).direction == "ltr";
             if (this.mTabContainer.getAttribute("overflow") == "true") {
               var targetAnonid = aEvent.originalTarget.getAttribute("anonid");
@@ -2505,7 +2505,7 @@
             var tab = this.tabContainer.insertBefore(this.tabs[aSrcIndex], this.tabs.item(aDestIndex));
 
             this.mCurrentTab._selected = true;
-            this.tabContainer.mTabstrip.ensureElementIsVisible(this.mCurrentTab, false);
+            this.tabContainer.arrowScrollbox.ensureElementIsVisible(this.mCurrentTab, false);
 
             tab.dispatchEvent(new UIEvent("TabMove",
               { bubbles: true, cancelable: false, view: window,
@@ -3329,7 +3329,7 @@
         <![CDATA[
           var tab = this.firstChild;
           // set the tabstrip's minWidth too, otherwise it immediately overflows
-          this.mTabstrip.style.minWidth =
+          this.arrowScrollbox.style.minWidth =
           tab.style.minWidth = this.mPrefs.getIntPref("browser.tabs.tabMinWidth") + "px";
           tab.style.maxWidth = this.mPrefs.getIntPref("browser.tabs.tabMaxWidth") + "px";
           window.addEventListener("resize", this);
@@ -3347,16 +3347,16 @@
                   .getService(Components.interfaces.nsIPrefBranch);
       </field>
 
-      <field name="mTabstripWidth">0</field>
+      <field name="arrowScrollboxWidth">0</field>
 
-      <field name="mTabstrip">
+      <field name="arrowScrollbox">
         document.getAnonymousElementByAttribute(this, "anonid", "arrowscrollbox");
       </field>
 
       <method name="_handleTabSelect">
         <body>
           <![CDATA[
-            this.mTabstrip.ensureElementIsVisible(this.selectedItem);
+            this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
           ]]>
         </body>
       </method>
@@ -3370,11 +3370,11 @@
               case "resize":
                 if (aEvent.target != window)
                   break;
-                var width = this.mTabstrip.boxObject.width;
-                if (width != this.mTabstripWidth)
+                var width = this.arrowScrollbox.boxObject.width;
+                if (width != this.arrowScrollboxWidth)
                 {
                   this._handleTabSelect();
-                  this.mTabstripWidth = width;
+                  this.arrowScrollboxWidth = width;
                 }
                 break;
             }
@@ -3387,32 +3387,32 @@
       </field>
 
       <field name="_animateElement">
-        this.mTabstrip._scrollButtonDown;
+        this.arrowScrollbox._scrollButtonDown;
       </field>
 
       <method name="_notifyBackgroundTab">
         <parameter name="aTab"/>
         <body>
           <![CDATA[
-            var scrollRect = this.mTabstrip.scrollClientRect;
+            var scrollRect = this.arrowScrollbox.scrollClientRect;
             var tab = aTab.getBoundingClientRect();
 
             // Is the new tab already completely visible?
             if (scrollRect.left <= tab.left && tab.right <= scrollRect.right)
               return;
 
-            if (this.mTabstrip.smoothScroll) {
+            if (this.arrowScrollbox.smoothScroll) {
               let selected = this.selectedItem.getBoundingClientRect();
 
               /* Can we make both the new tab and the selected tab completely
                  visible? */
               if (!selected ||
                   Math.max(tab.right - selected.left, selected.right - tab.left) <= scrollRect.width) {
-                this.mTabstrip.ensureElementIsVisible(aTab);
+                this.arrowScrollbox.ensureElementIsVisible(aTab);
                 return;
               }
 
-              this.mTabstrip._smoothScrollByPixels(this.mTabstrip._isRTLScrollbox ?
+              this.arrowScrollbox._smoothScrollByPixels(this.arrowScrollbox._isRTLScrollbox ?
                                                    selected.right - scrollRect.right :
                                                    selected.left - scrollRect.left);
             }
@@ -3446,7 +3446,7 @@
              * without any scrolling and when the tabbar has already
              * overflowed.
              */
-            this.mTabstrip._updateScrollButtonsDisabledState();
+            this.arrowScrollbox._updateScrollButtonsDisabledState();
           ]]>
         </body>
       </method>
@@ -3521,7 +3521,7 @@
         <body>
           <![CDATA[
             let tabContainer = document.getBindingParent(this);
-            let tabstripBO = tabContainer.mTabstrip.scrollBoxObject;
+            let tabstripBO = tabContainer.arrowScrollbox.scrollBoxObject;
 
             for (let i = 0; i < this.childNodes.length; i++)
             {
@@ -3584,7 +3584,7 @@
           // Listen for changes in the tab bar.
           let tabbrowser = document.getBindingParent(tabcontainer);
           tabbrowser.addEventListener("TabOpen", this);
-          tabcontainer.mTabstrip.addEventListener("scroll", this);
+          tabcontainer.arrowScrollbox.addEventListener("scroll", this);
 
           for (let i = 0; i < tabs.length; i++)
             this._createTabMenuItem(tabs[i]);
@@ -3609,7 +3609,7 @@
             menuItem.remove();
           }
           let tabcontainer = document.getBindingParent(this);
-          tabcontainer.mTabstrip.removeEventListener("scroll", this);
+          tabcontainer.arrowScrollbox.removeEventListener("scroll", this);
           document.getBindingParent(tabcontainer).removeEventListener("TabOpen", this);
         ]]>
       </handler>

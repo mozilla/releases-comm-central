@@ -1060,8 +1060,8 @@
           // they would also get called for the all-tabs popup scrollbox.
           // Also, we can't rely on event.target because these are all
           // anonymous nodes.
-          this.mTabstrip.addEventListener("overflow",  this);
-          this.mTabstrip.addEventListener("underflow", this);
+          this.arrowScrollbox.addEventListener("overflow",  this);
+          this.arrowScrollbox.addEventListener("underflow", this);
         ]]>
       </constructor>
 
@@ -1075,8 +1075,8 @@
             this._animateTimer.cancel();
             this._animateTimer = null;
           }
-          this.mTabstrip.removeEventListener("overflow", this);
-          this.mTabstrip.removeEventListener("underflow", this);
+          this.arrowScrollbox.removeEventListener("overflow", this);
+          this.arrowScrollbox.removeEventListener("underflow", this);
         ]]>
       </destructor>
 
@@ -1085,13 +1085,13 @@
                   .getService(Components.interfaces.nsIPrefBranch);
       </field>
 
-      <field name="mTabstripWidth">0</field>
+      <field name="arrowScrollboxWidth">0</field>
 
-      <field name="mTabstrip">
+      <field name="arrowScrollbox">
         document.getAnonymousElementByAttribute(this, "anonid", "arrowscrollbox");
       </field>
 
-      <field name="mTabstripClosebutton">
+      <field name="arrowScrollboxClosebutton">
         document.getAnonymousElementByAttribute(this, "anonid", "tabstrip-closebutton");
       </field>
 
@@ -1128,7 +1128,7 @@
                 this.setAttribute("closebuttons", "closeatend");
                 break;
             }
-            this.mTabstripClosebutton.collapsed = this.mCloseButtons != 3;
+            this.arrowScrollboxClosebutton.collapsed = this.mCloseButtons != 3;
           ]]>
         </body>
       </method>
@@ -1136,7 +1136,7 @@
       <method name="_handleTabSelect">
         <body>
           <![CDATA[
-            this.mTabstrip.ensureElementIsVisible(this.selectedItem);
+            this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
           ]]>
         </body>
       </method>
@@ -1149,21 +1149,21 @@
             {
               case "overflow":
                 this.setAttribute("overflow", "true");
-                this.mTabstrip.scrollBoxObject
+                this.arrowScrollbox.scrollBoxObject
                               .ensureElementIsVisible(this.selectedItem);
                 break;
               case "underflow":
                 this.removeAttribute("overflow");
                 break;
               case "resize":
-                let width = this.mTabstrip.boxObject.width;
-                if (width != this.mTabstripWidth)
+                let width = this.arrowScrollbox.boxObject.width;
+                if (width != this.arrowScrollboxWidth)
                 {
                   this._updateCloseButtons();
                   // XXX without this line the tab bar won't budge
-                  this.mTabstrip.scrollByPixels(1);
+                  this.arrowScrollbox.scrollByPixels(1);
                   this._handleTabSelect();
-                  this.mTabstripWidth = width;
+                  this.arrowScrollboxWidth = width;
                 }
                 break;
             }
@@ -1180,7 +1180,7 @@
       </field>
 
       <field name="mDownBoxAnimate">
-        this.mTabstrip._scrollButtonDownBoxAnimate;
+        this.arrowScrollbox._scrollButtonDownBoxAnimate;
       </field>
 
       <field name="mAllTabsButton">
@@ -1219,7 +1219,7 @@
         <parameter name="aTabNode"/>
         <body>
           <![CDATA[
-            let tsbo = this.mTabstrip.scrollBoxObject;
+            let tsbo = this.arrowScrollbox.scrollBoxObject;
             let tsboStart = tsbo.screenX;
             let tsboEnd = tsboStart + tsbo.width;
             let ctbo = aTabNode.boxObject;
@@ -1351,7 +1351,7 @@
         <body>
           <![CDATA[
             let tabContainer = document.getBindingParent(this);
-            let tabstripBO = tabContainer.mTabstrip.scrollBoxObject;
+            let tabstripBO = tabContainer.arrowScrollbox.scrollBoxObject;
 
             for (let i = 0; i < this.childNodes.length; i++)
             {
@@ -1423,7 +1423,7 @@
           // Listen for changes in the tab bar.
           let tabbrowser = document.getBindingParent(tabcontainer);
           tabbrowser.addEventListener("TabOpen", this);
-          tabcontainer.mTabstrip.addEventListener("scroll", this);
+          tabcontainer.arrowScrollbox.addEventListener("scroll", this);
 
           // if an animation is in progress and the user
           // clicks on the "all tabs" button, stop the animation
@@ -1454,7 +1454,7 @@
             menuItem.remove();
           }
           let tabcontainer = document.getBindingParent(this);
-          tabcontainer.mTabstrip.removeEventListener("scroll", this);
+          tabcontainer.arrowScrollbox.removeEventListener("scroll", this);
           document.getBindingParent(tabcontainer).removeEventListener("TabOpen", this);
         ]]>
       </handler>

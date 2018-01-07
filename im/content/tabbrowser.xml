@@ -700,7 +700,7 @@
               // see notes in addTab
               let _delayedUpdate = function (aTabContainer) {
                 aTabContainer._updateCloseButtons();
-                aTabContainer.mTabstrip._updateScrollButtonsDisabledState();
+                aTabContainer.arrowScrollbox._updateScrollButtonsDisabledState();
               };
               setTimeout(_delayedUpdate, 0, this.tabContainer);
             }
@@ -1026,7 +1026,7 @@
             aEvent.preventDefault();
             aEvent.stopPropagation();
 
-            var tabStrip = this.mTabContainer.mTabstrip;
+            var tabStrip = this.mTabContainer.arrowScrollbox;
             var ltr = (window.getComputedStyle(this.parentNode, null).direction
                        == "ltr");
 
@@ -1167,7 +1167,7 @@
             var eY = aEvent.screenY;
             // check if the drop point is horizontally within the window
             if (eX > wX && eX < (wX + window.outerWidth)) {
-              var bo = this.mTabContainer.mTabstrip.boxObject;
+              var bo = this.mTabContainer.arrowScrollbox.boxObject;
               // also avoid detaching if the the tab was dropped too close to
               // the tabbar (half a tab)
               var endScreenY = bo.screenY + 1.5 * bo.height;
@@ -1245,7 +1245,7 @@
             this.mTabContainer.childNodes[i]._selected = false;
           }
           this.mCurrentTab._selected = true;
-          this.mTabContainer.mTabstrip.scrollBoxObject.ensureElementIsVisible(this.mCurrentTab);
+          this.mTabContainer.arrowScrollbox.scrollBoxObject.ensureElementIsVisible(this.mCurrentTab);
 
           var evt = document.createEvent("UIEvents");
           evt.initUIEvent("TabMove", true, false, window, oldPosition);
@@ -1720,7 +1720,7 @@
 
           if (!("WindowDraggingElement" in window))
             Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
-          let draghandle = new WindowDraggingElement(this.mTabstrip, window);
+          let draghandle = new WindowDraggingElement(this.arrowScrollbox, window);
           draghandle.mouseDownCheck =
             aEvent => aEvent.originalTarget.localName != "tab";
 #endif
@@ -1734,13 +1734,13 @@
         ]]>
       </destructor>
 
-      <field name="mTabstripWidth">0</field>
+      <field name="arrowScrollboxWidth">0</field>
 
-      <field name="mTabstrip">
+      <field name="arrowScrollbox">
         document.getAnonymousElementByAttribute(this, "anonid", "arrowscrollbox");
       </field>
 
-      <field name="mTabstripClosebutton">
+      <field name="arrowScrollboxClosebutton">
         document.getAnonymousElementByAttribute(this, "anonid", "tabs-closebutton");
       </field>
 
@@ -1796,7 +1796,7 @@
              * order to make sure the same set of tabs is visible before and
              * after the new tab is added */
 
-            this.mTabstrip.scrollBoxObject
+            this.arrowScrollbox.scrollBoxObject
                 .scrollBy(this.firstChild.boxObject.width, 0);
           }
 
@@ -1816,7 +1816,7 @@
             // if a tab was inserted to the overflow area or removed from it
             // without any scrolling and when the tabbar has already
             // overflowed.
-            aTabContainer.mTabstrip._updateScrollButtonsDisabledState();
+            aTabContainer.arrowScrollbox._updateScrollButtonsDisabledState();
           }
           setTimeout(_delayedUpdate, 0, this);
 
@@ -1856,13 +1856,13 @@
             this.setAttribute("closebuttons", "noclose");
             break;
           }
-          this.mTabstripClosebutton.collapsed = this.mCloseButtons != 3;
+          this.arrowScrollboxClosebutton.collapsed = this.mCloseButtons != 3;
         ]]></body>
       </method>
 
       <method name="_handleTabSelect">
         <body><![CDATA[
-          this.mTabstrip.ensureElementIsVisible(this.selectedItem);
+          this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
         ]]></body>
       </method>
 
@@ -1874,7 +1874,7 @@
             // of the tabstrip, we need to ensure that we stay
             // completely scrolled to the right side
 
-            var tabStrip = this.mTabstrip;
+            var tabStrip = this.arrowScrollbox;
             var scrollPos = {};
             tabStrip.scrollBoxObject.getPosition(scrollPos, {});
             var scrolledSize = {};
@@ -1893,12 +1893,12 @@
         <body><![CDATA[
           switch (aEvent.type) {
             case "resize":
-              var width = this.mTabstrip.boxObject.width;
-              if (width != this.mTabstripWidth) {
+              var width = this.arrowScrollbox.boxObject.width;
+              if (width != this.arrowScrollboxWidth) {
                 this._updateCloseButtons();
                 this._fillTrailingGap();
                 this._handleTabSelect();
-                this.mTabstripWidth = width;
+                this.arrowScrollboxWidth = width;
               }
               break;
           }
@@ -1911,13 +1911,13 @@
       </field>
 
       <field name="_animateElement">
-        this.mTabstrip._scrollButtonDown;
+        this.arrowScrollbox._scrollButtonDown;
       </field>
 
       <method name="_notifyBackgroundTab">
         <parameter name="aTab"/>
         <body><![CDATA[
-          var tsbo = this.mTabstrip.scrollBoxObject;
+          var tsbo = this.arrowScrollbox.scrollBoxObject;
           var tsboStart = tsbo.screenX;
           var tsboEnd = tsboStart + tsbo.width;
 
@@ -1929,17 +1929,17 @@
           if (tsboStart <= ctboStart && ctboEnd <= tsboEnd)
             return;
 
-          if (this.mTabstrip.smoothScroll) {
+          if (this.arrowScrollbox.smoothScroll) {
             var selStart = this.selectedItem.boxObject.screenX;
             var selEnd = selStart + this.selectedItem.boxObject.width;
 
             // Can we make both the new tab and the selected tab completely visible?
             if (Math.max(ctboEnd - selStart, selEnd - ctboStart) <= tsbo.width) {
-              this.mTabstrip.ensureElementIsVisible(aTab);
+              this.arrowScrollbox.ensureElementIsVisible(aTab);
               return;
             }
 
-            this.mTabstrip._smoothScrollByPixels(this.mTabstrip._isLTRScrollbox ?
+            this.arrowScrollbox._smoothScrollByPixels(this.arrowScrollbox._isLTRScrollbox ?
                                                  selStart - tsboStart : selEnd - tsboEnd);
           }
 
@@ -2036,7 +2036,7 @@
           if (tabContainer.getAttribute("overflow") != "true")
             return;
 
-          var tabstripBO = tabContainer.mTabstrip.scrollBoxObject;
+          var tabstripBO = tabContainer.arrowScrollbox.scrollBoxObject;
           for (var i = 0; i < this.childNodes.length; i++) {
             var curTabBO = this.childNodes[i].tab.boxObject;
             if (curTabBO.screenX >= tabstripBO.screenX &&
@@ -2091,7 +2091,7 @@
 
         // Listen for changes in the tab bar.
         tabcontainer.addEventListener("TabOpen", this);
-        tabcontainer.mTabstrip.addEventListener("scroll", this);
+        tabcontainer.arrowScrollbox.addEventListener("scroll", this);
 
         for (var i = 0; i < tabs.length; i++) {
           this._createTabMenuItem(tabs[i]);
@@ -2110,7 +2110,7 @@
           menuItem.remove();
         }
         var tabcontainer = document.getBindingParent(this);
-        tabcontainer.mTabstrip.removeEventListener("scroll", this);
+        tabcontainer.arrowScrollbox.removeEventListener("scroll", this);
         tabcontainer.removeEventListener("TabOpen", this);
         window.XULBrowserWindow.setOverLink("", null);
       ]]></handler>

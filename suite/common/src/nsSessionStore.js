@@ -2311,7 +2311,7 @@ SessionStoreService.prototype = {
     var tabs = [];
 
     // disable smooth scrolling while adding, moving, removing and selecting tabs
-    var tabstrip = tabbrowser.tabContainer.mTabstrip;
+    var tabstrip = tabbrowser.tabContainer.arrowScrollbox;
     var smoothScroll = tabstrip.smoothScroll;
     tabstrip.smoothScroll = false;
 
@@ -2466,7 +2466,7 @@ SessionStoreService.prototype = {
       }
 
       // Determine if we can optimize & load visible tabs first
-      let maxVisibleTabs = Math.ceil(tabbrowser.tabContainer.mTabstrip.scrollClientSize /
+      let maxVisibleTabs = Math.ceil(tabbrowser.tabContainer.arrowScrollbox.scrollClientSize /
                                      aTabs[unhiddenTabs - 1].getBoundingClientRect().width);
 
       // make sure we restore visible tabs first, if there are enough
