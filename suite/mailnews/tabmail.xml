@@ -416,7 +416,7 @@
             if (!this.mStripVisible)
             {
               this.mStripVisible = true;
-              this.tabContainer.adjustTabstrip();
+              this.tabContainer._updateCloseButtons();
             }
 
             let oldPanel = this.panelContainer.selectedPanel;
@@ -1051,7 +1051,7 @@
           this.mCloseButtons = this.mPrefs.getIntPref ("browser.tabs.closeButtons");
           this.firstChild.minWidth = this.mTabMinWidth;
           this.firstChild.maxWidth = this.mTabMaxWidth;
-          this.adjustTabstrip();
+          this._updateCloseButtons();
           this.mPrefs.addObserver("browser.tabs.", this);
           window.addEventListener("resize", this);
 
@@ -1099,7 +1099,7 @@
       <field name="mTabMaxWidth">250</field>
       <field name="mTabClipWidth">140</field>
       <field name="mCloseButtons">3</field>
-      <method name="adjustTabstrip">
+      <method name="_updateCloseButtons">
         <body>
           <![CDATA[
             // modes for tabstrip
@@ -1159,7 +1159,7 @@
                 let width = this.mTabstrip.boxObject.width;
                 if (width != this.mTabstripWidth)
                 {
-                  this.adjustTabstrip();
+                  this._updateCloseButtons();
                   // XXX without this line the tab bar won't budge
                   this.mTabstrip.scrollByPixels(1);
                   this._handleTabSelect();
@@ -1279,7 +1279,7 @@
             if (aTopic == "nsPref:changed" && aData == kCloseButtons)
             {
               this.mCloseButtons = this.mPrefs.getIntPref(kCloseButtons);
-              this.adjustTabstrip();
+              this._updateCloseButtons();
             }
           ]]>
         </body>

@@ -699,7 +699,7 @@
             } else if (!this._windowIsClosing) {
               // see notes in addTab
               let _delayedUpdate = function (aTabContainer) {
-                aTabContainer.adjustTabstrip();
+                aTabContainer._updateCloseButtons();
                 aTabContainer.mTabstrip._updateScrollButtonsDisabledState();
               };
               setTimeout(_delayedUpdate, 0, this.tabContainer);
@@ -1754,7 +1754,7 @@
             case "browser.tabs.closeButtons":
               subject.QueryInterface(Components.interfaces.nsIPrefBranch);
               this.tabbox.mCloseButtons = subject.getIntPref("browser.tabs.closeButtons");
-              this.tabbox.adjustTabstrip();
+              this.tabbox._updateCloseButtons();
               break;
             }
           }
@@ -1806,7 +1806,7 @@
 
           // |setTimeout| here to ensure we're post reflow
           var _delayedUpdate = function(aTabContainer) {
-            aTabContainer.adjustTabstrip();
+            aTabContainer._updateCloseButtons();
 
             if (aTabContainer.selectedItem != tab)
               aTabContainer._notifyBackgroundTab(tab);
@@ -1831,7 +1831,7 @@
         ]]></body>
       </method>
 
-      <method name="adjustTabstrip">
+      <method name="_updateCloseButtons">
         <body><![CDATA[
           // modes for tabstrip
           // 0 - activetab  = close button on active tab only
@@ -1895,7 +1895,7 @@
             case "resize":
               var width = this.mTabstrip.boxObject.width;
               if (width != this.mTabstripWidth) {
-                this.adjustTabstrip();
+                this._updateCloseButtons();
                 this._fillTrailingGap();
                 this._handleTabSelect();
                 this.mTabstripWidth = width;
