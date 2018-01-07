@@ -649,8 +649,8 @@ upgrade.v2 = upgrade.v1 = function(db, version) { // eslint-disable-line id-leng
         /* While this table is in v1, actually keeping it in the sql object will
          * cause problems when migrating from storage.sdb to local.sqlite. There,
          * all tables from storage.sdb will be moved to local.sqlite and so starting
-         * sunbird again afterwards causes a borked upgrade since its missing tables
-         * it expects.
+         * the application again afterwards causes a borked upgrade since its missing
+         * tables it expects.
          *
          *  cal_calendars: {
          *   id:  "INTEGER PRIMARY KEY",

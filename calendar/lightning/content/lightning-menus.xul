@@ -370,13 +370,12 @@
                     onbroadcast="this.parentNode.setAttribute('checked', '' + document.getElementById('modeBroadcaster').getAttribute('mode') == 'task')"/>
         </menuitem>
         <menuseparator id="ltnBeforeCalendarSection"/>
-        <!-- Menuitems have different schema just to match sunbird -->
-        <menuitem id="calendar-export-menu"
+        <menuitem id="ltnExportCalendar"
                   label="&calendar.export.label;"
                   accesskey="&calendar.export.accesskey;"
                   command="calendar_export_command"
                   observes="calendar_export_command"/>
-        <menuitem id="calendar-import-menu"
+        <menuitem id="ltnImportCalendar"
                   label="&calendar.import.label;"
                   accesskey="&calendar.import.accesskey;"
                   command="calendar_import_command"
@@ -436,8 +435,7 @@
           </menupopup>
         </menu>
         <menuseparator id="ltnBeforeUnifinderSection" />
-        <!-- menuitem has different schema just to match sunbird -->
-        <menuitem id="calendar-show-unifinder-menu"
+        <menuitem id="ltnShowUnifinder"
                   type="checkbox"
                   checked="true"
                   label="&showUnifinderCmd.label;"
@@ -739,12 +737,11 @@
                     onbroadcast="this.parentNode.setAttribute('checked', '' + document.getElementById('modeBroadcaster').getAttribute('mode') == 'task')"/>
         </menuitem>
         <menuseparator id="appmenu_ltnBeforeCalendarSection"/>
-        <!-- Menuitems have different schema just to match sunbird -->
-        <menuitem id="appmenu_calendar-export-menu"
+        <menuitem id="appmenu_ltnExportCalendar"
                   label="&calendar.export.label;"
                   command="calendar_export_command"
                   observes="calendar_export_command"/>
-        <menuitem id="appmenu_calendar-import-menu"
+        <menuitem id="appmenu_ltnImportCalendar"
                   label="&calendar.import.label;"
                   command="calendar_import_command"
                   observes="calendar_import_command"/>
@@ -795,8 +792,7 @@
           </menupopup>
         </menu>
         <menuseparator id="appmenu_ltnBeforeUnifinderSection" />
-        <!-- menuitem has different schema just to match sunbird -->
-        <menuitem id="appmenu_calendar-show-unifinder-menu"
+        <menuitem id="appmenu_ltnShowUnifinder"
                   type="checkbox"
                   checked="true"
                   label="&showUnifinderCmd.label;"

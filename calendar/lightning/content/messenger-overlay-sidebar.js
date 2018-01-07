@@ -586,7 +586,6 @@ function switchCalendarView(aType, aShow) {
         return;
     }
 
-    // Sunbird/Lightning common view switching code
     switchToView(aType);
 }
 

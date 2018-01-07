@@ -50,12 +50,12 @@ calItipEmailTransport.prototype = {
             let items = this._prepareItems(aItipItem);
             if (items === false) {
                 return false;
-            } else {
-                return this._sendXpcomMail(aRecipients, items.subject, items.body, aItipItem);
             }
+
+            return this._sendXpcomMail(aRecipients, items.subject, items.body, aItipItem);
         } else {
-            // Sunbird case: Call user's default mailer on system.
-            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+            // sending xpcom mail is not available if no identity has been set
+            throw Components.results.NS_ERROR_NOT_AVAILABLE;
         }
     },
 
