@@ -16,10 +16,7 @@ $(_DEST_DIR):
 # virtualenv directory is outside because we don't want to bundle it up during
 # stage-package.
 VIRTUALENV_DIR = $(_DEST_DIR)/../mozmill-virtualenv
-mozmill-virtualenv: NSDISTMODE=copy
 mozmill-virtualenv: $(_DEST_DIR)
-	$(INSTALL) $(commtopsrcdir)/mail/test/resources $(_DEST_DIR)
-	$(INSTALL) $(moztopsrcdir)/third_party/python/virtualenv $(_DEST_DIR)/resources/
 	rm -rf $(VIRTUALENV_DIR) && \
 	mkdir $(VIRTUALENV_DIR) && \
 	unset MACOSX_DEPLOYMENT_TARGET && \

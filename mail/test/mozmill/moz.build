@@ -13,6 +13,13 @@ TEST_HARNESS_FILES.mozmill.resources += [
     '/{}/mail/base/test/unit/resources/viewWrapperTestUtils.js'.format(CONFIG['commreltopsrcdir']),
 ]
 
+TEST_HARNESS_FILES.mozmill.resources += [
+    '/{}/mail/test/resources/*'.format(CONFIG['commreltopsrcdir']),
+]
+TEST_HARNESS_FILES.mozmill.resources.virtualenv += [
+    '/{}/third_party/python/virtualenv'.format(CONFIG['mozreltopsrcdir']),
+]
+
 
 def mailnews_files(files, comm=CONFIG['commreltopsrcdir']):
     return [
