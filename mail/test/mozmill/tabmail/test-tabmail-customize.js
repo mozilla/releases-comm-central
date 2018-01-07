@@ -42,7 +42,7 @@ function test_open_context_menu() {
   assert_not_equals(contextPopup.state, "open");
 
   // Right click on the tab bar
-  mc.rightClick(mc.eid("tabcontainer"));
+  mc.rightClick(mc.eid("tabmail-tabs"));
 
   // Ensure that the popup opened
   wait_for_popup_to_open(contextPopup);
@@ -58,7 +58,7 @@ function test_redirects_toolbarbutton_drops() {
   // Restore the default buttons to get defined starting conditions.
   gCDHelper.restoreDefaultButtons(mc);
 
-  let tabbar = mc.e("tabcontainer");
+  let tabbar = mc.e("tabmail-tabs");
   let toolbar = mc.e("tabbar-toolbar");
 
   // First, let's open up the customize toolbar window.

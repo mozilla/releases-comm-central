@@ -69,7 +69,7 @@
   box-shadow: var(--focus-ring-box-shadow);
 }
 
-.tabmail-tabs {
+#tabmail-tabs {
   border: none;
   -moz-box-pack: center;
   -moz-box-align: center;

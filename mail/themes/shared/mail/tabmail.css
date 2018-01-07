@@ -118,7 +118,7 @@
 }
 
 :root:not([tabsintitlebar]) .tab-background,
-#mail-toolbar-menubar2[toolbarname]:not([autohide=true]) ~ #tabs-toolbar > .tabmail-tabs >
+#mail-toolbar-menubar2[toolbarname]:not([autohide=true]) ~ #tabs-toolbar > #tabmail-tabs >
   .tabmail-tab > .tab-stack > .tab-background {
   border-top-style: solid;
 }
@@ -156,7 +156,7 @@
   background-color: rgba(0,0,0,.1);
 }
 
-#tabs-toolbar[brighttext] > .tabmail-tabs > .tabmail-tab:hover > .tab-stack >
+#tabs-toolbar[brighttext] > #tabmail-tabs > .tabmail-tab:hover > .tab-stack >
   .tab-background:not([selected=true]) {
   background-color: rgba(255,255,255,.1);
 }
@@ -174,7 +174,7 @@
   transform: none;
 }
 
-#tabs-toolbar[brighttext] > .tabmail-tabs > .tabmail-tab:hover > .tab-stack >
+#tabs-toolbar[brighttext] > #tabmail-tabs > .tabmail-tab:hover > .tab-stack >
   .tab-background > .tab-line:not([selected=true]) {
   background-color: rgba(255,255,255,.2);
 }
@@ -215,8 +215,8 @@
 .tabmail-tab:not([selected=true]):last-child:hover::after,
 .tabmail-tab:not([selected]) + .tabmail-tab:not([selected]):hover::before,
 .tabmail-tab:not([selected]):hover + .tabmail-tab:not([selected])::before,
-:root[tabsintitlebar] #mail-toolbar-menubar2[autohide=true] ~ #tabs-toolbar > .tabmail-tabs > .tabmail-tab::after,
-:root[tabsintitlebar] #mail-toolbar-menubar2[autohide=true] ~ #tabs-toolbar > .tabmail-tabs > .tabmail-tab::before {
+:root[tabsintitlebar] #mail-toolbar-menubar2[autohide=true] ~ #tabs-toolbar > #tabmail-tabs > .tabmail-tab::after,
+:root[tabsintitlebar] #mail-toolbar-menubar2[autohide=true] ~ #tabs-toolbar > #tabmail-tabs > .tabmail-tab::before {
   margin-top: var(--tabs-top-border-width);
   margin-bottom: var(--tab-toolbar-overlap);
 }

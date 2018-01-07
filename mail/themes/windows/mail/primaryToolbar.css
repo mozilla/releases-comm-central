@@ -61,7 +61,7 @@
  */
 @media (-moz-windows-classic) {
   #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .tabmail-tabs:not(:-moz-lwtheme) {
+  #tabmail-tabs:not(:-moz-lwtheme) {
     position: relative;
     z-index: 2;
   }
