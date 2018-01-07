@@ -155,6 +155,7 @@ function test_bad_password_uses_old_settings() {
   let pref_name = "mailnews.auto_config_url";
   let url = collector.addHttpResource("../account/xml", "autoconfig");
   Services.prefs.setCharPref(pref_name, url);
+  Services.prefs.setBoolPref("mailnews.auto_config.fetchFromISP.enabled", false)
 
   // Force .com MIME-Type to text/xml
   collector.httpd.registerContentType("com", "text/xml");
@@ -198,6 +199,7 @@ function test_bad_password_uses_old_settings() {
     } finally {
       // Clean up
       Services.prefs.clearUserPref(pref_name);
+      Services.prefs.clearUserPref("mailnews.auto_config.fetchFromISP.enabled")
       awc.e("cancel_button").click();
     }
   });
