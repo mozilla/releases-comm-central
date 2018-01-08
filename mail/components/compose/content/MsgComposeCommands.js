@@ -229,14 +229,14 @@ var PrintPreviewListener = {
 }
 
 function sidebar_is_hidden() {
-  var sidebar_box = document.getElementById('sidebar-box');
-  return sidebar_box.getAttribute('hidden') == 'true';
+  let sidebar_box = document.getElementById("sidebar-box");
+  return sidebar_box.getAttribute("hidden") == "true";
 }
 
 function sidebar_is_collapsed() {
-  var sidebar_splitter = document.getElementById('sidebar-splitter');
+  let sidebar_splitter = document.getElementById("sidebar-splitter");
   return (sidebar_splitter &&
-          sidebar_splitter.getAttribute('state') == 'collapsed');
+          sidebar_splitter.getAttribute("state") == "collapsed");
 }
 
 function SidebarSetState(aState) {
@@ -5978,8 +5978,8 @@ function DisplaySaveFolderDlg(folderURI)
 
 function SetMsgAddressingWidgetTreeElementFocus()
 {
-  var element = awGetInputElement(awGetNumberOfRecipients());
-  awSetFocus(awGetNumberOfRecipients(), element);
+  let lastRecipientInputElement = awGetInputElement(awGetNumberOfRecipients());
+  awSetFocus(awGetNumberOfRecipients(), lastRecipientInputElement);
 }
 
 function SetMsgIdentityElementFocus()
@@ -5994,7 +5994,16 @@ function SetMsgSubjectElementFocus()
 
 function SetMsgAttachmentElementFocus()
 {
+  // Caveat: Callers must ensure that attachment pane is visible.
   GetMsgAttachmentElement().focus();
+}
+
+/**
+ * Focus the people search input in contacts side bar.
+ */
+function focusContactsSidebarSearchInput() {
+  // Caveat: Callers must ensure that contacts side bar is visible.
+  sidebarDocumentGetElementById("peopleSearchInput", "abContactsPanel").focus();
 }
 
 function SetMsgBodyFrameFocus()
@@ -6036,6 +6045,30 @@ function GetMsgAttachmentElement()
   return gMsgAttachmentElement;
 }
 
+/**
+ * Get an element by ID in the current sidebar browser document.
+ *
+ * @param aId {string}     the ID of the element to get
+ * @param aPageId {string} the ID of a <page> in the sidebar <browser>;
+ *                         only return the element if the page exists.
+ *                         Assuming unique page ids and that there there can
+ *                         only ever be one <page> in a <browser>'s src.xul
+ *                         (documentation is pretty poor), that means that the
+ *                         element will only be returned if it is found in the
+ *                         same src.xul as the page (as opposed to any src.xul /
+ *                         page currently displayed in the sidebar browser).
+ */
+function sidebarDocumentGetElementById(aId, aPageId) {
+  let sidebarDocument = document.getElementById("sidebar").contentDocument;
+  if (aPageId) {
+    if (sidebarDocument.getElementById(aPageId)) {
+      return sidebarDocument.getElementById(aId);
+    }
+    return null;
+  }
+  return sidebarDocument.getElementById(aId);
+}
+
 function GetMsgHeadersToolbarElement()
 {
   if (!gMsgHeadersToolbarElement)
@@ -6044,112 +6077,160 @@ function GetMsgHeadersToolbarElement()
   return gMsgHeadersToolbarElement;
 }
 
+/**
+ * Determine which element of the fast-track focus ring has focus.
+ * Note that only elements of the fast-track focus ring will be returned.
+ *
+ * @return an element node of the fast-track focus ring if the node or one of
+ *         its descendants has focus, otherwise null.
+ */
 function WhichElementHasFocus()
 {
-  var msgIdentityElement             = GetMsgIdentityElement();
-  var msgAddressingWidgetTreeElement = GetMsgAddressingWidgetTreeElement();
-  var msgSubjectElement              = GetMsgSubjectElement();
-  var msgAttachmentElement           = GetMsgAttachmentElement();
+  let msgIdentityElement = GetMsgIdentityElement();
+  let msgAddressingWidgetTreeElement = GetMsgAddressingWidgetTreeElement();
+  let msgSubjectElement = GetMsgSubjectElement();
+  let msgAttachmentElement = GetMsgAttachmentElement();
+  let abContactsPanelElement = sidebarDocumentGetElementById("abContactsPanel");
 
   if (top.document.commandDispatcher.focusedWindow == content)
     return content;
 
-  var currentNode = top.document.commandDispatcher.focusedElement;
-  while (currentNode)
-  {
+  let currentNode = top.document.commandDispatcher.focusedElement;
+  while (currentNode) {
     if (currentNode == msgIdentityElement ||
         currentNode == msgAddressingWidgetTreeElement ||
         currentNode == msgSubjectElement ||
-        currentNode == msgAttachmentElement)
+        currentNode == msgAttachmentElement ||
+        currentNode == abContactsPanelElement) {
       return currentNode;
-
+    }
     currentNode = currentNode.parentNode;
   }
 
   return null;
 }
 
-// Function that performs the logic of switching focus from
-// one element to another in the mail compose window.
-// The default element to switch to when going in either
-// direction (shift or no shift key pressed), is the
-// AddressingWidgetTreeElement.
-//
-// The only exception is when the MsgHeadersToolbar is
-// collapsed, then the focus will always be on the body of
-// the message.
+/**
+ * Fast-track focus ring: Switch focus between important (not all) elements
+ * in the message compose window. Ctrl+[Shift+]Tab | [Shift+]F6 on Windows.
+ *
+ * The default element to switch to when going in either direction (with or
+ * without shift key pressed) is the AddressingWidgetTreeElement.
+ *
+ * The only exception is when the MsgHeadersToolbar is collapsed,
+ * then the focus will always be on the body of the message.
+ */
 function SwitchElementFocus(event)
 {
-  var focusedElement = WhichElementHasFocus();
+  let focusedElement = WhichElementHasFocus();
 
-  if (event && event.shiftKey)
-  {
-    if (focusedElement == gMsgAddressingWidgetTreeElement)
-      SetMsgIdentityElementFocus();
-    else if (focusedElement == gMsgIdentityElement)
-      SetMsgBodyFrameFocus();
-    else if (focusedElement == content)
-    {
-      // only set focus to the attachment element if there
-      // are any attachments.
-      if (AttachmentElementHasItems())
-        SetMsgAttachmentElementFocus();
-      else
-        SetMsgSubjectElementFocus();
-    }
-    else if (focusedElement == gMsgAttachmentElement)
-      SetMsgSubjectElementFocus();
-    else
-      SetMsgAddressingWidgetTreeElementFocus();
+  if (!focusedElement) {
+    // None of the pre-defined focus ring elements has focus: This should never
+    // happen with the default installation, but might happen with add-ons.
+    // In that case, default to focusing the address widget as the first element
+    // of the focus ring.
+    SetMsgAddressingWidgetTreeElementFocus();
+    return;
   }
-  else
-  {
-    if (focusedElement == gMsgAddressingWidgetTreeElement)
-      SetMsgSubjectElementFocus();
-    else if (focusedElement == gMsgSubjectElement)
-    {
-      // only set focus to the attachment element if there
-      // are any attachments.
-      if (AttachmentElementHasItems())
-        SetMsgAttachmentElementFocus();
-      else
+
+  if (event && event.shiftKey) {
+    // Backwards focus ring: e.g. Ctrl+Shift+Tab | Shift+F6
+    switch (focusedElement) {
+      case gMsgAddressingWidgetTreeElement:
+        SetMsgIdentityElementFocus();
+        break;
+      case gMsgIdentityElement:
+        // Only set focus to the contacts side bar (search box) if it is shown.
+        if (!sidebar_is_hidden() &&
+            sidebarDocumentGetElementById("abContactsPanel"))
+          focusContactsSidebarSearchInput();
+        else
+          SetMsgBodyFrameFocus();
+        break;
+      case sidebarDocumentGetElementById("abContactsPanel"):
         SetMsgBodyFrameFocus();
+        break;
+      case content: // message body
+        // Only set focus to the attachment element if it is shown.
+        if (!document.getElementById("attachments-box").collapsed)
+          SetMsgAttachmentElementFocus();
+        else
+          SetMsgSubjectElementFocus();
+        break;
+      case gMsgAttachmentElement:
+        SetMsgSubjectElementFocus();
+        break;
+      default: // gMsgSubjectElement
+        SetMsgAddressingWidgetTreeElementFocus();
+        break;
     }
-    else if (focusedElement == gMsgAttachmentElement)
-      SetMsgBodyFrameFocus();
-    else if (focusedElement == content)
-      SetMsgIdentityElementFocus();
-    else
-      SetMsgAddressingWidgetTreeElementFocus();
+  } else {
+    // Forwards focus ring: e.g. Ctrl+Tab | F6
+    switch (focusedElement) {
+      case gMsgAddressingWidgetTreeElement:
+        SetMsgSubjectElementFocus();
+        break;
+      case gMsgSubjectElement:
+        // Only set focus to the attachment element if it is shown.
+        if (!document.getElementById("attachments-box").collapsed)
+          SetMsgAttachmentElementFocus();
+        else
+          SetMsgBodyFrameFocus();
+        break;
+      case gMsgAttachmentElement:
+        SetMsgBodyFrameFocus();
+        break;
+      case content:
+        // Only set focus to the contacts side bar (search box) if it is shown.
+        if (!sidebar_is_hidden() &&
+            sidebarDocumentGetElementById("abContactsPanel"))
+          focusContactsSidebarSearchInput();
+        else
+          SetMsgIdentityElementFocus();
+        break;
+      case sidebarDocumentGetElementById("abContactsPanel"):
+        SetMsgIdentityElementFocus();
+        break;
+      default: // gMsgIdentityElement
+        SetMsgAddressingWidgetTreeElementFocus();
+        break;
+    }
   }
 }
 
 function toggleAddressPicker()
 {
-  var sidebarBox = document.getElementById("sidebar-box");
-  var sidebarSplitter = document.getElementById("sidebar-splitter");
-  var elt = document.getElementById("viewAddressPicker");
-  if (sidebarBox.hidden)
-  {
+  // Caveat: This function erroneously assumes that only abContactsPanel can
+  // be shown in the sidebar browser, so it will fail if any other src is shown
+  // as we do not reliably enforce abContactsPanel.xul as src of the sidebar
+  // <browser>. Currently we don't show anything else in the sidebar, but
+  // add-ons might.
+  let sidebarBox = document.getElementById("sidebar-box");
+  let sidebarSplitter = document.getElementById("sidebar-splitter");
+  let sidebar = document.getElementById("sidebar");
+  let viewAddressPicker = document.getElementById("viewAddressPicker");
+
+  if (sidebarBox.hidden) {
+    // Show contacts sidebar.
     sidebarBox.hidden = false;
     sidebarSplitter.hidden = false;
-    elt.setAttribute("checked","true");
+    viewAddressPicker.setAttribute("checked","true");
 
-    var sidebar = document.getElementById("sidebar");
-    var sidebarUrl = sidebar.getAttribute("src");
-    // if we have yet to initialize the src url on the sidebar than go ahead and do so now...
-    // we do this lazily here, so we don't spend time when bringing up the compose window loading the address book
-    // data sources. Only when the user opens the address picker do we set the src url for the sidebar...
+    let sidebarUrl = sidebar.getAttribute("src");
+    // If we have yet to initialize the src URL on the sidebar, then go ahead
+    // and do so now... We do this lazily here, so we don't spend time when
+    // bringing up the compose window loading the address book data sources.
+    // Only when the user opens the address picker, do we set the src URL
+    // for the sidebar.
     if (sidebarUrl == "")
       sidebar.setAttribute("src", "chrome://messenger/content/addressbook/abContactsPanel.xul");
 
     sidebarBox.setAttribute("sidebarVisible", "true");
-  }
-  else
-  {
+  } else {
+    // Hide contacts sidebar.
     // If something in the sidebar was left marked focused,
     // clear out the attribute so that it does not keep focus in a hidden element.
-    let sidebarContent = document.getElementById("sidebar").contentDocument;
+    let sidebarContent = sidebar.contentDocument;
     let sideFocused = Array.from(sidebarContent.querySelectorAll('[focused="true"]'))
                            .concat(Array.from(sidebarContent.querySelectorAll(":focus")));
     for (let elem of sideFocused) {
@@ -6161,7 +6242,7 @@ function toggleAddressPicker()
     sidebarBox.hidden = true;
     sidebarSplitter.hidden = true;
     sidebarBox.setAttribute("sidebarVisible", "false");
-    elt.removeAttribute("checked");
+    viewAddressPicker.removeAttribute("checked");
 
     // If nothing is focused in the main compose frame, focus subject if empty
     // otherwise the body. If we didn't do that, focus may stay inside the closed
