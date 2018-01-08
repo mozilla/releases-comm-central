@@ -201,6 +201,10 @@ prefwindow[overflow="auto"] prefpane > .content-box {
   overflow: auto;
 }
 
+dialogheader {
+  -moz-binding: url("chrome://communicator/content/bindings/generalBindings.xml#dialogheader");
+}
+
 %ifndef MOZ_WIDGET_GTK
 statusbar:not([nowindowdrag="true"]) {
   -moz-window-dragging: drag;
