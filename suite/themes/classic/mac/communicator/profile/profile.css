@@ -24,6 +24,23 @@ hbox.wizard-box {
   padding: 10px 10px 10px 10px;
 }
 
+#header {
+  -moz-box-orient: vertical;
+  margin: -14px -14px 0;
+  padding: 12px;
+  padding-inline-end: 5px;
+  padding-inline-start: 25px;
+}
+
+#header > .dialogheader-title {
+  font: inherit;
+  font-weight: bold;
+}
+
+#header > .dialogheader-description {
+  margin-inline-start: 12px !important;
+}
+
 #intro,
 #label {
   width: 17em;

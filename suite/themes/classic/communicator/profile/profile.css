@@ -24,6 +24,33 @@ hbox.wizard-box {
   padding: 10px 10px 10px 10px;
 }
 
+#header {
+  -moz-box-orient: vertical;
+  margin-top: -8px;
+  margin-bottom: 0;
+  margin-inline-start: -8px;
+  margin-inline-end: -10px;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  -moz-border-bottom-colors: ThreeDHighlight ThreeDShadow;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-inline-start: 25px;
+  padding-inline-end: 5px;
+  background-color: Window;
+  color: WindowText;
+}
+
+#header > .dialogheader-title {
+  font: inherit;
+  font-weight: bold;
+}
+
+#header > .dialogheader-description {
+  margin-inline-start: 12px !important;
+}
+
 #intro,
 #label {
   width: 17em;

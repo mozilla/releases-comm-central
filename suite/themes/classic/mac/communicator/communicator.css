@@ -212,6 +212,24 @@ treecols:-moz-lwtheme {
   list-style-image: url("chrome://global/skin/icons/blacklist_favicon.png");
 }
 
+/* ::::: dialog header ::::: */
+
+dialogheader {
+  margin: 0 5px 5px;
+  padding: 5px 8px;
+}
+
+.dialogheader-title {
+  margin: 0 !important;
+  font-size: larger;
+  font-weight: bold;
+  display: none;
+}
+
+.dialogheader-description {
+  font-weight: bold !important;
+}
+
 /* ::::: statusbar ::::: */
 
 statusbar {
