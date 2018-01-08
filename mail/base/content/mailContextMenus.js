@@ -85,9 +85,7 @@ function fillMailContextMenu(event)
                              Components.interfaces.nsMsgFolderFlags.Drafts);
   // Show "New Message from Template" and "Edit Template" menus only in a
   // templates folder; otherwise hide them.
-  showCommandInSpecialFolder("cmd_newMsgFromTemplate",
-                             Components.interfaces.nsMsgFolderFlags.Templates);
-  showCommandInSpecialFolder("cmd_editTemplateMsg",
+  showCommandInSpecialFolder(["cmd_newMsgFromTemplate", "cmd_editTemplateMsg"],
                              Components.interfaces.nsMsgFolderFlags.Templates);
 
   gContextMenu = new nsContextMenu(event.target, event.shiftKey);

@@ -496,9 +496,7 @@ function InitMessageMenu()
                              Components.interfaces.nsMsgFolderFlags.Drafts);
   // Show "New Message from Template" and "Edit Template" menus only in a
   // templates folder; otherwise hide them.
-  showCommandInSpecialFolder("cmd_newMsgFromTemplate",
-                             Components.interfaces.nsMsgFolderFlags.Templates);
-  showCommandInSpecialFolder("cmd_editTemplateMsg",
+  showCommandInSpecialFolder(["cmd_newMsgFromTemplate", "cmd_editTemplateMsg"],
                              Components.interfaces.nsMsgFolderFlags.Templates);
 
   // Initialize the Open Message menuitem
@@ -564,9 +562,7 @@ function InitAppMessageMenu()
                              Components.interfaces.nsMsgFolderFlags.Drafts);
   // Show "New Message from Template" and "Edit Template" menus only in a
   // templates folder; otherwise hide them.
-  showCommandInSpecialFolder("cmd_newMsgFromTemplate",
-                             Components.interfaces.nsMsgFolderFlags.Templates);
-  showCommandInSpecialFolder("cmd_editTemplateMsg",
+  showCommandInSpecialFolder(["cmd_newMsgFromTemplate", "cmd_editTemplateMsg"],
                              Components.interfaces.nsMsgFolderFlags.Templates);
 
   // Initialize the Open Message menuitem
@@ -595,10 +591,11 @@ function InitAppMessageMenu()
  * show 'cmd_editDraftMsg' in Drafts folder, or
  * show 'cmd_newMsgFromTemplate' in Templates folder.
  *
- * aCommandId   the ID of a command to be shown in folders having aFolderFlag
+ * aCommandIds  single ID string of command or array of IDs of commands
+ *              to be shown in folders having aFolderFlag
  * aFolderFlag  the nsMsgFolderFlag that the folder must have to show the command
  */
-function showCommandInSpecialFolder(aCommandId, aFolderFlag)
+function showCommandInSpecialFolder(aCommandIds, aFolderFlag)
 {
   let msg = gFolderDisplay.selectedMessage;
   let folder = gFolderDisplay.displayedFolder;
@@ -606,7 +603,12 @@ function showCommandInSpecialFolder(aCommandId, aFolderFlag)
                          msg.folder &&  // Check folder as messages opened from file have none.
                          msg.folder.isSpecialFolder(aFolderFlag, true)) ||
                         (folder && folder.getFlag(aFolderFlag));
-  document.getElementById(aCommandId).setAttribute("hidden", !inSpecialFolder);
+  if (typeof aCommandIds === "string")
+    aCommandIds = [aCommandIds];
+
+  aCommandIds.forEach(cmdId =>
+    document.getElementById(cmdId).setAttribute("hidden", !inSpecialFolder)
+  );
 }
 
 /**
