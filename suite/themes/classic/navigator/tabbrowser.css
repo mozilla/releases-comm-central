@@ -50,6 +50,14 @@ tabpanels {
   margin-bottom: 0px;
   padding-top: 2px; /* compensates the top margin of background tabs */
   padding-bottom: 3px; /* compensates the bottom margin of background tabs */
+  background-color: -moz-dialog;
+  -moz-border-top-colors: unset;
+  -moz-border-right-colors: unset;
+  color: -moz-dialogtext;
+  border: 1px solid Gray;
+  border-top: 2px solid RoyalBlue;
+  border-bottom: 0px none;
+  -moz-appearance: none;
 }
 
 .tabbrowser-tab:-moz-lwtheme {
