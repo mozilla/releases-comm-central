@@ -44,7 +44,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsCRTGlue.h"
 #include "mozilla/Services.h"
-#include "nsNetUtil.h"
 
 using namespace mozilla;
 
@@ -1563,12 +1562,9 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone()
               // localized.
               nsAutoCString trashURL;
               trashFolder->GetFolderURL(trashURL);
-              nsCOMPtr<nsIURI> uri;
-              NS_NewURI(getter_AddRefs(uri), trashURL);
-              nsAutoCString trashPath;
-              uri->GetPathQueryRef(trashPath);
+              int32_t leafPos = trashURL.RFindChar('/');
               nsAutoCString unescapedName;
-              MsgUnescapeString(Substring(trashPath, 1), // Skip leading slash.
+              MsgUnescapeString(Substring(trashURL, leafPos + 1),
                                 nsINetUtil::ESCAPE_URL_PATH, unescapedName);
               nsAutoString nameUnicode;
               if (NS_FAILED(CopyMUTF7toUTF16(unescapedName, nameUnicode)) ||
