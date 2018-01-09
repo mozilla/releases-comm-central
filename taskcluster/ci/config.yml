@@ -18,3 +18,10 @@ index:
 
 try:
     ridealong-builds: {}
+
+scriptworker:
+    scope-prefix: 'project:comm:thunderbird:releng'
+
+    worker-types:
+        'scriptworker-prov-v1/tb-depsigning':
+            - 'project:comm:thunderbird:releng:signing:cert:dep-signing'
