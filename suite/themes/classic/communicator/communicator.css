@@ -94,6 +94,13 @@ menuitem.menuitem-iconic > .menu-iconic-left {
   display: -moz-box;
 }
 
+%ifdef MOZ_WIDGET_GTK
+/* Fix to show the menulist-dropmarker under newer GTK3 versions */
+menulist[editable="true"] > .menulist-dropmarker {
+  min-width: 2em;
+}
+%endif
+
 /* ::::: toolbar print button ::::: */
 #print-button {
   list-style-image: url("chrome://communicator/skin/icons/communicatoricons.png");

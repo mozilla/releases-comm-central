@@ -532,6 +532,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 .autocomplete-history-dropmarker {
+  min-width: 2em; /* Fix to show the menulist-dropmarker under newer GTK3 versions */
   border-right-width: 1px;
   border-bottom-width: 1px;
   -moz-border-right-colors: ThreeDShadow;
