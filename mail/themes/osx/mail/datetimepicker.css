@@ -1,0 +1,94 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+datepicker {
+  padding: 0 0 1px;
+  margin: 4px;
+  border: none;
+}
+
+.datetimepicker-input-box {
+  -moz-appearance: textfield;
+  cursor: text;
+  margin-right: 4px;
+  margin-bottom: 2px;
+  padding: 0;
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+}
+
+.datetimepicker-input-subbox {
+  width: 1.6em;
+}
+
+html|*.datetimepicker-input {
+  text-align: end;
+}
+
+.datetimepicker-separator {
+  margin: 0 !important;
+}
+
+.datetimepicker-year {
+  width: 3.2em;
+}
+
+.datepicker-dropmarker {
+  margin-bottom: 2px;
+}
+
+datepicker[readonly="true"] {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
+datepicker[disabled="true"] {
+  cursor: default;
+  background-color: -moz-Dialog;
+  color: GrayText;
+}
+
+.datepicker-mainbox {
+  margin: 2px 4px;
+  border: 1px solid ThreeDShadow;
+  background-color: #EEEEEE;
+  color: -moz-DialogText;
+}
+
+.datepicker-popupgrid > .datepicker-mainbox {
+  margin: 0;
+  border: none;
+}
+
+.datepicker-gridlabel, .datepicker-weeklabel {
+  text-align: center;
+}
+
+.datepicker-gridlabel[today="true"] {
+  background-color: darkgrey;
+  color: white;
+}
+
+.datepicker-gridlabel[selected="true"] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+.datepicker-button {
+  -moz-appearance: none;
+  min-width: 8px;
+  padding: 0;
+}
+
+.datepicker-previous {
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+  transform: scaleX(-1);
+}
+
+.datepicker-next {
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+}
