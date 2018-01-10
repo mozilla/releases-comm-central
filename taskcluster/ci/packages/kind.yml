@@ -6,4 +6,6 @@ loader: comm_taskgraph:reference_loader
 base-path: taskcluster/ci
 
 jobs:
+    - deb7-cmake
+    - deb7-ninja
     - deb7-python
