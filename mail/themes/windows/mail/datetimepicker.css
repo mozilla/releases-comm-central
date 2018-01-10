@@ -88,10 +88,10 @@ datepicker[disabled="true"] {
 
 .datepicker-previous,
 .datepicker-next:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft.gif");
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-left.png");
 }
 
 .datepicker-next,
 .datepicker-previous:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-right.png");
 }

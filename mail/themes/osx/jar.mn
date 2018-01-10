@@ -26,6 +26,7 @@ classic.jar:
   skin/classic/messenger/half-operator.png                       (../../components/im/themes/half-operator.png)
   skin/classic/messenger/voice.png                               (../../components/im/themes/voice.png)
   skin/classic/messenger/browserRequest.css                      (mail/browserRequest.css)
+  skin/classic/messenger/datetimepicker.css                      (mail/datetimepicker.css)
   skin/classic/messenger/section_collapsed.png                   (mail/section_collapsed.png)
   skin/classic/messenger/section_expanded.png                    (mail/section_expanded.png)
   skin/classic/messenger/messageBody.css                         (mail/messageBody.css)
