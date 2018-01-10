@@ -89,16 +89,7 @@
       </menu>
 
       <menu id="windowMenu" label="&windowMenu.label;" accesskey="&windowMenu.accesskey;"
-            datasources="rdf:window-mediator" ref="NC:WindowMediatorRoot"
-            onpopupshowing="checkFocusedWindow();">
-        <template>
-          <rule>
-            <menupopup>
-              <menuitem uri="rdf:*" label="rdf:http://home.netscape.com/NC-rdf#KeyIndex rdf:http://home.netscape.com/NC-rdf#Name" type="radio"
-                        name="windowList" oncommand="ShowWindowFromResource(event.target)" accesskey="rdf:http://home.netscape.com/NC-rdf#KeyIndex"/>
-            </menupopup>
-          </rule>
-        </template>
+            onpopupshowing="checkFocusedWindow();" onpopuphidden="windowMenuDidHide();">
         <menupopup id="windowPopup">
           <menuitem label="&navigatorCmd.label;" accesskey="&navigatorCmd.accesskey;" key="key_navigator" command="Tasks:Navigator" id="tasksMenuNavigator" class="menuitem-iconic icon-navigator16"/>
 

@@ -205,31 +205,39 @@ function CycleWindow( aType )
   return firstWindow;
 }
 
-XPCOMUtils.defineLazyServiceGetter(Services, "windowManagerDS",
-                                   "@mozilla.org/rdf/datasource;1?name=window-mediator",
-                                   "nsIWindowDataSource");
-
-function ShowWindowFromResource( node )
+function windowMenuDidHide()
 {
-  var desiredWindow = null;
-  var url = node.getAttribute("id");
-  desiredWindow = Services.windowManagerDS.getWindowForResource(url);
-  if (desiredWindow)
-    toOpenWindow(desiredWindow);
+  let sep = document.getElementById("sep-window-list");
+  // Clear old items
+  while (sep.nextElementSibling) {
+    sep.nextElementSibling.remove();
+  }
 }
 
 function checkFocusedWindow()
 {
-  var sep = document.getElementById("sep-window-list");
-  // Using double parens to avoid warning
-  while ((sep = sep.nextSibling)) {
-    var url = sep.getAttribute("id");
-    var win = Services.windowManagerDS.getWindowForResource(url);
-    if (win == window) {
-      sep.setAttribute("checked", "true");
-      break;
+  let windows = Services.wm.getEnumerator("");
+  let frag = document.createDocumentFragment();
+  while (windows.hasMoreElements()) {
+    let win = windows.getNext();
+    if (win.document.documentElement.getAttribute("inwindowmenu") == "false") {
+      continue;
     }
+    let item = document.createElement("menuitem");
+    item.setAttribute("label", win.document.title);
+    item.setAttribute("type", "radio");
+    if (win == window) {
+      item.setAttribute("checked", "true");
+    }
+    item.addEventListener("command", () => {
+      if (win.windowState == window.STATE_MINIMIZED) {
+        win.restore();
+      }
+      win.document.commandDispatcher.focusedWindow.focus();
+    });
+    frag.appendChild(item);
   }
+  document.getElementById("windowPopup").appendChild(frag);
 }
 
 function toProfileManager()
