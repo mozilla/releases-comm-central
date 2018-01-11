@@ -106,13 +106,7 @@ tasks:
               TASKCLUSTER_CACHES: /builds/worker/checkouts
             - $if: 'tasks_for != "action"'
               then:
-                $if: '("--buildbot" in push.comment) && !("mozilla@hocat.ca" in ownerEmail)'
-                then:
-                  # Until all buildbot platforms are supported in taskcluster, avoid
-                  # passing try syntax to taskcluster.
-                  COMM_COMMIT_MSG: 'try: ignored'
-                else:
-                  COMM_COMMIT_MSG: '${push.comment}'
+                COMM_COMMIT_MSG: '${push.comment}'
             - $if: 'tasks_for == "action"'
               then:
                 ACTION_TASK_GROUP_ID: '${action.taskGroupId}'
