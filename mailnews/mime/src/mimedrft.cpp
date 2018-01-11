@@ -1402,7 +1402,7 @@ mime_parse_stream_complete(nsMIMESession *stream)
 
     draftInfo = MimeHeaders_get(mdd->headers, HEADER_X_MOZILLA_DRAFT_INFO, false, false);
 
-    // We always preserve an exisiting message ID, if present, apart from some exceptions.
+    // We always preserve an existing message ID, if present, apart from some exceptions.
     bool keepID = fields != nullptr;
 
     // Don't keep ID when forwarding inline.
@@ -1411,7 +1411,7 @@ mime_parse_stream_complete(nsMIMESession *stream)
 
     // nsMimeOutput::nsMimeMessageEditorTemplate is used for editing a message
     // "as new", creating a message from a template or editing a template.
-    // Only in the latter case we want to preserve the the ID.
+    // Only in the latter case we want to preserve the ID.
     if (mdd->format_out == nsMimeOutput::nsMimeMessageEditorTemplate &&
         !PL_strstr(mdd->url_name, "&edittempl=true"))
       keepID = false;
