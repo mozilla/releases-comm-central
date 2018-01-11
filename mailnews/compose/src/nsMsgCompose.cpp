@@ -3882,10 +3882,10 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
         if (NS_FAILED(rv) || !msgFolder)
           break;
 
-        // Only do this if it's a drafts folder.
-        bool isDraft;
-        msgFolder->GetFlag(nsMsgFolderFlags::Drafts, &isDraft);
-        if (!isDraft)
+        // Only do this if it's a drafts or templates folder.
+        uint32_t flags;
+        msgFolder->GetFlags(&flags);
+        if (!(flags & (nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Templates)))
           break;
 
         // Only remove if the message is actually in the db. It might have only
@@ -3985,7 +3985,7 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
     {
       uint32_t folderFlags;
       savedToFolder->GetFlags(&folderFlags);
-      if (folderFlags & nsMsgFolderFlags::Drafts)
+      if (folderFlags & (nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Templates))
       {
         rv = savedToFolder->GenerateMessageURI(newUid, newDraftIdURL);
         NS_ENSURE_SUCCESS(rv, rv);

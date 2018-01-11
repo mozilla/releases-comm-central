@@ -2017,7 +2017,7 @@ function MsgNewMessageFromTemplate(aEvent)
 
 function MsgEditTemplateMessage(aEvent)
 {
-  composeMsgByType(Components.interfaces.nsIMsgCompType.Draft, aEvent);
+  composeMsgByType(Components.interfaces.nsIMsgCompType.EditTemplate, aEvent);
 }
 
 function MsgComposeDraftMessage()

@@ -24,7 +24,7 @@ interface nsIMsgCompType {
     const long ReplyToGroup             = 7;
     const long ReplyToSenderAndGroup    = 8;
     const long Draft                    = 9;
-    const long Template                 = 10;
+    const long Template                 = 10;  // New message from template.
     const long MailToUrl                = 11;
     const long ReplyWithTemplate        = 12;
     const long ReplyToList              = 13;
@@ -44,6 +44,11 @@ interface nsIMsgCompType {
      * are sanitized since the message could be from external sources.
      */
     const long EditAsNew                = 15;
+
+    /**
+     * Used to edit an existing template.
+     */
+    const long EditTemplate             = 16;
 
     /**
      * Add this value to a reply type to suppress quoting the current selection

@@ -123,6 +123,7 @@ function getIdentityForHeader(hdr, type)
   if (type == Components.interfaces.nsIMsgCompType.ReplyToList)
     hintForIdentity = findDeliveredToIdentityEmail();
   else if (type == Components.interfaces.nsIMsgCompType.Template ||
+           type == Components.interfaces.nsIMsgCompType.EditTemplate ||
            type == Components.interfaces.nsIMsgCompType.EditAsNew)
     hintForIdentity = hdr.author;
   else

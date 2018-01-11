@@ -384,6 +384,7 @@ nsMsgComposeService::OpenComposeWindow(const char *msgComposeWindowURL, nsIMsgDB
      Maybe one day when we will have more time we can change that
   */
   if (type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft ||
+      type == nsIMsgCompType::EditTemplate ||
       type == nsIMsgCompType::Template || type == nsIMsgCompType::ReplyWithTemplate ||
       type == nsIMsgCompType::Redirect || type == nsIMsgCompType::EditAsNew)
   {
@@ -397,6 +398,8 @@ nsMsgComposeService::OpenComposeWindow(const char *msgComposeWindowURL, nsIMsgDB
       uriToOpen.AppendLiteral("&redirect=true");
     else if (type == nsIMsgCompType::EditAsNew)
       uriToOpen.AppendLiteral("&editasnew=true");
+    else if (type == nsIMsgCompType::EditTemplate)
+      uriToOpen.AppendLiteral("&edittempl=true");
 
     return LoadDraftOrTemplate(uriToOpen, type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft ?
                                nsMimeOutput::nsMimeMessageDraftOrTemplate : nsMimeOutput::nsMimeMessageEditorTemplate,
