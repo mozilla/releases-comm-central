@@ -1276,7 +1276,6 @@ components/xpautoc.dll
 @DIR_MACOS@components/dom_base.xpt
 @DIR_MACOS@components/dom_canvas.xpt
 @DIR_MACOS@components/dom_core.xpt
-@DIR_MACOS@components/dom_css.xpt
 @DIR_MACOS@components/dom_events.xpt
 @DIR_MACOS@components/dom_geolocation.xpt
 @DIR_MACOS@components/dom_html.xpt
@@ -1285,7 +1284,6 @@ components/xpautoc.dll
 @DIR_MACOS@components/dom_sidebar.xpt
 @DIR_MACOS@components/dom_smil.xpt
 @DIR_MACOS@components/dom_storage.xpt
-@DIR_MACOS@components/dom_stylesheets.xpt
 @DIR_MACOS@components/dom_svg.xpt
 @DIR_MACOS@components/dom_threads.xpt
 @DIR_MACOS@components/dom_traversal.xpt

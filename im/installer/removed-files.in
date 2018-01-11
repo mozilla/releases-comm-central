@@ -113,7 +113,6 @@ components/dom.xpt
 components/dom_base.xpt
 components/dom_canvas.xpt
 components/dom_core.xpt
-components/dom_css.xpt
 components/dom_events.xpt
 components/dom_geolocation.xpt
 components/dom_html.xpt
@@ -122,7 +121,6 @@ components/dom_offline.xpt
 components/dom_range.xpt
 components/dom_sidebar.xpt
 components/dom_storage.xpt
-components/dom_stylesheets.xpt
 components/dom_svg.xpt
 components/dom_threads.xpt
 components/dom_traversal.xpt

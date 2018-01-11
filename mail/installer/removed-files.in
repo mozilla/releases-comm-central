@@ -916,12 +916,10 @@ uninstall/uninstall.exe
   components/dom.xpt
   components/dom_base.xpt
   components/dom_core.xpt
-  components/dom_css.xpt
   components/dom_events.xpt
   components/dom_html.xpt
   components/dom_offline.xpt
   components/dom_range.xpt
-  components/dom_stylesheets.xpt
   components/dom_traversal.xpt
   components/dom_views.xpt
   components/dom_xbl.xpt
@@ -1048,7 +1046,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/dom_base.xpt
   @DIR_MACOS@components/dom_canvas.xpt
   @DIR_MACOS@components/dom_core.xpt
-  @DIR_MACOS@components/dom_css.xpt
   @DIR_MACOS@components/dom_events.xpt
   @DIR_MACOS@components/dom_geolocation.xpt
   @DIR_MACOS@components/dom_html.xpt
@@ -1057,7 +1054,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/dom_sidebar.xpt
   @DIR_MACOS@components/dom_smil.xpt
   @DIR_MACOS@components/dom_storage.xpt
-  @DIR_MACOS@components/dom_stylesheets.xpt
   @DIR_MACOS@components/dom_svg.xpt
   @DIR_MACOS@components/dom_threads.xpt
   @DIR_MACOS@components/dom_traversal.xpt
