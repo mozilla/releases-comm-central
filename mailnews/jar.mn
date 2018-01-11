@@ -88,6 +88,7 @@ messenger.jar:
     content/messenger/virtualFolderProperties.xul                              (base/content/virtualFolderProperties.xul)
     content/messenger/virtualFolderProperties.js                               (base/content/virtualFolderProperties.js)
     content/messenger/msgPrintEngine.js                                        (base/content/msgPrintEngine.js)
+    content/messenger/msgPrintEngine.xul                                       (base/content/msgPrintEngine.xul)
 *   content/messenger/junkMailInfo.xul                                         (base/content/junkMailInfo.xul)
     content/messenger/junkCommands.js                                          (base/content/junkCommands.js)
     content/messenger/junkLog.xul                                              (base/content/junkLog.xul)

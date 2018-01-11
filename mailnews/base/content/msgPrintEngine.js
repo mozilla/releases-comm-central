@@ -14,8 +14,6 @@ var printEngine;
 var printSettings = null;
 var printOpener = null;
 
-var kMsgBundle = "chrome://messenger/locale/messenger.properties";
-
 /* Functions related to startup */
 function OnLoadPrintEngine()
 {
@@ -65,39 +63,15 @@ var PrintPreviewListener = {
   }
 };
 
-function getBundle(aURI)
-{
-  if (!aURI)
-    return null;
-
-  var bundle = null;
-  try
-  {
-    bundle = Services.strings.createBundle(aURI);
-  }
-  catch (ex)
-  {
-    bundle = null;
-    debug("Exception getting bundle " + aURI + ": " + ex);
-  }
-
-  return bundle;
-}
-
 function setPPTitle(aTitle)
 {
-  var title = aTitle;
-  try {
-  var gBrandBundle = document.getElementById("bundle_brand");
-  if (gBrandBundle) {
-    var msgBundle = this.getBundle(kMsgBundle);
-    if (msgBundle) {
-        var brandStr = gBrandBundle.getString("brandShortName")
-        var array = [title, brandStr];
-        title = msgBundle.formatStringFromName("PreviewTitle", array, array.length);
-      }
-    }
-  } catch (e) {}
+  let title = aTitle;
+  let gBrandBundle = document.getElementById("bundle_brand");
+  let msgBundle = document.getElementById("bundle_messenger");
+  let brandStr = gBrandBundle.getString("brandShortName");
+  if (brandStr) {
+    title = msgBundle.getFormattedString("PreviewTitle", [title, brandStr]);
+  }
   document.title = title;
 }
 
@@ -117,16 +91,16 @@ function ReplaceWithSelection()
 
   var selection = printOpener.content.getSelection();
 
-  if ( selection != "" ) {
-    var range = selection.getRangeAt( 0 );
+  if (selection != "") {
+    var range = selection.getRangeAt(0);
     var contents = range.cloneContents();
 
-    var aBody = window.content.document.querySelector( "body" );
+    var aBody = window.content.document.querySelector("body");
 
     /* Replace the content of <body> with the users' selection. */
-    if ( aBody ) {
+    if (aBody) {
       aBody.innerHTML = "";
-      aBody.appendChild( contents );
+      aBody.appendChild(contents);
     }
   }
 }
@@ -150,7 +124,7 @@ function InitPrintEngineWindow()
    * Window was opened via window.openDialog.  Copy argument
    * and perform compose initialization 
    */
-  if ( window.arguments && window.arguments[0] != null ) {
+  if (window.arguments && window.arguments[0] != null) {
     var numSelected = window.arguments[0];
     var uriArray = window.arguments[1];
     var statusFeedback = window.arguments[2];
@@ -180,9 +154,8 @@ function InitPrintEngineWindow()
     if (numSelected > 0) {
       printEngine.setPrintURICount(numSelected);
       for (var i = 0; i < numSelected; i++) {
-        printEngine.addPrintURI(uriArray[i]);      
-        //dump(uriArray[i] + "\n");
-      }	    
+        printEngine.addPrintURI(uriArray[i]);
+      }
     }
   }
 }
@@ -190,7 +163,7 @@ function InitPrintEngineWindow()
 function ClearPrintEnginePane()
 {
   if (window.frames["content"].location.href != "about:blank")
-      window.frames["content"].location.href = "about:blank";
+    window.frames["content"].location.href = "about:blank";
 }
 
 function StopUrls()

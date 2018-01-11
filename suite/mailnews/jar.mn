@@ -54,7 +54,6 @@ messenger.jar:
     content/messenger/msgMail3PaneWindow.js
     content/messenger/searchBar.js
     content/messenger/mail3PaneWindowCommands.js
-    content/messenger/msgPrintEngine.xul
     content/messenger/mailTasksOverlay.xul
     content/messenger/mailTasksOverlay.js
     content/messenger/mailEditorOverlay.xul

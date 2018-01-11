@@ -308,6 +308,7 @@
   locale/@AB_CD@/messenger/msgHdrViewOverlay.dtd                            (%chrome/mailnews/msgHdrViewOverlay.dtd)
   locale/@AB_CD@/messenger/msgHdrViewPopup.dtd                              (%chrome/mailnews/msgHdrViewPopup.dtd)
   locale/@AB_CD@/messenger/msgmdn.properties                                (%chrome/mailnews/msgmdn.properties)
+  locale/@AB_CD@/messenger/msgPrintEngine.dtd                               (%chrome/mailnews/msgPrintEngine.dtd)
   locale/@AB_CD@/messenger/msgSynchronize.dtd                               (%chrome/mailnews/msgSynchronize.dtd)
   locale/@AB_CD@/messenger/msgViewPickerOverlay.dtd                         (%chrome/mailnews/msgViewPickerOverlay.dtd)
   locale/@AB_CD@/messenger/newFolderDialog.dtd                              (%chrome/mailnews/newFolderDialog.dtd)
