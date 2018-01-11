@@ -59,7 +59,7 @@ CustomizeDialogHelper.prototype = {
     // either a normal window or embedded into a sheet.
     if (!this._openInWindow) {
       ctc = wh.wait_for_frame_load(aController.e("customizeToolbarSheetIFrame"),
-        "chrome://global/content/customizeToolbar.xul");
+        "chrome://messenger/content/customizeToolbar.xul");
     }
     else {
       ctc = wh.wait_for_existing_window(this._windowType);

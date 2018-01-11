@@ -1025,7 +1025,7 @@ function onCommandCustomize() {
     let wintype = document.documentElement.getAttribute("windowtype");
     wintype = wintype.replace(/:/g, "");
 
-    window.openDialog("chrome://global/content/customizeToolbar.xul",
+    window.openDialog("chrome://messenger/content/customizeToolbar.xul",
                       "CustomizeToolbar" + wintype,
                       "chrome,all,dependent",
                       document.getElementById(toolboxId), // toolbox dom node

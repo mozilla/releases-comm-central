@@ -105,8 +105,8 @@ calendar.jar:
 % skin calendar classic/1.0 chrome/skin/osx/calendar/ os=Darwin
 % skin calendar classic/1.0 chrome/skin/windows/calendar/ os=WINNT
 % skin calendar-common classic/1.0 chrome/skin/common/
-% style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-task-view.css
-% style chrome://global/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
+% style chrome://messenger/content/customizeToolbar.xul chrome://calendar/skin/calendar-task-view.css
+% style chrome://messenger/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://lightning/content/lightning-item-iframe.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog-attendees.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css

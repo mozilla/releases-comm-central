@@ -22,6 +22,8 @@
   locale/@AB_CD@/messenger/accountCreationModel.properties              (%chrome/messenger/accountCreationModel.properties)
   locale/@AB_CD@/messenger/accountCreationUtil.properties               (%chrome/messenger/accountCreationUtil.properties)
   locale/@AB_CD@/messenger/charsetTitles.properties                     (%chrome/messenger/charsetTitles.properties)
+  locale/@AB_CD@/messenger/customizeToolbar.dtd                         (%chrome/messenger/customizeToolbar.dtd)
+  locale/@AB_CD@/messenger/customizeToolbar.properties                  (%chrome/messenger/customizeToolbar.properties)
   locale/@AB_CD@/messenger/datetimepicker.dtd                           (%chrome/messenger/datetimepicker.dtd)
   locale/@AB_CD@/messenger/systemIntegrationDialog.dtd                  (%chrome/messenger/systemIntegrationDialog.dtd)
   locale/@AB_CD@/messenger/virtualFolderProperties.dtd                  (%chrome/messenger/virtualFolderProperties.dtd)

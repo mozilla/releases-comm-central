@@ -145,7 +145,7 @@ function CustomizeMailToolbar(toolboxId, customizePopupId)
 
   var toolbox = document.getElementById(toolboxId);
 
-  var customizeURL = "chrome://global/content/customizeToolbar.xul";
+  var customizeURL = "chrome://messenger/content/customizeToolbar.xul";
   gCustomizeSheet = Services.prefs.getBoolPref("toolbar.customization.usesheet");
 
   if (gCustomizeSheet) {
