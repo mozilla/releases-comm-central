@@ -55,7 +55,7 @@
 
 /* End restore Windows Classic fallbacks removed by bug 1343196 */
 
-@media (menubar-drag) {
+@media (-moz-menubar-drag) {
   toolbar[type="menubar"]:not([autohide="true"]):not([xpfe="false"]):not(:-moz-lwtheme) {
     -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-drag");
   }

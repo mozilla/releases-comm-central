@@ -47,7 +47,7 @@
   list-style-image: url("chrome://global/skin/icons/search.gif");
 }
 
-@media (touch-enabled) {
+@media (-moz-touch-enabled) {
   .search-go-button {
     padding: 0px 5px;
   }

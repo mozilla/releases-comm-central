@@ -51,7 +51,7 @@
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 
-@media (touch-enabled) {
+@media (-moz-touch-enabled) {
   .search-go-button {
     padding: 3px 5px;
   }
