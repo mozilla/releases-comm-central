@@ -68,3 +68,42 @@ macosx64/opt:
         - linux64-llvm-dsymutil
         - linux64-rust-macos
         - linux64-sccache
+
+macosx64-nightly/opt:
+    description: "MacOS X x64 Cross-compile Nightly"
+    attributes:
+        nightly: true
+    index:
+        product: thunderbird
+        job-name: macosx64-opt
+        type: nightly
+    treeherder:
+        platform: osx-cross/opt
+        symbol: tc(N)
+        tier: 1
+    worker-type: aws-provisioner-v1/gecko-{level}-b-macosx64
+    worker:
+        max-run-time: 36000
+        env:
+            # We just use the browser manifest, since we don't need anything different
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build update]
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_mac_64_cross_builds.py
+            - disable_signing.py
+            - taskcluster_nightly.py
+        script: "mozharness/scripts/fx_desktop_build.py"
+        tooltool-downloads: internal
+    toolchains:
+        - linux64-cctools-port
+        - linux64-clang
+        - linux64-hfsplus
+        - linux64-libdmg
+        - linux64-llvm-dsymutil
+        - linux64-rust-macos

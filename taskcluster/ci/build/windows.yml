@@ -15,6 +15,7 @@ win32/opt:
     run:
         using: mozharness
         comm-checkout: true
+        actions: [build, check-test, update]
         options: [append-env-variables-from-configs]
         script: mozharness/scripts/fx_desktop_build.py
         config-paths:
@@ -28,6 +29,42 @@ win32/opt:
         - win32-clang-cl
         - win32-rust
         - win64-sccache
+
+win32-nightly/opt:
+    description: "Win32 Nightly"
+    attributes:
+        nightly: true
+    index:
+        product: thunderbird
+        job-name: win32-opt
+        type: nightly
+    treeherder:
+        platform: windows2012-32/opt
+        symbol: tc(N)
+        tier: 1
+    worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
+    worker:
+        max-run-time: 7200
+        env:
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win32/releng.manifest"
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build, check-test, update]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/taskcluster_base_windows.py
+            - builds/taskcluster_base_win32.py
+            - builds/taskcluster_sub_win32/opt.py
+            - disable_signing.py
+            - taskcluster_nightly.py
+    toolchains:
+        - win32-clang-cl
+        - win32-rust
 
 win32/debug:
     description: "Win32 Debug"
@@ -46,6 +83,7 @@ win32/debug:
     run:
         using: mozharness
         comm-checkout: true
+        actions: [build, check-test, update]
         options: [append-env-variables-from-configs]
         script: mozharness/scripts/fx_desktop_build.py
         config-paths:
@@ -90,6 +128,42 @@ win64/opt:
         - win64-clang-cl
         - win64-rust
         - win64-sccache
+
+win64-nightly/opt:
+    description: "Win64 Nightly"
+    attributes:
+        nightly: true
+    index:
+        product: thunderbird
+        job-name: win64-opt
+        type: nightly
+    treeherder:
+        platform: windows2012-64/opt
+        symbol: tc(N)
+        tier: 1
+    worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
+    worker:
+        max-run-time: 7200
+        env:
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build, check-test, update]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/taskcluster_base_windows.py
+            - builds/taskcluster_base_win64.py
+            - builds/taskcluster_sub_win64/opt.py
+            - disable_signing.py
+            - taskcluster_nightly.py
+    toolchains:
+        - win64-clang-cl
+        - win64-rust
 
 win64/debug:
     description: "Win64 Debug"

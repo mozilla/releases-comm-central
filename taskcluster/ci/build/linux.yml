@@ -27,6 +27,39 @@ linux64/opt:
         - linux64-rust
         - linux64-sccache
 
+linux64-nightly/opt:
+    description: "Linux64 Nightly"
+    attributes:
+        nightly: true
+    index:
+        product: thunderbird
+        job-name: linux64-opt
+        type: nightly
+    treeherder:
+        platform: linux64/opt
+        symbol: tc(N)
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker:
+        docker-image: {in-tree: "debian7-amd64-build"}
+        max-run-time: 36000
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build check-test update]
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - disable_signing.py
+            - taskcluster_nightly.py
+        script: "mozharness/scripts/fx_desktop_build.py"
+        need-xvfb: true
+    toolchains:
+        - linux64-clang
+        - linux64-gcc
+        - linux64-rust
+
 linux64/debug:
     description: "Linux64 Debug"
     index:
@@ -85,6 +118,39 @@ linux/opt:
         - linux64-gcc
         - linux64-rust
         - linux64-sccache
+
+linux-nightly/opt:
+    description: "Linux32 Nightly"
+    attributes:
+        nightly: true
+    index:
+        product: thunderbird
+        job-name: linux32-opt
+        type: nightly
+    treeherder:
+        platform: linux32/opt
+        symbol: tc(N)
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker:
+        docker-image: {in-tree: "debian7-i386-build"}
+        max-run-time: 36000
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build check-test update]
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_32_builds.py
+            - disable_signing.py
+            - taskcluster_nightly.py
+        script: "mozharness/scripts/fx_desktop_build.py"
+        need-xvfb: true
+    toolchains:
+        - linux64-clang
+        - linux64-gcc
+        - linux64-rust
 
 linux/debug:
     description: "Linux32 Debug"
