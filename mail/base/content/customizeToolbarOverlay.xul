@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE overlay [
-<!ENTITY % customizeToolbarDTD SYSTEM "chrome://global/locale/customizeToolbar.dtd">
+<!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
   %customizeToolbarDTD;
   <!ENTITY % customizeToolbarOverlayDTD SYSTEM "chrome://messenger/locale/customizeToolbarOverlay.dtd">
   %customizeToolbarOverlayDTD;
