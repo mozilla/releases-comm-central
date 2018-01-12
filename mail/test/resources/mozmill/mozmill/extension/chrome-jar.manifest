@@ -9,4 +9,4 @@ overlay chrome://calendar/content/calendar.xul chrome://mozmill/content/overlay.
 overlay chrome://navigator/content/navigatorOverlay.xul chrome://mozmill/content/overlay_tb.xul
 overlay windowtype:Songbird:Main chrome://mozmill/content/overlay.xul
 
-style chrome://global/content/customizeToolbar.xul chrome://mozmill/skin/overlay.css
+style chrome://messenger/content/customizeToolbar.xul chrome://mozmill/skin/overlay.css
