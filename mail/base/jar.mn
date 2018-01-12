@@ -141,5 +141,5 @@ comm.jar:
    content/communicator/utilityOverlay.js           (content/utilityOverlay.js)
 
 toolkit.jar:
-% overlay chrome://global/content/customizeToolbar.xul chrome://messenger/content/customizeToolbarOverlay.xul
+% overlay chrome://messenger/content/customizeToolbar.xul chrome://messenger/content/customizeToolbarOverlay.xul
 % overlay chrome://mozapps/content/downloads/downloads.xul chrome://messenger/content/downloadsOverlay.xul
