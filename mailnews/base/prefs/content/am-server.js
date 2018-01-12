@@ -327,9 +327,14 @@ function setupImapDeleteUI(aServerId)
   trashPopup._parentFolder = MailUtils.getFolderForURI(aServerId);
   trashPopup._ensureInitialized();
 
+  // Convert the folder path in Unicode to MUTF-7.
+  let manager = Components.classes['@mozilla.org/charset-converter-manager;1']
+                  .getService(Components.interfaces.nsICharsetConverterManager);
+  // Escape backslash and double-quote with another backslash before encoding.
+  let trashMutf7 = manager.unicodeToMutf7(trashFolderName.replace(/([\\"])/g, '\\$1'));
   // TODO: There is something wrong here, selectFolder() fails even if the
   // folder does exist. Try to fix in bug 802609.
-  let trashFolder = MailUtils.getFolderForURI(aServerId + "/" + trashFolderName, false);
+  let trashFolder = MailUtils.getFolderForURI(aServerId + "/" + trashMutf7, false);
   try {
     trashPopup.selectFolder(trashFolder);
   } catch(ex) {
