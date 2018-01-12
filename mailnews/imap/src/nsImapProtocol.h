@@ -340,7 +340,7 @@ private:
   uint32_t              m_allocatedSize; // allocated size
   uint32_t        m_totalDataSize; // total data size
   uint32_t        m_curReadIndex;  // current read index
-  nsCString       m_trashFolderName;
+  nsCString       m_trashFolderPath;
 
   // Ouput stream for writing commands to the socket
   nsCOMPtr<nsISocketTransport>  m_transport;
@@ -547,7 +547,6 @@ private:
   bool FolderIsSelected(const char *mailboxName);
 
   bool    MailboxIsNoSelectMailbox(const char *mailboxName);
-  nsCString CreatePossibleTrashName(const char *prefix);
   bool FolderNeedsACLInitialized(const char *folderName);
   void DiscoverMailboxList();
   void DiscoverAllAndSubscribedBoxes();
