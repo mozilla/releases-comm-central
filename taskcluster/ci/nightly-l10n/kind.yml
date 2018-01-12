@@ -1,0 +1,131 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+loader: taskgraph.loader.single_dep:loader
+
+transforms:
+    - taskgraph.transforms.l10n:transforms
+    - taskgraph.transforms.use_toolchains:transforms
+    - taskgraph.transforms.job:transforms
+    - taskgraph.transforms.task:transforms
+
+kind-dependencies:
+    - build
+    - toolchain
+
+only-for-build-platforms:
+    - linux64-nightly/opt
+    - linux-nightly/opt
+    - macosx64-nightly/opt
+    - win32-nightly/opt
+    - win64-nightly/opt
+
+job-template:
+    description: Localization
+    locales-file: comm/mail/locales/all-locales
+    locales-per-chunk: 5
+    run-on-projects: ['release']
+    ignore-locales:
+        by-build-platform:
+            # OSX has a special locale for japanese
+            macosx64.*: [ja]
+            default: [ja-JP-mac]
+    run-time: 36000
+    secrets: false
+    docker-image: null
+    toolchains:
+        by-build-platform:
+            default: []
+            macosx64.*:
+                - linux64-libdmg
+                - linux64-hfsplus
+    tooltool:
+        by-build-platform:
+            default: public
+            macosx64-nightly: internal
+            win32-nightly: internal
+            win64-nightly: internal
+    worker-type:
+        by-build-platform:
+            default: aws-provisioner-v1/gecko-{level}-b-linux
+            win.*: aws-provisioner-v1/gecko-{level}-b-win2012
+    treeherder:
+        symbol: L10n(N)
+        tier: 1
+        platform:
+            by-build-platform:
+                linux64-nightly: linux64/opt
+                linux-nightly: linux32/opt
+                macosx64-nightly: osx-cross/opt
+                win32-nightly: windows2012-32/opt
+                win64-nightly: windows2012-64/opt
+    env:
+        by-build-platform:
+            linux.*:   # linux64 and 32 get same treatment here
+                EN_US_PACKAGE_NAME: target.tar.bz2
+                EN_US_BINARY_URL:
+                    task-reference: https://queue.taskcluster.net/v1/task/<signed-build>/artifacts/public/build
+                MAR_TOOLS_URL:
+                    task-reference: https://queue.taskcluster.net/v1/task/<unsigned-build>/artifacts/public/build/host/bin
+            macosx64-nightly:
+                EN_US_PACKAGE_NAME: target.dmg
+                EN_US_BINARY_URL:
+                    task-reference: https://queue.taskcluster.net/v1/task/<repackage>/artifacts/public/build
+                MAR_TOOLS_URL:
+                    task-reference: https://queue.taskcluster.net/v1/task/<unsigned-build>/artifacts/public/build/host/bin
+            win.*:
+                EN_US_PACKAGE_NAME: target.zip
+                EN_US_BINARY_URL:
+                    task-reference: https://queue.taskcluster.net/v1/task/<signed-build>/artifacts/public/build
+                EN_US_INSTALLER_BINARY_URL:
+                    task-reference: https://queue.taskcluster.net/v1/task/<repackage-signed>/artifacts/public/build
+                MAR_TOOLS_URL:
+                    task-reference: https://queue.taskcluster.net/v1/task/<unsigned-build>/artifacts/public/build/host/bin
+    mozharness:
+        comm-checkout: true
+        config-paths:
+            - comm/mozharness
+        config:
+            # no default, so we fail on new entries
+            by-build-platform:
+                linux-nightly:
+                    - single_locale/linux32.py
+                    - single_locale/{project}.py
+                    - single_locale/tc_common.py
+                    - single_locale/tc_linux32.py
+                    - single_locale/thunderbird.py
+                    - taskcluster_nightly.py
+                linux64-nightly:
+                    - single_locale/linux64.py
+                    - single_locale/{project}.py
+                    - single_locale/tc_common.py
+                    - single_locale/tc_linux64.py
+                    - single_locale/thunderbird.py
+                    - taskcluster_nightly.py
+                macosx64-nightly:
+                    - single_locale/macosx64.py
+                    - single_locale/{project}.py
+                    - single_locale/tc_common.py
+                    - single_locale/tc_macosx64.py
+                    - single_locale/thunderbird.py
+                    - taskcluster_nightly.py
+                win32-nightly:
+                    - single_locale/win32.py
+                    - single_locale/{project}.py
+                    - single_locale/tc_common.py
+                    - single_locale/tc_win32.py
+                    - single_locale/thunderbird.py
+                    - taskcluster_nightly.py
+                win64-nightly:
+                    - single_locale/win64.py
+                    - single_locale/{project}.py
+                    - single_locale/tc_common.py
+                    - single_locale/tc_win64.py
+                    - single_locale/thunderbird.py
+                    - taskcluster_nightly.py
+        options:
+            - revision=$GECKO_HEAD_REV
+        actions: ['clone-locales', 'list-locales', 'setup', 'repack',
+                  'submit-to-balrog', 'summary']
+        script: mozharness/scripts/desktop_l10n.py
