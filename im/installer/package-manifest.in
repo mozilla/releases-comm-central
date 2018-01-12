@@ -444,11 +444,6 @@
 #ifdef UNIX_BUT_NOT_MAC
 @RESPATH@/components/toolkitremote.xpt
 #endif
-#ifdef MOZ_GTK
-@RESPATH@/components/filepicker.xpt
-@RESPATH@/components/nsFilePicker.js
-@RESPATH@/components/nsFilePicker.manifest
-#endif
 #ifdef MOZ_GECKO_PROFILER
 @RESPATH@/components/profiler.xpt
 #endif
