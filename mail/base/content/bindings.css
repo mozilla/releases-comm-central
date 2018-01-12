@@ -11,3 +11,11 @@ toolbox {
 toolbar:not([type="menubar"]) {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar");
 }
+
+datepicker[type="popup"] {
+  -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-popup');
+}
+
+datepicker[type="grid"] {
+  -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-grid');
+}

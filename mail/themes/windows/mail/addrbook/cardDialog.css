@@ -10,14 +10,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-datepicker[type="popup"] {
-  -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-popup');
-}
-
-datepicker[type="grid"] {
-  -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-grid');
-}
-
 /* ::::: Card Edit dialog ::::: */
 
 .CardEditWidth {
