@@ -372,28 +372,25 @@ function selectImapDeleteModel(choice)
 function folderPickerChange(aEvent)
 {
   var folder = aEvent.target._folder;
-  var folderPath = getFolderPathFromRoot(folder);
+  // Since we need to deal with localised folder names, we simply use
+  // the path of the URI like we do in nsImapIncomingServer::DiscoveryDone().
+  // Note that the path is returned with a leading slash which we need to remove.
+  var folderPath = Services.io.newURI(folder.URI).pathQueryRef.substring(1);
+  // We need to convert that from MUTF-7 to Unicode.
+  var manager = Components.classes['@mozilla.org/charset-converter-manager;1']
+                  .getService(Components.interfaces.nsICharsetConverterManager);
+  var util = Components.classes["@mozilla.org/network/util;1"]
+                               .getService(Components.interfaces.nsINetUtil);
+  var trashUnicode = manager.mutf7ToUnicode(
+    util.unescapeString(folderPath, Components.interfaces.nsINetUtil.ESCAPE_URL_PATH));
 
   // Set the value to be persisted.
   document.getElementById("imap.trashFolderName")
-          .setAttribute("value", folderPath);
+          .setAttribute("value", trashUnicode);
 
   // Update the widget to show/do correct things even for subfolders.
   var trashFolderPicker = document.getElementById("msgTrashFolderPicker");
   trashFolderPicker.menupopup.selectFolder(folder);
-}
-
-/** Generate the relative folder path from the root. */
-function getFolderPathFromRoot(folder)
-{
-  var path = folder.name;
-  var parentFolder = folder.parent;
-  while (parentFolder && parentFolder != folder.rootFolder) {
-    path = parentFolder.name + "/" + path;
-    parentFolder = parentFolder.parent;
-  }
-  // IMAP Inbox URI's start with INBOX, not Inbox.
-  return path.replace(/^Inbox/, "INBOX");
 }
 
 // Get trash_folder_name from prefs. Despite its name this returns
