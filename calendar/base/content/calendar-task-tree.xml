@@ -79,8 +79,7 @@
           <xul:splitter class="tree-splitter" ordinal="14"/>
           <xul:treecol anonid="calendar-task-tree-col-percentcomplete"
                        flex="1"
-                       type="progressmeter"
-                       minwidth="19"
+                       minwidth="40"
                        itemproperty="percentComplete"
                        label="&calendar.unifinder.tree.percentcomplete.label;"
                        tooltiptext="&calendar.unifinder.tree.percentcomplete.tooltip2;"/>
@@ -706,19 +705,6 @@
             // The progress mode for a given cell. This method is only called for
             // columns of type |progressmeter|.
             getProgressMode: function(aRow, aCol) {
-                switch (aCol.element.getAttribute("itemproperty")) {
-                    case "percentComplete": {
-                        let task = this.binding.mTaskArray[aRow];
-                        if (aCol.element.boxObject.width > 75 &&
-                            task.percentComplete > 0) {
-                            // XXX Would be nice if we could use relative widths,
-                            // i.e "15ex", but there is no scriptable interface.
-                            return Components.interfaces.nsITreeView.PROGRESS_NORMAL;
-                        }
-                        break;
-                    }
-                }
-
                 return Components.interfaces.nsITreeView.PROGRESS_NONE;
             },
 

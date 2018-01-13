@@ -117,17 +117,6 @@
     -moz-image-region: rect(0 39px 13px 26px);
 }
 
-/* ::::: tree progress meter ::::: */
-
-.calendar-task-tree > treechildren::-moz-tree-progressmeter {
-    border: 1px solid ThreeDShadow;
-    color: Highlight;
-    background-color: -moz-field;
-}
-
-@media all and (-moz-windows-default-theme) {
-  .calendar-task-tree > treechildren::-moz-tree-progressmeter(hover),
-  .calendar-task-tree > treechildren::-moz-tree-progressmeter(selected) {
-      margin: 1px 4px;
-  }
+treecol[anonid="calendar-task-tree-col-percentcomplete"] {
+  text-align: end;
 }
