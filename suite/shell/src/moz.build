@@ -18,7 +18,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
     ]
 elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     SOURCES += ['nsMacShellService.cpp']
-elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
+elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk3':
     SOURCES += ['nsGNOMEShellService.cpp']
 
 if SOURCES:

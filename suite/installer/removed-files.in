@@ -1208,7 +1208,6 @@ components/@DLL_PREFIX@unixproxy@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@uconv@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@universalchardet@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@webbrwsr@DLL_SUFFIX@
-@DIR_MACOS@components/@DLL_PREFIX@widget_gtk2@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@windowds@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@xpautocomplete@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@zipwriter@DLL_SUFFIX@
