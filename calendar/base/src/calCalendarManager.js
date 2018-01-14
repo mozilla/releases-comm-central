@@ -944,8 +944,12 @@ calMgrCalendarObserver.prototype = {
                 message = props.GetStringFromName("icsMalformedError");
                 break;
             case calIErrors.MODIFICATION_FAILED:
-                errMsg = cal.calGetString("calendar", "errorWriting", [aCalendar.name]);
-                // falls through
+                errMsg = cal.calGetString("calendar", "errorWriting2", [aCalendar.name]);
+                message = cal.calGetString("calendar", "errorWritingDetails");
+                if (aMessage) {
+                    message = aMessage + "\n" + message;
+                }
+                break;
             default:
                 message = aMessage;
         }

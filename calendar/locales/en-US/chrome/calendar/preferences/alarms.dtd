@@ -18,7 +18,7 @@
 <!ENTITY pref.calendar.alarms.sound.play.accessKey "P">
 <!ENTITY pref.showalarmbox "Show the reminder dialog">
 <!ENTITY pref.calendar.alarms.showAlarmBox.accessKey "x">
-<!ENTITY pref.missedalarms "Show missed reminders">
+<!ENTITY pref.missedalarms2 "Show missed reminders for writable calendars">
 <!ENTITY pref.calendar.alarms.missedAlarms.accessKey "m">
 <!ENTITY pref.calendar.alarms.defaults.label "Reminder Defaults">
 <!ENTITY pref.defalarm4events.label "Default reminder setting for events:">

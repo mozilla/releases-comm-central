@@ -113,6 +113,23 @@
 
             document.getAnonymousElementByAttribute(this, "anonid", "alarm-location-label").hidden =
                 (locationDescription.textContent.length < 1);
+
+            // hide snooze button if read-only
+            let snoozeButton = document.getAnonymousElementByAttribute(
+                this,
+                "anonid",
+                "alarm-snooze-button"
+            );
+            if (!cal.isCalendarWritable(this.mItem.calendar) ||
+                !cal.userCanModifyItem(this.mItem)) {
+                let tooltip = "reminderDisabledSnoozeButtonTooltip";
+                snoozeButton.disabled = true;
+                snoozeButton.setAttribute("tooltiptext",
+                                          cal.calGetString("calendar-alarms", tooltip));
+            } else {
+                snoozeButton.disabled = false;
+                snoozeButton.removeAttribute("tooltiptext");
+            }
         ]]></body>
       </method>
 

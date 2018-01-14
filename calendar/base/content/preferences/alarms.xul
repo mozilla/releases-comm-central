@@ -112,7 +112,7 @@
             <hbox align="center" flex="1">
                 <checkbox id="missedalarms"
                           preference="calendar.alarms.showmissed"
-                          label="&pref.missedalarms;"
+                          label="&pref.missedalarms2;"
                           accesskey="&pref.calendar.alarms.missedAlarms.accessKey;"/>
             </hbox>
         </groupbox>

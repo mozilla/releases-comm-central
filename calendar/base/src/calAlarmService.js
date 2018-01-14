@@ -181,20 +181,34 @@ calAlarmService.prototype = {
     },
 
     dismissAlarm: function(aItem, aAlarm) {
-        let now = nowUTC();
-        // We want the parent item, otherwise we're going to accidentally create an
-        // exception.  We've relnoted (for 0.1) the slightly odd behavior this can
-        // cause if you move an event after dismissing an alarm
-        let oldParent = aItem.parentItem;
-        let newParent = oldParent.clone();
-        newParent.alarmLastAck = now;
-        // Make sure to clear out any snoozes that were here.
-        if (aItem.recurrenceId) {
-            newParent.deleteProperty("X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime);
+        let rv;
+        if (cal.isCalendarWritable(aItem.calendar) &&
+            cal.userCanModifyItem(aItem)) {
+            let now = nowUTC();
+            // We want the parent item, otherwise we're going to accidentally
+            // create an exception.  We've relnoted (for 0.1) the slightly odd
+            // behavior this can cause if you move an event after dismissing an
+            // alarm
+            let oldParent = aItem.parentItem;
+            let newParent = oldParent.clone();
+            newParent.alarmLastAck = now;
+            // Make sure to clear out any snoozes that were here.
+            if (aItem.recurrenceId) {
+                newParent.deleteProperty("X-MOZ-SNOOZE-TIME-" +
+                                         aItem.recurrenceId.nativeTime);
+            } else {
+                newParent.deleteProperty("X-MOZ-SNOOZE-TIME");
+            }
+            rv = newParent.calendar.modifyItem(newParent, oldParent, null);
         } else {
-            newParent.deleteProperty("X-MOZ-SNOOZE-TIME");
+            // if the calendar of the item is r/o, we simple remove the alarm
+            // from the list without modifying the item, so this works like
+            // effectively dismissing from a user's pov, since the alarm neither
+            // popups again in the current user session nor will be added after
+            // next restart, since it is missed then already
+            this.removeAlarmsForItem(aItem);
         }
-        return newParent.calendar.modifyItem(newParent, oldParent, null);
+        return rv;
     },
 
     addObserver: function(aObserver) {
@@ -368,8 +382,12 @@ calAlarmService.prototype = {
                 }
 
                 this.addTimer(aItem, alarm, timeout);
-            } else if (showMissed) {
-                // This alarm is in the past.  See if it has been previously ack'd.
+            } else if (showMissed &&
+                       cal.isCalendarWritable(aItem.calendar) &&
+                       cal.userCanModifyItem(aItem)) {
+                // This alarm is in the past and the calendar is writable, so we
+                // could snooze or dismiss alarms. See if it has been previously
+                // ack'd.
                 let lastAck = aItem.parentItem.alarmLastAck;
                 if (lastAck && lastAck.compare(alarmDate) >= 0) {
                     // The alarm was previously dismissed or snoozed, no further
@@ -571,7 +589,14 @@ calAlarmService.prototype = {
 
     get isLoading() {
         for (let calId in this.mLoadedCalendars) {
-            if (!this.mLoadedCalendars[calId]) {
+            // we need to exclude calendars which failed to load explicitely to
+            // prevent the alaram dialog to stay opened after dismissing all
+            // alarms if there is a network calendar that failed to load
+            let currentStatus = cal.getCalendarManager()
+                                   .getCalendarById(calId)
+                                   .getProperty("currentStatus");
+            if (!this.mLoadedCalendars[calId] &&
+                Components.isSuccessCode(currentStatus)) {
                 return true;
             }
         }
