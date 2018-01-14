@@ -97,6 +97,13 @@
         ]
       }
     },
+    "fa": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "bing", "yahoo", "twitter"
+        ]
+      }
+    },
     "fi": {
       "default": {
         "visibleDefaultEngines": [
