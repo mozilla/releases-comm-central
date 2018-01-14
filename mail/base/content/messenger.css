@@ -613,18 +613,11 @@ preftab:root /* override :root */ {
 
 /* Status bar */
 
+%ifdef XP_MACOSX
 statusbar {
-  -moz-binding: url("chrome://messenger/content/generalBindings.xml#statusbar");
-%ifdef XP_MACOSX
   padding-right: 14px;
-%endif
 }
 
-statusbarpanel {
-  -moz-binding: url("chrome://messenger/content/generalBindings.xml#statusbarpanel");
-}
-
-%ifdef XP_MACOSX
 .statusbar-resizerpanel {
   display: none;
 }
