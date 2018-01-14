@@ -63,11 +63,12 @@ classic.jar:
   skin/classic/communicator/aboutPrivateBrowsing.css                    (communicator/aboutPrivateBrowsing.css)
   skin/classic/communicator/aboutSessionRestore.css                     (communicator/aboutSessionRestore.css)
   skin/classic/communicator/button.css                                  (communicator/button.css)
-* skin/classic/communicator/communicator.css                            (communicator/communicator.css)
   skin/classic/communicator/config.css                                  (communicator/config.css)
 #ifdef MOZ_WIDGET_GTK
+  skin/classic/communicator/communicator.css                            (linux/communicator/communicator.css)
   skin/classic/communicator/preferences.css                             (linux/communicator/preferences.css)
 #else
+  skin/classic/communicator/communicator.css                            (communicator/communicator.css)
   skin/classic/communicator/preferences.css                             (communicator/preferences.css)
 #endif
   skin/classic/communicator/toolbar.css                                 (communicator/toolbar.css)
