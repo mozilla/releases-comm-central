@@ -178,13 +178,15 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   @media (-moz-os-version: windows-win7) {
     #messengerWindow[sizemode="normal"] > #titlebar >
     #titlebar-content:-moz-lwtheme {
-      border-top: 2px solid;
-      -moz-border-top-colors: rgb(37, 44, 51) rgba(255, 255, 255, 0.6);
+      border-top: 1px solid;
+      padding-top: 1px;
+      border-top-color: rgb(37, 44, 51);
+      box-shadow: 0 1px 0 rgba(255,255,255,.6) inset;
     }
 
     #messengerWindow[sizemode="normal"] > #titlebar >
     #titlebar-content:-moz-lwtheme:-moz-window-inactive {
-      -moz-border-top-colors: rgb(102, 102, 102) rgba(255, 255, 255, 0.6);
+      border-top-color: rgb(102, 102, 102);
     }
   }
 
@@ -702,15 +704,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     }
     #messengerWindow:not(:-moz-lwtheme):-moz-window-inactive {
       background-color: rgb(215, 228, 242);
-    }
-
-    #messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content {
-      border-top-width: 2px;
-      -moz-border-top-colors: #4D4D4D #E9ECF3;
-    }
-
-    #messengerWindow[sizemode="normal"] #titlebar-buttonbox {
-      margin-top: -2px;
     }
   }
 }
