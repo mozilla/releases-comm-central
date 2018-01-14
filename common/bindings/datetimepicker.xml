@@ -22,7 +22,11 @@
       <stylesheet src="chrome://global/content/textbox.css"/>
       <stylesheet src="chrome://global/skin/textbox.css"/>
       <stylesheet src="chrome://global/skin/dropmarker.css"/>
+#ifdef MOZ_SUITE
+      <stylesheet src="chrome://communicator/skin/datetimepicker.css"/>
+#else
       <stylesheet src="chrome://messenger/skin/datetimepicker.css"/>
+#endif
     </resources>
 
     <content align="center">
@@ -211,8 +215,11 @@
   </binding>
 
   <binding id="datepicker"
+#ifdef MOZ_SUITE
+           extends="chrome://communicator/content/bindings/datetimepicker.xml#datetimepicker-base">
+#else
            extends="chrome://messenger/content/datetimepicker.xml#datetimepicker-base">
-
+#endif
     <implementation>
       <field name="yearLeadingZero">false</field>
       <field name="monthLeadingZero">true</field>
@@ -494,8 +501,11 @@
   </binding>
 
   <binding id="datepicker-grid"
+#ifdef MOZ_SUITE
+           extends="chrome://communicator/content/bindings/datetimepicker.xml#datepicker">
+#else
            extends="chrome://messenger/content/datetimepicker.xml#datepicker">
-
+#endif
     <content>
       <vbox class="datepicker-mainbox"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -881,7 +891,11 @@
   </binding>
 
   <binding id="datepicker-popup" display="xul:menu"
+#ifdef MOZ_SUITE
+           extends="chrome://communicator/content/bindings/datetimepicker.xml#datepicker">
+#else
            extends="chrome://messenger/content/datetimepicker.xml#datepicker">
+#endif
     <content align="center">
       <xul:hbox class="textbox-input-box datetimepicker-input-box" align="center"
                 allowevents="true" xbl:inherits="context,disabled,readonly">
