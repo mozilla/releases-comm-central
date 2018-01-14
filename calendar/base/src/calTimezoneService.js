@@ -11,10 +11,6 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://calendar/modules/ical.js");
 Components.utils.import("resource://gre/modules/NetUtil.jsm");
 
-/* exported g_stringBundle */
-
-var g_stringBundle = null;
-
 function calStringEnumerator(stringArray) {
     this.mIndex = 0;
     this.mStringArray = stringArray;
@@ -126,7 +122,7 @@ calTimezoneService.prototype = {
             cal.LOG("[calTimezoneService] Timezones version " + this.version + " loaded");
 
             let bundleURL = "chrome://" + resNamespace + "/locale/timezones.properties";
-            g_stringBundle = ICAL.Timezone.cal_tz_bundle = Services.strings.createBundle(bundleURL);
+            this.stringBundle = ICAL.Timezone.cal_tz_bundle = Services.strings.createBundle(bundleURL);
 
             // Make sure UTC and floating are cached by calling their getters
             this.UTC; // eslint-disable-line no-unused-expressions

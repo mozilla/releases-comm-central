@@ -95,7 +95,8 @@ calLibicalTimezone.prototype = {
     get displayName() {
         if (this.mDisplayName === undefined) {
             try {
-                this.mDisplayName = g_stringBundle.GetStringFromName("pref.timezone." + this.tzid.replace(/\//g, "."));
+                let bundle = cal.getTimezoneService().wrappedJSObject.stringBundle;
+                this.mDisplayName = bundle.GetStringFromName("pref.timezone." + this.tzid.replace(/\//g, "."));
             } catch (exc) {
                 // don't assert here, but gracefully fall back to TZID:
                 cal.LOG("Timezone property lookup failed! Falling back to " + this.tzid + "\n" + exc);
