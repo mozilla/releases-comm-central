@@ -66,10 +66,6 @@ toolbar[brighttext] {
   --toolbarbutton-icon-fill-attention: #45a1ff;
 }
 
-.toolbar-primary {
-  -moz-appearance: none;
-}
-
 .menu-iconic > .menu-iconic-left,
 .menuitem-iconic > .menu-iconic-left {
   display: -moz-box;

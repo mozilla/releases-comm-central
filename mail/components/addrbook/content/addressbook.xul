@@ -639,7 +639,7 @@
       </toolbaritem>
   </toolbarpalette>
   <!-- toolbar -->
-  <toolbar id="ab-bar2" class="toolbar-primary chromeclass-toolbar"
+  <toolbar id="ab-bar2" class="chromeclass-toolbar"
            toolbarname="&showAbToolbarCmd.label;"
            accesskey="&showAbToolbarCmd.accesskey;"
            fullscreentoolbar="true" mode="full"

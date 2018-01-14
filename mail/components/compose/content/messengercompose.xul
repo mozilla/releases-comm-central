@@ -1023,7 +1023,7 @@
     </toolbaritem>
 
   </toolbarpalette>
-  <toolbar id="composeToolbar2" class="toolbar-primary chromeclass-toolbar"
+  <toolbar id="composeToolbar2" class="chromeclass-toolbar"
            toolbarname="&showCompositionToolbarCmd.label;"
            accesskey="&showCompositionToolbarCmd.accesskey;"
            fullscreentoolbar="true" mode="full"

@@ -240,7 +240,7 @@
   <!-- navigation-toolbox is augmented by mailWindowOverlay.xul -->
   <toolbox id="navigation-toolbox" class="toolbox-top">
 
-    <toolbar id="tabs-toolbar" class="toolbar-primary">
+    <toolbar id="tabs-toolbar">
       <!-- class tabmail-tabs is unused and only maintained for add-ons. -->
       <tabs flex="1"
             id="tabmail-tabs"
