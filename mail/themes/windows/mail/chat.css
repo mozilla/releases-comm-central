@@ -6,11 +6,6 @@
 
 %include ../../../components/im/themes/chat.css
 
-#noConvScreen {
-  border-inline-start: 2px solid;
-  -moz-border-left-colors: ThreeDFace ThreeDDarkShadow;
-}
-
 /* Adaptation from #folderTree */
 #listPaneBox {
   -moz-appearance:  none;
@@ -155,10 +150,6 @@
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
-}
-
-#noConvScreen {
-  border-inline-start: none;
 }
 
 @media (-moz-windows-default-theme) {

@@ -54,10 +54,6 @@
   min-height: 30px;
   color: -moz-FieldText;
   border: 1px solid -moz-FieldText;
-  -moz-border-top-colors: none !important;
-  -moz-border-right-colors: none !important;
-  -moz-border-bottom-colors: none !important;
-  -moz-border-left-colors: none !important;
   border-radius: 2px;
   background-color: -moz-Field;
 }
