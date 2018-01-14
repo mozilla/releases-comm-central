@@ -1699,7 +1699,7 @@
   </binding>
 
   <binding id="conv-info-large"
-           extends="chrome://global/content/bindings/toolbar.xml#toolbar">
+           extends="chrome://messenger/content/toolbar.xml#toolbar">
     <resources>
       <stylesheet src="chrome://messenger/content/chat/chat.css"/>
     </resources>
