@@ -665,11 +665,8 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     background-image: linear-gradient(to right, white 26px, ThreeDLightShadow 26px,
                                       ThreeDLightShadow 27px, ThreeDHighlight 27px,
                                       ThreeDHighlight 28px, white 28px);
-    border: 3px solid;
-    -moz-border-top-colors: ThreeDShadow white;
-    -moz-border-bottom-colors: ThreeDShadow white;
-    -moz-border-left-colors: ThreeDShadow white;
-    -moz-border-right-colors: ThreeDShadow white;
+    border: 1px solid ThreeDShadow;
+    padding: 2px;
   }
 
   #appmenuSecondaryPane menupopup {
@@ -678,11 +675,8 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
                                       ThreeDLightShadow 26px, ThreeDLightShadow 27px,
                                       ThreeDHighlight 27px, ThreeDHighlight 28px,
                                       var(--appMenu-bg-color) 28px);
-    border: 3px solid;
-    -moz-border-top-colors: ThreeDShadow var(--appMenu-bg-color);
-    -moz-border-bottom-colors: ThreeDShadow var(--appMenu-bg-color);
-    -moz-border-left-colors: ThreeDShadow var(--appMenu-bg-color);
-    -moz-border-right-colors: ThreeDShadow var(--appMenu-bg-color);
+    border: 1px solid ThreeDShadow;
+    padding: 2px;
   }
 
   #appmenuPrimaryPane menupopup:-moz-locale-dir(rtl) {
