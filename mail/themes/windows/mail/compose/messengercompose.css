@@ -70,10 +70,10 @@
 
 #msgIdentity {
   -moz-appearance: none;
-  background: transparent;
+  background-color: transparent;
   height: 22px;
   line-height: 1;
-  border-color: transparent;
+  border: 1px solid transparent;
   box-shadow: none;
   margin-inline-end: 5px;
   padding-inline-start: 3px !important;
@@ -83,21 +83,14 @@
 
 @media (-moz-windows-default-theme: 0) {
   #msgIdentity {
-    border-width: 2px;
-    -moz-border-top-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+    border-bottom-color: ThreeDShadow;
   }
 
   #msgIdentity:hover,
   #msgIdentity:focus,
   #msgIdentity[focused="true"] {
     background-color: -moz-field;
-    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
+    border-color: ThreeDShadow;
   }
 }
 
@@ -133,12 +126,7 @@
   margin-top: 0;
   margin-inline-end: 5px;
   background-color: inherit;
-  border-style: solid;
-  border-color: transparent;
-  -moz-border-top-colors: none;
-  -moz-border-left-colors: none;
-  -moz-border-right-colors: none;
-  -moz-border-bottom-colors: none;
+  border: 1px solid transparent;
   padding: 2px;
   padding-inline-start: 5px;
   transition: border .2s, background-color .2s;
@@ -146,7 +134,6 @@
 
 @media (-moz-windows-default-theme) {
   #msgSubject {
-    border-width: 1px;
     border-bottom-color: #a9b7c9;
   }
 
@@ -159,17 +146,13 @@
 
 @media (-moz-windows-default-theme: 0) {
   #msgSubject {
-    border-width: 2px;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+    border-bottom-color: ThreeDShadow;
   }
 
   #msgSubject:hover,
   #msgSubject[focused="true"] {
     background-color: -moz-field;
-    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
+    border-color: ThreeDShadow;
   }
 }
 
@@ -210,23 +193,21 @@
 .dummy-row-cell:not(:first-child) {
   margin-bottom: 2px !important;
   padding: 2px !important;
+  border: 1px solid transparent !important;
   transition: border .2s, background-color .2s;
 }
 
 @media (-moz-windows-default-theme: 0) {
   .textbox-addressingWidget,
   .dummy-row-cell:not(:first-child) {
-    border: 2px solid transparent !important;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight !important;
+    border-bottom-color: ThreeDShadow !important;
+    margin-inline-end: 1px !important;
   }
 
   .textbox-addressingWidget:hover,
   .textbox-addressingWidget[focused="true"] {
     background-color: -moz-field;
-    -moz-border-top-colors: ThreeDShadow ThreeDHighlight !important;
-    -moz-border-right-colors: ThreeDShadow ThreeDHighlight !important;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight !important;
-    -moz-border-left-colors: ThreeDShadow ThreeDHighlight !important;
+    border-color: ThreeDShadow !important;
   }
 }
 
@@ -666,26 +647,6 @@ toolbar:not(:-moz-lwtheme) {
   }
 }
 
-@media (-moz-windows-default-theme: 0) {
-  #msgIdentity {
-    border-width: 2px;
-    -moz-border-top-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-  }
-
-  #msgIdentity:hover,
-  #msgIdentity:focus,
-  #msgIdentity[focused="true"] {
-    background-color: -moz-field;
-    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
-  }
-}
-
 /* ::::: primary toolbar buttons ::::: */
 
 @media (-moz-windows-default-theme) {
@@ -757,8 +718,6 @@ toolbar:not(:-moz-lwtheme) {
   margin-inline-end: -4px;
   border-inline-end-width: 0;
   border-inline-start: 1px solid #a9b7c9;
-  -moz-border-left-colors: none;
-  -moz-border-right-colors: none; /* for rtl border-inline-start */
   background-color: transparent;
 }
 
@@ -831,7 +790,6 @@ treechildren::-moz-tree-image(subscribed-news) {
 @media (-moz-windows-default-theme) {
   .textbox-addressingWidget,
   .dummy-row-cell:not(:first-child) {
-    border: 1px solid transparent !important;
     border-bottom-color: #a9b7c9 !important;
   }
 
@@ -882,7 +840,6 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 @media (-moz-windows-default-theme: 0) {
   .aw-menulist {
-    margin-top: 2px;
     background-color: rgba(128, 128, 128, .3);
     border: 1px solid ThreeDShadow;
     transition: background-color .25s ease-in;
@@ -965,7 +922,7 @@ treechildren::-moz-tree-image(subscribed-news) {
   }
 
   .aw-menulist {
-    margin: 1px;
+    margin: 0 1px 2px;
     margin-inline-end: 4px;
     padding: 2px 0 !important;
     border-color: rgba(23, 51, 78, .08) rgba(23, 51, 78, .12)
@@ -992,7 +949,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   .aw-menulist {
-    margin: 1px;
+    margin: 0 1px 2px;
     margin-inline-end: 4px;
     padding: 2px 0 !important;
     background-color: hsla(210, 4%, 10%, .04);
