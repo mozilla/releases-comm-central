@@ -235,6 +235,18 @@ var snapshotFormatters = {
     }));
   },
 
+  securitySoftware: function securitySoftware(data) {
+    if (!AppConstants.isPlatformAndVersionAtLeast("win", "6.2")) {
+      $("security-software-title").hidden = true;
+      $("security-software-table").hidden = true;
+      return;
+    }
+
+    $("security-software-antivirus").textContent = data.registeredAntiVirus;
+    $("security-software-antispyware").textContent = data.registeredAntiSpyware;
+    $("security-software-firewall").textContent = data.registeredFirewall;
+  },
+
 /* Not used by TB
   features: function features(data) {
     $.append($("features-tbody"), data.map(function(feature) {
