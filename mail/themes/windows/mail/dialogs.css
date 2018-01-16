@@ -39,3 +39,7 @@ textbox[readonly="true"] {
   -moz-appearance: none;
   border: 1px solid ThreeDShadow;
 }
+
+.wizard-box {
+  padding: 20px 44px 10px;
+}

@@ -34,3 +34,7 @@ menu.push[disabled="true"]:hover,
 menu.push[disabled="true"]:hover:active {
   color: GrayText;
 }
+
+.wizard-box {
+  padding: 20px 44px 10px;
+}
