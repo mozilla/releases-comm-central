@@ -49,5 +49,5 @@ def low_priority(kind, tasks):
     Override the priorty of a task to be `low`.
     """
     for task in tasks:
-        task['priority'] = 'low'
+        task['task']['priority'] = 'low'
         yield task
