@@ -495,16 +495,6 @@
         ]]></body>
       </method>
 
-      <method name="readRDFString">
-        <parameter name="aDS"/>
-        <parameter name="aRes"/>
-        <parameter name="aProp"/>
-        <body><![CDATA[
-          var n = aDS.GetTarget(aRes, aProp, true);
-          return n ? n.QueryInterface(Components.interfaces.nsIRDFLiteral).Value : null;
-        ]]></body>
-      </method>
-
       <method name="clearSelection">
         <body>
           this.view.selection.clearSelection();
