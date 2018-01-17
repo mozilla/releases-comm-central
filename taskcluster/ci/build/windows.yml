@@ -53,3 +53,59 @@ win32/debug:
         - win32-clang-cl
         - win32-rust
         - win64-sccache
+
+win64/opt:
+    description: "Win64 Opt"
+    treeherder:
+        platform: windows2012-64/opt
+        symbol: tc(B)
+        tier: 1
+    worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
+    worker:
+        max-run-time: 7200
+        env:
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+    run:
+        using: mozharness
+        comm-checkout: true
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/taskcluster_base_windows.py
+            - builds/taskcluster_base_win64.py
+            - builds/taskcluster_sub_win64/opt.py
+    toolchains:
+        - win64-clang-cl
+        - win64-rust
+        - win64-sccache
+
+win64/debug:
+    description: "Win64 Debug"
+    treeherder:
+        platform: windows2012-64/debug
+        symbol: tc(B)
+        tier: 1
+    worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
+    worker:
+        max-run-time: 7200
+        env:
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+    run:
+        using: mozharness
+        comm-checkout: true
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/taskcluster_base_windows.py
+            - builds/taskcluster_base_win64.py
+            - builds/taskcluster_sub_win64/debug.py
+    toolchains:
+        - win64-clang-cl
+        - win64-rust
+        - win64-sccache

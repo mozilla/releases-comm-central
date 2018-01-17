@@ -47,6 +47,17 @@ windows7-32/debug:
     test-sets:
         - common-tests
 
+# win64
+windows10-64/opt:
+    build-platform: win64/opt
+    test-sets:
+        - common-tests
+
+windows10-64/debug:
+    build-platform: win64/debug
+    test-sets:
+        - common-tests
+
 # MacOS X platforms (matching /macosx.*/)
 
 macosx64/debug:

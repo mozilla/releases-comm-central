@@ -19,6 +19,7 @@ jobs:
     - linux64-sccache
     - win32-clang-cl
     - win32-rust
-    - win32-clang-cl
+    - win64-clang-cl
+    - win64-rust
     - win64-rust-1.19
     - win64-sccache
