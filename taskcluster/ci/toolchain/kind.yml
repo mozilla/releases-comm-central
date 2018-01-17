@@ -13,6 +13,7 @@ jobs:
     - linux64-gcc-4.9
     - linux64-hfsplus
     - linux64-libdmg
+    - linux64-llvm-dsymutil
     - linux64-rust
     - linux64-rust-1.19
     - linux64-rust-macos

@@ -27,6 +27,7 @@ macosx64/debug:
         - linux64-clang
         - linux64-hfsplus
         - linux64-libdmg
+        - linux64-llvm-dsymutil
         - linux64-rust-macos
         - linux64-sccache
 
@@ -58,5 +59,6 @@ macosx64/opt:
         - linux64-clang
         - linux64-hfsplus
         - linux64-libdmg
+        - linux64-llvm-dsymutil
         - linux64-rust-macos
         - linux64-sccache
