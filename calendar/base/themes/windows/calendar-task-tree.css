@@ -35,10 +35,7 @@
     }
 
     .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
-        -moz-border-top-colors: green rgba(255, 255, 255, .4);
-        -moz-border-right-colors: green rgba(255, 255, 255, .4);
-        -moz-border-left-colors: green rgba(255, 255, 255, .4);
-        -moz-border-bottom-colors: green rgba(255, 255, 255, .6);
+        border-color: green;
     }
 
     .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus) {
@@ -46,10 +43,7 @@
     }
 
     .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
-        -moz-border-top-colors: red rgba(255, 255, 255, .4);
-        -moz-border-right-colors: red rgba(255, 255, 255, .4);
-        -moz-border-left-colors: red rgba(255, 255, 255, .4);
-        -moz-border-bottom-colors: red rgba(255, 255, 255, .6);
+        border-color: red;
     }
 
     .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus) {
