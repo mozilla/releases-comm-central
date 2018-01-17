@@ -118,9 +118,6 @@ tabmail > tabbox > tabpanels {
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-  border: 0;
-  border-right: 2px solid;
-  -moz-border-right-colors: rgba(0,0,0,0.25) rgba(255,255,255,0.15);
   padding: 0 4px;
   margin: 0 0 1px;
 }

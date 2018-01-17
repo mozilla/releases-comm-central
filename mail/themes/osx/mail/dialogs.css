@@ -38,8 +38,5 @@ menu.push[disabled="true"]:hover:active {
 textbox[readonly="true"],
 textbox[readonly="true"][focused="true"] {
   -moz-appearance: none;
-  -moz-border-top-colors: transparent ThreeDShadow -moz-Dialog;
-  -moz-border-right-colors: transparent ThreeDShadow -moz-Dialog;
-  -moz-border-bottom-colors: transparent ThreeDShadow -moz-Dialog;
-  -moz-border-left-colors: transparent ThreeDShadow -moz-Dialog;
+  border: 1px solid ThreeDShadow;
 }

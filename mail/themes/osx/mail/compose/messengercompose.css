@@ -270,18 +270,12 @@ toolbar[nowindowdrag="true"] {
   margin-inline-start: 0;
   margin-inline-end: 1px;
   background-color: inherit;
-  -moz-appearance: none !important;
+  -moz-appearance: none;
   border: 1px solid transparent;
   border-bottom-color: #C6C6C6;
-  border-bottom-left-radius: 0px;
-  border-top-right-radius: 0px;
-  -moz-border-top-colors: none;
-  -moz-border-left-colors: none;
-  -moz-border-right-colors: none;
-  -moz-border-bottom-colors: none;
   border-radius: 2px;
   padding: 1px 2px;
-  padding-inline-start: 5px !important;
+  padding-inline-start: 5px;
   transition: border .2s, background-color .2s;
 }
 
