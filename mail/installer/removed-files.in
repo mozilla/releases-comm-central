@@ -34,17 +34,6 @@
 @DIR_MACOS@chrome/overlayinfo/
 @DIR_MACOS@chrome/qute.jar
 @DIR_MACOS@chrome/US.jar
-#ifdef MOZ_WIDGET_GTK2
-  chrome/icons/default/abcardWindow.xpm
-  chrome/icons/default/abcardWindow16.xpm
-  chrome/icons/default/addressbookWindow.xpm
-  chrome/icons/default/addressbookWindow16.xpm
-  chrome/icons/default/default.xpm
-  chrome/icons/default/messengerWindow.xpm
-  chrome/icons/default/messengerWindow16.xpm
-  chrome/icons/default/msgcomposeWindow.xpm
-  chrome/icons/default/msgcomposeWindow16.xpm
-#endif
 #ifdef XP_MACOSX
   #ifndef ACCESSIBILITY
     @DIR_MACOS@components/accessibility.xpt
@@ -844,7 +833,6 @@ uninstall/uninstall.exe
 @DIR_MACOS@components/@DLL_PREFIX@unixproxy@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@osxproxy@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@webbrwsr@DLL_SUFFIX@
-@DIR_MACOS@components/@DLL_PREFIX@widget_gtk2@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@widget_mac@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@gkwidget@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@windowds@DLL_SUFFIX@

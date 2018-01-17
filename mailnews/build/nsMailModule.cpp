@@ -103,7 +103,7 @@
 #ifdef XP_MACOSX
 #include "nsMessengerOSXIntegration.h"
 #endif
-#if defined(MOZ_WIDGET_GTK) || defined(MOZ_WIDGET_GTK2)
+#if defined(MOZ_WIDGET_GTK)
 #include "nsMessengerUnixIntegration.h"
 #endif
 #include "nsCURILoader.h"
@@ -369,7 +369,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMessengerWinIntegration, Init)
 #ifdef XP_MACOSX
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMessengerOSXIntegration, Init)
 #endif
-#if defined(MOZ_WIDGET_GTK) || defined(MOZ_WIDGET_GTK2)
+#if defined(MOZ_WIDGET_GTK)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMessengerUnixIntegration, Init)
 #endif
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMessengerContentHandler)
@@ -424,7 +424,7 @@ NS_DEFINE_NAMED_CID(NS_MESSENGERWININTEGRATION_CID);
 #ifdef XP_MACOSX
 NS_DEFINE_NAMED_CID(NS_MESSENGEROSXINTEGRATION_CID);
 #endif
-#if defined(MOZ_WIDGET_GTK) || defined(MOZ_WIDGET_GTK2)
+#if defined(MOZ_WIDGET_GTK)
 NS_DEFINE_NAMED_CID(NS_MESSENGERUNIXINTEGRATION_CID);
 #endif
 NS_DEFINE_NAMED_CID(NS_MESSENGERCONTENTHANDLER_CID);
@@ -891,7 +891,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
 #ifdef XP_MACOSX
   { &kNS_MESSENGEROSXINTEGRATION_CID, false, NULL, nsMessengerOSXIntegrationConstructor},
 #endif
-#if defined(MOZ_WIDGET_GTK) || defined(MOZ_WIDGET_GTK2)
+#if defined(MOZ_WIDGET_GTK)
   { &kNS_MESSENGERUNIXINTEGRATION_CID, false, NULL, nsMessengerUnixIntegrationConstructor},
 #endif
   { &kNS_MESSENGERCONTENTHANDLER_CID, false, NULL, nsMessengerContentHandlerConstructor},
@@ -1100,7 +1100,7 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
 #ifdef XP_MACOSX
   { NS_MESSENGEROSINTEGRATION_CONTRACTID, &kNS_MESSENGEROSXINTEGRATION_CID },
 #endif
-#if defined(MOZ_WIDGET_GTK) || defined(MOZ_WIDGET_GTK2)
+#if defined(MOZ_WIDGET_GTK)
   { NS_MESSENGEROSINTEGRATION_CONTRACTID, &kNS_MESSENGERUNIXINTEGRATION_CID },
 #endif
   { NS_MESSENGERCONTENTHANDLER_CONTRACTID, &kNS_MESSENGERCONTENTHANDLER_CID },

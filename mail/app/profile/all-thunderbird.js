@@ -28,7 +28,7 @@ pref("mail.rights.override", true);
 pref("mail.rights.override", true);
 #endif
 
-// gtk2 (*nix) lacks transparent/translucent drag support (bug 376238), so we
+// gtk3 (*nix) lacks transparent/translucent drag support (bug 376238), so we
 // want to disable it so people can see where they are dragging things.
 // (Stock gtk drag icons will be used instead.)
 #ifdef MOZ_WIDGET_GTK

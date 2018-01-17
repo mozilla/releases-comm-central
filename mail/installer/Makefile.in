@@ -46,11 +46,8 @@ ifdef MOZ_DEBUG
 DEFINES += -DMOZ_DEBUG=1
 endif
 
-ifneq (,$(filter gtk%,$(MOZ_WIDGET_TOOLKIT)))
-DEFINES += -DMOZ_GTK=1
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk3)
-DEFINES += -DMOZ_GTK3=1
-endif
+DEFINES += -DMOZ_GTK=1
 endif
 
 ifdef _MSC_VER

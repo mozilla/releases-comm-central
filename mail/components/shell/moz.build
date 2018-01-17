@@ -19,7 +19,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
         '/%s/other-licenses/nsis/Contrib/CityHash/cityhash' % (CONFIG['mozreltopsrcdir'],),
     ]
 
-if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
+if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk3':
     SOURCES += ['nsMailGNOMEIntegration.cpp']
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
