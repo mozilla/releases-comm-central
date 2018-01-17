@@ -28,13 +28,6 @@ pref("mail.rights.override", true);
 pref("mail.rights.override", true);
 #endif
 
-// gtk3 (*nix) lacks transparent/translucent drag support (bug 376238), so we
-// want to disable it so people can see where they are dragging things.
-// (Stock gtk drag icons will be used instead.)
-#ifdef MOZ_WIDGET_GTK
-pref("nglayout.enable_drag_images", false);
-#endif
-
 // The minimum delay in seconds for the timer to fire between the notification
 // of each consumer of the timer manager.
 // minimum=30 seconds, default=120 seconds, and maximum=300 seconds

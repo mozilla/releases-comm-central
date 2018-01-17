@@ -863,13 +863,6 @@ pref("mail.notification.count.inbox_only", true);
 pref("dom.max_chrome_script_run_time", 0);
 #endif
 
-// gtk3 (*nix) lacks transparent/translucent drag support (bug 376238), so we
-// want to disable it so people can see where they are dragging things.
-// (Stock gtk drag icons will be used instead.)
-#ifdef MOZ_WIDGET_GTK
-pref("nglayout.enable_drag_images", false);
-#endif
-
 // For the Empty Junk/Trash confirmation dialogs.
 pref("mailnews.emptyJunk.dontAskAgain", false);
 pref("mailnews.emptyTrash.dontAskAgain", false);
