@@ -19,6 +19,9 @@ interface nsISubscribeDataSource : nsISupports {
 
 [scriptable, uuid(f337b84a-1dd1-11b2-97c7-fb8b2e3f2280)]
 interface nsISubscribeListener : nsISupports {
+  // Announce a new item found on the server.
+  void OnItemDiscovered(in AUTF8String aPath, in boolean aSubscribable);
+  // Announce finish of discovering server items.
   void OnDonePopulating();
 };
 

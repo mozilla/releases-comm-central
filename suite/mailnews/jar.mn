@@ -49,8 +49,6 @@ messenger.jar:
     content/messenger/widgetglue.js
     content/messenger/commandglue.js
     content/messenger/mailCommands.js
-    content/messenger/subscribe.xul
-    content/messenger/subscribe.js
     content/messenger/msgMail3PaneWindow.js
     content/messenger/searchBar.js
     content/messenger/mail3PaneWindowCommands.js

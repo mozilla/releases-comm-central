@@ -2,22 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource:///modules/MailUtils.js");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
+
 var gSubscribeTree = null;
+var gSubscribeBody = null;
 var gSearchTree;
 var okCallback = null;
 var gChangeTable = {};
 var gServerURI = null;
 var gSubscribableServer = null;
-var gStatusBar = null;
 var gNameField = null;
 var gNameFieldLabel = null;
 var gFolderDelimiter = ".";
-var gStatusFeedback = new nsMsgStatusFeedback;
-var gTimelineEnabled = false;
-var gMessengerBundle = null;
+var gStatusFeedback;
 var gSubscribeDeck = null;
 var gSearchView = null;
 var gSearchTreeBoxObject = null;
+var gItemsFound = new Map();
 // the rdf service
 var RDF = Components.classes['@mozilla.org/rdf/rdf-service;1'].getService(Components.interfaces.nsIRDFService);
 var subscribeDS = RDF.GetDataSource("rdf:subscribe");
@@ -30,79 +32,122 @@ function goDoCommand()
 
 function Stop()
 {
-    if (gSubscribableServer) {
-        gSubscribableServer.stopPopulating(msgWindow);
-    }
+  //dump("Stop()\n")
+  if (gSubscribableServer) {
+    gSubscribableServer.stopPopulating(msgWindow);
+  }
 }
 
 function SetServerTypeSpecificTextValues()
 {
-    if (!gServerURI)
-      return;
+  if (!gServerURI)
+    return;
 
-    var serverType = GetMsgFolderFromUri(gServerURI, true).server.type;
+  let serverType = MailUtils.getFolderForURI(gServerURI, true).server.type;
 
-    // set the server specific ui elements
-    var nameColumnLabel = gSubscribeBundle.getString("columnHeader-" + serverType);
-    var currentListTab  = "currentListTab-" + serverType;
-    var currentListTabLabel     = gSubscribeBundle.getString(currentListTab + ".label");
-    var currentListTabAccesskey = gSubscribeBundle.getString(currentListTab + ".accesskey");
+  // set the server specific ui elements
+  let subscribeLabelString = gSubscribeBundle.getString("subscribeLabel-" + serverType);
+  let currentListTab  = "currentListTab-" + serverType;
+  let currentListTabLabel     = gSubscribeBundle.getString(currentListTab + ".label");
+  let currentListTabAccesskey = gSubscribeBundle.getString(currentListTab + ".accesskey");
 
-    document.getElementById("currentListTab").setAttribute('label', currentListTabLabel);
-    document.getElementById("currentListTab").setAttribute('accesskey', currentListTabAccesskey);
-    document.getElementById("newGroupsTab").collapsed = (serverType != "nntp"); // show newGroupsTab only for nntp servers
-    document.getElementById("nameColumn").setAttribute('label', nameColumnLabel);
-    document.getElementById("nameColumn2").setAttribute('label',nameColumnLabel);
+  document.getElementById("currentListTab").setAttribute("label", currentListTabLabel);
+  document.getElementById("currentListTab").setAttribute("accesskey", currentListTabAccesskey);
+  document.getElementById("newGroupsTab").collapsed = (serverType != "nntp"); // show newGroupsTab only for nntp servers
+  document.getElementById("subscribeLabel").setAttribute("value", subscribeLabelString);
 
-    //set the delimiter
-    try {
-        gFolderDelimiter = gSubscribableServer.delimiter;
-    }
-    catch (ex) {
-        //dump(ex + "\n");
-        gFolderDelimiter = ".";
-    }
+  // XXX this isn't used right now.
+  //set the delimiter
+  try {
+    gFolderDelimiter = gSubscribableServer.delimiter;
+  }
+  catch (ex) {
+    //dump(ex + "\n");
+    gFolderDelimiter = ".";
+  }
 }
 
-function onServerClick(event)
+function onServerClick(aFolder)
 {
-  gServerURI = event.target.id;
+  gServerURI = aFolder.server.serverURI;
+  let serverMenu = document.getElementById("serverMenu");
+  serverMenu.menupopup.selectFolder(aFolder);
 
   SetServerTypeSpecificTextValues();
   ShowCurrentList();
 }
 
 var MySubscribeListener = {
-    OnDonePopulating: function() {
-        gStatusFeedback._stopMeteors();
+  OnItemDiscovered: function(aPath, aSubscribable) {
+    if (!gItemsFound.has(aPath))
+      gItemsFound.set(aPath, gSubscribableServer.getLeafName(aPath));
+  },
 
-        // only re-root the tree, if it is null.
-        // otherwise, we are in here because we are populating
-        // a part of the tree
-        var refValue = gSubscribeTree.getAttribute('ref');
-        if (!refValue) {
-            gSubscribeTree.database.AddDataSource(subscribeDS);
-            gSubscribeTree.setAttribute('ref',gServerURI);
-        }
+  OnDonePopulating: function() {
+    createSubscribeTree();
+    gStatusFeedback._stopMeteors();
+    document.getElementById("stopButton").disabled = true;
 
-        document.getElementById("refreshButton").disabled = false;
-        document.getElementById("currentListTab").disabled = false;
-        document.getElementById("newGroupsTab").disabled = false;
+// XXX what does this do? Is this needed without RDF/template?
+    // Only re-root the tree, if it is null.
+    // Otherwise, we are in here because we are populating a part of the tree.
+/*    let refValue = gSubscribeTree.getAttribute('ref');
+    if (!refValue) {
+      //dump("root subscribe tree at: "+ gServerURI +"\n");
+      gSubscribeTree.database.AddDataSource(subscribeDS);
+      gSubscribeTree.setAttribute('ref',gServerURI);
     }
+*/
+
+    document.getElementById("refreshButton").disabled = false;
+    document.getElementById("currentListTab").disabled = false;
+    document.getElementById("newGroupsTab").disabled = false;
+  }
 };
+
+function setSubscribableCellState(aSubscribeCell, aSubscribed, aSubscribable) {
+  aSubscribeCell.setAttribute("properties", "subscribed-" + aSubscribed +
+                                            " subscribable-" + aSubscribable);
+  aSubscribeCell.setAttribute("value", aSubscribed);
+}
+
+/**
+ * Populate the subscribe tree with the items found on the server.
+ */
+function createSubscribeTree() {
+  let items = toArray(gItemsFound.entries());
+  items.sort((a,b) => a[0].localeCompare(b[0]));
+
+  for (let [path, name] of items) {
+    let subscribed = gSubscribableServer.isSubscribed(path);
+    let subscribable = gSubscribableServer.isSubscribable(path);
+    let itemEl = document.createElement("treeitem");
+    let rowEl = document.createElement("treerow");
+    let nameEl = document.createElement("treecell");
+    let subscribeEl = document.createElement("treecell");
+    nameEl.setAttribute("label", name);
+    nameEl.setAttribute("value", path);
+    nameEl.setAttribute("properties", "serverType-" + gSubscribableServer.type +
+                                      " subscribable-" + subscribable);
+    setSubscribableCellState(subscribeEl, subscribed, subscribable);
+    rowEl.appendChild(nameEl);
+    rowEl.appendChild(subscribeEl);
+    itemEl.appendChild(rowEl);
+    gSubscribeBody.appendChild(itemEl);
+ }
+}
 
 function SetUpTree(forceToServer, getOnlyNew)
 {
-  gStatusBar = document.getElementById('statusbar-icon');
   if (!gServerURI)
     return;
 
-  var server = GetMsgFolderFromUri(gServerURI, true).server;
+  var server = MailUtils.getFolderForURI(gServerURI, true).server;
   try
   {
     CleanUpSearchView();
     gSubscribableServer = server.QueryInterface(Components.interfaces.nsISubscribableServer);
-    gSubscribeTree.setAttribute('ref', '');
+    gSubscribeTree.setAttribute('ref', ''); // XXX: what is this?
 
     // enable (or disable) the search related UI
     EnableSearchUI();
@@ -113,7 +158,11 @@ function SetUpTree(forceToServer, getOnlyNew)
     // since there is no text, switch to the non-search view...
     SwitchToNormalView();
 
-    gSubscribeTree.database.RemoveDataSource(subscribeDS);
+    // Clear the subscribe tree.
+    while (gSubscribeBody.hasChildNodes())
+      gSubscribeBody.lastChild.remove();
+
+//    gSubscribeTree.database.RemoveDataSource(subscribeDS);
     gSubscribableServer.subscribeListener = MySubscribeListener;
 
     var currentListTab = document.getElementById("currentListTab");
@@ -126,7 +175,9 @@ function SetUpTree(forceToServer, getOnlyNew)
 
     gStatusFeedback._startMeteors();
     gStatusFeedback.showStatusString(gSubscribeBundle.getString("pleaseWaitString"));
+    document.getElementById("stopButton").removeAttribute("disabled");
 
+    gItemsFound.clear();
     gSubscribableServer.startPopulating(msgWindow, forceToServer, getOnlyNew);
   }
   catch (ex)
@@ -135,11 +186,12 @@ function SetUpTree(forceToServer, getOnlyNew)
   }
 }
 
+
 function SubscribeOnUnload()
 {
   try {
     CleanUpSearchView();
-    gSubscribeTree.database.RemoveDataSource(subscribeDS);
+//    gSubscribeTree.database.RemoveDataSource(subscribeDS);
   }
   catch (ex) {
     dump("failed to remove the subscribe ds: " + ex + "\n");
@@ -160,10 +212,11 @@ function EnableSearchUI()
 
 function SubscribeOnLoad()
 {
+  //dump("SubscribeOnLoad()\n");
   gSubscribeBundle = document.getElementById("bundle_subscribe");
-  gMessengerBundle = document.getElementById("bundle_messenger");
 
   gSubscribeTree = document.getElementById("subscribeTree");
+  gSubscribeBody = document.getElementById("subscribeTreeBody");
   gSearchTree = document.getElementById("searchTree");
   gSearchTreeBoxObject = document.getElementById("searchTree").treeBoxObject;
   gNameField = document.getElementById("namefield");
@@ -174,6 +227,7 @@ function SubscribeOnLoad()
   msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
                         .createInstance(Components.interfaces.nsIMsgWindow);
   msgWindow.domWindow = window;
+  gStatusFeedback = new nsMsgStatusFeedback
   msgWindow.statusFeedback = gStatusFeedback;
   msgWindow.rootDocShell.allowAuth = true;
   msgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
@@ -185,31 +239,35 @@ function SubscribeOnLoad()
     }
   }
 
-  gServerURI = null;
-  CleanUpSearchView();
-  var folder = window.arguments[0].folder;
-  if (folder && folder.server instanceof Components.interfaces.nsISubscribableServer)
-  {
-    gSubscribableServer = folder.server;
-    gServerURI = folder.server.serverURI;
-    // enable (or disable) the search related UI
-    EnableSearchUI();
-  }
-  else
-  {
-    gSubscribableServer = null;
-    gServerURI = null;
-  }
-
   var serverMenu = document.getElementById("serverMenu");
-  var menuitems = serverMenu.getElementsByTagName("menuitem");
+
+  gServerURI = null;
+  let folder = window.arguments[0].folder;
+  if (folder && folder.server instanceof Components.interfaces.nsISubscribableServer) {
+    serverMenu.menupopup.selectFolder(folder.server.rootMsgFolder);
+    try {
+                        CleanUpSearchView();
+      gSubscribableServer = folder.server.QueryInterface(Components.interfaces.nsISubscribableServer);
+                        // enable (or disable) the search related UI
+                        EnableSearchUI();
+      gServerURI = folder.server.serverURI;
+    }
+    catch (ex) {
+      //dump("not a subscribable server\n");
+                        CleanUpSearchView();
+      gSubscribableServer = null;
+      gServerURI = null;
+    }
+  }
 
   if (!gServerURI) {
     //dump("subscribe: no uri\n");
     //dump("xxx todo:  use the default news server.  right now, I'm just using the first server\n");
 
-    if (menuitems.length > 1) {
-      gServerURI = menuitems[1].id;
+    serverMenu.selectedIndex = 0;
+
+    if (serverMenu.selectedItem) {
+      gServerURI = serverMenu.selectedItem.getAttribute("id");
     }
     else {
       //dump("xxx todo none of your servers are subscribable\n");
@@ -217,10 +275,6 @@ function SubscribeOnLoad()
       return;
     }
   }
-
-  var menuitem = serverMenu.getElementsByAttribute("id", gServerURI);
-  if (menuitem.length)
-    serverMenu.selectedItem = menuitem[0];
 
   SetServerTypeSpecificTextValues();
 
@@ -231,6 +285,7 @@ function SubscribeOnLoad()
 
 function subscribeOK()
 {
+  //dump("in subscribeOK()\n")
   if (top.okCallback) {
     top.okCallback(top.gChangeTable);
   }
@@ -250,11 +305,25 @@ function subscribeCancel()
   return true;
 }
 
-function SetState(name,state)
+function SetState(name, state, aRow)
 {
   var changed = gSubscribableServer.setState(name, state);
   if (changed)
-    StateChanged(name,state);
+    StateChanged(name, state);
+
+  let subscribeCell;
+  if (aRow === undefined) {
+    // XXX This won't work when multiple levels of children are implemented
+    for (let row of gSubscribeBody.children) {
+      if (row.children[0].children[0].getAttribute("value") == name) {
+        subscribeCell = row;
+        break;
+      }
+    }
+  } else {
+    subscribeCell = gSubscribeBody.children[aRow];
+  }
+  setSubscribableCellState(subscribeCell.children[0].children[1], state, true);
 }
 
 function changeTableRecord(server, name, state)
@@ -284,8 +353,8 @@ function StateChanged(name,state)
 
 function InSearchMode()
 {
-    // search is the second card in the deck
-    return (gSubscribeDeck.getAttribute("selectedIndex") == "1");
+  // search is the second card in the deck
+  return (gSubscribeDeck.getAttribute("selectedIndex") == "1");
 }
 
 function SearchOnClick(event)
@@ -293,44 +362,45 @@ function SearchOnClick(event)
   // we only care about button 0 (left click) events
   if (event.button != 0 || event.originalTarget.localName != "treechildren") return;
 
-  var cell = gSearchTreeBoxObject.getCellAt(event.clientX, event.clientY);
-  if (cell.row == -1 || cell.row > gSearchView.rowCount - 1)
+  var row = {}, col = {}, childElt = {};
+  gSearchTreeBoxObject.getCellAt(event.clientX, event.clientY, row, col, childElt);
+  if (row.value == -1 || row.value > gSearchView.rowCount-1)
     return;
 
-  if (cell.col.id == "subscribedColumn2") {
+  if (col.value.id == "subscribedColumn2") {
     if (event.detail != 2) {
       // single clicked on the check box
       // (in the "subscribedColumn2" column) reverse state
       // if double click, do nothing
-      ReverseStateFromRow(cell.row);
+      ReverseStateFromRow(row.value);
     }
   } else if (event.detail == 2) {
     // double clicked on a row, reverse state
-    ReverseStateFromRow(cell.row);
+    ReverseStateFromRow(row.value);
   }
 
   // invalidate the row
-  InvalidateSearchTreeRow(cell.row);
+  InvalidateSearchTreeRow(row.value);
 }
 
 function ReverseStateFromRow(aRow)
 {
-    // To determine if the row is subscribed or not,
-    // we get the properties for the "subscribedColumn2" cell in the row
-    // and look for the "subscribed" property.
-    // If the "subscribed" string is in the list of properties
-    // we are subscribed.
-    var col = gSearchTree.columns["subscribedColumn2"];
-    var properties = gSearchView.getCellProperties(aRow, col);
-    var isSubscribed = /\bsubscribed\b/.test(properties);
-    SetStateFromRow(aRow, !isSubscribed);
+  // To determine if the row is subscribed or not,
+  // we get the properties for the "subscribedColumn2" cell in the row
+  // and look for the "subscribed" property.
+  // If the "subscribed" string is in the list of properties
+  // we are subscribed.
+  let col = gSearchTree.columns["nameColumn2"];
+  let name = gSearchView.getCellValue(aRow, col);
+  let isSubscribed = gSubscribableServer.isSubscribed(name);
+  SetStateFromRow(aRow, !isSubscribed);
 }
 
 function SetStateFromRow(row, state)
 {
-    var col = gSearchTree.columns["nameColumn2"];
-    var name = gSearchView.getCellText(row, col);
-    SetState(name, state);
+  var col = gSearchTree.columns["nameColumn2"];
+  var name = gSearchView.getCellValue(row, col);
+  SetState(name, state);
 }
 
 function SetSubscribeState(state)
@@ -350,9 +420,10 @@ function SetSubscribeState(state)
         if (inSearchMode)
           SetStateFromRow(k, state);
         else {
-          var rowRes = gSubscribeTree.builderView.getResourceAtIndex(k);
-          var name = GetRDFProperty(rowRes, "Name");
-          SetState(name, state);
+//          var rowRes = gSubscribeTree.builderView.getResourceAtIndex(k);
+//          var name = GetRDFProperty(rowRes, "Name");
+          let name = view.getCellValue(k, gSubscribeTree.columns[colId]);
+          SetState(name, state, k);
         }
       }
     }
@@ -369,18 +440,12 @@ function SetSubscribeState(state)
 
 function ReverseStateFromNode(row)
 {
-  var rowRes = gSubscribeTree.builderView.getResourceAtIndex(row);
-  var isSubscribed = GetRDFProperty(rowRes, "Subscribed");
-  var name = GetRDFProperty(rowRes, "Name");
+//  var rowRes = gSubscribeTree.builderView.getResourceAtIndex(row);
+//  var isSubscribed = GetRDFProperty(rowRes, "Subscribed");
+//  var name = GetRDFProperty(rowRes, "Name");
+  let name = gSubscribeTree.view.getCellValue(row, gSubscribeTree.columns["nameColumn"]);
 
-  SetState(name, isSubscribed != "true");
-}
-
-function GetRDFProperty(aRes, aProp)
-{
-  var propRes = RDF.GetResource("http://home.netscape.com/NC-rdf#"+aProp);
-  var valueRes = gSubscribeTree.database.GetTarget(aRes, propRes, true);
-  return valueRes ? valueRes.QueryInterface(Components.interfaces.nsIRDFLiteral).Value : null;
+  SetState(name, !gSubscribableServer.isSubscribed(name), row);
 }
 
 function SubscribeOnClick(event)
@@ -389,23 +454,24 @@ function SubscribeOnClick(event)
   if (event.button != 0 || event.originalTarget.localName != "treechildren")
    return;
 
-  var cell = gSubscribeTree.treeBoxObject.getCellAt(event.clientX, event.clientY);
-  if (cell.row == -1 || cell.row > (gSubscribeTree.view.rowCount - 1))
+  var row = {}, col = {}, obj = {};
+  gSubscribeTree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, obj);
+  if (row.value == -1 || row.value > (gSubscribeTree.view.rowCount - 1))
     return;
 
   if (event.detail == 2) {
     // only toggle subscribed state when double clicking something
     // that isn't a container
-    if (!gSubscribeTree.view.isContainer(cell.row)) {
-      ReverseStateFromNode(cell.row);
+    if (!gSubscribeTree.view.isContainer(row.value)) {
+      ReverseStateFromNode(row.value);
       return;
     }
   }
   else if (event.detail == 1)
   {
-    if (cell.childElt == "twisty") {
-        if (gSubscribeTree.view.isContainerOpen(cell.row)) {
-          var uri = gSubscribeTree.builderView.getResourceAtIndex(cell.row).Value;
+    if (obj.value == "twisty") {
+        if (gSubscribeTree.view.isContainerOpen(row.value)) {
+          var uri = gSubscribeTree.builderView.getResourceAtIndex(row.value).Value;
 
           gStatusFeedback._startMeteors();
           gStatusFeedback.showStatusString(gSubscribeBundle.getString("pleaseWaitString"));
@@ -415,8 +481,8 @@ function SubscribeOnClick(event)
     }
     else {
       // if the user single clicks on the subscribe check box, we handle it here
-      if (cell.col.id == "subscribedColumn")
-        ReverseStateFromNode(cell.row);
+      if (col.value.id == "subscribedColumn")
+        ReverseStateFromNode(row.value);
     }
   }
 }
@@ -533,9 +599,4 @@ function onSubscribeTreeKeyPress(event)
     for (var k=start.value;k<=end.value;k++)
       ReverseStateFromNode(k);
   }
-}
-
-function doHelpButton()
-{
-  openHelp("mail-subscribe");
 }

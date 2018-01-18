@@ -1733,18 +1733,18 @@ nsNntpIncomingServer::GetCellProperties(int32_t row, nsITreeColumn* col, nsAStri
   col->GetIdConst(&colID);
   if (colID[0] == 's') {
     // if <name> is in our temporary list of subscribed groups
-    // add the "subscribed" property so the check mark shows up
-    // in the "subscribedCol"
+    // add the "subscribed-true" property so the check mark shows up
+    // in the "subscribedColumn2"
     if (mSearchResultSortDescending)
       row = mSubscribeSearchResult.Length() - 1 - row;
     if (mTempSubscribed.Contains(mSubscribeSearchResult.ElementAt(row))) {
-      properties.AssignLiteral("subscribed");
+      properties.AssignLiteral("subscribed-true");
     }
   }
   else if (colID[0] == 'n') {
-    // add the "nntp" property to the "nameCol"
+    // add the "serverType-nntp" property to the "nameColumn2"
     // so we get the news folder icon in the search view
-    properties.AssignLiteral("nntp");
+    properties.AssignLiteral("serverType-nntp");
   }
   return NS_OK;
 }
@@ -1844,7 +1844,22 @@ nsNntpIncomingServer::GetProgressMode(int32_t row, nsITreeColumn* col, int32_t* 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetCellValue(int32_t row, nsITreeColumn* col, nsAString& _retval)
 {
-  return NS_OK;
+  if (!IsValidRow(row))
+    return NS_ERROR_UNEXPECTED;
+
+  NS_ENSURE_ARG_POINTER(col);
+
+  const char16_t* colID;
+  col->GetIdConst(&colID);
+
+  nsresult rv = NS_OK;
+  if (colID[0] == 'n') {
+    nsAutoCString str;
+    if (mSearchResultSortDescending)
+      row = mSubscribeSearchResult.Length() - 1 - row;
+    _retval.Assign(NS_ConvertASCIItoUTF16(mSubscribeSearchResult.ElementAt(row)));
+  }
+  return rv;
 }
 
 NS_IMETHODIMP

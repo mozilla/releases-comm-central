@@ -139,6 +139,10 @@ nsSubscribableServer::AddTo(const nsACString& aName, bool aAddAsSubscribed,
     }
 
     node->isSubscribable = aSubscribable;
+
+    if (mSubscribeListener)
+        mSubscribeListener->OnItemDiscovered(aName, aSubscribable);
+
     return rv;
 }
 

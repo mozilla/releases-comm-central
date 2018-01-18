@@ -19,16 +19,16 @@ treechildren::-moz-tree-image(subscribedColumn2) {
   list-style-image: url("chrome://messenger/skin/icons/notchecked.gif");
 }
 
-treechildren::-moz-tree-image(subscribedColumn, Subscribed-true),
-treechildren::-moz-tree-image(subscribedColumn2, subscribed) {
+treechildren::-moz-tree-image(subscribedColumn, subscribed-true),
+treechildren::-moz-tree-image(subscribedColumn2, subscribed-true) {
   list-style-image: url("chrome://messenger/skin/icons/check.gif");
 }
 
-treechildren::-moz-tree-image(subscribedColumn, Subscribable-false) {
+treechildren::-moz-tree-image(subscribedColumn, subscribable-false) {
   list-style-image: none;
 }
 
-treechildren::-moz-tree-cell-text(nameColumn, Subscribable-false) {
+treechildren::-moz-tree-cell-text(nameColumn, subscribable-false) {
   color: gray;
   font-style: italic;
 }
@@ -40,8 +40,8 @@ treechildren::-moz-tree-image(nameColumn) {
 }
 
 /* Newsgroups */
-treechildren::-moz-tree-image(nameColumn, ServerType-nntp),
-treechildren::-moz-tree-image(nameColumn2, nntp) {
+treechildren::-moz-tree-image(nameColumn, serverType-nntp),
+treechildren::-moz-tree-image(nameColumn2, serverType-nntp) {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(208px 16px 224px 0px);
   margin-inline-end: 2px;

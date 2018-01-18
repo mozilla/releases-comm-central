@@ -18,8 +18,8 @@ treechildren::-moz-tree-image(subscribedColumn2) {
   list-style-image: url("chrome://messenger/skin/icons/dot.png");
 }
 
-treechildren::-moz-tree-image(subscribedColumn, Subscribed-true),
-treechildren::-moz-tree-image(subscribedColumn2, subscribed) {
+treechildren::-moz-tree-image(subscribedColumn, subscribed-true),
+treechildren::-moz-tree-image(subscribedColumn2, subscribed-true) {
   list-style-image: url("chrome://messenger/skin/icons/check.png");
 }
 
@@ -31,8 +31,8 @@ treechildren::-moz-tree-image(nameColumn) {
   -moz-image-region: rect(0 16px 16px 0);
 }
 
-treechildren::-moz-tree-image(nameColumn, ServerType-nntp),
-treechildren::-moz-tree-image(nameColumn2, nntp) {
+treechildren::-moz-tree-image(nameColumn, serverType-nntp),
+treechildren::-moz-tree-image(nameColumn2, serverType-nntp) {
   margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/server.png");
   -moz-image-region: rect(0 80px 16px 64px);
