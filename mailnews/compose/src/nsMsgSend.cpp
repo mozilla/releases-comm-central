@@ -3410,7 +3410,7 @@ nsMsgComposeAndSend::DeliverFileAsMail()
       msgStatus = do_QueryInterface(mStatusFeedback);
 
     nsCOMPtr<nsIURI> runningUrl;
-    rv = smtpService->SendMailMessage(mTempFile, buf, mUserIdentity,
+    rv = smtpService->SendMailMessage(mTempFile, buf, mUserIdentity, mCompFields->GetFrom(),
                                       mSmtpPassword, deliveryListener, msgStatus,
                                       callbacks, mCompFields->GetDSN(),
                                       getter_AddRefs(runningUrl),

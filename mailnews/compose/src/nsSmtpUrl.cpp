@@ -710,6 +710,23 @@ nsSmtpUrl::GetRecipients(char ** aRecipientsList)
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsSmtpUrl::SetSender(const char * aSender)
+{
+  NS_ENSURE_ARG(aSender);
+  MsgUnescapeString(nsDependentCString(aSender), 0, m_fromPart);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsSmtpUrl::GetSender(char ** aSender)
+{
+  NS_ENSURE_ARG_POINTER(aSender);
+  if (aSender)
+    *aSender = ToNewCString(m_fromPart);
+  return NS_OK;
+}
+
 NS_IMPL_GETSET(nsSmtpUrl, PostMessage, bool, m_isPostMessage)
 
 NS_IMPL_GETSET(nsSmtpUrl, VerifyLogon, bool, m_verifyLogon)

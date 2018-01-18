@@ -722,37 +722,52 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
   if (verifyingLogon)
     return SendQuit();
 
-  // extract the email address from the identity
-  nsCString emailAddress;
-  nsCOMPtr <nsIMsgIdentity> senderIdentity;
-  rv = m_runningURL->GetSenderIdentity(getter_AddRefs(senderIdentity));
-  if (NS_FAILED(rv) || !senderIdentity)
-  {
-    m_urlErrorState = NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS;
-    return(NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS);
-  }
-  senderIdentity->GetEmail(emailAddress);
-
-  if (emailAddress.IsEmpty())
-  {
-    m_urlErrorState = NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS;
-    return(NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS);
-  }
-
-  nsCString fullAddress;
-  // Quote the email address before passing it to the SMTP server.
-  MakeMimeAddress(EmptyCString(), emailAddress, fullAddress);
-
-  buffer = "MAIL FROM:<";
-  buffer += fullAddress;
-  buffer += ">";
-
   nsCOMPtr<nsIPrefService> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIPrefBranch> prefBranch;
   rv = prefs->GetBranch(nullptr, getter_AddRefs(prefBranch));
   NS_ENSURE_SUCCESS(rv, rv);
+
+  bool useSenderForSmtpMailFrom = false;
+  prefBranch->GetBoolPref("mail.smtp.useSenderForSmtpMailFrom", &useSenderForSmtpMailFrom);
+  nsCString fullAddress;
+
+  if (useSenderForSmtpMailFrom)
+  {
+    // Extract the email address from the mail headers.
+    nsCString from;
+    m_runningURL->GetSender(getter_Copies(from));
+
+    ExtractEmail(EncodedHeader(from), fullAddress);
+    if (fullAddress.IsEmpty()) {
+      m_urlErrorState = NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS;
+      return(NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS);
+    }
+  }
+  else
+  {
+    // Extract the email address from the identity.
+    nsCString emailAddress;
+    nsCOMPtr <nsIMsgIdentity> senderIdentity;
+    rv = m_runningURL->GetSenderIdentity(getter_AddRefs(senderIdentity));
+    if (NS_FAILED(rv) || !senderIdentity)
+    {
+      m_urlErrorState = NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY;
+      return(NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY);
+    }
+    senderIdentity->GetEmail(emailAddress);
+    if (emailAddress.IsEmpty())
+    {
+      m_urlErrorState = NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS;
+      return(NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS);
+    }
+
+    // Quote the email address before passing it to the SMTP server.
+    MakeMimeAddress(EmptyCString(), emailAddress, fullAddress);
+  }
+  buffer = "MAIL FROM:<";
+  buffer += fullAddress;
+  buffer += ">";
 
   if (TestFlag(SMTP_EHLO_DSN_ENABLED))
   {
@@ -771,9 +786,15 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
       // get the envid from the smtpUrl
       rv = m_runningURL->GetDsnEnvid(dsnEnvid);
 
-      if (dsnEnvid.IsEmpty())
+      if (dsnEnvid.IsEmpty()) {
+          nsCOMPtr <nsIMsgIdentity> senderIdentity;
+          rv = m_runningURL->GetSenderIdentity(getter_AddRefs(senderIdentity));
+          if (NS_FAILED(rv) || !senderIdentity) {
+              m_urlErrorState = NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY;
+              return(NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY);
+          }
           dsnEnvid.Adopt(msg_generate_message_id(senderIdentity));
-
+      }
       buffer += " ENVID=";
       buffer += dsnEnvid;
     }

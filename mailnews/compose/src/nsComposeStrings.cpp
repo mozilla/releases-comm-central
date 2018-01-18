@@ -52,7 +52,9 @@ const char* errorStringNameForErrorCode(nsresult aCode)
     case NS_ERROR_TCP_READ_ERROR:
       return "tcpReadError";
     case NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS:
-      return "couldNotGetUsersMailAddress";
+      return "couldNotGetUsersMailAddress2";
+    case NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY:
+      return "couldNotGetSendersIdentity";
     case NS_ERROR_MIME_MPART_ATTACHMENT_ERROR:
       return "mimeMpartAttachmentError";
     case NS_MSG_FAILED_COPY_OPERATION:

@@ -854,9 +854,11 @@ nsresult nsMsgMdnGenerator::SendMdnMsg()
     NS_ENSURE_SUCCESS(rv,rv);
 
     nsCOMPtr<nsIRequest> aRequest;
-    smtpService->SendMailMessage(m_file, m_dntRrt.get(), m_identity,
-                                     EmptyString(), this, nullptr, nullptr, false, nullptr,
-                                     getter_AddRefs(aRequest));
+    nsCString identEmail;
+    m_identity->GetEmail(identEmail);
+    smtpService->SendMailMessage(m_file, m_dntRrt.get(), m_identity, identEmail.get(),
+                                 EmptyString(), this, nullptr, nullptr, false,
+                                 nullptr, getter_AddRefs(aRequest));
 
     return NS_OK;
 }

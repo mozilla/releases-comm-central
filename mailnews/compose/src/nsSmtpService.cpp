@@ -55,6 +55,7 @@ NS_MsgBuildSmtpUrl(nsIFile * aFilePath,
                    nsISmtpServer *aServer,
                    const char* aRecipients,
                    nsIMsgIdentity * aSenderIdentity,
+                   const char * aSender,
                    nsIUrlListener * aUrlListener,
                    nsIMsgStatusFeedback *aStatusFeedback,
                    nsIInterfaceRequestor* aNotificationCallbacks,
@@ -80,6 +81,7 @@ NS_IMPL_ISUPPORTS(nsSmtpService, nsISmtpService, nsIProtocolHandler)
 NS_IMETHODIMP nsSmtpService::SendMailMessage(nsIFile * aFilePath,
                                         const char * aRecipients,
                                         nsIMsgIdentity * aSenderIdentity,
+                                        const char * aSender,
                                         const nsAString & aPassword,
                                         nsIUrlListener * aUrlListener,
                                         nsIMsgStatusFeedback *aStatusFeedback,
@@ -100,7 +102,7 @@ NS_IMETHODIMP nsSmtpService::SendMailMessage(nsIFile * aFilePath,
       smtpServer->SetPassword(aPassword);
 
     // this ref counts urlToRun
-    rv = NS_MsgBuildSmtpUrl(aFilePath, smtpServer, aRecipients, aSenderIdentity,
+    rv = NS_MsgBuildSmtpUrl(aFilePath, smtpServer, aRecipients, aSenderIdentity, aSender,
                             aUrlListener, aStatusFeedback,
                             aNotificationCallbacks, &urlToRun, aRequestDSN);
     if (NS_SUCCEEDED(rv) && urlToRun)	
@@ -123,6 +125,7 @@ nsresult NS_MsgBuildSmtpUrl(nsIFile * aFilePath,
                             nsISmtpServer *aSmtpServer,
                             const char * aRecipients,
                             nsIMsgIdentity * aSenderIdentity,
+                            const char * aSender,
                             nsIUrlListener * aUrlListener,
                             nsIMsgStatusFeedback *aStatusFeedback,
                             nsIInterfaceRequestor* aNotificationCallbacks,
@@ -176,6 +179,7 @@ nsresult NS_MsgBuildSmtpUrl(nsIFile * aFilePath,
   rv = url->SetSpec(urlSpec);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  smtpUrl->SetSender(aSender);
   smtpUrl->SetRecipients(aRecipients);
   smtpUrl->SetRequestDSN(aRequestDSN);
   smtpUrl->SetPostMessageFile(aFilePath);
@@ -240,7 +244,7 @@ NS_IMETHODIMP nsSmtpService::VerifyLogon(nsISmtpServer *aServer,
   nsCOMPtr <nsIURI> urlToRun;
 
   nsresult rv = NS_MsgBuildSmtpUrl(nullptr, aServer,
-                          nullptr, nullptr, aUrlListener, nullptr,
+                          nullptr, nullptr, nullptr, aUrlListener, nullptr,
                           nullptr , getter_AddRefs(urlToRun), false);
   if (NS_SUCCEEDED(rv) && urlToRun)
   {

@@ -582,6 +582,11 @@ pref("mail.smtp.useMatchingDomainServer", false);
 // matching username and host name
 pref("mail.smtp.useMatchingHostNameServer", false);
 
+// if true, we'll use the email sender's address for the smtp
+// MAIL FROM, which might become the return-path. If false
+// we use the identity email address, which is the old behaviour
+pref("mail.smtp.useSenderForSmtpMailFrom", true);
+
 pref("mail.smtpserver.default.authMethod", 3); // cleartext password. @see nsIMsgIncomingServer.authMethod.
 pref("mail.smtpserver.default.try_ssl", 0); // @see nsISmtpServer.socketType
 

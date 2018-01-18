@@ -42,6 +42,11 @@ interface nsISmtpUrl : nsISupports {
   attribute ACString dsnEnvid;
 
   /**
+   * The sender of this mail (can be different from identity).
+   */
+  attribute string sender;
+
+  /**
    * SMTP Url instance specific getters and setters
    * Information the protocol needs to know in order to run the url.
    * These are NOT event sinks which are things the caller needs to know.

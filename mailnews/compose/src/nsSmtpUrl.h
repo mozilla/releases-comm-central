@@ -115,6 +115,7 @@ protected:
   // data retrieved from parsing the url: (Note the url could be a post from
   // file or it could be in the url)
   nsCString m_toPart;
+  nsCString m_fromPart;
 
   bool m_isPostMessage;
   bool m_requestDSN;
