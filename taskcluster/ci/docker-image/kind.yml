@@ -11,5 +11,6 @@ kind-dependencies:
 jobs:
     - desktop-build
     - desktop1604-test
+    - image_builder
     - lint
     - toolchain-build
