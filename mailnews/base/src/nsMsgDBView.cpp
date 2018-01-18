@@ -1882,14 +1882,6 @@ nsMsgDBView::GetImageSrc(int32_t aRow,
 }
 
 NS_IMETHODIMP
-nsMsgDBView::GetProgressMode(int32_t aRow,
-                             nsITreeColumn* aCol,
-                             int32_t* _retval)
-{
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgDBView::GetCellValue(int32_t aRow,
                           nsITreeColumn* aCol,
                           nsAString& aValue)

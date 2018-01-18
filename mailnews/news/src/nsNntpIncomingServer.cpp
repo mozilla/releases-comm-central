@@ -1836,12 +1836,6 @@ nsNntpIncomingServer::GetImageSrc(int32_t row, nsITreeColumn* col, nsAString& _r
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::GetProgressMode(int32_t row, nsITreeColumn* col, int32_t* _retval)
-{
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsNntpIncomingServer::GetCellValue(int32_t row, nsITreeColumn* col, nsAString& _retval)
 {
   if (!IsValidRow(row))
