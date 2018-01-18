@@ -20,6 +20,7 @@ load("../../../resources/passwordStorage.js");
 var server;
 var attempt = 0;
 
+var kIdentityMail = "identity@foo.invalid";
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 var kUsername = "testsmtp";
@@ -80,7 +81,7 @@ add_task(function *() {
 
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
-  var identity = getSmtpIdentity(kSender, smtpServer);
+  var identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
@@ -94,7 +95,7 @@ add_task(function *() {
 
     dump("Send\n");
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity,
+    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
                                       null, null, null, null,
                                       false, {}, {});
 

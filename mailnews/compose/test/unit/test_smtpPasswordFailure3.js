@@ -18,6 +18,7 @@ load("../../../resources/passwordStorage.js");
 var server;
 var attempt = 0;
 
+var kIdentityMail = "identity@foo.invalid";
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 var kUsername = "testsmtp";
@@ -91,7 +92,7 @@ add_task(function *() {
   // Start the fake SMTP server
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
-  var identity = getSmtpIdentity(kSender, smtpServer);
+  var identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
   // This time with auth
   test = "Auth sendMailMessage";
@@ -102,7 +103,7 @@ add_task(function *() {
 
   do_test_pending();
 
-  MailServices.smtp.sendMailMessage(testFile, kTo, identity,
+  MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
                                     null, URLListener, null, null,
                                     false, {}, {});
 

@@ -24,6 +24,7 @@ function promptPasswordPS(aParent, aDialogTitle, aText, aPassword,
 
 var server;
 
+var kIdentityMail = "identity@foo.invalid";
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 var kUsername = "test.smtp@fakeserver";
@@ -64,7 +65,7 @@ add_task(function *() {
     // Start the fake SMTP server
     server.start();
     var smtpServer = getBasicSmtpServer(server.port);
-    var identity = getSmtpIdentity(kSender, smtpServer);
+    var identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
     // This time with auth
     test = "Auth sendMailMessage";
@@ -73,7 +74,7 @@ add_task(function *() {
     smtpServer.socketType = Ci.nsMsgSocketType.plain;
     smtpServer.username = kUsername;
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity,
+    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
                                       null, null, null, null,
                                       false, {}, {});
 
@@ -87,7 +88,7 @@ add_task(function *() {
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword2),
                                        "AUTH LOGIN",
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword1),
-                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155",
+                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
 

@@ -25,6 +25,7 @@ add_task(function* sendMessage() {
   var testFile = do_get_file("data/message1.eml");
   var urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.smtp.sendMailMessage(testFile, "somebody@example.org", identity,
+                                    "me@example.org",
                                     null, urlListener, null, null,
                                     false, {}, {});
   yield urlListener.promise;

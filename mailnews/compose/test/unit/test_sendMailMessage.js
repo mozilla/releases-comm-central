@@ -11,10 +11,14 @@ Components.utils.import("resource:///modules/mailServices.js");
 var test = null;
 var server;
 
+var kIdentityMail = "identity@foo.invalid";
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 var kUsername = "testsmtp";
 var kPassword = "smtptest";
+
+var kTestFileSender = "from_B@foo.invalid";
+var kTestFileRecipient = "to_B@foo.invalid";
 
 function test_RFC2821() {
 
@@ -26,16 +30,18 @@ function test_RFC2821() {
 
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
-  var identity = getSmtpIdentity(kSender, smtpServer);
+  var identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-
     // Just a basic test to check we're sending mail correctly.
     test = "Basic sendMailMessage";
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity,
+    // First do test with identity email address used for smtp MAIL FROM.
+    Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
+
+    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
                                       null, null, null, null,
                                       false, {}, {});
 
@@ -43,13 +49,30 @@ function test_RFC2821() {
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, ["EHLO test",
-                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155",
+                                       "MAIL FROM:<" + kIdentityMail + "> BODY=8BITMIME SIZE=159",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
 
     server.resetTest();
 
-    // This time with auth
+    // Now do the same test with sender's email address used for smtp MAIL FROM.
+    Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
+
+    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
+                                      null, null, null, null,
+                                      false, {}, {});
+
+    server.performTest();
+
+    var transaction = server.playTransaction();
+    do_check_transaction(transaction, ["EHLO test",
+                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
+                                       "RCPT TO:<" + kTo + ">",
+                                       "DATA"]);
+
+    server.resetTest();
+
+    // This time with auth.
     test = "Auth sendMailMessage";
 
     smtpServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
@@ -57,7 +80,10 @@ function test_RFC2821() {
     smtpServer.username = kUsername;
     smtpServer.password = kPassword;
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity,
+    // First do test with identity email address used for smtp MAIL FROM.
+    Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
+
+    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
                                       null, null, null, null,
                                       false, {}, {});
 
@@ -66,10 +92,27 @@ function test_RFC2821() {
     var transaction = server.playTransaction();
     do_check_transaction(transaction, ["EHLO test",
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
-                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155",
+                                       "MAIL FROM:<" + kIdentityMail + "> BODY=8BITMIME SIZE=159",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
 
+    server.resetTest();
+
+    // Now do the same test with sender's email address used for smtp MAIL FROM.
+    Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
+
+    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
+                                      null, null, null, null,
+                                      false, {}, {});
+
+    server.performTest();
+
+    var transaction = server.playTransaction();
+    do_check_transaction(transaction, ["EHLO test",
+                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
+                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
+                                       "RCPT TO:<" + kTo + ">",
+                                       "DATA"]);
 
   } catch (e) {
     do_throw(e);

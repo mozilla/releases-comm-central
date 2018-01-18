@@ -11,6 +11,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 var test = null;
 var server;
 
+var kIdentityMail = "identity@foo.invalid";
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 
@@ -27,7 +28,7 @@ function test_8bitmime(aStrictMime, aServer8bit) {
 
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
-  var identity = getSmtpIdentity(kSender, smtpServer);
+  var identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
@@ -38,7 +39,7 @@ function test_8bitmime(aStrictMime, aServer8bit) {
 
     Services.prefs.setBoolPref("mail.strictly_mime", aStrictMime);
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity,
+    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
                                       null, null, null, null,
                                       false, {}, {});
 
@@ -48,7 +49,7 @@ function test_8bitmime(aStrictMime, aServer8bit) {
     do_check_transaction(transaction, ["EHLO test",
                                        "MAIL FROM:<" + kSender +
                                          (!aStrictMime && aServer8bit ?
-                                           "> BODY=8BITMIME SIZE=155" : "> SIZE=155"),
+                                           "> BODY=8BITMIME SIZE=159" : "> SIZE=159"),
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
 

@@ -22,9 +22,10 @@ var originalData;
 var finished = false;
 var identity = null;
 var testFile = do_get_file("data/429891_testcase.eml");
+var kTestFileSender = "from_A@foo.invalid";
+var kTestFileRecipient = "to_A@foo.invalid";
 
-var kSender = "from@foo.invalid";
-var kTo = "to@foo.invalid";
+var kIdentityMail = "identity@foo.invalid";
 var kToEncodedDisplayName = "=?UTF-8?B?RnLDqcOpZGxlLCBUZXN0?="; // "Fréédle, Test"
 
 var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"]
@@ -69,8 +70,9 @@ msll.prototype = {
 
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
-                            "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
-                            "RCPT TO:<" + kTo + ">",
+                            "MAIL FROM:<" + kTestFileSender +
+                            "> BODY=8BITMIME SIZE=" + originalData.length,
+                            "RCPT TO:<" + kTestFileRecipient + ">",
                             "DATA"]);
 
       // Compare data file to what the server received
@@ -191,7 +193,7 @@ function run_test() {
   let incomingServer = MailServices.accounts.createIncomingServer("test", "localhost", "pop3");
 
   smtpServer = getBasicSmtpServer(1);
-  identity = getSmtpIdentity(kSender, smtpServer);
+  identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
   account.addIdentity(identity);
   account.defaultIdentity = identity;
@@ -207,8 +209,12 @@ function run_test() {
   var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
                      .createInstance(Ci.nsIMsgCompFields);
 
-  compFields.from = identity.email;
-  compFields.to = kToEncodedDisplayName + " <" + kTo + ">";
+  // Setting the compFields sender and recipient to any value is required to
+  // survive mime_sanity_check_fields in nsMsgCompUtils.cpp.
+  // Sender and recipient are required for sendMessageFile but SMTP
+  // transaction values will be used directly from mail body.
+  compFields.from = "irrelevant@foo.invalid";
+  compFields.to = "irrelevant@foo.invalid";
 
   var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
                   .createInstance(Ci.nsIMsgSend);

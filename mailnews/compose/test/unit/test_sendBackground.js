@@ -15,7 +15,10 @@ var identity = null;
 var testFile1 = do_get_file("data/429891_testcase.eml");
 var testFile2 = do_get_file("data/message1.eml");
 
-var kSender = "from@foo.invalid";
+var kTestFile1Sender = "from_A@foo.invalid";
+var kTestFile1Recipient = "to_A@foo.invalid";
+
+var kIdentityMail = "identity@foo.invalid";
 var kTo = "to@foo.invalid";
 
 var gMsgSendLater;
@@ -56,8 +59,9 @@ msll.prototype = {
 
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
-                            "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
-                            "RCPT TO:<" + kTo + ">",
+                            "MAIL FROM:<" + kTestFile1Sender +
+                            "> BODY=8BITMIME SIZE=" + originalData.length,
+                            "RCPT TO:<" + kTestFile1Recipient + ">",
                             "DATA"]);
 
       // Compare data file to what the server received
@@ -108,7 +112,7 @@ function run_test() {
   server = setupServerDaemon();
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
-  identity = getSmtpIdentity(kSender, smtpServer);
+  identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
   account.addIdentity(identity);
   account.defaultIdentity = identity;
@@ -124,8 +128,12 @@ function run_test() {
   var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
                      .createInstance(Ci.nsIMsgCompFields);
 
-  compFields.from = identity.email;
-  compFields.to = kTo;
+  // Setting the compFields sender and recipient to any value is required to
+  // survive mime_sanity_check_fields in nsMsgCompUtils.cpp.
+  // Sender and recipient are required for sendMessageFile but SMTP
+  // transaction values will be used directly from mail body.
+  compFields.from = "irrelevant@foo.invalid";
+  compFields.to = "irrelevant@foo.invalid";
 
   var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
                   .createInstance(Ci.nsIMsgSend);

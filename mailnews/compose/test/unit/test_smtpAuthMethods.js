@@ -15,9 +15,10 @@ var identity;
 
 var kUsername = "fred";
 var kPassword = "wilma";
+var kIdentityMail = "identity@foo.invalid";
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
-var MAILFROM = "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155";
+var MAILFROM = "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159";
 var RCPTTO = "RCPT TO:<" + kTo + ">";
 var AUTHPLAIN = "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword);
 
@@ -74,7 +75,7 @@ function nextTest() {
   smtpServer.authMethod = curTest.clientAuthMethod;
 
   // Run test
-  MailServices.smtp.sendMailMessage(testFile, kTo, identity,
+  MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
                                     null, null, null, null,
                                     false, {}, {});
   server.performTest();
@@ -105,7 +106,7 @@ function run_test() {
     smtpServer.socketType = Ci.nsMsgSocketType.plain;
     smtpServer.username = kUsername;
     smtpServer.password = kPassword;
-    identity = getSmtpIdentity(kSender, smtpServer);
+    identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
     testFile = do_get_file("data/message1.eml");
 

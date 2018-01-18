@@ -20,6 +20,7 @@ load("../../../resources/passwordStorage.js");
 var server;
 var attempt = 0;
 
+var kIdentityMail = "identity@foo.invalid";
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 var kUsername = "testsmtp";
@@ -95,7 +96,7 @@ add_task(function *() {
     // Start the fake SMTP server
     server.start();
     var smtpServer = getBasicSmtpServer(server.port);
-    var identity = getSmtpIdentity(kSender, smtpServer);
+    var identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
     // This time with auth
     test = "Auth sendMailMessage";
@@ -106,7 +107,7 @@ add_task(function *() {
 
     dump("Send\n");
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity,
+    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
                                       null, null, null, null,
                                       false, {}, {});
 
@@ -126,7 +127,7 @@ add_task(function *() {
                                        "AUTH LOGIN",
                                        // then we enter the correct password
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kValidPassword),
-                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155",
+                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
 
