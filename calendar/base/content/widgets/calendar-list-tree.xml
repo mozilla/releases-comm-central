@@ -883,13 +883,6 @@
         ]]></body>
       </method>
 
-      <method name="getProgressMode">
-        <parameter name="aRow"/>
-        <parameter name="aCol"/>
-        <body><![CDATA[
-        ]]></body>
-      </method>
-
       <method name="getCellValue">
         <parameter name="aRow"/>
         <parameter name="aCol"/>

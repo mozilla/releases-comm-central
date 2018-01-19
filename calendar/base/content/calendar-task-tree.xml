@@ -702,12 +702,6 @@
                 return null;
             },
 
-            // The progress mode for a given cell. This method is only called for
-            // columns of type |progressmeter|.
-            getProgressMode: function(aRow, aCol) {
-                return Components.interfaces.nsITreeView.PROGRESS_NONE;
-            },
-
             /**
              * Task Tree Events
              */
