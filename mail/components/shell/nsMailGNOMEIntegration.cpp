@@ -254,12 +254,13 @@ nsMailGNOMEIntegration::checkDefault(const char* const *aProtocols, unsigned int
 
     if (giovfs) {
       handler.Truncate();
-      nsCOMPtr<nsIGIOMimeApp> app;
+      nsCOMPtr<nsIHandlerApp> handlerApp;
       rv = giovfs->GetAppForURIScheme(nsDependentCString(aProtocols[i]),
-                                      getter_AddRefs(app));
-      if (NS_FAILED(rv) || !app) {
+                                      getter_AddRefs(handlerApp));
+      if (NS_FAILED(rv) || !handlerApp) {
         return false;
       }
+      nsCOMPtr<nsIGIOMimeApp> app = do_QueryInterface(handlerApp);
       rv = app->GetCommand(handler);
       if (NS_SUCCEEDED(rv) && !CheckHandlerMatchesAppName(handler)) {
         return false;
