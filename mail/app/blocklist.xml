@@ -923,14 +923,6 @@
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
-    <emItem blockID="i564" id="/^(firefox@vebergreat\.net|EFGLQA@78ETGYN-0W7FN789T87\.COM)$/">
-      <prefs/>
-      <versionRange minVersion="0" maxVersion="*" severity="1"/>
-    </emItem>
-    <emItem blockID="i500" id="{2aab351c-ad56-444c-b935-38bffe18ad26}">
-      <prefs/>
-      <versionRange minVersion="0" maxVersion="*" severity="3"/>
-    </emItem>
     <emItem blockID="i97" id="support3_en@adobe122.com">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
@@ -1172,6 +1164,10 @@
       <versionRange minVersion="0" maxVersion="*" severity="1"/>
     </emItem>
     <emItem blockID="i1034" id="a88a77ahjjfjakckmmabsy278djasi@jetpack">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="8088b39a-3e6d-4a17-a22f-3f95c0464bd6" id="{5b0f6d3c-10fd-414c-a135-dffd26d7de0f}">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
@@ -1979,6 +1975,14 @@
     <emItem blockID="i258" id="helperbar@helperbar.com">
       <prefs/>
       <versionRange minVersion="0" maxVersion="1.0" severity="1"/>
+    </emItem>
+    <emItem blockID="i564" id="/^(firefox@vebergreat\.net|EFGLQA@78ETGYN-0W7FN789T87\.COM)$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="1"/>
+    </emItem>
+    <emItem blockID="i500" id="{2aab351c-ad56-444c-b935-38bffe18ad26}">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
   </emItems>
   <pluginItems>
