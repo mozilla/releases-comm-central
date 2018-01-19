@@ -1,5 +1,6 @@
 . "$topsrcdir/build/mozconfig.comm-support"
 . "$commtopsrcdir/mail/config/mozconfigs/l10n-common"
+. "$commtopsrcdir/mail/config/mozconfigs/win64/common-win64"
 
 # Use the TOOLTOOL provided xz for mar generation.
 mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"

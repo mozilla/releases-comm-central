@@ -3,9 +3,7 @@
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
 . "$commtopsrcdir/mail/config/mozconfigs/common"
-
-ac_add_options --target=x86_64-pc-mingw32
-ac_add_options --host=x86_64-pc-mingw32
+. "$commtopsrcdir/mail/config/mozconfigs/win64/common-win64"
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-jemalloc
