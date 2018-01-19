@@ -1,2 +1,10 @@
 . "$topsrcdir/build/mozconfig.comm-support"
 . "$commtopsrcdir/mail/config/mozconfigs/l10n-common"
+
+if test `uname -s` = "Linux"; then
+  # We need to indicate the target for cross builds
+  ac_add_options --target=x86_64-apple-darwin
+  export MKFSHFS=$topsrcdir/hfsplus-tools/newfs_hfs
+  export DMG_TOOL=$topsrcdir/dmg/dmg
+  export HFS_TOOL=$topsrcdir/dmg/hfsplus
+fi
