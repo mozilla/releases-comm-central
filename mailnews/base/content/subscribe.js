@@ -20,10 +20,6 @@ var gSubscribeDeck = null;
 var gSearchView = null;
 var gSearchTreeBoxObject = null;
 var gItemsFound = new Map();
-// the rdf service
-var RDF = Components.classes['@mozilla.org/rdf/rdf-service;1'].getService(Components.interfaces.nsIRDFService);
-var subscribeDS = RDF.GetDataSource("rdf:subscribe");
-
 var gSubscribeBundle;
 
 function goDoCommand()
@@ -162,7 +158,6 @@ function SetUpTree(forceToServer, getOnlyNew)
     while (gSubscribeBody.hasChildNodes())
       gSubscribeBody.lastChild.remove();
 
-//    gSubscribeTree.database.RemoveDataSource(subscribeDS);
     gSubscribableServer.subscribeListener = MySubscribeListener;
 
     var currentListTab = document.getElementById("currentListTab");
@@ -191,7 +186,6 @@ function SubscribeOnUnload()
 {
   try {
     CleanUpSearchView();
-//    gSubscribeTree.database.RemoveDataSource(subscribeDS);
   }
   catch (ex) {
     dump("failed to remove the subscribe ds: " + ex + "\n");
@@ -420,8 +414,6 @@ function SetSubscribeState(state)
         if (inSearchMode)
           SetStateFromRow(k, state);
         else {
-//          var rowRes = gSubscribeTree.builderView.getResourceAtIndex(k);
-//          var name = GetRDFProperty(rowRes, "Name");
           let name = view.getCellValue(k, gSubscribeTree.columns[colId]);
           SetState(name, state, k);
         }
@@ -440,9 +432,6 @@ function SetSubscribeState(state)
 
 function ReverseStateFromNode(row)
 {
-//  var rowRes = gSubscribeTree.builderView.getResourceAtIndex(row);
-//  var isSubscribed = GetRDFProperty(rowRes, "Subscribed");
-//  var name = GetRDFProperty(rowRes, "Name");
   let name = gSubscribeTree.view.getCellValue(row, gSubscribeTree.columns["nameColumn"]);
 
   SetState(name, !gSubscribableServer.isSubscribed(name), row);
