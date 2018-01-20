@@ -81,8 +81,7 @@ function getWcapSessionFor(calendar, uri) {
                     let [spec, params] = splitUriParams(regCal.uri);
                     if (spec != defaultSpec) {
                         log("fixing url of subscribed calendar: " + regCal.calId, session);
-                        let caluri = regCal.uri.clone();
-                        caluri.spec = defaultSpec + params;
+                        let caluri = regCal.uri.mutate().setSpec(defaultSpec + params).finalize();
                         regCal.uri = caluri;
                         regCal.setProperty("uri", caluri.spec);
                     }

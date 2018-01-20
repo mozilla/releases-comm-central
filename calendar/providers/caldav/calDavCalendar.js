@@ -442,30 +442,28 @@ calDavCalendar.prototype = {
     },
 
     get calendarUri() {
-        let calUri = this.mUri.clone();
-        let parts = calUri.spec.split("?");
+        let calSpec = this.mUri.spec;
+        let parts = calSpec.split("?");
         if (parts.length > 1) {
-            calUri.spec = parts.shift();
+            calSpec = parts.shift();
             this.mUriParams = "?" + parts.join("?");
         }
-        if (calUri.spec.charAt(calUri.spec.length - 1) != "/") {
-            calUri.spec += "/";
+        if (!calSpec.endsWith("/")) {
+            calSpec += "/";
         }
-        return calUri;
+        return Services.io.newURI(calSpec);
     },
 
     setCalHomeSet: function(removeLastPathSegment) {
         if (removeLastPathSegment) {
-            let calUri = this.mUri.clone();
-            let split1 = calUri.spec.split("?");
+            let split1 = this.mUri.spec.split("?");
             let baseUrl = split1[0];
             if (baseUrl.charAt(baseUrl.length - 1) == "/") {
                 baseUrl = baseUrl.substring(0, baseUrl.length - 2);
             }
             let split2 = baseUrl.split("/");
             split2.pop();
-            calUri.spec = split2.join("/") + "/";
-            this.mCalHomeSet = calUri;
+            this.mCalHomeSet = Services.io.newURI(split2.join("/") + "/");
         } else {
             this.mCalHomeSet = this.calendarUri;
         }
