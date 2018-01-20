@@ -16,7 +16,6 @@ linux64/opt:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-            - balrog/production.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     toolchains:
@@ -42,7 +41,6 @@ linux64/debug:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-            - balrog/production.py
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
         need-xvfb: true
@@ -70,7 +68,6 @@ linux/opt:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
-            - balrog/production.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     toolchains:
@@ -96,7 +93,6 @@ linux/debug:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
-            - balrog/production.py
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
         need-xvfb: true
