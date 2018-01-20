@@ -26,6 +26,7 @@
 
   <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+  <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/addressbook.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abDragDrop.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
