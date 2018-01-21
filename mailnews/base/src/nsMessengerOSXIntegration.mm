@@ -93,7 +93,7 @@ static void openMailWindow(const nsCString& aUri)
       if (NS_FAILED(rv))
         return;
 
-      rv = msgUri->SetSpec(aUri);
+      rv = msgUri->SetSpecInternal(aUri);
       if (NS_FAILED(rv))
         return;
 

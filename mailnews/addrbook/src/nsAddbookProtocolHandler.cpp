@@ -63,7 +63,7 @@ NS_IMETHODIMP nsAddbookProtocolHandler::NewURI(const nsACString &aSpec,
   nsCOMPtr<nsIAddbookUrl> addbookUrl = do_CreateInstance(NS_ADDBOOKURL_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  rv = addbookUrl->SetSpec(aSpec);
+  rv = addbookUrl->SetSpecInternal(aSpec);
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr<nsIURI> uri = do_QueryInterface(addbookUrl, &rv);

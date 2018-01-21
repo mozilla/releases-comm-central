@@ -28,10 +28,10 @@ nsAddbookUrl::~nsAddbookUrl()
 
 NS_IMPL_ISUPPORTS(nsAddbookUrl, nsIAddbookUrl, nsIURI)
 
-NS_IMETHODIMP
-nsAddbookUrl::SetSpec(const nsACString &aSpec)
+nsresult
+nsAddbookUrl::SetSpecInternal(const nsACString &aSpec)
 {
-  nsresult rv = m_baseURL->SetSpec(aSpec);
+  nsresult rv = m_baseURL->SetSpecInternal(aSpec);
   NS_ENSURE_SUCCESS(rv, rv);
   return ParseUrl();
 }

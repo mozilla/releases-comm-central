@@ -33,7 +33,7 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
   nsCOMPtr<nsIURL> aUrl = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
-  rv = aUrl->SetSpec(nsDependentCString(uriStr));
+  rv = aUrl->SetSpecInternal(nsDependentCString(uriStr));
   if (NS_FAILED(rv)) return rv;
 
   // retrieve the AccountManager

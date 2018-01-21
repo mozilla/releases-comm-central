@@ -220,7 +220,7 @@ nsresult nsPop3Service::BuildPop3Url(const char *urlSpec,
   rv = CallQueryInterface(pop3Url, aUrl);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  rv = (*aUrl)->SetSpec(nsDependentCString(urlSpec));
+  rv = (*aUrl)->SetSpecInternal(nsDependentCString(urlSpec));
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(pop3Url);

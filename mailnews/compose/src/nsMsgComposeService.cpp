@@ -1333,7 +1333,7 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
 
   // ignore errors here - it's not fatal, and in the case of mailbox messages,
   // we're always passing in an invalid spec...
-  (void )url->SetSpec(mailboxUri);
+  (void)url->SetSpecInternal(mailboxUri);
 
   // if we are forwarding a message and that message used a charset over ride
   // then use that over ride charset instead of the charset specified in the message

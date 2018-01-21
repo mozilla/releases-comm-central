@@ -2100,7 +2100,7 @@ nsMsgComposeAndSend::AddCompFieldLocalAttachments()
                 //Then try using the url if we still haven't figured out the content type
                 if (m_attachments[newLoc]->m_type.IsEmpty())
                 {
-                  rv = fileUrl->SetSpec(url);
+                  rv = fileUrl->SetSpecInternal(url);
                   if (NS_SUCCEEDED(rv))
                   {
                     rv = fileUrl->GetFileExtension(fileExt);
@@ -2201,7 +2201,7 @@ nsMsgComposeAndSend::AddCompFieldRemoteAttachments(uint32_t   aStartLocation,
           // Check for message attachment, see nsMsgMailNewsUrl::GetIsMessageUri.
           nsCOMPtr<nsIURI> nsiuri = do_CreateInstance(NS_STANDARDURL_CONTRACTID);
           NS_ENSURE_STATE(nsiuri);
-          nsiuri->SetSpec(url);
+          nsiuri->SetSpecInternal(url);
           nsAutoCString scheme;
           nsiuri->GetScheme(scheme);
           bool isAMessageAttachment =

@@ -1107,12 +1107,12 @@ nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char *ref,
     rv = server->GetServerURI(serverURI);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = url->SetSpec(serverURI);
+    rv = url->SetSpecInternal(serverURI);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   else
   {
-    rv = url->SetSpec(mURI);
+    rv = url->SetSpecInternal(mURI);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

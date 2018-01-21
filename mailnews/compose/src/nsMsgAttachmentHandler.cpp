@@ -856,7 +856,7 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
     nsCOMPtr<nsIURL> fileUrl(do_CreateInstance(NS_STANDARDURL_CONTRACTID));
     if (fileUrl)
     {
-      rv = fileUrl->SetSpec(aFileURI);
+      rv = fileUrl->SetSpecInternal(aFileURI);
       if (NS_SUCCEEDED(rv))
       {
         nsAutoCString ext;

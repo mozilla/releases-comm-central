@@ -19,7 +19,7 @@ class nsMailboxUrl : public nsIMailboxUrl, public nsMsgMailNewsUrl, public nsIMs
 {
 public:
   // nsIURI over-ride...
-  NS_IMETHOD SetSpec(const nsACString &aSpec) override;
+  nsresult SetSpecInternal(const nsACString &aSpec) override;
   NS_IMETHOD SetQuery(const nsACString &aQuery) override;
 
   // from nsIMailboxUrl:

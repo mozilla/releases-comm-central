@@ -3133,7 +3133,7 @@ nsMsgDBFolder::parseURI(bool needServer)
   url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = url->SetSpec(mURI);
+  rv = url->SetSpecInternal(mURI);
   NS_ENSURE_SUCCESS(rv, rv);
   // empty path tells us it's a server.
   if (!mIsServerIsValid)

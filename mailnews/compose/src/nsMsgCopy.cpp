@@ -542,7 +542,7 @@ MessageFolderIsLocal(nsIMsgIdentity   *userIdentity,
   nsCOMPtr <nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
-  rv = url->SetSpec(nsDependentCString(aFolderURI));
+  rv = url->SetSpecInternal(nsDependentCString(aFolderURI));
   if (NS_FAILED(rv)) return rv;
 
   /* mailbox:/ means its local (on disk) */

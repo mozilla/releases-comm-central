@@ -19,7 +19,7 @@ public:
   NS_DECL_NSIMSGI18NURL
 
   // nsIURI over-ride...
-  NS_IMETHOD SetSpec(const nsACString &aSpec) override;
+  nsresult SetSpecInternal(const nsACString &aSpec) override;
 
   NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
 

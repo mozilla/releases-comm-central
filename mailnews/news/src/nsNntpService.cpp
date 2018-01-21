@@ -527,7 +527,7 @@ nsNntpService::DecomposeNewsMessageURI(const char * aMessageURI, nsIMsgFolder **
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsINntpUrl> nntpUrl = do_QueryInterface(mailnewsurl, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = mailnewsurl->SetSpec(nsDependentCString(aMessageURI));
+  rv = mailnewsurl->SetSpecInternal(nsDependentCString(aMessageURI));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get the group name and key from the url
@@ -855,7 +855,7 @@ nsNntpService::PostMessage(nsIFile *aFileToPost, const char *newsgroupsNames, co
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(nntpUrl, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = mailnewsurl->SetSpec(newsUrlSpec);
+  rv = mailnewsurl->SetSpecInternal(newsUrlSpec);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aUrlListener) // register listener if there is one...
@@ -892,7 +892,7 @@ nsNntpService::ConstructNntpUrl(const char *urlString, nsIUrlListener *aUrlListe
   mailnewsurl->SetMsgWindow(aMsgWindow);
   nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(nntpUrl);
   msgUrl->SetUri(originalMessageUri);
-  rv = mailnewsurl->SetSpec(nsDependentCString(urlString));
+  rv = mailnewsurl->SetSpecInternal(nsDependentCString(urlString));
   NS_ENSURE_SUCCESS(rv, rv);
   nntpUrl->SetNewsAction(action);
 
@@ -1216,11 +1216,11 @@ NS_IMETHODIMP nsNntpService::NewURI(const nsACString &aSpec,
     {
       nsAutoCString newSpec;
       aBaseURI->Resolve(aSpec, newSpec);
-      rv = nntpUri->SetSpec(newSpec);
+      rv = nntpUri->SetSpecInternal(newSpec);
     }
     else
     {
-      rv = nntpUri->SetSpec(aSpec);
+      rv = nntpUri->SetSpecInternal(aSpec);
     }
     NS_ENSURE_SUCCESS(rv,rv);
 

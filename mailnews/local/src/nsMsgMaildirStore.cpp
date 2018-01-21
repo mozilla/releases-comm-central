@@ -1255,7 +1255,7 @@ void MaildirStoreParser::TimerCallback(nsITimer *aTimer, void *aClosure)
         url->SetUpdatingFolder(true);
         nsAutoCString uriSpec("mailbox://");
         // ### TODO - what if SetSpec fails?
-        (void) url->SetSpec(uriSpec);
+        (void)url->SetSpecInternal(uriSpec);
         parser->m_listener->OnStopRunningUrl(url, NS_OK);
       }
     }

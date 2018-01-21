@@ -263,9 +263,9 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char * searchPart)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailtoUrl::SetSpec(const nsACString &aSpec)
+nsresult nsMailtoUrl::SetSpecInternal(const nsACString &aSpec)
 {
-  nsresult rv = m_baseURL->SetSpec(aSpec);
+  nsresult rv = m_baseURL->SetSpecInternal(aSpec);
   NS_ENSURE_SUCCESS(rv, rv);
   return ParseUrl();
 }

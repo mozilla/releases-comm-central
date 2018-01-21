@@ -3112,7 +3112,7 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType)
     if (NS_FAILED(rv))
       return rv;
 
-    rv = url->SetSpec(mURI);
+    rv = url->SetSpecInternal(mURI);
     if (NS_FAILED(rv))
       return rv;
 

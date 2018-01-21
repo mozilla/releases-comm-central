@@ -56,7 +56,7 @@ nsLDAPURL::Init(uint32_t aUrlType, int32_t aDefaultPort,
   rv = mBaseURL->GetSpec(spec);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return SetSpec(spec);
+  return SetSpecInternal(spec);
 }
 
 void
@@ -149,8 +149,8 @@ nsLDAPURL::GetSpec(nsACString &_retval)
   return mBaseURL->GetSpec(_retval);
 }
 
-NS_IMETHODIMP
-nsLDAPURL::SetSpec(const nsACString &aSpec)
+nsresult
+nsLDAPURL::SetSpecInternal(const nsACString &aSpec)
 {
   if (!mBaseURL)
     return NS_ERROR_NOT_INITIALIZED;
@@ -161,12 +161,12 @@ nsLDAPURL::SetSpec(const nsACString &aSpec)
   nsresult rv = mBaseURL->GetSpec(originalSpec);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = mBaseURL->SetSpec(aSpec);
+  rv = mBaseURL->SetSpecInternal(aSpec);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = SetPathInternal(PromiseFlatCString(aSpec));
   if (NS_FAILED(rv))
-    mBaseURL->SetSpec(originalSpec);
+    mBaseURL->SetSpecInternal(originalSpec);
 
   return rv;
 }

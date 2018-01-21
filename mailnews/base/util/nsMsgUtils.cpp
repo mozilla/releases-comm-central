@@ -201,7 +201,7 @@ nsresult CreateStartupUrl(const char *uri, nsIURI** aUrl)
       (void**) aUrl);
   }
   if (*aUrl) // SetSpec can fail, for mailbox urls, but we still have a url.
-    (void) (*aUrl)->SetSpec(nsDependentCString(uri));
+    (void)(*aUrl)->SetSpecInternal(nsDependentCString(uri));
   return rv;
 }
 

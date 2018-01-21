@@ -200,9 +200,9 @@ NS_IMETHODIMP nsImapUrl::SetImapServerSink(nsIImapServerSink  * aImapServerSink)
 // End nsIImapUrl specific support
 ////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsImapUrl::SetSpec(const nsACString &aSpec)
+nsresult nsImapUrl::SetSpecInternal(const nsACString &aSpec)
 {
-  nsresult rv = nsMsgMailNewsUrl::SetSpec(aSpec);
+  nsresult rv = nsMsgMailNewsUrl::SetSpecInternal(aSpec);
   if (NS_SUCCEEDED(rv))
   {
     m_validUrl = true;  // assume the best.

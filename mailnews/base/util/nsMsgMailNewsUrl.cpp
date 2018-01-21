@@ -207,7 +207,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(nsIMsgIncomingServer ** aIncomingServe
 
   rv = m_baseURL->GetSpec(urlstr);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = url->SetSpec(urlstr);
+  rv = url->SetSpecInternal(urlstr);
   if (NS_FAILED(rv)) return rv;
   rv = GetScheme(scheme);
     if (NS_SUCCEEDED(rv))
@@ -398,7 +398,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSpec(nsACString &aSpec)
 
 #define FILENAME_PART_LEN 10
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetSpec(const nsACString &aSpec)
+nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString &aSpec)
 {
   nsAutoCString spec(aSpec);
   // Parse out "filename" attribute if present.
@@ -420,7 +420,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetSpec(const nsACString &aSpec)
   }
 
   // Now, set the rest.
-  nsresult rv = m_baseURL->SetSpec(aSpec);
+  nsresult rv = m_baseURL->SetSpecInternal(aSpec);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Check whether the URL is in normalised form.
