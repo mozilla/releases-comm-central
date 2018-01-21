@@ -42,12 +42,3 @@ def reference_loader(kind, path, config, params, loaded_tasks):
     config.update(sub_config)
 
     return (job for job in inputs if (_get_aliases(kind, job) & jobs))
-
-
-def low_priority(kind, tasks):
-    """
-    Override the priorty of a task to be `low`.
-    """
-    for task in tasks:
-        task['task']['priority'] = 'low'
-        yield task
