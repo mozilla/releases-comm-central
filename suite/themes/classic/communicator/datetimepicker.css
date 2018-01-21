@@ -1,0 +1,97 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ===== datetimepicker.css =============================================
+  == Styles used by the XUL datepicker and timepicker elements.
+  ======================================================================= */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+datepicker {
+  margin: 2px 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: default;
+}
+
+.datetimepicker-input-box {
+  -moz-appearance: textfield;
+  cursor: text;
+  margin-inline-end: 2px;
+  padding: 2px 0 3px;
+  padding-inline-start: 4px;
+  padding-inline-end: 2px;
+  color: -moz-FieldText;
+}
+
+.datetimepicker-input-subbox {
+  width: 1.6em;
+}
+
+html|*.datetimepicker-input {
+  text-align: end;
+}
+
+.datetimepicker-separator {
+  margin: 0 !important;
+}
+
+.datetimepicker-year {
+  width: 3.2em;
+}
+
+datepicker[readonly="true"] {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
+datepicker[disabled="true"] {
+  cursor: default;
+  background-color: -moz-Dialog;
+  color: GrayText;
+}
+
+.datepicker-mainbox {
+  margin: 2px 4px;
+  border: 1px ThreeDShadow;
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+}
+
+.datepicker-popupgrid > .datepicker-mainbox {
+  margin: 0;
+  border: none;
+}
+
+.datepicker-gridlabel, .datepicker-weeklabel {
+  text-align: center;
+}
+
+.datepicker-gridlabel[today="true"] {
+  background-color: darkgrey;
+  color: white;
+}
+
+.datepicker-gridlabel[selected="true"] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+.datepicker-button {
+  -moz-appearance: none;
+  min-width: 8px;
+  padding: 0;
+}
+
+.datepicker-previous,
+.datepicker-next:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-left.png");
+}
+
+.datepicker-next,
+.datepicker-previous:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-right.png");
+}

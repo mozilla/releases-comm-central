@@ -5,7 +5,12 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE bindings [
-  <!ENTITY % datetimepickerDTD SYSTEM "chrome://messenger/locale/datetimepicker.dtd">
+<!ENTITY % datetimepickerDTD SYSTEM
+#ifdef MOZ_SUITE
+  "chrome://communicator/locale/datetimepicker.dtd">
+#else
+  "chrome://messenger/locale/datetimepicker.dtd">
+#endif
   %datetimepickerDTD;
 ]>
 

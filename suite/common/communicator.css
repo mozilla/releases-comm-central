@@ -300,3 +300,16 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]
   -moz-appearance: none !important;
   border-style: none !important;
 }
+
+/******* datepicker *******/
+datepicker {
+  -moz-binding: url('chrome://communicator/content/bindings/datetimepicker.xml#datepicker');
+}
+
+datepicker[type="popup"] {
+  -moz-binding: url("chrome://communicator/content/bindings/datetimepicker.xml#datepicker-popup");
+}
+
+datepicker[type="grid"] {
+  -moz-binding: url("chrome://communicator/content/bindings/datetimepicker.xml#datepicker-grid");
+}

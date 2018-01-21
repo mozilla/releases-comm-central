@@ -19,6 +19,7 @@ classic.jar:
   skin/classic/communicator/button.css                                  (mac/communicator/button.css)
   skin/classic/communicator/communicator.css                            (mac/communicator/communicator.css)
   skin/classic/communicator/config.css                                  (mac/communicator/config.css)
+  skin/classic/communicator/datetimepicker.css                          (mac/communicator/datetimepicker.css)
   skin/classic/communicator/preferences.css                             (mac/communicator/preferences.css)
   skin/classic/communicator/toolbar.css                                 (mac/communicator/toolbar.css)
   skin/classic/communicator/viewSourceOverlay.css                       (mac/communicator/viewSourceOverlay.css)
@@ -64,6 +65,7 @@ classic.jar:
   skin/classic/communicator/aboutSessionRestore.css                     (communicator/aboutSessionRestore.css)
   skin/classic/communicator/button.css                                  (communicator/button.css)
   skin/classic/communicator/config.css                                  (communicator/config.css)
+  skin/classic/communicator/datetimepicker.css                          (communicator/datetimepicker.css)
 #ifdef MOZ_WIDGET_GTK
   skin/classic/communicator/communicator.css                            (linux/communicator/communicator.css)
   skin/classic/communicator/preferences.css                             (linux/communicator/preferences.css)

@@ -108,6 +108,7 @@ comm.jar:
 #endif
 #endif
    content/communicator/autocomplete.css                            (autocomplete/autocomplete.css)
+*  content/communicator/bindings/datetimepicker.xml                 (../../common/bindings/datetimepicker.xml)
    content/communicator/bindings/findbar.xml                        (bindings/findbar.xml)
    content/communicator/bindings/general.xml                        (bindings/general.xml)
    content/communicator/bindings/generalBindings.xml                (../../common/bindings/generalBindings.xml)
