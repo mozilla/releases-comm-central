@@ -49,7 +49,7 @@ cal.xml.evalXPath = function(aNode, aExpr, aResolver, aType) {
             while ((next = result.iterateNext())) {
                 if (next instanceof Components.interfaces.nsIDOMText) {
                     returnResult.push(next.wholeText);
-                } else if (next instanceof Components.interfaces.nsIDOMAttr) {
+                } else if (ChromeUtils.getClassName(next) === "Attr") {
                     returnResult.push(next.value);
                 } else {
                     returnResult.push(next);
@@ -63,7 +63,7 @@ cal.xml.evalXPath = function(aNode, aExpr, aResolver, aType) {
                 next = result.snapshotItem(i);
                 if (next instanceof Components.interfaces.nsIDOMText) {
                     returnResult.push(next.wholeText);
-                } else if (next instanceof Components.interfaces.nsIDOMAttr) {
+                } else if (ChromeUtils.getClassName(next) === "Attr") {
                     returnResult.push(next.value);
                 } else {
                     returnResult.push(next);
