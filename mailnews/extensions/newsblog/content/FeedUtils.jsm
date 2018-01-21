@@ -1494,13 +1494,12 @@ var FeedUtils = {
     let dt = aDataTransfer;
     let types = ["text/x-moz-url-data", "text/x-moz-url"];
     let validUri = false;
-    let uri = Cc["@mozilla.org/network/standard-url;1"].
-              createInstance(Ci.nsIURI);
+    let uri;
 
     if (dt.getData(types[0]))
     {
       // The url is the data.
-      uri.spec = dt.mozGetDataAt(types[0], 0);
+      uri = Services.io.newURI(dt.mozGetDataAt(types[0], 0));
       validUri = this.isValidScheme(uri);
       this.log.trace("getFeedUriFromDataTransfer: dropEffect:type:value - " +
                      dt.dropEffect + " : " + types[0] + " : " + uri.spec);
@@ -1508,7 +1507,7 @@ var FeedUtils = {
     else if (dt.getData(types[1]))
     {
       // The url is the first part of the data, the second part is random.
-      uri.spec = dt.mozGetDataAt(types[1], 0).split("\n")[0];
+      uri = Services.io.newURI(dt.mozGetDataAt(types[1], 0).split("\n")[0]);
       validUri = this.isValidScheme(uri);
       this.log.trace("getFeedUriFromDataTransfer: dropEffect:type:value - " +
                      dt.dropEffect + " : " + types[0] + " : " + uri.spec);
@@ -1521,7 +1520,7 @@ var FeedUtils = {
         this.log.trace("getFeedUriFromDataTransfer: dropEffect:index:type:value - " +
                        dt.dropEffect + " : " + i + " : " + dt.types[i] + " : "+spec);
         try {
-          uri.spec = spec;
+          uri = Services.io.newURI(spec);
           validUri = this.isValidScheme(uri);
         }
         catch(ex) {}

@@ -60,9 +60,7 @@ function run_test() {
   server = makeServer(NNTP_RFC977_handler, daemon);
   server.start();
   localserver = setupLocalServer(server.port);
-  var uri = Cc["@mozilla.org/network/standard-url;1"]
-              .createInstance(Ci.nsIURI);
-  uri.spec = "news://localhost:" + server.port + "/TSS1%40nntp.test";
+  var uri = Services.io.newURI("news://localhost:" + server.port + "/TSS1%40nntp.test");
 
   try {
     // Add an empty message to the cache

@@ -30,21 +30,24 @@ var gMsg4Id = "foo.12345@example";
 var gFolder1;
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox, localFolder)
+function addMessagesToServer(messages, mailbox)
 {
   // For every message we have, we need to convert it to a file:/// URI
+  let specs = [];
   messages.forEach(function (message)
   {
-    let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
-    message.spec = URI.spec;
+    let URI =
+      Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
+    specs.push(URI.spec);
   });
 
   // Create the imapMessages and store them on the mailbox
-  messages.forEach(function (message)
+  specs.forEach(function (spec)
   {
-    mailbox.addMessage(new imapMessage(message.spec, mailbox.uidnext++, []));
+    mailbox.addMessage(new imapMessage(spec, mailbox.uidnext++, []));
   });
 }
+
 var tests = [
   function *setup() {
     // Turn off autosync_offline_stores because
