@@ -2981,6 +2981,16 @@ function onViewSecurityContextMenu()
   document.getElementById("viewCertificate").disabled = !getCert();
 }
 
+/**
+ * Determine whether or not a given focused DOMWindow is in the content area.
+ **/
+function isContentFrame(aFocusedWindow) {
+  if (!aFocusedWindow)
+    return false;
+
+  return (aFocusedWindow.top == window.content);
+}
+
 var browserDragAndDrop = {
   canDropLink: aEvent => Services.droppedLinkHandler.canDropLink(aEvent, true),
 
