@@ -10,7 +10,6 @@
   <prefpane id="debugqa_prefs_debug2" label="&lHeader;">
 
     <preferences id="debugqa_preferences2">
-      <preference id="network.dir.format" name="network.dir.format" type="int"/>
       <preference id="nglayout.debug.disable_xul_cache"
                   name="nglayout.debug.disable_xul_cache" type="bool"/>
       <preference id="browser.cache.disk.enable"
@@ -21,26 +20,6 @@
 
     <!-- nothing on this page has accesskeys because this is a temporary debug
          panel and you can damn well click the widgets! -->
-
-    <groupbox>
-      <caption label="&debugNetworking.label;"/>
-      <vbox align="start">
-        <description>&dirFormat;</description>
-        <vbox align="start" class="indent">
-          <radiogroup id="dirFormat"
-                      preference="network.dir.format">
-            <!-- If we display a raw option, then people select it, and complain
-                 when they don't actually get results -->
-            <!-- <radio value="1" label="&raw.label;"/> -->
-            <radio value="2" label="&html.label;"/>
-            <!-- OK, this is application/http-index-format, not XUL. But the
-                 result is that the XUL viwer is used. Anyway, this is only a
-                 debug panel, so lets not get worked up about it -->
-            <radio value="3" label="&xul.label;"/>
-          </radiogroup>
-        </vbox>
-      </vbox>
-    </groupbox>
 
     <groupbox>
       <caption label="&debugCache.label;"/>

@@ -9,14 +9,6 @@
 <!ENTITY lHeader "Networking">
 <!ENTITY rHeader "Network debugging preferences">
 
-<!-- Network-->
-<!ENTITY debugNetworking.label        "Networking">
-<!ENTITY dirFormat                    "Directory Listing Format">
-<!ENTITY raw.label                    "Raw - for debugging only">
-<!ENTITY html.label                   "HTML">
-<!ENTITY xul.label                    "XUL (tree-based)">
-<!ENTITY httpVersion.label            "HTTP Version">
-
 <!-- Cache -->
 <!ENTITY debugCache.label             "Cache">
 <!ENTITY debugDisableXULCache.label   "Disable XUL Cache">
