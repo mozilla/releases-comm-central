@@ -48,6 +48,18 @@ thumb:active {
   -moz-border-left-colors: #111111 #D5FCF3 #D4DBE3;
 }
 
+%ifdef MOZ_WIDGET_GTK
+scrollbarbutton[sbattr="scrollbar-up-bottom"],
+scrollbarbutton[sbattr="scrollbar-down-top"] {
+  display: none;
+}
+
+scrollbarbutton[sbattr="scrollbar-up-top"],
+scrollbarbutton[sbattr="scrollbar-down-bottom"] {
+  display: -moz-box !important;
+}
+%endif
+
 /* ::::: thumb (horizontal) ::::: */
 
 thumb {
