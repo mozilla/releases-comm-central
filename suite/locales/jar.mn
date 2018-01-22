@@ -66,7 +66,6 @@
   locale/@AB_CD@/communicator/console/console.properties                    (%chrome/common/console/console.properties)
   locale/@AB_CD@/communicator/dataman/dataman.dtd                           (%chrome/common/dataman/dataman.dtd)
   locale/@AB_CD@/communicator/dataman/dataman.properties                    (%chrome/common/dataman/dataman.properties)
-  locale/@AB_CD@/communicator/directory/directory.dtd                       (%chrome/common/directory/directory.dtd)
   locale/@AB_CD@/communicator/downloads/downloadmanager.dtd                 (%chrome/common/downloads/downloadmanager.dtd)
   locale/@AB_CD@/communicator/downloads/downloadmanager.properties          (%chrome/common/downloads/downloadmanager.properties)
   locale/@AB_CD@/communicator/downloads/progressDialog.dtd                  (%chrome/common/downloads/progressDialog.dtd)
