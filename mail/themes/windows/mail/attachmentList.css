@@ -54,11 +54,12 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
 @media (-moz-windows-default-theme) {
   attachmentitem {
     pointer-events: auto !important;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     color: -moz-FieldText;
     background-color: transparent;
     background-repeat: no-repeat;
     background-size: 100% 100%;
+    padding: 1px;
   }
 
   .attachmentlist-wrapper {
@@ -87,57 +88,43 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
   }
 
   attachmentitem[selected="true"] {
-    -moz-border-top-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
-    -moz-border-right-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
-    -moz-border-left-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
-    -moz-border-bottom-colors: rgb(217, 217, 217) rgba(255, 255, 255, .6);
+    border-color: rgb(217, 217, 217);
+    border-bottom-color: rgb(217, 217, 217);
   }
 
   attachmentitem[selected="true"]:hover {
-    -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
+    border-color: rgb(125, 162, 206);
+    border-bottom-color: rgb(125, 162, 206);
   }
 
   attachmentlist:focus > attachmentitem[current="true"] {
-    -moz-border-top-colors: rgb(125, 162, 206) transparent;
-    -moz-border-right-colors: rgb(125, 162, 206) transparent;
-    -moz-border-left-colors: rgb(125, 162, 206) transparent;
-    -moz-border-bottom-colors: rgb(125, 162, 206) transparent;
+    border-color: rgb(125, 162, 206);
+    border-bottom-color: rgb(125, 162, 206);
   }
 
   attachmentlist:focus > attachmentitem[current="true"]:hover {
-    -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
+    border-color: rgb(125, 162, 206);
+    border-bottom-color: rgb(125, 162, 206);
   }
 
   attachmentlist:focus > attachmentitem[selected="true"] {
-    -moz-border-top-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
-    -moz-border-right-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
-    -moz-border-left-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
-    -moz-border-bottom-colors: rgb(132, 172, 221) rgba(255, 255, 255, .6);
+    border-color: rgb(132, 172, 221);
+    border-bottom-color: rgb(132, 172, 221);
   }
 
   attachmentlist:focus > attachmentitem[selected="true"][current="true"] {
-    -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
-    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
+    border-color: rgb(125, 162, 206);
+    border-bottom-color: rgb(125, 162, 206);
   }
 
   attachmentitem:hover {
-    -moz-border-top-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
-    -moz-border-right-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
-    -moz-border-left-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
-    -moz-border-bottom-colors: rgb(184, 214, 251) rgba(255, 255, 255, .6);
+    border-color: rgb(184, 214, 251);
+    border-bottom-color: rgb(184, 214, 251);
   }
 
   #attachmentBucket:focus > attachmentitem[selected="true"] +
     attachmentitem[selected="true"] {
-    -moz-border-top-colors: rgba(131, 183, 249, 0.375) rgba(255, 255, 255, .4);
+    border-top-color: rgba(131, 183, 249, 0.375);
   }
 }
 
@@ -179,11 +166,6 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  attachmentitem {
-    padding: 1px;
-    border-width: 1px;
-  }
-
   attachmentitem[selected="true"] {
     background-image: linear-gradient(rgba(190, 190, 190, 0.4),
                                       rgba(190, 190, 190, 0.4));
