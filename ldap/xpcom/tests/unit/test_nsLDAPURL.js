@@ -261,15 +261,15 @@ function run_test() {
   // Set attributes via the url spec
 
   newAttrs = "abc,def,ghi,jkl";
-  url = url.mutate().setSpec("ldap://localhost/dc=short?" + newAttrs + "?one?(objectclass=*)").finalize();
-  url instanceof Components.interfaces.nsILDAPURL;
+  url = url.mutate().setSpec("ldap://localhost/dc=short?" + newAttrs + "?one?(objectclass=*)")
+                    .finalize().QueryInterface(Ci.nsILDAPURL);
 
   Assert.equal(url.attributes, newAttrs);
   Assert.equal(url.spec,
                "ldap://localhost/dc=short?" + newAttrs + "?one?(objectclass=*)");
 
-  url = url.mutate().setSpec("ldap://localhost/dc=short??one?(objectclass=*)").finalize();
-  url instanceof Components.interfaces.nsILDAPURL;
+  url = url.mutate().setSpec("ldap://localhost/dc=short??one?(objectclass=*)")
+                    .finalize().QueryInterface(Ci.nsILDAPURL);
 
   var attrs = url.attributes;
   Assert.equal(attrs.length, 0);
@@ -278,7 +278,6 @@ function run_test() {
   // Test - clone
 
   url = url.mutate().setSpec("ldap://localhost/dc=short?abc,def,ghi,jkl?one?(objectclass=*)").finalize();
-
 
   var newUrl = url.clone();
 
