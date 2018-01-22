@@ -303,7 +303,7 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]
 
 /******* datepicker *******/
 datepicker {
-  -moz-binding: url('chrome://communicator/content/bindings/datetimepicker.xml#datepicker');
+  -moz-binding: url("chrome://communicator/content/bindings/datetimepicker.xml#datepicker");
 }
 
 datepicker[type="popup"] {
