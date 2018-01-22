@@ -7304,38 +7304,13 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes()
         nsAutoCString allPattern(prefix);
         allPattern += '*';
 
-        nsAutoCString topLevelPattern(prefix);
-        topLevelPattern += '%';
-
-        nsAutoCString secondLevelPattern;
-
-        char delimiter = ns->GetDelimiter();
-        if (delimiter)
-        {
-          // Hierarchy delimiter might be NIL, in which case there's no hierarchy anyway
-          secondLevelPattern = prefix;
-          secondLevelPattern += '%';
-          secondLevelPattern += delimiter;
-          secondLevelPattern += '%';
-        }
-
         if (!m_imapServerSink) return;
 
-        if (!allPattern.IsEmpty())
-        {
-          m_imapServerSink->SetServerDoingLsub(true);
-          Lsub(allPattern.get(), true);	// LSUB all the subscribed
-        }
-        if (!topLevelPattern.IsEmpty())
-        {
-          m_imapServerSink->SetServerDoingLsub(false);
-          List(topLevelPattern.get(), true);	// LIST the top level
-        }
-        if (!secondLevelPattern.IsEmpty())
-        {
-          m_imapServerSink->SetServerDoingLsub(false);
-          List(secondLevelPattern.get(), true);	// LIST the second level
-        }
+        m_imapServerSink->SetServerDoingLsub(true);
+        Lsub(allPattern.get(), true);	// LSUB all the subscribed
+
+        m_imapServerSink->SetServerDoingLsub(false);
+        List(allPattern.get(), true); // LIST all folders
       }
     }
   }
