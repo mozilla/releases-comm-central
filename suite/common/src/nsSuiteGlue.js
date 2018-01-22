@@ -460,7 +460,7 @@ SuiteGlue.prototype = {
 
   _migrateUI: function()
   {
-    const UI_VERSION = 2;
+    const UI_VERSION = 3;
 
     // If the pref is not set this is a new or pre SeaMonkey 2.49 profile.
     // We can't tell so we just run migration with version 0.
@@ -532,6 +532,16 @@ SuiteGlue.prototype = {
           Services.prefs.clearUserPref("browser.safebrowsing.enabled");
         }
       } catch (ex) {}
+    }
+
+    // The XUL directory viewer is no longer provided.
+    if (currentUIVersion < 3) {
+      try {
+        if (Services.prefs.getIntPref("network.dir.format") == 3) {
+          Services.prefs.setIntPref("network.dir.format", 2);
+        }
+      } catch (ex) {}
+
     }
 
     // Update the migration version.
