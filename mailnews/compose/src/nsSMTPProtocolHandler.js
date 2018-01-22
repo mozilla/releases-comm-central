@@ -23,9 +23,8 @@ function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
     newURI: function (aSpec, aOriginCharset, aBaseURI) {
       var url = Components.classes["@mozilla.org/messengercompose/smtpurl;1"]
                           .createInstance(Components.interfaces.nsIURI);
-
-      url.spec = aSpec;
-
+      if (url instanceof Components.interfaces.nsISmtpUrl)
+        url.init(aSpec);
       return url;
     },
 

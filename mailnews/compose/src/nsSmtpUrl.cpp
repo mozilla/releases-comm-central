@@ -686,6 +686,13 @@ nsSmtpUrl::~nsSmtpUrl()
 {
 }
 
+NS_IMETHODIMP
+nsSmtpUrl::Init(const nsACString &aSpec)
+{
+  SetSpecInternal(aSpec);
+  return NS_OK;
+}
+
 NS_IMPL_ISUPPORTS_INHERITED(nsSmtpUrl, nsMsgMailNewsUrl, nsISmtpUrl)
 
 ////////////////////////////////////////////////////////////////////////////////////
