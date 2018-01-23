@@ -24,6 +24,10 @@ toolbar[type="menubar"][autohide="true"] {
 }
 %endif
 
+menulist[type="description"] {
+  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#menulist-description");
+}
+
 datepicker[type="popup"] {
   -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-popup');
 }

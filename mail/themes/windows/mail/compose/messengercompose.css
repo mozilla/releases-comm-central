@@ -117,6 +117,12 @@
   opacity: .7;
 }
 
+.menulist-description {
+  font-style: italic;
+  color: GrayText;
+  margin-inline-start: 1ex !important;
+}
+
 /* ::::: attachment reminder ::::: */
 
 #attachmentReminderText {
