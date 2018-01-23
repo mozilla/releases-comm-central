@@ -63,18 +63,11 @@ var streamListener =
 function addMessagesToServer(messages, mailbox)
 {
   // For every message we have, we need to convert it to a file:/// URI
-  let specs = [];
   messages.forEach(function (message)
   {
-    let URI =
-      Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
-    specs.push(URI.spec);
-  });
-
-  // Create the imapMessages and store them on the mailbox
-  specs.forEach(function (spec)
-  {
-    mailbox.addMessage(new imapMessage(spec, mailbox.uidnext++, []));
+    let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
+    // Create the imapMessage and store it on the mailbox.
+    mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
   });
 }
 
@@ -101,11 +94,10 @@ function setup() {
   // Add a couple of messages to the INBOX
   // this is synchronous, afaik
   addMessagesToServer([{file: gMsgFile1, messageId: gMsgId1},
-                        {file: gMsgFile2, messageId: gMsgId2},
-                        {file: gMsgFile3, messageId: gMsgId3},
-//                         {file: gMsgFile5, messageId: gMsgId5},
+                       {file: gMsgFile2, messageId: gMsgId2},
+                       {file: gMsgFile3, messageId: gMsgId3},
                       ],
-                        IMAPPump.daemon.getMailbox("INBOX"), IMAPPump.inbox);
+                      IMAPPump.daemon.getMailbox("INBOX"));
 }
 
 var gIMAPService;

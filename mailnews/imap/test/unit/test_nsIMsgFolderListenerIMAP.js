@@ -97,24 +97,17 @@ function doUpdateFolder(test)
 function addMessagesToServer(messages, mailbox, localFolder)
 {
   // For every message we have, we need to convert it to a file:/// URI
-  let specs = [];
   messages.forEach(function (message)
   {
-    let URI =
-      Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
-    specs.push(URI.spec);
+    let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
+    // Create the imapMessage and store it on the mailbox.
+    mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
     // We can't get the headers again, so just pass on the message id
     gExpectedEvents.push([gMFNService.msgAdded, {expectedMessageId: message.messageId}]);
   });
   gExpectedEvents.push([gMFNService.msgsClassified,
                         messages.map(hdr => hdr.messageId),
                         false, false]);
-
-  // Create the imapMessages and store them on the mailbox
-  specs.forEach(function (spec)
-  {
-    mailbox.addMessage(new imapMessage(spec, mailbox.uidnext++, []));
-  });
 
   // No copy listener notification for this
   gCurrStatus |= kStatus.functionCallDone | kStatus.onStopCopyDone;

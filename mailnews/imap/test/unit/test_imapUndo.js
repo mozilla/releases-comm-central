@@ -36,19 +36,14 @@ var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox, localFolder)
+function addMessagesToServer(messages, mailbox)
 {
   // For every message we have, we need to convert it to a file:/// URI
   messages.forEach(function (message)
   {
-    message.spec =
-      Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL).spec;
-  });
-
-  // Create the imapMessages and store them on the mailbox
-  messages.forEach(function (message)
-  {
-    mailbox.addMessage(new imapMessage(message.spec, mailbox.uidnext++, []));
+    let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
+    // Create the imapMessage and store it on the mailbox.
+    mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
   });
 }
 
@@ -133,7 +128,7 @@ function setup() {
                        {file: gMsgFile4, messageId: gMsgId4},
                        {file: gMsgFile5, messageId: gMsgId5},
                        {file: gMsgFile2, messageId: gMsgId2}],
-                      IMAPPump.mailbox, IMAPPump.inbox);
+                      IMAPPump.mailbox);
 }
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {

@@ -12,7 +12,7 @@ var gIMAPTrashFolder, gMsgImapInboxFolder;
 var gImapInboxOfflineStoreSize;
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox, localFolder)
+function addMessagesToServer(messages, mailbox)
 {
   // Create the imapMessages and store them on the mailbox
   messages.forEach(function (message)
@@ -77,8 +77,7 @@ function setup() {
   messages = messages.concat(messageGenerator.makeMessage({age: {days: 8, hours: 1}}));
   messages = messages.concat(messageGenerator.makeMessage({age: {days: 10, hours: 1}}));
 
-  addMessagesToServer(messages,
-                      IMAPPump.daemon.getMailbox("INBOX"), IMAPPump.inbox);
+  addMessagesToServer(messages, IMAPPump.daemon.getMailbox("INBOX"));
 }
 
 function teardown() {
