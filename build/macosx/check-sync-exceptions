@@ -2,3 +2,6 @@
 # Until we are cross-building OSX or the OS on the build workers are updated,
 # we need to use a newer SDK than the installed SDK.
 local-mozconfig.common
+
+# Rather than trying to keep this up to date, we just error out here.
+cross-mozconfig.common
