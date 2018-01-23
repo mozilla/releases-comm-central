@@ -2527,12 +2527,11 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl *aImapUrl, nsIMsgIncomingSer
   if (NS_FAILED(rv) || !aServer)
   {
     nsAutoCString turl;
-    nsCOMPtr<nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
     rv = mailnewsUrl->GetSpec(turl);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = url->SetSpecInternal(turl);
+
+    nsCOMPtr<nsIURL> url;
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(turl).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
 
     url->SetUserPass(EmptyCString());

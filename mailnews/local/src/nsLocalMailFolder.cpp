@@ -66,6 +66,7 @@
 #include "nsIMsgTraitService.h"
 #include "nsIStringEnumerator.h"
 #include "mozilla/Services.h"
+#include "nsIURIMutator.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // nsLocal
@@ -3108,11 +3109,8 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType)
   nsresult rv;
   if (mType.IsEmpty())
   {
-    nsCOMPtr<nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
-    if (NS_FAILED(rv))
-      return rv;
-
-    rv = url->SetSpecInternal(mURI);
+    nsCOMPtr<nsIURL> url;
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(mURI).Finalize(url);
     if (NS_FAILED(rv))
       return rv;
 

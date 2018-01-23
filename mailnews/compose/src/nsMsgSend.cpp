@@ -83,6 +83,7 @@
 #include "nsIMsgProtocolInfo.h"
 #include "mozIDOMWindow.h"
 #include "mozilla/Preferences.h"
+#include "nsIURIMutator.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -2199,9 +2200,10 @@ nsMsgComposeAndSend::AddCompFieldRemoteAttachments(uint32_t   aStartLocation,
         if (! nsMsgIsLocalFile(url.get()))
         {
           // Check for message attachment, see nsMsgMailNewsUrl::GetIsMessageUri.
-          nsCOMPtr<nsIURI> nsiuri = do_CreateInstance(NS_STANDARDURL_CONTRACTID);
-          NS_ENSURE_STATE(nsiuri);
-          nsiuri->SetSpecInternal(url);
+          nsCOMPtr<nsIURI> nsiuri;
+          rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(url).Finalize(nsiuri);
+          NS_ENSURE_SUCCESS(rv, rv);
+
           nsAutoCString scheme;
           nsiuri->GetScheme(scheme);
           bool isAMessageAttachment =

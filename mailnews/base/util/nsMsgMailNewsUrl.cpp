@@ -199,45 +199,43 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(nsIMsgIncomingServer ** aIncomingServe
   // we can look at caching it later.
 
   nsresult rv;
+
   nsAutoCString urlstr;
-  nsAutoCString scheme;
-
-  nsCOMPtr<nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return rv;
-
   rv = m_baseURL->GetSpec(urlstr);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = url->SetSpecInternal(urlstr);
-  if (NS_FAILED(rv)) return rv;
+
+  nsCOMPtr<nsIURL> url;
+  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(urlstr).Finalize(url);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString scheme;
   rv = GetScheme(scheme);
-    if (NS_SUCCEEDED(rv))
+  if (NS_SUCCEEDED(rv))
+  {
+    if (scheme.EqualsLiteral("pop"))
+      scheme.AssignLiteral("pop3");
+    // we use "nntp" in the server list so translate it here.
+    if (scheme.EqualsLiteral("news"))
+      scheme.AssignLiteral("nntp");
+    url->SetScheme(scheme);
+    nsCOMPtr<nsIMsgAccountManager> accountManager =
+      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+    if (NS_FAILED(rv)) return rv;
+
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = accountManager->FindServerByURI(url, false, aIncomingServer);
+    if (!*aIncomingServer && scheme.EqualsLiteral("imap"))
     {
-        if (scheme.EqualsLiteral("pop"))
-          scheme.AssignLiteral("pop3");
-        // we use "nntp" in the server list so translate it here.
-        if (scheme.EqualsLiteral("news"))
-          scheme.AssignLiteral("nntp");
-        url->SetScheme(scheme);
-        nsCOMPtr<nsIMsgAccountManager> accountManager =
-                 do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-        if (NS_FAILED(rv)) return rv;
-
-        nsCOMPtr<nsIMsgIncomingServer> server;
-        rv = accountManager->FindServerByURI(url, false,
-                                        aIncomingServer);
-        if (!*aIncomingServer && scheme.EqualsLiteral("imap"))
-        {
-          // look for any imap server with this host name so clicking on
-          // other users folder urls will work. We could override this method
-          // for imap urls, or we could make caching of servers work and
-          // just set the server in the imap code for this case.
-          url->SetUserPass(EmptyCString());
-          rv = accountManager->FindServerByURI(url, false,
-                                          aIncomingServer);
-        }
+      // look for any imap server with this host name so clicking on
+      // other users folder urls will work. We could override this method
+      // for imap urls, or we could make caching of servers work and
+      // just set the server in the imap code for this case.
+      url->SetUserPass(EmptyCString());
+      rv = accountManager->FindServerByURI(url, false, aIncomingServer);
     }
+  }
 
-    return rv;
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow **aMsgWindow)

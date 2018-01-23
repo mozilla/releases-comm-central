@@ -71,6 +71,7 @@
 #include "nsIConsoleService.h"
 #include "nsIScriptError.h"
 #include "mozilla/intl/LocaleService.h"
+#include "nsIURIMutator.h"
 
 static PRTime gtimeOfLastPurgeCheck;    //variable to know when to check for purge_threshhold
 
@@ -3129,12 +3130,9 @@ nsMsgDBFolder::parseURI(bool needServer)
 {
   nsresult rv;
   nsCOMPtr<nsIURL> url;
-
-  url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
+  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(mURI).Finalize(url);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = url->SetSpecInternal(mURI);
-  NS_ENSURE_SUCCESS(rv, rv);
   // empty path tells us it's a server.
   if (!mIsServerIsValid)
   {

@@ -20,6 +20,7 @@
 
 #include "nsMsgUtils.h"
 #include "nsNetCID.h"
+#include "nsIURIMutator.h"
 
 // it would be really cool to:
 // - cache the last hostname->path match
@@ -30,10 +31,9 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
 {
   nsresult rv = NS_OK;
 
-  nsCOMPtr<nsIURL> aUrl = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return rv;
-
-  rv = aUrl->SetSpecInternal(nsDependentCString(uriStr));
+  nsCOMPtr<nsIURL> url;
+  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(nsDependentCString(uriStr))
+                                                     .Finalize(url);
   if (NS_FAILED(rv)) return rv;
 
   // retrieve the AccountManager
@@ -43,10 +43,10 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
 
   // find all local mail "no servers" matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> none_server;
-  aUrl->SetScheme(NS_LITERAL_CSTRING("none"));
+  url->SetScheme(NS_LITERAL_CSTRING("none"));
   // No unescaping of username or hostname done here.
   // The unescaping is done inside of FindServerByURI
-  rv = accountManager->FindServerByURI(aUrl, false,
+  rv = accountManager->FindServerByURI(url, false,
                                   getter_AddRefs(none_server));
   if (NS_SUCCEEDED(rv)) {
     none_server.forget(aResult);
@@ -55,8 +55,8 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
 
   // if that fails, look for the rss hosts matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> rss_server;
-  aUrl->SetScheme(NS_LITERAL_CSTRING("rss"));
-  rv = accountManager->FindServerByURI(aUrl, false,
+  url->SetScheme(NS_LITERAL_CSTRING("rss"));
+  rv = accountManager->FindServerByURI(url, false,
                                   getter_AddRefs(rss_server));
   if (NS_SUCCEEDED(rv))
   {
@@ -66,8 +66,8 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
 #ifdef HAVE_MOVEMAIL
   // find all movemail "servers" matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> movemail_server;
-  aUrl->SetScheme(NS_LITERAL_CSTRING("movemail"));
-  rv = accountManager->FindServerByURI(aUrl, false,
+  url->SetScheme(NS_LITERAL_CSTRING("movemail"));
+  rv = accountManager->FindServerByURI(url, false,
                                   getter_AddRefs(movemail_server));
   if (NS_SUCCEEDED(rv)) {
     movemail_server.forget(aResult);
@@ -79,16 +79,16 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
   nsCOMPtr<nsIMsgIncomingServer> server;
   if (NS_FAILED(rv))
   {
-    aUrl->SetScheme(NS_LITERAL_CSTRING("pop3"));
-    rv = accountManager->FindServerByURI(aUrl, false,
+    url->SetScheme(NS_LITERAL_CSTRING("pop3"));
+    rv = accountManager->FindServerByURI(url, false,
                                     getter_AddRefs(server));
 
     // if we can't find a pop server, maybe it's a local message
     // in an imap hierarchy. look for an imap server.
     if (NS_FAILED(rv))
     {
-      aUrl->SetScheme(NS_LITERAL_CSTRING("imap"));
-      rv = accountManager->FindServerByURI(aUrl, false,
+      url->SetScheme(NS_LITERAL_CSTRING("imap"));
+      rv = accountManager->FindServerByURI(url, false,
                                     getter_AddRefs(server));
     }
   }
@@ -98,8 +98,8 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
     return rv;
   }
 
-// if you fail after looking at all "pop3", "movemail" and "none" servers, you fail.
-return rv;
+  // if you fail after looking at all "pop3", "movemail" and "none" servers, you fail.
+ return rv;
 }
 
 static nsresult

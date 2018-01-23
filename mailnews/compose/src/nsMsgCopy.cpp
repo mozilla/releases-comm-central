@@ -30,6 +30,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "nsArrayUtils.h"
+#include "nsIURIMutator.h"
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
@@ -539,10 +540,9 @@ MessageFolderIsLocal(nsIMsgIdentity   *userIdentity,
 
   if (!aFolderURI) return NS_ERROR_NULL_POINTER;
 
-  nsCOMPtr <nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return rv;
-
-  rv = url->SetSpecInternal(nsDependentCString(aFolderURI));
+  nsCOMPtr <nsIURL> url;
+  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(nsDependentCString(aFolderURI))
+                                                     .Finalize(url);
   if (NS_FAILED(rv)) return rv;
 
   /* mailbox:/ means its local (on disk) */

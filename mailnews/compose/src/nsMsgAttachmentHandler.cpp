@@ -35,6 +35,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "nsIPrincipal.h"
+#include "nsIURIMutator.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Mac Specific Attachment Handling for AppleDouble Encoded Files
@@ -853,29 +854,26 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
   // if we have a resource fork, check the filename extension, maybe we don't need the resource fork!
   if (sendResourceFork)
   {
-    nsCOMPtr<nsIURL> fileUrl(do_CreateInstance(NS_STANDARDURL_CONTRACTID));
-    if (fileUrl)
+    nsCOMPtr<nsIURL> fileUrl;
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(aFileURI).Finalize(fileUrl);
+    if (NS_SUCCEEDED(rv))
     {
-      rv = fileUrl->SetSpecInternal(aFileURI);
-      if (NS_SUCCEEDED(rv))
+      nsAutoCString ext;
+      rv = fileUrl->GetFileExtension(ext);
+      if (NS_SUCCEEDED(rv) && !ext.IsEmpty())
       {
-        nsAutoCString ext;
-        rv = fileUrl->GetFileExtension(ext);
-        if (NS_SUCCEEDED(rv) && !ext.IsEmpty())
-        {
-          sendResourceFork =
-          PL_strcasecmp(ext.get(), "TXT") &&
-          PL_strcasecmp(ext.get(), "JPG") &&
-          PL_strcasecmp(ext.get(), "GIF") &&
-          PL_strcasecmp(ext.get(), "TIF") &&
-          PL_strcasecmp(ext.get(), "HTM") &&
-          PL_strcasecmp(ext.get(), "HTML") &&
-          PL_strcasecmp(ext.get(), "ART") &&
-          PL_strcasecmp(ext.get(), "XUL") &&
-          PL_strcasecmp(ext.get(), "XML") &&
-          PL_strcasecmp(ext.get(), "CSS") &&
-          PL_strcasecmp(ext.get(), "JS");
-        }
+        sendResourceFork =
+        PL_strcasecmp(ext.get(), "TXT") &&
+        PL_strcasecmp(ext.get(), "JPG") &&
+        PL_strcasecmp(ext.get(), "GIF") &&
+        PL_strcasecmp(ext.get(), "TIF") &&
+        PL_strcasecmp(ext.get(), "HTM") &&
+        PL_strcasecmp(ext.get(), "HTML") &&
+        PL_strcasecmp(ext.get(), "ART") &&
+        PL_strcasecmp(ext.get(), "XUL") &&
+        PL_strcasecmp(ext.get(), "XML") &&
+        PL_strcasecmp(ext.get(), "CSS") &&
+        PL_strcasecmp(ext.get(), "JS");
       }
     }
   }
