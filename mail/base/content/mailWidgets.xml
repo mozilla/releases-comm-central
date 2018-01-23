@@ -2822,7 +2822,7 @@
     </handlers>
   </binding>
 
-  <binding id="appmenu-vertical" extends="chrome://global/content/bindings/toolbarbutton.xml#menu-vertical">
+  <binding id="appmenu-vertical" extends="chrome://messenger/content/generalBindings.xml#menu-vertical">
     <implementation>
       <method name="_setupAppmenu">
         <parameter name="event"/>

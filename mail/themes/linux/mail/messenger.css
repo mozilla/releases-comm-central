@@ -223,7 +223,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
 }
 
 .toolbarbutton-1[type="menu"] {
-  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu-vertical");
+  -moz-binding: url("chrome://messenger/content/generalBindings.xml#menu-vertical");
 }
 
 toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
