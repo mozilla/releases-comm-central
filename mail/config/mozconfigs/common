@@ -9,10 +9,8 @@ if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
   mk_add_options CLIENT_PY_ARGS="$([ -f "$topsrcdir/build/client.py-args" ] && cat "$topsrcdir/build/client.py-args")"
   mk_add_options ALWAYS_RUN_CLIENT_PY=1
 
+  # https://bugzilla.mozilla.org/show_bug.cgi?id=1424334
   if [ "x$IS_NIGHTLY" = "xyes" ]; then
-    # https://bugzilla.mozilla.org/show_bug.cgi?id=1424334
     mk_add_options "export MOZ_AUTOMATION_UPLOAD_SYMBOLS=${MOZ_AUTOMATION_UPLOAD_SYMBOLS-1}"
-    # https://bugzilla.mozilla.org/show_bug.cgi?id=1432336
-    mk_add_options "export SOCORRO_SYMBOL_UPLOAD_URL=https://symbols.mozilla.org/upload/"
   fi
 fi
