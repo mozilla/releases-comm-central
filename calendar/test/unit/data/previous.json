@@ -1,5 +1,5 @@
 {
-  "version": "2.2016j",
+  "version": "2.2017b",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -92,6 +92,7 @@
     "Pacific SA Standard Time",
     "Pacific Standard Time",
     "Pacific Standard Time (Mexico)",
+    "Pacific/Johnston",
     "Pakistan Standard Time",
     "Paraguay Standard Time",
     "Romance Standard Time",
@@ -304,6 +305,7 @@
     "America/Port_of_Spain",
     "America/Porto_Velho",
     "America/Puerto_Rico",
+    "America/Punta_Arenas",
     "America/Rainy_River",
     "America/Rankin_Inlet",
     "America/Recife",
@@ -539,7 +541,6 @@
     "Pacific/Guadalcanal",
     "Pacific/Guam",
     "Pacific/Honolulu",
-    "Pacific/Johnston",
     "Pacific/Kiritimati",
     "Pacific/Kosrae",
     "Pacific/Kwajalein",
