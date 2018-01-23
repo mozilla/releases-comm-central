@@ -15,4 +15,5 @@ jobs:
     - deb7-mercurial
     - deb7-ninja
     - deb7-python
+    - deb7-valgrind
     - deb7-xz-utils

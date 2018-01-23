@@ -9,7 +9,8 @@ kind-dependencies:
     - packages
 
 jobs:
-    - desktop-build
+    - debian7-amd64-build
+    - debian7-i386-build
     - desktop1604-test
     - image_builder
     - lint
