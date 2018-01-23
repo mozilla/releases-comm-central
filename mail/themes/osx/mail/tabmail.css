@@ -31,9 +31,15 @@
   list-style-image: url("chrome://messenger/skin/icons/item.png");
 }
 
-:root[tabsintitlebar]:not([sizemode=fullscreen]) .tabmail-tab[first-tab]::before {
+:root[tabsintitlebar]:not([sizemode=fullscreen]) .tabmail-tab:first-child::before {
   content: '';
   display: -moz-box;
+  margin-inline-start: 0;
+}
+
+:root[tabsintitlebar]:not([sizemode=fullscreen])
+  .tabmail-tab:not([visuallyselected]):first-child {
+  margin-inline-start: 1px;
 }
 
 .tabmail-tab[type="glodaSearch"] .tab-stack > .tab-content > .tab-icon-image {

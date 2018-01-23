@@ -46,7 +46,7 @@
   display: none;
 }
 
-#tabmail-tabs > .tabmail-tab[first-tab] > .tab-stack > .tab-content >
+#tabmail-tabs > .tabmail-tab:first-child > .tab-stack > .tab-content >
 .tab-close-button {
   visibility: collapse;
 }
