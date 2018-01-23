@@ -26,7 +26,7 @@
 }
 
 .toolbarbutton-1[type="menu"] {
-  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu-vertical");
+  -moz-binding: url("chrome://communicator/content/bindings/generalBindings.xml#menu-vertical");
 }
 
 /* Override global/toolbarbutton.css */
