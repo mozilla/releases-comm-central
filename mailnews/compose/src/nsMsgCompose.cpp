@@ -203,50 +203,39 @@ NS_IMPL_ISUPPORTS(nsMsgCompose, nsIMsgCompose, nsIMsgSendListener,
 // for insertion into the editor
 //
 nsresult
-GetChildOffset(nsIDOMNode *aChild, nsIDOMNode *aParent, int32_t &aOffset)
+GetChildOffset(nsINode *aChild, nsINode *aParent, int32_t &aOffset)
 {
   NS_ASSERTION((aChild && aParent), "bad args");
-  nsresult result = NS_ERROR_NULL_POINTER;
-  if (aChild && aParent)
+
+  if (!aChild || !aParent)
+    return NS_ERROR_NULL_POINTER;
+
+  nsINodeList* childNodes = aParent->ChildNodes();
+  for (uint32_t i = 0; i < childNodes->Length(); i++)
   {
-    nsCOMPtr<nsIDOMNodeList> childNodes;
-    result = aParent->GetChildNodes(getter_AddRefs(childNodes));
-    if ((NS_SUCCEEDED(result)) && (childNodes))
+    nsINode* childNode = childNodes->Item(i);
+    if (childNode == aChild)
     {
-      int32_t i=0;
-      for ( ; NS_SUCCEEDED(result); i++)
-      {
-        nsCOMPtr<nsIDOMNode> childNode;
-        result = childNodes->Item(i, getter_AddRefs(childNode));
-        if ((NS_SUCCEEDED(result)) && (childNode))
-        {
-          if (childNode.get()==aChild)
-          {
-            aOffset = i;
-            break;
-          }
-        }
-        else if (!childNode)
-          result = NS_ERROR_NULL_POINTER;
-      }
+      aOffset = i;
+      return NS_OK;
     }
-    else if (!childNodes)
-      result = NS_ERROR_NULL_POINTER;
   }
-  return result;
+
+  return NS_ERROR_NULL_POINTER;
 }
 
 nsresult
-GetNodeLocation(nsIDOMNode *inChild, nsCOMPtr<nsIDOMNode> *outParent, int32_t *outOffset)
+GetNodeLocation(nsIDOMNode *inChild, nsCOMPtr<nsINode> *outParent, int32_t *outOffset)
 {
   NS_ASSERTION((outParent && outOffset), "bad args");
   nsresult result = NS_ERROR_NULL_POINTER;
   if (inChild && outParent && outOffset)
   {
-    result = inChild->GetParentNode(getter_AddRefs(*outParent));
-    if ( (NS_SUCCEEDED(result)) && (*outParent) )
+    nsCOMPtr<nsINode> inChild2 = do_QueryInterface(inChild);
+    *outParent = inChild2->GetParentNode();
+    if (*outParent)
     {
-      result = GetChildOffset(inChild, *outParent, *outOffset);
+      result = GetChildOffset(inChild2, *outParent, *outOffset);
     }
   }
 
@@ -594,7 +583,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
   }
 
   htmlEditor->InsertElementAtSelection(divElem, true);
-  nsCOMPtr<nsIDOMNode> parent;
+  nsCOMPtr<nsINode> parent;
   int32_t offset;
 
   rv = GetNodeLocation(divNode, address_of(parent), &offset);
@@ -604,7 +593,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
     m_editor->GetSelection(getter_AddRefs(selection));
 
     if (selection)
-      selection->Collapse(parent, offset + 1);
+      selection->CollapseNative(parent, offset + 1);
   }
   if (divElem)
     divElem->SetAttribute(NS_LITERAL_STRING("class"), classStr);
@@ -793,6 +782,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       {
         nsresult rv;
         nsCOMPtr<nsIDOMElement> divElem;
+        nsCOMPtr<Element> divElem2;
         nsCOMPtr<nsIDOMElement> extraBr;
 
         if (isForwarded) {
@@ -813,7 +803,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
                                                      getter_AddRefs(extraBr));
           NS_ENSURE_SUCCESS(rv, rv);
 
-          nsCOMPtr<nsINode> divElem2 = do_QueryInterface(divElem);
+          divElem2 = do_QueryInterface(divElem);
           nsCOMPtr<nsINode> extraBr2 = do_QueryInterface(extraBr);
           ErrorResult rv2;
           divElem2->AppendChild(*extraBr2, rv2);
@@ -845,13 +835,13 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
           if (sigOnTopInserted) {
             // Sadly the M-C editor inserts a <br> between the <div> for the signature
             // and this <div>, so remove the <br> we don't want.
-            nsCOMPtr<nsIDOMNode> brBeforeDiv;
+            nsCOMPtr<nsINode> brBeforeDiv;
             nsAutoString tagLocalName;
-            rv = divElem->GetPreviousSibling(getter_AddRefs(brBeforeDiv));
-            if (NS_SUCCEEDED(rv) && brBeforeDiv) {
-              brBeforeDiv->GetLocalName(tagLocalName);
+            brBeforeDiv = divElem2->GetPreviousSibling();
+            if (brBeforeDiv) {
+              tagLocalName = brBeforeDiv->LocalName();
               if (tagLocalName.EqualsLiteral("br")) {
-                rv = m_editor->DeleteNode(brBeforeDiv);
+                rv = m_editor->DeleteNode(brBeforeDiv->AsDOMNode());
                 NS_ENSURE_SUCCESS(rv, rv);
               }
             }
@@ -893,10 +883,10 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
           break;
         }
 
-        nsCOMPtr<nsISelection> selection = nullptr;
-        nsCOMPtr<nsIDOMNode>      parent = nullptr;
-        int32_t                   offset;
-        nsresult                  rv;
+        nsCOMPtr<nsISelection> selection;
+        nsCOMPtr<nsINode> parent;
+        int32_t offset;
+        nsresult rv;
 
         // get parent and offset of mailcite
         rv = GetNodeLocation(nodeInserted, address_of(parent), &offset);
@@ -915,7 +905,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
         }
 
         // place selection after mailcite
-        selection->Collapse(parent, offset+1);
+        selection->CollapseNative(parent, offset+1);
 
         // insert a break at current selection
         if (!paragraphMode || !aHTMLEditor)
@@ -923,7 +913,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
 
         // i'm not sure if you need to move the selection back to before the
         // break. expirement.
-        selection->Collapse(parent, offset+1);
+        selection->CollapseNative(parent, offset+1);
 
         break;
       }
@@ -3119,9 +3109,9 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
     if (textEditor)
     {
       nsCOMPtr<nsISelection> selection;
-      nsCOMPtr<nsIDOMNode>   parent;
-      int32_t                offset;
-      nsresult               rv;
+      nsCOMPtr<nsINode> parent;
+      int32_t offset;
+      nsresult rv;
 
       // get parent and offset of mailcite
       rv = GetNodeLocation(nodeInserted, address_of(parent), &offset);
@@ -3132,10 +3122,10 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
       if (selection)
       {
         // place selection after mailcite
-        selection->Collapse(parent, offset+1);
+        selection->CollapseNative(parent, offset+1);
         // insert a break at current selection
         textEditor->InsertLineBreak();
-        selection->Collapse(parent, offset+1);
+        selection->CollapseNative(parent, offset+1);
       }
       nsCOMPtr<nsISelectionController> selCon;
       aEditor->GetSelectionController(getter_AddRefs(selCon));
@@ -5354,29 +5344,20 @@ nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t *result)
 /* Decides which tags trigger which convertible mode, i.e. here is the logic
    for BodyConvertible */
 // Helper function. Parameters are not checked.
-nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
+nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
 {
-    nsresult rv;
-
     *_retval = nsIMsgCompConvertible::No;
 
-    uint16_t nodeType;
-    rv = node->GetNodeType(&nodeType);
-    if (NS_FAILED(rv))
-      return rv;
-
     nsAutoString element;
-    rv = node->GetNodeName(element);
-    if (NS_FAILED(rv))
-      return rv;
+    element = node->NodeName();
 
     nsCOMPtr<nsIDOMNode> pItem;
 
     // A style attribute on any element can change layout in any way,
     // so that is not convertible.
     nsAutoString attribValue;
-    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("style"), attribValue)) &&
-        !attribValue.IsEmpty())
+    node->GetAttribute(NS_LITERAL_STRING("style"), attribValue);
+    if (!attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
       return NS_OK;
@@ -5386,8 +5367,8 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
     // (like moz-cite-prefix or moz-signature). Those can be discarded.
     // But any other ones are unconvertible. Style can be attached to them or any
     // other context (e.g. in microformats).
-    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("class"), attribValue)) &&
-        !attribValue.IsEmpty())
+    node->GetAttribute(NS_LITERAL_STRING("class"), attribValue);
+    if (!attribValue.IsEmpty())
     {
       if (StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-"), nsCaseInsensitiveStringComparator())) {
         // We assume that anything with a moz-* class is convertible regardless of the tag,
@@ -5403,16 +5384,16 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
 
     // ID attributes can contain attached style/context or be target of links
     // so we should preserve them.
-    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("id"), attribValue)) &&
-        !attribValue.IsEmpty())
+    node->GetAttribute(NS_LITERAL_STRING("id"), attribValue);
+    if (!attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
       return NS_OK;
     }
 
     // Alignment is not convertible to plaintext; editor currently uses this.
-    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("align"), attribValue)) &&
-        !attribValue.IsEmpty())
+    node->GetAttribute(NS_LITERAL_STRING("align"), attribValue);
+    if (!attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
       return NS_OK;
@@ -5420,8 +5401,8 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
 
     // Title attribute is not convertible to plaintext;
     // this also preserves any links with titles.
-    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("title"), attribValue)) &&
-        !attribValue.IsEmpty())
+    node->GetAttribute(NS_LITERAL_STRING("title"), attribValue);
+    if (!attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
       return NS_OK;
@@ -5483,36 +5464,33 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
     {
       *_retval = nsIMsgCompConvertible::Plain;
 
-        bool hasAttribute;
+      if (node->HasAttribute(NS_LITERAL_STRING("background")) ||  // There is a background image
+          node->HasAttribute(NS_LITERAL_STRING("dir"))) {         // dir=rtl attributes should not downconvert
+        *_retval = nsIMsgCompConvertible::No;
+      } else {
         nsAutoString color;
-        if (NS_SUCCEEDED(node->HasAttribute(NS_LITERAL_STRING("background"), &hasAttribute))
-            && hasAttribute)  // There is a background image
-          *_retval = nsIMsgCompConvertible::No;
-        else if (NS_SUCCEEDED(node->HasAttribute(NS_LITERAL_STRING("text"), &hasAttribute)) &&
-                 hasAttribute &&
-                 NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("text"), color)) &&
-                 !color.EqualsLiteral("#000000")) {
-          *_retval = nsIMsgCompConvertible::Altering;
+        if (node->HasAttribute(NS_LITERAL_STRING("text"))) {
+          node->GetAttribute(NS_LITERAL_STRING("text"), color);
+          if (!color.EqualsLiteral("#000000"))
+            *_retval = nsIMsgCompConvertible::Altering;
         }
-        else if (NS_SUCCEEDED(node->HasAttribute(NS_LITERAL_STRING("bgcolor"), &hasAttribute)) &&
-                 hasAttribute &&
-                 NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("bgcolor"), color)) &&
-                 !color.LowerCaseEqualsLiteral("#ffffff")) {
-          *_retval = nsIMsgCompConvertible::Altering;
+        if (*_retval != nsIMsgCompConvertible::Altering &&  // small optimization
+            node->HasAttribute(NS_LITERAL_STRING("bgcolor"))) {
+          node->GetAttribute(NS_LITERAL_STRING("bgcolor"), color);
+          if (!color.LowerCaseEqualsLiteral("#ffffff"))
+            *_retval = nsIMsgCompConvertible::Altering;
         }
-        else if (NS_SUCCEEDED(node->HasAttribute(NS_LITERAL_STRING("dir"), &hasAttribute))
-            && hasAttribute)  // dir=rtl attributes should not downconvert
-          *_retval = nsIMsgCompConvertible::No;
+      }
 
-        //ignore special color setting for link, vlink and alink at this point.
+      //ignore special color setting for link, vlink and alink at this point.
     }
     else if (element.LowerCaseEqualsLiteral("blockquote"))
     {
       // Skip <blockquote type="cite">
       *_retval = nsIMsgCompConvertible::Yes;
 
-      if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("type"), attribValue)) &&
-          attribValue.LowerCaseEqualsLiteral("cite"))
+      node->GetAttribute(NS_LITERAL_STRING("type"), attribValue);
+      if (attribValue.LowerCaseEqualsLiteral("cite"))
       {
         *_retval = nsIMsgCompConvertible::Plain;
       }
@@ -5533,23 +5511,16 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
            (as inserted by recognizers) */
         *_retval = nsIMsgCompConvertible::Altering;
 
-          nsAutoString hrefValue;
-          bool hasChild;
-          if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("href"), hrefValue)) &&
-              NS_SUCCEEDED(node->HasChildNodes(&hasChild)) && hasChild)
-          {
-            nsCOMPtr<nsIDOMNodeList> children;
-            if (NS_SUCCEEDED(node->GetChildNodes(getter_AddRefs(children))) &&
-                children &&
-                NS_SUCCEEDED(children->Item(0, getter_AddRefs(pItem))) &&
-                pItem)
-            {
-              nsAutoString textValue;
-              if (NS_SUCCEEDED(pItem->GetNodeValue(textValue)) &&
-                  textValue == hrefValue)
-                *_retval = nsIMsgCompConvertible::Plain;
-            }
-          }
+        nsAutoString hrefValue;
+        node->GetAttribute(NS_LITERAL_STRING("href"), hrefValue);
+        nsINodeList* children = node->ChildNodes();
+        if (children->Length() > 0) {
+          nsINode* pItem = children->Item(0);
+          nsAutoString textValue;
+          pItem->GetNodeValue(textValue);
+          if (textValue == hrefValue)
+            *_retval = nsIMsgCompConvertible::Plain;
+        }
       }
 
       // Lastly, test, if it is just a "simple" <div> or <span>
@@ -5562,10 +5533,10 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
       }
     }
 
-    return rv;
+    return NS_OK;
 }
 
-nsresult nsMsgCompose::_NodeTreeConvertible(nsIDOMElement *node, int32_t *_retval)
+nsresult nsMsgCompose::_NodeTreeConvertible(Element *node, int32_t *_retval)
 {
     NS_ENSURE_TRUE(node && _retval, NS_ERROR_NULL_POINTER);
 
@@ -5578,33 +5549,19 @@ nsresult nsMsgCompose::_NodeTreeConvertible(nsIDOMElement *node, int32_t *_retva
         return rv;
 
     // Walk tree recursively to check the children
-    bool hasChild;
-    if (NS_SUCCEEDED(node->HasChildNodes(&hasChild)) && hasChild)
+    nsINodeList* children = node->ChildNodes();
+    for (uint32_t i = 0; i < children->Length(); i++)
     {
-      nsCOMPtr<nsIDOMNodeList> children;
-      if (NS_SUCCEEDED(node->GetChildNodes(getter_AddRefs(children)))
-          && children)
-      {
-        uint32_t nbrOfElements;
-        rv = children->GetLength(&nbrOfElements);
-        for (uint32_t i = 0; NS_SUCCEEDED(rv) && i < nbrOfElements; i++)
-        {
-          nsCOMPtr<nsIDOMNode> pItem;
-          if (NS_SUCCEEDED(children->Item(i, getter_AddRefs(pItem)))
-              && pItem)
-          {
-            // We assume all nodes that are not elements are convertible,
-            // so only test elements.
-            nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(pItem);
-            if (domElement) {
-              int32_t curresult;
-              rv = _NodeTreeConvertible(domElement, &curresult);
+      nsINode* pItem = children->Item(i);
+      // We assume all nodes that are not elements are convertible,
+      // so only test elements.
+      nsCOMPtr<Element> domElement = do_QueryInterface(pItem);
+      if (domElement) {
+        int32_t curresult;
+        rv = _NodeTreeConvertible(domElement, &curresult);
 
-              if (NS_SUCCEEDED(rv) && curresult > result)
-                result = curresult;
-            }
-          }
-        }
+        if (NS_SUCCEEDED(rv) && curresult > result)
+          result = curresult;
       }
     }
 
@@ -5629,7 +5586,8 @@ nsMsgCompose::BodyConvertible(int32_t *_retval)
     if (NS_FAILED(rv) || !rootElement)
       return rv;
 
-    return _NodeTreeConvertible(rootElement, _retval);
+    nsCOMPtr<Element> rootElement2 = do_QueryInterface(rootElement);
+    return _NodeTreeConvertible(rootElement2, _retval);
 }
 
 NS_IMETHODIMP
@@ -5654,19 +5612,20 @@ nsMsgCompose::MoveToAboveQuote(void)
     return rv;
   }
 
-  nsCOMPtr<nsIDOMNode> node;
+  nsCOMPtr<nsINode> node;
   nsAutoString attributeName;
   nsAutoString attributeValue;
   nsAutoString tagLocalName;
   attributeName.AssignLiteral("class");
 
-  rv = rootElement->GetFirstChild(getter_AddRefs(node));
-  while (NS_SUCCEEDED(rv) && node) {
-    nsCOMPtr<nsIDOMElement> element = do_QueryInterface(node);
+  nsCOMPtr<nsINode> rootElement2 = do_QueryInterface(rootElement);
+  node = rootElement2->GetFirstChild();
+  while (node) {
+    nsCOMPtr<Element> element = do_QueryInterface(node);
     if (element) {
       // First check for <blockquote>. This will most likely not trigger
       // since well-behaved quotes are preceded by a cite prefix.
-      node->GetLocalName(tagLocalName);
+      tagLocalName = node->LocalName();
       if (tagLocalName.EqualsLiteral("blockquote")) {
         break;
       }
@@ -5688,11 +5647,10 @@ nsMsgCompose::MoveToAboveQuote(void)
       }
     }
 
-    rv = node->GetNextSibling(getter_AddRefs(node));
-    if (NS_FAILED(rv) || !node) {
+    node = node->GetNextSibling();
+    if (!node) {
       // No further siblings found, so we didn't find what we were looking for.
       rv = NS_OK;
-      node = nullptr;
       break;
     }
   }
@@ -5700,7 +5658,7 @@ nsMsgCompose::MoveToAboveQuote(void)
   // Now position. If no quote was found, we position to the very front.
   int32_t offset = 0;
   if (node) {
-    rv = GetChildOffset(node, rootElement, offset);
+    rv = GetChildOffset(node, rootElement2, offset);
     if (NS_FAILED(rv)) {
       return rv;
     }
@@ -5746,18 +5704,19 @@ nsMsgCompose::MoveToEndOfDocument(void)
 {
   int32_t offset;
   nsCOMPtr<nsIDOMElement> rootElement;
-  nsCOMPtr<nsIDOMNode> lastNode;
+  nsCOMPtr<nsINode> lastNode;
   nsresult rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
   if (NS_FAILED(rv) || !rootElement) {
     return rv;
   }
 
-  rv = rootElement->GetLastChild(getter_AddRefs(lastNode));
-  if (NS_FAILED(rv) || !lastNode) {
-    return rv;
+  nsCOMPtr<nsINode> rootElement2 = do_QueryInterface(rootElement);
+  lastNode = rootElement2->GetLastChild();
+  if (!lastNode) {
+    return NS_ERROR_NULL_POINTER;
   }
 
-  rv = GetChildOffset(lastNode, rootElement, offset);
+  rv = GetChildOffset(lastNode, rootElement2, offset);
   if (NS_FAILED(rv)) {
     return rv;
   }
@@ -5788,13 +5747,14 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
     return rv;
 
   //First look for the current signature, if we have one
-  nsCOMPtr<nsIDOMNode> lastNode;
-  nsCOMPtr<nsIDOMNode> node;
-  nsCOMPtr<nsIDOMNode> tempNode;
+  nsCOMPtr<nsINode> lastNode;
+  nsCOMPtr<nsINode> node;
+  nsCOMPtr<nsINode> tempNode;
   nsAutoString tagLocalName;
 
-  rv = rootElement->GetLastChild(getter_AddRefs(lastNode));
-  if (NS_SUCCEEDED(rv) && lastNode)
+  nsCOMPtr<nsINode> rootElement2 = do_QueryInterface(rootElement);
+  lastNode = rootElement2->GetLastChild();
+  if (lastNode)
   {
     node = lastNode;
     // In html, the signature is inside an element with
@@ -5803,29 +5763,28 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
     nsAutoString attributeName;
     attributeName.AssignLiteral("class");
 
-    do
+    while (node)
     {
-      nsCOMPtr<nsIDOMElement> element = do_QueryInterface(node);
+      nsCOMPtr<Element> element = do_QueryInterface(node);
       if (element)
       {
         nsAutoString attributeValue;
 
-        rv = element->GetAttribute(attributeName, attributeValue);
+        element->GetAttribute(attributeName, attributeValue);
 
         if (attributeValue.Find("moz-signature", true) != kNotFound) {
           signatureFound = true;
           break;
         }
       }
-    } while (!signatureFound &&
-             node &&
-             NS_SUCCEEDED(node->GetPreviousSibling(getter_AddRefs(node))));
+      node = node->GetPreviousSibling();
+    }
 
     if (signatureFound)
     {
       m_editor->BeginTransaction();
-      node->GetPreviousSibling(getter_AddRefs(tempNode));
-      rv = m_editor->DeleteNode(node);
+      tempNode = node->GetPreviousSibling();
+      rv = m_editor->DeleteNode(node->AsDOMNode());
       if (NS_FAILED(rv))
       {
         m_editor->EndTransaction();
@@ -5835,9 +5794,9 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
       // Also, remove the <br> right before the signature.
       if (tempNode)
       {
-        tempNode->GetLocalName(tagLocalName);
+        tagLocalName = tempNode->LocalName();
         if (tagLocalName.EqualsLiteral("br"))
-          m_editor->DeleteNode(tempNode);
+          m_editor->DeleteNode(tempNode->AsDOMNode());
       }
       m_editor->EndTransaction();
     }

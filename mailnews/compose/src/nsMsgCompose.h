@@ -21,6 +21,7 @@
 #include "nsIMsgFolder.h"
 #include "nsIDOMNode.h"
 #include "mozIDOMWindow.h"
+#include "mozilla/dom/Element.h"
 
 // Forward declares
 class QuotingOutputStreamListener;
@@ -87,8 +88,8 @@ protected:
                            nsTArray<nsMsgMailList>& allMailListArray,
                            nsTArray<nsMsgMailList>& mailListResolved,
                            nsTArray<nsMsgRecipient>& aListMembers);
-  nsresult TagConvertible(nsIDOMElement *node,  int32_t *_retval);
-  nsresult _NodeTreeConvertible(nsIDOMElement *node, int32_t *_retval);
+  nsresult TagConvertible(mozilla::dom::Element *node,  int32_t *_retval);
+  nsresult _NodeTreeConvertible(mozilla::dom::Element *node, int32_t *_retval);
   nsresult MoveToAboveQuote(void);
   nsresult MoveToBeginningOfDocument(void);
   nsresult MoveToEndOfDocument(void);
