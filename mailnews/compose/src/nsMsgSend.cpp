@@ -1325,36 +1325,23 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     {
       // Well, the first time failed...which means we probably didn't get
       // the full path name...
-      //
-      nsIDOMDocument    *ownerDocument = nullptr;
-      node->GetOwnerDocument(&ownerDocument);
-      if (ownerDocument)
-      {
-        nsIDocument     *doc = nullptr;
-        if (NS_FAILED(ownerDocument->QueryInterface(NS_GET_IID(nsIDocument),(void**)&doc)) || !doc)
-          return NS_ERROR_OUT_OF_MEMORY;
+      nsCOMPtr<nsINode> node2 = do_QueryInterface(node);
 
-        nsAutoCString spec;
-        nsIURI *uri = doc->GetDocumentURI();
+      nsAutoCString spec;
+      rv = node2->OwnerDoc()->GetDocumentURI()->GetSpec(spec);
+      NS_ENSURE_SUCCESS(rv, rv);
 
-        if (!uri)
-          return NS_ERROR_OUT_OF_MEMORY;
+      // Ok, now get the path to the root doc and tack on the name we
+      // got from the GetSrc() call....
+      NS_ConvertUTF8toUTF16 workURL(spec);
 
-        rv = uri->GetSpec(spec);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        // Ok, now get the path to the root doc and tack on the name we
-        // got from the GetSrc() call....
-        NS_ConvertUTF8toUTF16 workURL(spec);
-
-        int32_t loc = workURL.RFindChar('/');
-        if (loc >= 0)
-          workURL.SetLength(loc+1);
-        workURL.Append(tUrl);
-        NS_ConvertUTF16toUTF8 workurlC(workURL);
-        if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), workurlC)))
-          return NS_OK; // Continue and send it without this image.
-      }
+      int32_t loc = workURL.RFindChar('/');
+      if (loc >= 0)
+        workURL.SetLength(loc+1);
+      workURL.Append(tUrl);
+      NS_ConvertUTF16toUTF8 workurlC(workURL);
+      if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), workurlC)))
+        return NS_OK; // Continue and send it without this image.
     }
     isImage = true;
 
@@ -1703,7 +1690,8 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       if (!acceptObject)
         continue;
       nsString nodeValue;
-      node->GetNodeValue(nodeValue);
+      nsCOMPtr<nsINode> node2 = do_QueryInterface(node);
+      node2->GetNodeValue(nodeValue);
       LossyCopyUTF16toASCII(nodeValue, m_attachments[i]->m_contentId);
     }
     else
