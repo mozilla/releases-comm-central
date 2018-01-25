@@ -297,23 +297,6 @@ NS_IMETHODIMP nsMsgSearchSession::ResumeSearch()
     return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgSearchSession::GetSearchParam(void **aSearchParam)
-{
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgSearchSession::GetSearchType(nsMsgSearchType **aSearchType)
-{
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgSearchSession::SetSearchParam(nsMsgSearchType *type,
-                                                 void *param,
-                                                 nsMsgSearchType **_retval)
-{
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsMsgSearchSession::GetNumResults(int32_t *aNumResults)
 {
   return NS_ERROR_NOT_IMPLEMENTED;

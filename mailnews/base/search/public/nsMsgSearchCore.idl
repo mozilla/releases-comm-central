@@ -154,19 +154,6 @@ interface nsMsgSearchWidget {
     const nsMsgSearchWidgetValue None = 4;
 };
 
-typedef long nsMsgSearchTypeValue;
-
-
-/* Used to specify type of search to be performed */
-[scriptable,uuid(964b7f32-304e-11d3-ae13-00a0c900d445)]
-interface nsMsgSearchType {
-  const nsMsgSearchTypeValue None = 0;
-  const nsMsgSearchTypeValue RootDSE = 1;
-  const nsMsgSearchTypeValue Normal = 2;
-  const nsMsgSearchTypeValue LdapVLV = 3;
-  const nsMsgSearchTypeValue NameCompletion = 4;
-};
-
 typedef long nsMsgSearchBooleanOperator;
 
 [scriptable, uuid(a37f3f4a-304e-11d3-8f94-00a0c900d445)]

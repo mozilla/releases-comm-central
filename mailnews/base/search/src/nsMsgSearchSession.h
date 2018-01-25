@@ -80,7 +80,6 @@ protected:
 
   nsMsgSearchAttribValue m_sortAttribute;
   uint32_t m_idxRunningScope;
-  nsMsgSearchType m_searchType;
   bool m_handlingError;
   nsCString m_runningUrl;     // The url for the current search
   nsCOMPtr <nsITimer> m_backgroundTimer;
