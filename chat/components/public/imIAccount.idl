@@ -12,7 +12,6 @@ interface prplIAccountBuddy;
 interface imIAccount;
 interface prplIAccount;
 interface prplIProtocol;
-interface purpleIProxyInfo;
 interface nsIScriptError;
 interface nsISSLStatus;
 
@@ -137,8 +136,6 @@ interface prplIAccount: nsISupports {
   // Request that the account normalizes a name. Use this only when an object
   // providing a normalizedName doesn't exist yet or isn't accessible.
   AUTF8String normalize(in AUTF8String aName);
-
-  attribute purpleIProxyInfo proxyInfo;
 
   // protocol specific options: those functions set the protocol
   // specific options for the PurpleAccount

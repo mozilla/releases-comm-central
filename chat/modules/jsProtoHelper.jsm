@@ -230,9 +230,6 @@ var GenericAccountPrototype = {
   get normalizedName() { return this.normalize(this.name); },
   normalize: function(aName) { return aName.toLowerCase(); },
 
-  get proxyInfo() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  set proxyInfo(val) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-
   get HTMLEnabled() { return false; },
   get HTMLEscapePlainText() { return false; },
   get noBackgroundColors() { return true; },

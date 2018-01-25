@@ -807,12 +807,6 @@ imAccount.prototype = {
   get noFontSizes() { return this._ensurePrplAccount.noFontSizes; },
   get noUrlDesc() { return this._ensurePrplAccount.noUrlDesc; },
   get noImages() { return this._ensurePrplAccount.noImages; },
-
-  get proxyInfo() { return this._ensurePrplAccount.proxyInfo; },
-  set proxyInfo(val) {
-    this._ensurePrplAccount.proxyInfo = val;
-    this._connectionInfoChanged();
-  }
 };
 
 var gAccountsService = null;
