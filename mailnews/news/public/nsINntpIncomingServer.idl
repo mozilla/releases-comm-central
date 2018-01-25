@@ -8,7 +8,10 @@
 interface nsIFile;
 interface nsIMsgNewsFolder;
 interface nsINNTPProtocol;
-interface nsNNTPProtocol;
+[ptr] native nsNNTPProtocol (nsNNTPProtocol);
+%{C++
+class nsNNTPProtocol;
+%}
 interface nsIChannel;
 interface nsIURI;
 interface nsIMsgWindow;

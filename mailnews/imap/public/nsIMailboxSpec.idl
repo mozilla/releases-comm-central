@@ -6,7 +6,10 @@
 #include "nsISupports.idl"
 #include "nsIImapFlagAndUidState.idl"
 
-interface nsIMAPNamespace;
+[ptr] native nsIMAPNamespace (nsIMAPNamespace);
+%{C++
+class nsIMAPNamespace;
+%}
 
 [scriptable, uuid(a9fbbc80-5291-4ed8-a7f7-c2fcad231269)]
 interface nsIMailboxSpec : nsISupports

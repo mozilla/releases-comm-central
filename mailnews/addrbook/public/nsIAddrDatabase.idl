@@ -10,7 +10,10 @@
 interface nsIFile;
 interface nsIMdbTableRowCursor;
 interface nsIMdbEnv;
-interface nsIMdbRow;
+[ptr] native nsIMdbRow (nsIMdbRow);
+%{C++
+class nsIMdbRow;
+%}
 interface nsIArray;
 interface nsISimpleEnumerator;
 

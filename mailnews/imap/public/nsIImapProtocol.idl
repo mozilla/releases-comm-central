@@ -10,9 +10,13 @@ interface nsIImapUrl;
 interface nsIImapProtocol;
 interface nsIImapIncomingServer;
 interface nsIMsgFolder;
-interface nsIImapHostSessionList;
 interface nsIMsgWindow;
 interface nsIImapFlagAndUidState;
+
+[ptr] native nsIImapHostSessionList (nsIImapHostSessionList);
+%{C++
+class nsIImapHostSessionList;
+%}
 
 [scriptable, uuid(290412eb-5824-4087-8984-05450c9397be)]
 interface nsIImapProtocol : nsISupports {
