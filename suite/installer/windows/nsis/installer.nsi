@@ -33,6 +33,7 @@ Var AddTaskbarSC
 Var AddQuickLaunchSC
 Var AddDesktopSC
 Var InstallMaintenanceService
+Var InstallOptionalExtensions
 
 ; Other included files may depend upon these includes!
 ; The following includes are provided by NSIS.
