@@ -8,9 +8,9 @@
     "unpack": true
   },
   {
-    "version": "rustc 1.22.1 (123456789 2017-11-22) repack",
-    "size": 107159606,
-    "digest": "d15a6bf376f7a7e2a247970ce649faa67630484d6ad0a808e099407d3ea1f84da44010da99ea495553c2e2f07c88d610d0bb6375ff3e05b572feeecc359a151e",
+    "version": "rustc 1.23.0 (123456789 2018-01-01) repack",
+    "size": 116336768,
+    "digest": "5dfd1e9cd44cb745f0fc37c3c559098f407c14b170316a22e8a8cb6b2fffaa3641d2ba2cdcfe17cd966f675bc0c158bf8ac15c3bec99ce76e1da654af9cbfc50",
     "algorithm": "sha512",
     "filename": "rustc.tar.bz2",
     "unpack": true
