@@ -34,6 +34,7 @@ Var AddTaskbarSC
 Var AddQuickLaunchSC
 Var AddDesktopSC
 Var InstallMaintenanceService
+Var InstallOptionalExtensions
 Var PageName
 Var PreventRebootRequired
 
