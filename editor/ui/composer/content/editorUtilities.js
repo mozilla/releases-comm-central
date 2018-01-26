@@ -668,8 +668,7 @@ function GetDocumentBaseUrl()
 function GetDocumentUrl()
 {
   try {
-    var aDOMHTMLDoc = GetCurrentEditor().document.QueryInterface(Components.interfaces.nsIDOMHTMLDocument);
-    return aDOMHTMLDoc.URL;
+    return GetCurrentEditor().document.URL;;
   }
   catch (e) {}
   return "";

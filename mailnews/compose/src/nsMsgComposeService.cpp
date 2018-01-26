@@ -22,7 +22,6 @@
 #include "nsIDocShell.h"
 #include "nsPIDOMWindow.h"
 #include "nsIDOMDocument.h"
-#include "nsIDOMHTMLDocument.h"
 #include "nsIDOMElement.h"
 #include "nsIXULWindow.h"
 #include "nsIWindowMediator.h"

@@ -129,11 +129,7 @@ function createURI(urlstring)
 function CheckOpenWindowForURIMatch(uri, win)
 {
   try {
-    var contentWindow = win.content;
-    var contentDoc = contentWindow.document;
-    var htmlDoc = contentDoc.QueryInterface(Components.interfaces.nsIDOMHTMLDocument);
-    var winuri = createURI(htmlDoc.URL);
-    return winuri.equals(uri);
+    return createURI(win.content.document.URL).equals(uri);
   } catch (e) {}
   
   return false;
