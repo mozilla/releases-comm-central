@@ -8,8 +8,9 @@
 #calendar-nav-control {
     background-color: ButtonFace;
     border-top: 1px solid ThreeDShadow;
-    border-inline-start: 1px solid ThreeDShadow;
-    padding-top: 1px;
+    --calview-tabline-color: #0a84ff;
+    --calview-border-color: ThreeDShadow;
+    --calview-border-bottom-color: ThreeDShadow;
 }
 
 #view-deck {
@@ -18,38 +19,24 @@
     border-inline-start: 1px;
 }
 
-tab[calview] {
-    background-color: rgba(0, 0, 0, .1);
-    color: ButtonText;
-    border: 1px solid ThreeDShadow;
-    font-size: 14px;
+.view-header {
+    margin-bottom: 0;
 }
 
-tab[calview][selected="true"],
-tab[calview][selected="true"]:hover {
+tab[calview] {
+    color: ButtonText;
+}
+
+tab[calview][selected="true"] {
     background-color: -moz-Field;
 }
 
-tab[calview]:hover {
-    background-color: ButtonHighlight;
-}
-
-#calendarWeek {
-    margin-top: 4px;
-    margin-bottom: 0px;
-}
-
-.navigation-inner-box {
-    border-bottom: 1px solid ThreeDShadow;
+.navigation-inner-box > hbox {
+    padding-top: 1px;
 }
 
 .navigation-bottombox {
     background-color: -moz-Field;
-}
-
-.navigation-spacer-box {
-    min-width: 4px;
-    border-bottom: 1px solid ThreeDShadow;
 }
 
 .view-navigation-button {
@@ -58,12 +45,12 @@ tab[calview]:hover {
 }
 
 .today-navigation-button {
-    padding-top: 0px !important; /* a workaround to center the label vertically on Windows */
+    padding-top: 0 !important; /* a workaround to center the label vertically on Windows */
 }
 
 #calendar-view-box #calendar-view-splitter {
     border: none;
-    border-bottom: 1px solid #A9B7C9;
+    border-bottom: 1px solid #a9b7c9;
     min-height: 0;
     height: 5px;
     background-color: transparent;

@@ -7,8 +7,9 @@
 /* Navigation controls for the views */
 #calendar-nav-control {
     background-color: AppWorkspace;
-    border-inline-start: 1px solid ThreeDShadow;
-    padding-top: 1px;
+    --calview-tabline-color: highlight;
+    --calview-border-color: ThreeDShadow;
+    --calview-border-bottom-color: ThreeDShadow;
 }
 
 #view-deck {
@@ -16,38 +17,26 @@
     border-width: 0 0 1px 1px;
 }
 
-tab[calview] {
-    background-color: rgba(0, 0, 0, .1);
-    color: ButtonText;
-    border: 1px solid ThreeDShadow;
-    font-size: 14px;
+.navigation-inner-box {
+    padding-top: 1px;
 }
 
-tab[calview][selected="true"],
-tab[calview][selected="true"]:hover {
+tab[calview] {
+    color: ButtonText;
+    margin-bottom: 0;
+}
+
+tab[calview][selected="true"] {
     background-color: -moz-Field;
 }
 
-tab[calview]:hover {
-    background-color: ButtonHighlight;    
-}
-
-#calendarWeek {
-    margin-top: 4px;
-    margin-bottom: 0px;
-}
-
-.navigation-inner-box {
-    border-bottom: 1px solid ThreeDShadow;
+tab[calview] > .tab-middle {
+    margin-top: 3px;
+    margin-bottom: 3px;
 }
 
 .navigation-bottombox {
     background-color: -moz-Field;
-}
-
-.navigation-spacer-box {
-    min-width: 4px;
-    border-bottom: 1px solid ThreeDShadow;
 }
 
 .view-navigation-button {
