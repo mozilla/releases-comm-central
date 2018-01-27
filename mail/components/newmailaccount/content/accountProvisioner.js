@@ -216,6 +216,9 @@ var EmailAccountProvisioner = {
     if (EmailAccountProvisioner._inited)
       return;
 
+    // See bug 1433405 for details.
+    document.allowUnsafeHTML = true;
+
     gLog.info("Initializing Email Account Provisioner");
 
     // For any anchor element that gets the "external" class, make it so that
