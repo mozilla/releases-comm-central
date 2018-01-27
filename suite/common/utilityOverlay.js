@@ -291,7 +291,7 @@ function goCustomizeToolbar(toolbox)
   if ("customizeInit" in toolbox)
     toolbox.customizeInit();
 
-  var customizeURL = "chrome://global/content/customizeToolbar.xul";
+  var customizeURL = "chrome://communicator/content/customizeToolbar.xul";
 
   gCustomizeSheet = GetBoolPref("toolbar.customization.usesheet", false);
 

@@ -49,7 +49,7 @@
 /* ::::: toolbar-primary ::::: */
 
 .toolbar-primary {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-primary");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar-primary");
 }
 
 #throbber-box {

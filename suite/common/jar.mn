@@ -108,13 +108,17 @@ comm.jar:
 #endif
 #endif
    content/communicator/autocomplete.css                            (autocomplete/autocomplete.css)
+   content/communicator/customizeToolbar.css                        (../../common/src/customizeToolbar.css)
+   content/communicator/customizeToolbar.js                         (../../common/src/customizeToolbar.js)
+*  content/communicator/customizeToolbar.xul                        (../../common/src/customizeToolbar.xul)
 *  content/communicator/bindings/datetimepicker.xml                 (../../common/bindings/datetimepicker.xml)
    content/communicator/bindings/findbar.xml                        (bindings/findbar.xml)
    content/communicator/bindings/general.xml                        (bindings/general.xml)
    content/communicator/bindings/generalBindings.xml                (../../common/bindings/generalBindings.xml)
    content/communicator/bindings/notification.xml                   (bindings/notification.xml)
 *  content/communicator/bindings/preferences.xml                    (../../common/bindings/preferences.xml)
-   content/communicator/bindings/toolbar.xml                        (bindings/toolbar.xml)
+*  content/communicator/bindings/toolbar.xml                        (../../common/bindings/toolbar.xml)   
+   content/communicator/bindings/toolbar-xpfe.xml                   (bindings/toolbar-xpfe.xml)
 *  content/communicator/bindings/prefwindow.xml                     (bindings/prefwindow.xml)
    content/communicator/bookmarks/bm-panel.js                       (bookmarks/bm-panel.js)
    content/communicator/bookmarks/bm-panel.xul                      (bookmarks/bm-panel.xul)

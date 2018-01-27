@@ -14,7 +14,7 @@
 %platformCommunicatorDTD;
 <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
 %utilityDTD;
-<!ENTITY % customizeToolbarDTD SYSTEM "chrome://global/locale/customizeToolbar.dtd">
+<!ENTITY % customizeToolbarDTD SYSTEM "chrome://communicator/locale/customizeToolbar.dtd">
 %customizeToolbarDTD;
 
 ]>

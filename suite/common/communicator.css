@@ -78,23 +78,23 @@ toolbaritem {
 /******* toolkit access layer *******/
 /* These rules reintroduce the toolkit bindings overwritten later below */
 toolbox[xpfe="false"] { 
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbox");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#toolbox");
 }
 
 toolbox[xpfe="false"] > toolbar,
 toolbar[xpfe="false"][type="menubar"],
 toolbar[xpfe="false"] {
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#toolbar");
 }
 
 menubar[xpfe="false"],
 toolbar > toolbaritem > menubar,
 toolbar > menubar {
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#menubar");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#menubar");
 }
 
 toolbar > toolbarpaletteitem > toolbaritem > menubar {
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#menubar") !important;
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#menubar") !important;
 }
 
 .menubar-items {
@@ -160,23 +160,23 @@ prefpane[xpfe="false"] > .content-box {
 /******* SeaMonkey XPFE *******/
 /* These bindings reflect SeaMonkey XPFE, modulo new toolkit features. */
 toolbox { 
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbox");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbox");
 }
   
 toolbar {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar");
 }
 
 toolbar[type="menubar"] {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-menubar");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar-menubar");
 }
 
 toolbargrippy {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#toolbargrippy");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#toolbargrippy");
 }
 
 menubar {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippymenubar");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippymenubar");
 }
 
 prefwindow {
@@ -289,7 +289,7 @@ window[lwtheme="true"] {
 
 toolbar[type="menubar"][autohide="true"]
 {
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-menubar-autohide");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#toolbar-menubar-autohide");
   overflow: hidden;
 }
 

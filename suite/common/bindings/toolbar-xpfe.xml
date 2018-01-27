@@ -18,7 +18,7 @@
        attribute, though.
     -->
 
-  <binding id="grippytoolbox" extends="chrome://global/content/bindings/toolbar.xml#toolbox">
+  <binding id="grippytoolbox" extends="chrome://communicator/content/bindings/toolbar.xml#toolbox">
     <content orient="vertical">
       <xul:vbox flex="1" class="toolbar-internal-box">
         <children/>
@@ -140,7 +140,7 @@
     </implementation>
   </binding>
 
-  <binding id="grippytoolbar" extends="chrome://global/content/bindings/toolbar.xml#toolbar">
+  <binding id="grippytoolbar" extends="chrome://communicator/content/bindings/toolbar.xml#toolbar">
     <content>
       <xul:hbox flex="1" class="toolbar-box box-inherit">
         <xul:toolbargrippy xbl:inherits="last-toolbar,hidden=grippyhidden,collapsed=inFullscreen"
@@ -171,7 +171,7 @@
     </implementation>
   </binding>
 
-  <binding id="grippytoolbar-primary" extends="chrome://communicator/content/bindings/toolbar.xml#grippytoolbar">
+  <binding id="grippytoolbar-primary" extends="chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar">
     <implementation implements="nsIObserver">
       <constructor>
         <![CDATA[
@@ -215,7 +215,7 @@
   </binding>
 
   <binding id="grippytoolbar-drag"
-           extends="chrome://communicator/content/bindings/toolbar.xml#grippytoolbar">
+           extends="chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar">
     <implementation>
       <field name="_dragBindingAlive">true</field>
       <constructor>
@@ -239,10 +239,10 @@
   </binding>
 
   <binding id="grippytoolbar-menubar"
-           extends="chrome://communicator/content/bindings/toolbar.xml#grippytoolbar"
+           extends="chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar"
            display="xul:menubar"/>
 
-  <binding id="grippymenubar" extends="chrome://global/content/bindings/toolbar.xml#menubar">
+  <binding id="grippymenubar" extends="chrome://communicator/content/bindings/toolbar.xml#menubar">
     <content>
       <xul:hbox flex="1" class="toolbar-box">
         <xul:toolbargrippy xbl:inherits="last-toolbar,hidden=grippyhidden"
@@ -271,7 +271,7 @@
   </binding>
 
   <binding id="toolbargrippy" display="xul:button"
-           extends="chrome://global/content/bindings/toolbar.xml#toolbar-base">
+           extends="chrome://communicator/content/bindings/toolbar.xml#toolbar-base">
     <content>
       <xul:image class="toolbargrippy-arrow"/>
       <xul:spacer class="toolbargrippy-texture" flex="1"/>

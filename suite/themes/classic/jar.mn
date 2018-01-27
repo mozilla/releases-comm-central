@@ -8,16 +8,17 @@ classic.jar:
 % skin messenger classic/1.0 %skin/classic/messenger/
 % skin navigator classic/1.0 %skin/classic/navigator/
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
-% style chrome://global/content/customizeToolbar.xul chrome://navigator/skin/navigator.css
-% style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/primaryToolbar.css
-% style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/messengercompose/messengercompose.css
-% style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/smime/msgCompSMIMEOverlay.css
-% style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://navigator/skin/navigator.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/primaryToolbar.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/messengercompose/messengercompose.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/smime/msgCompSMIMEOverlay.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
 #ifdef XP_MACOSX
   skin/classic/communicator/aboutPrivateBrowsing.css                    (mac/communicator/aboutPrivateBrowsing.css)
   skin/classic/communicator/aboutSessionRestore.css                     (mac/communicator/aboutSessionRestore.css)
   skin/classic/communicator/button.css                                  (mac/communicator/button.css)
   skin/classic/communicator/communicator.css                            (mac/communicator/communicator.css)
+  skin/classic/communicator/customizeToolbar.css                        (mac/communicator/customizeToolbar.css)
   skin/classic/communicator/config.css                                  (mac/communicator/config.css)
   skin/classic/communicator/datetimepicker.css                          (mac/communicator/datetimepicker.css)
   skin/classic/communicator/preferences.css                             (mac/communicator/preferences.css)
@@ -65,6 +66,7 @@ classic.jar:
   skin/classic/communicator/aboutSessionRestore.css                     (communicator/aboutSessionRestore.css)
   skin/classic/communicator/button.css                                  (communicator/button.css)
   skin/classic/communicator/config.css                                  (communicator/config.css)
+  skin/classic/communicator/customizeToolbar.css                        (communicator/customizeToolbar.css)
   skin/classic/communicator/datetimepicker.css                          (communicator/datetimepicker.css)
 #ifdef MOZ_WIDGET_GTK
   skin/classic/communicator/communicator.css                            (linux/communicator/communicator.css)

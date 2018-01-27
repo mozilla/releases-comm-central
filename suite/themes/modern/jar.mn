@@ -12,14 +12,15 @@ modern.jar:
 % skin mozapps modern/1.0 %skin/modern/mozapps/
 % skin navigator modern/1.0 %skin/modern/navigator/
 % skin messenger-newsblog modern/1.0 %skin/modern/messenger-newsblog/
-% style chrome://global/content/customizeToolbar.xul chrome://navigator/skin/navigator.css
-% style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/primaryToolbar.css
-% style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/messengercompose/messengercompose.css
-% style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/smime/msgCompSMIMEOverlay.css
-% style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://navigator/skin/navigator.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/primaryToolbar.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/messengercompose/messengercompose.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/smime/msgCompSMIMEOverlay.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
   skin/modern/communicator/brand.css                               (communicator/brand.css)
   skin/modern/communicator/blockedSite.css                         (communicator/blockedSite.css)
   skin/modern/communicator/certError.css                           (communicator/certError.css)
+  skin/modern/communicator/customizeToolbar.css                    (communicator/customizeToolbar.css)
   skin/modern/communicator/datetimepicker.css                      (communicator/datetimepicker.css)
   skin/modern/communicator/prefpanels.css                          (communicator/prefpanels.css)
   skin/modern/communicator/preferences.css                         (communicator/preferences.css)
@@ -200,7 +201,6 @@ modern.jar:
   skin/modern/global/checkbox.css                                  (global/checkbox.css)
   skin/modern/global/colorpicker.css                               (global/colorpicker.css)
   skin/modern/global/config.css                                    (global/config.css)
-  skin/modern/global/customizeToolbar.css                          (global/customizeToolbar.css)
   skin/modern/global/dialog.css                                    (global/dialog.css)
   skin/modern/global/dropmarker.css                                (global/dropmarker.css)
   skin/modern/global/filefield.css                                 (global/filefield.css)

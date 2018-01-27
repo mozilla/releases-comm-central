@@ -21,7 +21,7 @@
 /* ::::: toolbar-primary ::::: */
 
 .toolbar-primary {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-primary");
+  -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar-primary");
 }
 
 /* .padded is used by autocomplete widgets that don't have an icon. Gross. -dwh */
