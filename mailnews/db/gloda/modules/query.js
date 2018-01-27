@@ -83,11 +83,8 @@ GlodaQueryClass.prototype = {
     return orQuery;
   },
 
-  orderBy: function gloda_query_orderBy() {
-    for (let iArg = 0; iArg < arguments.length; iArg++) {
-      let arg = arguments[iArg];
-      this._order.push(arg);
-    }
+  orderBy: function gloda_query_orderBy(...aArgs) {
+    this._order.push(...aArgs);
     return this;
   },
 

@@ -25,21 +25,20 @@ GlodaMsgIndexer._original_indexerGetEnumerator =
 /**
  * Wrapper for GlodaMsgIndexer._indexerGetEnumerator to cause explosions.
  */
-GlodaMsgIndexer._indexerGetEnumerator = function() {
+GlodaMsgIndexer._indexerGetEnumerator = function(...aArgs) {
   if (explode_enumeration_after && !(--explode_enumeration_after))
     throw asyncExpectedEarlyAbort;
 
-  return GlodaMsgIndexer._original_indexerGetEnumerator.apply(
-    GlodaMsgIndexer, arguments);
+  return GlodaMsgIndexer._original_indexerGetEnumerator(...aArgs);
 };
 
 /**
  * Create a folder indexing job for the given injection folder handle and
  * run it until completion.
  */
-function spin_folder_indexer() {
+function spin_folder_indexer(...aArgs) {
   return async_run({func: _spin_folder_indexer_gen,
-                    args: arguments});
+                    args: aArgs});
 }
 function* _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
   let msgFolder = get_real_injection_folder(aFolderHandle);

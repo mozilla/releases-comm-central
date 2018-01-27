@@ -76,9 +76,8 @@ SubDialog.prototype = {
       if (!this._isClosing) {
         this.close();
       }
-      let args = Array.from(arguments);
       this._closingPromise.then(() => {
-        this.open.apply(this, args);
+        this.open(aURL, aFeatures, aParams, aClosingCallback);
       });
       return;
     }

@@ -109,20 +109,16 @@ function assert_constraints_expressed(aConstraints) {
  * Toggle the given filter buttons by name (from nameToBarDomId); variable
  * argument magic enabled.
  */
-function toggle_boolean_constraints() {
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    mc.click(mc.eid(nameToBarDomId[arguments[iArg]]));
-  }
+function toggle_boolean_constraints(...aArgs) {
+  aArgs.forEach(arg => mc.click(mc.eid(nameToBarDomId[arg])));
   fdh.wait_for_all_messages_to_load(mc);
 }
 
 /**
  * Toggle the tag faceting buttons by tag key.  Wait for messages after.
  */
-function toggle_tag_constraints() {
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    mc.click(mc.eid("qfb-tag-" + arguments[iArg]));
-  }
+function toggle_tag_constraints(...aArgs) {
+  aArgs.forEach(arg => mc.click(mc.eid("qfb-tag-" + arg)));
   fdh.wait_for_all_messages_to_load(mc);
 }
 
@@ -149,20 +145,20 @@ function toggle_tag_mode() {
  * Verify that tag buttons exist for exactly the given set of tag keys in the
  *  provided variable argument list.  Ordering is significant.
  */
-function assert_tag_constraints_visible() {
+function assert_tag_constraints_visible(...aArgs) {
   // the stupid bar should be visible if any arguments are specified
-  if (arguments.length && mc.e("quick-filter-bar-tab-bar").collapsed)
+  if (aArgs.length > 0 && mc.e("quick-filter-bar-tab-bar").collapsed)
     throw new Error("The tag bar should not be collapsed!");
 
   let kids = mc.e("quick-filter-bar-tab-bar").childNodes;
   let tagLength = kids.length - 1; // -1 for the qfb-boolean-mode widget
   // this is bad error reporting in here for now.
-  if (tagLength != arguments.length)
+  if (tagLength != aArgs.length)
     throw new Error("Mismatch in expected tag count and actual. " +
-                    "Expected " + arguments.length +
+                    "Expected " + aArgs.length +
                     " actual " + tagLength);
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    let nodeId = "qfb-tag-" + arguments[iArg];
+  for (let iArg = 0; iArg < aArgs.length; iArg++) {
+    let nodeId = "qfb-tag-" + aArgs[iArg];
     if (nodeId != kids[iArg+1].id)
       throw new Error("Mismatch at tag " + iArg + " expected " + nodeId +
                       " but got " + kids[iArg+1].id);
@@ -173,10 +169,10 @@ function assert_tag_constraints_visible() {
  * Verify that only the buttons corresponding to the provided tag keys are
  * checked.
  */
-function assert_tag_constraints_checked() {
+function assert_tag_constraints_checked(...aArgs) {
   let expected = {};
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    let nodeId = "qfb-tag-" + arguments[iArg];
+  for (let arg of aArgs) {
+    let nodeId = "qfb-tag-" + arg;
     expected[nodeId] = true;
   }
 
@@ -196,10 +192,8 @@ var nameToTextDomId = {
   body: "qfb-qs-body",
 };
 
-function toggle_text_constraints() {
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    mc.click(mc.eid(nameToTextDomId[arguments[iArg]]));
-  }
+function toggle_text_constraints(...aArgs) {
+  aArgs.forEach(arg => mc.click(mc.eid(nameToTextDomId[arg])));
   fdh.wait_for_all_messages_to_load(mc);
 }
 
@@ -207,10 +201,10 @@ function toggle_text_constraints() {
  * Assert that the text constraint buttons are checked.  Variable-argument
  *  support where the arguments are one of sender/recipients/subject/body.
  */
-function assert_text_constraints_checked() {
+function assert_text_constraints_checked(...aArgs) {
   let expected = {};
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    let nodeId = nameToTextDomId[arguments[iArg]];
+  for (let arg of aArgs) {
+    let nodeId = nameToTextDomId[arg];
     expected[nodeId] = true;
   }
 

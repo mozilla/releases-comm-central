@@ -59,9 +59,9 @@ var glodaIndexerActivity =
     // Register a listener with the Gloda indexer that receives notifications
     // about Gloda indexing status.  We wrap the listener in this function so we
     // can set |this| to the GlodaIndexerActivity object inside the listener.
-    function listenerWrapper()
+    function listenerWrapper(...aArgs)
     {
-      glodaIndexerActivity.listener.apply(glodaIndexerActivity, arguments);
+      glodaIndexerActivity.listener(...aArgs);
     };
     GlodaIndexer.addListener(listenerWrapper);
   },

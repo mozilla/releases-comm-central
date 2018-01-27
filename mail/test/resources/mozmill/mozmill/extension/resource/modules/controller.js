@@ -481,7 +481,7 @@ MozMillController.prototype.mouseEvent = function(aTarget, aOffsetX, aOffsetY,
 
   var element = aTarget.getNode();
   if (!element) {
-    throw new Error(arguments.callee.name + ": could not find element " +
+    throw new Error("mouseEvent: could not find element " +
                     aTarget.getInfo());
   }
 
@@ -499,12 +499,12 @@ MozMillController.prototype.mouseEvent = function(aTarget, aOffsetX, aOffsetY,
   if (aExpectedEvent) {
     // The expected event type has to be set
     if (!aExpectedEvent.type)
-      throw new Error(arguments.callee.name + ": Expected event type not specified");
+      throw new Error("mouseEvent: Expected event type not specified");
 
     // If no target has been specified use the specified element
     var target = aExpectedEvent.target ? aExpectedEvent.target.getNode() : element;
     if (!target) {
-      throw new Error(arguments.callee.name + ": could not find element " +
+      throw new Error("mouseEvent: could not find element " +
                       aExpectedEvent.target.getInfo());
     }
 
@@ -609,9 +609,9 @@ MozMillController.prototype.rightClick = function(elem, left, top, expectedEvent
 /**
  * Synthesize a mouse right click event on the given element (deprecated)
  */
-MozMillController.prototype.rightclick = function(){
+MozMillController.prototype.rightclick = function(...aArgs){
   frame.log({function:'rightclick - Deprecation Warning', message:'Controller.rightclick should be renamed to Controller.rightClick'});
-  this.rightClick.apply(this, arguments);
+  this.rightClick(...aArgs);
 }
 
 /**

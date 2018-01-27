@@ -65,11 +65,11 @@ IndexingJob.prototype = {
    * Invoke the callback associated with this job, passing through all arguments
    *  received by this function to the callback function.
    */
-  safelyInvokeCallback: function() {
+  safelyInvokeCallback: function(...aArgs) {
     if (!this.callback)
       return;
     try {
-      this.callback.apply(this.callbackThis, arguments);
+      this.callback.apply(this.callbackThis, aArgs);
     }
     catch(ex) {
       GlodaIndexer._log.warn("job callback invocation problem:", ex);
@@ -753,8 +753,8 @@ var GlodaIndexer = {
   /**
    * A simple callback driver wrapper to provide 'this'.
    */
-  _wrapCallbackDriver: function gloda_index_wrapCallbackDriver() {
-    GlodaIndexer.callbackDriver.apply(GlodaIndexer, arguments);
+  _wrapCallbackDriver: function gloda_index_wrapCallbackDriver(...aArgs) {
+    GlodaIndexer.callbackDriver(...aArgs);
   },
 
   /**
@@ -774,7 +774,7 @@ var GlodaIndexer = {
    *  and return.  (We use one-shot timers because repeating-slack does not
    *  know enough to deal with our (current) asynchronous nature.)
    */
-  callbackDriver: function gloda_index_callbackDriver() {
+  callbackDriver: function gloda_index_callbackDriver(...aArgs) {
     // just bail if we are shutdown
     if (this._indexerIsShutdown)
       return;
@@ -790,7 +790,7 @@ var GlodaIndexer = {
     //  the iterator when it does bubble up the kWorkAsync, or we can do as we
     //  have been doing, but save the
     if (this._inCallback) {
-      this._savedCallbackArgs = arguments;
+      this._savedCallbackArgs = aArgs;
       this._timer.initWithCallback(this._timerCallbackDriver,
                                    0,
                                    Ci.nsITimer.TYPE_ONE_SHOT);
@@ -813,7 +813,7 @@ var GlodaIndexer = {
         this._savedCallbackArgs = null;
       }
       else
-        args = arguments; //Array.from(arguments);
+        args = aArgs;
 
       let result;
       if (args.length == 0)

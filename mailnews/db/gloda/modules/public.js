@@ -22,8 +22,8 @@ Cu.import("resource:///modules/gloda/index_msg.js");
  * Expose some junk
  */
 function proxy(aSourceObj, aSourceAttr, aDestObj, aDestAttr) {
-  aDestObj[aDestAttr] = function() {
-    return aSourceObj[aSourceAttr].apply(aSourceObj, arguments);
+  aDestObj[aDestAttr] = function(...aArgs) {
+    return aSourceObj[aSourceAttr](...aArgs);
   };
 }
 

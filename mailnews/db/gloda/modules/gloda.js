@@ -370,7 +370,7 @@ var Gloda = {
    *
    * @param aCallbackHandle The GlodaIndexer callback handle (or equivalent)
    *   that you are operating under.
-   * @param ... One or more strings.  Each string can contain zero or more
+   * @param aAddrGroups... One or more strings.  Each string can contain zero or more
    *   e-mail addresses with display name.  If more than one address is given,
    *   they should be comma-delimited.  For example
    *   '"Bob Smith" <bob@example.com>' is an address with display name.  Mime
@@ -381,13 +381,12 @@ var Gloda = {
    *   GlodaIdentity instances corresponding to the addresses provided.
    */
   getOrCreateMailIdentities:
-      function* gloda_ns_getOrCreateMailIdentities(aCallbackHandle) {
+      function* gloda_ns_getOrCreateMailIdentities(aCallbackHandle, ...aAddrGroups) {
     let addresses = {};
     let resultLists = [];
 
     // parse the strings
-    for (let iArg = 1; iArg < arguments.length; iArg++) {
-      let aMailAddresses = arguments[iArg];
+    for (let aMailAddresses of aAddrGroups) {
       let parsed = GlodaUtils.parseMailAddresses(aMailAddresses);
 
       let resultList = [];
@@ -925,11 +924,8 @@ var Gloda = {
       aNounDef.specialLoadAttribs = [];
 
       // - define the 'id' constrainer
-      let idConstrainer = function() {
-        let constraint = [GlodaDatastore.kConstraintIdIn, null];
-        for (let iArg = 0; iArg < arguments.length; iArg++) {
-          constraint.push(arguments[iArg]);
-        }
+      let idConstrainer = function(...aArgs) {
+        let constraint = [GlodaDatastore.kConstraintIdIn, null, ...aArgs];
         this._constraints.push(constraint);
         return this;
       };
@@ -1510,21 +1506,15 @@ var Gloda = {
       let constrainer;
       let canQuery = true;
       if (("special" in aAttrDef) && (aAttrDef.special == this.kSpecialFulltext)) {
-        constrainer = function() {
-          let constraint = [GlodaDatastore.kConstraintFulltext, aAttrDef];
-          for (let iArg = 0; iArg < arguments.length; iArg++) {
-            constraint.push(arguments[iArg]);
-          }
+        constrainer = function(...aArgs) {
+          let constraint = [GlodaDatastore.kConstraintFulltext, aAttrDef, ...aArgs];
           this._constraints.push(constraint);
           return this;
         };
       }
       else if (aAttrDef.canQuery || aAttrDef.attributeName.startsWith("_")) {
-        constrainer = function() {
-          let constraint = [GlodaDatastore.kConstraintIn, aAttrDef];
-          for (let iArg = 0; iArg < arguments.length; iArg++) {
-            constraint.push(arguments[iArg]);
-          }
+        constrainer = function(...aArgs) {
+          let constraint = [GlodaDatastore.kConstraintIn, aAttrDef, ...aArgs];
           this._constraints.push(constraint);
           return this;
         };
@@ -1549,11 +1539,8 @@ var Gloda = {
       // - ranged value helper: fooRange
       if (objectNounDef.continuous) {
         // takes one or more tuples of [lower bound, upper bound]
-        let rangedConstrainer = function() {
-          let constraint = [GlodaDatastore.kConstraintRanges, aAttrDef];
-          for (let iArg = 0; iArg < arguments.length; iArg++ ) {
-            constraint.push(arguments[iArg]);
-          }
+        let rangedConstrainer = function(...aArgs) {
+          let constraint = [GlodaDatastore.kConstraintRanges, aAttrDef, ...aArgs];
           this._constraints.push(constraint);
           return this;
         };
@@ -1566,11 +1553,8 @@ var Gloda = {
       // (it is impossible to store a string as an indexed attribute, which is
       //  why we do this for on-row only.)
       if (("special" in aAttrDef) && (aAttrDef.special == this.kSpecialString)) {
-        let likeConstrainer = function() {
-          let constraint = [GlodaDatastore.kConstraintStringLike, aAttrDef];
-          for (let iArg = 0; iArg < arguments.length; iArg++) {
-            constraint.push(arguments[iArg]);
-          }
+        let likeConstrainer = function(...aArgs) {
+          let constraint = [GlodaDatastore.kConstraintStringLike, aAttrDef, ...aArgs];
           this._constraints.push(constraint);
           return this;
         };
@@ -1586,8 +1570,8 @@ var Gloda = {
           // we need a new closure...
           let helperFunc = helper;
           aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + name] =
-            function() {
-              return helperFunc.call(this, aAttrDef, arguments);
+            function(...aArgs) {
+              return helperFunc.call(this, aAttrDef, ...aArgs);
             };
         }
       }

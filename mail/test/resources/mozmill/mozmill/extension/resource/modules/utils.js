@@ -372,7 +372,7 @@ function assert(callback, message, thisObject) {
   var result = callback.call(thisObject);
 
   if (!result) {
-    throw new Error(message || arguments.callee.name + ": Failed for '" + callback + "'");
+    throw new Error(message || "assert: Failed for '" + callback + "'");
   }
 
   return true;
@@ -443,7 +443,7 @@ function waitFor(callback, message, timeout, interval, thisObject) {
   hwindow.clearInterval(timeoutInterval);
 
   if (self.counter >= timeout) {
-    message = message || arguments.callee.name + ": Timeout exceeded for '" + callback + "'";
+    message = message || "waitFor: Timeout exceeded for '" + callback + "'";
     throw new TimeoutError(message);
   }
 
@@ -456,7 +456,7 @@ function waitFor(callback, message, timeout, interval, thisObject) {
 function waitForEval(expression, timeout, interval, subject) {
   waitFor(function() {
     return eval(expression);
-  }, arguments.callee.name + ": Timeout exceeded for '" + expression + "'", timeout, interval);
+  }, "waitForEval: Timeout exceeded for '" + expression + "'", timeout, interval);
 
   return true;
 }

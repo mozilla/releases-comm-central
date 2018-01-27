@@ -143,9 +143,9 @@ function test_stream_message(info) {
 // instrument GlodaFundAttr so we can check the count
 var originalWhittler = GlodaFundAttr.contentWhittle;
 var whittleCount = 0;
-GlodaFundAttr.contentWhittle = function whittler_counter() {
+GlodaFundAttr.contentWhittle = function(...aArgs) {
   whittleCount++;
-  return originalWhittler.apply(this, arguments);
+  return originalWhittler.apply(this, aArgs);
 };
 
 function verify_message_content(aInfo, aSynMsg, aGlodaMsg, aMsgHdr, aMimeMsg) {

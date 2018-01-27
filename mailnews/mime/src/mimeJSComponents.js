@@ -502,8 +502,8 @@ MimeConverter.prototype = {
 
   // This is identical to the above, except for factors that are handled by the
   // xpconnect conversion process
-  decodeMimeHeaderToUTF8: function () {
-    return this.decodeMimeHeader.apply(this, arguments);
+  decodeMimeHeaderToUTF8: function (...aArgs) {
+    return this.decodeMimeHeader(...aArgs);
   },
 };
 

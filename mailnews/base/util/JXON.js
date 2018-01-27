@@ -165,11 +165,11 @@ var JXON = new (function() {
   };
 
   this.build = function(oXMLParent, nVerbosity /* optional */, bFreeze /* optional */, bNesteAttributes /* optional */) {
-    const _nVerb = arguments.length > 1 &&
+    const _nVerb =
         typeof nVerbosity === "number" ? nVerbosity & 3 :
         /* put here the default verbosity level: */ 1;
     return createObjTree(oXMLParent, _nVerb, bFreeze || false,
-        arguments.length > 3 ? bNesteAttributes : _nVerb === 3);
+        (bNesteAttributes !== undefined) ? bNesteAttributes : _nVerb === 3);
   };
 
   this.unbuild = function(oObjTree) {

@@ -150,9 +150,8 @@ function assert_view_row_count(aCount) {
  * Throw if any of the arguments (as view indices) do not correspond to dummy
  *  rows in gDBView.
  */
-function assert_view_index_is_dummy() {
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    let viewIndex = arguments[iArg];
+function assert_view_index_is_dummy(...aArgs) {
+  for (let viewIndex of aArgs) {
     let flags = gDBView.getFlagsAt(viewIndex);
     if (!(flags & MSG_VIEW_FLAG_DUMMY))
       view_throw("Expected index " + viewIndex + " to be a dummy!");
@@ -163,9 +162,8 @@ function assert_view_index_is_dummy() {
  * Throw if any of the arguments (as view indices) correspond to dummy rows in
  *  gDBView.
  */
-function assert_view_index_is_not_dummy() {
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    let viewIndex = arguments[iArg];
+function assert_view_index_is_not_dummy(...aArgs) {
+  for (let viewIndex of aArgs) {
     let flags = gDBView.getFlagsAt(viewIndex);
     if (flags & MSG_VIEW_FLAG_DUMMY)
       view_throw("Expected index " + viewIndex + " to not be a dummy!");
@@ -185,10 +183,9 @@ function assert_view_level_is(index, level) {
  *  assert_view_message_at_indices(synMsg, 0, 1);
  *  assert_view_message_at_indices(aMsg, 0, bMsg, 1);
  */
-function assert_view_message_at_indices() {
+function assert_view_message_at_indices(...aArgs) {
   let curHdr;
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    let thing = arguments[iArg];
+  for (let thing of aArgs) {
     if (typeof(thing) == "number") {
       let hdrAt = gDBView.getMsgHdrAt(thing);
       if (curHdr != hdrAt) {

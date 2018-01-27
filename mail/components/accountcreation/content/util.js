@@ -26,10 +26,7 @@ function assert(test, errorMsg)
 
 function makeCallback(obj, func)
 {
-  return function()
-  {
-    return func.apply(obj, arguments);
-  }
+  return func.bind(obj);
 }
 
 

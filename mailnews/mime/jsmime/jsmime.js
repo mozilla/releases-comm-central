@@ -2020,9 +2020,8 @@ MimeParser.prototype.deliverEOF = function () {
  * @param funcname {String} The function name to call on the emitter.
  * @param args...           Extra arguments to pass into the emitter callback.
  */
-MimeParser.prototype._callEmitter = function (funcname) {
+MimeParser.prototype._callEmitter = function (funcname, ...args) {
   if (this._emitter && funcname in this._emitter) {
-    let args = Array.prototype.splice.call(arguments, 1);
     if (args.length > 0 && this._willIgnorePart(args[0])) {
       // partNum is always the first argument, so check to make sure that it
       // satisfies our emitter's pruneat requirement.

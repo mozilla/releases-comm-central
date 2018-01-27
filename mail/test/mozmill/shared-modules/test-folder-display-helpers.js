@@ -393,8 +393,8 @@ function create_folder(aFolderName, aSpecialFlags) {
  * Create a virtual folder by deferring to |make_virtual_folder| and making
  *  sure to rebuild the folder tree afterwards.
  */
-function create_virtual_folder() {
-  let folder = testHelperModule.make_virtual_folder.apply(null, arguments);
+function create_virtual_folder(...aArgs) {
+  let folder = testHelperModule.make_virtual_folder(...aArgs);
   mc.folderTreeView.mode = "all";
   return folder;
 }
@@ -1729,12 +1729,11 @@ var FolderListener = {
 
   sawEvents: false,
   watchingFor: null,
-  planToWaitFor: function FolderListener_planToWaitFor() {
+  planToWaitFor: function FolderListener_planToWaitFor(...aArgs) {
     this.sawEvents = false;
-    this.watchingFor = [];
-    for (let i = 0; i < arguments.length; i++)
-      this.watchingFor[i] = arguments[i];
+    this.watchingFor = aArgs;
   },
+
   waitForEvents: function FolderListener_waitForEvents() {
     if (this.sawEvents)
       return;
@@ -1774,9 +1773,9 @@ var FolderListener = {
  *  triggers us.  It is expected that you won't try and have multiple events
  *  in-flight or will augment us when the time comes to have to deal with that.
  */
-function plan_to_wait_for_folder_events() {
+function plan_to_wait_for_folder_events(...aArgs) {
   FolderListener.ensureInited();
-  FolderListener.planToWaitFor.apply(FolderListener, arguments);
+  FolderListener.planToWaitFor(...aArgs);
 }
 function wait_for_folder_events() {
   FolderListener.waitForEvents();
@@ -1902,12 +1901,11 @@ function toggle_message_pane() {
  *
  * @return A list of two elements: [MozmillController, [list of view indices]].
  */
-function _process_row_message_arguments() {
+function _process_row_message_arguments(...aArgs) {
   let troller = mc;
   // - normalize into desired selected view indices
   let desiredIndices = [];
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    let arg = arguments[iArg];
+  for (let arg of aArgs) {
     // An integer identifying a view index
     if (typeof(arg) == "number") {
       desiredIndices.push(_normalize_view_index(arg));
@@ -1984,9 +1982,9 @@ function _process_row_message_arguments() {
  * - A list of message headers.
  * - A synthetic message set.
  */
-function assert_selected() {
+function assert_selected(...aArgs) {
   let [troller, desiredIndices] =
-    _process_row_message_arguments.apply(this, arguments);
+    _process_row_message_arguments(...aArgs);
 
   // - get the actual selection (already sorted by integer value)
   let selectedIndices = troller.folderDisplay.selectedIndices;
@@ -2013,9 +2011,9 @@ function assert_selected() {
  * - A message header.
  * - A list of message headers.
  */
-function assert_displayed() {
+function assert_displayed(...aArgs) {
   let [troller, desiredIndices] =
-    _process_row_message_arguments.apply(this, arguments);
+    _process_row_message_arguments(...aArgs);
   _internal_assert_displayed(false, troller, desiredIndices);
 }
 
@@ -2124,9 +2122,9 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
  * - A message header.
  * - A list of message headers.
  */
-function assert_selected_and_displayed() {
+function assert_selected_and_displayed(...aArgs) {
   // make sure the selection is right first.
-  let [troller, desiredIndices] = assert_selected.apply(this, arguments);
+  let [troller, desiredIndices] = assert_selected(...aArgs);
   // now make sure the display is right
   _internal_assert_displayed(true, troller, desiredIndices);
 }
@@ -2247,9 +2245,9 @@ function assert_not_shown(aMessages) {
  * @param aArgs Arguments of the form processed by
  *     |_process_row_message_arguments|.
  */
-function _assert_elided_helper(aShouldBeElided, aArgs) {
+function _assert_elided_helper(aShouldBeElided, ...aArgs) {
   let [troller, viewIndices] =
-    _process_row_message_arguments.apply(this, aArgs);
+    _process_row_message_arguments(...aArgs);
 
   let dbView = troller.dbView;
   for (let viewIndex of viewIndices) {
@@ -2265,16 +2263,16 @@ function _assert_elided_helper(aShouldBeElided, aArgs) {
  * Assert that all of the messages at the given view indices are collapsed.
  * Arguments should be of the type accepted by |assert_selected_and_displayed|.
  */
-function assert_collapsed() {
-  _assert_elided_helper(true, arguments);
+function assert_collapsed(...aArgs) {
+  _assert_elided_helper(true, ...aArgs);
 }
 
 /**
  * Assert that all of the messages at the given view indices are expanded.
  * Arguments should be of the type accepted by |assert_selected_and_displayed|.
  */
-function assert_expanded() {
-  _assert_elided_helper(false, arguments);
+function assert_expanded(...aArgs) {
+  _assert_elided_helper(false, ...aArgs);
 }
 
 /**
@@ -2454,12 +2452,11 @@ function _normalize_folder_view_index(aViewIndex, aController) {
  * Helper function for use by assert_folders_selected /
  * assert_folders_selected_and_displayed / assert_folder_displayed.
  */
-function _process_row_folder_arguments() {
+function _process_row_folder_arguments(...aArgs) {
   let troller = mc;
   // - normalize into desired selected view indices
   let desiredFolders = [];
-  for (let iArg = 0; iArg < arguments.length; iArg++) {
-    let arg = arguments[iArg];
+  for (let arg of aArgs) {
     // An integer identifying a view index
     if (typeof(arg) == "number") {
       let folder = troller.folderTreeView.getFolderForIndex(
@@ -2514,9 +2511,9 @@ function _process_row_folder_arguments() {
  * - An nsIMsgFolder.
  * - A list of nsIMsgFolders.
  */
-function assert_folders_selected() {
+function assert_folders_selected(...aArgs) {
   let [troller, desiredFolders] =
-    _process_row_folder_arguments.apply(this, arguments);
+    _process_row_folder_arguments(...aArgs);
 
   // - get the actual selection (already sorted by integer value)
   let selectedFolders = troller.folderTreeView.getSelectedFolders();
@@ -2552,9 +2549,9 @@ var assert_folder_selected = assert_folders_selected;
  * In each case, since we can only have one folder displayed, we only look at
  * the first folder you pass in.
  */
-function assert_folder_displayed() {
+function assert_folder_displayed(...aArgs) {
   let [troller, desiredFolders] =
-    _process_row_folder_arguments.apply(this, arguments);
+    _process_row_folder_arguments(...aArgs);
   if (troller.folderDisplay.displayedFolder != desiredFolders[0])
     mark_failure(["The displayed folder should be", desiredFolders[0],
                   "but is actually", troller.folderDisplay.displayedFolder]);
@@ -2575,9 +2572,8 @@ function assert_folder_displayed() {
  * - An nsIMsgFolder.
  * - A list of nsIMsgFolders.
  */
-function assert_folders_selected_and_displayed() {
-  let [troller, desiredFolders] = assert_folders_selected.apply(this,
-                                                                arguments);
+function assert_folders_selected_and_displayed(...aArgs) {
+  let [troller, desiredFolders] = assert_folders_selected(...aArgs);
   if (desiredFolders.length > 0) {
       if (troller.folderDisplay.displayedFolder != desiredFolders[0])
         mark_failure(["The displayed folder should be", desiredFolders[0],

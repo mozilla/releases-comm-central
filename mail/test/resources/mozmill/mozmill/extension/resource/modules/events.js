@@ -133,12 +133,12 @@ var triggerKeyEvent = function(element, eventType, aKey, modifiers, expectedEven
   if (expectedEvent) {
     // The expected event type has to be set
     if (!expectedEvent.type)
-      throw new Error(arguments.callee.name + ": Expected event type not specified");
+      throw new Error("triggerKeyEvent: Expected event type not specified");
 
     // If no target has been specified use the specified element
     var target = expectedEvent.target ? expectedEvent.target.getNode() : element;
     if (!target) {
-      throw new Error(arguments.callee.name + ": could not find element " +
+      throw new Error("triggerKeyEvent: could not find element " +
                       expectedEvent.target.getInfo());
     }
 

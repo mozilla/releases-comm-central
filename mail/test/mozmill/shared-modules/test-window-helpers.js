@@ -1418,17 +1418,17 @@ function _augment_helper(aController, aAugmentDef) {
       let traceFunc;
       if (traceDef.hasOwnProperty("doBefore")) {
         let beforeFunc = traceDef.doBefore;
-        traceFunc = function() {
-          beforeFunc.apply(useThis ? this : baseObj, arguments);
-          return origFunc.apply(this, arguments);
+        traceFunc = function(...aArgs) {
+          beforeFunc.apply(useThis ? this : baseObj, aArgs);
+          return origFunc.apply(this, aArgs);
         }
       }
       else {
-        traceFunc = function() {
+        traceFunc = function(...aArgs) {
           mark_action("winhelp", reportAs,
-                      showArgs ? Array.from(arguments) : []);
+                      showArgs ? aArgs : []);
           try {
-            return origFunc.apply(this, arguments);
+            return origFunc.apply(this, aArgs);
           }
           catch(ex) {
             mark_failure(["exception in", reportAs, "ex:", ex]);

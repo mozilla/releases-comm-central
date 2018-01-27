@@ -174,16 +174,16 @@ GlodaDatabind.prototype = {
     }
   },
 
-  adjustAttributes: function() {
+  adjustAttributes: function(...aArgs) {
     // just proxy the call over to the datastore... we have to do this for
     //  'this' reasons.  we don't refactor things to avoid this because it does
     //  make some sense to have all the methods exposed from a single object,
     //  even if the implementation does live elsewhere.
-    return this._datastore.adjustAttributes.apply(this._datastore, arguments);
+    return this._datastore.adjustAttributes(...aArgs);
   },
 
   // also proxied...
-  queryFromQuery: function() {
-    return this._datastore.queryFromQuery.apply(this._datastore, arguments);
+  queryFromQuery: function(...aArgs) {
+    return this._datastore.queryFromQuery(...aArgs);
   }
 };

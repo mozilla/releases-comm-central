@@ -205,43 +205,43 @@ function _prepareIndexerForTesting() {
 if (logHelperHasInterestedListeners) {
   let msgNounDef = GlodaMessage.prototype.NOUN_DEF;
   let orig_insertMessage = GlodaDatastore.insertMessage;
-  GlodaDatastore.insertMessage = msgNounDef.objInsert = function() {
-    mark_action("glodaWrapped", "insertMessage", [arguments[0]]);
-    return orig_insertMessage.apply(GlodaDatastore, arguments);
+  GlodaDatastore.insertMessage = msgNounDef.objInsert = function(...aArgs) {
+    mark_action("glodaWrapped", "insertMessage", [aArgs[0]]);
+    return orig_insertMessage.apply(GlodaDatastore, aArgs);
   };
 
   let orig_updateMessage = GlodaDatastore.updateMessage;
-  GlodaDatastore.updateMessage = msgNounDef.objUpdate = function() {
-    mark_action("glodaWrapped", "updateMessage", [arguments[0]]);
-    return orig_updateMessage.apply(GlodaDatastore, arguments);
+  GlodaDatastore.updateMessage = msgNounDef.objUpdate = function(...aArgs) {
+    mark_action("glodaWrapped", "updateMessage", [aArgs[0]]);
+    return orig_updateMessage.apply(GlodaDatastore, aArgs);
   };
 
   let orig__messageFromRow = GlodaDatastore._messageFromRow;
-  GlodaDatastore._messageFromRow = msgNounDef.objFromRow = function() {
-    let rv = orig__messageFromRow.apply(GlodaDatastore, arguments);
+  GlodaDatastore._messageFromRow = msgNounDef.objFromRow = function(...aArgs) {
+    let rv = orig__messageFromRow.apply(GlodaDatastore, aArgs);
     mark_action("glodaWrapped", "_messageFromRow", [rv]);
     return rv;
   };
 
   let orig_updateMessageLocations = GlodaDatastore.updateMessageLocations;
-  GlodaDatastore.updateMessageLocations = function() {
+  GlodaDatastore.updateMessageLocations = function(...aArgs) {
     mark_action("glodaWrapped", "updateMessageLocations",
-                ["ids", arguments[0], "keys", arguments[1], "dest folder",
-                 arguments[2], "do not notify?", arguments[3]]);
-    orig_updateMessageLocations.apply(GlodaDatastore, arguments);
+                ["ids", aArgs[0], "keys", aArgs[1], "dest folder",
+                 aArgs[2], "do not notify?", aArgs[3]]);
+    orig_updateMessageLocations.apply(GlodaDatastore, aArgs);
   };
   let orig_updateMessageKeys = GlodaDatastore.updateMessageKeys;
-  GlodaDatastore.updateMessageKeys = function() {
+  GlodaDatastore.updateMessageKeys = function(...aArgs) {
     mark_action("glodaWrapped", "updateMessageKeys"
-                ["ids", arguments[0], "keys", arguments[1]]);
-    orig_updateMessageKeys.apply(GlodaDatastore, arguments);
+                ["ids", aArgs[0], "keys", aArgs[1]]);
+    orig_updateMessageKeys.apply(GlodaDatastore, aArgs);
   }
 
   /* also, let us see the results of cache lookups so we can know if we are
      performing cache unification when a load occurs. */
   let orig_cacheLookupOne = GlodaCollectionManager.cacheLookupOne;
-  GlodaCollectionManager.cacheLookupOne = function() {
-    let rv = orig_cacheLookupOne.apply(GlodaCollectionManager, arguments);
+  GlodaCollectionManager.cacheLookupOne = function(...aArgs) {
+    let rv = orig_cacheLookupOne.apply(GlodaCollectionManager, aArgs);
     mark_action("glodaWrapped", "cacheLookupOne", ["hit?", rv !== null]);
     return rv;
   }
@@ -996,15 +996,15 @@ function queryExpect(aQuery, aExpectedSet, aGlodaExtractor,
  *
  * We run the statement asynchronously to get a consistent view of the database.
  */
-function sqlExpectCount(aExpectedCount, aSQLString /* ... params */) {
+function sqlExpectCount(aExpectedCount, aSQLString, ...params) {
   let conn = GlodaDatastore.asyncConnection;
   let stmt = conn.createStatement(aSQLString);
 
-  for (let iArg = 2; iArg < arguments.length; iArg++) {
-    GlodaDatastore._bindVariant(stmt, iArg-2, arguments[iArg]);
+  for (let iArg = 0; iArg < params.length; iArg++) {
+    GlodaDatastore._bindVariant(stmt, iArg, params[iArg]);
   }
 
-  let desc = Array.prototype.slice.call(arguments, 1);
+  let desc = [aSQLString, ...params];
   mark_action("glodaTestHelper", "running SQL count", desc);
   stmt.executeAsync(new _SqlExpectationListener(aExpectedCount, desc,
                                                 Components.stack.caller));
@@ -1100,8 +1100,8 @@ function wait_for_gloda_db_flush() {
 var _gloda_simulate_hang_data = null;
 var _gloda_simulate_hang_waiting_for_hang = false;
 
-function _simulate_hang_on_MsgHdrToMimeMessage() {
-  _gloda_simulate_hang_data = [MsgHdrToMimeMessage, null, arguments];
+function _simulate_hang_on_MsgHdrToMimeMessage(...aArgs) {
+  _gloda_simulate_hang_data = [MsgHdrToMimeMessage, null, aArgs];
   if (_gloda_simulate_hang_waiting_for_hang)
     async_driver();
 }

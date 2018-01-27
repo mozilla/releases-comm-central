@@ -57,13 +57,13 @@ for (let name of Object.getOwnPropertyNames(Date.prototype)) {
     // current ES6 implementations reuse the bindings. Until implementations
     // catch up, use a new let to bind it freshly.
     let boundName = name;
-    Object.defineProperty(MockDate.prototype, name, { value: function () {
-      return Date.prototype[boundName].call(this._realDate, arguments);
+    Object.defineProperty(MockDate.prototype, name, { value: function(...aArgs) {
+      return Date.prototype[boundName].call(this._realDate, aArgs);
     }});
   } else {
     let newName = 'getUTC' + name.substr(3);
-    Object.defineProperty(MockDate.prototype, name, { value: function () {
-      return Date.prototype[newName].call(this._shiftedDate, arguments);
+    Object.defineProperty(MockDate.prototype, name, { value: function(...aArgs) {
+      return Date.prototype[newName].call(this._shiftedDate, aArgs);
     }});
   }
 }

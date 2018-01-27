@@ -385,8 +385,8 @@ function subclass(sub, sup, def) {
     sub.prototype[obj] = def[obj];
   }
 }
-function subconstructor(sub, sup) {
-  sup.apply(sub, Array.prototype.slice.call(arguments, 2));
+function subconstructor(sub, sup, ...aArgs) {
+  sup.apply(sub, aArgs);
   sub.parent = new Proxy(sub, {
     get: function (target, name) {
       let res = sup.prototype[name];

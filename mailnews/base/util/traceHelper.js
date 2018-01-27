@@ -67,16 +67,15 @@ var DebugTraceHelper = {
           continue;
         let name = key;
         let prev = aObj[name];
-        aObj[name] = function() {
+        aObj[name] = function(...aArgs) {
           let argstr = "";
-          for (let i = 0; i < arguments.length; i++) {
-            let arg = arguments[i];
+          for (let arg of aArgs) {
             if (arg == null)
               argstr += " null";
             else if (typeof(arg) == "function")
               argstr += " function "+ arg.name;
             else
-              argstr += " " + arguments[i].toString();
+              argstr += " " + arg.toString();
           }
 
           let indent = SPACES.substr(0, aContext.depth++ * 2);
@@ -85,7 +84,7 @@ var DebugTraceHelper = {
                STOP_COLORS + "\n");
           let ret;
           try {
-            ret = prev.apply(this, arguments);
+            ret = prev.apply(this, aArgs);
           }
           catch (ex) {
             if (ex.stack) {

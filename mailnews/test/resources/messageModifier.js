@@ -232,16 +232,13 @@ SyntheticMessageSet.prototype = {
    * Slice the message set using the exact Array.prototype.slice semantics
    * (because we call Array.prototype.slice).
    */
-  slice: function() {
-    let slicedMessages = this.synMessages.slice.apply(this.synMessages,
-                                                      arguments);
-    let slicedIndices = this.folderIndices.slice.apply(this.folderIndices,
-                                                       arguments);
+  slice: function(...aArgs) {
+    let slicedMessages = this.synMessages.slice(...aArgs);
+    let slicedIndices = this.folderIndices.slice(...aArgs);
     let sliced = new SyntheticMessageSet(slicedMessages, this.msgFolders,
                                          slicedIndices);
     if (("glodaMessages" in this) && this.glodaMessages)
-      sliced.glodaMessages = this.glodaMessages.slice.apply(this.glodaMessages,
-                                                            arguments);
+      sliced.glodaMessages = this.glodaMessages.slice(...aArgs);
     return sliced;
   }
 };

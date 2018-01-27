@@ -234,8 +234,8 @@ SyntheticPartMulti.prototype.BOUNDARY_COUNTER_HOME = SyntheticPartMulti.prototyp
 /**
  * Multipart mixed (multipart/mixed) MIME part.
  */
-function SyntheticPartMultiMixed() {
-  SyntheticPartMulti.apply(this, arguments);
+function SyntheticPartMultiMixed(...aArgs) {
+  SyntheticPartMulti.apply(this, aArgs);
 }
 SyntheticPartMultiMixed.prototype = {
   __proto__: SyntheticPartMulti.prototype,
@@ -245,8 +245,8 @@ SyntheticPartMultiMixed.prototype = {
 /**
  * Multipart mixed (multipart/mixed) MIME part.
  */
-function SyntheticPartMultiParallel() {
-  SyntheticPartMulti.apply(this, arguments);
+function SyntheticPartMultiParallel(...aArgs) {
+  SyntheticPartMulti.apply(this, aArgs);
 }
 SyntheticPartMultiParallel.prototype = {
   __proto__: SyntheticPartMulti.prototype,
@@ -256,8 +256,8 @@ SyntheticPartMultiParallel.prototype = {
 /**
  * Multipart digest (multipart/digest) MIME part.
  */
-function SyntheticPartMultiDigest() {
-  SyntheticPartMulti.apply(this, arguments);
+function SyntheticPartMultiDigest(...aArgs) {
+  SyntheticPartMulti.apply(this, aArgs);
 }
 SyntheticPartMultiDigest.prototype = {
   __proto__: SyntheticPartMulti.prototype,
@@ -267,8 +267,8 @@ SyntheticPartMultiDigest.prototype = {
 /**
  * Multipart alternative (multipart/alternative) MIME part.
  */
-function SyntheticPartMultiAlternative() {
-  SyntheticPartMulti.apply(this, arguments);
+function SyntheticPartMultiAlternative(...aArgs) {
+  SyntheticPartMulti.apply(this, aArgs);
 }
 SyntheticPartMultiAlternative.prototype = {
   __proto__: SyntheticPartMulti.prototype,
@@ -278,8 +278,8 @@ SyntheticPartMultiAlternative.prototype = {
 /**
  * Multipart related (multipart/related) MIME part.
  */
-function SyntheticPartMultiRelated() {
-  SyntheticPartMulti.apply(this, arguments);
+function SyntheticPartMultiRelated(...aArgs) {
+  SyntheticPartMulti.apply(this, aArgs);
 }
 SyntheticPartMultiRelated.prototype = {
   __proto__: SyntheticPartMulti.prototype,

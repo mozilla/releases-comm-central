@@ -476,10 +476,9 @@ function verify_view_level_histogram(aExpectedHisto, aViewWrapper) {
  * @param aViewWrapper The view wrapper in question
  * @param ... View indices to check.
  */
-function verify_view_row_at_index_is_container(aViewWrapper) {
+function verify_view_row_at_index_is_container(aViewWrapper, ...aArgs) {
   let treeView = aViewWrapper.dbView.QueryInterface(Ci.nsITreeView);
-  for (let iArg = 1; iArg < arguments.length; iArg++) {
-    let viewIndex = arguments[iArg];
+  for (let viewIndex of aArgs) {
     if (!treeView.isContainer(viewIndex)) {
       dump_view_state(aViewWrapper);
       do_throw("Expected isContainer to be true at view index " + viewIndex);
@@ -494,9 +493,8 @@ function verify_view_row_at_index_is_container(aViewWrapper) {
  * @param aViewWrapper The view wrapper in question
  * @param ... View indices to check.
  */
-function verify_view_row_at_index_is_dummy(aViewWrapper) {
-  for (let iArg = 1; iArg < arguments.length; iArg++) {
-    let viewIndex = arguments[iArg];
+function verify_view_row_at_index_is_dummy(aViewWrapper, ...aArgs) {
+  for (let viewIndex of aArgs) {
     let flags = aViewWrapper.dbView.getFlagsAt(viewIndex);
     if (!(flags & MSG_VIEW_FLAG_DUMMY)) {
       dump_view_state(aViewWrapper);
