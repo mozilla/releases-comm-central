@@ -5,13 +5,23 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE dialog [
-<!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
+<!ENTITY % customizeToolbarDTD SYSTEM
+#ifdef MOZ_SUITE
+  "chrome://communicator/locale/customizeToolbar.dtd">
+#else
+  "chrome://messenger/locale/customizeToolbar.dtd">
+#endif
   %customizeToolbarDTD;
 ]>
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+#ifdef MOZ_SUITE
+<?xml-stylesheet href="chrome://communicator/content/customizeToolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://communicator/skin/customizeToolbar.css" type="text/css"?>
+#else
 <?xml-stylesheet href="chrome://messenger/content/customizeToolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/customizeToolbar.css" type="text/css"?>
+#endif
 
 <window id="CustomizeToolbarWindow"
         title="&dialog.title;"
@@ -21,9 +31,13 @@
         persist="width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+#ifdef MOZ_SUITE
+<script type="application/javascript" src="chrome://communicator/content/customizeToolbar.js"/>
+<stringbundle id="stringBundle" src="chrome://communicator/locale/customizeToolbar.properties"/>
+#else
 <script type="application/javascript" src="chrome://messenger/content/customizeToolbar.js"/>
-
 <stringbundle id="stringBundle" src="chrome://messenger/locale/customizeToolbar.properties"/>
+#endif
 
 <keyset id="CustomizeToolbarKeyset">
   <key id="cmd_close1" keycode="VK_ESCAPE" oncommand="onClose();"/>
