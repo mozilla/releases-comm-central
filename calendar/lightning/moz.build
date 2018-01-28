@@ -10,14 +10,17 @@ DIRS += [
     '../import-export',
     '../itip',
     'components',
-    'locales',
+    '../locales',
     'modules',
 ]
 
 TEST_DIRS += ['../test']
 
-XPI_NAME = 'lightning'
-export('XPI_NAME')
+if CONFIG['NIGHTLY_BUILD']:
+    DIST_SUBDIR = 'extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
+else:
+    DIST_SUBDIR = 'distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
+export('DIST_SUBDIR')
 
 FINAL_TARGET_PP_FILES += [
     'app.ini',

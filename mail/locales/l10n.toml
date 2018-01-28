@@ -101,6 +101,9 @@ locales = [
 [[includes]]
     path = "{mozilla}/toolkit/locales/l10n.toml"
 
+[[includes]]
+    path = "calendar/locales/l10n.toml"
+
 [[paths]]
     reference = "{mozilla}/devtools/startup/locales/en-US/**"
     l10n = "{l}devtools/startup/**"

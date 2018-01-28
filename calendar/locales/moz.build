@@ -4,3 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 JAR_MANIFESTS += ['jar.mn']
+
+LOCALIZED_PP_FILES.defaults.preferences += [
+    'en-US/lightning-l10n.js'
+]

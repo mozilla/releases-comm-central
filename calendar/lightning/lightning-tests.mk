@@ -5,14 +5,7 @@
 PKG_STAGE = $(DIST)/test-stage
 
 # This is the target that should be called externally
-stage-package: stage-extension stage-mozmill
-
-# stage the extension, avoiding per-platform differences so that the mac unify
-# target works.
-stage-extension:
-	$(NSINSTALL) -D $(PKG_STAGE)/extensions/$(XPI_EM_ID)
-	(cd $(FINAL_TARGET) && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/extensions/$(XPI_EM_ID) && tar -xf -)
-	grep -v em:targetPlatform $(FINAL_TARGET)/install.rdf > $(PKG_STAGE)/extensions/$(XPI_EM_ID)/install.rdf
+stage-package: stage-mozmill
 
 # stage mozmill tests and shared modules. Cross your fingers that there are no
 # name conflicts between calendar/ and mail/

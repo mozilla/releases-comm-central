@@ -23,10 +23,6 @@ source-package::
 
 upload::
 	@$(MAKE) -C $(commtopobjdir)/mail/installer upload
-ifdef MOZ_CALENDAR
-	@$(MAKE) -C $(commtopobjdir)/calendar/lightning upload
-	@$(MAKE) -C $(commtopobjdir)/calendar/providers/gdata upload
-endif
 
 source-upload::
 	@$(MAKE) -C $(commtopobjdir)/mail/installer source-upload

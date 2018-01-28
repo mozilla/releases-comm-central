@@ -34,3 +34,9 @@ calendar-@AB_CD@.jar:
     locale/@AB_CD@/calendar/dialogs/calendar-event-dialog-reminder.dtd  (%chrome/calendar/dialogs/calendar-event-dialog-reminder.dtd)
     locale/@AB_CD@/calendar/calendar-event-dialog-attendees.properties  (%chrome/calendar/calendar-event-dialog-attendees.properties)
     locale/@AB_CD@/calendar/calendar-extract.properties  (%chrome/calendar/calendar-extract.properties)
+
+lightning-@AB_CD@.jar:
+% locale lightning @AB_CD@ %locale/@AB_CD@/lightning/
+  locale/@AB_CD@/lightning/lightning.dtd         (%chrome/lightning/lightning.dtd)
+  locale/@AB_CD@/lightning/lightning-toolbar.dtd (%chrome/lightning/lightning-toolbar.dtd)
+  locale/@AB_CD@/lightning/lightning.properties  (%chrome/lightning/lightning.properties)

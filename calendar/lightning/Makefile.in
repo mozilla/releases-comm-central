@@ -42,16 +42,6 @@ ifdef MOZ_SOURCE_REPO
 DEFINES += -DMOZ_SOURCE_REPO='$(MOZ_SOURCE_REPO)'
 endif
 
-ifdef NIGHTLY_BUILD
-# On nightly builds, install as a global extension in
-# dist/bin/extensions/
-XPI_INSTALL_EXTENSION = $(XPI_EM_ID)
-else
-# For beta and release builds, install as a distribution extension in
-# dist/bin/distribution/extensions/
-INSTALL_EXTENSION_ID = $(XPI_EM_ID)
-endif
-
 DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
            -DTHUNDERBIRD_MAXVERSION=$(THUNDERBIRD_MAXVERSION) \
            -DSEAMONKEY_VERSION=$(SEAMONKEY_VERSION) \
@@ -68,16 +58,7 @@ LOCALE_RELATIVEDIR=calendar/lightning
 
 include $(moztopsrcdir)/config/rules.mk
 include $(srcdir)/versions.mk
-include $(srcdir)/lightning-packager.mk
 include $(srcdir)/lightning-tests.mk
-
-# For Lightning, we also need to preprocess the l10n prefs. Pull in the en-US
-# copy if the files doesn't exist.
-repack-process-extrafiles: lightning-extrafiles
-lightning-extrafiles: LTN_ABCD_L10NJS=$(call EXPAND_LOCALE_SRCDIR,calendar/locales)/lightning-l10n.js
-lightning-extrafiles: LTN_ANY_L10NJS=$(if $(wildcard $(LTN_ABCD_L10NJS)),$(LTN_ABCD_L10NJS),$(commtopsrcdir)/calendar/locales/en-US/lightning-l10n.js)
-lightning-extrafiles:
-	$(call py_action,preprocessor,$(PREF_PPFLAGS) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) $(LTN_ANY_L10NJS) -o $(DIST)/xpi-stage/$(L10N_XPI_NAME)/$(PREF_DIR)/lightning-l10n.js)
 
 ident:
 	@printf 'comm_revision '
