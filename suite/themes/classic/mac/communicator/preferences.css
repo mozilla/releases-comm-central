@@ -64,11 +64,11 @@ radio[pane]:active:hover > .paneButtonIcon {
 }
 
 radio[pane][selected="true"] {
-  -moz-border-image: url("chrome://global/skin/icons/panebutton-active.png") 0 2 fill repeat stretch;
+  border-image: url("chrome://communicator/skin/icons/panebutton-active.png") 0 2 fill repeat stretch;
 }
 
 radio[pane][selected="true"]:-moz-window-inactive {
-  -moz-border-image: url("chrome://global/skin/icons/panebutton-inactive.png") 0 2 fill repeat stretch;
+  border-image: url("chrome://communicator/skin/icons/panebutton-inactive.png") 0 2 fill repeat stretch;
 }
 
 .paneButtonLabel {
