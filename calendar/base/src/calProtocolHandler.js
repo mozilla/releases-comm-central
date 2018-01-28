@@ -31,11 +31,13 @@ calProtocolHandler.prototype = {
     get protocolFlags() { return this.mHttpProtocol.protocolFlags; },
 
     newURI: function(aSpec, anOriginalCharset, aBaseURI) {
-        let uri = Components.classes["@mozilla.org/network/standard-url;1"]
-                            .createInstance(Components.interfaces.nsIStandardURL);
-        uri.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD,
-                 this.mHttpProtocol.defaultPort, aSpec, anOriginalCharset, aBaseURI);
-        return uri;
+        return Components.classes["@mozilla.org/network/standard-url-mutator;1"]
+                         .createInstance(Components.interfaces.nsIStandardURLMutator)
+                         .init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD,
+                               this.mHttpProtocol.defaultPort,
+                               aSpec, anOriginalCharset, aBaseURI)
+                         .finalize()
+                         .QueryInterface(Components.interfaces.nsIStandardURL);
     },
 
     newChannel: function(aUri) {

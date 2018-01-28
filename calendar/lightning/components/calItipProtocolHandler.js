@@ -76,11 +76,12 @@ ItipProtocolHandler.prototype = {
     allowPort: () => false,
     isSecure: false,
     newURI: function(spec, charSet, baseURI) {
-        let cls = Components.classes["@mozilla.org/network/standard-url;1"];
-        let url = cls.createInstance(Ci.nsIStandardURL);
-        url.init(Ci.nsIStandardURL.URLTYPE_STANDARD, 0, spec, charSet, baseURI);
         dump("Creating new URI for " + spec + "\n");
-        return url.QueryInterface(Ci.nsIURI);
+        return Components.classes["@mozilla.org/network/standard-url-mutator;1"]
+                         .createInstance(Ci.nsIStandardURLMutator)
+                         .init(Ci.nsIStandardURL.URLTYPE_STANDARD, 0,
+                               spec, charSet, baseURI)
+                         .finalize();
     },
 
     newChannel: function(URI) {

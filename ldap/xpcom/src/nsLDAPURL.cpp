@@ -36,19 +36,13 @@ nsLDAPURL::Init(uint32_t aUrlType, int32_t aDefaultPort,
                 const nsACString &aSpec, const char* aOriginCharset,
                 nsIURI *aBaseURI)
 {
-  if (!mBaseURL)
-  {
-    mBaseURL = do_CreateInstance(NS_STANDARDURL_CONTRACTID);
-    if (!mBaseURL)
-      return NS_ERROR_OUT_OF_MEMORY;
-  }
-
   nsresult rv;
-  nsCOMPtr<nsIStandardURL> standardURL(do_QueryInterface(mBaseURL, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = standardURL->Init(aUrlType, aDefaultPort, aSpec, aOriginCharset,
-                         aBaseURI);
+  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+         .Apply<nsIStandardURLMutator>(&nsIStandardURLMutator::Init,
+                                       nsIStandardURL::URLTYPE_STANDARD,
+                                       aDefaultPort, PromiseFlatCString(aSpec),
+                                       aOriginCharset, aBaseURI, nullptr)
+         .Finalize(mBaseURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Now get the spec from the mBaseURL in case it was a relative one
