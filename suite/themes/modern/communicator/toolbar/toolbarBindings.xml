@@ -10,7 +10,7 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="toolbar-primary"
-           extends="chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-primary">
+           extends="chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar-primary">
     <content>
       <xul:toolbargrippy xbl:inherits="last-toolbar,hidden=grippyhidden"
           tbattr="toolbar-grippy" class="toolbar-primary-grippy"/>
@@ -24,7 +24,7 @@
   </binding>
 
   <binding id="toolbargrippy-primary"
-           extends="chrome://communicator/content/bindings/toolbar.xml#toolbargrippy">
+           extends="chrome://communicator/content/bindings/toolbar-xpfe.xml#toolbargrippy">
     <content>
       <xul:image class="toolbargrippy-arrow"/>
       <xul:image class="toolbargrippy-texture" flex="1"/>
