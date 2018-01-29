@@ -685,20 +685,6 @@ pref("browser.chrome.favicons", true);
 // something sensible.
 pref("places.history.enabled", true);
 
-// With places disabled by default, the default growth increment is set to zero
-// as it would otherwise default to 10MB as the minimum space occupied by the
-// places.sqlite database in the profile.
-pref("places.database.growthIncrementKiB", 0);
-
-// The percentage of system memory that the Places database can use.  Out of the
-// allowed cache size it will at most use the size of the database file.
-// Changes to this value are effective after an application restart.
-// Acceptable values are between 0 and 50.
-// In Thunderbird, we're not exercising places much, so it makes sense to make
-// it use a lower percentage of the cache. Plus, we have another more important
-// sqlite database (gloda) that deserves to use cache.
-pref("places.database.cache_to_memory_percentage", 1);
-
 // the (maximum) number of the recent visits to sample
 // when calculating frecency
 pref("places.frecency.numVisits", 10);
