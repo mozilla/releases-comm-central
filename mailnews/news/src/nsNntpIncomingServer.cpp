@@ -31,6 +31,8 @@
 #include "nsISimpleEnumerator.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
+#include "mozilla/dom/Element.h"
+#include "mozilla/ErrorResult.h"
 #include "nsITreeBoxObject.h"
 
 #define INVALID_VERSION         0
@@ -1902,7 +1904,8 @@ nsNntpIncomingServer::SetTree(nsITreeBoxObject *tree)
     return NS_OK;
 
   nsAutoString dir;
-  element->GetAttribute(NS_LITERAL_STRING("sortDirection"), dir);
+  nsCOMPtr<Element> element2 = do_QueryInterface(element);
+  element2->GetAttribute(NS_LITERAL_STRING("sortDirection"), dir);
   mSearchResultSortDescending = dir.EqualsLiteral("descending");
   return NS_OK;
 }
@@ -1925,8 +1928,14 @@ nsNntpIncomingServer::CycleHeader(nsITreeColumn* col)
     nsCOMPtr<nsIDOMElement> element;
     col->GetElement(getter_AddRefs(element));
     mSearchResultSortDescending = !mSearchResultSortDescending;
-    element->SetAttribute(dir, mSearchResultSortDescending ?
-      NS_LITERAL_STRING("descending") : NS_LITERAL_STRING("ascending"));
+    nsCOMPtr<Element> element2 = do_QueryInterface(element);
+    mozilla::IgnoredErrorResult rv2;
+    element2->SetAttribute(dir,
+                           mSearchResultSortDescending ?
+                             NS_LITERAL_STRING("descending") :
+                             NS_LITERAL_STRING("ascending"),
+                           nullptr,
+                           rv2);
     mTree->Invalidate();
   }
   return NS_OK;

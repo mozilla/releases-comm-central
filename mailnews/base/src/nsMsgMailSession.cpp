@@ -32,6 +32,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIProperties.h"
 #include "mozilla/Services.h"
+#include "mozilla/dom/Element.h"
 
 NS_IMPL_ISUPPORTS(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
 
@@ -304,8 +305,8 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow)
       NS_ENSURE_SUCCESS(rv, rv);
       NS_ENSURE_TRUE(domElement, NS_ERROR_FAILURE);
 
-      rv = domElement->GetAttribute(NS_LITERAL_STRING("windowtype"), windowType);
-      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<Element> domElement2 = do_QueryInterface(domElement);
+      domElement2->GetAttribute(NS_LITERAL_STRING("windowtype"), windowType);
 
       if (windowType.EqualsLiteral("mail:3pane") ||
           windowType.EqualsLiteral("mail:messageWindow"))

@@ -494,9 +494,14 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
       continue; //Don't need to tag this object, it safe to send it.
 
     //The source of this object should not be sent with the message
-    nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
-    if (domElement)
-      domElement->SetAttribute(NS_LITERAL_STRING("moz-do-not-send"), NS_LITERAL_STRING("true"));
+    nsCOMPtr<Element> domElement = do_QueryInterface(node);
+    if (domElement) {
+      IgnoredErrorResult rv2;
+      domElement->SetAttribute(NS_LITERAL_STRING("moz-do-not-send"),
+                               NS_LITERAL_STRING("true"),
+                               nullptr,
+                               rv2);
+    }
   }
 
   return NS_OK;
@@ -595,8 +600,11 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
     if (selection)
       selection->CollapseNative(parent, offset + 1);
   }
-  if (divElem)
-    divElem->SetAttribute(NS_LITERAL_STRING("class"), classStr);
+  if (divElem) {
+    nsCOMPtr<Element> divElem2 = do_QueryInterface(divElem);
+    IgnoredErrorResult rv2;
+    divElem2->SetAttribute(NS_LITERAL_STRING("class"), classStr, nullptr, rv2);
+  }
 }
 
 NS_IMETHODIMP
@@ -791,19 +799,20 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
           rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("div"),
                                                      getter_AddRefs(divElem));
           NS_ENSURE_SUCCESS(rv, rv);
+          divElem2 = do_QueryInterface(divElem);
 
           nsAutoString attributeName;
           nsAutoString attributeValue;
           attributeName.AssignLiteral("class");
           attributeValue.AssignLiteral("moz-forward-container");
-          divElem->SetAttribute(attributeName, attributeValue);
+          IgnoredErrorResult rv1;
+          divElem2->SetAttribute(attributeName, attributeValue, nullptr, rv1);
 
           // We can't insert an empty <div>, so fill it with something.
           rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("br"),
                                                      getter_AddRefs(extraBr));
           NS_ENSURE_SUCCESS(rv, rv);
 
-          divElem2 = do_QueryInterface(divElem);
           nsCOMPtr<nsINode> extraBr2 = do_QueryInterface(extraBr);
           ErrorResult rv2;
           divElem2->AppendChild(*extraBr2, rv2);

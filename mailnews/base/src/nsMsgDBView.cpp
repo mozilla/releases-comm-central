@@ -1031,25 +1031,6 @@ nsMsgDBView::GetMessageEnumerator(nsISimpleEnumerator **enumerator)
   return m_db->EnumerateMessages(enumerator);
 }
 
-nsresult
-nsMsgDBView::CycleThreadedColumn(nsIDOMElement * aElement)
-{
-  nsAutoString currentView;
-
-  // Toggle threaded/unthreaded mode.
-  aElement->GetAttribute(NS_LITERAL_STRING("currentView"), currentView);
-  if (currentView.EqualsLiteral("threaded"))
-    aElement->SetAttribute(NS_LITERAL_STRING("currentView"),
-                           NS_LITERAL_STRING("unthreaded"));
-  else
-    aElement->SetAttribute(NS_LITERAL_STRING("currentView"),
-                           NS_LITERAL_STRING("threaded"));
-
-  // I think we need to create a new view and switch it in this circumstance
-  // since we are toggline between threaded and non threaded mode.
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgDBView::IsEditable(int32_t row,
                         nsITreeColumn* col,

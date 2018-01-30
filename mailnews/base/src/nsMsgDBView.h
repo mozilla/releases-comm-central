@@ -165,7 +165,6 @@ protected:
                             nsACString & keywordString);
   nsresult FetchAccount(nsIMsgDBHdr * aHdr, nsAString& aAccount);
   bool IsOutgoingMsg(nsIMsgDBHdr * aHdr);
-  nsresult CycleThreadedColumn(nsIDOMElement * aElement);
 
   // The default enumerator is over the db, but things like
   // quick search views will enumerate just the displayed messages.

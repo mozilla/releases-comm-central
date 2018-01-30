@@ -1275,7 +1275,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
 
   // We're only interested in body, image, link and anchors which are all
   // elements.
-  nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
+  nsCOMPtr<Element> domElement = do_QueryInterface(node);
   if (!domElement)
     return NS_OK;
 
