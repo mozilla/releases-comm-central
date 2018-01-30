@@ -243,21 +243,20 @@ GetNodeLocation(nsIDOMNode *inChild, nsCOMPtr<nsINode> *outParent, int32_t *outO
 }
 
 bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
-                                          const char * originalHost,
-                                          const char * originalPath,
-                                          nsIDOMNode * object)
+                                        const char * originalHost,
+                                        const char * originalPath,
+                                        Element * element)
 {
   nsresult rv;
 
   nsAutoString objURL;
 
-  if (!object || !originalScheme || !originalPath) //having a null host is ok...
+  if (!originalScheme || !originalPath) // Having a null host is OK.
     return false;
 
-  nsCOMPtr<Element> objectAsElement = do_QueryInterface(object);
-  RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContentOrNull(objectAsElement);
-  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContentOrNull(objectAsElement);
-  RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(objectAsElement);
+  RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContent(element);
+  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContent(element);
+  RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContent(element);
 
   if (image)
     image->GetSrc(objURL);
@@ -289,7 +288,7 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
           {
             const char * query = strrchr(path.get(), '?');
             if (query && PL_strncasecmp(path.get(), originalPath, query - path.get()) == 0)
-                return true; //This object is a part of the original message, we can send it safely.
+              return true; // This object is a part of the original message, we can send it safely.
           }
         }
       }
@@ -486,22 +485,18 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
   // with the message.
   for (i = 0; i < count; i ++)
   {
-    nsCOMPtr<nsIDOMNode> node = do_QueryElementAt(aNodeList, i);
-    if (!node)
+    nsCOMPtr<Element> domElement = do_QueryElementAt(aNodeList, i);
+    if (!domElement)
       continue;
     if (IsEmbeddedObjectSafe(originalScheme.get(), originalHost.get(),
-                             originalPath.get(), node))
-      continue; //Don't need to tag this object, it safe to send it.
+                             originalPath.get(), domElement))
+      continue; // Don't need to tag this object, it's safe to send it.
 
-    //The source of this object should not be sent with the message
-    nsCOMPtr<Element> domElement = do_QueryInterface(node);
-    if (domElement) {
-      IgnoredErrorResult rv2;
-      domElement->SetAttribute(NS_LITERAL_STRING("moz-do-not-send"),
-                               NS_LITERAL_STRING("true"),
-                               nullptr,
-                               rv2);
-    }
+    // The source of this object should not be sent with the message.
+    IgnoredErrorResult rv2;
+    domElement->SetAttribute(NS_LITERAL_STRING("moz-do-not-send"),
+                             NS_LITERAL_STRING("true"),
+                             rv2);
   }
 
   return NS_OK;
@@ -603,7 +598,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
   if (divElem) {
     nsCOMPtr<Element> divElem2 = do_QueryInterface(divElem);
     IgnoredErrorResult rv2;
-    divElem2->SetAttribute(NS_LITERAL_STRING("class"), classStr, nullptr, rv2);
+    divElem2->SetAttribute(NS_LITERAL_STRING("class"), classStr, rv2);
   }
 }
 
@@ -806,7 +801,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
           attributeName.AssignLiteral("class");
           attributeValue.AssignLiteral("moz-forward-container");
           IgnoredErrorResult rv1;
-          divElem2->SetAttribute(attributeName, attributeValue, nullptr, rv1);
+          divElem2->SetAttribute(attributeName, attributeValue, rv1);
 
           // We can't insert an empty <div>, so fill it with something.
           rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("br"),

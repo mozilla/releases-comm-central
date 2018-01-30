@@ -57,7 +57,7 @@ protected:
   bool                          IsEmbeddedObjectSafe(const char * originalScheme,
                                                      const char * originalHost,
                                                      const char * originalPath,
-                                                     nsIDOMNode * object);
+                                                     mozilla::dom::Element * element);
   nsresult                      ResetUrisForEmbeddedObjects();
   nsresult                      TagEmbeddedObjects(nsIEditorMailSupport *aMailEditor);
 

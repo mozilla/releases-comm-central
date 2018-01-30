@@ -280,8 +280,6 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow)
 
     nsCOMPtr<nsISupports> windowSupports;
     nsCOMPtr<nsPIDOMWindowOuter> topMostWindow;
-    nsCOMPtr<nsIDOMDocument> domDocument;
-    nsCOMPtr<nsIDOMElement> domElement;
     nsAutoString windowType;
     bool more;
 
@@ -297,17 +295,13 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow)
       NS_ENSURE_SUCCESS(rv, rv);
       NS_ENSURE_TRUE(topMostWindow, NS_ERROR_FAILURE);
 
-      domDocument = do_QueryInterface(topMostWindow->GetDoc());
-      NS_ENSURE_SUCCESS(rv, rv);
+      nsIDocument* domDocument = topMostWindow->GetDoc();
       NS_ENSURE_TRUE(domDocument, NS_ERROR_FAILURE);
 
-      rv = domDocument->GetDocumentElement(getter_AddRefs(domElement));
-      NS_ENSURE_SUCCESS(rv, rv);
+      Element* domElement = domDocument->GetDocumentElement();
       NS_ENSURE_TRUE(domElement, NS_ERROR_FAILURE);
 
-      nsCOMPtr<Element> domElement2 = do_QueryInterface(domElement);
-      domElement2->GetAttribute(NS_LITERAL_STRING("windowtype"), windowType);
-
+      domElement->GetAttribute(NS_LITERAL_STRING("windowtype"), windowType);
       if (windowType.EqualsLiteral("mail:3pane") ||
           windowType.EqualsLiteral("mail:messageWindow"))
         break;

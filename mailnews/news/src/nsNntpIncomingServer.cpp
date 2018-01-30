@@ -1934,7 +1934,6 @@ nsNntpIncomingServer::CycleHeader(nsITreeColumn* col)
                            mSearchResultSortDescending ?
                              NS_LITERAL_STRING("descending") :
                              NS_LITERAL_STRING("ascending"),
-                           nullptr,
                            rv2);
     mTree->Invalidate();
   }
