@@ -542,7 +542,9 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
   let range = aDoc.createRange();
   let parent = insert ? insert.parentNode : aDoc.getElementById("Chat");
   range.selectNode(parent);
+  aDoc.allowUnsafeHTML = true;
   let documentFragment = range.createContextualFragment(aHTML);
+  aDoc.allowUnsafeHTML = false;
   let result = documentFragment.firstChild;
 
   // store the prplIMessage object in each of the "root" node that
