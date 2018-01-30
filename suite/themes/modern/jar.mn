@@ -49,7 +49,7 @@ modern.jar:
   skin/modern/communicator/bookmarks/editBookmarkOverlay.css       (communicator/bookmarks/editBookmarkOverlay.css)
   skin/modern/communicator/bookmarks/livemark-folder.png           (communicator/bookmarks/livemark-folder.png)
   skin/modern/communicator/bookmarks/query.png                     (communicator/bookmarks/query.png)
-  skin/modern/communicator/bookmarks/tagContainerIcon.png          (communicator/bookmarks/tagContainerIcon.png)
+  skin/modern/communicator/bookmarks/tag.png                       (communicator/bookmarks/tag.png)
   skin/modern/communicator/bookmarks/toolbarDropMarker.png         (communicator/bookmarks/toolbarDropMarker.png)
   skin/modern/communicator/bookmarks/unsortedBookmarks.png         (communicator/bookmarks/unsortedBookmarks.png)
   skin/modern/communicator/brand/throbber-anim.png                 (communicator/brand/throbber-anim.png)
