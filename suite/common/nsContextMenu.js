@@ -1433,7 +1433,8 @@ nsContextMenu.prototype = {
       return true;
 
     for (var node = this.target; node; node = node.parentNode)
-      if (node instanceof Components.interfaces.nsIDOMHTMLElement)
+      if (node.nodeType == node.ELEMENT_NODE &&
+          node.namespaceURI == "http://www.w3.org/1999/xhtml")
         return node.isContentEditable;
     return false;
   },

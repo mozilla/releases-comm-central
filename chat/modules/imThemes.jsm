@@ -552,8 +552,10 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
   for (let root = result; root; root = root.nextSibling)
     root._originalMsg = aMsg;
 
-  // make sure the result is an HTMLElement and not some whitespace...
-  while (result && !(result instanceof Ci.nsIDOMHTMLElement))
+  // make sure the result is an HTMLElement and not some text (whitespace)...
+  while (result &&
+         !(result.nodeType == result.ELEMENT_NODE &&
+           result.namespaceURI == "http://www.w3.org/1999/xhtml"))
     result = result.nextSibling;
   if (insert)
     parent.replaceChild(documentFragment, insert);
@@ -977,7 +979,8 @@ function getMessagesForRange(aRange)
       return true;
 
     // recurse through children
-    if (aNode instanceof Ci.nsIDOMHTMLElement) {
+    if (aNode.nodeType == aNode.ELEMENT_NODE &&
+        aNode.namespaceURI == "http://www.w3.org/1999/xhtml") {
       for (let i = 0; i < aNode.childNodes.length; ++i)
         if (processSubtree(aNode.childNodes[i]))
           return true;
@@ -987,7 +990,8 @@ function getMessagesForRange(aRange)
   };
 
   let currentNode = aRange.commonAncestorContainer;
-  if (currentNode instanceof Ci.nsIDOMHTMLElement) {
+  if (currentNode.nodeType == currentNode.ELEMENT_NODE &&
+      currentNode.namespaceURI == "http://www.w3.org/1999/xhtml") {
     // Determine the index of the first and last children of currentNode
     // that we should process.
     let found = false;

@@ -249,7 +249,8 @@ function cleanupNode(aNode, aRules, aTextModifiers)
 {
   for (let i = 0; i < aNode.childNodes.length; ++i) {
     let node = aNode.childNodes[i];
-    if (node instanceof Components.interfaces.nsIDOMHTMLElement) {
+    if (node.nodeType == node.ELEMENT_NODE &&
+        node.namespaceURI == "http://www.w3.org/1999/xhtml") {
       // check if node allowed
       let nodeName = node.localName;
       if (!(nodeName in aRules.tags)) {

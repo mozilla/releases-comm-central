@@ -206,7 +206,8 @@ function smileNode(aNode)
 {
   for (let i = 0; i < aNode.childNodes.length; ++i) {
     let node = aNode.childNodes[i];
-    if (node instanceof Components.interfaces.nsIDOMHTMLElement) {
+    if (node.nodeType == node.ELEMENT_NODE &&
+        node.namespaceURI == "http://www.w3.org/1999/xhtml") {
       // we are on a tag, recurse to process its children
       smileNode(node);
     } else if (node instanceof Components.interfaces.nsIDOMText) {
