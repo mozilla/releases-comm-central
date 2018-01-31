@@ -14,7 +14,3 @@ AC_SUBST(commtopsrcdir)
 AC_SUBST(mozreltopsrcdir)
 AC_SUBST(commreltopsrcdir)
 AC_SUBST(commtopobjdir)
-
-dnl Get other versions (for the calendar plugin)
-SEAMONKEY_VERSION=`cat ${_topsrcdir}/../suite/config/version.txt`
-AC_SUBST(SEAMONKEY_VERSION)
