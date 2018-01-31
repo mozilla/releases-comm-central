@@ -409,7 +409,7 @@ function type_in_composer(aController, aText) {
   for (let [i, aLine] of aText.entries()) {
     aController.type(frame, aLine);
     if (i < aText.length - 1)
-      aController.type(frame, "\n");
+      aController.keypress(frame, "VK_RETURN", {});
   }
 }
 
