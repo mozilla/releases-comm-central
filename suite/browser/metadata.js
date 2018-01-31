@@ -171,7 +171,7 @@ function checkForImage(elem, htmllocalname)
                                           .getService(Components.interfaces.nsILoadContextInfoFactory);
         var loadContextInfo = opener.gPrivate ? LoadContextInfo.private :
                                                 LoadContextInfo.default;
-        Components.utils.import("resource://gre/modules/NetUtil.jsm");
+        ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
         Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
                   .getService(Components.interfaces.nsICacheStorageService)
                   .diskCacheStorage(loadContextInfo, false)
@@ -518,7 +518,7 @@ function formatNumber(number)
 
 function makeHrefAbsolute(href, elem)
 {
-  Components.utils.import("resource://gre/modules/NetUtil.jsm");
+  ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
   try {
     var baseURI = NetUtil.newURI(elem.baseURI, elem.ownerDocument.characterSet);
     href = NetUtil.newURI(href, elem.ownerDocument.characterSet, baseURI).spec;

@@ -1,9 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "FormHistory",
-                                  "resource://gre/modules/FormHistory.jsm");
+ChromeUtils.defineModuleGetter(this, "FormHistory",
+                               "resource://gre/modules/FormHistory.jsm");
 
 function test() {
   waitForExplicitFinish();
@@ -27,7 +26,7 @@ function test2()
   let textbox = findBar.getElement("findbar-textbox");
 
   let temp = {};
-  Components.utils.import("resource:///modules/Sanitizer.jsm", temp);
+  ChromeUtils.import("resource:///modules/Sanitizer.jsm", temp);
   let s = temp.Sanitizer;
   let prefBranch = prefService.getBranch("privacy.item.");
 

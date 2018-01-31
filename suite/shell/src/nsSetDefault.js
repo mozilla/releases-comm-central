@@ -12,7 +12,7 @@
 
 const nsIShellService = Components.interfaces.nsIShellService;
 const nsICommandLineHandler = Components.interfaces.nsICommandLineHandler;
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function nsSetDefault() {
 }

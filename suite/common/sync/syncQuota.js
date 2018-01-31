@@ -7,8 +7,8 @@ const Cc = Components.classes;
 const Cr = Components.results;
 const Cu = Components.utils;
 
-Cu.import("resource://services-sync/main.js");
-Cu.import("resource://gre/modules/DownloadUtils.jsm");
+ChromeUtils.import("resource://services-sync/main.js");
+ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
 var gSyncQuota = {
 

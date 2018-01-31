@@ -51,7 +51,7 @@
      *
      * Ensures that date in places treeviews is correctly formatted.
      */
-      Components.utils.import("resource://gre/modules/Services.jsm");
+      ChromeUtils.import("resource://gre/modules/Services.jsm");
       const Cc = Components.classes;
       const Ci = Components.interfaces;
 

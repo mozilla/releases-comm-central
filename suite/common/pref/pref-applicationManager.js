@@ -5,7 +5,7 @@
 // As pref-applications.js is always loaded, we can (and should!) reuse
 // the nsI* constants from there, if needed also any services we need.
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gAppManagerDialog = {
   _removed: [],

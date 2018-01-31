@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://services-common/async.js");
-Components.utils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://services-common/async.js");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 // Load DownloadUtils module for convertByteUnits
-Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
+ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
 // locally loaded services
 var gLocSvc = {};
-XPCOMUtils.defineLazyModuleGetter(gLocSvc, "FormHistory",
-                                  "resource://gre/modules/FormHistory.jsm",
-                                  "FormHistory");
+ChromeUtils.defineModuleGetter(gLocSvc, "FormHistory",
+                               "resource://gre/modules/FormHistory.jsm",
+                               "FormHistory");
 XPCOMUtils.defineLazyServiceGetter(gLocSvc, "url",
                                    "@mozilla.org/network/url-parser;1?auth=maybe",
                                    "nsIURLParser");

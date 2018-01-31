@@ -9,13 +9,13 @@
  **/
 
 // Services = object with smart getters for common XPCOM services
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
 // XPCOMUtils.defineLazyGetter(this, "Weave", function() {
 //   let tmp = {};
-// Components.utils.import("resource://services-sync/main.js", tmp);
+//   ChromeUtils.import("resource://services-sync/main.js", tmp);
 //   return tmp.Weave;
 // });
 

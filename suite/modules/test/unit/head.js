@@ -3,12 +3,11 @@ const Cu = Components.utils;
 const Cr = Components.results;
 const Ci = Components.interfaces;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "PlacesUtils",
+ChromeUtils.defineModuleGetter(this, "PlacesUtils",
   "resource://gre/modules/PlacesUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "Promise",
+ChromeUtils.defineModuleGetter(this, "Promise",
   "resource://gre/modules/commonjs/sdk/core/promise.js");
 
 // Need to explicitly load profile for Places

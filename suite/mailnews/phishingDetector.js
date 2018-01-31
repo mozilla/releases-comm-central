@@ -7,7 +7,7 @@
 // gBrandBundle, gMessengerBundle should already be defined
 // gatherTextUnder from utilityOverlay.js
 
-Components.utils.import("resource:///modules/hostnameUtils.jsm");
+ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 const kPhishingNotSuspicious = 0;
 const kPhishingWithIPAddress = 1;

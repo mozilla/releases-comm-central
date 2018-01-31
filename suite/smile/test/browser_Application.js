@@ -2,7 +2,7 @@ const Ci = Components.interfaces;
 const Cc = Components.classes;
 const Cu = Components.utils;
 
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This listens for the next opened window and checks it is of the right url.
 // opencallback is called when the new window is fully loaded

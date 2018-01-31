@@ -18,9 +18,9 @@
   <script type="application/javascript"
           src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript"><![CDATA[
-    Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
-    Components.utils.import("resource://gre/modules/PlacesBackups.jsm");
-    Components.utils.import("resource:///modules/PlacesUIUtils.jsm");
+    ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+    ChromeUtils.import("resource://gre/modules/PlacesBackups.jsm");
+    ChromeUtils.import("resource:///modules/PlacesUIUtils.jsm");
   ]]></script>
   <script type="application/javascript"
           src="chrome://communicator/content/places/controller.js"/>

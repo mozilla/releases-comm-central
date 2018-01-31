@@ -3,12 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-XPCOMUtils.defineLazyModuleGetter(this, "BrowserToolboxProcess",
-                                  "resource://devtools/client/framework/ToolboxProcess.jsm");
+ChromeUtils.defineModuleGetter(this, "BrowserToolboxProcess",
+                               "resource://devtools/client/framework/ToolboxProcess.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "DeveloperToolbar", function() {
   var tmp = {};
-  Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
+  ChromeUtils.import("resource://devtools/shared/Loader.jsm", tmp);
   var DeveloperToolbar =  tmp.require("devtools/client/shared/developer-toolbar").DeveloperToolbar;
   return new DeveloperToolbar(window);
 });
@@ -21,7 +21,7 @@ var ResponsiveUI = {
 
 XPCOMUtils.defineLazyGetter(ResponsiveUI, "ResponsiveUIManager", function() {
   var tmp = {};
-  Components.utils.import("resource://devtools/client/responsivedesign/responsivedesign.jsm", tmp);
+  ChromeUtils.import("resource://devtools/client/responsivedesign/responsivedesign.jsm", tmp);
   return tmp.ResponsiveUIManager;
 });
 
@@ -33,15 +33,15 @@ var Scratchpad = {
 
 XPCOMUtils.defineLazyGetter(Scratchpad, "ScratchpadManager", function() {
   var tmp = {};
-  Components.utils.import("resource://devtools/client/scratchpad/scratchpad-manager.jsm", tmp);
+  ChromeUtils.import("resource://devtools/client/scratchpad/scratchpad-manager.jsm", tmp);
   return tmp.ScratchpadManager;
 });
 
-XPCOMUtils.defineLazyModuleGetter(this, "gDevTools",
-                                  "resource://devtools/client/framework/gDevTools.jsm");
+ChromeUtils.defineModuleGetter(this, "gDevTools",
+                               "resource://devtools/client/framework/gDevTools.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "gDevToolsBrowser",
-                                  "resource://devtools/client/framework/gDevTools.jsm");
+ChromeUtils.defineModuleGetter(this, "gDevToolsBrowser",
+                               "resource://devtools/client/framework/gDevTools.jsm");
 
 function openEyedropper() {
   var eyedropper = new this.Eyedropper(this, { context: "menu",
@@ -52,7 +52,7 @@ function openEyedropper() {
 Object.defineProperty(this, "Eyedropper", {
   get() {
     var tmp = {};
-    Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
+    ChromeUtils.import("resource://devtools/shared/Loader.jsm", tmp);
     return tmp.require("devtools/client/eyedropper/eyedropper").Eyedropper;
   },
   configurable: true,
@@ -62,7 +62,7 @@ Object.defineProperty(this, "Eyedropper", {
 Object.defineProperty(this, "HUDService", {
   get() {
     var tmp = {};
-    Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
+    ChromeUtils.import("resource://devtools/shared/Loader.jsm", tmp);
     return tmp.require("devtools/client/webconsole/hudservice").HUDService;
   },
   configurable: true,

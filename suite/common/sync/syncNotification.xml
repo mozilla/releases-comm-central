@@ -15,8 +15,8 @@
     <implementation>
       <constructor><![CDATA[
         let localScope = {};
-        Components.utils.import("resource://services-common/observers.js", localScope);
-        Components.utils.import("resource://services-sync/notifications.js", localScope);
+        ChromeUtils.import("resource://services-common/observers.js", localScope);
+        ChromeUtils.import("resource://services-sync/notifications.js", localScope);
 
         localScope.Observers.add("weave:notification:added", this.onNotificationAdded, this);
         localScope.Observers.add("weave:notification:removed", this.onNotificationRemoved, this);
@@ -25,7 +25,7 @@
 
       <destructor><![CDATA[
         let localScope = {};
-        Components.utils.import("resource://services-common/observers.js", localScope);
+        ChromeUtils.import("resource://services-common/observers.js", localScope);
         localScope.Observers.remove("weave:notification:added", this.onNotificationAdded, this);
         localScope.Observers.remove("weave:notification:removed", this.onNotificationRemoved, this);
       ]]></destructor>
@@ -73,7 +73,7 @@
       <method name="close">
         <body><![CDATA[
           let localScope = {};
-          Components.utils.import("resource://services-sync/notifications.js", localScope);
+          ChromeUtils.import("resource://services-sync/notifications.js", localScope);
           localScope.Notifications.remove(this.notification);
 
           // We should be able to call the base class's close method here

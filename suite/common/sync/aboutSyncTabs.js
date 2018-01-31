@@ -4,10 +4,10 @@
 
 const Cu = Components.utils;
 
-Cu.import("resource://services-sync/main.js");
-Cu.import("resource:///modules/PlacesUIUtils.jsm");
-Cu.import("resource://gre/modules/PlacesUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://services-sync/main.js");
+ChromeUtils.import("resource:///modules/PlacesUIUtils.jsm");
+ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var RemoteTabViewer = {
   _tabsList: null,

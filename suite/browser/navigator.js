@@ -3,12 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/DownloadTaskbarProgress.jsm");
-Components.utils.import("resource:///modules/WindowsPreviewPerTab.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/DownloadTaskbarProgress.jsm");
+ChromeUtils.import("resource:///modules/WindowsPreviewPerTab.jsm");
 
 this.__defineGetter__("PluralForm", function() {
-  Components.utils.import("resource://gre/modules/PluralForm.jsm");
+  ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
   return this.PluralForm;
 });
 this.__defineSetter__("PluralForm", function (val) {
@@ -16,7 +16,7 @@ this.__defineSetter__("PluralForm", function (val) {
   return this.PluralForm = val;
 });
 
-XPCOMUtils.defineLazyModuleGetter(this, "SafeBrowsing",
+ChromeUtils.defineModuleGetter(this, "SafeBrowsing",
   "resource://gre/modules/SafeBrowsing.jsm");
 
 const REMOTESERVICE_CONTRACTID = "@mozilla.org/toolkit/remote-service;1";
@@ -532,7 +532,7 @@ function Startup()
   if (!window.content.opener &&
       Services.prefs.getBoolPref("browser.doorhanger.enabled")) {
     var tmp = {};
-    Components.utils.import("resource://gre/modules/PopupNotifications.jsm", tmp);
+    ChromeUtils.import("resource://gre/modules/PopupNotifications.jsm", tmp);
     window.PopupNotifications = new tmp.PopupNotifications(
         getBrowser(),
         document.getElementById("notification-popup"),

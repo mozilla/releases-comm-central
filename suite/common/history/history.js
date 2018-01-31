@@ -12,8 +12,8 @@ var gDeleteByDomain;
 var gHistoryStatus;
 var gHistoryGrouping = "day";
 
-Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
-Components.utils.import("resource:///modules/PlacesUIUtils.jsm");
+ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+ChromeUtils.import("resource:///modules/PlacesUIUtils.jsm");
 
 function HistoryCommonInit()
 {

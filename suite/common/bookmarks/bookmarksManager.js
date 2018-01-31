@@ -3,9 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "BookmarkJSONUtils",
-                                  "resource://gre/modules/BookmarkJSONUtils.jsm");
+ChromeUtils.defineModuleGetter(this, "BookmarkJSONUtils",
+                               "resource://gre/modules/BookmarkJSONUtils.jsm");
 
 var PlacesOrganizer = {
   _places: null,
@@ -332,7 +331,7 @@ var PlacesOrganizer = {
     fp.appendFilters(Components.interfaces.nsIFilePicker.filterHTML);
     if (fp.show() != Components.interfaces.nsIFilePicker.returnCancel) {
       if (fp.fileURL) {
-        Components.utils.import("resource://gre/modules/BookmarkHTMLUtils.jsm");
+        ChromeUtils.import("resource://gre/modules/BookmarkHTMLUtils.jsm");
         BookmarkHTMLUtils.importFromURL(fp.fileURL.spec, false)
                          .then(null, Components.utils.reportError);
       }
@@ -350,7 +349,7 @@ var PlacesOrganizer = {
     fp.appendFilters(Components.interfaces.nsIFilePicker.filterHTML);
     fp.defaultString = "bookmarks.html";
     if (fp.show() != Components.interfaces.nsIFilePicker.returnCancel) {
-      Components.utils.import("resource://gre/modules/BookmarkHTMLUtils.jsm");
+      ChromeUtils.import("resource://gre/modules/BookmarkHTMLUtils.jsm");
       BookmarkHTMLUtils.exportToFile(fp.file)
                        .then(null, Components.utils.reportError);
     }

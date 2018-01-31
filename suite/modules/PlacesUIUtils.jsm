@@ -5,11 +5,11 @@
 
 var EXPORTED_SYMBOLS = ["PlacesUIUtils"];
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "PlacesUtils", function() {
-  Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
+  ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
   return PlacesUtils;
 });
 

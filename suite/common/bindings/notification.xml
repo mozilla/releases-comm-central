@@ -1724,7 +1724,7 @@
         <body>
           <![CDATA[
             var tmp = {};
-            Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/PluralForm.jsm", tmp);
             var notificationName = "addon-install-cancelled";
             var messageString = this._stringBundle.GetStringFromName("addonDownloadCancelled");
             messageString = tmp.PluralForm.get(installInfo.installs.length, messageString);
@@ -1758,8 +1758,8 @@
         <body>
           <![CDATA[
             var tmp = {};
-            Components.utils.import("resource://gre/modules/AddonManager.jsm", tmp);
-            Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/AddonManager.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/PluralForm.jsm", tmp);
 
             var notificationName = "addon-install-complete"
             var addonNotification = this.getNotificationWithValue(notificationName);
@@ -1890,13 +1890,13 @@
         <body>
           <![CDATA[
             var tmp = {};
-            Components.utils.import("resource://gre/modules/AddonManager.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/AddonManager.jsm", tmp);
             if (installInfo.installs.every(function(aInstall) {
                   return aInstall.state == tmp.AddonManager.STATE_DOWNLOADED;
                 }))
               return;
 
-            Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/PluralForm.jsm", tmp);
             var notificationName = "addon-install-started";
             var messageString = this._stringBundle.GetStringFromName("addonDownloading");
             messageString = tmp.PluralForm.get(installInfo.installs.length, messageString);
@@ -1965,7 +1965,7 @@
 
             if (reportName) {
               var tmp = {};
-              Components.utils.import("resource://gre/modules/SafeBrowsing.jsm", tmp);
+              ChromeUtils.import("resource://gre/modules/SafeBrowsing.jsm", tmp);
               var reportUrl = tmp.SafeBrowsing.getReportURL(reportName, uri);
 
               buttons.push({
@@ -1992,8 +1992,8 @@
       </method>
       <constructor>
         <![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
-          Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
           var os = Components.classes["@mozilla.org/observer-service;1"]
                              .getService(Components.interfaces.nsIObserverService);
@@ -2018,7 +2018,7 @@
           this.addProgressListener();
 
           if ("nsICrashReporter" in Components.interfaces)
-            Components.utils.import("resource://gre/modules/CrashSubmit.jsm", this);
+            ChromeUtils.import("resource://gre/modules/CrashSubmit.jsm", this);
         ]]>
       </constructor>
 
@@ -2130,7 +2130,7 @@
           this.notifyPopupCountChanged();
 
           var tmp = {};
-          Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
+          ChromeUtils.import("resource://gre/modules/PluralForm.jsm", tmp);
           if (this._prefs.getBoolPref("privacy.popups.showBrowserMessage"))
           {
             var brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
@@ -2940,7 +2940,7 @@
         <body>
           <![CDATA[
             var tmp = {};
-            Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/PluralForm.jsm", tmp);
             var messageString = this._stringBundle.GetStringFromName("addonDownloadCancelled");
             messageString = tmp.PluralForm.get(installInfo.installs.length, messageString);
             var action = {
@@ -2972,8 +2972,8 @@
         <body>
           <![CDATA[
             var tmp = {};
-            Components.utils.import("resource://gre/modules/AddonManager.jsm", tmp);
-            Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/AddonManager.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/PluralForm.jsm", tmp);
 
             var messageString;
             var mainAction = null;
@@ -3111,13 +3111,13 @@
         <body>
           <![CDATA[
             var tmp = {};
-            Components.utils.import("resource://gre/modules/AddonManager.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/AddonManager.jsm", tmp);
             if (installInfo.installs.every(function(aInstall) {
                   return aInstall.state == tmp.AddonManager.STATE_DOWNLOADED;
                 }))
               return;
 
-            Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/PluralForm.jsm", tmp);
             var messageString = this._stringBundle.GetStringFromName("addonDownloading");
             messageString = tmp.PluralForm.get(installInfo.installs.length, messageString);
             var action = {
@@ -3137,7 +3137,7 @@
       </method>
       <constructor>
         <![CDATA[
-          Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
         ]]>
       </constructor>
     </implementation>
@@ -3180,7 +3180,7 @@
             var max = 0;
 
             var tmp = {};
-            Components.utils.import("resource://gre/modules/AddonManager.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/AddonManager.jsm", tmp);
             this.installInfo.installs.forEach(function(aInstall) {
               if (aInstall.maxProgress < 0)
                 max = -1;
@@ -3209,7 +3209,7 @@
               this.lastUpdate = now;
               var elapsed = (now - this.startTime) / 1000;
               var rate = elapsed && progress / elapsed;
-              Components.utils.import("resource://gre/modules/DownloadUtils.jsm", tmp);
+              ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm", tmp);
               var status;
               [status, this.lastSeconds] = tmp.DownloadUtils.getDownloadStatus(progress, max, rate, this.lastSeconds);
               this.setAttribute("status", status);
@@ -3400,7 +3400,7 @@
             var max = 0;
 
             var tmp = {};
-            Components.utils.import("resource://gre/modules/AddonManager.jsm", tmp);
+            ChromeUtils.import("resource://gre/modules/AddonManager.jsm", tmp);
             this.installInfo.installs.forEach(function(aInstall) {
               if (aInstall.maxProgress < 0)
                 max = -1;
@@ -3429,7 +3429,7 @@
               this.lastUpdate = now;
               var elapsed = (now - this.startTime) / 1000;
               var rate = elapsed && progress / elapsed;
-              Components.utils.import("resource://gre/modules/DownloadUtils.jsm", tmp);
+              ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm", tmp);
               var status;
               [status, this.lastSeconds] = tmp.DownloadUtils.getDownloadStatus(progress, max, rate, this.lastSeconds);
               this.setAttribute("status", status);

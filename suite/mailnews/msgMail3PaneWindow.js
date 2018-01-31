@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* This is where functions related to the 3 pane window are kept */
-Components.utils.import("resource:///modules/msgDBCacheManager.js");
+ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
 
 // from MailNewsTypes.h
 const nsMsgKey_None = 0xFFFFFFFF;

@@ -5,7 +5,7 @@
 
 /*  This file contains the js functions necessary to implement view navigation within the 3 pane. */
 
-Components.utils.import("resource:///modules/folderUtils.jsm");
+ChromeUtils.import("resource:///modules/folderUtils.jsm");
 
 //NOTE: gMessengerBundle must be defined and set or this Overlay won't work
 

@@ -45,8 +45,8 @@
 <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
 <script type="application/javascript" src="chrome://messenger/content/folderDisplay.js"/>
 <script type="application/javascript"><![CDATA[
-  Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
-  Components.utils.import("resource:///modules/PlacesUIUtils.jsm");
+  ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+  ChromeUtils.import("resource:///modules/PlacesUIUtils.jsm");
 ]]></script>
 
 <stringbundleset id="stringbundleset">

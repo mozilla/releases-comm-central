@@ -23,7 +23,7 @@
 
   <script type="application/javascript">
   <![CDATA[
-    Components.utils.import("resource:///modules/Sanitizer.jsm");
+    ChromeUtils.import("resource:///modules/Sanitizer.jsm");
 
     function onLoad()
     {

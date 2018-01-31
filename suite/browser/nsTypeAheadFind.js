@@ -6,8 +6,8 @@ const kSpace = " ".charCodeAt(0);
 const kSlash = "/".charCodeAt(0);
 const kApostrophe = "'".charCodeAt(0);
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function findTypeController(aTypeAheadFind, aWindow)
 {

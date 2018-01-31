@@ -13,25 +13,25 @@
 |   longer term, this code will be restructured to make it more reusable.      |
 ------------------------------------------------------------------------------*/
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var gContextMenuContentData = null;
 
 XPCOMUtils.defineLazyGetter(this, "InlineSpellCheckerUI", function() {
   let tmp = {};
-  Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm", tmp);
+  ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm", tmp);
   return new tmp.InlineSpellChecker();
 });
 
 XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
   let tmp = {};
-  Components.utils.import("resource://gre/modules/PageMenu.jsm", tmp);
+  ChromeUtils.import("resource://gre/modules/PageMenu.jsm", tmp);
   return new tmp.PageMenuParent();
 });
 
-XPCOMUtils.defineLazyModuleGetter(this, "DevToolsShim",
+ChromeUtils.defineModuleGetter(this, "DevToolsShim",
   "chrome://devtools-shim/content/DevToolsShim.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "findCssSelector",
+ChromeUtils.defineModuleGetter(this, "findCssSelector",
   "resource://gre/modules/css-selector.js");
 
 function nsContextMenu(aXulMenu, aIsShift, aEvent) {

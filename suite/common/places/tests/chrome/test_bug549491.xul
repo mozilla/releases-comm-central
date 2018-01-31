@@ -45,7 +45,7 @@
      * Ensures that changing the details of places tree's root-node doesn't
      * throw.
      */
-      Components.utils.import("resource://gre/modules/Services.jsm");
+      ChromeUtils.import("resource://gre/modules/Services.jsm");
       const Cc = Components.classes;
       const Ci = Components.interfaces;
 

@@ -4,40 +4,40 @@
 
 const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/osfile.jsm");
-Components.utils.import("resource://gre/modules/AddonManager.jsm");
-Components.utils.import("resource://gre/modules/LoginManagerParent.jsm");
-Components.utils.import("resource:///modules/Sanitizer.jsm");
-Components.utils.import("resource:///modules/mailnewsMigrator.js");
-Components.utils.import("resource:///modules/extensionSupport.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/osfile.jsm");
+ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+ChromeUtils.import("resource://gre/modules/LoginManagerParent.jsm");
+ChromeUtils.import("resource:///modules/Sanitizer.jsm");
+ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
+ChromeUtils.import("resource:///modules/extensionSupport.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "NetUtil",
-                                  "resource://gre/modules/NetUtil.jsm");
+ChromeUtils.defineModuleGetter(this, "NetUtil",
+                               "resource://gre/modules/NetUtil.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "FileUtils",
-                                  "resource://gre/modules/FileUtils.jsm");
+ChromeUtils.defineModuleGetter(this, "FileUtils",
+                               "resource://gre/modules/FileUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "PlacesUtils",
-                                  "resource://gre/modules/PlacesUtils.jsm");
+ChromeUtils.defineModuleGetter(this, "PlacesUtils",
+                               "resource://gre/modules/PlacesUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "PlacesBackups",
-                                  "resource://gre/modules/PlacesBackups.jsm");
+ChromeUtils.defineModuleGetter(this, "PlacesBackups",
+                               "resource://gre/modules/PlacesBackups.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "AutoCompletePopup",
-                                  "resource://gre/modules/AutoCompletePopup.jsm");
+ChromeUtils.defineModuleGetter(this, "AutoCompletePopup",
+                               "resource://gre/modules/AutoCompletePopup.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "BookmarkHTMLUtils",
-                                  "resource://gre/modules/BookmarkHTMLUtils.jsm");
+ChromeUtils.defineModuleGetter(this, "BookmarkHTMLUtils",
+                               "resource://gre/modules/BookmarkHTMLUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "BookmarkJSONUtils",
-                                  "resource://gre/modules/BookmarkJSONUtils.jsm");
+ChromeUtils.defineModuleGetter(this, "BookmarkJSONUtils",
+                               "resource://gre/modules/BookmarkJSONUtils.jsm");
 
 
 XPCOMUtils.defineLazyGetter(this, "DebuggerServer", () => {
   var tmp = {};
-  Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
+  ChromeUtils.import("resource://devtools/shared/Loader.jsm", tmp);
   return tmp.require("devtools/server/main").DebuggerServer;
 });
 
@@ -186,7 +186,7 @@ SuiteGlue.prototype = {
     }
     delay = delay <= MAX_DELAY ? delay : MAX_DELAY;
 
-    Components.utils.import("resource://services-sync/main.js");
+    ChromeUtils.import("resource://services-sync/main.js");
     Weave.Service.scheduler.delayedAutoConnect(delay);
   },
 
@@ -234,9 +234,9 @@ SuiteGlue.prototype = {
         Components.classes["@mozilla.org/globalmessagemanager;1"]
                   .getService(Components.interfaces.nsIMessageListenerManager)
                   .loadFrameScript("chrome://navigator/content/content.js", true);
-        Components.utils.import("resource://gre/modules/NotificationDB.jsm");
-        Components.utils.import("resource://gre/modules/Downloads.jsm");
-        Components.utils.import("resource://gre/modules/DownloadIntegration.jsm");
+        ChromeUtils.import("resource://gre/modules/NotificationDB.jsm");
+        ChromeUtils.import("resource://gre/modules/Downloads.jsm");
+        ChromeUtils.import("resource://gre/modules/DownloadIntegration.jsm");
         DownloadIntegration.shouldPersistDownload = function() { return true; }
         Downloads.getList(Downloads.ALL).then(list => list.addView(this))
                                         .then(() => gDownloadsLoaded = true);
@@ -641,7 +641,7 @@ SuiteGlue.prototype = {
         Components.classes["@mozilla.org/windows-taskbar;1"]
                   .getService(Components.interfaces.nsIWinTaskbar).available) {
       let temp = {};
-      Components.utils.import("resource:///modules/WindowsJumpLists.jsm", temp);
+      ChromeUtils.import("resource:///modules/WindowsJumpLists.jsm", temp);
       temp.WinTaskbarJumpList.startup();
     }
 

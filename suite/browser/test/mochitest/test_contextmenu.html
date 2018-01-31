@@ -18,8 +18,8 @@ Browser context menu tests.
 
 /** Test for Login Manager: multiple login autocomplete. **/
 
-SpecialPowers.Cu.import("resource://gre/modules/InlineSpellChecker.jsm", window);
-SpecialPowers.Cu.import("resource://gre/modules/AsyncSpellCheckTestHelper.jsm", window);
+SpecialPowers.ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm", window);
+SpecialPowers.ChromeUtils.import("resource://gre/modules/AsyncSpellCheckTestHelper.jsm", window);
 
 const Cc = SpecialPowers.Cc;
 const Ci = SpecialPowers.Ci;
