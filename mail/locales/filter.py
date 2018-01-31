@@ -4,7 +4,8 @@ def test(mod, path, entity=None):
   if mod not in ("netwerk", "dom", "toolkit", "security/manager",
                  "devtools/shared", "devtools/client",
                  "mail", "chat", "editor/ui", "extensions/spellcheck",
-                 "other-licenses/branding/thunderbird"):
+                 "other-licenses/branding/thunderbird",
+                 "mail/branding/thunderbird"):
     return "ignore"
 
   # ignore MOZ_LANGPACK_CONTRIBUTORS
