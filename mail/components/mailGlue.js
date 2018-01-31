@@ -6,6 +6,7 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
 ChromeUtils.import("resource:///modules/distribution.js");
 ChromeUtils.import("resource:///modules/mailMigrator.js");
 ChromeUtils.import("resource:///modules/extensionSupport.jsm");
@@ -35,6 +36,7 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "mail-startup-done");
     Services.obs.addObserver(this, "handle-xul-text-link");
     Services.obs.addObserver(this, "profile-after-change");
+    Services.obs.addObserver(this, "chrome-document-global-created");
   },
 
   // cleanup (called at shutdown)
@@ -44,6 +46,7 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "mail-startup-done");
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "profile-after-change");
+    Services.obs.removeObserver(this, "chrome-document-global-created");
   },
 
   // nsIObserver implementation
@@ -63,6 +66,15 @@ MailGlue.prototype = {
       break;
     case "profile-after-change":
       extensionDefaults(); // extensionSupport.jsm
+      break;
+    case "chrome-document-global-created":
+      // Set up lwt, but only if the "lightweightthemes" attr is set on the root
+      // (i.e. in messenger.xul).
+      aSubject.addEventListener("DOMContentLoaded", () => {
+        if (aSubject.document.documentElement.hasAttribute("lightweightthemes")) {
+          new LightweightThemeConsumer(aSubject.document);
+        }
+      }, {once: true});
       break;
     }
   },
