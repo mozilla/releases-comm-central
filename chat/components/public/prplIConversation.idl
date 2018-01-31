@@ -12,7 +12,6 @@ interface imIAccount;
 interface imIOutgoingMessage;
 interface imIMessage;
 interface nsIURI;
-interface nsIDOMDocument;
 interface prplIChatRoomFieldValues;
 
 /*

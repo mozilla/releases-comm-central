@@ -30,7 +30,6 @@
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
 #include "nsIDocument.h"
-#include "nsIDOMDocument.h"
 #include "nsMsgCompCID.h"
 #include "nsIAbAddressCollector.h"
 #include "nsAbBaseCID.h"

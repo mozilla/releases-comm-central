@@ -82,6 +82,7 @@
 #include "nsIProtocolHandler.h"
 #include "nsContentUtils.h"
 #include "nsIFileURL.h"
+#include "nsTextNode.h" // from dom/base
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -548,15 +549,13 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
     if (delimiter == kNotFound)
       delimiter = end;
 
-    nsCOMPtr<nsIDOMText> textNode;
-    rv = doc->CreateTextNode(Substring(aText, start, delimiter - start), getter_AddRefs(textNode));
-    NS_ENSURE_SUCCESS_VOID(rv);
+    nsCOMPtr<nsIDocument> doc2 = do_QueryInterface(doc);
+    RefPtr<nsTextNode> textNode =
+      doc2->CreateTextNode(Substring(aText, start, delimiter - start));
 
-    nsCOMPtr<nsIDOMNode> newTextNode = do_QueryInterface(textNode);
     nsCOMPtr<nsINode> divElem2 = do_QueryInterface(divElem);
-    nsCOMPtr<nsINode> newTextNode2 = do_QueryInterface(newTextNode);
     IgnoredErrorResult rv2;
-    divElem2->AppendChild(*newTextNode2, rv2);
+    divElem2->AppendChild(*textNode, rv2);
     if (rv2.Failed()) {
       return;
     }

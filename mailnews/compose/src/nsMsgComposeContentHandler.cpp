@@ -15,7 +15,6 @@
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
 #include "nsIDocument.h"
-#include "nsIDOMDocument.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIMsgMailNewsUrl.h"

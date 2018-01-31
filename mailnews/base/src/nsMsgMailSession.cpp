@@ -15,7 +15,6 @@
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
 #include "nsIDocument.h"
-#include "nsIDOMDocument.h"
 #include "nsIDOMElement.h"
 #include "nsIObserverService.h"
 #include "nsIAppStartup.h"
