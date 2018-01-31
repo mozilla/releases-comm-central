@@ -5,7 +5,7 @@
 // This tests that the charset decoding uses nsICharsetDecoder instead of
 // TextDecoder, to get some extra charsets.
 
-Components.utils.import("resource:///modules/jsmime.jsm");
+ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 var tests = [
   ["=?UTF-8?Q?=C2?=", "\uFFFD"], // Replacement character for invalid input.

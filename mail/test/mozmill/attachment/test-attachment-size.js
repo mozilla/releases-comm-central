@@ -13,7 +13,7 @@ var messenger;
 var epsilon;
 
 var os = {};
-Components.utils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
 
 var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +

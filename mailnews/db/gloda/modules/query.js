@@ -9,11 +9,11 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 // GlodaDatastore has some constants we need, and oddly enough, there was no
 //  load dependency preventing us from doing this.
-Cu.import("resource:///modules/gloda/datastore.js");
+ChromeUtils.import("resource:///modules/gloda/datastore.js");
 
 /**
  * @class Query class core; each noun gets its own sub-class where attributes

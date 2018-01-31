@@ -14,12 +14,12 @@
            extends="chrome://global/content/bindings/popup.xml#popup">
     <implementation>
       <constructor><![CDATA[
-        Components.utils.import("resource:///modules/FeedUtils.jsm", this);
-        Components.utils.import("resource:///modules/folderUtils.jsm", this);
-        Components.utils.import("resource:///modules/iteratorUtils.jsm", this);
-        Components.utils.import("resource:///modules/mailServices.js", this);
-        Components.utils.import("resource:///modules/MailUtils.js", this);
-        Components.utils.import("resource:///modules/StringBundle.js", this);
+        ChromeUtils.import("resource:///modules/FeedUtils.jsm", this);
+        ChromeUtils.import("resource:///modules/folderUtils.jsm", this);
+        ChromeUtils.import("resource:///modules/iteratorUtils.jsm", this);
+        ChromeUtils.import("resource:///modules/mailServices.js", this);
+        ChromeUtils.import("resource:///modules/MailUtils.js", this);
+        ChromeUtils.import("resource:///modules/StringBundle.js", this);
         this._stringBundle = new this
             .StringBundle("chrome://messenger/locale/folderWidgets.properties");
 

@@ -28,12 +28,12 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                          'notificationbox-helpers'];
 
 var elib = {};
-Components.utils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 var os = {};
-Components.utils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
 
-Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var folder = null;
 var gMsgNo = 0;

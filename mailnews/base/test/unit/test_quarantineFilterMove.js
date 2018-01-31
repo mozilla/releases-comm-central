@@ -9,8 +9,8 @@
  * adapted from test_copyThenMoveManual.js
  */
 
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 load("../../../resources/POP3pump.js");
 
 var gFiles = ["../../../data/bugmail1", "../../../data/bugmail10"];

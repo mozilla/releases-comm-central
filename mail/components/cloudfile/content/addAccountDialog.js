@@ -11,9 +11,9 @@ var Cr = Components.results;
 
 var kFormId = "provider-form";
 
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource:///modules/cloudFileAccounts.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 function createAccountObserver() {};
 

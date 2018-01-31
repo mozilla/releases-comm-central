@@ -6,7 +6,7 @@
  * This tests that we cleanup the account prefs when a pop3 account has
  * been deferred to a hidden account.
  */
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 function run_test()
 {

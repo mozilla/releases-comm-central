@@ -36,8 +36,8 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var mozmill = {}; Components.utils.import('resource://mozmill/modules/mozmill.js', mozmill);
-var utils = {}; Components.utils.import('resource://mozmill/modules/utils.js', utils);
+var mozmill = {}; ChromeUtils.import('resource://mozmill/modules/mozmill.js', mozmill);
+var utils = {}; ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
 
 var updateOutput = function(){
   //get the checkboxes

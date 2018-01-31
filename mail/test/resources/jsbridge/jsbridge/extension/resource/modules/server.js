@@ -38,7 +38,7 @@
 
 var EXPORTED_SYMBOLS = ["Server", "server", "AsyncRead", "Session", "sessions", "globalRegistry", "startServer"];
 
-var events = {}; Components.utils.import("resource://jsbridge/modules/events.js", events);
+var events = {}; ChromeUtils.import("resource://jsbridge/modules/events.js", events);
 var DEBUG_ON = false;
 var BUFFER_SIZE = 1024;
 var Cc = Components.classes;
@@ -50,7 +50,7 @@ var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
     .getService(Components.interfaces.nsIAppShellService)
     .hiddenDOMWindow;
 
-var json2 = Components.utils.import("resource://jsbridge/modules/json2.js");
+var json2 = ChromeUtils.import("resource://jsbridge/modules/json2.js");
 
 var jsonEncode = json2.JSON.stringify;
 

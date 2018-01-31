@@ -5,12 +5,12 @@
 this.EXPORTED_SYMBOLS = ["Notifications"];
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/hiddenWindow.jsm");
-Cu.import("resource:///modules/StringBundle.js");
-Cu.import("resource://gre/modules/AppConstants.jsm");
-Cu.import("resource://gre/modules/PluralForm.jsm");
-Cu.import("resource://gre/modules/Timer.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
+ChromeUtils.import("resource:///modules/StringBundle.js");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.

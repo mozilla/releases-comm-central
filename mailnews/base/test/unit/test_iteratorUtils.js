@@ -10,7 +10,7 @@
  */
 
 var iteratorUtils = {};
-Components.utils.import("resource:///modules/iteratorUtils.jsm", iteratorUtils);
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm", iteratorUtils);
 
 var gDOMParser = Cc["@mozilla.org/xmlextras/domparser;1"]
                    .createInstance(Ci.nsIDOMParser);

@@ -1,9 +1,9 @@
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource:///modules/IOUtils.js");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://testing-common/mailnews/mailTestUtils.js");
-Components.utils.import("resource://testing-common/mailnews/localAccountUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/IOUtils.js");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
+ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -11,7 +11,7 @@ var Cr = Components.results;
 var CC = Components.Constructor;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
-Components.utils.import("resource://testing-common/AppInfo.jsm");
+ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
 
 // Ensure the profile directory is set up
@@ -23,11 +23,11 @@ var gDEPTH = "../../../../";
 load("../../../resources/abSetup.js");
 
 // Import the smtp server scripts
-Components.utils.import("resource://testing-common/mailnews/maild.js");
-Components.utils.import("resource://testing-common/mailnews/smtpd.js");
-Components.utils.import("resource://testing-common/mailnews/auth.js");
+ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+ChromeUtils.import("resource://testing-common/mailnews/smtpd.js");
+ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var gDraftFolder;
 

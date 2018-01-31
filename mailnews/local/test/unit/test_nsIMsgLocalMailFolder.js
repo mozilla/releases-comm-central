@@ -5,8 +5,8 @@
 
 load("../../../resources/messageGenerator.js");
 
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 /**
  * Bug 66763
  * Test deletion of a folder with a name already existing in Trash.

@@ -10,7 +10,7 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
 var baseFolder, savedFolder;
 var setUntagged, setTagged;
 
-Components.utils.import("resource:///modules/mailViewManager.js");
+ChromeUtils.import("resource:///modules/mailViewManager.js");
 
 var setupModule = function(module) {
   let fdh = collector.getModule('folder-display-helpers');

@@ -6,8 +6,8 @@
 
 "use strict";
 
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gImportType = null;
 var gImportMsgsBundle;

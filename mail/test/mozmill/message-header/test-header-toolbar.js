@@ -13,8 +13,8 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                        'customization-helpers'];
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;
 var gCDHelper ;

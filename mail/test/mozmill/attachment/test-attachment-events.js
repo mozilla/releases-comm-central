@@ -17,10 +17,10 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'prompt-helpers'];
 
 var os = {};
-Cu.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
 
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource:///modules/iteratorUtils.jsm');
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
 
 var kAttachmentsAdded = "attachments-added";
 var kAttachmentsRemoved = "attachments-removed";

@@ -1,6 +1,6 @@
 // Bug 403242 stems from invalid message ids
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var daemon, localserver, server;
 

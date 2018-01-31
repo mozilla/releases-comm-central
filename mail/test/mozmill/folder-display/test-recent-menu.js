@@ -7,8 +7,8 @@
  * that they get updated when messages are moved to folders, and
  * don't get updated when we archive.
  */
-Cu.import("resource:///modules/MailUtils.js");
-Cu.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailUtils.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var MODULE_NAME = 'test-recent-menu';
 

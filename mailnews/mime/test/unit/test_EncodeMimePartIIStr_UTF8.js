@@ -4,7 +4,7 @@
 
 // This tests minimal mime encoding fixed in bug 458685
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 function run_test() {
   var i;

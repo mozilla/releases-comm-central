@@ -63,9 +63,9 @@ var EXPORTED_SYMBOLS = [
 // + Messages: A message is represented internally as an annotated URI.       //
 ////////////////////////////////////////////////////////////////////////////////
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource:///modules/mimeParser.jsm");
-Components.utils.import("resource://testing-common/mailnews/auth.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mimeParser.jsm");
+ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;

@@ -7,10 +7,10 @@
 
 // make xpcshell-tests TEST_PATH=mailnews/compose/test/unit/test_autoReply.js
 
-Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource:///modules/mimeParser.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 load("../../../resources/logHelper.js"); // watch for errors in the error console
 

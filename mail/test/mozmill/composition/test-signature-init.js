@@ -17,7 +17,7 @@ var kReplyOnTopPref = 'mail.identity.default.reply_on_top';
 var kReplyOnTop = 1;
 var kSigBottomPref = 'mail.identity.default.sig_bottom';
 
-Cu.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource://gre/modules/Services.jsm');
 
 function setupModule(module) {
   collector.getModule('folder-display-helpers').installInto(module);

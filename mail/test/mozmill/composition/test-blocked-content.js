@@ -19,10 +19,10 @@ var MODULE_REQUIRES = [
 ];
 
 var os = {};
-Cu.import("resource://mozmill/stdlib/os.js", os);
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import("resource:///modules/mailServices.js");
-Cu.import("resource://gre/modules/osfile.jsm");
+ChromeUtils.import("resource://mozmill/stdlib/os.js", os);
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gOutboxFolder;
 

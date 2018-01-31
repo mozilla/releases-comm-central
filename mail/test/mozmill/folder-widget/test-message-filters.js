@@ -13,7 +13,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                        "prompt-helpers"];
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 var folderA;
 
 function setupModule(module)

@@ -22,9 +22,9 @@
 
       <constructor>
         <![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js", this);
-          Components.utils.import("resource:///modules/iteratorUtils.jsm", this);
-          Components.utils.import("resource:///modules/StringBundle.js", this);
+          ChromeUtils.import("resource:///modules/mailServices.js", this);
+          ChromeUtils.import("resource:///modules/iteratorUtils.jsm", this);
+          ChromeUtils.import("resource:///modules/StringBundle.js", this);
           this._stringBundle = new this
               .StringBundle("chrome://messenger/locale/addressbook/addressBook.properties");
 

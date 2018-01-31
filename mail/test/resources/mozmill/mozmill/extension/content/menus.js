@@ -36,7 +36,7 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var frame = {}; Components.utils.import('resource://mozmill/modules/frame.js', frame);
+var frame = {}; ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
 
 
 function getBasename(path){

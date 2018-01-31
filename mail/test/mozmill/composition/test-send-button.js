@@ -13,7 +13,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                          "window-helpers", "address-book-helpers"];
 
 var elib = {};
-Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
+ChromeUtils.import("resource://mozmill/modules/elementslib.js", elib);
 
 var account = null;
 

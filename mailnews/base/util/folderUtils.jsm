@@ -10,8 +10,8 @@ this.EXPORTED_SYMBOLS = ["getFolderProperties", "getSpecialFolderString",
                           "getFolderFromUri", "allAccountsSorted",
                           "getMostRecentFolders", "folderNameCompare"];
 
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 /**
  * Returns a string representation of a folder's "special" type.

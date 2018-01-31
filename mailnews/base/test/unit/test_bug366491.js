@@ -9,7 +9,7 @@
 // only needed during debug
 //do_import_script("mailnews/extensions/bayesian-spam-filter/test/resources/trainingfile.js");
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 // local constants
 var kUnclassified = MailServices.junk.UNCLASSIFIED;

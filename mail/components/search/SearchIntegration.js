@@ -5,12 +5,12 @@
 var EXPORTED_SYMBOLS = ["SearchIntegration"];
 
 #ifdef XP_WIN
-Components.utils.import("resource:///modules/WinSearchIntegration.js");
+ChromeUtils.import("resource:///modules/WinSearchIntegration.js");
 
 #else
 
 #ifdef XP_MACOSX
-Components.utils.import("resource:///modules/SpotlightIntegration.js");
+ChromeUtils.import("resource:///modules/SpotlightIntegration.js");
 
 #else
 // Set SearchIntegration to null, as we don't have it

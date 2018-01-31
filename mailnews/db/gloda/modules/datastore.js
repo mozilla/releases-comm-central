@@ -14,14 +14,14 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/IOUtils.js");
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/IOUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-Cu.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-Cu.import("resource:///modules/gloda/datamodel.js");
-Cu.import("resource:///modules/gloda/databind.js");
-Cu.import("resource:///modules/gloda/collection.js");
+ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+ChromeUtils.import("resource:///modules/gloda/databind.js");
+ChromeUtils.import("resource:///modules/gloda/collection.js");
 
 var MIN_CACHE_SIZE = 8 * 1048576;
 var MAX_CACHE_SIZE = 64 * 1048576;

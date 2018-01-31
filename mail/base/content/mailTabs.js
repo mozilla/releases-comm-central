@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource:///modules/MsgHdrSyntheticView.js");
-Components.utils.import("resource:///modules/errUtils.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.js");
+ChromeUtils.import("resource:///modules/errUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Displays message "folder"s, mail "message"s, and "glodaList" results.  The

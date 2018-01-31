@@ -4,9 +4,9 @@
 
 var MODULE_NAME = "cloudfile-hightail-helpers";
 
-Cu.import('resource://mozmill/stdlib/httpd.js');
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource:///modules/cloudFileAccounts.js');
+ChromeUtils.import('resource://mozmill/stdlib/httpd.js');
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource:///modules/cloudFileAccounts.js');
 
 var kDefaultServerPort = 4444;
 var kServerRoot = "http://localhost:" + kDefaultServerPort;

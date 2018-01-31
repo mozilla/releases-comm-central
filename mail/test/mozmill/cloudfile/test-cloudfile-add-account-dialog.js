@@ -15,10 +15,10 @@ var MODULE_REQUIRES = ['cloudfile-helpers',
                          'keyboard-helpers',
                          'window-helpers'];
 
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('resource:///modules/cloudFileAccounts.js');
-Cu.import('resource:///modules/iteratorUtils.jsm');
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
+ChromeUtils.import('resource:///modules/cloudFileAccounts.js');
+ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
 
 var kCategory = 'cloud-files';
 var kDialogId = 'addCloudFileAccount';

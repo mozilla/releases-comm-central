@@ -1265,7 +1265,7 @@
       <property name="DeferredTask" readonly="true">
         <getter><![CDATA[
           let module = {};
-          Components.utils.import("resource://gre/modules/DeferredTask.jsm", module);
+          ChromeUtils.import("resource://gre/modules/DeferredTask.jsm", module);
           Object.defineProperty(this, "DeferredTask", {
             configurable: true,
             enumerable: true,

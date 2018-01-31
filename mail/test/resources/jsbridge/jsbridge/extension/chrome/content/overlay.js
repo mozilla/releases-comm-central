@@ -35,6 +35,6 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var jsbridgeInit = {}; Components.utils.import('resource://jsbridge/modules/init.js',jsbridgeInit);
+var jsbridgeInit = {}; ChromeUtils.import('resource://jsbridge/modules/init.js',jsbridgeInit);
 
 

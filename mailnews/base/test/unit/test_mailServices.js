@@ -6,7 +6,7 @@
  * Tests for the MailServices module.
  */
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 function check_service(aService, aInterface) {
   Assert.ok(aService in MailServices);

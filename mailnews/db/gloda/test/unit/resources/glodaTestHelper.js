@@ -21,9 +21,9 @@
  */
 
 // Services
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 // MailServices
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 // Import the main scripts that mailnews tests need to set up and tear down
 load("../../../../resources/abSetup.js");
@@ -44,7 +44,7 @@ var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
 var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
-Components.utils.import("resource:///modules/errUtils.js");
+ChromeUtils.import("resource:///modules/errUtils.js");
 
 /**
  * Create a 'me' identity of "me@localhost" for the benefit of Gloda.  At the
@@ -88,17 +88,17 @@ for (let {envVar, prefName} of ENVIRON_MAPPINGS) {
 
 
 // -- Import our modules
-Components.utils.import("resource:///modules/gloda/public.js");
-Components.utils.import("resource:///modules/gloda/indexer.js");
-Components.utils.import("resource:///modules/gloda/index_msg.js");
-Components.utils.import("resource:///modules/gloda/datastore.js");
-Components.utils.import("resource:///modules/gloda/collection.js");
-Components.utils.import("resource:///modules/gloda/datamodel.js");
-Components.utils.import("resource:///modules/gloda/noun_tag.js");
-Components.utils.import("resource:///modules/gloda/mimemsg.js");
+ChromeUtils.import("resource:///modules/gloda/public.js");
+ChromeUtils.import("resource:///modules/gloda/indexer.js");
+ChromeUtils.import("resource:///modules/gloda/index_msg.js");
+ChromeUtils.import("resource:///modules/gloda/datastore.js");
+ChromeUtils.import("resource:///modules/gloda/collection.js");
+ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
+ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // -- Add a logger listener that throws when we give it a warning/error.
-Components.utils.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var throwingAppender = new Log4Moz.ThrowingAppender(do_throw);
 throwingAppender.level = Log4Moz.Level.Warn;
 Log4Moz.repository.rootLogger.addAppender(throwingAppender);

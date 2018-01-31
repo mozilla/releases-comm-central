@@ -4,20 +4,20 @@
 
 var MODULE_NAME = "window-helpers";
 
-Cu.import('resource:///modules/iteratorUtils.jsm');
-Cu.import('resource://gre/modules/NetUtil.jsm');
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
+ChromeUtils.import('resource://gre/modules/NetUtil.jsm');
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
+ChromeUtils.import('resource://mozmill/modules/mozmill.js', mozmill);
 var controller = {};
-Cu.import('resource://mozmill/modules/controller.js', controller);
+ChromeUtils.import('resource://mozmill/modules/controller.js', controller);
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 var frame = {};
-Cu.import('resource://mozmill/modules/frame.js', frame);
+ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
 var utils = {};
-Cu.import('resource://mozmill/modules/utils.js', utils);
+ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
 
 /**
  * Timeout to use when waiting for the first window ever to load.  This is

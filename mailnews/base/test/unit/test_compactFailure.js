@@ -1,6 +1,6 @@
 
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
-Components.utils.import("resource://testing-common/mailnews/MockFactory.js");
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
 
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");

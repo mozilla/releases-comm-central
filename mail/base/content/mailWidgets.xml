@@ -575,7 +575,7 @@
       <constructor>
         <![CDATA[
           this.mAddresses = new Array;
-          Components.utils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
         ]]>
       </constructor>
 
@@ -1337,7 +1337,7 @@
       </method>
       <constructor>
         <![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
+          ChromeUtils.import("resource:///modules/mailServices.js");
         ]]>
       </constructor>
     </implementation>
@@ -1665,8 +1665,8 @@
       </property>
       <constructor>
       <![CDATA[
-        Components.utils.import("resource:///modules/mailServices.js");
-        Components.utils.import("resource://gre/modules/Services.jsm", this);
+        ChromeUtils.import("resource:///modules/mailServices.js");
+        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         initializeTermFromId(this.id);
       ]]>
       </constructor>
@@ -1739,8 +1739,8 @@
       </property>
       <constructor>
         <![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
-          Components.utils.import("resource://gre/modules/Services.jsm", this);
+          ChromeUtils.import("resource:///modules/mailServices.js");
+          ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         ]]>
       </constructor>
     </implementation>
@@ -2154,8 +2154,8 @@
       </method>
       <constructor>
       <![CDATA[
-        Components.utils.import("resource:///modules/mailServices.js");
-        Components.utils.import("resource://gre/modules/Services.jsm", this);
+        ChromeUtils.import("resource:///modules/mailServices.js");
+        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
 
         // initialize strings
         var bundle = this.Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
@@ -2646,8 +2646,8 @@
       </method>
       <constructor>
         <![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
-          Components.utils.import("resource://gre/modules/Services.jsm", this);
+          ChromeUtils.import("resource:///modules/mailServices.js");
+          ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         ]]>
       </constructor>
     </implementation>
@@ -2683,8 +2683,8 @@
     <implementation>
       <constructor>
         <![CDATA[
-          Components.utils.import("resource:///modules/MailUtils.js");
-          Components.utils.import("resource://gre/modules/Services.jsm", this);
+          ChromeUtils.import("resource:///modules/MailUtils.js");
+          ChromeUtils.import("resource://gre/modules/Services.jsm", this);
 
           if (!this.Services.prefs.getBoolPref("mail.biff.alert.show_preview"))
             document.getAnonymousElementByAttribute(this, "anonid", "preview").hidden = true;

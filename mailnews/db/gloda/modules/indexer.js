@@ -17,17 +17,17 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
-Cu.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-Cu.import("resource:///modules/gloda/utils.js");
-Cu.import("resource:///modules/gloda/datastore.js");
-Cu.import("resource:///modules/gloda/gloda.js");
-Cu.import("resource:///modules/gloda/collection.js");
-Cu.import("resource:///modules/gloda/connotent.js");
+ChromeUtils.import("resource:///modules/gloda/utils.js");
+ChromeUtils.import("resource:///modules/gloda/datastore.js");
+ChromeUtils.import("resource:///modules/gloda/gloda.js");
+ChromeUtils.import("resource:///modules/gloda/collection.js");
+ChromeUtils.import("resource:///modules/gloda/connotent.js");
 
 /**
  * @class Capture the indexing batch concept explicitly.

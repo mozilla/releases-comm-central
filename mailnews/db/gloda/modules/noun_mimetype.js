@@ -9,12 +9,12 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
-Cu.import("resource:///modules/StringBundle.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/StringBundle.js");
 
 var LOG = Log4Moz.repository.getLogger("gloda.noun.mimetype");
 
-Cu.import("resource:///modules/gloda/gloda.js");
+ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 var CategoryStringMap = {};
 
@@ -134,7 +134,7 @@ var MimeTypeNoun = {
    */
   _loadCategoryMapping: function MimeTypeNoun__loadCategoryMapping() {
     let mimecatNS = {};
-    Cu.import("resource:///modules/gloda/mimeTypeCategories.js",
+    ChromeUtils.import("resource:///modules/gloda/mimeTypeCategories.js",
               mimecatNS);
     let mcm = mimecatNS.MimeCategoryMapping;
 

@@ -39,7 +39,7 @@ var EXPORTED_SYMBOLS = ["assert", "assertTrue", "assertFalse", "assertEquals", "
                         "assertNull", "assertNotNull", "assertUndefined", "assertNotUndefined",
                         "assertNaN", "assertNotNaN", "fail", "pass"];
 
-var frame = {}; Components.utils.import("resource://mozmill/modules/frame.js", frame);
+var frame = {}; ChromeUtils.import("resource://mozmill/modules/frame.js", frame);
 
 var ifJSONable = function (v) {
   if (typeof(v) == 'function') {

@@ -11,11 +11,11 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                          "mock-object-helpers"];
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 var utils = {};
-Cu.import('resource://mozmill/modules/utils.js', utils);
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var NORMAL_TIMEOUT = 6000;
 var FAST_TIMEOUT = 1000;

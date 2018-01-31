@@ -6,7 +6,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 // The basic daemon to use for testing nntpd.js implementations
 var gDaemon = setupNNTPDaemon();

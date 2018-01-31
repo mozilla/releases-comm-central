@@ -23,8 +23,8 @@ var gSystemIntegrationDialog = {
   {
     // Makes Services and SearchIntegration accessible via this.Services
     // and this.SearchIntegration.
-    Components.utils.import("resource://gre/modules/Services.jsm", this);
-    Components.utils.import("resource:///modules/SearchIntegration.js", this);
+    ChromeUtils.import("resource://gre/modules/Services.jsm", this);
+    ChromeUtils.import("resource:///modules/SearchIntegration.js", this);
 
     // initialize elements
     this._mailCheckbox    = document.getElementById("checkMail");

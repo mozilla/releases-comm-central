@@ -112,9 +112,9 @@
     <implementation implements="nsIActivityListener">
       <constructor>
        <![CDATA[
-        Components.utils.import("resource:///modules/templateUtils.js", this);
+        ChromeUtils.import("resource:///modules/templateUtils.js", this);
         try {
-          Components.utils.import("resource:///modules/gloda/log4moz.js");
+          ChromeUtils.import("resource:///modules/gloda/log4moz.js");
           let activityManager = Components.classes["@mozilla.org/activity-manager;1"]
                                           .getService(Components.interfaces.nsIActivityManager);
 

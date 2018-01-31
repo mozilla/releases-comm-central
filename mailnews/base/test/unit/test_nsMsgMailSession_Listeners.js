@@ -3,7 +3,7 @@
  * Test suite for nsMsgMailSession functions relating to listeners.
  */
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var nsIFolderListener = Components.interfaces.nsIFolderListener;
 var numListenerFunctions = 8;

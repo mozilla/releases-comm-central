@@ -16,13 +16,13 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
-Cu.import("resource:///modules/StringBundle.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/StringBundle.js");
 
-Cu.import("resource:///modules/gloda/utils.js");
-Cu.import("resource:///modules/gloda/gloda.js");
-Cu.import("resource:///modules/gloda/noun_tag.js");
-Cu.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/gloda/utils.js");
+ChromeUtils.import("resource:///modules/gloda/gloda.js");
+ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 
 var nsMsgMessageFlags_Replied = Ci.nsMsgMessageFlags.Replied;

@@ -13,11 +13,11 @@ var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers'];
 
 var controller = {};
-Components.utils.import('resource://mozmill/modules/controller.js', controller);
+ChromeUtils.import('resource://mozmill/modules/controller.js', controller);
 var mozmill = {};
-Components.utils.import('resource://mozmill/modules/mozmill.js', mozmill);
+ChromeUtils.import('resource://mozmill/modules/mozmill.js', mozmill);
 var elib = {};
-Components.utils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.

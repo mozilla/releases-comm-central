@@ -6,11 +6,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Ensure the activity modules are loaded for this window.
-Components.utils.import("resource:///modules/activity/activityModules.js");
-Components.utils.import("resource:///modules/ABQueryUtils.jsm");
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource://gre/modules/PluralForm.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/activity/activityModules.js");
+ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsIAbListener = Components.interfaces.nsIAbListener;
 var kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
@@ -27,7 +27,7 @@ var msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
                           .createInstance(Components.interfaces.nsIMsgWindow);
 
 var chatHandler = {};
-Components.utils.import("resource:///modules/chatHandler.jsm", chatHandler);
+ChromeUtils.import("resource:///modules/chatHandler.jsm", chatHandler);
 
 // Constants that correspond to choices
 // in Address Book->View -->Show Name as

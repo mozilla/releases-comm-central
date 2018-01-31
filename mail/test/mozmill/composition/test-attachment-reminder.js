@@ -17,8 +17,8 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                          "notificationbox-helpers",
                          "keyboard-helpers"];
 
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var kBoxId = "attachmentNotificationBox";
 var kNotificationId = "attachmentReminder";

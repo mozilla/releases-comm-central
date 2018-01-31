@@ -16,8 +16,8 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'dom-helpers',
                        'window-helpers'];
 
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource:///modules/mailServices.js');
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource:///modules/mailServices.js');
 
 var kUploadedFile = "attachment-uploaded";
 var kHtmlPrefKey = "mail.identity.default.compose_html";

@@ -1,4 +1,4 @@
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var nsIAppShellService    = Components.interfaces.nsIAppShellService;
 var nsISupports           = Components.interfaces.nsISupports;
@@ -76,11 +76,11 @@ jsbridgeHandler.prototype = {
       var port = cmdLine.handleFlagWithParam("jsbridge", false);
       if (port) {
         var server = {};
-        Components.utils.import('resource://jsbridge/modules/server.js', server);
+        ChromeUtils.import('resource://jsbridge/modules/server.js', server);
         server.startServer(parseInt(port));
       } else {
         var server = {};
-        Components.utils.import('resource://jsbridge/modules/server.js', server);
+        ChromeUtils.import('resource://jsbridge/modules/server.js', server);
         server.startServer(24242);
       }
     }

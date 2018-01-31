@@ -6,7 +6,7 @@
  * Tests that you can stream a message without the attachments. Tests the
  * MsgHdrToMimeMessage API that exposes this.
  */
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 1000);
 
 load("../../../resources/logHelper.js");
@@ -18,7 +18,7 @@ mailTestUtils.registerUMimTypProvider();
 
 // javascript mime emitter functions
 var mimeMsg = {};
-Components.utils.import("resource:///modules/gloda/mimemsg.js", mimeMsg);
+ChromeUtils.import("resource:///modules/gloda/mimemsg.js", mimeMsg);
 
 var gSecondMsg;
 

@@ -4,7 +4,7 @@
  * files.
  */
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {
   const items = [ { key: "MailD", value: "Mail" },

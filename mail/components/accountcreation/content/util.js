@@ -14,8 +14,8 @@ try {
   var Cu = Components.utils;
 } catch (e) { ddump(e); }
 
-Cu.import("resource:///modules/errUtils.js");
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/errUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function assert(test, errorMsg)
 {
@@ -251,7 +251,7 @@ function deepCopy(org)
 }
 
 if (typeof gEmailWizardLogger == "undefined") {
-  Cu.import("resource:///modules/gloda/log4moz.js");
+  ChromeUtils.import("resource:///modules/gloda/log4moz.js");
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
 }
 function ddump(text)

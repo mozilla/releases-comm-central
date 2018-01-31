@@ -12,9 +12,9 @@
 
 this.EXPORTED_SYMBOLS = [ "migrateMailnews" ];
 
-Components.utils.import("resource:///modules/errUtils.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/errUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
 var Ci = Components.interfaces;
 var kServerPrefVersion = 1;
 var kSmtpPrefVersion = 1;

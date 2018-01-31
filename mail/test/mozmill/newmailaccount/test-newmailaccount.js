@@ -21,11 +21,11 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'dom-helpers'];
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource:///modules/iteratorUtils.jsm');
-Cu.import("resource:///modules/mailServices.js");
-Cu.import('resource://mozmill/stdlib/httpd.js');
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import('resource://mozmill/stdlib/httpd.js');
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.

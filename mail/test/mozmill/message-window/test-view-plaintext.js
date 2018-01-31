@@ -13,9 +13,9 @@ var MODULE_NAME = "test-view-plaintext";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 var os = {};
-Cu.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

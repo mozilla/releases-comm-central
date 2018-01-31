@@ -7,13 +7,13 @@
  * message pane.
  */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource:///modules/displayNameUtils.js");
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource:///modules/gloda/utils.js");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/displayNameUtils.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/gloda/utils.js");
 var {Status: statusUtils} =
-  Components.utils.import("resource:///modules/imStatusUtils.jsm");
+  ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Warning: It's critical that the code in here for displaying the message
@@ -1313,7 +1313,7 @@ function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
   let chatContact;
   if (!("chatHandler" in window)) {
     window.chatHandler = {};
-    Components.utils.import("resource:///modules/chatHandler.jsm", chatHandler);
+    ChromeUtils.import("resource:///modules/chatHandler.jsm", chatHandler);
   }
   let onlineContacts = chatHandler.onlineContacts;
   for (let chatAddress of chatAddresses) {

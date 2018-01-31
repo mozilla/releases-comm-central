@@ -9,7 +9,7 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var DBC_LOG = Log4Moz.repository.getLogger("gloda.ds.dbc");
 

@@ -9,9 +9,9 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource://gre/modules/PluralForm.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/StringBundle.js");
+ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/StringBundle.js");
 
 function PluralStringFormatter(aBundleURI) {
   this._bundle = new StringBundle(aBundleURI);

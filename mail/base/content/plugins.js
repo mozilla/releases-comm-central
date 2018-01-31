@@ -8,8 +8,8 @@
  * mozilla/browser/base/content/browser.js
  */
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 if (AppConstants.MOZ_CRASHREPORTER) {
   XPCOMUtils.defineLazyServiceGetter(this, "gCrashReporter",
@@ -87,7 +87,7 @@ var gPluginHandler = {
 
   get CrashSubmit() {
     delete this.CrashSubmit;
-    Components.utils.import("resource://gre/modules/CrashSubmit.jsm", this);
+    ChromeUtils.import("resource://gre/modules/CrashSubmit.jsm", this);
     return this.CrashSubmit;
   },
 

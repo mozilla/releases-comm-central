@@ -6,7 +6,7 @@
  * Tests for hostnameUtils.jsm.
  */
 
-Components.utils.import("resource:///modules/hostnameUtils.jsm");
+ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 /**
  * Checks if valid and invalid IPs are properly allowed or rejected.

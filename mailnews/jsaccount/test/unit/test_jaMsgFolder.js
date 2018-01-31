@@ -8,8 +8,8 @@
 // delegator class directly, instead we use a JS component as a demo of
 // JS override classes.
 
-Cu.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
-Cu.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var interfaces = JaBaseMsgFolderProperties.baseInterfaces;
 

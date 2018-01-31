@@ -17,7 +17,7 @@
  * @param clientConfigXML {JXON}  The <clientConfig> node.
  * @return AccountConfig   object filled with the data from XML
  */
-Components.utils.import("resource:///modules/hostnameUtils.jsm");
+ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 function readFromXML(clientConfigXML)
 {

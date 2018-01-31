@@ -13,7 +13,7 @@
   When all searches are finished, close the dialog.
 */
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsIX509CertDB = Components.interfaces.nsIX509CertDB;
 var nsX509CertDB = "@mozilla.org/security/x509certdb;1";

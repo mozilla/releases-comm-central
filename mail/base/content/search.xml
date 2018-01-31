@@ -54,9 +54,9 @@
         const Cc = Components.classes;
         const Ci = Components.interfaces;
         const Cu = Components.utils;
-        Cu.import("resource:///modules/errUtils.js");
-        Cu.import("resource://gre/modules/Services.jsm");
-        Cu.import("resource://gre/modules/AppConstants.jsm");
+        ChromeUtils.import("resource:///modules/errUtils.js");
+        ChromeUtils.import("resource://gre/modules/Services.jsm");
+        ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
         try {
           this.setAttribute(
@@ -89,7 +89,7 @@
 
       <destructor>
         <![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           Services.prefs.removeObserver("mailnews.database.global.indexer.enabled",
                                         this._prefObserver);
@@ -101,7 +101,7 @@
         inputSearch: this,
         observe: function(subject, topic, data)
         {
-          Components.utils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           if (topic == "nsPref:changed") {
             subject.QueryInterface(Components.interfaces.nsIPrefBranch);
@@ -218,7 +218,7 @@
 
       <method name="doSearch">
         <body><![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           try {
             if (this.value) {
@@ -242,7 +242,7 @@
               };
               if (Services.prefs.getBoolPref("mail.chat.enabled")) {
                 if (!("GlodaIMSearcher" in window))
-                  Cu.import("resource:///modules/search_im.js");
+                  ChromeUtils.import("resource:///modules/search_im.js");
                 args.IMSearcher = new GlodaIMSearcher(null, searchString);
               }
               tabmail.openTab("glodaFacet", args);

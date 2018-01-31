@@ -2,7 +2,7 @@
  * Test bug 460636 - Saving message in local folder as .EML removes starting dot in all lines, and ignores line if single dot only line.
  */
 
-Components.utils.import("resource:///modules/IOUtils.js");
+ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var MSG_LINEBREAK = "\r\n";
 var dot = do_get_file("data/dot");

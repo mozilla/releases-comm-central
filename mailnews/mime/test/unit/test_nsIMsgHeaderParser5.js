@@ -5,7 +5,7 @@
  *   parseEncodedHeader
  */
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 function equalArrays(arr1, arr2) {
   Assert.equal(arr1.length, arr2.length);

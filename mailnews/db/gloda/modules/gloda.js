@@ -9,20 +9,20 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-Cu.import("resource:///modules/gloda/datastore.js");
-Cu.import("resource:///modules/gloda/datamodel.js");
-Cu.import("resource:///modules/gloda/databind.js");
-Cu.import("resource:///modules/gloda/collection.js");
-Cu.import("resource:///modules/gloda/connotent.js");
-Cu.import("resource:///modules/gloda/query.js");
-Cu.import("resource:///modules/gloda/utils.js");
+ChromeUtils.import("resource:///modules/gloda/datastore.js");
+ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+ChromeUtils.import("resource:///modules/gloda/databind.js");
+ChromeUtils.import("resource:///modules/gloda/collection.js");
+ChromeUtils.import("resource:///modules/gloda/connotent.js");
+ChromeUtils.import("resource:///modules/gloda/query.js");
+ChromeUtils.import("resource:///modules/gloda/utils.js");
 
-Cu.import("resource:///modules/iteratorUtils.jsm");
-Cu.import("resource:///modules/IOUtils.js");
-Cu.import("resource:///modules/mailServices.js");
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource:///modules/IOUtils.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * @see |Gloda.BadItemContentsError|

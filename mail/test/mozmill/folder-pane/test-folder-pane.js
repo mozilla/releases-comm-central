@@ -13,7 +13,7 @@ var MODULE_NAME = 'test-folder-pane';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers'];
 
-Cu.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 function setupModule(module) {
   collector.getModule('folder-display-helpers').installInto(module);

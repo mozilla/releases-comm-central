@@ -7,8 +7,8 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource:///modules/errUtils.js");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/errUtils.js");
 
 var Gloda = null;
 var GlodaUtils = null;
@@ -473,19 +473,19 @@ function nsAutoCompleteGloda() {
     // set up our awesome globals!
     if (Gloda === null) {
       let loadNS = {};
-      Cu.import("resource:///modules/gloda/public.js", loadNS);
+      ChromeUtils.import("resource:///modules/gloda/public.js", loadNS);
       Gloda = loadNS.Gloda;
 
-      Cu.import("resource:///modules/gloda/utils.js", loadNS);
+      ChromeUtils.import("resource:///modules/gloda/utils.js", loadNS);
       GlodaUtils = loadNS.GlodaUtils;
-      Cu.import("resource:///modules/gloda/suffixtree.js", loadNS);
+      ChromeUtils.import("resource:///modules/gloda/suffixtree.js", loadNS);
       MultiSuffixTree = loadNS.MultiSuffixTree;
-      Cu.import("resource:///modules/gloda/noun_tag.js", loadNS);
+      ChromeUtils.import("resource:///modules/gloda/noun_tag.js", loadNS);
       TagNoun = loadNS.TagNoun;
-      Cu.import("resource:///modules/gloda/noun_freetag.js", loadNS);
+      ChromeUtils.import("resource:///modules/gloda/noun_freetag.js", loadNS);
       FreeTagNoun = loadNS.FreeTagNoun;
 
-      Cu.import("resource:///modules/gloda/log4moz.js", loadNS);
+      ChromeUtils.import("resource:///modules/gloda/log4moz.js", loadNS);
       LOG = loadNS["Log4Moz"].repository.getLogger("gloda.autocomp");
     }
 

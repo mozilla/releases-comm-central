@@ -196,7 +196,7 @@
     </implementation>
     <handlers>
       <handler event="command"><![CDATA[
-        Components.utils.import("resource://gre/modules/Services.jsm");
+        ChromeUtils.import("resource://gre/modules/Services.jsm");
 
         // Are they clicking on our header to get us to show the column list?
         if (event.originalTarget == this) {

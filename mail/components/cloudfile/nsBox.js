@@ -10,12 +10,12 @@
 
 var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/gloda/log4moz.js");
-Cu.import("resource:///modules/cloudFileAccounts.js");
-Cu.import("resource:///modules/OAuth2.jsm");
-Cu.import("resource://gre/modules/Http.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+ChromeUtils.import("resource:///modules/OAuth2.jsm");
+ChromeUtils.import("resource://gre/modules/Http.jsm");
 
 Cu.importGlobalProperties(["File", "XMLHttpRequest"]);
 

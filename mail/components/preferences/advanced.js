@@ -4,10 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Load DownloadUtils module for convertByteUnits
-Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/AppConstants.jsm");
-Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm");
+ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 
 var gAdvancedPane = {
   mPane: null,
@@ -51,7 +51,7 @@ var gAdvancedPane = {
     // Search integration -- check whether we should hide or disable integration
     let hideSearchUI = false;
     let disableSearchUI = false;
-    Components.utils.import("resource:///modules/SearchIntegration.js");
+    ChromeUtils.import("resource:///modules/SearchIntegration.js");
     if (SearchIntegration)
     {
       if (SearchIntegration.osVersionTooLow)

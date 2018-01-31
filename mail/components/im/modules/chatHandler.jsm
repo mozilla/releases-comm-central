@@ -4,9 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["allContacts", "onlineContacts", "ChatCore"];
 
-Components.utils.import("resource:///modules/imServices.jsm");
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var allContacts = {};
 var onlineContacts = {};
@@ -19,7 +19,7 @@ var ChatCore = {
       return;
     this._initializing = true;
 
-    Components.utils.import("resource:///modules/index_im.js");
+    ChromeUtils.import("resource:///modules/index_im.js");
 
     Services.obs.addObserver(this, "browser-request");
     Services.obs.addObserver(this, "contact-signed-on");

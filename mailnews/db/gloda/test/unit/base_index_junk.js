@@ -12,7 +12,7 @@
 
 load("resources/glodaTestHelper.js");
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var SPAM_BODY = {body: "superspam superspam superspam eevil eevil eevil"};
 var HAM_BODY = {body: "ham ham ham nice nice nice happy happy happy"};

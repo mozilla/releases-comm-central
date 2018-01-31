@@ -8,11 +8,11 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                          "account-manager-helpers", "keyboard-helpers" ];
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var elib = {};
-Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
+ChromeUtils.import("resource://mozmill/modules/elementslib.js", elib);
 
 var user = {
   name: "Yamato Nadeshiko",

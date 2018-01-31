@@ -15,13 +15,12 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/mailServices.js");
-Cu.import("resource:///modules/IOUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/IOUtils.js");
 
-XPCOMUtils.defineLazyModuleGetter(this, "LoginHelper",
-                                  "resource://gre/modules/LoginHelper.jsm");
+ChromeUtils.defineModuleGetter(this, "LoginHelper",
+                               "resource://gre/modules/LoginHelper.jsm");
 
 var MailMigrator = {
   /**
@@ -367,7 +366,7 @@ var MailMigrator = {
 
       // Changed notification sound behaviour on OS X.
       if (currentUIVersion < 15) {
-        Cu.import("resource://gre/modules/AppConstants.jsm");
+        ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
         if (AppConstants.platform == "macosx") {
           // For people updating from versions < 52 who had "Play system sound"
           // selected for notifications. As TB no longer plays system sounds,

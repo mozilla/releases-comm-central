@@ -19,7 +19,7 @@ var SAVE = 0
 var CANCEL = 1
 var DONT_SAVE = 2;
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 var folder = null;

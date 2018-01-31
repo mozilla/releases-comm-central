@@ -11,9 +11,9 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                          "dom-helpers"];
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 var utils = {};
-Cu.import('resource://mozmill/modules/utils.js', utils);
+ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
 
 var kTextNodeType = 3;
 

@@ -17,15 +17,15 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
-Cu.import("resource:///modules/StringBundle.js");
-Cu.import("resource://gre/modules/PluralForm.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/errUtils.js");
-Cu.import("resource:///modules/templateUtils.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/StringBundle.js");
+ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/errUtils.js");
+ChromeUtils.import("resource:///modules/templateUtils.js");
 
-Cu.import("resource:///modules/gloda/public.js");
-Cu.import("resource:///modules/gloda/facet.js");
+ChromeUtils.import("resource:///modules/gloda/public.js");
+ChromeUtils.import("resource:///modules/gloda/facet.js");
 
 var glodaFacetStrings =
   new StringBundle("chrome://messenger/locale/glodaFacetView.properties");

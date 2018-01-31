@@ -14,7 +14,7 @@ load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
 // Somehow we hit the blocklist service, and that needs appInfo defined
-Components.utils.import("resource://testing-common/AppInfo.jsm");
+ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
 
 // Register the mime types provider we need for this test.

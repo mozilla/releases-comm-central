@@ -3,7 +3,7 @@
  * in the pop3 download code.
  */
 load("../../../resources/POP3pump.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?"];

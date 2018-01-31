@@ -6,7 +6,7 @@
 /* Tests for platform-independent code to count new and unread messages and pass the
  * information to platform-specific notification modules */
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var iNMNS = Ci.mozINewMailNotificationService;
 

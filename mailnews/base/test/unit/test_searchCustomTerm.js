@@ -8,7 +8,7 @@
  */
 load("../../../resources/searchTestUtils.js");
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var kCustomId = "xpcomtest@mozilla.org#test";
 var gHdr;

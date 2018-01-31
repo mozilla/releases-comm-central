@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 try {
-  Components.utils.import("resource://testing-common/mailnews/imapd.js");
+  ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
 } catch (e) {
   // mozmill tests include this file, but they don't have testing-only modules
   // loaded. In this case, they don't get to use IMAP.
@@ -113,7 +113,7 @@ function configure_message_injection(aInjectionConfig) {
                                mis.injectionConfig.offline);
 
     // Pull in the IMAP fake server code
-    Components.utils.import("resource://testing-common/mailnews/IMAPpump.js");
+    ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 
     // set up IMAP fakeserver and incoming server
     setupIMAPPump("");

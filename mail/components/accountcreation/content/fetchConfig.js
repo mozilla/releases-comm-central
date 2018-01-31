@@ -9,9 +9,9 @@
  * Params @see fetchConfigFromISP()
  */
 
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource:///modules/JXON.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/JXON.js");
 
 
 function fetchConfigFromDisk(domain, successCallback, errorCallback)

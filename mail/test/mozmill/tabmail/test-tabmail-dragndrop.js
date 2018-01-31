@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /*
  * Test rearanging tabs via drag'n'drop.

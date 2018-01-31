@@ -220,7 +220,7 @@
         <parameter name="templateMenuList"/>
         <body>
           <![CDATA[
-            Components.utils.import("resource:///modules/iteratorUtils.jsm", this);
+            ChromeUtils.import("resource:///modules/iteratorUtils.jsm", this);
             let identitiesRaw = MailServices.accounts
               .getIdentitiesForServer(gFilterList.folder.server);
             let identities = Array.from(this.fixIterator(identitiesRaw,
@@ -437,7 +437,7 @@
           <![CDATA[
             // returns true if this row represents a valid filter action and false otherwise.
             // This routine also prompts the user.
-            Components.utils.import("resource:///modules/MailUtils.js", this);
+            ChromeUtils.import("resource:///modules/MailUtils.js", this);
             var filterActionString = this.getAttribute('value');
             var actionTarget = document.getAnonymousNodes(this)[1];
             var errorString, customError;
@@ -711,7 +711,7 @@
     <implementation>
       <constructor>
         <![CDATA[
-          Components.utils.import("resource:///modules/MailUtils.js", this);
+          ChromeUtils.import("resource:///modules/MailUtils.js", this);
           let folder = this.menulist.value ?
                          this.MailUtils.getFolderForURI(this.menulist.value) :
                          gFilterList.folder;

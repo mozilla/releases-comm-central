@@ -50,7 +50,7 @@
         this.contact = aContact;
         this.contact.addObserver(this);
         if (!("Status" in window))
-          Components.utils.import("resource:///modules/imStatusUtils.jsm");
+          ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
         this.update();
       ]]>
       </body>

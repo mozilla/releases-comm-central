@@ -15,10 +15,10 @@ var MODULE_REQUIRES = [ "folder-display-helpers", "window-helpers",
                         "compose-helpers" ];
 
 var os = {};
-Cu.import("resource://mozmill/stdlib/os.js", os);
+ChromeUtils.import("resource://mozmill/stdlib/os.js", os);
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-Cu.import("resource:///modules/IOUtils.js");
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var gImageFolder;
 

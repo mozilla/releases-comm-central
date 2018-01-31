@@ -9,7 +9,7 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var LOG = Log4Moz.repository.getLogger("gloda.everybody");
 
 var importNS = {};
@@ -17,7 +17,7 @@ var importNS = {};
 function loadModule(aModuleURI, aNSContrib) {
   try {
     LOG.info("... loading " + aModuleURI);
-    Cu.import(aModuleURI, importNS);
+    ChromeUtils.import(aModuleURI, importNS);
   }
   catch (ex) {
     LOG.error("!!! error loading " + aModuleURI);

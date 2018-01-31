@@ -9,24 +9,24 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers"];
 
 var EventUtils = {};
-Cu.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
+ChromeUtils.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
 var controller = {};
-Cu.import('resource://mozmill/modules/controller.js', controller);
+ChromeUtils.import('resource://mozmill/modules/controller.js', controller);
 var frame = {};
-Cu.import('resource://mozmill/modules/frame.js', frame);
+ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
 var os = {};
-Cu.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
 var utils = {};
-Cu.import('resource://mozmill/modules/utils.js', utils);
+ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
 
-Cu.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var nsMsgViewIndex_None = 0xffffffff;
-Cu.import('resource:///modules/MailConsts.js');
-Cu.import("resource:///modules/mailServices.js");
-Cu.import('resource:///modules/MailUtils.js');
-Cu.import('resource:///modules/mailViewManager.js');
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import('resource:///modules/MailConsts.js');
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import('resource:///modules/MailUtils.js');
+ChromeUtils.import('resource:///modules/mailViewManager.js');
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var FILE_LOAD_PATHS = [
   "../",

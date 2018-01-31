@@ -5,7 +5,7 @@
 // Test loading of virtualFolders.dat, including verification of the search 
 // scopes, i.e., folder uri's.
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 // As currently written, this test will only work with Berkeley store.
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",

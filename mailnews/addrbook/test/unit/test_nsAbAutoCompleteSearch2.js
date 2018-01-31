@@ -8,7 +8,7 @@
  * books.
  */
 
-Components.utils.import("resource:///modules/ABQueryUtils.jsm");
+ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 
 // taken from nsAbAutoCompleteSearch.js
 var ACR = Components.interfaces.nsIAutoCompleteResult;

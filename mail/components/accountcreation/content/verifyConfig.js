@@ -29,11 +29,11 @@
  *   The ex.message will contain a user-presentable message.
  */
 
-Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource:///modules/OAuth2Providers.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
 
 if (typeof gEmailWizardLogger == "undefined") {
-  Cu.import("resource:///modules/gloda/log4moz.js");
+  ChromeUtils.import("resource:///modules/gloda/log4moz.js");
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
 }
 

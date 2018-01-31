@@ -36,9 +36,9 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var arrays = {}; Components.utils.import('resource://mozmill/stdlib/arrays.js', arrays);
-var json2 = {}; Components.utils.import('resource://mozmill/stdlib/json2.js', json2);
-var utils = {}; Components.utils.import('resource://mozmill/modules/utils.js', utils);
+var arrays = {}; ChromeUtils.import('resource://mozmill/stdlib/arrays.js', arrays);
+var json2 = {}; ChromeUtils.import('resource://mozmill/stdlib/json2.js', json2);
+var utils = {}; ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
 
 var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
      getService(Components.interfaces.nsIConsoleService);
@@ -160,8 +160,8 @@ var createCell = function (t, obj, message) {
   updateOutput();
 }
 
-var frame = {}; Components.utils.import('resource://mozmill/modules/frame.js', frame);
-// var utils = {}; Components.utils.import('resouce://mozmill/modules/utils.js', utils);
+var frame = {}; ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
+// var utils = {}; ChromeUtils.import('resouce://mozmill/modules/utils.js', utils);
 
 // Set UI Listeners in frame
 

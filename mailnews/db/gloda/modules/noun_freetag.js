@@ -9,9 +9,9 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
+ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-Cu.import("resource:///modules/gloda/gloda.js");
+ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 function FreeTag(aTagName) {
   this.name = aTagName;

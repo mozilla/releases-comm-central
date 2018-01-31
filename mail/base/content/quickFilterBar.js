@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
-Components.utils.import("resource:///modules/errUtils.js");
-Components.utils.import("resource:///modules/quickFilterManager.js");
-Components.utils.import("resource:///modules/searchSpec.js");
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource:///modules/errUtils.js");
+ChromeUtils.import("resource:///modules/quickFilterManager.js");
+ChromeUtils.import("resource:///modules/searchSpec.js");
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Proper Code

@@ -5,8 +5,8 @@
 
 /*  This file contains the js functions necessary to implement view navigation within the 3 pane. */
 
-Components.utils.import("resource:///modules/folderUtils.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/folderUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function GetSubFoldersInFolderPaneOrder(folder)
 {

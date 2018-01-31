@@ -8,7 +8,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var EventUtils = {};
-Cu.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
+ChromeUtils.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
 
 var fdh;
 

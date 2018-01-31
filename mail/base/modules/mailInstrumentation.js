@@ -16,9 +16,9 @@ var Cu = Components.utils;
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
-Cu.import("resource:///modules/errUtils.js");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/errUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 

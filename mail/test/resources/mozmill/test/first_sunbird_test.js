@@ -1,5 +1,5 @@
-var elementslib = {}; Components.utils.import('resource://mozmill/modules/elementslib.js', elementslib);
-var mozmill = {}; Components.utils.import('resource://mozmill/modules/mozmill.js', mozmill);
+var elementslib = {}; ChromeUtils.import('resource://mozmill/modules/elementslib.js', elementslib);
+var mozmill = {}; ChromeUtils.import('resource://mozmill/modules/mozmill.js', mozmill);
 
 var setupModule = function (module) {
   var _w = mozmill.wm.getMostRecentWindow("calendarMainWindow");

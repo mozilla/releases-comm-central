@@ -5,12 +5,12 @@
 
 /* This is where functions related to the standalone message window are kept */
 
-Components.utils.import("resource:///modules/jsTreeSelection.js");
-Components.utils.import("resource:///modules/MailUtils.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/AppConstants.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource:///modules/MsgHdrSyntheticView.js");
+ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+ChromeUtils.import("resource:///modules/MailUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.js");
 
 // from MailNewsTypes.h
 var nsMsgKey_None = 0xFFFFFFFF;

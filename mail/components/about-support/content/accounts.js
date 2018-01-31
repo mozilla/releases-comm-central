@@ -6,17 +6,17 @@
 
 var { interfaces: Ci, utils: Cu } = Components;
 
-Cu.import("resource:///modules/mailServices.js");
-Cu.import("resource:///modules/iteratorUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Platform-specific includes
 if ("@mozilla.org/windows-registry-key;1" in Cc)
-  Cu.import("resource:///modules/aboutSupportWin32.js");
+  ChromeUtils.import("resource:///modules/aboutSupportWin32.js");
 else if ("nsILocalFileMac" in Ci)
-  Cu.import("resource:///modules/aboutSupportMac.js");
+  ChromeUtils.import("resource:///modules/aboutSupportMac.js");
 else
-  Cu.import("resource:///modules/aboutSupportUnix.js");
+  ChromeUtils.import("resource:///modules/aboutSupportUnix.js");
 
 var gMessengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties");

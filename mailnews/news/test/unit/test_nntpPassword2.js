@@ -7,7 +7,7 @@
  * default port or the SSL default port. Nothing else!
  */
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 load("../../../resources/passwordStorage.js");
 

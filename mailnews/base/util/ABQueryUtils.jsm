@@ -9,7 +9,7 @@
 this.EXPORTED_SYMBOLS = ["getSearchTokens", "getModelQuery",
                          "modelQueryHasUserValue", "generateQueryURI",
                          "encodeABTermValue"];
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Parse the multiword search string to extract individual search terms

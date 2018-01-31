@@ -11,7 +11,7 @@ var Cc = Components.classes;
 var Cu = Components.utils;
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 
 var MODULE_NAME = 'test-attachment';
 
@@ -26,7 +26,7 @@ var isWindows;
 var filePrefix;
 
 var os = {};
-Components.utils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
 
 var rawAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +

@@ -41,12 +41,12 @@
 var EXPORTED_SYMBOLS = ["MozMillController", "waitForEval", "MozMillAsyncTest",
                         "globalEventRegistry", "sleep", "windowMap"];
 
-var EventUtils = {}; Components.utils.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
+var EventUtils = {}; ChromeUtils.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
 
-var events = {}; Components.utils.import('resource://mozmill/modules/events.js', events);
-var utils = {}; Components.utils.import('resource://mozmill/modules/utils.js', utils);
-var elementslib = {}; Components.utils.import('resource://mozmill/modules/elementslib.js', elementslib);
-var frame = {}; Components.utils.import('resource://mozmill/modules/frame.js', frame);
+var events = {}; ChromeUtils.import('resource://mozmill/modules/events.js', events);
+var utils = {}; ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
+var elementslib = {}; ChromeUtils.import('resource://mozmill/modules/elementslib.js', elementslib);
+var frame = {}; ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
 
 var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
                 .getService(Components.interfaces.nsIAppShellService)
@@ -343,7 +343,7 @@ var MozMillController = function (window) {
   this.window = window;
 
   this.mozmillModule = {};
-  Components.utils.import('resource://mozmill/modules/mozmill.js', this.mozmillModule);
+  ChromeUtils.import('resource://mozmill/modules/mozmill.js', this.mozmillModule);
 
   utils.waitFor(function() {
     return window != null && this.isLoaded();
@@ -1338,7 +1338,7 @@ var controllerAdditions = {
   'navigator:browser'  :browserAdditions,
 }
 
-var withs = {}; Components.utils.import('resource://mozmill/stdlib/withs.js', withs);
+var withs = {}; ChromeUtils.import('resource://mozmill/stdlib/withs.js', withs);
 
 var MozMillAsyncTest = function (timeout) {
   if (timeout == undefined) {

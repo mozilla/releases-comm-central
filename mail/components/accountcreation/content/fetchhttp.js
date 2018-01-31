@@ -15,7 +15,7 @@
  * but not for bigger file downloads.
  */
 
-Components.utils.import("resource:///modules/JXON.js");
+ChromeUtils.import("resource:///modules/JXON.js");
 
 /**
  * Set up a fetch.

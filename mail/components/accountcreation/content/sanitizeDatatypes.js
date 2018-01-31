@@ -16,7 +16,7 @@
  * they throw exceptions.
  */
 
-Components.utils.import("resource:///modules/hostnameUtils.jsm");
+ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 var sanitize =
 {

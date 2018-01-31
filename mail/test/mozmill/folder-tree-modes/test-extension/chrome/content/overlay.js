@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 (function () {
-   Components.utils.import("resource:///modules/mailServices.js");
+   ChromeUtils.import("resource:///modules/mailServices.js");
    var testFolderTreeMode = {
      __proto__: IFolderTreeMode,
      generateMap: function testFolderTreeMode_generateMap(aFTV) {

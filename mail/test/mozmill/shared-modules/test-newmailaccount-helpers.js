@@ -9,11 +9,11 @@ var MODULE_REQUIRES = ["folder-display-helpers", "keyboard-helpers",
                        "dom-helpers"];
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource:///modules/iteratorUtils.jsm');
-Cu.import('resource:///modules/mailServices.js');
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
+ChromeUtils.import('resource:///modules/mailServices.js');
+ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var mc, fdh, kbh, dh;
 

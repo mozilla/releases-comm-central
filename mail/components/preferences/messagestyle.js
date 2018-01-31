@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var jsProtoHelper = {};
-Cu.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
-Cu.import("resource:///modules/imThemes.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
+ChromeUtils.import("resource:///modules/imThemes.jsm");
 
 function Conversation(aName) {
   this._name = aName;

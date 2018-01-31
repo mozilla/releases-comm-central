@@ -8,7 +8,7 @@
  *   -Bug 182128: Edit Card, Notes on several lines appear on one after
  *                export/import in text format *(only tests the import).
  */
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 function run_test()
 {

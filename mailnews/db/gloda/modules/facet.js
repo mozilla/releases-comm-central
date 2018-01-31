@@ -13,7 +13,7 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/gloda/public.js");
+ChromeUtils.import("resource:///modules/gloda/public.js");
 
 /**
  * Decides the appropriate faceters for the noun type and drives the faceting

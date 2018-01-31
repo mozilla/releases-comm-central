@@ -16,14 +16,14 @@ var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                        "window-helpers", "notificationbox-helpers"];
 
 var os = {};
-Cu.import("resource://mozmill/stdlib/os.js", os);
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import("resource:///modules/mailServices.js");
-Cu.import("resource:///modules/mimeParser.jsm");
+ChromeUtils.import("resource://mozmill/stdlib/os.js", os);
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var elib = {};
-Cu.import("resource://mozmill/modules/elementslib.js", elib);
+ChromeUtils.import("resource://mozmill/modules/elementslib.js", elib);
 var utils = {};
-Cu.import("resource://mozmill/modules/utils.js", utils);
+ChromeUtils.import("resource://mozmill/modules/utils.js", utils);
 
 var gDrafts;
 

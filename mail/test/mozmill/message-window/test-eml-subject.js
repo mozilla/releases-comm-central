@@ -12,9 +12,9 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var os = {};
-Cu.import('resource://mozmill/stdlib/os.js', os);
-Cu.import("resource:///modules/StringBundle.js");
-Cu.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import("resource:///modules/StringBundle.js");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");

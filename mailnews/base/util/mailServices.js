@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["MailServices"];
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var MailServices = {};
 

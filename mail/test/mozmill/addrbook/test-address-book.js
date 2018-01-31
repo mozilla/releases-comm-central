@@ -13,9 +13,9 @@ var MODULE_REQUIRES = ['address-book-helpers', 'folder-display-helpers',
                        'compose-helpers', 'window-helpers',
                        'prompt-helpers'];
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var abController = null;
 var addrBook1, addrBook2, addrBook3, addrBook4;

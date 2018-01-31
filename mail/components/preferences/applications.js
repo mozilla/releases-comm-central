@@ -24,10 +24,10 @@ var kActionUsePlugin = 5;
 var APP_ICON_ATTR_NAME = "appHandlerIcon";
 
 // CloudFile account tools used by gCloudFileTab.
-Components.utils.import("resource:///modules/cloudFileAccounts.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 //****************************************************************************//
 // Utilities

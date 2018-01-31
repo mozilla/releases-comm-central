@@ -3,7 +3,7 @@
  * Tests sending a message in the background (checks auto-send works).
  */
 
-Components.utils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/mailServices.js");
 
 var type = null;
 var test = null;

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Cu.import("resource:///modules/imStatusUtils.jsm");
+ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 
 var statusSelector = {
   observe: function ss_observe(aSubject, aTopic, aMsg) {
@@ -97,7 +97,7 @@ var statusSelector = {
           elt.removeAttribute("value");
       }
       if (!("TextboxSpellChecker" in window))
-        Components.utils.import("resource:///modules/imTextboxUtils.jsm");
+        ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
       TextboxSpellChecker.registerTextbox(elt);
       // force binding attachment by forcing layout
       elt.getBoundingClientRect();

@@ -13,9 +13,9 @@ var EXPORTED_SYMBOLS = [
   'POP3_RFC5034_handler'
 ];
 
-Components.utils.import("resource:///modules/IOUtils.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://testing-common/mailnews/auth.js");
+ChromeUtils.import("resource:///modules/IOUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;

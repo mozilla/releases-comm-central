@@ -14,7 +14,7 @@ load("../../../../mailnews/resources/messageInjection.js");
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils();
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* ===== Real Folder, no features ===== */
 

@@ -3,12 +3,11 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var imServices = {};
-Components.utils.import("resource:///modules/chatNotifications.jsm");
-Components.utils.import("resource:///modules/imServices.jsm", imServices);
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource:///modules/chatNotifications.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm", imServices);
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
 imServices = imServices.Services;
 
@@ -1190,7 +1189,7 @@ var chatHandler = {
     document.getElementById("conversationsGroup").sortComparator =
       (a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase());
 
-    Components.utils.import("resource:///modules/chatHandler.jsm", this);
+    ChromeUtils.import("resource:///modules/chatHandler.jsm", this);
     if (this.ChatCore.initialized)
       this.initAfterChatCore();
     else {

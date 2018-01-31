@@ -13,7 +13,7 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                          'content-tab-helpers',]
 
 var iteratorUtils = {};
-Cu.import('resource:///modules/iteratorUtils.jsm', iteratorUtils);
+ChromeUtils.import('resource:///modules/iteratorUtils.jsm', iteratorUtils);
 
 var kWhatsNewPref = 'mailnews.start_page.override_url';
 

@@ -9,7 +9,7 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var Cu = Components.utils;
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var SPACES = "                                                   ";
 var BRIGHT_COLORS = {
@@ -36,7 +36,7 @@ var STOP_COLORS = "\x1b[0m";
 /**
  * Example usages:
  *
- * Components.utils.import("resource:///modules/traceHelper.js");
+ * ChromeUtils.import("resource:///modules/traceHelper.js");
  * var debugContext = {color: "cyan"};
  * DebugTraceHelper.tracify(FolderDisplayWidget.prototype,
  *                          "FolderDisplayWidget", /.+/, debugContext);

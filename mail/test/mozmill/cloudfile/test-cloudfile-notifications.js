@@ -17,8 +17,8 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'notificationbox-helpers'];
 
 //var controller = {};
-//Cu.import('resource://mozmill/modules/controller.js', controller);
-Cu.import('resource://gre/modules/Services.jsm');
+//ChromeUtils.import('resource://mozmill/modules/controller.js', controller);
+ChromeUtils.import('resource://gre/modules/Services.jsm');
 
 var maxSize, oldInsertNotificationPref;
 

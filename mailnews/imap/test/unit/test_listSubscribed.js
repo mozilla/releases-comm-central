@@ -19,7 +19,7 @@ load("../../../resources/alertTestUtils.js");
 
 // IMAP pump
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Globals
 var nsMsgFolderFlags = Ci.nsMsgFolderFlags;

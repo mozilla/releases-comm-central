@@ -20,7 +20,7 @@ load("../../../resources/asyncTestUtils.js");
 
 // IMAP pump
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Messages to load must have CRLF line endings, that is Windows style
 var gMessage = "bugmail10"; // message file used as the test message

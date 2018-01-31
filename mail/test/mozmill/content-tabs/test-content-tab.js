@@ -9,12 +9,12 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
                        'dom-helpers', 'window-helpers'];
 
 var controller = {};
-Components.utils.import('resource://mozmill/modules/controller.js', controller);
+ChromeUtils.import('resource://mozmill/modules/controller.js', controller);
 var mozmill = {};
-Components.utils.import('resource://mozmill/modules/mozmill.js', mozmill);
+ChromeUtils.import('resource://mozmill/modules/mozmill.js', mozmill);
 var elementslib = {};
-Components.utils.import('resource://mozmill/modules/elementslib.js', elementslib);
-Components.utils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elementslib);
+ChromeUtils.import('resource://gre/modules/Services.jsm');
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.

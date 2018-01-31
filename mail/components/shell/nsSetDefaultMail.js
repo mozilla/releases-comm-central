@@ -13,7 +13,7 @@
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function nsSetDefaultMail() {
 }

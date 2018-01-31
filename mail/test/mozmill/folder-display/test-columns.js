@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 
 // needed to zero inter-folder processing delay
-Cu.import("resource:///modules/MailUtils.js");
+ChromeUtils.import("resource:///modules/MailUtils.js");
 
 
 /*

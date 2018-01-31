@@ -9,11 +9,11 @@
 var MODULE_NAME = "message-helpers";
 
 var frame = {};
-Cu.import('resource://mozmill/modules/frame.js', frame);
+ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
 var utils = {};
-Cu.import('resource://mozmill/modules/utils.js', utils);
+ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
 
-Cu.import("resource:///modules/gloda/mimemsg.js");
+ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 function installInto(module) {
   module.to_mime_message = to_mime_message;
