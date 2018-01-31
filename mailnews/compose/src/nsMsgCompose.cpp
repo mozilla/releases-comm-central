@@ -318,7 +318,6 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
   if (NS_FAILED(aNodeList->GetLength(&numNodes)))
     return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIDOMNode> node;
   nsCString curDraftIdURL;
 
   rv = m_compFields->GetDraftId(getter_Copies(curDraftIdURL));
@@ -533,8 +532,6 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
 
   NS_ENSURE_SUCCESS_VOID(rv);
 
-  nsCOMPtr<nsIDOMNode> divNode (do_QueryInterface(divElem));
-
   // We need the document
   nsCOMPtr<nsIDOMDocument> doc;
   rv = m_editor->GetDocument(getter_AddRefs(doc));
@@ -586,7 +583,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
   nsCOMPtr<nsINode> parent;
   int32_t offset;
 
-  rv = GetNodeLocation(divNode, address_of(parent), &offset);
+  rv = GetNodeLocation(divElem, address_of(parent), &offset);
   if (NS_SUCCEEDED(rv))
   {
     nsCOMPtr<nsISelection> selection;
@@ -5354,8 +5351,6 @@ nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
 
     nsAutoString element;
     element = node->NodeName();
-
-    nsCOMPtr<nsIDOMNode> pItem;
 
     // A style attribute on any element can change layout in any way,
     // so that is not convertible.
