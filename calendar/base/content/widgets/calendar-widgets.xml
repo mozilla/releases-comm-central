@@ -47,7 +47,7 @@
     </content>
     <implementation>
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       ]]></constructor>
 
       <field name="_maxCount">0</field>
@@ -238,7 +238,7 @@
 
     <implementation>
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           this.setUpTodayDate();
       ]]></constructor>
 
@@ -526,7 +526,7 @@
       <field name="mCalendarView">null</field>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       ]]></constructor>
 
       <!-- The ViewController that supports the interface 'calICalendarView'-->

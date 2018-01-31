@@ -6,7 +6,7 @@ var MODULE_NAME = "testBasicFunctionality";
 var RELATIVE_ROOT = "./shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var plan_for_modal_dialog, wait_for_modal_dialog;
 var helpersForController, deleteCalendars, handleNewCalendarWizard;

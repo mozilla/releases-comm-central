@@ -47,7 +47,7 @@
     <implementation>
       <field name="kCheckbox">null</field>;
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           this.kCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-checkbox-widget");
       ]]></constructor>
 
@@ -111,7 +111,7 @@
       <field name="mAllDayItem">null</field>;
 
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           this.mAllDayItem = document.getAnonymousElementByAttribute(this, "anonid", "allday-item");
       ]]></constructor>
 

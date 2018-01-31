@@ -66,9 +66,9 @@
       <field name="mPopupOpen">false</field>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
-          Components.utils.import("resource://gre/modules/Services.jsm");
-          Components.utils.import("resource:///modules/mailServices.js");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource:///modules/mailServices.js");
 
           this.mMaxAttendees = 0;
 
@@ -1262,8 +1262,8 @@
       </property>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.initTimeRange();
 

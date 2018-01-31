@@ -4,7 +4,7 @@
 
 /* exported ltn */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 this.EXPORTED_SYMBOLS = ["ltn"];
 var ltn = {

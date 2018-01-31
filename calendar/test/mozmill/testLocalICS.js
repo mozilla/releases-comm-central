@@ -6,8 +6,8 @@ var MODULE_NAME = "testLocalICS";
 var RELATIVE_ROOT = "./shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
-Cu.import("resource://calendar/modules/calUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var plan_for_modal_dialog, wait_for_modal_dialog;
 var helpersForController, invokeEventDialog, switchToView, deleteCalendars;

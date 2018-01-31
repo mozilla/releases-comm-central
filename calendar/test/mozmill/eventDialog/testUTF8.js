@@ -9,7 +9,7 @@ var helpersForController, invokeEventDialog, createCalendar;
 var deleteCalendars, switchToView;
 var EVENT_BOX, CANVAS_BOX;
 
-Cu.import("resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var UTF8STRING = " 💣 💥  ☣  ";
 

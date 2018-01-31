@@ -20,7 +20,7 @@
  * Used by all grid views.
  */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * PUBLIC: Displays a tooltip with details when hovering over an item in the views

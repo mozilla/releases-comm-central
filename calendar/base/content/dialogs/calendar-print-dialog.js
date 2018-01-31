@@ -4,8 +4,8 @@
 
 /* exported loadCalendarPrintDialog, printAndClose, onDatePick */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
  * Gets the calendar view from the opening window

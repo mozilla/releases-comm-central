@@ -70,7 +70,7 @@
     </content>
     <implementation>
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       ]]></constructor>
 
       <property name="occurrence">
@@ -141,7 +141,7 @@
 
     <implementation>
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       ]]></constructor>
 
       <field name="mDate">null</field>
@@ -419,9 +419,9 @@
 
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
-          Components.utils.import("resource://calendar/modules/calViewUtils.jsm");
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          ChromeUtils.import("resource://calendar/modules/calViewUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           // Set the preference for the default start of the week
           this.weekStartOffset = Preferences.get("calendar.week.start", 0);

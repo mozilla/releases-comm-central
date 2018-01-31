@@ -4,8 +4,8 @@
 
 /* exported onLoad, onAcceptDialog, unsubscribeCalendar */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
-Components.utils.import("resource://gre/modules/PluralForm.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 /**
  * The calendar to modify, is retrieved from window.arguments[0].calendar

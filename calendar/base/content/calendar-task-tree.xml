@@ -113,11 +113,11 @@
 
     <implementation implements="nsIObserver">
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/PluralForm.jsm");
-          Components.utils.import("resource://gre/modules/Services.jsm");
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
-          Components.utils.import("resource://calendar/modules/calItemUtils.jsm");
-          Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calItemUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
           // set up the tree filter
           this.mFilter = new calFilter();
@@ -170,7 +170,7 @@
           }
       ]]></constructor>
       <destructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           // remove composite calendar observer
           let composite = cal.view.getCompositeCalendar(window);
@@ -1160,7 +1160,7 @@
   <binding id="calendar-task-tree-todaypane" extends="chrome://calendar/content/calendar-task-tree.xml#calendar-task-tree">
     <implementation>
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       ]]></constructor>
 
       <method name="getInitialDate">

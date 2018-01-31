@@ -4,9 +4,9 @@
 
 var gCalThreadingEnabled;
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 // Usually the backend loader gets loaded via profile-after-change, but in case
 // a calendar component hooks in earlier, its very likely it will use calUtils.
@@ -828,5 +828,5 @@ cal.loadScripts(["calUtils.js"], cal);
 cal.loadScripts(["calUtils.js"], Components.utils.getGlobalForObject(cal));
 
 // Backwards compatibility for bug 905097. Please remove with Thunderbird 61.
-Components.utils.import("resource://calendar/modules/calUtilsCompat.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtilsCompat.jsm");
 injectCalUtilsCompat(cal);

@@ -11,8 +11,8 @@
  *          CACHE_LAST_RESULTS_INVALIDATE, LOG_LEVEL
  */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
-Components.utils.import("resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 //
 // init code for globals, prefs:

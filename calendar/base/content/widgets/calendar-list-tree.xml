@@ -16,7 +16,7 @@
       -->
     <implementation>
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           let calMgr = cal.getCalendarManager();
           calMgr.addObserver(this.calMgrObserver);
 
@@ -229,8 +229,8 @@
       <field name="mCycleTimer">null</field>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
-          Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
           this.tree.view = this;
           this.ruleCache = {};
           this.mCycleCalendarFlag = {};

@@ -13,7 +13,7 @@ var invokeEventDialog, viewForward, deleteCalendars, createCalendar, setData;
 var menulistSelect;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 
-Cu.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 const HOUR = 8;
 const STARTDATE = new Date(2009, 0, 6);

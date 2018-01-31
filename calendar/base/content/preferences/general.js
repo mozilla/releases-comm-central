@@ -4,7 +4,7 @@
 
 /* exported gCalendarGeneralPane */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Global Object to hold methods for the general pref pane

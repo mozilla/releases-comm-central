@@ -24,7 +24,7 @@ var gViewsPane = {
      * menulists. This is needed to respect locales that use AM/PM.
      */
     initializeViewStartEndMenus: function() {
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+        ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
         let labelIdStart;
         let labelIdEnd;
 

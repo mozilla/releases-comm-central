@@ -17,7 +17,7 @@
       <field name="mParentMenuPopup">null</field>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.mPopupHandler = () => { this.changeMenuByPropertyName(); };
           this.mParentMenuPopup = cal.view.getParentNodeOrThis(this, "menupopup");

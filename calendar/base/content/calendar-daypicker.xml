@@ -115,8 +115,8 @@
       </property>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
           this.weekStartOffset = Preferences.get("calendar.week.start", 0);
 
@@ -244,7 +244,7 @@
       </property>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           let mainbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "mainbox");

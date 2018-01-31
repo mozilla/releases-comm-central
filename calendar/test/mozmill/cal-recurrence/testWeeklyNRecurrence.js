@@ -6,7 +6,7 @@ var MODULE_NAME = "testWeeklyNRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
-Cu.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
 var REC_DLG_ACCEPT, REC_DLG_DAYS;

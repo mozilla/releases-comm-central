@@ -31,7 +31,7 @@ function unwrapSingle(type, val) {
     } else if (val.wrappedJSObject.innerObject instanceof type) {
         return val.wrappedJSObject.innerObject;
     } else {
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+        ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
         Components.utils.reportError("Unknown " + (type.icalclass || type) + " passed at " + cal.STACK(10));
         return null;
     }

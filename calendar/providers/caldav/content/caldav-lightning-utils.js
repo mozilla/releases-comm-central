@@ -6,7 +6,7 @@
  *          caldavUpdateForceEmailSchedulingControl
  */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Initializing calendar creation wizard and properties dialog to display the

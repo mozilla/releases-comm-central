@@ -10,9 +10,9 @@ var MODULE_NAME = "testAlarmDefaultValue";
 var RELATIVE_ROOT = "./shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "keyboard-helpers"];
 
-Cu.import("resource://calendar/modules/calUtils.jsm");
-Cu.import("resource://gre/modules/PluralForm.jsm");
-Cu.import("resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 const DEFVALUE = 43;
 

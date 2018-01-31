@@ -122,7 +122,7 @@
       </property>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
+          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
           this.initTimeRange();
       ]]></constructor>
@@ -424,8 +424,8 @@
       </property>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           let args = window.arguments[0];
           let startTime = args.startTime;
@@ -688,8 +688,8 @@
       </property>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.initTimeRange();
           this.mRange = Number(this.getAttribute("range"));
@@ -1075,8 +1075,8 @@
       </property>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.initTimeRange();
 

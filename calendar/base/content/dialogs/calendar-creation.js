@@ -4,7 +4,7 @@
 
 /* exported openLocalCalendar */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Shows the filepicker and creates a new calendar with a local file using the ICS

@@ -4,7 +4,7 @@
 
 /** Helper functions for parsing and serializing XML */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 Components.utils.importGlobalProperties(["XMLHttpRequest"]);
 

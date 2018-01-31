@@ -134,7 +134,7 @@
       <field name="mScrollYearsHandler">null</field>
       <field name="mPixelScrollDelta">0</field>
       <constructor><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.kMinimonth = cal.view.getParentNodeOrThis(this, "minimonth");
           document.getAnonymousElementByAttribute(this, "anonid", "back-button").kMinimonth = this.kMinimonth;
@@ -439,9 +439,9 @@
       <field name="mShowWeekNumber">true</field>
 
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.mToday = false;
           this.mSelected = false;
@@ -464,7 +464,7 @@
       ]]></constructor>
 
       <destructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           if (this.mObservesComposite == true) {
               cal.view.getCompositeCalendar(window).removeObserver(this);

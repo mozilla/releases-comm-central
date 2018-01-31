@@ -9,7 +9,7 @@ var MODULE_REQUIRES = ["calendar-utils"];
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
 var CALENDARNAME;
 
-Cu.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();

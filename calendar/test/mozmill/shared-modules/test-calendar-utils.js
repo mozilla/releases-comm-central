@@ -6,12 +6,12 @@ var MODULE_NAME = "calendar-utils";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "pref-window-helpers"];
 
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var os = {};
-Cu.import("resource://mozmill/stdlib/os.js", os);
+ChromeUtils.import("resource://mozmill/stdlib/os.js", os);
 var frame = {};
-Cu.import("resource://mozmill/modules/frame.js", frame);
+ChromeUtils.import("resource://mozmill/modules/frame.js", frame);
 
 var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;

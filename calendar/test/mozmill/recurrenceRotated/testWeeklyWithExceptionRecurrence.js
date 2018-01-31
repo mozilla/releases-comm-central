@@ -5,7 +5,7 @@
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
 var switchToView, goToDate, handleOccurrencePrompt;
