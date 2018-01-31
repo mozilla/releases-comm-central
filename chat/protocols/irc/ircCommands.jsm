@@ -8,10 +8,9 @@ this.EXPORTED_SYMBOLS = ["commands"];
 
 var {interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/ircUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "Task",
-  "resource://gre/modules/Task.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/ircUtils.jsm");
+ChromeUtils.defineModuleGetter(this, "Task", "resource://gre/modules/Task.jsm");
 
 // Shortcut to get the JavaScript conversation object.
 function getConv(aConv) { return aConv.wrappedJSObject; }

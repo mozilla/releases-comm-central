@@ -4,16 +4,14 @@
 
 var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
-XPCOMUtils.defineLazyModuleGetter(this, "MatrixSDK",
-                                  "resource:///modules/matrix-sdk.jsm"
-);
+ChromeUtils.defineModuleGetter(this, "MatrixSDK", "resource:///modules/matrix-sdk.jsm");
 
 function MatrixParticipant(aRoomMember) {
   // FIXME: Should probably use aRoomMember.name, but it's not unique id?

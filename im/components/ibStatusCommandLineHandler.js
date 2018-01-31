@@ -4,9 +4,9 @@
 
 var {interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/imStatusUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 
 function StatusCLH() { }
 StatusCLH.prototype = {

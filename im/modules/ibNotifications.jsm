@@ -4,10 +4,10 @@
 
 this.EXPORTED_SYMBOLS = ["Notifications"];
 
-Components.utils.import("resource:///modules/imServices.jsm");
-Components.utils.import("resource:///modules/imWindows.jsm");
-Components.utils.import("resource:///modules/hiddenWindow.jsm");
-Components.utils.import("resource:///modules/ibInterruptions.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imWindows.jsm");
+ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
+ChromeUtils.import("resource:///modules/ibInterruptions.jsm");
 
 var Notifications = {
   get ellipsis () {

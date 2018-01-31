@@ -21,8 +21,8 @@ this.EXPORTED_SYMBOLS = ["ircCAP"];
 
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/ircHandlers.jsm");
-Cu.import("resource:///modules/ircUtils.jsm");
+ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 /*
  * Parses a CAP message of the form:

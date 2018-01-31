@@ -2,7 +2,7 @@
 * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var xmppXml = {};
 Services.scriptloader.loadSubScript("resource:///modules/xmpp-xml.jsm", xmppXml);

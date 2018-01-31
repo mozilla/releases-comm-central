@@ -5,7 +5,7 @@
 var smileysPreview = {
   _loaded: false,
   load: function() {
-    Components.utils.import("resource:///modules/imSmileys.jsm");
+    ChromeUtils.import("resource:///modules/imSmileys.jsm");
 
     gThemePane.buildThemeList("emoticons");
     let themeName = document.getElementById("emoticons-themename");

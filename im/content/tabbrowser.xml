@@ -554,7 +554,7 @@
             var warnOnClose = { value:true };
             var bundle = this.mStringBundle;
             if (!("PluralForm" in window))
-              Components.utils.import("resource://gre/modules/PluralForm.jsm");
+              ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
             var promptMessage = PluralForm.get(unreadConvsCount, bundle.getString("tabs.closeWarningMessage"))
                                           .replace("#1", unreadConvsCount);
             var closeButton = PluralForm.get(unreadConvsCount, bundle.getString("tabs.closeButton"));
@@ -1719,7 +1719,7 @@
 #ifdef XP_MACOSX
 
           if (!("WindowDraggingElement" in window))
-            Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
+            ChromeUtils.import("resource://gre/modules/WindowDraggingUtils.jsm");
           let draghandle = new WindowDraggingElement(this.arrowScrollbox, window);
           draghandle.mouseDownCheck =
             aEvent => aEvent.originalTarget.localName != "tab";

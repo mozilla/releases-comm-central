@@ -4,11 +4,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // Load DownloadUtils module for convertByteUnits
-Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
-Components.utils.import("resource://gre/modules/ctypes.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/LoadContextInfo.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/LoadContextInfo.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var gAdvancedPane = {
   _inited: false,

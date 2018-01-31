@@ -497,7 +497,7 @@
           // Could be an existing conversation or a contact.
           if (source != "chat") {
             if (!("Status" in window))
-              Components.utils.import("resource:///modules/imStatusUtils.jsm");
+              ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
             this.setAttribute("status", Status.toAttribute(aTarget.statusType));
           }
           else

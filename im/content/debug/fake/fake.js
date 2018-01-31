@@ -4,8 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
-Components.utils.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 var away = Ci.imIStatusInfo.STATUS_AWAY;
 var idle = Ci.imIStatusInfo.STATUS_IDLE;

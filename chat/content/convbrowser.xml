@@ -111,7 +111,7 @@
             if (!this.docShell)
               return null;
 
-            let Finder = Components.utils.import("resource://gre/modules/Finder.jsm", {}).Finder;
+            let Finder = ChromeUtils.import("resource://gre/modules/Finder.jsm", {}).Finder;
             this._finder = new Finder(this.docShell);
           }
           return this._finder;
@@ -279,11 +279,11 @@
           this.addEventListener("resize", this.browserResize);
 
           if (!("cleanupImMarkup" in window))
-            Components.utils.import("resource:///modules/imContentSink.jsm");
+            ChromeUtils.import("resource:///modules/imContentSink.jsm");
           if (!("smileImMarkup" in window))
-            Components.utils.import("resource:///modules/imSmileys.jsm");
+            ChromeUtils.import("resource:///modules/imSmileys.jsm");
           if (!("getCurrentTheme" in window))
-            Components.utils.import("resource:///modules/imThemes.jsm");
+            ChromeUtils.import("resource:///modules/imThemes.jsm");
 
           this.onContentElementLoad = this._onContentElementLoad.bind(this);
         ]]>

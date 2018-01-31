@@ -4,8 +4,8 @@
 
 this.EXPORTED_SYMBOLS = ["Services"];
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyServiceGetter(Services, "accounts",
                                    "@mozilla.org/chat/accounts-service;1",

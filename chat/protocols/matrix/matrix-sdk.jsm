@@ -4,12 +4,12 @@
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource://gre/modules/Console.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/Timer.jsm");
+ChromeUtils.import("resource://gre/modules/Console.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Timer.jsm");
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 
-const { Loader, Require, Module } = Cu.import("resource://devtools/shared/base-loader.js", {});
+const { Loader, Require, Module } = ChromeUtils.import("resource://devtools/shared/base-loader.js", {});
 
 this.EXPORTED_SYMBOLS = ["MatrixSDK"];
 

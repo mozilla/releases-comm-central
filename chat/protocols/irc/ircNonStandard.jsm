@@ -16,8 +16,8 @@ this.EXPORTED_SYMBOLS = ["ircNonStandard"];
 
 var {interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/ircHandlers.jsm");
-Cu.import("resource:///modules/ircUtils.jsm");
+ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 var ircNonStandard = {
   name: "Non-Standard IRC Extensions",

@@ -6,8 +6,8 @@ this.EXPORTED_SYMBOLS = ["Status"];
 
 var {interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/status.properties")

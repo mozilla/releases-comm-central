@@ -4,9 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["Sounds"];
 
-Components.utils.import("resource:///modules/hiddenWindow.jsm");
-Components.utils.import("resource:///modules/imServices.jsm");
-Components.utils.import("resource:///modules/ibInterruptions.jsm");
+ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/ibInterruptions.jsm");
 
 var Sounds = {
   soundEvents: ["contact-signed-on", "contact-signed-off", "new-text"],

@@ -2,16 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-XPCOMUtils.defineLazyModuleGetter(this, "AppConstants",
-                                  "resource://gre/modules/AppConstants.jsm");
+ChromeUtils.defineModuleGetter(this, "AppConstants",
+                               "resource://gre/modules/AppConstants.jsm");
 
 var TAB_DROP_TYPE = "application/x-moz-tabbrowser-tab";
 
 var convWindow = {
   load: function mo_load() {
-    Components.utils.import("resource:///modules/imWindows.jsm");
+    ChromeUtils.import("resource:///modules/imWindows.jsm");
     Conversations.registerWindow(window);
 
     if ("arguments" in window) {

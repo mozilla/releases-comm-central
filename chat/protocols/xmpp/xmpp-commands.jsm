@@ -6,7 +6,7 @@ this.EXPORTED_SYMBOLS = ["commands"];
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")

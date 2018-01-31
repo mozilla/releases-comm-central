@@ -11,20 +11,20 @@ this.EXPORTED_SYMBOLS = [
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/imStatusUtils.jsm");
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
-Cu.import("resource:///modules/NormalizedMap.jsm");
-Cu.import("resource:///modules/socket.jsm");
-Cu.import("resource:///modules/xmpp-xml.jsm");
-Cu.import("resource:///modules/xmpp-session.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
+ChromeUtils.import("resource:///modules/socket.jsm");
+ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+ChromeUtils.import("resource:///modules/xmpp-session.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "DownloadUtils",
+ChromeUtils.defineModuleGetter(this, "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "FileUtils",
+ChromeUtils.defineModuleGetter(this, "FileUtils",
   "resource://gre/modules/FileUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "NetUtil",
+ChromeUtils.defineModuleGetter(this, "NetUtil",
   "resource://gre/modules/NetUtil.jsm");
 XPCOMUtils.defineLazyServiceGetter(this, "imgTools",
                                    "@mozilla.org/image/tools;1",

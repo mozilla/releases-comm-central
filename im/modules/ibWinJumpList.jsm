@@ -6,8 +6,8 @@ this.EXPORTED_SYMBOLS = ["WinJumpList"];
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/imStatusUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 
 var WinJumpList = {
   winJumpListBuilder: null,

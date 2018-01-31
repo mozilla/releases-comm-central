@@ -4,7 +4,7 @@
 
 var {interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
 // We don't load the command service via Services as we want to access
 // _findCommands in order to avoid having to intercept command execution.
 var imCommands = {};

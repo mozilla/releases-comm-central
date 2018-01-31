@@ -139,7 +139,7 @@
       <body>
        <![CDATA[
          if (!("Conversations" in window))
-           Components.utils.import("resource:///modules/imWindows.jsm");
+           ChromeUtils.import("resource:///modules/imWindows.jsm");
          Conversations.focusConversation(this.conv.target);
        ]]>
       </body>
@@ -149,7 +149,7 @@
       <body>
        <![CDATA[
          if (!("Conversations" in window))
-           Components.utils.import("resource:///modules/imWindows.jsm");
+           ChromeUtils.import("resource:///modules/imWindows.jsm");
          Conversations.forgetHiddenConversation(this.conv);
          this.conv.close();
        ]]>

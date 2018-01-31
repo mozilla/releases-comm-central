@@ -6,7 +6,7 @@ this.EXPORTED_SYMBOLS = ["ircHandlers"];
 
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/ircUtils.jsm");
+ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 var ircHandlers = {
   /*

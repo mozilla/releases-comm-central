@@ -5,8 +5,8 @@
 var CONVERSATION_WINDOW_URI = "chrome://instantbird/content/instantbird.xul";
 this.EXPORTED_SYMBOLS = ["Conversations"];
 
-Components.utils.import("resource:///modules/imServices.jsm");
-Components.utils.import("resource:///modules/ibInterruptions.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/ibInterruptions.jsm");
 
 var Conversations = {
   _unreadCount: 0,

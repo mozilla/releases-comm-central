@@ -17,9 +17,9 @@ this.EXPORTED_SYMBOLS = ["ircWATCH", "isupportWATCH", "ircMONITOR",
 
 var {interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/ircHandlers.jsm");
-Cu.import("resource:///modules/ircUtils.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 function setStatus(aAccount, aNick, aStatus) {
   if (!aAccount.watchEnabled && !aAccount.monitorEnabled)

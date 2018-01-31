@@ -16,8 +16,8 @@ this.EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
 
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/ircHandlers.jsm");
-Cu.import("resource:///modules/ircUtils.jsm");
+ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 /*
  * Parses an ircMessage into an ISUPPORT message for each token of the form:

@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource://gre/modules/DownloadUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
 // This is the list of notifications that the account manager window observes
 var events = [
@@ -260,7 +260,7 @@ var gAccountManager = {
   },
   showDebugLog: function am_showDebugLog() {
     if (!("Core" in window))
-      Cu.import("resource:///modules/ibCore.jsm");
+      ChromeUtils.import("resource:///modules/ibCore.jsm");
     Core.showDebugLog(this.accountList.selectedItem.account.id);
   },
   updateConnectedLabels: function am_updateConnectedLabels() {
@@ -525,7 +525,7 @@ var gAccountManager = {
          If none, this function has already returned */
       case as.AUTOLOGIN_ENABLED:
         if (!("PluralForm" in window))
-          Cu.import("resource://gre/modules/PluralForm.jsm");
+          ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
         label = bundle.getString("accountsManager.notification.singleCrash.label");
         label = PluralForm.get(crashCount, label).replace("#1", crashCount);
         priority = box.PRIORITY_WARNING_MEDIUM;

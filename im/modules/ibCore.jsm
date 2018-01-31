@@ -5,11 +5,11 @@
 this.EXPORTED_SYMBOLS = ["Core"];
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/imWindows.jsm");
-Cu.import("resource:///modules/ibNotifications.jsm");
-Cu.import("resource:///modules/ibSounds.jsm");
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imWindows.jsm");
+ChromeUtils.import("resource:///modules/ibNotifications.jsm");
+ChromeUtils.import("resource:///modules/ibSounds.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
 var Core = {
   _events: [
@@ -86,7 +86,7 @@ var Core = {
     if (WINTASKBAR_CONTRACTID in Cc &&
         Cc[WINTASKBAR_CONTRACTID].getService(Ci.nsIWinTaskbar).available) {
       let temp = {};
-      Cu.import("resource:///modules/ibWinJumpList.jsm", temp);
+      ChromeUtils.import("resource:///modules/ibWinJumpList.jsm", temp);
       temp.WinJumpList.init();
     }
 #endif
@@ -336,7 +336,7 @@ var Core = {
     let action         = aQuitType == "restart" ? "restart" : "quit";
     let button         = bundle.GetStringFromName(action + "Button");
 
-    Components.utils.import("resource://gre/modules/PluralForm.jsm");
+    ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
     promptMessage = PluralForm.get(unreadConvsCount, promptMessage)
                               .replace("#1", unreadConvsCount);
 

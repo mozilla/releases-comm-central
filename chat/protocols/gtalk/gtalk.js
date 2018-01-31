@@ -4,11 +4,11 @@
 
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
-Cu.import("resource:///modules/xmpp.jsm");
-Cu.import("resource:///modules/xmpp-session.jsm");
-Cu.import("resource:///modules/xmpp-xml.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/xmpp.jsm");
+ChromeUtils.import("resource:///modules/xmpp-session.jsm");
+ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
@@ -69,7 +69,7 @@ GTalkAccount.prototype = {
 };
 
 function GTalkProtocol() {
-  Cu.import("resource:///modules/xmpp-commands.jsm", this);
+  ChromeUtils.import("resource:///modules/xmpp-commands.jsm", this);
   this.registerCommands();
 }
 GTalkProtocol.prototype = {

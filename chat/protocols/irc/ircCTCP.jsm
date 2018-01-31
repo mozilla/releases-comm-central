@@ -12,10 +12,10 @@ this.EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
 
 var Cu = Components.utils;
 
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/ircHandlers.jsm");
-Cu.import("resource:///modules/ircUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Split into a CTCP message which is a single command and a single parameter:
 //   <command> " " <parameter>

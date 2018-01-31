@@ -70,7 +70,7 @@
         <body>
         <![CDATA[
           if (!("Services" in window))
-            Components.utils.import("resource:///modules/imServices.jsm");
+            ChromeUtils.import("resource:///modules/imServices.jsm");
           let accounts = Services.accounts.getAccounts();
           while (accounts.hasMoreElements()) {
             let acc = accounts.getNext();

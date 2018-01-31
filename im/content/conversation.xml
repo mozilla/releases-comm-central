@@ -486,7 +486,7 @@
           let textbox = this.editor;
 
           if (!("MessageFormat" in window))
-            Components.utils.import("resource:///modules/imTextboxUtils.jsm");
+            ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
           MessageFormat.registerTextbox(textbox);
 
           // Init the textbox size
@@ -1596,7 +1596,7 @@
               let conv = this._conv;
               let addContact = aTag => conv.account.addBuddy(aTag, conv.name);
               menu.actionOnShowing = function() {
-                Components.utils.import("resource:///modules/ibTagMenu.jsm");
+                ChromeUtils.import("resource:///modules/ibTagMenu.jsm");
                 menu.tagMenu =
                   new TagMenu(menu, window, id, addContact, addContact);
               };
@@ -1852,7 +1852,7 @@
           this.findbar.browser = this.browser;
 
           if (!("Status" in window))
-            Components.utils.import("resource:///modules/imStatusUtils.jsm");
+            ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
           this.updateConvStatus();
           this.initTextboxFormat();
         ]]>
@@ -1873,7 +1873,7 @@
             this.browser.progressBar = this.getElt("browserProgress");
 
             if (!("Interruptions" in window))
-              Components.utils.import("resource:///modules/ibInterruptions.jsm");
+              ChromeUtils.import("resource:///modules/ibInterruptions.jsm");
 
             // Display all queued messages. Use a timeout so that message text
             // modifiers can be added with observers for this notification.
@@ -2096,7 +2096,7 @@
             if ("draghandle" in this)
               return;
             if (!("WindowDraggingElement" in window))
-              Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
+              ChromeUtils.import("resource://gre/modules/WindowDraggingUtils.jsm");
             this.draghandle = new WindowDraggingElement(this, window);
           }
         ]]>

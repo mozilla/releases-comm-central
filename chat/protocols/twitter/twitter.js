@@ -4,11 +4,11 @@
 
 var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
-Cu.import("resource://gre/modules/Http.jsm");
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
-Cu.import("resource:///modules/twitter-text.jsm");
+ChromeUtils.import("resource://gre/modules/Http.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/twitter-text.jsm");
 
 var NS_PREFBRANCH_PREFCHANGE_TOPIC_ID = "nsPref:changed";
 var kMaxMessageLength = 140;

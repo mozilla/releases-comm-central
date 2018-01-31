@@ -1,8 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-Components.utils.import("resource:///modules/ircServerTime.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/ircServerTime.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);

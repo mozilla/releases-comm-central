@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 var kPrefAutologinPending = "messenger.accounts.autoLoginPending";
 var kPrefMessengerAccounts = "messenger.accounts";

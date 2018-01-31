@@ -4,7 +4,7 @@
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
-Components.utils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
 
 function* getIter(aEnumerator)
 {

@@ -4,10 +4,10 @@
 
 var {interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
-Cu.import("resource:///modules/xmpp.jsm");
-Cu.import("resource:///modules/xmpp-session.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/xmpp.jsm");
+ChromeUtils.import("resource:///modules/xmpp-session.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")

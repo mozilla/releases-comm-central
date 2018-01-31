@@ -14,8 +14,8 @@ this.EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource://services-crypto/utils.js");
-Cu.import("resource:///modules/xmpp-xml.jsm");
+ChromeUtils.import("resource://services-crypto/utils.js");
+ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
 // Handle PLAIN authorization mechanism.
 function* PlainAuth(aUsername, aPassword, aDomain) {

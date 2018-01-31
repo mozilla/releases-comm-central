@@ -4,14 +4,14 @@
 
 var {classes: Cc, interfaces: Ci, utils: Cu, Constructor: CC} = Components;
 
-Cu.import("resource:///modules/hiddenWindow.jsm");
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
-Cu.import("resource:///modules/ToLocaleFormat.jsm");
+ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/ToLocaleFormat.jsm");
 
-Cu.import("resource://gre/modules/Task.jsm")
-XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+ChromeUtils.import("resource://gre/modules/Task.jsm")
+ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/logger.properties")

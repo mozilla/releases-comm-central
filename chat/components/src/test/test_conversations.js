@@ -2,8 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var {interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 var imConversations = {};
 Services.scriptloader.loadSubScript(

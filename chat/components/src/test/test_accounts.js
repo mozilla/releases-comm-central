@@ -4,9 +4,9 @@
 
 var {interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource://testing-common/AppInfo.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 
 function run_test() {
   do_get_profile();

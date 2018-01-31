@@ -4,12 +4,12 @@
 
 var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
-Cu.import("resource://gre/modules/Http.jsm");
-Cu.import("resource:///modules/ArrayBufferUtils.jsm");
-Cu.import("resource:///modules/BigInteger.jsm");
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.import("resource://gre/modules/Http.jsm");
+ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
+ChromeUtils.import("resource:///modules/BigInteger.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 // Constants used by the login process. This emulates a captured session using
 // official means.

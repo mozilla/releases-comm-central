@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 if (!("Core" in window))
-  Components.utils.import("resource:///modules/ibCore.jsm");
+  ChromeUtils.import("resource:///modules/ibCore.jsm");
 
 var gMainPane = {
   _pane: null,

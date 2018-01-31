@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var jsProtoHelper = {};
-Components.utils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
+ChromeUtils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
 
 function Conversation(aName) {
   this._name = aName;

@@ -16,9 +16,9 @@ this.EXPORTED_SYMBOLS = [
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource://gre/modules/DownloadUtils.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/imServices.jsm");
+ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
 var kThemePref = "theme";
@@ -41,7 +41,7 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
-XPCOMUtils.defineLazyModuleGetter(this,
+ChromeUtils.defineModuleGetter(this,
   "ToLocaleFormat", "resource:///modules/ToLocaleFormat.jsm");
 
 var gCurrentTheme = null;

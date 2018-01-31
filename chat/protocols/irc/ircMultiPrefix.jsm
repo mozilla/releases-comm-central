@@ -17,7 +17,7 @@
 
 this.EXPORTED_SYMBOLS = ["isupportNAMESX", "capMultiPrefix"];
 
-Components.utils.import("resource:///modules/ircHandlers.jsm");
+ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 
 var isupportNAMESX = {
   name: "ISUPPORT NAMESX",

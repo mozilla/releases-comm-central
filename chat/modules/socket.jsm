@@ -79,10 +79,10 @@
 this.EXPORTED_SYMBOLS = ["Socket"];
 
 var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/ArrayBufferUtils.jsm");
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
-Cu.import("resource:///modules/hiddenWindow.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
 
 // Network errors see: xpcom/base/nsError.h
 var NS_ERROR_MODULE_NETWORK = 2152398848;

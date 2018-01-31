@@ -7,9 +7,9 @@ var joinChatWindow = "chrome://instantbird/content/joinchat.xul";
 var aboutWindow = "chrome://instantbird/content/aboutDialog.xul";
 
 if (!("Services" in window))
-  Components.utils.import("resource:///modules/imServices.jsm");
+  ChromeUtils.import("resource:///modules/imServices.jsm");
 if (!("Core" in window))
-  Components.utils.import("resource:///modules/ibCore.jsm");
+  ChromeUtils.import("resource:///modules/ibCore.jsm");
 
 var menus = {
   supportsCommand: aCmd =>
@@ -31,7 +31,7 @@ var menus = {
       this.addBuddy();
     else if (aCmd == "cmd_newtab") {
       if (!("Conversations" in window))
-        Components.utils.import("resource:///modules/imWindows.jsm");
+        ChromeUtils.import("resource:///modules/imWindows.jsm");
       Conversations.showNewTab();
     }
   },
@@ -55,7 +55,7 @@ var menus = {
   },
 
   errors: function debug_errors() {
-    let { require } = Components.utils.import("resource://devtools/shared/Loader.jsm", {});
+    let { require } = ChromeUtils.import("resource://devtools/shared/Loader.jsm", {});
     let { HUDService } = require("devtools/client/webconsole/hudservice");
     HUDService.openBrowserConsoleOrFocus();
   },
@@ -148,7 +148,7 @@ var menus = {
 
   checkCurrentStatusType: function menu_checkCurrentStatusType(aItems) {
     if (!("Status" in window))
-      Components.utils.import("resource:///modules/imStatusUtils.jsm");
+      ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
     let status = Status.toAttribute(Services.core.globalUserStatus.statusType);
     if (status == "away")
       status = "unavailable";

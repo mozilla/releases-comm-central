@@ -7,7 +7,7 @@ this.EXPORTED_SYMBOLS = ["_", "_conv", "ctcpFormatToText", "ctcpFormatToHTML",
 
 var {classes: Cc, interfaces: Ci} = Components;
 
-Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
