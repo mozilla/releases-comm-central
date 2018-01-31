@@ -5579,13 +5579,9 @@ nsMsgCompose::BodyConvertible(int32_t *_retval)
       return rv;
 
     // get the top level element, which contains <html>
-    nsCOMPtr<nsIDOMElement> rootElement;
-    rv = rootDocument->GetDocumentElement(getter_AddRefs(rootElement));
-    if (NS_FAILED(rv) || !rootElement)
-      return rv;
-
-    nsCOMPtr<Element> rootElement2 = do_QueryInterface(rootElement);
-    return _NodeTreeConvertible(rootElement2, _retval);
+    nsCOMPtr<nsIDocument> rootDocument2 = do_QueryInterface(rootDocument);
+    nsCOMPtr<Element> rootElement = rootDocument2->GetDocumentElement();
+    return _NodeTreeConvertible(rootElement, _retval);
 }
 
 NS_IMETHODIMP
