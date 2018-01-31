@@ -133,6 +133,7 @@
 #include "nsIMsgFilterService.h"
 #include "nsIMsgOperationListener.h"
 #include "nsMsgIncomingServer.h"
+#include "mozilla/dom/Element.h"
 
 //
 // Some necessary defines...
@@ -160,7 +161,6 @@ class nsMsgSendPart;
 class nsMsgCopy;
 class nsIPrompt;
 class nsIInterfaceRequestor;
-class mozilla::dom::Element;
 
 namespace mozilla {
 namespace mailnews {
