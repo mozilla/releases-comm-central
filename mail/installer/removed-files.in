@@ -908,7 +908,6 @@ uninstall/uninstall.exe
   components/dom_html.xpt
   components/dom_offline.xpt
   components/dom_range.xpt
-  components/dom_traversal.xpt
   components/dom_views.xpt
   components/dom_xbl.xpt
   components/dom_xpath.xpt
@@ -1044,7 +1043,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/dom_storage.xpt
   @DIR_MACOS@components/dom_svg.xpt
   @DIR_MACOS@components/dom_threads.xpt
-  @DIR_MACOS@components/dom_traversal.xpt
   @DIR_MACOS@components/dom_views.xpt
   @DIR_MACOS@components/dom_xbl.xpt
   @DIR_MACOS@components/dom_xpath.xpt

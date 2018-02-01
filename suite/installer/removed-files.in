@@ -1285,7 +1285,6 @@ components/xpautoc.dll
 @DIR_MACOS@components/dom_storage.xpt
 @DIR_MACOS@components/dom_svg.xpt
 @DIR_MACOS@components/dom_threads.xpt
-@DIR_MACOS@components/dom_traversal.xpt
 @DIR_MACOS@components/dom_views.xpt
 @DIR_MACOS@components/dom_xbl.xpt
 @DIR_MACOS@components/dom_xpath.xpt

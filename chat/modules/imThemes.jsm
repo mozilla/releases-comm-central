@@ -784,7 +784,9 @@ SelectedMessage.prototype = {
       return this._spanNode;
 
     let spanNode = null;
-    const NodeFilter = Ci.nsIDOMNodeFilter;
+    // If we could use NodeFilter.webidl, we wouldn't have to make up our own
+    // object. FILTER_REJECT is not used here, but included for completeness.
+    const NodeFilter = { SHOW_ELEMENT: 0x1, FILTER_ACCEPT: 1, FILTER_REJECT: 2, FILTER_SKIP: 3 };
     // helper filter function for the tree walker
     let filter = function(node) {
       return node.className == "ib-msg-txt" ? NodeFilter.FILTER_ACCEPT

@@ -123,7 +123,6 @@ components/dom_sidebar.xpt
 components/dom_storage.xpt
 components/dom_svg.xpt
 components/dom_threads.xpt
-components/dom_traversal.xpt
 components/dom_views.xpt
 components/dom_xbl.xpt
 components/dom_xpath.xpt
