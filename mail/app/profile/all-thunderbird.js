@@ -115,7 +115,7 @@ pref("app.releaseNotesURL", "https://live.mozillamessaging.com/%APP%/releasenote
 
 // URL for "Learn More" for Crash Reporter.
 pref("toolkit.crashreporter.infoURL",
-     "https://www.mozilla.org/thunderbird/legal/privacy/#crash-reporter");");
+     "https://www.mozilla.org/thunderbird/legal/privacy/#crash-reporter");
 
 // Base URL for web-based support pages.
 pref("app.support.baseURL", "https://support.live.mozillamessaging.com/%LOCALE%/%APP%/%APPBUILDID%/");
