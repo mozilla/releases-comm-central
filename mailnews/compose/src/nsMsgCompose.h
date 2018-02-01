@@ -88,8 +88,8 @@ protected:
                            nsTArray<nsMsgMailList>& allMailListArray,
                            nsTArray<nsMsgMailList>& mailListResolved,
                            nsTArray<nsMsgRecipient>& aListMembers);
-  nsresult TagConvertible(mozilla::dom::Element *node,  int32_t *_retval);
-  nsresult _NodeTreeConvertible(mozilla::dom::Element *node, int32_t *_retval);
+  void TagConvertible(mozilla::dom::Element *node,  int32_t *_retval);
+  void _NodeTreeConvertible(mozilla::dom::Element *node, int32_t *_retval);
   nsresult MoveToAboveQuote(void);
   nsresult MoveToBeginningOfDocument(void);
   nsresult MoveToEndOfDocument(void);

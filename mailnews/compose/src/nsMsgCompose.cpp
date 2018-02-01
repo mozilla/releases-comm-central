@@ -5341,10 +5341,12 @@ nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t *result)
   return NS_OK;
 }
 
-/* Decides which tags trigger which convertible mode, i.e. here is the logic
-   for BodyConvertible */
-// Helper function. Parameters are not checked.
-nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
+/**
+ * Decides which tags trigger which convertible mode,
+ * i.e. here is the logic for BodyConvertible.
+ * Note: Helper function. Parameters are not checked.
+ */
+void nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
 {
     *_retval = nsIMsgCompConvertible::No;
 
@@ -5358,7 +5360,7 @@ nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
     if (!attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
-      return NS_OK;
+      return;
     }
 
     // moz-* classes are used internally by the editor and mail composition
@@ -5377,7 +5379,7 @@ nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
         *_retval = nsIMsgCompConvertible::No;
       }
 
-      return NS_OK;
+      return;
     }
 
     // ID attributes can contain attached style/context or be target of links
@@ -5386,7 +5388,7 @@ nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
     if (!attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
-      return NS_OK;
+      return;
     }
 
     // Alignment is not convertible to plaintext; editor currently uses this.
@@ -5394,7 +5396,7 @@ nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
     if (!attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
-      return NS_OK;
+      return;
     }
 
     // Title attribute is not convertible to plaintext;
@@ -5403,7 +5405,7 @@ nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
     if (!attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
-      return NS_OK;
+      return;
     }
 
     if      ( // Considered convertible to plaintext: Some "simple" elements
@@ -5530,41 +5532,36 @@ nsresult nsMsgCompose::TagConvertible(Element *node,  int32_t *_retval)
         *_retval = nsIMsgCompConvertible::Plain;
       }
     }
-
-    return NS_OK;
 }
 
-nsresult nsMsgCompose::_NodeTreeConvertible(Element *node, int32_t *_retval)
+/**
+ * Note: Helper function. Parameters are not checked.
+ */
+void nsMsgCompose::_NodeTreeConvertible(Element *node, int32_t *_retval)
 {
-    NS_ENSURE_TRUE(node && _retval, NS_ERROR_NULL_POINTER);
+  int32_t result;
 
-    nsresult rv;
-    int32_t result;
+  // Check this node
+  TagConvertible(node, &result);
 
-    // Check this node
-    rv = TagConvertible(node, &result);
-    if (NS_FAILED(rv))
-        return rv;
+  // Walk tree recursively to check the children.
+  nsINodeList* children = node->ChildNodes();
+  for (uint32_t i = 0; i < children->Length(); i++)
+  {
+    nsINode* pItem = children->Item(i);
+    // We assume all nodes that are not elements are convertible,
+    // so only test elements.
+    nsCOMPtr<Element> domElement = do_QueryInterface(pItem);
+    if (domElement) {
+      int32_t curresult;
+      _NodeTreeConvertible(domElement, &curresult);
 
-    // Walk tree recursively to check the children
-    nsINodeList* children = node->ChildNodes();
-    for (uint32_t i = 0; i < children->Length(); i++)
-    {
-      nsINode* pItem = children->Item(i);
-      // We assume all nodes that are not elements are convertible,
-      // so only test elements.
-      nsCOMPtr<Element> domElement = do_QueryInterface(pItem);
-      if (domElement) {
-        int32_t curresult;
-        rv = _NodeTreeConvertible(domElement, &curresult);
-
-        if (NS_SUCCEEDED(rv) && curresult > result)
-          result = curresult;
-      }
+      if (curresult > result)
+        result = curresult;
     }
+  }
 
-    *_retval = result;
-    return rv;
+  *_retval = result;
 }
 
 NS_IMETHODIMP
@@ -5575,13 +5572,19 @@ nsMsgCompose::BodyConvertible(int32_t *_retval)
 
     nsCOMPtr<nsIDOMDocument> rootDocument;
     nsresult rv = m_editor->GetDocument(getter_AddRefs(rootDocument));
-    if (NS_FAILED(rv) || !rootDocument)
+    if (NS_FAILED(rv))
       return rv;
+    if (!rootDocument)
+      return NS_ERROR_UNEXPECTED;
 
     // get the top level element, which contains <html>
     nsCOMPtr<nsIDocument> rootDocument2 = do_QueryInterface(rootDocument);
     nsCOMPtr<Element> rootElement = rootDocument2->GetDocumentElement();
-    return _NodeTreeConvertible(rootElement, _retval);
+    if (!rootElement)
+      return NS_ERROR_UNEXPECTED;
+
+    _NodeTreeConvertible(rootElement, _retval);
+    return NS_OK;
 }
 
 NS_IMETHODIMP
