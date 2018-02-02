@@ -287,9 +287,7 @@ calCalendarManager.prototype = {
                         case "cache.supported":
                         case "auto-enabled":
                         case "cache.enabled":
-                        case "lightning-main-in-composite":
                         case "calendar-main-in-composite":
-                        case "lightning-main-default":
                         case "calendar-main-default":
                             Preferences.set(getPrefBranchFor(id) + name, value == "true");
                             break;

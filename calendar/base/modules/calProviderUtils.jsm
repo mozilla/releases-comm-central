@@ -522,22 +522,6 @@ cal.ProviderBase.prototype = {
             }
         }
 
-        let takeOverIfNotPresent = (oldPref, newPref, dontDeleteOldPref) => {
-            let val = calMgr.getCalendarPref_(this, oldPref);
-            if (val !== null) {
-                if (!dontDeleteOldPref) {
-                    calMgr.deleteCalendarPref_(this, oldPref);
-                }
-                if (calMgr.getCalendarPref_(this, newPref) === null) {
-                    calMgr.setCalendarPref_(this, newPref, val);
-                }
-            }
-        };
-
-        // takeover lightning calendar visibility from 0.5:
-        takeOverIfNotPresent("lightning-main-in-composite", "calendar-main-in-composite");
-        takeOverIfNotPresent("lightning-main-default", "calendar-main-default");
-
         return aValue;
     },
 
