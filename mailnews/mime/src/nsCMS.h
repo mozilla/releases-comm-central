@@ -16,14 +16,12 @@
 #include "nsICMSDecoder.h"
 #include "sechash.h"
 #include "cms.h"
-#include "nsNSSShutDown.h"
 
 #define NS_CMSMESSAGE_CID \
   { 0xa4557478, 0xae16, 0x11d5, { 0xba,0x4b,0x00,0x10,0x83,0x03,0xb1,0x17 } }
 
 class nsCMSMessage : public nsICMSMessage,
-                     public nsICMSMessage2,
-                     public nsNSSShutDownObject
+                     public nsICMSMessage2
 {
 public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -46,7 +44,6 @@ private:
   nsresult CommonAsyncVerifySignature(nsISMimeVerificationListener *aListener,
                                       unsigned char* aDigestData, uint32_t aDigestDataLen);
 
-  virtual void virtualDestroyNSSReference() override;
   void destructorSafeDestroyNSSReference();
 
 };
@@ -58,8 +55,7 @@ private:
 #define NS_CMSDECODER_CID \
   { 0x9dcef3a4, 0xa3bc, 0x11d5, { 0xba, 0x47, 0x00, 0x10, 0x83, 0x03, 0xb1, 0x17 } }
 
-class nsCMSDecoder : public nsICMSDecoder,
-                     public nsNSSShutDownObject
+class nsCMSDecoder : public nsICMSDecoder
 {
 public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -72,7 +68,6 @@ private:
   virtual ~nsCMSDecoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSDecoderContext *m_dcx;
-  virtual void virtualDestroyNSSReference() override;
   void destructorSafeDestroyNSSReference();
 };
 
@@ -82,8 +77,7 @@ private:
 
 #define NS_CMSENCODER_CID \
   { 0xa15789aa, 0x8903, 0x462b, { 0x81, 0xe9, 0x4a, 0xa2, 0xcf, 0xf4, 0xd5, 0xcb } }
-class nsCMSEncoder : public nsICMSEncoder,
-                     public nsNSSShutDownObject
+class nsCMSEncoder : public nsICMSEncoder
 {
 public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -96,7 +90,6 @@ private:
   virtual ~nsCMSEncoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSEncoderContext *m_ecx;
-  virtual void virtualDestroyNSSReference() override;
   void destructorSafeDestroyNSSReference();
 };
 

@@ -21,7 +21,6 @@
 #include "nsIX509CertDB.h"
 #include "nsNSSComponent.h"
 #include "nsNSSHelper.h"
-#include "nsNSSShutDown.h"
 #include "plbase64.h"
 
 #ifdef PR_LOGGING
@@ -97,7 +96,6 @@ NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailSigning(nsIX509Cert* aCert, b
 NS_IMETHODIMP nsCMSSecureMessage::
 DecodeCert(const char *value, nsIX509Cert ** _retval)
 {
-  nsNSSShutDownPreventionLock locker;
   MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSSecureMessage::DecodeCert\n"));
   nsresult rv = NS_OK;
   int32_t length;
@@ -137,7 +135,6 @@ DecodeCert(const char *value, nsIX509Cert ** _retval)
 NS_IMETHODIMP nsCMSSecureMessage::
 SendMessage(const char *msg, const char *base64Cert, char ** _retval)
 {
-  nsNSSShutDownPreventionLock locker;
   MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSSecureMessage::SendMessage\n"));
   nsresult rv = NS_OK;
   CERTCertificate *cert = 0;
@@ -261,7 +258,6 @@ done:
 NS_IMETHODIMP nsCMSSecureMessage::
 ReceiveMessage(const char *msg, char **_retval)
 {
-  nsNSSShutDownPreventionLock locker;
   MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSSecureMessage::ReceiveMessage\n"));
   nsresult rv = NS_OK;
   NSSCMSDecoderContext *dcx;

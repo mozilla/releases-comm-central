@@ -8,14 +8,12 @@
 
 #include "nsICertPickDialogs.h"
 #include "nsIUserCertPicker.h"
-#include "nsNSSShutDown.h"
 
 #define NS_CERT_PICKER_CID \
   { 0x735959a1, 0xaf01, 0x447e, { 0xb0, 0x2d, 0x56, 0xe9, 0x68, 0xfa, 0x52, 0xb4 } }
 
 class nsCertPicker : public nsICertPickDialogs
                    , public nsIUserCertPicker
-                   , public nsNSSShutDownObject
 {
 public:
   NS_DECL_ISUPPORTS
@@ -23,10 +21,6 @@ public:
   NS_DECL_NSIUSERCERTPICKER
 
   nsCertPicker();
-
-  // Nothing to actually release.
-  virtual void virtualDestroyNSSReference() override {}
-
   nsresult Init();
 
 protected:
