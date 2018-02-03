@@ -61,15 +61,15 @@
 
 #editBMPanel_folderMenuList[selectedIndex="0"],
 #editBMPanel_toolbarFolderItem {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmarksToolbar.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmarksToolbar.png");
 }
 
 #editBMPanel_folderMenuList[selectedIndex="1"],
 #editBMPanel_bmRootItem {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmarksMenu.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmarksMenu.png");
 }
 
 #editBMPanel_folderMenuList[selectedIndex="2"],
 #editBMPanel_unfiledRootItem {
-  list-style-image: url("chrome://communicator/skin/bookmarks/unsortedBookmarks.png");
+  list-style-image: url("chrome://communicator/skin/places/unsortedBookmarks.png");
 }

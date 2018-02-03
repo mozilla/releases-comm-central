@@ -9,7 +9,6 @@
  * Style rules for generic bookmarks items.
  */
 
-treechildren::-moz-tree-image(Name),
 treechildren::-moz-tree-image(title) {
   margin-inline-end: 2px;
   width: 16px;
@@ -17,13 +16,11 @@ treechildren::-moz-tree-image(title) {
 }
 
 .bookmark-item,
-treechildren::-moz-tree-image(Name),
 treechildren::-moz-tree-image(title) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
 }
 
 .bookmark-item[container="true"],
-treechildren::-moz-tree-image(Name, container),
 treechildren::-moz-tree-image(title, container) {
   list-style-image: url("chrome://global/skin/tree/folder.png");
 }
@@ -38,72 +35,73 @@ treechildren::-moz-tree-image(title, container) {
   height: 16px;
 }
 
-/* calendar icon for history grouping items by day */
-treechildren::-moz-tree-image(Name, query, dayContainer) {
-  list-style-image: url("chrome://communicator/skin/history/calendar.png");
-}
-
 .bookmark-item[container][livemark],
 treechildren::-moz-tree-image(title, container, livemark) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/livemark-folder.png");
+  list-style-image: url("chrome://communicator/skin/places/livemark-folder.png");
 }
 
 .bookmark-item[container][livemark] .bookmark-item,
 treechildren::-moz-tree-image(title, livemarkItem) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item-updated.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-updated.png");
 }
 
 .bookmark-item[container][livemark] .bookmark-item[visited],
 treechildren::-moz-tree-image(title, livemarkItem, visited) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
 }
 
 treechildren::-moz-tree-image(container, OrganizerQuery_AllBookmarks) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/allBookmarks.png");
+  list-style-image: url("chrome://communicator/skin/places/allBookmarks.png");
 }
 
 #bookmarksToolbarFolderMenu,
 #BMB_bookmarksToolbarFolderMenu,
 treechildren::-moz-tree-image(container, OrganizerQuery_BookmarksToolbar) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmarksToolbar.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmarksToolbar.png");
 }
 
 treechildren::-moz-tree-image(container, OrganizerQuery_BookmarksMenu) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmarksMenu.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmarksMenu.png");
 }
 
 #unsortedBookmarksFolderMenu,
 #BMB_unsortedBookmarksFolderMenu,
 treechildren::-moz-tree-image(container, OrganizerQuery_UnfiledBookmarks) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/unsortedBookmarks.png");
+  list-style-image: url("chrome://communicator/skin/places/unsortedBookmarks.png");
 }
 
 /* query-nodes should be styled even if they're not expandable */
 .bookmark-item[query],
-treechildren::-moz-tree-image(title, query) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/query.png");
+treechildren::-moz-tree-image(query) {
+  list-style-image: url("chrome://communicator/skin/places/query.png");
 }
 
 .bookmark-item[query][tagContainer],
 treechildren::-moz-tree-image(title, query, tagContainer),
 treechildren::-moz-tree-image(query, OrganizerQuery_Tags) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/tag.png");
+  list-style-image: url("chrome://communicator/skin/places/tag.png");
 }
 
-treechildren::-moz-tree-image(Name, separator),
+/* calendar icon for history grouping items by day */
+treechildren::-moz-tree-image(title, query, dayContainer) {
+  list-style-image: url("chrome://communicator/skin/places/calendar.png");
+}
+
+treechildren::-moz-tree-image(query, OrganizerQuery_History) {
+  list-style-image: url("chrome://communicator/skin/places/history.png");
+}
+
 treechildren::-moz-tree-image(title, separator) {
   list-style-image: none;
   width: 0px;
   height: 0px;
 }
 
-treechildren::-moz-tree-cell-text(Name, separator),
 treechildren::-moz-tree-cell-text(title, separator) {
   color: ThreeDShadow;
   margin: 0px 5px;
 }
 
-treechildren::-moz-tree-cell-text(Name, separator, selected, focus),
 treechildren::-moz-tree-cell-text(title, separator, selected, focus) {
   color: HighlightText;
 }

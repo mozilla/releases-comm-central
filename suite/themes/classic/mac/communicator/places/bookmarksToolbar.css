@@ -6,7 +6,7 @@
   == Styles specific to bookmark items in a toolbar.
   ======================================================================= */
 
-@import url("chrome://communicator/skin/bookmarks/bookmarks.css");
+@import url("chrome://communicator/skin/places/bookmarks.css");
 
 /* ::::: bookmark toolbar buttons ::::: */
 
@@ -39,11 +39,11 @@ toolbarbutton.bookmark-item[disabled="true"] > .toolbarbutton-icon {
 /* ::::: bookmark menus ::::: */
 
 .bookmark-group {
-  list-style-image: url(chrome://communicator/skin/bookmarks/bookmark-group.png) !important;
+  list-style-image: url(chrome://communicator/skin/places/bookmark-group.png) !important;
 }
 
 .menuitem-iconic.bookmark-item[disabled="true"] {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item-dis.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png");
 }
 
 .menu-iconic.bookmark-item[disabled="true"][container="true"] {
@@ -53,7 +53,7 @@ toolbarbutton.bookmark-item[disabled="true"] > .toolbarbutton-icon {
 /* ..... drag and drop styles ..... */
 
 #PlacesToolbarDropIndicator {
-  list-style-image: url("chrome://communicator/skin/bookmarks/toolbarDropMarker.png");
+  list-style-image: url("chrome://communicator/skin/places/toolbarDropMarker.png");
 }
 
 .bookmark-item[dragover-into="true"] {

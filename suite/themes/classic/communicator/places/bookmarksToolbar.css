@@ -6,12 +6,12 @@
   == Styles specific to bookmark items in a toolbar.
   ======================================================================= */
 
-@import url("chrome://communicator/skin/bookmarks/bookmarks.css");
+@import url("chrome://communicator/skin/places/bookmarks.css");
 
 /* ::::: bookmark toolbar buttons ::::: */
 
 /* ..... bookmark items ..... */
- 
+
 toolbarbutton.bookmark-item {
   min-width: 0px;
   max-width: 13em;
@@ -41,11 +41,11 @@ toolbarbutton.bookmark-item:not([container="true"]):hover:active {
 }
 
 toolbarbutton.bookmark-item[disabled="true"] {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item-dis.png") !important;
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png") !important;
 }
 
 toolbarbutton.bookmark-item[disabled="true"][container="true"] {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-folder-dis.png") !important;
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-dis.png") !important;
 }
 
 .bookmark-item > .toolbarbutton-icon {
@@ -60,7 +60,7 @@ toolbarbutton.bookmark-item[disabled="true"][container="true"] {
 /* ..... drag and drop styles ..... */
 
 #PlacesToolbarDropIndicator {
-  list-style-image: url("chrome://communicator/skin/bookmarks/toolbarDropMarker.png");
+  list-style-image: url("chrome://communicator/skin/places/toolbarDropMarker.png");
 }
 
 toolbarbutton.bookmark-item[dragover="true"][open="true"] {
@@ -82,11 +82,11 @@ menuitem.bookmark-item {
 }
 
 .menuitem-iconic.bookmark-item[disabled="true"] {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item-dis.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png");
 }
 
 .menu-iconic.bookmark-item[disabled="true"][container="true"] {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-folder-dis.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-dis.png");
 }
 
 /* ..... drag and drop styles ..... */

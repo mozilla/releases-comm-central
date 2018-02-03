@@ -22,7 +22,7 @@
 
 tab {
   padding: 0px 3px;
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
 }
 
 tab[busy] {
@@ -88,7 +88,7 @@ tab[busy] {
 
 /* All tabs menupopup */
 .alltabs-item {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
 }
 
 .alltabs-item[selected="true"] {

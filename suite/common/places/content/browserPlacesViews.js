@@ -1,17 +1,21 @@
-/* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+/* eslint-env mozilla/browser-window */
 
 /**
  * The base view implements everything that's common to the toolbar and
  * menu views.
  */
-function PlacesViewBase(aPlace) {
-  this.place = aPlace;
+function PlacesViewBase(aPlace, aOptions = {}) {
+  if ("rootElt" in aOptions)
+    this._rootElt = aOptions.rootElt;
+  if ("viewElt" in aOptions)
+    this._viewElt = aOptions.viewElt;
+  this.options = aOptions;
   this._controller = new PlacesController(this);
+  this.place = aPlace;
   this._viewElt.controllers.appendController(this._controller);
 }
 
@@ -19,6 +23,10 @@ PlacesViewBase.prototype = {
   // The xul element that holds the entire view.
   _viewElt: null,
   get viewElt() {
+    return this._viewElt;
+  },
+
+  get associatedElement() {
     return this._viewElt;
   },
 
@@ -81,11 +89,25 @@ PlacesViewBase.prototype = {
 
       // This calls _rebuild through invalidateContainer.
       this._resultNode.containerOpen = true;
-    }
-    else {
+    } else {
       this._resultNode = null;
       delete this._domNodes;
     }
+
+    return val;
+  },
+
+  _options: null,
+  get options() {
+    return this._options;
+  },
+  set options(val) {
+    if (!val)
+      val = {};
+
+    if (!("extraClasses" in val))
+      val.extraClasses = {};
+    this._options = val;
 
     return val;
   },
@@ -114,13 +136,20 @@ PlacesViewBase.prototype = {
   get selType() {
     return "single";
   },
-  selectItems: function() { },
-  selectAll: function() { },
+  selectItems() { },
+  selectAll() { },
 
   get selectedNode() {
     if (this._contextMenuShown) {
-      let popup = document.popupNode;
-      return popup._placesNode || popup.parentNode._placesNode || null;
+      let anchor = this._contextMenuShown.triggerNode;
+      if (!anchor)
+        return null;
+
+      if (anchor._placesNode)
+        return this._rootElt == anchor ? null : anchor._placesNode;
+
+      anchor = anchor.parentNode;
+      return this._rootElt == anchor ? null : (anchor._placesNode || null);
     }
     return null;
   },
@@ -162,24 +191,27 @@ PlacesViewBase.prototype = {
     let index = PlacesUtils.bookmarks.DEFAULT_INDEX;
     let container = this._resultNode;
     let orientation = Ci.nsITreeView.DROP_BEFORE;
-    let isTag = false;
+    let tagName = null;
 
     let selectedNode = this.selectedNode;
     if (selectedNode) {
       let popup = document.popupNode;
-      if (!popup._placesNode ||
-          popup._placesNode == this._resultNode ||
-          popup._placesNode.itemId == -1) {
+      if (!popup._placesNode || popup._placesNode == this._resultNode ||
+          popup._placesNode.itemId == -1 || !selectedNode.parent) {
         // If a static menuitem is selected, or if the root node is selected,
         // the insertion point is inside the folder, at the end.
         container = selectedNode;
         orientation = Ci.nsITreeView.DROP_ON;
-      }
-      else {
+      } else {
         // In all other cases the insertion point is before that node.
         container = selectedNode.parent;
         index = container.getChildIndex(selectedNode);
-        isTag = PlacesUtils.nodeIsTagQuery(container);
+        if (PlacesUtils.nodeIsTagQuery(container)) {
+          tagName = container.title;
+          // TODO (Bug 1160193): properly support dropping on a tag root.
+          if (!tagName)
+            return null;
+        }
       }
     }
 
@@ -187,94 +219,74 @@ PlacesViewBase.prototype = {
       return null;
 
     return new InsertionPoint(PlacesUtils.getConcreteItemId(container),
-                              index, orientation, isTag);
+                              index, orientation, tagName);
   },
 
   buildContextMenu: function PVB_buildContextMenu(aPopup) {
-    this._contextMenuShown = true;
+    this._contextMenuShown = aPopup;
     window.updateCommands("places");
     return this.controller.buildContextMenu(aPopup);
   },
 
   destroyContextMenu: function PVB_destroyContextMenu(aPopup) {
-    this._contextMenuShown = false;
+    this._contextMenuShown = null;
   },
 
-  _cleanPopup: function PVB_cleanPopup(aPopup) {
-    // Remove places popup children and update markers to keep track of
-    // their indices.
-    let start = aPopup._startMarker != -1 ? aPopup._startMarker + 1 : 0;
-    let end = aPopup._endMarker != -1 ? aPopup._endMarker :
-                                        aPopup.childNodes.length;
-    let items = [];
-    let placesNodeFound = false;
-    for (let i = start; i < end; ++i) {
-      let item = aPopup.childNodes[i];
-      if (item.getAttribute("builder") == "end") {
-        // we need to do this for menus that have static content at the end but
-        // are initially empty, eg. the history menu, we need to know where to
-        // start inserting new items.
-        aPopup._endMarker = i;
-        break;
-      }
-      if (item._placesNode) {
-        items.push(item);
-        placesNodeFound = true;
-      }
-      else {
-        // This is static content...
-        if (!placesNodeFound)
-          // ...at the start of the popup
-          // Initialized in menu.xml, in the base binding
-          aPopup._startMarker++;
-        else {
-          // ...after places nodes
-          aPopup._endMarker = i;
-          break;
-        }
-      }
+  clearAllContents(aPopup) {
+    while (aPopup.firstChild) {
+      aPopup.firstChild.remove();
     }
+    aPopup._emptyMenuitem = aPopup._startMarker = aPopup._endMarker = null;
+  },
 
-    for (let i = 0; i < items.length; ++i) {
-      items[i].remove();
-      if (aPopup._endMarker != -1)
-        aPopup._endMarker--;
+  _cleanPopup: function PVB_cleanPopup(aPopup, aDelay) {
+    // Ensure markers are here when `invalidateContainer` is called before the
+    // popup is shown, which may the case for panelviews, for example.
+    this._ensureMarkers(aPopup);
+    // Remove Places nodes from the popup.
+    let child = aPopup._startMarker;
+    while (child.nextSibling != aPopup._endMarker) {
+      let sibling = child.nextSibling;
+      if (sibling._placesNode && !aDelay) {
+        aPopup.removeChild(sibling);
+      } else if (sibling._placesNode && aDelay) {
+        // HACK (bug 733419): the popups originating from the OS X native
+        // menubar don't live-update while open, thus we don't clean it
+        // until the next popupshowing, to avoid zombie menuitems.
+        if (!aPopup._delayedRemovals)
+          aPopup._delayedRemovals = [];
+        aPopup._delayedRemovals.push(sibling);
+        child = child.nextSibling;
+      } else {
+        child = child.nextSibling;
+      }
     }
   },
 
   _rebuildPopup: function PVB__rebuildPopup(aPopup) {
-    this._cleanPopup(aPopup);
-
     let resultNode = aPopup._placesNode;
     if (!resultNode.containerOpen)
       return;
 
     if (this.controller.hasCachedLivemarkInfo(resultNode)) {
-      aPopup.removeAttribute("emptyplacesresult");
-      if (aPopup._emptyMenuItem)
-        aPopup._emptyMenuItem.hidden = true;
+      this._setEmptyPopupStatus(aPopup, false);
       aPopup._built = true;
       this._populateLivemarkPopup(aPopup);
       return;
     }
 
+    this._cleanPopup(aPopup);
+
     let cc = resultNode.childCount;
     if (cc > 0) {
-      aPopup.removeAttribute("emptyplacesresult");
-      if (aPopup._emptyMenuItem)
-        aPopup._emptyMenuItem.hidden = true;
+      this._setEmptyPopupStatus(aPopup, false);
 
       for (let i = 0; i < cc; ++i) {
         let child = resultNode.getChild(i);
         this._insertNewItemToPopup(child, aPopup, null);
       }
-    }
-    else {
-      aPopup.setAttribute("emptyplacesresult", "true");
-      // This menu is empty.  If there is no static content, add
-      // an element to show it is empty.
-      if (aPopup._startMarker == -1 && aPopup._endMarker == -1)
-        this._showEmptyMenuItem(aPopup);
+    } else {
+      this._setEmptyPopupStatus(aPopup, true);
     }
     aPopup._built = true;
   },
@@ -289,35 +301,49 @@ PlacesViewBase.prototype = {
     aChild.remove();
   },
 
-  _showEmptyMenuItem: function PVB__showEmptyMenuItem(aPopup) {
-    if (aPopup._emptyMenuItem) {
-      aPopup._emptyMenuItem.hidden = false;
-      return;
+  _setEmptyPopupStatus:
+  function PVB__setEmptyPopupStatus(aPopup, aEmpty) {
+    if (!aPopup._emptyMenuitem) {
+      let label = PlacesUIUtils.getString("bookmarksMenuEmptyFolder");
+      aPopup._emptyMenuitem = document.createElement("menuitem");
+      aPopup._emptyMenuitem.setAttribute("label", label);
+      aPopup._emptyMenuitem.setAttribute("disabled", true);
+      aPopup._emptyMenuitem.className = "bookmark-item";
+      if (typeof this.options.extraClasses.entry == "string")
+        aPopup._emptyMenuitem.classList.add(this.options.extraClasses.entry);
     }
 
-    let label = PlacesUIUtils.getString("bookmarksMenuEmptyFolder");
-    aPopup._emptyMenuItem = document.createElement("menuitem");
-    aPopup._emptyMenuItem.setAttribute("label", label);
-    aPopup._emptyMenuItem.setAttribute("disabled", true);
-    aPopup.appendChild(aPopup._emptyMenuItem);
+    if (aEmpty) {
+      aPopup.setAttribute("emptyplacesresult", "true");
+      // Don't add the menuitem if there is static content.
+      if (!aPopup._startMarker.previousSibling &&
+          !aPopup._endMarker.nextSibling)
+        aPopup.insertBefore(aPopup._emptyMenuitem, aPopup._endMarker);
+    } else {
+      aPopup.removeAttribute("emptyplacesresult");
+      try {
+        aPopup.removeChild(aPopup._emptyMenuitem);
+      } catch (ex) {}
+    }
   },
 
-  _createMenuItemForPlacesNode:
-  function PVB__createMenuItemForPlacesNode(aPlacesNode) {
+  _createDOMNodeForPlacesNode:
+  function PVB__createDOMNodeForPlacesNode(aPlacesNode) {
     this._domNodes.delete(aPlacesNode);
 
     let element;
     let type = aPlacesNode.type;
-    if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR)
+    if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR) {
       element = document.createElement("menuseparator");
-    else {
+      element.setAttribute("class", "small-separator");
+    } else {
+      let itemId = aPlacesNode.itemId;
       if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_URI) {
         element = document.createElement("menuitem");
         element.className = "menuitem-iconic bookmark-item menuitem-with-favicon";
         element.setAttribute("scheme",
                              PlacesUIUtils.guessUrlSchemeForUI(aPlacesNode.uri));
-      }
-      else if (PlacesUtils.containerTypes.indexOf(type) != -1) {
+      } else if (PlacesUtils.containerTypes.includes(type)) {
         element = document.createElement("menu");
         element.setAttribute("container", "true");
 
@@ -329,33 +355,35 @@ PlacesViewBase.prototype = {
             element.setAttribute("dayContainer", "true");
           else if (PlacesUtils.nodeIsHost(aPlacesNode))
             element.setAttribute("hostContainer", "true");
-        }
-        else if (aPlacesNode.itemId != -1) {
-          PlacesUtils.livemarks.getLivemark({ id: aPlacesNode.itemId })
-                               .then(aLivemark => {
-            element.setAttribute("livemark", "true");
-            this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
-          }, () => undefined);
+        } else if (itemId != -1) {
+          PlacesUtils.livemarks.getLivemark({ id: itemId })
+            .then(aLivemark => {
+              element.setAttribute("livemark", "true");
+              if (AppConstants.platform === "macosx") {
+                // OS X native menubar doesn't track list-style-images since
+                // it doesn't have a frame (bug 733415).  Thus enforce updating.
+                element.setAttribute("image", "");
+                element.removeAttribute("image");
+              }
+              this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
+            }, () => undefined);
         }
 
         let popup = document.createElement("menupopup");
         popup._placesNode = PlacesUtils.asContainer(aPlacesNode);
-        if (this._nativeView) {
-          popup._startMarker = -1;
-          popup._endMarker = -1;
-        }
-        else
+
+        if (!this._nativeView) {
           popup.setAttribute("placespopup", "true");
-#ifdef XP_MACOSX
-        // No context menu on mac.
-        popup.setAttribute("context", "placesContext");
-#endif
+        }
+
         element.appendChild(popup);
         element.className = "menu-iconic bookmark-item";
+        if (typeof this.options.extraClasses.entry == "string") {
+          element.classList.add(this.options.extraClasses.entry);
+        }
 
         this._domNodes.set(aPlacesNode, popup);
-      }
-      else
+      } else
         throw "Unexpected node";
 
       element.setAttribute("label", PlacesUIUtils.getBestTitle(aPlacesNode));
@@ -374,46 +402,35 @@ PlacesViewBase.prototype = {
 
   _insertNewItemToPopup:
   function PVB__insertNewItemToPopup(aNewChild, aPopup, aBefore) {
-    let element = this._createMenuItemForPlacesNode(aNewChild);
+    let element = this._createDOMNodeForPlacesNode(aNewChild);
+    let before = aBefore || aPopup._endMarker;
 
-    if (aBefore) {
-      aPopup.insertBefore(element, aBefore);
-    }
-    else {
-      // Add the new element to the menu.  If there is static content at
-      // the end of the menu, add the element before that.  Otherwise,
-      // just add to the end.
-      if (aPopup._endMarker != -1) {
-        let lastElt = aPopup.childNodes[aPopup._endMarker];
-        aPopup.insertBefore(element, lastElt);
-      }
-      else {
-        aPopup.appendChild(element);
-      }
+    if (element.localName == "menuitem" || element.localName == "menu") {
+      if (typeof this.options.extraClasses.entry == "string")
+        element.classList.add(this.options.extraClasses.entry);
     }
 
-    if (aPopup._endMarker != -1)
-      aPopup._endMarker++;
-
+    aPopup.insertBefore(element, before);
     return element;
   },
 
   _setLivemarkSiteURIMenuItem:
   function PVB__setLivemarkSiteURIMenuItem(aPopup) {
     let livemarkInfo = this.controller.getCachedLivemarkInfo(aPopup._placesNode);
-    let siteUrl = livemarkInfo && livemarkInfo.siteURI && livemarkInfo.siteURI.spec;
+    let siteUrl = livemarkInfo && livemarkInfo.siteURI ?
+                  livemarkInfo.siteURI.spec : null;
     if (!siteUrl && aPopup._siteURIMenuitem) {
-      aPopup._siteURIMenuitem.remove();
+      aPopup.removeChild(aPopup._siteURIMenuitem);
       aPopup._siteURIMenuitem = null;
-      aPopup._startMarker--;
-      aPopup._siteURIMenuseparator.remove();
+      aPopup.removeChild(aPopup._siteURIMenuseparator);
       aPopup._siteURIMenuseparator = null;
-      aPopup._startMarker--;
-    }
-    else if (siteUrl && !aPopup._siteURIMenuitem) {
+    } else if (siteUrl && !aPopup._siteURIMenuitem) {
       // Add "Open (Feed Name)" menuitem.
       aPopup._siteURIMenuitem = document.createElement("menuitem");
       aPopup._siteURIMenuitem.className = "openlivemarksite-menuitem";
+      if (typeof this.options.extraClasses.entry == "string") {
+        aPopup._siteURIMenuitem.classList.add(this.options.extraClasses.entry);
+      }
       aPopup._siteURIMenuitem.setAttribute("targetURI", siteUrl);
       aPopup._siteURIMenuitem.setAttribute("oncommand",
         "openUILink(this.getAttribute('targetURI'), event);");
@@ -428,14 +445,10 @@ PlacesViewBase.prototype = {
         PlacesUIUtils.getFormattedString("menuOpenLivemarkOrigin.label",
                                          [aPopup.parentNode.getAttribute("label")])
       aPopup._siteURIMenuitem.setAttribute("label", label);
-      aPopup.insertBefore(aPopup._siteURIMenuitem,
-                          aPopup.childNodes.item(aPopup._startMarker + 1));
-      aPopup._startMarker++;
+      aPopup.insertBefore(aPopup._siteURIMenuitem, aPopup._startMarker);
 
       aPopup._siteURIMenuseparator = document.createElement("menuseparator");
-      aPopup.insertBefore(aPopup._siteURIMenuseparator,
-                         aPopup.childNodes.item(aPopup._startMarker + 1));
-      aPopup._startMarker++;
+      aPopup.insertBefore(aPopup._siteURIMenuseparator, aPopup._startMarker);
     }
   },
 
@@ -448,35 +461,42 @@ PlacesViewBase.prototype = {
    */
   _setLivemarkStatusMenuItem:
   function PVB_setLivemarkStatusMenuItem(aPopup, aStatus) {
-    let itemId = aPopup._placesNode.itemId;
-    let lmStatus = null;
-    if (aStatus == Ci.mozILivemark.STATUS_LOADING)
-      lmStatus = "bookmarksLivemarkLoading";
-    else if (aStatus == Ci.mozILivemark.STATUS_FAILED)
-      lmStatus = "bookmarksLivemarkFailed";
-
-    let lmStatusElt = aPopup._lmStatusMenuItem;
-    if (lmStatus && !lmStatusElt) {
+    let statusMenuitem = aPopup._statusMenuitem;
+    if (!statusMenuitem) {
       // Create the status menuitem and cache it in the popup object.
-      lmStatusElt = document.createElement("menuitem");
-      lmStatusElt.setAttribute("lmStatus", lmStatus);
-      lmStatusElt.setAttribute("label", PlacesUIUtils.getString(lmStatus));
-      lmStatusElt.setAttribute("disabled", true);
-      aPopup.insertBefore(lmStatusElt,
-                          aPopup.childNodes.item(aPopup._startMarker + 1));
-      aPopup._lmStatusMenuItem = lmStatusElt;
-      aPopup._startMarker++;
+      statusMenuitem = document.createElement("menuitem");
+      statusMenuitem.className = "livemarkstatus-menuitem";
+      if (typeof this.options.extraClasses.entry == "string") {
+        statusMenuitem.classList.add(this.options.extraClasses.entry);
+      }
+      statusMenuitem.setAttribute("disabled", true);
+      aPopup._statusMenuitem = statusMenuitem;
     }
-    else if (lmStatus && lmStatusElt.getAttribute("lmStatus") != lmStatus) {
+
+    if (aStatus == Ci.mozILivemark.STATUS_LOADING ||
+        aStatus == Ci.mozILivemark.STATUS_FAILED) {
       // Status has changed, update the cached status menuitem.
-      lmStatusElt.setAttribute("label", PlacesUIUtils.getString(lmStatus));
-    }
-    else if (!lmStatus && lmStatusElt) {
+      let stringId = aStatus == Ci.mozILivemark.STATUS_LOADING ?
+                       "bookmarksLivemarkLoading" : "bookmarksLivemarkFailed";
+      statusMenuitem.setAttribute("label", PlacesUIUtils.getString(stringId));
+      if (aPopup._startMarker.nextSibling != statusMenuitem)
+        aPopup.insertBefore(statusMenuitem, aPopup._startMarker.nextSibling);
+    } else if (aPopup._statusMenuitem.parentNode == aPopup) {
       // The livemark has finished loading.
-      aPopup._lmStatusMenuItem.remove();
-      aPopup._lmStatusMenuItem = null;
-      aPopup._startMarker--;
+      aPopup.removeChild(aPopup._statusMenuitem);
     }
+  },
+
+  toggleCutNode: function PVB_toggleCutNode(aPlacesNode, aValue) {
+    let elt = this._getDOMNodeForPlacesNode(aPlacesNode);
+
+    // We may get the popup for menus, but we need the menu itself.
+    if (elt.localName == "menupopup")
+      elt = elt.parentNode;
+    if (aValue)
+      elt.setAttribute("cutting", "true");
+    else
+      elt.removeAttribute("cutting");
   },
 
   nodeURIChanged: function PVB_nodeURIChanged(aPlacesNode, aURIString) {
@@ -498,30 +518,38 @@ PlacesViewBase.prototype = {
       return;
 
     // Here we need the <menu>.
-    if (elt.localName == "menupopup")
+    if (elt.localName == "menupopup") {
       elt = elt.parentNode;
-
-    let icon = aPlacesNode.icon;
-    if (!icon)
-      elt.removeAttribute("image");
-    else if (icon != elt.getAttribute("image"))
-      elt.setAttribute("image", icon);
+    }
+    // We must remove and reset the attribute to force an update.
+    elt.removeAttribute("image");
+    elt.setAttribute("image", aPlacesNode.icon);
   },
 
   nodeAnnotationChanged:
   function PVB_nodeAnnotationChanged(aPlacesNode, aAnno) {
-    // All livemarks have a feedURI, so use it as our indicator.
+    let elt = this._getDOMNodeForPlacesNode(aPlacesNode);
+
+    // All livemarks have a feedURI, so use it as our indicator of a livemark
+    // being modified.
     if (aAnno == PlacesUtils.LMANNO_FEEDURI) {
-      let elt = this._getDOMNodeForPlacesNode(aPlacesNode);
       let menu = elt.parentNode;
-      if (!menu.hasAttribute("livemark"))
+      if (!menu.hasAttribute("livemark")) {
         menu.setAttribute("livemark", "true");
+        if (AppConstants.platform === "macosx") {
+          // OS X native menubar doesn't track list-style-images since
+          // it doesn't have a frame (bug 733415).  Thus enforce updating.
+          menu.setAttribute("image", "");
+          menu.removeAttribute("image");
+        }
+      }
 
       PlacesUtils.livemarks.getLivemark({ id: aPlacesNode.itemId })
-                           .then(aLivemark => {
-        this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
-        this.invalidateContainer(aPlacesNode);
-      }, () => undefined);
+        .then(aLivemark => {
+          // Controller will use this to build the meta data for the node.
+          this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
+          this.invalidateContainer(aPlacesNode);
+        }, () => undefined);
     }
   },
 
@@ -543,8 +571,7 @@ PlacesViewBase.prototype = {
       // allow empty labels on toolbarbuttons.  For any other element try to be
       // smarter, guessing a title from the uri.
       elt.setAttribute("label", PlacesUIUtils.getBestTitle(aPlacesNode));
-    }
-    else {
+    } else {
       elt.setAttribute("label", aNewTitle);
     }
   },
@@ -559,18 +586,13 @@ PlacesViewBase.prototype = {
       elt = elt.parentNode;
 
     if (parentElt._built) {
-      elt.remove();
+      parentElt.removeChild(elt);
 
       // Figure out if we need to show the "<Empty>" menu-item.
       // TODO Bug 517701: This doesn't seem to handle the case of an empty
       // root.
-      if (!parentElt.hasChildNodes() ||
-          (parentElt.childNodes.length == 1 &&
-          parentElt.firstChild == parentElt._emptyMenuItem))
-        this._showEmptyMenuItem(parentElt);
-
-      if (parentElt._endMarker != -1)
-        parentElt._endMarker--;
+      if (parentElt._startMarker.nextSibling == parentElt._endMarker)
+        this._setEmptyPopupStatus(parentElt, true);
     }
   },
 
@@ -580,8 +602,9 @@ PlacesViewBase.prototype = {
         this.controller.hasCachedLivemarkInfo(aPlacesNode.parent)) {
       // Find the node in the parent.
       let popup = this._getDOMNodeForPlacesNode(aPlacesNode.parent);
-      for (let i = popup._startMarker; i < popup.childNodes.length; i++) {
-        let child = popup.childNodes[i];
+      for (let child = popup._startMarker.nextSibling;
+           child != popup._endMarker;
+           child = child.nextSibling) {
         if (child._placesNode && child._placesNode.uri == aPlacesNode.uri) {
           if (aPlacesNode.accessCount)
             child.setAttribute("visited", "true");
@@ -593,12 +616,12 @@ PlacesViewBase.prototype = {
     }
   },
 
-  nodeTagsChanged: function() { },
-  nodeDateAddedChanged: function() { },
-  nodeLastModifiedChanged: function() { },
-  nodeKeywordChanged: function() { },
-  sortingChanged: function() { },
-  batching: function() { },
+  nodeTagsChanged() { },
+  nodeDateAddedChanged() { },
+  nodeLastModifiedChanged() { },
+  nodeKeywordChanged() { },
+  sortingChanged() { },
+  batching() { },
 
   nodeInserted:
   function PVB_nodeInserted(aParentPlacesNode, aPlacesNode, aIndex) {
@@ -606,11 +629,11 @@ PlacesViewBase.prototype = {
     if (!parentElt._built)
       return;
 
-    let index = parentElt._startMarker + 1 + aIndex;
+    let index = Array.prototype.indexOf.call(parentElt.childNodes, parentElt._startMarker) +
+                aIndex + 1;
     this._insertNewItemToPopup(aPlacesNode, parentElt,
                                parentElt.childNodes[index]);
-    if (parentElt._emptyMenuItem)
-      parentElt._emptyMenuItem.hidden = true;
+    this._setEmptyPopupStatus(parentElt, false);
   },
 
   nodeMoved:
@@ -635,8 +658,9 @@ PlacesViewBase.prototype = {
     let parentElt = this._getDOMNodeForPlacesNode(aNewParentPlacesNode);
     if (parentElt._built) {
       // Move the node.
-      elt.remove();
-      let index = parentElt._startMarker + 1 + aNewIndex;
+      parentElt.removeChild(elt);
+      let index = Array.prototype.indexOf.call(parentElt.childNodes, parentElt._startMarker) +
+                  aNewIndex + 1;
       parentElt.insertBefore(elt, parentElt.childNodes[index]);
     }
   },
@@ -647,51 +671,70 @@ PlacesViewBase.prototype = {
         aNewState == Ci.nsINavHistoryContainerResultNode.STATE_CLOSED) {
       this.invalidateContainer(aPlacesNode);
 
-      if (PlacesUtils.nodeIsFolder(aPlacesNode) &&
-          !PlacesUtils.asQuery(this._result.root).queryOptions.excludeItems) {
+      if (PlacesUtils.nodeIsFolder(aPlacesNode)) {
+        let queryOptions = PlacesUtils.asQuery(this._result.root).queryOptions;
+        if (queryOptions.excludeItems) {
+          return;
+        }
+
         PlacesUtils.livemarks.getLivemark({ id: aPlacesNode.itemId })
-                             .then(aLivemark => {
-          let shouldInvalidate =
-            !this.controller.hasCachedLivemarkInfo(aPlacesNode);
-          this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
-          if (aNewState == Ci.nsINavHistoryContainerResultNode.STATE_OPENED) {
-            aLivemark.registerForUpdates(aPlacesNode, this);
-            aLivemark.reload();
-            if (shouldInvalidate)
-              this.invalidateContainer(aPlacesNode);
-          }
-          else {
-            aLivemark.unregisterForUpdates(aPlacesNode);
-          }
-        }, () => undefined);
+          .then(aLivemark => {
+            let shouldInvalidate =
+              !this.controller.hasCachedLivemarkInfo(aPlacesNode);
+            this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
+            if (aNewState == Ci.nsINavHistoryContainerResultNode.STATE_OPENED) {
+              aLivemark.registerForUpdates(aPlacesNode, this);
+              // Prioritize the current livemark.
+              aLivemark.reload();
+              PlacesUtils.livemarks.reloadLivemarks();
+              if (shouldInvalidate)
+                this.invalidateContainer(aPlacesNode);
+            } else {
+              aLivemark.unregisterForUpdates(aPlacesNode);
+            }
+          }, () => undefined);
       }
     }
   },
 
-  _populateLivemarkPopup: function PVB__populateLivemarkPopup(aPopup)
-  {
+  _populateLivemarkPopup: function PVB__populateLivemarkPopup(aPopup) {
     this._setLivemarkSiteURIMenuItem(aPopup);
-    this._setLivemarkStatusMenuItem(aPopup, Ci.mozILivemark.STATUS_LOADING);
+    // Show the loading status only if there are no entries yet.
+    if (aPopup._startMarker.nextSibling == aPopup._endMarker)
+      this._setLivemarkStatusMenuItem(aPopup, Ci.mozILivemark.STATUS_LOADING);
 
     PlacesUtils.livemarks.getLivemark({ id: aPopup._placesNode.itemId })
-                         .then(aLivemark => {
-      let placesNode = aPopup._placesNode;
-      if (!placesNode.containerOpen)
-        return;
+      .then(aLivemark => {
+        let placesNode = aPopup._placesNode;
+        if (!placesNode.containerOpen)
+          return;
 
-      this._setLivemarkStatusMenuItem(aPopup, aLivemark.status);
-      this._cleanPopup(aPopup);
+        if (aLivemark.status != Ci.mozILivemark.STATUS_LOADING)
+          this._setLivemarkStatusMenuItem(aPopup, aLivemark.status);
+        this._cleanPopup(aPopup,
+          this._nativeView && aPopup.parentNode.hasAttribute("open"));
 
-      let children = aLivemark.getNodesForContainer(placesNode);
-      for (let i = 0; i < children.length; i++) {
-        let child = children[i];
-        this.nodeInserted(placesNode, child, i);
-        if (child.accessCount)
-          this._getDOMNodeForPlacesNode(child).setAttribute("visited", true);
-        else
-          this._getDOMNodeForPlacesNode(child).removeAttribute("visited");
-      }
-    }, () => undefined);
+        let children = aLivemark.getNodesForContainer(placesNode);
+        for (let i = 0; i < children.length; i++) {
+          let child = children[i];
+          this.nodeInserted(placesNode, child, i);
+          if (child.accessCount)
+            this._getDOMNodeForPlacesNode(child).setAttribute("visited", true);
+          else
+            this._getDOMNodeForPlacesNode(child).removeAttribute("visited");
+        }
+      }, Cu.reportError);
+  },
+
+  /**
+   * Checks whether the popup associated with the provided element is open.
+   * This method may be overridden by classes that extend this base class.
+   *
+   * @param  {nsIDOMElement} elt
+   * @return {Boolean}
+   */
+  _isPopupOpen(elt) {
+    return !!elt.parentNode.open;
   },
 
   invalidateContainer: function PVB_invalidateContainer(aPlacesNode) {
@@ -699,7 +742,7 @@ PlacesViewBase.prototype = {
     elt._built = false;
 
     // If the menupopup is open we should live-update it.
-    if (elt.parentNode.open)
+    if (this._isPopupOpen(elt))
       this._rebuildPopup(elt);
   },
 
@@ -711,6 +754,20 @@ PlacesViewBase.prototype = {
       this._result = null;
     }
 
+    if (this._controller) {
+      this._controller.terminate();
+      // Removing the controller will fail if it is already no longer there.
+      // This can happen if the view element was removed/reinserted without
+      // our knowledge. There is no way to check for that having happened
+      // without the possibility of an exception. :-(
+      try {
+        this._viewElt.controllers.removeController(this._controller);
+      } catch (ex) {
+      } finally {
+        this._controller = null;
+      }
+    }
+
     delete this._viewElt._placesView;
   },
 
@@ -718,8 +775,13 @@ PlacesViewBase.prototype = {
     if ("_isRTL" in this)
       return this._isRTL;
 
-    return this._isRTL = document.defaultView.getComputedStyle(this, "")
-                                 .direction == "rtl"
+    return this._isRTL = document.defaultView
+                                 .getComputedStyle(this.viewElt)
+                                 .direction == "rtl";
+  },
+
+  get ownerWindow() {
+    return window;
   },
 
   /**
@@ -735,8 +797,8 @@ PlacesViewBase.prototype = {
     let hasMultipleURIs = false;
 
     // Check if the popup contains at least 2 menuitems with places nodes.
-    // We don't currently support opening multiple uri nodes when
-    // they are not populated by the result.
+    // We don't currently support opening multiple uri nodes when they are not
+    // populated by the result.
     if (aPopup._placesNode.childCount > 0) {
       let currentChild = aPopup.firstChild;
       let numURINodes = 0;
@@ -750,46 +812,116 @@ PlacesViewBase.prototype = {
       hasMultipleURIs = numURINodes > 1;
     }
 
+    let isLiveMark = false;
+    if (this.controller.hasCachedLivemarkInfo(aPopup._placesNode)) {
+      hasMultipleURIs = true;
+      isLiveMark = true;
+    }
+
+    if (!hasMultipleURIs) {
+      aPopup.setAttribute("singleitempopup", "true");
+    } else {
+      aPopup.removeAttribute("singleitempopup");
+    }
+
     if (!hasMultipleURIs) {
       // We don't have to show any option.
       if (aPopup._endOptOpenAllInTabs) {
-        aPopup._endOptOpenAllInTabs.remove();
+        aPopup.removeChild(aPopup._endOptOpenAllInTabs);
         aPopup._endOptOpenAllInTabs = null;
-        aPopup._endMarker--;
 
-        aPopup._endOptSeparator.remove();
+        aPopup.removeChild(aPopup._endOptSeparator);
         aPopup._endOptSeparator = null;
-        aPopup._endMarker--;
-        aPopup._endMarker -= aPopup._placesNode.childCount;
-        if (aPopup._endMarker < -1)
-          aPopup._endMarker = -1;
       }
-    }
-    else if (!aPopup._endOptOpenAllInTabs) {
+    } else if (!aPopup._endOptOpenAllInTabs) {
       // Create a separator before options.
       aPopup._endOptSeparator = document.createElement("menuseparator");
       aPopup._endOptSeparator.className = "bookmarks-actions-menuseparator";
       aPopup.appendChild(aPopup._endOptSeparator);
-      aPopup._endMarker++;
 
       // Add the "Open All in Tabs" menuitem.
       aPopup._endOptOpenAllInTabs = document.createElement("menuitem");
       aPopup._endOptOpenAllInTabs.className = "openintabs-menuitem";
-      aPopup._endOptOpenAllInTabs.setAttribute("oncommand",
-        "PlacesUIUtils.openContainerNodeInTabs(this.parentNode._placesNode, event);");
+
+      if (typeof this.options.extraClasses.entry == "string")
+        aPopup._endOptOpenAllInTabs.classList.add(this.options.extraClasses.entry);
+      if (typeof this.options.extraClasses.footer == "string")
+        aPopup._endOptOpenAllInTabs.classList.add(this.options.extraClasses.footer);
+
+      if (isLiveMark) {
+        aPopup._endOptOpenAllInTabs.setAttribute("oncommand",
+          "PlacesUIUtils.openLiveMarkNodesInTabs(this.parentNode._placesNode, event, " +
+                                                 "PlacesUIUtils.getViewForNode(this));");
+      } else {
+        aPopup._endOptOpenAllInTabs.setAttribute("oncommand",
+          "PlacesUIUtils.openContainerNodeInTabs(this.parentNode._placesNode, event, " +
+                                                 "PlacesUIUtils.getViewForNode(this));");
+      }
       aPopup._endOptOpenAllInTabs.setAttribute("onclick",
         "checkForMiddleClick(this, event); event.stopPropagation();");
       aPopup._endOptOpenAllInTabs.setAttribute("label",
         gNavigatorBundle.getString("menuOpenAllInTabs.label"));
       aPopup.appendChild(aPopup._endOptOpenAllInTabs);
-      aPopup._endMarker++;
-      aPopup._endMarker += aPopup._placesNode.childCount;
+    }
+  },
+
+  _ensureMarkers: function PVB__ensureMarkers(aPopup) {
+    if (aPopup._startMarker)
+      return;
+
+    // _startMarker is an hidden menuseparator that lives before places nodes.
+    aPopup._startMarker = document.createElement("menuseparator");
+    aPopup._startMarker.hidden = true;
+    aPopup.insertBefore(aPopup._startMarker, aPopup.firstChild);
+
+    // _endMarker is a DOM node that lives after places nodes, specified with
+    // the 'insertionPoint' option or will be a hidden menuseparator.
+    let node = this.options.insertionPoint ?
+               aPopup.querySelector(this.options.insertionPoint) : null;
+    if (node) {
+      aPopup._endMarker = node;
+    } else {
+      aPopup._endMarker = document.createElement("menuseparator");
+      aPopup._endMarker.hidden = true;
+    }
+    aPopup.appendChild(aPopup._endMarker);
+
+    // Move the markers to the right position.
+    let firstNonStaticNodeFound = false;
+    for (let i = 0; i < aPopup.childNodes.length; i++) {
+      let child = aPopup.childNodes[i];
+      // Menus that have static content at the end, but are initially empty,
+      // use a special "builder" attribute to figure out where to start
+      // inserting places nodes.
+      if (child.getAttribute("builder") == "end") {
+        aPopup.insertBefore(aPopup._endMarker, child);
+        break;
+      }
+
+      if (child._placesNode && !child.hasAttribute("simulated-places-node") &&
+          !firstNonStaticNodeFound) {
+        firstNonStaticNodeFound = true;
+        aPopup.insertBefore(aPopup._startMarker, child);
+      }
+    }
+    if (!firstNonStaticNodeFound) {
+      aPopup.insertBefore(aPopup._startMarker, aPopup._endMarker);
     }
   },
 
   _onPopupShowing: function PVB__onPopupShowing(aEvent) {
     // Avoid handling popupshowing of inner views.
     let popup = aEvent.originalTarget;
+
+    this._ensureMarkers(popup);
+
+    // Remove any delayed element, see _cleanPopup for details.
+    if ("_delayedRemovals" in popup) {
+      while (popup._delayedRemovals.length > 0) {
+        popup.removeChild(popup._delayedRemovals.shift());
+      }
+    }
+
     if (popup._placesNode && PlacesUIUtils.getViewForNode(popup) == this) {
       if (!popup._placesNode.containerOpen)
         popup._placesNode.containerOpen = true;
@@ -801,14 +933,14 @@ PlacesViewBase.prototype = {
   },
 
   _addEventListeners:
-  function PVB__addEventListeners(aObject, aEventNames, aCapturing) {
+  function PVB__addEventListeners(aObject, aEventNames, aCapturing = false) {
     for (let i = 0; i < aEventNames.length; i++) {
       aObject.addEventListener(aEventNames[i], this, aCapturing);
     }
   },
 
   _removeEventListeners:
-  function PVB__removeEventListeners(aObject, aEventNames, aCapturing) {
+  function PVB__removeEventListeners(aObject, aEventNames, aCapturing = false) {
     for (let i = 0; i < aEventNames.length; i++) {
       aObject.removeEventListener(aEventNames[i], this, aCapturing);
     }
@@ -816,6 +948,7 @@ PlacesViewBase.prototype = {
 };
 
 function PlacesToolbar(aPlace) {
+  let startTime = Date.now();
   // Add some smart getters for our elements.
   let thisView = this;
   [
@@ -824,9 +957,9 @@ function PlacesToolbar(aPlace) {
     ["_dropIndicator",        "PlacesToolbarDropIndicator"],
     ["_chevron",              "PlacesChevron"],
     ["_chevronPopup",         "PlacesChevronPopup"]
-  ].forEach(function (elementGlobal) {
+  ].forEach(function(elementGlobal) {
     let [name, id] = elementGlobal;
-    thisView.__defineGetter__(name, function () {
+    thisView.__defineGetter__(name, function() {
       let element = document.getElementById(id);
       if (!element)
         return null;
@@ -843,18 +976,24 @@ function PlacesToolbar(aPlace) {
   this._addEventListeners(this._rootElt, ["overflow", "underflow"], true);
   this._addEventListeners(window, ["resize", "unload"], false);
 
+  // If personal-bookmarks has been dragged to the tabs toolbar,
+  // we have to track addition and removals of tabs, to properly
+  // recalculate the available space for bookmarks.
+  // TODO (bug 734730): Use a performant mutation listener when available.
+  if (this._viewElt.parentNode.parentNode == document.getElementById("TabsToolbar")) {
+    this._addEventListeners(gBrowser.tabContainer, ["TabOpen", "TabClose"], false);
+  }
+
   PlacesViewBase.call(this, aPlace);
+
+  Services.telemetry.getHistogramById("FX_BOOKMARKS_TOOLBAR_INIT_MS")
+                    .add(Date.now() - startTime);
 }
 
 PlacesToolbar.prototype = {
   __proto__: PlacesViewBase.prototype,
 
   _cbEvents: ["dragstart", "dragover", "dragexit", "dragend", "drop",
-#ifdef XP_UNIX
-#ifndef XP_MACOSX
-              "mousedown", "mouseup",
-#endif
-#endif
               "mousemove", "mouseover", "mouseout"],
 
   QueryInterface: function PT_QueryInterface(aIID) {
@@ -871,6 +1010,11 @@ PlacesToolbar.prototype = {
                                true);
     this._removeEventListeners(this._rootElt, ["overflow", "underflow"], true);
     this._removeEventListeners(window, ["resize", "unload"], false);
+    this._removeEventListeners(gBrowser.tabContainer, ["TabOpen", "TabClose"], false);
+
+    if (this._chevron._placesView) {
+      this._chevron._placesView.uninit();
+    }
 
     PlacesViewBase.prototype.uninit.apply(this, arguments);
   },
@@ -886,7 +1030,7 @@ PlacesToolbar.prototype = {
 
     this._openedMenuButton = null;
     while (this._rootElt.hasChildNodes()) {
-      this._rootElt.lastChild.remove();
+      this._rootElt.firstChild.remove();
     }
 
     let cc = this._resultNode.childCount;
@@ -910,16 +1054,15 @@ PlacesToolbar.prototype = {
     let button;
     if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR) {
       button = document.createElement("toolbarseparator");
-    }
-    else {
+    } else {
       button = document.createElement("toolbarbutton");
       button.className = "bookmark-item";
-      button.setAttribute("label", aChild.title);
+      button.setAttribute("label", aChild.title || "");
       let icon = aChild.icon;
       if (icon)
         button.setAttribute("image", icon);
 
-      if (PlacesUtils.containerTypes.indexOf(type) != -1) {
+      if (PlacesUtils.containerTypes.includes(type)) {
         button.setAttribute("type", "menu");
         button.setAttribute("container", "true");
 
@@ -927,26 +1070,22 @@ PlacesToolbar.prototype = {
           button.setAttribute("query", "true");
           if (PlacesUtils.nodeIsTagQuery(aChild))
             button.setAttribute("tagContainer", "true");
-        }
-        else if (PlacesUtils.nodeIsFolder(aChild)) {
+        } else if (PlacesUtils.nodeIsFolder(aChild)) {
           PlacesUtils.livemarks.getLivemark({ id: aChild.itemId })
-                               .then(aLivemark => {
-            button.setAttribute("livemark", "true");
-            this.controller.cacheLivemarkInfo(aChild, aLivemark);
-          }, () => undefined);
+            .then(aLivemark => {
+              button.setAttribute("livemark", "true");
+              this.controller.cacheLivemarkInfo(aChild, aLivemark);
+            }, () => undefined);
         }
 
         let popup = document.createElement("menupopup");
         popup.setAttribute("placespopup", "true");
         button.appendChild(popup);
         popup._placesNode = PlacesUtils.asContainer(aChild);
-#ifndef XP_MACOSX
         popup.setAttribute("context", "placesContext");
-#endif
 
         this._domNodes.set(aChild, popup);
-      }
-      else if (PlacesUtils.nodeIsURI(aChild)) {
+      } else if (PlacesUtils.nodeIsURI(aChild)) {
         button.setAttribute("scheme",
                             PlacesUIUtils.guessUrlSchemeForUI(aChild.uri));
       }
@@ -964,9 +1103,10 @@ PlacesToolbar.prototype = {
 
   _updateChevronPopupNodesVisibility:
   function PT__updateChevronPopupNodesVisibility() {
-    for (let i = 0; i < this._chevronPopup.childNodes.length; i++) {
-      this._chevronPopup.childNodes[i].hidden =
-        this._rootElt.childNodes[i].style.visibility != "hidden";
+    for (let i = 0, node = this._chevronPopup._startMarker.nextSibling;
+         node != this._chevronPopup._endMarker;
+         i++, node = node.nextSibling) {
+      node.hidden = this._rootElt.childNodes[i].style.visibility != "hidden";
     }
   },
 
@@ -994,31 +1134,17 @@ PlacesToolbar.prototype = {
         this.updateChevron();
         break;
       case "overflow":
-        if (aEvent.target != aEvent.currentTarget)
+        if (!this._isOverflowStateEventRelevant(aEvent))
           return;
-
-        // Ignore purely vertical overflows.
-        if (aEvent.detail == 0)
-          return;
-
-        // Attach the popup binding to the chevron popup if it has not yet
-        // been initialized.
-        if (!this._chevronPopup.hasAttribute("type")) {
-          this._chevronPopup.setAttribute("place", this.place);
-          this._chevronPopup.setAttribute("type", "places");
-        }
-        this._chevron.collapsed = false;
-        this.updateChevron();
+        this._onOverflow();
         break;
       case "underflow":
-        if (aEvent.target != aEvent.currentTarget)
+        if (!this._isOverflowStateEventRelevant(aEvent))
           return;
-
-        // Ignore purely vertical underflows.
-        if (aEvent.detail == 0)
-          return;
-
-        this._chevron.collapsed = true;
+        this._onUnderflow();
+        break;
+      case "TabOpen":
+      case "TabClose":
         this.updateChevron();
         break;
       case "dragstart":
@@ -1045,16 +1171,6 @@ PlacesToolbar.prototype = {
       case "mouseout":
         this._onMouseOut(aEvent);
         break;
-#ifdef XP_UNIX
-#ifndef XP_MACOSX
-      case "mouseup":
-        this._onMouseUp(aEvent);
-        break;
-      case "mousedown":
-        this._onMouseDown(aEvent);
-        break;
-#endif
-#endif
       case "popupshowing":
         this._onPopupShowing(aEvent);
         break;
@@ -1064,6 +1180,35 @@ PlacesToolbar.prototype = {
       default:
         throw "Trying to handle unexpected event.";
     }
+  },
+
+  updateOverflowStatus() {
+    if (this._rootElt.scrollLeftMin != this._rootElt.scrollLeftMax) {
+      this._onOverflow();
+    } else {
+      this._onUnderflow();
+    }
+  },
+
+  _isOverflowStateEventRelevant: function PT_isOverflowStateEventRelevant(aEvent) {
+    // Ignore events not aimed at ourselves, as well as purely vertical ones:
+    return aEvent.target == aEvent.currentTarget && aEvent.detail > 0;
+  },
+
+  _onOverflow: function PT_onOverflow() {
+    // Attach the popup binding to the chevron popup if it has not yet
+    // been initialized.
+    if (!this._chevronPopup.hasAttribute("type")) {
+      this._chevronPopup.setAttribute("place", this.place);
+      this._chevronPopup.setAttribute("type", "places");
+    }
+    this._chevron.collapsed = false;
+    this.updateChevron();
+  },
+
+  _onUnderflow: function PT_onUnderflow() {
+    this.updateChevron();
+    this._chevron.collapsed = true;
   },
 
   updateChevron: function PT_updateChevron() {
@@ -1087,8 +1232,9 @@ PlacesToolbar.prototype = {
       // Once a child overflows, all the next ones will.
       if (!childOverflowed) {
         let childRect = child.getBoundingClientRect();
-        childOverflowed = this._isRTL ? (childRect.left < scrollRect.left)
-                                      : (childRect.right > scrollRect.right);
+        childOverflowed = this.isRTL ? (childRect.left < scrollRect.left)
+                                     : (childRect.right > scrollRect.right);
+
       }
       child.style.visibility = childOverflowed ? "hidden" : "visible";
     }
@@ -1149,14 +1295,13 @@ PlacesToolbar.prototype = {
       this._removeChild(elt);
       this._rootElt.insertBefore(elt, this._rootElt.childNodes[aNewIndex]);
 
-      // If the chevron popup is open, keep it in sync.
-      if (this._chevron.open) {
-        let chevronPopup = this._chevronPopup;
-        let menuitem = chevronPopup.childNodes[aOldIndex];
-        menuitem.remove();
-        chevronPopup.insertBefore(menuitem,
-                                  chevronPopup.childNodes[aNewIndex]);
-      }
+      // The chevron view may get nodeMoved after the toolbar.  In such a case,
+      // we should ensure (by manually swapping menuitems) that the actual nodes
+      // are in the final position before updateChevron tries to updates their
+      // visibility, or the chevron may go out of sync.
+      // Luckily updateChevron runs on a timer, so, by the time it updates
+      // nodes, the menu has already handled the notification.
+
       this.updateChevron();
       return;
     }
@@ -1176,19 +1321,21 @@ PlacesToolbar.prototype = {
 
     if (elt.parentNode == this._rootElt) {
       // Node is on the toolbar.
+
       // All livemarks have a feedURI, so use it as our indicator.
       if (aAnno == PlacesUtils.LMANNO_FEEDURI) {
         elt.setAttribute("livemark", true);
 
         PlacesUtils.livemarks.getLivemark({ id: aPlacesNode.itemId })
-                             .then(aLivemark => {
-          this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
-          this.invalidateContainer(aPlacesNode);
-        }, () => undefined);
+          .then(aLivemark => {
+            this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
+            this.invalidateContainer(aPlacesNode);
+          }, Cu.reportError);
       }
+    } else {
+      // Node is in a submenu.
+      PlacesViewBase.prototype.nodeAnnotationChanged.apply(this, arguments);
     }
-
-    PlacesViewBase.prototype.nodeAnnotationChanged.apply(this, arguments);
   },
 
   nodeTitleChanged: function PT_nodeTitleChanged(aPlacesNode, aNewTitle) {
@@ -1256,7 +1403,6 @@ PlacesToolbar.prototype = {
    * - folderElt: the folder to drop into, if applicable.
    */
   _getDropPoint: function PT__getDropPoint(aEvent) {
-    let result = this.result;
     if (!PlacesUtils.nodeIsFolder(this._resultNode))
       return null;
 
@@ -1265,33 +1411,32 @@ PlacesToolbar.prototype = {
     if (elt._placesNode && elt != this._rootElt &&
         elt.localName != "menupopup") {
       let eltRect = elt.getBoundingClientRect();
-      let eltIndex = Array.from(this._rootElt.childNodes).indexOf(elt);
+      let eltIndex = Array.prototype.indexOf.call(this._rootElt.childNodes, elt);
       if (PlacesUtils.nodeIsFolder(elt._placesNode) &&
           !PlacesUIUtils.isContentsReadOnly(elt._placesNode)) {
         // This is a folder.
         // If we are in the middle of it, drop inside it.
         // Otherwise, drop before it, with regards to RTL mode.
         let threshold = eltRect.width * 0.25;
-        if (this._isRTL ? (aEvent.clientX > eltRect.right - threshold)
-                        : (aEvent.clientX < eltRect.left + threshold)) {
+        if (this.isRTL ? (aEvent.clientX > eltRect.right - threshold)
+                       : (aEvent.clientX < eltRect.left + threshold)) {
           // Drop before this folder.
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
-                               eltIndex,
-                               Ci.nsITreeView.DROP_BEFORE);
+                               eltIndex, Ci.nsITreeView.DROP_BEFORE);
           dropPoint.beforeIndex = eltIndex;
-        }
-        else if (this._isRTL ? (aEvent.clientX > eltRect.left + threshold)
-                             : (aEvent.clientX < eltRect.right - threshold)) {
+        } else if (this.isRTL ? (aEvent.clientX > eltRect.left + threshold)
+                            : (aEvent.clientX < eltRect.right - threshold)) {
           // Drop inside this folder.
+          let tagName = PlacesUtils.nodeIsTagQuery(elt._placesNode) ?
+                        elt._placesNode.title : null;
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(elt._placesNode),
                                -1, Ci.nsITreeView.DROP_ON,
-                               PlacesUtils.nodeIsTagQuery(elt._placesNode));
+                               tagName);
           dropPoint.beforeIndex = eltIndex;
           dropPoint.folderElt = elt;
-        }
-        else {
+        } else {
           // Drop after this folder.
           let beforeIndex =
             (eltIndex == this._rootElt.childNodes.length - 1) ?
@@ -1299,38 +1444,32 @@ PlacesToolbar.prototype = {
 
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
-                               beforeIndex,
-                               Ci.nsITreeView.DROP_BEFORE);
+                               beforeIndex, Ci.nsITreeView.DROP_BEFORE);
           dropPoint.beforeIndex = beforeIndex;
         }
-      }
-      else {
+      } else {
         // This is a non-folder node or a read-only folder.
         // Drop before it with regards to RTL mode.
         let threshold = eltRect.width * 0.5;
-        if (this._isRTL ? (aEvent.clientX > eltRect.left + threshold)
-                        : (aEvent.clientX < eltRect.left + threshold)) {
+        if (this.isRTL ? (aEvent.clientX > eltRect.left + threshold)
+                       : (aEvent.clientX < eltRect.left + threshold)) {
           // Drop before this bookmark.
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
-                               eltIndex,
-                               Ci.nsITreeView.DROP_BEFORE);
+                               eltIndex, Ci.nsITreeView.DROP_BEFORE);
           dropPoint.beforeIndex = eltIndex;
-        }
-        else {
+        } else {
           // Drop after this bookmark.
           let beforeIndex =
             eltIndex == this._rootElt.childNodes.length - 1 ?
             -1 : eltIndex + 1;
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
-                               beforeIndex,
-                               Ci.nsITreeView.DROP_BEFORE);
+                               beforeIndex, Ci.nsITreeView.DROP_BEFORE);
           dropPoint.beforeIndex = beforeIndex;
         }
       }
-    }
-    else {
+    } else {
       // We are most likely dragging on the empty area of the
       // toolbar, we should drop after the last node.
       dropPoint.ip =
@@ -1343,8 +1482,7 @@ PlacesToolbar.prototype = {
   },
 
   _setTimer: function PT_setTimer(aTime) {
-    let timer = Cc["@mozilla.org/timer;1"]
-                  .createInstance(Ci.nsITimer);
+    let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     timer.initWithCallback(this, aTime, timer.TYPE_ONE_SHOT);
     return timer;
   },
@@ -1353,25 +1491,19 @@ PlacesToolbar.prototype = {
     if (aTimer == this._updateChevronTimer) {
       this._updateChevronTimer = null;
       this._updateChevronTimerCallback();
-    }
-
-    // * Timer to turn off indicator bar.
-    else if (aTimer == this._ibTimer) {
+    } else if (aTimer == this._ibTimer) {
+      // * Timer to turn off indicator bar.
       this._dropIndicator.collapsed = true;
       this._ibTimer = null;
-    }
-
-    // * Timer to open a menubutton that's being dragged over.
-    else if (aTimer == this._overFolder.openTimer) {
+    } else if (aTimer == this._overFolder.openTimer) {
+      // * Timer to open a menubutton that's being dragged over.
       // Set the autoopen attribute on the folder's menupopup so that
       // the menu will automatically close when the mouse drags off of it.
       this._overFolder.elt.lastChild.setAttribute("autoopened", "true");
       this._overFolder.elt.open = true;
       this._overFolder.openTimer = null;
-    }
-
-    // * Timer to close a menubutton that's been dragged off of.
-    else if (aTimer == this._overFolder.closeTimer) {
+    } else if (aTimer == this._overFolder.closeTimer) {
+      // * Timer to close a menubutton that's been dragged off of.
       // Close the menubutton if we are not dragging over it or one of
       // its children.  The autoopened attribute will let the menu know to
       // close later if the menu is still being dragged over.
@@ -1425,17 +1557,9 @@ PlacesToolbar.prototype = {
         draggedElt.getAttribute("type") == "menu") {
       // If the drag gesture on a container is toward down we open instead
       // of dragging.
-#ifdef XP_UNIX
-#ifndef XP_MACOSX
-      if (this._mouseDownTimer) {
-        this._mouseDownTimer.cancel();
-        this._mouseDownTimer = null;
-      }
-#endif
-#endif
       let translateY = this._cachedMouseMoveEvent.clientY - aEvent.clientY;
       let translateX = this._cachedMouseMoveEvent.clientX - aEvent.clientX;
-      if ((translateY) >= Math.abs(translateX/2)) {
+      if ((translateY) >= Math.abs(translateX / 2)) {
         // Don't start the drag.
         aEvent.preventDefault();
         // Open the menu.
@@ -1489,14 +1613,14 @@ PlacesToolbar.prototype = {
         this._overFolder.elt.setAttribute("dragover", "true");
 
       this._dropIndicator.collapsed = true;
-    }
-    else {
+    } else {
       // Dragging over a normal toolbarbutton,
       // show indicator bar and move it to the appropriate drop point.
       let ind = this._dropIndicator;
+      ind.parentNode.collapsed = false;
       let halfInd = ind.clientWidth / 2;
       let translateX;
-      if (this._isRTL) {
+      if (this.isRTL) {
         halfInd = Math.ceil(halfInd);
         translateX = 0 - this._rootElt.getBoundingClientRect().right - halfInd;
         if (this._rootElt.firstChild) {
@@ -1507,8 +1631,7 @@ PlacesToolbar.prototype = {
                               .getBoundingClientRect().right;
           }
         }
-      }
-      else {
+      } else {
         halfInd = Math.floor(halfInd);
         translateX = 0 - this._rootElt.getBoundingClientRect().left +
                      halfInd;
@@ -1523,7 +1646,7 @@ PlacesToolbar.prototype = {
       }
 
       ind.style.transform = "translate(" + Math.round(translateX) + "px)";
-      ind.style.MozMarginStart = (-ind.clientWidth) + "px";
+      ind.style.marginInlineStart = (-ind.clientWidth) + "px";
       ind.collapsed = false;
 
       // Clear out old folder information.
@@ -1540,6 +1663,7 @@ PlacesToolbar.prototype = {
     let dropPoint = this._getDropPoint(aEvent);
     if (dropPoint && dropPoint.ip) {
       PlacesControllerDragHelper.onDrop(dropPoint.ip, aEvent.dataTransfer)
+                                .catch(Cu.reportError);
       aEvent.preventDefault();
     }
 
@@ -1587,11 +1711,12 @@ PlacesToolbar.prototype = {
     if (placesNode && PlacesUIUtils.getViewForNode(popup) == this) {
       // UI performance: folder queries are cheap, keep the resultnode open
       // so we don't rebuild its contents whenever the popup is reopened.
-      // Though, we want to always close feed containers so their
-      // expiration status will be checked at next opening.
+      // Though, we want to always close feed containers so their expiration
+      // status will be checked at next opening.
       if (!PlacesUtils.nodeIsFolder(placesNode) ||
-          this.controller.hasCachedLivemarkInfo(placesNode))
+          this.controller.hasCachedLivemarkInfo(placesNode)) {
         placesNode.containerOpen = false;
+      }
     }
 
     let parent = popup.parentNode;
@@ -1604,47 +1729,6 @@ PlacesToolbar.prototype = {
         parent.removeAttribute("dragover");
     }
   },
-
-#ifdef XP_UNIX
-#ifndef XP_MACOSX
-  _onMouseDown: function PT__onMouseDown(aEvent) {
-    let target = aEvent.target;
-    if (aEvent.button == 0 &&
-        target.localName == "toolbarbutton" &&
-        target.getAttribute("type") == "menu") {
-      this._allowPopupShowing = false;
-      // On Linux we can open the popup only after a delay.
-      // Indeed as soon as the menupopup opens we are unable to start a
-      // drag aEvent.  See bug 500081 for details.
-      this._mouseDownTimer = Cc["@mozilla.org/timer;1"].
-                             createInstance(Ci.nsITimer);
-      let callback = {
-        _self: this,
-        _target: target,
-        notify: function(timer) {
-          this._target.open = true;
-          this._mouseDownTimer = null;
-        }
-      };
-
-      this._mouseDownTimer.initWithCallback(callback, 300,
-                                            Ci.nsITimer.TYPE_ONE_SHOT);
-    }
-  },
-
-  _onMouseUp: function PT__onMouseUp(aEvent) {
-    if (aEvent.button != 0)
-      return;
-
-    if (this._mouseDownTimer) {
-      // On a click (down/up), we should open the menu popup.
-      this._mouseDownTimer.cancel();
-      this._mouseDownTimer = null;
-      aEvent.target.open = true;
-    }
-  },
-#endif
-#endif
 
   _onMouseMove: function PT__onMouseMove(aEvent) {
     // Used in dragStart to prevent dragging folders when dragging down.
@@ -1668,22 +1752,24 @@ PlacesToolbar.prototype = {
  * View for Places menus.  This object should be created during the first
  * popupshowing that's dispatched on the menu.
  */
-function PlacesMenu(aPopupShowingEvent, aPlace) {
+function PlacesMenu(aPopupShowingEvent, aPlace, aOptions) {
   this._rootElt = aPopupShowingEvent.target; // <menupopup>
   this._viewElt = this._rootElt.parentNode;   // <menu>
   this._viewElt._placesView = this;
   this._addEventListeners(this._rootElt, ["popupshowing", "popuphidden"], true);
   this._addEventListeners(window, ["unload"], false);
 
-#ifdef XP_MACOSX
-  if (this._viewElt.parentNode.localName == "menubar") {
-    this._nativeView = true;
-    this._rootElt._startMarker = -1;
-    this._rootElt._endMarker = -1;
+  if (AppConstants.platform === "macosx") {
+    // Must walk up to support views in sub-menus, like Bookmarks Toolbar menu.
+    for (let elt = this._viewElt.parentNode; elt; elt = elt.parentNode) {
+      if (elt.localName == "menubar") {
+        this._nativeView = true;
+        break;
+      }
+    }
   }
-#endif
 
-  PlacesViewBase.call(this, aPlace);
+  PlacesViewBase.call(this, aPlace, aOptions);
   this._onPopupShowing(aPopupShowingEvent);
 }
 
@@ -1699,8 +1785,6 @@ PlacesMenu.prototype = {
 
   _removeChild: function PM_removeChild(aChild) {
     PlacesViewBase.prototype._removeChild.apply(this, arguments);
-    if (this._endMarker != -1)
-      this._endMarker--;
   },
 
   uninit: function PM_uninit() {
@@ -1728,13 +1812,17 @@ PlacesMenu.prototype = {
   _onPopupHidden: function PM__onPopupHidden(aEvent) {
     // Avoid handling popuphidden of inner views.
     let popup = aEvent.originalTarget;
-    if (!popup._placesNode || PlacesUIUtils.getViewForNode(popup) != this)
+    let placesNode = popup._placesNode;
+    if (!placesNode || PlacesUIUtils.getViewForNode(popup) != this)
       return;
 
     // UI performance: folder queries are cheap, keep the resultnode open
     // so we don't rebuild its contents whenever the popup is reopened.
-    if (!PlacesUtils.nodeIsFolder(popup._placesNode))
-      popup._placesNode.containerOpen = false;
+    // Though, we want to always close feed containers so their expiration
+    // status will be checked at next opening.
+    if (!PlacesUtils.nodeIsFolder(placesNode) ||
+        this.controller.hasCachedLivemarkInfo(placesNode))
+      placesNode.containerOpen = false;
 
     // The autoopened attribute is set for folders which have been
     // automatically opened when dragged over.  Turn off this attribute
@@ -1744,3 +1832,346 @@ PlacesMenu.prototype = {
   }
 };
 
+function PlacesPanelMenuView(aPlace, aViewId, aRootId, aOptions) {
+  this._viewElt = document.getElementById(aViewId);
+  this._rootElt = document.getElementById(aRootId);
+  this._viewElt._placesView = this;
+  this.options = aOptions;
+
+  PlacesViewBase.call(this, aPlace, aOptions);
+}
+
+PlacesPanelMenuView.prototype = {
+  __proto__: PlacesViewBase.prototype,
+
+  QueryInterface: function PAMV_QueryInterface(aIID) {
+    return PlacesViewBase.prototype.QueryInterface.apply(this, arguments);
+  },
+
+  uninit: function PAMV_uninit() {
+    PlacesViewBase.prototype.uninit.apply(this, arguments);
+  },
+
+  _insertNewItem:
+  function PAMV__insertNewItem(aChild, aBefore) {
+    this._domNodes.delete(aChild);
+
+    let type = aChild.type;
+    let button;
+    if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR) {
+      button = document.createElement("toolbarseparator");
+      button.setAttribute("class", "small-separator");
+    } else {
+      button = document.createElement("toolbarbutton");
+      button.className = "bookmark-item";
+      if (typeof this.options.extraClasses.entry == "string")
+        button.classList.add(this.options.extraClasses.entry);
+      button.setAttribute("label", aChild.title || "");
+      let icon = aChild.icon;
+      if (icon)
+        button.setAttribute("image", icon);
+
+      if (PlacesUtils.containerTypes.includes(type)) {
+        button.setAttribute("container", "true");
+
+        if (PlacesUtils.nodeIsQuery(aChild)) {
+          button.setAttribute("query", "true");
+          if (PlacesUtils.nodeIsTagQuery(aChild))
+            button.setAttribute("tagContainer", "true");
+        } else if (PlacesUtils.nodeIsFolder(aChild)) {
+          PlacesUtils.livemarks.getLivemark({ id: aChild.itemId })
+            .then(aLivemark => {
+              button.setAttribute("livemark", "true");
+              this.controller.cacheLivemarkInfo(aChild, aLivemark);
+            }, () => undefined);
+        }
+      } else if (PlacesUtils.nodeIsURI(aChild)) {
+        button.setAttribute("scheme",
+                            PlacesUIUtils.guessUrlSchemeForUI(aChild.uri));
+      }
+    }
+
+    button._placesNode = aChild;
+    if (!this._domNodes.has(aChild))
+      this._domNodes.set(aChild, button);
+
+    this._rootElt.insertBefore(button, aBefore);
+  },
+
+  nodeInserted:
+  function PAMV_nodeInserted(aParentPlacesNode, aPlacesNode, aIndex) {
+    let parentElt = this._getDOMNodeForPlacesNode(aParentPlacesNode);
+    if (parentElt != this._rootElt)
+      return;
+
+    let children = this._rootElt.childNodes;
+    this._insertNewItem(aPlacesNode,
+      aIndex < children.length ? children[aIndex] : null);
+  },
+
+  nodeRemoved:
+  function PAMV_nodeRemoved(aParentPlacesNode, aPlacesNode, aIndex) {
+    let parentElt = this._getDOMNodeForPlacesNode(aParentPlacesNode);
+    if (parentElt != this._rootElt)
+      return;
+
+    let elt = this._getDOMNodeForPlacesNode(aPlacesNode);
+    this._removeChild(elt);
+  },
+
+  nodeMoved:
+  function PAMV_nodeMoved(aPlacesNode,
+                          aOldParentPlacesNode, aOldIndex,
+                          aNewParentPlacesNode, aNewIndex) {
+    let parentElt = this._getDOMNodeForPlacesNode(aNewParentPlacesNode);
+    if (parentElt != this._rootElt)
+      return;
+
+    let elt = this._getDOMNodeForPlacesNode(aPlacesNode);
+    this._removeChild(elt);
+    this._rootElt.insertBefore(elt, this._rootElt.childNodes[aNewIndex]);
+  },
+
+  nodeAnnotationChanged:
+  function PAMV_nodeAnnotationChanged(aPlacesNode, aAnno) {
+    let elt = this._getDOMNodeForPlacesNode(aPlacesNode);
+    // There's no UI representation for the root node.
+    if (elt == this._rootElt)
+      return;
+
+    if (elt.parentNode != this._rootElt)
+      return;
+
+    // All livemarks have a feedURI, so use it as our indicator.
+    if (aAnno == PlacesUtils.LMANNO_FEEDURI) {
+      elt.setAttribute("livemark", true);
+
+      PlacesUtils.livemarks.getLivemark({ id: aPlacesNode.itemId })
+        .then(aLivemark => {
+          this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
+          this.invalidateContainer(aPlacesNode);
+        }, Cu.reportError);
+    }
+  },
+
+  nodeTitleChanged: function PAMV_nodeTitleChanged(aPlacesNode, aNewTitle) {
+    let elt = this._getDOMNodeForPlacesNode(aPlacesNode);
+
+    // There's no UI representation for the root node.
+    if (elt == this._rootElt)
+      return;
+
+    PlacesViewBase.prototype.nodeTitleChanged.apply(this, arguments);
+  },
+
+  invalidateContainer: function PAMV_invalidateContainer(aPlacesNode) {
+    let elt = this._getDOMNodeForPlacesNode(aPlacesNode);
+    if (elt != this._rootElt)
+      return;
+
+    // Container is the toolbar itself.
+    while (this._rootElt.hasChildNodes()) {
+      this._rootElt.firstChild.remove();
+    }
+
+    for (let i = 0; i < this._resultNode.childCount; ++i) {
+      this._insertNewItem(this._resultNode.getChild(i), null);
+    }
+  }
+};
+
+var PlacesPanelview = class extends PlacesViewBase {
+  constructor(container, panelview, place, options = {}) {
+    options.rootElt = container;
+    options.viewElt = panelview;
+    super(place, options);
+    this._viewElt._placesView = this;
+    // We're simulating a popup show, because a panelview may only be shown when
+    // its containing popup is already shown.
+    this._onPopupShowing({ originalTarget: this._viewElt });
+    this._addEventListeners(window, ["unload"]);
+    this._rootElt.setAttribute("context", "placesContext");
+  }
+
+  get events() {
+    if (this._events)
+      return this._events;
+    return this._events = ["command", "destructed", "dragend", "dragstart",
+      "ViewHiding", "ViewShowing", "ViewShown"];
+  }
+
+  get panel() {
+    return this.panelMultiView.parentNode;
+  }
+
+  get panelMultiView() {
+    return this._viewElt.panelMultiView;
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "command":
+        this._onCommand(event);
+        break;
+      case "destructed":
+        this._onDestructed(event);
+        break;
+      case "dragend":
+        this._onDragEnd(event);
+        break;
+      case "dragstart":
+        this._onDragStart(event);
+        break;
+      case "unload":
+        this.uninit(event);
+        break;
+      case "ViewHiding":
+        this._onPopupHidden(event);
+        break;
+      case "ViewShowing":
+        this._onPopupShowing(event);
+        break;
+      case "ViewShown":
+        this._onViewShown(event);
+        break;
+    }
+  }
+
+  _onCommand(event) {
+    let button = event.originalTarget;
+    if (!button._placesNode)
+      return;
+
+    PlacesUIUtils.openNodeWithEvent(button._placesNode, event);
+  }
+
+  _onDestructed(event) {
+    // The panelmultiview is ephemeral, so let's keep an eye out when the root
+    // element is showing again.
+    this._removeEventListeners(event.target, this.events);
+    this._addEventListeners(this._viewElt, ["ViewShowing"]);
+  }
+
+  _onDragEnd() {
+    this._draggedElt = null;
+  }
+
+  _onDragStart(event) {
+    let draggedElt = event.originalTarget;
+    if (draggedElt.parentNode != this._rootElt || !draggedElt._placesNode)
+      return;
+
+    // Activate the view and cache the dragged element.
+    this._draggedElt = draggedElt._placesNode;
+    this._rootElt.focus();
+
+    this._controller.setDataTransfer(event);
+    event.stopPropagation();
+  }
+
+  uninit(event) {
+    this._removeEventListeners(this.panelMultiView, this.events);
+    this._removeEventListeners(this._viewElt, ["ViewShowing"]);
+    this._removeEventListeners(window, ["unload"]);
+    super.uninit(event);
+  }
+
+  _createDOMNodeForPlacesNode(placesNode) {
+    this._domNodes.delete(placesNode);
+
+    let element;
+    let type = placesNode.type;
+    if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR) {
+      element = document.createElement("toolbarseparator");
+    } else {
+      if (type != Ci.nsINavHistoryResultNode.RESULT_TYPE_URI)
+        throw "Unexpected node";
+
+      element = document.createElement("toolbarbutton");
+      element.classList.add("subviewbutton", "subviewbutton-iconic", "bookmark-item");
+      element.setAttribute("scheme", PlacesUIUtils.guessUrlSchemeForUI(placesNode.uri));
+      element.setAttribute("label", PlacesUIUtils.getBestTitle(placesNode));
+
+      let icon = placesNode.icon;
+      if (icon)
+        element.setAttribute("image", icon);
+    }
+
+    element._placesNode = placesNode;
+    if (!this._domNodes.has(placesNode))
+      this._domNodes.set(placesNode, element);
+
+    return element;
+  }
+
+  _setEmptyPopupStatus(panelview, empty = false) {
+    if (!panelview._emptyMenuitem) {
+      let label = PlacesUIUtils.getString("bookmarksMenuEmptyFolder");
+      panelview._emptyMenuitem = document.createElement("toolbarbutton");
+      panelview._emptyMenuitem.setAttribute("label", label);
+      panelview._emptyMenuitem.setAttribute("disabled", true);
+      panelview._emptyMenuitem.className = "subviewbutton";
+      if (typeof this.options.extraClasses.entry == "string")
+        panelview._emptyMenuitem.classList.add(this.options.extraClasses.entry);
+    }
+
+    if (empty) {
+      panelview.setAttribute("emptyplacesresult", "true");
+      // Don't add the menuitem if there is static content.
+      // We also support external usage for custom crafted panels - which'll have
+      // no markers present.
+      if (!panelview._startMarker ||
+          (!panelview._startMarker.previousSibling && !panelview._endMarker.nextSibling)) {
+        panelview.insertBefore(panelview._emptyMenuitem, panelview._endMarker);
+      }
+    } else {
+      panelview.removeAttribute("emptyplacesresult");
+      try {
+        panelview.removeChild(panelview._emptyMenuitem);
+      } catch (ex) {}
+    }
+  }
+
+  _isPopupOpen() {
+    return this.panel.state == "open" && this.panelMultiView.current == this._viewElt;
+  }
+
+  _onPopupHidden(event) {
+    let panelview = event.originalTarget;
+    let placesNode = panelview._placesNode;
+    // Avoid handling ViewHiding of inner views
+    if (placesNode && PlacesUIUtils.getViewForNode(panelview) == this) {
+      // UI performance: folder queries are cheap, keep the resultnode open
+      // so we don't rebuild its contents whenever the popup is reopened.
+      // Though, we want to always close feed containers so their expiration
+      // status will be checked at next opening.
+      if (!PlacesUtils.nodeIsFolder(placesNode) ||
+          this.controller.hasCachedLivemarkInfo(placesNode)) {
+        placesNode.containerOpen = false;
+      }
+    }
+  }
+
+  _onPopupShowing(event) {
+    // If the event came from the root element, this is a sign that the panelmultiview
+    // was just instantiated (see `_onDestructed` above) or this is the first time
+    // we ever get here.
+    if (event.originalTarget == this._viewElt) {
+      this._removeEventListeners(this._viewElt, ["ViewShowing"]);
+      // Start listening for events from all panels inside the panelmultiview.
+      this._addEventListeners(this.panelMultiView, this.events);
+    }
+    super._onPopupShowing(event);
+  }
+
+  _onViewShown(event) {
+    if (event.originalTarget != this._viewElt)
+      return;
+
+    // Because PanelMultiView reparents the panelview internally, the controller
+    // may get lost. In that case we'll append it again, because we certainly
+    // need it later!
+    if (!this.controllers.getControllerCount() && this._controller)
+      this.controllers.appendController(this._controller);
+  }
+}

@@ -19,6 +19,9 @@ this.__defineSetter__("PluralForm", function (val) {
 
 ChromeUtils.defineModuleGetter(this, "SafeBrowsing",
   "resource://gre/modules/SafeBrowsing.jsm");
+  
+XPCOMUtils.defineLazyScriptGetter(this, "gEditItemOverlay",
+                                  "chrome://communicator/content/places/editBookmarkOverlay.js");
 
 const REMOTESERVICE_CONTRACTID = "@mozilla.org/toolkit/remote-service;1";
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
@@ -871,7 +874,7 @@ function Shutdown()
 {
   AeroPeek.onCloseWindow(window);
 
-  PlacesStarButton.uninit();
+  BookmarkingUI.uninit();
 
   // shut down browser access support
   window.browserDOMWindow = null;
@@ -2595,11 +2598,6 @@ function popupBlockerMenuShowing(event)
 
   if (separator)
     separator.hidden = !createShowPopupsMenu(event.target, gBrowser.selectedBrowser);
-}
-
-function toHistory()
-{
-  toOpenWindowByType("history:manager", "chrome://communicator/content/history/history.xul");
 }
 
 // opener may not have been initialized by load time (chrome windows only)

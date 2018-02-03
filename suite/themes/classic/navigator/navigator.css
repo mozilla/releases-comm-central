@@ -4,7 +4,7 @@
 
 @import url("chrome://navigator/content/navigator.css");
 @import url("chrome://communicator/skin/");
-@import url("chrome://communicator/skin/bookmarks/bookmarksToolbar.css");
+@import url("chrome://communicator/skin/places/bookmarksToolbar.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
@@ -500,7 +500,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 #page-proxy-button {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg"); 
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg"); 
 }
 
 #page-proxy-favicon {
@@ -509,7 +509,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 
 #page-proxy-button[pageproxystate="invalid"] {
   cursor: default;
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item-dis.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png");
 }
 
 /* ::::: autocomplete ::::: */
@@ -686,11 +686,11 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 /* ::::: personal toolbar ::::: */
 
 #bookmarks-button {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-folder-closed.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.png");
 }
 
 #bookmarks-button[open="true"] {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-folder-open.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open.png");
 }
 
 toolbarbutton.chevron {
@@ -739,7 +739,7 @@ toolbar[mode="text"] toolbarbutton.chevron > .toolbarbutton-icon {
   for the drag/drop UI.
 */
 .bookmarks-toolbar-customize {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmarksToolbar.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmarksToolbar.png");
   display: none;
   max-width: 15em !important;
 }
@@ -747,13 +747,13 @@ toolbar[mode="text"] toolbarbutton.chevron > .toolbarbutton-icon {
 #wrapper-personal-bookmarks[place="palette"] > .toolbarpaletteitem-box {
   width: 16px;
   height: 16px;
-  background: url("chrome://communicator/skin/bookmarks/bookmarksToolbar.png") no-repeat;
+  background: url("chrome://communicator/skin/places/bookmarksToolbar.png") no-repeat;
 }
 
 /* ::::: star button ::::: */
 
 #star-button {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark.png");
   -moz-image-region: rect(16px 16px 32px 0px);
 }
 
@@ -778,7 +778,7 @@ toolbar[mode="text"] toolbarbutton.chevron > .toolbarbutton-icon {
 }
 
 #editBookmarkPanelStarIcon {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark.png");
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 

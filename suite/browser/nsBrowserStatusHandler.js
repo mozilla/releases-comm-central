@@ -333,7 +333,7 @@ nsBrowserStatusHandler.prototype =
         SetPageProxyState("invalid", null);
       }
 
-      PlacesStarButton.updateStarState();
+      BookmarkingUI.updateStarState();
 
       this.feedsMenu.setAttribute("disabled", "true");
       this.feedsButton.hidden = true;

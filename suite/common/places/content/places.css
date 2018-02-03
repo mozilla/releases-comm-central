@@ -6,14 +6,16 @@ tree[type="places"] {
   -moz-binding: url("chrome://communicator/content/places/tree.xml#places-tree");
 }
 
-.bookmarks-toolbar-customize,
-toolbarpaletteitem #PlacesToolbarItems,
-toolbarpaletteitem #PlacesChevron {
-  display: none;
+tree[type="places"] > treechildren::-moz-tree-cell {
+  /* ensure we use the direction of the website title / url instead of the
+   * browser locale */
+  unicode-bidi: plaintext;
 }
 
-toolbarpaletteitem .bookmarks-toolbar-customize {
-  display: -moz-box;
+#bhtTitleText {
+  /* ensure we use the direction of the website title instead of the
+   * browser locale */
+  unicode-bidi: plaintext;
 }
 
 .toolbar-drop-indicator {
@@ -23,4 +25,13 @@ toolbarpaletteitem .bookmarks-toolbar-customize {
 
 menupopup[placespopup="true"] {
   -moz-binding: url("chrome://communicator/content/places/menu.xml#places-popup-base");
+}
+
+/* Apply crisp rendering for favicons at exactly 2dppx resolution */
+@media (resolution: 2dppx) {
+  #bookmarksChildren,
+  .sidebar-placesTreechildren,
+  .placesTree > treechildren {
+    image-rendering: -moz-crisp-edges;
+  }
 }

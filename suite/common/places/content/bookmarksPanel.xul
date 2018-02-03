@@ -1,31 +1,29 @@
-<?xml version="1.0"?>
-
+<?xml version="1.0"?> <!-- -*- Mode: SGML; indent-tabs-mode: nil; -*- -->
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
 <?xml-stylesheet href="chrome://communicator/skin/sidebar/sidebarListView.css" type="text/css"?>
-<?xml-stylesheet href="chrome://communicator/skin/bookmarks/bookmarks.css"?>
+<?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
+<?xml-stylesheet href="chrome://communicator/skin/places/bookmarks.css"?>
 
 <?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/bookmarks/placesOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
-<!DOCTYPE page SYSTEM "chrome://communicator/locale/bookmarks/places.dtd">
+<!DOCTYPE page SYSTEM "chrome://communicator/locale/places/places.dtd">
 
 <page id="bookmarksPanel"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       onload="init();"
-      onunload="SidebarUtils.setMouseoverURL('');"
-      elementtofocus="search-box">
+      onunload="SidebarUtils.setMouseoverURL('');">
 
   <script type="application/javascript"
-          src="chrome://communicator/content/places/sidebarUtils.js"/>
+          src="chrome://communicator/content/bookmarks/sidebarUtils.js"/>
   <script type="application/javascript"
-          src="chrome://communicator/content/bookmarks/bm-panel.js"/>
+          src="chrome://communicator/content/bookmarks/bookmarksPanel.js"/>
 
   <commandset id="placesCommands"/>
   <commandset id="editMenuCommands"/>
@@ -35,9 +33,9 @@
   <tooltip id="bhTooltip"/>
 
   <hbox id="sidebar-search-container" align="center">
-    <textbox id="search-box" flex="1" type="search" class="compact"
-             aria-controls="bookmarks-view"
+    <textbox id="search-box" flex="1" type="search"
              placeholder="&search.placeholder;"
+             aria-controls="bookmarks-view"
              oncommand="searchBookmarks(this.value);"/>
   </hbox>
 

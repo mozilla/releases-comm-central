@@ -102,6 +102,6 @@ td:not(:first-child) {
 }
 
 .dir::before {
-  content: url("chrome://communicator/skin/bookmarks/bookmark-folder-closed.gif");
+  content: url("chrome://communicator/skin/places/bookmark-folder-closed.gif");
 }
 

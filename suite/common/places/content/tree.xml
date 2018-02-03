@@ -26,6 +26,17 @@
         if (result) {
           result.root.containerOpen = false;
         }
+
+        // Unregister the controllber before unlinking the view, otherwise it
+        // may still try to update commands on a view with a null result.
+        if (this._controller) {
+          this._controller.terminate();
+          this.controllers.removeController(this._controller);
+        }
+
+        if (this.view) {
+          this.view.uninit();
+        }
         this.view = null;
       ]]></destructor>
 
@@ -37,11 +48,8 @@
       <property name="view">
         <getter><![CDATA[
           try {
-            return this.treeBoxObject.view
-                .QueryInterface(Ci.nsITreeView)
-                .QueryInterface(Ci.nsINavHistoryResultTreeViewer);
-          }
-          catch(e) {
+            return this.treeBoxObject.view.wrappedJSObject || null;
+          } catch (e) {
             return null;
           }
         ]]></getter>
@@ -50,9 +58,14 @@
         ]]></setter>
       </property>
 
+      <property name="associatedElement"
+                readonly="true"
+                onget="return this"/>
+
       <method name="applyFilter">
         <parameter name="filterString"/>
         <parameter name="folderRestrict"/>
+        <parameter name="includeHidden"/>
         <body><![CDATA[
           // preserve grouping
           var queryNode = PlacesUtils.asQuery(this.result.root);
@@ -73,6 +86,8 @@
             query.setFolders(folderRestrict, folderRestrict.length);
             options.queryType = options.QUERY_TYPE_BOOKMARKS;
           }
+
+          options.includeHidden = !!includeHidden;
 
           this.load([query], options);
         ]]></body>
@@ -104,6 +119,11 @@
           // calls removeObserver.
           result.addObserver(treeView);
           this.view = treeView;
+
+          if (this.getAttribute("selectfirstnode") == "true" && treeView.rowCount > 0) {
+            treeView.selection.select(0);
+          }
+
           this._cachedInsertionPoint = undefined;
         ]]></body>
       </method>
@@ -150,11 +170,11 @@
           if (this.hasSelection && this.selectedNode.uri == placeURI)
             return;
 
-          function findNode(container, placeURI, nodesURIChecked) {
+          function findNode(container, nodesURIChecked) {
             var containerURI = container.uri;
             if (containerURI == placeURI)
               return container;
-            if (nodesURIChecked.indexOf(containerURI) != -1)
+            if (nodesURIChecked.includes(containerURI))
               return null;
 
             // never check the contents of the same query
@@ -169,7 +189,7 @@
               if (childURI == placeURI)
                 return child;
               else if (PlacesUtils.nodeIsContainer(child)) {
-                var nested = findNode(PlacesUtils.asContainer(child), placeURI, nodesURIChecked);
+                var nested = findNode(PlacesUtils.asContainer(child), nodesURIChecked);
                 if (nested)
                   return nested;
               }
@@ -186,7 +206,7 @@
           if (!container)
             return;
 
-          var child = findNode(container, placeURI, []);
+          var child = findNode(container, []);
           if (child)
             this.selectNode(child);
           else {
@@ -221,7 +241,7 @@
             // Walk the list backwards (opening from the root of the hierarchy)
             // opening each folder as we go.
             for (var i = parents.length - 1; i >= 0; --i) {
-              var index = view.treeIndexForNode(parents[i]);
+              let index = view.treeIndexForNode(parents[i]);
               if (index != Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE &&
                   view.isContainer(index) && !view.isContainerOpen(index))
                 view.toggleOpenState(index);
@@ -229,7 +249,7 @@
             // Select the specified node...
           }
 
-          var index = view.treeIndexForNode(node);
+          let index = view.treeIndexForNode(node);
           if (index == Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE)
             return;
 
@@ -244,8 +264,7 @@
         <getter><![CDATA[
           try {
             return this.view.QueryInterface(Ci.nsINavHistoryResultObserver).result;
-          }
-          catch (e) {
+          } catch (e) {
             return null;
           }
         ]]></getter>
@@ -294,14 +313,21 @@
           for (let i = 0; i < rc; ++i) {
             let min = { }, max = { };
             selection.getRangeAt(i, min, max);
-
-            if (max.value > -1)
-              for (let j = min.value; j <= max.value; ++j)
-                nodes.push(resultview.nodeForTreeIndex(j));
+            for (let j = min.value; j <= max.value; ++j) {
+              nodes.push(resultview.nodeForTreeIndex(j));
+            }
           }
           return nodes;
         ]]></getter>
       </property>
+
+      <method name="toggleCutNode">
+        <parameter name="aNode"/>
+        <parameter name="aValue"/>
+        <body><![CDATA[
+          this.view.toggleCutNode(aNode, aValue);
+        ]]></body>
+      </method>
 
       <!-- nsIPlacesView -->
       <property name="removableSelectionRanges">
@@ -428,8 +454,6 @@
           //
           // If the sole selection is the bookmarks toolbar folder, we insert
           // into it even if it is not opened
-          var itemId =
-            PlacesUtils.getConcreteItemId(resultView.nodeForTreeIndex(max.value));
           if (selection.count == 1 && resultView.isContainer(max.value) &&
               !this.flatList)
             orientation = Ci.nsITreeView.DROP_ON;
@@ -458,17 +482,15 @@
               // it, rather than insert adjacent to it.
               container = lastSelected;
               index = -1;
-            }
-            else if (lastSelected.containerOpen &&
-                     orientation == Ci.nsITreeView.DROP_AFTER &&
-                     lastSelected.hasChildren) {
+            } else if (lastSelected.containerOpen &&
+                       orientation == Ci.nsITreeView.DROP_AFTER &&
+                       lastSelected.hasChildren) {
              // If the last selected item is an open container and the user is
              // trying to drag into it as a first item, really insert into it.
              container = lastSelected;
              orientation = Ci.nsITreeView.DROP_ON;
              index = 0;
-            }
-            else {
+            } else {
               // Use the last-selected node's container.
               container = lastSelected.parent;
 
@@ -486,17 +508,15 @@
                     Ci.nsINavHistoryQueryOptions.SORT_BY_NONE) {
                 // If we are within a sorted view, insert at the end
                 index = -1;
-              }
-              else if (queryOptions.excludeItems ||
-                       queryOptions.excludeQueries ||
-                       queryOptions.excludeReadOnlyFolders) {
+              } else if (queryOptions.excludeItems ||
+                         queryOptions.excludeQueries ||
+                         queryOptions.excludeReadOnlyFolders) {
                 // Some item may be invisible, insert near last selected one.
                 // We don't replace index here to avoid requests to the db,
                 // instead it will be calculated later by the controller.
                 index = -1;
                 dropNearItemId = lastSelected.itemId;
-              }
-              else {
+              } else {
                 var lsi = container.getChildIndex(lastSelected);
                 index = orientation == Ci.nsITreeView.DROP_BEFORE ? lsi : lsi + 1;
               }
@@ -506,9 +526,17 @@
           if (PlacesControllerDragHelper.disallowInsertion(container))
             return null;
 
+          // TODO (Bug 1160193): properly support dropping on a tag root.
+          let tagName = null;
+          if (PlacesUtils.nodeIsTagQuery(container)) {
+            tagName = container.title;
+            if (!tagName)
+              return null;
+          }
+
           return new InsertionPoint(PlacesUtils.getConcreteItemId(container),
                                     index, orientation,
-                                    PlacesUtils.nodeIsTagQuery(container),
+                                    tagName,
                                     dropNearItemId);
         ]]></body>
       </method>
@@ -521,13 +549,16 @@
       </method>
 
       <!-- This method will select the first node in the tree that matches
-           each given item id. It will open any parent nodes that it needs
+           each given item id. It will open any folder nodes that it needs
            to in order to show the selected items.
       -->
       <method name="selectItems">
         <parameter name="aIDs"/>
         <parameter name="aOpenContainers"/>
         <body><![CDATA[
+          // Never open containers in flat lists.
+          if (this.flatList)
+            aOpenContainers = false;
           // By default, we do search and select within containers which were
           // closed (note that containers in which nodes were not found are
           // closed).
@@ -542,11 +573,11 @@
           // Array of nodes found by findNodes which should be opened
           var nodesToOpen = [];
 
-          // A set of URIs of container-nodes that were previously searched,
+          // A set of GUIDs of container-nodes that were previously searched,
           // and thus shouldn't be searched again. This is empty at the initial
           // start of the recursion and gets filled in as the recursion
           // progresses.
-          var nodesURIChecked = [];
+          var checkedGuidsSet = new Set();
 
           /**
            * Recursively search through a node's children for items
@@ -572,22 +603,24 @@
               ids.splice(index, 1);
             }
 
+            var concreteGuid = PlacesUtils.getConcreteItemGuid(node);
             if (ids.length == 0 || !PlacesUtils.nodeIsContainer(node) ||
-                nodesURIChecked.indexOf(node.uri) != -1)
+                checkedGuidsSet.has(concreteGuid))
               return foundOne;
 
+            // Only follow a query if it has been been explicitly opened by the caller.
+            let shouldOpen = aOpenContainers && PlacesUtils.nodeIsFolder(node);
             PlacesUtils.asContainer(node);
-            if (!aOpenContainers && !node.containerOpen)
+            if (!node.containerOpen && !shouldOpen)
               return foundOne;
 
-            nodesURIChecked.push(node.uri);
+            checkedGuidsSet.add(concreteGuid);
 
             // Remember the beginning state so that we can re-close
             // this node if we don't find any additional results here.
             var previousOpenness = node.containerOpen;
             node.containerOpen = true;
-            for (var child = 0;  child < node.childCount && ids.length > 0;
-                 child++) {
+            for (var child = 0; child < node.childCount && ids.length > 0; child++) {
               var childNode = node.getChild(child);
               var found = findNodes(childNode);
               if (!foundOne)
@@ -609,8 +642,7 @@
             result.suppressNotifications = true
           try {
             findNodes(this.result.root);
-          }
-          finally {
+          } finally {
             if (!didSuppressNotifications)
               result.suppressNotifications = false;
           }
@@ -622,10 +654,10 @@
           selection.selectEventsSuppressed = true;
           selection.clearSelection();
           // Open nodes containing found items
-          for (var i = 0; i < nodesToOpen.length; i++) {
+          for (let i = 0; i < nodesToOpen.length; i++) {
             nodesToOpen[i].containerOpen = true;
           }
-          for (var i = 0; i < nodes.length; i++) {
+          for (let i = 0; i < nodes.length; i++) {
             var index = resultview.treeIndexForNode(nodes[i]);
             if (index == Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE)
               continue;
@@ -650,6 +682,16 @@
           this._contextMenuShown = false;
         <body/>
       </method>
+
+      <property name="ownerWindow"
+                readonly="true"
+                onget="return window;"/>
+
+      <field name="_active">true</field>
+      <property name="active"
+                onget="return this._active"
+                onset="return this._active = val"/>
+
     </implementation>
     <handlers>
       <handler event="focus"><![CDATA[
@@ -723,14 +765,12 @@
         if (cell.row == -1) {
           // If the row is not valid we try to insert inside the resultNode.
           orientation = Ci.nsITreeView.DROP_ON;
-        }
-        else if (PlacesUtils.nodeIsContainer(node) &&
+        } else if (PlacesUtils.nodeIsContainer(node) &&
                  eventY > rowHeight * 0.75) {
           // If we are below the 75% of a container the treeview we try
           // to drop after the node.
           orientation = Ci.nsITreeView.DROP_AFTER;
-        }
-        else if (PlacesUtils.nodeIsContainer(node) &&
+        } else if (PlacesUtils.nodeIsContainer(node) &&
                  eventY > rowHeight * 0.25) {
           // If we are below the 25% of a container the treeview we try
           // to drop inside the node.

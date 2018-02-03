@@ -14,6 +14,8 @@ ChromeUtils.defineModuleGetter(this, "InsecurePasswordUtils",
   "resource://gre/modules/InsecurePasswordUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "LoginFormFactory",
   "resource://gre/modules/LoginManagerContent.jsm");
+ChromeUtils.defineModuleGetter(this, "PlacesUIUtils",
+  "resource:///modules/PlacesUIUtils.jsm");
 
 addMessageListener("RemoteLogins:fillForm", message => {
   LoginManagerContent.receiveMessage(message, content);
@@ -41,4 +43,12 @@ addEventListener("DOMAutoComplete", event => {
 
 addEventListener("blur", event => {
   LoginManagerContent.onUsernameInput(event);
+});
+
+addMessageListener("Bookmarks:GetPageDetails", (message) => {
+  let doc = content.document;
+  let isErrorPage = /^about:(neterror|certerror|blocked)/.test(doc.documentURI);
+  sendAsyncMessage("Bookmarks:GetPageDetails:Result",
+                   { isErrorPage,
+                     description: PlacesUIUtils.getDescriptionFromDocument(doc) });
 });

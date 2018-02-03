@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+
 var SidebarUtils = {
   handleTreeClick: function SU_handleTreeClick(aTree, aEvent, aGutterSelect) {
     // right-clicks are not handled here
@@ -22,30 +24,29 @@ var SidebarUtils = {
       // respectively.)  Therefore, we make sure to exclude the blank area
       // before the tree item icon (that is, to the left or right of it in
       // LTR and RTL modes, respectively) from the click target area.
-      var isRTL = window.getComputedStyle(aTree, null).direction == "rtl";
+      var isRTL = window.getComputedStyle(aTree).direction == "rtl";
       if (isRTL)
         mouseInGutter = aEvent.clientX > rect.x;
       else
         mouseInGutter = aEvent.clientX < rect.x;
     }
 
-    var openWhere = whereToOpenLink(aEvent, false, true);
-
+    var metaKey = AppConstants.platform === "macosx" ? aEvent.metaKey
+                                                     : aEvent.ctrlKey;
+    var modifKey = metaKey || aEvent.shiftKey;
     var isContainer = tbo.view.isContainer(cell.row);
     var openInTabs = isContainer &&
-                     (openWhere == "tab" || openWhere == "tabshifted") &&
+                     (aEvent.button == 1 ||
+                      (aEvent.button == 0 && modifKey)) &&
                      PlacesUtils.hasChildURIs(tbo.view.nodeForTreeIndex(cell.row));
 
     if (aEvent.button == 0 && isContainer && !openInTabs) {
       tbo.view.toggleOpenState(cell.row);
-      return;
-    }
-    else if (!mouseInGutter && openInTabs &&
+    } else if (!mouseInGutter && openInTabs &&
             aEvent.originalTarget.localName == "treechildren") {
       tbo.view.selection.select(cell.row);
-      PlacesUIUtils.openContainerNodeInTabs(aTree.selectedNode, aEvent);
-    }
-    else if (!mouseInGutter && !isContainer &&
+      PlacesUIUtils.openContainerNodeInTabs(aTree.selectedNode, aEvent, aTree);
+    } else if (!mouseInGutter && !isContainer &&
              aEvent.originalTarget.localName == "treechildren") {
       // Clear all other selection since we're loading a link now. We must
       // do this *before* attempting to load the link since openURL uses
@@ -56,8 +57,11 @@ var SidebarUtils = {
   },
 
   handleTreeKeyPress: function SU_handleTreeKeyPress(aEvent) {
-    if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN)
-      PlacesUIUtils.openNodeWithEvent(aEvent.target.selectedNode, aEvent);
+    let node = aEvent.target.selectedNode;
+    if (node) {
+      if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN)
+        PlacesUIUtils.openNodeWithEvent(node, aEvent);
+    }
   },
 
   /**
@@ -81,12 +85,16 @@ var SidebarUtils = {
         this.setMouseoverURL(node.uri);
       else
         this.setMouseoverURL("");
-    }
-    else
+    } else
       this.setMouseoverURL("");
   },
 
   setMouseoverURL: function SU_setMouseoverURL(aURL) {
-    window.top.XULBrowserWindow.setOverLink(aURL, null);
+    // When the browser window is closed with an open sidebar, the sidebar
+    // unload event happens after the browser's one.  In this case
+    // top.XULBrowserWindow has been nullified already.
+    if (top.XULBrowserWindow) {
+      top.XULBrowserWindow.setOverLink(aURL, null);
+    }
   }
 };

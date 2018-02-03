@@ -1,0 +1,5 @@
+Load in sidebar disabled because of:
+Timestamp: 1/29/2018, 9:56:54 PM
+Error: TypeError: browserWin.openWebPanel is not a function
+Source File: resource:///modules/PlacesUIUtils.jsm
+Line: 1053

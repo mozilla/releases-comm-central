@@ -57,7 +57,8 @@
   <script type="application/javascript" src="chrome://navigator/content/sessionHistoryUI.js"/>
 
   <!-- Places Bookmarks Utilities -->
-  <script type="application/javascript" src="chrome://communicator/content/bookmarks/editBookmarkOverlay.js"/>
+  <script type="application/javascript"
+          src="chrome://navigator/content/browser-places.js"/>
 
   <!-- hook for stringbundle overlays -->
   <stringbundleset id="stringbundleset">
@@ -118,7 +119,38 @@
       <description/>
     </panel>
 
-    <panel id="editBookmarkPanel"/>
+    <panel id="editBookmarkPanel"
+           type="arrow"
+           animate="false"
+           orient="vertical"
+           ignorekeys="true"
+           hidden="true"
+           onpopupshown="StarUI.panelShown(event);"
+           aria-labelledby="editBookmarkPanelTitle">
+      <row id="editBookmarkPanelHeader" align="center" hidden="true">
+        <vbox align="center">
+          <image id="editBookmarkPanelStarIcon"/>
+        </vbox>
+        <label id="editBookmarkPanelTitle"/>
+      </row>
+      <vbox id="editBookmarkPanelContent" hidden="true"/>
+      <hbox id="editBookmarkPanelBottomButtons">
+        <button id="editBookmarkPanelRemoveButton"
+                class="editBookmarkPanelHeaderButton"
+                oncommand="StarUI.removeBookmarkButtonCommand();"
+                accesskey="&editBookmark.removeBookmark.accessKey;"/>
+        <spacer flex="1"/>
+        <button id="editBookmarkPanelDeleteButton"
+                class="editBookmarkPanelBottomButton"
+                label="&editBookmark.cancel.label;"
+                oncommand="StarUI.cancelButtonOnCommand();"/>
+        <button id="editBookmarkPanelDoneButton"
+                class="editBookmarkPanelBottomButton"
+                label="&editBookmark.done.label;"
+                default="true"
+                oncommand="StarUI.panel.hidePopup();"/>
+      </hbox>
+    </panel>
 
     <menupopup id="placesContext"/>
 
@@ -332,7 +364,7 @@
             <image id="ev-button" hidden="true"
                    onclick="if (event.button == 0) BrowserPageInfo(null, 'securityTab');"/>
             <image id="star-button"
-                   onclick="PlacesStarButton.onClick(event);"/>
+                   onclick="BookmarkingUI.onClick(event);"/>
           </hbox>
           <menupopup id="ubhist-popup" class="autocomplete-history-popup"
                      popupalign="topleft" popupanchor="bottomleft"

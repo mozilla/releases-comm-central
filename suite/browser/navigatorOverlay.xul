@@ -7,7 +7,7 @@
 <?xul-overlay href="chrome://communicator/content/viewZoomOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/viewApplyThemeOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/bookmarks/placesOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://navigator/content/mailNavigatorOverlay.xul"?>
 <?xul-overlay href="chrome://navigator/content/platformNavigationBindings.xul"?>
@@ -33,9 +33,7 @@
 
   <!-- Places Bookmarks Utilities -->
   <script type="application/javascript"
-          src="chrome://communicator/content/places/browserPlacesViews.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/bookmarks/browser-places.js"/>
+          src="chrome://navigator/content/browser-places.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_navigator"
@@ -107,7 +105,10 @@
     <!-- the amazing fishcam, suppress warning by ',' at the beginning of modifiers, see bug 496322 -->
     <key key="f" modifiers=",control,alt" oncommand="loadURI('http://www.fishcam.com/');"/>
     <key id="goUpKb" keycode="VK_UP" command="Browser:Up" modifiers="alt"/>
-    <key id="key_gotoHistory"  key="&history.commandKey;"        oncommand="toHistory();" modifiers="accel"/>
+    <key id="key_gotoHistory"
+         key="&history.commandKey;"
+         oncommand="PlacesCommandHook.showPlacesOrganizer('History');"
+         modifiers="accel"/>
     <keyset id="viewZoomKeys"/>
     <keyset id="navigationKeys"/>
     <keyset id="tasksKeys"/>
@@ -181,7 +182,7 @@
              oncommand="PlacesCommandHook.bookmarkCurrentPage(false, PlacesUtils.bookmarksMenuFolderId);"/>
     <command id="Browser:AddBookmarkAs"
              label="&addCurPageAsCmd.label;" accesskey="&addCurPageAsCmd.accesskey;"
-             oncommand="PlacesCommandHook.bookmarkPageAs(gBrowser.selectedBrowser, PlacesUtils.bookmarksMenuFolderId);"/>
+             oncommand="PlacesCommandHook.bookmarkPage(gBrowser.selectedBrowser, PlacesUtils.bookmarksMenuFolderId, true);"/>
     <!-- The command is disabled for the hidden window. Otherwise its enabled
          state is handled by BookmarksEventHandler.onPopupShowing. -->
     <command id="Browser:BookmarkAllTabs"
@@ -190,7 +191,7 @@
              disabled="true"/>
     <command id="Browser:ManageBookmark"
              label="&manBookmarksCmd.label;" accesskey="&manBookmarksCmd.accesskey;"
-             oncommand="PlacesCommandHook.showBookmarksManager('AllBookmarks');"/>
+             oncommand="PlacesCommandHook.showPlacesOrganizer('AllBookmarks');"/>
     <command id="feedsMenu" disabled="true"/>
     <commandset id="placesCommands"/>
 
@@ -443,7 +444,7 @@
         <menuitem id="menu_showAllHistory"
                   label="&historyCmd.label;"
                   accesskey="&historyCmd.accesskey;"
-                  oncommand="toHistory()"
+                  oncommand="PlacesCommandHook.showPlacesOrganizer('History');"
                   key="key_gotoHistory"/>
         <menuseparator id="startHistorySeparator" hidden="true"/>
         <menuseparator id="endHistorySeparator" hidden="true"/>

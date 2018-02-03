@@ -1438,21 +1438,35 @@ function openUILink(url, aEvent, aIgnoreButton, aIgnoreSave, aAllowThirdPartyFix
  * Save is Alt or Shift depending on the ui.key.saveLink.shift preference.
  * Otherwise if Alt, or Shift, or Ctrl (or Meta) is pressed then nothing happens.
  * Otherwise the most recent browser is used for left clicks.
+ *
+ * Exceptions:
+ * - Alt is ignored for menu items selected using the keyboard so you don't accidentally save stuff.
+ * - Alt is hard to use in context menus, because pressing Alt closes the menu.
+ * - Alt can't be used on the bookmarks toolbar because Alt is used for "treat this as something draggable".
+ * - The button is ignored for the middle-click-paste-URL feature, since it's always a middle-click.
  */
-function whereToOpenLink(e, ignoreButton, ignoreSave, ignoreBackground)
+function whereToOpenLink(e, ignoreButton, ignoreSave, ignoreBackground = false)
 {
+  // This method must treat a null event like a left click without modifier keys (i.e.
+  // e = { shiftKey:false, ctrlKey:false, metaKey:false, altKey:false, button:0 })
+  // for compatibility purposes.
   if (!e)
     return "current";
 
   var shift = e.shiftKey;
   var ctrl = e.ctrlKey;
   var meta = e.metaKey;
-  var alt = e.altKey;
+  var alt = e.altKey && !ignoreSave;
 
   // ignoreButton allows "middle-click paste" to use function without always opening in a new window.
   var middle = !ignoreButton && e.button == 1;
 
-  if (meta || ctrl || middle) {
+  // Don't do anything special with right-mouse clicks.  They're probably clicks on context menu items.
+
+  // On macOS ctrl is not evaluated.
+  var metaKey = AppConstants.platform == "macosx" ? meta : ctrl;
+
+  if (metaKey || middle) {
     if (GetBoolPref("browser.tabs.opentabfor.middleclick", true))
       return ignoreBackground ? "tabfocused" : shift ? "tabshifted" : "tab";
     if (GetBoolPref("middlemouse.openNewWindow", true))
@@ -1466,6 +1480,7 @@ function whereToOpenLink(e, ignoreButton, ignoreSave, ignoreBackground)
   }
   if (alt || shift || meta || ctrl)
     return null;
+
   return "current";
 }
 
@@ -1522,6 +1537,7 @@ function openLinkIn(url, where, params)
   var aReferrerURI          = params.referrerURI;
   var aRelatedToCurrent     = params.relatedToCurrent;
   var aInitiatingDoc = params.initiatingDoc ? params.initiatingDoc : document;
+  var aIsPrivate            = params.private;
 
   var aReferrerPolicy       = ("referrerPolicy" in params ?
         params.referrerPolicy : Ci.nsIHttpChannel.REFERRER_POLICY_UNSET);
@@ -1561,6 +1577,12 @@ function openLinkIn(url, where, params)
   aTriggeringPrincipal = useOAForPrincipal(aTriggeringPrincipal);
 
   if (!w || where == "window") {
+    let features = "chrome,dialog=no,all";
+
+    if (aIsPrivate) {
+      features += ",private";
+    }
+
     // This propagates to window.arguments.
     var sa = Cc["@mozilla.org/array;1"].
              createInstance(Ci.nsIMutableArray);
@@ -1596,8 +1618,6 @@ function openLinkIn(url, where, params)
     sa.appendElement(userContextIdSupports);
     sa.appendElement(aPrincipal);
     sa.appendElement(aTriggeringPrincipal);
-
-    let features = "chrome,dialog=no,all";
 
     const sourceWindow = (w || window);
     Services.ww.openWindow(sourceWindow, getBrowserURL(), null, features, sa);

@@ -38,6 +38,10 @@
 <!ENTITY bookmarksToolbar.tooltip         "Bookmarks Toolbar">
 <!ENTITY navigationToolbar.tooltip        "Navigation Toolbar">
 
+<!ENTITY editBookmark.done.label "Done">
+<!ENTITY editBookmark.cancel.label "Cancel">
+<!ENTITY editBookmark.removeBookmark.accessKey "R">
+
 <!-- Toolbar items --> 
 <!ENTITY backButton.label             "Back">
 <!ENTITY backButton.tooltip           "Go back one page">

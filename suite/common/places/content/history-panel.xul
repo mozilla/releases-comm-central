@@ -1,73 +1,95 @@
-<?xml version="1.0"?> <!-- -*- Mode: xml; indent-tabs-mode: nil; -*- -->
-
+<?xml version="1.0"?> <!-- -*- Mode: SGML; indent-tabs-mode: nil; -*- -->
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://communicator/skin/sidebar/sidebarListView.css" type="text/css"?>
+<?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
+<?xml-stylesheet href="chrome://communicator/skin/places/bookmarks.css"?>
 
 <?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/history/placesOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
-<!DOCTYPE page SYSTEM "chrome://communicator/locale/history/history.dtd">
+<!DOCTYPE page [
+<!ENTITY % placesDTD SYSTEM "chrome://communicator/locale/places/places.dtd">
+%placesDTD;
+]>
 
 <!-- we need to keep id="history-panel" for upgrade and switching
      between versions of the browser -->
 
 <page id="history-panel" orient="vertical"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      onload="HistoryCommonInit();"
-      onunload="SidebarUtils.setMouseoverURL('');"
-      elementtofocus="search-box">
+      onload="HistorySidebarInit();"
+      onunload="SidebarUtils.setMouseoverURL('');">
 
   <script type="application/javascript"
-          src="chrome://communicator/content/places/sidebarUtils.js"/>
+          src="chrome://communicator/content/bookmarks/sidebarUtils.js"/>
+  <script type="application/javascript"
+          src="chrome://communicator/content/places/history-panel.js"/>
 
   <commandset id="editMenuCommands"/>
   <commandset id="placesCommands"/>
 
   <keyset id="editMenuKeys">
-    <key id="key_delete2"/>
+#ifdef XP_MACOSX
+    <key id="key_delete2" keycode="VK_BACK" command="cmd_delete"/>
+#endif
   </keyset>
 
+  <!-- required to overlay the context menu -->
   <menupopup id="placesContext"/>
 
-  <hbox align="center">
+  <!-- Bookmarks and history tooltip -->
+  <tooltip id="bhTooltip"/>
+
+  <hbox id="sidebar-search-container" align="center">
     <textbox id="search-box" flex="1" type="search"
-             placeholder="&search.placeholder;" clickSelectsAll="true"
+             placeholder="&search.placeholder;"
              aria-controls="historyTree"
              oncommand="searchHistory(this.value);"/>
-    <toolbarbutton id="viewButton" type="menu" class="tabbable"
-                   label="&view.label;">
-      <menupopup id="viewPopup"/>
-    </toolbarbutton>
+    <button id="viewButton" style="min-width:0px !important;" type="menu"
+            label="&view.label;" accesskey="&view.accesskey;" selectedsort="day"
+            persist="selectedsort">
+      <menupopup>
+        <menuitem id="bydayandsite" label="&byDayAndSite.label;"
+                  accesskey="&byDayAndSite.accesskey;" type="radio"
+                  oncommand="this.parentNode.parentNode.setAttribute('selectedsort', 'dayandsite'); GroupBy('dayandsite');"/>
+        <menuitem id="bysite" label="&bySite.label;"
+                  accesskey="&bySite.accesskey;" type="radio"
+                  oncommand="this.parentNode.parentNode.setAttribute('selectedsort', 'site'); GroupBy('site');"/>
+        <menuitem id="byday" label="&byDate.label;"
+                  accesskey="&byDate.accesskey;"
+                  type="radio"
+                  oncommand="this.parentNode.parentNode.setAttribute('selectedsort', 'day'); GroupBy('day');"/>
+        <menuitem id="byvisited" label="&byMostVisited.label;"
+                  accesskey="&byMostVisited.accesskey;"
+                  type="radio"
+                  oncommand="this.parentNode.parentNode.setAttribute('selectedsort', 'visited'); GroupBy('visited');"/>
+        <menuitem id="bylastvisited" label="&byLastVisited.label;"
+                  accesskey="&byLastVisited.accesskey;"
+                  type="radio"
+                  oncommand="this.parentNode.parentNode.setAttribute('selectedsort', 'lastvisited'); GroupBy('lastvisited');"/>
+      </menupopup>
+    </button>
   </hbox>
 
   <tree id="historyTree"
-        class="sidebar-placesTree plain"
+        class="sidebar-placesTree"
         flex="1"
         type="places"
+        treelines="true"
         context="placesContext"
-        onselect="historyOnSelect();"
+        hidecolumnpicker="true"
         onkeypress="SidebarUtils.handleTreeKeyPress(event);"
         onclick="SidebarUtils.handleTreeClick(this, event, true);"
         onmousemove="SidebarUtils.handleTreeMouseMove(event);"
         onmouseout="SidebarUtils.setMouseoverURL('');">
-    <treecols context="">
-      <treecol label="&col.title.label;" id="Name" flex="4"
-               persist="width hidden ordinal sortActive sortDirection"/>
-      <splitter class="tree-splitter"/>
-      <treecol label="&col.url.label;" id="URL" flex="4" hidden="true"
-               persist="width hidden ordinal sortActive sortDirection"/>
-      <splitter class="tree-splitter"/>
-      <treecol label="&col.lastvisit.label;" id="Date" flex="1" hidden="true"
-               persist="width hidden ordinal sortActive sortDirection"/>
-      <splitter class="tree-splitter"/>
-      <treecol label="&col.visitcount.label;" id="VisitCount" flex="1" hidden="true"
-               persist="width hidden ordinal sortActive sortDirection"/>
+    <treecols>
+      <treecol id="title" flex="1" primary="true" hideheader="true"/>
     </treecols>
-    <treechildren class="sidebar-placesTreechildren" flex="1"/>
+    <treechildren class="sidebar-placesTreechildren" flex="1" tooltip="bhTooltip"/>
   </tree>
 </page>

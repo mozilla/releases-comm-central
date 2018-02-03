@@ -1,0 +1,30 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+comm.jar:
+# Provide another URI for the bookmarkProperties dialog so we can persist the
+# attributes separately
+    content/communicator/places/bookmarkProperties2.xul       (content/bookmarkProperties.xul)
+*   content/communicator/places/places.xul                    (content/places.xul)
+    content/communicator/places/places.js                     (content/places.js)
+    content/communicator/places/places.css                    (content/places.css)
+    content/communicator/places/organizer.css                 (content/organizer.css)
+    content/communicator/places/bookmarkProperties.xul        (content/bookmarkProperties.xul)
+    content/communicator/places/bookmarkProperties.js         (content/bookmarkProperties.js)
+    content/communicator/places/placesOverlay.xul             (content/placesOverlay.xul)
+    content/communicator/places/menu.xml                      (content/menu.xml)
+    content/communicator/places/tree.xml                      (content/tree.xml)
+    content/communicator/places/controller.js                 (content/controller.js)
+    content/communicator/places/treeView.js                   (content/treeView.js)
+    content/communicator/places/browserPlacesViews.js         (content/browserPlacesViews.js)
+# keep the Places version of the history sidebar at history/history-panel.xul
+# to prevent having to worry about between versions of the browser
+*   content/communicator/history/history-panel.xul            (content/history-panel.xul)
+    content/communicator/places/history-panel.js              (content/history-panel.js)
+# ditto for the bookmarks sidebar
+    content/communicator/bookmarks/bookmarksPanel.xul         (content/bookmarksPanel.xul)
+    content/communicator/bookmarks/bookmarksPanel.js          (content/bookmarksPanel.js)
+    content/communicator/bookmarks/sidebarUtils.js            (content/sidebarUtils.js)
+    content/communicator/places/editBookmarkOverlay.xul       (content/editBookmarkOverlay.xul)
+    content/communicator/places/editBookmarkOverlay.js        (content/editBookmarkOverlay.js)

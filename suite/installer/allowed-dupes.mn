@@ -118,8 +118,8 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/p
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/pluginGeneric-16.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/icons/secure.png
 chrome/classic/skin/classic/messenger/icons/secure.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/history/calendar.png
-chrome/classic/skin/classic/communicator/history/calendar.png
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/places/calendar.png
+chrome/classic/skin/classic/communicator/places/calendar.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/identity.png
 chrome/classic/skin/classic/communicator/icons/identity.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/information-16.png

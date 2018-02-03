@@ -23,7 +23,10 @@
   <menuitem id="menu_close" label="&closeCmd.label;" key="key_close" command="cmd_close"/>
   <key id="key_close"  key="&closeCmd.key;" command="cmd_close" modifiers="accel"/>
   <key id="key_closeWindow"  key="&closeCmd.key;" command="cmd_closeWindow" modifiers="accel,shift"/>
-  <key id="key_gotoHistory"  key="&historyCmd.key;" oncommand="toHistory();" modifiers="accel,shift"/>
+  <key id="key_gotoHistory"
+       key="&historyCmd.key;"
+       oncommand="PlacesCommandHook.showPlacesOrganizer('History');"
+       modifiers="accel,shift"/>
 
   <menuitem id="menu_preferences" label="&preferencesCmd.label;"
             key="key_preferences"/>

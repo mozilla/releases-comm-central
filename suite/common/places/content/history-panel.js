@@ -1,197 +1,94 @@
-/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*- indent-tabs-mode: nil; js-indent-level: 4 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource://gre/modules/TelemetryStopwatch.jsm");
+
 var gHistoryTree;
-var gLastHostname;
-var gLastDomain;
 var gSearchBox;
-var gDeleteByHostname;
-var gDeleteByDomain;
-var gHistoryStatus;
-var gHistoryGrouping = "day";
+var gHistoryGrouping = "";
+var gSearching = false;
 
-ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-ChromeUtils.import("resource:///modules/PlacesUIUtils.jsm");
-
-function HistoryCommonInit()
-{
+function HistorySidebarInit() {
   gHistoryTree = document.getElementById("historyTree");
-  gDeleteByHostname = document.getElementById("placesCmd_delete:hostname");
-  gDeleteByDomain = document.getElementById("placesCmd_delete:domain");
-  gHistoryStatus = document.getElementById("statusbar-display");
   gSearchBox = document.getElementById("search-box");
 
-  try {
-    gHistoryGrouping = Services.prefs.getCharPref("browser.history.grouping");
-  } catch (e) {}
+  gHistoryGrouping = document.getElementById("viewButton").
+                              getAttribute("selectedsort");
 
-  document.getElementById("GroupBy" + gHistoryGrouping[0].toUpperCase() +
-                                      gHistoryGrouping.slice(1))
-          .setAttribute("checked", "true");
+  if (gHistoryGrouping == "site")
+    document.getElementById("bysite").setAttribute("checked", "true");
+  else if (gHistoryGrouping == "visited")
+    document.getElementById("byvisited").setAttribute("checked", "true");
+  else if (gHistoryGrouping == "lastvisited")
+    document.getElementById("bylastvisited").setAttribute("checked", "true");
+  else if (gHistoryGrouping == "dayandsite")
+    document.getElementById("bydayandsite").setAttribute("checked", "true");
+  else
+    document.getElementById("byday").setAttribute("checked", "true");
 
-  searchHistory("");
-
-  if (gHistoryStatus)
-    gHistoryTree.focus();
-
-  if (gHistoryTree.view.rowCount > 0)
-    gHistoryTree.view.selection.select(0);
-}
-
-function updateHistoryCommands(aCommand)
-{
-  document.commandDispatcher.updateCommands("select");
-  for (; aCommand; aCommand = aCommand.nextSibling)
-    goUpdateCommand(aCommand.id);
-}
-
-function historyOnSelect()
-{
-  gLastHostname = null;
-  gLastDomain = null;
-  var url = "";
-
-  var selectedNode = gHistoryTree.selectedNode;
-  if (selectedNode) {
-    if (PlacesUtils.nodeIsURI(selectedNode)) {
-      try {
-        url = selectedNode.uri;
-        gLastHostname = Services.io.newURI(url).host;
-      } catch (e) {}
-    } else if (PlacesUtils.nodeIsHost(selectedNode)) {
-      gLastHostname = selectedNode.title;
-    }
-    if (gLastHostname) {
-      try {
-        gLastDomain = Services.eTLD.getBaseDomainFromHost(gLastHostname);
-      } catch (e) {}
-    }
-  }
-
-  if (gHistoryStatus)
-    gHistoryStatus.label = url;
-
-  updateHistoryCommands();
-}
-
-function UpdateViewColumns(aMenuItem)
-{
-  while (aMenuItem) {
-    // Each menuitem should be checked if its column is not hidden.
-    var colid = aMenuItem.id.replace(/Toggle/, "");
-    var column = document.getElementById(colid);
-    aMenuItem.setAttribute("checked", !column.hidden);
-    aMenuItem = aMenuItem.nextSibling;
-  }
-}
-
-function UpdateViewSort(aMenuItem)
-{
-  // Note: consider building this by reading the result's sortingMode instead.
-  var unsorted = true;
-  var ascending = true;
-  while (aMenuItem) {
-    switch (aMenuItem.id) {
-      case "": // separator
-        break;
-      case "Unsorted":
-        if (unsorted) // this would work even if Unsorted was last
-          aMenuItem.setAttribute("checked", "true");
-        break;
-      case "SortAscending":
-        aMenuItem.setAttribute("disabled", unsorted);
-        if (ascending)
-          aMenuItem.setAttribute("checked", "true");
-        break;
-      case "SortDescending":
-        aMenuItem.setAttribute("disabled", unsorted);
-        if (!ascending)
-          aMenuItem.setAttribute("checked", "true");
-        break;
-      default:
-        var colid = aMenuItem.id.replace(/SortBy/, "");
-        var column = document.getElementById(colid);
-        var direction = column.getAttribute("sortDirection");
-        if (direction) {
-          // We've found a sorted column. Remember its direction.
-          ascending = direction == "ascending";
-          unsorted = false;
-          aMenuItem.setAttribute("checked", "true");
-        }
-    }
-    aMenuItem = aMenuItem.nextSibling;
-  }
-}
-
-function ToggleColumn(aMenuItem)
-{
-  var colid = aMenuItem.id.replace(/Toggle/, "");
-  var column = document.getElementById(colid);
-  column.setAttribute("hidden", !column.hidden);
-}
-
-function GroupBy(aMenuItem)
-{
-  gSearchBox.value = "";
-  gHistoryGrouping = aMenuItem.id.replace(/GroupBy/, "").toLowerCase();
-  Services.prefs.setCharPref("browser.history.grouping", gHistoryGrouping);
   searchHistory("");
 }
 
-function historyAddBookmarks()
-{
-  var count = gHistoryTree.view.selection.count;
-  if (count == 1)
-    PlacesUIUtils.showMinimalAddBookmarkUI(PlacesUtils._uri(gHistoryTree.selectedNode.uri),
-                                           gHistoryTree.selectedNode.title);
-  else if (count > 1) {
-    selNodes = gHistoryTree.getSelectionNodes();
-    var tabList = [];
-    for (var i = 0; i < selNodes.length; i++) {
-      if (PlacesUtils.nodeIsURI(selNodes[i]))
-        tabList.push(PlacesUtils._uri(selNodes[i].uri));
-    }
-    PlacesUIUtils.showMinimalAddMultiBookmarkUI(tabList);
-  }
+function GroupBy(groupingType) {
+  gHistoryGrouping = groupingType;
+  searchHistory(gSearchBox.value);
 }
 
-function searchHistory(aInput)
-{
+function searchHistory(aInput) {
   var query = PlacesUtils.history.getNewQuery();
   var options = PlacesUtils.history.getNewQueryOptions();
 
   const NHQO = Ci.nsINavHistoryQueryOptions;
-  options.sortingMode = gHistoryTree.sortingMode;
-  options.queryType = NHQO.QUERY_TYPE_HISTORY;
+  var sortingMode;
+  var resultType;
+
+  switch (gHistoryGrouping) {
+    case "visited":
+      resultType = NHQO.RESULTS_AS_URI;
+      sortingMode = NHQO.SORT_BY_VISITCOUNT_DESCENDING;
+      break;
+    case "lastvisited":
+      resultType = NHQO.RESULTS_AS_URI;
+      sortingMode = NHQO.SORT_BY_DATE_DESCENDING;
+      break;
+    case "dayandsite":
+      resultType = NHQO.RESULTS_AS_DATE_SITE_QUERY;
+      break;
+    case "site":
+      resultType = NHQO.RESULTS_AS_SITE_QUERY;
+      sortingMode = NHQO.SORT_BY_TITLE_ASCENDING;
+      break;
+    case "day":
+    default:
+      resultType = NHQO.RESULTS_AS_DATE_QUERY;
+      break;
+  }
 
   if (aInput) {
     query.searchTerms = aInput;
-    options.resultType = NHQO.RESULTS_AS_URI;
-  }
-  else {
-    switch (gHistoryGrouping) {
-      case "none":
-        options.resultType = NHQO.RESULTS_AS_URI;
-        break;
-      case "both":
-        options.resultType = NHQO.RESULTS_AS_DATE_SITE_QUERY;
-        break;
-      case "site":
-        options.resultType = NHQO.RESULTS_AS_SITE_QUERY;
-        break;
-      case "day":
-        options.resultType = NHQO.RESULTS_AS_DATE_QUERY;
-        break;
+    if (gHistoryGrouping != "visited" && gHistoryGrouping != "lastvisited") {
+      sortingMode = NHQO.SORT_BY_FRECENCY_DESCENDING;
+      resultType = NHQO.RESULTS_AS_URI;
     }
   }
 
-  var titleColumn = document.getElementById("Name");
-  if (options.resultType == NHQO.RESULTS_AS_URI)
-    titleColumn.removeAttribute("primary");
-  else
-    titleColumn.setAttribute("primary", "true");
+  options.sortingMode = sortingMode;
+  options.resultType = resultType;
+  options.includeHidden = !!aInput;
 
+  if (gHistoryGrouping == "lastvisited")
+    this.TelemetryStopwatch.start("HISTORY_LASTVISITED_TREE_QUERY_TIME_MS");
+
+  // call load() on the tree manually
+  // instead of setting the place attribute in history-panel.xul
+  // otherwise, we will end up calling load() twice
   gHistoryTree.load([query], options);
+
+  if (gHistoryGrouping == "lastvisited")
+    this.TelemetryStopwatch.finish("HISTORY_LASTVISITED_TREE_QUERY_TIME_MS");
 }
+
+window.addEventListener("SidebarFocused",
+                        () => gSearchBox.focus());

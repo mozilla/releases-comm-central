@@ -27,7 +27,7 @@
                  type="checkbox"
                  group="sidebar"
                  sidebartitle="&sidebar.client-bookmarks.label;"
-                 sidebarurl="chrome://communicator/content/bookmarks/bm-panel.xul"
+                 sidebarurl="chrome://communicator/content/bookmarks/bookmarksPanel.xul"
                  oncommand="toggleSidebar('viewBookmarksSidebar');"/>
     <broadcaster id="viewHistorySidebar"
                  autoCheck="false"

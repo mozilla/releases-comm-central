@@ -247,6 +247,9 @@ pref("browser.tabs.insertRelatedAfterCurrent", true);
 // 0 = append, 1 = replace
 pref("browser.tabs.loadGroup", 1);
 
+// For future use
+pref("browser.tabs.loadBookmarksInBackground", false);
+
 // No e10s in SeaMonkey for now.
 pref("browser.tabs.remote.autostart", false);
 

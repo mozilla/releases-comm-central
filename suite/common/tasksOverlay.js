@@ -71,8 +71,8 @@ function toEM(aView)
 
 function toBookmarksManager()
 {
-  toOpenWindowByType("bookmarks:manager",
-                     "chrome://communicator/content/bookmarks/bookmarksManager.xul");
+  toOpenWindowByType("Places:Organizer",
+                     "chrome://communicator/content/places/places.xul");
 }
 
 function toJavaScriptConsole()

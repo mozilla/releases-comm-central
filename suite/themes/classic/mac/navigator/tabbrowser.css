@@ -44,7 +44,7 @@ tabpanels {
 .tabbrowser-tab {
   margin: 0;
   padding: 0;
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
   border: solid transparent;
   border-width: 0 2px;
   -moz-appearance: none;
@@ -184,7 +184,7 @@ tabpanels {
 
 /* All Tabs Menupopup */
 .alltabs-item {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
 }
 
 .alltabs-item[busy] {

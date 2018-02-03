@@ -6,14 +6,14 @@
 
 <?xml-stylesheet href="chrome://communicator/skin/"?>
 <?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
-<?xml-stylesheet href="chrome://communicator/skin/bookmarks/editBookmarkOverlay.css"?>
-<?xml-stylesheet href="chrome://communicator/skin/bookmarks/bookmarks.css"?>
+<?xml-stylesheet href="chrome://communicator/skin/places/editBookmarkOverlay.css"?>
+<?xml-stylesheet href="chrome://communicator/skin/places/bookmarks.css"?>
 
-<?xul-overlay href="chrome://communicator/content/bookmarks/placesOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/bookmarks/editBookmarkOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/places/editBookmarkOverlay.xul"?>
 
 <!DOCTYPE dialog [
-  <!ENTITY % editBookmarkOverlayDTD SYSTEM "chrome://communicator/locale/bookmarks/editBookmarkOverlay.dtd">
+  <!ENTITY % editBookmarkOverlayDTD SYSTEM "chrome://communicator/locale/places/editBookmarkOverlay.dtd">
   %editBookmarkOverlayDTD;
 ]>
 
@@ -26,17 +26,17 @@
         onload="BookmarkPropertiesPanel.onDialogLoad();"
         onunload="BookmarkPropertiesPanel.onDialogUnload();"
         style="min-width: 30em;"
-        persist="screenX screenY height width">
+        persist="screenX screenY width">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="stringBundle"
-                  src="chrome://communicator/locale/bookmarks/bm-props.properties"/>
+                  src="chrome://communicator/locale/places/bookmarkProperties.properties"/>
   </stringbundleset>
 
   <script type="application/javascript"
-          src="chrome://communicator/content/bookmarks/editBookmarkOverlay.js"/>
+          src="chrome://communicator/content/places/editBookmarkOverlay.js"/>
   <script type="application/javascript"
-          src="chrome://communicator/content/bookmarks/bm-props.js"/>
+          src="chrome://communicator/content/places/bookmarkProperties.js"/>
 
 <vbox id="editBookmarkPanelContent"/>
 
