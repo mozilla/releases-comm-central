@@ -64,6 +64,12 @@ var migrations = {
         getCompositeCalendar: "getCompositeCalendar",
         hashColor: "hashColor",
         getContrastingTextColor: "getContrastingTextColor"
+    },
+    window: {
+        openCalendarWizard: "openCalendarWizard",
+        openCalendarProperties: "openCalendarProperties",
+        calPrint: "openPrintDialog",
+        getCalendarWindow: "getCalendarWindow"
     }
 };
 

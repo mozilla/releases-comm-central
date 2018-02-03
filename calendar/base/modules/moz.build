@@ -21,6 +21,7 @@ EXTRA_JS_MODULES += [
     'calUtils.jsm',
     'calUtilsCompat.jsm',
     'calViewUtils.jsm',
+    'calWindowUtils.jsm',
     'calXMLUtils.jsm',
     'ical.js',
 ]

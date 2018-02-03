@@ -678,15 +678,6 @@ var cal = {
         return cal.calGetString("dateFormat", "month." + aMonthNum + "." + monthForm);
     },
 
-
-    /**
-     * Returns the most recent calendar window in an application independent way
-     */
-    getCalendarWindow: function() {
-        return Services.wm.getMostRecentWindow("calendarMainWindow") ||
-               Services.wm.getMostRecentWindow("mail:3pane");
-    },
-
     /**
      * Adds an observer listening for the topic.
      *
@@ -766,6 +757,7 @@ XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDa
 XPCOMUtils.defineLazyModuleGetter(cal, "acl", "resource://calendar/modules/calACLUtils.jsm", "calacl");
 XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/calItemUtils.jsm", "calitem");
 XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/calViewUtils.jsm", "calview");
+XPCOMUtils.defineLazyModuleGetter(cal, "window", "resource://calendar/modules/calWindowUtils.jsm", "calwindow");
 
 /**
  * Returns a function that provides access to the given service.
