@@ -34,6 +34,8 @@ ChromeUtils.defineModuleGetter(this, "BookmarkHTMLUtils",
 ChromeUtils.defineModuleGetter(this, "BookmarkJSONUtils",
                                "resource://gre/modules/BookmarkJSONUtils.jsm");
 
+ChromeUtils.defineModuleGetter(this, "RecentWindow",
+                               "resource:///modules/RecentWindow.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "DebuggerServer", () => {
   var tmp = {};
