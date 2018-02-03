@@ -158,9 +158,9 @@
               return;
           }
           if (calendar) {
-              cal.openCalendarProperties(window, calendar);
+              cal.window.openCalendarProperties(window, calendar);
           } else {
-              cal.openCalendarWizard(window);
+              cal.window.openCalendarWizard(window);
           }
       ]]></handler>
     </handlers>

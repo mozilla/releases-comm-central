@@ -1102,7 +1102,7 @@ var gCalendarManagerAddonListener = {
         // addons window, otherwise the most recent calendar window, or we
         // create a new toplevel window.
         let win = Services.wm.getMostRecentWindow("Extension:Manager") ||
-                  cal.getCalendarWindow();
+                  cal.window.getCalendarWindow();
         if (win) {
             win.openDialog(uri, "CalendarProviderUninstallDialog", features, args);
         } else {

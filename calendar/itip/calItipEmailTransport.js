@@ -243,7 +243,7 @@ calItipEmailTransport.prototype = {
                 let inoutCheck = { value: prefCompatMode == 1 };
                 let parent = Services.wm.getMostRecentWindow(null);
                 if (parent.closed) {
-                    parent = cal.getCalendarWindow();
+                    parent = cal.window.getCalendarWindow();
                 }
                 if (Services.prompt.confirmEx(parent,
                                               cal.calGetString("lightning", "imipSendMail.title", null, "lightning"),

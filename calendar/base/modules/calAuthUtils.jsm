@@ -16,7 +16,7 @@ cal.auth = {
      * Auth prompt implementation - Uses password manager if at all possible.
      */
     Prompt: function() {
-        this.mWindow = cal.getCalendarWindow();
+        this.mWindow = cal.window.getCalendarWindow();
         this.mReturnedLogins = {};
     },
 
@@ -336,7 +336,7 @@ cal.auth.Prompt.prototype = {
             asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
         }
 
-        self.mWindow = cal.getCalendarWindow();
+        self.mWindow = cal.window.getCalendarWindow();
 
         // the prompt will fail if we are too early
         if (self.mWindow.document.readyState == "complete") {

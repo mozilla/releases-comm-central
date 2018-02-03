@@ -157,7 +157,7 @@ cal.BadCertHandler.prototype = {
         // we'll just take the first available calendar window. We also need to
         // do this on a timer so that the modal window doesn't block the
         // network request.
-        let calWindow = cal.getCalendarWindow();
+        let calWindow = cal.window.getCalendarWindow();
 
         let timerCallback = {
             thisProvider: this.thisProvider,
@@ -424,7 +424,7 @@ cal.toRFC3339 = function(aDateTime) {
 };
 
 cal.promptOverwrite = function(aMode, aItem) {
-    let window = cal.getCalendarWindow();
+    let window = cal.window.getCalendarWindow();
     let args = {
         item: aItem,
         mode: aMode,

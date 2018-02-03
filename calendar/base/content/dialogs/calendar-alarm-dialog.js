@@ -82,7 +82,7 @@ function onDismissAllAlarms() {
 function onItemDetails(event) {
     // We want this to happen in a calendar window if possible. Otherwise open
     // it using our window.
-    let calWindow = cal.getCalendarWindow();
+    let calWindow = cal.window.getCalendarWindow();
     if (calWindow) {
         calWindow.modifyEventWithDialog(event.target.item, null, true);
     } else {

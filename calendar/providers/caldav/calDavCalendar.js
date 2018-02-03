@@ -1658,7 +1658,7 @@ calDavCalendar.prototype = {
                 // possibly hang. If we postpone until the window is loaded,
                 // all is well.
                 setTimeout(function postpone() { // eslint-disable-line func-names
-                    let win = cal.getCalendarWindow();
+                    let win = cal.window.getCalendarWindow();
                     if (!win || win.document.readyState != "complete") {
                         setTimeout(postpone, 0);
                     } else {
@@ -1734,7 +1734,7 @@ calDavCalendar.prototype = {
                 let flags = (nIPS.BUTTON_TITLE_YES * nIPS.BUTTON_POS_0) +
                             (nIPS.BUTTON_TITLE_IS_STRING * nIPS.BUTTON_POS_1);
 
-                let res = Services.prompt.confirmEx(cal.getCalendarWindow(),
+                let res = Services.prompt.confirmEx(cal.window.getCalendarWindow(),
                                                     promptTitle, promptText,
                                                     flags, null, button1Title,
                                                     null, null, {});

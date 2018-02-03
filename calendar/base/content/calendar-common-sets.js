@@ -356,10 +356,10 @@ var calendarController = {
                 break;
 
             case "calendar_new_calendar_command":
-                cal.openCalendarWizard(window);
+                cal.window.openCalendarWizard(window);
                 break;
             case "calendar_edit_calendar_command":
-                cal.openCalendarProperties(window, getSelectedCalendar());
+                cal.window.openCalendarProperties(window, getSelectedCalendar());
                 break;
             case "calendar_delete_calendar_command":
                 promptDeleteCalendar(getSelectedCalendar());
@@ -739,7 +739,7 @@ var calendarController2 = {
                 break;
             case "button_print":
             case "cmd_print":
-                cal.calPrint(window);
+                cal.window.openPrintDialog(window);
                 break;
 
             // Thunderbird commands
