@@ -23,6 +23,12 @@ var migrations = {
         userCanDeleteItemsFromCalendar: "userCanDeleteItemsFromCalendar",
         userCanModifyItem: "userCanModifyItem"
     },
+    data: {
+        binarySearch: "binarySearch",
+        binaryInsertNode: "binaryInsertNode",
+        binaryInsert: "binaryInsert",
+        compareObjects: "compareObjects"
+    },
     dtz: {
         now: "now",
         ensureDateTime: "ensureDateTime",
