@@ -78,6 +78,8 @@
 .tab-label {
   margin-inline-end: 0;
   margin-inline-start: 0;
+  /* Maintain consistent alignment in case of font fallback for non-Latin characters. */
+  line-height: 1.7em;
 }
 
 .tab-content > .tab-close-button {
