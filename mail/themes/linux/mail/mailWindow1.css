@@ -22,8 +22,11 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 }
 
 #folderTree {
-  border-bottom: 1px solid ThreeDShadow;
   background-color: -moz-OddTreeRow;
+}
+
+#folderTree:not(:-moz-lwtheme) {
+  border-bottom: 1px solid ThreeDShadow;
 }
 
 #threadTree {
@@ -153,7 +156,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 
 /* ..... message pane adjustments ..... */
 
-#messagepanebox {
+#messagepanebox:not(:-moz-lwtheme) {
   border-bottom: 1px solid ThreeDShadow;
 }
 

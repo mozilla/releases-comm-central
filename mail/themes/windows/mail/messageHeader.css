@@ -101,10 +101,9 @@
   -moz-box-pack: end;
 }
 
-.inline-toolbar toolbarpaletteitem toolbarseparator,
-.inline-toolbar toolbarseparator {
+#header-view-toolbox toolbarpaletteitem toolbarseparator,
+#header-view-toolbox toolbarseparator {
   margin-top: 1px;
-  margin-inline-start: 1px; /* make it symetrical */
 }
 
 window[inlinetoolbox] #smallicons,

@@ -201,10 +201,6 @@ splitter {
   -moz-appearance: none;
 }
 
-#status-bar {
-  border-top: none !important;
-}
-
 .tabmail-tab[type="message"][IsFeedMessage] {
   list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
   -moz-image-region: rect(0 16px 16px 0);

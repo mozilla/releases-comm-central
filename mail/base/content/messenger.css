@@ -267,17 +267,14 @@ menupopup[type="folder"] {
 
 :root:-moz-lwtheme {
   color: var(--lwt-text-color) !important;
-}
-
-/**
- * [customization-lwtheme] is actually not used in TB but we leave it in case
- * it will be moved from browser to toolkit. The expression is always :not().
- */
-:root:-moz-lwtheme:not([customization-lwtheme]) {
   background-color: var(--lwt-accent-color) !important;
   background-image: var(--lwt-header-image), var(--lwt-additional-images) !important;
   background-position: var(--lwt-background-alignment) !important;
   background-repeat: var(--lwt-background-tiling) !important;
+}
+
+:root:-moz-lwtheme:-moz-window-inactive {
+  background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color)) !important;
 }
 
 :root[lwthemefooter="true"] #status-bar:-moz-lwtheme {

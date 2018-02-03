@@ -26,6 +26,26 @@ toolbar[printpreview="true"] {
   min-height: 10px;
 }
 
+.chromeclass-toolbar toolbarseparator:-moz-lwtheme {
+  -moz-appearance: none;
+  min-width: 1px;
+  background-image: linear-gradient(
+                    transparent 4px,
+                    var(--lwt-toolbar-vertical-separator, rgba(0,0,0,.2)) 4px,
+                    var(--lwt-toolbar-vertical-separator, rgba(0,0,0,.2)) calc(100% - 4px),
+                    transparent calc(100% - 4px));
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
+.chromeclass-toolbar[brighttext] toolbarseparator:-moz-lwtheme {
+  background-image: linear-gradient(
+                    transparent 4px,
+                    var(--lwt-toolbar-vertical-separator, rgba(255,255,255,.3)) 4px,
+                    var(--lwt-toolbar-vertical-separator, rgba(255,255,255,.3)) calc(100% - 4px),
+                    transparent calc(100% - 4px));
+}
+
 /* :::::: throbber :::::::::: */
 
 #throbber-box {
@@ -43,6 +63,10 @@ toolbar[printpreview="true"] {
 }
 
 /* ::::: Status bar ::::: */
+
+#status-bar:-moz-lwtheme {
+  border-top: 1px solid var(--tabs-border-color);
+}
 
 #status-bar:-moz-lwtheme toolbarbutton {
   color: var(--lwt-text-color, inherit);
