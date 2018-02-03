@@ -3167,7 +3167,7 @@ function FillInHTMLTooltipEditor(tooltip)
   } else {
     for (node = document.tooltipNode; node; node = node.parentNode) {
       if (ChromeUtils.getClassName(node) === "HTMLImageElement" ||
-          node instanceof Ci.nsIDOMHTMLInputElement)
+          ChromeUtils.getClassName(node) === "HTMLInputElement")
         tooltipText = node.getAttribute("src");
       else if (ChromeUtils.getClassName(node) === "HTMLAnchorElement")
         tooltipText = node.getAttribute("href") || node.getAttribute("name");

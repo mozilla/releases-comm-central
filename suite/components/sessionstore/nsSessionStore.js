@@ -1904,7 +1904,7 @@ SessionStoreService.prototype = {
       if (!nId && generatedCount > MAX_GENERATED_XPATHS)
         continue;
 
-      if (node instanceof Ci.nsIDOMHTMLInputElement ||
+      if (ChromeUtils.getClassName(node) === "HTMLInputElement" ||
           ChromeUtils.getClassName(node) === "HTMLTextAreaElement") {
         switch (node.type) {
           case "checkbox":

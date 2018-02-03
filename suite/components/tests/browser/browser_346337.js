@@ -48,7 +48,7 @@ function test() {
       node.checked = aValue;
     else if (typeof aValue == "number")
       node.selectedIndex = aValue;
-    else if (node instanceof Ci.nsIDOMHTMLInputElement && node.type == "file")
+    else if (ChromeUtils.getClassName(node) === "HTMLInputElement" && node.type == "file")
       node.mozSetFileNameArray(aValue, aValue.length);
     else
       Array.from(node.options).forEach((aOpt, aIx) =>
@@ -59,7 +59,7 @@ function test() {
     let node = getElementByXPath(aTab, aQuery);
     if (!node)
       return false;
-    if (node instanceof Ci.nsIDOMHTMLInputElement) {
+    if (ChromeUtils.getClassName(node) === "HTMLInputElement") {
       if (node.type == "file") {
         let fileNames = node.mozGetFileNameArray();
         return fileNames.length == aValue.length &&
