@@ -246,18 +246,9 @@
             (accelKeyPressed && aEvent.charCode == 'v'.charCodeAt(0) ||
              !aEvent.ctrlKey && !aEvent.metaKey)) {
           this.convView.focus();
-          const masks = Components.interfaces.nsIDOMNSEvent;
-          let modifiers = 0;
-          if (aEvent.shiftKey)
-            modifiers |= masks.SHIFT_MASK;
-          if (aEvent.ctrlKey)
-            modifiers |= masks.CONTROL_MASK;
-          if (aEvent.metaKey)
-            modifiers |= masks.META_MASK;
-          window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                .getInterface(Components.interfaces.nsIDOMWindowUtils)
-                .sendKeyEvent(aEvent.type, aEvent.keyCode, aEvent.charCode,
-                              modifiers);
+
+          let clonedEvent = new KeyboardEvent("keypress", aEvent);
+          this.convView.editor.inputField.dispatchEvent(clonedEvent);
           aEvent.preventDefault();
         }
       ]]>

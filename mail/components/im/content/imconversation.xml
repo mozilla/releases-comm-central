@@ -58,7 +58,7 @@
                               attributeFilter: ["state"]});
 
        var browser = this.browser;
-       browser.addEventListener("keypress", this.browserKeyPress);
+       browser.addEventListener("keypress", this.browserKeyPress.bind(this));
        browser.addEventListener("dblclick", this.browserDblClick.bind(this));
        Services.obs.addObserver(this, "conversation-loaded");
       ]]>
@@ -950,30 +950,15 @@
 
         if (accelKeyPressed ||
             !Services.prefs.getBoolPref("accessibility.typeaheadfind"))
-          document.getBindingParent(this).editor.focus();
+          this.editor.focus();
 
         // Returns for Ctrl+V
         if (accelKeyPressed)
           return;
 
-        const masks = Components.interfaces.nsIDOMNSEvent;
-        var modifiers = 0;
-        if (event.shiftKey)
-          modifiers |= masks.SHIFT_MASK;
-        if (event.ctrlKey)
-          modifiers |= masks.CONTROL_MASK;
-        if (event.altKey)
-          modifiers |= masks.ALT_MASK;
-        if (event.metaKey)
-          modifiers |= masks.META_MASK;
-        if (event.accelKey)
-          modifiers |= (navigator.platform.includes("Mac")) ? masks.META_MASK
-                                                            : masks.CONTROL_MASK;
-
         // resend the event
-        window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-              .getInterface(Components.interfaces.nsIDOMWindowUtils)
-              .sendKeyEvent(event.type, event.keyCode, event.charCode, modifiers);
+        let clonedEvent = new KeyboardEvent("keypress", event);
+        this.editor.inputField.dispatchEvent(clonedEvent);
       ]]>
       </body>
      </method>
