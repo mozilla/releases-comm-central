@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadTaskbarProgress.jsm");
 ChromeUtils.import("resource:///modules/WindowsPreviewPerTab.jsm");
 
@@ -21,6 +22,7 @@ ChromeUtils.defineModuleGetter(this, "SafeBrowsing",
 
 const REMOTESERVICE_CONTRACTID = "@mozilla.org/toolkit/remote-service;1";
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
 var gURLBar = null;
 var gProxyButton = null;
 var gProxyFavIcon = null;
@@ -1512,49 +1514,114 @@ function BrowserOpenSyncTabs()
 {
   switchToTabHavingURI("about:sync-tabs", true);
 }
+// Class for saving the last directory and filter Index in the prefs.
+// Used for open file and upload file.
+class RememberLastDir {
 
-/* Show file picker dialog configured for opening a file, and return
- * the selected nsIFileURL instance. */
-function selectFileToOpen(label, prefRoot)
-{
-  var fileURL = null;
-
-  // Get filepicker component.
-  const nsIFilePicker = Ci.nsIFilePicker;
-  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-  fp.init(window, gNavigatorBundle.getString(label), nsIFilePicker.modeOpen);
-  fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText | nsIFilePicker.filterImages |
-                   nsIFilePicker.filterXML | nsIFilePicker.filterHTML);
-
-  const filterIndexPref = prefRoot + "filterIndex";
-  const lastDirPref = prefRoot + "dir";
-
-  // use a pref to remember the filterIndex selected by the user.
-  fp.filterIndex = GetIntPref(filterIndexPref, 0);
-
-  // use a pref to remember the displayDirectory selected by the user.
-  try {
-    fp.displayDirectory = Services.prefs.getComplexValue(lastDirPref,
-                              Ci.nsIFile);
-  } catch (ex) {
+  // The pref names are constructed from the prefix parameter in the constructor.
+  // The pref names should not be changed later.
+  constructor(prefPrefix) {
+    this._prefLastDir = prefPrefix + ".lastDir";
+    this._prefFilterIndex = prefPrefix + ".filterIndex";
+    this._lastDir = null;
+    this._lastFilterIndex =  null;
   }
 
-  if (fp.show() == nsIFilePicker.returnOK) {
-    Services.prefs.setIntPref(filterIndexPref, fp.filterIndex);
-    Services.prefs.setComplexValue(lastDirPref,
-                                   Ci.nsIFile,
-                                   fp.file.parent);
-    fileURL = fp.fileURL;
+  get path() {
+    if (!this._lastDir || !this._lastDir.exists()) {
+      try {
+        this._lastDir = Services.prefs.getComplexValue(this._prefLastDir,
+                                                       Ci.nsIFile);
+        if (!this._lastDir.exists()) {
+          this._lastDir = null;
+        }
+      } catch (e) {}
+    }
+    return this._lastDir;
   }
 
-  return fileURL;
+  set path(val) {
+    try {
+      if (!val || !val.isDirectory()) {
+        return;
+      }
+    } catch (e) {
+      return;
+    }
+    this._lastDir = val.clone();
+
+    // Don't save the last open directory pref inside the Private Browsing mode
+    if (!gPrivate) {
+      Services.prefs.setComplexValue(this._prefLastDir,
+                                     Ci.nsIFile,
+                                     this._lastDir);
+    }
+  }
+
+  get filterIndex() {
+    if (!this._lastFilterIndex) {
+      // use a pref to remember the filterIndex selected by the user.
+      this._lastFilterIndex =
+        Services.prefs.getIntPref(this._prefFilterIndex, 0);
+    }
+    return this._lastFilterIndex;
+  }
+
+  set filterIndex(val) {
+    // If the default is picked the filter is null.
+    this._lastFilterIndex = val ? val : 0;
+
+    // Don't save the last filter index inside the Private Browsing mode
+    if (!gPrivate) {
+      Services.prefs.setIntPref(this._prefFilterIndex,
+                                this._lastFilterIndex);
+    }
+  }
+
+  // This is currently not used.
+  reset() {
+    this._lastDir = null;
+    this._lastFilterIndex = null;
+  }
 }
 
-function BrowserOpenFileWindow()
-{
+var gLastOpenDirectory;
+
+function BrowserOpenFileWindow() {
+
+  if (!gLastOpenDirectory) {
+   gLastOpenDirectory = new RememberLastDir("browser.open");
+  };
+
+  // Get filepicker component.
   try {
-    openTopWin(selectFileToOpen("openFile", "browser.open.").spec);
-  } catch (e) {}
+    const nsIFilePicker = Ci.nsIFilePicker;
+    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    let fpCallback = function fpCallback_done(aResult) {
+      if (aResult == nsIFilePicker.returnOK) {
+        try {
+          // Set last path and file index only if file is ok.
+          if (fp.file) {
+            gLastOpenDirectory.filterIndex = fp.filterIndex;
+            gLastOpenDirectory.path =
+              fp.file.parent.QueryInterface(Ci.nsIFile);
+          }
+        } catch (ex) {
+        }
+        openUILinkIn(fp.fileURL.spec, "current");
+      }
+    };
+
+    fp.init(window, gNavigatorBundle.getString("openFile"),
+            nsIFilePicker.modeOpen);
+    fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText |
+                     nsIFilePicker.filterImages | nsIFilePicker.filterXML |
+                     nsIFilePicker.filterHTML);
+    fp.filterIndex = gLastOpenDirectory.filterIndex;
+    fp.displayDirectory = gLastOpenDirectory.path;
+    fp.open(fpCallback);
+  } catch (ex) {
+  }
 }
 
 function updateCloseItems()
@@ -2650,31 +2717,49 @@ function getCurrentURI()
   return nav.currentURI;
 }
 
-function uploadFile(fileURL)
-{
-  var targetBaseURI = getCurrentURI();
-
-  // generate the target URI.  we use fileURL.file.leafName to get the
-  // unicode value of the target filename w/o any URI-escaped chars.
-  // this gives the protocol handler the best chance of generating a
-  // properly formatted URI spec.  we pass null for the origin charset
-  // parameter since we want the URI to inherit the origin charset
-  // property from targetBaseURI.
-
-  var leafName = fileURL.QueryInterface(Ci.nsIFileURL).file.leafName;
-
-  var targetURI = Services.io.newURI(leafName, null, targetBaseURI);
-
-  // ok, start uploading...
-  openDialog("chrome://communicator/content/downloads/uploadProgress.xul", "",
-             "titlebar,centerscreen,minimizable,dialog=no", fileURL, targetURI);
-}
+var gLastOpenUploadDirectory;
 
 function BrowserUploadFile()
 {
-  try {
-    uploadFile(selectFileToOpen("uploadFile", "browser.upload."));
-  } catch (e) {}
+  if (!gLastOpenUploadDirectory) {
+    gLastOpenUploadDirectory = new RememberLastDir("browser.upload");
+  };
+
+  const nsIFilePicker = Ci.nsIFilePicker;
+  let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  fp.init(window, gNavigatorBundle.getString("uploadFile"), nsIFilePicker.modeOpen);
+  fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText | nsIFilePicker.filterImages |
+                   nsIFilePicker.filterXML | nsIFilePicker.filterHTML);
+
+  // use a pref to remember the filterIndex selected by the user.
+  fp.filterIndex = gLastOpenUploadDirectory.filterIndex;
+
+  // Use a pref to remember the displayDirectory selected by the user.
+  fp.displayDirectory = gLastOpenUploadDirectory.path;
+
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.fileURL) {
+      return;
+    }
+    gLastOpenUploadDirectory.filterIndex = fp.filterIndex;
+    gLastOpenUploadDirectory.path = fp.file.parent.QueryInterface(Ci.nsIFile);
+
+    try {
+      var targetBaseURI = getCurrentURI();
+      // Generate the target URI. We use fileURL.file.leafName to get the
+      // unicode value of the target filename w/o any URI-escaped chars.
+      // this gives the protocol handler the best chance of generating a
+      // properly formatted URI spec.  we pass null for the origin charset
+      // parameter since we want the URI to inherit the origin charset
+      // property from targetBaseURI.
+      var leafName = fp.fileURL.QueryInterface(Ci.nsIFileURL).file.leafName;
+      var targetURI = Services.io.newURI(leafName, null, targetBaseURI);
+
+       // ok, start uploading...
+      openDialog("chrome://communicator/content/downloads/uploadProgress.xul", "",
+               "titlebar,centerscreen,minimizable,dialog=no", fp.fileURL, targetURI);
+    } catch (e) {}
+  });
 }
 
 /* This function is called whenever the file menu is about to be displayed.

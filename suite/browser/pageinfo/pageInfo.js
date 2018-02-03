@@ -849,29 +849,32 @@ function getSelectedImage(tree)
   return gImageView.data[clickedRow][COL_IMAGE_NODE];
 }
 
-function selectSaveFolder()
-{
+function selectSaveFolder(aCallback) {
   const nsIFile = Ci.nsIFile;
   const nsIFilePicker = Ci.nsIFilePicker;
-  var fp = Cc["@mozilla.org/filepicker;1"]
+  let titleText = gBundle.getString("mediaSelectFolder");
+  let fp = Cc["@mozilla.org/filepicker;1"]
              .createInstance(nsIFilePicker);
+  let fpCallback = function fpCallback_done(aResult) {
+    if (aResult == nsIFilePicker.returnOK) {
+      aCallback(fp.file.QueryInterface(nsIFile));
+    } else {
+      aCallback(null);
+    }
+  };
 
-  var titleText = gBundle.getString("mediaSelectFolder");
   fp.init(window, titleText, nsIFilePicker.modeGetFolder);
-  var initialDir = GetLocalFilePref("browser.download.lastDir");
-  if (!initialDir) {
-    let dnldMgr = Cc["@mozilla.org/download-manager;1"]
-                    .getService(Ci.nsIDownloadManager);
-    initialDir = dnldMgr.userDownloadsDirectory;
-  }
-  fp.displayDirectory = initialDir;
-
   fp.appendFilters(nsIFilePicker.filterAll);
-  var ret = fp.show();
-
-  if (ret == nsIFilePicker.returnOK)
-    return fp.file.QueryInterface(nsIFile);
-  return null;
+  try {
+    let prefs = Cc[PREFERENCES_CONTRACTID]
+                  .getService(Ci.nsIPrefBranch);
+    let initialDir = prefs.getComplexValue("browser.download.dir", nsIFile);
+    if (initialDir) {
+      fp.displayDirectory = initialDir;
+    }
+  } catch (ex) {
+  }
+  fp.open(fpCallback);
 }
 
 function saveMedia()
@@ -893,47 +896,43 @@ function saveMedia()
       saveURL(url, null, titleKey, false, true, makeURI(item.baseURI),
               gDocument);
     }
-  }
-  else {
-    var odir  = selectSaveFolder();
-    var start = { };
-    var end   = { };
-    var numRanges = tree.view.selection.getRangeCount();
+  } else {
+    selectSaveFolder(function(aDirectory) {
+      if (aDirectory) {
+        var saveAnImage = function(aURIString, aChosenData, aBaseURI) {
+          uniqueFile(aChosenData.file);
+          internalSave(aURIString, null, null, null, null, false, "SaveImageTitle",
+                       aChosenData, aBaseURI, null, false, null, gDocument.isContentWindowPrivate);
+        };
 
-    var rowArray = [ ];
-    for (var t = 0; t < numRanges; t++) {
-      tree.view.selection.getRangeAt(t, start, end);
-      for (var v = start.value; v <= end.value; v++)
-        rowArray.push(v);
-    }
+        for (var i = 0; i < rowArray.length; i++) {
+          let v = rowArray[i];
+          let dir = aDirectory.clone();
+          let item = gImageView.data[v][COL_IMAGE_NODE];
+          let uriString = gImageView.data[v][COL_IMAGE_ADDRESS];
+          let uri = makeURI(uriString);
 
-    var saveAnImage = function(aURIString, aChosenData, aBaseURI) {
-      internalSave(aURIString, null, null, null, null, false, "SaveImageTitle",
-                   aChosenData, aBaseURI, gDocument);
-    }
+          try {
+            uri.QueryInterface(Ci.nsIURL);
+            dir.append(decodeURIComponent(uri.fileName));
+          } catch (ex) {
+            // data:/blob: uris
+            // Supply a dummy filename, otherwise Download Manager
+            // will try to delete the base directory on failure.
+            dir.append(gImageView.data[v][COL_IMAGE_TYPE]);
+          }
 
-    for (var i = 0; i < rowArray.length; i++) {
-      var v = rowArray[i];
-      var dir = odir.clone();
-      var item = gImageView.data[v][COL_IMAGE_NODE];
-      var uriString = gImageView.data[v][COL_IMAGE_ADDRESS];
-      var uri = makeURI(uriString);
-
-      try {
-        uri.QueryInterface(Ci.nsIURL);
-        dir.append(decodeURIComponent(uri.fileName));
+          if (i == 0) {
+            saveAnImage(uriString, new AutoChosen(dir, uri), makeURI(item.baseURI));
+          } else {
+            // This delay is a hack which prevents the download manager
+            // from opening many times. See bug 377339.
+            setTimeout(saveAnImage, 200, uriString, new AutoChosen(dir, uri),
+                       makeURI(item.baseURI));
+          }
+        }
       }
-      catch(ex) { /* data: uris */ }
-
-      if (i == 0)
-        saveAnImage(uriString, new AutoChosen(dir, uri), makeURI(item.baseURI));
-      else {
-        // This delay is a hack which prevents the download manager
-        // from opening many times. See bug 377339.
-        setTimeout(saveAnImage, 200, uriString, new AutoChosen(dir, uri),
-                   makeURI(item.baseURI));
-      }
-    }
+    });
   }
 }
 

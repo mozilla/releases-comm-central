@@ -92,26 +92,29 @@ function accept()
 function onChooseFile()
 {
   const nsIFilePicker = Ci.nsIFilePicker;
-  try {
-    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    fp.init(window, gBundle.getString("chooseFileDialogTitle"), nsIFilePicker.modeOpen);
-    if (window.arguments[0].action != "5" && gOpenAppList.value == "2") {
-      // When loading into Composer, direct user to prefer HTML files and text
-      // files, so we call separately to control the order of the filter list.
-      fp.appendFilters(nsIFilePicker.filterHTML | nsIFilePicker.filterText);
-      fp.appendFilters(nsIFilePicker.filterAll);
-    }
-    else {
-      fp.appendFilters(nsIFilePicker.filterHTML | nsIFilePicker.filterText |
-                       nsIFilePicker.filterAll | nsIFilePicker.filterImages | nsIFilePicker.filterXML);
+  let fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(nsIFilePicker);
+  fp.init(window, gBundle.getString("chooseFileDialogTitle"),
+          nsIFilePicker.modeOpen);
+  if (window.arguments[0].action != "5" && gOpenAppList.value == "2") {
+    // When loading into Composer, direct user to prefer HTML files and text
+    // files, so we call separately to control the order of the filter list.
+    fp.appendFilters(nsIFilePicker.filterHTML | nsIFilePicker.filterText);
+    fp.appendFilters(nsIFilePicker.filterAll);
+  } else {
+    fp.appendFilters(nsIFilePicker.filterHTML | nsIFilePicker.filterText |
+                     nsIFilePicker.filterAll | nsIFilePicker.filterImages |
+                     nsIFilePicker.filterXML);
+  }
+  
+  fp.open(rv => {
+    if (rv == nsIFilePicker.returnOK && fp.fileURL.spec && 
+        fp.fileURL.spec.length > 0) {
+      gInput.value = fp.fileURL.spec;
     }
 
-    if (fp.show() == nsIFilePicker.returnOK && fp.fileURL.spec && fp.fileURL.spec.length > 0)
-      gInput.value = fp.fileURL.spec;
-  }
-  catch(ex) {
-  }
-  doEnabling();
+    doEnabling();
+  });
 }
 
 function useUBHistoryItem(aValue)

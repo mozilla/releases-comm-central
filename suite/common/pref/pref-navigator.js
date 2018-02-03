@@ -201,10 +201,10 @@ function UpdateHomePageList(aSingleURL)
 function SelectFile()
 {
   const nsIFilePicker = Ci.nsIFilePicker;
-  var fp = Cc["@mozilla.org/filepicker;1"]
+  let fp = Cc["@mozilla.org/filepicker;1"]
              .createInstance(nsIFilePicker);
-  var prefutilitiesBundle = document.getElementById("bundle_prefutilities");
-  var title = prefutilitiesBundle.getString("choosehomepage");
+  let title = document.getElementById("bundle_prefutilities")
+                      .getString("choosehomepage");
   fp.init(window, title, nsIFilePicker.modeOpen);
   fp.appendFilters(nsIFilePicker.filterAll  |
                    nsIFilePicker.filterText |
@@ -212,8 +212,12 @@ function SelectFile()
                    nsIFilePicker.filterHTML |
                    nsIFilePicker.filterImages);
 
-  if (fp.show() == nsIFilePicker.returnOK)
-    UpdateHomePageList(fp.fileURL.spec);
+  fp.open(rv => {
+    if (rv == nsIFilePicker.returnOK && fp.fileURL.spec && 
+        fp.fileURL.spec.length > 0) {
+      UpdateHomePageList(fp.fileURL.spec);
+    }
+  });
 }
 
 function SetHomePageToCurrentPage()

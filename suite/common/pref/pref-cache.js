@@ -57,8 +57,7 @@ function ReadCacheFolder(aField)
     catch (ex) {}
   }
 
-  if (file)
-  {
+  if (file) {
     aField.file = file;
     aField.label = (/Mac/.test(navigator.platform)) ? file.leafName : file.path;
   }
@@ -66,18 +65,23 @@ function ReadCacheFolder(aField)
 
 function CacheSelectFolder()
 {
-  var pref = document.getElementById("browser.cache.disk.parent_directory");
   const nsIFilePicker = Ci.nsIFilePicker;
-  var fp = Cc["@mozilla.org/filepicker;1"]
+  let fp = Cc["@mozilla.org/filepicker;1"]
              .createInstance(nsIFilePicker);
-  var prefutilitiesBundle = document.getElementById("bundle_prefutilities");
-  var title = prefutilitiesBundle.getString("cachefolder");
+  let title = document.getElementById("bundle_prefutilities")
+                      .getString("cachefolder");
 
   fp.init(window, title, nsIFilePicker.modeGetFolder);
-  fp.displayDirectory = pref.value;
+  fp.displayDirectory = 
+    document.getElementById("browser.cache.disk.parent_directory").value;
   fp.appendFilters(nsIFilePicker.filterAll);
-  if (fp.show() == nsIFilePicker.returnOK)
-    pref.value = fp.file;
+
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
+      return;
+    }
+    document.getElementById("browser.cache.disk.parent_directory").value = fp.file;
+  });
 }
 
 function ClearDiskAndMemCache()

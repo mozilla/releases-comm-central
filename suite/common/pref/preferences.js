@@ -6,6 +6,8 @@
 // The content of this file is loaded into the scope of the
 // prefwindow and will be available to all prefpanes!
 
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+
 function OnLoad()
 {
   // Make sure that the preferences window fits the screen.
@@ -50,32 +52,37 @@ function WriteSoundField(aField, aValue)
   if (file)
   {
     aField.file = file;
-    aField.label = (/Mac/.test(navigator.platform)) ? file.leafName : file.path;
+    aField.label = (AppConstants.platform == "macosx") ? file.leafName : file.path;
   }
 }
 
 function SelectSound(aSoundUrlPref)
 {
+  var soundUrlPref = aSoundUrlPref;
   const nsIFilePicker = Ci.nsIFilePicker;
-  var fp = Cc["@mozilla.org/filepicker;1"]
+  let fp = Cc["@mozilla.org/filepicker;1"]
              .createInstance(nsIFilePicker);
   var prefutilitiesBundle = document.getElementById("bundle_prefutilities");
   fp.init(window, prefutilitiesBundle.getString("choosesound"),
           nsIFilePicker.modeOpen);
 
-  var file = GetFileFromString(aSoundUrlPref.value);
+  let file = GetFileFromString(soundUrlPref.value);
   if (file && file.parent && file.parent.exists())
     fp.displayDirectory = file.parent;
 
-  var filterExts = "*.wav; *.wave";
+  let filterExts = "*.wav; *.wave";
   // On Mac, allow AIFF and CAF files too.
-  if (/Mac/.test(navigator.platform))
+  if (AppConstants.platform == "macosx") {
     filterExts += "; *.aif; *.aiff; *.caf";
+  }
   fp.appendFilter(prefutilitiesBundle.getString("SoundFiles"), filterExts);
   fp.appendFilters(nsIFilePicker.filterAll);
-
-  if (fp.show() == nsIFilePicker.returnOK)
-    aSoundUrlPref.value = fp.fileURL.spec;
+  fp.open(rv => {
+    if (rv == nsIFilePicker.returnOK && fp.fileURL.spec && 
+        fp.fileURL.spec.length > 0) {
+      soundUrlPref.value = fp.fileURL.spec;
+    }
+  });
 }
 
 function PlaySound(aValue, aMail)
@@ -86,7 +93,7 @@ function PlaySound(aValue, aMail)
 
   if (aValue)
     sound.play(Services.io.newURI(aValue));
-  else if (aMail && !/Mac/.test(navigator.platform))
+  else if (aMail && (AppConstants.platform != "macosx"))
     sound.playEventSound(nsISound.EVENT_NEW_MAIL_RECEIVED);
   else
     sound.beep();

@@ -1583,35 +1583,31 @@ function MsgSaveAsTemplate()
   SaveAsTemplate(gFolderDisplay.selectedMessageUris);
 }
 
-const nsIFilePicker = Ci.nsIFilePicker;
-
 function MsgOpenFromFile()
 {
-   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  const nsIFilePicker = Ci.nsIFilePicker;
+  var fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(nsIFilePicker);
 
   var filterLabel = gMessengerBundle.getString("EMLFiles");
   var windowTitle = gMessengerBundle.getString("OpenEMLFiles");
 
-   fp.init(window, windowTitle, nsIFilePicker.modeOpen);
-   fp.appendFilter(filterLabel, "*.eml; *.msg");
+  fp.init(window, windowTitle, nsIFilePicker.modeOpen);
+  fp.appendFilter(filterLabel, "*.eml; *.msg");
 
-   // Default or last filter is "All Files"
-   fp.appendFilters(nsIFilePicker.filterAll);
+  // Default or last filter is "All Files".
+  fp.appendFilters(nsIFilePicker.filterAll);
 
-  try {
-     var ret = fp.show();
-     if (ret == nsIFilePicker.returnCancel)
-       return;
-   }
-   catch (ex) {
-     dump("filePicker.chooseInputFile threw an exception\n");
-     return;
-   }
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
+      return;
+    }
+    let uri = fp.fileURL.QueryInterface(Ci.nsIURL);
+    uri.query = "type=application/x-message-display";
 
-  var uri = fp.fileURL.QueryInterface(Ci.nsIURL);
-  uri.query = "type=application/x-message-display";
-
-  window.openDialog( "chrome://messenger/content/messageWindow.xul", "_blank", "all,chrome,dialog=no,status,toolbar", uri, null, null );
+    window.openDialog("chrome://messenger/content/messageWindow.xul", "_blank",
+                    "all,chrome,dialog=no,status,toolbar", uri);
+  });
 }
 
 function MsgOpenNewWindowForMsgHdr(hdr)

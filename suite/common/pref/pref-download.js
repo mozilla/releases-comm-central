@@ -45,26 +45,28 @@ function ReadUseDownloadDir()
 function ChooseFolder()
 {
   const nsIFilePicker = Ci.nsIFilePicker;
-
-  var fp = Cc["@mozilla.org/filepicker;1"]
+  let fp = Cc["@mozilla.org/filepicker;1"]
              .createInstance(nsIFilePicker);
-  var prefutilitiesBundle = document.getElementById("bundle_prefutilities");
-  var title = prefutilitiesBundle.getString("downloadfolder");
+  let title = document.getElementById("bundle_prefutilities")
+                      .getString("downloadfolder");
   fp.init(window, title, nsIFilePicker.modeGetFolder);
   fp.appendFilters(nsIFilePicker.filterAll);
 
-  var folderListPref = document.getElementById("browser.download.folderList");
-  fp.displayDirectory = IndexToFolder(folderListPref.value); // file
-
-  if (fp.show() == nsIFilePicker.returnOK) {
-    var currentDirPref = document.getElementById("browser.download.dir");
-    currentDirPref.value = fp.file;
-    folderListPref.value = FolderToIndex(fp.file);
+  fp.displayDirectory = 
+    IndexToFolder(document.getElementById("browser.download.folderList")
+                          .value);
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
+      return;
+    }
+    document.getElementById("browser.download.dir").value = fp.file;
+    document.getElementById("browser.download.folderList").value = 
+      FolderToIndex(fp.file);
     // Note, the real prefs will not be updated yet, so dnld manager's
     // userDownloadsDirectory may not return the right folder after
     // this code executes. displayDownloadDirPref will be called on
     // the assignment above to update the UI.
-  }
+  });
 }
 
 /**

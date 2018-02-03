@@ -2408,24 +2408,30 @@ function SetLastAttachDirectory(attachedLocalFile)
 function AttachFile()
 {
   //Get file using nsIFilePicker and convert to URL
-  try {
-      var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-      fp.init(window, sComposeMsgsBundle.getString("chooseFileToAttach"), nsIFilePicker.modeOpenMultiple);
+  const nsIFilePicker = Ci.nsIFilePicker;
+  let fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(nsIFilePicker);
+  fp.init(window, sComposeMsgsBundle.getString("chooseFileToAttach"),
+          nsIFilePicker.modeOpenMultiple);
+  let lastDirectory = GetLocalFilePref(kComposeAttachDirPrefName);
+  if (lastDirectory)
+    fp.displayDirectory = lastDirectory;
 
-      var lastDirectory = GetLocalFilePref(kComposeAttachDirPrefName);
-      if (lastDirectory)
-        fp.displayDirectory = lastDirectory;
-
-      fp.appendFilters(nsIFilePicker.filterAll);
-      if (fp.show() == nsIFilePicker.returnOK) {
-        var firstAttachedFile = AttachFiles(fp.files);
-        if (firstAttachedFile)
-          SetLastAttachDirectory(firstAttachedFile);
+  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.files) {
+      return;
+    }
+    try {
+      let firstAttachedFile = AttachFiles(fp.files);
+      if (firstAttachedFile) {
+        SetLastAttachDirectory(firstAttachedFile);
       }
-  }
-  catch (ex) {
-    dump("failed to get attachments: " + ex + "\n");
-  }
+    }
+    catch (ex) {
+      dump("failed to get attachments: " + ex + "\n");
+    }
+  });
 }
 
 function AttachFiles(attachments)
