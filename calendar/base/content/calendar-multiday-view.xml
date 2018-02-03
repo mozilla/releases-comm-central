@@ -333,7 +333,7 @@
         <setter><![CDATA[
             this.mDate = val;
 
-            if (!cal.compareObjects(val.timezone, this.mTimezone)) {
+            if (!cal.data.compareObjects(val.timezone, this.mTimezone)) {
                 this.mTimezone = val.timezone;
                 if (!this.mLayoutBatchCount) {
                     this.recalculateStartEndMinutes();
@@ -521,11 +521,11 @@
             let stdate = aOccurrence.startDate || aOccurrence.entryDate || aOccurrence.dueDate;
             let enddate = aOccurrence.endDate || aOccurrence.dueDate || aOccurrence.entryDate;
 
-            if (!cal.compareObjects(stdate.timezone, this.mTimezone)) {
+            if (!cal.data.compareObjects(stdate.timezone, this.mTimezone)) {
                 stdate = stdate.getInTimezone(this.mTimezone);
             }
 
-            if (!cal.compareObjects(enddate.timezone, this.mTimezone)) {
+            if (!cal.data.compareObjects(enddate.timezone, this.mTimezone)) {
                 enddate = enddate.getInTimezone(this.mTimezone);
             }
 

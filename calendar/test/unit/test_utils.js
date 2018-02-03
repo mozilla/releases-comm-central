@@ -182,11 +182,11 @@ function test_sameDay() {
 
 function test_binarySearch() {
     let arr = [2, 5, 7, 9, 20, 27, 34, 39, 41, 53, 62];
-    equal(cal.binarySearch(arr, 27), 5); // Center
-    equal(cal.binarySearch(arr, 2), 0); // Left most
-    equal(cal.binarySearch(arr, 62), 11); // Right most
+    equal(cal.data.binarySearch(arr, 27), 5); // Center
+    equal(cal.data.binarySearch(arr, 2), 0); // Left most
+    equal(cal.data.binarySearch(arr, 62), 11); // Right most
 
-    equal(cal.binarySearch([5], 5), 1); // One element found
-    equal(cal.binarySearch([1], 0), 0); // One element insert left
-    equal(cal.binarySearch([1], 2), 1); // One element insert right
+    equal(cal.data.binarySearch([5], 5), 1); // One element found
+    equal(cal.data.binarySearch([1], 0), 0); // One element insert left
+    equal(cal.data.binarySearch([1], 2), 1); // One element insert right
 }

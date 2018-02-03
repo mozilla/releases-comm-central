@@ -109,7 +109,7 @@ cal.print = {
         cal.print.insertCalendarRules(document, item.calendar);
 
         // Add it to the day container in the right order
-        cal.binaryInsertNode(dayContainer, itemNode, item, cal.view.compareItems);
+        cal.data.binaryInsertNode(dayContainer, itemNode, item, cal.view.compareItems);
     },
 
     /**
@@ -148,7 +148,7 @@ cal.print = {
         taskNode.querySelector(".task-title").textContent = item.title;
 
         let collator = cal.createLocaleCollator();
-        cal.binaryInsertNode(taskContainer, taskNode, item, (a, b) => collator.compareString(0, a, b), node => node.item.title);
+        cal.data.binaryInsertNode(taskContainer, taskNode, item, (a, b) => collator.compareString(0, a, b), node => node.item.title);
     },
 
     /**

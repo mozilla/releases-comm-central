@@ -462,7 +462,7 @@ calRecurrenceInfo.prototype = {
             let occDate = cal.item.checkIfInRange(item, aRangeStart, aRangeEnd, true);
             occurrenceMap[ex] = true;
             if (occDate) {
-                cal.binaryInsert(dates, { id: item.recurrenceId, rstart: occDate }, ridDateSortComptor);
+                cal.data.binaryInsert(dates, { id: item.recurrenceId, rstart: occDate }, ridDateSortComptor);
             }
         }
 
@@ -472,7 +472,7 @@ calRecurrenceInfo.prototype = {
         let baseOccDateKey = getRidKey(baseOccDate);
         if (baseOccDate && !occurrenceMap[baseOccDateKey]) {
             occurrenceMap[baseOccDateKey] = true;
-            cal.binaryInsert(dates, { id: baseOccDate, rstart: baseOccDate }, ridDateSortComptor);
+            cal.data.binaryInsert(dates, { id: baseOccDate, rstart: baseOccDate }, ridDateSortComptor);
         }
 
         // if both range start and end are specified, we ask for all of the occurrences,
@@ -521,7 +521,7 @@ calRecurrenceInfo.prototype = {
                 }
                 // TODO if cur_dates[] is also sorted, then this binary
                 // search could be optimized further
-                cal.binaryInsert(dates, { id: date, rstart: date }, ridDateSortComptor);
+                cal.data.binaryInsert(dates, { id: date, rstart: date }, ridDateSortComptor);
                 occurrenceMap[dateKey] = true;
             }
         }

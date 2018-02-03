@@ -546,7 +546,7 @@ function test_interface() {
                          "RDATE:20020401T114500Z\r\n");
 
     let rinfo = item.recurrenceInfo;
-    ok(cal.compareObjects(rinfo.item, item, Components.interfaces.calIEvent));
+    ok(cal.data.compareObjects(rinfo.item, item, Components.interfaces.calIEvent));
 
     // getRecurrenceItems
     let ritems = rinfo.getRecurrenceItems({});
@@ -596,13 +596,13 @@ function test_interface() {
     rinfo.appendRecurrenceItem(ritems[1]);
     rinfo.insertRecurrenceItemAt(ritems[2], 0);
 
-    ok(cal.compareObjects(ritems[2],
+    ok(cal.data.compareObjects(ritems[2],
                           rinfo.getRecurrenceItemAt(0),
                           Components.interfaces.calIRecurrenceItem));
-    ok(cal.compareObjects(ritems[0],
+    ok(cal.data.compareObjects(ritems[0],
                           rinfo.getRecurrenceItemAt(1),
                           Components.interfaces.calIRecurrenceItem));
-    ok(cal.compareObjects(ritems[1],
+    ok(cal.data.compareObjects(ritems[1],
                           rinfo.getRecurrenceItemAt(2),
                           Components.interfaces.calIRecurrenceItem));
 
@@ -619,7 +619,7 @@ function test_interface() {
 
     // insertRecurrenceItemAt with exdate
     rinfo.insertRecurrenceItemAt(ritems[1], 1);
-    ok(cal.compareObjects(ritems[1],
+    ok(cal.data.compareObjects(ritems[1],
                           rinfo.getRecurrenceItemAt(1),
                           Components.interfaces.calIRecurrenceItem));
     rinfo.deleteRecurrenceItem(ritems[1]);

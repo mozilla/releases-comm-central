@@ -306,7 +306,7 @@ var calitem = {
             case "startDate":
                 if ((value.isDate && !item.startDate.isDate) ||
                     (!value.isDate && item.startDate.isDate) ||
-                    !cal.compareObjects(value.timezone, item.startDate.timezone) ||
+                    !cal.data.compareObjects(value.timezone, item.startDate.timezone) ||
                     value.compare(item.startDate) != 0) {
                     item.startDate = value;
                 }
@@ -314,7 +314,7 @@ var calitem = {
             case "endDate":
                 if ((value.isDate && !item.endDate.isDate) ||
                     (!value.isDate && item.endDate.isDate) ||
-                    !cal.compareObjects(value.timezone, item.endDate.timezone) ||
+                    !cal.data.compareObjects(value.timezone, item.endDate.timezone) ||
                     value.compare(item.endDate) != 0) {
                     item.endDate = value;
                 }
@@ -326,7 +326,7 @@ var calitem = {
                 if ((value && !item.entryDate) ||
                     (!value && item.entryDate) ||
                     value.isDate != item.entryDate.isDate ||
-                    !cal.compareObjects(value.timezone, item.entryDate.timezone) ||
+                    !cal.data.compareObjects(value.timezone, item.entryDate.timezone) ||
                     value.compare(item.entryDate) != 0) {
                     item.entryDate = value;
                 }
@@ -338,7 +338,7 @@ var calitem = {
                 if ((value && !item.dueDate) ||
                     (!value && item.dueDate) ||
                     value.isDate != item.dueDate.isDate ||
-                    !cal.compareObjects(value.timezone, item.dueDate.timezone) ||
+                    !cal.data.compareObjects(value.timezone, item.dueDate.timezone) ||
                     value.compare(item.dueDate) != 0) {
                     item.dueDate = value;
                 }

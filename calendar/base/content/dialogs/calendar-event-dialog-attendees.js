@@ -254,7 +254,7 @@ function updateDateTime() {
         // the timezone of the endtime is "UTC", we convert
         // the endtime into the timezone of the starttime.
         if (startTime && endTime) {
-            if (!cal.compareObjects(startTime.timezone, endTime.timezone)) {
+            if (!cal.data.compareObjects(startTime.timezone, endTime.timezone)) {
                 if (endTime.timezone.isUTC) {
                     endTime = endTime.getInTimezone(startTime.timezone);
                 }
@@ -307,7 +307,7 @@ function updateTimezone() {
         let endTimezone = gEndTimezone;
         let equalTimezones = false;
         if (startTimezone && endTimezone &&
-            (cal.compareObjects(startTimezone, endTimezone) || endTimezone.isUTC)) {
+            (cal.data.compareObjects(startTimezone, endTimezone) || endTimezone.isUTC)) {
             equalTimezones = true;
         }
 
@@ -393,7 +393,7 @@ function updateEndTime() {
     let timezone = gEndTimezone;
     if (timezone.isUTC &&
         gStartDate &&
-        !cal.compareObjects(gStartTimezone, gEndTimezone)) {
+        !cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
         timezone = gStartTimezone;
     }
     gEndDate = cal.dtz.jsDateToDateTime(endWidget.value,
@@ -447,7 +447,7 @@ function editStartTimezone() {
     args.onOk = function(datetime) {
         let equalTimezones = false;
         if (gStartTimezone && gEndTimezone &&
-            cal.compareObjects(gStartTimezone, gEndTimezone)) {
+            cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
             equalTimezones = true;
         }
         gStartTimezone = datetime.timezone;
@@ -481,7 +481,7 @@ function editEndTimezone() {
     args.time = gEndTime.getInTimezone(gEndTimezone);
     args.onOk = function(datetime) {
         if (gStartTimezone && gEndTimezone &&
-            cal.compareObjects(gStartTimezone, gEndTimezone)) {
+            cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
             gStartTimezone = datetime.timezone;
         }
         gEndTimezone = datetime.timezone;

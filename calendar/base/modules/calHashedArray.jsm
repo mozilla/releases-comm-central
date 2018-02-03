@@ -233,7 +233,7 @@ cal.SortedHashedArray.prototype = {
     mCompFunc: null,
 
     addItem: function(item) {
-        let newIndex = cal.binaryInsert(this.mArray, item, this.mCompFunc, false);
+        let newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
         this.reindex(newIndex);
         return newIndex;
     },
@@ -249,7 +249,7 @@ cal.SortedHashedArray.prototype = {
             } else {
                 let oldIndex = this.mHash[hashId];
 
-                let newIndex = cal.binaryInsert(this.mArray, item, this.mCompFunc, false);
+                let newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
                 this.mArray.splice(oldIndex, 1);
                 this.reindex(oldIndex, newIndex);
                 return newIndex;

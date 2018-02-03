@@ -246,7 +246,7 @@
             box.setAttribute("calendar-uri", aItem.calendar.uri.spec);
             box.setAttribute("calendar-id", aItem.calendar.id);
 
-            cal.binaryInsertNode(this, box, aItem, cal.view.compareItems, false);
+            cal.data.binaryInsertNode(this, box, aItem, cal.view.compareItems, false);
 
             box.calendarView = this.calendarView;
             box.item = aItem;

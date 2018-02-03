@@ -276,7 +276,7 @@ function addWidgetFor(aItem, aAlarm) {
     let alarmRichlist = document.getElementById("alarm-richlist");
 
     // Add widgets sorted by start date ascending
-    cal.binaryInsertNode(alarmRichlist, widget, aItem, widgetAlarmComptor, false);
+    cal.data.binaryInsertNode(alarmRichlist, widget, aItem, widgetAlarmComptor, false);
 
     widget.item = aItem;
     widget.alarm = aAlarm;

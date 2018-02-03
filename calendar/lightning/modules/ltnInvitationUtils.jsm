@@ -163,7 +163,7 @@ ltn.invitation = {
                     } else {
                         // This is an RDATE, close enough to a modified occurrence
                         let excItem = aEvent.recurrenceInfo.getOccurrenceFor(exc.date);
-                        cal.binaryInsert(modifiedOccurrences, excItem, dateComptor, true);
+                        cal.data.binaryInsert(modifiedOccurrences, excItem, dateComptor, true);
                     }
                 }
             }
@@ -181,7 +181,7 @@ ltn.invitation = {
                 if (exc.startDate.compare(exc.recurrenceId) != 0 ||
                     exc.duration.compare(aEvent.duration) != 0 ||
                     excLocation != aEvent.getProperty("LOCATION")) {
-                    cal.binaryInsert(modifiedOccurrences, exc, dateComptor, true);
+                    cal.data.binaryInsert(modifiedOccurrences, exc, dateComptor, true);
                 }
             }
 

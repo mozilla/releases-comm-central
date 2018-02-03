@@ -135,6 +135,6 @@ calWeekPrinter.prototype = {
             return !a || !b ? -1 : a.compare(b);
         }
 
-        cal.binaryInsertNode(weekContainer, currentPage, currentPage.item, compareDates);
+        cal.data.binaryInsertNode(weekContainer, currentPage, currentPage.item, compareDates);
     }
 };

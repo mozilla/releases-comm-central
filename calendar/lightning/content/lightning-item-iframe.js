@@ -1032,7 +1032,7 @@ function dateTimeControls2State(aStartDatepicker) {
         } else {
             let timezone = gEndTimezone;
             if (timezone.isUTC) {
-                if (gStartTime && !cal.compareObjects(gStartTimezone, gEndTimezone)) {
+                if (gStartTime && !cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
                     timezone = gStartTimezone;
                 }
             }
@@ -1573,7 +1573,7 @@ function updateAccept() {
             let startTimezone = gStartTimezone;
             let endTimezone = gEndTimezone;
             if (endTimezone.isUTC) {
-                if (!cal.compareObjects(gStartTimezone, gEndTimezone)) {
+                if (!cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
                     endTimezone = gStartTimezone;
                 }
             }
@@ -3256,7 +3256,7 @@ function updateDateTime() {
             // the timezone of the endtime is "UTC", we convert
             // the endtime into the timezone of the starttime.
             if (startTime && endTime) {
-                if (!cal.compareObjects(startTime.timezone, endTime.timezone)) {
+                if (!cal.data.compareObjects(startTime.timezone, endTime.timezone)) {
                     if (endTime.timezone.isUTC) {
                         endTime = endTime.getInTimezone(startTime.timezone);
                     }

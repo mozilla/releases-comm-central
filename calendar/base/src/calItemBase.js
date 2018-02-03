@@ -580,7 +580,7 @@ calItemBase.prototype = {
     removeAttachment: function(aAttachment) {
         this.modify();
         for (let attIndex in this.mAttachments) {
-            if (cal.compareObjects(this.mAttachments[attIndex], aAttachment, Components.interfaces.calIAttachment)) {
+            if (cal.data.compareObjects(this.mAttachments[attIndex], aAttachment, Components.interfaces.calIAttachment)) {
                 this.modify();
                 this.mAttachments.splice(attIndex, 1);
                 break;
@@ -1029,7 +1029,7 @@ calItemBase.prototype = {
         this.modify();
         this.mAlarms = this.getAlarms({});
         for (let i = 0; i < this.mAlarms.length; i++) {
-            if (cal.compareObjects(this.mAlarms[i], aAlarm, Components.interfaces.calIAlarm)) {
+            if (cal.data.compareObjects(this.mAlarms[i], aAlarm, Components.interfaces.calIAlarm)) {
                 this.mAlarms.splice(i, 1);
                 break;
             }

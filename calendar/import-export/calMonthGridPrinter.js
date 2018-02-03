@@ -182,7 +182,7 @@ calMonthPrinter.prototype = {
             return !a || !b ? -1 : a.compare(b);
         }
 
-        cal.binaryInsertNode(monthContainer, currentMonth, currentMonth.item, compareDates);
+        cal.data.binaryInsertNode(monthContainer, currentMonth, currentMonth.item, compareDates);
     },
 
     setupWeek: function(document, weekContainer, startOfWeek, mainMonth, dayTable) {

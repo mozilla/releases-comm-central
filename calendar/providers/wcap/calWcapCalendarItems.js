@@ -238,7 +238,7 @@ function equalDatetimes(one, two) {
 function identicalDatetimes(one, two) {
     return (!one && !two) ||
             (equalDatetimes(one, two) &&
-             cal.compareObjects(one.timezone, two.timezone));
+             cal.data.compareObjects(one.timezone, two.timezone));
 }
 
 // @return null if nothing has changed else value to be written
