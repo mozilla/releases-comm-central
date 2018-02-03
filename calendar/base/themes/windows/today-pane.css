@@ -4,29 +4,25 @@
 
 @import url(chrome://calendar-common/skin/today-pane.css);
 
-@media (-moz-os-version: windows-win7) {
-  #today-pane-panel:-moz-lwtheme {
-    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
+.today-subpane {
+  border-bottom-color: ThreeDShadow;
+}
+
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+  #today-pane-panel:not(:-moz-lwtheme) {
+    --toolbox-border-bottom-color: #c2c2c2;
   }
 }
 
-#today-pane-panel:-moz-lwtheme > sidebarheader {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 19px);
+#today-pane-panel > sidebarheader {
+  height: 35px;
 }
 
-.today-pane-cycler {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  list-style-image: url("chrome://calendar-common/skin/view-cycler.svg");
-}
-
-.today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
-.today-pane-cycler[dir="next"]:-moz-locale-dir(rtl) > .toolbarbutton-icon {
-  transform: scaleX(-1);
-}
-
-.today-subpane {
-  border-color: ThreeDShadow;
+@media (-moz-os-version: windows-win7) {
+  #today-pane-panel > sidebarheader {
+    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
+  }
 }
 
 #mini-day-image {
@@ -37,13 +33,6 @@
        (-moz-os-version: windows-win10) {
   #mini-day-image {
     background-image: none;
-  }
-}
-
-@media (-moz-os-version: windows-win8) {
-  #mini-day-box {
-    padding-top: 1px;
-    padding-bottom: 1px;
   }
 }
 
@@ -74,19 +63,6 @@
 }
 
 @media (-moz-windows-default-theme) {
-  #today-pane-panel > sidebarheader {
-    -moz-appearance: none;
-    background-color: #f8f8f8;
-    border-bottom: none;
-  }
-
-  #today-pane-panel:-moz-lwtheme > sidebarheader {
-    background-image: linear-gradient(rgba(255, 255, 255, 0.4),
-                      rgba(255, 255, 255, 0.4));
-    background-color: transparent;
-    border-top-color: transparent;
-  }
-
   sidebarheader > spacer {
     min-height: 25px;
   }

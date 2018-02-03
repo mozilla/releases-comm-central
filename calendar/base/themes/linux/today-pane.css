@@ -4,19 +4,6 @@
 
 @import url(chrome://calendar-common/skin/today-pane.css);
 
-#today-pane-panel {
-  border-bottom: 1px solid ThreeDShadow;
-}
-
-#today-pane-panel:-moz-lwtheme {
-  box-shadow: 0 1px 0 rgba(255, 255, 255, .3) inset;
-}
-
-#today-pane-panel:-moz-lwtheme > sidebarheader {
-  background-color: transparent;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4));
-}
-
 #today-pane-splitter {
   -moz-appearance: none;
   border-bottom: 3px double ThreeDShadow;
@@ -29,23 +16,16 @@
   z-index: 10;
 }
 
+#today-pane-panel > sidebarheader {
+  height: 33px;
+}
+
 .today-pane-cycler {
   padding-inline-end: 0 !important;
 }
 
-.today-pane-cycler {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  list-style-image: url("chrome://calendar-common/skin/view-cycler.svg");
-}
-
-.today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
-.today-pane-cycler[dir="next"]:-moz-locale-dir(rtl) > .toolbarbutton-icon {
-  transform: scaleX(-1);
-}
-
 .today-subpane {
-  border-color: ThreeDShadow;
+  border-bottom-color: ThreeDShadow;
 }
 
 #mini-day-image {

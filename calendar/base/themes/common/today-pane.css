@@ -3,10 +3,10 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .today-subpane {
-  border-style: solid;
-  border-width: 1px 0;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
   margin-bottom: 3px;
-  padding: 0px;
+  padding: 0;
 }
 
 #buttonspacer {
@@ -25,8 +25,26 @@
   color: -moz-DialogText;
 }
 
+#today-pane-panel > sidebarheader {
+  -moz-appearance: none;
+  background-color: var(--toolbar-bgcolor, -moz-Dialog);
+  background-image: var(--toolbar-bgimage);
+  border-bottom: 1px solid var(--toolbox-border-bottom-color, ThreeDShadow);
+}
+
 #today-pane-panel:-moz-lwtheme > sidebarheader {
   color: inherit;
+}
+
+.today-pane-cycler {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  list-style-image: url("chrome://calendar-common/skin/view-cycler.svg");
+}
+
+.today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
+.today-pane-cycler[dir="next"]:-moz-locale-dir(rtl) > .toolbarbutton-icon {
+  transform: scaleX(-1);
 }
 
 #agenda-panel:-moz-lwtheme > vbox,

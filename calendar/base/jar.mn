@@ -230,8 +230,6 @@ calendar.jar:
     ../skin/osx/calendar/widgets/calendar-widgets.css                   (themes/osx/widgets/calendar-widgets.css)
     ../skin/osx/calendar/checkbox-images-graphite.png                   (themes/osx/images/checkbox-images-graphite.png)
     ../skin/osx/calendar/sidebar-item.png                               (themes/osx/images/sidebar-item.png)
-    ../skin/osx/calendar/spin-buttons.png                               (themes/osx/images/spin-buttons.png)
-    ../skin/osx/calendar/spin-buttons-active.png                        (themes/osx/images/spin-buttons-active.png)
 
 # Windows theme files
     ../skin/windows/calendar/cal-icon32.png                                 (themes/windows/images/cal-icon32.png)
