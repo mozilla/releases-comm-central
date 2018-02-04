@@ -44,7 +44,7 @@ mozmill-stage: $(MOZMILL_SHARED)
 mozmill: mozmill-stage
 	unset PYTHONHOME && cd $(MOZMILLDIR) && unset MACOSX_DEPLOYMENT_TARGET && \
 	$(MOZMILLPYTHON) runtestlist.py --list=$(srcdir)/mozmilltests.list \
-	--binary=$(MOZMILLPROGRAM) \
+	--binary="$(MOZMILLPROGRAM)" \
 	--dir=$(abspath $(MOZMILLDIR))/stage \
 	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
 	--plugins-path=$(ABS_DIST)/plugins \
@@ -55,7 +55,7 @@ mozmill-one: mozmill-stage
 	unset PYTHONHOME && cd $(MOZMILLDIR) && unset MACOSX_DEPLOYMENT_TARGET && \
 	$(MOZMILLPYTHON) runtest.py \
 	--test=$(abspath $(MOZMILLDIR))/stage/$(solo-test) \
-	--binary=$(MOZMILLPROGRAM) \
+	--binary="$(MOZMILLPROGRAM)" \
 	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
 	--plugins-path=$(ABS_DIST)/plugins \
 	$(MOZMILL_EXTRA)

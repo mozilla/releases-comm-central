@@ -127,7 +127,7 @@
                                         this._defaultPrincipal);
 
        return {
-         _sandbox: new Cu.Sandbox(principal),
+         _sandbox: new Cu.Sandbox(principal, { wantGlobalProperties: ["ChromeUtils"] }),
          _principal: principal,
          get globalScope() {
            return this._sandbox;

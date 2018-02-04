@@ -203,7 +203,7 @@ var backstage = this;
 
 function Session (transport) {
   this.transpart = transport;  // XXX Unused, needed to hold reference? Note the typo.
-  this.sandbox = Components.utils.Sandbox(backstage);
+  this.sandbox = Components.utils.Sandbox(backstage, { wantGlobalProperties: ["ChromeUtils"] });
   this.sandbox.bridge = new Bridge(this);
   this.sandbox.openPreferences = hwindow.openPreferences;
   try {
