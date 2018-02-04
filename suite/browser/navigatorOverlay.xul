@@ -447,10 +447,11 @@
                   key="key_gotoHistory"/>
         <menuseparator id="startHistorySeparator" hidden="true"/>
         <menuseparator id="endHistorySeparator" hidden="true"/>
+        <!-- Dead for now.
         <menuitem id="sync-tabs-menuitem"
                   label="&syncTabsMenu.label;"
                   oncommand="BrowserOpenSyncTabs();"
-                  disabled="true"/>
+                  disabled="true"/> -->
       </menupopup>
     </menu>
 

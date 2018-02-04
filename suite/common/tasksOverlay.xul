@@ -62,7 +62,7 @@
           <menuitem id="addonsmgr" label="&addOnsManagerCmd.label;"
                     accesskey="&addOnsManagerCmd.accesskey;"
                     key="key_addOnsManager" oncommand="toEM();"/>
-          <!-- only one of sync-setup or sync-syncnowitem will be showing at once -->
+          <!-- only one of sync-setup or sync-syncnowitem will be showing at once
           <menuitem id="sync-setup"
                     label="&syncSetup.label;"
                     accesskey="&syncSetup.accesskey;"
@@ -74,7 +74,7 @@
                     accesskey="&syncSyncNowItem.accesskey;"
                     observes="sync-syncnow-state"
                     oncommand="gSyncUI.doSync(event);"
-                    hidden="true"/>
+                    hidden="true"/> -->
           <menuseparator id="devToolsSeparator"/>
           <menu label="&webDevelopment.label;" accesskey="&webDevelopment.accesskey;">
             <menupopup id="toolsPopup">

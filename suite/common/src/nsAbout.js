@@ -32,8 +32,8 @@ About.prototype = {
   rightsURI: "chrome://branding/content/aboutRights.xhtml",
   sessionrestoreFlags: SCRIPT | HIDE,
   sessionrestoreURI: "chrome://communicator/content/aboutSessionRestore.xhtml",
-  synctabsFlags: SCRIPT,
-  synctabsURI: "chrome://communicator/content/aboutSyncTabs.xul",
+  // synctabsFlags: SCRIPT,
+  // synctabsURI: "chrome://communicator/content/aboutSyncTabs.xul",
 
   classID: Components.ID("{d54f2c89-8fd6-4eeb-a7a4-51d4dcdf460f}"),
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIAboutModule]),

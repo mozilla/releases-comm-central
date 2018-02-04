@@ -10,7 +10,7 @@ set_define('MOZ_SUITE', True)
 set_define('MOZ_SEPARATE_MANIFEST_FOR_THEME_OVERRIDES', True)
 
 imply_option('MOZ_PLACES', True)
-imply_option('MOZ_SERVICES_SYNC', True)
+imply_option('MOZ_SERVICES_SYNC', False)
 imply_option('MOZ_ALLOW_LEGACY_EXTENSIONS', True)
 
 imply_option('--enable-calendar', True)

@@ -186,12 +186,12 @@
         </treechildren>
       </treeitem>
 
-      <!-- Sync -->
+      <!-- Sync
       <treeitem id="syncItem"
                 label="&sync.label;"
                 prefpane="sync_pane"
                 url="chrome://communicator/content/pref/pref-sync.xul"
-                helpTopic="sync_prefs"/>
+                helpTopic="sync_prefs"/> -->
 
       <!-- Advanced items -->
       <treeitem container="true"

@@ -762,7 +762,7 @@ function OnLoadMessenger()
   mailToolbox.customizeChange = MailToolboxCustomizeChange;
 
   // initialize the sync UI
-  gSyncUI.init();
+  // gSyncUI.init();
 
   window.addEventListener("AppCommand", HandleAppCommandEvent, true);
 }

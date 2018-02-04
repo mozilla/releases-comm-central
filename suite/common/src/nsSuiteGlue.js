@@ -291,12 +291,12 @@ SuiteGlue.prototype = {
         if (Services.prefs.getBoolPref("browser.dom.window.console.enabled"))
           this._logConsoleAPI(subject.wrappedJSObject);
         break;
-      case "weave:service:ready":
-        this._setSyncAutoconnectDelay();
-        break;
-      case "weave:engine:clients:display-uri":
-        this._onDisplaySyncURI(subject);
-        break;
+//      case "weave:service:ready":
+//        this._setSyncAutoconnectDelay();
+//        break;
+//      case "weave:engine:clients:display-uri":
+//        this._onDisplaySyncURI(subject);
+//        break;
       case "session-save":
         this._setPrefToSaveSession();
         subject.QueryInterface(Components.interfaces.nsISupportsPRBool);

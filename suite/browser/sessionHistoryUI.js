@@ -65,7 +65,7 @@ function FillHistoryMenu(aParent, aMenu)
     case "go":
       var startHistory = document.getElementById("startHistorySeparator");
       var endHistory = document.getElementById("endHistorySeparator");
-      var syncMenuItem = document.getElementById("sync-tabs-menuitem");
+      // var syncMenuItem = document.getElementById("sync-tabs-menuitem");
       startHistory.hidden = (count == 0);
       end = count > MAX_HISTORY_MENU_ITEMS ? count - MAX_HISTORY_MENU_ITEMS
                                            : 0;
@@ -75,8 +75,9 @@ function FillHistoryMenu(aParent, aMenu)
         if (entry)
           createHistoryMenuItem(aParent, j, entry, endHistory, j == index);
       }
-      toggleTabsFromOtherComputers();
-      endHistory.hidden = (endHistory == aParent.lastChild || syncMenuItem.hidden);
+      // toggleTabsFromOtherComputers();
+      // endHistory.hidden = (endHistory == aParent.lastChild || syncMenuItem.hidden);
+      endHistory.hidden = (endHistory == aParent.lastChild);
       break;
   }
   return true;

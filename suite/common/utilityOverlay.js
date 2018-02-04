@@ -13,11 +13,11 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "Weave", function() {
-  let tmp = {};
-  Components.utils.import("resource://services-sync/main.js", tmp);
-  return tmp.Weave;
-});
+// XPCOMUtils.defineLazyGetter(this, "Weave", function() {
+//   let tmp = {};
+// Components.utils.import("resource://services-sync/main.js", tmp);
+//   return tmp.Weave;
+// });
 
 /*
   Note: All Editor/Composer-related methods have been moved to editorApplicationOverlay.js,

@@ -529,9 +529,9 @@
     </menupopup>
   </toolbarbutton>
 
-  <!-- Sync toolbar button -->
+  <!-- Sync toolbar button
   <toolbarbutton id="sync-button"
                  class="toolbarbutton-1 chromeclass-toolbar-additional"
                  label="&syncToolbarButton.label;"
-                 oncommand="gSyncUI.handleToolbarButton();"/>
+                 oncommand="gSyncUI.handleToolbarButton();"/> -->
 </overlay>
