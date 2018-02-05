@@ -229,7 +229,6 @@
 @RESPATH@/components/extensions.xpt
 @RESPATH@/components/extensions.manifest
 @RESPATH@/components/exthandler.xpt
-@RESPATH@/components/exthelper.xpt
 @RESPATH@/components/fastfind.xpt
 @RESPATH@/components/feeds.xpt
 @RESPATH@/components/gfx.xpt
@@ -293,7 +292,6 @@
 @RESPATH@/components/services-crypto-component.xpt
 @RESPATH@/components/shellservice.xpt
 @RESPATH@/components/shistory.xpt
-@RESPATH@/components/smile.xpt
 @RESPATH@/components/spellchecker.xpt
 @RESPATH@/components/storage.xpt
 @RESPATH@/components/SuiteBrowser.manifest
@@ -489,8 +487,6 @@
 @RESPATH@/components/ProcessSelector.manifest
 @RESPATH@/components/SlowScriptDebug.js
 @RESPATH@/components/SlowScriptDebug.manifest
-@RESPATH@/components/smileApplication.js
-@RESPATH@/components/smileApplication.manifest
 @RESPATH@/components/storage-json.js
 @RESPATH@/components/SuiteProfileMigrator.js
 @RESPATH@/components/SuiteProfileMigrator.manifest

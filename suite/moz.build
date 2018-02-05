@@ -20,7 +20,6 @@ DIRS += [
     'security',
     'shell/public',
     'shell/src',
-    'smile',
     '../common/src',
 ]
 

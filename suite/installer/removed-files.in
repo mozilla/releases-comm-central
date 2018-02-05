@@ -701,7 +701,6 @@ Throbber-small.gif
   @DIR_MACOS@components/PlacesCategoriesStarter.js
   @DIR_MACOS@components/SettingsManager.js
   @DIR_MACOS@components/SiteSpecificUserAgent.js
-  @DIR_MACOS@components/smileApplication.js
   @DIR_MACOS@components/smime-service.js
   @DIR_MACOS@components/storage-Legacy.js
   @DIR_MACOS@components/storage-mozStorage.js
@@ -1353,7 +1352,6 @@ components/xpautoc.dll
 @DIR_MACOS@components/saxparser.xpt
 @DIR_MACOS@components/shellservice.xpt
 @DIR_MACOS@components/shistory.xpt
-@DIR_MACOS@components/smile.xpt
 @DIR_MACOS@components/spellchecker.xpt
 @DIR_MACOS@components/storage.xpt
 @DIR_MACOS@components/suitebrowser.xpt
