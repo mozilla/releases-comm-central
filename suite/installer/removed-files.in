@@ -309,26 +309,6 @@ jsj3250.dll
 @DIR_MACOS@modules/mailViewManager.js
 @DIR_MACOS@modules/quickSearchManager.js
 @DIR_MACOS@modules/searchSpec.js
-@DIR_MACOS@modules/services-sync/async.js
-@DIR_MACOS@modules/services-sync/auth.js
-@DIR_MACOS@modules/services-sync/base_records/collection.js
-@DIR_MACOS@modules/services-sync/base_records/crypto.js
-@DIR_MACOS@modules/services-sync/base_records/keys.js
-@DIR_MACOS@modules/services-sync/base_records/wbo.js
-@DIR_MACOS@modules/services-sync/ext/Observers.js
-@DIR_MACOS@modules/services-sync/ext/Preferences.js
-@DIR_MACOS@modules/services-sync/ext/StringBundle.js
-@DIR_MACOS@modules/services-sync/ext/Sync.js
-@DIR_MACOS@modules/services-sync/log4moz.js
-@DIR_MACOS@modules/services-sync/stores.js
-@DIR_MACOS@modules/services-sync/trackers.js
-@DIR_MACOS@modules/services-sync/type_records/bookmark.js
-@DIR_MACOS@modules/services-sync/type_records/clients.js
-@DIR_MACOS@modules/services-sync/type_records/forms.js
-@DIR_MACOS@modules/services-sync/type_records/history.js
-@DIR_MACOS@modules/services-sync/type_records/passwords.js
-@DIR_MACOS@modules/services-sync/type_records/prefs.js
-@DIR_MACOS@modules/services-sync/type_records/tabs.js
 @DIR_MACOS@modules/SpatialNavigation.js
 #ifdef MOZ_STATIC_JS
 @DIR_MACOS@@DLL_PREFIX@mozjs@DLL_SUFFIX@
@@ -706,7 +686,6 @@ Throbber-small.gif
   @DIR_MACOS@components/storage-mozStorage.js
   @DIR_MACOS@components/TCPSocket.js
   @DIR_MACOS@components/txEXSLTRegExFunctions.js
-  @DIR_MACOS@components/Weave.js
   @DIR_MACOS@components/WebContentConverter.js
   @DIR_MACOS@components/browser.xpt
   @DIR_MACOS@components/binary.manifest
@@ -719,7 +698,6 @@ Throbber-small.gif
   @DIR_MACOS@defaults/pref/mdn.js
   @DIR_MACOS@defaults/pref/services-aitc.js
   @DIR_MACOS@defaults/pref/services-notifications.js
-  @DIR_MACOS@defaults/pref/services-sync.js
   @DIR_MACOS@defaults/pref/smime.js
   @DIR_MACOS@defaults/pref/suite-l10n.js
   @DIR_MACOS@defaults/autoconfig/
@@ -1036,30 +1014,6 @@ Throbber-small.gif
   @DIR_MACOS@modules/services-crypto/utils.js
   @DIR_MACOS@modules/services-crypto/WeaveCrypto.js
   @DIR_MACOS@modules/services-notifications/service.js
-  @DIR_MACOS@modules/services-sync/addonsreconciler.js
-  @DIR_MACOS@modules/services-sync/constants.js
-  @DIR_MACOS@modules/services-sync/engines/addons.js
-  @DIR_MACOS@modules/services-sync/engines/apps.js
-  @DIR_MACOS@modules/services-sync/engines/bookmarks.js
-  @DIR_MACOS@modules/services-sync/engines/clients.js
-  @DIR_MACOS@modules/services-sync/engines/forms.js
-  @DIR_MACOS@modules/services-sync/engines/history.js
-  @DIR_MACOS@modules/services-sync/engines.js
-  @DIR_MACOS@modules/services-sync/engines/passwords.js
-  @DIR_MACOS@modules/services-sync/engines/prefs.js
-  @DIR_MACOS@modules/services-sync/engines/tabs.js
-  @DIR_MACOS@modules/services-sync/identity.js
-  @DIR_MACOS@modules/services-sync/jpakeclient.js
-  @DIR_MACOS@modules/services-sync/keys.js
-  @DIR_MACOS@modules/services-sync/main.js
-  @DIR_MACOS@modules/services-sync/notifications.js
-  @DIR_MACOS@modules/services-sync/policies.js
-  @DIR_MACOS@modules/services-sync/record.js
-  @DIR_MACOS@modules/services-sync/resource.js
-  @DIR_MACOS@modules/services-sync/rest.js
-  @DIR_MACOS@modules/services-sync/service.js
-  @DIR_MACOS@modules/services-sync/status.js
-  @DIR_MACOS@modules/services-sync/util.js
   @DIR_MACOS@modules/templateUtils.js
   @DIR_MACOS@modules/traceHelper.js
   @DIR_MACOS@modules/UserAgentOverrides.jsm
@@ -1118,10 +1072,8 @@ Throbber-small.gif
 #else
   @DIR_MACOS@components/Aitc.js
   @DIR_MACOS@components/binary.manifest
-  @DIR_MACOS@components/Weave.js
   @DIR_MACOS@defaults/pref/services-aitc.js
   @DIR_MACOS@defaults/pref/services-notifications.js
-  @DIR_MACOS@defaults/pref/services-sync.js
   @DIR_MACOS@omni.ja
 #endif
 
