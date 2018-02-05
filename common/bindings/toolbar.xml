@@ -127,7 +127,7 @@
               throw new Error(`toolbar ID ${this.id}${tbName}: toolboxid attribute '${toolboxId}' points to a toolbox that doesn't exist`);
             }
 
-            if (toolbox.externalToolbars.indexOf(this) == -1)
+            if (!toolbox.externalToolbars.includes(this))
               toolbox.externalToolbars.push(this);
 
             return this._toolbox = toolbox;
@@ -404,9 +404,7 @@
           var defaultOrNoninteractive = (this.getAttribute("defaultset") || "")
                                           .split(",")
                                           .concat(["separator", "spacer", "spring"]);
-          return aCurrentSet.split(",").some(function(item) {
-            return defaultOrNoninteractive.indexOf(item) == -1;
-          });
+          return aCurrentSet.split(",").some(item => !defaultOrNoninteractive.includes(item));
         ]]></body>
       </method>
     </implementation>

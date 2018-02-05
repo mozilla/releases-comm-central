@@ -199,8 +199,8 @@ function checkRoundtrip(expectedProps, obj) {
                 icskey = "summary";
                 break;
         }
-        ok(icsdata.indexOf(icskey.toUpperCase()) > 0);
-        ok(icsdata.indexOf(expectedProps[key]) > 0);
+        ok(icsdata.includes(icskey.toUpperCase()));
+        ok(icsdata.includes(expectedProps[key]));
     }
 }
 

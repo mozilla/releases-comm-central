@@ -141,7 +141,7 @@ calStorageTimezone.prototype = {
  */
 function getTimezone(aTimezone) {
     let timezone = null;
-    if (aTimezone.indexOf("BEGIN:VTIMEZONE") == 0) {
+    if (aTimezone.startsWith("BEGIN:VTIMEZONE")) {
         timezone = gForeignTimezonesCache[aTimezone]; // using full definition as key
         if (!timezone) {
             try {

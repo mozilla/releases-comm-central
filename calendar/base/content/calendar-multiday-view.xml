@@ -3366,7 +3366,7 @@
                 }
                 setUpDayHeaderBox(dayHeaderBox, date);
 
-                if (this.mDaysOffArray.indexOf(date.weekday) >= 0) {
+                if (this.mDaysOffArray.includes(date.weekday)) {
                     dayEventsBox.dayOff = true;
                     dayHeaderBox.setAttribute("weekend", "true");
                 } else {
