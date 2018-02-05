@@ -564,6 +564,10 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   stroke-opacity: 0.5;
 }
 
+#button-newMsgPopup .menuitem-iconic {
+  fill: currentColor;
+}
+
 toolbar:not([mode="text"]) > #button-chat > stack,
 toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   margin: 1px;

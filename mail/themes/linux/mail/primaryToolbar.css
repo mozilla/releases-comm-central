@@ -166,6 +166,10 @@
   display: none;
 }
 
+#button-newMsgPopup .menuitem-iconic {
+  fill: currentColor;
+}
+
 toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   display: -moz-box;
 }
