@@ -34,9 +34,6 @@ suite/**
 calendar/lightning/content/lightning.js
 calendar/locales/en-US/lightning-l10n.js
 
-# gdata-provider uses non-standard javascript for Postbox compatibility
-calendar/providers/gdata/**
-
 # third party library
 calendar/base/modules/ical.js
 
