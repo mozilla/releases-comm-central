@@ -24,6 +24,9 @@ interface nsIDocShell;
 
 [scriptable, builtinclass, uuid(995455ba-5bb4-4643-8d70-2b877a2e1320)]
 interface nsIMsgMailNewsUrl : nsIURL {
+  [noscript,notxpcom,nostdcall]
+  nsresult setFileNameInternal(in ACString aFileName);
+
   ///////////////////////////////////////////////////////////////////////////////
   // Eventually we'd like to push this type of functionality up into nsIURI.
   // The idea is to allow the "application" (the part of the code which wants to

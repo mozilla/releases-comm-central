@@ -214,7 +214,7 @@ nsresult nsMailboxService::FetchMessage(const char* aMessageURI,
       msgUrl = do_QueryInterface(url);
       msgUrl->SetMsgWindow(aMsgWindow);
       if (aFileName)
-        msgUrl->SetFileName(nsDependentCString(aFileName));
+        msgUrl->SetFileNameInternal(nsDependentCString(aFileName));
     }
   }
 

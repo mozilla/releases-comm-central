@@ -440,7 +440,7 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(const char *aContentType,
     NS_ENSURE_SUCCESS(rv, rv);
 
     msgUrl->SetMsgWindow(aMsgWindow);
-    msgUrl->SetFileName(nsDependentCString(aFileName));
+    msgUrl->SetFileNameInternal(nsDependentCString(aFileName));
 // this code isn't ready yet, but it helps getting opening attachments
 // while offline working
 //   nsCOMPtr<nsIMsgMessageUrl> msgMessageUrl = do_QueryInterface(url);

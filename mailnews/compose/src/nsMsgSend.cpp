@@ -2054,23 +2054,24 @@ nsMsgComposeAndSend::AddCompFieldLocalAttachments()
             nsCOMPtr<nsIMIMEService> mimeFinder (do_GetService(NS_MIMESERVICE_CONTRACTID, &rv));
             if (NS_SUCCEEDED(rv) && mimeFinder)
             {
-              nsCOMPtr<nsIURL> fileUrl(do_CreateInstance(NS_STANDARDURL_CONTRACTID));
-              if (fileUrl)
+              nsCOMPtr<nsIURL> fileUrl;
+              rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+                     .Apply<nsIURLMutator>(&nsIURLMutator::SetFileName,
+                                           m_attachments[newLoc]->m_realName,
+                                           nullptr)
+                     .Finalize(fileUrl);
+              if (NS_SUCCEEDED(rv))
               {
                 nsAutoCString fileExt;
-                //First try using the real file name
-                rv = fileUrl->SetFileName(m_attachments[newLoc]->m_realName);
-                if (NS_SUCCEEDED(rv))
-                {
-                  rv = fileUrl->GetFileExtension(fileExt);
-                  if (NS_SUCCEEDED(rv) && !fileExt.IsEmpty()) {
-                    nsAutoCString type;
-                    mimeFinder->GetTypeFromExtension(fileExt, type);
-  #ifndef XP_MACOSX
-                    if (!type.EqualsLiteral("multipart/appledouble"))  // can't do apple double on non-macs
-  #endif
-                    m_attachments[newLoc]->m_type = type;
-                  }
+                // First try using the real file name.
+                rv = fileUrl->GetFileExtension(fileExt);
+                if (NS_SUCCEEDED(rv) && !fileExt.IsEmpty()) {
+                  nsAutoCString type;
+                  mimeFinder->GetTypeFromExtension(fileExt, type);
+#ifndef XP_MACOSX
+                  if (!type.EqualsLiteral("multipart/appledouble"))  // can't do apple double on non-macs
+#endif
+                  m_attachments[newLoc]->m_type = type;
                 }
 
                 //Then try using the url if we still haven't figured out the content type
