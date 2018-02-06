@@ -78,9 +78,10 @@ void nsMsgBodyHandler::Initialize()
   m_partIsHtml = false;
   m_base64part = false;
   m_isMultipart = false;
-  m_partIsText = true; // default is text/plain
+  m_partIsText = true; // Default is text/plain, maybe proven otherwise later.
   m_pastMsgHeaders = false;
   m_pastPartHeaders = false;
+  m_inMessageAttachment = false;
   m_headerBytesRead = 0;
 }
 
@@ -241,8 +242,17 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
 
     SniffPossibleMIMEHeader(buf);
 
-    m_pastPartHeaders = buf.IsEmpty() || buf.First() == '\r' ||
-      buf.First() == '\n';
+    if (buf.IsEmpty() || buf.First() == '\r' || buf.First() == '\n') {
+      if (!m_inMessageAttachment) {
+        m_pastPartHeaders = true;
+      } else {
+        // We're in a message attachment and have just read past the
+        // part header for the attached message. We now need to read
+        // the message headers and any part headers.
+        // We can now forget about the special handling of attached messages.
+        m_inMessageAttachment = false;
+      }
+    }
 
     // We set m_pastMsgHeaders to 'true' only once.
     if (m_pastPartHeaders)
@@ -379,17 +389,7 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
       m_partIsText = true;
       m_partIsHtml = true;
     }
-    // Strenuous edge case: a message/rfc822 is equivalent to the content type
-    // of whatever the message is. Headers should be ignored here. Even more
-    // strenuous are message/partial and message/external-body, where the first
-    // case requires reassembly across messages and the second is actually an
-    // external source. And of course, there are other message types to handle.
-    // RFC 3798 complicates things with the message/disposition-notification
-    // MIME type. message/rfc822 is best treated as a multipart with no proper
-    // boundary; since we only use boundaries for retriggering the headers,
-    // the lack of one can safely be ignored.
-    else if (lowerCaseLine.Find("multipart/", /* ignoreCase = */ true) != -1 ||
-             lowerCaseLine.Find("message/", /* ignoreCase = */ true) != -1)
+    else if (lowerCaseLine.Find("multipart/", /* ignoreCase = */ true) != -1)
     {
       if (m_isMultipart)
       {
@@ -402,10 +402,19 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
       m_isMultipart = true;
       m_partCharset.Truncate();
     }
+    else if (lowerCaseLine.Find("message/", /* ignoreCase = */ true) != -1)
+    {
+      // Initialise again.
+      m_base64part = false;
+      m_pastPartHeaders = false;
+      m_partIsHtml = false;
+      m_partIsText = true;  // Default is text/plain, maybe proven otherwise later.
+      m_inMessageAttachment = true;
+    }
     else if (lowerCaseLine.Find("text/", /* ignoreCase = */ true) != -1)
       m_partIsText = true;
     else if (lowerCaseLine.Find("text/", /* ignoreCase = */ true) == -1)
-      m_partIsText = false; // We have disproved our assumption
+      m_partIsText = false; // We have disproven our assumption.
   }
 
   int32_t start;

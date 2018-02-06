@@ -97,6 +97,7 @@ protected:
   bool m_base64part;      // true if the current part is in base64
   bool m_isMultipart;     // true if the message is a multipart/* message
   bool m_partIsText;      // true if the current part is text/*
+  bool m_inMessageAttachment; // true if current part is message/*
 
   nsTArray<nsCString> m_boundaries;  // The boundary strings to look for
   nsCString m_partCharset; // The charset found in the part

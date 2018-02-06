@@ -70,7 +70,13 @@ var Files =
   "../../../data/27-plaintext+(HTML+embedded-image).eml",  // HTML part is base64 encoded
   "../../../data/28-plaintext+HTML+attachment.eml",
   "../../../data/29-(HTML+embedded-image)+attachment.eml",
-  "../../../data/30-plaintext+(HTML+embedded-image)+attachment.eml"  // using windows-1252
+  "../../../data/30-plaintext+(HTML+embedded-image)+attachment.eml",  // using windows-1252
+
+  // Messages with message attachments, Content-Type: message/rfc822.
+  "../../../data/multipart-message-1.eml",  // plaintext, has "bodyOfAttachedMessagePlain"
+  "../../../data/multipart-message-2.eml",  // plaintext, base64, non-ASCII, has "bodyOfAttachedMessagePläin"
+  "../../../data/multipart-message-3.eml",  // plaintext+HTML, non-ASCII in plaintext, has "bodyOfAttachedMessagePläin"
+  "../../../data/multipart-message-4.eml",  // plaintext+HTML, non-ASCII in HTML, has "bodyOfAttachedMessägeHTML"
 ]
 var Tests =
 [
@@ -118,6 +124,14 @@ var Tests =
 
   // Messages 16, 17, 18, 20 contain "hähä" in the plaintext part.
   { value: "hähä", op: Contains, count: 4 },
+
+  // The four messages with message/rfc822 attachment contain "bodyOfAttachedMessagePlain"
+  // or "bodyOfAttachedMessagePläin" in the plaintext part and "bodyOfAttachedMessageHTML"
+  // or "bodyOfAttachedMessägeHTML" in the HTML part.
+  { value: "bodyOfAttachedMessagePlain", op: Contains, count: 2 },
+  { value: "bodyOfAttachedMessagePläin", op: Contains, count: 2 },
+  { value: "bodyOfAttachedMessageHTML", op: Contains, count: 1 },
+  { value: "bodyOfAttachedMessägeHTML", op: Contains, count: 1 },
 ];
 
 function fixFile(file) {
