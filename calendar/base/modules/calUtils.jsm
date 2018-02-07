@@ -755,6 +755,7 @@ var cal = {
 XPCOMUtils.defineLazyModuleGetter(cal, "data", "resource://calendar/modules/calDataUtils.jsm", "caldata");
 XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDateTimeUtils.jsm", "caldtz");
 XPCOMUtils.defineLazyModuleGetter(cal, "acl", "resource://calendar/modules/calACLUtils.jsm", "calacl");
+XPCOMUtils.defineLazyModuleGetter(cal, "category", "resource://calendar/modules/calCategoryUtils.jsm", "calcategory");
 XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/calItemUtils.jsm", "calitem");
 XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/calViewUtils.jsm", "calview");
 XPCOMUtils.defineLazyModuleGetter(cal, "window", "resource://calendar/modules/calWindowUtils.jsm", "calwindow");

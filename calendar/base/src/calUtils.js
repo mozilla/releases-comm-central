@@ -8,12 +8,9 @@
  */
 
 /* exported getCalendarDirectory, attendeeMatchesAddresses,
- *          calRadioGroupSelectItem, getPrefCategoriesArray,
- *          setPrefCategoriesFromArray, calTryWrappedJSObject, LOG, WARN,
- *          ERROR, showError, getContrastingTextColor, sendMailTo,
- *          applyAttributeToMenuChildren, isPropertyValueSame,
- *          getParentNodeOrThis, getParentNodeOrThisByAttribute,
- *          calIterateEmailIdentities, getCompositeCalendar
+ *          calTryWrappedJSObject, compareObjects, LOG, WARN, ERROR, showError,
+ *          sendMailTo, applyAttributeToMenuChildren, isPropertyValueSame,
+ *          calIterateEmailIdentities, calGetString
  */
 
 ChromeUtils.import("resource:///modules/mailServices.js");
@@ -77,91 +74,6 @@ function attendeeMatchesAddresses(anAttendee, addresses) {
 /**
  * Other functions
  */
-
-/**
- * Get array of category names from preferences or locale default,
- * unescaping any commas in each category name.
- * @return array of category names
- */
-function getPrefCategoriesArray() {
-    let categories = Preferences.get("calendar.categories.names", null);
-
-    // If no categories are configured load a default set from properties file
-    if (!categories) {
-        categories = setupDefaultCategories();
-    }
-    return categoriesStringToArray(categories);
-}
-
-/**
- * Sets up the default categories from the localized string
- *
- * @return      The default set of categories as a comma separated string.
- */
-function setupDefaultCategories() {
-    // First, set up the category names
-    let categories = calGetString("categories", "categories2");
-    Preferences.set("calendar.categories.names", categories);
-
-    // Now, initialize the category default colors
-    let categoryArray = categoriesStringToArray(categories);
-    for (let category of categoryArray) {
-        let prefName = cal.view.formatStringForCSSRule(category);
-        Preferences.set("calendar.category.color." + prefName,
-                        cal.view.hashColor(category));
-    }
-
-    // Return the list of categories for further processing
-    return categories;
-}
-
-/**
- * Convert categories string to list of category names.
- *
- * Stored categories may include escaped commas within a name.
- * Split categories string at commas, but not at escaped commas (\,).
- * Afterward, replace escaped commas (\,) with commas (,) in each name.
- * @param aCategoriesPrefValue string from "calendar.categories.names" pref,
- * which may contain escaped commas (\,) in names.
- * @return list of category names
- */
-function categoriesStringToArray(aCategories) {
-    if (!aCategories) {
-        return [];
-    }
-    // \u001A is the unicode "SUBSTITUTE" character
-    function revertCommas(name) { return name.replace(/\u001A/g, ","); }
-    let categories = aCategories.replace(/\\,/g, "\u001A").split(",").map(revertCommas);
-    if (categories.length == 1 && categories[0] == "") {
-        // Split will return an array with an empty element when splitting an
-        // empty string, correct this.
-        categories.pop();
-    }
-    return categories;
-}
-
-/**
- * Set categories preference, escaping any commas in category names.
- * @param aCategoriesArray array of category names,
- * may contain unescaped commas which will be escaped in combined pref.
- */
-function setPrefCategoriesFromArray(aCategoriesArray) {
-    Preferences.set("calendar.categories.names",
-                     categoriesArrayToString(aCategoriesList));
-}
-
-/**
- * Convert array of category names to string.
- *
- * Category names may contain commas (,).  Escape commas (\,) in each,
- * then join them in comma separated string for storage.
- * @param aSortedCategoriesArray sorted array of category names,
- * may contain unescaped commas, which will be escaped in combined string.
- */
-function categoriesArrayToString(aSortedCategoriesArray) {
-    function escapeComma(category) { return category.replace(/,/g, "\\,"); }
-    return aSortedCategoriesArray.map(escapeComma).join(",");
-}
 
 /**
  * Gets the value of a string in a .properties file from the calendar bundle

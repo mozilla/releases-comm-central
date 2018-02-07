@@ -23,6 +23,12 @@ var migrations = {
         userCanDeleteItemsFromCalendar: "userCanDeleteItemsFromCalendar",
         userCanModifyItem: "userCanModifyItem"
     },
+    category: {
+        setupDefaultCategories: "setupDefaultCategories",
+        getPrefCategoriesArray: "fromPrefs",
+        categoriesStringToArray: "stringToArray",
+        categoriesArrayToString: "arrayToString"
+    },
     data: {
         binarySearch: "binarySearch",
         binaryInsertNode: "binaryInsertNode",

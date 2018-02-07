@@ -53,13 +53,6 @@ var gCategoriesPane = {
 
         gCategoryList = cal.categoriesStringToArray(categories);
 
-        // When categories is empty, split returns an array containing one empty
-        // string, rather than an empty array. This results in an empty listbox
-        // child with no corresponding category.
-        if (gCategoryList.length == 1 && !gCategoryList[0].length) {
-            gCategoryList.pop();
-        }
-
         this.updateCategoryList();
 
         this.mCategoryDialog = "chrome://calendar/content/preferences/editCategory.xul";

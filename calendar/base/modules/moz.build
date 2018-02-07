@@ -8,6 +8,7 @@ EXTRA_JS_MODULES += [
     'calAlarmUtils.jsm',
     'calAsyncUtils.jsm',
     'calAuthUtils.jsm',
+    'calCategoryUtils.jsm',
     'calDataUtils.jsm',
     'calDateTimeUtils.jsm',
     'calExtract.jsm',
