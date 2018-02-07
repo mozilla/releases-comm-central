@@ -19,7 +19,7 @@
 
           // Process maxRows per chunk to improve performance and user experience
           for (let i = 0; i < this.maxRows; i++) {
-            if (this._currentIndex >= this._matchCount)
+            if (this._currentIndex >= this.matchCount)
               return;
 
             var existingItemsCount = this.richlistbox.childNodes.length;
