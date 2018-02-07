@@ -5,8 +5,6 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-var Ci = Components.interfaces;
-
 var ITIP_HANDLER_MIMETYPE = "application/x-itip-internal";
 var ITIP_HANDLER_PROTOCOL = "moz-cal-handle-itip";
 var NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;

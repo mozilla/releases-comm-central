@@ -19,8 +19,6 @@ ChromeUtils.defineModuleGetter(this, "NetUtil", "resource://gre/modules/NetUtil.
 
 updateAppInfo();
 
-var { classes: Cc, interfaces: Ci, results: Cr, utils: Cu } = Components;
-
 (function() {
     let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);
     bindir.append("extensions");

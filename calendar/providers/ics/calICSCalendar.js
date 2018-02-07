@@ -19,7 +19,6 @@ ChromeUtils.import("resource://calendar/modules/calProviderUtils.jsm");
 //
 // XXX Should do locks, so that external changes are not overwritten.
 
-var Ci = Components.interfaces;
 var calICalendar = Components.interfaces.calICalendar;
 var calIErrors = Components.interfaces.calIErrors;
 
