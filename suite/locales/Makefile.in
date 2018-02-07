@@ -146,7 +146,7 @@ ifdef MOZ_CALENDAR
 endif
 	$(NSINSTALL) -D $(DIST)/install
 	@$(MAKE) -C $(DEPTH)/toolkit/locales libs-$*
-	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
+#	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../editor/ui/locales AB_CD=$* XPI_NAME=locale-$*
 ifdef MOZ_IRC
 	@$(MAKE) -C $(DEPTH)/extensions/irc/locales libs-$*
