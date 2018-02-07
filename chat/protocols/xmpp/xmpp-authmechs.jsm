@@ -12,8 +12,6 @@
 
 this.EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
 
-var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-
 ChromeUtils.import("resource://services-crypto/utils.js");
 ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 

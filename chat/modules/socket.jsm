@@ -78,7 +78,6 @@
 
 this.EXPORTED_SYMBOLS = ["Socket"];
 
-var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");

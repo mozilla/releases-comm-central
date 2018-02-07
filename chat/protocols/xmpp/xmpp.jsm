@@ -9,8 +9,6 @@ this.EXPORTED_SYMBOLS = [
   "XMPPAccountPrototype"
 ];
 
-var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-
 ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");

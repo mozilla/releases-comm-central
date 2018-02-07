@@ -10,8 +10,6 @@
 
 this.EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];
 
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 

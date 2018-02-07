@@ -10,8 +10,6 @@
 
 this.EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
 
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/ircHandlers.jsm");

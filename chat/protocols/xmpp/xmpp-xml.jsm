@@ -4,8 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ["Stanza", "XMPPParser", "SupportedFeatures"];
 
-var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
-
 var NS = {
   xml                       : "http://www.w3.org/XML/1998/namespace",
   xhtml                     : "http://www.w3.org/1999/xhtml",

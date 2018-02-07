@@ -19,8 +19,6 @@
 
 this.EXPORTED_SYMBOLS = ["ircCAP"];
 
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 

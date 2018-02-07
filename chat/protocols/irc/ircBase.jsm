@@ -19,8 +19,6 @@
  */
 this.EXPORTED_SYMBOLS = ["ircBase"];
 
-var {interfaces: Ci, utils: Cu} = Components;
-
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/ircHandlers.jsm");

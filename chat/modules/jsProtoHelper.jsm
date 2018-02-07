@@ -15,8 +15,6 @@ this.EXPORTED_SYMBOLS = [
   "TooltipInfo"
 ];
 
-var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
-
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/imServices.jsm");
 

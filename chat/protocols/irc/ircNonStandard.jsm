@@ -14,8 +14,6 @@
  */
 this.EXPORTED_SYMBOLS = ["ircNonStandard"];
 
-var {interfaces: Ci, utils: Cu} = Components;
-
 ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 

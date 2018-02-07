@@ -14,8 +14,6 @@ this.EXPORTED_SYMBOLS = [
   "serializeSelection"
 ];
 
-var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-
 ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");

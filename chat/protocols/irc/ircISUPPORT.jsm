@@ -14,8 +14,6 @@
 
 this.EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
 
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 

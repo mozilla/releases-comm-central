@@ -9,7 +9,6 @@ this.EXPORTED_SYMBOLS = [
 ];
 
 ChromeUtils.import("resource:///modules/imServices.jsm");
-var Ci = Components.interfaces;
 
 var MessageFormat = {
   _observedPrefs: [],
