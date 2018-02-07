@@ -184,7 +184,7 @@
         <parameter name="aItem"/>
         <body><![CDATA[
             let categoryListbox = document.getAnonymousElementByAttribute(this, "anonid", "categories-listbox");
-            let categoryList = cal.getPrefCategoriesArray();
+            let categoryList = cal.category.fromPrefs();
 
             cal.sortArrayByLocaleCollator(categoryList);
 

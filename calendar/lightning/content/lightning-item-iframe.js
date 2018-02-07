@@ -595,7 +595,7 @@ function loadDialog(aItem) {
     // Categories
     if (gNewItemUI) {
         // XXX more to do here with localization, see loadCategories.
-        itemProps.initialCategoriesList = cal.sortArrayByLocaleCollator(cal.getPrefCategoriesArray());
+        itemProps.initialCategoriesList = cal.sortArrayByLocaleCollator(cal.category.fromPrefs());
         itemProps.initialCategories = aItem.getCategories({});
 
         // just to demo capsules component

@@ -47,11 +47,11 @@ var gCategoriesPane = {
 
         // If no categories are configured load a default set from properties file
         if (!categories) {
-            categories = cal.setupDefaultCategories();
+            categories = cal.category.setupDefaultCategories();
             document.getElementById("calendar.categories.names").value = categories;
         }
 
-        gCategoryList = cal.categoriesStringToArray(categories);
+        gCategoryList = cal.category.stringToArray(categories);
 
         this.updateCategoryList();
 
@@ -78,7 +78,7 @@ var gCategoriesPane = {
     updatePrefs: function() {
         cal.sortArrayByLocaleCollator(gCategoryList);
         document.getElementById("calendar.categories.names").value =
-            cal.categoriesArrayToString(gCategoryList);
+            cal.category.arrayToString(gCategoryList);
     },
 
     updateCategoryList: function() {

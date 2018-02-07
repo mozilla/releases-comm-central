@@ -1730,7 +1730,7 @@ calStorageCalendar.prototype = {
                             // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
                             break;
                         case "CATEGORIES": {
-                            let cats = cal.categoriesStringToArray(row.value);
+                            let cats = cal.category.stringToArray(row.value);
                             item.setCategories(cats.length, cats);
                             break;
                         }
@@ -2164,7 +2164,7 @@ calStorageCalendar.prototype = {
         let cats = item.getCategories({});
         if (cats.length > 0) {
             ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
-            this.writeProperty(item, "CATEGORIES", cal.categoriesArrayToString(cats));
+            this.writeProperty(item, "CATEGORIES", cal.category.arrayToString(cats));
         }
 
         return ret;
