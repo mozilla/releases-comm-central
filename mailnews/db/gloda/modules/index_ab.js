@@ -4,11 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaABIndexer', 'GlodaABAttrs'];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/gloda/collection.js");
 ChromeUtils.import("resource:///modules/gloda/datastore.js");
 ChromeUtils.import("resource:///modules/gloda/gloda.js");

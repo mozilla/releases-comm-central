@@ -14,11 +14,6 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaMsgIndexer'];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");

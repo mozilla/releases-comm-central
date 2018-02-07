@@ -9,8 +9,6 @@
 
 this.EXPORTED_SYMBOLS = ["fixIterator", "toXPCOMArray", "toArray"];
 
-var Ci = Components.interfaces;
-
 var JS_HAS_SYMBOLS = typeof Symbol === "function";
 var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
 

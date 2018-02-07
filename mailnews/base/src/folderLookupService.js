@@ -10,10 +10,6 @@
 
 "use strict";
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function isValidFolder(folder) {

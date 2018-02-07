@@ -21,7 +21,6 @@ var gOrigin = 0; // Default value: alert from bottom right.
 
 function prefillAlertInfo()
 {
-  const Ci = Components.interfaces;
   // unwrap all the args....
   // arguments[0] --> nsIArray of folders with new mail
   // arguments[1] --> the observer to call back with notifications about the alert

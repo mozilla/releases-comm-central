@@ -5,8 +5,6 @@
 
 this.EXPORTED_SYMBOLS = ["Feed", "FeedItem", "FeedParser", "FeedUtils"];
 
-var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource:///modules/MailUtils.js");

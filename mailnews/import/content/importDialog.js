@@ -21,7 +21,6 @@ var gSelectedModuleName = null;
 var gAddInterface = null;
 var gNewFeedAcctCreated = false;
 
-var Ci = Components.interfaces;
 var nsISupportsString = Ci.nsISupportsString;
 
 function OnLoadImportDialog()

@@ -4,11 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaQueryClassFactory"];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 // GlodaDatastore has some constants we need, and oddly enough, there was no

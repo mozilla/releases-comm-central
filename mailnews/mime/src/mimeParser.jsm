@@ -27,9 +27,6 @@ var ExtractHeadersAndBodyEmitter = {
   }
 };
 
-var Ci = Components.interfaces;
-var Cc = Components.classes;
-
 /// Sets appropriate default options for chrome-privileged environments
 function setDefaultParserOptions(opts) {
   if (!("onerror" in opts)) {

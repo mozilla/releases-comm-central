@@ -19,9 +19,6 @@ var EXPORTED_SYMBOLS = [
   "AuthCRAM"
 ];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-
 /**
  * Implements AUTH PLAIN
  * @see RFC 4616

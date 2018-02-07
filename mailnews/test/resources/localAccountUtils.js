@@ -8,9 +8,6 @@ this.EXPORTED_SYMBOLS = ['localAccountUtils'];
 ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
 var CC = Components.Constructor;
 
 // Local Mail Folders. Requires prior setup of profile directory

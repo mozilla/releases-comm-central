@@ -71,7 +71,6 @@ saveAsUrlListener.prototype = {
 function* saveAsTemplate() {
   let hdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let uri = IMAPPump.inbox.getUriForMsg(hdr);
-  const Ci = Components.interfaces;
   let identity = MailServices.accounts
                   .getFirstIdentityForServer(IMAPPump.incomingServer);
   identity.stationeryFolder = IMAPPump.incomingServer.rootFolder.URI + "/Templates";

@@ -4,11 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaUtils'];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/mailServices.js");
 
 /**

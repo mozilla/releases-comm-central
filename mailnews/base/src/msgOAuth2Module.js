@@ -4,10 +4,6 @@
 
 "use strict";
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-
 ChromeUtils.import("resource:///modules/OAuth2.jsm");
 ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");

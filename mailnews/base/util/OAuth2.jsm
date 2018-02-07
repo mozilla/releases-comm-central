@@ -7,8 +7,6 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2"];
 
-var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
-
 ChromeUtils.import("resource://gre/modules/Http.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");

@@ -1,8 +1,5 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-
 function TestMailImpoter() {
 };
 

@@ -6,11 +6,6 @@ this.EXPORTED_SYMBOLS = ['Log4Moz'];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 var MODE_RDONLY   = 0x01;
 var MODE_WRONLY   = 0x02;
 var MODE_CREATE   = 0x08;

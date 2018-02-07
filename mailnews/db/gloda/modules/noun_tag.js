@@ -6,11 +6,6 @@ this.EXPORTED_SYMBOLS = ['TagNoun'];
 
 ChromeUtils.import("resource:///modules/mailServices.js");
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 /**

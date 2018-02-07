@@ -3,11 +3,7 @@
 
 // Test proper location of new imap offline subfolders for maildir.
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
 var CC = Components.Constructor;
-var Cu = Components.utils;
 
 // async support
 load("../../../resources/logHelper.js");

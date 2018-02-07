@@ -6,8 +6,6 @@
 // This file is the component definition for a demo base implementation of a
 // javascript nsIMsgProtocolInfo implementation.
 
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
-
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 

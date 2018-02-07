@@ -228,7 +228,6 @@ function secureSelect(aLoading)
     var portDefault = document.getElementById("defaultPort");
     var prevDefaultPort = portDefault.value;
 
-    const Ci = Components.interfaces;
     if (socketType == Ci.nsMsgSocketType.SSL) {
       portDefault.value = defaultPortSecure;
       if (port.value == "" || (!aLoading && port.value == defaultPort && prevDefaultPort != portDefault.value))

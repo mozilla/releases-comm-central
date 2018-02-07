@@ -6,11 +6,6 @@ this.EXPORTED_SYMBOLS = ["GlodaAttributeDBDef", "GlodaAccount",
                     "GlodaConversation", "GlodaFolder", "GlodaMessage",
                     "GlodaContact", "GlodaIdentity", "GlodaAttachment"];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/mailServices.js");
 
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");

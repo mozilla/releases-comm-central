@@ -11,9 +11,6 @@ ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
 var CC = Components.Constructor;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.

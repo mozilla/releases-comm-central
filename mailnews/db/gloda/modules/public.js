@@ -4,11 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ["Gloda"];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/gloda/gloda.js");
 ChromeUtils.import("resource:///modules/gloda/everybody.js");
 ChromeUtils.import("resource:///modules/gloda/indexer.js");

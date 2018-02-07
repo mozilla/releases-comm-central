@@ -11,8 +11,6 @@ ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var {classes: Cc, interfaces: Ci} = Components;
-
 var FeedSubscriptions = {
   get mMainWin() { return Services.wm.getMostRecentWindow("mail:3pane"); },
 

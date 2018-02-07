@@ -603,7 +603,6 @@ var gInbox;
 
 function run_test() {
   registerCleanupFunction(function() {
-    const Cu = Components.utils;
     ChromeUtils.import("resource:///modules/gloda/datastore.js");
     GlodaDatastore.shutdown();
   });

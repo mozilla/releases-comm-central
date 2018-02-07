@@ -7,7 +7,6 @@ var gSelectVirtual = {
   _selectedList: new Set(),
 
   load: function() {
-    let Ci = Components.interfaces;
     let folderLookup = Components.classes["@mozilla.org/mail/folder-lookup;1"]
                                  .getService(Ci.nsIFolderLookupService);
     if (window.arguments[0].searchFolderURIs) {

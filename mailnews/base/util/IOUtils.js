@@ -6,8 +6,6 @@ this.EXPORTED_SYMBOLS = ["IOUtils"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
 var kStringBlockSize = 4096;
 var kStreamBlockSize = 8192;
 

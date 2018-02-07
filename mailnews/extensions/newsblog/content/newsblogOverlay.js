@@ -309,8 +309,6 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
   else
   {
     // Set up the compose message and get the feed message's web page link.
-    let Cc = Components.classes;
-    let Ci = Components.interfaces;
     let msgHdr = aMsgHdr;
     let type = aType;
     let msgComposeType = Ci.nsIMsgCompType;

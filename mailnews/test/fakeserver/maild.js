@@ -14,9 +14,6 @@ var EXPORTED_SYMBOLS = [
   'fsDebugNone', 'fsDebugAll', 'fsDebugRecv', 'fsDebugRecvSend'
 ];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
 var CC = Components.Constructor;
 
 /**

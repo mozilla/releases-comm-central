@@ -7,10 +7,6 @@
   a mailnews URL extended for a hypthetical account type "foo".
 **/
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
 var CE = Components.Exception;
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");

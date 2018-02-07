@@ -7,8 +7,6 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2Providers"];
 
-var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
-
 // map of hostnames to [issuer, scope]
 var kHostnames = new Map([
   ["imap.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],

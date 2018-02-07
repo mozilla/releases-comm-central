@@ -7,11 +7,6 @@ this.EXPORTED_SYMBOLS = ['MsgHdrToMimeMessage',
                           'MimeBody', 'MimeUnknown',
                           'MimeMessageAttachment'];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 

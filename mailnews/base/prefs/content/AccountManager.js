@@ -1500,7 +1500,6 @@ var gAccountTree = {
   },
 
   _build: function at_build() {
-    const Ci = Components.interfaces;
     var bundle = document.getElementById("bundle_prefs");
     function getString(aString) { return bundle.getString(aString); }
     var panels = [{string: getString("prefPanel-server"), src: "am-server.xul"},

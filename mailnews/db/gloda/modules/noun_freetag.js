@@ -4,11 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ['FreeTag', 'FreeTagNoun'];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 ChromeUtils.import("resource:///modules/gloda/gloda.js");

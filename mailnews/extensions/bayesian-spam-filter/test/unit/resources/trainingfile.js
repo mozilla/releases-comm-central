@@ -11,8 +11,6 @@ function TrainingData() {
 
   // local constants
 
-  const Cc = Components.classes;
-  const Ci = Components.interfaces;
   const CC = Components.Constructor;
 
   // public methods
