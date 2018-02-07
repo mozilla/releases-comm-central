@@ -211,9 +211,7 @@
 @RESPATH@/components/dom_range.xpt
 @RESPATH@/components/dom_security.xpt
 @RESPATH@/components/dom_sidebar.xpt
-@RESPATH@/components/dom_smil.xpt
 @RESPATH@/components/dom_storage.xpt
-@RESPATH@/components/dom_svg.xpt
 @RESPATH@/components/dom_system.xpt
 #ifdef MOZ_WEBSPEECH
 @RESPATH@/components/dom_webspeechrecognition.xpt
@@ -222,7 +220,6 @@
 @RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xbl.xpt
 @RESPATH@/components/dom_xhr.xpt
-@RESPATH@/components/dom_xpath.xpt
 @RESPATH@/components/dom_xul.xpt
 @RESPATH@/components/downloads.xpt
 @RESPATH@/components/editor.xpt

@@ -910,7 +910,6 @@ uninstall/uninstall.exe
   components/dom_range.xpt
   components/dom_views.xpt
   components/dom_xbl.xpt
-  components/dom_xpath.xpt
   components/dom_xul.xpt
   components/editor.xpt
   components/embed_base.xpt
@@ -1039,13 +1038,10 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/dom_offline.xpt
   @DIR_MACOS@components/dom_range.xpt
   @DIR_MACOS@components/dom_sidebar.xpt
-  @DIR_MACOS@components/dom_smil.xpt
   @DIR_MACOS@components/dom_storage.xpt
-  @DIR_MACOS@components/dom_svg.xpt
   @DIR_MACOS@components/dom_threads.xpt
   @DIR_MACOS@components/dom_views.xpt
   @DIR_MACOS@components/dom_xbl.xpt
-  @DIR_MACOS@components/dom_xpath.xpt
   @DIR_MACOS@components/dom_xul.xpt
   @DIR_MACOS@components/downloads.xpt
   @DIR_MACOS@components/editor.xpt

@@ -80,7 +80,6 @@ components/accessibility-msaa.xpt
 #ifdef XP_MACOSX
 # these 2 files were added after we started linking...
 components/content.xpt
-components/dom_smil.xpt
 #else
 components/accessibility.xpt
 components/alerts.xpt
@@ -121,11 +120,9 @@ components/dom_offline.xpt
 components/dom_range.xpt
 components/dom_sidebar.xpt
 components/dom_storage.xpt
-components/dom_svg.xpt
 components/dom_threads.xpt
 components/dom_views.xpt
 components/dom_xbl.xpt
-components/dom_xpath.xpt
 components/dom_xul.xpt
 components/downloads.xpt
 components/editor.xpt
