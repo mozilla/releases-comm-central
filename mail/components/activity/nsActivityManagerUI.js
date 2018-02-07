@@ -8,10 +8,6 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 //// Constants
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-
 var ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xul";
 var PREF_FLASH_COUNT = "messenger.activity.manager.flashCount";
 

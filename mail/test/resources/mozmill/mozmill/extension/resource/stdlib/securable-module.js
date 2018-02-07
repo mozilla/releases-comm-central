@@ -35,11 +35,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 (function(global) {
-   const Cc = Components.classes;
-   const Ci = Components.interfaces;
-   const Cu = Components.utils;
-   const Cr = Components.results;
-
    var exports = {};
 
    var ios = Cc['@mozilla.org/network/io-service;1']

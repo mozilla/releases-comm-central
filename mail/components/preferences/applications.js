@@ -607,7 +607,6 @@ var gCloudFileTab = {
   },
 
   requestUserInfoForItem: function CFT_requestUserInfoForItem(aItem, aWithUI) {
-    let Cr = Components.results;
     let accountKey = aItem.value;
     let account = cloudFileAccounts.getAccount(accountKey);
 
@@ -650,8 +649,6 @@ var gCloudFileTab = {
   },
 
   _mapResultToState: function CFT__mapResultToState(aItem, aResult) {
-    let Cr = Components.results;
-    let Ci = Components.interfaces;
     let itemState = "no-connection";
 
     if (aResult == Cr.NS_OK)
@@ -679,8 +676,6 @@ var gCloudFileTab = {
   },
 
   _showAccountInfo: function CFT__showAccountInfo(aAccountKey) {
-    let Ci = Components.interfaces;
-    let Cr = Components.results;
     let account = this._accountCache[aAccountKey].account;
     let result = this._accountCache[aAccountKey].result;
 

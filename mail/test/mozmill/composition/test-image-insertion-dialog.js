@@ -6,10 +6,6 @@
  * Tests the image insertion dialog functionality.
  */
 
-var Ci = Components.interfaces;
-var Cc = Components.classes;
-var Cu = Components.utils;
-
 var elib = {};
 ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
 

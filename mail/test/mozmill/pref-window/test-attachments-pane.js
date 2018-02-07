@@ -6,10 +6,6 @@
  * Tests the manager for attachment storage services
  */
 
-var Cu = Components.utils;
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-
 var MODULE_NAME = 'test-attachments-pane';
 
 var RELATIVE_ROOT = '../shared-modules';

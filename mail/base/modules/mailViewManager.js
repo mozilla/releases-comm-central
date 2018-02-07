@@ -4,11 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ['MailViewManager', 'MailViewConstants'];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 var nsMsgSearchScope  = Ci.nsMsgSearchScope;
 var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
 var nsMsgSearchOp     = Ci.nsMsgSearchOp;

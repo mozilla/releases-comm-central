@@ -7,9 +7,6 @@ this.EXPORTED_SYMBOLS = ['appIdleManager'];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-
 // This module provides a mechanism to turn window focus and blur events
 // into app idle notifications. If we get a blur notification that is not
 // followed by a focus notification in less than some small number of seconds,

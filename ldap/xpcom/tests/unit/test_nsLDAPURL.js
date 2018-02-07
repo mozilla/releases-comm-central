@@ -3,9 +3,6 @@
  * Test suite for nsLDAPURL functions.
  */
 
-const Ci = Components.interfaces;
-const Cc = Components.classes;
-
 // If we are still using the wallet service, then default port numbers
 // are still visible in the password manager, and therefore we need to have
 // them in the url. The toolkit login manager doesn't do this.

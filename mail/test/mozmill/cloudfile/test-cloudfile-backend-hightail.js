@@ -6,10 +6,6 @@
  * Tests the Hightail Bigfile backend.
  */
 
-var Cu = Components.utils;
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-
 var MODULE_NAME = 'test-cloudfile-backend-hightail';
 
 var RELATIVE_ROOT = '../shared-modules';

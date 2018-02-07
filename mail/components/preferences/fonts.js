@@ -146,8 +146,6 @@ var gFontsDialog = {
    */
   ondialogaccept: function()
   {
-    var Ci = Components.interfaces;
-
     var sendCharsetStr = Services.prefs.getComplexValue(
       "mailnews.send_default_charset", Ci.nsIPrefLocalizedString).data;
 

@@ -9,10 +9,6 @@
 
 var EXPORTED_SYMBOLS = ["MsgHdrSyntheticView"];
 
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 /**
  * Create a synthetic view suitable for passing to |FolderDisplayWidget.show|.
  * You must pass a single message header in.

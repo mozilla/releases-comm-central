@@ -41,8 +41,6 @@ var EXPORTED_SYMBOLS = ["Server", "server", "AsyncRead", "Session", "sessions", 
 var events = {}; ChromeUtils.import("resource://jsbridge/modules/events.js", events);
 var DEBUG_ON = false;
 var BUFFER_SIZE = 1024;
-var Cc = Components.classes;
-var Ci = Components.interfaces;
 var loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
     .getService(Ci.mozIJSSubScriptLoader);
 

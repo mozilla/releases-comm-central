@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 this.EXPORTED_SYMBOLS = ["Notifications"];
-var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/hiddenWindow.jsm");

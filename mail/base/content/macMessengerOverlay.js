@@ -9,8 +9,6 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 // Load and add the menu item to the OS X Dock icon menu.
 addEventListener("load", function() {
   let dockMenuElement = document.getElementById("menu_mac_dockmenu");
-  let Cc = Components.classes;
-  let Ci = Components.interfaces;
   let nativeMenu = Cc["@mozilla.org/widget/standalonenativemenu;1"]
                     .createInstance(Ci.nsIStandaloneNativeMenu);
 

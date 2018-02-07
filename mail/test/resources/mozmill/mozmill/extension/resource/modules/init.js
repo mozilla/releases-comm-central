@@ -39,10 +39,6 @@
 
 var EXPORTED_SYMBOLS = ["mozmill"];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cu = Components.utils;
-
 var controller = ChromeUtils.import('resource://mozmill/modules/controller.js');
 var mozmill = ChromeUtils.import('resource://mozmill/modules/mozmill.js');
 var utils = ChromeUtils.import('resource://mozmill/modules/utils.js');

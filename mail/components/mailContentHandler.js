@@ -4,10 +4,6 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var Ci = Components.interfaces;
-var Cc = Components.classes;
-var Cr = Components.results;
-
 // defined in nsIContentHandler.idl.
 var NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
 

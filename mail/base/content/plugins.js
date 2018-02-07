@@ -192,8 +192,6 @@ var gPluginHandler = {
 
   // Helper to get the binding handler type from a plugin object
   _getBindingType : function(plugin) {
-    let Ci = Components.interfaces;
-
     if (!(plugin instanceof Ci.nsIObjectLoadingContent))
       return null;
 
@@ -332,8 +330,6 @@ var gPluginHandler = {
 
   // Event listener for blocklisted/outdated/carbonFailure plugins.
   pluginUnavailable: function(plugin, eventType) {
-    let Cc = Components.classes;
-    let Ci = Components.interfaces;
     var tabmail = document.getElementById('tabmail');
     let browser = tabmail.getBrowserForDocument(plugin.ownerDocument
                                                 .defaultView).browser;

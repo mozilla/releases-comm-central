@@ -11,10 +11,6 @@
 
 var EXPORTED_SYMBOLS = ["MailMigrator"];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource:///modules/IOUtils.js");

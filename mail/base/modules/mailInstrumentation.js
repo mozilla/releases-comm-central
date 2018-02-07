@@ -10,10 +10,6 @@
 
 this.EXPORTED_SYMBOLS = ["mailInstrumentationManager"];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cu = Components.utils;
-
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
 ChromeUtils.import("resource:///modules/errUtils.js");

@@ -15,8 +15,6 @@ ChromeUtils.import("resource:///modules/IOUtils.js");
 var AB_ORDER = ["aab", "pab", "mork", "ldap", "mapi+other", "anyab", "cab"];
 
 function getDirectoryValue(aDir, aKey) {
-  const Ci = Components.interfaces;
-
   if (aKey == "ab_type") {
     if (aDir._directory.URI == kAllDirectoryRoot + "?")
       return "aab";
@@ -100,7 +98,6 @@ abDirTreeItem.prototype = {
 
   _children: null,
   get children() {
-    const Ci = Components.interfaces;
     if (!this._children) {
       this._children = [];
       let myEnum;

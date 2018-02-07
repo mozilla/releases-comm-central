@@ -462,7 +462,6 @@ saveAsUrlListener.prototype = {
 
 function SaveAsTemplate(uri) {
   if (uri) {
-    const Ci = Components.interfaces;
     let hdr = messenger.msgHdrFromURI(uri);
     let identity = getIdentityForHeader(hdr, Ci.nsIMsgCompType.Template);
     let templates = MailUtils.getFolderForURI(identity.stationeryFolder, false);

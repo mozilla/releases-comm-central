@@ -10,10 +10,6 @@
 
 this.EXPORTED_SYMBOLS = ["sessionStoreManager"];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 

@@ -5,11 +5,6 @@
 
 this.EXPORTED_SYMBOLS = ["glodaIndexerActivity"];
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
-
 var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
                                             "nsIActivityProcess", "init");
 var nsActEvent   = Components.Constructor("@mozilla.org/activity-event;1",

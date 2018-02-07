@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = [];
 
-var {classes: Cc, interfaces: Ci, utils: Cu, Constructor: CC} = Components;
+var CC = Components.Constructor;
 
 ChromeUtils.import("resource:///modules/gloda/public.js");
 ChromeUtils.import("resource:///modules/gloda/datamodel.js");

@@ -134,8 +134,6 @@ var gFolderTreeView = {
    * folder-pane to the view last shown before the application was closed.
    */
   load: function ftv_load(aTree, aJSONFile) {
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
     this._treeElement = aTree;
     this.messengerBundle = document.getElementById("bundle_messenger");
 
@@ -683,8 +681,6 @@ var gFolderTreeView = {
    * drag drop interfaces
    */
   canDrop: function ftv_canDrop(aRow, aOrientation) {
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
     let targetFolder = gFolderTreeView._rowMap[aRow]._folder;
     if (!targetFolder)
       return false;
@@ -788,8 +784,6 @@ var gFolderTreeView = {
     return false;
   },
   drop: function ftv_drop(aRow, aOrientation) {
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
     let targetFolder = gFolderTreeView._rowMap[aRow]._folder;
 
     let dt = this._currentTransfer;
@@ -2035,8 +2029,6 @@ var gFolderTreeView = {
    * This is a helper attribute that simply returns a flat list of all folders
    */
   get _enumerateFolders() {
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
     let folders = [];
 
     for (let server of fixIterator(MailServices.accounts.allServers, Ci.nsIMsgIncomingServer)) {
@@ -2434,7 +2426,6 @@ ftvItem.prototype = {
 
   _children: null,
   get children() {
-    const Ci = Components.interfaces;
     // We're caching our child list to save perf.
     if (!this._children) {
       let iter;
@@ -2618,7 +2609,6 @@ var gFolderTreeController = {
    * @param aFolder (optional) the folder to delete, if not the selected one
    */
   deleteFolder: function ftc_delete(aFolder) {
-    const Ci = Components.interfaces;
     let folders = aFolder ? [aFolder] : gFolderTreeView.getSelectedFolders();
     let folder = folders[0];
 
@@ -2689,7 +2679,6 @@ var gFolderTreeController = {
    * @param aFolder (optional)  the folder to empty
    */
   emptyJunk: function ftc_emptyJunk(aFolder) {
-    const Ci = Components.interfaces;
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
 
     if (!folder || !folder.getFlag(nsMsgFolderFlags.Junk))
@@ -2851,7 +2840,6 @@ function ftv_SmartItem(aFolder)
 ftv_SmartItem.prototype = {
   __proto__: ftvItem.prototype,
   get children() {
-    const Ci = Components.interfaces;
     let smartMode = gFolderTreeView.getFolderTreeMode("smart");
 
     // We're caching our child list to save perf.

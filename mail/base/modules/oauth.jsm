@@ -8,8 +8,6 @@
  * need to be made to support differences in OAuth usage.
  */
 
-var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
-
 var EXPORTED_SYMBOLS = ["OAuth"];
 
 ChromeUtils.import("resource://gre/modules/Http.jsm");

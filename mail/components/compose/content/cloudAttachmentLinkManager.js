@@ -456,8 +456,6 @@ var gCloudAttachmentLinkManager = {
    * sending some BigFiles, we don't run into ID conflicts.
    */
   send: function(aEvent) {
-    const Ci = Components.interfaces;
-
     let msgType = parseInt(aEvent.target.getAttribute("msgtype"));
 
     if (msgType == Ci.nsIMsgCompDeliverMode.Now ||
