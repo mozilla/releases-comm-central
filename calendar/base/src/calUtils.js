@@ -7,9 +7,9 @@
  * that loading this file twice in the same scope will throw errors.
  */
 
-/* exported getCalendarDirectory, attendeeMatchesAddresses,
- *          calTryWrappedJSObject, compareObjects, LOG, WARN, ERROR, showError,
- *          sendMailTo, applyAttributeToMenuChildren, isPropertyValueSame,
+/* exported attendeeMatchesAddresses, calTryWrappedJSObject,
+ *          LOG, WARN, ERROR, showError, sendMailTo,
+ *          applyAttributeToMenuChildren, isPropertyValueSame,
  *          calIterateEmailIdentities, calGetString, getUUID
  */
 
@@ -18,29 +18,6 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-
-
-/**
- * Shared dialog functions
- * Gets the calendar directory, defaults to <profile-dir>/calendar
- */
-function getCalendarDirectory() {
-    if (getCalendarDirectory.mDir === undefined) {
-        let dir = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
-        dir.append("calendar-data");
-        if (!dir.exists()) {
-            try {
-                dir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE,
-                           parseInt("0700", 8));
-            } catch (exc) {
-                ASSERT(false, exc);
-                throw exc;
-            }
-        }
-        getCalendarDirectory.mDir = dir;
-    }
-    return getCalendarDirectory.mDir.clone();
-}
 
 /**
  * Check if the attendee object matches one of the addresses in the list. This

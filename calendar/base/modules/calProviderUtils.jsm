@@ -440,6 +440,26 @@ cal.promptOverwrite = function(aMode, aItem) {
 };
 
 /**
+ * Gets the calendar directory, defaults to <profile-dir>/calendar-data
+ */
+cal.getCalendarDirectory = function() {
+    if (cal.getCalendarDirectory.mDir === undefined) {
+        let dir = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+        dir.append("calendar-data");
+        if (!dir.exists()) {
+            try {
+                dir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o700);
+            } catch (exc) {
+                cal.ASSERT(false, exc);
+                throw exc;
+            }
+        }
+        cal.getCalendarDirectory.mDir = dir;
+    }
+    return cal.getCalendarDirectory.mDir.clone();
+};
+
+/**
  * Base prototype to be used implementing a provider.
  *
  * @see e.g. providers/gdata
