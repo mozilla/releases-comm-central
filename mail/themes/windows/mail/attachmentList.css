@@ -80,7 +80,6 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
 
   .attachmentcell-icon {
     filter: none !important;
-    padding: 0 1px;
   }
 
   .attachmentcell-name, .attachmentcell-size {

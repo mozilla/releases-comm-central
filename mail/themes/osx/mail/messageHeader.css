@@ -99,10 +99,6 @@
 
 /* ::::: attachment list ::::: */
 
-.attachmentcell-icon {
-  padding: 1px;
-}
-
 .attachmentcell-name,
 .attachmentcell-size {
   padding-top: 1px;
