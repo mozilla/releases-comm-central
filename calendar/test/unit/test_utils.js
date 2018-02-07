@@ -12,7 +12,7 @@ function really_run_test() {
     test_attendeeMatchesAddresses();
     test_getDefaultStartDate();
     test_getStartEndProps();
-    test_calOperationGroup();
+    test_OperationGroup();
     test_sameDay();
     test_binarySearch();
 }
@@ -122,17 +122,17 @@ function test_getStartEndProps() {
            /2147500033/);
 }
 
-function test_calOperationGroup() {
+function test_OperationGroup() {
     let cancelCalled = false;
     function cancelFunc() {
         cancelCalled = true;
         return true;
     }
 
-    let group = new cal.calOperationGroup(cancelFunc);
+    let group = new cal.data.OperationGroup(cancelFunc);
 
     ok(group.isEmpty);
-    equal(group.id, cal.calOperationGroup.mOpGroupPrefix + "0");
+    ok(group.id.endsWith("-0"));
     equal(group.status, Components.results.NS_OK);
     equal(group.isPending, true);
 

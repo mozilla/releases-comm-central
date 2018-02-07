@@ -10,7 +10,7 @@
 /* exported getCalendarDirectory, attendeeMatchesAddresses,
  *          calTryWrappedJSObject, compareObjects, LOG, WARN, ERROR, showError,
  *          sendMailTo, applyAttributeToMenuChildren, isPropertyValueSame,
- *          calIterateEmailIdentities, calGetString
+ *          calIterateEmailIdentities, calGetString, getUUID
  */
 
 ChromeUtils.import("resource:///modules/mailServices.js");
@@ -257,98 +257,6 @@ function sendMailTo(aRecipient, aSubject, aBody, aIdentity) {
 
     MailServices.compose.OpenComposeWindowWithParams(null, msgParams);
 }
-
-/**
- * This object implements calIOperation and could group multiple sub
- * operations into one. You can pass a cancel function which is called once
- * the operation group is cancelled.
- * Users must call notifyCompleted() once all sub operations have been
- * successful, else the operation group will stay pending.
- * The reason for the latter is that providers currently should (but need
- * not) implement (and return) calIOperation handles, thus there may be pending
- * calendar operations (without handle).
- */
-function calOperationGroup(cancelFunc) {
-    this.wrappedJSObject = this;
-    if (calOperationGroup.mOpGroupId === undefined) {
-        calOperationGroup.mOpGroupId = 0;
-    }
-    if (calOperationGroup.mOpGroupPrefix === undefined) {
-        calOperationGroup.mOpGroupPrefix = getUUID() + "-";
-    }
-    this.mCancelFunc = cancelFunc;
-    this.mId = calOperationGroup.mOpGroupPrefix + calOperationGroup.mOpGroupId++;
-    this.mSubOperations = [];
-}
-calOperationGroup.prototype = {
-    mCancelFunc: null,
-    mId: null,
-    mIsPending: true,
-    mStatus: Components.results.NS_OK,
-    mSubOperations: null,
-
-    add: function(aOperation) {
-        if (aOperation && aOperation.isPending) {
-            this.mSubOperations.push(aOperation);
-        }
-    },
-
-    remove: function(aOperation) {
-        if (aOperation) {
-            this.mSubOperations = this.mSubOperations.filter(operation => aOperation.id != operation.id);
-        }
-    },
-
-    get isEmpty() {
-        return (this.mSubOperations.length == 0);
-    },
-
-    notifyCompleted: function(status) {
-        ASSERT(this.isPending, "[calOperationGroup_notifyCompleted] this.isPending");
-        if (this.isPending) {
-            this.mIsPending = false;
-            if (status) {
-                this.mStatus = status;
-            }
-        }
-    },
-
-    toString: function() {
-        return "[calOperationGroup] id=" + this.id;
-    },
-
-    // calIOperation:
-    get id() {
-        return this.mId;
-    },
-
-    get isPending() {
-        return this.mIsPending;
-    },
-
-    get status() {
-        return this.mStatus;
-    },
-
-    cancel: function(status) {
-        if (this.isPending) {
-            if (!status) {
-                status = Components.interfaces.calIErrors.OPERATION_CANCELLED;
-            }
-            this.notifyCompleted(status);
-            let cancelFunc = this.mCancelFunc;
-            if (cancelFunc) {
-                this.mCancelFunc = null;
-                cancelFunc();
-            }
-            let subOperations = this.mSubOperations;
-            this.mSubOperations = [];
-            for (let operation of subOperations) {
-                operation.cancel(Components.interfaces.calIErrors.OPERATION_CANCELLED);
-            }
-        }
-    }
-};
 
 /**
  * TODO: The following UI-related functions need to move somewhere different,

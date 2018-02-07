@@ -451,7 +451,7 @@ calCompositeGetListenerHelper.prototype = {
 
     get opGroup() {
         if (!this.mOpGroup) {
-            this.mOpGroup = new cal.calOperationGroup(() => {
+            this.mOpGroup = new cal.data.OperationGroup(() => {
                 let listener = this.mRealListener;
                 this.mRealListener = null;
                 if (listener) {

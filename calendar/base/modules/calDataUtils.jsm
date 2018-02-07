@@ -91,10 +91,87 @@ class ObserverSet extends ListenerSet {
     }
 }
 
+/**
+ * This object implements calIOperation and could group multiple sub
+ * operations into one. You can pass a cancel function which is called once
+ * the operation group is cancelled.
+ * Users must call notifyCompleted() once all sub operations have been
+ * successful, else the operation group will stay pending.
+ * The reason for the latter is that providers currently should (but need
+ * not) implement (and return) calIOperation handles, thus there may be pending
+ * calendar operations (without handle).
+ */
+class OperationGroup {
+    static nextGroupId() {
+        if (typeof OperationGroup.mOpGroupId == "undefined") {
+            OperationGroup.mOpGroupId = 0;
+        }
+
+        return OperationGroup.mOpGroupId++;
+    }
+
+    constructor(aCancelFunc) {
+        this.mId = cal.getUUID() + "-" + OperationGroup.nextGroupId();
+        this.mIsPending = true;
+
+        this.mCancelFunc = aCancelFunc;
+        this.mSubOperations = [];
+        this.mStatus = Components.results.NS_OK;
+    }
+
+    get id() { return this.mId; }
+    get isPending() { return this.mIsPending; }
+    get status() { return this.mStatus; }
+    get isEmpty() { return this.mSubOperations.length == 0; }
+
+    add(aOperation) {
+        if (aOperation && aOperation.isPending) {
+            this.mSubOperations.push(aOperation);
+        }
+    }
+
+    remove(aOperation) {
+        if (aOperation) {
+            this.mSubOperations = this.mSubOperations.filter(operation => aOperation.id != operation.id);
+        }
+    }
+
+    notifyCompleted(aStatus) {
+        cal.ASSERT(this.isPending, "[OperationGroup_notifyCompleted] this.isPending");
+        if (this.isPending) {
+            this.mIsPending = false;
+            if (aStatus) {
+                this.mStatus = aStatus;
+            }
+        }
+    }
+
+    cancel(aStatus=Components.interfaces.calIErrors.OPERATION_CANCELLED) {
+        if (this.isPending) {
+            this.notifyCompleted(aStatus);
+            let cancelFunc = this.mCancelFunc;
+            if (cancelFunc) {
+                this.mCancelFunc = null;
+                cancelFunc();
+            }
+            let subOperations = this.mSubOperations;
+            this.mSubOperations = [];
+            for (let operation of subOperations) {
+                operation.cancel(Components.interfaces.calIErrors.OPERATION_CANCELLED);
+            }
+        }
+    }
+
+    toString() {
+        return `[OperationGroup id=${this.id}]`;
+    }
+}
+
 var caldata = {
     ListenerSet: ListenerSet,
     ObserverSet: ObserverSet,
     PropertyMap: PropertyMap,
+    OperationGroup: OperationGroup,
 
     /**
      * Use the binary search algorithm to search for an item in an array.

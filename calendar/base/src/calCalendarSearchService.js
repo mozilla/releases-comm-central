@@ -9,7 +9,7 @@ function calCalendarSearchListener(numOperations, finalListener) {
     this.mNumOperations = numOperations;
     this.mResults = [];
 
-    this.opGroup = new cal.calOperationGroup(() => {
+    this.opGroup = new cal.data.OperationGroup(() => {
         this.notifyResult(null);
     });
 }

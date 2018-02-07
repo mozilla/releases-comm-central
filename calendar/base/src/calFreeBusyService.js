@@ -9,7 +9,7 @@ function calFreeBusyListener(numOperations, finalListener) {
     this.mFinalListener = finalListener;
     this.mNumOperations = numOperations;
 
-    this.opGroup = new cal.calOperationGroup(() => {
+    this.opGroup = new cal.data.OperationGroup(() => {
         this.notifyResult(null);
     });
 }
