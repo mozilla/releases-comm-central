@@ -3,9 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Load spell-checker module to properly determine language strings
+ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+
 function Startup()
 {
   SwitchLocales_Load();
+  NumberLocales_Load();
 }
 
 /**
@@ -79,4 +83,34 @@ function SelectLocale(aElement)
 
   // If somehow we still have no value, return the first value in the list
   return aElement.firstChild.firstChild.getAttribute("value");
+}
+
+/**
+ * When starting up, determine application and regional locale settings
+ * and add the respective strings to the prefpane labels.
+ */
+function NumberLocales_Load()
+{
+  const osprefs =
+    Components.classes["@mozilla.org/intl/ospreferences;1"]
+              .getService(Components.interfaces.mozIOSPreferences);
+
+  let appLocale = Services.locale.getAppLocalesAsBCP47()[0];
+  let rsLocale = osprefs.getRegionalPrefsLocales()[0];
+  let spellChecker = new InlineSpellChecker();
+  appLocale = spellChecker.getDictionaryDisplayName(appLocale);
+  rsLocale = spellChecker.getDictionaryDisplayName(rsLocale);
+
+  let appLocaleRadio = document.getElementById("appLocale");
+  let rsLocaleRadio = document.getElementById("rsLocale");
+  let prefutilitiesBundle = document.getElementById("bundle_prefutilities");
+
+  let appLocaleLabel = prefutilitiesBundle.getFormattedString("appLocale.label",
+                                                              [appLocale]);
+  let rsLocaleLabel = prefutilitiesBundle.getFormattedString("rsLocale.label",
+                                                             [rsLocale]);
+  appLocaleRadio.setAttribute("label", appLocaleLabel);
+  rsLocaleRadio.setAttribute("label", rsLocaleLabel);
+  appLocaleRadio.accessKey = prefutilitiesBundle.getString("appLocale.accesskey");
+  rsLocaleRadio.accessKey = prefutilitiesBundle.getString("rsLocale.accesskey");
 }

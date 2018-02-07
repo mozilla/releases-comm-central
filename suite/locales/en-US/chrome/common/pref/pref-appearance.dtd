@@ -23,8 +23,13 @@
 
 <!ENTITY pref.locales.title                     "User Interface Language">
 <!ENTITY selectLocale.label                     "Select the language for text that appears in dialog boxes, menus, toolbars and button labels:">
-<!--LOCALIZATION NOTE (restartOnLangChange.label): Don't translate "&brandShortName;".
+
+<!--LOCALIZATION NOTE (dateTimeFormatting.label): labels/accesskeys for
+     radiobuttons are set dynamically from prefutilities.properties
+-->
+<!ENTITY dateTimeFormatting.label               "Date and Time Formatting">
+
+<!--LOCALIZATION NOTE (restartOnLocaleChange.label): Don't translate "&brandShortName;".
     Place &brandShortName; in the phrase where the name of the application should appear
 -->
-<!ENTITY restartOnLangChange.label              "Language preferences will take effect when you restart &brandShortName;.">
-
+<!ENTITY restartOnLocaleChange.label            "Language and formatting preferences will take effect when you restart &brandShortName;.">

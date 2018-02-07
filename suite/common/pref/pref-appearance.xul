@@ -27,35 +27,39 @@
       <preference id="general.useragent.locale"
                   name="general.useragent.locale"
                   type="string"/>
+      <preference id="intl.regional_prefs.use_os_locales"
+                  name="intl.regional_prefs.use_os_locales"
+                  type="bool"/>
     </preferences>
 
-    <groupbox id="generalStartupPreferences" align="start">
-      <caption label="&onStartLegend.label;"/>
+    <hbox>
+      <groupbox id="generalStartupPreferences" align="start" flex="1">
+        <caption label="&onStartLegend.label;"/>
 
-      <checkbox id="generalStartupBrowser"
-                label="&navCheck.label;"
-                accesskey="&navCheck.accesskey;"
-                preference="general.startup.browser"/>
-    </groupbox>
+        <checkbox id="generalStartupBrowser"
+                  label="&navCheck.label;"
+                  accesskey="&navCheck.accesskey;"
+                  preference="general.startup.browser"/>
+      </groupbox>
 
-    <groupbox id="toolbarStyleBox">
-      <caption label="&showToolsLegend.label;"/>
+      <groupbox id="toolbarStyleBox" align="start" flex="1">
+        <caption label="&showToolsLegend.label;"/>
 
-      <radiogroup id="toolbarStyle" orient="horizontal"
-                  preference="browser.chrome.toolbar_style">
-        <radio value="2"
-               label="&picsNtextRadio.label;"
-               accesskey="&picsNtextRadio.accesskey;"/>
-        <radio value="0"
-               label="&picsOnlyRadio.label;"
-               accesskey="&picsOnlyRadio.accesskey;"/>
-        <radio value="1"
-               label="&textonlyRadio.label;"
-               accesskey="&textonlyRadio.accesskey;"/>
-      </radiogroup>
-    </groupbox>
+        <radiogroup id="toolbarStyle"
+                    preference="browser.chrome.toolbar_style">
+          <radio value="2"
+                 label="&picsNtextRadio.label;"
+                 accesskey="&picsNtextRadio.accesskey;"/>
+          <radio value="0"
+                 label="&picsOnlyRadio.label;"
+                 accesskey="&picsOnlyRadio.accesskey;"/>
+          <radio value="1"
+                 label="&textonlyRadio.label;"
+                 accesskey="&textonlyRadio.accesskey;"/>
+        </radiogroup>
+      </groupbox>
+    </hbox>
 
-    <separator class="thin" />
     <vbox class="box-padded" align="start">
       <checkbox id="showHideTooltips"
                 label="&showHideTooltips.label;"
@@ -71,8 +75,22 @@
                 preference="general.useragent.locale"
                 onsyncfrompreference="return document.getElementById('appearance_pane').SelectLocale(this);"/>
 
-      <description>&restartOnLangChange.label;</description>
     </groupbox>
 
+    <groupbox id="dateTimeFormatting" align="start">
+      <caption label="&dateTimeFormatting.label;"/>
+      <radiogroup id="formatLocale"
+                  preference="intl.regional_prefs.use_os_locales"
+                  orient="vertical">
+        <radio id="appLocale"
+               value="false"/>
+               <!-- label and accesskey will be set dynamically -->
+        <radio id="rsLocale"
+               value="true"/>
+               <!-- label and accesskey will be set dynamically -->
+      </radiogroup>
+    </groupbox>
+
+    <description>&restartOnLocaleChange.label;</description>
   </prefpane>
 </overlay>
