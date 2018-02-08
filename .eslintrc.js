@@ -15,6 +15,12 @@ module.exports = {
     "mozilla"
   ],
 
+  "rules": {
+    // XXX We are waiting for m-c to create a script to fix these in bug 1433175.
+    // Disabling this rule as part of bug 1436605 until that is the case.
+    "mozilla/use-cc-etc": "off"
+  },
+
   // The html plugin is enabled via a command line option on eslint. To avoid
   // bad interactions with the xml preprocessor in eslint-plugin-mozilla, we
   // turn off processing of the html plugin for .xml files.
