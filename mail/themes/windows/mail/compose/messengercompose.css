@@ -182,10 +182,6 @@
 
 /* ::::: addressing widget ::::: */
 
-.autocomplete-treebody::-moz-tree-cell-text(comment) {
-  color: #555566;
-}
-
 #addressingWidget {
   -moz-user-focus: none;
   -moz-appearance: none;
@@ -217,6 +213,7 @@
 .dummy-row-cell:not(:first-child) {
   margin-bottom: 2px !important;
   padding: 2px !important;
+  padding-inline-start: 5px !important;
   border: 1px solid transparent !important;
   transition: border .2s, background-color .2s;
 }
@@ -776,40 +773,39 @@ toolbar:not(:-moz-lwtheme) {
   margin-top: 0;
 }
 
+.autocomplete-richlistitem:hover {
+  background-color: var(--arrowpanel-dimmed);
+}
+
+.autocomplete-richlistitem[selected] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
 /* ::::: autocomplete icons ::::: */
 
-treechildren::-moz-tree-image(local-abook) {
-  margin-inline-start: 2px;
-  margin-inline-end: 5px;
+.ac-site-icon {
+  margin: 1px 5px;
+}
+
+.autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
-treechildren::-moz-tree-image(remote-abook) {
-  margin-inline-start: 2px;
-  margin-inline-end: 5px;
+.autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
 }
 
-treechildren::-moz-tree-image(remote-err) {
-  margin-inline-start: 2px;
-  margin-inline-end: 5px;
+.autocomplete-richlistitem[type="remote-err"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
 }
 
-treechildren::-moz-tree-image(subscribed-news) {
-  margin-inline-start: 2px;
-  margin-inline-end: 5px;
+.autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/icons/folder.png");
   -moz-image-region: rect(0 160px 16px 144px);
 }
 
 /* ::::: addressing widget ::::: */
-
-@media (-moz-windows-default-theme) {
-  .autocomplete-treebody::-moz-tree-cell-text(selected) {
-    color: -moz-DialogText !important;
-  }
-}
 
 @media (-moz-windows-default-theme) {
   .textbox-addressingWidget,

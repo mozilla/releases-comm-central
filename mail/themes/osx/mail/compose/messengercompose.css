@@ -306,49 +306,42 @@ toolbar[nowindowdrag="true"] {
   border-color: #C6C6C6;
 }
 
-/* ::::: autocomplete icons ::::: */
-
-treechildren::-moz-tree-cell-text(default-match) {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  margin-inline-start: 15px;
-  margin-inline-end: -3px;
-  border: none;
+.autocomplete-richlistitem:hover {
+  background-color: var(--arrowpanel-dimmed);
 }
 
-treechildren::-moz-tree-image(local-abook) {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  margin-inline-start: 4px;
-  margin-inline-end: -1px;
+.autocomplete-richlistitem[selected] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+/* ::::: autocomplete icons ::::: */
+
+.ac-site-icon {
+  margin: 2px 5px;
+}
+
+.autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
-treechildren::-moz-tree-image(remote-abook) {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  margin-inline-start: 2px;
-  margin-inline-end: -3px;
+.autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
 }
 
-treechildren::-moz-tree-image(remote-err) {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  margin-inline-start: 2px;
-  margin-inline-end: -3px;
+.autocomplete-richlistitem[type="remote-err"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
 }
 
 @media (min-resolution: 2dppx) {
-  treechildren::-moz-tree-image(local-abook) {
+  .autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
     width: 16px;
     height: 16px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
     -moz-image-region: rect(0px 32px 32px 0px);
   }
 
-  treechildren::-moz-tree-image(remote-abook) {
+  .autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
     width: 16px;
     height: 16px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
@@ -356,11 +349,7 @@ treechildren::-moz-tree-image(remote-err) {
   }
 }
 
-treechildren::-moz-tree-image(subscribed-news) {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  margin-inline-start: 2px;
-  margin-inline-end: -3px;
+.autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(0 160px 16px 144px);
 }
@@ -396,6 +385,7 @@ treechildren::-moz-tree-image(subscribed-news) {
   margin-top: 1px !important;
   margin-bottom: 1px !important;
   padding: 1px 3px !important;
+  padding-inline-start: 6px !important;
   transition: border .2s, background-color .2s;
 }
 

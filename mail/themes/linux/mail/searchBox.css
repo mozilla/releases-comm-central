@@ -126,7 +126,7 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 .autocomplete-richlistitem[type^="gloda-"] {
   margin-right: 2px;
   margin-left: 2px;
-  padding-inline-start: 7px;
+  padding-inline-start: 10px;
   border-radius: 2px;
 }
 

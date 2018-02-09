@@ -39,6 +39,11 @@
 }
 
 .gloda-search-icon,
+textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
+  margin-inline-start: 2px;
+}
+
+.gloda-search-icon,
 .textbox-search-icon[searchbutton],
 textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   list-style-image: url(chrome://messenger/skin/icons/search-glass.svg);
@@ -169,7 +174,7 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 .autocomplete-richlistitem[type^="gloda-"] {
   margin-right: 2px;
   margin-left: 2px;
-  padding-inline-start: 7px;
+  padding-inline-start: 12px;
   border-radius: 2px;
 }
 
