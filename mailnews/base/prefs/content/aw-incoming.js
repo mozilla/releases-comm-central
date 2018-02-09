@@ -75,11 +75,11 @@ function incomingPageInit() {
     }
     catch (ex){}
   }
-    
+
   gHideIncoming = false;
   if (gCurrentAccountData && gCurrentAccountData.wizardHideIncoming)
     gHideIncoming = true;
-  
+
   var incomingServerbox = document.getElementById("incomingServerbox");
   var serverTypeBox = document.getElementById("serverTypeBox");
   if (incomingServerbox && serverTypeBox) {
@@ -92,20 +92,20 @@ function incomingPageInit() {
       serverTypeBox.removeAttribute("hidden");
     }
   }
-  
+
   // Server type selection (pop3 or imap) is for mail accounts only
   var pageData = parent.GetPageData();
   var isMailAccount = pageData.accounttype.mailaccount.value;
   var isOtherAccount = pageData.accounttype.otheraccount.value;
   if (isMailAccount && !gHideIncoming) {
     var serverTypeRadioGroup = document.getElementById("servertype");
-    /* 
+    /*
      * Check to see if the radiogroup has any value. If there is no
      * value, this must be the first time user visting this page in the
-     * account setup process. So, the default is set to pop3. If there 
-     * is a value (it's used automatically), user has already visited 
-     * page and server type selection is done. Once user visits the page, 
-     * the server type value from then on will persist (whether the selection 
+     * account setup process. So, the default is set to pop3. If there
+     * is a value (it's used automatically), user has already visited
+     * page and server type selection is done. Once user visits the page,
+     * the server type value from then on will persist (whether the selection
      * came from the default or the user action).
      */
     if (!serverTypeRadioGroup.value) {
@@ -151,7 +151,7 @@ function incomingPageInit() {
   }
   incomingPageValidate();
 }
- 
+
 function setServerType()
 {
   var pageData = parent.GetPageData();

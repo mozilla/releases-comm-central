@@ -31,7 +31,7 @@ function run_test()
   MailServices.junk.resetTrainingData();
 
   do_test_pending();
-  
+
   var email = emails.shift();
   var classification = classifications.shift();
   // additional calls to setMessageClassifiaction are done in the callback
@@ -39,7 +39,7 @@ function run_test()
     kUnclassified, classification, null, doTestingListener);
 }
 
-var doTestingListener = 
+var doTestingListener =
 {
   onMessageClassified: function(aMsgURI, aClassification, aJunkPercent)
   {
@@ -53,7 +53,7 @@ var doTestingListener =
           kUnclassified, classification, null, doTestingListener);
       return;
     }
-    
+
     // all done classifying, time to test
     MailServices.junk.shutdown(); // just flushes training.dat
     trainingData = new TrainingData();
@@ -73,7 +73,7 @@ var doTestingListener =
     for (var token in trainingData.mJunkCounts)
       dump("count: " + trainingData.mJunkCounts[token] + " token: " + token + "\n");
     */
-    
+
     /* Selected pre-shrink counts after training
     training.data results: goodMessages=2 junkMessages = 4 tokens = 78
     Good counts
@@ -87,7 +87,7 @@ var doTestingListener =
     count: 4 token: to:careful reader <reader@example.org>
     count: 2 token: money!
     */
-    
+
     // Shrinking divides all counts by two. In comments, I show the
     // calculation for each test, (pre-shrink count)/2.
 
@@ -98,7 +98,7 @@ var doTestingListener =
     checkToken("to:careful reader <reader@example.org>", 1, 2); // (2/2, 4/2)
     checkToken("make", 0, 1); // (0/2, 3/2)
     checkToken("important", 1, 0); // (2/2, 0/2)
-    
+
     do_test_finished();
   }
 };

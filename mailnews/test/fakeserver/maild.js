@@ -54,7 +54,7 @@ var TIMEOUT = 3*60*1000;
  *
  * As the core code is inherently single-threaded, it is guaranteed that all of
  * the calls to the daemon will be made on the same thread, so you do not have
- * to worry about reentrancy in daemon calls.  
+ * to worry about reentrancy in daemon calls.
  *
  ******************************************************************************
  * Typical usage:
@@ -338,7 +338,7 @@ function nsMailReader(server, handler, transport, debug, logTransaction) {
   this._multiline = false;
 
   this._isRunning = true;
-  
+
   this.observer = {
     server : server,
     forced : false,

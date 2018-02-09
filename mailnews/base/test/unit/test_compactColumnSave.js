@@ -57,7 +57,7 @@ function checkPersistentState(folder) {
 
 
 // nsIMsgCopyServiceListener implementation
-var copyListener = 
+var copyListener =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},
@@ -110,7 +110,7 @@ function deleteMessages(srcFolder, items)
   items.forEach(function (item) {
     array.appendElement(item);
   });
-  
+
   srcFolder.deleteMessages(array, null, false, true, copyListener, true);
 }
 

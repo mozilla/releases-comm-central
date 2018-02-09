@@ -6,7 +6,7 @@
  * Prepend to the filename 'bodystructure' and save in the database
  * See current test files for examples.
  */
- 
+
  // async support
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");

@@ -47,7 +47,7 @@ function Startup()
     try {
       fillSettings();
     } catch (ex) {
-      dump("pref-directory-add.js:Startup(): fillSettings() exception: " 
+      dump("pref-directory-add.js:Startup(): fillSettings() exception: "
            + ex + "\n");
     }
 
@@ -74,7 +74,7 @@ function Startup()
 
 function onUnload()
 {
-  if ("arguments" in window && 
+  if ("arguments" in window &&
       window.arguments[0] &&
       !Services.prefs.prefIsLocked(gCurrentDirectory.dirPrefId +
                                    ".disable_button_download")) {
@@ -99,7 +99,7 @@ var progressListener = {
       document.getElementById("download").accessKey =
         gReplicationBundle.getString("cancelDownloadButton.accesskey");
     }
-    
+
     if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
       EndDownload(aStatus);
     }
@@ -120,8 +120,8 @@ var progressListener = {
   },
   QueryInterface : function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIWebProgressListener) || 
-        iid.equals(Components.interfaces.nsISupportsWeakReference) || 
+    if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
+        iid.equals(Components.interfaces.nsISupportsWeakReference) ||
         iid.equals(Components.interfaces.nsISupports))
       return this;
     throw Components.results.NS_NOINTERFACE;
@@ -155,7 +155,7 @@ function DownloadNow()
     }
     catch (ex) {
       // XXX todo
-      // perhaps replication hasn't started yet?  This can happen if you hit cancel after attempting to replication when offline 
+      // perhaps replication hasn't started yet?  This can happen if you hit cancel after attempting to replication when offline
       dump("unexpected failure while cancelling.  ex=" + ex + "\n");
     }
   }
@@ -180,7 +180,7 @@ function EndDownload(aStatus)
                                   "replicationFailed");
 }
 
-// fill the settings panel with the data from the preferences. 
+// fill the settings panel with the data from the preferences.
 //
 function fillSettings()
 {
@@ -204,7 +204,7 @@ function fillSettings()
       sub.radioGroup.selectedItem = sub;
       break;
     }
-    
+
     var sasl = document.getElementById("saslMechanism");
     switch (gCurrentDirectory.saslMechanism) {
     case "GSSAPI":

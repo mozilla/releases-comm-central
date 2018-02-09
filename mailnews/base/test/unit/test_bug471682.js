@@ -35,7 +35,7 @@ function run_test()
 // step 2: copy one message into a subfolder to establish an
 //         mbox file time and size
 // nsIMsgCopyServiceListener implementation
-var step2 = 
+var step2 =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},
@@ -59,7 +59,7 @@ var step2 =
 // step 3: after the copy, delay to allow copy to complete and allow possible
 //         file error time
 // nsIMsgCopyServiceListener implementation
-var step3 = 
+var step3 =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},
@@ -82,7 +82,7 @@ function step4()
 
 // step 5:  actual tests of file size and date
 // nsIMsgCopyServiceListener implementation
-var step5 = 
+var step5 =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},

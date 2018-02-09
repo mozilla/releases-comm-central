@@ -142,7 +142,7 @@ suite('headeremitter', function () {
       ["My house   burned down!", "My house burned down!"],
 
       // Which variables need to be encoded in QP encoding?
-      ["! \" # $ % & ' ( ) * + - .", 
+      ["! \" # $ % & ' ( ) * + - .",
        "! \" # $ % & ' ( ) * + - ."],
       [" / : ; < = > ? , @ [ \\ ] ^ _ ` { | } ~ \x7f",
         "=?UTF-8?Q?_/_:_;_<_=3d_>_=3f?=\r\n" +

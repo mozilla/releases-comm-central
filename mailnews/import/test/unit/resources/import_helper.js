@@ -36,7 +36,7 @@ GenericImportHelper.prototype =
   interfaceType: Ci.nsIImportGeneric,
   /**
    * GenericImportHelper.beginImport
-   * Imports the given address book export or mail data and invoke 
+   * Imports the given address book export or mail data and invoke
    * checkProgress of child class to check the data,
    */
   beginImport: function() {

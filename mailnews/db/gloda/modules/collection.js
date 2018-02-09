@@ -387,7 +387,7 @@ var GlodaCollectionManager = {
    *  via an itemsAdded event.)
    * We walk all existing collections for the given noun type.  For items
    *  currently in the collection, we generate onItemsRemoved events.
-   * 
+   *
    * @param aItemIds A list of item ids that are being deleted.
    */
   itemsDeleted: function gloda_colm_itemsDeleted(aNounID, aItemIds) {
@@ -413,13 +413,13 @@ var GlodaCollectionManager = {
    *  attribute that SQLite can more efficiently check than we can and where the
    *  cost of scanning the in-memory items is presumably much cheaper than
    *  trying to figure out what actually got deleted.
-   * 
+   *
    * Since we are doing an in-memory walk, this is obviously O(n) where n is the
    *  number of noun instances of a given type in-memory.  We are assuming this
    *  is a reasonable number of things and that this type of deletion call is
    *  not going to happen all that frequently.  If these assumptions are wrong,
    *  callers are advised to re-think the whole situation.
-   * 
+   *
    * @param aNounID Type of noun we are talking about here.
    * @param aFilter A filter function that returns true when the item should be
    *     thought of as deleted, or false if the item is still good.  Screw this

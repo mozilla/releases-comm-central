@@ -189,7 +189,7 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
   /* It is hard to get a byte count that's perfectly accurate. When composing
    * the message, the MIME structure goes like this (for an encoded attachment):
    *
-   * XXXXXXXXXX 
+   * XXXXXXXXXX
    * XXXXXXXXXX    <-- encoded block
    * XXXXXXXXXX
    *               <-- newline
@@ -262,7 +262,7 @@ var bogusMessageInfos = [
     bodyPart: new SyntheticPartMultiMixed([
       partHtml,
       msgGen.makeMessage({ // <--- M
-        bodyPart: 
+        bodyPart:
         new SyntheticPartMultiMixed([
           new SyntheticPartMultiRelated([
             partHtml,

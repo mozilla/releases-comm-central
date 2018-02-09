@@ -1,4 +1,4 @@
- 
+
 /* Provides methods to make sure our test shuts down mailnews properly. */
 
 // Notifies everyone that the we're shutting down. This is needed to make sure

@@ -20,8 +20,8 @@ var gSMIMEBundle = null;
 
 var nsICMSMessageErrors = Components.interfaces.nsICMSMessageErrors;
 
-var smimeHeaderSink = 
-{ 
+var smimeHeaderSink =
+{
   maxWantedNesting: function()
   {
     return 1;
@@ -40,7 +40,7 @@ var smimeHeaderSink =
     gSMIMEContainer.collapsed = false;
     gSignedUINode.collapsed = false;
     gSignedStatusPanel.collapsed = false;
-  
+
     switch (aSignatureStatus) {
       case nsICMSMessageErrors.SUCCESS:
         gSignedUINode.setAttribute("signed", "ok");
@@ -75,9 +75,9 @@ var smimeHeaderSink =
     gEncryptionStatus = aEncryptionStatus;
     gEncryptionCert = aRecipientCert;
 
-    gSMIMEContainer.collapsed = false; 
+    gSMIMEContainer.collapsed = false;
     gEncryptedUINode.collapsed = false;
-    gEncryptedStatusPanel.collapsed = false; 
+    gEncryptedStatusPanel.collapsed = false;
 
     if (nsICMSMessageErrors.SUCCESS == aEncryptionStatus)
     {
@@ -89,7 +89,7 @@ var smimeHeaderSink =
       gEncryptedUINode.setAttribute("encrypted", "notok");
       gStatusBar.setAttribute("encrypted", "notok");
     }
-    
+
     if (gEncryptedURIService)
     {
       gMyLastEncryptedURI = GetLoadedMessage();
@@ -141,10 +141,10 @@ function onSMIMEStartHeaders()
 {
   gEncryptionStatus = -1;
   gSignatureStatus = -1;
-  
+
   gSignerCert = null;
   gEncryptionCert = null;
-  
+
   gSMIMEContainer.collapsed = true;
 
   gSignedUINode.collapsed = true;
@@ -154,7 +154,7 @@ function onSMIMEStartHeaders()
 
   gEncryptedUINode.collapsed = true;
   gEncryptedUINode.removeAttribute("encrypted");
-  gEncryptedStatusPanel.collapsed = true; 
+  gEncryptedStatusPanel.collapsed = true;
   gStatusBar.removeAttribute("encrypted");
 
   forgetEncryptedURI();
@@ -196,7 +196,7 @@ function msgHdrViewSMIMEOnLoad(event)
   listener.onEndHeaders = onSMIMEEndHeaders;
   gMessageListeners.push(listener);
 
-  gEncryptedURIService = 
+  gEncryptedURIService =
     Components.classes["@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"]
     .getService(Components.interfaces.nsIEncryptedSMIMEURIsService);
 }
@@ -219,7 +219,7 @@ function msgHdrViewSMIMEOnMessagePaneHide()
   gSignedUINode.collapsed = true;
   gSignedStatusPanel.collapsed = true;
   gEncryptedUINode.collapsed = true;
-  gEncryptedStatusPanel.collapsed = true; 
+  gEncryptedStatusPanel.collapsed = true;
 }
 
 function msgHdrViewSMIMEOnMessagePaneUnhide()

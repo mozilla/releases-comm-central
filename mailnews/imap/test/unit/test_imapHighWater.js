@@ -161,7 +161,7 @@ var UrlListener =
 };
 
 // nsIMsgCopyServiceListener implementation
-var CopyListener = 
+var CopyListener =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},

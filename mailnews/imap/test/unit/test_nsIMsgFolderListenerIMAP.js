@@ -253,7 +253,7 @@ function doTest(test)
     // Set a limit of ten seconds; if the notifications haven't arrived by then there's a problem.
     do_timeout(10000, function(){
         if (gTest == test)
-          do_throw("Notifications not received in 10000 ms for operation " + testFn.name + 
+          do_throw("Notifications not received in 10000 ms for operation " + testFn.name +
             ", current status is " + gCurrStatus);
         }
       );

@@ -8,7 +8,7 @@
  * Each key is the page loaded when user clicks on one of the items on
  * the accounttree of the AccountManager window.
  * Value is a tag that is preset which will be used to display
- * context sensitive help. 
+ * context sensitive help.
  */
 var pageTagPairs = {
   "chrome://messenger/content/am-main.xul": "mail_account_identity",
@@ -21,9 +21,9 @@ var pageTagPairs = {
   "chrome://messenger/content/am-smime.xul": "mail_security_settings",
   "chrome://messenger/content/am-serverwithnoidentities.xul": "mail_local_folders_settings",
   "chrome://messenger/content/am-mdn.xul": "mail-account-receipts",
-} 
+}
 
-function doHelpButton() 
+function doHelpButton()
 {
   // Get the URI of the page loaded in the AccountManager's content frame.
   var pageSourceURI = contentFrame.location.href;
@@ -34,15 +34,15 @@ function doHelpButton()
   if ((helpTag == "mail") || (helpTag == "mail-offline-accounts")) {
     // Get server type, as we may need to set help tags per server type for some pages
     var serverType = GetServerType();
-  
+
     /**
-     * Check the page to be loaded. Following pages needed to be presented with the 
+     * Check the page to be loaded. Following pages needed to be presented with the
      * help content that is based on server type. For any pages with such requirement
      * do add comments here about the page and a new case statement for pageSourceURI
      * switch.
      * - server settings ("chrome://messenger/content/am-server.xul")
      * - offline/diskspace settings ("chrome://messenger/content/am-offline.xul")
-     */ 
+     */
     switch (pageSourceURI) {
       case "chrome://messenger/content/am-server.xul":
         helpTag = "mail_server_" + serverType;
@@ -57,10 +57,10 @@ function doHelpButton()
     }
   }
 
-  if ( helpTag ) 
-  	openHelp(helpTag);  
+  if ( helpTag )
+  	openHelp(helpTag);
   else
-	openHelp('mail'); 
+	openHelp('mail');
 }
 
 /**

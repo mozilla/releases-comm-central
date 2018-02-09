@@ -686,7 +686,7 @@ function* test_attributes_cant_query() {
 function* test_people_in_addressbook() {
   var senderPair = msgGen.makeNameAndAddress(),
       recipPair = msgGen.makeNameAndAddress();
-  
+
   // - add both people to the address book
   makeABCardForAddressPair(senderPair);
   makeABCardForAddressPair(recipPair);
@@ -1059,7 +1059,7 @@ function* test_folder_deletion_nested() {
   let glodaFolder1 = Gloda.getFolderForFolder(newFolder1);
   let glodaFolder2 = Gloda.getFolderForFolder(newFolder2);
 
-  // verify that Gloda properly marked this folder as not to be indexed anymore 
+  // verify that Gloda properly marked this folder as not to be indexed anymore
   Assert.equal(glodaFolder1.indexingPriority, glodaFolder1.kIndexingNeverPriority);
 
   // check that existing message is marked as deleted

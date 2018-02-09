@@ -87,7 +87,7 @@ function OnStopCopy(aStatus) {
   // Check we have a message in the unsent message folder
   Assert.equal(folder.getTotalMessages(false), 1);
 
-  
+
   // Now do a comparison of what is in the unsent mail folder
   let msgData = mailTestUtils
     .loadMessageToString(folder, mailTestUtils.firstMsgHdr(folder));

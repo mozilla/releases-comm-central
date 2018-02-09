@@ -149,7 +149,7 @@ function startCommand()
     traitService.addAlias(kProTrait, proAlias);
   while ((antiAlias = gTest.antiAliases.pop()))
     traitService.addAlias(kAntiTrait, antiAlias);
-  
+
   MailServices.junk.classifyTraitsInMessage(
     getSpec(gTest.fileName), // in string aMsgURI
     proArray.length, // length of traits arrays

@@ -24,7 +24,7 @@ var tests = [
     // on the inbox because fake server only supports one connection at a time.
     //  Then, we can poke at the message on the imap server directly, which
     // simulates the user changing the message from a different machine,
-    // and Thunderbird discovering the change when it does a flag sync 
+    // and Thunderbird discovering the change when it does a flag sync
     // upon reselecting the Inbox.
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;

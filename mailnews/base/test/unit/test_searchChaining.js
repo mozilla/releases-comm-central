@@ -63,7 +63,7 @@ var searchListener =
 {
   numTotalMessages: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgSearchNotify]),
-  onNewSearch: function() 
+  onNewSearch: function()
   {
     this.numTotalMessages = 0;
   },
@@ -72,7 +72,7 @@ var searchListener =
     this.numTotalMessages++;
   },
   onSearchDone: function(status)
-  { 
+  {
     Assert.equal(this.numTotalMessages, 1);
     return true;
   }

@@ -1,7 +1,7 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * This suite ensures that we can correctly read and re-set the popularity
- * indexes on a 
+ * indexes on a
  */
 
 var ACR = Components.interfaces.nsIAutoCompleteResult;

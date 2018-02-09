@@ -11,7 +11,7 @@ var gMessengerBundle;
 function MsgFolderPickerOnLoad(pickerID)
 {
 	var uri = null;
-	try { 
+	try {
 		uri = window.arguments[0].preselectedURI;
 	}
 	catch (ex) {
@@ -25,7 +25,7 @@ function MsgFolderPickerOnLoad(pickerID)
 		// pre-flight the menu with is valid for this
 		// picker type
 		var msgfolder = MailUtils.getFolderForURI(uri, true);
-        	if (!msgfolder) return; 
+        	if (!msgfolder) return;
 		
 		var verifyFunction = null;
 
@@ -51,13 +51,13 @@ function PickedMsgFolder(selection,pickerID)
 {
   var selectedUri = selection.getAttribute('id');
   SetFolderPicker(selectedUri,pickerID);
-}     
+}
 
 function SetFolderPickerElement(uri, picker)
 {
   var msgfolder = MailUtils.getFolderForURI(uri, true);
 
-  if (!msgfolder) 
+  if (!msgfolder)
     return;
 
   var selectedValue = null;

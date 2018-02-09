@@ -143,7 +143,7 @@ function run_test() {
 
   checkPopulate("TestList3 <TestList3>, ListTest1 <ListTest1>",
                 "test5@foo.invalid,test1@com.invalid,test2@com.invalid,test3@com.invalid");
-                
+
   // test bug 254519 rfc 2047 encoding
   checkPopulate("=?iso-8859-1?Q?Sure=F6name=2C_Forename_Dr=2E?= <pb@bieringer.invalid>",
                 "\"Sure\u00F6name, Forename Dr.\" <pb@bieringer.invalid>");

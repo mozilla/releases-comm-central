@@ -92,7 +92,7 @@ function selectOnLoad()
     gSynchronizeTree = document.getElementById('synchronizeTree');
 
     SortSynchronizePane('folderNameCol', '?folderTreeNameSort');
-} 
+}
 
 function SortSynchronizePane(column, sortKey)
 {
@@ -160,7 +160,7 @@ function onSynchronizeClick(event)
         }
     }
     else {
-      if (col.value.id == "syncCol") {   
+      if (col.value.id == "syncCol") {
         UpdateNode(GetFolderResource(gSynchronizeTree, row.value), row.value);
       }
     }
@@ -172,7 +172,7 @@ function onSynchronizeTreeKeyPress(event)
     if (event.charCode != KeyEvent.DOM_VK_SPACE)
       return;
 
-    var treeSelection = gSynchronizeTree.view.selection; 
+    var treeSelection = gSynchronizeTree.view.selection;
     for (var i=0;i<treeSelection.getRangeCount();i++) {
       var start = {}, end = {};
       treeSelection.getRangeAt(i,start,end);

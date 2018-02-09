@@ -5,7 +5,7 @@
 
 var gPrefsBundle;
 
-function acctNamePageValidate() 
+function acctNamePageValidate()
 {
   var accountname = document.getElementById("prettyName").value;
   var canAdvance = accountname ? true : false;
@@ -28,15 +28,15 @@ function acctNamePageUnload() {
   // for RSS accounts, in rss.rdf, userName, hostName and serverType
   // default to the same thing, so we need to do this to allow for
   // multiple RSS accounts.  Note, they can all have the same pretty name.
-  if (gCurrentAccountData && 
-      gCurrentAccountData.wizardAutoGenerateUniqueHostname) 
+  if (gCurrentAccountData &&
+      gCurrentAccountData.wizardAutoGenerateUniqueHostname)
   {
     var serverType = parent.getCurrentServerType(pageData);
     var userName = parent.getCurrentUserName(pageData);
     var hostName = parent.getCurrentHostname(pageData);
     var hostNamePref = hostName;
     var i = 2;
-    while (parent.AccountExists(userName, hostName, serverType)) 
+    while (parent.AccountExists(userName, hostName, serverType))
     {
       // If "Feeds" exists, try "Feeds-2", then "Feeds-3", etc.
       hostName = hostNamePref + "-" + i;
@@ -63,7 +63,7 @@ function acctNamePageInit()
 
         if (gCurrentAccountData && gCurrentAccountData.wizardAccountName)
             accountName = gCurrentAccountData.wizardAccountName;
-        else if (type == "nntp") 
+        else if (type == "nntp")
             accountName = pageData.newsserver.hostname.value;
         else
             accountName = pageData.identity.email.value;

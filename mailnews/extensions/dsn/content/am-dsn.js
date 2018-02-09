@@ -7,7 +7,7 @@ var useCustomPrefs;
 var requestAlways;
 var gIdentity;
 
-function onInit() 
+function onInit()
 {
   useCustomPrefs = document.getElementById("identity.dsn_use_custom_prefs");
   requestAlways = document.getElementById("identity.dsn_always_request_on");

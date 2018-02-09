@@ -103,7 +103,7 @@ function folderCount(folder)
 }
 
 function setup() {
-  setupIMAPPump(); 
+  setupIMAPPump();
   gEmptyLocal1 = localAccountUtils.incomingServer
                                   .rootFolder.createLocalSubfolder("empty 1");
   gEmptyLocal2 = localAccountUtils.incomingServer

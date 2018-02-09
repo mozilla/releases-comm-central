@@ -30,7 +30,7 @@ var gLocalFolder2;
 var gLocalFolder3;
 var gLocalTrashFolder;
 var gCurTestNum;
-// After a compact (or other operation), this is what we expect the 
+// After a compact (or other operation), this is what we expect the
 // folder size to be.
 var gExpectedFolderSize;
 var gMsgHdrs = new Array();
@@ -42,7 +42,7 @@ var gExpectedFolder3Size;
 var gMsgKeys = [];
 
 // nsIMsgCopyServiceListener implementation
-var copyListenerWrap = 
+var copyListenerWrap =
 {
   SetMessageKey: function(aKey)
   {
@@ -101,7 +101,7 @@ function deleteMessages(srcFolder, items)
   items.forEach(function (item) {
     array.appendElement(item);
   });
-  
+
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   srcFolder.deleteMessages(array, null, false, true, listener, true);
   return listener.promise;

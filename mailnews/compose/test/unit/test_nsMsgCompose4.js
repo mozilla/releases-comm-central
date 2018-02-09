@@ -148,7 +148,7 @@ function run_test() {
 
   checkPopulate("TestList3 <TestList3>, ListTest1 <ListTest1>", "",
                 SendFormat.AskUser);
-                
+
   // test bug 254519 rfc 2047 encoding
   checkPopulate("=?iso-8859-1?Q?Sure=F6name=2C_Forename__Dr=2E?= <pb@bieringer.invalid>", "",
                 SendFormat.AskUser);

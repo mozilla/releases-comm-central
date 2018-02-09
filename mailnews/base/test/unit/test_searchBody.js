@@ -222,7 +222,7 @@ function run_test()
   testValidityTable(onlineMail, IsntEmpty, Body, false);
   testValidityTable(onlineMail, IsBefore, Body, false);
 
-  // online mail filter  
+  // online mail filter
   /*testValidityTable(onlineMailFilter, Contains, Body, true);
   testValidityTable(onlineMailFilter, DoesntContain, Body, true);
   testValidityTable(onlineMailFilter, Is, Body, false);

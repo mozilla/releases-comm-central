@@ -56,7 +56,7 @@ var Keywords = nsMsgSearchAttrib.Keywords; // control entry that is not enabled
  *    8         I         P       P     N
  *
  */
- 
+
 var Tests =
 [
   { value: ABUri,
@@ -134,7 +134,7 @@ var Tests =
 
 ];
 
-var Files = 
+var Files =
 [
   "../../../data/bugmail1",
   "../../../data/bugmail2",
@@ -152,7 +152,7 @@ function run_test()
 {
   // Setup local mail accounts.
   localAccountUtils.loadLocalMailAccount();
-    
+
     // Test setup - copy the data file into place
   var testAB = do_get_file("../../../addrbook/test/unit/data/cardForEmail.mab");
 
@@ -222,7 +222,7 @@ function run_test()
   testValidityTable(onlineMail, IsBefore, CCopy, false);
   testValidityTable(onlineMail, IsBefore, Keywords, false);
 
-  // online mail filter  
+  // online mail filter
   testValidityTable(onlineMailFilter, IsInAB, Sender, true);
   testValidityTable(onlineMailFilter, IsInAB, To, true);
   testValidityTable(onlineMailFilter, IsInAB, ToOrCC, true);
@@ -262,17 +262,17 @@ function run_test()
   return true;
 }
 
-var copyListener = 
+var copyListener =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},
   SetMessageKey: function(aKey) {},
   SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) 
+  OnStopCopy: function(aStatus)
   {
     var fileName = Files.shift();
     if (fileName)
-    { 
+    {
       var file = do_get_file(fileName);
       MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null,
                                         false, 0, "", copyListener, null);

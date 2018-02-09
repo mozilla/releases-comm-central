@@ -43,7 +43,7 @@ function identityPageUnload()
   return true;
 }
 
-// This is for the case when the code appends the domain  
+// This is for the case when the code appends the domain
 // unnecessarily.
 // This simply gets rid  of "@domain" from "foo@domain"
 
@@ -69,7 +69,7 @@ function fixPreFilledEmail()
 function emailNameIsLegal(aString)
 {
   return aString && !/[^!-?A-~]/.test(aString);
-} 
+}
 
 function emailNameAndDomainAreLegal(aString)
 {
@@ -83,8 +83,8 @@ function identityPageInit()
   clearEmailTextItems();
   setEmailDescriptionText();
   checkForDomain();
-  checkForFullName(); 
-  checkForEmail(); 
+  checkForFullName();
+  checkForEmail();
   fixPreFilledEmail();
   identityPageValidate();
 }
@@ -102,22 +102,22 @@ function clearEmailTextItems()
 }
 
 // Use email example data that ISP has provided. ISP data, if avaialble
-// for the choice user has made, will be read into CurrentAccountData. 
-// Default example data from properties will be used when the info is missing. 
+// for the choice user has made, will be read into CurrentAccountData.
+// Default example data from properties will be used when the info is missing.
 function setEmailDescriptionText()
 {
     var emailDescText = document.getElementById("emailDescText");
     var emailFieldLabel = document.getElementById("emailFieldLabel");
     var currentAccountData = parent.gCurrentAccountData;
-   
+
     var displayText =  null;
     var emailFieldLabelData =  null;
-    var setDefaultEmailDescStrings = true; 
+    var setDefaultEmailDescStrings = true;
 
     // Set the default field label
     emailFieldLabel.setAttribute("value", gPrefsBundle.getString("emailFieldText"));
 
-    // Get values for customized data from current account 
+    // Get values for customized data from current account
     if (currentAccountData)
     {
         var emailProvider  = currentAccountData.emailProviderName;
@@ -144,15 +144,15 @@ function setEmailDescriptionText()
             emailFieldLabel.setAttribute("value", emailFieldLabelData);
 
             // Need to display customized data. Turn off default settings.
-            setDefaultEmailDescStrings = false; 
+            setDefaultEmailDescStrings = false;
         }
     }
 
     if (setDefaultEmailDescStrings)
     {
         // Check for obtained values and set with default values if needed
-        var username = gPrefsBundle.getString("exampleEmailUserName"); 
-        var domain = gPrefsBundle.getString("exampleEmailDomain"); 
+        var username = gPrefsBundle.getString("exampleEmailUserName");
+        var domain = gPrefsBundle.getString("exampleEmailDomain");
 
         displayText = gPrefsBundle.getFormattedString("defaultEmailText",
                                                       [username, domain]);
@@ -161,7 +161,7 @@ function setEmailDescriptionText()
     // Create a text nodes with text to be displayed
     var emailDescTextNode       =  document.createTextNode(displayText);
 
-    // Display the dynamically generated text for email description 
+    // Display the dynamically generated text for email description
     emailDescText.appendChild(emailDescTextNode);
 }
 
@@ -193,7 +193,7 @@ function checkForFullName() {
     }
 }
 
-function checkForEmail() 
+function checkForEmail()
 {
     var email = document.getElementById("email");
     var pageData = parent.GetPageData();
@@ -206,7 +206,7 @@ function checkForEmail()
             email.value = userInfo.emailAddress;
         }
         catch (ex) {
-            // dump ("checkForEmail failed: " + ex + "\n"); 
+            // dump ("checkForEmail failed: " + ex + "\n");
         }
     }
 }

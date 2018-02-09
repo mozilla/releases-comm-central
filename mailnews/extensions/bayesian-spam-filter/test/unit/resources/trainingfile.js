@@ -62,9 +62,9 @@ function TrainingData() {
     }
     return null;
   }
-  
+
   // method specifications
-  
+
   function read() {
     var file = getJunkStatFile();
 
@@ -72,11 +72,11 @@ function TrainingData() {
     Assert.ok(file.exists());
 
     var fileStream = getBinStream(file);
-    
+
     // check magic number
     var iMagicNumber = fileStream.read32();
     Assert.equal(iMagicNumber, 0xFEEDFACE);
-    
+
     // get ham'n'spam numbers
     this.mGoodMessages = fileStream.read32();
     this.mJunkMessages = fileStream.read32();
@@ -85,13 +85,13 @@ function TrainingData() {
     this.mGoodTokens = fileStream.read32();
     var iRefCount, iTokenLen, sToken;
     for (var i = 0; i < this.mGoodTokens; ++i)
-    { 
+    {
       iRefCount  = fileStream.read32();
       iTokenLen  = fileStream.read32();
       sToken     = fileStream.readBytes(iTokenLen);
       this.mGoodCounts[sToken] = iRefCount;
     }
-    
+
     // we have no further good tokens, so read junk tokens
     this.mJunkTokens = fileStream.read32();
     for (i = 0; i < this.mJunkTokens; i++)

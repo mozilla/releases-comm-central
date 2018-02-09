@@ -83,7 +83,7 @@ function CreateField( name, index, on)
   item.setAttribute('field-index', index);
   item.setAttribute('type', "checkbox");
   var cell = document.createElement('listcell');
-  var cCell = document.createElement( 'listcell');  
+  var cCell = document.createElement( 'listcell');
   cCell.setAttribute('type', "checkbox");
   cCell.setAttribute( 'label', name);
   if (on == true)
@@ -150,7 +150,7 @@ function FetchSampleData(num)
   if (!(data instanceof Components.interfaces.nsISupportsString))
     return false;
   ShowSampleData( data.data);
-  return true;  
+  return true;
 }
 
 function Browse(step)

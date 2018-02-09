@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- 
+
  // Contains various functions commonly used in testing mailnews search
 
 /**
@@ -28,10 +28,10 @@ function TestSearch(aFolder, aValue, aAttrib, aOp, aHitCount, onDone, aCustomId,
                     aArbitraryHeader, aHdrProperty)
 {
   var searchListener =
-  { 
+  {
     onSearchHit: function(dbHdr, folder) { hitCount++; },
     onSearchDone: function(status)
-    { 
+    {
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
       Assert.equal(aHitCount, hitCount);
@@ -42,14 +42,14 @@ function TestSearch(aFolder, aValue, aAttrib, aOp, aHitCount, onDone, aCustomId,
   };
 
   // define and initiate the search session
-  
+
   var hitCount;
   var searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
                         .createInstance(Ci.nsIMsgSearchSession);
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, aFolder);
   var searchTerm = searchSession.createTerm();
   searchTerm.attrib = aAttrib;
-  
+
   var value = searchTerm.value;
   // This is tricky - value.attrib must be set before actual values
   value.attrib = aAttrib;

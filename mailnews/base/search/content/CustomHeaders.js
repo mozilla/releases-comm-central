@@ -143,7 +143,7 @@ function duplicateHdrExists(hdr)
   }
   return false;
 }
- 
+
 function onRemoveHeader()
 {
   var listitem = gHdrsList.selectedItems[0]

@@ -101,7 +101,7 @@ function run_test() {
   abListener.maxResults = 2;
 
   AB.addMailList(mailList);
- 
+
   Assert.equal(abListener.result.length, 2);
   Assert.equal(abListener.result[0][0], "onItemAdded");
   Assert.equal(abListener.result[0][1], AB);

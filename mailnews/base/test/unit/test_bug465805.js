@@ -20,7 +20,7 @@ var offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
 
 var Body = nsMsgSearchAttrib.Body;
 
-var Files = 
+var Files =
 [
   "../../../data/bugmail1",
   "../../../data/bodySearchCrash"
@@ -47,17 +47,17 @@ function run_test()
   return true;
 }
 
-var copyListener = 
+var copyListener =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},
   SetMessageKey: function(aKey) {},
   SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) 
+  OnStopCopy: function(aStatus)
   {
     let fileName = Files.shift();
     if (fileName)
-    { 
+    {
       let file = do_get_file(fileName);
       MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null,
                                         false, 0, "", copyListener, null);

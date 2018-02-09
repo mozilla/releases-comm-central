@@ -110,6 +110,6 @@ function run_test() {
   }
 
   // Test - Remove main listener
-    
+
   gMsgCompose.removeMsgSendListener(gSLAll[numSendListenerFunctions]);
 };

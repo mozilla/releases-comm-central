@@ -56,7 +56,7 @@ function showMailIntegrationDialog() {
                         (nsIShellService.MAIL | nsIShellService.NEWS);
 
     // show the default client dialog only if we have at least one account,
-    // if we should check for the default client, and we want to check if we are 
+    // if we should check for the default client, and we want to check if we are
     // the default for mail/news and are not the default client for mail/news
     if (appTypesCheck && shellService.shouldCheckDefaultClient &&
         !shellService.isDefaultClient(true, appTypesCheck))
@@ -260,7 +260,7 @@ function MsgAccountManager(selectPage, aServer)
     }
 }
 
-function loadInboxForNewAccount() 
+function loadInboxForNewAccount()
 {
   // gNewAccountToLoad is set in the final screen of the Account Wizard if a POP account
   // was created, the download messages box is checked, and the wizard was opened from the 3pane
@@ -276,12 +276,12 @@ function loadInboxForNewAccount()
 }
 
 // returns true if we migrated - it knows this because 4.x did not have the
-// pref mailnews.quotingPrefs.version, so if it's not set, we're either 
+// pref mailnews.quotingPrefs.version, so if it's not set, we're either
 // migrating from 4.x, or a much older version of Mozilla.
 function migrateGlobalQuotingPrefs(allIdentities)
 {
   // if reply_on_top and auto_quote exist then, if non-default
-  // migrate and delete, if default just delete.  
+  // migrate and delete, if default just delete.
   var reply_on_top = 0;
   var auto_quote = true;
   var quotingPrefs = 0;

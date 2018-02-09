@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- 
+
 /*
  * This file tests recognizing a message as junk due to
  *  SpamAssassin headers, and marking that as good
@@ -11,7 +11,7 @@
  * adapted from test_filterNeedsBody.js
  */
 
-// async support 
+// async support
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -150,7 +150,7 @@ function run_test()
 
   let flags =
         nsIMFNService.msgsMoveCopyCompleted |
-        nsIMFNService.folderAdded | 
+        nsIMFNService.folderAdded |
         nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
 

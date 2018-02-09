@@ -37,7 +37,7 @@ function *setup() {
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   imapMsg.setSize(5000);
   IMAPPump.mailbox.addMessage(imapMsg);
-  
+
   // ...and download for offline use.
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);

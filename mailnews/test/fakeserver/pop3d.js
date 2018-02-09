@@ -73,7 +73,7 @@ pop3Daemon.prototype = {
 
   /**
    * Set the messages that the POP3 daemon will provide to its clients.
-   * 
+   *
    * @param messages An array of either 1) strings that are filenames whose
    *     contents will be loaded from the files or 2) objects with a "fileData"
    *     attribute whose value is the content of the file.

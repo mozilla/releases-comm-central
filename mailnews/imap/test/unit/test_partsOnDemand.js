@@ -107,7 +107,7 @@ function* testAllInlineMessage()
 
 function* updateCounts()
 {
-  // select the trash, then the inbox again, to force an update of the 
+  // select the trash, then the inbox again, to force an update of the
   // read state of messages.
   let trash = IMAPPump.incomingServer.rootFolder.getChildNamed("Trash");
   Assert.ok(trash instanceof Ci.nsIMsgImapMailFolder);

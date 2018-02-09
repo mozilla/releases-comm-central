@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function setAccountTypeData() 
+function setAccountTypeData()
 {
   var rg = document.getElementById("acctyperadio");
   var selectedItemId = rg.selectedItem.id;
@@ -36,7 +36,7 @@ function setupWizardPanels() {
     }
 
     var pageData = parent.GetPageData();
-   
+
     // We default this to false, even though we could set it to true if we
     // are going to display the page. However as the accname page will set
     // it to true for us, we'll just default it to false and not work it out
@@ -58,7 +58,7 @@ function setupWizardPanels() {
       var isMailAccount = pageData.accounttype.mailaccount;
       var isNewsAccount = pageData.accounttype.newsaccount;
       if (skipPanels == "true") // Support old syntax of true/false for wizardSkipPanels
-        wizardPanels = new Array("identitypage"); 
+        wizardPanels = new Array("identitypage");
       else if (isMailAccount && isMailAccount.value)
         wizardPanels = new Array("identitypage", "incomingpage", "outgoingpage", "accnamepage");
       else if (isNewsAccount && isNewsAccount.value)

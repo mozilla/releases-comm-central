@@ -68,7 +68,7 @@ function run_test()
   }
 }
 
-/*  
+/*
   function printTags()
   {
     let tags = MailServices.tags.getAllTags({});

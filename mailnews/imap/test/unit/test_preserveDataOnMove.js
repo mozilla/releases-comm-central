@@ -5,7 +5,7 @@
 // This tests that arbitrary message header properties are preserved
 //  during online move of an imap message.
 
-// async support 
+// async support
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 

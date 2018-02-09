@@ -28,7 +28,7 @@ var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 var nsIMFListener = Ci.nsIMsgFolderListener;
 
 // nsIMsgCopyServiceListener implementation
-var copyListener = 
+var copyListener =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},
@@ -76,7 +76,7 @@ function deleteMessages(srcFolder, items)
   items.forEach(function (item) {
     array.appendElement(item);
   });
-  
+
   srcFolder.deleteMessages(array, null, false, true, copyListener, true);
 }
 
@@ -153,7 +153,7 @@ function doTest(test)
   if (test <= gTestArray.length)
   {
     gCurTestNum = test;
-    
+
     var testFn = gTestArray[test-1];
     // Set a limit of three seconds; if the notifications haven't arrived by then there's a problem.
     do_timeout(10000, function(){

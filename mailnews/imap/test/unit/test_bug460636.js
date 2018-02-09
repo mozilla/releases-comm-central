@@ -12,7 +12,7 @@ var gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
 
 var gFileName = "bug460636";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
-                     
+
 var tests = [
   setup,
   checkSavedMessage,

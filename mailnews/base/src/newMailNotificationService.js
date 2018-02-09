@@ -59,7 +59,7 @@ NewMailNotificationService.prototype = {
   contractID:           "@mozilla.org/newMailNotificationService;1",
   QueryInterface:       XPCOMUtils.generateQI([Ci.nsIObserver, Ci.nsIFolderListener, Ci.mozINewMailNotificationService]),
   _xpcom_factory: XPCOMUtils.generateSingletonFactory(NewMailNotificationService),
-  
+
   _mUnreadCount: 0,
   _mNewCount: 0,
   _listeners: null,
@@ -315,7 +315,7 @@ NewMailNotificationService.prototype = {
       this._log.trace("NMNS_OnItemRemoved: unread item " + item.folder.getUriForMsg(item) + " removed from " + item.folder.folderURL);
     }
   },
-  
+
 
   // Implement mozINewMailNotificationService
 

@@ -22,7 +22,7 @@ var gIdentity;
 var gIncomingServer;
 var gMdnPrefBranch;
 
-function onInit() 
+function onInit()
 {
   useCustomPrefs = document.getElementById("identity.use_custom_prefs");
   requestReceipt = document.getElementById("identity.request_return_receipt_on");
@@ -39,9 +39,9 @@ function onInit()
   otherCasesLabel = document.getElementById("otherCasesLabel");
   receiptArriveLabel = document.getElementById("receiptArriveLabel");
   receiptRequestLabel = document.getElementById("receiptRequestLabel");
-  
+
   EnableDisableCustomSettings();
-        
+
   return true;
 }
 
@@ -108,7 +108,7 @@ function onPreInit(account, accountValues)
 // Disables xul elements that have associated preferences locked.
 function onLockPreference(initPrefString, keyString)
 {
-    var finalPrefString; 
+    var finalPrefString;
 
     var allPrefElements = [
       { prefstring:"request_return_receipt_on", id:"identity.request_return_receipt_on"},
@@ -126,7 +126,7 @@ function onLockPreference(initPrefString, keyString)
     gMdnPrefBranch = Services.prefs.getBranch(finalPrefString);
 
     disableIfLocked( allPrefElements );
-} 
+}
 
 function disableIfLocked( prefstrArray )
 {

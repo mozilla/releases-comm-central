@@ -137,7 +137,7 @@ function onSavePassword(target) {
     dump("savePassword changed! (" + target.checked + ")\n");
     var passwordField = document.getElementById("server.password");
     if (!passwordField) return;
-    
+
     if (target.checked) {
         passwordField.removeAttribute("disabled");
         passwordField.value = savedPassword;
@@ -147,5 +147,5 @@ function onSavePassword(target) {
         savedPassword = passwordField.value;
         passwordField.value = "";
     }
-    
+
 }

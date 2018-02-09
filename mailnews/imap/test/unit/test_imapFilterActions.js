@@ -51,7 +51,7 @@ var gDbService = Components.classes["@mozilla.org/msgDatabase/msgDBService;1"]
 // being tested, with "Body" appended to tests that use delayed
 // application of filters due to a body search
 var gTestArray =
-[ 
+[
   setupIMAPPump,
     // optionally set server parameters, here enabling debug messages
   //function serverParms() {

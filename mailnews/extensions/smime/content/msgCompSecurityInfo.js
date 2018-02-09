@@ -73,7 +73,7 @@ function onLoad()
 
   var allow_ldap_cert_fetching = false;
 
-  try {  
+  try {
     if (params.compFields.securityInfo.requireEncryptMessage) {
       allow_ldap_cert_fetching = true;
     }

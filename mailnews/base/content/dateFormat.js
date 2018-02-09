@@ -121,7 +121,7 @@ function convertPRTimeToString(tm)
   // PRTime is in microseconds, JavaScript time is in milliseconds
   // so divide by 1000 when converting
   time.setTime(tm / 1000);
-  
+
   return convertDateToString(time);
 }
 

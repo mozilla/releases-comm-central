@@ -14,7 +14,7 @@ function run_test()
 {
   localAccountUtils.loadLocalMailAccount();
 
-  var copyListener = 
+  var copyListener =
   {
     OnStartCopy: function() {},
     OnProgress: function(aProgress, aProgressMax) {},

@@ -5,7 +5,7 @@
 // Test of setting keywords with CopyFileMessage
 
 var bugmail11 = do_get_file("../../../data/bugmail11");
-                     
+
 // main test
 
 // tag used with test messages

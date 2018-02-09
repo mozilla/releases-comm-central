@@ -47,12 +47,12 @@ function onCancel()
   msgShutdownService.cancelShutdownTasks();
 }
 
-function nsMsgShutdownTaskListener() 
+function nsMsgShutdownTaskListener()
 {
   msgShutdownService.setShutdownListener(this);
 }
 
-nsMsgShutdownTaskListener.prototype = 
+nsMsgShutdownTaskListener.prototype =
 {
   QueryInterface : function(iid)
   {

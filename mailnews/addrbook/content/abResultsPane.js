@@ -220,7 +220,7 @@ function GetSelectedAbCards()
       let tmp = abView.getCardFromRow(j);
       if (tmp) {
 	cards.push(tmp);
-      } 
+      }
     }
   }
   return cards;

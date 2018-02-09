@@ -5,7 +5,7 @@
 /*
  * Testing of junk whitelisting
  */
- 
+
 // add address book setup
 load("../../../resources/abSetup.js");
 
@@ -25,12 +25,12 @@ ChromeUtils.import("resource:///modules/mailServices.js");
  *    1        3          I
  *
  */
- 
+
 // indices into hdrs[] of email by domain
 var kDomainTest = 0;
 var kDomainExample = 1;
 
-var Files = 
+var Files =
 [
   "../../../data/bugmail1",
   "../../../data/bugmail3"

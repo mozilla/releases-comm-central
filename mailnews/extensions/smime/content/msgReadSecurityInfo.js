@@ -112,7 +112,7 @@ function onLoad()
                                      gSignatureStatus);
     }
 
-    document.getElementById("signatureLabel").value = 
+    document.getElementById("signatureLabel").value =
       bundle.getString(sigInfoLabel);
 
     var label;
@@ -162,7 +162,7 @@ function onLoad()
                                      gEncryptionStatus);
     }
 
-    document.getElementById("encryptionLabel").value = 
+    document.getElementById("encryptionLabel").value =
       bundle.getString(encInfoLabel);
 
     if (encInfoHeader) {

@@ -12,9 +12,9 @@ localAccount.defaultIdentity = identity;
 
 function run_test()
 {
-  var headers = 
-    "from: alice@t1.example.com\r\n" + 
-    "to: bob@t2.example.net\r\n" + 
+  var headers =
+    "from: alice@t1.example.com\r\n" +
+    "to: bob@t2.example.net\r\n" +
     "return-path: alice@t1.example.com\r\n" +
     "Disposition-Notification-To: alice@t1.example.com\r\n";
 
@@ -26,16 +26,16 @@ function run_test()
 
   let localFolder = localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   localAccountUtils.inboxFolder.addMessage("From \r\n"+ headers + "\r\nhello\r\n");
-  // Need to setup some prefs  
+  // Need to setup some prefs
   Services.prefs.setBoolPref("mail.mdn.report.enabled", true);
   Services.prefs.setIntPref("mail.mdn.report.not_in_to_cc", 2);
   Services.prefs.setIntPref("mail.mdn.report.other", 2);
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 2);
-  
+
   var msgFolder = localAccountUtils.inboxFolder;
 
   var msgWindow = {};
- 
+
   var msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   // Everything looks good so far, let's generate the MDN response.

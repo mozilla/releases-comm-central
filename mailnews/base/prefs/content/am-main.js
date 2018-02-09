@@ -18,7 +18,7 @@ function onInit(aPageId, aServerId)
   title.setAttribute("title",titleValue);
   document.title = titleValue;
 
-  setupSignatureItems(); 
+  setupSignatureItems();
 }
 
 function onPreInit(account, accountValues)

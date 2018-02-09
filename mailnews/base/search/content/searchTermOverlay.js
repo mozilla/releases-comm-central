@@ -10,7 +10,7 @@ var gSearchRemovedTerms = new Array;
 var gSearchScope;
 var gSearchBooleanRadiogroup;
 
-var gUniqueSearchTermCounter = 0; // gets bumped every time we add a search term so we can always 
+var gUniqueSearchTermCounter = 0; // gets bumped every time we add a search term so we can always
                                   // dynamically generate unique IDs for the terms.
 
 // cache these so we don't have to hit the string bundle for them
@@ -115,7 +115,7 @@ searchTermContainer.prototype = {
           searchTerm.attrib = this.searchattribute.value;
         }
 
-        if (this.searchattribute.value > nsMsgSearchAttrib.OtherHeader && this.searchattribute.value < nsMsgSearchAttrib.kNumMsgSearchAttributes) 
+        if (this.searchattribute.value > nsMsgSearchAttrib.OtherHeader && this.searchattribute.value < nsMsgSearchAttrib.kNumMsgSearchAttributes)
           searchTerm.arbitraryHeader = this.searchattribute.label;
         searchTerm.op = this.searchoperator.value;
         if (this.searchvalue.value)
@@ -135,8 +135,8 @@ searchTermContainer.prototype = {
 
 var nsIMsgSearchTerm = Components.interfaces.nsIMsgSearchTerm;
 
-function initializeSearchWidgets() 
-{    
+function initializeSearchWidgets()
+{
     gSearchBooleanRadiogroup = document.getElementById("booleanAndGroup");
     gSearchTermList = document.getElementById("searchTermList");
 
@@ -146,7 +146,7 @@ function initializeSearchWidgets()
     gLessButtonTooltipText = bundle.getString('lessButtonTooltipText');
 }
 
-function initializeBooleanWidgets() 
+function initializeBooleanWidgets()
 {
     var booleanAnd = true;
     var matchAll = false;
@@ -163,7 +163,7 @@ function initializeBooleanWidgets()
         matchAll = firstTerm.matchAll;
     }
     // target radio items have value="and" or value="or" or "all"
-    gSearchBooleanRadiogroup.value = matchAll 
+    gSearchBooleanRadiogroup.value = matchAll
       ? "matchAll"
       : (booleanAnd ? "and" : "or")
     var searchTerms = document.getElementById("searchTermList");
@@ -216,16 +216,16 @@ function updateRemoveRowButton()
   if (firstListItem)
     firstListItem.lastChild.lastChild.setAttribute("disabled", gTotalSearchTerms == 1);
 }
- 
+
 // Returns the actual list item row index in the list of search rows
 // that contains the passed in element id.
 function getSearchRowIndexForElement(aElement)
 {
   var listItem = aElement;
-  
+
   while (listItem && listItem.localName != "listitem")
     listItem = listItem.parentNode;
-    
+
   return gSearchTermList.getIndexOfItem(listItem);
 }
 
@@ -233,7 +233,7 @@ function onMore(event)
 {
   // if we have an event, extract the list row index and use that as the row number
   // for our insertion point. If there is no event, append to the end....
-  var rowIndex; 
+  var rowIndex;
 
   if (event)
     rowIndex = getSearchRowIndexForElement(event.target) + 1;
@@ -250,9 +250,9 @@ function onMore(event)
 
 function onLess(event)
 {
-  if (event && gTotalSearchTerms > 1) 
+  if (event && gTotalSearchTerms > 1)
   {
-    removeSearchRow(getSearchRowIndexForElement(event.target));    
+    removeSearchRow(getSearchRowIndexForElement(event.target));
     --gTotalSearchTerms;
   }
 
@@ -260,7 +260,7 @@ function onLess(event)
 }
 
 // set scope on all visible searchattribute tags
-function setSearchScope(scope) 
+function setSearchScope(scope)
 {
   gSearchScope = scope;
   for (var i = 0; i < gSearchTerms.length; i++)
@@ -278,7 +278,7 @@ function setSearchScope(scope)
 
 function updateSearchAttributes()
 {
-    for (var i=0; i<gSearchTerms.length; i++) 
+    for (var i=0; i<gSearchTerms.length; i++)
         gSearchTerms[i].obj.searchattribute.refreshList();
     }
 
@@ -330,7 +330,7 @@ function createSearchRow(index, scope, searchTerm, aUserAdded)
     moreButton.setAttribute('label', '+');
     moreButton.setAttribute('tooltiptext', gMoreButtonTooltipText);
     lessButton.setAttribute("class", "small-button");
-    lessButton.setAttribute("oncommand", "onLess(event);");    
+    lessButton.setAttribute("oncommand", "onLess(event);");
     lessButton.setAttribute('label', '\u2212');
     lessButton.setAttribute('tooltiptext', gLessButtonTooltipText);
 
@@ -482,7 +482,7 @@ function removeSearchRow(index)
     listitem.remove();
 
     // now remove the item from our list of terms
-    gSearchTerms.splice(index, 1); 
+    gSearchTerms.splice(index, 1);
 }
 
 // save the search terms from the UI back to the actual search terms

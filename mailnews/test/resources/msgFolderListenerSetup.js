@@ -115,7 +115,7 @@ var gMFListener =
         resetStatusAndProceed();
     }
   },
-  
+
   folderAdded: function(aFolder)
   {
     verify([gMFNService.folderAdded, aFolder]);

@@ -185,7 +185,7 @@ var tests = [
   function* testQueuedOfflineDownload()
   {
     // Make sure that streaming the same message and then trying to download
-    // it for offline use doesn't end up in it getting added to the offline 
+    // it for offline use doesn't end up in it getting added to the offline
     // store twice.
     gImapInboxOfflineStoreSize = IMAPPump.inbox.filePath.fileSize + gFirstMsgSize;
     let newMsgHdr = IMAPPump.inbox.GetMessageHeader(gFirstNewMsg);
@@ -198,7 +198,7 @@ var tests = [
   function* firstStreamFinished()
   {
     // nsIMsgFolder.DownloadMessagesForOffline does not take a listener, so
-    // we invoke nsIImapService.downloadMessagesForOffline directly with a 
+    // we invoke nsIImapService.downloadMessagesForOffline directly with a
     // listener.
     MailServices.imap.downloadMessagesForOffline(gFirstNewMsg,
                                                  IMAPPump.inbox,

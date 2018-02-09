@@ -96,7 +96,7 @@ function endTest()
 }
 
 // nsIMsgCopyServiceListener implementation
-var copyListener = 
+var copyListener =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},

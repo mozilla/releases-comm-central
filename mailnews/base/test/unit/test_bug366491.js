@@ -23,8 +23,8 @@ var kGood = MailServices.junk.GOOD;
  * junkPercent values below were calculated by the plugin,
  * not indepedently verified.
  */
- 
-var tests = 
+
+var tests =
 [
   {fileName: "ham2.eml",
    junkPercent: 8},
@@ -50,7 +50,7 @@ function run_test()
 };
 
 var haveClassification = false;
-var doTestingListener = 
+var doTestingListener =
 {
   onMessageClassified: function(aMsgURI, aClassification, aJunkPercent)
   {

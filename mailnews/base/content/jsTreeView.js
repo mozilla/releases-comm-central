@@ -229,7 +229,7 @@ PROTO_TREE_VIEW.prototype = {
     if (aIID.equals(Components.interfaces.nsITreeView) ||
         aIID.equals(Components.interfaces.nsISupports))
       return this;
- 
+
     throw Components.results.NS_ERROR_NO_INTERFACE;
   }
 };

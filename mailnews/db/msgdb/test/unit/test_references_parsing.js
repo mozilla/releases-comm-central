@@ -45,7 +45,7 @@ var refsAndResults = [
 /**
  * Parse the references in refsAndResults and ensure their references match
  *  the corresponding results.
- * 
+ *
  * @param aMsgHdr A message header that you don't mind if we mess with.
  */
 function test_references_header_parsing(aMsgHdr) {
@@ -53,7 +53,7 @@ function test_references_header_parsing(aMsgHdr) {
   for (iCase = 0; iCase < refsAndResults.length; iCase++) {
     refString = refsAndResults[iCase][0];
     results   = refsAndResults[iCase][1];
-    
+
     dump("Setting references to: '" + refString + "'\n");
     aMsgHdr.setReferences(refString);
     if (aMsgHdr.numReferences != results.length) {
@@ -67,15 +67,15 @@ function test_references_header_parsing(aMsgHdr) {
       for (iResult = 0; iResult < aMsgHdr.numReferences; iResult++) {
         dump("'" + aMsgHdr.getStringReference(iResult) +  "'\n");
       }
-      
+
       Assert.equal(aMsgHdr.numReferences, results.length);
     }
-    
+
     for (iResult = 0; iResult < results.length; iResult++) {
       Assert.equal(aMsgHdr.getStringReference(iResult), results[iResult]);
     }
   }
-  
+
   do_test_finished();
 }
 
@@ -94,7 +94,7 @@ function run_test() {
 
 var messageHeaderGetterListener = {
   msgKey: null,
-  
+
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},
   GetMessageId: function (aMessageId) {},

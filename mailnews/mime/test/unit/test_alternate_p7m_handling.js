@@ -17,7 +17,7 @@ var p7mAttachment = "dGhpcyBpcyBub3QgYSByZWFsIHMvbWltZSBwN20gZW50aXR5";
 
 // create a message with a p7m attachment
 var messages = [{
-  attachments: [{ 
+  attachments: [{
     body: p7mAttachment,
     filename: 'test.txt.p7m',
     contentType: 'application/pkcs7-mime',

@@ -28,7 +28,7 @@ var tests = [
       // should be done by now
       Assert.ok(false);
     });
- 
+
     if (typeof localAccountUtils.inboxFolder == 'undefined')
       localAccountUtils.loadLocalMailAccount();
     localAccountUtils.rootFolder.createSubfolder("target", null);

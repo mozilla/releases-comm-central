@@ -75,7 +75,7 @@ function run_test() {
 
     Assert.equal(folder.getTotalMessages(false), 1);
     Assert.ok(folder.hasNewMessages);
- 
+
     server.resetTest();
 
     var message = folder.firstNewMessage;

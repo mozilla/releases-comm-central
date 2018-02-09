@@ -20,7 +20,7 @@ var JXON = new (function() {
   function parseText(sValue) {
     //if (rIsNull.test(sValue))
     //  return null;
-    if (rIsBool.test(sValue)) 
+    if (rIsBool.test(sValue))
       return sValue.toLowerCase() === "true";
     if (isFinite(sValue))
       return parseFloat(sValue);
@@ -66,7 +66,7 @@ var JXON = new (function() {
       for (var oNode, nItem = 0; nItem < oParentNode.childNodes.length; nItem++) {
         oNode = oParentNode.childNodes.item(nItem);
         if (oNode.nodeType === 4) // CDATASection
-          sCollectedTxt += oNode.nodeValue; 
+          sCollectedTxt += oNode.nodeValue;
         else if (oNode.nodeType === 3) // Text
           sCollectedTxt += oNode.nodeValue;
         else if (oNode.nodeType === 1) // Element

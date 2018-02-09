@@ -5,7 +5,7 @@
 /*
  * Testing of Uint32HdrProperty search attribute. Adapted from test_search.js
  */
- 
+
 load("../../../resources/searchTestUtils.js");
 
 ChromeUtils.import("resource:///modules/mailServices.js");
@@ -75,7 +75,7 @@ function run_test()
 {
   localAccountUtils.loadLocalMailAccount();
 
-  var copyListener = 
+  var copyListener =
   {
     OnStartCopy: function() {},
     OnProgress: function(aProgress, aProgressMax) {},

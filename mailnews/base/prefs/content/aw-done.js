@@ -30,13 +30,13 @@ function donePageInit() {
         }
       }
     }
-   
+
     gPrefsBundle = document.getElementById("bundle_prefs");
-    var showMailServerDetails = true; 
+    var showMailServerDetails = true;
 
     if (currentAccountData) {
         // find out if we need to hide server details
-        showMailServerDetails = currentAccountData.showServerDetailsOnWizardSummary; 
+        showMailServerDetails = currentAccountData.showServerDetailsOnWizardSummary;
         // Change the username field description to email field label in aw-identity
         if (currentAccountData.emailIDFieldTitle)
           setUserNameDescField(currentAccountData.emailIDFieldTitle);
@@ -49,8 +49,8 @@ function donePageInit() {
     if (pageData.identity && pageData.identity.email) {
         // fixup the email
         email = pageData.identity.email.value;
-        if (email.split('@').length < 2 && 
-                     currentAccountData && 
+        if (email.split('@').length < 2 &&
+                     currentAccountData &&
                      currentAccountData.domain)
             email += "@" + currentAccountData.domain;
     }
@@ -73,7 +73,7 @@ function donePageInit() {
     if (pageData.login && pageData.login.smtpusername)
         smtpUserName = pageData.login.smtpusername.value;
     if (!smtpUserName && email)
-        smtpUserName = getUsernameFromEmail(email, currentAccountData && 
+        smtpUserName = getUsernameFromEmail(email, currentAccountData &&
                                             currentAccountData.smtpUserNameRequiresDomain);
     setDivTextFromForm("smtpServer.username", smtpUserName);
 
@@ -81,9 +81,9 @@ function donePageInit() {
       // If currentAccountData has a pretty name (e.g. news link or from
       // isp data) only set the user name with the pretty name if the
       // pretty name originally came from ispdata
-      if ((currentAccountData && 
+      if ((currentAccountData &&
            currentAccountData.incomingServer.prettyName) &&
-           (pageData.ispdata && 
+           (pageData.ispdata &&
             pageData.ispdata.supplied &&
             pageData.ispdata.supplied.value))
       {
@@ -102,15 +102,15 @@ function donePageInit() {
     }
 
     // Show mail servers (incoming&outgoing) details
-    // based on current account data. ISP can set 
+    // based on current account data. ISP can set
     // rdf value of literal showServerDetailsOnWizardSummary
     // to false to hide server details
     if (showMailServerDetails && !serverIsNntp(pageData)) {
         var incomingServerName="";
         if (pageData.server && pageData.server.hostname) {
             incomingServerName = pageData.server.hostname.value;
-            if (!incomingServerName && 
-                 currentAccountData && 
+            if (!incomingServerName &&
+                 currentAccountData &&
                  currentAccountData.incomingServer.hostname)
                 incomingServerName = currentAccountData.incomingServer.hostName;
         }
@@ -121,8 +121,8 @@ function donePageInit() {
         var incomingServerType="";
         if (pageData.server && pageData.server.servertype) {
             incomingServerType = pageData.server.servertype.value;
-            if (!incomingServerType && 
-                 currentAccountData && 
+            if (!incomingServerType &&
+                 currentAccountData &&
                  currentAccountData.incomingServer.type)
                 incomingServerType = currentAccountData.incomingServer.type;
         }
@@ -181,7 +181,7 @@ function hideShowDownloadMsgsUI(isPop)
       }
     }
   }
- 
+
   // else hide it
   downloadMsgs.hidden = true;
 }

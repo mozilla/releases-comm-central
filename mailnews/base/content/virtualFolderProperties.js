@@ -34,17 +34,17 @@ function onLoad()
   setSearchScope(nsMsgSearchScope.offlineMail);
   if (windowArgs.editExistingFolder)
   {
-    acceptButton.label = 
+    acceptButton.label =
         document.documentElement.getAttribute("editFolderAcceptButtonLabel");
-    acceptButton.accesskey = 
+    acceptButton.accesskey =
         document.documentElement.getAttribute("editFolderAcceptButtonAccessKey");
     InitDialogWithVirtualFolder(windowArgs.folder);
   }
   else // we are creating a new virtual folder
   {
-    acceptButton.label = 
+    acceptButton.label =
         document.documentElement.getAttribute("newFolderAcceptButtonLabel");
-    acceptButton.accesskey = 
+    acceptButton.accesskey =
         document.documentElement.getAttribute("newFolderAcceptButtonAccessKey");
     // it is possible that we were given arguments to pre-fill the dialog with...
     gSearchTermSession = Components.classes["@mozilla.org/messenger/searchSession;1"]

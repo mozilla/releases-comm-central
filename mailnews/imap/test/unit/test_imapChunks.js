@@ -12,7 +12,7 @@ var gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
 
 var gFileName = "bug92111";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
-                     
+
 function run_test()
 {
   /*
@@ -100,7 +100,7 @@ function endTest()
   do_test_finished();
 }
 
-var UrlListener = 
+var UrlListener =
 {
   OnStartRunningUrl: function(url) { },
   OnStopRunningUrl: function(url, rc)

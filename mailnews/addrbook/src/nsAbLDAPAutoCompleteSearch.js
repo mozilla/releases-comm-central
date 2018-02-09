@@ -245,7 +245,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
     var filterTemplate = this._book.getStringValue("autoComplete.filterTemplate", "");
 
-    // Use default value when preference is not set or it contains empty string    
+    // Use default value when preference is not set or it contains empty string
     if (!filterTemplate)
       filterTemplate = "(|(cn=%v1*%v2-*)(mail=%v1*%v2-*)(sn=%v1*%v2-*))";
 

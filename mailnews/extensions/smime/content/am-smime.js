@@ -29,7 +29,7 @@ var gSigningChoicesLocked;
 var kEncryptionCertPref = "identity.encryption_cert_name";
 var kSigningCertPref = "identity.signing_cert_name";
 
-function onInit() 
+function onInit()
 {
   smimeInitializeFields();
 }
@@ -198,8 +198,8 @@ function disableIfLocked( prefstrArray )
     var id = prefstrArray[i].id;
     var element = document.getElementById(id);
     if (gSmimePrefbranch.prefIsLocked(prefstrArray[i].prefstring)) {
-      // If encryption choices radio group is locked, make sure the individual 
-      // choices in the group are locked. Set a global (gEncryptionChoicesLocked) 
+      // If encryption choices radio group is locked, make sure the individual
+      // choices in the group are locked. Set a global (gEncryptionChoicesLocked)
       // indicating the status so that locking can be maintained further.
       if (id == "encryptionChoices") {
         document.getElementById("encrypt_mail_never").setAttribute("disabled", "true");
@@ -208,7 +208,7 @@ function disableIfLocked( prefstrArray )
       }
       // If option to sign mail is locked (with true/false set in config file), disable
       // the corresponding checkbox and set a global (gSigningChoicesLocked) in order to
-      // honor the locking as user changes other elements on the panel. 
+      // honor the locking as user changes other elements on the panel.
       if (id == "identity.sign_mail") {
         document.getElementById("identity.sign_mail").setAttribute("disabled", "true");
         gSigningChoicesLocked = true;
@@ -355,18 +355,18 @@ function smimeSelectCert(smime_cert)
         enableEncryptionControls(true);
 
         checkOtherCert(x509cert,
-          kSigningCertPref, email_signing_cert_usage, 
-          "signing_needCertWantSame", 
-          "signing_wantSame", 
+          kSigningCertPref, email_signing_cert_usage,
+          "signing_needCertWantSame",
+          "signing_wantSame",
           "signing_needCertWantToSelect",
           enableSigningControls);
       } else {
         enableSigningControls(true);
 
         checkOtherCert(x509cert,
-          kEncryptionCertPref, email_recipient_cert_usage, 
-          "encryption_needCertWantSame", 
-          "encryption_wantSame", 
+          kEncryptionCertPref, email_recipient_cert_usage,
+          "encryption_needCertWantSame",
+          "encryption_wantSame",
           "encryption_needCertWantToSelect",
           enableEncryptionControls);
       }

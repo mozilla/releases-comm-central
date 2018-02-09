@@ -91,7 +91,7 @@ function* testDetach()
   // This test seems to fail on Linux without the following delay.
   mailTestUtils.do_timeout_function(200, async_driver);
   yield false;
-  // Check that the file attached to the message now exists in the profile 
+  // Check that the file attached to the message now exists in the profile
   // directory.
   let checkFile = do_get_profile().clone();
   checkFile.append(kAttachFileName);

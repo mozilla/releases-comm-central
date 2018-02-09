@@ -14,7 +14,7 @@ var gOfflineMap = null; // map of folder URLs to offline flags
 var gOfflineFolders;    // initial state of allFoldersOffline checkbox
 var gToggleOccurred = false;
 
-function onInit(aPageId, aServerId) 
+function onInit(aPageId, aServerId)
 {
     onLockPreference();	
 
@@ -306,8 +306,8 @@ function onLockPreference()
 {
     var isDownloadLocked = false;
     var isGetNewLocked = false;
-    var initPrefString = "mail.server"; 
-    var finalPrefString; 
+    var initPrefString = "mail.server";
+    var finalPrefString;
 
     // This panel does not use the code in AccountManager.js to handle
     // the load/unload/disable.  keep in mind new prefstrings and changes
@@ -333,7 +333,7 @@ function onLockPreference()
     gPref = Services.prefs.getBranch(finalPrefString);
 
     disableIfLocked( allPrefElements );
-} 
+}
 
 function onCheckItem(changeElementId, checkElementId)
 {

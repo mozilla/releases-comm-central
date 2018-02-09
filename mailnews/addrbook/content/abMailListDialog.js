@@ -226,7 +226,7 @@ function EditListOKButton()
   if (GetListValue(gEditList, false))
   {
     if (gListCard) {
-      // modify the list card (for the results pane) from the mailing list 
+      // modify the list card (for the results pane) from the mailing list
       gListCard.displayName = gEditList.dirName;
       gListCard.lastName = gEditList.dirName;
       gListCard.setProperty("NickName", gEditList.listNickName);
@@ -309,7 +309,7 @@ function OnLoadEditList()
 }
 
 function AppendLastRow()
-{ 
+{
   AppendNewRowAndSetFocus();
   awFitDummyRows(1);
 
@@ -432,7 +432,7 @@ function awAppendNewRow(setFocus)
       body.replaceChild(newNode, nextDummy);
     else
       body.appendChild(newNode);
-    
+
     top.MAX_RECIPIENTS++;
 
     var input = newNode.getElementsByTagName(awInputElementName());

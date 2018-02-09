@@ -116,7 +116,7 @@ function markInDatabase( lower, upper )
   }
 
   var filterEnumerator = messageDatabase.getFilterEnumerator( searchTerms );
-  
+
   if ( filterEnumerator )
   {
     var keepGoing;

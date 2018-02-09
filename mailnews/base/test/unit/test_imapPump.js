@@ -6,7 +6,7 @@
  * Simple demonstration of the imap pump test method.
  */
 
-// async support 
+// async support
 load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
@@ -26,7 +26,7 @@ var gMessage = "bugmail10"; // message file used as the test message
 
 // load and update a message in the imap fake server
 
-var gTestArray = 
+var gTestArray =
 [
   // initial setup of IMAP environment
   setupIMAPPump,

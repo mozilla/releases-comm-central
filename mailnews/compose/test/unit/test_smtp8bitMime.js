@@ -60,7 +60,7 @@ function test_8bitmime(aStrictMime, aServer8bit) {
     do_throw(e);
   } finally {
     server.stop();
- 
+
     var thread = gThreadManager.currentThread;
     while (thread.hasPendingEvents())
       thread.processNextEvent(true);

@@ -35,13 +35,13 @@ var fileName = "../../../data/bugmail1";
  * percent, while allowing junk percent from the bayes filter
  * to be saved for analysis.
  *
- * This means that the search for "junk percent" only uses the 
+ * This means that the search for "junk percent" only uses the
  * database junkpercent value if junkscoreorigin is "plugin".
  * Otherwise, it uses junkstatus (if set) or defaults to 0
  * (not junk) if the message is unclassified.
  */
 
-var Tests = 
+var Tests =
 [
   // test empty junk status
   { junkScore: false,
@@ -125,7 +125,7 @@ var Tests =
     attrib: JunkPercent,
     op: Is,
     count: 1},
-    
+
     // values set by user, use junkscore not junkpercent
   { junkScore: "0",
     junkScoreOrigin: "user",
@@ -177,7 +177,7 @@ var Tests =
     attrib: JunkPercent,
     op: Is,
     count: 1},
-    
+
     // junkscoreorigin search tests
   { junkScore: "0",
     junkScoreOrigin: "plugin",
@@ -212,7 +212,7 @@ var Tests =
 function run_test()
 {
   localAccountUtils.loadLocalMailAccount();
-    
+
   // test that validity table terms are valid
 
   // offline mail table
@@ -235,7 +235,7 @@ function run_test()
 }
 
 var hdr;
-var copyListener = 
+var copyListener =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},

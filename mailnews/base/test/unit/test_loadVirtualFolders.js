@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Test loading of virtualFolders.dat, including verification of the search 
+// Test loading of virtualFolders.dat, including verification of the search
 // scopes, i.e., folder uri's.
 
 ChromeUtils.import("resource:///modules/mailServices.js");

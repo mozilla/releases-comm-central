@@ -813,7 +813,7 @@ function updateFilterType()
 }
 
 // Given a filter type, set the global search scope to the filter scope
-function setFilterScope(aFilterType, aFilterList) 
+function setFilterScope(aFilterType, aFilterList)
 {
   let filterScope = getFilterScope(getScopeFromFilterList(aFilterList),
                                    aFilterType, aFilterList);

@@ -62,7 +62,7 @@ function run_test()
   localAccountUtils.loadLocalMailAccount();
   MailServices.filters.addCustomTerm(customTerm);
 
-  var copyListener = 
+  var copyListener =
   {
     OnStartCopy: function() {},
     OnProgress: function(aProgress, aProgressMax) {},

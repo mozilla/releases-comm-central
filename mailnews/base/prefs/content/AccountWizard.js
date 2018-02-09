@@ -12,13 +12,13 @@ var okCallback = null;
 
   For new accounts:
   * pageData -> Array -> createAccount -> finishAccount
-  
+
   For accounts coming from the ISP setup:
   * RDF  -> Array -> pageData -> Array -> createAccount -> finishAccount
-  
-  for "unfinished accounts" 
+
+  for "unfinished accounts"
   * account -> Array -> pageData -> Array -> finishAccount
-  
+
   Where:
   pageData - the actual pages coming out of the Widget State Manager
   RDF      - the ISP datasource
@@ -26,13 +26,13 @@ var okCallback = null;
              resembles the nsIMsgAccount/nsIMsgIncomingServer/nsIMsgIdentity
              structure
   createAccount() - creates an account from the above Array
-  finishAccount() - fills an existing account with data from the above Array 
+  finishAccount() - fills an existing account with data from the above Array
 
 */
 
-/* 
+/*
    the account wizard path is something like:
-   
+
    accounttype -> identity -> server -> login -> accname -> done
                              \-> newsserver ----/
 
@@ -76,7 +76,7 @@ function onAccountWizardLoad() {
 
   /* We are checking here for the callback argument */
   if (window.arguments && window.arguments[0]) {
-    if(window.arguments[0].okCallback ) 
+    if(window.arguments[0].okCallback )
     {
       //dump("There is okCallback");
       top.okCallback = window.arguments[0].okCallback;
@@ -101,14 +101,14 @@ function onAccountWizardLoad() {
   } catch(e) {}
 }
 
-function onCancel() 
+function onCancel()
 {
   if ("ActivationOnCancel" in this && ActivationOnCancel())
     return false;
   var firstInvalidAccount = getFirstInvalidAccount();
   var closeWizard = true;
 
-  // if the user cancels the the wizard when it pops up because of 
+  // if the user cancels the the wizard when it pops up because of
   // an invalid account (example, a webmail account that activation started)
   // we just force create it by setting some values and calling the FinishAccount()
   // see bug #47521 for the full discussion
@@ -139,7 +139,7 @@ function onCancel()
         (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
         (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1),
         gPrefsBundle.getString('WizardExit'),
-        gPrefsBundle.getString('WizardContinue'), 
+        gPrefsBundle.getString('WizardContinue'),
         null, null, {value:0});
 
       if (result == 1)
@@ -154,13 +154,13 @@ function onCancel()
   return closeWizard;
 }
 
-function FinishAccount() 
+function FinishAccount()
 {
   try {
     var pageData = GetPageData();
 
     var accountData= gCurrentAccountData;
-    
+
     if (!accountData)
     {
       accountData = new Object;
@@ -168,7 +168,7 @@ function FinishAccount()
       if (!serverIsNntp(pageData))
         accountData.smtpRequiresUsername = true;
     }
-    
+
     // we may need local folders before account is "Finished"
     // if it's a pop3 account which defers to Local Folders.
     verifyLocalFoldersAccount();
@@ -176,14 +176,14 @@ function FinishAccount()
     PageDataToAccountData(pageData, accountData);
 
     FixupAccountDataForIsp(accountData);
-    
+
     // we might be simply finishing another account
     if (!gCurrentAccount)
       gCurrentAccount = createAccount(accountData);
 
     // transfer all attributes from the accountdata
     finishAccount(gCurrentAccount, accountData);
-    
+
     setupCopiesAndFoldersServer(gCurrentAccount, getCurrentServerIsDeferred(pageData), accountData);
 
     if (gCurrentAccount.incomingServer.canBeDefaultServer)
@@ -200,7 +200,7 @@ function FinishAccount()
     // in case we crash, force us a save of the prefs file NOW
     try {
       MailServices.accounts.saveAccountInfo();
-    } 
+    }
     catch (ex) {
       dump("Error saving account info: " + ex + "\n");
     }
@@ -228,13 +228,13 @@ function AccountDataToPageData(accountData, pageData)
     // previous accountdata. The trick is that
     // with an empty object, accountData.identity.slot is undefined,
     // so this will clear out the prefill data in setPageData
-    
+
     accountData = new Object;
     accountData.incomingServer = new Object;
     accountData.identity = new Object;
     accountData.smtp = new Object;
   }
-  
+
   var server = accountData.incomingServer;
 
   if (server.type == undefined) {
@@ -281,7 +281,7 @@ function AccountDataToPageData(accountData, pageData)
   setPageData(pageData, "identity", "fullName", identity.fullName || "");
 
   var smtp;
-  
+
   if (accountData.smtp) {
       smtp = accountData.smtp;
       setPageData(pageData, "server", "smtphostname", smtp.hostname);
@@ -303,7 +303,7 @@ function PageDataToAccountData(pageData, accountData)
     accountData.pop3 = new Object;
   if (!accountData.imap)
     accountData.imap = new Object;
-  
+
   var identity = accountData.identity;
   var server = accountData.incomingServer;
   var smtp = accountData.smtp;
@@ -389,7 +389,7 @@ function createAccount(accountData)
 {
   // Retrieve the server (data) from the account data.
   var server = accountData.incomingServer;
-  
+
   // for news, username is always null
   var username = (server.type == "nntp") ? null : server.username;
   dump("MailServices.accounts.createIncomingServer(" +
@@ -400,7 +400,7 @@ function createAccount(accountData)
   dump("MailServices.accounts.createAccount()\n");
   // Create an account.
   let account = MailServices.accounts.createAccount();
-  
+
   // only create an identity for this account if we really have one
   // (use the email address as a check)
   if (accountData.identity && accountData.identity.email)
@@ -429,7 +429,7 @@ function createAccount(accountData)
 
 // given an accountData structure, copy the data into the
 // given account, incoming server, and so forth
-function finishAccount(account, accountData) 
+function finishAccount(account, accountData)
 {
   if (accountData.incomingServer) {
 
@@ -459,7 +459,7 @@ function finishAccount(account, accountData)
         copyObjectToInterface(destProtocolServer, srcProtocolServer, false);
       }
     }
-      
+
     account.incomingServer.valid=true;
     // hack to cause an account loaded notification now the server is valid
     account.incomingServer = account.incomingServer;
@@ -471,7 +471,7 @@ function finishAccount(account, accountData)
                      null;
 
   if (destIdentity) // does this account have an identity?
-  {   
+  {
       if (accountData.identity && accountData.identity.email) {
           // fixup the email address if we have a default domain
           var emailArray = accountData.identity.email.split('@');
@@ -486,7 +486,7 @@ function finishAccount(account, accountData)
       /**
        * If signature file need to be set, get the path to the signature file.
        * Signature files, if exist, are placed under default location. Get
-       * default files location for messenger using directory service. Signature 
+       * default files location for messenger using directory service. Signature
        * file name should be extracted from the account data to build the complete
        * path for signature file. Once the path is built, set the identity's signature pref.
        */
@@ -525,7 +525,7 @@ function finishAccount(account, accountData)
 
 // Helper method used by copyObjectToInterface which attempts to set dest[attribute] as a generic
 // attribute on the xpconnect object, src.
-// This routine skips any attribute that begins with ServerType- 
+// This routine skips any attribute that begins with ServerType-
 function setGenericAttribute(dest, src, attribute)
 {
   if (!(attribute.toLowerCase().startsWith("servertype-")) && src[attribute])
@@ -552,20 +552,20 @@ function setGenericAttribute(dest, src, attribute)
 // the assumption is that src is an XPConnect interface full of attributes
 // @param useGenericFallback if we can't set an attribute directly on src, then fall back
 //        and try setting it generically. This assumes that src supports setIntAttribute, setUnicharAttribute
-//        and setBoolAttribute. 
-function copyObjectToInterface(dest, src, useGenericFallback) 
+//        and setBoolAttribute.
+function copyObjectToInterface(dest, src, useGenericFallback)
 {
   if (!dest) return;
   if (!src) return;
 
   var attribute;
-  for (attribute in src) 
+  for (attribute in src)
   {
     if (dest.__lookupSetter__(attribute))
     {
       if (dest[attribute] != src[attribute])
         dest[attribute] = src[attribute];
-    } 
+    }
     else if (useGenericFallback) // fall back to setting the attribute generically
       setGenericAttribute(dest, src, attribute);
   } // for each attribute in src we want to copy
@@ -573,7 +573,7 @@ function copyObjectToInterface(dest, src, useGenericFallback)
 
 // check if there already is a "Local Folders"
 // if not, create it.
-function verifyLocalFoldersAccount() 
+function verifyLocalFoldersAccount()
 {
   var localMailServer = null;
   try {
@@ -585,7 +585,7 @@ function verifyLocalFoldersAccount()
   }
 
   try {
-    if (!localMailServer) 
+    if (!localMailServer)
     {
       // dump("Creating local mail account\n");
       // creates a copy of the identity you pass in
@@ -618,11 +618,11 @@ function setupCopiesAndFoldersServer(account, accountIsDeferred, accountData)
     var defaultCopiesAndFoldersPrefsToServer = !accountIsDeferred && server.defaultCopiesAndFoldersPrefsToServer;
 
     var copiesAndFoldersServer = null;
-    if (defaultCopiesAndFoldersPrefsToServer) 
+    if (defaultCopiesAndFoldersPrefsToServer)
     {
       copiesAndFoldersServer = server;
     }
-    else 
+    else
     {
       if (!MailServices.accounts.localFoldersServer)
       {
@@ -666,12 +666,12 @@ function setDefaultCopiesAndFoldersPrefs(identity, server, accountData)
   // coming from the folder cache, in the worst case.
   var msgFolder = rootFolder.QueryInterface(Components.interfaces.nsIMsgFolder);
 
-  /** 
+  /**
    * When a new account is created, folders 'Sent', 'Drafts'
-   * and 'Templates' are not created then, but created on demand at runtime. 
-   * But we do need to present them as possible choices in the Copies and Folders 
-   * UI. To do that, folder URIs have to be created and stored in the prefs file. 
-   * So, if there is a need to build special folders, append the special folder 
+   * and 'Templates' are not created then, but created on demand at runtime.
+   * But we do need to present them as possible choices in the Copies and Folders
+   * UI. To do that, folder URIs have to be created and stored in the prefs file.
+   * So, if there is a need to build special folders, append the special folder
    * names and create right URIs.
    */
   var folderDelim = "/";
@@ -747,7 +747,7 @@ function checkForInvalidAccounts()
     else {
       accountData = getPreConfigDataForAccount(firstInvalidAccount);
     }
-    
+
     AccountDataToPageData(accountData, pageData);
 
     gCurrentAccountData = accountData;
@@ -758,10 +758,10 @@ function checkForInvalidAccounts()
   }
 }
 
-// Transfer all invalid account information to AccountData. Also, get those special 
-// preferences (not associated with any interfaces but preconfigurable via prefs or rdf files) 
-// like whether not the smtp server associated with this account requires 
-// a user name (mail.identity.<id_key>.smtpRequiresUsername) and the choice of skipping 
+// Transfer all invalid account information to AccountData. Also, get those special
+// preferences (not associated with any interfaces but preconfigurable via prefs or rdf files)
+// like whether not the smtp server associated with this account requires
+// a user name (mail.identity.<id_key>.smtpRequiresUsername) and the choice of skipping
 // panels (mail.identity.<id_key>.wizardSkipPanels).
 function getPreConfigDataForAccount(account)
 {
@@ -790,7 +790,7 @@ function getPreConfigDataForAccount(account)
     }
   }
   catch(ex) {
-    // reached here as special identity pre-configuration prefs 
+    // reached here as special identity pre-configuration prefs
     // (wizardSkipPanels, smtpRequiresUsername) are not defined.
   }
 
@@ -837,9 +837,9 @@ function serverIsNntp(pageData) {
 
 function getUsernameFromEmail(aEmail, aEnsureDomain)
 {
-  var username = aEmail.substr(0, aEmail.indexOf("@"));  
+  var username = aEmail.substr(0, aEmail.indexOf("@"));
   if (aEnsureDomain && gCurrentAccountData && gCurrentAccountData.domain)
-    username += '@' + gCurrentAccountData.domain;    
+    username += '@' + gCurrentAccountData.domain;
   return username;
 }
 
@@ -854,7 +854,7 @@ function getCurrentUserName(pageData)
   }
   if (userName == "") {
     var email = pageData.identity.email.value;
-    userName = getUsernameFromEmail(email, false); 
+    userName = getUsernameFromEmail(email, false);
   }
   return userName;
 }
@@ -869,7 +869,7 @@ function getCurrentServerType(pageData) {
 }
 
 function getCurrentServerIsDeferred(pageData) {
-  var serverDeferred = false; 
+  var serverDeferred = false;
   if (getCurrentServerType(pageData) == "pop3" && pageData.server && pageData.server.deferStorage)
     serverDeferred = pageData.server.deferStorage.value;
 
@@ -896,7 +896,7 @@ function PrefillAccountForIsp(ispName)
   dump("AccountWizard.prefillAccountForIsp(" + ispName + ")\n");
 
   var ispData = getIspDefaultsForUri(ispName);
-  
+
   var pageData = GetPageData();
 
   if (!ispData) {
@@ -932,7 +932,7 @@ function FixupAccountDataForIsp(accountData)
 
   // fix up the username
   if (!accountData.incomingServer.username)
-    accountData.incomingServer.username = 
+    accountData.incomingServer.username =
       getUsernameFromEmail(email, accountData.incomingServerUserNameRequiresDomain);
 
   if (!accountData.smtp.username &&
@@ -967,21 +967,21 @@ function onFlush() {
 function EnableCheckMailAtStartUpIfNeeded(newAccount)
 {
   // Check if default account exists and if that account is alllowed to be
-  // a default account. If no such account, make this one as the default account 
-  // and turn on the new mail check at startup for the current account   
-  if (!(gDefaultAccount && gDefaultAccount.incomingServer.canBeDefaultServer)) { 
+  // a default account. If no such account, make this one as the default account
+  // and turn on the new mail check at startup for the current account
+  if (!(gDefaultAccount && gDefaultAccount.incomingServer.canBeDefaultServer)) {
     MailServices.accounts.defaultAccount = newAccount;
     newAccount.incomingServer.loginAtStartUp = true;
     newAccount.incomingServer.downloadOnBiff = true;
   }
 }
 
-function SetSmtpRequiresUsernameAttribute(accountData) 
+function SetSmtpRequiresUsernameAttribute(accountData)
 {
   // If this is the default server, time to set the smtp user name
   // Set the generic attribute for requiring user name for smtp to true.
   // ISPs can override the pref via rdf files.
-  if (!(gDefaultAccount && gDefaultAccount.incomingServer.canBeDefaultServer)) { 
+  if (!(gDefaultAccount && gDefaultAccount.incomingServer.canBeDefaultServer)) {
     accountData.smtpRequiresUsername = true;
   }
 }

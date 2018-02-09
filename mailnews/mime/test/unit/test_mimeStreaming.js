@@ -9,7 +9,7 @@
 ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 ChromeUtils.import("resource:///modules/IOUtils.js");
 
-var gTestFiles =[ 
+var gTestFiles =[
   "../../../data/bug505221",
   "../../../data/bug513543",
 ];

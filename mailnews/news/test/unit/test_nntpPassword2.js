@@ -59,7 +59,7 @@ add_task(function *() {
   yield setupForPassword("signons-mailnews1.8-alt.json");
 
   try {
-    // Note, the uri is for hostname "invalid" which is the original uri. See 
+    // Note, the uri is for hostname "invalid" which is the original uri. See
     // setupProtocolTest parameters.
     var prefix = "news://invalid:" + server.port + "/";
 

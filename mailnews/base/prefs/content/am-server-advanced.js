@@ -31,7 +31,7 @@ function onLoad()
   var prettyName = gServerSettings.serverPrettyName;
 
   if (prettyName)
-    document.getElementById("serverPrettyName").value = 
+    document.getElementById("serverPrettyName").value =
       document.getElementById("bundle_prefs")
               .getFormattedString("forAccount", [prettyName]);
 

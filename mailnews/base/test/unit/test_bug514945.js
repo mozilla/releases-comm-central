@@ -5,9 +5,9 @@
 /*
  * Testing of GetAvailable crashes in bug 514945
  */
- 
+
 function run_test()
-{ 
+{
   const kValidityManager = Cc['@mozilla.org/mail/search/validityManager;1']
                              .getService(Ci.nsIMsgSearchValidityManager);
 

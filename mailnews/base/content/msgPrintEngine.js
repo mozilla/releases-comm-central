@@ -122,7 +122,7 @@ function InitPrintEngineWindow()
 
   /* See if we got arguments.
    * Window was opened via window.openDialog.  Copy argument
-   * and perform compose initialization 
+   * and perform compose initialization
    */
   if (window.arguments && window.arguments[0] != null) {
     var numSelected = window.arguments[0];

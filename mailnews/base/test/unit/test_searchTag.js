@@ -53,7 +53,7 @@ var Tests =
   { msgTag: Tag1,
     testTag: Tag1,
     op: Isnt,
-    count: 0 }, 
+    count: 0 },
   { msgTag: Tag1,
     testTag: Tag1,
     op: Contains,
@@ -104,7 +104,7 @@ var Tests =
   { msgTag: Tag1Tag4,
     testTag: Tag1,
     op: Isnt,
-    count: 1 }, 
+    count: 1 },
   { msgTag: Tag1Tag4,
     testTag: Tag1,
     op: Contains,
@@ -129,7 +129,7 @@ var Tests =
   { msgTag: Tag1Tag4,
     testTag: Tag4,
     op: Isnt,
-    count: 1 }, 
+    count: 1 },
   { msgTag: Tag1Tag4,
     testTag: Tag4,
     op: Contains,
@@ -154,7 +154,7 @@ var Tests =
   { msgTag: Tag1Tag4,
     testTag: Tag2,
     op: Isnt,
-    count: 1 }, 
+    count: 1 },
   { msgTag: Tag1Tag4,
     testTag: Tag2,
     op: Contains,
@@ -179,7 +179,7 @@ var Tests =
   { msgTag: "",
     testTag: Tag2,
     op: Isnt,
-    count: 1 }, 
+    count: 1 },
   { msgTag: "",
     testTag: Tag2,
     op: Contains,
@@ -197,7 +197,7 @@ var Tests =
     op: IsntEmpty,
     count: 0 },
 // message with two tags, only one is valid
-  // test with the single valid tag  
+  // test with the single valid tag
   { msgTag: Tag1Tag3,
     testTag: Tag1,
     op: Is,
@@ -222,7 +222,7 @@ var Tests =
     testTag: Tag1,
     op: IsntEmpty,
     count: 1 },
-  // test with a tag not in the message  
+  // test with a tag not in the message
   { msgTag: Tag1Tag3,
     testTag: Tag2,
     op: Is,
@@ -256,7 +256,7 @@ var Tests =
   { msgTag: Tag1Tag1,
     testTag: Tag1,
     op: Isnt,
-    count: 0 }, 
+    count: 0 },
   { msgTag: Tag1Tag1,
     testTag: Tag1,
     op: Contains,
@@ -311,7 +311,7 @@ function run_test()
   testValidityTable(onlineMail, IsntEmpty, Keywords, false);
   testValidityTable(onlineMail, IsBefore, Keywords, false);
 
-  // online mail filter  
+  // online mail filter
   testValidityTable(onlineMailFilter, Contains, Keywords, true);
   testValidityTable(onlineMailFilter, DoesntContain, Keywords, true);
   testValidityTable(onlineMailFilter, Is, Keywords, true);
@@ -338,7 +338,7 @@ function run_test()
   MailServices.tags.addTagForKey(Tag1, Tag1, null, null);
   MailServices.tags.addTagForKey(Tag4, Tag4, null, null);
 
-  var copyListener = 
+  var copyListener =
   {
     OnStartCopy: function() {},
     OnProgress: function(aProgress, aProgressMax) {},
