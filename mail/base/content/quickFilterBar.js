@@ -510,7 +510,7 @@ var QuickFilterBarMuxer = {
       if (show) {
         let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
         textWidget.select();
-      }     
+      }
       return true;
     }
     return null;

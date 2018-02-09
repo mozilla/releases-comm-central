@@ -305,7 +305,7 @@ function checkOutgoingServerAlreadyExists(config)
  * Check if there already is a "Local Folders". If not, create it.
  * Copied from AccountWizard.js with minor updates.
  */
-function verifyLocalFoldersAccount(am) 
+function verifyLocalFoldersAccount(am)
 {
   let localMailServer;
   try {
@@ -316,7 +316,7 @@ function verifyLocalFoldersAccount(am)
   }
 
   try {
-    if (!localMailServer) 
+    if (!localMailServer)
     {
       // creates a copy of the identity you pass in
       am.createLocalMailAccount();

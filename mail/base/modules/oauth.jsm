@@ -76,7 +76,7 @@ OAuth.prototype = {
   },
   /**
    * Sign a request and send it, using the oauth connection.
-   * 
+   *
    * @param aUrl Url to open
    * @param aHeaders Additional headers to send
    * @param aMethod "Get"/"Post"/"Put"

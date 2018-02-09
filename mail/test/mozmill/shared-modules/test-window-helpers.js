@@ -1069,7 +1069,7 @@ var AugmentEverybodyWith = {
     },
 
     /**
-     * Get dropmarker arrow element from 
+     * Get dropmarker arrow element from
      *
      * @param aNode  An element containing a dropmarker, e.g. menulist or menu-button
      */
