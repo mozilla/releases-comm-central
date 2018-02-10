@@ -213,6 +213,12 @@ toolbar[nowindowdrag="true"] {
   opacity: .7;
 }
 
+.menu-description {
+  font-style: italic;
+  color: GrayText;
+  margin-inline-start: 1ex !important;
+}
+
 .menulist-description {
   font-style: italic;
   color: GrayText;
