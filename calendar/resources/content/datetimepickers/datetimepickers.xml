@@ -46,7 +46,7 @@
       <xul:hbox flex="1">
         <xul:textbox anonid="date-textbox" flex="1"
                      onfocus="this.select();"
-                     onkeypress="if (event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN) fireGoEvent();"/>
+                     onkeypress="if (event.keyCode == event.DOM_VK_RETURN) fireGoEvent();"/>
         <xul:button anonid="date-go-button" oncommand="fireGoEvent()"/>
       </xul:hbox>
     </content>

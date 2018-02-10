@@ -129,7 +129,7 @@ var taskEdit = {
      * @param aEvent    The DOM keypress event
      */
     onKeyPress: function(aEvent) {
-        if (aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN) {
+        if (aEvent.keyCode == aEvent.DOM_VK_RETURN) {
             let edit = aEvent.target;
             if (edit.value && edit.value.length > 0) {
                 let item = cal.createTodo();

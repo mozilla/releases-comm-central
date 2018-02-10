@@ -369,14 +369,14 @@ function unifinderSelect(event) {
 function unifinderKeyPress(aEvent) {
     const kKE = Components.interfaces.nsIDOMKeyEvent;
     switch (aEvent.keyCode) {
-        case 13:
+        case aEvent.DOM_VK_RETURN:
             // Enter, edit the event
             editSelectedEvents();
             aEvent.stopPropagation();
             aEvent.preventDefault();
             break;
-        case kKE.DOM_VK_BACK_SPACE:
-        case kKE.DOM_VK_DELETE:
+        case aEvent.DOM_VK_BACK_SPACE:
+        case aEvent.DOM_VK_DELETE:
             deleteSelectedEvents();
             aEvent.stopPropagation();
             aEvent.preventDefault();

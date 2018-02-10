@@ -2281,13 +2281,12 @@ function copyAttachment() {
  * @param aEvent     The DOM event caused by the key press.
  */
 function attachmentLinkKeyPress(aEvent) {
-    const kKE = Components.interfaces.nsIDOMKeyEvent;
     switch (aEvent.keyCode) {
-        case kKE.DOM_VK_BACK_SPACE:
-        case kKE.DOM_VK_DELETE:
+        case aEvent.DOM_VK_BACK_SPACE:
+        case aEvent.DOM_VK_DELETE:
             deleteAttachment();
             break;
-        case kKE.DOM_VK_RETURN:
+        case aEvent.DOM_VK_RETURN:
             openAttachment();
             break;
     }
