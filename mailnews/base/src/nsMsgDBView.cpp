@@ -543,10 +543,21 @@ nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr,
     {
       // We can't use the display name in the card; use the name contained in
       // the header or email address.
-      if (!curName.IsEmpty())
-        recipient = curName;
-      else
+      if (curName.IsEmpty()) {
         CopyUTF8toUTF16(curAddress, recipient);
+      } else {
+        int32_t atPos;
+        if ((atPos = curName.FindChar('@')) == kNotFound ||
+            curName.FindChar('.', atPos) == kNotFound) {
+          recipient = curName;
+        } else {
+          // Found @ followed by a dot, so this looks like a spoofing case.
+          recipient = curName;
+          recipient.AppendLiteral(" <");
+          AppendUTF8toUTF16(curAddress, recipient);
+          recipient.Append('>');
+        }
+      }
     }
 
     // Add ', ' between each recipient.
