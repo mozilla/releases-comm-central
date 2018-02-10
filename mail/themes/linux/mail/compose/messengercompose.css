@@ -823,10 +823,6 @@ toolbarbutton.formatting-button {
   list-style-image: url("moz-icon://stock/gtk-spell-check?size=menu");
 }
 
-#msgIdentityPopup > menuitem {
-  -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic-desc-noaccel");
-}
-
 #tasksMenuAddressBook {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
