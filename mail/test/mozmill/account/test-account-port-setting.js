@@ -8,10 +8,6 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                        "account-manager-helpers", "keyboard-helpers" ];
 
-var mozmill = {};
-ChromeUtils.import("resource://mozmill/modules/mozmill.js", mozmill);
-var controller = {};
-ChromeUtils.import("resource://mozmill/modules/controller.js", controller);
 var elib = {};
 ChromeUtils.import("resource://mozmill/modules/elementslib.js", elib);
 
@@ -38,7 +34,6 @@ function subtest_check_set_port_number(amc, aDontSet) {
   let iframe = amc.window.document.getElementById("contentFrame");
   let portElem = iframe.contentDocument.getElementById("server.port");
   portElem.focus();
-  portElem.selectionStart = portElem.selectionEnd = portElem.value.length;
 
   if (portElem.value != PORT_NUMBERS_TO_TEST[gTestNumber - 1])
     throw new Error("Port Value is not " +
@@ -46,13 +41,13 @@ function subtest_check_set_port_number(amc, aDontSet) {
                     " as expected, it is: " + portElem.value);
 
   if (!aDontSet) {
-    delete_existing(amc, new elib.Elem(portElem), 3);
+    delete_all_existing(amc, new elib.Elem(portElem));
     input_value(amc, PORT_NUMBERS_TO_TEST[gTestNumber]);
 
     mc.sleep(0);
   }
 
-  amc.window.document.getElementById("accountManager").acceptDialog();
+  mc.click(new elib.Elem(amc.window.document.getElementById("accountManager").getButton("accept")));
 }
 
 function subtest_check_port_number(amc) {
@@ -60,14 +55,9 @@ function subtest_check_port_number(amc) {
 }
 
 function setupModule(module) {
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let amh = collector.getModule("account-manager-helpers");
-  amh.installInto(module);
-  let kh = collector.getModule("keyboard-helpers");
-  kh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 }
 
 function test_account_port_setting() {
