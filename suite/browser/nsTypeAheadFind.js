@@ -261,7 +261,7 @@ typeAheadFind.prototype = {
   },
   processKey: function(aEvent) {
     // Escape always cancels the find.
-    if (aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_ESCAPE) {
+    if (aEvent.keyCode == aEvent.DOM_VK_ESCAPE) {
       aEvent.preventDefault();
       aEvent.stopPropagation();
       this.stopFind(false);
@@ -269,7 +269,7 @@ typeAheadFind.prototype = {
     }
 
     var result = Components.interfaces.nsITypeAheadFind.FIND_NOTFOUND;
-    if (aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE) {
+    if (aEvent.keyCode == aEvent.DOM_VK_BACK_SPACE) {
       aEvent.preventDefault();
       aEvent.stopPropagation();
       this.mSearchString = this.mSearchString.slice(0, -1);
