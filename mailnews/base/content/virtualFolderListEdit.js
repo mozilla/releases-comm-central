@@ -52,7 +52,7 @@ var gSelectVirtual = {
 
   onKeyPress: function(aEvent) {
     // For now, only do something on space key.
-    if (aEvent.charCode != Components.interfaces.nsIDOMKeyEvent.DOM_VK_SPACE)
+    if (aEvent.charCode != aEvent.DOM_VK_SPACE)
       return;
 
     let selection = this._treeElement.view.selection;

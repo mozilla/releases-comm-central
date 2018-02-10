@@ -1451,18 +1451,18 @@ var INPUT_PEEK_EVENTS = ["click", "keypress"];
 var UNIQUE_WINDOW_ID_ATTR = "__winHelper_uniqueId";
 
 var DOM_KEYCODE_TO_NAME = {};
-function populateDomKeycodeMap() {
-  let nsIDOMKeyEvent = Ci.nsIDOMKeyEvent;
-
-  for (let key in nsIDOMKeyEvent) {
-
-    if (key.startsWith("DOM_VK_")) {
-      let val = nsIDOMKeyEvent[key];
-      DOM_KEYCODE_TO_NAME[val] = key;
+function keycodeToName(aKeyValue, aWindow) {
+  if (!(aKeyValue in DOM_KEYCODE_TO_NAME)) {
+    for (let key in aWindow.KeyboardEvent) {
+      if (key.startsWith("DOM_VK_")) {
+        let val = aWindow.KeyboardEvent[key];
+        DOM_KEYCODE_TO_NAME[val] = key;
+      }
     }
   }
+
+  return DOM_KEYCODE_TO_NAME[aKeyValue];
 }
-populateDomKeycodeMap();
 
 /**
  * Given something you would find on event.target (should be a DOM node /
@@ -1625,7 +1625,7 @@ function __bubbled_click_handler(event) {
 function describeKeyEvent(event) {
   let s;
   if (event.keyCode) {
-    s = DOM_KEYCODE_TO_NAME[event.keyCode];
+    s = keycodeToName(event.keyCode, event.window);
   }
   else if (event.charCode) {
     s = "'" + String.fromCharCode(event.charCode) + "'";

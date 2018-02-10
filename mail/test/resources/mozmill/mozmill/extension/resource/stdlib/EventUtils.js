@@ -10,14 +10,6 @@ var EXPORTED_SYMBOLS = ["sendMouseEvent", "sendChar", "sendString", "sendKey",
                         "synthesizeSelectionSet"];
 
 /**
- * Get the array with available key events
- */
-function getKeyEvent(aWindow) {
-  var win = aWindow.wrappedJSObject ? aWindow.wrappedJSObject : aWindow;
-  return win.KeyEvent;
-}
-
-/**
  * EventUtils provides some utility methods for creating and sending DOM events.
  * Current methods:
  *  sendMouseEvent
@@ -130,11 +122,11 @@ function sendKey(aKey, aTarget, aWindow) {
 
   var keyName = "DOM_VK_" + aKey.toUpperCase();
 
-  if (!getKeyEvent(aWindow)[keyName]) {
+  if (!_getKeyboardEvent(aWindow)[keyName]) {
     throw "Unknown key: " + keyName;
   }
 
-  return __doEventDispatch(aTarget, 0, getKeyEvent(aWindow)[keyName], false);
+  return __doEventDispatch(aTarget, 0, _getKeyboardEvent(aWindow)[keyName], false);
 }
 
 /**
@@ -340,7 +332,7 @@ function synthesizeMouseScroll(aTarget, aOffsetX, aOffsetY, aEvent, aWindow)
  * aWindow is optional, and defaults to the current window object.
  * aCallback is optional, use the callback for receiving notifications of TIP.
  */
-function synthesizeKey(aKey, aEvent, aWindow = window, aCallback)
+function synthesizeKey(aKey, aEvent, aWindow, aCallback)
 {
   var TIP = _getTIP(aWindow, aCallback);
   if (!TIP) {
@@ -883,7 +875,7 @@ function _getTIP(aWindow, aCallback)
   return tip;
 }
 
-function _getKeyboardEvent(aWindow = window)
+function _getKeyboardEvent(aWindow)
 {
   if (typeof KeyboardEvent != "undefined") {
     try {
@@ -899,7 +891,7 @@ function _getKeyboardEvent(aWindow = window)
   return aWindow.KeyboardEvent;
 }
 
-function _getNavigator(aWindow = window)
+function _getNavigator(aWindow)
 {
   if (typeof navigator != "undefined") {
     return navigator;
@@ -907,7 +899,7 @@ function _getNavigator(aWindow = window)
   return aWindow.navigator;
 }
 
-function _guessKeyNameFromKeyCode(aKeyCode, aWindow = window)
+function _guessKeyNameFromKeyCode(aKeyCode, aWindow)
 {
   var KeyboardEvent = _getKeyboardEvent(aWindow);
   switch (aKeyCode) {
@@ -1054,7 +1046,7 @@ function _guessKeyNameFromKeyCode(aKeyCode, aWindow = window)
   }
 }
 
-function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow = window) {
+function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow) {
   var result = { dictionary: null, flags: 0 };
   var keyCodeIsDefined = "keyCode" in aKeyEvent;
   var keyCode =
@@ -1065,7 +1057,7 @@ function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow = window) {
     keyName = aKey.substr("KEY_".length);
     result.flags |= Components.interfaces.nsITextInputProcessor.KEY_NON_PRINTABLE_KEY;
   } else if (aKey.indexOf("VK_") == 0) {
-    keyCode = Components.interfaces.nsIDOMKeyEvent["DOM_" + aKey];
+    keyCode = _getKeyboardEvent(aWindow)["DOM_" + aKey];
     if (!keyCode) {
       throw "Unknown key: " + aKey;
     }
@@ -1074,7 +1066,7 @@ function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow = window) {
   } else if (aKey != "") {
     keyName = aKey;
     if (!keyCodeIsDefined) {
-      keyCode = _computeKeyCodeFromChar(aKey.charAt(0));
+      keyCode = _computeKeyCodeFromChar(aKey.charAt(0), aWindow);
     }
     if (!keyCode) {
       result.flags |= Components.interfaces.nsITextInputProcessor.KEY_KEEP_KEYCODE_ZERO;
@@ -1095,7 +1087,7 @@ function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow = window) {
   return result;
 }
 
-function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow = window)
+function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow)
 {
   if (!aKeyEvent) {
     return null;
@@ -1154,7 +1146,7 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow = window)
   return modifiers;
 }
 
-function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow = window)
+function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow)
 {
   if (!aModifiers) {
     return;
@@ -1183,12 +1175,12 @@ function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow = window)
   }
 }
 
-function _computeKeyCodeFromChar(aChar)
+function _computeKeyCodeFromChar(aChar, aWindow)
 {
   if (aChar.length != 1) {
     return 0;
   }
-  var KeyEvent = Components.interfaces.nsIDOMKeyEvent;
+  var KeyEvent = _getKeyboardEvent(aWindow);
   if (aChar >= 'a' && aChar <= 'z') {
     return KeyEvent.DOM_VK_A + aChar.charCodeAt(0) - 'a'.charCodeAt(0);
   }
