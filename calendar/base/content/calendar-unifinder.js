@@ -367,7 +367,6 @@ function unifinderSelect(event) {
  * @param aEvent        The DOM Key event.
  */
 function unifinderKeyPress(aEvent) {
-    const kKE = Components.interfaces.nsIDOMKeyEvent;
     switch (aEvent.keyCode) {
         case aEvent.DOM_VK_RETURN:
             // Enter, edit the event
