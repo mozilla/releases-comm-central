@@ -43,26 +43,25 @@ function BuildFontList(aLanguage, aFontType, aMenuList, aPreference)
   // Build the UI for the Default Font and Fonts for this CSS type.
   var popup = document.createElement("menupopup");
   var separator;
-  if (fonts.length)
+  if (fonts.length > 0)
   {
-    if (defaultFont)
-    {
-      var prefutilitiesBundle = document.getElementById("bundle_prefutilities");
-      var label = prefutilitiesBundle.getFormattedString("labelDefaultFont", [defaultFont]);
-      var menuitem = document.createElement("menuitem");
-      menuitem.setAttribute("label", label);
-      menuitem.setAttribute("value", ""); // Default Font has a blank value
-      popup.appendChild(menuitem);
+    const prefutilitiesBundle = document.getElementById("bundle_prefutilities");
+    let label = defaultFont ?
+      prefutilitiesBundle.getFormattedString("labelDefaultFont2", [defaultFont]) :
+      prefutilitiesBundle.getString("labelDefaultFontUnnamed");
+    let menuitem = document.createElement("menuitem");
+    menuitem.setAttribute("label", label);
+    menuitem.setAttribute("value", ""); // Default Font has a blank value
+    popup.appendChild(menuitem);
 
-      separator = document.createElement("menuseparator");
-      popup.appendChild(separator);
-    }
+    separator = document.createElement("menuseparator");
+    popup.appendChild(separator);
 
-    for (var i = 0; i < fonts.length; ++i)
+    for (let font of fonts)
     {
       menuitem = document.createElement("menuitem");
-      menuitem.setAttribute("value", fonts[i]);
-      menuitem.setAttribute("label", fonts[i]);
+      menuitem.setAttribute("value", font);
+      menuitem.setAttribute("label", font);
       popup.appendChild(menuitem);
     }
   }
