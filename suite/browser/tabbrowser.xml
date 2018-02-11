@@ -3412,9 +3412,9 @@
                 return;
               }
 
-              this.arrowScrollbox._smoothScrollByPixels(this.arrowScrollbox._isRTLScrollbox ?
-                                                   selected.right - scrollRect.right :
-                                                   selected.left - scrollRect.left);
+              this.arrowScrollbox.scrollByPixels(this.arrowScrollbox._isRTLScrollbox ?
+                                                 selected.right - scrollRect.right :
+                                                 selected.left - scrollRect.left);
             }
 
             if (!this._animateElement.hasAttribute("notifybgtab")) {
