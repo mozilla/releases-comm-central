@@ -28,7 +28,7 @@
 #today-pane-panel > sidebarheader {
   -moz-appearance: none;
   background-color: var(--toolbar-bgcolor, -moz-Dialog);
-  background-image: var(--toolbar-bgimage);
+  background-image: var(--toolbar-bgimage, none);
   border-bottom: 1px solid var(--toolbox-border-bottom-color, ThreeDShadow);
 }
 
