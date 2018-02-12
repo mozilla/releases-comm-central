@@ -101,11 +101,11 @@ package-win32-installer: WIN32_INSTALLER_OUT=$(ABS_DIST)/$(PKG_INST_PATH)$(PKG_I
 package-win32-installer: $(SUBMAKEFILES)
 	@echo 'Packaging $(WIN32_INSTALLER_OUT).'
 	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen l10ngen/setup.exe l10ngen/7zSD.sfx
-	$(RM) -r $(STAGEDIST)/uninstall; \
-	$(NSINSTALL) -D $(STAGEDIST)/uninstall; \
-	cp ../installer/windows/l10ngen/helper.exe $(STAGEDIST)/uninstall; \
-	$(RM) $(ABS_DIST)/l10n-stage/setup.exe; \
-	cp ../installer/windows/l10ngen/setup.exe $(ABS_DIST)/l10n-stage; \
+	$(RM) -r $(STAGEDIST)/uninstall
+	$(NSINSTALL) -D $(STAGEDIST)/uninstall
+	cp ../installer/windows/l10ngen/helper.exe $(STAGEDIST)/uninstall
+	$(RM) $(ABS_DIST)/l10n-stage/setup.exe
+	cp ../installer/windows/l10ngen/setup.exe $(ABS_DIST)/l10n-stage
 	$(NSINSTALL) -D '$(ABS_DIST)/$(PKG_INST_PATH)'
 	(cd $(DIST)/l10n-stage; \
 	  $(MAKE_PACKAGE))
@@ -113,6 +113,26 @@ package-win32-installer: $(SUBMAKEFILES)
 	if test -f '$(DIST)/l10n-stage/$(PACKAGE).asc'; then mv -f '$(DIST)/l10n-stage/$(PACKAGE).asc' '$(WIN32_INSTALLER_OUT).asc'; fi
 
 langpack: langpack-$(AB_CD)
+
+# This is a generic target that will make a langpack, repack ZIP (+tarball)
+# builds, and repack an installer if applicable. It is called from the
+# tinderbox scripts. Alter it with caution.
+
+installers-%: IS_LANGUAGE_REPACK=1
+installers-%:
+	@$(MAKE) clobber-$*
+ifdef MOZ_CALENDAR
+	@$(MAKE) calendar-clobber-$*
+	@$(MAKE) calendar-langpack-$*
+	@$(MAKE) calendar-repackage-zip-$*
+endif
+	@$(MAKE) libs-$*
+	@$(MAKE) package-langpack-$*
+	@$(MAKE) repackage-zip-$*
+ifeq (WINNT,$(OS_ARCH))
+	@$(MAKE) package-win32-installer AB_CD=$* MOZ_PKG_FORMAT=SFX7Z
+endif
+	@echo 'repackaging done'
 
 ifdef MOZ_UPDATER
 libs:: $(call MERGE_FILE,updater/updater.ini) $(call mkdir_deps,$(DIST)/bin)
@@ -225,22 +245,3 @@ wget-en-US: calendar-wget-en-US
 unpack: calendar-unpack
 upload: calendar-upload
 endif
-
-# This is a generic target that will make a langpack, repack ZIP (+tarball)
-# builds, and repack and installer if applicable. It is called from the
-# tinderbox scripts. Alter it with caution.
-installers-%: IS_LANGUAGE_REPACK=1
-installers-%:
-	@$(MAKE) clobber-$*
-ifdef MOZ_CALENDAR
-	@$(MAKE) calendar-clobber-$*
-	@$(MAKE) calendar-langpack-$*
-	@$(MAKE) calendar-repackage-zip-$*
-endif
-	@$(MAKE) libs-$*
-	@$(MAKE) package-langpack-$*
-	@$(MAKE) repackage-zip-$*
-ifeq (WINNT,$(OS_ARCH))
-	@$(MAKE) package-win32-installer AB_CD=$* MOZ_PKG_FORMAT=SFX7Z
-endif
-	@echo 'repackaging done'
