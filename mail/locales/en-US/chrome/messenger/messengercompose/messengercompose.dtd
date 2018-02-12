@@ -88,6 +88,17 @@
 <!ENTITY reorderAttachmentsCmd.label "Reorder Attachments…">
 <!ENTITY reorderAttachmentsCmd.accesskey "s">
 <!ENTITY reorderAttachmentsCmd.key "x">
+<!ENTITY toggleAttachmentPaneCmd.label "Attachment Pane">
+<!-- LOCALIZATION NOTE (toggleAttachmentPaneCmd.accesskey):
+     For better mnemonics, toggleAttachmentPaneCmd.accesskey should be the same
+     as attachments.accesskey. -->
+<!ENTITY toggleAttachmentPaneCmd.accesskey "m">
+<!-- LOCALIZATION NOTE (toggleAttachmentPaneCmd.key):
+     With OS-specific access modifier, this defines the shortcut key for showing/
+     hiding/minimizing the attachment pane, e.g. Alt+M on Windows.
+     toggleAttachmentPaneCmd.key and attachments.accesskey must be the same
+     for the bucket view state machinery to work. -->
+<!ENTITY toggleAttachmentPaneCmd.key "m">
 <!ENTITY selectAllCmd.label "Select All">
 <!ENTITY selectAllCmd.key "A">
 <!ENTITY selectAllCmd.accesskey "a">
@@ -236,7 +247,7 @@
 <!ENTITY sendlaterButton.tooltip "Send this message later">
 <!ENTITY quoteButton.tooltip "Quote the previous message">
 <!ENTITY addressButton.tooltip "Select a recipient from an Address Book">
-<!ENTITY attachButton.tooltip "Include an attachment">
+<!ENTITY attachButton.tooltip2 "Add an attachment">
 <!ENTITY spellingButton.tooltip "Check spelling of selection or entire message">
 <!ENTITY saveButton.tooltip "Save this message">
 <!ENTITY cutButton.tooltip              "Cut">
@@ -258,9 +269,13 @@
 <!ENTITY followupAddr.label "Followup-To:">
 <!ENTITY subject.label "Subject:">
 <!ENTITY subject.accesskey "S">
-<!-- LOCALIZATION NOTE attachments.accesskey This access key should correspond
-     to the strings in attachmentCount in composeMsgs.properties -->
+<!-- LOCALIZATION NOTE (attachments.accesskey) This access key character should
+     be taken from the strings in attachmentCount in composeMsgs.properties,
+     and it must be the same as toggleAttachmentPaneCmd.key, otherwise it won't
+     work, as the shortcut key functionality supersedes the access key. -->
 <!ENTITY attachments.accesskey "m">
+<!ENTITY attachmentBucketHeader.tooltip "Attachment Pane">
+<!ENTITY attachmentBucketCloseButton.tooltip "Hide the attachment pane">
 
 <!-- Format Toolbar, imported from editorAppShell.xul -->
 <!ENTITY SmileButton.tooltip "Insert a smiley face">
@@ -298,6 +313,7 @@
 <!ENTITY pasteQuote.label "Paste As Quotation">
 <!ENTITY pasteQuote.accesskey "Q">
 
+<!-- Attachment Item and List Context Menus -->
 <!ENTITY openAttachment.label "Open">
 <!ENTITY openAttachment.accesskey "O">
 <!ENTITY delete.label "Delete">
@@ -308,6 +324,8 @@
 <!ENTITY renameAttachment.accesskey "R">
 <!ENTITY reorderAttachments.label "Reorder Attachments…">
 <!ENTITY reorderAttachments.accesskey "s">
+<!ENTITY removeAllAttachments.label "Remove All Attachments">
+<!ENTITY removeAllAttachments.accesskey "v">
 <!ENTITY selectAll.label "Select All">
 <!ENTITY selectAll.accesskey "A">
 <!ENTITY attachFile.label "Attach File(s)…">

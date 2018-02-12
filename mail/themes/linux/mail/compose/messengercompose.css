@@ -16,7 +16,7 @@
   min-width: 15em;
 }
 
-#attachmentBucket:focus {
+#attachmentBucket[empty]:focus {
   box-shadow: 0 0 2px Highlight inset, 0 0 2px Highlight inset;
 }
 
@@ -194,20 +194,16 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 }
 
 #attachments-header-box {
-  height: 24px;
-  margin-top: 1px;
-}
-
-#attachmentBucketCount {
-  margin-top: 0;
-  margin-bottom: 0;
+  min-height: 28px;
 }
 
 #attachmentBucketSize {
   color: GrayText;
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-inline-end: 1px;
+  padding-inline-end: 2px;
+}
+
+#attachmentBucketCloseButton {
+  padding: 0 1px;
 }
 
 /* ::::: attachment reminder ::::: */
@@ -221,13 +217,13 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 }
 
 #attachmentReminderText {
-  margin-inline-start: 0px;
+  margin-inline-start: 0;
   cursor: pointer;
 }
 
 #attachmentKeywords {
   font-weight: bold;
-  margin-inline-start: 0px;
+  margin-inline-start: 0;
   text-decoration: underline;
   cursor: pointer;
 }
@@ -437,6 +433,10 @@ html|span.ac-emphasize-text {
   text-shadow: none;
   background-image: url("chrome://messenger/skin/messengercompose/linux-noise.png");
   padding-top: 3px;
+}
+
+#addresses-box {
+  padding-top: 4px;
 }
 
 #identityLabel-box {
