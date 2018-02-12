@@ -109,10 +109,14 @@
   <!-- File Menu -->
   <command id="cmd_new" oncommand="goDoCommand('cmd_newMessage')"/>
   <command id="cmd_attachFile" oncommand="goDoCommand('cmd_attachFile')"/>
-  <command id="cmd_attachCloud" oncommand="attachToCloud(event.target.cloudProvider); event.stopPropagation();"/>
+  <command id="cmd_attachCloud"
+           oncommand="attachToCloud(event.target.cloudProvider);
+                      event.stopPropagation();"/>
   <command id="cmd_attachPage" oncommand="goDoCommand('cmd_attachPage')"/>
-  <command id="cmd_attachVCard" checked="false" oncommand="ToggleAttachVCard(event.target)"/>
-  <command id="cmd_remindLater" checked="false" oncommand="toggleAttachmentReminder()"/>
+  <command id="cmd_attachVCard" checked="false"
+           oncommand="ToggleAttachVCard(event.target)"/>
+  <command id="cmd_remindLater" checked="false"
+           oncommand="toggleAttachmentReminder()"/>
   <command id="cmd_close" oncommand="goDoCommand('cmd_close')"/>
   <command id="cmd_saveDefault" oncommand="goDoCommand('cmd_saveDefault')"/>
   <command id="cmd_saveAsFile" oncommand="goDoCommand('cmd_saveAsFile')"/>
@@ -144,12 +148,17 @@
            disabled="true"/>
   <command id="cmd_selectAll"
            oncommand="goDoCommand('cmd_selectAll')" disabled="true"/>
+  <command id="cmd_removeAllAttachments"
+           oncommand="goDoCommand('cmd_removeAllAttachments')"/>
   <command id="cmd_openAttachment"
            oncommand="goDoCommand('cmd_openAttachment')" disabled="true"/>
   <command id="cmd_renameAttachment"
            oncommand="goDoCommand('cmd_renameAttachment')" disabled="true"/>
   <command id="cmd_reorderAttachments"
            oncommand="goDoCommand('cmd_reorderAttachments')" disabled="true"/>
+  <command id="cmd_toggleAttachmentPane"
+           checked="false"
+           oncommand="goDoCommand('cmd_toggleAttachmentPane')"/>
   <command id="cmd_account"
            oncommand="goDoCommand('cmd_account')"/>
 
@@ -269,6 +278,9 @@
   <key id="key_reorderAttachments"
        key="&reorderAttachmentsCmd.key;" modifiers="control"
        command="cmd_reorderAttachments"/>
+  <key id="key_toggleAttachmentPane"
+       key="&toggleAttachmentPaneCmd.key;" modifiers="control"
+       command="cmd_toggleAttachmentPane"/>
 #else
   <key id="key_delete" keycode="VK_DELETE" command="cmd_delete"/>
   <key id="key_renameAttachment" keycode="VK_F2"
@@ -276,6 +288,9 @@
   <key id="key_reorderAttachments"
        key="&reorderAttachmentsCmd.key;" modifiers="alt"
        command="cmd_reorderAttachments"/>
+  <key id="key_toggleAttachmentPane"
+       key="&toggleAttachmentPaneCmd.key;" modifiers="alt"
+       command="cmd_toggleAttachmentPane"/>
 #endif
   <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="accel"/>
   <key id="key_find" key="&findBarCmd.key;" command="cmd_find" modifiers="accel"/>
@@ -536,6 +551,11 @@
             label="&reorderAttachments.label;"
             accesskey="&reorderAttachments.accesskey;"
             command="cmd_reorderAttachments"/>
+  <menuseparator id="attachmentListContext_removeAllSeparator"/>
+  <menuitem id="attachmentListContext_removeAllItem"
+            label="&removeAllAttachments.label;"
+            accesskey="&removeAllAttachments.accesskey;"
+            command="cmd_removeAllAttachments"/>
 </menupopup>
 
 <menupopup id="toolbar-context-menu"
@@ -661,6 +681,7 @@
         </menupopup>
       </menu>
 
+      <!-- Edit Menu -->
       <menu id="menu_Edit" label="&editMenu.label;" accesskey="&editMenu.accesskey;">
         <menupopup id="menu_EditPopup" onpopupshowing="updateEditItems();">
           <menuitem id="menu_undo" label="&undoCmd.label;" key="key_undo" accesskey="&undoCmd.accesskey;" command="cmd_undo"/>
@@ -741,8 +762,9 @@
         </menupopup>
       </menu>
 
+      <!-- View Menu -->
       <menu id="menu_View" label="&viewMenu.label;" accesskey="&viewMenu.accesskey;">
-        <menupopup id="menu_View_Popup">
+        <menupopup id="menu_View_Popup" onpopupshowing="updateViewItems();">
           <menu id="menu_ToolbarsNew"
                 label="&viewToolbarsMenuNew.label;"
                 accesskey="&viewToolbarsMenuNew.accesskey;"
@@ -792,6 +814,12 @@
           <menuitem id="menu_AddressSidebar"
                     label="&addressSidebar.label;" accesskey="&addressSidebar.accesskey;"
                     key="key_addressSidebar" observes="viewAddressPicker"/>
+          <menuitem id="menu_toggleAttachmentPane"
+                    label="&toggleAttachmentPaneCmd.label;"
+                    accesskey="&toggleAttachmentPaneCmd.accesskey;"
+                    type="checkbox"
+                    key="key_toggleAttachmentPane"
+                    command="cmd_toggleAttachmentPane"/>
           <menuseparator id="viewMenuBeforeSecurityStatusSeparator"/>
           <menuitem id="menu_viewSecurityStatus"
                     label="&menu_viewSecurityStatus.label;"
@@ -925,7 +953,7 @@
 
     <toolbarbutton class="toolbarbutton-1" type="menu-button"
                id="button-attach" label="&attachButton.label;"
-               tooltiptext="&attachButton.tooltip;"
+               tooltiptext="&attachButton.tooltip2;"
                command="cmd_attachFile"
                ondragover="nsDragAndDrop.dragOver(event, envelopeDragObserver);"
                ondrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
@@ -1090,7 +1118,7 @@
   </toolbar>
 
   <toolbarset id="customToolbars" context="toolbar-context-menu"/>
-  </toolbox>
+</toolbox>
 
   <hbox flex="1" id="composeContentBox">
     <vbox id="sidebar-box" persist="sidebarVisible width" hidden="true">
@@ -1178,21 +1206,38 @@
                      onkeypress="subjectKeyPress(event);" />
           </hbox>
         </vbox>
-        <splitter id="attachmentbucket-sizer" collapsed="true" collapse="after"/>
+        <splitter id="attachmentbucket-sizer"
+                  collapsed="true"
+                  collapse="after"
+                  onmouseup="attachmentBucketSizerOnMouseUp();"/>
         <vbox id="attachments-box" collapsed="true" persist="width">
-          <hbox id="attachments-header-box" align="center">
-            <label id="attachmentBucketCount" control="attachmentBucket"
-                   crop="right" accesskey="&attachments.accesskey;" flex="1"/>
+          <hbox id="attachments-header-box"
+                align="center"
+                tooltiptext="&attachmentBucketHeader.tooltip;"
+                onclick="attachmentBucketHeaderOnClick();">
+            <label id="attachmentBucketCount"
+                   accesskey="&attachments.accesskey;"
+                   flex="1" crop="end"
+                   control="attachmentBucket"/>
+            <toolbarspring/>
             <label id="attachmentBucketSize"/>
+            <toolbarbutton id="attachmentBucketCloseButton"
+                           class="ab-closebutton close-icon"
+                           tooltiptext="&attachmentBucketCloseButton.tooltip;"
+                           oncommand="toggleAttachmentPane('hide');"/>
           </hbox>
-          <attachmentlist orient="vertical" id="attachmentBucket"
+          <attachmentlist id="attachmentBucket"
+                          tooltiptext=""
                           disableonsend="true"
-                          seltype="multiple" flex="1" height="0"
+                          seltype="multiple"
+                          orient="vertical"
+                          flex="1"
+                          height="0"
                           context="msgComposeAttachmentListContext"
                           itemcontext="msgComposeAttachmentItemContext"
-                          ondblclick="AttachmentBucketDoubleClicked(event);"
-                          onkeyup="attachmentBucketOnKeyUp(event);"
-                          onselect="updateAttachmentItems();"
+                          onclick="attachmentBucketOnClick(event);"
+                          onkeypress="attachmentBucketOnKeyPress(event);"
+                          onselect="attachmentBucketOnSelect();"
                           ondragstart="nsDragAndDrop.startDrag(event, attachmentBucketDNDObserver);"
                           onblur="attachmentBucketOnBlur();"/>
         </vbox>
