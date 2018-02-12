@@ -240,12 +240,13 @@ var NetworkTestUtils = {
                   .getService(Ci.nsIProtocolProxyService);
       let filter = {
         QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolProxyFilter]),
-        applyFilter(aProxyService, aURI, aProxyInfo) {
+        applyFilter(aProxyService, aURI, aProxyInfo, aCallback) {
           if (aURI.host != "localhost" && aURI.host != "127.0.0.1") {
-            return pps.newProxyInfo("socks", "localhost", gSocksServer.port,
-              Ci.nsIProxyInfo.TRANSPARENT_PROXY_RESOLVES_HOST, 0, null);
+            aCallback.onProxyFilterResult(pps.newProxyInfo("socks", "localhost", gSocksServer.port,
+              Ci.nsIProxyInfo.TRANSPARENT_PROXY_RESOLVES_HOST, 0, null));
+            return;
           }
-          return aProxyInfo;
+          aCallback.onProxyFilterResult(aProxyInfo);
         },
       };
       pps.registerFilter(filter, 0);
