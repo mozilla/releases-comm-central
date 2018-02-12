@@ -122,7 +122,7 @@ struct GlobalState {
     if (stack.top().codepage != 0xFFFFFFFF) // \cpg in use
       return stack.top().codepage;
     // \cpg not used; use font settings
-    int f = (stack.top().f != -1) ? stack.top().f : deff; 
+    int f = (stack.top().f != -1) ? stack.top().f : deff;
     if (f != -1) {
       Fonttbl::iterator iter = fonttbl.find(f);
       if (iter != fonttbl.end()) {
@@ -256,7 +256,7 @@ private:
   };
   // This function leaves the object in the broken state. Must be followed
   // by a correct initialization.
-  void Clear() 
+  void Clear()
   {
     switch (m_type) {
     case ltBDATA:
@@ -281,7 +281,7 @@ Keyword GetKeyword(std::istream& stream)
   if (stream.get(ch).eof())
     return keyword;
   // Control word; maybe delimiter and value
-  if (IS_ALPHA(ch)) { 
+  if (IS_ALPHA(ch)) {
     int i = 0;
     do {
       // We take up to 32 characters into account, skipping over extra
@@ -298,7 +298,7 @@ Keyword GetKeyword(std::istream& stream)
       while (!stream.eof() && IS_DIGIT(ch)) {
         // We take into account only 10 digits, skip other. Older specs stated
         // that we must be ready for an arbitrary number of digits.
-        if (i++ < 10) 
+        if (i++ < 10)
           keyword.val = keyword.val*10 + (ch - '0');
         stream.get(ch);
       }

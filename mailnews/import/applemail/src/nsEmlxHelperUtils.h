@@ -13,7 +13,7 @@ class nsIOutputStream;
 class nsIFile;
 
 class nsEmlxHelperUtils {
-  /* All emlx messages have a "flags" number in the metadata. 
+  /* All emlx messages have a "flags" number in the metadata.
      These are the masks to decode that, found via http://jwz.livejournal.com/505711.html */
   enum EmlxMetadataMask {
     kRead       = 1 << 0,  // read
@@ -32,7 +32,7 @@ class nsEmlxHelperUtils {
     // 1 << 24,            // is junk
     // 1 << 25,            // is not junk
     // 1 << 26,            // font size delta 7 (3 bits)
-    // 1 << 29,            // junk mail level recorded 
+    // 1 << 29,            // junk mail level recorded
     // 1 << 30,            // highlight text in toc
     // 1 << 31             // (unused)
   };
@@ -48,8 +48,8 @@ class nsEmlxHelperUtils {
   public:
 
   // add an .emlx message to the mbox output
-  static nsresult AddEmlxMessageToStream(nsIFile *aEmlxFile, nsIOutputStream *aOutoutStream); 
+  static nsresult AddEmlxMessageToStream(nsIFile *aEmlxFile, nsIOutputStream *aOutoutStream);
 
 };
 
-#endif // nsEmlxHelperUtils_h___ 
+#endif // nsEmlxHelperUtils_h___

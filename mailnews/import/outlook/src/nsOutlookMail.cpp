@@ -663,7 +663,7 @@ nsresult nsOutlookMail::CreateList(const char16_t * pName,
     return NS_ERROR_FAILURE;
   if (!value)
     return NS_ERROR_NOT_AVAILABLE;
-  // XXX from here out, value must be freed with MAPIFreeBuffer 
+  // XXX from here out, value must be freed with MAPIFreeBuffer
 
   SBinaryArray *sa=(SBinaryArray *)&value->Value.bin;
   if (!sa || !sa->lpbin) {

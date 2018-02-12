@@ -19,7 +19,7 @@
 #define NS_APPLEMAILIMPORT_CID \
 { 0x6d3f101c, 0x70ec, 0x4e04, { 0xb6, 0x8d, 0x99, 0x08, 0xd1, 0xae, 0xdd, 0xf3 } }
 
-#define NS_APPLEMAILIMPL_CONTRACTID "@mozilla.org/import/import-appleMailImpl;1" 
+#define NS_APPLEMAILIMPL_CONTRACTID "@mozilla.org/import/import-appleMailImpl;1"
 
 #define kAppleMailSupportsString "mail"
 
@@ -31,13 +31,13 @@ class nsAppleMailImportModule : public nsIImportModule
   public:
 
   nsAppleMailImportModule();
-    
+
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMPORTMODULE
 
   private:
   virtual ~nsAppleMailImportModule();
-    
+
   nsCOMPtr<nsIStringBundle> mBundle;
 };
 
@@ -58,7 +58,7 @@ class nsAppleMailImportMail : public nsIImportMail
   void FindAccountMailDirs(nsIFile *aRoot, nsIMutableArray *aMailboxDescs, nsIImportService *aImportService);
   nsresult FindMboxDirs(nsIFile *aFolder, nsIMutableArray *aMailboxDescs, nsIImportService *aImportService);
   nsresult AddMboxDir(nsIFile *aFolder, nsIMutableArray *aMailboxDescs, nsIImportService *aImportService);
-    
+
   // aInfoString is the format to a "foo %s" string. It may be NULL if the error string needs no such format.
   void ReportStatus(const char16_t* aErrorName, nsString &aName, nsAString &aStream);
   static void SetLogs(const nsAString& success, const nsAString& error, char16_t **aOutErrorLog, char16_t **aSuccessLog);

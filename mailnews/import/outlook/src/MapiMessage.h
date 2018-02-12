@@ -99,7 +99,7 @@ private:
     inline bool Valid() const { return m_fname; }
     inline const char* fname() const { return m_fname; }
     inline const char* fbody() const { return m_fbody; }
-    
+
     // txt must be utf-8 or 7-bit; supposed that this function will be called
     // when the charset of the txt is known
     void set_fbody(const char* txt);
@@ -132,7 +132,7 @@ private:
 
   // The common array of special headers' names
   static const char* Specials[hdrMax];
-  
+
   std::vector<CHeaderField*> m_headerFields;
   CHeaderField* m_SpecialHeaders[hdrMax]; // Pointers into the m_headerFields
 
@@ -168,7 +168,7 @@ public:
   inline bool BodyIsHtml(void) const { return m_bodyIsHtml;}
   const char *GetFromLine(int& len) const {
     if (m_fromLine.IsEmpty())
-      return NULL; 
+      return NULL;
     else {
       len = m_fromLine.Length();
       return m_fromLine.get();}
@@ -264,7 +264,7 @@ private:
 
   inline static bool IsSpace(char c) {
     return c == ' ' || c == '\r' || c == '\n' || c == '\b' || c == '\t';}
-  inline static bool IsSpace(wchar_t c) { 
+  inline static bool IsSpace(wchar_t c) {
     return ((c & 0xFF) == c) && IsSpace(static_cast<char>(c)); } // Avoid false detections
 };
 

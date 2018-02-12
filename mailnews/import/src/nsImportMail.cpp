@@ -795,7 +795,7 @@ ImportMailThread(void *stuff)
 
         pData->currentSize = 0;
         pData->currentTotal += size;
-        
+
         // commit to the db synchronously, but using a proxy since it doesn't like being used
         // elsewhere than from the main thread.
         // OK, we've copied the actual folder/file over if the folder size is not 0

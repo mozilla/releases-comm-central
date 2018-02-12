@@ -137,7 +137,7 @@ BOOL CMapiApi::GetRTFPropertyDecodedAsUTF16(LPMAPIPROP pProp, nsString& val,
     bool done = false;
     while (!done) {
       // I think 10K is a good guess to minimize the number of reads while keeping memory usage low
-      const int bufsize = 10240; 
+      const int bufsize = 10240;
       char buf[bufsize];
       ULONG read;
       hr = iunstream->Read(buf, bufsize, &read);
