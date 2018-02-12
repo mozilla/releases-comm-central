@@ -57,7 +57,7 @@
 
 @media (-moz-menubar-drag) {
   toolbar[type="menubar"]:not([autohide="true"]):not([xpfe="false"]):not(:-moz-lwtheme) {
-    -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-drag");
+    -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar-drag");
   }
 }
 
