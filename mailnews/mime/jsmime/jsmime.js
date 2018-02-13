@@ -68,6 +68,8 @@ function decode_base64(buffer, more) {
   else
     buffer = '';
   sanitize = sanitize.substring(0, sanitize.length - excess);
+  // Delete all unnecessary '====' in padding.
+  sanitize = sanitize.replace(/(====)+$/g, '');
   // Use the atob function we (ought to) have in global scope.
   return [atob(sanitize), buffer];
 }

@@ -646,6 +646,17 @@ suite('headerparser', function () {
       ["=?us-ascii?B?Y=WJjZA==?=", "abcd"],   // invalid =
       ["=?us-ascii?B?Y=WJj==ZA==?=", "abcd"], // invalid =
       ["=?us-ascii?B?YWJjZA===?=", "abcd"],   // excess = at the end, see bug 227290.
+
+      // Test for bug 1437282: Tolerate extra = padding at the end.
+      ["=?us-ascii?B?VGVzdA==?=", "Test"],  // This is correct.
+      ["=?us-ascii?B?VGVzdA===?=", "Test"],
+      ["=?us-ascii?B?VGVzdA====?=", "Test"],
+      ["=?us-ascii?B?VGVzdA=====?=", "Test"],
+      ["=?us-ascii?B?VGVzdA======?=", "Test"],
+      ["=?us-ascii?B?VGVzdA========?=", "Test"],
+      ["=?us-ascii?B?VGVzdA=========?=", "Test"],
+      ["=?us-ascii?B?VGVzdA==========?=", "Test"],
+      ["=?us-ascii?B?VGVzdA===========?=", "Test"],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
