@@ -22,3 +22,7 @@ EXTRA_JS_MODULES += [
     'Windows8WindowFrameColor.jsm',
 ]
 
+FINAL_TARGET_FILES.modules += [
+    'ThemeVariableMap.jsm'
+]
+
