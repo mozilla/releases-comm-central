@@ -302,7 +302,7 @@ NS_INTERFACE_MAP_BEGIN(nsImapProtocol)
    NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
    NS_INTERFACE_MAP_ENTRY(nsIImapProtocolSink)
    NS_INTERFACE_MAP_ENTRY(nsIMsgAsyncPromptListener)
-NS_INTERFACE_MAP_END_THREADSAFE
+NS_INTERFACE_MAP_END
 
 static int32_t gTooFastTime = 2;
 static int32_t gIdealTime = 4;

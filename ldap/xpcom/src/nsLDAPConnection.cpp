@@ -67,7 +67,7 @@ NS_INTERFACE_MAP_BEGIN(nsLDAPConnection)
   NS_INTERFACE_MAP_ENTRY(nsIObserver)
   NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsILDAPConnection)
   NS_IMPL_QUERY_CLASSINFO(nsLDAPConnection)
-NS_INTERFACE_MAP_END_THREADSAFE
+NS_INTERFACE_MAP_END
 NS_IMPL_CI_INTERFACE_GETTER(nsLDAPConnection, nsILDAPConnection,
                              nsISupportsWeakReference, nsIDNSListener,
                              nsIObserver)
