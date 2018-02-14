@@ -2227,7 +2227,7 @@
               // will make the box scroll here.
 
               // TODO We could scroll by the height of exactly one event box, but
-              // since a normal box's boxObject doesn't implement nsIScrollBoxObject,
+              // since a normal box's boxObject doesn't implement ScrollBoxObject,
               // there is no way to scroll by pixels. Using a xul:scrollbox has
               // problems since the equalsize attribute isn't inherited by the
               // inner box, and even if that is worked around, something makes the
