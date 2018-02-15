@@ -218,7 +218,6 @@
 @RESPATH@/components/dom_webspeechsynth.xpt
 #endif
 @RESPATH@/components/dom_workers.xpt
-@RESPATH@/components/dom_xbl.xpt
 @RESPATH@/components/dom_xhr.xpt
 @RESPATH@/components/dom_xul.xpt
 @RESPATH@/components/downloads.xpt

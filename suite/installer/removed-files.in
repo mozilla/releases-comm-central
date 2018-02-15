@@ -1234,7 +1234,6 @@ components/xpautoc.dll
 @DIR_MACOS@components/dom_storage.xpt
 @DIR_MACOS@components/dom_threads.xpt
 @DIR_MACOS@components/dom_views.xpt
-@DIR_MACOS@components/dom_xbl.xpt
 @DIR_MACOS@components/dom_xul.xpt
 @DIR_MACOS@components/downloads.xpt
 @DIR_MACOS@components/editor.xpt

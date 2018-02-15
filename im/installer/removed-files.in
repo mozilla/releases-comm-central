@@ -122,7 +122,6 @@ components/dom_sidebar.xpt
 components/dom_storage.xpt
 components/dom_threads.xpt
 components/dom_views.xpt
-components/dom_xbl.xpt
 components/dom_xul.xpt
 components/downloads.xpt
 components/editor.xpt
