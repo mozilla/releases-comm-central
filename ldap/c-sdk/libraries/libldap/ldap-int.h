@@ -1,26 +1,26 @@
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
- * The contents of this file are subject to the Mozilla Public License Version 
- * 1.1 (the "License"); you may not use this file except in compliance with 
- * the License. You may obtain a copy of the License at 
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
  * License.
- * 
+ *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
- * 
+ *
  * The Initial Developer of the Original Code is
  * Netscape Communications Corporation.
  * Portions created by the Initial Developer are Copyright (C) 1998-1999
  * the Initial Developer. All Rights Reserved.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Alternatively, the contents of this file may be used under the terms of
  * either of the GNU General Public License Version 2 or later (the "GPL"),
  * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ *
  * ***** END LICENSE BLOCK ***** */
 #ifndef _LDAPINT_H
 #define _LDAPINT_H
@@ -136,25 +136,25 @@
 #define LDAP_DX_REF_STR_LEN	5
 #endif /* LDAP_DNS */
 
-typedef enum { 
-    LDAP_CACHE_LOCK, 
-    LDAP_MEMCACHE_LOCK, 
+typedef enum {
+    LDAP_CACHE_LOCK,
+    LDAP_MEMCACHE_LOCK,
     LDAP_MSGID_LOCK,
-    LDAP_REQ_LOCK, 
-    LDAP_RESP_LOCK, 
-    LDAP_ABANDON_LOCK, 
+    LDAP_REQ_LOCK,
+    LDAP_RESP_LOCK,
+    LDAP_ABANDON_LOCK,
     LDAP_CTRL_LOCK,
-    LDAP_OPTION_LOCK, 
-    LDAP_ERR_LOCK, 
-    LDAP_CONN_LOCK, 
+    LDAP_OPTION_LOCK,
+    LDAP_ERR_LOCK,
+    LDAP_CONN_LOCK,
     LDAP_IOSTATUS_LOCK,		/* serializes access to ld->ld_iostatus */
-    LDAP_RESULT_LOCK, 
-    LDAP_PEND_LOCK, 
-    LDAP_THREADID_LOCK, 
+    LDAP_RESULT_LOCK,
+    LDAP_PEND_LOCK,
+    LDAP_THREADID_LOCK,
 #ifdef LDAP_SASLIO_HOOKS
     LDAP_SASL_LOCK,
 #endif
-    LDAP_MAX_LOCK 
+    LDAP_MAX_LOCK
 } LDAPLock;
 
 /*
@@ -461,7 +461,7 @@ struct ldap {
         } else { \
             (ld)->ld_mutex_lock_fn(ld->ld_mutex[lock]); \
         } \
-    } 
+    }
 
 #define LDAP_MUTEX_UNLOCK(ld, lock) \
     if ((ld)->ld_mutex_lock_fn != NULL && ld->ld_mutex != NULL) { \
@@ -564,7 +564,7 @@ struct ldap {
  * it generates many conflicts with errno.h. Define what we need here.
  * These need to be in sync with OpenTransport.h
  */
- 
+
 #if defined(macintosh)
 #define EWOULDBLOCK     35
 #define EHOSTUNREACH    65
@@ -579,7 +579,7 @@ struct ldap {
 #ifdef EAGAIN
 #define NSLDAPI_ERRNO_IO_INPROGRESS( e )  ((e) == EWOULDBLOCK || (e) == EINPROGRESS || (e) == EAGAIN)
 #else /* EAGAIN */
-#define NSLDAPI_ERRNO_IO_INPROGRESS( e )  ((e) == EWOULDBLOCK || (e) == EINPROGRESS) 
+#define NSLDAPI_ERRNO_IO_INPROGRESS( e )  ((e) == EWOULDBLOCK || (e) == EINPROGRESS)
 #endif /* EAGAIN */
 #endif /* macintosh || _WINDOWS*/
 

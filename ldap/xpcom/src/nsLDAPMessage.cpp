@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -31,7 +31,7 @@ NS_IMPL_CI_INTERFACE_GETTER(nsLDAPMessage, nsILDAPMessage)
 
 // constructor
 //
-nsLDAPMessage::nsLDAPMessage() 
+nsLDAPMessage::nsLDAPMessage()
     : mMsgHandle(0),
       mErrorCode(LDAP_SUCCESS),
       mMatchedDn(0),
@@ -49,7 +49,7 @@ nsLDAPMessage::~nsLDAPMessage(void)
         int rc = ldap_msgfree(mMsgHandle);
 
 // If you are having problems compiling the following code on a Solaris
-// machine with the Forte 6 Update 1 compilers, then you need to make 
+// machine with the Forte 6 Update 1 compilers, then you need to make
 // sure you have applied all the required patches. See:
 // http://www.mozilla.org/unix/solaris-build.html for more details.
 
@@ -69,15 +69,15 @@ nsLDAPMessage::~nsLDAPMessage(void)
             break;
 
         case LDAP_SUCCESS:
-            // timed out (dunno why LDAP_SUCCESS is used to indicate this) 
-            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning, 
+            // timed out (dunno why LDAP_SUCCESS is used to indicate this)
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning,
                    ("nsLDAPMessage::~nsLDAPMessage: ldap_msgfree() "
                     "timed out\n"));
             break;
 
         default:
             // other failure
-            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning, 
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning,
                    ("nsLDAPMessage::~nsLDAPMessage: ldap_msgfree() "
                     "failed: %s\n", ldap_err2string(rc)));
             break;
@@ -102,21 +102,21 @@ nsLDAPMessage::~nsLDAPMessage(void)
 
 }
 
-/** 
+/**
  * Initializes a message.
  *
  * @param aConnection           The nsLDAPConnection this message is on
  * @param aMsgHandle            The native LDAPMessage to be wrapped.
- * 
+ *
  * @exception NS_ERROR_ILLEGAL_VALUE        null pointer passed in
  * @exception NS_ERROR_UNEXPECTED           internal err; shouldn't happen
  * @exception NS_ERROR_LDAP_DECODING_ERROR  problem during BER decoding
  * @exception NS_ERROR_OUT_OF_MEMORY        ran out of memory
  */
-nsresult 
+nsresult
 nsLDAPMessage::Init(nsILDAPConnection *aConnection, LDAPMessage *aMsgHandle)
 {
-    int parseResult; 
+    int parseResult;
 
     if (!aConnection || !aMsgHandle) {
         NS_WARNING("Null pointer passed in to nsLDAPMessage::Init()");
@@ -129,7 +129,7 @@ nsLDAPMessage::Init(nsILDAPConnection *aConnection, LDAPMessage *aMsgHandle)
     mMsgHandle = aMsgHandle;
 
     // cache the connection handle.  we're violating the XPCOM type-system
-    // here since we're a friend of the connection class and in the 
+    // here since we're a friend of the connection class and in the
     // same module.
     //
     mConnectionHandle = static_cast<nsLDAPConnection *>(aConnection)->mConnectionHandle;
@@ -163,12 +163,12 @@ nsLDAPMessage::Init(nsILDAPConnection *aConnection, LDAPMessage *aMsgHandle)
     case LDAP_RES_DELETE:
     case LDAP_RES_MODRDN:
     case LDAP_RES_COMPARE:
-        parseResult = ldap_parse_result(mConnectionHandle, 
+        parseResult = ldap_parse_result(mConnectionHandle,
                                         mMsgHandle, &mErrorCode, &mMatchedDn,
-                                        &mErrorMessage,&mReferrals, 
+                                        &mErrorMessage,&mReferrals,
                                         &mServerControls, 0);
         switch (parseResult) {
-        case LDAP_SUCCESS: 
+        case LDAP_SUCCESS:
             // we're good
             break;
 
@@ -178,7 +178,7 @@ nsLDAPMessage::Init(nsILDAPConnection *aConnection, LDAPMessage *aMsgHandle)
             return NS_ERROR_LDAP_DECODING_ERROR;
 
         case LDAP_NO_MEMORY:
-            NS_WARNING("nsLDAPMessage::Init(): ldap_parse_result() ran out " 
+            NS_WARNING("nsLDAPMessage::Init(): ldap_parse_result() ran out "
                        "of memory");
             return NS_ERROR_OUT_OF_MEMORY;
 
@@ -235,15 +235,15 @@ nsLDAPMessage::GetType(int32_t *aType)
 }
 
 // we don't get to use exceptions, so we'll fake it.  this is an error
-// handler for IterateAttributes().  
+// handler for IterateAttributes().
 //
 nsresult
-nsLDAPMessage::IterateAttrErrHandler(int32_t aLderrno, uint32_t *aAttrCount, 
+nsLDAPMessage::IterateAttrErrHandler(int32_t aLderrno, uint32_t *aAttrCount,
                                      char** *aAttributes, BerElement *position)
 {
 
-    // if necessary, free the position holder used by 
-    // ldap_{first,next}_attribute()  
+    // if necessary, free the position holder used by
+    // ldap_{first,next}_attribute()
     //
     if (position) {
         ldap_ber_free(position, 0);
@@ -284,7 +284,7 @@ nsLDAPMessage::IterateAttrErrHandler(int32_t aLderrno, uint32_t *aAttrCount,
 }
 
 
-// wrapper for ldap_first_attribute 
+// wrapper for ldap_first_attribute
 //
 NS_IMETHODIMP
 nsLDAPMessage::GetAttributes(uint32_t *aAttrCount, char** *aAttributes)
@@ -294,12 +294,12 @@ nsLDAPMessage::GetAttributes(uint32_t *aAttrCount, char** *aAttributes)
 
 // if getP is true, we get the attributes by recursing once
 // (without getP set) in order to fill in *attrCount, then allocate
-// and fill in the *aAttributes.  
-// 
+// and fill in the *aAttributes.
+//
 // if getP is false, just fill in *attrCount and return
-// 
+//
 nsresult
-nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes, 
+nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
                  bool getP)
 {
     BerElement *position;
@@ -327,12 +327,12 @@ nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
         if (!*aAttributes) {
             return NS_ERROR_OUT_OF_MEMORY;
         }
-    } 
+    }
 
     // get the first attribute
     //
-    char *attr = ldap_first_attribute(mConnectionHandle, 
-                                      mMsgHandle, 
+    char *attr = ldap_first_attribute(mConnectionHandle,
+                                      mMsgHandle,
                                       &position);
     if (!attr) {
         return IterateAttrErrHandler(ldap_get_lderrno(mConnectionHandle, 0, 0),
@@ -349,7 +349,7 @@ nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
             return NS_ERROR_OUT_OF_MEMORY;
         }
 
-        // note that we start counting again, in order to keep our place in 
+        // note that we start counting again, in order to keep our place in
         // the array so that we can unwind gracefully and avoid leakage if
         // we hit an error as we're filling in the array
         //
@@ -363,7 +363,7 @@ nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
     ldap_memfree(attr);
 
     while (1) {
-    
+
         // get the next attribute
         //
         attr = ldap_next_attribute(mConnectionHandle, mMsgHandle, position);
@@ -371,12 +371,12 @@ nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
         // check to see if there is an error, or if we're just done iterating
         //
         if (!attr) {
-            
+ 
             // bail out if there's an error
             //
             int32_t lderrno = ldap_get_lderrno(mConnectionHandle, 0, 0);
             if (lderrno != LDAP_SUCCESS) {
-                return IterateAttrErrHandler(lderrno, aAttrCount, aAttributes, 
+                return IterateAttrErrHandler(lderrno, aAttrCount, aAttributes,
                                              position);
             }
 
@@ -387,16 +387,16 @@ nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
 
         } else if (getP) {
 
-            // if ldap_next_attribute did return successfully, and 
+            // if ldap_next_attribute did return successfully, and
             // we're supposed to fill in a value, do so.
             //
             (*aAttributes)[*aAttrCount] = NS_strdup(attr);
             if (!(*aAttributes)[*aAttrCount]) {
                 ldap_memfree(attr);
-                return IterateAttrErrHandler(LDAP_NO_MEMORY, aAttrCount, 
+                return IterateAttrErrHandler(LDAP_NO_MEMORY, aAttrCount,
                                              aAttributes, position);
             }
-       
+
         }
         ldap_memfree(attr);
 
@@ -448,11 +448,11 @@ NS_IMETHODIMP nsLDAPMessage::GetDn(nsACString& aDn)
 // wrapper for ldap_get_values()
 //
 NS_IMETHODIMP
-nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount, 
+nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
                          char16_t ***aValues)
 {
     char **values;
-    
+
 #if defined(DEBUG)
     // We only want this being logged for debug builds so as not to affect performance too much.
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
@@ -467,10 +467,10 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
         int32_t lderrno = ldap_get_lderrno(mConnectionHandle, 0, 0);
 
         if ( lderrno == LDAP_DECODING_ERROR ) {
-            // this may not be an error; it could just be that the 
+            // this may not be an error; it could just be that the
             // caller has asked for an attribute that doesn't exist.
             //
-            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning, 
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning,
                    ("nsLDAPMessage::GetValues(): ldap_get_values returned "
                     "LDAP_DECODING_ERROR"));
             return NS_ERROR_LDAP_DECODING_ERROR;
@@ -497,7 +497,7 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
         return NS_ERROR_OUT_OF_MEMORY;
     }
 
-    // clone the array (except for the trailing NULL entry) using the 
+    // clone the array (except for the trailing NULL entry) using the
     // shared allocator for XPCOM correctness
     //
     uint32_t i;
@@ -514,7 +514,7 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
         }
     }
 
-    // now free our value array since we already cloned the values array 
+    // now free our value array since we already cloned the values array
     // to the 'aValues' results array.
     ldap_value_free(values);
 
@@ -524,7 +524,7 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
 
 // wrapper for get_values_len
 //
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
                                nsILDAPBERValue ***aValues)
 {
@@ -533,7 +533,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
 #if defined(DEBUG)
     // We only want this being logged for debug builds so as not to affect performance too much.
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPMessage::GetBinaryValues(): called with aAttr = '%s'", 
+           ("nsLDAPMessage::GetBinaryValues(): called with aAttr = '%s'",
             aAttr));
 #endif
 
@@ -545,10 +545,10 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
         int32_t lderrno = ldap_get_lderrno(mConnectionHandle, 0, 0);
 
         if ( lderrno == LDAP_DECODING_ERROR ) {
-            // this may not be an error; it could just be that the 
+            // this may not be an error; it could just be that the
             // caller has asked for an attribute that doesn't exist.
             //
-            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning, 
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning,
                    ("nsLDAPMessage::GetBinaryValues(): ldap_get_values "
                     "returned LDAP_DECODING_ERROR"));
             return NS_ERROR_LDAP_DECODING_ERROR;
@@ -569,14 +569,14 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
 
     // create the out array
     //
-    *aValues = 
+    *aValues =
         static_cast<nsILDAPBERValue **>(moz_xmalloc(numVals * sizeof(nsILDAPBERValue)));
     if (!aValues) {
         ldap_value_free_len(values);
         return NS_ERROR_OUT_OF_MEMORY;
     }
 
-    // clone the array (except for the trailing NULL entry) using the 
+    // clone the array (except for the trailing NULL entry) using the
     // shared allocator for XPCOM correctness
     //
     uint32_t i;
@@ -596,7 +596,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
 
         // copy the value from the struct into the nsBERValue
         //
-        rv = berValue->Set(values[i]->bv_len, 
+        rv = berValue->Set(values[i]->bv_len,
                            reinterpret_cast<uint8_t *>(values[i]->bv_val));
         if (NS_FAILED(rv)) {
             NS_ERROR("nsLDAPMessage::GetBinaryValues(): error setting"

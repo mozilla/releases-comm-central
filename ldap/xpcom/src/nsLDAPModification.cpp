@@ -153,6 +153,6 @@ nsLDAPModification::SetUpModificationOneValue(int32_t aOperation,
     rv = mValues->Clear();
 
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   return mValues->AppendElement(aValue);
 }

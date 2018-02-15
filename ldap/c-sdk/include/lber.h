@@ -1,26 +1,26 @@
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
- * The contents of this file are subject to the Mozilla Public License Version 
- * 1.1 (the "License"); you may not use this file except in compliance with 
- * the License. You may obtain a copy of the License at 
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
  * License.
- * 
+ *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
- * 
+ *
  * The Initial Developer of the Original Code is
  * Netscape Communications Corporation.
  * Portions created by the Initial Developer are Copyright (C) 1998-1999
  * the Initial Developer. All Rights Reserved.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Alternatively, the contents of this file may be used under the terms of
  * either of the GNU General Public License Version 2 or later (the "GPL"),
  * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ *
  * ***** END LICENSE BLOCK ***** */
 /* lber.h - header file for ber_* functions */
 #ifndef _LBER_H
@@ -93,7 +93,7 @@ extern "C" {
 /*
  * LBER_USE_DER is defined for compatibility with the C LDAP API RFC.
  * In our implementation, we recognize it (instead of the numerically
- * identical LBER_OPT_REMAINING_BYTES) in calls to ber_alloc_t() and 
+ * identical LBER_OPT_REMAINING_BYTES) in calls to ber_alloc_t() and
  * ber_init_w_nullchar() only.  Callers of ber_set_option() or
  * ber_get_option() must use LBER_OPT_USE_DER instead.  Sorry!
  */
@@ -145,7 +145,7 @@ typedef void *LBER_SOCKET;
 #ifndef LDAP_CALL
 #if defined( _WINDOWS ) || defined( _WIN32 )
 #define LDAP_C __cdecl
-#ifndef _WIN32 
+#ifndef _WIN32
 #define __stdcall _far _pascal
 #define LDAP_CALLBACK _loadds
 #else
@@ -199,7 +199,7 @@ typedef int (LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_WRITE_CALLBACK)( int s,
 	const void *buf, int len, struct lextiof_socket_private *socketarg );
 typedef int (LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_WRITEV_CALLBACK)(int s,
 	const ldap_x_iovec iov[], int iovcnt, struct lextiof_socket_private *socketarg);
-						     
+						
 
 /*
  * Structure for use with LBER_SOCKBUF_OPT_EXT_IO_FNS:
@@ -237,21 +237,21 @@ struct lber_memalloc_fns {
  * decode routines
  */
 LDAP_API(ber_tag_t) LDAP_CALL ber_get_tag( BerElement *ber );
-LDAP_API(ber_tag_t) LDAP_CALL ber_skip_tag( BerElement *ber, 
+LDAP_API(ber_tag_t) LDAP_CALL ber_skip_tag( BerElement *ber,
 	ber_len_t *len );
-LDAP_API(ber_tag_t) LDAP_CALL ber_peek_tag( BerElement *ber, 
+LDAP_API(ber_tag_t) LDAP_CALL ber_peek_tag( BerElement *ber,
 	ber_len_t *len );
 LDAP_API(ber_tag_t) LDAP_CALL ber_get_int( BerElement *ber, ber_int_t *num );
 LDAP_API(ber_tag_t) LDAP_CALL ber_get_stringb( BerElement *ber, char *buf,
 	ber_len_t *len );
-LDAP_API(ber_tag_t) LDAP_CALL ber_get_stringa( BerElement *ber, 
+LDAP_API(ber_tag_t) LDAP_CALL ber_get_stringa( BerElement *ber,
 	char **buf );
 LDAP_API(ber_tag_t) LDAP_CALL ber_get_stringal( BerElement *ber,
 	struct berval **bv );
-LDAP_API(ber_tag_t) LDAP_CALL ber_get_bitstringa( BerElement *ber, 
+LDAP_API(ber_tag_t) LDAP_CALL ber_get_bitstringa( BerElement *ber,
 	char **buf, ber_len_t *len );
 LDAP_API(ber_tag_t) LDAP_CALL ber_get_null( BerElement *ber );
-LDAP_API(ber_tag_t) LDAP_CALL ber_get_boolean( BerElement *ber, 
+LDAP_API(ber_tag_t) LDAP_CALL ber_get_boolean( BerElement *ber,
 	ber_int_t *boolval );
 LDAP_API(ber_tag_t) LDAP_CALL ber_first_element( BerElement *ber,
 	ber_len_t *len, char **last );
@@ -270,18 +270,18 @@ LDAP_API(BerElement *) LDAP_CALL ber_init( const struct berval *bv );
 /*
  * encoding routines
  */
-LDAP_API(int) LDAP_CALL ber_put_enum( BerElement *ber, ber_int_t num, 
+LDAP_API(int) LDAP_CALL ber_put_enum( BerElement *ber, ber_int_t num,
 	ber_tag_t tag );
-LDAP_API(int) LDAP_CALL ber_put_int( BerElement *ber, ber_int_t num, 
+LDAP_API(int) LDAP_CALL ber_put_int( BerElement *ber, ber_int_t num,
 	ber_tag_t tag );
-LDAP_API(int) LDAP_CALL ber_put_ostring( BerElement *ber, char *str, 
+LDAP_API(int) LDAP_CALL ber_put_ostring( BerElement *ber, char *str,
 	ber_len_t len, ber_tag_t tag );
 LDAP_API(int) LDAP_CALL ber_put_string( BerElement *ber, char *str,
 	ber_tag_t tag );
 LDAP_API(int) LDAP_CALL ber_put_bitstring( BerElement *ber, char *str,
 	ber_len_t bitlen, ber_tag_t tag );
 LDAP_API(int) LDAP_CALL ber_put_null( BerElement *ber, ber_tag_t tag );
-LDAP_API(int) LDAP_CALL ber_put_boolean( BerElement *ber, 
+LDAP_API(int) LDAP_CALL ber_put_boolean( BerElement *ber,
 	ber_int_t boolval, ber_tag_t tag );
 LDAP_API(int) LDAP_CALL ber_start_seq( BerElement *ber, ber_tag_t tag );
 LDAP_API(int) LDAP_CALL ber_start_set( BerElement *ber, ber_tag_t tag );
@@ -310,26 +310,26 @@ LDAP_API(ber_tag_t) LDAP_CALL ber_get_next_buffer( void *buffer,
 LDAP_API(ber_tag_t) LDAP_CALL ber_get_next_buffer_ext( void *buffer,
 	size_t buffer_size, ber_len_t *len, BerElement *ber,
 	ber_len_t *Bytes_Scanned, Sockbuf *sb );
-LDAP_API(ber_int_t) LDAP_CALL ber_read( BerElement *ber, char *buf, 
+LDAP_API(ber_int_t) LDAP_CALL ber_read( BerElement *ber, char *buf,
 	ber_len_t len );
-LDAP_API(ber_int_t) LDAP_CALL ber_write( BerElement *ber, char *buf, 
+LDAP_API(ber_int_t) LDAP_CALL ber_write( BerElement *ber, char *buf,
 	ber_len_t len, int nosos );
 LDAP_API(void) LDAP_CALL ber_init_w_nullchar( BerElement *ber, int options );
 LDAP_API(void) LDAP_CALL ber_reset( BerElement *ber, int was_writing );
 LDAP_API(size_t) LDAP_CALL ber_get_buf_datalen( BerElement *ber );
-LDAP_API(int) LDAP_CALL ber_stack_init(BerElement *ber, int options, 
+LDAP_API(int) LDAP_CALL ber_stack_init(BerElement *ber, int options,
 	char * buf, size_t size);
 LDAP_API(char*) LDAP_CALL ber_get_buf_databegin (BerElement * ber);
 LDAP_API(void) LDAP_CALL ber_sockbuf_free_data(Sockbuf *p);
-LDAP_API(int) LDAP_CALL ber_set_option( BerElement *ber, int option, 
+LDAP_API(int) LDAP_CALL ber_set_option( BerElement *ber, int option,
 	void *value );
-LDAP_API(int) LDAP_CALL ber_get_option( BerElement *ber, int option, 
+LDAP_API(int) LDAP_CALL ber_get_option( BerElement *ber, int option,
 	void *value );
 LDAP_API(Sockbuf*) LDAP_CALL ber_sockbuf_alloc( void );
 LDAP_API(void) LDAP_CALL ber_sockbuf_free( Sockbuf* p );
-LDAP_API(int) LDAP_CALL ber_sockbuf_set_option( Sockbuf *sb, int option, 
+LDAP_API(int) LDAP_CALL ber_sockbuf_set_option( Sockbuf *sb, int option,
 	void *value );
-LDAP_API(int) LDAP_CALL ber_sockbuf_get_option( Sockbuf *sb, int option, 
+LDAP_API(int) LDAP_CALL ber_sockbuf_get_option( Sockbuf *sb, int option,
 	void *value );
 
 #ifdef __cplusplus

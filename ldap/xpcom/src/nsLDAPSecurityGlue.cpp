@@ -83,10 +83,10 @@ nsLDAPSSLClose(int s, struct lextiof_socket_private *socketarg)
 }
 
 // Replacement connection function.  Calls the real connect function,
-// 
+//
 extern "C" int LDAP_CALLBACK
 nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
-		 unsigned long options, 
+		 unsigned long options,
 		 struct lextiof_session_private *sessionarg,
 		 struct lextiof_socket_private **socketargp )
 {
@@ -104,7 +104,7 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     // the we pass to the standard connect() function (since it doesn't know
     // how to handle the secure option).
     //
-    NS_ASSERTION(options & LDAP_X_EXTIOF_OPT_SECURE, 
+    NS_ASSERTION(options & LDAP_X_EXTIOF_OPT_SECURE,
 		 "nsLDAPSSLConnect(): called for non-secure connection");
     options &= ~LDAP_X_EXTIOF_OPT_SECURE;
 
@@ -113,18 +113,18 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     //
     memset(&sessionInfo, 0, sizeof(sessionInfo));
     sessionInfo.seinfo_size = PRLDAP_SESSIONINFO_SIZE;
-    if (prldap_get_session_info(nullptr, sessionarg, &sessionInfo) 
+    if (prldap_get_session_info(nullptr, sessionarg, &sessionInfo)
 	!= LDAP_SUCCESS) {
 	NS_ERROR("nsLDAPSSLConnect(): unable to get session info");
         return -1;
     }
     sessionClosure = reinterpret_cast<nsLDAPSSLSessionClosure *>
                                      (sessionInfo.seinfo_appdata);
-    
+
     // Call the real connect() callback to make the TCP connection.  If it
     // succeeds, *socketargp is set.
     //
-    intfd = (*(sessionClosure->realConnect))(hostlist, defport, timeout, 
+    intfd = (*(sessionClosure->realConnect))(hostlist, defport, timeout,
 					     options, sessionarg, socketargp);
     if ( intfd < 0 ) {
 	MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
@@ -155,9 +155,9 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     memset(socketClosure, 0, sizeof(nsLDAPSSLSocketClosure));
     socketClosure->sessionClosure = sessionClosure;
 
-    // Add the NSPR layer for SSL provided by PSM to this socket. 
+    // Add the NSPR layer for SSL provided by PSM to this socket.
     //
-    tlsSocketProvider = do_GetService(NS_STARTTLSSOCKETPROVIDER_CONTRACTID, 
+    tlsSocketProvider = do_GetService(NS_STARTTLSSOCKETPROVIDER_CONTRACTID,
 				      &rv);
     if (NS_FAILED(rv)) {
 	NS_ERROR("nsLDAPSSLConnect(): unable to get socket provider service");
@@ -266,7 +266,7 @@ nsLDAPSSLDisposeHandle(LDAP *ld, struct lextiof_session_private *sessionarg)
 	disposehdl_fn = sessionClosure->realDisposeHandle;
 	nsLDAPSSLFreeSessionClosure(&sessionClosure);
 	(*disposehdl_fn)(ld, sessionarg);
-    } 
+    }
 }
 
 // Installs appropriate routines and data for making this connection
@@ -294,7 +294,7 @@ nsLDAPInstallSSL( LDAP *ld, const char *aHostName)
     //
     memset(&iofns, 0, sizeof(iofns));
     iofns.lextiof_size = LDAP_X_EXTIO_FNS_SIZE;
-    if (ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, 
+    if (ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS,
 			static_cast<void *>(&iofns)) != LDAP_SUCCESS) {
 	NS_ERROR("nsLDAPInstallSSL(): unexpected error getting"
 		 " LDAP_X_OPT_EXTIO_FN_PTRS");
@@ -320,7 +320,7 @@ nsLDAPInstallSSL( LDAP *ld, const char *aHostName)
     sessionClosure->realDisposeHandle = iofns.lextiof_disposehandle;
     iofns.lextiof_disposehandle = nsLDAPSSLDisposeHandle;
 
-    if (ldap_set_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, 
+    if (ldap_set_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS,
 			static_cast<void *>(&iofns)) != LDAP_SUCCESS) {
 	NS_ERROR("nsLDAPInstallSSL(): error setting LDAP_X_OPT_EXTIO_FN_PTRS");
 	nsLDAPSSLFreeSessionClosure(&sessionClosure);

@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -21,9 +21,9 @@ nsLDAPBERValue::~nsLDAPBERValue()
     }
 }
 
-// void get (out unsigned long aCount, 
+// void get (out unsigned long aCount,
 //           [array, size_is (aCount), retval] out octet aRetVal); */
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPBERValue::Get(uint32_t *aCount, uint8_t **aRetVal)
 {
     // if mSize = 0, return a count of a 0 and a null pointer
@@ -36,7 +36,7 @@ nsLDAPBERValue::Get(uint32_t *aCount, uint8_t **aRetVal)
         if (!array) {
             return NS_ERROR_OUT_OF_MEMORY;
         }
-    
+
         // copy and return
         //
         memcpy(array, mValue, mSize);
@@ -49,7 +49,7 @@ nsLDAPBERValue::Get(uint32_t *aCount, uint8_t **aRetVal)
     return NS_OK;
 }
 
-// void set(in unsigned long aCount, 
+// void set(in unsigned long aCount,
 //          [array, size_is(aCount)] in octet aValue);
 NS_IMETHODIMP
 nsLDAPBERValue::Set(uint32_t aCount, uint8_t *aValue)
@@ -62,7 +62,7 @@ nsLDAPBERValue::Set(uint32_t aCount, uint8_t *aValue)
 
     // if this is a non-zero value, allocate a buffer and copy
     //
-    if (aCount) { 
+    if (aCount) {
         // get a buffer to hold a copy of this data
         //
         mValue = static_cast<uint8_t *>(moz_xmalloc(aCount));

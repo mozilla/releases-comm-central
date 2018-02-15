@@ -1,26 +1,26 @@
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
- * The contents of this file are subject to the Mozilla Public License Version 
- * 1.1 (the "License"); you may not use this file except in compliance with 
- * the License. You may obtain a copy of the License at 
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
  * License.
- * 
+ *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
- * 
+ *
  * The Initial Developer of the Original Code is
  * Netscape Communications Corporation.
  * Portions created by the Initial Developer are Copyright (C) 1998-1999
  * the Initial Developer. All Rights Reserved.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Alternatively, the contents of this file may be used under the terms of
  * either of the GNU General Public License Version 2 or later (the "GPL"),
  * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ *
  * ***** END LICENSE BLOCK ***** */
 
 /* ldap-extension.h - extensions to the ldap c api specification */
@@ -145,7 +145,7 @@ extern "C" {
 
 LDAP_API(void) LDAP_CALL ldap_ber_free( BerElement *ber, int freebuf );
 
-LDAP_API(LDAPControl *) LDAP_CALL ldap_find_control( const char *oid, 
+LDAP_API(LDAPControl *) LDAP_CALL ldap_find_control( const char *oid,
 		LDAPControl **ctrls );
 
 /*
@@ -201,34 +201,34 @@ LDAP_API(void) LDAP_CALL ldap_free_sort_keylist( LDAPsortkey **sortKeyList );
 LDAP_API(int) LDAP_CALL ldap_create_sort_keylist( LDAPsortkey ***sortKeyList,
         const char *string_rep );
 
-LDAP_API(int) LDAP_CALL ldap_create_userstatus_control( 
+LDAP_API(int) LDAP_CALL ldap_create_userstatus_control(
 		LDAP *ld, const char ctl_iscritical, LDAPControl **ctrlp );
-LDAP_API(int) LDAP_CALL ldap_parse_userstatus_control( LDAP *ld, 
+LDAP_API(int) LDAP_CALL ldap_parse_userstatus_control( LDAP *ld,
 		LDAPControl **ctrlp, LDAPuserstatus *us );
 
-LDAP_API(int) LDAP_CALL ldap_create_passwordpolicy_control( LDAP *ld, 
+LDAP_API(int) LDAP_CALL ldap_create_passwordpolicy_control( LDAP *ld,
 		LDAPControl **ctrlp );
-LDAP_API(int) LDAP_CALL ldap_create_passwordpolicy_control_ext( LDAP *ld, 
+LDAP_API(int) LDAP_CALL ldap_create_passwordpolicy_control_ext( LDAP *ld,
 		const char ctl_iscritical, LDAPControl **ctrlp );
-LDAP_API(int) LDAP_CALL ldap_parse_passwordpolicy_control( LDAP *ld, 
+LDAP_API(int) LDAP_CALL ldap_parse_passwordpolicy_control( LDAP *ld,
 		LDAPControl *ctrlp, ber_int_t *expirep, ber_int_t *gracep,
 		LDAPPasswordPolicyError *errorp );
-LDAP_API(int) LDAP_CALL ldap_parse_passwordpolicy_control_ext ( LDAP *ld, 
+LDAP_API(int) LDAP_CALL ldap_parse_passwordpolicy_control_ext ( LDAP *ld,
 		LDAPControl **ctrlp, ber_int_t *expirep, ber_int_t *gracep,
 		LDAPPasswordPolicyError *errorp );
-LDAP_API(const char *) LDAP_CALL ldap_passwordpolicy_err2txt( 
+LDAP_API(const char *) LDAP_CALL ldap_passwordpolicy_err2txt(
 		LDAPPasswordPolicyError err );
 
-LDAP_API(int) LDAP_CALL ldap_create_authzid_control( LDAP *ld, 
+LDAP_API(int) LDAP_CALL ldap_create_authzid_control( LDAP *ld,
 		const char ctl_iscritical, LDAPControl **ctrlp );
-LDAP_API(int) LDAP_CALL ldap_parse_authzid_control( LDAP *ld, 
+LDAP_API(int) LDAP_CALL ldap_parse_authzid_control( LDAP *ld,
 		LDAPControl **ctrlp, char **authzid );
 
-LDAP_API(int) LDAP_CALL ldap_whoami( LDAP *ld, LDAPControl **serverctrls, 
+LDAP_API(int) LDAP_CALL ldap_whoami( LDAP *ld, LDAPControl **serverctrls,
 		LDAPControl **clientctrls, int *msgidp );
 LDAP_API(int) LDAP_CALL ldap_whoami_s( LDAP *ld, struct berval **authzid,
 		LDAPControl **serverctrls, LDAPControl **clientctrls );
-LDAP_API(int) LDAP_CALL ldap_parse_whoami( LDAP *ld, LDAPMessage *result, 
+LDAP_API(int) LDAP_CALL ldap_parse_whoami( LDAP *ld, LDAPMessage *result,
 		struct berval **authzid );
 
 LDAP_API(int) LDAP_CALL ldap_create_geteffectiveRights_control( LDAP *ld,
@@ -337,7 +337,7 @@ typedef struct ldap_url_desc {
  */
 LDAP_API(int) LDAP_CALL ldap_is_ldap_url( const char *url );
 LDAP_API(int) LDAP_CALL ldap_url_parse( const char *url, LDAPURLDesc **ludpp );
-LDAP_API(int) LDAP_CALL ldap_url_parse_no_defaults( const char *url, 
+LDAP_API(int) LDAP_CALL ldap_url_parse_no_defaults( const char *url,
         LDAPURLDesc **ludpp, int dn_required);
 LDAP_API(void) LDAP_CALL ldap_free_urldesc( LDAPURLDesc *ludp );
 LDAP_API(int) LDAP_CALL ldap_url_search( LDAP *ld, const char *url,
@@ -649,7 +649,7 @@ LDAP_API(void) LDAP_CALL ldap_memcache_update( LDAPMemCache *cache );
 #define LDAP_X_OPT_CONNECT_TIMEOUT    (LDAP_OPT_PRIVATE_EXTENSION_BASE + 0x0F01)
         /* 0x4000 + 0x0F01 = 0x4F01 = 20225 - API extension */
 
-/* 
+/*
  * Socket buffer structure associated to the LDAP connection
  */
 #define LDAP_X_OPT_SOCKBUF            (LDAP_OPT_PRIVATE_EXTENSION_BASE + 0x0F03)
@@ -839,7 +839,7 @@ LDAP_API(int) LDAP_CALL ldap_passwd_s( LDAP *ld, struct berval *userid,
 
 LDAP_API(int) LDAP_CALL ldap_parse_passwd( LDAP *ld, LDAPMessage *result,
 	struct berval *genpasswd );
-    
+
 /*
  * in reslist.c
  */

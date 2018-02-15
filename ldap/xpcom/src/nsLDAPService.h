@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -17,7 +17,7 @@
 #include "nsILDAPMessage.h"
 #include "mozilla/Mutex.h"
 
-// 6a89ae33-7a90-430d-888c-0dede53a951a 
+// 6a89ae33-7a90-430d-888c-0dede53a951a
 //
 #define NS_LDAPSERVICE_CID \
 { \
@@ -70,14 +70,14 @@ class nsLDAPServiceEntry
     nsCOMPtr<nsILDAPMessage> mMessage;
 
     // Array holding all the pending callbacks (listeners) for this entry
-    nsCOMArray<nsILDAPMessageListener> mListeners;  
+    nsCOMArray<nsILDAPMessageListener> mListeners;
 };
 
 // This is the interface we're implementing.
 //
 class nsLDAPService : public nsILDAPService, public nsILDAPMessageListener
 {
-  public: 
+  public:
     // interface decls
     //
     NS_DECL_THREADSAFE_ISUPPORTS
@@ -87,7 +87,7 @@ class nsLDAPService : public nsILDAPService, public nsILDAPMessageListener
     // constructor and destructor
     //
     nsLDAPService();
-    
+
     nsresult Init();
 
   protected:
@@ -95,7 +95,7 @@ class nsLDAPService : public nsILDAPService, public nsILDAPMessageListener
     nsresult EstablishConnection(nsLDAPServiceEntry *,
                                  nsILDAPMessageListener *);
 
-    // kinda like strtok_r, but with iterators.  for use by 
+    // kinda like strtok_r, but with iterators.  for use by
     // createFilter
     //
     char *NextToken(const char **aIter, const char **aIterEnd);
@@ -105,8 +105,7 @@ class nsLDAPService : public nsILDAPService, public nsILDAPMessageListener
     // are copies, not references.
     //
     uint32_t CountTokens(const char * aIter, const char * aIterEnd);
-                   
-    
+
     mozilla::Mutex mLock;       // Lock mechanism
 
     // Hash table holding server entries

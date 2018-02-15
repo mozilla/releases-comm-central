@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -105,10 +105,10 @@ nsLDAPInitialize()
         return NS_ERROR_FAILURE;
     }
 
-    // Never block for more than 10000 milliseconds (ie 10 seconds) doing any 
+    // Never block for more than 10000 milliseconds (ie 10 seconds) doing any
     // sort of I/O operation.
     //
-    rv = prldap_set_session_option(0, 0, PRLDAP_OPT_IO_MAX_TIMEOUT, 
+    rv = prldap_set_session_option(0, 0, PRLDAP_OPT_IO_MAX_TIMEOUT,
                                    10000);
     if (rv != LDAP_SUCCESS) {
         MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,

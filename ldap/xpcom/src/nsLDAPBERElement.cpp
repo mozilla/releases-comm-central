@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -32,7 +32,7 @@ nsLDAPBERElement::Init(nsILDAPBERValue *aValue)
 {
   if (aValue) {
     return NS_ERROR_NOT_IMPLEMENTED;
-  } 
+  }
 
   mElement = ber_alloc_t(LBER_USE_DER);
   return mElement ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
@@ -40,12 +40,12 @@ nsLDAPBERElement::Init(nsILDAPBERValue *aValue)
 
 /* void putString (in AUTF8String aString, in unsigned long aTag); */
 NS_IMETHODIMP
-nsLDAPBERElement::PutString(const nsACString & aString, uint32_t aTag, 
+nsLDAPBERElement::PutString(const nsACString & aString, uint32_t aTag,
                             uint32_t *aBytesWritten)
 {
   // XXX if the string translation feature of the C SDK is ever used,
   // this const_cast will break
-  int i = ber_put_ostring(mElement, 
+  int i = ber_put_ostring(mElement,
                           const_cast<char *>(PromiseFlatCString(aString).get()),
                           aString.Length(), aTag);
 
@@ -99,7 +99,7 @@ NS_IMETHODIMP nsLDAPBERElement::GetAsValue(nsILDAPBERValue **_retval)
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  nsresult rv = berValue->Set(bv->bv_len, 
+  nsresult rv = berValue->Set(bv->bv_len,
                               reinterpret_cast<uint8_t *>(bv->bv_val));
 
   // whether or not we've succeeded, we're done with the ldap c sdk struct

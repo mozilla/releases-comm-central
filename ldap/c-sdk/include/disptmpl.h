@@ -1,26 +1,26 @@
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
- * The contents of this file are subject to the Mozilla Public License Version 
- * 1.1 (the "License"); you may not use this file except in compliance with 
- * the License. You may obtain a copy of the License at 
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
  * License.
- * 
+ *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
- * 
+ *
  * The Initial Developer of the Original Code is
  * Netscape Communications Corporation.
  * Portions created by the Initial Developer are Copyright (C) 1998-1999
  * the Initial Developer. All Rights Reserved.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Alternatively, the contents of this file may be used under the terms of
  * either of the GNU General Public License Version 2 or later (the "GPL"),
  * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ *
  * ***** END LICENSE BLOCK ***** */
 
 /*
@@ -60,7 +60,7 @@ extern "C" {
 #ifndef LDAP_CALL
 #if defined( _WINDOWS ) || defined( _WIN32 )
 #define LDAP_C __cdecl
-#ifndef _WIN32 
+#ifndef _WIN32
 #define __stdcall _far _pascal
 #define LDAP_CALLBACK _loadds
 #else
@@ -94,7 +94,7 @@ extern "C" {
 #define LDAP_SYN_OPT_DEFER		0x00010000L
 
 
-/* 
+/*
  * display template item syntax ids (defined by common agreement)
  * these are the valid values for the ti_syntaxid of the tmplitem
  * struct (defined below).  A general type is encoded in the
@@ -138,7 +138,7 @@ extern "C" {
 #define LDAP_DISP_OPT_HTMLBODYONLY	0x00000002L
 
 /*
- * perform search actions (applies to ldap_entry2text_search only) 
+ * perform search actions (applies to ldap_entry2text_search only)
  */
 #define LDAP_DISP_OPT_DOSEARCHACTIONS	0x00000002L
 

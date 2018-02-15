@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -48,7 +48,7 @@ nsLDAPControl::SetValue(nsILDAPBERValue * aValue)
 }
 
 /* attribute boolean isCritical; */
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPControl::GetIsCritical(bool *aIsCritical)
 {
   *aIsCritical = mIsCritical;
@@ -92,7 +92,7 @@ nsLDAPControl::ToLDAPControl(LDAPControl **control)
   } else {
 
     // just to make the code below a bit more readable
-    nsLDAPBERValue *nsBerVal = 
+    nsLDAPBERValue *nsBerVal =
       static_cast<nsLDAPBERValue *>(static_cast<nsILDAPBERValue *>
                              (mValue.get()));
     ctl->ldctl_value.bv_len = nsBerVal->mSize;
@@ -110,7 +110,7 @@ nsLDAPControl::ToLDAPControl(LDAPControl **control)
         ldap_control_free(ctl);
         return NS_ERROR_OUT_OF_MEMORY;
       }
-  
+
       memcpy(ctl->ldctl_value.bv_val, nsBerVal->mValue,
              ctl->ldctl_value.bv_len);
     }

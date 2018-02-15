@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -25,7 +25,7 @@ public:
 
   /**
    * return a pointer to C-SDK compatible LDAPControl structure.  Note that
-   * this is allocated with NS_Alloc and must be freed with NS_Free, both by 
+   * this is allocated with NS_Alloc and must be freed with NS_Free, both by
    * ldap_control_free() and friends.
    *
    * @exception null pointer return if allocation failed
