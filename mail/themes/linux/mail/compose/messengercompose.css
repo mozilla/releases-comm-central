@@ -278,6 +278,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 /* ::::: autocomplete icons ::::: */
 
 .ac-site-icon {
+  display: -moz-box;
   margin: 1px 5px;
 }
 
