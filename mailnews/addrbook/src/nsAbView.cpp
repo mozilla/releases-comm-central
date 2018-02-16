@@ -59,6 +59,8 @@ NS_IMETHODIMP nsAbView::ClearView()
 {
   mDirectory = nullptr;
   mAbViewListener = nullptr;
+  if (mTree)
+    mTree->SetView(nullptr);
   mTree = nullptr;
   mTreeSelection = nullptr;
 
@@ -169,6 +171,7 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
   {
     // Try and speed deletion of old cards by disconnecting the tree from us.
     mTreeSelection->ClearSelection();
+    mTree->SetView(nullptr);
   }
 
   // Clear out old cards
