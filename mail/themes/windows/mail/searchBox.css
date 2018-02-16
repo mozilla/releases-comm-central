@@ -171,6 +171,11 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   padding: 2px 0;
 }
 
+#PopupGlodaAutocomplete .ac-url {
+  display: -moz-box;
+  margin-bottom: 2px;
+}
+
 .autocomplete-richlistitem[type^="gloda-"] {
   margin-right: 2px;
   margin-left: 2px;
