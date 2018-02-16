@@ -73,7 +73,7 @@ var TESTS = [
     body: '<video id="testelement" src="' + url + 'video.ogv"/>\n',
     webPage: "remotevideo.html",
     checkForAllowed: function video_checkAllowed(element) {
-      return element.networkState != Ci.nsIDOMHTMLMediaElement.NETWORK_NO_SOURCE;
+      return element.networkState != element.NETWORK_NO_SOURCE;
     }
   },
   {
