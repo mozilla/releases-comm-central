@@ -4,10 +4,6 @@
 
 this.EXPORTED_SYMBOLS = [ "extensionDefaults" ];
 
-var Ci = Components.interfaces;
-var Cc = Components.classes;
-var Cu = Components.utils;
-
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 // ChromeUtils.import("resource://gre/modules/Deprecated.jsm") - needed for warning.
 ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
