@@ -38,12 +38,9 @@ var b64Attachment =
 var b64Size = 188;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-  let ch = collector.getModule("compose-helpers");
-  ch.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   folder = create_folder('ComposeAttachmentA');
 
@@ -308,6 +305,111 @@ function test_forward_message_with_attachments_as_attachment() {
   close_compose_window(cwc);
 }
 
+
+/**
+ * Check that the compose window has the attachments we expect.
+ *
+ * @param aController  The controller for the compose window
+ * @param aNames       An array of attachment names that are expected
+ */
+function check_attachment_names(aController, aNames) {
+  let bucket = aController.e("attachmentBucket");
+  assert_equals(aNames.length, bucket.itemCount);
+  for (let i = 0; i < aNames.length; i++) {
+    assert_equals(bucket.getItemAtIndex(i).getAttribute("name"), aNames[i]);
+  }
+}
+
+/**
+ * Execute given actions on attachments and check the expected results.
+ *
+ * @param aController       The controller for the compose window
+ * @param aReorder_actions  An array of objects specifying reordering action:
+ *                          { select: array of attachment item indexes to select,
+ *                            button: ID of button to click in the reordering menu,
+ *                            key:    key to press instead of a click,
+ *                            key_modifiers: { shiftKey: bool, accelKey: bool, ctrlKey: bool, altKey: bool },
+ *                            result: an array of attachment names that should result
+ *                          }
+ */
+function subtest_check_reordering_actions(aController, aReorder_actions) {
+  let bucket = aController.e("attachmentBucket");
+  for (let action of aReorder_actions) {
+    // Ensure selection.
+    bucket.clearSelection();
+    for (let itemIndex of action.select) {
+      bucket.addItemToSelection(bucket.getItemAtIndex(itemIndex));
+    }
+    // Take action.
+    if ("button" in action)
+      aController.click(aController.eid(action.button));
+    else if ("key" in action)
+      aController.keypress(null, action.key, action.key_modifiers);
+
+    // Check result.
+    check_attachment_names(aController, action.result);
+  }
+}
+
+/**
+ * Bug 663695
+ * Check simple attachment reordering operations.
+ */
+function test_attachment_reordering() {
+  let cwc = open_compose_new_mail();
+
+  // Create a set of attachments.
+  const size = 1234;
+  let initialAttachmentNames = ["a", "C", "B", "b", "bb", "x"];
+  for (let name of initialAttachmentNames) {
+    add_attachment(cwc, filePrefix + name, size);
+  }
+
+  assert_equals(cwc.window.attachmentsCount(), initialAttachmentNames.length);
+  check_attachment_names(cwc, initialAttachmentNames);
+
+  // Bring up the reordering panel.
+  let bucket = cwc.e("attachmentBucket");
+  cwc.rightClick(new elib.Elem(bucket.getItemAtIndex(1)));
+  cwc.click_menus_in_sequence(cwc.e("msgComposeAttachmentItemContext"),
+                              [{ id: "composeAttachmentContext_reorderItem" }]);
+  let panel = cwc.e("reorderAttachmentsPanel");
+  wait_for_popup_to_open(panel);
+
+  // Check various moving operations.
+  const reorder_actions_basic = [
+    { select: [1, 2, 3],
+      button: "btn_sortAttachmentsToggle",
+      result: ["a", "b", "B", "C", "bb", "x"] },
+    { select: [4],
+      button: "btn_moveAttachmentUp",
+      result: ["a", "b", "B", "bb", "C", "x"] },
+    { select: [5],
+      button: "btn_moveAttachmentTop",
+      result: ["x", "a", "b", "B", "bb", "C"] },
+    { select: [0],
+      key:    "VK_DOWN",
+      key_modifiers: { altKey: true },
+      result: ["a", "x", "b", "B", "bb", "C"] },
+    { select: [1],
+      button: "btn_moveAttachmentBottom",
+      result: ["a", "b", "B", "bb", "C", "x"] },
+    { select: [1, 3],
+      button: "btn_moveAttachmentBundleUp",
+      result: ["a", "b", "bb", "B", "C", "x"] },
+    // Bug 1417856
+    { select: [2],
+      button: "btn_sortAttachmentsToggle",
+      result: ["a", "b", "B", "bb", "C", "x"] }
+  ];
+
+  subtest_check_reordering_actions(cwc, reorder_actions_basic);
+
+  // Click on the editor which should close the panel.
+  cwc.click(new elib.Elem(cwc.window.GetCurrentEditorElement()));
+  cwc.waitFor(() => panel.state == "closed", "Reordering panel didn't close");
+  close_compose_window(cwc);
+}
+
 // XXX: Test attached emails dragged onto composer and files pulled from other
 // emails (this probably requires better drag-and-drop support from Mozmill)
-
