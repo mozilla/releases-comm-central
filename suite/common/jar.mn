@@ -82,7 +82,6 @@ comm.jar:
    content/communicator/nsContextMenu.js
    content/communicator/openLocation.js
    content/communicator/openLocation.xul
-   content/communicator/passwordManager.xul
    content/communicator/safeMode.js
    content/communicator/safeMode.xul
    content/communicator/sanitize.xul
