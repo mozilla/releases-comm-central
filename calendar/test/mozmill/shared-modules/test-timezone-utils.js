@@ -122,7 +122,7 @@ function verify(controller, dates, timezones, times) {
             if (day != undefined && day == -1) {
                 viewForward(controller, 1);
             }
-            controller.assertJS(found == true);
+            controller.assertJS(found);
         }
     }
 }

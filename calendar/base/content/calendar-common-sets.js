@@ -283,8 +283,7 @@ var calendarController = {
                     newStart = cal.dtz.getDefaultStartDate(currentView().selectedDay);
                 }
                 createEventWithDialog(getSelectedCalendar(), newStart,
-                                      null, null, null,
-                                      newStart.isDate == true);
+                                      null, null, null, newStart.isDate);
                 break;
             }
             case "calendar_modify_event_command":

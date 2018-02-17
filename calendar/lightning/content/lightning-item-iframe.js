@@ -515,7 +515,7 @@ function onCancel(aIframeId, aPreventClose) {
         // the "Save Event" dialog.  Don't allow closing the dialog if
         // the main window is being closed but the tabs in it are not.
 
-        if (!gWarning && aPreventClose != true) {
+        if (!gWarning && !aPreventClose) {
             sendMessage({ command: "closeWindowOrTab", iframeId: aIframeId });
         }
         return !gWarning;
@@ -752,7 +752,7 @@ function loadDialog(aItem) {
                                          ? false // default value as most common within organizations
                                          : (undiscloseProp == "TRUE");
             // disable checkbox, if notifyCheckbox is not checked
-            undiscloseCheckbox.disabled = (notifyCheckbox.checked == false);
+            undiscloseCheckbox.disabled = !notifyCheckbox.checked;
         }
         // this may also be a server exposed calendar property from exchange servers - if so, this
         // probably should overrule the client-side config option

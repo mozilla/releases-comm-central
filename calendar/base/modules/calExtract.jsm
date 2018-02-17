@@ -115,7 +115,7 @@ Extractor.prototype = {
     setLanguage: function() {
         let path;
 
-        if (this.fixedLang == true) {
+        if (this.fixedLang) {
             if (this.checkBundle(this.fallbackLocale)) {
                 cal.LOG("[calExtract] Fixed locale was used to choose " +
                         this.fallbackLocale + " patterns.");
@@ -848,11 +848,11 @@ Extractor.prototype = {
     /**
     * Guesses end time from list of guessed datetimes relative to start time
     *
-    * @param start     start time to consider when guessing
-    * @param isTask    whether start time should be guessed for task or event
-    * @return          datetime object for end time
+    * @param start         start time to consider when guessing
+    * @param doGuessStart  whether start time should be guessed for task or event
+    * @return              datetime object for end time
     */
-    guessEnd: function(start, isTask) {
+    guessEnd: function(start, doGuessStart) {
         let guess = {};
         let endTimes = this.collected.filter(val => val.relation == "end");
         let durations = this.collected.filter(val => val.relation == "duration");
@@ -869,14 +869,14 @@ Extractor.prototype = {
             let wMinuteNA = wMinute.filter(val => val.ambiguous === undefined);
 
             // first set non-ambiguous dates
-            let pos = isTask == true ? 0 : wDayNA.length - 1;
+            let pos = doGuessStart ? 0 : wDayNA.length - 1;
             if (wDayNA.length != 0) {
                 guess.year = wDayNA[pos].year;
                 guess.month = wDayNA[pos].month;
                 guess.day = wDayNA[pos].day;
             // then ambiguous dates
             } else if (wDay.length != 0) {
-                pos = isTask == true ? 0 : wDay.length - 1;
+                pos = doGuessStart ? 0 : wDay.length - 1;
                 guess.year = wDay[pos].year;
                 guess.month = wDay[pos].month;
                 guess.day = wDay[pos].day;
@@ -884,7 +884,7 @@ Extractor.prototype = {
 
             // then non-ambiguous times
             if (wMinuteNA.length != 0) {
-                pos = isTask == true ? 0 : wMinuteNA.length - 1;
+                pos = doGuessStart ? 0 : wMinuteNA.length - 1;
                 guess.hour = wMinuteNA[pos].hour;
                 guess.minute = wMinuteNA[pos].minute;
                 if (guess.day == null || guess.day == start.day) {
@@ -900,7 +900,7 @@ Extractor.prototype = {
                 }
             // and ambiguous times
             } else if (wMinute.length != 0) {
-                pos = isTask == true ? 0 : wMinute.length - 1;
+                pos = doGuessStart ? 0 : wMinute.length - 1;
                 guess.hour = wMinute[pos].hour;
                 guess.minute = wMinute[pos].minute;
                 if (guess.day == null || guess.day == start.day) {
@@ -966,7 +966,7 @@ Extractor.prototype = {
                 guess.minute = null;
             }
 
-            if (guess.year != null && guess.minute == null && isTask) {
+            if (guess.year != null && guess.minute == null && doGuessStart) {
                 guess.hour = 0;
                 guess.minute = 0;
             }

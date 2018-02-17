@@ -26,7 +26,7 @@ module.exports = {
         "comma-style": [2, "last"],
 
         // We should get better at complexity, but at the moment it is what it is
-        "complexity": [2, 81],
+        "complexity": [2, 90],
 
         // Enforce curly brace conventions for all control statements.
         "curly": 2,

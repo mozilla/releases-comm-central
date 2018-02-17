@@ -411,7 +411,7 @@
                 modeIndex = collapsedModes.indexOf(this.currentMode);
                 collapsedInMode = modeIndex > -1;
             }
-            if (aVisible === true && pushModeCollapsedAttribute == false) {
+            if (aVisible === true && !pushModeCollapsedAttribute) {
                 display = (aVisible === true) && (!collapsedInMode);
             }
 

@@ -325,7 +325,7 @@ function invokeEventDialog(controller, clickBox, body) {
 
     eventController.waitFor(() => {
         return iframe.contentWindow.onLoad &&
-               iframe.contentWindow.onLoad.hasLoaded == true;
+               iframe.contentWindow.onLoad.hasLoaded;
     }, "event-dialog did not load in time", 10000);
 
     // We can't use a full mozmill controller on an iframe, but we need
@@ -534,7 +534,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
             data.network.offline = true;
         }
         wizard.check(wizardId("cache"), data.network.offline);
-        wizard.waitFor(() => dlgButton("next").disabled == false);
+        wizard.waitFor(() => !dlgButton("next").disabled);
         dlgButton("next").doCommand();
     } else {
         // local calendar is default
@@ -559,7 +559,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
         data.eMail = "none";
     }
     menulistSelect(wizardId("email-identity-menulist"), data.eMail, wizard);
-    wizard.waitFor(() => dlgButton("next").disabled == false);
+    wizard.waitFor(() => !dlgButton("next").disabled);
     dlgButton("next").doCommand();
 
     // finish

@@ -179,7 +179,7 @@ function calendarListTooltipShowing(event) {
         }
     }
     setElementValue("calendar-list-tooltip", tooltipText, "label");
-    return (tooltipText != false);
+    return (tooltipText !== false);
 }
 
 /**

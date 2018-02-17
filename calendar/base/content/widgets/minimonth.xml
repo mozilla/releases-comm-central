@@ -466,7 +466,7 @@
       <destructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-          if (this.mObservesComposite == true) {
+          if (this.mObservesComposite) {
               cal.view.getCompositeCalendar(window).removeObserver(this);
           }
 
@@ -1023,13 +1023,13 @@
       <method name="_setFreeBusy">
         <parameter name="aFreeBusy"/>
         <body><![CDATA[
-            if (aFreeBusy == true) {
-                if (this.mObservesComposite == false) {
+            if (aFreeBusy) {
+                if (!this.mObservesComposite) {
                     cal.view.getCompositeCalendar(window).addObserver(this);
                     this.mObservesComposite = true;
                     this.getItems();
                 }
-            } else if (this.mObservesComposite == true) {
+            } else if (this.mObservesComposite) {
                 cal.view.getCompositeCalendar(window).removeObserver(this);
                 this.mObservesComposite = false;
             }
