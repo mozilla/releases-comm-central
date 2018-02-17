@@ -165,10 +165,6 @@ toolbar[brighttext] {
   :root[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
     margin-inline-start: 10px;
   }
-
-  :root[tabsintitlebar] .tabmail-arrowscrollbox .scrollbox-innerbox:-moz-lwtheme {
-    -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
-  }
 }
 
 toolbar:not(.inline-toolbar):not(:-moz-lwtheme) {

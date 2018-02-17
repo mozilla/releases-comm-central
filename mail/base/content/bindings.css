@@ -13,7 +13,7 @@ toolbar {
 }
 
 @media (-moz-menubar-drag) {
-  toolbar[type="menubar"]:not([autohide="true"]):not(:-moz-lwtheme) {
+  toolbar[type="menubar"]:not([autohide="true"]) {
     -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar-drag");
   }
 }

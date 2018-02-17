@@ -17,7 +17,7 @@
   padding: 0;
 }
 
-#tabs-toolbar:not(:-moz-lwtheme) {
+#tabs-toolbar {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar-drag");
 }
 
