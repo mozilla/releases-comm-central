@@ -219,10 +219,6 @@ function initializeHeaderViewTables()
 
 function OnLoadMsgHeaderPane()
 {
-  // HACK...force our XBL bindings file to be load before we try to create our first xbl widget....
-  // otherwise we have problems.
-  document.loadBindingDocument('chrome://messenger/content/mailWidgets.xml');
-
   // load any preferences that at are global with regards to
   // displaying a message...
   gCollectIncoming = Services.prefs.getBoolPref("mail.collect_email_address_incoming");

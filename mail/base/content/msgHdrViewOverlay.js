@@ -212,10 +212,6 @@ function initializeHeaderViewTables()
 
 function OnLoadMsgHeaderPane()
 {
-  // HACK...force our XBL bindings file to be load before we try to create our
-  // first xbl widget.... otherwise we have problems.
-  document.loadBindingDocument("chrome://messenger/content/mailWidgets.xml");
-
   // Load any preferences that at are global with regards to
   // displaying a message...
   gMinNumberOfHeaders = Services.prefs.getIntPref("mailnews.headers.minNumHeaders");

@@ -339,7 +339,6 @@ function OnLoadMessenger()
   // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
   // in delayedOnLoadMessenger...
   UpdateMailPaneConfig(false);
-  document.loadBindingDocument('chrome://global/content/bindings/textbox.xml');
 
   if (AppConstants.platform == "win") {
     // On Win8 set an attribute when the window frame color is too dark for black text.
