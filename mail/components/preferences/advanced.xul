@@ -449,10 +449,6 @@ type="bool"/>
                 </hbox>
                 <hbox id="adminDisabled" align="center">
                   <label>&update.adminDisabled;</label>
-                  <spacer flex="1"/>
-                  <button label="&update.checkForUpdatesButton.label;"
-                          accesskey="&update.checkForUpdatesButton.accesskey;"
-                          disabled="true"/>
                 </hbox>
                 <hbox id="noUpdatesFound" align="center">
                   <label>&update.noUpdatesFound;</label>
@@ -463,10 +459,6 @@ type="bool"/>
                 </hbox>
                 <hbox id="otherInstanceHandlingUpdates" align="center">
                   <label>&update.otherInstanceHandlingUpdates;</label>
-                  <spacer flex="1"/>
-                  <button label="&update.checkForUpdatesButton.label;"
-                          accesskey="&update.checkForUpdatesButton.accesskey;"
-                          disabled="true"/>
                 </hbox>
                 <hbox id="manualUpdate" align="center">
                   <label>&update.manual.start;</label><label id="manualLink" class="text-link">&update.manual.linkText;</label><label>&update.manual.end;</label>
@@ -477,10 +469,6 @@ type="bool"/>
                 </hbox>
                 <hbox id="unsupportedSystem" align="center">
                   <label>&update.unsupported.start;</label><label id="unsupportedLink" class="text-link">&update.unsupported.linkText;</label><label>&update.unsupported.end;</label>
-                  <spacer flex="1"/>
-                  <button label="&update.checkForUpdatesButton.label;"
-                          accesskey="&update.checkForUpdatesButton.accesskey;"
-                          disabled="true"/>
                 </hbox>
               </deck>
             </vbox>
