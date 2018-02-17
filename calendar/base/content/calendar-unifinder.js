@@ -367,15 +367,15 @@ function unifinderSelect(event) {
  * @param aEvent        The DOM Key event.
  */
 function unifinderKeyPress(aEvent) {
-    switch (aEvent.keyCode) {
-        case aEvent.DOM_VK_RETURN:
+    switch (aEvent.key) {
+        case "Enter":
             // Enter, edit the event
             editSelectedEvents();
             aEvent.stopPropagation();
             aEvent.preventDefault();
             break;
-        case aEvent.DOM_VK_BACK_SPACE:
-        case aEvent.DOM_VK_DELETE:
+        case "Backspace":
+        case "Delete":
             deleteSelectedEvents();
             aEvent.stopPropagation();
             aEvent.preventDefault();

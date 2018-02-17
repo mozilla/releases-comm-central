@@ -46,7 +46,7 @@
       <xul:hbox flex="1">
         <xul:textbox anonid="date-textbox" flex="1"
                      onfocus="this.select();"
-                     onkeypress="if (event.keyCode == event.DOM_VK_RETURN) fireGoEvent();"/>
+                     onkeypress="if (event.key == 'Enter') fireGoEvent();"/>
         <xul:button anonid="date-go-button" oncommand="fireGoEvent()"/>
       </xul:hbox>
     </content>
@@ -254,7 +254,7 @@
         <xul:menulist editable="true" type="panel" sizetopopup="false"
                       class="datepicker-text-class"
                       onchange="this.kDatePicker.parseTextBoxDate(true, event);"
-                      onkeypress="if (event.keyCode == 13) this.kDatePicker.parseTextBoxDate(true);"
+                      onkeypress="if (event.key == 'Enter') this.kDatePicker.parseTextBoxDate(true);"
                       xbl:inherits="disabled">
           <xul:panel popupanchor="bottomright" popupalign="topright"
                      anonid="datepopup"
@@ -397,7 +397,7 @@
         <xul:menulist anonid="foreverMenulist" editable="true" type="panel" sizetopopup="false"
                       class="datepicker-text-class"
                       onchange="this.kDatePicker.parseTextBoxDate(true, event);"
-                      onkeypress="if (event.keyCode == 13) this.kDatePicker.parseTextBoxDate(true);"
+                      onkeypress="if (event.key == 'Enter') this.kDatePicker.parseTextBoxDate(true);"
                       xbl:inherits="disabled">
           <xul:panel popupanchor="bottomright" popupalign="topright"
                      anonid="datepopup"
@@ -533,7 +533,7 @@
                       id="timepicker-text"
                       class="timepicker-text-class"
                       onchange="this.kTimePicker.parseTextBoxTime(true, event);"
-                      onkeypress="if (event.keyCode == 13) this.kTimePicker.parseTextBoxTime(true);"
+                      onkeypress="if (event.key == 'Enter') this.kTimePicker.parseTextBoxTime(true);"
                       xbl:inherits="disabled">
           <xul:menupopup popupalign="topright" popupanchor="bottomright"
                          onpopupshowing="onPopup(this)"

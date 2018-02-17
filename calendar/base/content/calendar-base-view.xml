@@ -766,11 +766,11 @@
           this.moveView(event.detail);
       ]]></handler>
       <handler event="keypress"><![CDATA[
-          switch (event.keyCode) {
-              case event.DOM_VK_PAGE_UP:
+          switch (event.key) {
+              case "PageUp":
                   this.moveView(-1);
                   break;
-              case event.DOM_VK_PAGE_DOWN:
+              case "PageDown":
                   this.moveView(1);
                   break;
           }

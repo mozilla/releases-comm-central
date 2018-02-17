@@ -2281,12 +2281,12 @@ function copyAttachment() {
  * @param aEvent     The DOM event caused by the key press.
  */
 function attachmentLinkKeyPress(aEvent) {
-    switch (aEvent.keyCode) {
-        case aEvent.DOM_VK_BACK_SPACE:
-        case aEvent.DOM_VK_DELETE:
+    switch (aEvent.key) {
+        case "Backspace":
+        case "Delete":
             deleteAttachment();
             break;
-        case aEvent.DOM_VK_RETURN:
+        case "Enter":
             openAttachment();
             break;
     }
