@@ -123,7 +123,7 @@ function* testI18NEnvelope() {
     "Cc": "=?UTF-8?Q?Andr=c3=a9_Chopin?= <alex@tinderbox.invalid>",
     "Bcc": "=?UTF-8?Q?=c3=89tienne?= <boris@tinderbox.invalid>",
     "Reply-To": "=?UTF-8?B?RnLDqWTDqXJpYw==?= <charles@tinderbox.invalid>",
-    "Subject": "=?UTF-8?Q?Ceci_n'est_pas_un_r=c3=a9f=c3=a9rence_obscure?=",
+    "Subject": "=?UTF-8?Q?Ceci_n=27est_pas_un_r=c3=a9f=c3=a9rence_obscure?=",
   });
 }
 

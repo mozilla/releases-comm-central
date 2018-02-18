@@ -141,14 +141,32 @@ suite('headeremitter', function () {
     let header_tests = [
       ["My house   burned down!", "My house burned down!"],
 
-      // Which variables need to be encoded in QP encoding?
-      ["! \" # $ % & ' ( ) * + - .",
-       "! \" # $ % & ' ( ) * + - ."],
-      [" / : ; < = > ? , @ [ \\ ] ^ _ ` { | } ~ \x7f",
-        "=?UTF-8?Q?_/_:_;_<_=3d_>_=3f?=\r\n" +
-        " =?UTF-8?Q?_=2c_@_[_\\_]_^_?=\r\n" +
-        " =?UTF-8?Q?=5f_`_{_|_}_~_=7f?="],
-      // But non-printable characters don't need it in the first place!
+      // Which of the 32 "special" characters need to be encoded in QP encoding?
+      // Note: Encoding is forced by adding a \x7f at the end.
+      // These 5 don't need encoding:
+      [" ! * + - / \x7f", "=?UTF-8?Q?_!_*_+_-_/_=7f?="],
+
+      // Bug 1438590: RFC2047 [5. (3)] requests the
+      // encoding of these 27 "special" characters:
+      // " # $ % & ' ( ) , . : ; < = > ? @ [ \ ] ^ _ ` { | } ~.
+      // Note: If there are enough characters for padding,
+      // QP is used and not base64.
+      ["Test \" # \x7f", "=?UTF-8?Q?Test_=22_=23_=7f?="],
+      ["Test $ % \x7f", "=?UTF-8?Q?Test_=24_=25_=7f?="],
+      ["Test & ' \x7f", "=?UTF-8?Q?Test_=26_=27_=7f?="],
+      ["Test ( ) \x7f", "=?UTF-8?Q?Test_=28_=29_=7f?="],
+      ["Test , . \x7f", "=?UTF-8?Q?Test_=2c_=2e_=7f?="],
+      ["Test : ; \x7f", "=?UTF-8?Q?Test_=3a_=3b_=7f?="],
+      ["Test < = \x7f", "=?UTF-8?Q?Test_=3c_=3d_=7f?="],
+      ["Test > ? \x7f", "=?UTF-8?Q?Test_=3e_=3f_=7f?="],
+      ["Test @ [ \x7f", "=?UTF-8?Q?Test_=40_=5b_=7f?="],
+      ["Test \\ ] \x7f", "=?UTF-8?Q?Test_=5c_=5d_=7f?="],
+      ["Test ^ _ \x7f", "=?UTF-8?Q?Test_=5e_=5f_=7f?="],
+      ["Test ` { \x7f", "=?UTF-8?Q?Test_=60_=7b_=7f?="],
+      ["Test | } \x7f", "=?UTF-8?Q?Test_=7c_=7d_=7f?="],
+      ["Test ~ \x7f", "=?UTF-8?Q?Test_=7e_=7f?="],
+
+      // But the 32 printable "special" characters don't need it in the first place!
       ["! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ ` { | } ~",
         "! \" # $ % & ' ( ) * + , - . /\r\n" +
         " : ; < = > ? @ [ \\ ] ^ _ ` { |\r\n" +
@@ -182,10 +200,10 @@ suite('headeremitter', function () {
         "chalcog\u00e8nes",
       //          1         2         3
       // 123456789012345678901234567890
-        "=?UTF-8?Q?L'oxyg=c3=a8ne_est?=\r\n" +
-        " =?UTF-8?B?IHVuIMOpbMOpbWVu?=\r\n" +
-        " =?UTF-8?Q?t_chimique_du_gro?=\r\n" +
-        " =?UTF-8?Q?upe_des_chalcog?=\r\n" +
+        "=?UTF-8?B?TCdveHlnw6huZSBl?=\r\n" +
+        " =?UTF-8?B?c3QgdW4gw6lsw6lt?=\r\n" +
+        " =?UTF-8?Q?ent_chimique_du_g?=\r\n" +
+        " =?UTF-8?Q?roupe_des_chalcog?=\r\n" +
         " =?UTF-8?B?w6huZXM=?="],
     ];
     header_tests.forEach(function (data) {
