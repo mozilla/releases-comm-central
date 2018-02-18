@@ -9,6 +9,7 @@
 @import url("chrome://messenger/skin/");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 #attachmentBucket {
   width: 15em;
@@ -276,6 +277,27 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 }
 
 /* ::::: autocomplete icons ::::: */
+
+html|span.ac-emphasize-text {
+  font-weight: bold;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url,
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
+  display: -moz-box;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url {
+  -moz-box-ordinal-group: 1;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
+  -moz-box-ordinal-group: 2;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-title {
+  -moz-box-ordinal-group: 3;
+}
 
 .ac-site-icon {
   display: -moz-box;
