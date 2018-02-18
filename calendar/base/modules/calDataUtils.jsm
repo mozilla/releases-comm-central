@@ -10,25 +10,26 @@ this.EXPORTED_SYMBOLS = ["caldata"]; /* exported caldata */
 
 class PropertyMap extends Map {
     get simpleEnumerator() {
-        let iter = this.entries();
-        return {
-            current: null,
+        let entries = [...this.entries()].filter(([key, value]) => value !== undefined);
+        let index = 0;
 
+        return {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsISimpleEnumerator]),
 
             hasMoreElements: function() {
-                this.current = iter.next();
-                return !this.current.done;
+                return index < entries.length;
             },
 
             getNext: function() {
-                if (!this.current || this.current.done) {
+                if (!this.hasMoreElements()) {
                     throw Components.results.NS_ERROR_UNEXPECTED;
                 }
+
+                let [name, value] = entries[index++];
                 return {
                     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProperty]),
-                    name: this.current.value[0],
-                    value: this.current.value[1]
+                    name: name,
+                    value: value
                 };
             }
         };
@@ -45,12 +46,17 @@ class ListenerSet extends Set {
         super.add(item.QueryInterface(this.mIID));
     }
 
+    has(item) {
+        return super.has(item.QueryInterface(this.mIID));
+    }
+
     delete(item) {
         super.delete(item.QueryInterface(this.mIID));
     }
 
     notify(func, args=[]) {
-        for (let observer of this.values()) {
+        let currentObservers = [...this.values()];
+        for (let observer of currentObservers) {
             try {
                 observer[func](...args);
             } catch (exc) {
@@ -67,6 +73,10 @@ class ObserverSet extends ListenerSet {
         this.mBatchCount = 0;
     }
 
+    get batchCount() {
+        return this.mBatchCount;
+    }
+
     notify(func, args=[]) {
         switch (func) {
             case "onStartBatch":
@@ -80,7 +90,7 @@ class ObserverSet extends ListenerSet {
     }
 
     add(item) {
-        if (this.has(item)) {
+        if (!this.has(item) && this.mBatchCount > 0) {
             // Replay batch notifications, because the onEndBatch notifications are yet to come.
             // We may think about doing the reverse on remove, though I currently see no need:
             for (let i = this.mBatchCount; i; i--) {
