@@ -179,21 +179,21 @@ agendaListbox.onKeyPress = function(aEvent) {
     if (listItem.localName == "richlistbox") {
         listItem = listItem.selectedItem;
     }
-    switch (aEvent.keyCode) {
-        case aEvent.DOM_VK_RETURN:
+    switch (aEvent.key) {
+        case "Enter":
             document.getElementById("agenda_edit_event_command").doCommand();
             break;
-        case aEvent.DOM_VK_DELETE:
+        case "Delete":
             document.getElementById("agenda_delete_event_command").doCommand();
             aEvent.stopPropagation();
             aEvent.preventDefault();
             break;
-        case aEvent.DOM_VK_LEFT:
+        case "ArrowLeft":
             if (!this.isEventListItem(listItem)) {
                 listItem.getCheckbox().checked = false;
             }
             break;
-        case aEvent.DOM_VK_RIGHT:
+        case "ArrowRight":
             if (!this.isEventListItem(listItem)) {
                 listItem.getCheckbox().checked = true;
             }

@@ -38,8 +38,8 @@ function onUnload() {
  * (Cancels the search when pressing escape)
  */
 function onKeyPress(event) {
-    switch (event.keyCode) {
-        case 27: /* ESC */
+    switch (event.key) {
+        case "Escape":
             if (gCurrentSearchOperation) {
                 cancelPendingSearchOperation();
                 document.getElementById("status-deck").selectedIndex = 0;
@@ -55,8 +55,8 @@ function onKeyPress(event) {
  * (Starts the search when hitting enter)
  */
 function onTextBoxKeyPress(event) {
-    switch (event.keyCode) {
-        case 13: /* RET */
+    switch (event.key) {
+        case "Enter":
             onSearch();
             event.stopPropagation();
             event.preventDefault();

@@ -1347,7 +1347,7 @@
         <parameter name="event"/>
         <body><![CDATA[
             let col = document.calendarEventColumnDragging;
-            if (col && event.keyCode == event.DOM_VK_ESCAPE) {
+            if (col && event.key == "Escape") {
                 window.removeEventListener("mousemove", col.onEventSweepMouseMove);
                 window.removeEventListener("mouseup", col.onEventSweepMouseUp);
                 window.removeEventListener("keypress", col.onEventSweepKeypress);

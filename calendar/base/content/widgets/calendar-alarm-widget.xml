@@ -185,7 +185,7 @@
         <body><![CDATA[
             if (event.type == "click" ||
                 (event.type == "keypress" &&
-                 event.keyCode == event.DOM_VK_RETURN)) {
+                 event.key == "Enter")) {
                 let detailsEvent = document.createEvent("Events");
                 detailsEvent.initEvent("itemdetails", true, false);
                 this.dispatchEvent(detailsEvent);

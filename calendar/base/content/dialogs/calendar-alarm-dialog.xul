@@ -23,7 +23,7 @@
         onload="setupWindow(); window.arguments[0].wrappedJSObject.window_onLoad();"
         onunload="finishWindow();"
         onfocus="onFocusWindow();"
-        onkeypress="if (event.keyCode == event.DOM_VK_ESCAPE) { window.close(); }"
+        onkeypress="if (event.key == 'Escape') { window.close(); }"
         width="600"
         height="300">
   <script type="application/javascript" src="chrome://calendar/content/calendar-alarm-dialog.js"/>

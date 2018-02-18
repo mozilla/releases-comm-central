@@ -73,10 +73,10 @@
           };
           this.eventNameTextbox.onkeypress = (event) => {
               // save on enter
-              if (event.keyCode == 13) {
+              if (event.key == "Enter") {
                   this.stopEditing(true);
               // abort on escape
-              } else if (event.keyCode == 27) {
+              } else if (event.key == "Escape") {
                   this.stopEditing(false);
               }
           };

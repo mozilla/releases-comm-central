@@ -1124,9 +1124,9 @@
               return;
           }
           if (event.originalTarget.localName == "input") {
-              switch (event.keyCode) {
-                  case KeyEvent.DOM_VK_DELETE:
-                  case KeyEvent.DOM_VK_BACK_SPACE: {
+              switch (event.key) {
+                  case "Delete":
+                  case "Backspace": {
                       let curRowId = this.getRowByInputElement(event.originalTarget);
                       let allSelected = (event.originalTarget.textLength ==
                                          event.originalTarget.selectionEnd -
@@ -1142,7 +1142,7 @@
 
                           // if the last row was removed, we append an empty one which has the focus
                           // to enable adding a new attendee directly with freebusy information cleared
-                          let targetRowId = (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE && curRowId > 2)
+                          let targetRowId = (event.key == "Backspace" && curRowId > 2)
                                             ? curRowId - 1 : curRowId;
                           if (this.mMaxAttendees == 1) {
                               this.appendNewRow(true);
@@ -1177,16 +1177,16 @@
               return;
           }
           if (event.originalTarget.localName == "input") {
-              switch (event.keyCode) {
-                  case KeyEvent.DOM_VK_UP:
+              switch (event.key) {
+                  case "ArrowUp":
                       this.arrowHit(event.originalTarget, -1);
                       event.stopPropagation();
                       break;
-                  case KeyEvent.DOM_VK_DOWN:
+                  case "ArrowDown":
                       this.arrowHit(event.originalTarget, 1);
                       event.stopPropagation();
                       break;
-                  case KeyEvent.DOM_VK_TAB:
+                  case "Tab":
                       this.arrowHit(event.originalTarget, event.shiftKey ? -1 : +1);
                       break;
               }
