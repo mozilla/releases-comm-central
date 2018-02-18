@@ -380,11 +380,14 @@ calViewDNDObserver.prototype = {
      * try to add these items to the currently selected calendar.
      */
     onDropItems: function(aItems) {
-        var destCal = getSelectedCalendar();
+        let destCal = getSelectedCalendar();
         startBatchTransaction();
+        // we fall back explicitely to the popup to ask whether to send a
+        // notification to partticipants if required
+        let extResp = { responseMode: Ci.calIItipItem.USER };
         try {
-            for (var item of aItems) {
-                doTransaction('add', item, destCal, null, null);
+            for (let item of aItems) {
+                doTransaction("add", item, destCal, null, null, extResp);
             }
         }
         finally {
