@@ -41,10 +41,13 @@
   margin: 0 3px !important;
 }
 
+#accept-buttons-box[type="mixed"] > #accept-occurrence-button,
 #accept-buttons-box[type="event"] > #accept-occurrence-button {
   list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#event-single);
 }
 
+#accept-buttons-box[type="mixed"] > #accept-parent-button,
+#accept-buttons-box[type="mixed"] > #accept-allfollowing-button,
 #accept-buttons-box[type="event"] > #accept-parent-button,
 #accept-buttons-box[type="event"] > #accept-allfollowing-button {
   list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#event-all);

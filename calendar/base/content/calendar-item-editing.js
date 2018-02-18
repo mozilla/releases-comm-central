@@ -529,14 +529,17 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
  * the modified item or the future item only consist of a single occurrence,
  * they are changed to be single items.
  *
- * @param aItem                         The item to check.
+ * @param aItem                         The item or array of items to check.
  * @param aNeedsFuture                  If true, the future item is parsed.
  *                                        This parameter can for example be
  *                                        false if a deletion is being made.
  * @param aAction                       Either "edit" or "delete". Sets up
  *                                          the labels in the occurrence prompt
  * @return [modifiedItem, futureItem, promptResponse]
- *                                      If "this and all following" was chosen,
+ *                                      modifiedItem is a single item or array
+ *                                        of items depending on the past aItem
+ *
+ *                                        If "this and all following" was chosen,
  *                                        an array containing the item *until*
  *                                        the given occurrence (modifiedItem),
  *                                        and the item *after* the given
@@ -557,22 +560,24 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
     const MODIFY_FOLLOWING = 2;
     const MODIFY_PARENT = 3;
 
-    let futureItem = false;
-    let pastItem;
+    let futureItems = false;
+    let pastItems = [];
+    let returnItem = null;
     let type = CANCEL;
+    let items = Array.isArray(aItem) ? aItem : [aItem];
 
     // Check if this actually is an instance of a recurring event
-    if (aItem == aItem.parentItem) {
+    if (items.every(item => item == item.parentItem)) {
         type = MODIFY_PARENT;
-    } else if (aItem.parentItem.recurrenceInfo.getExceptionFor(aItem.recurrenceId)) {
+    } else if (items.every(item => item.parentItem.recurrenceInfo.getExceptionFor(item.recurrenceId))) {
         // If the user wants to edit an occurrence which is already an exception
         // always edit this single item.
         // XXX  Why? I think its ok to ask also for exceptions.
         type = MODIFY_OCCURRENCE;
-    } else {
+    } else if (aItem && items.length) {
         // Prompt the user. Setting modal blocks the dialog until it is closed. We
         // use rv to pass our return value.
-        let rv = { value: CANCEL, item: aItem, action: aAction };
+        let rv = { value: CANCEL, items: items, action: aAction };
         window.openDialog("chrome://calendar/content/calendar-occurrence-prompt.xul",
                           "PromptOccurrenceModification",
                           "centerscreen,chrome,modal,titlebar",
@@ -582,21 +587,23 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
 
     switch (type) {
         case MODIFY_PARENT:
-            pastItem = aItem.parentItem;
+            pastItems = items.map(item => item.parentItem);
             break;
         case MODIFY_FOLLOWING:
             // TODO tbd in a different bug
             throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
         case MODIFY_OCCURRENCE:
-            pastItem = aItem;
+            pastItems = items;
             break;
         case CANCEL:
             // Since we have not set past or futureItem, the return below will
             // take care.
             break;
     }
-
-    return [pastItem, futureItem, type];
+    if (aItem) {
+        returnItem = Array.isArray(aItem) ? pastItems : pastItems[0];
+    }
+    return [returnItem, futureItems, type];
 }
 
 // Undo/Redo code

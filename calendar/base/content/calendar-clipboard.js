@@ -41,7 +41,7 @@ function canPaste() {
  * deletes the events on success
  */
 function cutToClipboard() {
-    if (copyToClipboard()) {
+    if (copyToClipboard(null, true)) {
         deleteSelectedItems();
     }
 }
@@ -50,20 +50,28 @@ function cutToClipboard() {
  * Copy the ics data of the items in calendarItemArray to the clipboard. Fills
  * both text/unicode and text/calendar mime types.
  *
- * @param calendarItemArray     (optional) an array of items to copy. If not
+ * @param aCalendarItemArray    (optional) an array of items to copy. If not
  *                                passed, the current view's selected items will
  *                                be used.
+ * @param aCutMode              (optional) set to true, if this is a cut operation
  * @return                      A boolean indicating if the operation succeeded.
  */
-function copyToClipboard(calendarItemArray) {
-    if (!calendarItemArray) {
-        calendarItemArray = getSelectedItems();
-    }
-
+function copyToClipboard(aCalendarItemArray=null, aCutMode=false) {
+    let calendarItemArray = aCalendarItemArray || getSelectedItems();
     if (!calendarItemArray.length) {
         cal.LOG("[calendar-clipboard] No items to copy.");
         return false;
     }
+    let [targetItems, , response] = promptOccurrenceModification(
+        calendarItemArray,
+        true,
+        aCutMode ? "cut" : "copy"
+    );
+    if (!response) {
+        // The user canceled the dialog, bail out
+        return false;
+    }
+    calendarItemArray = targetItems;
 
     let icsSerializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                   .createInstance(Components.interfaces.calIIcsSerializer);
