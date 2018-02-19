@@ -5569,23 +5569,13 @@ function MakeFromFieldEditable(ignoreWarning)
 function setupAutocomplete()
 {
   var autoCompleteWidget = document.getElementById("addressCol2#1");
-
-  // if the pref is set to turn on the comment column, honor it here.
-  // this element then gets cloned for subsequent rows, so they should
-  // honor it as well
-  //
-  try
-  {
+  try {
+    // Request that input that isn't matched be highlighted.
+    // This element then gets cloned for subsequent rows, so they should
+    // honor it as well.
     if (getPref("mail.autoComplete.highlightNonMatches"))
       autoCompleteWidget.highlightNonMatches = true;
-
-    if (getPref("mail.autoComplete.commentColumn"))
-      autoCompleteWidget.showCommentColumn = true;
-  } catch (ex)
-  {
-      // if we can't get this pref, then don't show the columns (which is
-      // what the XUL defaults to)
-  }
+  } catch (ex) {}
 }
 
 function fromKeyPress(event)
