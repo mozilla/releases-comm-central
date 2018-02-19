@@ -11,9 +11,10 @@ var calwindow = {
     /**
      * Opens the Create Calendar wizard
      *
+     * @param aWindow    the window to open the dialog on, or null for the main calendar window
      * @param aCallback  a function to be performed after calendar creation
      */
-    openCalendarWizard: function(aCallback, aWindow=null) {
+    openCalendarWizard: function(aWindow, aCallback) {
         let window = aWindow || calwindow.getCalendarWindow();
         window.openDialog("chrome://calendar/content/calendarCreation.xul", "caEditServer",
                           // Workaround for Bug 1151440 - the HTML color picker won't work
@@ -27,9 +28,10 @@ var calwindow = {
     /**
      * Opens the calendar properties window for aCalendar
      *
+     * @param aWindow    the window to open the dialog on, or null for the main calendar window
      * @param aCalendar  the calendar whose properties should be displayed
      */
-    openCalendarProperties: function(aCalendar, aWindow=null) {
+    openCalendarProperties: function(aWindow, aCalendar) {
         let window = aWindow || calwindow.getCalendarWindow();
         window.openDialog("chrome://calendar/content/calendar-properties-dialog.xul",
                           "CalendarPropertiesDialog",
@@ -43,6 +45,8 @@ var calwindow = {
 
     /**
      * Opens the print dialog
+     *
+     * @param aWindow    the window to open the dialog on, or null for the main calendar window
      */
     openPrintDialog: function(aWindow=null) {
         let window = aWindow || calwindow.getCalendarWindow();
