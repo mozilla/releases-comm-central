@@ -65,7 +65,8 @@ def remove_widevine_and_stub_installer(config, jobs):
                 if 'widevine' in artifact.get('formats', []):
                     artifact['formats'].remove('widevine')
                 artifact['paths'] = [path for path in artifact['paths']
-                                     if not path.endswith('/setup-stub.exe')]
+                                     if not path.endswith(('/setup-stub.exe',
+                                                           '/target.stub-installer.exe',))]
             payload['upstreamArtifacts'] = [artifact for artifact in payload['upstreamArtifacts']
                                             if artifact.get('formats', []) != ['sha2signcodestub']]
         if 'artifacts' in payload and isinstance(payload['artifacts'], list):

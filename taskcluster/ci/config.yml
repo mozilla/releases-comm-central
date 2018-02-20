@@ -14,6 +14,7 @@ treeherder:
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
         'rs': 'Repackage signing'
+        'BMR-L10n': 'Beetmover repackages for locales'
 
 index:
     products:
@@ -28,3 +29,5 @@ scriptworker:
     worker-types:
         'scriptworker-prov-v1/tb-depsigning':
             - 'project:comm:thunderbird:releng:signing:cert:dep-signing'
+        'scriptworker-prov-v1/tb-beetmover-dev':
+            - 'project:comm:thunderbird:releng:beetmover:bucket:dep'
