@@ -42,3 +42,37 @@ def reference_loader(kind, path, config, params, loaded_tasks):
     config.update(sub_config)
 
     return (job for job in inputs if (_get_aliases(kind, job) & jobs))
+
+
+def remove_widevine_and_stub_installer(config, jobs):
+    """
+    Remove references to widevine signing and to packaging a stub installer.
+
+    This is an expedient hack to avoid adding special cases for handling these in
+    mozilla-central code. The proper fix is to address Bug 1331143 which should allow
+    thunderbird to just have a different list of artifacts to generate.
+    """
+    for job in jobs:
+        task = job['task']
+        payload = task['payload']
+
+        for scope in ['project:comm:thunderbird:releng:signing:format:widevine',
+                      'project:comm:thunderbird:releng:signing:format:sha2signcodestub']:
+            if scope in task['scopes']:
+                task['scopes'].remove(scope)
+        if 'upstreamArtifacts' in payload:
+            for artifact in payload['upstreamArtifacts']:
+                if 'widevine' in artifact.get('formats', []):
+                    artifact['formats'].remove('widevine')
+                artifact['paths'] = [path for path in artifact['paths']
+                                     if not path.endswith('/setup-stub.exe')]
+            payload['upstreamArtifacts'] = [artifact for artifact in payload['upstreamArtifacts']
+                                            if artifact.get('formats', []) != ['sha2signcodestub']]
+        if 'artifacts' in payload and isinstance(payload['artifacts'], list):
+            payload['artifacts'] = [artifact for artifact in payload['artifacts']
+                                    if not artifact['name'].endswith('/target.stub-installer.exe')]
+        if 'env' in payload:
+            if 'SIGNED_SETUP_STUB' in payload['env']:
+                del payload['env']['SIGNED_SETUP_STUB']
+
+        yield job

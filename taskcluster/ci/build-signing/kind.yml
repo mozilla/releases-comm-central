@@ -9,6 +9,7 @@ transforms:
     - taskgraph.transforms.build_signing:transforms
     - taskgraph.transforms.signing:transforms
     - taskgraph.transforms.task:transforms
+    - comm_taskgraph:remove_widevine_and_stub_installer
 
 kind-dependencies:
     - build

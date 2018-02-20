@@ -8,6 +8,8 @@ transforms:
     - taskgraph.transforms.name_sanity:transforms
     - taskgraph.transforms.repackage_signing:transforms
     - taskgraph.transforms.task:transforms
+    - comm_taskgraph:remove_widevine_and_stub_installer
+
 
 kind-dependencies:
     - repackage

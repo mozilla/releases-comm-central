@@ -11,6 +11,7 @@ transforms:
     - taskgraph.transforms.use_toolchains:transforms
     - taskgraph.transforms.job:transforms
     - taskgraph.transforms.task:transforms
+    - comm_taskgraph:remove_widevine_and_stub_installer
 
 kind-dependencies:
     - nightly-l10n-signing
