@@ -60,14 +60,14 @@ function test_formatcss() {
 
 function test_attendeeMatchesAddresses() {
     let a = cal.createAttendee("ATTENDEE:mailto:horst");
-    ok(cal.attendeeMatchesAddresses(a, ["HORST", "peter"]));
-    ok(!cal.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
-    ok(!cal.attendeeMatchesAddresses(a, ["peter"]));
+    ok(cal.email.attendeeMatchesAddresses(a, ["HORST", "peter"]));
+    ok(!cal.email.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
+    ok(!cal.email.attendeeMatchesAddresses(a, ["peter"]));
 
     a = cal.createAttendee("ATTENDEE;EMAIL=\"horst\":urn:uuid:horst");
-    ok(cal.attendeeMatchesAddresses(a, ["HORST", "peter"]));
-    ok(!cal.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
-    ok(!cal.attendeeMatchesAddresses(a, ["peter"]));
+    ok(cal.email.attendeeMatchesAddresses(a, ["HORST", "peter"]));
+    ok(!cal.email.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
+    ok(!cal.email.attendeeMatchesAddresses(a, ["peter"]));
 }
 
 function test_getDefaultStartDate() {

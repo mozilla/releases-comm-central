@@ -20,7 +20,7 @@ function createAttendee_test() {
         let attendee = cal.createAttendee();
         attendee.id = test.input;
         event.addAttendee(attendee);
-        let readAttendee = event.getAttendeeById(cal.prependMailTo(test.input));
+        let readAttendee = event.getAttendeeById(cal.email.prependMailTo(test.input));
         equal(readAttendee.id, test.expected);
     }
 }

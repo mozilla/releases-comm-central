@@ -2927,7 +2927,7 @@ function saveItem() {
     if (item.organizer && item.calendar.aclEntry) {
         let userAddresses = item.calendar.aclEntry.getUserAddresses({});
         if (userAddresses.length > 0 &&
-            !cal.attendeeMatchesAddresses(item.organizer, userAddresses)) {
+            !cal.email.attendeeMatchesAddresses(item.organizer, userAddresses)) {
             let organizer = item.organizer.clone();
             organizer.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
             item.organizer = organizer;
@@ -3763,11 +3763,11 @@ function sendMailToUndecidedAttendees(aAttendees) {
  * @param aAttendees    The attendees to send mail to.
  */
 function sendMailToAttendees(aAttendees) {
-    let toList = cal.getRecipientList(aAttendees);
+    let toList = cal.email.createRecipientList(aAttendees);
     let item = saveItem();
     let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
     let identity = window.calendarItem.calendar.getProperty("imip.identity");
-    cal.sendMailTo(toList, emailSubject, null, identity);
+    cal.email.sendTo(toList, emailSubject, null, identity);
 }
 
 /**
@@ -3918,7 +3918,7 @@ function displayCounterProposal() {
     }
 
     let attendeeId = window.counterProposal.attendee.CN ||
-                     cal.removeMailTo(window.counterProposal.attendee.id || "");
+                     cal.email.removeMailTo(window.counterProposal.attendee.id || "");
     let partStat = window.counterProposal.attendee.participationStatus;
     if (partStat == "DECLINED") {
         partStat = "counterSummaryDeclined";

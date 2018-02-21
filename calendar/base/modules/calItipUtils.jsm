@@ -794,7 +794,7 @@ var calitip = {
             if (aItem.calendar.aclEntry) {
                 let userAddresses = aItem.calendar.aclEntry.getUserAddresses({});
                 if (userAddresses.length > 0 &&
-                    !cal.attendeeMatchesAddresses(invitedAttendee, userAddresses)) {
+                    !cal.email.attendeeMatchesAddresses(invitedAttendee, userAddresses)) {
                     invitedAttendee = invitedAttendee.clone();
                     invitedAttendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
                 }
@@ -1217,7 +1217,7 @@ var calitip = {
                                    .createInstance(Components.interfaces.nsIMsgCompFields);
         let addresses = compFields.splitRecipients(aEmailAddress, true, {});
         if (addresses.length == 1) {
-            let searchFor = cal.prependMailTo(addresses[0]);
+            let searchFor = cal.email.prependMailTo(addresses[0]);
             aAttendees.forEach(aAttendee => {
                 if ([aAttendee.id, aAttendee.getProperty("SENT-BY")].includes(searchFor)) {
                     attendees.push(aAttendee);

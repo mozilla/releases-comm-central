@@ -56,7 +56,7 @@ function getAttendeeEmail_test() {
         if (test.input.email) {
             attendee.setProperty("EMAIL", test.input.email);
         }
-        equal(cal.getAttendeeEmail(attendee, test.input.useCn), test.expected, "(test #" + i + ")");
+        equal(cal.email.getAttendeeEmail(attendee, test.input.useCn), test.expected, "(test #" + i + ")");
     }
 }
 
@@ -170,7 +170,7 @@ function getRecipientList_test() {
             }
             attendees.push(attendee);
         }
-        equal(cal.getRecipientList(attendees), test.expected, "(test #" + i + ")");
+        equal(cal.email.createRecipientList(attendees), test.expected, "(test #" + i + ")");
     }
 }
 
@@ -182,7 +182,7 @@ function prependMailTo_test() {
     let i = 0;
     for (let test of data) {
         i++;
-        equal(cal.prependMailTo(test.input), test.expected, "(test #" + i + ")");
+        equal(cal.email.prependMailTo(test.input), test.expected, "(test #" + i + ")");
     }
 }
 
@@ -194,7 +194,7 @@ function removeMailTo_test() {
     let i = 0;
     for (let test of data) {
         i++;
-        equal(cal.removeMailTo(test.input), test.expected, "(test #" + i + ")");
+        equal(cal.email.removeMailTo(test.input), test.expected, "(test #" + i + ")");
     }
 }
 
@@ -345,7 +345,7 @@ function validateRecipientList_test() {
     let i = 0;
     for (let test of data) {
         i++;
-        equal(cal.validateRecipientList(test.input), test.expected,
+        equal(cal.email.validateRecipientList(test.input), test.expected,
               "(test #" + i + ")");
     }
 }

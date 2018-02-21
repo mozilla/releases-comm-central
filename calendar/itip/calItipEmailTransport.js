@@ -131,7 +131,7 @@ calItipEmailTransport.prototype = {
                 // Get my participation status
                 let att = cal.getInvitedAttendee(item, aItipItem.targetCalendar);
                 if (!att && aItipItem.identity) {
-                    att = item.getAttendeeById(cal.prependMailTo(aItipItem.identity));
+                    att = item.getAttendeeById(cal.email.prependMailTo(aItipItem.identity));
                 }
                 if (!att) { // should not happen anymore
                     return false;
@@ -264,7 +264,7 @@ calItipEmailTransport.prototype = {
                     cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
                 }
                 let cbEmail = function(aVal, aInd, aArr) {
-                    let email = cal.getAttendeeEmail(aVal, true);
+                    let email = cal.email.getAttendeeEmail(aVal, true);
                     if (!email.length) {
                         cal.LOG("sendXpcomMail: Invalid recipient for email transport: " + aVal.toString());
                     }
@@ -287,20 +287,20 @@ calItipEmailTransport.prototype = {
                     composeFields.characterSet = "UTF-8";
                     composeFields.to = toList;
                     let mailfrom = (identity.fullName.length ? identity.fullName + " <" + identity.email + ">" : identity.email);
-                    composeFields.from = (cal.validateRecipientList(mailfrom) == mailfrom ? mailfrom : identity.email);
+                    composeFields.from = (cal.email.validateRecipientList(mailfrom) == mailfrom ? mailfrom : identity.email);
                     composeFields.replyTo = identity.replyTo;
                     composeFields.organization = identity.organization;
                     composeFields.messageId = messageId;
                     let validRecipients;
                     if (identity.doCc) {
-                        validRecipients = cal.validateRecipientList(identity.doCcList);
+                        validRecipients = cal.email.validateRecipientList(identity.doCcList);
                         if (validRecipients != "") {
                             // eslint-disable-next-line id-length
                             composeFields.cc = validRecipients;
                         }
                     }
                     if (identity.doBcc) {
-                        validRecipients = cal.validateRecipientList(identity.doBccList);
+                        validRecipients = cal.email.validateRecipientList(identity.doBccList);
                         if (validRecipients != "") {
                             composeFields.bcc = validRecipients;
                         }

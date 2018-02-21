@@ -233,7 +233,7 @@
 
             // construct the display string from common name and/or email address.
             let commonName = aAttendee.commonName || "";
-            let inputValue = cal.removeMailTo(aAttendee.id || "");
+            let inputValue = cal.email.removeMailTo(aAttendee.id || "");
             if (commonName.length) {
                 // Make the commonName appear in quotes if it contains a
                 // character that could confuse the header parser
@@ -395,7 +395,7 @@
                     if (j > 0) {
                         attendee = attendee.clone();
                     }
-                    attendee.id = cal.prependMailTo(aAddress.email);
+                    attendee.id = cal.email.prependMailTo(aAddress.email);
                     if (aAddress.name.length > 0) {
                         // we remove any double quotes within CN due to bug 1209399
                         attendee.commonName = aAddress.name.replace(/(?:[\\]"|")/, "");
@@ -432,7 +432,7 @@
                 // break the list of potentially many attendees back into individual names
                 let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
                 if (parsedInput[0].email > 0) {
-                    attendee.id = cal.prependMailTo(parsedInput[0].email);
+                    attendee.id = cal.email.prependMailTo(parsedInput[0].email);
                 }
                 if (parsedInput[0].name.length > 0) {
                     attendee.commonName = parsedInput[0].name;
@@ -627,7 +627,7 @@
                 if (input && input.value) {
                     // parse the string to break this down to individual names and addresses
                     let parsedInput = MailServices.headerParser.makeFromDisplayAddress(input.value);
-                    let email = cal.prependMailTo(parsedInput[0].email);
+                    let email = cal.email.prependMailTo(parsedInput[0].email);
 
                     let isdirty = false;
                     if (input.hasAttribute("dirty")) {

@@ -221,10 +221,10 @@ function sendMailToOrganizer() {
     let item = document.getElementById("calendar-task-tree").currentTask;
     if (item != null) {
         let organizer = item.organizer;
-        let email = cal.getAttendeeEmail(organizer, true);
+        let email = cal.email.getAttendeeEmail(organizer, true);
         let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
         let identity = item.calendar.getProperty("imip.identity");
-        cal.sendMailTo(email, emailSubject, null, identity);
+        cal.email.sendTo(email, emailSubject, null, identity);
     }
 }
 

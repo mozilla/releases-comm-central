@@ -369,7 +369,7 @@ ltn.invitation = {
                 } else {
                     content = doc.getElementById(aElement + "-table");
                     oldContent = aOldDoc.getElementById(aElement + "-table");
-                    let excludeAddress = cal.removeMailTo(aIgnoreId);
+                    let excludeAddress = cal.email.removeMailTo(aIgnoreId);
                     if (content && oldContent && !content.isEqualNode(oldContent)) {
                         // extract attendees
                         let attendees = _getAttendees(doc, aElement);
@@ -430,7 +430,7 @@ ltn.invitation = {
      */
     getHeaderSection: function(aMessageId, aIdentity, aToList, aSubject) {
         let recipient = aIdentity.fullName + " <" + aIdentity.email + ">";
-        let from = aIdentity.fullName.length ? cal.validateRecipientList(recipient)
+        let from = aIdentity.fullName.length ? cal.email.validateRecipientList(recipient)
                                              : aIdentity.email;
         let header = "MIME-version: 1.0\r\n" +
                      (aIdentity.replyTo ? "Return-path: " +
@@ -447,13 +447,13 @@ ltn.invitation = {
                                       .encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n";
         let validRecipients;
         if (aIdentity.doCc) {
-            validRecipients = cal.validateRecipientList(aIdentity.doCcList);
+            validRecipients = cal.email.validateRecipientList(aIdentity.doCcList);
             if (validRecipients != "") {
                 header += "Cc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n";
             }
         }
         if (aIdentity.doBcc) {
-            validRecipients = cal.validateRecipientList(aIdentity.doBccList);
+            validRecipients = cal.email.validateRecipientList(aIdentity.doBccList);
             if (validRecipients != "") {
                 header += "Bcc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n";
             }

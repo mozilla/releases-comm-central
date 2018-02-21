@@ -277,7 +277,7 @@ cal.getEmailIdentityOfCalendar = function(aCalendar, outAccount) {
             return null;
         }
         let identity = null;
-        cal.calIterateEmailIdentities((identity_, account) => {
+        cal.email.iterateIdentities((identity_, account) => {
             if (identity_.key == key) {
                 identity = identity_;
                 if (outAccount) {

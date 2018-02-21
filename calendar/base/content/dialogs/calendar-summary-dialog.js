@@ -271,7 +271,7 @@ function reply(aResponse, aPartStat=null) {
         if (aclEntry) {
             let userAddresses = aclEntry.getUserAddresses({});
             if (userAddresses.length > 0 &&
-                !cal.attendeeMatchesAddresses(window.attendee, userAddresses)) {
+                !cal.email.attendeeMatchesAddresses(window.attendee, userAddresses)) {
                 window.attendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
             }
         }
@@ -441,10 +441,10 @@ function sendMailToOrganizer() {
     let args = window.arguments[0];
     let item = args.calendarEvent;
     let organizer = item.organizer;
-    let email = cal.getAttendeeEmail(organizer, true);
+    let email = cal.email.getAttendeeEmail(organizer, true);
     let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
     let identity = item.calendar.getProperty("imip.identity");
-    cal.sendMailTo(email, emailSubject, null, identity);
+    cal.email.sendTo(email, emailSubject, null, identity);
 }
 
 /**
