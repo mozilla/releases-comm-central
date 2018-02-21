@@ -33,7 +33,8 @@ var migrations = {
         binarySearch: "binarySearch",
         binaryInsertNode: "binaryInsertNode",
         binaryInsert: "binaryInsert",
-        compareObjects: "compareObjects"
+        compareObjects: "compareObjects",
+        // isPropertyValueSame has been removed, it can simply be done with Array every()
     },
     dtz: {
         now: "now",

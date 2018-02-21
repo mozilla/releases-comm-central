@@ -28,7 +28,7 @@ function addCalendarNames(aEvent) {
     let tasksSelected = (tasks.length > 0);
     if (tasksSelected) {
         let selIndex = appendCalendarItems(tasks[0], calendarMenuPopup, null, "contextChangeTaskCalendar(event);");
-        if (cal.isPropertyValueSame(tasks, "calendar") && (selIndex > -1)) {
+        if (tasks.every(task => task.calendar == tasks[0].calendar) && selIndex > -1) {
             calendarMenuPopup.childNodes[selIndex].setAttribute("checked", "true");
         }
     }
@@ -116,7 +116,7 @@ function changeMenuForTask(aEvent) {
     let tasksSelected = (tasks.length > 0);
     if (tasksSelected) {
         let cmd = document.getElementById("calendar_toggle_completed_command");
-        if (cal.isPropertyValueSame(tasks, "isCompleted")) {
+        if (tasks.every(task => task.isCompleted == tasks[0].isCompleted)) {
             setBooleanAttribute(cmd, "checked", tasks[0].isCompleted);
         } else {
             setBooleanAttribute(cmd, "checked", false);

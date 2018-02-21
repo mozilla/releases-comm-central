@@ -124,7 +124,7 @@ calRecurrenceInfo.prototype = {
     set item(value) {
         this.ensureMutable();
 
-        value = cal.calTryWrappedJSObject(value);
+        value = cal.unwrapInstance(value);
         this.mBaseItem = value;
         // patch exception's parentItem:
         for (let ex in this.mExceptionMap) {
@@ -675,7 +675,7 @@ calRecurrenceInfo.prototype = {
     modifyException: function(anItem, aTakeOverOwnership) {
         this.ensureBaseItem();
 
-        anItem = cal.calTryWrappedJSObject(anItem);
+        anItem = cal.unwrapInstance(anItem);
 
         if (anItem.parentItem.calendar != this.mBaseItem.calendar &&
             anItem.parentItem.id != this.mBaseItem.id) {

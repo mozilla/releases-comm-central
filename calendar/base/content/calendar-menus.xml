@@ -52,9 +52,8 @@
                 let tasks = getSelectedTasks();
                 let tasksSelected = (tasks != null) && (tasks.length > 0);
                 if (tasksSelected) {
-                    let task = tasks[0];
-                    if (cal.isPropertyValueSame(tasks, this.mType)) {
-                        propertyValue = task[this.mType];
+                    if (tasks.every(task => task[this.mType] == tasks[0][this.mType])) {
+                        propertyValue = tasks[0][this.mType];
                     }
                 } else {
                     cal.view.applyAttributeToMenuChildren(this, "disabled", !tasksSelected);

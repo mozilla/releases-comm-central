@@ -2,16 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var gCalThreadingEnabled;
-
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Console.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 // Usually the backend loader gets loaded via profile-after-change, but in case
 // a calendar component hooks in earlier, its very likely it will use calUtils.
 // Getting the service here will load if its not already loaded
 Components.classes["@mozilla.org/calendar/backend-loader;1"].getService();
+
+// The calendar console instance
+var gCalendarConsole = new ConsoleAPI({
+    prefix: "Lightning",
+    consoleID: "calendar",
+    maxLogLevel: Preferences.get("calendar.debug.log", false) ? "all" : "warn"
+});
 
 this.EXPORTED_SYMBOLS = ["cal"];
 var cal = {
@@ -73,6 +79,80 @@ var cal = {
                                Components.interfaces.calIDateTimeFormatter),
     getDragService: _service("@mozilla.org/widget/dragservice;1",
                              Components.interfaces.nsIDragService),
+
+    /**
+     * The calendar console instance
+     */
+    console: gCalendarConsole,
+
+    /**
+     * Logs a calendar message to the console. Needs calendar.debug.log enabled to show messages.
+     * Shortcut to cal.console.log()
+     */
+    LOG: gCalendarConsole.log,
+
+    /**
+     * Logs a calendar warning to the console. Shortcut to cal.console.warn()
+     */
+    WARN: gCalendarConsole.warn,
+
+    /**
+     * Logs a calendar error to the console. Shortcut to cal.console.error()
+     */
+    ERROR: gCalendarConsole.error,
+
+    /**
+     * Uses the prompt service to display an error message. Use this sparingly,
+     * as it interrupts the user.
+     *
+     * @param aMsg The message to be shown
+     * @param aWindow The window to show the message in, or null for any window.
+     */
+    showError: function(aMsg, aWindow=null) {
+        Services.prompt.alert(aWindow, cal.calGetString("calendar", "genericErrorTitle"), aMsg);
+    },
+
+    /**
+     * Returns a string describing the current js-stack with filename and line
+     * numbers.
+     *
+     * @param aDepth (optional) The number of frames to include. Defaults to 5.
+     * @param aSkip  (optional) Number of frames to skip
+     */
+    STACK: function(aDepth=10, aSkip=0) {
+        let stack = "";
+        let frame = Components.stack.caller;
+        for (let i = 1; i <= aDepth + aSkip && frame; i++) {
+            if (i > aSkip) {
+                stack += `${i}: [${frame.filename}:${frame.lineNumber}] ${frame.name}\n`;
+            }
+            frame = frame.caller;
+        }
+        return stack;
+    },
+
+    /**
+     * Logs a message and the current js-stack, if aCondition fails
+     *
+     * @param aCondition  the condition to test for
+     * @param aMessage    the message to report in the case the assert fails
+     * @param aCritical   if true, throw an error to stop current code execution
+     *                    if false, code flow will continue
+     *                    may be a result code
+     */
+    ASSERT: function(aCondition, aMessage, aCritical=false) {
+        if (aCondition) {
+            return;
+        }
+
+        let string = `Assert failed: ${aMessage}\n ${cal.STACK(0, 1)}`;
+        if (aCritical) {
+            let rescode = aCritical === true ? Components.results.NS_ERROR_UNEXPECTED : aCritical;
+            throw new Components.Exception(string, rescode);
+        } else {
+            Components.utils.reportError(string);
+        }
+    },
 
     /**
      * Loads an array of calendar scripts into the passed scope.
@@ -186,11 +266,17 @@ var cal = {
         return adapter;
     },
 
-    get threadingEnabled() {
-        if (gCalThreadingEnabled === undefined) {
-            gCalThreadingEnabled = !Preferences.get("calendar.threading.disabled", false);
-        }
-        return gCalThreadingEnabled;
+    /**
+     * Make a UUID, without enclosing brackets, e.g. 0d3950fd-22e5-4508-91ba-0489bdac513f
+     *
+     * @return {String}         The generated UUID
+     */
+    getUUID: function() {
+        let uuidGen = Components.classes["@mozilla.org/uuid-generator;1"]
+                                .getService(Components.interfaces.nsIUUIDGenerator);
+        // generate uuids without braces to avoid problems with
+        // CalDAV servers that don't support filenames with {}
+        return uuidGen.generateUUID().toString().replace(/[{}]/g, "");
     },
 
     /**
@@ -276,6 +362,17 @@ var cal = {
     },
 
     /**
+     * Tries to get rid of wrappers, if this is not possible then return the
+     * passed object.
+     *
+     * @param aObj  The object under consideration
+     * @return      The possibly unwrapped object.
+     */
+    unwrapInstance: function(aObj) {
+        return aObj && aObj.wrappedJSObject ? aObj.wrappedJSObject : aObj;
+    },
+
+    /**
      * Adds an xpcom shutdown observer.
      *
      * @param func function to execute
@@ -294,6 +391,12 @@ var cal = {
      */
     registerForShutdownCleanup: shutdownCleanup
 };
+
+// Preferences
+XPCOMUtils.defineLazyPreferenceGetter(cal, "debugLogEnabled", "calendar.debug.log", false, (pref, prev, value) => {
+    gCalendarConsole.maxLogLevel = value ? "all" : "warn";
+});
+XPCOMUtils.defineLazyPreferenceGetter(cal, "threadingEnabled", "calendar.threading.disabled", false);
 
 // Sub-modules for calUtils
 XPCOMUtils.defineLazyModuleGetter(cal, "acl", "resource://calendar/modules/calACLUtils.jsm", "calacl");
