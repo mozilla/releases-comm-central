@@ -2056,9 +2056,9 @@ nsMsgComposeAndSend::AddCompFieldLocalAttachments()
             {
               nsCOMPtr<nsIURL> fileUrl;
               rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-                     .Apply<nsIURLMutator>(&nsIURLMutator::SetFileName,
+                     .Apply(NS_MutatorMethod(&nsIURLMutator::SetFileName,
                                            m_attachments[newLoc]->m_realName,
-                                           nullptr)
+                                           nullptr))
                      .Finalize(fileUrl);
               if (NS_SUCCEEDED(rv))
               {
