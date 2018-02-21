@@ -120,7 +120,7 @@ function getAttendeesBySender_test() {
             attendees.push(attendee);
         }
         let detected = [];
-        cal.getAttendeesBySender(attendees, test.input.sender).forEach(att => {
+        cal.itip.getAttendeesBySender(attendees, test.input.sender).forEach(att => {
             detected.push(att.id);
         });
         ok(detected.every(aId => test.expected.includes(aId)), "(test #" + i + " ok1)");
@@ -298,7 +298,7 @@ function resolveDelegation_test() {
         }
         let attendee = cal.createAttendee();
         attendee.icalString = test.input.attendee;
-        let result = cal.resolveDelegation(attendee, attendees);
+        let result = cal.itip.resolveDelegation(attendee, attendees);
         equal(result.delegatees, test.expected.delegatees, "(test #" + i + " - delegatees)");
         equal(result.delegators, test.expected.delegators, "(test #" + i + " - delegators)");
     }

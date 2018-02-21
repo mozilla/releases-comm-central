@@ -323,7 +323,7 @@ var ltnImipBar = {
                                 // we can rely on the received itipItem to reply at this stage
                                 // already, the checks have been done in cal.itip.processFoundItems
                                 // when setting up the respective aActionFunc
-                                let attendees = cal.getAttendeesBySender(
+                                let attendees = cal.itip.getAttendeesBySender(
                                     aItem.getAttendees({}),
                                     aItipItem.sender
                                 );
@@ -402,7 +402,7 @@ var ltnImipBar = {
                         item = item.recurrenceInfo.getOccurrenceFor(proposedRID).clone();
                     }
                     let parsedProposal = ltn.invitation.parseCounter(proposedItem, item);
-                    let potentialProposers = cal.getAttendeesBySender(
+                    let potentialProposers = cal.itip.getAttendeesBySender(
                         proposedItem.getAttendees({}),
                         ltnImipBar.itipItem.sender
                     );
@@ -472,7 +472,7 @@ var ltnImipBar = {
 
             if (aParticipantStatus == "X-SAVECOPY") {
                 // we create and adopt copies of the respective events
-                let saveitems = ltnImipBar.itipItem.getItemList({}).map(cal.getPublishLikeItemCopy.bind(cal));
+                let saveitems = ltnImipBar.itipItem.getItemList({}).map(cal.itip.getPublishLikeItemCopy.bind(cal));
                 if (saveitems.length > 0) {
                     let methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
                     let newItipItem = cal.itip.getModifiedItipItem(ltnImipBar.itipItem,

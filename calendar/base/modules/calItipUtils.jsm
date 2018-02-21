@@ -327,7 +327,7 @@ var calitip = {
                     } else {
                         let comparison;
                         for (let item of itipItem.getItemList({})) {
-                            let attendees = cal.getAttendeesBySender(
+                            let attendees = cal.itip.getAttendeesBySender(
                                     item.getAttendees({}),
                                     itipItem.sender
                             );
@@ -1795,7 +1795,7 @@ ItipItemFinder.prototype = {
                                             "invalid number of attendees in REPLY!"
                                         );
                                     } else {
-                                        attendees = cal.getAttendeesBySender(
+                                        attendees = cal.itip.getAttendeesBySender(
                                             attendees,
                                             this.mItipItem.sender
                                         );

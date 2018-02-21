@@ -729,8 +729,8 @@ function setContextPartstat(aTarget, aItems) {
      */
     function getParticipant(aItem) {
         let party = null;
-        if (cal.isInvitation(aItem)) {
-            party = cal.getInvitedAttendee(aItem);
+        if (cal.itip.isInvitation(aItem)) {
+            party = cal.itip.getInvitedAttendee(aItem);
         } else if (aItem.organizer && aItem.getAttendees({}).length) {
             let calOrgId = aItem.calendar.getProperty("organizerId");
             if (calOrgId.toLowerCase() == aItem.organizer.id.toLowerCase()) {

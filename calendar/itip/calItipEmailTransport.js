@@ -129,7 +129,7 @@ calItipEmailTransport.prototype = {
             }
             case "REPLY": {
                 // Get my participation status
-                let att = cal.getInvitedAttendee(item, aItipItem.targetCalendar);
+                let att = cal.itip.getInvitedAttendee(item, aItipItem.targetCalendar);
                 if (!att && aItipItem.identity) {
                     att = item.getAttendeeById(cal.email.prependMailTo(aItipItem.identity));
                 }

@@ -480,7 +480,7 @@ var calendarController = {
                     selected_events_requires_network++;
                 }
 
-                if (cal.isInvitation(item)) {
+                if (cal.itip.isInvitation(item)) {
                     selected_events_invitation++;
                 } else if (item.organizer) {
                     // If we are the organizer and there are attendees, then
@@ -619,7 +619,7 @@ var calendarController = {
         let selected_tasks_invitation = 0;
 
         for (let item of selectedTasks) {
-            if (cal.isInvitation(item)) {
+            if (cal.itip.isInvitation(item)) {
                 selected_tasks_invitation++;
             } else if (item.organizer) {
                 // If we are the organizer and there are attendees, then

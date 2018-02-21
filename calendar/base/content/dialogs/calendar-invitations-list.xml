@@ -181,7 +181,7 @@
             let attendeeLabel = document.getAnonymousElementByAttribute(
                 this, "anonid", "attendee");
             let attendeeString = this.mStrings.attendee;
-            let att = cal.getInvitedAttendee(aItem);
+            let att = cal.itip.getInvitedAttendee(aItem);
             if (att) {
                 if (att.commonName && att.commonName.length > 0) {
                     attendeeString += att.commonName;
@@ -197,7 +197,7 @@
       <method name="getCalendarItemParticipationStatus">
         <parameter name="aItem"/>
         <body><![CDATA[
-            let att = cal.getInvitedAttendee(aItem);
+            let att = cal.itip.getInvitedAttendee(aItem);
             return (att ? att.participationStatus : null);
         ]]></body>
       </method>

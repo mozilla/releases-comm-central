@@ -243,8 +243,8 @@
             this.setAttribute("calendar", item.calendar.name.toLowerCase());
 
             // Invitation
-            if (cal.isInvitation(item)) {
-                this.setAttribute("invitation-status", cal.getInvitedAttendee(item).participationStatus);
+            if (cal.itip.isInvitation(item)) {
+                this.setAttribute("invitation-status", cal.itip.getInvitedAttendee(item).participationStatus);
                 this.setAttribute("readonly", "true");
             } else if (!cal.acl.isCalendarWritable(item.calendar)) {
                 this.setAttribute("readonly", "true");

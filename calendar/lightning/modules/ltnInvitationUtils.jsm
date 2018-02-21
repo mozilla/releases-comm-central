@@ -41,7 +41,7 @@ ltn.invitation = {
                     // falls through
                 case "REPLY": {
                     let attendees = item.getAttendees({});
-                    let sender = cal.getAttendeesBySender(attendees, aItipItem.sender);
+                    let sender = cal.itip.getAttendeesBySender(attendees, aItipItem.sender);
                     if (sender.length == 1) {
                         if (aItipItem.responseMethod == "COUNTER") {
                             header = cal.calGetString("lightning",
@@ -236,7 +236,7 @@ ltn.invitation = {
             row.removeAttribute("hidden");
 
             // resolve delegatees/delegators to display also the CN
-            let del = cal.resolveDelegation(aAttendee, attendees);
+            let del = cal.itip.resolveDelegation(aAttendee, attendees);
             if (del.delegators != "") {
                 del.delegators = " " + ltn.getString("lightning", "imipHtml.attendeeDelegatedFrom",
                                                      [del.delegators]);

@@ -622,7 +622,7 @@ function setupAttendees() {
                 let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
                                                [roleString, partstatString]);
 
-                let del = cal.resolveDelegation(attendee, window.attendees);
+                let del = cal.itip.resolveDelegation(attendee, window.attendees);
                 if (del.delegators != "") {
                     del.delegators = cal.calGetString("calendar",
                                                       "dialog.attendee.append.delegatedFrom",
