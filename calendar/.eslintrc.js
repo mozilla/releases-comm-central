@@ -480,5 +480,29 @@ module.exports = {
         // The following rules will not be enabled currently, but are kept here for
         // easier updates in the future.
         "no-else-return": 0,
-    }
+    },
+    "overrides": [{
+        files: [
+            "base/modules/calEmailUtils.jsm",
+            "base/modules/calItipUtils.jsm",
+        ],
+        rules: {
+            "require-jsdoc": [2, { require: { ClassDeclaration: true } }],
+
+            "valid-jsdoc": [2, {
+                prefer: { returns: "return" },
+                preferType: {
+                    "boolean": "Boolean",
+                    "string": "String",
+                    "number": "Number",
+                    "object": "Object",
+                    "function": "Function",
+                    "map": "Map",
+                    "set": "Set",
+                    "date": "Date",
+                },
+                requireReturn: false
+            }],
+        }
+    }]
 };

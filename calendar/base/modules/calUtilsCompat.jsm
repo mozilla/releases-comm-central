@@ -53,6 +53,16 @@ var migrations = {
         floating: "floating",
         UTC: "UTC"
     },
+    email: {
+        sendMailTo: "sendMailTo",
+        calIterateEmailIdentities: "iterateIdentities",
+        prependMailTo: "prependMailTo",
+        removeMailTo: "removeMailTo",
+        getRecipientList: "createRecipientList",
+        getAttendeeEmail: "getAttendeeEmail",
+        validateRecipientList: "validateRecipientList",
+        attendeeMatchesAddresses: "attendeeMatchesAddresses"
+    },
     item: {
         // ItemDiff also belongs here, but is separately migrated in
         // calItemUtils.jsm
@@ -64,6 +74,14 @@ var migrations = {
         checkIfInRange: "checkIfInRange",
         setItemProperty: "setItemProperty",
         getEventDefaultTransparency: "getEventDefaultTransparency"
+    },
+    itip: {
+        getPublishLikeItemCopy: "getPublishLikeItemCopy",
+        isInvitation: "isInvitation",
+        isOpenInvitation: "isOpenInvitation",
+        resolveDelegation: "resolveDelegation",
+        getInvitedAttendee: "getInvitedAttendee",
+        getAttendeesBySender: "getAttendeesBySender"
     },
     view: {
         isMouseOverBox: "isMouseOverBox",

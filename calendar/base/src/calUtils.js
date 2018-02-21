@@ -7,10 +7,9 @@
  * that loading this file twice in the same scope will throw errors.
  */
 
-/* exported attendeeMatchesAddresses, calTryWrappedJSObject,
- *          LOG, WARN, ERROR, showError, sendMailTo,
- *          applyAttributeToMenuChildren, isPropertyValueSame,
- *          calIterateEmailIdentities, calGetString, getUUID
+/* exported calTryWrappedJSObject, LOG, WARN, ERROR, showError,
+ *          applyAttributeToMenuChildren, isPropertyValueSame, calGetString,
+ *          getUUID
  */
 
 ChromeUtils.import("resource:///modules/mailServices.js");
@@ -19,34 +18,6 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-/**
- * Check if the attendee object matches one of the addresses in the list. This
- * is useful to determine whether the current user acts as a delegate.
- *
- * @param aAttendee     The reference attendee object
- * @param addresses     The list of addresses
- * @return              True if there is a match
- */
-function attendeeMatchesAddresses(anAttendee, addresses) {
-    let attId = anAttendee.id;
-    if (!attId.match(/^mailto:/i)) {
-        // Looks like its not a normal attendee, possibly urn:uuid:...
-        // Try getting the email through the EMAIL property.
-        let emailProp = anAttendee.getProperty("EMAIL");
-        if (emailProp) {
-            attId = emailProp;
-        }
-    }
-
-    attId = attId.toLowerCase().replace(/^mailto:/, "");
-    for (let address of addresses) {
-        if (attId == address.toLowerCase().replace(/^mailto:/, "")) {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 /**
  * Other functions
@@ -217,23 +188,6 @@ function showError(aMsg, aWindow=null) {
     Services.prompt.alert(aWindow, cal.calGetString("calendar", "genericErrorTitle"), aMsg);
 }
 
-function sendMailTo(aRecipient, aSubject, aBody, aIdentity) {
-    let msgParams = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
-                              .createInstance(Components.interfaces.nsIMsgComposeParams);
-    let composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                                  .createInstance(Components.interfaces.nsIMsgCompFields);
-
-    composeFields.to = aRecipient;
-    composeFields.subject = aSubject;
-    composeFields.body = aBody;
-
-    msgParams.type = Components.interfaces.nsIMsgCompType.New;
-    msgParams.format = Components.interfaces.nsIMsgCompFormat.Default;
-    msgParams.composeFields = composeFields;
-    msgParams.identity = aIdentity;
-
-    MailServices.compose.OpenComposeWindowWithParams(null, msgParams);
-}
 
 /**
  * TODO: The following UI-related functions need to move somewhere different,
@@ -266,21 +220,3 @@ function isPropertyValueSame(aObjects, aPropertyName) {
  * END TODO: The above UI-related functions need to move somewhere different,
  * i.e calendar-ui-utils.js
  */
-
-/**
- * Iterates all email identities and calls the passed function with identity and account.
- * If the called function returns false, iteration is stopped.
- */
-function calIterateEmailIdentities(func) {
-    let accounts = MailServices.accounts.accounts;
-    for (let i = 0; i < accounts.length; ++i) {
-        let account = accounts.queryElementAt(i, Components.interfaces.nsIMsgAccount);
-        let identities = account.identities;
-        for (let j = 0; j < identities.length; ++j) {
-            let identity = identities.queryElementAt(j, Components.interfaces.nsIMsgIdentity);
-            if (!func(identity, account)) {
-                break;
-            }
-        }
-    }
-}
