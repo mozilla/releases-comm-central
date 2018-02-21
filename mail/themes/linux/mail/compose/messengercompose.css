@@ -360,6 +360,23 @@ html|span.ac-emphasize-text {
   border-color: var(--toolbarbutton-hover-bordercolor) !important;
 }
 
+.deleteAddress {
+  -moz-box-ordinal-group: 0;
+  cursor: default;
+  margin-inline-start: 0;
+  margin-bottom: 1px;
+  width: 0;
+  height: 18px;
+  transition-property: width, margin-inline-start;
+  transition-duration: 50ms, 50ms;
+  transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.addressingWidgetCell:hover > .aw-menulist:not([open="true"]) + .deleteAddress {
+  margin-inline-start: 5px;
+  width: 18px;
+}
+
 .aw-menulist {
   font: inherit;
   margin: 0;

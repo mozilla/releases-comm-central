@@ -1162,7 +1162,7 @@
               <listcol id="textcol-addressingWidget" flex="1"/>
             </listcols>
             <listitem class="addressingWidgetItem" allowevents="true">
-              <listcell class="addressingWidgetCell" align="stretch">
+              <listcell class="addressingWidgetCell">
                 <menulist id="addressCol1#1" disableonsend="true"
                           class="aw-menulist" flex="1"
                           oncommand="onAddressColCommand(this.id);">
@@ -1175,6 +1175,8 @@
                     <menuitem value="addr_followup" label="&followupAddr.label;"/>
                   </menupopup>
                 </menulist>
+                <image class="deleteAddress close-icon"
+                       onclick="awDeleteHit(this);"/>
               </listcell>
               <listcell class="addressingWidgetCell">
                 <textbox id="addressCol2#1" class="plain textbox-addressingWidget uri-element"

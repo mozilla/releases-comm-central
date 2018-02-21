@@ -307,6 +307,7 @@ toolbar[nowindowdrag="true"] {
   margin-top: 0;
   margin-inline-start: 0;
   margin-inline-end: 1px;
+  min-height: 20px;
   background-color: inherit;
   -moz-appearance: none;
   border: 1px solid transparent;
@@ -422,6 +423,7 @@ html|span.ac-emphasize-text {
   border-bottom-color: #C6C6C6 !important;
   border-top-left-radius: 2px;
   border-bottom-right-radius: 2px;
+  min-height: 20px;
   margin-top: 1px !important;
   margin-bottom: 1px !important;
   padding: 1px 3px !important;
@@ -436,11 +438,26 @@ html|span.ac-emphasize-text {
   border-color: #C6C6C6 !important;
 }
 
+.deleteAddress {
+  -moz-box-ordinal-group: 0;
+  cursor: default;
+  margin-inline-end: 0;
+  width: 0;
+  height: 18px;
+  transition-property: width, margin-inline-end;
+  transition-duration: 50ms, 50ms;
+  transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.addressingWidgetCell:hover > .aw-menulist:not([open="true"]) + .deleteAddress {
+  margin-inline-end: 3px;
+  width: 18px;
+}
+
 .aw-menulist {
   -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;
-  min-height: 18px;
   margin: 1px;
   margin-inline-end: 4px;
   background-color: rgba(200, 200, 200, .4) !important;
@@ -473,9 +490,7 @@ html|span.ac-emphasize-text {
 }
 
 .aw-menulist  > .menulist-label-box > .menulist-label {
-  font: icon;
   margin: 1px 1px 0 !important;
-  font-size: 10px;
   text-align: end;
 }
 
