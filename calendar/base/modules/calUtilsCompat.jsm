@@ -83,6 +83,13 @@ var migrations = {
         getInvitedAttendee: "getInvitedAttendee",
         getAttendeesBySender: "getAttendeesBySender"
     },
+    unifinder: {
+        sortEntryComparer: "sortEntryComparer",
+        getItemSortKey:  "getItemSortKey",
+        // compareNative*, compareNumber, sortEntry, sortEntryItem, sortEntryKey and
+        // getSortTypeForSortKey are no longer available. There is a new
+        // cal.unifinder.sortItems though that should do everything necessary.
+    },
     view: {
         isMouseOverBox: "isMouseOverBox",
         calRadioGroupSelectItem: "radioGroupSelectItem",

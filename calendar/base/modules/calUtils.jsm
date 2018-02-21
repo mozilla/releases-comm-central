@@ -50,6 +50,13 @@ var cal = {
     createRecurrenceInfo: _instance("@mozilla.org/calendar/recurrence-info;1",
                                     Components.interfaces.calIRecurrenceInfo,
                                     "item"),
+
+    createLocaleCollator: function() {
+        return Components.classes["@mozilla.org/intl/collation-factory;1"]
+                         .getService(Components.interfaces.nsICollationFactory)
+                         .CreateCollation();
+    },
+
     getCalendarManager: _service("@mozilla.org/calendar/manager;1",
                                  Components.interfaces.calICalendarManager),
     getIcsService: _service("@mozilla.org/calendar/ics-service;1",
@@ -186,205 +193,6 @@ var cal = {
         return gCalThreadingEnabled;
     },
 
-    // The below functions will move to some different place once the
-    // unifinder tress are consolidated.
-
-    compareNativeTime: function(a, b) {
-        if (a < b) {
-            return -1;
-        } else if (a > b) {
-            return 1;
-        } else {
-            return 0;
-        }
-    },
-
-    compareNativeTimeFilledAsc: function(a, b) {
-        if (a == b) {
-            return 0;
-        }
-
-        // In this filter, a zero time (not set) is always at the end.
-        if (a == -62168601600000000) { // value for (0000/00/00 00:00:00)
-            return 1;
-        }
-        if (b == -62168601600000000) { // value for (0000/00/00 00:00:00)
-            return -1;
-        }
-
-        return (a < b ? -1 : 1);
-    },
-
-    compareNativeTimeFilledDesc: function(a, b) {
-        if (a == b) {
-            return 0;
-        }
-
-        // In this filter, a zero time (not set) is always at the end.
-        if (a == -62168601600000000) { // value for (0000/00/00 00:00:00)
-            return 1;
-        }
-        if (b == -62168601600000000) { // value for (0000/00/00 00:00:00)
-            return -1;
-        }
-
-        return (a < b ? 1 : -1);
-    },
-
-    compareNumber: function(a, b) {
-        a = Number(a);
-        b = Number(b);
-        if (a < b) {
-            return -1;
-        } else if (a > b) {
-            return 1;
-        } else {
-            return 0;
-        }
-    },
-
-    sortEntryComparer: function(sortType, modifier) {
-        switch (sortType) {
-            case "number":
-                return function(sortEntryA, sortEntryB) {
-                    let nsA = cal.sortEntryKey(sortEntryA);
-                    let nsB = cal.sortEntryKey(sortEntryB);
-                    return cal.compareNumber(nsA, nsB) * modifier;
-                };
-            case "date":
-                return function(sortEntryA, sortEntryB) {
-                    let nsA = cal.sortEntryKey(sortEntryA);
-                    let nsB = cal.sortEntryKey(sortEntryB);
-                    return cal.compareNativeTime(nsA, nsB) * modifier;
-                };
-            case "date_filled":
-                return function(sortEntryA, sortEntryB) {
-                    let nsA = cal.sortEntryKey(sortEntryA);
-                    let nsB = cal.sortEntryKey(sortEntryB);
-                    if (modifier == 1) {
-                        return cal.compareNativeTimeFilledAsc(nsA, nsB);
-                    } else {
-                        return cal.compareNativeTimeFilledDesc(nsA, nsB);
-                    }
-                };
-            case "string":
-                return function(sortEntryA, sortEntryB) {
-                    let seA = cal.sortEntryKey(sortEntryA);
-                    let seB = cal.sortEntryKey(sortEntryB);
-                    if (seA.length == 0 || seB.length == 0) {
-                        // sort empty values to end (so when users first sort by a
-                        // column, they can see and find the desired values in that
-                        // column without scrolling past all the empty values).
-                        return -(seA.length - seB.length) * modifier;
-                    }
-                    let collator = cal.createLocaleCollator();
-                    let comparison = collator.compareString(0, seA, seB);
-                    return comparison * modifier;
-                };
-            default:
-                return function(sortEntryA, sortEntryB) {
-                    return 0;
-                };
-        }
-    },
-
-    getItemSortKey: function(aItem, aKey, aStartTime) {
-        function nativeTime(calDateTime) {
-            if (calDateTime == null) {
-                return -62168601600000000; // ns value for (0000/00/00 00:00:00)
-            }
-            return calDateTime.nativeTime;
-        }
-
-        switch (aKey) {
-            case "priority":
-                return aItem.priority || 5;
-
-            case "title":
-                return aItem.title || "";
-
-            case "entryDate":
-                return nativeTime(aItem.entryDate);
-
-            case "startDate":
-                return nativeTime(aItem.startDate);
-
-            case "dueDate":
-                return nativeTime(aItem.dueDate);
-
-            case "endDate":
-                return nativeTime(aItem.endDate);
-
-            case "completedDate":
-                return nativeTime(aItem.completedDate);
-
-            case "percentComplete":
-                return aItem.percentComplete;
-
-            case "categories":
-                return aItem.getCategories({}).join(", ");
-
-            case "location":
-                return aItem.getProperty("LOCATION") || "";
-
-            case "status":
-                if (cal.item.isToDo(aItem)) {
-                    return ["NEEDS-ACTION", "IN-PROCESS", "COMPLETED", "CANCELLED"].indexOf(aItem.status);
-                } else {
-                    return ["TENTATIVE", "CONFIRMED", "CANCELLED"].indexOf(aItem.status);
-                }
-            case "calendar":
-                return aItem.calendar.name || "";
-
-            default:
-                return null;
-        }
-    },
-
-    getSortTypeForSortKey: function(aSortKey) {
-        switch (aSortKey) {
-            case "title":
-            case "categories":
-            case "location":
-            case "calendar":
-                return "string";
-
-            // All dates use "date_filled"
-            case "completedDate":
-            case "startDate":
-            case "endDate":
-            case "dueDate":
-            case "entryDate":
-                return "date_filled";
-
-            case "priority":
-            case "percentComplete":
-            case "status":
-                return "number";
-            default:
-                return "unknown";
-        }
-    },
-
-    sortEntry: function(aItem) {
-        let key = cal.getItemSortKey(aItem, this.mSortKey, this.mSortStartedDate);
-        return { mSortKey: key, mItem: aItem };
-    },
-
-    sortEntryItem: function(sortEntry) {
-        return sortEntry.mItem;
-    },
-
-    sortEntryKey: function(sortEntry) {
-        return sortEntry.mSortKey;
-    },
-
-    createLocaleCollator: function() {
-        return Components.classes["@mozilla.org/intl/collation-factory;1"]
-                         .getService(Components.interfaces.nsICollationFactory)
-                         .CreateCollation();
-    },
-
     /**
      * Sort an array of strings according to the current locale.
      * Modifies aStringArray, returning it sorted.
@@ -495,6 +303,7 @@ XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDa
 XPCOMUtils.defineLazyModuleGetter(cal, "email", "resource://calendar/modules/calEmailUtils.jsm", "calemail");
 XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/calItemUtils.jsm", "calitem");
 XPCOMUtils.defineLazyModuleGetter(cal, "itip", "resource://calendar/modules/calItipUtils.jsm", "calitip");
+XPCOMUtils.defineLazyModuleGetter(cal, "unifinder", "resource://calendar/modules/calUnifinderUtils.jsm", "calunifinder");
 XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/calViewUtils.jsm", "calview");
 XPCOMUtils.defineLazyModuleGetter(cal, "window", "resource://calendar/modules/calWindowUtils.jsm", "calwindow");
 

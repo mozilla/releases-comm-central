@@ -989,18 +989,11 @@
       <method name="sortItems">
         <body><![CDATA[
             if (this.mTreeView.selectedColumn) {
-                let modifier = (this.mTreeView.sortDirection == "descending" ? -1 : 1);
                 let column = this.mTreeView.selectedColumn;
-                cal.sortEntry.mSortKey = column.getAttribute("sortKey")
-                                         ? column.getAttribute("sortKey")
-                                         : column.getAttribute("itemproperty");
-                let sortType = cal.getSortTypeForSortKey(cal.sortEntry.mSortKey);
+                let modifier = this.mTreeView.sortDirection == "descending" ? -1 : 1;
+                let sortKey = column.getAttribute("sortKey") || column.getAttribute("itemproperty");
 
-                // sort (key,item) entries
-                cal.sortEntry.mSortStartedDate = cal.dtz.now();
-                let entries = this.mTaskArray.map(cal.sortEntry, cal.sortEntry);
-                entries.sort(cal.sortEntryComparer(sortType, modifier));
-                this.mTaskArray = entries.map(cal.sortEntryItem);
+                cal.unifinder.sortItems(this.mTaskArray, sortKey, modifier);
             }
 
             this.recreateHashTable();

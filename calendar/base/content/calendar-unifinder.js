@@ -549,13 +549,8 @@ var unifinderTreeView = {
         if (this.selectedColumn) {
             let modifier = (this.sortDirection == "descending" ? -1 : 1);
             let sortKey = unifinderTreeView.selectedColumn.getAttribute("itemproperty");
-            let sortType = cal.getSortTypeForSortKey(sortKey);
-            // sort (key,item) entries
-            cal.sortEntry.mSortKey = sortKey;
-            cal.sortEntry.mSortStartedDate = cal.dtz.now();
-            let entries = this.eventArray.map(cal.sortEntry, cal.sortEntry);
-            entries.sort(cal.sortEntryComparer(sortType, modifier));
-            this.eventArray = entries.map(cal.sortEntryItem);
+
+            cal.unifinder.sortItems(this.eventArray, sortKey, modifier);
         }
         this.calculateIndexMap();
     },

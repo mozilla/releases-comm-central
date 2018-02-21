@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported do_calendar_startup, do_load_calmgr, do_load_timezoneservice,
- *          readJSONFile, ics_unfoldline, compareItemsSpecific, getStorageCal,
- *          getMemoryCal, createTodoFromIcalString, createEventFromIcalString,
- *          createDate, Cc, Ci, Cr, Cu
+/* exported do_calendar_startup, do_load_calmgr, do_load_timezoneservice, readJSONFile,
+ *          ics_unfoldline, dedent, compareItemsSpecific, getStorageCal, getMemoryCal,
+ *          createTodoFromIcalString, createEventFromIcalString, createDate, Cc, Ci, Cr, Cu
  */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -188,6 +187,43 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
  */
 function ics_unfoldline(aLine) {
     return aLine.replace(/\r?\n[ \t]/g, "");
+}
+
+/**
+ * Dedent the template string tagged with this function to make indented data
+ * easier to read. Usage:
+ *
+ * let data = dedent`
+ *     This is indented data it will be unindented so that the first line has
+ *       no leading spaces and the second is indented by two spaces.
+ * `;
+ *
+ * @param strings       The string fragments from the template string
+ * @param ...values     The interpolated values
+ * @return              The interpolated, dedented string
+ */
+function dedent(strings, ...values) {
+    let parts = [];
+
+    // Perform variable interpolation
+    for (let [i, string] of strings.entries()) {
+        parts.push(string);
+        if (i < values.length) {
+            parts.push(values[i]);
+        }
+    }
+    let lines = parts.join("").split("\n");
+
+    // The first and last line is empty as in above example.
+    lines.shift();
+    lines.pop();
+
+    let minIndent = lines.reduce((min, line) => {
+        let match = line.match(/^(\s*)\S*/);
+        return Math.min(min, match[1].length);
+    }, Infinity);
+
+    return lines.map(line => line.substr(minIndent)).join("\n");
 }
 
 /**
