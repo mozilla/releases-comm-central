@@ -9,7 +9,6 @@ function run_test() {
 function really_run_test() {
     test_recentzones();
     test_formatcss();
-    test_attendeeMatchesAddresses();
     test_getDefaultStartDate();
     test_getStartEndProps();
     test_OperationGroup();
@@ -56,18 +55,6 @@ function test_formatcss() {
     equal(cal.view.formatStringForCSSRule(" "), "_");
     equal(cal.view.formatStringForCSSRule("ü"), "-uxfc-");
     equal(cal.view.formatStringForCSSRule("a"), "a");
-}
-
-function test_attendeeMatchesAddresses() {
-    let a = cal.createAttendee("ATTENDEE:mailto:horst");
-    ok(cal.email.attendeeMatchesAddresses(a, ["HORST", "peter"]));
-    ok(!cal.email.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
-    ok(!cal.email.attendeeMatchesAddresses(a, ["peter"]));
-
-    a = cal.createAttendee("ATTENDEE;EMAIL=\"horst\":urn:uuid:horst");
-    ok(cal.email.attendeeMatchesAddresses(a, ["HORST", "peter"]));
-    ok(!cal.email.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
-    ok(!cal.email.attendeeMatchesAddresses(a, ["peter"]));
 }
 
 function test_getDefaultStartDate() {

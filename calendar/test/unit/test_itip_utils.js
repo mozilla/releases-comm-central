@@ -8,12 +8,14 @@ ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
 // tests for calItipUtils.jsm
 
 function run_test() {
-    getMessageSender_test();
-    getSequence_test();
-    getStamp_test();
-    compareSequence_test();
-    compareStamp_test();
-    compare_test();
+    test_getMessageSender();
+    test_getSequence();
+    test_getStamp();
+    test_compareSequence();
+    test_compareStamp();
+    test_compare();
+    test_getAttendeesBySender();
+    test_resolveDelegation();
 }
 
 /*
@@ -137,7 +139,7 @@ function getSeqStampTestItems(aTest) {
     return items;
 }
 
-function getMessageSender_test() {
+function test_getMessageSender() {
     let data = [{
         input: null,
         expected: null
@@ -154,7 +156,7 @@ function getMessageSender_test() {
     }
 }
 
-function getSequence_test() {
+function test_getSequence() {
     // assigning an empty string results in not having the property in the ics here
     let data = [{
         input: [{ item: { sequence: "", xMozReceivedSeq: "" } }],
@@ -188,7 +190,7 @@ function getSequence_test() {
     }
 }
 
-function getStamp_test() {
+function test_getStamp() {
     // assigning an empty string results in not having the property in the ics here. However, there
     // must be always an dtStamp for item - if it's missing it will be set by the test code to make
     // sure we get a valid ics
@@ -221,9 +223,9 @@ function getStamp_test() {
     }
 }
 
-function compareSequence_test() {
+function test_compareSequence() {
     // it is sufficient to test here with sequence for items - full test coverage for
-    // x-moz-received-sequence is already provided by compareSequence_test
+    // x-moz-received-sequence is already provided by test_compareSequence
     let data = [{
         // item1.seq == item2.seq
         input: [{ item: { sequence: "2" } },
@@ -280,9 +282,9 @@ function compareSequence_test() {
     }
 }
 
-function compareStamp_test() {
+function test_compareStamp() {
     // it is sufficient to test here with dtstamp for items - full test coverage for
-    // x-moz-received-stamp is already provided by compareStamp_test
+    // x-moz-received-stamp is already provided by test_compareStamp
     let data = [{
         // item1.stamp == item2.stamp
         input: [{ item: { dtStamp: "20150910T181048Z" } },
@@ -339,9 +341,9 @@ function compareStamp_test() {
     }
 }
 
-function compare_test() {
+function test_compare() {
     // it is sufficient to test here with items only - full test coverage for attendees or
-    // item/attendee is already provided by compareSequence_test and compareStamp_test
+    // item/attendee is already provided by test_compareSequence and test_compareStamp
     let data = [{
         // item1.seq == item2.seq && item1.stamp == item2.stamp
         input: [{ item: { sequence: "2", dtStamp: "20150910T181048Z" } },
@@ -395,5 +397,179 @@ function compare_test() {
               test.expected,
               "(test #" + i + ")"
         );
+    }
+}
+
+function test_getAttendeesBySender() {
+    let data = [{
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: "user1@example.net"
+        },
+        expected: ["mailto:user1@example.net"]
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: "user3@example.net"
+        },
+        expected: []
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: "mailto:user3@example.net" },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: "user3@example.net"
+        },
+        expected: ["mailto:user1@example.net"]
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: "mailto:user1@example.net" }],
+            sender: "user1@example.net"
+        },
+        expected: ["mailto:user1@example.net", "mailto:user2@example.net"]
+    }, {
+        input: { attendees: [], sender: "user1@example.net" },
+        expected: []
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: ""
+        },
+        expected: []
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: null
+        },
+        expected: []
+    }];
+
+    for (let i = 1; i <= data.length; i++) {
+        let test = data[i - 1];
+        let attendees = [];
+        for (let att of test.input.attendees) {
+            let attendee = cal.createAttendee();
+            attendee.id = att.id;
+            if (att.sentBy) {
+                attendee.setProperty("SENT-BY", att.sentBy);
+            }
+            attendees.push(attendee);
+        }
+        let detected = [];
+        cal.itip.getAttendeesBySender(attendees, test.input.sender).forEach(att => {
+            detected.push(att.id);
+        });
+        ok(detected.every(aId => test.expected.includes(aId)), "(test #" + i + " ok1)");
+        ok(test.expected.every(aId => detected.includes(aId)), "(test #" + i + " ok2)");
+    }
+}
+
+function test_resolveDelegation() {
+    let data = [{
+        input: {
+            attendee:
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net";CN="Attendee 1":mailto:at' +
+                "tendee1@example.net",
+            attendees: [
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net";CN="Attendee 1":mailto:at' +
+                "tendee1@example.net",
+                'ATTENDEE;DELEGATED-TO="mailto:attendee1@example.net";CN="Attendee 2":mailto:atte' +
+                "ndee2@example.net"
+            ]
+        },
+        expected: {
+            delegatees: "",
+            delegators: "Attendee 2 <attendee2@example.net>"
+        }
+    }, {
+        input: {
+            attendee:
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net":mailto:attendee1@example.net',
+            attendees: [
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net":mailto:attendee1@example.net',
+                'ATTENDEE;DELEGATED-TO="mailto:attendee1@example.net":mailto:attendee2@example.net'
+            ]
+        },
+        expected: {
+            delegatees: "",
+            delegators: "attendee2@example.net"
+        }
+    }, {
+        input: {
+            attendee:
+                'ATTENDEE;DELEGATED-TO="mailto:attendee2@example.net";CN="Attendee 1":mailto:atte' +
+                "ndee1@example.net",
+            attendees: [
+                'ATTENDEE;DELEGATED-TO="mailto:attendee2@example.net";CN="Attendee 1":mailto:atte' +
+                "ndee1@example.net",
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee1@example.net";CN="Attendee 2":mailto:at' +
+                "tendee2@example.net"
+            ]
+        },
+        expected: {
+            delegatees: "Attendee 2 <attendee2@example.net>",
+            delegators: ""
+        }
+    }, {
+        input: {
+            attendee:
+                'ATTENDEE;DELEGATED-TO="mailto:attendee2@example.net":mailto:attendee1@example.net',
+            attendees: [
+                'ATTENDEE;DELEGATED-TO="mailto:attendee2@example.net":mailto:attendee1@example.net',
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee1@example.net":mailto:attendee2@example.net'
+            ]
+        },
+        expected: {
+            delegatees: "attendee2@example.net",
+            delegators: ""
+        }
+    }, {
+        input: {
+            attendee:
+                "ATTENDEE:mailto:attendee1@example.net",
+            attendees: [
+                "ATTENDEE:mailto:attendee1@example.net",
+                "ATTENDEE:mailto:attendee2@example.net"
+            ]
+        },
+        expected: {
+            delegatees: "",
+            delegators: ""
+        }
+    }, {
+        input: {
+            attendee:
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net";DELEGATED-TO="mailto:atte' +
+                'ndee3@example.net":mailto:attendee1@example.net',
+            attendees: [
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net";DELEGATED-TO="mailto:atte' +
+                'ndee3@example.net":mailto:attendee1@example.net',
+                'ATTENDEE;DELEGATED-TO="mailto:attendee1@example.net":mailto:attendee2@example.net',
+                'ATTENDEE;DELEGATED-FROM="mailto:attendee1@example.net":mailto:attendee3@example.net'
+            ]
+        },
+        expected: {
+            delegatees: "attendee3@example.net",
+            delegators: "attendee2@example.net"
+        }
+    }];
+    let i = 0;
+    for (let test of data) {
+        i++;
+        let attendees = [];
+        for (let att of test.input.attendees) {
+            let attendee = cal.createAttendee();
+            attendee.icalString = att;
+            attendees.push(attendee);
+        }
+        let attendee = cal.createAttendee();
+        attendee.icalString = test.input.attendee;
+        let result = cal.itip.resolveDelegation(attendee, attendees);
+        equal(result.delegatees, test.expected.delegatees, "(test #" + i + " - delegatees)");
+        equal(result.delegators, test.expected.delegators, "(test #" + i + " - delegators)");
     }
 }
