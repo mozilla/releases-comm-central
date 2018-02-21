@@ -10,30 +10,30 @@
 
 class nsIMAPNamespace
 {
-  
+
 public:
   nsIMAPNamespace(EIMAPNamespaceType type, const char *prefix, char delimiter, bool from_prefs);
-  
+
   ~nsIMAPNamespace();
-  
+
   EIMAPNamespaceType    GetType() { return m_namespaceType; }
   const char *          GetPrefix() { return m_prefix; }
   char                  GetDelimiter() { return m_delimiter; }
   void                  SetDelimiter(char delimiter, bool delimiterFilledIn);
   bool                  GetIsDelimiterFilledIn() { return m_delimiterFilledIn; }
   bool                  GetIsNamespaceFromPrefs() { return m_fromPrefs; }
-  
+
   // returns -1 if this box is not part of this namespace,
   // or the length of the prefix if it is part of this namespace
   int                   MailboxMatchesNamespace(const char *boxname);
-  
+
 protected:
   EIMAPNamespaceType m_namespaceType;
   char    *m_prefix;
   char    m_delimiter;
   bool    m_fromPrefs;
   bool    m_delimiterFilledIn;
-  
+
 };
 
 
@@ -42,20 +42,20 @@ class nsIMAPNamespaceList
 {
 public:
   ~nsIMAPNamespaceList();
-  
+
   static nsIMAPNamespaceList *CreatensIMAPNamespaceList();
-  
+
   nsresult InitFromString(const char *nameSpaceString, EIMAPNamespaceType nstype);
   nsresult OutputToString(nsCString &OutputString);
   int UnserializeNamespaces(const char *str, char **prefixes, int len);
   nsresult SerializeNamespaces(char **prefixes, int len, nsCString &serializedNamespace);
-  
+
   void ClearNamespaces(bool deleteFromPrefsNamespaces, bool deleteServerAdvertisedNamespaces, bool reallyDelete);
   int	GetNumberOfNamespaces();
   int	GetNumberOfNamespaces(EIMAPNamespaceType);
   nsIMAPNamespace *GetNamespaceNumber(int nodeIndex);
   nsIMAPNamespace *GetNamespaceNumber(int nodeIndex, EIMAPNamespaceType);
-  
+
   nsIMAPNamespace *GetDefaultNamespaceOfType(EIMAPNamespaceType type);
   int AddNewNamespace(nsIMAPNamespace *ns);
   nsIMAPNamespace *GetNamespaceForMailbox(const char *boxname);
@@ -78,9 +78,9 @@ public:
 
 protected:
   nsIMAPNamespaceList();	// use CreatensIMAPNamespaceList to create one
-  
+
   nsTArray<nsIMAPNamespace*> m_NamespaceList;
-  
+
 };
 
 

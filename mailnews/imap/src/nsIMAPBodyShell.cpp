@@ -69,7 +69,7 @@ nsIMAPBodyShell::nsIMAPBodyShell(nsImapProtocol *protocolConnection,
   m_folderName = NS_strdup(folderName);
   if (!m_folderName)
     return;
-  
+
   SetContentModified(GetShowAttachmentsInline() ? IMAP_CONTENT_MODIFIED_VIEW_INLINE : IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS);
 
   SetIsValid(m_message != nullptr);
@@ -94,7 +94,7 @@ bool nsIMAPBodyShell::GetShowAttachmentsInline()
     m_showAttachmentsInline = !m_protocolConnection || m_protocolConnection->GetShowAttachmentsInline();
     m_gotAttachmentPref = true;
   }
-  
+
   return m_showAttachmentsInline;
 }
 
@@ -103,10 +103,10 @@ void nsIMAPBodyShell::AdoptMessageHeaders(char *headers, const char *partNum)
 {
   if (!GetIsValid())
     return;
-  
+
   if (!partNum)
     partNum = "0";
-  
+
   // we are going to say that a message header object only has
   // part data, and no header data.
   nsIMAPBodypart *foundPart = m_message->FindPartWithNumber(partNum);
@@ -138,11 +138,11 @@ void nsIMAPBodyShell::AdoptMimeHeader(const char *partNum, char *mimeHeader)
 {
   if (!GetIsValid())
     return;
-  
+
   NS_ASSERTION(partNum, "null partnum in body shell");
-  
+
   nsIMAPBodypart *foundPart = m_message->FindPartWithNumber(partNum);
-  
+
   if (foundPart)
   {
     foundPart->AdoptHeaderDataBuffer(mimeHeader);
@@ -200,7 +200,7 @@ bool nsIMAPBodyShell::PreflightCheckAllInline()
 // have to worry about the other parts.  This also has the
 // advantage that it looks like it will be more workable for
 // nested parts.  For instance, if a user clicks on a link to
-// a forwarded message, then that forwarded message may be 
+// a forwarded message, then that forwarded message may be
 // generated along with any images that the forwarded message
 // contains, for instance.
 
@@ -210,7 +210,7 @@ int32_t nsIMAPBodyShell::Generate(char *partNum)
   m_isBeingGenerated = true;
   m_generatingPart = partNum;
   int32_t contentLength = 0;
-  
+
   if (!GetIsValid() || PreflightCheckAllInline())
   {
     // We don't have a valid shell, or all parts are going to be inline anyway.  Fall back to fetching the whole message.
@@ -229,24 +229,24 @@ int32_t nsIMAPBodyShell::Generate(char *partNum)
     // We have a valid shell.
     bool streamCreated = false;
     m_generatingWholeMessage = false;
-    
+
     ////// PASS 1 : PREFETCH ///////
     // First, prefetch any additional headers/data that we need
     if (!GetPseudoInterrupted())
       m_message->Generate(this, false, true); // This queues up everything we need to prefetch
     // Now, run a single pipelined prefetch  (neato!)
     FlushPrefetchQueue();
-    
+
     ////// PASS 2 : COMPUTE STREAM SIZE ///////
     // Next, figure out the size from the parts that we're going to fill in,
     // plus all of the MIME headers, plus the message header itself
     if (!GetPseudoInterrupted())
       contentLength = m_message->Generate(this, false, false);
-    
+
     // Setup the stream
     if (!GetPseudoInterrupted() && !DeathSignalReceived())
     {
-      nsresult rv = 
+      nsresult rv =
         m_protocolConnection->BeginMessageDownLoad(contentLength, MESSAGE_RFC822);
       if (NS_FAILED(rv))
       {
@@ -261,16 +261,16 @@ int32_t nsIMAPBodyShell::Generate(char *partNum)
     // Generate the message
     if (!GetPseudoInterrupted() && !DeathSignalReceived())
       m_message->Generate(this, true, false);
-    
+
     // Close the stream here - normal.  If pseudointerrupted, the connection will abort the download stream
     if (!GetPseudoInterrupted() && !DeathSignalReceived())
       m_protocolConnection->NormalMessageEndDownload();
     else if (streamCreated)
       m_protocolConnection->AbortMessageDownLoad();
-    
+
     m_generatingPart = NULL;
   }
-  
+
   m_isBeingGenerated = false;
   return contentLength;
 }
@@ -300,7 +300,7 @@ nsIMAPBodypart::nsIMAPBodypart(char *partNumber, nsIMAPBodypart *parentPart)
   m_boundaryData = NULL;	// initialize from parsed BODYSTRUCTURE
   m_contentLength = 0;
   m_partLength = 0;
-  
+
   m_contentType = NULL;
   m_bodyType = NULL;
   m_bodySubType = NULL;
@@ -359,13 +359,13 @@ nsIMAPBodypart *nsIMAPBodypart::FindPartWithNumber(const char *partNum)
 {
   // either brute force, or do it the smart way - look at the number.
   // (the parts should be ordered, and hopefully indexed by their number)
-  
+
   if (m_partNumberString && !PL_strcasecmp(partNum, m_partNumberString))
     return this;
-  
+
   //if (!m_partNumberString && !PL_strcasecmp(partNum, "1"))
   //	return this;
-  
+
   return NULL;
 }
 
@@ -399,7 +399,7 @@ int32_t nsIMAPBodypart::GenerateMIMEHeader(nsIMAPBodyShell *aShell, bool stream,
   if (m_headerData)
   {
     int32_t mimeHeaderLength = 0;
-    
+
     if (!ShouldFetchInline(aShell))
     {
       // if this part isn't inline, add the X-Mozilla-IMAP-Part header
@@ -415,14 +415,14 @@ int32_t nsIMAPBodypart::GenerateMIMEHeader(nsIMAPBodyShell *aShell, bool stream,
         PR_Free(xPartHeader);
       }
     }
-    
+
     mimeHeaderLength += PL_strlen(m_headerData);
     if (stream)
     {
       aShell->GetConnection()->Log("SHELL","GENERATE-MIMEHeader",m_partNumberString);
       aShell->GetConnection()->HandleMessageDownLoadLine(m_headerData, false);  // all one line?  Can we do that?
     }
-    
+
     return mimeHeaderLength;
   }
 
@@ -434,7 +434,7 @@ int32_t nsIMAPBodypart::GeneratePart(nsIMAPBodyShell *aShell, bool stream, bool 
 {
   if (prefetch)
     return 0;	// don't need to prefetch anything
-  
+
   if (m_partData)	// we have prefetched the part data
   {
     if (stream)
@@ -461,7 +461,7 @@ int32_t nsIMAPBodypart::GenerateBoundary(nsIMAPBodyShell *aShell, bool stream, b
 {
   if (prefetch)
     return 0;	// don't need to prefetch anything
-  
+
   if (m_boundaryData)
   {
     if (!lastBoundary)
@@ -560,24 +560,24 @@ nsIMAPBodypartType nsIMAPBodypartLeaf::GetType()
 int32_t nsIMAPBodypartLeaf::Generate(nsIMAPBodyShell *aShell, bool stream, bool prefetch)
 {
   int32_t len = 0;
-  
+
   if (GetIsValid())
   {
-    
+
     if (stream && !prefetch)
       aShell->GetConnection()->Log("SHELL","GENERATE-Leaf",m_partNumberString);
-    
+
     // Stream out the MIME part boundary
     //GenerateBoundary();
     NS_ASSERTION(m_parentPart, "part has no parent");
     //nsIMAPBodypartMessage *parentMessage = m_parentPart ? m_parentPart->GetnsIMAPBodypartMessage() : NULL;
-    
+
     // Stream out the MIME header of this part, if this isn't the only body part of a message
     //if (parentMessage ? !parentMessage->GetIsTopLevelMessage() : true)
     if ((m_parentPart->GetType() != IMAP_BODY_MESSAGE_RFC822)
       && !aShell->GetPseudoInterrupted())
       len += GenerateMIMEHeader(aShell, stream, prefetch);
-    
+
     if (!aShell->GetPseudoInterrupted())
     {
       if (ShouldFetchInline(aShell))
@@ -809,12 +809,12 @@ int32_t nsIMAPBodypartMessage::Generate(nsIMAPBodyShell *aShell, bool stream, bo
 {
   if (!GetIsValid())
     return 0;
-  
+
   m_contentLength = 0;
-  
+
   if (stream && !prefetch)
     aShell->GetConnection()->Log("SHELL","GENERATE-MessageRFC822",m_partNumberString);
-  
+
   if (!m_topLevelMessage && !aShell->GetPseudoInterrupted())  // not the top-level message - we need the MIME header as well as the message header
   {
     // but we don't need the MIME headers of a message/rfc822 part if this content
@@ -835,12 +835,12 @@ int32_t nsIMAPBodypartMessage::Generate(nsIMAPBodyShell *aShell, bool stream, bo
       PL_strcasecmp(m_parentPart->GetBodyType(), "message") || PL_strcasecmp(m_parentPart->GetBodySubType(), "rfc822") )
       m_contentLength += GenerateMIMEHeader(aShell, stream, prefetch);
   }
-  
+
   if (!aShell->GetPseudoInterrupted())
     m_contentLength += m_headers->Generate(aShell, stream, prefetch);
   if (!aShell->GetPseudoInterrupted())
     m_contentLength += m_body->Generate(aShell, stream, prefetch);
-  
+
   return m_contentLength;
 }
 
@@ -848,7 +848,7 @@ bool nsIMAPBodypartMessage::ShouldFetchInline(nsIMAPBodyShell *aShell)
 {
   if (m_topLevelMessage)	// the main message should always be defined as "inline"
     return true;
-  
+
   char *generatingPart = aShell->GetGeneratingPart();
   if (generatingPart)
   {
@@ -875,7 +875,7 @@ bool nsIMAPBodypartMessage::PreflightCheckAllInline(nsIMAPBodyShell *aShell)
 {
   if (!ShouldFetchInline(aShell))
     return false;
-  
+
   return m_body->PreflightCheckAllInline(aShell);
 }
 
@@ -884,7 +884,7 @@ void nsIMAPBodypartMessage::AdoptMessageHeaders(char *headers)
 {
   if (!GetIsValid())
     return;
-  
+
   // we are going to say that the message headers only have
   // part data, and no header data.
   m_headers->AdoptPartDataBuffer(headers);
@@ -899,16 +899,16 @@ nsIMAPBodypart *nsIMAPBodypartMessage::FindPartWithNumber(const char *partNum)
 {
   // either brute force, or do it the smart way - look at the number.
   // (the parts should be ordered, and hopefully indexed by their number)
-  
+
   if (!PL_strcasecmp(partNum, m_partNumberString))
     return this;
-  
+
   return m_body->FindPartWithNumber(partNum);
 }
 
 ///////////// nsIMAPBodypartMultipart ////////////////////////
 
-nsIMAPBodypartMultipart::nsIMAPBodypartMultipart(char *partNum, nsIMAPBodypart *parentPart) : 
+nsIMAPBodypartMultipart::nsIMAPBodypartMultipart(char *partNum, nsIMAPBodypart *parentPart) :
 nsIMAPBodypart(partNum, parentPart)
 {
   if (!m_parentPart  || (m_parentPart->GetType() == IMAP_BODY_MESSAGE_RFC822))
@@ -957,16 +957,16 @@ nsIMAPBodypartMultipart::SetBodySubType(char *bodySubType)
 int32_t nsIMAPBodypartMultipart::Generate(nsIMAPBodyShell *aShell, bool stream, bool prefetch)
 {
   int32_t len = 0;
-  
+
   if (GetIsValid())
   {
     if (stream && !prefetch)
       aShell->GetConnection()->Log("SHELL","GENERATE-Multipart",m_partNumberString);
-    
+
     // Stream out the MIME header of this part
-    
+
     bool parentIsMessageType = GetParentPart() ? (GetParentPart()->GetType() == IMAP_BODY_MESSAGE_RFC822) : true;
-    
+
     // If this is multipart/signed, then we always want to generate the MIME headers of this multipart.
     // Otherwise, we only want to do it if the parent is not of type "message"
     bool needMIMEHeader = !parentIsMessageType;  // !PL_strcasecmp(m_bodySubType, "signed") ? true : !parentIsMessageType;
@@ -974,7 +974,7 @@ int32_t nsIMAPBodypartMultipart::Generate(nsIMAPBodyShell *aShell, bool stream, 
     {
       len += GenerateMIMEHeader(aShell, stream, prefetch);
     }
-    
+
     if (ShouldFetchInline(aShell))
     {
       for (size_t i = 0; i < m_partList->Length(); i++)
@@ -1045,25 +1045,25 @@ bool nsIMAPBodypartMultipart::ShouldFetchInline(nsIMAPBodyShell *aShell)
 bool nsIMAPBodypartMultipart::PreflightCheckAllInline(nsIMAPBodyShell *aShell)
 {
   bool rv = ShouldFetchInline(aShell);
-  
+
   size_t i = 0;
   while (rv && (i < m_partList->Length()))
   {
     rv = m_partList->ElementAt(i)->PreflightCheckAllInline(aShell);
     i++;
   }
-  
+
   return rv;
 }
 
 nsIMAPBodypart	*nsIMAPBodypartMultipart::FindPartWithNumber(const char *partNum)
 {
   NS_ASSERTION(partNum, "null part passed into FindPartWithNumber");
-  
+
   // check this
   if (!PL_strcmp(partNum, m_partNumberString))
     return this;
-  
+
   // check children
   for (int i = m_partList->Length() - 1; i >= 0; i--)
   {
@@ -1071,7 +1071,7 @@ nsIMAPBodypart	*nsIMAPBodypartMultipart::FindPartWithNumber(const char *partNum)
     if (foundPart)
       return foundPart;
   }
-  
+
   // not this, or any of this's children
   return NULL;
 }
@@ -1079,7 +1079,7 @@ nsIMAPBodypart	*nsIMAPBodypartMultipart::FindPartWithNumber(const char *partNum)
 
 ///////////// nsIMAPMessageHeaders ////////////////////////////////////
 
-nsIMAPMessageHeaders::nsIMAPMessageHeaders(char *partNum, nsIMAPBodypart *parentPart) : 
+nsIMAPMessageHeaders::nsIMAPMessageHeaders(char *partNum, nsIMAPBodypart *parentPart) :
 nsIMAPBodypart(partNum, parentPart)
 {
   if (!partNum)
@@ -1108,7 +1108,7 @@ nsIMAPBodypartType nsIMAPMessageHeaders::GetType()
 
 void nsIMAPMessageHeaders::QueuePrefetchMessageHeaders(nsIMAPBodyShell *aShell)
 {
-  
+
   if (!m_parentPart->GetnsIMAPBodypartMessage()->GetIsTopLevelMessage())	// not top-level headers
     aShell->AddPrefetchToQueue(kRFC822HeadersOnly, m_partNumberString);
   else
@@ -1122,10 +1122,10 @@ int32_t nsIMAPMessageHeaders::Generate(nsIMAPBodyShell *aShell, bool stream, boo
   {
     QueuePrefetchMessageHeaders(aShell);
   }
-  
+
   if (stream && !prefetch)
     aShell->GetConnection()->Log("SHELL","GENERATE-MessageHeaders",m_partNumberString);
-  
+
   // stream out the part data
   if (ShouldFetchInline(aShell))
   {
@@ -1166,7 +1166,7 @@ nsIMAPBodyShellCache::nsIMAPBodyShellCache()
   nsIMAPBodyShellCache *cache = new nsIMAPBodyShellCache();
   if (!cache || !cache->m_shellList)
     return NULL;
-  
+
   return cache;
 }
 

@@ -150,7 +150,7 @@ const eIMAPCapabilityFlag kGmailImapCapability = 0x400000000LL;  /* X-GM-EXT-1 c
 const eIMAPCapabilityFlag kHasXOAuth2Capability = 0x800000000LL;  /* AUTH XOAUTH2 extension */
 
 
-// this used to be part of the connection object class - maybe we should move it into 
+// this used to be part of the connection object class - maybe we should move it into
 // something similar
 typedef enum {
     kEveryThingRFC822,
@@ -182,7 +182,7 @@ typedef enum {
     eContinueNew,
     eListMyChildren,
     eNewServerDirectory,
-    eCancelled 
+    eCancelled
 } EMailboxDiscoverStatus;
 
 #endif

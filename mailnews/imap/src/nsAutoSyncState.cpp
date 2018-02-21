@@ -22,8 +22,8 @@ using namespace mozilla;
 
 extern LazyLogModule gAutoSyncLog; // defined in nsAutoSyncManager.cpp
 
-MsgStrategyComparatorAdaptor::MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy* aStrategy, 
-  nsIMsgFolder *aFolder, nsIMsgDatabase *aDatabase) : mStrategy(aStrategy), mFolder(aFolder), 
+MsgStrategyComparatorAdaptor::MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy* aStrategy,
+  nsIMsgFolder *aFolder, nsIMsgDatabase *aDatabase) : mStrategy(aStrategy), mFolder(aFolder),
     mDatabase(aDatabase)
 {
 }
@@ -105,21 +105,21 @@ nsresult nsAutoSyncState::PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyLi
   {
     nsCOMPtr <nsIMsgFolder> folder = do_QueryReferent(mOwnerFolder, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-        
+
     nsCOMPtr<nsIMsgDatabase> database;
     rv = folder->GetMsgDatabase(getter_AddRefs(database));
     if (!database)
       return NS_ERROR_FAILURE;
-    
+
     nsCOMPtr<nsIAutoSyncManager> autoSyncMgr = do_GetService(NS_AUTOSYNCMANAGER_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv,rv);
-    
+
     nsCOMPtr<nsIAutoSyncMsgStrategy> msgStrategy;
     autoSyncMgr->GetMsgStrategy(getter_AddRefs(msgStrategy));
-    
+
     // increase the array size
     mDownloadQ.SetCapacity(mDownloadQ.Length() + aMsgKeyList.Length());
-    
+
     // remove excluded messages
     int32_t elemCount = aMsgKeyList.Length();
     for (int32_t idx = 0; idx < elemCount; idx++)
@@ -132,7 +132,7 @@ nsresult nsAutoSyncState::PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyLi
       rv = database->GetMsgHdrForKey(aMsgKeyList[idx], getter_AddRefs(hdr));
       if(!hdr)
         continue; // can't get message header, continue with the next one
-      
+
       bool doesFit = true;
       rv = autoSyncMgr->DoesMsgFitDownloadCriteria(hdr, &doesFit);
       if (NS_SUCCEEDED(rv) && !mDownloadSet.Contains(aMsgKeyList[idx]) && doesFit)
@@ -141,7 +141,7 @@ nsresult nsAutoSyncState::PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyLi
         if (msgStrategy)
         {
           rv = msgStrategy->IsExcluded(folder, hdr, &excluded);
-          
+
           if (NS_SUCCEEDED(rv) && !excluded)
           {
             mIsDownloadQChanged = true;
@@ -158,7 +158,7 @@ nsresult nsAutoSyncState::PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyLi
       LogQWithSize(mDownloadQ, 0);
       rv = autoSyncMgr->OnDownloadQChanged(this);
     }
-    
+
   }
   return rv;
 }
@@ -188,7 +188,7 @@ nsresult nsAutoSyncState::SortQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue)
 }
 
 // This method is a hack to prioritize newly inserted messages,
-// without changing the size of the queue. It is required since 
+// without changing the size of the queue. It is required since
 // we cannot sort ranges in nsTArray.
 nsresult nsAutoSyncState::SortSubQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue,
                                                       uint32_t aStartingOffset)
@@ -211,8 +211,8 @@ nsresult nsAutoSyncState::SortSubQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue
   return rv;
 }
 
-NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(uint32_t aSuggestedGroupSizeLimit, 
-                                                      uint32_t *aActualGroupSize, 
+NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(uint32_t aSuggestedGroupSizeLimit,
+                                                      uint32_t *aActualGroupSize,
                                                       nsIMutableArray **aMessagesList)
 {
   NS_ENSURE_ARG_POINTER(aMessagesList);
@@ -290,12 +290,12 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(uint32_t aSuggestedGroupSi
 
         uint32_t msgSize;
         qhdr->GetMessageSize(&msgSize);
-        // ignore 0 byte messages; the imap parser asserts when we try 
+        // ignore 0 byte messages; the imap parser asserts when we try
         // to download them, and there's no point anyway.
         if (!msgSize)
           continue;
 
-        if (!*aActualGroupSize && msgSize >= aSuggestedGroupSizeLimit) 
+        if (!*aActualGroupSize && msgSize >= aSuggestedGroupSizeLimit)
         {
           *aActualGroupSize = msgSize;
           group->AppendElement(qhdr);
@@ -410,18 +410,18 @@ NS_IMETHODIMP nsAutoSyncState::UpdateFolder()
 NS_IMETHODIMP nsAutoSyncState::OnStartRunningUrl(nsIURI* aUrl)
 {
   nsresult rv = NS_OK;
-    
+
   // if there is a problem to start the download, set rv with the
   // corresponding error code. In that case, AutoSyncManager is going to
   // set the autosync state to nsAutoSyncState::stReadyToDownload
   // to resume downloading another time
-  
+
   // TODO: is there a way to make sure that download started without
   // problem through nsIURI interface?
 
   nsCOMPtr<nsIAutoSyncManager> autoSyncMgr = do_GetService(NS_AUTOSYNCMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   return autoSyncMgr->OnDownloadStarted(this, rv);
 }
 
@@ -530,7 +530,7 @@ NS_IMETHODIMP nsAutoSyncState::TryCurrentGroupAgain(uint32_t aRetryCount)
   }
   else
     rv = Rollback();
-    
+
   return rv;
 }
 
@@ -557,7 +557,7 @@ NS_IMETHODIMP nsAutoSyncState::GetTotalMessageCount(int32_t *aMsgCount)
 NS_IMETHODIMP nsAutoSyncState::GetOwnerFolder(nsIMsgFolder **aFolder)
 {
   NS_ENSURE_ARG_POINTER(aFolder);
-  
+
   nsresult rv;
   nsCOMPtr <nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -578,7 +578,7 @@ NS_IMETHODIMP nsAutoSyncState::ResetDownloadQ()
   mDownloadSet.Clear();
   mDownloadQ.Clear();
   mDownloadQ.Compact();
-  
+
   return NS_OK;
 }
 
@@ -593,25 +593,25 @@ NS_IMETHODIMP nsAutoSyncState::IsSibling(nsIAutoSyncState *aAnotherStateObj, boo
 
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> folderA, folderB;
-  
+
   rv = GetOwnerFolder(getter_AddRefs(folderA));
   NS_ENSURE_SUCCESS(rv,rv);
-  
+
   rv = aAnotherStateObj->GetOwnerFolder(getter_AddRefs(folderB));
   NS_ENSURE_SUCCESS(rv,rv);
-  
+
   nsCOMPtr <nsIMsgIncomingServer> serverA, serverB;
   rv = folderA->GetServer(getter_AddRefs(serverA));
   NS_ENSURE_SUCCESS(rv,rv);
   rv = folderB->GetServer(getter_AddRefs(serverB));
   NS_ENSURE_SUCCESS(rv,rv);
-  
+
   bool isSibling;
   rv = serverA->Equals(serverB, &isSibling);
-  
+
   if (NS_SUCCEEDED(rv))
     *aResult = isSibling;
-  
+
   return rv;
 }
 
@@ -619,25 +619,25 @@ NS_IMETHODIMP nsAutoSyncState::IsSibling(nsIAutoSyncState *aAnotherStateObj, boo
 NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(nsIArray *aMessagesList)
 {
   NS_ENSURE_ARG_POINTER(aMessagesList);
-  
+
   uint32_t count;
   nsresult rv = aMessagesList->GetLength(&count);
   NS_ENSURE_SUCCESS(rv,rv);
-  
+
   nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
-  
+
   nsAutoCString messageIds;
   nsTArray<nsMsgKey> msgKeys;
-  
-  rv = nsImapMailFolder::BuildIdsAndKeyArray(aMessagesList, messageIds, msgKeys);  
-  if (NS_FAILED(rv) || messageIds.IsEmpty()) 
+
+  rv = nsImapMailFolder::BuildIdsAndKeyArray(aMessagesList, messageIds, msgKeys);
+  if (NS_FAILED(rv) || messageIds.IsEmpty())
     return rv;
 
   // acquire semaphore for offline store. If it fails, we won't download
   nsCOMPtr <nsIMsgFolder> folder = do_QueryReferent(mOwnerFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   rv = folder->AcquireSemaphore(folder);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -646,12 +646,12 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(nsIArray *aMessagesLis
   MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("downloading %s for %s", messageIds.get(),
            folderName.get()));
   // start downloading
-  rv = imapService->DownloadMessagesForOffline(messageIds, 
-                                               folder, 
-                                               this, 
+  rv = imapService->DownloadMessagesForOffline(messageIds,
+                                               folder,
+                                               this,
                                                nullptr);
   if (NS_SUCCEEDED(rv))
-    SetState(stDownloadInProgress);                                              
+    SetState(stDownloadInProgress);
 
   return rv;
 }
@@ -701,9 +701,9 @@ void nsAutoSyncState::LogQWithSize(nsTArray<nsMsgKey>& q, uint32_t toOffset)
   {
     nsCOMPtr<nsIMsgDatabase> database;
     ownerFolder->GetMsgDatabase(getter_AddRefs(database));
-    
+
     uint32_t x = q.Length();
-    while (x > toOffset && database) 
+    while (x > toOffset && database)
     {
       x--;
       nsCOMPtr<nsIMsgDBHdr> h;
@@ -731,7 +731,7 @@ void nsAutoSyncState::LogQWithSize(nsIMutableArray *q, uint32_t toOffset)
 
     uint32_t x;
     q->GetLength(&x);
-    while (x > toOffset && database) 
+    while (x > toOffset && database)
     {
       x--;
       nsCOMPtr<nsIMsgDBHdr> h = do_QueryElementAt(q, x);

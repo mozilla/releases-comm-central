@@ -29,7 +29,7 @@ nsImapURI2FullName(const char* rootURI, const char* hostname, const char* uriStr
 extern nsresult
 nsParseImapMessageURI(const char* uri, nsCString& folderURI, uint32_t *key, char **part);
 
-extern nsresult 
+extern nsresult
 nsBuildImapMessageURI(const char *baseURI, uint32_t key, nsCString& uri);
 
 extern nsresult
@@ -43,15 +43,15 @@ class nsImapMailboxSpec : public nsIMailboxSpec
 {
 public:
   nsImapMailboxSpec();
-  
+
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMAILBOXSPEC
-    
+
   nsImapMailboxSpec& operator= (const nsImapMailboxSpec& aCopy);
-  
+
   nsCOMPtr<nsIImapFlagAndUidState> mFlagState;
-  nsIMAPNamespace                  *mNamespaceForFolder;  
-  
+  nsIMAPNamespace                  *mNamespaceForFolder;
+
   uint32_t  mBoxFlags;
   uint32_t  mSupportedUserFlags;
   int32_t   mFolder_UIDVALIDITY;
@@ -67,7 +67,7 @@ public:
   bool      mFolderSelected;
   bool      mDiscoveredFromLsub;
   bool      mOnlineVerified;
-  
+
   nsImapProtocol *mConnection;	// do we need this? It seems evil
 
 private:

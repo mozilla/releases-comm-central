@@ -81,7 +81,7 @@ public:
     bool m_allowUndo;
     bool m_eatLF;
     uint32_t m_newMsgFlags; // only used if there's no m_message
-    nsCString m_newMsgKeywords; // ditto 
+    nsCString m_newMsgKeywords; // ditto
     // If the server supports UIDPLUS, this is the UID for the append,
     // if we're doing an append.
     nsMsgKey m_appendUID;
@@ -196,7 +196,7 @@ class nsImapMailFolder :  public nsMsgDBFolder,
                           public nsICopyMessageListener,
                           public nsIMsgFilterHitNotify
 {
- static const uint32_t PLAYBACK_TIMER_INTERVAL_IN_MS = 500; 
+ static const uint32_t PLAYBACK_TIMER_INTERVAL_IN_MS = 500;
 public:
   nsImapMailFolder();
 
@@ -374,7 +374,7 @@ protected:
    *
    * @param srcFile       file containing the message key
    * @param msgKey        key to use for the new messages
-   */   
+   */
   nsresult CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey);
 
   nsresult MarkMessagesImapDeleted(nsTArray<nsMsgKey> *keyArray, bool deleted, nsIMsgDatabase *db);

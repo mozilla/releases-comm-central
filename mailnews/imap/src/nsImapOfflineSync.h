@@ -78,7 +78,7 @@ protected:
   bool          m_mailboxupdatesFinished;
   bool	m_pseudoOffline;		// for queueing online events in offline db
   bool	m_createdOfflineFolders;
-  
+
 };
 
 class nsImapOfflineDownloader : public nsImapOfflineSync

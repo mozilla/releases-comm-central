@@ -3,19 +3,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
+/*
 nsIMAPGenericParser is the base parser class used by the server parser and body shell parser
-*/ 
+*/
 
 #ifndef nsIMAPGenericParser_H
 #define nsIMAPGenericParser_H
 
 #include "nsImapCore.h"
 
-#define WHITESPACE " \015\012"     // token delimiter 
+#define WHITESPACE " \015\012"     // token delimiter
 
 
-class nsIMAPGenericParser 
+class nsIMAPGenericParser
 {
 
 public:
@@ -29,7 +29,7 @@ public:
   bool ContinueParse() { return fParserState == stateOK; }
   bool Connected() { return !(fParserState & stateDisconnectedFlag); }
   void SetConnected(bool error);
-    
+
 protected:
 
 	// This is a pure virtual member which must be overridden in the derived class

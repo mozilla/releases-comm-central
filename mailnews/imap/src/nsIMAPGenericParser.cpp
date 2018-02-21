@@ -39,7 +39,7 @@ void nsIMAPGenericParser::ResetLexAnalyzer()
 {
   PR_FREEIF( fCurrentLine );
   PR_FREEIF( fStartOfLineOfTokens );
-  
+
   fNextToken = fCurrentLine = fLineOfTokens = fStartOfLineOfTokens = fCurrentTokenPlaceHolder = nullptr;
   fAtEndOfLine = false;
 }
@@ -101,7 +101,7 @@ void nsIMAPGenericParser::skip_to_close_paren()
         }
       }
       else if (*loc == '{' || *loc == '"') {
-        // quoted or literal  
+        // quoted or literal
         fNextToken = loc;
         char *a = CreateString();
         PR_FREEIF(a);
@@ -144,7 +144,7 @@ void nsIMAPGenericParser::AdvanceToNextLine()
 {
   PR_FREEIF( fCurrentLine );
   PR_FREEIF( fStartOfLineOfTokens);
-  
+
   bool ok = GetNextLineForParser(&fCurrentLine);
   if (!ok)
   {
@@ -183,7 +183,7 @@ void nsIMAPGenericParser::AdvanceTokenizerStartingPoint(int32_t bytesToAdvance)
     if (!fStartOfLineOfTokens)
       return;
   }
-    
+
   if(!fStartOfLineOfTokens)
       return;
   // The last call to AdvanceToNextToken() cleared the token separator to '\0'
@@ -249,7 +249,7 @@ char *nsIMAPGenericParser::CreateAtom(bool isAstring)
   }
   if (*last)
   {
-    // not the whole token was consumed  
+    // not the whole token was consumed
     *last = '\0';
     AdvanceTokenizerStartingPoint((fNextToken - fLineOfTokens) + (last-rv));
   }
@@ -303,13 +303,13 @@ char *nsIMAPGenericParser::CreateString()
 //                     "\" quoted_specials
 // TEXT_CHAR       ::= <any CHAR except CR and LF>
 // quoted_specials ::= <"> / "\"
-// Note that according to RFC 1064 and RFC 2060, CRs and LFs are not allowed 
+// Note that according to RFC 1064 and RFC 2060, CRs and LFs are not allowed
 // inside a quoted string.  It is sufficient to read from the current line only.
 char *nsIMAPGenericParser::CreateQuoted(bool /*skipToEnd*/)
 {
   // one char past opening '"'
   char *currentChar = fCurrentLine + (fNextToken - fStartOfLineOfTokens) + 1;
-  
+
   int escapeCharsCut = 0;
   nsCString returnString(currentChar);
   int charIndex;
@@ -365,15 +365,15 @@ char *nsIMAPGenericParser::CreateLiteral()
     AdvanceToNextLine();
     if (!ContinueParse())
       break;
-    
+
     currentLineLength = strlen(fCurrentLine);
     bytesToCopy = (currentLineLength > numberOfCharsInMessage - charsReadSoFar ?
                    numberOfCharsInMessage - charsReadSoFar : currentLineLength);
     NS_ASSERTION(bytesToCopy, "zero-length line?");
-    memcpy(returnString + charsReadSoFar, fCurrentLine, bytesToCopy); 
+    memcpy(returnString + charsReadSoFar, fCurrentLine, bytesToCopy);
     charsReadSoFar += bytesToCopy;
   }
-  
+
   if (ContinueParse())
   {
     if (currentLineLength == bytesToCopy)
@@ -390,7 +390,7 @@ char *nsIMAPGenericParser::CreateLiteral()
     else
       AdvanceTokenizerStartingPoint(bytesToCopy);
   }
-  
+
   returnString[charsReadSoFar] = 0;
   return returnString;
 }
@@ -405,10 +405,10 @@ char *nsIMAPGenericParser::CreateLiteral()
 char *nsIMAPGenericParser::CreateParenGroup()
 {
   NS_ASSERTION(fNextToken[0] == '(', "we don't have a paren group!");
-  
+
   int numOpenParens = 0;
   AdvanceTokenizerStartingPoint(fNextToken - fLineOfTokens);
-  
+
   // Build up a buffer containing the paren group.
   nsCString returnString;
   char *parenGroupStart = fCurrentTokenPlaceHolder;
@@ -419,10 +419,10 @@ char *nsIMAPGenericParser::CreateParenGroup()
     {
       // Ensure it is a properly formatted literal.
       NS_ASSERTION(!strcmp("}\r\n", fCurrentTokenPlaceHolder + strlen(fCurrentTokenPlaceHolder) - 3), "not a literal");
-      
+
       // Append previous characters and the "{xx}\r\n" to buffer.
       returnString.Append(parenGroupStart);
-      
+
       // Append literal itself.
       AdvanceToNextToken();
       if (!ContinueParse())
@@ -465,7 +465,7 @@ char *nsIMAPGenericParser::CreateParenGroup()
       }
     }
   }
-  
+
   if (numOpenParens != 0 || !ContinueParse())
   {
     SetSyntaxError(true, "closing ')' not found in paren group");
@@ -473,7 +473,7 @@ char *nsIMAPGenericParser::CreateParenGroup()
   }
 
   returnString.Append(parenGroupStart, fCurrentTokenPlaceHolder - parenGroupStart);
-  AdvanceToNextToken();  
+  AdvanceToNextToken();
   return ToNewCString(returnString);
 }
 

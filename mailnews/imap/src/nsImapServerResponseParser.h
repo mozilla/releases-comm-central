@@ -121,7 +121,7 @@ public:
   void SetHostSessionList(nsIImapHostSessionList *aHostSession);
   char  *fAuthChallenge;    // the challenge returned by the server in
                             //response to authenticate using CRAM-MD5 or NTLM
-  bool            fCondStoreEnabled;  
+  bool            fCondStoreEnabled;
   bool            fUseModSeq;  // can use mod seq for currently selected folder
   uint64_t        fHighestModSeq;
 
@@ -246,7 +246,7 @@ private:
   nsCString     fManageListsUrl;
   nsCString    fManageFiltersUrl;
   char          *fFolderAdminUrl;
-  nsCString    fServerIdResponse; // RFC 
+  nsCString    fServerIdResponse; // RFC
 
   int32_t fFetchResponseIndex;
 

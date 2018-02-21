@@ -13,11 +13,11 @@ class nsImapSearchResultSequence : public nsTArray<char*>
 public:
     virtual ~nsImapSearchResultSequence();
     static nsImapSearchResultSequence *CreateSearchResultSequence();
-    
+
     virtual void AddSearchResultLine(const char *searchLine);
     virtual void ResetSequence();
     void  Clear();
-    
+
     friend class nsImapSearchResultIterator;
 private:
     nsImapSearchResultSequence();
@@ -27,7 +27,7 @@ class nsImapSearchResultIterator {
 public:
     nsImapSearchResultIterator(nsImapSearchResultSequence &sequence);
     virtual ~nsImapSearchResultIterator();
-    
+
     void  ResetIterator();
     int32_t GetNextMessageNumber();   // returns 0 at end of list
 private:

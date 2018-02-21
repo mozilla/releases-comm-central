@@ -17,7 +17,7 @@ class nsIImapIncomingServer;
 #define NS_IIMAPHOSTSESSIONLIST_IID \
 { 0xf4d89e3e, 0x77da, 0x492c, {0x96, 0x2b, 0x78, 0x35, 0xf0, 0x74, 0x2c, 0x22 } }
 
-// this is an interface to a linked list of host info's    
+// this is an interface to a linked list of host info's
 class nsIImapHostSessionList : public nsISupports
 {
 public:
@@ -64,7 +64,7 @@ public:
   // Trash Folder
   NS_IMETHOD SetOnlineTrashFolderExistsForHost(const char *serverKey, bool exists) = 0;
   NS_IMETHOD GetOnlineTrashFolderExistsForHost(const char *serverKey, bool &result) = 0;
-  
+
   // INBOX
   NS_IMETHOD  GetOnlineInboxPathForHost(const char *serverKey, nsString &result) = 0;
   NS_IMETHOD  GetShouldAlwaysListInboxForHost(const char *serverKey, bool &result) = 0;
@@ -84,7 +84,7 @@ public:
   // ### dmb hoo boy, how are we going to do this?
   NS_IMETHOD  CommitNamespacesForHost(nsIImapIncomingServer *server) = 0;
   NS_IMETHOD  FlushUncommittedNamespacesForHost(const char *serverKey, bool &result) = 0;
-  
+
   // Hierarchy Delimiters
   NS_IMETHOD  SetNamespaceHierarchyDelimiterFromMailboxForHost(const char *serverKey, const char *boxName, char delimiter) = 0;
 

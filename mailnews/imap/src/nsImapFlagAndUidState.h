@@ -25,7 +25,7 @@ public:
     NS_DECL_NSIIMAPFLAGANDUIDSTATE
 
     int32_t               NumberOfDeletedMessages();
-    
+
     imapMessageFlagsType  GetMessageFlagsFromUID(uint32_t uid, bool *foundIt, int32_t *ndx);
 
     bool         IsLastMessageUnseen(void);

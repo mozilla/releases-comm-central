@@ -15,7 +15,7 @@
 
 #define IMAP_MSGS_URL       "chrome://messenger/locale/imapMsgs.properties"
 
-extern "C" 
+extern "C"
 nsresult
 IMAPGetStringByName(const char* stringName, char16_t **aString)
 {

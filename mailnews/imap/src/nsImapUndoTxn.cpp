@@ -105,17 +105,17 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void)
     else
     {
       nsCOMPtr<nsIMsgFolder> srcFolder = do_QueryReferent(m_srcFolder, &rv);
-      if (NS_FAILED(rv) || !srcFolder) 
+      if (NS_FAILED(rv) || !srcFolder)
         return rv;
       nsCOMPtr<nsIUrlListener> srcListener = do_QueryInterface(srcFolder, &rv);
-      if (NS_FAILED(rv)) 
+      if (NS_FAILED(rv))
         return rv;
       m_onStopListener =   do_GetWeakReference(srcListener);
 
       // ** make sure we are in the selected state; use lite select
       // folder so we won't hit performance hard
       rv = imapService->LiteSelectFolder(srcFolder, srcListener, nullptr, nullptr);
-      if (NS_FAILED(rv)) 
+      if (NS_FAILED(rv))
         return rv;
       bool deletedMsgs = true; //default is true unless imapDelete model
       nsMsgImapDeleteModel deleteModel;
@@ -135,7 +135,7 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void)
         if (deletedMsgs)
           rv = imapService->SubtractMessageFlags(srcFolder,
                                                  this, nullptr,
-                                                 m_srcMsgIdString, 
+                                                 m_srcMsgIdString,
                                                  kImapMsgDeletedFlag,
                                                  m_idsAreUids);
         else
@@ -144,7 +144,7 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void)
                                             m_srcMsgIdString,
                                             kImapMsgDeletedFlag,
                                             m_idsAreUids);
-        if (NS_FAILED(rv)) 
+        if (NS_FAILED(rv))
           return rv;
 
         finishInOnStopRunningUrl = true;
@@ -170,7 +170,7 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void)
       dstListener, nullptr, nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = imapService->AddMessageFlags(dstFolder, dstListener,
-                                      nullptr, m_dstMsgIdString, 
+                                      nullptr, m_dstMsgIdString,
                                       kImapMsgDeletedFlag, m_idsAreUids);
   }
   return rv;
@@ -193,7 +193,7 @@ nsImapMoveCopyMsgTxn::RedoTransaction(void)
     else if (!m_srcMsgIdString.IsEmpty())
     {
       nsCOMPtr<nsIMsgFolder> srcFolder = do_QueryReferent(m_srcFolder, &rv);
-      if (NS_FAILED(rv) || !srcFolder) 
+      if (NS_FAILED(rv) || !srcFolder)
         return rv;
       nsCOMPtr<nsIUrlListener> srcListener = do_QueryInterface(srcFolder, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
@@ -201,16 +201,16 @@ nsImapMoveCopyMsgTxn::RedoTransaction(void)
       bool deletedMsgs = false;  //default will be false unless imapDeleteModel;
       nsMsgImapDeleteModel deleteModel;
       rv = GetImapDeleteModel(srcFolder, &deleteModel);
-      
+
       // protect against a bogus undo txn without any source keys
       // see bug #179856 for details
       NS_ASSERTION(!m_srcKeyArray.IsEmpty(), "no source keys");
       if (m_srcKeyArray.IsEmpty())
         return NS_ERROR_UNEXPECTED;
-      
+
       if (NS_SUCCEEDED(rv) && deleteModel == nsMsgImapDeleteModels::IMAPDelete)
         rv = CheckForToggleDelete(srcFolder, m_srcKeyArray[0], &deletedMsgs);
-      
+
       // Make sure we are in the selected state; use lite select
       // folder so performance won't suffer.
       rv = imapService->LiteSelectFolder(srcFolder, srcListener, nullptr, nullptr);
@@ -238,7 +238,7 @@ nsImapMoveCopyMsgTxn::RedoTransaction(void)
 
     nsCOMPtr<nsIUrlListener> dstListener;
 
-    dstListener = do_QueryInterface(dstFolder, &rv); 
+    dstListener = do_QueryInterface(dstFolder, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     // ** make sure we are in the selected state; use lite select
     // folder so we won't hit performance hard
@@ -254,7 +254,7 @@ nsImapMoveCopyMsgTxn::RedoTransaction(void)
     rv = GetImapDeleteModel(dstFolder, &deleteModel);
     if (NS_FAILED(rv) || deleteModel == nsMsgImapDeleteModels::MoveToTrash)
     {
-      rv = imapService->GetHeaders(dstFolder, dstListener, 
+      rv = imapService->GetHeaders(dstFolder, dstListener,
                                    nullptr, m_dstMsgIdString, true);
     }
   }
@@ -309,7 +309,7 @@ nsImapMoveCopyMsgTxn::UndoMailboxDelete()
         if (NS_FAILED(rv)) return rv;
         rv = dstFolder->GetMsgDatabase(getter_AddRefs(dstDB));
         if (NS_FAILED(rv)) return rv;
-        
+
         uint32_t count = m_srcKeyArray.Length();
         uint32_t i;
         nsCOMPtr<nsIMsgDBHdr> oldHdr;
@@ -537,7 +537,7 @@ NS_IMETHODIMP nsImapOfflineTxn::UndoTransaction(void)
   nsresult rv;
 
   nsCOMPtr<nsIMsgFolder> srcFolder = do_QueryReferent(m_srcFolder, &rv);
-  if (NS_FAILED(rv) || !srcFolder) 
+  if (NS_FAILED(rv) || !srcFolder)
     return rv;
   nsCOMPtr <nsIMsgOfflineImapOperation> op;
   nsCOMPtr <nsIDBFolderInfo> folderInfo;
@@ -631,9 +631,9 @@ NS_IMETHODIMP nsImapOfflineTxn::UndoTransaction(void)
 NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void)
 {
   nsresult rv;
-  
+
   nsCOMPtr<nsIMsgFolder> srcFolder = do_QueryReferent(m_srcFolder, &rv);
-  if (NS_FAILED(rv) || !srcFolder) 
+  if (NS_FAILED(rv) || !srcFolder)
     return rv;
   nsCOMPtr <nsIMsgOfflineImapOperation> op;
   nsCOMPtr <nsIDBFolderInfo> folderInfo;

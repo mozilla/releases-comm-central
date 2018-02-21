@@ -22,7 +22,7 @@ nsImapSearchResultSequence *nsImapSearchResultSequence::CreateSearchResultSequen
 void nsImapSearchResultSequence::Clear(void)
 {
     int32_t i = Length();
-    while (0 <= --i) 
+    while (0 <= --i)
     {
       char* string = ElementAt(i);
       PR_Free(string);
@@ -45,7 +45,7 @@ void nsImapSearchResultSequence::AddSearchResultLine(const char *searchLine)
 {
   // The first add becomes node 2.  Fix this.
   char *copiedSequence = PL_strdup(searchLine + 9); // 9 == "* SEARCH "
-  
+
   if (copiedSequence)	// if we can't allocate this then the search won't hit
     AppendElement(copiedSequence);
 }
@@ -74,11 +74,11 @@ int32_t nsImapSearchResultIterator::GetNextMessageNumber()
   if (fPositionInCurrentLine)
   {	
     returnValue = atoi(fPositionInCurrentLine);
-    
+
     // eat the current number
     while (isdigit(*++fPositionInCurrentLine))
       ;
-    
+
     if (*fPositionInCurrentLine == 0xD)	// found CR, no more digits on line
     {
       fCurrentLine = (char *) fSequence.SafeElementAt(++fSequenceIndex);
@@ -87,6 +87,6 @@ int32_t nsImapSearchResultIterator::GetNextMessageNumber()
     else	// eat the space
       fPositionInCurrentLine++;
   }
-  
+
   return returnValue;
 }

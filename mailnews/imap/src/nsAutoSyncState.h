@@ -7,7 +7,7 @@
 
 #include "MailNewsTypes.h"
 #include "nsIAutoSyncState.h"
-#include "nsIAutoSyncManager.h" 
+#include "nsIAutoSyncManager.h"
 #include "nsIUrlListener.h"
 #include "nsWeakPtr.h"
 #include "nsTHashtable.h"
@@ -24,21 +24,21 @@ class nsIMsgDatabase;
  * An adaptor class to make msg strategy nsTArray.Sort()
  * compatible.
  */
-class MsgStrategyComparatorAdaptor 
+class MsgStrategyComparatorAdaptor
 {
  public:
-  MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy* aStrategy, 
+  MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy* aStrategy,
     nsIMsgFolder *aFolder, nsIMsgDatabase *aDatabase);
 
   /** @return True if the elements are equals; false otherwise. */
   bool Equals(const nsMsgKey& a, const nsMsgKey& b) const;
-  
+
   /** @return True if (a < b); false otherwise. */
   bool LessThan(const nsMsgKey& a, const nsMsgKey& b) const;
-  
+
  private:
   MsgStrategyComparatorAdaptor();
-  
+
  private:
   nsIAutoSyncMsgStrategy *mStrategy;
   nsIMsgFolder *mFolder;
@@ -64,7 +64,7 @@ public:
   /// Sets the last sync time in lower precision (seconds)
   void SetLastSyncTimeInSec(int32_t aLastSyncTime);
 
-  /// Manages storage space for auto-sync operations 
+  /// Manages storage space for auto-sync operations
   nsresult ManageStorageSpace();
 
   void SetServerCounts(int32_t total, int32_t recent, int32_t unseen,
@@ -72,10 +72,10 @@ public:
 
  private:
   ~nsAutoSyncState();
-  
+
   nsresult PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyList);
   nsresult SortQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue);
-  nsresult SortSubQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue, 
+  nsresult SortSubQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue,
                                     uint32_t aStartingOffset);
 
   void LogOwnerFolderName(const char *s);

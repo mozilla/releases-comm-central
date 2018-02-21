@@ -51,20 +51,20 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetNumberOfRecentMessages(int32_t *result)
 {
   if (!result)
     return NS_ERROR_NULL_POINTER;
-  
+
   PR_CEnterMonitor(this);
   uint32_t counter = 0;
   int32_t numUnseenMessages = 0;
-  
+
   for (counter = 0; counter < fUids.Length(); counter++)
   {
     if (fFlags[counter] & kImapMsgRecentFlag)
       numUnseenMessages++;
   }
   PR_CExitMonitor(this);
-  
+
   *result = numUnseenMessages;
-  
+
   return NS_OK;
 }
 
@@ -189,7 +189,7 @@ int32_t nsImapFlagAndUidState::NumberOfDeletedMessages()
 uint32_t  nsImapFlagAndUidState::GetHighestNonDeletedUID()
 {
   uint32_t msgIndex = fUids.Length();
-  do 
+  do
   {
     if (msgIndex <= 0)
       return(0);
@@ -208,14 +208,14 @@ uint32_t  nsImapFlagAndUidState::GetHighestNonDeletedUID()
 bool nsImapFlagAndUidState::IsLastMessageUnseen()
 {
   uint32_t msgIndex = fUids.Length();
-  
+
   if (msgIndex <= 0)
     return false;
   msgIndex--;
   // if last message is deleted, it was probably filtered the last time around
   if (fUids[msgIndex] && (fFlags[msgIndex] & (kImapMsgSeenFlag | kImapMsgDeletedFlag)))
     return false;
-  return true; 
+  return true;
 }
 
 // find a message flag given a key with non-recursive binary search, since some folders

@@ -45,17 +45,17 @@ protected:
   nsIMAPBodyShellCache *fShellCache;
 };
 
-// this is an interface to a linked list of host info's    
+// this is an interface to a linked list of host info's
 class nsIMAPHostSessionList : public nsIImapHostSessionList, public nsIObserver, public nsSupportsWeakReference
 {
 public:
   NS_DECL_THREADSAFE_ISUPPORTS
-  NS_DECL_NSIOBSERVER  
+  NS_DECL_NSIOBSERVER
 
   nsIMAPHostSessionList();
   nsresult Init();
   // Host List
-  NS_IMETHOD AddHostToList(const char *serverKey, 
+  NS_IMETHOD AddHostToList(const char *serverKey,
                             nsIImapIncomingServer *server) override;
   NS_IMETHOD ResetAll() override;
 

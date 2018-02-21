@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- 
+
 #include "nsAutoSyncManager.h"
 #include "nsAutoSyncState.h"
 #include "nsIIdleService.h"
@@ -41,14 +41,14 @@ nsDefaultAutoSyncMsgStrategy::~nsDefaultAutoSyncMsgStrategy()
 {
 }
 
-NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::Sort(nsIMsgFolder *aFolder, 
+NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::Sort(nsIMsgFolder *aFolder,
   nsIMsgDBHdr *aMsgHdr1, nsIMsgDBHdr *aMsgHdr2, nsAutoSyncStrategyDecisionType *aDecision)
 {
   NS_ENSURE_ARG_POINTER(aDecision);
 
   uint32_t msgSize1 = 0, msgSize2 = 0;
   PRTime msgDate1 = 0, msgDate2 = 0;
-  
+
   if (!aMsgHdr1 || !aMsgHdr2)
   {
     *aDecision = nsAutoSyncStrategyDecisions::Same;
@@ -57,14 +57,14 @@ NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::Sort(nsIMsgFolder *aFolder,
 
   aMsgHdr1->GetMessageSize(&msgSize1);
   aMsgHdr1->GetDate(&msgDate1);
-  
+
   aMsgHdr2->GetMessageSize(&msgSize2);
   aMsgHdr2->GetDate(&msgDate2);
-  
-  //Special case: if message size is larger than a 
+
+  //Special case: if message size is larger than a
   // certain size, then place it to the bottom of the q
   if (msgSize2 > kFirstPassMessageSize && msgSize1 > kFirstPassMessageSize)
-    *aDecision = msgSize2 > msgSize1 ? 
+    *aDecision = msgSize2 > msgSize1 ?
         nsAutoSyncStrategyDecisions::Lower : nsAutoSyncStrategyDecisions::Higher;
   else if (msgSize2 > kFirstPassMessageSize)
     *aDecision = nsAutoSyncStrategyDecisions::Lower;
@@ -77,7 +77,7 @@ NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::Sort(nsIMsgFolder *aFolder,
       *aDecision = nsAutoSyncStrategyDecisions::Higher;
     else if (msgDate1 > msgDate2)
       *aDecision = nsAutoSyncStrategyDecisions::Lower;
-    else 
+    else
     {
       if (msgSize1 > msgSize2)
         *aDecision = nsAutoSyncStrategyDecisions::Higher;
@@ -90,7 +90,7 @@ NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::Sort(nsIMsgFolder *aFolder,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::IsExcluded(nsIMsgFolder *aFolder, 
+NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::IsExcluded(nsIMsgFolder *aFolder,
   nsIMsgDBHdr *aMsgHdr, bool *aDecision)
 {
   NS_ENSURE_ARG_POINTER(aDecision);
@@ -121,7 +121,7 @@ nsDefaultAutoSyncFolderStrategy::~nsDefaultAutoSyncFolderStrategy()
 {
 }
 
-NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(nsIMsgFolder *aFolderA, 
+NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(nsIMsgFolder *aFolderA,
   nsIMsgFolder *aFolderB, nsAutoSyncStrategyDecisionType *aDecision)
 {
   NS_ENSURE_ARG_POINTER(aDecision);
@@ -131,7 +131,7 @@ NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(nsIMsgFolder *aFolderA,
     *aDecision = nsAutoSyncStrategyDecisions::Same;
     return NS_OK;
   }
-  
+
   bool isInbox1, isInbox2, isDrafts1, isDrafts2, isTrash1, isTrash2;
   aFolderA->GetFlag(nsMsgFolderFlags::Inbox, &isInbox1);
   aFolderB->GetFlag(nsMsgFolderFlags::Inbox, &isInbox2);
@@ -141,19 +141,19 @@ NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(nsIMsgFolder *aFolderA,
   //
   aFolderA->GetFlag(nsMsgFolderFlags::Trash, &isTrash1);
   aFolderB->GetFlag(nsMsgFolderFlags::Trash, &isTrash2);
-  
+
   //Follow this order;
   // INBOX > DRAFTS > SUBFOLDERS > TRASH
 
   // test whether the folder is opened by the user.
-  // we give high priority to the folders explicitly opened by 
+  // we give high priority to the folders explicitly opened by
   // the user.
   nsresult rv;
   bool folderAOpen = false;
   bool folderBOpen = false;
   nsCOMPtr<nsIMsgMailSession> session =
            do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv) && session) 
+  if (NS_SUCCEEDED(rv) && session)
   {
     session->IsFolderOpenInWindow(aFolderA, &folderAOpen);
     session->IsFolderOpenInWindow(aFolderB, &folderBOpen);
@@ -161,7 +161,7 @@ NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(nsIMsgFolder *aFolderA,
 
   if (folderAOpen == folderBOpen)
   {
-    // if both of them or none of them are opened by the user 
+    // if both of them or none of them are opened by the user
     // make your decision based on the folder type
     if (isInbox2 || (isDrafts2 && !isInbox1) || isTrash1)
       *aDecision = nsAutoSyncStrategyDecisions::Higher;
@@ -176,11 +176,11 @@ NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(nsIMsgFolder *aFolderA,
     *aDecision = folderBOpen ? nsAutoSyncStrategyDecisions::Higher :
                                nsAutoSyncStrategyDecisions::Lower;
   }
-    
+
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsDefaultAutoSyncFolderStrategy::IsExcluded(nsIMsgFolder *aFolder, bool *aDecision)
 {
   NS_ENSURE_ARG_POINTER(aDecision);
@@ -323,7 +323,7 @@ void nsAutoSyncManager::TimerCallback(nsITimer *aTimer, void *aClosure)
         if (NS_SUCCEEDED(rv) && (state == nsAutoSyncState::stCompletedIdle ||
                                  state == nsAutoSyncState::stUpdateNeeded))
         {
-          nsCOMPtr<nsIMsgFolder> folder; 
+          nsCOMPtr<nsIMsgFolder> folder;
           autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
           if (folder)
           {
@@ -337,29 +337,29 @@ void nsAutoSyncManager::TimerCallback(nsITimer *aTimer, void *aClosure)
             }
           }
         }
-      } 
+      }
     }
-    // if initiation is not successful for some reason, or 
-    // if there is an on going download for this folder, 
-    // remove it from q and continue with the next one  
+    // if initiation is not successful for some reason, or
+    // if there is an on going download for this folder,
+    // remove it from q and continue with the next one
     if (autoSyncMgr->mUpdateState != initiated)
     {
       nsCOMPtr<nsIMsgFolder> folder;
       autoSyncMgr->mUpdateQ[0]->GetOwnerFolder(getter_AddRefs(folder));
-      
+
       autoSyncMgr->mUpdateQ.RemoveObjectAt(0);
-      
+
       if (folder)
         NOTIFY_LISTENERS_STATIC(autoSyncMgr, OnFolderRemovedFromQ, (nsIAutoSyncMgrListener::UpdateQueue, folder));
     }
-      
+
   }//endif
 
 }
 
 /**
- * Populates aChainedQ with the auto-sync state objects that are not owned by 
- * the same imap server. 
+ * Populates aChainedQ with the auto-sync state objects that are not owned by
+ * the same imap server.
  * Assumes that aChainedQ initially empty.
  */
 void nsAutoSyncManager::ChainFoldersInQ(const nsCOMArray<nsIAutoSyncState> &aQueue,
@@ -367,7 +367,7 @@ void nsAutoSyncManager::ChainFoldersInQ(const nsCOMArray<nsIAutoSyncState> &aQue
 {
   if (aQueue.Count() > 0)
     aChainedQ.AppendObject(aQueue[0]);
-  
+
   int32_t pqElemCount = aQueue.Count();
   for (int32_t pqidx = 1; pqidx < pqElemCount; pqidx++)
   {
@@ -378,43 +378,43 @@ void nsAutoSyncManager::ChainFoldersInQ(const nsCOMArray<nsIAutoSyncState> &aQue
     {
       bool isSibling;
       nsresult rv = aChainedQ[idx]->IsSibling(aQueue[pqidx], &isSibling);
-      
+
       if (NS_SUCCEEDED(rv) && isSibling)
       {
         // this prevent us to overwrite a lower priority sibling in
-        // download-in-progress state with a higher priority one. 
-        // we have to wait until its download is completed before 
-        // switching to new one. 
+        // download-in-progress state with a higher priority one.
+        // we have to wait until its download is completed before
+        // switching to new one.
         int32_t state;
         aQueue[pqidx]->GetState(&state);
-        if (aQueue[pqidx] != aChainedQ[idx] && 
+        if (aQueue[pqidx] != aChainedQ[idx] &&
             state == nsAutoSyncState::stDownloadInProgress)
           needToBeReplacedWith = idx;
         else
           chained = true;
-          
+
         break;
       }
     }//endfor
-    
+
     if (needToBeReplacedWith > -1)
       aChainedQ.ReplaceObjectAt(aQueue[pqidx], needToBeReplacedWith);
     else if (!chained)
       aChainedQ.AppendObject(aQueue[pqidx]);
-      
+
   }//endfor
 }
 
 /**
  * Searches the given queue for another folder owned by the same imap server.
  */
-nsIAutoSyncState* 
-nsAutoSyncManager::SearchQForSibling(const nsCOMArray<nsIAutoSyncState> &aQueue, 
+nsIAutoSyncState*
+nsAutoSyncManager::SearchQForSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
                           nsIAutoSyncState *aAutoSyncStateObj, int32_t aStartIdx, int32_t *aIndex)
 {
   if (aIndex)
     *aIndex = -1;
-  
+
   if (aAutoSyncStateObj)
   {
     bool isSibling;
@@ -422,31 +422,31 @@ nsAutoSyncManager::SearchQForSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
     for (int32_t idx = aStartIdx; idx < elemCount; idx++)
     {
       nsresult rv = aAutoSyncStateObj->IsSibling(aQueue[idx], &isSibling);
-      
+
       if (NS_SUCCEEDED(rv) && isSibling && aAutoSyncStateObj != aQueue[idx])
       {
-        if (aIndex) 
+        if (aIndex)
           *aIndex = idx;
-        
+
         return aQueue[idx];
       }
     }
   }
-  return nullptr;  
+  return nullptr;
 }
 
 /**
  * Searches for the next folder owned by the same imap server in the given queue,
  * starting from the index of the given folder.
  */
-nsIAutoSyncState* 
-nsAutoSyncManager::GetNextSibling(const nsCOMArray<nsIAutoSyncState> &aQueue, 
+nsIAutoSyncState*
+nsAutoSyncManager::GetNextSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
                                           nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex)
-{ 
+{
 
   if (aIndex)
     *aIndex = -1;
-  
+
   if (aAutoSyncStateObj)
   {
     bool located = false;
@@ -459,22 +459,22 @@ nsAutoSyncManager::GetNextSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
         located = (aAutoSyncStateObj == aQueue[idx]);
         continue;
       }
-      
+
       nsresult rv = aAutoSyncStateObj->IsSibling(aQueue[idx], &isSibling);
       if (NS_SUCCEEDED(rv) && isSibling)
       {
-        if (aIndex) 
+        if (aIndex)
           *aIndex = idx;
-        
+
         return aQueue[idx];
       }
     }
   }
-  return nullptr;  
+  return nullptr;
 }
 
-/** 
- * Checks whether there is another folder in the given q that is owned 
+/**
+ * Checks whether there is another folder in the given q that is owned
  * by the same imap server or not.
  *
  * @param aQueue the queue that will be searched for a sibling
@@ -485,13 +485,13 @@ nsAutoSyncManager::GetNextSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
  *               caller (not null)
  * @return true if found, false otherwise
  */
-bool nsAutoSyncManager::DoesQContainAnySiblingOf(const nsCOMArray<nsIAutoSyncState> &aQueue, 
+bool nsAutoSyncManager::DoesQContainAnySiblingOf(const nsCOMArray<nsIAutoSyncState> &aQueue,
                                                    nsIAutoSyncState *aAutoSyncStateObj,
                                                    const int32_t aState, int32_t *aIndex)
 {
   if (aState == -1)
     return (nullptr != SearchQForSibling(aQueue, aAutoSyncStateObj, 0, aIndex));
-    
+
   int32_t offset = 0;
   nsIAutoSyncState *autoSyncState;
   while ((autoSyncState = SearchQForSibling(aQueue, aAutoSyncStateObj, offset, &offset)))
@@ -505,7 +505,7 @@ bool nsAutoSyncManager::DoesQContainAnySiblingOf(const nsCOMArray<nsIAutoSyncSta
   }
   if (aIndex)
     *aIndex = offset;
-    
+
   return (nullptr != autoSyncState);
 }
 
@@ -513,8 +513,8 @@ bool nsAutoSyncManager::DoesQContainAnySiblingOf(const nsCOMArray<nsIAutoSyncSta
  * Searches the given queue for the highest priority folder owned by the
  * same imap server.
  */
-nsIAutoSyncState* 
-nsAutoSyncManager::GetHighestPrioSibling(const nsCOMArray<nsIAutoSyncState> &aQueue, 
+nsIAutoSyncState*
+nsAutoSyncManager::GetHighestPrioSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
                                       nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex)
 {
   return SearchQForSibling(aQueue, aAutoSyncStateObj, 0, aIndex);
@@ -582,7 +582,7 @@ NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char *aTopic, const
 
   if (!PL_strcmp(aTopic, kStartupDoneNotification))
   {
-    mStartupDone = true; 
+    mStartupDone = true;
   }
   else if (!PL_strcmp(aTopic, kAppIdleNotification))
   {
@@ -653,45 +653,45 @@ nsresult nsAutoSyncManager::StartIdleProcessing()
 {
   if (mPaused)
     return NS_OK;
-    
+
   StartTimerIfNeeded();
-  
+
   // Ignore idle events sent during the startup
   if (!mStartupDone)
     return NS_OK;
-    
+
   // notify listeners that auto-sync is running
   NOTIFY_LISTENERS(OnStateChanged, (true));
-    
+
   nsCOMArray<nsIAutoSyncState> chainedQ;
   nsCOMArray<nsIAutoSyncState> *queue = &mPriorityQ;
-  if (mDownloadModel == dmChained) 
+  if (mDownloadModel == dmChained)
   {
     ChainFoldersInQ(mPriorityQ, chainedQ);
     queue = &chainedQ;
   }
-  
+
   // to store the folders that should be removed from the priority
   // queue at the end of the iteration.
   nsCOMArray<nsIAutoSyncState> foldersToBeRemoved;
-  
-  // process folders in the priority queue 
+
+  // process folders in the priority queue
   int32_t elemCount = queue->Count();
   for (int32_t idx = 0; idx < elemCount; idx++)
   {
     nsCOMPtr<nsIAutoSyncState> autoSyncStateObj((*queue)[idx]);
     if (!autoSyncStateObj)
       continue;
-    
+
     int32_t state;
     autoSyncStateObj->GetState(&state);
-    
+
     //TODO: Test cached-connection availability in parallel mode
     // and do not exceed (cached-connection count - 1)
-    
+
     if (state != nsAutoSyncState::stReadyToDownload)
       continue;
-    
+
     nsresult rv = DownloadMessagesForOffline(autoSyncStateObj);
     if (NS_FAILED(rv))
     {
@@ -703,11 +703,11 @@ nsresult nsAutoSyncManager::StartIdleProcessing()
       // successfully. This is the only place we change this flow.
       if (NS_ERROR_NOT_AVAILABLE == rv)
         foldersToBeRemoved.AppendObject(autoSyncStateObj);
-      
+
       HandleDownloadErrorFor(autoSyncStateObj, rv);
     }// endif
   }//endfor
-  
+
   // remove folders with no pending messages from the priority queue
   elemCount = foldersToBeRemoved.Count();
   for (int32_t idx = 0; idx < elemCount; idx++)
@@ -715,7 +715,7 @@ nsresult nsAutoSyncManager::StartIdleProcessing()
     nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(foldersToBeRemoved[idx]);
     if (!autoSyncStateObj)
       continue;
-    
+
     nsCOMPtr<nsIMsgFolder> folder;
     autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
     if (folder)
@@ -727,7 +727,7 @@ nsresult nsAutoSyncManager::StartIdleProcessing()
       NOTIFY_LISTENERS(OnFolderRemovedFromQ,
                       (nsIAutoSyncMgrListener::PriorityQueue, folder));
   }
-    
+
   return AutoUpdateFolders();
 }
 
@@ -751,7 +751,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders()
   uint32_t accountCount;
   accounts->GetLength(&accountCount);
 
-  for (uint32_t i = 0; i < accountCount; ++i) 
+  for (uint32_t i = 0; i < accountCount; ++i)
   {
     nsCOMPtr<nsIMsgAccount> account(do_QueryElementAt(accounts, i, &rv));
     if (!account)
@@ -841,7 +841,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders()
           rv = autoSyncState->GetLastUpdateTime(&lastUpdateTime);
           PRTime span = GetUpdateIntervalFor(autoSyncState) * (PR_USEC_PER_SEC * 60UL);
           if ( NS_SUCCEEDED(rv) && ((lastUpdateTime + span) < PR_Now()) )
-          {          
+          {
             if (mUpdateQ.IndexOf(autoSyncState) == -1)
             {
               mUpdateQ.AppendObject(autoSyncState);
@@ -872,7 +872,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders()
   // lazily create the timer if there is something to process in the queue
   // when timer is done, it will self destruct
   StartTimerIfNeeded();
-  
+
   return rv;
 }
 
@@ -907,16 +907,16 @@ void nsAutoSyncManager::ScheduleFolderForOfflineDownload(nsIAutoSyncState *aAuto
     }
     else
     {
-      // find the right spot for the given folder      
+      // find the right spot for the given folder
       uint32_t qidx = mPriorityQ.Count();
-      while (qidx > 0) 
+      while (qidx > 0)
       {
         --qidx;
 
         nsCOMPtr<nsIMsgFolder> folderA, folderB;
         mPriorityQ[qidx]->GetOwnerFolder(getter_AddRefs(folderA));
         aAutoSyncStateObj->GetOwnerFolder(getter_AddRefs(folderB));
-        
+
         bool excluded = false;
         if (folderB && folStrategy)
           folStrategy->IsExcluded(folderB, &excluded);
@@ -945,7 +945,7 @@ void nsAutoSyncManager::ScheduleFolderForOfflineDownload(nsIAutoSyncState *aAuto
 }
 
 /**
- * Zero aSizeLimit means no limit 
+ * Zero aSizeLimit means no limit
  */
 nsresult nsAutoSyncManager::DownloadMessagesForOffline(nsIAutoSyncState *aAutoSyncStateObj, uint32_t aSizeLimit)
 {
@@ -1000,13 +1000,13 @@ nsresult nsAutoSyncManager::DownloadMessagesForOffline(nsIAutoSyncState *aAutoSy
 }
 
 /**
- * Assuming that the download operation on the given folder has been failed at least once, 
+ * Assuming that the download operation on the given folder has been failed at least once,
  * execute these steps:
  *  - put the auto-sync state into ready-to-download mode
  *  - rollback the message offset so we can try the same group again (unless the retry
  *     count is reached to the given limit)
  *  - if parallel model is active, wait to be resumed by the next idle
- *  - if chained model is active, search the priority queue to find a sibling to continue 
+ *  - if chained model is active, search the priority queue to find a sibling to continue
  *    with.
  */
 nsresult nsAutoSyncManager::HandleDownloadErrorFor(nsIAutoSyncState *aAutoSyncStateObj,
@@ -1014,30 +1014,30 @@ nsresult nsAutoSyncManager::HandleDownloadErrorFor(nsIAutoSyncState *aAutoSyncSt
 {
   if (!aAutoSyncStateObj)
     return NS_ERROR_INVALID_ARG;
-  
+
   // ensure that an error occured
   if (NS_SUCCEEDED(error))
     return NS_OK;
-    
+
   // NS_ERROR_NOT_AVAILABLE is a special case/error happens when the queued folder
   // doesn't have any message to download (see bug 457342). In such case we shouldn't
   // retry the current message group, nor notify listeners. Simply continuing with the
   // next sibling in the priority queue would suffice.
-    
+
   if (NS_ERROR_NOT_AVAILABLE != error)
   {
     // force the auto-sync state to try downloading the same group at least
     // kGroupRetryCount times before it moves to the next one
     aAutoSyncStateObj->TryCurrentGroupAgain(kGroupRetryCount);
-    
+
     nsCOMPtr<nsIMsgFolder> folder;
     aAutoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
     if (folder)
       NOTIFY_LISTENERS(OnDownloadError, (folder));
   }
-  
+
   // if parallel model, don't do anything else
-  
+
   if (mDownloadModel == dmChained)
   {
     // switch to the next folder in the chain and continue downloading
@@ -1056,7 +1056,7 @@ nsresult nsAutoSyncManager::HandleDownloadErrorFor(nsIAutoSyncState *aAutoSyncSt
       autoSyncStateObj->TryCurrentGroupAgain(kGroupRetryCount);
     }
   }
-  
+
   return NS_OK;
 }
 
@@ -1066,7 +1066,7 @@ uint32_t nsAutoSyncManager::GetUpdateIntervalFor(nsIAutoSyncState *aAutoSyncStat
   nsresult rv = aAutoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
   if (NS_FAILED(rv))
     return kDefaultUpdateInterval;
-  
+
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = folder->GetServer(getter_AddRefs(server));
   if (NS_FAILED(rv))
@@ -1076,7 +1076,7 @@ uint32_t nsAutoSyncManager::GetUpdateIntervalFor(nsIAutoSyncState *aAutoSyncStat
   {
     int32_t interval;
     rv = server->GetBiffMinutes(&interval);
-    
+
     if (NS_SUCCEEDED(rv))
       return (uint32_t)interval;
   }
@@ -1099,7 +1099,7 @@ NS_IMETHODIMP nsAutoSyncManager::SetGroupSize(uint32_t aGroupSize)
 NS_IMETHODIMP nsAutoSyncManager::GetMsgStrategy(nsIAutoSyncMsgStrategy * *aMsgStrategy)
 {
   NS_ENSURE_ARG_POINTER(aMsgStrategy);
-  
+
   // lazily create if it is not done already
   if (!mMsgStrategyImpl)
   {
@@ -1107,7 +1107,7 @@ NS_IMETHODIMP nsAutoSyncManager::GetMsgStrategy(nsIAutoSyncMsgStrategy * *aMsgSt
     if (!mMsgStrategyImpl)
       return NS_ERROR_OUT_OF_MEMORY;
   }
-  
+
   NS_IF_ADDREF(*aMsgStrategy = mMsgStrategyImpl);
   return NS_OK;
 }
@@ -1120,7 +1120,7 @@ NS_IMETHODIMP nsAutoSyncManager::SetMsgStrategy(nsIAutoSyncMsgStrategy * aMsgStr
 NS_IMETHODIMP nsAutoSyncManager::GetFolderStrategy(nsIAutoSyncFolderStrategy * *aFolderStrategy)
 {
   NS_ENSURE_ARG_POINTER(aFolderStrategy);
-  
+
   // lazily create if it is not done already
   if (!mFolderStrategyImpl)
   {
@@ -1128,7 +1128,7 @@ NS_IMETHODIMP nsAutoSyncManager::GetFolderStrategy(nsIAutoSyncFolderStrategy * *
     if (!mFolderStrategyImpl)
       return NS_ERROR_OUT_OF_MEMORY;
   }
-    
+
   NS_IF_ADDREF(*aFolderStrategy = mFolderStrategyImpl);
   return NS_OK;
 }
@@ -1138,7 +1138,7 @@ NS_IMETHODIMP nsAutoSyncManager::SetFolderStrategy(nsIAutoSyncFolderStrategy * a
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsAutoSyncManager::DoesMsgFitDownloadCriteria(nsIMsgDBHdr *aMsgHdr, bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
@@ -1146,7 +1146,7 @@ nsAutoSyncManager::DoesMsgFitDownloadCriteria(nsIMsgDBHdr *aMsgHdr, bool *aResul
   uint32_t msgFlags = 0;
   aMsgHdr->GetFlags(&msgFlags);
 
-  // check whether this message is marked imap deleted or not 
+  // check whether this message is marked imap deleted or not
   *aResult = !(msgFlags & nsMsgMessageFlags::IMAPDeleted);
   if (!(*aResult))
     return NS_OK;
@@ -1202,14 +1202,14 @@ NS_IMETHODIMP nsAutoSyncManager::OnDownloadQChanged(nsIAutoSyncState *aAutoSyncS
         !DoesQContainAnySiblingOf(mPriorityQ, autoSyncStateObj, nsAutoSyncState::stDownloadInProgress))
     {
       // this will download the first group of messages immediately;
-      // to ensure that we don't end up downloading a large single message in not-idle time, 
-      // we enforce a limit. If there is no message fits into this limit we postpone the 
+      // to ensure that we don't end up downloading a large single message in not-idle time,
+      // we enforce a limit. If there is no message fits into this limit we postpone the
       // download until the next idle.
       if (GetIdleState() == notIdle)
         rv =  DownloadMessagesForOffline(autoSyncStateObj, kFirstGroupSizeLimit);
       else
         rv = DownloadMessagesForOffline(autoSyncStateObj);
-      
+
       if (NS_FAILED(rv))
         autoSyncStateObj->TryCurrentGroupAgain(kGroupRetryCount);
     }
@@ -1217,7 +1217,7 @@ NS_IMETHODIMP nsAutoSyncManager::OnDownloadQChanged(nsIAutoSyncState *aAutoSyncS
   return rv;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsAutoSyncManager::OnDownloadStarted(nsIAutoSyncState *aAutoSyncStateObj, nsresult aStartCode)
 {
   nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(aAutoSyncStateObj);
@@ -1226,17 +1226,17 @@ nsAutoSyncManager::OnDownloadStarted(nsIAutoSyncState *aAutoSyncStateObj, nsresu
 
   // resume downloads during next idle time
   if (NS_FAILED(aStartCode))
-    autoSyncStateObj->SetState(nsAutoSyncState::stReadyToDownload);  
-  
+    autoSyncStateObj->SetState(nsAutoSyncState::stReadyToDownload);
+
   return aStartCode;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsAutoSyncManager::OnDownloadCompleted(nsIAutoSyncState *aAutoSyncStateObj, nsresult aExitCode)
 {
   nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(aAutoSyncStateObj);
   if (!autoSyncStateObj)
-    return NS_ERROR_INVALID_ARG;    
+    return NS_ERROR_INVALID_ARG;
 
   nsresult rv = aExitCode;
 
@@ -1253,60 +1253,60 @@ nsAutoSyncManager::OnDownloadCompleted(nsIAutoSyncState *aAutoSyncStateObj, nsre
     }
     return rv;
   }
-      
+
   // download is successful, reset the retry counter of the folder
   autoSyncStateObj->ResetRetryCounter();
-  
+
   nsCOMPtr<nsIMsgFolder> folder;
   aAutoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
   if (folder)
     NOTIFY_LISTENERS(OnDownloadCompleted, (folder));
-      
+
   int32_t count;
   rv = autoSyncStateObj->GetPendingMessageCount(&count);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   nsIAutoSyncState *nextFolderToDownload = nullptr;
   if (count > 0)
   {
     autoSyncStateObj->SetState(nsAutoSyncState::stReadyToDownload);
-    
+
     // in parallel model, we continue downloading the same folder as long as it has
     // more pending messages
     nextFolderToDownload = autoSyncStateObj;
-    
-    // in chained model, ensure that we are always downloading the highest priority 
-    // folder first 
+
+    // in chained model, ensure that we are always downloading the highest priority
+    // folder first
     if (mDownloadModel == dmChained)
     {
-      // switch to higher priority folder and continue to download, 
+      // switch to higher priority folder and continue to download,
       // if any added recently
       int32_t myIndex = mPriorityQ.IndexOf(autoSyncStateObj);
-      
+
       int32_t siblingIndex;
       nsIAutoSyncState *sibling = GetHighestPrioSibling(mPriorityQ, autoSyncStateObj, &siblingIndex);
-      
+
       // lesser index = higher priority
-      if (sibling && myIndex > -1 && siblingIndex < myIndex) 
+      if (sibling && myIndex > -1 && siblingIndex < myIndex)
         nextFolderToDownload = sibling;
     }
   }
-  else 
+  else
   {
     autoSyncStateObj->SetState(nsAutoSyncState::stCompletedIdle);
-    
+
     nsCOMPtr<nsIMsgFolder> folder;
     nsresult rv = autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
-    
+
     if (NS_SUCCEEDED(rv) && mPriorityQ.RemoveObject(autoSyncStateObj))
       NOTIFY_LISTENERS(OnFolderRemovedFromQ, (nsIAutoSyncMgrListener::PriorityQueue, folder));
 
     //find the next folder owned by the same server in the queue and continue downloading
     if (mDownloadModel == dmChained)
       nextFolderToDownload = GetHighestPrioSibling(mPriorityQ, autoSyncStateObj);
-      
+
   }//endif
-  
+
   // continue downloading if TB is still in idle state
   if (nextFolderToDownload && GetIdleState() != notIdle)
   {
@@ -1401,14 +1401,14 @@ nsAutoSyncManager::OnFolderHasPendingMsgs(nsIAutoSyncState *aAutoSyncStateObj)
   return NS_OK;
 }
 
-void nsAutoSyncManager::SetIdleState(IdleState st) 
-{ 
+void nsAutoSyncManager::SetIdleState(IdleState st)
+{
   mIdleState = st;
 }
 
-nsAutoSyncManager::IdleState nsAutoSyncManager::GetIdleState() const 
-{ 
-  return mIdleState; 
+nsAutoSyncManager::IdleState nsAutoSyncManager::GetIdleState() const
+{
+  return mIdleState;
 }
 
 NS_IMPL_ISUPPORTS(nsAutoSyncManager, nsIObserver, nsIUrlListener, nsIAutoSyncManager)

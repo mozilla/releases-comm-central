@@ -49,10 +49,10 @@ protected:
   // This is called by both FetchMessage and StreamMessage
   nsresult GetMessageFromUrl(nsIImapUrl *aImapUrl,
                              nsImapAction aImapAction,
-                             nsIMsgFolder *aImapMailFolder, 
+                             nsIMsgFolder *aImapMailFolder,
                              nsIImapMessageSink *aImapMessage,
                              nsIMsgWindow *aMsgWindow,
-                             nsISupports *aDisplayConsumer, 
+                             nsISupports *aDisplayConsumer,
                              bool aConvertDataToText,
                              nsIURI **aURL);
 
@@ -71,10 +71,10 @@ protected:
 
   nsresult FetchMimePart(nsIImapUrl *aImapUrl,
                          nsImapAction aImapAction,
-                         nsIMsgFolder *aImapMailFolder, 
+                         nsIMsgFolder *aImapMailFolder,
                          nsIImapMessageSink *aImapMessage,
                          nsIURI **aURL,
-                         nsISupports *aDisplayConsumer, 
+                         nsISupports *aDisplayConsumer,
                          const nsACString &messageIdentifierList,
                          const nsACString &mimePart);
 

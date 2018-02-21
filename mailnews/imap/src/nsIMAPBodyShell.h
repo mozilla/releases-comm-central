@@ -3,9 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
+/*
 nsIMAPBodyShell and associated classes
-*/ 
+*/
 
 #ifndef IMAPBODY_H
 #define IMAPBODY_H
@@ -53,7 +53,7 @@ protected:
     // the body of the part itself
     virtual int32_t GeneratePart(nsIMAPBodyShell *aShell, bool stream, bool prefetch);
     // the MIME headers of the part
-    virtual int32_t GenerateMIMEHeader(nsIMAPBodyShell *aShell, bool stream, bool prefetch); 
+    virtual int32_t GenerateMIMEHeader(nsIMAPBodyShell *aShell, bool stream, bool prefetch);
     // Generates the MIME boundary wrapper for this part.
     virtual int32_t GenerateBoundary(nsIMAPBodyShell *aShell, bool stream, bool prefetch, bool lastBoundary);
     // lastBoundary indicates whether or not this should be the boundary for the
@@ -279,14 +279,14 @@ protected:
   char                            *m_folderName;          // folder that contains this message
   char                            *m_generatingPart;      // If a specific part is being generated, this is it.  Otherwise, NULL.
   bool                            m_isBeingGenerated;     // true if this body shell is in the process of being generated
-  bool                            m_gotAttachmentPref;    // Whether or not m_showAttachmentsInline has been initialized 
+  bool                            m_gotAttachmentPref;    // Whether or not m_showAttachmentsInline has been initialized
   bool                            m_showAttachmentsInline; // Whether or not we should display attachment inline
   bool                            m_cached;                 // Whether or not this shell is cached
   bool                            m_generatingWholeMessage; // whether or not we are generating the whole (non-MPOD) message
                                                           // Set to false if we are generating by parts
   // under what conditions the content has been modified.
   // Either IMAP_CONTENT_MODIFIED_VIEW_INLINE or IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS
-  IMAP_ContentModifiedType        m_contentModified; 
+  IMAP_ContentModifiedType        m_contentModified;
 };
 
 

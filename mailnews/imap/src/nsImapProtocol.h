@@ -179,7 +179,7 @@ public:
   void GetShouldDownloadAllHeaders(bool *aResult);
   void GetArbitraryHeadersToDownload(nsCString &aResult);
   virtual void AdjustChunkSize();
-  virtual void FetchMessage(const nsCString &messageIds, 
+  virtual void FetchMessage(const nsCString &messageIds,
     nsIMAPeFetchFields whatToFetch,
     const char *fetchModifier = nullptr,
     uint32_t startByte = 0, uint32_t numBytes = 0,
@@ -488,7 +488,7 @@ private:
   // All of these methods actually issue protocol
   void Capability(); // query host for capabilities.
   void ID(); // send RFC 2971 app info to server
-  void EnableCondStore(); 
+  void EnableCondStore();
   void StartCompressDeflate();
   nsresult BeginCompressing();
   void Language(); // set the language on the server if it supports it
@@ -586,11 +586,11 @@ private:
   // CondStore support - true if server supports it, and the user hasn't disabled it.
   bool UseCondStore();
   // false if pref "mail.server.serverxxx.use_condstore" is false;
-  bool m_useCondStore; 
+  bool m_useCondStore;
   // COMPRESS=DEFLATE support - true if server supports it, and the user hasn't disabled it.
   bool UseCompressDeflate();
   // false if pref "mail.server.serverxxx.use_compress_deflate" is false;
-  bool m_useCompressDeflate; 
+  bool m_useCompressDeflate;
   // these come from the nsIDBFolderInfo in the msgDatabase and
   // are initialized in nsImapProtocol::SetupWithUrl.
   uint64_t mFolderLastModSeq;
@@ -633,10 +633,10 @@ private:
   bool m_fromHeaderSeen;
 
   nsString mAcceptLanguages;
-  
+
   // progress stuff
   void SetProgressString(uint32_t aStringIndex);
-  
+
   nsCString     m_progressStringName;
   uint32_t      m_stringIndex;
   int32_t       m_progressCurrentNumber[IMAP_NUMBER_OF_PROGRESS_STRINGS];
@@ -723,7 +723,7 @@ protected:
   nsCOMPtr<nsILoadGroup> m_loadGroup;
   nsCOMPtr<nsILoadInfo> m_loadInfo;
   nsCOMPtr<nsIStreamListener> m_channelListener;
-  nsISupports * m_channelContext; 
+  nsISupports * m_channelContext;
   nsresult m_cancelStatus;
   nsLoadFlags mLoadFlags;
   nsCOMPtr<nsIProgressEventSink> mProgressEventSink;
