@@ -1,0 +1,26 @@
+. "$topsrcdir/build/mozconfig.comm-support"
+
+TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
+
+. "$TOOLTOOL_DIR/build/unix/mozconfig.linux32"
+. "$TOOLTOOL_DIR/suite/config/mozconfigs/mozconfig.linux.common"
+. "$TOOLTOOL_DIR/suite/config/mozconfigs/common"
+
+# Disable webrender on Linux buildbot builders to avoid the Rust requirement
+# of libX11 version > 1.4.99.1 (see bug 1350011).
+ac_add_options --disable-webrender
+
+ac_add_options --enable-application=suite
+ac_add_options --enable-debug
+ac_add_options --enable-calendar
+
+mk_add_options PROFILE_GEN_SCRIPT='$(PYTHON) @MOZ_OBJDIR@/_profile/pgo/profileserver.py'
+
+# Needed to enable breakpad in application.ini
+export MOZILLA_OFFICIAL=1
+
+# Package js shell
+export MOZ_PACKAGE_JSSHELL=1
+
+#Use ccache
+ac_add_options --with-ccache=/usr/bin/ccache
