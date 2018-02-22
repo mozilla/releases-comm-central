@@ -27,7 +27,7 @@ var calMemoryCalendarInterfaces = [
     Components.interfaces.calICalendarProvider
 ];
 calMemoryCalendar.prototype = {
-    __proto__: cal.ProviderBase.prototype,
+    __proto__: cal.provider.BaseClass.prototype,
     classID: calMemoryCalendarClassID,
     QueryInterface: XPCOMUtils.generateQI(calMemoryCalendarInterfaces),
     classInfo: XPCOMUtils.generateCI({

@@ -86,7 +86,7 @@ calDefaultCalendarACLEntry.prototype = {
     },
 
     getUserIdentities: function(aCount) {
-        let identity = cal.getEmailIdentityOfCalendar(this.mCalendar);
+        let identity = cal.provider.getEmailIdentityOfCalendar(this.mCalendar);
         if (identity) {
             aCount.value = 1;
             return [identity];

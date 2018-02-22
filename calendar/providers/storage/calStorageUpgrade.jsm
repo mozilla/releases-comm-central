@@ -184,7 +184,7 @@ function backupDB(db, currentVersion) {
     try {
         // Prepare filenames and path
         let backupFilename = "local.v" + currentVersion + ".sqlite";
-        let backupPath = cal.getCalendarDirectory();
+        let backupPath = cal.provider.getCalendarDirectory();
         backupPath.append("backup");
         if (!backupPath.exists()) {
             backupPath.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));

@@ -104,7 +104,7 @@ var calDavCalendarInterfaces = [
     calICalDavCalendar,
 ];
 calDavCalendar.prototype = {
-    __proto__: cal.ProviderBase.prototype,
+    __proto__: cal.provider.BaseClass.prototype,
     classID: calDavCalendarClassID,
     QueryInterface: XPCOMUtils.generateQI(calDavCalendarInterfaces),
     classInfo: XPCOMUtils.generateCI({
@@ -366,14 +366,14 @@ calDavCalendar.prototype = {
         }
 
         function authSuccess() {
-            let channel = cal.prepHttpChannel(aUri, aUploadData, aContentType, self, aExisting);
+            let channel = cal.provider.prepHttpChannel(aUri, aUploadData, aContentType, self, aExisting);
             if (usesGoogleOAuth) {
                 let hdr = "Bearer " + self.oauth.accessToken;
                 channel.setRequestHeader("Authorization", hdr, false);
             }
             let listener = aSetupChannelFunc(channel);
             if (aUseStreamLoader) {
-                let loader = cal.createStreamLoader();
+                let loader = cal.provider.createStreamLoader();
                 listener.onStreamComplete = oauthCheck.bind(null, listener.onStreamComplete.bind(listener));
                 loader.init(listener);
                 listener = loader;
@@ -572,7 +572,7 @@ calDavCalendar.prototype = {
             case "itip.transport":
                 if (this.hasAutoScheduling || this.hasScheduling) {
                     return this.QueryInterface(Components.interfaces.calIItipTransport);
-                } // else use outbound email-based iTIP (from cal.ProviderBase)
+                } // else use outbound email-based iTIP (from cal.provider.BaseClass)
                 break;
             case "capabilities.tasks.supported":
                 return this.supportedItemTypes.includes("VTODO");
@@ -585,7 +585,7 @@ calDavCalendar.prototype = {
     },
 
     promptOverwrite: function(aMethod, aItem, aListener, aOldItem) {
-        let overwrite = cal.promptOverwrite(aMethod, aItem, aListener, aOldItem);
+        let overwrite = cal.provider.promptOverwrite(aMethod, aItem, aListener, aOldItem);
         if (overwrite) {
             if (aMethod == CALDAV_MODIFY_ITEM) {
                 this.doModifyItem(aItem, aOldItem, aListener, true);
@@ -670,7 +670,7 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                        let str = cal.convertByteArray(aResult, aResultLength);
+                        let str = cal.provider.convertByteArray(aResult, aResultLength);
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
@@ -789,7 +789,7 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                        let str = cal.convertByteArray(aResult, aResultLength);
+                        let str = cal.provider.convertByteArray(aResult, aResultLength);
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
@@ -917,7 +917,7 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                        let str = cal.convertByteArray(aResult, aResultLength);
+                        let str = cal.provider.convertByteArray(aResult, aResultLength);
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
@@ -987,7 +987,7 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                        let str = cal.convertByteArray(aResult, aResultLength);
+                        let str = cal.provider.convertByteArray(aResult, aResultLength);
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
@@ -1357,7 +1357,7 @@ calDavCalendar.prototype = {
             // we can't risk several calendars doing this simultaneously so
             // we'll force the renegotiation in a sync query, using OPTIONS to keep
             // it quick
-            let headchannel = cal.prepHttpChannel(this.makeUri(), null, null, this);
+            let headchannel = cal.provider.prepHttpChannel(this.makeUri(), null, null, this);
             headchannel.requestMethod = "OPTIONS";
             headchannel.open();
             headchannel.QueryInterface(Components.interfaces.nsIHttpChannel);
@@ -1418,7 +1418,7 @@ calDavCalendar.prototype = {
                 return;
             }
 
-            let str = cal.convertByteArray(aResult, aResultLength);
+            let str = cal.provider.convertByteArray(aResult, aResultLength);
             if (!str) {
                 cal.LOG("CalDAV: Failed to get ctag from server for calendar " +
                         self.name);
@@ -1551,7 +1551,7 @@ calDavCalendar.prototype = {
      * @see nsIInterfaceRequestor
      * @see calProviderUtils.jsm
      */
-    getInterface: cal.InterfaceRequestor_getInterface,
+    getInterface: cal.provider.InterfaceRequestor_getInterface,
 
     //
     // Helper functions
@@ -1794,7 +1794,7 @@ calDavCalendar.prototype = {
                 cal.LOG("CalDAV: realm " + self.mAuthRealm);
             }
 
-            let str = cal.convertByteArray(aResult, aResultLength);
+            let str = cal.provider.convertByteArray(aResult, aResultLength);
             if (!str || request.responseStatus == 404) {
                 // No response, or the calendar no longer exists.
                 cal.LOG("CalDAV: Failed to determine resource type for" +
@@ -1963,7 +1963,7 @@ calDavCalendar.prototype = {
             } catch (ex) {
                 cal.LOG("CalDAV: Error getting DAV header for " + self.name +
                         ", status " + request.responseStatus +
-                        ", data: " + cal.convertByteArray(aResult, aResultLength));
+                        ", data: " + cal.provider.convertByteArray(aResult, aResultLength));
             }
             // Google does not yet support OPTIONS but does support scheduling
             // so we'll spoof the DAV header until Google gets fixed
@@ -2059,7 +2059,7 @@ calDavCalendar.prototype = {
                 return;
             }
 
-            let str = cal.convertByteArray(aResult, aResultLength);
+            let str = cal.provider.convertByteArray(aResult, aResultLength);
             if (!str) {
                 cal.LOG("CalDAV: Failed to propstat principal namespace for " + self.name);
                 self.completeCheckServerInfo(aChangeLogListener,
@@ -2176,7 +2176,7 @@ calDavCalendar.prototype = {
         let streamListener = {};
         streamListener.onStreamComplete = function(aLoader, aContext, aStatus, aResultLength, aResult) {
             let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
-            let str = cal.convertByteArray(aResult, aResultLength);
+            let str = cal.provider.convertByteArray(aResult, aResultLength);
             if (!str) {
                 cal.LOG("CalDAV: Failed to report principals namespace for " + self.name);
                 doesntSupportScheduling();
@@ -2446,7 +2446,7 @@ calDavCalendar.prototype = {
         streamListener.onStreamComplete = function(aLoader, aContext, aStatus,
                                                    aResultLength, aResult) {
             let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
-            let str = cal.convertByteArray(aResult, aResultLength);
+            let str = cal.provider.convertByteArray(aResult, aResultLength);
             if (!str) {
                 cal.LOG("CalDAV: Failed to parse freebusy response from " + self.name);
             } else if (self.verboseLogging()) {
@@ -2490,18 +2490,18 @@ calDavCalendar.prototype = {
 
                         let replyRangeStart = calFbComp.startTime;
                         if (replyRangeStart && (aRangeStart.compare(replyRangeStart) == -1)) {
-                            interval = new cal.FreeBusyInterval(aCalId,
-                                                                calIFreeBusyInterval.UNKNOWN,
-                                                                aRangeStart,
-                                                                replyRangeStart);
+                            interval = new cal.provider.FreeBusyInterval(aCalId,
+                                                                         calIFreeBusyInterval.UNKNOWN,
+                                                                         aRangeStart,
+                                                                         replyRangeStart);
                             periodsToReturn.push(interval);
                         }
                         let replyRangeEnd = calFbComp.endTime;
                         if (replyRangeEnd && (aRangeEnd.compare(replyRangeEnd) == 1)) {
-                            interval = new cal.FreeBusyInterval(aCalId,
-                                                                calIFreeBusyInterval.UNKNOWN,
-                                                                replyRangeEnd,
-                                                                aRangeEnd);
+                            interval = new cal.provider.FreeBusyInterval(aCalId,
+                                                                         calIFreeBusyInterval.UNKNOWN,
+                                                                         replyRangeEnd,
+                                                                         aRangeEnd);
                             periodsToReturn.push(interval);
                         }
 
@@ -2522,10 +2522,10 @@ calDavCalendar.prototype = {
                                 // This is a date string
                                 end = cal.createDateTime(parts[1]);
                             }
-                            interval = new cal.FreeBusyInterval(aCalId,
-                                                                fbType,
-                                                                begin,
-                                                                end);
+                            interval = new cal.provider.FreeBusyInterval(aCalId,
+                                                                         fbType,
+                                                                         begin,
+                                                                         end);
                             periodsToReturn.push(interval);
                         }
                     }
@@ -2630,7 +2630,7 @@ calDavCalendar.prototype = {
     },
 
     //
-    // take calISchedulingSupport interface base implementation (cal.ProviderBase)
+    // take calISchedulingSupport interface base implementation (cal.provider.BaseClass)
     //
 
     processItipReply: function(aItem, aPath) {
@@ -2723,7 +2723,7 @@ calDavCalendar.prototype = {
     sendItems: function(aCount, aRecipients, aItipItem) {
         function doImipScheduling(aCalendar, aRecipientList) {
             let result = false;
-            let imipTransport = cal.getImipTransport(aCalendar);
+            let imipTransport = cal.provider.getImipTransport(aCalendar);
             let recipients = [];
             aRecipientList.forEach(rec => recipients.push(rec.toString()));
             if (imipTransport) {
@@ -2806,7 +2806,7 @@ calDavCalendar.prototype = {
                                 " for " + self.name);
                     }
 
-                    let str = cal.convertByteArray(aResult, aResultLength, "UTF-8", false);
+                    let str = cal.provider.convertByteArray(aResult, aResultLength, "UTF-8", false);
                     if (str) {
                         if (self.verboseLogging()) {
                             cal.LOG("CalDAV: recv: " + str);
@@ -2850,7 +2850,7 @@ calDavCalendar.prototype = {
                     if (remainingAttendees.length) {
                         // try to fall back to email delivery if CalDAV-sched
                         // didn't work
-                        let imipTransport = cal.getImipTransport(self);
+                        let imipTransport = cal.provider.getImipTransport(self);
                         if (imipTransport) {
                             if (self.verboseLogging()) {
                                 cal.LOG("CalDAV: sending email to " + remainingAttendees.length + " recipients");
@@ -2914,7 +2914,7 @@ calDavCalendar.prototype = {
             uploadContent = aOldChannel.getRequestHeader("Content-Type");
         }
 
-        cal.prepHttpChannel(null,
+        cal.provider.prepHttpChannel(null,
                             uploadData,
                             uploadContent,
                             this,

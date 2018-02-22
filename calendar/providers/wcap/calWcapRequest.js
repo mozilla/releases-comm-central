@@ -219,7 +219,7 @@ calWcapNetworkRequest.prototype = {
      * @see nsIInterfaceRequestor
      * @see calProviderUtils.jsm
      */
-    getInterface: cal.InterfaceRequestor_getInterface,
+    getInterface: cal.provider.InterfaceRequestor_getInterface,
 
     /**
      * prepareChannel

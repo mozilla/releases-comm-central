@@ -33,7 +33,7 @@ var calStorageCalendarInterfaces = [
     Components.interfaces.calISyncWriteCalendar,
 ];
 calStorageCalendar.prototype = {
-    __proto__: cal.ProviderBase.prototype,
+    __proto__: cal.provider.BaseClass.prototype,
     classID: calStorageCalendarClassID,
     QueryInterface: XPCOMUtils.generateQI(calStorageCalendarInterfaces),
     classInfo: XPCOMUtils.generateCI({
@@ -202,7 +202,7 @@ calStorageCalendar.prototype = {
             // This is an old-style moz-profile-calendar. It requires some
             // migration steps.
 
-            let localDB = cal.getCalendarDirectory();
+            let localDB = cal.provider.getCalendarDirectory();
             localDB.append("local.sqlite");
             localDB = Services.storage.openDatabase(localDB);
             localDB.defaultTransactionType = Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
@@ -349,7 +349,7 @@ calStorageCalendar.prototype = {
             }
         } else if (this.uri.schemeIs("moz-storage-calendar")) {
             // New style uri, no need for migration here
-            let localDB = cal.getCalendarDirectory();
+            let localDB = cal.provider.getCalendarDirectory();
             localDB.append("local.sqlite");
 
             this.mDB = Services.storage.openDatabase(localDB);

@@ -1029,7 +1029,7 @@ function calDummyCalendar(type) {
     this.type = type;
 }
 calDummyCalendar.prototype = {
-    __proto__: cal.ProviderBase.prototype,
+    __proto__: cal.provider.BaseClass.prototype,
 
     getProperty: function(aName) {
         switch (aName) {

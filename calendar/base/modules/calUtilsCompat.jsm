@@ -178,7 +178,7 @@ function injectCalUtilsCompat(global) {
 
     global.ProviderBase = class extends global.provider.BaseClass {
         initProviderBase() {
-            Deprecated.warning("calProviderUtils' cal.ProviderBase() has changed to cal.provider.BaseClass()",
+            Deprecated.warning("calProviderUtils' cal.provider.BaseClass() has changed to cal.provider.BaseClass()",
                                "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
                                Components.stack.caller);
             super.initProviderBase();
@@ -187,7 +187,7 @@ function injectCalUtilsCompat(global) {
 
     global.BadCertHandler = class extends global.provider.BadCertHandler {
         constructor() {
-            Deprecated.warning("calProviderUtils' cal.BadCertHandler() has changed to cal.provider.BadCertHandler()",
+            Deprecated.warning("calProviderUtils' cal.provider.BadCertHandler() has changed to cal.provider.BadCertHandler()",
                                "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
                                Components.stack.caller);
             super();
@@ -196,7 +196,7 @@ function injectCalUtilsCompat(global) {
 
     global.FreeBusyInterval = class extends global.provider.FreeBusyInterval {
         constructor() {
-            Deprecated.warning("calProviderUtils' cal.FreeBusyInterval() has changed to cal.provider.FreeBusyInterval()",
+            Deprecated.warning("calProviderUtils' cal.provider.FreeBusyInterval() has changed to cal.provider.FreeBusyInterval()",
                                "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
                                Components.stack.caller);
             super();

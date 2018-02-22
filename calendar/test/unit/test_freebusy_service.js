@@ -37,7 +37,7 @@ function test_found() {
             ok(!this.called);
             this.called = true;
 
-            let interval = new cal.FreeBusyInterval(aCalId, cIFI.BUSY, aStart, aEnd);
+            let interval = new cal.provider.FreeBusyInterval(aCalId, cIFI.BUSY, aStart, aEnd);
             aListener.onResult(null, [interval]);
         }
     };

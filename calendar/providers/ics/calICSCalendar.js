@@ -50,7 +50,7 @@ var calICSCalendarInterfaces = [
     Components.interfaces.nsIInterfaceRequestor,
 ];
 calICSCalendar.prototype = {
-    __proto__: cal.ProviderBase.prototype,
+    __proto__: cal.provider.BaseClass.prototype,
     classID: calICSCalendarClassID,
     QueryInterface: XPCOMUtils.generateQI(calICSCalendarInterfaces),
     classInfo: XPCOMUtils.generateCI({
@@ -616,7 +616,7 @@ calICSCalendar.prototype = {
      * @see nsIInterfaceRequestor
      * @see calProviderUtils.jsm
      */
-    getInterface: cal.InterfaceRequestor_getInterface,
+    getInterface: cal.provider.InterfaceRequestor_getInterface,
 
     /**
      * Make a backup of the (remote) calendar
@@ -725,7 +725,7 @@ calICSCalendar.prototype = {
 
         let backupDir;
         try {
-            backupDir = cal.getCalendarDirectory();
+            backupDir = cal.provider.getCalendarDirectory();
             backupDir.append("backup");
             if (!backupDir.exists()) {
                 backupDir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
@@ -1028,16 +1028,16 @@ httpHooks.prototype = {
                   "</D:prop>" +
                 "</D:propfind>";
 
-            let etagChannel = cal.prepHttpChannel(aChannel.URI, queryXml,
-                                                  "text/xml; charset=utf-8",
-                                                  this);
+            let etagChannel = cal.provider.prepHttpChannel(aChannel.URI, queryXml,
+                                                           "text/xml; charset=utf-8",
+                                                           this);
             etagChannel.setRequestHeader("Depth", "0", false);
             etagChannel.requestMethod = "PROPFIND";
             let streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"]
                                          .createInstance(Components.interfaces
                                          .nsIStreamLoader);
 
-            cal.sendHttpRequest(streamLoader, etagChannel, etagListener);
+            cal.provider.sendHttpRequest(streamLoader, etagChannel, etagListener);
         }
         return true;
     },

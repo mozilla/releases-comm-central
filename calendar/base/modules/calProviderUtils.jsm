@@ -15,531 +15,581 @@ XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calU
  * Provider helper code
  */
 
-this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+this.EXPORTED_SYMBOLS = ["calprovider"]; /* exported calprovider */
 
-/**
- * Prepare HTTP channel with standard request headers and upload
- * data/content-type if needed
- *
- * @param arUri                      Channel Uri, will only be used for a new
- *                                     channel.
- * @param aUploadData                Data to be uploaded, if any. This may be a
- *                                     nsIInputStream or string data. In the
- *                                     latter case the string will be converted
- *                                     to an input stream.
- * @param aContentType               Value for Content-Type header, if any
- * @param aNotificationCallbacks     Calendar using channel
- * @param aExisting                  An existing channel to modify (optional)
- */
-cal.prepHttpChannel = function(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting) {
-    let channel = aExisting || Services.io.newChannelFromURI2(aUri,
-                                                              null,
-                                                              Services.scriptSecurityManager.getSystemPrincipal(),
-                                                              null,
-                                                              Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                              Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-    let httpchannel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
+var calprovider = {
+    /**
+     * Prepare HTTP channel with standard request headers and upload data/content-type if needed.
+     *
+     * @param {nsIURI} aUri                                     Channel Uri, will only be used for a
+     *                                                            new channel.
+     * @param {nsIInputStream|String} aUploadData               Data to be uploaded, if any. This
+     *                                                            may be a nsIInputStream or string
+     *                                                            data. In the latter case the
+     *                                                            string will be converted to an
+     *                                                            input stream.
+     * @param {String} aContentType                             Value for Content-Type header, if any
+     * @param {nsIInterfaceRequestor} aNotificationCallbacks    Calendar using channel
+     * @param {?nsIChannel} aExisting                           An existing channel to modify (optional)
+     * @return {nsIChannel}                                     The prepared channel
+     */
+    prepHttpChannel: function(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting=null) {
+        let channel = aExisting || Services.io.newChannelFromURI2(aUri,
+                                                                  null,
+                                                                  Services.scriptSecurityManager.getSystemPrincipal(),
+                                                                  null,
+                                                                  Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+        let httpchannel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
 
-    httpchannel.setRequestHeader("Accept", "text/xml", false);
-    httpchannel.setRequestHeader("Accept-Charset", "utf-8,*;q=0.1", false);
-    httpchannel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
-    httpchannel.notificationCallbacks = aNotificationCallbacks;
+        httpchannel.setRequestHeader("Accept", "text/xml", false);
+        httpchannel.setRequestHeader("Accept-Charset", "utf-8,*;q=0.1", false);
+        httpchannel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
+        httpchannel.notificationCallbacks = aNotificationCallbacks;
 
-    if (aUploadData) {
-        httpchannel = httpchannel.QueryInterface(Components.interfaces.nsIUploadChannel);
-        let stream;
-        if (aUploadData instanceof Components.interfaces.nsIInputStream) {
-            // Make sure the stream is reset
-            stream = aUploadData.QueryInterface(Components.interfaces.nsISeekableStream);
-            stream.seek(Components.interfaces.nsISeekableStream.NS_SEEK_SET, 0);
-        } else {
-            // Otherwise its something that should be a string, convert it.
-            let converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                      .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-            converter.charset = "UTF-8";
-            stream = converter.convertToInputStream(aUploadData.toString());
-        }
-
-        httpchannel.setUploadStream(stream, aContentType, -1);
-    }
-
-    return httpchannel;
-};
-
-/**
- * calSendHttpRequest; send prepared HTTP request
- *
- * @param aStreamLoader     streamLoader for request
- * @param aChannel          channel for request
- * @param aListener         listener for method completion
- */
-cal.sendHttpRequest = function(aStreamLoader, aChannel, aListener) {
-    aStreamLoader.init(aListener);
-    aChannel.asyncOpen(aStreamLoader, aChannel);
-};
-
-cal.createStreamLoader = function() {
-    return Components.classes["@mozilla.org/network/stream-loader;1"]
-                     .createInstance(Components.interfaces.nsIStreamLoader);
-};
-
-cal.convertByteArray = function(aResult, aResultLength, aCharset, aThrow) {
-    try {
-        let resultConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                        .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-        resultConverter.charset = aCharset || "UTF-8";
-        return resultConverter.convertFromByteArray(aResult, aResultLength);
-    } catch (e) {
-        if (aThrow) {
-            throw e;
-        }
-    }
-    return null;
-};
-
-/**
- * getInterface method for providers. This should be called in the context of
- * the respective provider, i.e
- *
- * return cal.InterfaceRequestor_getInterface.apply(this, arguments);
- *
- * or
- * ...
- * getInterface: cal.InterfaceRequestor_getInterface,
- * ...
- *
- * NOTE: If the server only provides one realm for all calendars, be sure that
- * the |this| object implements calICalendar. In this case the calendar name
- * will be appended to the realm. If you need that feature disabled, see the
- * capabilities section of calICalendar.idl
- *
- * @param aIID      The interface ID to return
- */
-cal.InterfaceRequestor_getInterface = function(aIID) {
-    try {
-        // Try to query the this object for the requested interface but don't
-        // throw if it fails since that borks the network code.
-        return this.QueryInterface(aIID);
-    } catch (e) {
-        // Support Auth Prompt Interfaces
-        if (aIID.equals(Components.interfaces.nsIAuthPrompt2)) {
-            if (!this.calAuthPrompt) {
-                this.calAuthPrompt = new cal.auth.Prompt();
+        if (aUploadData) {
+            httpchannel = httpchannel.QueryInterface(Components.interfaces.nsIUploadChannel);
+            let stream;
+            if (aUploadData instanceof Components.interfaces.nsIInputStream) {
+                // Make sure the stream is reset
+                stream = aUploadData.QueryInterface(Components.interfaces.nsISeekableStream);
+                stream.seek(Components.interfaces.nsISeekableStream.NS_SEEK_SET, 0);
+            } else {
+                // Otherwise its something that should be a string, convert it.
+                let converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+                                          .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+                converter.charset = "UTF-8";
+                stream = converter.convertToInputStream(aUploadData.toString());
             }
-            return this.calAuthPrompt;
-        } else if (aIID.equals(Components.interfaces.nsIAuthPromptProvider) ||
-                   aIID.equals(Components.interfaces.nsIPrompt)) {
-            return Services.ww.getNewPrompter(null);
-        } else if (aIID.equals(Components.interfaces.nsIBadCertListener2)) {
-            if (!this.badCertHandler) {
-                this.badCertHandler = new cal.BadCertHandler(this);
-            }
-            return this.badCertHandler;
-        } else {
-            Components.returnCode = e;
+
+            httpchannel.setUploadStream(stream, aContentType, -1);
         }
-    }
-    return null;
-};
 
-/**
- * Bad Certificate Handler for Network Requests. Shows the Network Exception
- * Dialog if a certificate Problem occurs.
- */
-cal.BadCertHandler = function(thisProvider) {
-    this.thisProvider = thisProvider;
-};
-cal.BadCertHandler.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIBadCertListener2]),
-    timer: null,
+        return httpchannel;
+    },
 
-    notifyCertProblem: function(socketInfo, status, targetSite) {
-        // Unfortunately we can't pass js objects using the window watcher, so
-        // we'll just take the first available calendar window. We also need to
-        // do this on a timer so that the modal window doesn't block the
-        // network request.
-        let calWindow = cal.window.getCalendarWindow();
+    /**
+     * Send prepared HTTP request asynchronously
+     *
+     * @param {nsIStreamLoader} aStreamLoader       Stream loader for request
+     * @param {nsIChannel} aChannel                 Channel for request
+     * @param {nsIStreamLoaderObserver} aListener   Listener for method completion
+     */
+    sendHttpRequest: function(aStreamLoader, aChannel, aListener) {
+        aStreamLoader.init(aListener);
+        aChannel.asyncOpen(aStreamLoader, aChannel);
+    },
 
-        let timerCallback = {
-            thisProvider: this.thisProvider,
-            notify: function(timer) {
-                let params = {
-                    exceptionAdded: false,
-                    sslStatus: status,
-                    prefetchCert: true,
-                    location: targetSite
-                };
-                calWindow.openDialog("chrome://pippki/content/exceptionDialog.xul",
-                                     "",
-                                     "chrome,centerscreen,modal",
-                                     params);
-                if (this.thisProvider.canRefresh &&
-                    params.exceptionAdded) {
-                    // Refresh the provider if the
-                    // exception certificate was added
-                    this.thisProvider.refresh();
+    /**
+     * Shortcut to create an nsIStreamLoader
+     *
+     * @return {nsIStreamLoader}        A fresh streamloader
+     */
+    createStreamLoader: function() {
+        return Components.classes["@mozilla.org/network/stream-loader;1"]
+                         .createInstance(Components.interfaces.nsIStreamLoader);
+    },
+
+    /**
+     * Convert a byte array to a string
+     *
+     * @param {octet[]} aResult         The bytes to convert
+     * @param {Number} aResultLength    The number of bytes
+     * @param {String} aCharset         The character set of the bytes, defaults to utf-8
+     * @param {Boolean} aThrow          If true, the function will raise an exception on error
+     * @return {?String}                The string result, or null on error
+     */
+    convertByteArray: function(aResult, aResultLength, aCharset, aThrow) {
+        try {
+            let resultConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+                                            .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+            resultConverter.charset = aCharset || "UTF-8";
+            return resultConverter.convertFromByteArray(aResult, aResultLength);
+        } catch (e) {
+            if (aThrow) {
+                throw e;
+            }
+        }
+        return null;
+    },
+
+    /**
+     * getInterface method for providers. This should be called in the context of
+     * the respective provider, i.e
+     *
+     * return cal.provider.InterfaceRequestor_getInterface.apply(this, arguments);
+     *
+     * or
+     * ...
+     * getInterface: cal.provider.InterfaceRequestor_getInterface,
+     * ...
+     *
+     * NOTE: If the server only provides one realm for all calendars, be sure that
+     * the |this| object implements calICalendar. In this case the calendar name
+     * will be appended to the realm. If you need that feature disabled, see the
+     * capabilities section of calICalendar.idl
+     *
+     * @param {nsIIDRef} aIID       The interface ID to return
+     * @return {nsISupports}        The requested interface
+     */
+    InterfaceRequestor_getInterface: function(aIID) {
+        try {
+            // Try to query the this object for the requested interface but don't
+            // throw if it fails since that borks the network code.
+            return this.QueryInterface(aIID);
+        } catch (e) {
+            // Support Auth Prompt Interfaces
+            if (aIID.equals(Components.interfaces.nsIAuthPrompt2)) {
+                if (!this.calAuthPrompt) {
+                    this.calAuthPrompt = new cal.auth.Prompt();
+                }
+                return this.calAuthPrompt;
+            } else if (aIID.equals(Components.interfaces.nsIAuthPromptProvider) ||
+                       aIID.equals(Components.interfaces.nsIPrompt)) {
+                return Services.ww.getNewPrompter(null);
+            } else if (aIID.equals(Components.interfaces.nsIBadCertListener2)) {
+                if (!this.badCertHandler) {
+                    this.badCertHandler = new cal.provider.BadCertHandler(this);
+                }
+                return this.badCertHandler;
+            } else {
+                Components.returnCode = e;
+            }
+        }
+        return null;
+    },
+
+    /**
+     * Bad Certificate Handler for Network Requests. Shows the Network Exception
+     * Dialog if a certificate Problem occurs.
+     */
+    BadCertHandler: class {
+        QueryInterface(iid) {
+            return cal.generateClassQI(this, iid, [Components.interfaces.nsIBadCertListener2]);
+        }
+
+        constructor(thisProvider) {
+            this.thisProvider = thisProvider;
+            this.timer = null;
+        }
+
+        notifyCertProblem(socketInfo, status, targetSite) {
+            // Unfortunately we can't pass js objects using the window watcher, so
+            // we'll just take the first available calendar window. We also need to
+            // do this on a timer so that the modal window doesn't block the
+            // network request.
+            let calWindow = cal.window.getCalendarWindow();
+
+            let timerCallback = {
+                thisProvider: this.thisProvider,
+                notify: function(timer) {
+                    let params = {
+                        exceptionAdded: false,
+                        sslStatus: status,
+                        prefetchCert: true,
+                        location: targetSite
+                    };
+                    calWindow.openDialog("chrome://pippki/content/exceptionDialog.xul",
+                                         "",
+                                         "chrome,centerscreen,modal",
+                                         params);
+                    if (this.thisProvider.canRefresh &&
+                        params.exceptionAdded) {
+                        // Refresh the provider if the
+                        // exception certificate was added
+                        this.thisProvider.refresh();
+                    }
+                }
+            };
+            this.timer = Components.classes["@mozilla.org/timer;1"]
+                                   .createInstance(Components.interfaces.nsITimer);
+            this.timer.initWithCallback(
+                timerCallback,
+                0,
+                Components.interfaces.nsITimer.TYPE_ONE_SHOT
+            );
+            return true;
+        }
+    },
+
+    /**
+     * Freebusy interval implementation. All parameters are optional.
+     *
+     * @param aCalId         The calendar id to set up with.
+     * @param aFreeBusyType  The type from calIFreeBusyInterval.
+     * @param aStart         The start of the interval.
+     * @param aEnd           The end of the interval.
+     * @return               The fresh calIFreeBusyInterval.
+     */
+    FreeBusyInterval: class {
+        QueryInterface(iid) {
+            return cal.generateClassQI(this, iid, [Components.interfaces.calIFreeBusyInterval]);
+        }
+
+        constructor(aCalId, aFreeBusyType, aStart, aEnd) {
+            this.calId = aCalId;
+            this.interval = Components.classes["@mozilla.org/calendar/period;1"]
+                                      .createInstance(Components.interfaces.calIPeriod);
+            this.interval.start = aStart;
+            this.interval.end = aEnd;
+
+            this.freeBusyType = aFreeBusyType || Components.interfaces.calIFreeBusyInterval.UNKNOWN;
+        }
+    },
+
+    /**
+     * Gets the iTIP/iMIP transport if the passed calendar has configured email.
+     *
+     * @param {calICalendar} aCalendar      The calendar to get the transport for
+     * @return {?calIItipTransport}         The email transport, or null if no identity configured
+     */
+    getImipTransport: function(aCalendar) {
+        // assure an identity is configured for the calendar
+        if (aCalendar && aCalendar.getProperty("imip.identity")) {
+            return Components.classes["@mozilla.org/calendar/itip-transport;1?type=email"]
+                             .getService(Components.interfaces.calIItipTransport);
+        }
+        return null;
+    },
+
+    /**
+     * Gets the configured identity and account of a particular calendar instance, or null.
+     *
+     * @param {calICalendar} aCalendar      Calendar instance
+     * @param {?Object} outAccount          Optional out value for account
+     * @return {nsIMsgIdentity}             The configured identity
+     */
+    getEmailIdentityOfCalendar: function(aCalendar, outAccount) {
+        cal.ASSERT(aCalendar, "no calendar!", Components.results.NS_ERROR_INVALID_ARG);
+        let key = aCalendar.getProperty("imip.identity.key");
+        if (key === null) { // take default account/identity:
+            let findIdentity = function(account) {
+                if (account && account.identities.length) {
+                    return account.defaultIdentity ||
+                           account.identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+                }
+                return null;
+            };
+
+            let foundAccount = (function() {
+                try {
+                    return MailServices.accounts.defaultAccount;
+                } catch (e) {
+                    return null;
+                }
+            })();
+            let foundIdentity = findIdentity(foundAccount);
+
+            if (!foundAccount || !foundIdentity) {
+                let accounts = MailServices.accounts.accounts;
+                for (let account of fixIterator(accounts, Components.interfaces.nsIMsgAccount)) {
+                    let identity = findIdentity(account);
+
+                    if (account && identity) {
+                        foundAccount = account;
+                        foundIdentity = identity;
+                        break;
+                    }
                 }
             }
-        };
-        this.timer = Components.classes["@mozilla.org/timer;1"]
-                               .createInstance(Components.interfaces.nsITimer);
-        this.timer.initWithCallback(
-            timerCallback,
-            0,
-            Components.interfaces.nsITimer.TYPE_ONE_SHOT
-        );
-        return true;
-    }
-};
 
-/**
- * Freebusy interval implementation. All parameters are optional.
- *
- * @param aCalId         The calendar id to set up with.
- * @param aFreeBusyType  The type from calIFreeBusyInterval.
- * @param aStart         The start of the interval.
- * @param aEnd           The end of the interval.
- * @return               The fresh calIFreeBusyInterval.
- */
-cal.FreeBusyInterval = function(aCalId, aFreeBusyType, aStart, aEnd) {
-    this.calId = aCalId;
-    this.interval = Components.classes["@mozilla.org/calendar/period;1"]
-                              .createInstance(Components.interfaces.calIPeriod);
-    this.interval.start = aStart;
-    this.interval.end = aEnd;
-
-    this.freeBusyType = aFreeBusyType || Components.interfaces.calIFreeBusyInterval.UNKNOWN;
-};
-cal.FreeBusyInterval.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIFreeBusyInterval]),
-    calId: null,
-    interval: null,
-    freeBusyType: Components.interfaces.calIFreeBusyInterval.UNKNOWN
-};
-
-/**
- * Gets the iTIP/iMIP transport if the passed calendar has configured email.
- */
-cal.getImipTransport = function(aCalendar) {
-    // assure an identity is configured for the calendar
-    return (aCalendar && aCalendar.getProperty("imip.identity")
-            ? Components.classes["@mozilla.org/calendar/itip-transport;1?type=email"]
-                        .getService(Components.interfaces.calIItipTransport)
-            : null);
-};
-
-/**
- * Gets the configured identity and account of a particular calendar instance, or null.
- *
- * @param aCalendar     Calendar instance
- * @param outAccount    Optional out value for account
- * @return              The configured identity
- */
-cal.getEmailIdentityOfCalendar = function(aCalendar, outAccount) {
-    cal.ASSERT(aCalendar, "no calendar!", Components.results.NS_ERROR_INVALID_ARG);
-    let key = aCalendar.getProperty("imip.identity.key");
-    if (key === null) { // take default account/identity:
-        let findIdentity = function(account) {
-            if (account && account.identities.length) {
-                return account.defaultIdentity ||
-                       account.identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+            if (outAccount) {
+                outAccount.value = foundIdentity ? foundAccount : null;
             }
-            return null;
-        };
-
-        let foundAccount = (function() {
-            try {
-                return MailServices.accounts.defaultAccount;
-            } catch (e) {
+            return foundIdentity;
+        } else {
+            if (key.length == 0) { // i.e. "None"
                 return null;
             }
-        })();
-        let foundIdentity = findIdentity(foundAccount);
+            let identity = null;
+            cal.email.iterateIdentities((identity_, account) => {
+                if (identity_.key == key) {
+                    identity = identity_;
+                    if (outAccount) {
+                        outAccount.value = account;
+                    }
+                }
+                return (identity_.key != key);
+            });
 
-        if (!foundAccount || !foundIdentity) {
-            let accounts = MailServices.accounts.accounts;
-            for (let account of fixIterator(accounts, Components.interfaces.nsIMsgAccount)) {
-                let identity = findIdentity(account);
+            if (!identity) {
+                // dangling identity:
+                cal.WARN("Calendar " + (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +
+                         " has a dangling E-Mail identity configured.");
+            }
+            return identity;
+        }
+    },
 
-                if (account && identity) {
-                    foundAccount = account;
-                    foundIdentity = identity;
-                    break;
+    /**
+     * Opens the calendar conflict dialog
+     *
+     * @param {String} aMode        The conflict mode, either "modify" or "delete"
+     * @param {calIItemBase} aItem  The item to raise a conflict for
+     * @return {Boolean}            True, if the item should be overwritten
+     */
+    promptOverwrite: function(aMode, aItem) {
+        let window = cal.window.getCalendarWindow();
+        let args = {
+            item: aItem,
+            mode: aMode,
+            overwrite: false
+        };
+
+        window.openDialog("chrome://calendar/content/calendar-conflicts-dialog.xul",
+                          "calendarConflictsDialog",
+                          "chrome,titlebar,modal",
+                          args);
+
+        return args.overwrite;
+    },
+
+    /**
+     * Gets the calendar directory, defaults to <profile-dir>/calendar-data
+     *
+     * @return {nsIFile}        The calendar-data directory as nsIFile
+     */
+    getCalendarDirectory: function() {
+        if (calprovider.getCalendarDirectory.mDir === undefined) {
+            let dir = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+            dir.append("calendar-data");
+            if (!dir.exists()) {
+                try {
+                    dir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o700);
+                } catch (exc) {
+                    cal.ASSERT(false, exc);
+                    throw exc;
                 }
             }
+            calprovider.getCalendarDirectory.mDir = dir;
+        }
+        return calprovider.getCalendarDirectory.mDir.clone();
+    },
+
+    /**
+     * Base prototype to be used implementing a provider.
+     *
+     * @see e.g. providers/gdata
+     */
+    BaseClass: class {
+        /**
+         * The transient proeprties that are not pesisted to storage
+         */
+        static get mTransientProperties() {
+            return {
+                "cache.uncachedCalendar": true,
+                "currentStatus": true,
+                "itip.transport": true,
+                "imip.identity": true,
+                "imip.account": true,
+                "imip.identity.disabled": true,
+                "organizerId": true,
+                "organizerCN": true
+            };
         }
 
-        if (outAccount) {
-            outAccount.value = foundIdentity ? foundAccount : null;
+        QueryInterface(iid) {
+            return cal.generateClassQI(this, iid, [
+                Components.interfaces.calICalendar,
+                Components.interfaces.calISchedulingSupport
+            ]);
         }
-        return foundIdentity;
-    } else {
-        if (key.length == 0) { // i.e. "None"
-            return null;
+
+        /**
+         * Initialize the base class, this should be migrated to an ES6 constructor once all
+         * subclasses are also es6 classes. Call this from the constructor.
+         */
+        initProviderBase() {
+            this.wrappedJSObject = this;
+            this.mID = null;
+            this.mUri = null;
+            this.mACLEntry = null;
+            this.mBatchCount = 0;
+            this.transientProperties = false;
+            this.mObservers = new cal.data.ObserverSet(Components.interfaces.calIObserver);
+            this.mProperties = {};
+            this.mProperties.currentStatus = Components.results.NS_OK;
         }
-        let identity = null;
-        cal.email.iterateIdentities((identity_, account) => {
-            if (identity_.key == key) {
-                identity = identity_;
-                if (outAccount) {
-                    outAccount.value = account;
+
+        /**
+         * Returns the calIObservers for this calendar
+         */
+        get observers() {
+            return this.mObservers;
+        }
+
+        // attribute AUTF8String id;
+        get id() {
+            return this.mID;
+        }
+        set id(aValue) {
+            if (this.mID) {
+                throw Components.results.NS_ERROR_ALREADY_INITIALIZED;
+            }
+            this.mID = aValue;
+
+            let calMgr = cal.getCalendarManager();
+
+            // make all properties persistent that have been set so far:
+            for (let aName in this.mProperties) {
+                if (!this.constructor.mTransientProperties[aName]) {
+                    let value = this.mProperties[aName];
+                    if (value !== null) {
+                        calMgr.setCalendarPref_(this, aName, value);
+                    }
                 }
             }
-            return (identity_.key != key);
-        });
 
-        if (!identity) {
-            // dangling identity:
-            cal.WARN("Calendar " + (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +
-                     " has a dangling E-Mail identity configured.");
+            return aValue;
         }
-        return identity;
-    }
-};
 
-cal.promptOverwrite = function(aMode, aItem) {
-    let window = cal.window.getCalendarWindow();
-    let args = {
-        item: aItem,
-        mode: aMode,
-        overwrite: false
-    };
+        // attribute AUTF8String name;
+        get name() {
+            return this.getProperty("name");
+        }
+        set name(aValue) {
+            return this.setProperty("name", aValue);
+        }
 
-    window.openDialog("chrome://calendar/content/calendar-conflicts-dialog.xul",
-                      "calendarConflictsDialog",
-                      "chrome,titlebar,modal",
-                      args);
+        // readonly attribute calICalendarACLManager aclManager;
+        get aclManager() {
+            const defaultACLProviderClass = "@mozilla.org/calendar/acl-manager;1?type=default";
+            let providerClass = this.getProperty("aclManagerClass");
+            if (!providerClass || !Components.classes[providerClass]) {
+                providerClass = defaultACLProviderClass;
+            }
+            return Components.classes[providerClass].getService(Components.interfaces.calICalendarACLManager);
+        }
 
-    return args.overwrite;
-};
+        // readonly attribute calICalendarACLEntry aclEntry;
+        get aclEntry() {
+            return this.mACLEntry;
+        }
 
-/**
- * Gets the calendar directory, defaults to <profile-dir>/calendar-data
- */
-cal.getCalendarDirectory = function() {
-    if (cal.getCalendarDirectory.mDir === undefined) {
-        let dir = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
-        dir.append("calendar-data");
-        if (!dir.exists()) {
-            try {
-                dir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o700);
-            } catch (exc) {
-                cal.ASSERT(false, exc);
-                throw exc;
+        // attribute calICalendar superCalendar;
+        get superCalendar() {
+            // If we have a superCalendar, check this calendar for a superCalendar.
+            // This will make sure the topmost calendar is returned
+            return (this.mSuperCalendar ? this.mSuperCalendar.superCalendar : this);
+        }
+        set superCalendar(val) {
+            return (this.mSuperCalendar = val);
+        }
+
+        // attribute nsIURI uri;
+        get uri() {
+            return this.mUri;
+        }
+        set uri(aValue) {
+            return (this.mUri = aValue);
+        }
+
+        // attribute boolean readOnly;
+        get readOnly() {
+            return this.getProperty("readOnly");
+        }
+        set readOnly(aValue) {
+            return this.setProperty("readOnly", aValue);
+        }
+
+        // readonly attribute boolean canRefresh;
+        get canRefresh() {
+            return false;
+        }
+
+        // void startBatch();
+        startBatch() {
+            if (this.mBatchCount++ == 0) {
+                this.mObservers.notify("onStartBatch");
             }
         }
-        cal.getCalendarDirectory.mDir = dir;
-    }
-    return cal.getCalendarDirectory.mDir.clone();
-};
 
-/**
- * Base prototype to be used implementing a provider.
- *
- * @see e.g. providers/gdata
- */
-cal.ProviderBase = function() {
-    cal.ASSERT("This prototype should only be inherited!");
-};
-cal.ProviderBase.mTransientProperties = {
-    "cache.uncachedCalendar": true,
-    "currentStatus": true,
-    "itip.transport": true,
-    "imip.identity": true,
-    "imip.account": true,
-    "imip.identity.disabled": true,
-    "organizerId": true,
-    "organizerCN": true
-};
-cal.ProviderBase.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([
-        Components.interfaces.calICalendar,
-        Components.interfaces.calISchedulingSupport
-    ]),
-
-    mID: null,
-    mUri: null,
-    mACLEntry: null,
-    mObservers: null,
-    mProperties: null,
-
-    initProviderBase: function() {
-        this.wrappedJSObject = this;
-        this.mObservers = new cal.data.ObserverSet(Components.interfaces.calIObserver);
-        this.mProperties = {};
-        this.mProperties.currentStatus = Components.results.NS_OK;
-    },
-
-    get observers() {
-        return this.mObservers;
-    },
-
-    // attribute AUTF8String id;
-    get id() {
-        return this.mID;
-    },
-    set id(aValue) {
-        if (this.mID) {
-            throw Components.results.NS_ERROR_ALREADY_INITIALIZED;
-        }
-        this.mID = aValue;
-
-        let calMgr = cal.getCalendarManager();
-
-        // make all properties persistent that have been set so far:
-        for (let aName in this.mProperties) {
-            if (!cal.ProviderBase.mTransientProperties[aName]) {
-                let value = this.mProperties[aName];
-                if (value !== null) {
-                    calMgr.setCalendarPref_(this, aName, value);
+        // void endBatch();
+        endBatch() {
+            if (this.mBatchCount > 0) {
+                if (--this.mBatchCount == 0) {
+                    this.mObservers.notify("onEndBatch");
                 }
-            }
-        }
-
-        return aValue;
-    },
-
-    // attribute AUTF8String name;
-    get name() {
-        return this.getProperty("name");
-    },
-    set name(aValue) {
-        return this.setProperty("name", aValue);
-    },
-
-    // readonly attribute calICalendarACLManager aclManager;
-    get aclManager() {
-        const defaultACLProviderClass = "@mozilla.org/calendar/acl-manager;1?type=default";
-        let providerClass = this.getProperty("aclManagerClass");
-        if (!providerClass || !Components.classes[providerClass]) {
-            providerClass = defaultACLProviderClass;
-        }
-        return Components.classes[providerClass].getService(Components.interfaces.calICalendarACLManager);
-    },
-
-    // readonly attribute calICalendarACLEntry aclEntry;
-    get aclEntry() {
-        return this.mACLEntry;
-    },
-
-    // attribute calICalendar superCalendar;
-    get superCalendar() {
-        // If we have a superCalendar, check this calendar for a superCalendar.
-        // This will make sure the topmost calendar is returned
-        return (this.mSuperCalendar ? this.mSuperCalendar.superCalendar : this);
-    },
-    set superCalendar(val) {
-        return (this.mSuperCalendar = val);
-    },
-
-    // attribute nsIURI uri;
-    get uri() {
-        return this.mUri;
-    },
-    set uri(aValue) {
-        return (this.mUri = aValue);
-    },
-
-    // attribute boolean readOnly;
-    get readOnly() {
-        return this.getProperty("readOnly");
-    },
-    set readOnly(aValue) {
-        return this.setProperty("readOnly", aValue);
-    },
-
-    // readonly attribute boolean canRefresh;
-    get canRefresh() {
-        return false;
-    },
-
-    // void startBatch();
-    mBatchCount: 0,
-    startBatch: function() {
-        if (this.mBatchCount++ == 0) {
-            this.mObservers.notify("onStartBatch");
-        }
-    },
-
-    endBatch: function() {
-        if (this.mBatchCount > 0) {
-            if (--this.mBatchCount == 0) {
-                this.mObservers.notify("onEndBatch");
-            }
-        } else {
-            cal.ASSERT(this.mBatchCount > 0, "unexepcted endBatch!");
-        }
-    },
-
-    notifyPureOperationComplete: function(aListener, aStatus, aOperationType, aId, aDetail) {
-        if (aListener) {
-            try {
-                aListener.onOperationComplete(this.superCalendar, aStatus, aOperationType, aId, aDetail);
-            } catch (exc) {
-                cal.ERROR(exc);
-            }
-        }
-    },
-
-    notifyOperationComplete: function(aListener, aStatus, aOperationType, aId, aDetail, aExtraMessage) {
-        this.notifyPureOperationComplete(aListener, aStatus, aOperationType, aId, aDetail);
-
-        if (aStatus == Components.interfaces.calIErrors.OPERATION_CANCELLED) {
-            return; // cancellation doesn't change current status, no notification
-        }
-        if (Components.isSuccessCode(aStatus)) {
-            this.setProperty("currentStatus", aStatus);
-        } else {
-            if (aDetail instanceof Components.interfaces.nsIException) {
-                this.notifyError(aDetail); // will set currentStatus
             } else {
-                this.notifyError(aStatus, aDetail); // will set currentStatus
+                cal.ASSERT(this.mBatchCount > 0, "unexepcted endBatch!");
             }
-            this.notifyError(aOperationType == Components.interfaces.calIOperationListener.GET
-                             ? Components.interfaces.calIErrors.READ_FAILED
-                             : Components.interfaces.calIErrors.MODIFICATION_FAILED,
-                             aExtraMessage || "");
         }
-    },
 
-    // for convenience also callable with just an exception
-    notifyError: function(aErrNo, aMessage) {
-        if (aErrNo == Components.interfaces.calIErrors.OPERATION_CANCELLED) {
-            return; // cancellation doesn't change current status, no notification
-        }
-        if (aErrNo instanceof Components.interfaces.nsIException) {
-            if (!aMessage) {
-                aMessage = aErrNo.message;
+        /**
+         * Notifies the given listener for onOperationComplete, ignoring (but logging) any
+         * exceptions that occur. If no listener is passed the function is a no-op.
+         *
+         * @param {?calIOperationListener} aListener        The listener to notify
+         * @param {Number} aStatus                          A Components.results result
+         * @param {Number} aOperationType                   The operation type component
+         * @param {String} aId                              The item id
+         * @param {*} aDetail                               The item detail for the listener
+         */
+        notifyPureOperationComplete(aListener, aStatus, aOperationType, aId, aDetail) {
+            if (aListener) {
+                try {
+                    aListener.onOperationComplete(this.superCalendar, aStatus, aOperationType, aId, aDetail);
+                } catch (exc) {
+                    cal.ERROR(exc);
+                }
             }
-            aErrNo = aErrNo.result;
-        }
-        this.setProperty("currentStatus", aErrNo);
-        this.observers.notify("onError", [this.superCalendar, aErrNo, aMessage]);
-    },
-
-    mTransientPropertiesMode: false,
-    get transientProperties() {
-        return this.mTransientPropertiesMode;
-    },
-    set transientProperties(value) {
-        return (this.mTransientPropertiesMode = value);
-    },
-
-    // nsIVariant getProperty(in AUTF8String aName);
-    getProperty: function(aName) {
-        switch (aName) {
-            case "itip.transport": // iTIP/iMIP default:
-                return cal.getImipTransport(this);
-            case "itip.notify-replies": // iTIP/iMIP default:
-                return Preferences.get("calendar.itip.notify-replies", false);
-            // temporary hack to get the uncached calendar instance:
-            case "cache.uncachedCalendar":
-                return this;
         }
 
-        let ret = this.mProperties[aName];
-        if (ret === undefined) {
-            ret = null;
+        /**
+         * Notifies the given listener for onOperationComplete, also setting various calendar status
+         * variables and notifying about the error.
+         *
+         * @param {?calIOperationListener} aListener        The listener to notify
+         * @param {Number} aStatus                          A Components.results result
+         * @param {Number} aOperationType                   The operation type component
+         * @param {String} aId                              The item id
+         * @param {*} aDetail                               The item detail for the listener
+         * @param {String} aExtraMessage                    An extra message to pass to notifyError
+         */
+        notifyOperationComplete(aListener, aStatus, aOperationType, aId, aDetail, aExtraMessage) {
+            this.notifyPureOperationComplete(aListener, aStatus, aOperationType, aId, aDetail);
+
+            if (aStatus == Components.interfaces.calIErrors.OPERATION_CANCELLED) {
+                return; // cancellation doesn't change current status, no notification
+            }
+            if (Components.isSuccessCode(aStatus)) {
+                this.setProperty("currentStatus", aStatus);
+            } else {
+                if (aDetail instanceof Components.interfaces.nsIException) {
+                    this.notifyError(aDetail); // will set currentStatus
+                } else {
+                    this.notifyError(aStatus, aDetail); // will set currentStatus
+                }
+                this.notifyError(aOperationType == Components.interfaces.calIOperationListener.GET
+                                 ? Components.interfaces.calIErrors.READ_FAILED
+                                 : Components.interfaces.calIErrors.MODIFICATION_FAILED,
+                                 aExtraMessage || "");
+            }
+        }
+
+        /**
+         * Notify observers using the onError notification with a readable error message
+         *
+         * @param {Number|nsIException} aErrNo      The error number from Components.results, or
+         *                                            the exception which contains the error number
+         * @param {?String} aMessage                The message to show for the error
+         */
+        notifyError(aErrNo, aMessage=null) {
+            if (aErrNo == Components.interfaces.calIErrors.OPERATION_CANCELLED) {
+                return; // cancellation doesn't change current status, no notification
+            }
+            if (aErrNo instanceof Components.interfaces.nsIException) {
+                if (!aMessage) {
+                    aMessage = aErrNo.message;
+                }
+                aErrNo = aErrNo.result;
+            }
+            this.setProperty("currentStatus", aErrNo);
+            this.observers.notify("onError", [this.superCalendar, aErrNo, aMessage]);
+        }
+
+        // nsIVariant getProperty(in AUTF8String aName);
+        getProperty(aName) {
             switch (aName) {
                 case "itip.transport": // iTIP/iMIP default:
                     return calprovider.getImipTransport(this);

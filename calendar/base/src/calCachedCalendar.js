@@ -201,7 +201,7 @@ calCachedCalendar.prototype = {
                         break;
                     }
                     case "storage": {
-                        let file = cal.getCalendarDirectory();
+                        let file = cal.provider.getCalendarDirectory();
                         file.append("cache.sqlite");
                         cachedCalendar.uri = Services.io.newFileURI(file);
                         cachedCalendar.id = this.id;
@@ -407,7 +407,7 @@ calCachedCalendar.prototype = {
                                 } else {
                                     // The item has been deleted from the server, ask if it should be added again
                                     cal.WARN("[calCachedCalendar] Item '" + item.title + "' has been deleted from the server");
-                                    if (cal.promptOverwrite("modify", item, null, null)) {
+                                    if (cal.provider.promptOverwrite("modify", item, null, null)) {
                                         self.adoptOfflineItem(item.clone(), null);
                                     }
                                 }
@@ -458,7 +458,7 @@ calCachedCalendar.prototype = {
 
     // aOldItem is already in the cache
     promptOverwrite: function(aMethod, aItem, aListener, aOldItem) {
-        let overwrite = cal.promptOverwrite(aMethod, aItem, aListener, aOldItem);
+        let overwrite = cal.provider.promptOverwrite(aMethod, aItem, aListener, aOldItem);
         if (overwrite) {
             if (aMethod == "modify") {
                 this.modifyOfflineItem(aItem, aOldItem, aListener);

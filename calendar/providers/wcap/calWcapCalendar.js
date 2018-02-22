@@ -27,7 +27,7 @@ var calWcapCalendarInterfaces = [
     Components.interfaces.calICalendarProvider,
 ];
 calWcapCalendar.prototype = {
-    __proto__: cal.ProviderBase.prototype,
+    __proto__: cal.provider.BaseClass.prototype,
     classID: calWcapCalendarClassID,
     QueryInterface: XPCOMUtils.generateQI(calWcapCalendarInterfaces),
     classInfo: XPCOMUtils.generateCI({
