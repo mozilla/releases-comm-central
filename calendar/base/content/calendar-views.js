@@ -712,7 +712,7 @@ cal.navigationBar = {
         }
         if (document.getElementById("modeBroadcaster").getAttribute("mode") == "calendar") {
             document.title = (docTitle ? docTitle + " - " : "") +
-                cal.calGetString("brand", "brandFullName", null, "branding");
+                cal.l10n.getAnyString("branding", "brand", "brandFullName");
         }
         let viewTabs = document.getElementById("view-tabs");
         viewTabs.selectedIndex = getViewDeck().selectedIndex;

@@ -420,7 +420,7 @@
       <constructor><![CDATA[
           ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-          this.mForeverStr = cal.calGetString("calendar-event-dialog", "eventRecurrenceForeverLabel");
+          this.mForeverStr = cal.l10n.getString("calendar-event-dialog", "eventRecurrenceForeverLabel");
           document.getAnonymousElementByAttribute(this, "anonid", "menuitemForever")
                   .setAttribute("label", this.mForeverStr);
       ]]></constructor>
@@ -1605,20 +1605,14 @@
         <body><![CDATA[
             let now = new Date();
 
-            try {
-                let noon = cal.l10n.getDateFmtString("noon");
-                if (aValue.toLowerCase() == noon.toLowerCase()) {
-                    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0, 0);
-                }
+            let noon = cal.l10n.getDateFmtString("noon");
+            if (aValue.toLowerCase() == noon.toLowerCase()) {
+                return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0, 0);
+            }
 
-                let midnight = cal.l10n.getDateFmtString("midnight");
-                if (aValue.toLowerCase() == midnight.toLowerCase()) {
-                    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-                }
-            } catch (ex) {
-                // Try/catch this, since some people are apparently
-                // interested in using the datepicker in remote apps, where
-                // calGetString wouldn't exist
+            let midnight = cal.l10n.getDateFmtString("midnight");
+            if (aValue.toLowerCase() == midnight.toLowerCase()) {
+                return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
             }
 
             let time = null;

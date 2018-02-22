@@ -389,7 +389,7 @@ function updateRepeatDetails() {
                                               endDate, startDate.isDate);
 
     if (!detailsString) {
-        detailsString = cal.calGetString("calendar-event-dialog", "ruleTooComplexSummary");
+        detailsString = cal.l10n.getString("calendar-event-dialog", "ruleTooComplexSummary");
     }
 
     // Now display the string...
@@ -450,7 +450,7 @@ function sendMailToOrganizer() {
     let item = args.calendarEvent;
     let organizer = item.organizer;
     let email = cal.email.getAttendeeEmail(organizer, true);
-    let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
+    let emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [item.title]);
     let identity = item.calendar.getProperty("imip.identity");
     cal.email.sendTo(email, emailSubject, null, identity);
 }

@@ -402,7 +402,7 @@ calCalendarManager.prototype = {
     alertAndQuit: function() {
         // We want to include the extension name in the error message rather
         // than blaming Thunderbird.
-        let hostAppName = cal.calGetString("brand", "brandShortName", null, "branding");
+        let hostAppName = cal.l10n.getAnyString("branding", "brand", "brandShortName");
         let calAppName = cal.l10n.getLtnString("brandShortName");
         let errorBoxTitle = cal.l10n.getCalString("tooNewSchemaErrorBoxTitle", [calAppName]);
         let errorBoxText = cal.l10n.getCalString("tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);

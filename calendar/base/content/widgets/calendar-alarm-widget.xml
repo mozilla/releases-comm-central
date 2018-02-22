@@ -126,7 +126,7 @@
                 let tooltip = "reminderDisabledSnoozeButtonTooltip";
                 snoozeButton.disabled = true;
                 snoozeButton.setAttribute("tooltiptext",
-                                          cal.calGetString("calendar-alarms", tooltip));
+                                          cal.l10n.getString("calendar-alarms", tooltip));
             } else {
                 snoozeButton.disabled = false;
                 snoozeButton.removeAttribute("tooltiptext");
@@ -355,9 +355,9 @@
             let unitPlural = PluralForm.get(unitValue.value, pluralString)
                                        .replace("#1", unitValue.value);
 
-            let accessibleString = cal.calGetString("calendar-alarms",
-                                                    "reminderSnoozeOkA11y",
-                                                    [unitPlural]);
+            let accessibleString = cal.l10n.getString("calendar-alarms",
+                                                      "reminderSnoozeOkA11y",
+                                                      [unitPlural]);
             okButton.setAttribute("aria-label", accessibleString);
 
             let items = unitPopup.getElementsByTagName("xul:menuitem");

@@ -21,7 +21,7 @@ function onLoad() {
 
     // Make sure the origin menulist uses the right labels, depending on if the
     // dialog is showing an event or task.
-    function _sn(x) { return cal.calGetString("calendar-alarms", getItemBundleStringName(x)); }
+    function _sn(x) { return cal.l10n.getString("calendar-alarms", getItemBundleStringName(x)); }
 
     setElementValue("reminder-before-start-menuitem",
                     _sn("reminderCustomOriginBeginBefore"),
@@ -171,9 +171,9 @@ function setupMaxReminders() {
     if (!setupMaxReminders.notification) {
         let notification = createXULElement("notification");
         let localeErrorString =
-            cal.calGetString("calendar-alarms",
-                             getItemBundleStringName("reminderErrorMaxCountReached"),
-                             [maxReminders]);
+            cal.l10n.getString("calendar-alarms",
+                               getItemBundleStringName("reminderErrorMaxCountReached"),
+                               [maxReminders]);
         let pluralErrorLabel = PluralForm.get(maxReminders, localeErrorString)
                                          .replace("#1", maxReminders);
 

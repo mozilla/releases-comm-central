@@ -665,9 +665,9 @@
               };
 
               let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
-              let tooltip = cal.calGetString("calendar-event-dialog-attendees",
-                                             roleNameString,
-                                             role in roleMap ? null : [role]);
+              let tooltip = cal.l10n.getString("calendar-event-dialog-attendees",
+                                               roleNameString,
+                                               role in roleMap ? null : [role]);
               targetIcon.setAttribute("tooltiptext", tooltip);
           } else if (targetIcon.className == "usertype-icon") {
               let cutype = targetIcon.getAttribute("cutype");
@@ -680,9 +680,9 @@
               };
 
               let cutypeString = "event.attendee.usertype." + (cutype in cutypeMap ? cutypeMap[cutype] : "unknown");
-              let tooltip = cal.calGetString("calendar-event-dialog-attendees",
-                                             cutypeString,
-                                             cutype in cutypeMap ? null : [cutype]);
+              let tooltip = cal.l10n.getString("calendar-event-dialog-attendees",
+                                               cutypeString,
+                                               cutype in cutypeMap ? null : [cutype]);
               targetIcon.setAttribute("tooltiptext", tooltip);
           }
       ]]></body>

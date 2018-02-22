@@ -17,7 +17,7 @@ var calcategory = {
      */
     setupDefaultCategories: function() {
         // First, set up the category names
-        let categories = cal.calGetString("categories", "categories2");
+        let categories = cal.l10n.getString("categories", "categories2");
         Preferences.set("calendar.categories.names", categories);
 
         // Now, initialize the category default colors

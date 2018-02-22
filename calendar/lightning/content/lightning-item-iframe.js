@@ -311,7 +311,7 @@ function onLoad() {
 
     // new items should have a non-empty title.
     if (item.isMutable && (!item.title || item.title.length <= 0)) {
-        item.title = cal.calGetString("calendar-event-dialog",
+        item.title = cal.l10n.getString("calendar-event-dialog",
                                       cal.item.isEvent(item) ? "newEvent" : "newTask");
     }
 
@@ -696,10 +696,10 @@ function loadDialog(aItem) {
         let isEvent = cal.item.isEvent(aItem);
 
         let labelString = isEvent ? "itemMenuLabelEvent" : "itemMenuLabelTask";
-        let label = cal.calGetString("calendar-event-dialog", labelString);
+        let label = cal.l10n.getString("calendar-event-dialog", labelString);
 
         let accessKeyString = isEvent ? "itemMenuAccesskeyEvent2" : "itemMenuAccesskeyTask2";
-        let accessKey = cal.calGetString("calendar-event-dialog", accessKeyString);
+        let accessKey = cal.l10n.getString("calendar-event-dialog", accessKeyString);
         sendMessage({
             command: "initializeItemMenu",
             label: label,
@@ -1908,7 +1908,7 @@ function loadCloudProviders() {
         // Create a serializable object to pass in a message outside the iframe
         let itemObject = {};
         itemObject.displayName = cloudFileAccounts.getDisplayName(cloudProvider);
-        itemObject.label = cal.calGetString("calendar-event-dialog", "attachViaFilelink", [itemObject.displayName]);
+        itemObject.label = cal.l10n.getString("calendar-event-dialog", "attachViaFilelink", [itemObject.displayName]);
         itemObject.cloudProviderAccountKey = cloudProvider.accountKey;
         if (cloudProvider.iconClass) {
             itemObject.class = "menuitem-iconic";
@@ -1944,14 +1944,16 @@ function attachURL() {
     if (Services.prompt) {
         // ghost in an example...
         let result = { value: "http://" };
-        if (Services.prompt.prompt(window,
-                                   cal.calGetString("calendar-event-dialog",
-                                                    "specifyLinkLocation"),
-                                   cal.calGetString("calendar-event-dialog",
-                                                    "enterLinkLocation"),
-                                   result,
-                                   null,
-                                   { value: 0 })) {
+        let confirm = Services.prompt.prompt(
+            window,
+            cal.l10n.getString("calendar-event-dialog", "specifyLinkLocation"),
+            cal.l10n.getString("calendar-event-dialog", "enterLinkLocation"),
+            result,
+            null,
+            { value: 0 }
+        );
+
+        if (confirm) {
             try {
                 // If something bogus was entered, Services.io.newURI may fail.
                 let attachment = cal.createAttachment();
@@ -1993,7 +1995,7 @@ function attachFile(cloudProvider) {
     let filePicker = Components.classes["@mozilla.org/filepicker;1"]
                                .createInstance(nsIFilePicker);
     filePicker.init(window,
-                    cal.calGetString("calendar-event-dialog", "selectAFile"),
+                    cal.l10n.getString("calendar-event-dialog", "selectAFile"),
                     nsIFilePicker.modeOpenMultiple);
 
     // Check for the last directory
@@ -2233,8 +2235,8 @@ function deleteAllAttachments() {
     let canRemove = (itemCount < 2);
 
     if (itemCount > 1) {
-        let removeText = PluralForm.get(itemCount, cal.calGetString("calendar-event-dialog", "removeAttachmentsText"));
-        let removeTitle = cal.calGetString("calendar-event-dialog", "removeCalendarsTitle");
+        let removeText = PluralForm.get(itemCount, cal.l10n.getString("calendar-event-dialog", "removeAttachmentsText"));
+        let removeTitle = cal.l10n.getString("calendar-event-dialog", "removeCalendarsTitle");
         canRemove = Services.prompt.confirm(window, removeTitle, removeText.replace("#1", itemCount), {});
     }
 
@@ -3625,7 +3627,7 @@ function updateRepeatDetails() {
                                                   endDate, allDay);
 
         if (!detailsString) {
-            detailsString = cal.calGetString("calendar-event-dialog", "ruleTooComplex");
+            detailsString = cal.l10n.getString("calendar-event-dialog", "ruleTooComplex");
         }
 
         // Now display the string...
@@ -3771,7 +3773,7 @@ function sendMailToUndecidedAttendees(aAttendees) {
 function sendMailToAttendees(aAttendees) {
     let toList = cal.email.createRecipientList(aAttendees);
     let item = saveItem();
-    let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
+    let emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [item.title]);
     let identity = window.calendarItem.calendar.getProperty("imip.identity");
     cal.email.sendTo(toList, emailSubject, null, identity);
 }
@@ -3945,7 +3947,7 @@ function displayCounterProposal() {
 
     if (idCounter > 0) {
         if (partStat && attendeeId.length) {
-            document.getElementById("counter-proposal-summary").value = cal.calGetString(
+            document.getElementById("counter-proposal-summary").value = cal.l10n.getString(
                 "calendar-event-dialog",
                 partStat,
                 [attendeeId]
@@ -3963,7 +3965,7 @@ function displayCounterProposal() {
             // user accordingly
             notifyUser(
                 "counterProposalOnPreviousVersion",
-                cal.calGetString("calendar-event-dialog", "counterOnPreviousVersionNotification"),
+                cal.l10n.getString("calendar-event-dialog", "counterOnPreviousVersionNotification"),
                 "warn"
             );
         }
@@ -3972,7 +3974,7 @@ function displayCounterProposal() {
             // invitation, so we notify the user accordingly
             notifyUser(
                 "counterProposalOnCounteringDisallowed",
-                cal.calGetString("calendar-event-dialog", "counterOnCounterDisallowedNotification"),
+                cal.l10n.getString("calendar-event-dialog", "counterOnCounterDisallowedNotification"),
                 "warn"
             );
         }

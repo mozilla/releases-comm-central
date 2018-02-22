@@ -21,7 +21,7 @@ this.EXPORTED_SYMBOLS = ["recurrenceRule2String", "splitRecurrenceRules", "check
  */
 function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
     function getRString(name, args) {
-        return cal.calGetString("calendar-event-dialog", name, args);
+        return cal.l10n.getString("calendar-event-dialog", name, args);
     }
     function day_of_week(day) {
         return Math.abs(day) % 8;

@@ -258,7 +258,7 @@
                   child.calendar = this;
               }
           }
-          let labelLastDay = cal.calGetString("calendar-event-dialog", "eventRecurrenceMonthlyLastDayLabel");
+          let labelLastDay = cal.l10n.getString("calendar-event-dialog", "eventRecurrenceMonthlyLastDayLabel");
           child.setAttribute("label", labelLastDay);
       ]]></constructor>
     </implementation>

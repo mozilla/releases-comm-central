@@ -218,7 +218,7 @@ function sendMailToOrganizer() {
     if (item != null) {
         let organizer = item.organizer;
         let email = cal.email.getAttendeeEmail(organizer, true);
-        let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
+        let emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [item.title]);
         let identity = item.calendar.getProperty("imip.identity");
         cal.email.sendTo(email, emailSubject, null, identity);
     }

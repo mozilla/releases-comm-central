@@ -28,7 +28,7 @@
       }
 
       function getDString(aKey) {
-          return cal.calGetString("calendar-occurrence-prompt", aKey);
+          return cal.l10n.getString("calendar-occurrence-prompt", aKey);
       }
 
       function onLoad() {

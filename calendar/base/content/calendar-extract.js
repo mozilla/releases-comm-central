@@ -22,7 +22,7 @@ var calendarExtract = {
             let langName = localeParts[2];
 
             try {
-                langName = cal.calGetString("languageNames", langName, null, "global");
+                langName = cal.l10n.getAnyString("global", "languageNames", langName);
             } catch (ex) {
                 // If no language name is found that is ok, keep the technical term
             }

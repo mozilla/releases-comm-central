@@ -427,7 +427,7 @@ function ltnIntegrationNotification() {
     let notifyBox = document.getElementById("mail-notification-box") ||
                     document.getElementById("messagepanebox");
 
-    let appBrand = cal.calGetString("brand", "brandShortName", null, "branding");
+    let appBrand = cal.l10n.getAnyString("branding", "brand", "brandShortName");
     let ltnBrand = cal.l10n.getLtnString("brandShortName");
     let label = cal.l10n.getLtnString("integrationLabel", [appBrand, ltnBrand]);
 
@@ -942,7 +942,7 @@ function checkCalendarBinaryComponent() {
             let args = [extbrand, ext.version, version];
             text = cal.l10n.getLtnString("binaryComponentKnown", args);
         } else {
-            let brand = cal.calGetString("brand", "brandShortName", null, "branding");
+            let brand = cal.l10n.getAnyString("branding", "brand", "brandShortName");
             let args = [extbrand, brand, appversion, ext.version];
             text = cal.l10n.getLtnString("binaryComponentUnknown", args);
         }

@@ -45,19 +45,19 @@ cal.auth = {
         // Only show the save password box if we are supposed to.
         let savepassword = null;
         if (Preferences.get("signon.rememberSignons", true)) {
-            savepassword = cal.calGetString("passwordmgr", "rememberPassword", null, "passwordmgr");
+            savepassword = cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword");
         }
 
         let aText;
         if (aFixedUsername) {
-            aText = cal.calGetString("commonDialogs", "EnterPasswordFor", [aUsername.value, aCalendarName], "global");
+            aText = cal.l10n.getAnyString("global", "commonDialogs", "EnterPasswordFor", [aUsername.value, aCalendarName]);
             return prompter.promptPassword(aTitle,
                                            aText,
                                            aPassword,
                                            savepassword,
                                            aSavePassword);
         } else {
-            aText = cal.calGetString("commonDialogs", "EnterUserPasswordFor2", [aCalendarName], "global");
+            aText = cal.l10n.getAnyString("global", "commonDialogs", "EnterUserPasswordFor2", [aCalendarName]);
             return prompter.promptUsernameAndPassword(aTitle,
                                                       aText,
                                                       aUsername,

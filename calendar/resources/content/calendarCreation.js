@@ -20,8 +20,8 @@ var errorConstants = {
 
 var l10nStrings = {};
 l10nStrings[errorConstants.SUCCESS] = "";
-l10nStrings[errorConstants.INVALID_URI] = cal.calGetString("calendarCreation", "error.invalidUri");
-l10nStrings[errorConstants.ALREADY_EXISTS] = cal.calGetString("calendarCreation", "error.alreadyExists");
+l10nStrings[errorConstants.INVALID_URI] = cal.l10n.getString("calendarCreation", "error.invalidUri");
+l10nStrings[errorConstants.ALREADY_EXISTS] = cal.l10n.getString("calendarCreation", "error.alreadyExists");
 
 /**
  * Initialize the location page

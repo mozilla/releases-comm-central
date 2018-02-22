@@ -356,8 +356,7 @@ function doReadOnlyChecks() {
     let snoozeAllButton = document.getElementById("alarm-snooze-all-button");
     snoozeAllButton.disabled = (countRO && countRO == alarmRichlist.childNodes.length);
     if (snoozeAllButton.disabled) {
-        let tooltip = cal.calGetString("calendar-alarms",
-                                       "reminderDisabledSnoozeButtonTooltip");
+        let tooltip = cal.l10n.getString("calendar-alarms", "reminderDisabledSnoozeButtonTooltip");
         snoozeAllButton.setAttribute("tooltiptext", tooltip);
     } else {
         snoozeAllButton.removeAttribute("tooltiptext");
@@ -366,9 +365,9 @@ function doReadOnlyChecks() {
     let nBox = document.getElementById("readonly-notification");
     let notification = nBox.getNotificationWithValue("calendar-readonly");
     if (countRO && !notification) {
-        let message = cal.calGetString("calendar-alarms",
-                                       "reminderReadonlyNotification",
-                                       [snoozeAllButton.label]);
+        let message = cal.l10n.getString("calendar-alarms",
+                                         "reminderReadonlyNotification",
+                                         [snoozeAllButton.label]);
         nBox.appendNotification(message,
                                 "calendar-readonly",
                                 null,

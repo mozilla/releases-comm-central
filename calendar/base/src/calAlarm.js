@@ -619,7 +619,7 @@ calAlarm.prototype = {
     get propertyEnumerator() { return this.mProperties.simpleEnumerator; },
 
     toString: function(aItem) {
-        function getItemBundleStringName(aPrefix) {
+        function alarmString(aPrefix) {
             if (!aItem || cal.item.isEvent(aItem)) {
                 return aPrefix + "Event";
             } else if (cal.item.isToDo(aItem)) {
@@ -642,11 +642,9 @@ calAlarm.prototype = {
                 // No need to get the other information if the alarm is at the start
                 // of the event/task.
                 if (this.related == ALARM_RELATED_START) {
-                    return cal.calGetString("calendar-alarms",
-                                            getItemBundleStringName("reminderTitleAtStart"));
+                    return cal.l10n.getString("calendar-alarms", alarmString("reminderTitleAtStart"));
                 } else if (this.related == ALARM_RELATED_END) {
-                    return cal.calGetString("calendar-alarms",
-                                            getItemBundleStringName("reminderTitleAtEnd"));
+                    return cal.l10n.getString("calendar-alarms", alarmString("reminderTitleAtEnd"));
                 }
             }
 
@@ -682,11 +680,10 @@ calAlarm.prototype = {
                 originStringName += "After";
             }
 
-            let originString = cal.calGetString("calendar-alarms",
-                                                getItemBundleStringName(originStringName));
-            return cal.calGetString("calendar-alarms",
-                                    "reminderCustomTitle",
-                                    [unitString, originString]);
+            let originString = cal.l10n.getString("calendar-alarms", alarmString(originStringName));
+            return cal.l10n.getString("calendar-alarms",
+                                      "reminderCustomTitle",
+                                      [unitString, originString]);
         } else {
             // This is an incomplete alarm, but then again we should never reach
             // this state.
