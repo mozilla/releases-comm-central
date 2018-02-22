@@ -48,6 +48,8 @@ var migrations = {
         sameDay: "sameDay",
         jsDateToDateTime: "jsDateToDateTime",
         dateTimeToJsDate: "dateTimeToJsDate",
+        fromRFC3339: "fromRFC3339",
+        toRFC3339: "toRFC3339",
 
         // The following are now getters
         calendarDefaultTimezone: "defaultTimezone",
