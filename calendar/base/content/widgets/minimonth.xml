@@ -871,8 +871,8 @@
                 calbox.setAttribute("aria-label", cal.calGetString("dateFormat",
                                     "month." + (aDate.getMonth() + 1) + ".name"));
             } else {
-                let monthName = cal.formatMonth(aDate.getMonth() + 1,
-                                                "calendar", "monthInYear");
+                let monthName = cal.l10n.formatMonth(aDate.getMonth() + 1,
+                                                     "calendar", "monthInYear");
                 let label = cal.calGetString("calendar", "monthInYear",
                                          [monthName, aDate.getFullYear()]);
                 calbox.setAttribute("aria-label", label);

@@ -252,8 +252,8 @@
       </method>
       <method name="getRangeDescription">
         <body><![CDATA[
-            let monthName = cal.formatMonth(this.rangeStartDate.month + 1,
-                                            "calendar", "monthInYear");
+            let monthName = cal.l10n.formatMonth(this.rangeStartDate.month + 1,
+                                                 "calendar", "monthInYear");
             return cal.calGetString("calendar", "monthInYear", [monthName, this.rangeStartDate.year]);
         ]]></body>
        </method>

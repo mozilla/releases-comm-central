@@ -154,7 +154,7 @@ calMonthPrinter.prototype = {
         currentMonth.item = startOfMonth.clone();
 
         // Set up the month title
-        let monthName = cal.formatMonth(startOfMonth.month + 1, "calendar", "monthInYear");
+        let monthName = cal.l10n.formatMonth(startOfMonth.month + 1, "calendar", "monthInYear");
         let monthTitle = cal.calGetString("calendar", "monthInYear", [monthName, startOfMonth.year]);
         currentMonth.querySelector(".month-name").textContent = monthTitle;
 

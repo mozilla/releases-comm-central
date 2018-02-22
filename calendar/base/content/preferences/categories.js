@@ -76,7 +76,7 @@ var gCategoriesPane = {
      */
 
     updatePrefs: function() {
-        cal.sortArrayByLocaleCollator(gCategoryList);
+        cal.l10n.sortArrayByLocaleCollator(gCategoryList);
         document.getElementById("calendar.categories.names").value =
             cal.category.arrayToString(gCategoryList);
     },

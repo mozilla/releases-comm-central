@@ -126,15 +126,20 @@ calDateTimeFormatter.prototype = {
                 let endDay = this.formatDayWithOrdinal(endDate.day);
                 let endYear = endDate.year;
                 if (aStartDate.year != endDate.year) {
-                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "daysIntervalBetweenYears");
-                    let endMonthName = cal.formatMonth(aEndDate.month + 1, "calendar", "daysIntervalBetweenYears");
+                    let startMonthName = cal.l10n.formatMonth(aStartDate.month + 1, "calendar",
+                                                              "daysIntervalBetweenYears");
+                    let endMonthName = cal.l10n.formatMonth(aEndDate.month + 1, "calendar",
+                                                            "daysIntervalBetweenYears");
                     return cal.calGetString("calendar", "daysIntervalBetweenYears", [startMonthName, startDay, startYear, endMonthName, endDay, endYear]);
                 } else if (aStartDate.month == endDate.month) {
-                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "daysIntervalInMonth");
+                    let startMonthName = cal.l10n.formatMonth(aStartDate.month + 1, "calendar",
+                                                              "daysIntervalInMonth");
                     return cal.calGetString("calendar", "daysIntervalInMonth", [startMonthName, startDay, endDay, endYear]);
                 } else {
-                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "daysIntervalBetweenMonths");
-                    let endMonthName = cal.formatMonth(aEndDate.month + 1, "calendar", "daysIntervalBetweenMonths");
+                    let startMonthName = cal.l10n.formatMonth(aStartDate.month + 1, "calendar",
+                                                              "daysIntervalBetweenMonths");
+                    let endMonthName = cal.l10n.formatMonth(aEndDate.month + 1, "calendar",
+                                                            "daysIntervalBetweenMonths");
                     return cal.calGetString("calendar", "daysIntervalBetweenMonths", [startMonthName, startDay, endMonthName, endDay, endYear]);
                 }
             }
