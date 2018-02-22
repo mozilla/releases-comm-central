@@ -758,8 +758,7 @@
             for (i = 0; i < 7; i++) {
                 // if available, use UILocale days, else operating system format
                 try {
-                    dayList[i] = cal.calGetString("dateFormat",
-                                 "day." + (tempDate.getDay() + 1) + ".short");
+                    dayList[i] = cal.l10n.getDateFmtString(`day.${tempDate.getDay() + 1}.short`);
                 } catch (e) {
                     dayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "short" });
                     useOSFormat = true;
@@ -868,8 +867,7 @@
             let today = new Date();
 
             if (aDate.getFullYear() == (this.mValue || this.mExtraDate).getFullYear()) {
-                calbox.setAttribute("aria-label", cal.calGetString("dateFormat",
-                                    "month." + (aDate.getMonth() + 1) + ".name"));
+                calbox.setAttribute("aria-label", cal.l10n.getDateFmtString(`month.${aDate.getMonth() + 1}.name`));
             } else {
                 let monthName = cal.l10n.formatMonth(aDate.getMonth() + 1,
                                                      "calendar", "monthInYear");

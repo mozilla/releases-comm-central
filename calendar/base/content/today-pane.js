@@ -322,7 +322,7 @@ var TodayPane = {
         let childNodes = weekdisplaydeck.childNodes;
 
         for (let i = 0; i < childNodes.length; i++) {
-            childNodes[i].setAttribute("value", cal.calGetString("dateFormat", "day." + (i+1) + ".Mmm"));
+            childNodes[i].setAttribute("value", cal.l10n.getDateFmtString(`day.${i + 1}.Mmm`));
         }
     },
 

@@ -245,8 +245,8 @@
                 iconType = "end";
                 if (endAtMidnight) {
                     duration = dateFormatter.formatDate(endDate) + " ";
-                    duration = longFormat ? duration + cal.calGetString("dateFormat", "midnight")
-                                          : cal.calGetString("dateFormat", "midnight");
+                    duration = longFormat ? duration + cal.l10n.getDateFmtString("midnight")
+                                          : cal.l10n.getDateFmtString("midnight");
                 } else {
                     duration = longFormat ? dateFormatter.formatDateTime(end)
                                           : dateFormatter.formatTime(end);

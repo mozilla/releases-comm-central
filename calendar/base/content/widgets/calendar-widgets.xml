@@ -244,7 +244,7 @@
 
       <method name="setUpTodayDate">
         <body><![CDATA[
-            let dayNumber = cal.calGetString("dateFormat", "day." + cal.dtz.now().day + ".number");
+            let dayNumber = cal.l10n.getDateFmtString(`day.${cal.dtz.now().day}.number`);
             document.getAnonymousElementByAttribute(this, "anonid", "day-label").value = dayNumber;
         ]]></body>
       </method>

@@ -123,11 +123,11 @@ function setRecurrence(recurrence) {
     menulistSelect(recid("period-list"), "1", recurrence);
     recsleep();
 
-    let mon = cal.calGetString("dateFormat", "day.2.Mmm");
-    let tue = cal.calGetString("dateFormat", "day.3.Mmm");
-    let wed = cal.calGetString("dateFormat", "day.4.Mmm");
-    let thu = cal.calGetString("dateFormat", "day.5.Mmm");
-    let sat = cal.calGetString("dateFormat", "day.7.Mmm");
+    let mon = cal.l10n.getDateFmtString("day.2.Mmm");
+    let tue = cal.l10n.getDateFmtString("day.3.Mmm");
+    let wed = cal.l10n.getDateFmtString("day.4.Mmm");
+    let thu = cal.l10n.getDateFmtString("day.5.Mmm");
+    let sat = cal.l10n.getDateFmtString("day.7.Mmm");
 
     // starting from Monday so it should be checked. We have to wait a little,
     // because the checkedstate is set in background by JS.

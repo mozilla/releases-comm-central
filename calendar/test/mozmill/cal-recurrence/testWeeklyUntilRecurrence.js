@@ -147,9 +147,9 @@ function setRecurrence(recurrence) {
     recurrence.waitForElement(recid("period-list"));
     menulistSelect(recid("period-list"), "1", recurrence);
 
-    let mon = cal.calGetString("dateFormat", "day.2.Mmm");
-    let wed = cal.calGetString("dateFormat", "day.4.Mmm");
-    let fri = cal.calGetString("dateFormat", "day.6.Mmm");
+    let mon = cal.l10n.getDateFmtString("day.2.Mmm");
+    let wed = cal.l10n.getDateFmtString("day.4.Mmm");
+    let fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
     // starting from Monday so it should be checked. We have to wait a little,
     // because the checkedstate is set in background by JS.

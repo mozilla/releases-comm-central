@@ -68,12 +68,12 @@
               { word: cal.l10n.getCalString("yesterday").toLowerCase(), offset: -1 },
               { word: cal.l10n.getCalString("tomorrow").toLowerCase(), offset: 1 }];
           for (let i = 1; i <= 7; i++) {
-              this.mDayNames.push(cal.calGetString("dateFormat", "day." + i + ".name").toLowerCase());
+              this.mDayNames.push(cal.l10n.getDateFmtString(`day.${i}.name`).toLowerCase());
           }
 
           for (let i = 1; i <= 12; i++) {
-              this.mMonthLongNames.push(cal.calGetString("dateFormat", "month." + i + ".name").toLowerCase());
-              this.mMonthShortNames.push(cal.calGetString("dateFormat", "month." + i + ".Mmm").toLowerCase());
+              this.mMonthLongNames.push(cal.l10n.getDateFmtString(`month.${i}.name`).toLowerCase());
+              this.mMonthShortNames.push(cal.l10n.getDateFmtString(`month.${i}.Mmm`).toLowerCase());
           }
 
           // note that some languages have different conjugations of
@@ -1606,12 +1606,12 @@
             let now = new Date();
 
             try {
-                let noon = cal.calGetString("dateFormat", "noon");
+                let noon = cal.l10n.getDateFmtString("noon");
                 if (aValue.toLowerCase() == noon.toLowerCase()) {
                     return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0, 0);
                 }
 
-                let midnight = cal.calGetString("dateFormat", "midnight");
+                let midnight = cal.l10n.getDateFmtString("midnight");
                 if (aValue.toLowerCase() == midnight.toLowerCase()) {
                     return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
                 }

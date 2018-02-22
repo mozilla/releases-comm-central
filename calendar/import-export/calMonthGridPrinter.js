@@ -162,8 +162,8 @@ calMonthPrinter.prototype = {
         let wkst = Preferences.get("calendar.week.start", 0);
         for (let i = 1; i <= 7; i++) {
             let dayNumber = ((i + wkst - 1) % 7) + 1;
-            let dayTitle = currentMonth.querySelector(".day" + i + "-title");
-            dayTitle.textContent = cal.calGetString("dateFormat", "day." + dayNumber + ".Mmm");
+            let dayTitle = currentMonth.querySelector(`.day${i}-title`);
+            dayTitle.textContent = cal.l10n.getDateFmtString(`day.${dayNumber}.Mmm`);
         }
 
         // Set up each week

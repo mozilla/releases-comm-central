@@ -595,11 +595,11 @@
                             return cal.l10n.getCalString("eventUntitled");
                         }
                     case "entryDate":
-                        return task.recurrenceInfo ? cal.calGetString("dateFormat", "Repeating") : this._formatDateTime(task.entryDate);
+                        return task.recurrenceInfo ? cal.l10n.getDateFmtString("Repeating") : this._formatDateTime(task.entryDate);
                     case "dueDate":
-                        return task.recurrenceInfo ? cal.calGetString("dateFormat", "Repeating") : this._formatDateTime(task.dueDate);
+                        return task.recurrenceInfo ? cal.l10n.getDateFmtString("Repeating") : this._formatDateTime(task.dueDate);
                     case "completedDate":
-                        return task.recurrenceInfo ? cal.calGetString("dateFormat", "Repeating") : this._formatDateTime(task.completedDate);
+                        return task.recurrenceInfo ? cal.l10n.getDateFmtString("Repeating") : this._formatDateTime(task.completedDate);
                     case "percentComplete":
                         return (task.percentComplete > 0 ? task.percentComplete + "%" : "");
                     case "categories":
