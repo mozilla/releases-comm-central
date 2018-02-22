@@ -7,7 +7,6 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calAlarmUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calProviderUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calStorageUpgrade.jsm");
 ChromeUtils.import("resource://calendar/modules/calStorageHelpers.jsm");
 

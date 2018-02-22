@@ -149,6 +149,28 @@ var cal = {
     },
 
     /**
+     * Generates a QueryInterface method on the given global. To be used as follows:
+     *
+     *     class calThing {
+     *       QueryInterface(aIID) { return cal.generateClassQI(this, aIID, [Ci.calIThing]); }
+     *
+     *       ...
+     *     }
+     *
+     * The function is cached, once this is called QueryInterface is replaced with
+     * XPCOMUtils.generateQI()'s result.
+     *
+     * @param {Object} aGlobal      The object to define the method on
+     * @param {nsIIDRef} aIID       The IID to query for
+     * @param {nsIIDRef[]}          The interfaces that this object implements
+     * @return {nsQIResult}         The object queried for aIID
+     */
+    generateClassQI: function(aGlobal, aIID, aInterfaces) {
+        Object.defineProperty(aGlobal, "QueryInterface", { value: XPCOMUtils.generateQI(aInterfaces) });
+        return aGlobal.QueryInterface(aIID);
+    },
+
+    /**
      * Loads an array of calendar scripts into the passed scope.
      *
      * @param scriptNames an array of calendar script names
@@ -372,6 +394,7 @@ XPCOMUtils.defineLazyModuleGetter(cal, "email", "resource://calendar/modules/cal
 XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/calItemUtils.jsm", "calitem");
 XPCOMUtils.defineLazyModuleGetter(cal, "itip", "resource://calendar/modules/calItipUtils.jsm", "calitip");
 XPCOMUtils.defineLazyModuleGetter(cal, "l10n", "resource://calendar/modules/calL10NUtils.jsm", "call10n");
+XPCOMUtils.defineLazyModuleGetter(cal, "provider", "resource://calendar/modules/calProviderUtils.jsm", "calprovider");
 XPCOMUtils.defineLazyModuleGetter(cal, "unifinder", "resource://calendar/modules/calUnifinderUtils.jsm", "calunifinder");
 XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/calViewUtils.jsm", "calview");
 XPCOMUtils.defineLazyModuleGetter(cal, "window", "resource://calendar/modules/calWindowUtils.jsm", "calwindow");

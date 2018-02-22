@@ -12,7 +12,6 @@ ChromeUtils.import("resource:///modules/OAuth2.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calXMLUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calIteratorUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calProviderUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calAuthUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calAsyncUtils.jsm");
 

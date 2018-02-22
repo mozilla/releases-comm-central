@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource:///modules/mailServices.js");
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calAuthUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
 /*
  * Provider helper code
@@ -540,167 +541,182 @@ cal.ProviderBase.prototype = {
         if (ret === undefined) {
             ret = null;
             switch (aName) {
-                case "imip.identity": // we want to cache the identity object a little, because
-                                      // it is heavily used by the invitation checks
-                    ret = cal.getEmailIdentityOfCalendar(this);
-                    break;
-                case "imip.account": {
-                    let outAccount = {};
-                    if (cal.getEmailIdentityOfCalendar(this, outAccount)) {
-                        ret = outAccount.value;
-                    }
-                    break;
-                }
-                case "organizerId": { // itip/imip default: derived out of imip.identity
-                    let identity = this.getProperty("imip.identity");
-                    ret = (identity
-                           ? ("mailto:" + identity.QueryInterface(Components.interfaces.nsIMsgIdentity).email)
-                           : null);
-                    break;
-                }
-                case "organizerCN": { // itip/imip default: derived out of imip.identity
-                    let identity = this.getProperty("imip.identity");
-                    ret = (identity
-                           ? identity.QueryInterface(Components.interfaces.nsIMsgIdentity).fullName
-                           : null);
-                    break;
-                }
+                case "itip.transport": // iTIP/iMIP default:
+                    return calprovider.getImipTransport(this);
+                case "itip.notify-replies": // iTIP/iMIP default:
+                    return Preferences.get("calendar.itip.notify-replies", false);
+                // temporary hack to get the uncached calendar instance:
+                case "cache.uncachedCalendar":
+                    return this;
             }
-            if ((ret === null) &&
-                !cal.ProviderBase.mTransientProperties[aName] &&
-                !this.transientProperties) {
-                if (this.id) {
-                    ret = cal.getCalendarManager().getCalendarPref_(this, aName);
-                }
+
+            let ret = this.mProperties[aName];
+            if (ret === undefined) {
+                ret = null;
                 switch (aName) {
-                    case "suppressAlarms":
-                        if (this.getProperty("capabilities.alarms.popup.supported") === false) {
-                            // If popup alarms are not supported,
-                            // automatically suppress alarms
-                            ret = true;
+                    case "imip.identity": // we want to cache the identity object a little, because
+                                          // it is heavily used by the invitation checks
+                        ret = calprovider.getEmailIdentityOfCalendar(this);
+                        break;
+                    case "imip.account": {
+                        let outAccount = {};
+                        if (calprovider.getEmailIdentityOfCalendar(this, outAccount)) {
+                            ret = outAccount.value;
                         }
                         break;
+                    }
+                    case "organizerId": { // itip/imip default: derived out of imip.identity
+                        let identity = this.getProperty("imip.identity");
+                        ret = (identity
+                               ? ("mailto:" + identity.QueryInterface(Components.interfaces.nsIMsgIdentity).email)
+                               : null);
+                        break;
+                    }
+                    case "organizerCN": { // itip/imip default: derived out of imip.identity
+                        let identity = this.getProperty("imip.identity");
+                        ret = (identity
+                               ? identity.QueryInterface(Components.interfaces.nsIMsgIdentity).fullName
+                               : null);
+                        break;
+                    }
                 }
+                if ((ret === null) &&
+                    !this.constructor.mTransientProperties[aName] &&
+                    !this.transientProperties) {
+                    if (this.id) {
+                        ret = cal.getCalendarManager().getCalendarPref_(this, aName);
+                    }
+                    switch (aName) {
+                        case "suppressAlarms":
+                            if (this.getProperty("capabilities.alarms.popup.supported") === false) {
+                                // If popup alarms are not supported,
+                                // automatically suppress alarms
+                                ret = true;
+                            }
+                            break;
+                    }
+                }
+                this.mProperties[aName] = ret;
             }
-            this.mProperties[aName] = ret;
+            return ret;
         }
-//         cal.LOG("getProperty(\"" + aName + "\"): " + ret);
-        return ret;
-    },
 
-    // void setProperty(in AUTF8String aName, in nsIVariant aValue);
-    setProperty: function(aName, aValue) {
-        let oldValue = this.getProperty(aName);
-        if (oldValue != aValue) {
-            this.mProperties[aName] = aValue;
-            switch (aName) {
-                case "imip.identity.key": // invalidate identity and account object if key is set:
-                    delete this.mProperties["imip.identity"];
-                    delete this.mProperties["imip.account"];
-                    delete this.mProperties.organizerId;
-                    delete this.mProperties.organizerCN;
-                    break;
+        // void setProperty(in AUTF8String aName, in nsIVariant aValue);
+        setProperty(aName, aValue) {
+            let oldValue = this.getProperty(aName);
+            if (oldValue != aValue) {
+                this.mProperties[aName] = aValue;
+                switch (aName) {
+                    case "imip.identity.key": // invalidate identity and account object if key is set:
+                        delete this.mProperties["imip.identity"];
+                        delete this.mProperties["imip.account"];
+                        delete this.mProperties.organizerId;
+                        delete this.mProperties.organizerCN;
+                        break;
+                }
+                if (!this.transientProperties &&
+                    !this.constructor.mTransientProperties[aName] &&
+                    this.id) {
+                    cal.getCalendarManager().setCalendarPref_(this, aName, aValue);
+                }
+                this.mObservers.notify("onPropertyChanged",
+                                       [this.superCalendar, aName, aValue, oldValue]);
             }
-            if (!this.transientProperties &&
-                !cal.ProviderBase.mTransientProperties[aName] &&
-                this.id) {
-                cal.getCalendarManager().setCalendarPref_(this, aName, aValue);
-            }
-            this.mObservers.notify("onPropertyChanged",
-                                   [this.superCalendar, aName, aValue, oldValue]);
+            return aValue;
         }
-        return aValue;
-    },
 
-    // void deleteProperty(in AUTF8String aName);
-    deleteProperty: function(aName) {
-        this.mObservers.notify("onPropertyDeleting", [this.superCalendar, aName]);
-        delete this.mProperties[aName];
-        cal.getCalendarManager().deleteCalendarPref_(this, aName);
-    },
+        // void deleteProperty(in AUTF8String aName);
+        deleteProperty(aName) {
+            this.mObservers.notify("onPropertyDeleting", [this.superCalendar, aName]);
+            delete this.mProperties[aName];
+            cal.getCalendarManager().deleteCalendarPref_(this, aName);
+        }
 
-    // calIOperation refresh
-    refresh: function() {
-        return null;
-    },
+        // calIOperation refresh
+        refresh() {
+            return null;
+        }
 
-    // void addObserver( in calIObserver observer );
-    addObserver: function(aObserver) {
-        this.mObservers.add(aObserver);
-    },
+        // void addObserver( in calIObserver observer );
+        addObserver(aObserver) {
+            this.mObservers.add(aObserver);
+        }
 
-    // void removeObserver( in calIObserver observer );
-    removeObserver: function(aObserver) {
-        this.mObservers.delete(aObserver);
-    },
+        // void removeObserver( in calIObserver observer );
+        removeObserver(aObserver) {
+            this.mObservers.delete(aObserver);
+        }
 
-    // calISchedulingSupport: Implementation corresponding to our iTIP/iMIP support
-    isInvitation: function(aItem) {
-        if (!this.mACLEntry || !this.mACLEntry.hasAccessControl) {
-            // No ACL support - fallback to the old method
-            let id = this.getProperty("organizerId");
-            if (id) {
-                let org = aItem.organizer;
-                if (!org || !org.id || (org.id.toLowerCase() == id.toLowerCase())) {
+        // calISchedulingSupport: Implementation corresponding to our iTIP/iMIP support
+        isInvitation(aItem) {
+            if (!this.mACLEntry || !this.mACLEntry.hasAccessControl) {
+                // No ACL support - fallback to the old method
+                let id = this.getProperty("organizerId");
+                if (id) {
+                    let org = aItem.organizer;
+                    if (!org || !org.id || (org.id.toLowerCase() == id.toLowerCase())) {
+                        return false;
+                    }
+                    return (aItem.getAttendeeById(id) != null);
+                }
+                return false;
+            }
+
+            let org = aItem.organizer;
+            if (!org || !org.id) {
+                // HACK
+                // if we don't have an organizer, this is perhaps because it's an exception
+                // to a recurring event. We check the parent item.
+                if (aItem.parentItem) {
+                    org = aItem.parentItem.organizer;
+                    if (!org || !org.id) {
+                        return false;
+                    }
+                } else {
                     return false;
                 }
-                return (aItem.getAttendeeById(id) != null);
             }
+
+            // We check if :
+            // - the organizer of the event is NOT within the owner's identities of this calendar
+            // - if the one of the owner's identities of this calendar is in the attendees
+            let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
+            for (let i = 0; i < ownerIdentities.length; i++) {
+                let identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
+                if (org.id.toLowerCase() == identity) {
+                    return false;
+                }
+
+                if (aItem.getAttendeeById(identity) != null) {
+                    return true;
+                }
+            }
+
             return false;
         }
 
-        let org = aItem.organizer;
-        if (!org || !org.id) {
-            // HACK
-            // if we don't have an organizer, this is perhaps because it's an exception
-            // to a recurring event. We check the parent item.
-            if (aItem.parentItem) {
-                org = aItem.parentItem.organizer;
-                if (!org || !org.id) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
+        // calIAttendee getInvitedAttendee(in calIItemBase aItem);
+        getInvitedAttendee(aItem) {
+            let id = this.getProperty("organizerId");
+            let attendee = (id ? aItem.getAttendeeById(id) : null);
 
-        // We check if :
-        // - the organizer of the event is NOT within the owner's identities of this calendar
-        // - if the one of the owner's identities of this calendar is in the attendees
-        let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
-        for (let i = 0; i < ownerIdentities.length; i++) {
-            let identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
-            if (org.id.toLowerCase() == identity) {
-                return false;
-            }
-
-            if (aItem.getAttendeeById(identity) != null) {
-                return true;
-            }
-        }
-
-        return false;
-    },
-
-    getInvitedAttendee: function(aItem) {
-        let id = this.getProperty("organizerId");
-        let attendee = (id ? aItem.getAttendeeById(id) : null);
-
-        if (!attendee && this.mACLEntry && this.mACLEntry.hasAccessControl) {
-            let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
-            if (ownerIdentities.length > 0) {
-                let identity;
-                for (let i = 0; !attendee && i < ownerIdentities.length; i++) {
-                    identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
-                    attendee = aItem.getAttendeeById(identity);
+            if (!attendee && this.mACLEntry && this.mACLEntry.hasAccessControl) {
+                let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
+                if (ownerIdentities.length > 0) {
+                    let identity;
+                    for (let i = 0; !attendee && i < ownerIdentities.length; i++) {
+                        identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
+                        attendee = aItem.getAttendeeById(identity);
+                    }
                 }
             }
+
+            return attendee;
         }
 
-        return attendee;
-    },
-
-    canNotify: function(aMethod, aItem) {
-        return false; // use outbound iTIP for all
+        // boolean canNotify(in AUTF8String aMethod, in calIItemBase aItem);
+        canNotify(aMethod, aItem) {
+            return false; // use outbound iTIP for all
+        }
     }
 };

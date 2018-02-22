@@ -6,7 +6,6 @@ ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calProviderUtils.jsm");
 
 var REGISTRY_BRANCH = "calendar.registry.";
 var DB_SCHEMA_VERSION = 10;

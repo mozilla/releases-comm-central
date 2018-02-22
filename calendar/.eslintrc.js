@@ -487,6 +487,7 @@ module.exports = {
             "base/modules/calItipUtils.jsm",
             "base/modules/calUnifinderUtils.jsm",
             "base/modules/calL10NUtils.jsm",
+            "base/modules/calProviderUtils.jsm",
         ],
         rules: {
             "require-jsdoc": [2, { require: { ClassDeclaration: true } }],

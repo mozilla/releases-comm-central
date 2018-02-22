@@ -8,7 +8,6 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calXMLUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calProviderUtils.jsm");
 
 //
 // calICSCalendar.js

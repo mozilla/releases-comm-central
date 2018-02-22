@@ -86,6 +86,17 @@ var migrations = {
         getInvitedAttendee: "getInvitedAttendee",
         getAttendeesBySender: "getAttendeesBySender"
     },
+    provider: {
+        prepHttpChannel: "prepHttpChannel",
+        sendHttpRequest: "sendHttpRequest",
+        createStreamLoader: "createStreamLoader",
+        convertByteArray: "convertByteArray",
+        InterfaceRequestor_getInterface: "InterfaceRequestor_getInterface",
+        getImipTransport: "getImipTransport",
+        getEmailIdentityOfCalendar: "getEmailIdentityOfCalendar",
+        promptOverwrite: "promptOverwrite",
+        getCalendarDirectory: "getCalendarDirectory"
+    },
     unifinder: {
         sortEntryComparer: "sortEntryComparer",
         getItemSortKey:  "getItemSortKey",
@@ -163,5 +174,32 @@ function injectCalUtilsCompat(global) {
                            "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
                            Components.stack.caller);
         return cal.l10n.getAnyString(aComponent, aBundleName, aStringName, aParams);
+    };
+
+    global.ProviderBase = class extends global.provider.BaseClass {
+        initProviderBase() {
+            Deprecated.warning("calProviderUtils' cal.ProviderBase() has changed to cal.provider.BaseClass()",
+                               "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
+                               Components.stack.caller);
+            super.initProviderBase();
+        }
+    };
+
+    global.BadCertHandler = class extends global.provider.BadCertHandler {
+        constructor() {
+            Deprecated.warning("calProviderUtils' cal.BadCertHandler() has changed to cal.provider.BadCertHandler()",
+                               "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
+                               Components.stack.caller);
+            super();
+        }
+    };
+
+    global.FreeBusyInterval = class extends global.provider.FreeBusyInterval {
+        constructor() {
+            Deprecated.warning("calProviderUtils' cal.FreeBusyInterval() has changed to cal.provider.FreeBusyInterval()",
+                               "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
+                               Components.stack.caller);
+            super();
+        }
     };
 }
