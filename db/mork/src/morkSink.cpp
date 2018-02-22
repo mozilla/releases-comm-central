@@ -283,7 +283,7 @@ morkSpool::PutString(morkEnv* ev, const char* inString)
 {
   if ( inString )
   {
-    mork_size size = MORK_STRLEN(inString);
+    mork_size size = strlen(inString);
     this->Write(ev, inString, size);
   }
   return ev->Good();

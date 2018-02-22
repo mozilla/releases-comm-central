@@ -165,7 +165,7 @@ morkFactory::NonFactoryTypeError(morkEnv* ev)
 
 NS_IMETHODIMP
 morkFactory::OpenOldFile(nsIMdbEnv* mev, nsIMdbHeap* ioHeap,
-  const char* inFilePath,
+  const PathChar* inFilePath,
   mork_bool inFrozen, nsIMdbFile** acqFile)
   // Choose some subclass of nsIMdbFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
@@ -195,7 +195,7 @@ morkFactory::OpenOldFile(nsIMdbEnv* mev, nsIMdbHeap* ioHeap,
 
 NS_IMETHODIMP
 morkFactory::CreateNewFile(nsIMdbEnv* mev, nsIMdbHeap* ioHeap,
-  const char* inFilePath, nsIMdbFile** acqFile)
+  const PathChar* inFilePath, nsIMdbFile** acqFile)
   // Choose some subclass of nsIMdbFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
   // returned should be created and ready for use, and presumably positioned
@@ -404,7 +404,7 @@ morkFactory::CanOpenMorkTextFile(morkEnv* ev,
 {
   MORK_USED_1(ev);
   mork_bool outBool = morkBool_kFalse;
-  mork_size headSize = MORK_STRLEN(morkWriter_kFileHeader);
+  mork_size headSize = strlen(morkWriter_kFileHeader);
   
   char localBuf[ 256 + 4 ]; // for extra for sloppy safety
   mdbYarn localYarn;

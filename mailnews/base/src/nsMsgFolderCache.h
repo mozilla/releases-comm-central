@@ -7,6 +7,7 @@
 #define nsMsgFolderCache_H
 
 #include "nsIMsgFolderCache.h"
+#include "nsIFile.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsInterfaceHashtable.h"
 #include "nsCOMPtr.h"
@@ -14,6 +15,7 @@
 
 class nsMsgFolderCache : public nsIMsgFolderCache
 {
+  using PathString = mozilla::PathString;
 
 public:
   friend class nsMsgFolderCacheElement;
@@ -32,7 +34,7 @@ protected:
   nsresult InitMDBInfo();
   nsresult InitNewDB();
   nsresult InitExistingDB();
-  nsresult OpenMDB(const nsACString& dbName, bool create);
+  nsresult OpenMDB(const PathString& dbName, bool create);
   nsIMdbEnv *GetEnv() {return m_mdbEnv;}
   nsIMdbStore *GetStore() {return m_mdbStore;}
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgFolderCacheElement> m_cacheElements;

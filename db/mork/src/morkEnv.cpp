@@ -27,6 +27,8 @@
 #include "morkFactory.h"
 #endif
 
+#include "mozilla/Char16.h"
+
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // ````` ````` ````` ````` ````` 
@@ -288,11 +290,11 @@ morkEnv::TokenAsHex(void* outBuf, mork_token inToken)
 }
 
 void
-morkEnv::StringToYarn(const char* inString, mdbYarn* outYarn)
+morkEnv::StringToYarn(const PathChar* inString, mdbYarn* outYarn)
 {
   if ( outYarn )
   {
-    mdb_fill fill = ( inString )? (mdb_fill) MORK_STRLEN(inString) : 0; 
+    mdb_fill fill = ( inString )? (mdb_fill) MORK_STRLEN(inString) * sizeof(PathChar) : 0; 
       
     if ( fill ) // have nonempty content?
     {
@@ -321,13 +323,13 @@ morkEnv::StringToYarn(const char* inString, mdbYarn* outYarn)
     this->NilPointerError();
 }
 
-char*
-morkEnv::CopyString(nsIMdbHeap* ioHeap, const char* inString)
+morkEnv::PathChar*
+morkEnv::CopyString(nsIMdbHeap* ioHeap, const PathChar* inString)
 {
-  char* outString = 0;
+  PathChar* outString = nullptr;
   if ( ioHeap && inString )
   {
-    mork_size size = MORK_STRLEN(inString) + 1;
+    mork_size size = (MORK_STRLEN(inString) + 1) * sizeof(PathChar);
     ioHeap->Alloc(this->AsMdbEnv(), size, (void**) &outString);
     if ( outString )
       MORK_STRCPY(outString, inString);
@@ -338,7 +340,7 @@ morkEnv::CopyString(nsIMdbHeap* ioHeap, const char* inString)
 }
 
 void
-morkEnv::FreeString(nsIMdbHeap* ioHeap, char* ioString)
+morkEnv::FreeString(nsIMdbHeap* ioHeap, PathChar* ioString)
 {
   if ( ioHeap )
   {

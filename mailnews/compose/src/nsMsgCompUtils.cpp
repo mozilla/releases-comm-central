@@ -95,41 +95,6 @@ nsMsgCreateTempFile(const char *tFileName, nsIFile **tFile)
   return rv;
 }
 
-//
-// Create a file spec for the a unique temp file
-// on the local machine. Caller must free memory
-// returned
-//
-char *
-nsMsgCreateTempFileName(const char *tFileName)
-{
-  if ((!tFileName) || (!*tFileName))
-    tFileName = "nsmail.tmp";
-
-  nsCOMPtr<nsIFile> tmpFile;
-
-  nsresult rv = GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR,
-                                                tFileName,
-                                                getter_AddRefs(tmpFile));
-  if (NS_FAILED(rv))
-    return nullptr;
-
-  rv = tmpFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
-  if (NS_FAILED(rv))
-    return nullptr;
-
-  nsCString tempString;
-  rv = tmpFile->GetNativePath(tempString);
-  if (NS_FAILED(rv))
-    return nullptr;
-
-  char *tString = ToNewCString(tempString);
-  if (!tString)
-    return PL_strdup("mozmail.tmp");  // No need to I18N
-
-  return tString;
-}
-
 // This is the value a caller will Get if they don't Set first (like MDN
 // sending a return receipt), so init to the default value of the
 // mail.strictly_mime_headers preference.

@@ -23,6 +23,7 @@
 
 class nsMessenger : public nsIMessenger, public nsSupportsWeakReference, public nsIFolderListener
 {
+  using PathString = mozilla::PathString;
 
 public:
   nsMessenger();

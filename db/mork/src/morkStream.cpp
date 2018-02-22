@@ -208,7 +208,7 @@ morkStream::PutStringThenIndent(morkEnv* ev,
   
   if ( inString )
   {
-    mork_size length = MORK_STRLEN(inString);
+    mork_size length = strlen(inString);
     if ( length && ev->Good() ) // any bytes to write?
       this->Write(mev, inString, length, &bytesWritten);
   }
@@ -234,7 +234,7 @@ morkStream::PutString(morkEnv* ev, const char* inString)
   mdb_size bytesWritten;
   if ( inString )
   {
-    outSize = MORK_STRLEN(inString);
+    outSize = strlen(inString);
     if ( outSize && ev->Good() ) // any bytes to write?
     {
       this->Write(mev, inString, outSize, &bytesWritten);
@@ -252,7 +252,7 @@ morkStream::PutStringThenNewline(morkEnv* ev, const char* inString)
   mdb_size bytesWritten;
   if ( inString )
   {
-    outSize = MORK_STRLEN(inString);
+    outSize = strlen(inString);
     if ( outSize && ev->Good() ) // any bytes to write?
     {
       this->Write(mev, inString, outSize, &bytesWritten);

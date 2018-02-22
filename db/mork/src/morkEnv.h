@@ -19,6 +19,7 @@
 #endif
 
 // sean was here
+#include "mozilla/Path.h"
 #include "nsError.h"
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
@@ -48,6 +49,7 @@
 /*| morkEnv:
 |*/
 class morkEnv : public morkObject, public nsIMdbEnv {
+  using PathChar = mozilla::filesystem::Path::value_type;
   NS_DECL_ISUPPORTS_INHERITED
 
 // public: // slots inherited from morkObject (meant to inform only)
@@ -147,9 +149,9 @@ public: // utility env methods
   mork_size OidAsHex(void* outBuf, const mdbOid& inOid);
   // sprintf(buf, "%lX:^%lX", (long) inOid.mOid_Id, (long) inOid.mOid_Scope);
  
-  char* CopyString(nsIMdbHeap* ioHeap, const char* inString);
-  void  FreeString(nsIMdbHeap* ioHeap, char* ioString);
-  void  StringToYarn(const char* inString, mdbYarn* outYarn);
+  PathChar* CopyString(nsIMdbHeap* ioHeap, const PathChar* inString);
+  void  FreeString(nsIMdbHeap* ioHeap, PathChar* ioString);
+  void  StringToYarn(const PathChar* inString, mdbYarn* outYarn);
 
 public: // other env methods
 

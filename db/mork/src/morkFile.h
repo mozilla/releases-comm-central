@@ -50,6 +50,8 @@
 #include "morkObject.h"
 #endif
 
+#include "mozilla/Path.h"
+
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*=============================================================================
@@ -59,6 +61,7 @@
 #define morkDerived_kFile     /*i*/ 0x4669 /* ascii 'Fi' */
 
 class morkFile /*d*/ : public morkObject, public nsIMdbFile { /* ````` simple file API ````` */
+  using PathChar = mozilla::filesystem::Path::value_type;
 
 // public: // slots inherited from morkNode (meant to inform only)
   // nsIMdbHeap*    mNode_Heap;
@@ -89,7 +92,7 @@ protected: // protected morkFile members (similar to public domain IronDoc)
   mork_u1     mFile_Active;   // 'A' => file is active and usable
   
   nsIMdbHeap* mFile_SlotHeap; // heap for Name and other allocated slots
-  char*       mFile_Name; // can be nil if SetFileName() is never called
+  PathChar*   mFile_Name; // can be nil if SetFileName() is never called
   // mFile_Name convention: managed with morkEnv::CopyString()/FreeString()
 
   nsIMdbFile* mFile_Thief; // from a call to orkinFile::Steal()
@@ -117,7 +120,7 @@ public: // dynamic type identification
 public: // public static standard file creation entry point
 
   static morkFile* OpenOldFile(morkEnv* ev, nsIMdbHeap* ioHeap,
-    const char* inFilePath, mork_bool inFrozen);
+    const PathChar* inFilePath, mork_bool inFrozen);
   // Choose some subclass of morkFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
   // returned should be open and ready for use, and presumably positioned
@@ -126,7 +129,7 @@ public: // public static standard file creation entry point
   // other portions or Mork source code don't want to know how it's done.
 
   static morkFile* CreateNewFile(morkEnv* ev, nsIMdbHeap* ioHeap,
-    const char* inFilePath);
+    const PathChar* inFilePath);
   // Choose some subclass of morkFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
   // returned should be created and ready for use, and presumably positioned
@@ -159,8 +162,8 @@ public: // non-poly morkFile methods
   nsIMdbFile* GetThief() const { return mFile_Thief; }
   void SetThief(morkEnv* ev, nsIMdbFile* ioThief); // ioThief can be nil
     
-  const char* GetFileNameString() const { return mFile_Name; }
-  void SetFileName(morkEnv* ev, const char* inName); // inName can be nil
+  const PathChar* GetFileNameString() const { return mFile_Name; }
+  void SetFileName(morkEnv* ev, const PathChar* inName); // inName can be nil
   static void NilSlotHeapError(morkEnv* ev);
   static void NilFileNameError(morkEnv* ev);
   static void NonFileTypeError(morkEnv* ev);
@@ -235,6 +238,7 @@ public:
 #define morkDerived_kStdioFile     /*i*/ 0x7346 /* ascii 'sF' */
 
 class morkStdioFile /*d*/ : public morkFile { /* `` copied from IronDoc `` */
+  using PathChar = mozilla::filesystem::Path::value_type;
 
 // ````` ````` ````` `````   ````` ````` ````` `````  
 protected: // protected morkStdioFile members
@@ -268,10 +272,10 @@ public: // typing
 public: // compatible with the morkFile::OpenOldFile() entry point
 
   static morkStdioFile* OpenOldStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
-    const char* inFilePath, mork_bool inFrozen);
+    const PathChar* inFilePath, mork_bool inFrozen);
 
   static morkStdioFile* CreateNewStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
-    const char* inFilePath);
+    const PathChar* inFilePath);
 
   virtual mork_pos   Length(morkEnv* ev) const override; // eof
 
@@ -315,18 +319,18 @@ public: // public non-poly morkStdioFile methods
     
   morkStdioFile(morkEnv* ev, const morkUsage& inUsage, 
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap,
-    const char* inName, const char* inMode);
+    const PathChar* inName, const char* inMode);
     // calls OpenStdio() after construction
 
   morkStdioFile(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap,
-     void* ioFile, const char* inName, mork_bool inFrozen);
+     void* ioFile, const PathChar* inName, mork_bool inFrozen);
     // calls UseStdio() after construction
   
-  void OpenStdio(morkEnv* ev, const char* inName, const char* inMode);
+  void OpenStdio(morkEnv* ev, const PathChar* inName, const char* inMode);
     // Open a new FILE with name inName, using mode flags from inMode.
   
-  void UseStdio(morkEnv* ev, void* ioFile, const char* inName,
+  void UseStdio(morkEnv* ev, void* ioFile, const PathChar* inName,
     mork_bool inFrozen);
     // Use an existing file, like stdin/stdout/stderr, which should not
     // have the io stream closed when the file is closed.  The ioFile

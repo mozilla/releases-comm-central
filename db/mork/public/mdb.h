@@ -39,6 +39,7 @@
 #ifndef _MDB_
 #define _MDB_ 1
 
+#include "mozilla/Path.h"
 #include "nscore.h"
 #include "nsISupports.h"
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
@@ -648,6 +649,7 @@ NS_DEFINE_STATIC_IID_ACCESSOR(nsIMdbEnv, NS_IMDBENV_IID)
 
 
 class nsIMdbFactory : public nsISupports { // suite entry points
+  using PathChar = mozilla::filesystem::Path::value_type;
 public:
 
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IMDBFACTORY_IID)
@@ -655,7 +657,7 @@ public:
 
   // { ----- begin file methods -----
   NS_IMETHOD OpenOldFile(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
-    const char* inFilePath,
+    const PathChar* inFilePath,
     mdb_bool inFrozen, nsIMdbFile** acqFile) = 0;
   // Choose some subclass of nsIMdbFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
@@ -665,7 +667,7 @@ public:
   // other portions or Mork source code don't want to know how it's done.
 
   NS_IMETHOD CreateNewFile(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
-    const char* inFilePath,
+    const PathChar* inFilePath,
     nsIMdbFile** acqFile) = 0;
   // Choose some subclass of nsIMdbFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file

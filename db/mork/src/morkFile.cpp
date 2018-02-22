@@ -29,6 +29,7 @@
 #endif
 
 #include "mozilla/Unused.h"
+#include "nsString.h"
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
@@ -94,7 +95,7 @@ morkFile::CloseFile(morkEnv* ev) // called by CloseMorkNode();
       mFile_Active = 0;
       
       if ( mFile_Name )
-        this->SetFileName(ev, (const char*) 0);
+        this->SetFileName(ev, nullptr);
 
       nsIMdbHeap_SlotStrongHeap((nsIMdbHeap*) 0, ev, &mFile_SlotHeap);
       nsIMdbFile_SlotStrongFile((nsIMdbFile*) 0, ev, &mFile_Thief);
@@ -110,7 +111,7 @@ morkFile::CloseFile(morkEnv* ev) // called by CloseMorkNode();
 
 /*static*/ morkFile*
 morkFile::OpenOldFile(morkEnv* ev, nsIMdbHeap* ioHeap,
-  const char* inFilePath, mork_bool inFrozen)
+  const PathChar* inFilePath, mork_bool inFrozen)
   // Choose some subclass of morkFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
   // returned should be open and ready for use, and presumably positioned
@@ -123,7 +124,7 @@ morkFile::OpenOldFile(morkEnv* ev, nsIMdbHeap* ioHeap,
 
 /*static*/ morkFile*
 morkFile::CreateNewFile(morkEnv* ev, nsIMdbHeap* ioHeap,
-  const char* inFilePath)
+  const PathChar* inFilePath)
   // Choose some subclass of morkFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
   // returned should be created and ready for use, and presumably positioned
@@ -165,12 +166,12 @@ morkFile::SetThief(morkEnv* ev, nsIMdbFile* ioThief)
 }
 
 void
-morkFile::SetFileName(morkEnv* ev, const char* inName) // inName can be nil
+morkFile::SetFileName(morkEnv* ev, const PathChar* inName) // inName can be nil
 {
   nsIMdbHeap* heap = mFile_SlotHeap;
   if ( heap )
   {
-    char* name = mFile_Name;
+    PathChar* name = mFile_Name;
     if ( name )
     {
       mFile_Name = 0;
@@ -392,7 +393,7 @@ morkStdioFile::CloseStdioFile(morkEnv* ev) // called by CloseMorkNode();
 
 /*static*/ morkStdioFile* 
 morkStdioFile::OpenOldStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
-  const char* inFilePath, mork_bool inFrozen)
+  const PathChar* inFilePath, mork_bool inFrozen)
 {
   morkStdioFile* outFile = 0;
   if ( ioHeap && inFilePath )
@@ -414,7 +415,7 @@ morkStdioFile::OpenOldStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
 
 /*static*/ morkStdioFile* 
 morkStdioFile::CreateNewStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
-  const char* inFilePath)
+  const PathChar* inFilePath)
 {
   morkStdioFile* outFile = 0;
   if ( ioHeap && inFilePath )
@@ -471,7 +472,7 @@ morkStdioFile::AcquireBud(nsIMdbEnv * mdbev, nsIMdbHeap* ioHeap, nsIMdbFile **ac
 //#ifdef MORK_WIN
 //      truncate(file, /*eof*/ 0);
 //#else /*MORK_WIN*/
-      char* name = mFile_Name;
+      PathChar* name = mFile_Name;
       if ( name )
       {
         if ( MORK_FILECLOSE(file) >= 0 )
@@ -727,7 +728,7 @@ morkStdioFile::morkStdioFile(morkEnv* ev,
 
 morkStdioFile::morkStdioFile(morkEnv* ev, const morkUsage& inUsage,
   nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap,
-  const char* inName, const char* inMode)
+  const PathChar* inName, const char* inMode)
   // calls OpenStdio() after construction
 : morkFile(ev, inUsage, ioHeap, ioSlotHeap)
 , mStdioFile_File( 0 )
@@ -738,7 +739,7 @@ morkStdioFile::morkStdioFile(morkEnv* ev, const morkUsage& inUsage,
 
 morkStdioFile::morkStdioFile(morkEnv* ev, const morkUsage& inUsage,
    nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap,
-   void* ioFile, const char* inName, mork_bool inFrozen)
+   void* ioFile, const PathChar* inName, mork_bool inFrozen)
   // calls UseStdio() after construction
 : morkFile(ev, inUsage, ioHeap, ioSlotHeap)
 , mStdioFile_File( 0 )
@@ -748,7 +749,7 @@ morkStdioFile::morkStdioFile(morkEnv* ev, const morkUsage& inUsage,
 }
 
 void
-morkStdioFile::OpenStdio(morkEnv* ev, const char* inName, const char* inMode)
+morkStdioFile::OpenStdio(morkEnv* ev, const PathChar* inName, const char* inMode)
   // Open a new FILE with name inName, using mode flags from inMode.
 {
   if ( ev->Good() )
@@ -789,7 +790,7 @@ morkStdioFile::OpenStdio(morkEnv* ev, const char* inName, const char* inMode)
 }
 
 void
-morkStdioFile::UseStdio(morkEnv* ev, void* ioFile, const char* inName,
+morkStdioFile::UseStdio(morkEnv* ev, void* ioFile, const PathChar* inName,
   mork_bool inFrozen)
   // Use an existing file, like stdin/stdout/stderr, which should not
   // have the io stream closed when the file is closed.  The ioFile

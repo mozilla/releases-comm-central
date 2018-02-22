@@ -4333,7 +4333,6 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
   // thus if attach_signature is checked, htmlSigText is ignored (bug 324495).
   // Plain-text signatures may or may not have a trailing line break (bug 428040).
 
-  nsAutoCString sigNativePath;
   bool          attachFile = false;
   bool          useSigFile = false;
   bool          htmlSig = false;
@@ -4359,8 +4358,7 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
     {
       rv = identity->GetSignature(getter_AddRefs(sigFile));
       if (NS_SUCCEEDED(rv) && sigFile) {
-        rv = sigFile->GetNativePath(sigNativePath);
-        if (NS_SUCCEEDED(rv) && !sigNativePath.IsEmpty()) {
+        if (!sigFile->NativePath().IsEmpty()) {
           bool exists = false;
           sigFile->Exists(&exists);
           if (exists) {

@@ -11,11 +11,12 @@
 #include "nsIComponentManager.h"
 #include "nsIServiceManager.h"
 #include "nsIStringStream.h"
-#include "nsIFile.h"
+#include "nsLocalFile.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsQuickSort.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIMutableArray.h"
+#include "mozilla/Path.h"
 #include "mozilla/Services.h"
 
 // necko
@@ -136,6 +137,7 @@ class nsSaveMsgListener : public nsIUrlListener,
                           public nsIStreamListener,
                           public nsICancelable
 {
+  using PathChar = mozilla::filesystem::Path::value_type;
 public:
   nsSaveMsgListener(nsIFile *file, nsMessenger *aMessenger, nsIUrlListener *aListener);
 
@@ -184,19 +186,20 @@ private:
 
 class nsSaveAllAttachmentsState
 {
+  using PathChar = mozilla::filesystem::Path::value_type;
 public:
   nsSaveAllAttachmentsState(uint32_t count,
                             const char **contentTypeArray,
                             const char **urlArray,
                             const char **displayNameArray,
                             const char **messageUriArray,
-                            const char *directoryName,
+                            const PathChar *directoryName,
                             bool detachingAttachments);
   virtual ~nsSaveAllAttachmentsState();
 
   uint32_t m_count;
   uint32_t m_curIndex;
-  char* m_directoryName;
+  PathChar* m_directoryName;
   char** m_contentTypeArray;
   char** m_urlArray;
   char** m_displayNameArray;
@@ -625,9 +628,7 @@ nsMessenger::DetachAttachmentsWOPrompts(nsIFile* aDestFolder,
   nsresult rv = aDestFolder->Clone(getter_AddRefs(attachmentDestination));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoCString path;
-  rv = attachmentDestination->GetNativePath(path);
-  NS_ENSURE_SUCCESS(rv, rv);
+  PathString path = attachmentDestination->NativePath();
 
   nsAutoString unescapedFileName;
   ConvertAndSanitizeFileName(aDisplayNameArray[0], unescapedFileName);
@@ -874,9 +875,7 @@ nsMessenger::SaveOneAttachment(const char * aContentType, const char * aURL,
 
   SetLastSaveDirectory(localFile);
 
-  nsCString dirName;
-  rv = localFile->GetNativePath(dirName);
-  NS_ENSURE_SUCCESS(rv, rv);
+  PathString dirName = localFile->NativePath();
 
   nsSaveAllAttachmentsState *saveState =
     new nsSaveAllAttachmentsState(1,
@@ -945,10 +944,8 @@ nsMessenger::SaveAllAttachments(uint32_t count,
   rv = SetLastSaveDirectory(localFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString dirName;
   nsSaveAllAttachmentsState *saveState = nullptr;
-  rv = localFile->GetNativePath(dirName);
-  NS_ENSURE_SUCCESS(rv, rv);
+  PathString dirName = localFile->NativePath();
 
   saveState = new nsSaveAllAttachmentsState(count,
                                             contentTypeArray,
@@ -1885,11 +1882,12 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsISupports* aSupport,
       nsSaveAllAttachmentsState *state = m_saveAllAttachmentsState;
       uint32_t i = state->m_curIndex;
       nsString unescapedName;
-      nsCOMPtr<nsIFile> localFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-      if (NS_FAILED(rv)) goto done;
-      rv = localFile->InitWithNativePath(nsDependentCString(state->m_directoryName));
-
-      if (NS_FAILED(rv)) goto done;
+      RefPtr<nsLocalFile> localFile =
+        new nsLocalFile(nsTDependentString<PathChar>(state->m_directoryName));
+      if (localFile->NativePath().IsEmpty()) {
+        rv = NS_ERROR_FAILURE;
+        goto done;
+      }
 
       ConvertAndSanitizeFileName(state->m_displayNameArray[i], unescapedName);
       rv = localFile->Append(unescapedName);
@@ -2047,7 +2045,7 @@ nsSaveAllAttachmentsState::nsSaveAllAttachmentsState(uint32_t count,
                                                      const char **urlArray,
                                                      const char **nameArray,
                                                      const char **uriArray,
-                                                     const char *dirName,
+                                                     const PathChar *dirName,
                                                      bool detachingAttachments)
     : m_withoutWarning(false)
 {
@@ -2068,7 +2066,7 @@ nsSaveAllAttachmentsState::nsSaveAllAttachmentsState(uint32_t count,
         m_displayNameArray[i] = strdup(nameArray[i]);
         m_messageUriArray[i] = strdup(uriArray[i]);
     }
-    m_directoryName = strdup(dirName);
+    m_directoryName = NS_strdup(dirName);
     m_detachingAttachments = detachingAttachments;
 }
 

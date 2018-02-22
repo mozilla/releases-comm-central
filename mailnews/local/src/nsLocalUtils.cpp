@@ -144,9 +144,12 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr,
   rv = server->GetLocalPath(getter_AddRefs(localPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString localNativePath;
-
-  localPath->GetNativePath(localNativePath);
+#ifdef XP_WIN
+  // The protocol handler can handle UTF-8 paths even on Windows.
+  nsCString localNativePath = NS_ConvertUTF16toUTF8(localPath->NativePath());
+#else
+  nsCString localNativePath = localPath->NativePath();
+#endif
   nsEscapeNativePath(localNativePath);
   pathResult = localNativePath.get();
   const char *curPos = uriStr + PL_strlen(rootURI);

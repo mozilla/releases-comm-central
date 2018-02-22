@@ -77,7 +77,7 @@ public:
   static SCODE  MAPIAllocateBuffer(ULONG cbSize, LPVOID FAR * lppBuffer);
   static ULONG  MAPIFreeBuffer(LPVOID lpBuff);
   static HRESULT  MAPILogonEx(ULONG ulUIParam, LPTSTR lpszProfileName, LPTSTR lpszPassword, FLAGS flFlags, LPMAPISESSION FAR * lppSession);
-  static HRESULT  OpenStreamOnFile(LPALLOCATEBUFFER lpAllocateBuffer, LPFREEBUFFER lpFreeBuffer, ULONG ulFlags, LPTSTR lpszFileName, LPTSTR lpszPrefix, LPSTREAM FAR * lppStream);
+  static HRESULT  OpenStreamOnFile(LPALLOCATEBUFFER lpAllocateBuffer, LPFREEBUFFER lpFreeBuffer, ULONG ulFlags, LPCTSTR lpszFileName, LPTSTR lpszPrefix, LPSTREAM FAR * lppStream);
   static void    FreeProws(LPSRowSet prows);
 
 

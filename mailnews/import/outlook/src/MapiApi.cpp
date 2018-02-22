@@ -203,7 +203,7 @@ HRESULT CMapiApi::MAPILogonEx(ULONG ulUIParam, LPTSTR lpszProfileName,
 
 HRESULT CMapiApi::OpenStreamOnFile(LPALLOCATEBUFFER lpAllocateBuffer,
                                    LPFREEBUFFER lpFreeBuffer, ULONG ulFlags,
-                                   LPTSTR lpszFileName, LPTSTR lpszPrefix,
+                                   LPCTSTR lpszFileName, LPTSTR lpszPrefix,
                                    LPSTREAM FAR * lppStream)
 {
   return (m_hMapi32 && gpMapiOpenStreamOnFile) ?

@@ -3220,8 +3220,7 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr *message)
     rv = m_copyState->m_tmpFile->Remove(false);
     if (NS_FAILED(rv))
     {
-      nsCString nativePath;
-      m_copyState->m_tmpFile->GetNativePath(nativePath);
+      nsCString nativePath = m_copyState->m_tmpFile->HumanReadablePath();
       MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't remove prev temp file %s: %" PRIx32 "\n", nativePath.get(), static_cast<uint32_t>(rv)));
     }
     m_copyState->m_tmpFile = nullptr;
@@ -8880,9 +8879,6 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow *msgWindow, nsIMsg
     nsAutoCString oldLeafName;
     oldPathFile->GetNativeLeafName(oldLeafName);
     newParentPathFile->AppendNative(oldLeafName);
-
-    nsCString newPathStr;
-    newParentPathFile->GetNativePath(newPathStr);
 
     nsCOMPtr<nsIFile> newPathFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);

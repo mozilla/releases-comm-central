@@ -400,7 +400,7 @@ morkStore::StageStringAsFarBookAtom(morkEnv* ev, const char* inString,
 {
   if ( inString )
   {
-    mork_size length = MORK_STRLEN(inString);
+    mork_size length = strlen(inString);
     if ( length <= morkBookAtom_kMaxBodySize )
     {
       morkBuf buf(inString, length);

@@ -50,9 +50,12 @@ nsresult nsMailboxService::ParseMailbox(nsIMsgWindow *aMsgWindow, nsIFile *aMail
   {
     nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(mailboxurl);
     // okay now generate the url string
-    nsCString mailboxPath;
-
-    aMailboxPath->GetNativePath(mailboxPath);
+#ifdef XP_WIN
+    // The protocol handler can handle UTF-8 paths even on Windows.
+    nsCString mailboxPath = NS_ConvertUTF16toUTF8(aMailboxPath->NativePath());
+#else
+    nsCString mailboxPath = aMailboxPath->NativePath();
+#endif
     nsAutoCString buf;
     MsgEscapeURL(mailboxPath,
                  nsINetUtil::ESCAPE_URL_MINIMAL | nsINetUtil::ESCAPE_URL_FORCED, buf);

@@ -32,6 +32,7 @@ class nsIMdbFactory;
 /*| morkFactory: 
 |*/
 class morkFactory : public morkObject, public nsIMdbFactory { // nsIMdbObject
+  using PathChar = mozilla::filesystem::Path::value_type;
 
 // public: // slots inherited from morkObject (meant to inform only)
   // nsIMdbHeap*     mNode_Heap;
@@ -62,7 +63,7 @@ public: // morkFactory virtual methods
 
   // { ----- begin file methods -----
   NS_IMETHOD OpenOldFile(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
-    const char* inFilePath,
+    const PathChar* inFilePath,
     mdb_bool inFrozen, nsIMdbFile** acqFile) override;
   // Choose some subclass of nsIMdbFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
@@ -72,7 +73,7 @@ public: // morkFactory virtual methods
   // other portions or Mork source code don't want to know how it's done.
 
   NS_IMETHOD CreateNewFile(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
-    const char* inFilePath,
+    const PathChar* inFilePath,
     nsIMdbFile** acqFile) override;
   // Choose some subclass of nsIMdbFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file

@@ -126,7 +126,7 @@ nsresult nsMsgFolderCache::InitExistingDB()
   return err;
 }
 
-nsresult nsMsgFolderCache::OpenMDB(const nsACString& dbName, bool exists)
+nsresult nsMsgFolderCache::OpenMDB(const PathString& dbName, bool exists)
 {
   nsresult ret=NS_OK;
   nsCOMPtr<nsIMdbFactory> mdbFactory;
@@ -148,7 +148,7 @@ nsresult nsMsgFolderCache::OpenMDB(const nsACString& dbName, bool exists)
         mdbYarn outFormatVersion;
 
         nsIMdbFile* oldFile = nullptr;
-        ret = mdbFactory->OpenOldFile(m_mdbEnv, dbHeap, nsCString(dbName).get(),
+        ret = mdbFactory->OpenOldFile(m_mdbEnv, dbHeap, dbName.get(),
                                       mdbBool_kFalse, // not readonly, we want modifiable
                                       &oldFile);
         if ( oldFile )
@@ -202,7 +202,7 @@ nsresult nsMsgFolderCache::OpenMDB(const nsACString& dbName, bool exists)
       else // ### need error code saying why open file store failed
       {
         nsIMdbFile* newFile = 0;
-        ret = mdbFactory->CreateNewFile(m_mdbEnv, dbHeap, nsCString(dbName).get(), &newFile);
+        ret = mdbFactory->CreateNewFile(m_mdbEnv, dbHeap, dbName.get(), &newFile);
         if ( newFile )
         {
           if (NS_SUCCEEDED(ret))
@@ -235,8 +235,7 @@ NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile *aFile)
   bool exists;
   aFile->Exists(&exists);
 
-  nsAutoCString dbPath;
-  aFile->GetNativePath(dbPath);
+  PathString dbPath = aFile->NativePath();
   // ### evil cast until MDB supports file streams.
   nsresult rv = OpenMDB(dbPath, exists);
   // if this fails and panacea.dat exists, try blowing away the db and recreating it
