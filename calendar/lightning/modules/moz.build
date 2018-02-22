@@ -5,5 +5,4 @@
 
 EXTRA_JS_MODULES += [
     'ltnInvitationUtils.jsm',
-    'ltnUtils.jsm',
 ]

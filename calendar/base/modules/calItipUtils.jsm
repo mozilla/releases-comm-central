@@ -212,26 +212,16 @@ var calitip = {
      * @return {String}                The suggested text.
      */
     getCompleteText: function(aStatus, aOperationType) {
-        /**
-         * Gets the string from the lightning bundle
-         * @param {String} strName      The string identifier name
-         * @param {String} param        An array of parameters for the strgin
-         * @return {String}             The translated string
-         */
-        function _gs(strName, param) {
-            return cal.calGetString("lightning", strName, param, "lightning");
-        }
-
         let text = "";
         const cIOL = Components.interfaces.calIOperationListener;
         if (Components.isSuccessCode(aStatus)) {
             switch (aOperationType) {
-                case cIOL.ADD: text = _gs("imipAddedItemToCal2"); break;
-                case cIOL.MODIFY: text = _gs("imipUpdatedItem2"); break;
-                case cIOL.DELETE: text = _gs("imipCanceledItem2"); break;
+                case cIOL.ADD: text = cal.l10n.getLtnString("imipAddedItemToCal2"); break;
+                case cIOL.MODIFY: text = cal.l10n.getLtnString("imipUpdatedItem2"); break;
+                case cIOL.DELETE: text = cal.l10n.getLtnString("imipCanceledItem2"); break;
             }
         } else {
-            text = _gs("imipBarProcessingFailed", [aStatus.toString(16)]);
+            text = cal.l10n.getLtnString("imipBarProcessingFailed", [aStatus.toString(16)]);
         }
         return text;
     },
@@ -246,27 +236,17 @@ var calitip = {
      * @return {String}            The localized text about the method.
      */
     getMethodText: function(method) {
-        /**
-         * Gets the string from the lightning bundle
-         * @param {String} strName      The string identifier name
-         * @param {String} param        An array of parameters for the strgin
-         * @return {String}             The translated string
-         */
-        function _gs(strName) {
-            return cal.calGetString("lightning", strName, null, "lightning");
-        }
-
         switch (method) {
-            case "REFRESH": return _gs("imipBarRefreshText");
-            case "REQUEST": return _gs("imipBarRequestText");
-            case "PUBLISH": return _gs("imipBarPublishText");
-            case "CANCEL": return _gs("imipBarCancelText");
-            case "REPLY": return _gs("imipBarReplyText");
-            case "COUNTER": return _gs("imipBarCounterText");
-            case "DECLINECOUNTER": return _gs("imipBarDeclineCounterText");
+            case "REFRESH": return cal.l10n.getLtnString("imipBarRefreshText");
+            case "REQUEST": return cal.l10n.getLtnString("imipBarRequestText");
+            case "PUBLISH": return cal.l10n.getLtnString("imipBarPublishText");
+            case "CANCEL": return cal.l10n.getLtnString("imipBarCancelText");
+            case "REPLY": return cal.l10n.getLtnString("imipBarReplyText");
+            case "COUNTER": return cal.l10n.getLtnString("imipBarCounterText");
+            case "DECLINECOUNTER": return cal.l10n.getLtnString("imipBarDeclineCounterText");
             default:
                 cal.ERROR("Unknown iTIP method: " + method);
-                return _gs("imipBarUnsupportedText");
+                return cal.l10n.getLtnString("imipBarUnsupportedText");
         }
     },
 
@@ -291,15 +271,6 @@ var calitip = {
      * @return {Object}                     Return information about the options
      */
     getOptionsText: function(itipItem, rc, actionFunc, foundItems) {
-        /**
-         * Gets the string from the lightning bundle
-         * @param {String} strName      The string identifier name
-         * @param {String} aParam       An array of parameters for the strgin
-         * @return {String}             The translated string
-         */
-        function _gs(strName, aParam=null) {
-            return cal.calGetString("lightning", strName, aParam, "lightning");
-        }
         let imipLabel = null;
         if (itipItem.receivedMethod) {
             imipLabel = calitip.getMethodText(itipItem.receivedMethod);
@@ -314,16 +285,16 @@ var calitip = {
         }
         if (rc == Components.interfaces.calIErrors.CAL_IS_READONLY) {
             // No writable calendars, tell the user about it
-            data.label = _gs("imipBarNotWritable");
+            data.label = cal.l10n.getLtnString("imipBarNotWritable");
         } else if (Components.isSuccessCode(rc) && !actionFunc) {
             // This case, they clicked on an old message that has already been
             // added/updated, we want to tell them that.
-            data.label = _gs("imipBarAlreadyProcessedText");
+            data.label = cal.l10n.getLtnString("imipBarAlreadyProcessedText");
             if (foundItems && foundItems.length) {
                 data.showItems.push("imipDetailsButton");
                 if (itipItem.receivedMethod == "COUNTER" && itipItem.sender) {
                     if (disallowedCounter) {
-                        data.label = _gs("imipBarDisallowedCounterText");
+                        data.label = cal.l10n.getLtnString("imipBarDisallowedCounterText");
                     } else {
                         let comparison;
                         for (let item of itipItem.getItemList({})) {
@@ -334,10 +305,10 @@ var calitip = {
                             if (attendees.length == 1) {
                                 comparison = calitip.compareSequence(item, foundItems[0]);
                                 if (comparison == 1) {
-                                    data.label = _gs("imipBarCounterErrorText");
+                                    data.label = cal.l10n.getLtnString("imipBarCounterErrorText");
                                     break;
                                 } else if (comparison == -1) {
-                                    data.label = _gs("imipBarCounterPreviousVersionText");
+                                    data.label = cal.l10n.getLtnString("imipBarCounterPreviousVersionText");
                                 }
                             }
                         }
@@ -354,19 +325,19 @@ var calitip = {
                     delTime = delmgr.getDeletedDate(items[0].id);
                 }
                 if (delTime) {
-                    data.label = _gs("imipBarReplyToRecentlyRemovedItem", [delTime.toString()]);
+                    data.label = cal.l10n.getLtnString("imipBarReplyToRecentlyRemovedItem", [delTime.toString()]);
                 } else {
-                    data.label = _gs("imipBarReplyToNotExistingItem");
+                    data.label = cal.l10n.getLtnString("imipBarReplyToNotExistingItem");
                 }
             } else if (itipItem.receivedMethod == "DECLINECOUNTER") {
-                data.label = _gs("imipBarDeclineCounterText");
+                data.label = cal.l10n.getLtnString("imipBarDeclineCounterText");
             }
         } else if (Components.isSuccessCode(rc)) {
             cal.LOG("iTIP options on: " + actionFunc.method);
             switch (actionFunc.method) {
                 case "PUBLISH:UPDATE":
                 case "REQUEST:UPDATE-MINOR":
-                    data.label = _gs("imipBarUpdateText");
+                    data.label = cal.l10n.getLtnString("imipBarUpdateText");
                     // falls through
                 case "REPLY":
                     data.showItems.push("imipUpdateButton");
@@ -386,19 +357,19 @@ var calitip = {
 
                     if (actionFunc.method == "REQUEST:UPDATE") {
                         if (isRecurringMaster) {
-                            data.label = _gs("imipBarUpdateSeriesText");
+                            data.label = cal.l10n.getLtnString("imipBarUpdateSeriesText");
                         } else if (itipItem.getItemList({}).length > 1) {
-                            data.label = _gs("imipBarUpdateMultipleText");
+                            data.label = cal.l10n.getLtnString("imipBarUpdateMultipleText");
                         } else {
-                            data.label = _gs("imipBarUpdateText");
+                            data.label = cal.l10n.getLtnString("imipBarUpdateText");
                         }
                     } else if (actionFunc.method == "REQUEST:NEEDS-ACTION") {
                         if (isRecurringMaster) {
-                            data.label = _gs("imipBarProcessedSeriesNeedsAction");
+                            data.label = cal.l10n.getLtnString("imipBarProcessedSeriesNeedsAction");
                         } else if (itipItem.getItemList({}).length > 1) {
-                            data.label = _gs("imipBarProcessedMultipleNeedsAction");
+                            data.label = cal.l10n.getLtnString("imipBarProcessedMultipleNeedsAction");
                         } else {
-                            data.label = _gs("imipBarProcessedNeedsAction");
+                            data.label = cal.l10n.getLtnString("imipBarProcessedNeedsAction");
                         }
                     }
 
@@ -453,18 +424,18 @@ var calitip = {
                 }
                 case "COUNTER": {
                     if (disallowedCounter) {
-                        data.label = _gs("imipBarDisallowedCounterText");
+                        data.label = cal.l10n.getLtnString("imipBarDisallowedCounterText");
                     }
                     data.showItems.push("imipDeclineCounterButton");
                     data.showItems.push("imipRescheduleButton");
                     break;
                 }
                 default:
-                    data.label = _gs("imipBarUnsupportedText");
+                    data.label = cal.l10n.getLtnString("imipBarUnsupportedText");
                     break;
             }
         } else {
-            data.label = _gs("imipBarUnsupportedText");
+            data.label = cal.l10n.getLtnString("imipBarUnsupportedText");
         }
 
         return data;
@@ -606,7 +577,7 @@ var calitip = {
             }
 
             if (calendars.length == 0) {
-                let msg = cal.calGetString("lightning", "imipNoCalendarAvailable", null, "lightning");
+                let msg = cal.l10n.getLtnString("imipNoCalendarAvailable");
                 aWindow.alert(msg);
             } else if (calendars.length == 1) {
                 // There's only one calendar, so it's silly to ask what calendar

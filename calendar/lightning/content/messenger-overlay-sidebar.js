@@ -90,12 +90,12 @@ var calendarTabType = {
             },
 
             restoreTab: function(aTabmail, aState) {
-                aState.title = ltnGetString("lightning", "tabTitleCalendar");
+                aState.title = cal.l10n.getLtnString("tabTitleCalendar");
                 aTabmail.openTab("calendar", aState);
             },
 
             onTitleChanged: function(aTab) {
-                aTab.title = ltnGetString("lightning", "tabTitleCalendar");
+                aTab.title = cal.l10n.getLtnString("tabTitleCalendar");
             },
 
             supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
@@ -135,12 +135,12 @@ var calendarTabType = {
             },
 
             restoreTab: function(aTabmail, aState) {
-                aState.title = ltnGetString("lightning", "tabTitleTasks");
+                aState.title = cal.l10n.getLtnString("tabTitleTasks");
                 aTabmail.openTab("tasks", aState);
             },
 
             onTitleChanged: function(aTab) {
-                aTab.title = ltnGetString("lightning", "tabTitleTasks");
+                aTab.title = cal.l10n.getLtnString("tabTitleTasks");
             },
 
             supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
@@ -428,8 +428,8 @@ function ltnIntegrationNotification() {
                     document.getElementById("messagepanebox");
 
     let appBrand = cal.calGetString("brand", "brandShortName", null, "branding");
-    let ltnBrand = ltnGetString("lightning", "brandShortName");
-    let label = ltnGetString("lightning", "integrationLabel", [appBrand, ltnBrand]);
+    let ltnBrand = cal.l10n.getLtnString("brandShortName");
+    let label = cal.l10n.getLtnString("integrationLabel", [appBrand, ltnBrand]);
 
     // call backs for doing/undoing Lightning removal
     let cbRemoveLightning = function(aAddon) {
@@ -470,15 +470,15 @@ function ltnIntegrationNotification() {
         Preferences.set(kOptOut, true);
         AddonManager.getAddonByID(kLightningGuuid, cbRemoveLightning);
         // let the user know that removal will be applied after restart
-        let restartLabel = ltnGetString("lightning", "integrationRestartLabel", [ltnBrand, appBrand]);
+        let restartLabel = cal.l10n.getLtnString("integrationRestartLabel", [ltnBrand, appBrand]);
         let button = [{
-            label:     ltnGetString("lightning", "integrationUndoButton"),
-            accessKey: ltnGetString("lightning", "integrationUndoAccessKey"),
+            label:     cal.l10n.getLtnString("integrationUndoButton"),
+            accessKey: cal.l10n.getLtnString("integrationUndoAccessKey"),
             popup:     null,
             callback:  cbUndoOptOut
         }, {
-            label:     ltnGetString("lightning", "integrationRestartButton"),
-            accessKey: ltnGetString("lightning", "integrationRestartAccessKey"),
+            label:     cal.l10n.getLtnString("integrationRestartButton"),
+            accessKey: cal.l10n.getLtnString("integrationRestartAccessKey"),
             popup:     null,
             callback:  cbRestartNow
         }];
@@ -490,18 +490,18 @@ function ltnIntegrationNotification() {
     };
 
     let buttons = [{
-        label:     ltnGetString("lightning", "integrationLearnMoreButton"),
-        accessKey: ltnGetString("lightning", "integrationLearnMoreAccessKey"),
+        label:     cal.l10n.getLtnString("integrationLearnMoreButton"),
+        accessKey: cal.l10n.getLtnString("integrationLearnMoreAccessKey"),
         popup:     null,
         callback:  cbLearnMore
     }, {
-        label:     ltnGetString("lightning", "integrationOptOutButton"),
-        accessKey: ltnGetString("lightning", "integrationOptOutAccessKey"),
+        label:     cal.l10n.getLtnString("integrationOptOutButton"),
+        accessKey: cal.l10n.getLtnString("integrationOptOutAccessKey"),
         popup:     null,
         callback:  cbOptOut
     }, {
-        label:     ltnGetString("lightning", "integrationKeepItButton"),
-        accessKey: ltnGetString("lightning", "integrationKeepItAccessKey"),
+        label:     cal.l10n.getLtnString("integrationKeepItButton"),
+        accessKey: cal.l10n.getLtnString("integrationKeepItAccessKey"),
         popup:     null,
         callback:  cbKeepIt
     }];
@@ -663,7 +663,7 @@ var gInvitationsOperationListener = {
     onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
         let invitationsBox = document.getElementById("calendar-invitations-panel");
         if (Components.isSuccessCode(aStatus)) {
-            let value = ltnGetString("lightning", "invitationsLink.label", [this.mCount]);
+            let value = cal.l10n.getLtnString("invitationsLink.label", [this.mCount]);
             document.getElementById("calendar-invitations-label").value = value;
             setElementValue(invitationsBox, this.mCount < 1 && "true", "hidden");
         } else {
@@ -926,7 +926,7 @@ function checkCalendarBinaryComponent() {
         let version;
         let appversion = Services.appinfo.version;
         let versionparts = appversion.split(".");
-        let extbrand = ltnGetString("lightning", "brandShortName");
+        let extbrand = cal.l10n.getLtnString("brandShortName");
 
         switch (Services.appinfo.ID) {
             case THUNDERBIRD_GUID: // e.g. 31.4.0 -> 3.3
@@ -940,14 +940,14 @@ function checkCalendarBinaryComponent() {
         let text;
         if (version && version != ext.version) {
             let args = [extbrand, ext.version, version];
-            text = ltnGetString("lightning", "binaryComponentKnown", args);
+            text = cal.l10n.getLtnString("binaryComponentKnown", args);
         } else {
             let brand = cal.calGetString("brand", "brandShortName", null, "branding");
             let args = [extbrand, brand, appversion, ext.version];
-            text = ltnGetString("lightning", "binaryComponentUnknown", args);
+            text = cal.l10n.getLtnString("binaryComponentUnknown", args);
         }
 
-        let title = ltnGetString("lightning", "binaryComponentTitle", [extbrand]);
+        let title = cal.l10n.getLtnString("binaryComponentTitle", [extbrand]);
         openAddonsMgr("addons://detail/" + encodeURIComponent(LIGHTNING_GUID));
         Services.prompt.alert(window, title, text);
     });

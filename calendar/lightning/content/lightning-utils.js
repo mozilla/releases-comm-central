@@ -2,28 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported ltnGetString, ltnInitMailIdentitiesRow,
- *          ltnGetMailIdentitySelection, ltnSaveMailIdentitySelection,
- *          ltnNotifyOnIdentitySelection
+/* exported ltnInitMailIdentitiesRow, ltnGetMailIdentitySelection,
+ *          ltnSaveMailIdentitySelection, ltnNotifyOnIdentitySelection
  */
 
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/ltnUtils.jsm");
-
-/**
- * Gets a localized string in a .properties file from the lightning bundle
- *
- * @param   {String}  aBundleName  the name of the properties file.  It is assumed
- *                                 that the file lives in chrome://lightning/locale/
- * @param   {String}  aStringName  the name of the string within the properties file
- * @param   {Array}   aParams      optional array of parameters to format the string
- * @returns {String}               the localized string
- */
-function ltnGetString(aBundleName, aStringName, aParams) {
-    return cal.calGetString(aBundleName, aStringName, aParams, "lightning");
-}
 
 /**
  * Initializing the email identity row
@@ -57,7 +42,7 @@ function ltnInitMailIdentitiesRow() {
         menuPopup.lastChild.remove();
     }
 
-    addMenuItem(menuPopup, ltnGetString("lightning", "imipNoIdentity"), "none");
+    addMenuItem(menuPopup, cal.l10n.getLtnString("imipNoIdentity"), "none");
     let identities;
     if (gCalendar && gCalendar.aclEntry && gCalendar.aclEntry.hasAccessControl) {
         identities = gCalendar.aclEntry.getOwnerIdentities({});
@@ -115,7 +100,7 @@ function ltnSaveMailIdentitySelection() {
  */
 function ltnNotifyOnIdentitySelection() {
     let notificationBox = document.getElementById("no-identity-notification");
-    let msg = ltn.getString("lightning", "noIdentitySelectedNotification");
+    let msg = cal.l10n.getLtnString("noIdentitySelectedNotification");
     let sel = ltnGetMailIdentitySelection();
 
     if (sel == "none") {
