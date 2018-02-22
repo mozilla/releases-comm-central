@@ -158,7 +158,7 @@
                 return;
             }
 
-            let localeCollator = cal.createLocaleCollator();
+            let localeCollator = cal.l10n.createLocaleCollator();
             let compare = localeCollator.compareString.bind(localeCollator, 0);
 
             let children = categoryListbox.childNodes;
@@ -197,7 +197,7 @@
             }
 
             if (aItem) {
-                let localeCollator = cal.createLocaleCollator();
+                let localeCollator = cal.l10n.createLocaleCollator();
                 let compare = localeCollator.compareString.bind(localeCollator, 0);
 
                 // Ensure the item's categories are in the list and they are checked.

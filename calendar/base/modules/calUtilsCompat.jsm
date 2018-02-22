@@ -153,4 +153,13 @@ function injectCalUtilsCompat(global) {
             generateForward(global, namespace, from, to);
         }
     }
+
+    // calGetString is special, as the argument order and kind has changed as well
+    global.calGetString = function(aBundleName, aStringName, aParams, aComponent="calendar") {
+        Deprecated.warning("calUtils' cal.calGetString() has changed to cal.l10n.get*String()" +
+                           " and the parameter order has changed",
+                           "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
+                           Components.stack.caller);
+        return cal.l10n.getAnyString(aComponent, aBundleName, aStringName, aParams);
+    };
 }

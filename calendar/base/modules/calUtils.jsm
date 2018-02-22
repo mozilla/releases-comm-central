@@ -57,12 +57,6 @@ var cal = {
                                     Components.interfaces.calIRecurrenceInfo,
                                     "item"),
 
-    createLocaleCollator: function() {
-        return Components.classes["@mozilla.org/intl/collation-factory;1"]
-                         .getService(Components.interfaces.nsICollationFactory)
-                         .CreateCollation();
-    },
-
     getCalendarManager: _service("@mozilla.org/calendar/manager;1",
                                  Components.interfaces.calICalendarManager),
     getIcsService: _service("@mozilla.org/calendar/ics-service;1",
@@ -280,35 +274,6 @@ var cal = {
     },
 
     /**
-     * Sort an array of strings according to the current locale.
-     * Modifies aStringArray, returning it sorted.
-     */
-    sortArrayByLocaleCollator: function(aStringArray) {
-        let localeCollator = cal.createLocaleCollator();
-        function compare(a, b) { return localeCollator.compareString(0, a, b); }
-        aStringArray.sort(compare);
-        return aStringArray;
-    },
-
-    /**
-     * Gets the month name string in the right form depending on a base string.
-     *
-     * @param aMonthNum     The month numer to get, 1-based.
-     * @param aBundleName   The Bundle to get the string from
-     * @param aStringBase   The base string name, .monthFormat will be appended
-     */
-    formatMonth: function(aMonthNum, aBundleName, aStringBase) {
-        let monthForm = cal.calGetString(aBundleName, aStringBase + ".monthFormat") || "nominative";
-
-        if (monthForm == "nominative") {
-            // Fall back to the default name format
-            monthForm = "name";
-        }
-
-        return cal.calGetString("dateFormat", "month." + aMonthNum + "." + monthForm);
-    },
-
-    /**
      * Adds an observer listening for the topic.
      *
      * @param func function to execute on topic
@@ -406,6 +371,7 @@ XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDa
 XPCOMUtils.defineLazyModuleGetter(cal, "email", "resource://calendar/modules/calEmailUtils.jsm", "calemail");
 XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/calItemUtils.jsm", "calitem");
 XPCOMUtils.defineLazyModuleGetter(cal, "itip", "resource://calendar/modules/calItipUtils.jsm", "calitip");
+XPCOMUtils.defineLazyModuleGetter(cal, "l10n", "resource://calendar/modules/calL10NUtils.jsm", "call10n");
 XPCOMUtils.defineLazyModuleGetter(cal, "unifinder", "resource://calendar/modules/calUnifinderUtils.jsm", "calunifinder");
 XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/calViewUtils.jsm", "calview");
 XPCOMUtils.defineLazyModuleGetter(cal, "window", "resource://calendar/modules/calWindowUtils.jsm", "calwindow");

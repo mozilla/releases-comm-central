@@ -17,6 +17,7 @@ EXTRA_JS_MODULES += [
     'calItemUtils.jsm',
     'calIteratorUtils.jsm',
     'calItipUtils.jsm',
+    'calL10NUtils.jsm',
     'calPrintUtils.jsm',
     'calProviderUtils.jsm',
     'calRecurrenceUtils.jsm',
