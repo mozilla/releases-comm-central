@@ -617,7 +617,7 @@ var calitip = {
                 let args = {};
                 args.calendars = calendars;
                 args.onOk = (aCal) => { targetCalendar = aCal; };
-                args.promptText = cal.calGetString("calendar", "importPrompt");
+                args.promptText = cal.l10n.getCalString("importPrompt");
                 aWindow.openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                                    "_blank", "chrome,titlebar,modal,resizable", args);
             }

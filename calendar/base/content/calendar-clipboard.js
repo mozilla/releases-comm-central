@@ -228,19 +228,19 @@ function pasteFromClipboard() {
                 if (calendars.length > 1) {
                     let args = {};
                     args.calendars = calendars;
-                    args.promptText = cal.calGetString("calendar", "pastePrompt");
+                    args.promptText = cal.l10n.getCalString("pastePrompt");
 
                     if (validPasteText) {
-                        pasteText = cal.calGetString("calendar", pasteText);
-                        let note = cal.calGetString("calendar", "pasteNotifyAbout", [pasteText]);
+                        pasteText = cal.l10n.getCalString(pasteText);
+                        let note = cal.l10n.getCalString("pasteNotifyAbout", pasteText);
                         args.promptNotify = note;
 
-                        args.labelExtra1 = cal.calGetString("calendar", "pasteDontNotifyLabel");
+                        args.labelExtra1 = cal.l10n.getCalString("pasteDontNotifyLabel");
                         args.onExtra1 = (aCal) => {
                             destCal = aCal;
                             notify = Ci.calIItipItem.NONE;
                         };
-                        args.labelOk = cal.calGetString("calendar", "pasteAndNotifyLabel");
+                        args.labelOk = cal.l10n.getCalString("pasteAndNotifyLabel");
                         args.onOk = (aCal) => {
                             destCal = aCal;
                             notify = Ci.calIItipItem.AUTO;

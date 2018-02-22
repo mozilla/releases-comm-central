@@ -61,12 +61,12 @@
       <constructor><![CDATA[
           ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           let goButton = document.getAnonymousElementByAttribute(this, "anonid", "date-go-button");
-          goButton.setAttribute("label", cal.calGetString("calendar", "go"));
+          goButton.setAttribute("label", cal.l10n.getCalString("go"));
           // Load the stuff we're going to use to parse written dates
           this.mRelativeDates = [
-              { word: cal.calGetString("calendar", "today").toLowerCase(), offset: 0 },
-              { word: cal.calGetString("calendar", "yesterday").toLowerCase(), offset: -1 },
-              { word: cal.calGetString("calendar", "tomorrow").toLowerCase(), offset: 1 }];
+              { word: cal.l10n.getCalString("today").toLowerCase(), offset: 0 },
+              { word: cal.l10n.getCalString("yesterday").toLowerCase(), offset: -1 },
+              { word: cal.l10n.getCalString("tomorrow").toLowerCase(), offset: 1 }];
           for (let i = 1; i <= 7; i++) {
               this.mDayNames.push(cal.calGetString("dateFormat", "day." + i + ".name").toLowerCase());
           }
@@ -79,14 +79,14 @@
           // note that some languages have different conjugations of
           // next/last depending on the day
           this.mRelationWords = [
-              { word: cal.calGetString("calendar", "last1"), offset: -1 },
-              { word: cal.calGetString("calendar", "last2"), offset: -1 },
-              { word: cal.calGetString("calendar", "next1"), offset: 0 },
-              { word: cal.calGetString("calendar", "next2"), offset: 0 }];
+              { word: cal.l10n.getCalString("last1"), offset: -1 },
+              { word: cal.l10n.getCalString("last2"), offset: -1 },
+              { word: cal.l10n.getCalString("next1"), offset: 0 },
+              { word: cal.l10n.getCalString("next2"), offset: 0 }];
 
           // Set the value to today
           let text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
-          text.value = cal.calGetString("calendar", "today");
+          text.value = cal.l10n.getCalString("today");
       ]]></constructor>
 
       <property name="value">

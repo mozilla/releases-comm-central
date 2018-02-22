@@ -26,9 +26,9 @@ var TodayPane = {
      */
     onLoad: function() {
         TodayPane.paneViews = [
-            cal.calGetString("calendar", "eventsandtasks"),
-            cal.calGetString("calendar", "tasksonly"),
-            cal.calGetString("calendar", "eventsonly")
+            cal.l10n.getCalString("eventsandtasks"),
+            cal.l10n.getCalString("tasksonly"),
+            cal.l10n.getCalString("eventsonly")
         ];
         agendaListbox.setupCalendar();
         TodayPane.initializeMiniday();
@@ -279,7 +279,7 @@ var TodayPane = {
      */
     setMonthDescription: function(aMonthLabel, aIndex, aYear, aCalWeek) {
         if (this.cwlabel == null) {
-            this.cwlabel = cal.calGetString("calendar", "shortcalendarweek");
+            this.cwlabel = cal.l10n.getCalString("shortcalendarweek");
         }
         document.getElementById("currentWeek-label").value = this.cwlabel + " " + aCalWeek;
         aMonthLabel.value = cal.getDateFormatter().shortMonthName(aIndex) + " " + aYear;

@@ -215,7 +215,7 @@ var calendarItemTabType = {
             throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
         }
         // name is "New Event", "Edit Task", etc.
-        let name = cal.calGetString("calendar", strName);
+        let name = cal.l10n.getCalString(strName);
         aTab.title = name + ": " + (aArgs.calendarEvent.title || name);
 
         // allowTabClose prevents the tab from being closed until we ask
@@ -529,7 +529,7 @@ function ltnIntegrationCheck() {
         let cnt = {};
         let calMgr = cal.getCalendarManager();
         let cals = calMgr.getCalendars(cnt);
-        let homeCalName = cal.calGetString("calendar", "homeCalendarName", null, "calendar");
+        let homeCalName = cal.l10n.getCalString("homeCalendarName");
         if (cnt.value == 1 &&
             calMgr.getCalendarPref_(cals[0], "type") == "storage" &&
             calMgr.getCalendarPref_(cals[0], "name") == homeCalName) {

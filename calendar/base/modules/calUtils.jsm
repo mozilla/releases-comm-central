@@ -103,7 +103,7 @@ var cal = {
      * @param aWindow The window to show the message in, or null for any window.
      */
     showError: function(aMsg, aWindow=null) {
-        Services.prompt.alert(aWindow, cal.calGetString("calendar", "genericErrorTitle"), aMsg);
+        Services.prompt.alert(aWindow, cal.l10n.getCalString("genericErrorTitle"), aMsg);
     },
 
     /**

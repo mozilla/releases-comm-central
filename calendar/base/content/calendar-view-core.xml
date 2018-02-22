@@ -147,7 +147,7 @@
             let evl = this.eventNameLabel;
             let item = this.mOccurrence;
             evl.value = (item.title ? item.title.replace(/\n/g, " ")
-                                    : cal.calGetString("calendar", "eventUntitled"));
+                                    : cal.l10n.getCalString("eventUntitled"));
         ]]></body>
       </method>
 

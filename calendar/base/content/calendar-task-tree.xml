@@ -294,27 +294,27 @@
                 if (!dur.isNegative) {
                     let minutes = Math.ceil(dur.inSeconds / 60);
                     if (minutes >= 1440) { // 1 day or more
-                        let dueIn = PluralForm.get(dur.days, cal.calGetString("calendar", "dueInDays"));
+                        let dueIn = PluralForm.get(dur.days, cal.l10n.getCalString("dueInDays"));
                         return dueIn.replace("#1", dur.days);
                     } else if (minutes >= 60) { // 1 hour or more
-                        let dueIn = PluralForm.get(dur.hours, cal.calGetString("calendar", "dueInHours"));
+                        let dueIn = PluralForm.get(dur.hours, cal.l10n.getCalString("dueInHours"));
                         return dueIn.replace("#1", dur.hours);
                     } else {
                         // Less than one hour
-                        return cal.calGetString("calendar", "dueInLessThanOneHour");
+                        return cal.l10n.getCalString("dueInLessThanOneHour");
                     }
                 } else if (!aTask.completedDate || !aTask.completedDate.isValid) {
                     // Overdue task
                     let minutes = Math.ceil(-dur.inSeconds / 60);
                     if (minutes >= 1440) { // 1 day or more
-                        let dueIn = PluralForm.get(dur.days, cal.calGetString("calendar", "dueInDays"));
+                        let dueIn = PluralForm.get(dur.days, cal.l10n.getCalString("dueInDays"));
                         return "-" + dueIn.replace("#1", dur.days);
                     } else if (minutes >= 60) { // 1 hour or more
-                        let dueIn = PluralForm.get(dur.hours, cal.calGetString("calendar", "dueInHours"));
+                        let dueIn = PluralForm.get(dur.hours, cal.l10n.getCalString("dueInHours"));
                         return "-" + dueIn.replace("#1", dur.hours);
                     } else {
                         // Less than one hour
-                        return cal.calGetString("calendar", "dueInLessThanOneHour");
+                        return cal.l10n.getCalString("dueInLessThanOneHour");
                     }
                 }
             }
@@ -589,7 +589,11 @@
                 switch (aCol.element.getAttribute("itemproperty")) {
                     case "title":
                         // return title, or "Untitled" if empty/null
-                        return (task.title ? task.title.replace(/\n/g, " ") : cal.calGetString("calendar", "eventUntitled"));
+                        if (task.title) {
+                            return task.title.replace(/\n/g, " ");
+                        } else {
+                            return cal.l10n.getCalString("eventUntitled");
+                        }
                     case "entryDate":
                         return task.recurrenceInfo ? cal.calGetString("dateFormat", "Repeating") : this._formatDateTime(task.entryDate);
                     case "dueDate":

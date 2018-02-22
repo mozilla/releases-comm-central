@@ -438,7 +438,7 @@ function unitPluralForm(aLength, aUnit, aIncludeLength=true) {
         weeks: "unitWeeks"
     }[aUnit] || "unitMinutes";
 
-    return PluralForm.get(aLength, cal.calGetString("calendar", unitProp))
+    return PluralForm.get(aLength, cal.l10n.getCalString(unitProp))
                      .replace("#1", aIncludeLength ? aLength : "").trim();
 }
 

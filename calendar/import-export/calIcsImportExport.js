@@ -16,7 +16,7 @@ function getIcsFileTypes(aCount) {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIFileType]),
         defaultExtension: "ics",
         extensionFilter: "*.ics",
-        description: cal.calGetString("calendar", "filterIcs", ["*.ics"])
+        description: cal.l10n.getCalString("filterIcs", ["*.ics"])
     }];
 }
 

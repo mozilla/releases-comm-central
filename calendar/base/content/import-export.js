@@ -25,7 +25,7 @@ function loadEventsFromFile(aCalendar) {
     let picker = Components.classes["@mozilla.org/filepicker;1"]
                            .createInstance(nsIFilePicker);
     picker.init(window,
-                cal.calGetString("calendar", "filepickerTitleImport"),
+                cal.l10n.getCalString("filepickerTitleImport"),
                 nsIFilePicker.modeOpen);
     picker.defaultExtension = "ics";
 
@@ -89,10 +89,10 @@ function loadEventsFromFile(aCalendar) {
             exception = ex;
             switch (ex.result) {
                 case Components.interfaces.calIErrors.INVALID_TIMEZONE:
-                    cal.showError(cal.calGetString("calendar", "timezoneError", [filePath]), window);
+                    cal.showError(cal.l10n.getCalString("timezoneError", [filePath]), window);
                     break;
                 default:
-                    cal.showError(cal.calGetString("calendar", "unableToRead") + filePath + "\n" + ex, window);
+                    cal.showError(cal.l10n.getCalString("unableToRead") + filePath + "\n" + ex, window);
             }
         } finally {
             inputStream.close();
@@ -101,7 +101,7 @@ function loadEventsFromFile(aCalendar) {
         if (!items.length && !exception) {
             // the ics did not contain any events, so there's no need to proceed. But we should
             // notify the user about it, if we haven't before.
-            cal.showError(cal.calGetString("calendar", "noItemsInCalendarFile", [filePath]), window);
+            cal.showError(cal.l10n.getCalString("noItemsInCalendarFile", [filePath]), window);
             return;
         }
 
@@ -122,7 +122,7 @@ function loadEventsFromFile(aCalendar) {
             let args = {};
             args.onOk = (aCal) => { putItemsIntoCal(aCal, items, filePath); };
             args.calendars = calendars;
-            args.promptText = cal.calGetString("calendar", "importPrompt");
+            args.promptText = cal.l10n.getCalString("importPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                        "_blank", "chrome,titlebar,modal,resizable", args);
         }
@@ -173,9 +173,16 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
             if (count == aItems.length) {
                 destCal.endBatch();
                 if (!failedCount && duplicateCount) {
-                    cal.showError(cal.calGetString("calendar", "duplicateError", [duplicateCount, aFilePath]), window);
+                    cal.showError(
+                        cal.l10n.getCalString("duplicateError", [duplicateCount, aFilePath]),
+                        window
+                    );
                 } else if (failedCount) {
-                    cal.showError(cal.calGetString("calendar", "importItemsFailed", [failedCount, lastError.toString()]), window);
+                    cal.showError(
+                        cal.l10n.getCalString("importItemsFailed",
+                                              [failedCount, lastError.toString()]),
+                        window
+                    );
                 }
             }
         }
@@ -219,7 +226,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
                        .createInstance(nsIFilePicker);
 
     picker.init(window,
-                cal.calGetString("calendar", "filepickerTitleExport"),
+                cal.l10n.getCalString("filepickerTitleExport"),
                 nsIFilePicker.modeSave);
 
     if (aDefaultFileName && aDefaultFileName.length && aDefaultFileName.length > 0) {
@@ -227,7 +234,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
     } else if (calendarEventArray.length == 1 && calendarEventArray[0].title) {
         picker.defaultString = calendarEventArray[0].title;
     } else {
-        picker.defaultString = cal.calGetString("calendar", "defaultFileName");
+        picker.defaultString = cal.l10n.getCalString("defaultFileName");
     }
 
     picker.defaultExtension = "ics";
@@ -307,7 +314,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
                                     null);
             outputStream.close();
         } catch (ex) {
-            cal.showError(cal.calGetString("calendar", "unableToWrite") + filePath, window);
+            cal.showError(cal.l10n.getCalString("unableToWrite") + filePath, window);
         }
     });
 }
@@ -351,7 +358,7 @@ function exportEntireCalendar(aCalendar) {
             // Ask what calendar to import into
             let args = {};
             args.onOk = getItemsFromCal;
-            args.promptText = cal.calGetString("calendar", "exportPrompt");
+            args.promptText = cal.l10n.getCalString("exportPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                        "_blank", "chrome,titlebar,modal,resizable", args);
         }

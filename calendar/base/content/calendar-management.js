@@ -42,7 +42,7 @@ function promptDeleteCalendar(aCalendar) {
     }
 
     let modes = new Set(aCalendar.getProperty("capabilities.removeModes") || ["unsubscribe"]);
-    let title = cal.calGetString("calendar", "removeCalendarTitle");
+    let title = cal.l10n.getCalString("removeCalendarTitle");
 
     let textKey, b0text, b2text;
     let removeFlags = 0;
@@ -52,21 +52,21 @@ function promptDeleteCalendar(aCalendar) {
     if (modes.has("delete") && !modes.has("unsubscribe")) {
         textKey = "removeCalendarMessageDelete";
         promptFlags += nIPS.BUTTON_DELAY_ENABLE;
-        b0text = cal.calGetString("calendar", "removeCalendarButtonDelete");
+        b0text = cal.l10n.getCalString("removeCalendarButtonDelete");
     } else if (modes.has("delete")) {
         textKey = "removeCalendarMessageDeleteOrUnsubscribe";
         promptFlags += (nIPS.BUTTON_POS_2 * nIPS.BUTTON_TITLE_IS_STRING);
-        b0text = cal.calGetString("calendar", "removeCalendarButtonUnsubscribe");
-        b2text = cal.calGetString("calendar", "removeCalendarButtonDelete");
+        b0text = cal.l10n.getCalString("removeCalendarButtonUnsubscribe");
+        b2text = cal.l10n.getCalString("removeCalendarButtonDelete");
     } else if (modes.has("unsubscribe")) {
         textKey = "removeCalendarMessageUnsubscribe";
         removeFlags |= cICM.REMOVE_NO_DELETE;
-        b0text = cal.calGetString("calendar", "removeCalendarButtonUnsubscribe");
+        b0text = cal.l10n.getCalString("removeCalendarButtonUnsubscribe");
     } else {
         return;
     }
 
-    let text = cal.calGetString("calendar", textKey, [aCalendar.name]);
+    let text = cal.l10n.getCalString(textKey, [aCalendar.name]);
     let res = Services.prompt.confirmEx(window, title, text, promptFlags,
                                         b0text, null, b2text, null, {});
 
@@ -117,7 +117,7 @@ function initHomeCalendar() {
     let composite = cal.view.getCompositeCalendar(window);
     let url = Services.io.newURI("moz-storage-calendar://");
     let homeCalendar = calMgr.createCalendar("storage", url);
-    homeCalendar.name = cal.calGetString("calendar", "homeCalendarName");
+    homeCalendar.name = cal.l10n.getCalString("homeCalendarName");
     calMgr.registerCalendar(homeCalendar);
     Preferences.set("calendar.list.sortOrder", homeCalendar.id);
     composite.addCalendar(homeCalendar);
@@ -173,9 +173,9 @@ function calendarListTooltipShowing(event) {
     if (calendar) {
         let currentStatus = calendar.getProperty("currentStatus");
         if (!Components.isSuccessCode(currentStatus)) {
-            tooltipText = cal.calGetString("calendar", "tooltipCalendarDisabled", [calendar.name]);
+            tooltipText = cal.l10n.getCalString("tooltipCalendarDisabled", [calendar.name]);
         } else if (calendar.readOnly) {
-            tooltipText = cal.calGetString("calendar", "tooltipCalendarReadOnly", [calendar.name]);
+            tooltipText = cal.l10n.getCalString("tooltipCalendarReadOnly", [calendar.name]);
         }
     }
     setElementValue("calendar-list-tooltip", tooltipText, "label");
@@ -230,7 +230,7 @@ function calendarListSetupContextMenu(event) {
         setElementValue("list-calendars-context-togglevisible", false, "collapsed");
         let stringName = composite.getCalendarById(calendar.id) ? "hideCalendar" : "showCalendar";
         setElementValue("list-calendars-context-togglevisible",
-                        cal.calGetString("calendar", stringName, [calendar.name]),
+                        cal.l10n.getCalString(stringName, [calendar.name]),
                         "label");
         let accessKey = document.getElementById("list-calendars-context-togglevisible")
                                 .getAttribute(composite.getCalendarById(calendar.id) ?
@@ -240,7 +240,7 @@ function calendarListSetupContextMenu(event) {
         enableElement("list-calendars-context-showonly");
         setElementValue("list-calendars-context-showonly", false, "collapsed");
         setElementValue("list-calendars-context-showonly",
-                        cal.calGetString("calendar", "showOnlyCalendar", [calendar.name]),
+                        cal.l10n.getCalString("showOnlyCalendar", [calendar.name]),
                         "label");
 
         setupDeleteMenuitem("list-calendars-context-delete", calendar);

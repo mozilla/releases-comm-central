@@ -873,8 +873,10 @@
             } else {
                 let monthName = cal.l10n.formatMonth(aDate.getMonth() + 1,
                                                      "calendar", "monthInYear");
-                let label = cal.calGetString("calendar", "monthInYear",
-                                         [monthName, aDate.getFullYear()]);
+                let label = cal.l10n.getCalString(
+                    "monthInYear",
+                    [monthName, aDate.getFullYear()]
+                );
                 calbox.setAttribute("aria-label", label);
             }
 
@@ -889,7 +891,7 @@
                 if (this.mShowWeekNumber) {
                     let weekNumber = cal.getWeekInfoService()
                                         .getWeekTitle(cal.dtz.jsDateToDateTime(date, defaultTz));
-                    let weekTitle = cal.calGetString("calendar", "WeekTitle", [weekNumber]);
+                    let weekTitle = cal.l10n.getCalString("WeekTitle", [weekNumber]);
                     firstElement.textContent = weekNumber;
                     firstElement.setAttribute("aria-label", weekTitle);
                 }
@@ -1089,7 +1091,7 @@
                     new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
                 label = dateFormatter.format(this.mValue);
             } else {
-                label = cal.calGetString("calendar", "minimonthNoSelectedDate");
+                label = cal.l10n.getCalString("minimonthNoSelectedDate");
             }
             this.setAttribute("aria-label", label);
         ]]></body>

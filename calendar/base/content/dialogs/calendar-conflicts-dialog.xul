@@ -29,18 +29,18 @@
         // TODO These strings should move to DTD files, but we don't want to
         // disrupt string freeze right now. For that matter, this dialog
         // should be reworked!
-        docEl.title =  cal.calGetString("calendar", "itemModifiedOnServerTitle");
-        descr.textContent = cal.calGetString("calendar", "itemModifiedOnServer");
+        docEl.title =  cal.l10n.getCalString("itemModifiedOnServerTitle");
+        descr.textContent = cal.l10n.getCalString("itemModifiedOnServer");
 
         if (window.arguments[0].mode == "modify") {
-            descr.textContent += cal.calGetString("calendar", "modifyWillLoseData");
-            docEl.getButton("accept").setAttribute("label", cal.calGetString("calendar", "proceedModify"));
+            descr.textContent += cal.l10n.getCalString("modifyWillLoseData");
+            docEl.getButton("accept").setAttribute("label", cal.l10n.getCalString("proceedModify"));
         } else {
-            descr.textContent += cal.calGetString("calendar", "deleteWillLoseData");
-            docEl.getButton("accept").setAttribute("label", cal.calGetString("calendar", "proceedDelete"));
+            descr.textContent += cal.l10n.getCalString("deleteWillLoseData");
+            docEl.getButton("accept").setAttribute("label", cal.l10n.getCalString("proceedDelete"));
         }
 
-        docEl.getButton("cancel").setAttribute("label", cal.calGetString("calendar", "updateFromServer"));
+        docEl.getButton("cancel").setAttribute("label", cal.l10n.getCalString("updateFromServer"));
 
         window.sizeToContent();
     }

@@ -133,7 +133,7 @@ calTimezoneService.prototype = {
             }
         }, (error) => {
             // We have to give up. Show an error and fail hard!
-            let msg = cal.calGetString("calendar", "missingCalendarTimezonesError");
+            let msg = cal.l10n.getCalString("missingCalendarTimezonesError");
             cal.ERROR(msg);
             cal.showError(msg);
         });

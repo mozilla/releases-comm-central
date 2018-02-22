@@ -62,7 +62,7 @@ calStorageCalendar.prototype = {
     },
 
     get displayName() {
-        return cal.calGetString("calendar", "storageName");
+        return cal.l10n.getCalString("storageName");
     },
 
     createCalendar: function() {

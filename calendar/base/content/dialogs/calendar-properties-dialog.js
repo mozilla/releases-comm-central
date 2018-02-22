@@ -135,7 +135,7 @@ function initRefreshInterval() {
         let menuitem = createXULElement("menuitem");
         menuitem.setAttribute("value", minutes);
 
-        let everyMinuteString = cal.calGetString("calendar", "calendarPropertiesEveryMinute");
+        let everyMinuteString = cal.l10n.getCalString("calendarPropertiesEveryMinute");
         let label = PluralForm.get(minutes, everyMinuteString).replace("#1", minutes);
         menuitem.setAttribute("label", label);
 

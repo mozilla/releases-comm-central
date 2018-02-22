@@ -881,12 +881,12 @@
         <setter><![CDATA[
             this.mDate = val;
             let dateFormatter = cal.getDateFormatter();
-            let label = cal.calGetString("calendar", "dayHeaderLabel", [
+            let label = cal.l10n.getCalString("dayHeaderLabel", [
                 dateFormatter.shortDayName(val.weekday),
                 dateFormatter.formatDateWithoutYear(val)
             ]);
             this.shortName.setAttribute("value", label);
-            label = cal.calGetString("calendar", "dayHeaderLabel", [
+            label = cal.l10n.getCalString("dayHeaderLabel", [
                 dateFormatter.dayName(val.weekday),
                 dateFormatter.formatDateWithoutYear(val)
             ]);

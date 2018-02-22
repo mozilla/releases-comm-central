@@ -424,7 +424,7 @@ function updateEndTime() {
             Services.prompt.alert(
                 null,
                 document.title,
-                cal.calGetString("calendar", "warningEndBeforeStart"));
+                cal.l10n.getCalString("warningEndBeforeStart"));
         };
         setTimeout(callback, 1);
     }

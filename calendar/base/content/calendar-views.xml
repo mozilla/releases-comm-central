@@ -254,7 +254,7 @@
         <body><![CDATA[
             let monthName = cal.l10n.formatMonth(this.rangeStartDate.month + 1,
                                                  "calendar", "monthInYear");
-            return cal.calGetString("calendar", "monthInYear", [monthName, this.rangeStartDate.year]);
+            return cal.l10n.getCalString("monthInYear", [monthName, this.rangeStartDate.year]);
         ]]></body>
        </method>
       <method name="moveView">

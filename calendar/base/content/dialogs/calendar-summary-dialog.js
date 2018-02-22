@@ -121,14 +121,22 @@ function onLoad() {
         let partstat = organizer.participationStatus || "NEEDS-ACTION";
         let orgName = (organizer.commonName && organizer.commonName.length)
                        ? organizer.commonName : organizer.toString();
-        let userTypeString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + userType,
-                                              [organizer.toString()]);
-        let roleString = cal.calGetString("calendar", "dialog.tooltip.attendeeRole2." + role,
-                                          [userTypeString]);
-        let partstatString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + partstat,
-                                             [orgName]);
-        let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
-                                       [roleString, partstatString]);
+        let userTypeString = cal.l10n.getCalString(
+            "dialog.tooltip.attendeeUserType2." + userType,
+            [organizer.toString()]
+        );
+        let roleString = cal.l10n.getCalString(
+            "dialog.tooltip.attendeeRole2." + role,
+            [userTypeString]
+        );
+        let partstatString = cal.l10n.getCalString(
+            "dialog.tooltip.attendeePartStat2." + partstat,
+            [orgName]
+        );
+        let tooltip = cal.l10n.getCalString(
+            "dialog.tooltip.attendee.combined",
+            [roleString, partstatString]
+        );
 
         text.setAttribute("value", orgName);
         cell.setAttribute("tooltiptext", tooltip);

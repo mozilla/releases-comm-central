@@ -85,10 +85,10 @@ var eventDialogCalendarObserver = {
             // prompt if there have been local changes also.
             if (isItemChanged()) {
                 let promptService = Components.interfaces.nsIPromptService;
-                let promptTitle = cal.calGetString("calendar", "modifyConflictPromptTitle");
-                let promptMessage = cal.calGetString("calendar", "modifyConflictPromptMessage");
-                let promptButton1 = cal.calGetString("calendar", "modifyConflictPromptButton1");
-                let promptButton2 = cal.calGetString("calendar", "modifyConflictPromptButton2");
+                let promptTitle = cal.l10n.getCalString("modifyConflictPromptTitle");
+                let promptMessage = cal.l10n.getCalString("modifyConflictPromptMessage");
+                let promptButton1 = cal.l10n.getCalString("modifyConflictPromptButton1");
+                let promptButton2 = cal.l10n.getCalString("modifyConflictPromptButton2");
                 let flags = promptService.BUTTON_TITLE_IS_STRING *
                             promptService.BUTTON_POS_0 +
                             promptService.BUTTON_TITLE_IS_STRING *
@@ -459,14 +459,13 @@ function onCommandCancel() {
 
     let promptService = Components.interfaces.nsIPromptService;
 
-    let promptTitle = cal.calGetString("calendar",
-                                       cal.item.isEvent(window.calendarItem)
-                                          ? "askSaveTitleEvent"
-                                          : "askSaveTitleTask");
-    let promptMessage = cal.calGetString("calendar",
-                                         cal.item.isEvent(window.calendarItem)
-                                            ? "askSaveMessageEvent"
-                                            : "askSaveMessageTask");
+    let promptTitle = cal.l10n.getCalString(
+        cal.item.isEvent(window.calendarItem) ? "askSaveTitleEvent" : "askSaveTitleTask"
+    );
+    let promptMessage = cal.l10n.getCalString(
+        cal.item.isEvent(window.calendarItem) ? "askSaveMessageEvent" : "askSaveMessageTask"
+    );
+
 
     let flags = promptService.BUTTON_TITLE_SAVE *
                 promptService.BUTTON_POS_0 +
@@ -869,11 +868,11 @@ function updateCategoryMenulist() {
     let label;
     let categoryList = categoryPanel.categories;
     if (categoryList.length > 1) {
-        label = cal.calGetString("calendar", "multipleCategories");
+        label = cal.l10n.getCalString("multipleCategories");
     } else if (categoryList.length == 1) {
         label = categoryList[0];
     } else {
-        label = cal.calGetString("calendar", "None");
+        label = cal.l10n.getCalString("None");
     }
     categoryMenulist.setAttribute("label", label);
 }
@@ -1075,7 +1074,7 @@ function dateTimeControls2State(aStartDatepicker) {
             gStartTime = saveStartTime;
             gEndTime = saveEndTime;
             warning = true;
-            stringWarning = cal.calGetString("calendar", "warningEndBeforeStart");
+            stringWarning = cal.l10n.getCalString("warningEndBeforeStart");
         }
     }
 
@@ -1114,7 +1113,7 @@ function dateTimeControls2State(aStartDatepicker) {
             }
 
             warning = true;
-            stringWarning = cal.calGetString("calendar", "warningUntilDateBeforeStart");
+            stringWarning = cal.l10n.getCalString("warningUntilDateBeforeStart");
         }
     }
 
@@ -1544,8 +1543,7 @@ function updateTitle() {
     } else {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     }
-    let newTitle = cal.calGetString("calendar", strName) + ": " +
-                      getElementValue("item-title");
+    let newTitle = cal.l10n.getCalString(strName) + ": " + getElementValue("item-title");
     sendMessage({ command: "updateTitle", argument: newTitle });
 }
 
@@ -3032,11 +3030,11 @@ function onCommandDeleteItem() {
         let promptMessage = "";
 
         if (cal.item.isEvent(window.calendarItem)) {
-            promptTitle = cal.calGetString("calendar", "deleteEventLabel");
-            promptMessage = cal.calGetString("calendar", "deleteEventMessage");
+            promptTitle = cal.l10n.getCalString("deleteEventLabel");
+            promptMessage = cal.l10n.getCalString("deleteEventMessage");
         } else if (cal.item.isToDo(window.calendarItem)) {
-            promptTitle = cal.calGetString("calendar", "deleteTaskLabel");
-            promptMessage = cal.calGetString("calendar", "deleteTaskMessage");
+            promptTitle = cal.l10n.getCalString("deleteTaskLabel");
+            promptMessage = cal.l10n.getCalString("deleteTaskMessage");
         }
 
         let answerDelete = Services.prompt.confirm(
@@ -3543,14 +3541,22 @@ function updateAttendees() {
 
             let orgName = (organizer.commonName && organizer.commonName.length)
                           ? organizer.commonName : organizer.toString();
-            let userTypeString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + userType,
-                                            [organizer.toString()]);
-            let roleString = cal.calGetString("calendar", "dialog.tooltip.attendeeRole2." + role,
-                                              [userTypeString]);
-            let partStatString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + partStat,
-                                            [orgName]);
-            let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
-                                           [roleString, partStatString]);
+            let userTypeString = cal.l10n.getCalString(
+                "dialog.tooltip.attendeeUserType2." + userType,
+                [organizer.toString()]
+            );
+            let roleString = cal.l10n.getCalString(
+                "dialog.tooltip.attendeeRole2." + role,
+                [userTypeString]
+            );
+            let partStatString = cal.l10n.getCalString(
+                "dialog.tooltip.attendeePartStat2." + partStat,
+                [orgName]
+            );
+            let tooltip = cal.l10n.getCalString(
+                "dialog.tooltip.attendee.combined",
+                [roleString, partStatString]
+            );
 
             text.setAttribute("value", orgName);
             cell.setAttribute("tooltiptext", tooltip);
@@ -3863,7 +3869,7 @@ function checkUntilDate() {
             Services.prompt.alert(
                 null,
                 document.title,
-                cal.calGetString("calendar", "warningUntilDateBeforeStart"));
+                cal.l10n.getCalString("warningUntilDateBeforeStart"));
             enableAcceptCommand(true);
             gWarning = false;
         };

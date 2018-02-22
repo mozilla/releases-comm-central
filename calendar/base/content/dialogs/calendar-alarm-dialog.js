@@ -225,7 +225,7 @@ function aboveSnoozeLimit(aDuration) {
 
     let durationUntilLimit = limitTime.subtractDate(currentTime);
     if (aDuration.compare(durationUntilLimit) > 0) {
-        let msg = PluralForm.get(LIMIT, cal.calGetString("calendar", "alarmSnoozeLimitExceeded"));
+        let msg = PluralForm.get(LIMIT, cal.l10n.getCalString("alarmSnoozeLimitExceeded"));
         cal.showError(msg.replace("#1", LIMIT), window);
         return true;
     }
@@ -239,7 +239,7 @@ function setupTitle() {
     let alarmRichlist = document.getElementById("alarm-richlist");
     let reminders = alarmRichlist.childNodes.length;
 
-    let title = PluralForm.get(reminders, cal.calGetString("calendar", "alarmWindowTitle.label"));
+    let title = PluralForm.get(reminders, cal.l10n.getCalString("alarmWindowTitle.label"));
     document.title = title.replace("#1", reminders);
 }
 

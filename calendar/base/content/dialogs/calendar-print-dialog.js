@@ -74,7 +74,7 @@ function getPrintSettings(receiverFunc) {
     let tempTitle = document.getElementById("title-field").value;
     let settings = {};
     let requiresFetch = true;
-    settings.title = tempTitle || cal.calGetString("calendar", "Untitled");
+    settings.title = tempTitle || cal.l10n.getCalString("Untitled");
     settings.layoutCId = document.getElementById("layout-field").value;
     settings.start = null;
     settings.end = null;
@@ -202,7 +202,7 @@ function getFilter(settings) {
  */
 function refreshHtml(finishFunc) {
     getPrintSettings((settings) => {
-        document.title = cal.calGetString("calendar", "PrintPreviewWindowTitle", [settings.title]);
+        document.title = cal.l10n.getCalString("PrintPreviewWindowTitle", [settings.title]);
 
         let printformatter = Components.classes[settings.layoutCId]
                                        .createInstance(Components.interfaces.calIPrintFormatter);

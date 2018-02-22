@@ -137,7 +137,7 @@ cal.print = {
         if (taskListBox.hasAttribute("hidden")) {
             let tasksTitle = document.getElementById("tasks-title");
             taskListBox.removeAttribute("hidden");
-            tasksTitle.textContent = cal.calGetString("calendar", "tasksWithNoDueDate");
+            tasksTitle.textContent = cal.l10n.getCalString("tasksWithNoDueDate");
         }
 
         // Fill in details of the task

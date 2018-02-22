@@ -85,11 +85,11 @@ function getEventStatusString(aEvent) {
     switch (aEvent.status) {
         // Event status value keywords are specified in RFC2445sec4.8.1.11
         case "TENTATIVE":
-            return cal.calGetString("calendar", "statusTentative");
+            return cal.l10n.getCalString("statusTentative");
         case "CONFIRMED":
-            return cal.calGetString("calendar", "statusConfirmed");
+            return cal.l10n.getCalString("statusConfirmed");
         case "CANCELLED":
-            return cal.calGetString("calendar", "eventStatusCancelled");
+            return cal.l10n.getCalString("eventStatusCancelled");
         default:
             return "";
     }
@@ -106,13 +106,13 @@ function getToDoStatusString(aToDo) {
     switch (aToDo.status) {
         // Todo status keywords are specified in RFC2445sec4.8.1.11
         case "NEEDS-ACTION":
-            return cal.calGetString("calendar", "statusNeedsAction");
+            return cal.l10n.getCalString("statusNeedsAction");
         case "IN-PROCESS":
-            return cal.calGetString("calendar", "statusInProcess");
+            return cal.l10n.getCalString("statusInProcess");
         case "CANCELLED":
-            return cal.calGetString("calendar", "todoStatusCancelled");
+            return cal.l10n.getCalString("todoStatusCancelled");
         case "COMPLETED":
-            return cal.calGetString("calendar", "statusCompleted");
+            return cal.l10n.getCalString("statusCompleted");
         default:
             return "";
     }
@@ -173,11 +173,11 @@ function getPreviewForTask(toDoItem, aIsTooltip=true) {
 
             // These cut-offs should match calendar-event-dialog.js
             if (priorityInteger >= 1 && priorityInteger <= 4) {
-                priorityString = cal.calGetString("calendar", "highPriority"); // high priority
+                priorityString = cal.l10n.getCalString("highPriority");
             } else if (priorityInteger == 5) {
-                priorityString = cal.calGetString("calendar", "normalPriority"); // normal priority
+                priorityString = cal.l10n.getCalString("normalPriority");
             } else {
-                priorityString = cal.calGetString("calendar", "lowPriority"); // low priority
+                priorityString = cal.l10n.getCalString("lowPriority");
             }
             boxAppendLabeledText(vbox, "tooltipPriority", priorityString);
             hasHeader = true;
@@ -375,7 +375,7 @@ function boxInitializeHeaderGrid(box) {
  * @param textString        value of header field.
  */
 function boxAppendLabeledText(box, labelProperty, textString) {
-    let labelText = cal.calGetString("calendar", labelProperty);
+    let labelText = cal.l10n.getCalString(labelProperty);
     let rows = box.getElementsByTagNameNS(box.namespaceURI, "rows")[0];
     let row = document.createElement("row");
 

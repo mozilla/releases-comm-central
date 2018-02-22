@@ -843,7 +843,7 @@
                         if (j == weekLabelColumnPos) {
                             weekLabel.removeAttribute("hidden");
                             let weekNumber = cal.getWeekInfoService().getWeekTitle(date);
-                            let weekString = cal.calGetString("calendar", "abbreviationOfWeek", [weekNumber]);
+                            let weekString = cal.l10n.getCalString("abbreviationOfWeek", [weekNumber]);
                             weekLabel.value = weekString;
                         } else {
                             weekLabel.hidden = true;

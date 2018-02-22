@@ -101,7 +101,7 @@ calCompositeCalendar.prototype = {
     // calICalendarProvider interface
     //
     get prefChromeOverlay() { return null; },
-    get displayName() { return cal.calGetString("calendar", "compositeName"); },
+    get displayName() { return cal.l10n.getCalString("compositeName"); },
 
     createCalendar: function() {
         throw NS_ERROR_NOT_IMPLEMENTED;

@@ -38,7 +38,7 @@ var calendarViewController = {
         if (aStartTime && aEndTime && !aStartTime.isDate && !aEndTime.isDate) {
             let item = cal.createEvent();
             setDefaultItemValues(item, aCalendar, aStartTime, aEndTime);
-            item.title = cal.calGetString("calendar", "newEvent");
+            item.title = cal.l10n.getCalString("newEvent");
             doTransaction("add", item, item.calendar, null, null);
         } else {
             createEventWithDialog(aCalendar, aStartTime, null, null, null, aForceAllday);
@@ -702,11 +702,11 @@ cal.navigationBar = {
                 secondWeekNo = cal.getWeekInfoService().getWeekTitle(aEndDate);
             }
             if (secondWeekNo == firstWeekNo) {
-                weekLabel.value = cal.calGetString("calendar", "singleShortCalendarWeek", [firstWeekNo]);
-                weekLabel.tooltipText = cal.calGetString("calendar", "singleLongCalendarWeek", [firstWeekNo]);
+                weekLabel.value = cal.l10n.getCalString("singleShortCalendarWeek", [firstWeekNo]);
+                weekLabel.tooltipText = cal.l10n.getCalString("singleLongCalendarWeek", [firstWeekNo]);
             } else {
-                weekLabel.value = cal.calGetString("calendar", "severalShortCalendarWeeks", [firstWeekNo, secondWeekNo]);
-                weekLabel.tooltipText = cal.calGetString("calendar", "severalLongCalendarWeeks", [firstWeekNo, secondWeekNo]);
+                weekLabel.value = cal.l10n.getCalString("severalShortCalendarWeeks", [firstWeekNo, secondWeekNo]);
+                weekLabel.tooltipText = cal.l10n.getCalString("severalLongCalendarWeeks", [firstWeekNo, secondWeekNo]);
             }
             docTitle = intervalLabel.value;
         }

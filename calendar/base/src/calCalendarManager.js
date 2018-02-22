@@ -404,9 +404,9 @@ calCalendarManager.prototype = {
         // than blaming Thunderbird.
         let hostAppName = cal.calGetString("brand", "brandShortName", null, "branding");
         let calAppName = cal.calGetString("lightning", "brandShortName", null, "lightning");
-        let errorBoxTitle = cal.calGetString("calendar", "tooNewSchemaErrorBoxTitle", [calAppName]);
-        let errorBoxText = cal.calGetString("calendar", "tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);
-        let errorBoxButtonLabel = cal.calGetString("calendar", "tooNewSchemaButtonRestart", [hostAppName]);
+        let errorBoxTitle = cal.l10n.getCalString("tooNewSchemaErrorBoxTitle", [calAppName]);
+        let errorBoxText = cal.l10n.getCalString("tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);
+        let errorBoxButtonLabel = cal.l10n.getCalString("tooNewSchemaButtonRestart", [hostAppName]);
 
         let promptSvc = Services.prompt;
 
@@ -459,10 +459,10 @@ calCalendarManager.prototype = {
                     this.alertAndQuit();
                     return null;
                 case Components.interfaces.calIErrors.STORAGE_UNKNOWN_TIMEZONES_ERROR:
-                    uiMessage = cal.calGetString("calendar", "unknownTimezonesError", [uri.spec]);
+                    uiMessage = cal.l10n.getCalString("unknownTimezonesError", [uri.spec]);
                     break;
                 default:
-                    uiMessage = cal.calGetString("calendar", "unableToCreateProvider", [uri.spec]);
+                    uiMessage = cal.l10n.getCalString("unableToCreateProvider", [uri.spec]);
                     break;
             }
             // Log the original exception via error console to provide more debug info
@@ -955,8 +955,8 @@ calMgrCalendarObserver.prototype = {
                 message = props.GetStringFromName("icsMalformedError");
                 break;
             case calIErrors.MODIFICATION_FAILED:
-                errMsg = cal.calGetString("calendar", "errorWriting2", [aCalendar.name]);
-                message = cal.calGetString("calendar", "errorWritingDetails");
+                errMsg = cal.l10n.getCalString("errorWriting2", [aCalendar.name]);
+                message = cal.l10n.getCalString("errorWritingDetails");
                 if (aMessage) {
                     message = aMessage + "\n" + message;
                 }
@@ -971,8 +971,8 @@ calMgrCalendarObserver.prototype = {
         paramBlock.SetString(2, message);
 
         this.storedReadOnly = this.calendar.readOnly;
-        let errorCode = cal.calGetString("calendar", "errorCode", [errCode]);
-        let errorDescription = cal.calGetString("calendar", "errorDescription", [message]);
+        let errorCode = cal.l10n.getCalString("errorCode", [errCode]);
+        let errorDescription = cal.l10n.getCalString("errorDescription", [message]);
         let summary = errMsg + " " + errorCode + ". " + errorDescription;
 
         // Log warnings in error console.

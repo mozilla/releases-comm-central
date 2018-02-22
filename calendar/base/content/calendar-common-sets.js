@@ -815,11 +815,11 @@ function setupContextItemType(aEvent, aItems) {
         if (menuItem) {
             menuItem.setAttribute(
                 "label",
-                cal.calGetString("calendar", `delete${aItemType}Label`)
+                cal.l10n.getCalString(`delete${aItemType}Label`)
             );
             menuItem.setAttribute(
                 "accesskey",
-                cal.calGetString("calendar", `delete${aItemType}Accesskey`)
+                cal.l10n.getCalString(`delete${aItemType}Accesskey`)
             );
         }
     }

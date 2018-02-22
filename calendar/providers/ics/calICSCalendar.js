@@ -81,7 +81,7 @@ calICSCalendar.prototype = {
     },
 
     get displayName() {
-        return cal.calGetString("calendar", "icsName");
+        return cal.l10n.getCalString("icsName");
     },
 
     createCalendar: function() {

@@ -29,7 +29,7 @@ calMonthPrinter.prototype = {
         interfaces: calMonthPrinterInterfaces
     }),
 
-    get name() { return cal.calGetString("calendar", "monthPrinterName"); },
+    get name() { return cal.l10n.getCalString("monthPrinterName"); },
 
     formatToHtml: function(aStream, aStart, aEnd, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calMonthGridPrinter.html");
@@ -155,7 +155,7 @@ calMonthPrinter.prototype = {
 
         // Set up the month title
         let monthName = cal.l10n.formatMonth(startOfMonth.month + 1, "calendar", "monthInYear");
-        let monthTitle = cal.calGetString("calendar", "monthInYear", [monthName, startOfMonth.year]);
+        let monthTitle = cal.l10n.getCalString("monthInYear", [monthName, startOfMonth.year]);
         currentMonth.querySelector(".month-name").textContent = monthTitle;
 
         // Set up the weekday titles

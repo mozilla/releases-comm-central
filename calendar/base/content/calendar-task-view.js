@@ -66,9 +66,7 @@ var taskDetailsView = {
                 let statusDetails = document.getElementById("calendar-task-details-status");
                 switch (status) {
                     case "NEEDS-ACTION": {
-                        statusDetails.value = cal.calGetString(
-                            "calendar",
-                            "taskDetailsStatusNeedsAction");
+                        statusDetails.value = cal.l10n.getCalString("taskDetailsStatusNeedsAction");
                         break;
                     }
                     case "IN-PROCESS": {
@@ -77,26 +75,24 @@ var taskDetailsView = {
                         if (property != null) {
                             percent = parseInt(property, 10);
                         }
-                        statusDetails.value = cal.calGetString(
-                            "calendar",
-                            "taskDetailsStatusInProgress", [percent]);
+                        statusDetails.value = cal.l10n.getCalString(
+                            "taskDetailsStatusInProgress", [percent]
+                        );
                         break;
                     }
                     case "COMPLETED": {
                         if (item.completedDate) {
                             let completedDate = item.completedDate.getInTimezone(
                                                     cal.dtz.defaultTimezone);
-                            statusDetails.value = cal.calGetString(
-                                "calendar",
+                            statusDetails.value = cal.l10n.getCalString(
                                 "taskDetailsStatusCompletedOn",
-                                [dateFormatter.formatDateTime(completedDate)]);
+                                [dateFormatter.formatDateTime(completedDate)]
+                            );
                         }
                         break;
                     }
                     case "CANCELLED": {
-                        statusDetails.value = cal.calGetString(
-                            "calendar",
-                            "taskDetailsStatusCancelled");
+                        statusDetails.value = cal.l10n.getCalString("taskDetailsStatusCancelled");
                         break;
                     }
                     default: {

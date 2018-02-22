@@ -1969,9 +1969,9 @@
             // instead of the time.
             if (cal.item.isToDo(this.mDragState.dragOccurrence)) {
                 if (!this.mDragState.dragOccurrence.dueDate) {
-                    startstr = cal.calGetString("calendar", "dragLabelTasksWithOnlyEntryDate");
+                    startstr = cal.l10n.getCalString("dragLabelTasksWithOnlyEntryDate");
                 } else if (!this.mDragState.dragOccurrence.entryDate) {
-                    startstr = cal.calGetString("calendar", "dragLabelTasksWithOnlyDueDate");
+                    startstr = cal.l10n.getCalString("dragLabelTasksWithOnlyDueDate");
                 }
             }
             firstColumn.fgboxes.startlabel.setAttribute("value", startstr);
@@ -2395,7 +2395,7 @@
                 // Use <description> textContent so it can wrap.
                 evl.textContent = item.title;
             } else {
-                evl.textContent = cal.calGetString("calendar", "eventUntitled");
+                evl.textContent = cal.l10n.getCalString("eventUntitled");
             }
 
             let gripbar = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1").boxObject.height;

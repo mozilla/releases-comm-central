@@ -92,9 +92,10 @@
                 if (startDate) {
                     // A Task with a start or due date, show with label
                     startDate = startDate.getInTimezone(cal.dtz.defaultTimezone);
-                    dateLabel.textContent = cal.calGetString("calendar",
-                                                             "alarmStarts",
-                                                             [formatter.formatDateTime(startDate)]);
+                    dateLabel.textContent = cal.l10n.getCalString(
+                        "alarmStarts",
+                        [formatter.formatDateTime(startDate)]
+                    );
                 } else {
                     // If the task has no start date, then format the alarm date.
                     dateLabel.textContent = formatter.formatDateTime(this.mAlarm.alarmDate);
@@ -153,19 +154,22 @@
 
                 if (this.mAlarmToday) {
                     // The alarm is today
-                    relativeDateString = cal.calGetString("calendar",
-                                                          "alarmTodayAt",
-                                                          [formatter.formatTime(startDate)]);
+                    relativeDateString = cal.l10n.getCalString(
+                        "alarmTodayAt",
+                        [formatter.formatTime(startDate)]
+                    );
                 } else if (sinceAlarm <= sinceDayStart - 86400 && sinceAlarm > sinceDayStart - 172800) {
                     // The alarm is tomorrow
-                    relativeDateString = cal.calGetString("calendar",
-                                                          "alarmTomorrowAt",
-                                                          [formatter.formatTime(startDate)]);
+                    relativeDateString = cal.l10n.getCalString(
+                        "alarmTomorrowAt",
+                        [formatter.formatTime(startDate)]
+                    );
                 } else if (sinceAlarm < sinceDayStart + 86400 && sinceAlarm > sinceDayStart) {
                     // The alarm is yesterday
-                    relativeDateString = cal.calGetString("calendar",
-                                                          "alarmYesterdayAt",
-                                                          [formatter.formatTime(startDate)]);
+                    relativeDateString = cal.l10n.getCalString(
+                        "alarmYesterdayAt",
+                        [formatter.formatTime(startDate)]
+                    );
                 } else {
                     // The alarm is way back
                     relativeDateString = [formatter.formatDateTime(startDate)];
@@ -347,7 +351,7 @@
                 return { 1: "unitMinutes", 60: "unitHours", 1440: "unitDays" }[list.value] || "unitMinutes";
             }
 
-            let pluralString = cal.calGetString("calendar", unitName(unitList));
+            let pluralString = cal.l10n.getCalString(unitName(unitList));
             let unitPlural = PluralForm.get(unitValue.value, pluralString)
                                        .replace("#1", unitValue.value);
 
@@ -358,7 +362,7 @@
 
             let items = unitPopup.getElementsByTagName("xul:menuitem");
             for (let menuItem of items) {
-                pluralString = cal.calGetString("calendar", unitName(menuItem));
+                pluralString = cal.l10n.getCalString(unitName(menuItem));
                 menuItem.label = PluralForm.get(unitValue.value, pluralString)
                                            .replace("#1", "").trim();
             }

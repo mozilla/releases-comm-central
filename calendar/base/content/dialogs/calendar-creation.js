@@ -13,9 +13,9 @@ ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 function openLocalCalendar() {
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
     let picker = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    picker.init(window, cal.calGetString("calendar", "Open"), nsIFilePicker.modeOpen);
+    picker.init(window, cal.l10n.getCalString("Open"), nsIFilePicker.modeOpen);
     let wildmat = "*.ics";
-    let description = cal.calGetString("calendar", "filterIcs", [wildmat]);
+    let description = cal.l10n.getCalString("filterIcs", [wildmat]);
     picker.appendFilter(description, wildmat);
     picker.appendFilters(nsIFilePicker.filterAll);
 
@@ -43,7 +43,7 @@ function openLocalCalendar() {
         if (prettyName) {
             name = decodeURIComponent(prettyName[1]);
         } else {
-            name = cal.calGetString("calendar", "untitledCalendarName");
+            name = cal.l10n.getCalString("untitledCalendarName");
         }
         openCalendar.name = name;
 

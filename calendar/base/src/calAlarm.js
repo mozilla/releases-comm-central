@@ -441,7 +441,7 @@ calAlarm.prototype = {
             let summaryProp = icssvc.createIcalProperty("SUMMARY");
             // Summary needs to have a non-empty value
             summaryProp.value = this.summary ||
-                cal.calGetString("calendar", "alarmDefaultSummary");
+                cal.l10n.getCalString("alarmDefaultSummary");
             comp.addProperty(summaryProp);
         }
 
@@ -452,7 +452,7 @@ calAlarm.prototype = {
             let descriptionProp = icssvc.createIcalProperty("DESCRIPTION");
             // description needs to have a non-empty value
             descriptionProp.value = this.description ||
-                cal.calGetString("calendar", "alarmDefaultDescription");
+                cal.l10n.getCalString("alarmDefaultDescription");
             comp.addProperty(descriptionProp);
         }
 
@@ -661,7 +661,7 @@ calAlarm.prototype = {
             } else {
                 unit = "unitMinutes";
             }
-            let localeUnitString = cal.calGetString("calendar", unit);
+            let localeUnitString = cal.l10n.getCalString(unit);
             let unitString = PluralForm.get(alarmlen, localeUnitString)
                                        .replace("#1", alarmlen);
             let originStringName = "reminderCustomOrigin";

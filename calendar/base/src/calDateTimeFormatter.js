@@ -100,15 +100,15 @@ calDateTimeFormatter.prototype = {
     formatInterval: function(aStartDate, aEndDate) {
         // Check for tasks without start and/or due date
         if (aEndDate == null && aStartDate == null) {
-            return cal.calGetString("calendar", "datetimeIntervalTaskWithoutDate");
+            return cal.l10n.getCalString("datetimeIntervalTaskWithoutDate");
         } else if (aEndDate == null) {
             let startDateString = this.formatDate(aStartDate);
             let startTime = this.formatTime(aStartDate);
-            return cal.calGetString("calendar", "datetimeIntervalTaskWithoutDueDate", [startDateString, startTime]);
+            return cal.l10n.getCalString("datetimeIntervalTaskWithoutDueDate", [startDateString, startTime]);
         } else if (aStartDate == null) {
             let endDateString = this.formatDate(aEndDate);
             let endTime = this.formatTime(aEndDate);
-            return cal.calGetString("calendar", "datetimeIntervalTaskWithoutStartDate", [endDateString, endTime]);
+            return cal.l10n.getCalString("datetimeIntervalTaskWithoutStartDate", [endDateString, endTime]);
         }
         // Here there are only events or tasks with both start and due date.
         // make sure start and end use the same timezone when formatting intervals:
@@ -130,17 +130,23 @@ calDateTimeFormatter.prototype = {
                                                               "daysIntervalBetweenYears");
                     let endMonthName = cal.l10n.formatMonth(aEndDate.month + 1, "calendar",
                                                             "daysIntervalBetweenYears");
-                    return cal.calGetString("calendar", "daysIntervalBetweenYears", [startMonthName, startDay, startYear, endMonthName, endDay, endYear]);
+                    return cal.l10n.getCalString("daysIntervalBetweenYears", [
+                        startMonthName, startDay, startYear, endMonthName, endDay, endYear
+                    ]);
                 } else if (aStartDate.month == endDate.month) {
                     let startMonthName = cal.l10n.formatMonth(aStartDate.month + 1, "calendar",
                                                               "daysIntervalInMonth");
-                    return cal.calGetString("calendar", "daysIntervalInMonth", [startMonthName, startDay, endDay, endYear]);
+                    return cal.l10n.getCalString("daysIntervalInMonth", [
+                        startMonthName, startDay, endDay, endYear
+                    ]);
                 } else {
                     let startMonthName = cal.l10n.formatMonth(aStartDate.month + 1, "calendar",
                                                               "daysIntervalBetweenMonths");
                     let endMonthName = cal.l10n.formatMonth(aEndDate.month + 1, "calendar",
                                                             "daysIntervalBetweenMonths");
-                    return cal.calGetString("calendar", "daysIntervalBetweenMonths", [startMonthName, startDay, endMonthName, endDay, endYear]);
+                    return cal.l10n.getCalString("daysIntervalBetweenMonths", [
+                        startMonthName, startDay, endMonthName, endDay, endYear
+                    ]);
                 }
             }
         } else {
@@ -154,17 +160,17 @@ calDateTimeFormatter.prototype = {
                 if (startTime == endTime) {
                     // End time is on the same time as start, so we can leave out the end time
                     // "5 Jan 2006 13:00"
-                    return cal.calGetString("calendar", "datetimeIntervalOnSameDateTime", [startDateString, startTime]);
+                    return cal.l10n.getCalString("datetimeIntervalOnSameDateTime", [startDateString, startTime]);
                 } else {
                     // still include end time
                     // "5 Jan 2006 13:00 - 17:00"
-                    return cal.calGetString("calendar", "datetimeIntervalOnSameDay", [startDateString, startTime, endTime]);
+                    return cal.l10n.getCalString("datetimeIntervalOnSameDay", [startDateString, startTime, endTime]);
                 }
             } else {
                 // Spanning multiple days, so need to include date and time
                 // for start and end
                 // "5 Jan 2006 13:00 - 7 Jan 2006 9:00"
-                return cal.calGetString("calendar", "datetimeIntervalOnSeveralDays", [startDateString, startTime, endDateString, endTime]);
+                return cal.l10n.getCalString("datetimeIntervalOnSeveralDays", [startDateString, startTime, endDateString, endTime]);
             }
         }
     },

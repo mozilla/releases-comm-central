@@ -55,7 +55,7 @@ function publishEntireCalendar(aCalendar) {
             // Therefore return after openDialog().
             let args = {};
             args.onOk = publishEntireCalendar;
-            args.promptText = cal.calGetString("calendar", "publishPrompt");
+            args.promptText = cal.l10n.getCalString("publishPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                        "_blank", "chrome,titlebar,modal,resizable", args);
             return;
@@ -177,9 +177,8 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     try {
         channel.asyncOpen(publishingListener, aProgressDialog);
     } catch (e) {
-        let props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
-        Services.prompt.alert(null, cal.calGetString("calendar", "genericErrorTitle"),
-                              props.formatStringFromName("otherPutError", [e.message], 1));
+        Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"),
+                              cal.l10n.getCalString("otherPutError", [e.message]));
     }
 }
 
@@ -207,7 +206,6 @@ var publishingListener = {
         ctxt.wrappedJSObject.onStopUpload();
 
         let channel;
-        let props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
         let requestSucceeded;
         try {
             channel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
@@ -217,12 +215,14 @@ var publishingListener = {
         }
 
         if (channel && !requestSucceeded) {
-            Services.prompt.alert(null, cal.calGetString("calendar", "genericErrorTitle"),
-                                  props.formatStringFromName("httpPutError", [channel.responseStatus, channel.responseStatusText], 2));
+            let body = cal.l10n.getCalString("httpPutError", [
+                channel.responseStatus, channel.responseStatusText
+            ]);
+            Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"), body);
         } else if (!channel && !Components.isSuccessCode(request.status)) {
             // XXX this should be made human-readable.
-            Services.prompt.alert(null, cal.calGetString("calendar", "genericErrorTitle"),
-                                  props.formatStringFromName("otherPutError", [request.status.toString(16)], 1));
+            let body = cal.l10n.getCalString("otherPutError", [request.status.toString(16)]);
+            Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"), body);
         }
     },
 

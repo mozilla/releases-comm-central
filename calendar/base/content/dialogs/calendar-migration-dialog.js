@@ -555,10 +555,10 @@ var gDataMigrator = {
         } catch(ex) {
             switch (ex.result) {
                 case Components.interfaces.calIErrors.INVALID_TIMEZONE:
-                    cal.showError(cal.calGetString("calendar", "timezoneError", [icsFile.path]), window);
+                    cal.showError(cal.l10n.getCalString("timezoneError", [icsFile.path]), window);
                     break;
                 default:
-                    cal.showError(cal.calGetString("calendar", "unableToRead") + icsFile.path + "\n"+ ex, window);
+                    cal.showError(cal.l10n.getCalString("unableToRead") + icsFile.path + "\n"+ ex, window);
             }
         } finally {
            inputStream.close();

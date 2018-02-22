@@ -646,7 +646,7 @@ function checkUntilDate() {
                 return;
             }
             Services.prompt.alert(null, document.title,
-                                  cal.calGetString("calendar", "warningUntilDateBeforeStart"));
+                                  cal.l10n.getCalString("warningUntilDateBeforeStart"));
             checkUntilDate.warning = false;
         };
         setTimeout(callback, 1);

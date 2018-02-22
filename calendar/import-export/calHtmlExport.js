@@ -30,7 +30,7 @@ calHtmlExporter.prototype = {
     getFileTypes: function(aCount) {
         aCount.value = 1;
         let wildmat = "*.html; *.htm";
-        let label = cal.calGetString("calendar", "filterHtml", [wildmat]);
+        let label = cal.l10n.getCalString("filterHtml", [wildmat]);
         return [{
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIFileType]),
             defaultExtension: "html",
@@ -42,7 +42,7 @@ calHtmlExporter.prototype = {
     exportToStream: function(aStream, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calHtmlExport.html");
         let itemContainer = document.getElementById("item-container");
-        document.getElementById("title").textContent = aTitle || cal.calGetString("calendar", "HTMLTitle");
+        document.getElementById("title").textContent = aTitle || cal.l10n.getCalString("HTMLTitle");
 
         // Sort aItems
         aItems.sort((a, b) => {
@@ -63,7 +63,7 @@ calHtmlExporter.prototype = {
 
             let setupTextRow = function(classKey, propValue, prefixKey) {
                 if (propValue) {
-                    let prefix = cal.calGetString("calendar", prefixKey);
+                    let prefix = cal.l10n.getCalString(prefixKey);
                     itemNode.querySelector("." + classKey + "key").textContent = prefix;
                     itemNode.querySelector("." + classKey).textContent = propValue;
                 } else {
@@ -80,7 +80,7 @@ calHtmlExporter.prototype = {
             let endDate = item[cal.dtz.endDateProp(item)];
             if (startDate || endDate) {
                 // This is a task with a start or due date, format accordingly
-                let prefixWhen = cal.calGetString("calendar", "htmlPrefixWhen");
+                let prefixWhen = cal.l10n.getCalString("htmlPrefixWhen");
                 itemNode.querySelector(".intervalkey").textContent = prefixWhen;
 
                 let startNode = itemNode.querySelector(".dtstart");
@@ -96,7 +96,7 @@ calHtmlExporter.prototype = {
                 }
             }
 
-            let itemTitle = (item.isCompleted ? cal.calGetString("calendar", "htmlTaskCompleted", [item.title]) : item.title);
+            let itemTitle = (item.isCompleted ? cal.l10n.getCalString("htmlTaskCompleted", [item.title]) : item.title);
             setupTextRow("summary", itemTitle, "htmlPrefixTitle");
 
             setupTextRow("location", item.getProperty("LOCATION"), "htmlPrefixLocation");

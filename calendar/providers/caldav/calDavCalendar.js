@@ -155,7 +155,7 @@ calDavCalendar.prototype = {
     },
 
     get displayName() {
-        return cal.calGetString("calendar", "caldavName");
+        return cal.l10n.getCalString("caldavName");
     },
 
     createCalendar: function() {
@@ -1727,10 +1727,10 @@ calDavCalendar.prototype = {
                 // here, we want to modify the url we use in the future.
                 let nIPS = Components.interfaces.nsIPromptService;
 
-                let promptTitle = cal.calGetString("calendar", "caldavRedirectTitle", [self.name]);
-                let promptText = cal.calGetString("calendar", "caldavRedirectText", [self.name]) +
+                let promptTitle = cal.l10n.getCalString("caldavRedirectTitle", [self.name]);
+                let promptText = cal.l10n.getCalString("caldavRedirectText", [self.name]) +
                                  "\n\n" + request.URI.spec;
-                let button1Title = cal.calGetString("calendar", "caldavRedirectDisableCalendar");
+                let button1Title = cal.l10n.getCalString("caldavRedirectDisableCalendar");
                 let flags = (nIPS.BUTTON_TITLE_YES * nIPS.BUTTON_POS_0) +
                             (nIPS.BUTTON_TITLE_IS_STRING * nIPS.BUTTON_POS_1);
 
@@ -2343,7 +2343,7 @@ calDavCalendar.prototype = {
             // Only notify if there is a message for this error
             return;
         }
-        localizedMessage = cal.calGetString("calendar", message, [this.mUri.spec]);
+        localizedMessage = cal.l10n.getCalString(message, [this.mUri.spec]);
         this.mReadOnly = true;
         this.mDisabled = true;
         this.notifyError(aErrNo, localizedMessage);

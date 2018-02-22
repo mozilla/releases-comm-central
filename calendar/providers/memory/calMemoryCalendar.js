@@ -58,7 +58,7 @@ calMemoryCalendar.prototype = {
     },
 
     get displayName() {
-        return cal.calGetString("calendar", "memoryName");
+        return cal.l10n.getCalString("memoryName");
     },
 
     createCalendar: function() {

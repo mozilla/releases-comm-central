@@ -102,8 +102,8 @@ calIcsParser.prototype = {
                 if (Components.classes["@mozilla.org/alerts-service;1"]) {
                     let notifier = Components.classes["@mozilla.org/alerts-service;1"]
                                              .getService(Components.interfaces.nsIAlertsService);
-                    let title = cal.calGetString("calendar", "TimezoneErrorsAlertTitle");
-                    let text = cal.calGetString("calendar", "TimezoneErrorsSeeConsole");
+                    let title = cal.l10n.getCalString("TimezoneErrorsAlertTitle");
+                    let text = cal.l10n.getCalString("TimezoneErrorsSeeConsole");
                     try {
                         notifier.showAlertNotification("", title, text, false, null, null, title);
                     } catch (e) {
@@ -267,7 +267,7 @@ parserState.prototype = {
                 // choose whether to alert, or show user the problem items and ask
                 // for fixes, or something else.
                 let msgArgs = [tzid, item.title, cal.getDateFormatter().formatDateTime(date)];
-                let msg = cal.calGetString("calendar", "unknownTimezoneInItem", msgArgs);
+                let msg = cal.l10n.getCalString("unknownTimezoneInItem", msgArgs);
 
                 cal.ERROR(msg + "\n" + item.icalString);
                 this.tzErrors[hid] = true;

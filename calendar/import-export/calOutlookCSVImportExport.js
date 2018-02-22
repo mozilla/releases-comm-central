@@ -79,7 +79,7 @@ var exportLineEnding = "\r\n";
 function getOutlookCsvFileTypes(aCount) {
     aCount.value = 1;
     let wildmat = "*.csv";
-    let label = cal.calGetString("calendar", "filterOutlookCsv", [wildmat]);
+    let label = cal.l10n.getCalString("filterOutlookCsv", [wildmat]);
     return [{
         defaultExtension: "csv",
         extensionFilter: wildmat,
