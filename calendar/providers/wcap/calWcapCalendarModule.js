@@ -54,9 +54,9 @@ function initWcapProvider() {
         initLogging();
 
         // some string resources:
-        g_privateItemTitle = cal.calGetString("wcap", "privateItem.title.text");
-        g_confidentialItemTitle = cal.calGetString("wcap", "confidentialItem.title.text");
-        g_busyItemTitle = cal.calGetString("wcap", "busyItem.title.text");
+        g_privateItemTitle = getWcapString("privateItem.title.text");
+        g_confidentialItemTitle = getWcapString("confidentialItem.title.text");
+        g_busyItemTitle = getWcapString("busyItem.title.text");
         g_busyPhantomItemUuidPrefix = "PHANTOM_uuid_" + cal.getUUID();
 
         CACHE_LAST_RESULTS = Preferences.get("calendar.wcap.cache_last_results", 4);

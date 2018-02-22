@@ -283,7 +283,7 @@ calWcapSession.prototype = {
                 let promptAndLoginLoop_resp = (loginerr, sessionId) => {
                     if (checkErrorCode(loginerr, calIWcapErrors.WCAP_LOGIN_FAILED)) {
                         log("prompting for [user/]pw...", this);
-                        if (cal.auth.getCredentials(cal.calGetString("wcap", "loginDialog.label"),
+                        if (cal.auth.getCredentials(getWcapString("loginDialog.label"),
                                                     this.sessionUri.hostPort,
                                                     outUser,
                                                     outPW,
@@ -352,8 +352,8 @@ calWcapSession.prototype = {
                         log("error: " + errorToString(exc), this); // log login failure
                     } else if (getErrorModule(err) == NS_ERROR_MODULE_NETWORK) {
                         // server seems unavailable:
-                        err = new Components.Exception(cal.calGetString("wcap", "accessingServerFailedError.text",
-                                                                        [this.sessionUri.hostPort]), exc);
+                        err = new Components.Exception(getWcapString("accessingServerFailedError.text",
+                                                                     [this.sessionUri.hostPort]), exc);
                     }
                 }
                 respFunc(err, sessionId);
@@ -426,8 +426,8 @@ calWcapSession.prototype = {
                         } else {
                             // soft error; request denied etc.
                             // map into localized message:
-                            throw new Components.Exception(cal.calGetString("wcap", "accessingServerFailedError.text",
-                                                                            [this.sessionUri.hostPort]),
+                            throw new Components.Exception(getWcapString("accessingServerFailedError.text",
+                                                                         [this.sessionUri.hostPort]),
                                                            calIWcapErrors.WCAP_LOGIN_FAILED);
                         }
                     }
@@ -446,9 +446,9 @@ calWcapSession.prototype = {
                         vars.push(strVers);
 
                         let prompt = Services.ww.getNewPrompter(null);
-                        let labelText = cal.calGetString("wcap", "insufficientWcapVersionConfirmation.label");
+                        let labelText = getWcapString("insufficientWcapVersionConfirmation.label");
                         if (!prompt.confirm(labelText,
-                                            cal.calGetString("wcap", "insufficientWcapVersionConfirmation.text", vars))) {
+                                            getWcapString("insufficientWcapVersionConfirmation.text", vars))) {
                             throw new Components.Exception(labelText, calIWcapErrors.WCAP_LOGIN_FAILED);
                         }
                     }
@@ -1113,9 +1113,9 @@ function confirmInsecureLogin(uri) {
         let prompt = Services.ww.getNewPrompter(null);
         let out_dontAskAgain = { value: false };
         bConfirmed = prompt.confirmCheck(
-            cal.calGetString("wcap", "noHttpsConfirmation.label"),
-            cal.calGetString("wcap", "noHttpsConfirmation.text", [host]),
-            cal.calGetString("wcap", "noHttpsConfirmation.check.text"),
+            getWcapString("noHttpsConfirmation.label"),
+            getWcapString("noHttpsConfirmation.text", [host]),
+            getWcapString("noHttpsConfirmation.check.text"),
             out_dontAskAgain);
 
         if (out_dontAskAgain.value) {

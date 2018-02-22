@@ -128,7 +128,7 @@ function netErrorToString(rc) {
 var g_wcapErrorCodes = [
     /* -1 */ NS_OK, "Logout successful.",
     /*  0 */ NS_OK, "Command successful.",
-    /*  1 */ calIWcapErrors.WCAP_LOGIN_FAILED, cal.calGetString("wcap", "loginFailed.text"),
+    /*  1 */ calIWcapErrors.WCAP_LOGIN_FAILED, getWcapString("loginFailed.text"),
     /*  2 */ calIWcapErrors.WCAP_LOGIN_OK_DEFAULT_CALENDAR_NOT_FOUND, "login.wcap was successful, but the default calendar for this user was not found. A new default calendar set to the userid was created.",
     /*  3 */ NS_ERROR_INVALID_ARG, "No WCAP error code.",
     /*  4 */ NS_ERROR_INVALID_ARG, "No WCAP error code.",
@@ -155,7 +155,7 @@ var g_wcapErrorCodes = [
     /* 25 */ calIWcapErrors.WCAP_CREATECALENDAR_ALREADY_EXISTS_FAILED, "The command createcalendar.wcap failed. A calendar with that name already exists in the database.",
     /* 26 */ calIWcapErrors.WCAP_SET_USERPREFS_FAILED, "WCAP_SET_USERPREFS_FAILED",
     /* 27 */ calIWcapErrors.WCAP_CHANGE_PASSWORD_FAILED, "WCAP_CHANGE_PASSWORD_FAILED",
-    /* 28 */ calIWcapErrors.WCAP_ACCESS_DENIED_TO_CALENDAR, cal.calGetString("wcap", "accessDenied.text"),
+    /* 28 */ calIWcapErrors.WCAP_ACCESS_DENIED_TO_CALENDAR, getWcapString("accessDenied.text"),
     /* 29 */ calIWcapErrors.WCAP_CALENDAR_DOES_NOT_EXIST, "Command failed. The requested calendar does not exist in the database.",
     /* 30 */ calIWcapErrors.WCAP_ILLEGAL_CALID_NAME, "createcalendar.wcap failed. Invalid calid passed in.",
     /* 31 */ calIWcapErrors.WCAP_CANNOT_MODIFY_LINKED_EVENTS, "storeevents.wcap failed. The event to modify was a linked event.",
