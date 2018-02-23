@@ -670,7 +670,7 @@ function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
  * @return      The MozmillController-wrapped new window.
  */
 function open_message_from_file(file) {
-  mark_action("fdh", "open_message_from_file", ["file", file.nativePath]);
+  mark_action("fdh", "open_message_from_file", ["file", file.path]);
 
   if (!file.isFile() || !file.isReadable())
     throw new Error("The requested message file " + file.leafName +
