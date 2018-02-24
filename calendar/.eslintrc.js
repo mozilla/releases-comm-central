@@ -483,6 +483,7 @@ module.exports = {
     },
     "overrides": [{
         files: [
+            "base/modules/calAuthUtils.jsm",
             "base/modules/calEmailUtils.jsm",
             "base/modules/calItipUtils.jsm",
             "base/modules/calUnifinderUtils.jsm",

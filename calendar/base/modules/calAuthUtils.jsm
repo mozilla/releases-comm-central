@@ -2,35 +2,178 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
 /*
  * Authentication helper code
  */
 
-this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
-cal.auth = {
+this.EXPORTED_SYMBOLS = ["calauth"]; /* exported calauth */
+
+var calauth = {
     /**
-     * Auth prompt implementation - Uses password manager if at all possible.
+     * Calendar Auth prompt implementation. This instance of the auth prompt should
+     * be used by providers and other components that handle authentication using
+     * nsIAuthPrompt2 and friends.
+     *
+     * This implementation guarantees there are no request loops when an invalid
+     * password is stored in the login-manager.
+     *
+     * There is one instance of that object per calendar provider.
      */
-    Prompt: function() {
-        this.mWindow = cal.window.getCalendarWindow();
-        this.mReturnedLogins = {};
+    Prompt: class {
+        constructor() {
+            this.mWindow = cal.window.getCalendarWindow();
+            this.mReturnedLogins = {};
+            this.mProvider = null;
+        }
+
+        /**
+         * @typedef {Object} PasswordInfo
+         * @property {Boolean} found        True, if the password was found
+         * @property {?String} username     The found username
+         * @property {?String} password     The found password
+         */
+
+        /**
+         * Retrieve password information from the login manager
+         *
+         * @param {String} aPasswordRealm       The realm to retrieve password info for
+         * @return {PasswordInfo}               The retrieved password information
+         */
+        getPasswordInfo(aPasswordRealm) {
+            let username;
+            let password;
+            let found = false;
+
+            let logins = Services.logins.findLogins({}, aPasswordRealm.prePath, null, aPasswordRealm.realm);
+            if (logins.length) {
+                username = logins[0].username;
+                password = logins[0].password;
+                found = true;
+            }
+            if (found) {
+                let keyStr = aPasswordRealm.prePath + ":" + aPasswordRealm.realm;
+                let now = new Date();
+                // Remove the saved password if it was already returned less
+                // than 60 seconds ago. The reason for the timestamp check is that
+                // nsIHttpChannel can call the nsIAuthPrompt2 interface
+                // again in some situation. ie: When using Digest auth token
+                // expires.
+                if (this.mReturnedLogins[keyStr] &&
+                    now.getTime() - this.mReturnedLogins[keyStr].getTime() < 60000) {
+                    cal.LOG("Credentials removed for: user=" + username + ", host=" + aPasswordRealm.prePath + ", realm=" + aPasswordRealm.realm);
+
+                    delete this.mReturnedLogins[keyStr];
+                    calauth.passwordManagerRemove(username,
+                                                  aPasswordRealm.prePath,
+                                                  aPasswordRealm.realm);
+                    return { found: false, username: username };
+                } else {
+                    this.mReturnedLogins[keyStr] = now;
+                }
+            }
+            return { found: found, username: username, password: password };
+        }
+
+        // boolean promptAuth(in nsIChannel aChannel,
+        //                    in uint32_t level,
+        //                    in nsIAuthInformation authInfo)
+        promptAuth(aChannel, aLevel, aAuthInfo) {
+            let hostRealm = {};
+            hostRealm.prePath = aChannel.URI.prePath;
+            hostRealm.realm = aAuthInfo.realm;
+            let port = aChannel.URI.port;
+            if (port == -1) {
+                let handler = Services.io.getProtocolHandler(aChannel.URI.scheme)
+                                         .QueryInterface(Components.interfaces.nsIProtocolHandler);
+                port = handler.defaultPort;
+            }
+            hostRealm.passwordRealm = aChannel.URI.host + ":" + port + " (" + aAuthInfo.realm + ")";
+
+            let pwInfo = this.getPasswordInfo(hostRealm);
+            aAuthInfo.username = pwInfo.username;
+            if (pwInfo && pwInfo.found) {
+                aAuthInfo.password = pwInfo.password;
+                return true;
+            } else {
+                let prompter2 = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
+                                          .getService(Components.interfaces.nsIPromptFactory)
+                                          .getPrompt(this.mWindow, Components.interfaces.nsIAuthPrompt2);
+                return prompter2.promptAuth(aChannel, aLevel, aAuthInfo);
+            }
+        }
+
+        // nsICancelable asyncPromptAuth(in nsIChannel aChannel,
+        //                               in nsIAuthPromptCallback aCallback,
+        //                               in nsISupports aContext,
+        //                               in uint32_t level,
+        //                               in nsIAuthInformation authInfo);
+        asyncPromptAuth(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
+            let self = this;
+            let promptlistener = {
+                onPromptStart: function() {
+                    let res = self.promptAuth(aChannel, aLevel, aAuthInfo);
+                    if (res) {
+                        gAuthCache.setAuthInfo(hostKey, aAuthInfo);
+                        this.onPromptAuthAvailable();
+                        return true;
+                    }
+
+                    this.onPromptCanceled();
+                    return false;
+                },
+
+                onPromptAuthAvailable: function() {
+                    let authInfo = gAuthCache.retrieveAuthInfo(hostKey);
+                    if (authInfo) {
+                        aAuthInfo.username = authInfo.username;
+                        aAuthInfo.password = authInfo.password;
+                    }
+                    aCallback.onAuthAvailable(aContext, aAuthInfo);
+                },
+
+                onPromptCanceled: function() {
+                    gAuthCache.retrieveAuthInfo(hostKey);
+                    aCallback.onAuthCancelled(aContext, true);
+                }
+            };
+
+            let hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm;
+            gAuthCache.planForAuthInfo(hostKey);
+
+            let queuePrompt = function() {
+                let asyncprompter = Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
+                                              .getService(Components.interfaces.nsIMsgAsyncPrompter);
+                asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
+            };
+
+            self.mWindow = cal.window.getCalendarWindow();
+
+            // the prompt will fail if we are too early
+            if (self.mWindow.document.readyState == "complete") {
+                queuePrompt();
+            } else {
+                self.mWindow.addEventListener("load", queuePrompt, true);
+            }
+        }
     },
 
     /**
-     * Tries to get the username/password combination of a specific calendar name
-     * from the password manager or asks the user.
+     * Tries to get the username/password combination of a specific calendar name from the password
+     * manager or asks the user.
      *
-     * @param   in aTitle           The dialog title.
-     * @param   in aCalendarName    The calendar name or url to look up. Can be null.
-     * @param   inout aUsername     The username that belongs to the calendar.
-     * @param   inout aPassword     The password that belongs to the calendar.
-     * @param   inout aSavePassword Should the password be saved?
-     * @param   in aFixedUsername   Whether the user name is fixed or editable
-     * @return  Could a password be retrieved?
+     * @param {String} aTitle                   The dialog title.
+     * @param {String} aCalendarName            The calendar name or url to look up. Can be null.
+     * @param {{value:String}} aUsername        The username that belongs to the calendar.
+     * @param {{value:String}} aPassword        The password that belongs to the calendar.
+     * @param {{value:String}} aSavePassword    Should the password be saved?
+     * @param {Boolean} aFixedUsername          Whether the user name is fixed or editable
+     * @return {Boolean}                        Could a password be retrieved?
      */
     getCredentials: function(aTitle, aCalendarName, aUsername, aPassword,
                              aSavePassword, aFixedUsername) {
@@ -68,12 +211,12 @@ cal.auth = {
     },
 
     /**
-     * Make sure the passed origin is actually an uri string, because password
-     * manager functions require it. This is a fallback for compatibility only
-     * and should be removed a few versions after Lightning 5.5
+     * Make sure the passed origin is actually an uri string, because password manager functions
+     * require it. This is a fallback for compatibility only and should be removed a few versions
+     * after Lightning 5.5
      *
-     * @param aOrigin       The hostname or origin to check
-     * @return              The origin uri
+     * @param {String} aOrigin      The hostname or origin to check
+     * @return {String}             The origin uri
      */
     _ensureOrigin: function(aOrigin) {
         try {
@@ -86,10 +229,10 @@ cal.auth = {
     /**
      * Helper to insert/update an entry to the password manager.
      *
-     * @param aUserName     The username
-     * @param aPassword     The corresponding password
-     * @param aOrigin       The corresponding origin
-     * @param aRealm        The password realm (unused on branch)
+     * @param {String} aUsername    The username to insert
+     * @param {String} aPassword    The corresponding password
+     * @param {String} aOrigin      The corresponding origin
+     * @param {String} aRealm       The password realm (unused on branch)
      */
     passwordManagerSave: function(aUsername, aPassword, aOrigin, aRealm) {
         cal.ASSERT(aUsername);
@@ -118,11 +261,11 @@ cal.auth = {
     /**
      * Helper to retrieve an entry from the password manager.
      *
-     * @param in  aUsername     The username to search
-     * @param out aPassword     The corresponding password
-     * @param aOrigin           The corresponding origin
-     * @param aRealm            The password realm (unused on branch)
-     * @return                  Does an entry exist in the password manager
+     * @param {String} aUsername    The username to search
+     * @param {String} aPassword    The corresponding password
+     * @param {String} aOrigin      The corresponding origin
+     * @param {String} aRealm       The password realm (unused on branch)
+     * @return {Boolean}            True, if an entry exists in the password manager
      */
     passwordManagerGet: function(aUsername, aPassword, aOrigin, aRealm) {
         cal.ASSERT(aUsername);
@@ -154,10 +297,10 @@ cal.auth = {
     /**
      * Helper to remove an entry from the password manager
      *
-     * @param aUsername     The username to remove.
-     * @param aOrigin       The corresponding origin
-     * @param aRealm        The password realm (unused on branch)
-     * @return              Could the user be removed?
+     * @param {String} aUsername    The username to remove
+     * @param {String} aOrigin      The corresponding origin
+     * @param {String} aRealm       The password realm (unused on branch)
+     * @return {Boolean}            Could the user be removed?
      */
     passwordManagerRemove: function(aUsername, aOrigin, aRealm) {
         cal.ASSERT(aUsername);
@@ -176,174 +319,6 @@ cal.auth = {
             // If no logins are found, fall through to the return statement below.
         }
         return false;
-    }
-};
-
-/**
- * Calendar Auth prompt implementation. This instance of the auth prompt should
- * be used by providers and other components that handle authentication using
- * nsIAuthPrompt2 and friends.
- *
- * This implementation guarantees there are no request loops when an invalid
- * password is stored in the login-manager.
- *
- * There is one instance of that object per calendar provider.
- */
-cal.auth.Prompt.prototype = {
-    mProvider: null,
-
-    getPasswordInfo: function(aPasswordRealm) {
-        let username;
-        let password;
-        let found = false;
-
-        let logins = Services.logins.findLogins({}, aPasswordRealm.prePath, null, aPasswordRealm.realm);
-        if (logins.length) {
-            username = logins[0].username;
-            password = logins[0].password;
-            found = true;
-        }
-        if (found) {
-            let keyStr = aPasswordRealm.prePath + ":" + aPasswordRealm.realm;
-            let now = new Date();
-            // Remove the saved password if it was already returned less
-            // than 60 seconds ago. The reason for the timestamp check is that
-            // nsIHttpChannel can call the nsIAuthPrompt2 interface
-            // again in some situation. ie: When using Digest auth token
-            // expires.
-            if (this.mReturnedLogins[keyStr] &&
-                now.getTime() - this.mReturnedLogins[keyStr].getTime() < 60000) {
-                cal.LOG("Credentials removed for: user=" + username + ", host=" + aPasswordRealm.prePath + ", realm=" + aPasswordRealm.realm)
-;
-                delete this.mReturnedLogins[keyStr];
-                cal.auth.passwordManagerRemove(username,
-                                               aPasswordRealm.prePath,
-                                               aPasswordRealm.realm);
-                return { found: false, username: username };
-            } else {
-                this.mReturnedLogins[keyStr] = now;
-            }
-        }
-        return { found: found, username: username, password: password };
-    },
-
-    /**
-     * Requests a username and a password. Implementations will commonly show a
-     * dialog with a username and password field, depending on flags also a
-     * domain field.
-     *
-     * @param aChannel
-     *        The channel that requires authentication.
-     * @param level
-     *        One of the level constants NONE, PW_ENCRYPTED, SECURE.
-     * @param authInfo
-     *        Authentication information object. The implementation should fill in
-     *        this object with the information entered by the user before
-     *        returning.
-     *
-     * @retval true
-     *         Authentication can proceed using the values in the authInfo
-     *         object.
-     * @retval false
-     *         Authentication should be cancelled, usually because the user did
-     *         not provide username/password.
-     *
-     * @note   Exceptions thrown from this function will be treated like a
-     *         return value of false.
-     */
-    promptAuth: function(aChannel, aLevel, aAuthInfo) {
-        let hostRealm = {};
-        hostRealm.prePath = aChannel.URI.prePath;
-        hostRealm.realm = aAuthInfo.realm;
-        let port = aChannel.URI.port;
-        if (port == -1) {
-            let handler = Services.io.getProtocolHandler(aChannel.URI.scheme)
-                                     .QueryInterface(Components.interfaces.nsIProtocolHandler);
-            port = handler.defaultPort;
-        }
-        hostRealm.passwordRealm = aChannel.URI.host + ":" + port + " (" + aAuthInfo.realm + ")";
-
-        let pwInfo = this.getPasswordInfo(hostRealm);
-        aAuthInfo.username = pwInfo.username;
-        if (pwInfo && pwInfo.found) {
-            aAuthInfo.password = pwInfo.password;
-            return true;
-        } else {
-            let prompter2 = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                                      .getService(Components.interfaces.nsIPromptFactory)
-                                      .getPrompt(this.mWindow, Components.interfaces.nsIAuthPrompt2);
-            return prompter2.promptAuth(aChannel, aLevel, aAuthInfo);
-        }
-    },
-
-    /**
-     * Asynchronously prompt the user for a username and password.
-     * This has largely the same semantics as promptAuth(),
-     * but must return immediately after calling and return the entered
-     * data in a callback.
-     *
-     * If the user closes the dialog using a cancel button or similar,
-     * the callback's nsIAuthPromptCallback::onAuthCancelled method must be
-     * called.
-     * Calling nsICancelable::cancel on the returned object SHOULD close the
-     * dialog and MUST call nsIAuthPromptCallback::onAuthCancelled on the provided
-     * callback.
-     *
-     * @throw NS_ERROR_NOT_IMPLEMENTED
-     *        Asynchronous authentication prompts are not supported;
-     *        the caller should fall back to promptUsernameAndPassword().
-     */
-    asyncPromptAuth: function(aChannel,     // nsIChannel
-                              aCallback,    // nsIAuthPromptCallback
-                              aContext,     // nsISupports
-                              aLevel,       // PRUint32
-                              aAuthInfo) {  // nsIAuthInformation
-        let self = this;
-        let promptlistener = {
-            onPromptStart: function() {
-                let res = self.promptAuth(aChannel, aLevel, aAuthInfo);
-                if (res) {
-                    gAuthCache.setAuthInfo(hostKey, aAuthInfo);
-                    this.onPromptAuthAvailable();
-                    return true;
-                }
-
-                this.onPromptCanceled();
-                return false;
-            },
-
-            onPromptAuthAvailable: function() {
-                let authInfo = gAuthCache.retrieveAuthInfo(hostKey);
-                if (authInfo) {
-                    aAuthInfo.username = authInfo.username;
-                    aAuthInfo.password = authInfo.password;
-                }
-                aCallback.onAuthAvailable(aContext, aAuthInfo);
-            },
-
-            onPromptCanceled: function() {
-                gAuthCache.retrieveAuthInfo(hostKey);
-                aCallback.onAuthCancelled(aContext, true);
-            }
-        };
-
-        let hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm;
-        gAuthCache.planForAuthInfo(hostKey);
-
-        function queuePrompt() {
-            let asyncprompter = Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
-                                          .getService(Components.interfaces.nsIMsgAsyncPrompter);
-            asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
-        }
-
-        self.mWindow = cal.window.getCalendarWindow();
-
-        // the prompt will fail if we are too early
-        if (self.mWindow.document.readyState == "complete") {
-            queuePrompt();
-        } else {
-            self.mWindow.addEventListener("load", queuePrompt, true);
-        }
     }
 };
 
