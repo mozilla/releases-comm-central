@@ -280,15 +280,12 @@
       </toolbarbutton>
 #ifdef CAN_DRAW_IN_TITLEBAR
       <hbox class="titlebar-placeholder" type="caption-buttons"
-            id="titlebar-placeholder-on-TabsToolbar-for-captions-buttons" persist="width"
 #ifndef XP_MACOSX
             ordinal="1000"
 #endif
             />
 #ifdef XP_MACOSX
-      <hbox class="titlebar-placeholder" type="fullscreen-button"
-            id="titlebar-placeholder-on-TabsToolbar-for-fullscreen-button" persist="width"
-            />
+      <hbox class="titlebar-placeholder" type="fullscreen-button"/>
 #endif
 #endif
     </toolbar>

@@ -1920,7 +1920,7 @@ var TabsInTitlebar = {
 
   _sizePlaceholder(type, width) {
     Array.forEach(document.querySelectorAll(".titlebar-placeholder[type='" + type + "']"),
-                  function(node) { node.width = width; });
+                  function(node) { node.style.width = width + "px"; });
   },
 
   uninit() {
