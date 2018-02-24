@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
-cal.print = {
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+
+this.EXPORTED_SYMBOLS = ["calprint"]; /* exported calprint */
+
+var calprint = {
     /**
      * Returns a simple key in the format YYYY-MM-DD for use in the table of
      * dates to day boxes

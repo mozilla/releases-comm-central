@@ -6,7 +6,6 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calXMLUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calPrintUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
