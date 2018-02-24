@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<blocklist lastupdate="1519220554330" xmlns="http://www.mozilla.org/2006/addons-blocklist">
+<blocklist lastupdate="1519429178266" xmlns="http://www.mozilla.org/2006/addons-blocklist">
   <emItems>
     <emItem blockID="i334" id="{0F827075-B026-42F3-885D-98981EE7B1AE}">
       <prefs/>
@@ -2052,6 +2052,14 @@
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
+    <emItem blockID="adfd98ef-cebc-406b-b1e0-61bd4c71e4b1" id="{f3c31b34-862c-4bc8-a98f-910cc6314a86}">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="2447476f-043b-4d0b-9d3c-8e859c97d950" id="{44e4b2cf-77ba-4f76-aca7-f3fcbc2dda2f} ">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
   </emItems>
   <pluginItems>
     <pluginItem blockID="p1054">
@@ -2064,42 +2072,6 @@
       <infoURL>https://get.adobe.com/shockwave/</infoURL>
       <versionRange maxVersion="12.2.0.162" minVersion="0" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
-    <pluginItem blockID="59c31ade-88d6-4b22-8601-5316f82e3977">
-      <match exp="(nppdf32\.dll)|(AdobePDFViewerNPAPI\.plugin)" name="filename"/>
-      <infoURL>https://get.adobe.com/reader/</infoURL>
-      <versionRange maxVersion="11.0.18" minVersion="11.0" severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="3f136e56-4c93-4619-8c0d-d86258c1065d">
-      <match exp="(nppdf32\.dll)|(AdobePDFViewerNPAPI\.plugin)" name="filename"/>
-      <infoURL>https://get.adobe.com/reader/</infoURL>
-      <versionRange maxVersion="15.006.30244" minVersion="15.006" severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="43b45ad8-a373-42c1-89c6-64e2746885e5">
-      <match exp="(nppdf32\.dll)|(AdobePDFViewerNPAPI\.plugin)" name="filename"/>
-      <infoURL>https://get.adobe.com/reader/</infoURL>
-      <versionRange maxVersion="15.020.20042" minVersion="15.020" severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="97647cd8-03c5-416c-b9d3-cd5ef87ab39f">
-      <match exp="np32dsw_1227197\.dll" name="filename"/>
-      <versionRange maxVersion="12.2.7.197" minVersion="0" severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="d70fdf87-0441-479c-833f-2213b769eb40">
-      <match exp="JavaAppletPlugin\.plugin" name="filename"/>
-      <infoURL>https://java.com/</infoURL>
-      <versionRange maxVersion="Java 7 Update 150" minVersion="Java 7 Update 97" severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="427f5ec6-d1a7-4725-ac29-d5c5e51de537">
-      <match exp="Java\(TM\) Platform SE 7 U(97|98|99|1([0-4][0-9]|50))(\s[^\d\._U]|$)" name="name"/>
-      <match exp="npjp2\.dll" name="filename"/>
-      <infoURL>https://java.com/</infoURL>
-      <versionRange severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="fdc40de3-95ab-41a5-94cf-9b400221a713">
-      <match exp="Java(\(TM\))? Plug-in 10\.(97|98|99|1([0-4]\d|50))(\.\d+)?([^\d\._]|$)" name="name"/>
-      <match exp="libnpjp2\.so" name="filename"/>
-      <infoURL>https://java.com/</infoURL>
-      <versionRange severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
     <pluginItem blockID="832dc9ff-3314-4df2-abcf-7bd65a645371">
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
@@ -2109,23 +2081,6 @@
       <match exp="libflashplayer\.so" name="filename"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="27.0.0.159" minVersion="0" severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="f24ffd6f-e02b-4cf4-91d9-d54cd793e4bf">
-      <match exp="JavaAppletPlugin\.plugin" name="filename"/>
-      <infoURL>https://java.com/</infoURL>
-      <versionRange maxVersion="Java 8 Update 160" minVersion="Java 8 Update" severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="ab59635e-2e93-423a-9d57-871dde8ae675">
-      <match exp="Java(\(TM\))? Plug-in 11\.(7[6-9]|[8-9]\d|1([0-5]\d|60))(\.\d+)?([^\d\._]|$)" name="name"/>
-      <match exp="libnpjp2\.so" name="filename"/>
-      <infoURL>https://java.com/</infoURL>
-      <versionRange severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
-    <pluginItem blockID="33147281-45b2-487e-9fea-f66c6517252d">
-      <match exp="Java\(TM\) Platform SE 8 U(7[6-9]|[8-9]\d|1([0-5]\d|60))(\s[^\d\._U]|$)" name="name"/>
-      <match exp="npjp2\.dll" name="filename"/>
-      <infoURL>https://java.com/</infoURL>
-      <versionRange severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
   </pluginItems>
   <gfxItems>
