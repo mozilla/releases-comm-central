@@ -402,6 +402,7 @@ XPCOMUtils.defineLazyModuleGetter(cal, "provider", "resource://calendar/modules/
 XPCOMUtils.defineLazyModuleGetter(cal, "unifinder", "resource://calendar/modules/calUnifinderUtils.jsm", "calunifinder");
 XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/calViewUtils.jsm", "calview");
 XPCOMUtils.defineLazyModuleGetter(cal, "window", "resource://calendar/modules/calWindowUtils.jsm", "calwindow");
+XPCOMUtils.defineLazyModuleGetter(cal, "xml", "resource://calendar/modules/calXMLUtils.jsm", "calxml");
 
 /**
  * Returns a function that provides access to the given service.

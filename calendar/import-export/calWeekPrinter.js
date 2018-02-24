@@ -6,7 +6,6 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calXMLUtils.jsm");
 
 /**
  * Prints a two column view of a week of events, much like a paper day-planner

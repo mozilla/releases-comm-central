@@ -5,7 +5,6 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calXMLUtils.jsm");
 
 /**
  * HTML Export Plugin

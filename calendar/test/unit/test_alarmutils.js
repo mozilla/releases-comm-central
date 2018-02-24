@@ -4,7 +4,6 @@
 
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calXMLUtils.jsm");
 
 function run_test() {
     do_calendar_startup(run_next_test);
