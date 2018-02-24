@@ -13,7 +13,7 @@
 
 #include "jsapi.h"
 #include "jsfriendapi.h"
-#include "jswrapper.h"
+#include "js/Wrapper.h"
 #include "prprf.h"
 
 extern "C" {
