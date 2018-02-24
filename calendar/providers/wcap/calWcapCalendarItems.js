@@ -4,7 +4,6 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calAlarmUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calIteratorUtils.jsm");
 
 calWcapCalendar.prototype.encodeAttendee = function(att) {

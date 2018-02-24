@@ -387,6 +387,7 @@ XPCOMUtils.defineLazyPreferenceGetter(cal, "threadingEnabled", "calendar.threadi
 
 // Sub-modules for calUtils
 XPCOMUtils.defineLazyModuleGetter(cal, "acl", "resource://calendar/modules/calACLUtils.jsm", "calacl");
+XPCOMUtils.defineLazyModuleGetter(cal, "alarms", "resource://calendar/modules/calAlarmUtils.jsm", "calalarms");
 XPCOMUtils.defineLazyModuleGetter(cal, "category", "resource://calendar/modules/calCategoryUtils.jsm", "calcategory");
 XPCOMUtils.defineLazyModuleGetter(cal, "data", "resource://calendar/modules/calDataUtils.jsm", "caldata");
 XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDateTimeUtils.jsm", "caldtz");

@@ -5,7 +5,6 @@
 /* exported onLoad, onUnload, onAccept, onCancel */
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calAlarmUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**

@@ -7,7 +7,6 @@
  */
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calAlarmUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 
 /**
