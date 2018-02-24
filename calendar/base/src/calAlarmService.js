@@ -524,7 +524,7 @@ calAlarmService.prototype = {
                 this.batchCount++;
                 this.results = true;
 
-                cal.forEach(aItems, (item) => {
+                cal.iterate.forEach(aItems, (item) => {
                     try {
                         this.alarmService.removeAlarmsForItem(item);
                         this.alarmService.addAlarmsForItem(item);

@@ -130,7 +130,7 @@ pref("mousewheel.withshiftkey.action", 0);
 // Disable use of worker threads. Restart needed.
 pref("calendar.threading.disabled", false);
 
-// The maximum time in microseconds that a cal.forEach event can take (soft limit).
+// The maximum time in microseconds that a cal.iterate.forEach event can take (soft limit).
 pref("calendar.threading.latency ", 250);
 
 // Enable support for multiple realms on one server with the payoff that you

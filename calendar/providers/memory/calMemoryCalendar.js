@@ -443,14 +443,14 @@ calMemoryCalendar.prototype = {
                    itemFlag == reqFlag;
         };
 
-        cal.forEach(this.mItems, ([id, item]) => {
+        cal.iterate.forEach(this.mItems, ([id, item]) => {
             let isEvent_ = cal.item.isEvent(item);
             if (isEvent_) {
                 if (!wantEvents) {
-                    return cal.forEach.CONTINUE;
+                    return cal.iterate.forEach.CONTINUE;
                 }
             } else if (!wantTodos) {
-                return cal.forEach.CONTINUE;
+                return cal.iterate.forEach.CONTINUE;
             }
 
             let hasItemFlag = (item.id in this.mOfflineFlags);
@@ -458,7 +458,7 @@ calMemoryCalendar.prototype = {
 
             // If the offline flag doesn't match, skip the item
             if (!matchOffline(itemFlag, requestedFlag)) {
-                return cal.forEach.CONTINUE;
+                return cal.iterate.forEach.CONTINUE;
             }
 
             if (itemReturnOccurrences && item.recurrenceInfo) {
@@ -483,9 +483,9 @@ calMemoryCalendar.prototype = {
                 itemsFound.push(item);
             }
             if (aCount && itemsFound.length >= aCount) {
-                return cal.forEach.BREAK;
+                return cal.iterate.forEach.BREAK;
             }
-            return cal.forEach.CONTINUE;
+            return cal.iterate.forEach.CONTINUE;
         }, () => {
             aListener.onGetResult(this.superCalendar,
                                   Components.results.NS_OK,

@@ -438,7 +438,7 @@ var calitem = {
         // in the same order
         function normalizeComponent(comp) {
             let props = [];
-            for (let prop of cal.ical.propertyIterator(comp)) {
+            for (let prop of cal.iterate.icalProperty(comp)) {
                 if (!(prop.propertyName in ignoreProps)) {
                     props.push(normalizeProperty(prop));
                 }
@@ -446,7 +446,7 @@ var calitem = {
             props = props.sort();
 
             let comps = [];
-            for (let subcomp of cal.ical.subcomponentIterator(comp)) {
+            for (let subcomp of cal.iterate.icalSubcomponent(comp)) {
                 comps.push(normalizeComponent(subcomp));
             }
             comps = comps.sort();

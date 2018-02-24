@@ -56,13 +56,13 @@ calIcsParser.prototype = {
 
         while (calComp) {
             // Get unknown properties from the VCALENDAR
-            for (let prop of cal.ical.propertyIterator(calComp)) {
+            for (let prop of cal.iterate.icalProperty(calComp)) {
                 if (prop.propertyName != "VERSION" && prop.propertyName != "PRODID") {
                     this.mProperties.push(prop);
                 }
             }
 
-            for (let subComp of cal.ical.subcomponentIterator(calComp)) {
+            for (let subComp of cal.iterate.icalSubcomponent(calComp)) {
                 state.submit(subComp);
             }
             calComp = rootComp.getNextSubcomponent("VCALENDAR");

@@ -127,7 +127,7 @@ calAttachment.prototype = {
         this.mProperties = new cal.data.PropertyMap();
         this.setData(attProp.value);
 
-        for (let [name, value] of cal.ical.paramIterator(attProp)) {
+        for (let [name, value] of cal.iterate.icalParameter(attProp)) {
             this.setParameter(name, value);
         }
     },

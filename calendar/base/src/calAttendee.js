@@ -88,7 +88,7 @@ calAttendee.prototype = {
         // from the ical property.
         this.mProperties = new cal.data.PropertyMap();
 
-        for (let [name, value] of cal.ical.paramIterator(icalatt)) {
+        for (let [name, value] of cal.iterate.icalParameter(icalatt)) {
             if (!promotedProps[name]) {
                 this.setProperty(name, value);
             }

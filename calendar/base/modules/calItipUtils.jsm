@@ -976,8 +976,8 @@ var calitip = {
             };
 
             let propStrings = [];
-            for (let item of cal.itemIterator([aItem])) {
-                for (let prop of cal.ical.propertyIterator(item.icalComponent)) {
+            for (let item of cal.iterate.items([aItem])) {
+                for (let prop of cal.iterate.icalProperty(item.icalComponent)) {
                     if (prop.propertyName in majorProps) {
                         propStrings.push(item.recurrenceId + "#" + prop.icalString);
                     }

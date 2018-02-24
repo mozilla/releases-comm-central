@@ -73,7 +73,7 @@ calIcsSerializer.prototype = {
             calComp.addSubcomponent(comp);
         }
 
-        for (let item of cal.itemIterator(this.mItems)) {
+        for (let item of cal.iterate.items(this.mItems)) {
             calComp.addSubcomponent(item.icalComponent);
         }
 

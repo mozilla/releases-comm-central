@@ -361,7 +361,7 @@ calCachedCalendar.prototype = {
                     }
 
                     this.getsReceived++;
-                    cal.forEach(aItems, (item) => {
+                    cal.iterate.forEach(aItems, (item) => {
                         // Adding items recd from the Memory Calendar
                         // These may be different than what the cache has
                         completeListener.modifiedTimes[item.id] = item.lastModifiedTime;
@@ -386,7 +386,7 @@ calCachedCalendar.prototype = {
                 }
 
                 if (Components.isSuccessCode(aStatus)) {
-                    cal.forEach(self.offlineCachedItems, (item) => {
+                    cal.iterate.forEach(self.offlineCachedItems, (item) => {
                         switch (self.offlineCachedItemFlags[item.hashId]) {
                             case cICL.OFFLINE_FLAG_CREATED_RECORD:
                                 // Created items are not present on the server, so its safe to adopt them

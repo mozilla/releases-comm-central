@@ -669,7 +669,7 @@ calWcapSession.prototype = {
                 if (err) {
                     throw err;
                 }
-                for (let subComp of cal.ical.calendarComponentIterator(data, "VTIMEZONE")) {
+                for (let subComp of cal.iterate.icalComponent(data, "VTIMEZONE")) {
                     try {
                         let tzid = subComp.getFirstProperty("TZID").value;
                         this.m_serverTimezones[tzid] = new calWcapTimezone(this, tzid, subComp);

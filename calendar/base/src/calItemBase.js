@@ -800,21 +800,21 @@ calItemBase.prototype = {
         this.mapPropsFromICS(icalcomp, this.icsBasePropMap);
 
         this.mAttendees = []; // don't inherit anything from parent
-        for (let attprop of cal.ical.propertyIterator(icalcomp, "ATTENDEE")) {
+        for (let attprop of cal.iterate.icalProperty(icalcomp, "ATTENDEE")) {
             let att = new calAttendee();
             att.icalProperty = attprop;
             this.addAttendee(att);
         }
 
         this.mAttachments = []; // don't inherit anything from parent
-        for (let attprop of cal.ical.propertyIterator(icalcomp, "ATTACH")) {
+        for (let attprop of cal.iterate.icalProperty(icalcomp, "ATTACH")) {
             let att = new calAttachment();
             att.icalProperty = attprop;
             this.addAttachment(att);
         }
 
         this.mRelations = []; // don't inherit anything from parent
-        for (let relprop of cal.ical.propertyIterator(icalcomp, "RELATED-TO")) {
+        for (let relprop of cal.iterate.icalProperty(icalcomp, "RELATED-TO")) {
             let rel = new calRelation();
             rel.icalProperty = relprop;
             this.addRelation(rel);
@@ -830,14 +830,14 @@ calItemBase.prototype = {
         this.mOrganizer = org;
 
         this.mCategories = [];
-        for (let catprop of cal.ical.propertyIterator(icalcomp, "CATEGORIES")) {
+        for (let catprop of cal.iterate.icalProperty(icalcomp, "CATEGORIES")) {
             this.mCategories.push(catprop.value);
         }
 
         // find recurrence properties
         let rec = null;
         if (!this.recurrenceId) {
-            for (let recprop of cal.ical.propertyIterator(icalcomp)) {
+            for (let recprop of cal.iterate.icalProperty(icalcomp)) {
                 let ritem = null;
                 switch (recprop.propertyName) {
                     case "RRULE":
@@ -862,7 +862,7 @@ calItemBase.prototype = {
         this.mRecurrenceInfo = rec;
 
         this.mAlarms = []; // don't inherit anything from parent
-        for (let alarmComp of cal.ical.subcomponentIterator(icalcomp, "VALARM")) {
+        for (let alarmComp of cal.iterate.icalSubcomponent(icalcomp, "VALARM")) {
             let alarm = cal.createAlarm();
             try {
                 alarm.icalComponent = alarmComp;
@@ -892,11 +892,11 @@ calItemBase.prototype = {
      * @param promoted      The map of promoted properties.
      */
     importUnpromotedProperties: function(icalcomp, promoted) {
-        for (let prop of cal.ical.propertyIterator(icalcomp)) {
+        for (let prop of cal.iterate.icalProperty(icalcomp)) {
             let propName = prop.propertyName;
             if (!promoted[propName]) {
                 this.setProperty(propName, prop.value);
-                for (let [paramName, paramValue] of cal.ical.paramIterator(prop)) {
+                for (let [paramName, paramValue] of cal.iterate.icalParameter(prop)) {
                     if (!(propName in this.mPropertyParams)) {
                         this.mPropertyParams[propName] = {};
                     }

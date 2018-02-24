@@ -71,7 +71,7 @@ var caliterate = {
 
                         if (!done) {
                             let rc = body(next.value);
-                            if (rc == cal.forEach.BREAK) {
+                            if (rc == cal.iterate.forEach.BREAK) {
                                 done = true;
                             }
                         }
@@ -105,7 +105,7 @@ var caliterate = {
      *    component.
      *
      * This iterator can only be used in a for..of block:
-     *   for (let component of cal.ical.calendarComponentIterator(aComp)) { ... }
+     *   for (let component of cal.iterate.icalComponent(aComp)) { ... }
      *
      *  @param {calIIcalComponent} aComponent   The component to iterate given the above rules.
      *  @param {String} aCompType               The type of item to iterate.
@@ -113,10 +113,10 @@ var caliterate = {
      */
     icalComponent: function* (aComponent, aCompType="ANY") {
         if (aComponent && aComponent.componentType == "VCALENDAR") {
-            yield* cal.ical.subcomponentIterator(aComponent, aCompType);
+            yield* cal.iterate.icalSubcomponent(aComponent, aCompType);
         } else if (aComponent && aComponent.componentType == "XROOT") {
-            for (let calComp of cal.ical.subcomponentIterator(aComponent, "VCALENDAR")) {
-                yield* cal.ical.subcomponentIterator(calComp, aCompType);
+            for (let calComp of cal.iterate.icalSubcomponent(aComponent, "VCALENDAR")) {
+                yield* cal.iterate.icalSubcomponent(calComp, aCompType);
             }
         } else if (aComponent && (aCompType == "ANY" || aCompType == aComponent.componentType)) {
             yield aComponent;
@@ -128,7 +128,7 @@ var caliterate = {
      * this means no sub-sub-components will be iterated.
      *
      * This iterator can only be used in a for() block:
-     *   for (let component of cal.ical.subcomponentIterator(aComp)) { ... }
+     *   for (let component of cal.iterate.icalSubcomponent(aComp)) { ... }
      *
      * @param {calIIcalComponent} aComponent    The component who's subcomponents to iterate.
      * @param {?String} aSubcomp                (optional) the specific subcomponent to enumerate.
@@ -146,7 +146,7 @@ var caliterate = {
     /**
      * Use to iterate through all properties of a calIIcalComponent.
      * This iterator can only be used in a for() block:
-     *   for (let property of cal.ical.propertyIterator(aComp)) { ... }
+     *   for (let property of cal.iterate.icalProperty(aComp)) { ... }
      *
      * @param {calIIcalComponent} aComponent    The component to iterate.
      * @param {?String} aProperty               (optional) the specific property to enumerate.
@@ -164,9 +164,9 @@ var caliterate = {
     /**
      * Use to iterate through all parameters of a calIIcalProperty.
      * This iterator behaves similar to the object iterator. Possible uses:
-     *   for (let paramName in cal.ical.paramIterator(prop)) { ... }
+     *   for (let paramName in cal.iterate.icalParameter(prop)) { ... }
      * or:
-     *   for (let [paramName, paramValue] of cal.ical.paramIterator(prop)) { ... }
+     *   for (let [paramName, paramValue] of cal.iterate.icalParameter(prop)) { ... }
      *
      * @param {calIIcalProperty} aProperty         The property to iterate.
      * @yields {[String, String]}                  An iterator object to iterate the properties.

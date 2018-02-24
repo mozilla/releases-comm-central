@@ -84,7 +84,7 @@ calRelation.prototype = {
         if (attProp.value) {
             this.mId = attProp.value;
         }
-        for (let [name, value] of cal.ical.paramIterator(attProp)) {
+        for (let [name, value] of cal.iterate.icalParameter(attProp)) {
             if (name == "RELTYPE") {
                 this.mType = value;
                 continue;
