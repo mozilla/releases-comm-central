@@ -75,7 +75,7 @@ public: // other search row cursor methods
   virtual mork_count GetMemberCount(morkEnv* ev);
 
   virtual orkinTableRowCursor* AcquireUniqueRowCursorHandle(morkEnv* ev);
-  
+
   // virtual mdb_pos NextRowOid(morkEnv* ev, mdbOid* outOid);
   virtual morkRow* NextRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos);
 
@@ -83,7 +83,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakUniqRowCursor(morkUniqRowCursor* me,
     morkEnv* ev, morkUniqRowCursor** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongUniqRowCursor(morkUniqRowCursor* me,
     morkEnv* ev, morkUniqRowCursor** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

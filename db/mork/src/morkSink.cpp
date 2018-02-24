@@ -132,7 +132,7 @@ morkSpool::SpillPutc(morkEnv* ev, int c) // grow coil and write byte
     this->NilSpoolCoilError(ev);
 }
 
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 // public: // public non-poly morkSink methods
 
 /*virtual*/
@@ -153,7 +153,7 @@ morkSpool::morkSpool(morkEnv* ev, morkCoil* ioCoil)
 {
   mSink_At = 0; // set correctly later in Seek()
   mSink_End = 0; // set correctly later in Seek()
-  
+
   if ( ev->Good() )
   {
     if ( ioCoil )
@@ -189,10 +189,10 @@ morkSpool::Seek(morkEnv* ev, mork_pos inPos)
   if ( coil )
   {
     mork_size minSize = (mork_size) (inPos + 64);
-    
+
     if ( coil->mBlob_Size < minSize )
       coil->GrowCoil(ev, minSize);
-      
+
     if ( ev->Good() )
     {
       coil->mBuf_Fill = (mork_fill) inPos;
@@ -208,7 +208,7 @@ morkSpool::Seek(morkEnv* ev, mork_pos inPos)
   }
   else
     this->NilSpoolCoilError(ev);
-    
+
   return ev->Good();
 }
 
@@ -218,7 +218,7 @@ morkSpool::Write(morkEnv* ev, const void* inBuf, mork_size inSize)
 {
   // This method is conceptually very similar to morkStream::Write(),
   // and this code was written while looking at that method for clues.
- 
+
   morkCoil* coil = mSpool_Coil;
   if ( coil )
   {
@@ -272,7 +272,7 @@ morkSpool::Write(morkEnv* ev, const void* inBuf, mork_size inSize)
   }
   else
     this->NilSpoolCoilError(ev);
-  
+
   return ev->Good();
 }
 

@@ -98,7 +98,7 @@ typedef mork_token mork_cscode;  // token used to id charset names
 typedef mork_token mork_aid;     // token used to id atomize cell values
 
 typedef mork_token mork_column;  // token used to id columns for rows
-typedef mork_column mork_delta;  // mork_column plus mork_change 
+typedef mork_column mork_delta;  // mork_column plus mork_change
 
 typedef mork_token mork_color;   // bead ID
 #define morkColor_kNone ((mork_color) 0)
@@ -186,7 +186,7 @@ typedef mork_id mork_tid;  // unsigned table identity inside scope
 typedef mork_id mork_gid;  // unsigned group identity without any scope
 
 // we only care about neg, zero, pos -- so we don't care about size:
-typedef mdb_order mork_order; // neg:lessthan, zero:equalto, pos:greaterthan 
+typedef mdb_order mork_order; // neg:lessthan, zero:equalto, pos:greaterthan
 // } %%%%% end mdb-driven scalar typedefs %%%%%
 
 #define morkId_kMinusOne ((mdb_id) -1)

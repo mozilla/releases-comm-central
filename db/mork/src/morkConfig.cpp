@@ -34,7 +34,7 @@ mork_memcmp(const void* inOne, const void* inTwo, mork_size inSize)
   const mork_u1* s = (const mork_u1*) inOne;
   const mork_u1* end = s + inSize;
   mork_i4 delta;
-  
+
   while ( s < end )
   {
     delta = ((mork_i4) *s) - ((mork_i4) *t);
@@ -55,22 +55,22 @@ mork_memcpy(void* outDst, const void* inSrc, mork_size inSize)
   mork_u1* d = (mork_u1*) outDst;
   mork_u1* end = d + inSize;
   const mork_u1* s = ((const mork_u1*) inSrc);
-  
+
   while ( inSize >= 8 )
   {
     *d++ = *s++;
     *d++ = *s++;
     *d++ = *s++;
     *d++ = *s++;
-    
+
     *d++ = *s++;
     *d++ = *s++;
     *d++ = *s++;
     *d++ = *s++;
-    
+
     inSize -= 8;
   }
-  
+
   while ( d < end )
     *d++ = *s++;
 }
@@ -83,7 +83,7 @@ mork_memmove(void* outDst, const void* inSrc, mork_size inSize)
   if ( d != s && inSize ) // copy is necessary?
   {
     const mork_u1* srcEnd = s + inSize; // one past last source byte
-    
+
     if ( d > s && d < srcEnd ) // overlap? need to copy backwards?
     {
       s = srcEnd; // start one past last source byte
@@ -95,7 +95,7 @@ mork_memmove(void* outDst, const void* inSrc, mork_size inSize)
         *--d = *--s;
         *--d = *--s;
         *--d = *--s;
-        
+
         *--d = *--s;
         *--d = *--s;
         *--d = *--s;
@@ -113,7 +113,7 @@ mork_memmove(void* outDst, const void* inSrc, mork_size inSize)
         *d++ = *s++;
         *d++ = *s++;
         *d++ = *s++;
-        
+
         *d++ = *s++;
         *d++ = *s++;
         *d++ = *s++;
@@ -152,7 +152,7 @@ mork_strcmp(const void* inOne, const void* inTwo)
   mork_i4 a;
   mork_i4 b;
   mork_i4 delta;
-  
+
   do
   {
     a = (mork_i4) *s++;
@@ -160,7 +160,7 @@ mork_strcmp(const void* inOne, const void* inTwo)
     delta = a - b;
   }
   while ( !delta && a && b );
-  
+
   return delta;
 }
 
@@ -173,7 +173,7 @@ mork_strncmp(const void* inOne, const void* inTwo, mork_size inSize)
   mork_i4 delta;
   mork_i4 a;
   mork_i4 b;
-  
+
   while ( s < end )
   {
     a = (mork_i4) *s++;
@@ -192,7 +192,7 @@ mork_strlen(const void* inString)
   const mork_u1* s = ((const mork_u1*) inString) - 1;
   while ( *++s ) // preincrement is cheapest
     /* empty */;
-  
+
   return s - ((const mork_u1*) inString); // distance from original address
 }
 

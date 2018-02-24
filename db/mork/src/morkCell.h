@@ -24,13 +24,13 @@ class morkCell { // minimal cell format
 public:
   mork_delta   mCell_Delta;   // encoding of both column and change
   morkAtom*    mCell_Atom;    // content in this cell
-  
+
 public:
   morkCell() : mCell_Delta( 0 ), mCell_Atom( 0 ) { }
 
   morkCell(const morkCell& c)
   : mCell_Delta( c.mCell_Delta ), mCell_Atom( c.mCell_Atom ) { }
-  
+
   // note if ioAtom is non-nil, caller needs to call ioAtom->AddCellUse():
   morkCell(mork_column inCol, mork_change inChange, morkAtom* ioAtom)
   {
@@ -44,27 +44,27 @@ public:
     morkDelta_Init(mCell_Delta,inCol,inChange);
     mCell_Atom = ioAtom;
   }
-  
+
   mork_column  GetColumn() const { return morkDelta_Column(mCell_Delta); }
   mork_change  GetChange() const { return morkDelta_Change(mCell_Delta); }
-  
+
   mork_bool IsCellClean() const { return GetChange() == morkChange_kNil; }
   mork_bool IsCellDirty() const { return GetChange() != morkChange_kNil; }
 
   void SetCellClean(); // set change to kNil
   void SetCellDirty(); // set change to kAdd
-  
+
   void SetCellColumnDirty(mork_column inCol)
   { this->SetColumnAndChange(inCol, morkChange_kAdd); }
-  
+
   void SetCellColumnClean(mork_column inCol)
   { this->SetColumnAndChange(inCol, morkChange_kNil); }
-  
+
   void         SetColumnAndChange(mork_column inCol, mork_change inChange)
   { morkDelta_Init(mCell_Delta, inCol, inChange); }
-    
+
   morkAtom*  GetAtom() { return mCell_Atom; }
-  
+
   void       SetAtom(morkEnv* ev, morkAtom* ioAtom, morkPool* ioPool);
   // SetAtom() "acquires" the new ioAtom if non-nil, by calling AddCellUse()
   // to increase the refcount, and puts ioAtom into mCell_Atom.  If the old
@@ -77,9 +77,9 @@ public:
   //
   // Note that if ioAtom was just created, it typically has a zero use count
   // before calling SetAtom().  But use count is one higher after SetAtom().
-  
+
   void       SetYarn(morkEnv* ev, const mdbYarn* inYarn, morkStore* ioStore);
-  
+
   void       AliasYarn(morkEnv* ev, mdbYarn* outYarn) const;
   void       GetYarn(morkEnv* ev, mdbYarn* outYarn) const;
 };

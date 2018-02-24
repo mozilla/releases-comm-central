@@ -23,10 +23,10 @@ class morkRowObject : public morkObject, public nsIMdbRow  { //
 
 public: // state is public because the entire Mork system is private
   NS_DECL_ISUPPORTS_INHERITED
-  
+
   morkRow*    mRowObject_Row;     // non-refcounted alias to morkRow
   morkStore*  mRowObject_Store;   // non-refcounted ptr to store containing row
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowObject() only if open
@@ -120,24 +120,24 @@ public: // morkRowObject construction & destruction
     nsIMdbRow* ioSourceRow) override; // row to duplicate
   // } ----- end row methods -----
 
-  // { ----- begin blob methods -----  
+  // { ----- begin blob methods -----
   NS_IMETHOD SetCellYarn(nsIMdbEnv* ev, // synonym for AddColumn()
     mdb_column inColumn, // column to write
     const mdbYarn* inYarn) override;   // reads from yarn slots
   // make this text object contain content from the yarn's buffer
 
-  NS_IMETHOD GetCellYarn(nsIMdbEnv* ev, 
-    mdb_column inColumn, // column to read 
-    mdbYarn* outYarn) override;  // writes some yarn slots 
+  NS_IMETHOD GetCellYarn(nsIMdbEnv* ev,
+    mdb_column inColumn, // column to read
+    mdbYarn* outYarn) override;  // writes some yarn slots
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
 
-  NS_IMETHOD AliasCellYarn(nsIMdbEnv* ev, 
+  NS_IMETHOD AliasCellYarn(nsIMdbEnv* ev,
     mdb_column inColumn, // column to alias
     mdbYarn* outYarn) override; // writes ALL yarn slots
 
   NS_IMETHOD NextCellYarn(nsIMdbEnv* ev, // iterative version of GetCellYarn()
     mdb_column* ioColumn, // next column to read
-    mdbYarn* outYarn) override;  // writes some yarn slots 
+    mdbYarn* outYarn) override;  // writes some yarn slots
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
   //
   // The ioColumn argument is an inout parameter which initially contains the
@@ -184,12 +184,12 @@ public: // typing
 public: // other row node methods
 
   nsIMdbRow* AcquireRowHandle(morkEnv* ev); // mObject_Handle
-  
+
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakRowObject(morkRowObject* me,
     morkEnv* ev, morkRowObject** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongRowObject(morkRowObject* me,
     morkEnv* ev, morkRowObject** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

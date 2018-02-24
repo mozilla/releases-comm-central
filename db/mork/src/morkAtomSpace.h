@@ -55,24 +55,24 @@
 
 /*| morkAtomSpace:
 |*/
-class morkAtomSpace : public morkSpace { // 
+class morkAtomSpace : public morkSpace { //
 
 // public: // slots inherited from morkSpace (meant to inform only)
   // nsIMdbHeap*    mNode_Heap;
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
-  
+
   // morkStore*  mSpace_Store; // weak ref to containing store
-  
+
   // mork_bool   mSpace_DoAutoIDs;    // whether db should assign member IDs
   // mork_bool   mSpace_HaveDoneAutoIDs; // whether actually auto assigned IDs
   // mork_u1     mSpace_Pad[ 2 ];     // pad to u4 alignment
@@ -81,14 +81,14 @@ public: // state is public because the entire Mork system is private
 
   mork_aid         mAtomSpace_HighUnderId; // high ID in 'under' range
   mork_aid         mAtomSpace_HighOverId;  // high ID in 'over' range
-  
+
   morkAtomAidMap   mAtomSpace_AtomAids; // all atoms in space by ID
   morkAtomBodyMap  mAtomSpace_AtomBodies; // all atoms in space by body
 
 public: // more specific dirty methods for atom space:
   void SetAtomSpaceDirty() { this->SetNodeDirty(); }
   void SetAtomSpaceClean() { this->SetNodeClean(); }
-  
+
   mork_bool IsAtomSpaceClean() const { return this->IsNodeClean(); }
   mork_bool IsAtomSpaceDirty() const { return this->IsNodeDirty(); }
 
@@ -96,9 +96,9 @@ public: // more specific dirty methods for atom space:
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseAtomSpace() only if open
   virtual ~morkAtomSpace(); // assert that CloseAtomSpace() executed earlier
-  
+
 public: // morkMap construction & destruction
-  morkAtomSpace(morkEnv* ev, const morkUsage& inUsage, mork_scope inScope, 
+  morkAtomSpace(morkEnv* ev, const morkUsage& inUsage, mork_scope inScope,
     morkStore* ioStore, nsIMdbHeap* ioNodeHeap, nsIMdbHeap* ioSlotHeap);
   void CloseAtomSpace(morkEnv* ev); // called by CloseMorkNode();
 
@@ -113,7 +113,7 @@ public: // typing
 public: // setup
 
   mork_bool MarkAllAtomSpaceContentDirty(morkEnv* ev);
-  // MarkAllAtomSpaceContentDirty() visits every space object and marks 
+  // MarkAllAtomSpaceContentDirty() visits every space object and marks
   // them dirty, including every table, row, cell, and atom.  The return
   // equals ev->Good(), to show whether any error happened.  This method is
   // intended for use in the beginning of a "compress commit" which writes
@@ -132,11 +132,11 @@ public: // other space methods
 
   mork_num CutAllAtoms(morkEnv* ev, morkPool* ioPool);
   // CutAllAtoms() puts all the atoms back in the pool.
-  
+
   morkBookAtom* MakeBookAtomCopyWithAid(morkEnv* ev,
      const morkFarBookAtom& inAtom,  mork_aid inAid);
   // Make copy of inAtom and put it in both maps, using specified ID.
-  
+
   morkBookAtom* MakeBookAtomCopy(morkEnv* ev, const morkFarBookAtom& inAtom);
   // Make copy of inAtom and put it in both maps, using a new ID as needed.
 
@@ -147,7 +147,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakAtomSpace(morkAtomSpace* me,
     morkEnv* ev, morkAtomSpace** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongAtomSpace(morkAtomSpace* me,
     morkEnv* ev, morkAtomSpace** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -175,8 +175,8 @@ public: // other map methods
 
   mork_bool  CutAtomSpace(morkEnv* ev, mork_scope inScope)
   { return this->CutNode(ev, inScope); }
-  // The CutAtomSpace() boolean return indicates whether removal happened. 
-  
+  // The CutAtomSpace() boolean return indicates whether removal happened.
+
   morkAtomSpace*  GetAtomSpace(morkEnv* ev, mork_scope inScope)
   { return (morkAtomSpace*) this->GetNode(ev, inScope); }
   // Note the returned space does NOT have an increase in refcount for this.
@@ -191,23 +191,23 @@ class morkAtomSpaceMapIter: public morkMapIter{ // typesafe wrapper class
 public:
   morkAtomSpaceMapIter(morkEnv* ev, morkAtomSpaceMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkAtomSpaceMapIter( ) : morkMapIter()  { }
   void InitAtomSpaceMapIter(morkEnv* ev, morkAtomSpaceMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change*
   FirstAtomSpace(morkEnv* ev, mork_scope* outScope, morkAtomSpace** outAtomSpace)
   { return this->First(ev, outScope, outAtomSpace); }
-  
+
   mork_change*
   NextAtomSpace(morkEnv* ev, mork_scope* outScope, morkAtomSpace** outAtomSpace)
   { return this->Next(ev, outScope, outAtomSpace); }
-  
+
   mork_change*
   HereAtomSpace(morkEnv* ev, mork_scope* outScope, morkAtomSpace** outAtomSpace)
   { return this->Here(ev, outScope, outAtomSpace); }
-  
+
   mork_change*
   CutHereAtomSpace(morkEnv* ev, mork_scope* outScope, morkAtomSpace** outAtomSpace)
   { return this->CutHere(ev, outScope, outAtomSpace); }

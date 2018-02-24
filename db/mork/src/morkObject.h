@@ -34,24 +34,24 @@
 **| and containing port to those objects that are exposed as instances of
 **| nsIMdbObject in the public interface.
 |*/
-class morkObject : public morkBead, public nsIMdbObject { 
+class morkObject : public morkBead, public nsIMdbObject {
 
 // public: // slots inherited from morkNode (meant to inform only)
   // nsIMdbHeap*    mNode_Heap;
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
 
   // mork_color      mBead_Color;   // ID for this bead
-  
+
 public: // state is public because the entire Mork system is private
 
   morkHandle*      mObject_Handle;   // weak ref to handle for this object
@@ -62,7 +62,7 @@ public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseObject() only if open
 #ifdef MORK_DEBUG_HEAP_STATS
   void operator delete(void* ioAddress, size_t size)
-  { 
+  {
     mork_u4* array = (mork_u4*) ioAddress;
     array -= 3;
     orkinHeap *heap = (orkinHeap *) *array;
@@ -105,15 +105,15 @@ public: // morkNode virtual methods
   NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev) override; // called at strong refs zero
   NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen) override;
   // } ----- end ref counting -----
-  
+
 
 protected: // special case construction of first env without preceding env
   morkObject(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
     mork_color inBeadColor);
   virtual ~morkObject(); // assert that CloseObject() executed earlier
-  
+
 public: // morkEnv construction & destruction
-  morkObject(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap, 
+  morkObject(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
      mork_color inBeadColor, morkHandle* ioHandle); // ioHandle can be nil
   void CloseObject(morkEnv* ev); // called by CloseMorkNode();
 
@@ -127,12 +127,12 @@ public: // dynamic type identification
 // } ===== end morkNode methods =====
 
   // void NewNilHandleError(morkEnv* ev); // mObject_Handle is nil
-  
+
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakObject(morkObject* me,
     morkEnv* ev, morkObject** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongObject(morkObject* me,
     morkEnv* ev, morkObject** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

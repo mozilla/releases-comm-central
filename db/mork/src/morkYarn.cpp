@@ -25,7 +25,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -64,7 +64,7 @@ morkYarn::CloseYarn(morkEnv* ev) /*i*/ // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ void
 morkYarn::NonYarnTypeError(morkEnv* ev)

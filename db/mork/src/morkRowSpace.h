@@ -51,24 +51,24 @@ class morkAtomRowMap;
 
 /*| morkRowSpace:
 |*/
-class morkRowSpace : public morkSpace { // 
+class morkRowSpace : public morkSpace { //
 
 // public: // slots inherited from morkSpace (meant to inform only)
   // nsIMdbHeap*    mNode_Heap;
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
-  
+
   // morkStore*  mSpace_Store; // weak ref to containing store
-  
+
   // mork_bool   mSpace_DoAutoIDs;    // whether db should assign member IDs
   // mork_bool   mSpace_HaveDoneAutoIDs; // whether actually auto assigned IDs
   // mork_u1     mSpace_Pad[ 2 ];    // pad to u4 alignment
@@ -86,9 +86,9 @@ public: // state is public because the entire Mork system is private
 
   mork_tid     mRowSpace_NextTableId;  // for auto-assigning table IDs
   mork_rid     mRowSpace_NextRowId;    // for auto-assigning row IDs
-  
+
   mork_count   mRowSpace_IndexCount; // if nonzero, row indexes exist
-    
+
   // every nonzero slot in IndexCache is a strong ref to a morkAtomRowMap:
   morkAtomRowMap* mRowSpace_IndexCache[ morkRowSpace_kPrimeCacheSize ];
 
@@ -97,7 +97,7 @@ public: // state is public because the entire Mork system is private
 public: // more specific dirty methods for row space:
   void SetRowSpaceDirty() { this->SetNodeDirty(); }
   void SetRowSpaceClean() { this->SetNodeClean(); }
-  
+
   mork_bool IsRowSpaceClean() const { return this->IsNodeClean(); }
   mork_bool IsRowSpaceDirty() const { return this->IsNodeDirty(); }
 
@@ -105,7 +105,7 @@ public: // more specific dirty methods for row space:
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowSpace() only if open
   virtual ~morkRowSpace(); // assert that CloseRowSpace() executed earlier
-  
+
 public: // morkMap construction & destruction
   morkRowSpace(morkEnv* ev, const morkUsage& inUsage, mork_scope inScope,
     morkStore* ioStore, nsIMdbHeap* ioNodeHeap, nsIMdbHeap* ioSlotHeap);
@@ -130,13 +130,13 @@ public: // other space methods
 
   mork_num CutAllRows(morkEnv* ev, morkPool* ioPool);
   // CutAllRows() puts all rows and cells back into the pool.
-  
+
   morkTable* NewTable(morkEnv* ev, mork_kind inTableKind,
     mdb_bool inMustBeUnique, const mdbOid* inOptionalMetaRowOid);
-  
+
   morkTable* NewTableWithTid(morkEnv* ev, mork_tid inTid,
     mork_kind inTableKind, const mdbOid* inOptionalMetaRowOid);
-  
+
   morkTable* FindTableByKind(morkEnv* ev, mork_kind inTableKind);
   morkTable* FindTableByTid(morkEnv* ev, mork_tid inTid)
   { return mRowSpace_Tables.GetTable(ev, inTid); }
@@ -162,7 +162,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakRowSpace(morkRowSpace* me,
     morkEnv* ev, morkRowSpace** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongRowSpace(morkRowSpace* me,
     morkEnv* ev, morkRowSpace** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -190,8 +190,8 @@ public: // other map methods
 
   mork_bool  CutRowSpace(morkEnv* ev, mork_scope inScope)
   { return this->CutNode(ev, inScope); }
-  // The CutRowSpace() boolean return indicates whether removal happened. 
-  
+  // The CutRowSpace() boolean return indicates whether removal happened.
+
   morkRowSpace*  GetRowSpace(morkEnv* ev, mork_scope inScope)
   { return (morkRowSpace*) this->GetNode(ev, inScope); }
   // Note the returned space does NOT have an increase in refcount for this.
@@ -206,23 +206,23 @@ class morkRowSpaceMapIter: public morkMapIter{ // typesafe wrapper class
 public:
   morkRowSpaceMapIter(morkEnv* ev, morkRowSpaceMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkRowSpaceMapIter( ) : morkMapIter()  { }
   void InitRowSpaceMapIter(morkEnv* ev, morkRowSpaceMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change*
   FirstRowSpace(morkEnv* ev, mork_scope* outScope, morkRowSpace** outRowSpace)
   { return this->First(ev, outScope, outRowSpace); }
-  
+
   mork_change*
   NextRowSpace(morkEnv* ev, mork_scope* outScope, morkRowSpace** outRowSpace)
   { return this->Next(ev, outScope, outRowSpace); }
-  
+
   mork_change*
   HereRowSpace(morkEnv* ev, mork_scope* outScope, morkRowSpace** outRowSpace)
   { return this->Here(ev, outScope, outRowSpace); }
-  
+
   mork_change*
   CutHereRowSpace(morkEnv* ev, mork_scope* outScope, morkRowSpace** outRowSpace)
   { return this->CutHere(ev, outScope, outRowSpace); }

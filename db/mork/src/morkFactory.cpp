@@ -48,7 +48,7 @@
 #endif
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -113,7 +113,7 @@ morkFactory::morkFactory(morkEnv* ev, /*i*/
 
 NS_IMPL_ISUPPORTS_INHERITED(morkFactory, morkObject, nsIMdbFactory)
 
-extern "C" nsIMdbFactory* MakeMdbFactory() 
+extern "C" nsIMdbFactory* MakeMdbFactory()
 {
   return new morkFactory(new orkinHeap());
 }
@@ -133,7 +133,7 @@ morkFactory::CloseFactory(morkEnv* ev) /*i*/ // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 morkEnv* morkFactory::GetInternalFactoryEnv(nsresult* outErr)
 {
@@ -151,7 +151,7 @@ morkEnv* morkFactory::GetInternalFactoryEnv(nsresult* outErr)
   }
   else
     *outErr = morkEnv_kBadFactoryError;
-    
+
   return outEnv;
 }
 
@@ -181,15 +181,15 @@ morkFactory::OpenOldFile(nsIMdbEnv* mev, nsIMdbHeap* ioHeap,
   {
     if ( !ioHeap )
       ioHeap = &mFactory_Heap;
-      
+
     file = morkFile::OpenOldFile(ev, ioHeap, inFilePath, inFrozen);
     NS_IF_ADDREF( file );
-      
+
     outErr = ev->AsErr();
   }
   if ( acqFile )
     *acqFile = file;
-    
+
   return outErr;
 }
 
@@ -210,16 +210,16 @@ morkFactory::CreateNewFile(nsIMdbEnv* mev, nsIMdbHeap* ioHeap,
   {
     if ( !ioHeap )
       ioHeap = &mFactory_Heap;
-      
+
     file = morkFile::CreateNewFile(ev, ioHeap, inFilePath);
     if ( file )
       NS_ADDREF(file);
-      
+
     outErr = ev->AsErr();
   }
   if ( acqFile )
     *acqFile = file;
-    
+
   return outErr;
 }
 // } ----- end file methods -----
@@ -254,12 +254,12 @@ morkFactory::MakeEnv(nsIMdbHeap* ioHeap, nsIMdbEnv** acqEnv)
       else
         outErr = morkEnv_kOutOfMemoryError;
     }
-    
+
     *acqEnv = outEnv;
   }
   else
     outErr = morkEnv_kNilPointerError;
-    
+
   return outErr;
 }
 // } ----- end env methods -----
@@ -320,16 +320,16 @@ morkFactory::CanOpenFilePort(
     }
     else
       ev->NilPointerError();
-    
+
     outErr = ev->AsErr();
   }
-    
+
   if ( outCanOpen )
     *outCanOpen = canOpenAsPort;
-    
+
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkFactory::OpenFilePort(
   nsIMdbEnv* mev, // context
@@ -351,7 +351,7 @@ morkFactory::OpenFilePort(
     }
     else
       ev->NilPointerError();
-    
+
     outErr = ev->AsErr();
   }
   if ( acqThumb )
@@ -381,14 +381,14 @@ morkFactory::ThumbToOpenPort( // redeeming a completed thumb from OpenFilePort()
         store->mStore_CanAutoAssignAtomIdentity = morkBool_kTrue;
         store->mStore_CanDirty = morkBool_kTrue;
         store->SetStoreAndAllSpacesCanDirty(ev, morkBool_kTrue);
-        
+
         NS_ADDREF(store);
         outPort = store;
       }
     }
     else
       ev->NilPointerError();
-    
+
     outErr = ev->AsErr();
   }
   if ( acqPort )
@@ -405,7 +405,7 @@ morkFactory::CanOpenMorkTextFile(morkEnv* ev,
   MORK_USED_1(ev);
   mork_bool outBool = morkBool_kFalse;
   mork_size headSize = strlen(morkWriter_kFileHeader);
-  
+
   char localBuf[ 256 + 4 ]; // for extra for sloppy safety
   mdbYarn localYarn;
   mdbYarn* y = &localYarn;
@@ -415,14 +415,14 @@ morkFactory::CanOpenMorkTextFile(morkEnv* ev,
   y->mYarn_More = 0;
   y->mYarn_Form = 0;
   y->mYarn_Grow = 0;
-  
+
   if ( ioFile )
   {
     nsIMdbEnv* menv = ev->AsMdbEnv();
     mdb_size actualSize = 0;
     ioFile->Get(menv, y->mYarn_Buf, y->mYarn_Size, /*pos*/ 0, &actualSize);
     y->mYarn_Fill = actualSize;
-    
+
     if ( y->mYarn_Buf && actualSize >= headSize && ev->Good() )
     {
       mork_u1* buf = (mork_u1*) y->mYarn_Buf;
@@ -464,18 +464,18 @@ morkFactory::CanOpenFileStore(
     }
     else
       ev->NilPointerError();
-    
+
     outErr = ev->AsErr();
   }
   if ( outCanOpenAsStore )
     *outCanOpenAsStore = canOpenAsStore;
-    
+
   if ( outCanOpenAsPort )
     *outCanOpenAsPort = canOpenAsPort;
-    
+
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkFactory::OpenFileStore( // open an existing database
   nsIMdbEnv* mev, // context
@@ -492,12 +492,12 @@ morkFactory::OpenFileStore( // open an existing database
   {
     if ( !ioHeap ) // need to use heap from env?
       ioHeap = ev->mEnv_Heap;
-    
+
     if ( ioFile && inOpenPolicy && acqThumb )
     {
       morkStore* store = new(*ioHeap, ev)
         morkStore(ev, morkUsage::kHeap, ioHeap, this, ioHeap);
-        
+
       if ( store )
       {
         mork_bool frozen = morkBool_kFalse; // open store mutable access
@@ -515,7 +515,7 @@ morkFactory::OpenFileStore( // open an existing database
     }
     else
       ev->NilPointerError();
-    
+
     outErr = ev->AsErr();
   }
   if ( acqThumb )
@@ -524,7 +524,7 @@ morkFactory::OpenFileStore( // open an existing database
 }
 // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
 // then call nsIMdbFactory::ThumbToOpenStore() to get the store instance.
-  
+
 NS_IMETHODIMP
 morkFactory::ThumbToOpenStore( // redeem completed thumb from OpenFileStore()
   nsIMdbEnv* mev, // context
@@ -545,14 +545,14 @@ morkFactory::ThumbToOpenStore( // redeem completed thumb from OpenFileStore()
         store->mStore_CanAutoAssignAtomIdentity = morkBool_kTrue;
         store->mStore_CanDirty = morkBool_kTrue;
         store->SetStoreAndAllSpacesCanDirty(ev, morkBool_kTrue);
-        
+
         outStore = store;
         NS_ADDREF(store);
       }
     }
     else
       ev->NilPointerError();
-    
+
     outErr = ev->AsErr();
   }
   if ( acqStore )
@@ -576,12 +576,12 @@ morkFactory::CreateNewFileStore( // create a new db with minimal content
   {
     if ( !ioHeap ) // need to use heap from env?
       ioHeap = ev->mEnv_Heap;
-    
+
     if ( ioFile && inOpenPolicy && acqStore && ioHeap )
     {
       morkStore* store = new(*ioHeap, ev)
         morkStore(ev, morkUsage::kHeap, ioHeap, this, ioHeap);
-        
+
       if ( store )
       {
         store->mStore_CanAutoAssignAtomIdentity = morkBool_kTrue;
@@ -590,12 +590,12 @@ morkFactory::CreateNewFileStore( // create a new db with minimal content
 
         if ( store->CreateStoreFile(ev, ioFile, inOpenPolicy) )
           outStore = store;
-        NS_ADDREF(store);          
+        NS_ADDREF(store);
       }
     }
     else
       ev->NilPointerError();
-    
+
     outErr = ev->AsErr();
   }
   if ( acqStore )

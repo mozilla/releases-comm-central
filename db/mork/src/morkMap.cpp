@@ -63,14 +63,14 @@ class morkHashArrays {
 public:
   nsIMdbHeap*   mHashArrays_Heap;     // copy of mMap_Heap
   mork_count    mHashArrays_Slots;    // copy of mMap_Slots
-  
+
   mork_u1*      mHashArrays_Keys;     // copy of mMap_Keys
   mork_u1*      mHashArrays_Vals;     // copy of mMap_Vals
   morkAssoc*    mHashArrays_Assocs;   // copy of mMap_Assocs
   mork_change*  mHashArrays_Changes;  // copy of mMap_Changes
   morkAssoc**   mHashArrays_Buckets;  // copy of mMap_Buckets
   morkAssoc*    mHashArrays_FreeList; // copy of mMap_FreeList
-  
+
 public:
   void finalize(morkEnv* ev);
 };
@@ -79,7 +79,7 @@ void morkHashArrays::finalize(morkEnv* ev)
 {
   nsIMdbEnv* menv = ev->AsMdbEnv();
   nsIMdbHeap* heap = mHashArrays_Heap;
-  
+
   if ( heap )
   {
     if ( mHashArrays_Keys )
@@ -97,7 +97,7 @@ void morkHashArrays::finalize(morkEnv* ev)
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -131,19 +131,19 @@ morkMap::CloseMap(morkEnv* ev) // called by CloseMorkNode();
       if ( heap ) /* need to free the arrays? */
       {
         nsIMdbEnv* menv = ev->AsMdbEnv();
-        
+
         if ( mMap_Keys )
           heap->Free(menv, mMap_Keys);
-          
+
         if ( mMap_Vals )
           heap->Free(menv, mMap_Vals);
-          
+
         if ( mMap_Assocs )
           heap->Free(menv, mMap_Assocs);
-          
+
         if ( mMap_Buckets )
           heap->Free(menv, mMap_Buckets);
-          
+
         if ( mMap_Changes )
           heap->Free(menv, mMap_Changes);
       }
@@ -161,7 +161,7 @@ morkMap::CloseMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 void
 morkMap::clear_map(morkEnv* ev, nsIMdbHeap* ioSlotHeap)
@@ -177,7 +177,7 @@ morkMap::clear_map(morkEnv* ev, nsIMdbHeap* ioSlotHeap)
   mMap_Buckets = 0;
   mMap_FreeList = 0;
   MORK_MEMSET(&mMap_Form, 0, sizeof(morkMapForm));
-  
+
   mMap_Heap = 0;
   if ( ioSlotHeap )
   {
@@ -187,7 +187,7 @@ morkMap::clear_map(morkEnv* ev, nsIMdbHeap* ioSlotHeap)
     ev->NilPointerError();
 }
 
-morkMap::morkMap(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap, 
+morkMap::morkMap(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
   mork_size inKeySize, mork_size inValSize,
   mork_size inSlots, nsIMdbHeap* ioSlotHeap, mork_bool inHoldChanges)
 : morkNode(ev, inUsage, ioHeap)
@@ -199,12 +199,12 @@ morkMap::morkMap(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
     if ( ev->Good() )
     {
       mMap_Form.mMapForm_HoldChanges = inHoldChanges;
-      
+
       mMap_Form.mMapForm_KeySize = inKeySize;
       mMap_Form.mMapForm_ValSize = inValSize;
       mMap_Form.mMapForm_KeyIsIP = ( inKeySize == sizeof(mork_ip) );
       mMap_Form.mMapForm_ValIsIP = ( inValSize == sizeof(mork_ip) );
-      
+
       this->InitMap(ev, inSlots);
       if ( ev->Good() )
         mNode_Derived = morkDerived_kMap;
@@ -238,7 +238,7 @@ void morkMap::InitMap(morkEnv* ev, mork_size inSlots)
       inSlots = 3; /* bump it up to a minimum practical level */
     else if ( inSlots > (128 * 1024) ) /* requested slots absurdly big? */
       inSlots = (128 * 1024); /* decrease it to a maximum practical level */
-      
+
     if ( this->new_arrays(ev, &old, inSlots) )
       mMap_Tag = morkMap_kTag;
 
@@ -252,7 +252,7 @@ morkMap::find(morkEnv* ev, const void* inKey, mork_u4 inHash) const
   mork_u1* keys = mMap_Keys;
   mork_num keySize = this->FormKeySize();
   // morkMap_mEqual equal = this->FormEqual();
-  
+
   morkAssoc** ref = mMap_Buckets + (inHash % mMap_Slots);
   morkAssoc* assoc = *ref;
   while ( assoc ) /* look at another assoc in the bucket? */
@@ -260,7 +260,7 @@ morkMap::find(morkEnv* ev, const void* inKey, mork_u4 inHash) const
     mork_pos i = assoc - mMap_Assocs; /* index of this assoc */
     if ( this->Equal(ev, keys + (i * keySize), inKey) ) /* found? */
       return ref;
-      
+
     ref = &assoc->mAssoc_Next; /* consider next assoc slot in bucket */
     assoc = *ref; /* if this is null, then we are done */
   }
@@ -332,7 +332,7 @@ morkMap::clear_alloc(morkEnv* ev, mork_size inSize)
   }
   else
     ev->NilPointerError();
-    
+
   return (void*) 0;
 }
 
@@ -416,34 +416,34 @@ mork_bool
 morkMap::new_arrays(morkEnv* ev, morkHashArrays* old, mork_num inSlots)
 {
   mork_bool outNew = morkBool_kFalse;
-    
+
   /* see if we can allocate all the new arrays before we go any further: */
   morkAssoc** newBuckets = this->new_buckets(ev, inSlots);
   morkAssoc* newAssocs = this->new_assocs(ev, inSlots);
   mork_u1* newKeys = this->new_keys(ev, inSlots);
   mork_u1* newValues = this->new_values(ev, inSlots);
   mork_change* newChanges = this->new_changes(ev, inSlots);
-  
+
   /* it is okay for newChanges to be null when changes are not held: */
   mork_bool okayChanges = ( newChanges || !this->FormHoldChanges() );
-  
+
   /* it is okay for newValues to be null when values are zero sized: */
   mork_bool okayValues = ( newValues || !this->FormValSize() );
-  
+
   if ( newBuckets && newAssocs && newKeys && okayChanges && okayValues )
   {
     outNew = morkBool_kTrue; /* yes, we created all the arrays we need */
 
     /* init the old hashArrays with slots from this hash table: */
     old->mHashArrays_Heap = mMap_Heap;
-    
+
     old->mHashArrays_Slots = mMap_Slots;
     old->mHashArrays_Keys = mMap_Keys;
     old->mHashArrays_Vals = mMap_Vals;
     old->mHashArrays_Assocs = mMap_Assocs;
     old->mHashArrays_Buckets = mMap_Buckets;
     old->mHashArrays_Changes = mMap_Changes;
-    
+
     /* now replace all our array slots with the new structures: */
     ++mMap_Seed; /* note the map is now changed */
     mMap_Keys = newKeys;
@@ -468,10 +468,10 @@ morkMap::new_arrays(morkEnv* ev, morkHashArrays* old, mork_num inSlots)
       heap->Free(menv, newValues);
     if ( newChanges )
       heap->Free(menv, newChanges);
-    
+
     MORK_MEMSET(old, 0, sizeof(morkHashArrays));
   }
-  
+
   return outNew;
 }
 
@@ -513,26 +513,26 @@ mork_bool morkMap::grow(morkEnv* ev)
     if ( this->new_arrays(ev, &old, newSlots) ) /* have more? */
     {
       // morkMap_mHash hash = this->FormHash(); /* for terse loop use */
-      
+
       /* figure out the bulk volume sizes of old keys and values to move: */
       mork_num oldSlots = old.mHashArrays_Slots; /* number of old assocs */
       mork_num keyBulk = oldSlots * this->FormKeySize(); /* key volume */
       mork_num valBulk = oldSlots * this->FormValSize(); /* values */
-      
+
       /* convenient variables for new arrays that need to be rehashed: */
       morkAssoc** newBuckets = mMap_Buckets; /* new all zeroes */
       morkAssoc* newAssocs = mMap_Assocs; /* hash into buckets */
       morkAssoc* newFreeList = newAssocs + oldSlots; /* new room is free */
       mork_u1* key = mMap_Keys; /* the first key to rehash */
       --newAssocs; /* back up one before preincrement used in while loop */
-      
+
       /* move all old keys and values to the new arrays: */
       MORK_MEMCPY(mMap_Keys, old.mHashArrays_Keys, keyBulk);
       if ( valBulk ) /* are values nonzero sized? */
         MORK_MEMCPY(mMap_Vals, old.mHashArrays_Vals, valBulk);
-        
+
       mMap_FreeList = newFreeList; /* remaining assocs are free */
-      
+
       while ( ++newAssocs < newFreeList ) /* rehash another old assoc? */
       {
         morkAssoc** top = newBuckets + (this->Hash(ev, key) % newSlots);
@@ -545,7 +545,7 @@ mork_bool morkMap::grow(morkEnv* ev)
     }
   }
   else ev->OutOfMemoryError();
-  
+
   return ev->Good();
 }
 
@@ -555,7 +555,7 @@ morkMap::Put(morkEnv* ev, const void* inKey, const void* inVal,
   void* outKey, void* outVal, mork_change** outChange)
 {
   mork_bool outPut = morkBool_kFalse;
-  
+
   if ( this->GoodMap() ) /* looks good? */
   {
     mork_u4 hash = this->Hash(ev, inKey);
@@ -577,7 +577,7 @@ morkMap::Put(morkEnv* ev, const void* inKey, const void* inVal,
         ref = mMap_Buckets + (hash % mMap_Slots);
         assoc->mAssoc_Next = *ref; /* link to prev bucket top */
         *ref = assoc; /* push assoc on top of bucket */
-          
+
         ++mMap_Fill; /* one more member in the collection */
         ++mMap_Seed; /* note the map has changed */
       }
@@ -590,7 +590,7 @@ morkMap::Put(morkEnv* ev, const void* inKey, const void* inVal,
 
       this->put_assoc(inKey, inVal, i);
       ++mMap_Seed; /* note the map has changed */
-      
+
       if ( outChange )
       {
         if ( mMap_Changes )
@@ -601,7 +601,7 @@ morkMap::Put(morkEnv* ev, const void* inKey, const void* inVal,
     }
   }
   else this->NewBadMapError(ev);
-  
+
   return outPut;
 }
 
@@ -609,7 +609,7 @@ mork_num
 morkMap::CutAll(morkEnv* ev)
 {
   mork_num outCutAll = 0;
-  
+
   if ( this->GoodMap() ) /* map looks good? */
   {
     mork_num slots = mMap_Slots;
@@ -629,7 +629,7 @@ morkMap::CutAll(morkEnv* ev)
     mMap_Fill = 0; /* the map is completely empty */
   }
   else this->NewBadMapError(ev);
-  
+
   return outCutAll;
 }
 
@@ -638,7 +638,7 @@ morkMap::Cut(morkEnv* ev, const void* inKey,
   void* outKey, void* outVal, mork_change** outChange)
 {
   mork_bool outCut = morkBool_kFalse;
-  
+
   if ( this->GoodMap() ) /* looks good? */
   {
     mork_u4 hash = this->Hash(ev, inKey);
@@ -661,7 +661,7 @@ morkMap::Cut(morkEnv* ev, const void* inKey,
         else
           *outChange = this->FormDummyChange();
       }
-      
+
       ++mMap_Seed; /* note the map has changed */
       if ( mMap_Fill ) /* the count shows nonzero members? */
         --mMap_Fill; /* one less member in the collection */
@@ -670,7 +670,7 @@ morkMap::Cut(morkEnv* ev, const void* inKey,
     }
   }
   else this->NewBadMapError(ev);
-  
+
   return outCut;
 }
 
@@ -679,7 +679,7 @@ morkMap::Get(morkEnv* ev, const void* inKey,
   void* outKey, void* outVal, mork_change** outChange)
 {
   mork_bool outGet = morkBool_kFalse;
-  
+
   if ( this->GoodMap() ) /* looks good? */
   {
     mork_u4 hash = this->Hash(ev, inKey);
@@ -699,7 +699,7 @@ morkMap::Get(morkEnv* ev, const void* inKey,
     }
   }
   else this->NewBadMapError(ev);
-  
+
   return outGet;
 }
 
@@ -707,7 +707,7 @@ morkMap::Get(morkEnv* ev, const void* inKey,
 morkMapIter::morkMapIter( )
 : mMapIter_Map( 0 )
 , mMapIter_Seed( 0 )
-  
+
 , mMapIter_Bucket( 0 )
 , mMapIter_AssocRef( 0 )
 , mMapIter_Assoc( 0 )
@@ -741,7 +741,7 @@ morkMapIter::InitMapIter(morkEnv* ev, morkMap* ioMap)
 morkMapIter::morkMapIter(morkEnv* ev, morkMap* ioMap)
 : mMapIter_Map( 0 )
 , mMapIter_Seed( 0 )
-  
+
 , mMapIter_Bucket( 0 )
 , mMapIter_AssocRef( 0 )
 , mMapIter_Assoc( 0 )
@@ -765,7 +765,7 @@ morkMapIter::CloseMapIter(morkEnv* ev)
   MORK_USED_1(ev);
   mMapIter_Map = 0;
   mMapIter_Seed = 0;
-  
+
   mMapIter_Bucket = 0;
   mMapIter_AssocRef = 0;
   mMapIter_Assoc = 0;
@@ -776,16 +776,16 @@ mork_change*
 morkMapIter::First(morkEnv* ev, void* outKey, void* outVal)
 {
   mork_change* outFirst = 0;
-  
+
   morkMap* map = mMapIter_Map;
-  
+
   if ( map && map->GoodMap() ) /* map looks good? */
   {
     morkAssoc** bucket = map->mMap_Buckets;
     morkAssoc** end = bucket + map->mMap_Slots; /* one past last */
- 
+
     mMapIter_Seed = map->mMap_Seed; /* sync the seeds */
-   
+
     while ( bucket < end ) /* another bucket in which to look for assocs? */
     {
       morkAssoc* assoc = *bucket++;
@@ -794,14 +794,14 @@ morkMapIter::First(morkEnv* ev, void* outKey, void* outVal)
         mork_pos i = assoc - map->mMap_Assocs;
         mork_change* c = map->mMap_Changes;
         outFirst = ( c )? (c + i) : map->FormDummyChange();
-        
+
         mMapIter_Assoc = assoc; /* current assoc in iteration */
         mMapIter_Next = assoc->mAssoc_Next; /* more in bucket */
         mMapIter_Bucket = --bucket; /* bucket for this assoc */
         mMapIter_AssocRef = bucket; /* slot referencing assoc */
-        
+
         map->get_assoc(outKey, outVal, i);
-          
+
         break; /* end while loop */
       }
     }
@@ -815,9 +815,9 @@ mork_change*
 morkMapIter::Next(morkEnv* ev, void* outKey, void* outVal)
 {
   mork_change* outNext = 0;
-  
+
   morkMap* map = mMapIter_Map;
-  
+
   if ( map && map->GoodMap() ) /* map looks good? */
   {
     if ( mMapIter_Seed == map->mMap_Seed ) /* in sync? */
@@ -826,11 +826,11 @@ morkMapIter::Next(morkEnv* ev, void* outKey, void* outVal)
       if ( here ) /* iteration is not yet concluded? */
       {
         morkAssoc* next = mMapIter_Next;
-        morkAssoc* assoc = next; /* default new mMapIter_Assoc */  
+        morkAssoc* assoc = next; /* default new mMapIter_Assoc */
         if ( next ) /* there are more assocs in the same bucket after Here? */
         {
           morkAssoc** ref = mMapIter_AssocRef;
-          
+
           /* (*HereRef) equals Here, except when Here has been cut, after
           ** which (*HereRef) always equals Next.  So if (*HereRef) is not
           ** equal to Next, then HereRef still needs to be updated to point
@@ -838,7 +838,7 @@ morkMapIter::Next(morkEnv* ev, void* outKey, void* outVal)
           */
           if ( *ref != next ) /* Here was not cut? must update HereRef? */
             mMapIter_AssocRef = &here->mAssoc_Next;
-            
+
           mMapIter_Next = next->mAssoc_Next;
         }
         else /* look for the next assoc in the next nonempty bucket */
@@ -848,7 +848,7 @@ morkMapIter::Next(morkEnv* ev, void* outKey, void* outVal)
           mMapIter_Assoc = 0; /* default to no more assocs */
           bucket = mMapIter_Bucket; /* last exhausted bucket */
           mMapIter_Assoc = 0; /* default to iteration ended */
-          
+
           while ( ++bucket < end ) /* another bucket to search for assocs? */
           {
             assoc = *bucket;
@@ -857,7 +857,7 @@ morkMapIter::Next(morkEnv* ev, void* outKey, void* outVal)
               mMapIter_Bucket = bucket;
               mMapIter_AssocRef = bucket; /* ref to assoc */
               mMapIter_Next = assoc->mAssoc_Next; /* more */
-              
+
               break; /* end while loop */
             }
           }
@@ -868,7 +868,7 @@ morkMapIter::Next(morkEnv* ev, void* outKey, void* outVal)
           mork_pos i = assoc - map->mMap_Assocs;
           mork_change* c = map->mMap_Changes;
           outNext = ( c )? (c + i) : map->FormDummyChange();
-        
+
           map->get_assoc( outKey, outVal, i);
         }
       }
@@ -876,7 +876,7 @@ morkMapIter::Next(morkEnv* ev, void* outKey, void* outVal)
     else map->NewIterOutOfSyncError(ev);
   }
   else map->NewBadMapError(ev);
-  
+
   return outNext;
 }
 
@@ -884,9 +884,9 @@ mork_change*
 morkMapIter::Here(morkEnv* ev, void* outKey, void* outVal)
 {
   mork_change* outHere = 0;
-  
+
   morkMap* map = mMapIter_Map;
-  
+
   if ( map && map->GoodMap() ) /* map looks good? */
   {
     if ( mMapIter_Seed == map->mMap_Seed ) /* in sync? */
@@ -897,14 +897,14 @@ morkMapIter::Here(morkEnv* ev, void* outKey, void* outVal)
         mork_pos i = here - map->mMap_Assocs;
         mork_change* c = map->mMap_Changes;
         outHere = ( c )? (c + i) : map->FormDummyChange();
-          
+
         map->get_assoc(outKey, outVal, i);
       }
     }
     else map->NewIterOutOfSyncError(ev);
   }
   else map->NewBadMapError(ev);
-  
+
   return outHere;
 }
 
@@ -913,7 +913,7 @@ morkMapIter::CutHere(morkEnv* ev, void* outKey, void* outVal)
 {
   mork_change* outCutHere = 0;
   morkMap* map = mMapIter_Map;
-  
+
   if ( map && map->GoodMap() ) /* map looks good? */
   {
     if ( mMapIter_Seed == map->mMap_Seed ) /* in sync? */
@@ -929,13 +929,13 @@ morkMapIter::CutHere(morkEnv* ev, void* outKey, void* outVal)
           outCutHere = ( c )? (c + i) : map->FormDummyChange();
           if ( outKey || outVal )
             map->get_assoc(outKey, outVal, i);
-            
+
           map->push_free_assoc(here); /* add to free list */
           *ref = mMapIter_Next; /* unlink here from bucket list */
-          
+
           /* note the map has changed, but we are still in sync: */
           mMapIter_Seed = ++map->mMap_Seed; /* sync */
-          
+
           if ( map->mMap_Fill ) /* still has nonzero value? */
             --map->mMap_Fill; /* one less member in the collection */
           else
@@ -946,7 +946,7 @@ morkMapIter::CutHere(morkEnv* ev, void* outKey, void* outVal)
     else map->NewIterOutOfSyncError(ev);
   }
   else map->NewBadMapError(ev);
-  
+
   return outCutHere;
 }
 

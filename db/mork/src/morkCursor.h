@@ -65,7 +65,7 @@ public: // state is public because the entire Mork system is private
   NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev) override; // called at strong refs zero
   NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen) override;
   // } ----- end ref counting -----
-  
+
 // } ===== end nsIMdbObject methods =====
 
 // { ===== begin nsIMdbCursor methods =====
@@ -82,18 +82,18 @@ public: // state is public because the entire Mork system is private
   // } ----- end attribute methods -----
 
 // } ===== end nsIMdbCursor methods =====
-    
+
   // } ----- end attribute methods -----
 
   mork_seed  mCursor_Seed;
   mork_pos   mCursor_Pos;
   mork_bool  mCursor_DoFailOnSeedOutOfSync;
   mork_u1    mCursor_Pad[ 3 ]; // explicitly pad to u4 alignment
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseCursor() only if open
-  
+
 public: // morkCursor construction & destruction
   morkCursor(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);
   void CloseCursor(morkEnv* ev); // called by CloseMorkNode();
@@ -116,7 +116,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakCursor(morkCursor* me,
     morkEnv* ev, morkCursor** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongCursor(morkCursor* me,
     morkEnv* ev, morkCursor** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

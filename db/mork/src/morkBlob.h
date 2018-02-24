@@ -52,9 +52,9 @@ public:
   morkBlob() { }
   morkBlob(const void* ioBuf, mork_fill inFill, mork_size inSize)
   : morkBuf(ioBuf, inFill), mBlob_Size(inSize) { }
- 
+
   static void BlobFillOverSizeError(morkEnv* ev);
- 
+
 public:
   mork_bool GrowBlob(morkEnv* ev, nsIMdbHeap* ioHeap,
     mork_size inNewSize);
@@ -62,7 +62,7 @@ public:
 private: // copying is not allowed
   morkBlob(const morkBlob& other);
   morkBlob& operator=(const morkBlob& other);
-  
+
 };
 
 /*| Text: a blob with an associated charset annotation, where the
@@ -125,7 +125,7 @@ public:
 
 public:
   morkCoil(morkEnv* ev, nsIMdbHeap* ioHeap);
-  
+
   void CloseCoil(morkEnv* ev);
 
   mork_bool GrowCoil(morkEnv* ev, mork_size inNewSize)

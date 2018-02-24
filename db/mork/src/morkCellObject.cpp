@@ -45,7 +45,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -93,10 +93,10 @@ morkCellObject::morkCellObject(morkEnv* ev, const morkUsage& inUsage,
             mCellObject_Row = ioRow;
             mCellObject_Cell = ioCell;
             mCellObject_RowSeed = ioRow->mRow_Seed;
-            
+
             // morkRowObject::SlotStrongRowObject(rowObj, ev,
             //  &mCellObject_RowObject);
-              
+
             mCellObject_RowObject = rowObj; // assume control of strong ref
           }
           if ( ev->Good() )
@@ -130,7 +130,7 @@ morkCellObject::CloseCellObject(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 mork_bool
 morkCellObject::ResyncWithRow(morkEnv* ev)
@@ -160,7 +160,7 @@ morkCellObject::GetCellAtom(morkEnv* ev) const
     return cell->GetAtom();
   else
     this->NilCellError(ev);
-    
+
   return (morkAtom*) 0;
 }
 
@@ -260,7 +260,7 @@ morkCellObject::CanUseCell(nsIMdbEnv* mev, mork_bool inMutable,
   *outErr = ev->AsErr();
   MORK_ASSERT(outEnv);
   *outCell = cell;
-  
+
   return outEnv;
 }
 
@@ -290,9 +290,9 @@ NS_IMETHODIMP morkCellObject::GetBlobFill(nsIMdbEnv* mev,
 {
   NS_ASSERTION(false, "not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
-}  // size of blob 
+}  // size of blob
 
-NS_IMETHODIMP morkCellObject::SetYarn(nsIMdbEnv* mev, 
+NS_IMETHODIMP morkCellObject::SetYarn(nsIMdbEnv* mev,
   const mdbYarn* inYarn)
 {
   nsresult outErr = NS_OK;
@@ -317,12 +317,12 @@ NS_IMETHODIMP morkCellObject::SetYarn(nsIMdbEnv* mev,
 
     outErr = ev->AsErr();
   }
-    
+
   return outErr;
 }   // reads from yarn slots
 // make this text object contain content from the yarn's buffer
 
-NS_IMETHODIMP morkCellObject::GetYarn(nsIMdbEnv* mev, 
+NS_IMETHODIMP morkCellObject::GetYarn(nsIMdbEnv* mev,
   mdbYarn* outYarn)
 {
   nsresult outErr = NS_OK;
@@ -335,12 +335,12 @@ NS_IMETHODIMP morkCellObject::GetYarn(nsIMdbEnv* mev,
     atom->GetYarn(outYarn);
     outErr = ev->AsErr();
   }
-    
+
   return outErr;
-}  // writes some yarn slots 
+}  // writes some yarn slots
 // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
 
-NS_IMETHODIMP morkCellObject::AliasYarn(nsIMdbEnv* mev, 
+NS_IMETHODIMP morkCellObject::AliasYarn(nsIMdbEnv* mev,
   mdbYarn* outYarn)
 {
   nsresult outErr = NS_OK;
@@ -369,7 +369,7 @@ NS_IMETHODIMP morkCellObject::SetColumn(nsIMdbEnv* mev, mdb_column inColumn)
   NS_ASSERTION(false, "not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
   // remember row->MaybeDirtySpaceStoreAndRow();
-} 
+}
 
 NS_IMETHODIMP morkCellObject::GetColumn(nsIMdbEnv* mev, mdb_column* outColumn)
 {
@@ -389,7 +389,7 @@ NS_IMETHODIMP morkCellObject::GetColumn(nsIMdbEnv* mev, mdb_column* outColumn)
 }
 
 NS_IMETHODIMP morkCellObject::GetCellInfo(  // all cell metainfo except actual content
-  nsIMdbEnv* mev, 
+  nsIMdbEnv* mev,
   mdb_column* outColumn,           // the column in the containing row
   mdb_fill*   outBlobFill,         // the size of text content in bytes
   mdbOid*     outChildOid,         // oid of possible row or table child
@@ -413,7 +413,7 @@ NS_IMETHODIMP morkCellObject::GetRow(nsIMdbEnv* mev, // parent row for this cell
   if ( ev )
   {
     outRow = mCellObject_RowObject->AcquireRowHandle(ev);
-    
+
     outErr = ev->AsErr();
   }
   if ( acqRow )
@@ -470,12 +470,12 @@ NS_IMETHODIMP morkCellObject::HasAnyChild( // does cell have a child instead of 
       if ( isRow || atom->IsTableOid() )
         *outOid = ((morkOidAtom*) atom)->mOidAtom_Oid;
     }
-      
+
     outErr = ev->AsErr();
   }
   if ( outIsRow )
     *outIsRow = isRow;
-    
+
   return outErr;
 }
 

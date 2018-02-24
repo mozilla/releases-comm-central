@@ -51,18 +51,18 @@ morkZone::morkZone(morkEnv* ev, const morkUsage& inUsage,
 , mZone_BlockVolume( 0 )
 , mZone_RunVolume( 0 )
 , mZone_ChipVolume( 0 )
-  
+
 , mZone_FreeOldRunVolume( 0 )
-  
+
 , mZone_HunkCount( 0 )
 , mZone_FreeOldRunCount( 0 )
 
 , mZone_HunkList( 0 )
 , mZone_FreeOldRunList( 0 )
-  
+
 , mZone_At( 0 )
 , mZone_AtSize( 0 )
-    
+
   // morkRun*     mZone_FreeRuns[ morkZone_kBuckets + 1 ];
 {
 
@@ -71,7 +71,7 @@ morkZone::morkZone(morkEnv* ev, const morkUsage& inUsage,
   --runs; // prepare for preincrement
   while ( ++runs < end ) // another slot in array?
     *runs = 0; // clear all the slots
-  
+
   if ( ev->Good() )
   {
     if ( ioZoneHeap )
@@ -94,7 +94,7 @@ void morkZone::CloseZone(morkEnv* ev) // called by CloseMorkNode()
       {
         morkHunk* hunk = 0;
         nsIMdbEnv* mev = ev->AsMdbEnv();
-        
+
         morkHunk* next = mZone_HunkList;
         while ( ( hunk = next ) != 0 )
         {
@@ -153,13 +153,13 @@ mork_size morkZone::zone_grow_at(morkEnv* ev, mork_size inNeededSize)
 {
   mZone_At = 0;       // remove any ref to current hunk
   mZone_AtSize = 0;   // zero available bytes in current hunk
-  
+
   mork_size runSize = 0; // actual size of a particular run
-  
+
   // try to find a run in old run list with at least inNeededSize bytes:
   morkRun* run = mZone_FreeOldRunList; // cursor in list scan
   morkRun* prev = 0; // the node before run in the list scan
- 
+
   while ( run ) // another run in list to check?
   {
     morkOldRun* oldRun = (morkOldRun*) run;
@@ -179,7 +179,7 @@ mork_size morkZone::zone_grow_at(morkEnv* ev, mork_size inNeededSize)
       prev->RunSetNext(next); // unlink run
     else
       mZone_FreeOldRunList = next; // unlink run from head of list
-      
+
     morkOldRun *oldRun = (morkOldRun *) run;
     oldRun->OldSetSize(runSize);
     mZone_At = (mork_u1*) run;
@@ -201,7 +201,7 @@ mork_size morkZone::zone_grow_at(morkEnv* ev, mork_size inNeededSize)
     inNeededSize += 7; // allow for possible alignment padding
     mork_size newSize = ( inNeededSize > morkZone_kNewHunkSize )?
       inNeededSize : morkZone_kNewHunkSize;
-      
+
     morkHunk* hunk = this->zone_new_hunk(ev, newSize);
     if ( hunk )
     {
@@ -218,11 +218,11 @@ mork_size morkZone::zone_grow_at(morkEnv* ev, mork_size inNeededSize)
       mZone_AtSize = newSize;
     }
   }
-  
+
   return mZone_AtSize;
 }
 
-morkHunk* morkZone::zone_new_hunk(morkEnv* ev, mdb_size inSize) // alloc  
+morkHunk* morkZone::zone_new_hunk(morkEnv* ev, mdb_size inSize) // alloc
 {
   mdb_size hunkSize = inSize + sizeof(morkHunk);
   void* outBlock = 0; // we are going straight to the heap:
@@ -232,22 +232,22 @@ morkHunk* morkZone::zone_new_hunk(morkEnv* ev, mdb_size inSize) // alloc
 #ifdef morkZone_CONFIG_VOL_STATS
     mZone_HeapVolume += hunkSize; // track all heap allocations
 #endif /* morkZone_CONFIG_VOL_STATS */
-  
+
     morkHunk* hunk = (morkHunk*) outBlock;
 #ifdef morkHunk_USE_TAG_SLOT
     hunk->HunkInitTag();
 #endif /* morkHunk_USE_TAG_SLOT */
-  
+
     hunk->HunkSetNext(mZone_HunkList);
     mZone_HunkList = hunk;
     ++mZone_HunkCount;
-    
+
     morkRun* run = hunk->HunkRun();
     run->RunSetSize(inSize);
 #ifdef morkRun_USE_TAG_SLOT
     run->RunInitTag();
 #endif /* morkRun_USE_TAG_SLOT */
-    
+
     return hunk;
   }
   if ( ev->Good() ) // got this far without any error reported yet?
@@ -255,12 +255,12 @@ morkHunk* morkZone::zone_new_hunk(morkEnv* ev, mdb_size inSize) // alloc
   return (morkHunk*) 0;
 }
 
-void* morkZone::zone_new_chip(morkEnv* ev, mdb_size inSize) // alloc  
+void* morkZone::zone_new_chip(morkEnv* ev, mdb_size inSize) // alloc
 {
 #ifdef morkZone_CONFIG_VOL_STATS
   mZone_BlockVolume += inSize; // sum sizes of both chips and runs
 #endif /* morkZone_CONFIG_VOL_STATS */
-  
+
   mork_u1* at = mZone_At;
   mork_size atSize = mZone_AtSize; // available bytes in current hunk
   if ( atSize >= inSize ) // current hunk can satisfy request?
@@ -274,7 +274,7 @@ void* morkZone::zone_new_chip(morkEnv* ev, mdb_size inSize) // alloc
     morkHunk* hunk = this->zone_new_hunk(ev, inSize);
     if ( hunk )
       return hunk->HunkRun();
-      
+
     return (void*) 0; // show allocation has failed
   }
   else // get ourselves a new hunk for suballocation:
@@ -289,14 +289,14 @@ void* morkZone::zone_new_chip(morkEnv* ev, mdb_size inSize) // alloc
     mZone_AtSize = atSize - inSize;
     return at;
   }
-  
+
   if ( ev->Good() ) // got this far without any error reported yet?
     ev->OutOfMemoryError();
-    
+
   return (void*) 0; // show allocation has failed
 }
 
-void* morkZone::ZoneNewChip(morkEnv* ev, mdb_size inSize) // alloc  
+void* morkZone::ZoneNewChip(morkEnv* ev, mdb_size inSize) // alloc
 {
 #ifdef morkZone_CONFIG_ARENA
 
@@ -326,11 +326,11 @@ void* morkZone::ZoneNewChip(morkEnv* ev, mdb_size inSize) // alloc
   mZone_Heap->Alloc(ev->AsMdbEnv(), inSize, &outBlock);
   return outBlock;
 #endif /*morkZone_CONFIG_ARENA*/
-  
+
 }
-  
+
 // public: // ...but runs do indeed know how big they are
-void* morkZone::ZoneNewRun(morkEnv* ev, mdb_size inSize) // alloc  
+void* morkZone::ZoneNewRun(morkEnv* ev, mdb_size inSize) // alloc
 {
 #ifdef morkZone_CONFIG_ARENA
 
@@ -367,10 +367,10 @@ void* morkZone::ZoneNewRun(morkEnv* ev, mdb_size inSize) // alloc
 #endif /* morkRun_USE_TAG_SLOT */
     return run->RunAsBlock();
   }
-  
+
   if ( ev->Good() ) // got this far without any error reported yet?
     ev->OutOfMemoryError();
-  
+
   return (void*) 0; // indicate failed allocation
 
 #else /*morkZone_CONFIG_ARENA*/
@@ -458,16 +458,16 @@ void* morkZone::ZoneGrowRun(morkEnv* ev, void* ioRunBlock, mdb_size inSize)
     {
       MORK_MEMCPY(newBuf, ioRunBlock, runSize);
       this->ZoneZapRun(ev, ioRunBlock);
-      
+
       return newBuf;
     }
   }
   else
     return ioRunBlock; // old size is big enough
-  
+
   if ( ev->Good() ) // got this far without any error reported yet?
     ev->OutOfMemoryError();
-  
+
   return (void*) 0; // indicate failed allocation
 
 #else /*morkZone_CONFIG_ARENA*/
@@ -482,7 +482,7 @@ void* morkZone::ZoneGrowRun(morkEnv* ev, void* ioRunBlock, mdb_size inSize)
 // { ===== begin nsIMdbHeap methods =====
 /*virtual*/ nsresult
 morkZone::Alloc(nsIMdbEnv* mev, // allocate a piece of memory
-  mdb_size inSize,   // requested size of new memory block 
+  mdb_size inSize,   // requested size of new memory block
   void** outBlock)  // memory block of inSize bytes, or nil
 {
   nsresult outErr = NS_OK;
@@ -498,10 +498,10 @@ morkZone::Alloc(nsIMdbEnv* mev, // allocate a piece of memory
 
   if ( outBlock )
     *outBlock = block;
-    
+
   return outErr;
 }
-  
+
 /*virtual*/ nsresult
 morkZone::Free(nsIMdbEnv* mev, // free block allocated earlier by Alloc()
   void* inBlock)
@@ -519,7 +519,7 @@ morkZone::Free(nsIMdbEnv* mev, // free block allocated earlier by Alloc()
       // XXX 1 is not a valid nsresult
       outErr = static_cast<nsresult>(1);
   }
-    
+
   return outErr;
 }
 

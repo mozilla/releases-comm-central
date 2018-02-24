@@ -57,8 +57,8 @@ protected: // we want all subclasses to provide typesafe wrappers:
   // the AddNode() boolean return equals ev->Good().
 
   mork_bool  CutNode(morkEnv* ev, mork_token inToken);
-  // The CutNode() boolean return indicates whether removal happened. 
-  
+  // The CutNode() boolean return indicates whether removal happened.
+
   morkNode*  GetNode(morkEnv* ev, mork_token inToken);
   // Note the returned node does NOT have an increase in refcount for this.
 
@@ -71,23 +71,23 @@ class morkNodeMapIter: public morkMapIter{ // typesafe wrapper class
 public:
   morkNodeMapIter(morkEnv* ev, morkNodeMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkNodeMapIter( ) : morkMapIter()  { }
   void InitNodeMapIter(morkEnv* ev, morkNodeMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change*
   FirstNode(morkEnv* ev, mork_token* outToken, morkNode** outNode)
   { return this->First(ev, outToken, outNode); }
-  
+
   mork_change*
   NextNode(morkEnv* ev, mork_token* outToken, morkNode** outNode)
   { return this->Next(ev, outToken, outNode); }
-  
+
   mork_change*
   HereNode(morkEnv* ev, mork_token* outToken, morkNode** outNode)
   { return this->Here(ev, outToken, outNode); }
-  
+
   mork_change*
   CutHereNode(morkEnv* ev, mork_token* outToken, morkNode** outNode)
   { return this->CutHere(ev, outToken, outNode); }

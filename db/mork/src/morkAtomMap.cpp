@@ -41,7 +41,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -68,7 +68,7 @@ morkAtomAidMap::morkAtomAidMap(morkEnv* ev, const morkUsage& inUsage,
 #ifdef MORK_ENABLE_PROBE_MAPS
 : morkProbeMap(ev, inUsage,  ioHeap,
   /*inKeySize*/ sizeof(morkBookAtom*), /*inValSize*/ 0,
-  ioSlotHeap, morkAtomAidMap_kStartSlotCount, 
+  ioSlotHeap, morkAtomAidMap_kStartSlotCount,
   /*inZeroIsClearKey*/ morkBool_kTrue)
 #else /*MORK_ENABLE_PROBE_MAPS*/
 : morkMap(ev, inUsage,  ioHeap,
@@ -98,7 +98,7 @@ morkAtomAidMap::CloseAtomAidMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 #ifdef MORK_ENABLE_PROBE_MAPS
 
@@ -130,7 +130,7 @@ morkAtomAidMap::CloseAtomAidMap(morkEnv* ev) // called by CloseMorkNode();
     }
   }
 
-  /*virtual*/ mork_u4 
+  /*virtual*/ mork_u4
   morkAtomAidMap::ProbeMapHashMapKey(morkEnv* ev,
     const void* inMapKey) const
   {
@@ -145,7 +145,7 @@ morkAtomAidMap::CloseAtomAidMap(morkEnv* ev) // called by CloseMorkNode();
   }
 #else /*MORK_ENABLE_PROBE_MAPS*/
   // { ===== begin morkMap poly interface =====
-  /*virtual*/ mork_bool // 
+  /*virtual*/ mork_bool //
   morkAtomAidMap::Equal(morkEnv* ev, const void* inKeyA,
     const void* inKeyB) const
   {
@@ -154,7 +154,7 @@ morkAtomAidMap::CloseAtomAidMap(morkEnv* ev) // called by CloseMorkNode();
       *(const morkBookAtom**) inKeyB);
   }
 
-  /*virtual*/ mork_u4 // 
+  /*virtual*/ mork_u4 //
   morkAtomAidMap::Hash(morkEnv* ev, const void* inKey) const
   {
     MORK_USED_1(ev);
@@ -170,10 +170,10 @@ morkAtomAidMap::AddAtom(morkEnv* ev, morkBookAtom* ioAtom)
   if ( ev->Good() )
   {
 #ifdef MORK_ENABLE_PROBE_MAPS
-    this->MapAtPut(ev, &ioAtom, /*val*/ (void*) 0, 
+    this->MapAtPut(ev, &ioAtom, /*val*/ (void*) 0,
       /*key*/ (void*) 0, /*val*/ (void*) 0);
 #else /*MORK_ENABLE_PROBE_MAPS*/
-    this->Put(ev, &ioAtom, /*val*/ (void*) 0, 
+    this->Put(ev, &ioAtom, /*val*/ (void*) 0,
       /*key*/ (void*) 0, /*val*/ (void*) 0, (mork_change**) 0);
 #endif /*MORK_ENABLE_PROBE_MAPS*/
   }
@@ -184,7 +184,7 @@ morkBookAtom*
 morkAtomAidMap::CutAtom(morkEnv* ev, const morkBookAtom* inAtom)
 {
   morkBookAtom* oldKey = 0;
-  
+
 #ifdef MORK_ENABLE_PROBE_MAPS
   MORK_USED_1(inAtom);
   morkProbeMap::ProbeMapCutError(ev);
@@ -192,7 +192,7 @@ morkAtomAidMap::CutAtom(morkEnv* ev, const morkBookAtom* inAtom)
   this->Cut(ev, &inAtom, &oldKey, /*val*/ (void*) 0,
     (mork_change**) 0);
 #endif /*MORK_ENABLE_PROBE_MAPS*/
-    
+
   return oldKey;
 }
 
@@ -206,7 +206,7 @@ morkAtomAidMap::GetAtom(morkEnv* ev, const morkBookAtom* inAtom)
 #else /*MORK_ENABLE_PROBE_MAPS*/
   this->Get(ev, &inAtom, &key, /*val*/ (void*) 0, (mork_change**) 0);
 #endif /*MORK_ENABLE_PROBE_MAPS*/
-  
+
   return key;
 }
 
@@ -222,7 +222,7 @@ morkAtomAidMap::GetAid(morkEnv* ev, mork_aid inAid)
 #else /*MORK_ENABLE_PROBE_MAPS*/
   this->Get(ev, &key, &oldKey, /*val*/ (void*) 0, (mork_change**) 0);
 #endif /*MORK_ENABLE_PROBE_MAPS*/
-  
+
   return oldKey;
 }
 
@@ -231,7 +231,7 @@ morkAtomAidMap::GetAid(morkEnv* ev, mork_aid inAid)
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -258,7 +258,7 @@ morkAtomBodyMap::morkAtomBodyMap(morkEnv* ev, const morkUsage& inUsage,
 #ifdef MORK_ENABLE_PROBE_MAPS
 : morkProbeMap(ev, inUsage,  ioHeap,
   /*inKeySize*/ sizeof(morkBookAtom*), /*inValSize*/ 0,
-  ioSlotHeap, morkAtomBodyMap_kStartSlotCount, 
+  ioSlotHeap, morkAtomBodyMap_kStartSlotCount,
   /*inZeroIsClearKey*/ morkBool_kTrue)
 #else /*MORK_ENABLE_PROBE_MAPS*/
 : morkMap(ev, inUsage,  ioHeap,
@@ -288,7 +288,7 @@ morkAtomBodyMap::CloseAtomBodyMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 #ifdef MORK_ENABLE_PROBE_MAPS
 
   /*virtual*/ mork_test // hit(a,b) implies hash(a) == hash(b)
@@ -315,7 +315,7 @@ morkAtomBodyMap::CloseAtomBodyMap(morkEnv* ev) // called by CloseMorkNode();
       return 0;
   }
 
-  /*virtual*/ mork_u4 
+  /*virtual*/ mork_u4
   morkAtomBodyMap::ProbeMapHashMapKey(morkEnv* ev, const void* inMapKey) const
   {
     const morkBookAtom* key = *(const morkBookAtom**) inMapKey;
@@ -326,7 +326,7 @@ morkAtomBodyMap::CloseAtomBodyMap(morkEnv* ev) // called by CloseMorkNode();
   }
 #else /*MORK_ENABLE_PROBE_MAPS*/
   // { ===== begin morkMap poly interface =====
-  /*virtual*/ mork_bool // 
+  /*virtual*/ mork_bool //
   morkAtomBodyMap::Equal(morkEnv* ev, const void* inKeyA,
     const void* inKeyB) const
   {
@@ -334,7 +334,7 @@ morkAtomBodyMap::CloseAtomBodyMap(morkEnv* ev) // called by CloseMorkNode();
       *(const morkBookAtom**) inKeyB);
   }
 
-  /*virtual*/ mork_u4 // 
+  /*virtual*/ mork_u4 //
   morkAtomBodyMap::Hash(morkEnv* ev, const void* inKey) const
   {
     return (*(const morkBookAtom**) inKey)->HashFormAndBody(ev);
@@ -349,10 +349,10 @@ morkAtomBodyMap::AddAtom(morkEnv* ev, morkBookAtom* ioAtom)
   if ( ev->Good() )
   {
 #ifdef MORK_ENABLE_PROBE_MAPS
-    this->MapAtPut(ev, &ioAtom, /*val*/ (void*) 0, 
+    this->MapAtPut(ev, &ioAtom, /*val*/ (void*) 0,
       /*key*/ (void*) 0, /*val*/ (void*) 0);
 #else /*MORK_ENABLE_PROBE_MAPS*/
-    this->Put(ev, &ioAtom, /*val*/ (void*) 0, 
+    this->Put(ev, &ioAtom, /*val*/ (void*) 0,
       /*key*/ (void*) 0, /*val*/ (void*) 0, (mork_change**) 0);
 #endif /*MORK_ENABLE_PROBE_MAPS*/
   }
@@ -371,7 +371,7 @@ morkAtomBodyMap::CutAtom(morkEnv* ev, const morkBookAtom* inAtom)
   this->Cut(ev, &inAtom, &oldKey, /*val*/ (void*) 0,
     (mork_change**) 0);
 #endif /*MORK_ENABLE_PROBE_MAPS*/
-    
+
   return oldKey;
 }
 
@@ -384,7 +384,7 @@ morkAtomBodyMap::GetAtom(morkEnv* ev, const morkBookAtom* inAtom)
 #else /*MORK_ENABLE_PROBE_MAPS*/
   this->Get(ev, &inAtom, &key, /*val*/ (void*) 0, (mork_change**) 0);
 #endif /*MORK_ENABLE_PROBE_MAPS*/
-  
+
   return key;
 }
 
@@ -409,7 +409,7 @@ morkAtomRowMap::morkAtomRowMap(morkEnv* ev, const morkUsage& inUsage,
 }
 
 void morkAtomRowMap::AddRow(morkEnv* ev, morkRow* ioRow)
-// add ioRow only if it contains a cell in mAtomRowMap_IndexColumn. 
+// add ioRow only if it contains a cell in mAtomRowMap_IndexColumn.
 {
   mork_aid aid = ioRow->GetCellAtomAid(ev, mAtomRowMap_IndexColumn);
   if ( aid )
@@ -417,7 +417,7 @@ void morkAtomRowMap::AddRow(morkEnv* ev, morkRow* ioRow)
 }
 
 void morkAtomRowMap::CutRow(morkEnv* ev, morkRow* ioRow)
-// cut ioRow only if it contains a cell in mAtomRowMap_IndexColumn. 
+// cut ioRow only if it contains a cell in mAtomRowMap_IndexColumn.
 {
   mork_aid aid = ioRow->GetCellAtomAid(ev, mAtomRowMap_IndexColumn);
   if ( aid )

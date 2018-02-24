@@ -49,7 +49,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -97,7 +97,7 @@ morkAtomSpace::CloseAtomSpace(morkEnv* ev) // called by CloseMorkNode();
       morkStore* store = mSpace_Store;
       if ( store )
         this->CutAllAtoms(ev, &store->mStore_Pool);
-      
+
       mAtomSpace_AtomAids.CloseMorkNode(ev);
       this->CloseSpace(ev);
       mAtomSpace_HighUnderId = 0;
@@ -109,7 +109,7 @@ morkAtomSpace::CloseAtomSpace(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ void
 morkAtomSpace::NonAtomSpaceTypeError(morkEnv* ev)
@@ -126,10 +126,10 @@ morkAtomSpace::CutAllAtoms(morkEnv* ev, morkPool* ioPool)
 #else /*MORK_ENABLE_ZONE_ARENAS*/
   if ( this->IsAtomSpaceClean() )
     this->MaybeDirtyStoreAndSpace();
-  
+
   mork_num outSlots = mAtomSpace_AtomAids.MapFill();
   morkBookAtom* a = 0; // old key atom in the map
-  
+
   morkStore* store = mSpace_Store;
   mork_change* c = 0;
   morkAtomAidMapIter i(ev, &mAtomSpace_AtomAids);
@@ -144,7 +144,7 @@ morkAtomSpace::CutAllAtoms(morkEnv* ev, morkPool* ioPool)
     i.CutHereAtom(ev, /*key*/ (morkBookAtom**) 0);
 #endif /*MORK_ENABLE_PROBE_MAPS*/
   }
-  
+
   return outSlots;
 #endif /*MORK_ENABLE_ZONE_ARENAS*/
 }
@@ -169,7 +169,7 @@ morkAtomSpace::MakeBookAtomCopyWithAid(morkEnv* ev,
         if ( this->IsAtomSpaceClean() )
           this->MaybeDirtyStoreAndSpace();
       }
-  
+
       outAtom->mBookAtom_Id = inAid;
       outAtom->mBookAtom_Space = this;
       mAtomSpace_AtomAids.AddAtom(ev, outAtom);
@@ -207,8 +207,8 @@ morkAtomSpace::MakeBookAtomCopy(morkEnv* ev, const morkFarBookAtom& inAtom)
             if ( this->IsAtomSpaceClean() )
               this->MaybeDirtyStoreAndSpace();
           }
-            
-          outAtom = atom; 
+
+          outAtom = atom;
           atom->mBookAtom_Space = this;
           mAtomSpace_AtomAids.AddAtom(ev, atom);
           mAtomSpace_AtomBodies.AddAtom(ev, atom);
@@ -232,7 +232,7 @@ morkAtomSpace::MakeNewAtomId(morkEnv* ev, morkBookAtom* ioAtom)
   mork_aid outAid = 0;
   mork_tid id = mAtomSpace_HighUnderId;
   mork_num count = 8; // try up to eight times
-  
+
   while ( !outAid && count ) // still trying to find an unused table ID?
   {
     --count;
@@ -245,7 +245,7 @@ morkAtomSpace::MakeNewAtomId(morkEnv* ev, morkBookAtom* ioAtom)
       ++id;
     }
   }
-  
+
   mAtomSpace_HighUnderId = id + 1;
   return outAid;
 }

@@ -87,9 +87,9 @@ typedef mdb_i4 mdb_pos; // signed zero-based ordinal collection position
 #define mdbPos_kBeforeFirst ((mdb_pos) -1) /* any negative is before zero */
 
 // order is also signed, so we can use three states for comparison order:
-typedef mdb_i4 mdb_order; // neg:lessthan, zero:equalto, pos:greaterthan 
+typedef mdb_i4 mdb_order; // neg:lessthan, zero:equalto, pos:greaterthan
 
-typedef mdb_order (* mdbAny_Order)(const void* inA, const void* inB, 
+typedef mdb_order (* mdbAny_Order)(const void* inA, const void* inB,
   const void* inClosure);
 
 // } %%%%% end scalar typedefs %%%%%
@@ -112,13 +112,13 @@ typedef struct mdbScopeStringSet mdbScopeStringSet;
 **| to handle accessing row scopes not in this list, rather than raising errors.
 **| But it could be quite expensive to access a row scope not on the list.
 **| Note a zero count for the string set means no such string set is being
-**| specified, and that a db should handle all row scopes efficiently. 
+**| specified, and that a db should handle all row scopes efficiently.
 **| (It does NOT mean an app plans to use no content whatsoever.)
 |*/
 #ifndef mdbScopeStringSet_struct
 #define mdbScopeStringSet_struct 1
 struct mdbScopeStringSet { // vector of scopes for use in db opening policy
-  // when mScopeStringSet_Count is zero, this means no scope constraints 
+  // when mScopeStringSet_Count is zero, this means no scope constraints
   mdb_count     mScopeStringSet_Count;    // number of strings in vector below
   const char**  mScopeStringSet_Strings;  // null-ended ascii scope strings
 };
@@ -300,7 +300,7 @@ typedef void (* mdbYarn_mGrow)(mdbYarn* self, mdb_size inNewSize);
 **|
 **|| mYarn_Grow: either a mdbYarn_mGrow method, or else nil.  When
 **| a mdbYarn_mGrow method is provided, this method can be used to
-**| request a yarn buf size increase.  A caller who constructs the 
+**| request a yarn buf size increase.  A caller who constructs the
 **| original mdbYarn instance decides whether a grow method is necessary
 **| or desirable, and uses only grow methods suitable for the buffering
 **| nature of a specific mdbYarn instance.  (For example, Buf might be a
@@ -319,7 +319,7 @@ struct mdbYarn { // buffer with caller space allocation semantics
   mdb_more      mYarn_More;  // more available bytes if Buf is bigger
   mdb_cscode    mYarn_Form;  // charset format encoding
   mdbYarn_mGrow mYarn_Grow;  // optional method to grow mYarn_Buf
-  
+
   // Subclasses might add further slots after mYarn_Grow in order to
   // maintain bookkeeping needs, such as state info about mYarn_Buf.
 };
@@ -383,12 +383,12 @@ public:
   // } ----- end attribute methods -----
 
   // { ----- begin factory methods -----
-  NS_IMETHOD GetMdbFactory(nsIMdbEnv* ev, nsIMdbFactory** acqFactory) = 0; 
+  NS_IMETHOD GetMdbFactory(nsIMdbEnv* ev, nsIMdbFactory** acqFactory) = 0;
   // } ----- end factory methods -----
 
   // { ----- begin ref counting for well-behaved cyclic graphs -----
   NS_IMETHOD GetWeakRefCount(nsIMdbEnv* ev, // weak refs
-    mdb_count* outCount) = 0;  
+    mdb_count* outCount) = 0;
   NS_IMETHOD GetStrongRefCount(nsIMdbEnv* ev, // strong refs
     mdb_count* outCount) = 0;
 
@@ -397,11 +397,11 @@ public:
 
   NS_IMETHOD CutWeakRef(nsIMdbEnv* ev) = 0;
   NS_IMETHOD CutStrongRef(nsIMdbEnv* ev) = 0;
-  
+
   NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev) = 0; // called at strong refs zero
   NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen) = 0;
   // } ----- end ref counting -----
-  
+
 // } ===== end nsIMdbObject methods =====
 };
 
@@ -438,7 +438,7 @@ public:
 // } ===== end abort hint methods =====
 };
 
-/*| nsIMdbHeap: abstract memory allocation interface. 
+/*| nsIMdbHeap: abstract memory allocation interface.
 **|
 **|| Alloc: return a block at least inSize bytes in size with alignment
 **| suitable for any native type (such as long integers).  When no such
@@ -453,9 +453,9 @@ class nsIMdbHeap { // caller-supplied memory management interface
 public:
 // { ===== begin nsIMdbHeap methods =====
   NS_IMETHOD Alloc(nsIMdbEnv* ev, // allocate a piece of memory
-    mdb_size inSize,        // requested byte size of new memory block 
+    mdb_size inSize,        // requested byte size of new memory block
     void** outBlock) = 0;   // memory block of inSize bytes, or nil
-    
+
   NS_IMETHOD Free(nsIMdbEnv* ev, // free block from Alloc or Resize()
     void* ioBlock) = 0;     // block to be destroyed/deallocated
 
@@ -465,25 +465,25 @@ public:
 // } ===== end nsIMdbHeap methods =====
 };
 
-/*| nsIMdbCPlusHeap: Alloc() with global ::new(), Free() with global ::delete(). 
+/*| nsIMdbCPlusHeap: Alloc() with global ::new(), Free() with global ::delete().
 **| Resize() is done by ::new() followed by ::delete().
 |*/
 class nsIMdbCPlusHeap { // caller-supplied memory management interface
 public:
 // { ===== begin nsIMdbHeap methods =====
   NS_IMETHOD Alloc(nsIMdbEnv* ev, // allocate a piece of memory
-    mdb_size inSize,   // requested size of new memory block 
+    mdb_size inSize,   // requested size of new memory block
     void** outBlock);  // memory block of inSize bytes, or nil
-    
+
   NS_IMETHOD Free(nsIMdbEnv* ev, // free block allocated earlier by Alloc()
     void* inBlock);
-    
+
   NS_IMETHOD HeapAddStrongRef(nsIMdbEnv* ev);
   NS_IMETHOD HeapCutStrongRef(nsIMdbEnv* ev);
 // } ===== end nsIMdbHeap methods =====
 };
 
-/*| nsIMdbThumb: 
+/*| nsIMdbThumb:
 |*/
 
 
@@ -505,14 +505,14 @@ public:
     mdb_bool* outDone,      // is operation finished?
     mdb_bool* outBroken     // is operation irreparably dead and broken?
   ) = 0;
-  
+
   NS_IMETHOD DoMore(nsIMdbEnv* ev,
     mdb_count* outTotal,    // total somethings to do in operation
     mdb_count* outCurrent,  // subportion of total completed so far
     mdb_bool* outDone,      // is operation finished?
     mdb_bool* outBroken     // is operation irreparably dead and broken?
   ) = 0;
-  
+
   NS_IMETHOD CancelAndBreakThumb( // cancel pending operation
     nsIMdbEnv* ev) = 0;
 // } ===== end nsIMdbThumb methods =====
@@ -531,7 +531,7 @@ NS_DEFINE_STATIC_IID_ACCESSOR(nsIMdbThumb, NS_IMDBTHUMB_IID)
 **| instances of nsIMdbEnv.  Callers can stop at one nsIMdbEnv per thread, or they
 **| might decide to make on nsIMdbEnv instance for every nsIMdbPort opened, so that
 **| error information is segregated by database instance.  Callers create
-**| instances of nsIMdbEnv by calling the MakeEnv() method in nsIMdbFactory. 
+**| instances of nsIMdbEnv by calling the MakeEnv() method in nsIMdbFactory.
 **|
 **|| tracing: an environment might support some kind of tracing, and this
 **| boolean attribute permits such activity to be enabled or disabled.
@@ -567,25 +567,25 @@ public:
     mdb_bool* outShouldAbort) = 0;
   NS_IMETHOD GetWarningCount(mdb_count* outCount,
     mdb_bool* outShouldAbort) = 0;
-  
+
   NS_IMETHOD GetEnvBeVerbose(mdb_bool* outBeVerbose) = 0;
   NS_IMETHOD SetEnvBeVerbose(mdb_bool inBeVerbose) = 0;
-  
+
   NS_IMETHOD GetDoTrace(mdb_bool* outDoTrace) = 0;
   NS_IMETHOD SetDoTrace(mdb_bool inDoTrace) = 0;
-  
+
   NS_IMETHOD GetAutoClear(mdb_bool* outAutoClear) = 0;
   NS_IMETHOD SetAutoClear(mdb_bool inAutoClear) = 0;
-  
+
   NS_IMETHOD GetErrorHook(nsIMdbErrorHook** acqErrorHook) = 0;
   NS_IMETHOD SetErrorHook(
     nsIMdbErrorHook* ioErrorHook) = 0; // becomes referenced
-  
+
   NS_IMETHOD GetHeap(nsIMdbHeap** acqHeap) = 0;
   NS_IMETHOD SetHeap(
     nsIMdbHeap* ioHeap) = 0; // becomes referenced
   // } ----- end attribute methods -----
-  
+
   NS_IMETHOD ClearErrors() = 0; // clear errors beore re-entering db API
   NS_IMETHOD ClearWarnings() = 0; // clear warnings
   NS_IMETHOD ClearErrorsAndWarnings() = 0; // clear both errors & warnings
@@ -638,7 +638,7 @@ NS_DEFINE_STATIC_IID_ACCESSOR(nsIMdbEnv, NS_IMDBENV_IID)
 **| stores is a subset of the set of files that can be opened as ports.  A
 **| new store can be created with CreateNewFileStore() by supplying a new
 **| file name which does not yet exist (callers are always responsible for
-**| destroying any existing files before calling this method). 
+**| destroying any existing files before calling this method).
 |*/
 
 #define NS_IMDBFACTORY_IID_STR "2b80395c-b91e-4990-b1a7-023e99ab14e9"
@@ -690,7 +690,7 @@ public:
   NS_IMETHOD MakeRow(nsIMdbEnv* ev, nsIMdbHeap* ioHeap, nsIMdbRow** acqRow) = 0; // new row
   // ioHeap can be nil, causing the heap associated with ev to be used
   // } ----- end row methods -----
-  
+
   // { ----- begin port methods -----
   NS_IMETHOD CanOpenFilePort(
     nsIMdbEnv* ev, // context
@@ -699,7 +699,7 @@ public:
     nsIMdbFile* ioFile, // db abstract file interface
     mdb_bool* outCanOpen, // whether OpenFilePort() might succeed
     mdbYarn* outFormatVersion) = 0; // informal file format description
-    
+
   NS_IMETHOD OpenFilePort(
     nsIMdbEnv* ev, // context
     nsIMdbHeap* ioHeap, // can be nil to cause ev's heap attribute to be used
@@ -715,7 +715,7 @@ public:
     nsIMdbThumb* ioThumb, // thumb from OpenFilePort() with done status
     nsIMdbPort** acqPort) = 0; // acquire new port object
   // } ----- end port methods -----
-  
+
   // { ----- begin store methods -----
   NS_IMETHOD CanOpenFileStore(
     nsIMdbEnv* ev, // context
@@ -725,7 +725,7 @@ public:
     mdb_bool* outCanOpenAsStore, // whether OpenFileStore() might succeed
     mdb_bool* outCanOpenAsPort, // whether OpenFilePort() might succeed
     mdbYarn* outFormatVersion) = 0; // informal file format description
-    
+
   NS_IMETHOD OpenFileStore( // open an existing database
     nsIMdbEnv* ev, // context
     nsIMdbHeap* ioHeap, // can be nil to cause ev's heap attribute to be used
@@ -735,13 +735,13 @@ public:
     nsIMdbThumb** acqThumb) = 0; // acquire thumb for incremental store open
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then call nsIMdbFactory::ThumbToOpenStore() to get the store instance.
-    
+
   NS_IMETHOD
   ThumbToOpenStore( // redeem completed thumb from OpenFileStore()
     nsIMdbEnv* ev, // context
     nsIMdbThumb* ioThumb, // thumb from OpenFileStore() with done status
     nsIMdbStore** acqStore) = 0; // acquire new db store object
-  
+
   NS_IMETHOD CreateNewFileStore( // create a new db with minimal content
     nsIMdbEnv* ev, // context
     nsIMdbHeap* ioHeap, // can be nil to cause ev's heap attribute to be used
@@ -756,7 +756,7 @@ public:
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIMdbFactory, NS_IMDBFACTORY_IID)
 
-extern "C" nsIMdbFactory* MakeMdbFactory(); 
+extern "C" nsIMdbFactory* MakeMdbFactory();
 
 /*| nsIMdbFile: abstract file interface resembling the original morkFile
 **| abstract interface (which was in turn modeled on the file interface
@@ -827,7 +827,7 @@ public:
   NS_IMETHOD Get(nsIMdbEnv* ev, void* outBuf, mdb_size inSize,
     mdb_pos inPos, mdb_size* outActualSize) = 0;
   // } ----- end read methods -----
-    
+
   // { ----- begin write methods -----
   NS_IMETHOD  Write(nsIMdbEnv* ev, const void* inBuf, mdb_size inSize,
     mdb_size* outActualSize) = 0;
@@ -835,11 +835,11 @@ public:
     mdb_pos inPos, mdb_size* outActualSize) = 0;
   NS_IMETHOD  Flush(nsIMdbEnv* ev) = 0;
   // } ----- end attribute methods -----
-    
+
   // { ----- begin path methods -----
   NS_IMETHOD  Path(nsIMdbEnv* ev, mdbYarn* outFilePath) = 0;
   // } ----- end path methods -----
-    
+
   // { ----- begin replacement methods -----
   NS_IMETHOD  Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief) = 0;
   NS_IMETHOD  Thief(nsIMdbEnv* ev, nsIMdbFile** acqThief) = 0;
@@ -946,14 +946,14 @@ public:
   NS_IMETHOD GetIsStore(nsIMdbEnv* ev, mdb_bool* outBool) = 0;
   NS_IMETHOD GetIsStoreAndDirty(nsIMdbEnv* ev, mdb_bool* outBool) = 0;
 
-  NS_IMETHOD GetUsagePolicy(nsIMdbEnv* ev, 
+  NS_IMETHOD GetUsagePolicy(nsIMdbEnv* ev,
     mdbUsagePolicy* ioUsagePolicy) = 0;
 
-  NS_IMETHOD SetUsagePolicy(nsIMdbEnv* ev, 
+  NS_IMETHOD SetUsagePolicy(nsIMdbEnv* ev,
     const mdbUsagePolicy* inUsagePolicy) = 0;
   // } ----- end attribute methods -----
 
-  // { ----- begin memory policy methods -----  
+  // { ----- begin memory policy methods -----
   NS_IMETHOD IdleMemoryPurge( // do memory management already scheduled
     nsIMdbEnv* ev, // context
     mdb_size* outEstimatedBytesFreed) = 0; // approximate bytes actually freed
@@ -973,7 +973,7 @@ public:
     nsIMdbEnv* ev, // context
     mdbYarn* outFilePath, // name of file holding port content
     mdbYarn* outFormatVersion) = 0; // file format description
-    
+
   NS_IMETHOD GetPortFile(
     nsIMdbEnv* ev, // context
     nsIMdbFile** acqFile) = 0; // acquire file used by port or store
@@ -1023,12 +1023,12 @@ public:
     nsIMdbEnv* ev, // context
     mdb_token inToken, // token for inTokenName inside this port
     mdbYarn* outTokenName) = 0; // the type of table to access
-  
+
   NS_IMETHOD StringToToken( // return an integer token for scope name
     nsIMdbEnv* ev, // context
     const char* inTokenName, // Latin1 string to tokenize if possible
     mdb_token* outToken) = 0; // token for inTokenName inside this port
-    
+
   // String token zero is never used and never supported. If the port
   // is a mutable store, then StringToToken() to create a new
   // association of inTokenName with a new integer token if possible.
@@ -1038,29 +1038,29 @@ public:
     nsIMdbEnv* ev, // context
     const char* inTokenName, // Latin1 string to tokenize if possible
     mdb_token* outToken) = 0; // token for inTokenName inside this port
-  
+
   // QueryToken() will return a string token if one already exists,
   // but unlike StringToToken(), will not assign a new token if not
   // already in use.
 
   // } ----- end token methods -----
 
-  // { ----- begin row methods -----  
+  // { ----- begin row methods -----
   NS_IMETHOD HasRow( // contains a row with the specified oid?
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
     mdb_bool* outHasRow) = 0; // whether GetRow() might succeed
 
-  NS_IMETHOD GetRowRefCount( // get number of tables that contain a row 
+  NS_IMETHOD GetRowRefCount( // get number of tables that contain a row
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
-    mdb_count* outRefCount) = 0; // number of tables containing inRowKey 
-    
+    mdb_count* outRefCount) = 0; // number of tables containing inRowKey
+
   NS_IMETHOD GetRow( // access one row with specific oid
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
     nsIMdbRow** acqRow) = 0; // acquire specific row (or null)
-    
+
   // NS_IMETHOD
   // GetPortRowCursor( // get cursor for all rows in specific scope
   //   nsIMdbEnv* ev, // context
@@ -1107,38 +1107,38 @@ public:
   // all rows by the specified column.
   // } ----- end row methods -----
 
-  // { ----- begin table methods -----  
+  // { ----- begin table methods -----
   NS_IMETHOD HasTable( // supports a table with the specified oid?
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical table oid
     mdb_bool* outHasTable) = 0; // whether GetTable() might succeed
-    
+
   NS_IMETHOD GetTable( // access one table with specific oid
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical table oid
     nsIMdbTable** acqTable) = 0; // acquire specific table (or null)
-  
+
   NS_IMETHOD HasTableKind( // supports a table of the specified type?
     nsIMdbEnv* ev, // context
     mdb_scope inRowScope, // rid scope for row ids
     mdb_kind inTableKind, // the type of table to access
     mdb_count* outTableCount, // current number of such tables
     mdb_bool* outSupportsTable) = 0; // whether GetTableKind() might succeed
-    
+
   // row scopes to be supported include the following suggestions:
   // "ns:msg:db:row:scope:address:cards:all"
   // "ns:msg:db:row:scope:mail:messages:all"
   // "ns:msg:db:row:scope:news:articles:all"
- 
+
   // table kinds to be supported include the following suggestions:
   // "ns:msg:db:table:kind:address:cards:main"
-  // "ns:msg:db:table:kind:address:lists:all" 
-  // "ns:msg:db:table:kind:address:list" 
-  // "ns:msg:db:table:kind:news:threads:all" 
-  // "ns:msg:db:table:kind:news:thread" 
+  // "ns:msg:db:table:kind:address:lists:all"
+  // "ns:msg:db:table:kind:address:list"
+  // "ns:msg:db:table:kind:news:threads:all"
+  // "ns:msg:db:table:kind:news:thread"
   // "ns:msg:db:table:kind:mail:threads:all"
   // "ns:msg:db:table:kind:mail:thread"
-    
+
   NS_IMETHOD GetTableKind( // access one (random) table of specific type
     nsIMdbEnv* ev, // context
     mdb_scope inRowScope,      // row scope for row ids
@@ -1146,7 +1146,7 @@ public:
     mdb_count* outTableCount, // current number of such tables
     mdb_bool* outMustBeUnique, // whether port can hold only one of these
     nsIMdbTable** acqTable) = 0;       // acquire scoped collection of rows
-    
+
   NS_IMETHOD
   GetPortTableCursor( // get cursor for all tables of specific type
     nsIMdbEnv* ev, // context
@@ -1166,7 +1166,7 @@ public:
   // ShouldCompress() returns true if the store can determine that the file
   // will shrink by an estimated percentage of inPercentWaste% (or more) if
   // CompressCommit() is called, because that percentage of the file seems
-  // to be recoverable free space.  The granularity is only in terms of 
+  // to be recoverable free space.  The granularity is only in terms of
   // percentage points, and any value over 100 is considered equal to 100.
   //
   // If a store only has an approximate idea how much space might be saved
@@ -1215,7 +1215,7 @@ public:
   // larger a file gets, the more important the percentage waste involved, so
   // a sliding scale for compress thresholds might use smaller numbers for
   // much bigger file sizes.)
-  
+
   // } ----- end commit methods -----
 
 // } ===== end nsIMdbPort methods =====
@@ -1247,7 +1247,7 @@ public:
 **| must change later because it is unacceptable in some contexts.
 **|
 **|| commits: to manage modifications in a mutable store, very few methods are
-**| really needed to indicate global policy choices that are independent of 
+**| really needed to indicate global policy choices that are independent of
 **| the actual modifications that happen in objects at the level of tables,
 **| rows, and cells, etc.  The most important policy to specify is which sets
 **| of changes are considered associated in a manner such that they should be
@@ -1305,13 +1305,13 @@ public:
     mdb_bool inMustBeUnique, // whether store can hold only one of these
     const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
     nsIMdbTable** acqTable) = 0;     // acquire scoped collection of rows
-    
+
   NS_IMETHOD NewTableWithOid( // make one new table of specific type
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,   // caller assigned oid
     mdb_kind inTableKind,    // the type of table to access
     mdb_bool inMustBeUnique, // whether store can hold only one of these
-    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
     nsIMdbTable** acqTable) = 0;     // acquire scoped collection of rows
   // } ----- end table methods -----
 
@@ -1400,7 +1400,7 @@ public:
   // then the commit will be finished.  Note the store is effectively write
   // locked until commit is finished or canceled through the thumb instance.
   // Until the commit is done, the store will report it has readonly status.
-  
+
   // } ----- end commit methods -----
 
 // } ===== end nsIMdbStore methods =====
@@ -1446,10 +1446,10 @@ public:
   // { ----- begin attribute methods -----
   NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount) = 0; // readonly
   NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed) = 0;    // readonly
-  
+
   NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos) = 0;   // mutable
   NS_IMETHOD GetPos(nsIMdbEnv* ev, mdb_pos* outPos) = 0;
-  
+
   NS_IMETHOD SetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool inFail) = 0;
   NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool* outFail) = 0;
   // } ----- end attribute methods -----
@@ -1481,12 +1481,12 @@ public:
   // { ----- begin attribute methods -----
   NS_IMETHOD SetPort(nsIMdbEnv* ev, nsIMdbPort* ioPort) = 0; // sets pos to -1
   NS_IMETHOD GetPort(nsIMdbEnv* ev, nsIMdbPort** acqPort) = 0;
-  
+
   NS_IMETHOD SetRowScope(nsIMdbEnv* ev, // sets pos to -1
     mdb_scope inRowScope) = 0;
-  NS_IMETHOD GetRowScope(nsIMdbEnv* ev, mdb_scope* outRowScope) = 0; 
+  NS_IMETHOD GetRowScope(nsIMdbEnv* ev, mdb_scope* outRowScope) = 0;
   // setting row scope to zero iterates over all row scopes in port
-    
+
   NS_IMETHOD SetTableKind(nsIMdbEnv* ev, // sets pos to -1
     mdb_kind inTableKind) = 0;
   NS_IMETHOD GetTableKind(nsIMdbEnv* ev, mdb_kind* outTableKind) = 0;
@@ -1712,18 +1712,18 @@ public:
   // { ----- begin meta attribute methods -----
   NS_IMETHOD SetTablePriority(nsIMdbEnv* ev, mdb_priority inPrio) = 0;
   NS_IMETHOD GetTablePriority(nsIMdbEnv* ev, mdb_priority* outPrio) = 0;
-  
+
   NS_IMETHOD GetTableBeVerbose(nsIMdbEnv* ev, mdb_bool* outBeVerbose) = 0;
   NS_IMETHOD SetTableBeVerbose(nsIMdbEnv* ev, mdb_bool inBeVerbose) = 0;
-  
+
   NS_IMETHOD GetTableIsUnique(nsIMdbEnv* ev, mdb_bool* outIsUnique) = 0;
-  
+
   NS_IMETHOD GetTableKind(nsIMdbEnv* ev, mdb_kind* outTableKind) = 0;
   NS_IMETHOD GetRowScope(nsIMdbEnv* ev, mdb_scope* outRowScope) = 0;
-  
+
   NS_IMETHOD GetMetaRow(
     nsIMdbEnv* ev, // context
-    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
     mdbOid* outOid, // output meta row oid, can be nil to suppress output
     nsIMdbRow** acqRow) = 0; // acquire table's unique singleton meta row
     // The purpose of a meta row is to support the persistent recording of
@@ -1768,12 +1768,12 @@ public:
     nsIMdbEnv* ev, // context
     const mdbOid* inOid, // row to find in table
     mdb_pos* outPos) = 0; // zero-based ordinal position of row in table
-    
+
   NS_IMETHOD PosToRow( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     mdb_pos inRowPos, // zero-based ordinal position of row in table
     nsIMdbRow** acqRow) = 0; // acquire row at table position inRowPos
-    
+
   NS_IMETHOD RowToPos( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow, // row to find in table
@@ -1781,7 +1781,7 @@ public:
   // } ----- end row position methods -----
 
   // { ----- begin oid set methods -----
-  NS_IMETHOD AddOid( // make sure the row with inOid is a table member 
+  NS_IMETHOD AddOid( // make sure the row with inOid is a table member
     nsIMdbEnv* ev, // context
     const mdbOid* inOid) = 0; // row to ensure membership in table
 
@@ -1790,7 +1790,7 @@ public:
     const mdbOid* inOid, // row to find in table
     mdb_bool* outHasOid) = 0; // whether inOid is a member row
 
-  NS_IMETHOD CutOid( // make sure the row with inOid is not a member 
+  NS_IMETHOD CutOid( // make sure the row with inOid is not a member
     nsIMdbEnv* ev, // context
     const mdbOid* inOid) = 0; // row to remove from table
   // } ----- end oid set methods -----
@@ -1801,7 +1801,7 @@ public:
     mdbOid* ioOid, // please use minus one (unbound) rowId for db-assigned IDs
     nsIMdbRow** acqRow) = 0; // create new row
 
-  NS_IMETHOD AddRow( // make sure the row with inOid is a table member 
+  NS_IMETHOD AddRow( // make sure the row with inOid is a table member
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow) = 0; // row to ensure membership in table
 
@@ -1810,7 +1810,7 @@ public:
     nsIMdbRow* ioRow, // row to find in table
     mdb_bool* outHasRow) = 0; // whether row is a table member
 
-  NS_IMETHOD CutRow( // make sure the row with inOid is not a member 
+  NS_IMETHOD CutRow( // make sure the row with inOid is not a member
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow) = 0; // row to remove from table
 
@@ -1819,22 +1819,22 @@ public:
   // } ----- end row set methods -----
 
   // { ----- begin hinting methods -----
-  NS_IMETHOD SearchColumnsHint( // advise re future expected search cols  
+  NS_IMETHOD SearchColumnsHint( // advise re future expected search cols
     nsIMdbEnv* ev, // context
     const mdbColumnSet* inColumnSet) = 0; // columns likely to be searched
-    
-  NS_IMETHOD SortColumnsHint( // advise re future expected sort columns  
+
+  NS_IMETHOD SortColumnsHint( // advise re future expected sort columns
     nsIMdbEnv* ev, // context
     const mdbColumnSet* inColumnSet) = 0; // columns for likely sort requests
-    
-  NS_IMETHOD StartBatchChangeHint( // advise before many adds and cuts  
+
+  NS_IMETHOD StartBatchChangeHint( // advise before many adds and cuts
     nsIMdbEnv* ev, // context
     const void* inLabel) = 0; // intend unique address to match end call
     // If batch starts nest by virtue of nesting calls in the stack, then
     // the address of a local variable makes a good batch start label that
     // can be used at batch end time, and such addresses remain unique.
-    
-  NS_IMETHOD EndBatchChangeHint( // advise before many adds and cuts  
+
+  NS_IMETHOD EndBatchChangeHint( // advise before many adds and cuts
     nsIMdbEnv* ev, // context
     const void* inLabel) = 0; // label matching start label
     // Suppose a table is maintaining one or many sort orders for a table,
@@ -1853,7 +1853,7 @@ public:
     nsIMdbEnv* ev, // context
     const mdbYarn* inPrefix, // content to find as prefix in row's column cell
     nsIMdbTableRowCursor** acqCursor) = 0; // set of matching rows
-    
+
   NS_IMETHOD GetSearchColumns( // query columns used by FindRowMatches()
     nsIMdbEnv* ev, // context
     mdb_count* outCount, // context
@@ -1881,12 +1881,12 @@ public:
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // column to query sorting potential
     mdb_bool* outCanSort) = 0; // whether the column can be sorted
-    
+
   NS_IMETHOD GetSorting( // view same table in particular sorting
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // requested new column for sorting table
     nsIMdbSorting** acqSorting) = 0; // acquire sorting for column
-    
+
   NS_IMETHOD SetSearchSorting( // use this sorting in FindRowMatches()
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // often same as nsIMdbSorting::GetSortColumn()
@@ -1917,7 +1917,7 @@ public:
 
   // { ----- begin moving methods -----
   // moving a row does nothing unless a table is currently unsorted
-  
+
   NS_IMETHOD MoveOid( // change position of row in unsorted table
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // row oid to find in table
@@ -1932,7 +1932,7 @@ public:
     mdb_pos inToPos,       // desired new position for row inRowId
     mdb_pos* outActualPos) = 0; // actual new position of row in table
   // } ----- end moving methods -----
-  
+
   // { ----- begin index methods -----
   NS_IMETHOD AddIndex( // create a sorting index for column if possible
     nsIMdbEnv* ev, // context
@@ -1940,29 +1940,29 @@ public:
     nsIMdbThumb** acqThumb) = 0; // acquire thumb for incremental index building
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the index addition will be finished.
-  
+
   NS_IMETHOD CutIndex( // stop supporting a specific column index
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column with index to be removed
     nsIMdbThumb** acqThumb) = 0; // acquire thumb for incremental index destroy
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the index removal will be finished.
-  
+
   NS_IMETHOD HasIndex( // query for current presence of a column index
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column to investigate
     mdb_bool* outHasIndex) = 0; // whether column has index for this column
 
-  
+
   NS_IMETHOD EnableIndexOnSort( // create an index for col on first sort
     nsIMdbEnv* ev, // context
     mdb_column inColumn) = 0; // the column to index if ever sorted
-  
+
   NS_IMETHOD QueryIndexOnSort( // check whether index on sort is enabled
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column to investigate
     mdb_bool* outIndexOnSort) = 0; // whether column has index-on-sort enabled
-  
+
   NS_IMETHOD DisableIndexOnSort( // prevent future index creation on sort
     nsIMdbEnv* ev, // context
     mdb_column inColumn) = 0; // the column to index if ever sorted
@@ -1998,7 +1998,7 @@ NS_DEFINE_STATIC_IID_ACCESSOR(nsIMdbTable, NS_IMDBTABLE_IID)
 **| A cursor should show exactly the same information as the pos methods.
 **|
 **|| pos: the PosToOid() and PosToRow() methods are just like the table
-**| methods of the same name, except they show rows in the sort order of 
+**| methods of the same name, except they show rows in the sort order of
 **| the sorting, rather than that of the table.  These methods are like
 **| readonly array position accessor's, or like a C++ operator[].
 |*/
@@ -2009,7 +2009,7 @@ public:
   // { ----- begin attribute methods -----
   // sorting: note all rows are assumed sorted by row ID as a secondary
   // sort following the primary column sort, when table rows are sorted.
-  
+
   NS_IMETHOD GetTable(nsIMdbEnv* ev, nsIMdbTable** acqTable) = 0;
   NS_IMETHOD GetSortColumn( // query which col is currently sorted
     nsIMdbEnv* ev, // context
@@ -2030,7 +2030,7 @@ public:
     nsIMdbEnv* ev, // context
     mdb_pos inRowPos, // zero-based ordinal position of row in table
     mdbOid* outOid) = 0; // row oid at the specified position
-    
+
   NS_IMETHOD PosToRow( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     mdb_pos inRowPos, // zero-based ordinal position of row in table
@@ -2082,14 +2082,14 @@ public:
   // { ----- begin attribute methods -----
   // NS_IMETHOD SetTable(nsIMdbEnv* ev, nsIMdbTable* ioTable) = 0; // sets pos to -1
   // Method SetTable() cut and made obsolete in keeping with new sorting methods.
-  
+
   NS_IMETHOD GetTable(nsIMdbEnv* ev, nsIMdbTable** acqTable) = 0;
   // } ----- end attribute methods -----
 
   // { ----- begin duplicate row removal methods -----
   NS_IMETHOD CanHaveDupRowMembers(nsIMdbEnv* ev, // cursor might hold dups?
     mdb_bool* outCanHaveDups) = 0;
-    
+
   NS_IMETHOD MakeUniqueCursor( // clone cursor, removing duplicate rows
     nsIMdbEnv* ev, // context
     nsIMdbTableRowCursor** acqCursor) = 0;    // acquire clone with no dups
@@ -2149,7 +2149,7 @@ public:
   //   nsIMdbRow* ioSinkRow, // sink for row cells read from next row
   //   mdbOid* outOid, // out row oid
   //   mdb_pos* outRowPos) = 0;    // zero-based position of the row in table
-  // 
+  //
   // NS_IMETHOD NextRowCopyAll( // put all row cells into sink, adding to sink
   //   nsIMdbEnv* ev, // context
   //   nsIMdbRow* ioSinkRow, // sink for row cells read from next row
@@ -2206,16 +2206,16 @@ public:
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // column to add
     nsIMdbCell** acqCell) = 0; // cell column and value
-    
+
   NS_IMETHOD AddCell( // copy a cell from another row to this row
     nsIMdbEnv* ev, // context
     const nsIMdbCell* inCell) = 0; // cell column and value
-    
+
   NS_IMETHOD GetCell( // find a cell in this row
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // column to find
     nsIMdbCell** acqCell) = 0; // cell for specified column, or null
-    
+
   NS_IMETHOD EmptyAllCells( // make all cells in row empty of content
     nsIMdbEnv* ev) = 0; // context
   // } ----- end cell methods -----
@@ -2224,30 +2224,30 @@ public:
   NS_IMETHOD AddRow( // add all cells in another row to this one
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioSourceRow) = 0; // row to union with
-    
+
   NS_IMETHOD SetRow( // make exact duplicate of another row
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioSourceRow) = 0; // row to duplicate
   // } ----- end row methods -----
 
-  // { ----- begin blob methods -----  
+  // { ----- begin blob methods -----
   NS_IMETHOD SetCellYarn(nsIMdbEnv* ev, // synonym for AddColumn()
     mdb_column inColumn, // column to write
     const mdbYarn* inYarn) = 0;   // reads from yarn slots
   // make this text object contain content from the yarn's buffer
-  
-  NS_IMETHOD GetCellYarn(nsIMdbEnv* ev, 
-    mdb_column inColumn, // column to read 
-    mdbYarn* outYarn) = 0;  // writes some yarn slots 
+
+  NS_IMETHOD GetCellYarn(nsIMdbEnv* ev,
+    mdb_column inColumn, // column to read
+    mdbYarn* outYarn) = 0;  // writes some yarn slots
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
-  
-  NS_IMETHOD AliasCellYarn(nsIMdbEnv* ev, 
+
+  NS_IMETHOD AliasCellYarn(nsIMdbEnv* ev,
     mdb_column inColumn, // column to alias
     mdbYarn* outYarn) = 0; // writes ALL yarn slots
-  
+
   NS_IMETHOD NextCellYarn(nsIMdbEnv* ev, // iterative version of GetCellYarn()
     mdb_column* ioColumn, // next column to read
-    mdbYarn* outYarn) = 0;  // writes some yarn slots 
+    mdbYarn* outYarn) = 0;  // writes some yarn slots
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
   //
   // The ioColumn argument is an inout parameter which initially contains the
@@ -2329,7 +2329,7 @@ public:
     nsIMdbCell** acqCell, // changes to the next cell in the iteration
     mdb_column* outColumn, // column for this particular cell
     mdb_pos* outPos) = 0; // position of cell in row sequence
-    
+
   NS_IMETHOD PickNextCell( // get next cell in row within filter set
     nsIMdbEnv* ev, // context
     nsIMdbCell* ioCell, // changes to the next cell in the iteration
@@ -2360,25 +2360,25 @@ public:
   NS_IMETHOD SetBlob(nsIMdbEnv* ev,
     nsIMdbBlob* ioBlob) = 0; // reads inBlob slots
   // when inBlob is in the same suite, this might be fastest cell-to-cell
-  
+
   NS_IMETHOD ClearBlob( // make empty (so content has zero length)
     nsIMdbEnv* ev) = 0;
   // clearing a yarn is like SetYarn() with empty yarn instance content
-  
+
   NS_IMETHOD GetBlobFill(nsIMdbEnv* ev,
-    mdb_fill* outFill) = 0;  // size of blob 
+    mdb_fill* outFill) = 0;  // size of blob
   // Same value that would be put into mYarn_Fill, if one called GetYarn()
   // with a yarn instance that had mYarn_Buf==nil and mYarn_Size==0.
-  
-  NS_IMETHOD SetYarn(nsIMdbEnv* ev, 
+
+  NS_IMETHOD SetYarn(nsIMdbEnv* ev,
     const mdbYarn* inYarn) = 0;   // reads from yarn slots
   // make this text object contain content from the yarn's buffer
-  
-  NS_IMETHOD GetYarn(nsIMdbEnv* ev, 
-    mdbYarn* outYarn) = 0;  // writes some yarn slots 
+
+  NS_IMETHOD GetYarn(nsIMdbEnv* ev,
+    mdbYarn* outYarn) = 0;  // writes some yarn slots
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
-  
-  NS_IMETHOD AliasYarn(nsIMdbEnv* ev, 
+
+  NS_IMETHOD AliasYarn(nsIMdbEnv* ev,
     mdbYarn* outYarn) = 0; // writes ALL yarn slots
   // AliasYarn() reveals sensitive internal text buffer state to the caller
   // by setting mYarn_Buf to point into the guts of this text implementation.
@@ -2412,7 +2412,7 @@ public:
   // necessary to populate all the mdbYarn member slots with internal buffer
   // address and metainformation that describes the buffer content.  Note that
   // mYarn_Grow must always be set to nil to indicate no resizing is allowed.
-  
+
   // } ----- end attribute methods -----
 
 // } ===== end nsIMdbBlob methods =====
@@ -2442,7 +2442,7 @@ public:
 **|| child: a cell might reference another row or a table, rather than text.
 **| The interface for putting and getting children rows and tables was first
 **| defined in the nsIMdbTable interface, but then this was moved to this cell
-**| interface as more natural. 
+**| interface as more natural.
 |*/
 
 
@@ -2460,11 +2460,11 @@ public:
 // { ===== begin nsIMdbCell methods =====
 
   // { ----- begin attribute methods -----
-  NS_IMETHOD SetColumn(nsIMdbEnv* ev, mdb_column inColumn) = 0; 
+  NS_IMETHOD SetColumn(nsIMdbEnv* ev, mdb_column inColumn) = 0;
   NS_IMETHOD GetColumn(nsIMdbEnv* ev, mdb_column* outColumn) = 0;
-  
+
   NS_IMETHOD GetCellInfo(  // all cell metainfo except actual content
-    nsIMdbEnv* ev, 
+    nsIMdbEnv* ev,
     mdb_column* outColumn,           // the column in the containing row
     mdb_fill*   outBlobFill,         // the size of text content in bytes
     mdbOid*     outChildOid,         // oid of possible row or table child
@@ -2472,7 +2472,7 @@ public:
 
   // Checking all cell metainfo is a good way to avoid forcing a large cell
   // in to memory when you don't actually want to use the content.
-  
+
   NS_IMETHOD GetRow(nsIMdbEnv* ev, // parent row for this cell
     nsIMdbRow** acqRow) = 0;
   NS_IMETHOD GetPort(nsIMdbEnv* ev, // port containing cell

@@ -30,22 +30,22 @@
 **| and containing port to those objects that are exposed as instances of
 **| nsIMdbBead in the public interface.
 |*/
-class morkBead : public morkNode { 
+class morkBead : public morkNode {
 
 // public: // slots inherited from morkNode (meant to inform only)
   // nsIMdbHeap*    mNode_Heap;
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
-  
+
 public: // state is public because the entire Mork system is private
 
   mork_color      mBead_Color;   // ID for this bead
@@ -55,21 +55,21 @@ public: // Hash() and Equal() for bead maps are same for all subclasses:
   mork_u4 BeadHash() const { return (mork_u4) mBead_Color; }
   mork_bool BeadEqual(const morkBead* inBead) const
   { return ( mBead_Color == inBead->mBead_Color); }
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseBead() only if open
   virtual ~morkBead(); // assert that CloseBead() executed earlier
-  
+
 public: // special case for stack construction for map usage:
   morkBead(mork_color inBeadColor); // stack-based bead instance
-  
+
 protected: // special case for morkObject:
   morkBead(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
     mork_color inBeadColor);
-  
+
 public: // morkEnv construction & destruction
-  morkBead(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap, 
+  morkBead(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
      mork_color inBeadColor);
   void CloseBead(morkEnv* ev); // called by CloseMorkNode();
 
@@ -83,12 +83,12 @@ public: // dynamic type identification
 // } ===== end morkNode methods =====
 
   // void NewNilHandleError(morkEnv* ev); // mBead_Handle is nil
-  
+
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakBead(morkBead* me,
     morkEnv* ev, morkBead** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongBead(morkBead* me,
     morkEnv* ev, morkBead** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -107,7 +107,7 @@ class morkBeadMap : public morkMap {
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseBeadMap() only if open
   virtual ~morkBeadMap(); // assert that CloseBeadMap() executed earlier
-  
+
 public: // morkMap construction & destruction
   morkBeadMap(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap);
@@ -133,8 +133,8 @@ public: // other map methods
   // the AddBead() boolean return equals ev->Good().
 
   mork_bool  CutBead(morkEnv* ev, mork_color inColor);
-  // The CutBead() boolean return indicates whether removal happened. 
-  
+  // The CutBead() boolean return indicates whether removal happened.
+
   morkBead*  GetBead(morkEnv* ev, mork_color inColor);
   // Note the returned bead does NOT have an increase in refcount for this.
 
@@ -147,16 +147,16 @@ class morkBeadMapIter: public morkMapIter{ // typesafe wrapper class
 public:
   morkBeadMapIter(morkEnv* ev, morkBeadMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkBeadMapIter( ) : morkMapIter()  { }
   void InitBeadMapIter(morkEnv* ev, morkBeadMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   morkBead* FirstBead(morkEnv* ev);
   morkBead* NextBead(morkEnv* ev);
   morkBead* HereBead(morkEnv* ev);
   void      CutHereBead(morkEnv* ev);
-  
+
 };
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
@@ -211,7 +211,7 @@ public: // other map methods
 
   mork_bool  AddBead(morkEnv* ev, morkBead* ioBead);
   // the AddBead() boolean return equals ev->Good().
-  
+
   morkBead*  GetBead(morkEnv* ev, mork_color inColor);
   // Note the returned bead does NOT have an increase in refcount for this.
 
@@ -224,20 +224,20 @@ class morkBeadProbeMapIter: public morkProbeMapIter { // typesafe wrapper class
 public:
   morkBeadProbeMapIter(morkEnv* ev, morkBeadProbeMap* ioMap)
   : morkProbeMapIter(ev, ioMap) { }
- 
+
   morkBeadProbeMapIter( ) : morkProbeMapIter()  { }
   void InitBeadProbeMapIter(morkEnv* ev, morkBeadProbeMap* ioMap)
   { this->InitProbeMapIter(ev, ioMap); }
-   
+
   morkBead* FirstBead(morkEnv* ev)
   { return (morkBead*) this->IterFirstKey(ev); }
-  
+
   morkBead* NextBead(morkEnv* ev)
   { return (morkBead*) this->IterNextKey(ev); }
-  
+
   morkBead* HereBead(morkEnv* ev)
   { return (morkBead*) this->IterHereKey(ev); }
-  
+
 };
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

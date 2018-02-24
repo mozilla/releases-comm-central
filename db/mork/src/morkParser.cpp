@@ -49,7 +49,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -72,7 +72,7 @@ morkParser::~morkParser() // assert CloseParser() executed earlier
 
 /*public non-poly*/
 morkParser::morkParser(morkEnv* ev,
-  const morkUsage& inUsage, nsIMdbHeap* ioHeap, 
+  const morkUsage& inUsage, nsIMdbHeap* ioHeap,
   morkStream* ioStream, mdb_count inBytesPerParseSegment,
   nsIMdbHeap* ioSlotHeap)
 : morkNode(ev, inUsage, ioHeap)
@@ -86,12 +86,12 @@ morkParser::morkParser(morkEnv* ev,
 , mParser_TableMid(  )
 , mParser_RowMid(  )
 , mParser_CellMid(  )
-    
+
 , mParser_InPort( morkBool_kFalse )
 , mParser_InDict( morkBool_kFalse )
 , mParser_InCell( morkBool_kFalse )
 , mParser_InMeta( morkBool_kFalse )
-    
+
 , mParser_InPortRow( morkBool_kFalse )
 , mParser_InRow( morkBool_kFalse )
 , mParser_InTable( morkBool_kFalse )
@@ -106,7 +106,7 @@ morkParser::morkParser(morkEnv* ev,
 , mParser_IsBroken( morkBool_kFalse )
 , mParser_IsDone( morkBool_kFalse )
 , mParser_DoMore( morkBool_kTrue )
-    
+
 , mParser_Mid()
 
 , mParser_ScopeCoil(ev, ioSlotHeap)
@@ -125,14 +125,14 @@ morkParser::morkParser(morkEnv* ev,
     inBytesPerParseSegment = morkParser_kMinGranularity;
   else if ( inBytesPerParseSegment > morkParser_kMaxGranularity )
     inBytesPerParseSegment = morkParser_kMaxGranularity;
-    
+
   mParser_MoreGranularity = inBytesPerParseSegment;
 
   if ( ioSlotHeap && ioStream )
   {
     nsIMdbHeap_SlotStrongHeap(ioSlotHeap, ev, &mParser_Heap);
     morkStream::SlotStrongStream(ioStream, ev, &mParser_Stream);
-    
+
     if ( ev->Good() )
     {
       mParser_Tag = morkParser_kTag;
@@ -164,7 +164,7 @@ morkParser::CloseParser(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*protected non-poly*/ void
 morkParser::NonGoodParserError(morkEnv* ev) // when GoodParserTag() is false
@@ -202,11 +202,11 @@ morkParser::StartParse(morkEnv* ev)
   mParser_InMeta = morkBool_kFalse;
   mParser_InDict = morkBool_kFalse;
   mParser_InPortRow = morkBool_kFalse;
-  
+
   mParser_RowMid.ClearMid();
   mParser_TableMid.ClearMid();
   mParser_CellMid.ClearMid();
-  
+
   mParser_GroupId = 0;
   mParser_InPort = morkBool_kTrue;
 
@@ -282,20 +282,20 @@ int morkParser::eat_comment(morkEnv* ev) // last char was '/'
   morkStream* s = mParser_Stream;
   // Note morkStream::Getc() returns EOF when an error occurs, so
   // we don't need to check for both c != EOF and ev->Good() below.
-  
+
   int c = s->Getc(ev);
   if ( c == '/' ) // C++ style comment?
   {
     while ( (c = s->Getc(ev)) != EOF && c != 0xA && c != 0xD )
       /* empty */;
-      
+
     if ( c == 0xA || c == 0xD )
       c = this->eat_line_break(ev, c);
   }
   else if ( c == '*' ) /* C style comment? */
   {
     int depth = 1; // count depth of comments until depth reaches zero
-    
+
     while ( depth > 0 && c != EOF ) // still looking for comment end(s)?
     {
       while ( (c = s->Getc(ev)) != EOF && c != '/' && c != '*' )
@@ -307,7 +307,7 @@ int morkParser::eat_comment(morkEnv* ev) // last char was '/'
             break; // end while loop
         }
       }
-        
+
       if ( c == '*' ) // maybe end of a comment, if next char is '/'?
       {
         if ( (c = s->Getc(ev)) == '/' ) // end of comment?
@@ -326,7 +326,7 @@ int morkParser::eat_comment(morkEnv* ev) // last char was '/'
         else if ( c != EOF ) // need to put the char back?
           s->Ungetc(c); // especially need to put back '/', 0xA, or 0xD
       }
-        
+
       if ( ev->Bad() )
         c = EOF;
     }
@@ -335,7 +335,7 @@ int morkParser::eat_comment(morkEnv* ev) // last char was '/'
   }
   else
     ev->NewWarning("expected / or *");
-  
+
   return c;
 }
 
@@ -362,7 +362,7 @@ int morkParser::eat_line_continue(morkEnv* ev) // last char was '\'
   }
   else
     ev->NewWarning("expected linebreak");
-  
+
   return c;
 }
 
@@ -380,7 +380,7 @@ int morkParser::NextChar(morkEnv* ev) // next non-white content
       c = this->eat_line_continue(ev);
     else if ( morkCh_IsWhite(c) )
       c = s->Getc(ev);
-    else  
+    else
       break; // end while loop when return c is acceptable
   }
   if ( ev->Bad() )
@@ -432,7 +432,7 @@ morkParser::OnDictState(morkEnv* ev)
 morkBuf* morkParser::ReadName(morkEnv* ev, int c)
 {
   morkBuf* outBuf = 0;
-  
+
   if ( !morkCh_IsName(c) )
     ev->NewError("not a name char");
 
@@ -441,15 +441,15 @@ morkBuf* morkParser::ReadName(morkEnv* ev, int c)
 
   morkSpool* spool = &mParser_ColumnSpool;
   spool->Seek(ev, /*pos*/ 0);
-  
+
   if ( ev->Good() )
   {
     spool->Putc(ev, c);
-    
+
     morkStream* s = mParser_Stream;
     while ( (c = s->Getc(ev)) != EOF && morkCh_IsMore(c) && ev->Good() )
       spool->Putc(ev, c);
-      
+
     if ( ev->Good() )
     {
       if ( c != EOF )
@@ -459,11 +459,11 @@ morkBuf* morkParser::ReadName(morkEnv* ev, int c)
       }
       else
         this->UnexpectedEofError(ev);
-        
+
       if ( ev->Good() )
         outBuf = coil;
     }
-  }  
+  }
   return outBuf;
 }
 
@@ -471,7 +471,7 @@ mork_bool
 morkParser::ReadMid(morkEnv* ev, morkMid* outMid)
 {
   outMid->ClearMid();
-  
+
   morkStream* s = mParser_Stream;
   int next;
   outMid->mMid_Oid.mOid_Id = this->ReadHex(ev, &next);
@@ -488,18 +488,18 @@ morkParser::ReadMid(morkEnv* ev, morkMid* outMid)
       }
       else if ( morkCh_IsName(c) )
       {
-        outMid->mMid_Buf = this->ReadName(ev, c); 
+        outMid->mMid_Buf = this->ReadName(ev, c);
       }
       else
         ev->NewError("expected name or hex after ':' following ID");
     }
-    
+
     if ( c == EOF && ev->Good() )
       this->UnexpectedEofError(ev);
   }
   else
     s->Ungetc(c);
-  
+
   return ev->Good();
 }
 
@@ -531,7 +531,7 @@ morkParser::ReadCell(morkEnv* ev)
         return;
       }
       else
-        cellBuf = this->ReadName(ev, c); 
+        cellBuf = this->ReadName(ev, c);
     }
     if ( ev->Good() )
     {
@@ -566,7 +566,7 @@ morkParser::ReadCell(morkEnv* ev)
             }
             else if ( c == EOF )
               this->UnexpectedEofError(ev);
-            
+
             if ( ev->Good() )
               this->OnValueMid(ev, mParser_SlotSpan, mParser_Mid);
           }
@@ -580,14 +580,14 @@ morkParser::ReadCell(morkEnv* ev)
           ev->NewError("unknown cell syntax");
         }
       }
-      
+
       // this->EndSpanOnThisByte(ev, &mParser_CellSpan);
       mParser_InCell = morkBool_kFalse;
       this->OnCellEnd(ev, mParser_CellSpan);
     }
   }
   mParser_CellChange = morkChange_kNil;
-  
+
   if ( c == EOF && ev->Good() )
     this->UnexpectedEofError(ev);
 }
@@ -596,7 +596,7 @@ void morkParser::ReadRowPos(morkEnv* ev)
 {
   int c; // next character
   mork_pos rowPos = this->ReadHex(ev, &c);
-  
+
   if ( ev->Good() && c != EOF ) // should put back byte after hex?
     mParser_Stream->Ungetc(c);
 
@@ -639,30 +639,30 @@ void morkParser::ReadRow(morkEnv* ev, int c)
             case '(': // cell
               this->ReadCell(ev);
               break;
-              
+
             case '[': // meta
               this->ReadMeta(ev, ']');
               break;
-            
+
             // case '+': // plus
             //   mParser_CellChange = morkChange_kAdd;
             //   break;
-              
+
             case '-': // minus
               // mParser_CellChange = morkChange_kCut;
               this->OnMinusCell(ev);
               break;
-              
+
             // case '!': // bang
             //   mParser_CellChange = morkChange_kSet;
             //  break;
-              
+
             default:
               ev->NewWarning("unexpected byte in row");
               break;
           } // switch
         } // while
-        
+
         if ( ev->Good() )
         {
           if ( (c = this->NextChar(ev)) == '!' )
@@ -670,14 +670,14 @@ void morkParser::ReadRow(morkEnv* ev, int c)
           else if ( c != EOF && ev->Good() )
             mParser_Stream->Ungetc(c);
         }
-        
+
         // this->EndSpanOnThisByte(ev, &mParser_RowSpan);
         mParser_InRow = morkBool_kFalse;
         this->OnRowEnd(ev, mParser_RowSpan);
 
       } // if ReadMid
     } // if '['
-    
+
     else // c != '['
     {
       morkStream* s = mParser_Stream;
@@ -689,7 +689,7 @@ void morkParser::ReadRow(morkEnv* ev, int c)
           mParser_RowMid, cutAllRowCols);
 
         mParser_Change = mParser_RowChange = morkChange_kNil;
-        
+
         if ( ev->Good() )
         {
           if ( (c = this->NextChar(ev)) == '!' )
@@ -704,7 +704,7 @@ void morkParser::ReadRow(morkEnv* ev, int c)
       }
     }
   }
-  
+
   if ( ev->Bad() )
     mParser_State = morkParser_kBrokenState;
   else if ( c == EOF )
@@ -722,17 +722,17 @@ void morkParser::ReadTable(morkEnv* ev)
     mParser_TableChange = mParser_Change;
 
   mork_bool cutAllTableRows = morkBool_kFalse;
-  
+
   int c = this->NextChar(ev);
   if ( c == '-' )
     cutAllTableRows = morkBool_kTrue;
   else if ( ev->Good() && c != EOF )
     mParser_Stream->Ungetc(c);
-  
+
   if ( ev->Good() && this->ReadMid(ev, &mParser_TableMid) )
   {
     mParser_InTable = morkBool_kTrue;
-    this->OnNewTable(ev, *mParser_TableSpan.AsPlace(),  
+    this->OnNewTable(ev, *mParser_TableSpan.AsPlace(),
       mParser_TableMid, cutAllTableRows);
 
     mParser_Change = mParser_TableChange = morkChange_kNil;
@@ -750,24 +750,24 @@ void morkParser::ReadTable(morkEnv* ev)
           case '[': // row
             this->ReadRow(ev, '[');
             break;
-            
+
           case '{': // meta
             this->ReadMeta(ev, '}');
             break;
-          
+
           // case '+': // plus
           //   mParser_RowChange = morkChange_kAdd;
           //   break;
-            
+
           case '-': // minus
             // mParser_RowChange = morkChange_kCut;
             this->OnMinusRow(ev);
             break;
-            
+
           // case '!': // bang
           //   mParser_RowChange = morkChange_kSet;
           //   break;
-            
+
           default:
             ev->NewWarning("unexpected byte in table");
             break;
@@ -794,7 +794,7 @@ mork_id morkParser::ReadHex(morkEnv* ev, int* outNextChar)
 
   morkStream* s = mParser_Stream;
   int c = this->NextChar(ev);
-    
+
   if ( ev->Good() )
   {
     if ( c != EOF )
@@ -820,7 +820,7 @@ mork_id morkParser::ReadHex(morkEnv* ev, int* outNextChar)
   }
   if ( c == EOF )
     this->EofInsteadOfHexError(ev);
-    
+
   *outNextChar = c;
   return hex;
 }
@@ -860,14 +860,14 @@ morkBuf* morkParser::ReadValue(morkEnv* ev)
 
   morkSpool* spool = &mParser_ValueSpool;
   spool->Seek(ev, /*pos*/ 0);
-  
+
   if ( ev->Good() )
   {
     morkStream* s = mParser_Stream;
     int c;
     while ( (c = s->Getc(ev)) != EOF && c != ')' && ev->Good() )
     {
-      if ( c == '\\' ) // next char is escaped by '\'? 
+      if ( c == '\\' ) // next char is escaped by '\'?
       {
         if ( (c = s->Getc(ev)) == 0xA || c == 0xD ) // linebreak after \?
         {
@@ -899,19 +899,19 @@ morkBuf* morkParser::ReadValue(morkEnv* ev)
       }
       spool->Putc(ev, c);
     }
-      
+
     if ( ev->Good() )
     {
       if ( c != EOF )
         spool->FlushSink(ev); // update coil->mBuf_Fill
       else
         this->UnexpectedEofError(ev);
-        
+
       if ( ev->Good() )
         outBuf = coil;
     }
   }
-  return outBuf; 
+  return outBuf;
 }
 
 void morkParser::ReadDictForm(morkEnv *ev)
@@ -1042,35 +1042,35 @@ void morkParser::ReadMeta(morkEnv* ev, int inEndMeta)
       case '(': // cell
         this->ReadCell(ev);
         break;
-        
+
       case '>': // maybe end meta?
         if ( inEndMeta == '>' )
           more = morkBool_kFalse; // stop reading meta
         else
           this->UnexpectedByteInMetaWarning(ev);
         break;
-        
+
       case '}': // maybe end meta?
         if ( inEndMeta == '}' )
           more = morkBool_kFalse; // stop reading meta
         else
           this->UnexpectedByteInMetaWarning(ev);
         break;
-        
+
       case ']': // maybe end meta?
         if ( inEndMeta == ']' )
           more = morkBool_kFalse; // stop reading meta
         else
           this->UnexpectedByteInMetaWarning(ev);
         break;
-        
+
       case '[': // maybe table meta row?
         if ( mParser_InTable )
-          this->ReadRow(ev, '['); 
+          this->ReadRow(ev, '[');
         else
           this->UnexpectedByteInMetaWarning(ev);
         break;
-        
+
       default:
         if ( mParser_InTable && morkCh_IsHex(c) )
           this->ReadRow(ev, c);
@@ -1117,13 +1117,13 @@ mork_bool morkParser::MatchPattern(morkEnv* ev, const char* inPattern)
 mork_bool morkParser::FindGroupEnd(morkEnv* ev)
 {
   mork_bool foundEnd = morkBool_kFalse;
-  
+
   // char gidBuf[ 64 ]; // to hold hex pattern we want
   // (void) ev->TokenAsHex(gidBuf, mParser_GroupId);
-  
+
   morkStream* s = mParser_Stream;
   int c;
-  
+
   while ( (c = s->Getc(ev)) != EOF && ev->Good() && !foundEnd )
   {
     if ( c == '@' ) // maybe start of group ending?
@@ -1170,7 +1170,7 @@ void morkParser::ReadGroup(morkEnv* mev)
       //   store->mStore_FirstCommitGroupPos = startPos;
       // else if ( !store->mStore_SecondCommitGroupPos )
       //   store->mStore_SecondCommitGroupPos = startPos;
-      
+
       if ( this->FindGroupEnd(mev) )
       {
         mork_pos outPos;
@@ -1179,7 +1179,7 @@ void morkParser::ReadGroup(morkEnv* mev)
         {
           this->OnNewGroup(mev, mParser_GroupSpan.mSpan_Start,
             mParser_GroupId);
-          
+
           this->ReadContent(mev, /*inInsideGroup*/ morkBool_kTrue);
 
           this->OnGroupCommitEnd(mev, mParser_GroupSpan);
@@ -1191,7 +1191,7 @@ void morkParser::ReadGroup(morkEnv* mev)
   }
   else
     mev->NewError("expected '{' after @$$id");
-    
+
 }
 
 mork_bool morkParser::ReadAt(morkEnv* ev, mork_bool inInsideGroup)
@@ -1285,11 +1285,11 @@ void morkParser::ReadDict(morkEnv* ev)
 {
   mParser_Change = morkChange_kNil;
   mParser_AtomChange = morkChange_kNil;
-  
+
   // this->StartSpanOnLastByte(ev, &mParser_DictSpan);
   mParser_InDict = morkBool_kTrue;
   this->OnNewDict(ev, *mParser_DictSpan.AsPlace());
-  
+
   int c;
   while ( (c = this->NextChar(ev)) != EOF && ev->Good() && c != '>' )
   {
@@ -1298,11 +1298,11 @@ void morkParser::ReadDict(morkEnv* ev)
       case '(': // alias
         this->ReadAlias(ev);
         break;
-        
+
       case '<': // meta
         this->ReadMeta(ev, '>');
         break;
-        
+
       default:
         ev->NewWarning("unexpected byte in dict");
         break;
@@ -1312,7 +1312,7 @@ void morkParser::ReadDict(morkEnv* ev)
   // this->EndSpanOnThisByte(ev, &mParser_DictSpan);
   mParser_InDict = morkBool_kFalse;
   this->OnDictEnd(ev, mParser_DictSpan);
-  
+
   if ( ev->Bad() )
     mParser_State = morkParser_kBrokenState;
   else if ( c == EOF )
@@ -1392,33 +1392,33 @@ morkParser::ReadContent(morkEnv* ev, mork_bool inInsideGroup)
         this->ReadRow(ev, '[');
         keep_going = false;
         break;
-        
+
       case '{': // table
         this->ReadTable(ev);
         keep_going = false;
         break;
-        
+
       case '<': // dict
         this->ReadDict(ev);
         keep_going = false;
         break;
-        
+
       case '@': // group
         return this->ReadAt(ev, inInsideGroup);
         // break;
-        
+
       // case '+': // plus
       //   mParser_Change = morkChange_kAdd;
       //   break;
-        
+
       // case '-': // minus
       //   mParser_Change = morkChange_kCut;
       //   break;
-        
+
       // case '!': // bang
       //   mParser_Change = morkChange_kSet;
       //   break;
-        
+
       default:
         ev->NewWarning("unexpected byte in ReadContent()");
         break;
@@ -1428,7 +1428,7 @@ morkParser::ReadContent(morkEnv* ev, mork_bool inInsideGroup)
     mParser_State = morkParser_kBrokenState;
   else if ( c == EOF )
     mParser_State = morkParser_kDoneState;
-    
+
   return ( ev->Good() && c != EOF );
 }
 
@@ -1447,7 +1447,7 @@ morkParser::OnPortState(morkEnv* ev)
     mParser_InPort = morkBool_kFalse;
     this->OnPortEnd(ev, mParser_PortSpan);
   }
-  
+
   if ( ev->Bad() )
     mParser_State = morkParser_kBrokenState;
 }
@@ -1479,30 +1479,30 @@ morkParser::ParseChunk(morkEnv* ev)
 {
   mParser_Change = morkChange_kNil;
   mParser_DoMore = morkBool_kTrue;
-            
+
   switch ( mParser_State )
   {
     case morkParser_kCellState: // 0
       this->OnCellState(ev); break;
-      
+
     case morkParser_kMetaState: // 1
       this->OnMetaState(ev); break;
-      
+
     case morkParser_kRowState: // 2
       this->OnRowState(ev); break;
-      
+
     case morkParser_kTableState: // 3
       this->OnTableState(ev); break;
-      
+
     case morkParser_kDictState: // 4
       this->OnDictState(ev); break;
-      
+
     case morkParser_kPortState: // 5
       this->OnPortState(ev); break;
-      
+
     case morkParser_kStartState: // 6
       this->OnStartState(ev); break;
-     
+
     case morkParser_kDoneState: // 7
       mParser_DoMore = morkBool_kFalse;
       mParser_IsDone = morkBool_kTrue;
@@ -1519,7 +1519,7 @@ morkParser::ParseChunk(morkEnv* ev)
       break;
   }
 }
-    
+
 /*public non-poly*/ mdb_count
 morkParser::ParseMore( // return count of bytes consumed now
     morkEnv* ev,          // context
@@ -1535,7 +1535,7 @@ morkParser::ParseMore( // return count of bytes consumed now
 
     if ( !mParser_IsDone && !mParser_IsBroken )
       this->ParseChunk(ev);
-  
+
     // HerePos is only updated for groups. I'd like it to be more accurate.
 
     mork_pos here;
@@ -1547,7 +1547,7 @@ morkParser::ParseMore( // return count of bytes consumed now
       *outBroken = mParser_IsBroken;
     if ( outPos )
       *outPos = here;
-      
+
     if ( here > startPos )
       outCount = (mdb_count) (here - startPos);
   }

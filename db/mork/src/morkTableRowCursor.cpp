@@ -41,7 +41,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -86,7 +86,7 @@ morkTableRowCursor::morkTableRowCursor(morkEnv* ev,
 
 NS_IMPL_ISUPPORTS_INHERITED(morkTableRowCursor, morkCursor, nsIMdbTableRowCursor)
 /*public non-poly*/ void
-morkTableRowCursor::CloseTableRowCursor(morkEnv* ev) 
+morkTableRowCursor::CloseTableRowCursor(morkEnv* ev)
 {
     if ( this->IsNode() )
     {
@@ -101,7 +101,7 @@ morkTableRowCursor::CloseTableRowCursor(morkEnv* ev)
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ----- begin attribute methods -----
 /*virtual*/ nsresult
 morkTableRowCursor::GetCount(nsIMdbEnv* mev, mdb_count* outCount)
@@ -171,7 +171,7 @@ morkTableRowCursor::GetTable(nsIMdbEnv* mev, nsIMdbTable** acqTable)
   {
     if ( mTableRowCursor_Table )
       outTable = mTableRowCursor_Table->AcquireTableHandle(ev);
-    
+
     outErr = ev->AsErr();
   }
   if ( acqTable )
@@ -242,7 +242,7 @@ morkTableRowCursor::NextRow( // get row cells from table for cells already in ro
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
   if ( ev )
   {
-      
+
     mdbOid oid; // place to put oid we intend to ignore
     morkRow* row = NextRow(ev, &oid, outRowPos);
     if ( row )
@@ -269,7 +269,7 @@ morkTableRowCursor::PrevRow( // get row cells from table for cells already in ro
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
   if ( ev )
   {
-      
+
     mdbOid oid; // place to put oid we intend to ignore
     morkRow* row = PrevRow(ev, &oid, outRowPos);
     if ( row )
@@ -295,7 +295,7 @@ morkTableRowCursor::CanHaveDupRowMembers(nsIMdbEnv* mev, // cursor might hold du
 {
   nsresult outErr = NS_OK;
   mdb_bool canHaveDups = mdbBool_kFalse;
-  
+
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
   if ( ev )
   {
@@ -306,7 +306,7 @@ morkTableRowCursor::CanHaveDupRowMembers(nsIMdbEnv* mev, // cursor might hold du
     *outCanHaveDups = canHaveDups;
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkTableRowCursor::MakeUniqueCursor( // clone cursor, removing duplicate rows
   nsIMdbEnv* mev, // context
@@ -335,13 +335,13 @@ morkTableRowCursor::MakeUniqueCursor( // clone cursor, removing duplicate rows
 {
   nsresult outErr = NS_OK;
   nsIMdbTableRowCursor* outCursor = 0;
-  
+
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
   if ( ev )
   {
     AddRef();
     outCursor = this;
-      
+
     outErr = ev->AsErr();
   }
   if ( acqCursor )
@@ -397,7 +397,7 @@ morkTableRowCursor::PrevRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos)
 {
   morkRow* outRow = 0;
   mork_pos pos = -1;
-  
+
   morkTable* table = mTableRowCursor_Table;
   if ( table )
   {
@@ -405,7 +405,7 @@ morkTableRowCursor::PrevRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos)
     {
       morkArray* array = &table->mTable_RowArray;
       pos = mCursor_Pos - 1;
-        
+
       if ( pos >= 0 && pos < (mork_pos)(array->mArray_Fill) )
       {
         mCursor_Pos = pos; // update for next time
@@ -444,7 +444,7 @@ morkTableRowCursor::NextRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos)
 {
   morkRow* outRow = 0;
   mork_pos pos = -1;
-  
+
   morkTable* table = mTableRowCursor_Table;
   if ( table )
   {
@@ -456,7 +456,7 @@ morkTableRowCursor::NextRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos)
         pos = 0;
       else
         ++pos;
-        
+
       if ( pos < (mork_pos)(array->mArray_Fill) )
       {
         mCursor_Pos = pos; // update for next time

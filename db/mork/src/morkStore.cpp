@@ -2,7 +2,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-  
+
 #ifndef _MDB_
 #include "mdb.h"
 #endif
@@ -90,14 +90,14 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -192,7 +192,7 @@ morkStore::morkStore(morkEnv* ev, const morkUsage& inUsage,
   if ( ev->Good() )
   {
     mNode_Derived = morkDerived_kStore;
-    
+
   }
 }
 
@@ -218,10 +218,10 @@ morkStore::CloseStore(morkEnv* ev) // called by CloseMorkNode();
       mStore_RowSpaces.CloseMorkNode(ev);
       mStore_AtomSpaces.CloseMorkNode(ev);
       morkBuilder::SlotStrongBuilder((morkBuilder*) 0, ev, &mStore_Builder);
-      
+
       nsIMdbFile_SlotStrongFile((nsIMdbFile*) 0, ev,
         &mStore_File);
-      
+
       file->Release();
 
       morkStream::SlotStrongStream((morkStream*) 0, ev, &mStore_InStream);
@@ -237,11 +237,11 @@ morkStore::CloseStore(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 
 mork_bool morkStore::DoPreferLargeOverCompressCommit(morkEnv* ev)
-  // true when mStore_CanWriteIncremental && store has file large enough 
+  // true when mStore_CanWriteIncremental && store has file large enough
 {
   nsIMdbFile* file = mStore_File;
   if ( file && mStore_CanWriteIncremental )
@@ -258,7 +258,7 @@ mork_percent morkStore::PercentOfStoreWasted(morkEnv* ev)
 {
   mork_percent outPercent = 0;
   nsIMdbFile* file = mStore_File;
-  
+
   if ( file )
   {
     mork_pos firstPos = mStore_FirstCommitGroupPos;
@@ -267,7 +267,7 @@ mork_percent morkStore::PercentOfStoreWasted(morkEnv* ev)
     {
       if ( firstPos < 512 && secondPos > firstPos )
         firstPos = secondPos; // better approximation of first commit
-        
+
       mork_pos fileLength = 0;
       file->Eof(ev->AsMdbEnv(), &fileLength); // end of file
       if ( ev->Good() && fileLength > firstPos )
@@ -279,7 +279,7 @@ mork_percent morkStore::PercentOfStoreWasted(morkEnv* ev)
   }
   else
     this->NilStoreFileError(ev);
-    
+
   return outPercent;
 }
 
@@ -287,7 +287,7 @@ void
 morkStore::SetStoreAndAllSpacesCanDirty(morkEnv* ev, mork_bool inCanDirty)
 {
   mStore_CanDirty = inCanDirty;
-  
+
   mork_change* c = 0;
   mork_scope* key = 0; // ignore keys in maps
 
@@ -296,7 +296,7 @@ morkStore::SetStoreAndAllSpacesCanDirty(morkEnv* ev, mork_bool inCanDirty)
     morkAtomSpaceMapIter asi(ev, &mStore_AtomSpaces);
 
     morkAtomSpace* atomSpace = 0; // old val node in the map
-    
+
     for ( c = asi.FirstAtomSpace(ev, key, &atomSpace); c && ev->Good();
           c = asi.NextAtomSpace(ev, key, &atomSpace) )
     {
@@ -316,7 +316,7 @@ morkStore::SetStoreAndAllSpacesCanDirty(morkEnv* ev, mork_bool inCanDirty)
   {
     morkRowSpaceMapIter rsi(ev, &mStore_RowSpaces);
     morkRowSpace* rowSpace = 0; // old val node in the map
-    
+
     for ( c = rsi.FirstRowSpace(ev, key, &rowSpace); c && ev->Good();
           c = rsi.NextRowSpace(ev, key, &rowSpace) )
     {
@@ -356,17 +356,17 @@ morkStore::StageAliasAsFarBookAtom(morkEnv* ev, const morkMid* inMid,
     if ( length <= morkBookAtom_kMaxBodySize )
     {
       mork_aid dummyAid = 1;
-      //mStore_BookAtom.InitMaxBookAtom(ev, *buf, 
+      //mStore_BookAtom.InitMaxBookAtom(ev, *buf,
       //  inForm, ioSpace, dummyAid);
-       
-      mStore_FarBookAtom.InitFarBookAtom(ev, *buf, 
+
+      mStore_FarBookAtom.InitFarBookAtom(ev, *buf,
         inForm, ioSpace, dummyAid);
       return &mStore_FarBookAtom;
     }
   }
   else
     ev->NilPointerError();
-    
+
   return (morkFarBookAtom*) 0;
 }
 
@@ -381,16 +381,16 @@ morkStore::StageYarnAsFarBookAtom(morkEnv* ev, const mdbYarn* inYarn,
     {
       morkBuf buf(inYarn->mYarn_Buf, length);
       mork_aid dummyAid = 1;
-      //mStore_BookAtom.InitMaxBookAtom(ev, buf, 
+      //mStore_BookAtom.InitMaxBookAtom(ev, buf,
       //  inYarn->mYarn_Form, ioSpace, dummyAid);
-      mStore_FarBookAtom.InitFarBookAtom(ev, buf, 
+      mStore_FarBookAtom.InitFarBookAtom(ev, buf,
         inYarn->mYarn_Form, ioSpace, dummyAid);
       return &mStore_FarBookAtom;
     }
   }
   else
     ev->NilPointerError();
-    
+
   return (morkFarBookAtom*) 0;
 }
 
@@ -412,7 +412,7 @@ morkStore::StageStringAsFarBookAtom(morkEnv* ev, const char* inString,
   }
   else
     ev->NilPointerError();
-    
+
   return (morkFarBookAtom*) 0;
 }
 
@@ -431,13 +431,13 @@ morkAtomSpace* morkStore::LazyGetGroundAtomSpace(morkEnv* ev)
   {
     mork_scope atomScope = morkStore_kValueSpaceScope;
     nsIMdbHeap* heap = mPort_Heap;
-    morkAtomSpace* space = new(*heap, ev) 
+    morkAtomSpace* space = new(*heap, ev)
       morkAtomSpace(ev, morkUsage::kHeap, atomScope, this, heap, heap);
-      
+
     if ( space ) // successful space creation?
     {
       this->MaybeDirtyStore();
-    
+
       mStore_GroundAtomSpace = space; // transfer strong ref to this slot
       mStore_AtomSpaces.AddAtomSpace(ev, space);
     }
@@ -451,13 +451,13 @@ morkAtomSpace* morkStore::LazyGetGroundColumnSpace(morkEnv* ev)
   {
     mork_scope atomScope = morkStore_kGroundColumnSpace;
     nsIMdbHeap* heap = mPort_Heap;
-    morkAtomSpace* space = new(*heap, ev) 
+    morkAtomSpace* space = new(*heap, ev)
       morkAtomSpace(ev, morkUsage::kHeap, atomScope, this, heap, heap);
-      
+
     if ( space ) // successful space creation?
     {
       this->MaybeDirtyStore();
-    
+
       mStore_GroundColumnSpace = space; // transfer strong ref to this slot
       mStore_AtomSpaces.AddAtomSpace(ev, space);
     }
@@ -472,7 +472,7 @@ morkStream* morkStore::LazyGetInStream(morkEnv* ev)
     nsIMdbFile* file = mStore_File;
     if ( file )
     {
-      morkStream* stream = new(*mPort_Heap, ev) 
+      morkStream* stream = new(*mPort_Heap, ev)
         morkStream(ev, morkUsage::kHeap, mPort_Heap, file,
           morkStore_kStreamBufSize, /*frozen*/ morkBool_kTrue);
       if ( stream )
@@ -494,7 +494,7 @@ morkStream* morkStore::LazyGetOutStream(morkEnv* ev)
     nsIMdbFile* file = mStore_File;
     if ( file )
     {
-      morkStream* stream = new(*mPort_Heap, ev) 
+      morkStream* stream = new(*mPort_Heap, ev)
         morkStream(ev, morkUsage::kHeap, mPort_Heap, file,
           morkStore_kStreamBufSize, /*frozen*/ morkBool_kFalse);
       if ( stream )
@@ -526,7 +526,7 @@ morkBuilder* morkStore::LazyGetBuilder(morkEnv* ev)
     if ( stream )
     {
       nsIMdbHeap* heap = mPort_Heap;
-      morkBuilder* builder = new(*heap, ev) 
+      morkBuilder* builder = new(*heap, ev)
         morkBuilder(ev, morkUsage::kHeap, heap, stream,
           morkBuilder_kDefaultBytesPerParseSegment, heap, this);
       if ( builder )
@@ -545,13 +545,13 @@ morkStore::LazyGetRowSpace(morkEnv* ev, mdb_scope inRowScope)
   if ( !outSpace && ev->Good() ) // try to make new space?
   {
     nsIMdbHeap* heap = mPort_Heap;
-    outSpace = new(*heap, ev) 
+    outSpace = new(*heap, ev)
       morkRowSpace(ev, morkUsage::kHeap, inRowScope, this, heap, heap);
-      
+
     if ( outSpace ) // successful space creation?
     {
       this->MaybeDirtyStore();
-    
+
       // note adding to node map creates its own strong ref...
       if ( mStore_RowSpaces.AddRowSpace(ev, outSpace) )
         outSpace->CutStrongRef(ev); // ...so we can drop our strong ref
@@ -568,19 +568,19 @@ morkStore::LazyGetAtomSpace(morkEnv* ev, mdb_scope inAtomScope)
   {
     if ( inAtomScope == morkStore_kValueSpaceScope )
       outSpace = this->LazyGetGroundAtomSpace(ev);
-      
+
     else if ( inAtomScope == morkStore_kGroundColumnSpace )
       outSpace = this->LazyGetGroundColumnSpace(ev);
     else
     {
       nsIMdbHeap* heap = mPort_Heap;
-      outSpace = new(*heap, ev) 
+      outSpace = new(*heap, ev)
         morkAtomSpace(ev, morkUsage::kHeap, inAtomScope, this, heap, heap);
-        
+
       if ( outSpace ) // successful space creation?
       {
         this->MaybeDirtyStore();
-    
+
         // note adding to node map creates its own strong ref...
         if ( mStore_AtomSpaces.AddAtomSpace(ev, outSpace) )
           outSpace->CutStrongRef(ev); // ...so we can drop our strong ref
@@ -617,7 +617,7 @@ morkStore::OpenStoreFile(morkEnv* ev, mork_bool inFrozen,
 {
   MORK_USED_2(inOpenPolicy,inFrozen);
   nsIMdbFile_SlotStrongFile(ioFile, ev, &mStore_File);
-  
+
   // if ( ev->Good() )
   // {
   //   morkFile* file = morkFile::OpenOldFile(ev, mPort_Heap,
@@ -628,7 +628,7 @@ morkStore::OpenStoreFile(morkEnv* ev, mork_bool inFrozen,
   //       morkFile::SlotStrongFile(file, ev, &mStore_File);
   //     else
   //       file->CutStrongRef(ev);
-  //       
+  //
   //   }
   // }
   return ev->Good();
@@ -642,7 +642,7 @@ morkStore::CreateStoreFile(morkEnv* ev,
 {
   MORK_USED_1(inOpenPolicy);
   nsIMdbFile_SlotStrongFile(ioFile, ev, &mStore_File);
-  
+
   return ev->Good();
 }
 
@@ -671,7 +671,7 @@ morkStore::YarnToAtom(morkEnv* ev, const mdbYarn* inYarn, bool createIfMissing /
     {
       morkFarBookAtom* keyAtom =
         this->StageYarnAsFarBookAtom(ev, inYarn, groundSpace);
-        
+
       if ( keyAtom )
       {
         morkAtomBodyMap* map = &groundSpace->mAtomSpace_AtomBodies;
@@ -766,7 +766,7 @@ mork_bool
 morkStore::OidToYarn(morkEnv* ev, const mdbOid& inOid, mdbYarn* outYarn)
 {
   morkBookAtom* atom = 0;
-      
+
   morkAtomSpace* atomSpace = mStore_AtomSpaces.GetAtomSpace(ev, inOid.mOid_Scope);
   if ( atomSpace )
   {
@@ -823,13 +823,13 @@ morkStore::TokenToString(morkEnv* ev, mdb_token inToken, mdbYarn* outTokenName)
     morkAtomSpace* space = mStore_GroundColumnSpace;
     if ( space )
       atom = space->mAtomSpace_AtomAids.GetAid(ev, (mork_aid) inToken);
-      
+
     atom->GetYarn(outTokenName); // note this is safe even when atom==nil
   }
   else // token is an "immediate" single byte string representation?
     this->SmallTokenToOneByteYarn(ev, inToken, outTokenName);
 }
-  
+
 // void
 // morkStore::SyncTokenIdChange(morkEnv* ev, const morkBookAtom* inAtom,
 //   const mdbOid* inOid)
@@ -842,12 +842,12 @@ morkStore::TokenToString(morkEnv* ev, mdb_token inToken, mdbYarn* outTokenName)
 // mork_column  mStore_ColumnScopeToken; // token for "columnScope" // fill=11
 // mork_kind    mStore_TableKindToken;   // token for "tableKind"   // fill=9
 // ---------------------ruler-for-token-length-above---123456789012
-// 
+//
 //   if ( inOid->mOid_Scope == morkStore_kColumnSpaceScope && inAtom->IsWeeBook() )
 //   {
 //     const mork_u1* body = ((const morkWeeBookAtom*) inAtom)->mWeeBookAtom_Body;
 //     mork_size size = inAtom->mAtom_Size;
-// 
+//
 //     if ( size >= 7 && size <= 11 )
 //     {
 //       if ( size == 9 )
@@ -919,7 +919,7 @@ morkStore::AddAlias(morkEnv* ev, const morkMid& inMid, mork_cscode inForm)
           keyAtom->mBookAtom_Id = oid->mOid_Id;
           outAtom = atomSpace->MakeBookAtomCopyWithAid(ev,
             *keyAtom, (mork_aid) oid->mOid_Id);
-            
+
           // if ( outAtom && outAtom->IsWeeBook() )
           // {
           //   if ( oid->mOid_Scope == morkStore_kColumnSpaceScope )
@@ -937,7 +937,7 @@ morkStore::AddAlias(morkEnv* ev, const morkMid& inMid, mork_cscode inForm)
 }
 
 #define morkStore_kMaxCopyTokenSize 512 /* if larger, cannot be copied */
-  
+
 mork_token
 morkStore::CopyToken(morkEnv* ev, mdb_token inToken, morkStore* inStore)
 // copy inToken from inStore over to this store
@@ -955,7 +955,7 @@ morkStore::CopyToken(morkEnv* ev, mdb_token inToken, morkStore* inStore)
     yarn.mYarn_More = 0;
     yarn.mYarn_Form = 0;
     yarn.mYarn_Grow = 0;
-    
+
     inStore->TokenToString(ev, inToken, &yarn);
     if ( ev->Good() )
     {
@@ -1011,7 +1011,7 @@ morkStore::BufToToken(morkEnv* ev, const morkBuf* inBuf)
     else // only a single byte in inTokenName string:
       outToken = *s;
   }
-  
+
   return outToken;
 }
 
@@ -1053,7 +1053,7 @@ morkStore::StringToToken(morkEnv* ev, const char* inTokenName)
     else // only a single byte in inTokenName string:
       outToken = *s;
   }
-  
+
   return outToken;
 }
 
@@ -1088,12 +1088,12 @@ morkStore::QueryToken(morkEnv* ev, const char* inTokenName)
     else // only a single byte in inTokenName string:
       outToken = *s;
   }
-  
+
   return outToken;
 }
 
 mork_bool
-morkStore::HasTableKind(morkEnv* ev, mdb_scope inRowScope, 
+morkStore::HasTableKind(morkEnv* ev, mdb_scope inRowScope,
   mdb_kind inTableKind, mdb_count* outTableCount)
 {
   MORK_USED_2(inRowScope,inTableKind);
@@ -1101,14 +1101,14 @@ morkStore::HasTableKind(morkEnv* ev, mdb_scope inRowScope,
   mdb_count tableCount = 0;
 
   ev->StubMethodOnlyError();
-  
+
   if ( outTableCount )
     *outTableCount = tableCount;
   return outBool;
 }
 
 morkTable*
-morkStore::GetTableKind(morkEnv* ev, mdb_scope inRowScope, 
+morkStore::GetTableKind(morkEnv* ev, mdb_scope inRowScope,
   mdb_kind inTableKind, mdb_count* outTableCount,
   mdb_bool* outMustBeUnique)
 {
@@ -1176,11 +1176,11 @@ morkStore::GetTable(morkEnv* ev, const mdbOid* inOid)
   }
   return outTable;
 }
-  
+
 morkTable*
 morkStore::NewTable(morkEnv* ev, mdb_scope inRowScope,
   mdb_kind inTableKind, mdb_bool inMustBeUnique,
-  const mdbOid* inOptionalMetaRowOid) // can be nil to avoid specifying 
+  const mdbOid* inOptionalMetaRowOid) // can be nil to avoid specifying
 {
   morkTable* outTable = 0;
   if ( ev->Good() )
@@ -1201,7 +1201,7 @@ morkStore::GetPortTableCursor(morkEnv* ev, mdb_scope inRowScope,
   if ( ev->Good() )
   {
     nsIMdbHeap* heap = mPort_Heap;
-    outCursor = new(*heap, ev) 
+    outCursor = new(*heap, ev)
       morkPortTableCursor(ev, morkUsage::kHeap, heap, this,
         inRowScope, inTableKind, heap);
   }
@@ -1255,7 +1255,7 @@ morkStore::OidToRow(morkEnv* ev, const mdbOid* inOid)
 
 morkTable*
 morkStore::OidToTable(morkEnv* ev, const mdbOid* inOid,
-  const mdbOid* inOptionalMetaRowOid) // can be nil to avoid specifying 
+  const mdbOid* inOptionalMetaRowOid) // can be nil to avoid specifying
   // OidToTable() finds old table with oid, or makes new one if not found.
 {
   morkTable* outTable = 0;
@@ -1285,7 +1285,7 @@ morkStore::GetWeakRefCount(nsIMdbEnv* mev, // weak refs
 {
   *outCount = WeakRefsOnly();
   return NS_OK;
-}  
+}
 NS_IMETHODIMP
 morkStore::GetStrongRefCount(nsIMdbEnv* mev, // strong refs
   mdb_count* outCount)
@@ -1416,7 +1416,7 @@ morkStore::GetIsStoreAndDirty(nsIMdbEnv* mev, mdb_bool* outBool)
 }
 
 NS_IMETHODIMP
-morkStore::GetUsagePolicy(nsIMdbEnv* mev, 
+morkStore::GetUsagePolicy(nsIMdbEnv* mev,
   mdbUsagePolicy* ioUsagePolicy)
 {
   MORK_USED_1(ioUsagePolicy);
@@ -1431,7 +1431,7 @@ morkStore::GetUsagePolicy(nsIMdbEnv* mev,
 }
 
 NS_IMETHODIMP
-morkStore::SetUsagePolicy(nsIMdbEnv* mev, 
+morkStore::SetUsagePolicy(nsIMdbEnv* mev,
   const mdbUsagePolicy* inUsagePolicy)
 {
   MORK_USED_1(inUsagePolicy);
@@ -1446,7 +1446,7 @@ morkStore::SetUsagePolicy(nsIMdbEnv* mev,
 }
 // } ----- end attribute methods -----
 
-// { ----- begin memory policy methods -----  
+// { ----- begin memory policy methods -----
 NS_IMETHODIMP
 morkStore::IdleMemoryPurge( // do memory management already scheduled
   nsIMdbEnv* mev, // context
@@ -1523,7 +1523,7 @@ morkStore::GetPortFilePath(
       mStore_File->Path(mev, outFilePath);
     else
       NilStoreFileError(ev);
-    
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -1541,7 +1541,7 @@ morkStore::GetPortFile(
   morkEnv* ev = this->CanUseStore(mev, /*inMutable*/ morkBool_kFalse, &outErr);
   if ( ev )
   {
-    
+
     if ( mStore_File )
     {
       if ( acqFile )
@@ -1553,7 +1553,7 @@ morkStore::GetPortFile(
     }
     else
       NilStoreFileError(ev);
-      
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -1619,7 +1619,7 @@ morkStore::ExportToFormat( // export content in given specific format
     }
     else
       ev->NilPointerError();
-    
+
     outErr = ev->AsErr();
   }
   if ( acqThumb )
@@ -1668,7 +1668,7 @@ morkStore::StringToToken( // return an integer token for scope name
     *outToken = token;
   return outErr;
 }
-  
+
 
 NS_IMETHODIMP
 morkStore::QueryToken( // like StringToToken(), but without adding
@@ -1695,7 +1695,7 @@ morkStore::QueryToken( // like StringToToken(), but without adding
 
 // } ----- end token methods -----
 
-// { ----- begin row methods -----  
+// { ----- begin row methods -----
 NS_IMETHODIMP
 morkStore::HasRow( // contains a row with the specified oid?
   nsIMdbEnv* mev, // context
@@ -1710,14 +1710,14 @@ morkStore::HasRow( // contains a row with the specified oid?
     morkRow* row = GetRow(ev, inOid);
     if ( row )
       hasRow = morkBool_kTrue;
-      
+
     outErr = ev->AsErr();
   }
   if ( outHasRow )
     *outHasRow = hasRow;
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkStore::GetRow( // access one row with specific oid
   nsIMdbEnv* mev, // context
@@ -1732,7 +1732,7 @@ morkStore::GetRow( // access one row with specific oid
     morkRow* row = GetRow(ev, inOid);
     if ( row && ev->Good() )
       outRow = row->AcquireRowHandle(ev, this);
-      
+
     outErr = ev->AsErr();
   }
   if ( acqRow )
@@ -1741,10 +1741,10 @@ morkStore::GetRow( // access one row with specific oid
 }
 
 NS_IMETHODIMP
-morkStore::GetRowRefCount( // get number of tables that contain a row 
+morkStore::GetRowRefCount( // get number of tables that contain a row
   nsIMdbEnv* mev, // context
   const mdbOid* inOid,  // hypothetical row oid
-  mdb_count* outRefCount) // number of tables containing inRowKey 
+  mdb_count* outRefCount) // number of tables containing inRowKey
 {
   nsresult outErr = NS_OK;
   mdb_count count = 0;
@@ -1754,7 +1754,7 @@ morkStore::GetRowRefCount( // get number of tables that contain a row
     morkRow* row = GetRow(ev, inOid);
     if ( row && ev->Good() )
       count = row->mRow_GcUses;
-      
+
     outErr = ev->AsErr();
   }
   if ( outRefCount )
@@ -1806,7 +1806,7 @@ morkStore::FindRow(nsIMdbEnv* mev, // search for row with matching cell
   mdbOid rowOid;
   rowOid.mOid_Scope = 0;
   rowOid.mOid_Id = (mdb_id) -1;
-  
+
   morkEnv* ev = this->CanUseStore(mev, /*inMutable*/ morkBool_kFalse, &outErr);
   if ( ev )
   {
@@ -1829,7 +1829,7 @@ morkStore::FindRow(nsIMdbEnv* mev, // search for row with matching cell
 
 // } ----- end row methods -----
 
-// { ----- begin table methods -----  
+// { ----- begin table methods -----
 NS_IMETHODIMP
 morkStore::HasTable( // supports a table with the specified oid?
   nsIMdbEnv* mev, // context
@@ -1844,14 +1844,14 @@ morkStore::HasTable( // supports a table with the specified oid?
     morkTable* table = GetTable(ev, inOid);
     if ( table )
       hasTable = morkBool_kTrue;
-    
+
     outErr = ev->AsErr();
   }
   if ( outHasTable )
     *outHasTable = hasTable;
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkStore::GetTable( // access one table with specific oid
   nsIMdbEnv* mev, // context
@@ -1891,7 +1891,7 @@ morkStore::HasTableKind( // supports a table of the specified type?
   }
   return outErr;
 }
-      
+
 NS_IMETHODIMP
 morkStore::GetTableKind( // access one (random) table of specific type
   nsIMdbEnv* mev, // context
@@ -1916,7 +1916,7 @@ morkStore::GetTableKind( // access one (random) table of specific type
     *acqTable = outTable;
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkStore::GetPortTableCursor( // get cursor for all tables of specific type
   nsIMdbEnv* mev, // context
@@ -1944,7 +1944,7 @@ morkStore::GetPortTableCursor( // get cursor for all tables of specific type
 // } ----- end table methods -----
 
 // { ----- begin commit methods -----
-  
+
 NS_IMETHODIMP
 morkStore::ShouldCompress( // store wastes at least inPercentWaste?
   nsIMdbEnv* mev, // context
@@ -1980,7 +1980,7 @@ morkStore::NewTable( // make one new table of specific type
   mdb_scope inRowScope,    // row scope for row ids
   mdb_kind inTableKind,    // the type of table to access
   mdb_bool inMustBeUnique, // whether store can hold only one of these
-  const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+  const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
   nsIMdbTable** acqTable)     // acquire scoped collection of rows
 {
   nsresult outErr = NS_OK;
@@ -2005,7 +2005,7 @@ morkStore::NewTableWithOid( // make one new table of specific type
   const mdbOid* inOid,   // caller assigned oid
   mdb_kind inTableKind,    // the type of table to access
   mdb_bool inMustBeUnique, // whether store can hold only one of these
-  const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+  const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
   nsIMdbTable** acqTable)     // acquire scoped collection of rows
 {
   nsresult outErr = NS_OK;
@@ -2076,7 +2076,7 @@ morkStore::NewRowWithOid(nsIMdbEnv* mev, // new row w/ caller assigned oid
     morkRow* row = NewRowWithOid(ev, inOid);
     if ( row && ev->Good() )
       outRow = row->AcquireRowHandle(ev, this);
-      
+
     outErr = ev->AsErr();
   }
   if ( acqRow )
@@ -2099,7 +2099,7 @@ morkStore::NewRow(nsIMdbEnv* mev, // new row with db assigned oid
     morkRow* row = NewRow(ev, inRowScope);
     if ( row && ev->Good() )
       outRow = row->AcquireRowHandle(ev, this);
-      
+
     outErr = ev->AsErr();
   }
   if ( acqRow )
@@ -2185,7 +2185,7 @@ morkStore::LargeCommit( // save important changes if at all possible
   morkEnv* ev = CanUseStore(mev, /*inMutable*/ morkBool_kFalse, &outErr);
   if ( ev )
   {
-    
+
     morkThumb* thumb = 0;
     // morkFile* file = store->mStore_File;
     if ( DoPreferLargeOverCompressCommit(ev) )
@@ -2197,13 +2197,13 @@ morkStore::LargeCommit( // save important changes if at all possible
       mork_bool doCollect = morkBool_kFalse;
       thumb = morkThumb::Make_CompressCommit(ev, mPort_Heap, this, doCollect);
     }
-    
+
     if ( thumb )
     {
       outThumb = thumb;
       thumb->AddRef();
     }
-      
+
     outErr = ev->AsErr();
   }
   if ( acqThumb )
@@ -2225,7 +2225,7 @@ morkStore::SessionCommit( // save all changes if large commits delayed
   morkEnv* ev = CanUseStore(mev, /*inMutable*/ morkBool_kFalse, &outErr);
   if ( ev )
   {
-    
+
     morkThumb* thumb = 0;
     if ( DoPreferLargeOverCompressCommit(ev) )
     {
@@ -2236,7 +2236,7 @@ morkStore::SessionCommit( // save all changes if large commits delayed
       mork_bool doCollect = morkBool_kFalse;
       thumb = morkThumb::Make_CompressCommit(ev, mPort_Heap, this, doCollect);
     }
-    
+
     if ( thumb )
     {
       outThumb = thumb;
@@ -2271,7 +2271,7 @@ morkStore::CompressCommit( // commit and make db smaller if possible
       thumb->AddRef();
       mStore_CanWriteIncremental = morkBool_kTrue;
     }
-      
+
     outErr = ev->AsErr();
   }
   if ( acqThumb )

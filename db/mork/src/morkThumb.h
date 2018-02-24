@@ -37,7 +37,7 @@
 
 #define morkDerived_kThumb     /*i*/ 0x5468 /* ascii 'Th' */
 
-/*| morkThumb: 
+/*| morkThumb:
 |*/
 class morkThumb : public morkObject, public nsIMdbThumb {
 
@@ -46,12 +46,12 @@ class morkThumb : public morkObject, public nsIMdbThumb {
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
 
@@ -72,7 +72,7 @@ public: // state is public because the entire Mork system is private
 // } ===== end nsIMdbThumb methods =====
 
   // might as well include all the return values here:
-  
+
   mork_magic   mThumb_Magic;   // magic sig different in each thumb type
   mork_count   mThumb_Total;
   mork_count   mThumb_Current;
@@ -80,16 +80,16 @@ public: // state is public because the entire Mork system is private
   mork_bool    mThumb_Done;
   mork_bool    mThumb_Broken;
   mork_u2      mThumb_Seed;  // optional seed for u4 alignment padding
-  
+
   morkStore*   mThumb_Store; // weak ref to created store
   nsIMdbFile*  mThumb_File;  // strong ref to file (store, import, export)
   morkWriter*  mThumb_Writer;  // strong ref to writer (for commit)
   morkBuilder* mThumb_Builder;  // strong ref to builder (for store open)
   morkPort*    mThumb_SourcePort;  // strong ref to port for import
-  
+
   mork_bool    mThumb_DoCollect; // influence whether a collect happens
   mork_bool    mThumb_Pad[ 3 ]; // padding for u4 alignment
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseThumb() only if open
@@ -143,22 +143,22 @@ public: // other thumb methods
 
 public: // assorted thumb constructors
 
-  static morkThumb* Make_OpenFileStore(morkEnv* ev, 
+  static morkThumb* Make_OpenFileStore(morkEnv* ev,
     nsIMdbHeap* ioHeap, morkStore* ioStore);
 
-  static morkThumb* Make_CompressCommit(morkEnv* ev, 
+  static morkThumb* Make_CompressCommit(morkEnv* ev,
     nsIMdbHeap* ioHeap, morkStore* ioStore, mork_bool inDoCollect);
 
-  static morkThumb* Make_LargeCommit(morkEnv* ev, 
+  static morkThumb* Make_LargeCommit(morkEnv* ev,
     nsIMdbHeap* ioHeap, morkStore* ioStore);
 
 // { ===== begin non-poly methods imitating nsIMdbThumb =====
   void GetProgress(morkEnv* ev, mdb_count* outTotal,
     mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken);
-  
+
   void DoMore(morkEnv* ev, mdb_count* outTotal,
     mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken);
-  
+
   void CancelAndBreakThumb(morkEnv* ev);
 // } ===== end non-poly methods imitating nsIMdbThumb =====
 
@@ -168,7 +168,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakThumb(morkThumb* me,
     morkEnv* ev, morkThumb** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongThumb(morkThumb* me,
     morkEnv* ev, morkThumb** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

@@ -2,7 +2,7 @@
 This software is part of a public domain IronDoc source code distribution,
 and is provided on an "AS IS" basis, with all risks borne by the consumers
 or users of the IronDoc software.  There are no warranties, guarantees, or
-promises about quality of any kind; and no remedies for failure exist. 
+promises about quality of any kind; and no remedies for failure exist.
 
 Permission is hereby granted to use this IronDoc software for any purpose
 at all, without need for written agreements, without royalty or license
@@ -17,7 +17,7 @@ However, it would be rude to remove names of developers from the code.
 which are used interchangeably with the name IronDoc in the sources.)
 *************************************************************************/
 /*
- * File:      morkDeque.h 
+ * File:      morkDeque.h
  * Contains:  Ferrum deque (double ended queue (linked list))
  *
  * Copied directly from public domain IronDoc, with minor naming tweaks:
@@ -36,20 +36,20 @@ which are used interchangeably with the name IronDoc in the sources.)
  * morkNext: linked list node for very simple, singly-linked list
  */
 
-class morkNext /*d*/ {  
+class morkNext /*d*/ {
 public:
   morkNext*  mNext_Link;
-  
+
 public:
   morkNext(int inZero) : mNext_Link( 0 ) { }
-  
+
   morkNext(morkNext* ioLink) : mNext_Link( ioLink ) { }
-  
+
   morkNext(); // mNext_Link( 0 ), { }
-  
+
 public:
   morkNext*  GetNextLink() const { return mNext_Link; }
-  
+
 public: // link memory management methods
   static void* MakeNewNext(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev);
   void ZapOldNext(morkEnv* ev, nsIMdbHeap* ioHeap);
@@ -57,7 +57,7 @@ public: // link memory management methods
 public: // link memory management operators
   void* operator new(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev) CPP_THROW_NEW
   { return morkNext::MakeNewNext(inSize, ioHeap, ev); }
-  
+
   void operator delete(void* ioAddress) // DO NOT CALL THIS, hope to crash:
   { ((morkNext*) 0)->ZapOldNext((morkEnv*) 0, (nsIMdbHeap*) 0); } // boom
 };
@@ -78,21 +78,21 @@ public: // link memory management operators
 **|| Do NOT create cycles in links using this list class, since we do not
 **| deal with them very nicely.
 |*/
-class morkList /*d*/  {  
+class morkList /*d*/  {
 public:
   morkNext*  mList_Head; // first link in the list
   morkNext*  mList_Tail; // last link in the list
-  
+
 public:
   morkNext*  GetListHead() const { return mList_Head; }
   morkNext*  GetListTail() const { return mList_Tail; }
 
   mork_bool IsListEmpty() const { return ( mList_Head == 0 ); }
   mork_bool HasListMembers() const { return ( mList_Head != 0 ); }
-  
+
 public:
   morkList(); // : mList_Head( 0 ), mList_Tail( 0 ) { }
-  
+
   void CutAndZapAllListMembers(morkEnv* ev, nsIMdbHeap* ioHeap);
   // make empty list, zapping every member by calling ZapOldNext()
 
@@ -101,9 +101,9 @@ public:
 
 public:
   morkNext* PopHead(); // cut head of list
-  
+
   // Note we don't support PopTail(), so use morkDeque if you need that.
-  
+
   void PushHead(morkNext* ioLink); // add to head of list
   void PushTail(morkNext* ioLink); // add to tail of list
 };
@@ -112,40 +112,40 @@ public:
  * morkLink: linked list node embedded in objs to allow insertion in morkDeques
  */
 
-class morkLink /*d*/ {  
+class morkLink /*d*/ {
 public:
   morkLink*  mLink_Next;
   morkLink*  mLink_Prev;
-  
+
 public:
   morkLink(int inZero) : mLink_Next( 0 ), mLink_Prev( 0 ) { }
-  
+
   morkLink(); // mLink_Next( 0 ), mLink_Prev( 0 ) { }
-  
+
 public:
   morkLink*  Next() const { return mLink_Next; }
   morkLink*  Prev() const { return mLink_Prev; }
-  
+
   void SelfRefer() { mLink_Next = mLink_Prev = this; }
   void Clear() { mLink_Next = mLink_Prev = 0; }
-  
+
   void AddBefore(morkLink* old)
   {
     ((old)->mLink_Prev->mLink_Next = (this))->mLink_Prev = (old)->mLink_Prev;
     ((this)->mLink_Next = (old))->mLink_Prev = this;
   }
-  
+
   void AddAfter(morkLink* old)
   {
     ((old)->mLink_Next->mLink_Prev = (this))->mLink_Next = (old)->mLink_Next;
     ((this)->mLink_Prev = (old))->mLink_Next = this;
   }
-  
+
   void Remove()
   {
     (mLink_Prev->mLink_Next = mLink_Next)->mLink_Prev = mLink_Prev;
   }
-  
+
 public: // link memory management methods
   static void* MakeNewLink(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev);
   void ZapOldLink(morkEnv* ev, nsIMdbHeap* ioHeap);
@@ -153,7 +153,7 @@ public: // link memory management methods
 public: // link memory management operators
   void* operator new(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev) CPP_THROW_NEW
   { return morkLink::MakeNewLink(inSize, ioHeap, ev); }
-  
+
 };
 
 /*=============================================================================
@@ -174,7 +174,7 @@ public:// methods
 
   morkLink* At(mork_pos index) const ; /* one-based, not zero-based */
 
-  mork_pos IndexOf(const morkLink* inMember) const; 
+  mork_pos IndexOf(const morkLink* inMember) const;
     /* one-based index ; zero means member is not in deque */
 
   mork_num Length() const;
@@ -185,7 +185,7 @@ public:// methods
 
 public: // inlines
 
-  mork_bool IsEmpty()const 
+  mork_bool IsEmpty()const
   { return (mDeque_Head.mLink_Next == (morkLink*) &mDeque_Head); }
 
   morkLink* After(const morkLink* old) const
@@ -203,7 +203,7 @@ public: // inlines
   morkLink*  Last() const
   { return ((mDeque_Head.mLink_Prev != &mDeque_Head)?
     mDeque_Head.mLink_Prev : (morkLink*) 0); }
-    
+
 /*
 From IronDoc documentation for AddFirst:
 +--------+   +--------+      +--------+   +--------+   +--------+
@@ -213,7 +213,7 @@ From IronDoc documentation for AddFirst:
 +--------+   +--------+      +--------+   +--------+   +--------+
 */
 
-  void AddFirst(morkLink* in) /*i*/ 
+  void AddFirst(morkLink* in) /*i*/
   {
     (mDeque_Head.mLink_Next->mLink_Prev = in)->mLink_Next =
       mDeque_Head.mLink_Next;

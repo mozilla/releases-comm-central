@@ -28,17 +28,17 @@
 /*| Atom: .
 |*/
 class morkAtom { //
- 
-public: 
+
+public:
 
   mork_u1       mAtom_Kind;      // identifies a specific atom subclass
   mork_u1       mAtom_CellUses;  // number of persistent uses in a cell
   mork_change   mAtom_Change;    // how has this atom been changed?
   mork_u1       mAtom_Size;      // only for atoms smaller than 256 bytes
 
-public: 
+public:
   morkAtom(mork_aid inAid, mork_u1 inKind);
-  
+
   mork_bool IsWeeAnon() const { return mAtom_Kind == morkAtom_kKindWeeAnon; }
   mork_bool IsBigAnon() const { return mAtom_Kind == morkAtom_kKindBigAnon; }
   mork_bool IsWeeBook() const { return mAtom_Kind == morkAtom_kKindWeeBook; }
@@ -53,7 +53,7 @@ public: // clean vs dirty
 
   void SetAtomClean() { mAtom_Change = morkChange_kNil; }
   void SetAtomDirty() { mAtom_Change = morkChange_kAdd; }
-  
+
   mork_bool IsAtomClean() const { return mAtom_Change == morkChange_kNil; }
   mork_bool IsAtomDirty() const { return mAtom_Change == morkChange_kAdd; }
 
@@ -64,7 +64,7 @@ public: // atom space scope if IsBook() is true, or else zero:
 
   mork_aid   GetBookAtomAid() const;
   // zero or book atom's ID
- 
+
 public: // empty construction does nothing
   morkAtom() { }
 
@@ -72,10 +72,10 @@ public: // one-byte refcounting, freezing at maximum
   void       MakeCellUseForever(morkEnv* ev);
   mork_u1    AddCellUse(morkEnv* ev);
   mork_u1    CutCellUse(morkEnv* ev);
-  
-  mork_bool  IsCellUseForever() const 
+
+  mork_bool  IsCellUseForever() const
   { return mAtom_CellUses == morkAtom_kForeverCellUses; }
-  
+
 private: // warnings
 
   static void CellUsesUnderflowWarning(morkEnv* ev);
@@ -104,7 +104,7 @@ class morkOidAtom : public morkAtom { //
   // mork_u1       mAtom_CellUses;  // number of persistent uses in a cell
   // mork_change   mAtom_Change;    // how has this atom been changed?
   // mork_u1       mAtom_Size;      // NOT USED IN "BIG" format atoms
- 
+
 public:
   mdbOid           mOidAtom_Oid;       // identity of referenced object
 
@@ -139,14 +139,14 @@ class morkWeeAnonAtom : public morkAtom { //
   // mork_u1       mAtom_CellUses;  // number of persistent uses in a cell
   // mork_change   mAtom_Change;    // how has this atom been changed?
   // mork_u1       mAtom_Size;      // only for atoms smaller than 256 bytes
-  
+
 public:
   mork_u1 mWeeAnonAtom_Body[ 1 ]; // 1st byte of immediate content vector
 
 public: // empty construction does nothing
   morkWeeAnonAtom() { }
   void InitWeeAnonAtom(morkEnv* ev, const morkBuf& inBuf);
-  
+
   // allow extra trailing byte for a null byte:
   static mork_size SizeForFill(mork_fill inFill)
   { return sizeof(morkWeeAnonAtom) + inFill; }
@@ -169,7 +169,7 @@ class morkBigAnonAtom : public morkAtom { //
   // mork_u1       mAtom_CellUses;  // number of persistent uses in a cell
   // mork_change   mAtom_Change;    // how has this atom been changed?
   // mork_u1       mAtom_Size;      // NOT USED IN "BIG" format atoms
- 
+
 public:
   mork_cscode   mBigAnonAtom_Form;      // charset format encoding
   mork_size     mBigAnonAtom_Size;      // size of content vector
@@ -178,7 +178,7 @@ public:
 public: // empty construction does nothing
   morkBigAnonAtom() { }
   void InitBigAnonAtom(morkEnv* ev, const morkBuf& inBuf, mork_cscode inForm);
-  
+
   // allow extra trailing byte for a null byte:
   static mork_size SizeForFill(mork_fill inFill)
   { return sizeof(morkBigAnonAtom) + inFill; }
@@ -199,9 +199,9 @@ class morkBookAtom : public morkAtom { //
   // mork_u1       mAtom_CellUses;  // number of persistent uses in a cell
   // mork_change   mAtom_Change;    // how has this atom been changed?
   // mork_u1       mAtom_Size;      // only for atoms smaller than 256 bytes
-  
+
 public:
-  morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is atom scope 
+  morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is atom scope
   mork_aid       mBookAtom_Id;    // identity token for this shared atom
 
 public: // empty construction does nothing
@@ -216,12 +216,12 @@ public: // Hash() and Equal() for atom ID maps are same for all subclasses:
   { return ( mBookAtom_Id == inAtom->mBookAtom_Id); }
 
 public: // Hash() and Equal() for atom body maps know about subclasses:
-  
+
   // YOU CANNOT SUBCLASS morkBookAtom WITHOUT FIXING Hash and Equal METHODS:
 
   mork_u4 HashFormAndBody(morkEnv* ev) const;
   mork_bool EqualFormAndBody(morkEnv* ev, const morkBookAtom* inAtom) const;
-  
+
 public: // separation from containing space
 
   void CutBookAtomFromSpace(morkEnv* ev);
@@ -244,15 +244,15 @@ private: // copying is not allowed
 **| We only expect to create temp instances for table lookups.
 |*/
 class morkFarBookAtom : public morkBookAtom { //
-  
+
   // mork_u1       mAtom_Kind;      // identifies a specific atom subclass
   // mork_u1       mAtom_CellUses;  // number of persistent uses in a cell
   // mork_change   mAtom_Change;    // how has this atom been changed?
   // mork_u1       mAtom_Size;      // NOT USED IN "BIG" format atoms
 
-  // morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is scope 
+  // morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is scope
   // mork_aid       mBookAtom_Id;    // identity token for this shared atom
-  
+
 public:
   mork_cscode   mFarBookAtom_Form;      // charset format encoding
   mork_size     mFarBookAtom_Size;      // size of content vector
@@ -262,7 +262,7 @@ public: // empty construction does nothing
   morkFarBookAtom() { }
   void InitFarBookAtom(morkEnv* ev, const morkBuf& inBuf,
     mork_cscode inForm, morkAtomSpace* ioSpace, mork_aid inAid);
-  
+
 private: // copying is not allowed
   morkFarBookAtom(const morkFarBookAtom& other);
   morkFarBookAtom& operator=(const morkFarBookAtom& other);
@@ -276,19 +276,19 @@ class morkWeeBookAtom : public morkBookAtom { //
   // mork_change   mAtom_Change;    // how has this atom been changed?
   // mork_u1       mAtom_Size;      // only for atoms smaller than 256 bytes
 
-  // morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is scope 
+  // morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is scope
   // mork_aid       mBookAtom_Id;    // identity token for this shared atom
-  
+
 public:
   mork_u1     mWeeBookAtom_Body[ 1 ]; // 1st byte of immed content vector
 
 public: // empty construction does nothing
   morkWeeBookAtom() { }
   morkWeeBookAtom(mork_aid inAid);
-  
+
   void InitWeeBookAtom(morkEnv* ev, const morkBuf& inBuf,
     morkAtomSpace* ioSpace, mork_aid inAid);
-  
+
   // allow extra trailing byte for a null byte:
   static mork_size SizeForFill(mork_fill inFill)
   { return sizeof(morkWeeBookAtom) + inFill; }
@@ -301,15 +301,15 @@ private: // copying is not allowed
 /*| BigBookAtom: .
 |*/
 class morkBigBookAtom : public morkBookAtom { //
-  
+
   // mork_u1       mAtom_Kind;      // identifies a specific atom subclass
   // mork_u1       mAtom_CellUses;  // number of persistent uses in a cell
   // mork_change   mAtom_Change;    // how has this atom been changed?
   // mork_u1       mAtom_Size;      // NOT USED IN "BIG" format atoms
 
-  // morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is scope 
+  // morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is scope
   // mork_aid       mBookAtom_Id;    // identity token for this shared atom
-  
+
 public:
   mork_cscode   mBigBookAtom_Form;      // charset format encoding
   mork_size     mBigBookAtom_Size;      // size of content vector
@@ -319,7 +319,7 @@ public: // empty construction does nothing
   morkBigBookAtom() { }
   void InitBigBookAtom(morkEnv* ev, const morkBuf& inBuf,
     mork_cscode inForm, morkAtomSpace* ioSpace, mork_aid inAid);
-  
+
   // allow extra trailing byte for a null byte:
   static mork_size SizeForFill(mork_fill inFill)
   { return sizeof(morkBigBookAtom) + inFill; }
@@ -332,19 +332,19 @@ private: // copying is not allowed
 /*| MaxBookAtom: .
 |*/
 class morkMaxBookAtom : public morkBigBookAtom { //
-  
+
   // mork_u1       mAtom_Kind;      // identifies a specific atom subclass
   // mork_u1       mAtom_CellUses;  // number of persistent uses in a cell
   // mork_change   mAtom_Change;    // how has this atom been changed?
   // mork_u1       mAtom_Size;      // NOT USED IN "BIG" format atoms
 
-  // morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is scope 
+  // morkAtomSpace* mBookAtom_Space; // mBookAtom_Space->SpaceScope() is scope
   // mork_aid       mBookAtom_Id;    // identity token for this shared atom
 
   // mork_cscode   mBigBookAtom_Form;      // charset format encoding
   // mork_size     mBigBookAtom_Size;      // size of content vector
   // mork_u1       mBigBookAtom_Body[ 1 ]; // 1st byte of immed content vector
-  
+
 public:
   mork_u1 mMaxBookAtom_Body[ morkBookAtom_kMaxBodySize + 3 ]; // max bytes
 

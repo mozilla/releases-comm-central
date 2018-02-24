@@ -33,7 +33,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -77,7 +77,7 @@ morkPortTableCursor::morkPortTableCursor(morkEnv* ev,
 
       if ( this->SetRowScope(ev, inRowScope) )
         this->SetTableKind(ev, inTableKind);
-        
+
       if ( ev->Good() )
         mNode_Derived = morkDerived_kPortTableCursor;
     }
@@ -108,7 +108,7 @@ morkPortTableCursor::CanUsePortTableCursor(nsIMdbEnv* mev, mork_bool inMutable,
 
 
 /*public non-poly*/ void
-morkPortTableCursor::ClosePortTableCursor(morkEnv* ev) 
+morkPortTableCursor::ClosePortTableCursor(morkEnv* ev)
 {
     if ( this->IsNode() )
     {
@@ -126,7 +126,7 @@ morkPortTableCursor::ClosePortTableCursor(morkEnv* ev)
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ void
 morkPortTableCursor::NilCursorStoreError(morkEnv* ev)
@@ -140,16 +140,16 @@ morkPortTableCursor::NonPortTableCursorTypeError(morkEnv* ev)
   ev->NewError("non morkPortTableCursor");
 }
 
-mork_bool 
+mork_bool
 morkPortTableCursor::SetRowScope(morkEnv* ev, mork_scope inRowScope)
 {
   mPortTableCursor_RowScope = inRowScope;
   mPortTableCursor_LastTable = 0; // restart iteration of space
-  
+
   mPortTableCursor_TableIter.CloseMapIter(ev);
   mPortTableCursor_TablesDidEnd = morkBool_kTrue;
   mPortTableCursor_SpacesDidEnd = morkBool_kTrue;
-  
+
   morkStore* store = mPortTableCursor_Store;
   if ( store )
   {
@@ -158,9 +158,9 @@ morkPortTableCursor::SetRowScope(morkEnv* ev, mork_scope inRowScope)
     if ( inRowScope ) // intend to cover a specific scope only?
     {
       space = store->LazyGetRowSpace(ev, inRowScope);
-      morkRowSpace::SlotStrongRowSpace(space, ev, 
+      morkRowSpace::SlotStrongRowSpace(space, ev,
        &mPortTableCursor_RowSpace);
-       
+
       // We want mPortTableCursor_SpacesDidEnd == morkBool_kTrue
       // to show this is the only space to be covered.
     }
@@ -168,12 +168,12 @@ morkPortTableCursor::SetRowScope(morkEnv* ev, mork_scope inRowScope)
     {
       morkRowSpaceMapIter* rsi = &mPortTableCursor_SpaceIter;
       rsi->InitRowSpaceMapIter(ev, &store->mStore_RowSpaces);
-      
+
       space = 0;
       (void) rsi->FirstRowSpace(ev, (mork_scope*) 0, &space);
       morkRowSpace::SlotStrongRowSpace(space, ev,
         &mPortTableCursor_RowSpace);
-        
+
       if ( space ) // found first space in store
         mPortTableCursor_SpacesDidEnd = morkBool_kFalse;
     }
@@ -182,7 +182,7 @@ morkPortTableCursor::SetRowScope(morkEnv* ev, mork_scope inRowScope)
   }
   else
     this->NilCursorStoreError(ev);
-    
+
   return ev->Good();
 }
 
@@ -236,11 +236,11 @@ morkPortTableCursor::NextSpace(morkEnv* ev)
       (void) rsi->NextRowSpace(ev, (mork_scope*) 0, &outSpace);
       morkRowSpace::SlotStrongRowSpace(outSpace, ev,
         &mPortTableCursor_RowSpace);
-        
+
       if ( outSpace ) // found next space in store
       {
         mPortTableCursor_SpacesDidEnd = morkBool_kFalse;
-        
+
         this->init_space_tables_map(ev);
 
         if ( ev->Bad() )
@@ -250,7 +250,7 @@ morkPortTableCursor::NextSpace(morkEnv* ev)
     else
       this->NilCursorStoreError(ev);
   }
-    
+
   return outSpace;
 }
 
@@ -258,13 +258,13 @@ morkTable *
 morkPortTableCursor::NextTable(morkEnv* ev)
 {
   mork_kind kind = mPortTableCursor_TableKind;
-  
+
   do // until spaces end, or until we find a table in a space
-  { 
+  {
     morkRowSpace* space = mPortTableCursor_RowSpace;
     if ( mPortTableCursor_TablesDidEnd ) // current space exhausted?
       space = this->NextSpace(ev); // go on to the next space
-      
+
     if ( space ) // have a space remaining that might hold tables?
     {
 #ifdef MORK_BEAD_OVER_NODE_MAPS
@@ -273,7 +273,7 @@ morkPortTableCursor::NextTable(morkEnv* ev)
         ti->NextTable(ev) : ti->FirstTable(ev);
 
       for ( ; table && ev->Good(); table = ti->NextTable(ev) )
-      
+
 #else /*MORK_BEAD_OVER_NODE_MAPS*/
       mork_tid* key = 0; // ignore keys in table map
       morkTable* table = 0; // old value table in the map
@@ -298,7 +298,7 @@ morkPortTableCursor::NextTable(morkEnv* ev)
       mPortTableCursor_TablesDidEnd = morkBool_kTrue; // space is done
       mPortTableCursor_LastTable = 0; // make sure next space starts fresh
     }
-  
+
   } while ( ev->Good() && !mPortTableCursor_SpacesDidEnd );
 
   return (morkTable*) 0;
@@ -345,7 +345,7 @@ morkPortTableCursor::SetRowScope(nsIMdbEnv* mev, // sets pos to -1
   if ( ev )
   {
     mCursor_Pos = -1;
-    
+
     SetRowScope(ev, inRowScope);
     outErr = ev->AsErr();
   }
@@ -368,7 +368,7 @@ morkPortTableCursor::GetRowScope(nsIMdbEnv* mev, mdb_scope* outRowScope)
   return outErr;
 }
 // setting row scope to zero iterates over all row scopes in port
-  
+
 NS_IMETHODIMP
 morkPortTableCursor::SetTableKind(nsIMdbEnv* mev, // sets pos to -1
   mdb_kind inTableKind)
@@ -379,7 +379,7 @@ morkPortTableCursor::SetTableKind(nsIMdbEnv* mev, // sets pos to -1
   if ( ev )
   {
     mCursor_Pos = -1;
-    
+
     SetTableKind(ev, inTableKind);
     outErr = ev->AsErr();
   }
@@ -419,7 +419,7 @@ morkPortTableCursor::NextTable( // get table at next position in the db
     morkTable* table = NextTable(ev);
     if ( table && ev->Good() )
       outTable = table->AcquireTableHandle(ev);
-        
+
     outErr = ev->AsErr();
   }
   if ( acqTable )

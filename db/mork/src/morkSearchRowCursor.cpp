@@ -45,7 +45,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -89,7 +89,7 @@ morkSearchRowCursor::morkSearchRowCursor(morkEnv* ev,
 }
 
 /*public non-poly*/ void
-morkSearchRowCursor::CloseSearchRowCursor(morkEnv* ev) 
+morkSearchRowCursor::CloseSearchRowCursor(morkEnv* ev)
 {
     if ( this->IsNode() )
     {
@@ -102,7 +102,7 @@ morkSearchRowCursor::CloseSearchRowCursor(morkEnv* ev)
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ void
 morkSearchRowCursor::NonSearchRowCursorTypeError(morkEnv* ev)
@@ -114,7 +114,7 @@ morkUniqRowCursor*
 morkSearchRowCursor::MakeUniqCursor(morkEnv* ev)
 {
   morkUniqRowCursor* outCursor = 0;
-  
+
   return outCursor;
 }
 
@@ -123,7 +123,7 @@ orkinTableRowCursor*
 morkSearchRowCursor::AcquireUniqueRowCursorHandle(morkEnv* ev)
 {
   orkinTableRowCursor* outCursor = 0;
-  
+
   morkUniqRowCursor* uniqCursor = this->MakeUniqCursor(ev);
   if ( uniqCursor )
   {
@@ -154,7 +154,7 @@ morkSearchRowCursor::NextRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos)
 {
   morkRow* outRow = 0;
   mork_pos pos = -1;
-  
+
   morkTable* table = mTableRowCursor_Table;
   if ( table )
   {

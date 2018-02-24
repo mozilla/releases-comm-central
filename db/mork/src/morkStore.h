@@ -63,7 +63,7 @@
 #define morkStore_kKindColumn ((mork_column) 'k')
 #define morkStore_kStatusColumn ((mork_column) 's')
 
-/*| morkStore: 
+/*| morkStore:
 |*/
 class morkStore :  public morkObject, public nsIMdbStore {
 
@@ -74,10 +74,10 @@ public: // state is public because the entire Mork system is private
   morkEnv*        mPort_Env;      // non-refcounted env which created port
   morkFactory*    mPort_Factory;  // weak ref to suite factory
   nsIMdbHeap*     mPort_Heap;     // heap in which this port allocs objects
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  
+
   void ClosePort(morkEnv* ev); // called by CloseMorkNode();
 
 public: // dynamic type identification
@@ -93,7 +93,7 @@ public: // other port methods
   // } ----- end attribute methods -----
 
   // { ----- begin factory methods -----
-//  NS_IMETHOD GetMdbFactory(nsIMdbEnv* ev, nsIMdbFactory** acqFactory); 
+//  NS_IMETHOD GetMdbFactory(nsIMdbEnv* ev, nsIMdbFactory** acqFactory);
   // } ----- end factory methods -----
 
   // { ----- begin ref counting for well-behaved cyclic graphs -----
@@ -119,7 +119,7 @@ public: // other port methods
   NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev) override; // called at strong refs zero
   NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen) override;
   // } ----- end ref counting -----
-  
+
 // } ===== end nsIMdbObject methods =====
 
 // { ===== begin nsIMdbPort methods =====
@@ -136,7 +136,7 @@ public: // other port methods
     const mdbUsagePolicy* inUsagePolicy) override;
   // } ----- end attribute methods -----
 
-  // { ----- begin memory policy methods -----  
+  // { ----- begin memory policy methods -----
   NS_IMETHOD IdleMemoryPurge( // do memory management already scheduled
     nsIMdbEnv* ev, // context
     mdb_size* outEstimatedBytesFreed) override; // approximate bytes actually freed
@@ -189,12 +189,12 @@ public: // other port methods
     nsIMdbEnv* ev, // context
     mdb_token inToken, // token for inTokenName inside this port
     mdbYarn* outTokenName) override; // the type of table to access
-  
+
   NS_IMETHOD StringToToken( // return an integer token for scope name
     nsIMdbEnv* ev, // context
     const char* inTokenName, // Latin1 string to tokenize if possible
     mdb_token* outToken) override; // token for inTokenName inside this port
-    
+
   // String token zero is never used and never supported. If the port
   // is a mutable store, then StringToToken() to create a new
   // association of inTokenName with a new integer token if possible.
@@ -204,24 +204,24 @@ public: // other port methods
     nsIMdbEnv* ev, // context
     const char* inTokenName, // Latin1 string to tokenize if possible
     mdb_token* outToken) override; // token for inTokenName inside this port
-  
+
   // QueryToken() will return a string token if one already exists,
   // but unlike StringToToken(), will not assign a new token if not
   // already in use.
 
   // } ----- end token methods -----
 
-  // { ----- begin row methods -----  
+  // { ----- begin row methods -----
   NS_IMETHOD HasRow( // contains a row with the specified oid?
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
     mdb_bool* outHasRow) override; // whether GetRow() might succeed
 
-  NS_IMETHOD GetRowRefCount( // get number of tables that contain a row 
+  NS_IMETHOD GetRowRefCount( // get number of tables that contain a row
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
-    mdb_count* outRefCount) override; // number of tables containing inRowKey 
-    
+    mdb_count* outRefCount) override; // number of tables containing inRowKey
+
   NS_IMETHOD GetRow( // access one row with specific oid
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
@@ -267,24 +267,24 @@ public: // other port methods
   // all rows by the specified column.
   // } ----- end row methods -----
 
-  // { ----- begin table methods -----  
+  // { ----- begin table methods -----
   NS_IMETHOD HasTable( // supports a table with the specified oid?
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical table oid
     mdb_bool* outHasTable) override; // whether GetTable() might succeed
-    
+
   NS_IMETHOD GetTable( // access one table with specific oid
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical table oid
     nsIMdbTable** acqTable) override; // acquire specific table (or null)
-  
+
   NS_IMETHOD HasTableKind( // supports a table of the specified type?
     nsIMdbEnv* ev, // context
     mdb_scope inRowScope, // rid scope for row ids
     mdb_kind inTableKind, // the type of table to access
     mdb_count* outTableCount, // current number of such tables
     mdb_bool* outSupportsTable) override; // whether GetTableKind() might succeed
-        
+
   NS_IMETHOD GetTableKind( // access one (random) table of specific type
     nsIMdbEnv* ev, // context
     mdb_scope inRowScope,      // row scope for row ids
@@ -292,7 +292,7 @@ public: // other port methods
     mdb_count* outTableCount, // current number of such tables
     mdb_bool* outMustBeUnique, // whether port can hold only one of these
     nsIMdbTable** acqTable) override; // acquire scoped collection of rows
-    
+
   NS_IMETHOD
   GetPortTableCursor( // get cursor for all tables of specific type
     nsIMdbEnv* ev, // context
@@ -312,7 +312,7 @@ public: // other port methods
   // ShouldCompress() returns true if the store can determine that the file
   // will shrink by an estimated percentage of inPercentWaste% (or more) if
   // CompressCommit() is called, because that percentage of the file seems
-  // to be recoverable free space.  The granularity is only in terms of 
+  // to be recoverable free space.  The granularity is only in terms of
   // percentage points, and any value over 100 is considered equal to 100.
   //
   // If a store only has an approximate idea how much space might be saved
@@ -361,7 +361,7 @@ public: // other port methods
   // larger a file gets, the more important the percentage waste involved, so
   // a sliding scale for compress thresholds might use smaller numbers for
   // much bigger file sizes.)
-  
+
   // } ----- end commit methods -----
 
 // } ===== end nsIMdbPort methods =====
@@ -376,13 +376,13 @@ public: // other port methods
     mdb_bool inMustBeUnique, // whether store can hold only one of these
     const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
     nsIMdbTable** acqTable) override; // acquire scoped collection of rows
-    
+
   NS_IMETHOD NewTableWithOid( // make one new table of specific type
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,   // caller assigned oid
     mdb_kind inTableKind,    // the type of table to access
     mdb_bool inMustBeUnique, // whether store can hold only one of these
-    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
     nsIMdbTable** acqTable) override; // acquire scoped collection of rows
   // } ----- end table methods -----
 
@@ -471,7 +471,7 @@ public: // other port methods
   // then the commit will be finished.  Note the store is effectively write
   // locked until commit is finished or canceled through the thumb instance.
   // Until the commit is done, the store will report it has readonly status.
-  
+
   // } ----- end commit methods -----
 
 // } ===== end nsIMdbStore methods =====
@@ -480,7 +480,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakPort(morkPort* me,
     morkEnv* ev, morkPort** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongPort(morkPort* me,
     morkEnv* ev, morkPort** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -494,7 +494,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   // mork_usage   mNode_Usage;   // kHeap, kStack, kMember, kGlobal, kNone
   // mork_uses    mNode_Uses;    // refcount for strong refs
   // mork_refs    mNode_Refs;    // refcount for strong refs + weak refs
- 
+
   // morkEnv*        mPort_Env;      // non-refcounted env which created port
   // morkFactory*    mPort_Factory;  // weak ref to suite factory
   // nsIMdbHeap*     mPort_Heap;     // heap in which this port allocs objects
@@ -508,25 +508,25 @@ public: // state is public because the entire Mork system is private
 
   nsIMdbFile*      mStore_File; // the file containing Mork text
   morkStream*      mStore_InStream; // stream using file used by the builder
-  morkBuilder*     mStore_Builder; // to parse Mork text and build structures 
+  morkBuilder*     mStore_Builder; // to parse Mork text and build structures
 
   morkStream*      mStore_OutStream; // stream using file used by the writer
-  
+
   morkRowSpaceMap  mStore_RowSpaces;  // maps mork_scope -> morkSpace
   morkAtomSpaceMap mStore_AtomSpaces; // maps mork_scope -> morkSpace
-  
+
   morkZone         mStore_Zone;
-  
+
   morkPool         mStore_Pool;
 
   // we alloc a max size book atom to reuse space for atom map key searches:
   // morkMaxBookAtom  mStore_BookAtom; // staging area for atom map searches
-  
+
   morkFarBookAtom  mStore_FarBookAtom; // staging area for atom map searches
-  
+
   // GroupIdentity should be one more than largest seen in a parsed db file:
   mork_gid         mStore_CommitGroupIdentity; // transaction ID number
-  
+
   // group positions are used to help compute PercentOfStoreWasted():
   mork_pos         mStore_FirstCommitGroupPos; // start of first group
   mork_pos         mStore_SecondCommitGroupPos; // start of second group
@@ -546,12 +546,12 @@ public: // state is public because the entire Mork system is private
   // parsing), since either reading or writing the file might encounter the
   // first transaction groups which came into existence either in the past
   // or in the very recent present.
-  
+
   mork_bool        mStore_CanAutoAssignAtomIdentity;
   mork_bool        mStore_CanDirty; // changes imply the store becomes dirty?
   mork_u1          mStore_CanWriteIncremental; // compress not required?
   mork_u1          mStore_Pad; // for u4 alignment
-  
+
   // mStore_CanDirty should be FALSE when parsing a file while building the
   // content going into the store, because such data structure modifications
   // are actuallly in sync with the file.  So content read from a file must
@@ -568,21 +568,21 @@ public: // state is public because the entire Mork system is private
 public: // more specific dirty methods for store:
   void SetStoreDirty() { this->SetNodeDirty(); }
   void SetStoreClean() { this->SetNodeClean(); }
-  
+
   mork_bool IsStoreClean() const { return this->IsNodeClean(); }
   mork_bool IsStoreDirty() const { return this->IsNodeDirty(); }
- 
+
 public: // setting dirty based on CanDirty:
- 
+
   void MaybeDirtyStore()
   { if ( mStore_CanDirty ) this->SetStoreDirty(); }
-  
+
 public: // space waste analysis
 
   mork_percent PercentOfStoreWasted(morkEnv* ev);
- 
+
 public: // setting store and all subspaces canDirty:
- 
+
   void SetStoreAndAllSpacesCanDirty(morkEnv* ev, mork_bool inCanDirty);
 
 public: // building an atom inside mStore_FarBookAtom from a char* string
@@ -599,7 +599,7 @@ public: // building an atom inside mStore_FarBookAtom from a char* string
 public: // determining whether incremental writing is a good use of time:
 
   mork_bool DoPreferLargeOverCompressCommit(morkEnv* ev);
-  // true when mStore_CanWriteIncremental && store has file large enough 
+  // true when mStore_CanWriteIncremental && store has file large enough
 
 public: // lazy creation of members and nested row or atom spaces
 
@@ -608,18 +608,18 @@ public: // lazy creation of members and nested row or atom spaces
   morkAtomSpace*   LazyGetGroundColumnSpace(morkEnv* ev);
 
   morkStream*      LazyGetInStream(morkEnv* ev);
-  morkBuilder*     LazyGetBuilder(morkEnv* ev); 
-  void             ForgetBuilder(morkEnv* ev); 
+  morkBuilder*     LazyGetBuilder(morkEnv* ev);
+  void             ForgetBuilder(morkEnv* ev);
 
   morkStream*      LazyGetOutStream(morkEnv* ev);
-  
+
   morkRowSpace*    LazyGetRowSpace(morkEnv* ev, mdb_scope inRowScope);
   morkAtomSpace*   LazyGetAtomSpace(morkEnv* ev, mdb_scope inAtomScope);
- 
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseStore() only if open
-  
+
 public: // morkStore construction & destruction
   morkStore(morkEnv* ev, const morkUsage& inUsage,
      nsIMdbHeap* ioNodeHeap, // the heap (if any) for this node instance
@@ -644,9 +644,9 @@ public: // typing
   static void NonStoreTypeError(morkEnv* ev);
   static void NilStoreFileError(morkEnv* ev);
   static void CannotAutoAssignAtomIdentityError(morkEnv* ev);
-  
+
 public: //  store utilties
-  
+
   morkAtom* YarnToAtom(morkEnv* ev, const mdbYarn* inYarn, bool createIfMissing = true);
   morkAtom* AddAlias(morkEnv* ev, const morkMid& inMid,
     mork_cscode inForm);
@@ -669,18 +669,18 @@ public: // other store methods
     // const char* inFilePath,
     nsIMdbFile* ioFile, // db abstract file interface
     const mdbOpenPolicy* inOpenPolicy);
-    
+
   morkAtom* CopyAtom(morkEnv* ev, const morkAtom* inAtom);
   // copy inAtom (from some other store) over to this store
-    
+
   mork_token CopyToken(morkEnv* ev, mdb_token inToken, morkStore* inStore);
   // copy inToken from inStore over to this store
-    
+
   mork_token BufToToken(morkEnv* ev, const morkBuf* inBuf);
   mork_token StringToToken(morkEnv* ev, const char* inTokenName);
   mork_token QueryToken(morkEnv* ev, const char* inTokenName);
   void TokenToString(morkEnv* ev, mdb_token inToken, mdbYarn* outTokenName);
-  
+
   mork_bool MidToOid(morkEnv* ev, const morkMid& inMid,
      mdbOid* outOid);
   mork_bool OidToYarn(morkEnv* ev, const mdbOid& inOid, mdbYarn* outYarn);
@@ -690,30 +690,30 @@ public: // other store methods
   morkBookAtom* MidToAtom(morkEnv* ev, const morkMid& inMid);
   morkRow* MidToRow(morkEnv* ev, const morkMid& inMid);
   morkTable* MidToTable(morkEnv* ev, const morkMid& inMid);
-  
+
   morkRow* OidToRow(morkEnv* ev, const mdbOid* inOid);
   // OidToRow() finds old row with oid, or makes new one if not found.
 
   morkTable* OidToTable(morkEnv* ev, const mdbOid* inOid,
     const mdbOid* inOptionalMetaRowOid);
   // OidToTable() finds old table with oid, or makes new one if not found.
-  
+
   static void SmallTokenToOneByteYarn(morkEnv* ev, mdb_token inToken,
     mdbYarn* outYarn);
-  
-  mork_bool HasTableKind(morkEnv* ev, mdb_scope inRowScope, 
+
+  mork_bool HasTableKind(morkEnv* ev, mdb_scope inRowScope,
     mdb_kind inTableKind, mdb_count* outTableCount);
-  
-  morkTable* GetTableKind(morkEnv* ev, mdb_scope inRowScope, 
+
+  morkTable* GetTableKind(morkEnv* ev, mdb_scope inRowScope,
     mdb_kind inTableKind, mdb_count* outTableCount,
     mdb_bool* outMustBeUnique);
 
   morkRow* FindRow(morkEnv* ev, mdb_scope inScope, mdb_column inColumn,
     const mdbYarn* inTargetCellValue);
-  
+
   morkRow* GetRow(morkEnv* ev, const mdbOid* inOid);
   morkTable* GetTable(morkEnv* ev, const mdbOid* inOid);
-    
+
   morkTable* NewTable(morkEnv* ev, mdb_scope inRowScope,
     mdb_kind inTableKind, mdb_bool inMustBeUnique,
     const mdbOid* inOptionalMetaRowOid);
@@ -729,7 +729,7 @@ public: // other store methods
 public: // commit related methods
 
   mork_bool MarkAllStoreContentDirty(morkEnv* ev);
-  // MarkAllStoreContentDirty() visits every object in the store and marks 
+  // MarkAllStoreContentDirty() visits every object in the store and marks
   // them dirty, including every table, row, cell, and atom.  The return
   // equals ev->Good(), to show whether any error happened.  This method is
   // intended for use in the beginning of a "compress commit" which writes
@@ -742,10 +742,10 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakStore(morkStore* me,
     morkEnv* ev, morkStore** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongStore(morkStore* me,
     morkEnv* ev, morkStore** ioSlot)
-  { 
+  {
     morkStore* store = *ioSlot;
     if ( me != store )
     {

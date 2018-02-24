@@ -29,7 +29,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -82,7 +82,7 @@ morkCursor::GetWeakRefCount(nsIMdbEnv* mev, // weak refs
 {
   *outCount = WeakRefsOnly();
   return NS_OK;
-}  
+}
 NS_IMETHODIMP
 morkCursor::GetStrongRefCount(nsIMdbEnv* mev, // strong refs
   mdb_count* outCount)
@@ -153,7 +153,7 @@ morkCursor::IsFrozenMdbObject(nsIMdbEnv* mev, mdb_bool* outIsReadonly)
   return NS_OK;
 }
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 NS_IMETHODIMP
 morkCursor::GetCount(nsIMdbEnv* mev, mdb_count* outCount)

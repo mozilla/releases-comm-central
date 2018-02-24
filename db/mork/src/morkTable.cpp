@@ -53,7 +53,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -79,9 +79,9 @@ morkTable::~morkTable() /*i*/ // assert CloseTable() executed earlier
 
 /*public non-poly*/
 morkTable::morkTable(morkEnv* ev, /*i*/
-  const morkUsage& inUsage, nsIMdbHeap* ioHeap, 
+  const morkUsage& inUsage, nsIMdbHeap* ioHeap,
   morkStore* ioStore, nsIMdbHeap* ioSlotHeap, morkRowSpace* ioRowSpace,
-  const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+  const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
   mork_tid inTid, mork_kind inKind, mork_bool inMustBeUnique)
 : morkObject(ev, inUsage, ioHeap, (mork_color) inTid, (morkHandle*) 0)
 , mTable_Store( 0 )
@@ -93,7 +93,7 @@ morkTable::morkTable(morkEnv* ev, /*i*/
 //   morkTable_kStartRowMapSlotCount)
 , mTable_RowArray(ev, morkUsage::kMember, (nsIMdbHeap*) 0,
   morkTable_kStartRowArraySize, ioSlotHeap)
-  
+
 , mTable_ChangeList()
 , mTable_ChangesCount( 0 )
 , mTable_ChangesMax( 3 ) // any very small number greater than zero
@@ -107,7 +107,7 @@ morkTable::morkTable(morkEnv* ev, /*i*/
 {
   this->mLink_Next = 0;
   this->mLink_Prev = 0;
-  
+
   if ( ev->Good() )
   {
     if ( ioStore && ioSlotHeap && ioRowSpace )
@@ -129,7 +129,7 @@ morkTable::morkTable(morkEnv* ev, /*i*/
         {
           if ( this->MaybeDirtySpaceStoreAndTable() )
             this->SetTableRewrite(); // everything is dirty
-            
+
           mNode_Derived = morkDerived_kTable;
         }
         this->MaybeDirtySpaceStoreAndTable(); // new table might dirty store
@@ -162,7 +162,7 @@ morkTable::CloseTable(morkEnv* ev) /*i*/ // called by CloseMorkNode();
 
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 // { ===== begin nsIMdbCollection methods =====
 
@@ -180,7 +180,7 @@ morkTable::GetSeed(nsIMdbEnv* mev,
   }
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkTable::GetCount(nsIMdbEnv* mev,
   mdb_count* outCount) // member count
@@ -195,7 +195,7 @@ morkTable::GetPort(nsIMdbEnv* mev,
   nsIMdbPort** acqPort) // collection container
 {
   (void) morkEnv::FromMdbEnv(mev);
-  NS_ENSURE_ARG_POINTER(acqPort);    
+  NS_ENSURE_ARG_POINTER(acqPort);
   *acqPort = mTable_Store;
   return NS_OK;
 }
@@ -227,7 +227,7 @@ NS_IMETHODIMP
 morkTable::BecomeContent(nsIMdbEnv* mev,
   const mdbOid* inOid) // exchange content
 {
-  NS_ASSERTION(false, "not implemented"); 
+  NS_ASSERTION(false, "not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
   // remember table->MaybeDirtySpaceStoreAndTable();
 }
@@ -239,7 +239,7 @@ NS_IMETHODIMP
 morkTable::DropActivity( // tell collection usage no longer expected
   nsIMdbEnv* mev)
 {
-  NS_ASSERTION(false, "not implemented"); 
+  NS_ASSERTION(false, "not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -260,7 +260,7 @@ morkTable::SetTablePriority(nsIMdbEnv* mev, mdb_priority inPrio)
   {
     if ( inPrio > morkPriority_kMax )
       inPrio = morkPriority_kMax;
-      
+
     mTable_Priority = inPrio;
     outErr = ev->AsErr();
   }
@@ -308,7 +308,7 @@ morkTable::SetTableBeVerbose(nsIMdbEnv* mev, mdb_bool inBeVerbose)
       SetTableVerbose();
     else
       ClearTableVerbose();
-   
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -352,7 +352,7 @@ morkTable::GetRowScope(nsIMdbEnv* mev, mdb_scope* outRowScope)
 
 NS_IMETHODIMP
 morkTable::GetMetaRow( nsIMdbEnv* mev,
-  const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+  const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
   mdbOid* outOid, // output meta row oid, can be nil to suppress output
   nsIMdbRow** acqRow) // acquire table's unique singleton meta row
   // The purpose of a meta row is to support the persistent recording of
@@ -388,14 +388,14 @@ morkTable::GetMetaRow( nsIMdbEnv* mev,
     {
       if ( outOid )
         *outOid = row->mRow_Oid;
-        
+
       outRow = row->AcquireRowHandle(ev, mTable_Store);
     }
     outErr = ev->AsErr();
   }
   if ( acqRow )
     *acqRow = outRow;
-    
+
   if ( ev->Bad() && outOid )
   {
     outOid->mOid_Scope = 0;
@@ -428,7 +428,7 @@ morkTable::GetTableRowCursor( // make a cursor, starting iteration at inRowPos
         outCursor->AddRef();
       }
     }
-      
+
     outErr = ev->AsErr();
   }
   if ( acqCursor )
@@ -448,14 +448,14 @@ morkTable::PosToOid( // get row member for a table position
   mdbOid roid;
   roid.mOid_Scope = 0;
   roid.mOid_Id = (mork_id) -1;
-  
+
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
   if ( ev )
   {
     morkRow* row = SafeRowAt(ev, inRowPos);
     if ( row )
       roid = row->mRow_Oid;
-    
+
     outErr = ev->AsErr();
   }
   if ( outOid )
@@ -495,7 +495,7 @@ morkTable::PosToRow( // get row member for a table position
     morkRow* row = SafeRowAt(ev, inRowPos);
     if ( row && mTable_Store )
       outRow = row->AcquireRowHandle(ev, mTable_Store);
-      
+
     outErr = ev->AsErr();
   }
   if ( acqRow )
@@ -522,13 +522,13 @@ morkTable::RowToPos( // test for the table position of a row member
     *outPos = pos;
   return outErr;
 }
-  
+
 // Note that HasRow() performs the inverse oid->pos mapping
 // } ----- end row position methods -----
 
 // { ----- begin oid set methods -----
 NS_IMETHODIMP
-morkTable::AddOid( // make sure the row with inOid is a table member 
+morkTable::AddOid( // make sure the row with inOid is a table member
   nsIMdbEnv* mev, // context
   const mdbOid* inOid) // row to ensure membership in table
 {
@@ -554,7 +554,7 @@ morkTable::HasOid( // test for the table position of a row member
 }
 
 NS_IMETHODIMP
-morkTable::CutOid( // make sure the row with inOid is not a member 
+morkTable::CutOid( // make sure the row with inOid is not a member
   nsIMdbEnv* mev, // context
   const mdbOid* inOid) // row to remove from table
 {
@@ -570,7 +570,7 @@ morkTable::CutOid( // make sure the row with inOid is not a member
     }
     else
       ev->NilPointerError();
-      
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -596,13 +596,13 @@ morkTable::NewRow( // create a new row instance in table
         row = mTable_Store->NewRow(ev, ioOid->mOid_Scope);
       else
         row = mTable_Store->NewRowWithOid(ev, ioOid);
-        
+
       if ( row && AddRow(ev, row) )
         outRow = row->AcquireRowHandle(ev, mTable_Store);
     }
     else
       ev->NilPointerError();
-      
+
     outErr = ev->AsErr();
   }
   if ( acqRow )
@@ -611,7 +611,7 @@ morkTable::NewRow( // create a new row instance in table
 }
 
 NS_IMETHODIMP
-morkTable::AddRow( // make sure the row with inOid is a table member 
+morkTable::AddRow( // make sure the row with inOid is a table member
   nsIMdbEnv* mev, // context
   nsIMdbRow* ioRow) // row to ensure membership in table
 {
@@ -648,7 +648,7 @@ morkTable::HasRow( // test for the table position of a row member
 
 
 NS_IMETHODIMP
-morkTable::CutRow( // make sure the row with inOid is not a member 
+morkTable::CutRow( // make sure the row with inOid is not a member
   nsIMdbEnv* mev, // context
   nsIMdbRow* ioRow) // row to remove from table
 {
@@ -665,7 +665,7 @@ morkTable::CutRow( // make sure the row with inOid is not a member
 }
 
 NS_IMETHODIMP
-morkTable::CutAllRows( // remove all rows from the table 
+morkTable::CutAllRows( // remove all rows from the table
   nsIMdbEnv* mev) // context
 {
   nsresult outErr = NS_OK;
@@ -689,7 +689,7 @@ morkTable::FindRowMatches( // search variable number of sorted cols
   NS_ASSERTION(false, "not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-  
+
 NS_IMETHODIMP
 morkTable::GetSearchColumns( // query columns used by FindRowMatches()
   nsIMdbEnv* mev, // context
@@ -715,16 +715,16 @@ morkTable::GetSearchColumns( // query columns used by FindRowMatches()
 
 // { ----- begin hinting methods -----
 NS_IMETHODIMP
-morkTable::SearchColumnsHint( // advise re future expected search cols  
+morkTable::SearchColumnsHint( // advise re future expected search cols
   nsIMdbEnv* mev, // context
   const mdbColumnSet* inColumnSet) // columns likely to be searched
 {
   NS_ASSERTION(false, "not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-  
+
 NS_IMETHODIMP
-morkTable::SortColumnsHint( // advise re future expected sort columns  
+morkTable::SortColumnsHint( // advise re future expected sort columns
   nsIMdbEnv* mev, // context
   const mdbColumnSet* inColumnSet) // columns for likely sort requests
 {
@@ -733,7 +733,7 @@ morkTable::SortColumnsHint( // advise re future expected sort columns
 }
 
 NS_IMETHODIMP
-morkTable::StartBatchChangeHint( // advise before many adds and cuts  
+morkTable::StartBatchChangeHint( // advise before many adds and cuts
   nsIMdbEnv* mev, // context
   const void* inLabel) // intend unique address to match end call
   // If batch starts nest by virtue of nesting calls in the stack, then
@@ -745,7 +745,7 @@ morkTable::StartBatchChangeHint( // advise before many adds and cuts
 }
 
 NS_IMETHODIMP
-morkTable::EndBatchChangeHint( // advise before many adds and cuts  
+morkTable::EndBatchChangeHint( // advise before many adds and cuts
   nsIMdbEnv* mev, // context
   const void* inLabel) // label matching start label
   // Suppose a table is maintaining one or many sort orders for a table,
@@ -975,10 +975,10 @@ morkTable::CutStrongRef(morkEnv *ev)
 mork_u2
 morkTable::AddTableGcUse(morkEnv* ev)
 {
-  MORK_USED_1(ev); 
+  MORK_USED_1(ev);
   if ( mTable_GcUses < morkTable_kMaxTableGcUses ) // not already maxed out?
     ++mTable_GcUses;
-    
+
   return mTable_GcUses;
 }
 
@@ -992,7 +992,7 @@ morkTable::CutTableGcUse(morkEnv* ev)
   }
   else
     this->TableGcUsesUnderflowWarning(ev);
-    
+
   return mTable_GcUses;
 }
 
@@ -1006,7 +1006,7 @@ void morkTable::SetTableClean(morkEnv* ev)
     mTable_ChangeList.CutAndZapAllListMembers(ev, heap); // forget changes
   }
   mTable_ChangesCount = 0;
-  
+
   mTable_Flags = 0;
   this->SetNodeClean();
 }
@@ -1135,7 +1135,7 @@ mork_bool morkTable::MaybeDirtySpaceStoreAndTable()
       store->SetStoreDirty();
       rowSpace->mSpace_CanDirty = morkBool_kTrue;
     }
-    
+
     if ( rowSpace->mSpace_CanDirty ) // first time being dirtied?
     {
       if ( this->IsTableClean() )
@@ -1144,12 +1144,12 @@ mork_bool morkTable::MaybeDirtySpaceStoreAndTable()
         mork_count oneThird = rowCount / 4; // one third of rows
         if ( oneThird > 0x07FFF ) // more than half max u2?
           oneThird = 0x07FFF;
-          
+
         mTable_ChangesMax = (mork_u2) oneThird;
       }
       this->SetTableDirty();
       rowSpace->SetRowSpaceDirty();
-      
+
       return morkBool_kTrue;
     }
   }
@@ -1166,7 +1166,7 @@ morkTable::GetMetaRow(morkEnv* ev, const mdbOid* inOptionalMetaRowOid)
     mdbOid* oid = &mTable_MetaRowOid;
     if ( inOptionalMetaRowOid && !oid->mOid_Scope )
       *oid = *inOptionalMetaRowOid;
-      
+
     if ( oid->mOid_Scope ) // oid already recorded in table?
       outRow = store->OidToRow(ev, oid);
     else
@@ -1185,7 +1185,7 @@ morkTable::GetMetaRow(morkEnv* ev, const mdbOid* inOptionalMetaRowOid)
         this->MaybeDirtySpaceStoreAndTable();
     }
   }
-  
+
   return outRow;
 }
 
@@ -1212,7 +1212,7 @@ morkTable::AcquireTableHandle(morkEnv* ev)
 mork_pos
 morkTable::ArrayHasOid(morkEnv* ev, const mdbOid* inOid)
 {
-  MORK_USED_1(ev); 
+  MORK_USED_1(ev);
   mork_count count = mTable_RowArray.mArray_Fill;
   mork_pos pos = -1;
   while ( ++pos < (mork_pos)count )
@@ -1289,23 +1289,23 @@ morkTable::MoveRow(morkEnv* ev, morkRow* ioRow, // change row position
   mork_pos inHintFromPos, // suggested hint regarding start position
   mork_pos inToPos) // desired new position for row ioRow
   // MoveRow() returns the actual position of ioRow afterwards; this
-  // position is -1 if and only if ioRow was not found as a member.     
+  // position is -1 if and only if ioRow was not found as a member.
 {
   mork_pos outPos = -1; // means ioRow was not a table member
   mork_bool canDirty = ( this->IsTableClean() )?
     this->MaybeDirtySpaceStoreAndTable() : morkBool_kTrue;
-  
+
   morkRow** rows = (morkRow**) mTable_RowArray.mArray_Slots;
   mork_count count = mTable_RowArray.mArray_Fill;
   if ( count && rows && ev->Good() ) // any members at all? no errors?
   {
     mork_pos lastPos = count - 1; // index of last row slot
-      
+
     if ( inToPos > lastPos ) // beyond last used array slot?
       inToPos = lastPos; // put row into last available slot
     else if ( inToPos < 0 ) // before first usable slot?
       inToPos = 0; // put row in very first slow
-      
+
     if ( inHintFromPos > lastPos ) // beyond last used array slot?
       inHintFromPos = lastPos; // seek row in last available slot
     else if ( inHintFromPos < 0 ) // before first usable slot?
@@ -1313,7 +1313,7 @@ morkTable::MoveRow(morkEnv* ev, morkRow* ioRow, // change row position
 
     morkRow** fromSlot = 0; // becomes nonzero of ioRow is ever found
     morkRow** rowsEnd = rows + count; // one past last used array slot
-    
+
     if ( inHintFromPos <= 0 ) // start of table? just scan for row?
     {
       morkRow** cursor = rows - 1; // before first array slot
@@ -1330,11 +1330,11 @@ morkTable::MoveRow(morkEnv* ev, morkRow* ioRow, // change row position
     {
       morkRow** lo = rows + inHintFromPos; // lowest search point
       morkRow** hi = lo; // highest search point starts at lowest point
-      
+
       // Seek ioRow in spiral widening search below and above inHintFromPos.
       // This is faster when inHintFromPos is at all accurate, but is slower
       // than a straightforward scan when inHintFromPos is nearly random.
-      
+
       while ( lo >= rows || hi < rowsEnd ) // keep searching?
       {
         if ( lo >= rows ) // low direction search still feasible?
@@ -1357,16 +1357,16 @@ morkTable::MoveRow(morkEnv* ev, morkRow* ioRow, // change row position
         }
       }
     }
-    
+
     if ( fromSlot ) // ioRow was found as a table member?
     {
       outPos = fromSlot - rows; // actual position where row was found
       if ( outPos != inToPos ) // actually need to move this row?
       {
         morkRow** toSlot = rows + inToPos; // slot where row must go
-        
+
         ++mTable_RowArray.mArray_Seed; // we modify the array now:
-        
+
         if ( fromSlot < toSlot ) // row is moving upwards?
         {
           morkRow** up = fromSlot; // leading pointer going upward
@@ -1404,7 +1404,7 @@ morkTable::AddRow(morkEnv* ev, morkRow* ioRow)
   {
     mork_bool canDirty = ( this->IsTableClean() )?
       this->MaybeDirtySpaceStoreAndTable() : morkBool_kTrue;
-      
+
     mork_pos pos = mTable_RowArray.AppendSlot(ev, ioRow);
     if ( ev->Good() && pos >= 0 )
     {
@@ -1436,7 +1436,7 @@ morkTable::CutRow(morkEnv* ev, morkRow* ioRow)
   {
     mork_bool canDirty = ( this->IsTableClean() )?
       this->MaybeDirtySpaceStoreAndTable() : morkBool_kTrue;
-      
+
     mork_count count = mTable_RowArray.mArray_Fill;
     morkRow** rowSlots = (morkRow**) mTable_RowArray.mArray_Slots;
     if ( rowSlots ) // array has vector as expected?
@@ -1459,7 +1459,7 @@ morkTable::CutRow(morkEnv* ev, morkRow* ioRow)
     }
     else
       mTable_RowArray.NilSlotsAddressError(ev);
-      
+
     if ( mTable_RowMap )
       mTable_RowMap->CutRow(ev, ioRow);
 
@@ -1481,7 +1481,7 @@ morkTable::CutAllRows(morkEnv* ev)
     this->SetTableRewrite(); // everything is dirty
     this->NoteTableSetAll(ev);
   }
-    
+
   if ( ev->Good() )
   {
     mTable_RowArray.CutAllSlots(ev);
@@ -1490,14 +1490,14 @@ morkTable::CutAllRows(morkEnv* ev)
       morkRowMapIter i(ev, mTable_RowMap);
       mork_change* c = 0;
       morkRow* r = 0;
-      
+
       for ( c = i.FirstRow(ev, &r); c;  c = i.NextRow(ev, &r) )
       {
         if ( r )
         {
           if ( r->CutRowGcUse(ev) == 0 )
             r->OnZeroRowGcUse(ev);
-            
+
           i.CutHereRow(ev, (morkRow**) 0);
         }
         else

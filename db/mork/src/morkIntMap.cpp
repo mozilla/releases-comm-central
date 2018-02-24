@@ -29,7 +29,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -73,7 +73,7 @@ morkIntMap::CloseIntMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 // { ===== begin morkMap poly interface =====
 /*virtual*/ mork_bool // *((mork_u4*) inKeyA) == *((mork_u4*) inKeyB)
@@ -97,10 +97,10 @@ morkIntMap::AddInt(morkEnv* ev, mork_u4 inKey, void* ioAddress)
 {
   if ( ev->Good() )
   {
-    this->Put(ev, &inKey, &ioAddress, 
+    this->Put(ev, &inKey, &ioAddress,
       /*key*/ (void*) 0, /*val*/ (void*) 0, (mork_change**) 0);
   }
-    
+
   return ev->Good();
 }
 
@@ -117,7 +117,7 @@ morkIntMap::GetInt(morkEnv* ev, mork_u4 inKey)
 {
   void* val = 0; // old val in the map
   this->Get(ev, &inKey, /*key*/ (void*) 0, &val, (mork_change**) 0);
-  
+
   return val;
 }
 
@@ -125,7 +125,7 @@ mork_bool
 morkIntMap::HasInt(morkEnv* ev, mork_u4 inKey)
   // Note the returned val does NOT have an increase in refcount for this.
 {
-  return this->Get(ev, &inKey, /*key*/ (void*) 0, /*val*/ (void*) 0, 
+  return this->Get(ev, &inKey, /*key*/ (void*) 0, /*val*/ (void*) 0,
     (mork_change**) 0);
 }
 
@@ -133,7 +133,7 @@ morkIntMap::HasInt(morkEnv* ev, mork_u4 inKey)
 
 #ifdef MORK_POINTER_MAP_IMPL
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -177,7 +177,7 @@ morkPointerMap::ClosePointerMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 // { ===== begin morkMap poly interface =====
 /*virtual*/ mork_bool // *((void**) inKeyA) == *((void**) inKeyB)
@@ -201,10 +201,10 @@ morkPointerMap::AddPointer(morkEnv* ev, void* inKey, void* ioAddress)
 {
   if ( ev->Good() )
   {
-    this->Put(ev, &inKey, &ioAddress, 
+    this->Put(ev, &inKey, &ioAddress,
       /*key*/ (void*) 0, /*val*/ (void*) 0, (mork_change**) 0);
   }
-    
+
   return ev->Good();
 }
 
@@ -221,7 +221,7 @@ morkPointerMap::GetPointer(morkEnv* ev, void* inKey)
 {
   void* val = 0; // old val in the map
   this->Get(ev, &inKey, /*key*/ (void*) 0, &val, (mork_change**) 0);
-  
+
   return val;
 }
 
@@ -229,7 +229,7 @@ mork_bool
 morkPointerMap::HasPointer(morkEnv* ev, void* inKey)
   // Note the returned val does NOT have an increase in refcount for this.
 {
-  return this->Get(ev, &inKey, /*key*/ (void*) 0, /*val*/ (void*) 0, 
+  return this->Get(ev, &inKey, /*key*/ (void*) 0, /*val*/ (void*) 0,
     (mork_change**) 0);
 }
 #endif /*MORK_POINTER_MAP_IMPL*/

@@ -27,7 +27,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -92,7 +92,7 @@ morkArray::CloseArray(morkEnv* ev) // called by CloseMorkNode();
     {
       if ( mArray_Heap && mArray_Slots )
         mArray_Heap->Free(ev->AsMdbEnv(), mArray_Slots);
-        
+
       mArray_Slots = 0;
       mArray_Size = 0;
       mArray_Fill = 0;
@@ -105,7 +105,7 @@ morkArray::CloseArray(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ void
 morkArray::NonArrayTypeError(morkEnv* ev)
@@ -143,7 +143,7 @@ morkArray::Grow(morkEnv* ev, mork_size inNewSize)
         inNewSize = mArray_Size + 3;
       else
         inNewSize = mArray_Size  * 2;// + 3;  // try doubling size here - used to grow by 3
-        
+
       mdb_size newByteSize = inNewSize * sizeof(void*);
       void** newBlock = 0;
       mArray_Heap->Alloc(ev->AsMdbEnv(), newByteSize, (void**) &newBlock);
@@ -151,13 +151,13 @@ morkArray::Grow(morkEnv* ev, mork_size inNewSize)
       {
         void** oldSlots = mArray_Slots;
         void** oldEnd = oldSlots + mArray_Fill;
-        
+
         void** newSlots = newBlock;
         void** newEnd = newBlock + inNewSize;
-        
+
         while ( oldSlots < oldEnd )
           *newSlots++ = *oldSlots++;
-          
+
         while ( newSlots < newEnd )
           *newSlots++ = (void*) 0;
 
@@ -186,7 +186,7 @@ morkArray::SafeAt(morkEnv* ev, mork_pos inPos)
   }
   else
     this->NilSlotsAddressError(ev);
-    
+
   return (void*) 0;
 }
 
@@ -224,7 +224,7 @@ morkArray::AppendSlot(morkEnv* ev, void* ioSlot)
   }
   else
     this->NilSlotsAddressError(ev);
-    
+
   return outPos;
 }
 
@@ -262,12 +262,12 @@ morkArray::CutSlot(morkEnv* ev, mork_pos inPos)
     void** slot = mArray_Slots; // the slot vector
     void** end = slot + fill; // one past the last used array slot
     slot += inPos; // the slot to be cut
-    
+
     while ( ++slot < end ) // another slot to move downward?
       slot[ -1 ] = *slot;
-      
+
     slot[ -1 ] = 0; // clear the last used slot which is now unused
-    
+
     // note inPos<fill implies fill>0, so fill-1 must be nonnegative:
     mArray_Fill = fill - 1;
     ++mArray_Seed;

@@ -45,14 +45,14 @@ class morkTableRowCursor : public morkCursor, public nsIMdbTableRowCursor { // r
 
 public: // state is public because the entire Mork system is private
   morkTable*  mTableRowCursor_Table; // weak ref to table
-    
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseTableRowCursor()
 
 protected:
   virtual ~morkTableRowCursor(); // assert that close executed earlier
-  
+
 public: // morkTableRowCursor construction & destruction
   morkTableRowCursor(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, morkTable* ioTable, mork_pos inRowPos);
@@ -68,10 +68,10 @@ public:
   // { ----- begin attribute methods -----
   NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount) override; // readonly
   NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed) override;    // readonly
-  
+
   NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos) override;   // mutable
   NS_IMETHOD GetPos(nsIMdbEnv* ev, mdb_pos* outPos) override;
-  
+
   NS_IMETHOD SetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool inFail) override;
   NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool* outFail) override;
 
@@ -82,7 +82,7 @@ public:
   // { ----- begin duplicate row removal methods -----
   NS_IMETHOD CanHaveDupRowMembers(nsIMdbEnv* ev, // cursor might hold dups?
     mdb_bool* outCanHaveDups) override;
-    
+
   NS_IMETHOD MakeUniqueCursor( // clone cursor, removing duplicate rows
     nsIMdbEnv* ev, // context
     nsIMdbTableRowCursor** acqCursor) override;    // acquire clone with no dups
@@ -135,7 +135,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakTableRowCursor(morkTableRowCursor* me,
     morkEnv* ev, morkTableRowCursor** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongTableRowCursor(morkTableRowCursor* me,
     morkEnv* ev, morkTableRowCursor** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

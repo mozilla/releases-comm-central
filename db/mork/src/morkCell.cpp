@@ -61,7 +61,7 @@ morkCell::SetCellClean()
   mork_column col = this->GetColumn();
   this->SetColumnAndChange(col, morkChange_kNil);
 }
-  
+
 void
 morkCell::SetCellDirty()
 {
@@ -97,7 +97,7 @@ morkCell::SetAtom(morkEnv* ev, morkAtom* ioAtom, morkPool* ioPool)
 //        {
 //          if ( oldAtom->IsBook() )
 //            ((morkBookAtom*) oldAtom)->CutBookAtomFromSpace(ev);
-            
+
 //          ioPool->ZapAtom(ev, oldAtom);
 //        }
 //        else
@@ -106,7 +106,7 @@ morkCell::SetAtom(morkEnv* ev, morkAtom* ioAtom, morkPool* ioPool)
     }
     if ( ioAtom )
       ioAtom->AddCellUse(ev);
-      
+
     mCell_Atom = ioAtom;
   }
 }

@@ -65,7 +65,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -92,25 +92,25 @@ morkBuilder::~morkBuilder() // assert CloseBuilder() executed earlier
 
 /*public non-poly*/
 morkBuilder::morkBuilder(morkEnv* ev,
-  const morkUsage& inUsage, nsIMdbHeap* ioHeap, 
+  const morkUsage& inUsage, nsIMdbHeap* ioHeap,
   morkStream* ioStream, mdb_count inBytesPerParseSegment,
   nsIMdbHeap* ioSlotHeap, morkStore* ioStore)
 
 : morkParser(ev, inUsage, ioHeap, ioStream,
   inBytesPerParseSegment, ioSlotHeap)
-  
+
 , mBuilder_Store( 0 )
-  
+
 , mBuilder_Table( 0 )
 , mBuilder_Row( 0 )
 , mBuilder_Cell( 0 )
-  
+
 , mBuilder_RowSpace( 0 )
 , mBuilder_AtomSpace( 0 )
-  
+
 , mBuilder_OidAtomSpace( 0 )
 , mBuilder_ScopeAtomSpace( 0 )
-  
+
 , mBuilder_PortForm( 0 )
 , mBuilder_PortRowScope( (mork_scope) 'r' )
 , mBuilder_PortAtomScope( (mork_scope) 'v' )
@@ -124,7 +124,7 @@ morkBuilder::morkBuilder(morkEnv* ev,
 , mBuilder_TableIsUnique( morkBool_kFalse )
 , mBuilder_TableIsVerbose( morkBool_kFalse )
 , mBuilder_TablePadByte( 0 )
-  
+
 , mBuilder_RowForm( 0 )
 , mBuilder_RowRowScope( (mork_scope) 'r' )
 , mBuilder_RowAtomScope( (mork_scope) 'v' )
@@ -136,7 +136,7 @@ morkBuilder::morkBuilder(morkEnv* ev,
 , mBuilder_DictAtomScope( (mork_scope) 'v' )
 
 , mBuilder_MetaTokenSlot( 0 )
-  
+
 , mBuilder_DoCutRow( morkBool_kFalse )
 , mBuilder_DoCutCell( morkBool_kFalse )
 , mBuilder_CellsVecFill( 0 )
@@ -152,7 +152,7 @@ morkBuilder::morkBuilder(morkEnv* ev,
     else
       ev->NilPointerError();
   }
-   
+
 }
 
 /*public non-poly*/ void
@@ -163,7 +163,7 @@ morkBuilder::CloseBuilder(morkEnv* ev) // called by CloseMorkNode();
       mBuilder_Row = 0;
       mBuilder_Cell = 0;
       mBuilder_MetaTokenSlot = 0;
-      
+
       morkTable::SlotStrongTable((morkTable*) 0, ev, &mBuilder_Table);
       morkStore::SlotWeakStore((morkStore*) 0, ev, &mBuilder_Store);
 
@@ -186,7 +186,7 @@ morkBuilder::CloseBuilder(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ void
 morkBuilder::NonBuilderTypeError(morkEnv* ev)
@@ -219,7 +219,7 @@ morkBuilder::NonColumnSpaceScopeError(morkEnv* ev)
 }
 
 void
-morkBuilder::LogGlitch(morkEnv* ev, const morkGlitch& inGlitch, 
+morkBuilder::LogGlitch(morkEnv* ev, const morkGlitch& inGlitch,
   const char* inKind)
 {
   MORK_USED_2(inGlitch,inKind);
@@ -252,7 +252,7 @@ morkBuilder::OnNewPort(morkEnv* ev, const morkPlace& inPlace)
 }
 
 /*virtual*/ void
-morkBuilder::OnPortGlitch(morkEnv* ev, const morkGlitch& inGlitch)  
+morkBuilder::OnPortGlitch(morkEnv* ev, const morkGlitch& inGlitch)
 {
   this->LogGlitch(ev, inGlitch, "port");
 }
@@ -279,7 +279,7 @@ morkBuilder::OnNewGroup(morkEnv* ev, const morkPlace& inPlace, mork_gid inGid)
   {
     if ( inGid >= store->mStore_CommitGroupIdentity )
       store->mStore_CommitGroupIdentity = inGid + 1;
-  
+
     if ( !store->mStore_FirstCommitGroupPos )
       store->mStore_FirstCommitGroupPos = startPos;
     else if ( !store->mStore_SecondCommitGroupPos )
@@ -288,13 +288,13 @@ morkBuilder::OnNewGroup(morkEnv* ev, const morkPlace& inPlace, mork_gid inGid)
 }
 
 /*virtual*/ void
-morkBuilder::OnGroupGlitch(morkEnv* ev, const morkGlitch& inGlitch) 
+morkBuilder::OnGroupGlitch(morkEnv* ev, const morkGlitch& inGlitch)
 {
   this->LogGlitch(ev, inGlitch, "group");
 }
 
 /*virtual*/ void
-morkBuilder::OnGroupCommitEnd(morkEnv* ev, const morkSpan& inSpan)  
+morkBuilder::OnGroupCommitEnd(morkEnv* ev, const morkSpan& inSpan)
 {
   MORK_USED_2(ev,inSpan);
   // mParser_InGroup = morkBool_kFalse;
@@ -302,7 +302,7 @@ morkBuilder::OnGroupCommitEnd(morkEnv* ev, const morkSpan& inSpan)
 }
 
 /*virtual*/ void
-morkBuilder::OnGroupAbortEnd(morkEnv* ev, const morkSpan& inSpan) 
+morkBuilder::OnGroupAbortEnd(morkEnv* ev, const morkSpan& inSpan)
 {
   MORK_USED_1(inSpan);
   // mParser_InGroup = morkBool_kFalse;
@@ -310,7 +310,7 @@ morkBuilder::OnGroupAbortEnd(morkEnv* ev, const morkSpan& inSpan)
 }
 
 /*virtual*/ void
-morkBuilder::OnNewPortRow(morkEnv* ev, const morkPlace& inPlace, 
+morkBuilder::OnNewPortRow(morkEnv* ev, const morkPlace& inPlace,
   const morkMid& inMid, mork_change inChange)
 {
   MORK_USED_3(inMid,inPlace,inChange);
@@ -347,7 +347,7 @@ morkBuilder::OnNewTable(morkEnv* ev, const morkPlace& inPlace,
   mBuilder_TableRowScope = mBuilder_PortRowScope;
   mBuilder_TableAtomScope = mBuilder_PortAtomScope;
   mBuilder_TableKind = morkStore_kNoneToken;
-  
+
   mBuilder_TablePriority = morkPriority_kLo;
   mBuilder_TableIsUnique = morkBool_kFalse;
   mBuilder_TableIsVerbose = morkBool_kFalse;
@@ -358,7 +358,7 @@ morkBuilder::OnNewTable(morkEnv* ev, const morkPlace& inPlace,
   {
     if ( table->mTable_RowSpace )
       mBuilder_TableRowScope = table->mTable_RowSpace->SpaceScope();
-      
+
     if ( inCutAllRows )
       table->CutAllRows(ev);
   }
@@ -379,22 +379,22 @@ morkBuilder::OnTableEnd(morkEnv* ev, const morkSpan& inSpan)
   if ( mBuilder_Table )
   {
     mBuilder_Table->mTable_Priority = mBuilder_TablePriority;
-    
+
     if ( mBuilder_TableIsUnique )
       mBuilder_Table->SetTableUnique();
 
     if ( mBuilder_TableIsVerbose )
       mBuilder_Table->SetTableVerbose();
-  
+
     morkTable::SlotStrongTable((morkTable*) 0, ev, &mBuilder_Table);
   }
   else
     this->NilBuilderTableError(ev);
-    
+
   mBuilder_Row = 0;
   mBuilder_Cell = 0;
-  
-  
+
+
   mBuilder_TablePriority = morkPriority_kLo;
   mBuilder_TableIsUnique = morkBool_kFalse;
   mBuilder_TableIsVerbose = morkBool_kFalse;
@@ -419,7 +419,7 @@ morkBuilder::OnNewMeta(morkEnv* ev, const morkPlace& inPlace)
 {
   MORK_USED_2(ev,inPlace);
   // mParser_InMeta = morkBool_kTrue;
-  
+
 }
 
 /*virtual*/ void
@@ -444,7 +444,7 @@ morkBuilder::OnMinusRow(morkEnv* ev)
 }
 
 /*virtual*/ void
-morkBuilder::OnNewRow(morkEnv* ev, const morkPlace& inPlace, 
+morkBuilder::OnNewRow(morkEnv* ev, const morkPlace& inPlace,
   const morkMid& inMid, mork_bool inCutAllCols)
 // mp:Table     ::= OnNewTable mp:TableItem* OnTableEnd
 // mp:TableItem ::= mp:Row | mp:MetaTable | OnTableGlitch
@@ -457,12 +457,12 @@ morkBuilder::OnNewRow(morkEnv* ev, const morkPlace& inPlace,
 {
   MORK_USED_1(inPlace);
   // mParser_InRow = morkBool_kTrue;
-  
+
   mBuilder_CellForm = mBuilder_RowForm = mBuilder_TableForm;
   mBuilder_CellAtomScope = mBuilder_RowAtomScope = mBuilder_TableAtomScope;
   mBuilder_RowRowScope = mBuilder_TableRowScope;
   morkStore* store = mBuilder_Store;
-  
+
   if ( !inMid.mMid_Buf && !inMid.mMid_Oid.mOid_Scope )
   {
     morkMid mid(inMid);
@@ -507,12 +507,12 @@ morkBuilder::OnNewRow(morkEnv* ev, const morkPlace& inPlace,
   }
   // else // it is now okay to have rows outside a table:
   //  this->NilBuilderTableError(ev);
-    
+
   mBuilder_DoCutRow = morkBool_kFalse;
 }
 
 /*virtual*/ void
-morkBuilder::OnRowPos(morkEnv* ev, mork_pos inRowPos) 
+morkBuilder::OnRowPos(morkEnv* ev, mork_pos inRowPos)
 {
   if ( mBuilder_Row && mBuilder_Table && !mParser_InMeta )
   {
@@ -522,7 +522,7 @@ morkBuilder::OnRowPos(morkEnv* ev, mork_pos inRowPos)
 }
 
 /*virtual*/ void
-morkBuilder::OnRowGlitch(morkEnv* ev, const morkGlitch& inGlitch) 
+morkBuilder::OnRowGlitch(morkEnv* ev, const morkGlitch& inGlitch)
 {
   this->LogGlitch(ev, inGlitch, "row");
 }
@@ -551,7 +551,7 @@ morkBuilder::FlushBuilderCells(morkEnv* ev)
 }
 
 /*virtual*/ void
-morkBuilder::OnRowEnd(morkEnv* ev, const morkSpan& inSpan) 
+morkBuilder::OnRowEnd(morkEnv* ev, const morkSpan& inSpan)
 // mp:Row       ::= OnMinusRow? OnNewRow mp:RowItem* OnRowEnd
 {
   MORK_USED_1(inSpan);
@@ -562,7 +562,7 @@ morkBuilder::OnRowEnd(morkEnv* ev, const morkSpan& inSpan)
   }
   else
     this->NilBuilderRowError(ev);
-    
+
   mBuilder_Row = 0;
   mBuilder_Cell = 0;
 
@@ -577,19 +577,19 @@ morkBuilder::OnNewDict(morkEnv* ev, const morkPlace& inPlace)
 {
   MORK_USED_2(ev,inPlace);
   // mParser_InDict = morkBool_kTrue;
-  
+
   mBuilder_CellForm = mBuilder_DictForm = mBuilder_PortForm;
   mBuilder_CellAtomScope = mBuilder_DictAtomScope = mBuilder_PortAtomScope;
 }
 
 /*virtual*/ void
-morkBuilder::OnDictGlitch(morkEnv* ev, const morkGlitch& inGlitch) 
+morkBuilder::OnDictGlitch(morkEnv* ev, const morkGlitch& inGlitch)
 {
   this->LogGlitch(ev, inGlitch, "dict");
 }
 
 /*virtual*/ void
-morkBuilder::OnDictEnd(morkEnv* ev, const morkSpan& inSpan)  
+morkBuilder::OnDictEnd(morkEnv* ev, const morkSpan& inSpan)
 // mp:Dict      ::= OnNewDict mp:DictItem* OnDictEnd
 {
   MORK_USED_2(ev,inSpan);
@@ -621,13 +621,13 @@ morkBuilder::OnAliasGlitch(morkEnv* ev, const morkGlitch& inGlitch)
 }
 
 
-morkCell* 
+morkCell*
 morkBuilder::AddBuilderCell(morkEnv* ev,
   const morkMid& inMid, mork_change inChange)
 {
   morkCell* outCell = 0;
   mork_column column = inMid.mMid_Oid.mOid_Id;
-  
+
   if ( ev->Good() )
   {
     if ( mBuilder_CellsVecFill >= morkBuilder_kCellsVecSize )
@@ -661,32 +661,32 @@ morkBuilder::OnNewCell(morkEnv* ev, const morkPlace& inPlace,
 // Exactly one of inMid and inBuf is nil, and the other is non-nil.
 // When hex ID syntax is used for a column, then inMid is not nil, and
 // when a naked string names a column, then inBuf is not nil.
-  
+
   // mp:Cell      ::= OnMinusCell? OnNewCell mp:CellItem? OnCellEnd
   // mp:CellItem  ::= mp:Slot | OnCellForm | OnCellGlitch
   // mp:Slot      ::= OnValue | OnValueMid | OnRowMid | OnTableMid
 {
   MORK_USED_1(inPlace);
   // mParser_InCell = morkBool_kTrue;
-  
+
   mork_change cellChange = ( mBuilder_DoCutCell )?
     morkChange_kCut : morkChange_kAdd;
-    
+
   mBuilder_DoCutCell = morkBool_kFalse;
-  
+
   mBuilder_CellAtomScope = mBuilder_RowAtomScope;
-  
+
   mBuilder_Cell = 0; // nil until determined for a row
   morkStore* store = mBuilder_Store;
   mork_scope scope = morkStore_kColumnSpaceScope;
   morkMid tempMid; // space for local and modifiable cell mid
   morkMid* cellMid = &tempMid; // default to local if inMid==0
-  
+
   if ( inMid ) // mid parameter is actually provided?
   {
     *cellMid = *inMid; // bitwise copy for modifiable local mid
 
-    if ( !cellMid->mMid_Oid.mOid_Scope ) 
+    if ( !cellMid->mMid_Oid.mOid_Scope )
     {
       if ( cellMid->mMid_Buf )
       {
@@ -707,7 +707,7 @@ morkBuilder::OnNewCell(morkEnv* ev, const morkPlace& inPlace,
     ev->NilPointerError(); // either inMid or inBuf must be non-nil
 
   mork_column column = cellMid->mMid_Oid.mOid_Id;
-  
+
   if ( mBuilder_Row && ev->Good() ) // this cell must be inside a row
   {
       // mBuilder_Cell = this->AddBuilderCell(ev, *cellMid, cellChange);
@@ -721,7 +721,7 @@ morkBuilder::OnNewCell(morkEnv* ev, const morkPlace& inPlace,
           mork_fill ix = mBuilder_CellsVecFill++;
           morkCell* cell =  mBuilder_CellsVec + ix;
           cell->SetColumnAndChange(column, cellChange);
-          
+
           cell->mCell_Atom = 0;
           mBuilder_Cell = cell;
         }
@@ -793,7 +793,7 @@ morkBuilder::OnCellEnd(morkEnv* ev, const morkSpan& inSpan)
 {
   MORK_USED_2(ev,inSpan);
   // mParser_InCell = morkBool_kFalse;
-  
+
   mBuilder_MetaTokenSlot = 0;
   mBuilder_CellAtomScope = mBuilder_RowAtomScope;
 }
@@ -849,12 +849,12 @@ morkBuilder::OnValue(morkEnv* ev, const morkSpan& inSpan,
                 case '9':
                   mBuilder_TablePriority = (mork_priority) ( c - '0' );
                   break;
-                
+
                 case 'u':
                 case 'U':
                   mBuilder_TableIsUnique = morkBool_kTrue;
                   break;
-                  
+
                 case 'v':
                 case 'V':
                   mBuilder_TableIsVerbose = morkBool_kTrue;
@@ -896,7 +896,7 @@ morkBuilder::OnValueMid(morkEnv* ev, const morkSpan& inSpan,
   morkMid valMid; // local mid for modifications
   mdbOid* valOid = &valMid.mMid_Oid; // ref to oid inside mid
   *valOid = inMid.mMid_Oid; // bitwise copy inMid's oid
-  
+
   if ( inMid.mMid_Buf )
   {
     if ( !valOid->mOid_Scope )
@@ -904,7 +904,7 @@ morkBuilder::OnValueMid(morkEnv* ev, const morkSpan& inSpan,
   }
   else if ( !valOid->mOid_Scope )
     valOid->mOid_Scope = mBuilder_CellAtomScope;
-  
+
   if ( cell )
   {
     morkBookAtom* atom = store->MidToAtom(ev, valMid);
@@ -971,7 +971,7 @@ morkBuilder::OnRowMid(morkEnv* ev, const morkSpan& inSpan,
     }
     else if ( !rowOid.mOid_Scope )
       rowOid.mOid_Scope = mBuilder_RowRowScope;
-    
+
     if ( ev->Good() )
      {
        morkPool* pool = store->StorePool();
@@ -1008,7 +1008,7 @@ morkBuilder::OnTableMid(morkEnv* ev, const morkSpan& inSpan,
     }
     else if ( !tableOid.mOid_Scope )
       tableOid.mOid_Scope = mBuilder_RowRowScope;
-    
+
     if ( ev->Good() )
      {
        morkPool* pool = store->StorePool();

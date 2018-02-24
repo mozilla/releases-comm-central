@@ -25,7 +25,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -53,7 +53,7 @@ morkBead::morkBead(mork_color inBeadColor)
 }
 
 /*public non-poly*/
-morkBead::morkBead(const morkUsage& inUsage, nsIMdbHeap* ioHeap, 
+morkBead::morkBead(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
   mork_color inBeadColor)
 : morkNode( inUsage, ioHeap )
 , mBead_Color( inBeadColor )
@@ -89,11 +89,11 @@ morkBead::CloseBead(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -137,7 +137,7 @@ morkBeadMap::CloseBeadMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 mork_bool
 morkBeadMap::AddBead(morkEnv* ev, morkBead* ioBead)
@@ -149,12 +149,12 @@ morkBeadMap::AddBead(morkEnv* ev, morkBead* ioBead)
 
     mork_bool put = this->Put(ev, &ioBead, /*val*/ (void*) 0,
       /*key*/ &oldBead, /*val*/ (void*) 0, (mork_change**) 0);
-      
+
     if ( put ) // replaced an existing key?
     {
       if ( oldBead != ioBead ) // new bead was not already in table?
         ioBead->AddStrongRef(ev); // now there's another ref
-        
+
       if ( oldBead && oldBead != ioBead ) // need to release old node?
         oldBead->CutStrongRef(ev);
     }
@@ -163,7 +163,7 @@ morkBeadMap::AddBead(morkEnv* ev, morkBead* ioBead)
   }
   else if ( !ioBead )
     ev->NilPointerError();
-    
+
   return ev->Good();
 }
 
@@ -173,13 +173,13 @@ morkBeadMap::CutBead(morkEnv* ev, mork_color inColor)
   morkBead* oldBead = 0; // old key in the map
   morkBead bead(inColor);
   morkBead* key = &bead;
-  
-  mork_bool outCutNode = this->Cut(ev, &key, 
+
+  mork_bool outCutNode = this->Cut(ev, &key,
     /*key*/ &oldBead, /*val*/ (void*) 0, (mork_change**) 0);
-    
+
   if ( oldBead )
     oldBead->CutStrongRef(ev);
-  
+
   bead.CloseBead(ev);
   return outCutNode;
 }
@@ -193,7 +193,7 @@ morkBeadMap::GetBead(morkEnv* ev, mork_color inColor)
   morkBead* key = &bead;
 
   this->Get(ev, &key, /*key*/ &oldBead, /*val*/ (void*) 0, (mork_change**) 0);
-  
+
   bead.CloseBead(ev);
   return oldBead;
 }
@@ -203,7 +203,7 @@ morkBeadMap::CutAllBeads(morkEnv* ev)
   // CutAllBeads() releases all the referenced beads.
 {
   mork_num outSlots = mMap_Slots;
-  
+
   morkBeadMapIter i(ev, this);
   morkBead* b = i.FirstBead(ev);
 
@@ -213,7 +213,7 @@ morkBeadMap::CutAllBeads(morkEnv* ev)
     i.CutHereBead(ev);
     b = i.NextBead(ev);
   }
-  
+
   return outSlots;
 }
 
@@ -238,7 +238,7 @@ morkBeadMap::Hash(morkEnv* ev, const void* inKey) const
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
- 
+
 morkBead* morkBeadMapIter::FirstBead(morkEnv* ev)
 {
   morkBead* bead = 0;
@@ -269,7 +269,7 @@ void morkBeadMapIter::CutHereBead(morkEnv* ev)
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -295,7 +295,7 @@ morkBeadProbeMap::morkBeadProbeMap(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap)
 : morkProbeMap(ev, inUsage, ioHeap,
   /*inKeySize*/ sizeof(morkBead*), /*inValSize*/ 0,
-  ioSlotHeap, /*startSlotCount*/ 11, 
+  ioSlotHeap, /*startSlotCount*/ 11,
   /*inZeroIsClearKey*/ morkBool_kTrue)
 {
   if ( ev->Good() )
@@ -316,7 +316,7 @@ morkBeadProbeMap::CloseBeadProbeMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*virtual*/ mork_test // hit(a,b) implies hash(a) == hash(b)
 morkBeadProbeMap::MapTest(morkEnv* ev, const void* inMapKey,
@@ -346,7 +346,7 @@ morkBeadProbeMap::MapHash(morkEnv* ev, const void* inAppKey) const
   }
 }
 
-/*virtual*/ mork_u4 
+/*virtual*/ mork_u4
 morkBeadProbeMap::ProbeMapHashMapKey(morkEnv* ev,
   const void* inMapKey) const
 {
@@ -366,15 +366,15 @@ morkBeadProbeMap::AddBead(morkEnv* ev, morkBead* ioBead)
   if ( ioBead && ev->Good() )
   {
     morkBead* bead = 0; // old key in the map
-    
-    mork_bool put = this->MapAtPut(ev, &ioBead, /*val*/ (void*) 0, 
+
+    mork_bool put = this->MapAtPut(ev, &ioBead, /*val*/ (void*) 0,
       /*key*/ &bead, /*val*/ (void*) 0);
-          
+
     if ( put ) // replaced an existing key?
     {
       if ( bead != ioBead ) // new bead was not already in table?
         ioBead->AddStrongRef(ev); // now there's another ref
-        
+
       if ( bead && bead != ioBead ) // need to release old node?
         bead->CutStrongRef(ev);
     }
@@ -383,7 +383,7 @@ morkBeadProbeMap::AddBead(morkEnv* ev, morkBead* ioBead)
   }
   else if ( !ioBead )
     ev->NilPointerError();
-    
+
   return ev->Good();
 }
 
@@ -395,7 +395,7 @@ morkBeadProbeMap::GetBead(morkEnv* ev, mork_color inColor)
   morkBead* key = &bead;
 
   this->MapAt(ev, &key, &oldBead, /*val*/ (void*) 0);
-  
+
   bead.CloseBead(ev);
   return oldBead;
 }
@@ -405,7 +405,7 @@ morkBeadProbeMap::CutAllBeads(morkEnv* ev)
   // CutAllBeads() releases all the referenced bead values.
 {
   mork_num outSlots = sMap_Slots;
-  
+
   morkBeadProbeMapIter i(ev, this);
   morkBead* b = i.FirstBead(ev);
 
@@ -415,7 +415,7 @@ morkBeadProbeMap::CutAllBeads(morkEnv* ev)
     b = i.NextBead(ev);
   }
   this->MapCutAll(ev);
-  
+
   return outSlots;
 }
 

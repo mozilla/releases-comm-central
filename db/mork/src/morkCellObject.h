@@ -47,7 +47,7 @@ public: // state is public because the entire Mork system is private
   mork_column     mCellObject_Col;        // col of cell last living in pos
   mork_u2         mCellObject_RowSeed;    // copy of row's seed
   mork_u2         mCellObject_Pos;        // position of cell in row
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseCellObject() only if open
@@ -162,7 +162,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakCellObject(morkCellObject* me,
     morkEnv* ev, morkCellObject** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongCellObject(morkCellObject* me,
     morkEnv* ev, morkCellObject** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

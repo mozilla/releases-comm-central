@@ -68,21 +68,21 @@ class morkFile /*d*/ : public morkObject, public nsIMdbFile { /* ````` simple fi
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
-  
+
 // public: // slots inherited from morkObject (meant to inform only)
 
   // mork_color   mBead_Color;   // ID for this bead
   // morkHandle*  mObject_Handle;  // weak ref to handle for this object
 
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 protected: // protected morkFile members (similar to public domain IronDoc)
   virtual ~morkFile(); // assert that CloseFile() executed earlier
 
@@ -90,13 +90,13 @@ protected: // protected morkFile members (similar to public domain IronDoc)
   mork_u1     mFile_DoTrace;  // 'T' trace if ev->DoTrace()
   mork_u1     mFile_IoOpen;   // 'O' => io stream is open (& needs a close)
   mork_u1     mFile_Active;   // 'A' => file is active and usable
-  
+
   nsIMdbHeap* mFile_SlotHeap; // heap for Name and other allocated slots
   PathChar*   mFile_Name; // can be nil if SetFileName() is never called
   // mFile_Name convention: managed with morkEnv::CopyString()/FreeString()
 
   nsIMdbFile* mFile_Thief; // from a call to orkinFile::Steal()
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   NS_DECL_ISUPPORTS_INHERITED
@@ -115,8 +115,8 @@ public: // dynamic type identification
   mork_bool IsFile() const
   { return IsNode() && mNode_Derived == morkDerived_kFile; }
 // } ===== end morkNode methods =====
-    
-// ````` ````` ````` `````   ````` ````` ````` `````  
+
+// ````` ````` ````` `````   ````` ````` ````` `````
 public: // public static standard file creation entry point
 
   static morkFile* OpenOldFile(morkEnv* ev, nsIMdbHeap* ioHeap,
@@ -136,7 +136,7 @@ public: // public static standard file creation entry point
   // at the first byte position of the file.  The exact manner in which
   // files must be opened is considered a subclass specific detail, and
   // other portions or Mork source code don't want to know how it's done.
-  
+
 public: // non-poly morkFile methods
 
   mork_bool FileFrozen() const  { return mFile_Frozen == 'F'; }
@@ -149,42 +149,42 @@ public: // non-poly morkFile methods
   void SetFileIoOpen(mork_bool b)  { mFile_IoOpen = (mork_u1) ((b)? 'O' : 0); }
   void SetFileActive(mork_bool b)  { mFile_Active = (mork_u1) ((b)? 'A' : 0); }
 
-  
+
   mork_bool IsOpenActiveAndMutableFile() const
   { return ( IsOpenNode() && FileActive() && !FileFrozen() ); }
     // call IsOpenActiveAndMutableFile() before writing a file
-  
+
   mork_bool IsOpenAndActiveFile() const
   { return ( this->IsOpenNode() && this->FileActive() ); }
     // call IsOpenAndActiveFile() before using a file
-    
+
 
   nsIMdbFile* GetThief() const { return mFile_Thief; }
   void SetThief(morkEnv* ev, nsIMdbFile* ioThief); // ioThief can be nil
-    
+
   const PathChar* GetFileNameString() const { return mFile_Name; }
   void SetFileName(morkEnv* ev, const PathChar* inName); // inName can be nil
   static void NilSlotHeapError(morkEnv* ev);
   static void NilFileNameError(morkEnv* ev);
   static void NonFileTypeError(morkEnv* ev);
-    
+
   void NewMissingIoError(morkEnv* ev) const;
-    
+
   void NewFileDownError(morkEnv* ev) const;
     // call NewFileDownError() when either IsOpenAndActiveFile()
     // is false, or when IsOpenActiveAndMutableFile() is false.
- 
+
    void NewFileErrnoError(morkEnv* ev) const;
        // call NewFileErrnoError() to convert std C errno into AB fault
 
   mork_size WriteNewlines(morkEnv* ev, mork_count inNewlines);
   // WriteNewlines() returns the number of bytes written.
-         
+
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakFile(morkFile* me,
     morkEnv* ev, morkFile** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongFile(morkFile* me,
     morkEnv* ev, morkFile** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -202,7 +202,7 @@ public:
   NS_IMETHOD Get(nsIMdbEnv* ev, void* outBuf, mdb_size inSize,
     mdb_pos inPos, mdb_size* outActualSize) override;
   // } ----- end read methods -----
-    
+
   // { ----- begin write methods -----
   NS_IMETHOD  Write(nsIMdbEnv* ev, const void* inBuf, mdb_size inSize,
     mdb_size* outActualSize) override = 0;
@@ -210,11 +210,11 @@ public:
     mdb_pos inPos, mdb_size* outActualSize) override;
   NS_IMETHOD  Flush(nsIMdbEnv* ev) override = 0;
   // } ----- end attribute methods -----
-    
+
   // { ----- begin path methods -----
   NS_IMETHOD  Path(nsIMdbEnv* ev, mdbYarn* outFilePath) override ;
   // } ----- end path methods -----
-    
+
   // { ----- begin replacement methods -----
   NS_IMETHOD  Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief) override = 0;
   NS_IMETHOD  Thief(nsIMdbEnv* ev, nsIMdbFile** acqThief) override;
@@ -240,7 +240,7 @@ public:
 class morkStdioFile /*d*/ : public morkFile { /* `` copied from IronDoc `` */
   using PathChar = mozilla::filesystem::Path::value_type;
 
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 protected: // protected morkStdioFile members
 
   void* mStdioFile_File;
@@ -267,8 +267,8 @@ public: // dynamic type identification
 
 public: // typing
   static void NonStdioFileTypeError(morkEnv* ev);
-    
-// ````` ````` ````` `````   ````` ````` ````` `````  
+
+// ````` ````` ````` `````   ````` ````` ````` `````
 public: // compatible with the morkFile::OpenOldFile() entry point
 
   static morkStdioFile* OpenOldStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
@@ -307,17 +307,17 @@ public: // compatible with the morkFile::OpenOldFile() entry point
 
 // } ===== end nsIMdbFile methods =====
 
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 protected: // protected non-poly morkStdioFile methods
 
   void new_stdio_file_fault(morkEnv* ev) const;
-    
-// ````` ````` ````` `````   ````` ````` ````` `````  
+
+// ````` ````` ````` `````   ````` ````` ````` `````
 public: // public non-poly morkStdioFile methods
-    
-  morkStdioFile(morkEnv* ev, const morkUsage& inUsage, 
+
+  morkStdioFile(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap,
     const PathChar* inName, const char* inMode);
     // calls OpenStdio() after construction
@@ -326,29 +326,29 @@ public: // public non-poly morkStdioFile methods
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap,
      void* ioFile, const PathChar* inName, mork_bool inFrozen);
     // calls UseStdio() after construction
-  
+
   void OpenStdio(morkEnv* ev, const PathChar* inName, const char* inMode);
     // Open a new FILE with name inName, using mode flags from inMode.
-  
+
   void UseStdio(morkEnv* ev, void* ioFile, const PathChar* inName,
     mork_bool inFrozen);
     // Use an existing file, like stdin/stdout/stderr, which should not
     // have the io stream closed when the file is closed.  The ioFile
     // parameter must actually be of type FILE (but we don't want to make
     // this header file include the stdio.h header file).
-    
+
   void CloseStdio(morkEnv* ev);
     // Close the stream io if both and FileActive() and FileIoOpen(), but
     // this does not close this instances (like CloseStdioFile() does).
     // If stream io was made active by means of calling UseStdio(),
     // then this method does little beyond marking the stream inactive
     // because FileIoOpen() is false.
-    
+
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakStdioFile(morkStdioFile* me,
     morkEnv* ev, morkStdioFile** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongStdioFile(morkStdioFile* me,
     morkEnv* ev, morkStdioFile** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

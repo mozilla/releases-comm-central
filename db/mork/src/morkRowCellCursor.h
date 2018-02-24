@@ -81,7 +81,7 @@ public: // morkRowCellCursor construction & destruction
     nsIMdbCell** acqCell, // changes to the next cell in the iteration
     mdb_column* outColumn, // column for this particular cell
     mdb_pos* outPos) override; // position of cell in row sequence
-    
+
   NS_IMETHOD PickNextCell( // get next cell in row within filter set
     nsIMdbEnv* ev, // context
     nsIMdbCell* ioCell, // changes to the next cell in the iteration
@@ -113,7 +113,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakRowCellCursor(morkRowCellCursor* me,
     morkEnv* ev, morkRowCellCursor** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongRowCellCursor(morkRowCellCursor* me,
     morkEnv* ev, morkRowCellCursor** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

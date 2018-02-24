@@ -21,18 +21,18 @@
 **| in decided whether to use such a thing.
 |*/
 class morkYarn : public morkNode { // refcounted yarn
-  
+
 // public: // slots inherited from morkNode (meant to inform only)
   // nsIMdbHeap*       mNode_Heap;
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
 
@@ -64,7 +64,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakYarn(morkYarn* me,
     morkEnv* ev, morkYarn** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongYarn(morkYarn* me,
     morkEnv* ev, morkYarn** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

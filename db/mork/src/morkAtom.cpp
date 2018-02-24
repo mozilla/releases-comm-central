@@ -32,8 +32,8 @@
 mork_bool
 morkAtom::GetYarn(mdbYarn* outYarn) const
 {
-  const void* source = 0;  
-  mdb_fill fill = 0; 
+  const void* source = 0;
+  mdb_fill fill = 0;
   mdb_cscode form = 0;
   outYarn->mYarn_More = 0;
 
@@ -69,7 +69,7 @@ morkAtom::GetYarn(mdbYarn* outYarn) const
     // if we have too many bytes, and yarn seems growable:
     if ( fill > outYarn->mYarn_Size && outYarn->mYarn_Grow ) // try grow?
       (*outYarn->mYarn_Grow)(outYarn, (mdb_size) fill); // request bigger
-      
+
     mdb_size size = outYarn->mYarn_Size; // max dest size
     if ( fill > size ) // too much atom content?
     {
@@ -79,10 +79,10 @@ morkAtom::GetYarn(mdbYarn* outYarn) const
     void* dest = outYarn->mYarn_Buf; // where bytes are going
     if ( !dest ) // nil destination address buffer?
       fill = 0; // we can't write any content at all
-      
+
     if ( fill ) // anything to copy?
       MORK_MEMCPY(dest, source, fill); // copy fill bytes to yarn
-      
+
     outYarn->mYarn_Fill = fill; // tell yarn size of copied content
   }
   else // no content to put into the yarn
@@ -90,7 +90,7 @@ morkAtom::GetYarn(mdbYarn* outYarn) const
     outYarn->mYarn_Fill = 0; // tell yarn that atom has no bytes
   }
   outYarn->mYarn_Form = form; // always update the form slot
-  
+
   return ( source != 0 );
 }
 
@@ -136,7 +136,7 @@ morkAtom::AliasYarn(const morkAtom* atom, mdbYarn* outYarn)
     else
       atom = 0; // show desire to put empty content in yarn
   }
-  
+
   if ( !atom ) // empty content for yarn?
   {
     outYarn->mYarn_Buf = 0;
@@ -166,24 +166,24 @@ morkAtom::GetBookAtomSpaceScope(morkEnv* ev) const // zero or book's space's sco
     else
       space->NonAtomSpaceTypeError(ev);
   }
-  
+
   return outScope;
 }
 
 void
 morkAtom::MakeCellUseForever(morkEnv* ev)
 {
-  MORK_USED_1(ev); 
+  MORK_USED_1(ev);
   mAtom_CellUses = morkAtom_kForeverCellUses;
 }
 
 mork_u1
 morkAtom::AddCellUse(morkEnv* ev)
 {
-  MORK_USED_1(ev); 
+  MORK_USED_1(ev);
   if ( mAtom_CellUses < morkAtom_kMaxCellUses ) // not already maxed out?
     ++mAtom_CellUses;
-    
+
   return mAtom_CellUses;
 }
 
@@ -197,7 +197,7 @@ morkAtom::CutCellUse(morkEnv* ev)
   }
   else
     this->CellUsesUnderflowWarning(ev);
-    
+
   return mAtom_CellUses;
 }
 
@@ -228,7 +228,7 @@ morkAtom::AtomSizeOverflowError(morkEnv* ev)
 void
 morkOidAtom::InitRowOidAtom(morkEnv* ev, const mdbOid& inOid)
 {
-  MORK_USED_1(ev); 
+  MORK_USED_1(ev);
   mAtom_CellUses = 0;
   mAtom_Kind = morkAtom_kKindRowOid;
   mAtom_Change = morkChange_kNil;
@@ -239,7 +239,7 @@ morkOidAtom::InitRowOidAtom(morkEnv* ev, const mdbOid& inOid)
 void
 morkOidAtom::InitTableOidAtom(morkEnv* ev, const mdbOid& inOid)
 {
-  MORK_USED_1(ev); 
+  MORK_USED_1(ev);
   mAtom_CellUses = 0;
   mAtom_Kind = morkAtom_kKindTableOid;
   mAtom_Change = morkChange_kNil;
@@ -260,7 +260,7 @@ morkWeeAnonAtom::InitWeeAnonAtom(morkEnv* ev, const morkBuf& inBuf)
     mAtom_Size = (mork_u1) size;
     if ( size && inBuf.mBuf_Body )
       MORK_MEMCPY(mWeeAnonAtom_Body, inBuf.mBuf_Body, size);
-        
+
     mWeeAnonAtom_Body[ size ] = 0;
   }
   else
@@ -271,7 +271,7 @@ void
 morkBigAnonAtom::InitBigAnonAtom(morkEnv* ev, const morkBuf& inBuf,
   mork_cscode inForm)
 {
-  MORK_USED_1(ev); 
+  MORK_USED_1(ev);
   mAtom_CellUses = 0;
   mAtom_Kind = morkAtom_kKindBigAnon;
   mAtom_Change = morkChange_kNil;
@@ -281,7 +281,7 @@ morkBigAnonAtom::InitBigAnonAtom(morkEnv* ev, const morkBuf& inBuf,
   mBigAnonAtom_Size = size;
   if ( size && inBuf.mBuf_Body )
     MORK_MEMCPY(mBigAnonAtom_Body, inBuf.mBuf_Body, size);
-        
+
   mBigAnonAtom_Body[ size ] = 0;
 }
 
@@ -322,7 +322,7 @@ morkBookAtom::HashFormAndBody(morkEnv* ev) const
     this->NonBookAtomTypeError(ev);
     return 0;
   }
-  
+
   const mork_u1* end = body + size;
   while ( body < end )
   {
@@ -330,13 +330,13 @@ morkBookAtom::HashFormAndBody(morkEnv* ev) const
     outHash <<= 4;
     outHash += c;
     mork_u4 top = outHash & 0xF0000000L; // top four bits
-    if ( top ) // any of high four bits equal to one? 
+    if ( top ) // any of high four bits equal to one?
     {
       outHash ^= (top >> 24); // fold down high bits
       outHash ^= top; // zero top four bits
     }
   }
-    
+
   return outHash;
 }
 
@@ -344,7 +344,7 @@ mork_bool
 morkBookAtom::EqualFormAndBody(morkEnv* ev, const morkBookAtom* inAtom) const
 {
   mork_bool outEqual = morkBool_kFalse;
-  
+
   const mork_u1* body = 0; // body of inAtom bytes to compare
   mork_size size; // the number of inAtom bytes to compare
   mork_cscode form; // nominal charset for ioAtom
@@ -376,7 +376,7 @@ morkBookAtom::EqualFormAndBody(morkEnv* ev, const morkBookAtom* inAtom) const
   const mork_u1* thisBody = 0; // body of bytes in this to compare
   mork_size thisSize; // the number of bytes in this to compare
   mork_cscode thisForm; // nominal charset for this atom
-  
+
   if ( this->IsWeeBook() )
   {
     thisSize = mAtom_Size;
@@ -400,11 +400,11 @@ morkBookAtom::EqualFormAndBody(morkEnv* ev, const morkBookAtom* inAtom) const
     this->NonBookAtomTypeError(ev);
     return morkBool_kFalse;
   }
-  
+
   // if atoms are empty, form is irrelevant
   if ( body && thisBody && size == thisSize && (!size || form == thisForm ))
     outEqual = (MORK_MEMCMP(body, thisBody, size) == 0);
-  
+
   return outEqual;
 }
 
@@ -456,7 +456,7 @@ morkWeeBookAtom::InitWeeBookAtom(morkEnv* ev, const morkBuf& inBuf,
         mAtom_Size = (mork_u1) size;
         if ( size && inBuf.mBuf_Body )
           MORK_MEMCPY(mWeeBookAtom_Body, inBuf.mBuf_Body, size);
-        
+
         mWeeBookAtom_Body[ size ] = 0;
       }
       else
@@ -489,7 +489,7 @@ morkBigBookAtom::InitBigBookAtom(morkEnv* ev, const morkBuf& inBuf,
       mBigBookAtom_Size = size;
       if ( size && inBuf.mBuf_Body )
         MORK_MEMCPY(mBigBookAtom_Body, inBuf.mBuf_Body, size);
-        
+
       mBigBookAtom_Body[ size ] = 0;
     }
     else

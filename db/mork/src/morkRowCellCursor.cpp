@@ -41,7 +41,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -81,7 +81,7 @@ morkRowCellCursor::morkRowCellCursor(morkEnv* ev,
         {
           mCursor_Pos = -1;
           mCursor_Seed = row->mRow_Seed;
-          
+
           morkRowObject::SlotStrongRowObject(ioRowObject, ev,
             &mRowCellCursor_RowObject);
           if ( ev->Good() )
@@ -101,7 +101,7 @@ morkRowCellCursor::morkRowCellCursor(morkEnv* ev,
 NS_IMPL_ISUPPORTS_INHERITED(morkRowCellCursor, morkCursor, nsIMdbRowCellCursor)
 
 /*public non-poly*/ void
-morkRowCellCursor::CloseRowCellCursor(morkEnv* ev) 
+morkRowCellCursor::CloseRowCellCursor(morkEnv* ev)
 {
     if ( this->IsNode() )
     {
@@ -117,7 +117,7 @@ morkRowCellCursor::CloseRowCellCursor(morkEnv* ev)
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ void
 morkRowCellCursor::NilRowObjectError(morkEnv* ev)
@@ -151,10 +151,10 @@ morkRowCellCursor::SetRow(nsIMdbEnv* mev, nsIMdbRow* ioRow)
       {
         morkRowObject::SlotStrongRowObject((morkRowObject*) 0, ev,
           &mRowCellCursor_RowObject);
-          
+
         mRowCellCursor_RowObject = rowObj; // take this strong ref
         mCursor_Seed = row->mRow_Seed;
-        
+
         row->GetCell(ev, mRowCellCursor_Col, &mCursor_Pos);
       }
     }
@@ -214,7 +214,7 @@ morkRowCellCursor::MakeCell( // get cell at current pos in the row
      *outPos = pos;
    if ( outColumn )
      *outColumn = col;
-     
+
   return outErr;
 }
 // } ----- end cell creation methods -----
@@ -263,11 +263,11 @@ morkRowCellCursor::NextCell( // get next cell in the row
    *outPos = pos;
  if ( outColumn )
    *outColumn = col;
-     
+
   mRowCellCursor_Col = pos;
   return NS_OK;
 }
-  
+
 NS_IMETHODIMP
 morkRowCellCursor::PickNextCell( // get next cell in row within filter set
   nsIMdbEnv* mev, // context

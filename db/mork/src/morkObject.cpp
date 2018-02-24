@@ -34,7 +34,7 @@
 
 NS_IMPL_ISUPPORTS(morkObject, nsIMdbObject)
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -67,7 +67,7 @@ morkObject::morkObject(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
 
 /*public non-poly*/
 morkObject::morkObject(morkEnv* ev,
-  const morkUsage& inUsage, nsIMdbHeap* ioHeap, 
+  const morkUsage& inUsage, nsIMdbHeap* ioHeap,
   mork_color inBeadColor, morkHandle* ioHandle)
 : morkBead(ev, inUsage, ioHeap, inBeadColor)
 , mObject_Handle( 0 )
@@ -77,7 +77,7 @@ morkObject::morkObject(morkEnv* ev,
   {
     if ( ioHandle )
       morkHandle::SlotWeakHandle(ioHandle, ev, &mObject_Handle);
-      
+
     if ( ev->Good() )
       mNode_Derived = morkDerived_kObject;
   }
@@ -92,7 +92,7 @@ morkObject::CloseObject(morkEnv* ev) // called by CloseMorkNode();
       {
         if ( mObject_Handle )
           morkHandle::SlotWeakHandle((morkHandle*) 0L, ev, &mObject_Handle);
-          
+
         mBead_Color = 0; // this->CloseBead(ev);
         this->MarkShut();
       }
@@ -102,7 +102,7 @@ morkObject::CloseObject(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 // { ----- begin factory methods -----
 NS_IMETHODIMP
@@ -116,7 +116,7 @@ morkObject::GetMdbFactory(nsIMdbEnv* mev, nsIMdbFactory** acqFactory)
     return NS_ERROR_NO_INTERFACE;
 
   return rv;
-} 
+}
 // } ----- end factory methods -----
 
 // { ----- begin ref counting for well-behaved cyclic graphs -----
@@ -126,7 +126,7 @@ morkObject::GetWeakRefCount(nsIMdbEnv* mev, // weak refs
 {
   *outCount = WeakRefsOnly();
   return NS_OK;
-}  
+}
 NS_IMETHODIMP
 morkObject::GetStrongRefCount(nsIMdbEnv* mev, // strong refs
   mdb_count* outCount)

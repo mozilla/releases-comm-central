@@ -33,7 +33,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -77,7 +77,7 @@ morkNodeMap::CloseNodeMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 mork_bool
 morkNodeMap::AddNode(morkEnv* ev, mork_token inToken, morkNode* ioNode)
@@ -86,16 +86,16 @@ morkNodeMap::AddNode(morkEnv* ev, mork_token inToken, morkNode* ioNode)
   if ( ioNode && ev->Good() )
   {
     morkNode* node = 0; // old val in the map
-    
+
     mork_bool put = this->Put(ev, &inToken, &ioNode,
       /*key*/ (void*) 0, &node, (mork_change**) 0);
-      
+
     if ( put ) // replaced an existing value for key inToken?
     {
       if ( node && node != ioNode ) // need to release old node?
         node->CutStrongRef(ev);
     }
-    
+
     if ( ev->Bad() || !ioNode->AddStrongRef(ev) )
     {
       // problems adding node or increasing refcount?
@@ -105,7 +105,7 @@ morkNodeMap::AddNode(morkEnv* ev, mork_token inToken, morkNode* ioNode)
   }
   else if ( !ioNode )
     ev->NilPointerError();
-    
+
   return ev->Good();
 }
 
@@ -113,11 +113,11 @@ mork_bool
 morkNodeMap::CutNode(morkEnv* ev, mork_token inToken)
 {
   morkNode* node = 0; // old val in the map
-  mork_bool outCutNode = this->Cut(ev, &inToken, 
+  mork_bool outCutNode = this->Cut(ev, &inToken,
     /*key*/ (void*) 0, &node, (mork_change**) 0);
   if ( node )
     node->CutStrongRef(ev);
-  
+
   return outCutNode;
 }
 
@@ -127,7 +127,7 @@ morkNodeMap::GetNode(morkEnv* ev, mork_token inToken)
 {
   morkNode* node = 0; // old val in the map
   this->Get(ev, &inToken, /*key*/ (void*) 0, &node, (mork_change**) 0);
-  
+
   return node;
 }
 
@@ -138,7 +138,7 @@ morkNodeMap::CutAllNodes(morkEnv* ev)
   mork_num outSlots = mMap_Slots;
   mork_token key = 0; // old key token in the map
   morkNode* val = 0; // old val node in the map
-  
+
   mork_change* c = 0;
   morkNodeMapIter i(ev, this);
   for ( c = i.FirstNode(ev, &key, &val); c ; c = i.NextNode(ev, &key, &val) )
@@ -147,7 +147,7 @@ morkNodeMap::CutAllNodes(morkEnv* ev)
       val->CutStrongRef(ev);
     i.CutHereNode(ev, /*key*/ (mork_token*) 0, /*val*/ (morkNode**) 0);
   }
-  
+
   return outSlots;
 }
 

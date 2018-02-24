@@ -57,10 +57,10 @@ class morkMapScratch { // utility class used by map subclasses
 public:
   nsIMdbHeap*  sMapScratch_Heap;     // cached sMap_Heap
   mork_count   sMapScratch_Slots;    // cached sMap_Slots
-  
+
   mork_u1*     sMapScratch_Keys;     // cached sMap_Keys
   mork_u1*     sMapScratch_Vals;     // cached sMap_Vals
-  
+
 public:
   void halt_map_scratch(morkEnv* ev);
 };
@@ -71,7 +71,7 @@ public:
 #define morkProbeMap_kTag     0x70724D50 /* ascii 'prMP' */
 
 #define morkProbeMap_kLazyClearOnAdd ((mork_u1) 'c')
- 
+
 class morkProbeMap: public morkNode {
 
 protected:
@@ -81,71 +81,71 @@ protected:
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
 
 protected:
   // { begin morkMap slots
   nsIMdbHeap* sMap_Heap; // strong ref to heap allocating all space
-    
+
   mork_u1*    sMap_Keys;
   mork_u1*    sMap_Vals;
-  
+
   mork_count  sMap_Seed;   // change count of members or structure
-    
+
   mork_count  sMap_Slots;  // count of slots in the hash table
   mork_fill   sMap_Fill;   // number of used slots in the hash table
 
   mork_size   sMap_KeySize; // size of each key (cannot be zero)
   mork_size   sMap_ValSize; // size of each val (zero allowed)
-  
+
   mork_bool   sMap_KeyIsIP;     // sMap_KeySize == sizeof(mork_ip)
   mork_bool   sMap_ValIsIP;     // sMap_ValSize == sizeof(mork_ip)
   mork_u1     sMap_Pad[ 2 ];    // for u4 alignment
   // } end morkMap slots
-    
+
   friend class morkProbeMapIter; // for access to protected slots
 
 public: // getters
   mork_count  MapSeed() const { return sMap_Seed; }
-    
+
   mork_count  MapSlots() const { return sMap_Slots; }
   mork_fill   MapFill() const { return sMap_Fill; }
 
   mork_size   MapKeySize() const { return sMap_KeySize; }
   mork_size   MapValSize() const { return sMap_ValSize; }
-  
+
   mork_bool   MapKeyIsIP() const { return sMap_KeyIsIP; }
   mork_bool   MapValIsIP() const { return sMap_ValIsIP; }
 
 protected: // slots
   // { begin morkProbeMap slots
-   
+
   mork_fill   sProbeMap_MaxFill; // max sMap_Fill before map must grow
-  
+
   mork_u1     sProbeMap_LazyClearOnAdd; // true if kLazyClearOnAdd
   mork_bool   sProbeMap_ZeroIsClearKey; // zero is adequate to clear keys
   mork_u1     sProbeMap_Pad[ 2 ]; // for u4 alignment
-  
-  mork_u4     sProbeMap_Tag; 
- 
+
+  mork_u4     sProbeMap_Tag;
+
   // } end morkProbeMap slots
-    
+
 public: // lazy clear on add
 
-  mork_bool need_lazy_init() const 
+  mork_bool need_lazy_init() const
   { return sProbeMap_LazyClearOnAdd == morkProbeMap_kLazyClearOnAdd; }
 
 public: // typing
   mork_bool   GoodProbeMap() const
   { return sProbeMap_Tag == morkProbeMap_kTag; }
-    
+
 protected: // utilities
 
   void* clear_alloc(morkEnv* ev, mork_size inSize);
@@ -158,15 +158,15 @@ protected: // utilities
   void probe_map_lazy_init(morkEnv* ev);
 
   mork_bool new_slots(morkEnv* ev, morkMapScratch* old, mork_num inSlots);
-  
+
   mork_test find_key_pos(morkEnv* ev, const void* inAppKey,
     mork_u4 inHash, mork_pos* outPos) const;
-  
+
   void put_probe_kv(morkEnv* ev,
     const void* inAppKey, const void* inAppVal, mork_pos inPos);
   void get_probe_kv(morkEnv* ev,
     void* outAppKey, void* outAppVal, mork_pos inPos) const;
-    
+
   mork_bool grow_probe_map(morkEnv* ev);
   void      rehash_old_map(morkEnv* ev, morkMapScratch* ioScratch);
   void      revert_map(morkEnv* ev, morkMapScratch* ioScratch);
@@ -203,7 +203,7 @@ public:
     // morkTest_kVoid means that inMapKey is not a valid key bit pattern,
     //   which means that key slot in the map is not being used.  Note that
     //   kVoid is only expected as a return value in morkProbeMap subclasses,
-    //   because morkProbeMap must ask whether a key slot is used or not. 
+    //   because morkProbeMap must ask whether a key slot is used or not.
     //   morkChainMap however, always knows when a key slot is used, so only
     //   key slots expected to have valid bit patterns will be presented to
     //   the MapTest() methods for morkChainMap subclasses.
@@ -219,15 +219,15 @@ public:
   virtual mork_bool
   MapAtPut(morkEnv* ev, const void* inAppKey, const void* inAppVal,
     void* outAppKey, void* outAppVal);
-    
+
   virtual mork_bool
   MapAt(morkEnv* ev, const void* inAppKey, void* outAppKey, void* outAppVal);
-    
+
   virtual mork_num
   MapCutAll(morkEnv* ev);
   // } ===== end morkMap methods =====
 
-    
+
   // { ===== begin morkProbeMap methods =====
 public:
 
@@ -327,24 +327,24 @@ public:
     // no key move at all when either inMapKey or outAppKey is nil, and do
     // no val move at all when either inMapVal or outAppVal is nil.  Note that
     // inMapVal should always be nil when this->MapValSize() is nil.
-  
+
   // } ===== end morkProbeMap methods =====
-    
-  
+
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseProbeMap() only if open
   virtual ~morkProbeMap(); // assert that CloseProbeMap() executed earlier
-  
+
 public: // morkProbeMap construction & destruction
   morkProbeMap(morkEnv* ev, const morkUsage& inUsage,
   nsIMdbHeap* ioNodeHeap,
   mork_size inKeySize, mork_size inValSize,
   nsIMdbHeap* ioMapHeap, mork_size inSlots,
   mork_bool inZeroIsClearKey);
-  
-  void CloseProbeMap(morkEnv* ev); // called by 
-  
+
+  void CloseProbeMap(morkEnv* ev); // called by
+
 public: // dynamic type identification
   mork_bool IsProbeMap() const
   { return IsNode() && mNode_Derived == morkDerived_kProbeMap; }
@@ -354,7 +354,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakMap(morkMap* me,
     morkEnv* ev, morkMap** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongMap(morkMap* me,
     morkEnv* ev, morkMap** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -371,35 +371,35 @@ class morkProbeMapIter {
 protected:
   morkProbeMap* sProbeMapIter_Map;      // nonref
   mork_num      sProbeMapIter_Seed;     // iter's cached copy of map's seed
-  
+
   mork_i4       sProbeMapIter_HereIx;
-  
+
   mork_change   sProbeMapIter_Change;   // morkMapIter API simulation dummy
   mork_u1       sProbeMapIter_Pad[ 3 ]; // for u4 alignment
-  
+
 public:
   morkProbeMapIter(morkEnv* ev, morkProbeMap* ioMap);
   void CloseMapIter(morkEnv* ev);
- 
+
   morkProbeMapIter( ); // zero most slots; caller must call InitProbeMapIter()
 
 protected: // protected so subclasses must provide suitable typesafe inlines:
 
   void InitProbeMapIter(morkEnv* ev, morkProbeMap* ioMap);
-   
+
   void InitMapIter(morkEnv* ev, morkProbeMap* ioMap) // morkMapIter compatibility
   { this->InitProbeMapIter(ev, ioMap); }
-   
+
   mork_bool IterFirst(morkEnv* ev, void* outKey, void* outVal);
   mork_bool IterNext(morkEnv* ev, void* outKey, void* outVal);
   mork_bool IterHere(morkEnv* ev, void* outKey, void* outVal);
-   
+
   // NOTE: the following methods ONLY work for sMap_ValIsIP pointer values.
   // (Note the implied assumption that zero is never a good value pattern.)
-  
+
   void*     IterFirstVal(morkEnv* ev, void* outKey);
   // equivalent to { void* v=0; this->IterFirst(ev, outKey, &v); return v; }
-  
+
   void*     IterNextVal(morkEnv* ev, void* outKey);
   // equivalent to { void* v=0; this->IterNext(ev, outKey, &v); return v; }
 
@@ -408,21 +408,21 @@ protected: // protected so subclasses must provide suitable typesafe inlines:
 
   // NOTE: the following methods ONLY work for sMap_KeyIsIP pointer values.
   // (Note the implied assumption that zero is never a good key pattern.)
-  
+
   void*     IterFirstKey(morkEnv* ev);
   // equivalent to { void* k=0; this->IterFirst(ev, &k, 0); return k; }
-  
+
   void*     IterNextKey(morkEnv* ev);
   // equivalent to { void* k=0; this->IterNext(ev, &k, 0); return k; }
 
   void*     IterHereKey(morkEnv* ev);
   // equivalent to { void* k=0; this->IterHere(ev, &k, 0); return k; }
 
-public: // simulation of the morkMapIter API for morkMap compatibility:  
+public: // simulation of the morkMapIter API for morkMap compatibility:
   mork_change* First(morkEnv* ev, void* outKey, void* outVal);
   mork_change* Next(morkEnv* ev, void* outKey, void* outVal);
   mork_change* Here(morkEnv* ev, void* outKey, void* outVal);
-  
+
   mork_change* CutHere(morkEnv* ev, void* outKey, void* outVal);
 };
 

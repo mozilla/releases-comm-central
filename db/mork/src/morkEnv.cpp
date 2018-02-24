@@ -31,7 +31,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -87,9 +87,9 @@ morkEnv::morkEnv(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
 , mEnv_SelfAsMdbEnv( 0 )
 , mEnv_ErrorHook( 0 )
 , mEnv_HandlePool( 0 )
-  
-, mEnv_ErrorCount( 0 ) 
-, mEnv_WarningCount( 0 ) 
+
+, mEnv_ErrorCount( 0 )
+, mEnv_WarningCount( 0 )
 
 , mEnv_ErrorCode(NS_OK)
 
@@ -104,10 +104,10 @@ morkEnv::morkEnv(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
   {
     // mEnv_Heap is NOT refcounted:
     // nsIMdbHeap_SlotStrongHeap(ioSlotHeap, this, &mEnv_Heap);
-    
+
     mEnv_HandlePool = new morkPool(morkUsage::kGlobal,
       (nsIMdbHeap*) 0, ioSlotHeap);
-      
+
     MORK_ASSERT(mEnv_HandlePool);
     if ( mEnv_HandlePool && this->Good() )
     {
@@ -128,9 +128,9 @@ morkEnv::morkEnv(morkEnv* ev, /*i*/
 , mEnv_SelfAsMdbEnv( inSelfAsMdbEnv )
 , mEnv_ErrorHook( 0 )
 , mEnv_HandlePool( 0 )
-  
-, mEnv_ErrorCount( 0 ) 
-, mEnv_WarningCount( 0 ) 
+
+, mEnv_ErrorCount( 0 )
+, mEnv_WarningCount( 0 )
 
 , mEnv_ErrorCode(NS_OK)
 
@@ -141,15 +141,15 @@ morkEnv::morkEnv(morkEnv* ev, /*i*/
 , mEnv_OwnsHeap ( morkBool_kFalse )
 {
   // $$$ do we need to refcount the inSelfAsMdbEnv nsIMdbEnv??
-  
+
   if ( ioFactory && inSelfAsMdbEnv && ioSlotHeap)
   {
     // mEnv_Heap is NOT refcounted:
     // nsIMdbHeap_SlotStrongHeap(ioSlotHeap, ev, &mEnv_Heap);
 
-    mEnv_HandlePool = new(*ioSlotHeap, ev) morkPool(ev, 
+    mEnv_HandlePool = new(*ioSlotHeap, ev) morkPool(ev,
       morkUsage::kHeap, ioSlotHeap, ioSlotHeap);
-      
+
     MORK_ASSERT(mEnv_HandlePool);
     if ( mEnv_HandlePool && ev->Good() )
     {
@@ -169,10 +169,10 @@ morkEnv::CloseEnv(morkEnv* ev) /*i*/ // called by CloseMorkNode();
     {
       // $$$ release mEnv_SelfAsMdbEnv??
       // $$$ release mEnv_ErrorHook??
-      
+
       mEnv_SelfAsMdbEnv = 0;
       mEnv_ErrorHook = 0;
-      
+
       morkPool* savePool = mEnv_HandlePool;
       morkPool::SlotStrongPool((morkPool*) 0, ev, &mEnv_HandlePool);
       // free the pool
@@ -192,7 +192,7 @@ morkEnv::CloseEnv(morkEnv* ev) /*i*/ // called by CloseMorkNode();
         // how do we free this? might need to get rid of asserts.
       }
       // mEnv_Factory is NOT refcounted
-      
+
       this->MarkShut();
     }
     else
@@ -200,7 +200,7 @@ morkEnv::CloseEnv(morkEnv* ev) /*i*/ // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 mork_size
 morkEnv::OidAsHex(void* outBuf, const mdbOid& inOid)
@@ -210,7 +210,7 @@ morkEnv::OidAsHex(void* outBuf, const mdbOid& inOid)
   mork_size outSize = this->TokenAsHex(p, inOid.mOid_Id);
   p += outSize;
   *p++ = ':';
-  
+
   mork_scope scope = inOid.mOid_Scope;
   if ( scope < 0x80 && morkCh_IsName((mork_ch) scope) )
   {
@@ -239,7 +239,7 @@ morkEnv::HexToByte(mork_ch inFirstHex, mork_ch inSecondHex)
     hi = (mork_u1) ((inFirstHex - (mork_ch) 'A') + 10);
   else if ( morkFlags_IsLower(f) )
     hi = (mork_u1) ((inFirstHex - (mork_ch) 'a') + 10);
-  
+
   mork_u1 lo = 0; // low four hex bits
   f = morkCh_GetFlags(inSecondHex);
   if ( morkFlags_IsDigit(f) )
@@ -248,7 +248,7 @@ morkEnv::HexToByte(mork_ch inFirstHex, mork_ch inSecondHex)
     lo = (mork_u1) ((inSecondHex - (mork_ch) 'A') + 10);
   else if ( morkFlags_IsLower(f) )
     lo = (mork_u1) ((inSecondHex - (mork_ch) 'a') + 10);
-    
+
   return (mork_u1) ((hi << 4) | lo);
 }
 
@@ -294,8 +294,8 @@ morkEnv::StringToYarn(const PathChar* inString, mdbYarn* outYarn)
 {
   if ( outYarn )
   {
-    mdb_fill fill = ( inString )? (mdb_fill) MORK_STRLEN(inString) * sizeof(PathChar) : 0; 
-      
+    mdb_fill fill = ( inString )? (mdb_fill) MORK_STRLEN(inString) * sizeof(PathChar) : 0;
+
     if ( fill ) // have nonempty content?
     {
       mdb_size size = outYarn->mYarn_Size; // max dest size
@@ -307,10 +307,10 @@ morkEnv::StringToYarn(const PathChar* inString, mdbYarn* outYarn)
       void* dest = outYarn->mYarn_Buf; // where bytes are going
       if ( !dest ) // nil destination address buffer?
         fill = 0; // we can't write any content at all
-        
+
       if ( fill ) // anything to copy?
         MORK_MEMCPY(dest, inString, fill); // copy fill bytes to yarn
-        
+
       outYarn->mYarn_Fill = fill; // tell yarn size of copied content
     }
     else // no content to put into the yarn
@@ -367,7 +367,7 @@ void
 morkEnv::NewWarning(const char* inString)
 {
   MORK_ASSERT(morkBool_kFalse); // get developer's attention
-  
+
   ++mEnv_WarningCount;
   if ( mEnv_ErrorHook )
     mEnv_ErrorHook->OnWarningString(this->AsMdbEnv(), inString);

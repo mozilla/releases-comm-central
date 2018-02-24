@@ -68,7 +68,7 @@
 void morkMapScratch::halt_map_scratch(morkEnv* ev)
 {
   nsIMdbHeap* heap = sMapScratch_Heap;
-  
+
   if ( heap )
   {
     if ( sMapScratch_Keys )
@@ -113,11 +113,11 @@ void morkProbeMap::rehash_old_map(morkEnv* ev, morkMapScratch* ioScratch)
 {
   mork_size keySize = sMap_KeySize; // size of every key bucket
   mork_size valSize = sMap_ValSize; // size of every associated value
-  
+
   mork_count slots = sMap_Slots; // number of new buckets
   mork_u1* keys = sMap_Keys; // destination for rehashed keys
   mork_u1* vals = sMap_Vals; // destination for any copied values
-  
+
   mork_bool keyIsIP = ( keys && keySize == sizeof(mork_ip) && sMap_KeyIsIP );
   mork_bool valIsIP = ( vals && valSize == sizeof(mork_ip) && sMap_ValIsIP );
 
@@ -125,9 +125,9 @@ void morkProbeMap::rehash_old_map(morkEnv* ev, morkMapScratch* ioScratch)
   mork_u1* oldKeys = ioScratch->sMapScratch_Keys; // sMap_Keys
   mork_u1* oldVals = ioScratch->sMapScratch_Vals; // sMap_Vals
   mork_u1* end = oldKeys + (keySize * oldSlots); // one byte past last key
-  
+
   mork_fill fill = 0; // let's count the actual fill for a double check
-  
+
   while ( oldKeys < end ) // another old key bucket to rehash if non-nil?
   {
     if ( !this->ProbeMapIsKeyNil(ev, oldKeys) ) // need to rehash?
@@ -137,13 +137,13 @@ void morkProbeMap::rehash_old_map(morkEnv* ev, morkMapScratch* ioScratch)
 
       mork_pos i = hash % slots;   // target hash bucket
       mork_pos startPos = i;       // remember start to detect
-      
+
       mork_u1* k = keys + (i * keySize);
       while ( !this->ProbeMapIsKeyNil(ev, k) )
       {
         if ( ++i >= (mork_pos)slots ) // advanced past end? need to wrap around now?
           i = 0; // wrap around to first slot in map's hash table
-          
+
         if ( i == startPos ) // no void slots were found anywhere in map?
         {
           this->WrapWithNoVoidSlotError(ev); // should never happen
@@ -183,11 +183,11 @@ mork_bool morkProbeMap::grow_probe_map(morkEnv* ev)
     mork_num newSlots = ((sMap_Slots * 4) / 3) + 1; // +25%
     morkMapScratch old; // a place to temporarily hold all the old arrays
     if ( this->new_slots(ev, &old, newSlots) ) // have more?
-    {      
+    {
       ++sMap_Seed; // note the map has changed
       this->rehash_old_map(ev, &old);
-      
-      if ( ev->Good() ) 
+
+      if ( ev->Good() )
       {
         mork_count slots = sMap_Slots;
         mork_num emptyReserve = (slots / 7) + 1; // keep this many empty
@@ -197,7 +197,7 @@ mork_bool morkProbeMap::grow_probe_map(morkEnv* ev)
         else
           this->GrowFailsMaxFillError(ev); // we have invariant failure
       }
-      
+
       if ( ev->Bad() ) // rehash failed? need to revert map to last state?
         this->revert_map(ev, &old); // swap the vectors back again
 
@@ -205,20 +205,20 @@ mork_bool morkProbeMap::grow_probe_map(morkEnv* ev)
     }
   }
   else ev->OutOfMemoryError();
-  
+
   return ev->Good();
 }
 
 void morkProbeMap::revert_map(morkEnv* ev, morkMapScratch* ioScratch)
 {
-  mork_count tempSlots = ioScratch->sMapScratch_Slots; // sMap_Slots  
+  mork_count tempSlots = ioScratch->sMapScratch_Slots; // sMap_Slots
   mork_u1* tempKeys = ioScratch->sMapScratch_Keys;     // sMap_Keys
   mork_u1* tempVals = ioScratch->sMapScratch_Vals;     // sMap_Vals
-  
+
   ioScratch->sMapScratch_Slots = sMap_Slots;
   ioScratch->sMapScratch_Keys = sMap_Keys;
   ioScratch->sMapScratch_Vals = sMap_Vals;
-  
+
   sMap_Slots = tempSlots;
   sMap_Keys = tempKeys;
   sMap_Vals = tempVals;
@@ -234,16 +234,16 @@ void morkProbeMap::put_probe_kv(morkEnv* ev,
   if ( valSize && inAppVal ) // map holds values? caller sends value?
   {
     mork_u1* val = sMap_Vals + (valSize * inPos);
-    if ( valSize == sizeof(mork_ip) && sMap_ValIsIP ) // int special case? 
+    if ( valSize == sizeof(mork_ip) && sMap_ValIsIP ) // int special case?
       *((mork_ip*) val) = *((const mork_ip*) inAppVal);
     else
       mapVal = val; // show possible need to call ProbeMapPushIn()
   }
-  if ( inAppKey ) // caller sends the key? 
+  if ( inAppKey ) // caller sends the key?
   {
     mork_num keySize = sMap_KeySize;
     mork_u1* key = sMap_Keys + (keySize * inPos);
-    if ( keySize == sizeof(mork_ip) && sMap_KeyIsIP ) // int special case? 
+    if ( keySize == sizeof(mork_ip) && sMap_KeyIsIP ) // int special case?
       *((mork_ip*) key) = *((const mork_ip*) inAppKey);
     else
       mapKey = key; // show possible need to call ProbeMapPushIn()
@@ -268,16 +268,16 @@ void morkProbeMap::get_probe_kv(morkEnv* ev,
   if ( valSize && outAppVal ) // map holds values? caller wants value?
   {
     const mork_u1* val = sMap_Vals + (valSize * inPos);
-    if ( valSize == sizeof(mork_ip) && sMap_ValIsIP ) // int special case? 
+    if ( valSize == sizeof(mork_ip) && sMap_ValIsIP ) // int special case?
       *((mork_ip*) outAppVal) = *((const mork_ip*) val);
     else
       mapVal = val; // show possible need to call ProbeMapPullOut()
   }
-  if ( outAppKey ) // caller wants the key? 
+  if ( outAppKey ) // caller wants the key?
   {
     mork_num keySize = sMap_KeySize;
     const mork_u1* key = sMap_Keys + (keySize * inPos);
-    if ( keySize == sizeof(mork_ip) && sMap_KeyIsIP ) // int special case? 
+    if ( keySize == sizeof(mork_ip) && sMap_KeyIsIP ) // int special case?
       *((mork_ip*) outAppKey) = *((const mork_ip*) key);
     else
       mapKey = key; // show possible need to call ProbeMapPullOut()
@@ -295,13 +295,13 @@ morkProbeMap::find_key_pos(morkEnv* ev, const void* inAppKey,
   mork_count slots = sMap_Slots; // total number of key buckets
   mork_pos i = inHash % slots;   // target hash bucket
   mork_pos startPos = i;         // remember start to detect
-  
+
   mork_test outTest = this->MapTest(ev, k + (i * size), inAppKey);
   while ( outTest == morkTest_kMiss )
   {
     if ( ++i >= (mork_pos)slots ) // advancing goes beyond end? need to wrap around now?
       i = 0; // wrap around to first slot in map's hash table
-      
+
     if ( i == startPos ) // no void slots were found anywhere in map?
     {
       this->WrapWithNoVoidSlotError(ev); // should never happen
@@ -310,17 +310,17 @@ morkProbeMap::find_key_pos(morkEnv* ev, const void* inAppKey,
     outTest = this->MapTest(ev, k + (i * size), inAppKey);
   }
   *outPos = i;
-  
+
   return outTest;
 }
- 
+
 void morkProbeMap::probe_map_lazy_init(morkEnv* ev)
 {
   if ( this->need_lazy_init() && sMap_Fill == 0 ) // pending lazy action?
   {
     // The constructor cannot successfully call virtual ProbeMapClearKey(),
     // so we lazily do so now, when we add the first member to the map.
-    
+
     mork_u1* keys = sMap_Keys;
     if ( keys ) // okay to call lazy virtual clear method on new map keys?
     {
@@ -345,12 +345,12 @@ morkProbeMap::MapAtPut(morkEnv* ev,
   void* outAppKey, void* outAppVal)
 {
   mork_bool outPut = morkBool_kFalse;
-  
+
   if ( this->GoodProbeMap() ) /* looks good? */
   {
     if ( this->need_lazy_init() && sMap_Fill == 0 ) // pending lazy action?
       this->probe_map_lazy_init(ev);
-          
+
     if ( ev->Good() )
     {
       mork_pos slotPos = 0;
@@ -367,7 +367,7 @@ morkProbeMap::MapAtPut(morkEnv* ev,
       {
         ++sMap_Fill; /* one more member in the collection */
       }
-      
+
       if ( test != morkTest_kMiss ) /* found slot to hold new assoc? */
       {
         ++sMap_Seed; /* note the map has changed */
@@ -376,10 +376,10 @@ morkProbeMap::MapAtPut(morkEnv* ev,
     }
   }
   else this->ProbeMapBadTagError(ev);
-  
+
   return outPut;
 }
-    
+
 mork_bool
 morkProbeMap::MapAt(morkEnv* ev, const void* inAppKey,
     void* outAppKey, void* outAppVal)
@@ -388,7 +388,7 @@ morkProbeMap::MapAt(morkEnv* ev, const void* inAppKey,
   {
     if ( this->need_lazy_init() && sMap_Fill == 0 ) // pending lazy action?
       this->probe_map_lazy_init(ev);
-          
+
     mork_pos slotPos = 0;
     mork_u4 hash = this->MapHash(ev, inAppKey);
     mork_test test = this->find_key_pos(ev, inAppKey, hash, &slotPos);
@@ -399,29 +399,29 @@ morkProbeMap::MapAt(morkEnv* ev, const void* inAppKey,
     }
   }
   else this->ProbeMapBadTagError(ev);
-  
+
   return morkBool_kFalse;
 }
-    
+
 mork_num
 morkProbeMap::MapCutAll(morkEnv* ev)
 {
   mork_num outCutAll = 0;
-  
+
   if ( this->GoodProbeMap() ) /* looks good? */
   {
     outCutAll = sMap_Fill; /* number of members cut, which is all of them */
-    
+
     if ( sMap_Keys && !sProbeMap_ZeroIsClearKey )
       this->ProbeMapClearKey(ev, sMap_Keys, sMap_Slots);
 
     sMap_Fill = 0; /* map now has no members */
   }
   else this->ProbeMapBadTagError(ev);
-  
+
   return outCutAll;
 }
-    
+
 // { ===== node interface =====
 
 /*virtual*/
@@ -455,7 +455,7 @@ void morkProbeMap::CloseProbeMap(morkEnv* ev)
           heap->Free(ev->AsMdbEnv(), block);
           sMap_Keys = 0;
         }
-          
+
         block = sMap_Vals;
         if ( block )
         {
@@ -465,11 +465,11 @@ void morkProbeMap::CloseProbeMap(morkEnv* ev)
       }
       sMap_Keys = 0;
       sMap_Vals = 0;
-      
+
       this->CloseNode(ev);
       sProbeMap_Tag = 0;
       sProbeMap_MaxFill = 0;
-      
+
       this->MarkShut();
     }
     else
@@ -491,7 +491,7 @@ morkProbeMap::clear_alloc(morkEnv* ev, mork_size inSize)
   }
   else
     ev->NilPointerError();
-    
+
   return (void*) 0;
 }
 
@@ -563,10 +563,10 @@ void morkProbeMap::init_probe_map(morkEnv* ev, mork_size inSlots)
       inSlots = 7; // increase to reasonable minimum
     else if ( inSlots > (128 * 1024) ) // requested capacity too big?
       inSlots = (128 * 1024); // decrease to reasonable maximum
-      
+
     if ( this->new_slots(ev, &old, inSlots) )
       sProbeMap_Tag = morkProbeMap_kTag;
-      
+
     mork_count slots = sMap_Slots;
     mork_num emptyReserve = (slots / 7) + 1; // keep this many empty
     sProbeMap_MaxFill = slots - emptyReserve;
@@ -579,30 +579,30 @@ mork_bool
 morkProbeMap::new_slots(morkEnv* ev, morkMapScratch* old, mork_num inSlots)
 {
   mork_bool outNew = morkBool_kFalse;
-  
+
   // Note we cannot successfully call virtual ProbeMapClearKey() when we
   // call new_slots() inside the constructor; so we leave this problem
   // to the caller.  (The constructor will call ProbeMapClearKey() later
   // after setting a suitable lazy flag to show this action is pending.)
-    
+
   // allocate every new array before we continue:
   mork_u1* newKeys = this->map_new_keys(ev, inSlots);
   mork_u1* newVals = this->map_new_vals(ev, inSlots);
-  
+
   // okay for newVals to be null when values are zero sized?
   mork_bool okayValues = ( newVals || !sMap_ValSize );
-  
+
   if ( newKeys && okayValues )
   {
     outNew = morkBool_kTrue; // we created every array needed
 
     // init mapScratch using slots from current map:
     old->sMapScratch_Heap = sMap_Heap;
-    
+
     old->sMapScratch_Slots = sMap_Slots;
     old->sMapScratch_Keys = sMap_Keys;
     old->sMapScratch_Vals = sMap_Vals;
-    
+
     // replace all map array slots using the newly allocated members:
     ++sMap_Seed; // the map has changed
     sMap_Keys = newKeys;
@@ -616,10 +616,10 @@ morkProbeMap::new_slots(morkEnv* ev, morkMapScratch* old, mork_num inSlots)
       heap->Free(ev->AsMdbEnv(), newKeys);
     if ( newVals )
       heap->Free(ev->AsMdbEnv(), newVals);
-    
+
     MORK_MEMSET(old, 0, sizeof(morkMapScratch)); // zap scratch space
   }
-  
+
   return outNew;
 }
 
@@ -633,7 +633,7 @@ morkProbeMap::clear_probe_map(morkEnv* ev, nsIMdbHeap* ioMapHeap)
   sMap_Keys = 0;
   sMap_Vals = 0;
   sProbeMap_MaxFill = 0;
-  
+
   sMap_Heap = ioMapHeap;
   if ( !ioMapHeap )
     ev->NilPointerError();
@@ -644,21 +644,21 @@ morkProbeMap::morkProbeMap(morkEnv* ev, const morkUsage& inUsage,
   mork_size inKeySize, mork_size inValSize,
   nsIMdbHeap* ioMapHeap, mork_size inSlots,
   mork_bool inZeroIsClearKey)
-  
+
 : morkNode(ev, inUsage, ioNodeHeap)
 , sMap_Heap( ioMapHeap )
-    
+
 , sMap_Keys( 0 )
 , sMap_Vals( 0 )
-  
+
 , sMap_Seed( 0 )   // change count of members or structure
-    
+
 , sMap_Slots( 0 )  // count of slots in the hash table
 , sMap_Fill( 0 )   // number of used slots in the hash table
 
 , sMap_KeySize( 0 ) // size of each key (cannot be zero)
 , sMap_ValSize( 0 ) // size of each val (zero allowed)
-  
+
 , sMap_KeyIsIP( morkBool_kFalse ) // sMap_KeySize == sizeof(mork_ip)
 , sMap_ValIsIP( morkBool_kFalse ) // sMap_ValSize == sizeof(mork_ip)
 
@@ -676,18 +676,18 @@ morkProbeMap::morkProbeMap(morkEnv* ev, const morkUsage& inUsage,
   {
     this->clear_probe_map(ev, ioMapHeap);
     if ( ev->Good() )
-    {      
+    {
       sMap_KeySize = inKeySize;
       sMap_ValSize = inValSize;
       sMap_KeyIsIP = ( inKeySize == sizeof(mork_ip) );
       sMap_ValIsIP = ( inValSize == sizeof(mork_ip) );
-      
+
       this->init_probe_map(ev, inSlots);
       if ( ev->Good() )
       {
         if ( !inZeroIsClearKey ) // must lazy clear later with virtual method?
           sProbeMap_LazyClearOnAdd = morkProbeMap_kLazyClearOnAdd;
-          
+
         mNode_Derived = morkDerived_kProbeMap;
       }
     }
@@ -711,7 +711,7 @@ morkProbeMap::MapTest(morkEnv* ev,
   // morkTest_kVoid means that inMapKey is not a valid key bit pattern,
   //   which means that key slot in the map is not being used.  Note that
   //   kVoid is only expected as a return value in morkProbeMap subclasses,
-  //   because morkProbeMap must ask whether a key slot is used or not. 
+  //   because morkProbeMap must ask whether a key slot is used or not.
   //   morkChainMap however, always knows when a key slot is used, so only
   //   key slots expected to have valid bit patterns will be presented to
   //   the MapTest() methods for morkChainMap subclasses.
@@ -926,7 +926,7 @@ morkProbeMapIter::morkProbeMapIter(morkEnv* ev, morkProbeMap* ioMap)
     {
       if ( ioMap->need_lazy_init() ) // pending lazy action?
         ioMap->probe_map_lazy_init(ev);
-        
+
       sProbeMapIter_Map = ioMap;
       sProbeMapIter_Seed = ioMap->sMap_Seed;
     }
@@ -966,7 +966,7 @@ void morkProbeMapIter::InitProbeMapIter(morkEnv* ev, morkProbeMap* ioMap)
     {
       if ( ioMap->need_lazy_init() ) // pending lazy action?
         ioMap->probe_map_lazy_init(ev);
-        
+
       sProbeMapIter_Map = ioMap;
       sProbeMapIter_Seed = ioMap->sMap_Seed;
     }
@@ -974,33 +974,33 @@ void morkProbeMapIter::InitProbeMapIter(morkEnv* ev, morkProbeMap* ioMap)
   }
   else ev->NilPointerError();
 }
- 
+
 mork_bool morkProbeMapIter::IterFirst(morkEnv* ev,
   void* outAppKey, void* outAppVal)
 {
   sProbeMapIter_HereIx = morkProbeMapIter_kAfterIx; // default to done
   morkProbeMap* map = sProbeMapIter_Map;
-  
+
   if ( map && map->GoodProbeMap() ) /* looks good? */
   {
     sProbeMapIter_Seed = map->sMap_Seed; /* sync the seeds */
-    
+
     mork_u1* k = map->sMap_Keys;  // array of keys, each of size sMap_KeySize
     mork_num size = map->sMap_KeySize;  // number of bytes in each key
     mork_count slots = map->sMap_Slots; // total number of key buckets
     mork_pos here = 0;  // first hash bucket
-    
+
     while ( here < (mork_pos)slots )
     {
       if ( !map->ProbeMapIsKeyNil(ev, k + (here * size)) )
       {
         map->get_probe_kv(ev, outAppKey, outAppVal, here);
-        
+
         sProbeMapIter_HereIx = (mork_i4) here;
         return morkBool_kTrue;
       }
       ++here; // next bucket
-    } 
+    }
   }
   else map->ProbeMapBadTagError(ev);
 
@@ -1011,9 +1011,9 @@ mork_bool morkProbeMapIter::IterNext(morkEnv* ev,
   void* outAppKey, void* outAppVal)
 {
   morkProbeMap* map = sProbeMapIter_Map;
-  
+
   if ( map && map->GoodProbeMap() ) /* looks good? */
-  {    
+  {
     if ( sProbeMapIter_Seed == map->sMap_Seed ) /* in sync? */
     {
       if ( sProbeMapIter_HereIx != morkProbeMapIter_kAfterIx )
@@ -1023,24 +1023,24 @@ mork_bool morkProbeMapIter::IterNext(morkEnv* ev,
           here = 0;
         else
           ++here;
-          
+
         sProbeMapIter_HereIx = morkProbeMapIter_kAfterIx; // default to done
 
         mork_u1* k = map->sMap_Keys;  // key array, each of size sMap_KeySize
         mork_num size = map->sMap_KeySize;  // number of bytes in each key
         mork_count slots = map->sMap_Slots; // total number of key buckets
-        
+
         while ( here < (mork_pos)slots )
         {
           if ( !map->ProbeMapIsKeyNil(ev, k + (here * size)) )
           {
             map->get_probe_kv(ev, outAppKey, outAppVal, here);
-            
+
             sProbeMapIter_HereIx = (mork_i4) here;
             return morkBool_kTrue;
           }
           ++here; // next bucket
-        } 
+        }
       }
     }
     else map->MapSeedOutOfSyncError(ev);
@@ -1054,9 +1054,9 @@ mork_bool morkProbeMapIter::IterHere(morkEnv* ev,
   void* outAppKey, void* outAppVal)
 {
   morkProbeMap* map = sProbeMapIter_Map;
-  
+
   if ( map && map->GoodProbeMap() ) /* looks good? */
-  {    
+  {
     if ( sProbeMapIter_Seed == map->sMap_Seed ) /* in sync? */
     {
       mork_pos here = (mork_pos) sProbeMapIter_HereIx;
@@ -1085,7 +1085,7 @@ morkProbeMapIter::First(morkEnv* ev, void* outKey, void* outVal)
 {
   if ( this->IterFirst(ev, outKey, outVal) )
     return &sProbeMapIter_Change;
-  
+
   return (mork_change*) 0;
 }
 
@@ -1094,7 +1094,7 @@ morkProbeMapIter::Next(morkEnv* ev, void* outKey, void* outVal)
 {
   if ( this->IterNext(ev, outKey, outVal) )
     return &sProbeMapIter_Change;
-  
+
   return (mork_change*) 0;
 }
 
@@ -1103,7 +1103,7 @@ morkProbeMapIter::Here(morkEnv* ev, void* outKey, void* outVal)
 {
   if ( this->IterHere(ev, outKey, outVal) )
     return &sProbeMapIter_Change;
-  
+
   return (mork_change*) 0;
 }
 
@@ -1111,7 +1111,7 @@ mork_change*
 morkProbeMapIter::CutHere(morkEnv* ev, void* outKey, void* outVal)
 {
   morkProbeMap::ProbeMapCutError(ev);
-  
+
   return (mork_change*) 0;
 }
 

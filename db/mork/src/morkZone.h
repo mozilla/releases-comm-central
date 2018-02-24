@@ -74,25 +74,25 @@ protected: // member variable slots
 #endif /* morkRun_USE_TAG_SLOT */
 
   morkRun*  mRun_Next;
-  
+
 public: // pointer interpretation of mRun_Next (when inside a list):
   morkRun*   RunNext() const { return mRun_Next; }
   void       RunSetNext(morkRun* ioNext) { mRun_Next = ioNext; }
-  
+
 public: // size interpretation of mRun_Next (when not inside a list):
   mork_size  RunSize() const { return (mork_size) ((mork_ip) mRun_Next); }
   void       RunSetSize(mork_size inSize)
              { mRun_Next = (morkRun*) ((mork_ip) inSize); }
-  
+
 public: // maintenance and testing of optional tag magic signature slot:
 #ifdef morkRun_USE_TAG_SLOT
   void       RunInitTag() { mRun_Tag = morkRun_kTag; }
   mork_bool  RunGoodTag() { return ( mRun_Tag == morkRun_kTag ); }
 #endif /* morkRun_USE_TAG_SLOT */
-  
+
 public: // conversion back and forth to inline block following run instance:
   void* RunAsBlock() { return (((mork_u1*) this) + sizeof(morkRun)); }
-  
+
   static morkRun* BlockAsRun(void* ioBlock)
   { return (morkRun*) (((mork_u1*) ioBlock) - sizeof(morkRun)); }
 
@@ -110,11 +110,11 @@ class morkOldRun : public morkRun {
 
 protected: // need another size field when mRun_Next is used for linkage:
   mdb_size mOldRun_Size;
-  
+
 public: // size getter/setter
   mork_size  OldSize() const { return mOldRun_Size; }
   void       OldSetSize(mork_size inSize) { mOldRun_Size = inSize; }
-  
+
 };
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
@@ -132,17 +132,17 @@ protected: // member variable slots
 #endif /* morkHunk_USE_TAG_SLOT */
 
   morkHunk* mHunk_Next;
-  
+
   morkRun   mHunk_Run;
-  
+
 public: // setters
   void      HunkSetNext(morkHunk* ioNext) { mHunk_Next = ioNext; }
-  
+
 public: // getters
   morkHunk* HunkNext() const { return mHunk_Next; }
 
   morkRun*  HunkRun() { return &mHunk_Run; }
-  
+
 public: // maintenance and testing of optional tag magic signature slot:
 #ifdef morkHunk_USE_TAG_SLOT
   void       HunkInitTag() { mHunk_Tag = morkHunk_kTag; }
@@ -151,7 +151,7 @@ public: // maintenance and testing of optional tag magic signature slot:
 
 public: // typing & errors
   static void BadHunkTagWarning(morkEnv* ev);
-  
+
 };
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
@@ -159,7 +159,7 @@ public: // typing & errors
 /*| kNewHunkSize: the default size for a hunk, assuming we must allocate
 **| a new one whenever the free hunk list does not already have.  Note this
 **| number should not be changed without also considering suitable changes
-**| in the related kMaxHunkWaste and kMinHunkSize constants. 
+**| in the related kMaxHunkWaste and kMinHunkSize constants.
 |*/
 #define morkZone_kNewHunkSize ((mork_size) (64 * 1024)) /* 64K per hunk */
 
@@ -223,38 +223,38 @@ class morkZone : public morkNode, public nsIMdbHeap {
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
 
 public: // state is public because the entire Mork system is private
 
   nsIMdbHeap*  mZone_Heap; // strong ref to heap allocating all space
-  
+
   mork_size    mZone_HeapVolume;  // total bytes allocated from heap
   mork_size    mZone_BlockVolume; // total bytes in all zone blocks
   mork_size    mZone_RunVolume;   // total bytes in all zone runs
   mork_size    mZone_ChipVolume;  // total bytes in all zone chips
-  
+
   mork_size    mZone_FreeOldRunVolume; // total bytes in all used hunks
-  
+
   mork_count   mZone_HunkCount;        // total number of used hunks
   mork_count   mZone_FreeOldRunCount;  // total free old runs
 
-  morkHunk*    mZone_HunkList;       // linked list of all used hunks  
+  morkHunk*    mZone_HunkList;       // linked list of all used hunks
   morkRun*     mZone_FreeOldRunList; // linked list of free old runs
-  
+
   // note mZone_At is a byte pointer for single byte address arithmetic:
   mork_u1*     mZone_At;     // current position in most recent hunk
   mork_size    mZone_AtSize; // number of bytes remaining in this hunk
-  
+
   // kBuckets+1 so indexes zero through kBuckets are all okay to use:
-  
+
   morkRun*     mZone_FreeRuns[ morkZone_kBuckets + 1 ];
   // Each piece of memory stored in list mZone_FreeRuns[ i ] has an
   // allocation size equal to sizeof(morkRun) + (i * kRoundSize), so
@@ -262,21 +262,21 @@ public: // state is public because the entire Mork system is private
   // bytes of writeable space while reserving the first sizeof(morkRun)
   // bytes to keep track of size information for later re-use.  Note
   // that mZone_FreeRuns[ 0 ] is unused because no run will be zero
-  // bytes in size (and morkZone plans to complain about zero sizes). 
+  // bytes in size (and morkZone plans to complain about zero sizes).
 
 protected: // zone utilities
-  
+
   mork_size zone_grow_at(morkEnv* ev, mork_size inNeededSize);
 
-  void*     zone_new_chip(morkEnv* ev, mdb_size inSize); // alloc  
-  morkHunk* zone_new_hunk(morkEnv* ev, mdb_size inRunSize); // alloc  
+  void*     zone_new_chip(morkEnv* ev, mdb_size inSize); // alloc
+  morkHunk* zone_new_hunk(morkEnv* ev, mdb_size inRunSize); // alloc
 
 // { ===== begin nsIMdbHeap methods =====
 public:
   NS_IMETHOD Alloc(nsIMdbEnv* ev, // allocate a piece of memory
-    mdb_size inSize,   // requested size of new memory block 
+    mdb_size inSize,   // requested size of new memory block
     void** outBlock) override; // memory block of inSize bytes, or nil
-    
+
   NS_IMETHOD Free(nsIMdbEnv* ev, // free block allocated earlier by Alloc()
     void* inBlock) override;
 
@@ -289,11 +289,11 @@ public: // morkNode virtual methods
   virtual ~morkZone(); // assert that CloseMap() executed earlier
 
 public: // morkMap construction & destruction
-  morkZone(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioNodeHeap, 
+  morkZone(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioNodeHeap,
     nsIMdbHeap* ioZoneHeap);
-  
+
   void CloseZone(morkEnv* ev); // called by CloseMorkNode()
-  
+
 public: // dynamic type identification
   mork_bool IsZone() const
   { return IsNode() && mNode_Derived == morkDerived_kZone; }
@@ -301,13 +301,13 @@ public: // dynamic type identification
 
 // { ===== begin morkZone methods =====
 public: // chips do not know how big they are...
-  void* ZoneNewChip(morkEnv* ev, mdb_size inSize); // alloc  
-    
+  void* ZoneNewChip(morkEnv* ev, mdb_size inSize); // alloc
+
 public: // ...but runs do indeed know how big they are
-  void* ZoneNewRun(morkEnv* ev, mdb_size inSize); // alloc  
+  void* ZoneNewRun(morkEnv* ev, mdb_size inSize); // alloc
   void  ZoneZapRun(morkEnv* ev, void* ioRunBody); // free
   void* ZoneGrowRun(morkEnv* ev, void* ioRunBody, mdb_size inSize); // realloc
-    
+
 // } ===== end morkZone methods =====
 
 public: // typing & errors

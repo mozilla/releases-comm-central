@@ -51,12 +51,12 @@ class morkSearchRowCursor : public morkTableRowCursor { // row iterator
   // morkTable*  mTableRowCursor_Table; // weak ref to table
 
 public: // state is public because the entire Mork system is private
-    
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseSearchRowCursor()
   virtual ~morkSearchRowCursor(); // assert that close executed earlier
-  
+
 public: // morkSearchRowCursor construction & destruction
   morkSearchRowCursor(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, morkTable* ioTable, mork_pos inRowPos);
@@ -94,7 +94,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakSearchRowCursor(morkSearchRowCursor* me,
     morkEnv* ev, morkSearchRowCursor** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongSearchRowCursor(morkSearchRowCursor* me,
     morkEnv* ev, morkSearchRowCursor** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

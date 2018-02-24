@@ -45,13 +45,13 @@ morkBlob::GrowBlob(morkEnv* ev, nsIMdbHeap* ioHeap, mork_size inNewSize)
   {
     if ( !mBuf_Body ) // no body? implies zero sized?
       mBlob_Size = 0;
-      
+
     if ( mBuf_Fill > mBlob_Size ) // fill more than size?
     {
       ev->NewWarning("mBuf_Fill > mBlob_Size");
       mBuf_Fill = mBlob_Size;
     }
-      
+
     if ( inNewSize > mBlob_Size ) // need to allocate larger blob?
     {
       mork_u1* body = 0;
@@ -61,10 +61,10 @@ morkBlob::GrowBlob(morkEnv* ev, nsIMdbHeap* ioHeap, mork_size inNewSize)
         void* oldBody = mBuf_Body;
         if ( mBlob_Size ) // any old content to transfer?
           MORK_MEMCPY(body, oldBody, mBlob_Size);
-        
+
         mBlob_Size = inNewSize; // install new size
         mBuf_Body = body; // install new body
-        
+
         if ( oldBody ) // need to free old buffer body?
           ioHeap->Free(ev->AsMdbEnv(), oldBody);
       }
@@ -72,10 +72,10 @@ morkBlob::GrowBlob(morkEnv* ev, nsIMdbHeap* ioHeap, mork_size inNewSize)
   }
   else
     ev->NilPointerError();
-    
+
   if ( ev->Good() && mBlob_Size < inNewSize )
     ev->NewError("mBlob_Size < inNewSize");
-    
+
   return ev->Good();
 }
 
@@ -100,7 +100,7 @@ morkCoil::CloseCoil(morkEnv* ev)
 
   mBuf_Body = 0;
   mCoil_Heap = 0;
-  
+
   if ( body && heap )
   {
     heap->Free(ev->AsMdbEnv(), body);

@@ -62,7 +62,7 @@ void morkRow::NoteRowAddCol(morkEnv* ev, mork_column inColumn)
   {
     mork_delta newDelta;
     morkDelta_Init(newDelta, inColumn, morkChange_kAdd);
-    
+
     if ( newDelta != mRow_Delta ) // not repeating existing data?
     {
       if ( this->HasRowDelta() ) // already have one change recorded?
@@ -81,7 +81,7 @@ void morkRow::NoteRowCutCol(morkEnv* ev, mork_column inColumn)
   {
     mork_delta newDelta;
     morkDelta_Init(newDelta, inColumn, morkChange_kCut);
-    
+
     if ( newDelta != mRow_Delta ) // not repeating existing data?
     {
       if ( this->HasRowDelta() ) // already have one change recorded?
@@ -123,7 +123,7 @@ morkRow::AddRowGcUse(morkEnv* ev)
   }
   else
     this->NonRowTypeError(ev);
-    
+
   return mRow_GcUses;
 }
 
@@ -142,7 +142,7 @@ morkRow::CutRowGcUse(morkEnv* ev)
   }
   else
     this->NonRowTypeError(ev);
-    
+
   return mRow_GcUses;
 }
 
@@ -206,7 +206,7 @@ morkRow::InitRow(morkEnv* ev, const mdbOid* inOid, morkRowSpace* ioSpace,
         mRow_Pad = 0;
         mRow_Flags = 0;
         mRow_Tag = morkRow_kTag;
-        
+
         morkZone* zone = &ioSpace->mSpace_Store->mStore_Zone;
 
         if ( inLength )
@@ -291,7 +291,7 @@ morkRow::CountOverlap(morkEnv* ev, morkCell* ioVector, mork_fill inFill)
   while ( ++cells < end && ev->Good() )
   {
     mork_column col = cells->GetColumn();
-    
+
     morkCell* old = this->GetCell(ev, col, &pos);
     if ( old ) // same column?
     {
@@ -321,7 +321,7 @@ morkRow::MergeCells(morkEnv* ev, morkCell* ioVector,
 
   morkCell* srcCells = ioVector;
   morkCell* srcEnd = srcCells + inVecLength;
-  
+
   --srcCells; // prepare for preincrement
   while ( ++srcCells < srcEnd && ev->Good() )
   {
@@ -363,12 +363,12 @@ morkRow::TakeCells(morkEnv* ev, morkCell* ioVector, mork_fill inVecLength,
   {
     ++mRow_Seed; // intend to change structure of mRow_Cells
     mork_size length = (mork_size) mRow_Length;
-    
+
     mork_count overlap = this->CountOverlap(ev, ioVector, inVecLength);
 
     mork_size growth = inVecLength - overlap; // cells to add
     mork_size newLength = length + growth;
-    
+
     if ( growth && ev->Good() ) // need to add any cells?
     {
       morkZone* zone = &ioStore->mStore_Zone;
@@ -397,7 +397,7 @@ mork_bool morkRow::MaybeDirtySpaceStoreAndRow()
       store->SetStoreDirty();
       rowSpace->mSpace_CanDirty = morkBool_kTrue;
     }
-    
+
     if ( rowSpace->mSpace_CanDirty )
     {
       this->SetRowDirty();
@@ -417,9 +417,9 @@ morkRow::NewCell(morkEnv* ev, mdb_column inColumn,
   *outPos = (mork_pos) length;
   morkPool* pool = ioStore->StorePool();
   morkZone* zone = &ioStore->mStore_Zone;
-  
+
   mork_bool canDirty = this->MaybeDirtySpaceStoreAndRow();
-  
+
   if ( pool->AddRowCells(ev, this, length + 1, zone) )
   {
     morkCell* cell = mRow_Cells + length;
@@ -428,19 +428,19 @@ morkRow::NewCell(morkEnv* ev, mdb_column inColumn,
       cell->SetCellColumnDirty(inColumn);
     else
       cell->SetCellColumnClean(inColumn);
-      
+
     if ( canDirty && !this->IsRowRewrite() )
       this->NoteRowAddCol(ev, inColumn);
-      
+
     return cell;
   }
-    
+
   return (morkCell*) 0;
 }
 
 
 
-void morkRow::SeekColumn(morkEnv* ev, mdb_pos inPos, 
+void morkRow::SeekColumn(morkEnv* ev, mdb_pos inPos,
   mdb_column* outColumn, mdbYarn* outYarn)
 {
   morkCell* cells = mRow_Cells;
@@ -589,7 +589,7 @@ morkRow::EmptyAllCells(morkEnv* ev)
   }
 }
 
-void 
+void
 morkRow::cut_all_index_entries(morkEnv* ev)
 {
   morkRowSpace* rowSpace = mRow_Space;
@@ -633,7 +633,7 @@ morkRow::CutAllColumns(morkEnv* ev)
     morkRowSpace* rowSpace = mRow_Space;
     if ( rowSpace->mRowSpace_IndexCount ) // any indexes?
       this->cut_all_index_entries(ev);
-  
+
     morkPool* pool = store->StorePool();
     pool->CutRowCells(ev, this, /*newSize*/ 0, &store->mStore_Zone);
   }
@@ -641,7 +641,7 @@ morkRow::CutAllColumns(morkEnv* ev)
 
 void
 morkRow::SetRow(morkEnv* ev, const morkRow* inSourceRow)
-{  
+{
   // note inSourceRow might be in another DB, with a different store...
   morkStore* store = this->GetRowSpaceStore(ev);
   morkStore* srcStore = inSourceRow->GetRowSpaceStore(ev);
@@ -654,7 +654,7 @@ morkRow::SetRow(morkEnv* ev, const morkRow* inSourceRow)
     }
     morkRowSpace* rowSpace = mRow_Space;
     mork_count indexes = rowSpace->mRowSpace_IndexCount; // any indexes?
-    
+
     mork_bool sameStore = ( store == srcStore ); // identical stores?
     morkPool* pool = store->StorePool();
     if ( pool->CutRowCells(ev, this, /*newSize*/ 0, &store->mStore_Zone) )
@@ -664,18 +664,18 @@ morkRow::SetRow(morkEnv* ev, const morkRow* inSourceRow)
       {
         morkCell* dst = mRow_Cells;
         morkCell* dstEnd = dst + mRow_Length;
-        
+
         const morkCell* src = inSourceRow->mRow_Cells;
         const morkCell* srcEnd = src + fill;
         --dst; --src; // prepare both for preincrement:
-        
+
         while ( ++dst < dstEnd && ++src < srcEnd && ev->Good() )
         {
           morkAtom* atom = src->mCell_Atom;
           mork_column dstCol = src->GetColumn();
           // Note we modify the mCell_Atom slot directly instead of using
           // morkCell::SetAtom(), because we know it starts equal to nil.
-          
+
           if ( sameStore ) // source and dest in same store?
           {
             // next line equivalent to inline morkCell::SetCellDirty():
@@ -775,7 +775,7 @@ morkRow::GetRowSpaceStore(morkEnv* ev) const
   }
   else
     ev->NilPointerError();
-    
+
   return (morkStore*) 0;
 }
 
@@ -783,14 +783,14 @@ void morkRow::CutColumn(morkEnv* ev, mdb_column inColumn)
 {
   mork_pos pos = -1;
   morkCell* cell = this->GetCell(ev, inColumn, &pos);
-  if ( cell ) 
+  if ( cell )
   {
     morkStore* store = this->GetRowSpaceStore(ev);
     if ( store )
     {
       if ( this->MaybeDirtySpaceStoreAndRow() && !this->IsRowRewrite() )
         this->NoteRowCutCol(ev, inColumn);
-        
+
       morkRowSpace* rowSpace = mRow_Space;
       morkAtomRowMap* map = ( rowSpace->mRowSpace_IndexCount )?
         rowSpace->FindMap(ev, inColumn) : (morkAtomRowMap*) 0;
@@ -804,16 +804,16 @@ void morkRow::CutColumn(morkEnv* ev, mdb_column inColumn)
             map->CutAid(ev, oldAid);
         }
       }
-      
+
       morkPool* pool = store->StorePool();
       cell->SetAtom(ev, (morkAtom*) 0, pool);
-      
+
       mork_fill fill = mRow_Length; // should not be zero
       MORK_ASSERT(fill);
       if ( fill ) // index < fill for last cell exists?
       {
         mork_fill last = fill - 1; // index of last cell in row
-        
+
         if ( pos < (mork_pos)last ) // need to move cells following cut cell?
         {
           morkCell* lastCell = mRow_Cells + last;
@@ -823,7 +823,7 @@ void morkRow::CutColumn(morkEnv* ev, mdb_column inColumn)
           lastCell->SetColumnAndChange(0, 0);
           lastCell->mCell_Atom = 0;
         }
-        
+
         if ( ev->Good() )
           pool->CutRowCells(ev, this, fill - 1, &store->mStore_Zone);
       }
@@ -853,7 +853,7 @@ void morkRow::AddColumn(morkEnv* ev, mdb_column inColumn,
     morkCell* oldCell = cell; // need to know later whether new
     if ( !cell ) // column does not yet exist?
       cell = this->NewCell(ev, inColumn, &pos, ioStore);
-    
+
     if ( cell )
     {
       morkAtom* oldAtom = cell->mCell_Atom;
@@ -864,7 +864,7 @@ void morkRow::AddColumn(morkEnv* ev, mdb_column inColumn,
         morkRowSpace* rowSpace = mRow_Space;
         morkAtomRowMap* map = ( rowSpace->mRowSpace_IndexCount )?
           rowSpace->FindMap(ev, inColumn) : (morkAtomRowMap*) 0;
-        
+
         if ( map ) // inColumn is indexed by row space?
         {
           if ( oldAtom && oldAtom != atom ) // cut old cell from index?
@@ -874,7 +874,7 @@ void morkRow::AddColumn(morkEnv* ev, mdb_column inColumn,
               map->CutAid(ev, oldAid);
           }
         }
-        
+
         cell->SetAtom(ev, atom, ioStore->StorePool()); // refcounts atom
 
         if ( oldCell ) // we changed a pre-existing cell in the row?
@@ -910,7 +910,7 @@ morkRow::NewRowCellCursor(morkEnv* ev, mdb_pos inPos)
         nsIMdbHeap* heap = store->mPort_Heap;
         morkRowCellCursor* cursor = new(*heap, ev)
           morkRowCellCursor(ev, morkUsage::kHeap, heap, rowObj);
-         
+
         if ( cursor )
         {
           if ( ev->Good() )

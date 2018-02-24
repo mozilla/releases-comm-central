@@ -2,7 +2,7 @@
 This software is part of a public domain IronDoc source code distribution,
 and is provided on an "AS IS" basis, with all risks borne by the consumers
 or users of the IronDoc software.  There are no warranties, guarantees, or
-promises about quality of any kind; and no remedies for failure exist. 
+promises about quality of any kind; and no remedies for failure exist.
 
 Permission is hereby granted to use this IronDoc software for any purpose
 at all, without need for written agreements, without royalty or license
@@ -48,7 +48,7 @@ which are used interchangeably with the name IronDoc in the sources.)
 /*=============================================================================
  * morkNext: linked list node for very simple, singly-linked list
  */
- 
+
 morkNext::morkNext() : mNext_Link( 0 )
 {
 }
@@ -91,7 +91,7 @@ void morkList::CutAndZapAllListMembers(morkEnv* ev, nsIMdbHeap* ioHeap)
     morkNext* next = 0;
     while ( (next = this->PopHead()) != 0 )
       next->ZapOldNext(ev, ioHeap);
-      
+
     mList_Head = 0;
     mList_Tail = 0;
   }
@@ -118,7 +118,7 @@ morkNext* morkList::PopHead() // cut head of list
     mList_Head = next;
     if ( !next ) // cut the last member, so tail no longer exists?
       mList_Tail = 0;
-      
+
     outHead->mNext_Link = 0; // nil outgoing node link; unnecessary, but tidy
   }
   return outHead;
@@ -129,9 +129,9 @@ void morkList::PushHead(morkNext* ioLink) // add to head of list
 {
   morkNext* head = mList_Head; // old head of list
   morkNext* tail = mList_Tail; // old tail of list
-  
+
   MORK_ASSERT( (head && tail) || (!head && !tail));
-  
+
   ioLink->mNext_Link = head; // make old head follow the new link
   if ( !head ) // list was previously empty?
     mList_Tail = ioLink; // head is also tail for first member added
@@ -143,11 +143,11 @@ void morkList::PushTail(morkNext* ioLink) // add to tail of list
 {
   morkNext* head = mList_Head; // old head of list
   morkNext* tail = mList_Tail; // old tail of list
-  
+
   MORK_ASSERT( (head && tail) || (!head && !tail));
-  
-  ioLink->mNext_Link = 0; 
-  if ( tail ) 
+
+  ioLink->mNext_Link = 0;
+  if ( tail )
   {
 	  tail->mNext_Link = ioLink;
 	  mList_Tail = ioLink;
@@ -159,7 +159,7 @@ void morkList::PushTail(morkNext* ioLink) // add to tail of list
 /*=============================================================================
  * morkLink: linked list node embedded in objs to allow insertion in morkDeques
  */
- 
+
 morkLink::morkLink() : mLink_Next( 0 ), mLink_Prev( 0 )
 {
 }
@@ -185,7 +185,7 @@ void morkLink::ZapOldLink(morkEnv* ev, nsIMdbHeap* ioHeap)
   else
     ev->NilPointerError();
 }
-  
+
 /*=============================================================================
  * morkDeque: doubly linked list modeled after VAX queue instructions
  */
@@ -196,7 +196,7 @@ morkDeque::morkDeque()
 }
 
 
-/*| RemoveFirst: 
+/*| RemoveFirst:
 |*/
 morkLink*
 morkDeque::RemoveFirst() /*i*/
@@ -204,14 +204,14 @@ morkDeque::RemoveFirst() /*i*/
   morkLink* alink = mDeque_Head.mLink_Next;
   if ( alink != &mDeque_Head )
   {
-    (mDeque_Head.mLink_Next = alink->mLink_Next)->mLink_Prev = 
+    (mDeque_Head.mLink_Next = alink->mLink_Next)->mLink_Prev =
       &mDeque_Head;
     return alink;
   }
   return (morkLink*) 0;
 }
 
-/*| RemoveLast: 
+/*| RemoveLast:
 |*/
 morkLink*
 morkDeque::RemoveLast() /*i*/
@@ -219,19 +219,19 @@ morkDeque::RemoveLast() /*i*/
   morkLink* alink = mDeque_Head.mLink_Prev;
   if ( alink != &mDeque_Head )
   {
-    (mDeque_Head.mLink_Prev = alink->mLink_Prev)->mLink_Next = 
+    (mDeque_Head.mLink_Prev = alink->mLink_Prev)->mLink_Next =
       &mDeque_Head;
     return alink;
   }
   return (morkLink*) 0;
 }
 
-/*| At: 
+/*| At:
 |*/
 morkLink*
 morkDeque::At(mork_pos index) const /*i*/
   /* indexes are one based (and not zero based) */
-{ 
+{
   mork_num count = 0;
   morkLink* alink;
   for ( alink = this->First(); alink; alink = this->After(alink) )
@@ -242,13 +242,13 @@ morkDeque::At(mork_pos index) const /*i*/
   return alink;
 }
 
-/*| IndexOf: 
+/*| IndexOf:
 |*/
 mork_pos
 morkDeque::IndexOf(const morkLink* member) const /*i*/
   /* indexes are one based (and not zero based) */
   /* zero means member is not in deque */
-{ 
+{
   mork_num count = 0;
   const morkLink* alink;
   for ( alink = this->First(); alink; alink = this->After(alink) )
@@ -260,11 +260,11 @@ morkDeque::IndexOf(const morkLink* member) const /*i*/
   return 0;
 }
 
-/*| Length: 
+/*| Length:
 |*/
 mork_num
 morkDeque::Length() const /*i*/
-{ 
+{
   mork_num count = 0;
   morkLink* alink;
   for ( alink = this->First(); alink; alink = this->After(alink) )
@@ -272,11 +272,11 @@ morkDeque::Length() const /*i*/
   return count;
 }
 
-/*| LengthCompare: 
+/*| LengthCompare:
 |*/
 int
 morkDeque::LengthCompare(mork_num c) const /*i*/
-{ 
+{
   mork_num count = 0;
   const morkLink* alink;
   for ( alink = this->First(); alink; alink = this->After(alink) )

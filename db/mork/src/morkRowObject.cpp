@@ -41,7 +41,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -76,7 +76,7 @@ morkRowObject::morkRowObject(morkEnv* ev,
     {
       mRowObject_Row = ioRow;
       mRowObject_Store = ioStore; // morkRowObjects don't ref-cnt the owning store.
-      
+
       if ( ev->Good() )
         mNode_Derived = morkDerived_kRowObject;
     }
@@ -134,12 +134,12 @@ morkRowObject::GetPort(nsIMdbEnv* mev,
     }
     else
       ev->NilPointerError();
-      
+
     outErr = ev->AsErr();
   }
   if ( acqPort )
     *acqPort = outPort;
-    
+
   return outErr;
 }
 // } ----- end attribute methods -----
@@ -233,7 +233,7 @@ morkRowObject::AddColumn( // make sure a particular column is inside row
   {
     if ( mRowObject_Store && mRowObject_Row)
       mRowObject_Row->AddColumn(ev, inColumn, inYarn, mRowObject_Store);
-      
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -296,12 +296,12 @@ morkRowObject::NewCell( // get cell for specified column, or add new one
         GetCell(mev, inColumn, acqCell);
       }
     }
-      
+
     outErr = ev->AsErr();
   }
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkRowObject::AddCell( // copy a cell from another row to this row
   nsIMdbEnv* mev, // context
@@ -347,7 +347,7 @@ morkRowObject::AddCell( // copy a cell from another row to this row
   }
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkRowObject::GetCell( // find a cell in this row
   nsIMdbEnv* mev, // context
@@ -371,14 +371,14 @@ morkRowObject::GetCell( // find a cell in this row
     }
     else
       mRowObject_Row->ZeroColumnError(ev);
-      
+
     outErr = ev->AsErr();
   }
   if ( acqCell )
     *acqCell = outCell;
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkRowObject::EmptyAllCells( // make all cells in row empty of content
   nsIMdbEnv* mev)
@@ -413,7 +413,7 @@ morkRowObject::AddRow( // add all cells in another row to this one
   }
   return outErr;
 }
-  
+
 NS_IMETHODIMP
 morkRowObject::SetRow( // make exact duplicate of another row
   nsIMdbEnv* mev, // context
@@ -448,7 +448,7 @@ morkRowObject::SetCellYarn( // synonym for AddColumn()
   {
     if ( mRowObject_Store )
       AddColumn(ev, inColumn, inYarn);
-      
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -456,8 +456,8 @@ morkRowObject::SetCellYarn( // synonym for AddColumn()
 NS_IMETHODIMP
 morkRowObject::GetCellYarn(
   nsIMdbEnv* mev, // context
-  mdb_column inColumn, // column to read 
-  mdbYarn* outYarn)  // writes some yarn slots 
+  mdb_column inColumn, // column to read
+  mdbYarn* outYarn)  // writes some yarn slots
 // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
 {
   nsresult outErr = NS_OK;
@@ -470,7 +470,7 @@ morkRowObject::GetCellYarn(
       atom->GetYarn(outYarn);
       // note nil atom works and sets yarn correctly
     }
-      
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -500,7 +500,7 @@ morkRowObject::AliasCellYarn(
 NS_IMETHODIMP
 morkRowObject::NextCellYarn(nsIMdbEnv* mev, // iterative version of GetCellYarn()
   mdb_column* ioColumn, // next column to read
-  mdbYarn* outYarn)  // writes some yarn slots 
+  mdbYarn* outYarn)  // writes some yarn slots
 // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
 //
 // The ioColumn argument is an inout parameter which initially contains the
@@ -520,7 +520,7 @@ morkRowObject::NextCellYarn(nsIMdbEnv* mev, // iterative version of GetCellYarn(
   {
     if ( mRowObject_Store && mRowObject_Row)
       mRowObject_Row->NextColumn(ev, ioColumn, outYarn);
-      
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -544,7 +544,7 @@ morkRowObject::SeekCellYarn( // resembles nsIMdbRowCellCursor::SeekCell()
   {
     if ( mRowObject_Store && mRowObject_Row)
       mRowObject_Row->SeekColumn(ev, inPos, outColumn, outYarn);
-      
+
     outErr = ev->AsErr();
   }
   return outErr;
@@ -573,9 +573,9 @@ morkRowObject::CloseRowObject(morkEnv* ev) // called by CloseMorkNode();
         if ( row->mRow_Object == this )
         {
           row->mRow_Object = 0; // just nil this slot -- cut ref down below
-          
+
           mRowObject_Store = 0; // morkRowObjects don't ref-cnt the owning store.
-            
+
           this->CutWeakRef(ev->AsMdbEnv()); // do last, because it might self destroy
         }
       }
@@ -585,7 +585,7 @@ morkRowObject::CloseRowObject(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ void
 morkRowObject::NonRowObjectTypeError(morkEnv* ev)

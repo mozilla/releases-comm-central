@@ -45,7 +45,7 @@
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 
-#define morkWriter_kStreamBufSize /*i*/ (16 * 1024) /* buffer size for stream */ 
+#define morkWriter_kStreamBufSize /*i*/ (16 * 1024) /* buffer size for stream */
 
 #define morkDerived_kWriter  /*i*/ 0x5772 /* ascii 'Wr' */
 
@@ -120,30 +120,30 @@ public: // state is public because the entire Mork system is private
 
   // GroupIdentity should be based on mStore_CommitGroupIdentity:
   mork_gid     mWriter_CommitGroupIdentity; // transaction ID number
-  
+
   // GroupBuf holds a hex version of mWriter_CommitGroupIdentity:
   char         mWriter_GroupBuf[ morkWriter_kGroupBufSize ];
   mork_fill    mWriter_GroupBufFill; // actual bytes in GroupBuf
-  
+
   mork_count   mWriter_TotalCount;  // count of all things to be written
   mork_count   mWriter_DoneCount;   // count of things already written
-  
+
   mork_size    mWriter_LineSize;  // length of current line being written
   mork_size    mWriter_MaxIndent; // line size forcing a line break
   mork_size    mWriter_MaxLine;   // line size forcing a value continuation
-  
+
   mork_cscode  mWriter_TableForm;     // current charset metainfo
   mork_scope   mWriter_TableAtomScope;   // current atom scope
   mork_scope   mWriter_TableRowScope;    // current row scope
   mork_kind    mWriter_TableKind;        // current table kind
-  
+
   mork_cscode  mWriter_RowForm;         // current charset metainfo
   mork_scope   mWriter_RowAtomScope;    // current atom scope
   mork_scope   mWriter_RowScope;        // current row scope
-  
+
   mork_cscode  mWriter_DictForm;      // current charset metainfo
   mork_scope   mWriter_DictAtomScope;    // current atom scope
- 
+
   mork_bool    mWriter_NeedDirtyAll;  // need to call DirtyAll()
   mork_bool    mWriter_Incremental;   // opposite of mWriter_NeedDirtyAll
   mork_bool    mWriter_DidStartDict;  // true when a dict has been started
@@ -156,29 +156,29 @@ public: // state is public because the entire Mork system is private
 
   mork_bool    mWriter_BeVerbose; // driven by env and table verbose settings:
   // mWriter_BeVerbose equals ( ev->mEnv_BeVerbose || table->IsTableVerbose() )
-  
+
   mork_u1      mWriter_Pad[ 3 ];  // for u4 alignment
 
   mork_pos     mWriter_TableRowArrayPos;  // index into mTable_RowArray
-   
+
   char         mWriter_SafeNameBuf[ (morkWriter_kMaxColumnNameSize * 2) + 4 ];
   // Note: extra four bytes in ColNameBuf means we can always append to yarn
 
   char         mWriter_ColNameBuf[ morkWriter_kMaxColumnNameSize + 4 ];
   // Note: extra four bytes in ColNameBuf means we can always append to yarn
-  
+
   mdbYarn      mWriter_ColYarn; // a yarn to describe space in ColNameBuf:
   // mYarn_Buf == mWriter_ColNameBuf, mYarn_Size == morkWriter_kMaxColumnNameSize
-  
+
   mdbYarn      mWriter_SafeYarn; // a yarn to describe space in ColNameBuf:
   // mYarn_Buf == mWriter_SafeNameBuf, mYarn_Size == (kMaxColumnNameSize * 2)
 
   morkAtomSpaceMapIter  mWriter_StoreAtomSpacesIter;   // for mStore_AtomSpaces
   morkAtomAidMapIter  mWriter_AtomSpaceAtomAidsIter; // for AtomSpace_AtomAids
-  
+
   morkRowSpaceMapIter  mWriter_StoreRowSpacesIter;    // for mStore_RowSpaces
   morkTableMapIter  mWriter_RowSpaceTablesIter;    // for mRowSpace_Tables
-  
+
 #ifdef MORK_ENABLE_PROBE_MAPS
   morkRowProbeMapIter  mWriter_RowSpaceRowsIter; // for mRowSpace_Rows
 #else /*MORK_ENABLE_PROBE_MAPS*/
@@ -221,16 +221,16 @@ public: // utitlities
 public: // inlines
   mork_bool DidStartDict() const { return mWriter_DidStartDict; }
   mork_bool DidEndDict() const { return mWriter_DidEndDict; }
-  
+
   void IndentAsNeeded(morkEnv* ev, mork_size inDepth)
-  { 
+  {
     if ( mWriter_LineSize > mWriter_MaxIndent )
       mWriter_LineSize = mWriter_Stream->PutIndent(ev, inDepth);
   }
-  
+
   void IndentOverMaxLine(morkEnv* ev,
     mork_size inPendingSize, mork_size inDepth)
-  { 
+  {
     if ( mWriter_LineSize + inPendingSize > mWriter_MaxLine )
       mWriter_LineSize = mWriter_Stream->PutIndent(ev, inDepth);
   }
@@ -240,22 +240,22 @@ public: // delayed construction
   void MakeWriterStream(morkEnv* ev); // give writer a suitable stream
 
 public: // iterative/asynchronous writing
-  
+
   mork_bool WriteMore(morkEnv* ev); // call until IsWritingDone() is true
-  
+
   mork_bool IsWritingDone() const // don't call WriteMore() any longer?
   { return mWriter_Phase == morkWriter_kPhaseWritingDone; }
 
 public: // marking all content dirty
   mork_bool DirtyAll(morkEnv* ev);
-  // DirtyAll() visits every store sub-object and marks 
+  // DirtyAll() visits every store sub-object and marks
   // them dirty, including every table, row, cell, and atom.  The return
   // equals ev->Good(), to show whether any error happened.  This method is
   // intended for use in the beginning of a "compress commit" which writes
   // all store content, whether dirty or not.  We dirty everything first so
   // that later iterations over content can mark things clean as they are
   // written, and organize the process of serialization so that objects are
-  // written only at need (because of being dirty).  Note the method can 
+  // written only at need (because of being dirty).  Note the method can
   // stop early when any error happens, since this will abort any commit.
 
 public: // group commit transactions
@@ -293,10 +293,10 @@ public: // writing node content second pass
   mork_bool PutRow(morkEnv* ev, morkRow* ioRow);
   mork_bool PutRowCells(morkEnv* ev, morkRow* ioRow);
   mork_bool PutVerboseRowCells(morkEnv* ev, morkRow* ioRow);
-  
+
   mork_bool PutCell(morkEnv* ev, morkCell* ioCell, mork_bool inWithVal);
   mork_bool PutVerboseCell(morkEnv* ev, morkCell* ioCell, mork_bool inWithVal);
-  
+
   mork_bool PutTableChange(morkEnv* ev, const morkTableChange* inChange);
 
 public: // other writer methods
@@ -315,10 +315,10 @@ public: // other writer methods
 
   void WriteAllStoreTables(morkEnv* ev);
   void WriteAtomSpaceAsDict(morkEnv* ev, morkAtomSpace* ioSpace);
-  
+
   void WriteTokenToTokenMetaCell(morkEnv* ev, mork_token inCol,
     mork_token inValue);
-  void WriteStringToTokenDictCell(morkEnv* ev, const char* inCol, 
+  void WriteStringToTokenDictCell(morkEnv* ev, const char* inCol,
     mork_token inValue);
   // Note inCol should begin with '(' and end with '=', with col in between.
 
@@ -332,7 +332,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakWriter(morkWriter* me,
     morkEnv* ev, morkWriter** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongWriter(morkWriter* me,
     morkEnv* ev, morkWriter** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

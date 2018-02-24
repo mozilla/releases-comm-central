@@ -29,7 +29,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -94,7 +94,7 @@ morkHandle::CloseHandle(morkEnv* ev) // called by CloseMorkNode();
       mork_bool objDidRefSelf = ( obj && obj->mObject_Handle == this );
       if ( objDidRefSelf )
         obj->mObject_Handle = 0; // drop the reference
-      
+
       morkObject::SlotStrongObject((morkObject*) 0, ev, &mHandle_Object);
       mHandle_Magic = 0;
       // note mHandle_Tag MUST stay morkHandle_kTag for morkNode::ZapOld()
@@ -108,28 +108,28 @@ morkHandle::CloseHandle(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 void morkHandle::NilFactoryError(morkEnv* ev) const
 {
   ev->NewError("nil mHandle_Factory");
 }
-  
+
 void morkHandle::NilHandleObjectError(morkEnv* ev) const
 {
   ev->NewError("nil mHandle_Object");
 }
-  
+
 void morkHandle::NonNodeObjectError(morkEnv* ev) const
 {
   ev->NewError("non-node mHandle_Object");
 }
-  
+
 void morkHandle::NonOpenObjectError(morkEnv* ev) const
 {
   ev->NewError("non-open mHandle_Object");
 }
-  
+
 void morkHandle::NewBadMagicHandleError(morkEnv* ev, mork_magic inMagic) const
 {
   MORK_USED_1(inMagic);
@@ -189,7 +189,7 @@ morkObject* morkHandle::GetGoodHandleObject(morkEnv* ev,
   }
   else
     this->NewDownHandleError(ev);
-  
+
   MORK_ASSERT(outObject || inClosedOkay);
   return outObject;
 }
@@ -223,13 +223,13 @@ morkHandle::Handle_IsFrozenMdbObject(nsIMdbEnv* mev, mdb_bool* outIsReadonly)
 {
   nsresult outErr = NS_OK;
   mdb_bool readOnly = mdbBool_kTrue;
-  
+
   morkEnv* ev = CanUseHandle(mev, /*inMutable*/ morkBool_kFalse,
     /*inClosedOkay*/ morkBool_kTrue, &outErr);
   if ( ev )
   {
     readOnly = mHandle_Object->IsFrozen();
-    
+
     outErr = ev->AsErr();
   }
   MORK_ASSERT(outIsReadonly);
@@ -247,7 +247,7 @@ morkHandle::Handle_GetMdbFactory(nsIMdbEnv* mev, nsIMdbFactory** acqFactory)
 {
   nsresult outErr = NS_OK;
   nsIMdbFactory* handle = 0;
-  
+
   morkEnv* ev = CanUseHandle(mev, /*inMutable*/ morkBool_kFalse,
     /*inClosedOkay*/ morkBool_kTrue, &outErr);
   if ( ev )
@@ -260,7 +260,7 @@ morkHandle::Handle_GetMdbFactory(nsIMdbEnv* mev, nsIMdbFactory** acqFactory)
     }
     else
       this->NilFactoryError(ev);
-      
+
     outErr = ev->AsErr();
   }
 
@@ -269,7 +269,7 @@ morkHandle::Handle_GetMdbFactory(nsIMdbEnv* mev, nsIMdbFactory** acqFactory)
     *acqFactory = handle;
 
   return outErr;
-} 
+}
 // } ----- end factory methods -----
 
 // { ----- begin ref counting for well-behaved cyclic graphs -----
@@ -279,40 +279,40 @@ morkHandle::Handle_GetWeakRefCount(nsIMdbEnv* mev, // weak refs
 {
   nsresult outErr = NS_OK;
   mdb_count count = 0;
-  
+
   morkEnv* ev = CanUseHandle(mev, /*inMutable*/ morkBool_kFalse,
     /*inClosedOkay*/ morkBool_kTrue, &outErr);
   if ( ev )
   {
     count = this->WeakRefsOnly();
-    
+
     outErr = ev->AsErr();
   }
   MORK_ASSERT(outCount);
   if ( outCount )
     *outCount = count;
-    
+
   return outErr;
-}  
+}
 /*virtual*/ nsresult
 morkHandle::Handle_GetStrongRefCount(nsIMdbEnv* mev, // strong refs
   mdb_count* outCount)
 {
   nsresult outErr = NS_OK;
   mdb_count count = 0;
-  
+
   morkEnv* ev = CanUseHandle(mev, /*inMutable*/ morkBool_kFalse,
     /*inClosedOkay*/ morkBool_kTrue, &outErr);
   if ( ev )
   {
     count = this->StrongRefsOnly();
-    
+
     outErr = ev->AsErr();
   }
   MORK_ASSERT(outCount);
   if ( outCount )
     *outCount = count;
-    
+
   return outErr;
 }
 
@@ -328,7 +328,7 @@ morkHandle::Handle_AddWeakRef(nsIMdbEnv* mev)
     this->AddWeakRef(ev);
     outErr = ev->AsErr();
   }
-    
+
   return outErr;
 }
 /*virtual*/ nsresult
@@ -343,7 +343,7 @@ morkHandle::Handle_AddStrongRef(nsIMdbEnv* mev)
     this->AddStrongRef(ev);
     outErr = ev->AsErr();
   }
-    
+
   return outErr;
 }
 
@@ -359,7 +359,7 @@ morkHandle::Handle_CutWeakRef(nsIMdbEnv* mev)
     this->CutWeakRef(ev);
     outErr = ev->AsErr();
   }
-    
+
   return outErr;
 }
 /*virtual*/ nsresult
@@ -395,7 +395,7 @@ morkHandle::Handle_CloseMdbObject(nsIMdbEnv* mev)
       morkObject* object = mHandle_Object;
       if ( object && object->IsNode() && object->IsOpenNode() )
         object->CloseMorkNode(ev);
-        
+
       this->CloseMorkNode(ev);
       outErr = ev->AsErr();
     }
@@ -412,7 +412,7 @@ morkHandle::Handle_IsOpenMdbObject(nsIMdbEnv* mev, mdb_bool* outOpen)
   MORK_ASSERT(outOpen);
   if ( outOpen )
     *outOpen = this->IsOpenNode();
-      
+
   return outErr;
 }
 // } ----- end ref counting -----

@@ -32,7 +32,7 @@ class morkIntMap : public morkMap { // for mapping tokens to maps
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseIntMap() only if open
   virtual ~morkIntMap(); // assert that CloseIntMap() executed earlier
-  
+
 public: // morkMap construction & destruction
 
   // keySize for morkIntMap equals sizeof(mork_u4)
@@ -59,11 +59,11 @@ public: // other map methods
   // the AddInt() boolean return equals ev->Good().
 
   mork_bool  CutInt(morkEnv* ev, mork_u4 inKey);
-  // The CutInt() boolean return indicates whether removal happened. 
-  
+  // The CutInt() boolean return indicates whether removal happened.
+
   void*      GetInt(morkEnv* ev, mork_u4 inKey);
   // Note the returned node does NOT have an increase in refcount for this.
-  
+
   mork_bool  HasInt(morkEnv* ev, mork_u4 inKey);
   // Note the returned node does NOT have an increase in refcount for this.
 
@@ -92,7 +92,7 @@ class morkPointerMap : public morkMap { // for mapping tokens to maps
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // ClosePointerMap() only if open
   virtual ~morkPointerMap(); // assert that ClosePointerMap() executed earlier
-  
+
 public: // morkMap construction & destruction
 
   // keySize for morkPointerMap equals sizeof(mork_u4)
@@ -119,11 +119,11 @@ public: // other map methods
   // the AddPointer() boolean return equals ev->Good().
 
   mork_bool  CutPointer(morkEnv* ev, void* inKey);
-  // The CutPointer() boolean return indicates whether removal happened. 
-  
+  // The CutPointer() boolean return indicates whether removal happened.
+
   void*      GetPointer(morkEnv* ev, void* inKey);
   // Note the returned node does NOT have an increase in refcount for this.
-  
+
   mork_bool  HasPointer(morkEnv* ev, void* inKey);
   // Note the returned node does NOT have an increase in refcount for this.
 
@@ -131,7 +131,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakIntMap(morkIntMap* me,
     morkEnv* ev, morkIntMap** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongIntMap(morkIntMap* me,
     morkEnv* ev, morkIntMap** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

@@ -34,7 +34,7 @@
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -58,7 +58,7 @@ morkFile::~morkFile() // assert CloseFile() executed earlier
 }
 
 /*public non-poly*/
-morkFile::morkFile(morkEnv* ev, const morkUsage& inUsage, 
+morkFile::morkFile(morkEnv* ev, const morkUsage& inUsage,
   nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap)
 : morkObject(ev, inUsage, ioHeap, morkColor_kNone, (morkHandle*) 0)
 , mFile_Frozen( 0 )
@@ -93,7 +93,7 @@ morkFile::CloseFile(morkEnv* ev) // called by CloseMorkNode();
       mFile_DoTrace = 0;
       mFile_IoOpen = 0;
       mFile_Active = 0;
-      
+
       if ( mFile_Name )
         this->SetFileName(ev, nullptr);
 
@@ -107,7 +107,7 @@ morkFile::CloseFile(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*static*/ morkFile*
 morkFile::OpenOldFile(morkEnv* ev, nsIMdbHeap* ioHeap,
@@ -215,20 +215,20 @@ morkFile::NewFileErrnoError(morkEnv* ev) const
   ev->NewError(errnoString); // maybe pass value of strerror() instead
 }
 
-// ````` ````` ````` ````` newlines ````` ````` ````` `````  
+// ````` ````` ````` ````` newlines ````` ````` ````` `````
 
 #if defined(MORK_MAC)
-       static const char morkFile_kNewlines[] = 
+       static const char morkFile_kNewlines[] =
        "\015\015\015\015\015\015\015\015\015\015\015\015\015\015\015\015";
 #      define morkFile_kNewlinesCount 16
 #else
 #  if defined(MORK_WIN)
-       static const char morkFile_kNewlines[] = 
+       static const char morkFile_kNewlines[] =
        "\015\012\015\012\015\012\015\012\015\012\015\012\015\012\015\012";
 #    define morkFile_kNewlinesCount 8
 #  else
 #    ifdef MORK_UNIX
-       static const char morkFile_kNewlines[] = 
+       static const char morkFile_kNewlines[] =
        "\012\012\012\012\012\012\012\012\012\012\012\012\012\012\012\012";
 #      define morkFile_kNewlinesCount 16
 #    endif /* MORK_UNIX */
@@ -320,7 +320,7 @@ morkFile::Path(nsIMdbEnv* mev, mdbYarn* outFilePath)
 }
 
 // } ----- end path methods -----
-  
+
 // { ----- begin replacement methods -----
 
 
@@ -345,7 +345,7 @@ morkFile::Thief(nsIMdbEnv* mev, nsIMdbFile** acqThief)
 
 // { ----- begin versioning methods -----
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -376,9 +376,9 @@ morkStdioFile::CloseStdioFile(morkEnv* ev) // called by CloseMorkNode();
       {
         this->CloseStdio(ev);
       }
-      
+
       mStdioFile_File = 0;
-      
+
       this->CloseFile(ev);
       this->MarkShut();
     }
@@ -387,11 +387,11 @@ morkStdioFile::CloseStdioFile(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 // compatible with the morkFile::MakeFile() entry point
 
-/*static*/ morkStdioFile* 
+/*static*/ morkStdioFile*
 morkStdioFile::OpenOldStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
   const PathChar* inFilePath, mork_bool inFrozen)
 {
@@ -400,8 +400,8 @@ morkStdioFile::OpenOldStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
   {
     const char* mode = (inFrozen)? "rb" : "rb+";
     outFile = new(*ioHeap, ev)
-      morkStdioFile(ev, morkUsage::kHeap, ioHeap, ioHeap, inFilePath, mode); 
-      
+      morkStdioFile(ev, morkUsage::kHeap, ioHeap, ioHeap, inFilePath, mode);
+
     if ( outFile )
     {
       outFile->SetFileFrozen(inFrozen);
@@ -409,11 +409,11 @@ morkStdioFile::OpenOldStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
   }
   else
     ev->NilPointerError();
-  
+
   return outFile;
 }
 
-/*static*/ morkStdioFile* 
+/*static*/ morkStdioFile*
 morkStdioFile::CreateNewStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
   const PathChar* inFilePath)
 {
@@ -422,7 +422,7 @@ morkStdioFile::CreateNewStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
   {
     const char* mode = "wb+";
     outFile = new(*ioHeap, ev)
-      morkStdioFile(ev, morkUsage::kHeap, ioHeap, ioHeap, inFilePath, mode); 
+      morkStdioFile(ev, morkUsage::kHeap, ioHeap, ioHeap, inFilePath, mode);
   }
   else
     ev->NilPointerError();
@@ -441,7 +441,7 @@ morkStdioFile::BecomeTrunk(nsIMdbEnv* ev)
   return Flush(ev);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 morkStdioFile::AcquireBud(nsIMdbEnv * mdbev, nsIMdbHeap* ioHeap, nsIMdbFile **acquiredFile)
   // AcquireBud() starts a new "branch" version of the file, empty of content,
   // so that a new version of the file can be written.  This new file
@@ -480,7 +480,7 @@ morkStdioFile::AcquireBud(nsIMdbEnv * mdbev, nsIMdbHeap* ioHeap, nsIMdbFile **ac
           this->SetFileActive(morkBool_kFalse);
           this->SetFileIoOpen(morkBool_kFalse);
           mStdioFile_File = 0;
-          
+
           file = MORK_FILEOPEN(name, "wb+"); // open for write, discarding old content
           if ( file )
           {
@@ -497,7 +497,7 @@ morkStdioFile::AcquireBud(nsIMdbEnv * mdbev, nsIMdbHeap* ioHeap, nsIMdbFile **ac
       }
       else
         this->NilFileNameError(ev);
-      
+
 //#endif /*MORK_WIN*/
 
       if ( ev->Good() && this->AddStrongRef(ev->AsMdbEnv()) )
@@ -514,16 +514,16 @@ morkStdioFile::AcquireBud(nsIMdbEnv * mdbev, nsIMdbHeap* ioHeap, nsIMdbFile **ac
       this->NewMissingIoError(ev);
   }
   else this->NewFileDownError(ev);
-  
+
   *acquiredFile = outFile;
   return rv;
 }
 
-mork_pos 
+mork_pos
 morkStdioFile::Length(morkEnv * ev) const
 {
   mork_pos outPos = 0;
-  
+
   if ( this->IsOpenAndActiveFile() )
   {
     FILE* file = (FILE*) mStdioFile_File;
@@ -564,7 +564,7 @@ NS_IMETHODIMP
 morkStdioFile::Tell(nsIMdbEnv* ev, mork_pos *outPos) const
 {
   nsresult rv = NS_OK;
-  NS_ENSURE_ARG(outPos);  
+  NS_ENSURE_ARG(outPos);
   morkEnv* mev = morkEnv::FromMdbEnv(ev);
   if ( this->IsOpenAndActiveFile() )
   {
@@ -614,7 +614,7 @@ morkStdioFile::Read(nsIMdbEnv* ev, void* outBuf, mork_size inSize,  mork_num *ou
   return rv;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 morkStdioFile::Seek(nsIMdbEnv* mdbev, mork_pos inPos, mork_pos *aOutPos)
 {
   mork_pos outPos = 0;
@@ -643,7 +643,7 @@ morkStdioFile::Seek(nsIMdbEnv* mdbev, mork_pos inPos, mork_pos *aOutPos)
   return rv;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 morkStdioFile::Write(nsIMdbEnv* mdbev, const void* inBuf, mork_size inSize, mork_size *aOutSize)
 {
   mork_num outCount = 0;
@@ -692,7 +692,7 @@ morkStdioFile::Flush(nsIMdbEnv* mdbev)
   return NS_OK;
 }
 
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 //protected: // protected non-poly morkStdioFile methods
 
 void
@@ -701,7 +701,7 @@ morkStdioFile::new_stdio_file_fault(morkEnv* ev) const
   FILE* file = (FILE*) mStdioFile_File;
 
   int copyErrno = errno; // facilitate seeing error in debugger
-  
+
   //  bunch of stuff not ported here
   if ( !copyErrno && file )
   {
@@ -712,7 +712,7 @@ morkStdioFile::new_stdio_file_fault(morkEnv* ev) const
   this->NewFileErrnoError(ev);
 }
 
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 //public: // public non-poly morkStdioFile methods
 
 
@@ -756,9 +756,9 @@ morkStdioFile::OpenStdio(morkEnv* ev, const PathChar* inName, const char* inMode
   {
     if ( !inMode )
       inMode = "";
-    
+
     mork_bool frozen = (*inMode == 'r'); // cursory attempt to note readonly
-    
+
     if ( this->IsOpenNode() )
     {
       if ( !this->FileActive() )
@@ -836,7 +836,7 @@ morkStdioFile::CloseStdio(morkEnv* ev)
     FILE* file = (FILE*) mStdioFile_File;
     if ( MORK_FILECLOSE(file) < 0 )
       this->new_stdio_file_fault(ev);
-    
+
     mStdioFile_File = 0;
     this->SetFileActive(morkBool_kFalse);
     this->SetFileIoOpen(morkBool_kFalse);
@@ -856,7 +856,7 @@ morkStdioFile::Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief)
     FILE* file = (FILE*) mStdioFile_File;
     if ( MORK_FILECLOSE(file) < 0 )
       new_stdio_file_fault(mev);
-    
+
     mStdioFile_File = 0;
   }
   SetThief(mev, ioThief);

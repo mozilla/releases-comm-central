@@ -74,7 +74,7 @@ class nsIMdbTable;
 #define morkTable_kRewriteBit  ((mork_u1) (1 << 3)) /* must rewrite all rows */
 #define morkTable_kNewMetaBit  ((mork_u1) (1 << 4)) /* new table meta row */
 
-class morkTable : public morkObject, public morkLink, public nsIMdbTable { 
+class morkTable : public morkObject, public morkLink, public nsIMdbTable {
 
   // NOTE the morkLink base is for morkRowSpace::mRowSpace_TablesByPriority
 
@@ -83,12 +83,12 @@ class morkTable : public morkObject, public morkLink, public nsIMdbTable {
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
   // mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   // mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   // mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   // mork_able      mNode_Mutable;  // can this node be modified?
   // mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
 
@@ -148,18 +148,18 @@ public: // state is public because the entire Mork system is private
 // } ===== end nsIMdbCollection methods =====
   NS_IMETHOD SetTablePriority(nsIMdbEnv* ev, mdb_priority inPrio) override;
   NS_IMETHOD GetTablePriority(nsIMdbEnv* ev, mdb_priority* outPrio) override;
-  
+
   NS_IMETHOD GetTableBeVerbose(nsIMdbEnv* ev, mdb_bool* outBeVerbose) override;
   NS_IMETHOD SetTableBeVerbose(nsIMdbEnv* ev, mdb_bool inBeVerbose) override;
-  
+
   NS_IMETHOD GetTableIsUnique(nsIMdbEnv* ev, mdb_bool* outIsUnique) override;
-  
+
   NS_IMETHOD GetTableKind(nsIMdbEnv* ev, mdb_kind* outTableKind) override;
   NS_IMETHOD GetRowScope(nsIMdbEnv* ev, mdb_scope* outRowScope) override;
-  
+
   NS_IMETHOD GetMetaRow(
     nsIMdbEnv* ev, // context
-    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
     mdbOid* outOid, // output meta row oid, can be nil to suppress output
     nsIMdbRow** acqRow) override; // acquire table's unique singleton meta row
     // The purpose of a meta row is to support the persistent recording of
@@ -204,12 +204,12 @@ public: // state is public because the entire Mork system is private
     nsIMdbEnv* ev, // context
     const mdbOid* inOid, // row to find in table
     mdb_pos* outPos) override; // zero-based ordinal position of row in table
-    
+
   NS_IMETHOD PosToRow( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     mdb_pos inRowPos, // zero-based ordinal position of row in table
     nsIMdbRow** acqRow) override; // acquire row at table position inRowPos
-    
+
   NS_IMETHOD RowToPos( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow, // row to find in table
@@ -217,7 +217,7 @@ public: // state is public because the entire Mork system is private
   // } ----- end row position methods -----
 
   // { ----- begin oid set methods -----
-  NS_IMETHOD AddOid( // make sure the row with inOid is a table member 
+  NS_IMETHOD AddOid( // make sure the row with inOid is a table member
     nsIMdbEnv* ev, // context
     const mdbOid* inOid) override; // row to ensure membership in table
 
@@ -226,7 +226,7 @@ public: // state is public because the entire Mork system is private
     const mdbOid* inOid, // row to find in table
     mdb_bool* outHasOid) override; // whether inOid is a member row
 
-  NS_IMETHOD CutOid( // make sure the row with inOid is not a member 
+  NS_IMETHOD CutOid( // make sure the row with inOid is not a member
     nsIMdbEnv* ev, // context
     const mdbOid* inOid) override; // row to remove from table
   // } ----- end oid set methods -----
@@ -237,7 +237,7 @@ public: // state is public because the entire Mork system is private
     mdbOid* ioOid, // please use minus one (unbound) rowId for db-assigned IDs
     nsIMdbRow** acqRow) override; // create new row
 
-  NS_IMETHOD AddRow( // make sure the row with inOid is a table member 
+  NS_IMETHOD AddRow( // make sure the row with inOid is a table member
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow) override; // row to ensure membership in table
 
@@ -246,7 +246,7 @@ public: // state is public because the entire Mork system is private
     nsIMdbRow* ioRow, // row to find in table
     mdb_bool* outHasRow) override; // whether row is a table member
 
-  NS_IMETHOD CutRow( // make sure the row with inOid is not a member 
+  NS_IMETHOD CutRow( // make sure the row with inOid is not a member
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow) override; // row to remove from table
 
@@ -255,22 +255,22 @@ public: // state is public because the entire Mork system is private
   // } ----- end row set methods -----
 
   // { ----- begin hinting methods -----
-  NS_IMETHOD SearchColumnsHint( // advise re future expected search cols  
+  NS_IMETHOD SearchColumnsHint( // advise re future expected search cols
     nsIMdbEnv* ev, // context
     const mdbColumnSet* inColumnSet) override; // columns likely to be searched
-    
-  NS_IMETHOD SortColumnsHint( // advise re future expected sort columns  
+
+  NS_IMETHOD SortColumnsHint( // advise re future expected sort columns
     nsIMdbEnv* ev, // context
     const mdbColumnSet* inColumnSet) override; // columns for likely sort requests
-    
-  NS_IMETHOD StartBatchChangeHint( // advise before many adds and cuts  
+
+  NS_IMETHOD StartBatchChangeHint( // advise before many adds and cuts
     nsIMdbEnv* ev, // context
     const void* inLabel) override; // intend unique address to match end call
     // If batch starts nest by virtue of nesting calls in the stack, then
     // the address of a local variable makes a good batch start label that
     // can be used at batch end time, and such addresses remain unique.
-    
-  NS_IMETHOD EndBatchChangeHint( // advise before many adds and cuts  
+
+  NS_IMETHOD EndBatchChangeHint( // advise before many adds and cuts
     nsIMdbEnv* ev, // context
     const void* inLabel) override; // label matching start label
     // Suppose a table is maintaining one or many sort orders for a table,
@@ -317,12 +317,12 @@ public: // state is public because the entire Mork system is private
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // column to query sorting potential
     mdb_bool* outCanSort) override; // whether the column can be sorted
-    
+
   NS_IMETHOD GetSorting( // view same table in particular sorting
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // requested new column for sorting table
     nsIMdbSorting** acqSorting) override; // acquire sorting for column
-    
+
   NS_IMETHOD SetSearchSorting( // use this sorting in FindRowMatches()
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // often same as nsIMdbSorting::GetSortColumn()
@@ -353,7 +353,7 @@ public: // state is public because the entire Mork system is private
 
   // { ----- begin moving methods -----
   // moving a row does nothing unless a table is currently unsorted
-  
+
   NS_IMETHOD MoveOid( // change position of row in unsorted table
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // row oid to find in table
@@ -368,7 +368,7 @@ public: // state is public because the entire Mork system is private
     mdb_pos inToPos,       // desired new position for row inRowId
     mdb_pos* outActualPos) override; // actual new position of row in table
   // } ----- end moving methods -----
-  
+
   // { ----- begin index methods -----
   NS_IMETHOD AddIndex( // create a sorting index for column if possible
     nsIMdbEnv* ev, // context
@@ -376,29 +376,29 @@ public: // state is public because the entire Mork system is private
     nsIMdbThumb** acqThumb) override; // acquire thumb for incremental index building
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the index addition will be finished.
-  
+
   NS_IMETHOD CutIndex( // stop supporting a specific column index
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column with index to be removed
     nsIMdbThumb** acqThumb) override; // acquire thumb for incremental index destroy
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the index removal will be finished.
-  
+
   NS_IMETHOD HasIndex( // query for current presence of a column index
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column to investigate
     mdb_bool* outHasIndex) override; // whether column has index for this column
 
-  
+
   NS_IMETHOD EnableIndexOnSort( // create an index for col on first sort
     nsIMdbEnv* ev, // context
     mdb_column inColumn) override; // the column to index if ever sorted
-  
+
   NS_IMETHOD QueryIndexOnSort( // check whether index on sort is enabled
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column to investigate
     mdb_bool* outIndexOnSort) override; // whether column has index-on-sort enabled
-  
+
   NS_IMETHOD DisableIndexOnSort( // prevent future index creation on sort
     nsIMdbEnv* ev, // context
     mdb_column inColumn) override; // the column to index if ever sorted
@@ -406,29 +406,29 @@ public: // state is public because the entire Mork system is private
 
   morkStore*      mTable_Store;   // non-refcnted ptr to port
 
-  // mTable_RowSpace->SpaceScope() is row scope 
+  // mTable_RowSpace->SpaceScope() is row scope
   morkRowSpace*   mTable_RowSpace; // non-refcnted ptr to containing space
 
   morkRow*        mTable_MetaRow; // table's actual meta row
   mdbOid          mTable_MetaRowOid; // oid for meta row
-  
+
   morkRowMap*     mTable_RowMap;     // (strong ref) hash table of all members
   morkArray       mTable_RowArray;   // array of morkRow pointers
-  
+
   morkList        mTable_ChangeList;      // list of table changes
-  mork_u2         mTable_ChangesCount; // length of changes list 
-  mork_u2         mTable_ChangesMax;   // max list length before rewrite 
-  
+  mork_u2         mTable_ChangesCount; // length of changes list
+  mork_u2         mTable_ChangesMax;   // max list length before rewrite
+
   // mork_tid        mTable_Id;
   mork_kind       mTable_Kind;
-  
+
   mork_u1         mTable_Flags;         // bit flags
   mork_priority   mTable_Priority;      // 0..9, any other value equals 9
   mork_u1         mTable_GcUses;        // persistent references from cells
   mork_u1         mTable_Pad;      // for u4 alignment
 
 public: // flags bit twiddling
-  
+
   void SetTableUnique() { mTable_Flags |= morkTable_kUniqueBit; }
   void SetTableVerbose() { mTable_Flags |= morkTable_kVerboseBit; }
   void SetTableNoted() { mTable_Flags |= morkTable_kNotedBit; }
@@ -443,16 +443,16 @@ public: // flags bit twiddling
 
   mork_bool IsTableUnique() const
   { return ( mTable_Flags & morkTable_kUniqueBit ) != 0; }
-  
+
   mork_bool IsTableVerbose() const
   { return ( mTable_Flags & morkTable_kVerboseBit ) != 0; }
-  
+
   mork_bool IsTableNoted() const
   { return ( mTable_Flags & morkTable_kNotedBit ) != 0; }
-  
+
   mork_bool IsTableRewrite() const
   { return ( mTable_Flags & morkTable_kRewriteBit ) != 0; }
-  
+
   mork_bool IsTableNewMeta() const
   { return ( mTable_Flags & morkTable_kNewMetaBit ) != 0; }
 
@@ -460,24 +460,24 @@ public: // table dirty handling more complex than morkNode::SetNodeDirty() etc.
 
   void SetTableDirty() { this->SetNodeDirty(); }
   void SetTableClean(morkEnv* ev);
-   
+
   mork_bool IsTableClean() const { return this->IsNodeClean(); }
   mork_bool IsTableDirty() const { return this->IsNodeDirty(); }
 
 public: // morkNode memory management operators
   void* operator new(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev) CPP_THROW_NEW
   { return morkNode::MakeNew(inSize, ioHeap, ev); }
-  
- 
+
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseTable() if open
-  
+
 public: // morkTable construction & destruction
   morkTable(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioNodeHeap, morkStore* ioStore,
     nsIMdbHeap* ioSlotHeap, morkRowSpace* ioRowSpace,
-    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
+    const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
     mork_tid inTableId,
     mork_kind inKind, mork_bool inMustBeUnique);
   void CloseTable(morkEnv* ev); // called by CloseMorkNode();
@@ -510,36 +510,36 @@ public: // noting table changes
 
   void note_row_change(morkEnv* ev, mork_change inChange, morkRow* ioRow);
   void note_row_move(morkEnv* ev, morkRow* ioRow, mork_pos inNewPos);
-  
+
   void NoteTableAddRow(morkEnv* ev, morkRow* ioRow)
   { this->note_row_change(ev, morkChange_kAdd, ioRow); }
-  
+
   void NoteTableCutRow(morkEnv* ev, morkRow* ioRow)
   { this->note_row_change(ev, morkChange_kCut, ioRow); }
-  
+
 protected: // internal row map methods
 
   morkRow* find_member_row(morkEnv* ev, morkRow* ioRow);
   void build_row_map(morkEnv* ev);
 
 public: // other table methods
-  
+
   mork_bool MaybeDirtySpaceStoreAndTable();
 
   morkRow* GetMetaRow(morkEnv* ev, const mdbOid* inOptionalMetaRowOid);
-  
+
   mork_u2 AddTableGcUse(morkEnv* ev);
   mork_u2 CutTableGcUse(morkEnv* ev);
 
   // void DirtyAllTableContent(morkEnv* ev);
 
   mork_seed TableSeed() const { return mTable_RowArray.mArray_Seed; }
-  
+
   morkRow* SafeRowAt(morkEnv* ev, mork_pos inPos)
   { return (morkRow*) mTable_RowArray.SafeAt(ev, inPos); }
 
   nsIMdbTable* AcquireTableHandle(morkEnv* ev); // mObject_Handle
-  
+
   mork_count GetRowCount() const { return mTable_RowArray.mArray_Fill; }
 
   mork_bool IsTableUsed() const
@@ -551,12 +551,12 @@ public: // other table methods
   mork_bool AddRow(morkEnv* ev, morkRow* ioRow); // returns ev->Good()
   mork_bool CutRow(morkEnv* ev, morkRow* ioRow); // returns ev->Good()
   mork_bool CutAllRows(morkEnv* ev); // returns ev->Good()
-  
+
   mork_pos MoveRow(morkEnv* ev, morkRow* ioRow, // change row position
     mork_pos inHintFromPos, // suggested hint regarding start position
     mork_pos inToPos); // desired new position for row ioRow
     // MoveRow() returns the actual position of ioRow afterwards; this
-    // position is -1 if and only if ioRow was not found as a member.     
+    // position is -1 if and only if ioRow was not found as a member.
 
 
   morkTableRowCursor* NewTableRowCursor(morkEnv* ev, mork_pos inRowPos);
@@ -565,7 +565,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakTable(morkTable* me,
     morkEnv* ev, morkTable** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongTable(morkTable* me,
     morkEnv* ev, morkTable** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -578,37 +578,37 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
 #define morkTableChange_kAdd ((mork_pos) -2) /* shows row was added */
 #define morkTableChange_kNone ((mork_pos) -3) /* unknown change */
 
-class morkTableChange : public morkNext { 
+class morkTableChange : public morkNext {
 public: // state is public because the entire Mork system is private
 
   morkRow*  mTableChange_Row; // the row in the change
-  
+
   mork_pos  mTableChange_Pos; // kAdd, kCut, or non-neg for row move
 
 public:
   morkTableChange(morkEnv* ev, mork_change inChange, morkRow* ioRow);
   // use this constructor for inChange == morkChange_kAdd or morkChange_kCut
-  
+
   morkTableChange(morkEnv* ev, morkRow* ioRow, mork_pos inPos);
   // use this constructor when the row is moved
 
 public:
   void UnknownChangeError(morkEnv* ev) const; // morkChange_kAdd or morkChange_kCut
   void NegativeMovePosError(morkEnv* ev) const; // move must be non-neg position
-  
+
 public:
-  
+
   mork_bool IsAddRowTableChange() const
   { return ( mTableChange_Pos == morkTableChange_kAdd ); }
-  
+
   mork_bool IsCutRowTableChange() const
   { return ( mTableChange_Pos == morkTableChange_kCut ); }
-  
+
   mork_bool IsMoveRowTableChange() const
   { return ( mTableChange_Pos >= 0 ); }
 
 public:
-  
+
   mork_pos GetMovePos() const { return mTableChange_Pos; }
   // GetMovePos() assumes that IsMoveRowTableChange() is true.
 };
@@ -620,7 +620,7 @@ public:
 /*| morkTableMap: maps mork_token -> morkTable
 |*/
 #ifdef MORK_BEAD_OVER_NODE_MAPS
-class morkTableMap : public morkBeadMap { 
+class morkTableMap : public morkBeadMap {
 #else /*MORK_BEAD_OVER_NODE_MAPS*/
 class morkTableMap : public morkNodeMap { // for mapping tokens to tables
 #endif /*MORK_BEAD_OVER_NODE_MAPS*/
@@ -640,8 +640,8 @@ public: // other map methods
 
   mork_bool  CutTable(morkEnv* ev, mork_tid inTid)
   { return this->CutBead(ev, inTid); }
-  // The CutTable() boolean return indicates whether removal happened. 
-  
+  // The CutTable() boolean return indicates whether removal happened.
+
   morkTable*  GetTable(morkEnv* ev, mork_tid inTid)
   { return (morkTable*) this->GetBead(ev, inTid); }
   // Note the returned table does NOT have an increase in refcount for this.
@@ -649,7 +649,7 @@ public: // other map methods
   mork_num CutAllTables(morkEnv* ev)
   { return this->CutAllBeads(ev); }
   // CutAllTables() releases all the referenced table values.
-  
+
 #else /*MORK_BEAD_OVER_NODE_MAPS*/
   mork_bool  AddTable(morkEnv* ev, morkTable* ioTable)
   { return this->AddNode(ev, ioTable->TableId(), ioTable); }
@@ -657,8 +657,8 @@ public: // other map methods
 
   mork_bool  CutTable(morkEnv* ev, mork_tid inTid)
   { return this->CutNode(ev, inTid); }
-  // The CutTable() boolean return indicates whether removal happened. 
-  
+  // The CutTable() boolean return indicates whether removal happened.
+
   morkTable*  GetTable(morkEnv* ev, mork_tid inTid)
   { return (morkTable*) this->GetNode(ev, inTid); }
   // Note the returned table does NOT have an increase in refcount for this.
@@ -681,41 +681,41 @@ public:
 #ifdef MORK_BEAD_OVER_NODE_MAPS
   morkTableMapIter(morkEnv* ev, morkTableMap* ioMap)
   : morkBeadMapIter(ev, ioMap) { }
- 
+
   morkTableMapIter( ) : morkBeadMapIter()  { }
   void InitTableMapIter(morkEnv* ev, morkTableMap* ioMap)
   { this->InitBeadMapIter(ev, ioMap); }
-   
+
   morkTable* FirstTable(morkEnv* ev)
   { return (morkTable*) this->FirstBead(ev); }
-  
+
   morkTable* NextTable(morkEnv* ev)
   { return (morkTable*) this->NextBead(ev); }
-  
+
   morkTable* HereTable(morkEnv* ev)
   { return (morkTable*) this->HereBead(ev); }
-  
+
 
 #else /*MORK_BEAD_OVER_NODE_MAPS*/
   morkTableMapIter(morkEnv* ev, morkTableMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkTableMapIter( ) : morkMapIter()  { }
   void InitTableMapIter(morkEnv* ev, morkTableMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change*
   FirstTable(morkEnv* ev, mork_tid* outTid, morkTable** outTable)
   { return this->First(ev, outTid, outTable); }
-  
+
   mork_change*
   NextTable(morkEnv* ev, mork_tid* outTid, morkTable** outTable)
   { return this->Next(ev, outTid, outTable); }
-  
+
   mork_change*
   HereTable(morkEnv* ev, mork_tid* outTid, morkTable** outTable)
   { return this->Here(ev, outTid, outTable); }
-  
+
   // cutting while iterating hash map might dirty the parent table:
   mork_change*
   CutHereTable(morkEnv* ev, mork_tid* outTid, morkTable** outTable)

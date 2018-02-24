@@ -34,7 +34,7 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
- 
+
 #ifndef _MORKCH_
 #define _MORKCH_ 1
 
@@ -107,7 +107,7 @@ extern const mork_flags morkCh_Type[]; /* 256 byte predicate bits ch map */
 
 /* ````` character case (e.g. for case insensitive operations) ````` */
 
-  
+
 #define morkCh_IsAscii(c)         ( ((mork_u1) c) <= 0x7F )
 #define morkCh_IsSevenBitChar(c)  ( ((mork_u1) c) <= 0x7F )
 

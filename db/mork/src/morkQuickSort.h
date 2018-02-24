@@ -19,7 +19,7 @@
 extern void
 morkQuickSort(mork_u1* ioVec, mork_u4 inCount, mork_u4 inSize,
   mdbAny_Order inOrder, void* ioClosure);
- 
+
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKQUICKSORT_ */

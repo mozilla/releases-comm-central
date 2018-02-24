@@ -93,7 +93,7 @@ const mork_flags morkCh_Type[] = /* derives from public domain Mithril table */
   0,                /* 0x1D */
   0,                /* 0x1E */
   0,                /* 0x1F */
-  
+
   morkCh_kV|morkCh_kW,     /* 0x20 space */
   morkCh_kV|morkCh_kM,     /* 0x21 ! */
   morkCh_kV,               /* 0x22 " */
@@ -110,7 +110,7 @@ const mork_flags morkCh_Type[] = /* derives from public domain Mithril table */
   morkCh_kV|morkCh_kM,     /* 0x2D - */
   morkCh_kV,               /* 0x2E . */
   morkCh_kV,               /* 0x2F / */
-  
+
   morkCh_kV|morkCh_kD|morkCh_kX,  /* 0x30 0 */
   morkCh_kV|morkCh_kD|morkCh_kX,  /* 0x31 1 */
   morkCh_kV|morkCh_kD|morkCh_kX,  /* 0x32 2 */
@@ -127,8 +127,8 @@ const mork_flags morkCh_Type[] = /* derives from public domain Mithril table */
   morkCh_kV,                /* 0x3D = */
   morkCh_kV,                /* 0x3E > */
   morkCh_kV|morkCh_kM,      /* 0x3F ? */
-  
-  morkCh_kV,                /* 0x40 @  */  
+
+  morkCh_kV,                /* 0x40 @  */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU|morkCh_kX,  /* 0x41 A */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU|morkCh_kX,  /* 0x42 B */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU|morkCh_kX,  /* 0x43 C */
@@ -144,7 +144,7 @@ const mork_flags morkCh_Type[] = /* derives from public domain Mithril table */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU,          /* 0x4D M */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU,          /* 0x4E N */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU,          /* 0x4F O */
-  
+
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU,          /* 0x50 P */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU,          /* 0x51 Q */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kU,          /* 0x52 R */
@@ -161,7 +161,7 @@ const mork_flags morkCh_Type[] = /* derives from public domain Mithril table */
   morkCh_kV,                /* 0x5D ] */
   morkCh_kV,          /* 0x5E ^ */
   morkCh_kV|morkCh_kN|morkCh_kM,          /* 0x5F _ */
-  
+
   morkCh_kV,                /* 0x60 ` */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kL|morkCh_kX,  /* 0x61 a */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kL|morkCh_kX,  /* 0x62 b */
@@ -178,7 +178,7 @@ const mork_flags morkCh_Type[] = /* derives from public domain Mithril table */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kL,          /* 0x6D m */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kL,          /* 0x6E n */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kL,          /* 0x6F o */
-  
+
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kL,          /* 0x70 p */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kL,          /* 0x71 q */
   morkCh_kV|morkCh_kN|morkCh_kM|morkCh_kL,          /* 0x72 r */
@@ -197,36 +197,36 @@ const mork_flags morkCh_Type[] = /* derives from public domain Mithril table */
   morkCh_kW,          /* 0x7F rubout */
 
 /* $"80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F"   */
-  0,    0,    0,    0,    0,    0,    0,    0,  
-  0,    0,    0,    0,    0,    0,    0,    0,  
+  0,    0,    0,    0,    0,    0,    0,    0,
+  0,    0,    0,    0,    0,    0,    0,    0,
 
 /* $"90 91 92 93 94 95 96 97 98 99 9A 9B 9C 9D 9E 9F"   */
-  0,    0,    0,    0,    0,    0,    0,    0,  
-  0,    0,    0,    0,    0,    0,    0,    0,  
+  0,    0,    0,    0,    0,    0,    0,    0,
+  0,    0,    0,    0,    0,    0,    0,    0,
 
 /* $"A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF"   */
-  0,    0,    0,    0,    0,    0,    0,    0,  
-  0,    0,    0,    0,    0,    0,    0,    0,  
+  0,    0,    0,    0,    0,    0,    0,    0,
+  0,    0,    0,    0,    0,    0,    0,    0,
 
 /* $"B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF"   */
-  0,    0,    0,    0,    0,    0,    0,    0,  
-  0,    0,    0,    0,    0,    0,    0,    0,  
+  0,    0,    0,    0,    0,    0,    0,    0,
+  0,    0,    0,    0,    0,    0,    0,    0,
 
 /* $"C0 C1 C2 C3 C4 C5 C6 C7 C8 C9 CA CB CC CD CE CF"   */
-  0,    0,    0,    0,    0,    0,    0,    0,  
-  0,    0,    0,    0,    0,    0,    0,    0,  
+  0,    0,    0,    0,    0,    0,    0,    0,
+  0,    0,    0,    0,    0,    0,    0,    0,
 
 /* $"D0 D1 D2 D3 D4 D5 D6 D7 D8 D9 DA DB DC DD DE DF"   */
-  0,    0,    0,    0,    0,    0,    0,    0,  
-  0,    0,    0,    0,    0,    0,    0,    0,  
+  0,    0,    0,    0,    0,    0,    0,    0,
+  0,    0,    0,    0,    0,    0,    0,    0,
 
 /* $"E0 E1 E2 E3 E4 E5 E6 E7 E8 E9 EA EB EC ED EE EF"   */
-  0,    0,    0,    0,    0,    0,    0,    0,  
-  0,    0,    0,    0,    0,    0,    0,    0,  
+  0,    0,    0,    0,    0,    0,    0,    0,
+  0,    0,    0,    0,    0,    0,    0,    0,
 
 /* $"F0 F1 F2 F3 F4 F5 F6 F7 F8 F9 FA FB FC FD FE FF"   */
-  0,    0,    0,    0,    0,    0,    0,    0,  
-  0,    0,    0,    0,    0,    0,    0,    0,  
+  0,    0,    0,    0,    0,    0,    0,    0,
+  0,    0,    0,    0,    0,    0,    0,    0,
 };
 
 

@@ -37,7 +37,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -57,7 +57,7 @@ morkSpace::~morkSpace() // assert CloseSpace() executed earlier
   MORK_ASSERT(SpaceScope()==0);
   MORK_ASSERT(mSpace_Store==0);
   MORK_ASSERT(this->IsShutNode());
-}    
+}
 
 /*public non-poly*/
 //morkSpace::morkSpace(morkEnv* ev, const morkUsage& inUsage,
@@ -88,7 +88,7 @@ morkSpace::morkSpace(morkEnv* ev,
       mSpace_CanDirty = ioStore->mStore_CanDirty;
       if ( mSpace_CanDirty ) // this new space dirties the store?
         this->MaybeDirtyStoreAndSpace();
-        
+
       if ( ev->Good() )
         mNode_Derived = morkDerived_kSpace;
     }
@@ -111,15 +111,15 @@ morkSpace::CloseSpace(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
-/*static*/ void 
+/*static*/ void
 morkSpace::NonAsciiSpaceScopeName(morkEnv* ev)
 {
   ev->NewError("SpaceScope() > 0x7F");
 }
 
-/*static*/ void 
+/*static*/ void
 morkSpace::NilSpaceStoreError(morkEnv* ev)
 {
   ev->NewError("nil mSpace_Store");
@@ -138,13 +138,13 @@ mork_bool morkSpace::MaybeDirtyStoreAndSpace()
     store->SetStoreDirty();
     mSpace_CanDirty = morkBool_kTrue;
   }
-  
+
   if ( mSpace_CanDirty )
   {
     this->SetSpaceDirty();
     return morkBool_kTrue;
   }
-  
+
   return morkBool_kFalse;
 }
 

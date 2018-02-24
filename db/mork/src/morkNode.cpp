@@ -234,7 +234,7 @@ morkNode::~morkNode() // assert that CloseNode() executed earlier
   // Each such static close method should either call inherited static close
   // methods, or else perform the consolidated effect of calling them, where
   // subclasses should closely track any changes in base classes with care.
-  
+
 
 /*public non-poly*/
 morkNode::morkNode( mork_usage inCode )
@@ -286,7 +286,7 @@ morkNode::morkNode(morkEnv* ev,
 }
 
 /*protected non-poly*/ void
-morkNode::RefsUnderUsesWarning(morkEnv* ev) const 
+morkNode::RefsUnderUsesWarning(morkEnv* ev) const
 {
   ev->NewError("mNode_Refs < mNode_Uses");
 }
@@ -442,7 +442,7 @@ morkNode::AddStrongRef(morkEnv* ev)
       mork_uses uses = mNode_Uses;
       mork_refs refs = mNode_Refs;
       if ( refs < uses ) // need to fix broken refs/uses relation?
-      { 
+      {
         this->RefsUnderUsesWarning(ev);
         mNode_Refs = mNode_Uses = refs = uses;
       }
@@ -519,7 +519,7 @@ morkNode::AddWeakRef(morkEnv* ev)
         mNode_Refs = ++refs;
       else
         this->RefsOverflowWarning(ev);
-        
+
       outRefs = refs;
     }
     else
@@ -542,11 +542,11 @@ morkNode::CutWeakRef(morkEnv* ev)
         this->RefsUnderflowWarning(ev);
 
       if ( refs < uses ) // need to fix broken refs/uses relation?
-      { 
+      {
         this->RefsUnderUsesWarning(ev);
         mNode_Refs = mNode_Uses = refs = uses;
       }
-        
+
       outRefs = refs;
       if ( !refs ) // last reference gone? time to destroy node?
         this->ZapOld(ev, mNode_Heap); // self destroy, use this no longer

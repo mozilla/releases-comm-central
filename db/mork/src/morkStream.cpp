@@ -29,7 +29,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -73,12 +73,12 @@ morkStream::morkStream(morkEnv* ev, const morkUsage& inUsage,
       mStream_BufSize = inBufSize = morkStream_kMinBufSize;
     else if ( inBufSize > morkStream_kMaxBufSize )
       mStream_BufSize = inBufSize = morkStream_kMaxBufSize;
-    
+
     if ( ioContentFile && ioHeap )
     {
       // if ( ioContentFile->FileFrozen() ) // forced to be readonly?
       //   inFrozen = morkBool_kTrue; // override the input value
-        
+
       nsIMdbFile_SlotStrongFile(ioContentFile, ev, &mStream_ContentFile);
       if ( ev->Good() )
       {
@@ -87,7 +87,7 @@ morkStream::morkStream(morkEnv* ev, const morkUsage& inUsage,
         if ( buf )
         {
           mStream_At = mStream_Buf = buf;
-          
+
           if ( !inFrozen )
           {
             // physical buffer end never moves:
@@ -95,7 +95,7 @@ morkStream::morkStream(morkEnv* ev, const morkUsage& inUsage,
           }
           else
             mStream_WriteEnd = 0; // no writing is allowed
-          
+
           if ( inFrozen )
           {
             // logical buffer end starts at Buf with no content:
@@ -104,7 +104,7 @@ morkStream::morkStream(morkEnv* ev, const morkUsage& inUsage,
           }
           else
             mStream_ReadEnd = 0; // no reading is allowed
-          
+
           this->SetFileActive(morkBool_kTrue);
           this->SetFileIoOpen(morkBool_kTrue);
         }
@@ -125,7 +125,7 @@ morkStream::CloseStream(morkEnv* ev) // called by CloseMorkNode();
       nsIMdbHeap* heap = mFile_SlotHeap;
       mork_u1* buf = mStream_Buf;
       mStream_Buf = 0;
-      
+
       if ( heap && buf )
         heap->Free(ev->AsMdbEnv(), buf);
 
@@ -137,15 +137,15 @@ morkStream::CloseStream(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
-  
+// ````` ````` ````` ````` `````
+
 #define morkStream_kSpacesPerIndent 1 /* one space per indent */
 #define morkStream_kMaxIndentDepth 70 /* max indent of 70 space bytes */
 static const char morkStream_kSpaces[] // next line to ease length perception
 = "                                                                        ";
 // 123456789_123456789_123456789_123456789_123456789_123456789_123456789_
 // morkStream_kSpaces above must contain (at least) 70 spaces (ASCII 0x20)
- 
+
 mork_size
 morkStream::PutIndent(morkEnv* ev, mork_count inDepth)
   // PutIndent() puts a linebreak, and then
@@ -174,10 +174,10 @@ morkStream::PutByteThenIndent(morkEnv* ev, int inByte, mork_count inDepth)
 {
   mork_size outLength = 0;
   nsIMdbEnv *mev = ev->AsMdbEnv();
-  
+
   if ( inDepth > morkStream_kMaxIndentDepth )
     inDepth = morkStream_kMaxIndentDepth;
-  
+
   this->Putc(ev, inByte);
   if ( ev->Good() )
   {
@@ -192,7 +192,7 @@ morkStream::PutByteThenIndent(morkEnv* ev, int inByte, mork_count inDepth)
   }
   return outLength;
 }
-  
+
 mork_size
 morkStream::PutStringThenIndent(morkEnv* ev,
   const char* inString, mork_count inDepth)
@@ -202,17 +202,17 @@ morkStream::PutStringThenIndent(morkEnv* ev,
   mork_size outLength = 0;
   mdb_size bytesWritten;
   nsIMdbEnv *mev = ev->AsMdbEnv();
-  
+
   if ( inDepth > morkStream_kMaxIndentDepth )
     inDepth = morkStream_kMaxIndentDepth;
-  
+
   if ( inString )
   {
     mork_size length = strlen(inString);
     if ( length && ev->Good() ) // any bytes to write?
       this->Write(mev, inString, length, &bytesWritten);
   }
-  
+
   if ( ev->Good() )
   {
     this->PutLineBreak(ev);
@@ -281,25 +281,25 @@ morkStream::PutLineBreak(morkEnv* ev)
 
   this->Putc(ev, mork_kCR);
   return 1;
-  
+
 #else
 #  if defined(MORK_WIN)
-  
+
   this->Putc(ev, mork_kCR);
   this->Putc(ev, mork_kLF);
   return 2;
-  
+
 #  else
 #    ifdef MORK_UNIX
-  
+
   this->Putc(ev, mork_kLF);
   return 1;
-  
+
 #    endif /* MORK_UNIX */
 #  endif /* MORK_WIN */
 #endif /* MORK_MAC */
 }
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 // public: // virtual morkFile methods
 
 
@@ -359,12 +359,12 @@ morkStream::AcquireBud(nsIMdbEnv* mev, nsIMdbHeap* ioHeap, nsIMdbFile **acqBud)
     ev->StubMethodOnlyError();
   }
   else this->NewFileDownError(ev);
-  
+
   *acqBud = outFile;
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-mork_pos 
+mork_pos
 morkStream::Length(morkEnv* ev) const // eof
 {
   mork_pos outPos = 0;
@@ -421,26 +421,26 @@ void morkStream::NewPosBeyondEofError(morkEnv* ev) const
 void morkStream::NewBadCursorOrderError(morkEnv* ev) const
 { ev->NewError("bad stream cursor order"); }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 morkStream::Tell(nsIMdbEnv* mdbev, mork_pos *aOutPos) const
 {
   nsresult rv = NS_OK;
   morkEnv *ev = morkEnv::FromMdbEnv(mdbev);
 
   NS_ENSURE_ARG_POINTER(aOutPos);
-  
+
   nsIMdbFile* file = mStream_ContentFile;
   if ( this->IsOpenAndActiveFile() && file )
   {
     mork_u1* buf = mStream_Buf;
     mork_u1* at = mStream_At;
-    
+
     mork_u1* readEnd = mStream_ReadEnd;   // nonzero only if readonly
     mork_u1* writeEnd = mStream_WriteEnd; // nonzero only if writeonly
-    
+
     if ( writeEnd )
     {
-      if ( buf && at >= buf && at <= writeEnd ) 
+      if ( buf && at >= buf && at <= writeEnd )
       {
         *aOutPos = mStream_BufPos + (at - buf);
       }
@@ -448,7 +448,7 @@ morkStream::Tell(nsIMdbEnv* mdbev, mork_pos *aOutPos) const
     }
     else if ( readEnd )
     {
-      if ( buf && at >= buf && at <= readEnd ) 
+      if ( buf && at >= buf && at <= readEnd )
       {
         *aOutPos = mStream_BufPos + (at - buf);
       }
@@ -460,7 +460,7 @@ morkStream::Tell(nsIMdbEnv* mdbev, mork_pos *aOutPos) const
   return rv;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 morkStream::Read(nsIMdbEnv* mdbev, void* outBuf, mork_size inSize, mork_size *aOutSize)
 {
   NS_ENSURE_ARG_POINTER(aOutSize);
@@ -488,15 +488,15 @@ morkStream::Read(nsIMdbEnv* mdbev, void* outBuf, mork_size inSize, mork_size *aO
           if ( at >= buf && at <= end ) // expected cursor order?
           {
             mork_num remaining = (mork_num) (end - at); // bytes left in buffer
-            
+
             mork_num quantum = inSize; // number of bytes to copy
             if ( quantum > remaining ) // more than buffer content?
               quantum = remaining; // restrict to buffered bytes
-              
+
             if ( quantum ) // any bytes left in the buffer?
             {
               MORK_MEMCPY(sink, at, quantum); // from buffer bytes
-              
+
               at += quantum; // advance past read bytes
               mStream_At = at;
               *aOutSize += quantum;  // this much copied so far
@@ -505,24 +505,24 @@ morkStream::Read(nsIMdbEnv* mdbev, void* outBuf, mork_size inSize, mork_size *aO
               inSize -= quantum; // filled this much of request
               mStream_HitEof = morkBool_kFalse;
             }
-            
+
             if ( inSize ) // we still need to read more content?
             {
               // We need to read more bytes directly from the
               // content file, without local buffering.  We have
               // exhausted the local buffer, so we need to show
               // it is now empty, and adjust the current buf pos.
-              
+
               mork_num posDelta = (mork_num) (at - buf); // old buf content
               mStream_BufPos += posDelta;   // past now empty buf
-              
+
               mStream_At = mStream_ReadEnd = buf; // empty buffer
-              
+
               // file->Seek(ev, mStream_BufPos); // set file pos
               // if ( ev->Good() ) // no seek error?
               // {
               // }
-              
+
               mork_num actual = 0;
               nsIMdbEnv* menv = ev->AsMdbEnv();
               file->Get(menv, sink, inSize, mStream_BufPos, &actual);
@@ -547,14 +547,14 @@ morkStream::Read(nsIMdbEnv* mdbev, void* outBuf, mork_size inSize, mork_size *aO
     else this->NewCantReadSinkError(ev);
   }
   else this->NewFileDownError(ev);
-  
+
   if ( ev->Bad() )
     *aOutSize = 0;
 
   return rv;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 morkStream::Seek(nsIMdbEnv * mdbev, mork_pos inPos, mork_pos *aOutPos)
 {
   NS_ENSURE_ARG_POINTER(aOutPos);
@@ -565,10 +565,10 @@ morkStream::Seek(nsIMdbEnv * mdbev, mork_pos inPos, mork_pos *aOutPos)
   if ( this->IsOpenOrClosingNode() && this->FileActive() && file )
   {
     mork_u1* at = mStream_At;             // current position in buffer
-    mork_u1* buf = mStream_Buf;           // beginning of buffer 
+    mork_u1* buf = mStream_Buf;           // beginning of buffer
     mork_u1* readEnd = mStream_ReadEnd;   // nonzero only if readonly
     mork_u1* writeEnd = mStream_WriteEnd; // nonzero only if writeonly
-    
+
     if ( writeEnd ) // file is mutable/writeonly?
     {
       if ( mStream_Dirty ) // need to commit buffer changes?
@@ -619,14 +619,14 @@ morkStream::Seek(nsIMdbEnv * mdbev, mork_pos inPos, mork_pos *aOutPos)
       }
       else this->NewBadCursorOrderError(ev);
     }
-      
+
   }
   else this->NewFileDownError(ev);
 
   return rv;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 morkStream::Write(nsIMdbEnv* menv, const void* inBuf, mork_size inSize, mork_size  *aOutSize)
 {
   mork_num outActual = 0;
@@ -648,23 +648,23 @@ morkStream::Write(nsIMdbEnv* menv, const void* inBuf, mork_size inSize, mork_siz
           if ( at >= buf && at <= end ) // expected cursor order?
           {
             mork_num space = (mork_num) (end - at); // space left in buffer
-            
+
             mork_num quantum = inSize; // number of bytes to write
             if ( quantum > space ) // more than buffer size?
               quantum = space; // restrict to avail space
-              
+
             if ( quantum ) // any space left in the buffer?
             {
               mStream_Dirty = morkBool_kTrue; // to ensure later flush
               MORK_MEMCPY(at, source, quantum); // into buffer
-              
+
               mStream_At += quantum; // advance past written bytes
               outActual += quantum;  // this much written so far
 
               source += quantum; // in case we need to write more
               inSize -= quantum; // filled this much of request
             }
-            
+
             if ( inSize ) // we still need to write more content?
             {
               // We need to write more bytes directly to the
@@ -674,14 +674,14 @@ morkStream::Write(nsIMdbEnv* menv, const void* inBuf, mork_size inSize, mork_siz
               // After flushing, if the rest of the write fits
               // inside the buffer, we will put bytes into the
               // buffer rather than write them to content file.
-              
+
               if ( mStream_Dirty )
                 this->Flush(menv); // will update mStream_BufPos
 
               at = mStream_At;
               if ( at < buf || at > end ) // bad cursor?
                 this->NewBadCursorOrderError(ev);
-                
+
               if ( ev->Good() ) // no errors?
               {
                 space = (mork_num) (end - at); // space left in buffer
@@ -689,7 +689,7 @@ morkStream::Write(nsIMdbEnv* menv, const void* inBuf, mork_size inSize, mork_siz
                 {
                   mStream_Dirty = morkBool_kTrue; // ensure flush
                   MORK_MEMCPY(at, source, inSize); // copy
-                  
+
                   mStream_At += inSize; // past written bytes
                   outActual += inSize;  // this much written
                 }
@@ -719,7 +719,7 @@ morkStream::Write(nsIMdbEnv* menv, const void* inBuf, mork_size inSize, mork_siz
     else this->NewCantWriteSourceError(ev);
   }
   else this->NewFileDownError(ev);
-  
+
   if ( ev->Bad() )
     outActual = 0;
 
@@ -727,7 +727,7 @@ morkStream::Write(nsIMdbEnv* menv, const void* inBuf, mork_size inSize, mork_siz
   return ev->AsErr();
 }
 
-NS_IMETHODIMP     
+NS_IMETHODIMP
 morkStream::Flush(nsIMdbEnv* ev)
 {
   morkEnv *mev = morkEnv::FromMdbEnv(ev);
@@ -744,14 +744,14 @@ morkStream::Flush(nsIMdbEnv* ev)
   return rv;
 }
 
-// ````` ````` ````` `````   ````` ````` ````` `````  
+// ````` ````` ````` `````   ````` ````` ````` `````
 // protected: // protected non-poly morkStream methods (for char io)
 
 int
 morkStream::fill_getc(morkEnv* ev)
 {
   int c = EOF;
-  
+
   nsIMdbFile* file = mStream_ContentFile;
   if ( this->IsOpenAndActiveFile() && file )
   {
@@ -761,7 +761,7 @@ morkStream::fill_getc(morkEnv* ev)
     {
       mStream_BufPos += ( end - buf ); // advance past old read
     }
-      
+
     if ( ev->Good() ) // no errors yet?
     {
       // file->Seek(ev, mStream_BufPos); // set file pos
@@ -776,7 +776,7 @@ morkStream::fill_getc(morkEnv* ev)
       {
         if ( actual > mStream_BufSize ) // more than asked for??
           actual = mStream_BufSize;
-        
+
         mStream_At = buf;
         mStream_ReadEnd = buf + actual;
         if ( actual ) // any bytes actually read?
@@ -790,7 +790,7 @@ morkStream::fill_getc(morkEnv* ev)
     }
   }
   else this->NewFileDownError(ev);
-  
+
   return c;
 }
 
@@ -831,7 +831,7 @@ morkStream::spill_buf(morkEnv* ev) // spill/flush from buffer to file
             // }
             nsIMdbEnv* menv = ev->AsMdbEnv();
             mork_num actual = 0;
-            
+
             file->Put(menv, buf, count, mStream_BufPos, &actual);
             if ( ev->Good() )
             {

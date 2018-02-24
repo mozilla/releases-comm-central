@@ -34,7 +34,7 @@ class morkRowMap : public morkMap { // for mapping row IDs to rows
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowMap() only if open
   virtual ~morkRowMap(); // assert that CloseRowMap() executed earlier
-  
+
 public: // morkMap construction & destruction
   morkRowMap(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap, mork_size inSlots);
@@ -65,20 +65,20 @@ public: // other map methods
 
   morkRow*  CutRow(morkEnv* ev, const morkRow* ioRow);
   // CutRow() returns the row removed equal to ioRow, if there was one
-  
+
   morkRow*  GetOid(morkEnv* ev, const mdbOid* inOid);
   // GetOid() returns the row equal to inRid, or else nil
-  
+
   morkRow*  GetRow(morkEnv* ev, const morkRow* ioRow);
   // GetRow() returns the row equal to ioRow, or else nil
-  
+
   // note the rows are owned elsewhere, usuall by morkRowSpace
 
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakRowMap(morkRowMap* me,
     morkEnv* ev, morkRowMap** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongRowMap(morkRowMap* me,
     morkEnv* ev, morkRowMap** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -89,20 +89,20 @@ class morkRowMapIter: public morkMapIter{ // typesafe wrapper class
 public:
   morkRowMapIter(morkEnv* ev, morkRowMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkRowMapIter( ) : morkMapIter()  { }
   void InitRowMapIter(morkEnv* ev, morkRowMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change* FirstRow(morkEnv* ev, morkRow** outRowPtr)
   { return this->First(ev, outRowPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* NextRow(morkEnv* ev, morkRow** outRowPtr)
   { return this->Next(ev, outRowPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* HereRow(morkEnv* ev, morkRow** outRowPtr)
   { return this->Here(ev, outRowPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* CutHereRow(morkEnv* ev, morkRow** outRowPtr)
   { return this->CutHere(ev, outRowPtr, /*val*/ (void*) 0); }
 };
@@ -120,7 +120,7 @@ class morkRowProbeMap : public morkProbeMap { // for mapping row IDs to rows
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowProbeMap() only if open
   virtual ~morkRowProbeMap(); // assert CloseRowProbeMap() executed earlier
-  
+
 public: // morkMap construction & destruction
   morkRowProbeMap(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap, mork_size inSlots);
@@ -164,20 +164,20 @@ public: // other map methods
 
   morkRow*  CutRow(morkEnv* ev, const morkRow* ioRow);
   // CutRow() returns the row removed equal to ioRow, if there was one
-  
+
   morkRow*  GetOid(morkEnv* ev, const mdbOid* inOid);
   // GetOid() returns the row equal to inRid, or else nil
-  
+
   morkRow*  GetRow(morkEnv* ev, const morkRow* ioRow);
   // GetRow() returns the row equal to ioRow, or else nil
-  
+
   // note the rows are owned elsewhere, usuall by morkRowSpace
 
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakRowProbeMap(morkRowProbeMap* me,
     morkEnv* ev, morkRowProbeMap** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongRowProbeMap(morkRowProbeMap* me,
     morkEnv* ev, morkRowProbeMap** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -188,20 +188,20 @@ class morkRowProbeMapIter: public morkProbeMapIter{ // typesafe wrapper class
 public:
   morkRowProbeMapIter(morkEnv* ev, morkRowProbeMap* ioMap)
   : morkProbeMapIter(ev, ioMap) { }
- 
+
   morkRowProbeMapIter( ) : morkProbeMapIter()  { }
   void InitRowMapIter(morkEnv* ev, morkRowProbeMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change* FirstRow(morkEnv* ev, morkRow** outRowPtr)
   { return this->First(ev, outRowPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* NextRow(morkEnv* ev, morkRow** outRowPtr)
   { return this->Next(ev, outRowPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* HereRow(morkEnv* ev, morkRow** outRowPtr)
   { return this->Here(ev, outRowPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* CutHereRow(morkEnv* ev, morkRow** outRowPtr)
   { return this->CutHere(ev, outRowPtr, /*val*/ (void*) 0); }
 };

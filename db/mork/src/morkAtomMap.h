@@ -44,7 +44,7 @@ class morkAtomAidMap : public morkMap { // for mapping tokens to maps
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseAtomAidMap() only if open
   virtual ~morkAtomAidMap(); // assert that CloseAtomAidMap() executed earlier
-  
+
 public: // morkMap construction & destruction
   morkAtomAidMap(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap);
@@ -98,7 +98,7 @@ public: // other map methods
 
   morkBookAtom*  CutAtom(morkEnv* ev, const morkBookAtom* inAtom);
   // CutAtom() returns the atom removed equal to inAtom, if there was one
-  
+
   morkBookAtom*  GetAtom(morkEnv* ev, const morkBookAtom* inAtom);
   // GetAtom() returns the atom equal to inAtom, or else nil
 
@@ -111,7 +111,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakAtomAidMap(morkAtomAidMap* me,
     morkEnv* ev, morkAtomAidMap** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongAtomAidMap(morkAtomAidMap* me,
     morkEnv* ev, morkAtomAidMap** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -127,27 +127,27 @@ public:
 #ifdef MORK_ENABLE_PROBE_MAPS
   morkAtomAidMapIter(morkEnv* ev, morkAtomAidMap* ioMap)
   : morkProbeMapIter(ev, ioMap) { }
- 
+
   morkAtomAidMapIter( ) : morkProbeMapIter()  { }
 #else /*MORK_ENABLE_PROBE_MAPS*/
   morkAtomAidMapIter(morkEnv* ev, morkAtomAidMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkAtomAidMapIter( ) : morkMapIter()  { }
 #endif /*MORK_ENABLE_PROBE_MAPS*/
 
   void InitAtomAidMapIter(morkEnv* ev, morkAtomAidMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change* FirstAtom(morkEnv* ev, morkBookAtom** outAtomPtr)
   { return this->First(ev, outAtomPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* NextAtom(morkEnv* ev, morkBookAtom** outAtomPtr)
   { return this->Next(ev, outAtomPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* HereAtom(morkEnv* ev, morkBookAtom** outAtomPtr)
   { return this->Here(ev, outAtomPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* CutHereAtom(morkEnv* ev, morkBookAtom** outAtomPtr)
   { return this->CutHere(ev, outAtomPtr, /*val*/ (void*) 0); }
 };
@@ -173,7 +173,7 @@ class morkAtomBodyMap : public morkMap { // for mapping tokens to maps
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseAtomBodyMap() only if open
   virtual ~morkAtomBodyMap(); // assert CloseAtomBodyMap() executed earlier
-  
+
 public: // morkMap construction & destruction
   morkAtomBodyMap(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap);
@@ -227,7 +227,7 @@ public: // other map methods
 
   morkBookAtom*  CutAtom(morkEnv* ev, const morkBookAtom* inAtom);
   // CutAtom() returns the atom removed equal to inAtom, if there was one
-  
+
   morkBookAtom*  GetAtom(morkEnv* ev, const morkBookAtom* inAtom);
   // GetAtom() returns the atom equal to inAtom, or else nil
 
@@ -237,7 +237,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakAtomBodyMap(morkAtomBodyMap* me,
     morkEnv* ev, morkAtomBodyMap** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongAtomBodyMap(morkAtomBodyMap* me,
     morkEnv* ev, morkAtomBodyMap** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -253,27 +253,27 @@ public:
 #ifdef MORK_ENABLE_PROBE_MAPS
   morkAtomBodyMapIter(morkEnv* ev, morkAtomBodyMap* ioMap)
   : morkProbeMapIter(ev, ioMap) { }
- 
+
   morkAtomBodyMapIter( ) : morkProbeMapIter()  { }
 #else /*MORK_ENABLE_PROBE_MAPS*/
   morkAtomBodyMapIter(morkEnv* ev, morkAtomBodyMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkAtomBodyMapIter( ) : morkMapIter()  { }
 #endif /*MORK_ENABLE_PROBE_MAPS*/
-  
+
   void InitAtomBodyMapIter(morkEnv* ev, morkAtomBodyMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change* FirstAtom(morkEnv* ev, morkBookAtom** outAtomPtr)
   { return this->First(ev, outAtomPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* NextAtom(morkEnv* ev, morkBookAtom** outAtomPtr)
   { return this->Next(ev, outAtomPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* HereAtom(morkEnv* ev, morkBookAtom** outAtomPtr)
   { return this->Here(ev, outAtomPtr, /*val*/ (void*) 0); }
-  
+
   mork_change* CutHereAtom(morkEnv* ev, morkBookAtom** outAtomPtr)
   { return this->CutHere(ev, outAtomPtr, /*val*/ (void*) 0); }
 };
@@ -298,10 +298,10 @@ public:
 public: // adding and cutting from morkRow instance candidate
 
   void  AddRow(morkEnv* ev, morkRow* ioRow);
-  // add ioRow only if it contains a cell in mAtomRowMap_IndexColumn. 
+  // add ioRow only if it contains a cell in mAtomRowMap_IndexColumn.
 
   void  CutRow(morkEnv* ev, morkRow* ioRow);
-  // cut ioRow only if it contains a cell in mAtomRowMap_IndexColumn. 
+  // cut ioRow only if it contains a cell in mAtomRowMap_IndexColumn.
 
 public: // other map methods
 
@@ -311,12 +311,12 @@ public: // other map methods
 
   mork_bool  CutAid(morkEnv* ev, mork_aid inAid)
   { return this->CutInt(ev, inAid); }
-  // The CutAid() boolean return indicates whether removal happened. 
-  
+  // The CutAid() boolean return indicates whether removal happened.
+
   morkRow*   GetAid(morkEnv* ev, mork_aid inAid)
   { return (morkRow*) this->GetInt(ev, inAid); }
   // Note the returned space does NOT have an increase in refcount for this.
-  
+
 public: // dynamic type identification
   mork_bool IsAtomRowMap() const
   { return IsNode() && mNode_Derived == morkDerived_kAtomRowMap; }
@@ -325,7 +325,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakAtomRowMap(morkAtomRowMap* me,
     morkEnv* ev, morkAtomRowMap** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongAtomRowMap(morkAtomRowMap* me,
     morkEnv* ev, morkAtomRowMap** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
@@ -337,23 +337,23 @@ class morkAtomRowMapIter: public morkMapIter{ // typesafe wrapper class
 public:
   morkAtomRowMapIter(morkEnv* ev, morkAtomRowMap* ioMap)
   : morkMapIter(ev, ioMap) { }
- 
+
   morkAtomRowMapIter( ) : morkMapIter()  { }
   void InitAtomRowMapIter(morkEnv* ev, morkAtomRowMap* ioMap)
   { this->InitMapIter(ev, ioMap); }
-   
+
   mork_change*
   FirstAtomAndRow(morkEnv* ev, morkAtom** outAtom, morkRow** outRow)
   { return this->First(ev, outAtom, outRow); }
-  
+
   mork_change*
   NextAtomAndRow(morkEnv* ev, morkAtom** outAtom, morkRow** outRow)
   { return this->Next(ev, outAtom, outRow); }
-  
+
   mork_change*
   HereAtomAndRow(morkEnv* ev, morkAtom** outAtom, morkRow** outRow)
   { return this->Here(ev, outAtom, outRow); }
-  
+
   mork_change*
   CutHereAtomAndRow(morkEnv* ev, morkAtom** outAtom, morkRow** outRow)
   { return this->CutHere(ev, outAtom, outRow); }

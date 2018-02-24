@@ -54,19 +54,19 @@
 class morkUsage {
 public:
   mork_usage     mUsage_Code;  // kHeap, kStack, kMember, or kGhost
-  
+
 public:
   morkUsage(mork_usage inCode);
 
   morkUsage(); // does nothing except maybe call EnsureReadyStaticUsage()
   void InitUsage( mork_usage inCode)
   { mUsage_Code = inCode; }
-  
+
   ~morkUsage() { }
   mork_usage Code() const { return mUsage_Code; }
-  
+
   static void EnsureReadyStaticUsage();
-  
+
 public:
   static const morkUsage& kHeap;      // morkUsage_kHeap
   static const morkUsage& kStack;     // morkUsage_kStack
@@ -74,14 +74,14 @@ public:
   static const morkUsage& kGlobal;    // morkUsage_kGlobal
   static const morkUsage& kPool;      // morkUsage_kPool
   static const morkUsage& kNone;      // morkUsage_kNone
-  
+
   static const morkUsage& GetHeap();   // kHeap, safe at static init time
   static const morkUsage& GetStack();  // kStack, safe at static init time
   static const morkUsage& GetMember(); // kMember, safe at static init time
   static const morkUsage& GetGlobal(); // kGlobal, safe at static init time
   static const morkUsage& GetPool();   // kPool, safe at static init time
   static const morkUsage& GetNone();   // kNone, safe at static init time
-    
+
 };
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
@@ -112,44 +112,44 @@ public:
 class morkNode /*: public nsISupports */ { // base class for constructing Mork object graphs
 
 public: // state is public because the entire Mork system is private
-  
+
 //  NS_DECL_ISUPPORTS;
   nsIMdbHeap*    mNode_Heap;     // NON-refcounted heap pointer
 
   mork_base      mNode_Base;     // must equal morkBase_kNode
   mork_derived   mNode_Derived;  // depends on specific node subclass
-  
+
   mork_access    mNode_Access;   // kOpen, kClosing, kShut, or kDead
   mork_usage     mNode_Usage;    // kHeap, kStack, kMember, kGlobal, kNone
   mork_able      mNode_Mutable;  // can this node be modified?
   mork_load      mNode_Load;     // is this node clean or dirty?
-  
+
   mork_uses      mNode_Uses;     // refcount for strong refs
   mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
-  
+
 protected: // special case empty construction for morkHandleFrame
   friend class morkHandleFrame;
   morkNode() { }
-  
+
 public: // inlines for weird mNode_Mutable and mNode_Load constants
 
   void SetFrozen() { mNode_Mutable = morkAble_kDisabled; }
   void SetMutable() { mNode_Mutable = morkAble_kEnabled; }
   void SetAsleep() { mNode_Mutable = morkAble_kAsleep; }
-  
+
   mork_bool IsFrozen() const { return mNode_Mutable == morkAble_kDisabled; }
   mork_bool IsMutable() const { return mNode_Mutable == morkAble_kEnabled; }
   mork_bool IsAsleep() const { return mNode_Mutable == morkAble_kAsleep; }
 
   void SetNodeClean() { mNode_Load = morkLoad_kClean; }
   void SetNodeDirty() { mNode_Load = morkLoad_kDirty; }
-  
+
   mork_bool IsNodeClean() const { return mNode_Load == morkLoad_kClean; }
   mork_bool IsNodeDirty() const { return mNode_Load == morkLoad_kDirty; }
-  
+
 public: // morkNode memory management methods
   static void* MakeNew(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev);
-  
+
   void ZapOld(morkEnv* ev, nsIMdbHeap* ioHeap); // replaces operator delete()
   // this->morkNode::~morkNode(); // first call polymorphic destructor
   // if ( ioHeap ) // was this node heap allocated?
@@ -158,7 +158,7 @@ public: // morkNode memory management methods
 public: // morkNode memory management operators
   void* operator new(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev) CPP_THROW_NEW
   { return morkNode::MakeNew(inSize, ioHeap, ev); }
-  
+
 
 protected: // construction without an anv needed for first env constructed:
   morkNode(const morkUsage& inUsage, nsIMdbHeap* ioHeap);
@@ -179,7 +179,7 @@ public: // morkNode virtual methods
   // Each such static close method should either call inherited static close
   // methods, or else perform the consolidated effect of calling them, where
   // subclasses should closely track any changes in base classes with care.
-  
+
 public: // morkNode construction
   morkNode(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);
   void CloseNode(morkEnv* ev); // called by CloseMorkNode();
@@ -193,7 +193,7 @@ public: // dynamic type identification
   mork_bool IsNode() const
   { return mNode_Base == morkBase_kNode; }
 // } ===== end basic node methods =====
-    
+
 public: // public error & warning methods
 
   void RefsUnderUsesWarning(morkEnv* ev) const; // call if mNode_Refs < mNode_Uses
@@ -250,7 +250,7 @@ public: // other morkNode methods
 
   mork_bool HasNodeAccess() const
   { return ( IsOpenNode() || IsShutNode() || IsClosingNode() ); }
-    
+
   void MarkShut() { mNode_Access = morkAccess_kShut; }
   void MarkClosing() { mNode_Access = morkAccess_kClosing; }
   void MarkDead() { mNode_Access = morkAccess_kDead; }
@@ -262,7 +262,7 @@ public: // refcounting for typesafe subclass inline methods
   // calling AddWeakRef(), and if positive is returned to show success,
   // then this is put into slot *ioSlot.  Note me can be nil, so we
   // permit expression '((morkNode*) 0L)->SlotWeakNode(ev, &slot)'.
-  
+
   static void SlotStrongNode(morkNode* me, morkEnv* ev, morkNode** ioSlot);
   // If *ioSlot is non-nil, that node is released by CutStrongRef() and
   // then zeroed out.  Then if me is non-nil, this is acquired by

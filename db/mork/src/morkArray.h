@@ -37,12 +37,12 @@ public: // state is public because the entire Mork system is private
   mork_fill    mArray_Fill;  // logical count of used slots in mArray_Slots
   mork_size    mArray_Size;  // physical count of mArray_Slots ( >= Fill)
   mork_seed    mArray_Seed;  // change counter for syncing with iterators
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev) override; // CloseArray()
   virtual ~morkArray(); // assert that close executed earlier
-  
+
 public: // morkArray construction & destruction
   morkArray(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, mork_size inSize, nsIMdbHeap* ioSlotHeap);
@@ -67,17 +67,17 @@ public: // other table row cursor methods
 
   mork_fill  Length() const { return mArray_Fill; }
   mork_size  Capacity() const { return mArray_Size; }
-  
+
   mork_bool  Grow(morkEnv* ev, mork_size inNewSize);
   // Grow() returns true if capacity becomes >= inNewSize and ev->Good()
-  
+
   void*      At(mork_pos inPos) const { return mArray_Slots[ inPos ]; }
   void       AtPut(mork_pos inPos, void* ioSlot)
   { mArray_Slots[ inPos ] = ioSlot; }
-  
+
   void*      SafeAt(morkEnv* ev, mork_pos inPos);
   void       SafeAtPut(morkEnv* ev, mork_pos inPos, void* ioSlot);
-  
+
   mork_pos   AppendSlot(morkEnv* ev, void* ioSlot);
   void       AddSlot(morkEnv* ev, mork_pos inPos, void* ioSlot);
   void       CutSlot(morkEnv* ev, mork_pos inPos);
@@ -87,7 +87,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakArray(morkArray* me,
     morkEnv* ev, morkArray** ioSlot)
   { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-  
+
   static void SlotStrongArray(morkArray* me,
     morkEnv* ev, morkArray** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }

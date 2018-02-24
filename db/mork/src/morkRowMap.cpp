@@ -33,7 +33,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -77,11 +77,11 @@ morkRowMap::CloseRowMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 
 // { ===== begin morkMap poly interface =====
-/*virtual*/ mork_bool // 
+/*virtual*/ mork_bool //
 morkRowMap::Equal(morkEnv* ev, const void* inKeyA,
   const void* inKeyB) const
 {
@@ -89,7 +89,7 @@ morkRowMap::Equal(morkEnv* ev, const void* inKeyA,
   return (*(const morkRow**) inKeyA)->EqualRow(*(const morkRow**) inKeyB);
 }
 
-/*virtual*/ mork_u4 // 
+/*virtual*/ mork_u4 //
 morkRowMap::Hash(morkEnv* ev, const void* inKey) const
 {
   MORK_USED_1(ev);
@@ -103,7 +103,7 @@ morkRowMap::AddRow(morkEnv* ev, morkRow* ioRow)
 {
   if ( ev->Good() )
   {
-    this->Put(ev, &ioRow, /*val*/ (void*) 0, 
+    this->Put(ev, &ioRow, /*val*/ (void*) 0,
       /*key*/ (void*) 0, /*val*/ (void*) 0, (mork_change**) 0);
   }
   return ev->Good();
@@ -117,7 +117,7 @@ morkRowMap::CutOid(morkEnv* ev, const mdbOid* inOid)
   morkRow* oldKey = 0;
   this->Cut(ev, &key, &oldKey, /*val*/ (void*) 0,
     (mork_change**) 0);
-    
+
   return oldKey;
 }
 
@@ -127,7 +127,7 @@ morkRowMap::CutRow(morkEnv* ev, const morkRow* ioRow)
   morkRow* oldKey = 0;
   this->Cut(ev, &ioRow, &oldKey, /*val*/ (void*) 0,
     (mork_change**) 0);
-    
+
   return oldKey;
 }
 
@@ -138,7 +138,7 @@ morkRowMap::GetOid(morkEnv* ev, const mdbOid* inOid)
   morkRow* key = &row;
   morkRow* oldKey = 0;
   this->Get(ev, &key, &oldKey, /*val*/ (void*) 0, (mork_change**) 0);
-  
+
   return oldKey;
 }
 
@@ -147,7 +147,7 @@ morkRowMap::GetRow(morkEnv* ev, const morkRow* ioRow)
 {
   morkRow* oldKey = 0;
   this->Get(ev, &ioRow, &oldKey, /*val*/ (void*) 0, (mork_change**) 0);
-  
+
   return oldKey;
 }
 
@@ -155,7 +155,7 @@ morkRowMap::GetRow(morkEnv* ev, const morkRow* ioRow)
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
 /*public virtual*/ void
@@ -180,7 +180,7 @@ morkRowProbeMap::morkRowProbeMap(morkEnv* ev, const morkUsage& inUsage,
   nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap, mork_size inSlots)
 : morkProbeMap(ev, inUsage,  ioHeap,
   /*inKeySize*/ sizeof(morkRow*), /*inValSize*/ 0,
-  ioSlotHeap, inSlots, 
+  ioSlotHeap, inSlots,
   /*inHoldChanges*/ morkBool_kTrue)
 {
   if ( ev->Good() )
@@ -200,7 +200,7 @@ morkRowProbeMap::CloseRowProbeMap(morkEnv* ev) // called by CloseMorkNode();
 }
 
 // } ===== end morkNode methods =====
-// ````` ````` ````` ````` ````` 
+// ````` ````` ````` ````` `````
 
 /*virtual*/ mork_test // hit(a,b) implies hash(a) == hash(b)
 morkRowProbeMap::MapTest(morkEnv* ev, const void* inMapKey,
@@ -230,7 +230,7 @@ morkRowProbeMap::MapHash(morkEnv* ev, const void* inAppKey) const
   }
 }
 
-/*virtual*/ mork_u4 
+/*virtual*/ mork_u4
 morkRowProbeMap::ProbeMapHashMapKey(morkEnv* ev,
   const void* inMapKey) const
 {
@@ -249,7 +249,7 @@ morkRowProbeMap::AddRow(morkEnv* ev, morkRow* ioRow)
 {
   if ( ev->Good() )
   {
-    this->MapAtPut(ev, &ioRow, /*val*/ (void*) 0, 
+    this->MapAtPut(ev, &ioRow, /*val*/ (void*) 0,
       /*key*/ (void*) 0, /*val*/ (void*) 0);
   }
   return ev->Good();
@@ -260,7 +260,7 @@ morkRowProbeMap::CutOid(morkEnv* ev, const mdbOid* inOid)
 {
   MORK_USED_1(inOid);
   morkProbeMap::ProbeMapCutError(ev);
-    
+
   return 0;
 }
 
@@ -269,7 +269,7 @@ morkRowProbeMap::CutRow(morkEnv* ev, const morkRow* ioRow)
 {
   MORK_USED_1(ioRow);
   morkProbeMap::ProbeMapCutError(ev);
-    
+
   return 0;
 }
 
@@ -280,7 +280,7 @@ morkRowProbeMap::GetOid(morkEnv* ev, const mdbOid* inOid)
   morkRow* key = &row;
   morkRow* oldKey = 0;
   this->MapAt(ev, &key, &oldKey, /*val*/ (void*) 0);
-  
+
   return oldKey;
 }
 
@@ -289,7 +289,7 @@ morkRowProbeMap::GetRow(morkEnv* ev, const morkRow* ioRow)
 {
   morkRow* oldKey = 0;
   this->MapAt(ev, &ioRow, &oldKey, /*val*/ (void*) 0);
-  
+
   return oldKey;
 }
 

@@ -18,7 +18,7 @@
 
 #define orkinHeap_kTag 0x68456150 /* ascii 'hEaP' */
 
-/*| orkinHeap: 
+/*| orkinHeap:
 |*/
 class orkinHeap : public nsIMdbHeap { //
 protected:
@@ -27,7 +27,7 @@ protected:
 public:
   orkinHeap(); // does nothing
   virtual ~orkinHeap(); // does nothing
-    
+
 private: // copying is not allowed
   orkinHeap(const orkinHeap& other);
   orkinHeap& operator=(const orkinHeap& other);
@@ -36,9 +36,9 @@ public:
 
 // { ===== begin nsIMdbHeap methods =====
   NS_IMETHOD Alloc(nsIMdbEnv* ev, // allocate a piece of memory
-    mdb_size inSize,   // requested size of new memory block 
+    mdb_size inSize,   // requested size of new memory block
     void** outBlock);  // memory block of inSize bytes, or nil
-    
+
   NS_IMETHOD Free(nsIMdbEnv* ev, // free block allocated earlier by Alloc()
     void* inBlock);
 
