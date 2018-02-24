@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -10,14 +9,15 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
  * Asynchronous tools for handling calendar operations.
  */
 
-this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+this.EXPORTED_SYMBOLS = ["calasync"]; /* exported calasync */
+
 var cIOL = Components.interfaces.calIOperationListener;
 var cIC = Components.interfaces.calICalendar;
 
 var promisifyProxyHandler = {
     promiseOperation: function(target, name, args) {
         let deferred = PromiseUtils.defer();
-        let listener = cal.async.promiseOperationListener(deferred);
+        let listener = calasync.promiseOperationListener(deferred);
         args.push(listener);
         target[name](...args);
         return deferred.promise;
@@ -51,7 +51,7 @@ var promisifyProxyHandler = {
     }
 };
 
-cal.async = {
+var calasync = {
     /**
      * Creates a proxy to the given calendar where the CRUD operations are replaced
      * with versions that return a promise and don't take a listener.
