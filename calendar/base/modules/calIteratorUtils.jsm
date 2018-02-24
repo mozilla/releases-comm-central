@@ -2,145 +2,143 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
-/**
- * Iterates an array of items, i.e. the passed item including all
- * overridden instances of a recurring series.
- *
- * @param items array of items
- */
-cal.itemIterator = function* (items) {
-    for (let item of items) {
-        yield item;
-        let rec = item.recurrenceInfo;
-        if (rec) {
-            for (let exid of rec.getExceptionIds({})) {
-                yield rec.getExceptionFor(exid);
-            }
-        }
-    }
-};
+this.EXPORTED_SYMBOLS = ["caliterate"]; /* exported caliterate */
 
-/**
- * Runs the body() function once for each item in the iterator using the event
- * queue to make sure other actions could run inbetween. When all iterations are
- * done (and also when cal.forEach.BREAK is returned), calls the completed()
- * function if passed.
- *
- * If you would like to break or continue inside the body(), return either
- *     cal.forEach.BREAK or cal.forEach.CONTINUE
- *
- * Note since the event queue is used, this function will return immediately,
- * before the iteration is complete. If you need to run actions after the real
- * for each loop, use the optional completed() function.
- *
- * @param iter          The Iterator or the plain Object to go through in this
- *                      loop.
- * @param body          The function called for each iteration. Its parameter is
- *                          the single item from the iterator.
- * @param completed     [optional] The function called after the loop completes.
- */
-cal.forEach = function(iterable, body, completed) {
-    // This should be a const one day, lets keep it a pref for now though until we
-    // find a sane value.
-    let LATENCY = Preferences.get("calendar.threading.latency", 250);
-
-    if (typeof iterable == "object" && !iterable[Symbol.iterator]) {
-        iterable = Object.entries(iterable);
-    }
-
-    let ourIter = iterable[Symbol.iterator]();
-    let currentThread = Services.tm.currentThread;
-
-    // This is our dispatcher, it will be used for the iterations
-    let dispatcher = {
-        run: function() {
-            let startTime = (new Date()).getTime();
-            while (((new Date()).getTime() - startTime) < LATENCY) {
-                let next = ourIter.next();
-                let done = next.done;
-
-                if (!done) {
-                    let rc = body(next.value);
-                    if (rc == cal.forEach.BREAK) {
-                        done = true;
-                    }
-                }
-
-                if (done) {
-                    if (completed) {
-                        completed();
-                    }
-                    return;
+var caliterate = {
+    /**
+     * Iterates an array of items, i.e. the passed item including all
+     * overridden instances of a recurring series.
+     *
+     * @param {calIItemBase[]} items        array of items to iterate
+     * @yields {calIItemBase}
+     */
+    items: function* (items) {
+        for (let item of items) {
+            yield item;
+            let rec = item.recurrenceInfo;
+            if (rec) {
+                for (let exid of rec.getExceptionIds({})) {
+                    yield rec.getExceptionFor(exid);
                 }
             }
-
-            currentThread.dispatch(this, currentThread.DISPATCH_NORMAL);
         }
-    };
+    },
 
-    currentThread.dispatch(dispatcher, currentThread.DISPATCH_NORMAL);
-};
+    /**
+     * Runs the body() function once for each item in the iterator using the event queue to make
+     * sure other actions could run inbetween. When all iterations are done (and also when
+     * cal.iterate.forEach.BREAK is returned), calls the completed() function if passed.
+     *
+     * If you would like to break or continue inside the body(), return either
+     * cal.iterate.forEach.BREAK or cal.iterate.forEach.CONTINUE
+     *
+     * Note since the event queue is used, this function will return immediately, before the
+     * iteration is complete. If you need to run actions after the real for each loop, use the
+     * optional completed() function.
+     *
+     * @param {Iterable} iterable       The Iterator or the plain Object to go through in this loop.
+     * @param {Function} body           The function called for each iteration. Its parameter is the
+     *                                    single item from the iterator.
+     * @param {?Function} completed     [optional] The function called after the loop completes.
+     */
+    forEach: (() => {
+        // eslint-disable-next-line require-jsdoc
+        function forEach(iterable, body, completed=null) {
+            // This should be a const one day, lets keep it a pref for now though until we
+            // find a sane value.
+            let LATENCY = Preferences.get("calendar.threading.latency", 250);
 
-cal.forEach.CONTINUE = 1;
-cal.forEach.BREAK = 2;
+            if (typeof iterable == "object" && !iterable[Symbol.iterator]) {
+                iterable = Object.entries(iterable);
+            }
 
-/**
- * "ical" namespace. Used for all iterators (and possibly other functions) that
- * are related to libical.
- */
-cal.ical = {
+            let ourIter = iterable[Symbol.iterator]();
+            let currentThread = Services.tm.currentThread;
+
+            // This is our dispatcher, it will be used for the iterations
+            let dispatcher = {
+                run: function() {
+                    let startTime = (new Date()).getTime();
+                    while (((new Date()).getTime() - startTime) < LATENCY) {
+                        let next = ourIter.next();
+                        let done = next.done;
+
+                        if (!done) {
+                            let rc = body(next.value);
+                            if (rc == cal.forEach.BREAK) {
+                                done = true;
+                            }
+                        }
+
+                        if (done) {
+                            if (completed) {
+                                completed();
+                            }
+                            return;
+                        }
+                    }
+
+                    currentThread.dispatch(this, currentThread.DISPATCH_NORMAL);
+                }
+            };
+
+            currentThread.dispatch(dispatcher, currentThread.DISPATCH_NORMAL);
+        }
+        forEach.CONTINUE = 1;
+        forEach.BREAK = 2;
+
+        return forEach;
+    })(),
+
     /**
      *  Yields all subcomponents in all calendars in the passed component.
-     *  - If the passed component is an XROOT (contains multiple calendars),
-     *    then go through all VCALENDARs in it and get their subcomponents.
-     *  - If the passed component is a VCALENDAR, iterate through its direct
-     *    subcomponents.
-     *  - Otherwise assume the passed component is the item itself and yield
-     *    only the passed component.
+     *  - If the passed component is an XROOT (contains multiple calendars), then go through all
+     *    VCALENDARs in it and get their subcomponents.
+     *  - If the passed component is a VCALENDAR, iterate through its direct subcomponents.
+     *  - Otherwise assume the passed component is the item itself and yield only the passed
+     *    component.
      *
      * This iterator can only be used in a for..of block:
      *   for (let component of cal.ical.calendarComponentIterator(aComp)) { ... }
      *
-     *  @param aComponent       The component to iterate given the above rules.
-     *  @param aCompType        The type of item to iterate.
-     *  @return                 The iterator that yields all items.
+     *  @param {calIIcalComponent} aComponent   The component to iterate given the above rules.
+     *  @param {String} aCompType               The type of item to iterate.
+     *  @yields {calIIcalComponent}             The iterator that yields all items.
      */
-    calendarComponentIterator: function* (aComponent, aCompType) {
-        let compType = (aCompType || "ANY");
+    icalComponent: function* (aComponent, aCompType="ANY") {
         if (aComponent && aComponent.componentType == "VCALENDAR") {
-            yield* cal.ical.subcomponentIterator(aComponent, compType);
+            yield* cal.ical.subcomponentIterator(aComponent, aCompType);
         } else if (aComponent && aComponent.componentType == "XROOT") {
             for (let calComp of cal.ical.subcomponentIterator(aComponent, "VCALENDAR")) {
-                yield* cal.ical.subcomponentIterator(calComp, compType);
+                yield* cal.ical.subcomponentIterator(calComp, aCompType);
             }
-        } else if (aComponent && (compType == "ANY" || compType == aComponent.componentType)) {
+        } else if (aComponent && (aCompType == "ANY" || aCompType == aComponent.componentType)) {
             yield aComponent;
         }
     },
 
     /**
-     * Use to iterate through all subcomponents of a calIIcalComponent. This
-     * iterators depth is 1, this means no sub-sub-components will be iterated.
+     * Use to iterate through all subcomponents of a calIIcalComponent. This iterators depth is 1,
+     * this means no sub-sub-components will be iterated.
      *
      * This iterator can only be used in a for() block:
-     *   for (let component in cal.ical.subcomponentIterator(aComp)) { ... }
+     *   for (let component of cal.ical.subcomponentIterator(aComp)) { ... }
      *
-     * @param aComponent        The component who's subcomponents to iterate.
-     * @param aSubcomp          (optional) the specific subcomponent to
-     *                            enumerate. If not given, "ANY" will be used.
-     * @return                  An iterator object to iterate the properties.
+     * @param {calIIcalComponent} aComponent    The component who's subcomponents to iterate.
+     * @param {?String} aSubcomp                (optional) the specific subcomponent to enumerate.
+     *                                            If not given, "ANY" will be used.
+     * @yields {calIIcalComponent}              An iterator object to iterate the properties.
      */
-    subcomponentIterator: function* (aComponent, aSubcomp) {
-        let subcompName = (aSubcomp || "ANY");
-        for (let subcomp = aComponent.getFirstSubcomponent(subcompName);
+    icalSubcomponent: function* (aComponent, aSubcomp="ANY") {
+        for (let subcomp = aComponent.getFirstSubcomponent(aSubcomp);
              subcomp;
-             subcomp = aComponent.getNextSubcomponent(subcompName)) {
+             subcomp = aComponent.getNextSubcomponent(aSubcomp)) {
             yield subcomp;
         }
     },
@@ -148,18 +146,17 @@ cal.ical = {
     /**
      * Use to iterate through all properties of a calIIcalComponent.
      * This iterator can only be used in a for() block:
-     *   for (let property in cal.ical.propertyIterator(aComp)) { ... }
+     *   for (let property of cal.ical.propertyIterator(aComp)) { ... }
      *
-     * @param aComponent        The component to iterate.
-     * @param aProperty         (optional) the specific property to enumerate.
-     *                            If not given, "ANY" will be used.
-     * @return                  An iterator object to iterate the properties.
+     * @param {calIIcalComponent} aComponent    The component to iterate.
+     * @param {?String} aProperty               (optional) the specific property to enumerate.
+     *                                            If not given, "ANY" will be used.
+     * @yields {calIIcalProperty}               An iterator object to iterate the properties.
      */
-    propertyIterator: function* (aComponent, aProperty) {
-        let propertyName = (aProperty || "ANY");
-        for (let prop = aComponent.getFirstProperty(propertyName);
+    icalProperty: function* (aComponent, aProperty="ANY") {
+        for (let prop = aComponent.getFirstProperty(aProperty);
              prop;
-             prop = aComponent.getNextProperty(propertyName)) {
+             prop = aComponent.getNextProperty(aProperty)) {
             yield prop;
         }
     },
@@ -171,10 +168,10 @@ cal.ical = {
      * or:
      *   for (let [paramName, paramValue] of cal.ical.paramIterator(prop)) { ... }
      *
-     * @param aProperty         The property to iterate.
-     * @return                  An iterator object to iterate the properties.
+     * @param {calIIcalProperty} aProperty         The property to iterate.
+     * @yields {[String, String]}                  An iterator object to iterate the properties.
      */
-    paramIterator: function* (aProperty) {
+    icalParameter: function* (aProperty) {
         let paramSet = new Set();
         for (let paramName = aProperty.getFirstParameterName();
              paramName;

@@ -485,6 +485,7 @@ module.exports = {
         files: [
             "base/modules/calAuthUtils.jsm",
             "base/modules/calEmailUtils.jsm",
+            "base/modules/calIteratorUtils.jsm",
             "base/modules/calItipUtils.jsm",
             "base/modules/calUnifinderUtils.jsm",
             "base/modules/calL10NUtils.jsm",

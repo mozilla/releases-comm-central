@@ -395,6 +395,7 @@ XPCOMUtils.defineLazyModuleGetter(cal, "data", "resource://calendar/modules/calD
 XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDateTimeUtils.jsm", "caldtz");
 XPCOMUtils.defineLazyModuleGetter(cal, "email", "resource://calendar/modules/calEmailUtils.jsm", "calemail");
 XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/calItemUtils.jsm", "calitem");
+XPCOMUtils.defineLazyModuleGetter(cal, "iterate", "resource://calendar/modules/calIteratorUtils.jsm", "caliterate");
 XPCOMUtils.defineLazyModuleGetter(cal, "itip", "resource://calendar/modules/calItipUtils.jsm", "calitip");
 XPCOMUtils.defineLazyModuleGetter(cal, "l10n", "resource://calendar/modules/calL10NUtils.jsm", "call10n");
 XPCOMUtils.defineLazyModuleGetter(cal, "print", "resource://calendar/modules/calPrintUtils.jsm", "calprint");

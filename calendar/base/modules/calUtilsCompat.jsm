@@ -78,6 +78,16 @@ var migrations = {
         setItemProperty: "setItemProperty",
         getEventDefaultTransparency: "getEventDefaultTransparency"
     },
+    iterate: {
+        itemIterator: "items",
+        forEach: "forEach",
+        ical: {
+            calendarComponentIterator: "items",
+            subcomponentIterator: "icalSubcomponent",
+            propertyIterator: "icalProperty",
+            paramIterator: "icalParameter"
+        }
+    },
     itip: {
         getPublishLikeItemCopy: "getPublishLikeItemCopy",
         isInvitation: "isInvitation",
@@ -124,6 +134,7 @@ var migrations = {
     }
 };
 
+
 /**
  * Generate a forward function on the given global, for the namespace from the
  * migrations data.
@@ -133,7 +144,7 @@ var migrations = {
  * @param from          The function/property name being migrated from
  * @param to            The function/property name being migrated to
  */
-function generateForward(global, namespace, from, to) {
+function generateForward(global, namespace, from, to, targetGlobal=null) {
     // Protect from footguns
     if (typeof global[from] != "undefined") {
         throw new Error(from + " is already defined on the cal. namespace!");
@@ -141,7 +152,7 @@ function generateForward(global, namespace, from, to) {
 
     global[from] = function(...args) {
         let suffix = "";
-        let target = global[namespace][to];
+        let target = (targetGlobal || global)[namespace][to];
         if (typeof target == "function") {
             target = target(...args);
             suffix = "()";
@@ -163,7 +174,14 @@ function generateForward(global, namespace, from, to) {
 function injectCalUtilsCompat(global) {
     for (let [namespace, nsdata] of Object.entries(migrations)) {
         for (let [from, to] of Object.entries(nsdata)) {
-            generateForward(global, namespace, from, to);
+            if (typeof to == "object") {
+                global[from] = {};
+                for (let [frominner, toinner] of Object.entries(to)) {
+                    generateForward(global[from], namespace, frominner, toinner, global);
+                }
+            } else {
+                generateForward(global, namespace, from, to);
+            }
         }
     }
 

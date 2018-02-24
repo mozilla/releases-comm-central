@@ -6,10 +6,10 @@
  *          getIcalUTC, getDatetimeFromIcalProp, getWcapString
  */
 
-ChromeUtils.import("resource://calendar/modules/calIteratorUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var g_bShutdown = false;
 

@@ -455,7 +455,7 @@ var calitem = {
         }
 
         function normalizeProperty(prop) {
-            let params = [...cal.ical.paramIterator(prop)]
+            let params = [...cal.iterate.icalParameter(prop)]
                 .filter(([k, v]) => !(prop.propertyName in ignoreParams) ||
                        !(k in ignoreParams[prop.propertyName]))
                 .map(([k, v]) => k + "=" + v)
