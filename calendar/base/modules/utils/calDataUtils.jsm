@@ -6,6 +6,13 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
+/*
+ * Data structures and algorithms used within the codebase
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.data namespace.
+
 this.EXPORTED_SYMBOLS = ["caldata"]; /* exported caldata */
 
 class PropertyMap extends Map {

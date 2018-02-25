@@ -5,6 +5,13 @@
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+/*
+ * Calendar window helpers, e.g. to open our dialogs
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.window namespace.
+
 this.EXPORTED_SYMBOLS = ["calwindow"]; /* exported calwindow */
 
 var calwindow = {

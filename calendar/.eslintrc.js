@@ -483,13 +483,13 @@ module.exports = {
     },
     "overrides": [{
         files: [
-            "base/modules/calAuthUtils.jsm",
-            "base/modules/calEmailUtils.jsm",
-            "base/modules/calIteratorUtils.jsm",
-            "base/modules/calItipUtils.jsm",
-            "base/modules/calUnifinderUtils.jsm",
-            "base/modules/calL10NUtils.jsm",
-            "base/modules/calProviderUtils.jsm",
+            "base/modules/utils/calAuthUtils.jsm",
+            "base/modules/utils/calEmailUtils.jsm",
+            "base/modules/utils/calIteratorUtils.jsm",
+            "base/modules/utils/calItipUtils.jsm",
+            "base/modules/utils/calL10NUtils.jsm",
+            "base/modules/utils/calProviderUtils.jsm",
+            "base/modules/utils/calUnifinderUtils.jsm",
         ],
         rules: {
             "require-jsdoc": [2, { require: { ClassDeclaration: true } }],

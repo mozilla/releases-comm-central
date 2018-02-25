@@ -4,6 +4,13 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+/*
+ * Localization and locale functions
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.l10n namespace.
+
 this.EXPORTED_SYMBOLS = ["call10n"]; /* exported call10n */
 
 /**

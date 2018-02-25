@@ -46,7 +46,6 @@ FINAL_TARGET_FILES['calendar-js'] += [
     'calTimezone.js',
     'calTodo.js',
     'calTransactionManager.js',
-    'calUtils.js',
     'calWeekInfoService.js',
 ]
 

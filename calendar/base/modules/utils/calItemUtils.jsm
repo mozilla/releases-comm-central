@@ -11,6 +11,13 @@ ChromeUtils.import("resource://calendar/modules/calHashedArray.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
+/*
+ * Calendar item related functions
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.item namespace.
+
 this.EXPORTED_SYMBOLS = ["calitem", "itemDiff"]; /* exported calitem, itemDiff */
 
 var calitem = {

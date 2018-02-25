@@ -9,8 +9,11 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
 /*
- * Authentication helper code
+ * Authentication tools and prompts, mostly for providers
  */
+
+// NOTE: This module should not be loaded directly, it is available when including
+// calUtils.jsm under the cal.auth namespace.
 
 this.EXPORTED_SYMBOLS = ["calauth"]; /* exported calauth */
 

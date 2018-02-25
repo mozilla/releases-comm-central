@@ -6,12 +6,18 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.import("resource:///modules/mailServices.js");
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-/**
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+
+/*
  * Scheduling and iTIP helper code
  */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.itip namespace.
+
 this.EXPORTED_SYMBOLS = ["calitip"]; /* exported calitip */
+
 var calitip = {
     /**
      * Gets the sequence/revision number, either of the passed item or the last received one of an

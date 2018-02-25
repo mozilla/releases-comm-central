@@ -386,24 +386,24 @@ XPCOMUtils.defineLazyPreferenceGetter(cal, "debugLogEnabled", "calendar.debug.lo
 XPCOMUtils.defineLazyPreferenceGetter(cal, "threadingEnabled", "calendar.threading.disabled", false);
 
 // Sub-modules for calUtils
-XPCOMUtils.defineLazyModuleGetter(cal, "acl", "resource://calendar/modules/calACLUtils.jsm", "calacl");
-XPCOMUtils.defineLazyModuleGetter(cal, "alarms", "resource://calendar/modules/calAlarmUtils.jsm", "calalarms");
-XPCOMUtils.defineLazyModuleGetter(cal, "async", "resource://calendar/modules/calAsyncUtils.jsm", "calasync");
-XPCOMUtils.defineLazyModuleGetter(cal, "auth", "resource://calendar/modules/calAuthUtils.jsm", "calauth");
-XPCOMUtils.defineLazyModuleGetter(cal, "category", "resource://calendar/modules/calCategoryUtils.jsm", "calcategory");
-XPCOMUtils.defineLazyModuleGetter(cal, "data", "resource://calendar/modules/calDataUtils.jsm", "caldata");
-XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDateTimeUtils.jsm", "caldtz");
-XPCOMUtils.defineLazyModuleGetter(cal, "email", "resource://calendar/modules/calEmailUtils.jsm", "calemail");
-XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/calItemUtils.jsm", "calitem");
-XPCOMUtils.defineLazyModuleGetter(cal, "iterate", "resource://calendar/modules/calIteratorUtils.jsm", "caliterate");
-XPCOMUtils.defineLazyModuleGetter(cal, "itip", "resource://calendar/modules/calItipUtils.jsm", "calitip");
-XPCOMUtils.defineLazyModuleGetter(cal, "l10n", "resource://calendar/modules/calL10NUtils.jsm", "call10n");
-XPCOMUtils.defineLazyModuleGetter(cal, "print", "resource://calendar/modules/calPrintUtils.jsm", "calprint");
-XPCOMUtils.defineLazyModuleGetter(cal, "provider", "resource://calendar/modules/calProviderUtils.jsm", "calprovider");
-XPCOMUtils.defineLazyModuleGetter(cal, "unifinder", "resource://calendar/modules/calUnifinderUtils.jsm", "calunifinder");
-XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/calViewUtils.jsm", "calview");
-XPCOMUtils.defineLazyModuleGetter(cal, "window", "resource://calendar/modules/calWindowUtils.jsm", "calwindow");
-XPCOMUtils.defineLazyModuleGetter(cal, "xml", "resource://calendar/modules/calXMLUtils.jsm", "calxml");
+XPCOMUtils.defineLazyModuleGetter(cal, "acl", "resource://calendar/modules/utils/calACLUtils.jsm", "calacl");
+XPCOMUtils.defineLazyModuleGetter(cal, "alarms", "resource://calendar/modules/utils/calAlarmUtils.jsm", "calalarms");
+XPCOMUtils.defineLazyModuleGetter(cal, "async", "resource://calendar/modules/utils/calAsyncUtils.jsm", "calasync");
+XPCOMUtils.defineLazyModuleGetter(cal, "auth", "resource://calendar/modules/utils/calAuthUtils.jsm", "calauth");
+XPCOMUtils.defineLazyModuleGetter(cal, "category", "resource://calendar/modules/utils/calCategoryUtils.jsm", "calcategory");
+XPCOMUtils.defineLazyModuleGetter(cal, "data", "resource://calendar/modules/utils/calDataUtils.jsm", "caldata");
+XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/utils/calDateTimeUtils.jsm", "caldtz");
+XPCOMUtils.defineLazyModuleGetter(cal, "email", "resource://calendar/modules/utils/calEmailUtils.jsm", "calemail");
+XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/utils/calItemUtils.jsm", "calitem");
+XPCOMUtils.defineLazyModuleGetter(cal, "iterate", "resource://calendar/modules/utils/calIteratorUtils.jsm", "caliterate");
+XPCOMUtils.defineLazyModuleGetter(cal, "itip", "resource://calendar/modules/utils/calItipUtils.jsm", "calitip");
+XPCOMUtils.defineLazyModuleGetter(cal, "l10n", "resource://calendar/modules/utils/calL10NUtils.jsm", "call10n");
+XPCOMUtils.defineLazyModuleGetter(cal, "print", "resource://calendar/modules/utils/calPrintUtils.jsm", "calprint");
+XPCOMUtils.defineLazyModuleGetter(cal, "provider", "resource://calendar/modules/utils/calProviderUtils.jsm", "calprovider");
+XPCOMUtils.defineLazyModuleGetter(cal, "unifinder", "resource://calendar/modules/utils/calUnifinderUtils.jsm", "calunifinder");
+XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/utils/calViewUtils.jsm", "calview");
+XPCOMUtils.defineLazyModuleGetter(cal, "window", "resource://calendar/modules/utils/calWindowUtils.jsm", "calwindow");
+XPCOMUtils.defineLazyModuleGetter(cal, "xml", "resource://calendar/modules/utils/calXMLUtils.jsm", "calxml");
 
 /**
  * Returns a function that provides access to the given service.
@@ -456,14 +456,6 @@ function shutdownCleanup(obj, prop) {
     }
     shutdownCleanup.mEntries.push({ mObj: obj, mProp: prop });
 }
-
-// Interim import of all symbols into cal:
-// This should serve as a clean start for new code, e.g. new code could use
-// cal.createDatetime instead of plain createDatetime NOW.
-cal.loadScripts(["calUtils.js"], cal);
-// Some functions in calUtils.js refer to other in the same file, thus include
-// the code in global scope (although only visible to this module file), too:
-cal.loadScripts(["calUtils.js"], Components.utils.getGlobalForObject(cal));
 
 // Backwards compatibility for bug 905097. Please remove with Thunderbird 61.
 ChromeUtils.import("resource://calendar/modules/calUtilsCompat.jsm");

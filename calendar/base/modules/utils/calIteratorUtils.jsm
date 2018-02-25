@@ -8,6 +8,13 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
+/*
+ * Iterators for various data structures
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.iterate namespace.
+
 this.EXPORTED_SYMBOLS = ["caliterate"]; /* exported caliterate */
 
 var caliterate = {

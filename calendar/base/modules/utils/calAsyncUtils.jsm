@@ -6,8 +6,11 @@ ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /*
- * Asynchronous tools for handling calendar operations.
+ * Asynchronous tools for handling calendar operations
  */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.async namespace.
 
 this.EXPORTED_SYMBOLS = ["calasync"]; /* exported calasync */
 

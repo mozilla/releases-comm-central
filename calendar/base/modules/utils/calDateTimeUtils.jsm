@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
- * date, time and timezone related functions via cal.dtz.*
- *
- * NOTE this module should never be imported directly. Instead, load
- * calUtils.jsm and accss them via cal.dtz.*
- */
-
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+
+/*
+ * Date, time and timezone related functions
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.dtz namespace.
 
 this.EXPORTED_SYMBOLS = ["caldtz"]; /* exported caldtz */
 

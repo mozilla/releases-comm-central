@@ -7,6 +7,13 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
+/*
+ * Helpers for manipulating calendar alarms
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.alarm namespace.
+
 this.EXPORTED_SYMBOLS = ["calalarms"]; /* exported calalarms */
 
 var calalarms = {

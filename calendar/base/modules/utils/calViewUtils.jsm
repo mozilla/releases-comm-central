@@ -6,6 +6,13 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
+/*
+ * View and DOM related helper functions
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.view namespace.
+
 this.EXPORTED_SYMBOLS = ["calview"]; /* exported calview */
 
 var calview = {

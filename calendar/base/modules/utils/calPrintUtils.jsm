@@ -7,6 +7,13 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
+/*
+ * Helpers for printing and print preparation
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.print namespace.
+
 this.EXPORTED_SYMBOLS = ["calprint"]; /* exported calprint */
 
 var calprint = {

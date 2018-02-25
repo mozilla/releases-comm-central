@@ -11,8 +11,11 @@ ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
 /*
- * Provider helper code
+ * Helpers and base class for calendar providers
  */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.provider namespace.
 
 this.EXPORTED_SYMBOLS = ["calprovider"]; /* exported calprovider */
 
