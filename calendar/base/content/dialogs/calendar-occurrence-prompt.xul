@@ -45,7 +45,7 @@
           }
 
           // Set up title and type label
-          document.title = getDString(`windowtitle.${itemType}.action`);
+          document.title = getDString(`windowtitle.${itemType}.${action}`);
           let title = document.getElementById("title-label");
           if (multiple == "multiple") {
               title.value = getDString("windowtitle.multipleitems");
