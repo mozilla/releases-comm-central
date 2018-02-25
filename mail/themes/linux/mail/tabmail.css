@@ -21,6 +21,11 @@
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar-drag");
 }
 
+#tabs-toolbar:not(:-moz-lwtheme) {
+  -moz-appearance: menubar;
+  color: -moz-menubartext;
+}
+
 #tabpanelcontainer:-moz-lwtheme {
   color: inherit;
 }
