@@ -814,6 +814,13 @@ function parseAddressingHeader(header, doRFC2047) {
    * @param {String} addrSpec      addr-spec as per RFC 5322
    */
   function addToAddrList(displayName, addrSpec) {
+    // Keep the local-part quoted if it needs to be.
+    let lp = addrSpec.substring(0, addrSpec.lastIndexOf("@"));
+    if (/[ !()<>\[\]:;@\\,"]/.exec(lp) !== null) {
+      addrSpec = '"' + lp.replace(/([\\"])/g, "\\$1") + '"' +
+                 addrSpec.substring(addrSpec.lastIndexOf("@"));
+    }
+
     if (displayName === '' && lastComment !== '') {
       // Take last comment content as the display-name.
       let offset = lastComment[0] === ' ' ? 2 : 1;
@@ -886,9 +893,6 @@ function parseAddressingHeader(header, doRFC2047) {
         // The remainder of this mailbox is part of an addr-spec.
         inAngle = true;
       }
-      // Keep the local-part quoted if it needs to be.
-      if (/[ !()<>\[\]:;@\\,"]/.exec(address) !== null)
-        address = '"' + address.replace(/([\\"])/g, "\\$1") + '"';
       address += '@';
     } else if (token === ',') {
       // A comma ends the current name. If we have something that's kind of a
