@@ -15,7 +15,7 @@ ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 ChromeUtils.import("resource:///modules/OAuth2.jsm");
 ChromeUtils.import("resource://gre/modules/Http.jsm");
 
-Cu.importGlobalProperties(["File", "XMLHttpRequest"]);
+Cu.importGlobalProperties(["File", "FormData", "XMLHttpRequest"]);
 
 var gServerUrl = "https://api.box.com/2.0/";
 var gUploadUrl = "https://upload.box.com/api/2.0/";
@@ -777,8 +777,7 @@ nsBoxFileUploader.prototype = {
 
     // Encode the form.
     File.createFromNsIFile(this.file).then(file => {
-      let form = Cc["@mozilla.org/files/formdata;1"]
-                   .createInstance(Ci.nsIDOMFormData);
+      let form = new FormData();
       form.append("filename", file, this.file.leafName);
       form.append("parent_id", this.box._cachedFolderId);
 
