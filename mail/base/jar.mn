@@ -5,7 +5,7 @@ messenger.jar:
 % content messenger %content/messenger/
 % override chrome://global/content/nsDragAndDrop.js chrome://messenger/content/nsDragAndDrop.js
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
-% overlay chrome://global/content/viewSource.xul chrome://messenger/content/viewSourceOverlay.xul
+% overlay chrome://messenger/content/viewSource.xul chrome://messenger/content/viewSourceOverlay.xul
 % overlay chrome://global/content/config.xul chrome://messenger/content/configEditorOverlay.xul
 % overlay chrome://editor/content/EdSpellCheck.xul chrome://messenger/content/EdSpellCheckOverlay.xul
 % overlay about:addons chrome://messenger/content/extensionsOverlay.xul
@@ -40,6 +40,9 @@ messenger.jar:
     content/messenger/customizeToolbar.css          (../../common/src/customizeToolbar.css)
     content/messenger/customizeToolbar.js           (../../common/src/customizeToolbar.js)
 *   content/messenger/customizeToolbar.xul          (../../common/src/customizeToolbar.xul)
+    content/messenger/viewSource.css                (../../common/src/viewSource.css)
+    content/messenger/viewSource.js                 (../../common/src/viewSource.js)
+*   content/messenger/viewSource.xul                (../../common/src/viewSource.xul)
 *   content/messenger/datetimepicker.xml            (../../common/bindings/datetimepicker.xml)
     content/messenger/generalBindings.xml           (../../common/bindings/generalBindings.xml)
 *   content/messenger/toolbar.xml                   (../../common/bindings/toolbar.xml)

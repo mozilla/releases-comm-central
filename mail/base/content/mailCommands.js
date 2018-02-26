@@ -508,7 +508,7 @@ function ViewPageSource(messages)
       // Strip out the message-display parameter to ensure that attached emails
       // display the message source, not the processed HTML.
       url = url.replace(/type=application\/x-message-display&/, "");
-      window.openDialog("chrome://global/content/viewSource.xul",
+      window.openDialog("chrome://messenger/content/viewSource.xul",
                         "_blank", "all,dialog=no",
                         {URL: url, browser: browser,
                          outerWindowID: browser.outerWindowID});
