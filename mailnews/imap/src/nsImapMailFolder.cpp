@@ -813,11 +813,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(nsIMsgWindow *aMsgWindo
       m_urlListener = aUrlListener;
     }
 
-    if (rv == NS_MSG_ERROR_OFFLINE)
-    {
-      if (aMsgWindow)
-        AutoCompact(aMsgWindow);
-    }
+    // Allow IMAP folder auto-compact to occur when online or offline.
+    if (aMsgWindow)
+      AutoCompact(aMsgWindow);
 
     if (rv == NS_MSG_ERROR_OFFLINE || rv == NS_BINDING_ABORTED)
     {
