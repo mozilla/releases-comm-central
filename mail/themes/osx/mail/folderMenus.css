@@ -97,6 +97,11 @@
   -moz-image-region: rect(0 96px 16px 80px);
 }
 
+.folderMenuItem > .menu-right {
+  width: 9px;
+  height: 10px;
+}
+
 @media (min-resolution: 2dppx) {
   .folderMenuItem > .menu-iconic-left > .menu-iconic,
   .folderMenuItem > .menulist-label-box > .menulist-icon {
