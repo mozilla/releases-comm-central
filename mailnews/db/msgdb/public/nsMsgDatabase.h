@@ -131,8 +131,6 @@ class MsgDBReporter;
 
 class nsMsgDatabase : public nsIMsgDatabase
 {
-  using PathChar = mozilla::filesystem::Path::value_type;
-  using PathString = mozilla::PathString;
 public:
   friend class nsMsgDBService;
   friend class nsMsgPropertyEnumerator; // accesses m_mdbEnv and m_mdbStore
@@ -165,7 +163,7 @@ public:
   nsresult OpenInternal(nsMsgDBService *aDBService, nsIFile *aFolderName,
                         bool aCreate, bool aLeaveInvalidDB, bool sync);
   nsresult CheckForErrors(nsresult err, bool sync, nsMsgDBService *aDBService, nsIFile *summaryFile);
-  virtual nsresult OpenMDB(const PathChar *dbName, bool create, bool sync);
+  virtual nsresult OpenMDB(nsIFile *dbfile, bool create, bool sync);
   virtual nsresult CloseMDB(bool commit);
   virtual nsresult CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key, nsIMsgDBHdr **result);
   virtual nsresult GetThreadForMsgKey(nsMsgKey msgKey, nsIMsgThread **result);
@@ -319,7 +317,7 @@ protected:
   bool m_create;
   bool m_leaveInvalidDB;
 
-  PathString    m_dbName;
+  nsCOMPtr<nsIFile> m_dbFile;
   nsTArray<nsMsgKey> m_newSet;  // new messages since last open.
   bool          m_mdbTokensInitialized;
   nsTObserverArray<nsCOMPtr<nsIDBChangeListener> > m_ChangeListeners;
