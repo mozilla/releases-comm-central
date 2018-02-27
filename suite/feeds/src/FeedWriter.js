@@ -281,7 +281,7 @@ FeedWriter.prototype = {
   get _dateFormatter() {
     if (!this.__dateFormatter) {
       const dtOptions = { timeStyle: "short", dateStyle: "long" };
-      this.__dateFormatter = Services.intl.createDateTimeFormat(undefined, dtOptions);
+      this.__dateFormatter = new Services.intl.DateTimeFormat(undefined, dtOptions);
     }
     return this.__dateFormatter;
   },

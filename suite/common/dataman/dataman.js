@@ -985,7 +985,7 @@ var gCookies = {
       // See bug 238045 for details.
       let expiry = "";
       try {
-        const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+        const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
                                   dateStyle: "full", timeStyle: "long" });
         expiry = dateTimeFormatter.format(date);
       }
@@ -2862,7 +2862,7 @@ var gFormdata = {
       // See bug 238045 for details.
       let dtString = "";
       try {
-        const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+        const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
                                   dateStyle: "full", timeStyle: "long" });
         dtString = dateTimeFormatter.format(date);
       }

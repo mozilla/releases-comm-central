@@ -170,7 +170,7 @@ function GetExpiresString(expires) {
     // see bug 238045 for details
     var expiry = "";
     try {
-      const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+      const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
                                 dateStyle: "full", timeStyle: "long" });
       expiry = dateTimeFormatter.format(date);
     } catch(ex) {

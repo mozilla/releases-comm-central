@@ -251,13 +251,13 @@ function DisplayCardViewPane(realCard)
         // due to time zone/dst discontinuity
         date = new Date(Date.UTC(year, month - 1, day));
         date.setUTCFullYear(year); // to handle two-digit years properly
-        formatter = Services.intl.createDateTimeFormat(undefined,
+        formatter = new Services.intl.DateTimeFormat(undefined,
                        { dateStyle: "long", timeZone: "UTC" });
       }
       // if the year doesn't exist, display Month DD (ex. January 1)
       else {
         date = new Date(Date.UTC(saneBirthYear(year), month - 1, day));
-        formatter = Services.intl.createDateTimeFormat(undefined,
+        formatter = new Services.intl.DateTimeFormat(undefined,
                       { month: "long", day: "numeric", timeZone: "UTC" });
       }
       dateStr = formatter.format(date);

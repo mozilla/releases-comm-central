@@ -277,7 +277,7 @@
       <method name="properFormatTime">
         <parameter name="aTime"/>
         <body><![CDATA[
-          const dateServ = Services.intl.createDateTimeFormat(undefined, {
+          const dateServ = new Services.intl.DateTimeFormat(undefined, {
             dateStyle: "short", timeStyle: "long"
           });
           return dateServ.format(aTime);
