@@ -584,7 +584,15 @@ function invokeEventDragSession(aItem, aXULBox) {
                    .createInstance(Components.interfaces.nsIMutableArray);
     mutArray.appendElement(transfer);
     aXULBox.sourceObject = aItem;
-    cal.getDragService().invokeDragSession(aXULBox, "", mutArray, null, action);
+    try {
+        cal.getDragService().invokeDragSession(aXULBox, "", mutArray, null, action);
+    } catch (e) {
+        if (e.result != Components.results.NS_ERROR_FAILURE) {
+            // Pressing Escape on some platforms results in NS_ERROR_FAILURE
+            // being thrown. Catch this exception, but throw anything else.
+            throw e;
+        }
+    }
 }
 
 var calendarViewDNDObserver = new calViewDNDObserver();
