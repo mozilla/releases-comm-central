@@ -51,7 +51,7 @@
                              + ' (' + xai.platformBuildID + ')';
 
           versionField = document.getElementById("libpurpleVersionField");
-          if ("@instantbird.org/libpurple/core;1" in Components.classes) {
+          if ("@instantbird.org/libpurple/core;1" in Cc) {
             var pcs = Cc["@instantbird.org/libpurple/core;1"]
                         .getService(Ci.purpleICoreService);
             versionField.value = versionField.value + pcs.version;

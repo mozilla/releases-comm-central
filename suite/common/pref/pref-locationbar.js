@@ -8,7 +8,7 @@ function Startup()
   // return results from local browsing "history", even if autocomplete.enabled
   // is turned off, so we'll need to remove the dependent look in the ui.
 
-  if ("@mozilla.org/autocomplete/search;1?name=file" in Components.classes)
+  if ("@mozilla.org/autocomplete/search;1?name=file" in Cc)
   {
     // We indent the checkboxes with the class attribute set to "indent", so
     // just remove the attribute.

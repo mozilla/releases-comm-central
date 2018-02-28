@@ -7,7 +7,7 @@ var gDictCount = 0;
 var gLastSelectedLang;
 
 function Startup() {
-  if ("@mozilla.org/spellchecker;1" in Components.classes)
+  if ("@mozilla.org/spellchecker;1" in Cc)
     InitLanguageMenu();
   else
   {

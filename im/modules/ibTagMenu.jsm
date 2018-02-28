@@ -4,7 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ["TagMenu"];
 
-var Cu = Components.utils;
 ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 

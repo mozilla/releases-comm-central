@@ -61,7 +61,7 @@ var MailMigrator = {
    */
   migrateToClearTypeFonts: function MailMigrator_migrateToClearTypeFonts() {
     // Windows...
-    if ("@mozilla.org/windows-registry-key;1" in Components.classes) {
+    if ("@mozilla.org/windows-registry-key;1" in Cc) {
       // Only migrate on Vista (Windows version 6.0) and above
       if (Services.sysinfo.getPropertyAsDouble("version") >= 6.0) {
         let fontPrefVersion =

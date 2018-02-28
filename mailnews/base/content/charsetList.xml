@@ -57,8 +57,6 @@
         // Selecting appropiate menu item corresponding to preference stored
         // value.
         if (this.hasAttribute("preference")) {
-          const Ci = Components.interfaces;
-
           let preference = Services.prefs.getComplexValue(
             this.getAttribute("preference"), Ci.nsIPrefLocalizedString);
           this.value = preference.data;

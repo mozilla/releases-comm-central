@@ -241,10 +241,10 @@ SuiteGlue.prototype = {
         Downloads.getList(Downloads.ALL).then(list => list.addView(this))
                                         .then(() => gDownloadsLoaded = true);
 
-        if ("@mozilla.org/widget/macdocksupport;1" in Components.classes)
+        if ("@mozilla.org/widget/macdocksupport;1" in Cc)
           gTaskbarProgress = Cc["@mozilla.org/widget/macdocksupport;1"]
                                .getService(Ci.nsITaskbarProgress);
-        else if ("@mozilla.org/windows-taskbar;1" in Components.classes) {
+        else if ("@mozilla.org/windows-taskbar;1" in Cc) {
           gWinTaskbar = Cc["@mozilla.org/windows-taskbar;1"]
                           .getService(Ci.nsIWinTaskbar);
           if (!gWinTaskbar.available) {
@@ -637,7 +637,7 @@ SuiteGlue.prototype = {
     if (this._shouldShowRights())
       this._showRightsNotification(notifyBox);
 
-    if ("@mozilla.org/windows-taskbar;1" in Components.classes &&
+    if ("@mozilla.org/windows-taskbar;1" in Cc &&
         Cc["@mozilla.org/windows-taskbar;1"]
           .getService(Ci.nsIWinTaskbar).available) {
       let temp = {};
@@ -920,7 +920,7 @@ SuiteGlue.prototype = {
   _checkForDefaultClient: function checkForDefaultClient(aWindow)
   {
     const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1";
-    if (NS_SHELLSERVICE_CID in Components.classes) try {
+    if (NS_SHELLSERVICE_CID in Cc) try {
       var nsIShellService = Ci.nsIShellService;
 
       var shellService = Cc[NS_SHELLSERVICE_CID]

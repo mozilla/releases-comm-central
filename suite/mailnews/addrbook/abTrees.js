@@ -173,7 +173,7 @@ directoryTreeView.prototype =
           return "cab";
         if (aDir._directory instanceof Ci.nsIAbMDBDirectory)
           return "mork";
-        if ("nsIAbLDAPDirectory" in Components.interfaces &&
+        if ("nsIAbLDAPDirectory" in Ci &&
             aDir._directory instanceof Ci.nsIAbLDAPDirectory)
           return "ldap";
         return "mapi+other";

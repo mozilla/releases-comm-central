@@ -702,7 +702,7 @@ function Startup()
   window.browserDOMWindow = new nsBrowserAccess();
 
   // hook up remote support
-  if (!gPrivate && REMOTESERVICE_CONTRACTID in Components.classes) {
+  if (!gPrivate && REMOTESERVICE_CONTRACTID in Cc) {
     var remoteService =
       Cc[REMOTESERVICE_CONTRACTID]
         .getService(Ci.nsIRemoteService);
@@ -2542,15 +2542,14 @@ function maybeInitPopupContext()
 
   try {
     // are we a popup window?
-    const CI = Components.interfaces;
     var xulwin = window
-                 .QueryInterface(CI.nsIInterfaceRequestor)
-                 .getInterface(CI.nsIWebNavigation)
-                 .QueryInterface(CI.nsIDocShellTreeItem).treeOwner
-                 .QueryInterface(CI.nsIInterfaceRequestor)
-                 .getInterface(CI.nsIXULWindow);
+                 .QueryInterface(Ci.nsIInterfaceRequestor)
+                 .getInterface(Ci.nsIWebNavigation)
+                 .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
+                 .QueryInterface(Ci.nsIInterfaceRequestor)
+                 .getInterface(Ci.nsIXULWindow);
     if (xulwin.contextFlags &
-        CI.nsIWindowCreator2.PARENT_IS_LOADING_OR_RUNNING_TIMEOUT) {
+        Ci.nsIWindowCreator2.PARENT_IS_LOADING_OR_RUNNING_TIMEOUT) {
       // return our opener's URI
       return Services.io.newURI(window.content.opener.location.href);
     }
@@ -2640,20 +2639,16 @@ function isClosingLastBrowser() {
  */
 function getCurrentURI()
 {
-  const CI = Components.interfaces;
-
   var focusedWindow = document.commandDispatcher.focusedWindow;
   var contentFrame = isContentFrame(focusedWindow) ? focusedWindow : window.content;
 
-  var nav = contentFrame.QueryInterface(CI.nsIInterfaceRequestor)
-                        .getInterface(CI.nsIWebNavigation);
+  var nav = contentFrame.QueryInterface(Ci.nsIInterfaceRequestor)
+                        .getInterface(Ci.nsIWebNavigation);
   return nav.currentURI;
 }
 
 function uploadFile(fileURL)
 {
-  const CI = Components.interfaces;
-
   var targetBaseURI = getCurrentURI();
 
   // generate the target URI.  we use fileURL.file.leafName to get the
@@ -2663,7 +2658,7 @@ function uploadFile(fileURL)
   // parameter since we want the URI to inherit the origin charset
   // property from targetBaseURI.
 
-  var leafName = fileURL.QueryInterface(CI.nsIFileURL).file.leafName;
+  var leafName = fileURL.QueryInterface(Ci.nsIFileURL).file.leafName;
 
   var targetURI = Services.io.newURI(leafName, null, targetBaseURI);
 

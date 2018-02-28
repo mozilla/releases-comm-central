@@ -197,7 +197,6 @@
           if (endPosition - startPosition < this.fieldMaxLength)
             endPosition += this.fieldMaxLength - (endPosition - startPosition);
           let truncatedString = aString.substring(startPosition, endPosition);
-          let Ci = Components.interfaces;
           let ellipsis = Services.prefs.getComplexValue("intl.ellipsis",
                                                         Ci.nsIPrefLocalizedString).data;
           if (startPosition > 0) {

@@ -51,9 +51,6 @@
 
     <implementation implements="nsIObserver">
       <constructor><![CDATA[
-        const Cc = Components.classes;
-        const Ci = Components.interfaces;
-        const Cu = Components.utils;
         ChromeUtils.import("resource:///modules/errUtils.js");
         ChromeUtils.import("resource://gre/modules/Services.jsm");
         ChromeUtils.import("resource://gre/modules/AppConstants.jsm");

@@ -21,10 +21,6 @@
 
   <script type="application/javascript">
   <![CDATA[
-    // mailTestUtils.js requires these constants, so we may as well use them
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
-
     let scriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"].
                 getService(Ci.mozIJSSubScriptLoader);
 

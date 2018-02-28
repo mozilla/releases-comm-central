@@ -76,7 +76,7 @@ var MigrationWizard = {
       if (suffix != "nothing" && suffix != "fromFile") {
         var contractID = NS_PROFILE_MIGRATOR_CONTRACTID + suffix;
         var migrator = null;
-        if (contractID in Components.classes) {
+        if (contractID in Cc) {
           migrator = Cc[contractID]
                        .createInstance(nsISuiteProfileMigrator);
         } else {

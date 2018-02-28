@@ -2017,7 +2017,7 @@
 
           this.addProgressListener();
 
-          if ("nsICrashReporter" in Components.interfaces)
+          if ("nsICrashReporter" in Ci)
             ChromeUtils.import("resource://gre/modules/CrashSubmit.jsm", this);
         ]]>
       </constructor>
@@ -2420,7 +2420,7 @@
 
           var notification = "carbon-failure-plugins";
           var pref = "plugins.hide_infobar_for_carbon_failure_plugin";
-          if ("@mozilla.org/xpcom/mac-utils;1" in Components.classes &&
+          if ("@mozilla.org/xpcom/mac-utils;1" in Cc &&
               !Cc["@mozilla.org/xpcom/mac-utils;1"]
                  .getService(Ci.nsIMacUtils)
                  .isUniversalBinary) {

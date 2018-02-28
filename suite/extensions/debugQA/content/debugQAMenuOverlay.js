@@ -5,7 +5,7 @@
 
 // "about:bloat" is available only when
 // (the application is) compiled with |--enable-logrefcnt|.
-if ("@mozilla.org/network/protocol/about;1?what=bloat" in Components.classes)
+if ("@mozilla.org/network/protocol/about;1?what=bloat" in Cc)
   window.addEventListener("load", onLoadBloat);
 
 // Unhide (and enable) the Bloat menu and its associated separator.

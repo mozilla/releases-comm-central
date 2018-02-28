@@ -77,7 +77,7 @@ instantbird.jar:
 	content/instantbird/preferences/applications.xul        (preferences/applications.xul)
 *	content/instantbird/preferences/applications.js         (preferences/applications.js)
 	content/instantbird/preferences/applicationManager.xul  (preferences/applicationManager.xul)
-*	content/instantbird/preferences/applicationManager.js   (preferences/applicationManager.js)
+ 	content/instantbird/preferences/applicationManager.js   (preferences/applicationManager.js)
 *	content/instantbird/preferences/colors.xul              (preferences/colors.xul)
 	content/instantbird/preferences/content.xul             (preferences/content.xul)
 	content/instantbird/preferences/content.js              (preferences/content.js)

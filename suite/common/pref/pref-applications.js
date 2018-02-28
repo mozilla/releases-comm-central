@@ -32,7 +32,7 @@ var mimeSvc = Cc["@mozilla.org/mime;1"]
 var converterSvc = Cc["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
                      .getService(Ci.nsIWebContentConverterService);
 var shellSvc = null;
-if ("@mozilla.org/suite/shell-service;1" in Components.classes)
+if ("@mozilla.org/suite/shell-service;1" in Cc)
   shellSvc = Cc["@mozilla.org/suite/shell-service;1"]
                .getService(Ci.nsIShellService);
 
@@ -97,13 +97,13 @@ const kActionManageApp = -1;
 // Utilities
 
 function getFileDisplayName(aFile) {
-  if ("nsILocalFileWin" in Components.interfaces &&
+  if ("nsILocalFileWin" in Ci &&
       aFile instanceof Ci.nsILocalFileWin) {
     try {
       return aFile.getVersionInfoField("FileDescription");
     } catch (e) {}
   }
-  else if ("nsILocalFileMac" in Components.interfaces &&
+  else if ("nsILocalFileMac" in Ci &&
            aFile instanceof Ci.nsILocalFileMac) {
     try {
       return aFile.bundleDisplayName;

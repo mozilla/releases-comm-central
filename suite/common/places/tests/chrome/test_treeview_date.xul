@@ -52,8 +52,6 @@
      * Ensures that date in places treeviews is correctly formatted.
      */
       ChromeUtils.import("resource://gre/modules/Services.jsm");
-      const Cc = Components.classes;
-      const Ci = Components.interfaces;
 
     SimpleTest.waitForExplicitFinish();
 

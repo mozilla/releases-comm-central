@@ -134,7 +134,6 @@ var gSecurityPane = {
    */
   _removeMasterPassword: function ()
   {
-    const Cc = Components.classes, Ci = Components.interfaces;
     var secmodDB = Cc["@mozilla.org/security/pkcs11moduledb;1"].
                    getService(Ci.nsIPKCS11ModuleDB);
     if (secmodDB.isFIPSEnabled) {

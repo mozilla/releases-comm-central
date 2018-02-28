@@ -155,7 +155,7 @@ function verifyAccounts(wizardCallback, needsIdentity, wizardOpen)
 
         // This will do nothing on platforms without a shell service
         const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1"
-        if (NS_SHELLSERVICE_CID in Components.classes)
+        if (NS_SHELLSERVICE_CID in Cc)
         {
           // hack, set a time out to do this, so that the window can load first
           setTimeout(showMailIntegrationDialog, 0);

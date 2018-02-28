@@ -158,7 +158,7 @@ function setupModule(module) {
    * holds. However, on Windows, if the attachment is not encoded (that is, is
    * inline text), libmime will return N + 2 bytes.
    */
-  epsilon = ('@mozilla.org/windows-registry-key;1' in Components.classes) ? 4 : 2;
+  epsilon = ('@mozilla.org/windows-registry-key;1' in Cc) ? 4 : 2;
 
   // set up our detached/deleted attachments
   var thisFilePath = os.getFileForPath(__file__);

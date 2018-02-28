@@ -14,10 +14,6 @@ ChromeUtils.defineModuleGetter(this, "NetUtil",
 ////////////////////////////////////////////////////////////////////////////////
 //// Constants
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-
 // This SQL query fragment provides the following:
 //   - whether the entry is bookmarked (kQueryIndexBookmarked)
 //   - the bookmark title, if it is a bookmark (kQueryIndexBookmarkTitle)

@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var Cc = Components.classes;
-var Ci = Components.interfaces;
 
 function InstantbirdProfileMigrator() { }
 

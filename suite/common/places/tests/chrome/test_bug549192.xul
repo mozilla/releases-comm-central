@@ -44,8 +44,6 @@
      * Ensures that history views are updated after deleting entries.
      */
       ChromeUtils.import("resource://gre/modules/Services.jsm");
-      const Cc = Components.classes;
-      const Ci = Components.interfaces;
 
     SimpleTest.waitForExplicitFinish();
 

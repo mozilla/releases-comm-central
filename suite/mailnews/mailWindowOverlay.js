@@ -38,7 +38,7 @@ var gCopyService = Cc["@mozilla.org/messenger/messagecopyservice;1"]
 var gMarkViewedMessageAsReadTimer = null; // if the user has configured the app to mark a message as read if it is viewed for more than n seconds
 
 var gTimelineService = null;
-var gTimelineEnabled = ("@mozilla.org;timeline-service;1" in Components.classes);
+var gTimelineEnabled = ("@mozilla.org;timeline-service;1" in Cc);
 if (gTimelineEnabled) {
   try {
     gTimelineEnabled = Services.prefs.getBoolPref("mailnews.timeline_is_enabled");

@@ -28,7 +28,7 @@ function Startup()
   gProxyType = document.getElementById("network.proxy.type");
 
   // Check for system proxy settings class and unhide UI if present
-  if ("@mozilla.org/system-proxy-settings;1" in Components.classes)
+  if ("@mozilla.org/system-proxy-settings;1" in Cc)
     document.getElementById("systemPref").hidden = false;
 
   // Calculate a sane default for network.proxy.share_proxy_settings.

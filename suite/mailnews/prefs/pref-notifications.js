@@ -12,7 +12,7 @@ function Startup()
   // if we don't have the alert service, hide the pref UI for using alerts to notify on new mail
   // see bug #158711
   var newMailNotificationAlertUI = document.getElementById("newMailNotificationAlertBox");
-  newMailNotificationAlertUI.hidden = !("@mozilla.org/alerts-service;1" in Components.classes);
+  newMailNotificationAlertUI.hidden = !("@mozilla.org/alerts-service;1" in Cc);
 
   // as long as the old notification code is still around, the new options
   // won't apply if mail.biff.show_new_alert is false and should be hidden

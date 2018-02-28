@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-if ("@mozilla.org/suite/shell-service;1" in Components.classes)
+if ("@mozilla.org/suite/shell-service;1" in Cc)
   var nsIShellService = Ci.nsIShellService;
 
 function Startup()
@@ -30,7 +30,7 @@ function setHomePageToDefaultPage()
 
 function defaultClientSetup()
 {
-  if ("@mozilla.org/suite/shell-service;1" in Components.classes) try {
+  if ("@mozilla.org/suite/shell-service;1" in Cc) try {
     var shellService = Cc["@mozilla.org/suite/shell-service;1"]
                          .getService(nsIShellService);
 

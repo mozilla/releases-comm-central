@@ -715,7 +715,7 @@ function checkForUpdates()
 
 function updateCheckUpdatesItem()
 {
-  var hasUpdater = "nsIApplicationUpdateService" in Components.interfaces;
+  var hasUpdater = "nsIApplicationUpdateService" in Ci;
   var checkForUpdates = document.getElementById("checkForUpdates");
 
   if (!hasUpdater)
@@ -897,7 +897,7 @@ function utilityOnLoad(aEvent)
   setOfflineUI(Services.io.offline);
 
   // Check for system proxy settings class and show menuitem if present
-  if ("@mozilla.org/system-proxy-settings;1" in Components.classes &&
+  if ("@mozilla.org/system-proxy-settings;1" in Cc &&
       document.getElementById("network-proxy-system"))
     document.getElementById("network-proxy-system").hidden = false;
 }
@@ -1120,7 +1120,6 @@ function BrowserOnCommand(event)
   // Exception" or "Get Me Out Of Here" button
   if (docURI.startsWith("about:certerror?")) {
     if (buttonID == "exceptionDialogButton") {
-      const Ci = Components.interfaces;
       let docshell = ownerDoc.defaultView
                              .QueryInterface(Ci.nsIInterfaceRequestor)
                              .getInterface(Ci.nsIWebNavigation)
@@ -1517,9 +1516,6 @@ function openLinkIn(url, where, params)
 {
   if (!where || !url)
     return null;
-
-  const Cc = Components.classes;
-  const Ci = Components.interfaces;
 
   var aAllowThirdPartyFixup = params.allowThirdPartyFixup;
   var aPostData             = params.postData;

@@ -589,13 +589,13 @@ FeedWriter.prototype = {
    * @returns The display name of the application represented by the file.
    */
   _getFileDisplayName: function getFileDisplayName(file) {
-    if ("nsILocalFileWin" in Components.interfaces &&
+    if ("nsILocalFileWin" in Ci &&
         file instanceof Ci.nsILocalFileWin) {
       try {
         return file.getVersionInfoField("FileDescription");
       } catch (e) {}
     }
-    else if ("nsILocalFileMac" in Components.interfaces &&
+    else if ("nsILocalFileMac" in Ci &&
              file instanceof Ci.nsILocalFileMac) {
       try {
         return file.bundleDisplayName;

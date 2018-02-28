@@ -238,7 +238,7 @@
           return;
         }
 
-        let isMac = "nsILocalFileMac" in Components.interfaces;
+        let isMac = "nsILocalFileMac" in Ci;
         let accelKeyPressed = isMac ? aEvent.metaKey : aEvent.ctrlKey;
         // If a character was typed or the accel+v copy shortcut was used,
         // focus the input box and resend the key event.

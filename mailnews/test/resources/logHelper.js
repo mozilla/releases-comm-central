@@ -75,7 +75,7 @@ var _errorConsoleTunnel = {
           let matches = /exception: (\d+)/.exec(aMessage);
           let XPCOMresult = null;
           if (matches) {
-            for (let result in Components.results) {
+            for (let result in Cr) {
               if (matches[1] == Cr[result])
               {
                 XPCOMresult = result;

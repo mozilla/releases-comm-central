@@ -17,7 +17,7 @@ function Startup()
 function SysPrefCheck()
 {
   const kPrefService = "@mozilla.org/system-preference-service;1";
-  let visible = kPrefService in Components.classes &&
+  let visible = kPrefService in Cc &&
     Cc[kPrefService].getService() instanceof Ci.nsIPrefBranch;
   document.getElementById("systemPrefs").hidden = !visible;
 }
@@ -26,7 +26,7 @@ function ShellServiceCheck()
 {
   const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1";
 
-  if (NS_SHELLSERVICE_CID in Components.classes) try {
+  if (NS_SHELLSERVICE_CID in Cc) try {
     Cc[NS_SHELLSERVICE_CID]
       .getService(Ci.nsIShellService)
       .shouldCheckDefaultClient;
@@ -37,7 +37,7 @@ function ShellServiceCheck()
 
 function CrashReportsCheck()
 {
-  if ("nsICrashReporter" in Components.interfaces)
+  if ("nsICrashReporter" in Ci)
   {
     var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"]
                .getService(Ci.nsICrashReporter);

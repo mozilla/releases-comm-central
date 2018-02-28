@@ -7,8 +7,6 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "PlacesUtils",
                                "resource://gre/modules/PlacesUtils.jsm");
-const Ci = Components.interfaces;
-const Cc = Components.classes;
 
 const ENGINE_FLAVOR = "text/x-moz-search-engine";
 

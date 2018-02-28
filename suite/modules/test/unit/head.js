@@ -1,8 +1,3 @@
-const Cc = Components.classes;
-const Cu = Components.utils;
-const Cr = Components.results;
-const Ci = Components.interfaces;
-
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 ChromeUtils.defineModuleGetter(this, "PlacesUtils",

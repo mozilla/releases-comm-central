@@ -2492,14 +2492,14 @@ function getColorAndSetColorWell(ColorPickerID, ColorWellID)
 //-----------------------------------------------------------------------------------
 function IsSpellCheckerInstalled()
 {
-  return "@mozilla.org/spellchecker;1" in Components.classes;
+  return "@mozilla.org/spellchecker;1" in Cc;
 }
 
 //-----------------------------------------------------------------------------------
 function IsFindInstalled()
 {
-  return "@mozilla.org/embedcomp/rangefind;1" in Components.classes
-          && "@mozilla.org/find/find_service;1" in Components.classes;
+  return "@mozilla.org/embedcomp/rangefind;1" in Cc
+          && "@mozilla.org/find/find_service;1" in Cc;
 }
 
 //-----------------------------------------------------------------------------------

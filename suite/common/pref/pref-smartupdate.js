@@ -7,7 +7,7 @@ var gCanCheckForUpdates;
 
 function Startup()
 {
-  var hasUpdater = "nsIApplicationUpdateService" in Components.interfaces;
+  var hasUpdater = "nsIApplicationUpdateService" in Ci;
 
   if (hasUpdater)
   {

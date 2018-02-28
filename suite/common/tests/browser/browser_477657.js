@@ -17,7 +17,7 @@ function test() {
   is(browserWindowsCount(), 1, "Only one browser window should be open initially");
 
   // Test fails randomly on OS X (bug 482975)
-  if ("nsILocalFileMac" in Components.interfaces)
+  if ("nsILocalFileMac" in Ci)
     return;
 
   waitForExplicitFinish();

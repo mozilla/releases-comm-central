@@ -21,7 +21,7 @@ function Startup()
   // notify on download completion
   // see bug #158711
   var downloadDoneNotificationAlertUI = document.getElementById("finishedNotificationAlert");
-  downloadDoneNotificationAlertUI.hidden = !("@mozilla.org/alerts-service;1" in Components.classes);
+  downloadDoneNotificationAlertUI.hidden = !("@mozilla.org/alerts-service;1" in Cc);
 }
 
 /**

@@ -4,9 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 

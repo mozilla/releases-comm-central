@@ -48,7 +48,7 @@ function setupModule(module) {
   messenger = Cc['@mozilla.org/messenger;1']
                 .createInstance(Ci.nsIMessenger);
 
-  isWindows = '@mozilla.org/windows-registry-key;1' in Components.classes;
+  isWindows = '@mozilla.org/windows-registry-key;1' in Cc;
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,

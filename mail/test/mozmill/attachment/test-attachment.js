@@ -114,7 +114,7 @@ var setupModule = function (module) {
 
   // Add another evilly-named attachment for Windows tests, to ensure that
   // trailing periods are stripped.
-  if ('@mozilla.org/windows-registry-key;1' in Components.classes) {
+  if ('@mozilla.org/windows-registry-key;1' in Cc) {
     messages.push({ attachments: [{ body: textAttachment,
                                     contentType: 'application/octet-stream',
                                     filename: 'ubik.evil. . . . . . . . . ....',

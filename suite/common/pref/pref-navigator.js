@@ -284,7 +284,7 @@ function InitPlatformIntegration()
 {
   const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1";
 
-  if (NS_SHELLSERVICE_CID in Components.classes) try {
+  if (NS_SHELLSERVICE_CID in Cc) try {
     var desc = document.getElementById("defaultBrowserDesc");
     if (IsDefaultBrowser())
       desc.textContent = desc.getAttribute("desc1");

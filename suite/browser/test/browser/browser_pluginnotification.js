@@ -619,9 +619,7 @@ function test17() {
   });
 }
 
-const Cr = Components.results;
 const Cm = Components.manager;
-const Cc = Components.classes;
 const gReg = Cm.QueryInterface(Ci.nsIComponentRegistrar);
 const gRealBlocklistServiceCID = Cc["@mozilla.org/extensions/blocklist;1"];
 const gFakeBlocklistServiceCID = Components.ID("{614b68a0-3c53-4ec0-8146-28cc1e25f8a1}");

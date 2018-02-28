@@ -483,7 +483,7 @@ var nsBrowserContentHandler = {
       for (var i = 0; i < startupArray.length; ++i) {
         this.currentArgument = startupArray[i];
         var contract = NS_GENERAL_STARTUP_PREFIX + this.currentArgument;
-        if (contract in Components.classes) {
+        if (contract in Cc) {
           // Ignore any exceptions - we can't do anything about them here.
           try {
             if (prefBranch.getBoolPref(this.currentArgument)) {

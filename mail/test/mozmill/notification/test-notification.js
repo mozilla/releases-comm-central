@@ -105,8 +105,8 @@ function setupModule(module) {
 
   // Ensure that system notifications are used (relevant for Linux only)
   if (Services.appinfo.OS == "Linux" ||
-      ("@mozilla.org/gio-service;1" in Components.classes) ||
-      ("@mozilla.org/gnome-gconf-service;1" in Components.classes))
+      ("@mozilla.org/gio-service;1" in Cc) ||
+      ("@mozilla.org/gnome-gconf-service;1" in Cc))
     remember_and_set_bool_pref("mail.biff.use_system_alert", true);
 
   MailServices.accounts.localFoldersServer.performingBiff = true;

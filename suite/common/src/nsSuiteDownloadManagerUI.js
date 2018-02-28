@@ -8,9 +8,6 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 //// Constants
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
 const TOOLKIT_MANAGER_URL = "chrome://mozapps/content/downloads/downloads.xul";
 const DOWNLOAD_MANAGER_URL = "chrome://communicator/content/downloads/downloadmanager.xul";
 const PREF_FOCUS_WHEN_STARTING = "browser.download.manager.focusWhenStarting";

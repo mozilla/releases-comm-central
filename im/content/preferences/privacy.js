@@ -33,9 +33,6 @@ var gPrivacyPane = {
 
   openLogFolder: function ()
   {
-    let Cc = Components.classes;
-    let Ci = Components.interfaces;
-
     // Log folder is "'profile directory'/logs"
     var logFolder = Services.dirsvc.get("ProfD", Ci.nsIFile);
     logFolder.append("logs");
@@ -109,7 +106,6 @@ var gPrivacyPane = {
    */
   _removeMasterPassword: function ()
   {
-    const Cc = Components.classes, Ci = Components.interfaces;
     var secmodDB = Cc["@mozilla.org/security/pkcs11moduledb;1"].
                    getService(Ci.nsIPKCS11ModuleDB);
     if (secmodDB.isFIPSEnabled) {

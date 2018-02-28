@@ -34,7 +34,7 @@ function readFile(fileName) {
   // Try to find the file relative to either the data directory or to the
   // current working directory.
   let file = cwd.clone();
-  if ("@mozilla.org/windows-registry-key;1" in Components.classes) {
+  if ("@mozilla.org/windows-registry-key;1" in Cc) {
     // Windows doesn't allow '..' in appendRelativePath,
     // so we'll have to do this the long way.
     if (fileName.includes('/')) {

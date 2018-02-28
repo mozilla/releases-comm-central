@@ -103,19 +103,14 @@ var loadFile = function(path, collector) {
   module.mozmill = mozmill;
   module.elementslib = elementslib;
   module.persisted = persisted;
-  module.Cc = Components.classes;
-  module.Ci = Components.interfaces;
-  module.Cu = Components.utils;
+  module.Cc = Cc;
+  module.Ci = Ci;
+  module.Cu = Cu;
   module.require = function (mod) {
     var loader = new securableModule.Loader({
       rootPaths: [ios.newFileURI(file.parent).spec],
       defaultPrincipal: "system",
-      globals : { mozmill: mozmill,
-                  elementslib: elementslib,
-                  persisted: persisted,
-                  Cc: Components.classes,
-                  Ci: Components.interfaces,
-                  Cu: Components.utils }
+      globals : { mozmill, elementslib, persistsed, Cc, Ci, Cu }
     });
     if (modules != undefined) {
         loader.modules = modules;

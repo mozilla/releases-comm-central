@@ -206,7 +206,7 @@ var gAdvancedPane = {
    */
   updateConnectionGroupbox: function ()
   {
-    let hasLibpurple = "@instantbird.org/libpurple/core;1" in Components.classes;
+    let hasLibpurple = "@instantbird.org/libpurple/core;1" in Cc;
     // Hide explanatory header and libpurple section.
     document.getElementById("connectionGroupHeader").hidden = !hasLibpurple;
     document.getElementById("connectionGroupSeparator").hidden = !hasLibpurple;

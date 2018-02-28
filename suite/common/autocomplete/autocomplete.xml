@@ -232,7 +232,7 @@
           for (var i = 0; i < list.length; i++) {
             var name = list[i];
             var contractid = "@mozilla.org/autocomplete/search;1?name=" + name;
-            if (contractid in Components.classes) {
+            if (contractid in Cc) {
               try {
                 this.mSessions[name] =
                   Cc[contractid].getService(Ci.nsIAutoCompleteSearch);

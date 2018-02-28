@@ -89,7 +89,7 @@ function* testBodyWithLongLine() {
   // Windows uses CR+LF, the other platforms just LF.
   // Note: Services.appinfo.OS returns "XPCShell" in the test, so we
   // use this hacky condition to separate Windows from the others.
-  if ("@mozilla.org/windows-registry-key;1" in Components.classes) {
+  if ("@mozilla.org/windows-registry-key;1" in Cc) {
     newline = "\r\n";
   } else {
     newline = "\n";

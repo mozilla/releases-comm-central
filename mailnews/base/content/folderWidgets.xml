@@ -308,9 +308,6 @@
           if (this._initialized)
             return;
 
-          // I really wish they'd just make this global...
-          const Ci = Components.interfaces;
-
           let folders;
 
           // Figure out which folders to build.  If we don't have a parent, then
@@ -575,8 +572,6 @@
         -->
       <method name="_buildRecentMenu">
         <body><![CDATA[
-          const Ci = Components.interfaces;
-
           // Iterate through all folders in all accounts, and find 15 (_MAXRECENT)
           // of most recently modified ones.
           let allFolders = this.toArray(

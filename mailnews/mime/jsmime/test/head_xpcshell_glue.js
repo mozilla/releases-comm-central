@@ -20,7 +20,6 @@ assert.doesNotThrow = function (block, message) {
 requireCache.set("assert", assert);
 
 // Preload an fs module
-var Cc = Components.classes, Ci = Components.interfaces;
 var fs = {
   readFile: function (filename, options, callback) {
     if (callback === undefined) {
