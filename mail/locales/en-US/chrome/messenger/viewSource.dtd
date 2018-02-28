@@ -4,9 +4,9 @@
 
 <!-- extracted from content/viewSource.xul -->
 
-<!-- LOCALIZATION NOTE (mainWindow.title) : DONT_TRANSLATE --> 
+<!-- LOCALIZATION NOTE (mainWindow.title) : DONT_TRANSLATE -->
 <!ENTITY mainWindow.title "&brandFullName;">
-<!-- LOCALIZATION NOTE (mainWindow.titlemodifier) : DONT_TRANSLATE --> 
+<!-- LOCALIZATION NOTE (mainWindow.titlemodifier) : DONT_TRANSLATE -->
 <!ENTITY mainWindow.titlemodifier "&brandFullName;">
 <!-- LOCALIZATION NOTE (mainWindow.titlemodifierseparator) : DONT_TRANSLATE -->
 <!ENTITY mainWindow.titlemodifierseparator " - ">
@@ -51,7 +51,7 @@ you can use these alternative items. Otherwise, their values should be empty.  -
 <!ENTITY reloadCmd.label "Reload">
 <!ENTITY reloadCmd.accesskey "R">
 <!ENTITY reloadCmd.commandkey "r">
-<!ENTITY menu_wrapLongLines.title "Wrap Long Lines"> 
+<!ENTITY menu_wrapLongLines.title "Wrap Long Lines">
 <!ENTITY menu_wrapLongLines.accesskey "W">
 <!ENTITY menu_highlightSyntax.label "Syntax Highlighting">
 <!ENTITY menu_highlightSyntax.accesskey "H">
@@ -84,8 +84,4 @@ you can use these alternative items. Otherwise, their values should be empty.  -
 <!ENTITY copyLinkCmd.accesskey "L">
 <!ENTITY copyEmailCmd.label "Copy Email Address">
 <!ENTITY copyEmailCmd.accesskey "E">
-
-<!-- Copied from charsetMenu.dtd -->
-<!ENTITY charsetMenu2.label            "Text Encoding">
-<!ENTITY charsetMenu2.accesskey        "c">
 

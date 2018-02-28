@@ -6,13 +6,16 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/viewSource.css" type="text/css"?>
-<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
 <!ENTITY % sourceDTD SYSTEM "chrome://messenger/locale/viewSource.dtd" >
 %sourceDTD;
+<!ENTITY % charsetDTD SYSTEM "chrome://global/locale/charsetMenu.dtd" >
+%charsetDTD;
+<!ENTITY % editMenuDTD SYSTEM "chrome://global/locale/editMenuOverlay.dtd" >
+%editMenuDTD;
 ]>
 
 <window id="viewSource"
@@ -40,7 +43,7 @@
   <command id="cmd_printpreview" oncommand="PrintUtils.printPreview(PrintPreviewListener);"/>
   <command id="cmd_pagesetup" oncommand="PrintUtils.showPageSetup();"/>
   <command id="cmd_close" oncommand="window.close();"/>
-  <commandset id="editMenuCommands"/>
+#includesubst @TOOLKIT_DIR@/content/editMenuCommands.inc.xul
   <command id="cmd_find"
            oncommand="document.getElementById('FindToolbar').onFindCommand();"/>
   <command id="cmd_findAgain"
@@ -64,7 +67,7 @@
 
   <broadcaster id="viewSourceNavigation"/>
 
-  <keyset id="editMenuKeys"/>
+#includesubst @TOOLKIT_DIR@/content/editMenuKeys.inc.xul
   <keyset id="viewSourceKeys">
     <key id="key_savePage" key="&savePageCmd.commandkey;" modifiers="accel" command="cmd_savePage"/>
     <key id="key_print" key="&printCmd.commandkey;" modifiers="accel" command="cmd_print"/>
@@ -159,20 +162,39 @@
         </menupopup>
       </menu>
 
-      <menu id="menu_edit">
+      <menu id="menu_edit" label="&editMenu.label;"
+            accesskey="&editMenu.accesskey;">
         <menupopup id="editmenu-popup">
-          <menuitem id="menu_undo"/>
-          <menuitem id="menu_redo"/>
+          <menuitem id="menu_undo" label="&undoCmd.label;"
+                    key="key_undo" accesskey="&undoCmd.accesskey;"
+                    command="cmd_undo"/>
+          <menuitem id="menu_redo" label="&redoCmd.label;"
+                    key="key_redo" accesskey="&redoCmd.accesskey;"
+                    command="cmd_redo"/>
           <menuseparator/>
-          <menuitem id="menu_cut"/>
-          <menuitem id="menu_copy"/>
-          <menuitem id="menu_paste"/>
-          <menuitem id="menu_delete"/>
+          <menuitem id="menu_cut" label="&cutCmd.label;"
+                    key="key_cut" accesskey="&cutCmd.accesskey;"
+                    command="cmd_cut"/>
+          <menuitem id="menu_copy" label="&copyCmd.label;"
+                    key="key_copy" accesskey="&copyCmd.accesskey;"
+                    command="cmd_copy"/>
+          <menuitem id="menu_paste" label="&pasteCmd.label;"
+                    key="key_paste" accesskey="&pasteCmd.accesskey;"
+                    command="cmd_paste"/>
+          <menuitem id="menu_delete" label="&deleteCmd.label;"
+                    key="key_delete" accesskey="&deleteCmd.accesskey;"
+                    command="cmd_delete"/>
           <menuseparator/>
-          <menuitem id="menu_selectAll"/>
+          <menuitem id="menu_selectAll" label="&selectAllCmd.label;"
+                    key="key_selectAll" accesskey="&selectAllCmd.accesskey;"
+                    command="cmd_selectAll"/>
           <menuseparator/>
-          <menuitem id="menu_find"/>
-          <menuitem id="menu_findAgain"/>
+          <menuitem id="menu_find" label="&findCmd.label;"
+                    key="key_find" accesskey="&findCmd.accesskey;"
+                    command="cmd_find"/>
+          <menuitem id="menu_findAgain" label="&findAgainCmd.label;"
+                    key="key_findAgain" accesskey="&findAgainCmd.accesskey;"
+                    command="cmd_findAgain"/>
           <menuseparator/>
           <menuitem id="menu_goToLine" key="key_goToLine" command="cmd_goToLine"
                     label="&goToLineCmd.label;" accesskey="&goToLineCmd.accesskey;"/>
