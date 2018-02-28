@@ -98,7 +98,7 @@ var copyListener = {
         iid.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   }
 };
 
@@ -120,7 +120,7 @@ var progressListener = {
         iid.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   }
 };
 

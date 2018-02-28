@@ -5,14 +5,14 @@
 function test() {
   /** Test for Bug 346337 **/
 
-  var file = Components.classes["@mozilla.org/file/directory_service;1"]
-               .getService(Components.interfaces.nsIProperties)
-               .get("TmpD", Components.interfaces.nsIFile);
+  var file = Cc["@mozilla.org/file/directory_service;1"]
+               .getService(Ci.nsIProperties)
+               .get("TmpD", Ci.nsIFile);
   file.append("346337_test1.file");
   let filePath1 = file.path;
-  file = Components.classes["@mozilla.org/file/directory_service;1"]
-             .getService(Components.interfaces.nsIProperties)
-             .get("TmpD", Components.interfaces.nsIFile);
+  file = Cc["@mozilla.org/file/directory_service;1"]
+             .getService(Ci.nsIProperties)
+             .get("TmpD", Ci.nsIFile);
   file.append("346337_test2.file");
   let filePath2 = file.path;
 
@@ -48,7 +48,7 @@ function test() {
       node.checked = aValue;
     else if (typeof aValue == "number")
       node.selectedIndex = aValue;
-    else if (node instanceof Components.interfaces.nsIDOMHTMLInputElement && node.type == "file")
+    else if (node instanceof Ci.nsIDOMHTMLInputElement && node.type == "file")
       node.mozSetFileNameArray(aValue, aValue.length);
     else
       Array.from(node.options).forEach((aOpt, aIx) =>
@@ -59,7 +59,7 @@ function test() {
     let node = getElementByXPath(aTab, aQuery);
     if (!node)
       return false;
-    if (node instanceof Components.interfaces.nsIDOMHTMLInputElement) {
+    if (node instanceof Ci.nsIDOMHTMLInputElement) {
       if (node.type == "file") {
         let fileNames = node.mozGetFileNameArray();
         return fileNames.length == aValue.length &&

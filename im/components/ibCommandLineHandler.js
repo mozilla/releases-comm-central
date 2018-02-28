@@ -36,8 +36,8 @@ ibCommandLineHandler.prototype = {
         // The code in nsAppStartup::Run won't start the event loop if
         // we don't have at least one window or one call to
         // enterLastWindowClosingSurvivalArea.
-        let as = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                           .getService(Ci.nsIAppStartup);
+        let as = Cc["@mozilla.org/toolkit/app-startup;1"]
+                   .getService(Ci.nsIAppStartup);
         as.enterLastWindowClosingSurvivalArea();
         // We can exitLastWindowClosingSurvivalArea as soon as the
         // load of our application provided hiddenWindow has begun.

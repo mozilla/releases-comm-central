@@ -6,8 +6,8 @@
 // This dialog can only be opened if we have a shell service.
 
 var gSystemIntegrationDialog = {
-  _shellSvc: Components.classes["@mozilla.org/mail/shell-service;1"]
-                       .getService(Components.interfaces.nsIShellService),
+  _shellSvc: Cc["@mozilla.org/mail/shell-service;1"]
+               .getService(Ci.nsIShellService),
 
   _mailCheckbox: null,
 

@@ -85,13 +85,13 @@ function markInDatabase( lower, upper )
   }
 
   // the headers which are going to be marked
-  var headers = Components.classes["@mozilla.org/array;1"].createInstance( Components.interfaces.nsIMutableArray );
-  var searchSession = Components.classes["@mozilla.org/messenger/searchSession;1"].createInstance( Components.interfaces.nsIMsgSearchSession );
-  var searchTerms = Components.classes["@mozilla.org/array;1"].createInstance( Components.interfaces.nsIMutableArray );
-  searchSession.addScopeTerm( Components.interfaces.nsMsgSearchScope.offlineMail, messageFolder );
+  var headers = Cc["@mozilla.org/array;1"].createInstance( Ci.nsIMutableArray );
+  var searchSession = Cc["@mozilla.org/messenger/searchSession;1"].createInstance( Ci.nsIMsgSearchSession );
+  var searchTerms = Cc["@mozilla.org/array;1"].createInstance( Ci.nsIMutableArray );
+  searchSession.addScopeTerm( Ci.nsMsgSearchScope.offlineMail, messageFolder );
 
-  const nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
-  const nsMsgSearchOp = Components.interfaces.nsMsgSearchOp;
+  const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+  const nsMsgSearchOp = Ci.nsMsgSearchOp;
 
   var searchTerm = searchSession.createTerm();
   searchTerm.attrib = nsMsgSearchAttrib.Date;

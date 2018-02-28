@@ -1235,14 +1235,14 @@
               if (!this._animateTimer)
 
                 this._animateTimer =
-                  Components.classes["@mozilla.org/timer;1"]
-                            .createInstance(Components.interfaces.nsITimer);
+                  Cc["@mozilla.org/timer;1"]
+                    .createInstance(Ci.nsITimer);
               else
                  this._animateTimer.cancel();
 
               this._animateTimer.initWithCallback(this,
                            this._animateDelay,
-                           Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                           Ci.nsITimer.TYPE_REPEATING_SLACK);
             }
           ]]>
         </body>

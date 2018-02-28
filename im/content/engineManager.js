@@ -75,9 +75,9 @@ var gEngineManagerDialog = {
     var url = formatter.formatURLPref("browser.search.searchEnginesURL");
 
     var ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-    Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-              .getService(Ci.nsIExternalProtocolService)
-              .loadURI(ios.newURI(url), window);
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(ios.newURI(url), window);
 
     window.close();
   },

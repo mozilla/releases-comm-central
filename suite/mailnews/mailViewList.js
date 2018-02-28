@@ -62,8 +62,8 @@ var gMailViewListController =
 
 function MailViewListOnLoad()
 {
-  gMailListView = Components.classes["@mozilla.org/messenger/mailviewlist;1"]
-                            .getService(Components.interfaces.nsIMsgMailViewList);
+  gMailListView = Cc["@mozilla.org/messenger/mailviewlist;1"]
+                    .getService(Ci.nsIMsgMailViewList);
   gListBox = document.getElementById('mailViewList');
 
   window.controllers.insertControllerAt(0, gMailViewListController);
@@ -105,12 +105,12 @@ function OnNewMailView()
 
 function OnDeleteMailView()
 {
-  var strBundleService = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                                   .getService(Components.interfaces.nsIStringBundleService);
+  var strBundleService = Cc["@mozilla.org/intl/stringbundle;1"]
+                           .getService(Ci.nsIStringBundleService);
   var bundle = strBundleService.createBundle("chrome://messenger/locale/messenger.properties");
 
-  var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                .getService(Components.interfaces.nsIPromptService);
+  var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                        .getService(Ci.nsIPromptService);
   if (!promptService.confirm(window, bundle.GetStringFromName("confirmViewDeleteTitle"),
                              bundle.GetStringFromName("confirmViewDeleteMessage")))
     return;

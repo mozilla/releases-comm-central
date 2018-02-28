@@ -11,7 +11,7 @@ function restartApp() {
 }
 
 function deleteLocalstore() {
-  var localstoreFile = Services.dirsvc.get("LStoreS", Components.interfaces.nsIFile);
+  var localstoreFile = Services.dirsvc.get("LStoreS", Ci.nsIFile);
   if (localstoreFile.exists())
     localstoreFile.remove(false);
   // Delete the new xulstore file.

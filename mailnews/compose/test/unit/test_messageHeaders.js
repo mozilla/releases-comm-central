@@ -194,7 +194,7 @@ function* testDraftInfo() {
       "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=1; deliveryformat=4",
   });
 
-  fields.deliveryFormat = Components.interfaces.nsIMsgCompSendFormat.Both;
+  fields.deliveryFormat = Ci.nsIMsgCompSendFormat.Both;
   yield richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +

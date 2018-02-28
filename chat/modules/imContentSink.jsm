@@ -255,8 +255,8 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       let nodeName = node.localName;
       if (!(nodeName in aRules.tags)) {
         if (nodeName in kForbiddenTags) {
-          Components.utils.reportError("removing a " + nodeName +
-                                       " tag from a message before display");
+          Cu.reportError("removing a " + nodeName +
+                         " tag from a message before display");
         }
         else {
           // this node is not allowed, replace it with its children
@@ -340,7 +340,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
           // If we are processing nodes created by one of the previous
           // text modifier function, some of the nodes are likely not
           // text node, skip them.
-          if (!(textNode instanceof Components.interfaces.nsIDOMText))
+          if (!(textNode instanceof Ci.nsIDOMText))
             continue;
 
           let result = modifier(textNode);
@@ -359,8 +359,8 @@ function cleanupImMarkup(aText, aRuleset, aTextModifiers = [])
   if (!gGlobalRuleset)
     initGlobalRuleset();
 
-  let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-                         .createInstance(Components.interfaces.nsIDOMParser);
+  let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
+                 .createInstance(Ci.nsIDOMParser);
   // Wrap the text to be parsed in a <span> to avoid losing leading whitespace.
   let doc = parser.parseFromString("<span>" + aText + "</span>", "text/html");
   let span = doc.querySelector("span");

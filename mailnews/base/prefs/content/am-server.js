@@ -165,7 +165,7 @@ function onAdvanced()
   {
     document.getElementById("pop3.deferGetNewMail").checked = serverSettings.deferGetNewMail;
     document.getElementById("pop3.deferredToAccount").setAttribute("value", serverSettings.deferredToAccount);
-    let pop3Server = gServer.QueryInterface(Components.interfaces.nsIPop3IncomingServer);
+    let pop3Server = gServer.QueryInterface(Ci.nsIPop3IncomingServer);
     // we're explicitly setting this so we'll go through the SetDeferredToAccount method
     pop3Server.deferredToAccount = serverSettings.deferredToAccount;
     // Setting the server to be deferred causes a rebuild of the account tree,
@@ -185,7 +185,7 @@ function onAdvanced()
                                            .incomingServer.serverURI;
 
     for (let account of fixIterator(MailServices.accounts.accounts,
-                                    Components.interfaces.nsIMsgAccount)) {
+                                    Ci.nsIMsgAccount)) {
       let accountValues = parent.getValueArrayFor(account);
       let type = parent.getAccountValue(account, accountValues, "server", "type",
                                         null, false);
@@ -278,19 +278,19 @@ function setupFixedUI()
 
 function BrowseForNewsrc()
 {
-  const nsIFilePicker = Components.interfaces.nsIFilePicker;
-  const nsIFile = Components.interfaces.nsIFile;
+  const nsIFilePicker = Ci.nsIFilePicker;
+  const nsIFile = Ci.nsIFile;
 
   var newsrcTextBox = document.getElementById("nntp.newsrcFilePath");
-  var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
   fp.init(window,
           document.getElementById("browseForNewsrc").getAttribute("filepickertitle"),
           nsIFilePicker.modeSave);
 
   var currentNewsrcFile;
   try {
-    currentNewsrcFile = Components.classes["@mozilla.org/file/local;1"]
-                                  .createInstance(nsIFile);
+    currentNewsrcFile = Cc["@mozilla.org/file/local;1"]
+                          .createInstance(nsIFile);
     currentNewsrcFile.initWithPath(newsrcTextBox.value);
   } catch (e) {
     dump("Failed to create nsIFile instance for the current newsrc file.\n");
@@ -327,8 +327,8 @@ function setupImapDeleteUI(aServerId)
   trashPopup._ensureInitialized();
 
   // Convert the folder path in Unicode to MUTF-7.
-  let manager = Components.classes['@mozilla.org/charset-converter-manager;1']
-                  .getService(Components.interfaces.nsICharsetConverterManager);
+  let manager = Cc['@mozilla.org/charset-converter-manager;1']
+                  .getService(Ci.nsICharsetConverterManager);
   // Escape backslash and double-quote with another backslash before encoding.
   let trashMutf7 = manager.unicodeToMutf7(trashFolderName.replace(/([\\"])/g, '\\$1'));
   // TODO: There is something wrong here, selectFolder() fails even if the
@@ -376,12 +376,12 @@ function folderPickerChange(aEvent)
   // Note that the path is returned with a leading slash which we need to remove.
   var folderPath = Services.io.newURI(folder.URI).pathQueryRef.substring(1);
   // We need to convert that from MUTF-7 to Unicode.
-  var manager = Components.classes['@mozilla.org/charset-converter-manager;1']
-                  .getService(Components.interfaces.nsICharsetConverterManager);
-  var util = Components.classes["@mozilla.org/network/util;1"]
-                               .getService(Components.interfaces.nsINetUtil);
+  var manager = Cc['@mozilla.org/charset-converter-manager;1']
+                  .getService(Ci.nsICharsetConverterManager);
+  var util = Cc["@mozilla.org/network/util;1"]
+               .getService(Ci.nsINetUtil);
   var trashUnicode = manager.mutf7ToUnicode(
-    util.unescapeString(folderPath, Components.interfaces.nsINetUtil.ESCAPE_URL_PATH));
+    util.unescapeString(folderPath, Ci.nsINetUtil.ESCAPE_URL_PATH));
 
   // Set the value to be persisted.
   document.getElementById("imap.trashFolderName")

@@ -12,7 +12,7 @@ var gDeleteButton;
 
 function mailViewListOnLoad()
 {
-  gMailListView = Components.classes["@mozilla.org/messenger/mailviewlist;1"].getService(Components.interfaces.nsIMsgMailViewList);;
+  gMailListView = Cc["@mozilla.org/messenger/mailviewlist;1"].getService(Ci.nsIMsgMailViewList);;
   gListBox = document.getElementById('mailViewList');
 
   // Construct list view based on current mail view list data

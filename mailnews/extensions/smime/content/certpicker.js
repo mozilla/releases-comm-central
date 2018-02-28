@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 "use strict";
 
-const nsIDialogParamBlock = Components.interfaces.nsIDialogParamBlock;
+const nsIDialogParamBlock = Ci.nsIDialogParamBlock;
 
 var dialogParams;
 var itemCount = 0;

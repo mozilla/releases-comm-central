@@ -34,8 +34,8 @@ const lameMultiWindowState = { windows: [
 
 
 function getOuterWindowID(aWindow) {
-  return aWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor).
-         getInterface(Components.interfaces.nsIDOMWindowUtils).outerWindowID;
+  return aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
+         getInterface(Ci.nsIDOMWindowUtils).outerWindowID;
 }
 
 function test() {
@@ -261,7 +261,7 @@ function test_setBrowserState() {
   let newWindow;
   function windowObserver(aSubject, aTopic, aData) {
     if (aTopic == "domwindowopened") {
-      newWindow = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
+      newWindow = aSubject.QueryInterface(Ci.nsIDOMWindow);
       newWindow.addEventListener("load", function newWindowLoad() {
         newWindow.removeEventListener("load", newWindowLoad);
 
@@ -312,7 +312,7 @@ function test_undoCloseWindow() {
 
   function firstWindowObserver(aSubject, aTopic, aData) {
     if (aTopic == "domwindowopened") {
-      newWindow = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
+      newWindow = aSubject.QueryInterface(Ci.nsIDOMWindow);
       Services.ww.unregisterNotification(firstWindowObserver);
     }
   }

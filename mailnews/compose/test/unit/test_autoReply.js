@@ -93,7 +93,7 @@ add_task(function testReplyingToUnaddressedFails() {
     do_throw("Replied to a message not addressed to us!");
   }
   catch (e) {
-    if (e.result != Components.results.NS_ERROR_ABORT)
+    if (e.result != Cr.NS_ERROR_ABORT)
       throw e;
     // Ok! We didn't reply to the message not specifically addressed to
     // us (from@foo.invalid).
@@ -128,7 +128,7 @@ add_task(function testReplyingToMailWithNoFrom() {
              "with no From and no Reply-To");
   }
   catch (e) {
-    if (e.result != Components.results.NS_ERROR_FAILURE)
+    if (e.result != Cr.NS_ERROR_FAILURE)
       throw e;
   }
 });

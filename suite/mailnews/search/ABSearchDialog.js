@@ -9,11 +9,11 @@ ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
 var gSearchSession;
 
-var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
-var nsIMsgSearchTerm = Components.interfaces.nsIMsgSearchTerm;
-var nsMsgSearchOp = Components.interfaces.nsMsgSearchOp;
-var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
-var nsIAbDirectory = Components.interfaces.nsIAbDirectory;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
+var nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
+var nsMsgSearchOp = Ci.nsMsgSearchOp;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsIAbDirectory = Ci.nsIAbDirectory;
 
 var gStatusText;
 var gSearchBundle;
@@ -54,7 +54,7 @@ function searchOnLoad()
   gSearchStopButton.setAttribute("label", gSearchBundle.getString("labelForSearchButton"));
   gSearchStopButton.setAttribute("accesskey", gSearchBundle.getString("labelForSearchButton.accesskey"));
   gAddressBookBundle = document.getElementById("bundle_addressBook");
-  gSearchSession = Components.classes[searchSessionContractID].createInstance(Components.interfaces.nsIMsgSearchSession);
+  gSearchSession = Cc[searchSessionContractID].createInstance(Ci.nsIMsgSearchSession);
 
   // initialize a flag for phonetic name search
   gSearchPhoneticName =

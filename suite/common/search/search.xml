@@ -79,16 +79,16 @@
           this._textbox.searchParam += "|private";
 
         this.searchService.init(this);
-        var os = Components.classes["@mozilla.org/observer-service;1"]
-                           .getService(Components.interfaces.nsIObserverService);
+        var os = Cc["@mozilla.org/observer-service;1"]
+                   .getService(Ci.nsIObserverService);
         os.addObserver(this, "browser-search-engine-modified");
         this._addedObserver = true;
       ]]></constructor>
 
       <destructor><![CDATA[
         if (this._addedObserver) {
-          var os = Components.classes["@mozilla.org/observer-service;1"]
-                             .getService(Components.interfaces.nsIObserverService);
+          var os = Cc["@mozilla.org/observer-service;1"]
+                     .getService(Ci.nsIObserverService);
           os.removeObserver(this, "browser-search-engine-modified");
           this._addedObserver = false;
         }
@@ -132,8 +132,8 @@
       <property name="currentEngine">
         <setter><![CDATA[
           this.searchService.currentEngine = val;
-          var os = Components.classes["@mozilla.org/observer-service;1"]
-                             .getService(Components.interfaces.nsIObserverService);
+          var os = Cc["@mozilla.org/observer-service;1"]
+                     .getService(Ci.nsIObserverService);
           os.notifyObservers(null, "browser-search-engine-modified", "engine-current");
           return val;
         ]]></setter>
@@ -174,7 +174,7 @@
             // Refresh the display (updating icon, etc)
             this.updateDisplay();
           } else {
-            Components.utils.reportError("Cannot initialize search service, bailing out: " + aStatus);
+            Cu.reportError("Cannot initialize search service, bailing out: " + aStatus);
           }
         ]]></body>
       </method>
@@ -467,7 +467,7 @@
               value : aData
             }, {
               handleError : function(aError) {
-                Components.utils.reportError("Saving search to form history failed: " + aError.message);
+                Cu.reportError("Saving search to form history failed: " + aError.message);
               }
             });
           }
@@ -486,7 +486,7 @@
           this.currentEngine = target.engine;
         } else if (target.classList.contains("addengine-item")) {
           // We only detect OpenSearch files
-          var type = Components.interfaces.nsISearchEngine.DATA_XML;
+          var type = Ci.nsISearchEngine.DATA_XML;
           // Select the installed engine if the installation succeeds
           this.searchService.addEngine(target.getAttribute("uri"), type,
                                        target.getAttribute("image"), false,

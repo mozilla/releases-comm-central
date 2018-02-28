@@ -156,7 +156,7 @@ var snapshotFormatters = {
       profElem.appendChild(fsTextNode);
     }
     catch (x) {
-      Components.utils.reportError(x);
+      Cu.reportError(x);
     }
     // end of TB addition
   },

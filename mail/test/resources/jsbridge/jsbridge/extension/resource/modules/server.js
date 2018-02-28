@@ -44,16 +44,16 @@ var BUFFER_SIZE = 1024;
 var loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
     .getService(Ci.mozIJSSubScriptLoader);
 
-var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
-    .getService(Components.interfaces.nsIAppShellService)
+var hwindow = Cc["@mozilla.org/appshell/appShellService;1"]
+    .getService(Ci.nsIAppShellService)
     .hiddenDOMWindow;
 
 var json2 = ChromeUtils.import("resource://jsbridge/modules/json2.js");
 
 var jsonEncode = json2.JSON.stringify;
 
-var uuidgen = Components.classes["@mozilla.org/uuid-generator;1"]
-    .getService(Components.interfaces.nsIUUIDGenerator);
+var uuidgen = Cc["@mozilla.org/uuid-generator;1"]
+    .getService(Ci.nsIUUIDGenerator);
 
 function AsyncRead (session) {
   this.session = session;
@@ -201,7 +201,7 @@ var backstage = this;
 
 function Session (transport) {
   this.transpart = transport;  // XXX Unused, needed to hold reference? Note the typo.
-  this.sandbox = Components.utils.Sandbox(backstage, { wantGlobalProperties: ["ChromeUtils"] });
+  this.sandbox = Cu.Sandbox(backstage, { wantGlobalProperties: ["ChromeUtils"] });
   this.sandbox.bridge = new Bridge(this);
   this.sandbox.openPreferences = hwindow.openPreferences;
   try {
@@ -275,7 +275,7 @@ Session.prototype.encodeOut = function (obj) {
 
 }
 Session.prototype.receive = function(data) {
-  Components.utils.evalInSandbox(data, this.sandbox);
+  Cu.evalInSandbox(data, this.sandbox);
 }
 
 var sessions = {

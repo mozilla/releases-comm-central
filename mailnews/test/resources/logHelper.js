@@ -22,7 +22,7 @@ var _logHelperInterestedListeners = false;
 /**
  * Let test code extend the list of allowed XPCOM errors.
  */
-var logHelperAllowedErrors = [Components.results.NS_ERROR_FAILURE];
+var logHelperAllowedErrors = [Cr.NS_ERROR_FAILURE];
 
 /**
  * Let other test helping code decide whether to register for potentially
@@ -63,7 +63,7 @@ var _errorConsoleTunnel = {
     try {
       // meh, let's just use mark_failure for now.
       // and let's avoid feedback loops (happens in mozmill)
-      if ((aMessage instanceof Components.interfaces.nsIScriptError) &&
+      if ((aMessage instanceof Ci.nsIScriptError) &&
         (!aMessage.errorMessage.includes("Error console says")))
         {
           // Unfortunately changes to mozilla-central are throwing lots
@@ -76,7 +76,7 @@ var _errorConsoleTunnel = {
           let XPCOMresult = null;
           if (matches) {
             for (let result in Components.results) {
-              if (matches[1] == Components.results[result])
+              if (matches[1] == Cr[result])
               {
                 XPCOMresult = result;
                 break;

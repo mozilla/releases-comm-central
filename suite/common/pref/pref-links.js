@@ -10,6 +10,6 @@ function Startup()
 function ToggleRestrictionGroup(value)
 {
   document.getElementById("restrictionGroup").disabled =
-     value == Components.interfaces.nsIBrowserDOMWindow.OPEN_NEWWINDOW ||
+     value == Ci.nsIBrowserDOMWindow.OPEN_NEWWINDOW ||
      document.getElementById("browser.link.open_newwindow.restriction").locked;
 }

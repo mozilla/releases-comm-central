@@ -15,7 +15,7 @@ function GetNewMessages(selectedFolders, server)
   // Whenever we do get new messages, clear the old new messages.
   if (msgFolder)
   {
-    var nsIMsgFolder = Components.interfaces.nsIMsgFolder;
+    var nsIMsgFolder = Ci.nsIMsgFolder;
     msgFolder.biffState = nsIMsgFolder.nsMsgBiffState_NoMail;
     msgFolder.clearNewMessages();
   }
@@ -41,7 +41,7 @@ function getBestIdentity(identities, optionalHint)
 
     for (let i = 0 ; i < hints.length; i++) {
       for (let identity of fixIterator(identities,
-                  Components.interfaces.nsIMsgIdentity)) {
+                  Ci.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
         if (hints[i].trim() == identity.email.toLowerCase() ||
@@ -51,7 +51,7 @@ function getBestIdentity(identities, optionalHint)
     }
   }
   // Return only found identity or pick the first one from list if no matches found.
-  return identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+  return identities.queryElementAt(0, Ci.nsIMsgIdentity);
 }
 
 function getIdentityForServer(server, optionalHint)
@@ -83,7 +83,7 @@ function GetIdentityForHeader(aMsgHdr, aType)
     deliveredTos.reverse();
     for (let i = 0; i < deliveredTos.length; i++) {
       for (let identity of fixIterator(accountManager.allIdentities,
-                                  Components.interfaces.nsIMsgIdentity)) {
+                                  Ci.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
         // If the deliver-to header contains the defined identity, that's it.
@@ -96,9 +96,9 @@ function GetIdentityForHeader(aMsgHdr, aType)
   }
 
   let hintForIdentity = "";
-  if (aType == Components.interfaces.nsIMsgCompType.ReplyToList)
+  if (aType == Ci.nsIMsgCompType.ReplyToList)
     hintForIdentity = findDeliveredToIdentityEmail();
-  else if (aType == Components.interfaces.nsIMsgCompType.Template)
+  else if (aType == Ci.nsIMsgCompType.Template)
     hintForIdentity = aMsgHdr.author;
   else
     hintForIdentity = aMsgHdr.recipients + "," + aMsgHdr.ccList + "," +
@@ -135,7 +135,7 @@ function GetIdentityForHeader(aMsgHdr, aType)
 function GetNextNMessages(folder)
 {
   if (folder) {
-    var newsFolder = folder.QueryInterface(Components.interfaces.nsIMsgNewsFolder);
+    var newsFolder = folder.QueryInterface(Ci.nsIMsgNewsFolder);
     if (newsFolder) {
       newsFolder.getNextNMessages(msgWindow);
     }
@@ -145,7 +145,7 @@ function GetNextNMessages(folder)
 // type is a nsIMsgCompType and format is a nsIMsgCompFormat
 function ComposeMessage(type, format, folder, messageArray)
 {
-  var msgComposeType = Components.interfaces.nsIMsgCompType;
+  var msgComposeType = Ci.nsIMsgCompType;
   var identity = null;
   var newsgroup = null;
   var hdr;
@@ -242,17 +242,17 @@ function NewMessageToSelectedAddresses(type, format, identity) {
   var abResultsTree = abSidebarPanel.document.getElementById("abResultsTree");
   var abResultsBoxObject = abResultsTree.treeBoxObject;
   var abView = abResultsBoxObject.view;
-  abView = abView.QueryInterface(Components.interfaces.nsIAbView);
+  abView = abView.QueryInterface(Ci.nsIAbView);
   var addresses = abView.selectedAddresses;
-  var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
+  var params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);
   if (params) {
     params.type = type;
     params.format = format;
     params.identity = identity;
-    var composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
+    var composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
     if (composeFields) {
       let addressList = [];
-      const nsISupportsString = Components.interfaces.nsISupportsString;
+      const nsISupportsString = Ci.nsISupportsString;
       for (let i = 0; i < addresses.length; i++) {
         addressList.push(addresses.queryElementAt(i, nsISupportsString).data);
       }
@@ -277,7 +277,7 @@ function UnSubscribe(folder)
   // been made by the user  SPL
 
   var server = folder.server;
-  var subscribableServer = server.QueryInterface(Components.interfaces.nsISubscribableServer);
+  var subscribableServer = server.QueryInterface(Ci.nsISubscribableServer);
   subscribableServer.unsubscribe(folder.name);
   subscribableServer.commitSubscribeChanges();
 }
@@ -296,7 +296,7 @@ function SubscribeOKCallback(changeTable)
     var folder = GetMsgFolderFromUri(serverURI, true);
     var server = folder.server;
     var subscribableServer =
-          server.QueryInterface(Components.interfaces.nsISubscribableServer);
+          server.QueryInterface(Ci.nsISubscribableServer);
 
     for (var name in changeTable[serverURI]) {
       if (changeTable[serverURI][name] == true) {
@@ -384,11 +384,11 @@ function SaveAsTemplate(aUris)
   {
     let uri = aUris[i];
     var hdr = messenger.msgHdrFromURI(uri);
-    var identity = GetIdentityForHeader(hdr, Components.interfaces.nsIMsgCompType.Template);
+    var identity = GetIdentityForHeader(hdr, Ci.nsIMsgCompType.Template);
     var templates = MailUtils.getFolderForURI(identity.stationeryFolder, false);
     if (!templates.parent)
     {
-      templates.setFlag(Components.interfaces.nsMsgFolderFlags.Templates);
+      templates.setFlag(Ci.nsMsgFolderFlags.Templates);
       let isAsync = templates.server.protocolInfo.foldersCreatedAsync;
       templates.createStorageIfMissing(new saveAsUrlListener(uri, identity));
       if (isAsync)
@@ -423,9 +423,9 @@ function ViewPageSource(messages)
 
     try {
         // First, get the mail session
-        const nsIMsgMailSession = Components.interfaces.nsIMsgMailSession;
-        var mailSession = Components.classes["@mozilla.org/messenger/services/session;1"]
-                                    .getService(nsIMsgMailSession);
+        const nsIMsgMailSession = Ci.nsIMsgMailSession;
+        var mailSession = Cc["@mozilla.org/messenger/services/session;1"]
+                            .getService(nsIMsgMailSession);
 
         for (var i = 0; i < numMessages; i++)
         {
@@ -498,8 +498,8 @@ function deleteAllInFolder(commandName)
   while (iter.hasMoreElements())
     folder.propagateDelete(iter.getNext(), true, msgWindow);
 
-  var children = Components.classes["@mozilla.org/array;1"]
-                  .createInstance(Components.interfaces.nsIMutableArray);
+  var children = Cc["@mozilla.org/array;1"]
+                  .createInstance(Ci.nsIMutableArray);
 
   // Delete messages.
   iter = folder.messages;

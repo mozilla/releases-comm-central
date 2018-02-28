@@ -63,8 +63,8 @@ function run_test()
     }
   ];
 
-  let mimeHdr = Components.classes["@mozilla.org/messenger/mimeheaders;1"]
-                  .createInstance(Components.interfaces.nsIMimeHeaders);
+  let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"]
+                  .createInstance(Ci.nsIMimeHeaders);
 
   for (let i = 0; i < headers.length; i++) {
     mimeHdr.initialize(headers[i].header);

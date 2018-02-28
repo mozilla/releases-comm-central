@@ -7,10 +7,10 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var ACR = Components.interfaces.nsIAutoCompleteResult;
-var nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
+var ACR = Ci.nsIAutoCompleteResult;
+var nsIAbAutoCompleteResult = Ci.nsIAbAutoCompleteResult;
 var nsIAbDirectoryQueryResultListener =
-  Components.interfaces.nsIAbDirectoryQueryResultListener;
+  Ci.nsIAbDirectoryQueryResultListener;
 
 // nsAbLDAPAutoCompleteResult
 // Derived from nsIAbAutoCompleteResult, provides a LDAP specific result
@@ -79,8 +79,8 @@ nsAbLDAPAutoCompleteResult.prototype = {
 
 function nsAbLDAPAutoCompleteSearch() {
   Services.obs.addObserver(this, "quit-application");
-  this._timer = Components.classes["@mozilla.org/timer;1"]
-                          .createInstance(Components.interfaces.nsITimer);
+  this._timer = Cc["@mozilla.org/timer;1"]
+                  .createInstance(Ci.nsITimer);
 }
 
 nsAbLDAPAutoCompleteSearch.prototype = {
@@ -194,8 +194,8 @@ nsAbLDAPAutoCompleteSearch.prototype = {
         identity = MailServices.accounts.getIdentity(params.idKey);
       }
       catch(ex) {
-        Components.utils.reportError("Couldn't get specified identity, " +
-                                     "falling back to global settings");
+        Cu.reportError("Couldn't get specified identity, " +
+                       "falling back to global settings");
       }
     }
 
@@ -220,15 +220,15 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     acDirURI = "moz-abldapdirectory://" + acDirURI;
     if (!this._book || this._book.URI != acDirURI) {
       this._query =
-        Components.classes["@mozilla.org/addressbook/ldap-directory-query;1"]
-                  .createInstance(Components.interfaces.nsIAbDirectoryQuery);
+        Cc["@mozilla.org/addressbook/ldap-directory-query;1"]
+          .createInstance(Ci.nsIAbDirectoryQuery);
       this._book = MailServices.ab.getDirectory(acDirURI)
-                                  .QueryInterface(Components.interfaces.nsIAbLDAPDirectory);
+                                  .QueryInterface(Ci.nsIAbLDAPDirectory);
 
       // Create a minimal map just for the display name and primary email.
       this._attributes =
-        Components.classes["@mozilla.org/addressbook/ldap-attribute-map;1"]
-                  .createInstance(Components.interfaces.nsIAbLDAPAttributeMap);
+        Cc["@mozilla.org/addressbook/ldap-attribute-map;1"]
+          .createInstance(Ci.nsIAbLDAPAttributeMap);
       this._attributes.setAttributeList("DisplayName",
         this._book.attributeMap.getAttributeList("DisplayName", {}), true);
       this._attributes.setAttributeList("PrimaryEmail",
@@ -237,11 +237,11 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
     this._result._commentColumn = this._book.dirName;
     this._listener = aListener;
-    this._timer.init(this, 60000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+    this._timer.init(this, 60000, Ci.nsITimer.TYPE_ONE_SHOT);
 
     var args =
-      Components.classes["@mozilla.org/addressbook/directory/query-arguments;1"]
-                .createInstance(Components.interfaces.nsIAbDirectoryQueryArguments);
+      Cc["@mozilla.org/addressbook/directory/query-arguments;1"]
+        .createInstance(Ci.nsIAbDirectoryQueryArguments);
 
     var filterTemplate = this._book.getStringValue("autoComplete.filterTemplate", "");
 
@@ -250,8 +250,8 @@ nsAbLDAPAutoCompleteSearch.prototype = {
       filterTemplate = "(|(cn=%v1*%v2-*)(mail=%v1*%v2-*)(sn=%v1*%v2-*))";
 
     // Create filter from filter template and search string
-    var ldapSvc = Components.classes["@mozilla.org/network/ldap-service;1"]
-                            .getService(Components.interfaces.nsILDAPService);
+    var ldapSvc = Cc["@mozilla.org/network/ldap-service;1"]
+                    .getService(Ci.nsILDAPService);
     var filter = ldapSvc.createFilter(1024, filterTemplate, "", "", "", aSearchString);
     if (!filter)
       throw new Error("Filter string is empty, check if filterTemplate variable is valid in prefs.js.");
@@ -313,11 +313,9 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   // nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
-                                         Components.interfaces
-                                                   .nsIAutoCompleteSearch,
-                                         Components.interfaces
-                                                   .nsIAbDirSearchListener])
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
+                                         Ci.nsIAutoCompleteSearch,
+                                         Ci.nsIAbDirSearchListener])
 };
 
 // Module

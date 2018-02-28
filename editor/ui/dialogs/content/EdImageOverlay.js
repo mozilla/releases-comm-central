@@ -300,8 +300,8 @@ function LoadPreviewImage()
       let uri = Services.io.newURI(imageSrc);
       if (uri)
       {
-        let imgCache = Components.classes["@mozilla.org/image/cache;1"]
-                                 .getService(Components.interfaces.imgICache);
+        let imgCache = Cc["@mozilla.org/image/cache;1"]
+                         .getService(Ci.imgICache);
 
         // This returns error if image wasn't in the cache; ignore that
         imgCache.removeEntry(uri);
@@ -478,7 +478,7 @@ function ValidateImage()
     {
       if (checkbox && !checkbox.checked)
       {
-        src = Services.uriFixup.createFixupURI(src, Components.interfaces.nsIURIFixup.FIXUP_FLAG_NONE).spec;
+        src = Services.uriFixup.createFixupURI(src, Ci.nsIURIFixup.FIXUP_FLAG_NONE).spec;
       }
     } catch (e) { }
 

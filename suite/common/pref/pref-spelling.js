@@ -18,8 +18,8 @@ function Startup() {
 }
 
 function InitLanguageMenu() {
-  var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-                               .getService(Components.interfaces.mozISpellCheckingEngine);
+  var spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
+                       .getService(Ci.mozISpellCheckingEngine);
 
   var o1 = {};
   var o2 = {};

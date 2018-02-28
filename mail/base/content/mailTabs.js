@@ -183,10 +183,10 @@ var mailTabType = {
       },
       restoreTab: function(aTabmail, aPersistedState) {
       try {
-        let rdfService = Components.classes['@mozilla.org/rdf/rdf-service;1']
-                           .getService(Components.interfaces.nsIRDFService);
+        let rdfService = Cc['@mozilla.org/rdf/rdf-service;1']
+                           .getService(Ci.nsIRDFService);
         let folder = rdfService.GetResource(aPersistedState.folderURI)
-                       .QueryInterface(Components.interfaces.nsIMsgFolder);
+                       .QueryInterface(Ci.nsIMsgFolder);
         // if the folder no longer exists, we can't restore the tab
         if (folder) {
           let folderPaneVisible = ("folderPaneVisible" in aPersistedState) ?
@@ -387,7 +387,7 @@ var mailTabType = {
         aTab.title = "";
         if (aMsgHdr == null)
           return;
-        if (aMsgHdr.flags & Components.interfaces.nsMsgMessageFlags.HasRe)
+        if (aMsgHdr.flags & Ci.nsMsgMessageFlags.HasRe)
           aTab.title = "Re: ";
         if (aMsgHdr.mime2DecodedSubject)
           aTab.title += aMsgHdr.mime2DecodedSubject;
@@ -397,7 +397,7 @@ var mailTabType = {
           aTab.title += " - " + aMsgHdr.folder.server.prettyName;
 
         // Set the favicon for feed messages.
-        if (aMsgHdr.flags & Components.interfaces.nsMsgMessageFlags.FeedMsg &&
+        if (aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg &&
             !aTab.tabNode.hasAttribute("IsFeedMessage")) {
           aTab.tabNode.setAttribute("IsFeedMessage", true);
           if (!Services.prefs.getBoolPref("browser.chrome.site_icons") ||
@@ -505,7 +505,7 @@ var mailTabType = {
     aTab.folderDisplay.msgWindow = msgWindow;
     aTab.folderDisplay.tree = document.getElementById("threadTree");
     aTab.folderDisplay.treeBox = aTab.folderDisplay.tree.boxObject.QueryInterface(
-                                   Components.interfaces.nsITreeBoxObject);
+                                   Ci.nsITreeBoxObject);
     aTab.folderDisplay.folderPaneVisible = aFolderPaneVisible;
 
     if (aIsFirstTab) {
@@ -516,8 +516,8 @@ var mailTabType = {
       // its own undo/redo stack and back/forward navigation history.
       // If this is a foreground tab, folderDisplay.makeActive() is going to
       // set it as the global messenger, so there's no need to do it here
-      let tabMessenger = Components.classes["@mozilla.org/messenger;1"]
-                                   .createInstance(Components.interfaces.nsIMessenger);
+      let tabMessenger = Cc["@mozilla.org/messenger;1"]
+                           .createInstance(Ci.nsIMessenger);
       tabMessenger.setWindow(window, msgWindow);
       aTab.folderDisplay.messenger = tabMessenger;
     }

@@ -25,8 +25,8 @@ function OnLoadPrintEngine()
 function PrintEngineCreateGlobals()
 {
   /* get the print engine instance */
-  printEngine = Components.classes[printEngineContractID].createInstance();
-  printEngine = printEngine.QueryInterface(Components.interfaces.nsIMsgPrintEngine);
+  printEngine = Cc[printEngineContractID].createInstance();
+  printEngine = printEngine.QueryInterface(Ci.nsIMsgPrintEngine);
   printSettings = PrintUtils.getPrintSettings();
   if (printSettings) {
     printSettings.isCancelled = false;
@@ -139,7 +139,7 @@ function InitPrintEngineWindow()
     if (window.arguments.length > 4) {
       printEngine.setMsgType(window.arguments[4]);
     } else {
-      printEngine.setMsgType(Components.interfaces.nsIMsgPrintEngine.MNAB_START);
+      printEngine.setMsgType(Ci.nsIMsgPrintEngine.MNAB_START);
     }
 
     if (window.arguments.length > 5) {

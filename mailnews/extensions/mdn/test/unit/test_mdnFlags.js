@@ -25,8 +25,8 @@ function run_test()
     "return-path: alice@t1.example.com\r\n" +
     "Disposition-Notification-To: alice@t1.example.com\r\n";
 
-  let mimeHdr = Components.classes["@mozilla.org/messenger/mimeheaders;1"]
-                  .createInstance(Components.interfaces.nsIMimeHeaders);
+  let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"]
+                  .createInstance(Ci.nsIMimeHeaders);
   mimeHdr.initialize(headers);
   let receivedHeader = mimeHdr.extractHeader("To", false);
 
@@ -45,8 +45,8 @@ function run_test()
   var msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   // Everything looks good so far, let's generate the MDN response.
-  var mdnGenerator = Components.classes["@mozilla.org/messenger-mdn/generator;1"]
-                               .createInstance(Components.interfaces.nsIMsgMdnGenerator);
+  var mdnGenerator = Cc["@mozilla.org/messenger-mdn/generator;1"]
+                       .createInstance(Ci.nsIMsgMdnGenerator);
   const MDN_DISPOSE_TYPE_DISPLAYED = 0;
 
   mdnGenerator.process(MDN_DISPOSE_TYPE_DISPLAYED, msgWindow, msgFolder,

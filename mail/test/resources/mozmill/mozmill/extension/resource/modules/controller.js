@@ -48,11 +48,11 @@ var utils = {}; ChromeUtils.import('resource://mozmill/modules/utils.js', utils)
 var elementslib = {}; ChromeUtils.import('resource://mozmill/modules/elementslib.js', elementslib);
 var frame = {}; ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
 
-var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
-                .getService(Components.interfaces.nsIAppShellService)
+var hwindow = Cc["@mozilla.org/appshell/appShellService;1"]
+                .getService(Ci.nsIAppShellService)
                 .hiddenDOMWindow;
-var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
-     getService(Components.interfaces.nsIConsoleService);
+var aConsoleService = Cc["@mozilla.org/consoleservice;1"].
+     getService(Ci.nsIConsoleService);
 
 // The window map which is used to store information e.g. loaded state of each
 // open chrome and content window.

@@ -57,7 +57,7 @@ var gEditItemOverlay = {
 
   _showHideRows: function EIO__showHideRows() {
     var isBookmark = this._itemId != -1 &&
-                     this._itemType == Components.interfaces.nsINavBookmarksService.TYPE_BOOKMARK;
+                     this._itemType == Ci.nsINavBookmarksService.TYPE_BOOKMARK;
     var isQuery = false;
     if (this._uri)
       isQuery = this._uri.schemeIs("place");
@@ -124,7 +124,7 @@ var gEditItemOverlay = {
     this._folderTree = this._element("folderTree");
 
     this._determineInfo(aInfo);
-    if (aFor instanceof Components.interfaces.nsIURI) {
+    if (aFor instanceof Ci.nsIURI) {
       this._itemId = -1;
       this._uri = aFor;
       this._readOnly = true;
@@ -136,7 +136,7 @@ var gEditItemOverlay = {
         this._readOnly = true;
       var containerId = PlacesUtils.bookmarks.getFolderIdForItem(this._itemId);
       this._itemType = PlacesUtils.bookmarks.getItemType(this._itemId);
-      if (this._itemType == Components.interfaces.nsINavBookmarksService.TYPE_BOOKMARK) {
+      if (this._itemType == Ci.nsINavBookmarksService.TYPE_BOOKMARK) {
         this._uri = PlacesUtils.bookmarks.getBookmarkURI(this._itemId);
         this._initTextField("keywordField",
                             PlacesUtils.bookmarks
@@ -164,7 +164,7 @@ var gEditItemOverlay = {
     }
 
     if (this._itemId == -1 ||
-        this._itemType == Components.interfaces.nsINavBookmarksService.TYPE_BOOKMARK) {
+        this._itemType == Ci.nsINavBookmarksService.TYPE_BOOKMARK) {
       this._isLivemark = false;
 
       this._initTextField("locationField", this._uri.spec);
@@ -177,7 +177,7 @@ var gEditItemOverlay = {
         this._allTags = [];
         this._itemIds = aItemIdList;
         for (var i = 0; i < aItemIdList.length; i++) {
-          if (aItemIdList[i] instanceof Components.interfaces.nsIURI) {
+          if (aItemIdList[i] instanceof Ci.nsIURI) {
             this._uris[i] = aItemIdList[i];
             this._itemIds[i] = -1;
           }
@@ -332,12 +332,12 @@ var gEditItemOverlay = {
   },
 
   QueryInterface: function EIO_QueryInterface(aIID) {
-    if (aIID.equals(Components.interfaces.nsIDOMEventListener) ||
-        aIID.equals(Components.interfaces.nsINavBookmarkObserver) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsIDOMEventListener) ||
+        aIID.equals(Ci.nsINavBookmarkObserver) ||
+        aIID.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
   _element: function EIO__element(aID) {
@@ -543,7 +543,7 @@ var gEditItemOverlay = {
   onDescriptionFieldBlur: function EIO_onDescriptionFieldBlur() {
     var description = this._element("descriptionField").value;
     if (description != PlacesUIUtils.getItemDescription(this._itemId)) {
-      const nsIAnnotationService = Components.interfaces.nsIAnnotationService;
+      const nsIAnnotationService = Ci.nsIAnnotationService;
       var annoObj = { name   : PlacesUIUtils.DESCRIPTION_ANNO,
                       type   : nsIAnnotationService.TYPE_STRING,
                       flags  : 0,
@@ -736,10 +736,10 @@ var gEditItemOverlay = {
   _getLastUsedAnnotationObject:
   function EIO__getLastUsedAnnotationObject(aLastUsed) {
     var anno = { name: LAST_USED_ANNO,
-                 type: Components.interfaces.nsIAnnotationService.TYPE_INT32,
+                 type: Ci.nsIAnnotationService.TYPE_INT32,
                  flags: 0,
                  value: aLastUsed ? new Date().getTime() : null,
-                 expires: Components.interfaces.nsIAnnotationService.EXPIRE_NEVER };
+                 expires: Ci.nsIAnnotationService.EXPIRE_NEVER };
 
     return anno;
   },
@@ -808,7 +808,7 @@ var gEditItemOverlay = {
     if (!ip || ip.itemId == PlacesUIUtils.allBookmarksFolderId) {
         ip = new InsertionPoint(PlacesUtils.bookmarksMenuFolderId,
                                 PlacesUtils.bookmarks.DEFAULT_INDEX,
-                                Components.interfaces.nsITreeView.DROP_ON);
+                                Ci.nsITreeView.DROP_ON);
     }
 
     // XXXmano: add a separate "New Folder" string at some point...
@@ -916,9 +916,9 @@ var gEditItemOverlay = {
     case "uri":
       var locationField = this._element("locationField");
       if (locationField.value != aValue) {
-        this._uri = Components.classes["@mozilla.org/network/io-service;1"]
-                              .getService(Components.interfaces.nsIIOService)
-                              .newURI(aValue);
+        this._uri = Cc["@mozilla.org/network/io-service;1"]
+                      .getService(Ci.nsIIOService)
+                      .newURI(aValue);
         this._initTextField("locationField", this._uri.spec);
         this._initNamePicker();
         this._initTextField("tagsField",

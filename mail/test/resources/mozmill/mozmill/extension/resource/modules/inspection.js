@@ -47,8 +47,8 @@ var objects = {}; ChromeUtils.import('resource://mozmill/stdlib/objects.js', obj
 var json2 = {}; ChromeUtils.import('resource://mozmill/stdlib/json2.js', json2);
 var withs = {}; ChromeUtils.import('resource://mozmill/stdlib/withs.js', withs);
 
-var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-           .getService(Components.interfaces.nsIWindowMediator);
+var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+           .getService(Ci.nsIWindowMediator);
 
 var isNotAnonymous = function (elem, result) {
   if (result == undefined) {
@@ -261,7 +261,7 @@ var isMagicAnonymousDiv = function (_document, node) {
 }
 
 var copyToClipboard = function(str){
-  const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"] .getService(Components.interfaces.nsIClipboardHelper);
+  const gClipboardHelper = Cc["@mozilla.org/widget/clipboardhelper;1"] .getService(Ci.nsIClipboardHelper);
   gClipboardHelper.copyString(str);
 }
 

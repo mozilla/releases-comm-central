@@ -54,13 +54,13 @@
   <script type="application/javascript">
   <![CDATA[
 
-var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                    .getService(Components.interfaces.nsIIOService);
-var dmFile = Components.classes["@mozilla.org/file/directory_service;1"]
-                       .getService(Components.interfaces.nsIProperties)
-                       .get("TmpD", Components.interfaces.nsIFile);
+var ios = Cc["@mozilla.org/network/io-service;1"]
+            .getService(Ci.nsIIOService);
+var dmFile = Cc["@mozilla.org/file/directory_service;1"]
+               .getService(Ci.nsIProperties)
+               .get("TmpD", Ci.nsIFile);
 dmFile.append("dm-ui-test.file");
-dmFile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0666);
+dmFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
 var gTestPath = ios.newFileURI(dmFile).spec;
 
 const DownloadData = [
@@ -69,14 +69,14 @@ const DownloadData = [
     target: gTestPath,
     startTime: 1180493839859230,
     endTime: 1180493839859239,
-    state: Components.interfaces.nsIDownloadManager.DOWNLOAD_FINISHED,
+    state: Ci.nsIDownloadManager.DOWNLOAD_FINISHED,
     currBytes: 0, maxBytes: -1, preferredAction: 0, autoResume: 0 }
 ];
 
 function test()
 {
-  var dm = Components.classes["@mozilla.org/download-manager;1"]
-                     .getService(Components.interfaces.nsIDownloadManager);
+  var dm = Cc["@mozilla.org/download-manager;1"]
+             .getService(Ci.nsIDownloadManager);
   var db = dm.DBConnection;
 
   // First, we populate the database with some fake data
@@ -99,8 +99,8 @@ function test()
   if (win)
     win.close();
 
-  var os = Components.classes["@mozilla.org/observer-service;1"]
-                     .getService(Components.interfaces.nsIObserverService);
+  var os = Cc["@mozilla.org/observer-service;1"]
+             .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   var testObs = {
@@ -140,9 +140,9 @@ function test()
   os.addObserver(testObs, DLMGR_UI_DONE);
 
   // Show the Download Manager UI
-  Components.classes["@mozilla.org/download-manager-ui;1"]
-            .getService(Components.interfaces.nsISuiteDownloadManagerUI)
-            .showManager();
+  Cc["@mozilla.org/download-manager-ui;1"]
+    .getService(Ci.nsISuiteDownloadManagerUI)
+    .showManager();
 
   SimpleTest.waitForExplicitFinish();
 }

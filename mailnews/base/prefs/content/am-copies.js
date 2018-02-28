@@ -417,7 +417,7 @@ function SetRadioButtons(selectPickerId, unselectPickerId)
 function updateArchiveHierarchyButton(archiveFolder) {
   let isGmailImap = (archiveFolder.server.type == "imap" &&
                      archiveFolder.server.QueryInterface(
-                       Components.interfaces.nsIImapIncomingServer)
+                       Ci.nsIImapIncomingServer)
                      .isGMailServer);
   document.getElementById("archiveHierarchyButton").disabled = isGmailImap;
 }

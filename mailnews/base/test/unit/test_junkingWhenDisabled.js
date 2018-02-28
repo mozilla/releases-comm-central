@@ -70,9 +70,9 @@ var gCommandUpdater = {
 var gDBView;
 var gTreeView;
 
-var SortType = Components.interfaces.nsMsgViewSortType;
-var SortOrder = Components.interfaces.nsMsgViewSortOrder;
-var ViewFlags = Components.interfaces.nsMsgViewFlagsType;
+var SortType = Ci.nsMsgViewSortType;
+var SortOrder = Ci.nsMsgViewSortOrder;
+var ViewFlags = Ci.nsMsgViewFlagsType;
 
 function setup_view(aViewType, aViewFlags) {
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
@@ -80,14 +80,14 @@ function setup_view(aViewType, aViewFlags) {
   // always start out fully expanded
   aViewFlags |= ViewFlags.kExpandAll;
 
-  gDBView = Components.classes[dbviewContractId]
-                      .createInstance(Components.interfaces.nsIMsgDBView);
+  gDBView = Cc[dbviewContractId]
+              .createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
   gDBView.open(gLocalInboxFolder, SortType.byDate, SortOrder.ascending, aViewFlags, outCount);
   dump("  View Out Count: " + outCount.value + "\n");
 
-  gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
   gTreeView.selection = gFakeSelection;
   gFakeSelection.view = gTreeView;
 }

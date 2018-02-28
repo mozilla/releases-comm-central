@@ -37,10 +37,10 @@ var gActionListOrdered = null;
 
 var gFilterEditorMsgWindow = null;
 
-var nsMsgFilterAction = Components.interfaces.nsMsgFilterAction;
-var nsMsgFilterType   = Components.interfaces.nsMsgFilterType;
-var nsIMsgRuleAction  = Components.interfaces.nsIMsgRuleAction;
-var nsMsgSearchScope  = Components.interfaces.nsMsgSearchScope;
+var nsMsgFilterAction = Ci.nsMsgFilterAction;
+var nsMsgFilterType   = Ci.nsMsgFilterType;
+var nsIMsgRuleAction  = Ci.nsIMsgRuleAction;
+var nsMsgSearchScope  = Ci.nsMsgSearchScope;
 
 function filterEditorOnLoad()
 {
@@ -90,7 +90,7 @@ function filterEditorOnLoad()
 
         var term = gFilter.createTerm();
 
-        term.attrib = Components.interfaces.nsMsgSearchAttrib.Default;
+        term.attrib = Ci.nsMsgSearchAttrib.Default;
         if (("fieldName" in args) && args.fieldName) {
           // fieldName should contain the name of the field in which to search,
           // from nsMsgSearchTerm.cpp::SearchAttribEntryTable, e.g. "to" or "cc"
@@ -98,10 +98,10 @@ function filterEditorOnLoad()
             term.attrib = term.getAttributeFromString(args.fieldName);
           } catch (e) { /* Invalid string is fine, just ignore it. */ }
         }
-        if (term.attrib == Components.interfaces.nsMsgSearchAttrib.Default)
-          term.attrib = Components.interfaces.nsMsgSearchAttrib.Sender;
+        if (term.attrib == Ci.nsMsgSearchAttrib.Default)
+          term.attrib = Ci.nsMsgSearchAttrib.Sender;
 
-        term.op = Components.interfaces.nsMsgSearchOp.Is;
+        term.op = Ci.nsMsgSearchOp.Is;
         term.booleanAnd = gSearchBooleanRadiogroup.value == "and";
 
         var termValue = term.value;
@@ -140,7 +140,7 @@ function filterEditorOnLoad()
         for (let i = 0; i < copiedFilter.searchTerms.length; i++)
         {
           let searchTerm = copiedFilter.searchTerms.queryElementAt(i,
-            Components.interfaces.nsIMsgSearchTerm);
+            Ci.nsIMsgSearchTerm);
 
           var newTerm = newFilter.createTerm();
           newTerm.attrib = searchTerm.attrib;
@@ -205,7 +205,7 @@ function onAccept()
   try {
     if (!saveFilter())
       return false;
-  } catch(e) {Components.utils.reportError(e); return false;}
+  } catch(e) {Cu.reportError(e); return false;}
 
   // parent should refresh filter list..
   // this should REALLY only happen when some criteria changes that
@@ -458,22 +458,22 @@ function saveFilter()
       if (!customTerm)
       {
         invalidRule = true;
-        Components.utils.reportError("Filter not saved because custom search term '" +
-                                     obj.searchattribute.value + "' in rule " + rule_desc(index, obj) + " not found");
+        Cu.reportError("Filter not saved because custom search term '" +
+                       obj.searchattribute.value + "' in rule " + rule_desc(index, obj) + " not found");
       }
       else
       {
         if (!customTerm.getAvailable(obj.searchScope, obj.searchattribute.value))
         {
           invalidRule = true;
-          Components.utils.reportError("Filter not saved because custom search term '" +
-                                       customTerm.name + "' in rule " + rule_desc(index, obj) + " not available");
+          Cu.reportError("Filter not saved because custom search term '" +
+                         customTerm.name + "' in rule " + rule_desc(index, obj) + " not available");
         }
       }
     }
     else
     {
-      let otherHeader = Components.interfaces.nsMsgSearchAttrib.OtherHeader;
+      let otherHeader = Ci.nsMsgSearchAttrib.OtherHeader;
       let attribValue = (obj.searchattribute.value > otherHeader) ?
         otherHeader : obj.searchattribute.value;
       if (!obj.searchattribute
@@ -481,8 +481,8 @@ function saveFilter()
             .getAvailable(attribValue, obj.searchoperator.value))
       {
         invalidRule = true;
-        Components.utils.reportError("Filter not saved because standard search term '" +
-                                     attribValue + "' in rule " + rule_desc(index, obj) + " not available in this context");
+        Cu.reportError("Filter not saved because standard search term '" +
+                       attribValue + "' in rule " + rule_desc(index, obj) + " not available in this context");
       }
     }
 
@@ -641,7 +641,7 @@ function AssignMeaningfulName()
     let selIndex = searchValue.getAttribute( "selectedIndex" );
     let children = document.getAnonymousNodes(searchValue);
     let activeItem = children[selIndex];
-    let attribs = Components.interfaces.nsMsgSearchAttrib;
+    let attribs = Ci.nsMsgSearchAttrib;
 
     // Term, Operator and Value are the three parts of a filter match
     // Term and Operator are easy to retrieve
@@ -716,7 +716,7 @@ function SearchNewFolderOkCallback(name, uri)
   var imapFolder = null;
   try
   {
-    imapFolder = msgFolder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
+    imapFolder = msgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
   }
   catch(ex) {}
   if (imapFolder) //imapFolder creation is asynchronous.
@@ -724,13 +724,13 @@ function SearchNewFolderOkCallback(name, uri)
     if (!gSessionFolderListenerAdded) {
       try
       {
-        let notifyFlags = Components.interfaces.nsIFolderListener.event;
+        let notifyFlags = Ci.nsIFolderListener.event;
         MailServices.mailSession.AddFolderListener(gFolderListener, notifyFlags);
         gSessionFolderListenerAdded = true;
       }
       catch (ex)
       {
-        Components.utils.reportError("Error adding to session: " + ex + "\n");
+        Cu.reportError("Error adding to session: " + ex + "\n");
       }
     }
   }
@@ -761,10 +761,10 @@ function GetFilterEditorMsgWindow()
   if (!gFilterEditorMsgWindow)
   {
     var msgWindowContractID = "@mozilla.org/messenger/msgwindow;1";
-    var nsIMsgWindow = Components.interfaces.nsIMsgWindow;
-    gFilterEditorMsgWindow = Components.classes[msgWindowContractID].createInstance(nsIMsgWindow);
+    var nsIMsgWindow = Ci.nsIMsgWindow;
+    gFilterEditorMsgWindow = Cc[msgWindowContractID].createInstance(nsIMsgWindow);
     gFilterEditorMsgWindow.domWindow = window;
-    gFilterEditorMsgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
+    gFilterEditorMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   }
   return gFilterEditorMsgWindow;
 }
@@ -797,7 +797,7 @@ function getCustomActions()
     let customActionsEnum = MailServices.filters.getCustomActions();
     while (customActionsEnum.hasMoreElements())
       gCustomActions.push(customActionsEnum.getNext().QueryInterface(
-                           Components.interfaces.nsIMsgFilterCustomAction));
+                           Ci.nsIMsgFilterCustomAction));
   }
 }
 

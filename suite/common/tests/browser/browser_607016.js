@@ -29,9 +29,9 @@ function test() {
   let progressListener = {
     onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         progressCallback(aBrowser);
     }
   }

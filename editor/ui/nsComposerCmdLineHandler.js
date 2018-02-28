@@ -5,9 +5,9 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const nsICommandLineHandler = Components.interfaces.nsICommandLineHandler;
-const nsISupportsString     = Components.interfaces.nsISupportsString;
-const nsIWindowWatcher      = Components.interfaces.nsIWindowWatcher;
+const nsICommandLineHandler = Ci.nsICommandLineHandler;
+const nsISupportsString     = Ci.nsISupportsString;
+const nsIWindowWatcher      = Ci.nsIWindowWatcher;
 
 function nsComposerCmdLineHandler() {}
 nsComposerCmdLineHandler.prototype = {
@@ -20,8 +20,8 @@ nsComposerCmdLineHandler.prototype = {
 
   /* nsICommandLineHandler */
   handle : function handle(cmdLine) {
-    var args = Components.classes["@mozilla.org/supports-string;1"]
-                         .createInstance(nsISupportsString);
+    var args = Cc["@mozilla.org/supports-string;1"]
+                 .createInstance(nsISupportsString);
     try {
       var uristr = cmdLine.handleFlagWithParam("edit", false);
       if (uristr == null) {

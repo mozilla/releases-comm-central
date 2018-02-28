@@ -38,7 +38,7 @@ function CopyNextMessage()
 {
   if (gMsgEnumerator.hasMoreElements()) {
     let msgHdr = gMsgEnumerator.getNext().QueryInterface(
-      Components.interfaces.nsIMsgDBHdr);
+      Ci.nsIMsgDBHdr);
     var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     messages.appendElement(msgHdr);
     MailServices.copy.CopyMessages(gCopySource, messages, gCopyDest, true,

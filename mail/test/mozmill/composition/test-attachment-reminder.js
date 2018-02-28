@@ -199,7 +199,7 @@ function test_attachment_reminder_with_attachment() {
   wait_for_reminder_state(cwc, true);
 
   // Add an attachment.
-  let file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+  let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   file.append("panacea.dat");
   assert_true(file.exists(), "The required file panacea.dat was not found in the profile.");
   let attachment = [cwc.window.FileToAttachment(file)];
@@ -437,7 +437,7 @@ function test_attachment_vs_filelink_reminder() {
   // Bring up the FileLink notification.
   let kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
   let maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
-  let file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+  let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   file.append("panacea.dat");
   add_attachment(cwc, Services.io.newFileURI(file).spec, maxSize);
 

@@ -5,9 +5,9 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const nsISuiteProfileMigrator = Components.interfaces.nsISuiteProfileMigrator;
-const nsIProfileStartup       = Components.interfaces.nsIProfileStartup;
-const nsISupportsString       = Components.interfaces.nsISupportsString;
+const nsISuiteProfileMigrator = Ci.nsISuiteProfileMigrator;
+const nsIProfileStartup       = Ci.nsIProfileStartup;
+const nsISupportsString       = Ci.nsISupportsString;
 const NS_PROFILE_MIGRATOR_CONTRACTID = "@mozilla.org/profile/migrator;1?app=suite&type=";
 
 var MigrationWizard = {
@@ -22,8 +22,8 @@ var MigrationWizard = {
   _newHomePage: null,           // Are we setting a new home page - what to?
 
   init: function() {
-    var os = Components.classes["@mozilla.org/observer-service;1"]
-                       .getService(Components.interfaces.nsIObserverService);
+    var os = Cc["@mozilla.org/observer-service;1"]
+               .getService(Ci.nsIObserverService);
     os.addObserver(this, "Migration:Started");
     os.addObserver(this, "Migration:ItemBeforeMigrate");
     os.addObserver(this, "Migration:ItemAfterMigrate");
@@ -57,8 +57,8 @@ var MigrationWizard = {
   },
 
   uninit: function() {
-    var os = Components.classes["@mozilla.org/observer-service;1"]
-                       .getService(Components.interfaces.nsIObserverService);
+    var os = Cc["@mozilla.org/observer-service;1"]
+               .getService(Ci.nsIObserverService);
     os.removeObserver(this, "Migration:Started");
     os.removeObserver(this, "Migration:ItemBeforeMigrate");
     os.removeObserver(this, "Migration:ItemAfterMigrate");
@@ -77,8 +77,8 @@ var MigrationWizard = {
         var contractID = NS_PROFILE_MIGRATOR_CONTRACTID + suffix;
         var migrator = null;
         if (contractID in Components.classes) {
-          migrator = Components.classes[contractID]
-                               .createInstance(nsISuiteProfileMigrator);
+          migrator = Cc[contractID]
+                       .createInstance(nsISuiteProfileMigrator);
         } else {
           dump("*** invalid contractID =" + contractID + "\n");
           // This is an invalid contract id, therefore hide this element
@@ -131,8 +131,8 @@ var MigrationWizard = {
     if (!this._migrator || newSource != this._source) {
       // Create the migrator for the selected source.
       var contractID = NS_PROFILE_MIGRATOR_CONTRACTID + newSource;
-      this._migrator = Components.classes[contractID]
-                                 .createInstance(nsISuiteProfileMigrator);
+      this._migrator = Cc[contractID]
+                         .createInstance(nsISuiteProfileMigrator);
 
       this._selectedProfile = null;
     }

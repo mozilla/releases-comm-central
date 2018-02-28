@@ -29,7 +29,7 @@ function GetCardForEmail(aEmailAddress) {
   // the cardForEmailAddress function.
   // Future expansion could be to domain matches
   let books = MailServices.ab.directories;
-  for (let book of fixIterator(books, Components.interfaces.nsIAbDirectory)) {
+  for (let book of fixIterator(books, Ci.nsIAbDirectory)) {
     try {
       let card = book.cardForEmailAddress(aEmailAddress);
       if (card)
@@ -44,7 +44,7 @@ function GetCardForEmail(aEmailAddress) {
 function _getIdentityForAddress(aEmailAddress) {
   let emailAddress = aEmailAddress.toLowerCase();
   for (let identity of fixIterator(MailServices.accounts.allIdentities,
-                                   Components.interfaces.nsIMsgIdentity)) {
+                                   Ci.nsIMsgIdentity)) {
     if (!identity.email)
       continue;
     if (emailAddress == identity.email.toLowerCase())

@@ -25,8 +25,8 @@ var gBccButton;
 
 var gActivatedButton;
 
-var gDragService = Components.classes["@mozilla.org/widget/dragservice;1"]
-                             .getService(Components.interfaces.nsIDragService);
+var gDragService = Cc["@mozilla.org/widget/dragservice;1"]
+                     .getService(Ci.nsIDragService);
 
 var gSelectAddressesAbViewListener = {
 	onSelectionChanged: function() {

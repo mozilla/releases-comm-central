@@ -146,7 +146,7 @@ SyntheticMessageSet.prototype = {
    */
   get xpcomHdrArray() {
     return toXPCOMArray(this.msgHdrs(),
-                        Components.interfaces.nsIMutableArray);
+                        Ci.nsIMutableArray);
   },
   /**
    * @return a list where each item is a list with two elements; the first is
@@ -171,7 +171,7 @@ SyntheticMessageSet.prototype = {
   foldersWithXpcomHdrArrays: function*() {
     for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
       yield [folder, toXPCOMArray(msgHdrs,
-                                  Components.interfaces.nsIMutableArray)];
+                                  Ci.nsIMutableArray)];
     }
   },
   /**

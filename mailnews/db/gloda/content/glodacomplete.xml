@@ -29,8 +29,8 @@
             var trimmedSearchString = controller.searchString.trim();
 
             // Unescape the URI spec for showing as an entry in the popup
-            let url = Components.classes["@mozilla.org/intl/texttosuburi;1"].
-              getService(Components.interfaces.nsITextToSubURI).
+            let url = Cc["@mozilla.org/intl/texttosuburi;1"].
+              getService(Ci.nsITextToSubURI).
               unEscapeURIForUI("UTF-8", controller.getValueAt(this._currentIndex));
 
             // Unlike our superclass, we create nodes every time because we have
@@ -38,8 +38,7 @@
             //  to change fast enough.
             item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "richlistitem");
 
-            var glodaCompleter =  Components.
-              classes["@mozilla.org/autocomplete/search;1?name=gloda"].
+            var glodaCompleter =  Cc["@mozilla.org/autocomplete/search;1?name=gloda"].
               getService(). //Components.interfaces.nsIAutoCompleteSearch)
               wrappedJSObject;
             var result = glodaCompleter.curResult;
@@ -424,7 +423,7 @@
             let ellipsis = "\u2026";
             try {
               ellipsis = Services.prefs.getComplexValue("intl.ellipsis",
-                  Components.interfaces.nsIPrefLocalizedString).data;
+                  Ci.nsIPrefLocalizedString).data;
             } catch (ex) {
               // Do nothing.. we already have a default
             }
@@ -514,7 +513,7 @@
             let ellipsis = "\u2026";
             try {
               ellipsis = Services.prefs.getComplexValue("intl.ellipsis",
-                  Components.interfaces.nsIPrefLocalizedString).data;
+                  Ci.nsIPrefLocalizedString).data;
             } catch (ex) {
               // Do nothing.. we already have a default
             }

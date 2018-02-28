@@ -150,14 +150,14 @@
         // Folders that are not in a deferred account
         notDeferred: function(aFolder) {
           let server = aFolder.server;
-          return !(server instanceof Components.interfaces.nsIPop3IncomingServer &&
+          return !(server instanceof Ci.nsIPop3IncomingServer &&
                    server.deferredToAccount);
         },
 
         // Folders that can be searched.
         search: function filter_search(aFolder) {
           if (!aFolder.server.canSearchMessages ||
-              aFolder.getFlag(Components.interfaces.nsMsgFolderFlags.Virtual))
+              aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual))
             return false;
           return true;
         },
@@ -165,8 +165,8 @@
         // Folders that can subscribe feeds.
         feeds: function filter_feeds(aFolder) {
           if (aFolder.server.type != "rss" ||
-              aFolder.getFlag(Components.interfaces.nsMsgFolderFlags.Trash) ||
-              aFolder.getFlag(Components.interfaces.nsMsgFolderFlags.Virtual))
+              aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+              aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual))
             return false;
           return true;
         },
@@ -204,7 +204,7 @@
             aMenu._teardown();
         },
         OnItemAdded: function act_add(aRDFParentItem, aItem) {
-          if (!(aItem instanceof Components.interfaces.nsIMsgFolder))
+          if (!(aItem instanceof Ci.nsIMsgFolder))
             return;
           if (this._filterFunction && !this._filterFunction(aItem)) {
             return;
@@ -216,7 +216,7 @@
         },
   
         OnItemRemoved: function act_remove(aRDFParentItem, aItem) {
-          if (!(aItem instanceof Components.interfaces.nsIMsgFolder))
+          if (!(aItem instanceof Ci.nsIMsgFolder))
             return;
           if (this._filterFunction && !this._filterFunction(aItem)) {
             return;
@@ -282,7 +282,7 @@
           if (!aMenu || !aMenu.childNodes)
             return null;
 
-           if (!(aItem instanceof Components.interfaces.nsIMsgFolder))
+           if (!(aItem instanceof Ci.nsIMsgFolder))
              return null;
            for (let i = 0; i < aMenu.childNodes.length; i++) {
              let folder = aMenu.childNodes[i]._folder;
@@ -672,7 +672,7 @@
           let biffStates = ["NewMail", "NoMail", "UnknownMail"];
           for (let state of biffStates) {
             if (aFolder.biffState ==
-                Components.interfaces.nsIMsgFolder["nsMsgBiffState_" + state]) {
+                Ci.nsIMsgFolder["nsMsgBiffState_" + state]) {
               aMenuNode.setAttribute("BiffState", state);
               break;
             }

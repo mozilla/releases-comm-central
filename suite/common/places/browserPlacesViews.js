@@ -34,8 +34,8 @@ PlacesViewBase.prototype = {
   _nativeView: false,
 
   QueryInterface: XPCOMUtils.generateQI(
-    [Components.interfaces.nsINavHistoryResultObserver,
-     Components.interfaces.nsISupportsWeakReference]),
+    [Ci.nsINavHistoryResultObserver,
+     Ci.nsISupportsWeakReference]),
 
   _place: "",
   get place() {
@@ -155,13 +155,13 @@ PlacesViewBase.prototype = {
     let resultNode = this._resultNode;
     if (PlacesUtils.nodeIsQuery(resultNode) &&
         PlacesUtils.asQuery(resultNode).queryOptions.queryType ==
-          Components.interfaces.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY)
+          Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY)
       return null;
 
     // By default, the insertion point is at the top level, at the end.
     let index = PlacesUtils.bookmarks.DEFAULT_INDEX;
     let container = this._resultNode;
-    let orientation = Components.interfaces.nsITreeView.DROP_BEFORE;
+    let orientation = Ci.nsITreeView.DROP_BEFORE;
     let isTag = false;
 
     let selectedNode = this.selectedNode;
@@ -173,7 +173,7 @@ PlacesViewBase.prototype = {
         // If a static menuitem is selected, or if the root node is selected,
         // the insertion point is inside the folder, at the end.
         container = selectedNode;
-        orientation = Components.interfaces.nsITreeView.DROP_ON;
+        orientation = Ci.nsITreeView.DROP_ON;
       }
       else {
         // In all other cases the insertion point is before that node.
@@ -308,10 +308,10 @@ PlacesViewBase.prototype = {
 
     let element;
     let type = aPlacesNode.type;
-    if (type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR)
+    if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR)
       element = document.createElement("menuseparator");
     else {
-      if (type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_URI) {
+      if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_URI) {
         element = document.createElement("menuitem");
         element.className = "menuitem-iconic bookmark-item menuitem-with-favicon";
         element.setAttribute("scheme",
@@ -321,7 +321,7 @@ PlacesViewBase.prototype = {
         element = document.createElement("menu");
         element.setAttribute("container", "true");
 
-        if (aPlacesNode.type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_QUERY) {
+        if (aPlacesNode.type == Ci.nsINavHistoryResultNode.RESULT_TYPE_QUERY) {
           element.setAttribute("query", "true");
           if (PlacesUtils.nodeIsTagQuery(aPlacesNode))
             element.setAttribute("tagContainer", "true");
@@ -450,9 +450,9 @@ PlacesViewBase.prototype = {
   function PVB_setLivemarkStatusMenuItem(aPopup, aStatus) {
     let itemId = aPopup._placesNode.itemId;
     let lmStatus = null;
-    if (aStatus == Components.interfaces.mozILivemark.STATUS_LOADING)
+    if (aStatus == Ci.mozILivemark.STATUS_LOADING)
       lmStatus = "bookmarksLivemarkLoading";
-    else if (aStatus == Components.interfaces.mozILivemark.STATUS_FAILED)
+    else if (aStatus == Ci.mozILivemark.STATUS_FAILED)
       lmStatus = "bookmarksLivemarkFailed";
 
     let lmStatusElt = aPopup._lmStatusMenuItem;
@@ -643,8 +643,8 @@ PlacesViewBase.prototype = {
 
   containerStateChanged:
   function PVB_containerStateChanged(aPlacesNode, aOldState, aNewState) {
-    if (aNewState == Components.interfaces.nsINavHistoryContainerResultNode.STATE_OPENED ||
-        aNewState == Components.interfaces.nsINavHistoryContainerResultNode.STATE_CLOSED) {
+    if (aNewState == Ci.nsINavHistoryContainerResultNode.STATE_OPENED ||
+        aNewState == Ci.nsINavHistoryContainerResultNode.STATE_CLOSED) {
       this.invalidateContainer(aPlacesNode);
 
       if (PlacesUtils.nodeIsFolder(aPlacesNode) &&
@@ -654,7 +654,7 @@ PlacesViewBase.prototype = {
           let shouldInvalidate =
             !this.controller.hasCachedLivemarkInfo(aPlacesNode);
           this.controller.cacheLivemarkInfo(aPlacesNode, aLivemark);
-          if (aNewState == Components.interfaces.nsINavHistoryContainerResultNode.STATE_OPENED) {
+          if (aNewState == Ci.nsINavHistoryContainerResultNode.STATE_OPENED) {
             aLivemark.registerForUpdates(aPlacesNode, this);
             aLivemark.reload();
             if (shouldInvalidate)
@@ -671,7 +671,7 @@ PlacesViewBase.prototype = {
   _populateLivemarkPopup: function PVB__populateLivemarkPopup(aPopup)
   {
     this._setLivemarkSiteURIMenuItem(aPopup);
-    this._setLivemarkStatusMenuItem(aPopup, Components.interfaces.mozILivemark.STATUS_LOADING);
+    this._setLivemarkStatusMenuItem(aPopup, Ci.mozILivemark.STATUS_LOADING);
 
     PlacesUtils.livemarks.getLivemark({ id: aPopup._placesNode.itemId })
                          .then(aLivemark => {
@@ -858,8 +858,8 @@ PlacesToolbar.prototype = {
               "mousemove", "mouseover", "mouseout"],
 
   QueryInterface: function PT_QueryInterface(aIID) {
-    if (aIID.equals(Components.interfaces.nsIDOMEventListener) ||
-        aIID.equals(Components.interfaces.nsITimerCallback))
+    if (aIID.equals(Ci.nsIDOMEventListener) ||
+        aIID.equals(Ci.nsITimerCallback))
       return this;
 
     return PlacesViewBase.prototype.QueryInterface.apply(this, arguments);
@@ -908,7 +908,7 @@ PlacesToolbar.prototype = {
 
     let type = aChild.type;
     let button;
-    if (type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR) {
+    if (type == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR) {
       button = document.createElement("toolbarseparator");
     }
     else {
@@ -1278,7 +1278,7 @@ PlacesToolbar.prototype = {
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
                                eltIndex,
-                               Components.interfaces.nsITreeView.DROP_BEFORE);
+                               Ci.nsITreeView.DROP_BEFORE);
           dropPoint.beforeIndex = eltIndex;
         }
         else if (this._isRTL ? (aEvent.clientX > eltRect.left + threshold)
@@ -1286,7 +1286,7 @@ PlacesToolbar.prototype = {
           // Drop inside this folder.
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(elt._placesNode),
-                               -1, Components.interfaces.nsITreeView.DROP_ON,
+                               -1, Ci.nsITreeView.DROP_ON,
                                PlacesUtils.nodeIsTagQuery(elt._placesNode));
           dropPoint.beforeIndex = eltIndex;
           dropPoint.folderElt = elt;
@@ -1300,7 +1300,7 @@ PlacesToolbar.prototype = {
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
                                beforeIndex,
-                               Components.interfaces.nsITreeView.DROP_BEFORE);
+                               Ci.nsITreeView.DROP_BEFORE);
           dropPoint.beforeIndex = beforeIndex;
         }
       }
@@ -1314,7 +1314,7 @@ PlacesToolbar.prototype = {
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
                                eltIndex,
-                               Components.interfaces.nsITreeView.DROP_BEFORE);
+                               Ci.nsITreeView.DROP_BEFORE);
           dropPoint.beforeIndex = eltIndex;
         }
         else {
@@ -1325,7 +1325,7 @@ PlacesToolbar.prototype = {
           dropPoint.ip =
             new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
                                beforeIndex,
-                               Components.interfaces.nsITreeView.DROP_BEFORE);
+                               Ci.nsITreeView.DROP_BEFORE);
           dropPoint.beforeIndex = beforeIndex;
         }
       }
@@ -1335,7 +1335,7 @@ PlacesToolbar.prototype = {
       // toolbar, we should drop after the last node.
       dropPoint.ip =
         new InsertionPoint(PlacesUtils.getConcreteItemId(this._resultNode),
-                           -1, Components.interfaces.nsITreeView.DROP_BEFORE);
+                           -1, Ci.nsITreeView.DROP_BEFORE);
       dropPoint.beforeIndex = -1;
     }
 
@@ -1343,8 +1343,8 @@ PlacesToolbar.prototype = {
   },
 
   _setTimer: function PT_setTimer(aTime) {
-    let timer = Components.classes["@mozilla.org/timer;1"]
-                          .createInstance(Components.interfaces.nsITimer);
+    let timer = Cc["@mozilla.org/timer;1"]
+                  .createInstance(Ci.nsITimer);
     timer.initWithCallback(this, aTime, timer.TYPE_ONE_SHOT);
     return timer;
   },
@@ -1616,8 +1616,8 @@ PlacesToolbar.prototype = {
       // On Linux we can open the popup only after a delay.
       // Indeed as soon as the menupopup opens we are unable to start a
       // drag aEvent.  See bug 500081 for details.
-      this._mouseDownTimer = Components.classes["@mozilla.org/timer;1"].
-                             createInstance(Components.interfaces.nsITimer);
+      this._mouseDownTimer = Cc["@mozilla.org/timer;1"].
+                             createInstance(Ci.nsITimer);
       let callback = {
         _self: this,
         _target: target,
@@ -1628,7 +1628,7 @@ PlacesToolbar.prototype = {
       };
 
       this._mouseDownTimer.initWithCallback(callback, 300,
-                                            Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                                            Ci.nsITimer.TYPE_ONE_SHOT);
     }
   },
 
@@ -1691,7 +1691,7 @@ PlacesMenu.prototype = {
   __proto__: PlacesViewBase.prototype,
 
   QueryInterface: function PM_QueryInterface(aIID) {
-    if (aIID.equals(Components.interfaces.nsIDOMEventListener))
+    if (aIID.equals(Ci.nsIDOMEventListener))
       return this;
 
     return PlacesViewBase.prototype.QueryInterface.apply(this, arguments);

@@ -98,7 +98,7 @@ function onLockPreference()
     };
     disableIfLocked(allPrefElements);
   } catch (e) { // non-fatal
-    Components.utils.reportError("Error while getting locked prefs: " + e);
+    Cu.reportError("Error while getting locked prefs: " + e);
   }
 }
 

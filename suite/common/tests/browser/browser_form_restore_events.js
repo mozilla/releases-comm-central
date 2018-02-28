@@ -7,9 +7,9 @@ function test() {
 
   waitForExplicitFinish();
 
-  let file = Components.classes["@mozilla.org/file/directory_service;1"]
-                       .getService(Components.interfaces.nsIProperties)
-                       .get("TmpD", Components.interfaces.nsIFile);
+  let file = Cc["@mozilla.org/file/directory_service;1"]
+               .getService(Ci.nsIProperties)
+               .get("TmpD", Ci.nsIFile);
 
   let testURL = "http://mochi.test:8888/browser/" +
     "suite/common/tests/browser/browser_form_restore_events_sample.html";

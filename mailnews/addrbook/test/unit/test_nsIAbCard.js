@@ -28,7 +28,7 @@ function run_test() {
     tempCard = childCards.getNext();
 
     // We want the one with the right email...
-    if (tempCard instanceof Components.interfaces.nsIAbCard &&
+    if (tempCard instanceof Ci.nsIAbCard &&
         tempCard.primaryEmail == "PrimaryEmail1@test.invalid")
       fullCard = tempCard;
   }

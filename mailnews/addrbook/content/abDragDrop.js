@@ -8,13 +8,13 @@ ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 // Returns the load context for the current window
 function getLoadContext() {
-  return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-               .getInterface(Components.interfaces.nsIWebNavigation)
-               .QueryInterface(Components.interfaces.nsILoadContext);
+  return window.QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIWebNavigation)
+               .QueryInterface(Ci.nsILoadContext);
 }
 
 var abFlavorDataProvider = {
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIFlavorDataProvider]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
   getFlavorData: function(aTransferable, aFlavor, aData, aDataLen)
   {
@@ -22,16 +22,16 @@ var abFlavorDataProvider = {
     {
       var primitive = {};
       aTransferable.getTransferData("text/vcard", primitive, {});
-      var vCard = primitive.value.QueryInterface(Components.interfaces.nsISupportsString).data;
+      var vCard = primitive.value.QueryInterface(Ci.nsISupportsString).data;
       aTransferable.getTransferData("application/x-moz-file-promise-dest-filename", primitive, {});
-      var leafName = primitive.value.QueryInterface(Components.interfaces.nsISupportsString).data;
+      var leafName = primitive.value.QueryInterface(Ci.nsISupportsString).data;
       aTransferable.getTransferData("application/x-moz-file-promise-dir", primitive, {});
-      var localFile = primitive.value.QueryInterface(Components.interfaces.nsIFile).clone();
+      var localFile = primitive.value.QueryInterface(Ci.nsIFile).clone();
       localFile.append(leafName);
 
-      var ofStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
+      var ofStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
       ofStream.init(localFile, -1, -1, 0);
-      var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].createInstance(Components.interfaces.nsIConverterOutputStream);
+      var converter = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
       converter.init(ofStream, null);
       converter.writeString(vCard);
       converter.close();
@@ -61,13 +61,13 @@ var abResultsPaneObserver = {
       // to restrict them here.
       if (!srcDirectory.readOnly)
         // Only allow copy & move from read-write directories.
-        aDragAction.action = Components.interfaces.
+        aDragAction.action = Ci.
                              nsIDragService.DRAGDROP_ACTION_COPY |
-                             Components.interfaces.
+                             Ci.
                              nsIDragService.DRAGDROP_ACTION_MOVE;
       else
         // Only allow copy from read-only directories.
-        aDragAction.action = Components.interfaces.
+        aDragAction.action = Ci.
                              nsIDragService.DRAGDROP_ACTION_COPY;
 
       var card = GetSelectedCard();
@@ -99,8 +99,8 @@ var abResultsPaneObserver = {
 };
 
 
-var dragService = Components.classes["@mozilla.org/widget/dragservice;1"]
-                            .getService(Components.interfaces.nsIDragService);
+var dragService = Cc["@mozilla.org/widget/dragservice;1"]
+                    .getService(Ci.nsIDragService);
 
 var abDirTreeObserver = {
   /**
@@ -130,7 +130,7 @@ var abDirTreeObserver = {
    */
   canDrop: function(index, orientation, dataTransfer)
   {
-    if (orientation != Components.interfaces.nsITreeView.DROP_ON)
+    if (orientation != Ci.nsITreeView.DROP_ON)
       return false;
     if (!dataTransfer.types.includes("moz/abcard")) {
       return false;
@@ -178,7 +178,7 @@ var abDirTreeObserver = {
 
     // Only allow copy from read-only directories.
     if (srcDirectory.readOnly &&
-        dragSession.dragAction != Components.interfaces.
+        dragSession.dragAction != Ci.
                                   nsIDragService.DRAGDROP_ACTION_COPY)
       return false;
 
@@ -204,7 +204,7 @@ var abDirTreeObserver = {
     // move of mailing lists if we're not going into another mailing list.
     if (draggingMailList &&
         (targetDirectory.isMailList ||
-         dragSession.dragAction == Components.interfaces.
+         dragSession.dragAction == Ci.
                                    nsIDragService.DRAGDROP_ACTION_COPY))
     {
       return false;
@@ -291,8 +291,8 @@ var abDirTreeObserver = {
         // This is true only if srcURI is "All ABs" and action is moving.
         if (srcDirectory) {
           let cardArray =
-            Components.classes["@mozilla.org/array;1"]
-                      .createInstance(Components.interfaces.nsIMutableArray);
+            Cc["@mozilla.org/array;1"]
+              .createInstance(Ci.nsIMutableArray);
           cardArray.appendElement(card);
           srcDirectory.deleteCards(cardArray);
         }
@@ -359,8 +359,8 @@ function DragAddressOverTargetControl(event)
   if (!dragSession.isDataFlavorSupported("text/x-moz-address"))
      return;
 
-  var trans = Components.classes["@mozilla.org/widget/transferable;1"]
-                        .createInstance(Components.interfaces.nsITransferable);
+  var trans = Cc["@mozilla.org/widget/transferable;1"]
+                .createInstance(Ci.nsITransferable);
   trans.init(getLoadContext());
   trans.addDataFlavor("text/x-moz-address");
 
@@ -389,7 +389,7 @@ function DropAddressOverTargetControl(event)
 {
   var dragSession = gDragService.getCurrentSession();
 
-  var trans = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
+  var trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
   trans.addDataFlavor("text/x-moz-address");
 
   for ( var i = 0; i < dragSession.numDropItems; ++i )
@@ -410,7 +410,7 @@ function DropAddressOverTargetControl(event)
     }
 
     if ( dataObj )
-      dataObj = dataObj.value.QueryInterface(Components.interfaces.nsISupportsString);
+      dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
     if ( !dataObj )
       continue;
 

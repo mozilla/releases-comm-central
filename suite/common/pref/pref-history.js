@@ -26,8 +26,8 @@ function Startup()
   catch(ex) {
   }
   var globalHistButton = document.getElementById("browserClearHistory");
-  var globalHistory = Components.classes["@mozilla.org/browser/nav-history-service;1"]
-                                .getService(Components.interfaces.nsINavHistoryService);
+  var globalHistory = Cc["@mozilla.org/browser/nav-history-service;1"]
+                        .getService(Ci.nsINavHistoryService);
   if (!globalHistory.hasHistoryEntries)
     globalHistButton.disabled = true;
 }

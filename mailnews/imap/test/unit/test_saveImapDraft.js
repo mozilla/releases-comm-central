@@ -143,7 +143,7 @@ var progressListener = {
         iid.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   }
 };
 

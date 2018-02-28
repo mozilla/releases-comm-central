@@ -209,7 +209,7 @@ function test_create_existing_account() {
     },
     onStopRequest: function(aRequest, aContext, aStatusCode) {
       assert_true(aContext instanceof Ci.nsIMsgCloudFileProvider);
-      assert_equals(aStatusCode, Components.results.NS_OK);
+      assert_equals(aStatusCode, Cr.NS_OK);
       done = true;
     },
   }

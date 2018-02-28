@@ -142,7 +142,7 @@ function run_test() {
   // We're not running the server, just setting it up
   localserver = setupLocalServer(119);
   let nntpService = Cc["@mozilla.org/messenger/nntpservice;1"]
-                      .getService(Components.interfaces.nsIProtocolHandler);
+                      .getService(Ci.nsIProtocolHandler);
   for (let test of tests) {
     dump("Checking URL " + test.uri + "\n");
     let url = nntpService.newURI(test.uri);
@@ -161,7 +161,7 @@ function run_test() {
       nntpService.newURI(fail);
       Assert.ok(false);
     } catch (e) {
-      Assert.equal(e.result, Components.results.NS_ERROR_MALFORMED_URI);
+      Assert.equal(e.result, Cr.NS_ERROR_MALFORMED_URI);
     }
   }
 

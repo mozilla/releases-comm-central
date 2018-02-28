@@ -25,8 +25,8 @@ var CacheObserver = {
 
   /* nsISupports */
   QueryInterface: XPCOMUtils.generateQI(
-    [Components.interfaces.nsICacheStorageConsumptionObserver,
-     Components.interfaces.nsISupportsWeakReference])
+    [Ci.nsICacheStorageConsumptionObserver,
+     Ci.nsISupportsWeakReference])
 };
 
 // because the cache is in kilobytes, and the UI is in megabytes.
@@ -67,9 +67,9 @@ function ReadCacheFolder(aField)
 function CacheSelectFolder()
 {
   var pref = document.getElementById("browser.cache.disk.parent_directory");
-  const nsIFilePicker = Components.interfaces.nsIFilePicker;
-  var fp = Components.classes["@mozilla.org/filepicker;1"]
-                     .createInstance(nsIFilePicker);
+  const nsIFilePicker = Ci.nsIFilePicker;
+  var fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(nsIFilePicker);
   var prefutilitiesBundle = document.getElementById("bundle_prefutilities");
   var title = prefutilitiesBundle.getString("cachefolder");
 
@@ -82,8 +82,8 @@ function CacheSelectFolder()
 
 function ClearDiskAndMemCache()
 {
-  Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
-            .getService(Components.interfaces.nsICacheStorageService).clear();
+  Cc["@mozilla.org/netwerk/cache-storage-service;1"]
+    .getService(Ci.nsICacheStorageService).clear();
   updateActualCacheSize();
 }
 
@@ -103,7 +103,7 @@ function ReadSmartSizeEnabled()
 
 function updateActualCacheSize()
 {
-  Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
-            .getService(Components.interfaces.nsICacheStorageService)
-            .asyncGetDiskConsumption(CacheObserver);
+  Cc["@mozilla.org/netwerk/cache-storage-service;1"]
+    .getService(Ci.nsICacheStorageService)
+    .asyncGetDiskConsumption(CacheObserver);
 }

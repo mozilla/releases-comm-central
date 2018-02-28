@@ -4,10 +4,10 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var kIMig = Components.interfaces.nsIMailProfileMigrator;
-var kIPStartup = Components.interfaces.nsIProfileStartup;
+var kIMig = Ci.nsIMailProfileMigrator;
+var kIPStartup = Ci.nsIProfileStartup;
 var kProfileMigratorContractIDPrefix = "@mozilla.org/profile/migrator;1?app=mail&type=";
-var nsISupportsString = Components.interfaces.nsISupportsString;
+var nsISupportsString = Ci.nsISupportsString;
 
 var MigrationWizard = {
   _source: "",                  // Source Profile Migrator ContractID suffix
@@ -78,7 +78,7 @@ var MigrationWizard = {
       var suffix = group.childNodes[i].id;
       if (suffix != "nothing") {
         var contractID = kProfileMigratorContractIDPrefix + suffix;
-        var migrator = Components.classes[contractID].createInstance(kIMig);
+        var migrator = Cc[contractID].createInstance(kIMig);
         if (!migrator.sourceExists) {
           group.childNodes[i].hidden = true;
           if (this._source == suffix) this._source = null;
@@ -117,7 +117,7 @@ var MigrationWizard = {
     if (!this._migrator || (newSource != this._source)) {
       // Create the migrator for the selected source.
       var contractID = kProfileMigratorContractIDPrefix + newSource;
-      this._migrator = Components.classes[contractID].createInstance(kIMig);
+      this._migrator = Cc[contractID].createInstance(kIMig);
 
       this._itemsFlags = kIMig.ALL;
       this._selectedProfile = null;

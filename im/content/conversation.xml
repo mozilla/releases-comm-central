@@ -317,7 +317,7 @@
             if (Services.io.offline)
               errMsg = this.bundle.GetStringFromName("networkOffline");
             else if (account.statusInfo.statusType ==
-                     Components.interfaces.imIStatusInfo.STATUS_OFFLINE)
+                     Ci.imIStatusInfo.STATUS_OFFLINE)
               errMsg = this.bundle.GetStringFromName("statusOffline");
             else {
               errMsg = this.bundle.formatStringFromName("accountDisconnected",
@@ -327,9 +327,9 @@
             return;
           }
 
-          let msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                              .getService(Ci.mozITXTToHTMLConv)
-                              .scanTXT(aMsg, 0);
+          let msg = Cc["@mozilla.org/txttohtmlconv;1"]
+                      .getService(Ci.mozITXTToHTMLConv)
+                      .scanTXT(aMsg, 0);
 
           if (account.HTMLEnabled) {
             msg = msg.replace(/\n/g, "<br/>");
@@ -1036,7 +1036,7 @@
           if (accelKeyPressed)
             return;
 
-          const masks = Components.interfaces.nsIDOMNSEvent;
+          const masks = Ci.nsIDOMNSEvent;
           var modifiers = 0;
           if (event.shiftKey)
             modifiers |= masks.SHIFT_MASK;
@@ -1050,8 +1050,8 @@
             modifiers |= isMac ? masks.META_MASK : masks.CONTROL_MASK;
 
           // resend the event
-          window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                .getInterface(Components.interfaces.nsIDOMWindowUtils)
+          window.QueryInterface(Ci.nsIInterfaceRequestor)
+                .getInterface(Ci.nsIDOMWindowUtils)
                 .sendKeyEvent(event.type, event.keyCode, event.charCode, modifiers);
         ]]>
         </body>

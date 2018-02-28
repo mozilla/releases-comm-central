@@ -121,12 +121,12 @@ PlacesController.prototype = {
       break;
     case "placesCmd_delete:hostname":
       PlacesUtils.history
-                 .QueryInterface(Components.interfaces.nsIBrowserHistory)
+                 .QueryInterface(Ci.nsIBrowserHistory)
                  .removePagesFromHost(gLastHostname, false);
       break;
     case "placesCmd_delete:domain":
       PlacesUtils.history
-                 .QueryInterface(Components.interfaces.nsIBrowserHistory)
+                 .QueryInterface(Ci.nsIBrowserHistory)
                  .removePagesFromHost(gLastDomain, true);
       break;
     }
@@ -163,13 +163,13 @@ PlacesController.prototype = {
       var nodeType = node.type;
       var uri = null;
 
-      if (node.type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_URI)
+      if (node.type == Ci.nsINavHistoryResultNode.RESULT_TYPE_URI)
         nodeData["link"] = true;
       else {
         nodeData["query"] = true;
         if (node.parent) {
           if (PlacesUtils.asQuery(node.parent).queryOptions.resultType ==
-              Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_SITE_QUERY)
+              Ci.nsINavHistoryQueryOptions.RESULTS_AS_SITE_QUERY)
             nodeData["host"] = true;
           else
             nodeData["day"] = true;
@@ -303,8 +303,8 @@ PlacesController.prototype = {
     var reallyOpen = true;
     if (Services.prefs.getBoolPref(kWarnOnOpenPref)) {
       if (numTabsToOpen >= Services.prefs.getIntPref("browser.tabs.maxOpenBeforeWarn")) {
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                      .getService(Components.interfaces.nsIPromptService);
+        var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                              .getService(Ci.nsIPromptService);
 
         // default to true: if it were false, we wouldn't get this far
         var warnOnOpen = { value: true };
@@ -313,10 +313,10 @@ PlacesController.prototype = {
         var openKey = "tabs.openButtonMultiple";
         var strings = document.getElementById("placeBundle");
         const BRANDING_BUNDLE_URI = "chrome://branding/locale/brand.properties";
-        var brandShortName = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                                       .getService(Components.interfaces.nsIStringBundleService)
-                                       .createBundle(BRANDING_BUNDLE_URI)
-                                       .GetStringFromName("brandShortName");
+        var brandShortName = Cc["@mozilla.org/intl/stringbundle;1"]
+                               .getService(Ci.nsIStringBundleService)
+                               .createBundle(BRANDING_BUNDLE_URI)
+                               .GetStringFromName("brandShortName");
 
         var buttonPressed = promptService.confirmEx(window,
           PlacesUIUtils.getString("tabs.openWarningTitle"),
@@ -383,7 +383,7 @@ PlacesController.prototype = {
     // history deletes are not undoable.
     var nodes = this._view.getSelectionNodes();
     var URIs = [];
-    var bhist = PlacesUtils.history.QueryInterface(Components.interfaces.nsIBrowserHistory);
+    var bhist = PlacesUtils.history.QueryInterface(Ci.nsIBrowserHistory);
     var root = this._view.getResultNode();
 
     for (var i = 0; i < nodes.length; ++i) {
@@ -500,8 +500,8 @@ PlacesController.prototype = {
     try {
       let nodes = this._view.getSelectionNodes();
 
-      let xferable = Components.classes["@mozilla.org/widget/transferable;1"]
-                               .createInstance(Components.interfaces.nsITransferable);
+      let xferable = Cc["@mozilla.org/widget/transferable;1"]
+                       .createInstance(Ci.nsITransferable);
       xferable.init(null);
       let foundFolder = false, foundLink = false;
       let copiedFolders = [];

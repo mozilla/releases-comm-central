@@ -1309,8 +1309,8 @@ function makeABCardForAddressPair(nameAndAddress) {
   // kPABData is from abSetup.js
   let addressBook = MailServices.ab.getDirectory(kPABData.URI);
 
-  let card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
-                       .createInstance(Components.interfaces.nsIAbCard);
+  let card = Cc["@mozilla.org/addressbook/cardproperty;1"]
+               .createInstance(Ci.nsIAbCard);
   card.displayName = nameAndAddress[0];
   card.primaryEmail = nameAndAddress[1];
 

@@ -30,7 +30,7 @@ function getBestIdentity(identities, optionalHint, useDefault = false)
 
     for (let i = 0 ; i < hints.length; i++) {
       for (let identity of fixIterator(identities,
-                                       Components.interfaces.nsIMsgIdentity)) {
+                                       Ci.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
         if (hints[i].trim() == identity.email.toLowerCase() ||
@@ -50,7 +50,7 @@ function getBestIdentity(identities, optionalHint, useDefault = false)
       return defaultAccount.defaultIdentity;
   }
 
-  return identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+  return identities.queryElementAt(0, Ci.nsIMsgIdentity);
 }
 
 function getIdentityForServer(server, optionalHint)
@@ -88,7 +88,7 @@ function getIdentityForHeader(hdr, type)
 
     for (let i = 0; i < deliveredTos.length; i++) {
       for (let identity of fixIterator(accountManager.allIdentities,
-                                       Components.interfaces.nsIMsgIdentity)) {
+                                       Ci.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
         // If the deliver-to header contains the defined identity, that's it.
@@ -120,11 +120,11 @@ function getIdentityForHeader(hdr, type)
   }
 
   let hintForIdentity = "";
-  if (type == Components.interfaces.nsIMsgCompType.ReplyToList)
+  if (type == Ci.nsIMsgCompType.ReplyToList)
     hintForIdentity = findDeliveredToIdentityEmail();
-  else if (type == Components.interfaces.nsIMsgCompType.Template ||
-           type == Components.interfaces.nsIMsgCompType.EditTemplate ||
-           type == Components.interfaces.nsIMsgCompType.EditAsNew)
+  else if (type == Ci.nsIMsgCompType.Template ||
+           type == Ci.nsIMsgCompType.EditTemplate ||
+           type == Ci.nsIMsgCompType.EditAsNew)
     hintForIdentity = hdr.author;
   else
     hintForIdentity = hdr.recipients + "," + hdr.ccList + "," +
@@ -144,7 +144,7 @@ function GetNextNMessages(folder)
 {
   if (folder) {
     var newsFolder = folder.QueryInterface(
-                     Components.interfaces.nsIMsgNewsFolder);
+                     Ci.nsIMsgNewsFolder);
     if (newsFolder) {
       newsFolder.getNextNMessages(msgWindow);
     }
@@ -176,7 +176,7 @@ function GetMsgKeyFromURI(uri) {
  */
 function ComposeMessage(type, format, folder, messageArray)
 {
-  let msgComposeType = Components.interfaces.nsIMsgCompType;
+  let msgComposeType = Ci.nsIMsgCompType;
   let ignoreQuote = false;
   let msgKey;
   if (messageArray && messageArray.length == 1) {
@@ -321,17 +321,17 @@ function NewMessageToSelectedAddresses(type, format, identity) {
   var abResultsTree = abSidebarPanel.document.getElementById("abResultsTree");
   var abResultsBoxObject = abResultsTree.treeBoxObject;
   var abView = abResultsBoxObject.view;
-  abView = abView.QueryInterface(Components.interfaces.nsIAbView);
+  abView = abView.QueryInterface(Ci.nsIAbView);
   var addresses = abView.selectedAddresses;
-  var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
+  var params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);
   if (params) {
     params.type = type;
     params.format = format;
     params.identity = identity;
-    var composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
+    var composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
     if (composeFields) {
       let addressList = [];
-      const nsISupportsString = Components.interfaces.nsISupportsString;
+      const nsISupportsString = Ci.nsISupportsString;
       for (let i = 0; i < addresses.length; i++) {
         addressList.push(addresses.queryElementAt(i, nsISupportsString).data);
       }
@@ -356,7 +356,7 @@ function SubscribeOKCallback(changeTable)
     var folder = MailUtils.getFolderForURI(serverURI, true);
     var server = folder.server;
     var subscribableServer =
-          server.QueryInterface(Components.interfaces.nsISubscribableServer);
+          server.QueryInterface(Ci.nsISubscribableServer);
 
     for (var name in changeTable[serverURI]) {
       if (changeTable[serverURI][name] == true) {
@@ -396,7 +396,7 @@ function SaveAsFile(uris)
     let msgHdr = messenger.messageServiceFromURI(uri)
                           .messageURIToMsgHdr(uri);
     let name = msgHdr.mime2DecodedSubject;
-    if (msgHdr.flags & Components.interfaces.nsMsgMessageFlags.HasRe)
+    if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe)
       name = (name) ? "Re: " + name : "Re: ";
 
     let filename = GenerateValidFilename(name, ".eml");
@@ -434,7 +434,7 @@ function GenerateFilenameFromMsgHdr(msgHdr) {
   }
 
   let filename;
-  if (msgHdr.flags & Components.interfaces.nsMsgMessageFlags.HasRe)
+  if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe)
     filename = (msgHdr.mime2DecodedSubject) ? "Re: " + msgHdr.mime2DecodedSubject : "Re: ";
   else
     filename = msgHdr.mime2DecodedSubject;

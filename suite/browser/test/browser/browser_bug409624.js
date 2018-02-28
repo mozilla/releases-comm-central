@@ -19,8 +19,8 @@ function test() {
 
 function test2()
 {
-  let prefService = Components.classes["@mozilla.org/preferences-service;1"]
-                              .getService(Components.interfaces.nsIPrefBranch);
+  let prefService = Cc["@mozilla.org/preferences-service;1"]
+                      .getService(Ci.nsIPrefBranch);
 
   let findBar = document.getElementById("FindToolbar");
   let textbox = findBar.getElement("findbar-textbox");

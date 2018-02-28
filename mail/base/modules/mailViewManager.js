@@ -41,7 +41,7 @@ var MailViewConstants = {
 var MailViewManager = {
   _views: {},
   _customMailViews: Cc["@mozilla.org/messenger/mailviewlist;1"]
-                      .getService(Components.interfaces.nsIMsgMailViewList),
+                      .getService(Ci.nsIMsgMailViewList),
 
   /**
    * Define one of the built-in mail-views.  If you want to define your own

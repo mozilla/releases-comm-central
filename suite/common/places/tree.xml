@@ -38,8 +38,8 @@
         <getter><![CDATA[
           try {
             return this.treeBoxObject.view
-                .QueryInterface(Components.interfaces.nsITreeView)
-                .QueryInterface(Components.interfaces.nsINavHistoryResultTreeViewer);
+                .QueryInterface(Ci.nsITreeView)
+                .QueryInterface(Ci.nsINavHistoryResultTreeViewer);
           }
           catch(e) {
             return null;
@@ -222,7 +222,7 @@
             // opening each folder as we go.
             for (var i = parents.length - 1; i >= 0; --i) {
               var index = view.treeIndexForNode(parents[i]);
-              if (index != Components.interfaces.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE &&
+              if (index != Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE &&
                   view.isContainer(index) && !view.isContainerOpen(index))
                 view.toggleOpenState(index);
             }
@@ -230,7 +230,7 @@
           }
 
           var index = view.treeIndexForNode(node);
-          if (index == Components.interfaces.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE)
+          if (index == Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE)
             return;
 
           view.selection.select(index);
@@ -243,7 +243,7 @@
       <property name="result">
         <getter><![CDATA[
           try {
-            return this.view.QueryInterface(Components.interfaces.nsINavHistoryResultObserver).result;
+            return this.view.QueryInterface(Ci.nsINavHistoryResultObserver).result;
           }
           catch (e) {
             return null;
@@ -389,10 +389,10 @@
           var resultNode = this.result.root;
           if (PlacesUtils.nodeIsQuery(resultNode) &&
               PlacesUtils.asQuery(resultNode).queryOptions.queryType ==
-                Components.interfaces.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY)
+                Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY)
               return this._cachedInsertionPoint = null;
 
-          var orientation = Components.interfaces.nsITreeView.DROP_BEFORE;
+          var orientation = Ci.nsITreeView.DROP_BEFORE;
           // If there is no selection, insert at the end of the container.
           if (!this.hasSelection) {
             var index = this.view.rowCount - 1;
@@ -432,7 +432,7 @@
             PlacesUtils.getConcreteItemId(resultView.nodeForTreeIndex(max.value));
           if (selection.count == 1 && resultView.isContainer(max.value) &&
               !this.flatList)
-            orientation = Components.interfaces.nsITreeView.DROP_ON;
+            orientation = Ci.nsITreeView.DROP_ON;
 
           this._cachedInsertionPoint =
             this._getInsertionPoint(max.value, orientation);
@@ -453,19 +453,19 @@
           // the view is populated from (i.e. the result's itemId).
           if (index != -1) {
             var lastSelected = resultview.nodeForTreeIndex(index);
-            if (resultview.isContainer(index) && orientation == Components.interfaces.nsITreeView.DROP_ON) {
+            if (resultview.isContainer(index) && orientation == Ci.nsITreeView.DROP_ON) {
               // If the last selected item is an open container, append _into_
               // it, rather than insert adjacent to it.
               container = lastSelected;
               index = -1;
             }
             else if (lastSelected.containerOpen &&
-                     orientation == Components.interfaces.nsITreeView.DROP_AFTER &&
+                     orientation == Ci.nsITreeView.DROP_AFTER &&
                      lastSelected.hasChildren) {
              // If the last selected item is an open container and the user is
              // trying to drag into it as a first item, really insert into it.
              container = lastSelected;
-             orientation = Components.interfaces.nsITreeView.DROP_ON;
+             orientation = Ci.nsITreeView.DROP_ON;
              index = 0;
             }
             else {
@@ -483,7 +483,7 @@
 
               var queryOptions = PlacesUtils.asQuery(result.root).queryOptions;
               if (queryOptions.sortingMode !=
-                    Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_NONE) {
+                    Ci.nsINavHistoryQueryOptions.SORT_BY_NONE) {
                 // If we are within a sorted view, insert at the end
                 index = -1;
               }
@@ -498,7 +498,7 @@
               }
               else {
                 var lsi = container.getChildIndex(lastSelected);
-                index = orientation == Components.interfaces.nsITreeView.DROP_BEFORE ? lsi : lsi + 1;
+                index = orientation == Ci.nsITreeView.DROP_BEFORE ? lsi : lsi + 1;
               }
             }
           }
@@ -563,7 +563,7 @@
             // item id.
             var index = ids.indexOf(node.itemId);
             if (index == -1 &&
-                node.type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT)
+                node.type == Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT)
               index = ids.indexOf(PlacesUtils.asQuery(node).folderItemId);
 
             if (index != -1) {
@@ -627,7 +627,7 @@
           }
           for (var i = 0; i < nodes.length; i++) {
             var index = resultview.treeIndexForNode(nodes[i]);
-            if (index == Components.interfaces.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE)
+            if (index == Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE)
               continue;
             selection.rangedSelect(index, index, true);
           }
@@ -718,23 +718,23 @@
         let eventY = event.clientY - tbo.treeBody.boxObject.y -
                      rowHeight * (cell.row - tbo.getFirstVisibleRow());
 
-        let orientation = Components.interfaces.nsITreeView.DROP_BEFORE;
+        let orientation = Ci.nsITreeView.DROP_BEFORE;
 
         if (cell.row == -1) {
           // If the row is not valid we try to insert inside the resultNode.
-          orientation = Components.interfaces.nsITreeView.DROP_ON;
+          orientation = Ci.nsITreeView.DROP_ON;
         }
         else if (PlacesUtils.nodeIsContainer(node) &&
                  eventY > rowHeight * 0.75) {
           // If we are below the 75% of a container the treeview we try
           // to drop after the node.
-          orientation = Components.interfaces.nsITreeView.DROP_AFTER;
+          orientation = Ci.nsITreeView.DROP_AFTER;
         }
         else if (PlacesUtils.nodeIsContainer(node) &&
                  eventY > rowHeight * 0.25) {
           // If we are below the 25% of a container the treeview we try
           // to drop inside the node.
-          orientation = Components.interfaces.nsITreeView.DROP_ON;
+          orientation = Ci.nsITreeView.DROP_ON;
         }
 
         if (!this.view.canDrop(cell.row, orientation, event.dataTransfer))

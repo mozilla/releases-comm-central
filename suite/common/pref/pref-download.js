@@ -13,7 +13,7 @@ function Startup()
 {
   // Define globals
   gFPHandler = Services.io.getProtocolHandler("file")
-                          .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+                          .QueryInterface(Ci.nsIFileProtocolHandler);
   gSoundUrlPref = document.getElementById("browser.download.finished_sound_url");
   SetSoundEnabled(document.getElementById("browser.download.finished_download_sound").value);
 
@@ -44,10 +44,10 @@ function ReadUseDownloadDir()
   */
 function ChooseFolder()
 {
-  const nsIFilePicker = Components.interfaces.nsIFilePicker;
+  const nsIFilePicker = Ci.nsIFilePicker;
 
-  var fp = Components.classes["@mozilla.org/filepicker;1"]
-                     .createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(nsIFilePicker);
   var prefutilitiesBundle = document.getElementById("bundle_prefutilities");
   var title = prefutilitiesBundle.getString("downloadfolder");
   fp.init(window, title, nsIFilePicker.modeGetFolder);
@@ -100,9 +100,9 @@ function DisplayDownloadDirPref()
   */
 function GetDownloadsFolder()
 {
-  return Components.classes["@mozilla.org/download-manager;1"]
-                   .getService(Components.interfaces.nsIDownloadManager)
-                   .defaultDownloadsDirectory;
+  return Cc["@mozilla.org/download-manager;1"]
+           .getService(Ci.nsIDownloadManager)
+           .defaultDownloadsDirectory;
 }
 
 /**

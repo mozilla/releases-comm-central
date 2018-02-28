@@ -97,7 +97,7 @@
               dropPoint.ip = new InsertionPoint(
                                   PlacesUtils.getConcreteItemId(resultNode),
                                   -1,
-                                  Components.interfaces.nsITreeView.DROP_ON);
+                                  Ci.nsITreeView.DROP_ON);
               // We can set folderElt if we are dropping over a static menu that
               // has an internal placespopup.
               let isMenu = elt.localName == "menu" ||
@@ -117,7 +117,7 @@
                 dropPoint.ip = new InsertionPoint(
                                     PlacesUtils.getConcreteItemId(resultNode),
                                     -1,
-                                    Components.interfaces.nsITreeView.DROP_BEFORE,
+                                    Ci.nsITreeView.DROP_BEFORE,
                                     PlacesUtils.nodeIsTagQuery(elt._placesNode),
                                     elt._placesNode.itemId);
                 return dropPoint;
@@ -127,7 +127,7 @@
                 dropPoint.ip = new InsertionPoint(
                                     PlacesUtils.getConcreteItemId(elt._placesNode),
                                     -1,
-                                    Components.interfaces.nsITreeView.DROP_ON,
+                                    Ci.nsITreeView.DROP_ON,
                                     PlacesUtils.nodeIsTagQuery(elt._placesNode));
                 dropPoint.folderElt = elt;
                 return dropPoint;
@@ -139,7 +139,7 @@
               dropPoint.ip = new InsertionPoint(
                                   PlacesUtils.getConcreteItemId(resultNode),
                                   -1,
-                                  Components.interfaces.nsITreeView.DROP_BEFORE,
+                                  Ci.nsITreeView.DROP_BEFORE,
                                   PlacesUtils.nodeIsTagQuery(elt._placesNode),
                                   elt._placesNode.itemId);
               return dropPoint;
@@ -149,7 +149,7 @@
             dropPoint.ip = new InsertionPoint(
                                 PlacesUtils.getConcreteItemId(resultNode),
                                 -1,
-                                Components.interfaces.nsITreeView.DROP_AFTER,
+                                Ci.nsITreeView.DROP_AFTER,
                                 PlacesUtils.nodeIsTagQuery(elt._placesNode),
                                 elt._placesNode.itemId);
             return dropPoint;
@@ -203,8 +203,8 @@
         },
 
         setTimer: function OF__setTimer(aTime) {
-          var timer = Components.classes["@mozilla.org/timer;1"]
-                                .createInstance(Components.interfaces.nsITimer);
+          var timer = Cc["@mozilla.org/timer;1"]
+                        .createInstance(Ci.nsITimer);
           timer.initWithCallback(this, aTime, timer.TYPE_ONE_SHOT);
           return timer;
         },

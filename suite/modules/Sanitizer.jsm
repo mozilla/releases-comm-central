@@ -111,9 +111,9 @@ var Sanitizer = {
 
   // clear plugin data
   _clearPluginData: function(aFlagName) {
-    const nsIPluginHost = Components.interfaces.nsIPluginHost;
-    var ph = Components.classes["@mozilla.org/plugin/host;1"]
-                       .getService(nsIPluginHost);
+    const nsIPluginHost = Ci.nsIPluginHost;
+    var ph = Cc["@mozilla.org/plugin/host;1"]
+               .getService(nsIPluginHost);
 
     if (!(aFlagName in nsIPluginHost))
       return;
@@ -137,10 +137,10 @@ var Sanitizer = {
           Services.cache2.clear();
         } catch(ex) {}
 
-        Components.classes["@mozilla.org/image/tools;1"]
-                  .getService(Components.interfaces.imgITools)
-                  .getImgCacheForDocument(null)
-                  .clearCache(false); // true=chrome, false=content
+        Cc["@mozilla.org/image/tools;1"]
+          .getService(Ci.imgITools)
+          .getImgCacheForDocument(null)
+          .clearCache(false); // true=chrome, false=content
       },
 
       canClear: true
@@ -161,8 +161,8 @@ var Sanitizer = {
 
     cookies: {
       clear: function() {
-        var cookieMgr = Components.classes["@mozilla.org/cookiemanager;1"]
-                                  .getService(Components.interfaces.nsICookieManager);
+        var cookieMgr = Cc["@mozilla.org/cookiemanager;1"]
+                          .getService(Ci.nsICookieManager);
         cookieMgr.removeAll();
 
         Sanitizer._clearPluginData("FLAG_CLEAR_ALL");
@@ -186,8 +186,8 @@ var Sanitizer = {
         } catch(ex) {}
 
         try {
-          var os = Components.classes["@mozilla.org/observer-service;1"]
-                             .getService(Components.interfaces.nsIObserverService);
+          var os = Cc["@mozilla.org/observer-service;1"]
+                     .getService(Ci.nsIObserverService);
           os.notifyObservers(null, "browser:purge-session-history");
         } catch(ex) {}
       },
@@ -205,9 +205,9 @@ var Sanitizer = {
         } catch(ex) {}
 
         // Clear URLbar history (see also pref-history.js)
-        var file = Components.classes["@mozilla.org/file/directory_service;1"]
-                             .getService(Components.interfaces.nsIProperties)
-                             .get("ProfD", Components.interfaces.nsIFile);
+        var file = Cc["@mozilla.org/file/directory_service;1"]
+                     .getService(Ci.nsIProperties)
+                     .get("ProfD", Ci.nsIFile);
         file.append("urlbarhistory.sqlite");
         if (file.exists())
           file.remove(false);
@@ -218,9 +218,9 @@ var Sanitizer = {
             Services.prefs.prefHasUserValue("general.open_location.last_url"))
           return true;
 
-        var file = Components.classes["@mozilla.org/file/directory_service;1"]
-                             .getService(Components.interfaces.nsIProperties)
-                             .get("ProfD", Components.interfaces.nsIFile);
+        var file = Cc["@mozilla.org/file/directory_service;1"]
+                     .getService(Ci.nsIProperties)
+                     .get("ProfD", Ci.nsIFile);
         file.append("urlbarhistory.sqlite");
         return file.exists();
       }
@@ -285,7 +285,7 @@ var Sanitizer = {
         var count = 0;
         var countDone = {
           handleResult: aResult => count = aResult,
-          handleError: aError => Components.utils.reportError(aError),
+          handleError: aError => Cu.reportError(aError),
           handleCompletion(aReason) {
             aCallback("formdata", !aReason && count, aArg);
           }
@@ -297,28 +297,28 @@ var Sanitizer = {
 
     downloads: {
       clear: function() {
-        var dlMgr = Components.classes["@mozilla.org/download-manager;1"]
-                              .getService(Components.interfaces.nsIDownloadManager);
+        var dlMgr = Cc["@mozilla.org/download-manager;1"]
+                      .getService(Ci.nsIDownloadManager);
         dlMgr.cleanUp();
       },
 
       get canClear() {
-        var dlMgr = Components.classes["@mozilla.org/download-manager;1"]
-                              .getService(Components.interfaces.nsIDownloadManager);
+        var dlMgr = Cc["@mozilla.org/download-manager;1"]
+                      .getService(Ci.nsIDownloadManager);
         return dlMgr.canCleanUp;
       }
     },
 
     passwords: {
       clear: function() {
-        var pwmgr = Components.classes["@mozilla.org/login-manager;1"]
-                              .getService(Components.interfaces.nsILoginManager);
+        var pwmgr = Cc["@mozilla.org/login-manager;1"]
+                      .getService(Ci.nsILoginManager);
         pwmgr.removeAllLogins();
       },
 
       get canClear() {
-        var pwmgr = Components.classes["@mozilla.org/login-manager;1"]
-                              .getService(Components.interfaces.nsILoginManager);
+        var pwmgr = Cc["@mozilla.org/login-manager;1"]
+                      .getService(Ci.nsILoginManager);
         var count = pwmgr.countLogins("", "", ""); // count all logins
         return (count > 0);
       }
@@ -327,14 +327,14 @@ var Sanitizer = {
     sessions: {
       clear: function() {
         // clear all auth tokens
-        Components.classes["@mozilla.org/security/pk11tokendb;1"]
-                  .createInstance(Components.interfaces.nsIPK11TokenDB)
-                  .getInternalKeyToken()
-                  .checkPassword("");
+        Cc["@mozilla.org/security/pk11tokendb;1"]
+          .createInstance(Ci.nsIPK11TokenDB)
+          .getInternalKeyToken()
+          .checkPassword("");
 
         // clear plain HTTP auth sessions
-        var authMgr = Components.classes["@mozilla.org/network/http-auth-manager;1"]
-                                .getService(Components.interfaces.nsIHttpAuthManager);
+        var authMgr = Cc["@mozilla.org/network/http-auth-manager;1"]
+                        .getService(Ci.nsIHttpAuthManager);
         authMgr.clearAll();
       },
 

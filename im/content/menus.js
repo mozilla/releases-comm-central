@@ -67,11 +67,11 @@ var menus = {
   displayUpdateStatus: function menu_displayUpdateStatus() {
     // copied from buildHelpMenu in mozilla/browser/base/content/utilityOverlay.js
     var updates =
-      Components.classes["@mozilla.org/updates/update-service;1"]
-                .getService(Components.interfaces.nsIApplicationUpdateService);
+      Cc["@mozilla.org/updates/update-service;1"]
+        .getService(Ci.nsIApplicationUpdateService);
     var um =
-      Components.classes["@mozilla.org/updates/update-manager;1"]
-                .getService(Components.interfaces.nsIUpdateManager);
+      Cc["@mozilla.org/updates/update-manager;1"]
+        .getService(Ci.nsIUpdateManager);
 
     // Disable the UI if the update enabled pref has been locked by the
     // administrator or if we cannot update for some other reason

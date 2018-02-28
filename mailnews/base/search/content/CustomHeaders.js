@@ -79,7 +79,7 @@ function onOk()
 
 function customHeaderOverflow()
 {
-  var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
+  var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
   if (gArrayHdrs.length >= (nsMsgSearchAttrib.kNumMsgSearchAttributes - nsMsgSearchAttrib.OtherHeader - 1))
   {
     if (!gFilterBundle)

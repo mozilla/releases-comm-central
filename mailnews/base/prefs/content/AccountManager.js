@@ -211,7 +211,7 @@ function replaceWithDefaultSmtpServer(deletedSmtpServerKey)
   // First we replace the smtpserverkey in every identity.
   let am = MailServices.accounts;
   for (let identity of fixIterator(am.allIdentities,
-                                   Components.interfaces.nsIMsgIdentity)) {
+                                   Ci.nsIMsgIdentity)) {
     if (identity.smtpServerKey == deletedSmtpServerKey)
       identity.smtpServerKey = "";
   }
@@ -361,9 +361,9 @@ function checkDirectoryIsAllowed(aLocalPath) {
     let testDir = null;
     if ("dirsvc" in aDirToCheck) {
       try {
-        testDir = Services.dirsvc.get(aDirToCheck.dirsvc, Components.interfaces.nsIFile);
+        testDir = Services.dirsvc.get(aDirToCheck.dirsvc, Ci.nsIFile);
       } catch (e) {
-        Components.utils.reportError("The special folder " + aDirToCheck.dirsvc +
+        Cu.reportError("The special folder " + aDirToCheck.dirsvc +
           " cannot be retrieved on this platform: " + e);
       }
 
@@ -371,13 +371,13 @@ function checkDirectoryIsAllowed(aLocalPath) {
         return true;
     }
     else if ("dir" in aDirToCheck) {
-      testDir = Components.classes["@mozilla.org/file/local;1"]
-                          .createInstance(Components.interfaces.nsIFile);
+      testDir = Cc["@mozilla.org/file/local;1"]
+                  .createInstance(Ci.nsIFile);
       testDir.initWithPath(aDirToCheck.dir);
       if (!testDir.exists())
         return true;
     } else {
-      Components.utils.reportError("No directory to check?");
+      Cu.reportError("No directory to check?");
       return true;
     }
 
@@ -464,7 +464,7 @@ function checkDirectoryIsUsable(aLocalPath) {
   let allServers = MailServices.accounts.allServers;
 
   for (let server of fixIterator(allServers,
-                                 Components.interfaces.nsIMsgIncomingServer))
+                                 Ci.nsIMsgIncomingServer))
   {
     if (server.key == currentAccount.incomingServer.key)
       continue;
@@ -490,7 +490,7 @@ function checkDirectoryIsUsable(aLocalPath) {
       }
     } catch (e) {
       // The other account's path is seriously broken, so we can't compare it.
-      Components.utils.reportError("The Local Directory path of the account " +
+      Cu.reportError("The Local Directory path of the account " +
         server.prettyName + " seems invalid.");
     }
   }
@@ -604,7 +604,7 @@ function checkUserServerChanges(showAlert) {
 
   if (!checkDirectoryIsUsable(getFormElementValue(pathElem))) {
 //          return false; // Temporarily disable this. Just show warning but do not block. See bug 921371.
-          Components.utils.reportError("Local directory '" +
+          Cu.reportError("Local directory '" +
             getFormElementValue(pathElem).path + "' of account " +
             currentAccount.key + " is not safe to use. Consider changing it.");
   }
@@ -824,13 +824,13 @@ function saveAccount(accountValues, account)
       else if (type == "server")
         dest = server;
       else if (type == "pop3")
-        dest = server.QueryInterface(Components.interfaces.nsIPop3IncomingServer);
+        dest = server.QueryInterface(Ci.nsIPop3IncomingServer);
       else if (type == "imap")
-        dest = server.QueryInterface(Components.interfaces.nsIImapIncomingServer);
+        dest = server.QueryInterface(Ci.nsIImapIncomingServer);
       else if (type == "none")
-        dest = server.QueryInterface(Components.interfaces.nsINoIncomingServer);
+        dest = server.QueryInterface(Ci.nsINoIncomingServer);
       else if (type == "nntp")
-        dest = server.QueryInterface(Components.interfaces.nsINntpIncomingServer);
+        dest = server.QueryInterface(Ci.nsINntpIncomingServer);
       else if (type == "smtp")
         dest = MailServices.smtp.defaultServer;
 
@@ -1130,7 +1130,7 @@ function pageURL(pageId)
 
 function loadPage(pageId)
 {
-  const LOAD_FLAGS_NONE = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
+  const LOAD_FLAGS_NONE = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
   document.getElementById("contentFrame").webNavigation.loadURI(pageURL(pageId),
     LOAD_FLAGS_NONE, null, null, null);
 }
@@ -1192,13 +1192,13 @@ function getAccountValue(account, accountValues, type, slot, preftype, isGeneric
     else if (type == "server")
       source = account.incomingServer;
     else if (type == "pop3")
-      source = server.QueryInterface(Components.interfaces.nsIPop3IncomingServer);
+      source = server.QueryInterface(Ci.nsIPop3IncomingServer);
     else if (type == "imap")
-      source = server.QueryInterface(Components.interfaces.nsIImapIncomingServer);
+      source = server.QueryInterface(Ci.nsIImapIncomingServer);
     else if (type == "none")
-      source = server.QueryInterface(Components.interfaces.nsINoIncomingServer);
+      source = server.QueryInterface(Ci.nsINoIncomingServer);
     else if (type == "nntp")
-      source = server.QueryInterface(Components.interfaces.nsINntpIncomingServer);
+      source = server.QueryInterface(Ci.nsINntpIncomingServer);
     else if (type == "smtp")
       source = MailServices.smtp.defaultServer;
     } catch (ex) {
@@ -1324,8 +1324,8 @@ function getFormElementValue(formElement) {
     if (type == "textbox" &&
         formElement.getAttribute("datatype") == "nsIFile") {
       if (formElement.value) {
-        let localfile = Components.classes["@mozilla.org/file/local;1"]
-                                  .createInstance(Components.interfaces.nsIFile);
+        let localfile = Cc["@mozilla.org/file/local;1"]
+                          .createInstance(Ci.nsIFile);
 
         localfile.initWithPath(formElement.value);
         return localfile;
@@ -1338,7 +1338,7 @@ function getFormElementValue(formElement) {
     return null;
   }
   catch (ex) {
-    Components.utils.reportError("getFormElementValue failed, ex=" + ex + "\n");
+    Cu.reportError("getFormElementValue failed, ex=" + ex + "\n");
   }
   return null;
 }
@@ -1372,7 +1372,7 @@ function setFormElementValue(formElement, value) {
   else if (type == "textbox" &&
            formElement.getAttribute("datatype") == "nsIFile") {
     if (value) {
-      let localfile = value.QueryInterface(Components.interfaces.nsIFile);
+      let localfile = value.QueryInterface(Ci.nsIFile);
       try {
         formElement.value = localfile.path;
       } catch (ex) {
@@ -1478,8 +1478,8 @@ var gAccountTree = {
   },
   onServerChanged: function at_onServerChanged(aServer) {},
 
-  _dataStore: Components.classes["@mozilla.org/xul/xulstore;1"]
-                        .getService(Components.interfaces.nsIXULStore),
+  _dataStore: Cc["@mozilla.org/xul/xulstore;1"]
+                .getService(Ci.nsIXULStore),
 
   /**
    * Retrieve from XULStore.json whether the account should be expanded (open)
@@ -1557,16 +1557,16 @@ var gAccountTree = {
           panelsToKeep.push(panels[3]);
 
         // extensions
-        let catMan = Components.classes["@mozilla.org/categorymanager;1"]
-                               .getService(Ci.nsICategoryManager);
+        let catMan = Cc["@mozilla.org/categorymanager;1"]
+                       .getService(Ci.nsICategoryManager);
         const CATEGORY = "mailnews-accountmanager-extensions";
         let catEnum = catMan.enumerateCategory(CATEGORY);
         while (catEnum.hasMoreElements()) {
           let entryName = null;
           try {
             entryName = catEnum.getNext().QueryInterface(Ci.nsISupportsCString).data;
-            let svc = Components.classes[catMan.getCategoryEntry(CATEGORY, entryName)]
-                                .getService(Ci.nsIMsgAccountManagerExtension);
+            let svc = Cc[catMan.getCategoryEntry(CATEGORY, entryName)]
+                        .getService(Ci.nsIMsgAccountManagerExtension);
             if (svc.showPanel(server)) {
               let bundleName = "chrome://" + svc.chromePackageName +
                                "/locale/am-" + svc.name + ".properties";
@@ -1578,8 +1578,8 @@ var gAccountTree = {
             // Fetching of this extension panel failed so do not show it,
             // just log error.
             let extName = entryName || "(unknown)";
-            Components.utils.reportError("Error accessing panel from extension '" +
-                                         extName + "': " + e);
+            Cu.reportError("Error accessing panel from extension '" +
+                           extName + "': " + e);
           }
         }
         amChrome = server.accountManagerChrome;
@@ -1587,7 +1587,7 @@ var gAccountTree = {
         // Show only a placeholder in the account list saying this account
         // is broken, with no child panels.
         let accountID = (accountName || accountKey);
-        Components.utils.reportError("Error accessing account " + accountID + ": " + e);
+        Cu.reportError("Error accessing account " + accountID + ": " + e);
         accountName = "Invalid account " + accountID;
         panelsToKeep.length = 0;
       }

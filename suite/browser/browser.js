@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
+const nsIWebNavigation = Ci.nsIWebNavigation;
 var gPrintSettingsAreGlobal = true;
 var gSavePrintSettings = true;
 var gChromeState = null; // chrome state before we went into print preview
@@ -31,7 +31,7 @@ function BrowserReloadWithFlags(reloadFlags)
   try {
     var sh = webNav.sessionHistory;
     if (sh)
-      webNav = sh.QueryInterface(Components.interfaces.nsIWebNavigation);
+      webNav = sh.QueryInterface(Ci.nsIWebNavigation);
   } catch (e) {
   }
 

@@ -144,7 +144,7 @@ var gConnectionsDialog = {
 
   reloadPAC: function ()
   {
-    Components.classes["@mozilla.org/network/protocol-proxy-service;1"].
+    Cc["@mozilla.org/network/protocol-proxy-service;1"].
         getService().reloadPAC();
   },
 

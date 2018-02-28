@@ -13,7 +13,7 @@ var gFolderDisplay;
 //  simplify our code.  It's just always disabled.
 var gMessageDisplay;
 
-var nsIMsgWindow = Components.interfaces.nsIMsgWindow;
+var nsIMsgWindow = Ci.nsIMsgWindow;
 
 var gFolderPicker;
 var gStatusFeedback;
@@ -224,8 +224,8 @@ function searchOnLoad()
 {
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
-  messenger = Components.classes["@mozilla.org/messenger;1"]
-                        .createInstance(Components.interfaces.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"]
+                .createInstance(Ci.nsIMessenger);
 
   gSearchBundle = document.getElementById("bundle_search");
   gSearchStopButton.setAttribute("label", gSearchBundle.getString("labelForSearchButton"));
@@ -237,7 +237,7 @@ function searchOnLoad()
   gFolderDisplay.msgWindow = msgWindow;
   gFolderDisplay.tree = document.getElementById("threadTree");
   gFolderDisplay.treeBox = gFolderDisplay.tree.boxObject.QueryInterface(
-                             Components.interfaces.nsITreeBoxObject);
+                             Ci.nsITreeBoxObject);
   gFolderDisplay.view.openSearchView();
   gFolderDisplay.makeActive();
 
@@ -273,10 +273,10 @@ function initializeSearchWindowWidgets()
     gSearchStopButton = document.getElementById("search-button");
     hideMatchAllItem();
 
-    msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                          .createInstance(nsIMsgWindow);
+    msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                  .createInstance(nsIMsgWindow);
     msgWindow.domWindow = window;
-    msgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
+    msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
     gStatusFeedback = new nsMsgStatusFeedback();
     msgWindow.statusFeedback = gStatusFeedback;
@@ -376,7 +376,7 @@ function getSearchTerms() {
     //  explode.  You don't want that and I don't want that.  So let's check
     //  if the bloody term is a subject search on a blank string, and if it
     //  is, let's secretly not add the term.  Everyone wins!
-    if ((realTerm.attrib != Components.interfaces.nsMsgSearchAttrib.Subject) ||
+    if ((realTerm.attrib != Ci.nsMsgSearchAttrib.Subject) ||
         (realTerm.value.str != ""))
       searchTerms.push(realTerm);
   }
@@ -406,9 +406,9 @@ function AddSubFolders(folder, outFolders) {
   var subFolders = folder.subFolders;
   while (subFolders.hasMoreElements()) {
     var nextFolder =
-      subFolders.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
+      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
 
-    if (!(nextFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual)) {
+    if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual)) {
       if (!nextFolder.noSelect)
         outFolders.push(nextFolder);
 
@@ -426,9 +426,9 @@ function AddSubFoldersToURI(folder)
   while (subFolders.hasMoreElements())
   {
     var nextFolder =
-      subFolders.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
+      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
 
-    if (!(nextFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual))
+    if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual))
     {
       if (!nextFolder.noSelect && !nextFolder.isServer)
       {
@@ -482,8 +482,8 @@ function GetScopeForFolder(folder)
   }
   catch (e) {} // On error, we'll just assume the default mailbox type
 
-  let hasBody = folder.getFlag(Components.interfaces.nsMsgFolderFlags.Offline);
-  let nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
+  let hasBody = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
+  let nsMsgSearchScope = Ci.nsMsgSearchScope;
   switch (localType)
   {
     case "news":
@@ -510,7 +510,7 @@ function GetScopeForFolder(folder)
       if (folder.isServer)
       {
         let imapServer = folder.server
-                               .QueryInterface(Components.interfaces.nsIImapIncomingServer);
+                               .QueryInterface(Ci.nsIImapIncomingServer);
         if (imapServer && imapServer.offlineDownload)
           hasBody = true;
       }
@@ -524,10 +524,10 @@ function GetScopeForFolder(folder)
 
 }
 
-var nsMsgViewSortType = Components.interfaces.nsMsgViewSortType;
-var nsMsgViewSortOrder = Components.interfaces.nsMsgViewSortOrder;
-var nsMsgViewFlagsType = Components.interfaces.nsMsgViewFlagsType;
-var nsMsgViewCommandType = Components.interfaces.nsMsgViewCommandType;
+var nsMsgViewSortType = Ci.nsMsgViewSortType;
+var nsMsgViewSortOrder = Ci.nsMsgViewSortOrder;
+var nsMsgViewFlagsType = Ci.nsMsgViewFlagsType;
+var nsMsgViewCommandType = Ci.nsMsgViewCommandType;
 
 function goUpdateSearchItems(commandset)
 {
@@ -566,7 +566,7 @@ function MoveMessageInSearch(destFolder)
     destUri = destFolder.getAttribute('file-uri');
 
   let destMsgFolder = MailUtils.getFolderForURI(destUri)
-    .QueryInterface(Components.interfaces.nsIMsgFolder);
+    .QueryInterface(Ci.nsIMsgFolder);
 
   gFolderDisplay.hintAboutToDeleteMessages();
   gFolderDisplay.doCommandWithFolder(nsMsgViewCommandType.moveMessages,

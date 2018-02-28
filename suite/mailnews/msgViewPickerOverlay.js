@@ -22,9 +22,9 @@ var gCurrentViewValue = kViewItemAll;
 var gCurrentViewLabel = "";
 var gSaveDefaultSVTerms;
 
-var nsMsgSearchScope  = Components.interfaces.nsMsgSearchScope;
-var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
-var nsMsgSearchOp     = Components.interfaces.nsMsgSearchOp;
+var nsMsgSearchScope  = Ci.nsMsgSearchScope;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp     = Ci.nsMsgSearchOp;
 
 
 // perform the view/action requested by the aValue string
@@ -210,8 +210,8 @@ function ViewTagKeyword(keyword)
   PrepareForViewChange();
 
   // create an i supports array to store our search terms
-  var searchTermsArray = Components.classes["@mozilla.org/array;1"]
-                                   .createInstance(Components.interfaces.nsIMutableArray);
+  var searchTermsArray = Cc["@mozilla.org/array;1"]
+                           .createInstance(Ci.nsIMutableArray);
   var term = gSearchSession.createTerm();
   var value = term.value;
 
@@ -234,8 +234,8 @@ function ViewNewMail()
   PrepareForViewChange();
 
   // create an i supports array to store our search terms
-  var searchTermsArray = Components.classes["@mozilla.org/array;1"]
-                                   .createInstance(Components.interfaces.nsIMutableArray);
+  var searchTermsArray = Cc["@mozilla.org/array;1"]
+                           .createInstance(Ci.nsIMutableArray);
   var term = gSearchSession.createTerm();
   var value = term.value;
 
@@ -260,8 +260,8 @@ function ViewNotDeletedMail()
   PrepareForViewChange();
 
   // create an i supports array to store our search terms
-  var searchTermsArray = Components.classes["@mozilla.org/array;1"]
-                                   .createInstance(Components.interfaces.nsIMutableArray);
+  var searchTermsArray = Cc["@mozilla.org/array;1"]
+                           .createInstance(Ci.nsIMutableArray);
   var term = gSearchSession.createTerm();
   var value = term.value;
 
@@ -289,7 +289,7 @@ function AddVirtualFolderTerms(searchTermsArray)
   {
     for (let i = 0; i < termsArray.length; i++)
     {
-      let searchTerm = virtualFolderSearchTerms.queryElementAt(i, Components.interfaces.nsIMsgSearchTerm);
+      let searchTerm = virtualFolderSearchTerms.queryElementAt(i, Ci.nsIMsgSearchTerm);
       searchTermsArray.appendElement(searchTerm);
     }
   }
@@ -342,7 +342,7 @@ function RefreshViewPopup(aViewPopup)
   if (server.type == "imap")
   {
     let imapServer =
-      server.QueryInterface(Components.interfaces.nsIImapIncomingServer);
+      server.QueryInterface(Ci.nsIImapIncomingServer);
     if (imapServer.deleteModel == 0)  // nsMsgImapDeleteModels.IMAPDelete == 0
     {
       viewNotDeleted.setAttribute("hidden", false);
@@ -357,8 +357,8 @@ function RefreshCustomViewsPopup(aMenupopup)
 {
   // for each mail view in the msg view list, add an entry in our combo box
   if (!gMailViewList)
-    gMailViewList = Components.classes["@mozilla.org/messenger/mailviewlist;1"]
-                              .getService(Components.interfaces.nsIMsgMailViewList);
+    gMailViewList = Cc["@mozilla.org/messenger/mailviewlist;1"]
+                      .getService(Ci.nsIMsgMailViewList);
   // remove all menuitems
   while (aMenupopup.hasChildNodes())
     aMenupopup.lastChild.remove();
@@ -389,8 +389,8 @@ function RefreshTagsPopup(aMenupopup)
 
   // create tag menuitems
   var currentTagKey = isNaN(gCurrentViewValue) ? gCurrentViewValue.substr(kViewTagMarker.length) : "";
-  var tagService = Components.classes["@mozilla.org/messenger/tagservice;1"]
-                             .getService(Components.interfaces.nsIMsgTagService);
+  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
+                     .getService(Ci.nsIMsgTagService);
   var tagArray = tagService.getAllTags({});
   for (var i = 0; i < tagArray.length; ++i)
   {

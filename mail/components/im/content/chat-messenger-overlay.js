@@ -329,8 +329,8 @@ var chatHandler = {
       chatButton.removeAttribute("unreadMessages");
 
     if (unreadTargettedCount != this._notifiedUnreadCount) {
-      let unreadInt = Components.classes["@mozilla.org/supports-PRInt32;1"]
-                                .createInstance(Ci.nsISupportsPRInt32);
+      let unreadInt = Cc["@mozilla.org/supports-PRInt32;1"]
+                        .createInstance(Ci.nsISupportsPRInt32);
       unreadInt.data = unreadTargettedCount;
       Services.obs.notifyObservers(unreadInt, "unread-im-count-changed", unreadTargettedCount);
       this._notifiedUnreadCount = unreadTargettedCount;

@@ -23,7 +23,7 @@
       gMsgCompAttachSourceElement = document.getElementById("AttachSourceToMail");
       var editor = GetCurrentEditor();
       if (gMsgCompAttachSourceElement && editor &&
-          (editor.flags & Components.interfaces.nsIPlaintextEditor.eEditorMailMask))
+          (editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask))
       {
         SetRelativeCheckbox = function() { SetAttachCheckbox();};
         //initialize the AttachSourceToMail checkbox
@@ -119,15 +119,15 @@
 
     function GenerateDataURL(url) {
       var file = Services.io.newURI(url)
-        .QueryInterface(Components.interfaces.nsIFileURL).file;
-      var contentType = Components.classes["@mozilla.org/mime;1"]
-        .getService(Components.interfaces.nsIMIMEService)
+        .QueryInterface(Ci.nsIFileURL).file;
+      var contentType = Cc["@mozilla.org/mime;1"]
+        .getService(Ci.nsIMIMEService)
         .getTypeFromFile(file);
-      var inputStream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-        .createInstance(Components.interfaces.nsIFileInputStream);
+      var inputStream = Cc["@mozilla.org/network/file-input-stream;1"]
+        .createInstance(Ci.nsIFileInputStream);
       inputStream.init(file, 0x01, 0o600, 0);
-      var stream = Components.classes["@mozilla.org/binaryinputstream;1"]
-        .createInstance(Components.interfaces.nsIBinaryInputStream);
+      var stream = Cc["@mozilla.org/binaryinputstream;1"]
+        .createInstance(Ci.nsIBinaryInputStream);
       stream.setInputStream(inputStream);
       let data = "";
       while (stream.available() > 0) {

@@ -14,14 +14,14 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 /**
  * interfaces
  */
-var nsIMsgCompDeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
-var nsIMsgCompSendFormat = Components.interfaces.nsIMsgCompSendFormat;
-var nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
-var nsIMsgCompType = Components.interfaces.nsIMsgCompType;
-var nsIMsgCompFormat = Components.interfaces.nsIMsgCompFormat;
-var nsIAbPreferMailFormat = Components.interfaces.nsIAbPreferMailFormat;
-var nsIPlaintextEditorMail = Components.interfaces.nsIPlaintextEditor;
-var mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
+var nsIMsgCompDeliverMode = Ci.nsIMsgCompDeliverMode;
+var nsIMsgCompSendFormat = Ci.nsIMsgCompSendFormat;
+var nsIMsgCompConvertible = Ci.nsIMsgCompConvertible;
+var nsIMsgCompType = Ci.nsIMsgCompType;
+var nsIMsgCompFormat = Ci.nsIMsgCompFormat;
+var nsIAbPreferMailFormat = Ci.nsIAbPreferMailFormat;
+var nsIPlaintextEditorMail = Ci.nsIPlaintextEditor;
+var mozISpellCheckingEngine = Ci.mozISpellCheckingEngine;
 
 /**
  * In order to distinguish clearly globals that are initialized once when js load (static globals) and those that need to be
@@ -31,7 +31,7 @@ var mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
 /**
  * static globals, need to be initialized only once
  */
-var sMsgComposeService = Components.classes["@mozilla.org/messengercompose;1"].getService(Components.interfaces.nsIMsgComposeService);
+var sMsgComposeService = Cc["@mozilla.org/messengercompose;1"].getService(Ci.nsIMsgComposeService);
 var sComposeMsgsBundle;
 var sBrandBundle;
 
@@ -43,10 +43,10 @@ var sDictCount = 0;
    this kind of cross file global stuff in the future and instead pass this object as parameter when needed by function
    in the other js file.
 */
-var msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                          .createInstance(Components.interfaces.nsIMsgWindow);
-var gMessenger = Components.classes["@mozilla.org/messenger;1"]
-                           .createInstance(Components.interfaces.nsIMessenger);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                  .createInstance(Ci.nsIMsgWindow);
+var gMessenger = Cc["@mozilla.org/messenger;1"]
+                   .createInstance(Ci.nsIMessenger);
 
 /**
  * Global variables, need to be re-initialized every time mostly because we need to release them when the window close
@@ -93,7 +93,7 @@ var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
 function InitializeGlobalVariables()
 {
-  gAccountManager = Components.classes["@mozilla.org/messenger/account-manager;1"].getService(Components.interfaces.nsIMsgAccountManager);
+  gAccountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
 
   gMsgCompose = null;
   gOriginalMsgURI = null;
@@ -108,8 +108,8 @@ function InitializeGlobalVariables()
   gSendFormat = nsIMsgCompSendFormat.AskUser;
   gSendDefaultCharset = null;
   gCharsetTitle = null;
-  gCharsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1'].getService(Components.interfaces.nsICharsetConverterManager);
-  gMailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
+  gCharsetConvertManager = Cc['@mozilla.org/charset-converter-manager;1'].getService(Ci.nsICharsetConverterManager);
+  gMailSession = Cc["@mozilla.org/messenger/services/session;1"].getService(Ci.nsIMsgMailSession);
   gHideMenus = false;
   // We are storing the value of the bool logComposePerformance inorder to avoid logging unnecessarily.
   if (sMsgComposeService)
@@ -173,23 +173,23 @@ var stateListener = {
     // Look at the compose types which require action (nsIMsgComposeParams.idl):
     switch (gComposeType) {
 
-      case Components.interfaces.nsIMsgCompType.New:
-      case Components.interfaces.nsIMsgCompType.NewsPost:
-      case Components.interfaces.nsIMsgCompType.ForwardAsAttachment:
+      case Ci.nsIMsgCompType.New:
+      case Ci.nsIMsgCompType.NewsPost:
+      case Ci.nsIMsgCompType.ForwardAsAttachment:
         this.NotifyComposeBodyReadyNew();
         break;
 
-      case Components.interfaces.nsIMsgCompType.Reply:
-      case Components.interfaces.nsIMsgCompType.ReplyAll:
-      case Components.interfaces.nsIMsgCompType.ReplyToSender:
-      case Components.interfaces.nsIMsgCompType.ReplyToGroup:
-      case Components.interfaces.nsIMsgCompType.ReplyToSenderAndGroup:
-      case Components.interfaces.nsIMsgCompType.ReplyWithTemplate:
-      case Components.interfaces.nsIMsgCompType.ReplyToList:
+      case Ci.nsIMsgCompType.Reply:
+      case Ci.nsIMsgCompType.ReplyAll:
+      case Ci.nsIMsgCompType.ReplyToSender:
+      case Ci.nsIMsgCompType.ReplyToGroup:
+      case Ci.nsIMsgCompType.ReplyToSenderAndGroup:
+      case Ci.nsIMsgCompType.ReplyWithTemplate:
+      case Ci.nsIMsgCompType.ReplyToList:
         this.NotifyComposeBodyReadyReply();
         break;
 
-      case Components.interfaces.nsIMsgCompType.ForwardInline:
+      case Ci.nsIMsgCompType.ForwardInline:
         this.NotifyComposeBodyReadyForwardInline();
         break;
     }
@@ -321,7 +321,7 @@ var stateListener = {
     enableEditableFields();
     updateComposeItems();
 
-    if (aResult== Components.results.NS_OK)
+    if (aResult== Cr.NS_OK)
     {
       if (!gAutoSaving)
         SetContentAndBodyAsUnmodified();
@@ -330,7 +330,7 @@ var stateListener = {
       {
         // Notify the SendListener that Send has been aborted and Stopped
         if (gMsgCompose)
-          gMsgCompose.onSendNotPerformed(null, Components.results.NS_ERROR_ABORT);
+          gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
 
         MsgComposeCloseWindow();
       }
@@ -356,14 +356,14 @@ var stateListener = {
 var progressListener = {
     onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
     {
-      if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_START)
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START)
       {
         document.getElementById('navigator-throbber').setAttribute("busy", "true");
         document.getElementById('compose-progressmeter').setAttribute( "mode", "undetermined" );
         document.getElementById("statusbar-progresspanel").collapsed = false;
       }
 
-      if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP)
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
       {
         gSendOrSaveOperationInProgress = false;
         document.getElementById('navigator-throbber').removeAttribute("busy");
@@ -419,12 +419,12 @@ var progressListener = {
 
     QueryInterface : function(iid)
     {
-      if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
-          iid.equals(Components.interfaces.nsISupportsWeakReference) ||
-          iid.equals(Components.interfaces.nsISupports))
+      if (iid.equals(Ci.nsIWebProgressListener) ||
+          iid.equals(Ci.nsISupportsWeakReference) ||
+          iid.equals(Ci.nsISupports))
         return this;
 
-      throw Components.results.NS_NOINTERFACE;
+      throw Cr.NS_NOINTERFACE;
     }
 };
 
@@ -751,7 +751,7 @@ var messageComposeOfflineQuitObserver = {
     // check whether to veto the quit request (unless another observer already
     // did)
     else if (aTopic == "quit-application-requested" &&
-             aSubject instanceof Components.interfaces.nsISupportsPRBool &&
+             aSubject instanceof Ci.nsISupportsPRBool &&
              !aSubject.data)
       aSubject.data = !ComposeCanClose();
   }
@@ -812,7 +812,7 @@ function DoCommandClose()
   if (ComposeCanClose()) {
     // Notify the SendListener that Send has been aborted and Stopped
     if (gMsgCompose)
-      gMsgCompose.onSendNotPerformed(null, Components.results.NS_ERROR_ABORT);
+      gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
 
     // note: if we're not caching this window, this destroys it for us
     MsgComposeCloseWindow();
@@ -1059,7 +1059,7 @@ function onPasteOrDrop(e) {
 
   let html = dataTransfer.getData("text/html");
   let doc = (new DOMParser()).parseFromString(html, "text/html");
-  let tmpD = Services.dirsvc.get("TmpD", Components.interfaces.nsIFile);
+  let tmpD = Services.dirsvc.get("TmpD", Ci.nsIFile);
   let pendingConversions = 0;
   let needToPreventDefault = true;
   for (let img of doc.images) {
@@ -1072,7 +1072,7 @@ function onPasteOrDrop(e) {
     let nsFile;
     try {
       nsFile = Services.io.getProtocolHandler("file")
-                 .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+                 .QueryInterface(Ci.nsIFileProtocolHandler)
                  .getFileFromURLSpec(img.src);
     } catch (ex) {
       continue;
@@ -1087,8 +1087,8 @@ function onPasteOrDrop(e) {
       continue;
     }
 
-    let contentType = Components.classes["@mozilla.org/mime;1"]
-                        .getService(Components.interfaces.nsIMIMEService)
+    let contentType = Cc["@mozilla.org/mime;1"]
+                        .getService(Ci.nsIMIMEService)
                         .getTypeFromFile(nsFile);
     if (!contentType.startsWith("image/")) {
       continue;
@@ -1111,8 +1111,8 @@ function onPasteOrDrop(e) {
       let doTheInsert = function() {
         // Now run it through sanitation to make sure there wasn't any
         // unwanted things in the content.
-        let ParserUtils = Components.classes["@mozilla.org/parserutils;1"]
-                            .getService(Components.interfaces.nsIParserUtils);
+        let ParserUtils = Cc["@mozilla.org/parserutils;1"]
+                            .getService(Ci.nsIParserUtils);
         let html2 = ParserUtils.sanitize(doc.documentElement.innerHTML,
                                          ParserUtils.SanitizerAllowStyle);
         getBrowser().contentDocument.execCommand("insertHTML", false, html2);
@@ -1151,7 +1151,7 @@ function ComposeStartup(aParams)
     params = aParams;
   else if (window.arguments && window.arguments[0]) {
     try {
-      if (window.arguments[0] instanceof Components.interfaces.nsIMsgComposeParams)
+      if (window.arguments[0] instanceof Ci.nsIMsgComposeParams)
         params = window.arguments[0];
       else
         params = handleMailtoArgs(window.arguments[0]);
@@ -1181,10 +1181,10 @@ function ComposeStartup(aParams)
   if (!params) {
     // This code will go away soon as now arguments are passed to the window
     // using a object of type nsMsgComposeParams instead of a string.
-    params = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
-               .createInstance(Components.interfaces.nsIMsgComposeParams);
-    params.composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                             .createInstance(Components.interfaces.nsIMsgCompFields);
+    params = Cc["@mozilla.org/messengercompose/composeparams;1"]
+               .createInstance(Ci.nsIMsgComposeParams);
+    params.composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                             .createInstance(Ci.nsIMsgCompFields);
 
     if (args) { //Convert old fashion arguments into params
       var composeFields = params.composeFields;
@@ -1211,16 +1211,16 @@ function ComposeStartup(aParams)
       if (args.attachment)
       {
         var attachmentList = args.attachment.split(",");
-        var commandLine = Components.classes["@mozilla.org/toolkit/command-line;1"]
-                                    .createInstance();
+        var commandLine = Cc["@mozilla.org/toolkit/command-line;1"]
+                            .createInstance();
         for (let i = 0; i < attachmentList.length; i++)
         {
           let attachmentStr = attachmentList[i];
           let uri = commandLine.resolveURI(attachmentStr);
-          let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                                     .createInstance(Components.interfaces.nsIMsgAttachment);
+          let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
+                             .createInstance(Ci.nsIMsgAttachment);
 
-          if (uri instanceof Components.interfaces.nsIFileURL)
+          if (uri instanceof Ci.nsIFileURL)
           {
             if (uri.file.exists())
               attachment.size = uri.file.fileSize;
@@ -1258,7 +1258,7 @@ function ComposeStartup(aParams)
     var identities = gAccountManager.defaultAccount.identities;
     if (identities.length == 0)
       identities = gAccountManager.allIdentities;
-    params.identity = identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+    params.identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
   }
 
   identityList.selectedItem =
@@ -1344,7 +1344,7 @@ function ComposeStartup(aParams)
 
         var attachments = msgCompFields.attachments;
         while (attachments.hasMoreElements()) {
-          AddAttachment(attachments.getNext().QueryInterface(Components.interfaces.nsIMsgAttachment));
+          AddAttachment(attachments.getNext().QueryInterface(Ci.nsIMsgAttachment));
         }
       }
 
@@ -1377,10 +1377,10 @@ function ComposeStartup(aParams)
   var folderURI = draftId.substring(0, draftId.indexOf("#")).replace("-message", "");
 
   try {
-    const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     var folder = sRDF.GetResource(folderURI);
 
-    gEditingDraft = (folder instanceof Components.interfaces.nsIMsgFolder) &&
+    gEditingDraft = (folder instanceof Ci.nsIMsgFolder) &&
                     (folder.flags & nsMsgFolderFlags.Drafts);
   }
   catch (ex) {
@@ -1407,7 +1407,7 @@ var gMsgEditorCreationObserver =
       var editor = GetCurrentEditor();
       var commandManager = GetCurrentCommandManager();
       if (editor && commandManager == aSubject) {
-        let editorStyle = editor.QueryInterface(Components.interfaces.nsIEditorStyleSheets);
+        let editorStyle = editor.QueryInterface(Ci.nsIEditorStyleSheets);
         // We use addOverrideStyleSheet rather than addStyleSheet so that we get
         // a synchronous load, rather than having a late-finishing async load
         // mark our editor as modified when the user hasn't typed anything yet,
@@ -1446,8 +1446,8 @@ function ComposeLoad()
 
   var otherHeaders = getPref("mail.compose.other.header");
 
-  sRDF = Components.classes['@mozilla.org/rdf/rdf-service;1']
-                   .getService(Components.interfaces.nsIRDFService);
+  sRDF = Cc['@mozilla.org/rdf/rdf-service;1']
+           .getService(Ci.nsIRDFService);
   sNameProperty = sRDF.GetResource("http://home.netscape.com/NC-rdf#Name?sort=true");
 
   AddMessageComposeOfflineQuitObserver();
@@ -1471,7 +1471,7 @@ function ComposeLoad()
       ComposeStartup(null);
   }
   catch (ex) {
-    Components.utils.reportError(ex);
+    Cu.reportError(ex);
     var errorTitle = sComposeMsgsBundle.getString("initErrorDlogTitle");
     var errorMsg = sComposeMsgsBundle.getString("initErrorDlgMessage");
     Services.prompt.alert(window, errorTitle, errorMsg);
@@ -1755,7 +1755,7 @@ function GenericSendMessage( msgType )
         msgcomposeWindow.setAttribute("msgtype", msgType);
         msgcomposeWindow.dispatchEvent(event);
         if (event.defaultPrevented)
-          throw Components.results.NS_ERROR_ABORT;
+          throw Cr.NS_ERROR_ABORT;
 
         gAutoSaving = msgType == nsIMsgCompDeliverMode.AutoSaveAsDraft;
         // if we're auto saving, mark the body as not changed here, and not
@@ -1772,7 +1772,7 @@ function GenericSendMessage( msgType )
           disableEditableFields();
           updateComposeItems();
         }
-        var progress = Components.classes["@mozilla.org/messenger/progress;1"].createInstance(Components.interfaces.nsIMsgProgress);
+        var progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(Ci.nsIMsgProgress);
         if (progress)
         {
           progress.registerListener(progressListener);
@@ -2012,7 +2012,7 @@ function addRecipientsToIgnoreList(aAddressesToAdd)
   if (InlineSpellCheckerUI.enabled)
   {
     // break the list of potentially many recipients back into individual names
-    var hdrParser = Components.classes["@mozilla.org/messenger/headerparser;1"].getService(Components.interfaces.nsIMsgHeaderParser);
+    var hdrParser = Cc["@mozilla.org/messenger/headerparser;1"].getService(Ci.nsIMsgHeaderParser);
     var emailAddresses = {};
     var names = {};
     var fullNames = {};
@@ -2054,8 +2054,8 @@ function InitLanguageMenu()
   if (!languageMenuList)
     return;
 
-  var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-                               .getService(mozISpellCheckingEngine);
+  var spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
+                       .getService(mozISpellCheckingEngine);
   var o1 = {};
   var o2 = {};
 
@@ -2210,7 +2210,7 @@ function FillIdentityList(menulist)
   {
     let account = accounts[acc];
     let identities = toArray(fixIterator(account.identities,
-                                         Components.interfaces.nsIMsgIdentity));
+                                         Ci.nsIMsgIdentity));
 
     if (identities.length == 0)
       continue;
@@ -2357,17 +2357,17 @@ function RemoveDraft()
     var msgKey = draftId.substr(draftId.indexOf('#') + 1);
     var folder = sRDF.GetResource(gMsgCompose.savedFolderURI);
     try {
-      if (folder instanceof Components.interfaces.nsIMsgFolder)
+      if (folder instanceof Ci.nsIMsgFolder)
       {
-        var msgs = Components.classes["@mozilla.org/array;1"]
-                             .createInstance(Components.interfaces.nsIMutableArray);
+        var msgs = Cc["@mozilla.org/array;1"]
+                     .createInstance(Ci.nsIMutableArray);
         msgs.appendElement(folder.GetMessageHeader(msgKey));
         folder.deleteMessages(msgs, null, true, false, null, false);
       }
     }
     catch (ex) // couldn't find header - perhaps an imap folder.
     {
-      if (folder instanceof Components.interfaces.nsIMsgImapMailFolder)
+      if (folder instanceof Ci.nsIMsgImapMailFolder)
       {
         const kImapMsgDeletedFlag = 0x0008;
         folder.storeImapFlags(kImapMsgDeletedFlag, true, [msgKey], 1, null);
@@ -2394,11 +2394,11 @@ function MsgComposeCloseWindow()
 function SetLastAttachDirectory(attachedLocalFile)
 {
   try {
-    var file = attachedLocalFile.QueryInterface(Components.interfaces.nsIFile);
-    var parent = file.parent.QueryInterface(Components.interfaces.nsIFile);
+    var file = attachedLocalFile.QueryInterface(Ci.nsIFile);
+    var parent = file.parent.QueryInterface(Ci.nsIFile);
 
     Services.prefs.setComplexValue(kComposeAttachDirPrefName,
-                                   Components.interfaces.nsIFile, parent);
+                                   Ci.nsIFile, parent);
   }
   catch (ex) {
     dump("error: SetLastAttachDirectory failed: " + ex + "\n");
@@ -2409,7 +2409,7 @@ function AttachFile()
 {
   //Get file using nsIFilePicker and convert to URL
   try {
-      var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+      var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
       fp.init(window, sComposeMsgsBundle.getString("chooseFileToAttach"), nsIFilePicker.modeOpenMultiple);
 
       var lastDirectory = GetLocalFilePref(kComposeAttachDirPrefName);
@@ -2436,17 +2436,17 @@ function AttachFiles(attachments)
   var firstAttachedFile = null;
 
   while (attachments.hasMoreElements()) {
-    var currentFile = attachments.getNext().QueryInterface(Components.interfaces.nsIFile);
+    var currentFile = attachments.getNext().QueryInterface(Ci.nsIFile);
 
     if (!firstAttachedFile) {
       firstAttachedFile = currentFile;
     }
 
-    var fileHandler = Services.io.getProtocolHandler("file").QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+    var fileHandler = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
     var currentAttachment = fileHandler.getURLSpecFromFile(currentFile);
 
     if (!DuplicateFileCheck(currentAttachment)) {
-      var attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"].createInstance(Components.interfaces.nsIMsgAttachment);
+      var attachment = Cc["@mozilla.org/messengercompose/attachment;1"].createInstance(Ci.nsIMsgAttachment);
       attachment.url = currentAttachment;
       attachment.size = currentFile.fileSize;
       AddAttachment(attachment);
@@ -2526,8 +2526,8 @@ function AttachPage()
   if (params.url)
   {
     var attachment =
-        Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                  .createInstance(Components.interfaces.nsIMsgAttachment);
+        Cc["@mozilla.org/messengercompose/attachment;1"]
+          .createInstance(Ci.nsIMsgAttachment);
     attachment.url = params.url;
     AddAttachment(attachment);
   }
@@ -2655,10 +2655,10 @@ function OpenSelectedAttachment()
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                     Ci.nsIContentPolicy.TYPE_OTHER);
         if (channel) {
-          let uriLoader = Components.classes["@mozilla.org/uriloader;1"].getService(Components.interfaces.nsIURILoader);
+          let uriLoader = Cc["@mozilla.org/uriloader;1"].getService(Ci.nsIURILoader);
           uriLoader.openURI(channel, true, new nsAttachmentOpener());
         }
       }
@@ -2674,12 +2674,12 @@ nsAttachmentOpener.prototype =
 {
   QueryInterface: function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIURIContentListener) ||
-        iid.equals(Components.interfaces.nsIInterfaceRequestor) ||
-        iid.equals(Components.interfaces.nsISupports)) {
+    if (iid.equals(Ci.nsIURIContentListener) ||
+        iid.equals(Ci.nsIInterfaceRequestor) ||
+        iid.equals(Ci.nsISupports)) {
       return this;
     }
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   onStartURIOpen: function(uri)
@@ -2704,14 +2704,14 @@ nsAttachmentOpener.prototype =
 
   getInterface: function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIDOMWindow)) {
+    if (iid.equals(Ci.nsIDOMWindow)) {
       return window;
     }
 
-    if (iid.equals(Components.interfaces.nsIDocShell)) {
-      return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIWebNavigation)
-                   .QueryInterface(Components.interfaces.nsIDocShell);
+    if (iid.equals(Ci.nsIDocShell)) {
+      return window.QueryInterface(Ci.nsIInterfaceRequestor)
+                   .getInterface(Ci.nsIWebNavigation)
+                   .QueryInterface(Ci.nsIDocShell);
     }
 
     return this.QueryInterface(iid);
@@ -2966,7 +2966,7 @@ var attachmentBucketObserver = {
           if (item.flavour.contentType == "application/x-moz-file")
           {
             let fileHandler = Services.io.getProtocolHandler("file")
-                              .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+                              .QueryInterface(Ci.nsIFileProtocolHandler);
             size = rawData.fileSize;
             rawData = fileHandler.getURLSpecFromFile(rawData);
           }
@@ -3012,8 +3012,8 @@ var attachmentBucketObserver = {
             }
 
             if (isValid) {
-              attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                           .createInstance(Components.interfaces.nsIMsgAttachment);
+              attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
+                           .createInstance(Ci.nsIMsgAttachment);
               attachment.url = rawData;
               attachment.name = prettyName;
               if (!isNaN(size))
@@ -3323,7 +3323,7 @@ function InitEditor(editor)
   // Set the eEditorMailMask flag to avoid using content prefs for the spell
   // checker, otherwise the dictionary setting in preferences is ignored and
   // the dictionary is inconsistent between the subject and message body.
-  var eEditorMailMask = Components.interfaces.nsIPlaintextEditor.eEditorMailMask;
+  var eEditorMailMask = Ci.nsIPlaintextEditor.eEditorMailMask;
   editor.flags |= eEditorMailMask;
   GetMsgSubjectElement().editor.flags |= eEditorMailMask;
 
@@ -3365,7 +3365,7 @@ function InitEditor(editor)
       // Check if this is a protocol that can fetch parts.
       let protocol = src.substr(0, src.indexOf(":")).toLowerCase();
       if (!(Services.io.getProtocolHandler(protocol) instanceof
-            Components.interfaces.nsIMsgMessageFetchPartService)) {
+            Ci.nsIMsgMessageFetchPartService)) {
         // Can't fetch parts, don't try to load.
         return;
       }
@@ -3377,8 +3377,8 @@ function InitEditor(editor)
     }
 
     if (gOriginalMsgURI) {
-      let msgSvc = Components.classes["@mozilla.org/messenger;1"]
-                     .createInstance(Components.interfaces.nsIMessenger)
+      let msgSvc = Cc["@mozilla.org/messenger;1"]
+                     .createInstance(Ci.nsIMessenger)
                      .messageServiceFromURI(gOriginalMsgURI);
       let originalMsgNeckoURI = {};
       msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
@@ -3393,7 +3393,7 @@ function InitEditor(editor)
           loadBlockedImage(src);
         } catch (e) {
           // Couldn't load the referenced image.
-          Components.utils.reportError(e);
+          Cu.reportError(e);
         }
       }
       else {
@@ -3412,8 +3412,8 @@ function InitEditor(editor)
   let background = editor.document.body.background;
   if (background && gOriginalMsgURI) {
     // Check that background has the same URL as the message itself.
-    let msgSvc = Components.classes["@mozilla.org/messenger;1"]
-                   .createInstance(Components.interfaces.nsIMessenger)
+    let msgSvc = Cc["@mozilla.org/messenger;1"]
+                   .createInstance(Ci.nsIMessenger)
                    .messageServiceFromURI(gOriginalMsgURI);
     let originalMsgNeckoURI = {};
     msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
@@ -3425,7 +3425,7 @@ function InitEditor(editor)
         editor.document.body.background = loadBlockedImage(background, true);
       } catch (e) {
         // Couldn't load the referenced image.
-        Components.utils.reportError(e);
+        Cu.reportError(e);
       }
     }
   }
@@ -3485,11 +3485,11 @@ function getPref(aPrefName, aIsComplex)
 
   switch (Services.prefs.getPrefType(aPrefName))
   {
-    case Components.interfaces.nsIPrefBranch.PREF_BOOL:
+    case Ci.nsIPrefBranch.PREF_BOOL:
       return Services.prefs.getBoolPref(aPrefName);
-    case Components.interfaces.nsIPrefBranch.PREF_INT:
+    case Ci.nsIPrefBranch.PREF_INT:
       return Services.prefs.getIntPref(aPrefName);
-    case Components.interfaces.nsIPrefBranch.PREF_STRING:
+    case Ci.nsIPrefBranch.PREF_STRING:
       return Services.prefs.getCharPref(aPrefName);
     default: // includes nsIPrefBranch.PREF_INVALID
       return null;
@@ -3591,7 +3591,7 @@ function onUnblockResource(aURL, aNode) {
     loadBlockedImage(aURL);
   } catch (e) {
     // Couldn't load the referenced image.
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   } finally {
     // Remove it from the list on success and failure.
     let urls = aNode.value.split(" ");
@@ -3632,8 +3632,8 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
   let contentType;
   if (filename) {
     try {
-      contentType = Components.classes["@mozilla.org/mime;1"]
-                      .getService(Components.interfaces.nsIMIMEService)
+      contentType = Cc["@mozilla.org/mime;1"]
+                      .getService(Ci.nsIMIMEService)
                       .getTypeFromURI(uri);
     } catch (ex) {
       contentType = "image/png";
@@ -3655,12 +3655,12 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
       null,
       Services.scriptSecurityManager.getSystemPrincipal(),
       null,
-      Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER);
 
   let inputStream = channel.open();
-  let stream = Components.classes["@mozilla.org/binaryinputstream;1"]
-                 .createInstance(Components.interfaces.nsIBinaryInputStream);
+  let stream = Cc["@mozilla.org/binaryinputstream;1"]
+                 .createInstance(Ci.nsIBinaryInputStream);
   stream.setInputStream(inputStream);
   let streamData = "";
   try {

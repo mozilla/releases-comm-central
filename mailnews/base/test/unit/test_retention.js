@@ -43,8 +43,8 @@ function* actually_run_test() {
                        .getService(Ci.nsIMsgDBService);
   // adding messages leaves some headers around as garbage - make sure
   // those are cleaned up so the db will get closed.
-  Components.utils.forceGC();
-  Components.utils.forceCC();
+  Cu.forceGC();
+  Cu.forceCC();
   Assert.equal(gDbService.cachedDBForFolder(gTestFolder), null);
   // no retention settings, so we should have the same number of messages.
   Assert.equal(numMessages, gTestFolder.msgDatabase.dBFolderInfo.numMessages);

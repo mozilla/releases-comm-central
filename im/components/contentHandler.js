@@ -19,7 +19,7 @@ contentHandler.prototype = {
   _xpcom_factory: {
     createInstance: function ch_factory_ci(outer, iid) {
       if (outer)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
+        throw Cr.NS_ERROR_NO_AGGREGATION;
       return gContentHandler.QueryInterface(iid);
     }
   },
@@ -56,7 +56,7 @@ contentHandler.prototype = {
   // nsIFactory
   createInstance: function ch_CI(outer, iid) {
     if (outer != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
+      throw Cr.NS_ERROR_NO_AGGREGATION;
 
     return this.QueryInterface(iid);
   },

@@ -11,17 +11,17 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 // correct places an would be an infrequent operation.
 var gAddressBookAbListener = {
   onItemAdded: function(parentDir, item) {
-    if (item instanceof Components.interfaces.nsIAbDirectory) {
+    if (item instanceof Ci.nsIAbDirectory) {
       fillDirectoryList();
     }
   },
   onItemRemoved: function(parentDir, item) {
-    if (item instanceof Components.interfaces.nsIAbDirectory) {
+    if (item instanceof Ci.nsIAbDirectory) {
       fillDirectoryList();
     }
   },
   onItemPropertyChanged: function(item, property, oldValue, newValue) {
-    if (item instanceof Components.interfaces.nsIAbDirectory) {
+    if (item instanceof Ci.nsIAbDirectory) {
       fillDirectoryList();
     }
   }
@@ -39,7 +39,7 @@ function onInitEditDirectories()
   // Fill out the directory list
   fillDirectoryList();
 
-  const nsIAbListener = Components.interfaces.nsIAbListener;
+  const nsIAbListener = Ci.nsIAbListener;
   // Add a listener so we can update correctly if the list should change
   MailServices.ab.addAddressBookListener(gAddressBookAbListener,
                                          nsIAbListener.itemAdded |
@@ -65,7 +65,7 @@ function fillDirectoryList()
   let holdingArray = [];
   while (directories && directories.hasMoreElements()) {
     let ab = directories.getNext();
-    if (ab instanceof Components.interfaces.nsIAbDirectory && ab.isRemote)
+    if (ab instanceof Ci.nsIAbDirectory && ab.isRemote)
       holdingArray.push(ab);
   }
 

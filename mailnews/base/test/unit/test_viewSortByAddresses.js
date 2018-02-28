@@ -136,10 +136,10 @@ function view_throw(why) {
 var gDBView;
 var gTreeView;
 
-var ViewType = Components.interfaces.nsMsgViewType;
-var SortType = Components.interfaces.nsMsgViewSortType;
-var SortOrder = Components.interfaces.nsMsgViewSortOrder;
-var ViewFlags = Components.interfaces.nsMsgViewFlagsType;
+var ViewType = Ci.nsMsgViewType;
+var SortType = Ci.nsMsgViewSortType;
+var SortOrder = Ci.nsMsgViewSortOrder;
+var ViewFlags = Ci.nsMsgViewFlagsType;
 
 function setup_view(aViewType, aViewFlags, aTestFolder) {
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
@@ -150,8 +150,8 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   // always start out fully expanded
   aViewFlags |= ViewFlags.kExpandAll;
 
-  gDBView = Components.classes[dbviewContractId]
-                      .createInstance(Components.interfaces.nsIMsgDBView);
+  gDBView = Cc[dbviewContractId]
+              .createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
   gDBView.open(aViewType != "search" ? aTestFolder : null,
@@ -160,6 +160,6 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
                aViewFlags, outCount);
   dump("  View Out Count: " + outCount.value + "\n");
 
-  gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
 }
 

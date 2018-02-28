@@ -4,29 +4,29 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const nsISupports             = Components.interfaces.nsISupports;
-const nsIBrowserDOMWindow     = Components.interfaces.nsIBrowserDOMWindow;
-const nsIBrowserHistory       = Components.interfaces.nsIBrowserHistory;
-const nsIBrowserSearchService = Components.interfaces.nsIBrowserSearchService;
-const nsIChannel              = Components.interfaces.nsIChannel;
-const nsICommandLine          = Components.interfaces.nsICommandLine;
-const nsICommandLineHandler   = Components.interfaces.nsICommandLineHandler;
-const nsICommandLineValidator = Components.interfaces.nsICommandLineValidator;
-const nsIComponentRegistrar   = Components.interfaces.nsIComponentRegistrar;
-const nsIContentHandler       = Components.interfaces.nsIContentHandler;
-const nsIDOMWindow            = Components.interfaces.nsIDOMWindow;
-const nsIFactory              = Components.interfaces.nsIFactory;
-const nsIFileURL              = Components.interfaces.nsIFileURL;
-const nsIHttpProtocolHandler  = Components.interfaces.nsIHttpProtocolHandler;
-const nsINetUtil              = Components.interfaces.nsINetUtil;
-const nsIIOService            = Components.interfaces.nsIIOService;
-const nsIPrefService          = Components.interfaces.nsIPrefService;
-const nsIPrefBranch           = Components.interfaces.nsIPrefBranch;
-const nsIPrefLocalizedString  = Components.interfaces.nsIPrefLocalizedString;
-const nsISupportsString       = Components.interfaces.nsISupportsString;
-const nsIURIFixup             = Components.interfaces.nsIURIFixup;
-const nsIWindowMediator       = Components.interfaces.nsIWindowMediator;
-const nsIWebNavigationInfo    = Components.interfaces.nsIWebNavigationInfo;
+const nsISupports             = Ci.nsISupports;
+const nsIBrowserDOMWindow     = Ci.nsIBrowserDOMWindow;
+const nsIBrowserHistory       = Ci.nsIBrowserHistory;
+const nsIBrowserSearchService = Ci.nsIBrowserSearchService;
+const nsIChannel              = Ci.nsIChannel;
+const nsICommandLine          = Ci.nsICommandLine;
+const nsICommandLineHandler   = Ci.nsICommandLineHandler;
+const nsICommandLineValidator = Ci.nsICommandLineValidator;
+const nsIComponentRegistrar   = Ci.nsIComponentRegistrar;
+const nsIContentHandler       = Ci.nsIContentHandler;
+const nsIDOMWindow            = Ci.nsIDOMWindow;
+const nsIFactory              = Ci.nsIFactory;
+const nsIFileURL              = Ci.nsIFileURL;
+const nsIHttpProtocolHandler  = Ci.nsIHttpProtocolHandler;
+const nsINetUtil              = Ci.nsINetUtil;
+const nsIIOService            = Ci.nsIIOService;
+const nsIPrefService          = Ci.nsIPrefService;
+const nsIPrefBranch           = Ci.nsIPrefBranch;
+const nsIPrefLocalizedString  = Ci.nsIPrefLocalizedString;
+const nsISupportsString       = Ci.nsISupportsString;
+const nsIURIFixup             = Ci.nsIURIFixup;
+const nsIWindowMediator       = Ci.nsIWindowMediator;
+const nsIWebNavigationInfo    = Ci.nsIWebNavigationInfo;
 
 const NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
 
@@ -50,8 +50,8 @@ function resolveURIInternal(aCmdLine, aArgument)
   try {
     var file = aCmdLine.resolveFile(aArgument);
     if (file.exists()) {
-      var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                .getService(nsIIOService);
+      var ioService = Cc["@mozilla.org/network/io-service;1"]
+                        .getService(nsIIOService);
       return ioService.newFileURI(file);
     }
   } catch (e) {
@@ -61,13 +61,13 @@ function resolveURIInternal(aCmdLine, aArgument)
   // doesn't exist. Try URI fixup heuristics: see bug 290782.
 
   try {
-    var urifixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
-                             .getService(nsIURIFixup);
+    var urifixup = Cc["@mozilla.org/docshell/urifixup;1"]
+                     .getService(nsIURIFixup);
 
     return urifixup.createFixupURI(aArgument,
                                    nsIURIFixup.FIXUP_FLAG_ALLOW_KEYWORD_LOOKUP);
   } catch (e) {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   }
 
   return null;
@@ -103,8 +103,8 @@ function needHomePageOverride()
   } catch (e) {
   }
 
-  var mstone = Components.classes["@mozilla.org/network/protocol;1?name=http"]
-                         .getService(nsIHttpProtocolHandler).misc;
+  var mstone = Cc["@mozilla.org/network/protocol;1?name=http"]
+                 .getService(nsIHttpProtocolHandler).misc;
 
   if (mstone == savedmstone)
     return false;
@@ -116,8 +116,8 @@ function needHomePageOverride()
 
 function getURLToLoad()
 {
-  var formatter = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
-                            .getService(Components.interfaces.nsIURLFormatter);
+  var formatter = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
+                    .getService(Ci.nsIURLFormatter);
 
   if (needHomePageOverride()) {
     try {
@@ -127,8 +127,8 @@ function getURLToLoad()
   }
 
   try {
-    var ss = Components.classes["@mozilla.org/suite/sessionstartup;1"]
-                       .getService(Components.interfaces.nsISessionStartup);
+    var ss = Cc["@mozilla.org/suite/sessionstartup;1"]
+               .getService(Ci.nsISessionStartup);
     // return about:blank if we are restoring previous session
     if (ss.doRestore())
       return "about:blank";
@@ -136,8 +136,8 @@ function getURLToLoad()
   }
 
   try {
-    var st = Components.classes["@mozilla.org/suite/sessionstore;1"]
-                       .getService(Components.interfaces.nsISessionStore);
+    var st = Cc["@mozilla.org/suite/sessionstore;1"]
+               .getService(Ci.nsISessionStore);
     // return about:blank if the last window was closed and should be restored
     if (st.doRestoreLastWindow())
       return "about:blank";
@@ -160,8 +160,8 @@ function getURLToLoad()
 
 function openWindow(parent, url, features, arg)
 {
-  var argstring = Components.classes["@mozilla.org/supports-string;1"]
-                            .createInstance(nsISupportsString);
+  var argstring = Cc["@mozilla.org/supports-string;1"]
+                    .createInstance(nsISupportsString);
   argstring.data = arg;
   return Services.ww.openWindow(parent, url, "", features, argstring);
 }
@@ -203,17 +203,17 @@ function handURIToExistingBrowser(aUri, aLocation, aFeatures, aTriggeringPrincip
 }
 
 function doSearch(aSearchTerm, aFeatures) {
-  var ss = Components.classes["@mozilla.org/browser/search-service;1"]
-                     .getService(nsIBrowserSearchService);
+  var ss = Cc["@mozilla.org/browser/search-service;1"]
+             .getService(nsIBrowserSearchService);
 
   var submission = ss.defaultEngine.getSubmission(aSearchTerm);
 
   // fill our nsIMutableArray with uri-as-wstring, null, null, postData
-  var sa = Components.classes["@mozilla.org/array;1"]
-                     .createInstance(Components.interfaces.nsIMutableArray);
+  var sa = Cc["@mozilla.org/array;1"]
+             .createInstance(Ci.nsIMutableArray);
 
-  var uristring = Components.classes["@mozilla.org/supports-string;1"]
-                            .createInstance(nsISupportsString);
+  var uristring = Cc["@mozilla.org/supports-string;1"]
+                    .createInstance(nsISupportsString);
   uristring.data = submission.uri.spec;
 
   sa.appendElement(uristring);
@@ -242,7 +242,7 @@ var nsBrowserContentHandler = {
         iid.equals(nsIFactory))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
   _handledURI: null,
@@ -304,14 +304,14 @@ var nsBrowserContentHandler = {
             break;
 
           default:
-            throw Components.results.NS_ERROR_ABORT;
+            throw Cr.NS_ERROR_ABORT;
           }
           break;
 
         default:
           // Somebody sent us a remote command we don't know how to process:
           // just abort.
-          throw Components.results.NS_ERROR_ABORT;
+          throw Cr.NS_ERROR_ABORT;
         }
 
         cmdLine.preventDefault = true;
@@ -320,7 +320,7 @@ var nsBrowserContentHandler = {
       // If we had a -remote flag but failed to process it, throw
       // NS_ERROR_ABORT so that the xremote code knows to return a failure
       // back to the handling code.
-      throw Components.results.NS_ERROR_ABORT;
+      throw Cr.NS_ERROR_ABORT;
     }
 
     try {
@@ -357,12 +357,12 @@ var nsBrowserContentHandler = {
     // urls launched after the initial launch will be lost.
     try {
       // This will throw when a profile has not been selected.
-      var fl = Components.classes["@mozilla.org/file/directory_service;1"]
-                         .getService(Components.interfaces.nsIProperties);
-      fl.get("ProfD", Components.interfaces.nsIFile);
+      var fl = Cc["@mozilla.org/file/directory_service;1"]
+                 .getService(Ci.nsIProperties);
+      fl.get("ProfD", Ci.nsIFile);
     } catch (e) {
       cmdLine.preventDefault = true;
-      throw Components.results.NS_ERROR_ABORT;
+      throw Cr.NS_ERROR_ABORT;
     }
 
     try {
@@ -421,8 +421,8 @@ var nsBrowserContentHandler = {
       if (chromeParam) {
         // only load URIs which do not inherit chrome privs
         var uri = resolveURIInternal(cmdLine, chromeParam);
-        var netutil = Components.classes["@mozilla.org/network/util;1"]
-                                .getService(nsINetUtil);
+        var netutil = Cc["@mozilla.org/network/util;1"]
+                        .getService(nsINetUtil);
         if (!netutil.URIChainHasFlags(uri, URI_INHERITS_SECURITY_CONTEXT)) {
           openWindow(null, uri.spec, features);
           cmdLine.preventDefault = true;
@@ -487,14 +487,14 @@ var nsBrowserContentHandler = {
           // Ignore any exceptions - we can't do anything about them here.
           try {
             if (prefBranch.getBoolPref(this.currentArgument)) {
-              var handler = Components.classes[contract].getService(nsICommandLineHandler);
+              var handler = Cc[contract].getService(nsICommandLineHandler);
               if (handler.wrappedJSObject)
                 handler.wrappedJSObject.handle(this);
               else
                 handler.handle(this);
             }
           } catch (e) {
-            Components.utils.reportError(e);
+            Cu.reportError(e);
           }
         }
       }
@@ -506,8 +506,8 @@ var nsBrowserContentHandler = {
       var homePage = getURLToLoad();
       if (!/\n/.test(homePage)) {
         try {
-          var urifixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
-                                   .getService(nsIURIFixup);
+          var urifixup = Cc["@mozilla.org/docshell/urifixup;1"]
+                           .getService(nsIURIFixup);
           var uri = urifixup.createFixupURI(homePage, 0);
           handURIToExistingBrowser(uri, nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW, features);
           cmdLine.preventDefault = true;
@@ -541,7 +541,7 @@ var nsBrowserContentHandler = {
         var testExpr = new RegExp("seamonkey" + value + ":");
         if (cmdLine.length != flagIdx + 2 ||
             testExpr.test(cmdLine.getArgument(flagIdx + 1)))
-          throw Components.results.NS_ERROR_ABORT;
+          throw Cr.NS_ERROR_ABORT;
         cmdLine.handleFlag("osint", false);
       }
     });
@@ -563,7 +563,7 @@ var nsBrowserContentHandler = {
     if (index == 0)
       return this.currentArgument;
 
-    throw Components.results.NS_ERROR_INVALID_ARG;
+    throw Cr.NS_ERROR_INVALID_ARG;
   },
 
   findFlag: function findFlag(flag, caseSensitive) {
@@ -584,7 +584,7 @@ var nsBrowserContentHandler = {
 
   handleFlagWithParam : function handleFlagWithParam(flag, caseSensitive) {
     if (this.handleFlag(flag, caseSensitive))
-      throw Components.results.NS_ERROR_INVALID_ARG;
+      throw Cr.NS_ERROR_INVALID_ARG;
   },
 
   get state() {
@@ -617,8 +617,8 @@ var nsBrowserContentHandler = {
 
   /* nsIContentHandler */
   handleContent: function handleContent(contentType, context, request) {
-    var webNavInfo = Components.classes["@mozilla.org/webnavigation-info;1"]
-                               .getService(nsIWebNavigationInfo);
+    var webNavInfo = Cc["@mozilla.org/webnavigation-info;1"]
+                       .getService(nsIWebNavigationInfo);
     if (!webNavInfo.isTypeSupported(contentType, null))
       throw NS_ERROR_WONT_HANDLE_CONTENT;
 
@@ -627,13 +627,13 @@ var nsBrowserContentHandler = {
                              nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW,
                              "chrome,all,dialog=no",
                              request.loadInfo.triggeringPrincipal);
-    request.cancel(Components.results.NS_BINDING_ABORTED);
+    request.cancel(Cr.NS_BINDING_ABORTED);
   },
 
   /* nsIFactory */
   createInstance: function createInstance(outer, iid) {
     if (outer != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
+      throw Cr.NS_ERROR_NO_AGGREGATION;
 
     return this.QueryInterface(iid);
   },
@@ -648,5 +648,5 @@ const BROWSER_CID = Components.ID("{c2343730-dc2c-11d3-98b3-001083010e9b}");
 function NSGetFactory(cid) {
   if (cid.number == BROWSER_CID)
     return nsBrowserContentHandler;
-  throw Components.results.NS_ERROR_FACTORY_NOT_REGISTERED;
+  throw Cr.NS_ERROR_FACTORY_NOT_REGISTERED;
 }

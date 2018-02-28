@@ -24,7 +24,7 @@ var onTable  = false;
 var onTitle  = false;
 var onLang   = false;
 
-const OPEN_READONLY = Components.interfaces.nsICacheStorage.OPEN_READONLY;
+const OPEN_READONLY = Ci.nsICacheStorage.OPEN_READONLY;
 
 function onLoad()
 {
@@ -114,7 +114,7 @@ var cacheListener = {
         }
     },
     onCacheEntryCheck: function onCacheEntryCheck() {
-        return Components.interfaces.nsICacheEntryOpenCallback.ENTRY_WANTED;
+        return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
     }
 };
 
@@ -167,15 +167,15 @@ function checkForImage(elem, htmllocalname)
         var imgURL = imgType == "object" ? img.data : img.src;
         setInfo("image-url", imgURL);
 
-        const LoadContextInfo = Components.classes["@mozilla.org/load-context-info-factory;1"]
-                                          .getService(Components.interfaces.nsILoadContextInfoFactory);
+        const LoadContextInfo = Cc["@mozilla.org/load-context-info-factory;1"]
+                                  .getService(Ci.nsILoadContextInfoFactory);
         var loadContextInfo = opener.gPrivate ? LoadContextInfo.private :
                                                 LoadContextInfo.default;
         ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-        Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
-                  .getService(Components.interfaces.nsICacheStorageService)
-                  .diskCacheStorage(loadContextInfo, false)
-                  .asyncOpenURI(NetUtil.newURI(imgURL), null,
+        Cc["@mozilla.org/netwerk/cache-storage-service;1"]
+          .getService(Ci.nsICacheStorageService)
+          .diskCacheStorage(loadContextInfo, false)
+          .asyncOpenURI(NetUtil.newURI(imgURL), null,
                                 OPEN_READONLY, cacheListener);
 
         if ("width" in img && img.width != "") {

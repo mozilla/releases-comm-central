@@ -6,7 +6,7 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
-var nsICookie = Components.interfaces.nsICookie;
+var nsICookie = Ci.nsICookie;
 
 var gCookiesWindow = {
   _hosts            : {},
@@ -75,7 +75,7 @@ var gCookiesWindow = {
     if (aTopic != "cookie-changed")
       return;
 
-    if (aCookie instanceof Components.interfaces.nsICookie) {
+    if (aCookie instanceof Ci.nsICookie) {
       var strippedHost = this._makeStrippedHost(aCookie.host);
       if (aData == "changed")
         this._handleCookieChanged(aCookie, strippedHost);
@@ -501,7 +501,7 @@ var gCookiesWindow = {
     this._hostOrder = [];
     while (e.hasMoreElements()) {
       var cookie = e.getNext();
-      if (cookie && cookie instanceof Components.interfaces.nsICookie) {
+      if (cookie && cookie instanceof Ci.nsICookie) {
         var strippedHost = this._makeStrippedHost(cookie.host);
         this._addCookie(strippedHost, cookie, hostCount);
       }

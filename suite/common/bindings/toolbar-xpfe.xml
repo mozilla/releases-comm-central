@@ -102,7 +102,7 @@
           var existingGrippy = document.getAnonymousElementByAttribute(this, "id", "moz_tb_collapsed_" + aToolbar.id);
           if (!existingGrippy) {
             var grippy = document.getAnonymousElementByAttribute(aToolbar, "tbattr", "toolbar-grippy");
-            var boxObject = grippy.boxObject.QueryInterface(Components.interfaces.nsIBoxObject);
+            var boxObject = grippy.boxObject.QueryInterface(Ci.nsIBoxObject);
             var collapsedGrippy = document.createElementNS(XUL_NS, "toolbargrippy");
             if (collapsedGrippy) {
               var width = boxObject.height > 20 ? boxObject.height : 23;

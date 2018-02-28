@@ -26,7 +26,7 @@ function IsLivemark(aItemId) {
     self.ids = new Set(idsVec);
 
     let obs = {
-      QueryInterface: XPCOMUtils.generateQI(Components.interfaces.nsIAnnotationObserver),
+      QueryInterface: XPCOMUtils.generateQI(Ci.nsIAnnotationObserver),
 
       onItemAnnotationSet(itemId, annoName) {
         if (annoName == LIVEMARK_ANNO)
@@ -67,7 +67,7 @@ var PlacesUIUtils = {
    * @returns A URI object for the spec.
    */
   createFixedURI: function PUIU_createFixedURI(aSpec) {
-    return URIFixup.createFixupURI(aSpec, Components.interfaces.nsIURIFixup.FIXUP_FLAG_NONE);
+    return URIFixup.createFixupURI(aSpec, Ci.nsIURIFixup.FIXUP_FLAG_NONE);
   },
 
   /**
@@ -77,8 +77,8 @@ var PlacesUIUtils = {
    * @returns A nsISupportsString object containing a string.
    */
   _wrapString: function PUIU__wrapString(aString) {
-    var s = Components.classes["@mozilla.org/supports-string;1"]
-                      .createInstance(Components.interfaces.nsISupportsString);
+    var s = Cc["@mozilla.org/supports-string;1"]
+              .createInstance(Ci.nsISupportsString);
     s.data = aString;
     return s;
   },
@@ -676,7 +676,7 @@ var PlacesUIUtils = {
         node.lastChild._placesView)
       return node.lastChild._placesView;
 
-    while (node instanceof Components.interfaces.nsIDOMElement) {
+    while (node instanceof Ci.nsIDOMElement) {
       if (node._placesView)
         return node._placesView;
       if (node.localName == "tree" && node.getAttribute("type") == "places")
@@ -738,10 +738,10 @@ var PlacesUIUtils = {
     var uri = PlacesUtils._uri(aURINode.uri);
     if (uri.schemeIs("javascript") || uri.schemeIs("data")) {
       const BRANDING_BUNDLE_URI = "chrome://branding/locale/brand.properties";
-      var brandShortName = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                                     .getService(Components.interfaces.nsIStringBundleService)
-                                     .createBundle(BRANDING_BUNDLE_URI)
-                                     .GetStringFromName("brandShortName");
+      var brandShortName = Cc["@mozilla.org/intl/stringbundle;1"]
+                             .getService(Ci.nsIStringBundleService)
+                             .createBundle(BRANDING_BUNDLE_URI)
+                             .GetStringFromName("brandShortName");
 
       var errorStr = this.getString("load-js-data-url-error");
       Services.prompt.alert(aWindow, brandShortName, errorStr);
@@ -884,10 +884,10 @@ var PlacesUIUtils = {
         var messageKey = "tabs.openWarningMultipleBranded";
         var openKey = "tabs.openButtonMultiple";
         const BRANDING_BUNDLE_URI = "chrome://branding/locale/brand.properties";
-        var brandShortName = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                                       .getService(Components.interfaces.nsIStringBundleService)
-                                       .createBundle(BRANDING_BUNDLE_URI)
-                                       .GetStringFromName("brandShortName");
+        var brandShortName = Cc["@mozilla.org/intl/stringbundle;1"]
+                               .getService(Ci.nsIStringBundleService)
+                               .createBundle(BRANDING_BUNDLE_URI)
+                               .GetStringFromName("brandShortName");
 
         var buttonPressed = Services.prompt.confirmEx(
           this._getCurrentActiveWin(),
@@ -1021,7 +1021,7 @@ var PlacesUIUtils = {
       try {
         var uri = PlacesUtils._uri(aNode.uri);
         var host = uri.host;
-        var fileName = uri.QueryInterface(Components.interfaces.nsIURL).fileName;
+        var fileName = uri.QueryInterface(Ci.nsIURL).fileName;
         // if fileName is empty, use path to distinguish labels
         title = host + (fileName ?
                         (host ? "/" + this.ellipsis + "/" : "") + fileName :
@@ -1240,9 +1240,9 @@ var PlacesUIUtils = {
         // Tags Query.
         this.create_query("Tags", leftPaneRoot,
                           "place:type=" +
-                          Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_TAG_QUERY +
+                          Ci.nsINavHistoryQueryOptions.RESULTS_AS_TAG_QUERY +
                           "&sort=" +
-                          Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_TITLE_ASCENDING);
+                          Ci.nsINavHistoryQueryOptions.SORT_BY_TITLE_ASCENDING);
 
         // All Bookmarks Folder.
         allBookmarksId = this.create_folder("AllBookmarks", leftPaneRoot, false);
@@ -1315,7 +1315,7 @@ XPCOMUtils.defineLazyServiceGetter(PlacesUIUtils, "xulStore",
 
 XPCOMUtils.defineLazyGetter(PlacesUIUtils, "ellipsis", function() {
   return Services.prefs.getComplexValue("intl.ellipsis",
-                                        Components.interfaces.nsIPrefLocalizedString).data;
+                                        Ci.nsIPrefLocalizedString).data;
 });
 
 XPCOMUtils.defineLazyServiceGetter(this, "URIFixup",
@@ -1325,9 +1325,9 @@ XPCOMUtils.defineLazyServiceGetter(this, "URIFixup",
 XPCOMUtils.defineLazyGetter(this, "bundle", function() {
   const PLACES_STRING_BUNDLE_URI =
     "chrome://communicator/locale/places/places.properties";
-  return Components.classes["@mozilla.org/intl/stringbundle;1"]
-                   .getService(Components.interfaces.nsIStringBundleService)
-                   .createBundle(PLACES_STRING_BUNDLE_URI);
+  return Cc["@mozilla.org/intl/stringbundle;1"]
+           .getService(Ci.nsIStringBundleService)
+           .createBundle(PLACES_STRING_BUNDLE_URI);
 });
 
 XPCOMUtils.defineLazyServiceGetter(this, "focusManager",
@@ -1446,10 +1446,10 @@ XPCOMUtils.defineLazyGetter(PlacesUIUtils, "ptm", function() {
     editItemDescription: function(aItemId, aDescription)
     {
       let annoObj = { name: PlacesUIUtils.DESCRIPTION_ANNO,
-                      type: Components.interfaces.nsIAnnotationService.TYPE_STRING,
+                      type: Ci.nsIAnnotationService.TYPE_STRING,
                       flags: 0,
                       value: aDescription,
-                      expires: Components.interfaces.nsIAnnotationService.EXPIRE_NEVER };
+                      expires: Ci.nsIAnnotationService.EXPIRE_NEVER };
       return new PlacesSetItemAnnotationTransaction(aItemId, annoObj);
     },
 

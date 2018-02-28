@@ -7,9 +7,9 @@
 var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
 var MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
 var MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
-var nsIMsgCompose = Components.interfaces.nsIMsgCompose;
-var nsIMsgComposeParams = Components.interfaces.nsIMsgComposeParams;
-var nsIMsgCompFields = Components.interfaces.nsIMsgCompFields;
+var nsIMsgCompose = Ci.nsIMsgCompose;
+var nsIMsgComposeParams = Ci.nsIMsgComposeParams;
+var nsIMsgCompFields = Ci.nsIMsgCompFields;
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
@@ -21,18 +21,18 @@ ChromeUtils.import("resource:///modules/mailServices.js");
  */
 function checkPopulate(aTo, aCheckTo)
 {
-  let msgCompose = Components.classes[MsgComposeContractID]
-                             .createInstance(nsIMsgCompose);
+  let msgCompose = Cc[MsgComposeContractID]
+                     .createInstance(nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  let fields = Components.classes[MsgComposeFieldsContractID]
-                         .createInstance(nsIMsgCompFields);
+  let fields = Cc[MsgComposeFieldsContractID]
+                 .createInstance(nsIMsgCompFields);
 
   fields.to = aTo;
 
   // Set up some params
-  let params = Components.classes[MsgComposeParamsContractID]
-                         .createInstance(nsIMsgComposeParams);
+  let params = Cc[MsgComposeParamsContractID]
+                 .createInstance(nsIMsgComposeParams);
 
   params.composeFields = fields;
 

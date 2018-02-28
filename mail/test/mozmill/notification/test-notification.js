@@ -34,7 +34,7 @@ var gMockAlertsService = {
     // Setting the _doFail flag allows us to revert to the newmailalert.xul
     // notification
     if (this._doFail) {
-      throw Components.results.NS_ERROR_FAILURE;
+      throw Cr.NS_ERROR_FAILURE;
     }
     this._didNotify = true;
     this._imageUrl = imageUrl;

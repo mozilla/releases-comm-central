@@ -63,8 +63,8 @@ var FeedMessageHandler = {
    * @return true if message is a feed, false if not.
    */
   isFeedMessage: function(aMsgHdr) {
-    return Boolean(aMsgHdr instanceof Components.interfaces.nsIMsgDBHdr &&
-                   (aMsgHdr.flags & Components.interfaces.nsMsgMessageFlags.FeedMsg ||
+    return Boolean(aMsgHdr instanceof Ci.nsIMsgDBHdr &&
+                   (aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg ||
                     this.isFeedFolder(aMsgHdr.folder)));
   },
 
@@ -77,7 +77,7 @@ var FeedMessageHandler = {
    * @return true if folder's server.type is in FeedAccountTypes, false if not.
    */
   isFeedFolder: function(aFolder) {
-    return Boolean(aFolder instanceof Components.interfaces.nsIMsgFolder &&
+    return Boolean(aFolder instanceof Ci.nsIMsgFolder &&
                    this.FeedAccountTypes.includes(aFolder.server.type));
   },
 
@@ -211,9 +211,9 @@ var FeedMessageHandler = {
           return;
         }
         if (aWhere.browser)
-          Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                    .getService(Components.interfaces.nsIExternalProtocolService)
-                    .loadURI(uri);
+          Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+            .getService(Ci.nsIExternalProtocolService)
+            .loadURI(uri);
         else if (aWhere.messagepane) {
           let loadFlag = getBrowser().webNavigation.LOAD_FLAGS_NONE;
           getBrowser().webNavigation.loadURI(url, loadFlag, null, null, null);

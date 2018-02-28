@@ -160,7 +160,7 @@ function MsgFolderProperties()
     return;
   }
 
-  if (msgFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual)
+  if (msgFolder.flags & Ci.nsMsgFolderFlags.Virtual)
   {
     // virtual folders get their own property dialog that contains all of the
     // search information related to the virtual folder.

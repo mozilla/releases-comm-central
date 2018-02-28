@@ -44,15 +44,15 @@ function listDirectory (file) {
   while (entries.hasMoreElements())
   {
     var entry = entries.getNext();
-    entry.QueryInterface(Components.interfaces.nsIFile);
+    entry.QueryInterface(Ci.nsIFile);
     array.push(entry);
   }
   return array;
 }
 
 function getFileForPath (path) {
-  var file = Components.classes["@mozilla.org/file/local;1"]
-                       .createInstance(Components.interfaces.nsIFile);
+  var file = Cc["@mozilla.org/file/local;1"]
+               .createInstance(Ci.nsIFile);
   file.initWithPath(path);
   return file;
 }
@@ -77,8 +77,8 @@ function abspath (rel, file) {
 }
 
 function getPlatform () {
-  var xulRuntime = Components.classes["@mozilla.org/xre/app-info;1"]
-                   .getService(Components.interfaces.nsIXULRuntime);
+  var xulRuntime = Cc["@mozilla.org/xre/app-info;1"]
+                   .getService(Ci.nsIXULRuntime);
   return xulRuntime.OS.toLowerCase();
 }
 

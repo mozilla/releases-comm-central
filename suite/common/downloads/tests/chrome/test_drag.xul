@@ -71,22 +71,22 @@ var missingFileElid;
 var realFileElid;
 const kFiller = "notApplicable";
 const kFillerURL = "https://bugzilla.mozilla.org/show_bug.cgi?id=462172"
-var realFile = Components.classes["@mozilla.org/file/directory_service;1"]
-                         .getService(Components.interfaces.nsIProperties)
-                         .get("CurWorkD", Components.interfaces.nsIFile);
-var missingFile = Components.classes["@mozilla.org/file/directory_service;1"]
-                            .getService(Components.interfaces.nsIProperties)
-                            .get("CurWorkD", Components.interfaces.nsIFile);
+var realFile = Cc["@mozilla.org/file/directory_service;1"]
+                 .getService(Ci.nsIProperties)
+                 .get("CurWorkD", Ci.nsIFile);
+var missingFile = Cc["@mozilla.org/file/directory_service;1"]
+                    .getService(Ci.nsIProperties)
+                    .get("CurWorkD", Ci.nsIFile);
 
-var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                    .getService(Components.interfaces.nsIIOService);
+var ios = Cc["@mozilla.org/network/io-service;1"]
+            .getService(Ci.nsIIOService);
 
 realFile.append(kFiller);
-realFile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0666);
+realFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
 var realFilePath = ios.newFileURI(realFile).spec;
 
 missingFile.append(kFiller);
-missingFile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0666);
+missingFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
 var missingFilePath = ios.newFileURI(missingFile).spec;
 missingFile.remove(false);
 
@@ -96,11 +96,11 @@ const DownloadData = [
   { name: kFiller,
     source: kFillerURL,
     target: realFilePath,
-    state: Components.interfaces.nsIDownloadManager.DOWNLOAD_FINISHED },
+    state: Ci.nsIDownloadManager.DOWNLOAD_FINISHED },
   { name: kFiller,
     source: kFillerURL,
     target: missingFilePath,
-    state: Components.interfaces.nsIDownloadManager.DOWNLOAD_FINISHED }
+    state: Ci.nsIDownloadManager.DOWNLOAD_FINISHED }
 ];
 
 function mouseDragStartOnCell(aTree, aRow, aColumn, aWin, aFile)
@@ -138,16 +138,16 @@ var dragMissingFile = [[
 
 function test()
 {
-  var dm = Components.classes["@mozilla.org/download-manager;1"]
-                     .getService(Components.interfaces.nsIDownloadManager);
+  var dm = Cc["@mozilla.org/download-manager;1"]
+             .getService(Ci.nsIDownloadManager);
 
   // See if the DM is already open, and if it is, close it!
   var win = Services.wm.getMostRecentWindow("Download:Manager");
   if (win)
     win.close();
 
-  var os = Components.classes["@mozilla.org/observer-service;1"]
-                     .getService(Components.interfaces.nsIObserverService);
+  var os = Cc["@mozilla.org/observer-service;1"]
+             .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   // load files into db
@@ -193,9 +193,9 @@ function test()
   os.addObserver(testObs, DLMGR_UI_DONE);
 
   // Show the Download Manager UI
-  Components.classes["@mozilla.org/download-manager-ui;1"]
-            .getService(Components.interfaces.nsISuiteDownloadManagerUI)
-            .showManager();
+  Cc["@mozilla.org/download-manager-ui;1"]
+    .getService(Ci.nsISuiteDownloadManagerUI)
+    .showManager();
 
   SimpleTest.waitForExplicitFinish();
 }

@@ -53,14 +53,14 @@ function getChromeFile(aURI)
                                           Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                           Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
-    let sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
-                            .createInstance(Ci.nsIScriptableInputStream);
+    let sstream = Cc["@mozilla.org/scriptableinputstream;1"]
+                    .createInstance(Ci.nsIScriptableInputStream);
     sstream.init(stream);
     let text = sstream.read(sstream.available());
     sstream.close();
     return text;
   } catch (e) {
-    if (e.result != Components.results.NS_ERROR_FILE_NOT_FOUND)
+    if (e.result != Cr.NS_ERROR_FILE_NOT_FOUND)
       dump("Getting " + aURI + ": " + e + "\n");
     return null;
   }
@@ -162,8 +162,8 @@ function getInfoPlistContent(aBaseURI)
                                           Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                           Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
-    let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-                           .createInstance(Ci.nsIDOMParser);
+    let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
+                   .createInstance(Ci.nsIDOMParser);
     let doc = parser.parseFromStream(stream, null, stream.available(), "text/xml");
     if (doc.documentElement.localName != "plist")
       throw "Invalid Info.plist file";
@@ -174,7 +174,7 @@ function getInfoPlistContent(aBaseURI)
       throw "Empty or invalid Info.plist file";
     return plistToJSON(node);
   } catch(e) {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
     return null;
   }
 }
@@ -217,7 +217,7 @@ function getCurrentTheme()
     gCurrentTheme = getThemeByName(name);
     gCurrentTheme.variant = variant;
   } catch(e) {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
     gCurrentTheme = getThemeByName(DEFAULT_THEME);
     gCurrentTheme.variant = "default";
   }
@@ -229,8 +229,8 @@ function getDirectoryEntries(aDir)
 {
   let ios = Services.io;
   let uri = ios.newURI(aDir);
-  let cr = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
-                     .getService(Ci.nsIXULChromeRegistry);
+  let cr = Cc["@mozilla.org/chrome/chrome-registry;1"]
+             .getService(Ci.nsIXULChromeRegistry);
   while (uri.scheme == "chrome")
     uri = cr.convertChromeURL(uri);
 
@@ -245,12 +245,12 @@ function getDirectoryEntries(aDir)
     if (!strEntry)
       return [];
 
-    let zr = Components.classes["@mozilla.org/libjar/zip-reader;1"]
-                       .createInstance(Ci.nsIZipReader);
+    let zr = Cc["@mozilla.org/libjar/zip-reader;1"]
+               .createInstance(Ci.nsIZipReader);
     let jarFile = uri.JARFile;
     if (jarFile instanceof Ci.nsIJARURI) {
-      let innerZr = Components.classes["@mozilla.org/libjar/zip-reader;1"]
-                              .createInstance(Ci.nsIZipReader);
+      let innerZr = Cc["@mozilla.org/libjar/zip-reader;1"]
+                      .createInstance(Ci.nsIZipReader);
       innerZr.open(jarFile.JARFile.QueryInterface(Ci.nsIFileURL).file);
       zr.openInner(innerZr, jarFile.JAREntry);
     }
@@ -466,8 +466,8 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
     if (match[1] in aReplacements)
       content = aReplacements[match[1]](aReplacementArg, match[3]);
     else
-      Components.utils.reportError("Unknown replacement string %" +
-                                   match[1] + "% in message styles.");
+      Cu.reportError("Unknown replacement string %" +
+                     match[1] + "% in message styles.");
     result += aHTML.substring(previousIndex, match.index) + content;
     previousIndex = kReplacementRegExp.lastIndex;
   }
@@ -657,8 +657,8 @@ function _serializeDOMObject(aDocument, aInitFunction)
   const type = "text/plain";
 
   let encoder =
-    Components.classes["@mozilla.org/layout/documentEncoder;1?type=" + type]
-              .createInstance(Ci.nsIDocumentEncoder);
+    Cc["@mozilla.org/layout/documentEncoder;1?type=" + type]
+      .createInstance(Ci.nsIDocumentEncoder);
   encoder.init(aDocument, type, Ci.nsIDocumentEncoder.OutputPreformatted);
   aInitFunction(encoder);
   let result = encoder.encodeToString();

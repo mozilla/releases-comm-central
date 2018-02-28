@@ -28,7 +28,7 @@ function test() {
 
     var origWin;
     function windowObserver(aSubject, aTopic, aData) {
-      let theWin = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
+      let theWin = aSubject.QueryInterface(Ci.nsIDOMWindow);
       if (origWin && theWin != origWin)
         return;
 

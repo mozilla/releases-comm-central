@@ -93,8 +93,8 @@ function UpdateNotifyBox(aValue)
 
 function _getOfflineAppUsage(aPermission)
 {
-  var appCache = Components.classes["@mozilla.org/network/application-cache-service;1"]
-                           .getService(Components.interfaces.nsIApplicationCacheService);
+  var appCache = Cc["@mozilla.org/network/application-cache-service;1"]
+                   .getService(Ci.nsIApplicationCacheService);
   var groups = appCache.getGroups();
 
   var usage = 0;
@@ -121,7 +121,7 @@ function UpdateOfflineApps()
 
   while (enumerator.hasMoreElements()) {
     let perm = enumerator.getNext()
-                         .QueryInterface(Components.interfaces.nsIPermission);
+                         .QueryInterface(Ci.nsIPermission);
     if (perm.type != "offline-app" ||
         perm.capability != pm.ALLOW_ACTION)
       continue;
@@ -160,8 +160,8 @@ function RemoveOfflineApp()
     return;
 
   // clear offline cache entries
-  var appCache = Components.classes["@mozilla.org/network/application-cache-service;1"]
-                           .getService(Components.interfaces.nsIApplicationCacheService);
+  var appCache = Cc["@mozilla.org/network/application-cache-service;1"]
+                   .getService(Ci.nsIApplicationCacheService);
   var groups = appCache.getGroups();
   for (let i = 0; i < groups.length; i++) {
       var uri = Services.io.newURI(groups[i]);

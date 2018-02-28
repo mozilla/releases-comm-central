@@ -70,14 +70,14 @@ function SetAbView(aURI)
   var directory = GetDirectoryFromURI(aURI);
 
   if (!gAbView)
-    gAbView = Components.classes["@mozilla.org/addressbook/abview;1"]
-                        .createInstance(Components.interfaces.nsIAbView);
+    gAbView = Cc["@mozilla.org/addressbook/abview;1"]
+                .createInstance(Ci.nsIAbView);
 
   var actualSortColumn = gAbView.setView(directory, GetAbViewListener(),
                                          sortColumn, sortDirection);
 
   gAbResultsTree.treeBoxObject.view =
-    gAbView.QueryInterface(Components.interfaces.nsITreeView);
+    gAbView.QueryInterface(Ci.nsITreeView);
 
   UpdateSortIndicators(actualSortColumn, sortDirection);
 
@@ -135,7 +135,7 @@ function GetSelectedCardTypes()
 {
   var cards = GetSelectedAbCards();
   if (!cards) {
-    Components.utils.reportError("ERROR: GetSelectedCardTypes: |cards| is null.");
+    Cu.reportError("ERROR: GetSelectedCardTypes: |cards| is null.");
     return kNothingSelected; // no view
   }
   var count = cards.length;

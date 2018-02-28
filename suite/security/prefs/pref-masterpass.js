@@ -7,15 +7,15 @@
 var gInternalToken;
 
 function Startup() {
-  var tokendb = Components.classes["@mozilla.org/security/pk11tokendb;1"]
-                          .getService(Components.interfaces.nsIPK11TokenDB);
+  var tokendb = Cc["@mozilla.org/security/pk11tokendb;1"]
+                  .getService(Ci.nsIPK11TokenDB);
   gInternalToken = tokendb.getInternalKeyToken();
 }
 
 function ChangePW()
 {
-  var p = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
-                    .createInstance(Components.interfaces.nsIDialogParamBlock);
+  var p = Cc["@mozilla.org/embedcomp/dialogparam;1"]
+            .createInstance(Ci.nsIDialogParamBlock);
   p.SetString(1, "");
   window.openDialog("chrome://pippki/content/changepassword.xul", "",
                     "chrome,centerscreen,modal", p);
@@ -23,8 +23,8 @@ function ChangePW()
 
 function ResetPW()
 {
-  var p = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
-                    .createInstance(Components.interfaces.nsIDialogParamBlock);
+  var p = Cc["@mozilla.org/embedcomp/dialogparam;1"]
+            .createInstance(Ci.nsIDialogParamBlock);
   p.SetString(1, gInternalToken.tokenName);
   window.openDialog("chrome://pippki/content/resetpassword.xul", "",
                     "chrome,centerscreen,modal", p);

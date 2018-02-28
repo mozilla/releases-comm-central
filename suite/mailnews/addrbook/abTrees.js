@@ -51,7 +51,7 @@ abDirTreeItem.prototype =
       while (myEnum.hasMoreElements())
       {
         var abItem = new abDirTreeItem(
-          myEnum.getNext().QueryInterface(Components.interfaces.nsIAbDirectory));
+          myEnum.getNext().QueryInterface(Ci.nsIAbDirectory));
         abItem._level = this._level + 1;
         abItem._parent = this;
         this._children.push(abItem);
@@ -157,7 +157,7 @@ directoryTreeView.prototype =
     var dirEnum = MailServices.ab.directories;
     while (dirEnum.hasMoreElements())
       this._rowMap.push(new abDirTreeItem(
-        dirEnum.getNext().QueryInterface(Components.interfaces.nsIAbDirectory)));
+        dirEnum.getNext().QueryInterface(Ci.nsIAbDirectory)));
 
     // Sort our addressbooks now.
 
@@ -171,10 +171,10 @@ directoryTreeView.prototype =
           return "pab";
         if (aDir._directory.URI == kCollectedAddressbookURI)
           return "cab";
-        if (aDir._directory instanceof Components.interfaces.nsIAbMDBDirectory)
+        if (aDir._directory instanceof Ci.nsIAbMDBDirectory)
           return "mork";
         if ("nsIAbLDAPDirectory" in Components.interfaces &&
-            aDir._directory instanceof Components.interfaces.nsIAbLDAPDirectory)
+            aDir._directory instanceof Ci.nsIAbLDAPDirectory)
           return "ldap";
         return "mapi+other";
       }
@@ -229,7 +229,7 @@ directoryTreeView.prototype =
   // nsIAbListener interfaces
   onItemAdded: function dtv_onItemAdded(aParent, aItem)
   {
-    if (!(aItem instanceof Components.interfaces.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
 
     var oldCount = this._rowMap.length;
@@ -249,7 +249,7 @@ directoryTreeView.prototype =
 
   onItemRemoved: function dtv_onItemRemoved(aParent, aItem)
   {
-    if (!(aItem instanceof Components.interfaces.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
 
     var itemIndex = this.getIndexOfDirectory(aItem);
@@ -284,7 +284,7 @@ directoryTreeView.prototype =
 
   onItemPropertyChanged: function dtv_onItemProp(aItem, aProp, aOld, aNew)
   {
-    if (!(aItem instanceof Components.interfaces.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
 
     var index = this.getIndexOfDirectory(aItem);

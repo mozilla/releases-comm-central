@@ -5,7 +5,7 @@
  * according to scores.
  */
 
-var ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Ci.nsIAutoCompleteResult;
 
 // Input and results arrays for the autocomplete tests.
 
@@ -80,13 +80,13 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
 
   let childCards0 = ab.childCards;
   while (childCards0.hasMoreElements()) {
-    let c = childCards0.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+    let c = childCards0.getNext().QueryInterface(Ci.nsIAbCard);
     ab.dropCard(c, false);
   }
 
   aCardData.forEach(function(cd) {
-    let card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
-      .createInstance(Components.interfaces.nsIAbCard);
+    let card = Cc["@mozilla.org/addressbook/cardproperty;1"]
+      .createInstance(Ci.nsIAbCard);
     for (var prop in cd) {
       card.setProperty(prop, cd[prop]);
     }
@@ -94,8 +94,8 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   });
 
   aMailListData.forEach(function(ld) {
-    let list = Components.classes["@mozilla.org/addressbook/directoryproperty;1"]
-      .createInstance(Components.interfaces.nsIAbDirectory);
+    let list = Cc["@mozilla.org/addressbook/directoryproperty;1"]
+      .createInstance(Ci.nsIAbDirectory);
     list.isMailList = true;
     for (var prop in ld) {
       list[prop] = ld[prop];
@@ -105,7 +105,7 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
 
   let childCards = ab.childCards;
   while (childCards.hasMoreElements()) {
-    let c = childCards.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+    let c = childCards.getNext().QueryInterface(Ci.nsIAbCard);
   }
 }
 
@@ -115,8 +115,8 @@ function run_test() {
 
   // Test - Create a new search component
 
-  var acs = Components.classes["@mozilla.org/autocomplete/search;1?name=addrbook"]
-    .getService(Components.interfaces.nsIAutoCompleteSearch);
+  var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"]
+    .getService(Ci.nsIAutoCompleteSearch);
 
   var obs = new acObserver();
   let obsNews = new acObserver();

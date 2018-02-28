@@ -36,7 +36,7 @@ function ReadAvailableLanguages()
     // Progress through the bundle.
     var curItem = langStrings.getNext();
 
-    if (!(curItem instanceof Components.interfaces.nsIPropertyElement))
+    if (!(curItem instanceof Ci.nsIPropertyElement))
       break;
 
     var stringNameProperty = curItem.key.split('.');

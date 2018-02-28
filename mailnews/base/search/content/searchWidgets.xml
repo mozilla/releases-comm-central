@@ -104,11 +104,11 @@
             // based on the scope and the "enablefornews" attribute
             elements = menupopup.getElementsByAttribute("enablefornews", "true");
             for (i = 0; i < elements.length; i++)
-              elements[i].hidden = scope != Components.interfaces.nsMsgSearchScope.newsFilter;
+              elements[i].hidden = scope != Ci.nsMsgSearchScope.newsFilter;
 
             elements = menupopup.getElementsByAttribute("enablefornews", "false");
             for (i = 0; i < elements.length; i++)
-              elements[i].hidden = scope == Components.interfaces.nsMsgSearchScope.newsFilter;
+              elements[i].hidden = scope == Ci.nsMsgSearchScope.newsFilter;
 
             elements = menupopup.getElementsByAttribute("enableforpop3", "true");
             for (i = 0; i < elements.length; i++)
@@ -224,7 +224,7 @@
             let identitiesRaw = MailServices.accounts
               .getIdentitiesForServer(gFilterList.folder.server);
             let identities = Array.from(this.fixIterator(identitiesRaw,
-                                          Components.interfaces.nsIMsgIdentity));
+                                          Ci.nsIMsgIdentity));
 
             if (!identities.length) // typically if this is Local Folders
               identities.push(MailServices.accounts.defaultAccount.defaultIdentity);
@@ -236,10 +236,10 @@
               let enumerator = null;
               let msgFolder;
               try {
-                msgFolder = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                                      .getService(Components.interfaces.nsIRDFService)
-                                      .GetResource(identity.stationeryFolder)
-                                      .QueryInterface(Components.interfaces.nsIMsgFolder);
+                msgFolder = Cc["@mozilla.org/rdf/rdf-service;1"]
+                              .getService(Ci.nsIRDFService)
+                              .GetResource(identity.stationeryFolder)
+                              .QueryInterface(Ci.nsIMsgFolder);
                 // If we already processed this folder, do not set enumerator
                 // so that we skip this identity.
                 if (foldersScanned.indexOf(msgFolder) == -1) {
@@ -255,7 +255,7 @@
 
               while (enumerator.hasMoreElements()) {
                 let header = enumerator.getNext();
-                if (header instanceof Components.interfaces.nsIMsgDBHdr) {
+                if (header instanceof Ci.nsIMsgDBHdr) {
                   templateFound = true;
                   if (!populateTemplateList)
                     return true;
@@ -359,7 +359,7 @@
             var filterActionStr;
             var actionTarget = document.getAnonymousNodes(this)[1];
             var actionItem = document.getAnonymousNodes(actionTarget);
-            var nsMsgFilterAction = Components.interfaces.nsMsgFilterAction;
+            var nsMsgFilterAction = Ci.nsMsgFilterAction;
             switch (aFilterAction.type)
             {
               case nsMsgFilterAction.Custom:
@@ -389,11 +389,11 @@
                   menuitem.setAttribute("value", filterActionStr);
                   menuitem.disabled = true;
                   this.mRuleActionType.menulist.menupopup.appendChild(menuitem);
-                  var scriptError = Components.classes["@mozilla.org/scripterror;1"]
-                      .createInstance(Components.interfaces.nsIScriptError);
+                  var scriptError = Cc["@mozilla.org/scripterror;1"]
+                      .createInstance(Ci.nsIScriptError);
                   scriptError.init("Missing custom action " + filterActionStr,
                       null, null, 0, 0,
-                      Components.interfaces.nsIScriptError.errorFlag,
+                      Ci.nsIScriptError.errorFlag,
                       "component javascript");
                   Services.console.logMessage(scriptError);
                 }
@@ -498,7 +498,7 @@
             filterAction.type = gFilterActionStrings.indexOf(filterActionString);
             var actionTarget = document.getAnonymousNodes(this)[1];
             var actionItem = document.getAnonymousNodes(actionTarget);
-            var nsMsgFilterAction = Components.interfaces.nsMsgFilterAction;
+            var nsMsgFilterAction = Ci.nsMsgFilterAction;
             switch (filterAction.type)
             {
               case nsMsgFilterAction.Label:

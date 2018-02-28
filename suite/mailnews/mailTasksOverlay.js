@@ -41,11 +41,11 @@ function CoalesceGetMsgsForPop3ServersByDestFolder(aCurrentServer,
                                                    aLocalFoldersToDownloadTo)
 {
   // coalesce the servers that download into the same folder...
-  var inbox = aCurrentServer.rootMsgFolder.getFolderWithFlags(Components.interfaces.nsMsgFolderFlags.Inbox);
+  var inbox = aCurrentServer.rootMsgFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   var index = aLocalFoldersToDownloadTo.indexOf(inbox);
   if (index == -1)
   {
-    inbox.biffState = Components.interfaces.nsIMsgFolder.nsMsgBiffState_NoMail;
+    inbox.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
     inbox.clearNewMessages();
     aLocalFoldersToDownloadTo.push(inbox);
     index = aPOP3DownloadServersArray.length;
@@ -59,9 +59,9 @@ function MailTasksGetMessagesForAllServers(aBiff, aMsgWindow, aDefaultServer)
   // now log into any server
   try
   {
-    var allServers = Components.classes["@mozilla.org/messenger/account-manager;1"]
-                               .getService(Components.interfaces.nsIMsgAccountManager)
-                               .allServers;
+    var allServers = Cc["@mozilla.org/messenger/account-manager;1"]
+                       .getService(Ci.nsIMsgAccountManager)
+                       .allServers;
     // array of array of servers for a particular folder
     var pop3DownloadServersArray = [];
     // parallel array of folders to download to...
@@ -69,7 +69,7 @@ function MailTasksGetMessagesForAllServers(aBiff, aMsgWindow, aDefaultServer)
     var pop3Server = null;
     for (let i = 0; i < allServers.length; ++i)
     {
-      let currentServer = allServers.queryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
+      let currentServer = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       if (currentServer)
       {
         if (aBiff)
@@ -120,7 +120,7 @@ function MailTasksGetMessagesForAllServers(aBiff, aMsgWindow, aDefaultServer)
       }
     }
 
-    if (pop3Server instanceof Components.interfaces.nsIPop3IncomingServer)
+    if (pop3Server instanceof Ci.nsIPop3IncomingServer)
     {
       for (let i = 0; i < pop3DownloadServersArray.length; ++i)
       {
@@ -136,7 +136,7 @@ function MailTasksGetMessagesForAllServers(aBiff, aMsgWindow, aDefaultServer)
   }
   catch (e)
   {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   }
 }
 
@@ -147,8 +147,8 @@ const biffObserver =
     // sanity check
     if (topic == BIFF_TOPIC)
     {
-      var biffManager = Components.classes["@mozilla.org/messenger/statusBarBiffManager;1"]
-                                  .getService(Components.interfaces.nsIStatusBarBiffManager);
+      var biffManager = Cc["@mozilla.org/messenger/statusBarBiffManager;1"]
+                          .getService(Ci.nsIStatusBarBiffManager);
       document.getElementById("mini-mail")
               .setAttribute("BiffState",
                             [BIFF_STATE_MESSAGES,
@@ -188,10 +188,10 @@ function MailTasksOnLoad(aEvent)
 
   // If we already have a defined biff-state set on the mini-mail icon,
   // we know that biff is already running.
-  const kBiffState = Components.classes["@mozilla.org/messenger/statusBarBiffManager;1"]
-                               .getService(Components.interfaces.nsIStatusBarBiffManager)
-                               .biffState;
-  if (kBiffState != Components.interfaces.nsIMsgFolder.nsMsgBiffState_Unknown)
+  const kBiffState = Cc["@mozilla.org/messenger/statusBarBiffManager;1"]
+                       .getService(Ci.nsIStatusBarBiffManager)
+                       .biffState;
+  if (kBiffState != Ci.nsIMsgFolder.nsMsgBiffState_Unknown)
     return;
 
   // still no excuse to refuse to use this ruse
@@ -229,10 +229,10 @@ nsMsgBadCertHandler.prototype = {
 
   // nsISupports
   QueryInterface: function(iid) {
-    if (!iid.equals(Components.interfaces.nsIBadCertListener2) &&
-        !iid.equals(Components.interfaces.nsIInterfaceRequestor) &&
-        !iid.equals(Components.interfaces.nsISupports))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
+    if (!iid.equals(Ci.nsIBadCertListener2) &&
+        !iid.equals(Ci.nsIInterfaceRequestor) &&
+        !iid.equals(Ci.nsISupports))
+      throw Cr.NS_ERROR_NO_INTERFACE;
     return this;
   }
 };

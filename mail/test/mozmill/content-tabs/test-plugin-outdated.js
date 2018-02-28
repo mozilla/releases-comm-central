@@ -41,7 +41,7 @@ function setupModule(module) {
   Services.prefs.setCharPref(kPluginsUpdatePref, kPluginUpdateUrl);
 
   let plugin = get_test_plugin();
-  plugin.enabledState = Components.interfaces.nsIPluginTag.STATE_ENABLED;
+  plugin.enabledState = Ci.nsIPluginTag.STATE_ENABLED;
 }
 
 function teardownModule(module) {

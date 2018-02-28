@@ -1137,7 +1137,7 @@ SocketAbortable.prototype.constructor = UserCancelledException;
 SocketAbortable.prototype.cancel = function(ex)
 {
   try {
-    this._transport.close(Components.results.NS_ERROR_ABORT);
+    this._transport.close(Cr.NS_ERROR_ABORT);
   } catch (e) {
     ddump("canceling socket failed: " + e);
   }

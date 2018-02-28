@@ -442,7 +442,7 @@ function actuallyLoadMessage() {
         originViewWrapper = hdrObject.viewWrapperToClone;
     }
     // message header as a separate param?
-    else if (window.arguments[0] instanceof Components.interfaces.nsIMsgDBHdr) {
+    else if (window.arguments[0] instanceof Ci.nsIMsgDBHdr) {
       msgHdr = window.arguments[0];
       originViewWrapper = window.arguments.length > 1 ?
         window.arguments[1] : null;
@@ -482,7 +482,7 @@ function actuallyLoadMessage() {
       gFolderDisplay.view.openSearchView();
       // - load the message
       let messageURI = window.arguments[0];
-      if (messageURI instanceof Components.interfaces.nsIURI)
+      if (messageURI instanceof Ci.nsIURI)
         messageURI = messageURI.spec;
       gMessageDisplay.displayExternalMessage(messageURI);
     }
@@ -803,7 +803,7 @@ function ReloadMessage()
 {
   // If the current message was loaded from a file or attachment, so the dbView
   // can't handle reloading it. Let's do it ourselves, instead.
-  if (window.arguments[0] instanceof Components.interfaces.nsIURI)
+  if (window.arguments[0] instanceof Ci.nsIURI)
     gMessageDisplay.displayExternalMessage(window.arguments[0].spec);
   else
     gFolderDisplay.view.dbView.reloadMessage();

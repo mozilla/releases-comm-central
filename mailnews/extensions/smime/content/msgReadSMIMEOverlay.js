@@ -47,10 +47,10 @@ function showMessageReadSecurityInfo()
     return;
   }
 
-  let params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
-    .createInstance(Components.interfaces.nsIDialogParamBlock);
-  params.objects = Components.classes["@mozilla.org/array;1"]
-    .createInstance(Components.interfaces.nsIMutableArray);
+  let params = Cc["@mozilla.org/embedcomp/dialogparam;1"]
+    .createInstance(Ci.nsIDialogParamBlock);
+  params.objects = Cc["@mozilla.org/array;1"]
+    .createInstance(Ci.nsIMutableArray);
   // Append even if null... the receiver must handle that.
   params.objects.appendElement(gSignerCert);
   params.objects.appendElement(gEncryptionCert);

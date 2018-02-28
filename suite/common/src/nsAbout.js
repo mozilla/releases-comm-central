@@ -5,10 +5,10 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const SCRIPT = Components.interfaces.nsIAboutModule.ALLOW_SCRIPT;
-const UNTRUSTED = Components.interfaces.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT;
-const HIDE = Components.interfaces.nsIAboutModule.HIDE_FROM_ABOUTABOUT;
-const INDEXEDDB = Components.interfaces.nsIAboutModule.ENABLE_INDEXED_DB;
+const SCRIPT = Ci.nsIAboutModule.ALLOW_SCRIPT;
+const UNTRUSTED = Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT;
+const HIDE = Ci.nsIAboutModule.HIDE_FROM_ABOUTABOUT;
+const INDEXEDDB = Ci.nsIAboutModule.ENABLE_INDEXED_DB;
 
 function About() { }
 About.prototype = {
@@ -36,7 +36,7 @@ About.prototype = {
   // synctabsURI: "chrome://communicator/content/aboutSyncTabs.xul",
 
   classID: Components.ID("{d54f2c89-8fd6-4eeb-a7a4-51d4dcdf460f}"),
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIAboutModule]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
 
   getModule: function(aURI) {
     return aURI.pathQueryRef.replace(/-|\W.*$/g, "").toLowerCase();
@@ -54,8 +54,8 @@ About.prototype = {
                   Services.io.newChannelFromURI2(newURI, null,
                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                  null,
-                                                 Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                 Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                 Ci.nsIContentPolicy.TYPE_OTHER);
     channel.originalURI = aURI;
     if (this[module + "Flags"] & UNTRUSTED)
       channel.owner = null;
@@ -66,7 +66,7 @@ About.prototype = {
     if (this.getURIFlags(aURI) & INDEXEDDB) {
       return this[this.getModule(aURI) + "Postfix"] || null;
     }
-    throw Components.results.NS_ERROR_ILLEGAL_VALUE;
+    throw Cr.NS_ERROR_ILLEGAL_VALUE;
   }
 };
 

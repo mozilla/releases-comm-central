@@ -31,7 +31,7 @@ nsMsgTraitService.prototype =
   classID: Components.ID("{A2E95F4F-DA72-4a41-9493-661AD353C00A}"),
 
   QueryInterface: XPCOMUtils.generateQI([
-      Components.interfaces.nsIMsgTraitService]),
+      Ci.nsIMsgTraitService]),
 
   // nsIMsgTraitService implementation
 

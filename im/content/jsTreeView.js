@@ -226,10 +226,10 @@ PROTO_TREE_VIEW.prototype = {
   },
 
   QueryInterface: function QueryInterface(aIID) {
-    if (aIID.equals(Components.interfaces.nsITreeView) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsITreeView) ||
+        aIID.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   }
 };

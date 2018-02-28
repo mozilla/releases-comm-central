@@ -68,10 +68,10 @@ function OnLoadNewCard()
 
   gEditCard.card =
     (("arguments" in window) && (window.arguments.length > 0) &&
-     (window.arguments[0] instanceof Components.interfaces.nsIAbCard))
+     (window.arguments[0] instanceof Ci.nsIAbCard))
     ? window.arguments[0]
-    : Components.classes["@mozilla.org/addressbook/cardproperty;1"]
-                .createInstance(Components.interfaces.nsIAbCard);
+    : Cc["@mozilla.org/addressbook/cardproperty;1"]
+        .createInstance(Ci.nsIAbCard);
   gEditCard.titleProperty = "newContactTitle";
   gEditCard.selectedAB = "";
 
@@ -173,7 +173,7 @@ function EditCardOKButton()
   // create a list of mailing lists and the index where the card is at.
   for (let i = 0; i < listDirectoriesCount; i++)
   {
-    var subdirectory = directory.addressLists.queryElementAt(i, Components.interfaces.nsIAbDirectory);
+    var subdirectory = directory.addressLists.queryElementAt(i, Ci.nsIAbDirectory);
     if (subdirectory.isMailList)
     {
       // See if any card in this list is the one we edited.
@@ -182,7 +182,7 @@ function EditCardOKButton()
       let listCardsCount = subdirectory.addressLists.length;
       for (let index = 0; index < listCardsCount; index++)
       {
-        let card = subdirectory.addressLists.queryElementAt(index, Components.interfaces.nsIAbCard);
+        let card = subdirectory.addressLists.queryElementAt(index, Ci.nsIAbCard);
         if (card.equals(gEditCard.card))
           foundDirectories.push({directory:subdirectory, cardIndex:index});
       }
@@ -345,7 +345,7 @@ function InitPhoneticFields()
 {
   var showPhoneticFields =
     Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
-      Components.interfaces.nsIPrefLocalizedString).data;
+      Ci.nsIPrefLocalizedString).data;
 
   // show phonetic fields if indicated by the pref
   if (showPhoneticFields == "true")
@@ -368,7 +368,7 @@ function InitEditCard()
   try {
     var displayLastNameFirst =
       Services.prefs.getComplexValue("mail.addr_book.displayName.lastnamefirst",
-        Components.interfaces.nsIPrefLocalizedString).data;
+        Ci.nsIPrefLocalizedString).data;
     gEditCard.displayLastNameFirst = (displayLastNameFirst == "true");
     gEditCard.generateDisplayName =
       Services.prefs.getBoolPref("mail.addr_book.displayName.autoGeneration");
@@ -938,8 +938,8 @@ function removePhoto(aName) {
  * @return true if the OK button was clicked and a photo was chosen
  */
 function browsePhoto() {
-  var nsIFilePicker = Components.interfaces.nsIFilePicker;
-  var fp = Components.classes["@mozilla.org/filepicker;1"]
+  var nsIFilePicker = Ci.nsIFilePicker;
+  var fp = Cc["@mozilla.org/filepicker;1"]
 	                   .createInstance(nsIFilePicker);
   fp.init(window, gAddressBookBundle.getString("browsePhoto"), nsIFilePicker.modeOpen);
 
@@ -1021,7 +1021,7 @@ var gFilePhotoHandler =
     try
     {
       var file = Services.io.newURI(photoURI)
-                            .QueryInterface(Components.interfaces.nsIFileURL)
+                            .QueryInterface(Ci.nsIFileURL)
                             .file;
     } catch (e) {}
 

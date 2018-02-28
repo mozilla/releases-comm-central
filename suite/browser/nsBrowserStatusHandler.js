@@ -20,12 +20,12 @@ nsBrowserStatusHandler.prototype =
 
   QueryInterface : function(aIID)
   {
-    if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
-        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-        aIID.equals(Components.interfaces.nsIXULBrowserWindow) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsIWebProgressListener) ||
+        aIID.equals(Ci.nsISupportsWeakReference) ||
+        aIID.equals(Ci.nsIXULBrowserWindow) ||
+        aIID.equals(Ci.nsISupports))
       return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   init : function()
@@ -45,7 +45,7 @@ nsBrowserStatusHandler.prototype =
     this.feedsButton     = document.getElementById("feedsButton");
 
     // Initialize the security button's state and tooltip text
-    const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
+    const nsIWebProgressListener = Ci.nsIWebProgressListener;
     this.onSecurityChange(null, null, nsIWebProgressListener.STATE_IS_INSECURE);
   },
 
@@ -183,8 +183,8 @@ nsBrowserStatusHandler.prototype =
 
   onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus)
   {
-    const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
-    const nsIChannel = Components.interfaces.nsIChannel;
+    const nsIWebProgressListener = Ci.nsIWebProgressListener;
+    const nsIChannel = Ci.nsIChannel;
     var ctype;
     if (aStateFlags & nsIWebProgressListener.STATE_START) {
       // This (thanks to the filter) is a network start or the first
@@ -226,10 +226,10 @@ nsBrowserStatusHandler.prototype =
           var location = aRequest.URI.spec;
           if (location != "about:blank") {
             switch (aStatus) {
-              case Components.results.NS_BINDING_ABORTED:
+              case Cr.NS_BINDING_ABORTED:
                 msg = gNavigatorBundle.getString("nv_stopped");
                 break;
-              case Components.results.NS_ERROR_NET_TIMEOUT:
+              case Cr.NS_ERROR_NET_TIMEOUT:
                 msg = gNavigatorBundle.getString("nv_timeout");
                 break;
             }
@@ -265,7 +265,7 @@ nsBrowserStatusHandler.prototype =
 
   onLocationChange : function(aWebProgress, aRequest, aLocation, aFlags)
   {
-    const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
+    const nsIWebProgressListener = Ci.nsIWebProgressListener;
     if (gContextMenu) {
       // Optimise for the common case
       if (aWebProgress.isTopLevel)
@@ -359,7 +359,7 @@ nsBrowserStatusHandler.prototype =
 
   onSecurityChange : function(aWebProgress, aRequest, aState)
   {
-    const wpl = Components.interfaces.nsIWebProgressListener;
+    const wpl = Ci.nsIWebProgressListener;
     const wpl_security_bits = wpl.STATE_IS_SECURE |
                               wpl.STATE_IS_BROKEN |
                               wpl.STATE_IS_INSECURE;
@@ -372,7 +372,7 @@ nsBrowserStatusHandler.prototype =
      */
     switch (aState & wpl_security_bits) {
       case wpl.STATE_IS_SECURE:
-        const nsISSLStatusProvider = Components.interfaces.nsISSLStatusProvider;
+        const nsISSLStatusProvider = Ci.nsISSLStatusProvider;
         var cert = getBrowser().securityUI.QueryInterface(nsISSLStatusProvider)
                                .SSLStatus.serverCert;
         var issuerName = cert.issuerOrganization ||
@@ -407,9 +407,9 @@ nsBrowserStatusHandler.prototype =
     if (aState & wpl.STATE_IDENTITY_EV_TOPLEVEL) {
       var organization =
         getBrowser().securityUI
-                    .QueryInterface(Components.interfaces.nsISSLStatusProvider)
+                    .QueryInterface(Ci.nsISSLStatusProvider)
                     .SSLStatus
-                    .QueryInterface(Components.interfaces.nsISSLStatus)
+                    .QueryInterface(Ci.nsISSLStatus)
                     .serverCert.organization;
       this.securityButton.setAttribute("label", organization);
       this.evButton.setAttribute("tooltiptext", organization);
@@ -422,7 +422,7 @@ nsBrowserStatusHandler.prototype =
 
   startDocumentLoad : function(aRequest)
   {
-    var uri = aRequest.QueryInterface(Components.interfaces.nsIChannel).originalURI;
+    var uri = aRequest.QueryInterface(Ci.nsIChannel).originalURI;
 
     // clear out search-engine data
     getBrowser().selectedBrowser.engines = null;
@@ -443,7 +443,7 @@ nsBrowserStatusHandler.prototype =
 
   endDocumentLoad : function(aRequest, aStatus)
   {
-    const nsIChannel = Components.interfaces.nsIChannel;
+    const nsIChannel = Ci.nsIChannel;
     var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
 
     if (Components.isSuccessCode(aStatus))

@@ -42,14 +42,14 @@ function PlacesTreeView() {
 PlacesTreeView.prototype = {
 
   QueryInterface: function PTV_QueryInterface(aIID) {
-    if (aIID.equals(Components.interfaces.nsITreeView) ||
-        aIID.equals(Components.interfaces.nsINavHistoryResultObserver) ||
-        aIID.equals(Components.interfaces.nsINavHistoryResultTreeViewer) ||
-        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsITreeView) ||
+        aIID.equals(Ci.nsINavHistoryResultObserver) ||
+        aIID.equals(Ci.nsINavHistoryResultTreeViewer) ||
+        aIID.equals(Ci.nsISupportsWeakReference) ||
+        aIID.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
   /**
@@ -95,12 +95,12 @@ PlacesTreeView.prototype = {
    */
   _isPlainContainer: function PTV__isPlainContainer(aContainer) {
     // All history containers are query containers, but we need to QI
-    aContainer.QueryInterface(Components.interfaces.nsINavHistoryQueryResultNode);
+    aContainer.QueryInterface(Ci.nsINavHistoryQueryResultNode);
 
     // Of all history containers, only URI containers are flat, and they don't
     // contain folders, no need to check that either.
     return aContainer.queryOptions.resultType ==
-               Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_URI;
+               Ci.nsINavHistoryQueryOptions.RESULTS_AS_URI;
   },
 
   /**
@@ -236,7 +236,7 @@ PlacesTreeView.prototype = {
 
     // Unset elements may exist only in plain containers.  Thus, if the nearest
     // node is a container, it's the row's parent, otherwise, it's a sibling.
-    if (rowNode instanceof Components.interfaces.nsINavHistoryContainerResultNode) {
+    if (rowNode instanceof Ci.nsINavHistoryContainerResultNode) {
       let newNode = rowNode.getChild(aRow - row - 1);
       this._nodeDetails.delete(makeNodeDetailsKey(this._rows[aRow]));
       this._nodeDetails.set(makeNodeDetailsKey(newNode), newNode);
@@ -304,7 +304,7 @@ PlacesTreeView.prototype = {
       rowsInserted++;
 
       // recursively do containers
-      if (curChild instanceof Components.interfaces.nsINavHistoryContainerResultNode) {
+      if (curChild instanceof Ci.nsINavHistoryContainerResultNode) {
         NS_ASSERT(curChild.uri, "if there is no uri, we can't persist the open state");
         var isopen = curChild.uri &&
                      PlacesUIUtils.xulStore.hasValue(location, curChild.uri, "open");
@@ -328,7 +328,7 @@ PlacesTreeView.prototype = {
 
     // If it's not listed yet, we know that it's a leaf node (instanceof also
     // null-checks).
-    if (!(node instanceof Components.interfaces.nsINavHistoryContainerResultNode))
+    if (!(node instanceof Ci.nsINavHistoryContainerResultNode))
       return 1;
 
     let outerLevel = node.indentLevel;
@@ -579,11 +579,11 @@ PlacesTreeView.prototype = {
 
     // XXX bug 517701: We don't know what to do when the root node is removed.
     if (aNode == this._rootNode)
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 
     let oldRow = this._getRowForNode(aNode, true);
     if (oldRow < 0)
-      throw Components.results.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_UNEXPECTED;
 
     // If the node was exclusively selected, the node next to it will be
     // selected.
@@ -824,28 +824,28 @@ PlacesTreeView.prototype = {
       sortedColumn.element.removeAttribute("sortDirection");
 
     switch (aSortingMode) {
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_TITLE_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_TITLE_ASCENDING:
         columns.Name.element.setAttribute("sortDirection", "ascending");
         break;
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_TITLE_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_TITLE_DESCENDING:
         columns.Name.element.setAttribute("sortDirection", "descending");
         break;
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_DATE_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_DATE_ASCENDING:
         columns.Date.element.setAttribute("sortDirection", "ascending");
         break;
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_DATE_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_DATE_DESCENDING:
         columns.Date.element.setAttribute("sortDirection", "descending");
         break;
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_URI_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_URI_ASCENDING:
         columns.URL.element.setAttribute("sortDirection", "ascending");
         break;
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_URI_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_URI_DESCENDING:
         columns.URL.element.setAttribute("sortDirection", "descending");
         break;
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_ASCENDING:
         columns.VisitCount.element.setAttribute("sortDirection", "ascending");
         break;
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_DESCENDING:
         columns.VisitCount.element.setAttribute("sortDirection", "descending");
         break;
     }
@@ -892,7 +892,7 @@ PlacesTreeView.prototype = {
 
   nodeForTreeIndex: function PTV_nodeForTreeIndex(aIndex) {
     if (aIndex > this._rows.length)
-      throw Components.results.NS_ERROR_INVALID_ARG;
+      throw Cr.NS_ERROR_INVALID_ARG;
 
     return this._getNodeForRow(aIndex);
   },
@@ -904,7 +904,7 @@ PlacesTreeView.prototype = {
     }
     catch(ex) { }
 
-    return Components.interfaces.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE;
+    return Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE;
   },
 
   // nsITreeView
@@ -930,7 +930,7 @@ PlacesTreeView.prototype = {
     let properties = this._cellProperties.get(node);
     if (!properties) {
       properties = "Name";
-      if (node.type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_QUERY) {
+      if (node.type == Ci.nsINavHistoryResultNode.RESULT_TYPE_QUERY) {
         properties += " query";
         if (PlacesUtils.nodeIsDay(node))
           properties += " dayContainer";
@@ -983,7 +983,7 @@ PlacesTreeView.prototype = {
 
   isSorted: function PTV_isSorted() {
     return this._result.sortingMode !=
-           Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_NONE;
+           Ci.nsINavHistoryQueryOptions.SORT_BY_NONE;
   },
 
   canDrop: function PTV_canDrop(aRow, aOrientation, aDataTransfer) { return false; },
@@ -1091,7 +1091,7 @@ PlacesTreeView.prototype = {
 
   toggleOpenState: function PTV_toggleOpenState(aRow) {
     if (!this._result)
-      throw Components.results.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_UNEXPECTED;
 
     var node = this._rows[aRow];
     NS_ASSERT(node.uri, "if there is no uri, we can't persist the open state");
@@ -1105,17 +1105,17 @@ PlacesTreeView.prototype = {
 
     // 474287 Places enforces title sorting for groups, which we don't want.
     if (!node.containerOption && PlacesUtils.asQuery(node).queryOptions.resultType ==
-        Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_URI)
+        Ci.nsINavHistoryQueryOptions.RESULTS_AS_URI)
       node.queryOptions.sortingMode = this._result.sortingMode;
     node.containerOpen = !node.containerOpen;
   },
 
   cycleHeader: function PTV_cycleHeader(aColumn) {
     if (!this._result)
-      throw Components.results.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_UNEXPECTED;
 
     var oldSort = this._result.sortingMode;
-    const NHQO = Components.interfaces.nsINavHistoryQueryOptions;
+    const NHQO = Ci.nsINavHistoryQueryOptions;
     var newSort = NHQO.SORT_BY_NONE;
     switch (aColumn.id) {
       case "SortAscending":

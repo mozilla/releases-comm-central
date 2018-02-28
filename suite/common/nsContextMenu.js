@@ -83,12 +83,12 @@ nsContextMenu.prototype = {
     var contentDisposition = null;
     if (this.onImage) {
       try {
-        let imageCache = Components.classes["@mozilla.org/image/tools;1"]
-                                   .getService(Components.interfaces.imgITools)
-                                   .getImgCacheForDocument(doc);
+        let imageCache = Cc["@mozilla.org/image/tools;1"]
+                           .getService(Ci.imgITools)
+                           .getImgCacheForDocument(doc);
         let props = imageCache.findEntryProperties(popupNode.currentURI);
         if (props) {
-          let nsISupportsCString = Components.interfaces.nsISupportsCString;
+          let nsISupportsCString = Ci.nsISupportsCString;
           contentType = props.get("type", nsISupportsCString).data;
           try {
             contentDisposition = props.get("content-disposition",
@@ -96,7 +96,7 @@ nsContextMenu.prototype = {
           } catch (e) {}
         }
       } catch (e) {
-        Components.utils.reportError(e);
+        Cu.reportError(e);
       }
     }
 
@@ -113,8 +113,8 @@ nsContextMenu.prototype = {
       referrerPolicy: doc.referrerPolicy,
       contentType: contentType,
       contentDisposition: contentDisposition,
-      frameOuterWindowID: doc.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                                         .getInterface(Components.interfaces.nsIDOMWindowUtils)
+      frameOuterWindowID: doc.defaultView.QueryInterface(Ci.nsIInterfaceRequestor)
+                                         .getInterface(Ci.nsIDOMWindowUtils)
                                          .outerWindowID,
     };
   },
@@ -239,9 +239,9 @@ nsContextMenu.prototype = {
     var canSetDesktopBackground = false;
     if ("@mozilla.org/suite/shell-service;1" in Components.classes) try {
       canSetDesktopBackground =
-          Components.classes["@mozilla.org/suite/shell-service;1"]
-                    .getService(Components.interfaces.nsIShellService)
-                    .canSetDesktopBackground;
+          Cc["@mozilla.org/suite/shell-service;1"]
+            .getService(Ci.nsIShellService)
+            .canSetDesktopBackground;
     } catch (e) {
     }
     this.showItem("context-setDesktopBackground",
@@ -290,7 +290,7 @@ nsContextMenu.prototype = {
     // Block image depends on whether an image was clicked on.
     if (this.onImage) {
       var uri = Services.io.newURI(this.mediaURL);
-      if (uri instanceof Components.interfaces.nsIURL && uri.host) {
+      if (uri instanceof Ci.nsIURL && uri.host) {
         var serverLabel = uri.host;
         // Limit length to max 15 characters.
         serverLabel = serverLabel.replace(/^www\./i, "");
@@ -331,11 +331,11 @@ nsContextMenu.prototype = {
     var blocking = true;
       if (this.popupPrincipal)
         try {
-          const PM = Components.classes["@mozilla.org/PopupWindowManager;1"]
-                     .getService(Components.interfaces.nsIPopupWindowManager);
+          const PM = Cc["@mozilla.org/PopupWindowManager;1"]
+                     .getService(Ci.nsIPopupWindowManager);
           blocking = PM.testPermission(this.popupPrincipal) == PM.DENY_POPUP;
         } catch (e) {
-          Components.utils.reportError(e);
+          Cu.reportError(e);
         }
 
     this.showItem("popupwindow-reject", this.popupPrincipal && !blocking);
@@ -574,12 +574,12 @@ nsContextMenu.prototype = {
     // if the document is editable, show context menu like in text inputs
     var win = this.target.ownerDocument.defaultView;
     if (win) {
-      var webNav = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                      .getInterface(Components.interfaces.nsIWebNavigation);
-      this.browser = webNav.QueryInterface(Components.interfaces.nsIDocShell)
+      var webNav = win.QueryInterface(Ci.nsIInterfaceRequestor)
+                      .getInterface(Ci.nsIWebNavigation);
+      this.browser = webNav.QueryInterface(Ci.nsIDocShell)
                            .chromeEventHandler;
-      var editingSession = webNav.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                                 .getInterface(Components.interfaces.nsIEditingSession);
+      var editingSession = webNav.QueryInterface(Ci.nsIInterfaceRequestor)
+                                 .getInterface(Ci.nsIEditingSession);
       if (editingSession.windowIsEditable(win) &&
           this.isTargetEditable() && this.target.spellcheck) {
         this.onTextInput           = true;
@@ -598,12 +598,12 @@ nsContextMenu.prototype = {
     // First, do checks for nodes that never have children.
     if (this.target.nodeType == Node.ELEMENT_NODE) {
       // See if the user clicked on an image.
-      if (this.target instanceof Components.interfaces.nsIImageLoadingContent &&
+      if (this.target instanceof Ci.nsIImageLoadingContent &&
           this.target.currentURI) {
         this.onImage = true;
 
         var request =
-          this.target.getRequest(Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
+          this.target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
         if (request && (request.imageStatus & request.STATUS_SIZE_AVAILABLE))
           this.onLoadedImage = true;
 
@@ -637,7 +637,7 @@ nsContextMenu.prototype = {
         if (this.onTextInput && !this.target.readOnly &&
             this.target.mozIsTextField(true) && this.target.spellcheck) {
           this.possibleSpellChecking = true;
-          InlineSpellCheckerUI.init(this.target.QueryInterface(Components.interfaces.nsIDOMNSEditableElement).editor);
+          InlineSpellCheckerUI.init(this.target.QueryInterface(Ci.nsIDOMNSEditableElement).editor);
           InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
         }
         this.onKeywordField = this.isTargetAKeywordField(this.target);
@@ -646,7 +646,7 @@ nsContextMenu.prototype = {
         this.onTextInput = this.isTextBoxEnabled(this.target);
         if (this.onTextInput && !this.target.readOnly && this.target.spellcheck) {
           this.possibleSpellChecking = true;
-          InlineSpellCheckerUI.init(this.target.QueryInterface(Components.interfaces.nsIDOMNSEditableElement).editor);
+          InlineSpellCheckerUI.init(this.target.QueryInterface(Ci.nsIDOMNSEditableElement).editor);
           InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
         }
       }
@@ -662,7 +662,7 @@ nsContextMenu.prototype = {
         }
       }
       else if ("HTTPIndex" in content &&
-               content.HTTPIndex instanceof Components.interfaces.nsIHTTPIndex) {
+               content.HTTPIndex instanceof Ci.nsIHTTPIndex) {
         this.inDirList = true;
         // Bubble outward till we get to an element with URL attribute
         // (which should be the href).
@@ -929,8 +929,8 @@ nsContextMenu.prototype = {
   // Reload image
   reloadImage: function() {
     urlSecurityCheck(this.mediaURL, this.target.nodePrincipal,
-                     Components.interfaces.nsIScriptSecurityManager.ALLOW_CHROME);
-    if (this.target instanceof Components.interfaces.nsIImageLoadingContent)
+                     Ci.nsIScriptSecurityManager.ALLOW_CHROME);
+    if (this.target instanceof Ci.nsIImageLoadingContent)
       this.target.forceReload();
   },
 
@@ -942,7 +942,7 @@ nsContextMenu.prototype = {
     else {
       viewURL = this.mediaURL;
       urlSecurityCheck(viewURL, this.target.nodePrincipal,
-                       Components.interfaces.nsIScriptSecurityManager.ALLOW_CHROME);
+                       Ci.nsIScriptSecurityManager.ALLOW_CHROME);
     }
     var doc = this.target.ownerDocument;
     var where = whereToOpenLink(aEvent);
@@ -954,11 +954,11 @@ nsContextMenu.prototype = {
 
   saveVideoFrameAsImage: function () {
     urlSecurityCheck(this.mediaURL, this.browser.contentPrincipal,
-                     Components.interfaces.nsIScriptSecurityManager.DISALLOW_SCRIPT);
+                     Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
     var name = "snapshot.jpg";
     try {
       let uri = makeURI(this.mediaURL);
-      let url = uri.QueryInterface(Components.interfaces.nsIURL);
+      let url = uri.QueryInterface(Ci.nsIURL);
       if (url.fileBaseName)
         name = decodeURI(url.fileBaseName) + ".jpg";
     } catch (e) { }
@@ -986,7 +986,7 @@ nsContextMenu.prototype = {
   // Change current window to the URL of the background image.
   viewBGImage: function(aEvent) {
     urlSecurityCheck(this.bgImageURL, this.target.nodePrincipal,
-                     Components.interfaces.nsIScriptSecurityManager.ALLOW_CHROME);
+                     Ci.nsIScriptSecurityManager.ALLOW_CHROME);
     var doc = this.target.ownerDocument;
     var where = whereToOpenLink(aEvent);
     if (where == "current")
@@ -1050,9 +1050,9 @@ nsContextMenu.prototype = {
         }
 
         var extHelperAppSvc =
-          Components.classes["@mozilla.org/uriloader/external-helper-app-service;1"]
-                    .getService(Components.interfaces.nsIExternalHelperAppService);
-        var channel = aRequest.QueryInterface(Components.interfaces.nsIChannel);
+          Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
+            .getService(Ci.nsIExternalHelperAppService);
+        var channel = aRequest.QueryInterface(Ci.nsIChannel);
         this.extListener = extHelperAppSvc.doContent(channel.contentType, aRequest,
                                                      doc.defaultView, true);
         this.extListener.onStartRequest(aRequest, aContext);
@@ -1078,8 +1078,8 @@ nsContextMenu.prototype = {
     function Callbacks() {}
     Callbacks.prototype = {
       getInterface: function getInterface(aIID) {
-        if (aIID.equals(Components.interfaces.nsIAuthPrompt) ||
-            aIID.equals(Components.interfaces.nsIAuthPrompt2)) {
+        if (aIID.equals(Ci.nsIAuthPrompt) ||
+            aIID.equals(Ci.nsIAuthPrompt2)) {
           // If the channel demands authentication prompt, we must cancel it
           // because the save-as-timer would expire and cancel the channel
           // before we get credentials from user.  Both authentication dialog
@@ -1088,7 +1088,7 @@ nsContextMenu.prototype = {
           timer.cancel();
           channel.cancel(NS_ERROR_SAVE_LINK_AS_TIMEOUT);
         }
-        throw Components.results.NS_ERROR_NO_INTERFACE;
+        throw Cr.NS_ERROR_NO_INTERFACE;
       }
     }
 
@@ -1104,26 +1104,26 @@ nsContextMenu.prototype = {
     var channel = ios.newChannel2(linkURL, null, null, null,
                                   Services.scriptSecurityManager.getSystemPrincipal(),
                                   null,
-                                  Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                  Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                  Ci.nsIContentPolicy.TYPE_OTHER);
     channel.notificationCallbacks = new Callbacks();
 
-    var flags = Components.interfaces.nsIChannel.LOAD_CALL_CONTENT_SNIFFERS;
+    var flags = Ci.nsIChannel.LOAD_CALL_CONTENT_SNIFFERS;
 
     if (bypassCache)
-      flags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
+      flags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
 
-    if (channel instanceof Components.interfaces.nsICachingChannel)
-      flags |= Components.interfaces.nsICachingChannel.LOAD_BYPASS_LOCAL_CACHE_IF_BUSY;
+    if (channel instanceof Ci.nsICachingChannel)
+      flags |= Ci.nsICachingChannel.LOAD_BYPASS_LOCAL_CACHE_IF_BUSY;
 
     channel.loadFlags |= flags;
 
-    if (channel instanceof Components.interfaces.nsIPrivateBrowsingChannel)
+    if (channel instanceof Ci.nsIPrivateBrowsingChannel)
       channel.setPrivate(gPrivate);
 
-    if (channel instanceof Components.interfaces.nsIHttpChannel) {
+    if (channel instanceof Ci.nsIHttpChannel) {
       channel.referrer = doc.documentURIObject;
-      if (channel instanceof Components.interfaces.nsIHttpChannelInternal)
+      if (channel instanceof Ci.nsIHttpChannelInternal)
         channel.forceAllowThirdPartyCookie = true;
     }
 
@@ -1172,8 +1172,8 @@ nsContextMenu.prototype = {
     try {
       // Let's try to unescape it using a character set
       var characterSet = this.target.ownerDocument.characterSet;
-      const textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
-                                     .getService(Components.interfaces.nsITextToSubURI);
+      const textToSubURI = Cc["@mozilla.org/intl/texttosuburi;1"]
+                             .getService(Ci.nsITextToSubURI);
       addresses = this.linkURL.match(/^mailto:([^?]+)/)[1];
       addresses = textToSubURI.unEscapeURIForUI(characterSet, addresses);
     }
@@ -1186,7 +1186,7 @@ nsContextMenu.prototype = {
   // Copy email to clipboard
   copyEmail: function() {
     var clipboard = this.getService("@mozilla.org/widget/clipboardhelper;1",
-                                    Components.interfaces.nsIClipboardHelper);
+                                    Ci.nsIClipboardHelper);
     clipboard.copyString(this.getEmail());
   },
 
@@ -1231,14 +1231,14 @@ nsContextMenu.prototype = {
 
   // Create instance of component given contractId and iid (as string).
   createInstance: function(aContractId, aIIDName) {
-    var iid = Components.interfaces[aIIDName];
-    return Components.classes[aContractId].createInstance(iid);
+    var iid = Ci[aIIDName];
+    return Cc[aContractId].createInstance(iid);
   },
 
   // Get service given contractId and iid (as string).
   getService: function(aContractId, aIIDName) {
-    var iid = Components.interfaces[aIIDName];
-    return Components.classes[aContractId].getService(iid);
+    var iid = Ci[aIIDName];
+    return Cc[aContractId].getService(iid);
   },
 
   // Show/hide one item (specified via name or the item element itself).
@@ -1450,8 +1450,8 @@ nsContextMenu.prototype = {
 
   isTextBoxEnabled: function(aNode) {
     return !aNode.ownerDocument.defaultView
-                 .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                 .getInterface(Components.interfaces.nsIDOMWindowUtils)
+                 .QueryInterface(Ci.nsIInterfaceRequestor)
+                 .getInterface(Ci.nsIDOMWindowUtils)
                  .isNodeDisabledForEvents(aNode);
   },
 
@@ -1529,8 +1529,8 @@ nsContextMenu.prototype = {
   },
 
   copyMediaLocation: function() {
-    var clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                    .getService(Components.interfaces.nsIClipboardHelper);
+    var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
+                    .getService(Ci.nsIClipboardHelper);
     clipboard.copyString(this.mediaURL);
   },
 
@@ -1543,5 +1543,5 @@ nsContextMenu.prototype = {
 
 XPCOMUtils.defineLazyGetter(nsContextMenu.prototype, "ellipsis", function() {
   return Services.prefs.getComplexValue("intl.ellipsis",
-      Components.interfaces.nsIPrefLocalizedString).data;
+      Ci.nsIPrefLocalizedString).data;
 });

@@ -44,7 +44,7 @@ function setColumnStates(folder) {
   let msgDatabase = folder.msgDatabase;
   let dbFolderInfo = msgDatabase.dBFolderInfo;
   dbFolderInfo.setCharProperty(this.PERSISTED_COLUMN_PROPERTY_NAME, columnJSON);
-  msgDatabase.Commit(Components.interfaces.nsMsgDBCommitType.kLargeCommit);
+  msgDatabase.Commit(Ci.nsMsgDBCommitType.kLargeCommit);
 }
 
 function checkPersistentState(folder) {

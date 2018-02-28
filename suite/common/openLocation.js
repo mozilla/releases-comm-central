@@ -91,9 +91,9 @@ function accept()
 
 function onChooseFile()
 {
-  const nsIFilePicker = Components.interfaces.nsIFilePicker;
+  const nsIFilePicker = Ci.nsIFilePicker;
   try {
-    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     fp.init(window, gBundle.getString("chooseFileDialogTitle"), nsIFilePicker.modeOpen);
     if (window.arguments[0].action != "5" && gOpenAppList.value == "2") {
       // When loading into Composer, direct user to prefer HTML files and text

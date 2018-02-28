@@ -61,8 +61,8 @@ var gDataman = {
     Services.obs.addObserver(this, "dom-storage-changed");
     Services.obs.addObserver(this, "dom-storage2-changed");
 
-    this.timer = Components.classes["@mozilla.org/timer;1"]
-                           .createInstance(Components.interfaces.nsITimer);
+    this.timer = Cc["@mozilla.org/timer;1"]
+                   .createInstance(Ci.nsITimer);
 
     gTabs.initialize();
     gDomains.initialize();
@@ -120,12 +120,12 @@ var gDataman = {
 
   debugError: function dataman_debugError(aLogMessage) {
     if (this.debug)
-      Components.utils.reportError(aLogMessage);
+      Cu.reportError(aLogMessage);
   },
 
   // :::::::::: data change observers ::::::::::
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
-                                         Components.interfaces.nsIContentPrefObserver]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
+                                         Ci.nsIContentPrefObserver]),
 
   observe: function co_observe(aSubject, aTopic, aData) {
     gDataman.debugMsg("Observed: " + aTopic + " - " + aData);
@@ -288,7 +288,7 @@ var gDomains = {
       gDomains.ignoreUpdate = true;
       let enumerator = Services.perms.enumerator;
       while (enumerator.hasMoreElements()) {
-        let nextPermission = enumerator.getNext().QueryInterface(Components.interfaces.nsIPermission);
+        let nextPermission = enumerator.getNext().QueryInterface(Ci.nsIPermission);
 
         if (!gDomains.commonScheme(nextPermission.principal.URI.scheme)) {
           gDomains.addDomainOrFlag("*", "hasPermissions");
@@ -343,7 +343,7 @@ var gDomains = {
       // As we don't get notified of storage changes properly, reload on timer.
       // The repeat time is in milliseconds, we're using 10 min for now.
       gDataman.timer.initWithCallback(gDataman, 10 * 60000,
-          Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+          Ci.nsITimer.TYPE_REPEATING_SLACK);
       yield setTimeout(nextStep, 0);
 
       gDataman.debugMsg("Domain list built: " + Date.now()/1000);
@@ -950,7 +950,7 @@ var gCookies = {
     while (enumerator.hasMoreElements()) {
       let nextCookie = enumerator.getNext();
       if (!nextCookie) break;
-      nextCookie = nextCookie.QueryInterface(Components.interfaces.nsICookie2);
+      nextCookie = nextCookie.QueryInterface(Ci.nsICookie2);
       this.cookies.push(this._makeCookieObject(nextCookie));
     }
   },
@@ -1061,7 +1061,7 @@ var gCookies = {
       return;
 
     if (!column || column.localName != "treecol") {
-      Components.utils.reportError("No column found to sort cookies by");
+      Cu.reportError("No column found to sort cookies by");
       return;
     }
 
@@ -1182,7 +1182,7 @@ var gCookies = {
     }
 
     // Usual notifications for added, changed, deleted - do "surgical" updates.
-    aSubject.QueryInterface(Components.interfaces.nsICookie2);
+    aSubject.QueryInterface(Ci.nsICookie2);
     let domain = gDomains.getDomainFromHost(aSubject.rawHost);
     // Does change affect possibly loaded Cookies pane?
     let affectsLoaded = this.displayedCookies.length &&
@@ -1295,7 +1295,7 @@ var gPerms = {
 
     while (enumerator.hasMoreElements()) {
       let nextPermission = enumerator.getNext();
-      nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
+      nextPermission = nextPermission.QueryInterface(Ci.nsIPermission);
 
       if (gDomains.hostMatchesSelectedURI(nextPermission.principal.URI)) {
         let permElem = document.createElement("richlistitem");
@@ -1513,7 +1513,7 @@ var gPerms = {
         if (Services.prefs.getIntPref("network.cookie.cookieBehavior") == 2)
           return Services.perms.DENY_ACTION;
         if (Services.prefs.getIntPref("network.cookie.lifetimePolicy") == 2)
-          return Components.interfaces.nsICookiePermission.ACCESS_SESSION;
+          return Ci.nsICookiePermission.ACCESS_SESSION;
         return Services.perms.ALLOW_ACTION;
       case "geo":
         return Services.perms.DENY_ACTION;
@@ -1576,7 +1576,7 @@ var gPerms = {
 
     gDataman.debugMsg("react to change: " + aSubject.principal.origin + " " + aData);
 
-    aSubject.QueryInterface(Components.interfaces.nsIPermission);
+    aSubject.QueryInterface(Ci.nsIPermission);
 
     let rawHost;
     let domain;
@@ -1618,7 +1618,7 @@ var gPerms = {
         let enumerator = Services.perms.enumerator;
         while (enumerator.hasMoreElements()) {
           let nextPermission = enumerator.getNext();
-          nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
+          nextPermission = nextPermission.QueryInterface(Ci.nsIPermission);
 
           let dDomain;
 
@@ -1688,7 +1688,7 @@ var gPerms = {
     let enumerator = Services.perms.enumerator;
     while (enumerator.hasMoreElements()) {
       let nextPermission = enumerator.getNext();
-      nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
+      nextPermission = nextPermission.QueryInterface(Ci.nsIPermission);
 
       if (gDomains.hostMatchesSelectedURI(nextPermission.principal.URI)) {
         delPerms.push({principal: nextPermission.principal, type: nextPermission.type});
@@ -1725,7 +1725,7 @@ var gPrefs = {
     if (domain == "*") {
       let enumerator = Services.contentPrefs.getPrefs(null, null).enumerator;
       while (enumerator.hasMoreElements()) {
-        let pref = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
+        let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
         this.prefs.push({host: null, name: pref.name, value: pref.value});
       }
     }
@@ -1738,7 +1738,7 @@ var gPrefs = {
           // Now, get all prefs for that host.
           let enumerator =  Services.contentPrefs.getPrefs(statement.row["host"], null).enumerator;
           while (enumerator.hasMoreElements()) {
-            let pref = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
+            let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
             this.prefs.push({host: statement.row["host"],
                              displayHost: gLocSvc.idn.convertToDisplayIDN(statement.row["host"], {}),
                              name: pref.name,
@@ -1799,7 +1799,7 @@ var gPrefs = {
       return;
 
     if (!column || column.localName != "treecol") {
-      Components.utils.reportError("No column found to sort form data by");
+      Cu.reportError("No column found to sort form data by");
       return;
     }
 
@@ -1976,7 +1976,7 @@ var gPrefs = {
       if (domain == "*") {
         let enumerator =  Services.contentPrefs.getPrefs(null, null).enumerator;
         while (enumerator.hasMoreElements()) {
-          let pref = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
+          let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
           delPrefs.push({host: null, name: pref.name, value: pref.value});
         }
       }
@@ -1989,7 +1989,7 @@ var gPrefs = {
           // Now, get all prefs for that host.
           let enumerator =  Services.contentPrefs.getPrefs(statement.row["host"], null).enumerator;
           while (enumerator.hasMoreElements()) {
-            let pref = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
+            let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
             delPrefs.push({host: statement.row["host"], name: pref.name, value: pref.value});
           }
         }
@@ -2106,7 +2106,7 @@ var gPasswords = {
       return;
 
     if (!column || column.localName != "treecol") {
-      Components.utils.reportError("No column found to sort form data by");
+      Cu.reportError("No column found to sort form data by");
       return;
     }
 
@@ -2199,8 +2199,8 @@ var gPasswords = {
 
   _confirmShowPasswords: function passwords__confirmShowPasswords() {
     // This doesn't harm if passwords are not encrypted.
-    let tokendb = Components.classes["@mozilla.org/security/pk11tokendb;1"]
-                            .createInstance(Components.interfaces.nsIPK11TokenDB);
+    let tokendb = Cc["@mozilla.org/security/pk11tokendb;1"]
+                    .createInstance(Ci.nsIPK11TokenDB);
     let token = tokendb.getInternalKeyToken();
 
     // If there is no master password, still give the user a chance to opt-out
@@ -2250,9 +2250,9 @@ var gPasswords = {
 
   copyPassword: function passwords_copyPassword() {
     // Prompt for the master password upfront.
-    let token = Components.classes["@mozilla.org/security/pk11tokendb;1"]
-                          .getService(Components.interfaces.nsIPK11TokenDB)
-                          .getInternalKeyToken();
+    let token = Cc["@mozilla.org/security/pk11tokendb;1"]
+                  .getService(Ci.nsIPK11TokenDB)
+                  .getInternalKeyToken();
 
     if (this.showPasswords || token.checkPassword(""))
       this.copySelPassword();
@@ -2296,22 +2296,22 @@ var gPasswords = {
     // Usual notifications for addLogin, modifyLogin, removeLogin - do "surgical" updates.
     let curLogin = null, oldLogin = null;
     if (aData == "modifyLogin" &&
-        aSubject instanceof Components.interfaces.nsIArray) {
+        aSubject instanceof Ci.nsIArray) {
       let enumerator = aSubject.enumerate();
       if (enumerator.hasMoreElements()) {
         oldLogin = enumerator.getNext();
-        oldLogin.QueryInterface(Components.interfaces.nsILoginInfo);
+        oldLogin.QueryInterface(Ci.nsILoginInfo);
       }
       if (enumerator.hasMoreElements()) {
         curLogin = enumerator.getNext();
-        curLogin.QueryInterface(Components.interfaces.nsILoginInfo);
+        curLogin.QueryInterface(Ci.nsILoginInfo);
       }
     }
-    else if (aSubject instanceof Components.interfaces.nsILoginInfo) {
+    else if (aSubject instanceof Ci.nsILoginInfo) {
       curLogin = aSubject; oldLogin = aSubject;
     }
     else {
-      Components.utils.reportError("Observed an unrecognized signon change of type " + aData);
+      Cu.reportError("Observed an unrecognized signon change of type " + aData);
     }
 
     let domain = gDomains.getDomainFromHost(curLogin.hostname);
@@ -2460,14 +2460,14 @@ var gStorage = {
     // Load DOM storage entries, unfortunately need to go to the DB. :(
     // Bug 343163 would make this easier and clean.
     let domstorelist = [];
-    let file = Components.classes["@mozilla.org/file/directory_service;1"]
-                         .getService(Components.interfaces.nsIProperties)
-                         .get("ProfD", Components.interfaces.nsIFile);
+    let file = Cc["@mozilla.org/file/directory_service;1"]
+                 .getService(Ci.nsIProperties)
+                 .get("ProfD", Ci.nsIFile);
     file.append("webappsstore.sqlite");
     if (file.exists()) {
-      var connection = Components.classes["@mozilla.org/storage/service;1"]
-                                 .getService(Components.interfaces.mozIStorageService)
-                                 .openDatabase(file);
+      var connection = Cc["@mozilla.org/storage/service;1"]
+                         .getService(Ci.mozIStorageService)
+                         .openDatabase(file);
       try {
         if (connection.tableExists("webappsstore2")) {
           var statement =
@@ -2530,9 +2530,9 @@ var gStorage = {
 
     // Load indexedDB entries, unfortunately need to read directory for now. :(
     // Bug 630858 would make this easier and clean.
-    let dir = Components.classes["@mozilla.org/file/directory_service;1"]
-                        .getService(Components.interfaces.nsIProperties)
-                        .get("ProfD", Components.interfaces.nsIFile);
+    let dir = Cc["@mozilla.org/file/directory_service;1"]
+                .getService(Ci.nsIProperties)
+                .get("ProfD", Ci.nsIFile);
     dir.append("indexedDB");
     if (dir.exists() && dir.isDirectory()) {
       // Enumerate subdir entries, names are like "http+++davidflanagan.com" or
@@ -2540,7 +2540,7 @@ var gStorage = {
       // from that.
       // gLocSvc.idxdbmgr is usable as soon as we have a URI.
       let files = dir.directoryEntries
-                     .QueryInterface(Components.interfaces.nsIDirectoryEnumerator);
+                     .QueryInterface(Ci.nsIDirectoryEnumerator);
       gDataman.debugMsg("Loading IndexedDB entries");
 
       while (files.hasMoreElements()) {
@@ -2603,7 +2603,7 @@ var gStorage = {
       return;
 
     if (!column || column.localName != "treecol") {
-      Components.utils.reportError("No column found to sort form data by");
+      Cu.reportError("No column found to sort form data by");
       return;
     }
 
@@ -2753,7 +2753,7 @@ var gStorage = {
       case "sessionStorage":
         break;
       default:
-        Components.utils.reportError("Observed an unrecognized storage change of type " + aData);
+        Cu.reportError("Observed an unrecognized storage change of type " + aData);
     }
 
     gDataman.debugMsg("Found storage event for: " + aData);
@@ -2834,7 +2834,7 @@ var gFormdata = {
                                    guid: result.guid});
         },
         handleError(aError) {
-          Components.utils.reportError(aError);
+          Cu.reportError(aError);
         },
         handleCompletion(aReason) {
           // This needs to stay in or Async.promiseSpinningly will fail.
@@ -2908,7 +2908,7 @@ var gFormdata = {
       return;
 
     if (!column || column.localName != "treecol") {
-      Components.utils.reportError("No column found to sort form data by");
+      Cu.reportError("No column found to sort form data by");
       return;
     }
 
@@ -3040,7 +3040,7 @@ var gFormdata = {
           entry = result;
         },
         handleError(aError) {
-          Components.utils.reportError(aError);
+          Cu.reportError(aError);
           reject(error);
         },
         handleCompletion(aReason) {
@@ -3088,13 +3088,13 @@ var gFormdata = {
 
     if (aData != "formhistory-add" && aData != "formhistory-change" &&
         aData != "formhistory-remove") {
-      Components.utils.reportError("Observed an unrecognized formdata change of type " + aData);
+      Cu.reportError("Observed an unrecognized formdata change of type " + aData);
       return;
     }
 
     var cGuid = null;
 
-    if (aSubject instanceof Components.interfaces.nsISupportsString) {
+    if (aSubject instanceof Ci.nsISupportsString) {
       cGuid = aSubject.toString();
     }
 
@@ -3103,7 +3103,7 @@ var gFormdata = {
       // We just let the panel stay the same which might cause minor problems
       // because there is no longer a notification when removing all entries.
       if (aData != "formhistory-remove") {
-        Components.utils.reportError("FormHistory guid is null for " + aData);
+        Cu.reportError("FormHistory guid is null for " + aData);
       }
       return;
     }
@@ -3120,7 +3120,7 @@ var gFormdata = {
       }));
 
       if (!entryData) {
-        Components.utils.reportError("Could not find added/modifed formdata entry");
+        Cu.reportError("Could not find added/modifed formdata entry");
         return;
       }
     }

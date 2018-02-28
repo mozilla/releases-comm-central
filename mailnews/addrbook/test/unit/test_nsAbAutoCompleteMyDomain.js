@@ -3,7 +3,7 @@
  * Test suite for nsAbAutoCompleteSearch
  */
 
-var ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Ci.nsIAutoCompleteResult;
 
 function acObserver() {}
 
@@ -20,8 +20,8 @@ acObserver.prototype = {
 function run_test() {
   // Test - Create a new search component
 
-  var acs = Components.classes["@mozilla.org/autocomplete/search;1?name=mydomain"]
-    .getService(Components.interfaces.nsIAutoCompleteSearch);
+  var acs = Cc["@mozilla.org/autocomplete/search;1?name=mydomain"]
+    .getService(Ci.nsIAutoCompleteSearch);
 
   var obs = new acObserver();
   let obsNews = new acObserver();

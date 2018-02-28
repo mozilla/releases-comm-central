@@ -6,10 +6,10 @@
 
 // Happens to match what's used in Data Manager itself.
 var gLocSvc = {
-  fhist: Components.classes["@mozilla.org/satchel/form-history;1"]
-                   .getService(Components.interfaces.nsIFormHistory2),
-  idn: Components.classes["@mozilla.org/network/idn-service;1"]
-                 .getService(Components.interfaces.nsIIDNService),
+  fhist: Cc["@mozilla.org/satchel/form-history;1"]
+           .getService(Ci.nsIFormHistory2),
+  idn: Cc["@mozilla.org/network/idn-service;1"]
+         .getService(Ci.nsIIDNService),
 };
 
 const DATAMAN_LOADED = "dataman-loaded";
@@ -62,18 +62,18 @@ function test() {
   gLocSvc.fhist.addEntry("ckey", "value5");
 
   // Add a few passwords
-  let loginInfo1 = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
-                             .createInstance(Components.interfaces.nsILoginInfo);
+  let loginInfo1 = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                     .createInstance(Ci.nsILoginInfo);
   loginInfo1.init("http://www.geckoisgecko.org", "http://www.geckoisgecko.org", null,
                   "dataman", "mysecret", "user", "pwd");
   Services.logins.addLogin(loginInfo1);
-  let loginInfo2 = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
-                             .createInstance(Components.interfaces.nsILoginInfo);
+  let loginInfo2 = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                     .createInstance(Ci.nsILoginInfo);
   loginInfo2.init("gopher://geckoisgecko.org:4711", null, "foo",
                   "dataman", "mysecret", "", "");
   Services.logins.addLogin(loginInfo2);
-  let loginInfo3 = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
-                             .createInstance(Components.interfaces.nsILoginInfo);
+  let loginInfo3 = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                     .createInstance(Ci.nsILoginInfo);
   loginInfo3.init("https://[::1]", null, "foo",
                   "dataman", "mysecret", "", "");
   Services.logins.addLogin(loginInfo3);
@@ -323,7 +323,7 @@ function test_permissions_panel(aWin) {
   is(aWin.gTabs.activePanel, "permissionsPanel",
      "Permissions panel is selected");
   Services.perms.add(Services.io.newURI("http://cookie.getpersonas.com/"),
-                     "cookie", Components.interfaces.nsICookiePermission.ACCESS_SESSION);
+                     "cookie", Ci.nsICookiePermission.ACCESS_SESSION);
   Services.perms.add(Services.io.newURI("http://cookie2.getpersonas.com/"),
                      "cookie", Services.perms.DENY_ACTION);
   Services.perms.add(Services.io.newURI("http://geo.getpersonas.com/"),
@@ -757,8 +757,8 @@ function test_idn(aWin) {
      "After deleting, correctly switched back to permissions panel");
 
   // Add IDN password (usually have encoded names)
-  let loginInfo1 = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
-                             .createInstance(Components.interfaces.nsILoginInfo);
+  let loginInfo1 = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                     .createInstance(Ci.nsILoginInfo);
   loginInfo1.init("http://" + idnDomain, "http://" + idnDomain, null,
                   "dataman", "mysecret", "user", "pwd");
   Services.logins.addLogin(loginInfo1);

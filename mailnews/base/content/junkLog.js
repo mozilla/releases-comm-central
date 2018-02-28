@@ -13,7 +13,7 @@ function onLoad()
   gLogView = document.getElementById("logView");
   gLogView.docShell.allowJavascript = false; // for security, disable JS
 
-  gLogFile = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+  gLogFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   gLogFile.append("junklog.html");
 
   if (gLogFile.exists())

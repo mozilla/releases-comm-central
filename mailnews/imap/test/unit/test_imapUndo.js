@@ -111,7 +111,7 @@ function setup() {
   Services.prefs.setBoolPref("mail.server.server1.offline_download", false);
 
   gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Components.interfaces.nsIMsgWindow);
+                  .createInstance(Ci.nsIMsgWindow);
 
   gRootFolder = IMAPPump.incomingServer.rootFolder;
   // these hacks are required because we've created the inbox before

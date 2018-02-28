@@ -485,12 +485,12 @@ function Startup()
   treeBoxObject.view = {
     QueryInterface : function QueryInterface(aIID)
     {
-      if (aIID.equals(Components.interfaces.nsITreeView) ||
-          aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-          aIID.equals(Components.interfaces.nsISupports))
+      if (aIID.equals(Ci.nsITreeView) ||
+          aIID.equals(Ci.nsISupportsWeakReference) ||
+          aIID.equals(Ci.nsISupports))
         return this;
 
-      throw Components.results.NS_ERROR_NO_INTERFACE;
+      throw Cr.NS_ERROR_NO_INTERFACE;
     },
     // useful for debugging
     get wrappedJSObject() { return this; },

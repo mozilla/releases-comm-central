@@ -48,7 +48,7 @@ SessionStartup.prototype = {
 
   // the state to restore at startup
   _initialState: null,
-  _sessionType: Components.interfaces.nsISessionStartup.NO_SESSION,
+  _sessionType: Ci.nsISessionStartup.NO_SESSION,
 
 /* ........ Global Event Handlers .............. */
 
@@ -58,7 +58,7 @@ SessionStartup.prototype = {
   init: function sss_init() {
     // get file references
     let sessionFile = Services.dirsvc.get("ProfD",
-                                          Components.interfaces.nsIFile);
+                                          Ci.nsIFile);
     sessionFile.append("sessionstore.json");
 
     let doResumeSession = Services.prefs.getBoolPref("browser.sessionstore.resume_session_once") ||
@@ -91,11 +91,11 @@ SessionStartup.prototype = {
 
     // set the startup type
     if (lastSessionCrashed && resumeFromCrash)
-      this._sessionType = Components.interfaces.nsISessionStartup.RECOVER_SESSION;
+      this._sessionType = Ci.nsISessionStartup.RECOVER_SESSION;
     else if (!lastSessionCrashed && doResumeSession)
-      this._sessionType = Components.interfaces.nsISessionStartup.RESUME_SESSION;
+      this._sessionType = Ci.nsISessionStartup.RESUME_SESSION;
     else if (this._initialState)
-      this._sessionType = Components.interfaces.nsISessionStartup.DEFER_SESSION;
+      this._sessionType = Ci.nsISessionStartup.DEFER_SESSION;
     else
       this._initialState = null; // reset the state
 
@@ -130,7 +130,7 @@ SessionStartup.prototype = {
       // free _initialState after nsSessionStore is done with it
       this._initialState = null;
       // reset session type after restore
-      this._sessionType = Components.interfaces.nsISessionStartup.NO_SESSION;
+      this._sessionType = Ci.nsISessionStartup.NO_SESSION;
       break;
     }
   },
@@ -149,8 +149,8 @@ SessionStartup.prototype = {
    * @returns bool
    */
   doRestore: function sss_doRestore() {
-    return this._sessionType == Components.interfaces.nsISessionStartup.RECOVER_SESSION ||
-           this._sessionType == Components.interfaces.nsISessionStartup.RESUME_SESSION;
+    return this._sessionType == Ci.nsISessionStartup.RECOVER_SESSION ||
+           this._sessionType == Ci.nsISessionStartup.RESUME_SESSION;
   },
 
   /**
@@ -170,8 +170,8 @@ SessionStartup.prototype = {
    * @returns a session state string
    */
   _readStateFile: function sss_readStateFile(aFile) {
-    var stateString = Components.classes["@mozilla.org/supports-string;1"]
-                                .createInstance(Components.interfaces.nsISupportsString);
+    var stateString = Cc["@mozilla.org/supports-string;1"]
+                        .createInstance(Ci.nsISupportsString);
     stateString.data = this._readFile(aFile) || "";
 
     Services.obs.notifyObservers(stateString, "sessionstore-state-read");
@@ -187,12 +187,12 @@ SessionStartup.prototype = {
    */
   _readFile: function sss_readFile(aFile) {
     try {
-      var stream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-                             .createInstance(Components.interfaces.nsIFileInputStream);
+      var stream = Cc["@mozilla.org/network/file-input-stream;1"]
+                     .createInstance(Ci.nsIFileInputStream);
       stream.init(aFile, 0x01, 0, 0);
-      var cvStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
-                               .createInstance(Components.interfaces.nsIConverterInputStream);
-      cvStream.init(stream, "UTF-8", 1024, Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+      var cvStream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+                       .createInstance(Ci.nsIConverterInputStream);
+      cvStream.init(stream, "UTF-8", 1024, Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
 
       var content = "";
       var data = {};
@@ -203,15 +203,15 @@ SessionStartup.prototype = {
 
       return content.replace(/\r\n?/g, "\n");
     }
-    catch (ex) { Components.utils.reportError(ex); }
+    catch (ex) { Cu.reportError(ex); }
 
     return null;
   },
 
   /* ........ QueryInterface .............. */
-  QueryInterface : XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
-                                          Components.interfaces.nsISupportsWeakReference,
-                                          Components.interfaces.nsISessionStartup]),
+  QueryInterface : XPCOMUtils.generateQI([Ci.nsIObserver,
+                                          Ci.nsISupportsWeakReference,
+                                          Ci.nsISessionStartup]),
   classID: Components.ID("{4e6c1112-57b6-44ba-adf9-99fb573b0a30}")
 
 };

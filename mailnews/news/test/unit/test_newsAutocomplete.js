@@ -11,7 +11,7 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 // The basic daemon to use for testing nntpd.js implementations
 var gDaemon = setupNNTPDaemon();
 
-var ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Ci.nsIAutoCompleteResult;
 
 function acObserver() {}
 
@@ -32,8 +32,8 @@ function run_test() {
   let identity = MailServices.accounts.createIdentity();
   _account.addIdentity(identity);
 
-  let acs = Components.classes["@mozilla.org/autocomplete/search;1?name=news"]
-    .getService(Components.interfaces.nsIAutoCompleteSearch);
+  let acs = Cc["@mozilla.org/autocomplete/search;1?name=news"]
+    .getService(Ci.nsIAutoCompleteSearch);
   let obs;
 
   let paramsN = JSON.stringify({

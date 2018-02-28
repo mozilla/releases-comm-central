@@ -34,7 +34,7 @@ function GetMsgFolderFromResource(folderResource)
   if (!folderResource)
      return null;
 
-  var msgFolder = folderResource.QueryInterface(Components.interfaces.nsIMsgFolder);
+  var msgFolder = folderResource.QueryInterface(Ci.nsIMsgFolder);
   if (msgFolder && (msgFolder.parent || msgFolder.isServer))
     return msgFolder;
   else
@@ -284,7 +284,7 @@ function RerootFolder(uri, newFolder, viewType, viewFlags, sortType, sortOrder)
   if(newFolder)
   {
     newFolder.biffState =
-          Components.interfaces.nsIMsgFolder.nsMsgBiffState_NoMail;
+          Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
   }
 
   //Clear out the thread pane so that we can sort it with the new sort id without taking any time.
@@ -301,7 +301,7 @@ function RerootFolder(uri, newFolder, viewType, viewFlags, sortType, sortOrder)
 
   // If this is the  sent, drafts, templates, or send later folder,
   // we show "Recipient" instead of "Author".
-  const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   let outgoingFlags = nsMsgFolderFlags.SentMail | nsMsgFolderFlags.Drafts |
                       nsMsgFolderFlags.Templates | nsMsgFolderFlags.Queue;
   SetSentFolderColumns(newFolder.isSpecialFolder(outgoingFlags, true));
@@ -453,7 +453,7 @@ function UpdateReceivedColumn(newFolder)
   // 'Received' header, as it is replaced with the news server's (more reliable) date.
   var receivedColumn = document.getElementById("receivedCol");
 
-  const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   var newFolderShowsRcvd = (newFolder.flags & nsMsgFolderFlags.Mail) &&
     !(newFolder.flags & (nsMsgFolderFlags.Queue | nsMsgFolderFlags.Templates |
                          nsMsgFolderFlags.Drafts | nsMsgFolderFlags.SentMail));
@@ -601,12 +601,12 @@ function ConvertSortTypeToColumnID(sortKey)
   return columnID;
 }
 
-var nsMsgViewSortType = Components.interfaces.nsMsgViewSortType;
-var nsMsgViewSortOrder = Components.interfaces.nsMsgViewSortOrder;
-var nsMsgViewFlagsType = Components.interfaces.nsMsgViewFlagsType;
-var nsMsgViewCommandType = Components.interfaces.nsMsgViewCommandType;
-var nsMsgViewType = Components.interfaces.nsMsgViewType;
-var nsMsgNavigationType = Components.interfaces.nsMsgNavigationType;
+var nsMsgViewSortType = Ci.nsMsgViewSortType;
+var nsMsgViewSortOrder = Ci.nsMsgViewSortOrder;
+var nsMsgViewFlagsType = Ci.nsMsgViewFlagsType;
+var nsMsgViewCommandType = Ci.nsMsgViewCommandType;
+var nsMsgViewType = Ci.nsMsgViewType;
+var nsMsgNavigationType = Ci.nsMsgNavigationType;
 
 var gDBView = null;
 var gCurViewFlags;
@@ -649,7 +649,7 @@ function CreateBareDBView(originalView, msgFolder, viewType, viewFlags, sortType
 
 //  dump ("contract id = " + dbviewContractId + "original view = " + originalView + "\n");
   if (!originalView)
-    gDBView = Components.classes[dbviewContractId].createInstance(Components.interfaces.nsIMsgDBView);
+    gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
 
   gCurViewFlags = viewFlags;
   var count = new Object;
@@ -664,7 +664,7 @@ function CreateBareDBView(originalView, msgFolder, viewType, viewFlags, sortType
     if (viewType == nsMsgViewType.eShowVirtualFolderResults)
     {
       // the view is a listener on the search results
-      gViewSearchListener = gDBView.QueryInterface(Components.interfaces.nsIMsgSearchNotify);
+      gViewSearchListener = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);
       gSearchSession.registerListener(gViewSearchListener);
     }
   }
@@ -725,7 +725,7 @@ function FolderPaneSelectionChange()
         gMsgFolderSelected = msgFolder;
         UpdateLocationBar(gMsgFolderSelected);
         var folderFlags = msgFolder.flags;
-        const kVirtual = Components.interfaces.nsMsgFolderFlags.Virtual;
+        const kVirtual = Ci.nsMsgFolderFlags.Virtual;
         // if this is same folder, and we're not showing a virtual folder
         // then do nothing.
         if (msgFolder == msgWindow.openFolder &&
@@ -767,7 +767,7 @@ function FolderPaneSelectionChange()
                     var srchFolderUriArray = srchFolderUri.split('|');
                     var searchOnline = dbFolderInfo.getBooleanProperty("searchOnline", false);
                     // cross folder search
-                    var filterService = Components.classes["@mozilla.org/messenger/services/filters;1"].getService(Components.interfaces.nsIMsgFilterService);
+                    var filterService = Cc["@mozilla.org/messenger/services/filters;1"].getService(Ci.nsIMsgFilterService);
                     var filterList = filterService.getTempFilterList(msgFolder);
                     var tempFilter = filterList.createFilter("temp");
                     filterList.parseCondition(tempFilter, searchTermString);
@@ -880,7 +880,7 @@ function getSearchTermString(searchTerms)
   var count = searchTerms.Count();
   for (searchIndex = 0; searchIndex < count; )
   {
-    var term = searchTerms.queryElementAt(searchIndex++, Components.interfaces.nsIMsgSearchTerm);
+    var term = searchTerms.queryElementAt(searchIndex++, Ci.nsIMsgSearchTerm);
 
     if (condition.length > 1)
       condition += ' ';
@@ -904,11 +904,11 @@ function  CreateVirtualFolder(newName, parentFolder, searchFolderURIs, searchTer
     var newFolder;
     try
     {
-      if (parentFolder instanceof(Components.interfaces.nsIMsgLocalMailFolder))
+      if (parentFolder instanceof(Ci.nsIMsgLocalMailFolder))
         newFolder = parentFolder.createLocalSubfolder(newName);
       else
         newFolder = parentFolder.addSubfolder(newName);
-      newFolder.setFlag(Components.interfaces.nsMsgFolderFlags.Virtual);
+      newFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
       var vfdb = newFolder.msgDatabase;
       var searchTermString = getSearchTermString(searchTerms);
       var dbFolderInfo = vfdb.dBFolderInfo;
@@ -920,7 +920,7 @@ function  CreateVirtualFolder(newName, parentFolder, searchFolderURIs, searchTer
       vfdb.summaryValid = true;
       vfdb.Close(true);
       parentFolder.NotifyItemAdded(newFolder);
-      var accountManager = Components.classes["@mozilla.org/messenger/account-manager;1"].getService(Components.interfaces.nsIMsgAccountManager);
+      var accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
       accountManager.saveVirtualFolders();
     }
     catch(e)
@@ -939,9 +939,9 @@ var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
 var gSearchView;
 var gSearchSession;
 
-var nsIMsgFolder = Components.interfaces.nsIMsgFolder;
-var nsIMsgWindow = Components.interfaces.nsIMsgWindow;
-var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
+var nsIMsgFolder = Ci.nsIMsgFolder;
+var nsIMsgWindow = Ci.nsIMsgWindow;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
 var gFolderDatasource;
 var gFolderPicker;
@@ -966,10 +966,10 @@ function setupXFVirtualFolderSearch(folderUrisToSearch, searchTerms, searchOnlin
     var count = new Object;
   var i;
 
-    gSearchSession = Components.classes[searchSessionContractID].createInstance(Components.interfaces.nsIMsgSearchSession);
+    gSearchSession = Cc[searchSessionContractID].createInstance(Ci.nsIMsgSearchSession);
 
-    gMailSession = Components.classes["@mozilla.org/messenger/services/session;1"]
-                             .getService(Components.interfaces.nsIMsgMailSession);
+    gMailSession = Cc["@mozilla.org/messenger/services/session;1"]
+                     .getService(Ci.nsIMsgMailSession);
 
   for (i in folderUrisToSearch)
     {
@@ -978,7 +978,7 @@ function setupXFVirtualFolderSearch(folderUrisToSearch, searchTerms, searchOnlin
         gSearchSession.addScopeTerm(!searchOnline ? nsMsgSearchScope.offlineMail : GetScopeForFolder(realFolder), realFolder);
     }
 
-    const nsIMsgSearchTerm = Components.interfaces.nsIMsgSearchTerm;
+    const nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
     for (let term of fixIterator(searchTerms, nsIMsgSearchTerm)) {
       gSearchSession.appendTerm(term);
     }
@@ -995,16 +995,16 @@ function CreateGroupedSearchTerms(searchTermsArray)
 {
 
   var searchSession = gSearchSession ||
-    Components.classes[searchSessionContractID].createInstance(Components.interfaces.nsIMsgSearchSession);
+    Cc[searchSessionContractID].createInstance(Ci.nsIMsgSearchSession);
 
   // Create a temporary nsIMutableArray to store our search terms
   // since we will be modifying the terms so they work with quick search.
-  var searchTermsArrayForQS = Components.classes["@mozilla.org/array;1"]
-                                        .createInstance(Components.interfaces.nsIMutableArray);
+  var searchTermsArrayForQS = Cc["@mozilla.org/array;1"]
+                                .createInstance(Ci.nsIMutableArray);
 
   var numEntries = searchTermsArray.length;
   for (let i = 0; i < numEntries; i++) {
-    let searchTerm = searchTermsArray.queryElementAt(i, Components.interfaces.nsIMsgSearchTerm);
+    let searchTerm = searchTermsArray.queryElementAt(i, Ci.nsIMsgSearchTerm);
 
     // clone the term, since we might be modifying it
     var searchTermForQS = searchSession.createTerm();

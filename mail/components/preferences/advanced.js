@@ -78,8 +78,8 @@ var gAdvancedPane = {
     // If the shell service is not working, disable the "Check now" button
     // and "perform check at startup" checkbox.
     try {
-      let shellSvc = Components.classes["@mozilla.org/mail/shell-service;1"]
-                               .getService(Components.interfaces.nsIShellService);
+      let shellSvc = Cc["@mozilla.org/mail/shell-service;1"]
+                       .getService(Ci.nsIShellService);
       this.mShellServiceWorking = true;
     } catch (ex) {
       // The elements may not exist if HAVE_SHELL_SERVICE is off.
@@ -215,8 +215,8 @@ var gAdvancedPane = {
       },
 
       QueryInterface: XPCOMUtils.generateQI([
-        Components.interfaces.nsICacheStorageConsumptionObserver,
-        Components.interfaces.nsISupportsWeakReference
+        Ci.nsICacheStorageConsumptionObserver,
+        Ci.nsISupportsWeakReference
       ])
     };
 
@@ -224,8 +224,8 @@ var gAdvancedPane = {
 
     try {
       let cacheService =
-        Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
-                  .getService(Components.interfaces.nsICacheStorageService);
+        Cc["@mozilla.org/netwerk/cache-storage-service;1"]
+          .getService(Ci.nsICacheStorageService);
       cacheService.asyncGetDiskConsumption(this.observer);
     } catch (e) {}
   },
@@ -272,8 +272,8 @@ var gAdvancedPane = {
   clearCache: function ()
   {
     try {
-      let cache = Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
-                            .getService(Components.interfaces.nsICacheStorageService);
+      let cache = Cc["@mozilla.org/netwerk/cache-storage-service;1"]
+                    .getService(Ci.nsICacheStorageService);
       cache.clear();
     } catch (ex) {}
     this.updateActualCacheSize();
@@ -318,8 +318,8 @@ updateReadPrefs: function ()
   else                      // enabledPref.value && !autoPref.value
     radiogroup.value="checkOnly"; // 2. Check, but let me choose
 
-  var canCheck = Components.classes["@mozilla.org/updates/update-service;1"].
-                   getService(Components.interfaces.nsIApplicationUpdateService).
+  var canCheck = Cc["@mozilla.org/updates/update-service;1"].
+                   getService(Ci.nsIApplicationUpdateService).
                    canCheckForUpdates;
 
   // canCheck is false if the enabledPref is false and locked,
@@ -332,8 +332,8 @@ updateReadPrefs: function ()
     // If it is don't show the preference at all.
     let installed;
     try {
-      let wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
-                          .createInstance(Components.interfaces.nsIWindowsRegKey);
+      let wrk = Cc["@mozilla.org/windows-registry-key;1"]
+                  .createInstance(Ci.nsIWindowsRegKey);
       wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
                "SOFTWARE\\Mozilla\\MaintenanceService",
                wrk.ACCESS_READ | wrk.WOW64_64);
@@ -374,8 +374,8 @@ updateWritePrefs: function ()
     if (this._loadInContent) {
       gSubDialog.open("chrome://mozapps/content/update/history.xul");
     } else {
-      var prompter = Components.classes["@mozilla.org/updates/update-prompt;1"]
-                               .createInstance(Components.interfaces.nsIUpdatePrompt);
+      var prompter = Cc["@mozilla.org/updates/update-prompt;1"]
+                       .createInstance(Ci.nsIUpdatePrompt);
       prompter.showUpdateHistory(window);
     }
   },
@@ -389,9 +389,9 @@ updateWritePrefs: function ()
 
   updateSubmitCrashReports: function(aChecked)
   {
-    Components.classes["@mozilla.org/toolkit/crash-reporter;1"]
-              .getService(Components.interfaces.nsICrashReporter)
-              .submitReports = aChecked;
+    Cc["@mozilla.org/toolkit/crash-reporter;1"]
+      .getService(Ci.nsICrashReporter)
+      .submitReports = aChecked;
   },
   /**
    * Display the return receipts configuration dialog.
@@ -512,8 +512,8 @@ updateWritePrefs: function ()
       return true; // Yes, open the link in a content tab.
     }
     var url = evt.target.getAttribute("href");
-    var messenger = Components.classes["@mozilla.org/messenger;1"]
-      .createInstance(Components.interfaces.nsIMessenger);
+    var messenger = Cc["@mozilla.org/messenger;1"]
+      .createInstance(Ci.nsIMessenger);
     messenger.launchExternalURL(url);
     evt.preventDefault();
     return false;
@@ -538,8 +538,8 @@ updateWritePrefs: function ()
   {
     var checkbox = document.getElementById("submitCrashesBox");
     try {
-      var cr = Components.classes["@mozilla.org/toolkit/crash-reporter;1"].
-               getService(Components.interfaces.nsICrashReporter);
+      var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"].
+               getService(Ci.nsICrashReporter);
       checkbox.checked = cr.submitReports;
     } catch (e) {
       checkbox.style.display = "none";
@@ -551,8 +551,8 @@ updateWritePrefs: function ()
   {
     var checkbox = document.getElementById("submitCrashesBox");
     try {
-      var cr = Components.classes["@mozilla.org/toolkit/crash-reporter;1"].
-               getService(Components.interfaces.nsICrashReporter);
+      var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"].
+               getService(Ci.nsICrashReporter);
       cr.submitReports = checkbox.checked;
     } catch (e) { }
   },
@@ -571,11 +571,11 @@ updateWritePrefs: function ()
 
   formatLocaleSetLabels: function() {
     const localeService =
-      Components.classes["@mozilla.org/intl/localeservice;1"]
-                .getService(Components.interfaces.mozILocaleService);
+      Cc["@mozilla.org/intl/localeservice;1"]
+        .getService(Ci.mozILocaleService);
     const osprefs =
-      Components.classes["@mozilla.org/intl/ospreferences;1"]
-                .getService(Components.interfaces.mozIOSPreferences);
+      Cc["@mozilla.org/intl/ospreferences;1"]
+        .getService(Ci.mozIOSPreferences);
     let appLocale = localeService.getAppLocalesAsBCP47()[0];
     let rsLocale = osprefs.getRegionalPrefsLocales()[0];
     appLocale = this.mInlineSpellChecker.getDictionaryDisplayName(appLocale);

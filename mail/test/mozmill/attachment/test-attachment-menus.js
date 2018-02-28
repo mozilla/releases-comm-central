@@ -117,8 +117,8 @@ function setupModule(module) {
   let ah = collector.getModule("attachment-helpers");
   ah.installInto(module);
 
-  messenger = Components.classes["@mozilla.org/messenger;1"]
-                        .createInstance(Components.interfaces.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"]
+                .createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,

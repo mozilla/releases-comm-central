@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // using the rdf service extensively here
-var rdf = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
+var rdf = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
 
 // all the RDF resources we'll be retrieving
 var NC = "http://home.netscape.com/NC-rdf#";
@@ -18,8 +18,8 @@ var UseAuthenticatedSmtp= rdf.GetResource(NC + "UseAuthenticatedSmtp");
 // this is possibly expensive, not sure what to do here
 var ispDefaults;
 
-var nsIRDFResource = Components.interfaces.nsIRDFResource;
-var nsIRDFLiteral = Components.interfaces.nsIRDFLiteral;
+var nsIRDFResource = Ci.nsIRDFResource;
+var nsIRDFLiteral = Ci.nsIRDFLiteral;
 
 var ispRoot = rdf.GetResource("NC:ispinfo");
 

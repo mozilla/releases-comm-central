@@ -69,7 +69,7 @@ var gFontsDialog = {
   _safelySelectLanguageGroup(aLanguageGroup) {
     this._selectLanguageGroupPromise =
       this._selectLanguageGroup(aLanguageGroup)
-        .catch(Components.utils.reportError);
+        .catch(Cu.reportError);
   },
 
   readFontLanguageGroup: function ()

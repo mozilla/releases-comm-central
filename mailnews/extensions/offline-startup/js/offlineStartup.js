@@ -133,11 +133,11 @@ var nsOfflineStartup =
 
   QueryInterface: function(aIID)
   {
-    if (aIID.equals(Components.interfaces.nsIObserver) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsIObserver) ||
+        aIID.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   }
 }
 
@@ -153,7 +153,7 @@ nsOfflineStartupModule.prototype =
     createInstance: function(aOuter, aIID)
     {
       if (aOuter != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
+        throw Cr.NS_ERROR_NO_AGGREGATION;
 
       // return the singleton
       return nsOfflineStartup.QueryInterface(aIID);

@@ -13,8 +13,8 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 var kEncryptionPolicy_Always = 2;
 
 var gEncryptedURIService =
-        Components.classes["@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"]
-                  .getService(Components.interfaces.nsIEncryptedSMIMEURIsService);
+        Cc["@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"]
+          .getService(Ci.nsIEncryptedSMIMEURIsService);
 
 var gNextSecurityButtonCommand = "";
 var gSMFields = null;
@@ -30,8 +30,8 @@ function onComposerLoad()
 
   gMsgCompose.compFields.securityInfo = null;
 
-  gSMFields = Components.classes["@mozilla.org/messenger-smime/composefields;1"]
-                        .createInstance(Components.interfaces.nsIMsgSMIMECompFields);
+  gSMFields = Cc["@mozilla.org/messenger-smime/composefields;1"]
+                .createInstance(Ci.nsIMsgSMIMECompFields);
   if (!gSMFields)
     return;
 
@@ -85,7 +85,7 @@ function smimeComposeOnUnload()
 function GetServer()
 {
   let servers = MailServices.accounts.getServersForIdentity(gCurrentIdentity);
-  return servers.queryElementAt(0, Components.interfaces.nsIMsgIncomingServer);
+  return servers.queryElementAt(0, Ci.nsIMsgIncomingServer);
 }
 
 function showNeedSetupInfo()
@@ -276,9 +276,9 @@ function onComposerSendMessage()
     if (!gMsgCompose.compFields.securityInfo.requireEncryptMessage)
       return;
 
-    Components.classes["@mozilla.org/messenger-smime/smimejshelper;1"]
-              .createInstance(Components.interfaces.nsISMimeJSHelper)
-              .getNoCertAddresses(gMsgCompose.compFields,
+    Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
+      .createInstance(Ci.nsISMimeJSHelper)
+      .getNoCertAddresses(gMsgCompose.compFields,
                                   missingCount,
                                   emailAddresses);
   }

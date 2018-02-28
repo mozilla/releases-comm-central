@@ -120,14 +120,14 @@ function SetupComposerWindowCommands()
   var composerController;
   var editorController;
   try {
-    composerController = Components.classes["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
+    composerController = Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
 
-    editorController = composerController.QueryInterface(Components.interfaces.nsIControllerContext);
+    editorController = composerController.QueryInterface(Ci.nsIControllerContext);
     editorController.init(null); // init it without passing in a command table
 
     // Get the nsIControllerCommandTable interface we need to register commands
-    var interfaceRequestor = composerController.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-    commandTable = interfaceRequestor.getInterface(Components.interfaces.nsIControllerCommandTable);
+    var interfaceRequestor = composerController.QueryInterface(Ci.nsIInterfaceRequestor);
+    commandTable = interfaceRequestor.getInterface(Ci.nsIControllerCommandTable);
   }
   catch (e)
   {
@@ -192,9 +192,9 @@ function GetComposerCommandTable()
   if (!controller)
   {
     //create it
-    controller = Components.classes["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
+    controller = Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
 
-    var editorController = controller.QueryInterface(Components.interfaces.nsIControllerContext);
+    var editorController = controller.QueryInterface(Ci.nsIControllerContext);
     editorController.init(null);
     editorController.setCommandContext(GetCurrentEditorElement());
     window.content.controllers.insertControllerAt(0, controller);
@@ -205,8 +205,8 @@ function GetComposerCommandTable()
 
   if (controller)
   {
-    var interfaceRequestor = controller.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-    return interfaceRequestor.getInterface(Components.interfaces.nsIControllerCommandTable);
+    var interfaceRequestor = controller.QueryInterface(Ci.nsIInterfaceRequestor);
+    return interfaceRequestor.getInterface(Ci.nsIControllerCommandTable);
   }
   return null;
 }
@@ -217,7 +217,7 @@ function goUpdateCommandState(command)
   try
   {
     var controller = top.document.commandDispatcher.getControllerForCommand(command);
-    if (!(controller instanceof Components.interfaces.nsICommandController))
+    if (!(controller instanceof Ci.nsICommandController))
       return;
 
     var params = newCommandParams();
@@ -302,7 +302,7 @@ function goDoCommandParams(command, params)
     var controller = top.document.commandDispatcher.getControllerForCommand(command);
     if (controller && controller.isCommandEnabled(command))
     {
-      if (controller instanceof Components.interfaces.nsICommandController)
+      if (controller instanceof Ci.nsICommandController)
       {
         controller.doCommandWithParams(command, params);
 
@@ -374,7 +374,7 @@ function pokeMultiStateUI(uiID, cmdParams)
       desiredAttrib = "mixed";
     else {
       var valuetype = cmdParams.getValueType("state_attribute");
-      if (valuetype == Components.interfaces.nsICommandParams.eStringType) {
+      if (valuetype == Ci.nsICommandParams.eStringType) {
         desiredAttrib = cmdParams.getCStringValue("state_attribute");
         // Decode UTF-8, for example for font names in Japanese.
         desiredAttrib = new TextDecoder("UTF-8").decode(stringToTypedArray(desiredAttrib));
@@ -472,7 +472,7 @@ var nsOpenCommand =
     var fileType = IsHTMLEditor() ? "html" : "text";
     var title = GetString(IsHTMLEditor() ? "OpenHTMLFile" : "OpenTextFile");
 
-    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     fp.init(window, title, nsIFilePicker.modeOpen);
 
     SetFilePickerDirectory(fp, fileType);
@@ -727,8 +727,8 @@ function GetExtensionBasedOnMimeType(aMIMEType)
 {
   try {
     var mimeService = null;
-    mimeService = Components.classes["@mozilla.org/mime;1"]
-                            .getService(Components.interfaces.nsIMIMEService);
+    mimeService = Cc["@mozilla.org/mime;1"]
+                    .getService(Ci.nsIMIMEService);
 
     var fileExtension = mimeService.getPrimaryExtension(aMIMEType, null);
 
@@ -755,7 +755,7 @@ function GetSuggestedFileName(aDocumentURLString, aMIMEType)
     try {
       let docURI = Services.io.newURI(aDocumentURLString,
         GetCurrentEditor().documentCharacterSet);
-      docURI = docURI.QueryInterface(Components.interfaces.nsIURL);
+      docURI = docURI.QueryInterface(Ci.nsIURL);
 
       // grab the file name
       let url = validateFileName(decodeURIComponent(docURI.fileBaseName));
@@ -783,7 +783,7 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
 
   var fp = null;
   try {
-    fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
   } catch (e) {}
   if (!fp) return dialogResult;
 
@@ -892,7 +892,7 @@ var gPersistObj;
 //      editor.resetModificationCount();
       // this should cause notification to listeners that document has changed
 
-const webPersist = Components.interfaces.nsIWebBrowserPersist;
+const webPersist = Ci.nsIWebBrowserPersist;
 function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFilesParentDir, aMimeType)
 {
   gPersistObj = null;
@@ -903,12 +903,12 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
 
   var isLocalFile = false;
   try {
-    var tmp1 = aDestinationLocation.QueryInterface(Components.interfaces.nsIFile);
+    var tmp1 = aDestinationLocation.QueryInterface(Ci.nsIFile);
     isLocalFile = true;
   }
   catch (e) {
     try {
-      var tmp = aDestinationLocation.QueryInterface(Components.interfaces.nsIURI);
+      var tmp = aDestinationLocation.QueryInterface(Ci.nsIURI);
       isLocalFile = tmp.schemeIs("file");
     }
     catch (e) {}
@@ -916,7 +916,7 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
 
   try {
     // we should supply a parent directory if/when we turn on functionality to save related documents
-    var persistObj = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(webPersist);
+    var persistObj = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(webPersist);
     persistObj.progressListener = gEditorOutputProgressListener;
 
     var wrapColumn = GetWrapColumn();
@@ -991,7 +991,7 @@ function GetOutputFlags(aMimeType, aWrapColumn)
 }
 
 // returns number of column where to wrap
-const nsIWebBrowserPersist = Components.interfaces.nsIWebBrowserPersist;
+const nsIWebBrowserPersist = Ci.nsIWebBrowserPersist;
 function GetWrapColumn()
 {
   try {
@@ -1007,8 +1007,8 @@ const gShowDebugOutputStatusChange = false;
 const gShowDebugOutputLocationChange = false;
 const gShowDebugOutputSecurityChange = false;
 
-const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
-const nsIChannel = Components.interfaces.nsIChannel;
+const nsIWebProgressListener = Ci.nsIWebProgressListener;
+const nsIChannel = Ci.nsIChannel;
 
 const kErrorBindingAborted = 2152398850;
 const kErrorBindingRedirected = 2152398851;
@@ -1072,7 +1072,7 @@ var gEditorOutputProgressListener =
       // ignore aStatus == kErrorBindingAborted; check http response for possible errors
       try {
         // check http channel for response: 200 range is ok; other ranges are not
-        var httpChannel = aRequest.QueryInterface(Components.interfaces.nsIHttpChannel);
+        var httpChannel = aRequest.QueryInterface(Ci.nsIHttpChannel);
         var httpResponse = httpChannel.responseStatus;
         if (httpResponse < 200 || httpResponse >= 300)
           aStatus = httpResponse;   // not a real error but enough to pass check below
@@ -1297,13 +1297,13 @@ var gEditorOutputProgressListener =
 
   QueryInterface : function(aIID)
   {
-    if (aIID.equals(Components.interfaces.nsIWebProgressListener)
-    || aIID.equals(Components.interfaces.nsISupports)
-    || aIID.equals(Components.interfaces.nsISupportsWeakReference)
-    || aIID.equals(Components.interfaces.nsIPrompt)
-    || aIID.equals(Components.interfaces.nsIAuthPrompt))
+    if (aIID.equals(Ci.nsIWebProgressListener)
+    || aIID.equals(Ci.nsISupports)
+    || aIID.equals(Ci.nsISupportsWeakReference)
+    || aIID.equals(Ci.nsIPrompt)
+    || aIID.equals(Ci.nsIAuthPrompt))
       return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
 // nsIPrompt
@@ -1585,22 +1585,22 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
 {
   var editor = GetCurrentEditor();
   if (!aMimeType || !editor)
-    throw Components.results.NS_ERROR_NOT_INITIALIZED;
+    throw Cr.NS_ERROR_NOT_INITIALIZED;
 
   var editorDoc = editor.document;
   if (!editorDoc)
-    throw Components.results.NS_ERROR_NOT_INITIALIZED;
+    throw Cr.NS_ERROR_NOT_INITIALIZED;
 
   // if we don't have the right editor type bail (we handle text and html)
   var editorType = GetCurrentEditorType();
   if (["text", "html", "htmlmail", "textmail"].indexOf(editorType) == -1)
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 
   var saveAsTextFile = IsSupportedTextMimeType(aMimeType);
 
   // check if the file is to be saved is a format we don't understand; if so, bail
   if (aMimeType != kHTMLMimeType && aMimeType != kXHTMLMimeType && !saveAsTextFile)
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 
   if (saveAsTextFile)
     aMimeType = "text/plain";
@@ -1640,7 +1640,7 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
       if (!aSaveCopy)
         doUpdateURI = true;
     } catch (e) {
-       Components.utils.reportError(e);
+       Cu.reportError(e);
        return false;
     }
   } // mustShowFileDialog
@@ -1657,7 +1657,7 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
       if (docURI.schemeIs("file"))
       {
         var fileHandler = GetFileProtocolHandler();
-        tempLocalFile = fileHandler.getFileFromURLSpec(urlstring).QueryInterface(Components.interfaces.nsIFile);
+        tempLocalFile = fileHandler.getFileFromURLSpec(urlstring).QueryInterface(Ci.nsIFile);
       }
     }
 
@@ -2054,12 +2054,12 @@ async function CloseWindow()
       SwitchInsertCharToAnotherEditorOrClose();
 
     try {
-      var basewin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                      .getInterface(Components.interfaces.nsIWebNavigation)
-                      .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+      var basewin = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                      .getInterface(Ci.nsIWebNavigation)
+                      .QueryInterface(Ci.nsIDocShellTreeItem)
                       .treeOwner
-                      .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                      .getInterface(Components.interfaces.nsIBaseWindow);
+                      .QueryInterface(Ci.nsIInterfaceRequestor)
+                      .getInterface(Ci.nsIBaseWindow);
       basewin.destroy();
     } catch (e) {}
   }
@@ -2317,7 +2317,7 @@ var nsRewrapCommand =
   isCommandEnabled: function(aCommand, dummy)
   {
     return (IsDocumentEditable() && !IsInHTMLSourceMode() &&
-            GetCurrentEditor() instanceof Components.interfaces.nsIEditorMailSupport);
+            GetCurrentEditor() instanceof Ci.nsIEditorMailSupport);
   },
 
   getCommandStateParams: function(aCommand, aParams, aRefCon) {},
@@ -2325,7 +2325,7 @@ var nsRewrapCommand =
 
   doCommand: function(aCommand)
   {
-    GetCurrentEditor().QueryInterface(Components.interfaces.nsIEditorMailSupport).rewrap(false);
+    GetCurrentEditor().QueryInterface(Ci.nsIEditorMailSupport).rewrap(false);
   }
 };
 

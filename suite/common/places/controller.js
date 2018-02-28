@@ -70,7 +70,7 @@ InsertionPoint.prototype = {
       // If dropNearItemId is set up we must calculate the real index of
       // the item near which we will drop.
       var index = PlacesUtils.bookmarks.getItemIndex(this.dropNearItemId);
-      return this.orientation == Components.interfaces.nsITreeView.DROP_BEFORE ? index : index + 1;
+      return this.orientation == Ci.nsITreeView.DROP_BEFORE ? index : index + 1;
     }
     return this._index;
   }
@@ -164,7 +164,7 @@ PlacesController.prototype = {
       return this._canInsert() &&
              !PlacesUtils.asQuery(this._view.result.root).queryOptions.excludeItems &&
              this._view.result.sortingMode ==
-                 Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_NONE;
+                 Ci.nsINavHistoryQueryOptions.SORT_BY_NONE;
     case "placesCmd_show:info":
       var selectedNode = this._view.selectedNode;
       return selectedNode && PlacesUtils.getConcreteItemId(selectedNode) != -1;
@@ -178,7 +178,7 @@ PlacesController.prototype = {
              PlacesUtils.nodeIsFolder(selectedNode) &&
              !PlacesUIUtils.isContentsReadOnly(selectedNode) &&
              this._view.result.sortingMode ==
-                 Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_NONE;
+                 Ci.nsINavHistoryQueryOptions.SORT_BY_NONE;
     case "placesCmd_createBookmark":
       var node = this._view.selectedNode;
       return node && PlacesUtils.nodeIsURI(node) && node.itemId == -1;
@@ -344,25 +344,25 @@ PlacesController.prototype = {
     var clipboard = this.clipboard;
     var hasPlacesData =
       clipboard.hasDataMatchingFlavors(flavors, flavors.length,
-                                       Components.interfaces.nsIClipboard.kGlobalClipboard);
+                                       Ci.nsIClipboard.kGlobalClipboard);
     if (hasPlacesData)
       return this._view.insertionPoint != null;
 
     // if the clipboard doesn't have TYPE_X_MOZ_PLACE_* data, we also allow
     // pasting of valid "text/unicode" and "text/x-moz-url" data
-    var xferable = Components.classes["@mozilla.org/widget/transferable;1"]
-                             .createInstance(Components.interfaces.nsITransferable);
+    var xferable = Cc["@mozilla.org/widget/transferable;1"]
+                     .createInstance(Ci.nsITransferable);
 
     xferable.init(null);
     xferable.addDataFlavor(PlacesUtils.TYPE_X_MOZ_URL);
     xferable.addDataFlavor(PlacesUtils.TYPE_UNICODE);
-    clipboard.getData(xferable, Components.interfaces.nsIClipboard.kGlobalClipboard);
+    clipboard.getData(xferable, Ci.nsIClipboard.kGlobalClipboard);
 
     try {
       // getAnyTransferData will throw if no data is available.
       var data = { }, type = { };
       xferable.getAnyTransferData(type, data, { });
-      data = data.value.QueryInterface(Components.interfaces.nsISupportsString).data;
+      data = data.value.QueryInterface(Ci.nsISupportsString).data;
       if (type.value != PlacesUtils.TYPE_X_MOZ_URL &&
           type.value != PlacesUtils.TYPE_UNICODE)
         return false;
@@ -414,28 +414,28 @@ PlacesController.prototype = {
       // We don't use the nodeIs* methods here to avoid going through the type
       // property way too often
       switch (nodeType) {
-        case Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_QUERY:
+        case Ci.nsINavHistoryResultNode.RESULT_TYPE_QUERY:
           nodeData["query"] = true;
           if (node.parent) {
             switch (PlacesUtils.asQuery(node.parent).queryOptions.resultType) {
-              case Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_SITE_QUERY:
+              case Ci.nsINavHistoryQueryOptions.RESULTS_AS_SITE_QUERY:
                 nodeData["host"] = true;
                 break;
-              case Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_DATE_SITE_QUERY:
-              case Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_DATE_QUERY:
+              case Ci.nsINavHistoryQueryOptions.RESULTS_AS_DATE_SITE_QUERY:
+              case Ci.nsINavHistoryQueryOptions.RESULTS_AS_DATE_QUERY:
                 nodeData["day"] = true;
                 break;
             }
           }
           break;
-        case Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_FOLDER:
-        case Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT:
+        case Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER:
+        case Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT:
           nodeData["folder"] = true;
           break;
-        case Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR:
+        case Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR:
           nodeData["separator"] = true;
           break;
-        case Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_URI:
+        case Ci.nsINavHistoryResultNode.RESULT_TYPE_URI:
           nodeData["link"] = true;
           uri = PlacesUtils._uri(node.uri);
           if (PlacesUtils.nodeIsBookmark(node)) {
@@ -679,8 +679,8 @@ PlacesController.prototype = {
     var reallyOpen = true;
     if (Services.prefs.getBoolPref(kWarnOnOpenPref)) {
       if (numTabsToOpen >= Services.prefs.getIntPref("browser.tabs.maxOpenBeforeWarn")) {
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                      .getService(Components.interfaces.nsIPromptService);
+        var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                              .getService(Ci.nsIPromptService);
 
         // default to true: if it were false, we wouldn't get this far
         var warnOnOpen = { value: true };
@@ -688,10 +688,10 @@ PlacesController.prototype = {
         var messageKey = "tabs.openWarningMultipleBranded";
         var openKey = "tabs.openButtonMultiple";
         const BRANDING_BUNDLE_URI = "chrome://branding/locale/brand.properties";
-        var brandShortName = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                                       .getService(Components.interfaces.nsIStringBundleService)
-                                       .createBundle(BRANDING_BUNDLE_URI)
-                                       .GetStringFromName("brandShortName");
+        var brandShortName = Cc["@mozilla.org/intl/stringbundle;1"]
+                               .getService(Ci.nsIStringBundleService)
+                               .createBundle(BRANDING_BUNDLE_URI)
+                               .GetStringFromName("brandShortName");
 
         var buttonPressed = promptService.confirmEx(window,
           PlacesUIUtils.getString("tabs.openWarningTitle"),
@@ -734,7 +734,7 @@ PlacesController.prototype = {
   newItem: function PC_newItem(aType) {
     var ip = this._view.insertionPoint;
     if (!ip)
-      throw Components.results.NS_ERROR_NOT_AVAILABLE;
+      throw Cr.NS_ERROR_NOT_AVAILABLE;
 
     var performed = false;
     if (aType == "bookmark")
@@ -760,7 +760,7 @@ PlacesController.prototype = {
   newFolder: function PC_newFolder() {
     var ip = this._view.insertionPoint;
     if (!ip)
-      throw Components.results.NS_ERROR_NOT_AVAILABLE;
+      throw Cr.NS_ERROR_NOT_AVAILABLE;
 
     var performed = false;
     performed = PlacesUIUtils.showAddFolderUI(null, ip);
@@ -778,7 +778,7 @@ PlacesController.prototype = {
   newSeparator: function PC_newSeparator() {
     var ip = this._view.insertionPoint;
     if (!ip)
-      throw Components.results.NS_ERROR_NOT_AVAILABLE;
+      throw Cr.NS_ERROR_NOT_AVAILABLE;
     var txn = new PlacesCreateSeparatorTransaction(ip.itemId, ip.index);
     PlacesUtils.transactionManager.doTransaction(txn);
     // select the new item
@@ -872,7 +872,7 @@ PlacesController.prototype = {
       else if (PlacesUtils.nodeIsTagQuery(node) && node.parent &&
                PlacesUtils.nodeIsQuery(node.parent) &&
                PlacesUtils.asQuery(node.parent).queryOptions.resultType ==
-                 Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_TAG_QUERY) {
+                 Ci.nsINavHistoryQueryOptions.RESULTS_AS_TAG_QUERY) {
         // This is a tag container.
         // Untag all URIs tagged with this tag only if the tag container is
         // child of the "Tags" query in the library, in all other places we
@@ -887,16 +887,16 @@ PlacesController.prototype = {
       else if (PlacesUtils.nodeIsURI(node) &&
                PlacesUtils.nodeIsQuery(node.parent) &&
                PlacesUtils.asQuery(node.parent).queryOptions.queryType ==
-                 Components.interfaces.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY) {
+                 Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY) {
         // This is a uri node inside an history query.
-        var bhist = PlacesUtils.history.QueryInterface(Components.interfaces.nsIBrowserHistory);
+        var bhist = PlacesUtils.history.QueryInterface(Ci.nsIBrowserHistory);
         bhist.removePage(PlacesUtils._uri(node.uri));
         // History deletes are not undoable, so we don't have a transaction.
       }
       else if (node.itemId == -1 &&
                PlacesUtils.nodeIsQuery(node) &&
                PlacesUtils.asQuery(node).queryOptions.queryType ==
-                 Components.interfaces.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY) {
+                 Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY) {
         // This is a dynamically generated history query, like queries
         // grouped by site, time or both.  Dynamically generated queries don't
         // have an itemId even if they are descendants of a bookmark.
@@ -943,7 +943,7 @@ PlacesController.prototype = {
     // history deletes are not undoable.
     var nodes = this._view.selectedNodes;
     var URIs = [];
-    var bhist = PlacesUtils.history.QueryInterface(Components.interfaces.nsIBrowserHistory);
+    var bhist = PlacesUtils.history.QueryInterface(Ci.nsIBrowserHistory);
     var root = this._view.result.root;
 
     for (var i = 0; i < nodes.length; ++i) {
@@ -957,7 +957,7 @@ PlacesController.prototype = {
       }
       else if (PlacesUtils.nodeIsQuery(node) &&
                PlacesUtils.asQuery(node).queryOptions.queryType ==
-                 Components.interfaces.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY)
+                 Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY)
         this._removeHistoryContainer(node);
     }
 
@@ -987,7 +987,7 @@ PlacesController.prototype = {
    *          The container node to remove.
    */
   _removeHistoryContainer: function PC_removeHistoryContainer(aContainerNode) {
-    var bhist = PlacesUtils.history.QueryInterface(Components.interfaces.nsIBrowserHistory);
+    var bhist = PlacesUtils.history.QueryInterface(Ci.nsIBrowserHistory);
     if (PlacesUtils.nodeIsHost(aContainerNode)) {
       // Site container.
       bhist.removePagesFromHost(aContainerNode.title, true);
@@ -1025,9 +1025,9 @@ PlacesController.prototype = {
       this._removeRowsFromBookmarks(aTxnName);
     else if (PlacesUtils.nodeIsQuery(root)) {
       var queryType = PlacesUtils.asQuery(root).queryOptions.queryType;
-      if (queryType == Components.interfaces.nsINavHistoryQueryOptions.QUERY_TYPE_BOOKMARKS)
+      if (queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_BOOKMARKS)
         this._removeRowsFromBookmarks(aTxnName);
-      else if (queryType == Components.interfaces.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY)
+      else if (queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY)
         this._removeRowsFromHistory();
       else
         NS_ASSERT(false, "implement support for QUERY_TYPE_UNIFIED");
@@ -1098,8 +1098,8 @@ PlacesController.prototype = {
     try {
       let nodes = this._view.selectedNodes;
 
-      let xferable = Components.classes["@mozilla.org/widget/transferable;1"]
-                               .createInstance(Components.interfaces.nsITransferable);
+      let xferable = Cc["@mozilla.org/widget/transferable;1"]
+                       .createInstance(Ci.nsITransferable);
       xferable.init(null);
       let foundFolder = false, foundLink = false;
       let copiedFolders = [];
@@ -1155,7 +1155,7 @@ PlacesController.prototype = {
 
       if (placeString || unicodeString || htmlString || mozURLString) {
         this.clipboard.setData(xferable, null,
-                               Components.interfaces.nsIClipboard.kGlobalClipboard);
+                               Ci.nsIClipboard.kGlobalClipboard);
       }
     }
     finally {
@@ -1192,8 +1192,8 @@ PlacesController.prototype = {
      */
     function makeXferable(types) {
       var xferable =
-          Components.classes["@mozilla.org/widget/transferable;1"]
-                    .createInstance(Components.interfaces.nsITransferable);
+          Cc["@mozilla.org/widget/transferable;1"]
+            .createInstance(Ci.nsITransferable);
 
       xferable.init(null);
       for (var i = 0; i < types.length; ++i)
@@ -1205,7 +1205,7 @@ PlacesController.prototype = {
 
     var ip = this._view.insertionPoint;
     if (!ip)
-      throw Components.results.NS_ERROR_NOT_AVAILABLE;
+      throw Cr.NS_ERROR_NOT_AVAILABLE;
 
     /**
      * Gets a list of transactions to perform the paste of specific types.
@@ -1215,12 +1215,12 @@ PlacesController.prototype = {
      */
     function getTransactions(types) {
       var xferable = makeXferable(types);
-      clipboard.getData(xferable, Components.interfaces.nsIClipboard.kGlobalClipboard);
+      clipboard.getData(xferable, Ci.nsIClipboard.kGlobalClipboard);
 
       var data = { }, type = { };
       try {
         xferable.getAnyTransferData(type, data, { });
-        data = data.value.QueryInterface(Components.interfaces.nsISupportsString).data;
+        data = data.value.QueryInterface(Ci.nsISupportsString).data;
         var items = PlacesUtils.unwrapNodes(data, type.value);
         var transactions = [];
         var index = ip.index;
@@ -1395,7 +1395,7 @@ var PlacesControllerDragHelper = {
       }
 
       // Only bookmarks and urls can be dropped into tag containers.
-      if (ip.isTag && ip.orientation == Components.interfaces.nsITreeView.DROP_ON &&
+      if (ip.isTag && ip.orientation == Ci.nsITreeView.DROP_ON &&
           dragged.type != PlacesUtils.TYPE_X_MOZ_URL &&
           (dragged.type != PlacesUtils.TYPE_X_MOZ_PLACE ||
            /^place:/.test(dragged.uri)))
@@ -1484,7 +1484,7 @@ var PlacesControllerDragHelper = {
 
       // If dragging over a tag container we should tag the item.
       if (insertionPoint.isTag &&
-          insertionPoint.orientation == Components.interfaces.nsITreeView.DROP_ON) {
+          insertionPoint.orientation == Ci.nsITreeView.DROP_ON) {
         let uri = PlacesUtils._uri(unwrapped.uri);
         let tagItemId = insertionPoint.itemId;
         let tagTxn = new PlacesTagURITransaction(uri, [tagItemId]);

@@ -23,7 +23,7 @@ function Startup()
   }
 
   // Get the spellChecker shell
-  gSpellChecker = Components.classes['@mozilla.org/editor/editorspellchecker;1'].createInstance(Components.interfaces.nsIEditorSpellCheck);
+  gSpellChecker = Cc['@mozilla.org/editor/editorspellchecker;1'].createInstance(Ci.nsIEditorSpellCheck);
   if (!gSpellChecker)
   {
     dump("SpellChecker not found!!!\n");
@@ -43,7 +43,7 @@ function Startup()
     else
       filterContractId = "@mozilla.org/editor/txtsrvfilter;1";
 
-    gSpellChecker.setFilter(Components.classes[filterContractId].createInstance(Components.interfaces.nsITextServicesFilter));
+    gSpellChecker.setFilter(Cc[filterContractId].createInstance(Ci.nsITextServicesFilter));
     gSpellChecker.InitSpellChecker(editor, enableSelectionChecking, spellCheckStarted);
 
   }
@@ -404,12 +404,12 @@ function Recheck()
     recheckLanguage = gSpellChecker.GetCurrentDictionary();
     gSpellChecker.UninitSpellChecker();
     // Clear the ignore all list.
-    Components.classes["@mozilla.org/spellchecker/personaldictionary;1"]
-              .getService(Components.interfaces.mozIPersonalDictionary)
-              .endSession();
+    Cc["@mozilla.org/spellchecker/personaldictionary;1"]
+      .getService(Ci.mozIPersonalDictionary)
+      .endSession();
     gSpellChecker.InitSpellChecker(GetCurrentEditor(), false, finishRecheck);
   } catch(ex) {
-    Components.utils.reportError(ex);
+    Cu.reportError(ex);
   }
 }
 

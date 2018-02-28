@@ -15,7 +15,7 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var nsIX509CertDB = Components.interfaces.nsIX509CertDB;
+var nsIX509CertDB = Ci.nsIX509CertDB;
 var nsX509CertDB = "@mozilla.org/security/x509certdb;1";
 var CertAttribute = "usercertificate;binary";
 
@@ -54,13 +54,13 @@ function search()
     let url = Services.prefs.getCharPref(gDirectoryPref + ".uri");
 
     gLdapServerURL = Services.io
-      .newURI(url).QueryInterface(Components.interfaces.nsILDAPURL);
+      .newURI(url).QueryInterface(Ci.nsILDAPURL);
 
-    gLdapConnection = Components.classes["@mozilla.org/network/ldap-connection;1"]
-      .createInstance().QueryInterface(Components.interfaces.nsILDAPConnection);
+    gLdapConnection = Cc["@mozilla.org/network/ldap-connection;1"]
+      .createInstance().QueryInterface(Ci.nsILDAPConnection);
 
     gLdapConnection.init(gLdapServerURL, gLogin, new boundListener(),
-      null, Components.interfaces.nsILDAPConnection.VERSION3);
+      null, Ci.nsILDAPConnection.VERSION3);
 
   } catch (ex) {
     dump(ex);
@@ -84,7 +84,7 @@ function stopFetching()
 function importCert(ber_value)
 {
   if (!gCertDB) {
-    gCertDB = Components.classes[nsX509CertDB].getService(nsIX509CertDB);
+    gCertDB = Cc[nsX509CertDB].getService(nsIX509CertDB);
   }
 
   var cert_length = new Object();
@@ -97,8 +97,8 @@ function importCert(ber_value)
 
 function getLDAPOperation()
 {
-    gLdapOperation = Components.classes["@mozilla.org/network/ldap-operation;1"]
-      .createInstance().QueryInterface(Components.interfaces.nsILDAPOperation);
+    gLdapOperation = Cc["@mozilla.org/network/ldap-operation;1"]
+      .createInstance().QueryInterface(Ci.nsILDAPOperation);
 
     gLdapOperation.init(gLdapConnection,
                         new ldapMessageListener(),
@@ -110,7 +110,7 @@ function getPassword()
   // we only need a password if we are using credentials
   if (gLogin)
   {
-    let authPrompter = Services.ww.getNewAuthPrompter(window.QueryInterface(Components.interfaces.nsIDOMWindow));
+    let authPrompter = Services.ww.getNewAuthPrompter(window.QueryInterface(Ci.nsIDOMWindow));
     let strBundle = document.getElementById('bundle_ldap');
     let password = { value: "" };
 
@@ -198,11 +198,11 @@ function boundListener() {
 
 boundListener.prototype.QueryInterface =
   function(iid) {
-    if (iid.equals(Components.interfaces.nsISupports) ||
-        iid.equals(Components.interfaces.nsILDAPMessageListener))
+    if (iid.equals(Ci.nsISupports) ||
+        iid.equals(Ci.nsILDAPMessageListener))
         return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   }
 
 boundListener.prototype.onLDAPMessage =
@@ -220,22 +220,22 @@ function ldapMessageListener() {
 
 ldapMessageListener.prototype.QueryInterface =
   function(iid) {
-    if (iid.equals(Components.interfaces.nsISupports) ||
-        iid.equals(Components.interfaces.nsILDAPMessageListener))
+    if (iid.equals(Ci.nsISupports) ||
+        iid.equals(Ci.nsILDAPMessageListener))
         return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   }
 
 ldapMessageListener.prototype.onLDAPMessage =
   function(aMessage) {
-    if (Components.interfaces.nsILDAPMessage.RES_SEARCH_RESULT == aMessage.type) {
+    if (Ci.nsILDAPMessage.RES_SEARCH_RESULT == aMessage.type) {
       window.close();
       return;
     }
 
-    if (Components.interfaces.nsILDAPMessage.RES_BIND == aMessage.type) {
-      if (Components.interfaces.nsILDAPErrors.SUCCESS != aMessage.errorCode) {
+    if (Ci.nsILDAPMessage.RES_BIND == aMessage.type) {
+      if (Ci.nsILDAPErrors.SUCCESS != aMessage.errorCode) {
         window.close();
       }
       else {
@@ -244,7 +244,7 @@ ldapMessageListener.prototype.onLDAPMessage =
       return;
     }
 
-    if (Components.interfaces.nsILDAPMessage.RES_SEARCH_ENTRY == aMessage.type) {
+    if (Ci.nsILDAPMessage.RES_SEARCH_ENTRY == aMessage.type) {
       var outSize = new Object();
       try {
         var outBinValues = aMessage.getBinaryValues(CertAttribute, outSize);

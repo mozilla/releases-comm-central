@@ -114,7 +114,7 @@ var gDisplayPane = {
     var isSerif = this._readDefaultFontTypeForLanguage(aLanguageGroup) == "serif";
     this._selectDefaultLanguageGroupPromise =
       this._selectDefaultLanguageGroup(aLanguageGroup, isSerif)
-        .catch(Components.utils.reportError);
+        .catch(Cu.reportError);
   },
 
   /**

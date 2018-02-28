@@ -40,8 +40,8 @@ function setupModule(module) {
 }
 
 async function buildFontList() {
-  gFontEnumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
-                      .createInstance(Components.interfaces.nsIFontEnumerator);
+  gFontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
+                      .createInstance(Ci.nsIFontEnumerator);
   for (let fontType of kFontTypes) {
     gRealFontLists[fontType] =
       await gFontEnumerator.EnumerateFontsAsync(kLanguage, fontType);

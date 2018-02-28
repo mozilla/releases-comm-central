@@ -81,7 +81,7 @@ add_task(function *() {
     do_check_transaction(transaction, ["MODE READER", "LIST",
                                        "AUTHINFO user testnews",
                                        "AUTHINFO pass newstest", "LIST"]);
-    incomingServer.QueryInterface(Components.interfaces.nsISubscribableServer)
+    incomingServer.QueryInterface(Ci.nsISubscribableServer)
                   .subscribeCleanup();
 
   } catch (e) {

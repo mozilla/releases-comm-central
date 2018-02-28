@@ -46,14 +46,14 @@ function PlacesTreeView(aFlatList, aOnOpenFlatContainer, aController) {
 PlacesTreeView.prototype = {
 
   QueryInterface: function PTV_QueryInterface(aIID) {
-    if (aIID.equals(Components.interfaces.nsITreeView) ||
-        aIID.equals(Components.interfaces.nsINavHistoryResultObserver) ||
-        aIID.equals(Components.interfaces.nsINavHistoryResultTreeViewer) ||
-        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsITreeView) ||
+        aIID.equals(Ci.nsINavHistoryResultObserver) ||
+        aIID.equals(Ci.nsINavHistoryResultTreeViewer) ||
+        aIID.equals(Ci.nsISupportsWeakReference) ||
+        aIID.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
   /**
@@ -105,21 +105,21 @@ PlacesTreeView.prototype = {
       return true;
 
     // We don't know enough about non-query containers.
-    if (!(aContainer instanceof Components.interfaces.nsINavHistoryQueryResultNode))
+    if (!(aContainer instanceof Ci.nsINavHistoryQueryResultNode))
       return false;
 
     switch (aContainer.queryOptions.resultType) {
-      case Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_DATE_QUERY:
-      case Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_SITE_QUERY:
-      case Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_DATE_SITE_QUERY:
-      case Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_TAG_QUERY:
+      case Ci.nsINavHistoryQueryOptions.RESULTS_AS_DATE_QUERY:
+      case Ci.nsINavHistoryQueryOptions.RESULTS_AS_SITE_QUERY:
+      case Ci.nsINavHistoryQueryOptions.RESULTS_AS_DATE_SITE_QUERY:
+      case Ci.nsINavHistoryQueryOptions.RESULTS_AS_TAG_QUERY:
         return false;
     }
 
     // If it's a folder, it's not a plain container.
     let nodeType = aContainer.type;
-    return nodeType != Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_FOLDER &&
-           nodeType != Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT;
+    return nodeType != Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER &&
+           nodeType != Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT;
   },
 
   /**
@@ -256,7 +256,7 @@ PlacesTreeView.prototype = {
 
     // Unset elements may exist only in plain containers.  Thus, if the nearest
     // node is a container, it's the row's parent, otherwise, it's a sibling.
-    if (rowNode instanceof Components.interfaces.nsINavHistoryContainerResultNode) {
+    if (rowNode instanceof Ci.nsINavHistoryContainerResultNode) {
       let newNode = rowNode.getChild(aRow - row - 1);
       this._nodeDetails.delete(makeNodeDetailsKey(this._rows[aRow]));
       this._nodeDetails.set(makeNodeDetailsKey(newNode), newNode);
@@ -319,8 +319,8 @@ PlacesTreeView.prototype = {
       let row = aFirstChildRow + rowsInserted;
 
       // Don't display separators when sorted.
-      if (curChildType == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR) {
-        if (sortingMode != Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_NONE) {
+      if (curChildType == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR) {
+        if (sortingMode != Ci.nsINavHistoryQueryOptions.SORT_BY_NONE) {
           // Remove the element for the filtered separator.
           // Notice that the rows array was initially resized to include all
           // children.
@@ -337,7 +337,7 @@ PlacesTreeView.prototype = {
 
       // Recursively do containers.
       if (!this._flatList &&
-          curChild instanceof Components.interfaces.nsINavHistoryContainerResultNode &&
+          curChild instanceof Ci.nsINavHistoryContainerResultNode &&
           !this._controller.hasCachedLivemarkInfo(curChild)) {
         NS_ASSERT(curChild.uri, "if there is no uri, we can't persist the open state");
         let isopen = curChild.uri &&
@@ -362,7 +362,7 @@ PlacesTreeView.prototype = {
 
     // If it's not listed yet, we know that it's a leaf node (instanceof also
     // null-checks).
-    if (!(node instanceof Components.interfaces.nsINavHistoryContainerResultNode))
+    if (!(node instanceof Ci.nsINavHistoryContainerResultNode))
       return 1;
 
     let outerLevel = node.indentLevel;
@@ -581,44 +581,44 @@ PlacesTreeView.prototype = {
 
   _sortTypeToColumnType: function PTV__sortTypeToColumnType(aSortType) {
     switch (aSortType) {
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_TITLE_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_TITLE_ASCENDING:
         return [this.COLUMN_TYPE_TITLE, false];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_TITLE_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_TITLE_DESCENDING:
         return [this.COLUMN_TYPE_TITLE, true];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_DATE_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_DATE_ASCENDING:
         return [this.COLUMN_TYPE_DATE, false];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_DATE_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_DATE_DESCENDING:
         return [this.COLUMN_TYPE_DATE, true];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_URI_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_URI_ASCENDING:
         return [this.COLUMN_TYPE_URI, false];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_URI_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_URI_DESCENDING:
         return [this.COLUMN_TYPE_URI, true];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_ASCENDING:
         return [this.COLUMN_TYPE_VISITCOUNT, false];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_DESCENDING:
         return [this.COLUMN_TYPE_VISITCOUNT, true];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_KEYWORD_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_KEYWORD_ASCENDING:
         return [this.COLUMN_TYPE_KEYWORD, false];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_KEYWORD_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_KEYWORD_DESCENDING:
         return [this.COLUMN_TYPE_KEYWORD, true];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_ANNOTATION_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_ANNOTATION_ASCENDING:
         if (this._result.sortingAnnotation == PlacesUIUtils.DESCRIPTION_ANNO)
           return [this.COLUMN_TYPE_DESCRIPTION, false];
         break;
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_ANNOTATION_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_ANNOTATION_DESCENDING:
         if (this._result.sortingAnnotation == PlacesUIUtils.DESCRIPTION_ANNO)
           return [this.COLUMN_TYPE_DESCRIPTION, true];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_DATEADDED_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_DATEADDED_ASCENDING:
         return [this.COLUMN_TYPE_DATEADDED, false];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_DATEADDED_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_DATEADDED_DESCENDING:
         return [this.COLUMN_TYPE_DATEADDED, true];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_LASTMODIFIED_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_LASTMODIFIED_ASCENDING:
         return [this.COLUMN_TYPE_LASTMODIFIED, false];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_LASTMODIFIED_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_LASTMODIFIED_DESCENDING:
         return [this.COLUMN_TYPE_LASTMODIFIED, true];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_TAGS_ASCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_TAGS_ASCENDING:
         return [this.COLUMN_TYPE_TAGS, false];
-      case Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_TAGS_DESCENDING:
+      case Ci.nsINavHistoryQueryOptions.SORT_BY_TAGS_DESCENDING:
         return [this.COLUMN_TYPE_TAGS, true];
     }
     return [this.COLUMN_TYPE_UNKNOWN, false];
@@ -705,7 +705,7 @@ PlacesTreeView.prototype = {
 
     // XXX bug 517701: We don't know what to do when the root node is removed.
     if (aNode == this._rootNode)
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 
     // Bail out for hidden separators.
     if (PlacesUtils.nodeIsSeparator(aNode) && this.isSorted())
@@ -715,7 +715,7 @@ PlacesTreeView.prototype = {
                     undefined : this._getRowForNode(aParentNode, true);
     let oldRow = this._getRowForNode(aNode, true, parentRow, aOldIndex);
     if (oldRow < 0)
-      throw Components.results.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_UNEXPECTED;
 
     // If the node was exclusively selected, the node next to it will be
     // selected.
@@ -931,7 +931,7 @@ PlacesTreeView.prototype = {
         let shouldInvalidate =
           !this._controller.hasCachedLivemarkInfo(aNode);
         this._controller.cacheLivemarkInfo(aNode, aLivemark);
-        if (aNewState == Components.interfaces.nsINavHistoryContainerResultNode.STATE_OPENED) {
+        if (aNewState == Ci.nsINavHistoryContainerResultNode.STATE_OPENED) {
           aLivemark.registerForUpdates(aNode, this);
           aLivemark.reload();
           if (shouldInvalidate)
@@ -1084,7 +1084,7 @@ PlacesTreeView.prototype = {
       sortedColumn.element.removeAttribute("sortDirection");
 
     // Set new sorting indicator by looking through all columns for ours.
-    if (aSortingMode == Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_NONE)
+    if (aSortingMode == Ci.nsINavHistoryQueryOptions.SORT_BY_NONE)
       return;
 
     let [desiredColumn, desiredIsDescending] =
@@ -1138,7 +1138,7 @@ PlacesTreeView.prototype = {
 
   nodeForTreeIndex: function PTV_nodeForTreeIndex(aIndex) {
     if (aIndex > this._rows.length)
-      throw Components.results.NS_ERROR_INVALID_ARG;
+      throw Cr.NS_ERROR_INVALID_ARG;
 
     return this._getNodeForRow(aIndex);
   },
@@ -1150,7 +1150,7 @@ PlacesTreeView.prototype = {
     }
     catch(ex) { }
 
-    return Components.interfaces.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE;
+    return Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE;
   },
 
   // nsITreeView
@@ -1186,7 +1186,7 @@ PlacesTreeView.prototype = {
       let itemId = node.itemId;
       let nodeType = node.type;
       if (PlacesUtils.containerTypes.indexOf(nodeType) != -1) {
-        if (nodeType == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_QUERY) {
+        if (nodeType == Ci.nsINavHistoryResultNode.RESULT_TYPE_QUERY) {
           properties += " query";
           if (PlacesUtils.nodeIsTagQuery(node))
             properties += " tagContainer";
@@ -1195,8 +1195,8 @@ PlacesTreeView.prototype = {
           else if (PlacesUtils.nodeIsHost(node))
             properties += " hostContainer";
         }
-        else if (nodeType == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_FOLDER ||
-                 nodeType == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT) {
+        else if (nodeType == Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER ||
+                 nodeType == Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT) {
           if (this._controller.hasCachedLivemarkInfo(node))
             properties += " livemark";
           else {
@@ -1217,7 +1217,7 @@ PlacesTreeView.prototype = {
             properties += " OrganizerQuery_" + queryName;
         }
       }
-      else if (nodeType == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR)
+      else if (nodeType == Ci.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR)
         properties += " separator";
       else if (PlacesUtils.nodeIsURI(node)) {
         properties += " " + PlacesUIUtils.guessUrlSchemeForUI(node.uri);
@@ -1287,12 +1287,12 @@ PlacesTreeView.prototype = {
 
   isSorted: function PTV_isSorted() {
     return this._result.sortingMode !=
-           Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_NONE;
+           Ci.nsINavHistoryQueryOptions.SORT_BY_NONE;
   },
 
   canDrop: function PTV_canDrop(aRow, aOrientation, aDataTransfer) {
     if (!this._result)
-      throw Components.results.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_UNEXPECTED;
 
     // Drop position into a sorted treeview would be wrong.
     if (this.isSorted())
@@ -1309,19 +1309,19 @@ PlacesTreeView.prototype = {
     // the view is populated from (i.e. the result's itemId).
     if (index != -1) {
       let lastSelected = this.nodeForTreeIndex(index);
-      if (this.isContainer(index) && orientation == Components.interfaces.nsITreeView.DROP_ON) {
+      if (this.isContainer(index) && orientation == Ci.nsITreeView.DROP_ON) {
         // If the last selected item is an open container, append _into_
         // it, rather than insert adjacent to it.
         container = lastSelected;
         index = -1;
       }
       else if (lastSelected.containerOpen &&
-               orientation == Components.interfaces.nsITreeView.DROP_AFTER &&
+               orientation == Ci.nsITreeView.DROP_AFTER &&
                lastSelected.hasChildren) {
         // If the last selected node is an open container and the user is
         // trying to drag into it as a first node, really insert into it.
         container = lastSelected;
-        orientation = Components.interfaces.nsITreeView.DROP_ON;
+        orientation = Ci.nsITreeView.DROP_ON;
         index = 0;
       }
       else {
@@ -1344,7 +1344,7 @@ PlacesTreeView.prototype = {
 
         let queryOptions = PlacesUtils.asQuery(this._result.root).queryOptions;
         if (queryOptions.sortingMode !=
-              Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_NONE) {
+              Ci.nsINavHistoryQueryOptions.SORT_BY_NONE) {
           // If we are within a sorted view, insert at the end.
           index = -1;
         }
@@ -1359,7 +1359,7 @@ PlacesTreeView.prototype = {
         }
         else {
           let lsi = container.getChildIndex(lastSelected);
-          index = orientation == Components.interfaces.nsITreeView.DROP_BEFORE ? lsi : lsi + 1;
+          index = orientation == Ci.nsITreeView.DROP_BEFORE ? lsi : lsi + 1;
         }
       }
     }
@@ -1513,7 +1513,7 @@ PlacesTreeView.prototype = {
 
   toggleOpenState: function PTV_toggleOpenState(aRow) {
     if (!this._result)
-      throw Components.results.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_UNEXPECTED;
 
     let node = this._rows[aRow];
     if (this._flatList && this._openContainerCallback) {
@@ -1537,7 +1537,7 @@ PlacesTreeView.prototype = {
 
   cycleHeader: function PTV_cycleHeader(aColumn) {
     if (!this._result)
-      throw Components.results.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_UNEXPECTED;
 
     // Sometimes you want a tri-state sorting, and sometimes you don't. This
     // rule allows tri-state sorting when the root node is a folder. This will
@@ -1556,7 +1556,7 @@ PlacesTreeView.prototype = {
     let oldSortingAnnotation = this._result.sortingAnnotation;
     let newSort;
     let newSortingAnnotation = "";
-    const NHQO = Components.interfaces.nsINavHistoryQueryOptions;
+    const NHQO = Ci.nsINavHistoryQueryOptions;
     switch (this._getColumnType(aColumn)) {
       case this.COLUMN_TYPE_TITLE:
         if (oldSort == NHQO.SORT_BY_TITLE_ASCENDING)
@@ -1653,7 +1653,7 @@ PlacesTreeView.prototype = {
 
         break;
       default:
-        throw Components.results.NS_ERROR_INVALID_ARG;
+        throw Cr.NS_ERROR_INVALID_ARG;
     }
     this._result.sortingAnnotation = newSortingAnnotation;
     this._result.sortingMode = newSort;
@@ -1666,7 +1666,7 @@ PlacesTreeView.prototype = {
 
     let node = this._rows[aRow];
     if (!node) {
-      Components.utils.reportError("isEditable called for an unbuilt row.");
+      Cu.reportError("isEditable called for an unbuilt row.");
       return false;
     }
     let itemId = node.itemId;

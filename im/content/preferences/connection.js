@@ -105,8 +105,8 @@ var gConnectionsDialog = {
     var proxyTypeCur = document.getElementById("network.proxy.type").value;
 
     var prefs =
-        Components.classes["@mozilla.org/preferences-service;1"].
-        getService(Components.interfaces.nsIPrefBranch);
+        Cc["@mozilla.org/preferences-service;1"].
+        getService(Ci.nsIPrefBranch);
     var pacURL = prefs.getCharPref("network.proxy.autoconfig_url");
     var proxyType = prefs.getIntPref("network.proxy.type");
 
@@ -170,7 +170,7 @@ var gConnectionsDialog = {
 
   reloadPAC: function ()
   {
-    Components.classes["@mozilla.org/network/protocol-proxy-service;1"].
+    Cc["@mozilla.org/network/protocol-proxy-service;1"].
         getService().reloadPAC();
   },
   
@@ -178,8 +178,8 @@ var gConnectionsDialog = {
   {
     var autoURL = document.getElementById("networkProxyAutoconfigURL");
     var autoURLPref = document.getElementById("network.proxy.autoconfig_url");
-    var URIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
-                             .getService(Components.interfaces.nsIURIFixup);
+    var URIFixup = Cc["@mozilla.org/docshell/urifixup;1"]
+                     .getService(Ci.nsIURIFixup);
     try {
       autoURLPref.value = autoURL.value = URIFixup.createFixupURI(autoURL.value, 0).spec;
     } catch(ex) {}

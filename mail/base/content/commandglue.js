@@ -125,13 +125,13 @@ var gQuotaUICache;
 function UpdateStatusQuota(folder)
 {
   if (!(folder && // no folder selected
-        folder instanceof Components.interfaces.nsIMsgImapMailFolder)) // POP etc.
+        folder instanceof Ci.nsIMsgImapMailFolder)) // POP etc.
   {
     if (typeof(gQuotaUICache) == "object") // ever shown quota
       gQuotaUICache.panel.hidden = true;
     return;
   }
-  folder = folder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
+  folder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
 
   // get element references and prefs
   if (typeof(gQuotaUICache) != "object")
@@ -272,12 +272,12 @@ function ConvertSortTypeToColumnID(sortKey)
   return columnID;
 }
 
-var nsMsgViewSortType = Components.interfaces.nsMsgViewSortType;
-var nsMsgViewSortOrder = Components.interfaces.nsMsgViewSortOrder;
-var nsMsgViewFlagsType = Components.interfaces.nsMsgViewFlagsType;
-var nsMsgViewCommandType = Components.interfaces.nsMsgViewCommandType;
-var nsMsgViewType = Components.interfaces.nsMsgViewType;
-var nsMsgNavigationType = Components.interfaces.nsMsgNavigationType;
+var nsMsgViewSortType = Ci.nsMsgViewSortType;
+var nsMsgViewSortOrder = Ci.nsMsgViewSortOrder;
+var nsMsgViewFlagsType = Ci.nsMsgViewFlagsType;
+var nsMsgViewCommandType = Ci.nsMsgViewCommandType;
+var nsMsgViewType = Ci.nsMsgViewType;
+var nsMsgNavigationType = Ci.nsMsgNavigationType;
 
 var gDBView = null;
 var gCurViewFlags;

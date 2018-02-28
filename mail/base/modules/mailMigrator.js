@@ -319,7 +319,7 @@ var MailMigrator = {
       // encoded as chrome URIs.
       if (currentUIVersion < 14) {
         let permissionsDB =
-          Services.dirsvc.get("ProfD",Components.interfaces.nsIFile);
+          Services.dirsvc.get("ProfD",Ci.nsIFile);
         permissionsDB.append("permissions.sqlite");
         let db = Services.storage.openDatabase(permissionsDB);
 
@@ -345,8 +345,8 @@ var MailMigrator = {
 
           // Sadly we still need to clear the database manually. Experiments
           // showed that the permissions manager deleted only one record.
-          db.beginTransactionAs(Components.interfaces.mozIStorageConnection
-                                                     .TRANSACTION_EXCLUSIVE);
+          db.beginTransactionAs(Ci.mozIStorageConnection
+                                  .TRANSACTION_EXCLUSIVE);
           try {
             db.executeSimpleSQL("delete from moz_perms where " +
               "substr(origin, 1, 28)='chrome://messenger/content/?';");

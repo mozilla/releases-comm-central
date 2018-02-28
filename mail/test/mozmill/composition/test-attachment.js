@@ -45,8 +45,8 @@ function setupModule(module) {
 
   folder = create_folder('ComposeAttachmentA');
 
-  messenger = Components.classes['@mozilla.org/messenger;1']
-                        .createInstance(Components.interfaces.nsIMessenger);
+  messenger = Cc['@mozilla.org/messenger;1']
+                .createInstance(Ci.nsIMessenger);
 
   isWindows = '@mozilla.org/windows-registry-key;1' in Components.classes;
 

@@ -19,8 +19,8 @@
     function debugQABuildIDOnLoad() {
       window.removeEventListener("load", debugQABuildIDOnLoad, true);
 
-      var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                              .getService(Components.interfaces.nsIXULAppInfo);
+      var appInfo = Cc["@mozilla.org/xre/app-info;1"]
+                      .getService(Ci.nsIXULAppInfo);
 
       var bundle = document.getElementById("debugQANavigatorBundle");
 

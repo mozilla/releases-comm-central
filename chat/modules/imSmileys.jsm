@@ -49,9 +49,9 @@ var gPrefObserver = {
 
 function getSmileRealURI(aSmile)
 {
-  aSmile = Components.classes["@mozilla.org/intl/texttosuburi;1"]
-                     .getService(Components.interfaces.nsITextToSubURI)
-                     .unEscapeURIForUI("UTF-8", aSmile);
+  aSmile = Cc["@mozilla.org/intl/texttosuburi;1"]
+             .getService(Ci.nsITextToSubURI)
+             .unEscapeURIForUI("UTF-8", aSmile);
   if (aSmile in gTheme.iconsHash)
     return gTheme.baseUri + gTheme.iconsHash[aSmile].filename;
 
@@ -94,8 +94,8 @@ function getTheme(aName)
     let channel = Services.io.newChannel2(theme.baseUri + kThemeFile, null, null, null,
                                           Services.scriptSecurityManager.getSystemPrincipal(),
                                           null,
-                                          Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                          Components.interfaces.nsIContentPolicy.TYPE_IMAGE);
+                                          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                          Ci.nsIContentPolicy.TYPE_IMAGE);
     let stream = channel.open();
     let bytes = NetUtil.readInputStream(stream, stream.available());
     theme.json = JSON.parse(gTextDecoder.decode(bytes));
@@ -106,7 +106,7 @@ function getTheme(aName)
         theme.iconsHash[textCode] = smiley;
     }
   } catch(e) {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   }
   return theme;
 }
@@ -123,9 +123,9 @@ function getRegexp()
     return null;
 
   if ("" in gTheme.iconsHash) {
-    Components.utils.reportError("Emoticon " +
-                                 gTheme.iconsHash[""].filename +
-                                 " matches the empty string!");
+    Cu.reportError("Emoticon " +
+                   gTheme.iconsHash[""].filename +
+                   " matches the empty string!");
     delete gTheme.iconsHash[""];
   }
 
@@ -210,7 +210,7 @@ function smileNode(aNode)
         node.namespaceURI == "http://www.w3.org/1999/xhtml") {
       // we are on a tag, recurse to process its children
       smileNode(node);
-    } else if (node instanceof Components.interfaces.nsIDOMText) {
+    } else if (node instanceof Ci.nsIDOMText) {
       // we are on a text node, process it
       smileTextNode(node);
     }

@@ -31,8 +31,8 @@ function logException(aException, aRethrow, aMsg) {
   stringifier.dumpException(aException, aMsg);
 
   if (aMsg)
-    Components.utils.reportError(aMsg);
-  Components.utils.reportError(aException);
+    Cu.reportError(aMsg);
+  Cu.reportError(aException);
 
   if (aRethrow)
     throw aException;

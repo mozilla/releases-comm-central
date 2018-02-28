@@ -50,7 +50,7 @@ function test_archive_options_enabled() {
   // First, create an IMAP server
   let imapServer = MailServices.accounts
     .createIncomingServer("nobody", "example.com", "imap")
-    .QueryInterface(Components.interfaces.nsIImapIncomingServer);
+    .QueryInterface(Ci.nsIImapIncomingServer);
 
   let identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox@example.com";

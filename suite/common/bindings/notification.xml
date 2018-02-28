@@ -21,31 +21,31 @@
     <implementation implements="nsIObserver, nsIFormSubmitObserver, nsIWebProgressListener, nsIWebProgressListener2, nsIDOMEventListener">
       <field name="_stringBundle" readonly="true">
         <![CDATA[
-          Components.classes["@mozilla.org/intl/stringbundle;1"]
-                    .getService(Components.interfaces.nsIStringBundleService)
-                    .createBundle("chrome://communicator/locale/notification.properties");
+          Cc["@mozilla.org/intl/stringbundle;1"]
+            .getService(Ci.nsIStringBundleService)
+            .createBundle("chrome://communicator/locale/notification.properties");
         ]]>
       </field>
 
       <field name="_brandStringBundle" readonly="true">
         <![CDATA[
-          Components.classes["@mozilla.org/intl/stringbundle;1"]
-                    .getService(Components.interfaces.nsIStringBundleService)
-                    .createBundle("chrome://branding/locale/brand.properties");
+          Cc["@mozilla.org/intl/stringbundle;1"]
+            .getService(Ci.nsIStringBundleService)
+            .createBundle("chrome://branding/locale/brand.properties");
         ]]>
       </field>
 
       <field name="_prefs" readonly="true">
         <![CDATA[
-          Components.classes["@mozilla.org/preferences-service;1"]
-                    .getService(Components.interfaces.nsIPrefBranch);
+          Cc["@mozilla.org/preferences-service;1"]
+            .getService(Ci.nsIPrefBranch);
         ]]>
       </field>
 
       <field name="_urlFormatter" readonly="true">
         <![CDATA[
-          Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
-                    .getService(Components.interfaces.nsIURLFormatter);
+          Cc["@mozilla.org/toolkit/URLFormatterService;1"]
+            .getService(Ci.nsIURLFormatter);
         ]]>
       </field>
 
@@ -75,8 +75,8 @@
           <![CDATA[
             if (!this._cwu)
               this._cwu = this.activeBrowser.contentWindow
-                              .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                              .getInterface(Components.interfaces.nsIDOMWindowUtils);
+                              .QueryInterface(Ci.nsIInterfaceRequestor)
+                              .getInterface(Ci.nsIDOMWindowUtils);
             return this._cwu;
           ]]>
         </getter>
@@ -109,9 +109,9 @@
           <![CDATA[
             if (this.activeBrowser && !this._addedProgressListener) {
               this.activeBrowser.webProgress
-                  .addProgressListener(this, Components.interfaces.nsIWebProgress.NOTIFY_SECURITY |
-                                             Components.interfaces.nsIWebProgress.NOTIFY_LOCATION |
-                                             Components.interfaces.nsIWebProgress.NOTIFY_REFRESH);
+                  .addProgressListener(this, Ci.nsIWebProgress.NOTIFY_SECURITY |
+                                             Ci.nsIWebProgress.NOTIFY_LOCATION |
+                                             Ci.nsIWebProgress.NOTIFY_REFRESH);
               this._addedProgressListener = true;
             }
           ]]>
@@ -129,7 +129,7 @@
           <![CDATA[
             if (aState < 0)
               aState = this.lastState;
-            const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
+            const nsIWebProgressListener = Ci.nsIWebProgressListener;
             var pref = "security.warn_leaving_secure";
             var message = "EnterInsecureMessage";
             var priority = this.PRIORITY_WARNING_LOW;
@@ -156,7 +156,7 @@
               message = "BlockedActiveContentMessage";
               priority = this.PRIORITY_INFO_LOW;
               this.lastState = aState & ~nsIWebProgressListener.STATE_BLOCKED_MIXED_ACTIVE_CONTENT;
-              const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
+              const nsIWebNavigation = Ci.nsIWebNavigation;
               buttons = [{
                 label: this._stringBundle.GetStringFromName("SecurityKeepBlocking.label"),
                 accessKey: this._stringBundle.GetStringFromName("SecurityKeepBlocking.accesskey"),
@@ -190,10 +190,10 @@
                   label: this._stringBundle.GetStringFromName("SecurityUnblock.label"),
                   accessKey: this._stringBundle.GetStringFromName("SecurityUnblock.accesskey"),
                   callback: () => {
-                    const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-                    Components.classes["@mozilla.org/permissionmanager;1"]
-                              .getService(nsIPermissionManager)
-                              .add(this.activeBrowser.currentURI,
+                    const nsIPermissionManager = Ci.nsIPermissionManager;
+                    Cc["@mozilla.org/permissionmanager;1"]
+                      .getService(nsIPermissionManager)
+                      .add(this.activeBrowser.currentURI,
                                    "trackingprotection",
                                    nsIPermissionManager.ALLOW_ACTION);
                     this.reloadPage();
@@ -250,7 +250,7 @@
         <parameter name="aFlags" />
         <body>
           <![CDATA[
-            const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
+            const nsIWebProgressListener = Ci.nsIWebProgressListener;
             if (aWebProgress.DOMWindow == this.activeBrowser.contentWindow &&
                 !(aFlags & nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT))
               this.onDocumentChange();
@@ -284,7 +284,7 @@
                   accessKey: refreshButtonAccesskey,
                   callback: function (aNotification, aButton) {
                     var refreshURI = aNotification.webProgress
-                                                  .QueryInterface(Components.interfaces.nsIRefreshURI);
+                                                  .QueryInterface(Ci.nsIRefreshURI);
                     refreshURI.forceRefreshURI(aNotification.uri,
                                                aNotification.delay, true);
                   }
@@ -355,7 +355,7 @@
               return;
 
             var warn = { value: true };
-            var prompt = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+            var prompt = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
             aCancel.value = prompt.confirmEx(
               aWindow,
               this._stringBundle.GetStringFromName("SecurityTitle"),
@@ -386,22 +386,22 @@
 
             switch (aTopic) {
               case "indexedDB-permissions-prompt":
-                var requestor = aSubject.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-                var contentWindow = requestor.getInterface(Components.interfaces.nsIDOMWindow);
+                var requestor = aSubject.QueryInterface(Ci.nsIInterfaceRequestor);
+                var contentWindow = requestor.getInterface(Ci.nsIDOMWindow);
                 if (contentWindow.top == browser.contentWindow)
                   this.promptIndexedDB(requestor, contentWindow, "permissions");
                 break;
 
               case "indexedDB-quota-prompt":
-                var requestor = aSubject.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-                var contentWindow = requestor.getInterface(Components.interfaces.nsIDOMWindow);
+                var requestor = aSubject.QueryInterface(Ci.nsIInterfaceRequestor);
+                var contentWindow = requestor.getInterface(Ci.nsIDOMWindow);
                 if (contentWindow.top == browser.contentWindow)
                   this.promptIndexedDB(requestor, contentWindow, "quota", aData);
                 break;
 
               case "indexedDB-quota-cancel":
-                var requestor = aSubject.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-                var contentWindow = requestor.getInterface(Components.interfaces.nsIDOMWindow);
+                var requestor = aSubject.QueryInterface(Ci.nsIInterfaceRequestor);
+                var contentWindow = requestor.getInterface(Ci.nsIDOMWindow);
                 if (contentWindow.top == browser.contentWindow)
                   this.cancelIndexedDB(requestor, contentWindow, "quota", aData);
                 break;
@@ -446,10 +446,10 @@
                   break;
 
                 try {
-                  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                            .getService(Components.interfaces.nsIIOService);
+                  var ioService = Cc["@mozilla.org/network/io-service;1"]
+                                    .getService(Ci.nsIIOService);
                   var manifestURI = ioService.newURI(manifest, doc.characterSet, doc.documentURIObject);
-                  var cacheUpdate = aSubject.QueryInterface(Components.interfaces.nsIOfflineCacheUpdate);
+                  var cacheUpdate = aSubject.QueryInterface(Ci.nsIOfflineCacheUpdate);
                   if (manifestURI.equals(cacheUpdate.manifestURI))
                     this.checkUsage(manifestURI);
                 } catch (e) {
@@ -516,7 +516,7 @@
                 break;
 
               case "perm-changed":
-                var permission = aSubject.QueryInterface(Components.interfaces.nsIPermission);
+                var permission = aSubject.QueryInterface(Ci.nsIPermission);
                 if (permission.type != "popup" || aData != "added" || !this.popupCount)
                   return;
 
@@ -557,13 +557,13 @@
                 pluginsPage = pluginElement.getAttribute("pluginspage");
                 if (pluginsPage) {
                   var doc = pluginElement.ownerDocument;
-                  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                            .getService(Components.interfaces.nsIIOService);
+                  var ioService = Cc["@mozilla.org/network/io-service;1"]
+                                    .getService(Ci.nsIIOService);
                   pluginsPage = ioService.newURI(pluginsPage, doc.characterSet, doc.documentURIObject).spec;
                 }
               }
 
-              mimetype = pluginElement.QueryInterface(Components.interfaces.nsIObjectLoadingContent)
+              mimetype = pluginElement.QueryInterface(Ci.nsIObjectLoadingContent)
                                       .actualType;
 
               if (!mimetype) {
@@ -638,7 +638,7 @@
         <parameter name="aSkipFallbackType"/>
         <body>
           <![CDATA[
-            const nsIObjectLoadingContent = Components.interfaces.nsIObjectLoadingContent;
+            const nsIObjectLoadingContent = Ci.nsIObjectLoadingContent;
             var objLoadingContent = aPlugin.QueryInterface(nsIObjectLoadingContent);
             var actualType = objLoadingContent.actualType;
             if (objLoadingContent.getContentTypeForMIMEType(actualType) != nsIObjectLoadingContent.TYPE_PLUGIN ||
@@ -648,12 +648,12 @@
                   objLoadingContent.pluginFallbackType > nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE)))
               return false;
 
-            var ph = Components.classes["@mozilla.org/plugin/host;1"]
-                               .getService(Components.interfaces.nsIPluginHost);
+            var ph = Cc["@mozilla.org/plugin/host;1"]
+                       .getService(Ci.nsIPluginHost);
             var permissionString = ph.getPermissionStringForType(actualType);
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-            var pm = Components.classes["@mozilla.org/permissionmanager;1"]
-                               .getService(nsIPermissionManager);
+            const nsIPermissionManager = Ci.nsIPermissionManager;
+            var pm = Cc["@mozilla.org/permissionmanager;1"]
+                       .getService(nsIPermissionManager);
             var pluginPermission = pm.testPermission(this.activeBrowser.currentURI, permissionString);
             return pluginPermission != nsIPermissionManager.DENY_ACTION;
           ]]>
@@ -664,11 +664,11 @@
         <parameter name="aPermission"/>
         <body>
           <![CDATA[
-            var ph = Components.classes["@mozilla.org/plugin/host;1"]
-                               .getService(Components.interfaces.nsIPluginHost);
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-            var pm = Components.classes["@mozilla.org/permissionmanager;1"]
-                               .getService(nsIPermissionManager);
+            var ph = Cc["@mozilla.org/plugin/host;1"]
+                       .getService(Ci.nsIPluginHost);
+            const nsIPermissionManager = Ci.nsIPermissionManager;
+            var pm = Cc["@mozilla.org/permissionmanager;1"]
+                       .getService(nsIPermissionManager);
             for (var type of this.clickToPlayTypes) {
               var permissionString = ph.getPermissionStringForType(type);
               pm.add(this.activeBrowser.currentURI, permissionString, aPermission);
@@ -723,7 +723,7 @@
         <parameter name="aPlayPlugin"/>
         <body>
           <![CDATA[
-            var objLoadingContent = aPlugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
+            var objLoadingContent = aPlugin.QueryInterface(Ci.nsIObjectLoadingContent);
             if (objLoadingContent.activated)
               return;
 
@@ -740,7 +740,7 @@
         <body>
           <![CDATA[
             var url = this._urlFormatter.formatURLPref(aPref);
-            var nsIBrowserDOMWindow = Components.interfaces.nsIBrowserDOMWindow;
+            var nsIBrowserDOMWindow = Ci.nsIBrowserDOMWindow;
 
             var browserWin;
             var whereToOpen = this._prefs.getIntPref("browser.link.open_external");
@@ -777,25 +777,25 @@
         <body>
           <![CDATA[
             // Helper to get the binding handler type from a plugin object
-            if (!(aPlugin instanceof Components.interfaces.nsIObjectLoadingContent))
+            if (!(aPlugin instanceof Ci.nsIObjectLoadingContent))
               return null;
 
             switch (aPlugin.pluginFallbackType) {
-              case Components.interfaces.nsIObjectLoadingContent.PLUGIN_UNSUPPORTED:
+              case Ci.nsIObjectLoadingContent.PLUGIN_UNSUPPORTED:
                 return "PluginNotFound";
-              case Components.interfaces.nsIObjectLoadingContent.PLUGIN_DISABLED:
+              case Ci.nsIObjectLoadingContent.PLUGIN_DISABLED:
                 return "PluginDisabled";
-              case Components.interfaces.nsIObjectLoadingContent.PLUGIN_BLOCKLISTED:
+              case Ci.nsIObjectLoadingContent.PLUGIN_BLOCKLISTED:
                 return "PluginBlocklisted";
-              case Components.interfaces.nsIObjectLoadingContent.PLUGIN_OUTDATED:
+              case Ci.nsIObjectLoadingContent.PLUGIN_OUTDATED:
                 return "PluginOutdated";
-              case Components.interfaces.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY:
+              case Ci.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY:
                 return "PluginClickToPlay";
-              case Components.interfaces.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE:
+              case Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE:
                 return "PluginVulnerableUpdatable";
-              case Components.interfaces.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE:
+              case Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE:
                 return "PluginVulnerableNoUpdate";
-              case Components.interfaces.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW:
+              case Ci.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW:
                 return "PluginPlayPreview";
               default:
                 // Not all states map to a handler
@@ -1026,14 +1026,14 @@
             var playSound = this._prefs.getBoolPref("privacy.popups.sound_enabled");
 
             if (playSound) {
-              var sound = Components.classes["@mozilla.org/sound;1"]
-                                    .createInstance(Components.interfaces.nsISound);
+              var sound = Cc["@mozilla.org/sound;1"]
+                            .createInstance(Ci.nsISound);
 
               var soundType = this._prefs.getIntPref("privacy.popups.sound_type");
               if (soundType == kCustomSound) {
                 var soundUrlSpec = this._prefs.getCharPref("privacy.popups.sound_url");
-                var fileHandler = Components.classes["@mozilla.org/network/protocol;1?name=file"]
-                                            .getService(Components.interfaces.nsIFileProtocolHandler);
+                var fileHandler = Cc["@mozilla.org/network/protocol;1?name=file"]
+                                    .getService(Ci.nsIFileProtocolHandler);
                 var file = fileHandler.getFileFromURLSpec(soundUrlSpec);
                 if (file.exists()) {
                   var soundUrl = fileHandler.newFileURI(file);
@@ -1065,10 +1065,10 @@
         <parameter name="aEvent"/>
         <body>
           <![CDATA[
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+            const nsIPermissionManager = Ci.nsIPermissionManager;
             var uri = this.activeBrowser.currentURI;
-            var pm = Components.classes["@mozilla.org/permissionmanager;1"]
-                               .getService(nsIPermissionManager);
+            var pm = Cc["@mozilla.org/permissionmanager;1"]
+                       .getService(nsIPermissionManager);
             pm.add(uri, "popup", nsIPermissionManager.ALLOW_ACTION);
 
             this.removeCurrentNotification();
@@ -1081,9 +1081,9 @@
         <body>
           <![CDATA[
             var documentURI = aDocument.documentURIObject;
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-            var pm = Components.classes["@mozilla.org/permissionmanager;1"]
-                               .getService(nsIPermissionManager);
+            const nsIPermissionManager = Ci.nsIPermissionManager;
+            var pm = Cc["@mozilla.org/permissionmanager;1"]
+                       .getService(nsIPermissionManager);
 
             if (pm.testExactPermission(documentURI, "offline-app") !=
                 nsIPermissionManager.UNKNOWN_ACTION)
@@ -1100,10 +1100,10 @@
                 accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
                 callback: function() {
                   pm.add(documentURI, "offline-app", nsIPermissionManager.ALLOW_ACTION);
-                  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                            .getService(Components.interfaces.nsIIOService);
-                  var updateService = Components.classes["@mozilla.org/offlinecacheupdate-service;1"]
-                                                .getService(Components.interfaces.nsIOfflineCacheUpdateService);
+                  var ioService = Cc["@mozilla.org/network/io-service;1"]
+                                    .getService(Ci.nsIIOService);
+                  var updateService = Cc["@mozilla.org/offlinecacheupdate-service;1"]
+                                        .getService(Ci.nsIOfflineCacheUpdateService);
                   notification.documents.forEach(function(aDocument) {
                     if (!aDocument.documentElement)
                       return;
@@ -1147,20 +1147,20 @@
         <parameter name="aURI"/>
         <body>
           <![CDATA[
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-            var pm = Components.classes["@mozilla.org/permissionmanager;1"]
-                               .getService(nsIPermissionManager);
+            const nsIPermissionManager = Ci.nsIPermissionManager;
+            var pm = Cc["@mozilla.org/permissionmanager;1"]
+                       .getService(nsIPermissionManager);
             if (pm.testExactPermission(aURI, "offline-app") ==
-                Components.interfaces.nsIOfflineCacheUpdateService.ALLOW_NO_WARN)
+                Ci.nsIOfflineCacheUpdateService.ALLOW_NO_WARN)
               return;
 
             var host = aURI.asciiHost;
             var usage = 0;
 
-            var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                      .getService(Components.interfaces.nsIIOService);
-            var cacheService = Components.classes["@mozilla.org/network/application-cache-service;1"]
-                                         .getService(Components.interfaces.nsIApplicationCacheService);
+            var ioService = Cc["@mozilla.org/network/io-service;1"]
+                              .getService(Ci.nsIIOService);
+            var cacheService = Cc["@mozilla.org/network/application-cache-service;1"]
+                                 .getService(Ci.nsIApplicationCacheService);
             cacheService.getGroups().forEach(function(aGroup) {
               var uri = ioService.newURI(aGroup);
               if (uri.asciiHost == host)
@@ -1175,7 +1175,7 @@
             this.appendNotification(message, "offline-app-usage", null,
                                     priority, null);
             pm.add(aURI, "offline-app",
-                   Components.interfaces.nsIOfflineCacheUpdateService.ALLOW_NO_WARN);
+                   Ci.nsIOfflineCacheUpdateService.ALLOW_NO_WARN);
           ]]>
         </body>
       </method>
@@ -1183,9 +1183,9 @@
       <method name="showRightsNotification">
         <body>
           <![CDATA[
-            var rightsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                                         .getService(Components.interfaces.nsIStringBundleService)
-                                         .createBundle("chrome://branding/locale/aboutRights.properties");
+            var rightsBundle = Cc["@mozilla.org/intl/stringbundle;1"]
+                                 .getService(Ci.nsIStringBundleService)
+                                 .createBundle("chrome://branding/locale/aboutRights.properties");
             var buttonLabel = rightsBundle.GetStringFromName("buttonLabel");
             var buttonAccessKey = rightsBundle.GetStringFromName("buttonAccessKey");
             var productName = this._brandStringBundle.GetStringFromName("brandFullName");
@@ -1239,9 +1239,9 @@
               accessKey: this._stringBundle.GetStringFromName("updatePromptCheckButton.accesskey"),
               popup: null,
               callback: function() {
-                Components.classes["@mozilla.org/updates/update-prompt;1"]
-                          .createInstance(Components.interfaces.nsIUpdatePrompt)
-                          .checkForUpdates();
+                Cc["@mozilla.org/updates/update-prompt;1"]
+                  .createInstance(Ci.nsIUpdatePrompt)
+                  .checkForUpdates();
               }
             }];
             var box = this.appendNotification(message, "update-warning", null,
@@ -1363,7 +1363,7 @@
             checkbox.className = "rememberChoice";
             checkbox.setAttribute("label", this._stringBundle.GetStringFromName("activatepluginsMessage.remember"));
 
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+            const nsIPermissionManager = Ci.nsIPermissionManager;
             var messageString = this._stringBundle.GetStringFromName("activatepluginsMessage.title");
             var buttons = [{
               label: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.label"),
@@ -1558,7 +1558,7 @@
         <parameter name="cancelCallback"/>
         <body>
           <![CDATA[
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+            const nsIPermissionManager = Ci.nsIPermissionManager;
             var type = "webNotifications";
             if (this.getNotificationWithValue(type))
               return;
@@ -1620,8 +1620,8 @@
                                                      "offlineApps." + aTopic;
             var message = this._stringBundle.formatStringFromName(property,
                                                                   [host, aData], 2);
-            var observer = aRequestor.getInterface(Components.interfaces.nsIObserver);
-            var nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+            var observer = aRequestor.getInterface(Ci.nsIObserver);
+            var nsIPermissionManager = Ci.nsIPermissionManager;
             var buttons = [{
               label: this._stringBundle.GetStringFromName("offlineApps.always"),
               accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
@@ -1678,7 +1678,7 @@
               this.removeNotification(popupNotification);
             }
 
-            var observer = aRequestor.getInterface(Components.interfaces.nsIObserver);
+            var observer = aRequestor.getInterface(Ci.nsIObserver);
             observer.observe(null, "indexedDB-" + aTopic + "-response",
                              nsIPermissionManager.UNKNOWN_ACTION);
           ]]>
@@ -1733,8 +1733,8 @@
               accessKey: this._stringBundle.GetStringFromName("addonDownloadRestartButton.accesskey"),
               popup: null,
               callback: function() {
-                var weblistener = Components.classes["@mozilla.org/addons/web-install-listener;1"]
-                                            .getService(Components.interfaces.amIWebInstallListener);
+                var weblistener = Cc["@mozilla.org/addons/web-install-listener;1"]
+                                    .getService(Ci.amIWebInstallListener);
                 if (weblistener.onWebInstallRequested(installInfo.browser, installInfo.originatingURI,
                                                       [aInstall], 1)) {
                   aInstall.install();
@@ -1861,7 +1861,7 @@
                   return true;
                 }
                 if (install.addon.blocklistState ==
-                    Components.interfaces.nsIBlocklistService.STATE_BLOCKED) {
+                    Ci.nsIBlocklistService.STATE_BLOCKED) {
                   name = install.name;
                   error = "addonErrorBlocklisted";
                 }
@@ -1869,8 +1869,8 @@
               });
 
               var brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
-              var version = Components.classes["@mozilla.org/xre/app-info;1"]
-                                      .getService(Components.interfaces.nsIXULAppInfo).version;
+              var version = Cc["@mozilla.org/xre/app-info;1"]
+                              .getService(Ci.nsIXULAppInfo).version;
               var messageString = this._stringBundle.GetStringFromName(error)
                                                     .replace("#1", name)
                                                     .replace("#2", host)
@@ -1922,13 +1922,13 @@
         <body>
           <![CDATA[
             var uri = this.activeBrowser.currentURI;
-            var flag = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_BYPASS_CLASSIFIER;
+            var flag = Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CLASSIFIER;
             this.activeBrowser.loadURIWithFlags(uri.asciiSpec, flag,
                                                 null, null, null);
 
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-            var pm = Components.classes["@mozilla.org/permissionmanager;1"]
-                               .getService(nsIPermissionManager);
+            const nsIPermissionManager = Ci.nsIPermissionManager;
+            var pm = Cc["@mozilla.org/permissionmanager;1"]
+                       .getService(nsIPermissionManager);
             pm.add(uri, "safe-browsing", nsIPermissionManager.ALLOW_ACTION,
                                          nsIPermissionManager.EXPIRE_SESSION);
 
@@ -1995,8 +1995,8 @@
           ChromeUtils.import("resource://gre/modules/Services.jsm");
           ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
-          var os = Components.classes["@mozilla.org/observer-service;1"]
-                             .getService(Components.interfaces.nsIObserverService);
+          var os = Cc["@mozilla.org/observer-service;1"]
+                     .getService(Ci.nsIObserverService);
           os.addObserver(this, "indexedDB-permissions-prompt");
           os.addObserver(this, "indexedDB-quota-prompt");
           os.addObserver(this, "indexedDB-quota-cancel");
@@ -2045,8 +2045,8 @@
             }
 
             this._activeBrowser = null;
-            var os = Components.classes["@mozilla.org/observer-service;1"]
-                                .getService(Components.interfaces.nsIObserverService);
+            var os = Cc["@mozilla.org/observer-service;1"]
+                                .getService(Ci.nsIObserverService);
             try {
               os.removeObserver(this, "indexedDB-permissions-prompt");
             } catch (ex) {}
@@ -2107,9 +2107,9 @@
           if (/^about:neterror\?e=netOffline/.test(event.target.documentURI))
             event.target.addEventListener("click", function tryAgain(event) {
               if (event.target.id == "errorTryAgain")
-                Components.classes["@mozilla.org/network/io-service;1"]
-                          .getService(Components.interfaces.nsIIOService)
-                          .offline = false;
+                Cc["@mozilla.org/network/io-service;1"]
+                  .getService(Ci.nsIIOService)
+                  .offline = false;
             }, true);
         ]]>
       </handler>
@@ -2162,7 +2162,7 @@
 
       <handler event="PluginBindingAttached" phase="capturing" allowuntrusted="true">
         <![CDATA[
-          var nsIObjectLoadingContent = Components.interfaces.nsIObjectLoadingContent;
+          var nsIObjectLoadingContent = Ci.nsIObjectLoadingContent;
           var plugin = event.target;
           // Since we are expecting also untrusted events, make sure
           // that the target is a plugin
@@ -2265,7 +2265,7 @@
           // Ensure the plugin and event are of the right type.
           var plugin = event.target;
           var detail = event.detail;
-          if (!(detail instanceof Components.interfaces.nsIPropertyBag2))
+          if (!(detail instanceof Ci.nsIPropertyBag2))
             return;
 
           var submittedReport = detail.getPropertyAsBool("submittedCrashReport");
@@ -2314,11 +2314,11 @@
             // show an updated message when a report is submitted.
             if (doPrompt) {
               let observer = {
-                QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
-                                                       Components.interfaces.nsISupportsWeakReference]),
+                QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
+                                                       Ci.nsISupportsWeakReference]),
                 observe: function(subject, topic, data) {
                   let propertyBag = subject;
-                  if (!(propertyBag instanceof Components.interfaces.nsIPropertyBag2))
+                  if (!(propertyBag instanceof Ci.nsIPropertyBag2))
                     return;
                   // Ignore notifications for other crashes.
                   if (propertyBag.get("minidumpID") != pluginDumpID)
@@ -2332,9 +2332,9 @@
               }
 
               // Use a weak reference, so we don't have to remove it...
-              Components.classes["@mozilla.org/observer-service;1"]
-                        .getService(Components.interfaces.nsIObserverService)
-                        .addObserver(observer, "crash-report-status", true);
+              Cc["@mozilla.org/observer-service;1"]
+                .getService(Ci.nsIObserverService)
+                .addObserver(observer, "crash-report-status", true);
               // ...alas, now we need something to hold a strong reference to prevent
               // it from being GC. But I don't want to manually manage the reference's
               // lifetime (which should be no greater than the page).
@@ -2400,20 +2400,20 @@
 
           function callback() {
             // Notify all windows that an application quit has been requested.
-            var cancelQuit = Components.classes["@mozilla.org/supports-PRBool;1"]
-                                       .createInstance(Components.interfaces.nsISupportsPRBool);
-            var os = Components.classes["@mozilla.org/observer-service;1"]
-                               .getService(Components.interfaces.nsIObserverService);
+            var cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
+                               .createInstance(Ci.nsISupportsPRBool);
+            var os = Cc["@mozilla.org/observer-service;1"]
+                       .getService(Ci.nsIObserverService);
             os.notifyObservers(cancelQuit, "quit-application-requested");
 
             // Something aborted the quit process.
             if (cancelQuit.data)
               return;
 
-            var nsIAppStartup = Components.interfaces.nsIAppStartup;
-            Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                      .getService(nsIAppStartup)
-                      .quit(nsIAppStartup.eAttemptQuit |
+            var nsIAppStartup = Ci.nsIAppStartup;
+            Cc["@mozilla.org/toolkit/app-startup;1"]
+              .getService(nsIAppStartup)
+              .quit(nsIAppStartup.eAttemptQuit |
                             nsIAppStartup.eRestart |
                             nsIAppStartup.eRestarti386);
           }
@@ -2421,9 +2421,9 @@
           var notification = "carbon-failure-plugins";
           var pref = "plugins.hide_infobar_for_carbon_failure_plugin";
           if ("@mozilla.org/xpcom/mac-utils;1" in Components.classes &&
-              !Components.classes["@mozilla.org/xpcom/mac-utils;1"]
-                         .getService(Components.interfaces.nsIMacUtils)
-                         .isUniversalBinary) {
+              !Cc["@mozilla.org/xpcom/mac-utils;1"]
+                 .getService(Ci.nsIMacUtils)
+                 .isUniversalBinary) {
             pref = null;
             notification = "missing-plugins";
             callback = this.openURLPref.bind(this, "plugins.update.url");
@@ -2482,7 +2482,7 @@
         <parameter name="aFlags" />
         <body>
           <![CDATA[
-            const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
+            const nsIWebProgressListener = Ci.nsIWebProgressListener;
             if (aWebProgress.DOMWindow == this.activeBrowser.contentWindow &&
                 !(aFlags & nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT)) {
               this.onDocumentChange();
@@ -2597,13 +2597,13 @@
 
               if (plugin.pluginFallbackType) {
                 if (plugin.pluginFallbackType ==
-                      Components.interfaces.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE) {
+                      Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE) {
                   updateLink = this._urlFormatter.formatURLPref("plugins.update.url");
                   warn = true;
                   warningText = this._stringBundle.GetStringFromName("vulnerableUpdatablePluginWarning");
                 }
                 else if (plugin.pluginFallbackType ==
-                           Components.interfaces.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE) {
+                           Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE) {
                   warn = true;
                   warningText = this._stringBundle.GetStringFromName("vulnerableNoUpdatePluginWarning");
                 }
@@ -2654,7 +2654,7 @@
       <method name="showPluginClickToPlayPrompt">
         <body>
           <![CDATA[
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+            const nsIPermissionManager = Ci.nsIPermissionManager;
             var mainAction = {
               label: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.label"),
               accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.accesskey"),
@@ -2664,9 +2664,9 @@
             var haveVulnerablePlugin = this.contentWindowUtils.plugins.some(function(plugin) {
               return (this.canActivatePlugin(plugin) &&
                       (plugin.pluginFallbackType ==
-                       Components.interfaces.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE ||
+                       Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE ||
                        plugin.pluginFallbackType ==
-                       Components.interfaces.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE));
+                       Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE));
             }, this);
             var messageString = this._stringBundle.GetStringFromName(haveVulnerablePlugin ?
                                                                      "vulnerablePluginsMessage" :
@@ -2772,7 +2772,7 @@
         <parameter name="cancelCallback"/>
         <body>
           <![CDATA[
-            const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+            const nsIPermissionManager = Ci.nsIPermissionManager;
             var type = "webNotifications";
             var mainAction = {
               label: this._stringBundle.GetStringFromName(type + ".showForSession"),
@@ -2831,8 +2831,8 @@
                                                      "offlineApps." + aTopic;
             var message = this._stringBundle.formatStringFromName(property,
                                                                   [host, aData], 2);
-            var observer = aRequestor.getInterface(Components.interfaces.nsIObserver);
-            var nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+            var observer = aRequestor.getInterface(Ci.nsIObserver);
+            var nsIPermissionManager = Ci.nsIPermissionManager;
             var mainAction = {
               label: this._stringBundle.GetStringFromName("offlineApps.always"),
               accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
@@ -2893,7 +2893,7 @@
             if (popupNotification)
               popupNotification.remove(); // eventCallback clears the timeout
 
-            var observer = aRequestor.getInterface(Components.interfaces.nsIObserver);
+            var observer = aRequestor.getInterface(Ci.nsIObserver);
             observer.observe(null, "indexedDB-" + aTopic + "-response",
                              nsIPermissionManager.UNKNOWN_ACTION);
           ]]>
@@ -2948,8 +2948,8 @@
               accessKey: this._stringBundle.GetStringFromName("addonDownloadRestartButton.accesskey"),
               popup: null,
               callback: function() {
-                var weblistener = Components.classes["@mozilla.org/addons/web-install-listener;1"]
-                                            .getService(Components.interfaces.amIWebInstallListener);
+                var weblistener = Cc["@mozilla.org/addons/web-install-listener;1"]
+                                    .getService(Ci.amIWebInstallListener);
                 if (weblistener.onWebInstallRequested(installInfo.browser, installInfo.originatingURI,
                                                       [aInstall], 1)) {
                   aInstall.install();
@@ -3078,7 +3078,7 @@
                 return true;
               }
               if (install.addon.blocklistState ==
-                  Components.interfaces.nsIBlocklistService.STATE_BLOCKED) {
+                  Ci.nsIBlocklistService.STATE_BLOCKED) {
                 name = install.name;
                 error = "addonErrorBlocklisted";
               }
@@ -3086,8 +3086,8 @@
             });
 
             var brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
-            var version = Components.classes["@mozilla.org/xre/app-info;1"]
-                                    .getService(Components.interfaces.nsIXULAppInfo).version;
+            var version = Cc["@mozilla.org/xre/app-info;1"]
+                            .getService(Ci.nsIXULAppInfo).version;
             var messageString = this._stringBundle.GetStringFromName(error)
                                                   .replace("#1", name)
                                                   .replace("#2", host)

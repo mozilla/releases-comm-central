@@ -40,7 +40,7 @@ searchTermContainer.prototype = {
         if (searchAttribute)
         {
           // for custom, the value is the custom id, not the integer attribute
-          if (term.attrib == Components.interfaces.nsMsgSearchAttrib.Custom)
+          if (term.attrib == Ci.nsMsgSearchAttrib.Custom)
             searchAttribute.value = term.customId;
           else
             searchAttribute.value = term.attrib;
@@ -103,7 +103,7 @@ searchTermContainer.prototype = {
 
     save: function () {
         var searchTerm = this.searchTerm;
-        var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
+        var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
 
         if (isNaN(this.searchattribute.value)) // is this a custom term?
         {
@@ -133,7 +133,7 @@ searchTermContainer.prototype = {
     }
 }
 
-var nsIMsgSearchTerm = Components.interfaces.nsIMsgSearchTerm;
+var nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
 
 function initializeSearchWidgets()
 {

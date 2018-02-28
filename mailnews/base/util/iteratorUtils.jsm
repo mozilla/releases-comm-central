@@ -112,8 +112,8 @@ function fixIterator(aEnum, aIface) {
  */
 function toXPCOMArray(aArray, aInterface) {
   if (aInterface.equals(Ci.nsIMutableArray)) {
-    let mutableArray = Components.classes["@mozilla.org/array;1"]
-                                 .createInstance(Ci.nsIMutableArray);
+    let mutableArray = Cc["@mozilla.org/array;1"]
+                         .createInstance(Ci.nsIMutableArray);
     for (let item of fixIterator(aArray)) {
       mutableArray.appendElement(item);
     }

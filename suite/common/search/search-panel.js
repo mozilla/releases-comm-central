@@ -63,7 +63,7 @@ function doSearch() {
       value: textValue
     }, {
       handleError: function(aError) {
-        Components.utils.reportError("Saving search to form history failed: " + aError.message);
+        Cu.reportError("Saving search to form history failed: " + aError.message);
       }
     });
   }
@@ -74,8 +74,8 @@ function doSearch() {
 }
 
 var engineObserver = {
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
-                                         Components.interfaces.nsISupportsWeakReference]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
+                                         Ci.nsISupportsWeakReference]),
 
   observe: function(aEngine, aTopic, aVerb) {
     if (aTopic == SEARCH_ENGINE_TOPIC) {

@@ -7,9 +7,9 @@ function test() {
 
   waitForExplicitFinish();
 
-  var file = Components.classes["@mozilla.org/file/directory_service;1"]
-             .getService(Components.interfaces.nsIProperties)
-             .get("TmpD", Components.interfaces.nsIFile);
+  var file = Cc["@mozilla.org/file/directory_service;1"]
+             .getService(Ci.nsIProperties)
+             .get("TmpD", Ci.nsIFile);
   file.append("466937_test.file");
   let testPath = file.path;
 

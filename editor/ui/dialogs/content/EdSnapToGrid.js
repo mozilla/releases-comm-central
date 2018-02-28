@@ -14,7 +14,7 @@ function Startup()
     return;
   }
 
-  gEditor instanceof Components.interfaces.nsIHTMLAbsPosEditor;
+  gEditor instanceof Ci.nsIHTMLAbsPosEditor;
 
   gDialog.enableSnapToGrid = document.getElementById("enableSnapToGrid");
   gDialog.sizeInput        = document.getElementById("size");

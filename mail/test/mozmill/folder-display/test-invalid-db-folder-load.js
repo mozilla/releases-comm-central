@@ -17,7 +17,7 @@ var folder;
 var setA;
 var curMessage;
 
-var nsMsgViewSortType = Components.interfaces.nsMsgViewSortType;
+var nsMsgViewSortType = Ci.nsMsgViewSortType;
 
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');

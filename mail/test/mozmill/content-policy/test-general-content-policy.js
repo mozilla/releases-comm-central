@@ -109,8 +109,8 @@ var setupModule = function (module) {
 
 function addToFolder(aSubject, aBody, aFolder) {
 
-  let msgId = Components.classes["@mozilla.org/uuid-generator;1"]
-                          .getService(Components.interfaces.nsIUUIDGenerator)
+  let msgId = Cc["@mozilla.org/uuid-generator;1"]
+                          .getService(Ci.nsIUUIDGenerator)
                           .generateUUID() +"@mozillamessaging.invalid";
 
   let source = "From - Sat Nov  1 12:39:54 2008\n" +
@@ -127,7 +127,7 @@ function addToFolder(aSubject, aBody, aFolder) {
                "Content-Transfer-Encoding: 7bit\n" +
                "\n" + aBody + "\n";
 
-  aFolder.QueryInterface(Components.interfaces.nsIMsgLocalMailFolder);
+  aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   aFolder.gettingNewMessages = true;
 
   aFolder.addMessage(source);
@@ -459,20 +459,20 @@ function test_generalContentPolicy() {
 
 // Copied from test-blocked-content.js.
 function putHTMLOnClipboard(html) {
-  let trans = Components.classes["@mozilla.org/widget/transferable;1"]
-                        .createInstance(Components.interfaces.nsITransferable);
+  let trans = Cc["@mozilla.org/widget/transferable;1"]
+                .createInstance(Ci.nsITransferable);
 
   // Register supported data flavors
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  let wapper = Components.classes["@mozilla.org/supports-string;1"]
-   .createInstance(Components.interfaces.nsISupportsString);
+  let wapper = Cc["@mozilla.org/supports-string;1"]
+   .createInstance(Ci.nsISupportsString);
   wapper.data = html;
   trans.setTransferData("text/html", wapper, wapper.data.length * 2);
 
   Services.clipboard.setData(trans, null,
-    Components.interfaces.nsIClipboard.kGlobalClipboard);
+    Ci.nsIClipboard.kGlobalClipboard);
 }
 
 function subtest_insertImageIntoReplyForward(aReplyType) {

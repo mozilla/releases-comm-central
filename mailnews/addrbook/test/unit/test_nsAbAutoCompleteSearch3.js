@@ -3,7 +3,7 @@
  * Third Test suite for nsAbAutoCompleteSearch - test for duplicate elimination
  */
 
-var ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Ci.nsIAutoCompleteResult;
 
 var cards = [
   { email: "test@foo.invalid", displayName: "",
@@ -74,8 +74,8 @@ function run_test()
 
   // Test - duplicate elements
 
-  var acs = Components.classes["@mozilla.org/autocomplete/search;1?name=addrbook"]
-    .getService(Components.interfaces.nsIAutoCompleteSearch);
+  var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"]
+    .getService(Ci.nsIAutoCompleteSearch);
 
   var obs = new acObserver();
 

@@ -16,7 +16,7 @@ MDNService.prototype = {
             server.type != "im" && server.type != "none");
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIMsgAccountManagerExtension]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgAccountManagerExtension]),
   classID: Components.ID("{e007d92e-1dd1-11b2-a61e-dc962c9b8571}"),
 };
 

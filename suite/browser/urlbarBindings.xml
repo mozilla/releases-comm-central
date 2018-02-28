@@ -163,8 +163,8 @@
               var baseDomain = Services.eTLD.getBaseDomainFromHost(domain);
               if (!domain.endsWith(baseDomain)) {
                 // getBaseDomainFromHost converts its resultant to ACE.
-                let IDNService = Components.classes["@mozilla.org/network/idn-service;1"]
-                                           .getService(Components.interfaces.nsIIDNService);
+                let IDNService = Cc["@mozilla.org/network/idn-service;1"]
+                                   .getService(Ci.nsIIDNService);
                 baseDomain = IDNService.convertACEtoUTF8(baseDomain);
               }
               if (baseDomain != domain) {
@@ -293,9 +293,9 @@
                 if (!val || !controller.isCommandEnabled(aCommand))
                   return;
 
-                Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                          .getService(Components.interfaces.nsIClipboardHelper)
-                          .copyString(val);
+                Cc["@mozilla.org/widget/clipboardhelper;1"]
+                  .getService(Ci.nsIClipboardHelper)
+                  .copyString(val);
 
                 if (aCommand == "cmd_cut")
                   goDoCommand("cmd_delete");
@@ -561,9 +561,9 @@
     <implementation>
       <constructor><![CDATA[
         this.navigatorBundle =
-          Components.classes["@mozilla.org/intl/stringbundle;1"]
-                    .getService(Components.interfaces.nsIStringBundleService)
-                    .createBundle("chrome://navigator/locale/navigator.properties");
+          Cc["@mozilla.org/intl/stringbundle;1"]
+            .getService(Ci.nsIStringBundleService)
+            .createBundle("chrome://navigator/locale/navigator.properties");
 
         var text = this.getAttribute("searchvalue");
         if (text)

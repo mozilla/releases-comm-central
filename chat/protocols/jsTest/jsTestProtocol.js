@@ -50,7 +50,7 @@ Account.prototype = {
   },
   _conv: null,
   disconnect: function(aSilent) {
-    this.reportDisconnecting(Components.interfaces.prplIAccount.NO_ERROR, "");
+    this.reportDisconnecting(Ci.prplIAccount.NO_ERROR, "");
     if (!aSilent)
       this._conv.writeMessage("jstest", "You have disconnected.", {system: true});
     if (this._conv) {

@@ -35,14 +35,14 @@ function isMsgEmailScam(aUrl)
       return isEmailScam;
 
     // Also ignore messages in Sent/Drafts/Templates/Outbox.
-    const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     let outgoingFlags = nsMsgFolderFlags.SentMail | nsMsgFolderFlags.Drafts |
                         nsMsgFolderFlags.Templates | nsMsgFolderFlags.Queue;
     if (folder.isSpecialFolder(outgoingFlags, true))
       return isEmailScam;
 
   } catch (ex) {
-    if (ex.result != Components.results.NS_ERROR_FAILURE)
+    if (ex.result != Cr.NS_ERROR_FAILURE)
       throw ex;
   }
 

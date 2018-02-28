@@ -107,8 +107,8 @@ DomInspectorConnector.prototype.dxOn = function() {
     clickMethod = 'click';
   }
 
-  var enumerator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator)
+  var enumerator = Cc["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Ci.nsIWindowMediator)
                      .getEnumerator("");
   while(enumerator.hasMoreElements()) {
     var win = enumerator.getNext();
@@ -118,8 +118,8 @@ DomInspectorConnector.prototype.dxOn = function() {
   }
 
   var observerService =
-    Components.classes["@mozilla.org/observer-service;1"]
-      .getService(Components.interfaces.nsIObserverService);
+    Cc["@mozilla.org/observer-service;1"]
+      .getService(Ci.nsIObserverService);
 
   observerService.addObserver(this.observer, "toplevel-window-ready");
 };
@@ -155,8 +155,8 @@ DomInspectorConnector.prototype.dxOff = function() {
   }
 
   var observerService =
-    Components.classes["@mozilla.org/observer-service;1"]
-      .getService(Components.interfaces.nsIObserverService);
+    Cc["@mozilla.org/observer-service;1"]
+      .getService(Ci.nsIObserverService);
 
   try {
     observerService.removeObserver(this.observer, "toplevel-window-ready");

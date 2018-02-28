@@ -31,7 +31,7 @@ nsFindInstData.prototype =
   init : function() {
     var findInst = this.webBrowserFind;
     // set up the find to search the focussedWindow, bounded by the content window.
-    var findInFrames = findInst.QueryInterface(Components.interfaces.nsIWebBrowserFindInFrames);
+    var findInFrames = findInst.QueryInterface(Ci.nsIWebBrowserFindInFrames);
     findInFrames.rootSearchFrame = this.rootSearchWindow;
     findInFrames.currentSearchFrame = this.currentSearchWindow;
 
@@ -67,8 +67,8 @@ function findAgainInPage(findInstData, reverse)
   if (findbar && Services.prefs.getBoolPref("browser.findbar.enabled"))
   {
     // first, look to see whether XPFE typeaheadfind wants to find next
-    var sip = Components.classes["@mozilla.org/supports-interface-pointer;1"]
-                        .createInstance(Components.interfaces.nsISupportsInterfacePointer);
+    var sip = Cc["@mozilla.org/supports-interface-pointer;1"]
+                .createInstance(Ci.nsISupportsInterfacePointer);
     sip.data = content;
     Services.obs.notifyObservers(sip, "nsWebBrowserFind_FindAgain", reverse ? "up" : "down");
     if (sip.data) // XPFE typeahead find was not interested in this find next
@@ -79,8 +79,8 @@ function findAgainInPage(findInstData, reverse)
     // get the find service, which stores global find state, and init the
     // nsIWebBrowser find with it. We don't assume that there was a previous
     // Find that set this up.
-    var findService = Components.classes["@mozilla.org/find/find_service;1"]
-                           .getService(Components.interfaces.nsIFindService);
+    var findService = Cc["@mozilla.org/find/find_service;1"]
+                           .getService(Ci.nsIFindService);
 
     var searchString = findService.searchString;
     if (searchString.length == 0) {
@@ -117,8 +117,8 @@ function canFindAgainInPage()
     // The findbar will just be brought up in an error state if you cannot find text again.
     return true;
 
-  var findService = Components.classes["@mozilla.org/find/find_service;1"]
-                         .getService(Components.interfaces.nsIFindService);
+  var findService = Cc["@mozilla.org/find/find_service;1"]
+                         .getService(Ci.nsIFindService);
   return (findService.searchString.length > 0);
 }
 

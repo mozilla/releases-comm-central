@@ -63,7 +63,7 @@ function run_test()
     aboutLocale = testIni.getString("Global", "about.en-US");
   }
   catch (e) {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   }
 
   if (aboutLocale == undefined)

@@ -29,7 +29,7 @@ var folderListener = {
     if (parentItem.URI != gCurrentFolderUri)
       return;
 
-    if (item instanceof Components.interfaces.nsIMsgDBHdr &&
+    if (item instanceof Ci.nsIMsgDBHdr &&
         extractMsgKeyFromURI() == item.messageKey)
       gCurrentMessageIsDeleted = true;
   },
@@ -164,11 +164,11 @@ nsMsgDBViewCommandUpdater.prototype =
 
   QueryInterface : function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIMsgDBViewCommandUpdater) ||
-        iid.equals(Components.interfaces.nsISupports))
+    if (iid.equals(Ci.nsIMsgDBViewCommandUpdater) ||
+        iid.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   }
 }
 
@@ -221,7 +221,7 @@ function OnLoadMessageWindow()
   OnLoadMsgHeaderPane();
 
   try {
-    var nsIFolderListener = Components.interfaces.nsIFolderListener;
+    var nsIFolderListener = Ci.nsIFolderListener;
     var notifyFlags = nsIFolderListener.removed | nsIFolderListener.event | nsIFolderListener.intPropertyChanged;
     mailSession.AddFolderListener(folderListener, notifyFlags);
   } catch (ex) {
@@ -239,11 +239,11 @@ function OnLoadMessageWindow()
       try
       {
         messageUri = window.arguments[0];
-        if (messageUri instanceof Components.interfaces.nsIURI)
+        if (messageUri instanceof Ci.nsIURI)
         {
           loadCustomMessage = /type=application\/x-message-display/.test(messageUri.spec);
           gCurrentMessageUri = messageUri.spec;
-          if (messageUri instanceof Components.interfaces.nsIMsgMailNewsUrl)
+          if (messageUri instanceof Ci.nsIMsgMailNewsUrl)
             folder = messageUri.folder;
         }
       }

@@ -151,7 +151,7 @@
         <body><![CDATA[
           try {
             // Try to QI it to a script error to get more info
-            var scriptError = aObject.QueryInterface(Components.interfaces.nsIScriptError);
+            var scriptError = aObject.QueryInterface(Ci.nsIScriptError);
 
             // filter chrome urls
             if (!this.showChromeErrors && scriptError.sourceName.substr(0, 9) == "chrome://")
@@ -165,7 +165,7 @@
           } catch (ex) {
             try {
               // Try to QI it to a console message
-              var msg = aObject.QueryInterface(Components.interfaces.nsIConsoleMessage);
+              var msg = aObject.QueryInterface(Ci.nsIConsoleMessage);
               if (msg.message)
                 this.appendMessage(msg.message);
               else // observed a null/"clear" message
@@ -218,7 +218,7 @@
         <parameter name="aObject"/>
         <body><![CDATA[
           var row = this.createConsoleRow();
-          var nsIScriptError = Components.interfaces.nsIScriptError;
+          var nsIScriptError = Ci.nsIScriptError;
 
           // nsIConsoleMessage constants: debug, info, warn, error
           var typetext = ["typeMessage", "typeMessage", "typeWarning", "typeError"][aObject.logLevel];
@@ -289,8 +289,8 @@
         <body><![CDATA[
           if (this.mSelectedItem) try {
             const clipURI = "@mozilla.org/widget/clipboardhelper;1";
-            const clipI = Components.interfaces.nsIClipboardHelper;
-            var clipboard = Components.classes[clipURI].getService(clipI);
+            const clipI = Ci.nsIClipboardHelper;
+            var clipboard = Cc[clipURI].getService(clipI);
 
             clipboard.copyString(this.mSelectedItem.toString());
           } catch (ex) {
@@ -396,10 +396,10 @@
         _outer: this,
 
         QueryInterface: function(aIID) {
-          if (aIID.equals(Components.interfaces.nsIController) ||
-              aIID.equals(Components.interfaces.nsISupports))
+          if (aIID.equals(Ci.nsIController) ||
+              aIID.equals(Ci.nsISupports))
             return this;
-          throw Components.results.NS_NOINTERFACE;
+          throw Cr.NS_NOINTERFACE;
         },
 
         supportsCommand: function(aCommand) {

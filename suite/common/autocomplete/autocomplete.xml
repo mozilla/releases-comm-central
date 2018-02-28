@@ -235,7 +235,7 @@
             if (contractid in Components.classes) {
               try {
                 this.mSessions[name] =
-                  Components.classes[contractid].getService(Components.interfaces.nsIAutoCompleteSearch);
+                  Cc[contractid].getService(Ci.nsIAutoCompleteSearch);
                 this.mLastResults[name] = null;
                 this.mLastRows[name] = 0;
                 ++this.sessionCount;
@@ -330,7 +330,7 @@
       <field name="mPasteController"><![CDATA[
         ({
           self: this,
-          kGlobalClipboard: Components.interfaces.nsIClipboard.kGlobalClipboard,
+          kGlobalClipboard: Ci.nsIClipboard.kGlobalClipboard,
           supportsCommand: function(aCommand) {
             return aCommand == "cmd_paste";
           },
@@ -381,8 +381,8 @@
       ]]></field>
 
       <field name="mMenuAccessKey"><![CDATA[
-        Components.classes["@mozilla.org/preferences-service;1"]
-                 .getService(Components.interfaces.nsIPrefBranch)
+        Cc["@mozilla.org/preferences-service;1"]
+                 .getService(Ci.nsIPrefBranch)
                  .getIntPref("ui.key.menuAccessKey");
       ]]></field>
 
@@ -521,7 +521,7 @@
           if (this.disableAutoComplete)
             return;
 
-          const ACR = Components.interfaces.nsIAutoCompleteResult;
+          const ACR = Ci.nsIAutoCompleteResult;
           var status = aResults.searchResult;
           if (status != ACR.RESULT_NOMATCH_ONGOING &&
               status != ACR.RESULT_SUCCESS_ONGOING)
@@ -1497,9 +1497,9 @@
             this.invalidate();
 
             var viewer = aElement.ownerGlobal
-                .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                .getInterface(Components.interfaces.nsIWebNavigation)
-                .QueryInterface(Components.interfaces.nsIDocShell)
+                .QueryInterface(Ci.nsIInterfaceRequestor)
+                .getInterface(Ci.nsIWebNavigation)
+                .QueryInterface(Ci.nsIDocShell)
                 .contentViewer;
             var rect = aElement.getBoundingClientRect();
             var width = Math.round((rect.right - rect.left) * viewer.fullZoom);

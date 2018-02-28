@@ -27,8 +27,8 @@ function OnLoadImportDialog()
 {
   gImportMsgsBundle = document.getElementById("bundle_importMsgs");
   gFeedsBundle = document.getElementById("bundle_feeds");
-  gImportService = Components.classes["@mozilla.org/import/import-service;1"]
-                             .getService(Ci.nsIImportService);
+  gImportService = Cc["@mozilla.org/import/import-service;1"]
+                     .getService(Ci.nsIImportService);
 
   gProgressInfo = { };
   gProgressInfo.progressWindow = null;
@@ -39,12 +39,12 @@ function OnLoadImportDialog()
   gProgressInfo.importType = null;
   gProgressInfo.localFolderExists = false;
 
-  gSuccessStr = Components.classes["@mozilla.org/supports-string;1"]
-                          .createInstance(nsISupportsString);
-  gErrorStr = Components.classes["@mozilla.org/supports-string;1"]
-                        .createInstance(nsISupportsString);
-  gInputStr = Components.classes["@mozilla.org/supports-string;1"]
-                        .createInstance(nsISupportsString);
+  gSuccessStr = Cc["@mozilla.org/supports-string;1"]
+                  .createInstance(nsISupportsString);
+  gErrorStr = Cc["@mozilla.org/supports-string;1"]
+                .createInstance(nsISupportsString);
+  gInputStr = Cc["@mozilla.org/supports-string;1"]
+                .createInstance(nsISupportsString);
 
   // look in arguments[0] for parameters
   if (("arguments" in window) && window.arguments.length >= 1 &&
@@ -633,7 +633,7 @@ async function ImportSettings(module, newAccount, error) {
     if (location.value != null) {
       // Settings were not found, however, they are specified
       // in a file, so ask the user for the settings file.
-      let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance();
+      let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
       if (filePicker instanceof Ci.nsIFilePicker) {
           let file = null;
           try {
@@ -645,7 +645,7 @@ async function ImportSettings(module, newAccount, error) {
             file = await promptForFile(filePicker);
           }
           catch(ex) {
-            Components.utils.reportError(ex);
+            Cu.reportError(ex);
             error.value = null;
             return false;
           }
@@ -697,7 +697,7 @@ async function ImportMail(module, success, error) {
   if (loc == null) {
     // No location found, check to see if we can ask the user.
     if (mailInterface.GetStatus("canUserSetLocation") != 0) {
-      let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance();
+      let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
       if (filePicker instanceof Ci.nsIFilePicker) {
           try {
             filePicker.init(window,
@@ -710,7 +710,7 @@ async function ImportMail(module, success, error) {
             }
             mailInterface.SetData("mailLocation", file);
           } catch(ex) {
-            Components.utils.reportError(ex);
+            Cu.reportError(ex);
             // don't show an error when we return!
             return false;
           }
@@ -771,7 +771,7 @@ async function ImportAddress(module, success, error) {
       return false;
     }
 
-    let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance();
+    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
     if (!(filePicker instanceof Ci.nsIFilePicker)) {
       error.data = gImportMsgsBundle.getString('ImportAddressNotFound');
       return false;
@@ -794,7 +794,7 @@ async function ImportAddress(module, success, error) {
           fileIsDirectory = true;
         }
       } catch(ex) {
-        Components.utils.reportError(ex);
+        Cu.reportError(ex);
         file = null;
       }
     }
@@ -818,7 +818,7 @@ async function ImportAddress(module, success, error) {
 
         file = await promptForFile(filePicker);
       } catch(ex) {
-        Components.utils.reportError(ex);
+        Cu.reportError(ex);
         file = null;
       }
     }

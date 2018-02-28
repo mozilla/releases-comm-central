@@ -157,7 +157,7 @@ mailNewsCommandLineHandlerModule.prototype =
   // XPCOM registration
   classID: CMDLINEHANDLER_CID,
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIModule]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIModule]),
 
   _xpcom_factory: nsMailNewsCommandLineHandler
 };

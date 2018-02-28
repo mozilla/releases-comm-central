@@ -18,7 +18,7 @@ function getInvalidAccounts(accounts)
     let invalidAccounts = new Array;
     let numIdentities = 0;
     for (let i = 0; i < numAccounts; i++) {
-        let account = accounts.queryElementAt(i, Components.interfaces.nsIMsgAccount);
+        let account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
         try {
             if (!account.incomingServer.valid) {
                 invalidAccounts[invalidAccounts.length] = account;
@@ -34,7 +34,7 @@ function getInvalidAccounts(accounts)
         numIdentities = identities.length;
 
         for (var j = 0; j < numIdentities; j++) {
-            let identity = identities.queryElementAt(j, Components.interfaces.nsIMsgIdentity);
+            let identity = identities.queryElementAt(j, Ci.nsIMsgIdentity);
             if (identity.valid) {
               gAnyValidIdentity = true;
             }
@@ -47,11 +47,11 @@ function getInvalidAccounts(accounts)
 }
 
 function showMailIntegrationDialog() {
-  const nsIShellService = Components.interfaces.nsIShellService;
+  const nsIShellService = Ci.nsIShellService;
 
   try {
-    var shellService = Components.classes["@mozilla.org/suite/shell-service;1"]
-                                 .getService(nsIShellService);
+    var shellService = Cc["@mozilla.org/suite/shell-service;1"]
+                         .getService(nsIShellService);
     var appTypesCheck = shellService.shouldBeDefaultClientFor &
                         (nsIShellService.MAIL | nsIShellService.NEWS);
 
@@ -248,7 +248,7 @@ function MsgAccountManager(selectPage, aServer)
           }
           if (!aServer && (typeof GetDefaultAccountRootFolder === "function")) {
             let folder = GetDefaultAccountRootFolder();
-            if (folder instanceof Components.interfaces.nsIMsgFolder)
+            if (folder instanceof Ci.nsIMsgFolder)
               aServer = folder.server;
           }
         }
@@ -266,7 +266,7 @@ function loadInboxForNewAccount()
   // was created, the download messages box is checked, and the wizard was opened from the 3pane
   if (gNewAccountToLoad) {
     var rootMsgFolder = gNewAccountToLoad.incomingServer.rootMsgFolder;
-    const kInboxFlag = Components.interfaces.nsMsgFolderFlags.Inbox;
+    const kInboxFlag = Ci.nsMsgFolderFlags.Inbox;
     var inboxFolder = rootMsgFolder.getFolderWithFlags(kInboxFlag);
     SelectFolder(inboxFolder.URI);
     window.focus();
@@ -302,7 +302,7 @@ function migrateGlobalQuotingPrefs(allIdentities)
       let numIdentities = allIdentities.length;
       var identity = null;
       for (var j = 0; j < numIdentities; j++) {
-        identity = allIdentities.queryElementAt(j, Components.interfaces.nsIMsgIdentity);
+        identity = allIdentities.queryElementAt(j, Ci.nsIMsgIdentity);
         if (identity.valid) {
           identity.autoQuote = auto_quote;
           identity.replyOnTop = reply_on_top;
@@ -362,14 +362,14 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
 
   // If we couldn't find a 3pane, bail out.
   if (!mail3Pane) {
-    Components.utils.reportError("Could not find a 3pane to connect to.");
+    Cu.reportError("Could not find a 3pane to connect to.");
     return;
   }
 
   let tabmail = mail3Pane.document.getElementById("tabmail");
 
   if (!tabmail) {
-    Components.utils.reportError("Could not find a tabmail in the 3pane!");
+    Cu.reportError("Could not find a tabmail in the 3pane!");
     return;
   }
 

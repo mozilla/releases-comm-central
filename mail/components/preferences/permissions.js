@@ -5,8 +5,8 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-var nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-var nsICookiePermission = Components.interfaces.nsICookiePermission;
+var nsIPermissionManager = Ci.nsIPermissionManager;
+var nsICookiePermission = Ci.nsICookiePermission;
 
 var NOTIFICATION_FLUSH_PERMISSIONS = "flush-pending-permissions";
 
@@ -293,7 +293,7 @@ var gPermissionManager = {
   observe: function (aSubject, aTopic, aData)
   {
     if (aTopic == "perm-changed") {
-      var permission = aSubject.QueryInterface(Components.interfaces.nsIPermission);
+      var permission = aSubject.QueryInterface(Ci.nsIPermission);
 
       // Ignore unrelated permission types.
       if (permission.type != this._type)
@@ -408,7 +408,7 @@ var gPermissionManager = {
     var count = 0;
     var enumerator = Services.perms.enumerator;
     while (enumerator.hasMoreElements()) {
-      var nextPermission = enumerator.getNext().QueryInterface(Components.interfaces.nsIPermission);
+      var nextPermission = enumerator.getNext().QueryInterface(Ci.nsIPermission);
       this._addPermissionToList(nextPermission);
     }
 

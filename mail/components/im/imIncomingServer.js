@@ -262,14 +262,14 @@ imIncomingServer.prototype = {
       get abbreviatedName() { return this.server.prettyName + "abbreviatedName"; },
       AddFolderListener: function() {},
       RemoveFolderListener: function() {},
-      descendants: Components.classes["@mozilla.org/array;1"]
-                  .createInstance(Components.interfaces.nsIArray),
+      descendants: Cc["@mozilla.org/array;1"]
+                  .createInstance(Ci.nsIArray),
       ListDescendants: function(descendants) {},
       getFlag: () => false,
       getFolderWithFlags: aFlags => null,
       getFoldersWithFlags: aFlags =>
-        Components.classes["@mozilla.org/array;1"]
-                  .createInstance(Components.interfaces.nsIArray),
+        Cc["@mozilla.org/array;1"]
+          .createInstance(Ci.nsIArray),
       get subFolders() { return EmptyEnumerator; },
       getStringProperty: aPropertyName => "",
       getNumUnread: aDeep => 0,
@@ -281,8 +281,8 @@ imIncomingServer.prototype = {
   get sortOrder() { return 300000000; },
 
   get protocolInfo() {
-    return Components.classes["@mozilla.org/messenger/protocol/info;1?type=im"]
-                     .getService(Components.interfaces.nsIMsgProtocolInfo);
+    return Cc["@mozilla.org/messenger/protocol/info;1?type=im"]
+             .getService(Ci.nsIMsgProtocolInfo);
   },
 
   classDescription: "IM Msg Incoming Server implementation",

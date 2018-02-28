@@ -11,8 +11,8 @@
 ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 
 // taken from nsAbAutoCompleteSearch.js
-var ACR = Components.interfaces.nsIAutoCompleteResult;
-var nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
+var ACR = Ci.nsIAutoCompleteResult;
+var nsIAbAutoCompleteResult = Ci.nsIAbAutoCompleteResult;
 
 function nsAbAutoCompleteResult(aSearchString) {
   // Can't create this in the prototype as we'd get the same array for
@@ -81,8 +81,8 @@ nsAbAutoCompleteResult.prototype = {
 }
 
 function createCard(chars, popularity) {
-  var card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
-                       .createInstance(Components.interfaces.nsIAbCard);
+  var card = Cc["@mozilla.org/addressbook/cardproperty;1"]
+               .createInstance(Ci.nsIAbCard);
 
   card.firstName = "firstName".slice(0, chars);
   card.lastName = "lastName".slice(0, chars);
@@ -151,8 +151,8 @@ acObserver.prototype = {
 function run_test() {
   // Test - Create a new search component
 
-  var acs = Components.classes["@mozilla.org/autocomplete/search;1?name=addrbook"]
-    .getService(Components.interfaces.nsIAutoCompleteSearch);
+  var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"]
+    .getService(Ci.nsIAutoCompleteSearch);
 
   var obs = new acObserver();
 

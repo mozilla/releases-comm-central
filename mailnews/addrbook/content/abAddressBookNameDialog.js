@@ -60,7 +60,7 @@ function abNameOKButton()
 
   // Do not allow an already existing name.
   for (let ab of fixIterator(MailServices.ab.directories,
-                             Components.interfaces.nsIAbDirectory)) {
+                             Ci.nsIAbDirectory)) {
     if ((ab.dirName.toLowerCase() == newName.toLowerCase()) &&
         (!gDirectory || (ab.URI != gDirectory.URI))) {
       const kAlertTitle = document.getElementById("bundle_addressBook")

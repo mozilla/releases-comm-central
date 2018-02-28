@@ -92,7 +92,7 @@ function* test_pending_commit_causes_msgdb_commit() {
   yield wait_for_gloda_db_flush();
   // Force a GC.  this will kill off the header and the database, losing data
   //  if we are not protecting it.
-  Components.utils.forceGC();
+  Cu.forceGC();
 
   // now retrieve the header and make sure it has the gloda id set!
   let msgHdr = msgSet.getMsgHdr(0);

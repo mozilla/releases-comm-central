@@ -17,15 +17,15 @@
 
     function openComposeWindow(pageUrl, pageTitle)
     {
-      var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
+      var params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);
       if (params)
       {
-        params.composeFields = Components.classes['@mozilla.org/messengercompose/composefields;1'].createInstance(Components.interfaces.nsIMsgCompFields);
+        params.composeFields = Cc['@mozilla.org/messengercompose/composefields;1'].createInstance(Ci.nsIMsgCompFields);
         if (params.composeFields)
         {
           params.composeFields.body = pageUrl;
           params.composeFields.subject = pageTitle;
-          var attachmentData = Components.classes["@mozilla.org/messengercompose/attachment;1"].createInstance(Components.interfaces.nsIMsgAttachment);
+          var attachmentData = Cc["@mozilla.org/messengercompose/attachment;1"].createInstance(Ci.nsIMsgAttachment);
           if (attachmentData)
           {
             attachmentData.url = pageUrl;
@@ -33,7 +33,7 @@
           }
           params.bodyIsLink = true;
 
-          var composeService = Components.classes["@mozilla.org/messengercompose;1"].getService(Components.interfaces.nsIMsgComposeService);
+          var composeService = Cc["@mozilla.org/messengercompose;1"].getService(Ci.nsIMsgComposeService);
           if (composeService)
             composeService.OpenComposeWindowWithParams(null, params);
         }

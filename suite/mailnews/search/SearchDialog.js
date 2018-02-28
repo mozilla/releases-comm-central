@@ -10,9 +10,9 @@ var gDBView;
 var gSearchSession;
 var gMsgFolderSelected;
 
-var nsIMsgFolder = Components.interfaces.nsIMsgFolder;
-var nsIMsgWindow = Components.interfaces.nsIMsgWindow;
-var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
+var nsIMsgFolder = Ci.nsIMsgFolder;
+var nsIMsgWindow = Ci.nsIMsgWindow;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
 var gFolderDatasource;
 var gFolderPicker;
@@ -171,7 +171,7 @@ var gSearchNotificationListener =
         gSearchStopButton.setAttribute("label", gSearchBundle.getString("labelForSearchButton"));
         gSearchStopButton.setAttribute("accesskey", gSearchBundle.getString("labelForSearchButton.accesskey"));
         gStatusFeedback._stopMeteors();
-        SetAdvancedSearchStatusText(gDBView.QueryInterface(Components.interfaces.nsITreeView).rowCount);
+        SetAdvancedSearchStatusText(gDBView.QueryInterface(Ci.nsITreeView).rowCount);
     },
 
     onNewSearch: function()
@@ -232,8 +232,8 @@ function searchOnLoad()
   setHelpFileURI("chrome://communicator/locale/help/suitehelp.rdf");
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
-  messenger = Components.classes["@mozilla.org/messenger;1"]
-                        .createInstance(Components.interfaces.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"]
+                .createInstance(Ci.nsIMessenger);
 
   gSearchBundle = document.getElementById("bundle_search");
   gSearchStopButton.setAttribute("label", gSearchBundle.getString("labelForSearchButton"));
@@ -267,9 +267,9 @@ function searchOnUnload()
     gSearchSession.unregisterListener(gViewSearchListener);
     gSearchSession.unregisterListener(gSearchNotificationListener);
 
-    Components.classes["@mozilla.org/messenger/services/session;1"]
-              .getService(Components.interfaces.nsIMsgMailSession)
-              .RemoveFolderListener(gFolderListener);
+    Cc["@mozilla.org/messenger/services/session;1"]
+      .getService(Ci.nsIMsgMailSession)
+      .RemoveFolderListener(gFolderListener);
 
     if (gDBView)
     {
@@ -290,11 +290,11 @@ function initializeSearchWindowWidgets()
     gStatusBar = document.getElementById('statusbar-icon');
     hideMatchAllItem();
 
-    msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                          .createInstance(nsIMsgWindow);
+    msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                  .createInstance(nsIMsgWindow);
     msgWindow.domWindow = window;
     msgWindow.rootDocShell.allowAuth = true;
-    msgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
+    msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
     msgWindow.statusFeedback = gStatusFeedback;
 
     // functionality to enable/disable buttons using nsSearchResultsController
@@ -321,7 +321,7 @@ function selectFolder(folder)
 
     // if we can't search messages on this folder, just select the first one
     if (!folder || !folder.server.canSearchMessages ||
-        (folder.flags & Components.interfaces.nsMsgFolderFlags.Virtual)) {
+        (folder.flags & Ci.nsMsgFolderFlags.Virtual)) {
         // find first item in our folder picker menu list
         folderURI = gFolderPicker.firstChild.tree.builderView.getResourceAtIndex(0).Value;
     } else {
@@ -381,7 +381,7 @@ function onSearch()
 {
     // set the view.  do this on every search, to
     // allow the tree to reset itself
-    var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+    var treeView = gDBView.QueryInterface(Ci.nsITreeView);
     if (treeView)
     {
       var tree = GetThreadTree();
@@ -419,9 +419,9 @@ function AddSubFolders(folder) {
   while (subFolders.hasMoreElements())
   {
     var nextFolder =
-      subFolders.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
+      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
 
-    if (!(nextFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual))
+    if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual))
     {
       if (!nextFolder.noSelect)
         gSearchSession.addScopeTerm(GetScopeForFolder(nextFolder), nextFolder);
@@ -440,9 +440,9 @@ function AddSubFoldersToURI(folder)
   while (subFolders.hasMoreElements())
   {
     var nextFolder =
-      subFolders.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
+      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
 
-    if (!(nextFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual))
+    if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual))
     {
       if (!nextFolder.noSelect && !nextFolder.isServer)
       {
@@ -471,10 +471,10 @@ function GetScopeForFolder(folder)
                               folder.server.searchScope;
 }
 
-var nsMsgViewSortType = Components.interfaces.nsMsgViewSortType;
-var nsMsgViewSortOrder = Components.interfaces.nsMsgViewSortOrder;
-var nsMsgViewFlagsType = Components.interfaces.nsMsgViewFlagsType;
-var nsMsgViewCommandType = Components.interfaces.nsMsgViewCommandType;
+var nsMsgViewSortType = Ci.nsMsgViewSortType;
+var nsMsgViewSortOrder = Ci.nsMsgViewSortOrder;
+var nsMsgViewFlagsType = Ci.nsMsgViewFlagsType;
+var nsMsgViewCommandType = Ci.nsMsgViewCommandType;
 
 function goUpdateSearchItems(commandset)
 {
@@ -512,17 +512,17 @@ nsMsgSearchCommandUpdater.prototype =
 
   QueryInterface : function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIMsgDBViewCommandUpdater) ||
-        iid.equals(Components.interfaces.nsISupports))
+    if (iid.equals(Ci.nsIMsgDBViewCommandUpdater) ||
+        iid.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   }
 }
 
 function setupDatasource() {
-    gDBView = Components.classes["@mozilla.org/messenger/msgdbview;1?type=search"]
-                        .createInstance(Components.interfaces.nsIMsgDBView);
+    gDBView = Cc["@mozilla.org/messenger/msgdbview;1?type=search"]
+                .createInstance(Ci.nsIMsgDBView);
     var count = new Object;
     var cmdupdator = new nsMsgSearchCommandUpdater();
 
@@ -532,16 +532,16 @@ function setupDatasource() {
     // the thread pane needs to use the search datasource (to get the
     // actual list of messages) and the message datasource (to get any
     // attributes about each message)
-    gSearchSession = Components.classes[searchSessionContractID].createInstance(Components.interfaces.nsIMsgSearchSession);
+    gSearchSession = Cc[searchSessionContractID].createInstance(Ci.nsIMsgSearchSession);
 
-    var nsIFolderListener = Components.interfaces.nsIFolderListener;
+    var nsIFolderListener = Ci.nsIFolderListener;
     var notifyFlags = nsIFolderListener.event;
-    Components.classes["@mozilla.org/messenger/services/session;1"]
-              .getService(Components.interfaces.nsIMsgMailSession)
-              .AddFolderListener(gFolderListener, notifyFlags);
+    Cc["@mozilla.org/messenger/services/session;1"]
+      .getService(Ci.nsIMsgMailSession)
+      .AddFolderListener(gFolderListener, notifyFlags);
 
     // the datasource is a listener on the search results
-    gViewSearchListener = gDBView.QueryInterface(Components.interfaces.nsIMsgSearchNotify);
+    gViewSearchListener = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);
     gSearchSession.registerListener(gViewSearchListener);
 }
 
@@ -556,8 +556,8 @@ function setupSearchListener()
 function GetFolderDatasource()
 {
     if (!gFolderDatasource)
-        gFolderDatasource = Components.classes["@mozilla.org/rdf/datasource;1?name=mailnewsfolders"]
-                                      .getService(Components.interfaces.nsIRDFDataSource);
+        gFolderDatasource = Cc["@mozilla.org/rdf/datasource;1?name=mailnewsfolders"]
+                              .getService(Ci.nsIRDFDataSource);
     return gFolderDatasource;
 }
 
@@ -612,7 +612,7 @@ function HandleDeleteOrMoveMessageFailed(folder)
 function HandleDeleteOrMoveMessageCompleted(folder)
 {
   gDBView.onDeleteCompleted(true);
-  var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  var treeView = gDBView.QueryInterface(Ci.nsITreeView);
   var treeSelection = treeView.selection;
   var viewSize = treeView.rowCount;
 

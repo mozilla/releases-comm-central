@@ -19,8 +19,8 @@ var debug = {
   },
 
   garbageCollect: function debug_garbageCollect() {
-    window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-          .getInterface(Components.interfaces.nsIDOMWindowUtils)
+    window.QueryInterface(Ci.nsIInterfaceRequestor)
+          .getInterface(Ci.nsIDOMWindowUtils)
           .garbageCollect();
   },
 
@@ -34,8 +34,8 @@ var debug = {
     setTimeout(function() {
       // Load the Window DataSource so that browser windows opened subsequent to DOM
       // Inspector show up in the DOM Inspector's window list.
-      var windowDS = Components.classes["@mozilla.org/rdf/datasource;1?name=window-mediator"]
-                               .getService(Components.interfaces.nsIWindowDataSource);
+      var windowDS = Cc["@mozilla.org/rdf/datasource;1?name=window-mediator"]
+                       .getService(Ci.nsIWindowDataSource);
     }, 0);
   }
 };

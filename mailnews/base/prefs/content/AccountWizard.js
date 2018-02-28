@@ -46,8 +46,8 @@ var contentWindow;
 
 var gPageData;
 
-var nsIMsgIdentity = Components.interfaces.nsIMsgIdentity;
-var nsIMsgIncomingServer = Components.interfaces.nsIMsgIncomingServer;
+var nsIMsgIdentity = Ci.nsIMsgIdentity;
+var nsIMsgIncomingServer = Ci.nsIMsgIncomingServer;
 var gPrefsBundle, gMessengerBundle;
 
 // the current nsIMsgAccount
@@ -273,7 +273,7 @@ function AccountDataToPageData(accountData, pageData)
       identity = accountData.identity;
   }
   else if (accountData.identities) {
-      identity = accountData.identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+      identity = accountData.identities.queryElementAt(0, Ci.nsIMsgIdentity);
       dump("this is an account, id= " + identity + "\n");
   }
 
@@ -448,7 +448,7 @@ function finishAccount(account, accountData)
       try {
         IID = destServer.protocolInfo.serverIID;
       } catch (ex) {
-        Components.utils.reportError("Could not get IID for " + srcServer.type + ": " + ex);
+        Cu.reportError("Could not get IID for " + srcServer.type + ": " + ex);
       }
 
       if (IID) {
@@ -612,7 +612,7 @@ function setupCopiesAndFoldersServer(account, accountIsDeferred, accountData)
     // go on identities, so there is no need to continue without any identities.
     if (server.type == "rss" || account.identities.length == 0)
       return false;
-    let identity = account.identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+    let identity = account.identities.queryElementAt(0, Ci.nsIMsgIdentity);
     // For this server, do we default the folder prefs to this server, or to the "Local Folders" server
     // If it's deferred, we use the local folders account.
     var defaultCopiesAndFoldersPrefsToServer = !accountIsDeferred && server.defaultCopiesAndFoldersPrefsToServer;
@@ -664,7 +664,7 @@ function setDefaultCopiesAndFoldersPrefs(identity, server, accountData)
   // because we happen to be doing things that way, and if the user changes
   // that, it will work because to change the folder, it must be in rdf,
   // coming from the folder cache, in the worst case.
-  var msgFolder = rootFolder.QueryInterface(Components.interfaces.nsIMsgFolder);
+  var msgFolder = rootFolder.QueryInterface(Ci.nsIMsgFolder);
 
   /**
    * When a new account is created, folders 'Sent', 'Drafts'

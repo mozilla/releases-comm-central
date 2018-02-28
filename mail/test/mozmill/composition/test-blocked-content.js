@@ -37,20 +37,20 @@ function setupModule(module) {
 }
 
 function putHTMLOnClipboard(html) {
-  let trans = Components.classes["@mozilla.org/widget/transferable;1"]
-                        .createInstance(Components.interfaces.nsITransferable);
+  let trans = Cc["@mozilla.org/widget/transferable;1"]
+                .createInstance(Ci.nsITransferable);
 
   // Register supported data flavors
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  let wapper = Components.classes["@mozilla.org/supports-string;1"]
-   .createInstance(Components.interfaces.nsISupportsString);
+  let wapper = Cc["@mozilla.org/supports-string;1"]
+   .createInstance(Ci.nsISupportsString);
   wapper.data = html;
   trans.setTransferData("text/html", wapper, wapper.data.length * 2);
 
   Services.clipboard.setData(trans, null,
-    Components.interfaces.nsIClipboard.kGlobalClipboard);
+    Ci.nsIClipboard.kGlobalClipboard);
 }
 
 /**

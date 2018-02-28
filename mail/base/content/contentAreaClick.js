@@ -145,9 +145,9 @@ function contentAreaClick(aEvent)
   // externally in a browser, therefore we need to detect that here and redirect
   // as necessary.
   let uri = makeURI(href);
-  if (Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                .getService(Components.interfaces.nsIExternalProtocolService)
-                .isExposedProtocol(uri.scheme) &&
+  if (Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+        .getService(Ci.nsIExternalProtocolService)
+        .isExposedProtocol(uri.scheme) &&
       !uri.schemeIs("http") && !uri.schemeIs("https"))
     return true;
 
@@ -172,7 +172,7 @@ function contentAreaClick(aEvent)
 function openLinkExternally(url)
 {
   let uri = url;
-  if (!(uri instanceof Components.interfaces.nsIURI))
+  if (!(uri instanceof Ci.nsIURI))
     uri = Services.io.newURI(url);
 
   // This can fail if there is a problem with the places database.
@@ -181,16 +181,16 @@ function openLinkExternally(url)
       uri: uri,
       visits:  [{
         visitDate: Date.now() * 1000,
-        transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+        transitionType: Ci.nsINavHistoryService.TRANSITION_LINK
       }]
     });
   } catch (ex) {
-    Components.utils.reportError(ex);
+    Cu.reportError(ex);
   }
 
-  Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-            .getService(Components.interfaces.nsIExternalProtocolService)
-            .loadURI(uri);
+  Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+    .getService(Ci.nsIExternalProtocolService)
+    .loadURI(uri);
 }
 
 /**

@@ -266,7 +266,7 @@ function test_no_offer_on_conversion() {
   // asynchronously.
   provider.uploadFile = function(aFile, aListener) {
     aListener.onStartRequest(null, null);
-    aListener.onStopRequest(null, null, Components.results.NS_OK);
+    aListener.onStopRequest(null, null, Cr.NS_OK);
   };
 
   let cw = open_compose_new_mail();
@@ -308,7 +308,7 @@ function test_offer_then_upload_notifications() {
   // asynchronously.
   provider.uploadFile = function(aFile, aListener) {
     aListener.onStartRequest(null, null);
-    aListener.onStopRequest(null, null, Components.results.NS_OK);
+    aListener.onStopRequest(null, null, Cr.NS_OK);
   };
 
   let cw = open_compose_new_mail();
@@ -351,7 +351,7 @@ function test_privacy_warning_notification() {
     aListener.onStartRequest(null, null);
     cwc.window.setTimeout(function() {
       aListener.onStopRequest(null, null,
-                              Components.results.NS_OK);
+                              Cr.NS_OK);
     }, 500);
   }
   let cwc = open_compose_new_mail(mc);
@@ -392,7 +392,7 @@ function test_privacy_warning_notification_no_persist() {
     aListener.onStartRequest(null, null);
     cwc.window.setTimeout(function() {
       aListener.onStopRequest(null, null,
-                              Components.results.NS_OK);
+                              Cr.NS_OK);
     }, 500);
   }
   let cwc = open_compose_new_mail(mc);
@@ -433,7 +433,7 @@ function test_privacy_warning_notification_open_after_close() {
     aListener.onStartRequest(null, null);
     cwc.window.setTimeout(function() {
       aListener.onStopRequest(null, null,
-                              Components.results.NS_OK);
+                              Cr.NS_OK);
     }, 500);
   }
   let cwc = open_compose_new_mail(mc);

@@ -33,8 +33,8 @@
                            this.getAttribute("itemcontext")));
 
         this.sizes = {small: 16, large: 32, tile: 32};
-        this.messenger = Components.classes["@mozilla.org/messenger;1"]
-                                   .createInstance(Components.interfaces.nsIMessenger);
+        this.messenger = Cc["@mozilla.org/messenger;1"]
+                           .createInstance(Ci.nsIMessenger);
 
       ]]></constructor>
 
@@ -137,7 +137,7 @@
             }
 
             // If we get here, something is very wrong.
-            Components.utils.reportError(
+            Cu.reportError(
               "Couldn't get index of first visible row for attachmentlist!\n");
             return -1;
           }
@@ -801,7 +801,7 @@
           <![CDATA[
             this.maxLinesBeforeMore = Services.prefs.getIntPref(
               "mailnews.headers.show_n_lines_before_more");
-            const dt = Components.interfaces.nsMimeHeaderDisplayTypes;
+            const dt = Ci.nsMimeHeaderDisplayTypes;
             let headerchoice = Services.prefs.getIntPref("mail.show_headers");
             if (this.maxLinesBeforeMore < 1 ||
                 headerchoice == dt.AllHeaders) {
@@ -1355,7 +1355,7 @@
       <field name="internalValue">-1</field>
       <field readonly="true" name="validityManager">
         <![CDATA[
-           Components.classes['@mozilla.org/mail/search/validityManager;1'].getService(Components.interfaces.nsIMsgSearchValidityManager);
+           Cc['@mozilla.org/mail/search/validityManager;1'].getService(Ci.nsIMsgSearchValidityManager);
         ]]>
       </field>
       <property name="searchScope" onget="return this.internalScope;">
@@ -1500,7 +1500,7 @@
             for (var i = 0; i < menuItemIds.length; ++i)
             {
               // create the menuitem
-              if (Components.interfaces.nsMsgSearchAttrib.OtherHeader == menuItemIds[i].toString())
+              if (Ci.nsMsgSearchAttrib.OtherHeader == menuItemIds[i].toString())
                 customizePos = i;
               else
               {
@@ -1538,7 +1538,7 @@
         <body>
           <![CDATA[
             var menulist = document.getAnonymousNodes(this)[0];
-            if (menulist.value == Components.interfaces.nsMsgSearchAttrib.OtherHeader)
+            if (menulist.value == Ci.nsMsgSearchAttrib.OtherHeader)
             {
               // Customize menuitem selected.
               let args = {};
@@ -1547,7 +1547,7 @@
                                 args);
               // User may have removed the custom header currently selected
               // in the menulist so temporarily set the selection to a safe value.
-              this.value = Components.interfaces.nsMsgSearchAttrib.OtherHeader;
+              this.value = Ci.nsMsgSearchAttrib.OtherHeader;
               // rebuild the menulist
               UpdateAfterCustomHeaderChange();
               // Find the created or chosen custom header and select it.
@@ -1590,11 +1590,11 @@
               else
               { // The custom term may be missing after the extension that added it
                 // was disabled or removed. We need to notify the user.
-                let scriptError = Components.classes["@mozilla.org/scripterror;1"]
-                    .createInstance(Components.interfaces.nsIScriptError);
+                let scriptError = Cc["@mozilla.org/scripterror;1"]
+                    .createInstance(Ci.nsIScriptError);
                 scriptError.init("Missing custom search term " + this.value,
                     null, null, 0, 0,
-                    Components.interfaces.nsIScriptError.errorFlag,
+                    Ci.nsIScriptError.errorFlag,
                     "component javascript");
                 this.Services.console.logMessage(scriptError);
                 return this.stringBundle.GetStringFromName("MissingCustomTerm");
@@ -1616,7 +1616,7 @@
             {
               let customTerm =
                  customEnum.getNext()
-                           .QueryInterface(Components.interfaces.nsIMsgSearchCustomTerm);
+                           .QueryInterface(Ci.nsIMsgSearchCustomTerm);
               // for custom terms, the array element is a string with the custom id
               // instead of the integer attribute
               if (customTerm.getAvailable(this.searchScope, null))
@@ -1653,7 +1653,7 @@
                 else
                   strings[i] = "";
               }
-              else if(ids[i] > Components.interfaces.nsMsgSearchAttrib.OtherHeader && hdrsArray)
+              else if(ids[i] > Ci.nsMsgSearchAttrib.OtherHeader && hdrsArray)
                 strings[i] = hdrsArray[j++];
               else
                 strings[i] = this.stringBundle.GetStringFromName(
@@ -1700,7 +1700,7 @@
               let customTerm = MailServices.filters.getCustomTerm(this.searchAttribute);
               if (customTerm)
                 return customTerm.getAvailableOperators(this.searchScope, length);
-              return [Components.interfaces.nsMsgSearchOp.Contains];
+              return [Ci.nsMsgSearchOp.Contains];
             }
             return this.validityTable.getAvailableOperators(this.searchAttribute,length);
           ]]>
@@ -1720,13 +1720,13 @@
       <property name="parentValue">
         <setter>
           <![CDATA[
-            if (this.searchAttribute == val && val != Components.interfaces.nsMsgSearchAttrib.OtherHeader) return val;
+            if (this.searchAttribute == val && val != Ci.nsMsgSearchAttrib.OtherHeader) return val;
             this.searchAttribute = val;
             this.refreshList(true); // don't restore the selection, since searchvalue nulls it
-            if (val == Components.interfaces.nsMsgSearchAttrib.AgeInDays)
+            if (val == Ci.nsMsgSearchAttrib.AgeInDays)
             {
               // We want "Age in Days" to default to "is less than".
-              this.value = Components.interfaces.nsMsgSearchOp.IsLessThan;
+              this.value = Ci.nsMsgSearchOp.IsLessThan;
             }
             return val;
           ]]>
@@ -1821,43 +1821,43 @@
               return val;
 
             // Keywords has the null field IsEmpty
-            if (this.searchAttribute == Components.interfaces.nsMsgSearchAttrib.Keywords) {
-              if (val == Components.interfaces.nsMsgSearchOp.IsEmpty ||
-                  val == Components.interfaces.nsMsgSearchOp.IsntEmpty)
+            if (this.searchAttribute == Ci.nsMsgSearchAttrib.Keywords) {
+              if (val == Ci.nsMsgSearchOp.IsEmpty ||
+                  val == Ci.nsMsgSearchOp.IsntEmpty)
                 this.setAttribute("selectedIndex", "-1");
               else
                 this.setAttribute("selectedIndex", "5");
             }
 
             // JunkStatus has the null field IsEmpty
-            if (this.searchAttribute == Components.interfaces.nsMsgSearchAttrib.JunkStatus) {
-              if (val == Components.interfaces.nsMsgSearchOp.IsEmpty ||
-                  val == Components.interfaces.nsMsgSearchOp.IsntEmpty)
+            if (this.searchAttribute == Ci.nsMsgSearchAttrib.JunkStatus) {
+              if (val == Ci.nsMsgSearchOp.IsEmpty ||
+                  val == Ci.nsMsgSearchOp.IsntEmpty)
                 this.setAttribute("selectedIndex", "-1");
               else
                 this.setAttribute("selectedIndex", "6");
             }
 
               // if it's not sender, to, cc, alladdresses, or toorcc, we don't care
-              if (this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.Sender &&
-                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.To &&
-                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.ToOrCC &&
-                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.AllAddresses &&
-                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.CC ) {
+              if (this.searchAttribute != Ci.nsMsgSearchAttrib.Sender &&
+                this.searchAttribute != Ci.nsMsgSearchAttrib.To &&
+                this.searchAttribute != Ci.nsMsgSearchAttrib.ToOrCC &&
+                this.searchAttribute != Ci.nsMsgSearchAttrib.AllAddresses &&
+                this.searchAttribute != Ci.nsMsgSearchAttrib.CC ) {
               this.internalOperator = val;
               return val;
             }
 
             var children = document.getAnonymousNodes(this);
-            if (val == Components.interfaces.nsMsgSearchOp.IsntInAB ||
-                val == Components.interfaces.nsMsgSearchOp.IsInAB) {
+            if (val == Ci.nsMsgSearchOp.IsntInAB ||
+                val == Ci.nsMsgSearchOp.IsInAB) {
               // if the old internalOperator was
               // IsntInAB or IsInAB, and the new internalOperator is
               // IsntInAB or IsInAB, noop because the search value
               // was an ab type, and it still is.
               // otherwise, switch to the ab picker and select the PAB
-              if (this.internalOperator != Components.interfaces.nsMsgSearchOp.IsntInAB &&
-                  this.internalOperator != Components.interfaces.nsMsgSearchOp.IsInAB) {
+              if (this.internalOperator != Ci.nsMsgSearchOp.IsntInAB &&
+                  this.internalOperator != Ci.nsMsgSearchOp.IsInAB) {
                 var abs = children[4].querySelector('[value="moz-abmdbdirectory://abook.mab"]');
                 if (abs)
                   children[4].selectedItem = abs;
@@ -1870,8 +1870,8 @@
               // IsntInAB or IsInAB, noop because the search value
               // wasn't an ab type, and it still isn't.
               // otherwise, switch to the textbox and clear it
-              if (this.internalOperator == Components.interfaces.nsMsgSearchOp.IsntInAB ||
-                  this.internalOperator == Components.interfaces.nsMsgSearchOp.IsInAB) {
+              if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
+                  this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
                 children[0].value = "";
                 this.setAttribute("selectedIndex", "0");
               }
@@ -1907,44 +1907,44 @@
               // CSS for custom search terms to bind a custom value
               customHbox.setAttribute("searchAttribute", val);
             }
-            else if (val == Components.interfaces.nsMsgSearchAttrib.Priority)
+            else if (val == Ci.nsMsgSearchAttrib.Priority)
               this.setAttribute("selectedIndex", "1");
-            else if (val == Components.interfaces.nsMsgSearchAttrib.MsgStatus)
+            else if (val == Ci.nsMsgSearchAttrib.MsgStatus)
               this.setAttribute("selectedIndex", "2");
-            else if (val == Components.interfaces.nsMsgSearchAttrib.Date)
+            else if (val == Ci.nsMsgSearchAttrib.Date)
               this.setAttribute("selectedIndex", "3");
-            else if (val == Components.interfaces.nsMsgSearchAttrib.Sender) {
+            else if (val == Ci.nsMsgSearchAttrib.Sender) {
               // since the internalOperator is null
               // this is the same as the initial state
               // the initial state for Sender isn't an ab type search
               // it's a text search, so show the textbox
               this.setAttribute("selectedIndex", "0");
             }
-            else if (val == Components.interfaces.nsMsgSearchAttrib.Keywords) {
+            else if (val == Ci.nsMsgSearchAttrib.Keywords) {
               this.setAttribute("selectedIndex", "5");
             }
-            else if (val == Components.interfaces.nsMsgSearchAttrib.JunkStatus) {
+            else if (val == Ci.nsMsgSearchAttrib.JunkStatus) {
               this.setAttribute("selectedIndex", "6");
             }
-            else if (val == Components.interfaces.nsMsgSearchAttrib.HasAttachmentStatus) {
+            else if (val == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
               this.setAttribute("selectedIndex", "7");
             }
-            else if (val == Components.interfaces.nsMsgSearchAttrib.JunkScoreOrigin) {
+            else if (val == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
               this.setAttribute("selectedIndex", "8");
             }
-            else if (val == Components.interfaces.nsMsgSearchAttrib.AgeInDays) {
+            else if (val == Ci.nsMsgSearchAttrib.AgeInDays) {
               let valueBox = document.getAnonymousNodes(this)[9];
               valueBox.min = -40000; // ~-100 years
               valueBox.max = 40000; // ~100 years
               this.setAttribute("selectedIndex", "9");
             }
-            else if (val == Components.interfaces.nsMsgSearchAttrib.Size) {
+            else if (val == Ci.nsMsgSearchAttrib.Size) {
               let valueBox = document.getAnonymousNodes(this)[9];
               valueBox.min = 0;
               valueBox.max = 1000000000;
               this.setAttribute("selectedIndex", "9");
             }
-            else if (val == Components.interfaces.nsMsgSearchAttrib.JunkPercent) {
+            else if (val == Ci.nsMsgSearchAttrib.JunkPercent) {
               let valueBox = document.getAnonymousNodes(this)[9];
               valueBox.min = 0;
               valueBox.max = 100;
@@ -1964,7 +1964,7 @@
           // val is a nsIMsgSearchValue object
           this.internalValue = val;
           var attrib = this.internalAttribute;
-          var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
+          var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
           var children = document.getAnonymousNodes(this);
           this.searchAttribute = attrib;
           if (isNaN(attrib)) // a custom term
@@ -1995,8 +1995,8 @@
                    attrib == nsMsgSearchAttrib.AllAddresses ||
                    attrib == nsMsgSearchAttrib.ToOrCC)
           {
-            if (this.internalOperator == Components.interfaces.nsMsgSearchOp.IsntInAB ||
-                this.internalOperator == Components.interfaces.nsMsgSearchOp.IsInAB) {
+            if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
+                this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
               var abs = children[4].querySelector('[value="' + val.str + '"]');
               if (abs)
                 children[4].selectedItem = abs;
@@ -2048,7 +2048,7 @@
           <![CDATA[
             var searchValue = this.value;
             var searchAttribute = this.searchAttribute;
-            var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
+            var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
             var children = document.getAnonymousNodes(this);
 
             searchValue.attrib = searchAttribute;
@@ -2067,8 +2067,8 @@
                    searchAttribute == nsMsgSearchAttrib.AllAddresses ||
                    searchAttribute == nsMsgSearchAttrib.ToOrCC)
             {
-              if (this.internalOperator == Components.interfaces.nsMsgSearchOp.IsntInAB ||
-                  this.internalOperator == Components.interfaces.nsMsgSearchOp.IsInAB)
+              if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
+                  this.internalOperator == Ci.nsMsgSearchOp.IsInAB)
                 searchValue.str = children[4].selectedItem.value;
               else
                 searchValue.str = children[0].value;
@@ -2169,7 +2169,7 @@
         // initialize the date picker
         var datePicker = document.getAnonymousNodes(this)[3];
         var searchAttribute = this.searchAttribute;
-        var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
+        var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
         var time;
         if (searchAttribute == nsMsgSearchAttrib.Date)
          time = datePicker.value;
@@ -2351,7 +2351,7 @@
             var index = -1;
             var uri = this.parentNode.getAttribute("uri");
             if (uri) {
-              var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
+              var RDF = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
               index = view.getIndexOfResource(RDF.GetResource(uri));
             }
             view.selection.select(index);
@@ -2454,9 +2454,9 @@
           <![CDATA[
             // skip servers, Trash, Junk folders and newsgroups
             if (!aFolder || aFolder.isServer || !aFolder.hasNewMessages ||
-                aFolder.getFlag(Components.interfaces.nsMsgFolderFlags.Junk) ||
-                aFolder.getFlag(Components.interfaces.nsMsgFolderFlags.Trash) ||
-                (aFolder.server instanceof Components.interfaces.nsINntpIncomingServer))
+                aFolder.getFlag(Ci.nsMsgFolderFlags.Junk) ||
+                aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+                (aFolder.server instanceof Ci.nsINntpIncomingServer))
               return false;
             var showPreviewText = this.Services.prefs.getBoolPref("mail.biff.alert.show_preview");
             let folderArray = [];
@@ -2469,18 +2469,18 @@
               return false;
             }
 
-            if (aFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual)
+            if (aFolder.flags & Ci.nsMsgFolderFlags.Virtual)
             {
               let dbFolderInfo = msgDatabase.dBFolderInfo;
               var srchFolderUri = dbFolderInfo.getCharProperty("searchFolderUri");
               var srchFolderUriArray = srchFolderUri.split('|');
               var foldersAdded = 0;
-              var RDF = Components.classes['@mozilla.org/rdf/rdf-service;1']
-                                  .getService(Components.interfaces.nsIRDFService);
+              var RDF = Cc['@mozilla.org/rdf/rdf-service;1']
+                          .getService(Ci.nsIRDFService);
               for (var i in srchFolderUriArray)
               {
                 var realFolder = RDF.GetResource(srchFolderUriArray[i])
-                                    .QueryInterface(Components.interfaces.nsIMsgFolder);
+                                    .QueryInterface(Ci.nsIMsgFolder);
                 if (!realFolder.isServer)
                   folderArray[foldersAdded++] = realFolder;
               }
@@ -2532,8 +2532,8 @@
               // We don't expect to get called with a urlListener if we're doing a virtual folder.
               if (aOutAsync.value && aUrlListener)
                 return false;
-              var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                    .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+              var unicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                                    .createInstance(Ci.nsIScriptableUnicodeConverter);
               unicodeConverter.charset = "UTF-8";
               foundNewMsg = true;
 
@@ -2605,8 +2605,8 @@
             // If folder name is cropped or is a newsgroup and abbreviated per
             // pref, use the full name as a tooltip.
             if (aCropped ||
-                ((aFolder.server instanceof Components.interfaces.nsINntpIncomingServer) &&
-                 !(aFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual) &&
+                ((aFolder.server instanceof Ci.nsINntpIncomingServer) &&
+                 !(aFolder.flags & Ci.nsMsgFolderFlags.Virtual) &&
                  aFolder.server.abbreviate) && !aFolder.isServer) {
               let loc = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummaryLocation");
               loc.setAttribute("location", aFolder.name);

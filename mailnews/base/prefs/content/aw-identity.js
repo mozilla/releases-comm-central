@@ -184,7 +184,7 @@ function checkForFullName() {
     var name = document.getElementById("fullName");
     if (name.value=="") {
         try {
-            var userInfo = Components.classes["@mozilla.org/userinfo;1"].getService(Components.interfaces.nsIUserInfo);
+            var userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
             name.value = userInfo.fullname;
         }
         catch (ex) {
@@ -202,7 +202,7 @@ function checkForEmail()
     }
     if (email.value=="") {
         try {
-            var userInfo = Components.classes["@mozilla.org/userinfo;1"].getService(Components.interfaces.nsIUserInfo);
+            var userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
             email.value = userInfo.emailAddress;
         }
         catch (ex) {

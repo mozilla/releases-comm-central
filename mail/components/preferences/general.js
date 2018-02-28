@@ -81,7 +81,7 @@ var gGeneralPane = {
     {
       return Services.io
                      .getProtocolHandler("file")
-                     .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+                     .QueryInterface(Ci.nsIFileProtocolHandler)
                      .getFileFromURLSpec(aFileURL);
     }
     else
@@ -102,8 +102,8 @@ var gGeneralPane = {
 
   previewSound: function ()
   {
-    let sound = Components.classes["@mozilla.org/sound;1"]
-                          .createInstance(Components.interfaces.nsISound);
+    let sound = Cc["@mozilla.org/sound;1"]
+                  .createInstance(Ci.nsISound);
 
     let soundLocation;
     // soundType radio-group isn't used for macOS so it is not in the XUL file
@@ -114,7 +114,7 @@ var gGeneralPane = {
 
     if (!soundLocation.includes("file://")) {
       // User has not set any custom sound file to be played
-      sound.playEventSound(Components.interfaces.nsISound.EVENT_NEW_MAIL_RECEIVED);
+      sound.playEventSound(Ci.nsISound.EVENT_NEW_MAIL_RECEIVED);
     } else {
       // User has set a custom audio file to be played along the alert.
       sound.play(Services.io.newURI(soundLocation));
@@ -123,8 +123,8 @@ var gGeneralPane = {
 
   browseForSoundFile: function ()
   {
-    const nsIFilePicker = Components.interfaces.nsIFilePicker;
-    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    const nsIFilePicker = Ci.nsIFilePicker;
+    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 
     // if we already have a sound file, then use the path for that sound file
     // as the initial path in the dialog.

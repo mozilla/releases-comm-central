@@ -463,8 +463,8 @@ function AbDelete()
       let directory = MailServices.ab.getDirectoryFromId(dirId);
 
       let cardArray =
-        Components.classes["@mozilla.org/array;1"]
-                  .createInstance(Components.interfaces.nsIMutableArray);
+        Cc["@mozilla.org/array;1"]
+          .createInstance(Ci.nsIMutableArray);
       cardArray.appendElement(cards[i]);
       if (directory)
         directory.deleteCards(cardArray);
@@ -498,14 +498,14 @@ function AbEditCard(card)
 
 function AbNewMessage()
 {
-  let msgComposeType = Components.interfaces.nsIMsgCompType;
-  let msgComposeFormat = Components.interfaces.nsIMsgCompFormat;
+  let msgComposeType = Ci.nsIMsgCompType;
+  let msgComposeFormat = Ci.nsIMsgCompFormat;
 
-  let params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
+  let params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);
   if (params) {
     params.type = msgComposeType.New;
     params.format = msgComposeFormat.Default;
-    let composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
+    let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
     if (composeFields) {
       if (DirPaneHasFocus()) {
         let selectedDir = getSelectedDirectory();
@@ -567,7 +567,7 @@ function GetSelectedAddressesFromDirTree()
   let cards = new Array(listCardsCount);
   for (let i = 0; i < listCardsCount; ++i)
     cards[i] = selectedDir.addressLists
-                 .queryElementAt(i, Components.interfaces.nsIAbCard);
+                 .queryElementAt(i, Ci.nsIAbCard);
   return GetAddressesForCards(cards);
 }
 
@@ -578,7 +578,7 @@ function GetAddressesForCards(cards)
   var addresses = "";
 
   if (!cards) {
-    Components.utils.reportError("GetAddressesForCards: |cards| is null.");
+    Cu.reportError("GetAddressesForCards: |cards| is null.");
     return addresses;
   }
 
@@ -898,11 +898,11 @@ function QuickSearchFocus()
  * This will create the directory if it does not yet exist.
  */
 function getPhotosDir() {
-  let file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+  let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   // Get the Photos directory
   file.append("Photos");
   if (!file.exists() || !file.isDirectory())
-    file.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, PERMS_DIRECTORY);
+    file.create(Ci.nsIFile.DIRECTORY_TYPE, PERMS_DIRECTORY);
   return file;
 }
 
@@ -955,8 +955,8 @@ function storePhoto(aUri)
                                                null,
                                                Services.scriptSecurityManager.getSystemPrincipal(),
                                                null,
-                                               Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                               Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                               Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                               Ci.nsIContentPolicy.TYPE_OTHER);
   let istream = channel.open();
 
   // Get the photo file
@@ -978,11 +978,11 @@ function storePhoto(aUri)
  * @return The extension of the file, if any, including the period.
  */
 function findPhotoExt(aChannel) {
-  var mimeSvc = Components.classes["@mozilla.org/mime;1"]
-                          .getService(Components.interfaces.nsIMIMEService);
+  var mimeSvc = Cc["@mozilla.org/mime;1"]
+                  .getService(Ci.nsIMIMEService);
   var ext = "";
   var uri = aChannel.URI;
-  if (uri instanceof Components.interfaces.nsIURL)
+  if (uri instanceof Ci.nsIURL)
     ext = uri.fileExtension;
   try {
     return mimeSvc.getPrimaryExtension(aChannel.contentType, ext);

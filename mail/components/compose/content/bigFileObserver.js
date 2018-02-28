@@ -83,7 +83,7 @@ var gBigFileObserver = {
                     "mail.compose.big_attachments.threshold_kb") * 1024;
 
     for (let attachment of fixIterator(
-         aAttachments, Components.interfaces.nsIMsgAttachment)) {
+         aAttachments, Ci.nsIMsgAttachment)) {
       if (attachment.size >= threshold && !attachment.sendViaCloud)
         this.bigFiles.push(attachment);
     }
@@ -91,7 +91,7 @@ var gBigFileObserver = {
 
   attachmentsRemoved: function(aAttachments) {
     for (let attachment of fixIterator(
-         aAttachments, Components.interfaces.nsIMsgAttachment)) {
+         aAttachments, Ci.nsIMsgAttachment)) {
       let index = this.bigFiles.indexOf(attachment);
       if (index != -1)
         this.bigFiles.splice(index, 1);
@@ -102,7 +102,7 @@ var gBigFileObserver = {
     let uploaded = [];
 
     for (let attachment of fixIterator(
-         aAttachments, Components.interfaces.nsIMsgAttachment)) {
+         aAttachments, Ci.nsIMsgAttachment)) {
       if (attachment.sendViaCloud) {
         this.attachmentsRemoved([attachment]);
         uploaded.push(attachment);

@@ -81,8 +81,8 @@ Sanitizer.prototype = {
         try {
           // Cache doesn't consult timespan, nor does it have the
           // facility for timespan-based eviction.  Wipe it.
-          let cache = Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
-                                .getService(Ci.nsICacheStorageService);
+          let cache = Cc["@mozilla.org/netwerk/cache-storage-service;1"]
+                        .getService(Ci.nsICacheStorageService);
           cache.clear();
         } catch (ex) {}
 
@@ -132,7 +132,7 @@ Sanitizer.prototype = {
               ph.clearSiteData(tags[i], null, FLAG_CLEAR_ALL, age);
             } catch (e) {
               // If the plugin doesn't support clearing by age, clear everything.
-              if (e.result == Components.results.
+              if (e.result == Cr.
                     NS_ERROR_PLUGIN_TIME_RANGE_NOT_SUPPORTED) {
                 try {
                   ph.clearSiteData(tags[i], null, FLAG_CLEAR_ALL, -1);
@@ -167,14 +167,14 @@ Sanitizer.prototype = {
           PlacesUtils.history.clear();
 
         try {
-          var os = Components.classes["@mozilla.org/observer-service;1"]
-                             .getService(Components.interfaces.nsIObserverService);
+          var os = Cc["@mozilla.org/observer-service;1"]
+                     .getService(Ci.nsIObserverService);
           os.notifyObservers(null, "browser:purge-session-history");
         } catch (e) { }
 
         try {
-          var predictor = Components.classes["@mozilla.org/network/predictor;1"]
-                                    .getService(Components.interfaces.nsINetworkPredictor);
+          var predictor = Cc["@mozilla.org/network/predictor;1"]
+                            .getService(Ci.nsINetworkPredictor);
           predictor.reset();
         } catch (e) { }
       },

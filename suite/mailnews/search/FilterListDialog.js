@@ -121,14 +121,14 @@ var gFilterTreeView = {
   performActionOnCell: function performActionOnCell(action, row, col) {}
 }
 
-const nsMsgFilterMotion = Components.interfaces.nsMsgFilterMotion;
+const nsMsgFilterMotion = Ci.nsMsgFilterMotion;
 
 function onLoad()
 {
     setHelpFileURI("chrome://communicator/locale/help/suitehelp.rdf");
-    gFilterListMsgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"].createInstance(Components.interfaces.nsIMsgWindow);
+    gFilterListMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(Ci.nsIMsgWindow);
     gFilterListMsgWindow.domWindow = window;
-    gFilterListMsgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
+    gFilterListMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
     gFilterListMsgWindow.statusFeedback = gStatusFeedback;
 
     gFilterBundle = document.getElementById("bundle_filter");
@@ -375,7 +375,7 @@ function onFilterUnload()
 function onFilterClose(aCancelQuit, aTopic, aData)
 {
   if (aTopic == "quit-application-requested" &&
-      aCancelQuit instanceof Components.interfaces.nsISupportsPRBool &&
+      aCancelQuit instanceof Ci.nsISupportsPRBool &&
       aCancelQuit.data)
     return false;
 
@@ -410,8 +410,8 @@ function runSelectedFilters()
 
   var msgFolder = gRunFiltersFolderPicker._folder || gRunFiltersFolderPicker.selectedItem._folder;
   var filterList = MailServices.filters.getTempFilterList(msgFolder);
-  var folders = Components.classes["@mozilla.org/array;1"]
-                          .createInstance(Components.interfaces.nsIMutableArray);
+  var folders = Cc["@mozilla.org/array;1"]
+                  .createInstance(Ci.nsIMutableArray);
   folders.appendElement(msgFolder);
 
   // make sure the tmp filter list uses the real filter list log stream
@@ -486,7 +486,7 @@ function getFilterFolderForSelection()
 
     if (args && args[0] && selectedFolder)
     {
-        var msgFolder = selectedFolder.QueryInterface(Components.interfaces.nsIMsgFolder);
+        var msgFolder = selectedFolder.QueryInterface(Ci.nsIMsgFolder);
         try
         {
             var rootFolder = msgFolder.server.rootFolder;
@@ -528,7 +528,7 @@ function getServerThatCanHaveFilters()
     for (var index = 0; index < numServers; index++)
     {
         var currentServer =
-          allServers.queryElementAt(index, Components.interfaces.nsIMsgIncomingServer);
+          allServers.queryElementAt(index, Ci.nsIMsgIncomingServer);
 
         if (currentServer.canHaveFilters)
             return currentServer;
@@ -611,7 +611,7 @@ function getFirstFolder(msgFolder)
     // Find Inbox for imap and pop
     if (msgFolder.server.type != "nntp")
     {
-      const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+      const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
       var inboxFolder = msgFolder.getFolderWithFlags(nsMsgFolderFlags.Inbox);
       if (inboxFolder)
         return inboxFolder;

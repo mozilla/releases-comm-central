@@ -49,7 +49,7 @@ var tests = [
   function test_nsIMsgMessageUrl() {
     let url = newURL().QueryInterface(Ci.nsIMsgMessageUrl);
     Assert.ok("originalSpec" in url);
-    let appDir = Services.dirsvc.get("GreD", Components.interfaces.nsIFile);
+    let appDir = Services.dirsvc.get("GreD", Ci.nsIFile);
     Assert.ok(appDir.path);
     // test attributes
     url.messageFile = appDir;

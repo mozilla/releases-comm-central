@@ -40,10 +40,10 @@ const SUBTITLE_ID = "feedSubtitleText";
 
 function getPrefAppForType(t) {
   switch (t) {
-    case Components.interfaces.nsIFeed.TYPE_VIDEO:
+    case Ci.nsIFeed.TYPE_VIDEO:
       return PREF_VIDEO_SELECTED_APP;
 
-    case Components.interfaces.nsIFeed.TYPE_AUDIO:
+    case Ci.nsIFeed.TYPE_AUDIO:
       return PREF_AUDIO_SELECTED_APP;
 
     default:
@@ -53,10 +53,10 @@ function getPrefAppForType(t) {
 
 function getPrefWebForType(t) {
   switch (t) {
-    case Components.interfaces.nsIFeed.TYPE_VIDEO:
+    case Ci.nsIFeed.TYPE_VIDEO:
       return PREF_VIDEO_SELECTED_WEB;
 
-    case Components.interfaces.nsIFeed.TYPE_AUDIO:
+    case Ci.nsIFeed.TYPE_AUDIO:
       return PREF_AUDIO_SELECTED_WEB;
 
     default:
@@ -66,10 +66,10 @@ function getPrefWebForType(t) {
 
 function getPrefActionForType(t) {
   switch (t) {
-    case Components.interfaces.nsIFeed.TYPE_VIDEO:
+    case Ci.nsIFeed.TYPE_VIDEO:
       return PREF_VIDEO_SELECTED_ACTION;
 
-    case Components.interfaces.nsIFeed.TYPE_AUDIO:
+    case Ci.nsIFeed.TYPE_AUDIO:
       return PREF_AUDIO_SELECTED_ACTION;
 
     default:
@@ -79,10 +79,10 @@ function getPrefActionForType(t) {
 
 function getPrefReaderForType(t) {
   switch (t) {
-    case Components.interfaces.nsIFeed.TYPE_VIDEO:
+    case Ci.nsIFeed.TYPE_VIDEO:
       return PREF_VIDEO_SELECTED_READER;
 
-    case Components.interfaces.nsIFeed.TYPE_AUDIO:
+    case Ci.nsIFeed.TYPE_AUDIO:
       return PREF_AUDIO_SELECTED_READER;
 
     default:
@@ -148,14 +148,14 @@ function convertByteUnits(aBytes) {
 }
 
 function FeedWriter() {
-  this._mimeSvc = Components.classes["@mozilla.org/mime;1"]
-                            .getService(Components.interfaces.nsIMIMEService);
+  this._mimeSvc = Cc["@mozilla.org/mime;1"]
+                    .getService(Ci.nsIMIMEService);
 }
 
 FeedWriter.prototype = {
   _getPropertyAsBag: function getPropertyAsBag(container, property) {
     return container.fields.getProperty(property)
-                    .QueryInterface(Components.interfaces.nsIPropertyBag2);
+                    .QueryInterface(Ci.nsIPropertyBag2);
   },
 
   _getPropertyAsString: function getPropertyAsString(container, property) {
@@ -197,7 +197,7 @@ FeedWriter.prototype = {
    *          The URI spec to set as the href
    */
   _safeSetURIAttribute: function safeSetURIAttribute(element, attribute, uri) {
-    const flags = Components.interfaces.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL;
+    const flags = Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL;
     try {
       Services.scriptSecurityManager.checkLoadURIStrWithPrincipal(this._feedPrincipal, uri, flags);
       // checkLoadURIStrWithPrincipal will throw if the link URI should not be
@@ -213,8 +213,8 @@ FeedWriter.prototype = {
   __faviconService: null,
   get _faviconService() {
     if (!this.__faviconService)
-      this.__faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"]
-                                        .getService(Components.interfaces.mozIAsyncFavicons);
+      this.__faviconService = Cc["@mozilla.org/browser/favicon-service;1"]
+                                .getService(Ci.mozIAsyncFavicons);
 
     return this.__faviconService;
   },
@@ -297,13 +297,13 @@ FeedWriter.prototype = {
     try {
       // grab the feed because it's got the feed.type in it.
       var container = this._getContainer();
-      var feed = container.QueryInterface(Components.interfaces.nsIFeed);
+      var feed = container.QueryInterface(Ci.nsIFeed);
       this.__feedType = feed.type;
       return feed.type;
     } catch (ex) {
     }
 
-    return Components.interfaces.nsIFeed.TYPE_FEED;
+    return Ci.nsIFeed.TYPE_FEED;
   },
 
   /**
@@ -311,10 +311,10 @@ FeedWriter.prototype = {
    */
   _getMimeTypeForFeedType: function getMimeTypeForFeedType() {
     switch (this._getFeedType()) {
-      case Components.interfaces.nsIFeed.TYPE_VIDEO:
+      case Ci.nsIFeed.TYPE_VIDEO:
         return TYPE_MAYBE_VIDEO_FEED;
 
-      case Components.interfaces.nsIFeed.TYPE_AUDIO:
+      case Ci.nsIFeed.TYPE_AUDIO:
         return TYPE_MAYBE_AUDIO_FEED;
 
       default:
@@ -333,7 +333,7 @@ FeedWriter.prototype = {
       this._document.title = container.title.plainText();
     }
 
-    var feed = container.QueryInterface(Components.interfaces.nsIFeed);
+    var feed = container.QueryInterface(Ci.nsIFeed);
     if (feed && feed.subtitle)
       this._setContentText(SUBTITLE_ID, feed.subtitle);
   },
@@ -376,15 +376,15 @@ FeedWriter.prototype = {
    */
   _writeFeedContent: function writeFeedContent(container) {
     // Build the actual feed content
-    var feed = container.QueryInterface(Components.interfaces.nsIFeed);
+    var feed = container.QueryInterface(Ci.nsIFeed);
     if (feed.items.length == 0)
       return;
 
     var feedContent = this._document.getElementById("feedContent");
 
     for (let i = 0; i < feed.items.length; ++i) {
-      let entry = feed.items.queryElementAt(i, Components.interfaces.nsIFeedEntry);
-      entry.QueryInterface(Components.interfaces.nsIFeedContainer);
+      let entry = feed.items.queryElementAt(i, Ci.nsIFeedEntry);
+      entry.QueryInterface(Ci.nsIFeedContainer);
 
       let entryContainer = this._document.createElementNS(HTML_NS, "div");
       entryContainer.className = "entry";
@@ -467,7 +467,7 @@ FeedWriter.prototype = {
   _getURLDisplayName: function getURLDisplayName(aURL) {
     var url = makeURI(aURL);
 
-    if ((url instanceof Components.interfaces.nsIURL) && url.fileName)
+    if ((url instanceof Ci.nsIURL) && url.fileName)
       return decodeURIComponent(url.fileName);
     return aURL;
   },
@@ -486,7 +486,7 @@ FeedWriter.prototype = {
     enclosuresDiv.appendChild(this._document.createTextNode(this._getString("mediaLabel")));
 
     for (let i_enc = 0; i_enc < entry.enclosures.length; ++i_enc) {
-      let enc = entry.enclosures.queryElementAt(i_enc, Components.interfaces.nsIWritablePropertyBag2);
+      let enc = entry.enclosures.queryElementAt(i_enc, Ci.nsIWritablePropertyBag2);
 
       if (!(enc.hasKey("url")))
         continue;
@@ -557,8 +557,8 @@ FeedWriter.prototype = {
    *          the feed.
    */
   _getContainer: function getContainer(result) {
-    var feedService = Components.classes["@mozilla.org/browser/feeds/result-service;1"]
-                                .getService(Components.interfaces.nsIFeedResultService);
+    var feedService = Cc["@mozilla.org/browser/feeds/result-service;1"]
+                        .getService(Ci.nsIFeedResultService);
 
     try {
       var result = feedService.getFeedResult(this._getOriginalURI(this._window));
@@ -590,13 +590,13 @@ FeedWriter.prototype = {
    */
   _getFileDisplayName: function getFileDisplayName(file) {
     if ("nsILocalFileWin" in Components.interfaces &&
-        file instanceof Components.interfaces.nsILocalFileWin) {
+        file instanceof Ci.nsILocalFileWin) {
       try {
         return file.getVersionInfoField("FileDescription");
       } catch (e) {}
     }
     else if ("nsILocalFileMac" in Components.interfaces &&
-             file instanceof Components.interfaces.nsILocalFileMac) {
+             file instanceof Ci.nsILocalFileMac) {
       try {
         return file.bundleDisplayName;
       } catch (e) {}
@@ -612,7 +612,7 @@ FeedWriter.prototype = {
    */
   _getFileIconURL: function getFileIconURL(file) {
     var fph = Services.io.getProtocolHandler("file")
-                      .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+                      .QueryInterface(Ci.nsIFileProtocolHandler);
     var urlSpec = fph.getURLSpecFromFile(file);
     return "moz-icon://" + urlSpec + "?size=16";
   },
@@ -645,17 +645,17 @@ FeedWriter.prototype = {
    */
   _chooseClientApp: function chooseClientApp() {
     try {
-      var fp = Components.classes["@mozilla.org/filepicker;1"]
-                         .createInstance(Components.interfaces.nsIFilePicker);
+      var fp = Cc["@mozilla.org/filepicker;1"]
+                 .createInstance(Ci.nsIFilePicker);
       fp.init(this._window,
               this._getString("chooseApplicationDialogTitle"),
-              Components.interfaces.nsIFilePicker.modeOpen);
-      fp.appendFilters(Components.interfaces.nsIFilePicker.filterApps);
+              Ci.nsIFilePicker.modeOpen);
+      fp.appendFilters(Ci.nsIFilePicker.filterApps);
 
-      if (fp.show() == Components.interfaces.nsIFilePicker.returnOK) {
+      if (fp.show() == Ci.nsIFilePicker.returnOK) {
         this._selectedApp = fp.file;
         if (this._selectedApp) {
-          var file = Services.dirsvc.get("XREExeF", Components.interfaces.nsIFile);
+          var file = Services.dirsvc.get("XREExeF", Ci.nsIFile);
           if (fp.file.leafName != file.leafName) {
             this._initMenuItemWithFile(this._selectedAppMenuItem,
                                        this._selectedApp);
@@ -685,11 +685,11 @@ FeedWriter.prototype = {
   _setSubscribeUsingLabel: function setSubscribeUsingLabel() {
     var stringLabel = "subscribeFeedUsing";
     switch (this._getFeedType()) {
-      case Components.interfaces.nsIFeed.TYPE_VIDEO:
+      case Ci.nsIFeed.TYPE_VIDEO:
         stringLabel = "subscribeVideoPodcastUsing";
         break;
 
-      case Components.interfaces.nsIFeed.TYPE_AUDIO:
+      case Ci.nsIFeed.TYPE_AUDIO:
         stringLabel = "subscribeAudioPodcastUsing";
         break;
     }
@@ -706,11 +706,11 @@ FeedWriter.prototype = {
                               .getAttribute("label");
         var stringLabel = "alwaysUseForFeeds";
         switch (this._getFeedType()) {
-          case Components.interfaces.nsIFeed.TYPE_VIDEO:
+          case Ci.nsIFeed.TYPE_VIDEO:
             stringLabel = "alwaysUseForVideoPodcasts";
             break;
 
-          case Components.interfaces.nsIFeed.TYPE_AUDIO:
+          case Ci.nsIFeed.TYPE_AUDIO:
             stringLabel = "alwaysUseForAudioPodcasts";
             break;
         }
@@ -779,7 +779,7 @@ FeedWriter.prototype = {
         try {
           this._selectedApp =
             Services.prefs.getComplexValue(getPrefAppForType(feedType),
-                                           Components.interfaces.nsIFile);
+                                           Ci.nsIFile);
         }
         catch(ex) {
           this._selectedApp = null;
@@ -823,11 +823,11 @@ FeedWriter.prototype = {
     // change the background
     var header = this._document.getElementById("feedHeader");
     switch (feedType) {
-      case Components.interfaces.nsIFeed.TYPE_VIDEO:
+      case Ci.nsIFeed.TYPE_VIDEO:
         header.className = "videoPodcastBackground";
         break;
 
-      case Components.interfaces.nsIFeed.TYPE_AUDIO:
+      case Ci.nsIFeed.TYPE_AUDIO:
         header.className = "audioPodcastBackground";
         break;
 
@@ -845,7 +845,7 @@ FeedWriter.prototype = {
     menuItem.setAttribute("handlerType", "client");
     try {
       this._selectedApp = Services.prefs.getComplexValue(getPrefAppForType(feedType),
-                                                         Components.interfaces.nsIFile);
+                                                         Ci.nsIFile);
 
       if (this._selectedApp.exists())
         this._initMenuItemWithFile(menuItem, this._selectedApp);
@@ -863,9 +863,9 @@ FeedWriter.prototype = {
 
     // List the default feed reader
     try {
-      this._defaultSystemReader = Components.classes["@mozilla.org/suite/shell-service;1"]
-                                            .getService(Components.interfaces.nsIShellService)
-                                            .defaultFeedReader;
+      this._defaultSystemReader = Cc["@mozilla.org/suite/shell-service;1"]
+                                    .getService(Ci.nsIShellService)
+                                    .defaultFeedReader;
       menuItem = liveBookmarksMenuItem.cloneNode(false);
       menuItem.removeAttribute("selected");
       menuItem.setAttribute("anonid", "defaultHandlerMenuItem");
@@ -901,8 +901,8 @@ FeedWriter.prototype = {
     handlersMenuPopup.appendChild(menuItem);
 
     // List of web handlers
-    var wccr = Components.classes["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
-                         .getService(Components.interfaces.nsIWebContentConverterService);
+    var wccr = Cc["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
+                 .getService(Ci.nsIWebContentConverterService);
     var handlers = wccr.getContentHandlers(this._getMimeTypeForFeedType(feedType));
     if (handlers.length != 0) {
       for (let i = 0; i < handlers.length; ++i) {
@@ -945,11 +945,11 @@ FeedWriter.prototype = {
     if (showFirstRunUI) {
       var textfeedinfo1, textfeedinfo2;
       switch (feedType) {
-        case Components.interfaces.nsIFeed.TYPE_VIDEO:
+        case Ci.nsIFeed.TYPE_VIDEO:
           textfeedinfo1 = "feedSubscriptionVideoPodcast1";
           textfeedinfo2 = "feedSubscriptionVideoPodcast2";
           break;
-        case Components.interfaces.nsIFeed.TYPE_AUDIO:
+        case Ci.nsIFeed.TYPE_AUDIO:
           textfeedinfo1 = "feedSubscriptionAudioPodcast1";
           textfeedinfo2 = "feedSubscriptionAudioPodcast2";
           break;
@@ -974,9 +974,9 @@ FeedWriter.prototype = {
    *        The window of the document invoking the BrowserFeedWriter
    */
   _getOriginalURI: function getOriginalURI(aWindow) {
-    var chan = aWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                      .getInterface(Components.interfaces.nsIWebNavigation)
-                      .QueryInterface(Components.interfaces.nsIDocShell)
+    var chan = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                      .getInterface(Ci.nsIWebNavigation)
+                      .QueryInterface(Ci.nsIDocShell)
                       .currentDocumentChannel;
     // The following channel is never openend, so it does not matter what
     // securityFlags we pass; let's follow the principle of least privilege.
@@ -984,8 +984,8 @@ FeedWriter.prototype = {
     var channel = ios.newChannel2(FEEDHANDLER_URI, null, null, null,
                                   this._feedprincipal,
                                   null,
-                                  Components.interfaces.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_IS_BLOCKED,
-                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                  Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_IS_BLOCKED,
+                                  Ci.nsIContentPolicy.TYPE_OTHER);
     var resolvedURI = channel.URI;
 
     if (resolvedURI.equals(chan.URI))
@@ -1089,8 +1089,8 @@ FeedWriter.prototype = {
 
   _removeFeedFromCache: function removeFeedFromCache() {
     if (this._feedURI) {
-      var feedService = Components.classes["@mozilla.org/browser/feeds/result-service;1"]
-                                  .getService(Components.interfaces.nsIFeedResultService);
+      var feedService = Cc["@mozilla.org/browser/feeds/result-service;1"]
+                          .getService(Ci.nsIFeedResultService);
       feedService.removeFeedResult(this._feedURI);
       this._feedURI = null;
     }
@@ -1120,8 +1120,8 @@ FeedWriter.prototype = {
 
       Services.prefs.setStringPref(getPrefWebForType(feedType), webURI);
 
-      var wccr = Components.classes["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
-                           .getService(Components.interfaces.nsIWebContentConverterService);
+      var wccr = Cc["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
+                   .getService(Ci.nsIWebContentConverterService);
       var handler = wccr.getWebContentHandlerByURI(this._getMimeTypeForFeedType(feedType), webURI);
       if (handler) {
         if (useAsDefault)
@@ -1133,12 +1133,12 @@ FeedWriter.prototype = {
     else {
       switch (selectedItem.getAttribute("anonid")) {
         case "selectedAppMenuItem":
-          Services.prefs.setComplexValue(getPrefAppForType(feedType), Components.interfaces.nsIFile,
+          Services.prefs.setComplexValue(getPrefAppForType(feedType), Ci.nsIFile,
                                          this._selectedApp);
           Services.prefs.setCharPref(getPrefReaderForType(feedType), "client");
           break;
         case "defaultHandlerMenuItem":
-          Services.prefs.setComplexValue(getPrefAppForType(feedType), Components.interfaces.nsIFile,
+          Services.prefs.setComplexValue(getPrefAppForType(feedType), Ci.nsIFile,
                                          this._defaultSystemReader);
           Services.prefs.setCharPref(getPrefReaderForType(feedType), "client");
           break;
@@ -1151,8 +1151,8 @@ FeedWriter.prototype = {
           Services.prefs.setCharPref(getPrefReaderForType(feedType), "messenger");
           break;
       }
-      var feedService = Components.classes["@mozilla.org/browser/feeds/result-service;1"]
-                                  .getService(Components.interfaces.nsIFeedResultService);
+      var feedService = Cc["@mozilla.org/browser/feeds/result-service;1"]
+                          .getService(Ci.nsIFeedResultService);
 
       // Pull the title and subtitle out of the document
       var feedTitle = this._document.getElementById(TITLE_ID).textContent;
@@ -1220,15 +1220,15 @@ FeedWriter.prototype = {
       return;
     }
     let faviconURI = makeURI(readerURI.resolve("/favicon.ico"));
-    var isPB = this._window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIWebNavigation)
-                   .QueryInterface(Components.interfaces.nsIDocShell)
-                   .QueryInterface(Components.interfaces.nsILoadContext)
+    var isPB = this._window.QueryInterface(Ci.nsIInterfaceRequestor)
+                   .getInterface(Ci.nsIWebNavigation)
+                   .QueryInterface(Ci.nsIDocShell)
+                   .QueryInterface(Ci.nsILoadContext)
                    .usePrivateBrowsing;
     var flags = isPB ? this._faviconService.FAVICON_LOAD_PRIVATE :
                        this._faviconService.FAVICON_LOAD_NON_PRIVATE;
-    var nullPrincipal = Components.classes["@mozilla.org/nullprincipal;1"]
-                                  .createInstance(Components.interfaces.nsIPrincipal);
+    var nullPrincipal = Cc["@mozilla.org/nullprincipal;1"]
+                          .createInstance(Ci.nsIPrincipal);
     this._faviconService.setAndFetchFaviconForPage(
       readerURI, faviconURI, false, flags,
       function(aURI, aDataLen, aData, aMimeType) {
@@ -1242,10 +1242,10 @@ FeedWriter.prototype = {
   },
 
   classID: FEEDWRITER_CID,
-  QueryInterface: XPCOMUtils.generateQI([ Components.interfaces.nsIDOMGlobalPropertyInitializer,
-                                          Components.interfaces.nsIDOMEventListener,
-                                          Components.interfaces.nsINavHistoryObserver,
-                                          Components.interfaces.nsIObserver])
+  QueryInterface: XPCOMUtils.generateQI([ Ci.nsIDOMGlobalPropertyInitializer,
+                                          Ci.nsIDOMEventListener,
+                                          Ci.nsINavHistoryObserver,
+                                          Ci.nsIObserver])
 
 };
 

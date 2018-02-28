@@ -18,7 +18,7 @@ function SysPrefCheck()
 {
   const kPrefService = "@mozilla.org/system-preference-service;1";
   let visible = kPrefService in Components.classes &&
-    Components.classes[kPrefService].getService() instanceof Components.interfaces.nsIPrefBranch;
+    Cc[kPrefService].getService() instanceof Ci.nsIPrefBranch;
   document.getElementById("systemPrefs").hidden = !visible;
 }
 
@@ -27,9 +27,9 @@ function ShellServiceCheck()
   const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1";
 
   if (NS_SHELLSERVICE_CID in Components.classes) try {
-    Components.classes[NS_SHELLSERVICE_CID]
-              .getService(Components.interfaces.nsIShellService)
-              .shouldCheckDefaultClient;
+    Cc[NS_SHELLSERVICE_CID]
+      .getService(Ci.nsIShellService)
+      .shouldCheckDefaultClient;
     document.getElementById("checkDefault").hidden = false;
   } catch (e) {
   }
@@ -39,8 +39,8 @@ function CrashReportsCheck()
 {
   if ("nsICrashReporter" in Components.interfaces)
   {
-    var cr = Components.classes["@mozilla.org/toolkit/crash-reporter;1"]
-                       .getService(Components.interfaces.nsICrashReporter);
+    var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"]
+               .getService(Ci.nsICrashReporter);
     document.getElementById("crashReports").hidden = !cr.enabled;
     document.getElementById("submitCrashes").checked = cr.submitReports;
   }
@@ -48,7 +48,7 @@ function CrashReportsCheck()
 
 function updateSubmitCrashes(aChecked)
 {
-  Components.classes["@mozilla.org/toolkit/crash-reporter;1"]
-            .getService(Components.interfaces.nsICrashReporter)
-            .submitReports = aChecked;
+  Cc["@mozilla.org/toolkit/crash-reporter;1"]
+    .getService(Ci.nsICrashReporter)
+    .submitReports = aChecked;
 }

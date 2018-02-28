@@ -24,13 +24,13 @@ const SIDEBAR_CONTRACTID   = "@mozilla.org/sidebar;1";
 const SIDEBAR_CID      = Components.ID("{22117140-9c6e-11d3-aaf1-00805f8a4905}");
 const CONTAINER_CONTRACTID = "@mozilla.org/rdf/container;1";
 const NETSEARCH_CONTRACTID = "@mozilla.org/rdf/datasource;1?name=internetsearch"
-const nsISupports      = Components.interfaces.nsISupports;
-const nsISidebar       = Components.interfaces.nsISidebar;
-const nsIRDFContainer  = Components.interfaces.nsIRDFContainer;
-const nsIProperties    = Components.interfaces.nsIProperties;
-const nsIFileURL       = Components.interfaces.nsIFileURL;
-const nsIRDFRemoteDataSource = Components.interfaces.nsIRDFRemoteDataSource;
-const nsIClassInfo     = Components.interfaces.nsIClassInfo;
+const nsISupports      = Ci.nsISupports;
+const nsISidebar       = Ci.nsISidebar;
+const nsIRDFContainer  = Ci.nsIRDFContainer;
+const nsIProperties    = Ci.nsIProperties;
+const nsIFileURL       = Ci.nsIFileURL;
+const nsIRDFRemoteDataSource = Ci.nsIRDFRemoteDataSource;
+const nsIClassInfo     = Ci.nsIClassInfo;
 
 // File extension for Sherlock search plugin description files
 const SHERLOCK_FILE_EXT_REGEXP = /\.src$/i;
@@ -41,9 +41,9 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 function nsSidebar()
 {
     const RDF_CONTRACTID = "@mozilla.org/rdf/rdf-service;1";
-    const nsIRDFService = Components.interfaces.nsIRDFService;
+    const nsIRDFService = Ci.nsIRDFService;
 
-    this.rdf = Components.classes[RDF_CONTRACTID].getService(nsIRDFService);
+    this.rdf = Cc[RDF_CONTRACTID].getService(nsIRDFService);
     this.datasource_uri = getSidebarDatasourceURI(PANELS_RDF_FILE);
     gDebugLog('datasource_uri is ' + this.datasource_uri);
     this.resource = 'urn:sidebar:current-panel-list';
@@ -56,7 +56,7 @@ nsSidebar.prototype.isPanel =
 function (aContentURL)
 {
     var container =
-        Components.classes[CONTAINER_CONTRACTID].createInstance(nsIRDFContainer);
+        Cc[CONTAINER_CONTRACTID].createInstance(nsIRDFContainer);
 
     container.Init(this.datasource, this.rdf.GetResource(this.resource));
 
@@ -101,13 +101,13 @@ function (aTitle, aContentURL, aCustomizeURL, aPersist)
     // manipulate the RDF:Seq more easily.
     var panel_list = this.datasource.GetTarget(this.rdf.GetResource(this.resource), this.rdf.GetResource(nsSidebar.prototype.nc+"panel-list"), true);
     if (panel_list) {
-        panel_list.QueryInterface(Components.interfaces.nsIRDFResource);
+        panel_list.QueryInterface(Ci.nsIRDFResource);
     } else {
         // Datasource is busted. Start over.
         gDebugLog("Sidebar datasource is busted\n");
     }
 
-    var container = Components.classes[CONTAINER_CONTRACTID].createInstance(nsIRDFContainer);
+    var container = Cc[CONTAINER_CONTRACTID].createInstance(nsIRDFContainer);
     container.Init(this.datasource, panel_list);
 
     /* Create a resource for the new panel and add it to the list */
@@ -219,7 +219,7 @@ function (engineURL, iconURL)
   catch(ex)
   {
     gDebugLog(ex);
-    Components.utils.reportError("Invalid argument passed to window.sidebar.addSearchEngine: " + ex);
+    Cu.reportError("Invalid argument passed to window.sidebar.addSearchEngine: " + ex);
 
     var searchBundle = Services.strings.createBundle("chrome://global/locale/search/search.properties");
     var brandBundle = Services.strings.createBundle("chrome://branding/locale/brand.properties");
@@ -250,9 +250,9 @@ function (engineURL, iconURL, suggestedTitle, suggestedCategory)
   // (text) file, and anything else is OpenSearch (XML).
   var dataType;
   if (SHERLOCK_FILE_EXT_REGEXP.test(engineURL))
-    dataType = Components.interfaces.nsISearchEngine.DATA_TEXT;
+    dataType = Ci.nsISearchEngine.DATA_TEXT;
   else
-    dataType = Components.interfaces.nsISearchEngine.DATA_XML;
+    dataType = Ci.nsISearchEngine.DATA_XML;
 
   Services.search.addEngine(engineURL, dataType, iconURL, true);
 }
@@ -280,7 +280,7 @@ function (aDescriptionURL)
   if (!this.validateSearchEngine(aDescriptionURL, iconURL))
     return;
 
-  const typeXML = Components.interfaces.nsISearchEngine.DATA_XML;
+  const typeXML = Ci.nsISearchEngine.DATA_XML;
   Services.search.addEngine(aDescriptionURL, typeXML, iconURL, true);
 }
 
@@ -330,7 +330,7 @@ function getSidebarDatasourceURI(panels_file_id)
          * if <profile>/panels.rdf doesn't exist, get will copy
          *bin/defaults/profile/panels.rdf to <profile>/panels.rdf */
         var sidebar_file = Services.dirsvc.get(panels_file_id,
-                                               Components.interfaces.nsIFile);
+                                               Ci.nsIFile);
 
         if (!sidebar_file.exists())
         {
@@ -340,7 +340,7 @@ function getSidebarDatasourceURI(panels_file_id)
             return null;
         }
 
-        var file_handler = Services.io.getProtocolHandler("file").QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+        var file_handler = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
         var sidebar_uri = file_handler.getURLSpecFromFile(sidebar_file);
         gDebugLog("sidebar uri is " + sidebar_uri);
         return sidebar_uri;

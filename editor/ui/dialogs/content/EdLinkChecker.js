@@ -19,7 +19,7 @@ var gRequestObserver =
   // onStopRequest is where we really handle the status.
   onStopRequest: function(request, ctxt, status)
   {
-    var linkChecker = request.QueryInterface(Components.interfaces.nsIURIChecker);
+    var linkChecker = request.QueryInterface(Ci.nsIURIChecker);
     if (linkChecker)
     {
       gNumLinksCalledBack++;
@@ -70,7 +70,7 @@ function Startup()
   for (let i = 0; i < objects.length; i++)
   {
     let refobj = objects.queryElementAt(gNumLinksToCheck,
-                                        Components.interfaces.nsIURIRefObject);
+                                        Ci.nsIURIRefObject);
     // Loop over the links in this node:
     if (refobj)
     {
@@ -84,16 +84,16 @@ function Startup()
 
           // Make a new nsIURIChecker
           gLinksBeingChecked[gNumLinksToCheck]
-            = Components.classes["@mozilla.org/network/urichecker;1"]
+            = Cc["@mozilla.org/network/urichecker;1"]
                 .createInstance()
-                  .QueryInterface(Components.interfaces.nsIURIChecker);
+                  .QueryInterface(Ci.nsIURIChecker);
           // XXX uri creation needs to be localized
           gLinksBeingChecked[gNumLinksToCheck].init(GetIOService().newURI(uri));
           gLinksBeingChecked[gNumLinksToCheck].asyncCheck(gRequestObserver, null);
 
           // Add item
           let linkChecker = gLinksBeingChecked[gNumLinksToCheck]
-                            .QueryInterface(Components.interfaces.nsIURIChecker);
+                            .QueryInterface(Ci.nsIURIChecker);
           SetItemStatus(linkChecker.name, "busy");
           dump(" *** Linkcount = "+gNumLinksToCheck+"\n");
           gNumLinksToCheck++;
@@ -120,7 +120,7 @@ function LinkCheckTimeOut()
   gStartedAllChecks = false;
   for (var i=0; i < gLinksBeingChecked.length; i++)
   {
-    var linkChecker = gLinksBeingChecked[i].QueryInterface(Components.interfaces.nsIURIChecker);
+    var linkChecker = gLinksBeingChecked[i].QueryInterface(Ci.nsIURIChecker);
     // nsIURIChecker status values:
     // NS_BINDING_SUCCEEDED     link is valid
     // NS_BINDING_FAILED        link is invalid (gave an error)

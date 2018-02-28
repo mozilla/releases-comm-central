@@ -178,7 +178,7 @@
       } catch (ex) {
         // Things may go wrong when adding url to session history,
         // but don't let that interfere with the loading of the url.
-        Components.utils.reportError(ex);
+        Cu.reportError(ex);
       }
 
       if (where != "current" ||
@@ -221,8 +221,8 @@
       return;
 
     if (!gURIFixup)
-      gURIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
-                            .getService(Components.interfaces.nsIURIFixup);
+      gURIFixup = Cc["@mozilla.org/docshell/urifixup;1"]
+                    .getService(Ci.nsIURIFixup);
 
     getShortcutOrURIAndPostData(aUrlToAdd).then(data => {
       var fixedUpURI = gURIFixup.createFixupURI(data.url, 0);

@@ -92,8 +92,8 @@ httpRequestObserver.prototype = {
                        .associatedWindow;
       }
     } catch(e) {
-      Components.utils.reportError("Could not find an associated window "
-                                   + "for an HTTP request. Error: " + e);
+      Cu.reportError("Could not find an associated window "
+                     + "for an HTTP request. Error: " + e);
     }
     return null;
   },
@@ -187,7 +187,7 @@ TracingListener.prototype = {
       // Something went wrong with account set up. Dump the error out to the
       // error console. The tab will be closed, and the Account Provisioner
       // tab will be reopened.
-      Components.utils.reportError("Problem interpreting provider XML:" + e);
+      Cu.reportError("Problem interpreting provider XML:" + e);
     }
 
     tabmail.switchToTab(0);

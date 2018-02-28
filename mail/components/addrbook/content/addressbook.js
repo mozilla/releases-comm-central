@@ -12,7 +12,7 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var nsIAbListener = Components.interfaces.nsIAbListener;
+var nsIAbListener = Ci.nsIAbListener;
 var kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
 var kPersistCollapseMapStorage = "directoryTree.json";
 
@@ -23,8 +23,8 @@ var gCardViewBox;
 var gCardViewBoxEmail1;
 var gPreviousDirTreeIndex = -1;
 
-var msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                          .createInstance(Components.interfaces.nsIMsgWindow);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                  .createInstance(Ci.nsIMsgWindow);
 
 var chatHandler = {};
 ChromeUtils.import("resource:///modules/chatHandler.jsm", chatHandler);
@@ -63,7 +63,7 @@ var gAddressBookAbListener = {
         // the case if items are being removed via other methods, e.g. sidebar,
         // LDAP preference pane etc.
         if (gDirTree.currentIndex == -1) {
-          var directory = item.QueryInterface(Components.interfaces.nsIAbDirectory);
+          var directory = item.QueryInterface(Ci.nsIAbDirectory);
 
           // If we are a mail list, move the selection up the list before
           // trying to find the parent. This way we'll end up selecting the
@@ -215,9 +215,9 @@ function delayedOnLoadAddressBook()
   toolbox.toolbarset = toolbarset;
 
   // Ensure we don't load xul error pages into the main window
-  window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-        .getInterface(Components.interfaces.nsIWebNavigation)
-        .QueryInterface(Components.interfaces.nsIDocShell)
+  window.QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIWebNavigation)
+        .QueryInterface(Ci.nsIDocShell)
         .useErrorPages = false;
 
   MailServices.mailSession.AddMsgWindow(msgWindow);
@@ -254,7 +254,7 @@ function GetCurrentPrefs()
   // initialize phonetic
   var showPhoneticFields =
     Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
-      Components.interfaces.nsIPrefLocalizedString).data;
+      Ci.nsIPrefLocalizedString).data;
   // show phonetic fields if indicated by the pref
   if (showPhoneticFields == "true")
     document.getElementById("cmd_SortBy_PhoneticName")
@@ -347,8 +347,8 @@ function AbPrintCardInternal(doPrintPreview, msgType)
     return;
 
   let statusFeedback;
-  statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"].createInstance();
-  statusFeedback = statusFeedback.QueryInterface(Components.interfaces.nsIMsgStatusFeedback);
+  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
+  statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
   let selectionArray = [];
 
@@ -371,12 +371,12 @@ function AbPrintCardInternal(doPrintPreview, msgType)
 
 function AbPrintCard()
 {
-  AbPrintCardInternal(false, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINT_AB_CARD);
+  AbPrintCardInternal(false, Ci.nsIMsgPrintEngine.MNAB_PRINT_AB_CARD);
 }
 
 function AbPrintPreviewCard()
 {
-  AbPrintCardInternal(true, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_AB_CARD);
+  AbPrintCardInternal(true, Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_AB_CARD);
 }
 
 function CreatePrintCardUrl(card)
@@ -391,8 +391,8 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType)
     return;
 
   var statusFeedback;
-  statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"].createInstance();
-  statusFeedback = statusFeedback.QueryInterface(Components.interfaces.nsIMsgStatusFeedback);
+  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
+  statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
   /*
     turn "moz-abmdbdirectory://abook.mab" into
@@ -412,12 +412,12 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType)
 
 function AbPrintAddressBook()
 {
-  AbPrintAddressBookInternal(false, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINT_ADDRBOOK);
+  AbPrintAddressBookInternal(false, Ci.nsIMsgPrintEngine.MNAB_PRINT_ADDRBOOK);
 }
 
 function AbPrintPreviewAddressBook()
 {
-  AbPrintAddressBookInternal(true, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_ADDRBOOK);
+  AbPrintAddressBookInternal(true, Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_ADDRBOOK);
 }
 
 /**
@@ -466,10 +466,10 @@ function AbExport(aSelectedDirURI)
   catch (ex) {
     let message;
     switch (ex.result) {
-      case Components.results.NS_ERROR_FILE_ACCESS_DENIED:
+      case Cr.NS_ERROR_FILE_ACCESS_DENIED:
         message = gAddressBookBundle.getString("failedToExportMessageFileAccessDenied");
         break;
-      case Components.results.NS_ERROR_FILE_NO_DEVICE_SPACE:
+      case Cr.NS_ERROR_FILE_NO_DEVICE_SPACE:
         message = gAddressBookBundle.getString("failedToExportMessageNoDeviceSpace");
         break;
       default:
@@ -510,7 +510,7 @@ function SetStatusText(total)
     gStatusText.setAttribute("label", statusText);
   }
   catch(ex) {
-    Components.utils.reportError("ERROR: failed to set status text:  " + ex );
+    Cu.reportError("ERROR: failed to set status text:  " + ex );
   }
 }
 
@@ -709,21 +709,21 @@ function AbIMSelected()
   let cards = GetSelectedAbCards();
 
   if (!cards) {
-    Components.utils.reportError("ERROR: AbIMSelected: |cards| is null.");
+    Cu.reportError("ERROR: AbIMSelected: |cards| is null.");
     return;
   }
 
   if (cards.length != 1) {
-    Components.utils.reportError("AbIMSelected should only be called when 1" +
-                                 " card is selected. There are " +
-                                 cards.length + " cards selected.");
+    Cu.reportError("AbIMSelected should only be called when 1" +
+                   " card is selected. There are " +
+                   cards.length + " cards selected.");
     return;
   }
 
   let card = cards[0];
 
   if (!card) {
-    Components.utils.reportError("AbIMSelected: one card was selected, but its only member was null.");
+    Cu.reportError("AbIMSelected: one card was selected, but its only member was null.");
     return;
   }
   // We want to open a conversation with the first online username that we can

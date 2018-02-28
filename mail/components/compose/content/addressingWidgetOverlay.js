@@ -14,8 +14,8 @@ var selectElementIndexTable = null;
 
 var gNumberOfCols = 0;
 
-var gDragService = Components.classes["@mozilla.org/widget/dragservice;1"]
-                             .getService(Components.interfaces.nsIDragService);
+var gDragService = Cc["@mozilla.org/widget/dragservice;1"]
+                     .getService(Ci.nsIDragService);
 
 var test_addresses_sequence = false;
 
@@ -798,7 +798,7 @@ function DropOnAddressingWidget(event)
 {
   var dragSession = gDragService.getCurrentSession();
 
-  var trans = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
+  var trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
   trans.init(getLoadContext());
   trans.addDataFlavor("text/x-moz-address");
 
@@ -810,7 +810,7 @@ function DropOnAddressingWidget(event)
     var len = new Object();
     trans.getAnyTransferData ( bestFlavor, dataObj, len );
     if ( dataObj )
-      dataObj = dataObj.value.QueryInterface(Components.interfaces.nsISupportsString);
+      dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
     if ( !dataObj )
       continue;
 
@@ -1162,7 +1162,7 @@ AutomatedAutoCompleteHandler.prototype =
       {
         addressToAdd = searchResultsForSession.items
           .queryElementAt(searchResultsForSession.defaultItemIndex,
-                          Components.interfaces.nsIAutoCompleteItem).value;
+                          Ci.nsIAutoCompleteItem).value;
         break;
       }
     }
@@ -1176,7 +1176,7 @@ AutomatedAutoCompleteHandler.prototype =
         if (searchResultsForSession && searchResultsForSession.defaultItemIndex == -1)
         {
           addressToAdd = searchResultsForSession.items
-            .queryElementAt(0, Components.interfaces.nsIAutoCompleteItem).value;
+            .queryElementAt(0, Ci.nsIAutoCompleteItem).value;
           break;
         }
       }
@@ -1201,16 +1201,16 @@ AutomatedAutoCompleteHandler.prototype =
 
   QueryInterface : function(iid)
   {
-      if (iid.equals(Components.interfaces.nsIAutoCompleteListener) ||
-          iid.equals(Components.interfaces.nsISupports))
+      if (iid.equals(Ci.nsIAutoCompleteListener) ||
+          iid.equals(Ci.nsISupports))
         return this;
-      throw Components.results.NS_NOINTERFACE;
+      throw Cr.NS_NOINTERFACE;
   }
 }
 
 // Returns the load context for the current window
 function getLoadContext() {
-  return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-               .getInterface(Components.interfaces.nsIWebNavigation)
-               .QueryInterface(Components.interfaces.nsILoadContext);
+  return window.QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIWebNavigation)
+               .QueryInterface(Ci.nsILoadContext);
 }

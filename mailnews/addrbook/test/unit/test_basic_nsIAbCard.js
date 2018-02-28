@@ -16,8 +16,8 @@ var kCompanyValue = "Test\u00D0 Company";
 
 function run_test() {
   // Create a new card
-  var card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
-                       .createInstance(Components.interfaces.nsIAbCard);
+  var card = Cc["@mozilla.org/addressbook/cardproperty;1"]
+               .createInstance(Ci.nsIAbCard);
 
   // Test - Set First, Last and Display Names and Email Address
   // via setProperty, and check correctly saved via their

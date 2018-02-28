@@ -112,7 +112,7 @@ function* check_result() {
   while (msgEnumerator.hasMoreElements()) {
     let header = msgEnumerator.getNext();
     // Verify that each message has been downloaded and looks OK.
-    if (!(header instanceof Components.interfaces.nsIMsgDBHdr &&
+    if (!(header instanceof Ci.nsIMsgDBHdr &&
           (header.flags & Ci.nsMsgMessageFlags.Offline)))
       do_throw("Message not downloaded for offline use");
 

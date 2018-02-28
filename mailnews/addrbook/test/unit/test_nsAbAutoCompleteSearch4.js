@@ -2,7 +2,7 @@
  * Fourth Test suite for nsAbAutoCompleteSearch - test for second email address.
  */
 
-var ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Ci.nsIAutoCompleteResult;
 
 var cards = [
   // Basic tests for primary and secondary emails.
@@ -124,8 +124,8 @@ function run_test()
 
   cards.forEach(createAndAddCard);
 
-  var acs = Components.classes["@mozilla.org/autocomplete/search;1?name=addrbook"]
-    .getService(Components.interfaces.nsIAutoCompleteSearch);
+  var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"]
+    .getService(Ci.nsIAutoCompleteSearch);
 
   var obs = new acObserver();
 

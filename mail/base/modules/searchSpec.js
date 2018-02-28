@@ -73,8 +73,8 @@ SearchSpec.prototype = {
   get session() {
     if (this._session == null) {
       this._session =
-        Components.classes["@mozilla.org/messenger/searchSession;1"]
-                  .createInstance(Ci.nsIMsgSearchSession);
+        Cc["@mozilla.org/messenger/searchSession;1"]
+          .createInstance(Ci.nsIMsgSearchSession);
     }
     return this._session;
   },
@@ -202,7 +202,7 @@ SearchSpec.prototype = {
     let term;
     let outTerms = aCloneTerms ? [] : aTerms;
     let inGroup = false;
-    for (term of fixIterator(aTerms, Components.interfaces.nsIMsgSearchTerm)) {
+    for (term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
       // If we're in a group, all that is forbidden is the creation of new
       // groups.
       if (inGroup) {

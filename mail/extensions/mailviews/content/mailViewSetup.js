@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
 var gMailView = null;
 
 var dialog;
@@ -47,7 +47,7 @@ function mailViewOnUnLoad()
 
 function onOK()
 {
-  var mailViewList = Components.classes["@mozilla.org/messenger/mailviewlist;1"].getService(Components.interfaces.nsIMsgMailViewList);
+  var mailViewList = Cc["@mozilla.org/messenger/mailviewlist;1"].getService(Ci.nsIMsgMailViewList);
 
   // reflect the search widgets back into the search session
   var newMailView = null;

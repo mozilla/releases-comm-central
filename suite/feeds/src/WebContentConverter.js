@@ -39,9 +39,9 @@ function LOG(str) {
 
 function getNotificationBox(aWindow)
 {
-  return aWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                .getInterface(Components.interfaces.nsIWebNavigation)
-                .QueryInterface(Components.interfaces.nsIDocShell)
+  return aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                .getInterface(Ci.nsIWebNavigation)
+                .QueryInterface(Ci.nsIDocShell)
                 .chromeEventHandler.parentNode.wrappedJSObject;
 }
 
@@ -55,27 +55,27 @@ WebContentConverter.prototype = {
   onStopRequest: function onStopRequest() { },
 
   onStartRequest: function onStartRequest(request, context) {
-    var wccr = Components.classes[WCCR_CONTRACTID]
-                         .getService(Components.interfaces.nsIWebContentConverterService);
+    var wccr = Cc[WCCR_CONTRACTID]
+                 .getService(Ci.nsIWebContentConverterService);
     wccr.loadPreferredHandler(request);
   },
 
   QueryInterface: XPCOMUtils.generateQI(
-    [Components.interfaces.nsIStreamConverter,
-     Components.interfaces.nsIStreamListener,
-     Components.interfaces.nsISupports])
+    [Ci.nsIStreamConverter,
+     Ci.nsIStreamListener,
+     Ci.nsISupports])
 };
 
 var WebContentConverterFactory = {
   createInstance: function createInstance(outer, iid) {
     if (outer != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
+      throw Cr.NS_ERROR_NO_AGGREGATION;
     return new WebContentConverter().QueryInterface(iid);
   },
 
   QueryInterface: XPCOMUtils.generateQI(
-    [Components.interfaces.nsIFactory,
-     Components.interfaces.nsISupports])
+    [Ci.nsIFactory,
+     Ci.nsISupports])
 };
 
 function ServiceInfo(contentType, uri, name) {
@@ -97,9 +97,9 @@ ServiceInfo.prototype = {
    */
   equals: function equals(aHandlerApp) {
     if (!aHandlerApp)
-      throw Components.results.NS_ERROR_NULL_POINTER;
+      throw Cr.NS_ERROR_NULL_POINTER;
 
-    if (aHandlerApp instanceof Components.interfaces.nsIWebContentHandlerInfo &&
+    if (aHandlerApp instanceof Ci.nsIWebContentHandlerInfo &&
         aHandlerApp.contentType == this.contentType &&
         aHandlerApp.uri == this.uri)
       return true;
@@ -129,8 +129,8 @@ ServiceInfo.prototype = {
   },
 
   QueryInterface: XPCOMUtils.generateQI(
-    [Components.interfaces.nsIWebContentHandlerInfo,
-     Components.interfaces.nsISupports])
+    [Ci.nsIWebContentHandlerInfo,
+     Ci.nsISupports])
 };
 
 function WebContentConverterRegistrar() {
@@ -176,7 +176,7 @@ WebContentConverterRegistrar.prototype = {
    */
   setAutoHandler: function setAutoHandler(contentType, handler) {
     if (handler && !this._typeIsRegistered(contentType, handler.uri))
-      throw Components.results.NS_ERROR_NOT_AVAILABLE;
+      throw Cr.NS_ERROR_NOT_AVAILABLE;
 
     contentType = this._resolveContentType(contentType);
     this._setAutoHandler(contentType, handler);
@@ -216,16 +216,16 @@ WebContentConverterRegistrar.prototype = {
    * See nsIWebContentConverterService
    */
   loadPreferredHandler: function loadPreferredHandler(request) {
-    var channel = request.QueryInterface(Components.interfaces.nsIChannel);
+    var channel = request.QueryInterface(Ci.nsIChannel);
     var contentType = this._resolveContentType(channel.contentType);
     var handler = this.getAutoHandler(contentType);
     if (handler) {
-      request.cancel(Components.results.NS_ERROR_FAILURE);
+      request.cancel(Cr.NS_ERROR_FAILURE);
 
       var webNavigation = channel.notificationCallbacks
-                                 .getInterface(Components.interfaces.nsIWebNavigation);
+                                 .getInterface(Ci.nsIWebNavigation);
       webNavigation.loadURI(handler.getHandlerURI(channel.URI.spec),
-                            Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
+                            Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
                             null, null, null);
     }
   },
@@ -234,17 +234,17 @@ WebContentConverterRegistrar.prototype = {
    * See nsIWebContentConverterService
    */
   removeProtocolHandler: function removeProtocolHandler(aProtocol, aURITemplate) {
-    var eps = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                        .getService(Components.interfaces.nsIExternalProtocolService);
+    var eps = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                .getService(Ci.nsIExternalProtocolService);
     var handlerInfo = eps.getProtocolHandlerInfo(aProtocol);
     var handlers =  handlerInfo.possibleApplicationHandlers;
     for (let i = 0; i < handlers.length; i++) {
       try { // We only want to test web handlers
-        let handler = handlers.queryElementAt(i, Components.interfaces.nsIWebHandlerApp);
+        let handler = handlers.queryElementAt(i, Ci.nsIWebHandlerApp);
         if (handler.uriTemplate == aURITemplate) {
           handlers.removeElementAt(i);
-          let hs = Components.classes["@mozilla.org/uriloader/handler-service;1"]
-                             .getService(Components.interfaces.nsIHandlerService);
+          let hs = Cc["@mozilla.org/uriloader/handler-service;1"]
+                     .getService(Ci.nsIHandlerService);
           hs.store(handlerInfo);
           return;
         }
@@ -339,13 +339,13 @@ WebContentConverterRegistrar.prototype = {
    * @return true if it is already registered, false otherwise.
    */
   _protocolHandlerRegistered: function protocolHandlerRegistered(aProtocol, aURITemplate) {
-    var eps = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                        .getService(Components.interfaces.nsIExternalProtocolService);
+    var eps = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                .getService(Ci.nsIExternalProtocolService);
     var handlerInfo = eps.getProtocolHandlerInfo(aProtocol);
     var handlers =  handlerInfo.possibleApplicationHandlers;
     for (let i = 0; i < handlers.length; i++) {
       try { // We only want to test web handlers
-        let handler = handlers.queryElementAt(i, Components.interfaces.nsIWebHandlerApp);
+        let handler = handlers.queryElementAt(i, Ci.nsIWebHandlerApp);
         if (handler.uriTemplate == aURITemplate)
           return true;
       } catch (e) { /* it wasn't a web handler */ }
@@ -361,10 +361,10 @@ WebContentConverterRegistrar.prototype = {
     LOG("registerProtocolHandler(" + aProtocol + "," + aURIString + "," + aTitle + ")");
 
     var win = aContentWindow;
-    var isPB = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                  .getInterface(Components.interfaces.nsIWebNavigation)
-                  .QueryInterface(Components.interfaces.nsIDocShell)
-                  .QueryInterface(Components.interfaces.nsILoadContext)
+    var isPB = win.QueryInterface(Ci.nsIInterfaceRequestor)
+                  .getInterface(Ci.nsIWebNavigation)
+                  .QueryInterface(Ci.nsIDocShell)
+                  .QueryInterface(Ci.nsILoadContext)
                   .usePrivateBrowsing;
     if (isPB) {
       // Inside the private browsing mode, we don't want to alert the user to save
@@ -377,7 +377,7 @@ WebContentConverterRegistrar.prototype = {
     // First, check to make sure this isn't already handled internally (we don't
     // want to let them take over, say "chrome").
     var handler = Services.io.getProtocolHandler(aProtocol);
-    if (!(handler instanceof Components.interfaces.nsIExternalProtocolHandler)) {
+    if (!(handler instanceof Ci.nsIExternalProtocolHandler)) {
       // This is handled internally, so we don't want them to register
       Services.console.logStringMessage("Permission denied to add " + aURIString + " as a protocol handler");
       return;
@@ -418,13 +418,13 @@ WebContentConverterRegistrar.prototype = {
           var uri      = aButtonInfo.protocolInfo.uri;
           var name     = aButtonInfo.protocolInfo.name;
 
-          var handler = Components.classes["@mozilla.org/uriloader/web-handler-app;1"]
-                                  .createInstance(Components.interfaces.nsIWebHandlerApp);
+          var handler = Cc["@mozilla.org/uriloader/web-handler-app;1"]
+                          .createInstance(Ci.nsIWebHandlerApp);
           handler.name = name;
           handler.uriTemplate = uri;
 
-          var eps = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                              .getService(Components.interfaces.nsIExternalProtocolService);
+          var eps = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                      .getService(Ci.nsIExternalProtocolService);
           var handlerInfo = eps.getProtocolHandlerInfo(protocol);
           handlerInfo.possibleApplicationHandlers.appendElement(handler);
 
@@ -434,8 +434,8 @@ WebContentConverterRegistrar.prototype = {
           // use.
           handlerInfo.alwaysAskBeforeHandling = true;
 
-          var hs = Components.classes["@mozilla.org/uriloader/handler-service;1"]
-                             .getService(Components.interfaces.nsIHandlerService);
+          var hs = Cc["@mozilla.org/uriloader/handler-service;1"]
+                     .getService(Ci.nsIHandlerService);
           hs.store(handlerInfo);
         }
       };
@@ -576,14 +576,14 @@ WebContentConverterRegistrar.prototype = {
     }
     if (typeBranch) {
       typeBranch.setCharPref("type", contentType);
-      var pls = Components.classes["@mozilla.org/pref-localizedstring;1"]
-                          .createInstance(Components.interfaces.nsIPrefLocalizedString);
+      var pls = Cc["@mozilla.org/pref-localizedstring;1"]
+                  .createInstance(Ci.nsIPrefLocalizedString);
       pls.data = uri;
       typeBranch.setComplexValue("uri",
-                                 Components.interfaces.nsIPrefLocalizedString, pls);
+                                 Ci.nsIPrefLocalizedString, pls);
       pls.data = title;
       typeBranch.setComplexValue("title",
-                                 Components.interfaces.nsIPrefLocalizedString, pls);
+                                 Ci.nsIPrefLocalizedString, pls);
 
       Services.prefs.savePrefFile(null);
     }
@@ -669,7 +669,7 @@ WebContentConverterRegistrar.prototype = {
 
     if (!(contentType in this._blockedTypes)) {
       var converterContractID = this._getConverterContractID(contentType);
-      var cr = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+      var cr = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
       cr.registerFactory(WCC_CLASSID, WCC_CLASSNAME, converterContractID,
                          WebContentConverterFactory);
     }
@@ -695,7 +695,7 @@ WebContentConverterRegistrar.prototype = {
     // currently unused within the tree, so only useful for extensions; previous
     // impl. was buggy (and even infinite-looped!), so I argue that this is a
     // definite improvement
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
   /**
@@ -720,9 +720,9 @@ WebContentConverterRegistrar.prototype = {
 
     try {
       var type = branch.getCharPref("type");
-      var uri = branch.getComplexValue("uri", Components.interfaces.nsIPrefLocalizedString).data;
+      var uri = branch.getComplexValue("uri", Ci.nsIPrefLocalizedString).data;
       var title = branch.getComplexValue("title",
-                                         Components.interfaces.nsIPrefLocalizedString).data;
+                                         Ci.nsIPrefLocalizedString).data;
       this._updateContentTypeHandlerMap(type, uri, title);
     }
     catch(ex) {
@@ -790,7 +790,7 @@ WebContentConverterRegistrar.prototype = {
    */
   createInstance: function createInstance(outer, iid) {
     if (outer != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
+      throw Cr.NS_ERROR_NO_AGGREGATION;
     return this.QueryInterface(iid);
   },
 
@@ -798,20 +798,20 @@ WebContentConverterRegistrar.prototype = {
   classInfo: XPCOMUtils.generateCI({
       classID: WCCR_CLASSID,
       contractID: WCCR_CONTRACTID,
-      interfaces: [Components.interfaces.nsIWebContentConverterService,
-                   Components.interfaces.nsIWebContentHandlerRegistrar,
-                   Components.interfaces.nsIObserver,
-                   Components.interfaces.nsIFactory],
-      flags: Components.interfaces.nsIClassInfo.DOM_OBJECT}),
+      interfaces: [Ci.nsIWebContentConverterService,
+                   Ci.nsIWebContentHandlerRegistrar,
+                   Ci.nsIObserver,
+                   Ci.nsIFactory],
+      flags: Ci.nsIClassInfo.DOM_OBJECT}),
 
   /**
    * See nsISupports
    */
   QueryInterface: XPCOMUtils.generateQI(
-    [Components.interfaces.nsIWebContentConverterService,
-     Components.interfaces.nsIWebContentHandlerRegistrar,
-     Components.interfaces.nsIObserver,
-     Components.interfaces.nsIFactory])
+    [Ci.nsIWebContentConverterService,
+     Ci.nsIWebContentHandlerRegistrar,
+     Ci.nsIObserver,
+     Ci.nsIFactory])
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([WebContentConverterRegistrar]);

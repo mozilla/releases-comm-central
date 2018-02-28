@@ -339,8 +339,8 @@ var DefaultController =
       case "cmd_markAsNotPhish":
         return (GetNumSelectedMessages() > 0 && checkMsgHdrPropertyIsNot("notAPhishMessage", kNotAPhishMessage));
       case "cmd_displayMsgFilters":
-        let mgr = Components.classes["@mozilla.org/messenger/account-manager;1"]
-                            .getService(Components.interfaces.nsIMsgAccountManager);
+        let mgr = Cc["@mozilla.org/messenger/account-manager;1"]
+                    .getService(Ci.nsIMsgAccountManager);
         return mgr.accounts.length > 0;
       case "cmd_applyFilters":
         if (gDBView)
@@ -406,7 +406,7 @@ var DefaultController =
       case "cmd_viewThreadsWithUnread":
       case "cmd_viewWatchedThreadsWithUnread":
         return gDBView && !(GetSelectedMsgFolders()[0].flags &
-                            Components.interfaces.nsMsgFolderFlags.Virtual);
+                            Ci.nsMsgFolderFlags.Virtual);
       case "cmd_stop":
         return true;
       case "cmd_undo":
@@ -525,7 +525,7 @@ var DefaultController =
         break;
       case "cmd_cancel":
         let message = gFolderDisplay.selectedMessage;
-        message.folder.QueryInterface(Components.interfaces.nsIMsgNewsFolder)
+        message.folder.QueryInterface(Ci.nsIMsgNewsFolder)
                       .cancelMessage(message, msgWindow);
         break;
       case "cmd_killThread":
@@ -824,15 +824,15 @@ function UnloadCommandUpdateHandlers()
 function IsSendUnsentMsgsEnabled(folderResource)
 {
   var msgSendLater =
-    Components.classes["@mozilla.org/messengercompose/sendlater;1"]
-              .getService(Components.interfaces.nsIMsgSendLater);
+    Cc["@mozilla.org/messengercompose/sendlater;1"]
+      .getService(Ci.nsIMsgSendLater);
 
   // If we're currently sending unsent msgs, disable this cmd.
   if (msgSendLater.sendingMessages)
     return false;
 
   if (folderResource &&
-      folderResource instanceof Components.interfaces.nsIMsgFolder) {
+      folderResource instanceof Ci.nsIMsgFolder) {
     // If unsentMsgsFolder is non-null, it is the "Outbox" folder.
     // We're here because we've done a right click on the "Outbox"
     // folder (context menu), so we can use the folder and return true/false
@@ -848,9 +848,9 @@ function IsSendUnsentMsgsEnabled(folderResource)
     identity = getIdentityForServer(folders[0].server);
 
   if (!identity)
-    identity = Components.classes["@mozilla.org/messenger/account-manager;1"]
-                         .getService(Components.interfaces.nsIMsgAccountManager)
-                         .defaultAccount.defaultIdentity;
+    identity = Cc["@mozilla.org/messenger/account-manager;1"]
+                 .getService(Ci.nsIMsgAccountManager)
+                 .defaultAccount.defaultIdentity;
 
   return msgSendLater.hasUnsentMessages(identity);
 }
@@ -864,7 +864,7 @@ function IsSubscribeEnabled()
   // it will properly show those.
   let servers = accountManager.allServers;
   for (let server of fixIterator(servers,
-                                 Components.interfaces.nsIMsgIncomingServer)) {
+                                 Ci.nsIMsgIncomingServer)) {
     if (server.type == "imap" || server.type == "nntp")
       return true;
   }
@@ -893,7 +893,7 @@ function IsCanSearchMessagesEnabled()
 
   var folder = GetMsgFolderFromUri(folderURI, false);
   return folder.server.canSearchMessages &&
-         !(folder.flags & Components.interfaces.nsMsgFolderFlags.Virtual);
+         !(folder.flags & Ci.nsMsgFolderFlags.Virtual);
 }
 
 function IsFolderCharsetEnabled()
@@ -944,8 +944,8 @@ function MsgDeleteFolder()
         let specialFolder = getSpecialFolderString(selectedFolder);
         if (specialFolder != "Inbox" && specialFolder != "Trash")
         {
-            var folder = selectedFolder.QueryInterface(Components.interfaces.nsIMsgFolder);
-            if (folder.flags & Components.interfaces.nsMsgFolderFlags.Virtual)
+            var folder = selectedFolder.QueryInterface(Ci.nsIMsgFolder);
+            if (folder.flags & Ci.nsMsgFolderFlags.Virtual)
             {
                 var confirmation = gMessengerBundle.getString("confirmSavedSearchDeleteMessage");
                 var title = gMessengerBundle.getString("confirmSavedSearchDeleteTitle");
@@ -957,8 +957,8 @@ function MsgDeleteFolder()
                     continue;
                 if (gCurrentVirtualFolderUri == selectedFolder.URI)
                   gCurrentVirtualFolderUri = null;
-                var array = Components.classes["@mozilla.org/array;1"]
-                                      .createInstance(Components.interfaces.nsIMutableArray);
+                var array = Cc["@mozilla.org/array;1"]
+                              .createInstance(Ci.nsIMutableArray);
                 array.appendElement(folder);
                 folder.parent.deleteSubFolders(array, msgWindow);
                 continue;
@@ -975,8 +975,8 @@ function MsgDeleteFolder()
             {
                 // We can delete this folder.
 
-                var array = Components.classes["@mozilla.org/array;1"]
-                                      .createInstance(Components.interfaces.nsIMutableArray);
+                var array = Cc["@mozilla.org/array;1"]
+                              .createInstance(Ci.nsIMutableArray);
                 array.appendElement(selectedFolder);
                 try
                 {
@@ -1128,7 +1128,7 @@ function CanRenameDeleteJunkMail(aFolderUri)
     for (var i = 0; i < allServers.length; i++)
     {
       var currentServer =
-        allServers.queryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
+        allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       var settings = currentServer.spamSettings;
       // If junk mail control or move junk mail to folder option is disabled then
       // allow the folder to be removed/renamed since the folder is not used in this case.

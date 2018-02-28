@@ -20,10 +20,10 @@ function goOpenNewMessage()
     return;
   }
 
-  Components.classes["@mozilla.org/messengercompose;1"]
-            .getService(Components.interfaces.nsIMsgComposeService)
-            .OpenComposeWindow(null, null, null,
-                               Components.interfaces.nsIMsgCompType.New,
-                               Components.interfaces.nsIMsgCompFormat.Default,
+  Cc["@mozilla.org/messengercompose;1"]
+    .getService(Ci.nsIMsgComposeService)
+    .OpenComposeWindow(null, null, null,
+                               Ci.nsIMsgCompType.New,
+                               Ci.nsIMsgCompFormat.Default,
                                null, null);
 }

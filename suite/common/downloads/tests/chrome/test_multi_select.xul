@@ -24,8 +24,8 @@
 
 function test()
 {
-  var dm = Components.classes["@mozilla.org/download-manager;1"]
-                     .getService(Components.interfaces.nsIDownloadManager);
+  var dm = Cc["@mozilla.org/download-manager;1"]
+             .getService(Ci.nsIDownloadManager);
   var db = dm.DBConnection;
 
   // Empty any old downloads
@@ -37,12 +37,12 @@ function test()
 
   try {
     for (let site of ["ed.agadak.net", "mozilla.org", "mozilla.com", "mozilla.net"]) {
-      let file = Components.classes["@mozilla.org/file/directory_service;1"]
-                  .getService(Components.interfaces.nsIProperties)
-                  .get("TmpD", Components.interfaces.nsIFile);
+      let file = Cc["@mozilla.org/file/directory_service;1"]
+                  .getService(Ci.nsIProperties)
+                  .get("TmpD", Ci.nsIFile);
       file.append(site);
-      let fileSpec = Components.classes["@mozilla.org/network/io-service;1"]
-                  .getService(Components.interfaces.nsIIOService)
+      let fileSpec = Cc["@mozilla.org/network/io-service;1"]
+                  .getService(Ci.nsIIOService)
                   .newFileURI(file).spec;
 
       stmt.bindByIndex(0, "http://" + site + "/file");
@@ -63,8 +63,8 @@ function test()
   var win = Services.wm.getMostRecentWindow("Download:Manager");
   if (win) win.close();
 
-  var obs = Components.classes["@mozilla.org/observer-service;1"]
-                      .getService(Components.interfaces.nsIObserverService);
+  var obs = Cc["@mozilla.org/observer-service;1"]
+              .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   var testPhase = 0;
@@ -88,17 +88,17 @@ function test()
     var getItems = () => downloadView.rowCount;
     var getSelected = () => downloadView.selection.count;
     var getClipboard = function() {
-      var clip = Components.classes["@mozilla.org/widget/clipboard;1"]
-                           .getService(Components.interfaces.nsIClipboard);
-      var trans = Components.classes["@mozilla.org/widget/transferable;1"]
-                            .createInstance(Components.interfaces.nsITransferable);
+      var clip = Cc["@mozilla.org/widget/clipboard;1"]
+                   .getService(Ci.nsIClipboard);
+      var trans = Cc["@mozilla.org/widget/transferable;1"]
+                    .createInstance(Ci.nsITransferable);
 
       trans.init(null);
       trans.addDataFlavor("text/unicode");
       clip.getData(trans, clip.kGlobalClipboard);
       var str = {};
       trans.getTransferData("text/unicode", str, {});
-      return str.value.QueryInterface(Components.interfaces.nsISupportsString)
+      return str.value.QueryInterface(Ci.nsISupportsString)
                 .data;
     };
 
@@ -193,9 +193,9 @@ function test()
   obs.addObserver(testObs, DLMGR_UI_DONE);
 
   // Show the Download Manager UI
-  Components.classes["@mozilla.org/download-manager-ui;1"]
-            .getService(Components.interfaces.nsISuiteDownloadManagerUI)
-            .showManager();
+  Cc["@mozilla.org/download-manager-ui;1"]
+    .getService(Ci.nsISuiteDownloadManagerUI)
+    .showManager();
 
   SimpleTest.waitForExplicitFinish();
 }

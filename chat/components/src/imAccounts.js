@@ -567,7 +567,7 @@ imAccount.prototype = {
     this._sendUpdateNotification();
   },
   _handleMasterPasswordException: function(aException) {
-    if (aException.result != Components.results.NS_ERROR_ABORT)
+    if (aException.result != Cr.NS_ERROR_ABORT)
       throw aException;
 
     gUserCanceledMasterPasswordPrompt = true;

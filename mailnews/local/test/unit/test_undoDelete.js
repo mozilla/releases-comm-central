@@ -46,7 +46,7 @@ function run_test()
   configure_message_injection({mode: "local"});
 
   gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Components.interfaces.nsIMsgWindow);
+                  .createInstance(Ci.nsIMsgWindow);
 
   var messageGenerator = new MessageGenerator();
   gMsg1 = messageGenerator.makeMessage();

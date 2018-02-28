@@ -261,8 +261,8 @@ function test_copy_to_clipboard_public() {
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
     let contentBody;
     if (flavor == "text/html") {
-      let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-                             .createInstance(Ci.nsIDOMParser);
+      let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
+                     .createInstance(Ci.nsIDOMParser);
       contentBody = parser.parseFromString(text, "text/html").body;
     } else {
       contentBody = text;
@@ -305,8 +305,8 @@ function test_copy_to_clipboard_private() {
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
     let contentBody;
     if (flavor == "text/html") {
-      let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-                             .createInstance(Ci.nsIDOMParser);
+      let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
+                     .createInstance(Ci.nsIDOMParser);
       contentBody = parser.parseFromString(text, "text/html").body;
     } else {
       contentBody = text;

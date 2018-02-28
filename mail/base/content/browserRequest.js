@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var wpl = Components.interfaces.nsIWebProgressListener;
+var wpl = Ci.nsIWebProgressListener;
 
 var reporterListener = {
   _isBusy: false,
@@ -12,11 +12,11 @@ var reporterListener = {
   },
 
   QueryInterface: function(aIID) {
-    if (aIID.equals(Components.interfaces.nsIWebProgressListener)   ||
-        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsIWebProgressListener)   ||
+        aIID.equals(Ci.nsISupportsWeakReference) ||
+        aIID.equals(Ci.nsISupports))
       return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   onStateChange: function(/*in nsIWebProgress*/ aWebProgress,
@@ -103,7 +103,7 @@ function loadRequestedUrl()
 
   var browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener,
-                              Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+                              Ci.nsIWebProgress.NOTIFY_ALL);
   var url = request.url;
   if (url != "") {
     browser.setAttribute("src", url);

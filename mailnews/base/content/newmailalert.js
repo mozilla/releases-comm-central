@@ -54,7 +54,7 @@ function prefillAlertInfo()
   let allFolders = rootFolder.descendants;
   var folderSummaryInfoEl = document.getElementById('folderSummaryInfo');
   folderSummaryInfoEl.mMaxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
-  for (let folder of fixIterator(allFolders, Components.interfaces.nsIMsgFolder))
+  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder))
   {
     if (folder.hasNewMessages && !folder.getFlag(Ci.nsMsgFolderFlags.Virtual))
     {

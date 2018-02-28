@@ -14,22 +14,22 @@ function toNavigator()
 function ExpirePassword()
 {
   // Queries the HTTP Auth Manager and clears all sessions
-  Components.classes['@mozilla.org/network/http-auth-manager;1']
-            .getService(Components.interfaces.nsIHttpAuthManager)
-            .clearAll();
+  Cc['@mozilla.org/network/http-auth-manager;1']
+    .getService(Ci.nsIHttpAuthManager)
+    .clearAll();
 
   // Expires the master password
-  Components.classes["@mozilla.org/security/pk11tokendb;1"]
-            .createInstance(Components.interfaces.nsIPK11TokenDB)
-            .getInternalKeyToken()
-            .checkPassword("");
+  Cc["@mozilla.org/security/pk11tokendb;1"]
+    .createInstance(Ci.nsIPK11TokenDB)
+    .getInternalKeyToken()
+    .checkPassword("");
 }
 
 function toDownloadManager()
 {
-  Components.classes["@mozilla.org/suite/suiteglue;1"]
-            .getService(Components.interfaces.nsISuiteGlue)
-            .showDownloadManager();
+  Cc["@mozilla.org/suite/suiteglue;1"]
+    .getService(Ci.nsISuiteGlue)
+    .showDownloadManager();
 }
 
 function toDataManager(aView)
@@ -166,9 +166,9 @@ function OpenBrowserWindow()
     preventDefault: true
   };
   const clh_prefix = "@mozilla.org/commandlinehandler/general-startup;1";
-  Components.classes[clh_prefix + "?type=browser"]
-            .getService(Components.interfaces.nsICommandLineHandler)
-            .handle(cmdLine);
+  Cc[clh_prefix + "?type=browser"]
+    .getService(Ci.nsICommandLineHandler)
+    .handle(cmdLine);
   return null;
 }
 
@@ -245,8 +245,8 @@ function toProfileManager()
   if (promgrWin) {
     promgrWin.focus();
   } else {
-    var params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
-                 .createInstance(Components.interfaces.nsIDialogParamBlock);
+    var params = Cc["@mozilla.org/embedcomp/dialogparam;1"]
+                 .createInstance(Ci.nsIDialogParamBlock);
 
     params.SetNumberStrings(1);
     params.SetString(0, "menu");

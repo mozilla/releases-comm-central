@@ -13,8 +13,8 @@ var kNumTestMessages = 10;
 var gTestArray =
 [
   function test_db_open() {
-    dbService = Components.classes["@mozilla.org/msgDatabase/msgDBService;1"]
-                            .getService(Components.interfaces.nsIMsgDBService);
+    dbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
+                            .getService(Ci.nsIMsgDBService);
     // Get the root folder
     let root = localAccountUtils.incomingServer.rootFolder;
     root.createSubfolder("dbTest", null);

@@ -16,11 +16,11 @@ function openComposeWindow(url, title, attachment, charset)
   }
   else
   {
-    var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
-                           .createInstance(Components.interfaces.nsIMsgComposeParams);
+    var params = Cc["@mozilla.org/messengercompose/composeparams;1"]
+                   .createInstance(Ci.nsIMsgComposeParams);
 
-    params.composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                                     .createInstance(Components.interfaces.nsIMsgCompFields);
+    params.composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                             .createInstance(Ci.nsIMsgCompFields);
     if (attachment == 0 || attachment == 1)
     {
       params.composeFields.body = url;
@@ -30,15 +30,15 @@ function openComposeWindow(url, title, attachment, charset)
 
     if (attachment == 1 || attachment == 2)
     {
-      var attachmentData = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                                     .createInstance(Components.interfaces.nsIMsgAttachment);
+      var attachmentData = Cc["@mozilla.org/messengercompose/attachment;1"]
+                             .createInstance(Ci.nsIMsgAttachment);
       attachmentData.url = url;
       attachmentData.urlCharset = charset;
       params.composeFields.addAttachment(attachmentData);
     }
 
-    var composeService = Components.classes["@mozilla.org/messengercompose;1"]
-                                   .getService(Components.interfaces.nsIMsgComposeService);
+    var composeService = Cc["@mozilla.org/messengercompose;1"]
+                           .getService(Ci.nsIMsgComposeService);
 
     // it is possible you won't have a default identity
     // like if you've never launched mail before on a new profile.
@@ -57,8 +57,8 @@ function openComposeWindow(url, title, attachment, charset)
 }
 
 function openExternalMailer(url, title) {
-  var extProtocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                                 .getService(Components.interfaces.nsIExternalProtocolService);
+  var extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                         .getService(Ci.nsIExternalProtocolService);
   var mailto = url ? "mailto:?body=" + encodeURIComponent(url)
                                      + "&subject="
                                      + encodeURIComponent(title) : "mailto:";
@@ -85,11 +85,11 @@ function goOpenNewMessage()
   }
   else
   {
-    var msgComposeService = Components.classes["@mozilla.org/messengercompose;1"]
-                                      .getService(Components.interfaces.nsIMsgComposeService);
+    var msgComposeService = Cc["@mozilla.org/messengercompose;1"]
+                              .getService(Ci.nsIMsgComposeService);
     msgComposeService.OpenComposeWindow(null, null, null,
-                                       Components.interfaces.nsIMsgCompType.New,
-                                       Components.interfaces.nsIMsgCompFormat.Default,
+                                       Ci.nsIMsgCompType.New,
+                                       Ci.nsIMsgCompFormat.Default,
                                        null, null);
   }
 }
@@ -168,7 +168,7 @@ function hideMenuitems() {
 
 function initOverlay(aEvent) {
   gUseExternalMailto = Services.io.getProtocolHandler("mailto") instanceof
-                         Components.interfaces.nsIExternalProtocolHandler;
+                         Ci.nsIExternalProtocolHandler;
   initMailContextMenuPopupListener(aEvent);
   hideMenuitems();
 }

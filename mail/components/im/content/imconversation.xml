@@ -262,9 +262,9 @@
           }
         }
 
-        let msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                            .getService(Ci.mozITXTToHTMLConv)
-                            .scanTXT(aMsg, 0);
+        let msg = Cc["@mozilla.org/txttohtmlconv;1"]
+                    .getService(Ci.mozITXTToHTMLConv)
+                    .scanTXT(aMsg, 0);
 
         if (account.HTMLEnabled) {
           msg = msg.replace(/\n/g, "<br/>");

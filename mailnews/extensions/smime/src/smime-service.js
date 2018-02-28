@@ -16,7 +16,7 @@ SMIMEService.prototype = {
             server.type != "im" && server.type != "none");
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIMsgAccountManagerExtension]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgAccountManagerExtension]),
   classID: Components.ID("{f2809796-1dd1-11b2-8c1b-8f15f007c699}"),
 };
 

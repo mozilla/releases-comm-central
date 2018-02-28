@@ -13,8 +13,8 @@ var gSaveListeners = [];
 
 try
 {
-  var gDragService = Components.classes["@mozilla.org/widget/dragservice;1"]
-                               .getService(Components.interfaces.nsIDragService);
+  var gDragService = Cc["@mozilla.org/widget/dragservice;1"]
+                       .getService(Ci.nsIDragService);
 }
 catch (e)
 {
@@ -22,9 +22,9 @@ catch (e)
 
 // Returns the load context for the current window
 function getLoadContext() {
-  return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-               .getInterface(Components.interfaces.nsIWebNavigation)
-               .QueryInterface(Components.interfaces.nsILoadContext);
+  return window.QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIWebNavigation)
+               .QueryInterface(Ci.nsILoadContext);
 }
 
 function awHandleKeyPress(element, event)
@@ -89,9 +89,9 @@ function GetListValue(mailList, doAdd)
     fieldValue = inputField.value;
 
     if (doAdd || (!doAdd && pos >= oldTotal))
-      cardproperty = Components.classes["@mozilla.org/addressbook/cardproperty;1"].createInstance();
+      cardproperty = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance();
     else
-      cardproperty = mailList.addressLists.queryElementAt(pos, Components.interfaces.nsIAbCard);
+      cardproperty = mailList.addressLists.queryElementAt(pos, Ci.nsIAbCard);
 
     if (fieldValue == "")
     {
@@ -110,7 +110,7 @@ function GetListValue(mailList, doAdd)
     }
     else if (cardproperty)
     {
-      cardproperty = cardproperty.QueryInterface(Components.interfaces.nsIAbCard);
+      cardproperty = cardproperty.QueryInterface(Ci.nsIAbCard);
       if (cardproperty)
       {
         let addrObjects = MailServices.headerParser
@@ -119,8 +119,8 @@ function GetListValue(mailList, doAdd)
         {
           if (j > 0)
           {
-            cardproperty = Components.classes["@mozilla.org/addressbook/cardproperty;1"].createInstance();
-            cardproperty = cardproperty.QueryInterface(Components.interfaces.nsIAbCard);
+            cardproperty = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance();
+            cardproperty = cardproperty.QueryInterface(Ci.nsIAbCard);
           }
           cardproperty.primaryEmail = addrObjects[j].email;
           cardproperty.displayName = addrObjects[j].name || addrObjects[j].email;
@@ -158,8 +158,8 @@ function MailListOKButton()
     // -----
 
     //Add mailing list to database
-    var mailList = Components.classes["@mozilla.org/addressbook/directoryproperty;1"].createInstance();
-    mailList = mailList.QueryInterface(Components.interfaces.nsIAbDirectory);
+    var mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance();
+    mailList = mailList.QueryInterface(Ci.nsIAbDirectory);
 
     if (GetListValue(mailList, true))
     {
@@ -271,7 +271,7 @@ function OnLoadEditList()
       top.MAX_RECIPIENTS = 0;
       for (let i = 0; i < total; i++)
       {
-        let card = gEditList.addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
+        let card = gEditList.addressLists.queryElementAt(i, Ci.nsIAbCard);
         let address = MailServices.headerParser.makeMailboxObject(
           card.displayName, card.primaryEmail).toString();
         SetInputValue(address, newListBoxNode, templateNode);
@@ -506,7 +506,7 @@ function DropOnAddressListTree(event)
   let trans;
 
   try {
-   trans = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
+   trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
    trans.init(getLoadContext());
    trans.addDataFlavor("text/x-moz-address");
   }
@@ -522,7 +522,7 @@ function DropOnAddressListTree(event)
     let len = new Object();
     trans.getAnyTransferData(bestFlavor, dataObj, len);
     if (dataObj)
-      dataObj = dataObj.value.QueryInterface(Components.interfaces.nsISupportsString);
+      dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
     if (!dataObj)
       continue;
 

@@ -32,7 +32,7 @@ nsAbLDAPAttributeMap.prototype = {
 
     // fail if no entry for this
     if (!(aProperty in this.mPropertyMap)) {
-      throw Components.results.NS_ERROR_FAILURE;
+      throw Cr.NS_ERROR_FAILURE;
     }
 
     aAttrs = this.mPropertyMap[aProperty];
@@ -60,7 +60,7 @@ nsAbLDAPAttributeMap.prototype = {
     if (!aAllowInconsistencies) {
       for (var attr of attrs) {
         if (attr in this.mAttrMap && this.mAttrMap[attr] != aProperty) {
-          throw Components.results.NS_ERROR_FAILURE;
+          throw Cr.NS_ERROR_FAILURE;
         }
       }
     }
@@ -98,7 +98,7 @@ nsAbLDAPAttributeMap.prototype = {
     }
 
     if (!attrs.length) {
-      throw Components.results.NS_ERROR_FAILURE;
+      throw Cr.NS_ERROR_FAILURE;
     }
 
     return attrs.join(",");
@@ -175,7 +175,7 @@ nsAbLDAPAttributeMap.prototype = {
     }
 
     if (!cardValueWasSet) {
-      throw Components.results.NS_ERROR_FAILURE;
+      throw Cr.NS_ERROR_FAILURE;
     }
 
     return;
@@ -196,7 +196,7 @@ nsAbLDAPAttributeMap.prototype = {
 
         // if we've seen this before, there's a problem
         if (attrsSeen.indexOf(attr) != -1) {
-          throw Components.results.NS_ERROR_FAILURE;
+          throw Cr.NS_ERROR_FAILURE;
         }
 
         // remember that we've seen it now
@@ -208,7 +208,7 @@ nsAbLDAPAttributeMap.prototype = {
   },
 
   QueryInterface: XPCOMUtils
-    .generateQI([Components.interfaces.nsIAbLDAPAttributeMap])
+    .generateQI([Ci.nsIAbLDAPAttributeMap])
 }
 
 function nsAbLDAPAttributeMapService() {
@@ -240,7 +240,7 @@ nsAbLDAPAttributeMapService.prototype = {
   },
 
   QueryInterface: XPCOMUtils
-    .generateQI([Components.interfaces.nsIAbLDAPAttributeMapService])
+    .generateQI([Ci.nsIAbLDAPAttributeMapService])
 }
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsAbLDAPAttributeMap, nsAbLDAPAttributeMapService]);

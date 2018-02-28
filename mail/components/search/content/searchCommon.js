@@ -795,7 +795,7 @@ var SearchSupport =
       if (aIId.equals(Ci.nsIStreamListener) || aIId.equals(Ci.nsISupports))
         return this;
 
-      throw Components.results.NS_ERROR_NO_INTERFACE;
+      throw Cr.NS_ERROR_NO_INTERFACE;
     },
 
     /// "Finish" function, cleans up behind itself if unsuccessful

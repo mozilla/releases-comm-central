@@ -35,12 +35,12 @@ var gMinTrayR = {
 #endif
 
     this.trayService =
-      Components.classes['@tn123.ath.cx/trayservice;1']
-                .getService(Components.interfaces.trayITrayService);
+      Cc['@tn123.ath.cx/trayservice;1']
+        .getService(Ci.trayITrayService);
     this.trayService.watchMinimize(window);
 
     this._prefs = Services.prefs.getBranch("extensions.mintrayr.")
-                                .QueryInterface(Components.interfaces.nsIPrefBranch);
+                                .QueryInterface(Ci.nsIPrefBranch);
     this._prefs.addObserver("alwaysShowTrayIcon", this);
 
     // Add a listener to minimize the window on startup once it has been

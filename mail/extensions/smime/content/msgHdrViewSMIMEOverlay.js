@@ -15,7 +15,7 @@ var gSMIMEBundle = null;
 
 // manipulates some globals from msgReadSMIMEOverlay.js
 
-var nsICMSMessageErrors = Components.interfaces.nsICMSMessageErrors;
+var nsICMSMessageErrors = Ci.nsICMSMessageErrors;
 
 var smimeHeaderSink =
 {
@@ -149,9 +149,9 @@ var smimeHeaderSink =
 
   QueryInterface : function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIMsgSMIMEHeaderSink) || iid.equals(Components.interfaces.nsISupports))
+    if (iid.equals(Ci.nsIMsgSMIMEHeaderSink) || iid.equals(Ci.nsISupports))
       return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   }
 };
 
@@ -233,8 +233,8 @@ function msgHdrViewSMIMEOnLoad(event)
   gMessageListeners.push(listener);
 
   gEncryptedURIService =
-    Components.classes["@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"]
-    .getService(Components.interfaces.nsIEncryptedSMIMEURIsService);
+    Cc["@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"]
+    .getService(Ci.nsIEncryptedSMIMEURIsService);
 }
 
 function msgHdrViewSMIMEOnUnload(event)

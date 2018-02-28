@@ -63,9 +63,9 @@ function test_cascade() {
     onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
       dump("\n\nload: " + aBrowser.currentURI.spec + "\n" + JSON.stringify(countTabs()) + "\n\n");
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_cascade_progressCallback();
     }
   }
@@ -124,9 +124,9 @@ function test_select() {
   let progressListener = {
     onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_select_progressCallback(aBrowser);
     }
   }
@@ -195,9 +195,9 @@ function test_multiWindowState() {
       // __SS_restoreState == TAB_STATE_RESTORING on it.
       // Since our listener is attached before the sessionstore one, this works out.
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_multiWindowState_progressCallback(aBrowser);
     }
   }
@@ -247,7 +247,7 @@ function test_multiWindowState() {
 
   // We also want to catch the 2nd window, so we need to observe domwindowopened
   function windowObserver(aSubject, aTopic, aData) {
-    let theWin = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
+    let theWin = aSubject.QueryInterface(Ci.nsIDOMWindow);
     if (aTopic == "domwindowopened") {
       theWin.addEventListener("load", function theWinLoad() {
         theWin.removeEventListener("load", theWinLoad);
@@ -275,9 +275,9 @@ function test_setWindowStateNoOverwrite() {
       // __SS_restoreState == TAB_STATE_RESTORING on it.
       // Since our listener is attached before the sessionstore one, this works out.
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_setWindowStateNoOverwrite_progressCallback(aBrowser);
     }
   }
@@ -347,9 +347,9 @@ function test_setWindowStateOverwrite() {
       // __SS_restoreState == TAB_STATE_RESTORING on it.
       // Since our listener is attached before the sessionstore one, this works out.
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_setWindowStateOverwrite_progressCallback(aBrowser);
     }
   }
@@ -419,9 +419,9 @@ function test_setBrowserStateInterrupted() {
       // __SS_restoreState == TAB_STATE_RESTORING on it.
       // Since our listener is attached before the sessionstore one, this works out.
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_setBrowserStateInterrupted_progressCallback(aBrowser);
     }
   }
@@ -510,7 +510,7 @@ function test_setBrowserStateInterrupted() {
 
   // We also want to catch the extra windows (there should be 2), so we need to observe domwindowopened
   function windowObserver(aSubject, aTopic, aData) {
-    let theWin = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
+    let theWin = aSubject.QueryInterface(Ci.nsIDOMWindow);
     if (aTopic == "domwindowopened") {
       theWin.addEventListener("load", function wObserverTheWinLoad() {
         theWin.removeEventListener("load", wObserverTheWinLoad);
@@ -536,9 +536,9 @@ function test_reload() {
   let progressListener = {
     onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_reload_progressCallback(aBrowser);
     }
   }
@@ -608,9 +608,9 @@ function test_reloadCascadeSetup() {
   let progressListener = {
     onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
       if (aBrowser.__SS_restoreState == TAB_STATE_RESTORING &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+          aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_cascadeReloadSetup_progressCallback();
     }
   }
@@ -650,9 +650,9 @@ function _test_reloadAfter(aTestName, aState, aCallback) {
   info("starting " + aTestName);
   let progressListener = {
     onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
-      if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK &&
-          aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK &&
+          aStateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW)
         test_reloadAfter_progressCallback(aBrowser);
     }
   }

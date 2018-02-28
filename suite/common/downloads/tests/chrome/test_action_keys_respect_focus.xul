@@ -112,10 +112,10 @@ var searchAndPressKey = function(aKey, aWin, aValue) {
     searchbox.value = aValue;
 
   // Press given key after a short delay to allow focus() to complete
-  var timer = Components.classes["@mozilla.org/timer;1"]
-                        .createInstance(Components.interfaces.nsITimer);
+  var timer = Cc["@mozilla.org/timer;1"]
+                .createInstance(Ci.nsITimer);
   timer.init(new keyPressObs(aWin, aKey), 500,
-             Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+             Ci.nsITimer.TYPE_ONE_SHOT);
 }
 
 function dlObs(aWin)
@@ -128,7 +128,7 @@ function dlObs(aWin)
 dlObs.prototype = {
   onDownloadStateChange: function(aState, aDownload)
   {
-    if (aDownload.state == Components.interfaces.nsIDownloadManager.DOWNLOAD_DOWNLOADING &&
+    if (aDownload.state == Ci.nsIDownloadManager.DOWNLOAD_DOWNLOADING &&
         !this.wasPaused)
     {
       this.wasPaused = true;
@@ -137,7 +137,7 @@ dlObs.prototype = {
     }
 
     var searchbox = this.mWin.document.getElementById("search-box");
-    if (aDownload.state == Components.interfaces.nsIDownloadManager.DOWNLOAD_PAUSED &&
+    if (aDownload.state == Ci.nsIDownloadManager.DOWNLOAD_PAUSED &&
         !this.wasResumed)
     {
       this.wasResumed = true;
@@ -146,7 +146,7 @@ dlObs.prototype = {
       backupTestedFunction("resumeDownload", this.mWin);
       searchAndPressKey(" ", this.mWin, "paused");
     } else
-    if (aDownload.state == Components.interfaces.nsIDownloadManager.DOWNLOAD_FINISHED &&
+    if (aDownload.state == Ci.nsIDownloadManager.DOWNLOAD_FINISHED &&
         !this.wasFinished)
     {
       this.wasFinished = true;
@@ -158,8 +158,8 @@ dlObs.prototype = {
       backupTestedFunction("openDownload", this.mWin);
       searchAndPressKey("VK_RETURN", this.mWin, "delete me");
 
-      var dm = Components.classes["@mozilla.org/download-manager;1"]
-                         .getService(Components.interfaces.nsIDownloadManager);
+      var dm = Cc["@mozilla.org/download-manager;1"]
+                 .getService(Ci.nsIDownloadManager);
       dm.removeListener(this);
     }
   },
@@ -170,40 +170,40 @@ dlObs.prototype = {
 
 function test()
 {
-  var dm = Components.classes["@mozilla.org/download-manager;1"]
-                     .getService(Components.interfaces.nsIDownloadManager);
+  var dm = Cc["@mozilla.org/download-manager;1"]
+             .getService(Ci.nsIDownloadManager);
 
   function addDownload()
   {
     function createURI(aObj)
     {
-      var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                          .getService(Components.interfaces.nsIIOService);
-      return (aObj instanceof Components.interfaces.nsIFile) ? ios.newFileURI(aObj) :
+      var ios = Cc["@mozilla.org/network/io-service;1"]
+                  .getService(Ci.nsIIOService);
+      return (aObj instanceof Ci.nsIFile) ? ios.newFileURI(aObj) :
                                             ios.newURI(aObj);
     }
 
-    const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
-    var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-                            .createInstance(nsIWBP);
+    const nsIWBP = Ci.nsIWebBrowserPersist;
+    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+                    .createInstance(nsIWBP);
     persist.persistFlags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
                            nsIWBP.PERSIST_FLAGS_BYPASS_CACHE |
                            nsIWBP.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
 
-    var dirSvc = Components.classes["@mozilla.org/file/directory_service;1"]
-                           .getService(Components.interfaces.nsIProperties);
-    var destFile = dirSvc.get("ProfD", Components.interfaces.nsIFile);
+    var dirSvc = Cc["@mozilla.org/file/directory_service;1"]
+                   .getService(Ci.nsIProperties);
+    var destFile = dirSvc.get("ProfD", Ci.nsIFile);
     // The "paused" part of this filename will be searched for later.
     destFile.append("download.paused");
     if (destFile.exists())
       destFile.remove(false);
 
-    var dl = dm.addDownload(Components.interfaces.nsIDownloadManager.DOWNLOAD_TYPE_DOWNLOAD,
+    var dl = dm.addDownload(Ci.nsIDownloadManager.DOWNLOAD_TYPE_DOWNLOAD,
                             createURI("http://example.com/httpd.js"),
                             createURI(destFile), null, null,
                             Math.round(Date.now() * 1000), null, persist, false);
 
-    persist.progressListener = dl.QueryInterface(Components.interfaces.nsIWebProgressListener);
+    persist.progressListener = dl.QueryInterface(Ci.nsIWebProgressListener);
     persist.saveURI(dl.source, null, null, 0, null, null, dl.targetFile, null);
 
     return dl;
@@ -213,13 +213,13 @@ function test()
   dm.DBConnection.executeSimpleSQL("DELETE FROM moz_downloads");
 
   // Make a file name for the downloads
-  var file = Components.classes["@mozilla.org/file/directory_service;1"]
-                       .getService(Components.interfaces.nsIProperties)
-                       .get("TmpD", Components.interfaces.nsIFile);
+  var file = Cc["@mozilla.org/file/directory_service;1"]
+               .getService(Ci.nsIProperties)
+               .get("TmpD", Ci.nsIFile);
   file.append("cleanUp");
-  var filePath = Components.classes["@mozilla.org/network/io-service;1"]
-                           .getService(Components.interfaces.nsIIOService)
-                           .newFileURI(file).spec;
+  var filePath = Cc["@mozilla.org/network/io-service;1"]
+                   .getService(Ci.nsIIOService)
+                   .newFileURI(file).spec;
 
   var stmt = dm.DBConnection.createStatement(
     "INSERT INTO moz_downloads (name, target, source, state) " +
@@ -245,12 +245,12 @@ function test()
   var win = Services.wm.getMostRecentWindow("Download:Manager");
   if (win) win.close();
 
-  var obs = Components.classes["@mozilla.org/observer-service;1"]
-                      .getService(Components.interfaces.nsIObserverService);
+  var obs = Cc["@mozilla.org/observer-service;1"]
+              .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
-  const IS_MAC = Components.classes["@mozilla.org/xre/app-info;1"]
-                           .getService(Components.interfaces.nsIXULRuntime)
-                           .OS == "Darwin";
+  const IS_MAC = Cc["@mozilla.org/xre/app-info;1"]
+                   .getService(Ci.nsIXULRuntime)
+                   .OS == "Darwin";
 
   var testPhase = 0;
   var testObs = {
@@ -369,9 +369,9 @@ function test()
   obs.addObserver(testObs, DLMGR_UI_DONE);
 
   // Show the Download Manager UI
-  Components.classes["@mozilla.org/download-manager-ui;1"]
-            .getService(Components.interfaces.nsISuiteDownloadManagerUI)
-            .showManager();
+  Cc["@mozilla.org/download-manager-ui;1"]
+    .getService(Ci.nsISuiteDownloadManagerUI)
+    .showManager();
 
   SimpleTest.waitForExplicitFinish();
 }

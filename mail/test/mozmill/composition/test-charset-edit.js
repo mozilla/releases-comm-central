@@ -36,11 +36,11 @@ function setupModule(module) {
 
   // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,
   // which is what this test tests.
-  let str = Components.classes["@mozilla.org/pref-localizedstring;1"]
-                      .createInstance(Components.interfaces.nsIPrefLocalizedString);
+  let str = Cc["@mozilla.org/pref-localizedstring;1"]
+              .createInstance(Ci.nsIPrefLocalizedString);
   str.data = "windows-1252";
   Services.prefs.setComplexValue("mailnews.send_default_charset",
-                                 Components.interfaces.nsIPrefLocalizedString, str);
+                                 Ci.nsIPrefLocalizedString, str);
 }
 
 /**

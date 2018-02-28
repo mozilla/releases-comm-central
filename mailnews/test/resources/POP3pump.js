@@ -46,8 +46,8 @@ function POP3Pump()
   this._firstFile = true;
   this._tests = [];
   this._finalCleanup = false;
-  this._expectedResult = Components.results.NS_OK;
-  this._actualResult = Components.results.NS_ERROR_UNEXPECTED;
+  this._expectedResult = Cr.NS_OK;
+  this._actualResult = Cr.NS_ERROR_UNEXPECTED;
   this._mailboxStoreContractID =
     Services.prefs.getCharPref("mail.serverDefaultStoreContractID");
 }
@@ -58,7 +58,7 @@ POP3Pump.prototype.OnStartRunningUrl = function OnStartRunningUrl(url) {};
 POP3Pump.prototype.OnStopRunningUrl = function OnStopRunningUrl(aUrl, aResult)
 {
   this._actualResult = aResult;
-  if (aResult != Components.results.NS_OK)
+  if (aResult != Cr.NS_OK)
   {
     // If we have an error, clean up nicely.
     this._server.stop();
@@ -146,7 +146,7 @@ POP3Pump.prototype._checkBusy = function _checkBusy()
       do_test_finished();
       if (this.onDone)
         this._promise.then(this.onDone, this.onDone);
-      if (this._actualResult == Components.results.NS_OK)
+      if (this._actualResult == Cr.NS_OK)
         this._resolve();
       else
         this._reject(this._actualResult);

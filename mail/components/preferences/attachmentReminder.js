@@ -20,7 +20,7 @@ var gAttachmentReminderOptionsDialog = {
   {
     var keywordsInCsv = Services.prefs
       .getComplexValue("mail.compose.attachment_reminder_keywords",
-                       Components.interfaces.nsIPrefLocalizedString);
+                       Ci.nsIPrefLocalizedString);
     if (!keywordsInCsv)
       return;
     var keywordsInCsv = keywordsInCsv.data;

@@ -17,11 +17,11 @@ function SetLists()
 {
   const kPopupType = "popup";
 
-  const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-  const nsIPermission = Components.interfaces.nsIPermission;
+  const nsIPermissionManager = Ci.nsIPermissionManager;
+  const nsIPermission = Ci.nsIPermission;
 
-  var permissionManager = Components.classes["@mozilla.org/permissionmanager;1"]
-                                    .getService(nsIPermissionManager);
+  var permissionManager = Cc["@mozilla.org/permissionmanager;1"]
+                            .getService(nsIPermissionManager);
 
   var pref = document.getElementById("privacy.popups.remove_blacklist");
   if (pref.value)

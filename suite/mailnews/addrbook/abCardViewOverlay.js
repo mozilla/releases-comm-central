@@ -9,7 +9,7 @@ var gProfileDirURL;
 
 var gMapItURLFormat;
 
-var gFileHandler = Services.io.getProtocolHandler("file").QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+var gFileHandler = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
 var gPhotoDisplayHandlers = {};
 
 var zListName;
@@ -143,9 +143,9 @@ function GetAddressesFromURI(uri)
   if (addressList) {
     var total = addressList.length;
     if (total > 0)
-      addresses = addressList.queryElementAt(0, Components.interfaces.nsIAbCard).primaryEmail;
+      addresses = addressList.queryElementAt(0, Ci.nsIAbCard).primaryEmail;
     for (var i = 1;  i < total; i++ ) {
-      addresses += ", " + addressList.queryElementAt(i, Components.interfaces.nsIAbCard).primaryEmail;
+      addresses += ", " + addressList.queryElementAt(i, Ci.nsIAbCard).primaryEmail;
     }
   }
   return addresses;
@@ -427,7 +427,7 @@ function cvAddAddressNodes(node, uri)
         }
         for (i = 0;  i < total; i++ ) {
       	   var descNode = document.createElement("description");
-          var card = addressList.queryElementAt(i, Components.interfaces.nsIAbCard);
+          var card = addressList.queryElementAt(i, Ci.nsIAbCard);
 
           descNode.setAttribute("class", "CardViewLink");
           node.appendChild(descNode);

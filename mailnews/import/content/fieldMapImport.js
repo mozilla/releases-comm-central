@@ -16,8 +16,8 @@ var gSkipFirstRecordButton;
 
 function OnLoadFieldMapImport()
 {
-  top.importService = Components.classes["@mozilla.org/import/import-service;1"]
-                                .getService(Components.interfaces.nsIImportService);
+  top.importService = Cc["@mozilla.org/import/import-service;1"]
+                        .getService(Ci.nsIImportService);
 
   // We need a field map object...
   // assume we have one passed in? or just make one?
@@ -147,7 +147,7 @@ function FetchSampleData(num)
     return false;
 
   var data = top.addInterface.GetData( "sampleData-" + num);
-  if (!(data instanceof Components.interfaces.nsISupportsString))
+  if (!(data instanceof Ci.nsISupportsString))
     return false;
   ShowSampleData( data.data);
   return true;

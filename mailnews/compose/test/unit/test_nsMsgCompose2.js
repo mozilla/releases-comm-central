@@ -4,10 +4,10 @@
  */
 
 var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
-var nsIMsgCompose = Components.interfaces.nsIMsgCompose;
+var nsIMsgCompose = Ci.nsIMsgCompose;
 
-var gMsgCompose = Components.classes[MsgComposeContractID]
-                            .createInstance(nsIMsgCompose);
+var gMsgCompose = Cc[MsgComposeContractID]
+                    .createInstance(nsIMsgCompose);
 
 var numSendListenerFunctions = 6;
 

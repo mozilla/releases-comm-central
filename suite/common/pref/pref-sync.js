@@ -41,8 +41,8 @@ var gSyncPane = {
 
     window.addEventListener("unload", this);
 
-    var xps = Components.classes["@mozilla.org/weave/service;1"]
-                        .getService().wrappedJSObject;
+    var xps = Cc["@mozilla.org/weave/service;1"]
+                .getService().wrappedJSObject;
     if (xps.ready)
       this.observe(null, "weave:service:ready", null);
     else

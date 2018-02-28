@@ -70,8 +70,8 @@
             open.apply(this, arguments);
           }
           else {
-            Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                      .getService(Components.interfaces.nsIExternalProtocolService).loadURI(uri);
+            Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+              .getService(Ci.nsIExternalProtocolService).loadURI(uri);
           }
         }
       ]]>
@@ -115,9 +115,9 @@
         }
         // Otherwise open in default browser.
         // loadURI can throw if the default browser is misconfigured.
-        Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                  .getService(Components.interfaces.nsIExternalProtocolService)
-                  .loadURI(Services.io.newURI(url));
+        Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+          .getService(Ci.nsIExternalProtocolService)
+          .loadURI(Services.io.newURI(url));
       ]]>
       </handler>
     </handlers>

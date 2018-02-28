@@ -256,18 +256,18 @@ function _synthMessagesToFakeRep(aSynthMessages) {
 
 
 var SEARCH_TERM_MAP_HELPER = {
-  subject: Components.interfaces.nsMsgSearchAttrib.Subject,
-  body: Components.interfaces.nsMsgSearchAttrib.Body,
-  from: Components.interfaces.nsMsgSearchAttrib.Sender,
-  to: Components.interfaces.nsMsgSearchAttrib.To,
-  cc: Components.interfaces.nsMsgSearchAttrib.CC,
-  recipient: Components.interfaces.nsMsgSearchAttrib.ToOrCC,
-  involves: Components.interfaces.nsMsgSearchAttrib.AllAddresses,
-  age: Components.interfaces.nsMsgSearchAttrib.AgeInDays,
-  tags: Components.interfaces.nsMsgSearchAttrib.Keywords,
+  subject: Ci.nsMsgSearchAttrib.Subject,
+  body: Ci.nsMsgSearchAttrib.Body,
+  from: Ci.nsMsgSearchAttrib.Sender,
+  to: Ci.nsMsgSearchAttrib.To,
+  cc: Ci.nsMsgSearchAttrib.CC,
+  recipient: Ci.nsMsgSearchAttrib.ToOrCC,
+  involves: Ci.nsMsgSearchAttrib.AllAddresses,
+  age: Ci.nsMsgSearchAttrib.AgeInDays,
+  tags: Ci.nsMsgSearchAttrib.Keywords,
   // If a test uses a custom search term, they must register that term
   //  with the id "mailnews@mozilla.org#test"
-  custom: Components.interfaces.nsMsgSearchAttrib.Custom,
+  custom: Ci.nsMsgSearchAttrib.Custom,
 };
 
 /**
@@ -426,8 +426,8 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
                "using search def", aSearchDef]);
 
   let terms = [];
-  let termCreator = Components.classes["@mozilla.org/messenger/searchSession;1"]
-                              .createInstance(Ci.nsIMsgSearchSession);
+  let termCreator = Cc["@mozilla.org/messenger/searchSession;1"]
+                      .createInstance(Ci.nsIMsgSearchSession);
   for (let key in aSearchDef) {
     let val = aSearchDef[key];
     let term = termCreator.createTerm();
@@ -435,9 +435,9 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
     value.str = val;
     term.value = value;
     term.attrib = SEARCH_TERM_MAP_HELPER[key];
-    if (term.attrib == Components.interfaces.nsMsgSearchAttrib.Custom)
+    if (term.attrib == Ci.nsMsgSearchAttrib.Custom)
       term.customId = "mailnews@mozilla.org#test";
-    term.op = Components.interfaces.nsMsgSearchOp.Contains;
+    term.op = Ci.nsMsgSearchOp.Contains;
     term.booleanAnd = Boolean(aBooleanAnd);
     terms.push(term);
   }
@@ -628,7 +628,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
   // -- Pre-loop
   if (mis.injectionConfig.mode == "local") {
     for (let folder of aMsgFolders) {
-      if (!(folder instanceof Components.interfaces.nsIMsgLocalMailFolder))
+      if (!(folder instanceof Ci.nsIMsgLocalMailFolder))
         throw new Exception("All folders in aMsgFolders must be local folders!");
     }
     folderList = aMsgFolders;

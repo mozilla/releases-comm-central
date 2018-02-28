@@ -27,8 +27,8 @@ var gSyncUI = {
 
     // Proceed to set up the UI if Sync has already started up.
     // Otherwise we'll do it when Sync is firing up.
-    if (Components.classes["@mozilla.org/weave/service;1"]
-                  .getService().wrappedJSObject.ready) {
+    if (Cc["@mozilla.org/weave/service;1"]
+          .getService().wrappedJSObject.ready) {
       this.initUI();
       return;
     }
@@ -442,15 +442,15 @@ var gSyncUI = {
   },
 
   QueryInterface: XPCOMUtils.generateQI([
-    Components.interfaces.nsIObserver,
-    Components.interfaces.nsISupportsWeakReference
+    Ci.nsIObserver,
+    Ci.nsISupportsWeakReference
   ])
 };
 
 XPCOMUtils.defineLazyGetter(gSyncUI, "_stringBundle", function() {
   //XXXzpao these strings should probably be moved from /services to /browser... (bug 583381)
   //        but for now just make it work
-  return Components.classes["@mozilla.org/intl/stringbundle;1"]
-                   .getService(Components.interfaces.nsIStringBundleService)
-                   .createBundle("chrome://weave/locale/services/sync.properties");
+  return Cc["@mozilla.org/intl/stringbundle;1"]
+           .getService(Ci.nsIStringBundleService)
+           .createBundle("chrome://weave/locale/services/sync.properties");
 });

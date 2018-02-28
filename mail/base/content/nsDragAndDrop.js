@@ -46,8 +46,8 @@ var nsTransferable = {
           var length = 0;
           if (currData.flavour.dataIIDKey == "nsISupportsString")
             {
-              supports = Components.classes["@mozilla.org/supports-string;1"]
-                                   .createInstance(Components.interfaces.nsISupportsString);
+              supports = Cc["@mozilla.org/supports-string;1"]
+                           .createInstance(Ci.nsISupportsString);
 
               supports.data = currData.supports;
               length = supports.data.length;
@@ -93,7 +93,7 @@ var nsTransferable = {
       // items may have been dragged) this could be >1.
       for (let i = 0; i < array.length; i++)
         {
-          let trans = array.queryElementAt(i, Components.interfaces.nsITransferable);
+          let trans = array.queryElementAt(i, Ci.nsITransferable);
           if (!trans)
             continue;
 
@@ -131,8 +131,8 @@ var nsTransferable = {
   createTransferable: function ()
     {
       const kXferableContractID = "@mozilla.org/widget/transferable;1";
-      const kXferableIID = Components.interfaces.nsITransferable;
-      var trans = Components.classes[kXferableContractID].createInstance(kXferableIID);
+      const kXferableIID = Ci.nsITransferable;
+      var trans = Cc[kXferableContractID].createInstance(kXferableIID);
       trans.init(null);
       return trans;
     }
@@ -251,10 +251,10 @@ FlavourData.prototype = {
   {
     if (this.flavour &&
         this.flavour.dataIIDKey != "nsISupportsString")
-      return this.supports.QueryInterface(Components.interfaces[this.flavour.dataIIDKey]);
+      return this.supports.QueryInterface(Ci[this.flavour.dataIIDKey]);
 
     var supports = this.supports;
-    if (supports instanceof Components.interfaces.nsISupportsString)
+    if (supports instanceof Ci.nsISupportsString)
       return supports.data.substring(0, this.contentLength/2);
 
     return supports;
@@ -280,12 +280,12 @@ var transferUtils = {
       case "text/x-moz-text-internal":
         return aData.replace(/^\s+|\s+$/g, "");
       case "text/x-moz-url":
-        return ((aData instanceof Components.interfaces.nsISupportsString) ? aData.toString() : aData).split("\n")[0];
+        return ((aData instanceof Ci.nsISupportsString) ? aData.toString() : aData).split("\n")[0];
       case "application/x-moz-file":
-        var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                  .getService(Components.interfaces.nsIIOService);
+        var ioService = Cc["@mozilla.org/network/io-service;1"]
+                          .getService(Ci.nsIIOService);
         var fileHandler = ioService.getProtocolHandler("file")
-                                   .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+                                   .QueryInterface(Ci.nsIFileProtocolHandler);
         return fileHandler.getURLSpecFromFile(aData);
     }
     return null;
@@ -326,8 +326,8 @@ var nsDragAndDrop = {
       if (!this._mDS)
         {
           const kDSContractID = "@mozilla.org/widget/dragservice;1";
-          const kDSIID = Components.interfaces.nsIDragService;
-          this._mDS = Components.classes[kDSContractID].getService(kDSIID);
+          const kDSIID = Ci.nsIDragService;
+          this._mDS = Cc[kDSContractID].getService(kDSIID);
         }
       return this._mDS;
     },
@@ -348,7 +348,7 @@ var nsDragAndDrop = {
       if (!("onDragStart" in aDragDropObserver))
         return;
 
-      const kDSIID = Components.interfaces.nsIDragService;
+      const kDSIID = Ci.nsIDragService;
       var dragAction = { action: kDSIID.DRAGDROP_ACTION_COPY + kDSIID.DRAGDROP_ACTION_MOVE + kDSIID.DRAGDROP_ACTION_LINK };
 
       var transferData = { data: null };
@@ -375,7 +375,7 @@ var nsDragAndDrop = {
           var currData = tds.dataList[i];
           var currFlavour = currData.flavour.contentType;
           var value = currData.supports;
-          if (value instanceof Components.interfaces.nsISupportsString)
+          if (value instanceof Ci.nsISupportsString)
             value = value.toString();
           dt.mozSetDataAt(currFlavour, value, count);
         }
@@ -567,8 +567,8 @@ var nsDragAndDrop = {
       aDraggedText = aDraggedText.replace(/^\s*|\s*$/g, '');
 
       var uri;
-      var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                .getService(Components.interfaces.nsIIOService);
+      var ioService = Cc["@mozilla.org/network/io-service;1"]
+                        .getService(Ci.nsIIOService);
       try {
         uri = ioService.newURI(aDraggedText);
       } catch (e) {
@@ -578,10 +578,9 @@ var nsDragAndDrop = {
         return;
 
       // aDraggedText is a URI, do the security check.
-      const nsIScriptSecurityManager = Components.interfaces
-                                                 .nsIScriptSecurityManager;
-      var secMan = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
-                             .getService(nsIScriptSecurityManager);
+      const nsIScriptSecurityManager = Ci.nsIScriptSecurityManager;
+      var secMan = Cc["@mozilla.org/scriptsecuritymanager;1"]
+                     .getService(nsIScriptSecurityManager);
 
       if (!aDragSession)
         aDragSession = this.mDragService.getCurrentSession();

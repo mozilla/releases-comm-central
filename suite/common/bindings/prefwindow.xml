@@ -434,8 +434,8 @@
           else
           {
             // Open topic in new window.
-            const params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
-                                     .createInstance(Components.interfaces.nsIDialogParamBlock);
+            const params = Cc["@mozilla.org/embedcomp/dialogparam;1"]
+                             .createInstance(Ci.nsIDialogParamBlock);
             params.SetNumberStrings(2);
             params.SetString(0, helpFileURI);
             params.SetString(1, topic);
@@ -511,13 +511,13 @@
         var subScriptLoader = null;
         try
         {
-          subScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-                                      .getService(Components.interfaces.mozIJSSubScriptLoader);
+          subScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
+                              .getService(Ci.mozIJSSubScriptLoader);
         }
         catch (e)
         {
           var msg = 'prefpane.paneload: no mozIJSSubScriptLoader!\n' + e;
-          Components.utils.reportError(msg);
+          Cu.reportError(msg);
           return;
         }
 
@@ -539,7 +539,7 @@
             {
               var msg = 'prefpane.paneload: loadSubScript("'
                       + script + '") failed:\n' + e;
-              Components.utils.reportError(msg);
+              Cu.reportError(msg);
             }
           }
         }

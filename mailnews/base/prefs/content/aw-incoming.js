@@ -138,8 +138,8 @@ function incomingPageInit() {
   // pageData.server is not a real nsMsgIncomingServer so it does not have
   // protocolInfo property implemented.
   let type = parent.getCurrentServerType(pageData);
-  gProtocolInfo = Components.classes["@mozilla.org/messenger/protocol/info;1?type=" + type]
-                            .getService(Components.interfaces.nsIMsgProtocolInfo);
+  gProtocolInfo = Cc["@mozilla.org/messenger/protocol/info;1?type=" + type]
+                    .getService(Ci.nsIMsgProtocolInfo);
   var loginNameInput = document.getElementById("username");
 
   if (loginNameInput.value == "") {

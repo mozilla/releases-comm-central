@@ -16,7 +16,7 @@ DSNService.prototype = {
             server.type != "none");
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIMsgAccountManagerExtension]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgAccountManagerExtension]),
   classID: Components.ID("{849dab91-9bc9-4508-a0ee-c2453e7c092d}"),
 };
 

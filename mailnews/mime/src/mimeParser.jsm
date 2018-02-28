@@ -30,7 +30,7 @@ var ExtractHeadersAndBodyEmitter = {
 /// Sets appropriate default options for chrome-privileged environments
 function setDefaultParserOptions(opts) {
   if (!("onerror" in opts)) {
-    opts.onerror = Components.utils.reportError;
+    opts.onerror = Cu.reportError;
   }
 }
 

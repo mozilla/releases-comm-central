@@ -8,8 +8,8 @@ var curTaskIndex = 0;
 var numTasks = 0;
 var stringBundle;
 
-var msgShutdownService = Components.classes["@mozilla.org/messenger/msgshutdownservice;1"]
-                           .getService(Components.interfaces.nsIMsgShutdownService);
+var msgShutdownService = Cc["@mozilla.org/messenger/msgshutdownservice;1"]
+                           .getService(Ci.nsIMsgShutdownService);
 
 function onLoad()
 {
@@ -56,17 +56,17 @@ nsMsgShutdownTaskListener.prototype =
 {
   QueryInterface : function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
-        iid.equals(Components.interfaces.nsISupportsWeakReference) ||
-        iid.equals(Components.interfaces.nsISupports))
+    if (iid.equals(Ci.nsIWebProgressListener) ||
+        iid.equals(Ci.nsISupportsWeakReference) ||
+        iid.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
   {
-    if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP)
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
     {
       window.close();
     }

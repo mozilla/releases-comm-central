@@ -182,8 +182,8 @@ var accountWizard = {
 
     let proxyVisible = this.proto.usePurpleProxy;
     if (proxyVisible) {
-      this.proxy = Components.classes["@instantbird.org/purple/proxyinfo;1"]
-                             .createInstance(Ci.purpleIProxyInfo);
+      this.proxy = Cc["@instantbird.org/purple/proxyinfo;1"]
+                     .createInstance(Ci.purpleIProxyInfo);
       this.proxy.type = Ci.purpleIProxyInfo.useGlobal;
       this.displayProxyDescription();
     }
@@ -458,13 +458,13 @@ var accountWizard = {
     let prefURL = PREF_EXTENSIONS_GETMOREPROTOCOLSURL;
     let getMore = document.getElementById("getMoreProtocols");
     let showGetMore = false;
-    const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
+    const nsIPrefBranch = Ci.nsIPrefBranch;
 
     if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch.PREF_INVALID) {
       try {
-        let getMoreURL = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
-                                   .getService(Components.interfaces.nsIURLFormatter)
-                                   .formatURLPref(prefURL);
+        let getMoreURL = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
+                           .getService(Ci.nsIURLFormatter)
+                           .formatURLPref(prefURL);
         getMore.setAttribute("getMoreURL", getMoreURL);
         showGetMore = getMoreURL != "about:blank";
       }
@@ -474,9 +474,9 @@ var accountWizard = {
   },
 
   openURL: function (aURL) {
-    Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-              .getService(Components.interfaces.nsIExternalProtocolService)
-              .loadURI(Services.io.newURI(aURL));
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(Services.io.newURI(aURL));
   },
 
   advanceTopProtocolPage: function() {

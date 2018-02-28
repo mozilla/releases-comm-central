@@ -224,7 +224,7 @@ function FillFolderPaneContextMenu()
   var isNewsgroup = !isServer && serverType == 'nntp';
   var isMailFolder = !isServer && serverType != 'nntp';
   var isVirtualFolder = (specialFolder == "Virtual");
-  const kTrashFlag = Components.interfaces.nsMsgFolderFlags.Trash;
+  const kTrashFlag = Ci.nsMsgFolderFlags.Trash;
   let isChildOfTrash = folder.isSpecialFolder(kTrashFlag, true);
   var canGetMessages =
     (isServer && serverType != "none") ||
@@ -458,21 +458,21 @@ function SendMailToNode(emailAddressNode, aEvent)
 
 function SendMailTo(fullAddress, aEvent)
 {
-  var fields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                         .createInstance(Components.interfaces.nsIMsgCompFields);
-  var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
-                         .createInstance(Components.interfaces.nsIMsgComposeParams);
+  var fields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                 .createInstance(Ci.nsIMsgCompFields);
+  var params = Cc["@mozilla.org/messengercompose/composeparams;1"]
+                 .createInstance(Ci.nsIMsgComposeParams);
 
   var headerParser = MailServices.headerParser;
   var addresses = headerParser.makeFromDisplayAddress(fullAddress);
   fields.to = headerParser.makeMimeHeader(addresses, 1);
-  params.type = Components.interfaces.nsIMsgCompType.New;
+  params.type = Ci.nsIMsgCompType.New;
 
   // If aEvent is passed, check if Shift key was pressed for composition in
   // non-default format (HTML vs. plaintext).
   params.format = (aEvent && aEvent.shiftKey) ?
-    Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
-    Components.interfaces.nsIMsgCompFormat.Default;
+    Ci.nsIMsgCompFormat.OppositeOfDefault :
+    Ci.nsIMsgCompFormat.Default;
 
   params.identity = accountManager.getFirstIdentityForServer(GetLoadedMsgFolder().server);
   params.composeFields = fields;
@@ -543,8 +543,8 @@ function OpenMessageForMessageId(messageId)
   // if message id not found in current folder search in all folders
   if (!messageHeader)
   {
-    var accountManager = Components.classes["@mozilla.org/messenger/account-manager;1"]
-                                   .getService(Components.interfaces.nsIMsgAccountManager);
+    var accountManager = Cc["@mozilla.org/messenger/account-manager;1"]
+                           .getService(Ci.nsIMsgAccountManager);
     var allServers = accountManager.allServers;
 
     messageHeader = SearchForMessageIdInSubFolder(startServer.rootFolder, messageId);
@@ -552,7 +552,7 @@ function OpenMessageForMessageId(messageId)
     for (var i = 0; i < allServers.length && !messageHeader; i++)
     {
       var currentServer =
-        allServers.queryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
+        allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       if (currentServer && startServer != currentServer &&
           currentServer.canSearchMessages && !currentServer.isDeferredTo)
       {
@@ -641,7 +641,7 @@ function SearchForMessageIdInSubFolder(folder, messageId)
   {
     // search in current folder
     var currentFolder =
-      subFolders.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
+      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
 
     messageHeader = CheckForMessageIdInFolder(currentFolder, messageId);
 
@@ -671,11 +671,11 @@ function CheckForMessageIdInFolder(folder, messageId)
 
   if (!gMailSession)
   {
-    gMailSession = Components.classes["@mozilla.org/messenger/services/session;1"]
-                             .getService(Components.interfaces.nsIMsgMailSession);
+    gMailSession = Cc["@mozilla.org/messenger/services/session;1"]
+                     .getService(Ci.nsIMsgMailSession);
   }
 
-  const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   if (!gMailSession.IsFolderOpenInWindow(folder) &&
       !(folder.flags & (nsMsgFolderFlags.Trash | nsMsgFolderFlags.Inbox)))
   {
@@ -708,7 +708,7 @@ function CopyMessageUrl()
     var server = hdr.folder.server;
 
     // TODO let backend construct URL and return as attribute
-    var url = (server.socketType == Components.interfaces.nsMsgSocketType.SSL) ?
+    var url = (server.socketType == Ci.nsMsgSocketType.SSL) ?
               "snews://" : "news://";
     url += server.hostName + ":" + server.port + "/" + hdr.messageId;
     CopyString(url);
@@ -721,7 +721,7 @@ function CopyMessageUrl()
 
 function CopyString(aString)
 {
-  Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-            .getService(Components.interfaces.nsIClipboardHelper)
-            .copyString(aString);
+  Cc["@mozilla.org/widget/clipboardhelper;1"]
+    .getService(Ci.nsIClipboardHelper)
+    .copyString(aString);
 }

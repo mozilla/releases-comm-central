@@ -842,8 +842,8 @@ function SavePassword(publishData)
   // If SavePassword is true, add new password.
   if (publishData.savePassword)
   {
-    let authInfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
-                             .createInstance(Components.interfaces.nsILoginInfo);
+    let authInfo = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                     .createInstance(Ci.nsILoginInfo);
     authInfo.init(url, null, url, publishData.username, publishData.password,
                   "", "");
     Services.logins.addLogin(authInfo);

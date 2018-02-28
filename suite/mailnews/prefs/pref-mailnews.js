@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 if ("@mozilla.org/suite/shell-service;1" in Components.classes)
-  var nsIShellService = Components.interfaces.nsIShellService;
+  var nsIShellService = Ci.nsIShellService;
 
 function Startup()
 {
@@ -31,8 +31,8 @@ function setHomePageToDefaultPage()
 function defaultClientSetup()
 {
   if ("@mozilla.org/suite/shell-service;1" in Components.classes) try {
-    var shellService = Components.classes["@mozilla.org/suite/shell-service;1"]
-                                 .getService(nsIShellService);
+    var shellService = Cc["@mozilla.org/suite/shell-service;1"]
+                         .getService(nsIShellService);
 
     ["Mail", "News", "Rss"].forEach(function(aType) {
       var button = document.getElementById("setDefault" + aType);
@@ -49,8 +49,8 @@ function defaultClientSetup()
 
 function onSetDefault(aButton, aType)
 {
-  var shellService = Components.classes["@mozilla.org/suite/shell-service;1"]
-                               .getService(nsIShellService);
+  var shellService = Cc["@mozilla.org/suite/shell-service;1"]
+                       .getService(nsIShellService);
 
   shellService.setDefaultClient(false, false, nsIShellService[aType]);
   shellService.shouldBeDefaultClientFor |= nsIShellService[aType];

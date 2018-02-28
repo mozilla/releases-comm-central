@@ -162,7 +162,7 @@ function searchHistory(aInput)
   var query = PlacesUtils.history.getNewQuery();
   var options = PlacesUtils.history.getNewQueryOptions();
 
-  const NHQO = Components.interfaces.nsINavHistoryQueryOptions;
+  const NHQO = Ci.nsINavHistoryQueryOptions;
   options.sortingMode = gHistoryTree.sortingMode;
   options.queryType = NHQO.QUERY_TYPE_HISTORY;
 

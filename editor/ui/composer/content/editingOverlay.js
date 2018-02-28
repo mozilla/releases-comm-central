@@ -64,18 +64,18 @@ function EditorOnLoad()
     gSourceContentWindow = document.getElementById("content-source");
     gSourceContentWindow.makeEditable("text", false);
     gSourceTextEditor = gSourceContentWindow.getEditor(gSourceContentWindow.contentWindow);
-    gSourceTextEditor.QueryInterface(Components.interfaces.nsIPlaintextEditor);
+    gSourceTextEditor.QueryInterface(Ci.nsIPlaintextEditor);
     gSourceTextEditor.enableUndo(false);
     gSourceTextEditor.rootElement.style.fontFamily = "-moz-fixed";
     gSourceTextEditor.rootElement.style.whiteSpace = "pre";
     gSourceTextEditor.rootElement.style.margin = 0;
-    var controller = Components.classes["@mozilla.org/embedcomp/base-command-controller;1"]
-                               .createInstance(Components.interfaces.nsIControllerContext);
+    var controller = Cc["@mozilla.org/embedcomp/base-command-controller;1"]
+                       .createInstance(Ci.nsIControllerContext);
     controller.init(null);
     controller.setCommandContext(gSourceContentWindow);
     gSourceContentWindow.contentWindow.controllers.insertControllerAt(0, controller);
-    var commandTable = controller.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                                 .getInterface(Components.interfaces.nsIControllerCommandTable);
+    var commandTable = controller.QueryInterface(Ci.nsIInterfaceRequestor)
+                                 .getInterface(Ci.nsIControllerCommandTable);
     commandTable.registerCommand("cmd_findReplace", nsFindReplaceCommand);
     commandTable.registerCommand("cmd_find",        nsFindCommand);
     commandTable.registerCommand("cmd_findNext",    nsFindAgainCommand);
@@ -165,11 +165,11 @@ function EditorStartup(aUrl, aCharset)
 
   var ds = GetCurrentEditorElement().docShell;
   ds.useErrorPages = false;
-  var root = ds.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-               .rootTreeItem.QueryInterface(Components.interfaces.nsIDocShell);
+  var root = ds.QueryInterface(Ci.nsIDocShellTreeItem)
+               .rootTreeItem.QueryInterface(Ci.nsIDocShell);
 
-  root.QueryInterface(Components.interfaces.nsIDocShell).appType =
-    Components.interfaces.nsIDocShell.APP_TYPE_EDITOR;
+  root.QueryInterface(Ci.nsIDocShell).appType =
+    Ci.nsIDocShell.APP_TYPE_EDITOR;
 
   // EditorSharedStartup also used by Message Composer.
   EditorSharedStartup();
@@ -222,7 +222,7 @@ function EditorShutdown()
 async function EditorCanClose(aCancelQuit, aTopic, aData)
 {
   if (aTopic == "quit-application-requested" &&
-      aCancelQuit instanceof Components.interfaces.nsISupportsPRBool &&
+      aCancelQuit instanceof Ci.nsISupportsPRBool &&
       aCancelQuit.data)
     return false;
 

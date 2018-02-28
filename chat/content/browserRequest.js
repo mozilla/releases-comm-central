@@ -4,7 +4,7 @@
 
 ChromeUtils.import("resource:///modules/imServices.jsm");
 
-var wpl = Components.interfaces.nsIWebProgressListener;
+var wpl = Ci.nsIWebProgressListener;
 
 var reporterListener = {
   _isBusy: false,
@@ -26,11 +26,11 @@ var reporterListener = {
   },
 
   QueryInterface: function(aIID) {
-    if (aIID.equals(Components.interfaces.nsIWebProgressListener)   ||
-        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsIWebProgressListener)   ||
+        aIID.equals(Ci.nsISupportsWeakReference) ||
+        aIID.equals(Ci.nsISupports))
       return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
   onStateChange: function(/*in nsIWebProgress*/ aWebProgress,
                      /*in nsIRequest*/ aRequest,
@@ -119,14 +119,14 @@ function cancelRequest()
 function reportUserClosed()
 {
   let request = window.arguments[0];
-  request.QueryInterface(Components.interfaces.prplIRequestBrowser);
+  request.QueryInterface(Ci.prplIRequestBrowser);
   request.cancelled();
 }
 
 function loadRequestedUrl()
 {
   let request = window.arguments[0];
-  request.QueryInterface(Components.interfaces.prplIRequestBrowser);
+  request.QueryInterface(Ci.prplIRequestBrowser);
   document.getElementById("headerMessage").textContent = request.promptText;
   let account = request.account;
   document.getElementById("headerLabel").value =
@@ -141,7 +141,7 @@ function loadRequestedUrl()
     browser.docShell.allowJavascript = false;
 
   browser.addProgressListener(reporterListener,
-                              Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+                              Ci.nsIWebProgress.NOTIFY_ALL);
   let url = request.url;
   if (url != "")
     browser.setAttribute("src", url);

@@ -54,7 +54,7 @@ function OnInit()
         document.getElementById("AccountCentralTitle").setAttribute("value", title);
     }
     catch(ex) {
-        Components.utils.reportError("Error getting selected account: " + ex + "\n");
+        Cu.reportError("Error getting selected account: " + ex + "\n");
     }
 }
 
@@ -208,7 +208,7 @@ function ArrangeAccountCentralItems(server, msgFolder)
     SetItemDisplay("AccountsSection", displayAdvFeatures);
 
     while (exceptions.length) {
-        Components.utils.reportError("Error in setting AccountCentral Items: "
+        Cu.reportError("Error in setting AccountCentral Items: "
             + exceptions.pop() + "\n");
     }
 }
@@ -254,8 +254,7 @@ function ReadMessages()
         window.parent.OpenInboxForServer(selectedServer);
     }
     catch(ex) {
-        Components.utils
-                  .reportError("Error opening Inbox for server: " + ex + "\n");
+        Cu.reportError("Error opening Inbox for server: " + ex + "\n");
     }
 }
 

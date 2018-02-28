@@ -4,8 +4,8 @@
  * getting the list of directories..
  */
 
-var nsIAbDirectory = Components.interfaces.nsIAbDirectory;
-var nsIAbListener = Components.interfaces.nsIAbListener;
+var nsIAbDirectory = Ci.nsIAbDirectory;
+var nsIAbListener = Ci.nsIAbListener;
 var numListenerOptions = 4;
 
 var gAblAll;

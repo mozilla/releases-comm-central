@@ -188,7 +188,7 @@ var gAutoSyncListener =
     try {
       let queueName = "";
       dump("folder added into Q " + this.qName(queue) + " " + folder.URI + "\n");
-      if (folder instanceof Components.interfaces.nsIMsgFolder &&
+      if (folder instanceof Ci.nsIMsgFolder &&
           queue == nsIAutoSyncMgrListener.PriorityQueue) {
       }
     } catch (e) {
@@ -198,7 +198,7 @@ var gAutoSyncListener =
   onFolderRemovedFromQ : function(queue, folder) {
     try {
       dump("folder removed from Q " + this.qName(queue) + " " + folder.URI + "\n");
-      if (folder instanceof Components.interfaces.nsIMsgFolder &&
+      if (folder instanceof Ci.nsIMsgFolder &&
           queue == nsIAutoSyncMgrListener.PriorityQueue) {
       }
     } catch (e) {
@@ -216,7 +216,7 @@ var gAutoSyncListener =
   onDownloadCompleted : function(folder) {
     try {
       dump("folder download completed" + folder.URI + "\n");
-      if (folder instanceof Components.interfaces.nsIMsgFolder) {
+      if (folder instanceof Ci.nsIMsgFolder) {
         let index = mailTestUtils.non_strict_index_of(this._waitingForUpdateList, folder);
         if (index != -1)
           this._waitingForUpdateList.splice(index, 1);
@@ -232,7 +232,7 @@ var gAutoSyncListener =
   },
 
   onDownloadError : function(folder) {
-    if (folder instanceof Components.interfaces.nsIMsgFolder) {
+    if (folder instanceof Ci.nsIMsgFolder) {
       dump("OnDownloadError: " + folder.prettyName + "\n");
     }
   },

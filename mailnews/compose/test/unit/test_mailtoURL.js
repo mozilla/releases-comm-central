@@ -3,15 +3,15 @@
  */
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var nsIMailtoUrl = Components.interfaces.nsIMailtoUrl;
-var COMPOSE_HTML = Components.interfaces.nsIMsgCompFormat.HTML;
-var COMPOSE_DEFAULT = Components.interfaces.nsIMsgCompFormat.Default;
+var nsIMailtoUrl = Ci.nsIMailtoUrl;
+var COMPOSE_HTML = Ci.nsIMsgCompFormat.HTML;
+var COMPOSE_DEFAULT = Ci.nsIMsgCompFormat.Default;
 
 function run_test() {
 
   function test(aTest) {
     var uri = Services.io.newURI(aTest.url);
-    uri = uri.QueryInterface(Components.interfaces.nsIMailtoUrl);
+    uri = uri.QueryInterface(Ci.nsIMailtoUrl);
 
     var to = {}, cc = {}, bcc = {}, subject = {}, body = {}, html = {},
         reference = {}, newsgroup = {}, composeformat = {};
@@ -40,7 +40,7 @@ function run_test() {
 
   // Test cloning reparses the url by checking the to field.
   let uriToClone = Services.io.newURI(tests[0].url);
-  let clonedUrl = uriToClone.clone().QueryInterface(Components.interfaces.nsIMailtoUrl);
+  let clonedUrl = uriToClone.clone().QueryInterface(Ci.nsIMailtoUrl);
   var to = {}, cc = {}, bcc = {}, subject = {}, body = {}, html = {},
       reference = {}, newsgroup = {}, composeformat = {};
   clonedUrl.getMessageContents(to, cc, bcc, subject, body, html, reference,

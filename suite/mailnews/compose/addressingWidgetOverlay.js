@@ -12,8 +12,8 @@ var selectElementIndexTable = null;
 
 var gNumberOfCols = 0;
 
-var gDragService = Components.classes["@mozilla.org/widget/dragservice;1"]
-                             .getService(Components.interfaces.nsIDragService);
+var gDragService = Cc["@mozilla.org/widget/dragservice;1"]
+                     .getService(Ci.nsIDragService);
 
 var gMimeHeaderParser = null;
 
@@ -91,7 +91,7 @@ function Recipients2CompFields(msgCompFields)
     var ng_Sep = "";
     var follow_Sep = "";
 
-    gMimeHeaderParser = Components.classes["@mozilla.org/messenger/headerparser;1"].getService(Components.interfaces.nsIMsgHeaderParser);
+    gMimeHeaderParser = Cc["@mozilla.org/messenger/headerparser;1"].getService(Ci.nsIMsgHeaderParser);
 
     var recipientType;
     var inputField;
@@ -343,7 +343,7 @@ function awTestRowSequence()
   */
 
   var test_sequence;
-  if (Services.prefs.getPrefType("mail.debug.test_addresses_sequence") == Components.interfaces.nsIPrefBranch.PREF_BOOL)
+  if (Services.prefs.getPrefType("mail.debug.test_addresses_sequence") == Ci.nsIPrefBranch.PREF_BOOL)
     test_sequence = Services.prefs.getBoolPref("mail.debug.test_addresses_sequence");
   if (!test_sequence)
     return true;
@@ -742,7 +742,7 @@ function awRecipientErrorCommand(errItem, element)
     var specificErrString = "";
     try {
 	var specificError = errItem.param.QueryInterface(
-	    Components.interfaces.nsISupportsString);
+	    Ci.nsISupportsString);
 	specificErrString = specificError.data;
     } catch (ex) {
     }
@@ -1106,7 +1106,7 @@ AutomatedAutoCompleteHandler.prototype =
       {
         addressToAdd = searchResultsForSession.items
           .queryElementAt(searchResultsForSession.defaultItemIndex,
-                          Components.interfaces.nsIAutoCompleteItem).value;
+                          Ci.nsIAutoCompleteItem).value;
         break;
       }
     }
@@ -1120,7 +1120,7 @@ AutomatedAutoCompleteHandler.prototype =
         if (searchResultsForSession && searchResultsForSession.defaultItemIndex == -1)
         {
           addressToAdd = searchResultsForSession.items
-            .queryElementAt(0, Components.interfaces.nsIAutoCompleteItem).value;
+            .queryElementAt(0, Ci.nsIAutoCompleteItem).value;
           break;
         }
       }
@@ -1139,9 +1139,9 @@ AutomatedAutoCompleteHandler.prototype =
 
   QueryInterface : function(iid)
   {
-      if (iid.equals(Components.interfaces.nsIAutoCompleteListener) ||
-          iid.equals(Components.interfaces.nsISupports))
+      if (iid.equals(Ci.nsIAutoCompleteListener) ||
+          iid.equals(Ci.nsISupports))
         return this;
-      throw Components.results.NS_NOINTERFACE;
+      throw Cr.NS_NOINTERFACE;
   }
 }

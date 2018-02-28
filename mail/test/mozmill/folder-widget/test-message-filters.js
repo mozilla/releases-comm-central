@@ -143,10 +143,10 @@ function create_simple_filter() {
     filterName.value = "A Simple Filter";
     let searchAttr = fec.e("searchAttr0");
     let attrList = fec.window.document.getAnonymousNodes(searchAttr)[0];
-    attrList.value = Components.interfaces.nsMsgSearchAttrib.To;
+    attrList.value = Ci.nsMsgSearchAttrib.To;
     let searchOp = fec.e("searchOp0");
     let opList = fec.window.document.getAnonymousNodes(searchOp)[0];
-    opList.value = Components.interfaces.nsMsgSearchOp.Is;
+    opList.value = Ci.nsMsgSearchOp.Is;
     let searchValList = fec.e("searchVal0");
     let searchVal = fec.window.document.getAnonymousNodes(searchValList)[0];
     searchVal.setAttribute("value", "test@foo.invalid");
@@ -188,10 +188,10 @@ function test_address_books_appear_in_message_filter_dropdown()
   function filterEditorOpened(fec) {
     let searchAttr = fec.e("searchAttr0");
     let attrList = fec.window.document.getAnonymousNodes(searchAttr)[0];
-    attrList.value = Components.interfaces.nsMsgSearchAttrib.To;
+    attrList.value = Ci.nsMsgSearchAttrib.To;
     let searchOp = fec.e("searchOp0");
     let opList = fec.window.document.getAnonymousNodes(searchOp)[0];
-    opList.value = Components.interfaces.nsMsgSearchOp.IsInAB;
+    opList.value = Ci.nsMsgSearchOp.IsInAB;
     let searchValue = fec.e("searchVal0");
 
     // The magic number "4" is because the address book list is the
@@ -229,7 +229,7 @@ function test_can_cancel_quit_on_filter_changes() {
                          runButton.getAttribute("stoplabel"));
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                 .createInstance(Components.interfaces.nsISupportsPRBool);
+                 .createInstance(Ci.nsISupportsPRBool);
 
   // Set the Mock Prompt Service to return false, so that we
   // cancel the quit.
@@ -270,7 +270,7 @@ function test_can_quit_on_filter_changes() {
                          runButton.getAttribute("stoplabel"));
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                     .createInstance(Components.interfaces.nsISupportsPRBool);
+                     .createInstance(Ci.nsISupportsPRBool);
 
   // Set the Mock Prompt Service to return true, so that we
   // allow the quit.

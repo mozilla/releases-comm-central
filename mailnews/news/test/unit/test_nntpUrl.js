@@ -25,6 +25,6 @@ function run_test() {
                                       "/123@example.invalid?group=test.subscribe.simple&key=abcdefghijk");
     Assert.ok(false);
   } catch (e) {
-    Assert.equal(e.result, Components.results.NS_ERROR_MALFORMED_URI);
+    Assert.equal(e.result, Cr.NS_ERROR_MALFORMED_URI);
   }
 }

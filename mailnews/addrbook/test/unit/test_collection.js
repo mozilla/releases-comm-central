@@ -10,7 +10,7 @@
 
 // make xpcshell-tests TEST_PATH=mailnews/addrbook/test/unit/test_collection.js
 
-var nsIAbPMF = Components.interfaces.nsIAbPreferMailFormat;
+var nsIAbPMF = Ci.nsIAbPreferMailFormat;
 
 // Source fields (emailHeader/mailFormat) and expected results for use for
 // testing the addition of new addresses to the database.
@@ -266,8 +266,8 @@ function run_test()
 
   // Get the actual collecter
   collectChecker.addressCollect =
-    Components.classes["@mozilla.org/addressbook/services/addressCollector;1"]
-              .getService(Components.interfaces.nsIAbAddressCollector);
+    Cc["@mozilla.org/addressbook/services/addressCollector;1"]
+      .getService(Ci.nsIAbAddressCollector);
 
   // Test - Addition of header without email address.
 
@@ -299,8 +299,8 @@ function run_test()
 
   // First delete all existing cards
   var childCards = collectChecker.AB.childCards;
-  var cardsToDelete = Components.classes["@mozilla.org/array;1"]
-                                .createInstance(Components.interfaces.nsIMutableArray);
+  var cardsToDelete = Cc["@mozilla.org/array;1"]
+                        .createInstance(Ci.nsIMutableArray);
   while (childCards.hasMoreElements()) {
     cardsToDelete.appendElement(childCards.getNext());
   }
@@ -323,8 +323,8 @@ function run_test()
 
   // Add a basic card with just primary and second email to allow testing
   // of the case where we don't modify when second email is matching.
-  card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
-                   .createInstance(Components.interfaces.nsIAbCard);
+  card = Cc["@mozilla.org/addressbook/cardproperty;1"]
+           .createInstance(Ci.nsIAbCard);
 
   card.primaryEmail = "userprim\u00D0@foo.invalid";
   card.setProperty("SecondEmail", "usersec\u00D0@foo.invalid");

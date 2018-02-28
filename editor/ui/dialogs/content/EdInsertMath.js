@@ -30,9 +30,9 @@ function Startup()
   // TeXZilla.js contains non-ASCII characters and explicitly sets
   // window.TeXZilla, so we have to specify the charset parameter but don't
   // need to worry about the targetObj parameter.
-  Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-            .getService(Components.interfaces.mozIJSSubScriptLoader)
-            .loadSubScript("chrome://editor/content/TeXZilla.js", {}, "UTF-8");
+  Cc["@mozilla.org/moz/jssubscript-loader;1"]
+    .getService(Ci.mozIJSSubScriptLoader)
+    .loadSubScript("chrome://editor/content/TeXZilla.js", {}, "UTF-8");
 
   // Verify if the selection is on a <math> and initialize the dialog.
   gDialog.oldMath = editor.getElementOrParentByTagName("math", null);
@@ -110,7 +110,7 @@ function insertLaTeXCommand(aButton)
 
   // For a single math symbol, just use the insertText command.
   if (aButton.label) {
-    gDialog.input.editor.QueryInterface(Components.interfaces.nsIPlaintextEditor).insertText(aButton.label);
+    gDialog.input.editor.QueryInterface(Ci.nsIPlaintextEditor).insertText(aButton.label);
     return;
   }
 
@@ -140,7 +140,7 @@ function insertLaTeXCommand(aButton)
   }
 
   // Update the input text and selection.
-  gDialog.input.editor.QueryInterface(Components.interfaces.nsIPlaintextEditor).insertText(latex);
+  gDialog.input.editor.QueryInterface(Ci.nsIPlaintextEditor).insertText(latex);
   gDialog.input.setSelectionRange(selectionStart + latexNewStart,
                                   selectionStart + latexNewEnd);
 

@@ -71,7 +71,7 @@ function add_NNTP_account() {
   // Create a NNTP server
   let nntpServer = MailServices.accounts
     .createIncomingServer(null, "example.nntp.invalid", "nntp")
-    .QueryInterface(Components.interfaces.nsINntpIncomingServer);
+    .QueryInterface(Ci.nsINntpIncomingServer);
 
   identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox2@example.invalid";
@@ -98,7 +98,7 @@ function remove_NNTP_account() {
 function test_address_types() {
   // Be sure there is no NNTP account yet.
   for (let account of fixIterator(MailServices.accounts.accounts,
-                                  Components.interfaces.nsIMsgAccount)) {
+                                  Ci.nsIMsgAccount)) {
     assert_not_equals(account.incomingServer.type, "nntp",
                       "There is a NNTP account existing unexpectedly");
   }

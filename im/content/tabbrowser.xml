@@ -298,7 +298,7 @@
             event.stopPropagation();
             this.selectedPanel.focus();
 
-            const masks = Components.interfaces.nsIDOMNSEvent;
+            const masks = Ci.nsIDOMNSEvent;
             var modifiers = 0;
             if (event.shiftKey)
               modifiers |= masks.SHIFT_MASK;
@@ -313,8 +313,8 @@
                                                                 : masks.CONTROL_MASK;
             // Can't use dispatchEvent to the textbox as these refuse untrusted key events.
             this.selectedPanel.ownerDocument.defaultView
-              .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-              .getInterface(Components.interfaces.nsIDOMWindowUtils)
+              .QueryInterface(Ci.nsIInterfaceRequestor)
+              .getInterface(Ci.nsIDOMWindowUtils)
               .sendKeyEvent(event.type, event.keyCode, event.charCode, modifiers);
           ]]>
         </body>
@@ -491,7 +491,7 @@
               t.linkedBrowser = aPanel.browser;
 
             if (aConv) {
-              aConv.QueryInterface(Components.interfaces.imIConversation);
+              aConv.QueryInterface(Ci.imIConversation);
               // set up the shared autoscroll popup if it doesn't exist yet
               if (!this._autoScrollPopup) {
                 this._autoScrollPopup = aPanel.browser._createAutoScrollPopup();
@@ -888,7 +888,7 @@
           // a statuspanel to all tab panels with a browser element.
 
           if (!this.selectedBrowser) {
-            Components.utils.reportError("Browser element in a tab panel " +
+            Cu.reportError("Browser element in a tab panel " +
               "without a browser property");
             return null;
           }
@@ -1195,8 +1195,8 @@
             if (this.mTabs.length == 1)
               return null;
 
-            var ma = Components.classes["@mozilla.org/array;1"]
-                               .createInstance(Components.interfaces.nsIMutableArray);
+            var ma = Cc["@mozilla.org/array;1"]
+                       .createInstance(Ci.nsIMutableArray);
             aTabs.forEach(function(aTab) { ma.appendElement(aTab); });
 
             // tell a new window to take the "dropped" tab
@@ -1977,12 +1977,12 @@
         // be set after this binding is constructed.
         try {
           this._xulWindow =
-            window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                  .getInterface(Components.interfaces.nsIWebNavigation)
-                  .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+            window.QueryInterface(Ci.nsIInterfaceRequestor)
+                  .getInterface(Ci.nsIWebNavigation)
+                  .QueryInterface(Ci.nsIDocShellTreeItem)
                   .treeOwner
-                  .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                  .getInterface(Components.interfaces.nsIXULWindow);
+                  .QueryInterface(Ci.nsIInterfaceRequestor)
+                  .getInterface(Ci.nsIXULWindow);
         }
         catch(ex) { }
       ]]></constructor>

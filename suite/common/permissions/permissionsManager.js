@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-const nsICookiePermission = Components.interfaces.nsICookiePermission;
+const nsIPermissionManager = Ci.nsIPermissionManager;
+const nsICookiePermission = Ci.nsICookiePermission;
 
 var permissionManager;
 
@@ -44,8 +44,8 @@ var permissionsBundle;
 function Startup() {
   var introText, windowTitle;
 
-  permissionManager = Components.classes["@mozilla.org/permissionmanager;1"]
-                                .getService(nsIPermissionManager);
+  permissionManager = Cc["@mozilla.org/permissionmanager;1"]
+                        .getService(nsIPermissionManager);
 
   permissionsTree = document.getElementById("permissionsTree");
 
@@ -133,7 +133,7 @@ function loadPermissions() {
 
   try {
     while (enumerator.hasMoreElements()) {
-      permission = enumerator.getNext().QueryInterface(Components.interfaces.nsIPermission);
+      permission = enumerator.getNext().QueryInterface(Ci.nsIPermission);
       if (permission.type == permissionType &&
           (!gManageCapability || permission.capability == gManageCapability))
         permissionPush(count++, permission.host, permission.type,
@@ -202,8 +202,8 @@ function deleteAllPermissions() {
 }
 
 function finalizeChanges() {
-  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                            .getService(Components.interfaces.nsIIOService);
+  var ioService = Cc["@mozilla.org/network/io-service;1"]
+                    .getService(Ci.nsIIOService);
   var i, p;
 
   for (i in removals) {
@@ -235,13 +235,13 @@ function addPermission(aPermission) {
   // trim any leading and trailing spaces and scheme
   var host = trimSpacesAndScheme(textbox.value);
   try {
-    var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                              .getService(Components.interfaces.nsIIOService);
+    var ioService = Cc["@mozilla.org/network/io-service;1"]
+                      .getService(Ci.nsIIOService);
     var uri = ioService.newURI("http://" + host);
     host = uri.host;
   } catch(ex) {
-    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                  .getService(Components.interfaces.nsIPromptService);
+    var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Ci.nsIPromptService);
     var message = permissionsBundle.getFormattedString("alertInvalid", [host]);
     var title = permissionsBundle.getString("alertInvalidTitle");
     promptService.alert(window, title, message);

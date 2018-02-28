@@ -46,7 +46,7 @@ function refreshIdentityList(aSelectIndex)
   // Build the list from the identities array.
   let identities = gAccount.identities;
   for (let identity of fixIterator(identities,
-                                   Components.interfaces.nsIMsgIdentity))
+                                   Ci.nsIMsgIdentity))
   {
     if (identity.valid)
     {
@@ -94,7 +94,7 @@ function getSelectedIdentity()
   var identityKey = gIdentityListBox.selectedItems[0].getAttribute("key");
   let identities = gAccount.identities;
   for (let identity of fixIterator(identities,
-                                   Components.interfaces.nsIMsgIdentity))
+                                   Ci.nsIMsgIdentity))
   {
     if (identity.valid && identity.key == identityKey)
       return identity;

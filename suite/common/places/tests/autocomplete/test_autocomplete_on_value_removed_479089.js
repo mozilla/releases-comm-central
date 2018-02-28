@@ -24,7 +24,7 @@ add_task(async function test_autocomplete_on_value_removed()
 {
   // QI to nsIAutoCompleteSimpleResultListener
   var listener = Cc["@mozilla.org/autocomplete/search;1?name=history"].
-                 getService(Components.interfaces.nsIAutoCompleteSimpleResultListener);
+                 getService(Ci.nsIAutoCompleteSimpleResultListener);
 
   // add history visit
   var testUri = uri("http://foo.mozilla.com/");

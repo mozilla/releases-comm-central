@@ -454,9 +454,9 @@
            return;
 
          let win =
-           Components.classes["@mozilla.org/focus-manager;1"]
-                     .getService(Components.interfaces.nsIFocusManager)
-                     .activeWindow;
+           Cc["@mozilla.org/focus-manager;1"]
+             .getService(Ci.nsIFocusManager)
+             .activeWindow;
          if (win == document.defaultView)
            finishAliasing(true);
        ]]>

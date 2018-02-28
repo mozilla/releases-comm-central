@@ -107,7 +107,7 @@ var gSanitizePromptDialog = {
     try {
       s.sanitize();
     } catch (er) {
-      Components.utils.reportError("Exception during sanitize: " + er);
+      Cu.reportError("Exception during sanitize: " + er);
     }
     return true;
   },

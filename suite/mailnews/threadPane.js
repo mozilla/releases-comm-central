@@ -100,11 +100,11 @@ nsMsgDBViewCommandUpdater.prototype =
 
   QueryInterface : function(iid)
    {
-     if (iid.equals(Components.interfaces.nsIMsgDBViewCommandUpdater) ||
-         iid.equals(Components.interfaces.nsISupports))
+     if (iid.equals(Ci.nsIMsgDBViewCommandUpdater) ||
+         iid.equals(Ci.nsISupports))
        return this;
 
-     throw Components.results.NS_NOINTERFACE;
+     throw Cr.NS_NOINTERFACE;
     }
 }
 
@@ -180,15 +180,15 @@ function HandleColumnClick(columnID)
 
 function ThreadPaneDoubleClick()
 {
-  const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   if (IsSpecialFolderSelected(nsMsgFolderFlags.Drafts, true))
   {
     MsgComposeDraftMessage();
   }
   else if(IsSpecialFolderSelected(nsMsgFolderFlags.Templates, true))
   {
-    ComposeMsgByType(Components.interfaces.nsIMsgCompType.Template, null,
-                     Components.interfaces.nsIMsgCompFormat.Default);
+    ComposeMsgByType(Ci.nsIMsgCompType.Template, null,
+                     Ci.nsIMsgCompFormat.Default);
   }
   else if (AllowOpenTabOnDoubleClick() &&
            document.documentElement.id != "searchMailWindow")
@@ -259,7 +259,7 @@ function MsgSortThreaded()
     dbview.viewFlags &= ~nsMsgViewFlagsType.kGroupBySort;
     // if we were grouped, and not a saved search, just rebuild the view
     if (wasGrouped && !(gMsgFolderSelected.flags &
-                       Components.interfaces.nsMsgFolderFlags.Virtual))
+                       Ci.nsMsgFolderFlags.Virtual))
       SwitchView("cmd_viewAllMsgs");
     // Toggle if not already threaded.
     else if ((viewFlags & nsMsgViewFlagsType.kThreadedDisplay) == 0)
@@ -287,7 +287,7 @@ function MsgGroupBySort()
 
   viewFlags |= nsMsgViewFlagsType.kThreadedDisplay | nsMsgViewFlagsType.kGroupBySort;
   if (gDBView &&
-      gMsgFolderSelected.flags & Components.interfaces.nsMsgFolderFlags.Virtual)
+      gMsgFolderSelected.flags & Ci.nsMsgFolderFlags.Virtual)
   {
     gDBView.viewFlags = viewFlags;
     UpdateSortIndicators(sortType, nsMsgViewSortOrder.ascending);
@@ -298,8 +298,8 @@ function MsgGroupBySort()
     gDBView.close();
     gDBView = null;
   }
-  gDBView = Components.classes["@mozilla.org/messenger/msgdbview;1?type=group"]
-                                .createInstance(Components.interfaces.nsIMsgDBView);
+  gDBView = Cc["@mozilla.org/messenger/msgdbview;1?type=group"]
+                                .createInstance(Ci.nsIMsgDBView);
 
   if (!gThreadPaneCommandUpdater)
     gThreadPaneCommandUpdater = new nsMsgDBViewCommandUpdater();
@@ -310,7 +310,7 @@ function MsgGroupBySort()
   RerootThreadPane();
   UpdateSortIndicators(sortType, nsMsgViewSortOrder.ascending);
   Services.obs.notifyObservers(msgFolder, "MsgCreateDBView",
-      Components.interfaces.nsMsgViewType.eShowAllThreads + ":" + viewFlags);
+      Ci.nsMsgViewType.eShowAllThreads + ":" + viewFlags);
 }
 
 function MsgSortUnthreaded()
@@ -432,7 +432,7 @@ function RerootThreadPane()
 {
   SetNewsFolderColumns();
 
-  var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  var treeView = gDBView.QueryInterface(Ci.nsITreeView);
   if (treeView)
   {
     var tree = GetThreadTree();

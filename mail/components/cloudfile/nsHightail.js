@@ -1187,7 +1187,7 @@ nsHightailFileUploader.prototype = {
   getTempFile: function(leafName) {
     let tempfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     tempfile.append(leafName)
-    tempfile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, parseInt("0666", 8));
+    tempfile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0666", 8));
     // do whatever you need to the created file
     return tempfile.clone()
   },

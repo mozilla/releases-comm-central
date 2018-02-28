@@ -86,7 +86,7 @@ var filterEditorQuitObserver = {
     // Check whether or not we want to veto the quit request (unless another
     // observer already did.
     if (aTopic == "quit-application-requested" &&
-        (aSubject instanceof Components.interfaces.nsISupportsPRBool) &&
+        (aSubject instanceof Ci.nsISupportsPRBool) &&
         !aSubject.data)
       aSubject.data = !onFilterClose();
   }
@@ -94,10 +94,10 @@ var filterEditorQuitObserver = {
 
 function onLoad()
 {
-    gFilterListMsgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                                     .createInstance(Components.interfaces.nsIMsgWindow);
+    gFilterListMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                             .createInstance(Ci.nsIMsgWindow);
     gFilterListMsgWindow.domWindow = window;
-    gFilterListMsgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
+    gFilterListMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
     gFilterListMsgWindow.statusFeedback = gStatusFeedback;
 
     gFilterListbox    = document.getElementById("filterList");
@@ -406,7 +406,7 @@ function calculatePositionAndShowCreateFilterDialog(args)
     // Select the new filter, it is at the position of previous selection.
     gFilterListbox.selectItem(gFilterListbox.getItemAtIndex(position));
     if (currentFilter() != args.newFilter)
-      Components.utils.reportError("Filter created at an unexpected position!");
+      Cu.reportError("Filter created at an unexpected position!");
   }
 }
 
@@ -526,11 +526,11 @@ function moveFilter(motion) {
       return;
     case msgMoveMotion.Up:
       relativeStep = -1;
-      moveFilterNative = Components.interfaces.nsMsgFilterMotion.up;
+      moveFilterNative = Ci.nsMsgFilterMotion.up;
       break;
     case msgMoveMotion.Down:
       relativeStep = +1;
-      moveFilterNative = Components.interfaces.nsMsgFilterMotion.down;
+      moveFilterNative = Ci.nsMsgFilterMotion.down;
       break;
   }
 
@@ -612,8 +612,8 @@ function runSelectedFilters()
   var folder = gRunFiltersFolder._folder || gRunFiltersFolder.selectedItem._folder;
 
   let filterList = MailServices.filters.getTempFilterList(folder);
-  let folders = Components.classes["@mozilla.org/array;1"]
-                          .createInstance(Components.interfaces.nsIMutableArray);
+  let folders = Cc["@mozilla.org/array;1"]
+                  .createInstance(Ci.nsIMutableArray);
   folders.appendElement(folder);
 
   // make sure the tmp filter list uses the real filter list log stream
@@ -850,7 +850,7 @@ function getServerThatCanHaveFilters()
     // that can have filters.
     let allServers = MailServices.accounts.allServers;
     for (let currentServer of fixIterator(allServers,
-                                          Components.interfaces.nsIMsgIncomingServer))
+                                          Ci.nsIMsgIncomingServer))
     {
       if (currentServer.canHaveFilters)
         return currentServer;
@@ -945,7 +945,7 @@ function getFirstFolder(msgFolder)
     {
       // Find Inbox for imap and pop; show Choose Folder if not found or
       // Local Folders or any other account type.
-      const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+      const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
       // If inbox does not exist then return null.
       return msgFolder.getFolderWithFlags(nsMsgFolderFlags.Inbox);
     }

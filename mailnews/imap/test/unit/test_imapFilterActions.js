@@ -44,8 +44,8 @@ var gMessageInBody = "an HTML message";
 
 // various object references
 var gCopyService = MailServices.copy;
-var gDbService = Components.classes["@mozilla.org/msgDatabase/msgDBService;1"]
-                             .getService(Components.interfaces.nsIMsgDBService);
+var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
+                             .getService(Ci.nsIMsgDBService);
 
 // Definition of tests. The test function name is the filter action
 // being tested, with "Body" appended to tests that use delayed

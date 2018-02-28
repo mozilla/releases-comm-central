@@ -21,23 +21,23 @@ GopherProtocol.prototype = {
   classID: Components.ID("{22042bdb-56e4-47c6-8b12-fdfa859c05a9}"),
 
   // nsISupports
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProtocolHandler]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolHandler]),
 
   // nsIProtocolHandler
   scheme: "gopher",
   defaultPort: 70,
-  protocolFlags: Components.interfaces.nsIProtocolHandler.URI_NORELATIVE |
-                 Components.interfaces.nsIProtocolHandler.URI_NOAUTH |
-                 Components.interfaces.nsIProtocolHandler.URI_LOADABLE_BY_ANYONE,
+  protocolFlags: Ci.nsIProtocolHandler.URI_NORELATIVE |
+                 Ci.nsIProtocolHandler.URI_NOAUTH |
+                 Ci.nsIProtocolHandler.URI_LOADABLE_BY_ANYONE,
 
   allowPort: function GP_allowPort(port, scheme) {
     return false; // meaningless.
   },
 
   newURI: function GP_newURI(spec, charset, baseURI) {
-    var uri = Components.classes["@mozilla.org/network/standard-url;1"]
-                        .createInstance(Components.interfaces.nsIStandardURL);
-    uri.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD,
+    var uri = Cc["@mozilla.org/network/standard-url;1"]
+                .createInstance(Ci.nsIStandardURL);
+    uri.init(Ci.nsIStandardURL.URLTYPE_STANDARD,
       this.defaultPort, spec, charset, baseURI)
     return uri;
   },
@@ -54,12 +54,12 @@ GopherProtocol.prototype = {
                           ios.newChannelFromURI2(newURI, null,
                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                  null,
-                                                 Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                 Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                 Ci.nsIContentPolicy.TYPE_OTHER);
     chan.originalURI = inputURI;
-    chan.owner = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
-                           .getService(Components.interfaces.nsIScriptSecurityManager)
-                           .createCodebasePrincipal(inputURI, {});
+    chan.owner = Cc["@mozilla.org/scriptsecuritymanager;1"]
+                   .getService(Ci.nsIScriptSecurityManager)
+                   .createCodebasePrincipal(inputURI, {});
     return chan;
   }
 };

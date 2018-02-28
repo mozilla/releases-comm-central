@@ -35,8 +35,8 @@
         <getter>
         <![CDATA[
           if (!this._statsService) {
-            this._statsService = Components.classes["@instantbird.org/conv-stats-service;1"]
-                                           .getService(Components.interfaces.ibIConvStatsService);
+            this._statsService = Cc["@instantbird.org/conv-stats-service;1"]
+                                   .getService(Ci.ibIConvStatsService);
           }
           return this._statsService;
         ]]>
@@ -163,7 +163,7 @@
           if (!this.hasMoreConversations)
             return null;
           return this.filteredConvs.getNext()
-                     .QueryInterface(Components.interfaces.ibIPossibleConversation);
+                     .QueryInterface(Ci.ibIPossibleConversation);
         ]]>
         </body>
       </method>
@@ -239,7 +239,7 @@
             return;
           this._pendingRefreshCall = true;
           Services.tm.mainThread.dispatch(this._delayedRefresh.bind(this),
-            Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
+            Ci.nsIEventTarget.DISPATCH_NORMAL);
         ]]>
         </body>
       </method>

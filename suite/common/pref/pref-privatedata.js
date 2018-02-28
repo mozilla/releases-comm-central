@@ -34,7 +34,7 @@ function updateClearNowButtonLabel()
  */
 function clearPrivateDataNow()
 {
-  Components.classes["@mozilla.org/suite/suiteglue;1"]
-            .getService(Components.interfaces.nsISuiteGlue)
-            .sanitize(window);
+  Cc["@mozilla.org/suite/suiteglue;1"]
+    .getService(Ci.nsISuiteGlue)
+    .sanitize(window);
 }

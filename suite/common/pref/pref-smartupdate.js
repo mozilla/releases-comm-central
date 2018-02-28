@@ -11,8 +11,8 @@ function Startup()
 
   if (hasUpdater)
   {
-    var aus = Components.classes["@mozilla.org/updates/update-service;1"]
-                        .getService(Components.interfaces.nsIApplicationUpdateService);
+    var aus = Cc["@mozilla.org/updates/update-service;1"]
+                .getService(Ci.nsIApplicationUpdateService);
     gCanCheckForUpdates = aus.canCheckForUpdates;
 
     UpdateAddonsItems();
@@ -81,7 +81,7 @@ function UpdateAppItems()
  */
 function ShowUpdateHistory()
 {
-  Components.classes["@mozilla.org/updates/update-prompt;1"]
-            .createInstance(Components.interfaces.nsIUpdatePrompt)
-            .showUpdateHistory(window);
+  Cc["@mozilla.org/updates/update-prompt;1"]
+    .createInstance(Ci.nsIUpdatePrompt)
+    .showUpdateHistory(window);
 }

@@ -33,8 +33,8 @@ var kMsgForwardAsAttachment = 0;
 
 var gMessengerBundle;
 var gOfflineManager;
-var gCopyService = Components.classes["@mozilla.org/messenger/messagecopyservice;1"]
-                             .getService(Components.interfaces.nsIMsgCopyService);
+var gCopyService = Cc["@mozilla.org/messenger/messagecopyservice;1"]
+                     .getService(Ci.nsIMsgCopyService);
 var gMarkViewedMessageAsReadTimer = null; // if the user has configured the app to mark a message as read if it is viewed for more than n seconds
 
 var gTimelineService = null;
@@ -44,7 +44,7 @@ if (gTimelineEnabled) {
     gTimelineEnabled = Services.prefs.getBoolPref("mailnews.timeline_is_enabled");
     if (gTimelineEnabled) {
       gTimelineService =
-        Components.classes["@mozilla.org;timeline-service;1"].getService(Components.interfaces.nsITimelineService);
+        Cc["@mozilla.org;timeline-service;1"].getService(Ci.nsITimelineService);
     }
   }
   catch (ex)
@@ -78,7 +78,7 @@ function menu_new_init()
   var serverType = msgFolder.server.type;
   var canCreateNew = msgFolder.canCreateSubfolders;
   var isInbox = msgFolder.isSpecialFolder(
-                  Components.interfaces.nsMsgFolderFlags.Inbox, false);
+                  Ci.nsMsgFolderFlags.Inbox, false);
   var isIMAPFolder = serverType == "imap";
   var showNew = ((serverType != 'nntp') && canCreateNew) || isInbox;
   ShowMenuItem("menu_newFolder", showNew);
@@ -502,10 +502,10 @@ function RemoveAllMessageTags()
   if (!selectedMessages.length)
     return;
 
-  var messages = Components.classes["@mozilla.org/array;1"]
-                           .createInstance(Components.interfaces.nsIMutableArray);
-  var tagService = Components.classes["@mozilla.org/messenger/tagservice;1"]
-                             .getService(Components.interfaces.nsIMsgTagService);
+  var messages = Cc["@mozilla.org/array;1"]
+                   .createInstance(Ci.nsIMutableArray);
+  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
+                     .getService(Ci.nsIMsgTagService);
   var tagArray = tagService.getAllTags({});
 
   var allKeys = "";
@@ -549,9 +549,9 @@ function InitNewMsgMenu(aPopup)
   if (folder)
     identity = getIdentityForServer(folder.server);
   if (!identity)
-    identity = Components.classes["@mozilla.org/messenger/account-manager;1"]
-                         .getService(Components.interfaces.nsIMsgAccountManager)
-                         .defaultAccount.defaultIdentity;
+    identity = Cc["@mozilla.org/messenger/account-manager;1"]
+                 .getService(Ci.nsIMsgAccountManager)
+                 .defaultAccount.defaultIdentity;
   // If the identity is not found, use the mail.html_compose pref to
   // determine the message compose type (HTML or PlainText).
   var composeHTML = identity ? identity.composeHtml
@@ -597,8 +597,8 @@ function ToggleMessageTagKey(index)
   if (!msgHdr)
     return;
 
-  var tagService = Components.classes["@mozilla.org/messenger/tagservice;1"]
-                             .getService(Components.interfaces.nsIMsgTagService);
+  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
+                     .getService(Ci.nsIMsgTagService);
   var tagArray = tagService.getAllTags({});
   for (var i = 0; i < tagArray.length; ++i)
   {
@@ -625,10 +625,10 @@ function ToggleMessageTagMenu(target)
 
 function ToggleMessageTag(key, addKey)
 {
-  var messages = Components.classes["@mozilla.org/array;1"]
-                           .createInstance(Components.interfaces.nsIMutableArray);
-  var msg = Components.classes["@mozilla.org/array;1"]
-                          .createInstance(Components.interfaces.nsIMutableArray);
+  var messages = Cc["@mozilla.org/array;1"]
+                   .createInstance(Ci.nsIMutableArray);
+  var msg = Cc["@mozilla.org/array;1"]
+                          .createInstance(Ci.nsIMutableArray);
   var selectedMessages = gFolderDisplay.selectedMessages;
   var toggler = addKey ? "addKeywordsToMessages" : "removeKeywordsFromMessages";
   var prevHdrFolder = null;
@@ -679,8 +679,8 @@ function SetMessageTagLabel(menuitem, index, name)
 
 function InitMessageTags(menuPopup)
 {
-  var tagService = Components.classes["@mozilla.org/messenger/tagservice;1"]
-                             .getService(Components.interfaces.nsIMsgTagService);
+  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
+                     .getService(Ci.nsIMsgTagService);
   var tagArray = tagService.getAllTags({});
   var tagCount = tagArray.length;
 
@@ -761,7 +761,7 @@ function PopulateHistoryMenu(menuPopup, navOffset)
 
     var msgHdr = messenger.msgHdrFromURI(historyArray[i * 2]);
     var subject = "";
-    if (msgHdr.flags & Components.interfaces.nsMsgMessageFlags.HasRe)
+    if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe)
       subject = "Re: ";
     if (msgHdr.mime2DecodedSubject)
        subject += msgHdr.mime2DecodedSubject;
@@ -849,7 +849,7 @@ function SelectedMessagesAreDeleted()
   var firstSelectedMessage = gFolderDisplay.selectedMessage;
   return firstSelectedMessage &&
          (firstSelectedMessage.flags &
-          Components.interfaces.nsMsgMessageFlags.IMAPDeleted);
+          Ci.nsMsgMessageFlags.IMAPDeleted);
 }
 
 function SelectedMessagesAreJunk()
@@ -900,7 +900,7 @@ function GetInboxFolder(server)
         var rootMsgFolder = server.rootMsgFolder;
 
         //now find Inbox
-        const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+        const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
         return rootMsgFolder.getFolderWithFlags(nsMsgFolderFlags.Inbox);
     }
     catch (ex) {
@@ -981,8 +981,8 @@ function MsgDeleteMessage(aReallyDelete)
 
   // determine if we're using the IMAP delete model
   var server = GetFirstSelectedMsgFolder().server;
-  const kIMAPDelete = Components.interfaces.nsMsgImapDeleteModels.IMAPDelete;
-  var imapDeleteModelUsed = server instanceof Components.interfaces.nsIImapIncomingServer &&
+  const kIMAPDelete = Ci.nsMsgImapDeleteModels.IMAPDelete;
+  var imapDeleteModelUsed = server instanceof Ci.nsIImapIncomingServer &&
                             server.deleteModel == kIMAPDelete;
 
   // execute deleteNoTrash only if IMAP delete model is not used
@@ -1000,9 +1000,9 @@ function MsgCopyMessage(destFolder)
     let destMsgFolder = GetMsgFolderFromUri(destUri);
     if (gMessageDisplay.isDummy)
     {
-      let file = window.arguments[0].QueryInterface(Components.interfaces.nsIFileURL).file;
+      let file = window.arguments[0].QueryInterface(Ci.nsIFileURL).file;
       MailServices.copy.CopyFileMessage(file, destMsgFolder, null, false,
-                                        Components.interfaces.nsMsgMessageFlags.Read,
+                                        Ci.nsMsgMessageFlags.Read,
                                         "", null, msgWindow);
     }
     else
@@ -1144,7 +1144,7 @@ BatchMessageMover.prototype =
       }
       else {
         let identity = GetIdentityForHeader(msgHdr,
-          Components.interfaces.nsIMsgCompType.ReplyAll);
+          Ci.nsIMsgCompType.ReplyAll);
         archiveFolderUri = identity.archiveFolder;
         archiveGranularity = identity.archiveGranularity;
         archiveKeepFolderStructure = identity.archiveKeepFolderStructure;
@@ -1162,8 +1162,8 @@ BatchMessageMover.prototype =
       this._batches[copyBatchKey].push(msgHdr);
     }
 
-    let notificationService = Components.classes["@mozilla.org/messenger/msgnotificationservice;1"]
-                                        .getService(Components.interfaces.nsIMsgFolderNotificationService);
+    let notificationService = Cc["@mozilla.org/messenger/msgnotificationservice;1"]
+                                .getService(Ci.nsIMsgFolderNotificationService);
     notificationService.addListener(this, notificationService.folderAdded);
 
     // Now we launch the code iterating over all message copies, one in turn.
@@ -1179,12 +1179,12 @@ BatchMessageMover.prototype =
     }
 
     // all done
-    Components.classes["@mozilla.org/messenger/msgnotificationservice;1"]
-              .getService(Components.interfaces.nsIMsgFolderNotificationService)
-              .removeListener(this);
+    Cc["@mozilla.org/messenger/msgnotificationservice;1"]
+      .getService(Ci.nsIMsgFolderNotificationService)
+      .removeListener(this);
 
     // We're just going to select the message now.
-    let treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+    let treeView = gDBView.QueryInterface(Ci.nsITreeView);
     treeView.selection.select(this.messageToSelectAfterWereDone);
     treeView.selectionChanged();
     return;
@@ -1195,8 +1195,8 @@ BatchMessageMover.prototype =
     let batch = this._currentBatch;
     let msgs = batch.slice(6);
 
-    let filterArray = Components.classes["@mozilla.org/array;1"]
-                                .createInstance(Components.interfaces.nsIMutableArray);
+    let filterArray = Cc["@mozilla.org/array;1"]
+                        .createInstance(Ci.nsIMutableArray);
     for (let message of msgs) {
       filterArray.appendElement(message);
     }
@@ -1204,7 +1204,7 @@ BatchMessageMover.prototype =
     // Apply filters to this batch.
     let srcFolder = batch[0];
     MailServices.filters.applyFilters(
-      Components.interfaces.nsMsgFilterType.Archive,
+      Ci.nsMsgFilterType.Archive,
       filterArray, srcFolder, msgWindow, this);
     return; // continues with onStopOperation
   },
@@ -1213,7 +1213,7 @@ BatchMessageMover.prototype =
   {
     if (!Components.isSuccessCode(aResult))
     {
-      Components.utils.reportError("Archive filter failed: " + aResult);
+      Cu.reportError("Archive filter failed: " + aResult);
       // We don't want to effectively disable archiving because a filter
       // failed, so we'll continue after reporting the error.
     }
@@ -1228,13 +1228,13 @@ BatchMessageMover.prototype =
     let [srcFolder, archiveFolderUri, granularity, keepFolderStructure, msgYear, msgMonth] = batch;
     let msgs = batch.slice(6);
 
-    let moveArray = Components.classes["@mozilla.org/array;1"]
-                              .createInstance(Components.interfaces.nsIMutableArray);
+    let moveArray = Cc["@mozilla.org/array;1"]
+                      .createInstance(Ci.nsIMutableArray);
     // Don't move any items that the filter moves or deleted
     for (let item of msgs) {
       if (srcFolder.msgDatabase.ContainsKey(item.messageKey) &&
           !(srcFolder.getProcessingFlags(item.messageKey) &
-            Components.interfaces.nsMsgProcessingFlags.FilterToMove)) {
+            Ci.nsMsgProcessingFlags.FilterToMove)) {
         moveArray.appendElement(item);
       }
     }
@@ -1251,14 +1251,14 @@ BatchMessageMover.prototype =
     let isAsync = archiveFolder.server.protocolInfo.foldersCreatedAsync;
     if (!archiveFolder.parent)
     {
-      archiveFolder.setFlag(Components.interfaces.nsMsgFolderFlags.Archive);
+      archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
       archiveFolder.createStorageIfMissing(this);
       if (isAsync)
         return; // continues with OnStopRunningUrl
     }
     if (!archiveFolder.canCreateSubfolders)
-      granularity = Components.interfaces.nsIMsgIdentity.singleArchiveFolder;
-    if (granularity >= Components.interfaces.nsIMsgIdentity.perYearArchiveFolders)
+      granularity = Ci.nsIMsgIdentity.singleArchiveFolder;
+    if (granularity >= Ci.nsIMsgIdentity.perYearArchiveFolders)
     {
       archiveFolderUri += "/" + msgYear;
       dstFolder = GetMsgFolderFromUri(archiveFolderUri, false);
@@ -1269,7 +1269,7 @@ BatchMessageMover.prototype =
           return; // continues with OnStopRunningUrl
       }
     }
-    if (granularity >= Components.interfaces.nsIMsgIdentity.perMonthArchiveFolders)
+    if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders)
     {
       archiveFolderUri += "/" + msgMonth;
       dstFolder = GetMsgFolderFromUri(archiveFolderUri, false);
@@ -1345,7 +1345,7 @@ BatchMessageMover.prototype =
       this.continueBatch();
     else
     {
-      Components.utils.reportError("Archive failed to create folder: " + aExitCode);
+      Cu.reportError("Archive failed to create folder: " + aExitCode);
       this._batches = null;
       this.processNextBatch(); // for cleanup and exit
     }
@@ -1373,7 +1373,7 @@ BatchMessageMover.prototype =
     }
     else
     {
-      Components.utils.reportError("Archive failed to copy: " + aStatus);
+      Cu.reportError("Archive failed to copy: " + aStatus);
       this._batches = null;
       this.processNextBatch(); // for cleanup and exit
     }
@@ -1395,13 +1395,13 @@ BatchMessageMover.prototype =
 
   QueryInterface: function(aIID)
   {
-    if (aIID.equals(Components.interfaces.nsIUrlListener) ||
-        aIID.equals(Components.interfaces.nsIMsgCopyServiceListener) ||
-        aIID.equals(Components.interfaces.nsIMsgFolderListener) ||
-        aIID.equals(Components.interfaces.nsIMsgOperationListener) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsIUrlListener) ||
+        aIID.equals(Ci.nsIMsgCopyServiceListener) ||
+        aIID.equals(Ci.nsIMsgFolderListener) ||
+        aIID.equals(Ci.nsIMsgOperationListener) ||
+        aIID.equals(Ci.nsISupports))
       return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   }
 }
 
@@ -1449,7 +1449,7 @@ function MsgCreateFilter()
 {
   // retrieve Sender direct from selected message's headers
   var msgHdr = gFolderDisplay.selectedMessage;
-  var headerParser = Components.classes["@mozilla.org/messenger/headerparser;1"].getService(Components.interfaces.nsIMsgHeaderParser);
+  var headerParser = Cc["@mozilla.org/messenger/headerparser;1"].getService(Ci.nsIMsgHeaderParser);
   var emailAddress = headerParser.extractHeaderAddressMailboxes(msgHdr.author);
   var accountKey = msgHdr.accountKey;
   var folder;
@@ -1491,7 +1491,7 @@ function MsgNewFolder(callBackFunctionName)
                 destinationFolder = getDestinationFolder(preselectedFolder, server);
 
                 var imapServer =
-                    server.QueryInterface(Components.interfaces.nsIImapIncomingServer);
+                    server.QueryInterface(Ci.nsIImapIncomingServer);
                 if (imapServer)
                     dualUseFolders = imapServer.dualUseFolders;
             }
@@ -1583,11 +1583,11 @@ function MsgSaveAsTemplate()
   SaveAsTemplate(gFolderDisplay.selectedMessageUris);
 }
 
-const nsIFilePicker = Components.interfaces.nsIFilePicker;
+const nsIFilePicker = Ci.nsIFilePicker;
 
 function MsgOpenFromFile()
 {
-   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 
   var filterLabel = gMessengerBundle.getString("EMLFiles");
   var windowTitle = gMessengerBundle.getString("OpenEMLFiles");
@@ -1608,7 +1608,7 @@ function MsgOpenFromFile()
      return;
    }
 
-  var uri = fp.fileURL.QueryInterface(Components.interfaces.nsIURL);
+  var uri = fp.fileURL.QueryInterface(Ci.nsIURL);
   uri.query = "type=application/x-message-display";
 
   window.openDialog( "chrome://messenger/content/messageWindow.xul", "_blank", "all,chrome,dialog=no,status,toolbar", uri, null, null );
@@ -1634,7 +1634,7 @@ function MsgOpenNewWindowForFolder(uri, key)
 
   if (uriToOpen) {
    // get the messenger window open service and ask it to open a new window for us
-   var mailWindowService = Components.classes["@mozilla.org/messenger/windowservice;1"].getService(Components.interfaces.nsIMessengerWindowService);
+   var mailWindowService = Cc["@mozilla.org/messenger/windowservice;1"].getService(Ci.nsIMessengerWindowService);
    if (mailWindowService)
      mailWindowService.openMessengerWindowWithUri("mail:3pane", uriToOpen, keyToSelect);
   }
@@ -1875,12 +1875,12 @@ function MsgFilters(emailAddress, folder)
 
 function MsgApplyFilters()
 {
-  var filterService = Components.classes["@mozilla.org/messenger/services/filters;1"]
-                                .getService(Components.interfaces.nsIMsgFilterService);
+  var filterService = Cc["@mozilla.org/messenger/services/filters;1"]
+                        .getService(Ci.nsIMsgFilterService);
 
   var preselectedFolder = GetFirstSelectedMsgFolder();
-  var selectedFolders = Components.classes["@mozilla.org/array;1"]
-                                  .createInstance(Components.interfaces.nsIMutableArray);
+  var selectedFolders = Cc["@mozilla.org/array;1"]
+                          .createInstance(Ci.nsIMutableArray);
   selectedFolders.appendElement(preselectedFolder);
 
   var curFilterList = preselectedFolder.getFilterList(msgWindow);
@@ -1900,7 +1900,7 @@ function MsgApplyFilters()
     var curFilter = curFilterList.getFilterAt(i);
     // only add enabled, UI visibile filters that are in the manual context
     if (curFilter.enabled && !curFilter.temporary &&
-        (curFilter.filterType & Components.interfaces.nsMsgFilterType.Manual))
+        (curFilter.filterType & Ci.nsMsgFilterType.Manual))
     {
       tempFilterList.insertFilterAt(newFilterIndex, curFilter);
       newFilterIndex++;
@@ -1911,15 +1911,15 @@ function MsgApplyFilters()
 
 function MsgApplyFiltersToSelection()
 {
-  var filterService = Components.classes["@mozilla.org/messenger/services/filters;1"]
-                                .getService(Components.interfaces.nsIMsgFilterService);
+  var filterService = Cc["@mozilla.org/messenger/services/filters;1"]
+                        .getService(Ci.nsIMsgFilterService);
 
   var folder = gDBView.msgFolder;
   var indices = GetSelectedIndices(gDBView);
   if (indices && indices.length)
   {
-    var selectedMsgs = Components.classes["@mozilla.org/array;1"]
-                                 .createInstance(Components.interfaces.nsIMutableArray);
+    var selectedMsgs = Cc["@mozilla.org/array;1"]
+                         .createInstance(Ci.nsIMutableArray);
     for (var i = 0; i < indices.length; i++)
     {
       try
@@ -1935,7 +1935,7 @@ function MsgApplyFiltersToSelection()
       } catch (ex) {}
     }
 
-    filterService.applyFilters(Components.interfaces.nsMsgFilterType.Manual,
+    filterService.applyFilters(Ci.nsMsgFilterType.Manual,
                                selectedMsgs,
                                folder,
                                msgWindow);
@@ -2088,12 +2088,12 @@ function PrintEnginePrintInternal(aDoPrintPreview, aMsgType)
 
 function PrintEnginePrint()
 {
-  return PrintEnginePrintInternal(false, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINT_MSG);
+  return PrintEnginePrintInternal(false, Ci.nsIMsgPrintEngine.MNAB_PRINT_MSG);
 }
 
 function PrintEnginePrintPreview()
 {
-  return PrintEnginePrintInternal(true, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_MSG);
+  return PrintEnginePrintInternal(true, Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_MSG);
 }
 
 function IsMailFolderSelected()
@@ -2142,7 +2142,7 @@ function IsGetNextNMessagesEnabled()
 
     var menuItem = document.getElementById("menu_getnextnmsg");
     if ((serverType == "nntp") && !folder.isServer) {
-        var newsServer = server.QueryInterface(Components.interfaces.nsINntpIncomingServer);
+        var newsServer = server.QueryInterface(Ci.nsINntpIncomingServer);
         var menuLabel = PluralForm.get(newsServer.maxArticles,
           gMessengerBundle.getString("getNextNewsMessages"))
                                   .replace("#1", newsServer.maxArticles);
@@ -2386,15 +2386,15 @@ function GetFolderMessages()
 
 function SendUnsentMessages()
 {
-  var msgSendlater = Components.classes["@mozilla.org/messengercompose/sendlater;1"]
-               .getService(Components.interfaces.nsIMsgSendLater);
+  var msgSendlater = Cc["@mozilla.org/messengercompose/sendlater;1"]
+               .getService(Ci.nsIMsgSendLater);
   var identitiesCount, allIdentities, currentIdentity, numMessages, msgFolder;
 
   if (accountManager) {
     allIdentities = accountManager.allIdentities;
     identitiesCount = allIdentities.length;
     for (var i = 0; i < identitiesCount; i++) {
-      currentIdentity = allIdentities.queryElementAt(i, Components.interfaces.nsIMsgIdentity);
+      currentIdentity = allIdentities.queryElementAt(i, Ci.nsIMsgIdentity);
       msgFolder = msgSendlater.getUnsentMessagesFolder(currentIdentity);
       if(msgFolder) {
         numMessages = msgFolder.getTotalMessages(false /* include subfolders */);
@@ -2458,7 +2458,7 @@ function SetupUndoRedoCommand(command)
 
     if (canUndoOrRedo)
     {
-        const nsIMessenger = Components.interfaces.nsIMessenger;
+        const nsIMessenger = Ci.nsIMessenger;
         switch (txnType)
         {
         default:
@@ -2524,9 +2524,9 @@ function HandleJunkStatusChanged(folder)
       // 1) When marking as non-junk, the msg would move back to the inbox.
       // 2) When marking as junk, the msg will move or delete, if manualMark is set.
       // 3) Marking as junk in the junk folder just changes the junk status.
-      if ((!isJunk && folder.isSpecialFolder(Components.interfaces.nsMsgFolderFlags.Inbox)) ||
+      if ((!isJunk && folder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox)) ||
           (isJunk && !folder.server.spamSettings.manualMark) ||
-          (isJunk && folder.isSpecialFolder(Components.interfaces.nsMsgFolderFlags.Junk)))
+          (isJunk && folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk)))
         ReloadMessage();
     }
   }
@@ -2866,8 +2866,8 @@ function checkMsgHdrPropertyIsNot(aProperty, aValue)
 function MarkMessageAsRead(msgHdr)
 {
   ClearPendingReadTimer();
-  var headers = Components.classes["@mozilla.org/array;1"]
-                          .createInstance(Components.interfaces.nsIMutableArray);
+  var headers = Cc["@mozilla.org/array;1"]
+                  .createInstance(Ci.nsIMutableArray);
   headers.appendElement(msgHdr);
   msgHdr.folder.markMessagesRead(headers, true);
 }
@@ -3012,7 +3012,7 @@ function HandleMDNResponse(aUrl)
 
   // After a msg is downloaded it's already marked READ at this point so we must check if
   // the msg has a "Disposition-Notification-To" header and no MDN report has been sent yet.
-  if (msgHdr.flags & Components.interfaces.nsMsgMessageFlags.MDNReportSent)
+  if (msgHdr.flags & Ci.nsMsgMessageFlags.MDNReportSent)
     return;
 
   var DNTHeader = mimeHdr.extractHeader("Disposition-Notification-To", false);
@@ -3021,9 +3021,9 @@ function HandleMDNResponse(aUrl)
     return;
 
   // Everything looks good so far, let's generate the MDN response.
-  var mdnGenerator = Components.classes["@mozilla.org/messenger-mdn/generator;1"]
-                               .createInstance(Components.interfaces.nsIMsgMdnGenerator);
-  var askUser = mdnGenerator.process(Components.interfaces.nsIMsgMdnGenerator.eDisplayed,
+  var mdnGenerator = Cc["@mozilla.org/messenger-mdn/generator;1"]
+                       .createInstance(Ci.nsIMsgMdnGenerator);
+  var askUser = mdnGenerator.process(Ci.nsIMsgMdnGenerator.eDisplayed,
                                      msgWindow,
                                      msgFolder,
                                      msgHdr.messageKey,
@@ -3062,8 +3062,8 @@ function MsgJunkMailInfo(aCheckFirstUse)
 
     // check to see if this is an existing profile where the user has started using
     // the junk mail feature already
-    var junkmailPlugin = Components.classes["@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"]
-                                   .getService(Components.interfaces.nsIJunkMailPlugin);
+    var junkmailPlugin = Cc["@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"]
+                           .getService(Ci.nsIJunkMailPlugin);
     if (junkmailPlugin.userHasClassified)
       return;
   }
@@ -3186,7 +3186,7 @@ function FeedSetContentView(val)
 
         if (targetRes)
         {
-          quickMode = targetRes.QueryInterface(Components.interfaces
+          quickMode = targetRes.QueryInterface(Ci
                                .nsIRDFLiteral);
           quickMode = quickMode.Value;
           quickMode = eval(quickMode);

@@ -4,11 +4,11 @@
  */
 
 var SmtpServiceContractID = "@mozilla.org/messengercompose/smtp;1";
-var nsISmtpService = Components.interfaces.nsISmtpService;
+var nsISmtpService = Ci.nsISmtpService;
 
 function run_test() {
-  var smtpService = Components.classes[SmtpServiceContractID]
-                              .getService(nsISmtpService);
+  var smtpService = Cc[SmtpServiceContractID]
+                      .getService(nsISmtpService);
 
   // Test - no servers
 

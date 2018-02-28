@@ -161,13 +161,13 @@ var BookmarkPropertiesPanel = {
         this._defaultInsertionPoint =
           new InsertionPoint(PlacesUtils.bookmarksMenuFolderId,
                              PlacesUtils.bookmarks.DEFAULT_INDEX,
-                             Components.interfaces.nsITreeView.DROP_ON);
+                             Ci.nsITreeView.DROP_ON);
 
       switch (dialogInfo.type) {
         case "bookmark":
           this._itemType = BOOKMARK_ITEM;
           if ("uri" in dialogInfo) {
-            NS_ASSERT(dialogInfo.uri instanceof Components.interfaces.nsIURI,
+            NS_ASSERT(dialogInfo.uri instanceof Ci.nsIURI,
                       "uri property should be a uri object");
             this._uri = dialogInfo.uri;
             if (typeof(this._title) != "string") {
@@ -280,7 +280,7 @@ var BookmarkPropertiesPanel = {
    * @returns a title string
    */
   _getURITitleFromHistory: function BPP__getURITitleFromHistory(aURI) {
-    NS_ASSERT(aURI instanceof Components.interfaces.nsIURI);
+    NS_ASSERT(aURI instanceof Ci.nsIURI);
 
     // get the title from History
     return PlacesUtils.history.getPageTitle(aURI);
@@ -431,11 +431,11 @@ var BookmarkPropertiesPanel = {
 
   // nsISupports
   QueryInterface: function BPP_QueryInterface(aIID) {
-    if (aIID.equals(Components.interfaces.nsIDOMEventListener) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsIDOMEventListener) ||
+        aIID.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   _element: function BPP__element(aID) {
@@ -537,7 +537,7 @@ var BookmarkPropertiesPanel = {
    */
   _getCreateNewBookmarkTransaction:
   function BPP__getCreateNewBookmarkTransaction(aContainer, aIndex) {
-    const nsIAnnotationService = Components.interfaces.nsIAnnotationService;
+    const nsIAnnotationService = Ci.nsIAnnotationService;
     var annotations = [];
     var childTransactions = [];
 

@@ -96,7 +96,7 @@ function* doMoves() {
   gIMAPInbox.updateFolderWithListener(null, UrlListener);
   yield false;
   gFolder1 = gRootFolder.getChildNamed("folder 1")
-               .QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
+               .QueryInterface(Ci.nsIMsgImapMailFolder);
   gFolder1.updateFolderWithListener(null, UrlListener);
   yield false;
   // get five messages to move from Inbox to folder 1.
@@ -106,7 +106,7 @@ function* doMoves() {
   for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++)
   {
     let header = msgEnumerator.getNext();
-    if (header instanceof Components.interfaces.nsIMsgDBHdr)
+    if (header instanceof Ci.nsIMsgDBHdr)
       headers1.appendElement(header);
   }
   // this will add dummy headers with keys > 0xffffff80
@@ -126,7 +126,7 @@ function* doMoves() {
   for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++)
   {
     let header = msgEnumerator.getNext();
-    if (header instanceof Components.interfaces.nsIMsgDBHdr)
+    if (header instanceof Ci.nsIMsgDBHdr)
       headers1.appendElement(header);
   }
   // Check that CopyMessages will handle having a high highwater mark.

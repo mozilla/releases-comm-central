@@ -4,13 +4,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // this dialog can only be opened if we have a shell service
-const nsIShellService = Components.interfaces.nsIShellService;
-const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
+const nsIShellService = Ci.nsIShellService;
+const nsIPrefBranch = Ci.nsIPrefBranch;
 
 function onLoad()
 {
-  var shellSvc = Components.classes["@mozilla.org/suite/shell-service;1"]
-                           .getService(nsIShellService);
+  var shellSvc = Cc["@mozilla.org/suite/shell-service;1"]
+                   .getService(nsIShellService);
   var defaultList = document.getElementById("defaultList");
   var appTypes = shellSvc.shouldBeDefaultClientFor;
   /* Iterate through the list of possible default client types and check for
@@ -34,8 +34,8 @@ function onLoad()
 function onAccept()
 {
   // for each checked item, if we aren't already the default, make us the default.
-  var shellSvc = Components.classes["@mozilla.org/suite/shell-service;1"]
-                           .getService(nsIShellService);
+  var shellSvc = Cc["@mozilla.org/suite/shell-service;1"]
+                   .getService(nsIShellService);
   var appTypes = 0;
   var appTypesCheck = 0;
   var defaultList = document.getElementById("defaultList");

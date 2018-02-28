@@ -14,8 +14,8 @@ function findChromeWindowByURI(aURI) {
 
 function getTestPlugin(aName) {
   var pluginName = aName || "Test Plug-in";
-  var ph = Components.classes["@mozilla.org/plugin/host;1"]
-                     .getService(Components.interfaces.nsIPluginHost);
+  var ph = Cc["@mozilla.org/plugin/host;1"]
+             .getService(Ci.nsIPluginHost);
   var tags = ph.getPluginTags();
 
   // Find the test plugin
@@ -56,8 +56,8 @@ function whenNewWindowLoaded(aOptions, aCallback) {
 }
 
 function updateBlocklist(aCallback) {
-  var blocklistNotifier = Components.classes["@mozilla.org/extensions/blocklist;1"]
-                                    .getService(Components.interfaces.nsITimerCallback);
+  var blocklistNotifier = Cc["@mozilla.org/extensions/blocklist;1"]
+                            .getService(Ci.nsITimerCallback);
   var observer = function() {
     Services.obs.removeObserver(observer, "blocklist-updated");
     SimpleTest.executeSoon(aCallback);

@@ -185,9 +185,9 @@ var ib_icon_url = 'data:image/png;base64,' +
 
 var fake = {
   load: function f_load() {
-    if (!Components.classes["@mozilla.org/process/environment;1"]
-                   .getService(Components.interfaces.nsIEnvironment)
-                   .get("FAKE"))
+    if (!Cc["@mozilla.org/process/environment;1"]
+           .getService(Ci.nsIEnvironment)
+           .get("FAKE"))
       return;
 
     dump("Fake load\n");
@@ -214,8 +214,8 @@ var fake = {
     for (let account of this.accounts)
       Services.obs.notifyObservers(account, "account-added");
 
-    var win = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                       .getService(Components.interfaces.nsIWindowMediator)
+    var win = Cc["@mozilla.org/appshell/window-mediator;1"]
+                       .getService(Ci.nsIWindowMediator)
                        .getMostRecentWindow("Messenger:accountWizard");
     if (win)
       win.close();
@@ -315,8 +315,8 @@ var fake = {
     if (!Services.accounts.getAccounts().hasMoreElements())
       return;
 
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
+    var prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                    .getService(Ci.nsIPromptService);
     if (!prompts.confirm(window, "Are you sure you want to delete all accounts?",
                          "You are about to delete your accounts. Are you sure?"))
       throw "user aborted the operation";

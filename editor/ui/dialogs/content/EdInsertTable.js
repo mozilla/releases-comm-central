@@ -41,7 +41,7 @@ function Startup()
   globalElement = gTableElement.cloneNode(false);
   try {
     if (Services.prefs.getBoolPref("editor.use_css") && IsHTMLEditor()
-        && !(gActiveEditor.flags & Components.interfaces.nsIPlaintextEditor.eEditorMailMask))
+        && !(gActiveEditor.flags & Ci.nsIPlaintextEditor.eEditorMailMask))
     {
       // only for Composer and not for htmlmail
       globalElement.setAttribute("style", "text-align: left;");

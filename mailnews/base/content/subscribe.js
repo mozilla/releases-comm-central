@@ -142,7 +142,7 @@ function SetUpTree(forceToServer, getOnlyNew)
   try
   {
     CleanUpSearchView();
-    gSubscribableServer = server.QueryInterface(Components.interfaces.nsISubscribableServer);
+    gSubscribableServer = server.QueryInterface(Ci.nsISubscribableServer);
     gSubscribeTree.setAttribute('ref', ''); // XXX: what is this?
 
     // enable (or disable) the search related UI
@@ -218,13 +218,13 @@ function SubscribeOnLoad()
 
   gSubscribeDeck = document.getElementById("subscribedeck");
 
-  msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                        .createInstance(Components.interfaces.nsIMsgWindow);
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                .createInstance(Ci.nsIMsgWindow);
   msgWindow.domWindow = window;
   gStatusFeedback = new nsMsgStatusFeedback
   msgWindow.statusFeedback = gStatusFeedback;
   msgWindow.rootDocShell.allowAuth = true;
-  msgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
+  msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0]) {
@@ -237,11 +237,11 @@ function SubscribeOnLoad()
 
   gServerURI = null;
   let folder = window.arguments[0].folder;
-  if (folder && folder.server instanceof Components.interfaces.nsISubscribableServer) {
+  if (folder && folder.server instanceof Ci.nsISubscribableServer) {
     serverMenu.menupopup.selectFolder(folder.server.rootMsgFolder);
     try {
                         CleanUpSearchView();
-      gSubscribableServer = folder.server.QueryInterface(Components.interfaces.nsISubscribableServer);
+      gSubscribableServer = folder.server.QueryInterface(Ci.nsISubscribableServer);
                         // enable (or disable) the search related UI
                         EnableSearchUI();
       gServerURI = folder.server.serverURI;
@@ -539,7 +539,7 @@ function Search()
     gSubscribableServer.setSearchValue(searchValue);
 
     if (!gSearchView && gSubscribableServer) {
-    gSearchView = gSubscribableServer.QueryInterface(Components.interfaces.nsITreeView);
+    gSearchView = gSubscribableServer.QueryInterface(Ci.nsITreeView);
       gSearchView.selection = null;
     gSearchTreeBoxObject.view = gSearchView;
   }

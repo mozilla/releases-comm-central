@@ -104,7 +104,7 @@ function folderPropsOKButton()
 {
   if (gMsgFolder)
   {
-    const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     // set charset attributes
     var folderCharsetList = document.getElementById("folderCharsetList");
 
@@ -112,7 +112,7 @@ function folderPropsOKButton()
     // if it is unknown to us. Value will be preserved by the menu-item.
     if (folderCharsetList.selectedIndex == -1)
     {
-      Components.utils.reportError("Unknown folder encoding; folder=" +
+      Cu.reportError("Unknown folder encoding; folder=" +
         gMsgFolder.name + ", charset=" + gMsgFolder.charset);
     }
 
@@ -194,7 +194,7 @@ function folderPropsOnLoad()
 //  name.focusTextField();
   }
 
-  const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   const serverType = window.arguments[0].serverType;
 
   // Do this first, because of gloda we may want to override some of the hidden
@@ -264,7 +264,7 @@ function folderPropsOnLoad()
 
   if (serverType == "imap")
   {
-    var imapFolder = gMsgFolder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
+    var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
     if (imapFolder)
       imapFolder.fillInFolderProps(gFolderPropsSink);
   }
@@ -279,9 +279,9 @@ function folderPropsOnLoad()
     document.getElementById("numberOfMessages").value = numberOfMsgs;
 
   try {
-    let sizeOnDisk = Components.classes["@mozilla.org/messenger;1"]
-                               .createInstance(Components.interfaces.nsIMessenger)
-                               .formatFileSize(gMsgFolder.sizeOnDisk, true);
+    let sizeOnDisk = Cc["@mozilla.org/messenger;1"]
+                       .createInstance(Ci.nsIMessenger)
+                       .formatFileSize(gMsgFolder.sizeOnDisk, true);
     document.getElementById("sizeOnDisk").value = sizeOnDisk;
   } catch (e) { }
 
@@ -323,7 +323,7 @@ function hideShowControls(serverType)
   // hide the priviliges button if the imap folder doesn't have an admin url
   // mabye should leave this hidden by default and only show it in this case instead
   try {
-    var imapFolder = gMsgFolder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
+    var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
     if (imapFolder)
     {
       var privilegesButton = document.getElementById("imap.FolderPrivileges");
@@ -338,7 +338,7 @@ function hideShowControls(serverType)
 
   if (gMsgFolder)
   {
-    const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     // Hide "check for new mail" checkbox if this is an Inbox.
     if (gMsgFolder.flags & nsMsgFolderFlags.Inbox)
       document.getElementById("folderCheckForNewMessages").hidden = true;
@@ -358,7 +358,7 @@ function onOfflineFolderDownload()
 
 function onFolderPrivileges()
 {
-  var imapFolder = gMsgFolder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
+  var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
   if (imapFolder)
     imapFolder.folderPrivileges(window.arguments[0].msgWindow);
   // let's try closing the modal dialog to see if it fixes the various problems running this url
@@ -374,7 +374,7 @@ function onUseDefaultRetentionSettings()
   document.getElementById('retention.keepOldMsgMinLabel').disabled = useDefault;
 
   var keepMsg = document.getElementById("retention.keepMsg").value;
-  const nsIMsgRetentionSettings = Components.interfaces.nsIMsgRetentionSettings;
+  const nsIMsgRetentionSettings = Ci.nsIMsgRetentionSettings;
   document.getElementById('retention.keepOldMsgMin').disabled =
     useDefault || (keepMsg != nsIMsgRetentionSettings.nsMsgRetainByAge);
   document.getElementById('retention.keepNewMsgMin').disabled =

@@ -17,7 +17,7 @@ function GetSubFoldersInFolderPaneOrder(folder)
   // get all the subfolders
   while (subFolders.hasMoreElements()) {
     msgFolders[msgFolders.length] =
-      subFolders.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
+      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
   }
 
   function compareFolderSortKey(folder1, folder2) {
@@ -44,7 +44,7 @@ function FindNextChildFolder(aParent, aAfter)
     while (folder != aAfter)
       folder = subFolders[i++];
 
-    const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     let ignoreFlags = nsMsgFolderFlags.Trash | nsMsgFolderFlags.SentMail |
                       nsMsgFolderFlags.Drafts | nsMsgFolderFlags.Queue |
                       nsMsgFolderFlags.Templates | nsMsgFolderFlags.Junk;
@@ -194,7 +194,7 @@ function CrossFolderNavigation(type)
 function ScrollToMessage(type, wrap, selectMessage)
 {
   try {
-    var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+    var treeView = gDBView.QueryInterface(Ci.nsITreeView);
     var treeSelection = treeView.selection;
     var currentIndex = treeSelection.currentIndex;
 
@@ -202,7 +202,7 @@ function ScrollToMessage(type, wrap, selectMessage)
     var resultIndex = new Object;
     var threadIndex = new Object;
 
-    let elidedFlag = Components.interfaces.nsMsgMessageFlags.Elided;
+    let elidedFlag = Ci.nsMsgMessageFlags.Elided;
     let summarizeSelection =
       Services.prefs.getBoolPref("mail.operate_on_msgs_in_collapsed_threads");
 
@@ -214,7 +214,7 @@ function ScrollToMessage(type, wrap, selectMessage)
         gDBView.getFlagsAt(currentIndex) & elidedFlag &&
         gDBView.isContainer(currentIndex) &&
         ! (gDBView.getFlagsAt(currentIndex) &
-           Components.interfaces.nsMsgMessageFlags.Read)) {
+           Ci.nsMsgMessageFlags.Read)) {
       resultIndex.value = currentIndex;
       resultId.value = gDBView.getKeyAt(currentIndex);
     } else {

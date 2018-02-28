@@ -74,12 +74,12 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=377611
         var tests = new Array();
 
         var currentWindow =
-        window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                              .getInterface(Components.interfaces.nsIWebNavigation)
-                              .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+        window.QueryInterface(Ci.nsIInterfaceRequestor)
+                              .getInterface(Ci.nsIWebNavigation)
+                              .QueryInterface(Ci.nsIDocShellTreeItem)
                               .rootTreeItem
-                              .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                              .getInterface(Components.interfaces.nsIDOMWindow);
+                              .QueryInterface(Ci.nsIInterfaceRequestor)
+                              .getInterface(Ci.nsIDOMWindow);
         var browserSH = currentWindow.XULBrowserWindow;
 
         var discovered = browserSH.feeds;

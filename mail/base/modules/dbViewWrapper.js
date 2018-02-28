@@ -657,7 +657,7 @@ DBViewWrapper.prototype = {
       doppel.dbView = this.dbView.cloneDBView(aListener.messenger,
                                               aListener.msgWindow,
                                               aListener.threadPaneCommandUpdater)
-                          .QueryInterface(Components.interfaces.nsITreeView);
+                          .QueryInterface(Ci.nsITreeView);
     // -- clone the search
     if (this.search)
       doppel.search = this.search.clone(doppel);

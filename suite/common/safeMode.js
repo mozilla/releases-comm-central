@@ -6,8 +6,8 @@ ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function restartApp() {
-  var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                             .getService(Components.interfaces.nsIAppStartup);
+  var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
+                     .getService(Ci.nsIAppStartup);
   appStartup.quit(appStartup.eForceQuit | appStartup.eRestart);
 }
 
@@ -16,14 +16,14 @@ function clearAllPrefs() {
 
   // Remove the pref-overrides dir, if it exists.
   try {
-    var fileLocator = Components.classes["@mozilla.org/file/directory_service;1"]
-                                .getService(Components.interfaces.nsIProperties);
+    var fileLocator = Cc["@mozilla.org/file/directory_service;1"]
+                        .getService(Ci.nsIProperties);
     const NS_APP_PREFS_OVERRIDE_DIR = "PrefDOverride";
     var prefOverridesDir = fileLocator.get(NS_APP_PREFS_OVERRIDE_DIR,
-                                           Components.interfaces.nsIFile);
+                                           Ci.nsIFile);
     prefOverridesDir.remove(true);
   } catch (ex) {
-    Components.utils.reportError(ex);
+    Cu.reportError(ex);
   }
 }
 
@@ -33,11 +33,11 @@ function restoreDefaultBookmarks() {
 
 function deleteLocalstore() {
   const nsIDirectoryServiceContractID = "@mozilla.org/file/directory_service;1";
-  const nsIProperties = Components.interfaces.nsIProperties;
-  var directoryService = Components.classes[nsIDirectoryServiceContractID]
-                                   .getService(nsIProperties);
+  const nsIProperties = Ci.nsIProperties;
+  var directoryService = Cc[nsIDirectoryServiceContractID]
+                           .getService(nsIProperties);
   // Delete the old localstore otherwise it will get imported.
-  var localstoreFile = directoryService.get("LStoreS", Components.interfaces.nsIFile);
+  var localstoreFile = directoryService.get("LStoreS", Ci.nsIFile);
   if (localstoreFile.exists())
     localstoreFile.remove(false);
   // Delete the new xulstore file.
@@ -67,8 +67,8 @@ function disableAddons() {
 }
 
 function restoreDefaultSearchEngines() {
-  var searchService = Components.classes["@mozilla.org/browser/search-service;1"]
-                                .getService(Components.interfaces.nsIBrowserSearchService);
+  var searchService = Cc["@mozilla.org/browser/search-service;1"]
+                        .getService(Ci.nsIBrowserSearchService);
   searchService.restoreDefaultEngines();
 }
 
@@ -95,8 +95,8 @@ function onOK() {
 }
 
 function onCancel() {
-  var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                             .getService(Components.interfaces.nsIAppStartup);
+  var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
+                     .getService(Ci.nsIAppStartup);
   appStartup.quit(appStartup.eForceQuit);
   return false;
 }

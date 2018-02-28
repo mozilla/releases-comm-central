@@ -4,9 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // cache these services
-var nsIDragService = Components.interfaces.nsIDragService;
-var dragService = Components.classes["@mozilla.org/widget/dragservice;1"]
-                            .getService(nsIDragService);
+var nsIDragService = Ci.nsIDragService;
+var dragService = Cc["@mozilla.org/widget/dragservice;1"]
+                    .getService(nsIDragService);
 
 function CanDropOnFolderTree(aIndex, aOrientation)
 {
@@ -16,7 +16,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
 
   var folderTree = GetFolderTree();
   var targetFolder = GetFolderResource(folderTree, aIndex)
-                       .QueryInterface(Components.interfaces.nsIMsgFolder);
+                       .QueryInterface(Ci.nsIMsgFolder);
   var dt = dragSession.dataTransfer;
   var count = dt.mozItemCount;
 
@@ -25,7 +25,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
   if (types.includes("text/x-moz-message"))
   {
     // Only allow dragging onto container.
-    if (aOrientation != Components.interfaces.nsITreeView.DROP_ON)
+    if (aOrientation != Ci.nsITreeView.DROP_ON)
       return false;
     // Don't allow drop onto server itself.
     if (targetFolder.isServer)
@@ -45,7 +45,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
   else if (types.includes("text/x-moz-folder"))
   {
     // Only allow dragging onto container.
-    if (aOrientation != Components.interfaces.nsITreeView.DROP_ON)
+    if (aOrientation != Ci.nsITreeView.DROP_ON)
       return false;
     // If cannot create subfolders then don't allow drop here.
     if (!targetFolder.canCreateSubfolders)
@@ -54,7 +54,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
     for (let i = 0; i < count; i++)
     {
       let folder = dt.mozGetDataAt("text/x-moz-folder", i)
-                     .QueryInterface(Components.interfaces.nsIMsgFolder);
+                     .QueryInterface(Ci.nsIMsgFolder);
       // Don't allow to drop on itself.
       if (targetFolder == folder)
         return false;
@@ -65,7 +65,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
       if (targetFolder == folder.parent)
         return false;
       // Don't allow dragging of virtual folders across accounts.
-      if ((folder.flags & Components.interfaces.nsMsgFolderFlags.Virtual) &&
+      if ((folder.flags & Ci.nsMsgFolderFlags.Virtual) &&
           folder.server != targetFolder.server)
         return false;
       // Don't allow parent to be dropped on its ancestors.
@@ -82,7 +82,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
   else if (types.includes("text/x-moz-newsfolder"))
   {
     // Don't allow dragging onto newsgroup.
-    if (aOrientation == Components.interfaces.nsITreeView.DROP_ON)
+    if (aOrientation == Ci.nsITreeView.DROP_ON)
       return false;
     // Don't allow drop onto server itself.
     if (targetFolder.isServer)
@@ -90,7 +90,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
     for (let i = 0; i < count; i++)
     {
       let folder = dt.mozGetDataAt("text/x-moz-newsfolder", i)
-                     .QueryInterface(Components.interfaces.nsIMsgFolder);
+                     .QueryInterface(Ci.nsIMsgFolder);
       // Don't allow dragging newsgroup to other account.
       if (targetFolder.rootFolder != folder.rootFolder)
         return false;
@@ -102,7 +102,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
       aIndex += aOrientation;
       if (aIndex < folderTree.view.rowCount) {
         targetFolder = GetFolderResource(folderTree, aIndex)
-                         .QueryInterface(Components.interfaces.nsIMsgFolder);
+                         .QueryInterface(Ci.nsIMsgFolder);
         if (targetFolder == folder)
           return false;
       }
@@ -112,7 +112,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
   else if (types.includes("text/x-moz-url"))
   {
     // Only allow dragging onto container.
-    if (aOrientation != Components.interfaces.nsITreeView.DROP_ON)
+    if (aOrientation != Ci.nsITreeView.DROP_ON)
       return false;
     // This is a potential RSS feed to subscribe to
     // and there's only one, so just get the 0th element.
@@ -124,7 +124,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
   else if (types.includes("application/x-moz-file"))
   {
     // Only allow dragging onto container.
-    if (aOrientation != Components.interfaces.nsITreeView.DROP_ON)
+    if (aOrientation != Ci.nsITreeView.DROP_ON)
       return false;
     // Don't allow drop onto server itself.
     if (targetFolder.isServer)
@@ -134,7 +134,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
       return false;
 
     let extFile = dt.mozGetDataAt("application/x-moz-file", 0);
-    if (extFile instanceof Components.interfaces.nsIFile)
+    if (extFile instanceof Ci.nsIFile)
       return extFile.isFile();
   }
   return false;
@@ -148,7 +148,7 @@ function DropOnFolderTree(aRow, aOrientation)
 
   var folderTree = GetFolderTree();
   var targetFolder = GetFolderResource(folderTree, aRow)
-                       .QueryInterface(Components.interfaces.nsIMsgFolder);
+                       .QueryInterface(Ci.nsIMsgFolder);
   var dt = dragSession.dataTransfer;
   var count = dt.mozItemCount;
 
@@ -162,8 +162,8 @@ function DropOnFolderTree(aRow, aOrientation)
     for (let i = 0; i < count; i++)
     {
       let folder = dt.mozGetDataAt("text/x-moz-folder", i);
-      let array = Components.classes["@mozilla.org/array;1"]
-                            .createInstance(Components.interfaces.nsIMutableArray);
+      let array = Cc["@mozilla.org/array;1"]
+                    .createInstance(Ci.nsIMutableArray);
       array.appendElement(folder);
       try
       {
@@ -188,12 +188,12 @@ function DropOnFolderTree(aRow, aOrientation)
     let folders = new Array;
     for (let i = 0; i < count; i++) {
       let folder = dt.mozGetDataAt("text/x-moz-newsfolder", i)
-                     .QueryInterface(Components.interfaces.nsIMsgFolder);
+                     .QueryInterface(Ci.nsIMsgFolder);
       let folderIndex = EnsureFolderIndex(folderTree.builderView, folder);
       folders[folderIndex] = folder;
     }
     let newsFolder = targetFolder.rootFolder
-                                 .QueryInterface(Components.interfaces.nsIMsgNewsFolder);
+                                 .QueryInterface(Ci.nsIMsgNewsFolder);
     // When moving down, want to insert last one first.
     // When moving up, want to insert first one first.
     let i = (aOrientation == 1) ? folders.length - 1 : 0;
@@ -211,8 +211,8 @@ function DropOnFolderTree(aRow, aOrientation)
   }
   else if (types.includes("text/x-moz-message"))
   {
-    let array = Components.classes["@mozilla.org/array;1"]
-                          .createInstance(Components.interfaces.nsIMutableArray);
+    let array = Cc["@mozilla.org/array;1"]
+                  .createInstance(Ci.nsIMutableArray);
     let sourceFolder;
     for (let i = 0; i < count; i++)
     {
@@ -237,7 +237,7 @@ function DropOnFolderTree(aRow, aOrientation)
     for (let i = 0; i < count; i++)
     {
       let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                      .QueryInterface(Components.interfaces.nsIFile);
+                      .QueryInterface(Ci.nsIFile);
       if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
         gCopyService.CopyFileMessage(extFile, targetFolder, null, false, 1,
                                      "", null, msgWindow);
@@ -248,9 +248,9 @@ function DropOnFolderTree(aRow, aOrientation)
     // This is a potential RSS feed to subscribe to
     // and there's only one, so just get the 0th element.
     let url = dt.mozGetDataAt("text/x-moz-url", 0);
-    Components.classes["@mozilla.org/newsblog-feed-downloader;1"]
-              .getService(Components.interfaces.nsINewsBlogFeedDownloader)
-              .subscribeToFeed(url, targetFolder, msgWindow);
+    Cc["@mozilla.org/newsblog-feed-downloader;1"]
+      .getService(Ci.nsINewsBlogFeedDownloader)
+      .subscribeToFeed(url, targetFolder, msgWindow);
   }
 }
 
@@ -324,7 +324,7 @@ function DragOverThreadPane(aEvent)
     if (Array.from(dt.mozTypesAt(i)).includes("application/x-moz-file"))
     {
       let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                      .QueryInterface(Components.interfaces.nsIFile);
+                      .QueryInterface(Ci.nsIFile);
       if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
       {
         aEvent.preventDefault();
@@ -340,7 +340,7 @@ function DropOnThreadPane(aEvent)
   for (let i = 0; i < dt.mozItemCount; i++)
   {
     let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                    .QueryInterface(Components.interfaces.nsIFile);
+                    .QueryInterface(Ci.nsIFile);
     if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
       gCopyService.CopyFileMessage(extFile, gMsgFolderSelected, null, false, 1,
                                    "", null, msgWindow);

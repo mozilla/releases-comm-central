@@ -413,8 +413,8 @@ var mailTestUtils = {
    */
   _timer: null,
   do_timeout_function: function(aDelayInMS, aFunc, aFuncThis, aFuncArgs) {
-    this._timer = Components.classes["@mozilla.org/timer;1"]
-                            .createInstance(Components.interfaces.nsITimer);
+    this._timer = Cc["@mozilla.org/timer;1"]
+                    .createInstance(Ci.nsITimer);
     let wrappedFunc = function() {
       try {
         aFunc.apply(aFuncThis, aFuncArgs);
@@ -426,7 +426,7 @@ var mailTestUtils = {
       }
     };
     this._timer.initWithCallback(wrappedFunc, aDelayInMS,
-      Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+      Ci.nsITimer.TYPE_ONE_SHOT);
   },
 
   /**
@@ -493,7 +493,7 @@ var mailTestUtils = {
           mimeTypes.append("mimeTypes.rdf");
           return mimeTypes;
         }
-        throw Components.results.NS_ERROR_FAILURE;
+        throw Cr.NS_ERROR_FAILURE;
       },
 
       QueryInterface:

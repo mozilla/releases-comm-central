@@ -10,7 +10,7 @@ function nsAbAutoCompleteMyDomain() {}
 nsAbAutoCompleteMyDomain.prototype = {
   classID: Components.ID("{5b259db2-e451-4de9-8a6f-cfba91402973}"),
   QueryInterface: XPCOMUtils.generateQI([
-      Components.interfaces.nsIAutoCompleteSearch]),
+      Ci.nsIAutoCompleteSearch]),
 
   cachedIdKey: "",
   cachedIdentity: null,
@@ -20,7 +20,7 @@ nsAbAutoCompleteMyDomain.prototype = {
   startSearch: function(aString, aSearchParam, aResult, aListener) {
     let params = aSearchParam ? JSON.parse(aSearchParam) : {};
     let applicable = ("type" in params) && this.applicableHeaders.has(params.type);
-    const ACR = Components.interfaces.nsIAutoCompleteResult;
+    const ACR = Ci.nsIAutoCompleteResult;
     var address = null;
     if (applicable && aString && !aString.includes(",")) {
       if (("idKey" in params) && (params.idKey != this.cachedIdKey)) {

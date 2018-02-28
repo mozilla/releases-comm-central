@@ -26,8 +26,8 @@ function openHelp(topic, contentPack)
     topWindow.displayTopic(topic);
   } else {
 # Open topic in new window.
-    const params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
-                             .createInstance(Components.interfaces.nsIDialogParamBlock);
+    const params = Cc["@mozilla.org/embedcomp/dialogparam;1"]
+                     .createInstance(Ci.nsIDialogParamBlock);
     params.SetNumberStrings(2);
     params.SetString(0, helpFileURI);
     params.SetString(1, topic);

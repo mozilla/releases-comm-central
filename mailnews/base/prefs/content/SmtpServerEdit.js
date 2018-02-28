@@ -38,7 +38,7 @@ function onAccept()
 
     saveSmtpSettings(gSmtpServer);
   } catch (ex) {
-    Components.utils.reportError("Error saving smtp server: " + ex);
+    Cu.reportError("Error saving smtp server: " + ex);
   }
 
   window.arguments[0].result = true;

@@ -40,8 +40,8 @@ var arrays = {}; ChromeUtils.import('resource://mozmill/stdlib/arrays.js', array
 var json2 = {}; ChromeUtils.import('resource://mozmill/stdlib/json2.js', json2);
 var utils = {}; ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
 
-var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
-     getService(Components.interfaces.nsIConsoleService);
+var aConsoleService = Cc["@mozilla.org/consoleservice;1"].
+     getService(Ci.nsIConsoleService);
 
 
 var createCell = function (t, obj, message) {

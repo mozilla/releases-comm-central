@@ -79,16 +79,16 @@ var testFuncs = [
 
 function test()
 {
-  var dm = Components.classes["@mozilla.org/download-manager;1"]
-                     .getService(Components.interfaces.nsIDownloadManager);
+  var dm = Cc["@mozilla.org/download-manager;1"]
+             .getService(Ci.nsIDownloadManager);
 
   // See if the DM is already open, and if it is, close it!
   var win = Services.wm.getMostRecentWindow("Download:Manager");
   if (win)
     win.close();
 
-  var os = Components.classes["@mozilla.org/observer-service;1"]
-                     .getService(Components.interfaces.nsIObserverService);
+  var os = Cc["@mozilla.org/observer-service;1"]
+             .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   var testObs = {
@@ -115,9 +115,9 @@ function test()
   os.addObserver(testObs, DLMGR_UI_DONE);
 
   // Show the Download Manager UI
-  Components.classes["@mozilla.org/download-manager-ui;1"]
-            .getService(Components.interfaces.nsISuiteDownloadManagerUI)
-            .showManager();
+  Cc["@mozilla.org/download-manager-ui;1"]
+    .getService(Ci.nsISuiteDownloadManagerUI)
+    .showManager();
 
   SimpleTest.waitForExplicitFinish();
 }

@@ -136,13 +136,13 @@ function HandleColumnClick(columnID)
 
 function ThreadPaneDoubleClick()
 {
-  const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   if (IsSpecialFolderSelected(nsMsgFolderFlags.Drafts, true)) {
     MsgComposeDraftMessage();
   }
   else if(IsSpecialFolderSelected(nsMsgFolderFlags.Templates, true)) {
-    ComposeMessage(Components.interfaces.nsIMsgCompType.Template,
-                   Components.interfaces.nsIMsgCompFormat.Default,
+    ComposeMessage(Ci.nsIMsgCompType.Template,
+                   Ci.nsIMsgCompFormat.Default,
                    gFolderDisplay.displayedFolder,
                    gFolderDisplay.selectedMessageUris);
   }

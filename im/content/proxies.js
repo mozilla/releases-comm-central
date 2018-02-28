@@ -42,8 +42,8 @@ var gProxies = {
     proxyInfo = new proxyInfoCtr();
     proxyInfo.type = Ci.purpleIProxyInfo.useEnvVar;
     useEnv.proxy = proxyInfo;
-    var environment = Components.classes["@mozilla.org/process/environment;1"]
-                                .getService(Ci.nsIEnvironment);
+    var environment = Cc["@mozilla.org/process/environment;1"]
+                        .getService(Ci.nsIEnvironment);
     var envproxy = environment.get("HTTP_PROXY") ||
                    environment.get("http_proxy") ||
                    environment.get("HTTPPROXY");

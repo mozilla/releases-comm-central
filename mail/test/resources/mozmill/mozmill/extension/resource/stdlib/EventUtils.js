@@ -180,11 +180,11 @@ function __doEventDispatch(aTarget, aCharCode, aKeyCode, aHasShift) {
  */
 function _parseModifiers(aEvent)
 {
-  var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
-                          .getService(Components.interfaces.nsIAppShellService)
-                          .hiddenDOMWindow;
+  var hwindow = Cc["@mozilla.org/appshell/appShellService;1"]
+                  .getService(Ci.nsIAppShellService)
+                  .hiddenDOMWindow;
 
-  const masks = Components.interfaces.nsIDOMNSEvent;
+  const masks = Ci.nsIDOMNSEvent;
   var mval = 0;
   if (aEvent.shiftKey)
     mval |= masks.SHIFT_MASK;
@@ -219,8 +219,8 @@ function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow)
   if (!aWindow)
     aWindow = window;
 
-  var utils = aWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor).
-                      getInterface(Components.interfaces.nsIDOMWindowUtils);
+  var utils = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
+                      getInterface(Ci.nsIDOMWindowUtils);
   if (utils) {
     var button = aEvent.button || 0;
     var clickCount = aEvent.clickCount || 1;
@@ -267,8 +267,8 @@ function synthesizeMouseScroll(aTarget, aOffsetX, aOffsetY, aEvent, aWindow)
   if (!aWindow)
     aWindow = window;
 
-  var utils = aWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor).
-                      getInterface(Components.interfaces.nsIDOMWindowUtils);
+  var utils = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
+                      getInterface(Ci.nsIDOMWindowUtils);
   if (utils) {
     // See nsMouseScrollFlags in nsGUIEvent.h
     const kIsVertical = 0x02;
@@ -594,8 +594,8 @@ function synthesizeDrop(srcElement, destElement, dragData, dropEffect, aWindow)
 function disableNonTestMouseEvents(aDisable)
 {
   var utils =
-    window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).
-           getInterface(Components.interfaces.nsIDOMWindowUtils);
+    window.QueryInterface(Ci.nsIInterfaceRequestor).
+           getInterface(Ci.nsIDOMWindowUtils);
   if (utils)
     utils.disableNonTestMouseEvents(aDisable);
 }
@@ -605,8 +605,8 @@ function _getDOMWindowUtils(aWindow)
   if (!aWindow) {
     aWindow = window;
   }
-  return aWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor).
-                 getInterface(Components.interfaces.nsIDOMWindowUtils);
+  return aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
+                 getInterface(Ci.nsIDOMWindowUtils);
 }
 
 /**
@@ -864,8 +864,8 @@ function _getTIP(aWindow, aCallback)
     tip = TIPMap.get(aWindow);
   } else {
     tip =
-      Components.classes["@mozilla.org/text-input-processor;1"].
-        createInstance(Components.interfaces.nsITextInputProcessor);
+      Cc["@mozilla.org/text-input-processor;1"].
+        createInstance(Ci.nsITextInputProcessor);
     TIPMap.set(aWindow, tip);
   }
   if (!tip.beginInputTransactionForTests(aWindow, aCallback)) {
@@ -1055,27 +1055,27 @@ function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow) {
   var keyName = "Unidentified";
   if (aKey.indexOf("KEY_") == 0) {
     keyName = aKey.substr("KEY_".length);
-    result.flags |= Components.interfaces.nsITextInputProcessor.KEY_NON_PRINTABLE_KEY;
+    result.flags |= Ci.nsITextInputProcessor.KEY_NON_PRINTABLE_KEY;
   } else if (aKey.indexOf("VK_") == 0) {
     keyCode = _getKeyboardEvent(aWindow)["DOM_" + aKey];
     if (!keyCode) {
       throw "Unknown key: " + aKey;
     }
     keyName = _guessKeyNameFromKeyCode(keyCode, aWindow);
-    result.flags |= Components.interfaces.nsITextInputProcessor.KEY_NON_PRINTABLE_KEY;
+    result.flags |= Ci.nsITextInputProcessor.KEY_NON_PRINTABLE_KEY;
   } else if (aKey != "") {
     keyName = aKey;
     if (!keyCodeIsDefined) {
       keyCode = _computeKeyCodeFromChar(aKey.charAt(0), aWindow);
     }
     if (!keyCode) {
-      result.flags |= Components.interfaces.nsITextInputProcessor.KEY_KEEP_KEYCODE_ZERO;
+      result.flags |= Ci.nsITextInputProcessor.KEY_KEEP_KEYCODE_ZERO;
     }
-    result.flags |= Components.interfaces.nsITextInputProcessor.KEY_FORCE_PRINTABLE_KEY;
+    result.flags |= Ci.nsITextInputProcessor.KEY_FORCE_PRINTABLE_KEY;
   }
   var locationIsDefined = "location" in aKeyEvent;
   if (locationIsDefined && aKeyEvent.location === 0) {
-    result.flags |= Components.interfaces.nsITextInputProcessor.KEY_KEEP_KEY_LOCATION_STANDARD;
+    result.flags |= Ci.nsITextInputProcessor.KEY_KEEP_KEY_LOCATION_STANDARD;
   }
   result.dictionary = {
     key: keyName,

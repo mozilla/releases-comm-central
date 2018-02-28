@@ -1,14 +1,14 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var nsIAppShellService    = Components.interfaces.nsIAppShellService;
-var nsISupports           = Components.interfaces.nsISupports;
-var nsICategoryManager    = Components.interfaces.nsICategoryManager;
-var nsIComponentRegistrar = Components.interfaces.nsIComponentRegistrar;
-var nsICommandLine        = Components.interfaces.nsICommandLine;
-var nsICommandLineHandler = Components.interfaces.nsICommandLineHandler;
-var nsIFactory            = Components.interfaces.nsIFactory;
-var nsIModule             = Components.interfaces.nsIModule;
-var nsIWindowWatcher      = Components.interfaces.nsIWindowWatcher;
+var nsIAppShellService    = Ci.nsIAppShellService;
+var nsISupports           = Ci.nsISupports;
+var nsICategoryManager    = Ci.nsICategoryManager;
+var nsIComponentRegistrar = Ci.nsIComponentRegistrar;
+var nsICommandLine        = Ci.nsICommandLine;
+var nsICommandLineHandler = Ci.nsICommandLineHandler;
+var nsIFactory            = Ci.nsIFactory;
+var nsIModule             = Ci.nsIModule;
+var nsIWindowWatcher      = Ci.nsIWindowWatcher;
 
 // CHANGEME: to the chrome URI of your extension or application
 var CHROME_URI = "chrome://jsbridge/content/";
@@ -24,8 +24,8 @@ var clh_CID = Components.ID("{2872d428-14f6-11de-ac86-001f5bd9235c}");
 // category that begins with the letter "m".
 var clh_category = "jsbridge";
 
-var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
-     getService(Components.interfaces.nsIConsoleService);
+var aConsoleService = Cc["@mozilla.org/consoleservice;1"].
+     getService(Ci.nsIConsoleService);
 
 /**
  * Utility functions
@@ -38,8 +38,8 @@ var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
  */
 function openWindow(aChromeURISpec, aArgument)
 {
-  var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].
-    getService(Components.interfaces.nsIWindowWatcher);
+  var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].
+    getService(Ci.nsIWindowWatcher);
   ww.openWindow(null, aChromeURISpec, "_blank",
                 "chrome,menubar,toolbar,status,resizable,dialog=no",
                 aArgument);
@@ -65,7 +65,7 @@ jsbridgeHandler.prototype = {
         iid.equals(nsISupports))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
   /* nsICommandLineHandler */
@@ -85,7 +85,7 @@ jsbridgeHandler.prototype = {
       }
     }
     catch (e) {
-      Components.utils.reportError("incorrect parameter passed to -jsbridge on the command line.");
+      Cu.reportError("incorrect parameter passed to -jsbridge on the command line.");
     }
 
   },
@@ -103,7 +103,7 @@ jsbridgeHandler.prototype = {
   createInstance : function clh_CI(outer, iid)
   {
     if (outer != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
+      throw Cr.NS_ERROR_NO_AGGREGATION;
 
     return this.QueryInterface(iid);
   },

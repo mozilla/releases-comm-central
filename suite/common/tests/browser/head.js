@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var ss = Components.classes["@mozilla.org/suite/sessionstore;1"]
-                   .getService(Components.interfaces.nsISessionStore);
+var ss = Cc["@mozilla.org/suite/sessionstore;1"]
+           .getService(Ci.nsISessionStore);
 
 function provideWindow(aCallback, aURL, aFeatures) {
   function callbackSoon(aWindow) {
@@ -55,7 +55,7 @@ function waitForBrowserState(aState, aSetStateCallback) {
   // coming from them when creating a multi-window state.
   function windowObserver(aSubject, aTopic, aData) {
     if (aTopic == "domwindowopened") {
-      let newWindow = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
+      let newWindow = aSubject.QueryInterface(Ci.nsIDOMWindow);
       newWindow.addEventListener("load", function newWindowLoad() {
         newWindow.removeEventListener("load", newWindowLoad);
 

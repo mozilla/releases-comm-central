@@ -31,10 +31,10 @@ const PREF_AUDIO_SELECTED_READER = "browser.audioFeeds.handler.default";
 
 function getPrefAppForType(t) {
   switch (t) {
-    case Components.interfaces.nsIFeed.TYPE_VIDEO:
+    case Ci.nsIFeed.TYPE_VIDEO:
       return PREF_VIDEO_SELECTED_APP;
 
-    case Components.interfaces.nsIFeed.TYPE_AUDIO:
+    case Ci.nsIFeed.TYPE_AUDIO:
       return PREF_AUDIO_SELECTED_APP;
 
     default:
@@ -44,10 +44,10 @@ function getPrefAppForType(t) {
 
 function getPrefWebForType(t) {
   switch (t) {
-    case Components.interfaces.nsIFeed.TYPE_VIDEO:
+    case Ci.nsIFeed.TYPE_VIDEO:
       return PREF_VIDEO_SELECTED_WEB;
 
-    case Components.interfaces.nsIFeed.TYPE_AUDIO:
+    case Ci.nsIFeed.TYPE_AUDIO:
       return PREF_AUDIO_SELECTED_WEB;
 
     default:
@@ -57,10 +57,10 @@ function getPrefWebForType(t) {
 
 function getPrefActionForType(t) {
   switch (t) {
-    case Components.interfaces.nsIFeed.TYPE_VIDEO:
+    case Ci.nsIFeed.TYPE_VIDEO:
       return PREF_VIDEO_SELECTED_ACTION;
 
-    case Components.interfaces.nsIFeed.TYPE_AUDIO:
+    case Ci.nsIFeed.TYPE_AUDIO:
       return PREF_AUDIO_SELECTED_ACTION;
 
     default:
@@ -70,10 +70,10 @@ function getPrefActionForType(t) {
 
 function getPrefReaderForType(t) {
   switch (t) {
-    case Components.interfaces.nsIFeed.TYPE_VIDEO:
+    case Ci.nsIFeed.TYPE_VIDEO:
       return PREF_VIDEO_SELECTED_READER;
 
-    case Components.interfaces.nsIFeed.TYPE_AUDIO:
+    case Ci.nsIFeed.TYPE_AUDIO:
       return PREF_AUDIO_SELECTED_READER;
 
     default:
@@ -123,11 +123,11 @@ FeedConverter.prototype = {
    * See nsISupports.idl
    */
   QueryInterface: XPCOMUtils.generateQI(
-    [Components.interfaces.nsIFeedResultListener,
-     Components.interfaces.nsIStreamConverter,
-     Components.interfaces.nsIStreamListener,
-     Components.interfaces.nsIRequestObserver,
-     Components.interfaces.nsISupports]),
+    [Ci.nsIFeedResultListener,
+     Ci.nsIStreamConverter,
+     Ci.nsIStreamListener,
+     Ci.nsIRequestObserver,
+     Ci.nsISupports]),
   classID: Components.ID("{88592f45-3866-4c8e-9d8a-ab58b290fcf7}"),
 
   /**
@@ -135,7 +135,7 @@ FeedConverter.prototype = {
    */
   convert: function convert(sourceStream, sourceType, destinationType,
                                context) {
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
   /**
@@ -195,10 +195,10 @@ FeedConverter.prototype = {
     // If this is just a feed, not some kind of specialized application, then
     // auto-handlers can be set and we should obey them.
     try {
-      var feedService = Components.classes["@mozilla.org/browser/feeds/result-service;1"]
-                                  .getService(Components.interfaces.nsIFeedResultService);
+      var feedService = Cc["@mozilla.org/browser/feeds/result-service;1"]
+                          .getService(Ci.nsIFeedResultService);
       if (!this._forcePreviewPage && result.doc) {
-        var feed = result.doc.QueryInterface(Components.interfaces.nsIFeed);
+        var feed = result.doc.QueryInterface(Ci.nsIFeed);
         var handler = safeGetCharPref(getPrefActionForType(feed.type), "ask");
 
         if (handler != "ask") {
@@ -206,13 +206,13 @@ FeedConverter.prototype = {
             handler = safeGetCharPref(getPrefReaderForType(feed.type), "messenger");
           switch (handler) {
             case "web":
-              var wccr = Components.classes["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
-                                   .getService(Components.interfaces.nsIWebContentConverterService);
-              if ((feed.type == Components.interfaces.nsIFeed.TYPE_FEED &&
+              var wccr = Cc["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
+                           .getService(Ci.nsIWebContentConverterService);
+              if ((feed.type == Ci.nsIFeed.TYPE_FEED &&
                    wccr.getAutoHandler(TYPE_MAYBE_FEED)) ||
-                  (feed.type == Components.interfaces.nsIFeed.TYPE_VIDEO &&
+                  (feed.type == Ci.nsIFeed.TYPE_VIDEO &&
                    wccr.getAutoHandler(TYPE_MAYBE_VIDEO_FEED)) ||
-                  (feed.type == Components.interfaces.nsIFeed.TYPE_AUDIO &&
+                  (feed.type == Ci.nsIFeed.TYPE_AUDIO &&
                    wccr.getAutoHandler(TYPE_MAYBE_AUDIO_FEED))) {
                 wccr.loadPreferredHandler(this._request);
                 return;
@@ -238,7 +238,7 @@ FeedConverter.prototype = {
       }
 
       var chromeChannel;
-      var oldChannel = this._request.QueryInterface(Components.interfaces.nsIChannel);
+      var oldChannel = this._request.QueryInterface(Ci.nsIChannel);
       var loadInfo = oldChannel.loadInfo;
 
       // If there was no automatic handler, or this was a podcast,
@@ -284,17 +284,17 @@ FeedConverter.prototype = {
    * See nsIRequestObserver.idl
    */
   onStartRequest: function onStartRequest(request, context) {
-    var channel = request.QueryInterface(Components.interfaces.nsIChannel);
+    var channel = request.QueryInterface(Ci.nsIChannel);
 
     // Check for a header that tells us there was no sniffing
     // The value doesn't matter.
     try {
-      var httpChannel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
+      var httpChannel = channel.QueryInterface(Ci.nsIHttpChannel);
       // Make sure to check requestSucceeded before the potentially-throwing
       // getResponseHeader.
       if (!httpChannel.requestSucceeded) {
         // Just give up, but don't forget to cancel the channel first!
-        request.cancel(Components.results.NS_BINDING_ABORTED);
+        request.cancel(Cr.NS_BINDING_ABORTED);
         return;
       }
       // Note: this throws if the header is not set.
@@ -308,14 +308,14 @@ FeedConverter.prototype = {
 
     // Save and reset the forced state bit early, in case there's some kind of
     // error.
-    var feedService = Components.classes["@mozilla.org/browser/feeds/result-service;1"]
-                                .getService(Components.interfaces.nsIFeedResultService);
+    var feedService = Cc["@mozilla.org/browser/feeds/result-service;1"]
+                        .getService(Ci.nsIFeedResultService);
     this._forcePreviewPage = feedService.forcePreviewPage;
     feedService.forcePreviewPage = false;
 
     // Parse feed data as it comes in
-    this._processor = Components.classes["@mozilla.org/feed-processor;1"]
-                                .createInstance(Components.interfaces.nsIFeedProcessor);
+    this._processor = Cc["@mozilla.org/feed-processor;1"]
+                        .createInstance(Ci.nsIFeedProcessor);
     this._processor.listener = this;
     this._processor.parseAsync(null, channel.URI);
 
@@ -362,7 +362,7 @@ FeedResultService.prototype = {
     switch (handler) {
     case "client":
       var clientApp = Services.prefs.getComplexValue(getPrefAppForType(feedType),
-                                                     Components.interfaces.nsIFile);
+                                                     Ci.nsIFile);
 
       // For the benefit of applications that might know how to deal with more
       // URLs than just feeds, send feed: URLs in the following format:
@@ -382,14 +382,14 @@ FeedResultService.prototype = {
       // Retrieving the shell service might fail on some systems, most
       // notably systems where GNOME is not installed.
       try {
-        var ss = Components.classes["@mozilla.org/suite/shell-service;1"]
-                           .getService(Components.interfaces.nsIShellService);
+        var ss = Cc["@mozilla.org/suite/shell-service;1"]
+                   .getService(Ci.nsIShellService);
         ss.openApplicationWithURI(clientApp, spec);
       } catch(e) {
         // If we couldn't use the shell service, fallback to using a
         // nsIProcess instance
-        var p = Components.classes["@mozilla.org/process/util;1"]
-                          .createInstance(Components.interfaces.nsIProcess);
+        var p = Cc["@mozilla.org/process/util;1"]
+                  .createInstance(Ci.nsIProcess);
         p.init(clientApp);
         p.run(false, [spec], 1);
       }
@@ -402,12 +402,12 @@ FeedResultService.prototype = {
     case "bookmarks":
       var topWindow = Services.wm.getMostRecentWindow("navigator:browser");
       topWindow.PlacesCommandHook.addLiveBookmark(spec, title, subtitle)
-                                 .catch(Components.utils.reportError);
+                                 .catch(Cu.reportError);
       break;
     case "messenger":
-      Components.classes["@mozilla.org/newsblog-feed-downloader;1"]
-                .getService(Components.interfaces.nsINewsBlogFeedDownloader)
-                .subscribeToFeed("feed:" + spec, null, null);
+      Cc["@mozilla.org/newsblog-feed-downloader;1"]
+        .getService(Ci.nsINewsBlogFeedDownloader)
+        .subscribeToFeed("feed:" + spec, null, null);
       break;
 
     }
@@ -462,8 +462,8 @@ FeedResultService.prototype = {
       delete this._results[uri.spec];
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIFeedResultService,
-                                         Components.interfaces.nsISupports]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFeedResultService,
+                                         Ci.nsISupports]),
   classID: Components.ID("{e5b05e9d-f037-48e4-b9a4-b99476582927}")
 };
 
@@ -505,16 +505,16 @@ GenericProtocolHandler.prototype = {
 
     spec = spec.replace(/^\s+|[\r\n\t]+|\s+$/g, "");
     if (!/^feed:/.test(spec))
-      throw Components.results.NS_ERROR_MALFORMED_URI;
+      throw Cr.NS_ERROR_MALFORMED_URI;
 
     var prefix = /^feed:\/\//.test(spec) ? "http:" : "";
     var inner = Services.io.newURI(spec.replace("feed:", prefix),
                                    originalCharset, baseURI);
 
     if (! /^https?/.test(inner.scheme))
-      throw Components.results.NS_ERROR_MALFORMED_URI;
+      throw Cr.NS_ERROR_MALFORMED_URI;
 
-    var uri = Services.io.QueryInterface(Components.interfaces.nsINetUtil)
+    var uri = Services.io.QueryInterface(Ci.nsINetUtil)
                          .newSimpleNestedURI(inner);
     uri.spec = inner.spec.replace(prefix, "feed:");
     return uri;
@@ -525,24 +525,24 @@ GenericProtocolHandler.prototype = {
   },
 
   newChannel2: function newChannel(aUri, aLoadinfo) {
-    var uri = aUri.QueryInterface(Components.interfaces.nsINestedURI).innerURI;
+    var uri = aUri.QueryInterface(Ci.nsINestedURI).innerURI;
     var ios = Services.io;
     var channel = aLoadinfo ?
                   ios.newChannelFromURIWithLoadInfo(uri, aLoadinfo) :
                   ios.newChannelFromURI2(uri, null,
                                          Services.scriptSecurityManager.getSystemPrincipal(),
                                          null,
-                                         Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                         Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-    if (channel instanceof Components.interfaces.nsIHttpChannel)
+                                         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                         Ci.nsIContentPolicy.TYPE_OTHER);
+    if (channel instanceof Ci.nsIHttpChannel)
       // Set this so we know this is supposed to be a feed
       channel.setRequestHeader("X-Moz-Is-Feed", "1", false);
     channel.originalURI = aUri;
     return channel;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProtocolHandler,
-                                         Components.interfaces.nsISupports])
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolHandler,
+                                         Ci.nsISupports])
 };
 
 function FeedProtocolHandler() {

@@ -6,12 +6,12 @@ var frame = {}; ChromeUtils.import('resource://mozmill/modules/frame.js', frame)
 
 var that = this;
 
-var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
-                .getService(Components.interfaces.nsIAppShellService)
+var hwindow = Cc["@mozilla.org/appshell/appShellService;1"]
+                .getService(Ci.nsIAppShellService)
                 .hiddenDOMWindow;
 
-var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-           .getService(Components.interfaces.nsIWindowMediator);
+var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+           .getService(Ci.nsIWindowMediator);
 
 var dir = function(obj){
  for (let prop in obj){
@@ -65,8 +65,8 @@ var shell = new function(){
   };
 
   this.getWindows = function(){
-     var enumerator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                      .getService(Components.interfaces.nsIWindowMediator)
+     var enumerator = Cc["@mozilla.org/appshell/window-mediator;1"]
+                      .getService(Ci.nsIWindowMediator)
                       .getEnumerator("");
       var s = "";
       //define an array we can access

@@ -12,7 +12,7 @@ function postShutdownNotifications()
   // first give everyone a heads up about us shutting down. if someone wants
   // to cancel this, our test should fail.
   var cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                     .createInstance(Components.interfaces.nsISupportsPRBool);
+                     .createInstance(Ci.nsISupportsPRBool);
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
   if (cancelQuit.data) {
     do_throw("Cannot shutdown: Someone cancelled the quit request!");

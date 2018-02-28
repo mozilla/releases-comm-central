@@ -39,7 +39,7 @@ function OnMailWindowUnload()
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
   // the tabs have the FolderDisplayWidget close their 'messenger' instances for us
 
-  window.QueryInterface(Components.interfaces.nsIDOMChromeWindow)
+  window.QueryInterface(Ci.nsIDOMChromeWindow)
         .browserDOMWindow = null;
 
   msgWindow.closeWindow();
@@ -48,9 +48,9 @@ function OnMailWindowUnload()
   msgWindow.notificationCallbacks = null;
   gDBView = null;
   window.MsgStatusFeedback.unload();
-  Components.classes["@mozilla.org/activity-manager;1"]
-            .getService(Components.interfaces.nsIActivityManager)
-            .removeListener(window.MsgStatusFeedback);
+  Cc["@mozilla.org/activity-manager;1"]
+    .getService(Ci.nsIActivityManager)
+    .removeListener(window.MsgStatusFeedback);
 }
 
 
@@ -126,10 +126,10 @@ function onCopyOrDragStart(e) {
   }
 
   let html = div.innerHTML;
-  let parserUtils = Components.classes["@mozilla.org/parserutils;1"]
-                      .getService(Components.interfaces.nsIParserUtils);
+  let parserUtils = Cc["@mozilla.org/parserutils;1"]
+                      .getService(Ci.nsIParserUtils);
   let plain = parserUtils.convertToPlainText(html,
-    Components.interfaces.nsIDocumentEncoder.OutputForPlainTextClipboardCopy, 0);
+    Ci.nsIDocumentEncoder.OutputForPlainTextClipboardCopy, 0);
   if ("clipboardData" in e) { // copy
     e.clipboardData.setData("text/html", html);
     e.clipboardData.setData("text/plain", plain);
@@ -144,8 +144,8 @@ function onCopyOrDragStart(e) {
 function CreateMailWindowGlobals()
 {
   // get the messenger instance
-  messenger = Components.classes["@mozilla.org/messenger;1"]
-                        .createInstance(Components.interfaces.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"]
+                .createInstance(Ci.nsIMessenger);
 
   window.addEventListener("blur", appIdleManager.onBlur);
   window.addEventListener("focus", appIdleManager.onFocus);
@@ -154,27 +154,27 @@ function CreateMailWindowGlobals()
   // set the JS implementation of status feedback before creating the c++ one..
   window.MsgStatusFeedback = new nsMsgStatusFeedback();
   // double register the status feedback object as the xul browser window implementation
-  window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-        .getInterface(Components.interfaces.nsIWebNavigation)
-        .QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner
-        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-        .getInterface(Components.interfaces.nsIXULWindow)
+  window.QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIWebNavigation)
+        .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
+        .QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIXULWindow)
         .XULBrowserWindow = window.MsgStatusFeedback;
 
-  window.QueryInterface(Components.interfaces.nsIDOMChromeWindow)
+  window.QueryInterface(Ci.nsIDOMChromeWindow)
         .browserDOMWindow = new nsBrowserAccess();
 
-  statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"]
-                             .createInstance(Components.interfaces.nsIMsgStatusFeedback);
+  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"]
+                     .createInstance(Ci.nsIMsgStatusFeedback);
   statusFeedback.setWrappedStatusFeedback(window.MsgStatusFeedback);
 
-  Components.classes["@mozilla.org/activity-manager;1"]
-            .getService(Components.interfaces.nsIActivityManager)
-            .addListener(window.MsgStatusFeedback);
+  Cc["@mozilla.org/activity-manager;1"]
+    .getService(Ci.nsIActivityManager)
+    .addListener(window.MsgStatusFeedback);
 
   //Create message window object
-  msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                        .createInstance(Components.interfaces.nsIMsgWindow);
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                .createInstance(Ci.nsIMsgWindow);
 
   accountManager = MailServices.accounts;
 
@@ -193,7 +193,7 @@ function InitMsgWindow()
   messagepane.docShell.allowAuth = false;
   messagepane.docShell.allowDNSPrefetch = false;
   msgWindow.rootDocShell.allowAuth = true;
-  msgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
+  msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   // Ensure we don't load xul error pages into the main window
   msgWindow.rootDocShell.useErrorPages = false;
 
@@ -266,14 +266,14 @@ nsMsgStatusFeedback.prototype =
   },
 
   QueryInterface: function(iid) {
-    if (iid.equals(Components.interfaces.nsIMsgStatusFeedback) ||
-        iid.equals(Components.interfaces.nsIXULBrowserWindow) ||
-        iid.equals(Components.interfaces.nsIActivityMgrListener) ||
-        iid.equals(Components.interfaces.nsIActivityListener) ||
-        iid.equals(Components.interfaces.nsISupportsWeakReference) ||
-        iid.equals(Components.interfaces.nsISupports))
+    if (iid.equals(Ci.nsIMsgStatusFeedback) ||
+        iid.equals(Ci.nsIXULBrowserWindow) ||
+        iid.equals(Ci.nsIActivityMgrListener) ||
+        iid.equals(Ci.nsIActivityListener) ||
+        iid.equals(Ci.nsISupportsWeakReference) ||
+        iid.equals(Ci.nsISupports))
       return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   // nsIMsgStatusFeedback implementation.
@@ -379,7 +379,7 @@ nsMsgStatusFeedback.prototype =
 
       this._activeProcesses.forEach(function (element) {
           if (element.state ==
-              Components.interfaces.nsIActivityProcess.STATE_INPROGRESS &&
+              Ci.nsIActivityProcess.STATE_INPROGRESS &&
               element.percentComplete != -1) {
             currentProgress += element.percentComplete;
             ++progressCount;
@@ -428,10 +428,10 @@ nsMsgStatusFeedback.prototype =
     // ignore Gloda activity for status bar purposes
     if (aActivity.initiator == Gloda)
       return;
-    if (aActivity instanceof Components.interfaces.nsIActivityEvent) {
+    if (aActivity instanceof Ci.nsIActivityEvent) {
       this.showStatusString(aActivity.displayText);
     }
-    else if (aActivity instanceof Components.interfaces.nsIActivityProcess) {
+    else if (aActivity instanceof Ci.nsIActivityProcess) {
       this._activeProcesses.push(aActivity);
       aActivity.addListener(this);
       this.startMeteors();
@@ -462,7 +462,7 @@ nsMsgStatusFeedback.prototype =
     // only go as far as our process.
     for (var i = 0; i < index; ++i) {
       if (this._activeProcesses[i].status ==
-          Components.interfaces.nsIActivityProcess.STATE_INPROGRESS)
+          Ci.nsIActivityProcess.STATE_INPROGRESS)
         break;
     }
 
@@ -490,10 +490,10 @@ nsMsgWindowCommands.prototype =
 {
   QueryInterface : function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIMsgWindowCommands) ||
-        iid.equals(Components.interfaces.nsISupports))
+    if (iid.equals(Ci.nsIMsgWindowCommands) ||
+        iid.equals(Ci.nsISupports))
       return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   selectFolder: function(folderUri)
@@ -535,7 +535,7 @@ function loadStartPage(aForce)
       GetMessagePaneFrame().location.href = uri.spec;
     }
     catch (e) {
-      Components.utils.reportError(e);
+      Cu.reportError(e);
     }
   }
   else
@@ -624,10 +624,10 @@ BadCertHandler.prototype = {
 
   // nsISupports
   QueryInterface: function(iid) {
-    if (!iid.equals(Components.interfaces.nsIBadCertListener2) &&
-      !iid.equals(Components.interfaces.nsIInterfaceRequestor) &&
-      !iid.equals(Components.interfaces.nsISupports))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
+    if (!iid.equals(Ci.nsIBadCertListener2) &&
+      !iid.equals(Ci.nsIInterfaceRequestor) &&
+      !iid.equals(Ci.nsISupports))
+      throw Cr.NS_ERROR_NO_INTERFACE;
     return this;
   }
 };
@@ -647,7 +647,7 @@ function InformUserOfCertError(socketInfo, status, targetSite)
 function nsBrowserAccess() { }
 
 nsBrowserAccess.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIBrowserDOMWindow]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIBrowserDOMWindow]),
 
   // The following function may be called during account creation, it is called by
   // the Mozmill test test-newmailaccount.js::test_window_open_link_opening_behaviour.
@@ -658,15 +658,15 @@ nsBrowserAccess.prototype = {
 
   openURI: function (aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal = null) {
     if (!aURI) {
-      Components.utils.reportError("openURI should only be called with a valid URI");
-      throw Components.results.NS_ERROR_FAILURE;
+      Cu.reportError("openURI should only be called with a valid URI");
+      throw Cr.NS_ERROR_FAILURE;
     }
     return this.getContentWindowOrOpenURI(aURI, aOpener, aWhere, aFlags,
                                           aTriggeringPrincipal);
   },
 
   getContentWindowOrOpenURI(aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal) {
-    const nsIBrowserDOMWindow = Components.interfaces.nsIBrowserDOMWindow;
+    const nsIBrowserDOMWindow = Ci.nsIBrowserDOMWindow;
     let isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
     if (isExternal && aURI && aURI.schemeIs("chrome")) {
       Services.console.logStringMessage("use -chrome command-line option to load external chrome urls\n");
@@ -675,8 +675,8 @@ nsBrowserAccess.prototype = {
 
     let newWindow = null;
     let loadflags = isExternal ?
-      Components.interfaces.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL :
-      Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
+      Ci.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL :
+      Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
 
     if (aWhere != nsIBrowserDOMWindow.OPEN_NEWTAB)
       Services.console.logStringMessage("Opening a URI in something other than a new tab is not supported, opening in new tab instead");
@@ -709,8 +709,8 @@ nsBrowserAccess.prototype = {
                                                 clickHandler: clickHandler});
 
     newWindow = newTab.browser.docShell
-                      .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                      .getInterface(Components.interfaces.nsIDOMWindow);
+                      .QueryInterface(Ci.nsIInterfaceRequestor)
+                      .getInterface(Ci.nsIDOMWindow);
     try {
       if (aURI) {
         let referrer = null;
@@ -718,8 +718,8 @@ nsBrowserAccess.prototype = {
           let location = aOpener.location;
           referrer = Services.io.newURI(location);
         }
-        newWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                 .getInterface(Components.interfaces.nsIWebNavigation)
+        newWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                 .getInterface(Ci.nsIWebNavigation)
                  .loadURI(aURI.spec, loadflags, referrer, null, null, aTriggeringPrincipal);
       }
       if (needToFocusWin || (!loadInBackground && isExternal))

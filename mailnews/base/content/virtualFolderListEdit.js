@@ -7,8 +7,8 @@ var gSelectVirtual = {
   _selectedList: new Set(),
 
   load: function() {
-    let folderLookup = Components.classes["@mozilla.org/mail/folder-lookup;1"]
-                                 .getService(Ci.nsIFolderLookupService);
+    let folderLookup = Cc["@mozilla.org/mail/folder-lookup;1"]
+                         .getService(Ci.nsIFolderLookupService);
     if (window.arguments[0].searchFolderURIs) {
       let srchFolderUriArray = window.arguments[0].searchFolderURIs.split('|');
       for (let uri of srchFolderUriArray) {

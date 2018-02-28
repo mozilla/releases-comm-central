@@ -59,8 +59,8 @@
 
   <![CDATA[
 
-const dmui = Components.classes["@mozilla.org/download-manager-ui;1"]
-                       .getService(Components.interfaces.nsIDownloadManagerUI);
+const dmui = Cc["@mozilla.org/download-manager-ui;1"]
+               .getService(Ci.nsIDownloadManagerUI);
 
 function testCloseDMWithAccelKey(aWin)
 {
@@ -84,8 +84,8 @@ function runTest()
 
   var testPhase = 0;
   // Specify an observer that will be notified when the dm has been rendered on screen
-  var obs = Components.classes["@mozilla.org/observer-service;1"]
-                      .getService(Components.interfaces.nsIObserverService);
+  var obs = Cc["@mozilla.org/observer-service;1"]
+              .getService(Ci.nsIObserverService);
   var testObs = {
     observe: function(aSubject, aTopic, aData) {
       SimpleTest.waitForFocus(function () { closeDM(aSubject) }, aSubject);
@@ -103,9 +103,9 @@ function runTest()
 
   obs.addObserver(testObs, DLMGR_UI_DONE);
 
-  Components.classes["@mozilla.org/download-manager-ui;1"]
-            .getService(Components.interfaces.nsISuiteDownloadManagerUI)
-            .showManager();
+  Cc["@mozilla.org/download-manager-ui;1"]
+    .getService(Ci.nsISuiteDownloadManagerUI)
+    .showManager();
 
   SimpleTest.waitForExplicitFinish();
 }

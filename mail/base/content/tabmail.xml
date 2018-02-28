@@ -918,7 +918,7 @@
              // Report this so that our unit testing framework sees this
              // error and (extension) developers likewise can see when their
              // extensions are ill-behaved.
-             Components.utils.reportError(ex);
+             Cu.reportError(ex);
            }
 
            if (!tabState)
@@ -1983,14 +1983,14 @@
 
             if (!this._animateTimer)
               this._animateTimer =
-                Components.classes["@mozilla.org/timer;1"]
-                          .createInstance(Components.interfaces.nsITimer);
+                Cc["@mozilla.org/timer;1"]
+                  .createInstance(Ci.nsITimer);
             else
                this._animateTimer.cancel();
 
             this._animateTimer.initWithCallback(this,
                          this._animateDelay,
-                         Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                         Ci.nsITimer.TYPE_REPEATING_SLACK);
           }
         ]]></body>
       </method>
@@ -2421,12 +2421,12 @@
         // be set after this binding is constructed.
         try {
           this._xulWindow =
-            window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                  .getInterface(Components.interfaces.nsIWebNavigation)
-                  .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+            window.QueryInterface(Ci.nsIInterfaceRequestor)
+                  .getInterface(Ci.nsIWebNavigation)
+                  .QueryInterface(Ci.nsIDocShellTreeItem)
                   .treeOwner
-                  .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                  .getInterface(Components.interfaces.nsIXULWindow);
+                  .QueryInterface(Ci.nsIInterfaceRequestor)
+                  .getInterface(Ci.nsIXULWindow);
         }
         catch(ex) { }
 

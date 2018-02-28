@@ -27,14 +27,14 @@ var RDFUtils = {
 
   getValueFromResource: function(aResource)
     {
-      aResource = aResource.QueryInterface(Components.interfaces.nsIRDFResource);
+      aResource = aResource.QueryInterface(Ci.nsIRDFResource);
       return aResource ? aResource.Value : null;
     },
   _rdf: null,
   get rdf() {
     if (!this._rdf) {
-      this._rdf = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                            .getService(Components.interfaces.nsIRDFService);
+      this._rdf = Cc["@mozilla.org/rdf/rdf-service;1"]
+                    .getService(Ci.nsIRDFService);
     }
     return this._rdf;
   }

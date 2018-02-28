@@ -11,12 +11,12 @@ var security = {
   },
 
   _getSecurityInfo : function() {
-    const nsIX509Cert = Components.interfaces.nsIX509Cert;
-    const nsIX509CertDB = Components.interfaces.nsIX509CertDB;
+    const nsIX509Cert = Ci.nsIX509Cert;
+    const nsIX509CertDB = Ci.nsIX509CertDB;
     const nsX509CertDB = "@mozilla.org/security/x509certdb;1";
-    const nsISSLStatusProvider = Components.interfaces.nsISSLStatusProvider;
-    const nsISSLStatus = Components.interfaces.nsISSLStatus;
-    const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
+    const nsISSLStatusProvider = Ci.nsISSLStatusProvider;
+    const nsISSLStatus = Ci.nsISSLStatus;
+    const nsIWebProgressListener = Ci.nsIWebProgressListener;
 
     // We don't have separate info for a frame, return null until further notice
     // (see bug 138479)
@@ -235,7 +235,7 @@ function viewCertHelper(parent, cert)
   if (!cert)
     return;
 
-  var cd = Components.classes[CERTIFICATEDIALOGS_CONTRACTID].getService(nsICertificateDialogs);
+  var cd = Cc[CERTIFICATEDIALOGS_CONTRACTID].getService(nsICertificateDialogs);
   cd.viewCert(parent, cert);
 }
 
@@ -272,8 +272,8 @@ function previousVisitCount(host, endTimeReference) {
   if (!host)
     return false;
 
-  var historyService = Components.classes["@mozilla.org/browser/nav-history-service;1"]
-                                 .getService(Components.interfaces.nsINavHistoryService);
+  var historyService = Cc["@mozilla.org/browser/nav-history-service;1"]
+                         .getService(Ci.nsINavHistoryService);
 
   var options = historyService.getNewQueryOptions();
   options.resultType = options.RESULTS_AS_VISIT;

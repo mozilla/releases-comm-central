@@ -24,7 +24,7 @@ function setupModule(module) {
   // Create an IMAP server
   let imapServer = MailServices.accounts
     .createIncomingServer("nobody", "example.com", "imap")
-    .QueryInterface(Components.interfaces.nsIImapIncomingServer);
+    .QueryInterface(Ci.nsIImapIncomingServer);
 
   let identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox@example.com";
@@ -36,7 +36,7 @@ function setupModule(module) {
   // Create a NNTP server
   let nntpServer = MailServices.accounts
     .createIncomingServer(null, "example.nntp.invalid", "nntp")
-    .QueryInterface(Components.interfaces.nsINntpIncomingServer);
+    .QueryInterface(Ci.nsINntpIncomingServer);
 
   identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox2@example.com";

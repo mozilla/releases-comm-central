@@ -17,8 +17,8 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 const CUST_DEBUG = false;
 
 // the rdf service
-var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                    .getService(Components.interfaces.nsIRDFService);
+var RDF = Cc["@mozilla.org/rdf/rdf-service;1"]
+            .getService(Ci.nsIRDFService);
 var NC = "http://home.netscape.com/NC-rdf#";
 
 var sidebarObj = new Object;
@@ -68,13 +68,13 @@ function sidebar_customize_init()
   // Create a "container" wrapper around the current panels to
   // manipulate the RDF:Seq more easily.
   var panel_list = sidebarObj.datasource.GetTarget(RDF.GetResource(sidebarObj.resource), RDF.GetResource(NC + "panel-list"), true);
-  sidebarObj.container = Components.classes["@mozilla.org/rdf/container;1"].createInstance(Components.interfaces.nsIRDFContainer);
+  sidebarObj.container = Cc["@mozilla.org/rdf/container;1"].createInstance(Ci.nsIRDFContainer);
   sidebarObj.container.Init(sidebarObj.datasource, panel_list);
 
   // Add all the current panels to the tree
   current_panels = sidebarObj.container.GetElements();
   while (current_panels.hasMoreElements()) {
-    var panel = current_panels.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
+    var panel = current_panels.getNext().QueryInterface(Ci.nsIRDFResource);
     if (add_node_to_current_list(sidebarObj.datasource, panel) >= 0) {
       original_panels.push(panel.Value);
       original_panels[panel.Value] = true;
@@ -87,7 +87,7 @@ function sidebar_customize_init()
 
   while (links.hasMoreElements()) {
     var folder =
-      links.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
+      links.getNext().QueryInterface(Ci.nsIRDFResource);
     var folder_name = folder.Value;
     debug("+++ fixing up remote container " + folder_name + "\n");
     fixup_remote_container(folder_name);
@@ -164,7 +164,7 @@ function get_attr(registry,service,attr_name)
                                 RDF.GetResource(NC + attr_name),
                                 true);
   if (attr)
-    attr = attr.QueryInterface(Components.interfaces.nsIRDFLiteral);
+    attr = attr.QueryInterface(Ci.nsIRDFLiteral);
   if (attr)
     attr = attr.Value;
   return attr;
@@ -220,8 +220,8 @@ function add_datasource_to_other_panels(link) {
   debug("Current URL:  " +url);
   debug("Current link: " +link);
 
-  var uri = Components.classes['@mozilla.org/network/standard-url;1'].createInstance();
-  uri = uri.QueryInterface(Components.interfaces.nsIURI);
+  var uri = Cc['@mozilla.org/network/standard-url;1'].createInstance();
+  uri = uri.QueryInterface(Ci.nsIURI);
   uri.spec = url;
   uri = uri.resolve(link);
 
@@ -470,13 +470,13 @@ function Save()
   // Remove all the current panels from the datasource.
   current_panels = sidebarObj.container.GetElements();
   while (current_panels.hasMoreElements()) {
-    panel = current_panels.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
+    panel = current_panels.getNext().QueryInterface(Ci.nsIRDFResource);
 
     // "Check if the item is one of the broadcaster panels imported to RDF from
     // mainBroadcasterSet. If so, then don't remove it from datasource.
     var master_list = sidebarObj.datasource.GetTarget(RDF.GetResource(allPanelsObj.resource), RDF.GetResource(NC + "panel-list"), true);
-    var masterSeq = Components.classes["@mozilla.org/rdf/container;1"]
-                              .createInstance(Components.interfaces.nsIRDFContainer);
+    var masterSeq = Cc["@mozilla.org/rdf/container;1"]
+                      .createInstance(Ci.nsIRDFContainer);
     masterSeq.Init(sidebarObj.datasource, master_list);
     var inmaster = (masterSeq.IndexOf(panel) != -1);
 
@@ -505,7 +505,7 @@ function Save()
   refresh_all_sidebars();
 
   // Write the modified panels out.
-  sidebarObj.datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource).Flush();
+  sidebarObj.datasource.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
 }
 
 // Search for an element in an array

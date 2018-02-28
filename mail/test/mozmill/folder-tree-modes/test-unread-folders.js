@@ -19,7 +19,7 @@ var trashFolder;
 var trashSubfolder;
 var inboxSet;
 
-var nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
 
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");

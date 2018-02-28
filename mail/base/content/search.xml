@@ -70,9 +70,9 @@
                                      this._prefObserver);
 
           this.glodaCompleter =
-            Components.classes["@mozilla.org/autocomplete/search;1?name=gloda"]
-                      .getService()
-                      .wrappedJSObject;
+            Cc["@mozilla.org/autocomplete/search;1?name=gloda"]
+              .getService()
+              .wrappedJSObject;
           Services.obs.addObserver(this, "autocomplete-did-enter-text");
 
           this.glodaEnabled =

@@ -78,9 +78,9 @@ add_task(function* check_raw() {
   Assert.equal(headers.getHeader("Date"), day);
   Assert.equal(headers.getHeader("date"), day);
   verifyError(() => headers.getUnstructuredHeader("Date"),
-    Components.results.NS_ERROR_ILLEGAL_VALUE);
+    Cr.NS_ERROR_ILLEGAL_VALUE);
   verifyError(() => headers.getAddressingHeader("Date"),
-    Components.results.NS_ERROR_ILLEGAL_VALUE);
+    Cr.NS_ERROR_ILLEGAL_VALUE);
   // This is easier than trying to match the actual value for the Date header,
   // since that depends on the current timezone.
   Assert.equal(new Date(headers.getRawHeader("Date")).getTime(), day.getTime());
@@ -95,7 +95,7 @@ add_task(function* check_raw() {
   Assert.equal(headers.getUnstructuredHeader("Content-Description"),
     "A description!");
   verifyError(() => headers.getAddressingHeader("Content-Description"),
-    Components.results.NS_ERROR_ILLEGAL_VALUE);
+    Cr.NS_ERROR_ILLEGAL_VALUE);
   Assert.equal(headers.getRawHeader("Content-Description"),
     "A description!");
 

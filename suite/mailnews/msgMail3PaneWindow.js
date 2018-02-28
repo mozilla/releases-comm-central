@@ -128,13 +128,13 @@ var folderListener =
       if (property == "TotalMessages" || property == "TotalUnreadMessages")
       {
         UpdateStatusMessageCounts(gMsgFolderSelected);
-        item = item.QueryInterface(Components.interfaces.nsIRDFResource);
+        item = item.QueryInterface(Ci.nsIRDFResource);
         UpdateLocationBar(item);
       }
     }
 
     // check folders shown in tabs
-    if (item instanceof Components.interfaces.nsIMsgFolder)
+    if (item instanceof Ci.nsIMsgFolder)
     {
       // find corresponding tabinfos
       // we may have the folder openened in more than one tab
@@ -155,9 +155,9 @@ var folderListener =
     OnItemEvent: function(folder, event) {
       if (event == "FolderLoaded") {
         if (folder) {
-          const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+          const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
           var scrolled = false;
-          var msgFolder = folder.QueryInterface(Components.interfaces.nsIMsgFolder);
+          var msgFolder = folder.QueryInterface(Ci.nsIMsgFolder);
           var uri = folder.URI;
           var rerootingFolder = (uri == gCurrentFolderToReroot);
           if (rerootingFolder) {
@@ -263,7 +263,7 @@ var folderListener =
       }
       else if (event == "ImapHdrDownloaded") {
         if (folder) {
-          var imapFolder = folder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
+          var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
           if (imapFolder) {
             var hdrParser = imapFolder.hdrParser;
             if (hdrParser) {
@@ -272,8 +272,8 @@ var folderListener =
               {
                 var hdrs = hdrParser.headers;
                 if (hdrs && hdrs.indexOf("X-attachment-size:") > 0) {
-                  msgHdr.OrFlags(Components.interfaces.nsMsgMessageFlags
-                                           .Attachment);
+                  msgHdr.OrFlags(Ci.nsMsgMessageFlags
+                                   .Attachment);
                 }
                 if (hdrs && hdrs.indexOf("X-image-size:") > 0) {
                   msgHdr.setStringProperty("imageSize", "1");
@@ -330,10 +330,10 @@ var folderObserver = {
       {
         // (Imap/Nntp/Pop) Account item.
 
-        folderResource.QueryInterface(Components.interfaces.nsIMsgFolder)
+        folderResource.QueryInterface(Ci.nsIMsgFolder)
                       .server.performExpand(msgWindow);
       }
-      else if (folderResource instanceof Components.interfaces.nsIMsgImapMailFolder)
+      else if (folderResource instanceof Ci.nsIMsgImapMailFolder)
       {
         // Imap message folder item.
 
@@ -401,7 +401,7 @@ function HandleDeleteOrMoveMsgCompleted(folder)
     return;
   }
 
-  var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  var treeView = gDBView.QueryInterface(Ci.nsITreeView);
   var treeSelection = treeView.selection;
 
   if (gNextMessageViewIndexAfterDelete == -2) {
@@ -531,7 +531,7 @@ function LoadCurrentlyDisplayedMessage()
   var scrolled = (gCurrentlyDisplayedMessage != nsMsgViewIndex_None);
   if (scrolled)
   {
-    var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+    var treeView = gDBView.QueryInterface(Ci.nsITreeView);
     var treeSelection = treeView.selection;
     treeSelection.select(gCurrentlyDisplayedMessage);
     if (treeView)
@@ -545,13 +545,13 @@ function LoadCurrentlyDisplayedMessage()
 
 function IsCurrentLoadedFolder(aFolder)
 {
-  let msgFolderUri = aFolder.QueryInterface(Components.interfaces.nsIMsgFolder)
+  let msgFolderUri = aFolder.QueryInterface(Ci.nsIMsgFolder)
                             .URI;
   let currentLoadedFolder = GetThreadPaneFolder();
 
   // If the currently loaded folder is virtual,
   // check if aFolder is one of its searched folders.
-  if (currentLoadedFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual)
+  if (currentLoadedFolder.flags & Ci.nsMsgFolderFlags.Virtual)
   {
     return currentLoadedFolder.msgDatabase.dBFolderInfo
                               .getCharProperty("searchFolderUri").split("|")
@@ -730,8 +730,8 @@ function OnLoadMessenger()
     if (args.length && /^feed:/i.test(args[0]))
     {
       var feedHandler =
-        Components.classes["@mozilla.org/newsblog-feed-downloader;1"]
-                  .getService(Components.interfaces.nsINewsBlogFeedDownloader);
+        Cc["@mozilla.org/newsblog-feed-downloader;1"]
+          .getService(Ci.nsINewsBlogFeedDownloader);
       if (feedHandler)
         feedHandler.subscribeToFeed(args[0], null, msgWindow);
     }
@@ -820,7 +820,7 @@ function OnUnloadMessenger()
 function MailWindowIsClosing(aCancelQuit, aTopic, aData)
 {
   if (aTopic == "quit-application-requested" &&
-      aCancelQuit instanceof Components.interfaces.nsISupportsPRBool &&
+      aCancelQuit instanceof Ci.nsISupportsPRBool &&
       aCancelQuit.data)
     return false;
 
@@ -900,7 +900,7 @@ function loadStartFolder(initialUri)
             {
                 //now find Inbox
                 var rootMsgFolder = defaultServer.rootMsgFolder;
-                const kInboxFlag = Components.interfaces.nsMsgFolderFlags.Inbox;
+                const kInboxFlag = Ci.nsMsgFolderFlags.Inbox;
                 var inboxFolder = rootMsgFolder.getFolderWithFlags(kInboxFlag);
                 if (inboxFolder)
                   initialUri = inboxFolder.URI;
@@ -954,9 +954,9 @@ function loadStartFolder(initialUri)
 function AddToSession()
 {
   try {
-    var mailSession = Components.classes["@mozilla.org/messenger/services/session;1"]
-                                .getService(Components.interfaces.nsIMsgMailSession);
-    var nsIFolderListener = Components.interfaces.nsIFolderListener;
+    var mailSession = Cc["@mozilla.org/messenger/services/session;1"]
+                        .getService(Ci.nsIMsgMailSession);
+    var nsIFolderListener = Ci.nsIFolderListener;
     var notifyFlags = nsIFolderListener.intPropertyChanged | nsIFolderListener.event;
     mailSession.AddFolderListener(folderListener, notifyFlags);
   } catch (ex) {
@@ -1020,7 +1020,7 @@ function OnLoadFolderPane()
     var folderTree = GetFolderTree();
     folderTree.setAttribute("ref", "msgaccounts:/");
 
-    var folderTreeBuilder = folderTree.builder.QueryInterface(Components.interfaces.nsIXULTreeBuilder);
+    var folderTreeBuilder = folderTree.builder.QueryInterface(Ci.nsIXULTreeBuilder);
     folderTreeBuilder.addObserver(folderObserver);
     folderTree.addEventListener("click",FolderPaneOnClick,true);
     folderTree.addEventListener("mousedown",TreeOnMouseDown,true);
@@ -1063,16 +1063,16 @@ function UpdateLocationBar(resource)
     var icon = document.getElementById('locationIcon');
     var names = ['BiffState', 'NewMessages', 'HasUnreadMessages',
         'SpecialFolder', 'IsServer', 'IsSecure', 'ServerType', 'NoSelect'];
-    let folder = resource.QueryInterface(Components.interfaces.nsIMsgFolder);
+    let folder = resource.QueryInterface(Ci.nsIMsgFolder);
     folders.setAttribute("label", folder.prettyName);
 
-    const rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                                 .getService(Components.interfaces.nsIRDFService);
+    const rdfService = Cc["@mozilla.org/rdf/rdf-service;1"]
+                         .getService(Ci.nsIRDFService);
     function GetFolderAttribute(tree, source, attribute) {
       let property = rdfService.GetResource("http://home.netscape.com/NC-rdf#" + attribute);
       let target = tree.database.GetTarget(source, property, true);
       if (target)
-        target = target.QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
+        target = target.QueryInterface(Ci.nsIRDFLiteral).Value;
       return target;
     }
     for (var i in names) {
@@ -1143,7 +1143,7 @@ function ClearThreadPaneSelection()
 {
   try {
     if (gDBView) {
-      var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+      var treeView = gDBView.QueryInterface(Ci.nsITreeView);
       var treeSelection = treeView.selection;
       if (treeSelection)
         treeSelection.clearSelection();
@@ -1299,7 +1299,7 @@ function GetSelectedMsgFolders()
         for (var j = startIndex.value; j <= endIndex.value; j++)
         {
           var folderResource = GetFolderResource(folderTree, j);
-          let msgFolder = folderResource.QueryInterface(Components.interfaces.nsIMsgFolder);
+          let msgFolder = folderResource.QueryInterface(Ci.nsIMsgFolder);
           folderArray.push(msgFolder);
         }
     }

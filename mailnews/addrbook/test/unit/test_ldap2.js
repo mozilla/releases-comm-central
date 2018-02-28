@@ -23,7 +23,7 @@ function run_test() {
 
   // Test - Check we have the directory.
   let abDir = MailServices.ab.getDirectory(kLDAPUriPrefix + abUri)
-                             .QueryInterface(Components.interfaces.nsIAbLDAPDirectory);
+                             .QueryInterface(Ci.nsIAbLDAPDirectory);
 
   // Test - Check various fields
   Assert.equal(abDir.dirName, "\u041C\u0435\u043B\u0435\u043D\u043A\u0438");

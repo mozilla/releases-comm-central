@@ -10,8 +10,8 @@
  *   -setDefaultFeed
  */
 
-const nsIShellService = Components.interfaces.nsIShellService;
-const nsICommandLineHandler = Components.interfaces.nsICommandLineHandler;
+const nsIShellService = Ci.nsIShellService;
+const nsICommandLineHandler = Ci.nsICommandLineHandler;
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function nsSetDefault() {
@@ -20,23 +20,23 @@ function nsSetDefault() {
 nsSetDefault.prototype = {
   handle: function nsSetDefault_handle(aCmdline) {
     if (aCmdline.handleFlag("setDefaultBrowser", false)) {
-      var shell = Components.classes["@mozilla.org/suite/shell-service;1"]
-                            .getService(nsIShellService);
+      var shell = Cc["@mozilla.org/suite/shell-service;1"]
+                    .getService(nsIShellService);
       shell.setDefaultClient(true, true, nsIShellService.BROWSER);
     }
     else if (aCmdline.handleFlag("setDefaultMail", false)) {
-      var shell = Components.classes["@mozilla.org/suite/shell-service;1"]
-                            .getService(nsIShellService);
+      var shell = Cc["@mozilla.org/suite/shell-service;1"]
+                    .getService(nsIShellService);
       shell.setDefaultClient(true, true, nsIShellService.MAIL);
     }
     else if (aCmdline.handleFlag("setDefaultNews", false)) {
-      var shell = Components.classes["@mozilla.org/suite/shell-service;1"]
-                            .getService(nsIShellService);
+      var shell = Cc["@mozilla.org/suite/shell-service;1"]
+                    .getService(nsIShellService);
       shell.setDefaultClient(true, true, nsIShellService.NEWS);
     }
     else if (aCmdline.handleFlag("setDefaultFeed", false)) {
-      var shell = Components.classes["@mozilla.org/suite/shell-service;1"]
-                            .getService(nsIShellService);
+      var shell = Cc["@mozilla.org/suite/shell-service;1"]
+                    .getService(nsIShellService);
       shell.setDefaultClient(true, true, nsIShellService.RSS);
     }
   },

@@ -16,7 +16,7 @@ var Notifications = {
     try {
       ellipsis =
         Services.prefs.getComplexValue("intl.ellipsis",
-                                       Components.interfaces.nsIPrefLocalizedString).data;
+                                       Ci.nsIPrefLocalizedString).data;
     } catch (e) { }
     return ellipsis;
   },
@@ -29,8 +29,8 @@ var Notifications = {
 
     // Convert the div node content to plain text.
     let encoder =
-      Components.classes["@mozilla.org/layout/documentEncoder;1?type=text/plain"]
-                .createInstance(Components.interfaces.nsIDocumentEncoder);
+      Cc["@mozilla.org/layout/documentEncoder;1?type=text/plain"]
+        .createInstance(Ci.nsIDocumentEncoder);
     encoder.init(doc, "text/plain", 0);
     encoder.setNode(xhtmlElement);
     let messageText = encoder.encodeToString().replace(/\s+/g, " ");
@@ -65,9 +65,9 @@ var Notifications = {
       messageText = messageText.replace(/^\/me/, name);
 
     // Finally show the notification!
-    Components.classes["@mozilla.org/alerts-service;1"]
-              .getService(Components.interfaces.nsIAlertsService)
-              .showAlertNotification(icon, name, messageText, true, "", observer);
+    Cc["@mozilla.org/alerts-service;1"]
+      .getService(Ci.nsIAlertsService)
+      .showAlertNotification(icon, name, messageText, true, "", observer);
   },
 
   init: function() {

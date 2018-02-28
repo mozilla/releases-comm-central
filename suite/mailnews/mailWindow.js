@@ -51,9 +51,9 @@ function OnMailWindowUnload()
     dbview.close();
   }
 
-  var mailSession = Components.classes["@mozilla.org/messenger/services/session;1"]
-                              .getService();
-  if (mailSession instanceof Components.interfaces.nsIMsgMailSession)
+  var mailSession = Cc["@mozilla.org/messenger/services/session;1"]
+                      .getService();
+  if (mailSession instanceof Ci.nsIMsgMailSession)
     mailSession.RemoveFolderListener(folderListener);
   mailSession.RemoveMsgWindow(msgWindow);
   messenger.setWindow(null, null);
@@ -134,11 +134,11 @@ function onCopyOrDragStart(e) {
   }
 
   let html = div.innerHTML;
-  let parserUtils = Components.classes["@mozilla.org/parserutils;1"]
-                      .getService(Components.interfaces.nsIParserUtils);
+  let parserUtils = Cc["@mozilla.org/parserutils;1"]
+                      .getService(Ci.nsIParserUtils);
   let plain = 
     parserUtils.convertToPlainText(html,
-      Components.interfaces.nsIDocumentEncoder.OutputForPlainTextClipboardCopy,
+      Ci.nsIDocumentEncoder.OutputForPlainTextClipboardCopy,
       0);
       
   // Copy operation.
@@ -157,43 +157,43 @@ function onCopyOrDragStart(e) {
 function CreateMailWindowGlobals()
 {
   // Get the messenger instance.
-  messenger = Components.classes["@mozilla.org/messenger;1"]
-                        .createInstance(Components.interfaces.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"]
+                .createInstance(Ci.nsIMessenger);
 
   // Create windows status feedback
   // set the JS implementation of status feedback before creating the c++ one..
   window.MsgStatusFeedback = new nsMsgStatusFeedback();
   // Double register the status feedback object as the xul browser window 
   // implementation.
-  window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-        .getInterface(Components.interfaces.nsIWebNavigation)
-        .QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner
-        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-        .getInterface(Components.interfaces.nsIXULWindow)
+  window.QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIWebNavigation)
+        .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
+        .QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIXULWindow)
         .XULBrowserWindow = window.MsgStatusFeedback;
 
-  statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"]
-                             .createInstance(Components.interfaces.nsIMsgStatusFeedback);
+  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"]
+                     .createInstance(Ci.nsIMsgStatusFeedback);
   statusFeedback.setWrappedStatusFeedback(window.MsgStatusFeedback);
 
   window.MsgWindowCommands = new nsMsgWindowCommands();
 
   //Create message window object
-  msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                        .createInstance(Components.interfaces.nsIMsgWindow);
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                .createInstance(Ci.nsIMsgWindow);
 
-  msgComposeService = Components.classes['@mozilla.org/messengercompose;1']
-                                .getService(Components.interfaces.nsIMsgComposeService);
+  msgComposeService = Cc['@mozilla.org/messengercompose;1']
+                        .getService(Ci.nsIMsgComposeService);
 
-  mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
+  mailSession = Cc["@mozilla.org/messenger/services/session;1"].getService(Ci.nsIMsgMailSession);
 
-  accountManager = Components.classes["@mozilla.org/messenger/account-manager;1"].getService(Components.interfaces.nsIMsgAccountManager);
+  accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
 
-  RDF = Components.classes['@mozilla.org/rdf/rdf-service;1']
-                  .getService(Components.interfaces.nsIRDFService);
+  RDF = Cc['@mozilla.org/rdf/rdf-service;1']
+          .getService(Ci.nsIRDFService);
 
-  msgComposeType = Components.interfaces.nsIMsgCompType;
-  msgComposeFormat = Components.interfaces.nsIMsgCompFormat;
+  msgComposeType = Ci.nsIMsgCompType;
+  msgComposeFormat = Ci.nsIMsgCompFormat;
 
   gMessengerBundle = document.getElementById("bundle_messenger");
   gBrandBundle = document.getElementById("bundle_brand");
@@ -202,10 +202,10 @@ function CreateMailWindowGlobals()
   var prefix = "@mozilla.org/rdf/datasource;1?name=";
   var accountManagerDSCID = prefix + "msgaccountmanager";
   var folderDSCID         = prefix + "mailnewsfolders";
-  var nsIRDFDataSource = Components.interfaces.nsIRDFDataSource;
+  var nsIRDFDataSource = Ci.nsIRDFDataSource;
 
-  accountManagerDataSource = Components.classes[accountManagerDSCID].getService(nsIRDFDataSource);
-  folderDataSource         = Components.classes[folderDSCID].getService(nsIRDFDataSource);
+  accountManagerDataSource = Cc[accountManagerDSCID].getService(nsIRDFDataSource);
+  folderDataSource         = Cc[folderDSCID].getService(nsIRDFDataSource);
 
   msgWindow.notificationCallbacks = new nsMsgBadCertHandler();
 }
@@ -223,7 +223,7 @@ function InitMsgWindow()
   messagepane.docShell.allowAuth = false;
   messagepane.docShell.allowDNSPrefetch = false;
   msgWindow.rootDocShell.allowAuth = true;
-  msgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
+  msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   // Ensure we don't load xul error pages into the main window
   msgWindow.rootDocShell.useErrorPages = false;
 
@@ -275,11 +275,11 @@ function messagePaneOnClick(event)
   {
     var target = event.target;
     // is this an image that we might want to scale?
-    if (target instanceof Components.interfaces.nsIImageLoadingContent)
+    if (target instanceof Ci.nsIImageLoadingContent)
     {
       // make sure it loaded successfully
-      var req = target.getRequest(Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
-      if (!req || req.imageStatus & Components.interfaces.imgIRequest.STATUS_ERROR)
+      var req = target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
+      if (!req || req.imageStatus & Ci.imgIRequest.STATUS_ERROR)
         return true;
       // is it an inline attachment?
       if (/^moz-attached-image/.test(target.className))
@@ -318,8 +318,8 @@ function messagePaneOnClick(event)
   // not put up a new browser window.  we should just let the usual processing
   // take place.
   try {
-    var extProtService = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                                   .getService(Components.interfaces.nsIExternalProtocolService);
+    var extProtService = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                           .getService(Ci.nsIExternalProtocolService);
     var scheme = href.substring(0, href.indexOf(":"));
     if (!extProtService.isExposedProtocol(scheme))
       return true;
@@ -411,12 +411,12 @@ nsMsgStatusFeedback.prototype =
 
   QueryInterface : function(iid)
     {
-      if (iid.equals(Components.interfaces.nsIMsgStatusFeedback) ||
-          iid.equals(Components.interfaces.nsIXULBrowserWindow) ||
-          iid.equals(Components.interfaces.nsISupportsWeakReference) ||
-          iid.equals(Components.interfaces.nsISupports))
+      if (iid.equals(Ci.nsIMsgStatusFeedback) ||
+          iid.equals(Ci.nsIXULBrowserWindow) ||
+          iid.equals(Ci.nsISupportsWeakReference) ||
+          iid.equals(Ci.nsISupports))
         return this;
-      throw Components.results.NS_NOINTERFACE;
+      throw Cr.NS_NOINTERFACE;
     },
 
   // nsIMsgStatusFeedback implementation.
@@ -540,10 +540,10 @@ nsMsgWindowCommands.prototype =
 {
   QueryInterface : function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIMsgWindowCommands) ||
-        iid.equals(Components.interfaces.nsISupports))
+    if (iid.equals(Ci.nsIMsgWindowCommands) ||
+        iid.equals(Ci.nsISupports))
       return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   selectFolder: function(folderUri)

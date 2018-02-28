@@ -43,9 +43,9 @@ var Core = {
     try {
       // Set the Vendor for breakpad only
       if ("nsICrashReporter" in Ci) {
-        Components.classes["@mozilla.org/xre/app-info;1"]
-                  .getService(Ci.nsICrashReporter)
-                  .annotateCrashReport("Vendor", "Instantbird");
+        Cc["@mozilla.org/xre/app-info;1"]
+          .getService(Ci.nsICrashReporter)
+          .annotateCrashReport("Vendor", "Instantbird");
       }
     } catch(e) {
       // This can fail if breakpad isn't enabled,
@@ -57,7 +57,7 @@ var Core = {
       return false;
     }
 
-    if (!Components.classes["@mozilla.org/chat/core-service;1"]) {
+    if (!Cc["@mozilla.org/chat/core-service;1"]) {
       this._promptError("startupFailure.xpcomRegistrationError");
       return false;
     }
@@ -108,12 +108,12 @@ var Core = {
         try {
           Services.io.newChannelFromURI(Services.io.newURI(url));
         } catch(e) {
-          if (e.result == Components.results.NS_ERROR_MALFORMED_URI) {
+          if (e.result == Cr.NS_ERROR_MALFORMED_URI) {
             Services.conversations.getUIConversation(aConv).systemMessage(
               self.bundle("aboutCommand.invalidPageMessage", page));
             return true;
           }
-          Components.utils.reportError(e); // Log unexpected errors.
+          Cu.reportError(e); // Log unexpected errors.
           return false;
         }
         self.showTab("aboutPanel", aPanel => aPanel.showAboutPage(page));
@@ -180,11 +180,11 @@ var Core = {
   showUpdates: function() {
     // copied from checkForUpdates in mozilla/browser/base/content/utilityOverlay.js
     var um =
-      Components.classes["@mozilla.org/updates/update-manager;1"]
-                .getService(Components.interfaces.nsIUpdateManager);
+      Cc["@mozilla.org/updates/update-manager;1"]
+        .getService(Ci.nsIUpdateManager);
     var prompter =
-      Components.classes["@mozilla.org/updates/update-prompt;1"]
-                .createInstance(Components.interfaces.nsIUpdatePrompt);
+      Cc["@mozilla.org/updates/update-prompt;1"]
+        .createInstance(Ci.nsIUpdatePrompt);
 
     // If there's an update ready to be applied, show the "Update Downloaded"
     // UI instead and let the user know they have to restart the browser for
@@ -314,7 +314,7 @@ var Core = {
 
   _onQuitRequest: function (aCancelQuit, aQuitType) {
     // The request has already been canceled somewhere else
-    if ((aCancelQuit instanceof Components.interfaces.nsISupportsPRBool)
+    if ((aCancelQuit instanceof Ci.nsISupportsPRBool)
          && aCancelQuit.data)
       return;
 
@@ -366,7 +366,7 @@ var Core = {
     var message = bundle("startupFailure.apologize") + "\n\n" +
       (aMessage ? bundle(aKeyString, aMessage)
                 : bundle(aKeyString) + "\n\n" + bundle("startupFailure.update"));
-    const nsIPromptService = Components.interfaces.nsIPromptService;
+    const nsIPromptService = Ci.nsIPromptService;
     const flags =
       nsIPromptService.BUTTON_POS_1 * nsIPromptService.BUTTON_TITLE_IS_STRING +
       nsIPromptService.BUTTON_POS_0 * nsIPromptService.BUTTON_TITLE_IS_STRING;

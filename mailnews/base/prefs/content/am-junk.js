@@ -65,7 +65,7 @@ function onInit(aPageId, aServerId)
   // Populate the listbox with address books
   let abItems = [];
   for (let ab of fixIterator(MailServices.ab.directories,
-                             Components.interfaces.nsIAbDirectory)) {
+                             Ci.nsIAbDirectory)) {
     // We skip mailing lists and remote address books.
     if (ab.isMailList || ab.isRemote)
       continue;
@@ -241,13 +241,13 @@ function buildServerFilterMenuList()
 
   // Now walk through the isp directories looking for sfd files.
   let ispDirectories = Services.dirsvc.get(KEY_ISP_DIRECTORY_LIST,
-                                           Components.interfaces.nsISimpleEnumerator);
+                                           Ci.nsISimpleEnumerator);
 
   let menuEntries = [];
   while (ispDirectories.hasMoreElements())
   {
     let ispDirectory = ispDirectories.getNext()
-                                     .QueryInterface(Components.interfaces.nsIFile);
+                                     .QueryInterface(Ci.nsIFile);
     if (ispDirectory)
       menuEntries.push.apply(menuEntries, buildServerFilterListFromDir(ispDirectory, menuEntries));
   }
@@ -272,7 +272,7 @@ function buildServerFilterListFromDir(aDir, aExistingEntries)
   // Now iterate over each file in the directory looking for .sfd files.
   const kSuffix = ".sfd";
   let entries = aDir.directoryEntries
-                    .QueryInterface(Components.interfaces.nsIDirectoryEnumerator);
+                    .QueryInterface(Ci.nsIDirectoryEnumerator);
 
   while (entries.hasMoreElements()) {
     let entry = entries.nextFile;

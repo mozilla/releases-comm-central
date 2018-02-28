@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const nsIWebBrowserChrome = Components.interfaces.nsIWebBrowserChrome;
+const nsIWebBrowserChrome = Ci.nsIWebBrowserChrome;
 
 function nsBrowserContentListener(toplevelWindow, contentWindow)
 {
@@ -27,16 +27,16 @@ nsBrowserContentListener.prototype =
         var windowDocShell = this.convertWindowToDocShell(toplevelWindow);
         if (windowDocShell) {
             windowDocshell
-              .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-              .getInterface(Components.interfaces.nsIURIContentListener)
+              .QueryInterface(Ci.nsIInterfaceRequestor)
+              .getInterface(Ci.nsIURIContentListener)
               .parentContentListener = this;
         }
 
         var registerWindow = false;
         try {
-          var treeItem = contentWindow.docShell.QueryInterface(Components.interfaces.nsIDocShellTreeItem);
+          var treeItem = contentWindow.docShell.QueryInterface(Ci.nsIDocShellTreeItem);
           var treeOwner = treeItem.treeOwner;
-          var interfaceRequestor = treeOwner.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
+          var interfaceRequestor = treeOwner.QueryInterface(Ci.nsIInterfaceRequestor);
           var webBrowserChrome = interfaceRequestor.getInterface(nsIWebBrowserChrome);
           if (webBrowserChrome)
           {
@@ -53,25 +53,25 @@ nsBrowserContentListener.prototype =
         // register ourselves
        if (registerWindow)
        {
-        var uriLoader = Components.classes["@mozilla.org/uriloader;1"].getService(Components.interfaces.nsIURILoader);
+        var uriLoader = Cc["@mozilla.org/uriloader;1"].getService(Ci.nsIURILoader);
         uriLoader.registerContentListener(this);
        }
     },
     close: function()
     {
         this.contentWindow = null;
-        var uriLoader = Components.classes["@mozilla.org/uriloader;1"].getService(Components.interfaces.nsIURILoader);
+        var uriLoader = Cc["@mozilla.org/uriloader;1"].getService(Ci.nsIURILoader);
 
         uriLoader.unRegisterContentListener(this);
     },
     QueryInterface: function(iid)
     {
-        if (iid.equals(Components.interfaces.nsIURIContentListener) ||
-            iid.equals(Components.interfaces.nsISupportsWeakReference) ||
-            iid.equals(Components.interfaces.nsISupports))
+        if (iid.equals(Ci.nsIURIContentListener) ||
+            iid.equals(Ci.nsISupportsWeakReference) ||
+            iid.equals(Ci.nsISupports))
             return this;
 
-        throw Components.results.NS_ERROR_NO_INTERFACE;
+        throw Cr.NS_ERROR_NO_INTERFACE;
     },
     onStartURIOpen: function(uri)
     {
@@ -92,8 +92,8 @@ nsBrowserContentListener.prototype =
         var contentListener;
         try {
             contentListener =
-                docShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                .getInterface(Components.interfaces.nsIURIContentListener);
+                docShell.QueryInterface(Ci.nsIInterfaceRequestor)
+                .getInterface(Ci.nsIURIContentListener);
         } catch (ex) {
             dump(ex);
         }
@@ -111,8 +111,8 @@ nsBrowserContentListener.prototype =
 
         try {
             var webNavInfo =
-              Components.classes["@mozilla.org/webnavigation-info;1"]
-                        .getService(Components.interfaces.nsIWebNavigationInfo);
+              Cc["@mozilla.org/webnavigation-info;1"]
+                .getService(Ci.nsIWebNavigationInfo);
             return webNavInfo.isTypeSupported(contentType, null);
         } catch (e) {
             // XXX propagate failures other than "NS_ERROR_NOT_AVAILABLE"?
@@ -126,7 +126,7 @@ nsBrowserContentListener.prototype =
         var contentListener;
         try {
             contentListener =
-                docShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIURIContentListener);
+                docShell.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIURIContentListener);
         } catch (ex) {
             dump(ex);
         }

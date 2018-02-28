@@ -43,12 +43,12 @@ var EXPORTED_SYMBOLS = ["openFile", "saveFile", "saveAsFile", "genBoiler",
                         "tempfile", "getMethodInWindows", "getPreference", "setPreference",
                         "sleep", "assert", "unwrapNode", "TimeoutError", "waitFor", "waitForEval"];
 
-var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
-              .getService(Components.interfaces.nsIAppShellService)
+var hwindow = Cc["@mozilla.org/appshell/appShellService;1"]
+              .getService(Ci.nsIAppShellService)
               .hiddenDOMWindow;
 
-var uuidgen = Components.classes["@mozilla.org/uuid-generator;1"]
-    .getService(Components.interfaces.nsIUUIDGenerator);
+var uuidgen = Cc["@mozilla.org/uuid-generator;1"]
+    .getService(Ci.nsIUUIDGenerator);
 
 function Copy (obj) {
   for (var n in obj) {
@@ -58,13 +58,13 @@ function Copy (obj) {
 
 function getChromeWindow(aWindow) {
   var chromeWin = aWindow
-           .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-           .getInterface(Components.interfaces.nsIWebNavigation)
-           .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+           .QueryInterface(Ci.nsIInterfaceRequestor)
+           .getInterface(Ci.nsIWebNavigation)
+           .QueryInterface(Ci.nsIDocShellTreeItem)
            .rootTreeItem
-           .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-           .getInterface(Components.interfaces.nsIDOMWindow)
-           .QueryInterface(Components.interfaces.nsIDOMChromeWindow);
+           .QueryInterface(Ci.nsIInterfaceRequestor)
+           .getInterface(Ci.nsIDOMWindow)
+           .QueryInterface(Ci.nsIDOMChromeWindow);
   return chromeWin;
 }
 
@@ -73,8 +73,8 @@ function getWindows(type) {
       type = "";
   }
   var windows = []
-  var enumerator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator)
+  var enumerator = Cc["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Ci.nsIWindowMediator)
                      .getEnumerator(type);
   while(enumerator.hasMoreElements()) {
     windows.push(enumerator.getNext());
@@ -103,8 +103,8 @@ function getWindowByTitle(title) {
 }
 
 function getWindowByType(type) {
-  var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-           .getService(Components.interfaces.nsIWindowMediator);
+  var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+           .getService(Ci.nsIWindowMediator);
   return wm.getMostRecentWindow(type);
 }
 
@@ -127,11 +127,11 @@ function tempfile(appention) {
   if (appention == undefined) {
     var appention = "mozmill.utils.tempfile"
   }
-	var tempfile = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("TmpD", Components.interfaces.nsIFile);
+	var tempfile = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile);
 	tempfile.append(uuidgen.generateUUID().toString().replace('-', '').replace('{', '').replace('}',''))
-	tempfile.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o777);
+	tempfile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o777);
 	tempfile.append(appention);
-	tempfile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0o666);
+	tempfile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o666);
 	// do whatever you need to the created file
 	return tempfile.clone()
 }
@@ -147,8 +147,8 @@ var checkChrome = function() {
 }
 
 var runFile = function(w) {
-  var nsIFilePicker = Components.interfaces.nsIFilePicker;
-  var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  var nsIFilePicker = Ci.nsIFilePicker;
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
   fp.init(w, "Select a File", nsIFilePicker.modeOpen);
   fp.appendFilter("JavaScript Files","*.js");
   fp.open(rv => {
@@ -169,13 +169,13 @@ var runFile = function(w) {
 };
 
  var saveFile = function(w, content, filename){
-   var file = Components.classes["@mozilla.org/file/local;1"]
-                        .createInstance(Components.interfaces.nsIFile);
+   var file = Cc["@mozilla.org/file/local;1"]
+                .createInstance(Ci.nsIFile);
    file.initWithPath(filename);
 
    // file is nsIFile, data is a string
-   var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
-                            .createInstance(Components.interfaces.nsIFileOutputStream);
+   var foStream = Cc["@mozilla.org/network/file-output-stream;1"]
+                    .createInstance(Ci.nsIFileOutputStream);
 
    // use 0x02 | 0x10 to open file for appending.
    foStream.init(file, 0x02 | 0x08 | 0x20, 0o666, 0);
@@ -188,8 +188,8 @@ var runFile = function(w) {
  };
 
   var saveAsFile = function(w, content) {
-    var nsIFilePicker = Components.interfaces.nsIFilePicker;
-    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    var nsIFilePicker = Ci.nsIFilePicker;
+    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     fp.init(w, "Select a File", nsIFilePicker.modeSave);
     fp.appendFilter("JavaScript Files","*.js");
 
@@ -204,16 +204,16 @@ var runFile = function(w) {
         // forcing the user to save as a .js file
         if (thefile.path.indexOf(".js") == -1) {
           // define the file interface
-          var file = Components.classes["@mozilla.org/file/local;1"]
-                              .createInstance(Components.interfaces.nsIFile);
+          var file = Cc["@mozilla.org/file/local;1"]
+                              .createInstance(Ci.nsIFile);
           // point it at the file we want to get at
           file.initWithPath(thefile.path+".js");
           var thefile = file;
         }
 
         // file is nsIFile, data is a string
-        var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
-                               .createInstance(Components.interfaces.nsIFileOutputStream);
+        var foStream = Cc["@mozilla.org/network/file-output-stream;1"]
+                               .createInstance(Ci.nsIFileOutputStream);
 
         // use 0x02 | 0x10 to open file for appending.
         foStream.init(thefile, 0x02 | 0x08 | 0x20, 0o666, 0);
@@ -229,8 +229,8 @@ var runFile = function(w) {
 
   var openFile = function(w) {
     //define the interface
-    var nsIFilePicker = Components.interfaces.nsIFilePicker;
-    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    var nsIFilePicker = Ci.nsIFilePicker;
+    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     //define the file picker window
     fp.init(w, "Select a File", nsIFilePicker.modeOpen);
     fp.appendFilter("JavaScript Files","*.js");
@@ -251,16 +251,16 @@ var runFile = function(w) {
 
  var getFile = function(path){
    //define the file interface
-   var file = Components.classes["@mozilla.org/file/local;1"]
-                        .createInstance(Components.interfaces.nsIFile);
+   var file = Cc["@mozilla.org/file/local;1"]
+                .createInstance(Ci.nsIFile);
    //point it at the file we want to get at
    file.initWithPath(path);
    // define file stream interfaces
    var data = "";
-   var fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-                           .createInstance(Components.interfaces.nsIFileInputStream);
-   var sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
-                           .createInstance(Components.interfaces.nsIScriptableInputStream);
+   var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+                   .createInstance(Ci.nsIFileInputStream);
+   var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
+                   .createInstance(Ci.nsIScriptableInputStream);
    fstream.init(file, -1, 0, 0);
    sstream.init(fstream);
 
@@ -291,8 +291,8 @@ var runFile = function(w) {
  */
 function getPreference(aPrefName, aDefaultValue) {
   try {
-    var branch = Components.classes["@mozilla.org/preferences-service;1"].
-                 getService(Components.interfaces.nsIPrefBranch);
+    var branch = Cc["@mozilla.org/preferences-service;1"].
+                 getService(Ci.nsIPrefBranch);
     switch (typeof aDefaultValue) {
       case ('boolean'):
         return branch.getBoolPref(aPrefName);
@@ -321,8 +321,8 @@ function getPreference(aPrefName, aDefaultValue) {
  */
 function setPreference(aName, aValue) {
   try {
-    var branch = Components.classes["@mozilla.org/preferences-service;1"].
-                 getService(Components.interfaces.nsIPrefBranch);
+    var branch = Cc["@mozilla.org/preferences-service;1"].
+                 getService(Ci.nsIPrefBranch);
     switch (typeof aValue) {
       case ('boolean'):
         branch.setBoolPref(aName, aValue);
@@ -355,7 +355,7 @@ function sleep(milliseconds) {
   function wait() { timeup = true; }
   hwindow.setTimeout(wait, milliseconds);
 
-  var thread = Components.classes["@mozilla.org/thread-manager;1"].
+  var thread = Cc["@mozilla.org/thread-manager;1"].
                getService().currentThread;
   while(!timeup) {
     thread.processNextEvent(true);
@@ -430,7 +430,7 @@ function waitFor(callback, message, timeout, interval, thisObject) {
   }
 
   var timeoutInterval = hwindow.setInterval(wait, interval);
-  var thread = Components.classes["@mozilla.org/thread-manager;1"].
+  var thread = Cc["@mozilla.org/thread-manager;1"].
                getService().currentThread;
 
   while((self.result != true) && (self.counter < timeout))  {

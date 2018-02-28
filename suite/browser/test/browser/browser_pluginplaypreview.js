@@ -17,20 +17,20 @@ function registerPlayPreview(mimeType, targetUrl) {
 
   function StreamConverterFactory() {}
   StreamConverterFactory.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIFactory]),
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIFactory]),
     _targetConstructor: null,
 
     register: function register(targetConstructor) {
       this._targetConstructor = targetConstructor;
       var proto = targetConstructor.prototype;
-      var registrar = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+      var registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
       registrar.registerFactory(proto.classID, proto.classDescription,
                                 proto.contractID, this);
     },
 
     unregister: function unregister() {
       var proto = this._targetConstructor.prototype;
-      var registrar = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+      var registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
       registrar.unregisterFactory(proto.classID, this);
       this._targetConstructor = null;
     },
@@ -38,24 +38,24 @@ function registerPlayPreview(mimeType, targetUrl) {
     // nsIFactory
     createInstance: function createInstance(aOuter, iid) {
       if (aOuter !== null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
+        throw Cr.NS_ERROR_NO_AGGREGATION;
       return (new (this._targetConstructor)).QueryInterface(iid);
     },
 
     // nsIFactory
     lockFactory: function lockFactory(lock) {
       // No longer used as of gecko 1.7.
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     }
   };
 
   function OverlayStreamConverter() {}
   OverlayStreamConverter.prototype = {
     QueryInterface: XPCOMUtils.generateQI([
-        Components.interfaces.nsISupports,
-        Components.interfaces.nsIStreamConverter,
-        Components.interfaces.nsIStreamListener,
-        Components.interfaces.nsIRequestObserver
+        Ci.nsISupports,
+        Ci.nsIStreamConverter,
+        Ci.nsIStreamListener,
+        Ci.nsIRequestObserver
     ]),
 
     classID: Components.ID('{4c6030f7-e20a-264f-0f9b-ada3a9e97384}'),
@@ -64,7 +64,7 @@ function registerPlayPreview(mimeType, targetUrl) {
 
     // nsIStreamConverter::convert
     convert: function(aFromStream, aFromType, aToType, aCtxt) {
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     // nsIStreamConverter::asyncConvertData
@@ -72,13 +72,13 @@ function registerPlayPreview(mimeType, targetUrl) {
       var isValidRequest = false;
       try {
         var request = aCtxt;
-        request.QueryInterface(Components.interfaces.nsIChannel);
+        request.QueryInterface(Ci.nsIChannel);
         var spec = request.URI.spec;
         var expectedSpec = 'data:application/x-moz-playpreview;,' + mimeType;
         isValidRequest = (spec == expectedSpec);
       } catch (e) { }
       if (!isValidRequest)
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 
       // Store the listener passed to us
       this.listener = aListener;
@@ -94,17 +94,17 @@ function registerPlayPreview(mimeType, targetUrl) {
     onStartRequest: function(aRequest, aContext) {
 
       // Setup the request so we can use it below.
-      aRequest.QueryInterface(Components.interfaces.nsIChannel);
+      aRequest.QueryInterface(Ci.nsIChannel);
       // Cancel the request so the viewer can handle it.
-      aRequest.cancel(Components.results.NS_BINDING_ABORTED);
+      aRequest.cancel(Cr.NS_BINDING_ABORTED);
 
       // Create a new channel that is viewer loaded as a resource.
       var ioService = Services.io;
       var channel = ios.newChannel2(targetUrl, null, null, null,
                                     Services.scriptSecurityManager.getSystemPrincipal(),
                                     null,
-                                    Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                    Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                    Ci.nsIContentPolicy.TYPE_OTHER);
       channel.asyncOpen2(this.listener);
     },
 
@@ -114,7 +114,7 @@ function registerPlayPreview(mimeType, targetUrl) {
     }
   };
 
-  var ph = Components.classes["@mozilla.org/plugin/host;1"].getService(Components.interfaces.nsIPluginHost);
+  var ph = Cc["@mozilla.org/plugin/host;1"].getService(Ci.nsIPluginHost);
   ph.registerPlayPreviewMimeType(mimeType);
 
   var factory = new StreamConverterFactory();
@@ -199,8 +199,8 @@ function test1a() {
 
   var doc = gTestBrowser.contentDocument;
   var plugin = doc.getElementById("test");
-  var objLoadingContent = plugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
-  is(objLoadingContent.pluginFallbackType, Components.interfaces.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW, "Test 1a, plugin fallback type should be PLUGIN_PLAY_PREVIEW");
+  var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
+  is(objLoadingContent.pluginFallbackType, Ci.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW, "Test 1a, plugin fallback type should be PLUGIN_PLAY_PREVIEW");
   ok(!objLoadingContent.activated, "Test 1a, Plugin should not be activated");
 
   var overlay = doc.getAnonymousElementByAttribute(plugin, "class", "previewPluginContent");
@@ -225,7 +225,7 @@ function test1a() {
 // Tests that activating via MozPlayPlugin through the notification works (part 2/2)
 function test1b() {
   var plugin = gTestBrowser.contentDocument.getElementById("test");
-  var objLoadingContent = plugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
+  var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
   ok(objLoadingContent.activated, "Test 1b, Plugin should be activated");
 
   is(gPlayPreviewPluginActualEvents, gPlayPreviewPluginExpectedEvents,
@@ -239,7 +239,7 @@ function test1b() {
 // Tests a page with a working plugin in it -- the mime type was just unregistered.
 function test2() {
   var plugin = gTestBrowser.contentDocument.getElementById("test");
-  var objLoadingContent = plugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
+  var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
   ok(objLoadingContent.activated, "Test 2, Plugin should be activated");
 
   registerPlayPreview('application/x-unknown', 'about:');
@@ -250,7 +250,7 @@ function test2() {
 // Tests a page with a working plugin in it -- diffent play preview type is reserved.
 function test3() {
   var plugin = gTestBrowser.contentDocument.getElementById("test");
-  var objLoadingContent = plugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
+  var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
   ok(objLoadingContent.activated, "Test 3, Plugin should be activated");
 
   unregisterPlayPreview();
@@ -264,8 +264,8 @@ function test3() {
 function test4a() {
   var doc = gTestBrowser.contentDocument;
   var plugin = doc.getElementById("test");
-  var objLoadingContent = plugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
-  is(objLoadingContent.pluginFallbackType, Components.interfaces.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW, "Test 4a, plugin fallback type should be PLUGIN_PLAY_PREVIEW");
+  var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
+  is(objLoadingContent.pluginFallbackType, Ci.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW, "Test 4a, plugin fallback type should be PLUGIN_PLAY_PREVIEW");
   ok(!objLoadingContent.activated, "Test 4a, Plugin should not be activated");
 
   var overlay = doc.getAnonymousElementByAttribute(plugin, "class", "previewPluginContent");
@@ -274,15 +274,15 @@ function test4a() {
   var e = overlay.ownerDocument.createEvent("CustomEvent");
   e.initCustomEvent("MozPlayPlugin", true, true, true);
   overlay.dispatchEvent(e);
-  var condition = () => objLoadingContent.pluginFallbackType == Components.interfaces.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY;
+  var condition = () => objLoadingContent.pluginFallbackType == Ci.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY;
   waitForCondition(condition, test4b, "Test 4a, Waited too long for plugin to stop play preview");
 }
 
 function test4b() {
   var doc = gTestBrowser.contentDocument;
   var plugin = doc.getElementById("test");
-  var objLoadingContent = plugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
-  ok(objLoadingContent.pluginFallbackType != Components.interfaces.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW, "Test 4b, plugin fallback type should not be PLUGIN_PLAY_PREVIEW");
+  var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
+  ok(objLoadingContent.pluginFallbackType != Ci.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW, "Test 4b, plugin fallback type should not be PLUGIN_PLAY_PREVIEW");
   ok(!objLoadingContent.activated, "Test 4b, Plugin should not be activated");
 
   prepareTest(test5a, gTestRoot + "plugin_test.html", 1);
@@ -292,8 +292,8 @@ function test4b() {
 function test5a() {
   var doc = gTestBrowser.contentDocument;
   var plugin = doc.getElementById("test");
-  var objLoadingContent = plugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
-  is(objLoadingContent.pluginFallbackType, Components.interfaces.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW, "Test 5a, plugin fallback type should be PLUGIN_PLAY_PREVIEW");
+  var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
+  is(objLoadingContent.pluginFallbackType, Ci.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW, "Test 5a, plugin fallback type should be PLUGIN_PLAY_PREVIEW");
   ok(!objLoadingContent.activated, "Test 5a, Plugin should not be activated");
 
   var overlay = doc.getAnonymousElementByAttribute(plugin, "class", "previewPluginContent");
@@ -309,7 +309,7 @@ function test5a() {
 function test5b() {
   var doc = gTestBrowser.contentDocument;
   var plugin = doc.getElementById("test");
-  var objLoadingContent = plugin.QueryInterface(Components.interfaces.nsIObjectLoadingContent);
+  var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
   ok(objLoadingContent.activated, "Test 5b, Plugin should be activated");
 
   finishTest();

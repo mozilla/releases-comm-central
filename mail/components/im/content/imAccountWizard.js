@@ -394,7 +394,7 @@ var accountWizard = {
     let prefURL = PREF_EXTENSIONS_GETMOREPROTOCOLSURL;
     var getMore = document.getElementById("getMoreProtocols");
     var showGetMore = false;
-    const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
+    const nsIPrefBranch = Ci.nsIPrefBranch;
 
     if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch.PREF_INVALID) {
       try {
@@ -408,8 +408,8 @@ var accountWizard = {
   },
 
   openURL: function (aURL) {
-    Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-              .getService(Components.interfaces.nsIExternalProtocolService)
-              .loadURI(Services.io.newURI(aURL));
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(Services.io.newURI(aURL));
   }
 };

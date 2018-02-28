@@ -92,9 +92,9 @@
       <method name="copyDebugLog">
         <body>
         <![CDATA[
-          Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                    .getService(Components.interfaces.nsIClipboardHelper)
-                    .copyString(this.browser.contentDocument.body.textContent);
+          Cc["@mozilla.org/widget/clipboardhelper;1"]
+            .getService(Ci.nsIClipboardHelper)
+            .copyString(this.browser.contentDocument.body.textContent);
         ]]>
         </body>
       </method>

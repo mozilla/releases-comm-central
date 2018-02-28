@@ -55,12 +55,12 @@ function goCopyImage() {
   }
   // A mailbox/imap URL then... copy only data then since the HTML data is
   // not that useful for pasting when the image won't be resolved.
-  let param = Components.classes["@mozilla.org/embedcomp/command-params;1"]
-                        .createInstance(Components.interfaces.nsICommandParams);
+  let param = Cc["@mozilla.org/embedcomp/command-params;1"]
+                .createInstance(Ci.nsICommandParams);
   param.setLongValue("imageCopy",
-                     Components.interfaces.nsIContentViewerEdit.COPY_IMAGE_DATA);
+                     Ci.nsIContentViewerEdit.COPY_IMAGE_DATA);
   document.commandDispatcher.getControllerForCommand("cmd_copyImage")
-          .QueryInterface(Components.interfaces.nsICommandController)
+          .QueryInterface(Ci.nsICommandController)
           .doCommandWithParams("cmd_copyImage", param);
 }
 
@@ -193,7 +193,7 @@ function openUILink(url, event)
       uri: makeURI(url),
       visits:  [{
         visitDate: Date.now() * 1000,
-        transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+        transitionType: Ci.nsINavHistoryService.TRANSITION_LINK
       }]
     });
     messenger.launchExternalURL(url);

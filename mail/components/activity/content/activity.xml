@@ -68,8 +68,8 @@
       <method name="retry">
         <body>
           <![CDATA[
-            let activityManager = Components.classes["@mozilla.org/activity-manager;1"]
-                                            .getService(Components.interfaces.nsIActivityManager);
+            let activityManager = Cc["@mozilla.org/activity-manager;1"]
+                                    .getService(Ci.nsIActivityManager);
 
             let processes = activityManager
                                   .getProcessesByContext(this.contextType,
@@ -115,8 +115,8 @@
         ChromeUtils.import("resource:///modules/templateUtils.js", this);
         try {
           ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-          let activityManager = Components.classes["@mozilla.org/activity-manager;1"]
-                                          .getService(Components.interfaces.nsIActivityManager);
+          let activityManager = Cc["@mozilla.org/activity-manager;1"]
+                                  .getService(Ci.nsIActivityManager);
 
           // fetch the activity and set the base attributes
           let actID = this.getAttribute('actID');
@@ -161,7 +161,7 @@
         <getter>
         <![CDATA[
           return this._activity && (this._activity instanceof
-                                    Components.interfaces.nsIActivityProcess);
+                                    Ci.nsIActivityProcess);
         ]]>
         </getter>
       </property>
@@ -169,7 +169,7 @@
         <getter>
         <![CDATA[
           return this._activity && (this._activity instanceof
-                                    Components.interfaces.nsIActivityEvent);
+                                    Ci.nsIActivityEvent);
         ]]>
         </getter>
       </property>
@@ -177,7 +177,7 @@
         <getter>
         <![CDATA[
           return this._activity && (this._activity instanceof
-                                    Components.interfaces.nsIActivityWarning);
+                                    Ci.nsIActivityWarning);
         ]]>
         </getter>
       </property>
@@ -260,13 +260,13 @@
         // We need to make this casting here in order to access to nsIActivityProcess
         // interface of the component from the the binding.
         // We deliberately propogate the exceptions to the caller.
-        this._activity.QueryInterface(Components.interfaces.nsIActivityProcess);
+        this._activity.QueryInterface(Ci.nsIActivityProcess);
 
         try {
           this.displayText = this._activity.displayText;
           // make sure that binding reflects the latest state of the process
           this.onStateChanged(this._activity.state,
-                              Components.interfaces.nsIActivityProcess.STATE_NOTSTARTED);
+                              Ci.nsIActivityProcess.STATE_NOTSTARTED);
           this.onProgressChanged(this._activity,
                                  this._activity.lastStatusText,
                                  this._activity.workUnitComplete,
@@ -306,15 +306,15 @@
         <getter>
           <![CDATA[
            return (this._activity.state ==
-                   Components.interfaces.nsIActivityProcess.STATE_INPROGRESS);
+                   Ci.nsIActivityProcess.STATE_INPROGRESS);
           ]]>
         </getter>
       </property>
       <property name="isRemovable">
         <getter>
           <![CDATA[
-            return this._activity.state == Components.interfaces.nsIActivityProcess.STATE_COMPLETED ||
-                   this._activity.state == Components.interfaces.nsIActivityProcess.STATE_CANCELED
+            return this._activity.state == Ci.nsIActivityProcess.STATE_COMPLETED ||
+                   this._activity.state == Ci.nsIActivityProcess.STATE_CANCELED
           ]]>
         </getter>
       </property>
@@ -380,34 +380,34 @@
           let statusText = this.statusText;
 
           switch(this._activity.state) {
-            case Components.interfaces.nsIActivityProcess.STATE_INPROGRESS:
+            case Ci.nsIActivityProcess.STATE_INPROGRESS:
               hideCancelBut = !this.canCancel;
               hidePauseBut = !this.canPause;
                // status text is empty
                statusText = "";
               break;
-            case Components.interfaces.nsIActivityProcess.STATE_COMPLETED:
+            case Ci.nsIActivityProcess.STATE_COMPLETED:
               // all buttons and progress meter are hidden
               hideProgressMeter = true;
               // status text is empty
               statusText = "";
               break;
-            case Components.interfaces.nsIActivityProcess.STATE_CANCELED:
+            case Ci.nsIActivityProcess.STATE_CANCELED:
               // all buttons and progress meter are hidden
               hideProgressMeter = true;
               statusText = this.text.canceled;
               break;
-            case Components.interfaces.nsIActivityProcess.STATE_PAUSED:
+            case Ci.nsIActivityProcess.STATE_PAUSED:
               hideCancelBut = !this.canCancel;
               hideResumeBut = !this.canPause;
               statusText = this.text.paused;
               break;
-            case Components.interfaces.nsIActivityProcess.STATE_WAITINGFORINPUT:
+            case Ci.nsIActivityProcess.STATE_WAITINGFORINPUT:
               hideCancelBut = !this.canCancel;
               hideProgressMeter = true;
               statusText = this.text.waitingforinput;
               break;
-            case Components.interfaces.nsIActivityProcess.STATE_WAITINGFORRETRY:
+            case Ci.nsIActivityProcess.STATE_WAITINGFORRETRY:
               hideCancelBut = !this.canCancel;
               hideRetryBut = !this.canRetry;
               hideProgressMeter = true;
@@ -471,7 +471,7 @@
             let hidePauseBut = !this.canPause;
             let hideRetryBut = !this.canRetry;
             let hideResumeBut = !this.canPause ||
-                this._activity.state == Components.interfaces.nsIActivityProcess.STATE_PAUSED;
+                this._activity.state == Ci.nsIActivityProcess.STATE_PAUSED;
 
             this.setVisibility("button_cancel", !hideCancelBut);
             this.setVisibility("button_retry", !hideRetryBut);
@@ -490,7 +490,7 @@
         <getter>
         <![CDATA[
           return parseInt(this.getAttribute("state")) ==
-            Components.interfaces.nsIActivityProcess.STATE_PAUSED;
+            Ci.nsIActivityProcess.STATE_PAUSED;
         ]]>
         </getter>
       </property>
@@ -498,7 +498,7 @@
         <getter>
         <![CDATA[
           return parseInt(this.getAttribute("state")) ==
-            Components.interfaces.nsIActivityProcess.STATE_WAITINGFORINPUT;
+            Ci.nsIActivityProcess.STATE_WAITINGFORINPUT;
         ]]>
         </getter>
       </property>
@@ -506,7 +506,7 @@
         <getter>
         <![CDATA[
           return parseInt(this.getAttribute("state")) ==
-            Components.interfaces.nsIActivityProcess.STATE_WAITINGFORRETRY;
+            Ci.nsIActivityProcess.STATE_WAITINGFORRETRY;
         ]]>
         </getter>
       </property>
@@ -562,7 +562,7 @@
         // We need to make this casting here in order to access
         // to nsIActivityEvent interface of the component from the the binding.
         // We deliberately propogate the exceptions to the caller.
-        this._activity.QueryInterface(Components.interfaces.nsIActivityEvent);
+        this._activity.QueryInterface(Ci.nsIActivityEvent);
 
         try {
           this.displayText = this._activity.displayText;
@@ -673,7 +673,7 @@
         // We need to make this casting here in order to access to
         // nsIActivityWarning interface of the component from the the binding.
         // We deliberately propogate the exceptions to the caller.
-        this._activity.QueryInterface(Components.interfaces.nsIActivityWarning);
+        this._activity.QueryInterface(Ci.nsIActivityWarning);
 
         try {
           this.displayText = this._activity.displayText;

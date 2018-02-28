@@ -18,8 +18,8 @@ var preferencesTabType = {
   lastBrowserId: 0,
   bundle: Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"),
-  protoSvc: Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                      .getService(Components.interfaces.nsIExternalProtocolService),
+  protoSvc: Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+              .getService(Ci.nsIExternalProtocolService),
 
   get loadingTabString() {
     delete this.loadingTabString;

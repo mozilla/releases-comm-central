@@ -15,7 +15,7 @@ mailContentHandler.prototype = {
   _xpcom_factory: {
     createInstance: function mch_factory_ci(outer, iid) {
       if (outer)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
+        throw Cr.NS_ERROR_NO_AGGREGATION;
       return gMailContentHandler.QueryInterface(iid);
     }
   },
@@ -58,7 +58,7 @@ mailContentHandler.prototype = {
   // nsIFactory
   createInstance: function mch_CI(outer, iid) {
     if (outer != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
+      throw Cr.NS_ERROR_NO_AGGREGATION;
 
     return this.QueryInterface(iid);
   },

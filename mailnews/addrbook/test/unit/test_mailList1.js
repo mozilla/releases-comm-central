@@ -16,7 +16,7 @@ function checkLists(childNodes, number) {
   // See comment above for matching requirements
   while (childNodes.hasMoreElements()) {
     var list = childNodes.getNext();
-    if (list instanceof Components.interfaces.nsIAbDirectory &&
+    if (list instanceof Ci.nsIAbDirectory &&
         list.isMailList && list.dirName.startsWith('TestList')) {
       var index = list.dirName.substr(8, list.dirName.length - 8);
       Assert.equal(mailListArray[index - 1], null);
@@ -52,8 +52,8 @@ function run_test() {
 
   // Test - Add a new list.
 
-  var mailList = Components.classes["@mozilla.org/addressbook/directoryproperty;1"]
-                           .createInstance(Components.interfaces.nsIAbDirectory);
+  var mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"]
+                   .createInstance(Ci.nsIAbDirectory);
 
   mailList.isMailList = true;
   mailList.dirName = "TestList4";

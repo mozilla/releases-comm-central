@@ -142,12 +142,12 @@ var editContactInlineUI = {
       let mailingLists = this._cardDetails.book.childNodes;
       while (mailingLists.hasMoreElements() && !inMailList) {
         let list = mailingLists.getNext();
-        if (!(list instanceof Components.interfaces.nsIAbDirectory) ||
+        if (!(list instanceof Ci.nsIAbDirectory) ||
             !list.isMailList)
           continue;
 
         for (let card of fixIterator(list.addressLists)) {
-          if (card instanceof Components.interfaces.nsIAbCard &&
+          if (card instanceof Ci.nsIAbCard &&
               card.primaryEmail == this._cardDetails.card.primaryEmail) {
             inMailList = true;
             break;
@@ -190,8 +190,8 @@ var editContactInlineUI = {
                                  bundle.getString("deleteContactMessage")))
       return;  /* XXX would be nice to bring the popup back up here */
 
-    let cardArray = Components.classes["@mozilla.org/array;1"]
-                              .createInstance(Components.interfaces.nsIMutableArray);
+    let cardArray = Cc["@mozilla.org/array;1"]
+                      .createInstance(Ci.nsIMutableArray);
     cardArray.appendElement(this._cardDetails.card);
 
     MailServices.ab.getDirectory(this._cardDetails.book.URI).deleteCards(cardArray);
@@ -230,8 +230,8 @@ var editContactInlineUI = {
       this._cardDetails.book.addCard(this._cardDetails.card);
 
       // ...and delete it from the old place.
-      let cardArray = Components.classes["@mozilla.org/array;1"]
-                              .createInstance(Components.interfaces.nsIMutableArray);
+      let cardArray = Cc["@mozilla.org/array;1"]
+                              .createInstance(Ci.nsIMutableArray);
       cardArray.appendElement(this._cardDetails.card);
       originalBook.deleteCards(cardArray);
     }

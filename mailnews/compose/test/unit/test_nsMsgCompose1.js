@@ -7,9 +7,9 @@
 var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
 var MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
 var MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
-var nsIMsgCompose = Components.interfaces.nsIMsgCompose;
-var nsIMsgComposeParams = Components.interfaces.nsIMsgComposeParams;
-var nsIMsgCompFields = Components.interfaces.nsIMsgCompFields;
+var nsIMsgCompose = Ci.nsIMsgCompose;
+var nsIMsgComposeParams = Ci.nsIMsgComposeParams;
+var nsIMsgCompFields = Ci.nsIMsgCompFields;
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -20,18 +20,18 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
  */
 function checkPopulate(aTo, aCheckTo)
 {
-  var msgCompose = Components.classes[MsgComposeContractID]
-                             .createInstance(nsIMsgCompose);
+  var msgCompose = Cc[MsgComposeContractID]
+                     .createInstance(nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  var fields = Components.classes[MsgComposeFieldsContractID]
-                         .createInstance(nsIMsgCompFields);
+  var fields = Cc[MsgComposeFieldsContractID]
+                 .createInstance(nsIMsgCompFields);
 
   fields.to = aTo;
 
   // Set up some params
-  var params = Components.classes[MsgComposeParamsContractID]
-                         .createInstance(nsIMsgComposeParams);
+  var params = Cc[MsgComposeParamsContractID]
+                 .createInstance(nsIMsgComposeParams);
 
   params.composeFields = fields;
 
@@ -62,24 +62,24 @@ function run_test() {
   // Test - Check we can initalize with fewest specified
   // parameters and don't fail/crash like we did in bug 411646.
 
-  var msgCompose = Components.classes[MsgComposeContractID]
-                             .createInstance(nsIMsgCompose);
+  var msgCompose = Cc[MsgComposeContractID]
+                     .createInstance(nsIMsgCompose);
 
   // Set up some params
-  var params = Components.classes[MsgComposeParamsContractID]
-                         .createInstance(nsIMsgComposeParams);
+  var params = Cc[MsgComposeParamsContractID]
+                 .createInstance(nsIMsgComposeParams);
 
   msgCompose.initialize(params);
 
   // Test - expandMailingLists basic functionality.
 
   // Re-initialize
-  msgCompose = Components.classes[MsgComposeContractID]
-                         .createInstance(nsIMsgCompose);
+  msgCompose = Cc[MsgComposeContractID]
+                 .createInstance(nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  var fields = Components.classes[MsgComposeFieldsContractID]
-                         .createInstance(nsIMsgCompFields);
+  var fields = Cc[MsgComposeFieldsContractID]
+                 .createInstance(nsIMsgCompFields);
 
   // These aren't in the address book copied above.
   fields.from = "test1@foo1.invalid";
@@ -88,8 +88,8 @@ function run_test() {
   fields.bcc = "test4@foo1.invalid";
 
   // Set up some params
-  params = Components.classes[MsgComposeParamsContractID]
-                     .createInstance(nsIMsgComposeParams);
+  params = Cc[MsgComposeParamsContractID]
+             .createInstance(nsIMsgComposeParams);
 
   params.composeFields = fields;
 

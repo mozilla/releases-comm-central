@@ -99,7 +99,7 @@ function onCheckItem(aChangeElementId, aCheckElementIds)
     else if ("selected" in notifyElement)
       notifyElementState = notifyElement.selected;
     else
-      Components.utils.reportError("Unknown type of control element: " + notifyElement.id);
+      Cu.reportError("Unknown type of control element: " + notifyElement.id);
 
     if (!notifyElementState) {
       disabled = true;

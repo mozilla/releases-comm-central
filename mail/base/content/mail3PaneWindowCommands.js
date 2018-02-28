@@ -531,7 +531,7 @@ var DefaultController =
         let folders = gFolderTreeView.getSelectedFolders();
         let canCompact = function canCompact(folder) {
           return !folder.isServer &&
-            !(folder.flags & Components.interfaces.nsMsgFolderFlags.Virtual) &&
+            !(folder.flags & Ci.nsMsgFolderFlags.Virtual) &&
             (folder.server.type != "imap" || folder.server.canCompactFoldersOnServer) &&
             folder.isCommandEnabled("button_compact");
         }
@@ -682,7 +682,7 @@ var DefaultController =
         break;
       case "cmd_cancel":
         let message = gFolderDisplay.selectedMessage;
-        message.folder.QueryInterface(Components.interfaces.nsIMsgNewsFolder)
+        message.folder.QueryInterface(Ci.nsIMsgNewsFolder)
                       .cancelMessage(message, msgWindow);
         break;
       case "button_shiftDelete":
@@ -1190,8 +1190,8 @@ function IsSendUnsentMsgsEnabled(unsentMsgsFolder)
     return false;
 
   var msgSendlater =
-    Components.classes["@mozilla.org/messengercompose/sendlater;1"]
-              .getService(Components.interfaces.nsIMsgSendLater);
+    Cc["@mozilla.org/messengercompose/sendlater;1"]
+      .getService(Ci.nsIMsgSendLater);
 
   // If we're currently sending unsent msgs, disable this cmd.
   if (msgSendlater.sendingMessages)
@@ -1227,7 +1227,7 @@ function IsSubscribeEnabled()
   // it will properly show those.
   let servers = MailServices.accounts.allServers;
   for (let server of fixIterator(servers,
-                                 Components.interfaces.nsIMsgIncomingServer)) {
+                                 Ci.nsIMsgIncomingServer)) {
     if (server.type == "imap" || server.type == "nntp")
       return true;
   }
@@ -1375,7 +1375,7 @@ function CanRenameDeleteJunkMail(aFolderUri)
 
     for (var i = 0; i < allServers.length; i++)
     {
-      var currentServer = allServers.queryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
+      var currentServer = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       var settings = currentServer.spamSettings;
       // If junk mail control or move junk mail to folder option is disabled then
       // allow the folder to be removed/renamed since the folder is not used in this case.

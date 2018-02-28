@@ -9,11 +9,11 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 var gProfileBundle;
 var gBrandBundle;
 var gProfileService;
-var gPromptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                               .getService(Components.interfaces.nsIPromptService);
+var gPromptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                       .getService(Ci.nsIPromptService);
 var gProfileManagerMode = "selection";
 var gDialogParams = window.arguments[0]
-                          .QueryInterface(Components.interfaces.nsIDialogParamBlock);
+                          .QueryInterface(Ci.nsIDialogParamBlock);
 
 function StartUp()
 {
@@ -30,8 +30,8 @@ function StartUp()
     gDialogParams.SetInt(0, 0);
   }
 
-  gProfileService = Components.classes["@mozilla.org/toolkit/profile-service;1"]
-                              .getService(Components.interfaces.nsIToolkitProfileService);
+  gProfileService = Cc["@mozilla.org/toolkit/profile-service;1"]
+                      .getService(Ci.nsIToolkitProfileService);
   var profileEnum = gProfileService.profiles;
   var selectedProfile = null;
   try {
@@ -40,7 +40,7 @@ function StartUp()
   catch (ex) {
   }
   while (profileEnum.hasMoreElements()) {
-    AddItem(profileEnum.getNext().QueryInterface(Components.interfaces.nsIToolkitProfile),
+    AddItem(profileEnum.getNext().QueryInterface(Ci.nsIToolkitProfile),
             selectedProfile);
   }
 
@@ -92,10 +92,10 @@ function AcceptDialog()
   var selected = profileTree.view.getItemAtIndex(profileTree.currentIndex);
 
   if (!gDialogParams.objects) {
-    var dirServ = Components.classes['@mozilla.org/file/directory_service;1']
-                            .getService(Components.interfaces.nsIProperties);
-    var profD = dirServ.get("ProfD", Components.interfaces.nsIFile);
-    var profLD = dirServ.get("ProfLD", Components.interfaces.nsIFile);
+    var dirServ = Cc['@mozilla.org/file/directory_service;1']
+                    .getService(Ci.nsIProperties);
+    var profD = dirServ.get("ProfD", Ci.nsIFile);
+    var profLD = dirServ.get("ProfLD", Ci.nsIFile);
 
     if (selected.profile.rootDir.equals(profD) &&
         selected.profile.localDir.equals(profLD))
@@ -125,22 +125,22 @@ function AcceptDialog()
 
   // Although switching profile works by performing a restart internally,
   // the user is quitting the old profile, so make it look like a quit.
-  var cancelQuit = Components.classes["@mozilla.org/supports-PRBool;1"]
-                             .createInstance(Components.interfaces.nsISupportsPRBool);
-  Components.classes["@mozilla.org/observer-service;1"]
-            .getService(Components.interfaces.nsIObserverService)
-            .notifyObservers(cancelQuit, "quit-application-requested");
+  var cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
+                     .createInstance(Ci.nsISupportsPRBool);
+  Cc["@mozilla.org/observer-service;1"]
+    .getService(Ci.nsIObserverService)
+    .notifyObservers(cancelQuit, "quit-application-requested");
   if (cancelQuit.data)
     return false;
 
   try {
-    var env = Components.classes["@mozilla.org/process/environment;1"]
-                        .getService(Components.interfaces.nsIEnvironment);
+    var env = Cc["@mozilla.org/process/environment;1"]
+                .getService(Ci.nsIEnvironment);
     env.set("XRE_PROFILE_NAME", selected.profile.name);
     env.set("XRE_PROFILE_PATH", selected.profile.rootDir.path);
     env.set("XRE_PROFILE_LOCAL_PATH", selected.profile.localDir.path);
-    var app = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                        .getService(Components.interfaces.nsIAppStartup);
+    var app = Cc["@mozilla.org/toolkit/app-startup;1"]
+                .getService(Ci.nsIAppStartup);
     app.quit(app.eAttemptQuit | app.eRestart);
     return true;
   }

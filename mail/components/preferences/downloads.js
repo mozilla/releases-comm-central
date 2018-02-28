@@ -6,14 +6,14 @@
 var gDownloadDirSection = {
   chooseFolder: function ()
   {
-    const nsIFilePicker = Components.interfaces.nsIFilePicker;
-    var fp = Components.classes["@mozilla.org/filepicker;1"]
-                       .createInstance(nsIFilePicker);
+    const nsIFilePicker = Ci.nsIFilePicker;
+    var fp = Cc["@mozilla.org/filepicker;1"]
+               .createInstance(nsIFilePicker);
     var bundlePreferences = document.getElementById("bundlePreferences");
     var title = bundlePreferences.getString("chooseAttachmentsFolderTitle");
     fp.init(window, title, nsIFilePicker.modeGetFolder);
 
-    const nsIFile = Components.interfaces.nsIFile;
+    const nsIFile = Ci.nsIFile;
     var customDirPref = document.getElementById("browser.download.dir");
     if (customDirPref.value)
       fp.displayDirectory = customDirPref.value;
@@ -82,7 +82,7 @@ var gDownloadDirSection = {
   _getDownloadsFolder: function (aFolder)
   {
     let dir = Services.dirsvc.get(this._getSpecialFolderKey(aFolder),
-                                  Components.interfaces.nsIFile);
+                                  Ci.nsIFile);
     if (aFolder != "Desktop")
       dir.append("My Downloads");
 
@@ -107,7 +107,7 @@ var gDownloadDirSection = {
     var currentDirPref = document.getElementById("browser.download.downloadDir");
     var downloadDir = currentDirPref.value || this._indexToFile(folderListPref.value);
     let urlSpec = Services.io.getProtocolHandler("file")
-      .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+      .QueryInterface(Ci.nsIFileProtocolHandler)
       .getURLSpecFromFile(downloadDir);
 
     downloadFolder.image = "moz-icon://" + urlSpec + "?size=16";

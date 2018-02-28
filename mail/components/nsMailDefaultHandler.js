@@ -8,21 +8,21 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
 
-var nsISupports              = Components.interfaces.nsISupports;
+var nsISupports              = Ci.nsISupports;
 
-var nsICommandLine           = Components.interfaces.nsICommandLine;
-var nsICommandLineHandler    = Components.interfaces.nsICommandLineHandler;
-var nsICommandLineValidator  = Components.interfaces.nsICommandLineValidator;
-var nsIDOMWindow             = Components.interfaces.nsIDOMWindow;
-var nsIFactory               = Components.interfaces.nsIFactory;
-var nsIFileURL               = Components.interfaces.nsIFileURL;
-var nsINetUtil               = Components.interfaces.nsINetUtil;
-var nsISupportsString        = Components.interfaces.nsISupportsString;
-var nsIURILoader             = Components.interfaces.nsIURILoader;
+var nsICommandLine           = Ci.nsICommandLine;
+var nsICommandLineHandler    = Ci.nsICommandLineHandler;
+var nsICommandLineValidator  = Ci.nsICommandLineValidator;
+var nsIDOMWindow             = Ci.nsIDOMWindow;
+var nsIFactory               = Ci.nsIFactory;
+var nsIFileURL               = Ci.nsIFileURL;
+var nsINetUtil               = Ci.nsINetUtil;
+var nsISupportsString        = Ci.nsISupportsString;
+var nsIURILoader             = Ci.nsIURILoader;
 
-var NS_ERROR_ABORT = Components.results.NS_ERROR_ABORT;
+var NS_ERROR_ABORT = Cr.NS_ERROR_ABORT;
 
-var URI_INHERITS_SECURITY_CONTEXT = Components.interfaces.nsIProtocolHandler
+var URI_INHERITS_SECURITY_CONTEXT = Ci.nsIProtocolHandler
                                         .URI_INHERITS_SECURITY_CONTEXT;
 
 function resolveURIInternal(aCmdLine, aArgument) {
@@ -37,7 +37,7 @@ function resolveURIInternal(aCmdLine, aArgument) {
       return uri;
   }
   catch (e) {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   }
 
   // We have interpreted the argument as a relative file URI, but the file
@@ -47,7 +47,7 @@ function resolveURIInternal(aCmdLine, aArgument) {
     uri = Services.uriFixup.createFixupURI(aArgument, 0);
   }
   catch (e) {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   }
 
   return uri;
@@ -68,13 +68,13 @@ function handleIndexerResult(aFile) {
   if (msgHdr)
     MailUtils.displayMessage(msgHdr);
   else
-    throw Components.results.NS_ERROR_FAILURE;
+    throw Cr.NS_ERROR_FAILURE;
 }
 
 function mayOpenURI(uri)
 {
-  var ext = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-    .getService(Components.interfaces.nsIExternalProtocolService);
+  var ext = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+    .getService(Ci.nsIExternalProtocolService);
 
   return ext.isExposedProtocol(uri.scheme);
 }
@@ -82,22 +82,22 @@ function mayOpenURI(uri)
 function openURI(uri)
 {
   if (!mayOpenURI(uri))
-    throw Components.results.NS_ERROR_FAILURE;
+    throw Cr.NS_ERROR_FAILURE;
 
   var channel = Services.io.newChannelFromURI2(uri,
                                                null,
                                                Services.scriptSecurityManager.getSystemPrincipal(),
                                                null,
-                                               Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                               Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-  var loader = Components.classes["@mozilla.org/uriloader;1"]
-                         .getService(Components.interfaces.nsIURILoader);
+                                               Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                               Ci.nsIContentPolicy.TYPE_OTHER);
+  var loader = Cc["@mozilla.org/uriloader;1"]
+                 .getService(Ci.nsIURILoader);
 
   // We cannot load a URI on startup asynchronously without protecting
   // the startup
 
-  var loadgroup = Components.classes["@mozilla.org/network/load-group;1"]
-                            .createInstance(Components.interfaces.nsILoadGroup);
+  var loadgroup = Cc["@mozilla.org/network/load-group;1"]
+                    .createInstance(Ci.nsILoadGroup);
 
   var loadlistener = {
     onStartRequest: function ll_start(aRequest, aContext) {
@@ -108,8 +108,8 @@ function openURI(uri)
       Services.startup.exitLastWindowClosingSurvivalArea();
     },
 
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIRequestObserver,
-                                           Components.interfaces.nsISupportsWeakReference])
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIRequestObserver,
+                                           Ci.nsISupportsWeakReference])
   };
 
   loadgroup.groupObserver = loadlistener;
@@ -117,8 +117,8 @@ function openURI(uri)
   var listener = {
     onStartURIOpen: function(uri) { return false; },
     doContent: function(ctype, preferred, request, handler) {
-      var newHandler = Components.classes["@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"]
-                                 .createInstance(Components.interfaces.nsIContentHandler);
+      var newHandler = Cc["@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"]
+                         .createInstance(Ci.nsIContentHandler);
       newHandler.handleContent("application/x-message-display", this, request);
       return true;
     },
@@ -131,13 +131,13 @@ function openURI(uri)
     loadCookie: null,
     parentContentListener: null,
     getInterface: function(iid) {
-      if (iid.equals(Components.interfaces.nsIURIContentListener))
+      if (iid.equals(Ci.nsIURIContentListener))
         return this;
 
-      if (iid.equals(Components.interfaces.nsILoadGroup))
+      if (iid.equals(Ci.nsILoadGroup))
         return loadgroup;
 
-      throw Components.results.NS_ERROR_NO_INTERFACE;
+      throw Cr.NS_ERROR_NO_INTERFACE;
     }
   };
   loader.openURI(channel, true, listener);
@@ -188,16 +188,16 @@ var nsMailDefaultHandler = {
             else {
               // Bug 277798 - we have to pass an argument to openWindow(), or
               // else it won't honor the dialog=no instruction.
-              var argstring = Components.classes["@mozilla.org/supports-string;1"]
-                                        .createInstance(nsISupportsString);
+              var argstring = Cc["@mozilla.org/supports-string;1"]
+                                .createInstance(nsISupportsString);
               Services.ww.openWindow(null, "chrome://messenger/content/", "_blank",
                                      "chrome,dialog=no,all", argstring);
             }
             break;
 
           case "composemessage":
-            var argstring = Components.classes["@mozilla.org/supports-string;1"]
-                                      .createInstance(nsISupportsString);
+            var argstring = Cc["@mozilla.org/supports-string;1"]
+                              .createInstance(nsISupportsString);
             remoteParams.shift();
             argstring.data = remoteParams.join(",");
             Services.ww.openWindow(null, "chrome://messenger/content/messengercompose/messengercompose.xul",
@@ -205,14 +205,14 @@ var nsMailDefaultHandler = {
             break;
 
           default:
-            throw Components.results.NS_ERROR_ABORT;
+            throw Cr.NS_ERROR_ABORT;
           }
           break;
 
         default:
           // Somebody sent us a remote command we don't know how to process:
           // just abort.
-          throw Components.results.NS_ERROR_ABORT;
+          throw Cr.NS_ERROR_ABORT;
         }
 
         cmdLine.preventDefault = true;
@@ -222,7 +222,7 @@ var nsMailDefaultHandler = {
         // NS_ERROR_ABORT so that the xremote code knows to return a failure
         // back to the handling code.
         dump(e);
-        throw Components.results.NS_ERROR_ABORT;
+        throw Cr.NS_ERROR_ABORT;
       }
     }
 
@@ -230,11 +230,11 @@ var nsMailDefaultHandler = {
     if (chromeParam) {
       try {
         var features = "chrome,dialog=no,all";
-        var argstring = Components.classes["@mozilla.org/supports-string;1"]
-                                  .createInstance(nsISupportsString);
+        var argstring = Cc["@mozilla.org/supports-string;1"]
+                          .createInstance(nsISupportsString);
         var uri = resolveURIInternal(cmdLine, chromeParam);
-        var netutil = Components.classes["@mozilla.org/network/util;1"]
-                                .getService(nsINetUtil);
+        var netutil = Cc["@mozilla.org/network/util;1"]
+                        .getService(nsINetUtil);
         // only load URIs which do not inherit chrome privs
         if (!netutil.URIChainHasFlags(uri, URI_INHERITS_SECURITY_CONTEXT)) {
           Services.ww.openWindow(null, uri.spec, "_blank",
@@ -319,9 +319,9 @@ var nsMailDefaultHandler = {
     if (uri) {
       if (uri.toLowerCase().startsWith("feed:")) {
         try {
-          Components.classes["@mozilla.org/newsblog-feed-downloader;1"]
-                    .getService(Components.interfaces.nsINewsBlogFeedDownloader)
-                    .subscribeToFeed(uri, null, null);
+          Cc["@mozilla.org/newsblog-feed-downloader;1"]
+            .getService(Ci.nsINewsBlogFeedDownloader)
+            .subscribeToFeed(uri, null, null);
         }
         catch (e) {
           // If feed handling is not installed, do nothing
@@ -338,7 +338,7 @@ var nsMailDefaultHandler = {
         if (file.exists() && file.fileSize > 0) {
           // Get the URL for this file
           let fileURL = Services.io.newFileURI(file)
-                                .QueryInterface(Components.interfaces.nsIFileURL);
+                                .QueryInterface(Ci.nsIFileURL);
           fileURL.query = "?type=application/x-message-display";
 
           Services.ww.openWindow(null,
@@ -388,16 +388,16 @@ var nsMailDefaultHandler = {
       }
       else {
         // This must be a regular filename. Use it to create a new message with attachment.
-        let msgParams = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
-                                  .createInstance(Components.interfaces.nsIMsgComposeParams);
-        let composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                                      .createInstance(Components.interfaces.nsIMsgCompFields);
-        let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                                   .createInstance(Components.interfaces.nsIMsgAttachment);
-        let localFile = Components.classes["@mozilla.org/file/local;1"]
-                                  .createInstance(Components.interfaces.nsIFile);
+        let msgParams = Cc["@mozilla.org/messengercompose/composeparams;1"]
+                          .createInstance(Ci.nsIMsgComposeParams);
+        let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                              .createInstance(Ci.nsIMsgCompFields);
+        let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
+                           .createInstance(Ci.nsIMsgAttachment);
+        let localFile = Cc["@mozilla.org/file/local;1"]
+                          .createInstance(Ci.nsIFile);
         let fileHandler = Services.io.getProtocolHandler("file")
-                                     .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+                                     .QueryInterface(Ci.nsIFileProtocolHandler);
 
         try {
           // Unescape the URI so that we work with clients that escape spaces.
@@ -405,8 +405,8 @@ var nsMailDefaultHandler = {
           attachment.url = fileHandler.getURLSpecFromFile(localFile);
           composeFields.addAttachment(attachment);
 
-          msgParams.type = Components.interfaces.nsIMsgCompType.New;
-          msgParams.format = Components.interfaces.nsIMsgCompFormat.Default;
+          msgParams.type = Ci.nsIMsgCompType.New;
+          msgParams.format = Ci.nsIMsgCompFormat.Default;
           msgParams.composeFields = composeFields;
 
           MailServices.compose.OpenComposeWindowWithParams(null, msgParams);
@@ -415,8 +415,8 @@ var nsMailDefaultHandler = {
         }
       }
     } else {
-      var argstring = Components.classes["@mozilla.org/supports-string;1"]
-                                .createInstance(nsISupportsString);
+      var argstring = Cc["@mozilla.org/supports-string;1"]
+                        .createInstance(nsISupportsString);
 
       Services.ww.openWindow(null, "chrome://messenger/content/", "_blank",
                              "chrome,dialog=no,all", argstring);
@@ -459,7 +459,7 @@ var nsMailDefaultHandler = {
 
   createInstance : function mdh_CI(outer, iid) {
     if (outer != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
+      throw Cr.NS_ERROR_NO_AGGREGATION;
 
     return this.QueryInterface(iid);
   },
@@ -476,7 +476,7 @@ mailDefaultCommandLineHandler.prototype = {
   classID: Components.ID("{44346520-c5d2-44e5-a1ec-034e04d7fac4}"),
   contractID: "@mozilla.org/mail/clh;1",
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIModule]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIModule]),
 
   _xpcom_factory: nsMailDefaultHandler
 }

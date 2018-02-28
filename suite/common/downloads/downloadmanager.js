@@ -5,9 +5,9 @@
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Downloads.jsm");
 
-const nsIDownloadManager = Components.interfaces.nsIDownloadManager;
+const nsIDownloadManager = Ci.nsIDownloadManager;
 const nsLocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                           Components.interfaces.nsIFile,
+                                           Ci.nsIFile,
                                            "initWithPath");
 
 var gDownloadTree;
@@ -159,8 +159,8 @@ function openDownload(aDownload)
     // On Windows 7 and above, we rely on native security prompting for
     // downloaded content unless it's disabled.
     try {
-      var sysInfo = Components.classes["@mozilla.org/system-info;1"]
-                              .getService(Components.interfaces.nsIPropertyBag2);
+      var sysInfo = Cc["@mozilla.org/system-info;1"]
+                      .getService(Ci.nsIPropertyBag2);
       if (/^Windows/.test(sysInfo.getProperty("name")) &&
           Services.prefs.getBoolPref("browser.download.manager.scanWhenDone"))
         alertOnEXEOpen = false;
@@ -194,8 +194,8 @@ function openDownload(aDownload)
     // If launch fails, try sending it through the system's external
     // file: URL handler
     var uri = Services.io.newFileURI(file);
-    var protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                                .getService(Components.interfaces.nsIExternalProtocolService);
+    var protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                        .getService(Ci.nsIExternalProtocolService);
     protocolSvc.loadURI(uri);
   }
 }
@@ -210,7 +210,7 @@ function showDownload(aDownload)
   } catch (e) {
     // If reveal fails for some reason (e.g., it's not implemented on unix or
     // the file doesn't exist), try using the parent if we have it.
-    var parent = file.parent.QueryInterface(Components.interfaces.nsIFile);
+    var parent = file.parent.QueryInterface(Ci.nsIFile);
 
     try {
       // "Double click" the parent directory to show where the file should be
@@ -219,8 +219,8 @@ function showDownload(aDownload)
       // If launch also fails (probably because it's not implemented), let the
       // OS handler try to open the parent
       var uri = Services.io.newFileURI(parent);
-      var protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                                  .getService(Components.interfaces.nsIExternalProtocolService);
+      var protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                          .getService(Ci.nsIExternalProtocolService);
       protocolSvc.loadURI(uri);
     }
   }
@@ -354,8 +354,8 @@ function onUpdateProgress()
 }
 
 function handlePaste() {
-  let trans = Components.classes["@mozilla.org/widget/transferable;1"]
-                        .createInstance(Components.interfaces.nsITransferable);
+  let trans = Cc["@mozilla.org/widget/transferable;1"]
+                .createInstance(Ci.nsITransferable);
   trans.init(null);
 
   let flavors = ["text/x-moz-url", "text/unicode"];
@@ -367,7 +367,7 @@ function handlePaste() {
   try {
     let data = {};
     trans.getAnyTransferData({}, data, {});
-    let [url, name] = data.value.QueryInterface(Components.interfaces
+    let [url, name] = data.value.QueryInterface(Ci
                                 .nsISupportsString).data.split("\n");
 
     if (!url)
@@ -559,8 +559,8 @@ var dlTreeController = {
         openUILink(selItemData[0].referrer);
         break;
       case "cmd_copyLocation":
-        var clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                  .getService(Components.interfaces.nsIClipboardHelper);
+        var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
+                          .getService(Ci.nsIClipboardHelper);
         var uris = [];
         for (let dldata of selItemData)
           uris.push(dldata.source.url);
@@ -674,5 +674,5 @@ function disallowDrop(aEvent)
   var dt = aEvent.dataTransfer;
   var file = dt.mozGetDataAt("application/x-moz-file", 0);
   // If this is a local file, Don't try to download it again.
-  return file && file instanceof Components.interfaces.nsIFile;
+  return file && file instanceof Ci.nsIFile;
 }

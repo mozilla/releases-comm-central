@@ -226,11 +226,11 @@ var authorFirstLetterCustomColumn = {
 var gDBView;
 var gTreeView;
 
-var ViewType = Components.interfaces.nsMsgViewType;
-var SortType = Components.interfaces.nsMsgViewSortType;
-var SortOrder = Components.interfaces.nsMsgViewSortOrder;
-var ViewFlags = Components.interfaces.nsMsgViewFlagsType;
-var MsgFlags = Components.interfaces.nsMsgMessageFlags;
+var ViewType = Ci.nsMsgViewType;
+var SortType = Ci.nsMsgViewSortType;
+var SortOrder = Ci.nsMsgViewSortOrder;
+var ViewFlags = Ci.nsMsgViewFlagsType;
+var MsgFlags = Ci.nsMsgMessageFlags;
 
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 var MSG_VIEW_FLAG_HASCHILDREN = 0x40000000;
@@ -247,8 +247,8 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   // always start out fully expanded
   aViewFlags |= ViewFlags.kExpandAll;
 
-  gDBView = Components.classes[dbviewContractId]
-                      .createInstance(Components.interfaces.nsIMsgDBView);
+  gDBView = Cc[dbviewContractId]
+              .createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
   gDBView.open(aViewType != "search" ? aTestFolder : null,
@@ -261,15 +261,15 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   // we need to cram messages into the search via nsIMsgSearchNotify interface
   if (aViewType == "search" || aViewType == "quicksearch" || aViewType == "xfvf") {
     let searchNotify = gDBView.QueryInterface(
-      Components.interfaces.nsIMsgSearchNotify);
+      Ci.nsIMsgSearchNotify);
     searchNotify.onNewSearch();
     let enumerator = aTestFolder.msgDatabase.EnumerateMessages();
     while (enumerator.hasMoreElements()) {
       let msgHdr = enumerator.getNext().QueryInterface(
-        Components.interfaces.nsIMsgDBHdr);
+        Ci.nsIMsgDBHdr);
       searchNotify.onSearchHit(msgHdr, msgHdr.folder);
     }
-    searchNotify.onSearchDone(Components.results.NS_OK);
+    searchNotify.onSearchDone(Cr.NS_OK);
   }
 
   gDBView.addColumnHandler("authorFirstLetterCol",
@@ -279,7 +279,7 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   // so limited.
   gDBView.curCustomColumn = "authorFirstLetterCol";
 
-  gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
   gTreeView.selection = gFakeSelection;
   gFakeSelection.view = gTreeView;
 }
@@ -295,8 +295,8 @@ function setup_group_view(aSortType, aSortOrder, aTestFolder) {
                   ViewFlags.kExpandAll |
                   ViewFlags.kThreadedDisplay;
 
-  gDBView = Components.classes[dbviewContractId]
-                      .createInstance(Components.interfaces.nsIMsgDBView);
+  gDBView = Cc[dbviewContractId]
+              .createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
   gDBView.open(aTestFolder, aSortType, aSortOrder, viewFlags, outCount);
@@ -305,7 +305,7 @@ function setup_group_view(aSortType, aSortOrder, aTestFolder) {
                            authorFirstLetterCustomColumn);
   gDBView.curCustomColumn = "authorFirstLetterCol";
 
-  gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
   gFakeSelection.view = gTreeView;
   gTreeView.selection = gFakeSelection;
 }
@@ -603,7 +603,7 @@ function test_msg_added_to_search_view() {
     gDBView.sort(SortType.byDate, SortOrder.descending);
     let [synMsg, synSet] = make_and_add_message();
     let msgHdr = gTestFolder.msgDatabase.getMsgHdrForMessageID(synMsg.messageId);
-    gDBView.QueryInterface(Components.interfaces.nsIMsgSearchNotify)
+    gDBView.QueryInterface(Ci.nsIMsgSearchNotify)
             .onSearchHit(msgHdr, msgHdr.folder);
     assert_view_message_at_indices(synMsg, 0);
   }

@@ -25,14 +25,14 @@ function init(aEvent)
       try {
         // This is in its own try catch due to bug 895473 and bug 900925.
         var distroAbout = Services.prefs.getComplexValue("distribution.about",
-          Components.interfaces.nsISupportsString);
+          Ci.nsISupportsString);
         var distroField = document.getElementById("distribution");
         distroField.value = distroAbout;
         distroField.style.display = "block";
       }
       catch (ex) {
         // Pref is unset
-        Components.utils.reportError(ex);
+        Cu.reportError(ex);
       }
     }
   }
@@ -104,8 +104,8 @@ function openUILink(url, event)
 {
   if (!event.button) {
     let m = ("messenger" in window) ? messenger :
-      Components.classes["@mozilla.org/messenger;1"]
-                .createInstance(Components.interfaces.nsIMessenger);
+      Cc["@mozilla.org/messenger;1"]
+        .createInstance(Ci.nsIMessenger);
     m.launchExternalURL(url);
     event.preventDefault();
   }

@@ -40,8 +40,8 @@ function makeVerifier(aFonts) {
       return font;
 
     // Get the default.
-    var enumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
-                               .createInstance(Components.interfaces.nsIFontEnumerator);
+    var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
+                       .createInstance(Ci.nsIFontEnumerator);
     var fonts = enumerator.EnumerateFonts(aEncoding, aFontType, {});
     var defaultFont = null;
     if (fonts.length > 0)

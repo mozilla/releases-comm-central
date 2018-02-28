@@ -139,7 +139,7 @@ var PluginCrashObserver = {
 
     try {
       this.removeMinidump(
-        aSubject.QueryInterface(Components.interfaces.nsIPropertyBag2));
+        aSubject.QueryInterface(Ci.nsIPropertyBag2));
     } catch (ex) {
       Cu.reportError(ex);
       frame.events.fail({exception: ex, test: frame.events.currentTest});
@@ -149,7 +149,7 @@ var PluginCrashObserver = {
   removeMinidump: function PluginCrashObserver_removeMinidump(aPropBag) {
     this._sawCrash = true;
 
-    let profD = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+    let profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
     profD.append("minidumps");
 
     // Let's check to see if a minidump was created.  If so, delete

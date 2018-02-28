@@ -6,7 +6,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0. */
 
-const nsICookiePermission  = Components.interfaces.nsICookiePermission;
+const nsICookiePermission  = Ci.nsICookiePermission;
 const ALLOW = Services.perms.ALLOW_ACTION;         // 1
 const BLOCK = Services.perms.DENY_ACTION;          // 2
 const SESSION = nsICookiePermission.ACCESS_SESSION;// 8
@@ -58,7 +58,7 @@ var permissionObserver = {
   observe: function (aSubject, aTopic, aData)
   {
     if (aTopic == "perm-changed") {
-      var permission = aSubject.QueryInterface(Components.interfaces.nsIPermission);
+      var permission = aSubject.QueryInterface(Ci.nsIPermission);
       if (permission.type in gPermObj && permission.matches(gPermPrincipal, true))
         initRow(permission.type);
     }

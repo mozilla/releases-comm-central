@@ -25,7 +25,7 @@ runnablePrompter.prototype = {
       ok = prompter.first.onPromptStart();
     }
     catch (ex) {
-      Components.utils.reportError("runnablePrompter:run: " + ex + "\n");
+      Cu.reportError("runnablePrompter:run: " + ex + "\n");
     }
 
     delete this._asyncPrompter._pendingPrompts[this._hashKey];
@@ -39,7 +39,7 @@ runnablePrompter.prototype = {
       }
       catch (ex) {
         // Log the error for extension devs and others to pick up.
-        Components.utils.reportError("runnablePrompter:run: consumer.onPrompt* reported an exception: " + ex + "\n");
+        Cu.reportError("runnablePrompter:run: consumer.onPrompt* reported an exception: " + ex + "\n");
       }
     }
     this._asyncPrompter._asyncPromptInProgress--;

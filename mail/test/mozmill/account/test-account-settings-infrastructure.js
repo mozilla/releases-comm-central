@@ -32,7 +32,7 @@ function setupModule(module) {
   // Create a POP server
   let popServer = MailServices.accounts
     .createIncomingServer("nobody", "pop.invalid", "pop3")
-    .QueryInterface(Components.interfaces.nsIPop3IncomingServer);
+    .QueryInterface(Ci.nsIPop3IncomingServer);
 
   let identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox@pop.invalid";
@@ -44,7 +44,7 @@ function setupModule(module) {
   // Create an IMAP server
   let imapServer = MailServices.accounts
     .createIncomingServer("nobody", "imap.invalid", "imap")
-    .QueryInterface(Components.interfaces.nsIImapIncomingServer);
+    .QueryInterface(Ci.nsIImapIncomingServer);
 
   identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox@imap.invalid";

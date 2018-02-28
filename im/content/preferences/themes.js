@@ -34,12 +34,12 @@ var gThemePane = {
 
     var getMore = document.getElementById("getMore" + aType);
     var showGetMore = false;
-    const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
+    const nsIPrefBranch = Ci.nsIPrefBranch;
     if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch.PREF_INVALID) {
       try {
-        var getMoreURL = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
-                                   .getService(Components.interfaces.nsIURLFormatter)
-                                   .formatURLPref(prefURL);
+        var getMoreURL = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
+                           .getService(Ci.nsIURLFormatter)
+                           .formatURLPref(prefURL);
         getMore.setAttribute("getMoreURL", getMoreURL);
         showGetMore = getMoreURL != "about:blank";
       }
@@ -91,9 +91,9 @@ var gThemePane = {
   },
 
   openURL: function (aURL) {
-    Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-              .getService(Components.interfaces.nsIExternalProtocolService)
-              .loadURI(Services.io.newURI(aURL));
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(Services.io.newURI(aURL));
   },
 
   // Getting the extension list is slow, return a cached copy of the list

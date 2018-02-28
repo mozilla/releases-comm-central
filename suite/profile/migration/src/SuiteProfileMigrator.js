@@ -19,8 +19,8 @@ ProfileMigrator.prototype = {
     if (!key)
         return;
 
-    let params = Components.classes["@mozilla.org/array;1"]
-                           .createInstance(Components.interfaces.nsIMutableArray);
+    let params = Cc["@mozilla.org/array;1"]
+                   .createInstance(Ci.nsIMutableArray);
     params.appendElement(this._toString(key));
     params.appendElement(migrator);
     params.appendElement(aStartup);
@@ -33,17 +33,17 @@ ProfileMigrator.prototype = {
   },
 
   _toString: function PM__toString(aStr) {
-    let str = Components.classes["@mozilla.org/supports-string;1"]
-                         .createInstance(Components.interfaces.nsISupportsString);
+    let str = Cc["@mozilla.org/supports-string;1"]
+                         .createInstance(Ci.nsISupportsString);
     str.data = aStr;
     return str;
   },
 
   _getMigratorIfSourceExists: function PM__getMigratorIfSourceExists(aKey) {
     let cid = "@mozilla.org/profile/migrator;1?app=suite&type=" + aKey;
-    let migrator = Components.classes[cid]
-                             .createInstance(Components.interfaces
-                                                       .nsISuiteProfileMigrator);
+    let migrator = Cc[cid]
+                     .createInstance(Ci
+                                               .nsISuiteProfileMigrator);
     if (migrator.sourceExists)
       return migrator;
     return null;
@@ -62,8 +62,8 @@ ProfileMigrator.prototype = {
 #ifdef XP_WIN
     try {
       const REG_KEY = "SOFTWARE\\Classes\\HTTP\\shell\\open\\command";
-      let regKey = Components.classes["@mozilla.org/windows-registry-key;1"]
-                             .createInstance(Components.interfaces.nsIWindowsRegKey);
+      let regKey = Cc["@mozilla.org/windows-registry-key;1"]
+                     .createInstance(Ci.nsIWindowsRegKey);
       regKey.open(regKey.ROOT_KEY_LOCAL_MACHINE, REG_KEY,
                   regKey.ACCESS_READ);
       let value = regKey.readStringValue("").toLowerCase();
@@ -96,7 +96,7 @@ ProfileMigrator.prototype = {
       // translation of its VERSIONINFO segment, but we just assume the first
       // one).
       let file = FileUtils.File(pathMatches[1])
-                          .QueryInterface(Components.interfaces.nsILocalFileWin);
+                          .QueryInterface(Ci.nsILocalFileWin);
       switch (file.getVersionInfoField("InternalName").toLowerCase()) {
         case "iexplore":
           defaultBrowser = "ie";
@@ -107,7 +107,7 @@ ProfileMigrator.prototype = {
       }
     }
     catch (ex) {
-      Components.utils.reportError("Could not retrieve default browser: " + ex);
+      Cu.reportError("Could not retrieve default browser: " + ex);
     }
 #endif
 
@@ -126,7 +126,7 @@ ProfileMigrator.prototype = {
     return ["", null];
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProfileMigrator]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProfileMigrator]),
   classDescription: "Profile Migrator",
   contractID: "@mozilla.org/toolkit/profile-migrator;1",
   classID: Components.ID("{d5148b7c-ba4e-4f7a-a80b-1ae48b90b910}"),

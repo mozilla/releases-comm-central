@@ -102,8 +102,8 @@ var activityObject =
       // whether we show the activity standalone or grouped by context in
       // the activity manager window.
       let isGroupByContext = (aActivity.groupingStyle ==
-                              Components.interfaces.nsIActivity
-                                        .GROUPING_STYLE_BYCONTEXT);
+                              Ci.nsIActivity
+                                .GROUPING_STYLE_BYCONTEXT);
 
       // find out if an activity group has already been created for this context
       let group = null;
@@ -202,9 +202,8 @@ var activityObject =
     try {
       this._activitiesView = document.getElementById("activityView");
 
-      let activityManager = Components
-                         .classes["@mozilla.org/activity-manager;1"]
-                         .getService(Components.interfaces.nsIActivityManager);
+      let activityManager = Cc["@mozilla.org/activity-manager;1"]
+                         .getService(Ci.nsIActivityManager);
       let activities = activityManager.getActivities({});
       for (let iActivity = Math.max(0, activities.length - ACTIVITY_LIMIT);
            iActivity < activities.length; iActivity++) {
@@ -223,16 +222,16 @@ var activityObject =
   },
 
   rebuild: function() {
-    let activityManager = Components.classes["@mozilla.org/activity-manager;1"]
-      .getService(Components.interfaces.nsIActivityManager);
+    let activityManager = Cc["@mozilla.org/activity-manager;1"]
+      .getService(Ci.nsIActivityManager);
     let activities = activityManager.getActivities({});
     for (let activity of activities)
       this.addActivityBinding(activity.id, activity);
   },
 
   shutdown: function() {
-    let activityManager = Components.classes["@mozilla.org/activity-manager;1"]
-      .getService(Components.interfaces.nsIActivityManager);
+    let activityManager = Cc["@mozilla.org/activity-manager;1"]
+      .getService(Ci.nsIActivityManager);
     activityManager.removeListener(this._activityMgrListener);
   },
 
@@ -249,9 +248,9 @@ var activityObject =
     // If/when we implement search, we'll want to remove just the items
     // that are on the search display, however for now, we'll just clear up
     // everything.
-    Components.classes["@mozilla.org/activity-manager;1"]
-              .getService(Components.interfaces.nsIActivityManager)
-              .cleanUp();
+    Cc["@mozilla.org/activity-manager;1"]
+      .getService(Ci.nsIActivityManager)
+      .cleanUp();
 
     // since XBL dtors are not working properly when we remove the element,
     // we have to explicitly remove the binding from activities' listeners

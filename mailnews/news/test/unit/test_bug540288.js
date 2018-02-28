@@ -68,7 +68,7 @@ function run_test() {
                 .cacheStorage
                 .asyncOpenURI(uri, "", Ci.nsICacheStorage.OPEN_NORMALLY, {
       onCacheEntryAvailable: function(cacheEntry, isNew, appCache, status) {
-        Assert.equal(status, Components.results.NS_OK);
+        Assert.equal(status, Cr.NS_OK);
 
         cacheEntry.markValid();
 

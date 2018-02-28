@@ -88,7 +88,7 @@
                 readonly="true">
         <getter>
           <![CDATA[
-            var owner = this.QueryInterface(Components.interfaces.nsIFrameLoaderOwner);
+            var owner = this.QueryInterface(Ci.nsIFrameLoaderOwner);
             if (!owner.frameLoader) {
               return null;
             }
@@ -130,8 +130,8 @@
             if (!this.docShell)
               return null;
 
-            this._fastFind = Components.classes["@mozilla.org/typeaheadfind;1"]
-                                       .createInstance(Components.interfaces.nsITypeAheadFind);
+            this._fastFind = Cc["@mozilla.org/typeaheadfind;1"]
+                               .createInstance(Ci.nsITypeAheadFind);
             this._fastFind.init(this.docShell);
           }
           return this._fastFind;
@@ -200,7 +200,7 @@
             Services.prefs.getBoolPref("clipboard.autocopy");
           if (this.autoCopyEnabled) {
             this.contentWindow.getSelection()
-                .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                .QueryInterface(Ci.nsISelectionPrivate)
                 .addSelectionListener(this);
           }
           ]]>
@@ -213,7 +213,7 @@
           this.contentWindow.controllers.removeController(this);
           if (this.autoCopyEnabled) {
              this.contentWindow.getSelection()
-                 .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                 .QueryInterface(Ci.nsISelectionPrivate)
                  .removeSelectionListener(this);
           }
           ]]>
@@ -257,7 +257,7 @@
         <parameter name="aListener"/>
         <body>
           <![CDATA[
-            this.webProgress.addProgressListener(aListener, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+            this.webProgress.addProgressListener(aListener, Ci.nsIWebProgress.NOTIFY_ALL);
           ]]>
         </body>
       </method>
@@ -515,8 +515,8 @@
                 return;
             }
 
-            let cs = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                               .getService(Ci.mozITXTToHTMLConv);
+            let cs = Cc["@mozilla.org/txttohtmlconv;1"]
+                       .getService(Ci.mozITXTToHTMLConv);
             /*
              * kStructPhrase creates tags for plaintext-markup like *bold*,
              * /italics/, etc. We always use this; the content filter will
@@ -868,9 +868,9 @@
             if (selection.isCollapsed)
               return;
 
-            Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                      .getService(Ci.nsIClipboardHelper)
-                      .copyString(serializeSelection(selection));
+            Cc["@mozilla.org/widget/clipboardhelper;1"]
+              .getService(Ci.nsIClipboardHelper)
+              .copyString(serializeSelection(selection));
           ]]>
         </body>
       </method>
@@ -891,9 +891,9 @@
                   aReason & Ci.nsISelectionListener.KEYPRESS_REASON))
               return; // we are still dragging, don't bother with the selection
 
-            Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                      .getService(Ci.nsIClipboardHelper)
-                      .copyStringToClipboard(serializeSelection(aSelection),
+            Cc["@mozilla.org/widget/clipboardhelper;1"]
+              .getService(Ci.nsIClipboardHelper)
+              .copyStringToClipboard(serializeSelection(aSelection),
                                              Ci.nsIClipboard.kSelectionClipboard);
           ]]>
         </body>
@@ -918,14 +918,14 @@
         <parameter name="aStatus"/>
         <body>
           <![CDATA[
-            const WPL = Components.interfaces.nsIWebProgressListener;
+            const WPL = Ci.nsIWebProgressListener;
             if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
                 (aStateFlags & WPL.STATE_STOP)) {
               if (!this._loadState) {
                 try {
                   initHTMLDocument(this._conv, this.theme, this.contentDocument);
                 } catch(e) {
-                  Components.utils.reportError(e);
+                  Cu.reportError(e);
                 }
                 this._loadState = 1;
 
@@ -1245,7 +1245,7 @@
             ourFieldValues[field] = this[field];
             otherFieldValues[field] = aOtherBrowser[field];
           }
-          this.QueryInterface(Components.interfaces.nsIFrameLoaderOwner)
+          this.QueryInterface(Ci.nsIFrameLoaderOwner)
               .swapFrameLoaders(aOtherBrowser);
           for (var field of fieldsToSwap) {
             this[field] = otherFieldValues[field];
@@ -1295,9 +1295,9 @@
             event.stopPropagation();
 
             // loadURI can throw if the default browser is misconfigured.
-            Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                      .getService(Components.interfaces.nsIExternalProtocolService)
-                      .loadURI(uri);
+            Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+              .getService(Ci.nsIExternalProtocolService)
+              .loadURI(uri);
           }
         ]]>
       </handler>

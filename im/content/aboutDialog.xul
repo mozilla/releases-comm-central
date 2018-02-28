@@ -39,8 +39,8 @@
         var gSelectedPage;
 
         function onLoad() {
-          var xai = Components.classes["@mozilla.org/xre/app-info;1"]
-                              .getService(Components.interfaces.nsIXULAppInfo);
+          var xai = Cc["@mozilla.org/xre/app-info;1"]
+                      .getService(Ci.nsIXULAppInfo);
 
           var versionField = document.getElementById("versionField");
           versionField.value = versionField.value + xai.version
@@ -52,8 +52,8 @@
 
           versionField = document.getElementById("libpurpleVersionField");
           if ("@instantbird.org/libpurple/core;1" in Components.classes) {
-            var pcs = Components.classes["@instantbird.org/libpurple/core;1"]
-                                .getService(Components.interfaces.purpleICoreService);
+            var pcs = Cc["@instantbird.org/libpurple/core;1"]
+                        .getService(Ci.purpleICoreService);
             versionField.value = versionField.value + pcs.version;
           }
           else {

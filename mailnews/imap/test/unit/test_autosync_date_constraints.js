@@ -39,7 +39,7 @@ var tests = [
       let cutOffDateInSeconds = dateInSeconds - (5 * 60 * 24);
       while (enumerator.hasMoreElements()) {
         let header = enumerator.getNext();
-        if (header instanceof Components.interfaces.nsIMsgDBHdr) {
+        if (header instanceof Ci.nsIMsgDBHdr) {
           if (header.dateInSeconds < cutOffDateInSeconds)
             Assert.equal(header.getStringProperty("pendingRemoval"), "1");
           else

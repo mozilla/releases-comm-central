@@ -4,7 +4,7 @@
  * indexes on a
  */
 
-var ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Ci.nsIAutoCompleteResult;
 
 var results = [ { email: "d <ema@test.invalid>", dirName: kPABData.dirName },
                   { email: "di <emai@test.invalid>", dirName: kPABData.dirName },
@@ -51,8 +51,8 @@ function run_test() {
 
   // Test - Create a new search component
 
-  let acs = Components.classes["@mozilla.org/autocomplete/search;1?name=addrbook"]
-    .getService(Components.interfaces.nsIAutoCompleteSearch);
+  let acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"]
+    .getService(Ci.nsIAutoCompleteSearch);
 
   let obs = new acObserver();
 

@@ -29,15 +29,15 @@ ChromeUtils.defineModuleGetter(this, "ShortcutUtils",
 /**
  * interfaces
  */
-var nsIMsgCompDeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
-var nsIMsgCompSendFormat = Components.interfaces.nsIMsgCompSendFormat;
-var nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
-var nsIMsgCompType = Components.interfaces.nsIMsgCompType;
-var nsIMsgCompFormat = Components.interfaces.nsIMsgCompFormat;
-var nsIAbPreferMailFormat = Components.interfaces.nsIAbPreferMailFormat;
-var nsIPlaintextEditorMail = Components.interfaces.nsIPlaintextEditor;
-var nsISupportsString = Components.interfaces.nsISupportsString;
-var mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
+var nsIMsgCompDeliverMode = Ci.nsIMsgCompDeliverMode;
+var nsIMsgCompSendFormat = Ci.nsIMsgCompSendFormat;
+var nsIMsgCompConvertible = Ci.nsIMsgCompConvertible;
+var nsIMsgCompType = Ci.nsIMsgCompType;
+var nsIMsgCompFormat = Ci.nsIMsgCompFormat;
+var nsIAbPreferMailFormat = Ci.nsIAbPreferMailFormat;
+var nsIPlaintextEditorMail = Ci.nsIPlaintextEditor;
+var nsISupportsString = Ci.nsISupportsString;
+var mozISpellCheckingEngine = Ci.mozISpellCheckingEngine;
 
 var sDictCount = 0;
 
@@ -117,8 +117,8 @@ var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
 function InitializeGlobalVariables()
 {
-  gMessenger = Components.classes["@mozilla.org/messenger;1"]
-                         .createInstance(Components.interfaces.nsIMessenger);
+  gMessenger = Cc["@mozilla.org/messenger;1"]
+                 .createInstance(Ci.nsIMessenger);
 
   gMsgCompose = null;
   gOriginalMsgURI = null;
@@ -133,7 +133,7 @@ function InitializeGlobalVariables()
   gCloseWindowAfterSave = false;
   gSavedSendNowKey = null;
   gSendFormat = nsIMsgCompSendFormat.AskUser;
-  gCharsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1'].getService(Components.interfaces.nsICharsetConverterManager);
+  gCharsetConvertManager = Cc['@mozilla.org/charset-converter-manager;1'].getService(Ci.nsICharsetConverterManager);
   gManualAttachmentReminder = false;
   gDisableAttachmentReminder = false;
   gLanguageObserver = null;
@@ -144,8 +144,8 @@ function InitializeGlobalVariables()
   gAttachVCardOptionChanged = false;
   gAttachmentsSize = 0;
   gNumUploadingAttachments = 0;
-  msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
-                        .createInstance(Components.interfaces.nsIMsgWindow);
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                .createInstance(Ci.nsIMsgWindow);
   MailServices.mailSession.AddMsgWindow(msgWindow);
 }
 InitializeGlobalVariables();
@@ -344,34 +344,34 @@ var stateListener = {
     // Look all the possible compose types (nsIMsgComposeParams.idl):
     switch (gComposeType) {
 
-    case Components.interfaces.nsIMsgCompType.MailToUrl:
+    case Ci.nsIMsgCompType.MailToUrl:
       gBodyFromArgs = true;
-    case Components.interfaces.nsIMsgCompType.New:
-    case Components.interfaces.nsIMsgCompType.NewsPost:
-    case Components.interfaces.nsIMsgCompType.ForwardAsAttachment:
+    case Ci.nsIMsgCompType.New:
+    case Ci.nsIMsgCompType.NewsPost:
+    case Ci.nsIMsgCompType.ForwardAsAttachment:
       this.NotifyComposeBodyReadyNew();
       break;
 
-    case Components.interfaces.nsIMsgCompType.Reply:
-    case Components.interfaces.nsIMsgCompType.ReplyAll:
-    case Components.interfaces.nsIMsgCompType.ReplyToSender:
-    case Components.interfaces.nsIMsgCompType.ReplyToGroup:
-    case Components.interfaces.nsIMsgCompType.ReplyToSenderAndGroup:
-    case Components.interfaces.nsIMsgCompType.ReplyWithTemplate:
-    case Components.interfaces.nsIMsgCompType.ReplyToList:
+    case Ci.nsIMsgCompType.Reply:
+    case Ci.nsIMsgCompType.ReplyAll:
+    case Ci.nsIMsgCompType.ReplyToSender:
+    case Ci.nsIMsgCompType.ReplyToGroup:
+    case Ci.nsIMsgCompType.ReplyToSenderAndGroup:
+    case Ci.nsIMsgCompType.ReplyWithTemplate:
+    case Ci.nsIMsgCompType.ReplyToList:
       this.NotifyComposeBodyReadyReply();
       break;
 
-    case Components.interfaces.nsIMsgCompType.ForwardInline:
+    case Ci.nsIMsgCompType.ForwardInline:
       this.NotifyComposeBodyReadyForwardInline();
       break;
 
-    case Components.interfaces.nsIMsgCompType.EditTemplate:
+    case Ci.nsIMsgCompType.EditTemplate:
       defaultSaveOperation = "template";
-    case Components.interfaces.nsIMsgCompType.Draft:
-    case Components.interfaces.nsIMsgCompType.Template:
-    case Components.interfaces.nsIMsgCompType.Redirect:
-    case Components.interfaces.nsIMsgCompType.EditAsNew:
+    case Ci.nsIMsgCompType.Draft:
+    case Ci.nsIMsgCompType.Template:
+    case Ci.nsIMsgCompType.Redirect:
+    case Ci.nsIMsgCompType.EditAsNew:
       break;
 
     default:
@@ -522,7 +522,7 @@ var stateListener = {
   ComposeProcessDone: function(aResult) {
     ToggleWindowLock(false);
 
-    if (aResult== Components.results.NS_OK)
+    if (aResult== Cr.NS_OK)
     {
       if (!gAutoSaving)
         SetContentAndBodyAsUnmodified();
@@ -531,7 +531,7 @@ var stateListener = {
       {
         // Notify the SendListener that Send has been aborted and Stopped
         if (gMsgCompose)
-          gMsgCompose.onSendNotPerformed(null, Components.results.NS_ERROR_ABORT);
+          gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
 
         MsgComposeCloseWindow();
       }
@@ -569,13 +569,13 @@ var gSendListener = {
 var progressListener = {
     onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
     {
-      if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_START)
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START)
       {
         document.getElementById('compose-progressmeter').setAttribute( "mode", "undetermined" );
         document.getElementById("statusbar-progresspanel").collapsed = false;
       }
 
-      if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP)
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
       {
         gSendOperationInProgress = false;
         gSaveOperationInProgress = false;
@@ -631,12 +631,12 @@ var progressListener = {
 
     QueryInterface : function(iid)
     {
-      if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
-          iid.equals(Components.interfaces.nsISupportsWeakReference) ||
-          iid.equals(Components.interfaces.nsISupports))
+      if (iid.equals(Ci.nsIWebProgressListener) ||
+          iid.equals(Ci.nsISupportsWeakReference) ||
+          iid.equals(Ci.nsISupports))
         return this;
 
-      throw Components.results.NS_NOINTERFACE;
+      throw Cr.NS_NOINTERFACE;
     }
 };
 
@@ -1159,7 +1159,7 @@ var attachmentBucketController = {
       },
       doCommand: function() {
         let fileHandler = Services.io.getProtocolHandler("file")
-                                  .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+                                  .QueryInterface(Ci.nsIFileProtocolHandler);
 
         let bucket = document.getElementById("attachmentBucket");
         for (let item of bucket.selectedItems) {
@@ -1202,12 +1202,12 @@ function goOpenNewMessage(aEvent)
   // If aEvent is passed, check if Shift key was pressed for composition in
   // non-default format (HTML vs. plaintext).
   let msgCompFormat = (aEvent && aEvent.shiftKey) ?
-    Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
-    Components.interfaces.nsIMsgCompFormat.Default;
+    Ci.nsIMsgCompFormat.OppositeOfDefault :
+    Ci.nsIMsgCompFormat.Default;
 
   let identity = getCurrentIdentity();
   MailServices.compose.OpenComposeWindow(null, null, null,
-    Components.interfaces.nsIMsgCompType.New,
+    Ci.nsIMsgCompType.New,
     msgCompFormat, identity, null);
 }
 
@@ -1652,8 +1652,8 @@ uploadListener.prototype = {
     updateSendCommands(true);
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIRequestObserver,
-                                         Components.interfaces.nsISupportsWeakReference])
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIRequestObserver,
+                                         Ci.nsISupportsWeakReference])
 };
 
 function deletionListener(aAttachment, aCloudProvider)
@@ -1678,8 +1678,8 @@ deletionListener.prototype = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIRequestObserver,
-                                         Components.interfaces.nsISupportsWeakReference])
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIRequestObserver,
+                                         Ci.nsISupportsWeakReference])
 };
 
 /**
@@ -1691,8 +1691,8 @@ function attachToCloud(aProvider)
 {
   // We need to let the user pick local file(s) to upload to the cloud and
   // gather url(s) to those files.
-  var fp = Components.classes["@mozilla.org/filepicker;1"]
-                     .createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(nsIFilePicker);
   fp.init(window, getComposeBundle().getFormattedString(
             "chooseFileToAttachViaCloud",
             [cloudFileAccounts.getDisplayName(aProvider)]),
@@ -1711,7 +1711,7 @@ function attachToCloud(aProvider)
     }
 
     let files = Array.from(fixIterator(fp.files,
-                             Components.interfaces.nsIFile))
+                             Ci.nsIFile))
     let attachments = files.map(f => FileToAttachment(f));
 
     let i = 0;
@@ -1746,9 +1746,9 @@ function convertListItemsToCloudAttachment(aItems, aProvider)
     return;
 
   let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
-  let convertedAttachments = Components.classes["@mozilla.org/array;1"]
-                                       .createInstance(Components.interfaces.nsIMutableArray);
+                            .QueryInterface(Ci.nsIFileProtocolHandler);
+  let convertedAttachments = Cc["@mozilla.org/array;1"]
+                               .createInstance(Ci.nsIMutableArray);
 
   for (let item of aItems) {
     let url = item.attachment.url;
@@ -1823,9 +1823,9 @@ function convertToCloudAttachment(aAttachments, aProvider)
 function convertListItemsToRegularAttachment(aItems)
 {
   let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
-  let convertedAttachments = Components.classes["@mozilla.org/array;1"]
-                                       .createInstance(Components.interfaces.nsIMutableArray);
+                            .QueryInterface(Ci.nsIFileProtocolHandler);
+  let convertedAttachments = Cc["@mozilla.org/array;1"]
+                               .createInstance(Ci.nsIMutableArray);
 
   for (let item of aItems) {
     if (!item.attachment.sendViaCloud || !item.cloudProvider)
@@ -1839,7 +1839,7 @@ function convertListItemsToRegularAttachment(aItems)
         file, new deletionListener(item.attachment, item.cloudProvider));
     }
     catch (ex) {
-       Components.utils.reportError(ex);
+       Cu.reportError(ex);
     }
 
     item.attachment.url = item.originalUrl;
@@ -1911,7 +1911,7 @@ var messageComposeOfflineQuitObserver =
     // check whether to veto the quit request (unless another observer already
     // did)
     else if (aTopic == "quit-application-requested"
-        && (aSubject instanceof Components.interfaces.nsISupportsPRBool)
+        && (aSubject instanceof Ci.nsISupportsPRBool)
         && !aSubject.data)
       aSubject.data = !ComposeCanClose();
   }
@@ -1973,7 +1973,7 @@ function DoCommandClose()
 
     // Notify the SendListener that Send has been aborted and Stopped
     if (gMsgCompose)
-      gMsgCompose.onSendNotPerformed(null, Components.results.NS_ERROR_ABORT);
+      gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
 
     // This destroys the window for us.
     MsgComposeCloseWindow();
@@ -1994,7 +1994,7 @@ function DoCommandPrintPreview()
 {
   try {
     PrintUtils.printPreview(PrintPreviewListener);
-    } catch(ex) { Components.utils.reportError(ex); }
+    } catch(ex) { Cu.reportError(ex); }
 }
 
 /**
@@ -2311,7 +2311,7 @@ attachmentWorker.lastMessage = null;
 
 attachmentWorker.onerror = function(error)
 {
-  Components.utils.reportError("Attachment Notification Worker error!!! " + error.message);
+  Cu.reportError("Attachment Notification Worker error!!! " + error.message);
   throw error;
 };
 
@@ -2365,8 +2365,8 @@ function AttachmentsChanged() {
  */
 function getValidSpellcheckerDictionary(draftLanguage) {
   let prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
-  let spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-                               .getService(mozISpellCheckingEngine);
+  let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
+                       .getService(mozISpellCheckingEngine);
   let o1 = {};
   let o2 = {};
   spellChecker.getDictionaryList(o1, o2);
@@ -2400,8 +2400,8 @@ var dictionaryRemovalObserver =
       return;
     }
     let language = document.documentElement.getAttribute("lang");
-    let spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-                                 .getService(mozISpellCheckingEngine);
+    let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
+                         .getService(mozISpellCheckingEngine);
     let o1 = {};
     let o2 = {};
     spellChecker.getDictionaryList(o1, o2);
@@ -2459,7 +2459,7 @@ function onPasteOrDrop(e) {
 
   let html = dataTransfer.getData("text/html");
   let doc = (new DOMParser()).parseFromString(html, "text/html");
-  let tmpD = Services.dirsvc.get("TmpD", Components.interfaces.nsIFile);
+  let tmpD = Services.dirsvc.get("TmpD", Ci.nsIFile);
   let pendingConversions = 0;
   let needToPreventDefault = true;
   for (let img of doc.images) {
@@ -2472,7 +2472,7 @@ function onPasteOrDrop(e) {
     let nsFile;
     try {
       nsFile = Services.io.getProtocolHandler("file")
-        .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+        .QueryInterface(Ci.nsIFileProtocolHandler)
         .getFileFromURLSpec(img.src);
     } catch (ex) {
       continue;
@@ -2487,8 +2487,8 @@ function onPasteOrDrop(e) {
       continue;
     }
 
-    let contentType = Components.classes["@mozilla.org/mime;1"]
-      .getService(Components.interfaces.nsIMIMEService)
+    let contentType = Cc["@mozilla.org/mime;1"]
+      .getService(Ci.nsIMIMEService)
       .getTypeFromFile(nsFile);
     if (!contentType.startsWith("image/")) {
       continue;
@@ -2511,8 +2511,8 @@ function onPasteOrDrop(e) {
       let doTheInsert = function() {
         // Now run it through sanitation to make sure there wasn't any
         // unwanted things in the content.
-        let ParserUtils = Components.classes["@mozilla.org/parserutils;1"]
-          .getService(Components.interfaces.nsIParserUtils);
+        let ParserUtils = Cc["@mozilla.org/parserutils;1"]
+          .getService(Ci.nsIParserUtils);
         let html2 = ParserUtils.sanitize(doc.documentElement.innerHTML,
                                        ParserUtils.SanitizerAllowStyle);
         getBrowser().contentDocument.execCommand("insertHTML", false, html2);
@@ -2569,7 +2569,7 @@ function ComposeStartup(aParams)
     params = aParams;
   else if (window.arguments && window.arguments[0]) {
     try {
-      if (window.arguments[0] instanceof Components.interfaces.nsIMsgComposeParams)
+      if (window.arguments[0] instanceof Ci.nsIMsgComposeParams)
         params = window.arguments[0];
       else
         params = handleMailtoArgs(window.arguments[0]);
@@ -2636,8 +2636,8 @@ function ComposeStartup(aParams)
   if (!params) {
     // This code will go away soon as now arguments are passed to the window using a object of type nsMsgComposeParams instead of a string
 
-    params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
-    params.composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
+    params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);
+    params.composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
 
     if (args) { //Convert old fashion arguments into params
       var composeFields = params.composeFields;
@@ -2648,14 +2648,14 @@ function ComposeStartup(aParams)
       if (args.format)
       {
         // Only use valid values.
-        if (args.format == Components.interfaces.nsIMsgCompFormat.PlainText ||
-            args.format == Components.interfaces.nsIMsgCompFormat.HTML ||
-            args.format == Components.interfaces.nsIMsgCompFormat.OppositeOfDefault)
+        if (args.format == Ci.nsIMsgCompFormat.PlainText ||
+            args.format == Ci.nsIMsgCompFormat.HTML ||
+            args.format == Ci.nsIMsgCompFormat.OppositeOfDefault)
           params.format = args.format;
         else if (args.format.toLowerCase().trim() == "html")
-          params.format = Components.interfaces.nsIMsgCompFormat.HTML;
+          params.format = Ci.nsIMsgCompFormat.HTML;
         else if (args.format.toLowerCase().trim() == "text")
-          params.format = Components.interfaces.nsIMsgCompFormat.PlainText;
+          params.format = Ci.nsIMsgCompFormat.PlainText;
       }
       if (args.originalMsgURI)
         params.originalMsgURI = args.originalMsgURI;
@@ -2676,17 +2676,17 @@ function ComposeStartup(aParams)
       if (args.attachment)
       {
         let attachmentList = args.attachment.split(",");
-        let commandLine = Components.classes["@mozilla.org/toolkit/command-line;1"]
-                                    .createInstance();
+        let commandLine = Cc["@mozilla.org/toolkit/command-line;1"]
+                            .createInstance();
         for (let attachmentName of attachmentList)
         {
           // resolveURI does all the magic around working out what the
           // attachment is, including web pages, and generating the correct uri.
           let uri = commandLine.resolveURI(attachmentName);
-          let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                                     .createInstance(Components.interfaces.nsIMsgAttachment);
+          let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
+                             .createInstance(Ci.nsIMsgAttachment);
           // If uri is for a file and it exists set the attachment size.
-          if (uri instanceof Components.interfaces.nsIFileURL)
+          if (uri instanceof Ci.nsIFileURL)
           {
             if (uri.file.exists())
               attachment.size = uri.file.fileSize;
@@ -2712,10 +2712,10 @@ function ComposeStartup(aParams)
       if (args.newshost)
         composeFields.newshost = args.newshost;
       if (args.message) {
-        let msgFile = Components.classes["@mozilla.org/file/local;1"]
-                        .createInstance(Components.interfaces.nsIFile);
+        let msgFile = Cc["@mozilla.org/file/local;1"]
+                        .createInstance(Ci.nsIFile);
         if (OS.Path.dirname(args.message) == ".") {
-          let workingDir = Services.dirsvc.get("CurWorkD", Components.interfaces.nsIFile);
+          let workingDir = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
           args.message = OS.Path.join(workingDir.path, OS.Path.basename(args.message));
         }
         msgFile.initWithPath(args.message);
@@ -2732,10 +2732,10 @@ function ComposeStartup(aParams)
           let cstream = null;
 
           try {
-            fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-                        .createInstance(Components.interfaces.nsIFileInputStream);
-            cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
-                        .createInstance(Components.interfaces.nsIConverterInputStream);
+            fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+                        .createInstance(Ci.nsIFileInputStream);
+            cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+                        .createInstance(Ci.nsIConverterInputStream);
             fstream.init(msgFile, -1, 0, 0); // Open file in default/read-only mode.
             cstream.init(fstream, "UTF-8", 0, 0);
 
@@ -2763,7 +2763,7 @@ function ComposeStartup(aParams)
           if (data) {
             let pos = data.search(/\S/); // Find first non-whitespace character.
 
-            if (params.format != Components.interfaces.nsIMsgCompFormat.PlainText &&
+            if (params.format != Ci.nsIMsgCompFormat.PlainText &&
                 (args.message.endsWith(".htm") || args.message.endsWith(".html") ||
                  data.substr(pos, 14).toLowerCase() == "<!doctype html" ||
                  data.substr(pos, 5).toLowerCase() == "<html")) {
@@ -2809,7 +2809,7 @@ function ComposeStartup(aParams)
 
     // Search for a matching identity.
     if (from) {
-      for (let ident of fixIterator(identities, Components.interfaces.nsIMsgIdentity)) {
+      for (let ident of fixIterator(identities, Ci.nsIMsgIdentity)) {
         if (from == ident.email.toLowerCase()) {
           if (suitableCount == 0)
             params.identity = ident;
@@ -2826,7 +2826,7 @@ function ComposeStartup(aParams)
       if (!identity) {
         let identities = MailServices.accounts.allIdentities;
         if (identities.length > 0)
-          identity = identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+          identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
       }
       params.identity = identity;
     }
@@ -2948,7 +2948,7 @@ function ComposeStartup(aParams)
     // Load empty page to create the editor.
     editorElement.webNavigation.loadURI("about:blank", 0, null, null, null);
   } catch (e) {
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   }
 
   gEditingDraft = gMsgCompose.compFields.draftId;
@@ -2994,7 +2994,7 @@ var gMsgEditorCreationObserver =
       var editor = GetCurrentEditor();
       if (editor && GetCurrentCommandManager() == aSubject)
       {
-        var editorStyle = editor.QueryInterface(Components.interfaces.nsIEditorStyleSheets);
+        var editorStyle = editor.QueryInterface(Ci.nsIEditorStyleSheets);
         // We use addOverrideStyleSheet rather than addStyleSheet so that we get
         // a synchronous load, rather than having a late-finishing async load
         // mark our editor as modified when the user hasn't typed anything yet,
@@ -3055,7 +3055,7 @@ function ComposeLoad()
       ComposeStartup(null);
   }
   catch (ex) {
-    Components.utils.reportError(ex);
+    Cu.reportError(ex);
     Services.prompt.alert(window, getComposeBundle().getString("initErrorDlogTitle"),
                           getComposeBundle().getString("initErrorDlgMessage"));
 
@@ -3144,7 +3144,7 @@ function GetCharsetUIString()
       return gCharsetConvertManager.getCharsetTitle(charset);
     }
     catch(e) { // Not a canonical charset after all...
-      Components.utils.reportError("No charset title for charset=" + charset);
+      Cu.reportError("No charset title for charset=" + charset);
       return charset;
     }
   }
@@ -3382,7 +3382,7 @@ function GenericSendMessage(msgType)
     msgcomposeWindow.setAttribute("msgtype", msgType);
     msgcomposeWindow.dispatchEvent(event);
     if (event.defaultPrevented)
-      throw Components.results.NS_ERROR_ABORT;
+      throw Cr.NS_ERROR_ABORT;
 
     gAutoSaving = (msgType == nsIMsgCompDeliverMode.AutoSaveAsDraft);
 
@@ -3398,8 +3398,8 @@ function GenericSendMessage(msgType)
       SetContentAndBodyAsUnmodified();
     }
 
-    var progress = Components.classes["@mozilla.org/messenger/progress;1"]
-                             .createInstance(Components.interfaces.nsIMsgProgress);
+    var progress = Cc["@mozilla.org/messenger/progress;1"]
+                     .createInstance(Ci.nsIMsgProgress);
     if (progress)
     {
       progress.registerListener(progressListener);
@@ -3417,7 +3417,7 @@ function GenericSendMessage(msgType)
                         getCurrentAccountKey(), msgWindow, progress);
   }
   catch (ex) {
-    Components.utils.reportError("GenericSendMessage FAILED: " + ex);
+    Cu.reportError("GenericSendMessage FAILED: " + ex);
     ToggleWindowLock(false);
   }
   if (gMsgCompose && originalCharset != gMsgCompose.compFields.characterSet)
@@ -3904,8 +3904,8 @@ function InitLanguageMenu()
   if (!languageMenuList)
     return;
 
-  var spellChecker = Components.classes['@mozilla.org/spellchecker/engine;1']
-                               .getService(mozISpellCheckingEngine);
+  var spellChecker = Cc['@mozilla.org/spellchecker/engine;1']
+                       .getService(mozISpellCheckingEngine);
   var o1 = {};
   var o2 = {};
 
@@ -4106,7 +4106,7 @@ function FillIdentityList(menulist)
   for (let acc = 0; acc < accounts.length; acc++) {
     let account = accounts[acc];
     let identities = toArray(fixIterator(account.identities,
-                                         Components.interfaces.nsIMsgIdentity));
+                                         Ci.nsIMsgIdentity));
 
     if (identities.length == 0)
       continue;
@@ -4284,7 +4284,7 @@ function ComposeCanClose()
           GenericSendMessage(nsIMsgCompDeliverMode.AutoSaveAsDraft);
         }
         catch (ex) {
-          Components.utils.reportError(ex);
+          Cu.reportError(ex);
         }
         return false;
       case 1: //Cancel
@@ -4307,23 +4307,23 @@ function RemoveDraft()
   {
     var draftUri = gMsgCompose.compFields.draftId;
     var msgKey = draftUri.substr(draftUri.indexOf('#') + 1);
-    var rdf = Components.classes['@mozilla.org/rdf/rdf-service;1']
-                        .getService(Components.interfaces.nsIRDFService);
+    var rdf = Cc['@mozilla.org/rdf/rdf-service;1']
+                .getService(Ci.nsIRDFService);
 
     var folder = rdf.GetResource(gMsgCompose.savedFolderURI)
-                    .QueryInterface(Components.interfaces.nsIMsgFolder);
+                    .QueryInterface(Ci.nsIMsgFolder);
     try {
-      if (folder.flags & Components.interfaces.nsMsgFolderFlags.Drafts)
+      if (folder.flags & Ci.nsMsgFolderFlags.Drafts)
       {
-        var msgs = Components.classes["@mozilla.org/array;1"].
-            createInstance(Components.interfaces.nsIMutableArray);
+        var msgs = Cc["@mozilla.org/array;1"].
+            createInstance(Ci.nsIMutableArray);
         msgs.appendElement(folder.GetMessageHeader(msgKey));
         folder.deleteMessages(msgs, null, true, false, null, false);
       }
     }
     catch (ex) // couldn't find header - perhaps an imap folder.
     {
-      var imapFolder = folder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
+      var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
       var keyArray = new Array;
       keyArray[0] = msgKey;
       imapFolder.storeImapFlags(8, true, keyArray, 1, null);
@@ -4352,7 +4352,7 @@ function GetLastAttachDirectory()
   try {
     lastDirectory = Services.prefs
                             .getComplexValue(kComposeAttachDirPrefName,
-                                             Components.interfaces.nsIFile);
+                                             Ci.nsIFile);
   }
   catch (ex) {
     // this will fail the first time we attach a file
@@ -4367,11 +4367,11 @@ function GetLastAttachDirectory()
 function SetLastAttachDirectory(attachedLocalFile)
 {
   try {
-    let file = attachedLocalFile.QueryInterface(Components.interfaces.nsIFile);
-    let parent = file.parent.QueryInterface(Components.interfaces.nsIFile);
+    let file = attachedLocalFile.QueryInterface(Ci.nsIFile);
+    let parent = file.parent.QueryInterface(Ci.nsIFile);
 
     Services.prefs.setComplexValue(kComposeAttachDirPrefName,
-                                   Components.interfaces.nsIFile, parent);
+                                   Ci.nsIFile, parent);
   }
   catch (ex) {
     dump("error: SetLastAttachDirectory failed: " + ex + "\n");
@@ -4381,8 +4381,8 @@ function SetLastAttachDirectory(attachedLocalFile)
 function AttachFile()
 {
   //Get file using nsIFilePicker and convert to URL
-  var fp = Components.classes["@mozilla.org/filepicker;1"]
-                     .createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(nsIFilePicker);
   fp.init(window, getComposeBundle().getString("chooseFileToAttach"),
           nsIFilePicker.modeOpenMultiple);
 
@@ -4392,13 +4392,13 @@ function AttachFile()
 
   fp.appendFilters(nsIFilePicker.filterAll);
   fp.open(rv => {
-    if (rv != Components.interfaces.nsIFilePicker.returnOK || !fp.files)
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.files)
       return;
 
     let file;
     let attachments = [];
 
-    for (file of fixIterator(fp.files, Components.interfaces.nsIFile))
+    for (file of fixIterator(fp.files, Ci.nsIFile))
       attachments.push(FileToAttachment(file));
 
     AddAttachments(attachments);
@@ -4415,9 +4415,9 @@ function AttachFile()
 function FileToAttachment(file)
 {
   let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
-  let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                             .createInstance(Components.interfaces.nsIMsgAttachment);
+                            .QueryInterface(Ci.nsIFileProtocolHandler);
+  let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
+                     .createInstance(Ci.nsIMsgAttachment);
 
   attachment.url = fileHandler.getURLSpecFromFile(file);
   attachment.size = file.fileSize;
@@ -4437,12 +4437,12 @@ function FileToAttachment(file)
 function AddAttachments(aAttachments, aCallback)
 {
   let bucket = document.getElementById("attachmentBucket");
-  let addedAttachments = Components.classes["@mozilla.org/array;1"]
-                                   .createInstance(Components.interfaces.nsIMutableArray);
+  let addedAttachments = Cc["@mozilla.org/array;1"]
+                           .createInstance(Ci.nsIMutableArray);
   let items = [];
 
   for (let attachment of fixIterator(aAttachments,
-                                     Components.interfaces.nsIMsgAttachment)) {
+                                     Ci.nsIMsgAttachment)) {
     if (!(attachment && attachment.url) ||
         DuplicateFileAlreadyAttached(attachment.url))
       continue;
@@ -4490,7 +4490,7 @@ function AddAttachments(aAttachments, aCallback)
       // mailnews urls where the filename is hidden in the url as a &filename=
       // part.
       let url = Services.io.newURI(attachment.url);
-      if (url instanceof Components.interfaces.nsIURL &&
+      if (url instanceof Ci.nsIURL &&
           url.fileName && !url.schemeIs("file")) {
         item.image = "moz-icon://" + url.fileName;
       } else if (/^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.url)) {
@@ -4664,8 +4664,8 @@ function AttachPage()
       return;
     }
 
-    let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                               .createInstance(Components.interfaces.nsIMsgAttachment);
+    let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
+                       .createInstance(Ci.nsIMsgAttachment);
     attachment.url = result.value;
     AddAttachments([attachment]);
   }
@@ -4708,8 +4708,8 @@ function Attachments2CompFields(compFields)
 function RemoveAllAttachments()
 {
   let bucket = document.getElementById("attachmentBucket");
-  let removedAttachments = Components.classes["@mozilla.org/array;1"]
-                                     .createInstance(Components.interfaces.nsIMutableArray);
+  let removedAttachments = Cc["@mozilla.org/array;1"]
+                             .createInstance(Ci.nsIMutableArray);
 
   while (bucket.getRowCount())
   {
@@ -4761,9 +4761,9 @@ function RemoveSelectedAttachment()
     let focusIndex = bucket.currentIndex;
 
     let fileHandler = Services.io.getProtocolHandler("file")
-                              .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
-    let removedAttachments = Components.classes["@mozilla.org/array;1"]
-                                       .createInstance(Components.interfaces.nsIMutableArray);
+                              .QueryInterface(Ci.nsIFileProtocolHandler);
+    let removedAttachments = Cc["@mozilla.org/array;1"]
+                               .createInstance(Ci.nsIMutableArray);
 
     for (let i = bucket.selectedCount - 1; i >= 0; i--) {
       let item = bucket.removeItemAt(bucket.getIndexOfItem(bucket.getSelectedItem(i)));
@@ -5254,11 +5254,11 @@ function OpenSelectedAttachment()
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                     Ci.nsIContentPolicy.TYPE_OTHER);
         if (channel)
         {
-          let uriLoader = Components.classes["@mozilla.org/uriloader;1"].getService(Components.interfaces.nsIURILoader);
+          let uriLoader = Cc["@mozilla.org/uriloader;1"].getService(Ci.nsIURILoader);
           uriLoader.openURI(channel, true, new nsAttachmentOpener());
         }
       }
@@ -5274,11 +5274,11 @@ nsAttachmentOpener.prototype =
 {
   QueryInterface: function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIURIContentListener) ||
-        iid.equals(Components.interfaces.nsIInterfaceRequestor) ||
-        iid.equals(Components.interfaces.nsISupports))
+    if (iid.equals(Ci.nsIURIContentListener) ||
+        iid.equals(Ci.nsIInterfaceRequestor) ||
+        iid.equals(Ci.nsISupports))
         return this;
-    throw Components.results.NS_NOINTERFACE;
+    throw Cr.NS_NOINTERFACE;
   },
 
   onStartURIOpen: function(uri)
@@ -5303,12 +5303,12 @@ nsAttachmentOpener.prototype =
 
   getInterface: function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIDOMWindow)) {
+    if (iid.equals(Ci.nsIDOMWindow)) {
       return window;
-    } else if (iid.equals(Components.interfaces.nsIDocShell)) {
-      return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIWebNavigation)
-                   .QueryInterface(Components.interfaces.nsIDocShell);
+    } else if (iid.equals(Ci.nsIDocShell)) {
+      return window.QueryInterface(Ci.nsIInterfaceRequestor)
+                   .getInterface(Ci.nsIWebNavigation)
+                   .QueryInterface(Ci.nsIDocShell);
     } else {
       return this.QueryInterface(iid);
     }
@@ -5366,7 +5366,7 @@ function hideIrrelevantAddressingOptions(aAccountKey)
 {
   let hideNews = true;
   for (let account of fixIterator(MailServices.accounts.accounts,
-                                  Components.interfaces.nsIMsgAccount)) {
+                                  Ci.nsIMsgAccount)) {
     if (account.incomingServer.type == "nntp")
       hideNews = false;
   }
@@ -5807,7 +5807,7 @@ var envelopeDragObserver = {
           isValidAttachment = true;
           let fileHandler = Services.io
                                     .getProtocolHandler("file")
-                                    .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+                                    .QueryInterface(Ci.nsIFileProtocolHandler);
 
           size = rawData.fileSize;
           rawData = fileHandler.getURLSpecFromFile(rawData);
@@ -5861,8 +5861,8 @@ var envelopeDragObserver = {
 
       // Create the attachment and add it to attachments array.
       if (isValidAttachment) {
-        let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                                   .createInstance(Components.interfaces.nsIMsgAttachment);
+        let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
+                           .createInstance(Ci.nsIMsgAttachment);
         attachment.url = rawData;
         attachment.name = prettyName;
 
@@ -6348,7 +6348,7 @@ var gAttachmentNotifier =
     this._obs = new MutationObserver(function gAN_handleMutations(aMutations) {
       gAttachmentNotifier.timer.cancel();
       gAttachmentNotifier.timer.initWithCallback(gAttachmentNotifier.event, 500,
-                                                 Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                                                 Ci.nsITimer.TYPE_ONE_SHOT);
     });
 
     this._obs.observe(aDocument, {
@@ -6373,7 +6373,7 @@ var gAttachmentNotifier =
   subjectObserver: function handleEvent() {
     gAttachmentNotifier.timer.cancel();
     gAttachmentNotifier.timer.initWithCallback(gAttachmentNotifier.event, 500,
-                                               Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                                               Ci.nsITimer.TYPE_ONE_SHOT);
   },
 
   /**
@@ -6412,7 +6412,7 @@ var gAttachmentNotifier =
 
     let keywordsInCsv = Services.prefs.getComplexValue(
       "mail.compose.attachment_reminder_keywords",
-      Components.interfaces.nsIPrefLocalizedString).data;
+      Ci.nsIPrefLocalizedString).data;
     let mailBody = getBrowser().contentDocument.querySelector("body");
 
     // We use a new document and import the body into it. We do that to avoid
@@ -6507,8 +6507,8 @@ var gAttachmentNotifier =
     }
   },
 
-  timer: Components.classes["@mozilla.org/timer;1"]
-                   .createInstance(Components.interfaces.nsITimer)
+  timer: Cc["@mozilla.org/timer;1"]
+           .createInstance(Ci.nsITimer)
 };
 
 /**
@@ -6544,7 +6544,7 @@ function InitEditor()
   // Set eEditorMailMask flag to avoid using content prefs for spell checker,
   // otherwise dictionary setting in preferences is ignored and dictionary is
   // inconsistent in subject and message body.
-  let eEditorMailMask = Components.interfaces.nsIPlaintextEditor.eEditorMailMask;
+  let eEditorMailMask = Ci.nsIPlaintextEditor.eEditorMailMask;
   editor.flags |= eEditorMailMask;
   GetMsgSubjectElement().editor.flags |= eEditorMailMask;
 
@@ -6602,7 +6602,7 @@ function InitEditor()
       // Check if this is a protocol that can fetch parts.
       let protocol = src.substr(0, src.indexOf(":")).toLowerCase();
       if (!(Services.io.getProtocolHandler(protocol) instanceof
-            Components.interfaces.nsIMsgMessageFetchPartService)) {
+            Ci.nsIMsgMessageFetchPartService)) {
         // Can't fetch parts, don't try to load.
         return;
       }
@@ -6613,8 +6613,8 @@ function InitEditor()
       return;
     }
     if (gOriginalMsgURI) {
-      let msgSvc = Components.classes["@mozilla.org/messenger;1"]
-        .createInstance(Components.interfaces.nsIMessenger)
+      let msgSvc = Cc["@mozilla.org/messenger;1"]
+        .createInstance(Ci.nsIMessenger)
         .messageServiceFromURI(gOriginalMsgURI);
       let originalMsgNeckoURI = {};
       msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
@@ -6628,7 +6628,7 @@ function InitEditor()
           loadBlockedImage(src);
         } catch (e) {
           // Couldn't load the referenced image.
-          Components.utils.reportError(e);
+          Cu.reportError(e);
         }
       }
       else {
@@ -6647,8 +6647,8 @@ function InitEditor()
   let background = editor.document.body.background;
   if (background && gOriginalMsgURI) {
     // Check that background has the same URL as the message itself.
-    let msgSvc = Components.classes["@mozilla.org/messenger;1"]
-      .createInstance(Components.interfaces.nsIMessenger)
+    let msgSvc = Cc["@mozilla.org/messenger;1"]
+      .createInstance(Ci.nsIMessenger)
       .messageServiceFromURI(gOriginalMsgURI);
     let originalMsgNeckoURI = {};
     msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
@@ -6659,7 +6659,7 @@ function InitEditor()
         editor.document.body.background = loadBlockedImage(background, true);
       } catch (e) {
         // Couldn't load the referenced image.
-        Components.utils.reportError(e);
+        Cu.reportError(e);
       }
     }
   }
@@ -6874,7 +6874,7 @@ function onUnblockResource(aURL, aNode) {
     loadBlockedImage(aURL);
   } catch (e) {
     // Couldn't load the referenced image.
-    Components.utils.reportError(e);
+    Cu.reportError(e);
   } finally {
     // Remove it from the list on success and failure.
     let urls = aNode.value.split(" ");
@@ -6914,8 +6914,8 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
   let contentType;
   if (filename) {
     try {
-      contentType = Components.classes["@mozilla.org/mime;1"]
-        .getService(Components.interfaces.nsIMIMEService)
+      contentType = Cc["@mozilla.org/mime;1"]
+        .getService(Ci.nsIMIMEService)
         .getTypeFromURI(uri);
     } catch (ex) {
       contentType = "image/png";
@@ -6935,11 +6935,11 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,
-    Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-    Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER);
   let inputStream = channel.open();
-  let stream = Components.classes["@mozilla.org/binaryinputstream;1"]
-    .createInstance(Components.interfaces.nsIBinaryInputStream);
+  let stream = Cc["@mozilla.org/binaryinputstream;1"]
+    .createInstance(Ci.nsIBinaryInputStream);
   stream.setInputStream(inputStream);
   let streamData = "";
   try {

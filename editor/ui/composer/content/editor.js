@@ -56,7 +56,7 @@ var gLastFocusNodeWasSelected = false;
 // These must be kept in synch with the XUL <options> lists
 var gFontSizeNames = ["xx-small","x-small","small","medium","large","x-large","xx-large"];
 
-var nsIFilePicker = Components.interfaces.nsIFilePicker;
+var nsIFilePicker = Ci.nsIFilePicker;
 
 var kEditorToolbarPrefs = "editor.toolbars.showbutton.";
 var kUseCssPref         = "editor.use_css";
@@ -407,7 +407,7 @@ function EditorLoadUrl(url)
   try {
     if (url)
       GetCurrentEditorElement().webNavigation.loadURI(url,                // uri string
-         Components.interfaces.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,  // load flags
+         Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,  // load flags
          null,                                                            // referrer
          null,                                                            // post-data stream
          null);
@@ -1033,8 +1033,8 @@ function initLocalFontFaceMenu(menuPopup)
     // Build list of all local fonts once per editor
     try 
     {
-      var enumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
-                                 .getService(Components.interfaces.nsIFontEnumerator);
+      var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
+                         .getService(Ci.nsIFontEnumerator);
       var localFontCount = { value: 0 }
       gLocalFonts = enumerator.EnumerateAllFonts(localFontCount);
     }
@@ -1594,7 +1594,7 @@ function EditorDblClick(event)
     var element;
     try {
       element = event.explicitOriginalTarget.QueryInterface(
-                    Components.interfaces.nsIDOMElement);
+                    Ci.nsIDOMElement);
     } catch (e) {}
 
      //  We use "href" instead of "a" to not be fooled by named anchor
@@ -1628,7 +1628,7 @@ function EditorClick(event)
       // We check event.explicitOriginalTarget here because .target will never
       // be a textnode (bug 193689)
       var element = event.explicitOriginalTarget.QueryInterface(
-                        Components.interfaces.nsIDOMElement);
+                        Ci.nsIDOMElement);
       var name = element.localName;
       if (!["body", "caption", "table", "td", "th", "tr"].includes(name))
       {          
@@ -1900,7 +1900,7 @@ function SetDisplayMode(mode)
     try {
       var editor = GetCurrentEditor();
       editor.QueryInterface(nsIEditorStyleSheets);
-      editor instanceof Components.interfaces.nsIHTMLObjectResizer;
+      editor instanceof Ci.nsIHTMLObjectResizer;
 
       switch (mode)
       {
@@ -3169,9 +3169,9 @@ function FillInHTMLTooltipEditor(tooltip)
   } else {
     for (node = document.tooltipNode; node; node = node.parentNode) {
       if (ChromeUtils.getClassName(node) === "HTMLImageElement" ||
-          node instanceof Components.interfaces.nsIDOMHTMLInputElement)
+          node instanceof Ci.nsIDOMHTMLInputElement)
         tooltipText = node.getAttribute("src");
-      else if (node instanceof Components.interfaces.nsIDOMHTMLAnchorElement)
+      else if (node instanceof Ci.nsIDOMHTMLAnchorElement)
         tooltipText = node.getAttribute("href") || node.name;
       if (tooltipText) {
         tooltip.setAttribute("label", tooltipText);

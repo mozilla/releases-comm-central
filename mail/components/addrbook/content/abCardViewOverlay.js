@@ -10,7 +10,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gProfileDirURL;
 var gFileHandler = Services.io.getProtocolHandler("file")
-  .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+  .QueryInterface(Ci.nsIFileProtocolHandler);
 var gPhotoDisplayHandlers = {};
 
 var zListName;
@@ -168,9 +168,9 @@ function GetAddressesFromURI(uri)
   if (addressList) {
     var total = addressList.length;
     if (total > 0)
-      addresses = addressList.queryElementAt(0, Components.interfaces.nsIAbCard).primaryEmail;
+      addresses = addressList.queryElementAt(0, Ci.nsIAbCard).primaryEmail;
     for (var i = 1;  i < total; i++ ) {
-      addresses += ", " + addressList.queryElementAt(i, Components.interfaces.nsIAbCard).primaryEmail;
+      addresses += ", " + addressList.queryElementAt(i, Ci.nsIAbCard).primaryEmail;
     }
   }
   return addresses;
@@ -400,7 +400,7 @@ function setBuddyIcon(card, buddyIcon)
     if (myScreenName && card.primaryEmail) {
       if (!gProfileDirURL) {
         // lazily create these file urls, and keep them around
-        let profileDir = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+        let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
         gProfileDirURL = Services.io.newFileURI(profileDir);
       }
 
@@ -492,7 +492,7 @@ function cvAddAddressNodes(node, uri)
         }
         for (i = 0;  i < total; i++ ) {
           var descNode = document.createElement("description");
-          var card = addressList.queryElementAt(i, Components.interfaces.nsIAbCard);
+          var card = addressList.queryElementAt(i, Ci.nsIAbCard);
 
           descNode.setAttribute("class", "CardViewLink");
           node.appendChild(descNode);
@@ -538,11 +538,11 @@ function OpenURLWithHistory(url)
       uri: Services.io.newURI(url),
       visits:  [{
         visitDate: Date.now() * 1000,
-        transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+        transitionType: Ci.nsINavHistoryService.TRANSITION_LINK
       }]
     });
-    var messenger = Components.classes["@mozilla.org/messenger;1"].createInstance();
-    messenger = messenger.QueryInterface(Components.interfaces.nsIMessenger);
+    var messenger = Cc["@mozilla.org/messenger;1"].createInstance();
+    messenger = messenger.QueryInterface(Ci.nsIMessenger);
     messenger.launchExternalURL(url);
   } catch (ex) {}
 }

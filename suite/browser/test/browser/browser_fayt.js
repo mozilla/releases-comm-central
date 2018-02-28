@@ -13,9 +13,9 @@ function test() {
     gBrowser.getBrowserForTab(tab2).removeEventListener("load", runTest, true);
 
     gBrowser.selectedTab = tab2;
-    is(gBrowser.fastFind.find("random", false), Components.interfaces.nsITypeAheadFind.FIND_FOUND, "FAYT found the random text");
+    is(gBrowser.fastFind.find("random", false), Ci.nsITypeAheadFind.FIND_FOUND, "FAYT found the random text");
     gBrowser.selectedTab = tab1;
-    is(gBrowser.fastFind.find("dummy", false), Components.interfaces.nsITypeAheadFind.FIND_FOUND, "FAYT found the dummy text");
+    is(gBrowser.fastFind.find("dummy", false), Ci.nsITypeAheadFind.FIND_FOUND, "FAYT found the dummy text");
 
     gBrowser.removeTab(tab2);
     gBrowser.removeTab(tab1);

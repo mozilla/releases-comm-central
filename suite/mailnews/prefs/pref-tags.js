@@ -18,8 +18,8 @@ const kOrdinalCharHigh = "z";
 const kOrdinalPadding  = String.fromCharCode(kOrdinalCharLow.charCodeAt(0) - 1);
 
 var gInstantApply = document.documentElement.instantApply; // read only once
-var gTagService   = Components.classes["@mozilla.org/messenger/tagservice;1"]
-                              .getService(Components.interfaces.nsIMsgTagService);
+var gTagService   = Cc["@mozilla.org/messenger/tagservice;1"]
+                      .getService(Ci.nsIMsgTagService);
 var gTagList      = null;  // tagList root element
 var gAddButton    = null;
 var gDeleteButton = null;

@@ -4,7 +4,7 @@
 
 var gFolderDisplay =
 {
-  nsMsgFolderFlags: Components.interfaces.nsMsgFolderFlags,
+  nsMsgFolderFlags: Ci.nsMsgFolderFlags,
 
   get selectedCount()
   {

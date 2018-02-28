@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var nsIMsgCompDeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
+var nsIMsgCompDeliverMode = Ci.nsIMsgCompDeliverMode;
 
 // dialog is just an array we'll use to store various properties from the dialog document...
 var dialog;
@@ -19,13 +19,13 @@ var gSendProgressStringBundle;
 var progressListener = {
     onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
     {
-      if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_START)
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START)
       {
         // Put progress meter in undetermined mode.
         dialog.progress.setAttribute("mode", "undetermined");
       }
 
-      if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP)
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
       {
         // we are done sending/saving the message...
         // Indicate completion in status area.
@@ -92,12 +92,12 @@ var progressListener = {
 
     QueryInterface : function(iid)
     {
-      if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
-          iid.equals(Components.interfaces.nsISupportsWeakReference) ||
-          iid.equals(Components.interfaces.nsISupports))
+      if (iid.equals(Ci.nsIWebProgressListener) ||
+          iid.equals(Ci.nsISupportsWeakReference) ||
+          iid.equals(Ci.nsISupports))
         return this;
 
-      throw Components.results.NS_NOINTERFACE;
+      throw Cr.NS_NOINTERFACE;
     }
 };
 
@@ -110,14 +110,14 @@ function onLoad()
     msgProgress = window.arguments[0];
     if (!msgProgress)
     {
-      Components.utils.reportError("Invalid argument to sendProgress.xul.");
+      Cu.reportError("Invalid argument to sendProgress.xul.");
       window.close();
       return;
     }
 
     if (window.arguments[1])
     {
-      let progressParams = window.arguments[1].QueryInterface(Components.interfaces.nsIMsgComposeProgressParams);
+      let progressParams = window.arguments[1].QueryInterface(Ci.nsIMsgComposeProgressParams);
       if (progressParams)
       {
         itsASaveOperation = (progressParams.deliveryMode != nsIMsgCompDeliverMode.Now);

@@ -151,7 +151,7 @@ var gComposePane = {
   initLanguageMenu: function ()
   {
     var languageMenuList = document.getElementById("languageMenuList");
-    this.mSpellChecker = Components.classes['@mozilla.org/spellchecker/engine;1'].getService(Components.interfaces.mozISpellCheckingEngine);
+    this.mSpellChecker = Cc['@mozilla.org/spellchecker/engine;1'].getService(Ci.mozISpellCheckingEngine);
     var o1 = {};
     var o2 = {};
 
@@ -191,8 +191,8 @@ var gComposePane = {
     var fontsList = document.getElementById("FontSelect");
     try
     {
-      var enumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
-                                 .getService(Components.interfaces.nsIFontEnumerator);
+      var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
+                         .getService(Ci.nsIFontEnumerator);
       var localFontCount = { value: 0 }
       var localFonts = enumerator.EnumerateAllFonts(localFontCount);
       for (var i = 0; i < localFonts.length; ++i)

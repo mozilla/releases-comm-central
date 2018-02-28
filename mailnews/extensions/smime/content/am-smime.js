@@ -5,9 +5,9 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var nsIX509CertDB = Components.interfaces.nsIX509CertDB;
+var nsIX509CertDB = Ci.nsIX509CertDB;
 var nsX509CertDBContractID = "@mozilla.org/security/x509certdb;1";
-var nsIX509Cert = Components.interfaces.nsIX509Cert;
+var nsIX509Cert = Ci.nsIX509Cert;
 
 var email_signing_cert_usage = 4; // SECCertUsage.certUsageEmailSigner
 var email_recipient_cert_usage = 5; // SECCertUsage.certUsageEmailRecipient
@@ -72,7 +72,7 @@ function smimeInitializeFields()
     gEncryptionChoices.value = 0;
   }
   else {
-    var certdb = Components.classes[nsX509CertDBContractID].getService(nsIX509CertDB);
+    var certdb = Cc[nsX509CertDBContractID].getService(nsIX509CertDB);
     var x509cert = null;
 
     gEncryptionCertName.value = gIdentity.getUnicharAttribute("encryption_cert_name");
@@ -257,8 +257,8 @@ function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msg
     return;
   }
 
-  var secMsg = Components.classes["@mozilla.org/nsCMSSecureMessage;1"]
-    .getService(Components.interfaces.nsICMSSecureMessage);
+  var secMsg = Cc["@mozilla.org/nsCMSSecureMessage;1"]
+    .getService(Ci.nsICMSSecureMessage);
 
   var matchingOtherCert;
   if (email_recipient_cert_usage == usage) {
@@ -306,8 +306,8 @@ function smimeSelectCert(smime_cert)
   if (!certInfo)
     return;
 
-  var picker = Components.classes["@mozilla.org/user_cert_picker;1"]
-               .createInstance(Components.interfaces.nsIUserCertPicker);
+  var picker = Cc["@mozilla.org/user_cert_picker;1"]
+               .createInstance(Ci.nsIUserCertPicker);
   var canceled = new Object;
   var x509cert = 0;
   var certUsage;

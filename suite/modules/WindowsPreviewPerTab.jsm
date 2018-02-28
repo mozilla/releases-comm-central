@@ -72,11 +72,11 @@ function _imageFromURI(uri, privateMode, callback) {
   let channel = NetUtil.newChannel({
     uri: uri,
     loadUsingSystemPrincipal: true,
-    contentPolicyType: Components.interfaces.nsIContentPolicy.TYPE_INTERNAL_IMAGE
+    contentPolicyType: Ci.nsIContentPolicy.TYPE_INTERNAL_IMAGE
   });
 
   try {
-    channel.QueryInterface(Components.interfaces.nsIPrivateBrowsingChannel);
+    channel.QueryInterface(Ci.nsIPrivateBrowsingChannel);
     channel.setPrivate(privateMode);
   } catch (e) {
     // Ignore channels which do not support nsIPrivateBrowsingChannel.
@@ -140,8 +140,8 @@ function PreviewController(win, tab) {
 }
 
 PreviewController.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsITaskbarPreviewController,
-                                         Components.interfaces.nsIDOMEventListener]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsITaskbarPreviewController,
+                                         Ci.nsIDOMEventListener]),
 
   destroy: function () {
     this.tab.removeEventListener("TabAttrModified", this);
@@ -178,7 +178,7 @@ PreviewController.prototype = {
 
   get screenPixelsPerCSSPixel() {
     let chromeWin = this.tab.ownerGlobal;
-    let windowUtils = chromeWin.getInterface(Components.interfaces.nsIDOMWindowUtils);
+    let windowUtils = chromeWin.getInterface(Ci.nsIDOMWindowUtils);
     return windowUtils.screenPixelsPerCSSPixel;
   },
 
@@ -326,7 +326,7 @@ PreviewController.prototype = {
 };
 
 XPCOMUtils.defineLazyGetter(PreviewController.prototype, "canvasPreviewFlags",
-  function () { let canvasInterface = Components.interfaces.nsIDOMCanvasRenderingContext2D;
+  function () { let canvasInterface = Ci.nsIDOMCanvasRenderingContext2D;
                 return canvasInterface.DRAWWINDOW_DRAW_VIEW
                      | canvasInterface.DRAWWINDOW_DRAW_CARET
                      | canvasInterface.DRAWWINDOW_ASYNC_DECODE_IMAGES
@@ -420,9 +420,9 @@ TabWindow.prototype = {
 
   createTabPreview: function (controller) {
     let docShell = this.win
-                       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                       .getInterface(Components.interfaces.nsIWebNavigation)
-                       .QueryInterface(Components.interfaces.nsIDocShell);
+                       .QueryInterface(Ci.nsIInterfaceRequestor)
+                       .getInterface(Ci.nsIWebNavigation)
+                       .QueryInterface(Ci.nsIDocShell);
     let preview = AeroPeek.taskbar.createTaskbarTabPreview(docShell, controller);
     preview.visible = AeroPeek.enabled;
     preview.active = this.tabbrowser.selectedTab == controller.tab;
@@ -515,7 +515,7 @@ TabWindow.prototype = {
   // Set or reset a timer that will invalidate visible thumbnails soon.
   setInvalidationTimer: function () {
     if (!this.invalidateTimer) {
-      this.invalidateTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+      this.invalidateTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     }
     this.invalidateTimer.cancel();
 
@@ -530,7 +530,7 @@ TabWindow.prototype = {
           aPreview.invalidate();
         }
       });
-    }, 1000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+    }, 1000, Ci.nsITimer.TYPE_ONE_SHOT);
   },
 
   onResize: function () {
@@ -568,8 +568,8 @@ TabWindow.prototype = {
   },
 
   onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
-    if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP &&
-        aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_IS_NETWORK) {
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+        aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
       this.invalidateTabPreview(aBrowser);
     }
   },
@@ -651,8 +651,8 @@ this.AeroPeek = {
   initialize: function () {
     if (!(WINTASKBAR_CONTRACTID in Components.classes))
       return;
-    this.taskbar = Components.classes[WINTASKBAR_CONTRACTID]
-                             .getService(Components.interfaces.nsIWinTaskbar);
+    this.taskbar = Cc[WINTASKBAR_CONTRACTID]
+                     .getService(Ci.nsIWinTaskbar);
     this.available = this.taskbar.available;
     if (!this.available)
       return;
@@ -783,7 +783,7 @@ this.AeroPeek = {
   resetCacheTimer: function () {
     this.cacheTimer.cancel();
     this.cacheTimer.init(this, 1000 * this.cacheLifespan,
-                         Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                         Ci.nsITimer.TYPE_ONE_SHOT);
   },
 
   //// nsIObserver
@@ -828,7 +828,7 @@ this.AeroPeek = {
   onClearHistory() {},
   onDeleteVisits() {},
   onPageChanged(uri, changedConst, newValue) {
-    if (this.enabled && changedConst == Components.interfaces.nsINavHistoryObserver.ATTRIBUTE_FAVICON) {
+    if (this.enabled && changedConst == Ci.nsINavHistoryObserver.ATTRIBUTE_FAVICON) {
       for (let win of this.windows) {
         for (let [tab, preview] of win.previews) {
           if (tab.getAttribute("image") == newValue) {
@@ -839,13 +839,13 @@ this.AeroPeek = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsISupportsWeakReference,
-                                         Components.interfaces.nsINavHistoryObserver,
-                                         Components.interfaces.nsIObserver]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsISupportsWeakReference,
+                                         Ci.nsINavHistoryObserver,
+                                         Ci.nsIObserver]),
 };
 
 XPCOMUtils.defineLazyGetter(AeroPeek, "cacheTimer", () =>
-  Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer)
+  Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer)
 );
 
 XPCOMUtils.defineLazyServiceGetter(AeroPeek, "prefs",

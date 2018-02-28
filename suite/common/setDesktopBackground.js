@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const nsIShellService = Components.interfaces.nsIShellService;
-var gShell = Components.classes["@mozilla.org/suite/shell-service;1"]
-                       .getService(nsIShellService);
+const nsIShellService = Ci.nsIShellService;
+var gShell = Cc["@mozilla.org/suite/shell-service;1"]
+               .getService(nsIShellService);
 
 var gImage, gPosition, gPicker, gDesktop;
 

@@ -58,8 +58,8 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function test()
 {
-  var dm = Components.classes["@mozilla.org/download-manager;1"]
-                     .getService(Components.interfaces.nsIDownloadManager);
+  var dm = Cc["@mozilla.org/download-manager;1"]
+             .getService(Ci.nsIDownloadManager);
 
   // Empty any old downloads
   dm.DBConnection.executeSimpleSQL("DELETE FROM moz_downloads");
@@ -71,8 +71,8 @@ function test()
   var win = Services.wm.getMostRecentWindow("Download:Manager");
   if (win) win.close();
 
-  var os = Components.classes["@mozilla.org/observer-service;1"]
-                     .getService(Components.interfaces.nsIObserverService);
+  var os = Cc["@mozilla.org/observer-service;1"]
+             .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   var testObs = {
@@ -86,8 +86,8 @@ function test()
       // Note:  This test will not be valid if the download list is built
       //        synchronously in Startup in downloads.js
       // Make sure the window stays open
-      var dmui = Components.classes["@mozilla.org/download-manager-ui;1"]
-                           .getService(Components.interfaces.nsIDownloadManagerUI);
+      var dmui = Cc["@mozilla.org/download-manager-ui;1"]
+                   .getService(Ci.nsIDownloadManagerUI);
       ok(dmui.visible, "Download Manager stays open on alert click");
 
       win.close();
@@ -102,7 +102,7 @@ function test()
 
   // Simulate an alert click with pref set to true
   setClose(true);
-  dm.QueryInterface(Components.interfaces.nsIObserver)
+  dm.QueryInterface(Ci.nsIObserver)
     .observe(null, "alertclickcallback", null);
 
   SimpleTest.waitForExplicitFinish();

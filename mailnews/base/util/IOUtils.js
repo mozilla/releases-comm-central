@@ -111,11 +111,11 @@ var IOUtils =
     buffer.writeFrom(aIStream, aIStream.available());
 
     // Close the output streams.
-    if (buffer instanceof Components.interfaces.nsISafeOutputStream)
+    if (buffer instanceof Ci.nsISafeOutputStream)
       buffer.finish();
     else
       buffer.close();
-    if (fstream instanceof Components.interfaces.nsISafeOutputStream)
+    if (fstream instanceof Ci.nsISafeOutputStream)
       fstream.finish();
     else
       fstream.close();

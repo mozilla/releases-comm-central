@@ -193,7 +193,7 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
     },
 
     handleCompletion: function(aReason) {
-      if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
+      if (aReason != Ci.mozIStorageStatementCallback.REASON_FINISHED)
         do_throw(new Error("Query canceled or aborted!"));
 
       if (i != aCount) {

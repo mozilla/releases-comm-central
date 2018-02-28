@@ -2,22 +2,22 @@ function test() {
   waitForExplicitFinish();
 
   // Setup a phony handler to ensure the app pane will be populated.
-  var handler = Components.classes["@mozilla.org/uriloader/web-handler-app;1"]
-                          .createInstance(Components.interfaces.nsIWebHandlerApp);
+  var handler = Cc["@mozilla.org/uriloader/web-handler-app;1"]
+                  .createInstance(Ci.nsIWebHandlerApp);
   handler.name = "App pane alive test";
   handler.uriTemplate = "http://test.mozilla.org/%s";
 
-  var extps = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                        .getService(Components.interfaces.nsIExternalProtocolService);
+  var extps = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                .getService(Ci.nsIExternalProtocolService);
   var info = extps.getProtocolHandlerInfo("apppanetest");
   info.possibleApplicationHandlers.appendElement(handler);
 
-  var hserv = Components.classes["@mozilla.org/uriloader/handler-service;1"]
-                        .getService(Components.interfaces.nsIHandlerService);
+  var hserv = Cc["@mozilla.org/uriloader/handler-service;1"]
+                .getService(Ci.nsIHandlerService);
   hserv.store(info);
 
-  var obs = Components.classes["@mozilla.org/observer-service;1"]
-                      .getService(Components.interfaces.nsIObserverService);
+  var obs = Cc["@mozilla.org/observer-service;1"]
+              .getService(Ci.nsIObserverService);
 
   function observer(win, topic, data) {
     if (topic != "app-handler-pane-loaded")

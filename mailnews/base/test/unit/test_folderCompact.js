@@ -117,7 +117,7 @@ function calculateFolderSize(folder)
     while (enumerator.hasMoreElements())
     {
       var header = enumerator.getNext();
-      if (header instanceof Components.interfaces.nsIMsgDBHdr)
+      if (header instanceof Ci.nsIMsgDBHdr)
         totalSize += header.messageSize;
     }
   }
@@ -133,7 +133,7 @@ function verifyMsgOffsets(folder)
     while (enumerator.hasMoreElements())
     {
       let header = enumerator.getNext();
-      if (header instanceof Components.interfaces.nsIMsgDBHdr) {
+      if (header instanceof Ci.nsIMsgDBHdr) {
         let storeToken = header.getStringProperty("storeToken");
         Assert.equal(storeToken, header.messageOffset);
       }

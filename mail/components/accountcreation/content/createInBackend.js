@@ -223,9 +223,9 @@ function setFolders(identity, server)
 
 function rememberPassword(server, password)
 {
-  if (server instanceof Components.interfaces.nsIMsgIncomingServer)
+  if (server instanceof Ci.nsIMsgIncomingServer)
     var passwordURI = server.localStoreType + "://" + server.hostName;
-  else if (server instanceof Components.interfaces.nsISmtpServer)
+  else if (server instanceof Ci.nsISmtpServer)
     var passwordURI = "smtp://" + server.hostname;
   else
     throw new NotReached("Server type not supported");

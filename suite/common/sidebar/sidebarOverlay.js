@@ -51,8 +51,8 @@ const SB_DEBUG = false;
 var gNumTabsInViewPref;
 
 // The rdf service
-var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                    .getService(Components.interfaces.nsIRDFService);
+var RDF = Cc["@mozilla.org/rdf/rdf-service;1"]
+            .getService(Ci.nsIRDFService);
 
 const NC = "http://home.netscape.com/NC-rdf#";
 
@@ -562,7 +562,7 @@ function ()
     if (persistNode)
     {
         persistNode =
-          persistNode.QueryInterface(Components.interfaces.nsIRDFLiteral);
+          persistNode.QueryInterface(Ci.nsIRDFLiteral);
         rv = persistNode.Value == 'true';
     }
 
@@ -668,7 +668,7 @@ var panel_observer = {
       sidebarObj.panels.initialized = false; // reset so panels are put in view
       sidebarObj.panels.refresh();
     } else if (prop == RDF.GetResource(NC + "refresh_panel")) {
-      var panel_id = target.QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
+      var panel_id = target.QueryInterface(Ci.nsIRDFLiteral).Value;
       var panel = sidebarObj.panels.get_panel_from_id(panel_id);
       panel.reload();
     }
@@ -836,13 +836,13 @@ function check_for_missing_panels() {
         var channel = ios.newChannel2(prereq_file, null, null, null,
                                       Services.scriptSecurityManager.getSystemPrincipal(),
                                       null,
-                                      Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                      Ci.nsIContentPolicy.TYPE_OTHER);
         try {
           channel.open();
         }
         catch (ex) {
-          if (ex.result != Components.results.NS_ERROR_FILE_NOT_FOUND) {
+          if (ex.result != Cr.NS_ERROR_FILE_NOT_FOUND) {
             throw ex;
           }
           sidebarObj.datasource.Assert(RDF.GetResource(currHeader.getAttribute("id")),
@@ -896,7 +896,7 @@ function sidebar_revert_to_default_panels() {
 
     debug("sidebar defaults reloaded");
     var datasource = sidebarObj.datasource;
-    datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource).Refresh(true);
+    datasource.QueryInterface(Ci.nsIRDFRemoteDataSource).Refresh(true);
   } catch (ex) {
     debug("Error: Unable to reload panel defaults file.\n");
   }
@@ -907,7 +907,7 @@ function get_sidebar_datasource_uri() {
   try {
     var sidebar_file = sidebar_get_panels_file();
 
-    var fileHandler = Services.io.getProtocolHandler("file").QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+    var fileHandler = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
 
     return fileHandler.getURLSpecFromFile(sidebar_file);
   } catch (ex) {
@@ -1325,7 +1325,7 @@ function SidebarTogglePanel(panel_menuitem) {
     refresh_all_sidebars();
 
   // Write the modified panels out.
-  sidebarObj.datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource).Flush();
+  sidebarObj.datasource.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
 }
 
 function SidebarNavigate(aDirection)
@@ -1592,8 +1592,8 @@ function SidebarBroadcastersToRDF()
                      viewAddressbookSidebar: "addressbook"};
   const URN_PREFIX = "urn:sidebar:panel:";
 
-  const RDFCU = Components.classes['@mozilla.org/rdf/container-utils;1']
-                          .getService(Components.interfaces.nsIRDFContainerUtils);
+  const RDFCU = Cc['@mozilla.org/rdf/container-utils;1']
+                  .getService(Ci.nsIRDFContainerUtils);
 
   /*
    * Initialize RDF stuff.
@@ -1654,8 +1654,8 @@ function SidebarBroadcastersToRDF()
     }
     // Item already exists, but perhaps we need to update...
     else {
-      let curtitle = curtitleLit.QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
-      let cururl = cururlLit.QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
+      let curtitle = curtitleLit.QueryInterface(Ci.nsIRDFLiteral).Value;
+      let cururl = cururlLit.QueryInterface(Ci.nsIRDFLiteral).Value;
 
       if (curtitle != title)
         ds.Change(panelRes, titleRes, curtitleLit, titleLit);
@@ -1672,7 +1672,7 @@ function SidebarBroadcastersToRDF()
   let masterElements = masterSeq.GetElements();
   while (masterElements.hasMoreElements()) {
     let curElementRes = masterElements.getNext();
-    let curId = curElementRes.QueryInterface(Components.interfaces.nsIRDFResource).Value;
+    let curId = curElementRes.QueryInterface(Ci.nsIRDFResource).Value;
 
     if (curId.substr(0, URN_PREFIX.length) != URN_PREFIX)
       continue;
@@ -1692,7 +1692,7 @@ function SidebarBroadcastersToRDF()
   }
 
   // Write modified data.
-  sidebarObj.datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource).Flush();
+  sidebarObj.datasource.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
 }
 
 

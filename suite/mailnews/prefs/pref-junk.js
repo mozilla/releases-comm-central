@@ -36,8 +36,8 @@ function ResetTrainingData()
     return;
 
   // otherwise go ahead and remove the training data
-  var junkmailPlugin = Components.classes["@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"]
-                                 .getService(Components.interfaces.nsIJunkMailPlugin);
+  var junkmailPlugin = Cc["@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"]
+                         .getService(Ci.nsIJunkMailPlugin);
 
   if (junkmailPlugin)
     junkmailPlugin.resetTrainingData();

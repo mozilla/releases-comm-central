@@ -42,12 +42,12 @@ function test()
 function compareEntries(i, j, history)
 {
   let e1 = history.getEntryAtIndex(i, false)
-                  .QueryInterface(Components.interfaces.nsISHEntry)
-                  .QueryInterface(Components.interfaces.nsISHContainer);
+                  .QueryInterface(Ci.nsISHEntry)
+                  .QueryInterface(Ci.nsISHContainer);
 
   let e2 = history.getEntryAtIndex(j, false)
-                  .QueryInterface(Components.interfaces.nsISHEntry)
-                  .QueryInterface(Components.interfaces.nsISHContainer);
+                  .QueryInterface(Ci.nsISHEntry)
+                  .QueryInterface(Ci.nsISHContainer);
 
   ok(e1.sharesDocumentWith(e2),
      i + ' should share doc with ' + j);

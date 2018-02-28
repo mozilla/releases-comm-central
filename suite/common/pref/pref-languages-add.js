@@ -129,8 +129,8 @@ function OnAccept()
   const kErrorMsg = prefLangBundle.getString("illegalOtherLanguage") + " " +
                     gInvalidLanguages;
   const kErrorTitle = prefLangBundle.getString("illegalOtherLanguageTitle");
-  let prompter = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                           .getService(Components.interfaces.nsIPromptService);
+  let prompter = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                   .getService(Ci.nsIPromptService);
   prompter.alert(this.window, kErrorTitle, kErrorMsg);
 
   gInvalidLanguages = null;

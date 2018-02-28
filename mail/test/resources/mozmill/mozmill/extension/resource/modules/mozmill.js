@@ -71,18 +71,18 @@ if (platform == "linux"){
   isLinux = true;
 }
 
-var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-           .getService(Components.interfaces.nsIWindowMediator);
+var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+           .getService(Ci.nsIWindowMediator);
 
-var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-               .getService(Components.interfaces.nsIXULAppInfo);
+var appInfo = Cc["@mozilla.org/xre/app-info;1"]
+               .getService(Ci.nsIXULAppInfo);
 
-var locale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
-               .getService(Components.interfaces.nsIXULChromeRegistry)
+var locale = Cc["@mozilla.org/chrome/chrome-registry;1"]
+               .getService(Ci.nsIXULChromeRegistry)
                .getSelectedLocale("global");
 
-var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
-    getService(Components.interfaces.nsIConsoleService);
+var aConsoleService = Cc["@mozilla.org/consoleservice;1"].
+    getService(Ci.nsIConsoleService);
 
 
 var applicationDictionary = {

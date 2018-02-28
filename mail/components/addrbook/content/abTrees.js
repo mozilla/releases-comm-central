@@ -222,7 +222,7 @@ directoryTreeView.prototype = {
 
   // nsIAbListener interfaces
   onItemAdded: function dtv_onItemAdded(aParent, aItem) {
-    if (!(aItem instanceof Components.interfaces.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
     //xxx we can optimize this later
     this._rebuild();
@@ -240,7 +240,7 @@ directoryTreeView.prototype = {
   },
 
   onItemRemoved: function dtv_onItemRemoved(aParent, aItem) {
-    if (!(aItem instanceof Components.interfaces.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
     //xxx we can optimize this later
     this._rebuild();
@@ -265,7 +265,7 @@ directoryTreeView.prototype = {
   },
 
   onItemPropertyChanged: function dtv_onItemProp(aItem, aProp, aOld, aNew) {
-    if (!(aItem instanceof Components.interfaces.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
 
     for (var i in this._rowMap)  {

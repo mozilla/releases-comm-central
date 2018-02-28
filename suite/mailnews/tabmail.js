@@ -165,8 +165,8 @@ var gMailNewsTabsType =
   {
     // each tab gets its own messenger instance
     // for undo/redo, backwards/forwards, etc.
-    messenger = Components.classes["@mozilla.org/messenger;1"]
-                          .createInstance(Components.interfaces.nsIMessenger);
+    messenger = Cc["@mozilla.org/messenger;1"]
+                  .createInstance(Ci.nsIMessenger);
     messenger.setWindow(window, msgWindow);
     aTabInfo.messenger = messenger;
 
@@ -212,7 +212,7 @@ var gMailNewsTabsType =
       let msgId  = aTabInfo.selectedMsgId;
       SelectFolder(aTabInfo.uriToOpen);
       let folderResource = RDF.GetResource(aTabInfo.uriToOpen);
-      if (folderResource instanceof Components.interfaces.nsIMsgFolder)
+      if (folderResource instanceof Ci.nsIMsgFolder)
         aTabInfo.msgSelectedFolder = folderResource;
       gCurrentFolderToReroot = null;
       delete aTabInfo.uriToOpen; // destroy after use!
@@ -387,9 +387,9 @@ var gMailNewsTabsType =
   onTitleChanged: function(aTabInfo, aTabNode)
   {
     // If we have an account, we also always have a "Local Folders" account,
-    let accountCount = Components.classes["@mozilla.org/messenger/account-manager;1"]
-                                 .getService(Components.interfaces.nsIMsgAccountManager)
-                                 .accounts.length;
+    let accountCount = Cc["@mozilla.org/messenger/account-manager;1"]
+                         .getService(Ci.nsIMsgAccountManager)
+                         .accounts.length;
     let multipleRealAccounts = accountCount > 2;
 
     // clear out specific tab data now, because we might need to return early
@@ -412,7 +412,7 @@ var gMailNewsTabsType =
       // select folder for the backgound tab without changing the current one
       // (stolen from SelectFolder)
       let folderResource = RDF.GetResource(aTabInfo.uriToOpen);
-      if (folderResource instanceof Components.interfaces.nsIMsgFolder)
+      if (folderResource instanceof Ci.nsIMsgFolder)
         msgSelectedFolder = folderResource;
     }
     else
@@ -466,10 +466,10 @@ var gMailNewsTabsType =
       let biffState = "UnknownMail";
       switch (msgSelectedFolder.biffState)
       {
-        case Components.interfaces.nsIMsgFolder.nsMsgBiffState_NewMail:
+        case Ci.nsIMsgFolder.nsMsgBiffState_NewMail:
           biffState = "NewMail";
           break;
-        case Components.interfaces.nsIMsgFolder.nsMsgBiffState_NoMail:
+        case Ci.nsIMsgFolder.nsMsgBiffState_NoMail:
           biffState = "NoMail";
           break;
       }
@@ -479,7 +479,7 @@ var gMailNewsTabsType =
     {
       // Message Tab
       aTabNode.setAttribute("type", "message"); // override "3pane"
-      if (aTabInfo.hdr.flags & Components.interfaces.nsMsgMessageFlags.HasRe)
+      if (aTabInfo.hdr.flags & Ci.nsMsgMessageFlags.HasRe)
         aTabInfo.title = "Re: ";
       if (aTabInfo.hdr.mime2DecodedSubject)
         aTabInfo.title += aTabInfo.hdr.mime2DecodedSubject;
@@ -488,7 +488,7 @@ var gMailNewsTabsType =
         aTabInfo.title += " - " + aTabInfo.hdr.folder.server.prettyName;
 
       // message specific tab data
-      const nsMsgMessageFlags = Components.interfaces.nsMsgMessageFlags;
+      const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
       let flags = aTabInfo.hdr.flags;
       aTabNode.setAttribute("MessageType", msgSelectedFolder.server.type);
       aTabNode.setAttribute("Offline",     Boolean(flags & nsMsgMessageFlags.Offline));

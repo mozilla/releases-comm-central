@@ -41,7 +41,7 @@ var cloudFileAccounts = {
       try {
         provider.init(aAccountKey);
       } catch (e) {
-        Components.utils.reportError(e);
+        Cu.reportError(e);
         provider = null;
       }
     }
@@ -127,7 +127,7 @@ var cloudFileAccounts = {
       let value = aExtraPrefs[prefKey].value;
 
       if (!(type in kFuncMap)) {
-        Components.utils.reportError("Did not recognize type: " + type);
+        Cu.reportError("Did not recognize type: " + type);
         continue;
       }
 
@@ -201,7 +201,7 @@ var cloudFileAccounts = {
                                         key + ".displayName");
     } catch(e) {
       // If no display name has been set, we return the empty string.
-      Components.utils.reportError(e);
+      Cu.reportError(e);
       return "";
     }
   },

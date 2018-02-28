@@ -12,8 +12,8 @@ function Startup()
 {
   gParam = window.arguments[0];
 
-  const msgCompSendFormat = Components.interfaces.nsIMsgCompSendFormat;
-  const msgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
+  const msgCompSendFormat = Ci.nsIMsgCompSendFormat;
+  const msgCompConvertible = Ci.nsIMsgCompConvertible;
 
   var bundle = document.getElementById("askSendFormatStringBundle");
 

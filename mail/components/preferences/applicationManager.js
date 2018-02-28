@@ -11,7 +11,7 @@ var gAppManagerDialog = {
     var bundle = document.getElementById("appManagerBundle");
 
     var description = gApplicationsPane._describeType(this.handlerInfo);
-    var key = (this.handlerInfo.wrappedHandlerInfo instanceof Components.interfaces.nsIMIMEInfo) ?
+    var key = (this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) ?
                 "handleFile" : "handleProtocol";
     var contentText = bundle.getFormattedString(key, [description]);
     contentText = bundle.getFormattedString("descriptionApplications", [contentText]);
@@ -24,7 +24,7 @@ var gAppManagerDialog = {
       if (!gApplicationsPane.isValidHandlerApp(app))
         continue;
 
-      app.QueryInterface(Components.interfaces.nsIHandlerApp);
+      app.QueryInterface(Ci.nsIHandlerApp);
       var item = list.appendItem(app.name);
       item.setAttribute("image", gApplicationsPane._getIconURLForHandlerApp(app));
       item.className = "listitem-iconic";
@@ -77,15 +77,15 @@ var gAppManagerDialog = {
     document.getElementById("remove").disabled = false;
     var app = list.selectedItem.app;
     var address = "";
-    if (app instanceof Components.interfaces.nsILocalHandlerApp)
+    if (app instanceof Ci.nsILocalHandlerApp)
       address = app.executable.path;
-    else if (app instanceof Components.interfaces.nsIWebHandlerApp)
+    else if (app instanceof Ci.nsIWebHandlerApp)
       address = app.uriTemplate;
-    else if (app instanceof Components.interfaces.nsIWebContentHandlerInfo)
+    else if (app instanceof Ci.nsIWebContentHandlerInfo)
       address = app.uri;
     document.getElementById("appLocation").value = address;
     var bundle = document.getElementById("appManagerBundle");
-    var appType = (app instanceof Components.interfaces.nsILocalHandlerApp) ?
+    var appType = (app instanceof Ci.nsILocalHandlerApp) ?
                     "descriptionLocalApp" : "descriptionWebApp";
     document.getElementById("appType").value = bundle.getString(appType);
   }

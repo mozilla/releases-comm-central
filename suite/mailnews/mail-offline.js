@@ -20,9 +20,9 @@ function MsgSettingsOffline()
 // Check for unsent messages
 function CheckForUnsentMessages()
 {
-  return Components.classes["@mozilla.org/messengercompose/sendlater;1"]
-                   .getService(Components.interfaces.nsIMsgSendLater)
-                   .hasUnsentMessages();
+  return Cc["@mozilla.org/messengercompose/sendlater;1"]
+           .getService(Ci.nsIMsgSendLater)
+           .hasUnsentMessages();
 }
 
 // Init strings.
@@ -107,8 +107,8 @@ function InitServices()
 function GetOfflineMgrService()
 {
   if (!gOfflineManager) {
-    gOfflineManager = Components.classes["@mozilla.org/messenger/offline-manager;1"]
-        .getService(Components.interfaces.nsIMsgOfflineManager);
+    gOfflineManager = Cc["@mozilla.org/messenger/offline-manager;1"]
+        .getService(Ci.nsIMsgOfflineManager);
   }
 }
 

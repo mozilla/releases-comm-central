@@ -7,7 +7,7 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const nsIAbListener = Components.interfaces.nsIAbListener;
+const nsIAbListener = Ci.nsIAbListener;
 const kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
 const kPersistCollapseMapStorage = "directoryTree.json";
 
@@ -92,9 +92,9 @@ function OnLoadAddressBook()
   gDirTree.controllers.appendController(DirPaneController);
 
   // Ensure we don't load xul error pages into the main window
-  window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-        .getInterface(Components.interfaces.nsIWebNavigation)
-        .QueryInterface(Components.interfaces.nsIDocShell)
+  window.QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIWebNavigation)
+        .QueryInterface(Ci.nsIDocShell)
         .useErrorPages = false;
 }
 
@@ -194,8 +194,8 @@ function AbPrintCardInternal(doPrintPreview, msgType)
     return;
 
   let statusFeedback;
-  statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"].createInstance();
-  statusFeedback = statusFeedback.QueryInterface(Components.interfaces.nsIMsgStatusFeedback);
+  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
+  statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
   let selectionArray = [];
 
@@ -218,12 +218,12 @@ function AbPrintCardInternal(doPrintPreview, msgType)
 
 function AbPrintCard()
 {
-  AbPrintCardInternal(false, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINT_AB_CARD);
+  AbPrintCardInternal(false, Ci.nsIMsgPrintEngine.MNAB_PRINT_AB_CARD);
 }
 
 function AbPrintPreviewCard()
 {
-  AbPrintCardInternal(true, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_AB_CARD);
+  AbPrintCardInternal(true, Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_AB_CARD);
 }
 
 function CreatePrintCardUrl(card)
@@ -238,8 +238,8 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType)
     return;
 
   var statusFeedback;
-	statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"].createInstance();
-	statusFeedback = statusFeedback.QueryInterface(Components.interfaces.nsIMsgStatusFeedback);
+	statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
+	statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
   /*
     turn "moz-abmdbdirectory://abook.mab" into
@@ -259,12 +259,12 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType)
 
 function AbPrintAddressBook()
 {
-  AbPrintAddressBookInternal(false, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINT_ADDRBOOK);
+  AbPrintAddressBookInternal(false, Ci.nsIMsgPrintEngine.MNAB_PRINT_ADDRBOOK);
 }
 
 function AbPrintPreviewAddressBook()
 {
-  AbPrintAddressBookInternal(true, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_ADDRBOOK);
+  AbPrintAddressBookInternal(true, Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_ADDRBOOK);
 }
 
 /**
@@ -315,10 +315,10 @@ function AbExport(aSelectedDirURI)
   catch (ex) {
     var message;
     switch (ex.result) {
-      case Components.results.NS_ERROR_FILE_ACCESS_DENIED:
+      case Cr.NS_ERROR_FILE_ACCESS_DENIED:
         message = gAddressBookBundle.getString("failedToExportMessageFileAccessDenied");
         break;
-      case Components.results.NS_ERROR_FILE_NO_DEVICE_SPACE:
+      case Cr.NS_ERROR_FILE_NO_DEVICE_SPACE:
         message = gAddressBookBundle.getString("failedToExportMessageNoDeviceSpace");
         break;
       default:

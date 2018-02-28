@@ -4,16 +4,16 @@
 
 function test_visibility_open()
 {
-  var dmui = Components.classes["@mozilla.org/download-manager-ui;1"]
-                       .getService(Components.interfaces.nsISuiteDownloadManagerUI);
+  var dmui = Cc["@mozilla.org/download-manager-ui;1"]
+               .getService(Ci.nsISuiteDownloadManagerUI);
   isnot(dmui.recentWindow, null,
      "nsIDownloadManagerUI indicates that the UI is visible");
 }
 
 function test_visibility_closed(aWin)
 {
-  var dmui = Components.classes["@mozilla.org/download-manager-ui;1"]
-                       .getService(Components.interfaces.nsISuiteDownloadManagerUI);
+  var dmui = Cc["@mozilla.org/download-manager-ui;1"]
+               .getService(Ci.nsISuiteDownloadManagerUI);
 
   function dmWindowClosedListener() {
     aWin.removeEventListener("unload", dmWindowClosedListener);
@@ -33,8 +33,8 @@ var testFuncs = [
 
 function test()
 {
-  var dm = Components.classes["@mozilla.org/download-manager;1"]
-                     .getService(Components.interfaces.nsIDownloadManager);
+  var dm = Cc["@mozilla.org/download-manager;1"]
+             .getService(Ci.nsIDownloadManager);
   var db = dm.DBConnection;
 
   // First, we populate the database with some fake data
@@ -46,11 +46,11 @@ function test()
     win.close();
 
   // OK, now that all the data is in, let's pull up the UI
-  Components.classes["@mozilla.org/download-manager-ui;1"]
-            .getService(Components.interfaces.nsISuiteDownloadManagerUI).showManager();
+  Cc["@mozilla.org/download-manager-ui;1"]
+    .getService(Ci.nsISuiteDownloadManagerUI).showManager();
 
-  let obs = Components.classes["@mozilla.org/observer-service;1"]
-                      .getService(Components.interfaces.nsIObserverService);
+  let obs = Cc["@mozilla.org/observer-service;1"]
+              .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   let testObs = {

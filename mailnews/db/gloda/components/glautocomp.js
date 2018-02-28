@@ -499,7 +499,7 @@ function nsAutoCompleteGloda() {
 nsAutoCompleteGloda.prototype = {
   classID: Components.ID("{3bbe4d77-3f70-4252-9500-bc00c26f476d}"),
   QueryInterface: XPCOMUtils.generateQI([
-      Components.interfaces.nsIAutoCompleteSearch]),
+      Ci.nsIAutoCompleteSearch]),
 
   startSearch: function(aString, aParam, aResult, aListener) {
     try {

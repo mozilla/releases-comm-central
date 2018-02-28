@@ -29,7 +29,7 @@
               .StringBundle("chrome://messenger/locale/addressbook/addressBook.properties");
 
           this._rebuild();
-          const nsIAbListener = Components.interfaces.nsIAbListener;
+          const nsIAbListener = Ci.nsIAbListener;
           // Add a listener so we can update correctly if the list should change
           this.MailServices.ab
               .addAddressBookListener(this,
@@ -53,7 +53,7 @@
         <body><![CDATA[
           // Init the address book cache.
           this._directories.length = 0;
-          const nsIAbDirectory = Components.interfaces.nsIAbDirectory;
+          const nsIAbDirectory = Ci.nsIAbDirectory;
           let directories = this.MailServices.ab.directories;
           while (directories && directories.hasMoreElements()) {
             let ab = directories.getNext();
@@ -61,7 +61,7 @@
               this._directories.push(ab);
               if (this.getAttribute("mailinglists") == "true") {
                 // Also append contained mailinglists.
-                for (let list of this.fixIterator(ab.childNodes, Components.interfaces.nsIAbDirectory)) {
+                for (let list of this.fixIterator(ab.childNodes, Ci.nsIAbDirectory)) {
                   if (this._matches(list))
                     this._directories.push(list);
                 }
@@ -136,7 +136,7 @@
         <parameter name="aItem"/>
         <body><![CDATA[
           // Are we interested in this new directory?
-          if (aItem instanceof Components.interfaces.nsIAbDirectory &&
+          if (aItem instanceof Ci.nsIAbDirectory &&
               this._matches(aItem)) {
             this._rebuild();
           }
@@ -147,7 +147,7 @@
         <parameter name="aParentDir"/>
         <parameter name="aItem"/>
         <body><![CDATA[
-          if (aItem instanceof Components.interfaces.nsIAbDirectory) {
+          if (aItem instanceof Ci.nsIAbDirectory) {
             // Find the item in the list to remove.
             // We can't use indexOf here because we need loose equality.
             for (var index = this._directories.length; --index >= 0; )
@@ -175,7 +175,7 @@
         <parameter name="aOldValue"/>
         <parameter name="aNewValue"/>
         <body><![CDATA[
-          if (aItem instanceof Components.interfaces.nsIAbDirectory) {
+          if (aItem instanceof Ci.nsIAbDirectory) {
             // Find the item in the list to rename.
             // We can't use indexOf here because we need loose equality.
             for (var oldIndex = this._directories.length; --oldIndex >= 0; )
@@ -376,11 +376,11 @@
           let url = null;
           if (!aIndex) {
             url = Services.prefs.getComplexValue("mail.addr_book.mapit_url.format",
-                                                 Components.interfaces.nsIPrefLocalizedString).data;
+                                                 Ci.nsIPrefLocalizedString).data;
           } else {
             try {
               url = Services.prefs.getComplexValue("mail.addr_book.mapit_url." + aIndex + ".format",
-                                                   Components.interfaces.nsIPrefLocalizedString).data;
+                                                   Ci.nsIPrefLocalizedString).data;
             } catch (e) { }
           }
 
@@ -432,7 +432,7 @@
               // Name is not mandatory, generate one if not found.
               try {
                 urlName = Services.prefs.getComplexValue("mail.addr_book.mapit_url." + index + ".name",
-                                                         Components.interfaces.nsIPrefLocalizedString).data;
+                                                         Ci.nsIPrefLocalizedString).data;
               } catch (e) {
                 urlName = generateName(urlTemplate);
               }
@@ -470,11 +470,11 @@
         <parameter name="aItem"/>
         <body><![CDATA[
           // Save selected URL as the default.
-          let defaultUrl = Components.classes["@mozilla.org/pref-localizedstring;1"]
-                                     .createInstance(Components.interfaces.nsIPrefLocalizedString);
+          let defaultUrl = Cc["@mozilla.org/pref-localizedstring;1"]
+                             .createInstance(Ci.nsIPrefLocalizedString);
           defaultUrl.data = aItem.getAttribute("url");
           Services.prefs.setComplexValue("mail.addr_book.mapit_url.format",
-                                         Components.interfaces.nsIPrefLocalizedString, defaultUrl);
+                                         Ci.nsIPrefLocalizedString, defaultUrl);
         ]]></body>
       </method>
 

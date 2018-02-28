@@ -58,7 +58,7 @@ function verifyDownloaded() {
   while (msgEnumerator.hasMoreElements()) {
     let header = msgEnumerator.getNext();
     // Verify that each message has been downloaded and looks OK.
-    if (header instanceof Components.interfaces.nsIMsgDBHdr &&
+    if (header instanceof Ci.nsIMsgDBHdr &&
         (header.flags & Ci.nsMsgMessageFlags.Offline))
       IMAPPump.inbox.getOfflineFileStream(header.messageKey, offset, size).close();
     else

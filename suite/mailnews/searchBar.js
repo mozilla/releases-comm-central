@@ -50,7 +50,7 @@ var gSearchNotificationListener =
 
     onSearchDone: function(status)
     {
-        SetQSStatusText(gDBView.QueryInterface(Components.interfaces.nsITreeView).rowCount)
+        SetQSStatusText(gDBView.QueryInterface(Ci.nsITreeView).rowCount)
         statusFeedback.showProgress(0);
         gProgressMeter.setAttribute("mode", "normal");
         gSearchInProgress = false;
@@ -65,7 +65,7 @@ var gSearchNotificationListener =
           dbFolderInfo.numMessages = gNumTotalMessages;
           vFolder.updateSummaryTotals(true); // force update from db.
           var msgdb = vFolder.msgDatabase;
-          msgdb.Commit(Components.interfaces.nsMsgDBCommitType.kLargeCommit);
+          msgdb.Commit(Ci.nsMsgDBCommitType.kLargeCommit);
           // now that we have finished loading a virtual folder,
           // scroll to the correct message if there is at least one.
           if (vFolder.getTotalMessages(false) > 0)
@@ -94,7 +94,7 @@ function getDocumentElements()
 
 function addListeners()
 {
-  gViewSearchListener = gDBView.QueryInterface(Components.interfaces.nsIMsgSearchNotify);
+  gViewSearchListener = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);
   gSearchSession.registerListener(gViewSearchListener);
 }
 
@@ -120,14 +120,14 @@ function createQuickSearchView()
   //if not already in quick search view
   if (gDBView.viewType != nsMsgViewType.eShowQuickSearchResults)
   {
-    var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);  //clear selection
+    var treeView = gDBView.QueryInterface(Ci.nsITreeView);  //clear selection
     if (treeView && treeView.selection)
       treeView.selection.clearSelection();
     gPreQuickSearchView = gDBView;
     if (gDBView.viewType == nsMsgViewType.eShowVirtualFolderResults)
     {
       // remove the view as a listener on the search results
-      var saveViewSearchListener = gDBView.QueryInterface(Components.interfaces.nsIMsgSearchNotify);
+      var saveViewSearchListener = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);
       gSearchSession.unregisterListener(saveViewSearchListener);
     }
     CreateDBView(gDBView.msgFolder, (gXFVirtualFolderTerms) ? nsMsgViewType.eShowVirtualFolderResults : nsMsgViewType.eShowQuickSearchResults, gDBView.viewFlags, gDBView.sortType, gDBView.sortOrder);
@@ -140,7 +140,7 @@ function initializeSearchBar()
    if (!gSearchSession)
    {
      var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
-     gSearchSession = Components.classes[searchSessionContractID].createInstance(Components.interfaces.nsIMsgSearchSession);
+     gSearchSession = Cc[searchSessionContractID].createInstance(Ci.nsIMsgSearchSession);
      initializeGlobalListeners();
    }
    else
@@ -225,7 +225,7 @@ function restorePreSearchView()
     if (gDBView.viewType == nsMsgViewType.eShowVirtualFolderResults)
     {
       // readd the view as a listener on the search results
-      var saveViewSearchListener = gDBView.QueryInterface(Components.interfaces.nsIMsgSearchNotify);
+      var saveViewSearchListener = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);
       if (gSearchSession)
         gSearchSession.registerListener(saveViewSearchListener);
     }
@@ -250,7 +250,7 @@ function restorePreSearchView()
   if (selectedHdr)
   {
     gDBView.selectMsgByKey(selectedHdr.messageKey);
-    var treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+    var treeView = gDBView.QueryInterface(Ci.nsITreeView);
     var selectedIndex = treeView.selection.currentIndex;
     if (selectedIndex >= 0)
     {
@@ -288,9 +288,9 @@ function onSearch(aSearchTerms)
 
 function createSearchTermsWithList(aTermsArray)
 {
-  var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
-  var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
-  var nsMsgSearchOp = Components.interfaces.nsMsgSearchOp;
+  var nsMsgSearchScope = Ci.nsMsgSearchScope;
+  var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+  var nsMsgSearchOp = Ci.nsMsgSearchOp;
 
   gSearchSession.searchTerms.clear();
   gSearchSession.clearScopes();
@@ -321,20 +321,20 @@ function createSearchTermsWithList(aTermsArray)
   }
 
   // Add each item in aTermsArray to the search session.
-  for (let term of fixIterator(aTermsArray, Components.interfaces.nsIMsgSearchTerm)) {
+  for (let term of fixIterator(aTermsArray, Ci.nsIMsgSearchTerm)) {
     gSearchSession.appendTerm(term);
   }
 }
 
 function createSearchTerms()
 {
-  var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
-  var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
-  var nsMsgSearchOp = Components.interfaces.nsMsgSearchOp;
+  var nsMsgSearchScope = Ci.nsMsgSearchScope;
+  var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+  var nsMsgSearchOp = Ci.nsMsgSearchOp;
 
   // create an nsIMutableArray to store our search terms
-  var searchTermsArray = Components.classes["@mozilla.org/array;1"]
-                                   .createInstance(Components.interfaces.nsIMutableArray);
+  var searchTermsArray = Cc["@mozilla.org/array;1"]
+                           .createInstance(Ci.nsIMutableArray);
   var selectedFolder = GetThreadPaneFolder();
 
   // implement | for QS
@@ -376,7 +376,7 @@ function createSearchTerms()
   var defaultSearchTerms = (gDefaultSearchViewTerms || gVirtualFolderTerms || gXFVirtualFolderTerms);
   if (defaultSearchTerms)
   {
-    for (let searchTerm of fixIterator(defaultSearchTerms, Components.interfaces.nsIMsgSearchTerm))
+    for (let searchTerm of fixIterator(defaultSearchTerms, Ci.nsIMsgSearchTerm))
     {
       searchTermsArray.appendElement(searchTerm);
     }

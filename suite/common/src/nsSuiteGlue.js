@@ -61,7 +61,7 @@ const listeners = {
       try {
         val = global[module].receiveMessage(data) || val;
       } catch (e) {
-        Components.utils.reportError(e);
+        Cu.reportError(e);
       }
     }
     return val;
@@ -104,7 +104,7 @@ function onSummaryChanged()
   if (!gTaskbarProgress)
     return;
 
-  const nsITaskbarProgress = Components.interfaces.nsITaskbarProgress;
+  const nsITaskbarProgress = Ci.nsITaskbarProgress;
   var currentBytes = gDownloadsSummary.progressCurrentBytes;
   var totalBytes = gDownloadsSummary.progressTotalBytes;
   var state = gDownloadsSummary.allHaveStopped ?
@@ -148,14 +148,14 @@ SuiteGlue.prototype = {
 
   _logConsoleAPI: function(aEvent)
   {
-    const nsIScriptError = Components.interfaces.nsIScriptError;
+    const nsIScriptError = Ci.nsIScriptError;
     var flg = nsIScriptError.errorFlag;
     switch (aEvent.level) {
       case "warn":
         flg = nsIScriptError.warningFlag;
       case "error":
-        var scriptError = Components.classes["@mozilla.org/scripterror;1"]
-                                    .createInstance(nsIScriptError);
+        var scriptError = Cc["@mozilla.org/scripterror;1"]
+                            .createInstance(nsIScriptError);
         scriptError.initWithWindowID(Array.from(aEvent.arguments),
                                      aEvent.filename, "", aEvent.lineNumber, 0,
                                      flg, "content javascript", aEvent.innerID);
@@ -231,9 +231,9 @@ SuiteGlue.prototype = {
         this._checkForNewAddons();
         Services.search.init();
         listeners.init();
-        Components.classes["@mozilla.org/globalmessagemanager;1"]
-                  .getService(Components.interfaces.nsIMessageListenerManager)
-                  .loadFrameScript("chrome://navigator/content/content.js", true);
+        Cc["@mozilla.org/globalmessagemanager;1"]
+          .getService(Ci.nsIMessageListenerManager)
+          .loadFrameScript("chrome://navigator/content/content.js", true);
         ChromeUtils.import("resource://gre/modules/NotificationDB.jsm");
         ChromeUtils.import("resource://gre/modules/Downloads.jsm");
         ChromeUtils.import("resource://gre/modules/DownloadIntegration.jsm");
@@ -242,11 +242,11 @@ SuiteGlue.prototype = {
                                         .then(() => gDownloadsLoaded = true);
 
         if ("@mozilla.org/widget/macdocksupport;1" in Components.classes)
-          gTaskbarProgress = Components.classes["@mozilla.org/widget/macdocksupport;1"]
-                                       .getService(Components.interfaces.nsITaskbarProgress);
+          gTaskbarProgress = Cc["@mozilla.org/widget/macdocksupport;1"]
+                               .getService(Ci.nsITaskbarProgress);
         else if ("@mozilla.org/windows-taskbar;1" in Components.classes) {
-          gWinTaskbar = Components.classes["@mozilla.org/windows-taskbar;1"]
-                                  .getService(Components.interfaces.nsIWinTaskbar);
+          gWinTaskbar = Cc["@mozilla.org/windows-taskbar;1"]
+                          .getService(Ci.nsIWinTaskbar);
           if (!gWinTaskbar.available) {
             gWinTaskbar = null;
             break;
@@ -299,7 +299,7 @@ SuiteGlue.prototype = {
 //        break;
       case "session-save":
         this._setPrefToSaveSession();
-        subject.QueryInterface(Components.interfaces.nsISupportsPRBool);
+        subject.QueryInterface(Ci.nsISupportsPRBool);
         subject.data = true;
         break;
       case "dl-done":
@@ -347,7 +347,7 @@ SuiteGlue.prototype = {
         Services.logins;
         break;
       case "handle-xul-text-link":
-        let linkHandled = subject.QueryInterface(Components.interfaces.nsISupportsPRBool);
+        let linkHandled = subject.QueryInterface(Ci.nsISupportsPRBool);
         if (!linkHandled.data) {
           let mostRecentBrowserWindow = Services.wm.getMostRecentWindow("navigator:browser");
           if (mostRecentBrowserWindow) {
@@ -370,10 +370,10 @@ SuiteGlue.prototype = {
   onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags)
   {
     if (aWebProgress.isTopLevel &&
-        aWebProgress instanceof Components.interfaces.nsIDocShell &&
-        aWebProgress.loadType & Components.interfaces.nsIDocShell.LOAD_CMD_NORMAL &&
+        aWebProgress instanceof Ci.nsIDocShell &&
+        aWebProgress.loadType & Ci.nsIDocShell.LOAD_CMD_NORMAL &&
         aWebProgress.useGlobalHistory &&
-        aWebProgress instanceof Components.interfaces.nsILoadContext &&
+        aWebProgress instanceof Ci.nsILoadContext &&
         !aWebProgress.usePrivateBrowsing) {
       switch (aLocation.scheme) {
         case "about":
@@ -421,9 +421,9 @@ SuiteGlue.prototype = {
     Services.obs.addObserver(this, "notifications-open-settings", true);
     Services.prefs.addObserver("devtools.debugger.", this, true);
     Services.obs.addObserver(this, "handle-xul-text-link", true);
-    Components.classes['@mozilla.org/docloaderservice;1']
-              .getService(Components.interfaces.nsIWebProgress)
-              .addProgressListener(this, Components.interfaces.nsIWebProgress.NOTIFY_LOCATION);
+    Cc['@mozilla.org/docloaderservice;1']
+      .getService(Ci.nsIWebProgress)
+      .addProgressListener(this, Ci.nsIWebProgress.NOTIFY_LOCATION);
   },
 
   // profile is available
@@ -453,8 +453,8 @@ SuiteGlue.prototype = {
       Services.prefs.savePrefFile(null);
     }
 
-    var timer = Components.classes["@mozilla.org/timer;1"]
-                          .createInstance(Components.interfaces.nsITimer);
+    var timer = Cc["@mozilla.org/timer;1"]
+                  .createInstance(Ci.nsITimer);
     timer.init(this, 3000, timer.TYPE_ONE_SHOT);
   },
 
@@ -481,7 +481,7 @@ SuiteGlue.prototype = {
       // Migrate remote content exceptions for email addresses which are
       // encoded as chrome URIs.
       let permissionsDB =
-        Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+        Services.dirsvc.get("ProfD", Ci.nsIFile);
       permissionsDB.append("permissions.sqlite");
       let db = Services.storage.openDatabase(permissionsDB);
 
@@ -509,7 +509,7 @@ SuiteGlue.prototype = {
 
         // Sadly we still need to clear the database manually. Experiments
         // showed that the permissions manager deletes only one record.
-        db.beginTransactionAs(Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
+        db.beginTransactionAs(Ci.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
 
         try {
           db.executeSimpleSQL("delete from moz_perms where " +
@@ -554,7 +554,7 @@ SuiteGlue.prototype = {
   _copyDefaultProfileFiles: function()
   {
     // Copy default chrome example files if they do not exist in the current profile.
-    var profileDir = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+    var profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
     profileDir.append("chrome");
 
     // The chrome directory in the current/new profile already exists so no copying.
@@ -562,7 +562,7 @@ SuiteGlue.prototype = {
       return;
 
     let defaultProfileDir = Services.dirsvc.get("DefRt",
-                                                Components.interfaces.nsIFile);
+                                                Ci.nsIFile);
     defaultProfileDir.append("profile");
     defaultProfileDir.append("chrome");
 
@@ -570,7 +570,7 @@ SuiteGlue.prototype = {
       try {
         this._copyDir(defaultProfileDir, profileDir);
       } catch (e) {
-        Components.utils.reportError(e);
+        Cu.reportError(e);
       }
     }
   },
@@ -581,7 +581,7 @@ SuiteGlue.prototype = {
     let enumerator = aSource.directoryEntries;
 
     while (enumerator.hasMoreElements()) {
-      let file = enumerator.getNext().QueryInterface(Components.interfaces.nsIFile);
+      let file = enumerator.getNext().QueryInterface(Ci.nsIFile);
 
       if (file.isDirectory()) {
         let subdir = aDestination.clone();
@@ -589,10 +589,10 @@ SuiteGlue.prototype = {
 
         // Create the target directory. If it already exists continue copying files.
         try {
-          subdir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE,
+          subdir.create(Ci.nsIFile.DIRECTORY_TYPE,
                         FileUtils.PERMS_DIRECTORY);
         } catch (ex) {
-           if (ex.result != Components.results.NS_ERROR_FILE_ALREADY_EXISTS)
+           if (ex.result != Cr.NS_ERROR_FILE_ALREADY_EXISTS)
             throw ex;
         }
         // Directory created. Now copy the files.
@@ -601,7 +601,7 @@ SuiteGlue.prototype = {
         try {
           file.copyTo(aDestination, null);
         } catch (e) {
-          Components.utils.reportError(e);
+          Cu.reportError(e);
         }
       }
     }
@@ -638,8 +638,8 @@ SuiteGlue.prototype = {
       this._showRightsNotification(notifyBox);
 
     if ("@mozilla.org/windows-taskbar;1" in Components.classes &&
-        Components.classes["@mozilla.org/windows-taskbar;1"]
-                  .getService(Components.interfaces.nsIWinTaskbar).available) {
+        Cc["@mozilla.org/windows-taskbar;1"]
+          .getService(Ci.nsIWinTaskbar).available) {
       let temp = {};
       ChromeUtils.import("resource:///modules/WindowsJumpLists.jsm", temp);
       temp.WinTaskbarJumpList.startup();
@@ -673,9 +673,9 @@ SuiteGlue.prototype = {
 
     // Try to avoid the multiple master password prompts on startup scenario
     // by prompting for the master password upfront.
-    let token = Components.classes["@mozilla.org/security/pk11tokendb;1"]
-                          .getService(Components.interfaces.nsIPK11TokenDB)
-                          .getInternalKeyToken();
+    let token = Cc["@mozilla.org/security/pk11tokendb;1"]
+                  .getService(Ci.nsIPK11TokenDB)
+                  .getInternalKeyToken();
 
     // Only log in to the internal token if it is already initialized,
     // otherwise we get a "Change Master Password" dialog.
@@ -695,13 +695,13 @@ SuiteGlue.prototype = {
     if (!Services.prefs.prefHasUserValue(PREF_EM_NEW_ADDONS_LIST))
       return;
 
-    const args = Components.classes["@mozilla.org/array;1"]
-                           .createInstance(Components.interfaces.nsIMutableArray);
-    let str = Components.classes["@mozilla.org/supports-string;1"]
-                        .createInstance(Components.interfaces.nsISupportsString);
+    const args = Cc["@mozilla.org/array;1"]
+                   .createInstance(Ci.nsIMutableArray);
+    let str = Cc["@mozilla.org/supports-string;1"]
+                .createInstance(Ci.nsISupportsString);
     args.appendElement(str);
-    str = Components.classes["@mozilla.org/supports-string;1"]
-                    .createInstance(Components.interfaces.nsISupportsString);
+    str = Cc["@mozilla.org/supports-string;1"]
+            .createInstance(Ci.nsISupportsString);
     str.data = Services.prefs.getCharPref(PREF_EM_NEW_ADDONS_LIST);
     args.appendElement(str);
     const EMURL = "chrome://mozapps/content/extensions/extensions.xul";
@@ -717,7 +717,7 @@ SuiteGlue.prototype = {
   _onQuitRequest: function(aCancelQuit, aQuitType)
   {
     // If user has already dismissed quit request, then do nothing
-    if ((aCancelQuit instanceof Components.interfaces.nsISupportsPRBool) && aCancelQuit.data)
+    if ((aCancelQuit instanceof Ci.nsISupportsPRBool) && aCancelQuit.data)
       return;
 
     var windowcount = 0;
@@ -803,7 +803,7 @@ SuiteGlue.prototype = {
           Services.prefs.setBoolPref("browser.tabs.warnOnClose", false);
         break;
       case 1:
-        aCancelQuit.QueryInterface(Components.interfaces.nsISupportsPRBool);
+        aCancelQuit.QueryInterface(Ci.nsISupportsPRBool);
         aCancelQuit.data = true;
         break;
       case 0:
@@ -825,11 +825,11 @@ SuiteGlue.prototype = {
   {
     if (Services.prefs.getBoolPref("browser.download.finished_download_sound")) {
       if (!this._sound)
-        this._sound = Components.classes["@mozilla.org/sound;1"]
-                                .createInstance(Components.interfaces.nsISound);
+        this._sound = Cc["@mozilla.org/sound;1"]
+                        .createInstance(Ci.nsISound);
       try {
         var url = Services.prefs.getComplexValue("browser.download.finished_sound_url",
-                                                 Components.interfaces.nsISupportsString);
+                                                 Ci.nsISupportsString);
         this._sound.play(Services.io.newURI(url.data));
       } catch (e) {
         this._sound.beep();
@@ -921,10 +921,10 @@ SuiteGlue.prototype = {
   {
     const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1";
     if (NS_SHELLSERVICE_CID in Components.classes) try {
-      var nsIShellService = Components.interfaces.nsIShellService;
+      var nsIShellService = Ci.nsIShellService;
 
-      var shellService = Components.classes[NS_SHELLSERVICE_CID]
-                                   .getService(nsIShellService);
+      var shellService = Cc[NS_SHELLSERVICE_CID]
+                           .getService(nsIShellService);
       var appTypes = shellService.shouldBeDefaultClientFor;
 
       // Show the default client dialog only if we should check for the default
@@ -1011,7 +1011,7 @@ SuiteGlue.prototype = {
       else {
         // We have created a new database but we don't have any backup available.
         importBookmarks = true;
-        var bookmarksHTMLFile = Services.dirsvc.get("BMarks", Components.interfaces.nsIFile);
+        var bookmarksHTMLFile = Services.dirsvc.get("BMarks", Ci.nsIFile);
         if (bookmarksHTMLFile.exists()) {
           // If bookmarks.html is available in current profile import it...
           importBookmarksHTML = true;
@@ -1053,7 +1053,7 @@ SuiteGlue.prototype = {
       }
       else {
         // Get bookmarks.html file location.
-        var bookmarksFile = Services.dirsvc.get("BMarks", Components.interfaces.nsIFile);
+        var bookmarksFile = Services.dirsvc.get("BMarks", Ci.nsIFile);
         if (bookmarksFile.exists())
           bookmarksURI = Services.io.newFileURI(bookmarksFile);
       }
@@ -1063,7 +1063,7 @@ SuiteGlue.prototype = {
         try {
           BookmarkHTMLUtils.importFromURL(bookmarksURI.spec, true).then(null,
             function onFailure() {
-              Components.utils.reportError("Bookmarks.html file could be corrupt.");
+              Cu.reportError("Bookmarks.html file could be corrupt.");
             }
           ).then(
             // Ensure that smart bookmarks are created once the operation is
@@ -1072,11 +1072,11 @@ SuiteGlue.prototype = {
           );
         }
         catch(ex) {
-          Components.utils.reportError("bookmarks.html file could be corrupt. " + ex);
+          Cu.reportError("bookmarks.html file could be corrupt. " + ex);
         }
       }
       else {
-        Components.utils.reportError("Unable to find bookmarks.html file.");
+        Cu.reportError("Unable to find bookmarks.html file.");
       }
 
       // Reset preferences, so we won't try to import again at next run.
@@ -1120,7 +1120,7 @@ SuiteGlue.prototype = {
         // potential hangs (bug 518683).  The asynchronous shutdown operations
         // will then be handled by a shutdown service (bug 435058).
         var shutdownComplete = false;
-        BookmarkHTMLUtils.exportToFile(Services.dirsvc.get("BMarks", Components.interfaces.nsIFile)).then(
+        BookmarkHTMLUtils.exportToFile(Services.dirsvc.get("BMarks", Ci.nsIFile)).then(
           function onSuccess() {
             shutdownComplete = true;
           },
@@ -1194,8 +1194,8 @@ SuiteGlue.prototype = {
       Services.prefs.setCharPref(prefName, prefValue);
     }
 
-    var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-                                 .getService(Components.interfaces.mozISpellCheckingEngine);
+    var spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
+                         .getService(Ci.mozISpellCheckingEngine);
     var o1 = {};
     spellChecker.getDictionaryList(o1, {});
     var dictList = o1.value;
@@ -1214,9 +1214,9 @@ SuiteGlue.prototype = {
 
     try {
       Services.prefs.setComplexValue("browser.download.lastDir",
-                                     Components.interfaces.nsIFile,
+                                     Ci.nsIFile,
                                      Services.prefs.getComplexValue("browser.download.dir",
-                                                                    Components.interfaces.nsIFile));
+                                                                    Ci.nsIFile));
     } catch (ex) {
       // Ensure that even if we don't end up migrating to a lastDir that we
       // don't attempt another update. This will throw when QI'ed to
@@ -1312,7 +1312,7 @@ SuiteGlue.prototype = {
   },
 
   onDownloadChanged: function(aDownload) {
-    const nsIDownloadManager = Components.interfaces.nsIDownloadManager;
+    const nsIDownloadManager = Ci.nsIDownloadManager;
     aDownload.state =
                 !aDownload.stopped ? nsIDownloadManager.DOWNLOAD_DOWNLOADING :
                 aDownload.succeeded ? nsIDownloadManager.DOWNLOAD_FINISHED :
@@ -1346,9 +1346,9 @@ SuiteGlue.prototype = {
             gTaskbarProgress = null;
         });
         if (gWinTaskbar) {
-          var docShell = gDownloadManager.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                                         .getInterface(Components.interfaces.nsIWebNavigation)
-                                         .QueryInterface(Components.interfaces.nsIDocShell);
+          var docShell = gDownloadManager.QueryInterface(Ci.nsIInterfaceRequestor)
+                                         .getInterface(Ci.nsIWebNavigation)
+                                         .QueryInterface(Ci.nsIDocShell);
           gTaskbarProgress = gWinTaskbar.getTaskbarProgress(docShell);
           onSummaryChanged();
         }
@@ -1410,7 +1410,7 @@ SuiteGlue.prototype = {
           MostVisited: {
             title: bundle.GetStringFromName("mostVisitedTitle"),
             uri: NetUtil.newURI("place:sort=" +
-                                Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_DESCENDING +
+                                Ci.nsINavHistoryQueryOptions.SORT_BY_VISITCOUNT_DESCENDING +
                                 "&maxResults=" + MAX_RESULTS),
             parent: PlacesUtils.toolbarFolderId,
             position: toolbarIndex++,
@@ -1422,9 +1422,9 @@ SuiteGlue.prototype = {
                                 "&folder=UNFILED_BOOKMARKS" +
                                 "&folder=TOOLBAR" +
                                 "&queryType=" +
-                                Components.interfaces.nsINavHistoryQueryOptions.QUERY_TYPE_BOOKMARKS +
+                                Ci.nsINavHistoryQueryOptions.QUERY_TYPE_BOOKMARKS +
                                 "&sort=" +
-                                Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_DATEADDED_DESCENDING +
+                                Ci.nsINavHistoryQueryOptions.SORT_BY_DATEADDED_DESCENDING +
                                 "&maxResults=" + MAX_RESULTS +
                                 "&excludeQueries=1"),
             parent: PlacesUtils.bookmarksMenuFolderId,
@@ -1435,9 +1435,9 @@ SuiteGlue.prototype = {
             title: bundle.GetStringFromName("recentTagsTitle"),
             uri: NetUtil.newURI("place:"+
                                 "type=" +
-                                Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_TAG_QUERY +
+                                Ci.nsINavHistoryQueryOptions.RESULTS_AS_TAG_QUERY +
                                 "&sort=" +
-                                Components.interfaces.nsINavHistoryQueryOptions.SORT_BY_LASTMODIFIED_DESCENDING +
+                                Ci.nsINavHistoryQueryOptions.SORT_BY_LASTMODIFIED_DESCENDING +
                                 "&maxResults=" + MAX_RESULTS),
             parent: PlacesUtils.bookmarksMenuFolderId,
             position: menuIndex++,
@@ -1513,7 +1513,7 @@ SuiteGlue.prototype = {
       PlacesUtils.bookmarks.runInBatchMode(batch, null);
     }
     catch(ex) {
-      Components.utils.reportError(ex);
+      Cu.reportError(ex);
     }
     finally {
       Services.prefs.setIntPref(SMART_BOOKMARKS_PREF, SMART_BOOKMARKS_VERSION);
@@ -1532,24 +1532,24 @@ SuiteGlue.prototype = {
         mostRecentBrowserWindow.getBrowser().addTab(url, { focusNewTab: true });
         mostRecentBrowserWindow.content.focus();
       } else {
-        var args = Components.classes["@mozilla.org/supports-string;1"]
-                             .createInstance(Components.interfaces.nsISupportsString);
+        var args = Cc["@mozilla.org/supports-string;1"]
+                     .createInstance(Ci.nsISupportsString);
         args.data = url;
         var chromeURL = Services.prefs.getCharPref("browser.chromeURL");
         Services.ww.openWindow(null, chromeURL, "_blank", "chrome,all,dialog=no", args);
       }
     } catch (e) {
-      Components.utils.reportError("Error displaying tab received by Sync: " + e);
+      Cu.reportError("Error displaying tab received by Sync: " + e);
     }
   },
 
   // for XPCOM
   classID: Components.ID("{bbbbe845-5a1b-40ee-813c-f84b8faaa07c}"),
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
-                                         Components.interfaces.nsIWebProgressListener,
-                                         Components.interfaces.nsISupportsWeakReference,
-                                         Components.interfaces.nsISuiteGlue])
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
+                                         Ci.nsIWebProgressListener,
+                                         Ci.nsISupportsWeakReference,
+                                         Ci.nsISuiteGlue])
 
 }
 
@@ -1558,7 +1558,7 @@ function ContentPermissionPrompt() {}
 ContentPermissionPrompt.prototype = {
   classID: Components.ID("{9d4c845d-3f09-402a-b66d-50f291d7d50f}"),
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIContentPermissionPrompt]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIContentPermissionPrompt]),
 
   prompt: function(aRequest)
   {
@@ -1571,7 +1571,7 @@ ContentPermissionPrompt.prototype = {
                          };
 
     // Make sure that we support the request.
-    var type = aRequest.types.queryElementAt(0, Components.interfaces.nsIContentPermissionType).type;
+    var type = aRequest.types.queryElementAt(0, Ci.nsIContentPermissionType).type;
     if (!(type in kFeatureKeys))
       return;
 
@@ -1579,9 +1579,9 @@ ContentPermissionPrompt.prototype = {
     var requestingPrincipal = aRequest.principal;
     var requestingURI = requestingPrincipal.URI;
 
-    if (requestingURI instanceof Components.interfaces.nsIFileURL)
+    if (requestingURI instanceof Ci.nsIFileURL)
       path = requestingURI.file.path;
-    else if (requestingURI instanceof Components.interfaces.nsIStandardURL)
+    else if (requestingURI instanceof Ci.nsIStandardURL)
       host = requestingURI.host;
     // Ignore requests from non-nsIStandardURLs
     else
@@ -1614,9 +1614,9 @@ ContentPermissionPrompt.prototype = {
     }
 
     var nb = aRequest.window
-                     .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                     .getInterface(Components.interfaces.nsIWebNavigation)
-                     .QueryInterface(Components.interfaces.nsIDocShell)
+                     .QueryInterface(Ci.nsIInterfaceRequestor)
+                     .getInterface(Ci.nsIWebNavigation)
+                     .QueryInterface(Ci.nsIDocShell)
                      .chromeEventHandler.parentNode;
 
     // Show the prompt.

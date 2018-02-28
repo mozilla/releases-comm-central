@@ -11,8 +11,8 @@ function GetFontEnumerator()
 {
   if (!gFontEnumerator)
   {
-    gFontEnumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
-                                .createInstance(Components.interfaces.nsIFontEnumerator);
+    gFontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
+                        .createInstance(Ci.nsIFontEnumerator);
   }
   return gFontEnumerator;
 }

@@ -10,8 +10,8 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 var kRootURI = "mailbox://nobody@Local%20Folders";
 
 function run_test() {
-  let fls = Components.classes["@mozilla.org/mail/folder-lookup;1"]
-                      .getService(Components.interfaces.nsIFolderLookupService);
+  let fls = Cc["@mozilla.org/mail/folder-lookup;1"]
+              .getService(Ci.nsIFolderLookupService);
 
   // Make sure that the local mail account exists.
   localAccountUtils.loadLocalMailAccount();

@@ -3,8 +3,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function onLoadProvider(provider) {
-  let messenger = Components.classes["@mozilla.org/messenger;1"]
-                            .createInstance(Components.interfaces.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"]
+                    .createInstance(Ci.nsIMessenger);
 
   let fileSpaceUsed = document.getElementById("file-space-used");
   fileSpaceUsed.textContent = messenger.formatFileSize(provider.fileSpaceUsed);

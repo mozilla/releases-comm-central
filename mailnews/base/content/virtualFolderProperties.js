@@ -10,7 +10,7 @@ var gSearchTermSession; // really an in memory temporary filter we use to read i
 var gSearchFolderURIs = "";
 var gMessengerBundle = null;
 
-var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
@@ -47,13 +47,13 @@ function onLoad()
     acceptButton.accesskey =
         document.documentElement.getAttribute("newFolderAcceptButtonAccessKey");
     // it is possible that we were given arguments to pre-fill the dialog with...
-    gSearchTermSession = Components.classes["@mozilla.org/messenger/searchSession;1"]
-                                   .createInstance(Components.interfaces.nsIMsgSearchSession);
+    gSearchTermSession = Cc["@mozilla.org/messenger/searchSession;1"]
+                           .createInstance(Ci.nsIMsgSearchSession);
 
     if (windowArgs.searchTerms) // then add them to our search session
     {
       for (let searchTerm of fixIterator(windowArgs.searchTerms,
-                                         Components.interfaces.nsIMsgSearchTerm))
+                                         Ci.nsIMsgSearchTerm))
         gSearchTermSession.appendTerm(searchTerm);
     }
     if (windowArgs.folder)

@@ -78,7 +78,7 @@ dlObs.prototype = {
 
   onDownloadStateChange: function(aState, aDownload)
   {
-    if (aDownload.state == Components.interfaces.nsIDownloadManager.DOWNLOAD_DOWNLOADING &&
+    if (aDownload.state == Ci.nsIDownloadManager.DOWNLOAD_DOWNLOADING &&
         !this.wasPaused) {
       // Make a copy of the cancelDownload function and replace it with a test
       var counter = () => invokeCount++;
@@ -91,7 +91,7 @@ dlObs.prototype = {
       this.mWin.pauseDownload(aDownload.id);
     }
 
-    if (aDownload.state == Components.interfaces.nsIDownloadManager.DOWNLOAD_PAUSED &&
+    if (aDownload.state == Ci.nsIDownloadManager.DOWNLOAD_PAUSED &&
         !this.wasCanceled) {
       synthesizeKey("VK_DELETE", {}, this.mWin);
       is(invokeCount, 2, "Delete canceled the paused download");
@@ -102,15 +102,15 @@ dlObs.prototype = {
       this.wasCanceled = true;
       this.mWin.cancelDownload(aDownload);
 
-      var dm = Components.classes["@mozilla.org/download-manager;1"]
-                         .getService(Components.interfaces.nsIDownloadManager);
+      var dm = Cc["@mozilla.org/download-manager;1"]
+                 .getService(Ci.nsIDownloadManager);
       dm.removeListener(this);
 
       // We have to do this on a timer so other JS stuff that handles the UI
       // can actually catch up to us...
-      var timer = Components.classes["@mozilla.org/timer;1"]
-                            .createInstance(Components.interfaces.nsITimer);
-      timer.init(this, 0, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+      var timer = Cc["@mozilla.org/timer;1"]
+                    .createInstance(Ci.nsITimer);
+      timer.init(this, 0, Ci.nsITimer.TYPE_ONE_SHOT);
     }
   },
   onStateChange: function(a, b, c, d, e) { },
@@ -119,37 +119,37 @@ dlObs.prototype = {
 };
 function test()
 {
-  var dm = Components.classes["@mozilla.org/download-manager;1"]
-                     .getService(Components.interfaces.nsIDownloadManager);
+  var dm = Cc["@mozilla.org/download-manager;1"]
+             .getService(Ci.nsIDownloadManager);
 
   function addDownload() {
     function createURI(aObj) {
-      var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                          .getService(Components.interfaces.nsIIOService);
-      return (aObj instanceof Components.interfaces.nsIFile) ? ios.newFileURI(aObj) :
+      var ios = Cc["@mozilla.org/network/io-service;1"]
+                  .getService(Ci.nsIIOService);
+      return (aObj instanceof Ci.nsIFile) ? ios.newFileURI(aObj) :
                                             ios.newURI(aObj);
     }
 
-    const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
-    var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-                            .createInstance(nsIWBP);
+    const nsIWBP = Ci.nsIWebBrowserPersist;
+    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+                    .createInstance(nsIWBP);
     persist.persistFlags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
                            nsIWBP.PERSIST_FLAGS_BYPASS_CACHE |
                            nsIWBP.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
 
-    var dirSvc = Components.classes["@mozilla.org/file/directory_service;1"]
-                           .getService(Components.interfaces.nsIProperties);
-    var destFile = dirSvc.get("ProfD", Components.interfaces.nsIFile);
+    var dirSvc = Cc["@mozilla.org/file/directory_service;1"]
+                   .getService(Ci.nsIProperties);
+    var destFile = dirSvc.get("ProfD", Ci.nsIFile);
     destFile.append("download.result");
     if (destFile.exists())
       destFile.remove(false);
 
-    var dl = dm.addDownload(Components.interfaces.nsIDownloadManager.DOWNLOAD_TYPE_DOWNLOAD,
+    var dl = dm.addDownload(Ci.nsIDownloadManager.DOWNLOAD_TYPE_DOWNLOAD,
                             createURI("http://example.com/httpd.js"),
                             createURI(destFile), null, null,
                             Math.round(Date.now() * 1000), null, persist, false);
 
-    persist.progressListener = dl.QueryInterface(Components.interfaces.nsIWebProgressListener);
+    persist.progressListener = dl.QueryInterface(Ci.nsIWebProgressListener);
     persist.saveURI(dl.source, null, null, 0, null, null, dl.targetFile, null);
 
     return dl;
@@ -163,8 +163,8 @@ function test()
   if (win)
     win.close();
 
-  var os = Components.classes["@mozilla.org/observer-service;1"]
-                     .getService(Components.interfaces.nsIObserverService);
+  var os = Cc["@mozilla.org/observer-service;1"]
+             .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   var testObs = {
@@ -191,9 +191,9 @@ function test()
   os.addObserver(testObs, DLMGR_UI_DONE);
 
   // Show the Download Manager UI
-  Components.classes["@mozilla.org/download-manager-ui;1"]
-            .getService(Components.interfaces.nsISuiteDownloadManagerUI)
-            .showManager();
+  Cc["@mozilla.org/download-manager-ui;1"]
+    .getService(Ci.nsISuiteDownloadManagerUI)
+    .showManager();
 
   SimpleTest.waitForExplicitFinish();
 }

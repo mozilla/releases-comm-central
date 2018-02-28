@@ -49,14 +49,14 @@ function run_test() {
                Services.perms.UNKNOWN_ACTION);
 
   // Set default charsets to an encoding no longer supported: VISCII.
-  let charset = Components.classes["@mozilla.org/pref-localizedstring;1"]
-                .createInstance(Components.interfaces.nsIPrefLocalizedString);
+  let charset = Cc["@mozilla.org/pref-localizedstring;1"]
+                .createInstance(Ci.nsIPrefLocalizedString);
   charset.data = "VISCII";
   Services.prefs.setComplexValue("mailnews.send_default_charset",
-        Components.interfaces.nsIPrefLocalizedString, charset);
+        Ci.nsIPrefLocalizedString, charset);
   Assert.ok(Services.prefs.prefHasUserValue("mailnews.send_default_charset"));
   Services.prefs.setComplexValue("mailnews.view_default_charset",
-        Components.interfaces.nsIPrefLocalizedString, charset);
+        Ci.nsIPrefLocalizedString, charset);
   Assert.ok(Services.prefs.prefHasUserValue("mailnews.view_default_charset"));
 
   // Now migrate the prefs.

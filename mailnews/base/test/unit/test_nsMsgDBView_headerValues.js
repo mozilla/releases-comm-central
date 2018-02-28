@@ -8,9 +8,9 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-var ViewType = Components.interfaces.nsMsgViewType;
-var SortType = Components.interfaces.nsMsgViewSortType;
-var SortOrder = Components.interfaces.nsMsgViewSortOrder;
+var ViewType = Ci.nsMsgViewType;
+var SortType = Ci.nsMsgViewSortType;
+var SortOrder = Ci.nsMsgViewSortOrder;
 
 // This is an array of the actual test data. Each test datum is an array of two
 // elements: the first element is the argument into a simple message generator,
@@ -45,14 +45,14 @@ function* real_test() {
 
   // Make the DB view
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=threaded";
-  let dbView = Components.classes[dbviewContractId]
-                         .createInstance(Components.interfaces.nsIMsgDBView);
+  let dbView = Cc[dbviewContractId]
+                 .createInstance(Ci.nsIMsgDBView);
   dbView.init(null, null, null);
   var outCount = {};
   dbView.open(folder, SortType.byDate, SortOrder.ascending, 0, outCount);
 
   // Did we add all the messages properly?
-  let treeView = dbView.QueryInterface(Components.interfaces.nsITreeView);
+  let treeView = dbView.QueryInterface(Ci.nsITreeView);
   Assert.equal(treeView.rowCount, tests.length);
 
   // For each test, make sure that the display is correct.

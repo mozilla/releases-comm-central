@@ -162,11 +162,11 @@
         // avoid replacing the current document with an external page.
         aEvent.preventDefault();
 
-        var ioService = Components.classes["@mozilla.org/network/io-service;1"].
-                        getService(Components.interfaces.nsIIOService);
-        Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                  .getService(Components.interfaces.nsIExternalProtocolService)
-                  .loadURI(ioService.newURI(aEvent.target.href));
+        var ioService = Cc["@mozilla.org/network/io-service;1"].
+                        getService(Ci.nsIIOService);
+        Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+          .getService(Ci.nsIExternalProtocolService)
+          .loadURI(ioService.newURI(aEvent.target.href));
       }
 
     ]]>

@@ -336,11 +336,11 @@ urlListener.prototype =
 
   // nsISupports
   QueryInterface: function(iid) {
-    if (!iid.equals(Components.interfaces.nsIBadCertListener2) &&
-        !iid.equals(Components.interfaces.nsIInterfaceRequestor) &&
-        !iid.equals(Components.interfaces.nsIUrlListener) &&
-        !iid.equals(Components.interfaces.nsISupports))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
+    if (!iid.equals(Ci.nsIBadCertListener2) &&
+        !iid.equals(Ci.nsIInterfaceRequestor) &&
+        !iid.equals(Ci.nsIUrlListener) &&
+        !iid.equals(Ci.nsISupports))
+      throw Cr.NS_ERROR_NO_INTERFACE;
 
     return this;
   }

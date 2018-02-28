@@ -71,9 +71,9 @@ function browserWindowsCount(expected, msg) {
       ++count;
   }
   is(count, expected[0], msg + " (nsIWindowMediator)");
-  let state = Components.classes["@mozilla.org/suite/sessionstore;1"]
-                        .getService(Components.interfaces.nsISessionStore)
-                        .getBrowserState();
+  let state = Cc["@mozilla.org/suite/sessionstore;1"]
+                .getService(Ci.nsISessionStore)
+                .getBrowserState();
   is(JSON.parse(state).windows.length, expected[1], msg + " (getBrowserState)");
 }
 
@@ -130,7 +130,7 @@ function test() {
       // handle some tests
       if (++this.hitCount == 1) {
         // Test 6
-        aCancel.QueryInterface(Components.interfaces.nsISupportsPRBool).data = true;
+        aCancel.QueryInterface(Ci.nsISupportsPRBool).data = true;
       }
     }
   };

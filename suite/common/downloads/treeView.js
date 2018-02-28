@@ -5,7 +5,7 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
-const nsITreeView = Components.interfaces.nsITreeView;
+const nsITreeView = Ci.nsITreeView;
 // const nsIDownloadManager is already defined in downloadmanager.js
 
 function DownloadTreeView() {

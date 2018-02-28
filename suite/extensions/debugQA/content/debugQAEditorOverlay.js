@@ -49,7 +49,7 @@ function EditorTestSelection()
 
   dump("Selection contains:\n");
   // 3rd param = column to wrap
-  dump(selection.QueryInterface(Components.interfaces.nsISelectionPrivate)
+  dump(selection.QueryInterface(Ci.nsISelectionPrivate)
        .toStringWithFormat("text/plain",
                            kOutputFormatted | kOutputSelectionOnly,
                            0) + "\n");
@@ -222,7 +222,7 @@ function EditorShowEmbeddedObjects()
     var objectArray = GetCurrentEditor().getEmbeddedObjects();
     dump(objectArray.length + " embedded objects\n");
     for (let i = 0; i < objectArray.length; ++i)
-      dump(objectArray.queryElementAt(i, Components.interfaces.nsIDOMNode) + "\n");
+      dump(objectArray.queryElementAt(i, Ci.nsIDOMNode) + "\n");
   } catch(e) {}
 }
 
@@ -254,13 +254,13 @@ function EditorTestDocument()
 
 function EditorExecuteScript(theFile)
 {
-  var inputStream = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance();
-  inputStream = inputStream.QueryInterface(Components.interfaces.nsIFileInputStream);
+  var inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance();
+  inputStream = inputStream.QueryInterface(Ci.nsIFileInputStream);
 
   inputStream.init(theFile, 1, 0, false);    // open read only
 
-  var scriptableInputStream = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance();
-  scriptableInputStream = scriptableInputStream.QueryInterface(Components.interfaces.nsIScriptableInputStream);
+  var scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance();
+  scriptableInputStream = scriptableInputStream.QueryInterface(Ci.nsIScriptableInputStream);
 
   scriptableInputStream.init(inputStream);    // open read only
 
@@ -322,7 +322,7 @@ function EditorGetScriptFileSpec()
 function EditorStartLog()
 {
   try {
-    var edlog = GetCurrentEditor().QueryInterface(Components.interfaces.nsIEditorLogging);
+    var edlog = GetCurrentEditor().QueryInterface(Ci.nsIEditorLogging);
     var fs = EditorGetScriptFileSpec();
     edlog.startLogging(fs);
     window.content.focus();
@@ -335,7 +335,7 @@ function EditorStartLog()
 function EditorStopLog()
 {
   try {
-    var edlog = GetCurrentEditor().QueryInterface(Components.interfaces.nsIEditorLogging);
+    var edlog = GetCurrentEditor().QueryInterface(Ci.nsIEditorLogging);
     edlog.stopLogging();
     window.content.focus();
   }
@@ -409,7 +409,7 @@ function PrintTxnList(txnList, prefixStr)
     if (txn)
     {
       try {
-        txn = txn.QueryInterface(Components.interfaces.nsPIEditorTransaction);
+        txn = txn.QueryInterface(Ci.nsPIEditorTransaction);
         desc = txn.txnDescription;
       } catch(e) {
         desc = "UnknownTxnType";
@@ -474,11 +474,11 @@ sampleJSTransaction.prototype = {
 
   QueryInterface: function(aIID, theResult)
   {
-    if (aIID.equals(Components.interfaces.nsITransaction) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsITransaction) ||
+        aIID.equals(Ci.nsISupports))
       return this;
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
   insert_node_at_point: function(node, container, offset)
@@ -497,7 +497,7 @@ function ExecuteJSTransactionViaTxmgr()
   try {
     var editor = GetCurrentEditor();
     var txmgr = editor.transactionManager;
-    txmgr = txmgr.QueryInterface(Components.interfaces.nsITransactionManager);
+    txmgr = txmgr.QueryInterface(Ci.nsITransactionManager);
 
     var selection = editor.selection;
     var range =  selection.getRangeAt(0);

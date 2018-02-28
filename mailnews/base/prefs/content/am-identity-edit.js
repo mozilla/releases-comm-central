@@ -213,8 +213,8 @@ function saveIdentitySettings(identity)
     if (attachSignaturePath)
     {
       // convert signature path back into a nsIFile
-      var sfile = Components.classes["@mozilla.org/file/local;1"]
-                  .createInstance(Components.interfaces.nsIFile);
+      var sfile = Cc["@mozilla.org/file/local;1"]
+                  .createInstance(Ci.nsIFile);
       sfile.initWithPath(attachSignaturePath);
       if (sfile.exists())
         identity.signature = sfile;
@@ -261,10 +261,10 @@ function saveAddressingAndCompositionSettings(identity)
 
 function selectFile()
 {
-  const nsIFilePicker = Components.interfaces.nsIFilePicker;
+  const nsIFilePicker = Ci.nsIFilePicker;
 
-  var fp = Components.classes["@mozilla.org/filepicker;1"]
-                     .createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(nsIFilePicker);
 
   var prefBundle = document.getElementById("bundle_prefs");
   var title = prefBundle.getString("choosefile");
@@ -297,7 +297,7 @@ function GetSigFolder()
 
     if (signatureFile)
     {
-      signatureFile = signatureFile.QueryInterface(Components.interfaces.nsIFile);
+      signatureFile = signatureFile.QueryInterface(Ci.nsIFile);
       sigFolder = signatureFile.parent;
 
       if (!sigFolder.exists())
@@ -388,7 +388,7 @@ function loadSMTPServerList()
   {
     var server = servers.getNext();
 
-    if (server instanceof Components.interfaces.nsISmtpServer)
+    if (server instanceof Ci.nsISmtpServer)
     {
       var serverName = "";
       if (server.description)

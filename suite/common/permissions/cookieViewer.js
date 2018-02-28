@@ -22,8 +22,8 @@ var allCookies           = [];
 var deletedCookies       = [];
 var deletedPermissions   = [];
 
-const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-const nsICookiePermission = Components.interfaces.nsICookiePermission;
+const nsIPermissionManager = Ci.nsIPermissionManager;
+const nsICookiePermission = Ci.nsICookiePermission;
 
 var cookieBundle;
 var gUpdatingBatch = "";
@@ -34,12 +34,12 @@ function Startup() {
   //   cookieManager
 
   // xpconnect to cookiemanager/permissionmanager/promptservice interfaces
-  cookiemanager = Components.classes["@mozilla.org/cookiemanager;1"]
-                            .getService(Components.interfaces.nsICookieManager);
-  permissionmanager = Components.classes["@mozilla.org/permissionmanager;1"]
-                                .getService(Components.interfaces.nsIPermissionManager);
-  promptservice = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
+  cookiemanager = Cc["@mozilla.org/cookiemanager;1"]
+                    .getService(Ci.nsICookieManager);
+  permissionmanager = Cc["@mozilla.org/permissionmanager;1"]
+                        .getService(Ci.nsIPermissionManager);
+  promptservice = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                    .getService(Ci.nsIPromptService);
 
   // intialize string bundle
   cookieBundle = document.getElementById("cookieBundle");
@@ -51,7 +51,7 @@ function Startup() {
   loadPermissions();
 
   // be prepared to reload the display if anything changes
-  kObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+  kObserverService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
   kObserverService.addObserver(cookieReloadDisplay, "cookie-changed");
   kObserverService.addObserver(cookieReloadDisplay, "perm-changed");
 
@@ -91,7 +91,7 @@ function doSelectAll() {
 
 /*** =================== COOKIES CODE =================== ***/
 
-const nsICookie = Components.interfaces.nsICookie;
+const nsICookie = Ci.nsICookie;
 
 var cookiesTreeView = {
   rowCount : 0,
@@ -146,7 +146,7 @@ function loadCookies() {
   while (enumerator.hasMoreElements()) {
     var nextCookie = enumerator.getNext();
     if (!nextCookie) break;
-    nextCookie = nextCookie.QueryInterface(Components.interfaces.nsICookie);
+    nextCookie = nextCookie.QueryInterface(Ci.nsICookie);
     var host = nextCookie.host;
     allCookies[count] =
       new Cookie(count++, host, nextCookie.name,
@@ -390,7 +390,7 @@ function loadPermissions() {
   var cannotStr = cookieBundle.getString("cannot");
   while (enumerator.hasMoreElements()) {
     var nextPermission = enumerator.getNext();
-    nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
+    nextPermission = nextPermission.QueryInterface(Ci.nsIPermission);
     // We are only interested in cookie permissions in this code.
     if (nextPermission.type == "cookie") {
       // It is currently possible to add a cookie permission for about:xxx and other internal pages.
@@ -400,9 +400,9 @@ function loadPermissions() {
         nextPermission.principal.URI.host;
       }
       catch (e) {
-        Components.utils.reportError("Invalid permission found: " +
-                                     nextPermission.principal.origin + " " +
-                                     nextPermission.type);
+        Cu.reportError("Invalid permission found: " +
+                       nextPermission.principal.origin + " " +
+                       nextPermission.type);
         continue;
       }
 
@@ -481,8 +481,8 @@ function setCookiePermissions(action) {
     return;
   }
 
-  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                            .getService(Components.interfaces.nsIIOService);
+  var ioService = Cc["@mozilla.org/network/io-service;1"]
+                    .getService(Ci.nsIIOService);
 
   try {
     var uri = ioService.newURI(url);

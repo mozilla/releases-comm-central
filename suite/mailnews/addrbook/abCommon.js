@@ -289,12 +289,12 @@ function AbEditCard(card)
 
 function AbNewMessage()
 {
-  let params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
+  let params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);
   if (params) {
-    let composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
+    let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
     if (composeFields) {
-      params.type = Components.interfaces.nsIMsgCompType.New;
-      params.format = Components.interfaces.nsIMsgCompFormat.Default;
+      params.type = Ci.nsIMsgCompType.New;
+      params.format = Ci.nsIMsgCompFormat.Default;
       if (DirPaneHasFocus()) {
         let selectedDir = getSelectedDirectory();
         let hidesRecipients = false;
@@ -338,9 +338,9 @@ function AbCopyAddress()
   for (var i = 1; i < count; i++)
     addresses += "," + cards[i].primaryEmail;
 
-  Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-            .getService(Components.interfaces.nsIClipboardHelper)
-            .copyString(addresses);
+  Cc["@mozilla.org/widget/clipboardhelper;1"]
+    .getService(Ci.nsIClipboardHelper)
+    .copyString(addresses);
 }
 
 /**
@@ -377,7 +377,7 @@ function GetSelectedAddressesFromDirTree()
   let cards = new Array(listCardsCount);
   for (let i = 0; i < listCardsCount; ++i)
     cards[i] = selectedDir.addressLists
-                 .queryElementAt(i, Components.interfaces.nsIAbCard);
+                 .queryElementAt(i, Ci.nsIAbCard);
   return GetAddressesForCards(cards);
 }
 
@@ -653,11 +653,11 @@ function GetSelectedDirectory()
  * This will create the directory if it does not yet exist.
  */
 function getPhotosDir() {
-  var file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+  var file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   // Get the Photos directory
   file.append("Photos");
   if (!file.exists() || !file.isDirectory())
-    file.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, parseInt("0777", 8));
+    file.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0777", 8));
   return file;
 }
 
@@ -709,8 +709,8 @@ function storePhoto(aUri) {
                                          null,
                                          Services.scriptSecurityManager.getSystemPrincipal(),
                                          null,
-                                         Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                         Components.interfaces.nsIContentPolicy.TYPE_INTERNAL_IMAGE);
+                                         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                         Ci.nsIContentPolicy.TYPE_INTERNAL_IMAGE);
 
   var istream = channel.open();
 
@@ -733,11 +733,11 @@ function storePhoto(aUri) {
  * @return The extension of the file, if any, including the period.
  */
 function findPhotoExt(aChannel) {
-  var mimeSvc = Components.classes["@mozilla.org/mime;1"]
-                          .getService(Components.interfaces.nsIMIMEService);
+  var mimeSvc = Cc["@mozilla.org/mime;1"]
+                  .getService(Ci.nsIMIMEService);
   var ext = "";
   var uri = aChannel.URI;
-  if (uri instanceof Components.interfaces.nsIURL)
+  if (uri instanceof Ci.nsIURL)
     ext = uri.fileExtension;
   try {
     return mimeSvc.getPrimaryExtension(aChannel.contentType, ext);
