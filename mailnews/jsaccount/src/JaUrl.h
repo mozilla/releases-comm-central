@@ -19,6 +19,7 @@
 #include "nsISupports.h"
 #include "nsMsgMailNewsUrl.h"
 #include "nsWeakReference.h"
+#include "msgIJaUrl.h"
 
 namespace mozilla {
 namespace mailnews {
@@ -29,6 +30,7 @@ namespace mailnews {
 // in the C++ base class (bypassing any JS override).
 class JaBaseCppUrl : public nsMsgMailNewsUrl,
                      public nsIMsgMessageUrl,
+                     public msgIJaUrl,
                      public nsIInterfaceRequestor,
                      public nsSupportsWeakReference
 
@@ -36,12 +38,15 @@ class JaBaseCppUrl : public nsMsgMailNewsUrl,
 public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGMESSAGEURL
+  NS_DECL_MSGIJAURL
   NS_DECL_NSIINTERFACEREQUESTOR
   JaBaseCppUrl() { }
 
   // nsIMsgMailNewsUrl overrides
   NS_IMETHOD GetFolder(nsIMsgFolder **aFolder) override;
   NS_IMETHOD SetFolder(nsIMsgFolder *aFolder) override;
+  NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
+  NS_IMETHOD GetServer(nsIMsgIncomingServer **aIncomingServer) override;
 
 protected:
   virtual ~JaBaseCppUrl() { }
@@ -57,6 +62,9 @@ protected:
   nsCOMPtr<nsIFile> mMessageFile;
   bool mCanonicalLineEnding;
   nsCString mOriginalSpec;
+
+  // msgIJaUrl variables
+  unsigned int m_urlType;
 };
 
 class JaCppUrlDelegator : public JaBaseCppUrl,
@@ -66,17 +74,17 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_MSGIOVERRIDE
 
-  NS_FORWARD_NSIMSGMAILNEWSURL(DELEGATE_JS(nsIMsgMailNewsUrl, mJsIMsgMailNewsUrl)->)
-  NS_FORWARD_NSIURI(DELEGATE_JS(nsIURI, mJsIURI)->)
-  NS_FORWARD_NSIURL(DELEGATE_JS(nsIURL, mJsIURL)->)
   NS_FORWARD_NSIMSGMESSAGEURL(DELEGATE_JS(nsIMsgMessageUrl, mJsIMsgMessageUrl)->)
   NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(nsIInterfaceRequestor, mJsIInterfaceRequestor)->)
 
   JaCppUrlDelegator();
 
   class Super : public nsIMsgMailNewsUrl,
+                public nsIURIWithPrincipal,
                 public nsIMsgMessageUrl,
-                public nsIInterfaceRequestor
+                public msgIJaUrl,
+                public nsIInterfaceRequestor,
+                public nsISupportsWeakReference
   {
     public:
       Super(JaCppUrlDelegator *aFakeThis) {mFakeThis = aFakeThis;}
@@ -84,8 +92,11 @@ public:
       NS_FORWARD_NSIMSGMAILNEWSURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIURI(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIURL(mFakeThis->JaBaseCppUrl::)
+      NS_FORWARD_NSIURIWITHPRINCIPAL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIMSGMESSAGEURL(mFakeThis->JaBaseCppUrl::)
+      NS_FORWARD_MSGIJAURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppUrl::)
+      NS_FORWARD_NSISUPPORTSWEAKREFERENCE(mFakeThis->JaBaseCppUrl::)
     private:
       virtual ~Super() {}
       JaCppUrlDelegator *mFakeThis;
@@ -96,9 +107,6 @@ private:
   }
 
   // Interfaces that may be overridden by JS.
-  nsCOMPtr<nsIMsgMailNewsUrl> mJsIMsgMailNewsUrl;
-  nsCOMPtr<nsIURI> mJsIURI;
-  nsCOMPtr<nsIURL> mJsIURL;
   nsCOMPtr<nsIMsgMessageUrl> mJsIMsgMessageUrl;
   nsCOMPtr<nsIInterfaceRequestor> mJsIInterfaceRequestor;
 

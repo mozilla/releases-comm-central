@@ -14,6 +14,4 @@ interface msgIFooUrl : nsISupports
   attribute AString itemId;
   /// Does this url refer to an attachment?
   readonly attribute boolean isAttachment;
-  /// urlType (copy, move, display) from nsIMsgMailNewsUrl
-  void setUrlType(in unsigned long aType);
 };

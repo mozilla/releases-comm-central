@@ -6,6 +6,7 @@
 
 XPIDL_SOURCES += [
     'msgIDelegateList.idl',
+    'msgIJaUrl.idl',
     'msgIOverride.idl',
 ]
 

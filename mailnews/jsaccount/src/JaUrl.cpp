@@ -20,6 +20,7 @@ namespace mailnews {
 
 NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppUrl, nsMsgMailNewsUrl,
                             nsIMsgMessageUrl,
+                            msgIJaUrl,
                             nsIInterfaceRequestor,
                             nsISupportsWeakReference)
 
@@ -34,6 +35,21 @@ NS_IMETHODIMP JaBaseCppUrl::GetFolder(nsIMsgFolder **aFolder)
 NS_IMETHODIMP JaBaseCppUrl::SetFolder(nsIMsgFolder *aFolder)
 {
   mFolder = aFolder;
+  return NS_OK;
+}
+
+NS_IMETHODIMP JaBaseCppUrl::GetServer(nsIMsgIncomingServer **aIncomingServer)
+{
+  if (mFolder) {
+    return mFolder->GetServer(aIncomingServer);
+  }
+  return NS_ERROR_NOT_INITIALIZED;
+}
+
+NS_IMETHODIMP JaBaseCppUrl::IsUrlType(uint32_t type, bool *isType)
+{
+  NS_ENSURE_ARG(isType);
+  *isType = (m_urlType == type);
   return NS_OK;
 }
 
@@ -146,6 +162,18 @@ NS_IMETHODIMP JaBaseCppUrl::SetMessageHeader(nsIMsgDBHdr *aMsgHdr)
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+// msgIJaUrl implementation
+NS_IMETHODIMP JaBaseCppUrl::SetUrlType(unsigned int type)
+{
+  m_urlType = type;
+  return NS_OK;
+}
+
+NS_IMETHODIMP JaBaseCppUrl::SetSpec(const nsACString& aSpec)
+{
+  return SetSpecInternal(aSpec);
+}
+
 // nsIInterfaceRequestor implementation
 NS_IMETHODIMP JaBaseCppUrl::GetInterface(const nsIID & aIID, void **aSink)
 {
@@ -159,11 +187,14 @@ NS_IMPL_ISUPPORTS_INHERITED(JaCppUrlDelegator,
 
 // Delegator object to bypass JS method override.
 NS_IMPL_ISUPPORTS(JaCppUrlDelegator::Super,
-                  nsIMsgMailNewsUrl,
                   nsIMsgMessageUrl,
                   nsIURI,
                   nsIURL,
-                  nsIInterfaceRequestor)
+                  nsIURIWithPrincipal,
+                  nsIMsgMailNewsUrl,
+                  msgIJaUrl,
+                  nsIInterfaceRequestor,
+                  nsISupportsWeakReference)
 
 JaCppUrlDelegator::JaCppUrlDelegator() :
   mCppBase(new Super(this)),
@@ -196,9 +227,6 @@ NS_IMETHODIMP JaCppUrlDelegator::SetJsDelegate(nsISupports *aJsDelegate)
   // If these QIs fail, then overrides are not provided for methods in that
   // interface, which is OK.
   mJsISupports = aJsDelegate;
-  mJsIMsgMailNewsUrl = do_QueryInterface(aJsDelegate);
-  mJsIURI = do_QueryInterface(aJsDelegate);
-  mJsIURL = do_QueryInterface(aJsDelegate);
   mJsIMsgMessageUrl = do_QueryInterface(aJsDelegate);
   mJsIInterfaceRequestor = do_QueryInterface(aJsDelegate);
   return NS_OK;
