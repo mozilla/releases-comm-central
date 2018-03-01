@@ -19,10 +19,6 @@
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
 <?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
-#ifdef XP_MACOSX
-<?xul-overlay href="chrome://messenger/content/macMenuOverlay.xul"?>
-#endif
-<?xul-overlay href="chrome://messenger/content/baseMenuOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/about-support/aboutSupportOverlay.xul"?>
 
 <!DOCTYPE overlay [
@@ -59,6 +55,11 @@
 <script type="application/javascript" src="chrome://messenger/content/msgViewPickerOverlay.js"/>
 <script type="application/javascript" src="chrome://messenger/content/plugins.js"/>
 <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
+<script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
+#ifdef XP_MACOSX
+<script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>
+#endif
 <script type="application/javascript" src="chrome://messenger/content/newmailaccount/uriListener.js"/>
 
 <stringbundleset id="stringbundleset">
@@ -583,14 +584,15 @@
 #ifdef XP_MACOSX
   <!-- Mac Window menu keys -->
   <key id="key_minimizeWindow" command="minimizeWindow" key="&minimizeWindow.key;" modifiers="accel"/>
+  <key id="key_addressbook" key="&addressBookCmd.key;" oncommand="toAddressBook();" modifiers="accel, shift"/>
     <!-- the following 3 keys are used in the application menu on Mac OS X Cocoa widgets -->
   <key id="key_preferencesCmdMac" key="&preferencesCmdMac.commandkey;" modifiers="&preferencesCmdMac.modifiers;"/>
   <key id="key_hideThisAppCmdMac" key="&hideThisAppCmdMac.commandkey;" modifiers="&hideThisAppCmdMac.modifiers;"/>
   <key id="key_hideOtherAppsCmdMac" key="&hideOtherAppsCmdMac.commandkey;" modifiers="&hideOtherAppsCmdMac.modifiers;"/>
+  <key id="key_openHelp" oncommand="openSupportURL();" key="&openHelpMac2.commandkey;" modifiers="&openHelpMac2.modifiers;"/>
+#else
+  <key id="key_openHelp" oncommand="openSupportURL();" keycode="&openHelp.commandkey;"/>
 #endif
-
-  <!-- Common keys for the base menu overlay -->
-  <keyset id="baseMenuKeyset"/>
 </keyset>
 
   <!-- "Please keep all items and separators up to date in nsContextMenu.js when making changes here" -->
@@ -3157,12 +3159,11 @@
       </menu>
 
 #ifdef XP_MACOSX
-<!-- Mac window menu -->
-#includesubst @TOOLKIT_DIR@/content/macWindowMenu.inc
+#include macWindowMenu.inc
 #endif
 
       <!-- Help -->
-      <menu id="helpMenu"/>
+#include helpMenu.inc
 
       <spacer id="menubar_spacer" flex="100%"/>
       </menubar>

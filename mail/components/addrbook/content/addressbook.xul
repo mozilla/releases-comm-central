@@ -8,11 +8,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/addressbook.css" type="text/css"?>
 
-#ifdef XP_MACOSX
-<?xul-overlay href="chrome://messenger/content/macMenuOverlay.xul"?>
-#endif
-<?xul-overlay href="chrome://messenger/content/baseMenuOverlay.xul"?>
-
 <!DOCTYPE window [
 <!ENTITY % abMainWindowDTD SYSTEM "chrome://messenger/locale/addressbook/abMainWindow.dtd" >
 %abMainWindowDTD;
@@ -20,6 +15,8 @@
 %brandDTD;
 <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
 %customizeToolbarDTD;
+<!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
+%baseMenuOverlayDTD;
 ]>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -57,6 +54,9 @@
 <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
 <script type="application/javascript" src="chrome://messenger/content/addressbook/abDragDrop.js"/>
 <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+#ifdef XP_MACOSX
+<script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>
+#endif
 <script type="application/javascript" src="chrome://messenger/content/addressbook/abResultsPane.js"/>
 <script type="application/javascript" src="chrome://messenger/content/addressbook/abCardViewOverlay.js"/>
 <script type="application/javascript" src="chrome://messenger/content/toolbarIconColor.js"/>
@@ -196,10 +196,12 @@
 #ifdef XP_MACOSX
   <!-- Mac Window keys -->
   <key id="key_minimizeWindow" command="minimizeWindow" key="&minimizeWindow.key;" modifiers="accel"/>
+  <key id="key_addressbook" key="&addressBookCmd.key;" oncommand="toAddressBook();" modifiers="accel, shift"/>
+  <key id="key_openHelp" oncommand="openSupportURL();" key="&openHelpMac2.commandkey;" modifiers="&openHelpMac2.modifiers;"/>
+#else
+  <key id="key_openHelp" oncommand="openSupportURL();" keycode="&openHelp.commandkey;"/>
 #endif
 </keyset>
-
-<keyset id="baseMenuKeyset"/>
 
 <menupopup id="dirTreeContext" onpopupshowing="updateDirTreeContext();">
   <menuitem id="dirTreeContext-properties"
@@ -576,6 +578,11 @@
             <menuitem id="tasksMenuMail" accesskey="&messengerCmd.accesskey;"
                       label="&messengerCmd.label;" key="key_mail"
                       oncommand="toMessengerWindow();"/>
+            <menuitem id="tasksMenuAddressBook"
+                      label="&addressBookCmd.label;"
+                      accesskey="&addressBookCmd.accesskey;"
+                      key="key_addressbook"
+                      oncommand="toAddressBook();"/>
             <menuseparator/>
 #endif
             <menuitem label="&importCmd.label;" accesskey="&importCmd.accesskey;" oncommand="toImport()"/>
@@ -601,12 +608,11 @@
         </menu>
 
 #ifdef XP_MACOSX
-<!-- Mac window menu -->
-#includesubst @TOOLKIT_DIR@/content/macWindowMenu.inc
+#include ../../../base/content/macWindowMenu.inc
 #endif
 
       <!-- Help -->
-      <menu id="helpMenu"/>
+#include ../../../base/content/helpMenu.inc
     </menubar>
    </toolbaritem>
   </toolbar>

@@ -3,11 +3,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<?xul-overlay href="chrome://messenger/content/baseMenuOverlay.xul"?>
+<!DOCTYPE overlay [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+%brandDTD;
+<!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
+%baseMenuOverlayDTD;
+]>
 
 <overlay id="viewSourceOverlay"
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
 
   <window id="viewSource">
     <commandset id="baseMenuCommandSet"/>
@@ -16,12 +23,36 @@
   </window>
 
   <command id="cmd_highlightSyntax" disabled="true"/>
-  <menubar id="viewSource-main-menubar">
+  <keyset id="helpMenuKeyset">
+    <key id="key_openHelp"
+         oncommand="openSupportURL();"
 #ifdef XP_MACOSX
-    <menu id="windowMenu"/>
-    <menupopup id="taskPopup"/>
+         key="&openHelpMac2.commandkey;"
+         modifiers="&openHelpMac2.modifiers;"/>
+#else
+         keycode="&openHelp.commandkey;"/>
 #endif
-    <menu id="helpMenu"/>
+  </keyset>
+
+  <menubar id="viewSource-main-menubar">
+    <menu id="helpMenu"
+#ifdef XP_WIN
+          label="&helpMenuWin.label;" accesskey="&helpMenuWin.accesskey;">
+#else
+          label="&helpMenu.label;" accesskey="&helpMenu.accesskey;">
+#endif
+      <menupopup id="menu_HelpPopup">
+        <menuitem id="menu_openHelp"
+#ifdef XP_MACOSX
+                  label="&openHelpMac2.label;"
+#else
+                  label="&openHelp.label;"
+                  accesskey="&openHelp.accesskey;"
+#endif
+                  key="key_openHelp"
+                  oncommand="openSupportURL();"/>
+      </menupopup>
+    </menu>
   </menubar>
   <browser id="content" disablehistory="true"/>
 </overlay>
