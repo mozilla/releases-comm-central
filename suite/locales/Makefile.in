@@ -112,6 +112,15 @@ BOOKMARKS_XTRA_FILE = $(call MERGE_FILE,profile/bookmarks.extra)
 
 PANELS_XTRA_FILE = $(call MERGE_FILE,profile/panels.extra)
 
+MERGE_FILES = $(foreach f,$(1),$(call MERGE_FILE,$(f)))
+
+# These macros are similar to MERGE_FILE, but no merging, and en-US first.
+# They're used for searchplugins, for example.
+EN_US_OR_L10N_FILE = $(firstword \
+	$(wildcard $(srcdir)/en-US/$(1)) \
+	$(LOCALE_SRCDIR)/$(1) )
+EN_US_OR_L10N_FILES = $(foreach f,$(1),$(call EN_US_OR_L10N_FILE,$(f)))
+
 # the #include in the .in file requires all to be in the same dir, sadly.
 %/defaults/profile/panels.rdf: $(PANELS_XTRA_FILE) generic/profile/panels.rdf.in
 	$(SYSINSTALL) -D $(dir $@)
