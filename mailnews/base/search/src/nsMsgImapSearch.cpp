@@ -111,22 +111,22 @@ nsresult nsMsgSearchOnlineMail::Encode (nsCString& pEncoding,
         rv = searchValue->GetStr(pchar);
         if (NS_FAILED(rv) || pchar.IsEmpty())
           continue;
-        asciiOnly = NS_IsAscii(pchar.get());
+        asciiOnly = NS_IsAscii(static_cast<const char16_t*>(pchar.get()));
       }
     }
   }
 //  else
 //    asciiOnly = false; // TODO: enable this line when the condition is not a plain "true" in the if().
 
-  nsAutoString usAsciiCharSet(NS_LITERAL_STRING("us-ascii"));
+  const char16_t* usAsciiCharSet = u"us-ascii";
   // Get the optional CHARSET parameter, in case we need it.
-  char *csname = GetImapCharsetParam(asciiOnly ? usAsciiCharSet.get() : destCharset);
+  char *csname = GetImapCharsetParam(asciiOnly ? usAsciiCharSet : destCharset);
 
   // We do not need "srcCharset" since the search term in always unicode.
   // I just pass destCharset for both src and dest charset instead of removing srcCharst from the arguemnt.
   nsresult err = nsMsgSearchAdapter::EncodeImap (getter_Copies(imapTerms), searchTerms,
-    asciiOnly ?  usAsciiCharSet.get(): destCharset,
-    asciiOnly ?  usAsciiCharSet.get(): destCharset, false);
+                                                 asciiOnly ? usAsciiCharSet : destCharset,
+                                                 asciiOnly ? usAsciiCharSet : destCharset, false);
   if (NS_SUCCEEDED(err))
   {
     pEncoding.AppendLiteral("SEARCH");
