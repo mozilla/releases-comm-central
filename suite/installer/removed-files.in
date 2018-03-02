@@ -1223,7 +1223,6 @@ components/xpautoc.dll
 @DIR_MACOS@components/docshell.xpt
 @DIR_MACOS@components/dom.xpt
 @DIR_MACOS@components/dom_base.xpt
-@DIR_MACOS@components/dom_canvas.xpt
 @DIR_MACOS@components/dom_core.xpt
 @DIR_MACOS@components/dom_events.xpt
 @DIR_MACOS@components/dom_geolocation.xpt
