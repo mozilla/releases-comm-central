@@ -268,14 +268,15 @@ cal.itip = {
      * @param actionFunc      The action function.
      */
     getOptionsText: function(itipItem, rc, actionFunc, foundItems) {
-        function _gs(strName) {
-            return cal.calGetString("lightning", strName, null, "lightning");
+        function _gs(strName, aParam=null) {
+            return cal.calGetString("lightning", strName, aParam, "lightning");
         }
         let imipLabel = null;
         if (itipItem.receivedMethod) {
             imipLabel = cal.itip.getMethodText(itipItem.receivedMethod);
         }
-        let data = { label: imipLabel, buttons: [], hideMenuItems: [] };
+        let data = { label: imipLabel, showItems: [], hideItems: [] };
+        let separateButtons = Preferences.get("calendar.itip.separateInvitationButtons", false);
 
         let disallowedCounter = false;
         if (foundItems && foundItems.length) {
@@ -290,7 +291,7 @@ cal.itip = {
             // added/updated, we want to tell them that.
             data.label = _gs("imipBarAlreadyProcessedText");
             if (foundItems && foundItems.length) {
-                data.buttons.push("imipDetailsButton");
+                data.showItems.push("imipDetailsButton");
                 if (itipItem.receivedMethod == "COUNTER" && itipItem.sender) {
                     if (disallowedCounter) {
                         data.label = _gs("imipBarDisallowedCounterText");
@@ -339,35 +340,74 @@ cal.itip = {
                     data.label = _gs("imipBarUpdateText");
                     // falls through
                 case "REPLY":
-                    data.buttons.push("imipUpdateButton");
+                    data.showItems.push("imipUpdateButton");
                     break;
                 case "PUBLISH":
-                    data.buttons.push("imipAddButton");
+                    data.showItems.push("imipAddButton");
                     break;
                 case "REQUEST:UPDATE":
                 case "REQUEST:NEEDS-ACTION":
                 case "REQUEST": {
-                    if (actionFunc.method == "REQUEST:UPDATE") {
-                        data.label = _gs("imipBarUpdateText");
-                    } else if (actionFunc.method == "REQUEST:NEEDS-ACTION") {
-                        data.label = _gs("imipBarProcessedNeedsAction");
-                    }
-
                     let isRecurringMaster = false;
                     for (let item of itipItem.getItemList({})) {
                         if (item.recurrenceInfo) {
                             isRecurringMaster = true;
                         }
                     }
-                    if (itipItem.getItemList({}).length > 1 || isRecurringMaster) {
-                        data.buttons.push("imipAcceptRecurrencesButton");
-                        data.buttons.push("imipDeclineRecurrencesButton");
-                    } else {
-                        data.buttons.push("imipAcceptButton");
-                        data.buttons.push("imipDeclineButton");
+
+                    if (actionFunc.method == "REQUEST:UPDATE") {
+                        if (isRecurringMaster) {
+                            data.label = _gs("imipBarUpdateSeriesText");
+                        } else if (itipItem.getItemList({}).length > 1) {
+                            data.label = _gs("imipBarUpdateMultipleText");
+                        } else {
+                            data.label = _gs("imipBarUpdateText");
+                        }
+                    } else if (actionFunc.method == "REQUEST:NEEDS-ACTION") {
+                        if (isRecurringMaster) {
+                            data.label = _gs("imipBarProcessedSeriesNeedsAction");
+                        } else if (itipItem.getItemList({}).length > 1) {
+                            data.label = _gs("imipBarProcessedMultipleNeedsAction");
+                        } else {
+                            data.label = _gs("imipBarProcessedNeedsAction");
+                        }
                     }
-                    data.buttons.push("imipMoreButton");
-                    // Use data.hideMenuItems.push("idOfMenuItem") to hide specific menuitems
+
+                    if (itipItem.getItemList({}).length > 1 || isRecurringMaster) {
+                        data.showItems.push("imipAcceptRecurrencesButton");
+                        if (separateButtons) {
+                            data.showItems.push("imipTentativeRecurrencesButton");
+                            data.hideItems.push("imipAcceptRecurrencesButton_AcceptLabel");
+                            data.hideItems.push("imipAcceptRecurrencesButton_TentativeLabel");
+                            data.hideItems.push("imipAcceptRecurrencesButton_Tentative");
+                            data.hideItems.push("imipAcceptRecurrencesButton_TentativeDontSend");
+                        } else {
+                            data.hideItems.push("imipTentativeRecurrencesButton");
+                            data.showItems.push("imipAcceptRecurrencesButton_AcceptLabel");
+                            data.showItems.push("imipAcceptRecurrencesButton_TentativeLabel");
+                            data.showItems.push("imipAcceptRecurrencesButton_Tentative");
+                            data.showItems.push("imipAcceptRecurrencesButton_TentativeDontSend");
+                        }
+                        data.showItems.push("imipDeclineRecurrencesButton");
+                    } else {
+                        data.showItems.push("imipAcceptButton");
+                        if (separateButtons) {
+                            data.showItems.push("imipTentativeButton");
+                            data.hideItems.push("imipAcceptButton_AcceptLabel");
+                            data.hideItems.push("imipAcceptButton_TentativeLabel");
+                            data.hideItems.push("imipAcceptButton_Tentative");
+                            data.hideItems.push("imipAcceptButton_TentativeDontSend");
+                        } else {
+                            data.hideItems.push("imipTentativeButton");
+                            data.showItems.push("imipAcceptButton_AcceptLabel");
+                            data.showItems.push("imipAcceptButton_TentativeLabel");
+                            data.showItems.push("imipAcceptButton_Tentative");
+                            data.showItems.push("imipAcceptButton_TentativeDontSend");
+                        }
+                        data.showItems.push("imipDeclineButton");
+                    }
+                    data.showItems.push("imipMoreButton");
+                    // Use data.hideItems.push("idOfMenuItem") to hide specific menuitems
                     // from the dropdown menu of a button.  This might be useful to to remove
                     // a generally available option for a specific invitation, because the
                     // respective feature is not available for the calendar, the invitation
@@ -375,19 +415,19 @@ cal.itip = {
                     break;
                 }
                 case "CANCEL": {
-                    data.buttons.push("imipDeleteButton");
+                    data.showItems.push("imipDeleteButton");
                     break;
                 }
                 case "REFRESH": {
-                    data.buttons.push("imipReconfirmButton");
+                    data.showItems.push("imipReconfirmButton");
                     break;
                 }
                 case "COUNTER": {
                     if (disallowedCounter) {
                         data.label = _gs("imipBarDisallowedCounterText");
                     }
-                    data.buttons.push("imipDeclineCounterButton");
-                    data.buttons.push("imipRescheduleButton");
+                    data.showItems.push("imipDeclineCounterButton");
+                    data.showItems.push("imipRescheduleButton");
                     break;
                 }
                 default:

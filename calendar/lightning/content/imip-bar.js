@@ -236,10 +236,15 @@ var ltnImipBar = {
         imipBar.setAttribute("label", data.label);
         // let's reset all buttons first
         ltnImipBar.resetButtons();
-        // menu items are visible by default, let's hide what's not available
-        data.hideMenuItems.forEach(aElementId => hideElement(document.getElementById(aElementId)));
-        // buttons are hidden by default, let's make required buttons visible
-        data.buttons.forEach(aElementId => showElement(document.getElementById(aElementId)));
+        // now we update the visible items - buttons are hidden by default
+        // apart from that, we need this to adapt the accept button depending on
+        // whether three or four button style is present
+        for (let item of data.hideItems) {
+            hideElement(document.getElementById(item));
+        }
+        for (let item of data.showItems) {
+            showElement(document.getElementById(item));
+        }
         // adjust button style if necessary
         ltnImipBar.conformButtonType();
         ltnImipBar.displayModifications();
@@ -277,16 +282,36 @@ var ltnImipBar = {
         msgWindow.displayHTMLInMessagePane("", msgOverlay, false);
     },
 
-    executeAction: function(partStat, extendResponse) {
-        function _execAction(aActionFunc, aItipItem, aWindow, aPartStat) {
+    /**
+     * Exceutes an action triggered by an imip bar button
+     *
+     * @param   {String}  aParticipantStatus  A partstat string as per RfC 5545
+     * @param   {String}  aResponse           Either 'AUTO', 'NONE' or 'USER',
+     *                                          see calItipItem interface
+     * @returns {Boolean}                     true, if the action succeeded
+     */
+    executeAction: function(aParticipantStatus, aResponse) {
+        /**
+         * Internal function to trigger an scheduling operation
+         *
+         * @param   {Function}     aActionFunc   The function to call to do the
+         *                                         scheduling operation
+         * @param   {calIItipItem} aItipItem     Scheduling item
+         * @param   {nsIWindow}    aWindow       The current window
+         * @param   {String}       aPartStat     partstat string as per RfC 5545
+         * @param   {Object}       aExtResponse  JS object containing at least
+         *                                         an responseMode property
+         * @returns {Boolean}                    true, if the action succeeded
+         */
+        function _execAction(aActionFunc, aItipItem, aWindow, aPartStat, aExtResponse) {
             if (cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
                 let isDeclineCounter = aPartStat == "X-DECLINECOUNTER";
                 // filter out fake partstats
                 if (aPartStat.startsWith("X-")) {
-                    partStat = "";
+                    aParticipantStatus = "";
                 }
                 // hide the buttons now, to disable pressing them twice...
-                if (aPartStat == partStat) {
+                if (aPartStat == aParticipantStatus) {
                     ltnImipBar.resetButtons();
                 }
 
@@ -347,7 +372,7 @@ var ltnImipBar = {
                 };
 
                 try {
-                    aActionFunc(opListener, partStat);
+                    aActionFunc(opListener, aParticipantStatus, aExtResponse);
                 } catch (exc) {
                     Components.utils.reportError(exc);
                 }
@@ -357,16 +382,17 @@ var ltnImipBar = {
         }
 
         let imipBar = document.getElementById("imip-bar");
-        if (partStat == null) {
-            partStat = "";
+        if (aParticipantStatus == null) {
+            aParticipantStatus = "";
         }
-        if (partStat == "X-SHOWDETAILS" || partStat == "X-RESCHEDULE") {
+        if (aParticipantStatus == "X-SHOWDETAILS" ||
+            aParticipantStatus == "X-RESCHEDULE") {
             let counterProposal;
             let items = ltnImipBar.foundItems;
             if (items && items.length) {
                 let item = items[0].isMutable ? items[0] : items[0].clone();
 
-                if (partStat == "X-RESCHEDULE") {
+                if (aParticipantStatus == "X-RESCHEDULE") {
                     // TODO most of the following should be moved to the actionFunc defined in
                     // calItipUtils
                     let proposedItem = ltnImipBar.itipItem.getItemList({})[0];
@@ -413,19 +439,25 @@ var ltnImipBar = {
                         return false;
                     }
                 }
-                // if this a rescheduling operation, we suppress the occurrence prompt here
-                modifyEventWithDialog(item, null, partStat != "X-RESCHEDULE", null, counterProposal);
+                // if this a rescheduling operation, we suppress the occurrence
+                // prompt here
+                modifyEventWithDialog(
+                    item,
+                    null,
+                    aParticipantStatus != "X-RESCHEDULE",
+                    null,
+                    counterProposal
+                );
             }
         } else {
-            if (extendResponse) {
+            if (aResponse) {
+                if (aResponse == "AUTO" || aResponse == "NONE" || aResponse == "USER") {
+                    response = { responseMode: Components.interfaces.calIItipItem[aResponse] };
+                }
                 // Open an extended response dialog to enable the user to add a comment, make a
                 // counterproposal, delegate the event or interact in another way.
                 // Instead of a dialog, this might be implemented as a separate container inside the
                 // imip-overlay as proposed in bug 458578
-                //
-                // If implemented as a dialog, the OL compatibility decision should be incorporated
-                // therein too and the itipItems's autoResponse set to auto subsequently
-                // to prevent a second popup during imip transport processing.
             }
             let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
                                    .getService(Components.interfaces.calIDeletedItems);
@@ -439,7 +471,7 @@ var ltnImipBar = {
                 }
             }
 
-            if (partStat == "X-SAVECOPY") {
+            if (aParticipantStatus == "X-SAVECOPY") {
                 // we create and adopt copies of the respective events
                 let saveitems = ltnImipBar.itipItem.getItemList({}).map(cal.getPublishLikeItemCopy.bind(cal));
                 if (saveitems.length > 0) {
@@ -451,7 +483,12 @@ var ltnImipBar = {
                     // setup callback and trigger re-processing
                     let storeCopy = function(aItipItem, aRc, aActionFunc, aFoundItems) {
                         if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
-                            _execAction(aActionFunc, aItipItem, window, partStat);
+                            _execAction(
+                                aActionFunc,
+                                aItipItem,
+                                window,
+                                aParticipantStatus
+                            );
                         }
                     };
                     cal.itip.processItipItem(newItipItem, storeCopy);
@@ -460,7 +497,13 @@ var ltnImipBar = {
                 // we stop here to not process the original item
                 return false;
             }
-            return _execAction(ltnImipBar.actionFunc, ltnImipBar.itipItem, window, partStat);
+            return _execAction(
+                ltnImipBar.actionFunc,
+                ltnImipBar.itipItem,
+                window,
+                aParticipantStatus,
+                response
+            );
         }
         return false;
     }

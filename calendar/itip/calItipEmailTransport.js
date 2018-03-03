@@ -46,7 +46,7 @@ calItipEmailTransport.prototype = {
 
     sendItems: function(aCount, aRecipients, aItipItem) {
         if (this.mHasXpcomMail) {
-            cal.LOG("sendItems: Sending Email...");
+            cal.LOG("sendItems: Preparing to send an invitation email...");
             let items = this._prepareItems(aItipItem);
             if (items === false) {
                 return false;
@@ -241,7 +241,7 @@ calItipEmailTransport.prototype = {
                 if (parent.closed) {
                     parent = cal.window.getCalendarWindow();
                 }
-                let confirmed = Services.prompt.confirmEx(
+                let cancelled = Services.prompt.confirmEx(
                     parent,
                     cal.calGetString("lightning", "imipSendMail.title", null, "lightning"),
                     cal.calGetString("lightning", "imipSendMail.text", null, "lightning"),
@@ -252,7 +252,8 @@ calItipEmailTransport.prototype = {
                     null,
                     {}
                 );
-                if (!confirmed) {
+                if (cancelled) {
+                    cal.LOG("sendXpcomMail: Sending of invitation email aborted by user!");
                     break;
                 } // else go on with auto sending for now
             }
@@ -265,7 +266,7 @@ calItipEmailTransport.prototype = {
                 let cbEmail = function(aVal, aInd, aArr) {
                     let email = cal.getAttendeeEmail(aVal, true);
                     if (!email.length) {
-                        cal.LOG("Invalid recipient for email transport: " + aVal.toString());
+                        cal.LOG("sendXpcomMail: Invalid recipient for email transport: " + aVal.toString());
                     }
                     return email;
                 };

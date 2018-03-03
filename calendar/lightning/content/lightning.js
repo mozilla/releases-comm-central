@@ -75,6 +75,9 @@ pref("calendar.itip.notifyDelegatorOnReply", true);
 // whether to prefix the subject field for email invitation invites or updates.
 pref("calendar.itip.useInvitationSubjectPrefixes", true);
 
+// whether separate invitation actions to more separate buttons or integrate into few buttons
+pref("calendar.itip.separateInvitationButtons", true);
+
 // whether CalDAV (experimental) scheduling is enabled or not.
 pref("calendar.caldav.sched.enabled", false);
 

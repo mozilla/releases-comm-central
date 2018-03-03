@@ -111,3 +111,8 @@
 .imipReconfirmButton {
     list-style-image: url(chrome://calendar-common/skin/icons/priority.svg);
 }
+
+.imipAcceptLabel {
+    font-weight: bold;
+    font-style: italic;
+}
