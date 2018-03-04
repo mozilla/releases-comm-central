@@ -8,6 +8,7 @@ CONFIGURE_SUBST_FILES += ['installer/Makefile']
 DIRS += [
     'browser',
     'common',
+    'components',
     'extensions',
     'feeds/public',
     'feeds/src',
@@ -18,8 +19,6 @@ DIRS += [
     'themes/modern',
     'profile',
     'security',
-    'shell/public',
-    'shell/src',
     '../common/src',
 ]
 
