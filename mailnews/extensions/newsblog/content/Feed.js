@@ -36,7 +36,7 @@ var FeedCache =
     try
     {
       let normalizedUrl = Services.io.newURI(aUrl);
-      let newHost = host.toLowerCase();
+      let newHost = normalizedUrl.host.toLowerCase();
       normalizedUrl = normalizedUrl.mutate().setHost(newHost).finalize();
       return normalizedUrl.spec
     }
