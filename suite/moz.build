@@ -10,8 +10,6 @@ DIRS += [
     'common',
     'components',
     'extensions',
-    'feeds/public',
-    'feeds/src',
     'locales',
     'mailnews',
     'modules',
