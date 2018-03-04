@@ -8,3 +8,8 @@ DIRS += [
     'profile',
     'shell',
 ]
+
+# build is always last as it adds the local includes from the other components.
+DIRS += [
+    'build',
+]
