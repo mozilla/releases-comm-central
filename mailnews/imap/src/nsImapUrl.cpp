@@ -211,7 +211,7 @@ nsresult nsImapUrl::SetSpecInternal(const nsACString &aSpec)
   return rv;
 }
 
-NS_IMETHODIMP nsImapUrl::SetQuery(const nsACString &aQuery)
+nsresult nsImapUrl::SetQuery(const nsACString &aQuery)
 {
   nsresult rv = nsMsgMailNewsUrl::SetQuery(aQuery);
   if (NS_SUCCEEDED(rv))
