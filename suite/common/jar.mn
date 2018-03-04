@@ -219,6 +219,7 @@ comm.jar:
    content/communicator/pref/pref-links.xul                         (pref/pref-links.xul)
    content/communicator/pref/pref-locationbar.js                    (pref/pref-locationbar.js)
    content/communicator/pref/pref-locationbar.xul                   (pref/pref-locationbar.xul)
+   content/communicator/pref/pref-media.xul                         (pref/pref-media.xul)
    content/communicator/pref/pref-mousewheel.js                     (pref/pref-mousewheel.js)
    content/communicator/pref/pref-mousewheel.xul                    (pref/pref-mousewheel.xul)
    content/communicator/pref/pref-navigator.js                      (pref/pref-navigator.js)

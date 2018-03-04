@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+<!ENTITY % platformCommunicationDTD SYSTEM "chrome://communicator-platform/locale/pref/platformPrefOverlay.dtd">
+%platformCommunicationDTD;
+<!ENTITY % mediaDTD SYSTEM "chrome://communicator/locale/pref/pref-media.dtd">
+%mediaDTD;
+]>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <prefpane id="media_pane"
+            label="&pref.media.title;">
+
+    <preferences id="media_preferences">
+      <preference id="media.autoplay.enabled"
+                  name="media.autoplay.enabled"
+                  type="bool"/>
+    </preferences>
+
+      <groupbox id="mediaHTML5Preferences" align="start">
+        <caption label="&mediaHTML5Preferences.label;"/>
+        <checkbox id="autoplay"
+                  label="&allowMediaAutoplay.label;"
+                  accesskey="&allowMediaAutoplay.accesskey;"
+                  preference="media.autoplay.enabled"/>
+      </groupbox>
+
+  </prefpane>
+</overlay>
