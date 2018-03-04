@@ -250,6 +250,6 @@ function getSpec(aFileName)
 {
   var file = do_get_file(aFileName);
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
-  uri.query = "type=application/x-message-display";
+  uri = uri.mutate().setQuery("type=application/x-message-display").finalize();
   return uri.spec;
 }
