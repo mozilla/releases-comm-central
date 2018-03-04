@@ -3,16 +3,27 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += [
-    'migration/public',
-    'migration/src',
+XPIDL_SOURCES += [
+    'nsISuiteProfileMigrator.idl',
 ]
 
+XPIDL_MODULE = 'suitemigration'
+
 SOURCES += [
+    'nsNetscapeProfileMigratorBase.cpp',
     'nsSuiteDirectoryProvider.cpp',
+    'nsSuiteProfileMigratorUtils.cpp',
+    'nsThunderbirdProfileMigrator.cpp',
+]
+
+EXTRA_COMPONENTS += [
+    'SuiteProfileMigrator.manifest',
+]
+
+EXTRA_PP_COMPONENTS += [
+    'SuiteProfileMigrator.js',
 ]
 
 FINAL_LIBRARY = 'suite'
 
 JAR_MANIFESTS += ['jar.mn']
-

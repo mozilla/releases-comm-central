@@ -15,7 +15,6 @@ DIRS += [
     'modules',
     'themes/classic',
     'themes/modern',
-    'profile',
     'security',
     '../common/src',
 ]
