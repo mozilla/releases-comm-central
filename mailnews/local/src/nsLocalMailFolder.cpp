@@ -3121,21 +3121,24 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType)
 
     nsCOMPtr<nsIMsgIncomingServer> server;
     // try "none" first
-    url->SetScheme(NS_LITERAL_CSTRING("none"));
+    rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("none")).Finalize(url);
+    NS_ENSURE_SUCCESS(rv, rv);
     rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
     if (NS_SUCCEEDED(rv) && server)
       mType.AssignLiteral("none");
     else
     {
       // next try "pop3"
-      url->SetScheme(NS_LITERAL_CSTRING("pop3"));
+      rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("pop3")).Finalize(url);
+      NS_ENSURE_SUCCESS(rv, rv);
       rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
       if (NS_SUCCEEDED(rv) && server)
         mType.AssignLiteral("pop3");
       else
       {
         // next try "rss"
-        url->SetScheme(NS_LITERAL_CSTRING("rss"));
+        rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("rss")).Finalize(url);
+        NS_ENSURE_SUCCESS(rv, rv);
         rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
         if (NS_SUCCEEDED(rv) && server)
           mType.AssignLiteral("rss");
@@ -3143,7 +3146,8 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType)
         {
 #ifdef HAVE_MOVEMAIL
           // next try "movemail"
-          url->SetScheme(NS_LITERAL_CSTRING("movemail"));
+          rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("movemail")).Finalize(url);
+          NS_ENSURE_SUCCESS(rv, rv);
           rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
           if (NS_SUCCEEDED(rv) && server)
             mType.AssignLiteral("movemail");

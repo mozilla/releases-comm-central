@@ -47,7 +47,6 @@ typedef struct _findServerByHostnameEntry {
 } findServerByHostnameEntry;
 
 static NS_DEFINE_CID(kCSmtpUrlCID, NS_SMTPURL_CID);
-static NS_DEFINE_CID(kCMailtoUrlCID, NS_MAILTOURL_CID);
 
 // foward declarations...
 nsresult
@@ -173,10 +172,10 @@ nsresult NS_MsgBuildSmtpUrl(nsIFile * aFilePath,
     urlSpec.AppendInt(smtpPort);
   }
 
-  nsCOMPtr<nsIMsgMailNewsUrl> url(do_QueryInterface(smtpUrl, &rv));
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl(do_QueryInterface(smtpUrl, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = url->SetSpecInternal(urlSpec);
+  rv = mailnewsurl->SetSpecInternal(urlSpec);
   NS_ENSURE_SUCCESS(rv, rv);
 
   smtpUrl->SetSender(aSender);
@@ -205,9 +204,9 @@ nsresult NS_MsgBuildSmtpUrl(nsIFile * aFilePath,
   smtpUrl->SetAuthPrompt(smtpAuthPrompt);
 
   if (aUrlListener)
-    url->RegisterListener(aUrlListener);
+    mailnewsurl->RegisterListener(aUrlListener);
   if (aStatusFeedback)
-    url->SetStatusFeedback(aStatusFeedback);
+    mailnewsurl->SetStatusFeedback(aStatusFeedback);
 
   return CallQueryInterface(smtpUrl, aUrl);
 }
@@ -299,8 +298,6 @@ NS_IMETHODIMP nsSmtpService::NewURI(const nsACString &aSpec,
 {
   // get a new smtp url
   nsresult rv;
-  nsCOMPtr<nsIURI> mailtoUrl = do_CreateInstance(kCMailtoUrlCID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString utf8Spec;
   if (aOriginCharset)
@@ -313,11 +310,18 @@ NS_IMETHODIMP nsSmtpService::NewURI(const nsACString &aSpec,
 
   // utf8Spec is filled up only when aOriginCharset is specified and
   // the conversion is successful. Otherwise, fall back to aSpec.
-  if (aOriginCharset && NS_SUCCEEDED(rv))
-    rv = mailtoUrl->SetSpecInternal(utf8Spec);
-  else
-    rv = mailtoUrl->SetSpecInternal(aSpec);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIURI> mailtoUrl;
+  if (aOriginCharset && NS_SUCCEEDED(rv)) {
+    rv = NS_MutateURI(new nsMailtoUrl::Mutator())
+           .SetSpec(utf8Spec)
+           .Finalize(mailtoUrl);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    rv = NS_MutateURI(new nsMailtoUrl::Mutator())
+           .SetSpec(aSpec)
+           .Finalize(mailtoUrl);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   mailtoUrl.forget(_retval);
   return NS_OK;

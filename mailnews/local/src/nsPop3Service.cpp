@@ -217,20 +217,19 @@ nsresult nsPop3Service::BuildPop3Url(const char *urlSpec,
 
   pop3Url->SetPop3Sink(pop3Sink);
 
-  rv = CallQueryInterface(pop3Url, aUrl);
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl;
+  rv = pop3Url->QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsurl));
   NS_ENSURE_SUCCESS(rv,rv);
 
-  rv = (*aUrl)->SetSpecInternal(nsDependentCString(urlSpec));
+  rv = mailnewsurl->SetSpecInternal(nsDependentCString(urlSpec));
   NS_ENSURE_SUCCESS(rv,rv);
 
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(pop3Url);
-  if (mailnewsurl)
-  {
-    if (aUrlListener)
-      mailnewsurl->RegisterListener(aUrlListener);
-    if (aMsgWindow)
-      mailnewsurl->SetMsgWindow(aMsgWindow);
-  }
+  if (aUrlListener)
+    mailnewsurl->RegisterListener(aUrlListener);
+  if (aMsgWindow)
+    mailnewsurl->SetMsgWindow(aMsgWindow);
+
+  mailnewsurl.forget(aUrl);
 
   return rv;
 }
@@ -385,8 +384,8 @@ NS_IMETHODIMP nsPop3Service::NewURI(const nsACString &aSpec,
     server->GetPort(&port);
     if (port == -1) port = nsIPop3URL::DEFAULT_POP3_PORT;
 
-    // we need to escape the username because it may contain
-    // characters like / % or @
+    // We need to escape the username before calling SetUsername() because it may
+    // contain characters like / % or @. GetUsername() will unescape the username.
     nsCString escapedUsername;
     MsgEscapeString(username, nsINetUtil::ESCAPE_XALPHAS, escapedUsername);
 
@@ -401,19 +400,15 @@ NS_IMETHODIMP nsPop3Service::NewURI(const nsACString &aSpec,
     nsCOMPtr<nsIUrlListener> urlListener = do_QueryInterface(folder, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
+    nsCOMPtr<nsIURI> newUri;
     rv = BuildPop3Url(popSpec.get(), folder, popServer,
-                      urlListener, _retval, nullptr);
+                      urlListener, getter_AddRefs(newUri), nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(*_retval, &rv);
-    if (NS_SUCCEEDED(rv))
-    {
-      // escape the username before we call SetUsername().  we do this because GetUsername()
-      // will unescape the username
-      mailnewsurl->SetUsername(escapedUsername);
-    }
+    rv = NS_MutateURI(newUri).SetUsername(escapedUsername).Finalize(newUri);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(mailnewsurl, &rv);
+    nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(newUri, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoCString messageUri (aSpec);
@@ -432,6 +427,7 @@ NS_IMETHODIMP nsPop3Service::NewURI(const nsACString &aSpec,
 
     pop3Sink->SetBuildMessageUri(true);
 
+    newUri.forget(_retval);
     return NS_OK;
 }
 

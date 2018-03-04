@@ -50,6 +50,8 @@
 #include "mimemoz2.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
+#include "nsIURIMutator.h"
+#include "mozilla/Unused.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
 #include "mozilla/Logging.h"
@@ -1331,7 +1333,7 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
 
   // ignore errors here - it's not fatal, and in the case of mailbox messages,
   // we're always passing in an invalid spec...
-  (void)url->SetSpecInternal(mailboxUri);
+  mozilla::Unused << NS_MutateURI(url).SetSpec(mailboxUri).Finalize(url);
 
   // if we are forwarding a message and that message used a charset over ride
   // then use that over ride charset instead of the charset specified in the message

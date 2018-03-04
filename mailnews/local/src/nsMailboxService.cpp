@@ -548,7 +548,7 @@ NS_IMETHODIMP nsMailboxService::NewURI(const nsACString &aSpec,
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = 0;
   nsresult rv;
-  nsCOMPtr<nsIURI> aMsgUri = do_CreateInstance(NS_MAILBOXURL_CONTRACTID, &rv);
+  nsCOMPtr<nsIMsgMailNewsUrl> aMsgUri = do_CreateInstance(NS_MAILBOXURL_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   // SetSpec calls below may fail if the mailbox url is of the form
   // mailbox://<account>/<mailbox name>?... instead of

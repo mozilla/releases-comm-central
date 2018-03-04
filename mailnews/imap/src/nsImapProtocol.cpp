@@ -42,6 +42,7 @@
 #include "nsICacheEntry.h"
 #include "nsICacheStorage.h"
 #include "nsICacheEntryOpenCallback.h"
+#include "nsIURIMutator.h"
 
 #include "nsIPrompt.h"
 #include "nsIDocShell.h"
@@ -9306,10 +9307,8 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   extension.AppendInt(uidValidity, 16);
 
   // Open a cache entry where the key is the potentially modified URL.
-  nsCOMPtr<nsIURI> newUri;
-  m_url->Clone(getter_AddRefs(newUri));
   nsAutoCString path;
-  newUri->GetPathQueryRef(path);
+  m_url->GetPathQueryRef(path);
 
   // First we need to "normalise" the URL by extracting ?part= and &filename.
   // The path should only contain: ?part=x.y&filename=file.ext
@@ -9336,10 +9335,12 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   if (ind != kNotFound)
     path.SetLength(ind);
 
+  nsCOMPtr<nsIURI> newUri;
   if (partQuery.IsEmpty())
   {
     // Not looking for a part. That's the easy part.
-    newUri->SetPathQueryRef(path);
+    rv = NS_MutateURI(m_url).SetPathQueryRef(path).Finalize(newUri);
+    NS_ENSURE_SUCCESS(rv, rv);
     return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
   }
 
@@ -9355,7 +9356,8 @@ nsresult nsImapMockChannel::OpenCacheEntry()
     mTryingToReadPart = false;
 
     // Note that part extraction was already set the first time.
-    newUri->SetPathQueryRef(path + partQuery + filenameQuery);
+    rv = NS_MutateURI(m_url).SetPathQueryRef(path + partQuery + filenameQuery).Finalize(newUri);
+    NS_ENSURE_SUCCESS(rv, rv);
     return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
   }
 
@@ -9364,7 +9366,8 @@ nsresult nsImapMockChannel::OpenCacheEntry()
 
   // Check whether part is in the cache.
   bool exists = false;
-  newUri->SetPathQueryRef(path + partQuery + filenameQuery);
+  rv = NS_MutateURI(m_url).SetPathQueryRef(path + partQuery + filenameQuery).Finalize(newUri);
+  NS_ENSURE_SUCCESS(rv, rv);
   rv = cacheStorage->Exists(newUri, extension, &exists);
   NS_ENSURE_SUCCESS(rv, rv);
   if (exists) {
@@ -9372,13 +9375,15 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   }
 
   // Let's see whether we have the entire message instead.
-  newUri->SetPathQueryRef(path);
+  rv = NS_MutateURI(m_url).SetPathQueryRef(path).Finalize(newUri);
+  NS_ENSURE_SUCCESS(rv, rv);
   rv = cacheStorage->Exists(newUri, extension, &exists);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!exists) {
     // The entire message is not in the cache. Request the part.
-    newUri->SetPathQueryRef(path + partQuery + filenameQuery);
+    rv = NS_MutateURI(m_url).SetPathQueryRef(path + partQuery + filenameQuery).Finalize(newUri);
+    NS_ENSURE_SUCCESS(rv, rv);
     return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
   }
 

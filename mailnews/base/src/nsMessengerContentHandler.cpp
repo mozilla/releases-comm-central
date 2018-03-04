@@ -15,6 +15,7 @@
 #include "nsMsgBaseCID.h"
 #include "plstr.h"
 #include "nsIURL.h"
+#include "nsIURIMutator.h"
 #include "nsServiceManagerUtils.h"
 
 nsMessengerContentHandler::nsMessengerContentHandler()
@@ -55,7 +56,8 @@ NS_IMETHODIMP nsMessengerContentHandler::HandleContent(const char * aContentType
           queryPart.Replace(queryPart.Find("type=message/rfc822"),
                             sizeof("type=message/rfc822") - 1,
                             "type=application/x-message-display");
-          aUrl->SetQuery(queryPart);
+          rv = NS_MutateURI(aUrl).SetQuery(queryPart).Finalize(aUrl);
+          NS_ENSURE_SUCCESS(rv, rv);
           rv = OpenWindow(aUri);
         }
       }

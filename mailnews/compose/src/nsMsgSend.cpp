@@ -2077,7 +2077,7 @@ nsMsgComposeAndSend::AddCompFieldLocalAttachments()
                 //Then try using the url if we still haven't figured out the content type
                 if (m_attachments[newLoc]->m_type.IsEmpty())
                 {
-                  rv = fileUrl->SetSpecInternal(url);
+                  rv = NS_MutateURI(fileUrl).SetSpec(url).Finalize(fileUrl);
                   if (NS_SUCCEEDED(rv))
                   {
                     rv = fileUrl->GetFileExtension(fileExt);

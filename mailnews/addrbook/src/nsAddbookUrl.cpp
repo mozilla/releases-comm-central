@@ -31,7 +31,7 @@ NS_IMPL_ISUPPORTS(nsAddbookUrl, nsIAddbookUrl, nsIURI)
 nsresult
 nsAddbookUrl::SetSpecInternal(const nsACString &aSpec)
 {
-  nsresult rv = m_baseURL->SetSpecInternal(aSpec);
+  nsresult rv = NS_MutateURI(m_baseURL).SetSpec(aSpec).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
   return ParseUrl();
 }
@@ -72,9 +72,9 @@ NS_IMETHODIMP nsAddbookUrl::GetScheme(nsACString &aScheme)
   return m_baseURL->GetScheme(aScheme);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetScheme(const nsACString &aScheme)
+nsresult nsAddbookUrl::SetScheme(const nsACString &aScheme)
 {
-  return m_baseURL->SetScheme(aScheme);
+  return NS_MutateURI(m_baseURL).SetScheme(aScheme).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP nsAddbookUrl::GetUserPass(nsACString &aUserPass)
@@ -82,9 +82,9 @@ NS_IMETHODIMP nsAddbookUrl::GetUserPass(nsACString &aUserPass)
   return m_baseURL->GetUserPass(aUserPass);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetUserPass(const nsACString &aUserPass)
+nsresult nsAddbookUrl::SetUserPass(const nsACString &aUserPass)
 {
-  return m_baseURL->SetUserPass(aUserPass);
+  return NS_MutateURI(m_baseURL).SetUserPass(aUserPass).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP nsAddbookUrl::GetUsername(nsACString &aUsername)
@@ -92,9 +92,9 @@ NS_IMETHODIMP nsAddbookUrl::GetUsername(nsACString &aUsername)
   return m_baseURL->GetUsername(aUsername);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetUsername(const nsACString &aUsername)
+nsresult nsAddbookUrl::SetUsername(const nsACString &aUsername)
 {
-  return m_baseURL->SetUsername(aUsername);
+  return NS_MutateURI(m_baseURL).SetUsername(aUsername).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP nsAddbookUrl::GetPassword(nsACString &aPassword)
@@ -102,9 +102,9 @@ NS_IMETHODIMP nsAddbookUrl::GetPassword(nsACString &aPassword)
   return m_baseURL->GetPassword(aPassword);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetPassword(const nsACString &aPassword)
+nsresult nsAddbookUrl::SetPassword(const nsACString &aPassword)
 {
-  return m_baseURL->SetPassword(aPassword);
+  return NS_MutateURI(m_baseURL).SetPassword(aPassword).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP nsAddbookUrl::GetHostPort(nsACString &aHostPort)
@@ -112,14 +112,9 @@ NS_IMETHODIMP nsAddbookUrl::GetHostPort(nsACString &aHostPort)
   return m_baseURL->GetHostPort(aHostPort);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetHostPort(const nsACString &aHostPort)
+nsresult nsAddbookUrl::SetHostPort(const nsACString &aHostPort)
 {
-  return m_baseURL->SetHostPort(aHostPort);
-}
-
-NS_IMETHODIMP nsAddbookUrl::SetHostAndPort(const nsACString &aHostPort)
-{
-  return m_baseURL->SetHostAndPort(aHostPort);
+  return NS_MutateURI(m_baseURL).SetHostPort(aHostPort).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP nsAddbookUrl::GetHost(nsACString &aHost)
@@ -127,9 +122,9 @@ NS_IMETHODIMP nsAddbookUrl::GetHost(nsACString &aHost)
   return m_baseURL->GetHost(aHost);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetHost(const nsACString &aHost)
+nsresult nsAddbookUrl::SetHost(const nsACString &aHost)
 {
-  return m_baseURL->SetHost(aHost);
+  return NS_MutateURI(m_baseURL).SetHost(aHost).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP nsAddbookUrl::GetPort(int32_t *aPort)
@@ -137,9 +132,9 @@ NS_IMETHODIMP nsAddbookUrl::GetPort(int32_t *aPort)
   return m_baseURL->GetPort(aPort);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetPort(int32_t aPort)
+nsresult nsAddbookUrl::SetPort(int32_t aPort)
 {
-  return m_baseURL->SetPort(aPort);
+  return NS_MutateURI(m_baseURL).SetPort(aPort).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP nsAddbookUrl::GetPathQueryRef(nsACString &aPath)
@@ -147,9 +142,10 @@ NS_IMETHODIMP nsAddbookUrl::GetPathQueryRef(nsACString &aPath)
   return m_baseURL->GetPathQueryRef(aPath);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetPathQueryRef(const nsACString &aPath)
+nsresult nsAddbookUrl::SetPathQueryRef(const nsACString &aPath)
 {
-  m_baseURL->SetPathQueryRef(aPath);
+  nsresult rv = NS_MutateURI(m_baseURL).SetPathQueryRef(aPath).Finalize(m_baseURL);
+  NS_ENSURE_SUCCESS(rv, rv);
   return ParseUrl();
 }
 
@@ -237,10 +233,10 @@ nsAddbookUrl::GetRef(nsACString &result)
   return m_baseURL->GetRef(result);
 }
 
-NS_IMETHODIMP
-nsAddbookUrl::SetRef(const nsACString &aRef)
+nsresult nsAddbookUrl::SetRef(const nsACString &aRef)
 {
-  m_baseURL->SetRef(aRef);
+  nsresult rv = NS_MutateURI(m_baseURL).SetRef(aRef).Finalize(m_baseURL);
+  NS_ENSURE_SUCCESS(rv, rv);
   return ParseUrl();
 }
 
@@ -250,10 +246,9 @@ nsAddbookUrl::GetFilePath(nsACString &aFilePath)
   return m_baseURL->GetFilePath(aFilePath);
 }
 
-NS_IMETHODIMP
-nsAddbookUrl::SetFilePath(const nsACString &aFilePath)
+nsresult nsAddbookUrl::SetFilePath(const nsACString &aFilePath)
 {
-  return m_baseURL->SetFilePath(aFilePath);
+  return NS_MutateURI(m_baseURL).SetFilePath(aFilePath).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP
@@ -262,16 +257,14 @@ nsAddbookUrl::GetQuery(nsACString &aQuery)
   return m_baseURL->GetQuery(aQuery);
 }
 
-NS_IMETHODIMP
-nsAddbookUrl::SetQuery(const nsACString &aQuery)
+nsresult nsAddbookUrl::SetQuery(const nsACString &aQuery)
 {
-  return m_baseURL->SetQuery(aQuery);
+  return NS_MutateURI(m_baseURL).SetQuery(aQuery).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP
-nsAddbookUrl::SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding)
+nsresult nsAddbookUrl::SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding)
 {
-  return m_baseURL->SetQueryWithEncoding(aQuery, aEncoding);
+  return NS_MutateURI(m_baseURL).SetQueryWithEncoding(aQuery, aEncoding).Finalize(m_baseURL);
 }
 
 NS_IMETHODIMP nsAddbookUrl::EqualsExceptRef(nsIURI *other, bool *_retval)

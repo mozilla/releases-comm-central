@@ -26,9 +26,10 @@ public:
 
   NS_DECL_ISUPPORTS_INHERITED
 
-  // nsIURI override
+  // nsIMsgMailNewsUrl override
   nsresult SetSpecInternal(const nsACString &aSpec) override;
-  NS_IMETHOD SetQuery(const nsACString &aQuery) override;
+  nsresult SetQuery(const nsACString &aQuery) override;
+  // nsIURI override
   NS_IMETHOD CloneInternal(uint32_t aRefHandlingMode,
                            const nsACString& newRef, nsIURI **_retval) override;
 

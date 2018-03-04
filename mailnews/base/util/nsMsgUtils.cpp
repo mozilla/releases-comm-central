@@ -78,6 +78,7 @@
 #include "nsIInputStreamPump.h"
 #include "nsIInputStream.h"
 #include "nsIChannel.h"
+#include "nsIURIMutator.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -178,30 +179,33 @@ nsresult CreateStartupUrl(const char *uri, nsIURI** aUrl)
   // I think we should do something like GetMessageServiceFromURI() to get the service, and then have the service create the
   // appropriate nsI*Url, and then QI to nsIURI, and return it.
   // see bug #110689
+  nsCOMPtr<nsIMsgMailNewsUrl> newUri;
   if (PL_strncasecmp(uri, "imap", 4) == 0)
   {
     nsCOMPtr<nsIImapUrl> imapUrl = do_CreateInstance(kImapUrlCID, &rv);
 
     if (NS_SUCCEEDED(rv) && imapUrl)
-      rv = imapUrl->QueryInterface(NS_GET_IID(nsIURI),
-      (void**) aUrl);
+      rv = imapUrl->QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(newUri));
+
+    // XXX Consider: NS_MutateURI(new nsImapUrl::Mutator()).SetSpec(nsDependentCString(uri)).Finalize(newUri);
   }
   else if (PL_strncasecmp(uri, "mailbox", 7) == 0)
   {
     nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_CreateInstance(kCMailboxUrl, &rv);
     if (NS_SUCCEEDED(rv) && mailboxUrl)
-      rv = mailboxUrl->QueryInterface(NS_GET_IID(nsIURI),
-      (void**) aUrl);
+      rv = mailboxUrl->QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(newUri));
   }
   else if (PL_strncasecmp(uri, "news", 4) == 0)
   {
     nsCOMPtr<nsINntpUrl> nntpUrl = do_CreateInstance(kCNntpUrlCID, &rv);
     if (NS_SUCCEEDED(rv) && nntpUrl)
-      rv = nntpUrl->QueryInterface(NS_GET_IID(nsIURI),
-      (void**) aUrl);
+      rv = nntpUrl->QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(newUri));
   }
+
   if (*aUrl) // SetSpec can fail, for mailbox urls, but we still have a url.
-    (void)(*aUrl)->SetSpecInternal(nsDependentCString(uri));
+    (void)newUri->SetSpecInternal(nsDependentCString(uri));
+
+  newUri.forget(aUrl);
   return rv;
 }
 

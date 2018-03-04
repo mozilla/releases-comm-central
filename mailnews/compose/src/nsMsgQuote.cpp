@@ -114,32 +114,29 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
   nsAutoCString msgUri(msgURI);
   bool fileUrl = !strncmp(msgURI, "file:", 5);
   bool forwardedMessage = PL_strstr(msgURI, "&realtype=message/rfc822") != nullptr;
-  nsCOMPtr<nsIURI> aURL;
+  nsCOMPtr<nsIURI> newURI;
   if (fileUrl)
   {
     msgUri.Replace(0, 5, NS_LITERAL_CSTRING("mailbox:"));
     msgUri.AppendLiteral("?number=0");
-    rv = NS_NewURI(getter_AddRefs(aURL), msgUri);
-    nsCOMPtr<nsIMsgMessageUrl> mailUrl(do_QueryInterface(aURL));
+    rv = NS_NewURI(getter_AddRefs(newURI), msgUri);
+    nsCOMPtr<nsIMsgMessageUrl> mailUrl(do_QueryInterface(newURI));
     if (mailUrl)
       mailUrl->SetMessageHeader(aMsgHdr);
   }
   else if (forwardedMessage)
-    rv = NS_NewURI(getter_AddRefs(aURL), msgURI);
+    rv = NS_NewURI(getter_AddRefs(newURI), msgURI);
   else
   {
     nsCOMPtr <nsIMsgMessageService> msgService;
     rv = GetMessageServiceFromURI(nsDependentCString(msgURI), getter_AddRefs(msgService));
     if (NS_FAILED(rv)) return rv;
-    rv = msgService->GetUrlForUri(msgURI, getter_AddRefs(aURL), nullptr);
+    rv = msgService->GetUrlForUri(msgURI, getter_AddRefs(newURI), nullptr);
   }
   if (NS_FAILED(rv)) return rv;
 
-  nsCOMPtr <nsIURL> mailNewsUrl = do_QueryInterface(aURL, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
-
   nsAutoCString queryPart;
-  rv = mailNewsUrl->GetQuery(queryPart);
+  rv = newURI->GetQuery(queryPart);
   if (!queryPart.IsEmpty())
     queryPart.Append('&');
 
@@ -149,13 +146,13 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
     queryPart.AppendLiteral("header=quote");
   else
     queryPart.AppendLiteral("header=quotebody");
-  rv = mailNewsUrl->SetQuery(queryPart);
+  rv = NS_MutateURI(newURI).SetQuery(queryPart).Finalize(newURI);
   NS_ENSURE_SUCCESS(rv,rv);
 
   // if we were given a non empty charset, then use it
   if (aMsgCharSet && *aMsgCharSet)
   {
-    nsCOMPtr<nsIMsgI18NUrl> i18nUrl (do_QueryInterface(aURL));
+    nsCOMPtr<nsIMsgI18NUrl> i18nUrl (do_QueryInterface(newURI));
     if (i18nUrl)
       i18nUrl->SetCharsetOverRide(aMsgCharSet);
   }
@@ -174,7 +171,7 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
   mQuoteChannel = nullptr;
   nsCOMPtr<nsIIOService> netService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
-  rv = netService->NewChannelFromURI2(aURL,
+  rv = netService->NewChannelFromURI2(newURI,
                                       nullptr,
                                       nsContentUtils::GetSystemPrincipal(),
                                       nullptr,
@@ -183,7 +180,7 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
                                       getter_AddRefs(mQuoteChannel));
 
   if (NS_FAILED(rv)) return rv;
-  nsCOMPtr<nsISupports> ctxt = do_QueryInterface(aURL);
+  nsCOMPtr<nsISupports> ctxt = do_QueryInterface(newURI);
 
   nsCOMPtr<nsIStreamConverterService> streamConverterService =
            do_GetService("@mozilla.org/streamConverters;1", &rv);

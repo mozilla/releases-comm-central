@@ -3189,7 +3189,8 @@ nsMsgDBFolder::parseURI(bool needServer)
         return NS_ERROR_FAILURE;
       }
 
-      url->SetScheme(serverType);
+      rv = NS_MutateURI(url).SetScheme(serverType).Finalize(url);
+      NS_ENSURE_SUCCESS(rv, rv);
       rv = accountManager->FindServerByURI(url, false,
                                       getter_AddRefs(server));
       NS_ENSURE_SUCCESS(rv, rv);

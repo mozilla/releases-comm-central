@@ -21,6 +21,7 @@ interface nsIURI;
 interface nsIFile;
 interface nsIMsgFolder;
 interface nsIMsgWindow;
+interface nsIMsgMailNewsUrl;
 interface nsIImapIncomingServer;
 interface nsICacheStorage;
 
@@ -48,7 +49,7 @@ interface nsIImapService : nsISupports
                           in nsIUrlListener aUrlListener,
                           in nsIMsgWindow aMsgWindow);
 
-  void addImapFetchToUrl(in nsIURI aURL,
+  void addImapFetchToUrl(in nsIMsgMailNewsUrl aURL,
                          in nsIMsgFolder aImapMailFolder,
                          in ACString aMessageIdentifierList,
                          in ACString aAdditionalHeader);

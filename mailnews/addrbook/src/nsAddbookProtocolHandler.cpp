@@ -60,13 +60,10 @@ NS_IMETHODIMP nsAddbookProtocolHandler::NewURI(const nsACString &aSpec,
                                                nsIURI **_retval)
 {
   nsresult rv;
-  nsCOMPtr<nsIAddbookUrl> addbookUrl = do_CreateInstance(NS_ADDBOOKURL_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  rv = addbookUrl->SetSpecInternal(aSpec);
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  nsCOMPtr<nsIURI> uri = do_QueryInterface(addbookUrl, &rv);
+  nsCOMPtr<nsIURI> uri;
+  rv = NS_MutateURI(new nsAddbookUrl::Mutator())
+         .SetSpec(aSpec)
+         .Finalize(uri);
   NS_ENSURE_SUCCESS(rv,rv);
 
   uri.forget(_retval);

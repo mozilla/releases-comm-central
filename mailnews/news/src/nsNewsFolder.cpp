@@ -66,6 +66,7 @@
 #include "nsAutoPtr.h"
 #include "nsIInputStream.h"
 #include "nsMemory.h"
+#include "nsIURIMutator.h"
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
@@ -1087,8 +1088,6 @@ nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char *ref,
     nsAString &result)
 {
   nsresult rv;
-  nsCOMPtr<nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = GetServer(getter_AddRefs(server));
@@ -1101,18 +1100,19 @@ nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char *ref,
   bool singleSignon = true;
   rv = nntpServer->GetSingleSignon(&singleSignon);
 
+  nsCOMPtr<nsIURL> url;
   if (singleSignon)
   {
     nsCString serverURI;
     rv = server->GetServerURI(serverURI);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = url->SetSpecInternal(serverURI);
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(serverURI).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   else
   {
-    rv = url->SetSpecInternal(mURI);
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(mURI).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -1135,7 +1135,7 @@ nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char *ref,
     // password manager "blanks" those out.
     if (socketType == nsMsgSocketType::SSL)
     {
-      rv = url->SetPort(nsINntpUrl::DEFAULT_NNTPS_PORT);
+      rv = NS_MutateURI(url).SetPort(nsINntpUrl::DEFAULT_NNTPS_PORT).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
     }
   }
@@ -1143,7 +1143,7 @@ nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char *ref,
   nsCString rawResult;
   if (ref)
   {
-    rv = url->SetRef(nsDependentCString(ref));
+    rv = NS_MutateURI(url).SetRef(nsDependentCString(ref)).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = url->GetSpec(rawResult);
