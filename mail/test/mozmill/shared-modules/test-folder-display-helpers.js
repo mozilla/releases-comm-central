@@ -678,7 +678,7 @@ function open_message_from_file(file) {
 
   let fileURL = Services.io.newFileURI(file)
                         .QueryInterface(Ci.nsIFileURL);
-  fileURL.query = "type=application/x-message-display";
+  fileURL = fileURL.mutate().setQuery("type=application/x-message-display").finalize();
 
   windowHelper.plan_for_new_window("mail:messageWindow");
   mc.window.openDialog("chrome://messenger/content/messageWindow.xul", "_blank",

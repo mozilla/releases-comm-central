@@ -93,7 +93,7 @@ var nsMailNewsCommandLineHandler =
             // Get the URL for this file
             let fileURL = Services.io.newFileURI(file)
                                   .QueryInterface(Ci.nsIFileURL);
-            fileURL.query = "?type=application/x-message-display";
+            fileURL = fileURL.mutate().setQuery("type=application/x-message-display").finalize();
             // Open this file in a new message window.
             Services.ww.openWindow(null,
                                    "chrome://messenger/content/messageWindow.xul",

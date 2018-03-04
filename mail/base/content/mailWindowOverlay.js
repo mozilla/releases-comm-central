@@ -2269,7 +2269,7 @@ function MsgOpenFromFile()
       return;
     }
     let uri = fp.fileURL.QueryInterface(Ci.nsIURL);
-    uri.query = "type=application/x-message-display";
+    uri = uri.mutate().setQuery("type=application/x-message-display").finalize();
 
     window.openDialog("chrome://messenger/content/messageWindow.xul", "_blank",
                     "all,chrome,dialog=no,status,toolbar", uri);

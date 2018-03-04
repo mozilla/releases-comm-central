@@ -5289,8 +5289,10 @@ nsAttachmentOpener.prototype =
   doContent: function(contentType, isContentPreferred, request, contentHandler)
   {
     // If we came here to display an attached message, make sure we provide a type.
-    if (/[?&]part=/i.test(request.URI.query))
-      request.URI.query += "&type=message/rfc822";
+    if (/[?&]part=/i.test(request.URI.query)) {
+      let newQuery = request.URI.query + "&type=message/rfc822";
+      request.URI = request.URI.mutate().setQuery(newQuery).finalize();
+    }
     let newHandler = Cc["@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"]
                        .createInstance(Components.interfaces.nsIContentHandler);
     newHandler.handleContent("application/x-message-display", this, request);
