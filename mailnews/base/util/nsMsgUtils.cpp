@@ -202,10 +202,12 @@ nsresult CreateStartupUrl(const char *uri, nsIURI** aUrl)
       rv = nntpUrl->QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(newUri));
   }
 
-  if (*aUrl) // SetSpec can fail, for mailbox urls, but we still have a url.
+  if (newUri) {
+    // SetSpec can fail, for mailbox urls, but we still have a url.
     (void)newUri->SetSpecInternal(nsDependentCString(uri));
 
-  newUri.forget(aUrl);
+    newUri.forget(aUrl);
+  }
   return rv;
 }
 
