@@ -330,10 +330,15 @@ function onAccept()
         (secure.checked ? "ldaps://" : "ldap://") + "localhost/dc=???")
         .QueryInterface(Ci.nsILDAPURL);
 
-      ldapUrl.host = hostname;
-      ldapUrl.port = port ? port :
-                            (secure.checked ? kDefaultSecureLDAPPort :
-                                              kDefaultLDAPPort);
+      let newPort = port ? port :
+                          (secure.checked ? kDefaultSecureLDAPPort :
+                                            kDefaultLDAPPort);
+      ldapUrl = ldapUrl.mutate()
+                       .setHost(hostname)
+                       .setPort(newPort)
+                       .finalize()
+                       .QueryInterface(Ci.nsILDAPURL);
+
       ldapUrl.dn = document.getElementById("basedn").value;
       ldapUrl.scope = document.getElementById("one").selected ?
                       Ci.nsILDAPURL.SCOPE_ONELEVEL :
