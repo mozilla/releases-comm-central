@@ -422,7 +422,7 @@ nsresult nsMailboxUrl::SetSpecInternal(const nsACString &aSpec)
   return rv;
 }
 
-NS_IMETHODIMP nsMailboxUrl::SetQuery(const nsACString &aQuery)
+nsresult nsMailboxUrl::SetQuery(const nsACString &aQuery)
 {
   nsresult rv = nsMsgMailNewsUrl::SetQuery(aQuery);
   if (NS_SUCCEEDED(rv))
