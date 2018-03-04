@@ -148,20 +148,20 @@ function run_test() {
 
   // An old version used to have a bug whereby if you set the scheme to the
   // same thing twice, you'd get the options set wrongly.
-  url.scheme = "ldaps";
+  url = url.mutate().setScheme("ldaps").finalize().QueryInterface(Ci.nsILDAPURL);
   Assert.equal(url.options, 1);
   Assert.equal(url.spec, "ldaps://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
-  url.scheme = "ldaps";
+  url = url.mutate().setScheme("ldaps").finalize().QueryInterface(Ci.nsILDAPURL);
   Assert.equal(url.options, 1);
   Assert.equal(url.spec, "ldaps://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
   Assert.ok(url.schemeIs("ldaps"));
   Assert.ok(!url.schemeIs("ldap"));
 
-  url.scheme = "ldap";
+  url = url.mutate().setScheme("ldap").finalize().QueryInterface(Ci.nsILDAPURL);
   Assert.equal(url.options, 0);
   Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
-  url.scheme = "ldap";
+  url = url.mutate().setScheme("ldap").finalize().QueryInterface(Ci.nsILDAPURL);
   Assert.equal(url.options, 0);
   Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
