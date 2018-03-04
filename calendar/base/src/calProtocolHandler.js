@@ -45,10 +45,7 @@ calProtocolHandler.prototype = {
     },
 
     newChannel2: function(aUri, aLoadInfo) {
-        // make sure to clone the uri, because we are about to change
-        // it, and we don't want to change the original uri.
-        let uri = aUri.clone();
-        uri.scheme = this.mHttpProtocol.scheme;
+        let uri = aUri.mutate().setScheme(this.mHttpProtocol.scheme).finalize();
 
         let channel;
         if (aLoadInfo) {

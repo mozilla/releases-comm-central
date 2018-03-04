@@ -2209,13 +2209,12 @@ calDavCalendar.prototype = {
                 return normalized == chs.path || normalized == chs.spec;
             }
             function createBoxUrl(path) {
-                let url = self.mUri.clone();
-                url.pathQueryRef = self.ensureDecodedPath(path);
+                let newPath = self.ensureDecodedPath(path);
                 // Make sure the uri has a / at the end, as we do with the calendarUri.
-                if (url.pathQueryRef.charAt(url.pathQueryRef.length - 1) != "/") {
-                    url.pathQueryRef += "/";
+                if (newPath.charAt(newPath.length - 1) != "/") {
+                    newPath += "/";
                 }
-                return url;
+                return self.mUri.mutate().setPathQueryRef(newPath).finalize();
             }
 
             // If there are multiple home sets, we need to match the email addresses for scheduling.
@@ -2672,8 +2671,9 @@ calDavCalendar.prototype = {
             // don't delete the REPLY item from inbox unless modifying the master
             // item was successful
             if (aStatus == 0) { // aStatus undocumented; 0 seems to indicate no error
-                let delUri = self.calendarUri.clone();
-                delUri.pathQueryRef = self.ensureEncodedPath(aPath);
+                let delUri = self.calendarUri.mutate()
+                                 .setPathQueryRef(self.ensureEncodedPath(aPath))
+                                 .finalize();
                 self.doDeleteItem(aItem, null, true, true, delUri);
             }
         };
