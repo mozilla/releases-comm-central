@@ -18,9 +18,9 @@
 class nsMailboxUrl : public nsIMailboxUrl, public nsMsgMailNewsUrl, public nsIMsgMessageUrl, public nsIMsgI18NUrl
 {
 public:
-  // nsIURI over-ride...
+  // nsIMsgMailNewsUrl override
   nsresult SetSpecInternal(const nsACString &aSpec) override;
-  NS_IMETHOD SetQuery(const nsACString &aQuery) override;
+  nsresult SetQuery(const nsACString &aQuery) override;
 
   // from nsIMailboxUrl:
   NS_IMETHOD SetMailboxParser(nsIStreamListener * aConsumer) override;
