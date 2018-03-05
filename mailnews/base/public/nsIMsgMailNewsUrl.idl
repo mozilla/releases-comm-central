@@ -28,7 +28,10 @@ interface nsIMsgMailNewsUrl : nsIURL {
   nsresult setFileNameInternal(in ACString aFileName);
 
   [noscript,notxpcom,nostdcall]
-  nsresult setSpecInternal(in ACString Spec);
+  nsresult setSpecInternal(in ACString aSpec);
+
+  [noscript,notxpcom,nostdcall]
+  nsresult setPortInternal(in long aPort);
 
   ///////////////////////////////////////////////////////////////////////////////
   // Eventually we'd like to push this type of functionality up into nsIURI.

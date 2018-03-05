@@ -348,7 +348,9 @@ NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL, nsIMsgWindow *aMsgWindow)
              nsINntpUrl::DEFAULT_NNTPS_PORT : nsINntpUrl::DEFAULT_NNTP_PORT;
     }
 
-    rv = NS_MutateURI(m_url).SetPort(port).Finalize(m_url);
+    // Don't mutate/clone here.
+    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_url);
+    rv = mailnewsurl->SetPortInternal(port);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

@@ -266,7 +266,9 @@ nsNntpService::DisplayMessage(const char* aMessageURI, nsISupports * aDisplayCon
                nsINntpUrl::DEFAULT_NNTPS_PORT : nsINntpUrl::DEFAULT_NNTP_PORT;
       }
 
-      rv = NS_MutateURI(url).SetPort(port).Finalize(url);
+      // Don't mutate/clone here.
+      nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(url);
+      rv = mailnewsurl->SetPortInternal(port);
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
@@ -1442,11 +1444,11 @@ nsNntpService::StreamMessage(const char *aMessageURI, nsISupports *aConsumer,
         rv = server->GetSocketType(&socketType);
         NS_ENSURE_SUCCESS(rv, rv);
 
-        rv = NS_MutateURI(url)
-               .SetPort(socketType == nsMsgSocketType::SSL ?
-                          nsINntpUrl::DEFAULT_NNTPS_PORT :
-                          nsINntpUrl::DEFAULT_NNTP_PORT)
-               .Finalize(url);
+        // Don't mutate/clone here.
+        nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(url);
+        rv = mailnewsurl->SetPortInternal(socketType == nsMsgSocketType::SSL ?
+                                            nsINntpUrl::DEFAULT_NNTPS_PORT :
+                                            nsINntpUrl::DEFAULT_NNTP_PORT);
         NS_ENSURE_SUCCESS(rv, rv);
 
         rv = IsMsgInMemCache(url, folder, &hasMsgOffline);

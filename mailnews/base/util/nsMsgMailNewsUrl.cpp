@@ -514,6 +514,11 @@ nsresult nsMsgMailNewsUrl::SetPort(int32_t aPort)
   return NS_MutateURI(m_baseURL).SetPort(aPort).Finalize(m_baseURL);
 }
 
+NS_IMETHODIMP nsMsgMailNewsUrl::SetPortInternal(int32_t aPort)
+{
+  return NS_MutateURI(m_baseURL).SetPort(aPort).Finalize(m_baseURL);
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::GetPathQueryRef(nsACString &aPath)
 {
   return m_baseURL->GetPathQueryRef(aPath);
