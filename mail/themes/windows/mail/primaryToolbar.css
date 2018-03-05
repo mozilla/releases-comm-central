@@ -602,8 +602,8 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 
   #messengerWindow[tabsintitlebar] #titlebar-content:-moz-lwtheme {
-    -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
     visibility: visible;
+    -moz-window-dragging: drag;
   }
 
   #print-preview-toolbar:not(:-moz-lwtheme) {

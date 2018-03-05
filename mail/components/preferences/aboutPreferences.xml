@@ -27,10 +27,10 @@
              role="dialog">
       <xul:stack flex="1">
         <xul:hbox id="prefBox" flex="1">
-          <xul:windowdragbox orient="vertical">
+          <xul:vbox id="category-box">
             <xul:radiogroup anonid="selector" orient="vertical" class="paneSelector chromeclass-toolbar"
                             role="listbox"/> <!-- Expose to accessibility APIs as a listbox -->
-          </xul:windowdragbox>
+          </xul:vbox>
           <xul:hbox id="preferencesContainer" flex="1">
             <xul:hbox class="paneDeckContainer" flex="1">
               <xul:deck anonid="paneDeck" flex="1">

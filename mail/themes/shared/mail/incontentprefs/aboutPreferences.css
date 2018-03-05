@@ -20,7 +20,7 @@
   position: relative;
 }
 
-#prefBox > windowdragbox {
+#category-box {
   background-color: #ebebef;
   width: 240px;
 }
@@ -130,7 +130,7 @@ radio[pane][selected] > .paneButtonIcon {
 }
 
 @media (max-width: 830px) {
-  #prefBox > windowdragbox {
+  #category-box {
     width: 118px;
   }
 
