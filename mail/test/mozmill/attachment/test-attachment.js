@@ -202,7 +202,7 @@ function test_long_attachment_name() {
  * "beneath" the attached message (as opposed to all attachments for the root
  * message).
  */
-function test_attached_message_attachments() {
+function disabled_test_attached_message_attachments() {
   be_in_folder(folder);
 
   select_click_row(5);
@@ -258,7 +258,7 @@ function subtest_attachment_right_click(elementId, contextMenuId) {
   close_popup(mc, mc.eid(contextMenuId));
 }
 
-function test_attachment_right_click_single() {
+function disabled_test_attachment_right_click_single() {
   be_in_folder(folder);
 
   select_click_row(1);
@@ -277,9 +277,9 @@ function test_attachment_right_click_single() {
                                  "attachment-toolbar-context-menu");
 }
 // Re-enable this test once Bug 617311 is fixed.
-test_attachment_right_click_single.EXCLUDED_PLATFORMS = ['linux'];
+// disabled: test_attachment_right_click_single.EXCLUDED_PLATFORMS = ['linux'];
 
-function test_attachment_right_click_multiple() {
+function disabled_test_attachment_right_click_multiple() {
   be_in_folder(folder);
 
   select_click_row(3);
@@ -297,7 +297,7 @@ function test_attachment_right_click_multiple() {
                                  "attachment-toolbar-context-menu");
 }
 // Re-enable this test once Bug 617311 is fixed.
-test_attachment_right_click_multiple.EXCLUDED_PLATFORMS = ['linux'];
+// disabled: test_attachment_right_click_multiple.EXCLUDED_PLATFORMS = ['linux'];
 
 /**
  * Test that clicking on various elements in the attachment bar toggles the
@@ -464,7 +464,7 @@ function test_delete_attachment_key() {
   wait_for_modal_dialog("commonDialog");
 }
 
-function test_attachments_compose_menu() {
+function disabled_test_attachments_compose_menu() {
   be_in_folder(folder);
 
   // First, select the message with two attachments.

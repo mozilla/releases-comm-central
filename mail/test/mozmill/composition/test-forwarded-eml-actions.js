@@ -122,14 +122,14 @@ function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
 /**
  * Test that replying to an attached .eml contains the expected texts.
  */
-function test_reply_to_attached_eml() {
+function disabled_test_reply_to_attached_eml() {
   setupWindowAndTest("R", {shiftKey: false, accelKey: true});
 }
 
 /**
  * Test that forwarding an attached .eml contains the expected texts.
  */
-function test_forward_attached_eml() {
+function disabled_test_forward_attached_eml() {
   setupWindowAndTest("L", {shiftKey: false, accelKey: true});
 }
 
