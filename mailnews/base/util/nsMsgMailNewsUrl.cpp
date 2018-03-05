@@ -32,7 +32,6 @@
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 {
   // nsIURI specific state
-  m_errorMessage = nullptr;
   m_runningUrl = false;
   m_updatingFolder = false;
   m_msgIsInLocalCache = false;
@@ -53,8 +52,6 @@ nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 
 nsMsgMailNewsUrl::~nsMsgMailNewsUrl()
 {
-  PR_FREEIF(m_errorMessage);
-
   // In IMAP this URL is created and destroyed on the imap thread,
   // so we must ensure that releases of XPCOM objects (which might be
   // implemented by non-threadsafe JS components) are released on the
@@ -750,6 +747,11 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetQuery(nsACString &aQuery)
 }
 
 nsresult nsMsgMailNewsUrl::SetQuery(const nsACString &aQuery)
+{
+  return NS_MutateURI(m_baseURL).SetQuery(aQuery).Finalize(m_baseURL);
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::SetQueryInternal(const nsACString &aQuery)
 {
   return NS_MutateURI(m_baseURL).SetQuery(aQuery).Finalize(m_baseURL);
 }

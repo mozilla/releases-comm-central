@@ -10,12 +10,10 @@
 #include "nsIWindowWatcher.h"
 #include "nsIDocShell.h"
 #include "nsIWebNavigation.h"
-#include "nsIURL.h"
 #include "nsString.h"
 #include "nsMsgBaseCID.h"
 #include "plstr.h"
-#include "nsIURL.h"
-#include "nsIURIMutator.h"
+#include "nsIMsgMailNewsUrl.h"
 #include "nsServiceManagerUtils.h"
 
 nsMessengerContentHandler::nsMessengerContentHandler()
@@ -48,17 +46,22 @@ NS_IMETHODIMP nsMessengerContentHandler::HandleContent(const char * aContentType
       rv = request->Cancel(NS_ERROR_ABORT);
       if (NS_SUCCEEDED(rv))
       {
-        nsCOMPtr<nsIURL> aUrl = do_QueryInterface(aUri);
-        if (aUrl)
+        nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(aUri);
+        if (mailnewsurl)
         {
           nsAutoCString queryPart;
-          aUrl->GetQuery(queryPart);
+          mailnewsurl->GetQuery(queryPart);
           queryPart.Replace(queryPart.Find("type=message/rfc822"),
                             sizeof("type=message/rfc822") - 1,
                             "type=application/x-message-display");
-          rv = NS_MutateURI(aUrl).SetQuery(queryPart).Finalize(aUrl);
+          // Don't mutate/clone here.
+          rv = mailnewsurl->SetQueryInternal(queryPart);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = OpenWindow(aUri);
+        }
+        else
+        {
+          NS_WARNING("Trying to handle content that's not a nsIMsgMailNewsUrl?");
         }
       }
     }
