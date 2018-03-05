@@ -238,7 +238,7 @@
                      type="number"
                      size="3"/>
         <xul:menulist anonid="snooze-unit-menulist"
-                      class="snooze-unit-menulist menuitem-non-iconic"
+                      class="snooze-unit-menulist"
                       allowevents="true">
          <xul:menupopup anonid="snooze-unit-menupopup"
                         position="after_start"
