@@ -99,7 +99,7 @@ function test_ignore_phishing_warning_from_eml() {
 /**
  * Test that when viewing an attached eml file, the phishing notification works.
  */
-function test_ignore_phishing_warning_from_eml_attachment() {
+function disable_test_ignore_phishing_warning_from_eml_attachment() {
   let thisFilePath = os.getFileForPath(__file__);
   let file = os.getFileForPath(os.abspath("./evil-attached.eml", thisFilePath));
 
