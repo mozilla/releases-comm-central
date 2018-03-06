@@ -338,11 +338,6 @@ toolbox:not([labelalign="end"]) toolbar[mode="full"] .toolbarbutton-1 {
   margin-inline-end: 0;
 }
 
-toolbar:not(.inline-toolbar):not(:-moz-lwtheme)
-.toolbarbutton-1 .toolbarbutton-text {
-  color: -moz-menubartext;
-}
-
 .toolbarbutton-1[disabled=true] .toolbarbutton-icon,
 .toolbarbutton-1[disabled=true] .toolbarbutton-text,
 .toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
