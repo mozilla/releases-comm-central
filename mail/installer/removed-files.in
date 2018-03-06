@@ -1040,7 +1040,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/dom_threads.xpt
   @DIR_MACOS@components/dom_views.xpt
   @DIR_MACOS@components/dom_xul.xpt
-  @DIR_MACOS@components/downloads.xpt
   @DIR_MACOS@components/editor.xpt
   @DIR_MACOS@components/embed_base.xpt
   @DIR_MACOS@components/extensions.xpt

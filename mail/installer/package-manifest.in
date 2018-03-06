@@ -451,7 +451,6 @@
 @RESPATH@/components/dom_webspeechrecognition.xpt
 @RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xul.xpt
-@RESPATH@/components/downloads.xpt
 @RESPATH@/components/editor.xpt
 @RESPATH@/components/extensions.xpt
 @RESPATH@/components/exthandler.xpt
