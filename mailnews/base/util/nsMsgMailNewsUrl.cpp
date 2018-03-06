@@ -511,7 +511,7 @@ nsresult nsMsgMailNewsUrl::SetPort(int32_t aPort)
   return NS_MutateURI(m_baseURL).SetPort(aPort).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetPortInternal(int32_t aPort)
+nsresult nsMsgMailNewsUrl::SetPortInternal(int32_t aPort)
 {
   return NS_MutateURI(m_baseURL).SetPort(aPort).Finalize(m_baseURL);
 }
@@ -751,7 +751,7 @@ nsresult nsMsgMailNewsUrl::SetQuery(const nsACString &aQuery)
   return NS_MutateURI(m_baseURL).SetQuery(aQuery).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetQueryInternal(const nsACString &aQuery)
+nsresult nsMsgMailNewsUrl::SetQueryInternal(const nsACString &aQuery)
 {
   return NS_MutateURI(m_baseURL).SetQuery(aQuery).Finalize(m_baseURL);
 }
