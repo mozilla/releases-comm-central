@@ -9,7 +9,8 @@
   height: 530px !important;
 }
 
-windowdragbox {
+#dragbox {
+  -moz-window-dragging: drag;
   min-height: 20px;
   -moz-appearance: toolbar;
   -moz-box-align: center;
