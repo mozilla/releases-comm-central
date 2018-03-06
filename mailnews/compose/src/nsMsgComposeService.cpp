@@ -1335,7 +1335,7 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
   // we're always passing in an invalid spec...
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(url);
   if (!mailnewsurl) {
-    NS_WARNING("Trying to run a message throught MIME which doesn't have a nsIMsgMailNewsUrl?");
+    NS_WARNING("Trying to run a message through MIME which doesn't have a nsIMsgMailNewsUrl?");
     return NS_ERROR_UNEXPECTED;
   }
   mozilla::Unused << mailnewsurl->SetSpecInternal(mailboxUri);
