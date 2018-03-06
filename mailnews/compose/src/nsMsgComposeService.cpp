@@ -1333,7 +1333,12 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
 
   // ignore errors here - it's not fatal, and in the case of mailbox messages,
   // we're always passing in an invalid spec...
-  mozilla::Unused << NS_MutateURI(url).SetSpec(mailboxUri).Finalize(url);
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(url);
+  if (!mailnewsurl) {
+    NS_WARNING("Trying to run a message throught MIME which doesn't have a nsIMsgMailNewsUrl?");
+    return NS_ERROR_UNEXPECTED;
+  }
+  mozilla::Unused << mailnewsurl->SetSpecInternal(mailboxUri);
 
   // if we are forwarding a message and that message used a charset over ride
   // then use that over ride charset instead of the charset specified in the message
