@@ -220,7 +220,9 @@ imIncomingServer.prototype = {
 
   // Shutdown the server instance so at least disconnect from the server.
   shutdown: function() {
-    this.imAccount.disconnect();
+    // Ensure this account has not been destroyed already.
+    if (this.imAccount.prplAccount)
+      this.imAccount.disconnect();
   },
 
   setFilterList: function() { },
