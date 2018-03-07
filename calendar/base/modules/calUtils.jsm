@@ -84,6 +84,7 @@ var cal = {
      * Shortcut to cal.console.log()
      */
     LOG: gCalendarConsole.log,
+    LOGverbose: gCalendarConsole.debug,
 
     /**
      * Logs a calendar warning to the console. Shortcut to cal.console.warn()
@@ -379,10 +380,23 @@ var cal = {
     registerForShutdownCleanup: shutdownCleanup
 };
 
+/**
+ * Update the logging preferences for the calendar console based on the sate of verbose logging and
+ * normal calendar logging.
+ */
+function updateLogPreferences() {
+    if (cal.verboseLogEnabled) {
+        gCalendarConsole.maxLogLevel = "all";
+    } else if (cal.debugLogEnabled) {
+        gCalendarConsole.maxLogLevel = "log";
+    } else {
+        gCalendarConsole.maxLogLevel = "warn";
+    }
+}
+
 // Preferences
-XPCOMUtils.defineLazyPreferenceGetter(cal, "debugLogEnabled", "calendar.debug.log", false, (pref, prev, value) => {
-    gCalendarConsole.maxLogLevel = value ? "all" : "warn";
-});
+XPCOMUtils.defineLazyPreferenceGetter(cal, "debugLogEnabled", "calendar.debug.log", false, updateLogPreferences);
+XPCOMUtils.defineLazyPreferenceGetter(cal, "verboseLogEnabled", "calendar.debug.log.verbose", false, updateLogPreferences);
 XPCOMUtils.defineLazyPreferenceGetter(cal, "threadingEnabled", "calendar.threading.disabled", false);
 
 // Sub-modules for calUtils
