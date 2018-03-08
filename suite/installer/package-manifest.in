@@ -232,7 +232,7 @@
 @RESPATH@/components/intl.xpt
 @RESPATH@/components/jar.xpt
 @RESPATH@/components/jsdebugger.xpt
-@RESPATH@/components/jsdownloads.xpt
+@RESPATH@/components/downloads.xpt
 @RESPATH@/components/jsinspector.xpt
 @RESPATH@/components/layout_base.xpt
 #ifdef NS_PRINTING

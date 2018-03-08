@@ -600,7 +600,7 @@
 @RESPATH@/components/autocomplete.xpt
 @RESPATH@/components/alerts.xpt
 @RESPATH@/components/jsdebugger.xpt
-@RESPATH@/components/jsdownloads.xpt
+@RESPATH@/components/downloads.xpt
 @RESPATH@/components/jsinspector.xpt
 @RESPATH@/components/fastfind.xpt
 @RESPATH@/components/ConsoleAPIStorage.js

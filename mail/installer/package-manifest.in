@@ -364,7 +364,7 @@
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
 #endif
 
-; download progress for jsdownloads
+; download progress for downloads
 @RESPATH@/components/DownloadsStartup.js
 
 ; Protocol/Content handling
@@ -451,6 +451,7 @@
 @RESPATH@/components/dom_webspeechrecognition.xpt
 @RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xul.xpt
+@RESPATH@/components/downloads.xpt
 @RESPATH@/components/editor.xpt
 @RESPATH@/components/extensions.xpt
 @RESPATH@/components/exthandler.xpt
@@ -465,7 +466,6 @@
 @RESPATH@/components/intl.xpt
 @RESPATH@/components/jar.xpt
 @RESPATH@/components/jsdebugger.xpt
-@RESPATH@/components/jsdownloads.xpt
 @RESPATH@/components/jsinspector.xpt
 @RESPATH@/components/layout_base.xpt
 #ifdef NS_PRINTING
