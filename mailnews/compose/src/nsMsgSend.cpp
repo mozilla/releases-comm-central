@@ -1561,12 +1561,11 @@ nsMsgComposeAndSend::GetBodyFromEditor()
 
   if (aCharset && *aCharset)
   {
+    bool isAsciiOnly = NS_IsAscii(bodyText);
     rv = nsMsgI18NConvertFromUnicode(nsDependentCString(aCharset),
                                      nsDependentString(bodyText),
                                      outCString,
                                      true);
-    bool isAsciiOnly = NS_IsAscii(outCString.get()) &&
-      !nsMsgI18Nstateful_charset(mCompFields->GetCharacterSet());
     if (mCompFields->GetForceMsgEncoding())
       isAsciiOnly = false;
     mCompFields->SetBodyIsAsciiOnly(isAsciiOnly);
