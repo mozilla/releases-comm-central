@@ -166,7 +166,7 @@ function test_filter_tags() {
   toggle_boolean_constraints("tags"); // should be any tag (not tagC!)
   assert_messages_in_view([setTagA, setTagB, setTagAB, setTagC]);
 }
-test_filter_tags.EXCLUDED_PLATFORMS = ["darwin"];  // See bug 1387704.
+test_filter_tags.EXCLUDED_PLATFORMS = ["darwin", "linux"];  // See bug 1387704.
 
 function test_filter_text_single_word_and_predicates() {
   let folder = create_folder("QuickFilterBarTextSingleWord");
