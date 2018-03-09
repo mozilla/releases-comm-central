@@ -26,7 +26,7 @@ win32/opt:
             - builds/taskcluster_base_win32.py
             - builds/taskcluster_sub_win32/opt.py
     toolchains:
-        - win32-clang-cl
+        - win32-clang-cl-st-an
         - win32-rust
         - win64-sccache
 
@@ -63,7 +63,7 @@ win32-nightly/opt:
             - disable_signing.py
             - taskcluster_nightly.py
     toolchains:
-        - win32-clang-cl
+        - win32-clang-cl-st-an
         - win32-rust
 
 win32/debug:
@@ -94,7 +94,7 @@ win32/debug:
             - builds/taskcluster_base_win32.py
             - builds/taskcluster_sub_win32/debug.py
     toolchains:
-        - win32-clang-cl
+        - win32-clang-cl-st-an
         - win32-rust
         - win64-sccache
 
@@ -125,7 +125,7 @@ win64/opt:
             - builds/taskcluster_base_win64.py
             - builds/taskcluster_sub_win64/opt.py
     toolchains:
-        - win64-clang-cl
+        - win64-clang-cl-st-an
         - win64-rust
         - win64-sccache
 
@@ -162,7 +162,7 @@ win64-nightly/opt:
             - disable_signing.py
             - taskcluster_nightly.py
     toolchains:
-        - win64-clang-cl
+        - win64-clang-cl-st-an
         - win64-rust
 
 win64/debug:
@@ -192,6 +192,6 @@ win64/debug:
             - builds/taskcluster_base_win64.py
             - builds/taskcluster_sub_win64/debug.py
     toolchains:
-        - win64-clang-cl
+        - win64-clang-cl-st-an
         - win64-rust
         - win64-sccache
