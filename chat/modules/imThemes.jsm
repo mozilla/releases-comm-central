@@ -39,6 +39,14 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
+XPCOMUtils.defineLazyGetter(this, "gTimeFormatter", () => {
+  return new Services.intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+});
+
 ChromeUtils.defineModuleGetter(this,
   "ToLocaleFormat", "resource:///modules/ToLocaleFormat.jsm");
 
@@ -340,10 +348,7 @@ var headerFooterReplacements = {
     let date = new Date(aConv.startDate / 1000);
     if (aFormat)
       return ToLocaleFormat(aFormat, date);
-    const timeFormatter = new Services.intl.DateTimeFormat(undefined, {
-      timeStyle: "long"
-    });
-    return timeFormatter.format(date);
+    return gTimeFormatter.format(date);
   }
 };
 
@@ -361,17 +366,11 @@ var statusMessageReplacements = {
     let date = new Date(aMsg.time * 1000);
     if (aFormat)
       return ToLocaleFormat(aFormat, date);
-    const timeFormatter = new Services.intl.DateTimeFormat(undefined, {
-      timeStyle: "long"
-    });
-    return timeFormatter.format(date);
+    return gTimeFormatter.format(date);
   },
   timestamp: aMsg => aMsg.time,
   shortTime: function(aMsg) {
-    const timeFormatter = new Services.intl.DateTimeFormat(undefined, {
-      timeStyle: "long"
-    });
-    return timeFormatter.format(new Date(aMsg.time * 1000));
+    return gTimeFormatter.format(new Date(aMsg.time * 1000));
   },
   messageClasses: function(aMsg) {
     let msgClass = [];

@@ -23,18 +23,18 @@ function ToLocaleFormat(aFormat, aDate) {
     return Day(t) - DayFromYear(t.getFullYear());
   }
   function weekday(option) {
-    return aDate.toLocaleString(locale, {weekday: option});
+    return aDate.toLocaleString(undefined, {weekday: option});
   }
   function month(option) {
-    return aDate.toLocaleString(locale, {month: option});
+    return aDate.toLocaleString(undefined, {month: option});
   }
   function hourMinSecTwoDigits() {
-    return aDate.toLocaleString(locale, {
+    return aDate.toLocaleString(undefined, {
       hour: "2-digit", minute: "2-digit", second: "2-digit"
     });
   }
   function dayPeriod() {
-    let dtf = Intl.Dateformat(locale, {hour: "2-digit"});
+    let dtf = Intl.DateTimeFormat(undefined, {hour: "2-digit"});
     let dayPeriodPart =
       dtf.resolvedOptions().hour12 &&
       dtf.formatToParts(aDate).find(part => part.type === "dayPeriod");
@@ -76,7 +76,7 @@ function ToLocaleFormat(aFormat, aDate) {
     return (offset < 0 ? "+" : "-") + String(tzoff).padStart(4, "0");
   }
   function timeZone() {
-    let dtf = Intl.DateTimeFormat("en-US", {timeZoneName: "short"});
+    let dtf = Intl.DateTimeFormat(undefined, {timeZoneName: "short"});
     let timeZoneNamePart = dtf.formatToParts(aDate)
                               .find(part => part.type === "timeZoneName");
     return timeZoneNamePart ? timeZoneNamePart.value : "";

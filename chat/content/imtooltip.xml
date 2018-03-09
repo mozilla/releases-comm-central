@@ -488,13 +488,13 @@
            let text;
            if ((new Date()).toDateString() == date.toDateString()) {
              const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-               timeStyle: "long"
+               timeStyle: "medium"
              });
              text = dateTimeFormatter.format(date);
            }
            else {
              const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-               dateStyle: "short", timeStyle: "long"
+               dateStyle: "short", timeStyle: "medium"
              });
              text = dateTimeFormatter.format(date);
            }
