@@ -3091,59 +3091,131 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
 #endif
 
   charsReadSoFar = 0;
-  static bool lastCRLFwasCRCRLF = false;
+  static bool nextChunkStartsWithNewline = false;
 
   while (ContinueParse() && !fServerConnection.DeathSignalReceived() && (charsReadSoFar < numberOfCharsInThisChunk))
   {
     AdvanceToNextLine();
     if (ContinueParse())
     {
-      // When we split CRLF across two chunks, AdvanceToNextLine() turns the LF at the
-      // beginning of the next chunk into an empty line ending with CRLF, so discard
-      // that leading CR
-      bool specialLineEnding = false;
-      if (lastCRLFwasCRCRLF && (*fCurrentLine == '\r'))
+      // When "\r\n" (CRLF) is split across two chunks, the '\n' at the beginning of
+      // the next chunk might be set to an empty line consisting only of "\r\n".
+      // This is observed while running unit tests with the imap "fake" server.
+      // The unexpected '\r' is discarded here. However, with several real world
+      // servers tested, e.g., Dovecot, Gmail, Outlook, Yahoo etc., the leading
+      // '\r' is not inserted so the beginning line of the next chunk remains
+      // just '\n' and no discard is required.
+      // In any case, this "orphan" line is ignored and not processed below.
+      if (nextChunkStartsWithNewline && (*fCurrentLine == '\r'))
       {
+        // Cause fCurrentLine to point to '\n' which discards the '\r'.
         char *usableCurrentLine = PL_strdup(fCurrentLine + 1);
         PR_Free(fCurrentLine);
         fCurrentLine = usableCurrentLine;
-        specialLineEnding = true;
       }
 
-      // This *would* fail on data containing \0, but down below AdvanceToNextLine() in
+      // strlen() *would* fail on data containing \0, but the above AdvanceToNextLine() in
       // nsMsgLineStreamBuffer::ReadNextLine() we replace '\0' with ' ' (blank) because
-      // who cares about binary transparency, and anyways \0 in this context violates RFCs.
+      // who cares about binary transparency, and anyway \0 in this context violates RFCs.
       charsReadSoFar += strlen(fCurrentLine);
       if (!fDownloadingHeaders && fCurrentCommandIsSingleMessageFetch)
       {
         fServerConnection.ProgressEventFunctionUsingName("imapDownloadingMessage");
         if (fTotalDownloadSize > 0)
-          fServerConnection.PercentProgressUpdateEvent(0,charsReadSoFar + origin, fTotalDownloadSize);
+          fServerConnection.PercentProgressUpdateEvent(0, charsReadSoFar + origin, fTotalDownloadSize);
       }
       if (charsReadSoFar > numberOfCharsInThisChunk)
       {
-        // The chunk we are receiving doesn't end in CRLF, so the last line includes
-        // the CRLF that comes after the literal
-        char *displayEndOfLine = (fCurrentLine + strlen(fCurrentLine) - (charsReadSoFar - numberOfCharsInThisChunk));
-        char saveit = *displayEndOfLine;
-        *displayEndOfLine = 0;
-        fServerConnection.HandleMessageDownLoadLine(fCurrentLine, specialLineEnding || !lastChunk);
-        *displayEndOfLine = saveit;
-        lastCRLFwasCRCRLF = (*(displayEndOfLine - 1) == '\r');
+        // This is the last line of a chunk. "Literal" here means actual email data and
+        // its EOLs, without imap protocol elements and their EOLs. End of line is
+        // defined by two characters \r\n (i.e., CRLF, 0xd,0xa) specified by RFC822.
+        // Here is an example the most typical last good line of a chunk:
+        // "1s8AA5i4AAvF4QAG6+sAAD0bAPsAAAAA1OAAC)\r\n", where ")\r\n" are non-literals.
+        // This an example of the last "good" line of a chunk that terminates with \r\n
+        // "FxcA/wAAAALN2gADu80ACS0nAPpVVAD1wNAABF5YAPhAJgD31+QABAAAAP8oMQD+HBwA/umj\r\n"
+        // followed by another line of non-literal data:
+        // " UID 1004)\r\n". These two are concatenated into a single string pointed to
+        // by fCurrentLine.  The extra "non-literal data" on the last chunk line makes
+        // the charsReadSoFar greater than numberOfCharsInThisChunk (the configured
+        // chunk size).
+        // A problem occurs if the \r\n of the long line above is split between
+        // chunks and \n is contained in the next chunk. For example, if last
+        // lines of chunk X are:
+        // "/gAOC/wA/QAAAAAAAAAA8wACCvz+AgIEAAD8/P4ABQUAAPoAAAD+AAEA/voHAAQGBQD/BAQA\r"
+        // ")\r\n"
+        // and the first two lines of chunk X+1 are:
+        // "\n"
+        // "APwAAAAAmZkA/wAAAAAREQD/AAAAAquVAAbk8QAHCBAAAPD0AAP5+wABRCoA+0BgAP0AAAAA\r\n"
+        // The missing '\n' on the last line of chunk X must be added back and the
+        // line consisting only of "\n" in chunk X+1 must be ignored in order to
+        // produce the the correct output. This is needed to insure that the signature
+        // verification of cryptographically signed emails does not fail due to missing
+        // or extra EOL characters. Otherwise, the extra or missing \n or \r  doesn't
+        // really matter.
+        //
+        // Special case observed only with the "fake" imap server used with TB
+        // unit test.  When the "\r\n" at the end of a chunk is split as described
+        // above, the \n at the beginning of the next chunk may actually be "\r\n"
+        // like this example:
+        // Last lines of chunk X
+        // "/gAOC/wA/QAAAAAAAAAA8wACCvz+AgIEAAD8/P4ABQUAAPoAAAD+AAEA/voHAAQGBQD/BAQA\r"
+        // ")\r\n"
+        // and the first two lines of chunk X+1:
+        // "\r\n"   <-- The code changes this to just "\n" like it should be.
+        // "APwAAAAAmZkA/wAAAAAREQD/AAAAAquVAAbk8QAHCBAAAPD0AAP5+wABRCoA+0BgAP0AAAAA\r\n"
+        //
+        // Implementation:
+        // Obtain pointer to last literal in chunk X, e.g., 'C' in 1st example above,
+        // or to the \n or \r in the other examples.
+        char *displayEndOfLine =
+          (fCurrentLine + strlen(fCurrentLine) - (charsReadSoFar - numberOfCharsInThisChunk + 1));
+        // Save so original unmodified fCurrentLine is restored below.
+        char saveit1 = displayEndOfLine[1];
+        char saveit2;
+        // Determine if EOL is split such that Chunk X has the \r and chunk
+        // X+1 has the \n.
+        nextChunkStartsWithNewline = (displayEndOfLine[0] == '\r');
+        if (nextChunkStartsWithNewline)
+        {
+          saveit2 = displayEndOfLine[2];
+          // Add the missing newline and terminate the string.
+          displayEndOfLine[1] = '\n';
+          displayEndOfLine[2] = 0;
+          // This is a good thing to log.
+          MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("PARSER: CR/LF split at chunk boundary"));
+        }
+        else
+        {
+          // Typical case where EOLs are not split. Terminate the string.
+          displayEndOfLine[1] = 0;
+        }
+        // Process this modified string pointed to by fCurrentLine.
+        fServerConnection.HandleMessageDownLoadLine(fCurrentLine, !lastChunk);
+        // Restore fCurrentLine's original content.
+        displayEndOfLine[1] = saveit1;
+        if (nextChunkStartsWithNewline)
+          displayEndOfLine[2] = saveit2;
       }
       else
       {
-        lastCRLFwasCRCRLF = (*(fCurrentLine + strlen(fCurrentLine) - 1) == '\r');
-        fServerConnection.HandleMessageDownLoadLine(fCurrentLine,
-            specialLineEnding || (!lastChunk && (charsReadSoFar == numberOfCharsInThisChunk)),
+        // Not the last line of a chunk.
+        if (!nextChunkStartsWithNewline)
+        {
+          // Process unmodified fCurrentLine string.
+          fServerConnection.HandleMessageDownLoadLine(fCurrentLine,
+            !lastChunk && (charsReadSoFar == numberOfCharsInThisChunk),
             fCurrentLine);
+        }
+        else
+        {
+          // Ignore the orphan '\n' on a line by itself.
+          MOZ_ASSERT(strlen(fCurrentLine) == 1 && fCurrentLine[0] == '\n',
+                     "Expect '\n' as only character in this line");
+          nextChunkStartsWithNewline = false;
+        }
       }
     }
   }
-
-  // This would be a good thing to log.
-  if (lastCRLFwasCRCRLF)
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("PARSER: CR/LF fell on chunk boundary."));
 
   if (ContinueParse())
   {
@@ -3162,7 +3234,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
   }
   else
   {
-    lastCRLFwasCRCRLF = false;
+    nextChunkStartsWithNewline = false;
   }
   return lastChunk;
 }
