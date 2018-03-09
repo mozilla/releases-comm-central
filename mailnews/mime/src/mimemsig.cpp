@@ -197,7 +197,7 @@ MimeMultipartSigned_parse_line (const char *line, int32_t length, MimeObject *ob
 
     case MimeMultipartPartFirstLine:
       if (sig->state == MimeMultipartSignedBodyFirstHeader)
-      {      
+      {
         sig->state = MimeMultipartSignedBodyFirstLine;
         no_headers_p = true;
       }
@@ -656,7 +656,7 @@ MimeMultipartSigned_emit_child (MimeObject *obj)
   if (obj->options && !(obj->options->override_charset)) {
     MimeObject *firstChild = ((MimeContainer*) obj)->children[0];
     char *disposition = MimeHeaders_get (firstChild->headers,
-                                         HEADER_CONTENT_DISPOSITION, 
+                                         HEADER_CONTENT_DISPOSITION,
                                          true,
                                          false);
     // check if need to show as inline
@@ -683,7 +683,7 @@ MimeMultipartSigned_emit_child (MimeObject *obj)
       }
     }
   }
-  
+
   // The js emitter wants to know about the newly created child.  Because
   //  MimeMultipartSigned dummies out its create_child operation, the logic
   //  in MimeMultipart_parse_line that would normally provide this notification
@@ -699,7 +699,7 @@ MimeMultipartSigned_emit_child (MimeObject *obj)
     mimeEmitterAddHeaderField(obj->options, HEADER_CONTENT_TYPE,
                               ct ? ct : "text/plain");
     PR_Free(ct);
-    
+
     char *part_path = mime_part_address(kid);
     if (part_path) {
       mimeEmitterAddHeaderField(obj->options,

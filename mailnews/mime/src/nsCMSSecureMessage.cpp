@@ -213,7 +213,7 @@ SendMessage(const char *msg, const char *base64Cert, char ** _retval)
     rv = NS_ERROR_FAILURE;
     goto done;
   }
-  
+
   /* Step 6. Encode */
   NSSCMSEncoderContext *ecx;
 

@@ -475,7 +475,7 @@ nsMimeBaseEmitter::WriteHelper(const nsACString &buf, uint32_t *countWritten)
     uint64_t avail;
     rv = mInputStream->Available(&avail);
     if (NS_SUCCEEDED(rv) && avail) {
-      mOutListener->OnDataAvailable(mChannel, mURL, mInputStream, 0, 
+      mOutListener->OnDataAvailable(mChannel, mURL, mInputStream, 0,
                                     std::min(avail, uint64_t(PR_UINT32_MAX)));
 
       // try writing again...

@@ -13,7 +13,7 @@
 //////////////////////////////////////////////////////////////
 
 class MimeRebuffer {
-public: 
+public:
     MimeRebuffer (void);
     virtual       ~MimeRebuffer (void);
 

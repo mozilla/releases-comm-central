@@ -10,7 +10,7 @@
 
 class nsICMSMessage;
 
-/* The MimeMultipartSignedCMS class implements a multipart/signed MIME 
+/* The MimeMultipartSignedCMS class implements a multipart/signed MIME
    container with protocol=application/x-CMS-signature, which passes the
    signed object through CMS code to verify the signature.  See mimemsig.h
    for details of the general mechanism on which this is built.

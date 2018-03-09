@@ -2,15 +2,15 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#include "nsIComponentManager.h" 
+#include "nsIComponentManager.h"
 #include "nsIMimeObjectClassAccess.h"
 #include "nsMsgMimeCID.h"
 #include "nsCOMPtr.h"
 #include "nsComponentManagerUtils.h"
-static NS_DEFINE_CID(kMimeObjectClassAccessCID, NS_MIME_OBJECT_CLASS_ACCESS_CID); 
+static NS_DEFINE_CID(kMimeObjectClassAccessCID, NS_MIME_OBJECT_CLASS_ACCESS_CID);
 
 /*
- * These calls are necessary to expose the object class hierarchy 
+ * These calls are necessary to expose the object class hierarchy
  * to externally developed content type handlers.
  */
 extern "C" void *
@@ -97,8 +97,8 @@ COM_GetmimeMultipartSignedClass(void)
   return ptr;
 }
 
-extern "C" int  
-COM_MimeObject_write(void *mimeObject, char *data, int32_t length, 
+extern "C" int
+COM_MimeObject_write(void *mimeObject, char *data, int32_t length,
                      bool user_visible_p)
 {
   int32_t rc = -1;
@@ -107,12 +107,12 @@ COM_MimeObject_write(void *mimeObject, char *data, int32_t length,
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
       do_CreateInstance(kMimeObjectClassAccessCID, &res);
   if (NS_SUCCEEDED(res) && objAccess)
-  { 
+  {
     if (NS_SUCCEEDED(objAccess->MimeObjectWrite(mimeObject, data, length, user_visible_p)))
       rc = length;
     else
       rc = -1;
-  } 
+  }
 
   return rc;
 }

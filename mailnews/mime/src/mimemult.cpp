@@ -117,7 +117,7 @@ static int
 MimeMultipart_parse_line (const char *line, int32_t length, MimeObject *obj)
 {
   MimeMultipart *mult = (MimeMultipart *) obj;
-  MimeContainer *container = (MimeContainer*) obj; 
+  MimeContainer *container = (MimeContainer*) obj;
   int status = 0;
   MimeMultipartBoundaryType boundary;
 
@@ -152,13 +152,13 @@ MimeMultipart_parse_line (const char *line, int32_t length, MimeObject *obj)
     if (endOfPart)
       status = ((MimeMultipartClass *)obj->clazz)->close_child(obj);
     if (status < 0) return status;
-    
+
     if (boundary == MimeMultipartBoundaryTypeTerminator)
       mult->state = MimeMultipartEpilogue;
     else
     {
       mult->state = MimeMultipartHeaders;
-      
+
       /* Reset the header parser for this upcoming part. */
       NS_ASSERTION(!mult->hdrs, "mult->hdrs should be null here");
       if (mult->hdrs)
@@ -187,12 +187,12 @@ MimeMultipart_parse_line (const char *line, int32_t length, MimeObject *obj)
         }
       }
     }
-    
+
     // if stripping out attachments, write the boundary line. Otherwise, return
     // to ignore it.
     if (obj->options && obj->options->format_out == nsMimeOutput::nsMimeMessageAttach)
     {
-      // Because MimeMultipart_parse_child_line strips out the 
+      // Because MimeMultipart_parse_child_line strips out the
       // the CRLF of the last line before the end of a part, we need to add that
       // back in here.
       if (endOfPart)
@@ -221,7 +221,7 @@ MimeMultipart_parse_line (const char *line, int32_t length, MimeObject *obj)
       bool stripping = false;
 
       if (status < 0) return status;
-      
+
       // If this line is blank, we're now done parsing headers, and should
       // now examine the content-type to create this "body" part.
       //
@@ -258,7 +258,7 @@ MimeMultipart_parse_line (const char *line, int32_t length, MimeObject *obj)
             nsAutoCString header("Content-Type: text/x-moz-deleted; name=\"Deleted: ");
             header.Append(fileName);
             status = MimeWriteAString(obj, header);
-            if (status < 0) 
+            if (status < 0)
               return status;
             status = MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK "Content-Transfer-Encoding: 8bit" MSG_LINEBREAK));
             MimeWriteAString(obj, NS_LITERAL_CSTRING("Content-Disposition: inline; filename=\"Deleted: "));
@@ -446,7 +446,7 @@ MimeMultipart_create_child(MimeObject *obj)
   }
 
 #ifdef MIME_DRAFTS
-  if ( obj->options && 
+  if ( obj->options &&
      obj->options->decompose_file_p &&
      obj->options->is_multipart_msg &&
      obj->options->decompose_file_init_fn )
@@ -457,7 +457,7 @@ MimeMultipart_create_child(MimeObject *obj)
 #ifdef MIME_DETAIL_CHECK
        !mime_typep(body, (MimeObjectClass*)&mimeMultipartRelatedClass) &&
        !mime_typep(body, (MimeObjectClass*)&mimeMultipartAlternativeClass) &&
-       !mime_typep(body,(MimeObjectClass*)&mimeMultipartSignedClass) 
+       !mime_typep(body,(MimeObjectClass*)&mimeMultipartSignedClass)
 #else
            /* bug 21869 -- due to the fact that we are not generating the
               correct mime class object for content-typ multipart/signed part
@@ -483,7 +483,7 @@ MimeMultipart_create_child(MimeObject *obj)
    */
   body->output_p = (((MimeMultipartClass *) obj->clazz)->output_child_p(obj, body));
   if (body->output_p)
-  {  
+  {
     status = body->clazz->parse_begin(body);
 
 #ifdef XP_MACOSX
@@ -553,7 +553,7 @@ MimeMultipart_close_child(MimeObject *object)
       if ( object->options &&
          object->options->decompose_file_p &&
          object->options->is_multipart_msg &&
-         object->options->decompose_file_close_fn ) 
+         object->options->decompose_file_close_fn )
       {
         if ( !mime_typep(object,(MimeObjectClass*)&mimeMultipartRelatedClass) &&
            !mime_typep(object,(MimeObjectClass*)&mimeMultipartAlternativeClass) &&
@@ -561,7 +561,7 @@ MimeMultipart_close_child(MimeObject *object)
 #ifdef MIME_DETAIL_CHECK
            !mime_typep(kid,(MimeObjectClass*)&mimeMultipartRelatedClass) &&
            !mime_typep(kid,(MimeObjectClass*)&mimeMultipartAlternativeClass) &&
-           !mime_typep(kid,(MimeObjectClass*)&mimeMultipartSignedClass) 
+           !mime_typep(kid,(MimeObjectClass*)&mimeMultipartSignedClass)
 #else
                    /* bug 21869 -- due to the fact that we are not generating the
                       correct mime class object for content-typ multipart/signed part
@@ -606,8 +606,8 @@ MimeMultipart_parse_child_line (MimeObject *obj, const char *line, int32_t lengt
 #ifdef MIME_DRAFTS
   if ( obj->options &&
      obj->options->decompose_file_p &&
-     obj->options->is_multipart_msg && 
-     obj->options->decompose_file_output_fn ) 
+     obj->options->is_multipart_msg &&
+     obj->options->decompose_file_output_fn )
   {
   if (!mime_typep(obj,(MimeObjectClass*)&mimeMultipartAlternativeClass) &&
     !mime_typep(obj,(MimeObjectClass*)&mimeMultipartRelatedClass) &&

@@ -8,7 +8,7 @@
 
 #include "mimemult.h"
 
-/* The MimeMultipartDigest class implements the multipart/digest MIME 
+/* The MimeMultipartDigest class implements the multipart/digest MIME
    container, which is just like multipart/mixed, except that the default
    type (for parts with no type explicitly specified) is message/rfc822
    instead of text/plain.

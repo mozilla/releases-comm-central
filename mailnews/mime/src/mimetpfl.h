@@ -12,7 +12,7 @@
    text/plain MIME content type for the special case of a supplied
    format=flowed. See
    ftp://ftp.ietf.org/internet-drafts/draft-gellens-format-06.txt for
-   more information. 
+   more information.
  */
 
 typedef struct MimeInlineTextPlainFlowedClass MimeInlineTextPlainFlowedClass;

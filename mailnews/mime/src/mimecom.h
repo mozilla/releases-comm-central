@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
+/*
  * XP-COM Bridges for C function calls
  */
 #ifndef _MIMECOM_H_
@@ -13,18 +13,18 @@
 
 /*
  * These functions are exposed by libmime to be used by content type
- * handler plugins for processing stream data. 
+ * handler plugins for processing stream data.
  */
 /*
  * This is the write call for outputting processed stream data.
- */ 
-extern "C" int  XPCOM_MimeObject_write(void *mimeObject, const char *data, 
-                                  int32_t length, 
+ */
+extern "C" int  XPCOM_MimeObject_write(void *mimeObject, const char *data,
+                                  int32_t length,
                                   bool user_visible_p);
 /*
  * The following group of calls expose the pointers for the object
- * system within libmime. 
- */                                                        
+ * system within libmime.
+ */
 extern "C" void *XPCOM_GetmimeInlineTextClass(void);
 extern "C" void *XPCOM_GetmimeLeafClass(void);
 extern "C" void *XPCOM_GetmimeObjectClass(void);

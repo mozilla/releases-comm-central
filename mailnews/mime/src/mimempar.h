@@ -8,7 +8,7 @@
 
 #include "mimemult.h"
 
-/* The MimeMultipartParallel class implements the multipart/parallel MIME 
+/* The MimeMultipartParallel class implements the multipart/parallel MIME
    container, which is currently no different from multipart/mixed, since
    it's not clear that there's anything useful it could do differently.
  */

@@ -15,7 +15,7 @@
 #include "nsIChannel.h"
 
 class nsMimePlainEmitter : public nsMimeBaseEmitter {
-public: 
+public:
     nsMimePlainEmitter ();
     virtual       ~nsMimePlainEmitter (void);
 

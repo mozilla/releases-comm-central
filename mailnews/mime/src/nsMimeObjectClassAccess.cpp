@@ -17,7 +17,7 @@ NS_IMPL_ISUPPORTS(nsMimeObjectClassAccess, nsIMimeObjectClassAccess)
  * nsMimeObjectClassAccess definitions....
  */
 
-/* 
+/*
  * Inherited methods for nsMimeObjectClassAccess
  */
 nsMimeObjectClassAccess::nsMimeObjectClassAccess()

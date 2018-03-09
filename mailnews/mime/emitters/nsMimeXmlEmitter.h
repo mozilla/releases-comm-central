@@ -15,7 +15,7 @@
 #include "nsIChannel.h"
 
 class nsMimeXmlEmitter : public nsMimeBaseEmitter {
-public: 
+public:
     nsMimeXmlEmitter ();
     virtual       ~nsMimeXmlEmitter (void);
 
@@ -40,7 +40,7 @@ public:
 protected:
 
     // For header determination...
-    bool                mXMLHeaderStarted; 
+    bool                mXMLHeaderStarted;
     int32_t             mAttachCount;
 };
 

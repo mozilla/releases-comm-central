@@ -33,7 +33,7 @@ nsMimePlainEmitter::StartHeader(bool rootMailHeader, bool headerOnly, const char
                            const char *outCharset)
 {
   mDocHeader = rootMailHeader;
-  return NS_OK; 
+  return NS_OK;
 }
 
 nsresult
@@ -52,7 +52,7 @@ nsresult
 nsMimePlainEmitter::EndHeader(const nsACString &name)
 {
   UtilityWriteCRLF("");
-  return NS_OK; 
+  return NS_OK;
 }
 
 NS_IMETHODIMP

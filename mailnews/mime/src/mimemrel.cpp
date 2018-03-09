@@ -746,7 +746,7 @@ real_write(MimeMultipartRelated* relobj, const char* buf, int32_t size)
 
     // the buf here has already been decoded, but we want to use general output
     // functions here that permit decoded or encoded input, using the closure
-    // to tell the difference. We'll temporarily disable the closure's decoder, 
+    // to tell the difference. We'll temporarily disable the closure's decoder,
     // then restore it when we are done. Not sure if we shouldn't just turn it off
     // permanently though.
 

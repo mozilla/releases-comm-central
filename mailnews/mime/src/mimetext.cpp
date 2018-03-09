@@ -3,7 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * This Original Code has been modified by IBM Corporation. Modifications made by IBM 
+ * This Original Code has been modified by IBM Corporation. Modifications made by IBM
  * described herein are Copyright (c) International Business Machines Corporation, 2000.
  * Modifications to Mozilla code or documentation identified per MPL Section 3.3
  *
@@ -75,7 +75,7 @@ static int MimeInlineText_initializeCharset(MimeObject *obj)
 
   text->inputAutodetect = false;
   text->charsetOverridable = false;
-  
+
   /* Figure out an appropriate charset for this object.
   */
   if (!text->charset && obj->headers)
@@ -93,7 +93,7 @@ static int MimeInlineText_initializeCharset(MimeObject *obj)
         text->charset = MimeHeaders_get_parameter (ct, "charset", NULL, NULL);
         PR_Free(ct);
       }
-    
+
       if (!text->charset)
       {
         /* If we didn't find "Content-Type: ...; charset=XX" then look
@@ -119,10 +119,10 @@ static int MimeInlineText_initializeCharset(MimeObject *obj)
       if (!text->charset)
       {
         nsresult res;
-        
+
         text->charsetOverridable = true;
 
-        nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &res)); 
+        nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &res));
         if (NS_SUCCEEDED(res))
         {
           nsCOMPtr<nsIPrefLocalizedString> str;
@@ -131,7 +131,7 @@ static int MimeInlineText_initializeCharset(MimeObject *obj)
             text->inputAutodetect = true;
           }
         }
-        
+
         if (obj->options && obj->options->default_charset)
           text->charset = strdup(obj->options->default_charset);
         else
@@ -145,10 +145,10 @@ static int MimeInlineText_initializeCharset(MimeObject *obj)
           else
             text->charset = strdup("");
         }
-      } 
+      }
     }
   }
-  
+
   if (text->inputAutodetect)
   {
     //we need to prepare lineDam for charset detection
@@ -235,7 +235,7 @@ MimeInlineText_parse_eof (MimeObject *obj, bool abort_p)
   //we haven't find charset yet? now its the time
   if (text->inputAutodetect)
      status = MimeInlineText_open_dam(nullptr, 0, obj);
- 
+
   return ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof (obj, abort_p);
 }
 
@@ -331,12 +331,12 @@ MimeInlineText_parse_decoded_buffer (const char *buf, int32_t size, MimeObject *
            &(text)->cbuffer, &(text)->cbuffer_size) \
    : 0)
 
-static int 
+static int
 MimeInlineText_convert_and_parse_line(char *line, int32_t length, MimeObject *obj)
 {
   int status;
   nsAutoCString converted;
-  
+
   MimeInlineText *text = (MimeInlineText *) obj;
 
   //in case of charset autodetection, charset can be override by meta charset
@@ -344,7 +344,7 @@ MimeInlineText_convert_and_parse_line(char *line, int32_t length, MimeObject *ob
     if (mime_typep(obj, (MimeObjectClass *) &mimeInlineTextHTMLClass))
     {
       MimeInlineTextHTML  *textHTML = (MimeInlineTextHTML *) obj;
-      if (textHTML->charset && 
+      if (textHTML->charset &&
           *textHTML->charset &&
           strcmp(textHTML->charset, text->charset))
       {
@@ -378,9 +378,9 @@ MimeInlineText_convert_and_parse_line(char *line, int32_t length, MimeObject *ob
   return status;
 }
 
-//In this function call, all buffered lines in lineDam will be sent to charset detector 
+//In this function call, all buffered lines in lineDam will be sent to charset detector
 // and a charset will be used to parse all those line and following lines in this mime obj.
-static int 
+static int
 MimeInlineText_open_dam(char *line, int32_t length, MimeObject *obj)
 {
   MimeInlineText *text = (MimeInlineText *) obj;
@@ -392,11 +392,11 @@ MimeInlineText_open_dam(char *line, int32_t length, MimeObject *obj)
   if (text->curDamOffset <= 0) {
     //there is nothing in dam, use current line for detection
     if (length > 0) {
-      res = MIME_detect_charset(line, length, &detectedCharset);  
+      res = MIME_detect_charset(line, length, &detectedCharset);
     }
   } else {
-    //we have stuff in dam, use the one 
-    res = MIME_detect_charset(text->lineDamBuffer, text->curDamOffset, &detectedCharset);  
+    //we have stuff in dam, use the one
+    res = MIME_detect_charset(text->lineDamBuffer, text->curDamOffset, &detectedCharset);
   }
 
   //set the charset for this obj
@@ -414,7 +414,7 @@ MimeInlineText_open_dam(char *line, int32_t length, MimeObject *obj)
     for (i = 0; i < text->lastLineInDam-1; i++)
     {
       status = MimeInlineText_convert_and_parse_line(
-                text->lineDamPtrs[i],  
+                text->lineDamPtrs[i],
                 text->lineDamPtrs[i+1] - text->lineDamPtrs[i],
                 obj  );
     }
@@ -463,11 +463,11 @@ MimeInlineText_rotate_convert_and_parse_line(char *line, int32_t length,
        (obj->options->format_out == nsMimeOutput::nsMimeMessageSaveAs)
        || obj->options->format_out == nsMimeOutput::nsMimeMessageAttach)
     doConvert = false;
-    
-  // Only convert if the user prefs is false 
+
+  // Only convert if the user prefs is false
   if ( (obj->options && obj->options->charset_conversion_fn) &&
        (!obj->options->force_user_charset) &&
-       (doConvert)       
+       (doConvert)
      )
   {
     MimeInlineText  *text = (MimeInlineText *) obj;
@@ -487,7 +487,7 @@ MimeInlineText_rotate_convert_and_parse_line(char *line, int32_t length,
       if (text->lastLineInDam >= DAM_MAX_LINES ||
           DAM_MAX_BUFFER_SIZE - text->curDamOffset <= length) {
         //we let open dam process this line as well as thing that already in Dam
-        //In case there is nothing in dam because this line is too big, we need to 
+        //In case there is nothing in dam because this line is too big, we need to
         //perform autodetect on this line
         status = MimeInlineText_open_dam(line, length, obj);
       }
@@ -499,7 +499,7 @@ MimeInlineText_rotate_convert_and_parse_line(char *line, int32_t length,
         text->curDamOffset += length;
       }
     }
-    else 
+    else
       status = MimeInlineText_convert_and_parse_line(line, length, obj);
   }
   else

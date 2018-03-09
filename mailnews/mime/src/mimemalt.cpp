@@ -215,7 +215,7 @@ MimeMultipartAlternative_flush_children(MimeObject *obj,
     return 0;
 
   have_displayable = (malt->buffered_priority > next_priority);
-  
+
   if (finished && have_displayable) {
     /* Case 2 */
     do_flush = true;
