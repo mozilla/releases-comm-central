@@ -11,12 +11,15 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/smime/msgHdrViewSMIMEOverlay.css" type="text/css"?>
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <script type="application/javascript"
         src="chrome://messenger/content/msgHdrViewOverlay.js"/>
 <script type="application/javascript"
         src="chrome://global/content/nsDragAndDrop.js"/>
+<script type="application/javascript"
+        src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
 
 <stringbundleset id="stringbundleset">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
@@ -561,6 +564,12 @@
           <!-- perhaps this should be a customizable toolbar too -->
           <vbox id="otherActionsBox" align="end">
             <hbox id="dateValueBox" align="top" flex="1">  <!--For extensions-->
+              <hbox id="smimeBox" insertbefore="dateLabel" collapsed="true">
+                <image id="signedHdrIcon"
+                      onclick="showMessageReadSecurityInfo();" collapsed="true"/>
+                <image id="encryptedHdrIcon"
+                      onclick="showMessageReadSecurityInfo();" collapsed="true"/>
+              </hbox>
               <label id="dateLabel" class="dateLabel" flex="1" role="textbox"
                      aria-readonly="true"/>
             </hbox>
