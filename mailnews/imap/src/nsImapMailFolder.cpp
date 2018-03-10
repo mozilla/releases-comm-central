@@ -1589,13 +1589,11 @@ NS_IMETHODIMP nsImapMailFolder::Rename (const nsAString& newName, nsIMsgWindow *
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
       if (NS_SUCCEEDED(rv) && bundle)
       {
-        const char16_t *formatStrings[] =
-        {
-          (const char16_t*)(intptr_t)m_hierarchyDelimiter
-        };
+        const char16_t delimiter[2] = { (char16_t)m_hierarchyDelimiter, '\0' };
+        const char16_t *formatStrings[] = { delimiter };
         nsString alertString;
         rv = bundle->FormatStringFromName(
-          "imapSpecialChar",
+          "imapSpecialChar2",
           formatStrings, 1, alertString);
         nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
         // setting up the dialog title
