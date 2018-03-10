@@ -10,6 +10,7 @@
 #endif
 
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/smime/msgReadSMIMEOverlay.css" type="text/css"?>
 
 <!-- Overlaying utilityOverlay.xul here is a temporary band-aid for a
      hard-to-reproduce problem where File, Edit, and View menus disappear on
@@ -38,6 +39,8 @@
   %charsetDTD;
   <!ENTITY % viewZoomOverlayDTD SYSTEM "chrome://messenger/locale/viewZoomOverlay.dtd">
   %viewZoomOverlayDTD;
+  <!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
+  %msgReadSMIMEDTD;
 ]>
 
 <overlay  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -61,6 +64,7 @@
 <script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>
 #endif
 <script type="application/javascript" src="chrome://messenger/content/newmailaccount/uriListener.js"/>
+<script type="application/javascript" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
 
 <stringbundleset id="stringbundleset">
   <stringbundle id="brand_bundle" src="chrome://branding/locale/brand.properties"/>
@@ -157,6 +161,9 @@
      <command id="cmd_fullZoomToggle"
               oncommand="goDoCommand('cmd_fullZoomToggle');"
               checked="false"/>
+     <command id="cmd_viewSecurityStatus"
+              oncommand="showMessageReadSecurityInfo();"
+              disabled="true"/>
    </commandset>
 </commandset>
 
@@ -1831,6 +1838,10 @@
                       label="&pageSourceCmd.label;"
                       key="key_viewPageSource"
                       command="cmd_viewPageSource"/>
+            <menuitem id="appmenu_securityStatus"
+                      label="&menu_securityStatus.label;"
+                      accesskey="&menu_securityStatus.accesskey;"
+                      command="cmd_viewSecurityStatus"/>
           </menupopup>
         </menu>
         <!-- Go menu -->
@@ -2741,6 +2752,10 @@
                 oncommand="MailSetCharacterSet(event)"/>
           <menuseparator id="viewAfterCharsetSeparator"/>
           <menuitem id="pageSourceMenuItem" label="&pageSourceCmd.label;" key="key_viewPageSource" accesskey="&pageSourceCmd.accesskey;" command="cmd_viewPageSource"/>
+          <menuitem id="menu_securityStatus"
+                    label="&menu_securityStatus.label;"
+                    accesskey="&menu_securityStatus.accesskey;"
+                    command="cmd_viewSecurityStatus"/>
         </menupopup>
         </menu>
 
