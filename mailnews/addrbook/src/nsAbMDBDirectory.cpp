@@ -422,18 +422,18 @@ NS_IMETHODIMP nsAbMDBDirectory::DeleteCards(nsIArray *aCards)
   NS_ENSURE_ARG_POINTER(aCards);
   nsresult rv = NS_OK;
 
+  if (!mDatabase)
+  {
+    rv = GetAbDatabase();
+    if (NS_FAILED(rv) || !mDatabase)
+      return rv;
+  }
+
   if (mIsQueryURI) {
     // if this is a query, delete the cards from the directory (without the query)
     // before we do the delete, make this directory (which represents the search)
     // a listener on the database, so that it will get notified when the cards are deleted
     // after delete, remove this query as a listener.
-    nsCOMPtr<nsIAddrDatabase> database;
-    rv = GetDatabase(getter_AddRefs(database));
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = database->AddListener(this);
-    NS_ENSURE_SUCCESS(rv, rv);
-
     nsCOMPtr<nsIAbManager> abManager =
         do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -445,95 +445,87 @@ NS_IMETHODIMP nsAbMDBDirectory::DeleteCards(nsIArray *aCards)
     rv = directory->DeleteCards(aCards);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = database->RemoveListener(this);
-    NS_ENSURE_SUCCESS(rv, rv);
     return rv;
   }
 
-  if (!mDatabase)
-    rv = GetAbDatabase();
-
-  if (NS_SUCCEEDED(rv) && mDatabase)
+  uint32_t cardCount;
+  uint32_t i;
+  rv = aCards->GetLength(&cardCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (i = 0; i < cardCount; i++)
   {
-    uint32_t cardCount;
-    uint32_t i;
-    rv = aCards->GetLength(&cardCount);
+    nsCOMPtr<nsIAbCard> card(do_QueryElementAt(aCards, i, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
-    for (i = 0; i < cardCount; i++)
+
+    if (card)
     {
-      nsCOMPtr<nsIAbCard> card(do_QueryElementAt(aCards, i, &rv));
+      uint32_t rowID;
+      rv = card->GetPropertyAsUint32("DbRowID", &rowID);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      if (card)
+      if (m_IsMailList)
       {
-        uint32_t rowID;
-        rv = card->GetPropertyAsUint32("DbRowID", &rowID);
-        NS_ENSURE_SUCCESS(rv, rv);
+        mDatabase->DeleteCardFromMailList(this, card, true);
 
-        if (m_IsMailList)
+        uint32_t cardTotal = 0;
+        int32_t i;
+        if (m_AddressList)
+          rv = m_AddressList->GetLength(&cardTotal);
+        for (i = cardTotal - 1; i >= 0; i--)
         {
-          mDatabase->DeleteCardFromMailList(this, card, true);
-
-          uint32_t cardTotal = 0;
-          int32_t i;
-          if (m_AddressList)
-            rv = m_AddressList->GetLength(&cardTotal);
-          for (i = cardTotal - 1; i >= 0; i--)
+          nsCOMPtr<nsIAbCard> arrayCard(do_QueryElementAt(m_AddressList, i, &rv));
+          if (arrayCard)
           {
-            nsCOMPtr<nsIAbCard> arrayCard(do_QueryElementAt(m_AddressList, i, &rv));
-            if (arrayCard)
-            {
-              // No card can have a row ID of 0
-              uint32_t arrayRowID = 0;
-              arrayCard->GetPropertyAsUint32("DbRowID", &arrayRowID);
-              if (rowID == arrayRowID)
-                m_AddressList->RemoveElementAt(i);
-            }
+            // No card can have a row ID of 0
+            uint32_t arrayRowID = 0;
+            arrayCard->GetPropertyAsUint32("DbRowID", &arrayRowID);
+            if (rowID == arrayRowID)
+              m_AddressList->RemoveElementAt(i);
+          }
+        }
+      }
+      else
+      {
+        mDatabase->DeleteCard(card, true, this);
+        bool bIsMailList = false;
+        card->GetIsMailList(&bIsMailList);
+        if (bIsMailList)
+        {
+          //to do, get mailing list dir side uri and notify nsIAbManager to remove it
+          nsAutoCString listUri(mURI);
+          listUri.AppendLiteral("/MailList");
+          listUri.AppendInt(rowID);
+          if (!listUri.IsEmpty())
+          {
+            nsresult rv = NS_OK;
+
+            nsCOMPtr<nsIAbManager> abManager =
+                do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            nsCOMPtr<nsIAbDirectory> listDir;
+            rv = abManager->GetDirectory(listUri, getter_AddRefs(listDir));
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            uint32_t dirIndex;
+            if (m_AddressList && NS_SUCCEEDED(m_AddressList->IndexOf(0, listDir, &dirIndex)))
+              m_AddressList->RemoveElementAt(dirIndex);
+
+            mSubDirectories.RemoveObject(listDir);
+
+            if (listDir)
+              NotifyItemDeleted(listDir);
           }
         }
         else
         {
-          mDatabase->DeleteCard(card, true, this);
-          bool bIsMailList = false;
-          card->GetIsMailList(&bIsMailList);
-          if (bIsMailList)
-          {
-            //to do, get mailing list dir side uri and notify nsIAbManager to remove it
-            nsAutoCString listUri(mURI);
-            listUri.AppendLiteral("/MailList");
-            listUri.AppendInt(rowID);
-            if (!listUri.IsEmpty())
-            {
-              nsresult rv = NS_OK;
-
-              nsCOMPtr<nsIAbManager> abManager =
-                  do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
-              NS_ENSURE_SUCCESS(rv, rv);
-
-              nsCOMPtr<nsIAbDirectory> listDir;
-              rv = abManager->GetDirectory(listUri, getter_AddRefs(listDir));
-              NS_ENSURE_SUCCESS(rv, rv);
-
-              uint32_t dirIndex;
-              if (m_AddressList && NS_SUCCEEDED(m_AddressList->IndexOf(0, listDir, &dirIndex)))
-                m_AddressList->RemoveElementAt(dirIndex);
-
-              mSubDirectories.RemoveObject(listDir);
-
-              if (listDir)
-                NotifyItemDeleted(listDir);
-            }
-          }
-          else
-          {
-            rv = RemoveCardFromAddressList(card);
-            NS_ENSURE_SUCCESS(rv,rv);
-          }
+          rv = RemoveCardFromAddressList(card);
+          NS_ENSURE_SUCCESS(rv,rv);
         }
       }
     }
-    mDatabase->Commit(nsAddrDBCommitType::kLargeCommit);
   }
+  mDatabase->Commit(nsAddrDBCommitType::kLargeCommit);
   return rv;
 }
 
