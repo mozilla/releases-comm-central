@@ -1450,20 +1450,6 @@ var INPUT_PEEK_EVENTS = ["click", "keypress"];
 
 var UNIQUE_WINDOW_ID_ATTR = "__winHelper_uniqueId";
 
-var DOM_KEYCODE_TO_NAME = {};
-function keycodeToName(aKeyValue, aWindow) {
-  if (!(aKeyValue in DOM_KEYCODE_TO_NAME)) {
-    for (let key in aWindow.KeyboardEvent) {
-      if (key.startsWith("DOM_VK_")) {
-        let val = aWindow.KeyboardEvent[key];
-        DOM_KEYCODE_TO_NAME[val] = key;
-      }
-    }
-  }
-
-  return DOM_KEYCODE_TO_NAME[aKeyValue];
-}
-
 /**
  * Given something you would find on event.target (should be a DOM node /
  *  DOM window), attempt to describe the hierarchy of that thing all the way
@@ -1624,20 +1610,25 @@ function __bubbled_click_handler(event) {
 
 function describeKeyEvent(event) {
   let s;
-  if (event.keyCode) {
-    s = keycodeToName(event.keyCode, event.window);
+  if (event.key && event.key != "") {
+    s = event.key;
+    if (s.trim() == "")
+      s = "'" + event.key + "'";
   }
   else if (event.charCode) {
     s = "'" + String.fromCharCode(event.charCode) + "'";
   }
+  else if (event.keyCode) {
+    s = event.keyCode;
+  }
   else {
-    s = "no keyCode/charCode?";
+    s = "no key/keyCode/charCode?";
   }
 
   if (event.shiftKey)
     s = "shift-" + s;
   if (event.ctrlKey)
-    s = "ctrl-"; + s
+    s = "ctrl-" + s;
   if (event.altKey)
     s = "alt-" + s;
   if (event.metaKey)
