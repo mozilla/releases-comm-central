@@ -7,15 +7,15 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/abResultsPane.css" type="text/css"?>
 
-<?xul-overlay href="chrome://messenger/content/searchTermOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
 <!DOCTYPE window [
-<!ENTITY % abResultsPaneOverlayDTD SYSTEM "chrome://messenger/locale/addressbook
-/abResultsPaneOverlay.dtd">
-%abResultsPaneOverlayDTD;
-<!ENTITY % SearchDialogDTD SYSTEM "chrome://messenger/locale/SearchDialog.dtd">
-%SearchDialogDTD;
+  <!ENTITY % abResultsPaneOverlayDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPaneOverlay.dtd">
+  %abResultsPaneOverlayDTD;
+  <!ENTITY % SearchDialogDTD SYSTEM "chrome://messenger/locale/SearchDialog.dtd">
+  %SearchDialogDTD;
+  <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
+  %searchTermDTD;
 ]>
 
 <window id="searchAddressBookWindow"
@@ -43,6 +43,8 @@
   <script type="application/javascript" src="chrome://messenger/content/ABSearchDialog.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abResultsPane.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
 
   <keyset id="mailKeys">
     <key key="&closeCmd.key;" modifiers="accel" oncommand="onSearchStop(); closeWindow(true);"/>
@@ -74,7 +76,8 @@
       </vbox>
 
       <hbox flex="1">
-        <vbox id="searchTermListBox" flex="1"/>
+        <vbox id="searchTermListBox" flex="1">
+#include ../../../mailnews/base/search/content/searchTerm.inc
       </hbox>
     </vbox>
 

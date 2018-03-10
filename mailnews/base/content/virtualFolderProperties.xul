@@ -9,11 +9,11 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
-<?xul-overlay href="chrome://messenger/content/searchTermOverlay.xul"?>
-
 <!DOCTYPE dialog [
-<!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
+  <!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
   %folderDTD;
+  <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
+  %searchTermDTD;
 ]>
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -38,6 +38,12 @@
   <script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
   <script type="application/javascript" src="chrome://messenger/content/commandglue.js"/>
   <script type="application/javascript" src="chrome://messenger/content/virtualFolderProperties.js"/>
+#ifndef MOZ_THUNDERBIRD
+  <script type="application/javascript" src="chrome://messenger/content/searchTermOverlay.js"/>
+#else
+  <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
+#endif
+  <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
 
   <grid>
     <columns>
@@ -97,7 +103,8 @@
   <vbox flex="2">
     <label value="&searchTermCaption.label;"/>
     <hbox flex="1">
-      <vbox id="searchTermListBox" flex="2"/>
+      <vbox id="searchTermListBox" flex="2">
+#include ../search/content/searchTerm.inc
     </hbox>
   </vbox>
 
