@@ -4,9 +4,7 @@
 
 messenger.jar:
 % content messenger-smime %content/messenger-smime/
-% overlay chrome://messenger/content/messengercompose/messengercompose.xul chrome://messenger-smime/content/msgCompSMIMEOverlay.xul
 % overlay chrome://messenger/content/am-identity-edit.xul chrome://messenger/content/am-smimeIdentityEditOverlay.xul
-   content/messenger-smime/msgCompSMIMEOverlay.xul                  (content/msgCompSMIMEOverlay.xul)
    content/messenger-smime/msgCompSMIMEOverlay.js                   (content/msgCompSMIMEOverlay.js)
    content/messenger-smime/msgHdrViewSMIMEOverlay.js                (content/msgHdrViewSMIMEOverlay.js)
    content/messenger/am-smime.xul                                   (../../../mailnews/extensions/smime/content/am-smime.xul)
