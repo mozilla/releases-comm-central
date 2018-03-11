@@ -79,17 +79,13 @@
           this._textbox.searchParam += "|private";
 
         this.searchService.init(this);
-        var os = Cc["@mozilla.org/observer-service;1"]
-                   .getService(Ci.nsIObserverService);
-        os.addObserver(this, "browser-search-engine-modified");
+        Services.obs.addObserver(this, "browser-search-engine-modified");
         this._addedObserver = true;
       ]]></constructor>
 
       <destructor><![CDATA[
         if (this._addedObserver) {
-          var os = Cc["@mozilla.org/observer-service;1"]
-                     .getService(Ci.nsIObserverService);
-          os.removeObserver(this, "browser-search-engine-modified");
+          Services.obs.removeObserver(this, "browser-search-engine-modified");
           this._addedObserver = false;
         }
 
@@ -124,7 +120,11 @@
       <field name="_addedObserver">false</field>
       <field name="_engines">null</field>
       <field name="_needToBuildPopup">true</field>
-
+      <field name="FormHistory" readonly="true"><![CDATA[
+        (ChromeUtils.import("resource://gre/modules/FormHistory.jsm", {}))
+                    .FormHistory;
+        ]]>
+      </field>
       <property name="engines" readonly="true">
         <getter><![CDATA[
           if (!this._engines)
@@ -463,17 +463,17 @@
         <parameter name="aData"/>
         <parameter name="aWhere"/>
         <body><![CDATA[
+          var textBox = this._textbox;
+
           // Save the current value in the form history.
-          if (aData && !this.usePrivateBrowsing) {
-            this._textbox.FormHistory.update({
-              op : "bump",
-              fieldname : "searchbar-history",
-              value : aData
-            }, {
-              handleError : function(aError) {
-                Cu.reportError("Saving search to form history failed: " + aError.message);
-              }
-            });
+          if (aData && !this.usePrivateBrowsing && this.FormHistory.enabled) {
+            this.FormHistory.update(
+              { op: "bump",
+                fieldname: textBox.getAttribute("autocompletesearchparam"),
+                value: aData },
+              { handleError(aError) {
+                  Cu.reportError("Saving search to form history failed: " + aError.message);
+              }});
           }
 
           // null parameter below specifies HTML response for search
@@ -538,8 +538,6 @@
         this._prefBranch.addObserver("browser.search.suggest.enabled", this);
 
         this._inputBox.setAttribute("suggestchecked", this._suggestEnabled);
-
-        ChromeUtils.import("resource://gre/modules/FormHistory.jsm", this);
       ]]></constructor>
 
       <destructor><![CDATA[
