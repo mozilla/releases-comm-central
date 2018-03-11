@@ -2200,12 +2200,15 @@ function losslessDecodeURI(aURI) {
     } else {
       try {
         value = decodeURI(value)
-                  // decodeURI decodes %25 to %, which creates unintended
-                  // encoding sequences. Re-encode it, unless it's part of
-                  // a sequence that survived decodeURI, i.e. one for:
-                  // ';', '/', '?', ':', '@', '&', '=', '+', '$', ',', '#'
-                  // (RFC 3987 section 3.2)
-                  .replace(/%(?!3B|2F|3F|3A|40|26|3D|2B|24|2C|23)/ig,
+                  // 1. decodeURI decodes %25 to %, which creates unintended
+                  //    encoding sequences. Re-encode it, unless it's part of
+                  //    a sequence that survived decodeURI, i.e. one for:
+                  //    ';', '/', '?', ':', '@', '&', '=', '+', '$', ',', '#'
+                  //    (RFC 3987 section 3.2)
+                  // 2. Ee-encode all adjacent whitespace, to prevent spoofing
+                  //    attempts where invisible characters would push part of
+                  //    the URL to overflow the location bar (bug 1395508).
+                  .replace(/%(?!3B|2F|3F|3A|40|26|3D|2B|24|2C|23)|\s(?=\s)|\s$/ig,
                            encodeURIComponent);
       } catch (e) {}
     }
