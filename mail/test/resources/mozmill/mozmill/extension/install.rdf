@@ -7,7 +7,6 @@
      <em:version>1.5.16</em:version>
      <em:creator>Adam Christian</em:creator>
      <em:description>A testing extension based on the Windmill Testing Framework client source</em:description>
-     <em:unpack>true</em:unpack>
      <em:targetApplication>
        <!-- Firefox -->
        <Description>

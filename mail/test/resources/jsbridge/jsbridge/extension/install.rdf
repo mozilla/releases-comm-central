@@ -7,7 +7,6 @@
      <em:version>2.4.14</em:version>
      <em:creator>Mikeal Rogers</em:creator>
      <em:description>Python to JavaScript bridge</em:description>
-     <em:unpack>true</em:unpack>
      <em:targetApplication>
        <!-- Firefox -->
        <Description>
