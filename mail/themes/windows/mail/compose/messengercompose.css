@@ -21,7 +21,7 @@
   color: -moz-FieldText;
 }
 
-#attachmentBucket[empty]:focus {
+#attachmentBucket:focus {
   box-shadow: 0 0 1px Highlight inset, 0 0 1px Highlight inset;
 }
 
@@ -73,6 +73,7 @@
 
 #headers-box {
   -moz-appearance: none;
+  padding-top: 4px;
   padding-bottom: 2px;
   border-bottom: 1px solid ThreeDShadow;
 }
@@ -84,10 +85,6 @@
 
 #msgheaderstoolbar-box {
   padding-bottom: 2px;
-}
-
-#addresses-box {
-  padding-top: 4px;
 }
 
 #msgIdentity {
@@ -745,14 +742,18 @@ toolbar:not(:-moz-lwtheme) {
   z-index: 10;
   min-width: 0;
   width: 5px;
+  margin-top: -4px; /* revert the #headers-box padding-top */
   margin-inline-end: -4px;
   border-inline-end-width: 0;
   border-inline-start: 1px solid #a9b7c9;
   background-color: transparent;
 }
 
+#attachments-box {
+  padding-top: 4px;
+}
+
 #attachmentBucketSize {
-  padding-inline-end: 2px;
   color: GrayText;
 }
 
