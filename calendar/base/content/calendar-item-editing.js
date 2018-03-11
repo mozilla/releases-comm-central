@@ -227,14 +227,14 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
  *                                   allday event.
  */
 function createEventWithDialog(calendar, startDate, endDate, summary, event, aForceAllday) {
-    let onNewEvent = function(item, opcalendar, originalItem, listener) {
+    let onNewEvent = function(item, opcalendar, originalItem, listener, extresponse=null) {
         if (item.id) {
             // If the item already has an id, then this is the result of
             // saving the item without closing, and then saving again.
-            doTransaction("modify", item, opcalendar, originalItem, listener);
+            doTransaction("modify", item, opcalendar, originalItem, listener, extresponse);
         } else {
             // Otherwise, this is an addition
-            doTransaction("add", item, opcalendar, null, listener);
+            doTransaction("add", item, opcalendar, null, listener, extresponse);
         }
     };
 
@@ -282,14 +282,14 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
  * @param initialDate   (optional) The initial date for new task datepickers
  */
 function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
-    let onNewItem = function(item, opcalendar, originalItem, listener) {
+    let onNewItem = function(item, opcalendar, originalItem, listener, extresponse=null) {
         if (item.id) {
             // If the item already has an id, then this is the result of
             // saving the item without closing, and then saving again.
-            doTransaction("modify", item, opcalendar, originalItem, listener);
+            doTransaction("modify", item, opcalendar, originalItem, listener, extresponse);
         } else {
             // Otherwise, this is an addition
-            doTransaction("add", item, opcalendar, null, listener);
+            doTransaction("add", item, opcalendar, null, listener, extresponse);
         }
     };
 
@@ -348,8 +348,8 @@ function modifyEventWithDialog(aItem, job=null, aPromptOccurrence, initialDate=n
         return;
     }
 
-    let onModifyItem = function(item, calendar, originalItem, listener) {
-        doTransaction("modify", item, calendar, originalItem, listener);
+    let onModifyItem = function(item, calendar, originalItem, listener, extresponse=null) {
+        doTransaction("modify", item, calendar, originalItem, listener, extresponse);
     };
 
     let item = aItem;
@@ -629,8 +629,10 @@ function getTransactionMgr() {
  * @param aCalendar     The calendar to do the transaction on
  * @param aOldItem      (optional) some actions require an old item
  * @param aListener     (optional) the listener to call when complete.
+ * @param aExtResponse  (optional) JS object with additional parameters for sending itip messages
+ *                                 (see also description of checkAndSend in calItipUtils.jsm)
  */
-function doTransaction(aAction, aItem, aCalendar, aOldItem, aListener) {
+function doTransaction(aAction, aItem, aCalendar, aOldItem, aListener, aExtResponse=null) {
     // This is usually a user-initiated transaction, so make sure the calendar
     // this transaction is happening on is visible.
     ensureCalendarVisible(aCalendar);
@@ -640,7 +642,8 @@ function doTransaction(aAction, aItem, aCalendar, aOldItem, aListener) {
                                            aItem,
                                            aCalendar,
                                            aOldItem,
-                                           aListener ? aListener : null);
+                                           aListener ? aListener : null,
+                                           aExtResponse);
     updateUndoRedoMenu();
 }
 
@@ -705,15 +708,27 @@ function updateUndoRedoMenu() {
     goUpdateCommand("cmd_redo");
 }
 
-function setContextPartstat(value, scope, items) {
+/**
+ * Updates the partstat of the calendar owner for specified items triggered by a
+ * ontext menu operation
+ *
+ * @param {String}  aPartStat     a valid partstat string as per RfC 5545
+ * @param {String}  aScope        indicates the scope of anrecurring event - must
+ *                                  be 'this-occurrence' || 'all-occurences'
+ * @param {Array}   aItems        an array of calEvent or calIToDo items
+ * @param {Object}  aExtResponse  [optional] an object to provide additional
+ *                                  parameters for sending itip messages as response
+ *                                  response
+ */
+function setContextPartstat(aPartStat, aScope, aItems, aExtResponse=null) {
     startBatchTransaction();
     try {
-        for (let oldItem of items) {
+        for (let oldItem of aItems) {
             // Skip this item if its calendar is read only.
             if (oldItem.calendar.readOnly) {
                 continue;
             }
-            if (scope == "all-occurrences") {
+            if (aScope == "all-occurrences") {
                 oldItem = oldItem.parentItem;
             }
             let attendee = null;
@@ -732,7 +747,7 @@ function setContextPartstat(value, scope, items) {
                 let newItem = oldItem.clone();
                 let newAttendee = attendee.clone();
 
-                newAttendee.participationStatus = value;
+                newAttendee.participationStatus = aPartStat;
                 if (newAttendee.isOrganizer) {
                     newItem.organizer = newAttendee;
                 } else {
@@ -740,7 +755,7 @@ function setContextPartstat(value, scope, items) {
                     newItem.addAttendee(newAttendee);
                 }
 
-                doTransaction("modify", newItem, newItem.calendar, oldItem, null);
+                doTransaction("modify", newItem, newItem.calendar, oldItem, null, aExtResponse);
             }
         }
     } catch (e) {

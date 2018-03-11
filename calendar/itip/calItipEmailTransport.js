@@ -17,7 +17,7 @@ function calItipEmailTransport() {
     this._initEmailTransport();
 }
 var calItipEmailTransportClassID = Components.ID("{d4d7b59e-c9e0-4a7a-b5e8-5958f85515f0}");
-var calItipEmailTransportInterfaces = [Components.interfaces.calIItipTransport];
+var calItipEmailTransportInterfaces = [Ci.calIItipTransport];
 calItipEmailTransport.prototype = {
     classID: calItipEmailTransportClassID,
     QueryInterface: XPCOMUtils.generateQI(calItipEmailTransportInterfaces),
@@ -55,7 +55,7 @@ calItipEmailTransport.prototype = {
             return this._sendXpcomMail(aRecipients, items.subject, items.body, aItipItem);
         } else {
             // sending xpcom mail is not available if no identity has been set
-            throw Components.results.NS_ERROR_NOT_AVAILABLE;
+            throw Cr.NS_ERROR_NOT_AVAILABLE;
         }
     },
 
@@ -198,7 +198,7 @@ calItipEmailTransport.prototype = {
                 // identity.
                 let allIdentities = MailServices.accounts.allIdentities;
                 if (allIdentities.length > 0) {
-                    this.mDefaultIdentity = allIdentities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+                    this.mDefaultIdentity = allIdentities.queryElementAt(0, Ci.nsIMsgIdentity);
                 } else {
                     // If there are no identities, then we are in the same
                     // situation as if we didn't have Xpcom Mail.
@@ -212,17 +212,19 @@ calItipEmailTransport.prototype = {
         }
     },
 
-    _sendXpcomMail: function(aToList, aSubject, aBody, aItem) {
+    _sendXpcomMail: function(aToList, aSubject, aBody, aItipItem) {
         let identity = null;
         let account;
-        if (aItem.targetCalendar) {
-            identity = aItem.targetCalendar.getProperty("imip.identity");
+        if (aItipItem.targetCalendar) {
+            identity = aItipItem.targetCalendar.getProperty("imip.identity");
             if (identity) {
-                identity = identity.QueryInterface(Components.interfaces.nsIMsgIdentity);
-                account = aItem.targetCalendar.getProperty("imip.account")
-                                              .QueryInterface(Components.interfaces.nsIMsgAccount);
+                identity = identity.QueryInterface(Ci.nsIMsgIdentity);
+                account = aItipItem.targetCalendar
+                                   .getProperty("imip.account")
+                                   .QueryInterface(Ci.nsIMsgAccount);
             } else {
-                cal.WARN("No email identity configured for calendar " + aItem.targetCalendar.name);
+                cal.WARN("No email identity configured for calendar " +
+                         aItipItem.targetCalendar.name);
             }
         }
         if (!identity) { // use some default identity/account:
@@ -230,41 +232,34 @@ calItipEmailTransport.prototype = {
             account = this.mDefaultAccount;
         }
 
-        let compatMode = 0;
-        switch (aItem.autoResponse) {
-            case Components.interfaces.calIItipItem.USER: {
-                cal.LOG("sendXpcomMail: Found USER autoResponse type.\n" +
-                        "This type is currently unsupported, the compose API will always enter a text/plain\n" +
-                        "or text/html part as first part of the message.\n" +
-                        "This will disable OL (up to 2003) to consume the mail as an iTIP invitation showing\n" +
-                        "the usual calendar buttons.");
-                // To somehow have a last resort before sending spam, the user can choose to send the mail.
-                let prefCompatMode = Preferences.get("calendar.itip.compatSendMode", 0);
-                let inoutCheck = { value: prefCompatMode == 1 };
+        switch (aItipItem.autoResponse) {
+            case Ci.calIItipItem.USER: {
+                cal.LOG("sendXpcomMail: Found USER autoResponse type.");
+                // We still need this as a last resort if a user just deletes or
+                //  drags an invitation related event
                 let parent = Services.wm.getMostRecentWindow(null);
                 if (parent.closed) {
                     parent = cal.window.getCalendarWindow();
                 }
-                if (Services.prompt.confirmEx(parent,
-                                              cal.calGetString("lightning", "imipSendMail.title", null, "lightning"),
-                                              cal.calGetString("lightning", "imipSendMail.text", null, "lightning"),
-                                              Services.prompt.STD_YES_NO_BUTTONS,
-                                              null,
-                                              null,
-                                              null,
-                                              cal.calGetString("lightning", "imipSendMail.Outlook2000CompatMode.text", null, "lightning"),
-                                              inoutCheck)) {
+                let confirmed = Services.prompt.confirmEx(
+                    parent,
+                    cal.calGetString("lightning", "imipSendMail.title", null, "lightning"),
+                    cal.calGetString("lightning", "imipSendMail.text", null, "lightning"),
+                    Services.prompt.STD_YES_NO_BUTTONS,
+                    null,
+                    null,
+                    null,
+                    null,
+                    {}
+                );
+                if (!confirmed) {
                     break;
                 } // else go on with auto sending for now
-                compatMode = (inoutCheck.value ? 1 : 0);
-                if (compatMode != prefCompatMode) {
-                    Preferences.set("calendar.itip.compatSendMode", compatMode);
-                }
             }
-            // falls through, based on prompting above
-            case Components.interfaces.calIItipItem.AUTO: {
+            // falls through intended
+            case Ci.calIItipItem.AUTO: {
                 // don't show log message in case of falling through
-                if (aItem.autoResponse == Components.interfaces.calIItipItem.AUTO) {
+                if (aItipItem.autoResponse == Ci.calIItipItem.AUTO) {
                     cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
                 }
                 let cbEmail = function(aVal, aInd, aArr) {
@@ -280,14 +275,14 @@ calItipEmailTransport.prototype = {
                     return false;
                 }
                 let toList = toMap.join(", ");
-                let composeUtils = Components.classes["@mozilla.org/messengercompose/computils;1"]
-                                             .createInstance(Components.interfaces.nsIMsgCompUtils);
+                let composeUtils = Cc["@mozilla.org/messengercompose/computils;1"]
+                                   .createInstance(Ci.nsIMsgCompUtils);
                 let messageId = composeUtils.msgGenerateMessageId(identity);
-                let mailFile = this._createTempImipFile(compatMode, toList, aSubject, aBody, aItem, identity, messageId);
+                let mailFile = this._createTempImipFile(toList, aSubject, aBody, aItipItem, identity, messageId);
                 if (mailFile) {
                     // compose fields for message: from/to etc need to be specified both here and in the file
-                    let composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                                                  .createInstance(Components.interfaces.nsIMsgCompFields);
+                    let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                                        .createInstance(Ci.nsIMsgCompFields);
                     composeFields.characterSet = "UTF-8";
                     composeFields.to = toList;
                     let mailfrom = (identity.fullName.length ? identity.fullName + " <" + identity.email + ">" : identity.email);
@@ -314,16 +309,16 @@ calItipEmailTransport.prototype = {
                     //           "@mozilla.org/messengercompose/composesendlistener;1"
                     //           and/or "chrome://messenger/content/messengercompose/sendProgress.xul"
                     // i.e. bug 432662
-                    let msgSend = Components.classes["@mozilla.org/messengercompose/send;1"]
-                                            .createInstance(Components.interfaces.nsIMsgSend);
+                    let msgSend = Cc["@mozilla.org/messengercompose/send;1"]
+                                  .createInstance(Ci.nsIMsgSend);
                     msgSend.sendMessageFile(identity,
                                             account.key,
                                             composeFields,
                                             mailFile,
                                             true,  // deleteSendFileOnCompletion
                                             false, // digest_p
-                                            (Services.io.offline ? Components.interfaces.nsIMsgSend.nsMsgQueueForLater
-                                                    : Components.interfaces.nsIMsgSend.nsMsgDeliverNow),
+                                            (Services.io.offline ? Ci.nsIMsgSend.nsMsgQueueForLater
+                                                    : Ci.nsIMsgSend.nsMsgDeliverNow),
                                             null,  // nsIMsgDBHdr msgToReplace
                                             null,  // nsIMsgSendListener aListener
                                             null,  // nsIMsgStatusFeedback aStatusFeedback
@@ -332,30 +327,30 @@ calItipEmailTransport.prototype = {
                 }
                 break;
             }
-            case Components.interfaces.calIItipItem.NONE: {
+            case Ci.calIItipItem.NONE: {
+                // we shouldn't get here, as we stoppped processing in this case
+                // earlier in checkAndSend in calItipUtils.jsm
                 cal.LOG("sendXpcomMail: Found NONE autoResponse type.");
-
-                // No response
                 break;
             }
             default: {
-                // Unknown autoResponse type
+                // Also of this case should have been taken care at the same place
                 throw new Error("sendXpcomMail: " +
                                 "Unknown autoResponse type: " +
-                                aItem.autoResponse);
+                                aItipItem.autoResponse);
             }
         }
         return false;
     },
 
-    _createTempImipFile: function(compatMode, aToList, aSubject, aBody, aItem, aIdentity, aMessageId) {
+    _createTempImipFile: function(aToList, aSubject, aBody, aItipItem, aIdentity, aMessageId) {
         try {
-            let itemList = aItem.getItemList({});
-            let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
-                                       .createInstance(Components.interfaces.calIIcsSerializer);
+            let itemList = aItipItem.getItemList({});
+            let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"]
+                             .createInstance(Ci.calIIcsSerializer);
             serializer.addItems(itemList, itemList.length);
             let methodProp = cal.getIcsService().createIcalProperty("METHOD");
-            methodProp.value = aItem.responseMethod;
+            methodProp.value = aItipItem.responseMethod;
             serializer.addProperty(methodProp);
             let calText = serializer.serializeToString();
             let utf8CalText = ltn.invitation.encodeUTF8(calText);
@@ -364,55 +359,43 @@ calItipEmailTransport.prototype = {
             // it can cope with nested attachments,
             // like multipart/alternative with enclosed text/calendar and text/plain.
             let mailText = ltn.invitation.getHeaderSection(aMessageId, aIdentity, aToList, aSubject);
-            switch (compatMode) {
-                case 1:
-                    mailText += "Content-class: urn:content-classes:calendarmessage\r\n" +
-                                "Content-type: text/calendar; method=" + aItem.responseMethod + "; charset=UTF-8\r\n" +
-                                "Content-transfer-encoding: 8BIT\r\n" +
-                                "\r\n" +
-                                utf8CalText +
-                                "\r\n";
-                    break;
-                default:
-                    mailText += "Content-type: multipart/mixed; boundary=\"Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\"\r\n" +
-                                "\r\n\r\n" +
-                                "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
-                                "Content-type: multipart/alternative;\r\n" +
-                                " boundary=\"Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\"\r\n" +
-                                "\r\n\r\n" +
-                                "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
-                                "Content-type: text/plain; charset=UTF-8\r\n" +
-                                "Content-transfer-encoding: 8BIT\r\n" +
-                                "\r\n" +
-                                ltn.invitation.encodeUTF8(aBody) +
-                                "\r\n\r\n\r\n" +
-                                "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
-                                "Content-type: text/calendar; method=" + aItem.responseMethod + "; charset=UTF-8\r\n" +
-                                "Content-transfer-encoding: 8BIT\r\n" +
-                                "\r\n" +
-                                utf8CalText +
-                                "\r\n\r\n" +
-                                "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)--\r\n" +
-                                "\r\n" +
-                                "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
-                                "Content-type: application/ics; name=invite.ics\r\n" +
-                                "Content-transfer-encoding: 8BIT\r\n" +
-                                "Content-disposition: attachment; filename=invite.ics\r\n" +
-                                "\r\n" +
-                                utf8CalText +
-                                "\r\n\r\n" +
-                                "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)--\r\n";
-                    break;
-            }
+            mailText += "Content-type: multipart/mixed; boundary=\"Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\"\r\n" +
+                        "\r\n\r\n" +
+                        "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
+                        "Content-type: multipart/alternative;\r\n" +
+                        " boundary=\"Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\"\r\n" +
+                        "\r\n\r\n" +
+                        "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
+                        "Content-type: text/plain; charset=UTF-8\r\n" +
+                        "Content-transfer-encoding: 8BIT\r\n" +
+                        "\r\n" +
+                        ltn.invitation.encodeUTF8(aBody) +
+                        "\r\n\r\n\r\n" +
+                        "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
+                        "Content-type: text/calendar; method=" + aItipItem.responseMethod + "; charset=UTF-8\r\n" +
+                        "Content-transfer-encoding: 8BIT\r\n" +
+                        "\r\n" +
+                        utf8CalText +
+                        "\r\n\r\n" +
+                        "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)--\r\n" +
+                        "\r\n" +
+                        "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
+                        "Content-type: application/ics; name=invite.ics\r\n" +
+                        "Content-transfer-encoding: 8BIT\r\n" +
+                        "Content-disposition: attachment; filename=invite.ics\r\n" +
+                        "\r\n" +
+                        utf8CalText +
+                        "\r\n\r\n" +
+                        "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)--\r\n";
             cal.LOG("mail text:\n" + mailText);
 
-            let tempFile = Services.dirsvc.get("TmpD", Components.interfaces.nsIFile);
+            let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
             tempFile.append("itipTemp");
-            tempFile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE,
+            tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE,
                                   parseInt("0600", 8));
 
-            let outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
-                                         .createInstance(Components.interfaces.nsIFileOutputStream);
+            let outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
+                               .createInstance(Ci.nsIFileOutputStream);
             // Let's write the file - constants from file-utils.js
             const MODE_WRONLY = 0x02;
             const MODE_CREATE = 0x08;

@@ -65,8 +65,8 @@ category profile-after-change calendar-startup-service @mozilla.org/calendar/sta
 component {fcb54c82-2fb9-42cb-bf44-1e197a55e520} calItemModule.js
 contract @mozilla.org/calendar/transaction;1 {fcb54c82-2fb9-42cb-bf44-1e197a55e520}
 
-component {40a1ccf4-5f54-4815-b842-abf06f84dbfd} calItemModule.js
-contract @mozilla.org/calendar/transactionmanager;1 {40a1ccf4-5f54-4815-b842-abf06f84dbfd}
+component {1d529847-d292-4222-b066-b8b17a794d62} calItemModule.js
+contract @mozilla.org/calendar/transactionmanager;1 {1d529847-d292-4222-b066-b8b17a794d62}
 
 component {7af51168-6abe-4a31-984d-6f8a3989212d} calItemModule.js
 contract @mozilla.org/calendar/todo;1 {7af51168-6abe-4a31-984d-6f8a3989212d}
