@@ -42,8 +42,17 @@ dialog[systemcolors] {
     list-style-image: url(chrome://calendar-common/skin/icons/save.svg);
 }
 
+#button-save[mode="send"] {
+    list-style-image: url("chrome://messenger/skin/icons/send.svg");
+}
+
+#saveandcloseButton,
 #button-saveandclose {
     list-style-image: url(chrome://calendar-common/skin/icons/save-close.svg);
+}
+
+#button-saveandclose[mode="send"] {
+    list-style-image: url("chrome://messenger/skin/icons/send.svg");
 }
 
 #button-attendees {
@@ -58,6 +67,7 @@ dialog[systemcolors] {
     list-style-image: url(chrome://calendar-common/skin/icons/attach.svg);
 }
 
+#deleteButton,
 #button-delete.cal-event-toolbarbutton {
     /* !important to override the SM #button-delete states */
     list-style-image: url(chrome://calendar-common/skin/icons/delete.svg) !important;
@@ -78,6 +88,18 @@ dialog[systemcolors] {
 
 #button-timezones {
     list-style-image: url(chrome://calendar-common/skin/icons/timezones.svg);
+}
+
+#acceptButton {
+    list-style-image: url(chrome://calendar-common/skin/icons/complete.svg);
+}
+
+#tentativeButton {
+    list-style-image: url(chrome://calendar-common/skin/icons/tentative.svg);
+}
+
+#declineButton {
+    list-style-image: url(chrome://calendar-common/skin/icons/decline.svg);
 }
 
 /*--------------------------------------------------------------------
@@ -576,6 +598,13 @@ freebusy-day > box {
 /*--------------------------------------------------------------------
  *   Event summary dialog
  *-------------------------------------------------------------------*/
+
+#summary-toolbox {
+    margin-top: -8px;
+    margin-inline-start: -8px;
+    margin-inline-end: -10px;
+    margin-bottom: 10px;
+}
 
 #calendar-summary-dialog,
 #calendar-event-summary-dialog,

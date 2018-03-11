@@ -36,6 +36,19 @@ var calendarTabMonitor = {
             calendarController.updateCommands();
             calendarController2.updateCommands();
         }
+        // we reset the save menu controls when moving away (includes closing)
+        // from an event or task editor tab
+        if ((aNewTab.mode.name == "calendarEvent" ||
+             aNewTab.mode.name == "calendarTask")) {
+            sendMessage({ command: "triggerUpdateSaveControls" });
+        } else if (window.calItemSaveControls) {
+            // we need to reset the labels of the menu controls for saving if we
+            // are not switching to an item tab and displayed an item tab before
+            let saveMenu = document.getElementById("ltnSave");
+            let saveandcloseMenu = document.getElementById("ltnSaveAndClose");
+            saveMenu.label = window.calItemSaveControls.saveMenu.label;
+            saveandcloseMenu.label = window.calItemSaveControls.saveandcloseMenu.label;
+        }
     }
 };
 

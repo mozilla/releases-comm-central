@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onAccept, onCancel, updatePartStat, browseDocument,
- *          sendMailToOrganizer, openAttachment
+/* exported onLoad, onUnload, onAccept, onCancel, updatePartStat, browseDocument,
+ *          sendMailToOrganizer, openAttachment, reply
  */
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
@@ -51,7 +51,7 @@ function onLoad() {
 
     window.attendees = item.getAttendees({});
 
-    let calendar = cal.wrapInstance(item.calendar, Components.interfaces.calISchedulingSupport);
+    let calendar = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
     window.readOnly = !(cal.acl.isCalendarWritable(calendar) &&
                         (cal.acl.userCanModifyItem(item) ||
                          (calendar &&
@@ -73,21 +73,15 @@ function onLoad() {
             item.removeAttendee(attendee);
             item.addAttendee(window.attendee);
 
-            // make partstat NEEDS-ACTION only available as a option to change to,
-            // if the user hasn't ever made a decision prior to opening the dialog
-            let partStat = window.attendee.participationStatus || "NEEDS-ACTION";
-            if (partStat == "NEEDS-ACTION" && cal.item.isEvent(item)) {
-                document.getElementById("item-participation-needs-action").removeAttribute("hidden");
-            }
+            window.responseMode = "USER";
         }
     }
 
     document.getElementById("item-title").value = item.title;
 
+    document.getElementById("item-calendar").value = calendar.name;
     document.getElementById("item-start-row").Item = item;
     document.getElementById("item-end-row").Item = item;
-
-    updateInvitationStatus();
 
     // show reminder if this item is *not* readonly.
     // this case happens for example if this is an invitation.
@@ -208,8 +202,27 @@ function onLoad() {
         document.documentElement.getButton("accept").focus();
     }
 
+    // disbale default controls
+    let accept = document.documentElement.getButton("accept");
+    let cancel = document.documentElement.getButton("cancel");
+    accept.setAttribute("collapsed", "true");
+    cancel.setAttribute("collapsed", "true");
+    cancel.parentNode.setAttribute("collapsed", "true");
+
+    updateToolbar();
+
+    if (typeof ToolbarIconColor !== "undefined") {
+        ToolbarIconColor.init();
+    }
+
     window.focus();
     opener.setCursor("auto");
+}
+
+function onUnload() {
+    if (typeof ToolbarIconColor !== "undefined") {
+        ToolbarIconColor.uninit();
+    }
 }
 
 /**
@@ -222,13 +235,17 @@ function onAccept() {
     if (window.readOnly) {
         return true;
     }
+    // let's make sure we have a response mode defined
+    let resp = window.responseMode || "USER";
+    let respMode = { responseMode: Ci.calIItipItem[resp] };
+
     let args = window.arguments[0];
     let oldItem = args.calendarEvent;
     let newItem = window.calendarItem;
     let calendar = newItem.calendar;
     saveReminder(newItem);
     adaptScheduleAgent(newItem);
-    args.onOk(newItem, calendar, oldItem);
+    args.onOk(newItem, calendar, oldItem, null, respMode);
     window.calendarItem = newItem;
     return true;
 }
@@ -242,29 +259,16 @@ function onCancel() {
 }
 
 /**
- * Sets the dialog's invitation status dropdown to the value specified by the
- * user's invitation status.
+ * Updates the user's partstat, sends a notification if requested and closes the
+ * dialog
+ *
+ * @param {string}  aResponse  a literal of one of the response modes defined
+ *                               in calIItipItem (like 'NONE')
+ * @param {string}  aPartStat  (optional) a partstat as per RfC5545
  */
-function updateInvitationStatus() {
-    if (!window.readOnly) {
-        if (window.attendee) {
-            let invitationRow = document.getElementById("invitation-row");
-            invitationRow.removeAttribute("hidden");
-            let statusElement = document.getElementById("item-participation");
-            statusElement.value = window.attendee.participationStatus || "NEEDS-ACTION";
-        }
-    }
-}
-
-/**
- * When the summary dialog is showing an invitation, this function updates the
- * user's invitation status from the value chosen in the dialog.
- */
-function updatePartStat() {
-    let statusElement = document.getElementById("item-participation");
-    if (window.attendee) {
-        let item = window.arguments[0];
-        let aclEntry = item.calendar.aclEntry;
+function reply(aResponse, aPartStat=null) {
+    if (aPartStat && window.attendee) {
+        let aclEntry = window.calendarItem.calendar.aclEntry;
         if (aclEntry) {
             let userAddresses = aclEntry.getUserAddresses({});
             if (userAddresses.length > 0 &&
@@ -272,8 +276,70 @@ function updatePartStat() {
                 window.attendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
             }
         }
+        window.attendee.participationStatus = aPartStat;
+        updateToolbar();
+    }
+    saveAndClose(aResponse);
+}
 
-        window.attendee.participationStatus = statusElement.value;
+/**
+ * Stores the event in the calendar and closes the dialog
+ *
+ * @param {string}  aResponse  a literal of one of the response modes defined
+ *                               in calIItipItem (like 'NONE')
+ */
+function saveAndClose(aResponse="NONE") {
+    // we use NONE as default since we don't want to send out notifications if
+    // the user just updates the reminder settings
+    window.responseMode = aResponse;
+    document.documentElement.acceptDialog();
+}
+
+function updateToolbar() {
+    if (window.readOnly) {
+        document.getElementById("summary-toolbar").setAttribute("hidden", "true");
+        return;
+    }
+
+    let replyButtons = document.getElementsByAttribute("type", "menu-button");
+    for (let element of replyButtons) {
+        element.removeAttribute("hidden");
+        if (window.attendee) {
+            // we disable the control which represents the current partstat
+            let status = window.attendee.participationStatus || "NEEDS-ACTION";
+            if (element.getAttribute("value") == status) {
+                element.setAttribute("disabled", "true");
+            } else {
+                element.removeAttribute("disabled");
+            }
+        }
+    }
+
+    let notificationBox = document.getElementById("status-notification");
+    if (window.attendee) {
+        // we display a notification about the users partstat
+        let partStat = window.attendee.participationStatus || "NEEDS-ACTION";
+        let type = cal.item.isEvent(window.calendarItem) ? "event" : "task";
+
+        let msgStr = {
+            ACCEPTED: type + "Accepted",
+            COMPLETED: "taskCompleted",
+            DECLINED: type + "Declined",
+            DELEGATED: type + "Delegated",
+            TENTATIVE:  type + "Tentative"
+        };
+        // this needs to be noted differently to get accepted the '-' in the key
+        msgStr["NEEDS-ACTION"] = type + "NeedsAction";
+        msgStr["IN-PROGRESS"] = "taskInProgress";
+
+        let msg = cal.calGetString("calendar-event-dialog", msgStr[partStat]);
+
+        notificationBox.appendNotification(msg,
+                                           "statusNotification",
+                                           null,
+                                           notificationBox.PRIORITY_INFO_MEDIUM);
+    } else {
+        notificationBox.removeAllNotifications();
     }
 }
 
@@ -396,8 +462,8 @@ function openAttachment(aAttachmentId) {
     let attachments = item.getAttachments({})
                           .filter(aAttachment => aAttachment.hashId == aAttachmentId);
     if (attachments.length && attachments[0].uri && attachments[0].uri.spec != "about:blank") {
-        let externalLoader = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                                       .getService(Components.interfaces.nsIExternalProtocolService);
+        let externalLoader = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                             .getService(Ci.nsIExternalProtocolService);
         externalLoader.loadURI(attachments[0].uri);
     }
 }

@@ -147,9 +147,14 @@ function receiveMessage(aEvent) {
             setElementValue(arg.id, arg.value, arg.attribute);
             break;
         }
-        case "loadCloudProviders":
+        case "loadCloudProviders": {
             loadCloudProviders(aEvent.data.items);
             break;
+        }
+        case "updateSaveControls": {
+            updateSaveControls(aEvent.data.argument.sendNotSave);
+            break;
+        }
     }
 }
 
@@ -1098,4 +1103,83 @@ function loadCloudProviders(aItemObjects) {
  */
 function attachFileByAccountKey(aAccountKey) {
     sendMessage({ command: "attachFileByAccountKey", accountKey: aAccountKey });
+}
+
+/**
+ * Updates the save controls depending on whether the event has attendees
+ * @param {boolean} aSendNotSave
+ */
+function updateSaveControls(aSendNotSave) {
+    if (window.calItemSaveControls &&
+        window.calItemSaveControls.state == aSendNotSave) {
+        return;
+    }
+
+    let saveBtn = document.getElementById("button-save");
+    let saveandcloseBtn = document.getElementById("button-saveandclose");
+    let saveMenu = document.getElementById("item-save-menuitem") ||
+                   document.getElementById("ltnSave");
+    let saveandcloseMenu = document.getElementById("item-saveandclose-menuitem") ||
+                           document.getElementById("ltnSaveAndClose");
+
+    // we store the initial label and tooltip values to be able to reset later
+    if (!window.calItemSaveControls) {
+        window.calItemSaveControls = {
+            state: false,
+            saveMenu: { label: saveMenu.label },
+            saveandcloseMenu: { label: saveandcloseMenu.label },
+            saveBtn: null,
+            saveandcloseBtn: null
+        };
+        // we need to check for each button whether it exists since toolbarbuttons
+        // can be removed by customizing
+        if (saveBtn) {
+            window.window.calItemSaveControls.saveBtn = {
+                label: saveBtn.label,
+                tooltiptext: saveBtn.tooltip
+            };
+        }
+        if (saveandcloseBtn) {
+            window.window.calItemSaveControls.saveandcloseBtn = {
+                label: saveandcloseBtn.label,
+                tooltiptext: saveandcloseBtn.tooltip
+            };
+        }
+    }
+
+    // we update labels and tooltips but leave accesskeys as they are
+    window.calItemSaveControls.state = aSendNotSave;
+    if (aSendNotSave) {
+        if (saveBtn) {
+            saveBtn.label = cal.calGetString("calendar-event-dialog",
+                                             "saveandsendButtonLabel");
+            saveBtn.tooltiptext = cal.calGetString("calendar-event-dialog",
+                                                   "saveandsendButtonTooltip");
+            saveBtn.setAttribute("mode", "send");
+        }
+        if (saveandcloseBtn) {
+            saveandcloseBtn.label = cal.calGetString("calendar-event-dialog",
+                                                     "sendandcloseButtonLabel");
+            saveandcloseBtn.tooltiptext = cal.calGetString("calendar-event-dialog",
+                                                           "sendandcloseButtonTooltip");
+            saveandcloseBtn.setAttribute("mode", "send");
+        }
+        saveMenu.label = cal.calGetString("calendar-event-dialog",
+                                          "saveandsendMenuLabel");
+        saveandcloseMenu.label = cal.calGetString("calendar-event-dialog",
+                                                  "sendandcloseMenuLabel");
+    } else {
+        if (saveBtn) {
+            saveBtn.label = window.calItemSaveControls.saveBtn.label;
+            saveBtn.tooltiptext = window.calItemSaveControls.saveBtn.tooltip;
+            saveBtn.removeAttribute("mode");
+        }
+        if (saveandcloseBtn) {
+            saveandcloseBtn.label = window.calItemSaveControls.saveandcloseBtn.label;
+            saveandcloseBtn.tooltiptext = window.calItemSaveControls.saveandcloseBtn.tooltip;
+            saveandcloseBtn.removeAttribute("mode");
+        }
+        saveMenu.label = window.calItemSaveControls.saveMenu.label;
+        saveandcloseMenu.label = window.calItemSaveControls.saveandcloseMenu.label;
+    }
 }

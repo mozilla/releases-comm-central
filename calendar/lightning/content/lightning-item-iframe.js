@@ -249,6 +249,9 @@ function receiveMessage(aEvent) {
         case "attachFileByAccountKey":
             attachFileByAccountKey(aEvent.data.accountKey);
             break;
+        case "triggerUpdateSaveControls":
+            updateParentSaveControls();
+            break;
     }
 }
 
@@ -829,6 +832,7 @@ function changeUndiscloseCheckboxStatus() {
     let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
     let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
     undiscloseCheckbox.disabled = (!notifyCheckbox.checked);
+    updateParentSaveControls();
 }
 
 /**
@@ -3009,7 +3013,11 @@ function onCommandSave(aIsClosing) {
         },
         onGetResult: function() {}
     };
-    window.onAcceptCallback(item, calendar, originalItem, listener);
+    let resp = document.getElementById("notify-attendees-checkbox").checked
+             ? Components.interfaces.calIItipItem.AUTO
+             : Components.interfaces.calIItipItem.NONE;
+    let extResponse = { autoResponse: resp };
+    window.onAcceptCallback(item, calendar, originalItem, listener, extResponse);
 }
 
 /**
@@ -3557,6 +3565,25 @@ function updateAttendees() {
         attendeeTab.setAttribute("collapsed", "true");
         attendeePanel.setAttribute("collapsed", "true");
     }
+    updateParentSaveControls();
+}
+
+/**
+ * Update the save controls in parent context depending on the whether attendees
+ * exist for this event and notifying is enabled
+ */
+function updateParentSaveControls() {
+    let mode = cal.item.isEvent(window.calendarItem) &&
+               window.organizer &&
+               window.organizer.id &&
+               window.attendees &&
+               window.attendees.length > 0 &&
+               document.getElementById("notify-attendees-checkbox").checked;
+
+    sendMessage({
+        command: "updateSaveControls",
+        argument: { sendNotSave: mode }
+    });
 }
 
 /**

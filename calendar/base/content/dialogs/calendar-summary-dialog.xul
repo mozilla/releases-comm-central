@@ -11,6 +11,8 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/datetimepickers/datetimepickers.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-bindings.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/primaryToolbar.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 
 <!DOCTYPE dialog [
   <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd" >
@@ -28,6 +30,7 @@
 <dialog id="calendar-summary-dialog"
         windowtype="Calendar:EventSummaryDialog"
         onload="onLoad()"
+        onunload="onUnload()"
         ondialogaccept="return onAccept();"
         ondialogcancel="return onCancel();"
         onresize="rearrangeAttendees();"
@@ -46,6 +49,84 @@
   <script type="application/javascript"
           src="chrome://calendar/content/calApplicationUtils.js"/>
 
+  <toolbox id="summary-toolbox"
+           class="mail-toolbox"
+           mode="full"
+           defaultmode="full"
+           iconsize="small"
+           defaulticonsize="small"
+           labelalign="end"
+           defaultlabelalign="end">
+    <toolbar id="summary-toolbar"
+             toolboxid="summary-toolbox"
+             class="chromeclass-toolbar"
+             customizable="false"
+             labelalign="end"
+             defaultlabelalign="end">
+      <toolbarbutton id="saveandcloseButton"
+                     tooltiptext="&summary.dialog.saveclose.tooltiptext;"
+                     label="&summary.dialog.saveclose.label;"
+                     oncommand="saveAndClose();"
+                     class="cal-event-toolbarbutton toolbarbutton-1 saveandcloseButton"/>
+      <toolbarbutton id="acceptButton"
+                     tooltiptext="&summary.dialog.accept.tooltiptext;"
+                     label="&summary.dialog.accept.label;"
+                     oncommand="if (event.target.id == this.id) reply('AUTO', 'ACCEPTED');"
+                     value="ACCEPTED"
+                     type="menu-button"
+                     class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
+        <menupopup id="acceptDropdown">
+          <menuitem id="acceptButton_Send"
+                    tooltiptext="&summary.dialog.send.tooltiptext;"
+                    label="&summary.dialog.send.label;"
+                    oncommand="reply('AUTO', 'ACCEPTED');"/>
+          <menuitem id="acceptButton_DontSend"
+                    tooltiptext="&summary.dialog.dontsend.tooltiptext;"
+                    label="&summary.dialog.dontsend.label;"
+                    oncommand="reply('NONE', 'ACCEPTED');"/>
+        </menupopup>
+      </toolbarbutton>
+      <toolbarbutton id="tentativeButton"
+                     tooltiptext="&summary.dialog.tentative.tooltiptext;"
+                     label="&summary.dialog.tentative.label;"
+                     oncommand="if (event.target.id == this.id) reply('AUTO', 'TENTATIVE');"
+                     value="TENTATIVE"
+                     type="menu-button"
+                     class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
+        <menupopup id="tentativeDropdown">
+          <menuitem id="tenatativeButton_Send"
+                    tooltiptext="&summary.dialog.send.tooltiptext;"
+                    label="&summary.dialog.send.label;"
+                    oncommand="reply('AUTO', 'TENTATIVE');"/>
+          <menuitem id="tenativeButton_DontSend"
+                    tooltiptext="&summary.dialog.dontsend.tooltiptext;"
+                    label="&summary.dialog.dontsend.label;"
+                    oncommand="reply('NONE', 'TENTATIVE');"/>
+        </menupopup>
+      </toolbarbutton>
+      <toolbarbutton id="declineButton"
+                     tooltiptext="&summary.dialog.decline.tooltiptext;"
+                     label="&summary.dialog.decline.label;"
+                     oncommand="if (event.target.id == this.id) reply('AUTO', 'DECLINED');"
+                     type="menu-button"
+                     value="DECLINED"
+                     class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
+        <menupopup id="declineDropdown">
+          <menuitem id="declineButton_Send"
+                    tooltiptext="&summary.dialog.send.tooltiptext;"
+                    label="&summary.dialog.send.label;"
+                    oncommand="reply('AUTO', 'DECLINED');"/>
+          <menuitem id="declineButton_DontSend"
+                    tooltiptext="&summary.dialog.dontsend.tooltiptext;"
+                    label="&summary.dialog.dontsend.label;"
+                    oncommand="reply('NONE', 'DECLINED');"/>
+        </menupopup>
+      </toolbarbutton>
+    </toolbar>
+  </toolbox>
+
+  <notificationbox id="status-notification"/>
+
   <!-- General -->
   <box id="item-general-box" orient="vertical">
     <calendar-caption label="&read.only.general.label;"/>
@@ -59,6 +140,10 @@
           <row align="center">
             <label value="&read.only.title.label;"/>
             <textbox id="item-title" class="selectable-label plain" readonly="true"/>
+          </row>
+          <row align="center">
+            <label value="&read.only.calendar.label;"/>
+            <textbox id="item-calendar" class="selectable-label plain" readonly="true"/>
           </row>
           <row class="item-date-row"
                id="item-start-row"
@@ -108,20 +193,6 @@
             <label value="&newevent.status.completed.label;" hidden="true" status="COMPLETED"/>
           </row>
           <separator id="item-main-separator" flex="1" class="groove" hidden="true"/>
-          <row id="invitation-row" hidden="true" align="center">
-            <label value="&read.only.reply.label;" control="item-participation"/>
-            <hbox pack="start">
-              <menulist id="item-participation" oncommand="updatePartStat()">
-                <menupopup>
-                  <menuitem label="&read.only.accept.label;" value="ACCEPTED"/>
-                  <menuitem label="&read.only.tentative.label;" value="TENTATIVE"/>
-                  <menuitem label="&read.only.decline.label;" value="DECLINED"/>
-                  <menuitem label="&read.only.needs.action.label;" value="NEEDS-ACTION"
-                            hidden="true" id="item-participation-needs-action"/>
-                </menupopup>
-              </menulist>
-            </hbox>
-          </row>
           <row id="reminder-row" hidden="true" align="center">
             <label value="&read.only.reminder.label;" control="item-alarm"/>
               <hbox id="event-grid-alarm-picker-box"
