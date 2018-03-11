@@ -97,9 +97,11 @@ var calendarViewController = {
     deleteOccurrences: function(aCount,
                                 aOccurrences,
                                 aUseParentItems,
-                                aDoNotConfirm) {
+                                aDoNotConfirm,
+                                aExtResponse=null) {
         startBatchTransaction();
         let recurringItems = {};
+        let extResponse = aExtResponse || { responseMode: Ci.calIItipItem.USER };
 
         let getSavedItem = function(aItemToDelete) {
             // Get the parent item, saving it in our recurringItems object for
@@ -146,7 +148,12 @@ var calendarViewController = {
             // they come in. If this is not an occurrence, we can go ahead and
             // delete the whole item.
             if (itemToDelete.parentItem.hashId == itemToDelete.hashId) {
-                doTransaction("delete", itemToDelete, itemToDelete.calendar, null, null);
+                doTransaction("delete",
+                              itemToDelete,
+                              itemToDelete.calendar,
+                              null,
+                              null,
+                              extResponse);
             } else {
                 let savedItem = getSavedItem(itemToDelete);
                 savedItem.newItem.recurrenceInfo
@@ -164,7 +171,8 @@ var calendarViewController = {
                           ritem.newItem,
                           ritem.newItem.calendar,
                           ritem.oldItem,
-                          null);
+                          null,
+                          extResponse);
         }
         endBatchTransaction();
     }

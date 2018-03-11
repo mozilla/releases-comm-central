@@ -18,6 +18,7 @@
         buttons="accept,cancel"
         onload="setTimeout('loadCalendars()',0);"
         ondialogaccept="return doOK();"
+        ondialogextra1="return doExtra1();"
         persist="screenX screenY height width">
 
     <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
@@ -27,10 +28,10 @@
         function loadCalendars() {
             const calendarManager = Components.classes["@mozilla.org/calendar/manager;1"]
                                             .getService(Components.interfaces.calICalendarManager);
-            var listbox = document.getElementById("calendar-list");
-            var composite = cal.view.getCompositeCalendar(window.opener);
-            var selectedIndex = 0;
-            var calendars;
+            let listbox = document.getElementById("calendar-list");
+            let composite = cal.view.getCompositeCalendar(window.opener);
+            let selectedIndex = 0;
+            let calendars;
 
             if (window.arguments[0].calendars) {
                 calendars = window.arguments[0].calendars;
@@ -39,24 +40,24 @@
             }
             calendars = sortCalendarArray(calendars);
 
-            for (var i = 0; i < calendars.length; i++) {
-                var calendar = calendars[i];
-                var listItem = document.createElement("listitem");
+            for (let i = 0; i < calendars.length; i++) {
+                let calendar = calendars[i];
+                let listItem = document.createElement("listitem");
 
-                var colorCell = document.createElement("listcell");
+                let colorCell = document.createElement("listcell");
                 try {
-                    var calColor = calendar.getProperty('color');
+                    let calColor = calendar.getProperty('color');
                     colorCell.style.background = calColor || "#a8c2e1";
                 } catch(e) {}
                 listItem.appendChild(colorCell);
 
-                var nameCell = document.createElement("listcell");
+                let nameCell = document.createElement("listcell");
                 nameCell.setAttribute("label", calendar.name);
                 listItem.appendChild(nameCell);
 
                 listItem.calendar = calendar;
                 listbox.appendChild(listItem);
-                listItem.setAttribute("flex","1");
+                listItem.setAttribute("flex", "1");
 
                 // Select the default calendar of the opening calendar window.
                 if (calendar.id == composite.defaultCalendar.id) {
@@ -64,6 +65,24 @@
                 }
             }
             document.getElementById("prompt").textContent = window.arguments[0].promptText;
+            if (window.arguments[0].promptNotify) {
+                document.getElementById("promptNotify").textContent = window.arguments[0].promptNotify;
+            }
+
+            // this button is the default action
+            let accept = document.getAnonymousElementByAttribute(document.documentElement, "dlgtype", "accept");
+            if (window.arguments[0].labelOk) {
+                accept.setAttribute("label", window.arguments[0].labelOk);
+                accept.removeAttribute("hidden");
+            }
+
+            let extra1 = document.getAnonymousElementByAttribute(document.documentElement, "dlgtype", "extra1");
+            if (window.arguments[0].labelExtra1) {
+                extra1.setAttribute("label", window.arguments[0].labelExtra1);
+                extra1.removeAttribute("hidden");
+            } else {
+                extra1.setAttribute("hidden", "true");
+            }
 
             if (calendars.length) {
                 listbox.ensureIndexIsVisible(selectedIndex);
@@ -73,11 +92,21 @@
                 // If there are no calendars, then disable the accept button
                 document.documentElement.getButton("accept").setAttribute("disabled", "true");
             }
+
+            window.sizeToContent();
         }
 
         function doOK() {
-            var listbox = document.getElementById("calendar-list");
+            let listbox = document.getElementById("calendar-list");
             window.arguments[0].onOk(listbox.selectedItem.calendar);
+            return true;
+        }
+
+        function doExtra1() {
+            let listbox = document.getElementById("calendar-list");
+            window.arguments[0].onExtra1(listbox.selectedItem.calendar);
+            window.close();
+            return true;
         }
     ]]></script>
 
@@ -89,5 +118,6 @@
                 <listcol flex="1"/>
             </listcols>
         </listbox>
+        <description id="promptNotify"/>
     </vbox>
 </dialog>
