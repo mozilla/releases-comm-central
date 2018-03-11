@@ -8,8 +8,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/abContactsPanel.css" type="text/css"?>
 
 <!DOCTYPE page [
-<!ENTITY % abResultsPaneOverlayDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPaneOverlay.dtd" >
-%abResultsPaneOverlayDTD;
+<!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd" >
+%abResultsPaneDTD;
 <!ENTITY % abContactsPanelDTD SYSTEM "chrome://messenger/locale/addressbook/abContactsPanel.dtd" >
 %abContactsPanelDTD;
 ]>

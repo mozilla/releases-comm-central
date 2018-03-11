@@ -1,22 +1,6 @@
-<?xml version="1.0"?>
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-
-<?xml-stylesheet href="chrome://messenger/skin/addressbook/cardDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
-
-<!DOCTYPE overlay SYSTEM "chrome://messenger/locale/addressbook/abCardOverlay.dtd">
-
-<overlay id="editcardOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-<stringbundleset id="stringbundleset">
-  <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
-</stringbundleset>
-
-<script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
-<script type="application/javascript" src="chrome://messenger/content/addressbook/abCardOverlay.js"/>
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <vbox id="editcard">
   <tabbox>
@@ -491,4 +475,3 @@
     </tabpanels>
   </tabbox>
 </vbox>
-</overlay>

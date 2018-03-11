@@ -9,9 +9,11 @@ messenger.jar:
     content/messenger/addressbook/pref-editdirectories.xul                     (addrbook/prefs/content/pref-editdirectories.xul)
     content/messenger/addressbook/abAddressBookNameDialog.js                   (addrbook/content/abAddressBookNameDialog.js)
     content/messenger/addressbook/abAddressBookNameDialog.xul                  (addrbook/content/abAddressBookNameDialog.xul)
+#ifndef MOZ_THUNDERBIRD
     content/messenger/addressbook/abEditCardDialog.xul                         (addrbook/content/abEditCardDialog.xul)
     content/messenger/addressbook/abNewCardDialog.xul                          (addrbook/content/abNewCardDialog.xul)
     content/messenger/addressbook/abResultsPaneOverlay.xul                     (addrbook/content/abResultsPaneOverlay.xul)
+#endif
     content/messenger/addressbook/abResultsPane.js                             (addrbook/content/abResultsPane.js)
     content/messenger/addressbook/addrbookWidgets.xml                          (addrbook/content/addrbookWidgets.xml)
     content/messenger/addressbook/abDragDrop.js                                (addrbook/content/abDragDrop.js)
