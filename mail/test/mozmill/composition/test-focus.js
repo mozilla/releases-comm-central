@@ -8,17 +8,13 @@
 var MODULE_NAME = "test-focus";
 
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["compose-helpers", "folder-display-helpers",
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                        "window-helpers"];
 
-
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let ch = collector.getModule("compose-helpers");
-  ch.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 }
 
 /**
@@ -39,7 +35,13 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
 
   let key = ctrlTab ? "VK_TAB" : "VK_F6";
 
-  // We start on the addressing widget and go from there...
+  // We start on the addressing widget and go from there.
+  // If we added an attachment, the attachment bucket got focused so
+  // we need to fix this first.
+  if (attachmentsExpanded) {
+    assert_equals(attachmentElement, controller.window.WhichElementHasFocus());
+    controller.window.SetMsgAddressingWidgetTreeElementFocus();
+  }
 
   controller.keypress(null, key, {ctrlKey: ctrlTab});
   assert_equals(subjectElement, controller.window.WhichElementHasFocus());
