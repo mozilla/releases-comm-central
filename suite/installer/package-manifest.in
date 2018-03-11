@@ -720,6 +720,11 @@ bin/libfreebl_32int64_3.so
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
 #endif
 
+; [MAN pages]
+#ifdef UNIX_BUT_NOT_MAC
+man/*
+#endif
+
 ; [Updater]
 ;
 #ifdef MOZ_UPDATER

@@ -14,8 +14,7 @@
 performance and portability.
 
 .SH USAGE
-\fB@MOZ_APP_NAME@\fR is a simple shell script that will set up the environment for
-the actual executable, \fB@MOZ_APP_NAME@-bin\fR.
+\fB@MOZ_APP_DISPLAYNAME@\fR can be started using the command \fB@MOZ_APP_NAME@\fR or \fB@MOZ_APP_NAME@-bin\fR.
 
 .SH OPTIONS
 A summary of the options supported by \fB@MOZ_APP_NAME@\fR is included below.
