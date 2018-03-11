@@ -212,60 +212,165 @@
                 key="calendar-delete-item-key"
                 observes="calendar_delete_event_command"/>
       <menu id="calendar-item-context-menu-attendance-menu"
-            class="attendance-menu"
             label="&calendar.context.attendance.menu.label;"
             accesskey="&calendar.context.attendance.menu.accesskey;"
-            oncommand="setContextPartstat(event.target.value, event.target.getAttribute('scope'), currentView().getSelectedItems({}))"
+            oncommand="setContextPartstat(event.target, currentView().getSelectedItems({}))"
             observes="calendar_attendance_command">
         <menupopup id="calendar-item-context-menu-attendance-menupopup">
           <label id="calendar-item-context-attendance-thisoccurrence-label"
                  class="calendar-context-heading-label"
-                 scope="all-occurrences"
+                 scope="this-occurrence"
                  value="&calendar.context.attendance.occurrence.label;"/>
-          <menuitem id="calendar-item-context-menu-attend-accept-menuitem"
-                    type="radio"
-                    scope="this-occurrence"
+          <menu id="calendar-item-context-menu-attendance-accepted-menu"
+                label="&calendar.context.attendance.occ.accepted.label;"
+                accesskey="&calendar.context.attendance.occ.accepted.accesskey;"
+                value="ACCEPTED"
+                name="calendar-item-context-attendance"
+                scope="this-occurrence">
+            <menupopup id="calendar-item-context-menu-occurrence-accepted-menupopup">
+              <menuitem id="calendar-item-context-menu-attend-accept-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="ACCEPTED"
+                        respmode="AUTO"/>
+              <menuitem id="calendar-item-context-menu-attend-accept-dontsend-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="ACCEPTED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="calendar-item-context-menu-attendance-tentative-menu"
+                label="&calendar.context.attendance.occ.tentative.label;"
+                accesskey="&calendar.context.attendance.occ.tentative.accesskey;"
+                value="TENTATIVE"
+                name="calendar-item-context-attendance"
+                scope="this-occurrence">
+            <menupopup id="calendar-item-context-menu-occurrence-tentative-menupopup">
+              <menuitem id="calendar-item-context-menu-attend-tentative-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="TENTATIVE"
+                        respmode="AUTO"/>
+              <menuitem id="calendar-item-context-menu-attend-tentative-dontsend-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="TENTATIVE"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="calendar-item-context-menu-attendance-declined-menu"
+                label="&calendar.context.attendance.occ.declined.label;"
+                accesskey="&calendar.context.attendance.occ.declined.accesskey;"
+                value="DECLINED"
+                name="calendar-item-context-attendance"
+                scope="this-occurrence">
+            <menupopup id="calendar-item-context-menu-occurrence-tentative-menupopup">
+              <menuitem id="calendar-item-context-menu-attend-declined-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="DECLINED"
+                        respmode="AUTO"/>
+              <menuitem id="calendar-item-context-menu-attend-declined-dontsend-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="DECLINED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menuitem id="calendar-item-context-menu-attendance-delegated-menu"
+                    label="&calendar.context.attendance.occ.delegated.label;"
                     name="calendar-item-context-attendance"
-                    label="&read.only.accept.label;" value="ACCEPTED"/>
-          <menuitem id="calendar-item-context-menu-attend-tentative-menuitem"
-                    type="radio"
                     scope="this-occurrence"
+                    value="DELEGATED"/>
+          <menuitem id="calendar-item-context-menu-attendance-needsaction-menu"
+                    label="&calendar.context.attendance.occ.needsaction.label;"
                     name="calendar-item-context-attendance"
-                    label="&read.only.tentative.label;" value="TENTATIVE"/>
-          <menuitem id="calendar-item-context-menu-attend-declined-menuitem"
-                    type="radio"
                     scope="this-occurrence"
-                    name="calendar-item-context-attendance"
-                    label="&read.only.decline.label;" value="DECLINED"/>
-          <menuitem id="calendar-item-context-menu-attend-needsaction-menuitem"
-                    type="radio"
-                    scope="this-occurrence"
-                    name="calendar-item-context-attendance"
-                    label="&read.only.needs.action.label;" value="NEEDS-ACTION"/>
+                    value="NEEDS-ACTION"/>
           <label id="calendar-item-context-attendance-alloccurrence-label"
                  class="calendar-context-heading-label"
                  scope="all-occurrences"
-                 value="&calendar.context.attendance.all.label;"/>
-          <menuitem id="calendar-item-context-menu-attend-accept-all-menuitem"
-                    type="radio"
+                 value="&calendar.context.attendance.all2.label;"/>
+          <menu id="calendar-item-context-menu-attendance-accepted-all-menu"
+                label="&calendar.context.attendance.all.accepted.label;"
+                accesskey="&calendar.context.attendance.all.accepted.accesskey;"
+                value="ACCEPTED"
+                name="calendar-item-context-attendance-all"
+                scope="all-occurrences">
+            <menupopup id="calendar-item-context-menu-alloccurrences-accept-menupopup">
+              <menuitem id="calendar-item-context-menu-attend-accept-all-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="ACCEPTED"
+                        respmode="AUTO"/>
+              <menuitem id="calendar-item-context-menu-attend-accept-all-dontsend-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="ACCEPTED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="calendar-item-context-menu-attendance-tentative-all-menu"
+                label="&calendar.context.attendance.all.tentative.label;"
+                accesskey="&calendar.context.attendance.all.tentative.accesskey;"
+                value="TENTATIVE"
+                name="calendar-item-context-attendance-all"
+                scope="all-occurrences">
+            <menupopup id="calendar-item-context-menu-alloccurrences-tentative-menupopup">
+              <menuitem id="calendar-item-context-menu-attend-tentative-all-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="TENTATIVE"
+                        respmode="AUTO"/>
+              <menuitem id="calendar-item-context-menu-attend-tentative-all-dontsend-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="TENTATIVE"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="calendar-item-context-menu-attendance-decline-all-menu"
+                label="&calendar.context.attendance.all.declined.label;"
+                accesskey="&calendar.context.attendance.all.declined.accesskey;"
+                value="DECLINED"
+                name="calendar-item-context-attendance-all"
+                scope="all-occurrences">
+            <menupopup id="calendar-item-context-menu-alloccurrences-decline-menupopup">
+              <menuitem id="calendar-item-context-menu-attend-declined-all-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="DECLINED"
+                        respmode="AUTO"/>
+              <menuitem id="calendar-item-context-menu-attend-declined-all-dontsend-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="DECLINED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menuitem id="calendar-item-context-menu-attendance-delegated-all-menu"
+                    label="&calendar.context.attendance.all.delegated.label;"
+                    name="calendar-item-context-attendance-delegated-all"
                     scope="all-occurrences"
-                    name="calendar-item-context-attendance-all"
-                    label="&read.only.accept.label;" value="ACCEPTED"/>
-          <menuitem id="calendar-item-context-menu-attend-tentative-all-menuitem"
-                    type="radio"
+                    value="DELEGATED"/>
+          <menuitem id="calendar-item-context-menu-attendance-needsaction-all-menu"
+                    label="&calendar.context.attendance.all.needsaction.label;"
+                    name="calendar-item-context-attendance-needaction-all"
                     scope="all-occurrences"
-                    name="calendar-item-context-attendance-all"
-                    label="&read.only.tentative.label;" value="TENTATIVE"/>
-          <menuitem id="calendar-item-context-menu-attend-declined-all-menuitem"
-                    type="radio"
-                    scope="all-occurrences"
-                    name="calendar-item-context-attendance-all"
-                    label="&read.only.decline.label;" value="DECLINED"/>
-          <menuitem id="calendar-item-context-menu-attend-needsaction-all-menuitem"
-                    type="radio"
-                    scope="all-occurrences"
-                    name="calendar-item-context-attendance-all"
-                    label="&read.only.needs.action.label;" value="NEEDS-ACTION"/>
+                    value="NEEDS-ACTION"/>
         </menupopup>
       </menu>
     </menupopup>
@@ -442,60 +547,249 @@
                 command="calendar_delete_todo_command"
                 observes="calendar_delete_todo_command"/>
       <menu id="task-context-menu-attendance-menu"
-            class="attendance-menu"
             label="&calendar.context.attendance.menu.label;"
             accesskey="&calendar.context.attendance.menu.accesskey;"
-            oncommand="setContextPartstat(event.target.value, event.target.getAttribute('scope'), getSelectedTasks())"
+            oncommand="setContextPartstat(event.target, getSelectedTasks())"
             observes="calendar_attendance_command">
         <menupopup id="task-context-menu-attendance-menupopup">
           <label id="task-context-attendance-thisoccurrence-label"
                  class="calendar-context-heading-label"
-                 scope="all-occurrences"
+                 scope="this-occurrence"
                  value="&calendar.context.attendance.occurrence.label;"/>
-          <menuitem id="task-context-menu-attend-accept-menuitem"
-                    type="radio"
-                    scope="this-occurrence"
+          <menu id="task-context-menu-attendance-accepted-menu"
+                label="&calendar.context.attendance.occ.accepted.label;"
+                accesskey="&calendar.context.attendance.occ.accepted.accesskey;"
+                value="ACCEPTED"
+                name="task-context-attendance"
+                scope="this-occurrence">
+            <menupopup id="task-context-menu-occurrence-accepted-menupopup">
+              <menuitem id="task-context-menu-attend-accept-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="ACCEPTED"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-accept-dontsend-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="ACCEPTED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="task-context-menu-attendance-tentative-menu"
+                label="&calendar.context.attendance.occ.tentative.label;"
+                accesskey="&calendar.context.attendance.occ.tentative.accesskey;"
+                value="TENTATIVE"
+                name="task-context-attendance"
+                scope="this-occurrence">
+            <menupopup id="task-context-menu-occurrence-tentative-menupopup">
+              <menuitem id="task-context-menu-attend-tentative-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="TENTATIVE"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-tentative-dontsend-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="TENTATIVE"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="task-context-menu-attendance-declined-menu"
+                label="&calendar.context.attendance.occ.declined.label;"
+                accesskey="&calendar.context.attendance.occ.declined.accesskey;"
+                value="DECLINED"
+                name="task-context-attendance"
+                scope="this-occurrence">
+            <menupopup id="task-context-menu-occurrence-tentative-menupopup">
+              <menuitem id="task-context-menu-attend-declined-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="DECLINED"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-declined-dontsend-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="DECLINED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="task-context-menu-attendance-inprogress-menu"
+                label="&calendar.context.attendance.occ.inprogress.label;"
+                accesskey="&calendar.context.attendance.occ.inprogress.accesskey;"
+                value="IN-PROGRESS"
+                name="task-context-attendance"
+                scope="this-occurrence">
+            <menupopup id="task-context-menu-occurrence-inprogress-menupopup">
+              <menuitem id="task-context-menu-attend-inprogress-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="IN-PROGRESS"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-inprogress-dontsend-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="IN-PROGRESS"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="task-context-menu-attendance-completed-menu"
+                label="&calendar.context.attendance.occ.completed.label;"
+                accesskey="&calendar.context.attendance.occ.completed.accesskey;"
+                value="COMPLETED"
+                name="task-context-attendance"
+                scope="this-occurrence">
+            <menupopup id="task-context-menu-occurrence-completed-menupopup">
+              <menuitem id="task-context-menu-attend-completed-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="COMPLETED"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-completed-dontsend-menuitem"
+                        scope="this-occurrence"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="COMPLETED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menuitem id="task-context-menu-attendance-delegated-menu"
+                    label="&calendar.context.attendance.occ.delegated.label;"
                     name="task-context-attendance"
-                    label="&read.only.accept.label;" value="ACCEPTED"/>
-          <menuitem id="task-context-menu-attend-tentative-menuitem"
-                    type="radio"
                     scope="this-occurrence"
+                    value="DELEGATED"/>
+          <menuitem id="task-context-menu-attendance-needsaction-menu"
+                    label="&calendar.context.attendance.occ.needsaction.label;"
                     name="task-context-attendance"
-                    label="&read.only.tentative.label;" value="TENTATIVE"/>
-          <menuitem id="task-context-menu-attend-declined-menuitem"
-                    type="radio"
                     scope="this-occurrence"
-                    name="task-context-attendance"
-                    label="&read.only.decline.label;" value="DECLINED"/>
-          <menuitem id="task-context-menu-attend-needsaction-menuitem"
-                    type="radio"
-                    scope="this-occurrence"
-                    name="task-context-attendance"
-                    label="&read.only.needs.action.label;" value="NEEDS-ACTION"/>
+                    value="NEEDS-ACTION"/>
           <label id="task-context-attendance-alloccurrence-label"
                  class="calendar-context-heading-label"
                  scope="all-occurrences"
-                 value="&calendar.context.attendance.all.label;"/>
-          <menuitem id="task-context-menu-attend-accept-all-menuitem"
-                    type="radio"
+                 value="&calendar.context.attendance.all2.label;"/>
+          <menu id="task-context-menu-attendance-accepted-all-menu"
+                label="&calendar.context.attendance.all.accepted.label;"
+                accesskey="&calendar.context.attendance.all.accepted.accesskey;"
+                value="ACCEPTED"
+                name="task-context-attendance-all"
+                scope="all-occurrences">
+            <menupopup id="task-context-menu-alloccurrences-accept-menupopup">
+              <menuitem id="task-context-menu-attend-accept-all-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="ACCEPTED"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-accept-all-dontsend-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="ACCEPTED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="task-context-menu-attendance-tentative-all-menu"
+                label="&calendar.context.attendance.all.tentative.label;"
+                accesskey="&calendar.context.attendance.all.tentative.accesskey;"
+                value="TENTATIVE"
+                name="task-context-attendance-all"
+                scope="all-occurrences">
+            <menupopup id="task-context-menu-alloccurrences-tentative-menupopup">
+              <menuitem id="task-context-menu-attend-tentative-all-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="TENTATIVE"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-tentative-all-dontsend-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="TENTATIVE"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="task-context-menu-attendance-decline-all-menu"
+                label="&calendar.context.attendance.all.declined.label;"
+                accesskey="&calendar.context.attendance.all.declined.accesskey;"
+                value="DECLINED"
+                name="task-context-attendance-all"
+                scope="all-occurrences">
+            <menupopup id="task-context-menu-alloccurrences-decline-menupopup">
+              <menuitem id="task-context-menu-attend-declined-all-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="DECLINED"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-declined-all-dontsend-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="DECLINED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="task-context-menu-attendance-inprogress-all-menu"
+                label="&calendar.context.attendance.all.inprogress.label;"
+                accesskey="&calendar.context.attendance.all.inprogress.accesskey;"
+                value="IN-PROGRESS"
+                name="task-context-attendance-all"
+                scope="all-occurrences">
+            <menupopup id="task-context-menu-alloccurrences-inprogress-menupopup">
+              <menuitem id="task-context-menu-attend-inprogress-all-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="IN-PROGRESS"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-inprogress-all-dontsend-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="IN-PROGRESS"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menu id="task-context-menu-attendance-completed-all-menu"
+                label="&calendar.context.attendance.all.completed.label;"
+                accesskey="&calendar.context.attendance.all.completed.accesskey;"
+                value="COMPLETED"
+                name="task-context-attendance-all"
+                scope="all-occurrences">
+            <menupopup id="task-context-menu-alloccurrences-completed-menupopup">
+              <menuitem id="task-context-menu-attend-completed-all-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.send.label;"
+                        accesskey="&calendar.context.attendance.send.accesskey;"
+                        respvalue="COMPLETED"
+                        respmode="AUTO"/>
+              <menuitem id="task-context-menu-attend-completed-all-dontsend-menuitem"
+                        scope="all-occurrences"
+                        label="&calendar.context.attendance.dontsend.label;"
+                        accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                        respvalue="COMPLETED"
+                        respmode="NONE"/>
+            </menupopup>
+          </menu>
+          <menuitem id="task-context-menu-attendance-delegated-all-menu"
+                    label="&calendar.context.attendance.all.delegated.label;"
+                    name="task-context-attendance-delegated-all"
                     scope="all-occurrences"
-                    name="task-context-attendance-all"
-                    label="&read.only.accept.label;" value="ACCEPTED"/>
-          <menuitem id="task-context-menu-attend-tentative-all-menuitem"
-                    type="radio"
+                    value="DELEGATED"/>
+          <menuitem id="task-context-menu-attendance-needsaction-all-menu"
+                    label="&calendar.context.attendance.all.delegated.label;"
+                    name="task-context-attendance-needaction-all"
                     scope="all-occurrences"
-                    name="task-context-attendance-all"
-                    label="&read.only.tentative.label;" value="TENTATIVE"/>
-          <menuitem id="task-context-menu-attend-declined-all-menuitem"
-                    type="radio"
-                    scope="all-occurrences"
-                    name="task-context-attendance-all"
-                    label="&read.only.decline.label;" value="DECLINED"/>
-          <menuitem id="task-context-menu-attend-needsaction-all-menuitem"
-                    type="radio"
-                    scope="all-occurrences"
-                    name="task-context-attendance-all"
-                    label="&read.only.needs.action.label;" value="NEEDS-ACTION"/>
+                    value="NEEDS-ACTION"/>
         </menupopup>
       </menu>
       <menuseparator id="task-context-menu-separator-filter"/>

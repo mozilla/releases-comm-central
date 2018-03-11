@@ -803,36 +803,46 @@ function removeCalendarCommandController() {
  * Handler function to set up the item context menu, depending on the given
  * items. Changes the delete menuitem to fit the passed items.
  *
- * @param event         The DOM popupshowing event that is triggered by opening
- *                        the context menu.
- * @param items         An array of items (usually the selected items) to adapt
- *                        the context menu for.
- * @return              True, to show the popup menu.
+ * @param  {DOMEvent}              aEvent   The DOM popupshowing event that is
+ *                                   triggered by opening the context menu
+ * @param  {Array.<calIItemBase>}  aItems   An array of items (usually the selected
+ *                                            items) to adapt the context menu for
+ * @return {Boolean}                        True, to show the popup menu.
  */
-function setupContextItemType(event, items) {
+function setupContextItemType(aEvent, aItems) {
     function adaptModificationMenuItem(aMenuItemId, aItemType) {
         let menuItem = document.getElementById(aMenuItemId);
         if (menuItem) {
-            menuItem.setAttribute("label", cal.calGetString("calendar", "delete" + aItemType + "Label"));
-            menuItem.setAttribute("accesskey", cal.calGetString("calendar", "delete" + aItemType + "Accesskey"));
+            menuItem.setAttribute(
+                "label",
+                cal.calGetString("calendar", `delete${aItemType}Label`)
+            );
+            menuItem.setAttribute(
+                "accesskey",
+                cal.calGetString("calendar", `delete${aItemType}Accesskey`)
+            );
         }
     }
-    if (items.some(cal.item.isEvent) && items.some(cal.item.isToDo)) {
-        event.target.setAttribute("type", "mixed");
-        adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Item");
-    } else if (items.length && cal.item.isEvent(items[0])) {
-        event.target.setAttribute("type", "event");
-        adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Event");
-    } else if (items.length && cal.item.isToDo(items[0])) {
-        event.target.setAttribute("type", "todo");
-        adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Task");
+    if (aItems.some(cal.item.isEvent) && aItems.some(cal.item.isToDo)) {
+        aEvent.target.setAttribute("type", "mixed");
+        adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem",
+                                  "Item");
+    } else if (aItems.length && cal.item.isEvent(aItems[0])) {
+        aEvent.target.setAttribute("type", "event");
+        adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem",
+                                  "Event");
+    } else if (aItems.length && cal.item.isToDo(aItems[0])) {
+        aEvent.target.setAttribute("type", "todo");
+        adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem",
+                                  "Task");
     } else {
-        event.target.removeAttribute("type");
-        adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Item");
+        aEvent.target.removeAttribute("type");
+        adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem",
+                                  "Item");
     }
 
     let menu = document.getElementById("calendar-item-context-menu-attendance-menu");
-    setupAttendanceMenu(menu, items);
+    setupAttendanceMenu(menu, aItems);
 
     return true;
 }

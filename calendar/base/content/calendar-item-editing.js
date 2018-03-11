@@ -710,44 +710,65 @@ function updateUndoRedoMenu() {
 
 /**
  * Updates the partstat of the calendar owner for specified items triggered by a
- * ontext menu operation
+ * context menu operation
  *
- * @param {String}  aPartStat     a valid partstat string as per RfC 5545
- * @param {String}  aScope        indicates the scope of anrecurring event - must
- *                                  be 'this-occurrence' || 'all-occurences'
- * @param {Array}   aItems        an array of calEvent or calIToDo items
- * @param {Object}  aExtResponse  [optional] an object to provide additional
- *                                  parameters for sending itip messages as response
- *                                  response
+ * For a documentation of the expected bahaviours for  different use cases of
+ * dealing with context menu partstat actions, see also setupAttendanceMenu(...)
+ * in calendar-ui-utils.js
+ *
+ * @param {EventTarget}  aTarget   the target of the triggering event
+ * @param {Array}        aItems    an array of calEvent or calIToDo items
  */
-function setContextPartstat(aPartStat, aScope, aItems, aExtResponse=null) {
+function setContextPartstat(aTarget, aItems) {
+    /**
+     * Provides the participation representing the user for a provided item
+     *
+     * @param   {calEvent|calTodo}  aItem  The calendar item to inspect
+     * @returns {?calIAttendee}            An calIAttendee object or null if no
+     *                                       participant was detected
+     */
+    function getParticipant(aItem) {
+        let party = null;
+        if (cal.isInvitation(aItem)) {
+            party = cal.getInvitedAttendee(aItem);
+        } else if (aItem.organizer && aItem.getAttendees({}).length) {
+            let calOrgId = aItem.calendar.getProperty("organizerId");
+            if (calOrgId.toLowerCase() == aItem.organizer.id.toLowerCase()) {
+                party = aItem.organizer;
+            }
+        }
+        return party;
+    }
+
     startBatchTransaction();
     try {
+        // TODO: make sure we overwrite the partstat of all occurrences in
+        // the selection, if the partstat of the respective master item is
+        // changed - see matrix in the doc block of setupAttendanceMenu(...)
+        // in calendar-ui-utils.js
+
         for (let oldItem of aItems) {
             // Skip this item if its calendar is read only.
             if (oldItem.calendar.readOnly) {
                 continue;
             }
-            if (aScope == "all-occurrences") {
+            if (aTarget.getAttribute("scope") == "all-occurrences") {
                 oldItem = oldItem.parentItem;
             }
-            let attendee = null;
-            if (cal.isInvitation(oldItem)) {
-                // Check for the invited attendee first, this is more important
-                attendee = cal.getInvitedAttendee(oldItem);
-            } else if (oldItem.organizer && oldItem.getAttendees({}).length) {
-                // Now check the organizer. This should be done last.
-                let calOrgId = oldItem.calendar.getProperty("organizerId");
-                if (calOrgId == oldItem.organizer.id) {
-                    attendee = oldItem.organizer;
-                }
-            }
-
+            let attendee = getParticipant(oldItem);
             if (attendee) {
+                // skip this item if the partstat for the participant hasn't
+                // changed. otherwise we would allways perfom updade operations
+                // for recurring events on both, the master and the occurrence
+                // item
+                let partStat = aTarget.getAttribute("respvalue");
+                if (attendee.participationStatus == partStat) {
+                    continue;
+                }
+
                 let newItem = oldItem.clone();
                 let newAttendee = attendee.clone();
-
-                newAttendee.participationStatus = aPartStat;
+                newAttendee.participationStatus = partStat;
                 if (newAttendee.isOrganizer) {
                     newItem.organizer = newAttendee;
                 } else {
@@ -755,11 +776,21 @@ function setContextPartstat(aPartStat, aScope, aItems, aExtResponse=null) {
                     newItem.addAttendee(newAttendee);
                 }
 
-                doTransaction("modify", newItem, newItem.calendar, oldItem, null, aExtResponse);
+                let extResponse = null;
+                if (aTarget.hasAttribute("respmode")) {
+                    let mode = aTarget.getAttribute("respmode");
+                    let itipMode = Ci.calIItipItem[mode];
+                    extResponse = { responseMode: itipMode };
+                }
+
+                doTransaction(
+                    "modify", newItem, newItem.calendar,
+                    oldItem, null, extResponse
+                );
             }
         }
     } catch (e) {
-        cal.ERROR("Error setting partstat: " + e);
+        cal.ERROR("Error setting partstat: " + e + "\r\n");
     } finally {
         endBatchTransaction();
     }

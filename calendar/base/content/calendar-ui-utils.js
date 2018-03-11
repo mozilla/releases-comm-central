@@ -612,43 +612,292 @@ function updateSelectedLabel(aElement) {
 /**
  * Sets up the attendance context menu, based on the given items
  *
- * @param aMenu     The DOM Node of the menupopup to set up
- * @param aItems    The array of items to consider
+ * @param {nsIDOMNode}  aMenu   The context menu item containing the required
+ *                                menu or menuitem elements
+ * @param {Array}       aItems  An array of the selecetd calEvent or calTodo
+ *                                items to display the context menu for
  */
 function setupAttendanceMenu(aMenu, aItems) {
-    function getInvStat(item) {
-        let attendee = null;
-        if (cal.isInvitation(item)) {
-            attendee = cal.getInvitedAttendee(item);
-        } else if (item.organizer) {
-            let calOrgId = item.calendar.getProperty("organizerId");
-            if (calOrgId == item.organizer.id && item.getAttendees({}).length) {
-                attendee = item.organizer;
+    /**
+     * For menu items in scope, a check mark will be annotated corresponding to
+     * the partstat and removed for all others
+     *
+     * The user always selected single items or occurrences of series but never
+     * the master event of a series. That said, for the items in aItems, one of
+     * following scenarios applies:
+     *
+     * A. one none-recurring item which have attendees
+     * B. multiple none-recurring items which have attendees
+     * C. one occurrence of a series which has attendees
+     * D. multiple occurrences of the same series which have attendees
+     * E. multiple occurrences of different series which have attendees
+     * F. mixture of non-recurring and occurrences of one or more series which
+     *    have attendees
+     * G. any mixture including a single item or an occurrence which doesn't
+     *    have any attendees
+     *
+     * For scenarios A and B, the user will be  prompted with a single set of
+     * available partstats and the according options to change it.
+     *
+     * For C, D and E the user was prompted with a set of partstats for both,
+     * the occurrence and the master. In case of E, no partstat information
+     * was annotated.
+     *
+     * For F, only a single set of available partstat options was prompted
+     * without annotating any partstat.
+     *
+     * For G, no context menu would be displayed, so we don't need to deal with
+     * that scenario here.
+     *
+     * Now the following matrix applies to take action of the users choice for
+     * the relevant participant (for columns, see explaination below):
+     * +---+------------------+-------------+--------+-----------------+
+     * | # |     SELECTED     |  DISPLAYED  | STATUS | MENU ACTION     |
+     * |   |    CAL ITEMS     |   SUBMENU   | PRESET | APPLIES ON      |
+     * +---+------------------+-------------+--------+-----------------+
+     * |   |                  |  this-occ*  |   yes  |  selected item  |
+     * | A |       one        +-------------+--------+-----------------+
+     * |   |   single item    |  all-occ    |           n/a            |
+     * |   |                  |             |   menu not displayed     |
+     * +---+------------------+-------------+--------+-----------------+
+     * |   |                  |  this-occ*  |   no   | selected items  |
+     * | B |      multiple    +-------------+--------+-----------------+
+     * |   |   single items   |  all-occ    |           n/a            |
+     * |   |                  |             |   menu not displayed     |
+     * +---+------------------+-------------+--------+-----------------+
+     * |   |                  |  this-occ   |   yes  |       sel.      |
+     * |   |      one         |             |        |   occurrences   |
+     * | C |   occurrence     +-------------+--------+-----------------+
+     * |   |   of a master    |  all-occ    |   yes  |  master of sel. |
+     * |   |                  |             |        |   occurrence    |
+     * +---+------------------+-------------+--------+-----------------+
+     * |   |                  |  this-occ   |   no   |       sel.      |
+     * |   |     multiple     |             |        |   occurrences   |
+     * | D |   occurrences    +-------------+--------+-----------------+
+     * |   |  of one master   |  all-occ    |   yes  |  master of sel. |
+     * |   |                  |             |        |   occurrences   |
+     * +---+------------------+-------------+--------+-----------------+
+     * |   |                  |  this-occ   |   no   |       sel.      |
+     * |   |     multiple     |             |        |   occurrences   |
+     * | E |  occurrences of  +-------------+--------+-----------------+
+     * |   | multiple masters |  all-occ    |   no   | masters of sel. |
+     * |   |                  |             |        |   occurrences   |
+     * +---+------------------+-------------+--------+-----------------+
+     * |   | multiple single  |  this-occ*  |   no   | selected items  |
+     * |   | and occurrences  |             |        | and occurrences |
+     * | F |   of multiple    +-------------+--------+-----------------+
+     * |   |     masters      |  all-occ    |           n/a            |
+     * |   |                  |             |   menu not displayed     |
+     * +---+------------------+-------------+--------------------------+
+     * |   | any combination  |                                        |
+     * | G | including at     |                  n/a                   |
+     * |   | least one items  |       no attendance menu displayed     |
+     * |   | or occurrence    |                                        |
+     * |   | w/o attendees    |                                        |
+     * +---+------------------+----------------------------------------+
+     *
+     * #:                      scenario as described above
+     * SELECTED CAL ITEMS:     item types the user selected to prompt the context
+     *                           menu for
+     * DISPLAYED SUBMENU:      the subbmenu displayed
+     * STATUS PRESET:          whether or not a partstat is annotated to the menu
+     *                           items, if the respective submenu is displayed
+     * MENU ACTION APPLIES ON: the cal item, the respective partstat should be
+     *                           applied on, if the respective submenu is
+     *                           displayed
+     *
+     * this-occ* means that in this cases the submenu label is not displayed -
+     * additionally, if status is not preset the menu item for 'NEEDS-ACTIONS'
+     * will not be displayed, if the status is already different (consistent
+     * how we deal with that case at other places)
+     *
+     * @param {nsIDOMNodeList}  aMenuItems    A list of DOM nodes
+     * @param {String}          aScope        Either 'this-occurrence' or
+     *                                          'all-occurrences'
+     * @param {String}          aPartStat     A valid participation status
+     *                                          as per RfC 5545
+     */
+    function checkMenuItem(aMenuItems, aScope, aPartStat) {
+        let toRemove = [];
+        let toAdd = [];
+        for (let item of aMenuItems) {
+            if (item.getAttribute("scope") == aScope &&
+                item.nodeName != "label") {
+                if (item.getAttribute("value") == aPartStat) {
+                    switch (item.nodeName) {
+                        case "menu": {
+                            // Since menu elements cannot have checkmarks,
+                            // we add a menuitem for this partstat and hide
+                            // the menu element instead
+                            let checkedId = "checked-" + item.getAttribute("id");
+                            if (!document.getElementById(checkedId)) {
+                                let checked = item.ownerDocument
+                                                  .createElement("menuitem");
+                                checked.setAttribute("type", "checkbox");
+                                checked.setAttribute("checked", "true");
+                                checked.setAttribute("label",
+                                                     item.getAttribute("label"));
+                                checked.setAttribute("value",
+                                                     item.getAttribute("value"));
+                                checked.setAttribute("scope",
+                                                     item.getAttribute("scope"));
+                                checked.setAttribute("id", checkedId);
+                                item.setAttribute("hidden", "true");
+                                toAdd.push([item, checked]);
+                            }
+                            break;
+                        }
+                        case "menuitem": {
+                            item.removeAttribute("hidden");
+                            item.setAttribute("checked", "true");
+                            break;
+                        }
+                    }
+                } else if (item.nodeName == "menuitem") {
+                    if (item.getAttribute("id").startsWith("checked-")) {
+                        // we inserted a menuitem before for this partstat, so
+                        // we revert that now
+                        let menu = document.getElementById(item.getAttribute("id")
+                                           .substr(8));
+                        menu.removeAttribute("hidden");
+                        toRemove.push(item);
+                    } else {
+                        item.removeAttribute("checked");
+                    }
+                } else if (item.nodeName == "menu") {
+                    item.removeAttribute("hidden");
+                }
             }
         }
-        return attendee && attendee.participationStatus;
+        for (let [item, checked] of toAdd) {
+            item.before(checked);
+        }
+        for (let item of toRemove) {
+            item.remove();
+        }
+    }
+
+    /**
+     * Hides the items from the provided node list. If a partstat is provided,
+     * only the matching item will be hidden
+     *
+     * @param {nsIDOMNodeList}  aMenuItems    A list of DOM nodes
+     * @param {String}          aPartStat     [optional] A valid participation
+     *                                          status as per RfC 5545
+     */
+    function hideItems(aNodeList, aPartStat=null) {
+        for (let item of aNodeList) {
+            if (aPartStat && aPartStat != item.getAttribute("value")) {
+                continue;
+            }
+            item.setAttribute("hidden", "true");
+        }
+    }
+
+    /**
+     * Provides the user's participation status for a provided item
+     *
+     * @param   {calEvent|calTodo}  aItem  The calendar item to inspect
+     * @returns {?String}                  The participation status string
+     *                                       as per RfC 5545 or null if no
+     *                                       participant was detected
+     */
+    function getInvitationStatus(aItem) {
+        let party = null;
+        if (cal.isInvitation(aItem)) {
+            party = cal.getInvitedAttendee(aItem);
+        } else if (aItem.organizer && aItem.getAttendees({}).length) {
+            let calOrgId = aItem.calendar.getProperty("organizerId");
+            if (calOrgId.toLowerCase() == aItem.organizer.id.toLowerCase()) {
+                party = aItem.organizer;
+            }
+        }
+        return party && (party.participationStatus || "NEEDS-ACTION");
     }
 
     goUpdateCommand("calendar_attendance_command");
 
-    let allSingle = aItems.every(x => !x.recurrenceId);
-    setElementValue(aMenu, allSingle ? "single" : "recurring", "itemType");
+    let singleMenuItems = aMenu.getElementsByAttribute(
+        "scope",
+        "this-occurrence"
+    );
+    let seriesMenuItems = aMenu.getElementsByAttribute(
+        "scope",
+        "all-occurrences"
+    );
+    let labels = aMenu.getElementsByAttribute(
+        "class",
+        "calendar-context-heading-label"
+    );
 
-    let firstStatusOccurrences = aItems.length && getInvStat(aItems[0]);
-    let firstStatusParents = aItems.length && getInvStat(aItems[0].parentItem);
-    let sameStatusOccurrences = aItems.every(x => getInvStat(x) == firstStatusOccurrences);
-    let sameStatusParents = aItems.every(x => getInvStat(x.parentItem) == firstStatusParents);
+    if (aItems.length == 1) {
+        // we offer options for both single and recurring items. In case of the
+        // latter and the item is an occurence, we offer status information and
+        // actions for both, the occurence and the series
+        let thisPartStat = getInvitationStatus(aItems[0]);
 
-    let occurrenceChildren = aMenu.getElementsByAttribute("value", firstStatusOccurrences);
-    let parentsChildren = aMenu.getElementsByAttribute("value", firstStatusParents);
+        if (aItems[0].recurrenceId) {
+            // we get the partstat - if this is null, no participant could
+            // be identified, so we bail out
+            let seriesPartStat = getInvitationStatus(aItems[0].parentItem);
+            if (seriesPartStat) {
+                // let's make sure we display the labels to distinguish series
+                // and occurrence
+                for (let label of labels) {
+                    label.removeAttribute("hidden");
+                }
 
-    if (sameStatusOccurrences && occurrenceChildren[0]) {
-        occurrenceChildren[0].setAttribute("checked", "true");
+                checkMenuItem(seriesMenuItems, "all-occurrences", seriesPartStat);
+
+                if (seriesPartStat != "NEEDS-ACTION") {
+                    hideItems(seriesMenuItems, "NEEDS-ACTION");
+                }
+                // until we support actively delegating items, we also only
+                // display this status if it is already set
+                if (seriesPartStat != "DELEGATED") {
+                    hideItems(seriesMenuItems, "DELEGATED");
+                }
+            } else {
+                hideItems(seriesMenuItems);
+            }
+        } else {
+            // here we don't need the all-occurrences scope, so let's hide all
+            // labels and related menu items
+            hideItems(labels);
+            hideItems(seriesMenuItems);
+        }
+
+        // also for the single occurrence we check whether there's a partstat
+        // available and bail out otherwise - we also make sure to not display
+        // the NEEDS-ACTION menu item if the current status is already different
+        if (thisPartStat) {
+            checkMenuItem(singleMenuItems, "this-occurrence", thisPartStat);
+            if (thisPartStat != "NEEDS-ACTION") {
+                hideItems(singleMenuItems, "NEEDS-ACTION");
+            }
+            // until we support actively delegating items, we also only display
+            // this status if it is already set (by another client or the server)
+            if (thisPartStat != "DELEGATED") {
+                hideItems(singleMenuItems, "DELEGATED");
+            }
+        } else {
+            // in this case, we hide the entire attendance menu
+            aMenu.setAttribute("hidden", "true");
+        }
+    } else if (aItems.length > 1) {
+        // the user displayed a context menu for multiple selected items.
+        // The selection might comprise single and recurring events, so we need
+        // to deal here with any combination thereof. To do so, we don't display
+        // a partstat control for the entire series but only for the selected
+        // occurrences. As we have a potential mixture of partstat, we also don't
+        // display the current status and no action towards NEEDS-ACTIONS.
+        hideItems(labels);
+        hideItems(seriesMenuItems);
+        hideItems(singleMenuItems, "NEEDS-ACTION");
+    } else {
+        // there seems to be no item passed in, so we don't display anything
+        hideItems(labels);
+        hideItems(seriesMenuItems);
+        hideItems(singleMenuItems);
     }
-
-    if (sameStatusParents && parentsChildren[1]) {
-        parentsChildren[1].setAttribute("checked", "true");
-    }
-
-    return true;
 }
