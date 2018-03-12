@@ -62,13 +62,12 @@ function LoadMessageByUri(uri)
         dump("fix this, get the nsIMsgDBHdr and the nsIMsgFolder from the uri...\n");
 /*
     var resource = RDF.GetResource(uri);
-    var message = resource.QueryInterface(Components.interfaces.nsIMessage);
+    var message = resource.QueryInterface(Ci.nsIMessage);
     if (message)
       setTitleFromFolder(message.msgFolder, message.mimef2DecodedSubject);
 
-    var nsIMsgFolder = Components.interfaces.nsIMsgFolder;
     if (message.msgFolder.server.downloadOnBiff)
-      message.msgFolder.biffState = nsIMsgFolder.nsMsgBiffState_NoMail;
+      message.msgFolder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
 */
 
     gCurrentDisplayedMessage = uri;

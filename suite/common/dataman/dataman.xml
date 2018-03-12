@@ -150,7 +150,7 @@
           <xul:radio anonid="permSetting-1" label="&perm.Allow;"
                      oncommand="document.getBindingParent(this).setCapability(Services.perms.ALLOW_ACTION);"/>
           <xul:radio anonid="permSetting-8" label="&perm.AllowSession;"
-                     oncommand="document.getBindingParent(this).setCapability(Components.interfaces.nsICookiePermission.ACCESS_SESSION);"/>
+                     oncommand="document.getBindingParent(this).setCapability(Ci.nsICookiePermission.ACCESS_SESSION);"/>
           <xul:radio anonid="permSetting-2" label="&perm.Block;"
                      oncommand="document.getBindingParent(this).setCapability(Services.perms.DENY_ACTION);"/>
         </xul:radiogroup>

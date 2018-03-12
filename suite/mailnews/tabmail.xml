@@ -227,8 +227,7 @@
       </destructor>
 
       <field name="mPrefs">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefBranch);
+        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
       </field>
 
       <field name="currentTabInfo">
@@ -1081,8 +1080,7 @@
       </destructor>
 
       <field name="mPrefs">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefBranch);
+        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
       </field>
 
       <field name="arrowScrollboxWidth">0</field>

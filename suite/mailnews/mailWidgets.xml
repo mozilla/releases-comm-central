@@ -771,8 +771,8 @@
         ]]>
       </field>
       <field name="filterService">
-        Components.classes["@mozilla.org/messenger/services/filters;1"]
-                  .getService(Components.interfaces.nsIMsgFilterService)
+        Cc["@mozilla.org/messenger/services/filters;1"]
+          .getService(Ci.nsIMsgFilterService);
       </field>
       <property name="searchScope" onget="return this.internalScope;">
         <!-- scope ID - retrieve the table -->
@@ -1071,7 +1071,7 @@
   <binding id="searchoperator" name="searchOperator"
            extends="chrome://messenger/content/mailWidgets.xml#search-menulist-abstract">
     <implementation>
-      <field name="searchAttribute">Components.interfaces.nsMsgSearchAttrib.Default</field>
+      <field name="searchAttribute">Ci.nsMsgSearchAttrib.Default</field>
       <field name="stringBundle">
         <![CDATA[
           Cc["@mozilla.org/intl/stringbundle;1"]
@@ -1207,8 +1207,8 @@
       <field name="internalAttribute">null</field>
       <field name="internalValue">null</field>
       <field name="filterService">
-        Components.classes["@mozilla.org/messenger/services/filters;1"]
-                  .getService(Components.interfaces.nsIMsgFilterService);
+        Cc["@mozilla.org/messenger/services/filters;1"]
+          .getService(Ci.nsIMsgFilterService);
       </field>
       <property name="opParentValue" onget="return this.internalOperator;">
         <setter>

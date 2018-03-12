@@ -205,7 +205,7 @@
     <!-- Tools Menu -->
     <command id="Browser:SearchInternet" oncommand="BrowserSearch.webSearch();"/>
     <command id="Tools:Sanitize"
-             oncommand="Components.classes['@mozilla.org/suite/suiteglue;1'].getService(Components.interfaces.nsISuiteGlue).sanitize(window);"/>
+             oncommand="Cc['@mozilla.org/suite/suiteglue;1'].getService(Ci.nsISuiteGlue).sanitize(window);"/>
 
   </commandset>
 

@@ -44,8 +44,8 @@
 
 <script type="application/javascript">
   // get vendor, dictionaries and release notes URLs from prefs
-  var formatter = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
-                            .getService(Components.interfaces.nsIURLFormatter);
+  var formatter = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
+                    .getService(Ci.nsIURLFormatter);
   var vendorURL = formatter.formatURLPref("app.vendorURL");
 
   if (vendorURL != "about:blank") {

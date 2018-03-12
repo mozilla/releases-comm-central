@@ -108,13 +108,13 @@
       <field name="searchButton">document.getAnonymousElementByAttribute(this,
           "anonid", "searchbar-engine-button");</field>
       <field name="_searchService">
-        Components.classes["@mozilla.org/browser/search-service;1"]
-                  .getService(Components.interfaces.nsIBrowserSearchService);
+        Cc["@mozilla.org/browser/search-service;1"]
+          .getService(Ci.nsIBrowserSearchService);
       </field>
       <field name="usePrivateBrowsing" readonly="true">
-        window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-              .getInterface(Components.interfaces.nsIWebNavigation)
-              .QueryInterface(Components.interfaces.nsILoadContext)
+        window.QueryInterface(Ci.nsIInterfaceRequestor)
+              .getInterface(Ci.nsIWebNavigation)
+              .QueryInterface(Ci.nsILoadContext)
               .usePrivateBrowsing
       </field>
       <field name="_addedObserver">false</field>
@@ -550,14 +550,13 @@
         } catch (ex) { }
       ]]></destructor>
       <field name="_prefBranch">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefBranch)
+        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
       </field>
       <field name="_inputBox">
         document.getAnonymousElementByAttribute(this, "anonid", "textbox-input-box");
       </field>
       <field name="_suggestEnabled">
-        this._prefBranch.getBoolPref("browser.search.suggest.enabled")
+        this._prefBranch.getBoolPref("browser.search.suggest.enabled");
       </field>
 
       <method name="observe">

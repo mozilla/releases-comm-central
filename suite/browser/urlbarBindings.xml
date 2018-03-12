@@ -70,9 +70,9 @@
       ]]></destructor>
 
       <field name="mPrefs">
-        var svc = Components.classes["@mozilla.org/preferences-service;1"]
-                            .getService(Components.interfaces.nsIPrefService);
-        svc.getBranch(null);
+        Cc["@mozilla.org/preferences-service;1"]
+          .getService(Ci.nsIPrefService);
+          .getBranch(null);
       </field>
 
       <field name="mPrefObserver"><![CDATA[
@@ -386,19 +386,18 @@
       </field>
 
       <field name="mPrefs">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefService)
-                  .getBranch(null);
+        Cc["@mozilla.org/preferences-service;1"]
+          .getService(Ci.nsIPrefService)
+          .getBranch(null);
       </field>
 
       <field name="mObSvc">
-        Components.classes["@mozilla.org/observer-service;1"]
-                  .getService(Components.interfaces.nsIObserverService);
+        Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
       </field>
 
       <field name="mSearchService">
-        Components.classes["@mozilla.org/browser/search-service;1"]
-                  .getService(Components.interfaces.nsIBrowserSearchService);
+        Cc["@mozilla.org/browser/search-service;1"]
+          .getService(Ci.nsIBrowserSearchService);
       </field>
 
       <field name="mObserver"><![CDATA[
@@ -575,8 +574,8 @@
       </field>
 
       <field name="mSearchService">
-        Components.classes["@mozilla.org/browser/search-service;1"]
-                  .getService(Components.interfaces.nsIBrowserSearchService);
+        Cc["@mozilla.org/browser/search-service;1"]
+          .getService(Ci.nsIBrowserSearchService);
       </field>
 
       <property name="activeChild"

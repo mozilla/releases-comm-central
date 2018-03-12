@@ -190,8 +190,8 @@
       </field>
 
       <field name="prefs" readonly="true">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefService).getBranch(null)
+        Cc["@mozilla.org/preferences-service;1"]
+          .getService(Ci.nsIPrefService).getBranch(null)
       </field>
 
       <method name="observe">

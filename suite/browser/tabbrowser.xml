@@ -98,29 +98,25 @@
     </content>
     <implementation implements="nsIObserver">
       <field name="mSessionStore" readonly="true">
-        Components.classes["@mozilla.org/suite/sessionstore;1"]
-                   .getService(Components.interfaces.nsISessionStore);
+        Cc["@mozilla.org/suite/sessionstore;1"].getService(Ci.nsISessionStore);
       </field>
       <field name="mPrefs" readonly="true">
-        Components.classes['@mozilla.org/preferences-service;1']
-                  .getService(Components.interfaces.nsIPrefBranch);
+        Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefBranch);
       </field>
       <field name="mURIFixup" readonly="true">
-        Components.classes["@mozilla.org/docshell/urifixup;1"]
-                  .getService(Components.interfaces.nsIURIFixup);
+        Cc["@mozilla.org/docshell/urifixup;1"].getService(Ci.nsIURIFixup);
       </field>
       <field name="mFaviconService" readonly="true">
-        Components.classes["@mozilla.org/browser/favicon-service;1"]
-                  .getService(Components.interfaces.nsIFaviconService)
-                  .QueryInterface(Components.interfaces.mozIAsyncFavicons);
+        Cc["@mozilla.org/browser/favicon-service;1"]
+          .getService(Ci.nsIFaviconService)
+          .QueryInterface(Ci.mozIAsyncFavicons);
       </field>
       <field name="mIOService" readonly="true">
-        Components.classes["@mozilla.org/network/io-service;1"]
-                  .getService(Components.interfaces.nsIIOService);
+        Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
       </field>
       <field name="mSecMan" readonly="true">
-        Components.classes["@mozilla.org/scriptsecuritymanager;1"]
-                  .getService(Components.interfaces.nsIScriptSecurityManager);
+        Cc["@mozilla.org/scriptsecuritymanager;1"]
+          .getService(Ci.nsIScriptSecurityManager);
       </field>
       <field name="mTabBox" readonly="true">
         document.getAnonymousElementByAttribute(this, "anonid", "tabbox");
@@ -165,10 +161,10 @@
         0
       </field>
       <field name="usePrivateBrowsing" readonly="true">
-        window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-              .getInterface(Components.interfaces.nsIWebNavigation)
-              .QueryInterface(Components.interfaces.nsILoadContext)
-              .usePrivateBrowsing
+        window.QueryInterface(Ci.nsIInterfaceRequestor)
+              .getInterface(Ci.nsIWebNavigation)
+              .QueryInterface(Ci.nsILoadContext)
+              .usePrivateBrowsing;
       </field>
       <field name="mContextTab">
         null
@@ -3343,8 +3339,7 @@
       </destructor>
 
       <field name="mPrefs" readonly="true">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefBranch);
+        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
       </field>
 
       <field name="arrowScrollboxWidth">0</field>
