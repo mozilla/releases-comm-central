@@ -1541,7 +1541,7 @@
            break;
 
          case "status-text-changed":
-           this._statusText = aData;
+           this._statusText = aData || "";
            this.displayStatusText();
            break;
 
