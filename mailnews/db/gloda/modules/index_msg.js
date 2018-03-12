@@ -32,7 +32,7 @@ ChromeUtils.import("resource:///modules/gloda/indexer.js");
 
 ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
-// Components.results does not have mailnews error codes!
+// Cr does not have mailnews error codes!
 var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;
 
 var GLODA_MESSAGE_ID_PROPERTY = "gloda-id";

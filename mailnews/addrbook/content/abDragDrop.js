@@ -170,8 +170,7 @@ var abDirTreeObserver = {
     //
     // If target directory is a mailing list, then only allow copies.
     //    if (targetDirectory.isMailList &&
-    //   dragSession.dragAction != Components.interfaces.
-    //                             nsIDragService.DRAGDROP_ACTION_COPY)
+    //   dragSession.dragAction != Ci.nsIDragService.DRAGDROP_ACTION_COPY)
     //return false;
 
     var srcDirectory = GetDirectoryFromURI(srcURI);

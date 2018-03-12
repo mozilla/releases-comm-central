@@ -40,8 +40,8 @@ httpRequestObserver.prototype = {
       return;
 
     if (!(aSubject instanceof Ci.nsIHttpChannel)) {
-      Component.utils.reportError("Failed to get a nsIHttpChannel when "
-                                  + "observing http-on-examine-response");
+      Cu.reportError("Failed to get a nsIHttpChannel when "
+                     + "observing http-on-examine-response");
       return;
     }
 

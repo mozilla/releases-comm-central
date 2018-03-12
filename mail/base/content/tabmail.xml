@@ -1808,13 +1808,14 @@
         document.getElementById(this.getAttribute("collapsetoolbar"));
       </field>
 
-     <field name="_prefObserver">({
+      <field name="_prefObserver"><![CDATA[
+        ({
         tabbox: this,
 
         observe: function(subject, topic, data)
         {
           if (topic == "nsPref:changed") {
-            subject.QueryInterface(Components.interfaces.nsIPrefBranch);
+            subject.QueryInterface(Ci.nsIPrefBranch);
             switch (data) {
             case "mail.tabs.closeButtons":
               this.tabbox.mCloseButtons = subject.getIntPref("mail.tabs.closeButtons");
@@ -1829,18 +1830,17 @@
 
         QueryInterface: function(aIID)
         {
-          if (aIID.equals(Components.interfaces.nsIObserver) ||
-              aIID.equals(Components.interfaces.nsISupports))
+          if (aIID.equals(Ci.nsIObserver) || aIID.equals(Ci.nsISupports))
             return this;
-          throw Components.results.NS_NOINTERFACE;
+          throw Cr.NS_NOINTERFACE;
         }
         });
+        ]]>
       </field>
 
       <field name="_tabDropIndicator">
-        document.getAnonymousElementByAttribute(
-            this,
-            "anonid", "tab-drop-indicator");
+        document.getAnonymousElementByAttribute(this, "anonid",
+                                                "tab-drop-indicator");
       </field>
 
       <field name="_dragOverDelay">350</field>

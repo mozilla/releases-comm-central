@@ -68,7 +68,7 @@
 
           this.glodaCompleter =
             Cc["@mozilla.org/autocomplete/search;1?name=gloda"]
-              .getService()
+              .getService(Ci.nsIAutoCompleteSearch)
               .wrappedJSObject;
           Services.obs.addObserver(this, "autocomplete-did-enter-text");
 
@@ -101,7 +101,7 @@
           ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           if (topic == "nsPref:changed") {
-            subject.QueryInterface(Components.interfaces.nsIPrefBranch);
+            subject.QueryInterface(Ci.nsIPrefBranch);
             switch (data) {
             case "mailnews.database.global.indexer.enabled":
               this.inputSearch.glodaEnabled =
@@ -115,10 +115,9 @@
 
         QueryInterface: function(aIID)
         {
-          if (aIID.equals(Components.interfaces.nsIObserver) ||
-              aIID.equals(Components.interfaces.nsISupports))
+          if (aIID.equals(Ci.nsIObserver) || aIID.equals(Ci.nsISupports))
             return this;
-          throw Components.results.NS_NOINTERFACE;
+          throw Cr.NS_NOINTERFACE;
         }
         });
       </field>

@@ -293,7 +293,7 @@ function initializeFilterTypeSelector()
 
     /**
      * Returns the currently set filter type (checkboxes) in terms
-     * of a Components.interfaces.nsMsgFilterType value.
+     * of a Ci.nsMsgFilterType value.
      */
     getType: function()
     {
@@ -328,7 +328,7 @@ function initializeFilterTypeSelector()
      * Sets the checkboxes to represent the filter type passed in.
      *
      * @param aType  the filter type to set in terms
-     *               of Components.interfaces.nsMsgFilterType values.
+     *               of Ci.nsMsgFilterType values.
      */
     setType: function(aType)
     {

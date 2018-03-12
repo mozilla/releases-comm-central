@@ -100,7 +100,7 @@
       <field name="_webNavigation">null</field>
 
       <property name="webNavigation"
-                onget="return this._webNavigation || (this._webNavigation = this.docShell.QueryInterface(Components.interfaces.nsIWebNavigation));"
+                onget="return this._webNavigation || (this._webNavigation = this.docShell.QueryInterface(Ci.nsIWebNavigation));"
                 readonly="true"/>
 
       <field name="_finder">null</field>
@@ -144,13 +144,13 @@
 
       <property name="webProgress"
                 readonly="true"
-                onget="return this.docShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebProgress);"/>
+                onget="return this.docShell.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebProgress);"/>
 
       <field name="_contentWindow">null</field>
 
       <property name="contentWindow"
                 readonly="true"
-                onget="return this._contentWindow || (this._contentWindow = this.docShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow));"/>
+                onget="return this._contentWindow || (this._contentWindow = this.docShell.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindow));"/>
 
       <property name="contentWindowAsCPOW"
                 readonly="true"
@@ -1303,10 +1303,10 @@
       </handler>
 
       <handler event="keypress" modifiers="shift" keycode="VK_PAGE_UP"
-               action="this.docShell.QueryInterface(Components.interfaces.nsITextScroll).scrollByPages(-1);"/>
+               action="this.docShell.QueryInterface(Ci.nsITextScroll).scrollByPages(-1);"/>
 
       <handler event="keypress" modifiers="shift" keycode="VK_PAGE_DOWN"
-               action="this.docShell.QueryInterface(Components.interfaces.nsITextScroll).scrollByPages(1);"/>
+               action="this.docShell.QueryInterface(Ci.nsITextScroll).scrollByPages(1);"/>
 
       <handler event="keypress" modifiers="alt" keycode="VK_PAGE_UP"
                action="this.scrollToPreviousSection();"/>

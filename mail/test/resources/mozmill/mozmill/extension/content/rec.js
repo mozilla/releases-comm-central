@@ -282,8 +282,7 @@ RecorderConnector.prototype.on = function() {
   }
 
   var observerService =
-    Components.classes["@mozilla.org/observer-service;1"]
-      .getService(Components.interfaces.nsIObserverService);
+    Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
 
   //Attach the new window open listener
   observerService.addObserver(this.observer, "toplevel-window-ready", false);
@@ -309,8 +308,7 @@ RecorderConnector.prototype.off = function() {
   currentRecorderArray = [];
   //remove new window listener
   var observerService =
-    Components.classes["@mozilla.org/observer-service;1"]
-      .getService(Components.interfaces.nsIObserverService);
+    Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
   try { observerService.removeObserver(this.observer, "toplevel-window-ready"); }
   catch(err){}
 };

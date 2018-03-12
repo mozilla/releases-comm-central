@@ -673,7 +673,7 @@ function ConsoleAppender(formatter) {
 ConsoleAppender.prototype = {
   __proto__: Appender.prototype,
 
-  // override to send Error and higher level messages to Components.utils.reportError()
+  // override to send Error and higher level messages to Cu.reportError()
   append: function CApp_append(message) {
     let stringMessage = this._formatter.format(message);
     if (message.level > Log4Moz.Level.Warn) {

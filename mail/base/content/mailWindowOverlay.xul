@@ -2281,9 +2281,9 @@
               label="&copyCmd.label;"
               accesskey="&copyCmd.accesskey;"
               tooltiptext="&copyCmd.label;"
-              oncommand="Components.classes['@mozilla.org/widget/clipboardhelper;1']
-                         .getService(Components.interfaces.nsIClipboardHelper)
-                         .copyString(window.getSelection().isCollapsed ?
+              oncommand="Cc['@mozilla.org/widget/clipboardhelper;1']
+                           .getService(Ci.nsIClipboardHelper)
+                           .copyString(window.getSelection().isCollapsed ?
                              document.popupNode.textContent :
                              window.getSelection().toString());"/>
     <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"

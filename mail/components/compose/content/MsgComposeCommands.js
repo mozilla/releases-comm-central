@@ -5501,7 +5501,7 @@ nsAttachmentOpener.prototype =
       request.URI = request.URI.mutate().setQuery(newQuery).finalize();
     }
     let newHandler = Cc["@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"]
-                       .createInstance(Components.interfaces.nsIContentHandler);
+                       .createInstance(Ci.nsIContentHandler);
     newHandler.handleContent("application/x-message-display", this, request);
     return true;
   },

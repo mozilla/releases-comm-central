@@ -1677,7 +1677,7 @@
   <binding id="searchoperator" name="searchOperator"
            extends="chrome://messenger/content/mailWidgets.xml#search-menulist-abstract">
     <implementation>
-      <field name="searchAttribute">Components.interfaces.nsMsgSearchAttrib.Default</field>
+      <field name="searchAttribute">Ci.nsMsgSearchAttrib.Default</field>
       <field name="stringBundle">
         <![CDATA[
           this.Services.strings.createBundle("chrome://messenger/locale/search-operators.properties")

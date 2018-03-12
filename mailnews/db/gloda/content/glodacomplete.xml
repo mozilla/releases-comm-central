@@ -29,18 +29,18 @@
             var trimmedSearchString = controller.searchString.trim();
 
             // Unescape the URI spec for showing as an entry in the popup
-            let url = Cc["@mozilla.org/intl/texttosuburi;1"].
-              getService(Ci.nsITextToSubURI).
-              unEscapeURIForUI("UTF-8", controller.getValueAt(this._currentIndex));
+            let url = Cc["@mozilla.org/intl/texttosuburi;1"]
+                        .getService(Ci.nsITextToSubURI)
+                        .unEscapeURIForUI("UTF-8", controller.getValueAt(this._currentIndex));
 
             // Unlike our superclass, we create nodes every time because we have
             //  heterogeneous results and we cannot rely on the XBL bindings to
             //  to change fast enough.
             item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "richlistitem");
 
-            var glodaCompleter =  Cc["@mozilla.org/autocomplete/search;1?name=gloda"].
-              getService(). //Components.interfaces.nsIAutoCompleteSearch)
-              wrappedJSObject;
+            let glodaCompleter = Cc["@mozilla.org/autocomplete/search;1?name=gloda"]
+                                   .getService(Ci.nsIAutoCompleteSearch)
+                                   .wrappedJSObject;
             var result = glodaCompleter.curResult;
 
             // set these attributes before we set the class
@@ -62,7 +62,7 @@
 
           // yield after each batch of items so that typing the url bar is responsive
           setTimeout(() => this._appendCurrentResult(), 0);
-        ]]>
+          ]]>
         </body>
       </method>
       <method name="_invalidate">

@@ -82,19 +82,16 @@
       </method>
 
       <field name="service">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefService);
+        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
       </field>
       <field name="rootBranch">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefBranch);
+        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
       </field>
       <field name="defaultBranch">
         this.service.getDefaultBranch("");
       </field>
       <field name="rootBranchInternal">
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefBranch);
+        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
       </field>
       <property name="type" readonly="true">
         <getter>

@@ -82,7 +82,7 @@ interface nsIMsgCloudFileProvider : nsISupports {
    * with an http status. Generally, status between 200 and 300 is OK,
    * otherwise, an error occurred which is * probably specific to the provider.
    * If the request fails completely, onStopRequest will get called with
-   * Components.results.NS_ERROR_FAILURE
+   * Cr.NS_ERROR_FAILURE
    * @throws nsIMsgCloudFileProvider.offlineErr if we are offline.
    */
   void createNewAccount(in ACString aEmailAddress, in ACString aPassword,

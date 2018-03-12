@@ -52,7 +52,7 @@ settings_env = 'JSBRIDGE_SETTINGS_FILE'
 parent = os.path.abspath(os.path.dirname(__file__))
 extension_path = os.path.join(parent, 'extension')
 
-window_string = "Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator).getMostRecentWindow('')"
+window_string = "Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator).getMostRecentWindow('')"
 
 wait_to_create_timeout = 60
 
@@ -176,11 +176,4 @@ def cli():
     CLI().run()
 
 def getBrowserWindow(bridge):
-    return JSObject(bridge, "Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator).getMostRecentWindow('')")
-    
-
-
-
-
-
-
+    return JSObject(bridge, "Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator).getMostRecentWindow('')")
