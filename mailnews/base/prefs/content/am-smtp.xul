@@ -29,6 +29,7 @@
       <listbox id="smtpList"
                onselect="gSmtpServerListWindow.onSelectionChanged(event);"
                ondblclick="gSmtpServerListWindow.onEditServer(event);"
+               seltype="single"
                flex="1"/>
 
       <vbox>
