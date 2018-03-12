@@ -37,3 +37,5 @@
 <!ENTITY pref.numberofweeks.4 "4 weeks">
 <!ENTITY pref.numberofweeks.5 "5 weeks">
 <!ENTITY pref.numberofweeks.6 "6 weeks">
+<!ENTITY pref.showlocation.label "Show location">
+<!ENTITY pref.showlocation.accesskey "L">

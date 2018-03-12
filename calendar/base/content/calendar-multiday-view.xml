@@ -2261,12 +2261,14 @@
                 <xul:image anonid="item-icon"
                            class="calendar-item-image"
                            xbl:inherits="progress,allday,itemType,todoType"/>
-                <xul:description anonid="event-name" class="calendar-event-details-core" flex="1"/>
-                <xul:textbox anonid="event-name-textbox"
-                             class="plain calendar-event-details-core calendar-event-name-textbox"
-                             flex="1"
-                             hidden="true"
-                             wrap="true"/>
+                <xul:vbox flex="1">
+                  <xul:label anonid="event-name" class="calendar-event-details-core title-desc" crop="end"/>
+                  <xul:textbox anonid="event-name-textbox"
+                               class="plain calendar-event-details-core calendar-event-name-textbox"
+                               hidden="true"
+                               wrap="true"/>
+                  <xul:label anonid="event-location" class="calendar-event-details-core location-desc" crop="end"/>
+                </xul:vbox>
               </xul:hbox>
               <xul:stack mousethrough="always">
                 <xul:calendar-category-box anonid="category-box" xbl:inherits="categories" pack="end" />

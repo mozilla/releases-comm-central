@@ -69,6 +69,9 @@
             <preference id="calendar.previousweeks.inview"
                         name="calendar.previousweeks.inview"
                         type="int"/>
+            <preference id="calendar.view.showLocation"
+                        name="calendar.view.showLocation"
+                        type="bool"/>
         </preferences>
 
         <groupbox>
@@ -264,6 +267,12 @@
                                 <menuitem id="timeEnd24" label="&time.midnight;" value="24"/>
                             </menupopup>
                         </menulist>
+                    </row>
+                    <row align="center">
+                        <checkbox id="showLocation" pack="end"
+                                  label="&pref.showlocation.label;"
+                                  preference="calendar.view.showLocation"/>
+                        <spacer/>
                     </row>
                 </rows>
             </grid>

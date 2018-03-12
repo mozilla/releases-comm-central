@@ -643,6 +643,7 @@
                     this.weekStartOffset = aSubject.getIntPref(aPreference);
                     break;
                 case "calendar.date.format":
+                case "calendar.view.showLocation":
                     this.refreshView();
                     break;
                 default:

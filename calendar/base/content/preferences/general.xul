@@ -68,7 +68,8 @@
 
         <groupbox>
             <caption label="&pref.mainbox.label;"/>
-            <hbox align="center">
+            <vbox align="left">
+              <hbox align="center">
                 <label value="&pref.dateformat.label;"
                        accesskey="&pref.dateformat.accesskey;"
                        control="dateformat"/>
@@ -83,7 +84,8 @@
                                   value="1"/>
                     </menupopup>
                 </menulist>
-            </hbox>
+              </hbox>
+            </vbox>
         </groupbox>
 
         <groupbox>

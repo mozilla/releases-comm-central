@@ -501,7 +501,15 @@ calendar-time-bar[orient="horizontal"] {
 }
 
 /** End time bar **/
-
+.calendar-event-details-core.title-desc,
+.calendar-event-details-core.location-desc {
+    font-weight: normal;
+}
+.calendar-event-details-core.location-desc {
+    opacity: 0.5;
+    margin: 0;
+    white-space: pre;
+}
 calendar-multiday-view {
     background-color: var(--viewBackground);
     padding: 0px;

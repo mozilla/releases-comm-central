@@ -25,19 +25,16 @@
                          flex="1"
                          xbl:inherits="readonly,flashing,alarm,allday,priority,progress,status,calendar,categories">
                 <xul:hbox class="calendar-event-details">
-                  <xul:vbox align="left"
-                            flex="1"
-                            xbl:inherits="context">
-                    <xul:label anonid="event-name"
-                               crop="end"
-                               flex="1"
-                               style="margin: 0;"/>
+                  <xul:vbox align="left" flex="1" xbl:inherits="context">
+                    <xul:label anonid="event-name" crop="end" style="margin: 0;"/>
                     <xul:textbox anonid="event-name-textbox"
-                                 class="plain"
-                                 crop="end"
+                                 class="calendar-event-details-core title-desc"
                                  hidden="true"
                                  style="background: transparent !important;"
                                  wrap="true"/>
+                    <xul:label anonid="event-location"
+                               crop="end"
+                               class="calendar-event-details-core location-desc"/>
                     <xul:spacer flex="1"/>
                   </xul:vbox>
                   <xul:stack>
@@ -134,6 +131,7 @@
         <setter><![CDATA[
             this.mOccurrence = val;
             this.setEditableLabel();
+            this.setLocationLabel();
             this.setCSSClasses();
             return val;
         ]]></setter>
@@ -150,6 +148,17 @@
             let item = this.mOccurrence;
             evl.value = (item.title ? item.title.replace(/\n/g, " ")
                                     : cal.calGetString("calendar", "eventUntitled"));
+        ]]></body>
+      </method>
+
+      <method name="setLocationLabel">
+        <body><![CDATA[
+            let locationLabel = document.getAnonymousElementByAttribute(this, "anonid", "event-location");
+            let location = this.mOccurrence.getProperty("LOCATION");
+            let showLocation = Preferences.get("calendar.view.showLocation", false);
+
+            locationLabel.value = showLocation && location ? location : "";
+            setBooleanAttribute(locationLabel, "hidden", !showLocation || !location);
         ]]></body>
       </method>
 
