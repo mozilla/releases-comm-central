@@ -66,7 +66,7 @@ DevToolsStartup.prototype = {
     if (!DebuggerServer.initialized) {
       // Initialize and load the toolkit/browser actors
       DebuggerServer.init();
-      DebuggerServer.addBrowserActors("mail:3pane");
+      DebuggerServer.registerActors({ browser: true, root: true, tab: true, windowType: "mail:3pane" });
     }
 
     if (!DebuggerServer.createRootActor.isMailRootActor) {
