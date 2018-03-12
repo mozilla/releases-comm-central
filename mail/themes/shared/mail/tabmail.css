@@ -8,7 +8,7 @@
 }
 
 #tabs-toolbar:-moz-lwtheme {
-  --tab-line-color: var(--lwt-accent-color);
+  --tabline-color: var(--tab-line-color, var(--lwt-accent-color));
 }
 
 #tabs-toolbar {
@@ -133,7 +133,7 @@
 }
 
 .tab-line[selected=true] {
-  background-color: var(--tab-line-color);
+  background-color: var(--tabline-color);
 }
 
 /*

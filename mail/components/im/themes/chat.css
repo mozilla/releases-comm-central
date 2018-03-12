@@ -129,7 +129,7 @@ imcontact > .box-line {
 }
 
 .box-line[selected=true] {
-  background-color: var(--tab-line-color);
+  background-color: var(--tabline-color);
 }
 
 :-moz-any(imconv, imcontact, imgroup):not([selected=true]):hover {
