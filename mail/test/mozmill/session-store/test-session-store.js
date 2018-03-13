@@ -262,6 +262,7 @@ function test_message_pane_height_persistence() {
   abwc.window.close();
   wait_for_window_close();
 }
+test_message_pane_height_persistence.EXCLUDED_PLATFORMS = ["darwin"];  // See bug 1444045.
 
 function test_message_pane_width_persistence() {
   be_in_folder(folderA);
