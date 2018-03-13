@@ -19,7 +19,6 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgThread.h"
 #include "DateTimeFormat.h"
-#include "nsIDOMElement.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIWeakReference.h"
 #include "nsIMsgFilterPlugin.h"

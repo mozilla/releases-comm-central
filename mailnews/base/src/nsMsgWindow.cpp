@@ -8,7 +8,6 @@
 #include "nsCURILoader.h"
 #include "nsIDocShell.h"
 #include "nsIDocShellTreeItem.h"
-#include "nsIDOMElement.h"
 #include "mozIDOMWindow.h"
 #include "nsTransactionManagerCID.h"
 #include "nsIComponentManager.h"

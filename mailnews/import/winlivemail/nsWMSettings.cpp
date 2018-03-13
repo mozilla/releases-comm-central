@@ -36,10 +36,8 @@
 #include "nsIMutableArray.h"
 #include "nsIDOMDocument.h"
 #include "nsNetUtil.h"
-#include "nsIDOMNodeList.h"
 #include "nsIFileStreams.h"
 #include "nsIDOMParser.h"
-#include "nsIDOMElement.h"
 #include "nsTArray.h"
 #include <windows.h>
 #include "nsIWindowsRegKey.h"

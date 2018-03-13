@@ -6,8 +6,6 @@
 #include "nsMsgCompose.h"
 #include "nsIDOMDocument.h"
 #include "nsIDOMNode.h"
-#include "nsIDOMNodeList.h"
-#include "nsIDOMText.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
 #include "nsISelectionController.h"

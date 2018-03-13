@@ -20,7 +20,6 @@
 #include "nsImapCore.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgLocalMailFolder.h"
-#include "nsIDOMElement.h"
 #include "nsMsgMimeCID.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"

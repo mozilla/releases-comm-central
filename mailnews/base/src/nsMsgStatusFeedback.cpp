@@ -9,7 +9,6 @@
 #include "nsIXULBrowserWindow.h"
 #include "nsMsgStatusFeedback.h"
 #include "nsIDocument.h"
-#include "nsIDOMElement.h"
 #include "nsIDocShell.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIChannel.h"

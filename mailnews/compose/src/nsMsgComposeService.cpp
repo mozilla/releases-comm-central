@@ -23,7 +23,6 @@
 #include "nsPIDOMWindow.h"
 #include "nsIDOMDocument.h"
 #include "nsIDocument.h"
-#include "nsIDOMElement.h"
 #include "nsIXULWindow.h"
 #include "nsIWindowMediator.h"
 #include "nsIDocShellTreeItem.h"

@@ -15,7 +15,6 @@
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
 #include "nsIDocument.h"
-#include "nsIDOMElement.h"
 #include "nsIObserverService.h"
 #include "nsIAppStartup.h"
 #include "nsToolkitCompsCID.h"
