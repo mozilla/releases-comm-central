@@ -22,6 +22,7 @@
 #include "nntpCore.h"
 #include "nsIWindowWatcher.h"
 #include "nsITreeColumns.h"
+#include "nsIDOMElement.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgI18N.h"
 #include "nsUnicharUtils.h"
