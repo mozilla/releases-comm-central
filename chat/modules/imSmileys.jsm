@@ -210,7 +210,8 @@ function smileNode(aNode)
         node.namespaceURI == "http://www.w3.org/1999/xhtml") {
       // we are on a tag, recurse to process its children
       smileNode(node);
-    } else if (node instanceof Ci.nsIDOMText) {
+    } else if (node.nodeType == node.TEXT_NODE ||
+               node.nodeType == node.CDATA_SECTION_NODE) {
       // we are on a text node, process it
       smileTextNode(node);
     }

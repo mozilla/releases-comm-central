@@ -340,7 +340,8 @@ function cleanupNode(aNode, aRules, aTextModifiers)
           // If we are processing nodes created by one of the previous
           // text modifier function, some of the nodes are likely not
           // text node, skip them.
-          if (!(textNode instanceof Ci.nsIDOMText))
+          if (textNode.nodeType != textNode.TEXT_NODE &&
+              textNode.nodeType != textNode.CDATA_SECTION_NODE)
             continue;
 
           let result = modifier(textNode);
