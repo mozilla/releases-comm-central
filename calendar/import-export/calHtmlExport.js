@@ -68,7 +68,8 @@ calHtmlExporter.prototype = {
                     itemNode.querySelector("." + classKey).textContent = propValue;
                 } else {
                     let row = itemNode.querySelector("." + classKey + "row");
-                    if (row.nextSibling instanceof Components.interfaces.nsIDOMText) {
+                    if (row.nextSibling.nodeType == row.nextSibling.TEXT_NODE ||
+                        row.nextSibling.nodeType == row.nextSibling.CDATA_SECTION_NODE) {
                         row.nextSibling.remove();
                     }
                     row.remove();
@@ -89,7 +90,8 @@ calHtmlExporter.prototype = {
             } else {
                 let row = itemNode.querySelector(".intervalrow");
                 row.remove();
-                if (row.nextSibling instanceof Components.interfaces.nsIDOMText) {
+                if (row.nextSibling.nodeType == row.nextSibling.TEXT_NODE ||
+                    row.nextSibling.nodeType == row.nextSibling.CDATA_SECTION_NODE) {
                     row.nextSibling.remove();
                 }
             }

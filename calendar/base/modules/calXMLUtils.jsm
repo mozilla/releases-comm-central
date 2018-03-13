@@ -59,7 +59,8 @@ cal.xml.evalXPath = function(aNode, aExpr, aResolver, aType) {
         case XPR.ORDERED_NODE_ITERATOR_TYPE:
             returnResult = [];
             while ((next = result.iterateNext())) {
-                if (next instanceof Components.interfaces.nsIDOMText) {
+                if (next.nodeType == next.TEXT_NODE ||
+                    next.nodeType == next.CDATA_SECTION_NODE) {
                     returnResult.push(next.wholeText);
                 } else if (ChromeUtils.getClassName(next) === "Attr") {
                     returnResult.push(next.value);
@@ -73,7 +74,8 @@ cal.xml.evalXPath = function(aNode, aExpr, aResolver, aType) {
             returnResult = [];
             for (let i = 0; i < result.snapshotLength; i++) {
                 next = result.snapshotItem(i);
-                if (next instanceof Components.interfaces.nsIDOMText) {
+                if (next.nodeType == next.TEXT_NODE ||
+                    next.nodeType == next.CDATA_SECTION_NODE) {
                     returnResult.push(next.wholeText);
                 } else if (ChromeUtils.getClassName(next) === "Attr") {
                     returnResult.push(next.value);
