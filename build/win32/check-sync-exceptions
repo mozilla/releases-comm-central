@@ -1,2 +1,0 @@
-# We can't use VS 2017 on buildbot.
-mozconfig.vs-latest
