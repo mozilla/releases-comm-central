@@ -509,7 +509,8 @@ SuiteGlue.prototype = {
 
         // Sadly we still need to clear the database manually. Experiments
         // showed that the permissions manager deletes only one record.
-        db.beginTransactionAs(Ci.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
+        db.defaultTransactionType = Ci.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
+        db.beginTransaction();
 
         try {
           db.executeSimpleSQL("delete from moz_perms where " +

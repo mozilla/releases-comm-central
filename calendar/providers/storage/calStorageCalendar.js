@@ -231,7 +231,8 @@ calStorageCalendar.prototype = {
                 }
                 try {
                     // hold lock on storage.sdb until we've migrated data from storage.sdb:
-                    this.mDB.beginTransactionAs(Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
+                    this.mDB.defaultTransactionType = Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
+                    this.mDB.beginTransaction();
                     try {
                         if (this.mDB.tableExists("cal_events")) { // check again (with lock)
                             // take over data and drop from storage.sdb tables:
@@ -272,7 +273,8 @@ calStorageCalendar.prototype = {
             // WARNING: This is a somewhat fragile process. Great care should be
             // taken during future schema upgrades to make sure this still
             // works.
-            this.mDB.beginTransactionAs(Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
+            this.mDB.defaultTransactionType = Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
+            this.mDB.beginTransaction();
             try {
                 /**
                  * Helper function to migrate all tables from one id to the next

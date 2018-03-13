@@ -345,8 +345,8 @@ var MailMigrator = {
 
           // Sadly we still need to clear the database manually. Experiments
           // showed that the permissions manager deleted only one record.
-          db.beginTransactionAs(Ci.mozIStorageConnection
-                                  .TRANSACTION_EXCLUSIVE);
+          db.defaultTransactionType = Ci.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
+          db.beginTransaction();
           try {
             db.executeSimpleSQL("delete from moz_perms where " +
               "substr(origin, 1, 28)='chrome://messenger/content/?';");

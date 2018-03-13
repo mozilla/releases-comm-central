@@ -323,7 +323,8 @@ calCalendarManager.prototype = {
         storageSdb.append("storage.sdb");
         let db = Services.storage.openDatabase(storageSdb);
 
-        db.beginTransactionAs(Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
+        db.defaultTransactionType = Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
+        db.beginTransaction();
         try {
             if (db.tableExists("cal_calendars_prefs")) {
                 // Check if we need to upgrade:
