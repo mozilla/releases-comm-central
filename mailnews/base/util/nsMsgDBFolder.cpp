@@ -3570,7 +3570,8 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettiestName(nsAString& name)
       nsCOMPtr<nsIScriptError> e = do_CreateInstance(NS_SCRIPTERROR_CONTRACTID);
       if (e && NS_SUCCEEDED(e->Init(NS_ConvertUTF8toUTF16(msg), EmptyString(),
                                     EmptyString(), 0, 0,
-                                    nsIScriptError::warningFlag, "mailnews"))) {
+                                    nsIScriptError::warningFlag, "mailnews",
+                                    false))) {
         cs->LogMessage(e);
       }
     }
