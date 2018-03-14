@@ -1485,8 +1485,8 @@ var FeedUtils = {
  * browser or app that provides a less nice dataTransfer object in the event.
  * Extract the url and if it passes the scheme test, try to subscribe.
  *
- * @param  nsIDOMDataTransfer aDataTransfer  - the dnd event's dataTransfer.
- * @return nsIURI uri                        - a uri if valid, null if none.
+ * @param  nsISupports aDataTransfer  - the dnd event's dataTransfer.
+ * @return nsIURI uri                 - a uri if valid, null if none.
  */
   getFeedUriFromDataTransfer: function(aDataTransfer) {
     let dt = aDataTransfer;

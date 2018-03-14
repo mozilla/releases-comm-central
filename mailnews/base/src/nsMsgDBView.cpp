@@ -8562,7 +8562,7 @@ nsMsgDBView::GetImapDeleteModel(nsIMsgFolder *folder)
 NS_IMETHODIMP
 nsMsgDBView::CanDrop(int32_t index,
                      int32_t orient,
-                     nsIDOMDataTransfer *dataTransfer,
+                     nsISupports *dataTransfer,
                      bool *_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
@@ -8579,7 +8579,7 @@ nsMsgDBView::CanDrop(int32_t index,
 NS_IMETHODIMP
 nsMsgDBView::Drop(int32_t row,
                   int32_t orient,
-                  nsIDOMDataTransfer *dataTransfer)
+                  nsISupports *dataTransfer)
 {
   return NS_OK;
 }

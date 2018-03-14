@@ -1792,7 +1792,7 @@ nsNntpIncomingServer::IsSorted(bool *_retval)
 NS_IMETHODIMP
 nsNntpIncomingServer::CanDrop(int32_t index,
                               int32_t orientation,
-                              nsIDOMDataTransfer *dataTransfer,
+                              nsISupports *dataTransfer,
                               bool *_retval)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -1801,7 +1801,7 @@ nsNntpIncomingServer::CanDrop(int32_t index,
 NS_IMETHODIMP
 nsNntpIncomingServer::Drop(int32_t row,
                            int32_t orientation,
-                           nsIDOMDataTransfer *dataTransfer)
+                           nsISupports *dataTransfer)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
