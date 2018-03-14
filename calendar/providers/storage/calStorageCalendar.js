@@ -206,12 +206,14 @@ calStorageCalendar.prototype = {
             let localDB = cal.getCalendarDirectory();
             localDB.append("local.sqlite");
             localDB = Services.storage.openDatabase(localDB);
+            localDB.defaultTransactionType = Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
 
             // First, we need to check if this is from 0.9, i.e we need to
             // migrate from storage.sdb to local.sqlite.
             let storageSdb = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
             storageSdb.append("storage.sdb");
             this.mDB = Services.storage.openDatabase(storageSdb);
+            this.mDB.defaultTransactionType = Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
             if (this.mDB.tableExists("cal_events")) {
                 cal.LOG("[calStorageCalendar] Migrating storage.sdb -> local.sqlite");
                 upgradeDB(this.mDB); // upgrade schema before migating data
@@ -231,7 +233,6 @@ calStorageCalendar.prototype = {
                 }
                 try {
                     // hold lock on storage.sdb until we've migrated data from storage.sdb:
-                    this.mDB.defaultTransactionType = Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
                     this.mDB.beginTransaction();
                     try {
                         if (this.mDB.tableExists("cal_events")) { // check again (with lock)
@@ -273,7 +274,6 @@ calStorageCalendar.prototype = {
             // WARNING: This is a somewhat fragile process. Great care should be
             // taken during future schema upgrades to make sure this still
             // works.
-            this.mDB.defaultTransactionType = Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
             this.mDB.beginTransaction();
             try {
                 /**
