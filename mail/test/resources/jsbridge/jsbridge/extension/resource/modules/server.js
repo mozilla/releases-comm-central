@@ -38,7 +38,8 @@
 
 var EXPORTED_SYMBOLS = ["Server", "server", "AsyncRead", "Session", "sessions", "globalRegistry", "startServer"];
 
-var events = {}; ChromeUtils.import("resource://jsbridge/modules/events.js", events);
+var events = {};
+ChromeUtils.import("resource://jsbridge/modules/events.js", events);
 var DEBUG_ON = false;
 var BUFFER_SIZE = 1024;
 var loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
@@ -53,11 +54,12 @@ var json2 = ChromeUtils.import("resource://jsbridge/modules/json2.js");
 var jsonEncode = json2.JSON.stringify;
 
 var uuidgen = Cc["@mozilla.org/uuid-generator;1"]
-    .getService(Ci.nsIUUIDGenerator);
+                .getService(Ci.nsIUUIDGenerator);
 
 function AsyncRead (session) {
   this.session = session;
 }
+
 AsyncRead.prototype.onStartRequest = function (request, context) {};
 AsyncRead.prototype.onStopRequest = function (request, context, status) {
   log("async onstoprequest: onstoprequest");
@@ -201,7 +203,9 @@ var backstage = this;
 
 function Session (transport) {
   this.transpart = transport;  // XXX Unused, needed to hold reference? Note the typo.
-  this.sandbox = Cu.Sandbox(backstage, { wantGlobalProperties: ["ChromeUtils"] });
+  let systemPrincipal = Cc["@mozilla.org/systemprincipal;1"]
+                          .createInstance(Ci.nsIPrincipal);
+  this.sandbox = Cu.Sandbox(systemPrincipal, { wantGlobalProperties: ["ChromeUtils"] });
   this.sandbox.bridge = new Bridge(this);
   this.sandbox.openPreferences = hwindow.openPreferences;
   try {
@@ -211,9 +215,9 @@ function Session (transport) {
       this.outstream.init(this.outputstream, 'UTF-8');
       this.stream = transport.openInputStream(0, 0, 0);
       this.instream = Cc['@mozilla.org/intl/converter-input-stream;1']
-          .createInstance(Ci.nsIConverterInputStream);
+                        .createInstance(Ci.nsIConverterInputStream);
       this.instream.init(this.stream, 'UTF-8', BUFFER_SIZE,
-                    Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+                         Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
   } catch(e) {
       log('jsbridge: Error: ' + e);
   }
