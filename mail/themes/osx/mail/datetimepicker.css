@@ -5,10 +5,14 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-datepicker {
+datepicker, timepicker {
   padding: 0 0 1px;
   margin: 4px;
   border: none;
+}
+
+panel > datepicker {
+  margin: 0;
 }
 
 .datetimepicker-input-box {
@@ -41,12 +45,14 @@ html|*.datetimepicker-input {
   margin-bottom: 2px;
 }
 
-datepicker[readonly="true"] {
+datepicker[readonly="true"],
+timepicker[readonly="true"] {
   background-color: -moz-Dialog;
   color: -moz-DialogText;
 }
 
-datepicker[disabled="true"] {
+datepicker[disabled="true"],
+timepicker[disabled="true"] {
   cursor: default;
   background-color: -moz-Dialog;
   color: GrayText;

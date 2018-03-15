@@ -219,6 +219,334 @@
 
   </binding>
 
+  <binding id="timepicker"
+#ifdef MOZ_SUITE
+           extends="chrome://communicator/content/bindings/datetimepicker.xml#datetimepicker-base">
+#else
+           extends="chrome://messenger/content/datetimepicker.xml#datetimepicker-base">
+#endif
+    <implementation>
+      <field name="is24HourClock">false</field>
+      <field name="hourLeadingZero">false</field>
+      <field name="minuteLeadingZero">true</field>
+      <field name="secondLeadingZero">true</field>
+      <field name="amIndicator">"AM"</field>
+      <field name="pmIndicator">"PM"</field>
+
+      <field name="hourField">null</field>
+      <field name="minuteField">null</field>
+      <field name="secondField">null</field>
+
+      <property name="value">
+        <getter>
+          <![CDATA[
+            var minute = this._dateValue.getMinutes();
+            if (minute < 10)
+              minute = "0" + minute;
+
+            var second = this._dateValue.getSeconds();
+            if (second < 10)
+              second = "0" + second;
+            return this._dateValue.getHours() + ":" + minute + ":" + second;
+          ]]>
+        </getter>
+        <setter>
+          <![CDATA[
+            var items = val.match(/^([0-9]{1,2})\:([0-9]{1,2})\:?([0-9]{1,2})?$/);
+            if (!items)
+              throw "Invalid Time";
+
+            var dt = this.dateValue;
+            dt.setHours(items[1]);
+            dt.setMinutes(items[2]);
+            dt.setSeconds(items[3] ? items[3] : 0);
+            this.dateValue = dt;
+            return val;
+          ]]>
+        </setter>
+      </property>
+      <property name="hour" onget="return this._dateValue.getHours();">
+        <setter>
+          <![CDATA[
+            var valnum = Number(val);
+            if (isNaN(valnum) || valnum < 0 || valnum > 23)
+              throw "Invalid Hour";
+            this._setFieldValue(this.hourField, valnum);
+            return val;
+          ]]>
+        </setter>
+      </property>
+      <property name="minute" onget="return this._dateValue.getMinutes();">
+        <setter>
+          <![CDATA[
+            var valnum = Number(val);
+            if (isNaN(valnum) || valnum < 0 || valnum > 59)
+              throw "Invalid Minute";
+            this._setFieldValue(this.minuteField, valnum);
+            return val;
+          ]]>
+        </setter>
+      </property>
+      <property name="second" onget="return this._dateValue.getSeconds();">
+        <setter>
+          <![CDATA[
+            var valnum = Number(val);
+            if (isNaN(valnum) || valnum < 0 || valnum > 59)
+              throw "Invalid Second";
+            this._setFieldValue(this.secondField, valnum);
+            return val;
+          ]]>
+        </setter>
+      </property>
+      <property name="isPM">
+        <getter>
+          <![CDATA[
+            return (this.hour >= 12);
+          ]]>
+        </getter>
+        <setter>
+          <![CDATA[
+            if (val) {
+              if (this.hour < 12)
+                this.hour += 12;
+            } else if (this.hour >= 12)
+              this.hour -= 12;
+            return val;
+          ]]>
+        </setter>
+      </property>
+      <property name="hideSeconds">
+        <getter>
+          return (this.getAttribute("hideseconds") == "true");
+        </getter>
+        <setter>
+          if (val)
+            this.setAttribute("hideseconds", "true");
+          else
+            this.removeAttribute("hideseconds");
+          if (this.secondField)
+            this.secondField.parentNode.collapsed = val;
+          this._separatorSecond.collapsed = val;
+          return val;
+        </setter>
+      </property>
+      <property name="increment">
+        <getter>
+          <![CDATA[
+            var increment = this.getAttribute("increment");
+            increment = Number(increment);
+            if (isNaN(increment) || increment <= 0 || increment >= 60)
+              return 1;
+            return increment;
+          ]]>
+        </getter>
+        <setter>
+          <![CDATA[
+            if (typeof val == "number")
+              this.setAttribute("increment", val);
+            return val;
+          ]]>
+        </setter>
+      </property>
+
+      <method name="_setValueNoSync">
+        <parameter name="aValue"/>
+        <body>
+          <![CDATA[
+            var dt = new Date(aValue);
+            if (!isNaN(dt)) {
+              this._dateValue = dt;
+              this.setAttribute("value", this.value);
+              this._updateUI(this.hourField, this.hour);
+              this._updateUI(this.minuteField, this.minute);
+              this._updateUI(this.secondField, this.second);
+            }
+          ]]>
+        </body>
+      </method>
+      <method name="_increaseOrDecrease">
+        <parameter name="aDir"/>
+        <body>
+          <![CDATA[
+            if (this.disabled || this.readOnly)
+              return;
+
+            var field = this._currentField;
+            if (this._valueEntered)
+              this._setValueOnChange(field);
+
+            if (field == this._fieldAMPM) {
+              this.isPM = !this.isPM;
+              this._fireEvent("change", this);
+            } else {
+              var oldval;
+              var change = aDir;
+              if (field == this.hourField) {
+                oldval = this.hour;
+              } else if (field == this.minuteField) {
+                oldval = this.minute;
+                change *= this.increment;
+              } else if (field == this.secondField) {
+                oldval = this.second;
+              }
+
+              var newval = this._constrainValue(field, oldval + change, false);
+
+              if (field == this.hourField)
+                this.hour = newval;
+              else if (field == this.minuteField)
+                this.minute = newval;
+              else if (field == this.secondField)
+                this.second = newval;
+
+              if (oldval != newval)
+                this._fireEvent("change", this);
+            }
+            field.select();
+          ]]>
+        </body>
+      </method>
+      <method name="_setFieldValue">
+        <parameter name="aField"/>
+        <parameter name="aValue"/>
+        <body>
+          <![CDATA[
+            if (aField == this.hourField)
+              this._dateValue.setHours(aValue);
+            else if (aField == this.minuteField)
+              this._dateValue.setMinutes(aValue);
+            else if (aField == this.secondField)
+              this._dateValue.setSeconds(aValue);
+
+            this.setAttribute("value", this.value);
+            this._updateUI(aField, aValue);
+
+            if (this.attachedControl)
+              this.attachedControl._setValueNoSync(this._dateValue);
+          ]]>
+        </body>
+      </method>
+      <method name="_updateUI">
+        <parameter name="aField"/>
+        <parameter name="aValue"/>
+        <body>
+          <![CDATA[
+            this._valueEntered = false;
+
+            var prependZero = false;
+            if (aField == this.hourField) {
+              prependZero = this.hourLeadingZero;
+              if (!this.is24HourClock) {
+                if (aValue >= 12) {
+                  if (aValue > 12)
+                    aValue -= 12;
+                  this._fieldAMPM.value = this.pmIndicator;
+                } else {
+                  if (aValue == 0)
+                    aValue = 12;
+                  this._fieldAMPM.value = this.amIndicator;
+                }
+              }
+            } else if (aField == this.minuteField) {
+              prependZero = this.minuteLeadingZero;
+            } else if (aField == this.secondField) {
+              prependZero = this.secondLeadingZero;
+            }
+
+            if (prependZero && aValue < 10)
+              aField.value = "0" + aValue;
+            else
+              aField.value = aValue;
+          ]]>
+        </body>
+      </method>
+      <method name="_constrainValue">
+        <parameter name="aField"/>
+        <parameter name="aValue"/>
+        <parameter name="aNoWrap"/>
+        <body>
+          <![CDATA[
+            // aNoWrap is true when the user entered a value, so just
+            // constrain within limits. If false, the value is being
+            // incremented or decremented, so wrap around values
+            var max = (aField == this.hourField) ? 24 : 60;
+            if (aValue < 0)
+              return aNoWrap ? 0 : max + aValue;
+            if (aValue >= max)
+              return aNoWrap ? max - 1 : aValue - max;
+            return aValue;
+          ]]>
+        </body>
+      </method>
+      <method name="_init">
+        <body>
+          <![CDATA[
+            this.hourField = this._fieldOne;
+            this.minuteField = this._fieldTwo;
+            this.secondField = this._fieldThree;
+
+            var numberOrder = /^(\D*)\s*(\d+)(\D*)(\d+)(\D*)(\d+)\s*(\D*)$/;
+
+            var locale = Intl.DateTimeFormat().resolvedOptions().locale + "-u-ca-gregory-nu-latn";
+
+            var pmTime = new Date(2000, 0, 1, 16, 7, 9).toLocaleTimeString(locale);
+            var numberFields = pmTime.match(numberOrder);
+            if (numberFields) {
+              this._separatorFirst.value = numberFields[3];
+              this._separatorSecond.value = numberFields[5];
+              if (Number(numberFields[2]) > 12)
+                this.is24HourClock = true;
+              else
+                this.pmIndicator = numberFields[1] || numberFields[7];
+            }
+
+            var amTime = new Date(2000, 0, 1, 1, 7, 9).toLocaleTimeString(locale);
+            numberFields = amTime.match(numberOrder);
+            if (numberFields) {
+              this.hourLeadingZero = (numberFields[2].length > 1);
+              this.minuteLeadingZero = (numberFields[4].length > 1);
+              this.secondLeadingZero = (numberFields[6].length > 1);
+
+              if (!this.is24HourClock) {
+                this.amIndicator = numberFields[1] || numberFields[7];
+                if (numberFields[1]) {
+                  var mfield = this._fieldAMPM.parentNode;
+                  var mcontainer = mfield.parentNode;
+                  mcontainer.insertBefore(mfield, mcontainer.firstChild);
+                }
+                var size = (numberFields[1] || numberFields[7]).length;
+                if (this.pmIndicator.length > size)
+                  size = this.pmIndicator.length;
+                this._fieldAMPM.size = size;
+                this._fieldAMPM.maxLength = size;
+              } else {
+                this._fieldAMPM.parentNode.collapsed = true;
+              }
+            }
+
+            this.hideSeconds = this.hideSeconds;
+          ]]>
+        </body>
+      </method>
+    </implementation>
+
+    <handlers>
+      <handler event="keypress">
+        <![CDATA[
+          // just allow any printable character to switch the AM/PM state
+          if (event.charCode && !this.disabled && !this.readOnly &&
+              this._currentField == this._fieldAMPM) {
+            this.isPM = !this.isPM;
+            this._fieldAMPM.select();
+            this._fireEvent("change", this);
+            event.preventDefault();
+          }
+        ]]>
+      </handler>
+    </handlers>
+
+  </binding>
+
   <binding id="datepicker"
 #ifdef MOZ_SUITE
            extends="chrome://communicator/content/bindings/datetimepicker.xml#datetimepicker-base">

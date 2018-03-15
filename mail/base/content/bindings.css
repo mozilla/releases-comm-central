@@ -40,6 +40,10 @@ datepicker[type="grid"] {
   -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-grid');
 }
 
+timepicker {
+  -moz-binding: url('chrome://messenger/content/datetimepicker.xml#timepicker');
+}
+
 statusbar {
   -moz-binding: url("chrome://messenger/content/generalBindings.xml#statusbar");
 }
