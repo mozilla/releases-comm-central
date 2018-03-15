@@ -23,11 +23,11 @@
     "unpack": true
   },
   {
-    "version": "Visual Studio 2015 Update 3 14.0.25425.01 / SDK 10.0.14393.0",
-    "size": 326656969,
-    "digest": "babc414ffc0457d27f5a1ed24a8e4873afbe2f1c1a4075469a27c005e1babc3b2a788f643f825efedff95b79686664c67ec4340ed535487168a3482e68559bc7",
+    "version": "Visual Studio 2017 15.6.0 / SDK 10.0.15063.0",
+    "digest": "f99285fa6328da3c21839adabe6fc4dd1a792bcb6048a491ba7617a8ce3d0e21f8d18e9de03b65c90ce5bf37073637ba7c1497fb21ce920b6794d2c9819b4f9e",
+    "size": 309779153,
     "algorithm": "sha512",
-    "filename": "vs2015u3.zip",
+    "filename": "vs2017_15.6.0.zip",
     "unpack": true
   },
   {
