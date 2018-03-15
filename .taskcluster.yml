@@ -160,7 +160,7 @@ tasks:
                 --message="$COMM_COMMIT_MSG"
                 --owner='${ownerEmail}'
                 --level='${repository.level}'
-                --base-repository='https://hg.mozilla.org/mozilla-central'
+                --base-repository="$GECKO_BASE_REPOSITORY"
                 --head-repository="$GECKO_HEAD_REPOSITORY"
                 --head-ref="$GECKO_HEAD_REF"
                 --head-rev="$GECKO_HEAD_REV"
