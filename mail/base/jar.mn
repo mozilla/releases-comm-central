@@ -45,6 +45,7 @@ messenger.jar:
 *   content/messenger/viewSource.xul                (../../common/src/viewSource.xul)
 *   content/messenger/datetimepicker.xml            (../../common/bindings/datetimepicker.xml)
     content/messenger/generalBindings.xml           (../../common/bindings/generalBindings.xml)
+*   content/messenger/spinbuttons.xml               (../../common/bindings/spinbuttons.xml)
 *   content/messenger/toolbar.xml                   (../../common/bindings/toolbar.xml)
 *   content/messenger/bindings.css                  (content/bindings.css)
     content/messenger/nsDragAndDrop.js              (content/nsDragAndDrop.js)
