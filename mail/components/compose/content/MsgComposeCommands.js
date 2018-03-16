@@ -4809,6 +4809,19 @@ function RemoveAllAttachments()
 }
 
 /**
+ * Display/hide and update the content of the attachment bucket (specifically
+ * the total file size of the attachments and the number of current attachments).
+ *
+ * @param aShowBucket true if the bucket should be shown, false otherwise
+ *
+ * Note: This is needed for add-on compatibility, for example in Enigmail.
+ */
+function UpdateAttachmentBucket(aShowBucket)
+{
+  updateAttachmentPane(aShowBucket ? "show" : "hide");
+}
+
+/**
  * Update the header bar information (number and total file size of attachments)
  * and tooltip of attachment pane, then (optionally) show or hide the pane.
  *
