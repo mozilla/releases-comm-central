@@ -10,10 +10,6 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-// This requires an XMLHttpRequest constructor which isn't
-// associated with a window.
-const {XMLHttpRequest} = Cu.Sandbox(window, {wantGlobalProperties: ["XMLHttpRequest"]});
-
 //
 // The front-end wizard bits.
 //
