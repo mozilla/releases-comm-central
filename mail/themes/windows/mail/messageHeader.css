@@ -189,68 +189,22 @@ window[inlinetoolbox] #newtoolbar {
 /* ::::: msg header email addresses ::::: */
 
 .emailDisplayButton {
-  margin: 0;
-  padding-inline-start: 2px !important;
-  padding-inline-end: 2px !important;
-  background-color: transparent;
-  border-radius: 2px;
   border: 1px dotted transparent;
 }
 
-.emailDisplayButton:hover {
-  cursor: pointer;
-  color: HighlightText;
-  background-color: Highlight;
-}
-
-mail-emailaddress[selected="true"] .emailDisplayButton{
-  /* when an email address context menu is selected,
-    make sure that the email bubble stays displayed, and
-    tweak the bottom to blend in more w/ the menu */
-  cursor: pointer;
-  border-radius: 3px;
-  color: HighlightText;
-  background-color: Highlight;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.emailSeparator {
-  /* this is for the comma in between email addresses/newsgroups */
-  margin-inline-start: -3px; /* squeeze it inside the bubble, by the star */
-}
-
 .emailDisplayButton:focus {
-  border: 1px dotted Highlight;
+  border-color: Highlight;
 }
 
-.emailStar {
-  max-width: 1em;
-  max-height: 1em;
-  -moz-appearance: none;
-  -moz-box-orient: vertical;
-  padding: 0;
-  margin-inline-start: -2px !important;
-  list-style-image: url("chrome://messenger/skin/starContact.png");
-  -moz-image-region: rect(0, 16px, 16px, 0);
-}
-
-.emailStar:hover {
-  -moz-image-region:rect(0 32px 16px 16px);
-}
-
-.emailStar:hover:active {
-  -moz-image-region:rect(0 48px 16px 32px);
-}
-
-.emailStar[hascard="true"] {
-  list-style-image: url("chrome://messenger/skin/contactStarred.png");
+@media (-moz-os-version: windows-win7) {
+  .emailDisplayButton {
+    border-radius: 2px;
+  }
 }
 
 .emailPresence {
-  padding: 0px;
-  margin-inline-start: -2px !important;
-  -moz-image-region: rect(6px, 16px, 16px, 6px);
+  margin-inline-start: 2px;
+  -moz-image-region: rect(6px 16px 16px 6px);
 }
 
 .emailPopup {

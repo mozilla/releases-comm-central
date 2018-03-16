@@ -980,10 +980,10 @@
 
   <binding id="mail-emailaddress">
     <content>
-      <xul:description anonid="emailValue" class="emailDisplayButton"
-                       xbl:inherits="hascard,aria-label"
-                       context="emailAddressPopup" popup="emailAddressPopup"
-                       flex="1" role="textbox" aria-readonly="true">
+      <xul:hbox anonid="emailValue" class="emailDisplayButton"
+                xbl:inherits="hascard,aria-label" align="center"
+                context="emailAddressPopup" popup="emailAddressPopup"
+                flex="1" role="textbox" aria-readonly="true">
         <xul:label class="emaillabel" anonid="emaillabel"
                    xbl:inherits="value=label,crop"/>
         <xul:image class="emailStar" anonid="emailStar"
@@ -995,7 +995,7 @@
                    onmousedown="event.preventDefault();"
                    onclick="onClickEmailPresence(event, this.parentNode.parentNode);"
                    xbl:inherits="chatStatus,tooltiptext=presenceTooltip"/>
-      </xul:description>
+      </xul:hbox>
     </content>
 
     <implementation>
@@ -1019,13 +1019,13 @@
        menu for various actions -->
   <binding id="mail-newsgroup">
     <content>
-      <xul:description anonid="newsgroupValue" class="emailDisplayButton"
-                       context="newsgroupPopup" popup="newsgroupPopup"
-                       flex="1">
+      <xul:hbox anonid="newsgroupValue" class="emailDisplayButton"
+                context="newsgroupPopup" popup="newsgroupPopup"
+                flex="1" align="center">
         <xul:label class="newsgrouplabel" anonid="newsgrouplabel"
                    role="textbox" aria-readonly="true"
                    xbl:inherits="value=label,crop"/>
-      </xul:description>
+      </xul:hbox>
     </content>
 
     <implementation>

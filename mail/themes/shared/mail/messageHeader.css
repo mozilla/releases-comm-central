@@ -131,6 +131,34 @@ toolbarpaletteitem #hdrDummyReplyButton {
 
 /* ::::: msg header email addresses ::::: */
 
+.emailDisplayButton {
+  padding-inline-start: 2px;
+  padding-inline-end: 2px;
+}
+
+.emailDisplayButton:hover {
+  cursor: pointer;
+  color: HighlightText;
+  background-color: Highlight;
+}
+
+mail-emailaddress[selected="true"] > .emailDisplayButton {
+  /* when an email address context menu is selected,
+   * make sure that the email menupopup stays displayed,
+   * and tweak the bottom to blend in more w/ the menu
+   */
+  cursor: pointer;
+  color: HighlightText;
+  background-color: Highlight;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* this is for the comma in between email addresses */
+.emailSeparator {
+  margin-inline-start: -3px; /* squeeze it inside the bubble, by the star */
+}
+
 /* Because there's no star for newsgroups like there is for email addresses,
  * pushing it back the same number of pixels as emailSeparator causes
  * the comma to be drawn too close to the last letter, which looks bad, so
@@ -138,6 +166,25 @@ toolbarpaletteitem #hdrDummyReplyButton {
  */
 .newsgroupSeparator {
   margin-inline-start: -2px;
+}
+
+.emailStar {
+  width: 1em;
+  height: 1em;
+  margin-inline-start: 2px;
+  list-style-image: url("chrome://messenger/skin/icons/star.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.emailStar[hascard="true"] {
+  list-style-image: url("chrome://messenger/skin/icons/starred.svg");
+  fill: var(--toolbarbutton-icon-fill-attention);
+}
+
+.emailDisplayButton:hover > .emailStar,
+mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
+  fill: HighlightText;
 }
 
 .emailStar:focus {
@@ -150,8 +197,8 @@ toolbarpaletteitem #hdrDummyReplyButton {
 
 .emaillabel,
 .newsgrouplabel {
-  padding: 0px !important;  /* override <label> defaults */
-  margin: 0px !important;  /* override <label> defaults */
+  padding: 0;  /* override <label> defaults */
+  margin: 0;  /* override <label> defaults */
   overflow: hidden;
 }
 
@@ -162,12 +209,12 @@ toolbarpaletteitem #hdrDummyReplyButton {
 
 .emailPresence[chatStatus="available"] {
   list-style-image: url("chrome://messenger/skin/icons/status-small.png");
-  -moz-image-region: rect(0px 10px 10px 0px);
+  -moz-image-region: rect(0 10px 10px 0);
 }
 
 .emailPresence[chatStatus="away"] {
   list-style-image: url("chrome://messenger/skin/icons/status-small.png");
-  -moz-image-region: rect(0px 40px 10px 30px);
+  -moz-image-region: rect(0 40px 10px 30px);
 }
 
 .emailPopup:hover {

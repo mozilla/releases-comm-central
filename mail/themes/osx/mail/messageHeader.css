@@ -377,41 +377,19 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
 /* ::::: msg header email addresses ::::: */
 
 .emailDisplayButton {
-  margin: 0 -1px;
-  padding-inline-start: 3px !important;
-  padding-inline-end: 3px !important;
-  background-color: transparent;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
-.emailDisplayButton:hover {
-  cursor: pointer;
-  color: HighlightText;
-  background-color: Highlight;
-  background: linear-gradient(#6bb0fa, #167bff);
-}
-
-mail-emailaddress[selected="true"] .emailDisplayButton {
-  /* when an email address context menu is selected,
-    make sure that the email bubble stays displayed, and
-    tweak the bottom to blend in more w/ the menu */
-  cursor: pointer;
-  color: HighlightText;
-  background: linear-gradient(#6bb0fa, #167bff);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+.emailDisplayButton:hover,
+mail-emailaddress[selected="true"] > .emailDisplayButton {
+  background-image: linear-gradient(#6bb0fa, #167bff);
 }
 
 @media (-moz-mac-graphite-theme) {
   .emailDisplayButton:hover,
   mail-emailaddress[selected="true"] .emailDisplayButton {
-    background: linear-gradient(#b1b1b6, #929297);
+    background-image: linear-gradient(#b1b1b6, #929297);
   }
-}
-
-/* this is for the comma in between email addresses */
-.emailSeparator {
-  margin-inline-start: -5px; /* squeeze it inside the bubble, by the star */
 }
 
 .emailDisplayButton:focus {
@@ -419,56 +397,12 @@ mail-emailaddress[selected="true"] .emailDisplayButton {
   outline-offset: -2px;
 }
 
-.emailStar {
-  max-width: 1em;
-  max-height: 1em;
-  -moz-appearance: none;
-  -moz-box-orient: vertical;
-  margin: 0 2px;
-  margin-inline-start: -1px;
-  padding: 0;
-  list-style-image: url("chrome://messenger/skin/starIcons.png");
-  -moz-image-region: rect(0, 16px, 16px, 0);
-}
-
-.emailDisplayButton:hover .emailStar {
-  -moz-image-region: rect(0, 32px, 16px, 16px);
-}
-
-.emailStar[hascard="true"] {
-  -moz-image-region: rect(16px, 16px, 32px, 0);
-}
-
-.emailDisplayButton:hover .emailStar[hascard="true"] {
-  -moz-image-region: rect(16px, 32px, 32px, 16px);
-}
-
 .emailPresence {
-  padding: 0px;
-  margin: 0px 2px;
-  -moz-image-region: rect(6px, 16px, 16px, 6px);
+  margin-inline-start: 2px;
+  -moz-image-region: rect(6px 16px 16px 6px);
 }
 
 @media (min-resolution: 2dppx) {
-  .emailStar {
-    width: 16px;
-    height: 16px;
-    list-style-image: url("chrome://messenger/skin/starIcons@2x.png");
-    -moz-image-region: rect(0px 32px 32px 0px);
-  }
-
-  .emailDisplayButton:hover .emailStar {
-    -moz-image-region: rect(0px 64px 32px 32px);
-  }
-
-  .emailStar[hascard="true"] {
-    -moz-image-region: rect(32px 32px 64px 0px);
-  }
-
-  .emailDisplayButton:hover .emailStar[hascard="true"] {
-    -moz-image-region: rect(32px 64px 64px 32px);
-  }
-
   .emailPresence {
     width: 10px;
     height: 10px;
@@ -476,19 +410,19 @@ mail-emailaddress[selected="true"] .emailDisplayButton {
 
   .emailPresence[chatStatus="available"] {
     list-style-image: url("chrome://messenger/skin/icons/status-small@2x.png");
-    -moz-image-region: rect(0px 20px 20px 0px);
+    -moz-image-region: rect(0 20px 20px 0);
   }
 
   .emailPresence[chatStatus="away"] {
     list-style-image: url("chrome://messenger/skin/icons/status-small@2x.png");
-    -moz-image-region: rect(0px 80px 20px 60px);
+    -moz-image-region: rect(0 80px 20px 60px);
   }
 }
 
 .emailPopup {
   font-size: inherit;
   max-height: 7px; /* the height of the image */
-  margin: 0.2em 2px 0px; /* 0.2em just to move it off the top of the text */
+  margin: 0.2em 2px 0; /* 0.2em just to move it off the top of the text */
   list-style-image: url("chrome://messenger/skin/icons/arrow-dn-7.png");
 }
 

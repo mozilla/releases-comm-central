@@ -27,7 +27,7 @@
          onpopuphidden="editContactInlineUI.onPopupHidden(event);"
          onpopupshown="editContactInlineUI.onPopupShown(event);"
          onkeypress="editContactInlineUI.onKeyPress(event, true);">
-    <hbox flex="1" align="top">
+    <hbox flex="1" align="center">
       <image id="editContactPanelIcon"/>
       <label id="editContactPanelTitle" flex="1"/>
       <button id="editContactPanelDeleteContactButton"

@@ -10,23 +10,29 @@
 }
 
 #editContactPanel {
-  margin-inline-start: 0px;
+  margin-inline-start: 0;
 }
 
 #editContactPanelIcon {
-  list-style-image: url("chrome://messenger/skin/starred48.png");
-  width: 48px;
-  height: 48px;
-  min-height: 48px;
+  list-style-image: url("chrome://messenger/skin/icons/starred.svg");
+  -moz-context-properties: fill;
+  fill: var(--toolbarbutton-icon-fill-attention);
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin: 4px;
 }
 
 #editContactPanelTitle {
   font-size: 130%;
   font-weight: bold;
-  margin-top: 8px;
-  margin-bottom: 0px;
   margin-inline-start: 9px;
   margin-inline-end: 12px;
+}
+
+#editContactContent {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 #editContactEmail {
@@ -41,4 +47,9 @@
 
 #editContactAddressBookList[disabled="true"] {
   color: GrayText !important;
+}
+
+/* align with textbox and menulist */
+button {
+  margin-inline-end: 4px;
 }
