@@ -156,11 +156,15 @@
 */
 
 var EXPORTED_SYMBOLS = ["JSON"];
+var JSON = Cu.getGlobalForObject(this).JSON;
+
+if (!JSON) {
+  dump("mozmill/extension/resource/stdlib/json2.js: creating JSON object\n");
 
 // Create a JSON object only if one does not already exist. We create the
 // object in a closure to avoid creating global variables.
 
-    var JSON = function () {
+    JSON = function () {
 
         function f(n) {
             // Format integers to have at least two digits.
@@ -466,4 +470,4 @@ replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
             }
         };
     }();
-
+}
