@@ -399,8 +399,8 @@
 @RESPATH@/components/nsComposerCmdLineHandler.manifest
 @RESPATH@/components/nsContentDispatchChooser.js
 @RESPATH@/components/nsContentDispatchChooser.manifest
-@RESPATH@/components/nsHandlerService-json.js
-@RESPATH@/components/nsHandlerService-json.manifest
+@RESPATH@/components/HandlerService.js
+@RESPATH@/components/HandlerService.manifest
 @RESPATH@/components/ContentPrefService2.js
 @RESPATH@/components/ContentPrefService2.manifest
 @RESPATH@/components/nsCrashMonitor.js
@@ -410,8 +410,6 @@
 @RESPATH@/components/nsFormAutoComplete.js
 @RESPATH@/components/FormHistoryStartup.js
 @RESPATH@/components/nsGopherProtocolStubHandler.js
-@RESPATH@/components/nsHandlerService.js
-@RESPATH@/components/nsHandlerService.manifest
 @RESPATH@/components/nsHelperAppDlg.js
 @RESPATH@/components/nsHelperAppDlg.manifest
 @RESPATH@/components/PresentationControlService.js
