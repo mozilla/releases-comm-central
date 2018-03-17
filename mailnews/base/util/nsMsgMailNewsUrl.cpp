@@ -471,6 +471,11 @@ nsresult nsMsgMailNewsUrl::SetUsername(const nsACString &aUsername)
   return NS_MutateURI(m_baseURL).SetUsername(aUsername).Finalize(m_baseURL);
 }
 
+nsresult nsMsgMailNewsUrl::SetUsernameInternal(const nsACString &aUsername)
+{
+  return NS_MutateURI(m_baseURL).SetUsername(aUsername).Finalize(m_baseURL);
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::GetPassword(nsACString &aPassword)
 {
   return m_baseURL->GetPassword(aPassword);

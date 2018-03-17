@@ -405,7 +405,10 @@ NS_IMETHODIMP nsPop3Service::NewURI(const nsACString &aSpec,
                       urlListener, getter_AddRefs(newUri), nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = NS_MutateURI(newUri).SetUsername(escapedUsername).Finalize(newUri);
+    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(newUri, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = mailnewsurl->SetUsernameInternal(escapedUsername);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(newUri, &rv);

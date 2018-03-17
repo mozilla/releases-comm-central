@@ -36,6 +36,9 @@ interface nsIMsgMailNewsUrl : nsIURL {
   [noscript,notxpcom,nostdcall]
   nsresult setQueryInternal(in ACString aQuery);
 
+  [noscript,notxpcom,nostdcall]
+  nsresult setUsernameInternal(in ACString aUsername);
+
   ///////////////////////////////////////////////////////////////////////////////
   // Eventually we'd like to push this type of functionality up into nsIURI.
   // The idea is to allow the "application" (the part of the code which wants to
