@@ -8,11 +8,8 @@ messenger.jar:
 % overlay chrome://messenger/content/messengercompose/messengercompose.xul     chrome://messenger-smime/content/msgCompSMIMEOverlay.xul
 % overlay chrome://messenger/content/msgHdrViewOverlay.xul                     chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.xul
 % overlay chrome://messenger/content/mailWindowOverlay.xul                     chrome://messenger-smime/content/msgReadSMIMEOverlay.xul
-% overlay chrome://messenger/content/am-identity-edit.xul                      chrome://messenger/content/am-smimeIdentityEditOverlay.xul
-    content/messenger/am-smime.xul                                   (content/am-smime.xul)
+*   content/messenger/am-smime.xul                                   (content/am-smime.xul)
     content/messenger/am-smime.js                                    (content/am-smime.js)
-    content/messenger/am-smimeIdentityEditOverlay.xul                (content/am-smimeIdentityEditOverlay.xul)
-    content/messenger/am-smimeOverlay.xul                            (content/am-smimeOverlay.xul)
     content/messenger/certpicker.js                                  (content/certpicker.js)
     content/messenger/certpicker.xul                                 (content/certpicker.xul)
     content/messenger-smime/msgCompSMIMEOverlay.js                   (content/msgCompSMIMEOverlay.js)

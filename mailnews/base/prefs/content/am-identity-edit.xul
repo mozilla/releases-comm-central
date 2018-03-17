@@ -4,16 +4,20 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
-
-<?xul-overlay href="chrome://messenger/content/am-copiesOverlay.xul"?>
-<?xul-overlay href="chrome://messenger/content/am-addressingOverlay.xul"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % identityEditDTD SYSTEM "chrome://messenger/locale/am-identity-edit.dtd" >
 %identityEditDTD;
 <!ENTITY % identityDTD SYSTEM "chrome://messenger/locale/am-main.dtd" >
 %identityDTD;
+<!ENTITY % copiesDTD SYSTEM "chrome://messenger/locale/am-copies.dtd">
+%copiesDTD;
+<!ENTITY % addressingDTD SYSTEM "chrome://messenger/locale/am-addressing.dtd" >
+%addressingDTD;
+<!ENTITY % smimeDTD SYSTEM "chrome://messenger/locale/am-smime.dtd" >
+%smimeDTD;
 ]>
 
 <dialog id="identityDialog"
@@ -34,10 +38,23 @@
           src="chrome://messenger/content/am-identity-edit.js"/>
   <script type="application/javascript"
           src="chrome://messenger/content/amUtils.js"/>
+  <script type="application/javascript"
+          src="chrome://messenger/content/AccountManager.js"/>
+  <script type="application/javascript"
+          src="chrome://messenger/content/am-copies.js"/>
+  <script type="application/javascript"
+          src="chrome://messenger/content/am-addressing.js"/>
+  <script type="application/javascript"
+          src="chrome://messenger/content/am-smime.js"/>
+  <script type="application/javascript">
+  <![CDATA[
+    window.addEventListener("load", smimeOnLoadEditor, false);
+  ]]>
+  </script>
 
   <broadcaster id="broadcaster_attachSignature"/>
 
-  <description flex="1">&identityListDesc.label;</description>
+  <description>&identityListDesc.label;</description>
   <separator class="thin"/>
 
   <tabbox flex="1" style="overflow: auto;">
@@ -45,6 +62,7 @@
       <tab label="&settingsTab.label;"/>
       <tab label="&copiesFoldersTab.label;"/>
       <tab label="&addressingTab.label;"/>
+      <tab label="&securityTab.label;"/>
     </tabs>
 
     <tabpanels id="identityTabsPanels" flex="1">
@@ -151,10 +169,13 @@
       </vbox>
 
       <!-- Copies & Folders Tab -->
-      <vbox flex="1" name="copiesAndFolders" id="copiesAndFolders"/>
+#include am-copies.inc
 
       <!-- Composition & Addressing Tab -->
-      <vbox flex="1" name="composeAddressing" id="compositionAndAddressing"/>
+#include am-addressing.inc
+
+      <!-- Security Tab -->
+#include ../../../extensions/smime/content/am-smime.inc
 
     </tabpanels>
   </tabbox>

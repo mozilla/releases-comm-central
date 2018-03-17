@@ -3,8 +3,9 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-
-<?xul-overlay href="chrome://messenger/content/am-copiesOverlay.xul"?>
+<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
 <!DOCTYPE page SYSTEM "chrome://messenger/locale/am-copies.dtd">
 
@@ -14,8 +15,10 @@
 
   <vbox flex="1" style="overflow: auto;">
     <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
+    <script type="application/javascript" src="chrome://messenger/content/am-copies.js"/>
+    <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
 
     <dialogheader title="&copyAndFolderTitle.label;"/>
-    <vbox id="copiesAndFolders"/>
+#include am-copies.inc
   </vbox>
 </page>

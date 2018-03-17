@@ -5,8 +5,6 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<?xul-overlay href="chrome://messenger/content/am-smimeOverlay.xul"?>
-
 <!DOCTYPE page SYSTEM "chrome://messenger/locale/am-smime.dtd">
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -20,7 +18,7 @@
 
     <dialogheader title="&securityTitle.label;"/>
 
-    <vbox flex="1" id="smimeEditing"/>
+#include am-smime.inc
   </vbox>
 
 </page>

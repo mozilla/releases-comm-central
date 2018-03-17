@@ -1,23 +1,6 @@
-<?xml version="1.0"?>
-
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-
-<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
-
-<!DOCTYPE overlay [
-<!ENTITY % copiesDTD SYSTEM "chrome://messenger/locale/am-copies.dtd">
-%copiesDTD;
-]>
-
-<overlay xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-  <script type="application/javascript" src="chrome://messenger/content/am-copies.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
   <vbox flex="1" id="copiesAndFolders">
     <stringbundleset id="stringbundleset">
@@ -308,4 +291,3 @@
       </hbox>
     </groupbox>
   </vbox>
-</overlay>
