@@ -21,12 +21,12 @@
 #import <Cocoa/Cocoa.h>
 
 
-nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(const char *aXMLBufferStart, 
-                                                        const char *aXMLBufferEnd, 
+nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(const char *aXMLBufferStart,
+                                                        const char *aXMLBufferEnd,
                                                         uint32_t *aMozillaStatusFlags)
 {
   // create a NSData wrapper around the buffer, so we can use the Cocoa call below
-  NSData *metadata = 
+  NSData *metadata =
     [[[NSData alloc] initWithBytesNoCopy:(void *)aXMLBufferStart length:(aXMLBufferEnd-aXMLBufferStart) freeWhenDone:NO] autorelease];
 
   // get the XML data as a dictionary
@@ -45,7 +45,7 @@ nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(const char *aXMLBufferSt
   if (emlxMessageFlags == 0)
     return NS_ERROR_FAILURE;
 
-  if (emlxMessageFlags & nsEmlxHelperUtils::kRead) 
+  if (emlxMessageFlags & nsEmlxHelperUtils::kRead)
     *aMozillaStatusFlags |= nsMsgMessageFlags::Read;
   if (emlxMessageFlags & nsEmlxHelperUtils::kForwarded)
     *aMozillaStatusFlags |= nsMsgMessageFlags::Forwarded;
@@ -67,7 +67,7 @@ nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char *aMessageBufferStart, con
     const char *foundFromStr = strnstr(cur, "From ", aMessageBufferEnd-cur);
 
     if (foundFromStr) {
-      // skip all prepending '>' chars 
+      // skip all prepending '>' chars
       const char *fromLineStart = foundFromStr;
       while (fromLineStart-- >= aMessageBufferStart) {
         if (*fromLineStart == '\n' || fromLineStart == aMessageBufferStart) {
@@ -85,7 +85,7 @@ nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char *aMessageBufferStart, con
 
       // look for more From lines.
       continue;
-    } 
+    }
 
     break;
   }
@@ -119,7 +119,7 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
   nsAutoCString path;
   aMessage->GetNativePath(path);
 
-  NSData *data = [NSData dataWithContentsOfFile:[NSString stringWithUTF8String:path.get()]]; 
+  NSData *data = [NSData dataWithContentsOfFile:[NSString stringWithUTF8String:path.get()]];
   if (!data) {
     [pool release];
     return NS_ERROR_FAILURE;
@@ -137,7 +137,7 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
   // -------------------------------
 
   // read the first line of the emlx file, which is a number of how many bytes ahead the actual
-  // message data is. 
+  // message data is.
   uint64_t numberOfBytesToRead = strtol((char *)[data bytes], &startOfMessageData, 10);
   if (numberOfBytesToRead <= 0 || !startOfMessageData) {
     [pool release];
@@ -145,9 +145,9 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
   }
 
   // skip whitespace
-  while (*startOfMessageData == ' '  || 
-         *startOfMessageData == '\n' || 
-         *startOfMessageData == '\r' || 
+  while (*startOfMessageData == ' '  ||
+         *startOfMessageData == '\n' ||
+         *startOfMessageData == '\r' ||
          *startOfMessageData == '\t')
     ++startOfMessageData;
 
@@ -182,15 +182,15 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
     [pool release];
     return rv;
   }
-  
-  // write out X-Mozilla-Keywords header as well to reserve some space for it 
+
+  // write out X-Mozilla-Keywords header as well to reserve some space for it
   // in the mbox file.
   rv = aOut->Write(X_MOZILLA_KEYWORDS, X_MOZILLA_KEYWORDS_LEN, &dummyRv);
   if (NS_FAILED(rv)) {
     [pool release];
     return rv;
   }
-  
+
   // write out empty X-Mozilla_status2 header
   buf.Adopt(PR_smprintf(X_MOZILLA_STATUS2_FORMAT MSG_LINEBREAK, 0));
   NS_ASSERTION(!buf.IsEmpty(), "printf error with X-Mozilla-Status2 header");
@@ -204,7 +204,7 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
     [pool release];
     return rv;
   }
-  
+
   // do any conversion needed for the mbox data to be valid mboxrd.
   nsCString convertedData;
   rv = ConvertToMboxRD(startOfMessageData, (startOfMessageData + numberOfBytesToRead), convertedData);

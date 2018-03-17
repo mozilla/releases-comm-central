@@ -118,7 +118,7 @@ static void openMailWindow(const nsCString& aUri)
         if (NS_FAILED(rv))
           return;
 
-        nsCOMPtr<nsIMsgDBHdr> msgHdr; 
+        nsCOMPtr<nsIMsgDBHdr> msgHdr;
         messenger->MsgHdrFromURI(aUri, getter_AddRefs(msgHdr));
         if (msgHdr)
         {
@@ -221,7 +221,7 @@ nsMessengerOSXIntegration::Observe(nsISupports* aSubject, const char* aTopic, co
 
 #ifdef MOZ_SUITE
   // SeaMonkey does most of the GUI work in JS code when clicking on a mail
-  // notification, so it needs an extra function here 
+  // notification, so it needs an extra function here
   if (!strcmp(aTopic, "alertclicksimplecallback"))
     return OnAlertClickedSimple();
 #endif

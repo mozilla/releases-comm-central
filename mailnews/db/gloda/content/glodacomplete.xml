@@ -305,7 +305,7 @@
             this._adjustAcItem();
           ]]>
       </constructor>
-      
+
       <property name="label" readonly="true">
         <getter>
           <![CDATA[
@@ -313,7 +313,7 @@
           ]]>
         </getter>
       </property>
-      
+
       <method name="_adjustAcItem">
         <body>
           <![CDATA[
@@ -339,7 +339,7 @@
             this._adjustAcItem();
           ]]>
       </constructor>
-      
+
       <property name="label" readonly="true">
         <getter>
           <![CDATA[
@@ -347,7 +347,7 @@
           ]]>
         </getter>
       </property>
-      
+
       <method name="_adjustAcItem">
         <body>
           <![CDATA[
@@ -370,7 +370,7 @@
             this._adjustAcItem();
           ]]>
       </constructor>
-      
+
       <property name="label" readonly="true">
         <getter>
           <![CDATA[
@@ -378,7 +378,7 @@
           ]]>
         </getter>
       </property>
-      
+
       <method name="_adjustAcItem">
         <body>
           <![CDATA[
@@ -441,13 +441,13 @@
 
             this._nameBox = document.getAnonymousElementByAttribute(this, "anonid", "name-box");
             this._name = document.getAnonymousElementByAttribute(this, "anonid", "name");
-            
+
             this._picture = document.getAnonymousElementByAttribute(this, "anonid", "picture");
 
             this._adjustAcItem();
           ]]>
       </constructor>
-      
+
       <property name="label" readonly="true">
         <getter>
           <![CDATA[
@@ -456,18 +456,18 @@
           ]]>
         </getter>
       </property>
-      
+
       <method name="_adjustAcItem">
         <body>
           <![CDATA[
           var identity = this.row.item;
-          
+
           if (identity == null)
             return;
-          
+
           // I guess we should get the picture size from CSS or something?
           this._picture.src = identity.pictureURL(32);
-          
+
           // Emphasize the matching search terms for the description
           this._setUpDescription(this._name, identity.contact.name);
           this._setUpDescription(this._identity, identity.value);
@@ -531,13 +531,13 @@
 
             this._nameBox = document.getAnonymousElementByAttribute(this, "anonid", "name-box");
             this._name = document.getAnonymousElementByAttribute(this, "anonid", "name");
-            
+
             this._picture = document.getAnonymousElementByAttribute(this, "anonid", "picture");
 
             this._adjustAcItem();
           ]]>
       </constructor>
-      
+
       <property name="label" readonly="true">
         <getter>
           <![CDATA[
@@ -546,20 +546,20 @@
           ]]>
         </getter>
       </property>
-      
+
       <method name="_adjustAcItem">
         <body>
           <![CDATA[
           var contact = this.obj;
-          
+
           if (contact == null)
             return;
-          
+
           var identity = contact.identities[0];
-          
+
           // I guess we should get the picture size from CSS or something?
           this._picture.src = identity.pictureURL(32);
-          
+
           // Emphasize the matching search terms for the description
           this._setUpDescription(this._name, contact.name);
           this._setUpDescription(this._identity, identity.value);
@@ -589,7 +589,7 @@
             this._adjustAcItem();
           ]]>
       </constructor>
-      
+
       <property name="label" readonly="true">
         <getter>
           <![CDATA[
@@ -597,36 +597,36 @@
           ]]>
         </getter>
       </property>
-      
+
       <method name="renderItem">
         <parameter name="aObj"/>
         <body>
           var node = document.createElementNS(
             "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
             "richlistitem");
-          
+
           node.obj = aObj;
           node.setAttribute("type",
                             "gloda-" + this.row.nounDef.name + "-chunk");
-          
+
           this._identityHolder.appendChild(node);
         </body>
       </method>
-      
+
       <method name="_adjustAcItem">
         <body>
           <![CDATA[
           // clear out any lingering children
           while (this._identityHolder.hasChildNodes())
             this._identityHolder.lastChild.remove();
-          
+
           var row = this.row;
           if (row == null)
             return;
-          
+
           this._explanation.value = row.nounDef.name + "s " +
             row.criteriaType + "ed " + row.criteria;
-          
+
           // render anyone already in there
           for (let item of row.collection.items) {
             this.renderItem(item);

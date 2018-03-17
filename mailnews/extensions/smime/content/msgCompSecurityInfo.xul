@@ -9,7 +9,7 @@
 <!DOCTYPE dialog SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
 
 <dialog id="msgCompSecurityInfo" title="&title.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"      
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   style="width: 50em;"
   persist="width height"
   buttons="accept"
@@ -17,7 +17,7 @@
 
   <script type="application/javascript" src="chrome://messenger-smime/content/msgCompSecurityInfo.js"/>
 
-  <stringbundle id="bundle_smime_comp_info" src="chrome://messenger-smime/locale/msgCompSecurityInfo.properties"/> 
+  <stringbundle id="bundle_smime_comp_info" src="chrome://messenger-smime/locale/msgCompSecurityInfo.properties"/>
 
   <description>&subject.plaintextWarning;</description>
   <separator class="thin"/>

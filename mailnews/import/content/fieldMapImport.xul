@@ -1,9 +1,9 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?> 
+<?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/fieldMapImport.dtd">
 
@@ -23,9 +23,9 @@
     <button id="previous" oncommand="Browse(-1);"
             label="&fieldMapImport.previous.label;"
             accesskey="&fieldMapImport.previous.accesskey;"/>
-    <button id="next" oncommand="Browse(1);" 
+    <button id="next" oncommand="Browse(1);"
             label="&fieldMapImport.next.label;"
-            accesskey="&fieldMapImport.next.accesskey;"/>      
+            accesskey="&fieldMapImport.next.accesskey;"/>
   </hbox>
 
   <hbox align="center">

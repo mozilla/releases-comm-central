@@ -72,7 +72,7 @@ MapStringProperty(nsAbOSXCard *aCard, ABRecord *aOSXCard, NSString *aProperty,
   NS_ASSERTION(aProperty, "This is bad! You asked for an unresolved symbol.");
   NS_ASSERTION(GetPropertType(aOSXCard, aProperty) == kABStringProperty,
                "Wrong type!");
-  
+
   SetStringProperty(aCard, [aOSXCard valueForProperty:aProperty], aMemberName,
                     aNotify, aAbManager);
 }
@@ -83,7 +83,7 @@ GetMultiValue(ABRecord *aCard, NSString *aProperty)
   NS_ASSERTION(aProperty, "This is bad! You asked for an unresolved symbol.");
   NS_ASSERTION(GetPropertType(aCard, aProperty) & kABMultiValueMask,
                "Wrong type!");
-  
+
   return [aCard valueForProperty:aProperty];
 }
 
@@ -94,7 +94,7 @@ MapDate(nsAbOSXCard *aCard, NSDate *aDate, const char *aYearPropName,
 {
   // XXX Should we pass a format and timezone?
   NSCalendarDate *date = [aDate dateWithCalendarFormat:nil timeZone:nil];
-  
+
   nsAutoString value;
   value.AppendInt(static_cast<int32_t>([date yearOfCommonEra]));
   SetStringProperty(aCard, value, aYearPropName, aNotify, aAbManager);
@@ -120,10 +120,10 @@ MapMultiValue(nsAbOSXCard *aCard, ABRecord *aOSXCard,
         NSString *stringValue = (aMap.mOSXKey)
           ? [[value valueAtIndex:j] objectForKey:aMap.mOSXKey]
           : [value valueAtIndex:j];
-        
+
         SetStringProperty(aCard, stringValue, aMap.mPropertyName, aNotify,
                           aAbManager);
-        
+
         return true;
       }
     }
@@ -131,7 +131,7 @@ MapMultiValue(nsAbOSXCard *aCard, ABRecord *aOSXCard,
   // String wasn't found, set value of card to empty if it was set previously
   SetStringProperty(aCard, EmptyString(), aMap.mPropertyName, aNotify,
                     aAbManager);
-  
+
   return false;
 }
 
@@ -222,19 +222,19 @@ nsAbOSXCard::Update(bool aNotify)
 
     return NS_OK;
   }
-  
+
   bool foundHome = false, foundWork = false;
-  
+
   uint32_t i;
   for (i = 0; i < nsAbOSXUtils::kPropertyMapSize; ++i) {
     const nsAbOSXPropertyMap &propertyMap = nsAbOSXUtils::kPropertyMap[i];
     if (!propertyMap.mOSXProperty)
       continue;
-    
+
     if (propertyMap.mOSXLabel) {
       if (MapMultiValue(this, card, propertyMap, aNotify,
                         abManager) && propertyMap.mOSXProperty == kABAddressProperty) {
-        if (propertyMap.mOSXLabel == kABAddressHomeLabel) 
+        if (propertyMap.mOSXLabel == kABAddressHomeLabel)
           foundHome = true;
         else
           foundWork = true;
@@ -245,14 +245,14 @@ nsAbOSXCard::Update(bool aNotify)
                         propertyMap.mPropertyName, aNotify, abManager);
     }
   }
-  
+
   int flags = 0;
   if (kABPersonFlags)
     flags = [[card valueForProperty:kABPersonFlags] intValue];
-  
+
 #define SET_STRING(_value, _name, _notify, _session) \
   SetStringProperty(this, _value, #_name, _notify, _session)
-    
+
     // If kABShowAsCompany is set we use the company name as display name.
     if (kABPersonFlags && (flags & kABShowAsCompany)) {
       nsString company;
@@ -267,7 +267,7 @@ nsAbOSXCard::Update(bool aNotify)
     if (kABPersonFlags && (order == kABDefaultNameOrdering)) {
       order = [addressBook defaultNameOrdering];
     }
-    
+
     nsAutoString displayName, tempName;
     if (kABPersonFlags && (order == kABFirstNameFirst)) {
       GetFirstName(tempName);
@@ -295,17 +295,17 @@ nsAbOSXCard::Update(bool aNotify)
     }
     SET_STRING(displayName, DisplayName, aNotify, abManager);
   }
-  
+
   ABMultiValue *value = GetMultiValue(card, kABEmailProperty);
   if (value) {
     unsigned int count = [value count];
     if (count > 0) {
       unsigned int j = [value indexForIdentifier:[value primaryIdentifier]];
-      
+
       if (j < count)
         SET_STRING([value valueAtIndex:j], PrimaryEmail, aNotify,
                    abManager);
-      
+
       // If j is 0 (first in the list) we want the second in the list
       // (index 1), if j is anything else we want the first in the list
       // (index 0).
@@ -315,7 +315,7 @@ nsAbOSXCard::Update(bool aNotify)
                    abManager);
     }
   }
-  
+
   // We map the first home address we can find and the first work address
   // we can find. If we find none, we map the primary address to the home
   // address.
@@ -324,7 +324,7 @@ nsAbOSXCard::Update(bool aNotify)
     if (value) {
       unsigned int count = [value count];
       unsigned int j = [value indexForIdentifier:[value primaryIdentifier]];
-      
+
       if (j < count) {
         NSDictionary *address = [value valueAtIndex:j];
         if (address) {
@@ -361,15 +361,15 @@ nsAbOSXCard::Update(bool aNotify)
       }
     }
   }
-  
+
 #define MAP_DATE(_date, _name, _notify, _session) \
   MapDate(this, _date, #_name"Year", #_name"Month", #_name"Day", _notify, \
   _session)
-    
+
     NSDate *date = [card valueForProperty:kABBirthdayProperty];
   if (date)
     MAP_DATE(date, Birth, aNotify, abManager);
-  
+
   if (kABOtherDatesProperty) {
     value = GetMultiValue(card, kABOtherDatesProperty);
     if (value) {
@@ -379,7 +379,7 @@ nsAbOSXCard::Update(bool aNotify)
           date = [value valueAtIndex:j];
           if (date) {
             MAP_DATE(date, Anniversary, aNotify, abManager);
-            
+
             break;
           }
         }
@@ -388,9 +388,9 @@ nsAbOSXCard::Update(bool aNotify)
   }
 #undef MAP_DATE
 #undef SET_STRING
-  
+
   date = [card valueForProperty:kABModificationDateProperty];
-  if (date) 
+  if (date)
     SetPropertyAsUint32("LastModifiedDate",
                         uint32_t([date timeIntervalSince1970]));
     // XXX No way to notify about this?

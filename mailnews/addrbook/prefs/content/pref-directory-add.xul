@@ -29,7 +29,7 @@
         <tab label="&Offline.tab;"/>
         <tab label="&Advanced.tab;"/>
       </tabs>
-   
+
       <tabpanels id="directoryTabPanels" flex="1">
           <vbox>
              <grid flex="1">
@@ -41,7 +41,7 @@
 
                  <rows>
                      <row align="center">
-                         <label value="&directoryName.label;" accesskey="&directoryName.accesskey;" 
+                         <label value="&directoryName.label;" accesskey="&directoryName.accesskey;"
                                 control="description"/>
                          <textbox id="description" flex="1"/>
                          <spacer flex="1"/>
@@ -53,13 +53,13 @@
                          <spacer flex="1"/>
                      </row>
                      <row align="center">
-                         <label value="&directoryBaseDN.label;" 
+                         <label value="&directoryBaseDN.label;"
                                 accesskey="&directoryBaseDN.accesskey;"
                                 control="basedn"/>
                          <vbox>
                            <textbox id="basedn" disableiflocked="true" class="uri-element"/>
                          </vbox>
-                         <button label="&findButton.label;" 
+                         <button label="&findButton.label;"
                                  accesskey="&findButton.accesskey;" disabled="true"/>
                      </row>
                      <row align="center">
@@ -94,7 +94,7 @@
               </hbox>
               <description id="downloadWarningMsg" hidden="true" class="error"/>
               <description id="replicationProgressText" hidden="true"/>
-              
+
               <progressmeter id="replicationProgressMeter" mode="normal" value="0" hidden="true"/>
           </vbox>
           <grid>
@@ -133,10 +133,10 @@
                 <label value="&saslMechanism.label;" control="saslMechanism" accesskey="&saslMechanism.accesskey;"/>
                 <menulist id="saslMechanism">
                   <menupopup>
-                    <menuitem id="Simple" value="" 
+                    <menuitem id="Simple" value=""
                               label="&saslOff.label;"
                               accesskey="&saslOff.accesskey;"/>
-                    <menuitem id="GSSAPI" value="GSSAPI" 
+                    <menuitem id="GSSAPI" value="GSSAPI"
                               label="&saslGSSAPI.label;"
                               accesskey="&saslGSSAPI.accesskey;"/>
                   </menupopup>
@@ -147,6 +147,6 @@
       </tabpanels>
     </tabbox>
   </vbox>
-  
+
 </dialog>
-        
+

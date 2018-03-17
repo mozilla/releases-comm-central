@@ -214,7 +214,7 @@
           if (this._menu._teardown)
             this._menu._teardown();
         },
-  
+
         OnItemRemoved: function act_remove(aRDFParentItem, aItem) {
           if (!(aItem instanceof Ci.nsIMsgFolder))
             return;
@@ -293,7 +293,7 @@
         }
       })]]></field>
 
-      <!-- 
+      <!--
          - True if we have already built our menu-items and are now just
          - listening for changes
         -->

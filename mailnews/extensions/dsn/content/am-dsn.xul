@@ -10,13 +10,13 @@
 
 <!DOCTYPE page SYSTEM "chrome://messenger/locale/am-dsn.dtd">
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       onload="parent.onPanelLoaded('am-dsn.xul');">
 
-  <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-dsn.properties"/> 
+  <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-dsn.properties"/>
   <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
   <script type="application/javascript" src="chrome://messenger/content/am-dsn.js"/>
-  
+
   <dialogheader title="&pane.title;"/>
 
   <groupbox>
@@ -26,16 +26,16 @@
     <hbox id="prefChoices" align="center">
       <radiogroup id="identity.dsn_use_custom_prefs"
                   wsm_persist="true"
-                  genericattr="true" 
+                  genericattr="true"
                   preftype="bool"
-                  prefstring="mail.identity.%identitykey%.dsn_use_custom_prefs" 
+                  prefstring="mail.identity.%identitykey%.dsn_use_custom_prefs"
                   oncommand="EnableDisableCustomSettings();">
-    
+
         <radio id="identity.select_global_prefs"
                value="false"
                label="&useGlobalPrefs.label;"
                accesskey="&useGlobalPrefs.accesskey;"/>
-    
+
         <radio id="identity.select_custom_prefs"
                value="true"
                label="&useCustomPrefs.label;"

@@ -7,14 +7,14 @@ directory {
 }
 
 section {
-  display:block; 
+  display:block;
   margin: 15px 20px;
 }
 
 sectiontitle {
-  display:block; 
-  font-weight:bold; 
-  font-family:verdana; 
+  display:block;
+  font-weight:bold;
+  font-family:verdana;
   font-size:small;
 }
 
@@ -23,37 +23,37 @@ labelrow {
 }
 
 label {
-  display:inline; 
-  font-family:verdana; 
+  display:inline;
+  font-family:verdana;
   font-size:small;
 }
 
 GeneratedName {
-  display:block; 
-  font-weight:bold; 
-  font-family:verdana; 
+  display:block;
+  font-weight:bold;
+  font-family:verdana;
   margin-top: 20px;
   margin-bottom: 3px;
   margin-inline-end: 10px;
   margin-inline-start: 10px;
 }
 
-FirstName, LastName, 
+FirstName, LastName,
 HomeAddress, HomeAddress2, HomeCountry,
 WorkAddress, WorkAddress2, WorkCountry,
 JobTitle, Department, Company, Notes {
-  display: block; 
-  font-family: verdana; 
+  display: block;
+  font-family: verdana;
   font-size: small;
 }
 
 DisplayName, NickName,
 WorkPhone, HomePhone, FaxNumber, PagerNumber, CellularNumber,
 HomeCity, HomeState, HomeZipCode,
-WorkCity, WorkState, WorkZipCode, 
+WorkCity, WorkState, WorkZipCode,
 Custom1, Custom2, Custom3, Custom4 {
-  display: inline; 
-  font-family: verdana; 
+  display: inline;
+  font-family: verdana;
   font-size: small;
 }
 
@@ -84,7 +84,7 @@ tr {
 }
 
 td {
-  display: table-cell; 
+  display: table-cell;
   vertical-align: top;
 }
 

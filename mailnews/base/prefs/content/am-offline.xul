@@ -11,13 +11,13 @@
       onload="parent.onPanelLoaded('am-offline.xul');">
 
   <vbox flex="1" style="overflow: auto;">
-    <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/> 
+    <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
 
     <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
     <script type="application/javascript" src="chrome://messenger/content/retention.js"/>
     <script type="application/javascript" src="chrome://messenger/content/am-offline.js"/>
 
-    <label hidden="true" wsm_persist="true" id="server.type"/>  
+    <label hidden="true" wsm_persist="true" id="server.type"/>
     <label id="imap.autoSyncMaxAgeDays" hidden="true"
            wsm_persist="true" preftype="int"
            prefstring="mail.server.%serverkey%.autosync_max_age_days"/>
