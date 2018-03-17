@@ -15,6 +15,7 @@
 #include "nsIPop3IncomingServer.h"
 #include "nsINoIncomingServer.h"
 #include "nsMsgBaseCID.h"
+#include "nsNativeCharsetUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 
@@ -150,8 +151,9 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr,
   NS_ENSURE_SUCCESS(rv, rv);
 
 #ifdef XP_WIN
-  // The protocol handler can handle UTF-8 paths even on Windows.
-  nsCString localNativePath = NS_ConvertUTF16toUTF8(localPath->NativePath());
+  nsString path = localPath->NativePath();
+  nsCString localNativePath;
+  NS_CopyUnicodeToNative(path, localNativePath);
 #else
   nsCString localNativePath = localPath->NativePath();
 #endif

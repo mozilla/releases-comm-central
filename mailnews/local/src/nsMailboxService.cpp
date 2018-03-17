@@ -20,6 +20,7 @@
 #include "nsIDocShell.h"
 #include "nsIPop3Service.h"
 #include "nsMsgUtils.h"
+#include "nsNativeCharsetUtils.h"
 #include "nsNetUtil.h"
 #include "nsIDocShellLoadInfo.h"
 #include "nsIWebNavigation.h"
@@ -51,8 +52,9 @@ nsresult nsMailboxService::ParseMailbox(nsIMsgWindow *aMsgWindow, nsIFile *aMail
     nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(mailboxurl);
     // okay now generate the url string
 #ifdef XP_WIN
-    // The protocol handler can handle UTF-8 paths even on Windows.
-    nsCString mailboxPath = NS_ConvertUTF16toUTF8(aMailboxPath->NativePath());
+    nsString path = aMailboxPath->NativePath();
+    nsCString mailboxPath;
+    NS_CopyUnicodeToNative(path, mailboxPath);
 #else
     nsCString mailboxPath = aMailboxPath->NativePath();
 #endif
