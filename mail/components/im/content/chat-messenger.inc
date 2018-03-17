@@ -1,0 +1,196 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+        <vbox id="chatTabPanel">
+          <toolbox id="chat-view-toolbox" class="mail-toolbox"
+                   mode="full" defaultmode="full"
+                   labelalign="end" defaultlabelalign="end">
+            <toolbar class="inline-toolbar chromeclass-toolbar"
+                     id="chat-toobar"
+                     fullscreentoolbar="true"
+                     customizable="true"
+                     context="chat-toolbar-context-menu"
+                     mode="full"
+#ifdef XP_MACOSX
+                     iconsize="small"
+#endif
+                     defaultset="button-add-buddy,button-join-chat,spacer,chat-status-selector,button-chat-accounts,spacer,gloda-im-search,button-chat-appmenu"/>
+
+            <toolbarpalette id="ChatToolbarPalette">
+              <toolbarbutton id="button-add-buddy"
+                             class="toolbarbutton-1"
+                             label="&addBuddyButton.label;"
+                             oncommand="chatHandler.addBuddy()"/>
+              <toolbarbutton id="button-join-chat"
+                             class="toolbarbutton-1"
+                             label="&joinChatButton.label;"
+                             oncommand="chatHandler.joinChat()"/>
+              <toolbaritem id="chat-status-selector"
+                           orient="horizontal"
+                           align="center" flex="1">
+                <toolbarbutton type="menu"
+                               id="statusTypeIcon"
+                               class="toolbarbutton-1"
+                               status="available">
+                  <menupopup id="setStatusTypeMenupopup"
+                             oncommand="statusSelector.editStatus(event);">
+                    <menuitem id="statusTypeAvailable" label="&status.available;"
+                              status="available" class="menuitem-iconic"/>
+                    <menuitem id="statusTypeUnavailable" label="&status.unavailable;"
+                              status="unavailable" class="menuitem-iconic"/>
+                    <menuseparator id="statusTypeOfflineSeparator"/>
+                    <menuitem id="statusTypeOffline" label="&status.offline;"
+                              status="offline" class="menuitem-iconic"/>
+                  </menupopup>
+                </toolbarbutton>
+                <label id="statusMessage" crop="end" flex="1" value=""
+                       class="statusMessageToolbarItem"
+                       onclick="statusSelector.statusMessageClick();"/>
+              </toolbaritem>
+              <toolbarbutton id="button-chat-accounts"
+                             class="toolbarbutton-1"
+                             label="&chatAccountsButton.label;"
+                             oncommand="openIMAccountMgr()"/>
+
+              <toolbaritem id="gloda-im-search" insertafter="button-stop"
+                           title="&amp;glodaSearch.title;"
+                           align="center"
+                           flex="1"
+                           class="chromeclass-toolbar-additional">
+                <textbox id="IMSearchInput"
+                         class="searchBox"
+                         flex="1"
+                         type="glodacomplete"
+                         searchbutton="true"
+                         autocompletesearch="gloda"
+                         autocompletepopup="PopupGlodaAutocomplete"
+                         autocompletesearchparam="global"
+                         timeout="200"
+                         maxlength="192"
+                         placeholder=""
+                         emptytextbase="&search.label.base1;"
+                         keyLabelNonMac="&search.keyLabel.nonmac;"
+                         keyLabelMac="&search.keyLabel.mac;"
+                         >
+                  <!-- Mimic the search/clear buttons of the standard search textbox,
+                       but adjust for the reality that clear doesn't make much sense
+                       since gloda results only show in a tab and the idiom for closing
+                       tabs is closing the tab.  Our binding does process escape to
+                       clear the box, if people want to clear it that way...
+                    -->
+                  <hbox>
+                    <image class="gloda-search-icon"/>
+                  </hbox>
+                </textbox>
+              </toolbaritem>
+              <toolbarbutton id="button-chat-appmenu"
+                             class="toolbarbutton-1 button-appmenu"
+                             label="&appmenuButton.label;"
+                             tooltiptext="&appmenuButton1.tooltip;"/>
+            </toolbarpalette>
+            <toolbarset id="customChatToolbars" context="chat-toolbar-context-menu"/>
+          </toolbox>
+
+          <notificationbox id="chatTabPanel" flex="1" notificationside="top">
+            <hbox flex="1">
+              <vbox id="listPaneBox" minwidth="125" width="200" persist="width">
+                <richlistbox id="contactlistbox"
+                             context="buddyListContextMenu"
+                             tooltip="imTooltip" flex="1">
+                  <imgroup id="conversationsGroup" name="&conversationsHeader.label;"/>
+                  <imconv id="searchResultConv" displayname="&searchResultConversation.label;" hidden="true"/>
+                  <imgroup id="onlinecontactsGroup" name="&onlineContactsHeader.label;"/>
+                  <imgroup id="offlinecontactsGroup" name="&offlineContactsHeader.label;" closed="true"/>
+                </richlistbox>
+              </vbox>
+              <splitter id="listSplitter" collapse="before"/>
+              <deck id="conversationsDeck" flex="1">
+                <vbox flex="1" id="noConvScreen" class="im-placeholder-screen" align="center" pack="center">
+                  <hbox id="noConvBox" class="im-placeholder-box" align="top">
+                    <vbox id="noConvInnerBox" class="im-placeholder-innerbox" flex="1">
+                      <label id="noConvTitle" class="im-placeholder-title">&chat.noConv.title;</label>
+                      <description id="noConvDesc"
+                                   class="im-placeholder-desc">&chat.noConv.description;</description>
+                    </vbox>
+                    <vbox id="noAccountInnerBox" class="im-placeholder-innerbox" flex="1" hidden="true">
+                      <label id="noAccountTitle" class="im-placeholder-title">&chat.noAccount.title;</label>
+                      <description id="noAccountDesc"
+                                   class="im-placeholder-desc">&chat.noAccount.description;</description>
+                      <hbox class="im-placeholder-button-box" flex="1">
+                        <spacer flex="1"/>
+                        <button id="openIMAccountWizardButton" label="&chat.accountWizard.button;"
+                                oncommand="openIMAccountWizard();"/>
+                      </hbox>
+                    </vbox>
+                    <vbox id="noConnectedAccountInnerBox" class="im-placeholder-innerbox" flex="1" hidden="true">
+                      <label id="noConnectedAccountTitle"
+                             class="im-placeholder-title">&chat.noConnectedAccount.title;</label>
+                      <description id="noConnectedAccountDesc"
+                                   class="im-placeholder-desc">&chat.noConnectedAccount.description;</description>
+                      <hbox class="im-placeholder-button-box" flex="1">
+                        <spacer flex="1"/>
+                        <button id="openIMAccountManagerButton" label="&chat.showAccountManager.button;"
+                                oncommand="openIMAccountMgr();"/>
+                      </hbox>
+                    </vbox>
+                  </hbox>
+                </vbox>
+                <vbox id="logDisplay" flex="1">
+                  <deck id="logDisplayDeck" flex="1">
+                    <vbox flex="1" id="noPreviousConvScreen" class="im-placeholder-screen" align="center" pack="center">
+                      <hbox id="noPreviousConvBox" class="im-placeholder-box" align="top">
+                        <vbox id="noPreviousConvInnerBox" class="im-placeholder-innerbox" flex="1">
+                          <description id="noPreviousConvDesc"
+                                       class="im-placeholder-desc">&chat.noPreviousConv.description;</description>
+                        </vbox>
+                      </hbox>
+                    </vbox>
+                    <vbox flex="1" id="logDisplayBrowserBox">
+                      <browser id="conv-log-browser" type="content" browser-type="conversation"
+                               contextmenu="chatConversationContextMenu" flex="1"
+                               tooltip="imTooltip"/>
+                      <progressmeter id="log-browserProgress" hidden="true"/>
+                      <findbar id="log-findbar" browserid="conv-log-browser"/>
+                    </vbox>
+                  </deck>
+                  <button id="goToConversation" hidden="true"
+                          oncommand="chatHandler.showCurrentConversation();"/>
+                </vbox>
+              </deck>
+              <splitter id="contextSplitter" hidden="true" collapse="after"/>
+              <vbox id="contextPane" hidden="true" width="250" persist="width">
+                <toolbar class="conv-top-info" id="conv-top-info"/>
+                <vbox id="contextPaneFlexibleBox" flex="1">
+                  <vbox flex="1" class="conv-chat" width="150">
+                    <hbox align="baseline" class="conv-nicklist-header">
+                      <label class="conv-nicklist-header-label"
+                             id="participantLabel" control="participantCount"
+                             value="&chat.participants;"/>
+                      <textbox flex="1" readonly="true" class="plain" id="participantCount"/>
+                    </hbox>
+                    <listbox id="nicklist" class="conv-nicklist"
+                             flex="1" seltype="multiple"
+                             tooltip="imTooltip"
+                             onclick="chatHandler.onNickClick(event);"
+                             onkeypress="chatHandler.onNicklistKeyPress(event);"/>
+                  </vbox>
+                  <splitter id="logsSplitter" class="conv-chat" collapse="after"/>
+                  <vbox flex="1" id="previousConversations">
+                    <label class="conv-logs-header-label"
+                           id="participantLabel"
+                           value="&chat.previousConversations;"/>
+                    <tree id="logTree" flex="1" hidecolumnpicker="true" seltype="single"
+                          context="logTreeContext" onselect="chatHandler.onLogSelect();">
+                      <treecols>
+                        <treecol id="logCol" flex="1" primary="true" hideheader="true"
+                                 crop="center" ignoreincolumnpicker="true"/>
+                      </treecols>
+                      <treechildren/>
+                    </tree>
+                  </vbox>
+                </vbox>
+              </vbox>
+            </hbox>
+          </notificationbox>
+        </vbox>

@@ -3,10 +3,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-% overlay chrome://messenger/content/messenger.xul chrome://messenger/content/chat/chat-messenger-overlay.xul
 % style chrome://messenger/content/customizeToolbar.xul chrome://messenger/skin/chat.css
-*   content/messenger/chat/chat-messenger-overlay.xul    (content/chat-messenger-overlay.xul)
-    content/messenger/chat/chat-messenger-overlay.js     (content/chat-messenger-overlay.js)
+    content/messenger/chat/chat-messenger.js             (content/chat-messenger.js)
     content/messenger/chat/chat.css                      (content/chat.css)
     content/messenger/am-im.js                           (content/am-im.js)
     content/messenger/am-im.xul                          (content/am-im.xul)

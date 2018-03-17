@@ -11,13 +11,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgReadSMIMEOverlay.css" type="text/css"?>
-
-<!-- Overlaying utilityOverlay.xul here is a temporary band-aid for a
-     hard-to-reproduce problem where File, Edit, and View menus disappear on
-     Mac when certain add-ons are installed (bug 398702).  Work to find a
-     better fix is ongoing.  Ultimately, utilityOverlay.xul wants to
-     disappear from Thunderbird entirely (bug 359748). -->
-<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
+<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 
 <?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/about-support/aboutSupportOverlay.xul"?>
@@ -41,6 +35,10 @@
   %viewZoomOverlayDTD;
   <!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
   %msgReadSMIMEDTD;
+  <!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
+  %quickFilterBarDTD;
+  <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
+  %msgViewPickerDTD;
 ]>
 
 <overlay  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -60,6 +58,7 @@
 <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
 <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
 <script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
+<script type="application/javascript" src="chrome://messenger/content/quickFilterBar.js"/>
 #ifdef XP_MACOSX
 <script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>
 #endif
@@ -71,13 +70,6 @@
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
 </stringbundleset>
-
-<!-- Performance optimization...we include utilityOverlay.xul which defines some command sets
-     which are updated based on events like focus and select. We have our own custom events
-     which we use to optimize when we do command updating. To avoid unnecessary command updating,
-     we are going to override the events the global edit menu items and select edit menu items
-     are updated on with events of our own controlling.
- -->
 
 <commandset id="globalEditMenuItems"
             commandupdater="true"
@@ -119,7 +111,7 @@
 </commandset>
 
 <commandset id="mailCommands">
-  <command id="cmd_quit"/>
+  <command id="cmd_quit" oncommand="goQuitApplication()"/>
   <!--The cmd_createFilterFromPopup is used to notify the email context popup -->
   <command id="cmd_createFilterFromPopup"/>
   <command id="cmd_pageSetup"/>
@@ -132,6 +124,12 @@
             events="create-menu-view"
             oncommandupdate="goUpdateMailMenuItems(this)">
 
+   <command id="cmd_showQuickFilterBar"
+            oncommand="goDoCommand('cmd_showQuickFilterBar');"/>
+   <command id="cmd_toggleQuickFilterBar"
+            oncommand="goDoCommand('cmd_toggleQuickFilterBar');"/>
+   <command id="cmd_popQuickFilterBarStack"
+            oncommand="goDoCommand('cmd_popQuickFilterBarStack');"/>
    <command id="cmd_viewPageSource" oncommand="goDoCommand('cmd_viewPageSource')" disabled="true"/>
    <command id="cmd_setFolderCharset" oncommand="goDoCommand('cmd_setFolderCharset')" />
 
@@ -184,10 +182,18 @@
          valueCopyMsg="&redoCopyMsgCmd.label;"
          valueUnmarkAllMsgs="&redoMarkAllCmd.label;"
          valueDefault="&redoDefaultCmd.label;"/>
-  <command id="cmd_cut"/>
-  <command id="cmd_copy"/>
-  <command id="cmd_paste"/>
+  <command id="cmd_cut"
+         oncommand="goDoCommand('cmd_cut')"
+         disabled="true"/>
+  <command id="cmd_copy"
+         oncommand="goDoCommand('cmd_copy')"
+         disabled="true"/>
+  <command id="cmd_paste"
+         oncommand="goDoCommand('cmd_paste')"
+         disabled="true"/>
   <command id="cmd_delete"
+         valueDefault="&deleteCmd.label;"
+         valueDefaultAccessKey="&deleteCmd.accesskey;"
          valueFolder="&deleteFolderCmd.label;"
          valueFolderAccessKey="&deleteFolderCmd.accesskey;"
          valueNewsgroup="&unsubscribeNewsgroupCmd.label;"
@@ -199,9 +205,13 @@
          valueMessages="&deleteMsgsCmd.label;"
          valueMessagesAccessKey="&deleteMsgsCmd.accesskey;"
          valueIMAPDeletedMessages="&undeleteMsgsCmd.label;"
-         valueIMAPDeletedMessagesAccessKey="&undeleteMsgsCmd.accesskey;"/>
+         valueIMAPDeletedMessagesAccessKey="&undeleteMsgsCmd.accesskey;"
+         oncommand="goDoCommand('cmd_delete')"
+         disabled="true"/>
   <command id="cmd_cancel" oncommand="goDoCommand('cmd_cancel')"/>
-  <command id="cmd_selectAll"/>
+  <command id="cmd_selectAll"
+         oncommand="goDoCommand('cmd_selectAll')"
+         disabled="true"/>
   <command id="cmd_selectThread" oncommand="goDoCommand('cmd_selectThread')"/>
   <command id="cmd_selectFlagged" oncommand="goDoCommand('cmd_selectFlagged')"/>
   <command id="cmd_properties" oncommand="goDoCommand('cmd_properties')"
@@ -219,8 +229,8 @@
 </commandset>
 
 <commandset id="mailEditContextMenuItems">
-  <command id="cmd_copyLink"/>
-  <command id="cmd_copyImage"/>
+  <command id="cmd_copyLink" oncommand="goDoCommand('cmd_copyLink')" disabled="false"/>
+  <command id="cmd_copyImage" oncommand="goCopyImage()" disabled="false"/>
 </commandset>
 
 <commandset id="mailGoMenuItems"
@@ -374,20 +384,25 @@
   <key id="space" key=" " modifiers="shift any" oncommand="SpaceHit(event);"/>
 
   <!-- File Menu -->
-  <key id="key_close"/>
+  <key id="key_close" key="&closeCmd.key;" command="cmd_close" modifiers="accel"/>
 #ifndef XP_MACOSX
   <key id="key_close2" keycode="VK_F4" modifiers="accel" command="cmd_close"/>
   <key id="key_renameFolder" keycode="&renameFolder.key;" oncommand="goDoCommand('cmd_renameFolder')"/>
 #endif
 #ifdef XP_UNIX
-  <key id="key_quit"/>
+  <key id="key_quit" command="cmd_quit" modifiers="accel" key="&quitApplicationCmd.key;"/>
 #endif
   <!-- Edit Menu -->
-  <key id="key_undo"/>
-  <key id="key_redo"/>
-  <key id="key_cut"/>
-  <key id="key_copy"/>
-  <key id="key_paste"/>
+  <key id="key_undo" key="&undoCmd.key;" modifiers="accel"/>
+  <key id="key_redo"
+#ifdef XP_UNIX
+       key="&undoCmd.key;" modifiers="shift, accel"/>
+#else
+       key="&redoCmd.key;" modifiers="accel"/>
+#endif
+  <key id="key_cut" key="&cutCmd.key;" modifiers="accel"/>
+  <key id="key_copy" key="&copyCmd.key;" modifiers="accel"/>
+  <key id="key_paste" key="&pasteCmd.key;" modifiers="accel"/>
 #ifdef XP_MACOSX
   <key id="key_delete" keycode="VK_BACK"
        oncommand="goDoCommand('cmd_delete');"/>
@@ -403,7 +418,7 @@
   <key id="cmd_shiftDelete" keycode="VK_DELETE"
        oncommand="goDoCommand('cmd_shiftDelete');" modifiers="shift"/>
 #endif
-  <key id="key_selectAll"/>
+  <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="accel"/>
   <key id="key_selectThread" key="&selectThreadCmd.key;"             oncommand="goDoCommand('cmd_selectThread');" modifiers="accel, shift"/>
 
   <key id="key_toggleRead" key="&toggleReadCmd.key;"                 oncommand="goDoCommand('cmd_toggleRead');"/>
@@ -572,6 +587,11 @@
        modifiers="accel"
        oncommand="openSavedFilesWnd();"/>
 
+  <key id="key_qfb_escape" keycode="VK_ESCAPE"
+       command="cmd_popQuickFilterBarStack"/>
+  <key id="key_qfb_show" key="&quickFilterBar.show.key2;"
+       modifiers="accel,shift"
+       command="cmd_showQuickFilterBar"/>
 #ifdef XP_GNOME
 #define NUM_SELECT_TAB_MODIFIER alt
 #else
@@ -1389,6 +1409,13 @@
                       label="&accountManagerCmd2.label;"
                       oncommand="MsgAccountManager(null);"/>
             <menuseparator/>
+            <menuitem id="appmenu_quickFilterBar"
+                      type="checkbox"
+                      label="&quickFilterBar.toggleBarVisibility.appmenu.label;"
+                      command="cmd_toggleQuickFilterBar">
+              <observes element="view_toolbars_popup_quickFilterBar"
+                        attribute="checked"/>
+            </menuitem>
             <menuitem id="appmenu_showStatusbar"
                       type="checkbox"
                       label="&showTaskbarCmd.label;"
@@ -2292,6 +2319,20 @@
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
 
+  <tooltip id="qfb-text-search-upsell"
+           level="parent"
+           style="background-color: #ffeeee;">
+    <vbox>
+      <label id="qfb-upsell-line-one"
+             class="header"
+             fmt="&quickFilterBar.glodaUpsell.continueSearch;"
+             value=""/>
+      <label id="qfb-upsell-line-two"
+             fmt="&quickFilterBar.glodaUpsell.pressEnterAndCurrent;"
+             value=""/>
+    </vbox>
+  </tooltip>
+
 </popupset>
 
 <!-- The reason we put the menubar inside a toolbox is due to the labelalign and
@@ -2324,9 +2365,13 @@
     <toolbaritem id="menubar-items" align="center">
       <menubar id="mail-menubar" style="border:0px;padding:0px;margin:0px;-moz-appearance:none">
         <!-- File -->
-        <menu id="menu_File">
+        <menu id="menu_File"
+              label="&fileMenu.label;"
+              accesskey="&fileMenu.accesskey;">
           <menupopup id="menu_FilePopup" onpopupshowing="file_init();">
-          <menu id="menu_New">
+          <menu id="menu_New"
+                label="&newMenu.label;"
+                accesskey="&newMenu.accesskey;">
             <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();">
               <menuitem id="menu_newNewMsgCmd" label="&newNewMsgCmd.label;"
                         accesskey="&newNewMsgCmd.accesskey;"
@@ -2360,7 +2405,10 @@
                         accesskey="&newOtherAccountsCmd.accesskey;"
                         oncommand="MsgAccountWizard();"/>
               <menuseparator id="newPopupMenuSeparator"/>
-              <menuitem id="menu_newCard"/>
+              <menuitem id="menu_newCard"
+                        label="&newContactCmd.label;"
+                        accesskey="&newContactCmd.accesskey;"
+                        command="cmd_newCard"/>
               <menuitem id="newIMContactMenuItem"
                         label="&newIMContactCmd.label;"
                         accesskey="&newIMContactCmd.accesskey;"
@@ -2370,7 +2418,11 @@
           <menuitem id="openMessageFileMenuitem" label="&openMessageFileCmd.label;"
             accesskey="&openMessageFileCmd.accesskey;"
             oncommand="MsgOpenFromFile();"/>
-          <menuitem id="menu_close"/>
+          <menuitem id="menu_close"
+                    label="&closeCmd.label;"
+                    key="key_close"
+                    accesskey="&closeCmd.accesskey;"
+                    command="cmd_close"/>
           <menuseparator id="fileMenuAfterCloseSeparator"/>
           <menu id="menu_saveAs" label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
             <menupopup id="menu_SavePopup">
@@ -2456,19 +2508,38 @@
           <menuitem id="printPreviewMenuItem" label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;" command="cmd_printpreview"/>
 #endif
           <menuitem id="printMenuItem" key="key_print" label="&printCmd.label;" accesskey="&printCmd.accesskey;" command="cmd_print"/>
+          <menuseparator id="menu_FileQuitSeparator"/>
+          <menuitem id="menu_FileQuitItem"
+#ifdef XP_UNIX
+                    key="key_quit"
+#ifndef XP_MACOSX
+                    label="&quitApplicationCmdUnix.label;"
+                    accesskey="&quitApplicationCmdUnix.accesskey;"
+#else
+                    label="&quitApplicationCmdMac.label;"
+                    accesskey="&quitApplicationCmdMac.accesskey;"
+#endif
+#else
+                    label="&quitApplicationCmd.label;"
+                    accesskey="&quitApplicationCmd.accesskey;"
+#endif
+                    command="cmd_quit"/>
         </menupopup>
       </menu>
 
     <!-- Edit -->
-    <menu id="menu_Edit" oncommand="CommandUpdate_UndoRedo();">
+    <menu id="menu_Edit"
+          label="&editMenu.label;"
+          accesskey="&editMenu.accesskey;"
+          oncommand="CommandUpdate_UndoRedo();">
       <menupopup id="menu_EditPopup" onpopupshowing="InitEditMessagesMenu()">
         <menuitem id="menu_undo" label="&undoDefaultCmd.label;" accesskey="&undoDefaultCmd.accesskey;" key="key_undo" command="cmd_undo"/>
         <menuitem id="menu_redo" label="&redoDefaultCmd.label;" accesskey="&redoDefaultCmd.accesskey;" key="key_redo" command="cmd_redo"/>
         <menuseparator id="editMenuAfterRedoSeparator"/>
-        <menuitem id="menu_cut"/>
-        <menuitem id="menu_copy"/>
-        <menuitem id="menu_paste"/>
-        <menuitem id="menu_delete" command="cmd_delete"/>
+        <menuitem id="menu_cut" label="&cutCmd.label;" key="key_cut" accesskey="&cutCmd.accesskey;" command="cmd_cut"/>
+        <menuitem id="menu_copy" label="&copyCmd.label;" key="key_copy" accesskey="&copyCmd.accesskey;" command="cmd_copy"/>
+        <menuitem id="menu_paste" label="&pasteCmd.label;" key="key_paste" accesskey="&pasteCmd.accesskey;" command="cmd_paste"/>
+        <menuitem id="menu_delete" label="&deleteCmd.label;" key="key_delete" accesskey="&deleteCmd.accesskey;" command="cmd_delete"/>
         <menuseparator id="editMenuAfterDeleteSeparator"/>
         <menu id="menu_select" label="&selectMenu.label;" accesskey="&selectMenu.accesskey;">
           <menupopup id="menu_SelectPopup">
@@ -2517,18 +2588,36 @@
                   label="&accountManagerCmd2.label;"
                   accesskey="&accountManagerCmdUnix2.accesskey;"
                   oncommand="MsgAccountManager(null);"/>
-        <menuitem id="menu_preferences" oncommand="openOptionsDialog()"/>
+        <menuitem id="menu_preferences"
+                  oncommand="openOptionsDialog()"
+                  label="&preferencesCmdUnix.label;"
+                  accesskey="&preferencesCmdUnix.accesskey;"/>
 #endif
 #endif
       </menupopup>
     </menu>
 
     <!-- View -->
-    <menu id="menu_View">
+    <menu id="menu_View"
+          label="&viewMenu.label;"
+          accesskey="&viewMenu.accesskey;">
       <menupopup id="menu_View_Popup" onpopupshowing="view_init();">
-        <menu id="menu_Toolbars" onpopupshowing="onViewToolbarsPopupShowing(event, 'mail-toolbox');">
+        <menu id="menu_Toolbars"
+              label="&viewToolbarsMenu.label;"
+              accesskey="&viewToolbarsMenu.accesskey;"
+              onpopupshowing="onViewToolbarsPopupShowing(event, 'mail-toolbox');">
           <menupopup id="view_toolbars_popup">
-            <menuitem id="menu_showTaskbar" type="checkbox"/>
+            <menuitem id="view_toolbars_popup_quickFilterBar"
+                      type="checkbox"
+                      label="&quickFilterBar.toggleBarVisibility.menu.label;"
+                      accesskey="&quickFilterBar.toggleBarVisibility.menu.accesskey;"
+                      command="cmd_toggleQuickFilterBar"/>
+            <menuitem id="menu_showTaskbar"
+                      type="checkbox"
+                      label="&showTaskbarCmd.label;"
+                      accesskey="&showTaskbarCmd.accesskey;"
+                      oncommand="goToggleToolbar('status-bar', 'menu_showTaskbar')"
+                      checked="true"/>
             <menuseparator id="viewMenuBeforeCustomizeMailToolbarsSeparator"/>
             <menuitem id="customizeMailToolbars"
                       command="cmd_CustomizeMailToolbar"
@@ -3152,7 +3241,10 @@
                   label="&accountManagerCmd2.label;"
                   accesskey="&accountManagerCmd2.accesskey;"
                   oncommand="MsgAccountManager(null);"/>
-        <menuitem id="menu_preferences" oncommand="openOptionsDialog()"/>
+        <menuitem id="menu_preferences"
+                  oncommand="openOptionsDialog()"
+                  label="&preferencesCmd2.label;"
+                  accesskey="&preferencesCmd2.accesskey;"/>
 #else
 #ifdef XP_MACOSX
         <menuseparator id="prefSep"/>
@@ -3473,6 +3565,14 @@
         <menuseparator id="button-afterTagRemoveAllSeparator"/>
       </menupopup>
     </toolbarbutton>
+    <toolbarbutton id="qfb-show-filter-bar"
+                   class="toolbarbutton-1"
+                   type="checkbox"
+                   label="&quickFilterBar.qfbShowFilterBar.label;"
+                   command="cmd_toggleQuickFilterBar">
+      <observes element="view_toolbars_popup_quickFilterBar"
+                attribute="checked"/>
+    </toolbarbutton>
     <toolbarbutton id="button-address"
                    class="toolbarbutton-1"
                    label="&addressBookButton.label;"
@@ -3508,6 +3608,105 @@
                 oncommand="gFolderTreeView.mode = this.value;">
         <menupopup id="folderpane-mode-selector-popup"
                    onpopupshowing="gFolderTreeView._initFolderModeSelector();"/>
+      </menulist>
+    </toolbaritem>
+    <!-- gloda search widget; provides global (message) searching.  -->
+    <toolbaritem id="gloda-search" insertafter="button-stop"
+                 title="&glodaSearch.title;"
+                 align="center"
+                 flex="1"
+                 class="chromeclass-toolbar-additional">
+        <textbox id="searchInput"
+                 class="searchBox"
+                 flex="1"
+                 type="glodacomplete"
+                 searchbutton="true"
+                 autocompletesearch="gloda"
+                 autocompletepopup="PopupGlodaAutocomplete"
+                 autocompletesearchparam="global"
+                 timeout="200"
+                 maxlength="192"
+                 placeholder=""
+                 emptytextbase="&search.label.base1;"
+                 keyLabelNonMac="&search.keyLabel.nonmac;"
+                 keyLabelMac="&search.keyLabel.mac;"
+                 >
+          <!-- Mimic the search/clear buttons of the standard search textbox,
+               but adjust for the reality that clear doesn't make much sense
+               since gloda results only show in a tab and the idiom for closing
+               tabs is closing the tab.  Our binding does process escape to
+               clear the box, if people want to clear it that way...
+               -->
+          <hbox>
+            <image class="gloda-search-icon"/>
+          </hbox>
+        </textbox>
+    </toolbaritem>
+
+    <toolbarbutton id="button-compact" class="toolbarbutton-1"
+                   insertafter="button-mark"
+                   label="&compactButton.label;"
+                   tooltiptext="&compactButton.tooltip;"
+                   oncommand="goDoCommand('button_compact');"
+                   observes="button_compact"/>
+    <toolbaritem id="folder-location-container" insert-after="button-stop"
+                 title="&folderLocationToolbarItem.title;"
+                 align="center"
+                 class="chromeclass-toolbar-additional">
+      <menulist id="locationFolders"
+                class="folderMenuItem"
+                label="&folderLocationToolbarItem.title;"
+                context="folderPaneContext"
+                maxwidth="300"
+                crop="center">
+        <menupopup id="folderLocationPopup"
+                   class="menulist-menupopup"
+                   type="folder"
+                   flex="1"
+                   mode="notDeferred"
+                   showFileHereLabel="true"
+                   oncommand="gFolderTreeView.selectFolder(event.target._folder, true);"/>
+      </menulist>
+    </toolbaritem>
+    <toolbaritem id="mailviews-container"
+                 title="&mailViewsToolbarItem.title;"
+                 align="center"
+                 class="chromeclass-toolbar-additional">
+      <label id="viewPickerLabel"
+             value="&viewPicker.label;"
+             control="viewPicker"
+             accesskey="&viewPicker.accesskey;"/>
+      <menulist id="viewPicker" oncommand="ViewChangeByMenuitem(event.target);">
+        <menupopup id="viewPickerPopup"
+                   onpopupshowing="RefreshViewPopup(this);">
+          <menuitem id="viewPickerAll" value="0"
+                    label="&viewAll.label;"
+                    type="radio"/>
+          <menuitem id="viewPickerUnread" value="1"
+                    label="&viewUnread.label;"
+                    type="radio"/>
+          <menuitem id="viewPickerNotDeleted" value="3"
+                    label="&viewNotDeleted.label;"
+                    type="radio"/>
+          <menuseparator id="afterViewPickerUnreadSeparator"/>
+          <menu id="viewPickerTags" label="&viewTags.label;">
+            <menupopup id="viewPickerTagsPopup"
+                       class="menulist-menupopup"
+                       onpopupshowing="RefreshTagsPopup(this, true);"/>
+          </menu>
+          <menu id="viewPickerCustomViews" label="&viewCustomViews.label;">
+            <menupopup id="viewPickerCustomViewsPopup"
+                       class="menulist-menupopup"
+                       onpopupshowing="RefreshCustomViewsPopup(this, true);"/>
+          </menu>
+          <menuseparator id="afterViewPickerCustomViewsSeparator"/>
+          <menuitem id="viewPickerVirtualFolder"
+                    value="7"
+                    label="&viewVirtualFolder.label;"/>
+          <menuitem id="viewPickerCustomize"
+                    value="8"
+                    label="&viewCustomizeView.label;"/>
+        </menupopup>
       </menulist>
     </toolbaritem>
 

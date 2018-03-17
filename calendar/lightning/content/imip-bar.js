@@ -38,7 +38,7 @@ var ltnImipBar = {
      * NOTE: This function is called without a valid this-context!
      */
     load: function() {
-        // Add a listener to gMessageListeners defined in msgHdrViewOverlay.js
+        // Add a listener to gMessageListeners defined in msgHdrView.js
         gMessageListeners.push(ltnImipBar);
 
         // We need to extend the HideMessageHeaderPane function to also hide the

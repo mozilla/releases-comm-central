@@ -8,8 +8,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
-<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
-
 <!DOCTYPE dialog [
   <!ENTITY % SearchDialogDTD SYSTEM "chrome://messenger/locale/SearchDialog.dtd">
   %SearchDialogDTD;
@@ -60,16 +58,17 @@
   </commands>
 
   <keyset id="mailKeys">
-    <key id="key_delete" oncommand="goDoCommand('cmd_delete');"/>
     <key key="&closeCmd.key;" modifiers="accel" oncommand="window.close();"/>
     <key keycode="VK_ESCAPE" oncommand="window.close();"/>
 #ifdef XP_MACOSX
-      <key id="key_delete2" oncommand="goDoCommand('cmd_delete');"/>
+      <key id="key_delete" keycode="VK_BACK"     command="cmd_delete"/>
+      <key id="key_delete2" keycode="VK_DELETE"  command="cmd_delete"/>
       <key id="cmd_shiftDelete" keycode="VK_BACK"
            oncommand="goDoCommand('cmd_shiftDelete');" modifiers="shift"/>
       <key id="cmd_shiftDelete2" keycode="VK_DELETE"
            oncommand="goDoCommand('cmd_shiftDelete');" modifiers="shift"/>
 #else
+      <key id="key_delete" keycode="VK_DELETE" command="cmd_delete"/>
       <key id="cmd_shiftDelete" keycode="VK_DELETE"
            oncommand="goDoCommand('cmd_shiftDelete');" modifiers="shift"/>
 #endif

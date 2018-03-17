@@ -7,8 +7,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/abResultsPane.css" type="text/css"?>
 
-<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
-
 <!DOCTYPE window [
   <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
   %abResultsPaneDTD;

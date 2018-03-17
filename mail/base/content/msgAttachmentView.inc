@@ -1,0 +1,106 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!-- the message pane consists of 4 'boxes'. Box #4 is the attachment box which
+     can be toggled into a slim or an expanded view -->
+                        <hbox align="center" id="attachmentBar"
+                              context="attachment-toolbar-context-menu"
+                              onclick="if (event.button == 0) toggleAttachmentList(undefined, true);">
+                          <button type="checkbox" id="attachmentToggle"
+                                  onmousedown="event.preventDefault();"
+                                  onclick="event.stopPropagation();"
+                                  oncommand="toggleAttachmentList(this.checked, true);"/>
+                          <hbox align="center" id="attachmentInfo" flex="1">
+                            <image id="attachmentIcon"/>
+                            <label id="attachmentCount"/>
+                            <label id="attachmentName" crop="center" flex="1"
+                                   tooltiptext="&openAttachment.tooltip;"
+                                   onclick="OpenAttachmentFromBar(event);"
+                                   ondragstart="nsDragAndDrop.startDrag(event,attachmentNameDNDObserver);"/>
+                            <label id="attachmentSize"/>
+                          </hbox>
+                          <!-- Use a very large flex value here so that attachmentCount doesn't take
+                               up more space than necessary, but still crops itself if there's not
+                               enough space. -->
+                          <spacer flex="9999"/>
+
+                          <toolbox id="attachment-view-toolbox"
+                                   class="inline-toolbox"
+                                   defaulticonsize="small"
+                                   minwidth="50px"
+                                   defaultlabelalign="end"
+                                   defaultmode="full"
+                                   inlinetoolbox="true">
+                            <toolbarpalette id="attachment-view-toolbar-palette">
+                              <toolbaritem id="attachmentSaveAll"
+                                           title="&saveAllAttachmentsButton1.label;">
+                                <toolbarbutton type="menu-button" id="attachmentSaveAllSingle"
+                                               class="toolbarbutton-1 msgHeaderView-button"
+                                               label="&saveAttachmentButton1.label;"
+                                               tooltiptext="&saveAttachmentButton1.tooltip;"
+                                               onclick="event.stopPropagation();"
+                                               oncommand="TryHandleAllAttachments('saveAs'); RestoreFocusAfterHdrButton();"
+                                               hidden="true">
+                                  <menupopup id="attachmentSaveAllSingleMenu"
+                                             onpopupshowing="onShowSaveAttachmentMenuSingle();">
+                                    <menuitem id="button-openAttachment"
+                                              oncommand="TryHandleAllAttachments('open'); event.stopPropagation(); RestoreFocusAfterHdrButton();"
+                                              label="&openAttachmentCmd.label;"
+                                              accesskey="&openAttachmentCmd.accesskey;"/>
+                                    <menuitem id="button-saveAttachment"
+                                              oncommand="TryHandleAllAttachments('saveAs'); event.stopPropagation(); RestoreFocusAfterHdrButton();"
+                                              label="&saveAsAttachmentCmd.label;"
+                                              accesskey="&saveAsAttachmentCmd.accesskey;"/>
+                                    <menuseparator id="button-menu-separator"/>
+                                    <menuitem id="button-detachAttachment"
+                                              oncommand="TryHandleAllAttachments('detach'); event.stopPropagation(); RestoreFocusAfterHdrButton();"
+                                              label="&detachAttachmentCmd.label;"
+                                              accesskey="&detachAttachmentCmd.accesskey;"/>
+                                    <menuitem id="button-deleteAttachment"
+                                              oncommand="TryHandleAllAttachments('delete'); event.stopPropagation(); RestoreFocusAfterHdrButton();"
+                                              label="&deleteAttachmentCmd.label;"
+                                              accesskey="&deleteAttachmentCmd.accesskey;"/>
+                                  </menupopup>
+                                </toolbarbutton>
+                                <toolbarbutton type="menu-button" id="attachmentSaveAllMultiple"
+                                               class="toolbarbutton-1 msgHeaderView-button"
+                                               label="&saveAllAttachmentsButton1.label;"
+                                               tooltiptext="&saveAllAttachmentsButton1.tooltip;"
+                                               onclick="event.stopPropagation();"
+                                               oncommand="TryHandleAllAttachments('save'); RestoreFocusAfterHdrButton();">
+                                  <menupopup id="attachmentSaveAllMultipleMenu"
+                                             onpopupshowing="onShowSaveAttachmentMenuMultiple();">
+                                    <menuitem id="button-openAllAttachments"
+                                              oncommand="TryHandleAllAttachments('open'); event.stopPropagation(); RestoreFocusAfterHdrButton();"
+                                              label="&openAllAttachmentsCmd.label;"
+                                              accesskey="&openAllAttachmentsCmd.accesskey;"/>
+                                    <menuitem id="button-saveAllAttachments"
+                                              oncommand="TryHandleAllAttachments('save'); event.stopPropagation(); RestoreFocusAfterHdrButton();"
+                                              label="&saveAllAttachmentsCmd.label;"
+                                              accesskey="&saveAllAttachmentsCmd.accesskey;"/>
+                                    <menuseparator id="button-menu-separator-all"/>
+                                    <menuitem id="button-detachAllAttachments"
+                                              oncommand="TryHandleAllAttachments('detach'); event.stopPropagation(); RestoreFocusAfterHdrButton();"
+                                              label="&detachAllAttachmentsCmd.label;"
+                                              accesskey="&detachAllAttachmentsCmd.accesskey;"/>
+                                    <menuitem id="button-deleteAllAttachments"
+                                              oncommand="TryHandleAllAttachments('delete'); event.stopPropagation(); RestoreFocusAfterHdrButton();"
+                                              label="&deleteAllAttachmentsCmd.label;"
+                                              accesskey="&deleteAllAttachmentsCmd.accesskey;"/>
+                                  </menupopup>
+                                </toolbarbutton>
+                              </toolbaritem>
+                            </toolbarpalette>
+                            <toolbar id="attachment-view-toolbar" class="inline-toolbar"
+                                     customizable="true" mode="full"
+                                     context="attachment-toolbar-context-menu"
+                                     defaulticonsize="small" defaultmode="full"
+                                     defaultset="attachmentSaveAll"/>
+                          </toolbox>
+                        </hbox>
+                        <attachmentlist orient="horizontal" id="attachmentList" flex="1"
+                                        seltype="multiple" context="attachmentListContext"
+                                        itemcontext="attachmentItemContext"
+                                        ondragstart="nsDragAndDrop.startDrag(event,attachmentListDNDObserver);"
+                                        ondragover="nsDragAndDrop.dragOver(event, attachmentListDNDObserver);"/>

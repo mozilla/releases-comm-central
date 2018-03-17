@@ -10,23 +10,23 @@
 <?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/tabmail.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/tabmail.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/quickFilterBar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/editContactOverlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/chat/chat.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/chat.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/smime/msgHdrViewSMIMEOverlay.css" type="text/css"?>
 
-<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
-<?xul-overlay href="chrome://messenger/content/msgHdrViewOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/mailWindowOverlay.xul"?>
-<?xul-overlay href="chrome://messenger/content/extraCustomizeItems.xul"?>
-<?xul-overlay href="chrome://messenger/content/mailOverlay.xul"?>
-<?xul-overlay href="chrome://messenger/content/editContactOverlay.xul"?>
-<?xul-overlay href="chrome://messenger/content/specialTabs.xul"?>
-<?xul-overlay href="chrome://messenger/content/preferences/preferencesTab.xul"?>
-<?xul-overlay href="chrome://messenger/content/quickFilterBar.xul"?>
-#ifdef XP_MACOSX
-<?xul-overlay href="chrome://messenger/content/macMessengerOverlay.xul"?>
-#endif
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
+<!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
+%chatDTD;
+<!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
+%msgHdrViewOverlayDTD;
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
 %messengerDTD;
 <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
@@ -35,6 +35,12 @@
 %textcontextDTD;
 <!ENTITY % tabMailDTD SYSTEM "chrome://messenger/locale/tabmail.dtd" >
 %tabMailDTD;
+<!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
+%quickFilterBarDTD;
+<!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
+%utilityDTD;
+<!ENTITY % editContactOverlayDTD SYSTEM "chrome://messenger/locale/editContactOverlay.dtd">
+%editContactOverlayDTD;
 ]>
 
 <!--
@@ -60,7 +66,13 @@
 
 <stringbundleset id="stringbundleset">
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
+  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
+  <stringbundle id="chatBundle" src="chrome://messenger/locale/chat.properties"/>
+  <stringbundle id="bundle_dateformat" src="chrome://chat/locale/dateFormat.properties"/>
+  <stringbundle id="bundle_places" src="chrome://places/locale/places.properties"/>
+  <stringbundle id="bundle_editContact"
+                src="chrome://messenger/locale/editContactOverlay.properties"/>
 </stringbundleset>
 
 <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
@@ -84,8 +96,20 @@
 <script type="application/javascript" src="chrome://messenger/content/phishingDetector.js"/>
 <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
 <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
-<script type="application/javascript" src="chrome://messenger/content/editContactOverlay.js"/>
+<script type="application/javascript" src="chrome://messenger/content/editContactPanel.js"/>
 <script type="application/javascript" src="chrome://messenger/content/toolbarIconColor.js"/>
+<script type="application/javascript" src="chrome://messenger/content/jsTreeView.js"/>
+<script type="application/javascript" src="chrome://messenger/content/msgHdrView.js"/>
+<script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
+<script type="application/javascript" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
+<script type="application/javascript" src="chrome://messenger/content/chat/chat-messenger.js"/>
+<script type="application/javascript" src="chrome://messenger/content/chat/imStatusSelector.js"/>
+<script type="application/javascript" src="chrome://messenger/content/chat/imContextMenu.js"/>
+<script type="application/javascript" src="chrome://messenger/content/preferences/preferencesTab.js"/>
+#ifdef XP_MACOSX
+<script type="application/javascript" src="chrome://messenger/content/mailCore.js" />
+<script type="application/javascript" src="chrome://messenger/content/macMessengerMenu.js"/>
+#endif
 
 
 <!-- move needed functions into a single js file -->
@@ -106,13 +130,31 @@
   <commandset id="mailToolsMenuItems"/>
   <commandset id="globalEditMenuItems"/>
   <commandset id="selectEditMenuItems"/>
-  <commandset id="clipboardEditMenuItems"/>
+  <commandset id="undoEditMenuItems" commandupdater="true" events="undo" oncommandupdate="goUpdateUndoEditMenuItems()"/>
+  <commandset id="clipboardEditMenuItems" commandupdater="true" events="clipboard" oncommandupdate="goUpdatePasteMenuItems()"/>
   <commandset id="webSearchItems"/>
+  <commandset id="attachmentCommands">
+    <command id="cmd_openAllAttachments"
+             oncommand="goDoCommand('cmd_openAllAttachments');"
+             disabled="true"/>
+    <command id="cmd_saveAllAttachments"
+             oncommand="goDoCommand('cmd_saveAllAttachments');"
+             disabled="true"/>
+    <command id="cmd_detachAllAttachments"
+             oncommand="goDoCommand('cmd_detachAllAttachments');"
+             disabled="true"/>
+    <command id="cmd_deleteAllAttachments"
+             oncommand="goDoCommand('cmd_deleteAllAttachments');"
+             disabled="true"/>
+  </commandset>
   <commandset id="FocusRingUpdate_Mail"
         commandupdater="true"
         events="focus"
         oncommandupdate="FocusRingUpdate_Mail()"/>
-  <commandset id="tasksCommands"/>
+  <commandset id="tasksCommands">
+    <command id="cmd_newMessage" oncommand="goOpenNewMessage();"/>
+    <command id="cmd_newCard" oncommand="openNewCardDialog()"/>
+  </commandset>
 #ifdef XP_MACOSX
   <commandset id="macWindowMenuItems"/>
 #endif
@@ -124,100 +166,125 @@
 </broadcasterset>
 
 <keyset id="mailKeys">
-  <keyset id="tasksKeys"/>
+  <keyset id="tasksKeys">
+#ifdef XP_MACOSX
+  <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
+       modifiers="accel,shift"/>
+  <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
+       modifiers="accel"/>
+#else
+  <key id="key_newMessage"  key="&newMessageCmd.key;" command="cmd_newMessage"
+       modifiers="accel"/>
+  <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
+       modifiers="accel"/>
+#endif
+  </keyset>
 </keyset>
 
 <!-- Popup menus provided by mailWindowOverlay.xul -->
-<popupset id="mainPopupSet"/>
-<menupopup id="mailContext"/>
-<menupopup id="toolbar-context-menu"/>
-<menupopup id="remoteContentOptions"/>
-<menupopup id="phishingOptions"/>
-<menupopup id="folderPaneContext"/>
+<popupset id="mainPopupSet">
+  <panel type="glodacomplete-richlistbox"
+         id="PopupGlodaAutocomplete"
+         noautofocus="true" />
+  <panel type="autocomplete"
+         id="PopupAutoComplete"
+         noautofocus="true"/>
+  <menupopup id="mailContext"/>
+  <menupopup id="toolbar-context-menu"/>
+  <menupopup id="remoteContentOptions"/>
+  <menupopup id="phishingOptions"/>
+  <menupopup id="folderPaneContext"/>
 
-<!-- Popup menus provided by msgHdrViewOverlay.xul -->
-<menupopup id="messageIdContext"/>
-<menupopup id="attachmentListContext"/>
-<menupopup id="attachmentItemContext"/>
-<menupopup id="header-toolbar-context-menu"/>
-<menupopup id="attachment-toolbar-context-menu"/>
-<menupopup id="copyUrlPopup"/>
+#include msgHdrPopup.inc
 
-<!-- Panel provided by editContactOverlay.xul -->
-<panel id="editContactPanel"/>
+  <tooltip id="attachmentListTooltip"/>
 
-<tooltip id="attachmentListTooltip"/>
+  <menupopup id="newsgroupPopup" position="after_start" class="newsgroupPopup"
+             onpopupshowing="setupNewsgroupPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup')); goUpdateCommand('cmd_createFilterFromPopup')"
+             onpopuphiding="hideEmailNewsPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'));">
+      <menuitem id="newsgroupPlaceHolder"
+                disabled="true"/>
+      <menuseparator/>
+      <menuitem id="sendMessageToNewsgroupItem" label="&SendMessageTo.label;"
+                accesskey="&SendMessageTo.accesskey;"
+                oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'), event)"/>
+      <menuitem id="copyNewsgroupNameItem" label="&CopyNewsgroupName.label;"
+                accesskey="&CopyNewsgroupName.accesskey;"
+                oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
+      <menuitem id="copyNewsgroupURLItem" label="&CopyNewsgroupURL.label;"
+                accesskey="&CopyNewsgroupURL.accesskey;"
+                oncommand="CopyNewsgroupURL(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
+      <menuseparator id="subscribeToNewsgroupSeparator"/>
+      <menuitem id="subscribeToNewsgroupItem" label="&SubscribeToNewsgroup.label;"
+                accesskey="&SubscribeToNewsgroup.accesskey;"
+                oncommand="SubscribeToNewsgroup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
+  </menupopup>
 
-<menupopup id="newsgroupPopup" position="after_start" class="newsgroupPopup"
-           onpopupshowing="setupNewsgroupPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup')); goUpdateCommand('cmd_createFilterFromPopup')"
-           onpopuphiding="hideEmailNewsPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'));">
-    <menuitem id="newsgroupPlaceHolder"
-              disabled="true"/>
-    <menuseparator/>
-    <menuitem id="sendMessageToNewsgroupItem" label="&SendMessageTo.label;"
-              accesskey="&SendMessageTo.accesskey;"
-              oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'), event)"/>
-    <menuitem id="copyNewsgroupNameItem" label="&CopyNewsgroupName.label;"
-              accesskey="&CopyNewsgroupName.accesskey;"
-              oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
-    <menuitem id="copyNewsgroupURLItem" label="&CopyNewsgroupURL.label;"
-              accesskey="&CopyNewsgroupURL.accesskey;"
-              oncommand="CopyNewsgroupURL(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
-    <menuseparator id="subscribeToNewsgroupSeparator"/>
-    <menuitem id="subscribeToNewsgroupItem" label="&SubscribeToNewsgroup.label;"
-              accesskey="&SubscribeToNewsgroup.accesskey;"
-              oncommand="SubscribeToNewsgroup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
-</menupopup>
+  <menupopup id="pageContextMenu"
+             pagemenu="end"
+             onpopupshowing="InitPageMenu(this, event);">
+  </menupopup>
 
-<menupopup id="pageContextMenu"
-           pagemenu="end"
-           onpopupshowing="InitPageMenu(this, event);">
-</menupopup>
+  <!-- We want to be able to do the following:
 
-<!-- We want to be able to do the following:
+       1)  Open the tabContextMenu by right-clicking on individual tab selectors
+       2)  Open the mail-toolbox customize context menu when right-clicking on
+           the empty space of the tab selector.
 
-     1)  Open the tabContextMenu by right-clicking on individual tab selectors
-     2)  Open the mail-toolbox customize context menu when right-clicking on
-         the empty space of the tab selector.
+       In order to do that, we make the tabContextMenu available in the main
+       document, and refer to it via the context attributes of each newly spawned
+       tab selector.  We also make the context attribute of the tab strip default
+       to the mail-toolbox customization popup.
 
-     In order to do that, we make the tabContextMenu available in the main
-     document, and refer to it via the context attributes of each newly spawned
-     tab selector.  We also make the context attribute of the tab strip default
-     to the mail-toolbox customization popup.
+       So, when right-clicking on a tab, the tabContextMenu opens up, and stops
+       the click event from propagating - but when the strip is right-clicked
+       outside of any tabs, the mail-toolbox context menu opens, as desired.
+  -->
 
-     So, when right-clicking on a tab, the tabContextMenu opens up, and stops
-     the click event from propagating - but when the strip is right-clicked
-     outside of any tabs, the mail-toolbox context menu opens, as desired.
--->
+  <menupopup id="tabContextMenu"
+                 onpopupshowing="return document.getElementById('tabmail').onTabContextMenuShowing(document.popupNode);">
+    <menuitem label="&moveToNewWindow.label;"
+                  accesskey="&moveToNewWindow.accesskey;"
+                  anonid="openTabInWindow"
+                  oncommand="document.getElementById('tabmail').replaceTabWithWindow(document.popupNode);"/>
+    <menuseparator />
+    <menuitem label="&closeOtherTabsCmd2.label;"
+                  accesskey="&closeOtherTabsCmd2.accesskey;"
+                  anonid="closeOtherTabs"
+                  oncommand="document.getElementById('tabmail').closeOtherTabs(document.popupNode);"/>
+    <menuseparator />
+    <menu label="&recentlyClosedTabsCmd.label;"
+              accesskey="&recentlyClosedTabsCmd.accesskey;"
+              anonid="recentlyClosedTabs" >
+      <menupopup onpopupshowing="return InitRecentlyClosedTabsPopup(this);" />
+    </menu>
+    <menuitem label="&closeTabCmd2.label;"
+                  accesskey="&closeTabCmd2.accesskey;"
+                  anonid="closeTab"
+                  oncommand="document.getElementById('tabmail').closeTab(document.popupNode);"/>
+  </menupopup>
 
-<menupopup id="tabContextMenu"
-               onpopupshowing="return document.getElementById('tabmail').onTabContextMenuShowing(document.popupNode);">
-  <menuitem label="&moveToNewWindow.label;"
-                accesskey="&moveToNewWindow.accesskey;"
-                anonid="openTabInWindow"
-                oncommand="document.getElementById('tabmail').replaceTabWithWindow(document.popupNode);"/>
-  <menuseparator />
-  <menuitem label="&closeOtherTabsCmd2.label;"
-                accesskey="&closeOtherTabsCmd2.accesskey;"
-                anonid="closeOtherTabs"
-                oncommand="document.getElementById('tabmail').closeOtherTabs(document.popupNode);"/>
-  <menuseparator />
-  <menu label="&recentlyClosedTabsCmd.label;"
-            accesskey="&recentlyClosedTabsCmd.accesskey;"
-            anonid="recentlyClosedTabs" >
-    <menupopup onpopupshowing="return InitRecentlyClosedTabsPopup(this);" />
-  </menu>
-  <menuitem label="&closeTabCmd2.label;"
-                accesskey="&closeTabCmd2.accesskey;"
-                anonid="closeTab"
-                oncommand="document.getElementById('tabmail').closeTab(document.popupNode);"/>
-</menupopup>
+  <tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
+  <tooltip id="folderpopup" class="folderSummaryPopup"/>
 
-<tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
-<tooltip id="folderpopup" class="folderSummaryPopup"/>
+  <tooltip id="aHTMLTooltip" page="true"/>
+  <tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
 
-<tooltip id="aHTMLTooltip" page="true"/>
-<tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
+#include editContactPanel.inc
+#include ../../components/im/content/chat-menu.inc
+</popupset>
+#ifdef XP_MACOSX
+<popupset>
+  <menupopup id="menu_mac_dockmenu">
+    <menuitem label="&writeNewMessageDock.label;" id="tasksWriteNewMessage"
+              oncommand="writeNewMessageDock();"/>
+    <menuitem label="&openAddressBookDock.label;" id="tasksOpenAddressBook"
+              oncommand="openAddressBookDock();"/>
+    <menuitem label="&dockOptions.label;" id="tasksMenuDockOptions"
+              oncommand="openDockOptions();"/>
+  </menupopup>
+</popupset>
+#endif
 
 #ifdef CAN_DRAW_IN_TITLEBAR
 <vbox id="titlebar">
@@ -385,6 +452,7 @@
 
             <vbox flex="1">
               <box orient="vertical" id="messagesBox" flex="1">
+#include quickFilterBar.inc
                 <deck id="displayDeck" flex="1" selectedIndex="0"
                       minheight="100" height="100" persist="height"
                       >
@@ -524,7 +592,9 @@
                              src="chrome://messenger/content/multimessageview.xhtml"
                              autofind="false"/>
                     <vbox id="singlemessage" flex="1">
-                      <hbox id="msgHeaderView"/>
+                      <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
+#include msgHdrView.inc
+                      </hbox>
                       <!-- The msgNotificationBar appears on top of the message
                            and displays information like: junk, contains remote
                            images, or is a suspected phishing URL. -->
@@ -544,7 +614,9 @@
                       <splitter id="attachment-splitter" collapse="after"
                                 resizebefore="closest" resizeafter="closest"
                                 collapsed="true"/>
-                      <vbox id="attachmentView"/>
+                      <vbox id="attachmentView" collapsed="true">
+#include msgAttachmentView.inc
+                      </vbox>
                       <findbar id="FindToolbar" browserid="messagepane"/>
                     </vbox>
                   </vbox>
@@ -554,11 +626,77 @@
             </vbox>
           </box>
         </box> <!-- end of mailContent -->
+#include ../../components/im/content/chat-messenger.inc
       </tabpanels>
     </tabmail>
-    <vbox id="contentTab"/>
-    <vbox id="chromeTab"/>
-    <vbox id="glodaTab"/>
+    <vbox id="contentTab" collapsed="true">
+      <vbox flex="1" class="contentTabInstance">
+        <toolbox id="dummycontenttoolbox" class="contentTabToolbox">
+          <toolbar id="dummycontenttoolbar" class="contentTabToolbar">
+          </toolbar>
+        </toolbox>
+        <notificationbox flex="1" notificationside="top">
+          <browser id="dummycontentbrowser" type="content" flex="1"
+                   disablehistory="true" autocompletepopup="PopupAutoComplete"
+                   context="mailContext"/>
+        </notificationbox>
+        <findbar browserid="dummycontentbrowser"/>
+      </vbox>
+    </vbox>
+
+    <vbox id="chromeTab" collapsed="true">
+      <vbox flex="1" class="chromeTabInstance">
+        <toolbox id="dummychrometoolbox" class="contentTabToolbox">
+          <toolbar id="dummychrometoolbar" class="contentTabToolbar"></toolbar>
+        </toolbox>
+        <notificationbox flex="1" notificationside="top">
+          <browser id="dummychromebrowser" flex="1"
+                   disablesecurity="true" disablehistory="true"
+                   autocompletepopup="PopupAutoComplete"/>
+        </notificationbox>
+      </vbox>
+    </vbox>
+
+    <vbox id="glodaTab" collapsed="true">
+      <vbox flex="1" class="chromeTabInstance">
+        <toolbox class="contentTabToolbox">
+          <toolbar class="glodaTabToolbar inline-toolbar chromeclass-toolbar">
+            <spacer flex="1" />
+            <spacer flex="1" />
+            <hbox flex="1" class="remote-gloda-search-container">
+              <textbox class="remote-gloda-search searchBox"
+                       flex="1"
+                       type="glodacomplete"
+                       searchbutton="true"
+                       autocompletesearch="gloda"
+                       autocompletepopup="PopupGlodaAutocomplete"
+                       autocompletesearchparam="global"
+                       timeout="200"
+                       maxlength="192"
+                       placeholder=""
+                       emptytextbase="&search.label.base1;"
+                       keyLabelNonMac="&search.keyLabel.nonmac;"
+                       keyLabelMac="&search.keyLabel.mac;">
+                <hbox>
+                  <image class="gloda-search-icon" />
+                </hbox>
+              </textbox>
+            </hbox>
+          </toolbar>
+        </toolbox>
+        <iframe flex="1"/>
+      </vbox>
+    </vbox>
+    <vbox id="preferencesTab" collapsed="true">
+      <vbox flex="1">
+        <notificationbox flex="1">
+          <browser id="preferencesbrowser" type="content" flex="1"
+                   disablehistory="true" autocompletepopup="PopupAutoComplete"
+                   context="mailContext"/>
+        </notificationbox>
+        <findbar browserid="preferencesbrowser"/>
+      </vbox>
+    </vbox>
   </hbox>
   <panel id="customizeToolbarSheetPopup" noautohide="true">
     <iframe id="customizeToolbarSheetIFrame"

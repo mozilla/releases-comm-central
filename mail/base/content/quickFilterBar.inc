@@ -1,109 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-  - License, v. 2.0. If a copy of the MPL was not distributed with this
-  - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<?xml-stylesheet href="chrome://messenger/skin/quickFilterBar.css" type="text/css"?>
-<!DOCTYPE quickFilterBar SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
-<overlay id="quickFilterBar-overlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script src="quickFilterBar.js" type="application/javascript" />
-
-  <keyset id="mailKeys">
-    <key id="key_qfb_escape" keycode="VK_ESCAPE"
-         command="cmd_popQuickFilterBarStack"/>
-    <key id="key_qfb_show" key="&quickFilterBar.show.key2;"
-         modifiers="accel,shift"
-         command="cmd_showQuickFilterBar"/>
-  </keyset>
-
-  <commandset id="mailViewMenuItems">
-    <command id="cmd_showQuickFilterBar"
-             oncommand="goDoCommand('cmd_showQuickFilterBar');"
-             />
-    <command id="cmd_toggleQuickFilterBar"
-             oncommand="goDoCommand('cmd_toggleQuickFilterBar');"
-             />
-    <command id="cmd_popQuickFilterBarStack"
-             oncommand="goDoCommand('cmd_popQuickFilterBarStack');"
-             />
-  </commandset>
-
-  <menupopup id="view_toolbars_popup">
-    <!-- gets disabled but stays visible when not legal -->
-    <menuitem id="view_toolbars_popup_quickFilterBar"
-              type="checkbox"
-              insertbefore="menu_showTaskbar"
-              label="&quickFilterBar.toggleBarVisibility.menu.label;"
-              accesskey="&quickFilterBar.toggleBarVisibility.menu.accesskey;"
-              command="cmd_toggleQuickFilterBar"
-              />
-  </menupopup>
-
-  <menupopup id="appmenu_customizeMenu">
-    <!-- gets disabled but stays visible when not legal -->
-    <menuitem id="appmenu_quickFilterBar"
-              type="checkbox"
-              insertbefore="appmenu_showStatusbar"
-              label="&quickFilterBar.toggleBarVisibility.appmenu.label;"
-              command="cmd_toggleQuickFilterBar"
-              >
-      <observes element="view_toolbars_popup_quickFilterBar"
-                attribute="checked"
-                />
-    </menuitem>
-  </menupopup>
-
-  <toolbarpalette id="MailToolbarPalette">
-    <!-- gets hidden but keeps space allocation when not legal-->
-    <toolbarbutton id="qfb-show-filter-bar"
-                   class="toolbarbutton-1"
-                   type="checkbox"
-                   label="&quickFilterBar.qfbShowFilterBar.label;"
-                   command="cmd_toggleQuickFilterBar"
-                   tooltiptext="&quickFilterBar.toggleBarVisibility.button.tooltip;"
-                   >
-      <observes element="view_toolbars_popup_quickFilterBar"
-                attribute="checked"
-                />
-    </toolbarbutton>
-  </toolbarpalette>
-
-  <popupset id="mainPopupSet">
-    <!-- Using an actual panel resulted in serious focus problems on linux,
-         even with noautofocus=true.  It would appear the window manager does
-         not buy into what we are selling in that case, whereas I presume the
-         specialization that precludes tooltips from ever having focus prevents
-         that problem from happening. -->
-    <tooltip id="qfb-text-search-upsell"
-             level="parent"
-             style="background-color: #ffeeee;"
-           >
-      <vbox>
-        <label id="qfb-upsell-line-one"
-               class="header"
-               fmt="&quickFilterBar.glodaUpsell.continueSearch;"
-               value=""
-               />
-        <label id="qfb-upsell-line-two"
-               fmt="&quickFilterBar.glodaUpsell.pressEnterAndCurrent;"
-               value=""
-               />
-      </vbox>
-    </tooltip>
-  </popupset>
-
-
-  <vbox id="messagesBox">
-    <!--
-      - The message filter bar is not a XBL binding at this time in order to
-      - make it easier for people to overlay given that we are likely leaving
-      - a lot of visible space on the table.
-      -
-      - This may need to change for drag-and-drop or other reasons.
-      -->
-    <vbox id="quick-filter-bar" insertbefore="displayDeck"
-          >
+    <vbox id="quick-filter-bar">
       <observes element="cmd_toggleQuickFilterBar"
                 attribute="disabled"
                 />
@@ -200,5 +99,3 @@
         </hbox>
       </hbox>
     </vbox>
-  </vbox>
-</overlay>

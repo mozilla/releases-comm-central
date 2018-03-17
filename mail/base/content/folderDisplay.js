@@ -2022,7 +2022,7 @@ FolderDisplayWidget.prototype = {
   get selectedMessageIsExternal() {
     let message = this.selectedMessage;
     // Dummy messages currently lack a folder.  This is not a great heuristic.
-    // I have annotated msgHdrViewOverlay.js which provides the dummy header to
+    // I have annotated msgHdrView.js which provides the dummy header to
     //  express this implementation dependency.
     // (Currently, since external mails can only be opened in standalone windows
     //  which subclass us, we could always return false, and have the subclass

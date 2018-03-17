@@ -32,7 +32,7 @@
              -
              - css style:
              - classes within toolbox are making use of existing TB css definitions - as used in
-             - /comm-central/source/mail/base/content/msgHdrViewOverlay.xul, only icon defining
+             - /comm-central/source/mail/base/content/msgHdrView.inc, only icon defining
              - classes like imipAcceptButton are noted separately and OS specific within
              - skin/lightning.css (resp. the OS-specific theme folders)
              -

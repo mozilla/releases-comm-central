@@ -7,9 +7,7 @@
 #ifdef XP_MACOSX
 
 <!-- Overlays from messenger.xul.  -->
-<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/mailWindowOverlay.xul"?>
-<?xul-overlay href="chrome://messenger/content/mailOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 
 <!DOCTYPE window [
@@ -17,6 +15,8 @@
 %brandDTD;
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
 %messengerDTD;
+<!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
+%utilityDTD;
 ]>
 
 <window id="hidden-window"
@@ -42,7 +42,12 @@
 
   <!-- keys are appended from the overlay -->
 <keyset id="mailKeys">
-   <keyset id="tasksKeys"/>
+  <keyset id="tasksKeys">
+    <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
+         modifiers="accel,shift"/>
+    <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
+         modifiers="accel"/>
+  </keyset>
 </keyset>
 
 <commandset id="mailCommands">
@@ -60,8 +65,11 @@
   <commandset id="mailToolsMenuItems"/>
   <commandset id="globalEditMenuItems"/>
   <commandset id="selectEditMenuItems"/>
-  <commandset id="clipboardEditMenuItems"/>
-  <commandset id="tasksCommands"/>
+  <commandset id="clipboardEditMenuItems" commandupdater="true" events="clipboard" oncommandupdate="goUpdatePasteMenuItems()"/>
+  <commandset id="tasksCommands">
+    <command id="cmd_newMessage" oncommand="goOpenNewMessage();"/>
+    <command id="cmd_newCard" oncommand="openNewCardDialog()"/>
+  </commandset>
   <commandset id="macWindowMenuItems"/>
 </commandset>
 
