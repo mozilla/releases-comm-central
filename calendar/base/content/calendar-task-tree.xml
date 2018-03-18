@@ -33,7 +33,7 @@
                        itemproperty="completed"
                        label="&calendar.unifinder.tree.done.label;"
                        tooltiptext="&calendar.unifinder.tree.done.tooltip2;">
-            <xul:image anonid="checkboximg" />
+            <xul:image class="calendar-task-tree-col-completed-checkboximg" anonid="checkboximg" />
           </xul:treecol>
           <xul:splitter class="tree-splitter" ordinal="2"/>
           <xul:treecol anonid="calendar-task-tree-col-priority"
