@@ -1176,7 +1176,7 @@
                   </menupopup>
                 </menulist>
                 <image class="deleteAddress close-icon"
-                       onclick="awDeleteHit(this);"/>
+                       onclick="awDeleteHit(this.parentNode.nextSibling.querySelector('textbox.textbox-addressingWidget'));"/>
               </listcell>
               <listcell class="addressingWidgetCell">
                 <textbox id="addressCol2#1" class="plain textbox-addressingWidget uri-element"
