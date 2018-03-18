@@ -2975,6 +2975,11 @@ function ComposeStartup(aParams)
 
   AddAttachments(gMsgCompose.compFields.attachments);
 
+  if (Services.prefs.getBoolPref(
+      "mail.compose.show_attachment_pane")) {
+    toggleAttachmentPane("show");
+  }
+
   document.getElementById("msgcomposeWindow").dispatchEvent(
     new Event("compose-window-init", { bubbles: false , cancelable: true }));
 
@@ -5338,6 +5343,19 @@ function reorderAttachmentsPanelOnPopupShowing() {
   // don't change after the panel is shown, and also because focus is still
   // in attachment bucket right now, which is required for updating them.
   updateReorderAttachmentsItems();
+}
+
+function attachmentHeaderContextOnPopupShowing() {
+  let initiallyShowItem =
+    document.getElementById("attachmentHeaderContext_initiallyShowItem");
+
+  initiallyShowItem.setAttribute("checked", Services.prefs.getBoolPref(
+    "mail.compose.show_attachment_pane"));
+}
+
+function toggleInitiallyShowAttachmentPane(aMenuItem) {
+  Services.prefs.setBoolPref("mail.compose.show_attachment_pane",
+                             aMenuItem.getAttribute("checked"));
 }
 
 function attachmentBucketOnBlur() {

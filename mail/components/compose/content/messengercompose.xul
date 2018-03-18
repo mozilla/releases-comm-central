@@ -741,6 +741,15 @@
             command="cmd_removeAllAttachments"/>
 </menupopup>
 
+<menupopup id="attachmentHeaderContext"
+           onpopupshowing="attachmentHeaderContextOnPopupShowing();">
+  <menuitem id="attachmentHeaderContext_initiallyShowItem"
+            type="checkbox"
+            label="&initiallyShowAttachmentPane.label;"
+            accesskey="&initiallyShowAttachmentPane.accesskey;"
+            oncommand="toggleInitiallyShowAttachmentPane(this);"/>
+</menupopup>
+
 <menupopup id="toolbar-context-menu"
            onpopupshowing="onViewToolbarsPopupShowing(event, 'compose-toolbox');">
   <menuseparator/>
@@ -1981,16 +1990,20 @@
           <hbox id="attachments-header-box"
                 align="center"
                 tooltiptext="&attachmentBucketHeader.tooltip;"
-                onclick="attachmentBucketHeaderOnClick();">
+                onclick="attachmentBucketHeaderOnClick();"
+                context="attachmentHeaderContext">
             <label id="attachmentBucketCount"
                    accesskey="&attachments.accesskey;"
                    flex="1" crop="end"
+                   context=""
                    control="attachmentBucket"/>
             <toolbarspring/>
-            <label id="attachmentBucketSize"/>
+            <label id="attachmentBucketSize"
+                   context=""/>
             <toolbarbutton id="attachmentBucketCloseButton"
                            class="ab-closebutton close-icon"
                            tooltiptext="&attachmentBucketCloseButton.tooltip;"
+                           context=""
                            oncommand="toggleAttachmentPane('hide');"/>
           </hbox>
           <attachmentlist id="attachmentBucket"
