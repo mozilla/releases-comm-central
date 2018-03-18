@@ -24,6 +24,10 @@ calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfa
     -moz-image-region: rect(0px, 28px, 14px, 14px);
 }
 
+calendar-list-tree > tree > treechildren::-moz-tree-cell-text(disabled) {
+    color: GrayText;
+}
+
 calendar-list-tree > tree {
     padding: 0;
     margin: 4px 0;

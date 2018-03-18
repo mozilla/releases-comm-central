@@ -20,6 +20,6 @@ calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol, disa
     -moz-image-region: rect(0 39px 13px 26px);
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-cell-text(disabled) {
-    color: GrayText;
+calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol, checked, disabled) {
+    -moz-image-region: rect(0 52px 13px 39px);
 }

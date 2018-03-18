@@ -227,6 +227,7 @@
 
       <field name="mCycleCalendarFlag">null</field>
       <field name="mCycleTimer">null</field>
+      <field name="cycleDebounce">200</field>
 
       <constructor><![CDATA[
           ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
@@ -345,9 +346,17 @@
             return this.mCalendarList;
         ]]></getter>
         <setter><![CDATA[
-            this.mCalendarList = val;
-            this.mCalendarList.forEach(this.addCalendar, this);
-            return this.mCalendarList;
+            this.treebox.beginUpdateBatch();
+            try {
+                this.clear();
+                this.mCalendarList = [];
+                for (let calendar of val) {
+                    this.addCalendar(calendar);
+                }
+                return this.mCalendarList;
+            } finally {
+                this.treebox.endUpdateBatch();
+            }
         ]]></setter>
       </property>
 
@@ -384,9 +393,9 @@
       <property name="writable"
                 onget="return (this.getAttribute('writable') == 'true');"
                 onset="return setBooleanAttribute(this, 'writable', val);"/>
-      <property name="ignoreDisabledState"
-                onget="return (this.getAttribute('ignoredisabledstate') == 'true');"
-                onset="return setBooleanAttribute(this, 'ignoredisabledstate', val);"/>
+      <property name="disabledState"
+                onget="return this.getAttribute('disabledstate') || 'disabled';"
+                onset="return this.setAttribute('disabledstate', val);"/>
 
       <method name="sortOrderChanged">
         <parameter name=""/>
@@ -445,6 +454,14 @@
                 }
             }
             return -1;
+        ]]></body>
+      </method>
+
+      <method name="selectCalendarById">
+        <parameter name="aId"/>
+        <body><![CDATA[
+            let index = this.findIndexById(aId);
+            this.tree.view.selection.select(index);
         ]]></body>
       </method>
 
@@ -516,12 +533,13 @@
             }
 
             this.mCalendarList.splice(index, 1);
+            this.treebox.rowCountChanged(index, -1);
+
             if (index == this.rowCount) {
                 index--;
             }
 
             this.tree.view.selection.select(index + 1);
-            this.treebox.rowCountChanged(index, -1);
 
             aCalendar.removeObserver(this.calObserver);
 
@@ -531,14 +549,25 @@
             // Remove the css style rule from the sheet.
             let sheet = this.sheet;
             for (let i = 0; i < sheet.cssRules.length; i++) {
-                if (sheet.cssRules[i] == this.ruleCache[aCalendar.id]) {
+                if (sheet.cssRules[i] == this.ruleCache[aCalendar.id][0] ||
+                    sheet.cssRules[i] == this.ruleCache[aCalendar.id][1]) {
                     sheet.deleteRule(i);
-                    delete this.ruleCache[aCalendar.id];
-                    break;
                 }
             }
+            delete this.ruleCache[aCalendar.id];
 
             this.sortOrderChanged();
+        ]]></body>
+      </method>
+
+      <method name="clear">
+        <body><![CDATA[
+            this.treebox.beginUpdateBatch();
+            try {
+                this.mCalendarList.forEach(this.removeCalendar, this);
+            } finally {
+                this.treebox.endUpdateBatch();
+            }
         ]]></body>
       </method>
 
@@ -569,10 +598,30 @@
                                  "::-moz-tree-cell(color-treecol, id-" +
                                  aCalendar.id + ") {}";
 
+                let disabledRuleString = "calendar-list-tree > tree > treechildren" +
+                                         "::-moz-tree-cell(color-treecol, id-" +
+                                         aCalendar.id + ", disabled) {}";
+
                 let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
-                this.ruleCache[aCalendar.id] = sheet.cssRules[ruleIndex];
+                let disabledIndex = sheet.insertRule(disabledRuleString, sheet.cssRules.length);
+                this.ruleCache[aCalendar.id] = [sheet.cssRules[ruleIndex], sheet.cssRules[disabledIndex]];
             }
-            this.ruleCache[aCalendar.id].style.backgroundColor = color;
+
+            let [enabledRule, disabledRule] = this.ruleCache[aCalendar.id];
+            enabledRule.style.backgroundColor = color;
+
+            let colorMatch = color.match(/#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})?/);
+            if (colorMatch && this.disabledState == "disabled") {
+                let gray = (
+                    0.2126 * parseInt(colorMatch[1], 16) +
+                    0.7152 * parseInt(colorMatch[2], 16) +
+                    0.0722 * parseInt(colorMatch[3], 16)
+                );
+                let alpha = colorMatch[4] ? parseInt(colorMatch[4], 16) : 255;
+                disabledRule.style.backgroundColor = `rgba(${gray}, ${gray}, ${gray}, ${alpha})`;
+            } else {
+                disabledRule.style.backgroundColor = color;
+            }
         ]]></body>
       </method>
 
@@ -648,9 +697,6 @@
             let calendar = this.getCalendar(aRow);
             let composite = this.compositeCalendar;
 
-            // Set up the composite calendar status
-            properties.push(composite.getCalendarById(calendar.id) ? "checked" : "unchecked");
-
             // Set up the calendar id
             properties.push("id-" + calendar.id);
 
@@ -673,9 +719,20 @@
                 properties.push("readonly");
             }
 
-            // Set up the disabled state
-            properties.push(!this.ignoreDisabledState && calendar.getProperty("disabled") ?
-                            "disabled" : "enabled");
+            // Set up the composite calendar status and disabled state
+            let checkedState = composite.getCalendarById(calendar.id) ? "checked" : "unchecked";
+            let isDisabled = calendar.getProperty("disabled");
+            let disabledState = isDisabled ? "disabled" : "enabled";
+
+            if (isDisabled && this.disabledState == "ignore") {
+                disabledState = "enabled";
+            } else if (isDisabled && this.disabledState == "checked") {
+                checkedState = "checked";
+            } else if (isDisabled) {
+                checkedState = "unchecked";
+            }
+
+            properties.push(disabledState, checkedState);
 
             return properties.join(" ");
         ]]></body>
@@ -937,35 +994,45 @@
         <parameter name="aCol"/>
         <body><![CDATA[
             let calendar = this.getCalendar(aRow);
+            if (this.disabledState != "ignore" && calendar.getProperty("disabled")) {
+                return;
+            }
+
             if (this.mCycleCalendarFlag[calendar.id]) {
                 delete this.mCycleCalendarFlag[calendar.id];
             } else {
-                this.mCycleCalendarFlag[calendar.id] = calendar;
+                this.mCycleCalendarFlag[calendar.id] = [calendar, aRow];
             }
 
-            if (this.mCycleTimer) {
-                clearTimeout(this.mCycleTimer);
+            if (this.cycleDebounce) {
+                if (this.mCycleTimer) {
+                    clearTimeout(this.mCycleTimer);
+                }
+                this.mCycleTimer = setTimeout(this.cycleCellCommit.bind(this), 200);
+            } else {
+                this.cycleCellCommit();
             }
-            this.treebox.invalidateRow(aRow);
-            this.mCycleTimer = setTimeout(this.cycleCellCommit.bind(this), 200);
         ]]></body>
       </method>
 
       <method name="cycleCellCommit">
         <body><![CDATA[
             let composite = this.compositeCalendar;
+            this.treebox.beginUpdateBatch();
+            composite.startBatch();
             try {
-                composite.startBatch();
-                for (let id in this.mCycleCalendarFlag) {
+                for (let [id, [calendar, row]] of Object.entries(this.mCycleCalendarFlag)) {
                     if (composite.getCalendarById(id)) {
-                        composite.removeCalendar(this.mCycleCalendarFlag[id]);
+                        composite.removeCalendar(calendar);
                     } else {
-                        composite.addCalendar(this.mCycleCalendarFlag[id]);
+                        composite.addCalendar(calendar);
                     }
-                    delete this.mCycleCalendarFlag[id];
+                    this.treebox.invalidateRow(row);
                 }
+                this.mCycleCalendarFlag = {};
             } finally {
                 composite.endBatch();
+                this.treebox.endUpdateBatch();
             }
         ]]></body>
       </method>
@@ -1046,6 +1113,7 @@
       <handler event="keypress" key=" "><![CDATA[
           if (this.tree.currentIndex > -1) {
               this.cycleCell(this.tree.currentIndex, this.getColumn("checkbox-treecol"));
+              this.treebox.invalidateRow(this.tree.currentIndex);
               event.preventDefault();
           }
       ]]></handler>

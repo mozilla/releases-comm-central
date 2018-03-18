@@ -32,6 +32,6 @@
 
   <calendar-list-tree id="calendar-list-tree"
                       hidecolumnpicker="true"
-                      ignoredisabledstate="true"
+                      disabledstate="ignore"
                       flex="1"/>
 </dialog>
