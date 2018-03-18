@@ -1005,7 +1005,6 @@ var MessageWindowController =
       case "cmd_tag8":
       case "cmd_tag9":
       case "button_mark":
-      case "cmd_markAllRead":
       case "cmd_markThreadAsRead":
       case "cmd_markReadByDate":
       case "cmd_viewAllHeader":
@@ -1013,6 +1012,8 @@ var MessageWindowController =
       case "cmd_stop":
       case "cmd_toggleRead":
         return true;
+      case "cmd_markAllRead":
+        return false;
       case "cmd_markAsRead":
         return CanMarkMsgAsRead(true);
       case "cmd_markAsUnread":
@@ -1257,7 +1258,7 @@ var MessageWindowController =
         gFolderDisplay.doCommand(nsMsgViewCommandType.markThreadRead);
         return;
       case "cmd_markAllRead":
-        MsgMarkAllRead();
+        MsgMarkAllRead();  // Won't run since always disabled.
         return;
       case "cmd_markReadByDate":
         MsgMarkReadByDate();
