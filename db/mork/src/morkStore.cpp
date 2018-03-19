@@ -2089,7 +2089,7 @@ morkStore::NewRow(nsIMdbEnv* mev, // new row with db assigned oid
   mdb_scope inRowScope,   // row scope for row ids
   nsIMdbRow** acqRow) // create new row
 // Note this row must be added to some table or cell child before the
-// store is closed in order to make this row persist across sesssions.
+// store is closed in order to make this row persist across sessions.
 {
   nsresult outErr = NS_OK;
   nsIMdbRow* outRow = 0;

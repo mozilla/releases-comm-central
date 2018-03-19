@@ -185,7 +185,7 @@ public: // inlines
 #define morkParser_kTag     /*i*/ 0x70417253 /* ascii 'pArS' */
 
 // These are states for the simple parsing virtual machine.  Needless to say,
-// these must be distinct, and preferrably in a contiguous integer range.
+// these must be distinct, and preferably in a contiguous integer range.
 // Don't change these constants without looking at switch statements in code.
 #define morkParser_kCellState      0 /* cell is tightest scope */
 #define morkParser_kMetaState      1 /* meta is tightest scope */

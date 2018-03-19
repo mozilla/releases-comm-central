@@ -304,7 +304,7 @@ typedef void (* mdbYarn_mGrow)(mdbYarn* self, mdb_size inNewSize);
 **| original mdbYarn instance decides whether a grow method is necessary
 **| or desirable, and uses only grow methods suitable for the buffering
 **| nature of a specific mdbYarn instance.  (For example, Buf might be a
-**| staticly allocated string space which switches to something heap-based
+**| statically allocated string space which switches to something heap-based
 **| when grown, and subsequent calls to grow the yarn must distinguish the
 **| original static string from heap allocated space, etc.) Note that the
 **| method stored in mYarn_Grow can change, and this might be a common way
@@ -1257,7 +1257,7 @@ public:
 **| not intended to nest.  (If small transactions were nested inside large
 **| transactions, that would imply that a single large transaction must be
 **| atomic over all the contained small transactions; but actually we intend
-**| smalls transaction never be undone once commited due to, say, aborting a
+**| smalls transaction never be undone once committed due to, say, aborting a
 **| transaction of greater significance.)  The small, large, and session level
 **| commits have equal granularity, and differ only in risk of loss from the
 **| perspective of an application.  Small commits characterize changes that
@@ -1275,13 +1275,13 @@ public:
 **|
 **|| aborts: the only way to abort changes to a store is by closing the store.
 **| So there is no specific method for causing any abort.  Stores must discard
-**| all changes made that are uncommited when a store is closed.  This design
+**| all changes made that are uncommitted when a store is closed.  This design
 **| choice makes the implementations of tables, rows, and cells much less
 **| complex because they need not maintain a record of undobable changes.  When
 **| a store is closed, presumably this precipitates the closure of all tables,
 **| rows, and cells in the store as well.   So an application can revert the
 **| state of a store in the user interface by quietly closing and reopening a
-**| store, because this will discard uncommited changes and show old content.
+**| store, because this will discard uncommitted changes and show old content.
 **| This implies an app that closes a store will need to send a "scramble"
 **| event notification to any views that depend on old discarded content.
 |*/
@@ -1341,7 +1341,7 @@ public:
     mdb_scope inRowScope,   // row scope for row ids
     nsIMdbRow** acqRow) = 0; // create new row
   // Note this row must be added to some table or cell child before the
-  // store is closed in order to make this row persist across sesssions.
+  // store is closed in order to make this row persist across sessions.
 
   // } ----- end row methods -----
 
@@ -1896,7 +1896,7 @@ public:
     // the column which is actually sorted by ioSorting.  This method
     // is most useful in conjunction with nsIMdbSorting::SetCompare(),
     // because otherwise a caller would not be able to override the
-    // comparison ordering method used during searchs.  Note that some
+    // comparison ordering method used during searches.  Note that some
     // database implementations might be unable to use an arbitrarily
     // specified sort order, either due to schema or runtime interface
     // constraints, in which case ioSorting might not actually be used.
@@ -2403,7 +2403,7 @@ public:
   //
   // This is an alternative to the GetYarn() method, which has copy semantics
   // only; AliasYarn() relaxes a robust safety principle only for performance
-  // reasons, to accomodate the need for callers to transform text content to
+  // reasons, to accommodate the need for callers to transform text content to
   // some other canonical representation that would necessitate an additional
   // copy and transformation when such is incompatible with the mdbYarn format.
   //

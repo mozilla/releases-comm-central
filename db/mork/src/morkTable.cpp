@@ -797,7 +797,7 @@ morkTable::SetSearchSorting( // use this sorting in FindRowMatches()
   // the column which is actually sorted by ioSorting.  This method
   // is most useful in conjunction with nsIMdbSorting::SetCompare(),
   // because otherwise a caller would not be able to override the
-  // comparison ordering method used during searchs.  Note that some
+  // comparison ordering method used during searches.  Note that some
   // database implementations might be unable to use an arbitrarily
   // specified sort order, either due to schema or runtime interface
   // constraints, in which case ioSorting might not actually be used.

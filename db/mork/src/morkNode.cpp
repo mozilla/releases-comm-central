@@ -221,7 +221,7 @@ nsresult morkNode::CloseMdbObject(morkEnv *ev)
 /*public virtual*/
 morkNode::~morkNode() // assert that CloseNode() executed earlier
 {
-  MORK_ASSERT(this->IsShutNode() || IsDeadNode()); // sometimes we call destructor explictly w/o freeing object.
+  MORK_ASSERT(this->IsShutNode() || IsDeadNode()); // sometimes we call destructor explicitly w/o freeing object.
   mNode_Access = morkAccess_kDead;
   mNode_Usage = morkUsage_kNone;
 }

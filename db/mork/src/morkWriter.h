@@ -66,7 +66,7 @@
 #define morkWriter_kPhaseRowSpaceRows        10 /*mWriter_RowSpaceRowsIter*/
 
 #define morkWriter_kPhaseContentDone         11 /* all content written */
-#define morkWriter_kPhaseWritingDone         12 /* everthing has been done */
+#define morkWriter_kPhaseWritingDone         12 /* everything has been done */
 
 #define morkWriter_kCountNumberOfPhases      13 /* part of mWrite_TotalCount */
 

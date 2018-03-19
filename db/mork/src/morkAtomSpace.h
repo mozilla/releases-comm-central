@@ -45,7 +45,7 @@
 **| so that we care less whether the shortest hex representation is used.
 **| So we start all IDs for 'over' category tokens at a value range that
 **| needs at least four hex digits, so we can reserve three hex digits and
-**| shorter for more commonly occuring tokens in the 'under' category.
+**| shorter for more commonly occurring tokens in the 'under' category.
 |*/
 #define morkAtomSpace_kMinOverId 0x1000  /* using at least four hex bytes */
 

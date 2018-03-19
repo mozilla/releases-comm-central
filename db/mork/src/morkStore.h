@@ -412,7 +412,7 @@ public: // other port methods
     mdb_scope inRowScope,   // row scope for row ids
     nsIMdbRow** acqRow) override; // create new row
   // Note this row must be added to some table or cell child before the
-  // store is closed in order to make this row persist across sesssions.
+  // store is closed in order to make this row persist across sessions.
 
   // } ----- end row methods -----
 
@@ -645,7 +645,7 @@ public: // typing
   static void NilStoreFileError(morkEnv* ev);
   static void CannotAutoAssignAtomIdentityError(morkEnv* ev);
 
-public: //  store utilties
+public: //  store utilities
 
   morkAtom* YarnToAtom(morkEnv* ev, const mdbYarn* inYarn, bool createIfMissing = true);
   morkAtom* AddAlias(morkEnv* ev, const morkMid& inMid,

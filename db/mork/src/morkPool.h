@@ -30,7 +30,7 @@ class morkFarBookAtom;
 
 /*| morkPool: a place to manage pools of non-node objects that are memory
 **| managed out of large chunks of space, so that per-object management
-**| space overhead has no signficant cost.
+**| space overhead has no significant cost.
 |*/
 class morkPool : public morkNode {
 

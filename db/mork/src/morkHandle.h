@@ -146,7 +146,7 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
 **| linked list, and following slots to provide extra footprint that might
 **| be needed by any morkHandle subclasses that include very little extra
 **| space (by virtue of the fact that each morkHandle subclass is expected
-**| to multiply inherit from another base class that has only abstact methods
+**| to multiply inherit from another base class that has only abstract methods
 **| for space overhead related only to some vtable representation).
 |*/
 class morkHandleFrame {
