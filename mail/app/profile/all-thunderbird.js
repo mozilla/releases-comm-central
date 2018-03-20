@@ -540,7 +540,7 @@ pref("mail.compose.addresswidget.numRowsShownDefault", 3);
 pref("mail.compose.attachment_reminder", true);
 // Words that should trigger a missing attachments warning.
 pref("mail.compose.attachment_reminder_keywords", "chrome://messenger/locale/messengercompose/composeMsgs.properties");
-// When no action is taken on the inline missing attachement notification,
+// When no action is taken on the inline missing attachment notification,
 // show an alert on send?
 pref("mail.compose.attachment_reminder_aggressive", true);
 

@@ -316,7 +316,7 @@ function test_customize_header_toolbar_remove_buttons()
   assert_equals(hdrToolbar.getAttribute("currentset"), hdrBarDefaultSet);
   close_window(msgc);
 
-  // Check button persistance
+  // Check button persistence
 
   // Make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed

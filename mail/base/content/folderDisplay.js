@@ -1002,7 +1002,7 @@ FolderDisplayWidget.prototype = {
     // if we have no view, no messages could be loaded.
     this._allMessagesLoaded = false;
 
-    // but the actual tree view selection (based on view indicies) is a goner no
+    // but the actual tree view selection (based on view indices) is a goner no
     //  matter what, make everyone forget.
     this.view.dbView.selection = null;
     this._savedFirstVisibleRow = null;
@@ -1084,7 +1084,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * Indictes whether we are done loading the messages that should be in this
+   * Indicates whether we are done loading the messages that should be in this
    *  folder.  This is being surfaced for testing purposes, but could be useful
    *  to other code as well.  But don't poll this property; ask for an event
    *  that you can hook.
@@ -2265,7 +2265,7 @@ FolderDisplayWidget.prototype = {
    *  threads as required.  If we were not able to find all of the messages,
    *  update our saved selection to want to display the messages.  The messages
    *  will then be selected when we are made active or all messages in the
-   *  folder complete loading.  This is to accomodate the use-case where we
+   *  folder complete loading.  This is to accommodate the use-case where we
    *  are backed by an in-progress search and no
    *
    * @param aMessages An array of nsIMsgDBHdr instances.

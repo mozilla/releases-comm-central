@@ -678,7 +678,7 @@ function InitViewBodyMenu()
 
   if (disallow_classes > 0)
     gDisallow_classes_no_html = disallow_classes;
-  // else gDisallow_classes_no_html keeps its inital value (see top)
+  // else gDisallow_classes_no_html keeps its initial value (see top)
 
   let AllowHTML_menuitem = document.getElementById(menuIDs[0]);
   let Sanitized_menuitem = document.getElementById(menuIDs[1]);
@@ -728,7 +728,7 @@ function InitAppmenuViewBodyMenu()
 
   if (disallow_classes > 0)
     gDisallow_classes_no_html = disallow_classes;
-  // else gDisallow_classes_no_html keeps its inital value (see top)
+  // else gDisallow_classes_no_html keeps its initial value (see top)
 
   let AllowHTML_menuitem = document.getElementById(menuIDs[0]);
   let Sanitized_menuitem = document.getElementById(menuIDs[1]);
@@ -2489,7 +2489,7 @@ function MsgApplyFilters()
   for (let i = 0; i < numFilters; i++)
   {
     let curFilter = curFilterList.getFilterAt(i);
-    // only add enabled, UI visibile filters that are in the manual context
+    // only add enabled, UI visible filters that are in the manual context
     if (curFilter.enabled && !curFilter.temporary &&
         (curFilter.filterType & Ci.nsMsgFilterType.Manual))
     {
@@ -3057,7 +3057,7 @@ var gMessageNotificationBar =
         JunkSelectedMessages(false);
         // Return true (=don't close) since changing junk status will fire a
         // JunkStatusChanged notification which will make the junk bar go away
-        // for this message -> no notifcation to close anymore -> trying to
+        // for this message -> no notification to close anymore -> trying to
         // close would just fail.
         return true;
       }
@@ -3338,7 +3338,7 @@ function IgnorePhishingWarning()
 {
   // This property should really be called skipPhishingWarning or something
   // like that, but it's too late to change that now.
-  // This property is used to supress the phishing bar for the message.
+  // This property is used to suppress the phishing bar for the message.
   setMsgHdrPropertyAndReload("notAPhishMessage", 1);
 }
 
@@ -3357,7 +3357,7 @@ function OpenPhishingSettings()
 function setMsgHdrPropertyAndReload(aProperty, aValue)
 {
   // we want to get the msg hdr for the currently selected message
-  // change the appropiate property on it then reload the message
+  // change the appropriate property on it then reload the message
   var msgHdr = gMessageDisplay.displayedMessage;
   if (msgHdr)
   {
@@ -3674,7 +3674,7 @@ function MsgJunkMailInfo(aCheckFirstUse)
   else
     window.openDialog("chrome://messenger/content/junkMailInfo.xul",
                       "mailnews:junkmailinfo",
-                      "centerscreen,resizeable=no,titlebar,chrome,modal", null);
+                      "centerscreen,resizable=no,titlebar,chrome,modal", null);
 }
 
 function MsgSearchAddresses()

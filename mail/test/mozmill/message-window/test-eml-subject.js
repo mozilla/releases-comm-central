@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests that opening an .eml file with emtpy subject works.
+ * Tests that opening an .eml file with empty subject works.
  */
 
 var MODULE_NAME = "test-eml-subject";

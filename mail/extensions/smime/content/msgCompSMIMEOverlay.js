@@ -37,7 +37,7 @@ function onComposerLoad()
 
   gMsgCompose.compFields.securityInfo = gSMFields;
 
-  // Set up the intial security state.
+  // Set up the initial security state.
   gSMFields.requireEncryptMessage =
     gCurrentIdentity.getIntAttribute("encryptionpolicy") == kEncryptionPolicy_Always;
   if (!gSMFields.requireEncryptMessage &&

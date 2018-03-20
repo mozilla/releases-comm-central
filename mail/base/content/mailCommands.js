@@ -161,7 +161,7 @@ function GetMsgKeyFromURI(uri) {
   //   ex : mailbox-message://john%2Edoe@pop.isp.invalid/Drafts#123456?fetchCompleteMessage=true
   //   ex : mailbox-message://john%2Edoe@pop.isp.invalid/Drafts#12345
   // We keep only the part after '#' and before an optional '?'.
-  // The regexp expects 'key' to be an integer (a serie of digits) : '\d+'.
+  // The regexp expects 'key' to be an integer (a series of digits) : '\d+'.
   let match = /.+#(\d+)/.exec(uri);
   return (match) ? match[1] : null;
 }

@@ -109,7 +109,7 @@ imContextMenu.prototype = {
     this.target = aNode;
 
     // First, do checks for nodes that never have children.
-    // Second, bubble out, looking for items of interest that can have childen.
+    // Second, bubble out, looking for items of interest that can have children.
     // Always pick the innermost link, background image, etc.
     const XMLNS = "http://www.w3.org/XML/1998/namespace";
     var elem = this.target;

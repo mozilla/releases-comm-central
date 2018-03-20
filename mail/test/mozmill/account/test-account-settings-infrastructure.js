@@ -389,7 +389,7 @@ function subtest_check_onchange_handler(amc)
   autoSync.select();
   amc.type(new elib.Elem(autoSync), "35");
 
-  // Immediatelly switch to another pane and back.
+  // Immediately switch to another pane and back.
   accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xul", amc);
   click_account_tree_row(amc, accountRow);
 

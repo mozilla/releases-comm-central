@@ -238,7 +238,7 @@ class Bridge(Telnet):
         self.reading = True
         self.parsing = True
         while self.parsing:
-            # Remove erroneus data in front of callback object
+            # Remove erroneous data in front of callback object
             index = self.sbuffer.find('{')
             if index is not -1 and index is not 0:
                 self.sbuffer = self.sbuffer[index:]

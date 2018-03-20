@@ -761,7 +761,7 @@ function InitViewSortByMenu()
       sortDirection = gAbView.sortDirection;
     }
 
-    // this approach is necessary to support generic columns that get overlayed.
+    // this approach is necessary to support generic columns that get overlaid.
     let elements = document.querySelectorAll('[name="sortas"]');
     for (let i = 0; i < elements.length; i++) {
       let cmd = elements[i].id;

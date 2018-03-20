@@ -859,7 +859,7 @@
           return;
         }
 
-        // Check whether we can increase the height without hidding the status bar
+        // Check whether we can increase the height without hiding the status bar
         // (ensure the min-height property on the top part of this dialog)
         let topBox = this.getElt("conv-top");
         let topBoxStyle = window.getComputedStyle(topBox, null);
@@ -897,7 +897,7 @@
         }
         else {
           // Used in case the browser is already on its min-height, resize the
-          // textbox to avoid hidding the status bar.
+          // textbox to avoid hiding the status bar.
           let convTop = this.getElt("conv-top");
           let convTopStyle = window.getComputedStyle(convTop, null);
           let convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));

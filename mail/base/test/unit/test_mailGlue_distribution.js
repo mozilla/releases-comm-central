@@ -107,7 +107,7 @@ function run_test()
   }
 
   // Test the LocalizablePreferences section
-  // Any prefs here that aren't found in overrides are not overriden
+  // Any prefs here that aren't found in overrides are not overridden
   //   by LocalizablePrefs-[locale] and should be tested
   s = "LocalizablePreferences";
   keys = testIni.getKeys(s);

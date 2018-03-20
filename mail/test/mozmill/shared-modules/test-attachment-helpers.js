@@ -133,7 +133,7 @@ function help_create_detached_deleted_attachment(filename, type) {
 /**
  * Create the raw data for a detached attachment
  *
- * @param file an nsIFile for the external file for thie attachment
+ * @param file an nsIFile for the external file for the attachment
  * @param type the content type
  * @return a string representing the attachment
  */

@@ -37,13 +37,13 @@ var testExpectedEvent = function() {
   controller.rightClick(submit, 2, 2, {type: "contextmenu", target: submit});
 
   // With no event type specified we should throw an error
-  var catched = true;
+  var caught = true;
   try {
     controller.keypress(null, "VK_TAB", {}, {target: submit});
-    catched = false;
+    caught = false;
   } catch (ex) {}
 
-  if (!catched) {
+  if (!caught) {
     throw new Error("Missing event type should cause a failure.")
   }
 }

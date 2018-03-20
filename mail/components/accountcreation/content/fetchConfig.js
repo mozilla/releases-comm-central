@@ -52,7 +52,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback)
  *         for whatever reason. This is expected (e.g. when there's no config
  *         for this domain at this location),
  *         so do not unconditionally show this to the user.
- *         The first paramter will be an exception object or error string.
+ *         The first parameter will be an exception object or error string.
  */
 function fetchConfigFromISP(domain, emailAddress, successCallback,
                             errorCallback)
@@ -144,7 +144,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback)
 
 /**
  * Does a lookup of DNS MX, to get the server who is responsible for
- * recieving mail for this domain. Then it takes the domain of that
+ * receiving mail for this domain. Then it takes the domain of that
  * server, and does another lookup (in ISPDB and possible at ISP autoconfig
  * server) and if such a config is found, returns that.
  *

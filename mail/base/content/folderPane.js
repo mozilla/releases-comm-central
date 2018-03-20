@@ -1132,7 +1132,7 @@ var gFolderTreeView = {
   _subFoldersWithStringProperty: function ftv_subFoldersWithStringProperty(folder, folders, aFolderName, deep)
   {
     for (let child of fixIterator(folder.subFolders, Ci.nsIMsgFolder)) {
-      // if the folder selection is based on a string propery, use that
+      // if the folder selection is based on a string property, use that
       if (aFolderName == getSmartFolderName(child)) {
         folders.push(child);
         // Add sub-folders if requested.
@@ -2456,7 +2456,7 @@ ftvItem.prototype = {
 };
 
 /**
- * This handles the invocation of most commmands dealing with folders, based off
+ * This handles the invocation of most commands dealing with folders, based off
  * of the current selection, or a passed in folder.
  */
 var gFolderTreeController = {

@@ -259,7 +259,7 @@
        <![CDATA[
         // We need to make this casting here in order to access to nsIActivityProcess
         // interface of the component from the the binding.
-        // We deliberately propogate the exceptions to the caller.
+        // We deliberately propagate the exceptions to the caller.
         this._activity.QueryInterface(Ci.nsIActivityProcess);
 
         try {
@@ -561,7 +561,7 @@
        <![CDATA[
         // We need to make this casting here in order to access
         // to nsIActivityEvent interface of the component from the the binding.
-        // We deliberately propogate the exceptions to the caller.
+        // We deliberately propagate the exceptions to the caller.
         this._activity.QueryInterface(Ci.nsIActivityEvent);
 
         try {
@@ -672,7 +672,7 @@
 
         // We need to make this casting here in order to access to
         // nsIActivityWarning interface of the component from the the binding.
-        // We deliberately propogate the exceptions to the caller.
+        // We deliberately propagate the exceptions to the caller.
         this._activity.QueryInterface(Ci.nsIActivityWarning);
 
         try {

@@ -317,7 +317,7 @@ var QuickFilterManager = {
    *     of the attribute we cram your state into the state dictionary as, so
    *     the key thing is that it doesn't conflict with other id's.
    * @param {String} aFilterDef.domId The id of the DOM node that you have
-   *     overlayed into the quick filter bar.
+   *     overlaid into the quick filter bar.
    * @param {function(aTermCreator, aTerms, aState)} aFilterDef.appendTerms
    *     The function to invoke to contribute your terms to the list of
    *     search terms in aTerms.  Your function will not be invoked if you do
@@ -1274,7 +1274,7 @@ ResultsLabelFolderDisplayListener.prototype = {
   //// FolderDisplayListener
 
   // We want to make sure that anything that would change the count of displayed
-  //  messages causes us to update our dislayed value.
+  //  messages causes us to update our displayed value.
 
   onMessageCountsChanged: function(aFolderDisplay) {
     this._update(aFolderDisplay);

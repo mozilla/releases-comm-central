@@ -89,7 +89,7 @@ function open_send_via_email(aTab) {
  */
 function find_private_element(aTab) {
   // We use the identity name as an example of a private-only element.
-  // It is currenly the second td element with class="data-private" in the table.
+  // It is currently the second td element with class="data-private" in the table.
   // The content string must be something unique that is not found anywhere else.
   let elem = aTab.browser.contentDocument
                  .querySelector("#accounts-table td.data-private~td.data-private");

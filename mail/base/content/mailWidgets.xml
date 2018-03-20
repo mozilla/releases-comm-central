@@ -2160,7 +2160,7 @@
         // initialize strings
         var bundle = this.Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
 
-        // intialize the priority picker
+        // initialize the priority picker
         this.initialize(document.getAnonymousNodes(this)[1], bundle);
 
         // initialize the status picker

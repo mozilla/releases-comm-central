@@ -267,7 +267,7 @@ function test_notification_works_across_accounts() {
   assert_true(gMockAlertsService._didNotify, "Should have notified.");
 
   gMockAlertsService._reset();
-  // We'll set the time for these messages to be slightly furthur
+  // We'll set the time for these messages to be slightly further
   // into the past.  That way, test_notification_independent_across_accounts
   // has an opportunity to send slightly newer messages that are older than
   // the messages sent to gFolder.

@@ -2335,7 +2335,7 @@ function manageAttachmentNotification(aForce = false)
 }
 
 /**
- * Returns whether the attachment notification should be supressed regardless of
+ * Returns whether the attachment notification should be suppressed regardless of
  * the state of keywords.
  */
 function attachmentNotificationSupressed() {
@@ -2400,7 +2400,7 @@ function AttachmentsChanged() {
  * the list). It is not at all obvious that the preference value is wrong.
  * This case can happen two scenarios:
  * 1) The dictionary that was selected in the preference is removed.
- * 2) The selected dictionay changes the way it announces itself to the system,
+ * 2) The selected dictionary changes the way it announces itself to the system,
  *    so for example "it_IT" changes to "it-IT" and the previously stored
  *    preference value doesn't apply any more.
  */
@@ -3487,7 +3487,7 @@ function updateSendLock()
 
   const mailTypes = [ "addr_to", "addr_cc", "addr_bcc" ];
 
-  // Enable the send buttons if anything useable was entered into at least one
+  // Enable the send buttons if anything usable was entered into at least one
   // recipient field.
   for (let row = 1; row <= top.MAX_RECIPIENTS; row ++)
   {
@@ -3902,7 +3902,7 @@ function onAddressColCommand(aAddressWidgetId)
  * Called if the list of recipients changed in any way.
  *
  * @param aAutomatic  Set to true if the change of recipients was invoked
- *                    programatically and should not be considered a change
+ *                    programmatically and should not be considered a change
  *                    of message content.
  */
 function onRecipientsChanged(aAutomatic)
@@ -6786,7 +6786,7 @@ function InitEditor()
   editor.addOverrideStyleSheet("chrome://messenger/content/composerOverlay.css");
   gMsgCompose.initEditor(editor, window.content);
 
-  // We always go through this function everytime we init an editor.
+  // We always go through this function every time we init an editor.
   // First step is making sure we can spell check.
   gSpellChecker.init(editor);
   document.getElementById('menu_inlineSpellCheck')
@@ -6830,7 +6830,7 @@ function InitEditor()
     }
 
     if (event.target.classList.contains("loading-internal")) {
-      // We're already loading this, or tried so unsuccesfully.
+      // We're already loading this, or tried so unsuccessfully.
       return;
     }
     if (gOriginalMsgURI) {

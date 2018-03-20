@@ -1598,7 +1598,7 @@ function plan_for_message_display(aControllerOrTab) {
  *  |plan_for_message_display| is used, modulo the conditions below.)
  *
  * This method is used defensively by a lot of other code in this file that is
- *  realy not sure whether there might be a load in progress or not.  So by
+ *  really not sure whether there might be a load in progress or not.  So by
  *  default we only do something if there is obviously a message display in
  *  progress.  Since some events may end up getting deferred due to script
  *  blockers or the like, it is possible the event that triggers the display

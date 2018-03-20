@@ -93,7 +93,7 @@ interface nsIActivityManager : nsISupports {
   nsIActivity getActivity(in unsigned long aID);
   
   /**
-   * Tests wether the activity in question in the activity list or not.
+   * Tests whether the activity in question in the activity list or not.
    */
   boolean containsActivity(in unsigned long aID);
   

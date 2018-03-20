@@ -43,7 +43,7 @@ In most modes, ctrl-c will shut down Firefox and exit out of the mozmill Python 
 
 .. cmdoption:: -w <plugins>, --plugins <plugins>
 
-   Comma seperated list of additional paths to plugins to install.
+   Comma separated list of additional paths to plugins to install.
 
    Plugins can be either .xpi zip compressed extensions or deflated extension directories.
 
@@ -95,7 +95,7 @@ Command Line Class
    Inherits from :class:`jsbridge.CLI` which inherits from :class:`mozrunner.CLI`.
    
    All the heavy lifting is handled by jsbridge and mozrunner. If you are subclassing
-   this in order to creat a new command line interface be sure to call :func:`super` on all
+   this in order to create a new command line interface be sure to call :func:`super` on all
    related methods.
    
    .. attribute:: runner_class

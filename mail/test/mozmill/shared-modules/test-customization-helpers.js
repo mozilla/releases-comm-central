@@ -28,7 +28,7 @@ function installInto(module) {
 }
 
 /**
- * Initalize the help for a customization dialog
+ * Initialize the help for a customization dialog
  * @param {} aToolbarId
  *   the ID of the toolbar to be customized
  * @param {} aOpenElementId

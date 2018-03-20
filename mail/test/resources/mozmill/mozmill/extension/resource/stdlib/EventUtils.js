@@ -203,7 +203,7 @@ function _parseModifiers(aEvent)
 
 /**
  * Synthesize a mouse event on a target. The actual client point is determined
- * by taking the aTarget's client box and offseting it by aOffsetX and
+ * by taking the aTarget's client box and offsetting it by aOffsetX and
  * aOffsetY. This allows mouse clicks to be simulated by calling this method.
  *
  * aEvent is an object which may contain the properties:
@@ -243,7 +243,7 @@ function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow)
 
 /**
  * Synthesize a mouse scroll event on a target. The actual client point is determined
- * by taking the aTarget's client box and offseting it by aOffsetX and
+ * by taking the aTarget's client box and offsetting it by aOffsetX and
  * aOffsetY.
  *
  * aEvent is an object which may contain the properties:
@@ -421,7 +421,7 @@ function _checkExpectedEvent(aExpectedTarget, aExpectedEvent, aEventHandler, aTe
  *
  * aExpectedTarget - the expected originalTarget of the event.
  * aExpectedEvent - the expected type of the event, such as 'select'.
- * aTestName - the test name when outputing results
+ * aTestName - the test name when outputting results
  *
  * To test that an event is not fired, use an expected type preceded by an
  * exclamation mark, such as '!select'. This might be used to test that a
@@ -444,7 +444,7 @@ function synthesizeMouseExpectEvent(aTarget, aOffsetX, aOffsetY, aEvent,
  *
  * aExpectedTarget - the expected originalTarget of the event.
  * aExpectedEvent - the expected type of the event, such as 'select'.
- * aTestName - the test name when outputing results
+ * aTestName - the test name when outputting results
  *
  * To test that an event is not fired, use an expected type preceded by an
  * exclamation mark, such as '!select'.

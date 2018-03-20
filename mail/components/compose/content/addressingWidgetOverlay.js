@@ -424,7 +424,7 @@ function awTestRowSequence()
   /*
     This function is for debug and testing purpose only, normal user should not run it!
 
-    Everytime we insert or delete a row, we must be sure we didn't break the ID sequence of
+    Every time we insert or delete a row, we must be sure we didn't break the ID sequence of
     the addressing widget rows. This function will run a quick test to see if the sequence still ok
 
     You need to define the pref mail.debug.test_addresses_sequence to true in order to activate it
@@ -889,7 +889,7 @@ function awKeyDown(event, listboxElement)
   switch(event.keyCode) {
   case KeyEvent.DOM_VK_DELETE:
   case KeyEvent.DOM_VK_BACK_SPACE:
-    /* Warning, the listboxElement.selectedItems will change everytime we delete a row */
+    /* Warning, the listboxElement.selectedItems will change every time we delete a row */
     var length = listboxElement.selectedCount;
     for (var i = 1; i <= length; i++) {
       var inputs = listboxElement.selectedItem.getElementsByTagName(awInputElementName());

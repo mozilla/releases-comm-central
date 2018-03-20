@@ -135,7 +135,7 @@ var shell = new function(){
       }
       this.sendCmd(cmd);
       break;
-    //defaut is to eval
+    //default is to eval
     default:
        try {
          var res = eval.call(that,cmd);

@@ -611,7 +611,7 @@
     ClearErrors
     ReadRegStr $2 "HKLM" $0 "DisplayName"
     ${If} $2 == ""
-      ; Otherwise we don't have any keys for this product in HKLM so proceeed
+      ; Otherwise we don't have any keys for this product in HKLM so proceed
       ; to create them in HKCU.  Better handling for this will be done in:
       ; Bug 711044 - Better handling for 2 uninstall icons
       StrCpy $1 "HKCU"

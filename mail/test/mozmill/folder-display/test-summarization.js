@@ -150,7 +150,7 @@ function test_selection_stabilization_logic() {
   // ...
   // Culture!
   // ...
-  // I'm already embarassed I wrote that.
+  // I'm already embarrassed I wrote that.
   mc.window.MessageDisplayWidget.prototype
     .SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
   // (we did that because the stability logic is going to schedule another guard

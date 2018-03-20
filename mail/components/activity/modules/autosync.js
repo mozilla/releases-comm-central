@@ -208,7 +208,7 @@ var autosyncModule =
           catch(e) {
             // It is OK to end up here; If the folder is queued and the
             // message get manually downloaded by the user, we might get
-            // a folder removed notification even before a donwload
+            // a folder removed notification even before a download
             // started for this folder. This behavior stems from the fact
             // that we add activities into the activity manager in
             // onDownloadStarted notification rather than onFolderAddedIntoQ.

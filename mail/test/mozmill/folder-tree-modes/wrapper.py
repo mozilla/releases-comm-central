@@ -11,7 +11,7 @@ def on_before_start(profile):
     This installs the extension in the test-extension subdirectory into the
     profile folder. We cannot use on_profile_created here because
     install_plugin/install_addon depends on the profile object being fully
-    initalized.
+    initialized.
     """
 
     profile.addon_manager.install_addons(

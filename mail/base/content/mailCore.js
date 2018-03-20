@@ -160,7 +160,7 @@ function CustomizeMailToolbar(toolboxId, customizePopupId)
     sheetFrame.panel = panel;
 
     // The document might not have been loaded yet, if this is the first time.
-    // If it is already loaded, reload it so that the onload intialization code
+    // If it is already loaded, reload it so that the onload initialization code
     // re-runs.
     if (sheetFrame.getAttribute("src") == customizeURL)
       sheetFrame.contentWindow.location.reload()

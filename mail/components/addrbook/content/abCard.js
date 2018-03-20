@@ -729,7 +729,7 @@ function calculateAge(aEvent, aElement) {
 }
 
 /**
- * Calculates the year an event ocurred based on the number of years, months,
+ * Calculates the year an event occurred based on the number of years, months,
  * and days since the event and updates the relevant element.
  * @param aEvent   The event calling this method.
  * @param aElement Optional, but required if this function is not called from an

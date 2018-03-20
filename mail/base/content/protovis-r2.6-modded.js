@@ -99,7 +99,7 @@ pv.identity = function(x) { return x; };
 /**
  * Returns an array of numbers, starting at <tt>start</tt>, incrementing by
  * <tt>step</tt>, until <tt>stop</tt> is reached. The stop value is exclusive. If
- * only a single argument is specified, this value is interpeted as the
+ * only a single argument is specified, this value is interpreted as the
  * <i>stop</i> value, with the <i>start</i> value as zero. If only two arguments
  * are specified, the step value is implied to be one.
  *
@@ -1176,7 +1176,7 @@ pv.Mark.prototype.defineProperty = function(name) {
 /**
  * The constructor; the mark type. This mark type may define default property
  * functions (see {@link #defaults}) that are used if the property is not
- * overriden by the mark or any of its prototypes.
+ * overridden by the mark or any of its prototypes.
  *
  * @type function
  */
@@ -2180,7 +2180,7 @@ pv.Area.prototype.update = function() {
   var s = this.scene[0], v = s.svg;
   if (s.visible) {
 
-    /* Create the <svg:polygon> element, if necesary. */
+    /* Create the <svg:polygon> element, if necessary. */
     if (!v) {
       v = s.svg = document.createElementNS(pv.ns.svg, "polygon");
       s.parent.svg.appendChild(v);
@@ -3596,7 +3596,7 @@ pv.Panel.prototype.buildInstance = function(s) {
  * is populated above in {@link #buildInstance}.
  *
  * </ul>The current implementation creates the SVG element, if necessary, during
- * the build phase; in the future, it may be preferrable to move this to the
+ * the build phase; in the future, it may be preferable to move this to the
  * update phase, although then the canvas property would be undefined. In
  * addition, DOM inspection is necessary to define the implied width and height
  * properties that may be inferred from the DOM.

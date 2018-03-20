@@ -114,7 +114,7 @@ var MailMigrator = {
     try {
       // Initially, we checked if currentUIVersion < 1, and stripped the
       // persisted "collapsed" property from folderPaneBox if it wasn't.
-      // However, the inital implementation of migrateUI swallowed up
+      // However, the initial implementation of migrateUI swallowed up
       // exceptions, and bumped the value of UI_VERSION_PREF regardless.
       // Now, instead, we fail to bump the UI_VERSION_PREF if something goes
       // wrong, and we've moved the folderPaneBox operation into

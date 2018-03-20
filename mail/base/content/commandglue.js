@@ -251,7 +251,7 @@ function ConvertSortTypeToColumnID(sortKey)
     case nsMsgViewSortType.byCustom:
 
       //TODO: either change try() catch to if (property exists) or restore the getColumnHandler() check
-      try //getColumnHandler throws an errror when the ID is not handled
+      try //getColumnHandler throws an error when the ID is not handled
       {
         columnID = gDBView.curCustomColumn;
       }

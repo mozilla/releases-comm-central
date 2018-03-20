@@ -70,7 +70,7 @@ function test_tab_reorder_setup_globals() {
 /**
  * Tests reordering tabs by drag'n'drop within the tabbar
  *
- * It opens aditional movable and closable tabs. The picks the first
+ * It opens additional movable and closable tabs. The picks the first
  * movable tab and drops it onto the third movable tab.
  */
 function test_tab_reorder_tabbar(){
@@ -87,7 +87,7 @@ function test_tab_reorder_tabbar(){
     open_selected_message_in_new_tab(true);
   }
 
-  // Check if every thing is correctly initalized
+  // Check if every thing is correctly initialized
   assert_number_of_tabs_open(5);
 
   assert_true(mc.tabmail.tabModes["message"].tabs[0] == mc.tabmail.tabInfo[1],

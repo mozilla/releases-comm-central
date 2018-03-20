@@ -436,7 +436,7 @@ function get_test_plugin() {
   return null;
 }
 
-/* Returns true if we're currently set up to run plugins in seperate
+/* Returns true if we're currently set up to run plugins in separate
  * processes, false otherwise.
  */
 function plugins_run_in_separate_processes(aController) {

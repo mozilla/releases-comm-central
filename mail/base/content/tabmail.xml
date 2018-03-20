@@ -722,7 +722,7 @@
             }
 
             if (!aNoUndo) {
-              // Allow user to undo accidentially closed tabs
+              // Allow user to undo accidentally closed tabs
               let session = this.persistTab(tab);
 
               if (session) {
@@ -1758,7 +1758,7 @@
           // Listen to overflow/underflow events on the tabstrip,
           // we cannot put these as xbl handlers on the entire binding because
           // they would also get called for the all-tabs popup scrollbox.
-          // Also, we can't rely on event.target becuase these are all
+          // Also, we can't rely on event.target because these are all
           // anonymous nodes.
           this.arrowScrollbox.addEventListener("overflow", this);
           this.arrowScrollbox.addEventListener("underflow", this);
@@ -2091,7 +2091,7 @@
         // In case the tab implements session restore, we use JSON to convert
         // it into a string
         //
-        // If a tab does not support session restore it retuns null. We can't
+        // If a tab does not support session restore it returns null. We can't
         // moved such tabs to a new window. However moving them within the same
         // window works perfectly fine
 
@@ -2154,7 +2154,7 @@
         }
 
         // Bug 516247:
-        // incase the user is dragging something else than a tab, and
+        // in case the user is dragging something else than a tab, and
         // keeps hovering over a tab, we assume he wants to switch to this tab.
         if ((dt.mozTypesAt(0)[0] != "application/x-moz-tabmail-tab")
             && (dt.mozTypesAt(0)[1] != "application/x-moz-tabmail-json"))  {
@@ -2361,7 +2361,7 @@
         // isn't dispatched when the tab is moved within the tabstrip,
         // see bug 460801.
 
-        // the user pressed ESC to cancel the drag, or the drag succeded
+        // the user pressed ESC to cancel the drag, or the drag succeeded
         var dt = event.dataTransfer;
         if ((dt.mozUserCancelled) || (dt.dropEffect != "none"))
           return;

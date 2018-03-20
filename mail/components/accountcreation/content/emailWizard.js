@@ -153,7 +153,7 @@ EmailConfigWizard.prototype =
       userFullname = userInfo.fullname;
     } catch(e) {
       // nsIUserInfo may not be implemented on all platforms, and name might
-      // not be avaialble even if it is.
+      // not be available even if it is.
     }
 
     this._domain = "";
@@ -1031,7 +1031,7 @@ EmailConfigWizard.prototype =
     if (!e("in-authMethod-oauth2").hidden) {
       config.oauthSettings = {};
       [config.oauthSettings.issuer, config.oauthSettings.scope] = iDetails;
-      // oauthsettings are not stored nor changable in the user interface, so just
+      // oauthsettings are not stored nor changeable in the user interface, so just
       // store them in the base configuration.
       this._currentConfig.oauthSettings = config.oauthSettings;
     }
@@ -1060,7 +1060,7 @@ EmailConfigWizard.prototype =
     if (!e("out-authMethod-oauth2").hidden) {
       config.oauthSettings = {};
       [config.oauthSettings.issuer, config.oauthSettings.scope] = oDetails;
-      // oauthsettings are not stored nor changable in the user interface, so just
+      // oauthsettings are not stored nor changeable in the user interface, so just
       // store them in the base configuration.
       this._currentConfig.oauthSettings = config.oauthSettings;
     }
@@ -1583,7 +1583,7 @@ EmailConfigWizard.prototype =
       }
     }
 
-    // TODO use a UI mode (switchToMode()) for verfication, too.
+    // TODO use a UI mode (switchToMode()) for verification, too.
     // But we need to go back to the previous mode, because we might be in
     // "result" or "manual-edit-complete" mode.
     _disable("create_button");

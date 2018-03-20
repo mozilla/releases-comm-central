@@ -34,7 +34,7 @@ function test_message_pane_visible_state_is_right() {
 }
 
 /**
- * Make sure the account central page does not have the mesage pane splitter
+ * Make sure the account central page does not have the message pane splitter
  *  visible.  This should go elsewhere once we have more tests involving
  *  account central.  (Layout tests?)
  */

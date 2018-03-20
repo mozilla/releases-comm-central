@@ -53,7 +53,7 @@ function check_eml_textcontent(eml) {
 }
 
 /**
- * This test excercises the bug for reversed http-equiv, content order:
+ * This test exercises the bug for reversed http-equiv, content order:
  *  <head>
  *    <meta content="text/html; charset=ISO-8859-2"; http-equiv="content-type">
  *  </head>
@@ -65,7 +65,7 @@ function test_original_html_characters_head_meta_content_charset_httpEq() {
 }
 
 /**
- * This test excercises the bug for newline delimited charset:
+ * This test exercises the bug for newline delimited charset:
  *  <head>
  *    <meta http-equiv="content-type" content="text/html;
  *          charset=ISO-8859-2">
@@ -78,7 +78,7 @@ function test_original_html_characters_head_meta_httpEq_content_newline_charset(
 }
 
 /**
- * This test excercises the bug for newline delimited and reverse ordered http-equiv:
+ * This test exercises the bug for newline delimited and reverse ordered http-equiv:
  *  <head>
  *    <meta content="text/html; charset=ISO-8859-2"
  *          http-equiv="content-type">

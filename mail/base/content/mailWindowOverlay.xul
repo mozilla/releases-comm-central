@@ -74,7 +74,7 @@
 
 <!-- Performance optimization...we include utilityOverlay.xul which defines some command sets
      which are updated based on events like focus and select. We have our own custom events
-     which we use to optmize when we do command updating. To avoid unnecessary command updating,
+     which we use to optimize when we do command updating. To avoid unnecessary command updating,
      we are going to override the events the global edit menu items and select edit menu items
      are updated on with events of our own controlling.
  -->

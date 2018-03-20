@@ -423,7 +423,7 @@ Section "Uninstall"
 
 !ifdef MOZ_MAINTENANCE_SERVICE
   ; Get the path the allowed cert is at and remove it
-  ; Keep this block of code last since it modfies the reg view
+  ; Keep this block of code last since it modifies the reg view
   ServicesHelper::PathToUniqueRegistryPath "$INSTDIR"
   Pop $MaintCertKey
   ${If} $MaintCertKey != ""

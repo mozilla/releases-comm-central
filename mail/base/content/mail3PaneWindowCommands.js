@@ -318,7 +318,7 @@ var DefaultController =
         return gFolderDisplay.selectedCount > 0;
       case "cmd_saveAsTemplate":
         if (gFolderDisplay.selectedCount > 1)
-          return false;   // else fall thru
+          return false;   // else fall through
       case "cmd_reply":
       case "button_reply":
       case "cmd_replySender":

@@ -74,7 +74,7 @@
 
 #contactlistbox {
   margin: 0;
-  /* make it possible to let the childs overwrite the end border.
+  /* make it possible to let the children overwrite the end border.
      margin-inline-start because of the inverted direction */
   margin-inline-start: -1px;
 }

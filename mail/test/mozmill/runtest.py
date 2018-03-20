@@ -212,7 +212,7 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
 
         if wrapper is not None and hasattr(wrapper, "on_profile_created"):
             # It's a little dangerous to allow on_profile_created access to the
-            # profile object, because it isn't fully initalized yet
+            # profile object, because it isn't fully initialized yet
             wrapper.on_profile_created(PROFILE_DIR)
 
         return PROFILE_DIR

@@ -258,7 +258,7 @@ var EmailAccountProvisioner = {
         name = userInfo.fullname;
       } catch(e) {
         // nsIUserInfo may not be implemented on all platforms, and name might
-        // not be avaialble even if it is.
+        // not be available even if it is.
       }
     }
     nameElement.value = name;
