@@ -18,9 +18,7 @@ jobs:
     - linux64-rust-1.19
     - linux64-rust-macos
     - linux64-sccache
-    - win32-clang-cl-st-an
-    - win32-rust
-    - win64-clang-cl-st-an
+    - win64-clang-cl
     - win64-rust
     - win64-rust-1.19
     - win64-sccache
