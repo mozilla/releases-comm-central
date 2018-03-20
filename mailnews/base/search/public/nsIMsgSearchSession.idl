@@ -94,7 +94,7 @@ interface nsIMsgSearchSession :  nsISupports {
 
   void clearScopes();
 
-  /* Call this function everytime the scope changes! It informs the FE if
+  /* Call this function every time the scope changes! It informs the FE if
      the current scope support custom header use. FEs should not display the
      custom header dialog if custom headers are not supported */
   [noscript] boolean ScopeUsesCustomHeaders(in nsMsgSearchScopeValue scope,

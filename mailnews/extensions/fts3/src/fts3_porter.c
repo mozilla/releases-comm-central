@@ -293,7 +293,7 @@ static const char cType[] = {
 **
 ** In these routine, the letters are in reverse order.  So the 'y' rule
 ** is that 'y' is a consonant unless it is followed by another
-** consonent.
+** consonant.
 */
 static int isVowel(const char*);
 static int isConsonant(const char *z){
@@ -405,7 +405,7 @@ static int star_oh(const char *z){
 
 /*
 ** If the word ends with zFrom and xCond() is true for the stem
-** of the word that preceeds the zFrom ending, then change the 
+** of the word that precedes the zFrom ending, then change the 
 ** ending to zTo.
 **
 ** The input word *pz and zFrom are both in reverse order.  zTo
@@ -818,7 +818,7 @@ static const char porterIdChar[] = {
 #define IS_JA_DELIM(x) (((x)==0x3001)||((x)==0xFF64)||((x)==0xFF0E)||((x)==0x3002)||((x)==0xFF61)||((x)==0xFF0C))
 
 /**
- * The previous character was a delimeter (which includes the start of the
+ * The previous character was a delimiter (which includes the start of the
  *  string).
  */
 #define BIGRAM_RESET   0
@@ -833,7 +833,7 @@ static const char porterIdChar[] = {
 #define BIGRAM_USE     2
 /**
  * The previous character was ASCII or something in the unicode general scripts
- *  area that we do not believe is a delimeter.  We call it 'alpha' as in
+ *  area that we do not believe is a delimiter.  We call it 'alpha' as in
  *  alphabetic/alphanumeric and something that should be tokenized based on
  *  delimiters rather than on a bi-gram basis.
  */
@@ -888,7 +888,7 @@ static int isDelim(
   // Anything less than 0x2000 (except to U+0E00-U+0EFF and  U+1780-U+17FF) 
   // is the general scripts area and should not be bi-gram indexed.
   // 0xa000 - 0a4cf is the Yi area.  It is apparently a phonetic language whose
-  //  usage does not appear to have simple delimeter rules, so we're leaving it
+  //  usage does not appear to have simple delimiter rules, so we're leaving it
   //  as bigram processed.  This is a guess, if you know better, let us know.
   //  (We previously bailed on this range too.)
   // Addition, U+0E00-U+0E7F is Thai, U+0E80-U+0EFF is Laos,
@@ -959,7 +959,7 @@ static int isDelim(
  *  preceding the point).
  * At any 'point', there are a number of possible situations which I will
  *  illustrate with pairs of characters. 'a' means alphanumeric ASCII or a
- *  non-ASCII character that is not bi-grammable or a delimeter, '.'
+ *  non-ASCII character that is not bi-grammable or a delimiter, '.'
  *  means a delimiter (space or punctuation), '&' means a bi-grammable
  *  character.
  * - aa: We are in the midst of a token.  State remains BIGRAM_ALPHA.
@@ -970,7 +970,7 @@ static int isDelim(
  *        but that it is not yet time to emit a bigram.
  * - .a: We are starting a token.  State was BIGRAM_RESET, gets set to
  *        BIGRAM_ALPHA.
- * - ..: We skip/eat the delimeters.  State stays BIGRAM_RESET.
+ * - ..: We skip/eat the delimiters.  State stays BIGRAM_RESET.
  * - .&: State set to BIGRAM_UNKNOWN to indicate we have seen one bigram char.
  * - &a: If the state was BIGRAM_USE, we generate a bi-gram token.  If the state
  *        was BIGRAM_UNKNOWN we had only seen one CJK character and so don't do

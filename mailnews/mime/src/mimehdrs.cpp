@@ -468,7 +468,7 @@ MimeHeaders_get (MimeHeaders *hdrs, const char *header_name,
         s[0] = 0;
       }
 
-    /* If we only wanted the first occurence of this header, we're done. */
+    /* If we only wanted the first occurrence of this header, we're done. */
     if (!all_p) break;
     }
   }

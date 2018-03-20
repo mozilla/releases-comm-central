@@ -325,11 +325,11 @@ static nsTArray<nsCString> gForceSelectServersArray;
 
 // let delete model control expunging, i.e., don't ever expunge when the
 // user chooses the imap delete model, otherwise, expunge when over the
-// threshhold. This is the normal TB behavior.
+// threshold. This is the normal TB behavior.
 static const int32_t kAutoExpungeDeleteModel = 0;
 // Expunge whenever the folder is opened
 static const int32_t kAutoExpungeAlways = 1;
-// Expunge when over the threshhold, independent of the delete model.
+// Expunge when over the threshold, independent of the delete model.
 static const int32_t kAutoExpungeOnThreshold = 2;
 static int32_t gExpungeOption = kAutoExpungeDeleteModel;
 static int32_t gExpungeThreshold = 20;
@@ -3135,7 +3135,7 @@ nsresult nsImapProtocol::BeginMessageDownLoad(
       return NS_OK;
     }
     // if we have a mock channel, that means we have a channel listener who wants the
-    // message. So set up a pipe. We'll write the messsage into one end of the pipe
+    // message. So set up a pipe. We'll write the message into one end of the pipe
     // and they will read it out of the other end.
     if (m_channelListener)
     {
@@ -4182,8 +4182,8 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
         // Don't do expunge when we are lite selecting folder because we
         // could be doing undo.
         // Expunge if we're always expunging, or the number of deleted messages
-        // is over the threshhold, and we're either always respecting the
-        // threshhold, or we're expunging based on the delete model, and
+        // is over the threshold, and we're either always respecting the
+        // threshold, or we're expunging based on the delete model, and
         // the delete model is not the imap delete model.
         if (m_imapAction != nsIImapUrl::nsImapLiteSelectFolder &&
             (gExpungeOption == kAutoExpungeAlways ||
@@ -4486,7 +4486,7 @@ void nsImapProtocol::Log(const char *logSubName, const char *extraInfo, const ch
     static const char nonAuthStateName[] = "NA";
     static const char authStateName[] = "A";
     static const char selectedStateName[] = "S";
-    const nsCString& hostName = GetImapHostName();  // initilize to empty string
+    const nsCString& hostName = GetImapHostName();  // initialize to empty string
 
     int32_t logDataLen = PL_strlen(logData); // PL_strlen checks for null
     nsCString logDataLines;
@@ -6144,7 +6144,7 @@ void nsImapProtocol::UploadMessageFromFile (nsIFile* file,
       /* Use PR_FormatTimeUSEnglish() to format the date in US English format,
         then figure out what our local GMT offset is, and append it (since
         PR_FormatTimeUSEnglish() can't do that.) Generate four digit years as
-        per RFC 1123 (superceding RFC 822.)
+        per RFC 1123 (superseding RFC 822.)
         */
       char szDateTime[64];
       char dateStr[100];
@@ -6175,7 +6175,7 @@ void nsImapProtocol::UploadMessageFromFile (nsIFile* file,
     command.AppendInt((int32_t)fileSize);
 
     // Set useLiteralPlus to true if server has capability LITERAL+ and
-    // LITERAL+ useage is enabled in the config editor,
+    // LITERAL+ usage is enabled in the config editor,
     // i.e., "mail.imap.use_literal_plus" = true.
     bool useLiteralPlus = (GetServerStateParser().GetCapabilityFlag() &
                           kLiteralPlusCapability) && gUseLiteralPlus;
@@ -8565,7 +8565,7 @@ bool nsImapProtocol::TryToLogon()
       rv = ChooseAuthMethod();
       if (NS_FAILED(rv)) // all methods failed
       {
-        MOZ_LOG(IMAP, LogLevel::Error, ("huch? there are auth methods, and we resetted failed ones, but ChooseAuthMethod still fails."));
+        MOZ_LOG(IMAP, LogLevel::Error, ("huch? there are auth methods, and we reset failed ones, but ChooseAuthMethod still fails."));
         return false;
       }
     }
@@ -8677,7 +8677,7 @@ bool nsImapProtocol::TryToLogon()
             m_hostSessionList->SetPasswordForHost(GetImapServerKey(), EmptyString());
             m_imapServerSink->ForgetPassword();
             m_password.Truncate();
-            MOZ_LOG(IMAP, LogLevel::Warning, ("password resetted (nulled)"));
+            MOZ_LOG(IMAP, LogLevel::Warning, ("password reset (nulled)"));
             newPasswordRequested = true;
             // Will call GetPassword() in beginning of next loop
 

@@ -102,7 +102,7 @@ ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data)
 
   // Ok, this is the special case when somebody sends an "attachment" as the
   // body of an RFC822 message...I really don't think this is the way this
-  // should be done.  I belive this should really be a multipart/mixed message
+  // should be done.  I believe this should really be a multipart/mixed message
   // with an empty body part, but what can ya do...our friends to the North seem
   // to do this.
   MimeObject    *child = obj;
@@ -1253,7 +1253,7 @@ bool MimeObjectIsMessageBody(MimeObject *looking_for)
 // New Stream Converter Interface
 //
 
-// Get the connnection to prefs service manager
+// Get the connection to prefs service manager
 nsIPrefBranch *
 GetPrefBranch(MimeDisplayOptions *opt)
 {
@@ -2054,7 +2054,7 @@ nsresult GetMailNewsFont(MimeObject *obj, bool styleFixed,  int32_t *fontPixelSi
   return NS_OK;
 }
 
-/* This function syncronously converts an HTML document (as string)
+/* This function synchronously converts an HTML document (as string)
    to plaintext (as string) using the Gecko converter.
 
    flags: see nsIDocumentEncoder.h
@@ -2071,7 +2071,7 @@ HTML2Plaintext(const nsString& inString, nsString& outString,
 
 
 
-/* This function syncronously sanitizes an HTML document (string->string)
+/* This function synchronously sanitizes an HTML document (string->string)
    using the Gecko nsTreeSanitizer.
 */
 // copied from HTML2Plaintext above

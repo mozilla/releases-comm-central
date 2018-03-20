@@ -491,7 +491,7 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
           /*
             AppleDouble part need special care: we need to output only the data fork part of it.
             The problem at this point is that we haven't yet decoded the children of the AppleDouble
-            part therfore we will have to hope the datafork is the second one!
+            part therefore we will have to hope the datafork is the second one!
           */
           if (mime_typep(child, (MimeObjectClass *) &mimeMultipartAppleDoubleClass))
             partnum.AppendLiteral(".2");
@@ -571,7 +571,7 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
             /*  rhp - End of putting more stuff into the hash table */
 
               /* it's possible that temp pointer is the same than the part pointer,
-                 therefore be carefull to not freeing twice the same pointer */
+                 therefore be careful to not freeing twice the same pointer */
               if (temp && temp != part)
                 PR_Free(temp);
               PR_Free(part);

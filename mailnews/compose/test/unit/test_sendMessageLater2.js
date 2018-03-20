@@ -199,7 +199,7 @@ function runServerTest()
 function* actually_run_test() {
   dump("in actually_run_test\n");
 
-  dump("Copy Mesage from file to folder\n");
+  dump("Copy Message from file to folder\n");
   yield async_run({func: sendMessageLater, args: [0]});
 
   dump("Send unsent message\n");

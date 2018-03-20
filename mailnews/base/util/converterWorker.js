@@ -244,7 +244,7 @@ self.addEventListener("message", function(e) {
             // 'text'. So we move the position in the file to 'position +
             // lastMatchIndex' from the beginning of the file.
             // This ensures that the next 'text' starts from "From - "
-            // and that there is at least 1 match everytime.
+            // and that there is at least 1 match every time.
             sourceFileOpen.setPosition(position + lastMatchIndex,
               OS.File.POS_START);
           } else {

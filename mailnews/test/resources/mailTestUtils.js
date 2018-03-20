@@ -227,7 +227,7 @@ var mailTestUtils = {
    *          this is true, then the file has been marked as sparse. If this is
    *          false, then the underlying system doesn't support marking files as
    *          sparse. If an exception is thrown, then the system does support
-   *          marking files as sparse, but an error occured while doing so.
+   *          marking files as sparse, but an error occurred while doing so.
    *
    */
   mark_file_region_sparse: function(aFile, aRegionStart, aRegionBytes) {

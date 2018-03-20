@@ -20,7 +20,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Dovecot is one of the servers that supports LIST-EXTENDED
 setupIMAPPump("Dovecot");
-// create our own hander so that we can call imapd functions directly
+// create our own handler so that we can call imapd functions directly
 var handler;
 
 // Definition of tests

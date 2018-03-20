@@ -94,7 +94,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode,
 
   const char* exitString;
 #ifdef __GNUC__
-// Temporary workaroung until bug 783526 is fixed.
+// Temporary workaround until bug 783526 is fixed.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
 #endif
@@ -518,7 +518,7 @@ void nsSmtpProtocol::AppendHelloArgument(nsACString& aResult)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// we suppport the nsIStreamListener interface
+// we support the nsIStreamListener interface
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 // stop binding is a "notification" informing us that the stream
@@ -1132,7 +1132,7 @@ nsresult nsSmtpProtocol::ProcessAuth()
         {
             // Do not try to combine SMTPS with STARTTLS.
             // If nsMsgSocketType::SSL is set,
-            // we are alrady using a secure connection.
+            // we are already using a secure connection.
             // Do not attempt to do STARTTLS,
             // even if server offers it.
             if (m_prefSocketType == nsMsgSocketType::trySTARTTLS ||

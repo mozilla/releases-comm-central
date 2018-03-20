@@ -792,7 +792,7 @@ var FeedSubscriptions = {
         {
           if (removeIt && aItem.children[i].url == folderURI)
           {
-            // Get all occurences in the tree cache arrays.
+            // Get all occurrences in the tree cache arrays.
             FeedUtils.log.debug("selectFolder: delete in cache, " +
                                 "parent:children:item:index - "+
                                 aItem.name + ":" + aItem.children.length + ":" +
@@ -1663,7 +1663,7 @@ var FeedSubscriptions = {
       if (!this.addFeed(currentItem.url, newFolder, false, params, mode))
         return;
       // Unsubscribe the feed from the old folder, if add to the new folder
-      // is successfull, and doing a move.
+      // is successful, and doing a move.
       if (moveFeed)
       {
         let feed = new Feed(currentItem.url, currentItem.parentFolder);
@@ -2582,7 +2582,7 @@ var FeedSubscriptions = {
 
     function processor(aParentNode, aParentFolder)
     {
-      FeedUtils.log.trace("importOPMLOutlines: PROCESSOR tag:name:childs - " +
+      FeedUtils.log.trace("importOPMLOutlines: PROCESSOR tag:name:children - " +
                           aParentNode.tagName + ":" +
                           aParentNode.getAttribute("text") + ":" +
                           aParentNode.childElementCount);

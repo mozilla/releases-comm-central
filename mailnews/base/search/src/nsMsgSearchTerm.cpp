@@ -80,7 +80,7 @@ nsMsgSearchAttribEntry SearchAttribEntryTable[] =
     {nsMsgSearchAttrib::Size,       "size"},
     // this used to be nsMsgSearchAttrib::SenderInAddressBook
     // we used to have two Sender menuitems
-    // for backward compatability, we can still parse
+    // for backward compatibility, we can still parse
     // the old style.  see bug #179803
     {nsMsgSearchAttrib::Sender,     "from in ab"},
     {nsMsgSearchAttrib::JunkStatus, "junk status"},

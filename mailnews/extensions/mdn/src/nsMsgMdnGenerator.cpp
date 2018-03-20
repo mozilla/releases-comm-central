@@ -196,7 +196,7 @@ bool nsMsgMdnGenerator::ProcessSendMode()
         // *********
         // How are we gona deal with the auto forwarding issues? Some server
         // didn't bother to add addition header or modify existing header to
-        // thev message when forwarding. They simply copy the exact same
+        // the message when forwarding. They simply copy the exact same
         // message to another user's mailbox. Some change To: to
         // Apparently-To:
         // Unfortunately, there is nothing we can do. It's out of our control.
@@ -439,7 +439,7 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
   /* Use PR_FormatTimeUSEnglish() to format the date in US English format,
      then figure out what our local GMT offset is, and append it (since
      PR_FormatTimeUSEnglish() can't do that.) Generate four digit years as
-     per RFC 1123 (superceding RFC 822.)
+     per RFC 1123 (superseding RFC 822.)
   */
     PR_FormatTimeUSEnglish(tmpBuffer, 100,
                            "Date: %a, %d %b %Y %H:%M:%S ",

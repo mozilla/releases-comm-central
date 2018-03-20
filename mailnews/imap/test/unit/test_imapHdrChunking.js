@@ -47,7 +47,7 @@ var tests = [
 // upload messages to the imap fake server Inbox
 function* uploadImapMessages()
 {
-  // make 10 messges
+  // make 10 messages
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
 

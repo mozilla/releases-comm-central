@@ -68,7 +68,7 @@ var GlodaCollectionManager = {
 
   /**
    * Attempt to locate an instance of the object of the given noun type with the
-   *  given id.  Counts as a cache hit if found.  (And if it was't in a cache,
+   *  given id.  Counts as a cache hit if found.  (And if it wasn't in a cache,
    *  but rather a collection, it is added to the cache.)
    */
   cacheLookupOne: function gloda_colm_cacheLookupOne(aNounID, aID, aDoCache) {
@@ -174,7 +174,7 @@ var GlodaCollectionManager = {
 
   /**
    * Attempt to locate an instance of the object of the given noun type with the
-   *  given id.  Counts as a cache hit if found.  (And if it was't in a cache,
+   *  given id.  Counts as a cache hit if found.  (And if it wasn't in a cache,
    *  but rather a collection, it is added to the cache.)
    */
   cacheLookupOneByUniqueValue:

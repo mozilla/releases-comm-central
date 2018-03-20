@@ -11,7 +11,7 @@ interface nsIWebProgressListener;
 interface nsIMsgShutdownTask : nsISupports
 {
   /**
-   * Inform the caller wheter or not the task needs to be run. This method
+   * Inform the caller whether or not the task needs to be run. This method
    * gives the task the flexibility to cancel running a task on shutdown
    * if nothing needs to be run.
    */

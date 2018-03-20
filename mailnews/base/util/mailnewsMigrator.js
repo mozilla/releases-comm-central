@@ -116,7 +116,7 @@ function MigrateServerAuthPref()
 }
 
 /**
- * The address book used to contain information about wheather to allow remote
+ * The address book used to contain information about whether to allow remote
  * content for a given contact. Now we use the permission manager for that.
  * Do a one-time migration for it.
  */

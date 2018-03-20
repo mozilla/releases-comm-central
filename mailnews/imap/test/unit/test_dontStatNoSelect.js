@@ -105,7 +105,7 @@ function* checkStatNoSelect() {
 }
 
 function addMessageToFolder(mbox) {
-  // make a couple messges
+  // make a couple of messages
   let messages = [];
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());

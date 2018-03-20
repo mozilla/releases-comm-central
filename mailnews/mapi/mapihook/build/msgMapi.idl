@@ -49,7 +49,7 @@ typedef struct
 [
     object,
     uuid(6EDCD38E-8861-11d5-A3DD-00B0D0F3BAA7),
-    helpstring("nsIMapi Inteface"),
+    helpstring("nsIMapi Interface"),
     pointer_default(unique)
 ]
 

@@ -100,7 +100,7 @@ public:
     virtual nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false) override;
 
     ////////////////////////////////////////////////////////////////////////////////////////
-    // we suppport the nsIStreamListener interface
+    // we support the nsIStreamListener interface
     ////////////////////////////////////////////////////////////////////////////////////////
 
     // stop binding is a "notification" informing us that the stream associated with aURL is going away.

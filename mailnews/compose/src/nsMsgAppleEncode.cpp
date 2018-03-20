@@ -383,7 +383,7 @@ static const char *default_type = APPLICATION_OCTET_STREAM;
 
 
 /*
- * Determins the format of the file "inputf".  The name
+ * Determines the format of the file "inputf".  The name
  * of the file format (or NULL on error) is returned.
  */
 static const char *magic_look(char *inbuff, int numread)
@@ -542,7 +542,7 @@ static char basis_64[] =
 
 /*
 **	convert the stream in the inbuff to 64 format and put it in the out buff.
-**  To make the life easier, the caller will responcable of the cheking of the outbuff's bundary.
+**  To make the life easier, the caller will responcable of the checking of the outbuff's bundary.
 */
 static int
 to64(appledouble_encode_object* p_ap_encode_obj,

@@ -545,7 +545,7 @@ nsresult OutlookSettings::SetSmtpServer(nsIMsgAccountManager *aMgr,
     SetSmtpServerKey(aId, smtpServer);
 
   // TODO SSL, auth method
-  IMPORT_LOG1("Ceated new SMTP server: %s\n",
+  IMPORT_LOG1("Created new SMTP server: %s\n",
               nativeServerName.get());
   return NS_OK;
 }

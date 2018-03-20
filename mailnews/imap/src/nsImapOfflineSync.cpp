@@ -243,7 +243,7 @@ void nsImapOfflineSync::ProcessFlagOperation(nsIMsgOfflineImapOperation *op)
   imapMessageFlagsType newFlags;
   bool flagsMatch = true;
   do
-  { // loop for all messsages with the same flags
+  { // loop for all messages with the same flags
     if (flagsMatch)
     {
       nsMsgKey curKey;
@@ -306,7 +306,7 @@ void nsImapOfflineSync::ProcessKeywordOperation(nsIMsgOfflineImapOperation *op)
     currentOp->GetKeywordsToRemove(getter_Copies(keywords));
   bool keywordsMatch = true;
   do
-  { // loop for all messsages with the same keywords
+  { // loop for all messages with the same keywords
     if (keywordsMatch)
     {
       nsMsgKey curKey;
@@ -526,7 +526,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation *op)
   bool moveMatches = true;
   nsCOMPtr <nsIMsgOfflineImapOperation> currentOp = op;
   do
-  {	// loop for all messsages with the same destination
+  {	// loop for all messages with the same destination
     if (moveMatches)
     {
       nsMsgKey curKey;
@@ -639,7 +639,7 @@ void nsImapOfflineSync::ProcessCopyOperation(nsIMsgOfflineImapOperation *aCurren
   bool copyMatches = true;
   nsresult rv;
 
-  do { // loop for all messsages with the same destination
+  do { // loop for all messages with the same destination
     if (copyMatches)
     {
       nsMsgKey curKey;
@@ -848,7 +848,7 @@ nsresult nsImapOfflineSync::ProcessNextOperation()
               // and when we download new headers, tell listeners about the
               // message key change between the pseudo headers and the real
               // downloaded headers. Note that we're not currently sending
-              // a msgsDeleted notifcation for these headers, but the
+              // a msgsDeleted notification for these headers, but the
               // db listeners are notified about the deletion.
               // for imap folders, we should adjust the pending counts, because we
               // have a header that we know about, but don't have in the db.

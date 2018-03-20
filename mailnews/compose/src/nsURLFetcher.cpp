@@ -104,7 +104,7 @@ nsURLFetcher::CanHandleContent(const char * aContentType,
     if (!mIsFile && PL_strcasecmp(aContentType, MESSAGE_RFC822) == 0)
       *aDesiredContentType = strdup("text/html");
 
-    // since we explicilty loaded the url, we always want to handle it!
+    // since we explicitly loaded the url, we always want to handle it!
     *aCanHandleContent = true;
   return NS_OK;
 }

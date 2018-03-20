@@ -10,7 +10,7 @@ var selectedServer = null;
 function OnInit()
 {
     // Set the header for the page.
-    // Title containts the brand name of the application and the account
+    // Title contains the brand name of the application and the account
     // type (mail/news) and the name of the account
     try {
         let msgFolder    = null;

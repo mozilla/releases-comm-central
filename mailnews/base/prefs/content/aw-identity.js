@@ -101,7 +101,7 @@ function clearEmailTextItems()
   postEmailText.hidden = true;
 }
 
-// Use email example data that ISP has provided. ISP data, if avaialble
+// Use email example data that ISP has provided. ISP data, if available
 // for the choice user has made, will be read into CurrentAccountData.
 // Default example data from properties will be used when the info is missing.
 function setEmailDescriptionText()

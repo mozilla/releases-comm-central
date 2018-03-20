@@ -41,7 +41,7 @@
 #define NNTP_READER_PERFORMED       0x00000010  /* have we sent any cmds to the server yet? */
 #define NNTP_USE_FANCY_NEWSGROUP    0x00000020  /* use LIST XACTIVE or LIST */
 #define NNTP_DESTROY_PROGRESS_GRAPH 0x00000040  /* do we need to destroy graph progress */
-#define NNTP_SOME_PROTOCOL_SUCCEEDED 0x0000080  /* some protocol has suceeded so don't kill the connection */
+#define NNTP_SOME_PROTOCOL_SUCCEEDED 0x0000080  /* some protocol has succeeded so don't kill the connection */
 #define NNTP_NO_XOVER_SUPPORT       0x00000100  /* xover command is not supported here */
 
 /* states of the machine
@@ -171,7 +171,7 @@ private:
    * NNTP_ERROR: An error which does not permit further use of the connection
    * NEWS_FREE: Cleans up from the current URL and prepares for the next one
    * NNTP_SUSPENDED: A state where the state machine does not read input until
-   *                 reenabled by a non-network related callback
+   *                 re-enabled by a non-network related callback
    *
    * @note Use of NNTP_SUSPENDED is dangerous: if input comes along the socket,
    * the code will not read the input stream at all. Therefore, it is strongly

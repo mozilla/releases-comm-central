@@ -743,7 +743,7 @@ nsresult nsPop3Protocol::StartGetAsyncPassword(Pop3StatesEnum aNextState)
   }
 
   // We're now going to need to do something that will end up with us either
-  // poking the login manger or prompting the user. We need to ensure we only
+  // poking the login manager or prompting the user. We need to ensure we only
   // do one prompt at a time (and loging manager could cause a master password
   // prompt), so we need to use the async prompter.
   nsCOMPtr<nsIMsgAsyncPrompter> asyncPrompter =
@@ -761,7 +761,7 @@ nsresult nsPop3Protocol::StartGetAsyncPassword(Pop3StatesEnum aNextState)
   m_url->GetPrePath(server);
 
   rv = asyncPrompter->QueueAsyncAuthPrompt(server, false, this);
-  // Explict NS_ENSURE_SUCCESS for debug purposes as errors tend to get
+  // Explicit NS_ENSURE_SUCCESS for debug purposes as errors tend to get
   // hidden.
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;
@@ -3157,7 +3157,7 @@ int32_t nsPop3Protocol::GetMsg()
 }
 
 
-/* start retreiving just the first 20 lines
+/* start retrieving just the first 20 lines
  */
 int32_t nsPop3Protocol::SendTop()
 {
@@ -3216,7 +3216,7 @@ int32_t nsPop3Protocol::XsenderResponse()
     return 0;
 }
 
-/* retreive the whole message
+/* retrieve the whole message
  */
 int32_t
 nsPop3Protocol::SendRetr()
@@ -3598,7 +3598,7 @@ nsPop3Protocol::HandleLine(char *line, uint32_t line_length)
     }
     /* Check if the line begins with the termination octet. If so
        and if another termination octet follows, we step over the
-       first occurence of it. */
+       first occurrence of it. */
     else if (line_length > 1 && line[0] == '.' && line[1] == '.') {
         line++;
         line_length--;

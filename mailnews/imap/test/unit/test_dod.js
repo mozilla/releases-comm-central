@@ -31,7 +31,7 @@ function run_test()
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
 
   // Force bodypart fetching as best as we can.
-  // It would be adviseable to enable log and check to be sure body[] is not
+  // It would be advisable to enable log and check to be sure body[] is not
   // being fetched in lieu of parts. There may be conditions that bypass
   // bodypart fetch.
   Services.prefs.setBoolPref("mail.inline_attachments",     false);

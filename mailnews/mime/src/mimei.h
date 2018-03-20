@@ -138,7 +138,7 @@
       #define MIME_SUPERCLASS parentlClass
       MimeDefClass(Foobar, FoobarClass, foobarClass, &MIME_SUPERCLASS);
 
-  The definition of MIME_SUPERCLASS is just to move most of the knowlege of the
+  The definition of MIME_SUPERCLASS is just to move most of the knowledge of the
   exact class hierarchy up to the file's header, instead of it being scattered
   through the various methods; see below.
 

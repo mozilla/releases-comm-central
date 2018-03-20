@@ -551,7 +551,7 @@ subclass(NNTP_RFC4643_extension, NNTP_RFC2980_handler, {
     }
     else if (action == "pass") {
       if (!this.requireBoth || !this.usernameReceived)
-        return "482 Authetication commands issued out of sequence";
+        return "482 Authentication commands issued out of sequence";
 
       this.usernameReceived = false;
 

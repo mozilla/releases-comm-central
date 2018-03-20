@@ -187,7 +187,7 @@ SpoolLock::ObtainSpoolLock(unsigned int aSeconds /* number of seconds to retry *
   /*
    * Locking procedures:
    * If the directory is not writable, we want to use the appropriate system
-   * utilites to lock the file.
+   * utilities to lock the file.
    * If the directory is writable, we want to go through the create-and-link
    * locking procedures to make it atomic for certain networked file systems.
    * This involves creating a .mozlock file and attempting to hard-link it to

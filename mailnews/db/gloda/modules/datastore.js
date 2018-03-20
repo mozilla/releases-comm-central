@@ -148,7 +148,7 @@ var QueryFromQueryResolver = {
  * Handles the results from a GlodaDatastore.queryFromQuery call in cooperation
  *  with the |QueryFromQueryResolver| collection listener.  We do a lot of
  *  legwork related to satisfying references to other noun instances on the
- *  noun instances the user directy queried.  Messages reference identities
+ *  noun instances the user directly queried.  Messages reference identities
  *  reference contacts which in turn (implicitly) reference identities again.
  *  We have to spin up those other queries and stitch things together.
  *
@@ -1945,7 +1945,7 @@ var GlodaDatastore = {
   /** Authoritative map from folder ID to folder URI */
   _folderByID: {},
 
-  /** Intialize our _folderByURI/_folderByID mappings, called by _init(). */
+  /** Initialize our _folderByURI/_folderByID mappings, called by _init(). */
   _getAllFolderMappings: function gloda_ds_getAllFolderMappings() {
     let stmt = this._createSyncStatement(
       "SELECT id, folderURI, dirtyStatus, name, indexingPriority \

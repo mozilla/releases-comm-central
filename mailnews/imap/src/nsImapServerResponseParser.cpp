@@ -738,7 +738,7 @@ void nsImapServerResponseParser::PostProcessEndOfLine()
                                "SEARCH" [SPACE 1#nz_number] /
                                number SPACE "EXISTS" / number SPACE "RECENT"
 
-This production was changed to accomodate predictive parsing
+This production was changed to accommodate predictive parsing
 
  mailbox_data    ::=  "FLAGS" SPACE flag_list /
                                "LIST" SPACE mailbox_list /
@@ -752,7 +752,7 @@ void nsImapServerResponseParser::mailbox_data()
   if (!PL_strcasecmp(fNextToken, "FLAGS"))
   {
     // this handles the case where we got the permanent flags response
-    // before the flags response, in which case, we want to ignore thes flags.
+    // before the flags response, in which case, we want to ignore these flags.
     if (fGotPermanentFlags)
       skip_to_CRLF();
     else
@@ -2974,7 +2974,7 @@ nsImapServerResponseParser::bodystructure_multipart(char *partNum, nsIMAPBodypar
 //           quota_resource = atom SP number SP number
 // Only the STORAGE resource is considered.  The current implementation is
 // slightly broken because it assumes that STORAGE is the first resource;
-// a reponse   QUOTA (MESSAGE 5 100 STORAGE 10 512)   would be ignored.
+// a response   QUOTA (MESSAGE 5 100 STORAGE 10 512)   would be ignored.
 void nsImapServerResponseParser::quota_data()
 {
   if (!PL_strcasecmp(fNextToken, "QUOTAROOT"))

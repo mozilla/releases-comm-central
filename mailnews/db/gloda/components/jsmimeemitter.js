@@ -322,7 +322,7 @@ MimeMessageEmitter.prototype = {
    *  libmime wants us to attach an attachment to something that's not a
    *  container, we walk up the mime tree to find a suitable container to hold
    *  the attachment.
-   * The results are cached so that they're consistent accross calls — this
+   * The results are cached so that they're consistent across calls — this
    *  ensures the call to _replacePart works fine.
    */
   _findAnotherContainer: function(aPartName) {

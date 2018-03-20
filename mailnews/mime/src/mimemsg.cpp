@@ -404,7 +404,7 @@ MimeMessage_close_headers (MimeObject *obj)
     }
 
     /* If this message has a body which is encrypted and we're going to
-       decrypt it (whithout converting it to HTML, since decrypt_p and
+       decrypt it (without converting it to HTML, since decrypt_p and
        write_html_p are never true at the same time)
     */
     if (obj->output_p &&

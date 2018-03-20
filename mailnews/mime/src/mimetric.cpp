@@ -40,7 +40,7 @@ MimeRichtextConvert (const char *line, int32_t length,
            bool enriched_p)
 {
   /* RFC 1341 (the original MIME spec) defined text/richtext.
-   RFC 1563 superceded text/richtext with text/enriched.
+   RFC 1563 superseded text/richtext with text/enriched.
    The changes from text/richtext to text/enriched are:
     - CRLF semantics are different
     - << maps to <
@@ -125,7 +125,7 @@ MimeRichtextConvert (const char *line, int32_t length,
 
     this_end++;
 
-    /* Push out the text preceeding the tag. */
+    /* Push out the text preceding the tag. */
     if (last_end && last_end != this_start)
     {
       memcpy (out, last_end, this_start - last_end);

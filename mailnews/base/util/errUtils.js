@@ -57,7 +57,7 @@ function logEvent(aEvent) {
 /**
  * Dump the current stack and return an Error suitable for throwing.  We return
  *  the new Error so that your code can use a "throw" statement which makes it
- *  obvious to syntactic analysis that there is an exit occuring at that point.
+ *  obvious to syntactic analysis that there is an exit occurring at that point.
  *
  * Example:
  *   throw errorWithDebug("I did not expect this!");

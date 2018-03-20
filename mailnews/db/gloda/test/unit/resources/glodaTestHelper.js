@@ -1159,7 +1159,7 @@ function configure_gloda_indexing(aArgs) {
   let shouldSuppress = ("event" in aArgs) ? !aArgs.event : false;
   if (shouldSuppress != GlodaIndexer.suppressIndexing) {
     mark_action("glodaTestHelper",
-                "setting supress indexing to " + shouldSuppress, []);
+                "setting suppress indexing to " + shouldSuppress, []);
     GlodaIndexer.suppressIndexing = shouldSuppress;
   }
 

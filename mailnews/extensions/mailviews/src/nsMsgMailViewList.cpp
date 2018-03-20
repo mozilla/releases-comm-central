@@ -257,7 +257,7 @@ nsresult nsMsgMailViewList::LoadMailViews()
         defaultMessagesFile->CopyToNative(profileDir, EmptyCString());
     }
     // this is kind of a hack but I think it will be an effective hack. The filter service already knows how to
-    // take a nsIFile and parse the contents into filters which are very similar to mail views. Intead of
+    // take a nsIFile and parse the contents into filters which are very similar to mail views. Instead of
     // re-writing all of that dirty parsing code, let's just re-use it then convert the results into a data strcuture
     // we wish to give to our consumers.
 

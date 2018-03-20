@@ -107,7 +107,7 @@ nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName, nsI
     // Read the line in
     rv = ReadRecord(lineStream, line, &more);
     if (NS_SUCCEEDED(rv)) {
-      // Now proces it to add it to the database
+      // Now process it to add it to the database
       rv = ProcessLine(line, errors);
 
       if (NS_FAILED(rv)) {

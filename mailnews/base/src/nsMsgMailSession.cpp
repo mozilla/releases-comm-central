@@ -281,7 +281,7 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow)
     nsAutoString windowType;
     bool more;
 
-    // loop to get the top most with attibute "mail:3pane" or "mail:messageWindow"
+    // loop to get the top most with attribute "mail:3pane" or "mail:messageWindow"
     windowEnum->HasMoreElements(&more);
     while (more)
     {

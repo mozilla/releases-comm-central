@@ -330,7 +330,7 @@ NS_IMETHODIMP nsImapUrl::GetImapPartToFetch(char **result)
 {
   //  here's the old code....
 
-  // unforunately an imap part can have the form: /;section= OR
+  // unfortunately an imap part can have the form: /;section= OR
   // it can have the form ?section=. We need to look for both.
   if (m_listOfMessageIds)
   {

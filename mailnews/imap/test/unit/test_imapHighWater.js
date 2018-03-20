@@ -68,7 +68,7 @@ function run_test()
 }
 
 function* setupFolders() {
-  // make 10 messges
+  // make 10 messages
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
 

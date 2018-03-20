@@ -657,7 +657,7 @@ var FeedUtils = {
         aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) ||
         !aFolder.filePath.exists())
       // There are never any feedUrls in the account/non-feed/trash/virtual
-      // folders or in a ghost folder (nonexistant on disk yet found in
+      // folders or in a ghost folder (nonexistent on disk yet found in
       // aFolder.subFolders).
       return null;
 
@@ -1865,7 +1865,7 @@ var FeedUtils = {
 
           feed.options = options;
           FeedUtils.setStatus(feed.folder, feed.url, "enabled", false);
-          FeedUtils.log.warn("downloaded: udpates disabled due to error, " +
+          FeedUtils.log.warn("downloaded: updates disabled due to error, " +
                              "check the url - " + feed.url);
         }
 
@@ -1945,7 +1945,7 @@ var FeedUtils = {
         FeedUtils.log.debug("downloaded: all pending downloads finished");
 
         // Should we do this on a timer so the text sticks around for a little
-        // while?  It doesnt look like we do it on a timer for newsgroups so
+        // while?  It doesn't look like we do it on a timer for newsgroups so
         // we'll follow that model.  Don't clear the status text if we just
         // dumped an error to the status bar!
         if (aErrorCode == FeedUtils.kNewsBlogSuccess && this.mStatusFeedback)

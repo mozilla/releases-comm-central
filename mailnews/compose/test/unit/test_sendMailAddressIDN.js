@@ -205,7 +205,7 @@ function run_test()
   DoSendTest(kToInvalid, kToInvalid, NS_ERROR_BUT_DONT_SHOW_ALERT);
 
   // Test 4:
-  // Bug 856506. invalid char without '@' casues crash.
+  // Bug 856506. invalid char without '@' causes crash.
   test = kToInvalidWithoutDomain;
   DoSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain, NS_ERROR_BUT_DONT_SHOW_ALERT);
 }

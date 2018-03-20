@@ -329,7 +329,7 @@ private:
   // finish processng a url and it is set whenever we call Load on a url
   bool m_urlInProgress;
   nsCOMPtr<nsIImapUrl> m_runningUrl; // the nsIImapURL that is currently running
-  nsImapAction m_imapAction;  // current imap action associated with this connnection...
+  nsImapAction m_imapAction;  // current imap action associated with this connection...
 
   nsCString             m_hostName;
   nsCString             m_userName;
@@ -342,7 +342,7 @@ private:
   uint32_t        m_curReadIndex;  // current read index
   nsCString       m_trashFolderPath;
 
-  // Ouput stream for writing commands to the socket
+  // Output stream for writing commands to the socket
   nsCOMPtr<nsISocketTransport>  m_transport;
   nsCOMPtr<nsIInputStream> m_inputStream;
 

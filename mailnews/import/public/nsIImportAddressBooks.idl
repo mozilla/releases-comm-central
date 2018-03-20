@@ -92,7 +92,7 @@ interface nsIImportAddressBooks : nsISupports
   /**
    * Import a specific address book into the destination file supplied.
    * If an error occurs that is non-fatal, the destination will be deleted and
-   * other adress book will be imported.  If a fatal error occurs, the
+   * other address book will be imported.  If a fatal error occurs, the
    * destination will be deleted and the import operation will abort.
    *
    * @param aSource         The source data for the import.

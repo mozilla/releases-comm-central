@@ -108,7 +108,7 @@ function *setup() {
   // Don't prompt about offline download when going offline
   Services.prefs.setIntPref("offline.download.download_messages", 2);
 
-  // make a couple messges
+  // make a couple of messages
   let messages = [];
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());

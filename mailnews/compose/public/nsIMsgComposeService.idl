@@ -46,7 +46,7 @@ interface nsIMsgComposeService : nsISupports {
   void OpenComposeWindowWithParams(in string msgComposeWindowURL, in nsIMsgComposeParams params);
 
   /**
-   * Creates an nsIMsgCompose instance and initalizes it.
+   * Creates an nsIMsgCompose instance and initializes it.
    *
    * @param aParams   An nsIMsgComposeParams object containing the initial
    *                  details for the compose.

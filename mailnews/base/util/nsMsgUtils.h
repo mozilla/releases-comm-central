@@ -291,8 +291,8 @@ MsgStreamMsgHeaders(nsIInputStream *aInputStream, nsIStreamListener *aConsumer);
 /**
  * convert string to uint64_t
  *
- * @param str conveted string
- * @returns   uint64_t vaule for success, 0 for parse failure
+ * @param str converted string
+ * @returns   uint64_t value for success, 0 for parse failure
  */
 NS_MSG_BASE uint64_t ParseUint64Str(const char *str);
 

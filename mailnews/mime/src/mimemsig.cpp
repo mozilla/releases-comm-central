@@ -180,7 +180,7 @@ MimeMultipartSigned_parse_line (const char *line, int32_t length, MimeObject *ob
 
     case MimeMultipartHeaders:
       /* If we're moving in to the Headers state, then that means
-       that this line is the preceeding boundary string (and we
+       that this line is the preceding boundary string (and we
        should ignore it.)
        */
       hash_line_p = false;
@@ -294,7 +294,7 @@ MimeMultipartSigned_parse_line (const char *line, int32_t length, MimeObject *ob
        that it does not end in a trailing newline.
 
        To implement this, we send a newline *before* each line instead
-       of after, except for the first line, which is not preceeded by a
+       of after, except for the first line, which is not preceded by a
        newline.
 
        For purposes of cryptographic hashing, we always hash line
@@ -311,7 +311,7 @@ MimeMultipartSigned_parse_line (const char *line, int32_t length, MimeObject *ob
 
       if (!first_line_p)
       {
-        /* Push out a preceeding newline... */
+        /* Push out a preceding newline... */
         char nl[] = CRLF;
         status = (((MimeMultipartSignedClass *) obj->clazz)
             ->crypto_data_hash (nl, 2, sig->crypto_closure));
@@ -518,7 +518,7 @@ MimeMultipartSigned_parse_child_line (MimeObject *obj,
        that it does not end in a trailing newline.
 
        To implement this, we send a newline *before* each line instead
-       of after, except for the first line, which is not preceeded by a
+       of after, except for the first line, which is not preceded by a
        newline.
      */
 
@@ -532,7 +532,7 @@ MimeMultipartSigned_parse_child_line (MimeObject *obj,
 
     if (!first_line_p)
       {
-      /* Push out a preceeding newline... */
+      /* Push out a preceding newline... */
       char nl[] = MSG_LINEBREAK;
       status = MimePartBufferWrite (sig->part_buffer, nl, MSG_LINEBREAK_LEN);
       if (status < 0) return status;

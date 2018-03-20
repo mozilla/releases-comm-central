@@ -8,7 +8,7 @@
   * or "personal", that may be discoverable by analysis of the message.
   *
   * Traits are described by a universal identifier "id" as a string, as well
-  * as a local integer identifer "index". One purpose of this service is to
+  * as a local integer identifier "index". One purpose of this service is to
   * provide the mapping between those forms.
   *
   * Recommended (but not required) format for id:

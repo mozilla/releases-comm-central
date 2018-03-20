@@ -372,7 +372,7 @@ var Gloda = {
    *   header decoding is performed, but is ignorant of any folder-level
    *   character set overrides.
    * @returns via the callback handle mechanism, a list containing one sub-list
-   *   for each string argument passed.  Each sub-list containts zero or more
+   *   for each string argument passed.  Each sub-list contains zero or more
    *   GlodaIdentity instances corresponding to the addresses provided.
    */
   getOrCreateMailIdentities:
@@ -657,7 +657,7 @@ var Gloda = {
   kSpecialString: GlodaDatastore.kSpecialString,
   /**
    * This attribute is stored as a fulltext column on the fulltext table for
-   *  the noun.  The attribute defintion should include this value as 'special'
+   *  the noun.  The attribute definition should include this value as 'special'
    *  and the column name that stores the table as 'specialColumnName'.
    */
   kSpecialFulltext: GlodaDatastore.kSpecialFulltext,

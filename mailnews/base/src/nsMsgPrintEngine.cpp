@@ -536,7 +536,7 @@ nsMsgPrintEngine::SetupObserver()
 
     // Cache a pointer to the mail message's DOMWindow
     // so later we know when we can print when the
-    // document "loaded" msgs com thru via the Progress listener
+    // document "loaded" msgs com through via the Progress listener
     mMsgDOMWin = do_GetInterface(mDocShell);
   }
 }

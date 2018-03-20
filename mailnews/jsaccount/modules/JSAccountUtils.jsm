@@ -76,7 +76,7 @@ var log = configureLogging();
  *                       created by the factory, where CID is a string uuid.
  *      }
  *
- *   @param aJsDelegateConstructor: a JS contructor class, called using new,
+ *   @param aJsDelegateConstructor: a JS constructor class, called using new,
  *                                  that will create the JS object to which
  *                                  XPCOM methods calls will be delegated.
  */

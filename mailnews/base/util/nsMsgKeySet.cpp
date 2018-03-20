@@ -33,7 +33,7 @@
    The biggest win is to run-length encode the data, storing ranges as two
    numbers (start+length or start,end). We could also store each number as a
    delta from the previous number for further compression, but that gets kind
-   of tricky, since there are no guarentees about the sizes of the gaps, and
+   of tricky, since there are no guarantees about the sizes of the gaps, and
    we'd have to store variable-length words.
 
    Current data format:

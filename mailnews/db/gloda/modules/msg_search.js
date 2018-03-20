@@ -111,7 +111,7 @@ function reduceSum(accum, curValue) {
  *  in the subject or attachment a fighting chance.
  * Keep in mind that because of our indexing in the face of address book
  *  contacts (namely, we index the name used in the e-mail as well as the
- *  display name on the address book card associated with the e-mail adress)
+ *  display name on the address book card associated with the e-mail address)
  *  a contact is going to bias towards matching multiple times.
  */
 var COLUMN_ALL_MATCH_SCORES = [4, 20, 20, 16, 12];

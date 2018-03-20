@@ -133,7 +133,7 @@ interface nsIMsgHeaderParser : nsISupports {
   /**
    * Return the first address in the list in a format suitable for display.
    *
-   * This is largely a convience method for handling From headers (or similar),
+   * This is largely a convenience method for handling From headers (or similar),
    * which are expected to only have a single element in them. It is exactly
    * equivalent to saying (parseDecodedHeader(decodedHeader))[0].toString().
    *

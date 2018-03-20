@@ -227,7 +227,7 @@ nsresult NS_MsgGetPriorityFromString(
   // Note: Checking the values separately and _before_ the names,
   //        hoping for a much faster match;
   //       Only _drawback_, as "priority" handling is not truly specified:
-  //        some softwares may have the number meanings reversed (1=Lowest) !?
+  //        some software may have the number meanings reversed (1=Lowest) !?
   if (PL_strchr(priority, '1'))
     outPriority = nsMsgPriority::highest;
   else if (PL_strchr(priority, '2'))
@@ -638,7 +638,7 @@ bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubje
                                               utf16LocalizedRe);
   NS_ConvertUTF16toUTF8 localizedRe(utf16LocalizedRe);
 
-  // hardcoded "Re" so that noone can configure Mozilla standards incompatible
+  // hardcoded "Re" so that no one can configure Mozilla standards incompatible
   nsAutoCString checkString("Re,RE,re,rE");
   if (!localizedRe.IsEmpty()) {
     checkString.Append(',');
@@ -844,7 +844,7 @@ bool IsAFromSpaceLine(char *start, const char *end)
 }
 
 //
-// This function finds all lines starting with "From " or "From " preceeding
+// This function finds all lines starting with "From " or "From " preceding
 // with one or more '>' (ie, ">From", ">>From", etc) in the input buffer
 // (between 'start' and 'end') and prefix them with a ">" .
 //

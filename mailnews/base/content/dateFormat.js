@@ -41,7 +41,7 @@ function initLocaleShortDateFormat()
     }
 
     // check the format option
-    if ( arrayOfStrings.length != 3 )       // no successfull split
+    if ( arrayOfStrings.length != 3 )       // no successful split
     {
       dump("getLocaleShortDateFormat: could not analyze the date format, defaulting to mm/dd/yyyy\n");
     }
@@ -79,7 +79,7 @@ function initializeSearchDateFormat()
   if (gSearchDateFormat)
     return;
 
-  // get a search date format option and a seprator
+  // get a search date format option and a separator
   try {
     gSearchDateFormat =
       Services.prefs.getComplexValue("mailnews.search_date_format",

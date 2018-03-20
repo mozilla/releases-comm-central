@@ -4251,7 +4251,7 @@ void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey> &existingKeys,
     return;
   }
   // otherwise, we have a complete set of uid's and flags, so we delete
-  // anything thats in existingKeys but not in the flag state, as well
+  // anything that's in existingKeys but not in the flag state, as well
   // as messages with the deleted flag set.
   uint32_t total = existingKeys.Length();
   int onlineIndex = 0; // current index into flagState
@@ -9246,7 +9246,7 @@ nsImapMailFolder::GetShouldDownloadAllHeaders(bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = false;
-  //for just the inbox, we check if the filter list has arbitary headers.
+  //for just the inbox, we check if the filter list has arbitrary headers.
   //for all folders, check if we have a spam plugin that requires all headers
   if (mFlags & nsMsgFolderFlags::Inbox)
   {

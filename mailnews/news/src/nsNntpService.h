@@ -57,13 +57,13 @@ protected:
 
   nsresult CreateMessageIDURL(nsIMsgFolder *folder, nsMsgKey key, char **url);
   nsresult GetMessageFromUrl(nsIURI *aUrl, nsIMsgWindow *aMsgWindow, nsISupports *aDisplayConsumer);
-  // a convience routine used to put together news urls
+  // a convenience routine used to put together news urls
   nsresult ConstructNntpUrl(const char * urlString, nsIUrlListener *aUrlListener,  nsIMsgWindow * aMsgWindow, const char *originalMessageUri, int32_t action, nsIURI ** aUrl);
   nsresult CreateNewsAccount(const char *aHostname, bool aIsSecure, int32_t aPort, nsIMsgIncomingServer **aServer);
   nsresult GetServerForUri(nsIURI *aUri, nsINntpIncomingServer **aProtocol);
-  // a convience routine to run news urls
+  // a convenience routine to run news urls
   nsresult RunNewsUrl (nsIURI * aUrl, nsIMsgWindow *aMsgWindow, nsISupports * aConsumer);
-  // a convience routine to go from folder uri to msg folder
+  // a convenience routine to go from folder uri to msg folder
   nsresult GetFolderFromUri(const char *uri, nsIMsgFolder **folder);
   nsresult DecomposeNewsMessageURI(const char * aMessageURI, nsIMsgFolder ** aFolder, nsMsgKey *aMsgKey);
 

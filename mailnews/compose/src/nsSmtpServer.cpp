@@ -496,7 +496,7 @@ nsSmtpServer::GetUsernamePasswordWithUI(const char16_t * aPromptMessage, const
                                           &okayValue);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // If the user pressed cancel, just return emtpy strings.
+  // If the user pressed cancel, just return empty strings.
   if (!okayValue)
   {
     aUsername.Truncate();

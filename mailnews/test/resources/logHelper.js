@@ -255,7 +255,7 @@ function mark_sub_test_end() {
 
 /**
  * Express that all tests were run to completion.  This helps the listener
- *  distinguish between succesful termination and abort-style termination where
+ *  distinguish between successful termination and abort-style termination where
  *  the process just keeled over and on one told us.
  *
  * This also tells us to clean up.

@@ -7,7 +7,7 @@
 const char* errorStringNameForErrorCode(nsresult aCode)
 {
 #ifdef __GNUC__
-// Temporary workaroung until bug 783526 is fixed.
+// Temporary workaround until bug 783526 is fixed.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
 #endif

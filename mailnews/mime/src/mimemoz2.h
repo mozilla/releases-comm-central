@@ -165,7 +165,7 @@ extern "C" nsresult     mimeEmitterUpdateCharacterSet(MimeDisplayOptions *opt, c
 
 extern "C" nsresult     MimeGetAttachmentList(MimeObject *tobj, const char *aMessageURL, nsMsgAttachmentData **data);
 
-/* To Get the connnection to prefs service manager */
+/* To Get the connection to prefs service manager */
 extern "C" nsIPrefBranch      *GetPrefBranch(MimeDisplayOptions *opt);
 
 // Get the text converter...

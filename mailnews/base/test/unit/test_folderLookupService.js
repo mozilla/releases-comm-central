@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * This tests that nsIFolderLookupService works acording to specification.
+ * This tests that nsIFolderLookupService works according to specification.
  */
 ChromeUtils.import("resource:///modules/mailServices.js");
 

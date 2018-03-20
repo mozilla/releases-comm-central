@@ -28,7 +28,7 @@ interface nsINNTPNewsgroupPost : nsISupports {
     attribute string subject;
     attribute string path;
 
-    /* Secion 2.2 - optional headers */
+    /* Section 2.2 - optional headers */
     attribute string replyTo;
     attribute string sender;
     attribute string followupTo;

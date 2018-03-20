@@ -317,7 +317,7 @@ interface nsIMsgSend : nsISupports
     /* Crypto */
     void BeginCryptoEncapsulation();
 
-    /* retreive the last send process report*/
+    /* retrieve the last send process report*/
     readonly attribute nsIMsgSendReport sendReport;
 
     /* methods for send listener ... */

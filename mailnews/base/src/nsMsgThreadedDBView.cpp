@@ -549,7 +549,7 @@ nsMsgThreadedDBView::ListThreadIds(nsMsgKey *startMsg,
     {
       // ### remove thread.
       // Don't want to remove all empty threads first time around as it will
-      // choke preformance for upgrade.
+      // choke performance for upgrade.
       threadsRemoved++;
 #ifdef DEBUG_bienvenu
       printf("removing empty non-ignored non-watched thread\n");
@@ -1086,7 +1086,7 @@ nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index)
 
   // Deleting collapsed thread header is special case. Child will be promoted,
   // so just tell FE that line changed, not that it was deleted.
-  // Header has aleady been deleted from thread.
+  // Header has already been deleted from thread.
   if (threadHdr && numThreadChildren > 0)
   {
     // Change the id array and flags array to reflect the child header.

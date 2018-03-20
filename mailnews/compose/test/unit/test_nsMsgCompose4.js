@@ -58,7 +58,7 @@ function run_test() {
   // Copy the file to the profile directory for a CAB
   testAB.copyTo(do_get_profile(), kCABData.fileName);
 
-  // Test - Check we can initalize with fewest specified
+  // Test - Check we can initialize with fewest specified
   // parameters and don't fail/crash like we did in bug 411646.
 
   var msgCompose = Cc[MsgComposeContractID]

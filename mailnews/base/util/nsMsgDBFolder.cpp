@@ -2210,7 +2210,7 @@ nsMsgDBFolder::SetStringProperty(const char *propertyName, const nsACString& pro
   if(NS_SUCCEEDED(rv))
   {
     folderInfo->SetCharProperty(propertyName, propertyValue);
-    db->Commit(nsMsgDBCommitType::kLargeCommit);  //commiting the db also commits the cache
+    db->Commit(nsMsgDBCommitType::kLargeCommit);  //committing the db also commits the cache
   }
   return NS_OK;
 }
@@ -3113,7 +3113,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetServer(nsIMsgIncomingServer ** aServer)
 {
   NS_ENSURE_ARG_POINTER(aServer);
   nsresult rv;
-  // short circut the server if we have it.
+  // short circuit the server if we have it.
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryReferent(mServer, &rv);
   if (NS_FAILED(rv))
   {
@@ -5705,7 +5705,7 @@ void nsMsgDBFolder::compressQuotesInMsgSnippet(const nsString& aMsgSnippet, nsAS
     {
       const nsAString& currentLine = Substring(aMsgSnippet, offset, lineFeedPos - offset);
       // this catches quoted text ("> "), nested quotes of any level (">> ", ">>> ", ...)
-      // it also catches empty line quoted text (">"). It might be over agressive and require
+      // it also catches empty line quoted text (">"). It might be over aggressive and require
       // tweaking later.
       // Try to strip the citation. If the current line ends with a ':' and the next line
       // looks like a quoted reply (starts with a ">") skip the current line

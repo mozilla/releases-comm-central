@@ -444,7 +444,7 @@ protected:
   // selection changed until the delete is done and we want to batch
   // notifications.
   bool m_deletingRows;
-  // For certain special folders and decendents of those folders
+  // For certain special folders and descendants of those folders
   // (like the "Sent" folder, "Sent/Old Sent").
   // The Sender column really shows recipients.
 

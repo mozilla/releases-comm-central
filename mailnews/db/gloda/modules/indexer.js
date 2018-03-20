@@ -1315,7 +1315,7 @@ var GlodaIndexer = {
    *  The only issue is to make sure that _workBatchData does not end up with
    *  the data.  We compel |_hireJobWorker| to erase it to this end.
    *
-   * @note You MUST NOT call this function from inside a job or an async funtion
+   * @note You MUST NOT call this function from inside a job or an async function
    *    on the callbackHandle's stack of generators.  If you are in that
    *    situation, you should just throw an exception.  At the very least,
    *    use a timeout to trigger us.

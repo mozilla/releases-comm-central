@@ -121,10 +121,10 @@ protected:
 
   nsresult DoGSSAPIStep1(const char *service, const char *username, nsCString &response);
   nsresult DoGSSAPIStep2(nsCString &commandResponse, nsCString &response);
-  // Ouput stream for writing commands to the socket
+  // Output stream for writing commands to the socket
   nsCOMPtr<nsIOutputStream>   m_outputStream;   // this will be obtained from the transport interface
 
-  // Ouput stream for writing commands to the socket
+  // Output stream for writing commands to the socket
   nsCOMPtr<nsITransport>  m_transport;
   nsCOMPtr<nsIRequest>    m_request;
   nsCOMPtr<nsICancelable> m_proxyRequest;
@@ -196,7 +196,7 @@ public:
   nsCOMPtr<nsIOutputStreamCallback> mProvider;
   nsCOMPtr<nsIThread>               mProviderThread;
 
-  // because we are reading the post data in asychronously, it's possible that we aren't sending it
+  // because we are reading the post data in asynchronously, it's possible that we aren't sending it
   // out fast enough and the reading gets blocked. The following set of state variables are used to
   // track this.
   bool    mSuspendedRead;

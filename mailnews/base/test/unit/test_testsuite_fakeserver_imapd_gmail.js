@@ -18,7 +18,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 
 setupIMAPPump("GMail");
-// create our own hander so that we can call imapd functions directly
+// create our own handler so that we can call imapd functions directly
 var handler;
 
 // Definition of tests

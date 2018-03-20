@@ -1015,7 +1015,7 @@ nsresult nsAutoSyncManager::HandleDownloadErrorFor(nsIAutoSyncState *aAutoSyncSt
   if (!aAutoSyncStateObj)
     return NS_ERROR_INVALID_ARG;
 
-  // ensure that an error occured
+  // ensure that an error occurred
   if (NS_SUCCEEDED(error))
     return NS_OK;
 

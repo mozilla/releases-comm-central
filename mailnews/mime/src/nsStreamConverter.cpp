@@ -851,7 +851,7 @@ nsStreamConverter::GetOrigMsgHdr(nsIMsgDBHdr * *aMsgHdr)
 /////////////////////////////////////////////////////////////////////////////
 //
 // Notify the client that data is available in the input stream.  This
-// method is called whenver data is written into the input stream by the
+// method is called whenever data is written into the input stream by the
 // networking library...
 //
 nsresult
@@ -1098,7 +1098,7 @@ nsresult nsStreamConverter::Close()
 
 // nsIStreamConverter implementation
 
-// No syncronous conversion at this time.
+// No synchronous conversion at this time.
 NS_IMETHODIMP nsStreamConverter::Convert(nsIInputStream  *aFromStream,
                                          const char *aFromType,
                                          const char *aToType,

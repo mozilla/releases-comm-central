@@ -182,7 +182,7 @@ protected:
   // Overridden from the nsIMAPGenericParser, to retrieve the next line
   // from the open socket.
   virtual bool    GetNextLineForParser(char **nextLine) override;
-  // overriden to do logging
+  // overridden to do logging
   virtual void    SetSyntaxError(bool error, const char *msg = nullptr) override;
 
 private:

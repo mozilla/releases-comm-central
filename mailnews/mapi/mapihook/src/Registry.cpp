@@ -91,14 +91,14 @@ LONG recursiveDeleteKey(HKEY hKeyParent,           // Parent of key to delete
         return lRes ;
     }
 
-    // Enumerate all of the decendents of this child.
+    // Enumerate all of the descendants of this child.
     FILETIME time ;
     char szBuffer[MAX_SIZE] ;
     DWORD dwSize = MAX_SIZE ;
     while (RegEnumKeyEx(hKeyChild, 0, szBuffer, &dwSize, NULL,
                         NULL, NULL, &time) == S_OK)
     {
-        // Delete the decendents of this child.
+        // Delete the descendants of this child.
         lRes = recursiveDeleteKey(hKeyChild, szBuffer) ;
         if (lRes != ERROR_SUCCESS)
         {

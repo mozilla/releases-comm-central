@@ -71,7 +71,7 @@ function copyFileMessageInLocalFolder(aMessageFile,
                                     aMessageWindow);
 }
 
-// The attatchment file can not be obtained from js test,
+// The attachment file can not be obtained from js test,
 // so we have to generate the file name here.
 function createExpectedTemporaryFile() {
   function createTemporaryFile() {

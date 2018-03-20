@@ -46,7 +46,7 @@ struct ExportAttributesTableStruct
 // see bugs bug #116692 and #118454
 #define MOZ_AB_OBJECTCLASS "mozillaAbPersonAlpha"
 
-// for now, the oder of the attributes with true for includeForPlainText
+// for now, the order of the attributes with true for includeForPlainText
 // should be in the same order as they are in the import code
 // see importMsgProperties and nsImportStringBundle.
 //

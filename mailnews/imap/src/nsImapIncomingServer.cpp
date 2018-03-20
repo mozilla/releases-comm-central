@@ -1449,7 +1449,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone()
   {
     // GetResource() may return a node which is not in the folder
     // tree hierarchy but in the rdf cache in case of the non-existing default
-    // Sent, Drafts, and Templates folders. The resouce will be eventually
+    // Sent, Drafts, and Templates folders. The resource will be eventually
     // released when the rdf service shuts down. When we create the default
     // folders later on in the imap server, the subsequent GetResource() of the
     // same uri will get us the cached rdf resource which should have the folder
@@ -2172,7 +2172,7 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol *aProtocol,
     nsCOMPtr<nsIMsgAsyncPromptListener> promptListener(do_QueryInterface(aProtocol));
     rv = asyncPrompter->QueueAsyncAuthPrompt(m_serverKey, aNewPasswordRequested,
                                              promptListener);
-    // Explict NS_ENSURE_SUCCESS for debug purposes as errors tend to get
+    // Explicit NS_ENSURE_SUCCESS for debug purposes as errors tend to get
     // hidden.
     NS_ENSURE_SUCCESS(rv, rv);
   }

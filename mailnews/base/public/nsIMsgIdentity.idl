@@ -146,7 +146,7 @@ interface nsIMsgIdentity : nsISupports {
   /** @} */
 
   // Don't call bccSelf, bccOthers, and bccList directly, they are
-  // only used for migration and backward compatability. Use doBcc
+  // only used for migration and backward compatibility. Use doBcc
   // and doBccList instead.
   attribute boolean bccSelf;
   attribute boolean bccOthers;

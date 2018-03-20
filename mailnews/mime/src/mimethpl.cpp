@@ -147,11 +147,11 @@ printf("Can't output: %s\n", line);
   }
 
   /*
-    To convert HTML->TXT syncronously, I need the full source at once,
+    To convert HTML->TXT synchronously, I need the full source at once,
     not line by line (how do you convert "<li>foo\n" to plaintext?).
     parse_decoded_buffer claims to give me that, but in fact also gives
     me single lines.
-    It might be theoretically possible to drive this asyncronously, but
+    It might be theoretically possible to drive this asynchronously, but
     I don't know, which odd circumstances might arise and how libmime
     will behave then. It's not worth the trouble for me to figure this all out.
    */

@@ -275,7 +275,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
   if (currMessage.IsEmpty())
   {
 #ifdef __GNUC__
-// Temporary workaroung until bug 783526 is fixed.
+// Temporary workaround until bug 783526 is fixed.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
 #endif

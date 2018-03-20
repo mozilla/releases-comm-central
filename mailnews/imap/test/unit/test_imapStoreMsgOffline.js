@@ -75,7 +75,7 @@ function setup() {
   // We aren't interested in downloading messages automatically
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
   Services.prefs.setBoolPref("mail.server.server1.offline_download", true);
-  // make small threshhold for mpod so our test messages don't have to be big.
+  // make small threshold for mpod so our test messages don't have to be big.
   // XXX We can't set this pref until the fake server supports body structure.
   // So for now, we'll leave it at the default value, which is larger than any of
   // our test messages.
@@ -160,7 +160,7 @@ var tests = [
   },
   function* addNewMsgs() {
     let mbox = IMAPPump.daemon.getMailbox("INBOX")
-    // make a couple messges
+    // make a couple of messages
     let messages = [];
     let bodyString = "";
     for (let i = 0; i < 100; i++)

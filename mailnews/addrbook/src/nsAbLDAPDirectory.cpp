@@ -503,7 +503,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::UseForAutocomplete(const nsACString &aIdentityK
     }
 
     // If the preference name is still empty but useDirectory is false, then
-    // the global one is not available, nor is the overriden one.
+    // the global one is not available, nor is the overridden one.
     if (prefName.IsEmpty() && !useDirectory)
       return NS_OK;
   }

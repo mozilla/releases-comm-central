@@ -1319,13 +1319,13 @@ for (let pair of structuredHeaders.decoders) {
  *
  * As this method is designed to be used for the internal MIME Parser to convert
  * the raw header values to well-structured values, value is intended to be an
- * array consisting of all occurences of the header in order. However, for ease
+ * array consisting of all occurrences of the header in order. However, for ease
  * of use by other callers, it can also be treated as a string.
  *
  * If the decoder for the header is not found, an exception will be thrown.
  *
  * A large set of headers have pre-defined structured decoders; these decoders
- * cannot be overrided with addStructuredDecoder, as doing so could prevent the
+ * cannot be overridden with addStructuredDecoder, as doing so could prevent the
  * MIME or message parsers from working properly. The pre-defined structured
  * headers break down into five clases of results, plus some ad-hoc
  * representations. They are:
@@ -2858,7 +2858,7 @@ HeaderEmitter.prototype.addPhrase = function (text, qchars, mayBreakAfter) {
   }
 
   // If the text is too long, split the quotable string at space boundaries and
-  // add each word invidually. If we still can't add all those words, there is
+  // add each word individually. If we still can't add all those words, there is
   // nothing that we can do.
   let words = text.split(' ');
   for (let i = 0; i < words.length; i++) {

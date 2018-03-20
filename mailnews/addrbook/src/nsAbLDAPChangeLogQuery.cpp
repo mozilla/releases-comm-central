@@ -137,7 +137,7 @@ NS_IMETHODIMP nsAbLDAPChangeLogQuery::QueryChangeLog(const nsACString & aChangeL
 
   // make sure that the filter here just have one condition
   // and should not be enclosed in enclosing brackets.
-  // also condition '>' doesnot work, it should be '>='/
+  // also condition '>' does not work, it should be '>='/
   nsAutoCString filter (NS_LITERAL_CSTRING("changenumber>="));
   filter.AppendInt(lastChangeNumber + 1);
 

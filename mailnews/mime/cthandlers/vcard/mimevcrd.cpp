@@ -177,7 +177,7 @@ MimeInlineTextVCard_parse_eof (MimeObject *obj, bool abort_p)
     while (v && status >= 0) {
       /* write out html */
       status = WriteOutVCard (obj, v);
-      /* parse next vcard incase they're embedded */
+      /* parse next vcard in case they're embedded */
       v = vCardService->NextVObjectInList(v);
     }
 

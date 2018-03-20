@@ -265,7 +265,7 @@ interface nsIMsgCompose : nsIMsgSendListener {
    */
   [noscript] void notifyStateListeners(in long aNotificationType, in nsresult aResult);
 
-  /* Retreive the progress object */
+  /* Retrieve the progress object */
   readonly attribute nsIMsgProgress progress;
 
 	/* ... */

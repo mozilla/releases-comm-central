@@ -34,7 +34,7 @@ public:
   virtual void  GetEncoding(nsCString& encoding) { encoding.Truncate();}
 };
 
-// Specialized encoder, not a vaild language translator, used for Mime headers.
+// Specialized encoder, not a valid language translator, used for Mime headers.
 // rfc2231
 class CMHTranslator : public nsImportTranslator {
 public:
@@ -43,7 +43,7 @@ public:
   virtual bool      ConvertToFile(const uint8_t * pIn, uint32_t inLen, ImportOutFile *pOutFile, uint32_t *pProcessed = nullptr) override;
 };
 
-// Specialized encoder, not a vaild language translator, used for mail headers
+// Specialized encoder, not a valid language translator, used for mail headers
 // rfc2047
 class C2047Translator : public nsImportTranslator {
 public:

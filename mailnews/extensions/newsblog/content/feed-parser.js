@@ -57,7 +57,7 @@ FeedParser.prototype =
                           aFeed.mFeedType +" : " +aFeed.url);
       // aSource can be misencoded (XMLHttpRequest converts to UTF-8 by default),
       // but the DOM is almost always right because it uses the hints in the
-      // XML file.  This is slower, but not noticably so.  Mozilla doesn't have
+      // XML file.  This is slower, but not noticeably so.  Mozilla doesn't have
       // the XMLHttpRequest.responseBody property that IE has, which provides
       // access to the unencoded response.
       let xmlString = this.mSerializer.serializeToString(doc);

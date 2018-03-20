@@ -1285,7 +1285,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
   if (NS_FAILED(err) || newFile)
   {
     // if we couldn't open file, or we have a blank one, and we're supposed
-    // to upgrade, updgrade it.
+    // to upgrade, upgrade it.
     if (newFile && !m_leaveInvalidDB)  // caller is upgrading, and we have empty summary file,
     {          // leave db around and open so caller can upgrade it.
       err = NS_MSG_ERROR_FOLDER_SUMMARY_MISSING;
@@ -2039,7 +2039,7 @@ NS_IMETHODIMP nsMsgDatabase::RemoveHeaderMdbRow(nsIMsgDBHdr *msg)
   return RemoveHeaderFromDB(msgHdr);
 }
 
-// This is a lower level routine which doesn't send notifcations or
+// This is a lower level routine which doesn't send notifications or
 // update folder info. One use is when a rule fires moving a header
 // from one db to another, to remove it from the first db.
 
@@ -5401,7 +5401,7 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
 
 NS_IMPL_ISUPPORTS(nsMsgRetentionSettings, nsIMsgRetentionSettings)
 
-// Initialise the member variables to resonable defaults.
+// Initialise the member variables to reasonable defaults.
 nsMsgRetentionSettings::nsMsgRetentionSettings()
 : m_retainByPreference(1),
   m_daysToKeepHdrs(0),

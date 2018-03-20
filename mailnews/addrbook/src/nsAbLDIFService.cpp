@@ -266,7 +266,7 @@ nsresult nsAbLDIFService::str_parse_line(char *line, char **type, char **value, 
  * or \0.  this routine handles continued lines, bundling them into
  * a single big line before returning.  if a line begins with a white
  * space character, it is a continuation of the previous line. the white
- * space character (nb: only one char), and preceeding newline are changed
+ * space character (nb: only one char), and preceding newline are changed
  * into CONTINUED_LINE_MARKER chars, to be deleted later by the
  * str_parse_line() routine above.
  *

@@ -91,7 +91,7 @@
      an object method -- there is not yet an instance of this class at the time
      that it is called.  The `hdrs' provided are the headers of the object that
    might be instantiated -- from this, the method may extract additional
-   infomation that it might need to make its decision.
+   information that it might need to make its decision.
  */
 
 

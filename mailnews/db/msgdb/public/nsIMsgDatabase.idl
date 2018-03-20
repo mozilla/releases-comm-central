@@ -544,7 +544,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   readonly attribute nsMsgViewSortTypeValue  defaultSortType;
   readonly attribute nsMsgViewSortOrderValue defaultSortOrder;
 
-  // for msg hdr hash table allocation. controllable by caller to improve folder loading preformance.
+  // for msg hdr hash table allocation. controllable by caller to improve folder loading performance.
   attribute unsigned long msgHdrCacheSize;
 
   /**

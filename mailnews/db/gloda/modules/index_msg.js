@@ -367,7 +367,7 @@ MessagesByMessageIdCallback.prototype = {
  * === Message Indexing Strategy
  * To these ends, we implement things like so:
  *
- * Mesage State Tracking
+ * Message State Tracking
  * - We store a property on all indexed headers indicating their gloda message
  *   id.  This allows us to tell whether a message is indexed from the header,
  *   without having to consult the SQL database.
@@ -448,7 +448,7 @@ var GlodaMsgIndexer = {
 
     // register for:
     // - folder loaded events, so we know when getDatabaseWithReparse has
-    //   finished updating the index/what not (if it was't immediately
+    //   finished updating the index/what not (if it wasn't immediately
     //   available)
     // - property changes (so we know when a message's read/starred state have
     //   changed.)
@@ -3193,7 +3193,7 @@ var GlodaMsgIndexer = {
    *  tricky than one would first expect because there are potentially
    *  attributes not immediately associated with this message that reference
    *  the message.  Not only that, but deletion of messages may leave a
-   *  conversation posessing only ghost messages, which we don't want, so we
+   *  conversation possessing only ghost messages, which we don't want, so we
    *  need to nuke the moot conversation and its moot ghost messages.
    * For now, we are actually punting on that trickiness, and the exact
    *  nuances aren't defined yet because we have not decided whether to store

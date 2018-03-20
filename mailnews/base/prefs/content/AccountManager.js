@@ -52,7 +52,7 @@ var pendingPageId;
  * This array contains filesystem folders that are deemed inappropriate
  * for use as the local directory pref for message storage.
  * It is global to allow extensions to add to/remove from it if needed.
- * Extentions adding new server types should first consider setting
+ * Extensions adding new server types should first consider setting
  * nsIMsgProtocolInfo(of the server type).defaultLocalPath properly
  * so that the test will allow that directory automatically.
  * See the checkLocalDirectoryIsSafe function for description of the members.
@@ -1540,7 +1540,7 @@ var gAccountTree = {
         if (idents.length) {
           panelsToKeep.push(panels[0]); // The server panel is valid
           panelsToKeep.push(panels[1]); // also the copies panel
-          panelsToKeep.push(panels[4]); // and addresssing
+          panelsToKeep.push(panels[4]); // and addressing
         }
 
         // Everyone except News, RSS and IM has a junk panel

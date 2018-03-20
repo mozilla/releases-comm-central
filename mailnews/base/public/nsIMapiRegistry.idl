@@ -37,7 +37,7 @@ interface nsIMapiRegistry: nsISupports {
    void showMailIntegrationDialog(in mozIDOMWindowProxy parentWindow);
 
    /* After being installed, when we first launch, make sure we add the correct
-    OS registry entries to make us show up as regsitered mail and news client
+    OS registry entries to make us show up as registered mail and news client
     in the OS
    */
 

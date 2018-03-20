@@ -92,7 +92,7 @@ var gTestArray =
 
     testCounts(false, 0, 0, 0);
     Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-    // no net messsages were added to the inbox
+    // no net messages were added to the inbox
     Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
   },
   function *MoveToFolderBody2() {
@@ -104,7 +104,7 @@ var gTestArray =
 
     testCounts(false, 0, 0, 0);
     Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-    // no net messsages were added to the inbox
+    // no net messages were added to the inbox
     Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
   },
   function *MarkRead() {

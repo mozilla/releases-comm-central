@@ -69,7 +69,7 @@ interface nsIMsgAttachment : nsISupports {
    *
    * @Specify the content-type of the attachment, this does not include extra content-type parameters. If
    * @you need to specify extra information, use contentTypeParam, charset, macType or macCreator.
-   * @If ommitted, it will be determined base on either the name, the url or the content of the file.
+   * @If omitted, it will be determined base on either the name, the url or the content of the file.
    */
   attribute string    contentType;
 

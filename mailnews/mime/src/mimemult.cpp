@@ -638,7 +638,7 @@ MimeMultipart_parse_child_line (MimeObject *obj, const char *line, int32_t lengt
    does not end in a trailing newline.
 
    To implement this, we send a newline *before* each line instead
-   of after, except for the first line, which is not preceeded by a
+   of after, except for the first line, which is not preceded by a
    newline.
    */
 
@@ -648,7 +648,7 @@ MimeMultipart_parse_child_line (MimeObject *obj, const char *line, int32_t lengt
 
   if (!first_line_p)
   {
-    /* Push out a preceeding newline... */
+    /* Push out a preceding newline... */
     char nl[] = MSG_LINEBREAK;
     status = kid->clazz->parse_buffer (nl, MSG_LINEBREAK_LEN, kid);
     if (status < 0) return status;

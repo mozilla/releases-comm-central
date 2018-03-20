@@ -48,7 +48,7 @@ typedef struct _findServerByHostnameEntry {
 
 static NS_DEFINE_CID(kCSmtpUrlCID, NS_SMTPURL_CID);
 
-// foward declarations...
+// forward declarations...
 nsresult
 NS_MsgBuildSmtpUrl(nsIFile * aFilePath,
                    nsISmtpServer *aServer,
@@ -117,7 +117,7 @@ NS_IMETHODIMP nsSmtpService::SendMailMessage(nsIFile * aFilePath,
 }
 
 
-// The following are two convience functions I'm using to help expedite building and running a mail to url...
+// The following are two convenience functions I'm using to help expedite building and running a mail to url...
 
 // short cut function for creating a mailto url...
 nsresult NS_MsgBuildSmtpUrl(nsIFile * aFilePath,
@@ -131,7 +131,7 @@ nsresult NS_MsgBuildSmtpUrl(nsIFile * aFilePath,
                             nsIURI ** aUrl,
                             bool aRequestDSN)
 {
-  // mscott: this function is a convience hack until netlib actually dispatches
+  // mscott: this function is a convenience hack until netlib actually dispatches
   // smtp urls. in addition until we have a session to get a password, host and
   // other stuff from, we need to use default values....
   // ..for testing purposes....

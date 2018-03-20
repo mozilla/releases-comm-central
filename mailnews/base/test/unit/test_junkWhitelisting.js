@@ -102,7 +102,7 @@ function doChecks(server)
   // and affects whitelisting calculationss
   Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
-  // reenable whitelisting
+  // re-enable whitelisting
   server.setBoolValue("useWhiteList", true);
   spamSettings.initialize(server);
   Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));

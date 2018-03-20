@@ -602,7 +602,7 @@ void Tokenizer::tokenize_ascii_word(char * aWord)
   }
 }
 
-// one substract and one conditional jump should be faster than two conditional jump on most recent system.
+// one subtract and one conditional jump should be faster than two conditional jump on most recent system.
 #define IN_RANGE(x, low, high)  ((uint16_t)((x)-(low)) <= (high)-(low))
 
 #define IS_JA_HIRAGANA(x)   IN_RANGE(x, 0x3040, 0x309F)

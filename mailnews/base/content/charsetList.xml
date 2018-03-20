@@ -54,7 +54,7 @@
           aMenuList.appendItem(item.label, item.value);
         });
 
-        // Selecting appropiate menu item corresponding to preference stored
+        // Selecting appropriate menu item corresponding to preference stored
         // value.
         if (this.hasAttribute("preference")) {
           let preference = Services.prefs.getComplexValue(

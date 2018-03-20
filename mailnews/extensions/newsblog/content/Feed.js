@@ -93,7 +93,7 @@ Feed.prototype =
 
   get name()
   {
-    // Used for the feed's title in Subcribe dialog and opml export.
+    // Used for the feed's title in Subscribe dialog and opml export.
     let name = this.title || this.description || this.url;
     return name.replace(/[\n\r\t]+/g, " ").replace(/[\x00-\x1F]+/g, "");
   },

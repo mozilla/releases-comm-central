@@ -40,7 +40,7 @@ interface nsINNTPNewsgroupList : nsISupports {
   void finishXOVERLINE(in long status, out long newstatus);
 
   /**
-   * Initalizes the state in preparation for a call to XHDR.
+   * Initializes the state in preparation for a call to XHDR.
    *
    * @return               The next header to get, or an empty string if done.
    */
@@ -56,7 +56,7 @@ interface nsINNTPNewsgroupList : nsISupports {
   void processXHDRLine(in ACString aLine);
 
   /**
-   * Initalizes the internal state to process a HEAD command.
+   * Initializes the internal state to process a HEAD command.
    *
    * This method should be called before sending the line
    * <tt>HEAD @arg aMessage</tt> to the server.

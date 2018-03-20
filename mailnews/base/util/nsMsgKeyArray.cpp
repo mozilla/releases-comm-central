@@ -61,7 +61,7 @@ NS_IMETHODIMP nsMsgKeyArray::AppendElement(nsMsgKey aKey)
 
 NS_IMETHODIMP nsMsgKeyArray::InsertElementSorted(nsMsgKey aKey)
 {
-  // Ths function should be removed after interfaces are not frozen for TB38.
+  // This function should be removed after interfaces are not frozen for TB38.
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

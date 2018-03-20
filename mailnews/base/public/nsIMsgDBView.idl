@@ -500,7 +500,7 @@ interface nsIMsgDBView : nsISupports
 interface nsIMsgDBViewCommandUpdater : nsISupports
 {
   /* Eventually we'll flush this out into some kind of rich interface
-  which may take specifc selection changed type notifications like
+  which may take specific selection changed type notifications like
   no selections, single selection, multi-selection, etc. For starters,
   we are going to keep it generic. The back end will only push an update
   command status when the # of selected items changes.

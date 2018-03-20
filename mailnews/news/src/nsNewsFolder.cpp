@@ -994,7 +994,7 @@ nsMsgNewsFolder::HandleNewsrcLine(const char * line, uint32_t line_size)
   if (*line == '\0')
     return 0;
 
-  // previous versions of Communicator poluted the
+  // previous versions of Communicator polluted the
   // newsrc files with articles
   // (this would happen when you clicked on a link like
   // news://news.mozilla.org/3746EF3F.6080309@netscape.com)

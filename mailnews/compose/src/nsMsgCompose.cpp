@@ -1468,7 +1468,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
     }
     else
     {
-      /* If we come here it's because we got an error before we could intialize a
+      /* If we come here it's because we got an error before we could initialize a
          send report! Let's try our best...
       */
       switch (deliverMode)
@@ -2277,7 +2277,7 @@ NS_IMETHODIMP nsMsgCompose::GetOriginalMsgURI(char ** originalMsgURI)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-// THIS IS THE CLASS THAT IS THE STREAM CONSUMER OF THE HTML OUPUT
+// THIS IS THE CLASS THAT IS THE STREAM CONSUMER OF THE HTML OUTPUT
 // FROM LIBMIME. THIS IS FOR QUOTING
 ////////////////////////////////////////////////////////////////////////////////////
 QuotingOutputStreamListener::~QuotingOutputStreamListener()
@@ -2613,7 +2613,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       mOrigMsgHdr->GetAccountKey(getter_Copies(accountKey));
       if (replyToSelfCheckAll)
       {
-        // Check all avaliable identities if the pref was set.
+        // Check all available identities if the pref was set.
         accountManager->GetAllIdentities(getter_AddRefs(identities));
       }
       else if (!accountKey.IsEmpty())
@@ -4573,7 +4573,7 @@ nsMsgCompose::BuildBodyMessageAndSignature()
   nsAutoString   body;
   m_compFields->GetBody(body);
 
-  /* Some time we want to add a signature and sometime we wont. Let's figure that now...*/
+  /* Some time we want to add a signature and sometime we won't. Let's figure that now...*/
   bool addSignature;
   bool isQuoted = false;
   switch (mType)

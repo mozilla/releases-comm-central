@@ -84,7 +84,7 @@
 
 /* When attaching an HTML document, one must indicate the original URL of
    that document, if the receiver is to have any chance of being able to
-   retreive and display the inline images, or to click on any links in the
+   retrieve and display the inline images, or to click on any links in the
    HTML.
 
    The way we have done this in the past is by inserting a <BASE> tag as the

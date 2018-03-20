@@ -101,7 +101,7 @@ function incomingPageInit() {
     var serverTypeRadioGroup = document.getElementById("servertype");
     /*
      * Check to see if the radiogroup has any value. If there is no
-     * value, this must be the first time user visting this page in the
+     * value, this must be the first time user visiting this page in the
      * account setup process. So, the default is set to pop3. If there
      * is a value (it's used automatically), user has already visited
      * page and server type selection is done. Once user visits the page,

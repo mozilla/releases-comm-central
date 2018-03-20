@@ -24,7 +24,7 @@ function getMessenger () {
 /**
  * @class Represents a gloda attribute definition's DB form.  This class
  *  stores the information in the database relating to this attribute
- *  definition.  Access its attrDef attribute to get at the realy juicy data.
+ *  definition.  Access its attrDef attribute to get at the really juicy data.
  *  This main interesting thing this class does is serve as the keeper of the
  *  mapping from parameters to attribute ids in the database if this is a
  *  parameterized attribute.

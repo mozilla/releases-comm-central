@@ -27,7 +27,7 @@ bool ImportTranslate::ConvertString(const nsCString& inStr, nsCString& outStr, b
     pTrans->GetLanguage(lang);
   }
 
-  // Unfortunatly, we didn't implement ConvertBuffer for all translators,
+  // Unfortunately, we didn't implement ConvertBuffer for all translators,
   // just ConvertToFile.  This means that this data will not always
   // be converted to the charset of pTrans.  In that case...
   // We don't always have the data in the same charset as the current

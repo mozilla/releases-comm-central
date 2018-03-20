@@ -42,7 +42,7 @@
 
   Parts are read and queued until we know whether we're going to display
   them. If the first pending part is one we don't know how to display, then we
-  can add it to the MIME structure immediatelly, with output_p disabled. If the
+  can add it to the MIME structure immediately, with output_p disabled. If the
   first pending part is one we know how to display, then we can't add it to the
   in-memory MIME structure until either (a) we encounter a later, more
   preferred part we know how to display, or (b) we reach the end of the
@@ -76,12 +76,12 @@
   When the option prefer_plaintext is on, the last text/plain part
   should be preferred over any other part that can be displayed. But
   if no text/plain part is found, then the algorithm should go as
-  normal and convert any html part found to text. To achive this I
+  normal and convert any html part found to text. To achieve this I
   found that the simplest way was to change the function display_part_p
   into returning priority as an integer instead of boolean can/can't
   display. Then I also changed the function flush_children so it selects
   the last part with the highest priority. (Priority 0 means it cannot
-  be displayed and the part is never choosen.)
+  be displayed and the part is never chosen.)
 
   - Terje Bråten, 2013-02-16
 */
