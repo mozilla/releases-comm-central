@@ -216,14 +216,14 @@ var calauth = {
     /**
      * Make sure the passed origin is actually an uri string, because password manager functions
      * require it. This is a fallback for compatibility only and should be removed a few versions
-     * after Lightning 5.5
+     * after Lightning 6.2
      *
      * @param {String} aOrigin      The hostname or origin to check
      * @return {String}             The origin uri
      */
     _ensureOrigin: function(aOrigin) {
         try {
-            return Services.io.newURI(aOrigin).spec;
+            return Services.io.newURI(aOrigin).prePath;
         } catch (e) {
             return "https://" + aOrigin;
         }
