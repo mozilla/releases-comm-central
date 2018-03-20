@@ -38,7 +38,6 @@ nsMsgMailNewsUrl::nsMsgMailNewsUrl()
   m_suppressErrorMsgs = false;
   m_isPrincipalURL = false;
   mMaxProgress = -1;
-  m_baseURL = do_CreateInstance(NS_STANDARDURL_CONTRACTID);
 }
 
 #define NOTIFY_URL_LISTENERS(propertyfunc_, params_)                   \
@@ -417,7 +416,7 @@ nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString &aSpec)
   }
 
   // Now, set the rest.
-  nsresult rv = NS_MutateURI(m_baseURL).SetSpec(aSpec).Finalize(m_baseURL);
+  nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(aSpec).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Check whether the URL is in normalised form.

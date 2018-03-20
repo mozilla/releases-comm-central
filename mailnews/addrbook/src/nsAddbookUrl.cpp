@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////////
 nsAddbookUrl::nsAddbookUrl()
 {
-  m_baseURL = do_CreateInstance(NS_SIMPLEURI_CONTRACTID);
-
   mOperationType = nsIAddbookUrlOperation::InvalidUrl;
 }
 
@@ -31,7 +29,7 @@ NS_IMPL_ISUPPORTS(nsAddbookUrl, nsIAddbookUrl, nsIURI)
 nsresult
 nsAddbookUrl::SetSpecInternal(const nsACString &aSpec)
 {
-  nsresult rv = NS_MutateURI(m_baseURL).SetSpec(aSpec).Finalize(m_baseURL);
+  nsresult rv = NS_MutateURI(NS_SIMPLEURIMUTATOR_CONTRACTID).SetSpec(aSpec).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
   return ParseUrl();
 }
