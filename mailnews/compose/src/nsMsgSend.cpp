@@ -429,6 +429,8 @@ void nsMsgComposeAndSend::GenerateMessageId()
 NS_IMETHODIMP
 nsMsgComposeAndSend::GatherMimeAttachments()
 {
+  nsCOMPtr<nsIMsgSend> kungFuDeathGrip(this);
+
   bool shouldDeleteDeliveryState = true;
   nsresult status;
   uint32_t    i;
