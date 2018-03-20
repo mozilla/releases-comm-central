@@ -209,7 +209,7 @@ function Startup()
 function InitDialog()
 {
   // Must use getAttribute, not "globalElement.href", 
-  //  or foreign chars aren't coverted correctly!
+  //  or foreign chars aren't converted correctly!
   gDialog.hrefInput.value = globalElement.getAttribute("href");
 
   // Set "Relativize" checkbox according to current URL state
@@ -296,7 +296,7 @@ function onAccept()
         try {
           gActiveEditor.insertElementAtSelection(anchorElement, false);
         } catch (e) {
-          dump("Exception occured in InsertElementAtSelection\n");
+          dump("Exception occurred in InsertElementAtSelection\n");
           return true;
         }
       } else if (insertNew || replaceExistingLink)
@@ -307,7 +307,7 @@ function onAccept()
         try {
           gActiveEditor.insertLinkAroundSelection(anchorElement);
         } catch (e) {
-          dump("Exception occured in InsertElementAtSelection\n");
+          dump("Exception occurred in InsertElementAtSelection\n");
           return true;
         }
       }

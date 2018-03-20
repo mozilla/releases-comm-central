@@ -15,7 +15,7 @@ function SetupHTMLEditorCommands()
   if (!commandTable)
     return;
 
-  // Include everthing a text editor does
+  // Include everything a text editor does
   SetupTextEditorCommands();
 
   //dump("Registering HTML editor commands\n");
@@ -720,7 +720,7 @@ var nsPublishAsCommand =
   }
 }
 
-// ------- output utilites   ----- //
+// ------- output utilities   ----- //
 
 // returns a fileExtension string
 function GetExtensionBasedOnMimeType(aMIMEType)
@@ -1884,7 +1884,7 @@ function FinishPublishing()
 
   if (gCommandAfterPublishing)
   {
-    // Be sure to null out the global now incase of trouble when executing command
+    // Be sure to null out the global now in case of trouble when executing command
     var command = gCommandAfterPublishing;
     gCommandAfterPublishing = null;
     goDoCommand(command);
@@ -3054,7 +3054,7 @@ var nsSetSmiley =
     }
     catch (e)
     {
-        dump("Exception occured in smiley InsertElementAtSelection\n");
+        dump("Exception occurred in smiley InsertElementAtSelection\n");
     }
   },
   // This is now deprecated in favor of "doCommandParams"

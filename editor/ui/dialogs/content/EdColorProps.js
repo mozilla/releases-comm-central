@@ -8,7 +8,7 @@
  If any color attribute is set in the body, mode is "Custom Colors",
   even if 1 or more (but not all) are actually null (= "use default")
  When in "Custom Colors" mode, all colors will be set on body tag,
-  even if they are just default colors, to assure compatable colors in page.
+  even if they are just default colors, to assure compatible colors in page.
  User cannot select "use default" for individual colors
 */
 

@@ -891,7 +891,7 @@ function Clone(obj)
 }
 
 /**
- * Utility funtions to handle shortended data: URLs in EdColorProps.js and EdImageOverlay.js.
+ * Utility functions to handle shortended data: URLs in EdColorProps.js and EdImageOverlay.js.
  */
 
 /**

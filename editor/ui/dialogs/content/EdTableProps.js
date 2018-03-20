@@ -998,7 +998,7 @@ function ApplyTableAttributes()
         gActiveEditor.insertNode(gTableCaptionElement, gTableElement, 0);
       } catch(e) {}
 
-      // Put selecton back where it was
+      // Put selection back where it was
       ChangeSelection(RESET_SELECTION);
     }
   }
@@ -1023,7 +1023,7 @@ function ApplyTableAttributes()
           gActiveEditor.insertTableRow(countDelta, true);
           gRowCount = gNewRowCount;
           gLastRowIndex = gRowCount - 1;
-          // Put selecton back where it was
+          // Put selection back where it was
           ChangeSelection(RESET_SELECTION);
         }
         catch(ex) {
@@ -1063,7 +1063,7 @@ function ApplyTableAttributes()
               // move it to start of table
               ChangeSelectionToFirstCell()
             else
-              // Put selecton back where it was
+              // Put selection back where it was
               ChangeSelection(RESET_SELECTION);
           }
           catch(ex) {

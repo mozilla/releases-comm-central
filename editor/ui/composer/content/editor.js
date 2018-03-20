@@ -2557,7 +2557,7 @@ function RemoveItem(id)
 
 // Command Updating Strategy:
 //   Don't update on on selection change, only when menu is displayed,
-//   with this "oncreate" hander:
+//   with this "oncreate" handler:
 function EditorInitTableMenu()
 {
   try {
@@ -2895,7 +2895,7 @@ function SwitchInsertCharToThisWindow(windowWithDialog)
     // Switch the dialog's opener to current window's
     window.InsertCharWindow.opener = window;
 
-    // Bring dialog to the forground
+    // Bring dialog to the foreground
     window.InsertCharWindow.focus();
     return true;
   }

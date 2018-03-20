@@ -70,7 +70,7 @@ function AddWord()
       gSpellChecker.AddWordToDictionary(gWordToAdd);
     }
     catch (e) {
-      dump("Exception occured in gSpellChecker.AddWordToDictionary\nWord to add probably already existed\n");
+      dump("Exception occurred in gSpellChecker.AddWordToDictionary\nWord to add probably already existed\n");
     }
 
     // Rebuild the dialog list
@@ -101,7 +101,7 @@ function ReplaceWord()
         selItem.label = gWordToAdd; 
       } catch (e) {
         // Rebuild list and select the word - it was probably already in the list
-        dump("Exception occured adding word in ReplaceWord\n");
+        dump("Exception occurred adding word in ReplaceWord\n");
         FillDictionaryList();
         SelectWordToAddInList();
       }

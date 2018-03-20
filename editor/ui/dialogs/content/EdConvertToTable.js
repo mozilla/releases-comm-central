@@ -121,7 +121,7 @@ function onAccept()
 
   // Remove all tag contents so we don't replace
   //   separator character within tags
-  // Also converts lists to something usefull
+  // Also converts lists to something useful
   var stack = [];
   var start;
   var end;
@@ -143,7 +143,7 @@ function onAccept()
         if (/^ol|^ul|^dl/.test(tagContent))
         {
           //  Replace list tag with <BR> to start new row 
-          //   at begining of second or greater list tag
+          //   at beginning of second or greater list tag
           str = str.slice(0, start) + listSeparator + str.slice(end+1);
           if (listSeparator == "")
             listSeparator = "<br>";
@@ -157,7 +157,7 @@ function onAccept()
           if (endList)
             listItemSeparator = "<br>";
 
-          // Start new cell at begining of second or greater list items
+          // Start new cell at beginning of second or greater list items
           str = str.slice(0, start) + listItemSeparator + str.slice(end+1);
 
           if (endList || listItemSeparator == "")

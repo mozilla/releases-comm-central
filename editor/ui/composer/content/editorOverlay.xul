@@ -214,7 +214,7 @@
     <command id="cmd_indent"                          oncommand="goDoCommand('cmd_indent')"/>
     <command id="cmd_outdent"                         oncommand="goDoCommand('cmd_outdent')"/>
 
-    <!-- the state attribute gets filled with the paragraph format before the command is exectued -->
+    <!-- the state attribute gets filled with the paragraph format before the command is executed -->
     <command id="cmd_paragraphState"  state=""         oncommand="doStatefulCommand('cmd_paragraphState', event.target.value)"/>
     <command id="cmd_fontFace"        state=""         oncommand="doStatefulCommand('cmd_fontFace', event.target.value)"/>
 

@@ -39,7 +39,7 @@ var gCoreJSEvents =
 
 // Following are commonly-used strings
 
-// Alse accept: sRGB: #RRGGBB //
+// Also accept: sRGB: #RRGGBB //
 var gHTMLColors =
 [
 	"Aqua",
@@ -1718,7 +1718,7 @@ gHTMLAttr._var =
 ];
 
 // ================ JS Attributes ================ //
-// These are element specif even handlers. 
+// These are element specific even handlers. 
 /* Most all elements use gCoreJSEvents, so those 
    are assumed except for those listed here with "noEvents"
 */

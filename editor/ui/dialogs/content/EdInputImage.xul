@@ -53,7 +53,7 @@
         </grid>
       </groupbox>
 
-      <!-- panels overlayed from EdImageOverlay.xul -->
+      <!-- panels overlaid from EdImageOverlay.xul -->
       <vbox id="imageLocation"/>
       <vbox id="imageDimensions"/>
       <hbox id="imageAppearance"/>

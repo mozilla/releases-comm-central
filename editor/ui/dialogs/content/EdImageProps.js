@@ -111,7 +111,7 @@ function Startup()
     gDialog.widthUnitsMenulist.selectedIndex == 0 &&
     gDialog.heightUnitsMenulist.selectedIndex == 0;
 
-  // Start in "Link" tab if 2nd arguement is true
+  // Start in "Link" tab if 2nd argument is true
   if (gDialog.linkTab && "arguments" in window && window.arguments[1])
   {
     document.getElementById("TabBox").selectedTab = gDialog.linkTab;

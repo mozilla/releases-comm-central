@@ -299,7 +299,7 @@ function SwitchPanel(tab)
 function onInputSettings()
 {
   // TODO: Save current data during SelectSite and compare here
-  //       to detect if real change has occured?
+  //       to detect if real change has occurred?
   gSettingsChanged = true;
 }
 
