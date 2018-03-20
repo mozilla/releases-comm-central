@@ -26,7 +26,6 @@
 #include "nsITimer.h"
 #include "nsICacheEntryOpenCallback.h"
 #include "nsIProtocolProxyCallback.h"
-#include "nsIProtocolProxyService.h"
 
 // this is only needed as long as our libmime hack is in place
 #include "prio.h"

@@ -13,12 +13,11 @@
 #include "mozilla/Attributes.h"
 #include "nsMsgDBFolder.h"
 #include "nsIFile.h"
-#include "nsINntpIncomingServer.h" // need this for the IID
 #include "nsNewsUtils.h"
 #include "nsMsgKeySet.h"
 #include "nsIMsgNewsFolder.h"
 #include "nsCOMPtr.h"
-#include "nsIMsgFilterService.h"
+#include "nsIMsgFilterList.h"
 #include "nsIArray.h"
 
 class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder

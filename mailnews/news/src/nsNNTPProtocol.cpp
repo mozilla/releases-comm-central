@@ -10,9 +10,7 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgHdr.h"
 #include "nsNNTPProtocol.h"
-#include "nsINNTPArticleList.h"
 #include "nsIOutputStream.h"
-#include "nsIMemory.h"
 #include "nsIPipe.h"
 #include "nsCOMPtr.h"
 #include "nsMsgI18N.h"
@@ -55,8 +53,6 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgNewsFolder.h"
 #include "nsIDocShell.h"
-
-#include "nsIMsgFilterList.h"
 
 // for the memory cache...
 #include "nsICacheEntry.h"

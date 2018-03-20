@@ -21,14 +21,12 @@
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsINntpIncomingServer.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgFilter.h"
 #include "nsNNTPNewsgroupList.h"
 
-#include "nsINNTPArticleList.h"
 #include "nsMsgKeySet.h"
 
 #include "nntpCore.h"

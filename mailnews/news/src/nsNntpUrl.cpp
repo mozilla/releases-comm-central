@@ -5,7 +5,6 @@
 
 #include "msgCore.h"    // precompiled header...
 
-#include "nsIURL.h"
 #include "nsNntpUrl.h"
 
 #include "nsString.h"
@@ -15,7 +14,6 @@
 #include "nntpCore.h"
 
 #include "nsCOMPtr.h"
-#include "nsIMsgDatabase.h"
 #include "nsMsgDBCID.h"
 #include "nsMsgNewsCID.h"
 #include "nsIMsgFolder.h"

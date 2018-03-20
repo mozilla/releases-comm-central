@@ -23,6 +23,7 @@
 #include "nsITreeView.h"
 #include "nsITreeSelection.h"
 #include "nsCOMArray.h"
+#include "nsTArray.h"
 
 #include "nsNntpMockChannel.h"
 #include "nsAutoPtr.h"

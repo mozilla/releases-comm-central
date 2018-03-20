@@ -14,6 +14,8 @@
 #include "nsIMsgWindow.h"
 #include "nsIMsgSearchNotify.h"
 #include "nsIMsgSearchSession.h"
+#include "nsIMsgStatusFeedback.h"
+#include "nsTArray.h"
 
 // base class for downloading articles in a single newsgroup. Keys to download are passed in
 // to DownloadArticles method.

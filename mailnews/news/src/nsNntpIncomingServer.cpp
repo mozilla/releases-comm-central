@@ -14,7 +14,6 @@
 #include "nsINNTPProtocol.h"
 #include "nsMsgNewsCID.h"
 #include "nsNNTPProtocol.h"
-#include "nsIDirectoryService.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsMsgUtils.h"
 #include "nsIPrompt.h"
