@@ -48,11 +48,6 @@ public:
       return NS_ERROR_NOT_IMPLEMENTED;
     }
 
-    NS_IMETHOD Read(nsIObjectInputStream* aStream) override
-    {
-      return NS_ERROR_NOT_IMPLEMENTED;
-    }
-
     NS_IMETHOD Finalize(nsIURI** aURI) override
     {
       mURI.forget(aURI);
