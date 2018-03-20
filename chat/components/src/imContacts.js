@@ -92,7 +92,7 @@ function getDBConnection()
 }
 
 // Wrap all the usage of DBConn inside a transaction that will be
-// commited automatically at the end of the event loop spin so that
+// committed automatically at the end of the event loop spin so that
 // we flush buddy list data to disk only once per event loop spin.
 var gDBConnWithPendingTransaction = null;
 Object.defineProperty(this, "DBConn", {
@@ -1515,7 +1515,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
 
-    // removing the account from the accounts table is not enought,
+    // removing the account from the accounts table is not enough,
     // we need to remove all the associated account_buddy entries too
     statement = DBConn.createStatement("DELETE FROM account_buddy " +
                                        "WHERE account_id = :accountId");

@@ -68,7 +68,7 @@ var ircNonStandard = {
       }
 
       // Some servers, e.g. irc.umich.edu, use NOTICE during connection
-      // negotation to give directions to users, these MUST be shown to the
+      // negotiation to give directions to users, these MUST be shown to the
       // user. If the message starts with ***, we assume it is probably an AUTH
       // message, which falls through to normal NOTICE processing.
       // Note that if the user's nick is auth this COULD be a notice directed at

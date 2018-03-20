@@ -374,7 +374,7 @@ imAccount.prototype = {
     }
 
     /* If the last successful connection is older than 10 seconds, reset the
-       number of reconnection attemps. */
+       number of reconnection attempts. */
     const kTimeBeforeSuccessfulConnection = 10;
     if (this.timeOfLastConnect &&
         this.timeOfLastConnect + kTimeBeforeSuccessfulConnection * 1000 < Date.now()) {

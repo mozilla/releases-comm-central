@@ -770,7 +770,7 @@
         <body>
           <![CDATA[
             if (this._scrollingIntoView) {
-              // We have explicitely requested a scrollIntoView, ignore the event
+              // We have explicitly requested a scrollIntoView, ignore the event.
               this._scrollingIntoView = false;
               this._lastScrollHeight = this.scrollHeight;
               this._lastScrollWidth = this.scrollWidth;

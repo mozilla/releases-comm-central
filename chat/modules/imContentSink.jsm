@@ -11,7 +11,7 @@ this.EXPORTED_SYMBOLS = [
   "createDerivedRuleset", // used to create a ruleset that inherits from the
                           // default one
                           // useful if you want to allow or forbid
-                          // an additionnal thing in a specific
+                          // an additional thing in a specific
                           // conversation but take into account all
                           // the other global settings.
   "addGlobalAllowedTag",
@@ -276,7 +276,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       // cleanup attributes
       let attrs = node.attributes;
       let acceptFunction = function(aAttrRules, aAttr) {
-        // an attribute is always accepted if its rule is true, or conditionnaly
+        // an attribute is always accepted if its rule is true, or conditionally
         // accepted if its rule is a function that evaluates to true
         // if its rule does not exist, it is refused
           let localName = aAttr.localName;

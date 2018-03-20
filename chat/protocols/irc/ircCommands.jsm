@@ -145,7 +145,7 @@ function simpleCommand(aConv, aCommand, aParams) {
 }
 
 // Sends a CTCP message to aTarget using the CTCP command aCommand and aMsg as
-// a CTCP paramter.
+// a CTCP parameter.
 function ctcpCommand(aConv, aTarget, aCommand, aParams) {
   return getAccount(aConv).sendCTCPMessage(aTarget, false, aCommand, aParams);
 }

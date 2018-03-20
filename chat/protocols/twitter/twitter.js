@@ -152,7 +152,7 @@ var GenericTwitterConversation = {
     this.writeMessage("twitter.com", aMessage, flags);
   },
   onSentCallback: function(aMsg, aData) {
-    // The conversation may have been unitialized in the time it takes for
+    // The conversation may have been uninitialized in the time it takes for
     // the async callback to fire.  Use `_observers` as a proxy for uninit'd.
     if (!this._observers)
       return;

@@ -419,7 +419,7 @@ SkypeAccount.prototype = {
 
     // All done!
     this._skypeToken = refreshToken;
-    this.LOG("Recevied Skype token: " + this._skypeToken);
+    this.LOG("Received Skype token: " + this._skypeToken);
 
     if (this._registrationToken) {
       // Subscribe to receive particular events.

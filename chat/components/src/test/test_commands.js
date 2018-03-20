@@ -73,7 +73,7 @@ function run_test() {
   // particular, the name of the command and whether the first (i.e. preferred)
   // entry in the returned array of commands is a prpl command. (If the latter
   // boolean is not given, false is assumed, if the name is not given, that
-  // corresponds to no commmands being returned.)
+  // corresponds to no commands being returned.)
   let testData = [
     {
       desc: "No conversation argument.",

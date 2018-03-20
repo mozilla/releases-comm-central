@@ -29,7 +29,7 @@ function DCCMessage(aMessage, aAccount) {
   try {
     // Address, port and size should be treated as unsigned long, unsigned short
     // and unsigned long, respectively. The protocol is designed to handle
-    // further arguements, if necessary.
+    // further arguments, if necessary.
     message.ctcp.dcc = {
       type: params[0],
       argument: params[1],

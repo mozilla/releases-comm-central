@@ -422,7 +422,7 @@ var XMPPMUCConversationPrototype = {
     }
   },
 
-  /* Called by the account when a messsage is received for this muc */
+  /* Called by the account when a message is received for this muc */
   incomingMessage: function(aMsg, aStanza, aDate) {
     let from = this._account._parseJID(aStanza.attributes["from"]).resource;
     let id = aStanza.attributes["id"];
@@ -757,7 +757,7 @@ var XMPPConversationPrototype = {
     GenericConversationPrototype.prepareForDisplaying.apply(this, arguments);
   },
 
-  /* Called by the account when a messsage is received from the buddy */
+  /* Called by the account when a message is received from the buddy */
   incomingMessage: function(aMsg, aStanza, aDate) {
     let from = aStanza.attributes["from"];
     this._targetResource = this._account._parseJID(from).resource;
@@ -2295,7 +2295,7 @@ var XMPPAccountPrototype = {
   // aDomain is required, but aNode and aResource are optional.
   _setJID: function(aDomain, aNode = null, aResource = null) {
     if (!aDomain)
-      throw "aDomain must have a vaule";
+      throw "aDomain must have a value";
 
     let result = {
       node: aNode,
@@ -2663,7 +2663,7 @@ var XMPPAccountPrototype = {
     // This lets us preserve the fields that we don't change or don't know.
     // Some servers may reject a new vCard if we don't do this first.
     if (!this.hasOwnProperty("_userVCard")) {
-      // The download of the vCard is asyncronous and will call _sendVCard back
+      // The download of the vCard is asynchronous and will call _sendVCard back
       // when the user's vCard has been received.
       this._downloadUserVCard();
       return;

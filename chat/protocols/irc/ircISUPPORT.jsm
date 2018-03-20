@@ -27,7 +27,7 @@ ChromeUtils.import("resource:///modules/ircUtils.jsm");
  *   value      The new value for the parameter.
  */
 function isupportMessage(aMessage) {
-  // Seperate the ISUPPORT parameters.
+  // Separate the ISUPPORT parameters.
   let tokens = aMessage.params.slice(1, -1);
 
   let message = aMessage;

@@ -235,7 +235,7 @@ const RFC3454 = {
 // aLength in bytes.
 function createNonce(aLength) {
   // RFC 5802 (5.1): Printable ASCII except ",".
-  // We guarantee a vaild nonce value using base64 encoding.
+  // We guarantee a valid nonce value using base64 encoding.
   return btoa(CryptoUtils.generateRandomBytes(aLength));
 }
 
