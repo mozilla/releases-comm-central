@@ -11,17 +11,13 @@
 #include "nsIStreamListener.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
-#include "nsIAsyncInputStream.h"
 #include "nsIURI.h"
 #include "nsIChannel.h"
-#include "nsIMimeMiscStatus.h"
-#include "nsIPipe.h"
 #include "nsIStringBundle.h"
 #include "nsCOMPtr.h"
 #include "nsTArray.h"
 #include "nsIMimeConverter.h"
 #include "nsIInterfaceRequestor.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "DateTimeFormat.h"
 
 //

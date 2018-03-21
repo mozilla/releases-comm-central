@@ -6,10 +6,6 @@
 #ifndef nsMimeEmitterCID_h__
 #define nsMimeEmitterCID_h__
 
-#include "nsISupports.h"
-#include "nsIFactory.h"
-#include "nsIComponentManager.h"
-
 #define NS_MIME_EMITTER_CONTRACTID_PREFIX \
   "@mozilla.org/messenger/mimeemitter;1?type="
 

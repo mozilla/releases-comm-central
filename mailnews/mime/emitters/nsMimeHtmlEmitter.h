@@ -8,14 +8,7 @@
 #include "mozilla/Attributes.h"
 #include "prio.h"
 #include "nsMimeBaseEmitter.h"
-#include "nsMimeRebuffer.h"
-#include "nsIStreamListener.h"
-#include "nsIOutputStream.h"
-#include "nsIInputStream.h"
-#include "nsIURI.h"
-#include "nsIChannel.h"
 #include "nsIMimeMiscStatus.h"
-#include "nsIMimeConverter.h"
 
 class nsMimeHtmlDisplayEmitter : public nsMimeBaseEmitter {
 public:

@@ -17,6 +17,8 @@
       { 0xc09edb23, 0xb7af, 0x11d2,   \
       { 0xb3, 0x5e, 0x52, 0x54, 0x0, 0xe2, 0xd6, 0x3a } }
 
+#include "nsISupports.h"
+
 class nsIMimeObjectClassAccess : public nsISupports {
 public:
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IMIME_OBJECT_CLASS_ACCESS_IID)

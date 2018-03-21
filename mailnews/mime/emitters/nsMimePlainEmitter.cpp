@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <stdio.h>
-#include "nsMimeRebuffer.h"
 #include "nsMimePlainEmitter.h"
 #include "plstr.h"
 #include "nsMailHeaders.h"

@@ -2,9 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "nsCOMPtr.h"
 #include <stdio.h>
-#include "nsMimeRebuffer.h"
 #include "nsMimeHtmlEmitter.h"
 #include "plstr.h"
 #include "nsMailHeaders.h"
@@ -23,11 +23,9 @@
 // hack: include this to fix opening news attachments.
 #include "nsINntpUrl.h"
 #include "nsComponentManagerUtils.h"
-#include "nsIMimeConverter.h"
 #include "nsMsgMimeCID.h"
 #include "nsMsgUtils.h"
 #include "nsAutoPtr.h"
-#include "nsINetUtil.h"
 #include "nsMemory.h"
 #include "mozilla/Services.h"
 
