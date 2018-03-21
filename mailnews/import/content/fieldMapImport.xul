@@ -40,14 +40,15 @@
 
   <!-- field list -->
   <hbox flex="1">
-    <listbox id="fieldList" flex="1" onselect="disableMoveButtons();"
-             onclick="itemClicked(event);">
+    <listbox id="fieldList" flex="1" onselect="disableMoveButtons();">
       <listcols>
+        <listcol flex="1"/>
         <listcol flex="7"/>
         <listcol flex="13"/>
       </listcols>
 
       <listhead>
+        <listheader/>
         <listheader id="fieldNameHeader" label="&fieldMapImport.fieldListTitle;"/>
         <listheader id="sampleDataHeader" label="&fieldMapImport.dataTitle;"/>
       </listhead>

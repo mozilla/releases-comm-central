@@ -77,22 +77,29 @@ function ListFields() {
   }
 }
 
-function CreateField( name, index, on)
+function CreateField(name, index, on)
 {
-  var item = document.createElement('listitem');
-  item.setAttribute('field-index', index);
-  item.setAttribute('type', "checkbox");
-  var cell = document.createElement('listcell');
-  var cCell = document.createElement( 'listcell');
-  cCell.setAttribute('type', "checkbox");
-  cCell.setAttribute( 'label', name);
-  if (on == true)
-    cCell.setAttribute( 'checked', "true");
-  item.appendChild( cCell);
-  cell.setAttribute( "class", "importsampledata");
-  cell.setAttribute( 'label', "");
-  item.appendChild( cell);
-  return( item);
+  var item = document.createElement("listitem");
+  item.setAttribute("field-index", index);
+  item.setAttribute("allowevents", "true");
+
+  var checkboxCell = document.createElement("listcell");
+  checkboxCell.setAttribute("type", "checkbox");
+  checkboxCell.addEventListener("click", cellClicked);
+  if (on)
+    checkboxCell.setAttribute("checked", "true");
+
+  var firstCell = document.createElement("listcell");
+  firstCell.setAttribute("label", name);
+
+  var secondCell = document.createElement("listcell");
+  secondCell.setAttribute("class", "importsampledata");
+  secondCell.setAttribute("label", "");
+
+  item.appendChild(checkboxCell);
+  item.appendChild(firstCell);
+  item.appendChild(secondCell);
+  return item;
 }
 
 function AddFieldToList(name, index, on)
@@ -101,7 +108,7 @@ function AddFieldToList(name, index, on)
   gListbox.appendChild(item);
 }
 
-function itemClicked(event)
+function cellClicked(event)
 {
   if (event.button == 0) {
     var on = gListbox.selectedItem.firstChild.getAttribute('checked');
