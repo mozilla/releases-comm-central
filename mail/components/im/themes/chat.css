@@ -504,10 +504,6 @@ imcontact[aliasing] .contactDisplayName {
   margin-inline-end: 2px;
   margin-bottom: 2px !important; /* override 4px from description */
 }
-
-grippy {
-  display: none;
-}
 %endif
 
 .splitter {
@@ -578,11 +574,6 @@ grippy {
 %ifdef XP_WIN
 .splitter.conv-chat {
   border-left: 1px solid rgba(0, 0, 0, 0.25);
-}
-
-/* Splitter style change above somehow made it smaller, fix this here: */
-grippy {
-  margin: 0 1px;
 }
 %endif
 

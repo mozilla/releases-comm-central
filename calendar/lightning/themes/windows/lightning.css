@@ -104,10 +104,6 @@ radio[pane=paneLightning] {
   background-image: none;
 }
 
-#today-splitter > grippy {
-  display: none;
-}
-
 #today-pane-splitter {
   border-width: 0;
   border-bottom: 3px double #a9b7c9;
