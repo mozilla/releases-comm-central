@@ -103,7 +103,12 @@ locales = [
 
 [[paths]]
     reference = "{mozilla}/devtools/startup/locales/en-US/**"
-    l10n = "{l}/devtools/startup/**"
+    l10n = "{l}devtools/startup/**"
+
+# for Gecko 60 and older and cross-channel
+[[paths]]
+    reference = "{mozilla}/devtools/shim/locales/en-US/**"
+    l10n = "{l}devtools/shim/**"
 
 # ignore MOZ_LANGPACK_CONTRIBUTORS
 [[filters]]
