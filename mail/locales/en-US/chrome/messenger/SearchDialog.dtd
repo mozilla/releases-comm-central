@@ -19,7 +19,7 @@
 <!ENTITY results.label               "Results">
 <!ENTITY moveButton.label            "Move To">
 <!ENTITY moveButton.accesskey        "T">
-<!ENTITY closeCmd.key                "W"> 
+<!ENTITY closeCmd.key                "W">
 <!ENTITY openInFolder.label          "Open in Folder">
 <!ENTITY openInFolder.accesskey      "r">
 <!ENTITY saveAsVFButton.label        "Save as Search Folder">
