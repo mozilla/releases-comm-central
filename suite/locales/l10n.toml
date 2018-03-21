@@ -49,8 +49,8 @@ locales = [
     l10n = "{l}editor/ui/**"
 
 [[paths]]
-    reference = "{mozilla}/devtools/shim/locales/en-US/**"
-    l10n = "{l}devtools/shim/**"
+    reference = "{mozilla}/devtools/startup/locales/en-US/**"
+    l10n = "{l}devtools/startup/**"
 
 [[paths]]
     reference = "{mozilla}/services/sync/locales/en-US/**"
