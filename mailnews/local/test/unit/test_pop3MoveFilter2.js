@@ -48,9 +48,9 @@ var gTestArray =
     gFilterList.insertFilterAt(0, gFilter);
   },
   // just get a message into the local folder
-  function *getLocalMessages1() {
+  async function getLocalMessages1() {
     gPOP3Pump.files = gFiles;
-    yield gPOP3Pump.run();
+    await gPOP3Pump.run();
   },
   function verifyFolders2() {
     Assert.equal(folderCount(gMoveFolder), 1);

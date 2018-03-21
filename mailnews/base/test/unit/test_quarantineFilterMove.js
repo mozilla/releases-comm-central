@@ -35,11 +35,11 @@ var gTestArray =
     gFilterList.insertFilterAt(0, gFilter);
   },
   // just get a message into the local folder
-  function *getLocalMessages1() {
+  async function getLocalMessages1() {
     gPOP3Pump.files = gFiles;
     let promise1 = PromiseTestUtils.promiseFolderNotification(gMoveFolder, "msgsClassified");
     let promise2 = gPOP3Pump.run();
-    yield Promise.all([promise1, promise2]);
+    await Promise.all([promise1, promise2]);
   },
   function verifyFolders1() {
     Assert.equal(folderCount(gMoveFolder), 2);
@@ -56,7 +56,7 @@ var gTestArray =
     messageContent = getContentFromMessage(secondMsgHdr);
     Assert.ok(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
   },
-  function* copyMovedMessages() {
+  async function copyMovedMessages() {
     let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
@@ -68,7 +68,7 @@ var gTestArray =
                                    promiseCopyListener, null, false);
     let promiseMoveMsg =
       PromiseTestUtils.promiseFolderEvent(gMoveFolder, "DeleteOrMoveMsgCompleted");
-    yield Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
+    await Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
   },
   function verifyFolders2() {
     Assert.equal(folderCount(gMoveFolder2), 2);

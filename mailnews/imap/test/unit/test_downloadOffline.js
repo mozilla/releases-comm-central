@@ -17,7 +17,7 @@ var tests = [
   teardownIMAPPump
 ];
 
-function *setup() {
+async function setup() {
   setupIMAPPump();
 
  /*
@@ -41,13 +41,13 @@ function *setup() {
   // ...and download for offline use.
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
-  yield promiseUrlListener.promise;
+  await promiseUrlListener.promise;
 }
 
-function *downloadAllForOffline() {
+async function downloadAllForOffline() {
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
-  yield promiseUrlListener.promise;
+  await promiseUrlListener.promise;
 }
 
 function verifyDownloaded() {

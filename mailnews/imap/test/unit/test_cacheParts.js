@@ -61,7 +61,7 @@ var tests = [
   teardown
 ];
 
-function* setup() {
+async function setup() {
   // No offline download, otherwise nothing is cached.
   Services.prefs.setBoolPref("mail.server.server1.offline_download", false);
   // Make sure our small attachment doesn't automatically get loaded, so
@@ -83,10 +83,10 @@ function* setup() {
 
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
-  yield listener.promise;
+  await listener.promise;
 }
 
-function* displayMessage1() {
+async function displayMessage1() {
   // We postpone creating the imap service until after we've set the prefs
   // that it reads on its startup.
   gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
@@ -104,10 +104,10 @@ function* displayMessage1() {
                               null,
                               url);
   gMsgURL1 = url.value;
-  yield listener.promise;
+  await listener.promise;
 }
 
-function* displayPart1() {
+async function displayPart1() {
   let db = IMAPPump.inbox.msgDatabase;
   let msg = db.getMsgHdrForMessageID(gMsgId1);
   let url = new Object;
@@ -119,10 +119,10 @@ function* displayPart1() {
                               null,
                               url);
   gMsgPartURL1 = url.value;
-  yield listener.promise;
+  await listener.promise;
 }
 
-function* displayMessage2() {
+async function displayMessage2() {
   let db = IMAPPump.inbox.msgDatabase;
   let msg = db.getMsgHdrForMessageID(gMsgId2);
   let url = new Object;
@@ -134,7 +134,7 @@ function* displayMessage2() {
                               null,
                               url);
   gMsgURL2 = url.value;
-  yield listener.promise;
+  await listener.promise;
 }
 
 function hackMetadata() {
@@ -159,7 +159,7 @@ function hackMetadata() {
   );
 }
 
-function* displayPart2() {
+async function displayPart2() {
   let db = IMAPPump.inbox.msgDatabase;
   let msg = db.getMsgHdrForMessageID(gMsgId2);
   let url = new Object;
@@ -171,7 +171,7 @@ function* displayPart2() {
                               null,
                               url);
   gMsgPartURL2 = url.value;
-  yield listener.promise;
+  await listener.promise;
 }
 
 function checkCache() {

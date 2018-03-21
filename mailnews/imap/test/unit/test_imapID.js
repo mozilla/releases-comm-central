@@ -10,21 +10,21 @@ ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var kIDResponse = "(\"name\" \"GImap\" \"vendor\" \"Google, Inc.\" \"support-url\" \"http://mail.google.com/support\")";
 
-add_task(function* setup() {
+add_task(async function setup() {
   setupIMAPPump("GMail");
   IMAPPump.daemon.idResponse = kIDResponse;
 
   // update folder to kick start tests.
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
-  yield promiseUrlListener.promise;
+  await promiseUrlListener.promise;
 });
 
-add_task(function* updateInbox() {
+add_task(async function updateInbox() {
   let rootFolder = IMAPPump.incomingServer.rootFolder;
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
-  yield promiseUrlListener.promise;
+  await promiseUrlListener.promise;
 });
 
 add_task(function checkIDHandling() {

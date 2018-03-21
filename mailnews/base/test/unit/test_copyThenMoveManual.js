@@ -37,12 +37,12 @@ var gTestArray =
     gFilterList.insertFilterAt(0, gFilter);
   },
   // just get a message into the local folder
-  function *getLocalMessages1() {
+  async function getLocalMessages1() {
     gPOP3Pump.files = gFiles;
-    yield gPOP3Pump.run();
+    await gPOP3Pump.run();
   },
   // test applying filters to a message header
-  function *applyFilters() {
+  async function applyFilters() {
     let messages = Cc["@mozilla.org/array;1"]
                      .createInstance(Ci.nsIMutableArray);
     messages.appendElement(localAccountUtils.inboxFolder.firstNewMessage);
@@ -51,7 +51,7 @@ var gTestArray =
                                           "DeleteOrMoveMsgCompleted");
     MailServices.filters.applyFilters(Ci.nsMsgFilterType.Manual,
                                       messages, localAccountUtils.inboxFolder, null);
-    yield promiseFolderEvent;
+    await promiseFolderEvent;
   },
   function verifyFolders1() {
     // Copy and Move should each now have 1 message in them.
@@ -62,12 +62,12 @@ var gTestArray =
     Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
   },
   // just get a message into the local folder
-  function *getLocalMessages2() {
+  async function getLocalMessages2() {
     gPOP3Pump.files = gFiles;
-    yield gPOP3Pump.run();
+    await gPOP3Pump.run();
   },
   // use the alternate call into the filter service
-  function *applyFiltersToFolders() {
+  async function applyFiltersToFolders() {
     let folders = Cc["@mozilla.org/array;1"]
                     .createInstance(Ci.nsIMutableArray);
     folders.appendElement(localAccountUtils.inboxFolder);
@@ -75,7 +75,7 @@ var gTestArray =
       PromiseTestUtils.promiseFolderEvent(localAccountUtils.inboxFolder,
                                           "DeleteOrMoveMsgCompleted");
     MailServices.filters.applyFiltersToFolders(gFilterList, folders, null);
-    yield promiseFolderEvent;
+    await promiseFolderEvent;
   },
   function verifyFolders2() {
     // Copy and Move should each now have 2 message in them.

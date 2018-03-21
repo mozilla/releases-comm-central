@@ -149,34 +149,34 @@ function verifyMsgOffsets(folder)
 var gTestArray =
 [
   // Copying messages from files
-  function* testCopyFileMessage1() {
-    yield copyFileMessage(gMsgFile1, localAccountUtils.inboxFolder, false);
+  async function testCopyFileMessage1() {
+    await copyFileMessage(gMsgFile1, localAccountUtils.inboxFolder, false);
   },
-  function* testCopyFileMessage2() {
-    yield copyFileMessage(gMsgFile2, localAccountUtils.inboxFolder, false);
+  async function testCopyFileMessage2() {
+    await copyFileMessage(gMsgFile2, localAccountUtils.inboxFolder, false);
   },
-  function* testCopyFileMessage3() {
-    yield copyFileMessage(gMsgFile3, localAccountUtils.inboxFolder, true);
+  async function testCopyFileMessage3() {
+    await copyFileMessage(gMsgFile3, localAccountUtils.inboxFolder, true);
     showMessages(localAccountUtils.inboxFolder, "after initial 3 messages copy to inbox");
   },
 
   // Moving/copying messages
-  function* testCopyMessages1() {
-    yield copyMessages([gMsgHdrs[0].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
+  async function testCopyMessages1() {
+    await copyMessages([gMsgHdrs[0].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
   },
-  function* testCopyMessages2() {
-    yield copyMessages([gMsgHdrs[1].hdr, gMsgHdrs[2].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
+  async function testCopyMessages2() {
+    await copyMessages([gMsgHdrs[1].hdr, gMsgHdrs[2].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
     showMessages(gLocalFolder2, "after copying 3 messages");
   },
-  function* testMoveMessages1() {
-    yield copyMessages([gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], true, localAccountUtils.inboxFolder, gLocalFolder3);
+  async function testMoveMessages1() {
+    await copyMessages([gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], true, localAccountUtils.inboxFolder, gLocalFolder3);
 
     showMessages(localAccountUtils.inboxFolder, "after moving 2 messages");
     showMessages(gLocalFolder3, "after moving 2 messages");
   },
 
   // Deleting messages
-  function* testDeleteMessages1() { // delete to trash
+  async function testDeleteMessages1() { // delete to trash
     // Let's take a moment to re-initialize stuff that got moved
     var folder3DB = gLocalFolder3.msgDatabase;
     gMsgHdrs[0].hdr = folder3DB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
@@ -190,21 +190,21 @@ var gTestArray =
     }
 
     // Now delete the message
-    yield deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr], false, false);
+    await deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr], false, false);
 
     showMessages(gLocalFolder3, "after deleting 1 message to trash");
   },
-  function* compactFolder()
+  async function compactFolder()
   {
     gExpectedFolderSize = calculateFolderSize(gLocalFolder3);
     Assert.notEqual(gLocalFolder3.expungedBytes, 0);
     let listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
     gLocalFolder3.compact(listener, null);
-    yield listener.promise;
+    await listener.promise;
 
     showMessages(gLocalFolder3, "after compact");
   },
-  function* testDeleteMessages2() {
+  async function testDeleteMessages2() {
     Assert.equal(gExpectedFolderSize, gLocalFolder3.filePath.fileSize);
     verifyMsgOffsets(gLocalFolder3);
     var folder2DB = gLocalFolder2.msgDatabase;
@@ -219,11 +219,11 @@ var gTestArray =
     }
 
     // Now delete the message
-    yield deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
+    await deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
 
     showMessages(gLocalFolder2, "after deleting 1 message");
   },
-  function* compactAllFolders()
+  async function compactAllFolders()
   {
     gExpectedInboxSize = calculateFolderSize(localAccountUtils.inboxFolder);
     gExpectedFolder2Size = calculateFolderSize(gLocalFolder2);
@@ -265,7 +265,7 @@ var gTestArray =
     };
     let listener = new PromiseTestUtils.PromiseUrlListener(checkResult);
     localAccountUtils.inboxFolder.compactAll(listener, null, true);
-    yield listener.promise;
+    await listener.promise;
 
     showMessages(localAccountUtils.inboxFolder, "after compactAll");
     showMessages(gLocalFolder2, "after compactAll");

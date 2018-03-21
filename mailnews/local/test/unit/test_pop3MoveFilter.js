@@ -49,11 +49,11 @@ var gTestArray =
     gFilterList.insertFilterAt(0, gFilter);
   },
   // just get a message into the local folder
-  function *getLocalMessages1() {
+  async function getLocalMessages1() {
     gPOP3Pump.files = gFiles;
-    yield gPOP3Pump.run();
+    await gPOP3Pump.run();
   },
-  function *verifyFolders2() {
+  async function verifyFolders2() {
     Assert.equal(folderCount(gMoveFolder), 2);
     // the local inbox folder should now be empty, since we moved incoming mail.
     Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
@@ -68,7 +68,7 @@ var gTestArray =
       localAccountUtils.inboxFolder
                        .getDatabaseWithReparse(promiseUrlListener, null);
     } catch(ex) {
-      yield promiseUrlListener.promise;
+      await promiseUrlListener.promise;
       Assert.ok(ex.result == Cr.NS_ERROR_NOT_INITIALIZED);
       return;
     }

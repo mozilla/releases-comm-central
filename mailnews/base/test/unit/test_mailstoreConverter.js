@@ -105,12 +105,12 @@ function run_test() {
   run_next_test();
 }
 
-add_task(function* setupMessages() {
+add_task(async function setupMessages() {
   let msgFile = do_get_file("../../../data/bugmail10");
 
   // Add 1000 messages to the "Inbox" folder.
   for (let i = 0; i < 1000; i++) {
-    yield copyFileMessage(msgFile, gInbox, false);
+    await copyFileMessage(msgFile, gInbox, false);
   }
 });
 

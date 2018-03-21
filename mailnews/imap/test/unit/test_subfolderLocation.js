@@ -20,33 +20,33 @@ add_task(function () {
 });
 
 // load and update a message in the imap fake server
-add_task(function* loadImapMessage() {
+add_task(async function loadImapMessage() {
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
                               IMAPPump.mailbox.uidnext++, []));
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
-  yield promiseUrlListener.promise;
+  await promiseUrlListener.promise;
 
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 });
 
-add_task(function* downloadOffline() {
+add_task(async function downloadOffline() {
   // ...and download for offline use.
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
-  yield promiseUrlListener.promise;
+  await promiseUrlListener.promise;
 });
 
 var folderName1 = "sub1";
 var folderName2 = "sub2";
 
 // use a folder method to add a subfolder
-add_task(function* addSubfolder() {
+add_task(async function addSubfolder() {
   let promiseFolder1 = PromiseTestUtils.promiseFolderAdded(folderName1);
   IMAPPump.inbox.createSubfolder(folderName1, null);
-  yield promiseFolder1;
+  await promiseFolder1;
 });
 
 // use a store method to add a subfolder
