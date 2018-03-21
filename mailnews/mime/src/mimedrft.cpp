@@ -30,7 +30,6 @@
 #include "msgCore.h"
 #include "nsIMsgSend.h"
 #include "nsMimeStringResources.h"
-#include "nsIIOService.h"
 #include "nsNetUtil.h"
 #include "comi18n.h"
 #include "nsIMsgAttachment.h"
@@ -47,7 +46,7 @@
 #include "nsIMIMEService.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
-#include "nsIMimeConverter.h" // for MimeConverterOutputCallback
+#include "modmimee.h" // for MimeConverterOutputCallback
 #include "mozilla/mailnews/MimeHeaderParser.h"
 
 using namespace mozilla::mailnews;

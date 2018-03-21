@@ -10,7 +10,6 @@
 #include "nsIMimeEmitter.h"
 #include "nsIURI.h"
 #include "mozITXTToHTMLConv.h"
-#include "nsIMsgSend.h"
 #include "modmimee.h"
 #include "nsMsgAttachmentData.h"
 

@@ -12,7 +12,6 @@
 #include "prlog.h"
 #include "msgCore.h"
 #include "mimemoz2.h"
-#include "nsIPrefBranch.h"
 #include "nsString.h"
 
 //#define DEBUG_BenB

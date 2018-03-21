@@ -14,7 +14,7 @@
 #include "msgCore.h"
 #include "nsMimeStringResources.h"
 #include "mimemoz2.h"
-#include "nsIMimeConverter.h" // for MimeConverterOutputCallback
+#include "modmimee.h" // for MimeConverterOutputCallback
 #include "mozilla/Attributes.h"
 
 #define MIME_SUPERCLASS mimeMultipartClass

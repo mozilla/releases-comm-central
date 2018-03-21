@@ -8,6 +8,7 @@
 #include "mimeobj.h"
 #include "mozilla/RangedPtr.h"
 #include "mozilla/mailnews/MimeEncoder.h"
+#include "modmimee.h" // for MimeConverterOutputCallback
 
 typedef enum mime_encoding {
   mime_Base64, mime_QuotedPrintable, mime_uuencode, mime_yencode

@@ -10,7 +10,7 @@
 #include "plhash.h"
 #include "prio.h"
 #include "nsNetUtil.h"
-#include "nsIMimeConverter.h" // for MimeConverterOutputCallback
+#include "modmimee.h" // for MimeConverterOutputCallback
 
 /* The MimeMultipartRelated class implements the multipart/related MIME
    container, which allows `sibling' sub-parts to refer to each other.

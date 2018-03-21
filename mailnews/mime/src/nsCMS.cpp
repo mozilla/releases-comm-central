@@ -14,7 +14,6 @@
 #include "nsArrayUtils.h"
 #include "nsDependentSubstring.h"
 #include "nsIArray.h"
-#include "nsICMSMessageErrors.h"
 #include "nsICryptoHash.h"
 #include "nsISupports.h"
 #include "nsIX509CertDB.h"

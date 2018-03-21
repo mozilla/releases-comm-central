@@ -10,6 +10,7 @@
 #include "plstr.h"
 #include "prlog.h"
 #include "nsMimeStringResources.h"
+#include "modmimee.h" // for MimeConverterOutputCallback
 
 #define MIME_SUPERCLASS mimeObjectClass
 MimeDefClass(MimeLeaf, MimeLeafClass, mimeLeafClass, &MIME_SUPERCLASS);

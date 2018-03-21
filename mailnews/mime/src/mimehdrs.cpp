@@ -10,7 +10,6 @@
 #include "plstr.h"
 #include "mimebuf.h"
 #include "mimemoz2.h"
-#include "nsIMimeEmitter.h"
 #include "nsMsgMessageFlags.h"
 #include "comi18n.h"
 #include "nsMailHeaders.h"

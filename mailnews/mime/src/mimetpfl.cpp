@@ -11,7 +11,6 @@
 #include "nsString.h"
 #include "nsMimeStringResources.h"
 #include "nsIPrefBranch.h"
-#include "nsIServiceManager.h"
 #include "mimemoz2.h"
 #include "prprf.h"
 #include "nsMsgI18N.h"

@@ -21,7 +21,6 @@
 #include "plstr.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsIServiceManager.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsMsgUtils.h"
 #include "nsMimeTypes.h"

@@ -94,6 +94,7 @@
 #include "nsMimeStringResources.h"
 #include "nsIPrefBranch.h"
 #include "mimemoz2.h" // for prefs
+#include "modmimee.h" // for MimeConverterOutputCallback
 
 extern "C" MimeObjectClass mimeMultipartRelatedClass;
 

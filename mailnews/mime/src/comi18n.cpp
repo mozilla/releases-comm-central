@@ -6,8 +6,6 @@
 #include "comi18n.h"
 #include "nsIStringCharsetDetector.h"
 #include "nsMsgUtils.h"
-#include "nsICharsetConverterManager.h"
-#include "nsIMIMEHeaderParam.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgMimeCID.h"

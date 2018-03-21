@@ -16,7 +16,6 @@
 #include "msgCore.h"
 #include "nsEmitterUtils.h"
 #include "nsIMimeStreamConverter.h"
-#include "nsIMimeConverter.h"
 #include "nsMsgMimeCID.h"
 #include "mozilla/Logging.h"
 #include "prprf.h"

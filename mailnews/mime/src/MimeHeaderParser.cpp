@@ -10,7 +10,6 @@
 #include "nsMemory.h"
 #include "nsAutoPtr.h"
 #include "nsCOMPtr.h"
-#include "nsIMimeConverter.h"
 #include "nsIMsgHeaderParser.h"
 
 namespace mozilla {

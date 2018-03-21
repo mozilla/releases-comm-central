@@ -12,8 +12,7 @@
 #include "plstr.h"
 #include "prlog.h"
 #include "mimemult.h"
-#include "nsIMimeConverter.h" // for MimeConverterOutputCallback
-
+#include "modmimee.h" // for MimeConverterOutputCallback
 
 #define MIME_SUPERCLASS mimeContainerClass
 MimeDefClass(MimeEncrypted, MimeEncryptedClass, mimeEncryptedClass,

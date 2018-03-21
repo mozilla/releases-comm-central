@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsCOMPtr.h"
-#include "nsIMimeEmitter.h"
 #include "mimemsg.h"
 #include "mimemoz2.h"
 #include "prmem.h"
