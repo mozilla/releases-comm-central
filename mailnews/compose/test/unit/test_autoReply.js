@@ -41,49 +41,49 @@ function run_test() {
   run_next_test();
 }
 
-add_task(function* copy_gIncomingMailFile() {
+add_task(async function copy_gIncomingMailFile() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile into the Inbox.
   MailServices.copy.CopyFileMessage(gIncomingMailFile,
     localAccountUtils.inboxFolder, null, false, 0, "",
     promiseCopyListener, null);
-  yield promiseCopyListener.promise;
+  await promiseCopyListener.promise;
 });
 
-add_task(function* copy_gIncomingMailFile2() {
+add_task(async function copy_gIncomingMailFile2() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile2 into the Inbox.
   MailServices.copy.CopyFileMessage(gIncomingMailFile2,
     localAccountUtils.inboxFolder, null, false, 0, "",
     promiseCopyListener, null);
-  yield promiseCopyListener.promise;
+  await promiseCopyListener.promise;
 });
 
-add_task(function* copy_gIncomingMailFile3() {
+add_task(async function copy_gIncomingMailFile3() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile3 into the Inbox.
   MailServices.copy.CopyFileMessage(gIncomingMailFile3,
     localAccountUtils.inboxFolder, null, false, 0, "",
     promiseCopyListener, null);
-  yield promiseCopyListener.promise;
+  await promiseCopyListener.promise;
 });
 
-add_task(function* copy_gTemplateMailFile() {
+add_task(async function copy_gTemplateMailFile() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gTemplateMailFile into the Templates folder.
   MailServices.copy.CopyFileMessage(gTemplateMailFile,
     gTemplateFolder, null, true, 0, "",
     promiseCopyListener, null);
-  yield promiseCopyListener.promise;
+  await promiseCopyListener.promise;
 });
 
-add_task(function* copy_gTemplateMailFile2() {
+add_task(async function copy_gTemplateMailFile2() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gTemplateMailFile2 into the Templates folder.
   MailServices.copy.CopyFileMessage(gTemplateMailFile2,
     gTemplateFolder, null, true, 0, "",
     promiseCopyListener, null);
-  yield promiseCopyListener.promise;
+  await promiseCopyListener.promise;
 });
 
 /// Test that a reply is NOT sent when the message is not addressed to "me".

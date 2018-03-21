@@ -116,12 +116,12 @@ function run_test() {
   run_next_test();
 }
 
-add_task(function* downloadForOffline() {
+add_task(async function downloadForOffline() {
   // Download for offline use.
   dump("Downloading for offline use\n");
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
-  yield promiseUrlListener.promise;
+  await promiseUrlListener.promise;
 });
 
 add_task(function convert() {
