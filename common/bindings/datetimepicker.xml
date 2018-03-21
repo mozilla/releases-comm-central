@@ -437,15 +437,12 @@
             if (aField == this.hourField) {
               prependZero = this.hourLeadingZero;
               if (!this.is24HourClock) {
-                if (aValue >= 12) {
-                  if (aValue > 12)
-                    aValue -= 12;
-                  this._fieldAMPM.value = this.pmIndicator;
-                } else {
-                  if (aValue == 0)
-                    aValue = 12;
-                  this._fieldAMPM.value = this.amIndicator;
-                }
+                if (aValue > 12)
+                  aValue -= 12;
+                else if (aValue == 0)
+                  aValue = 12;
+                this._fieldAMPM.value = this.isPM ? this.pmIndicator :
+                  this.amIndicator;
               }
             } else if (aField == this.minuteField) {
               prependZero = this.minuteLeadingZero;
@@ -469,7 +466,18 @@
             // aNoWrap is true when the user entered a value, so just
             // constrain within limits. If false, the value is being
             // incremented or decremented, so wrap around values
-            var max = (aField == this.hourField) ? 24 : 60;
+            var max = 60;
+            if (aField == this.hourField) {
+              max = 24;
+              // User input in the hour field should be adjusted as
+              // needed for 12-hour vs. 24-hour time.
+              if (aNoWrap && !this.is24HourClock) {
+                if (aValue && aValue < 12 && this.isPM)
+                  aValue += 12;
+                else if (aValue == 12 && !this.isPM)
+                  aValue = 0;
+              }
+            }
             if (aValue < 0)
               return aNoWrap ? 0 : max + aValue;
             if (aValue >= max)
