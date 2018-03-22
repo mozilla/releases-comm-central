@@ -1284,10 +1284,10 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(Element *domElement, nsMsgAttachmentD
 
   // We're only interested in body, image, link and anchors which are all
   // elements. Let's see what we have.
-  RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContent(domElement);
-  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContent(domElement);
-  RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContent(domElement);
-  RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromContent(domElement);
+  RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromNode(domElement);
+  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromNode(domElement);
+  RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(domElement);
+  RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromNode(domElement);
 
   // First, try to see if the body as a background image
   if (body)
@@ -1807,10 +1807,10 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       newSpec.AppendASCII(m_attachments[duplicateOf == -1 ? i : duplicateOf]->m_contentId.get());
 
       // We know the types of objects this element can be, let's see what we come up with.
-      RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContent(domSaveArray[j].element);
-      RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContent(domSaveArray[j].element);
-      RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContent(domSaveArray[j].element);
-      RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromContent(domSaveArray[j].element);
+      RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromNode(domSaveArray[j].element);
+      RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromNode(domSaveArray[j].element);
+      RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(domSaveArray[j].element);
+      RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromNode(domSaveArray[j].element);
 
       nsString domURL;
       IgnoredErrorResult rv2;
@@ -1853,10 +1853,10 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       continue;
 
     // We know the types of objects this element can be, let's see what we come up with.
-    RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContent(domSaveArray[i].element);
-    RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContent(domSaveArray[i].element);
-    RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContent(domSaveArray[i].element);
-    RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromContent(domSaveArray[i].element);
+    RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromNode(domSaveArray[i].element);
+    RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromNode(domSaveArray[i].element);
+    RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(domSaveArray[i].element);
+    RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromNode(domSaveArray[i].element);
 
       // STRING USE WARNING: hoisting the following conversion might save code-space, since it happens along every path
 

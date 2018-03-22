@@ -19,7 +19,8 @@
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
 #include "nsContentPolicyUtils.h"
-#include "nsIFrameLoader.h"
+#include "nsIFrameLoaderOwner.h"
+#include "nsFrameLoader.h"
 #include "nsIWebProgress.h"
 #include "nsMsgUtils.h"
 #include "nsThreadUtils.h"
@@ -677,7 +678,7 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
       aMsgCompose->GetInsertingQuotedContent(&insertingQuotedContent);
       nsCOMPtr<Element> element = do_QueryInterface(aRequestingContext);
       RefPtr<mozilla::dom::HTMLImageElement> image =
-        mozilla::dom::HTMLImageElement::FromContentOrNull(element);
+        mozilla::dom::HTMLImageElement::FromNodeOrNull(element);
       if (image)
       {
         if (!insertingQuotedContent)
@@ -753,14 +754,11 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
                                                             &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIFrameLoader> frameLoader;
-  rv = flOwner->GetFrameLoaderXPCOM(getter_AddRefs(frameLoader));
-  NS_ENSURE_SUCCESS(rv, rv);
+  RefPtr<nsFrameLoader> frameLoader = flOwner->GetFrameLoader();
   NS_ENSURE_TRUE(frameLoader, NS_ERROR_INVALID_POINTER);
 
-  nsCOMPtr<nsIDocShell> docShell;
-  rv = frameLoader->GetDocShell(getter_AddRefs(docShell));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIDocShell> docShell = frameLoader->GetDocShell(mozilla::IgnoreErrors());
+  NS_ENSURE_TRUE(docShell, NS_ERROR_INVALID_POINTER);
 
   nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(do_QueryInterface(docShell, &rv));
   NS_ENSURE_SUCCESS(rv, rv);

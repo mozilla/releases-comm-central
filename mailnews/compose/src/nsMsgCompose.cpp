@@ -254,9 +254,9 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
   if (!originalScheme || !originalPath) // Having a null host is OK.
     return false;
 
-  RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContent(element);
-  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContent(element);
-  RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContent(element);
+  RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromNode(element);
+  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromNode(element);
+  RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(element);
 
   if (image)
     image->GetSrc(objURL);
@@ -354,7 +354,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
 
         nsCOMPtr<Element> imageElement = do_QueryInterface(domElement);
         RefPtr<mozilla::dom::HTMLImageElement> image =
-          mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
+          mozilla::dom::HTMLImageElement::FromNodeOrNull(imageElement);
         if (!image)
           continue;
         nsCString partNum;
