@@ -100,13 +100,6 @@ var snapshotFormatters = {
       $("contentprocesses-row").hidden = true;
     }
 
-    function getReasonStringName(resultValue, defaultValue) {
-      if (resultValue != defaultValue) {
-        return resultValue ? "enabledByUser" : "disabledByUser";
-      }
-      return resultValue ? "enabledByDefault" : "disabledByDefault";
-    }
-
     if (Services.policies) {
       let policiesText = "";
       switch (data.policiesStatus) {
