@@ -47,8 +47,8 @@ const ABOUT_SUPPORT_STRINGS = ["Application Basics", "Mail and News Accounts",
  * Strings that if found in the about:support text or HTML usually indicate an
  * error.
  */
-const ABOUT_SUPPORT_ERROR_STRINGS = new Map([[ "text/html",["undefined", "null"] ],
-                                             [ "text/unicode",["undefined"] ]]);
+const ABOUT_SUPPORT_ERROR_STRINGS = new Map([[ "text/html", ["undefined", "null"] ],
+                                             [ "text/unicode", ["undefined"] ]]);
 
 
 /*
