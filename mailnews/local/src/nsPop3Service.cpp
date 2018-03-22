@@ -20,7 +20,6 @@
 
 #include "nsIRDFService.h"
 #include "nsRDFCID.h"
-#include "nsIDirectoryService.h"
 #include "nsMailDirServiceDefs.h"
 #include "prprf.h"
 #include "nsMsgUtils.h"

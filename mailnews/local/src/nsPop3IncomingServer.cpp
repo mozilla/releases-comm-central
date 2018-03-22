@@ -8,7 +8,6 @@
 #include "prprf.h"
 
 #include "nsCOMPtr.h"
-#include "nsIStringBundle.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsPop3IncomingServer.h"
 #include "nsIPop3Service.h"
@@ -20,7 +19,6 @@
 #include "nsMsgKeyArray.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgAccountManager.h"
-#include "nsIMsgMailNewsUrl.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIMutableArray.h"
 #include "nsMsgUtils.h"

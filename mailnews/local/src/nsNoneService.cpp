@@ -16,7 +16,6 @@
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
 
-#include "nsIDirectoryService.h"
 #include "nsMailDirServiceDefs.h"
 
 #define PREF_MAIL_ROOT_NONE "mail.root.none"        // old - for backward compatibility only

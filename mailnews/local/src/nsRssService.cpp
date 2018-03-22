@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsRssService.h"
-#include "nsIRssIncomingServer.h"
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
 #include "nsMailDirServiceDefs.h"

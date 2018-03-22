@@ -13,7 +13,9 @@
 #include "nsMsgIncomingServer.h"
 #include "nsIPop3Protocol.h"
 #include "nsIMsgWindow.h"
+#include "nsIMsgFolder.h"
 #include "nsMailboxServer.h"
+#include "nsIUrlListener.h"
 
 /* get some implementation from nsMsgIncomingServer */
 class nsPop3IncomingServer : public nsMailboxServer,

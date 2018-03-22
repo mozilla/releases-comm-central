@@ -8,7 +8,6 @@
 
 #include "nsIPop3URL.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsIMsgIncomingServer.h"
 #include "nsCOMPtr.h"
 
 class nsPop3URL : public nsIPop3URL, public nsMsgMailNewsUrl

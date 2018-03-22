@@ -17,8 +17,7 @@
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
 #include "nsIDBChangeListener.h"
-#include "nsIWeakReference.h"
-#include "nsIWeakReferenceUtils.h"
+#include "nsWeakPtr.h"
 #include "nsIMsgWindow.h"
 #include "nsImapMoveCoalescer.h"
 #include "nsAutoPtr.h"
@@ -26,7 +25,6 @@
 #include "nsIMsgFilterList.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterHitNotify.h"
-#include "nsIMsgFolderNotificationService.h"
 #include "nsTArray.h"
 
 class nsByteArray;

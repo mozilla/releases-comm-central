@@ -18,16 +18,13 @@
 #include "nsIMsgFolder.h" // TO include biffState enum. Change to bool later...
 #include "nsMailHeaders.h"
 #include "nsIMsgAccountManager.h"
-#include "nsILineInputStream.h"
 #include "nsIPop3Protocol.h"
 #include "nsLocalMailFolder.h"
+#include "nsIInputStream.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
 #include "nsDirectoryServiceDefs.h"
-#include "nsIPrompt.h"
 #include "nsIPromptService.h"
-#include "nsIInterfaceRequestor.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsIDocShell.h"
 #include "mozIDOMWindow.h"
 #include "nsEmbedCID.h"
@@ -41,7 +38,6 @@
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
-#include "nsIConsoleService.h"
 
 extern mozilla::LazyLogModule POP3LOGMODULE; //defined in nsPop3Protocol.cpp
 #define POP3LOG(str) "sink: [this=%p] " str, this

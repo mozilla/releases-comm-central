@@ -7,20 +7,14 @@
 #define nsPop3Protocol_h__
 
 #include "mozilla/Attributes.h"
-#include "nsIStreamListener.h"
-#include "nsIOutputStream.h"
 #include "nsIInputStream.h"
-#include "nsIPop3URL.h"
 #include "nsIPop3Sink.h"
 #include "nsMsgLineBuffer.h"
 #include "nsMsgProtocol.h"
 #include "nsIPop3Protocol.h"
 #include "MailNewsTypes.h"
 #include "nsIStringBundle.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsIMsgFolder.h" // TO include biffState enum. Change to bool later...
-#include "nsIAuthModule.h"
-#include "nsITimer.h"
 #include "nsIMsgAsyncPrompter.h"
 #include "nsIProtocolProxyCallback.h"
 

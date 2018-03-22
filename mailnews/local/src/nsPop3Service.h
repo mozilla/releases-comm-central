@@ -9,9 +9,7 @@
 #include "nscore.h"
 
 #include "nsIPop3Service.h"
-#include "nsIPop3URL.h"
 #include "nsIUrlListener.h"
-#include "nsIStreamListener.h"
 #include "nsIProtocolHandler.h"
 #include "nsIMsgProtocolInfo.h"
 #include "nsTObserverArray.h"

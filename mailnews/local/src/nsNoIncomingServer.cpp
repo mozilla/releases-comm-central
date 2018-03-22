@@ -14,7 +14,6 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgMailSession.h"
 #include "nsMsgBaseCID.h"
-#include "nsIMsgAccountManager.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
