@@ -42,18 +42,6 @@ ifneq (,$(filter BeOS Darwin OpenVMS NetBSD FreeBSD,$(OS_ARCH)))
 DEFINES	+= -D__USE_BSD=1
 endif
 
-INSTALL_TARGETS += ical
-ical_FILES := ical.h
-ical_DEST = $(DIST)/include
-ical_TARGET := export
-
-CSRCS += \
-	icalderivedparameter.c \
-	icalderivedproperty.c \
-	icalderivedvalue.c \
-	icalrestriction.c \
-	$(NULL)
-
 include $(moztopsrcdir)/config/rules.mk
 
 ######################################################################

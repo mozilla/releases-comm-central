@@ -28,6 +28,28 @@ UNIFIED_SOURCES += [
     'vsnprintf.c',
 ]
 
+SOURCES += [
+    '!icalderivedparameter.c',
+    '!icalderivedproperty.c',
+    '!icalderivedvalue.c',
+    '!icalrestriction.c',
+]
+
+GENERATED_FILES += [
+    'ical.h',
+    'icalderivedparameter.c',
+    'icalderivedparameter.h',
+    'icalderivedproperty.c',
+    'icalderivedproperty.h',
+    'icalderivedvalue.c',
+    'icalderivedvalue.h',
+    'icalrestriction.c',
+]
+
+EXPORTS += [
+    '!ical.h'
+]
+
 # We allow warnings for third-party code that can be updated from upstream.
 AllowCompilerWarnings()
 
