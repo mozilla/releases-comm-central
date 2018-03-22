@@ -6,7 +6,6 @@
 #define nsMsgLocalStoreUtils_h__
 
 #include "msgCore.h"
-#include "nsIMsgPluggableStore.h"
 #include "nsString.h"
 #include "nsReadLine.h"
 #include "nsISeekableStream.h"

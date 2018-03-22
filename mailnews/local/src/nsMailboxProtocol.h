@@ -10,7 +10,6 @@
 #include "nsMsgProtocol.h"
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
-#include "nsIChannel.h"
 #include "nsIOutputStream.h"
 #include "nsIMailboxUrl.h"
 // State Flags (Note, I use the word state in terms of storing

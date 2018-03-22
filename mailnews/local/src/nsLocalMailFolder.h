@@ -14,15 +14,20 @@
 #include "nsMsgDBFolder.h" /* include the interface we are going to support */
 #include "nsAutoPtr.h"
 #include "nsICopyMessageListener.h"
-#include "nsIFileStreams.h"
-#include "nsIPop3IncomingServer.h"  // need this for an interface ID
 #include "nsMsgTxn.h"
 #include "nsIMsgMessageService.h"
-#include "nsIMsgParseMailMsgState.h"
-#include "nsITransactionManager.h"
+#include "nsIMsgPluggableStore.h"
 #include "nsIMsgLocalMailFolder.h"
+#include "nsIMsgFolder.h"
+#include "nsIMsgWindow.h"
+#include "nsIMsgDatabase.h"
+#include "nsIMsgStatusFeedback.h"
+#include "nsIMsgCopyServiceListener.h"
+#include "nsIInputStream.h"
+#include "nsIOutputStream.h"
 #include "nsISeekableStream.h"
 #include "nsIMutableArray.h"
+#include "nsIStringBundle.h"
 #include "nsLocalUndoTxn.h"
 
 #define COPY_BUFFER_SIZE 16384

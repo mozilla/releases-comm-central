@@ -10,14 +10,13 @@
 #include "nsISupports.h"
 
 #include "nsIMailboxService.h"
+#include "nsIMsgFolder.h"
 #include "nsIMsgMessageService.h"
+#include "nsIMsgWindow.h"
 #include "nsIMailboxUrl.h"
-#include "nsIURL.h"
+#include "nsIURI.h"
 #include "nsIUrlListener.h"
-#include "nsIStreamListener.h"
-#include "nsIFile.h"
 #include "nsIProtocolHandler.h"
-#include "nsIRDFService.h"
 
 class nsMailboxService : public nsIMailboxService, public nsIMsgMessageService, public nsIMsgMessageFetchPartService, public nsIProtocolHandler
 {

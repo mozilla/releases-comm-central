@@ -5,19 +5,14 @@
 
 #include "msgCore.h"
 #include "nsLocalUtils.h"
-#include "nsIServiceManager.h"
 #include "prsystem.h"
 #include "nsCOMPtr.h"
 #include "prmem.h"
 // stuff for temporary root folder hack
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsIPop3IncomingServer.h"
-#include "nsINoIncomingServer.h"
 #include "nsMsgBaseCID.h"
 #include "nsNativeCharsetUtils.h"
-#include "nsComponentManagerUtils.h"
-#include "nsServiceManagerUtils.h"
 
 #include "nsMsgUtils.h"
 #include "nsNetCID.h"

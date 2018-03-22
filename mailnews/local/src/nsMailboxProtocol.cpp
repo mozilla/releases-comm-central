@@ -7,13 +7,12 @@
 
 #include "nsMailboxProtocol.h"
 #include "nscore.h"
-#include "nsIOutputStream.h"
 #include "nsIInputStreamPump.h"
-#include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgLineBuffer.h"
 #include "nsMsgDBCID.h"
 #include "nsIMsgMailNewsUrl.h"
+#include "nsIMsgFolder.h"
 #include "nsICopyMsgStreamListener.h"
 #include "nsMsgMessageFlags.h"
 #include "prtime.h"
@@ -22,19 +21,13 @@
 #include "prerror.h"
 #include "prprf.h"
 #include "nspr.h"
-#include "nsIFileStreams.h"
 #include "nsIStreamTransportService.h"
 #include "nsIStreamConverterService.h"
-#include "nsIIOService.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgWindow.h"
-#include "nsIMimeHeaders.h"
-#include "nsIMsgPluggableStore.h"
 #include "nsISeekableStream.h"
 #include "nsStreamUtils.h"
-
-#include "nsIMsgMdnGenerator.h"
 
 using namespace mozilla;
 

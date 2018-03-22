@@ -28,7 +28,6 @@
 #include "nsMsgFolderFlags.h"
 
 #include "nsILineInputStream.h"
-#include "nsISeekableStream.h"
 #include "nsNetUtil.h"
 #include "nsAutoPtr.h"
 #include "nsIStringBundle.h"

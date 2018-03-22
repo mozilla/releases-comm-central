@@ -7,7 +7,6 @@
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMovemailService.h"
-#include "nsIFile.h"
 #include "msgCore.h" // pre-compiled headers
 #include "nsMovemailIncomingServer.h"
 #include "nsServiceManagerUtils.h"

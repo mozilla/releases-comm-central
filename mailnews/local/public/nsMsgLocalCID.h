@@ -6,9 +6,6 @@
 #ifndef nsMsgLocalCID_h__
 #define nsMsgLocalCID_h__
 
-#include "nsISupports.h"
-#include "nsIFactory.h"
-#include "nsIComponentManager.h"
 #include "nsMsgBaseCID.h"
 
 #define NS_POP3INCOMINGSERVER_TYPE "pop3"

@@ -7,7 +7,7 @@
 #define NS_LOCALUTILS_H
 
 #include "nsString.h"
-#include "nsIMsgIncomingServer.h"
+#include "MailNewsTypes2.h"
 
 static const char kMailboxRootURI[] = "mailbox:/";
 static const char kMailboxMessageRootURI[] = "mailbox-message:/";

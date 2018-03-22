@@ -18,7 +18,6 @@
 #include "nsMsgLocalCID.h"
 #include "nsMsgBaseCID.h"
 #include "nsIDocShell.h"
-#include "nsIPop3Service.h"
 #include "nsMsgUtils.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsNetUtil.h"
@@ -28,6 +27,7 @@
 #include "nsIMsgHdr.h"
 #include "nsIFileURL.h"
 #include "mozilla/RefPtr.h"
+#include "nsIRDFService.h"
 
 nsMailboxService::nsMailboxService()
 {

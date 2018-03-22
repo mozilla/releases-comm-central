@@ -14,9 +14,8 @@
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsCOMPtr.h"
-#include "nsIUrlListener.h"
-#include "nsIWeakReference.h"
-#include "nsIWeakReferenceUtils.h"
+#include "nsIFolderListener.h"
+#include "nsWeakPtr.h"
 
 class nsLocalUndoFolderListener;
 
