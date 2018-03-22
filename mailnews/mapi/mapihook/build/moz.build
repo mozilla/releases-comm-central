@@ -9,11 +9,28 @@ OS_LIBS += [
     'rpcrt4',
 ]
 
+SOURCES += [
+    '!dlldata.c',
+    '!msgMapi_i.c',
+    '!msgMapi_p.c'
+]
+
+GENERATED_FILES += [
+    'dlldata.c',
+    'msgMapi.h',
+    'msgMapi_i.c',
+    'msgMapi_p.c'
+]
+
 for var in ('REGISTER_PROXY_DLL', 'UNICODE', '_UNICODE'):
     DEFINES[var] = True
 
-# This produces a compile warning mozilla-config.h(145): warning C4005: '_WIN32_WINNT': macro redefinition
-#DEFINES['_WIN32_WINNT'] = '0x400'
-
 DEFFILE = SRCDIR + '/MapiProxy.def'
 
+# The Windows MIDL code generator creates things like:
+#
+#   #endif !_MIDL_USE_GUIDDEF_
+#
+# which clang-cl complains about.  MSVC doesn't, so turn this warning off.
+if CONFIG['CC_TYPE'] == 'clang-cl':
+    CFLAGS += ['-Wno-extra-tokens']
