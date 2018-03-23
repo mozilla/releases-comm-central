@@ -9,9 +9,6 @@
 #include "mozilla/Services.h"
 #include "nsIObserverService.h"
 #include "nsIAppStartupNotifier.h"
-#include "nsIServiceManager.h"
-#include "nsIComponentManager.h"
-#include "nsICategoryManager.h"
 #include "Registry.h"
 #include "msgMapiSupport.h"
 

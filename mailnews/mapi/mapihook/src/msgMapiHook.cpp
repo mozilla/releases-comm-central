@@ -9,14 +9,10 @@
 #include <tchar.h>
 #include <direct.h>
 #include "nsCOMPtr.h"
-#include "nsIComponentManager.h"
-#include "nsIServiceManager.h"
 #include "nsISupports.h"
 #include "nsIPromptService.h"
-#include "nsIAppStartup.h"
 #include "nsIAppShellService.h"
 #include "mozIDOMWindow.h"
-#include "nsINativeAppSupport.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
 #include "nsIStringBundle.h"
@@ -32,7 +28,7 @@
 #include "nsIMsgSend.h"
 #include "nsIMsgComposeService.h"
 #include "nsDirectoryServiceDefs.h"
-#include "nsIDirectoryService.h"
+#include "nsDirectoryServiceUtils.h"
 #include "nsMsgI18N.h"
 #include "msgMapi.h"
 #include "msgMapiHook.h"

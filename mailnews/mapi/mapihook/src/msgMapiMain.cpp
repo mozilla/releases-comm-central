@@ -8,7 +8,6 @@
 #include "msgCore.h"
 #include "nsComposeStrings.h"
 #include "msgMapiMain.h"
-#include "nsIServiceManager.h"
 #include "nsCOMPtr.h"
 
 nsMAPIConfiguration *nsMAPIConfiguration::m_pSelfRef = nullptr;
