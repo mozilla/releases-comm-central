@@ -7,12 +7,15 @@
 #ifndef _JaSend_H_
 #define _JaSend_H_
 
+#include "nsISupports.h"
 #include "DelegateList.h"
 #include "msgIOverride.h"
+#include "nsIMsgSend.h"
 #include "nsMsgSend.h"
 #include "nsAutoPtr.h"
 #include "nsDataHashtable.h"
 #include "nsIInterfaceRequestor.h"
+#include "nsIMsgOperationListener.h"
 
 // This file specifies the definition of nsIMsgSend.idl objects
 // in the JsAccount system.

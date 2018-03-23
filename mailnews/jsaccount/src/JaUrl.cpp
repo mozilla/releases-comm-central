@@ -9,7 +9,6 @@
 #include "nsIFile.h"
 #include "nsIMessenger.h"
 #include "nsIMsgHdr.h"
-#include "nsISupportsUtils.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgUtils.h"
 

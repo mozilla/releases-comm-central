@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "JaSend.h"
-#include "nsISupportsUtils.h"
 #include "nsComponentManagerUtils.h"
 
 // This file specifies the implementation of nsIMsgSend.idl objects

@@ -7,9 +7,11 @@
 #ifndef _JaCompose_H_
 #define _JaCompose_H_
 
+#include "nsISupports.h"
 #include "DelegateList.h"
 #include "msgIOverride.h"
 #include "nsMsgCompose.h"
+#include "nsIMsgCompose.h"
 #include "nsAutoPtr.h"
 #include "nsDataHashtable.h"
 #include "nsIInterfaceRequestor.h"

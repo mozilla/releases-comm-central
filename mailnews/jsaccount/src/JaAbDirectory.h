@@ -7,9 +7,13 @@
 #ifndef _JaAbDirectory_H_
 #define _JaAbDirectory_H_
 
+#include "nsISupports.h"
 #include "DelegateList.h"
 #include "msgIOverride.h"
+#include "nsIAbDirectory.h"
 #include "nsAbDirProperty.h"
+#include "nsIAbCollection.h"
+#include "nsIAbItem.h"
 #include "nsAutoPtr.h"
 #include "nsDataHashtable.h"
 #include "nsIInterfaceRequestor.h"

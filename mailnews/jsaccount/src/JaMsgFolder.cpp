@@ -5,11 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "JaMsgFolder.h"
-#include "nsISupportsUtils.h"
 #include "nsMsgBaseCID.h"
 #include "nsComponentManagerUtils.h"
-#include "nsIUUIDGenerator.h"
-#include "nsIComponentRegistrar.h"
 #include "nsMsgDBCID.h"
 
 #define MAILDATABASE_CONTRACTID_BASE "@mozilla.org/nsMsgDatabase/msgDB-"

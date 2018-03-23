@@ -7,8 +7,10 @@
 #ifndef _JaMsgFolder_H_
 #define _JaMsgFolder_H_
 
+#include "nsISupports.h"
 #include "DelegateList.h"
 #include "msgIOverride.h"
+#include "nsIMsgFolder.h"
 #include "nsMsgDBFolder.h"
 #include "nsAutoPtr.h"
 #include "nsCycleCollectionParticipant.h"
@@ -16,6 +18,10 @@
 #include "nsIInterfaceRequestor.h"
 #include "nsWeakReference.h"
 #include "nsNetUtil.h"
+#include "nsIDBChangeListener.h"
+#include "nsIUrlListener.h"
+#include "nsIMsgFilterPlugin.h"
+#include "nsIInterfaceRequestor.h"
 
 namespace mozilla {
 namespace mailnews {

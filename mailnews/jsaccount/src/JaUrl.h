@@ -17,6 +17,8 @@
 #include "nsIInterfaceRequestor.h"
 #include "nsIMsgFolder.h"
 #include "nsISupports.h"
+#include "nsIURI.h"
+#include "nsIURL.h"
 #include "nsMsgMailNewsUrl.h"
 #include "nsWeakReference.h"
 #include "msgIJaUrl.h"

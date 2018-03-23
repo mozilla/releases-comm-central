@@ -7,8 +7,10 @@
 #ifndef _JaIncomingServer_H_
 #define _JaIncomingServer_H_
 
+#include "nsISupports.h"
 #include "DelegateList.h"
 #include "msgIOverride.h"
+#include "nsIMsgIncomingServer.h"
 #include "nsMsgIncomingServer.h"
 #include "nsAutoPtr.h"
 #include "nsDataHashtable.h"

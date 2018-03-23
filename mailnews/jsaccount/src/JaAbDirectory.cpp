@@ -5,10 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "JaAbDirectory.h"
-#include "nsISupportsUtils.h"
-#include "nsIFile.h"
-#include "nsIMsgHdr.h"
-#include "nsIMessenger.h"
 #include "nsMsgBaseCID.h"
 #include "nsComponentManagerUtils.h"
 
