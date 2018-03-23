@@ -19,15 +19,47 @@
       <preference id="media.autoplay.enabled"
                   name="media.autoplay.enabled"
                   type="bool"/>
+      <preference id="media.eme.enabled"
+                  name="media.eme.enabled"
+                  type="bool"/>
+      <preference id="image.animation_mode"
+                  name="image.animation_mode"
+                  type="string"/>
     </preferences>
 
-      <groupbox id="mediaHTML5Preferences" align="start">
-        <caption label="&mediaHTML5Preferences.label;"/>
-        <checkbox id="autoplay"
-                  label="&allowMediaAutoplay.label;"
-                  accesskey="&allowMediaAutoplay.accesskey;"
-                  preference="media.autoplay.enabled"/>
-      </groupbox>
+    <groupbox id="mediaHTML5Preferences" align="start">
+      <caption label="&mediaHTML5Preferences.label;"/>
+      <checkbox id="autoplay"
+                label="&allowMediaAutoplay.label;"
+                accesskey="&allowMediaAutoplay.accesskey;"
+                preference="media.autoplay.enabled"/>
+    </groupbox>
 
+    <!-- REMOVE #ifndef once EME are ready for prime time, meta bug 1015800 -->
+#ifndef RELEASE_OR_BETA
+    <groupbox id="drmPreferences">
+      <caption label="&enableDrmMedia.label;"/>
+      <checkbox id="emeForSuite"
+                label="&enableEmeForSuite.label;"
+                accesskey="&enableEmeForSuite.accesskey;"
+                preference="media.eme.enabled"/>
+    </groupbox>
+#endif
+
+    <groupbox>
+      <caption label="&animLoopingTitle.label;"/>
+      <radiogroup id="imageLooping"
+                  preference="image.animation_mode">
+        <radio value="normal"
+               label="&animLoopAsSpecified.label;"
+               accesskey="&animLoopAsSpecified.accesskey;"/>
+        <radio value="once"
+               label="&animLoopOnce.label;"
+               accesskey="&animLoopOnce.accesskey;"/>
+        <radio value="none"
+               label="&animLoopNever.label;"
+               accesskey="&animLoopNever.accesskey;"/>
+      </radiogroup>
+    </groupbox>
   </prefpane>
 </overlay>

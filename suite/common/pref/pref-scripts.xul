@@ -30,9 +30,6 @@
       <preference id="dom.event.contextmenu.enabled"
                   name="dom.event.contextmenu.enabled"
                   type="bool"/>
-      <preference id="media.eme.enabled"
-                  name="media.eme.enabled"
-                  type="bool"/>
       <preference id="plugin.disable"
                   name="plugin.disable"
                   type="bool" inverted="true"/>
@@ -75,17 +72,6 @@
                   preference="dom.event.contextmenu.enabled"/>
       </listbox>
     </groupbox>
-
-    <!-- REMOVE #ifndef once EME are ready for prime time, meta bug 1015800 -->
-#ifndef RELEASE_OR_BETA
-    <groupbox id="drmPreferences">
-      <caption label="&enableDrmMedia.label;"/>
-      <checkbox id="emeForSuite"
-                label="&enableEmeForSuite.label;"
-                accesskey="&enableEmeForSuite.accesskey;"
-                preference="media.eme.enabled"/>
-    </groupbox>
-#endif
 
     <groupbox id="pluginPreferences">
       <caption label="&enablePlugins.label;"/>

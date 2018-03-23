@@ -16,8 +16,6 @@
     <preferences id="images_preferences">
       <preference id="permissions.default.image"
 		  name="permissions.default.image" type="int"/>
-      <preference id="image.animation_mode"
-                  name="image.animation_mode" type="string"/>
       <preference id="pref.advanced.images.disable_button.view_image" type="bool"
                   name="pref.advanced.images.disable_button.view_image"/>
     </preferences>
@@ -44,19 +42,6 @@
                 oncommand="toDataManager('|permissions');"
                 preference="pref.advanced.images.disable_button.view_image"/>
       </hbox>
-    </groupbox>
-
-    <groupbox>
-      <caption label="&animLoopingTitle.label;"/>
-      <radiogroup id="imageLooping"
-                  preference="image.animation_mode">
-        <radio value="normal" label="&animLoopAsSpecified.label;"
-               accesskey="&animLoopAsSpecified.accesskey;"/>
-        <radio value="once" label="&animLoopOnce.label;"
-               accesskey="&animLoopOnce.accesskey;"/>
-        <radio value="none" label="&animLoopNever.label;"
-               accesskey="&animLoopNever.accesskey;"/>
-      </radiogroup>
     </groupbox>
   </prefpane>
 </overlay>
