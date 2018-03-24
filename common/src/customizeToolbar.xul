@@ -25,7 +25,12 @@
 
 <window id="CustomizeToolbarWindow"
         title="&dialog.title;"
+#ifdef MOZ_SUITE
         onload="onLoad();"
+#else
+        windowtype="mailnews:customizeToolbar"
+        onload="overlayOnLoad();"
+#endif
         onunload="onUnload();"
         style="&dialog.dimensions;"
         persist="width height"
@@ -36,6 +41,7 @@
 <stringbundle id="stringBundle" src="chrome://communicator/locale/customizeToolbar.properties"/>
 #else
 <script type="application/javascript" src="chrome://messenger/content/customizeToolbar.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
 <stringbundle id="stringBundle" src="chrome://messenger/locale/customizeToolbar.properties"/>
 #endif
 
@@ -56,11 +62,20 @@
 
   <box align="center">
     <label value="&show.label;"/>
-    <menulist id="modelist" value="icons" oncommand="updateToolbarMode(this.value);">
+    <menulist id="modelist"
+              value="icons"
+#ifdef MOZ_SUITE
+              oncommand="updateToolbarMode(this.value);">
+#else
+              oncommand="overlayUpdateToolbarMode(this.value, 'mail-toolbox');">
+#endif
       <menupopup id="modelistpopup">
         <menuitem id="modefull" value="full" label="&iconsAndText.label;"/>
         <menuitem id="modeicons" value="icons" label="&icons.label;"/>
         <menuitem id="modetext" value="text" label="&text.label;"/>
+#ifndef MOZ_SUITE
+        <menuitem id="textbesideiconItem" value="textbesideicon" label="&iconsBesideText.label;"/>
+#endif
       </menupopup>
     </menulist>
 

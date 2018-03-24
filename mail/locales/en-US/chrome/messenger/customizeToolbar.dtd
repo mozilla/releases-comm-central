@@ -9,6 +9,7 @@
 <!ENTITY iconsAndText.label       "Icons and Text">
 <!ENTITY icons.label              "Icons">
 <!ENTITY text.label               "Text">
+<!ENTITY iconsBesideText.label    "Icons beside Text">
 <!ENTITY useSmallIcons.label      "Use Small Icons">
 <!ENTITY restoreDefaultSet.label  "Restore Default Set">
 <!ENTITY addNewToolbar.label      "Add New Toolbar">

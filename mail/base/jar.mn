@@ -55,7 +55,6 @@ messenger.jar:
     content/messenger/mail3PaneWindowCommands.js    (content/mail3PaneWindowCommands.js)
     content/messenger/mailCommands.js               (content/mailCommands.js)
     content/messenger/mailCore.js                   (content/mailCore.js)
-    content/messenger/customizeToolbarOverlay.xul   (content/customizeToolbarOverlay.xul)
     content/messenger/mailTabs.js                   (content/mailTabs.js)
     content/messenger/commandglue.js                (content/commandglue.js)
 *   content/messenger/SearchDialog.xul              (content/SearchDialog.xul)
@@ -113,7 +112,6 @@ messenger.jar:
     content/messenger/quickFilterBar.xul            (content/quickFilterBar.xul)
     content/messenger/quickFilterBar.js             (content/quickFilterBar.js)
     content/messenger/quickFilterBar.css            (content/quickFilterBar.css)
-    content/messenger/downloadsOverlay.xul          (content/downloadsOverlay.xul)
     content/messenger/browserRequest.js             (content/browserRequest.js)
     content/messenger/browserRequest.xul            (content/browserRequest.xul)
 *   content/messenger/safeMode.xul                  (content/safeMode.xul)
@@ -138,7 +136,3 @@ comm.jar:
    content/communicator/labelsencodings.properties  (/@mozreltopsrcdir@/dom/encoding/labelsencodings.properties)
 *  content/communicator/utilityOverlay.xul          (content/utilityOverlay.xul)
    content/communicator/utilityOverlay.js           (content/utilityOverlay.js)
-
-toolkit.jar:
-% overlay chrome://messenger/content/customizeToolbar.xul chrome://messenger/content/customizeToolbarOverlay.xul
-% overlay chrome://mozapps/content/downloads/downloads.xul chrome://messenger/content/downloadsOverlay.xul
