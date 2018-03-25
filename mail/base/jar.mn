@@ -5,6 +5,10 @@ messenger.jar:
 % content messenger %content/messenger/
 % override chrome://global/content/nsDragAndDrop.js chrome://messenger/content/nsDragAndDrop.js
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
+#ifndef MOZILLA_OFFICIAL
+% override chrome://browser/content/browser-development-helpers.js chrome://messenger/content/browser-development-helpers.js
+  content/messenger/browser-development-helpers.js (../../common/src/browser-development-helpers.js)
+#endif
 % overlay chrome://messenger/content/viewSource.xul chrome://messenger/content/viewSourceOverlay.xul
 % overlay chrome://global/content/config.xul chrome://messenger/content/configEditorOverlay.xul
 % overlay chrome://editor/content/EdSpellCheck.xul chrome://messenger/content/EdSpellCheckOverlay.xul
