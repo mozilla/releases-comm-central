@@ -9,7 +9,6 @@ messenger.jar:
 % override chrome://browser/content/browser-development-helpers.js chrome://messenger/content/browser-development-helpers.js
   content/messenger/browser-development-helpers.js (../../common/src/browser-development-helpers.js)
 #endif
-% overlay chrome://messenger/content/viewSource.xul chrome://messenger/content/viewSourceOverlay.xul
 % overlay chrome://global/content/config.xul chrome://messenger/content/configEditorOverlay.xul
 % overlay chrome://editor/content/EdSpellCheck.xul chrome://messenger/content/EdSpellCheckOverlay.xul
 % overlay about:addons chrome://messenger/content/extensionsOverlay.xul
@@ -83,7 +82,6 @@ messenger.jar:
     content/messenger/tabmail.css                   (content/tabmail.css)
     content/messenger/newTagDialog.xul              (content/newTagDialog.xul)
     content/messenger/newTagDialog.js               (content/newTagDialog.js)
-*   content/messenger/viewSourceOverlay.xul         (content/viewSourceOverlay.xul)
     content/messenger/configEditorOverlay.xul       (content/configEditorOverlay.xul)
     content/messenger/EdSpellCheckOverlay.xul       (content/EdSpellCheckOverlay.xul)
     content/messenger/EdSpellCheckOverlay.js        (content/EdSpellCheckOverlay.js)

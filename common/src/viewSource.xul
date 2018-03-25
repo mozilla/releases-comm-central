@@ -10,6 +10,10 @@
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
+#ifndef MOZ_SUITE
+<!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
+%baseMenuOverlayDTD;
+#endif
 <!ENTITY % sourceDTD SYSTEM "chrome://messenger/locale/viewSource.dtd" >
 %sourceDTD;
 <!ENTITY % charsetDTD SYSTEM "chrome://global/locale/charsetMenu.dtd" >
@@ -32,6 +36,9 @@
 
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
+#ifndef MOZ_SUITE
+<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
+#endif
   <script type="application/javascript" src="chrome://messenger/content/viewSource.js"/>
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
@@ -56,7 +63,11 @@
 #endif
   <command id="cmd_reload" oncommand="viewSourceChrome.reload();"/>
   <command id="cmd_goToLine" oncommand="viewSourceChrome.promptAndGoToLine();" disabled="true"/>
+#ifdef MOZ_SUITE
   <command id="cmd_highlightSyntax" oncommand="viewSourceChrome.toggleSyntaxHighlighting();"/>
+#else
+  <command id="cmd_highlightSyntax" oncommand="viewSourceChrome.toggleSyntaxHighlighting();" disabled="true"/>
+#endif
   <command id="cmd_wrapLongLines" oncommand="viewSourceChrome.toggleWrapping();"/>
   <command id="cmd_textZoomReduce" oncommand="ZoomManager.reduce();"/>
   <command id="cmd_textZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
@@ -107,6 +118,16 @@
 #ifdef XP_UNIX
     <key id="goBackKb2" key="&goBackCmd.commandKey;" command="Browser:Back" modifiers="accel"/>
     <key id="goForwardKb2" key="&goForwardCmd.commandKey;" command="Browser:Forward" modifiers="accel"/>
+#endif
+#ifndef MOZ_SUITE
+    <key id="key_openHelp"
+         oncommand="openSupportURL();"
+#ifdef XP_MACOSX
+         key="&openHelpMac2.commandkey;"
+         modifiers="&openHelpMac2.modifiers;"/>
+#else
+         keycode="&openHelp.commandkey;"/>
+#endif
 #endif
 
   </keyset>
@@ -237,6 +258,26 @@
                     label="&menu_highlightSyntax.label;" accesskey="&menu_highlightSyntax.accesskey;"/>
         </menupopup>
       </menu>
+#ifndef MOZ_SUITE
+      <menu id="helpMenu"
+#ifdef XP_WIN
+            label="&helpMenuWin.label;" accesskey="&helpMenuWin.accesskey;">
+#else
+            label="&helpMenu.label;" accesskey="&helpMenu.accesskey;">
+#endif
+        <menupopup id="menu_HelpPopup">
+          <menuitem id="menu_openHelp"
+#ifdef XP_MACOSX
+                    label="&openHelpMac2.label;"
+#else
+                    label="&openHelp.label;"
+                    accesskey="&openHelp.accesskey;"
+#endif
+                    key="key_openHelp"
+                    oncommand="openSupportURL();"/>
+        </menupopup>
+      </menu>
+#endif
     </menubar>
   </toolbox>
 
@@ -244,6 +285,9 @@
 
     <browser id="content" type="content" name="content" src="about:blank" flex="1"
              primary="true"
+#ifndef MOZ_SUITE
+             disablehistory="true"
+#endif
              context="viewSourceContextMenu" showcaret="true" tooltip="aHTMLTooltip" />
     <findbar id="FindToolbar" browserid="content"/>
   </vbox>
