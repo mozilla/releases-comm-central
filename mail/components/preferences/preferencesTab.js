@@ -92,8 +92,7 @@ var preferencesTabType = {
     // Now start loading the content.
     aTab.title = this.loadingTabString;
 
-    aTab.browser.loadURIWithFlags(aArgs.contentPage, null, null, null,
-                                  (aArgs.postData || null));
+    aTab.browser.loadURI(aArgs.contentPage, { postData: aArgs.postData || null });
 
     gPrefTab = aTab;
     this.lastBrowserId++;
