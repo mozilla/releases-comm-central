@@ -764,7 +764,6 @@ var snapshotFormatters = {
     // Basic information
     insertBasicInfo("audioBackend", data.currentAudioBackend);
     insertBasicInfo("maxAudioChannels", data.currentMaxAudioChannels);
-    insertBasicInfo("channelLayout", data.currentPreferredChannelLayout);
     insertBasicInfo("sampleRate", data.currentPreferredSampleRate);
 
     // Output devices information
@@ -1234,9 +1233,13 @@ function populateActionBox() {
     $("reset-box").style.display = "block";
     $("action-box").style.display = "block";
   }
-  if (!Services.appinfo.inSafeMode) {
+  if (!Services.appinfo.inSafeMode && AppConstants.platform !== "android") {
     $("safe-mode-box").style.display = "block";
     $("action-box").style.display = "block";
+
+    if (Services.policies && !Services.policies.isAllowed("safeMode")) {
+      $("restart-in-safe-mode-button").setAttribute("disabled", "true");
+    }
   }
 }
 
