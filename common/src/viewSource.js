@@ -324,6 +324,7 @@ ViewSourceChrome.prototype = {
    * This is the deprecated API for viewSource.xul, for old-timer consumers.
    * This API might eventually go away.
    */
+  // NOT WORKING ANYMORE AFTER REMOVAL OF THE "ViewSource:LoadSourceDeprecated" MESSAGE IN BUG 1443371.
   _loadViewSourceDeprecated(aArguments) {
     Deprecated.warning("The arguments you're passing to viewSource.xul " +
                        "are using an out-of-date API.",
@@ -435,19 +436,9 @@ ViewSourceChrome.prototype = {
    */
   onSetCharacterSet(event) {
     if (event.target.hasAttribute("charset")) {
-      let charset = event.target.getAttribute("charset");
-
-      // If we don't have history enabled, we have to do a reload in order to
-      // show the character set change. See bug 136322.
-      this.sendAsyncMessage("ViewSource:SetCharacterSet", {
-        charset,
-        doPageLoad: this.historyEnabled,
-      });
-
-      if (!this.historyEnabled) {
-        this.browser
-            .reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
-      }
+      this.browser.docShell.charset = event.target.getAttribute("charset");
+      this.browser
+          .reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
     }
   },
 
@@ -612,6 +603,7 @@ ViewSourceChrome.prototype = {
   /**
    * Called when the user clicks on the "Wrap Long Lines" menu item.
    */
+  // NOT WORKING ANYMORE AFTER REMOVAL OF THIS MESSAGE IN BUG 1443371.
   toggleWrapping() {
     this.shouldWrap = !this.shouldWrap;
     this.sendAsyncMessage("ViewSource:ToggleWrapping");
@@ -620,6 +612,7 @@ ViewSourceChrome.prototype = {
   /**
    * Called when the user clicks on the "Syntax Highlighting" menu item.
    */
+  // NOT WORKING ANYMORE AFTER REMOVAL OF THIS MESSAGE IN BUG 1443371.
   toggleSyntaxHighlighting() {
     this.shouldHighlight = !this.shouldHighlight;
     this.sendAsyncMessage("ViewSource:ToggleSyntaxHighlighting");

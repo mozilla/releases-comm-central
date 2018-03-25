@@ -65,10 +65,8 @@
   <command id="cmd_goToLine" oncommand="viewSourceChrome.promptAndGoToLine();" disabled="true"/>
 #ifdef MOZ_SUITE
   <command id="cmd_highlightSyntax" oncommand="viewSourceChrome.toggleSyntaxHighlighting();"/>
-#else
-  <command id="cmd_highlightSyntax" oncommand="viewSourceChrome.toggleSyntaxHighlighting();" disabled="true"/>
-#endif
   <command id="cmd_wrapLongLines" oncommand="viewSourceChrome.toggleWrapping();"/>
+#endif
   <command id="cmd_textZoomReduce" oncommand="ZoomManager.reduce();"/>
   <command id="cmd_textZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
   <command id="cmd_textZoomReset" oncommand="ZoomManager.reset();"/>
@@ -251,11 +249,13 @@
                                 CharsetMenu.update(event.target, content.document.characterSet);">
             <menupopup/>
           </menu>
+#ifdef MOZ_SUITE
           <menuseparator/>
           <menuitem id="menu_wrapLongLines" type="checkbox" command="cmd_wrapLongLines"
                     label="&menu_wrapLongLines.title;" accesskey="&menu_wrapLongLines.accesskey;"/>
           <menuitem type="checkbox" id="menu_highlightSyntax" command="cmd_highlightSyntax"
                     label="&menu_highlightSyntax.label;" accesskey="&menu_highlightSyntax.accesskey;"/>
+#endif
         </menupopup>
       </menu>
 #ifndef MOZ_SUITE
