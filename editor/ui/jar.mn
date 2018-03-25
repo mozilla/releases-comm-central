@@ -4,9 +4,9 @@
 
 comm.jar:
 % content editor %content/editor/
+#ifdef MOZ_SUITE
 % overlay chrome://communicator/content/tasksOverlay.xul chrome://editor/content/editorTasksOverlay.xul
 % overlay chrome://messenger/content/mailWindowOverlay.xul chrome://editor/content/editorMailOverlay.xul
-#ifdef MOZ_SUITE
 % overlay chrome://communicator/content/pref/preferences.xul chrome://editor/content/editorPrefsOverlay.xul
 % overlay chrome://communicator/content/pref/pref-appearance.xul chrome://editor/content/editorPrefsOverlay.xul
 % overlay chrome://navigator/content/navigatorOverlay.xul chrome://editor/content/editorNavigatorOverlay.xul
@@ -17,9 +17,6 @@ comm.jar:
       content/editor/ComposerCommands.js                       (composer/content/ComposerCommands.js) 
       content/editor/EditorContent.css                         (composer/content/EditorContent.css)  
       content/editor/editorSmileyOverlay.xul                   (composer/content/editorSmileyOverlay.xul) 
-      content/editor/editorNavigatorOverlay.xul                (composer/content/editorNavigatorOverlay.xul) 
-      content/editor/editorMailOverlay.xul                     (composer/content/editorMailOverlay.xul) 
-      content/editor/editorTasksOverlay.xul                    (composer/content/editorTasksOverlay.xul) 
       content/editor/editorApplicationOverlay.js               (composer/content/editorApplicationOverlay.js) 
       content/editor/images/tag-anchor.gif                     (composer/content/images/tag-anchor.gif)
       content/editor/EdDialogCommon.js                         (dialogs/content/EdDialogCommon.js) 
@@ -91,6 +88,9 @@ comm.jar:
       content/editor/EditorContextMenu.js                      (composer/content/EditorContextMenu.js)
       content/editor/EditorContextMenuOverlay.xul              (composer/content/EditorContextMenuOverlay.xul)
       content/editor/EditorAllTags.css                         (composer/content/EditorAllTags.css)
+      content/editor/editorNavigatorOverlay.xul                (composer/content/editorNavigatorOverlay.xul) 
+      content/editor/editorMailOverlay.xul                     (composer/content/editorMailOverlay.xul) 
+      content/editor/editorTasksOverlay.xul                    (composer/content/editorTasksOverlay.xul) 
       content/editor/editorOverlay.xul                         (composer/content/editorOverlay.xul) 
       content/editor/editingOverlay.xul                        (composer/content/editingOverlay.xul)
       content/editor/composerOverlay.xul                       (composer/content/composerOverlay.xul)
