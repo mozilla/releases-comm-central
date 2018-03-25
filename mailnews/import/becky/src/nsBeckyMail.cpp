@@ -22,7 +22,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsTArray.h"
 #include "nspr.h"
-#include "nsIStringBundle.h"
 #include "nsThreadUtils.h"
 
 #include "nsBeckyMail.h"

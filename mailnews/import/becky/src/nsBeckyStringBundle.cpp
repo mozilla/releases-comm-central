@@ -7,8 +7,6 @@
 #include "prmem.h"
 #include "nsCOMPtr.h"
 #include "nsIStringBundle.h"
-#include "nsIServiceManager.h"
-#include "nsIURI.h"
 #include "nsServiceManagerUtils.h"
 #include "nsXPCOMCIDInternal.h"
 

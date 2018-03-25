@@ -4,6 +4,7 @@
 #ifndef _nsBeckyUtils_H__
 #define _nsBeckyUtils_H__
 
+#include "nsString.h"
 class nsIFile;
 class nsILineInputStream;
 class nsIINIParser;

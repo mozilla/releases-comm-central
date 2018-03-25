@@ -9,7 +9,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsString.h"
-#include "nsIUTF8ConverterService.h"
+#include "nsMsgI18N.h"
 #include "nsUConvCID.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIInputStream.h"

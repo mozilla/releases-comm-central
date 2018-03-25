@@ -7,6 +7,8 @@
 #define nsBeckyAddressBooks_h___
 
 #include "nsIImportAddressBooks.h"
+#include "nsIFile.h"
+#include "nsIMutableArray.h"
 
 class nsBeckyAddressBooks final : public nsIImportAddressBooks
 {

@@ -5,7 +5,6 @@
 
 #include "nsArrayUtils.h"
 #include "nsILineInputStream.h"
-#include "nsIStringBundle.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIMsgFilter.h"

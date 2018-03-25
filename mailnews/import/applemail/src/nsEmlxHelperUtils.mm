@@ -4,8 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsEmlxHelperUtils.h"
-#include "nsIFileStreams.h"
-#include "nsIBufferedStreams.h"
 #include "nsIOutputStream.h"
 #include "nsNetUtil.h"
 #include "nsCOMPtr.h"
