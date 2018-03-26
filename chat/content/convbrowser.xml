@@ -81,18 +81,29 @@
       <field name="_docShell">null</field>
 
       <property name="docShell"
-                onget="return this._docShell || (this._docShell = this.boxObject.docShell);"
-                readonly="true"/>
+                readonly="true">
+        <getter>
+          <![CDATA[
+            if (this._docShell) {
+              return this._docShell;
+            }
+            if (!this.frameLoader) {
+              return null;
+            }
+            this._docShell = this.frameLoader.docShell;
+            return this._docShell;
+          ]]>
+        </getter>
+      </property>
 
       <property name="messageManager"
                 readonly="true">
         <getter>
           <![CDATA[
-            var owner = this.QueryInterface(Ci.nsIFrameLoaderOwner);
-            if (!owner.frameLoader) {
+            if (!this.frameLoader) {
               return null;
             }
-            return owner.frameLoader.messageManager;
+            return this.frameLoader.messageManager;
           ]]>
         </getter>
       </property>
@@ -1245,8 +1256,7 @@
             ourFieldValues[field] = this[field];
             otherFieldValues[field] = aOtherBrowser[field];
           }
-          this.QueryInterface(Ci.nsIFrameLoaderOwner)
-              .swapFrameLoaders(aOtherBrowser);
+          this.swapFrameLoaders(aOtherBrowser);
           for (var field of fieldsToSwap) {
             this[field] = otherFieldValues[field];
             aOtherBrowser[field] = ourFieldValues[field];
