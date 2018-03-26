@@ -18,8 +18,9 @@ smileProtocolHandler.prototype = {
                  Ci.nsIProtocolHandler.URI_IS_UI_RESOURCE |
                  Ci.nsIProtocolHandler.URI_IS_LOCAL_RESOURCE,
   newURI: function SPH_newURI(aSpec, aOriginCharset, aBaseURI) {
-    let uri = Cc["@mozilla.org/network/simple-uri;1"].createInstance(Ci.nsIURI);
-    return uri.mutate().setSpec(aSpec).finalize();
+    let mutator = Cc["@mozilla.org/network/simple-uri-mutator;1"]
+                    .createInstance(Ci.nsIURIMutator);
+    return mutator.setSpec(aSpec).finalize();
   },
   newChannel: function SPH_newChannel(aURI) {
     return this.newChannel2(aURI, null);
