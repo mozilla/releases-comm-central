@@ -135,14 +135,7 @@ nsresult nsStatusBarBiffManager::PlayBiffSound(const char *aPrefBranch)
           }
         }
       }
-      else {
-        // todo, see if we can create a nsIFile using the string as a native path.
-        // if that fails, try playing a system sound
-        NS_ConvertUTF8toUTF16 utf16SoundURLSpec(soundURLSpec);
-        rv = mSound->PlaySystemSound(utf16SoundURLSpec);
-        if (NS_SUCCEEDED(rv))
-          customSoundPlayed = true;
-      }
+      // XXX TODO: See if we can create a nsIFile using the string as a native path.
     }
   }
 #ifndef XP_MACOSX
