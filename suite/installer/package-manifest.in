@@ -115,10 +115,6 @@
 #endif
 #endif
 
-#ifdef MOZ_ICU_DATA_ARCHIVE
-@RESPATH@/@ICU_DATA_FILE@
-#endif
-
 [browser]
 ; [Base Browser Files]
 #ifdef XP_WIN
