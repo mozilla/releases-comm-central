@@ -1,0 +1,55 @@
+# Definitions for jobs that run periodically.  For details on the format, see
+# `taskcluster/taskgraph/cron/schema.py`.  For documentation, see
+# `taskcluster/docs/cron.rst`.
+
+---
+
+jobs:
+    - name: nightly
+      job:
+          type: decision-task
+          treeherder-symbol: Nd
+          target-tasks-method: nightly_desktop
+      run-on-projects:
+          - comm-central
+      when:
+          by-project:
+              # Match buildbot starts for now
+              comm-central: [{hour: 10, minute: 0}]
+              # No default
+
+    - name: nightly-linux
+      job:
+          type: decision-task
+          treeherder-symbol: Nd-Ln
+          target-tasks-method: nightly_linux
+      run-on-projects:
+          - comm-central
+      when: []  # never (hook only)
+
+    - name: nightly-osx
+      job:
+          type: decision-task
+          treeherder-symbol: Nd-OSX
+          target-tasks-method: nightly_macosx
+      run-on-projects:
+          - comm-central
+      when: []  # never (hook only)
+
+    - name: nightly-win32
+      job:
+          type: decision-task
+          treeherder-symbol: Nd-win32
+          target-tasks-method: nightly_win32
+      run-on-projects:
+          - comm-central
+      when: []  # never (hook only)
+
+    - name: nightly-win64
+      job:
+          type: decision-task
+          treeherder-symbol: Nd-win64
+          target-tasks-method: nightly_win64
+      run-on-projects:
+          - comm-central
+      when: []  # never (hook only)
