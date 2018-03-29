@@ -9,15 +9,15 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers"];
 
 var EventUtils = {};
-ChromeUtils.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
+ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
 var controller = {};
-ChromeUtils.import('resource://mozmill/modules/controller.js', controller);
+ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
 var frame = {};
-ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
+ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
 var os = {};
-ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var utils = {};
-ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
+ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 

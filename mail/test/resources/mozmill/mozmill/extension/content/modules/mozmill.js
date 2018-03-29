@@ -46,14 +46,14 @@ var EXPORTED_SYMBOLS = ["controller", "events", "utils", "elementslib", "os",
                         "getPlacesController", 'isMac', 'isLinux', 'isWindows',
                        ];
 
-var controller = {};  ChromeUtils.import('resource://mozmill/modules/controller.js', controller);
-var events = {};      ChromeUtils.import('resource://mozmill/modules/events.js', events);
-var utils = {};       ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
-var elementslib = {}; ChromeUtils.import('resource://mozmill/modules/elementslib.js', elementslib);
-var frame = {}; ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
+var controller = {};  ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
+var events = {};      ChromeUtils.import("chrome://mozmill/content/modules/events.js", events);
+var utils = {};       ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
+var elementslib = {}; ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
+var frame = {}; ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
 
-var os = {}; ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
-var withs = {}; ChromeUtils.import('resource://mozmill/stdlib/withs.js', withs);
+var os = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var withs = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/withs.js", withs);
 
 var platform = os.getPlatform();
 

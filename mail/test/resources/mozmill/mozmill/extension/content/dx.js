@@ -36,8 +36,8 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var inspection = {}; ChromeUtils.import('resource://mozmill/modules/inspection.js', inspection);
-var utils = {}; ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
+var inspection = {}; ChromeUtils.import("chrome://mozmill/content/modules/inspection.js", inspection);
+var utils = {}; ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
 var DomInspectorConnector = function() {
   this.lastEvent = null;

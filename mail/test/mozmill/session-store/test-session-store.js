@@ -13,7 +13,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var controller = {};
-ChromeUtils.import("resource://mozmill/modules/controller.js", controller);
+ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
 
 ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 ChromeUtils.import("resource:///modules/sessionStoreManager.js");

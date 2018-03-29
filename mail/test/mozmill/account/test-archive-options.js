@@ -9,11 +9,11 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                        "account-manager-helpers"];
 
 var mozmill = {};
-ChromeUtils.import("resource://mozmill/modules/mozmill.js", mozmill);
+ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", mozmill);
 var controller = {};
-ChromeUtils.import("resource://mozmill/modules/controller.js", controller);
+ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
 var elib = {};
-ChromeUtils.import("resource://mozmill/modules/elementslib.js", elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 
 var defaultIdentity;
 

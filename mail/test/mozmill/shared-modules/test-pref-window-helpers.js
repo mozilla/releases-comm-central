@@ -13,7 +13,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var utils = {};
-ChromeUtils.import("resource://mozmill/modules/utils.js", utils);
+ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
 var fdh;
 var wh;

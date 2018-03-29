@@ -1,4 +1,4 @@
-var jum = {}; ChromeUtils.import('resource://mozmill/modules/jum.js', jum);
+var jum = {}; ChromeUtils.import("chrome://mozmill/content/modules/jum.js", jum);
 
 var testPythonCallback = function() {
   var state = "test"

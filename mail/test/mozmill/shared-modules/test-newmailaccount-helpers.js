@@ -9,7 +9,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "keyboard-helpers",
                        "dom-helpers"];
 
 var elib = {};
-ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 ChromeUtils.import('resource://gre/modules/Services.jsm');
 ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
 ChromeUtils.import('resource:///modules/mailServices.js');

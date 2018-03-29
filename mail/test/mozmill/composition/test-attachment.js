@@ -7,7 +7,7 @@
  */
 
 var elib = {};
-ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 
 var MODULE_NAME = 'test-attachment';
 
@@ -22,7 +22,7 @@ var isWindows;
 var filePrefix;
 
 var os = {};
-ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var rawAttachment =

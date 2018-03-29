@@ -15,7 +15,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var os = {};
-ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 
 var gReferenceTextContent;
 

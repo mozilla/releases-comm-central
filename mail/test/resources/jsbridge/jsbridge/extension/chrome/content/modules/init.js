@@ -1,4 +1,4 @@
-// ***** BEGIN LICENSE BLOCK *****// ***** BEGIN LICENSE BLOCK *****
+// ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1/GPL 2.0/LGPL 2.1
 //
 // The contents of this file are subject to the Mozilla Public License Version
@@ -35,16 +35,6 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ['trim', 'vslice'];
+var EXPORTED_SYMBOLS = ["server"];
 
-var arrays = {}; ChromeUtils.import('resource://mozmill/stdlib/arrays.js', arrays);
-
-var trim = function (str) {
-  return (str.replace(/^[\s\xA0]+/, "").replace(/[\s\xA0]+$/, ""));
-}
-
-var vslice = function (str, svalue, evalue) {
-  var sindex = arrays.indexOf(str, svalue);
-  var eindex = arrays.rindexOf(str, evalue);
-  return str.slice(sindex + 1, eindex);
-}
+var server = {}; ChromeUtils.import("chrome://jsbridge/content/modules/server.js", server);

@@ -34,7 +34,7 @@
  *
  * **** END LICENSE BLOCK ***** */
 
-ChromeUtils.import('resource://mozmill/modules/jum.js');
+ChromeUtils.import("chrome://mozmill/content/modules/jum.js");
 
 var setupModule = function(module) {
   controller = mozmill.getBrowserController();

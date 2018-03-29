@@ -1,5 +1,3 @@
-resource jsbridge resource/
-
 content jsbridge chrome/content/
 
 component {2872d428-14f6-11de-ac86-001f5bd9235c} components/cmdarg.js

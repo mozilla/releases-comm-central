@@ -1,5 +1,5 @@
-var elementslib = {}; ChromeUtils.import('resource://mozmill/modules/elementslib.js', elementslib);
-var mozmill = {}; ChromeUtils.import('resource://mozmill/modules/mozmill.js', mozmill);
+var elementslib = {}; ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
+var mozmill = {}; ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", mozmill);
 
 var setupModule = function(module) {
   var _w = mozmill.wm.getMostRecentWindow("mail:3pane");

@@ -9,7 +9,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                        "account-manager-helpers", "keyboard-helpers" ];
 
 var elib = {};
-ChromeUtils.import("resource://mozmill/modules/elementslib.js", elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 
 var PORT_NUMBERS_TO_TEST =
   [

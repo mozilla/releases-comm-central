@@ -16,7 +16,7 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                        'address-book-helpers', 'dom-helpers'];
 
 var elib = {};
-ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 

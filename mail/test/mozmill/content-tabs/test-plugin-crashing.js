@@ -8,7 +8,7 @@ var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers'];
 
 var frame = {};
-ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
+ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
 
 ChromeUtils.import('resource://gre/modules/Services.jsm');
 

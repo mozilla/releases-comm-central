@@ -13,9 +13,9 @@ var messenger;
 var epsilon;
 
 var elib = {};
-ChromeUtils.import("resource://mozmill/modules/elementslib.js", elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 var os = {};
-ChromeUtils.import("resource://mozmill/stdlib/os.js", os);
+ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 
 var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +

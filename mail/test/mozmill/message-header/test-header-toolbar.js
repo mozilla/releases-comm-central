@@ -13,7 +13,7 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                        'customization-helpers'];
 
 var elib = {};
-ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;

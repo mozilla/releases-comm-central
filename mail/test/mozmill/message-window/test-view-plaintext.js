@@ -15,7 +15,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 var os = {};
-ChromeUtils.import('resource://mozmill/stdlib/os.js', os);
+ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

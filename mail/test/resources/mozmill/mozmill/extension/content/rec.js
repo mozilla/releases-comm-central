@@ -36,13 +36,13 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var inspection = {}; ChromeUtils.import('resource://mozmill/modules/inspection.js', inspection);
-var utils = {}; ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
-var objects = {}; ChromeUtils.import('resource://mozmill/stdlib/objects.js', objects);
-var arrays = {}; ChromeUtils.import('resource://mozmill/stdlib/arrays.js', arrays);
-var events = {}; ChromeUtils.import('resource://mozmill/modules/events.js', events);
-// var logging = {}; ChromeUtils.import('resource://mozmill/stdlib/logging.js', logging);
-var controller = {};  ChromeUtils.import('resource://mozmill/modules/controller.js', controller);
+var inspection = {}; ChromeUtils.import("chrome://mozmill/content/modules/inspection.js", inspection);
+var utils = {}; ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
+var objects = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/objects.js", objects);
+var arrays = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js", arrays);
+var events = {}; ChromeUtils.import("chrome://mozmill/content/modules/events.js", events);
+// var logging = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js", logging);
+var controller = {};  ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
 
 // var recorderLogger = logging.getLogger('recorderLogger');
 

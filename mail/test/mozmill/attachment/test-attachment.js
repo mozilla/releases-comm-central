@@ -13,9 +13,9 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
                        'window-helpers'];
 
 var elib = {};
-ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 var EventUtils = {};
-ChromeUtils.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
+ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;

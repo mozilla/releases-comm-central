@@ -18,7 +18,7 @@ var MODULE_REQUIRES = [
 ];
 
 var os = {};
-ChromeUtils.import("resource://mozmill/stdlib/os.js", os);
+ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 
 function setupModule(module) {
     for (let dep of MODULE_REQUIRES) {

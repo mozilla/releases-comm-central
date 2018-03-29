@@ -9,9 +9,9 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var elib = {};
-ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 var utils = {};
-ChromeUtils.import("resource://mozmill/modules/utils.js", utils);
+ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
 var folderDisplayHelper;
 var mc;

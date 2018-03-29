@@ -307,7 +307,7 @@ class ThunderTestMozmill(mozmill.MozMill):
 
 def monkeypatched_15_run_tests(self, tests, sleeptime=0):
     frame = mozmill.jsbridge.JSObject(self.bridge,
-                "ChromeUtils.import('resource://mozmill/modules/frame.js')")
+                "ChromeUtils.import('chrome://mozmill/content/modules/frame.js')")
     sleep(sleeptime)
 
     # transfer persisted data

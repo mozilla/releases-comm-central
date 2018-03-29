@@ -37,15 +37,15 @@
 
 var EXPORTED_SYMBOLS = ["inspectElement"]
 
-var elementslib = {}; ChromeUtils.import('resource://mozmill/modules/elementslib.js', elementslib);
-var mozmill = {}; ChromeUtils.import('resource://mozmill/modules/mozmill.js', mozmill);
-var utils = {}; ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
+var elementslib = {}; ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
+var mozmill = {}; ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", mozmill);
+var utils = {}; ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
-var arrays = {}; ChromeUtils.import('resource://mozmill/stdlib/arrays.js', arrays);
-var dom = {}; ChromeUtils.import('resource://mozmill/stdlib/dom.js', dom);
-var objects = {}; ChromeUtils.import('resource://mozmill/stdlib/objects.js', objects);
-var json2 = {}; ChromeUtils.import('resource://mozmill/stdlib/json2.js', json2);
-var withs = {}; ChromeUtils.import('resource://mozmill/stdlib/withs.js', withs);
+var arrays = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js", arrays);
+var dom = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/dom.js", dom);
+var objects = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/objects.js", objects);
+var json2 = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/json2.js", json2);
+var withs = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/withs.js", withs);
 
 var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
            .getService(Ci.nsIWindowMediator);

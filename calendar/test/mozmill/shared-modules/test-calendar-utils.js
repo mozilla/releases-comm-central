@@ -9,9 +9,9 @@ var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "pref-window-
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var os = {};
-ChromeUtils.import("resource://mozmill/stdlib/os.js", os);
+ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var frame = {};
-ChromeUtils.import("resource://mozmill/modules/frame.js", frame);
+ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
 
 var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;

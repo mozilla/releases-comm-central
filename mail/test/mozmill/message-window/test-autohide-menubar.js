@@ -12,7 +12,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers",
                        "compose-helpers"];
 
 var elib = {};
-ChromeUtils.import('resource://mozmill/modules/elementslib.js', elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 
 var menuFolder;
 

@@ -12,7 +12,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
 
 var elib = {};
-ChromeUtils.import("resource://mozmill/modules/elementslib.js", elib);
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 
 var user = {
   name: "Yamato Nadeshiko",

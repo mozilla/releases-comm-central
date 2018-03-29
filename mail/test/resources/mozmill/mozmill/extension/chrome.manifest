@@ -1,5 +1,3 @@
-resource mozmill resource/
-
 content	mozmill	content/
 
 locale	mozmill	en-US	locale/en-US/

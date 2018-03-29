@@ -9,9 +9,9 @@
 var MODULE_NAME = "message-helpers";
 
 var frame = {};
-ChromeUtils.import('resource://mozmill/modules/frame.js', frame);
+ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
 var utils = {};
-ChromeUtils.import('resource://mozmill/modules/utils.js', utils);
+ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
 ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
