@@ -1,0 +1,249 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#ifdef XP_UNIX
+#ifndef XP_MACOSX
+#define XP_GNOME 1
+#endif
+#endif
+
+  <key id="space" key=" " modifiers="shift any" oncommand="SpaceHit(event);"/>
+
+  <!-- File Menu -->
+  <key id="key_close" key="&closeCmd.key;" command="cmd_close" modifiers="accel"/>
+#ifndef XP_MACOSX
+  <key id="key_close2" keycode="VK_F4" modifiers="accel" command="cmd_close"/>
+  <key id="key_renameFolder" keycode="&renameFolder.key;" oncommand="goDoCommand('cmd_renameFolder')"/>
+#endif
+#ifdef XP_UNIX
+  <key id="key_quit" command="cmd_quit" modifiers="accel" key="&quitApplicationCmd.key;"/>
+#endif
+  <!-- Edit Menu -->
+  <key id="key_undo" key="&undoCmd.key;" modifiers="accel"/>
+  <key id="key_redo"
+#ifdef XP_UNIX
+       key="&undoCmd.key;" modifiers="shift, accel"/>
+#else
+       key="&redoCmd.key;" modifiers="accel"/>
+#endif
+  <key id="key_cut" key="&cutCmd.key;" modifiers="accel"/>
+  <key id="key_copy" key="&copyCmd.key;" modifiers="accel"/>
+  <key id="key_paste" key="&pasteCmd.key;" modifiers="accel"/>
+#ifdef XP_MACOSX
+  <key id="key_delete" keycode="VK_BACK"
+       oncommand="goDoCommand('cmd_delete');"/>
+  <key id="key_delete2" keycode="VK_DELETE"
+       oncommand="goDoCommand('cmd_delete');"/>
+  <key id="cmd_shiftDelete" keycode="VK_BACK"
+       oncommand="goDoCommand('cmd_shiftDelete');" modifiers="shift"/>
+  <key id="cmd_shiftDelete2" keycode="VK_DELETE"
+       oncommand="goDoCommand('cmd_shiftDelete');" modifiers="shift"/>
+#else
+  <key id="key_delete" keycode="VK_DELETE"
+       oncommand="goDoCommand('cmd_delete');"/>
+  <key id="cmd_shiftDelete" keycode="VK_DELETE"
+       oncommand="goDoCommand('cmd_shiftDelete');" modifiers="shift"/>
+#endif
+  <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="accel"/>
+  <key id="key_selectThread" key="&selectThreadCmd.key;"             oncommand="goDoCommand('cmd_selectThread');" modifiers="accel, shift"/>
+
+  <key id="key_toggleRead" key="&toggleReadCmd.key;"                 oncommand="goDoCommand('cmd_toggleRead');"/>
+  <key id="key_toggleFlagged" key="&markStarredCmd.key;"             oncommand="goDoCommand('cmd_markAsFlagged');"/>
+  <key id="key_markJunk" key="&markAsJunkCmd.key;"                   oncommand="goDoCommand('cmd_markAsJunk');"/>
+  <key id="key_markNotJunk" key="&markAsNotJunkCmd.key;"             oncommand="goDoCommand('cmd_markAsNotJunk');"
+       modifiers="shift"/>
+
+  <key id="key_markAllRead" key="&markAllReadCmd.key;"
+       oncommand="goDoCommand('cmd_markAllRead');" modifiers="shift"/>
+
+  <key id="key_markThreadAsRead" key="&markThreadAsReadCmd.key;"     oncommand="goDoCommand('cmd_markThreadAsRead')"/>
+  <key id="key_markReadByDate" key="&markReadByDateCmd.key;"         oncommand="goDoCommand('cmd_markReadByDate')"/>
+  <key id="key_nextMsg" key="&nextMsgCmd.key;"                       oncommand="goDoCommand('cmd_nextMsg')"/>
+  <key id="key_nextUnreadMsg" key="&nextUnreadMsgCmd.key;"           oncommand="goDoCommand('cmd_nextUnreadMsg')"/>
+  <key id="key_expandAllThreads" key="&expandAllThreadsCmd.key;"     oncommand="goDoCommand('cmd_expandAllThreads')"/>
+  <key key="&expandAllThreadsCmd.key;" modifiers="shift"             oncommand="goDoCommand('cmd_expandAllThreads')"/>
+  <key id="key_collapseAllThreads" key="&collapseAllThreadsCmd.key;" oncommand="goDoCommand('cmd_collapseAllThreads')"/>
+  <key key="&collapseAllThreadsCmd.key;" modifiers="shift"           oncommand="goDoCommand('cmd_collapseAllThreads')"/>
+  <key id="key_nextUnreadThread" key="&nextUnreadThread.key;"        oncommand="goDoCommand('cmd_nextUnreadThread')"/>
+  <key id="key_previousMsg" key="&prevMsgCmd.key;"                   oncommand="goDoCommand('cmd_previousMsg')"/>
+  <key id="key_previousUnreadMsg" key="&prevUnreadMsgCmd.key;"       oncommand="goDoCommand('cmd_previousUnreadMsg')"/>
+  <key id="key_archive" key="&archiveMsgCmd.key;"                    oncommand="goDoCommand('cmd_archive')"/>
+  <key id="key_goForward" key="&goForwardCmd.commandKey;"            oncommand="goDoCommand('cmd_goForward')"/>
+  <key id="key_goBack" key="&goBackCmd.commandKey;"                  oncommand="goDoCommand('cmd_goBack')"/>
+  <key id="key_goChat" key="&goChatCmd2.key;"                        oncommand="goDoCommand('cmd_chat')" modifiers="accel,shift"/>
+  <key id="key_goStartPage" keycode="VK_HOME"                        oncommand="goDoCommand('cmd_goStartPage')" modifiers="alt"/>
+  <key id="key_undoCloseTab" key="&undoCloseTabCmd.commandkey;"      oncommand="goDoCommand('cmd_undoCloseTab')" modifiers="accel, shift"/>
+  <key id="key_reply" key="&replyMsgCmd.key;"                        oncommand="goDoCommand('cmd_reply')" modifiers="accel"/>
+  <key id="key_replyall" key="&replyToAllMsgCmd.key;"                oncommand="goDoCommand('cmd_replyall')" modifiers="accel, shift"/>
+  <key id="key_replylist" key="&replyToListMsgCmd.key;"              oncommand="goDoCommand('cmd_replylist')" modifiers="accel, shift"/>
+  <key id="key_forward" key="&forwardMsgCmd.key;"                    oncommand="goDoCommand('cmd_forward')" modifiers="accel"/>
+  <key id="key_editAsNew" key="&editAsNewMsgCmd.key;"                oncommand="goDoCommand('cmd_editAsNew')" modifiers="accel"/>
+  <key id="key_newMsgFromTemplate" keycode="&newMsgFromTemplateCmd.keycode;"/><!-- for display on menus only -->
+  <key id="key_watchThread" key="&watchThreadMenu.key;"              oncommand="goDoCommand('cmd_watchThread')" />
+  <key id="key_killThread" key="&killThreadMenu.key;"                oncommand="goDoCommand('cmd_killThread')" />
+  <key id="key_killSubthread" key="&killSubthreadMenu.key;"          oncommand="goDoCommand('cmd_killSubthread')" modifiers="shift" />
+  <key id="key_openMessage" key="&openMessageWindowCmd.key;"         oncommand="goDoCommand('cmd_openMessage')" modifiers="accel"/>
+  <key id="key_openConversation" key="&openConversationCmd.key;"     oncommand="goDoCommand('cmd_openConversation')" modifiers="accel, shift"/>
+#ifdef XP_MACOSX
+  <key id="key_moveToFolderAgain" key="&moveToFolderAgainCmd.key;"   oncommand="goDoCommand('cmd_moveToFolderAgain')" modifiers="alt, accel"/>
+#else
+  <key id="key_moveToFolderAgain" key="&moveToFolderAgainCmd.key;"   oncommand="goDoCommand('cmd_moveToFolderAgain')" modifiers="accel, shift"/>
+#endif
+  <key id="key_print" key="&printCmd.key;"                           oncommand="goDoCommand('cmd_print')" modifiers="accel"/>
+  <key id="key_saveAsFile" key="&saveAsFileCmd.key;"                 oncommand="goDoCommand('cmd_saveAsFile')" modifiers="accel"/>
+  <key id="key_viewPageSource" key="&pageSourceCmd.key;"             oncommand="goDoCommand('cmd_viewPageSource')" modifiers="accel"/>
+#ifdef XP_MACOSX
+  <key id="key_getNewMessagesAlt" keycode="VK_F5"
+       oncommand="goDoCommand('cmd_getNewMessages');"/>
+  <key id="key_getAllNewMessagesAlt" keycode="VK_F5" modifiers="shift"
+       oncommand="goDoCommand('cmd_getMsgsForAuthAccounts');"/>
+  <key id="key_getNewMessages" key="&getNewMessagesCmd.key;" modifiers="accel"
+       oncommand="goDoCommand('cmd_getNewMessages');"/>
+  <key id="key_getAllNewMessages" key="&getAllNewMessagesCmd.key;" modifiers="accel, shift"
+       oncommand="goDoCommand('cmd_getMsgsForAuthAccounts');"/>
+#else
+  <key id="key_getNewMessages" keycode="VK_F5"
+       oncommand="goDoCommand('cmd_getNewMessages');"/>
+  <key id="key_getAllNewMessages" keycode="VK_F5" modifiers="shift"
+       oncommand="goDoCommand('cmd_getMsgsForAuthAccounts');"/>
+#endif
+#ifdef XP_GNOME
+  <key id="key_getNewMessages2" keycode="VK_F9"
+       oncommand="goDoCommand('cmd_getNewMessages');"/>
+  <key id="key_getAllNewMessages2" keycode="VK_F9" modifiers="shift"
+       oncommand="goDoCommand('cmd_getMsgsForAuthAccounts');"/>
+#endif
+  <key id="key_find" key="&findCmd.key;"  oncommand="goDoCommand('cmd_find')" modifiers="accel"/>
+  <key id="key_findAgain" key="&findAgainCmd.key;"   oncommand="goDoCommand('cmd_findAgain')" modifiers="accel"/>
+  <key id="key_findPrev"  key="&findPrevCmd.key;"    oncommand="goDoCommand('cmd_findPrevious')"  modifiers="accel, shift"/>
+  <key keycode="&findAgainCmd.key2;"   oncommand="goDoCommand('cmd_findAgain')"/>
+  <key keycode="&findPrevCmd.key2;"    oncommand="goDoCommand('cmd_findPrevious')"  modifiers="shift"/>
+  <key id="key_quickSearchFocus" key="&quickSearchCmd.key;"  oncommand="QuickSearchFocus()" modifiers="accel"/>
+
+  <keyset id="viewZoomKeys">
+    <key id="key_fullZoomReduce"  key="&fullZoomReduceCmd.commandkey;"
+         command="cmd_fullZoomReduce"  modifiers="accel"/>
+    <key                          key="&fullZoomReduceCmd.commandkey2;"
+         command="cmd_fullZoomReduce"  modifiers="accel"/>
+    <key id="key_fullZoomEnlarge" key="&fullZoomEnlargeCmd.commandkey;"
+         command="cmd_fullZoomEnlarge" modifiers="accel"/>
+    <key                          key="&fullZoomEnlargeCmd.commandkey2;"
+         command="cmd_fullZoomEnlarge" modifiers="accel"/>
+    <key                          key="&fullZoomEnlargeCmd.commandkey3;"
+         command="cmd_fullZoomEnlarge" modifiers="accel"/>
+    <key id="key_fullZoomReset"   key="&fullZoomResetCmd.commandkey;"
+         command="cmd_fullZoomReset"   modifiers="accel"/>
+    <key                          key="&fullZoomResetCmd.commandkey2;"
+         command="cmd_fullZoomReset"   modifiers="accel"/>
+  </keyset>
+
+  <!-- Tab/F6 Keys -->
+  <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
+  <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
+  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
+  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
+  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="shift"/>
+  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);"/>
+
+  <!-- View Toggle Keys (F8) -->
+  <key id="key_toggleMessagePane" keycode="VK_F8" oncommand="goDoCommand('cmd_toggleMessagePane');"/>
+
+  <!-- Tag Keys -->
+  <!-- Includes both shifted and not, for Azerty and other layouts where the
+       numeric keys are shifted. -->
+  <key id="key_tag0" key="&tagCmd0.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_removeTags');"/>
+  <key id="key_tag1" key="&tagCmd1.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag1');"/>
+  <key id="key_tag2" key="&tagCmd2.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag2');"/>
+  <key id="key_tag3" key="&tagCmd3.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag3');"/>
+  <key id="key_tag4" key="&tagCmd4.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag4');"/>
+  <key id="key_tag5" key="&tagCmd5.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag5');"/>
+  <key id="key_tag6" key="&tagCmd6.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag6');"/>
+  <key id="key_tag7" key="&tagCmd7.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag7');"/>
+  <key id="key_tag8" key="&tagCmd8.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag8');"/>
+  <key id="key_tag9" key="&tagCmd9.key;" modifiers="shift any"
+       oncommand="goDoCommand('cmd_tag9');"/>
+
+  <!-- Tools Keys -->
+  <key id="key_searchMail"
+       key="&searchMailCmd.key;"
+       oncommand="goDoCommand('cmd_search')"
+       modifiers="accel,shift"/>
+  <key id="key_errorConsole"
+       key="&errorConsoleCmd.commandkey;"
+       oncommand="toJavaScriptConsole();"
+       modifiers="accel,shift"/>
+  <key id="key_devtoolsToolbox"
+       key="&devToolboxCmd.commandkey;"
+#ifdef XP_MACOSX
+       modifiers="accel,alt"
+#else
+       modifiers="accel,shift"
+#endif
+       oncommand="BrowserToolboxProcess.init();"/>
+  <key id="key_scratchpad"
+       keycode="&scratchpadCmd.keycode;"
+       keytext="&scratchpadCmd.keytext;"
+       modifiers="shift"
+       oncommand="ScratchpadManager.openScratchpad({ executionContext: 2 });"/>
+  <key id="key_sanitizeHistory"
+       keycode="VK_DELETE"
+       oncommand="toSanitize();"
+       modifiers="accel,shift"/>
+#ifdef XP_MACOSX
+  <key id="key_sanitizeHistory_mac"
+       keycode="VK_BACK"
+       oncommand="toSanitize();"
+       modifiers="accel,shift"/>
+#endif
+  <key id="key_addressbook"
+       key="&addressBookCmd.key;"
+       modifiers="accel, shift"
+       oncommand="toAddressBook();"/>
+  <key id="key_savedFiles"
+       key="&savedFiles.key;"
+       modifiers="accel"
+       oncommand="openSavedFilesWnd();"/>
+
+  <key id="key_qfb_escape" keycode="VK_ESCAPE"
+       command="cmd_popQuickFilterBarStack"/>
+  <key id="key_qfb_show" key="&quickFilterBar.show.key2;"
+       modifiers="accel,shift"
+       command="cmd_showQuickFilterBar"/>
+#ifdef XP_GNOME
+#define NUM_SELECT_TAB_MODIFIER alt
+#else
+#define NUM_SELECT_TAB_MODIFIER accel
+#endif
+
+#expand    <key id="key_mail" oncommand="focusOnMail(0, event);" key="1" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+#expand    <key id="key_selectTab2" oncommand="focusOnMail(1, event);" key="2" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+#expand    <key id="key_selectTab3" oncommand="focusOnMail(2, event);" key="3" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+#expand    <key id="key_selectTab4" oncommand="focusOnMail(3, event);" key="4" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+#expand    <key id="key_selectTab5" oncommand="focusOnMail(4, event);" key="5" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+#expand    <key id="key_selectTab6" oncommand="focusOnMail(5, event);" key="6" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+#expand    <key id="key_selectTab7" oncommand="focusOnMail(6, event);" key="7" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+#expand    <key id="key_selectTab8" oncommand="focusOnMail(7, event);" key="8" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+#expand    <key id="key_selectLastTab" oncommand="focusOnMail(-1, event);" key="9" modifiers="__NUM_SELECT_TAB_MODIFIER__"/>
+
+#ifdef XP_MACOSX
+  <!-- Mac Window menu keys -->
+  <key id="key_minimizeWindow" command="minimizeWindow" key="&minimizeWindow.key;" modifiers="accel"/>
+  <key id="key_addressbook" key="&addressBookCmd.key;" oncommand="toAddressBook();" modifiers="accel, shift"/>
+    <!-- the following 3 keys are used in the application menu on Mac OS X Cocoa widgets -->
+  <key id="key_preferencesCmdMac" key="&preferencesCmdMac.commandkey;" modifiers="&preferencesCmdMac.modifiers;"/>
+  <key id="key_hideThisAppCmdMac" key="&hideThisAppCmdMac.commandkey;" modifiers="&hideThisAppCmdMac.modifiers;"/>
+  <key id="key_hideOtherAppsCmdMac" key="&hideOtherAppsCmdMac.commandkey;" modifiers="&hideOtherAppsCmdMac.modifiers;"/>
+  <key id="key_openHelp" oncommand="openSupportURL();" key="&openHelpMac2.commandkey;" modifiers="&openHelpMac2.modifiers;"/>
+#else
+  <key id="key_openHelp" oncommand="openSupportURL();" keycode="&openHelp.commandkey;"/>
+#endif

@@ -16,6 +16,7 @@ ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
 
 XPCOMUtils.defineLazyScriptGetter(this, "gViewSourceUtils",
@@ -802,4 +803,10 @@ nsFlavorDataProvider.prototype =
       }
     }
   }
+}
+
+function UpdateCharsetMenu(aCharset, aNode)
+{
+  var bundle = document.getElementById("charsetBundle");
+  CharsetMenu.update(aNode, bundle.getString(aCharset.toLowerCase()));
 }

@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #filter substitution
-
+#define MAIN_WINDOW
 <?xml-stylesheet href="chrome://messenger/skin/mailWindow1.css" type="text/css"?>
 <?xml-stylesheet href="chrome://gloda/content/glodacomplete.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
@@ -15,10 +15,11 @@
 <?xml-stylesheet href="chrome://messenger/content/chat/chat.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/chat.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgHdrViewSMIMEOverlay.css" type="text/css"?>
-
-<?xul-overlay href="chrome://messenger/content/mailWindowOverlay.xul"?>
+<?xml-stylesheet href="chrome://messenger/skin/smime/msgReadSMIMEOverlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -41,6 +42,18 @@
 %utilityDTD;
 <!ENTITY % editContactOverlayDTD SYSTEM "chrome://messenger/locale/editContactOverlay.dtd">
 %editContactOverlayDTD;
+<!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
+%msgViewPickerDTD;
+<!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
+%baseMenuOverlayDTD;
+<!ENTITY % charsetDTD SYSTEM "chrome://global/locale/charsetMenu.dtd">
+%charsetDTD;
+<!ENTITY % viewZoomOverlayDTD SYSTEM "chrome://messenger/locale/viewZoomOverlay.dtd">
+%viewZoomOverlayDTD;
+<!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
+%msgReadSMIMEDTD;
+<!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
+%msgViewPickerDTD;
 ]>
 
 <!--
@@ -73,6 +86,8 @@
   <stringbundle id="bundle_places" src="chrome://places/locale/places.properties"/>
   <stringbundle id="bundle_editContact"
                 src="chrome://messenger/locale/editContactOverlay.properties"/>
+  <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
+  <stringbundle id="charsetBundle" src="chrome://communicator/content/labelsencodings.properties"/>
 </stringbundleset>
 
 <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
@@ -103,36 +118,54 @@
 <script type="application/javascript" src="chrome://messenger/content/msgHdrView.js"/>
 <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
 <script type="application/javascript" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
+<script type="application/javascript" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
 <script type="application/javascript" src="chrome://messenger/content/chat/chat-messenger.js"/>
 <script type="application/javascript" src="chrome://messenger/content/chat/imStatusSelector.js"/>
 <script type="application/javascript" src="chrome://messenger/content/chat/imContextMenu.js"/>
 <script type="application/javascript" src="chrome://messenger/content/preferences/preferencesTab.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
+<script type="application/javascript" src="chrome://messenger/content/junkCommands.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mailWindowOverlay.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mailTabs.js"/>
+<script type="application/javascript" src="chrome://messenger/content/messageDisplay.js"/>
+<script type="application/javascript" src="chrome://messenger/content/folderDisplay.js"/>
+<script type="application/javascript" src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mail-offline.js"/>
+<script type="application/javascript" src="chrome://global/content/printUtils.js"/>
+<script type="application/javascript" src="chrome://messenger/content/msgViewPickerOverlay.js"/>
+<script type="application/javascript" src="chrome://messenger/content/plugins.js"/>
+<script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
+<script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
+<script type="application/javascript" src="chrome://messenger/content/quickFilterBar.js"/>
+<script type="application/javascript" src="chrome://messenger/content/newmailaccount/uriListener.js"/>
 #ifdef XP_MACOSX
-<script type="application/javascript" src="chrome://messenger/content/mailCore.js" />
 <script type="application/javascript" src="chrome://messenger/content/macMessengerMenu.js"/>
+<script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>
 #endif
-
 
 <!-- move needed functions into a single js file -->
 <script type="application/javascript" src="chrome://messenger/content/threadPane.js"/>
 
 <commandset id="mailCommands">
-  <commandset id="mailFileMenuItems"/>
-  <commandset id="mailViewMenuItems"/>
-  <commandset id="mailEditMenuItems"/>
-  <commandset id="mailEditContextMenuItems"/>
+#include mainCommandSet.inc
   <commandset id="mailSearchMenuItems"/>
-  <commandset id="mailGoMenuItems"/>
-  <commandset id="mailMessageMenuItems"/>
-  <commandset id="mailToolbarItems"/>
-  <commandset id="mailGetMsgMenuItems"/>
-  <commandset id="mailTagMenuItems"/>
-  <commandset id="mailMarkMenuItems"/>
-  <commandset id="mailToolsMenuItems"/>
-  <commandset id="globalEditMenuItems"/>
-  <commandset id="selectEditMenuItems"/>
-  <commandset id="undoEditMenuItems" commandupdater="true" events="undo" oncommandupdate="goUpdateUndoEditMenuItems()"/>
-  <commandset id="clipboardEditMenuItems" commandupdater="true" events="clipboard" oncommandupdate="goUpdatePasteMenuItems()"/>
+  <commandset id="globalEditMenuItems"
+              commandupdater="true"
+              events="create-menu-edit"
+              oncommandupdate="goUpdateGlobalEditMenuItems()"/>
+  <commandset id="selectEditMenuItems"
+              commandupdater="true"
+              events="create-menu-edit"
+              oncommandupdate="goUpdateSelectEditMenuItems()"/>
+  <commandset id="undoEditMenuItems"
+              commandupdater="true"
+              events="undo"
+              oncommandupdate="goUpdateUndoEditMenuItems()"/>
+  <commandset id="clipboardEditMenuItems"
+              commandupdater="true"
+              events="clipboard"
+              oncommandupdate="goUpdatePasteMenuItems()"/>
   <commandset id="webSearchItems"/>
   <commandset id="attachmentCommands">
     <command id="cmd_openAllAttachments"
@@ -156,9 +189,6 @@
     <command id="cmd_newMessage" oncommand="goOpenNewMessage();"/>
     <command id="cmd_newCard" oncommand="openNewCardDialog()"/>
   </commandset>
-#ifdef XP_MACOSX
-  <commandset id="macWindowMenuItems"/>
-#endif
   <command id="cmd_close" oncommand="CloseTabOrWindow();"/>
 </commandset>
 
@@ -167,36 +197,32 @@
 </broadcasterset>
 
 <keyset id="mailKeys">
+#include mainKeySet.inc
   <keyset id="tasksKeys">
 #ifdef XP_MACOSX
-  <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
-       modifiers="accel,shift"/>
-  <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
-       modifiers="accel"/>
+    <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
+         modifiers="accel,shift"/>
+    <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
+         modifiers="accel"/>
 #else
-  <key id="key_newMessage"  key="&newMessageCmd.key;" command="cmd_newMessage"
-       modifiers="accel"/>
-  <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
-       modifiers="accel"/>
+    <key id="key_newMessage"  key="&newMessageCmd.key;" command="cmd_newMessage"
+         modifiers="accel"/>
+    <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
+         modifiers="accel"/>
 #endif
   </keyset>
 </keyset>
 
 <!-- Popup menus provided by mailWindowOverlay.xul -->
 <popupset id="mainPopupSet">
+#include mainPopupSet.inc
+#include msgHdrPopup.inc
   <panel type="glodacomplete-richlistbox"
          id="PopupGlodaAutocomplete"
          noautofocus="true" />
   <panel type="autocomplete"
          id="PopupAutoComplete"
          noautofocus="true"/>
-  <menupopup id="mailContext"/>
-  <menupopup id="toolbar-context-menu"/>
-  <menupopup id="remoteContentOptions"/>
-  <menupopup id="phishingOptions"/>
-  <menupopup id="folderPaneContext"/>
-
-#include msgHdrPopup.inc
 
   <tooltip id="attachmentListTooltip"/>
 
@@ -305,8 +331,8 @@
 </vbox>
 #endif
 
-  <!-- navigation-toolbox is augmented by mailWindowOverlay.xul -->
-  <toolbox id="navigation-toolbox" class="toolbox-top">
+  <!-- navigation-toolbox with main menubar and tabs toolbar -->
+#include mainNavigationToolbox.inc
 
     <toolbar id="tabs-toolbar">
       <!-- class tabmail-tabs is unused and only maintained for add-ons. -->
@@ -378,8 +404,8 @@
              the folder pane next to the thread view, with the message pane/reader
              beneath both of them. -->
         <box id="mailContent" orient="vertical" flex="1">
-          <!-- mail-toolbox is provided by mailWindowOverlay.xul -->
-          <toolbox id="mail-toolbox" />
+          <!-- mail-toolbox with the main toolbarbuttons -->
+#include mainMailToolbox.inc
 
           <box id="messengerBox" orient="horizontal" flex="1" minheight="100" height="100" persist="height">
             <vbox id="folderPaneBox" minwidth="125" width="200" persist="width">
@@ -708,6 +734,7 @@
   <notificationbox id="mail-notification-box" notificationside="bottom"/>
   <statuspanel id="statusbar-display" label=""/>
   <statusbar id="status-bar" class="chromeclass-status">
+#include mainStatusbar.inc
     <statusbarpanel id="unreadMessageCount"/>
     <statusbarpanel id="totalMessageCount"/>
   </statusbar>

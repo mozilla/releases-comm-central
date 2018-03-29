@@ -1,0 +1,299 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+  <command id="cmd_quit" oncommand="goQuitApplication()"/>
+  <!--The cmd_createFilterFromPopup is used to notify the email context popup -->
+  <command id="cmd_createFilterFromPopup"/>
+  <command id="cmd_CustomizeMailToolbar"
+           oncommand="CustomizeMailToolbar('mail-toolbox', 'CustomizeMailToolbar')"/>
+
+  <commandset id="mailFileMenuItems"
+              commandupdater="true"
+              events="create-menu-file"
+              oncommandupdate="goUpdateMailMenuItems(this)">
+
+      <command id="cmd_newFolder" oncommand="goDoCommand('cmd_newFolder')" disabled="true"/>
+      <command id="cmd_newVirtualFolder" oncommand="goDoCommand('cmd_newVirtualFolder')" disabled="true"/>
+      <command id="cmd_getNewMessages" oncommand="goDoCommand('cmd_getNewMessages')" disabled="true"/>
+      <command id="cmd_open" oncommand="goDoCommand('cmd_open')"/>
+
+      <command id="cmd_emptyTrash" oncommand="goDoCommand('cmd_emptyTrash')" disabled="true"/>
+      <command id="cmd_compactFolder" oncommand="goDoCommand('cmd_compactFolder')" disabled="true"/>
+      <command id="cmd_printSetup" oncommand="goDoCommand('cmd_printSetup')" disabled="true"/>
+      <command id="cmd_print" oncommand="goDoCommand('cmd_print')" disabled="true"/>
+      <command id="cmd_printpreview" oncommand="goDoCommand('cmd_printpreview')" disabled="true"/>
+      <command id="cmd_pageSetup"/>
+      <command id="cmd_saveAsFile" oncommand="goDoCommand('cmd_saveAsFile')" disabled="true"/>
+      <command id="cmd_saveAsTemplate" oncommand="goDoCommand('cmd_saveAsTemplate')" disabled="true"/>
+      <command id="cmd_getNextNMessages" oncommand="goDoCommand('cmd_getNextNMessages')" disabled="true"/>
+      <command id="cmd_deleteFolder" oncommand="goDoCommand('cmd_deleteFolder')"/>
+      <command id="cmd_renameFolder" oncommand="goDoCommand('cmd_renameFolder')" />
+      <command id="cmd_sendUnsentMsgs" oncommand="goDoCommand('cmd_sendUnsentMsgs')" />
+      <command id="cmd_subscribe" oncommand="goDoCommand('cmd_subscribe')" disabled="true"/>
+      <command id="cmd_synchronizeOffline" oncommand="goDoCommand('cmd_synchronizeOffline')" disabled="true"/>
+      <command id="cmd_downloadFlagged" oncommand="goDoCommand('cmd_downloadFlagged')" disabled="true"/>
+      <command id="cmd_downloadSelected" oncommand="goDoCommand('cmd_downloadSelected')" disabled="true"/>
+      <command id="cmd_settingsOffline" oncommand="goDoCommand('cmd_settingsOffline')" disabled="true"/>
+  </commandset>
+
+  <commandset id="mailViewMenuItems"
+              commandupdater="true"
+              events="create-menu-view"
+              oncommandupdate="goUpdateMailMenuItems(this)">
+
+     <command id="cmd_showQuickFilterBar"
+              oncommand="goDoCommand('cmd_showQuickFilterBar');"/>
+     <command id="cmd_toggleQuickFilterBar"
+              oncommand="goDoCommand('cmd_toggleQuickFilterBar');"/>
+     <command id="cmd_popQuickFilterBarStack"
+              oncommand="goDoCommand('cmd_popQuickFilterBarStack');"/>
+     <command id="cmd_viewPageSource" oncommand="goDoCommand('cmd_viewPageSource')" disabled="true"/>
+     <command id="cmd_setFolderCharset" oncommand="goDoCommand('cmd_setFolderCharset')" />
+
+     <command id="cmd_expandAllThreads" oncommand="goDoCommand('cmd_expandAllThreads')" disabled="true"/>
+     <command id="cmd_collapseAllThreads" oncommand="goDoCommand('cmd_collapseAllThreads')" disabled="true"/>
+     <command id="cmd_viewClassicMailLayout" oncommand="goDoCommand('cmd_viewClassicMailLayout')" disabled="true"/>
+     <command id="cmd_viewWideMailLayout" oncommand="goDoCommand('cmd_viewWideMailLayout')" disabled="true"/>
+     <command id="cmd_viewVerticalMailLayout" oncommand="goDoCommand('cmd_viewVerticalMailLayout')" disabled="true"/>
+     <command id="cmd_toggleFolderPane" oncommand="goDoCommand('cmd_toggleFolderPane')" disabled="true"/>
+     <command id="cmd_toggleFolderPaneCols" oncommand="goDoCommand('cmd_toggleFolderPaneCols')" disabled="true"/>
+     <command id="cmd_toggleMessagePane" oncommand="goDoCommand('cmd_toggleMessagePane')" disabled="true"/>
+     <command id="cmd_viewAllMsgs" oncommand="goDoCommand('cmd_viewAllMsgs')" disabled="true"/>
+     <command id="cmd_viewUnreadMsgs" oncommand="goDoCommand('cmd_viewUnreadMsgs')" disabled="true"/>
+     <command id="cmd_viewThreadsWithUnread" oncommand="goDoCommand('cmd_viewThreadsWithUnread')" disabled="true"/>
+     <command id="cmd_viewWatchedThreadsWithUnread" oncommand="goDoCommand('cmd_viewWatchedThreadsWithUnread')" disabled="true"/>
+     <command id="cmd_viewIgnoredThreads" oncommand="goDoCommand('cmd_viewIgnoredThreads')" disabled="true"/>
+     <commandset id="viewZoomCommands"
+                 commandupdater="true"
+                 events="create-menu-view"
+                 oncommandupdate="goUpdateMailMenuItems(this);">
+       <command id="cmd_fullZoomReduce"
+                oncommand="goDoCommand('cmd_fullZoomReduce');"/>
+       <command id="cmd_fullZoomEnlarge"
+                oncommand="goDoCommand('cmd_fullZoomEnlarge');"/>
+       <command id="cmd_fullZoomReset"
+                oncommand="goDoCommand('cmd_fullZoomReset');"/>
+       <command id="cmd_fullZoomToggle"
+                oncommand="goDoCommand('cmd_fullZoomToggle');"
+                checked="false"/>
+       <command id="cmd_viewSecurityStatus"
+                oncommand="showMessageReadSecurityInfo();"
+                disabled="true"/>
+     </commandset>
+  </commandset>
+
+  <commandset id="mailEditMenuItems"
+              commandupdater="true"
+              events="create-menu-edit"
+              oncommandupdate="goUpdateMailMenuItems(this)">
+
+    <command id="cmd_undo"
+           valueDeleteMsg="&undoDeleteMsgCmd.label;"
+           valueMoveMsg="&undoMoveMsgCmd.label;"
+           valueCopyMsg="&undoCopyMsgCmd.label;"
+           valueUnmarkAllMsgs="&undoMarkAllCmd.label;"
+           valueDefault="&undoDefaultCmd.label;"/>
+    <command id="cmd_redo"
+           valueDeleteMsg="&redoDeleteMsgCmd.label;"
+           valueMoveMsg="&redoMoveMsgCmd.label;"
+           valueCopyMsg="&redoCopyMsgCmd.label;"
+           valueUnmarkAllMsgs="&redoMarkAllCmd.label;"
+           valueDefault="&redoDefaultCmd.label;"/>
+    <command id="cmd_cut"
+           oncommand="goDoCommand('cmd_cut')"
+           disabled="true"/>
+    <command id="cmd_copy"
+           oncommand="goDoCommand('cmd_copy')"
+           disabled="true"/>
+    <command id="cmd_paste"
+           oncommand="goDoCommand('cmd_paste')"
+           disabled="true"/>
+    <command id="cmd_delete"
+           valueDefault="&deleteCmd.label;"
+           valueDefaultAccessKey="&deleteCmd.accesskey;"
+           valueFolder="&deleteFolderCmd.label;"
+           valueFolderAccessKey="&deleteFolderCmd.accesskey;"
+           valueNewsgroup="&unsubscribeNewsgroupCmd.label;"
+           valueNewsgroupAccessKey="&unsubscribeNewsgroupCmd.accesskey;"
+           valueMessage="&deleteMsgCmd.label;"
+           valueMessageAccessKey="&deleteMsgCmd.accesskey;"
+           valueIMAPDeletedMessage="&undeleteMsgCmd.label;"
+           valueIMAPDeletedMessageAccessKey="&undeleteMsgCmd.accesskey;"
+           valueMessages="&deleteMsgsCmd.label;"
+           valueMessagesAccessKey="&deleteMsgsCmd.accesskey;"
+           valueIMAPDeletedMessages="&undeleteMsgsCmd.label;"
+           valueIMAPDeletedMessagesAccessKey="&undeleteMsgsCmd.accesskey;"
+           oncommand="goDoCommand('cmd_delete')"
+           disabled="true"/>
+    <command id="cmd_cancel" oncommand="goDoCommand('cmd_cancel')"/>
+    <command id="cmd_selectAll"
+           oncommand="goDoCommand('cmd_selectAll')"
+           disabled="true"/>
+    <command id="cmd_selectThread" oncommand="goDoCommand('cmd_selectThread')"/>
+    <command id="cmd_selectFlagged" oncommand="goDoCommand('cmd_selectFlagged')"/>
+    <command id="cmd_properties" oncommand="goDoCommand('cmd_properties')"
+           valueNewsgroup="&folderPropsNewsgroupCmd2.label;"
+           valueFolder="&folderPropsFolderCmd2.label;"
+           valueGeneric="&folderPropsCmd2.label;"/>
+    <command id="cmd_find" oncommand="goDoCommand('cmd_find')" disabled="true"/>
+    <command id="cmd_findAgain" oncommand="goDoCommand('cmd_findAgain')" disabled="true"/>
+    <command id="cmd_findPrevious" oncommand="goDoCommand('cmd_findPrevious')"
+             disabled="true"/>
+    <command id="cmd_search" oncommand="goDoCommand('cmd_search')"/>
+    <!-- Stop/abort current network activities. -->
+    <command id="cmd_stop" oncommand="goDoCommand('cmd_stop')"/>
+    <command id="cmd_reload" oncommand="goDoCommand('cmd_reload')"/>
+  </commandset>
+
+  <commandset id="mailEditContextMenuItems">
+    <command id="cmd_copyLink" oncommand="goDoCommand('cmd_copyLink')" disabled="false"/>
+    <command id="cmd_copyImage" oncommand="goCopyImage()" disabled="false"/>
+  </commandset>
+
+  <commandset id="mailGoMenuItems"
+              commandupdater="true"
+              events="create-menu-go"
+              oncommandupdate="goUpdateMailMenuItems(this)">
+
+    <command id="cmd_nextMsg" oncommand="goDoCommand('cmd_nextMsg')" disabled="true"/>
+    <command id="cmd_nextUnreadMsg" oncommand="goDoCommand('cmd_nextUnreadMsg')" disabled="true"/>
+    <command id="cmd_nextFlaggedMsg" oncommand="goDoCommand('cmd_nextFlaggedMsg')" disabled="true"/>
+    <command id="cmd_nextUnreadThread" oncommand="goDoCommand('cmd_nextUnreadThread')" disabled="true"/>
+    <command id="cmd_previousMsg" oncommand="goDoCommand('cmd_previousMsg')" disabled="true"/>
+    <command id="cmd_previousUnreadMsg" oncommand="goDoCommand('cmd_previousUnreadMsg')" disabled="true"/>
+    <command id="cmd_previousFlaggedMsg" oncommand="goDoCommand('cmd_previousFlaggedMsg')" disabled="true"/>
+    <command id="cmd_goStartPage" oncommand="goDoCommand('cmd_goStartPage');"/>
+    <command id="cmd_undoCloseTab" oncommand="goDoCommand('cmd_undoCloseTab');"/>
+    <command id="cmd_goForward" oncommand="goDoCommand('cmd_goForward')" disabled="true"/>
+    <command id="cmd_goBack" oncommand="goDoCommand('cmd_goBack')" disabled="true"/>
+    <command id="cmd_goFolder" oncommand="gFolderTreeView.selectFolder(event.target._folder, true);" disabled="true"/>
+    <command id="cmd_chat" oncommand="goDoCommand('cmd_chat')" disabled="true"/>
+  </commandset>
+
+  <commandset id="mailMessageMenuItems"
+              commandupdater="true"
+              events="create-menu-message"
+              oncommandupdate="goUpdateMailMenuItems(this)">
+    <command id="cmd_archive" oncommand="goDoCommand('cmd_archive')"/>
+    <command id="cmd_newMessage" oncommand="MsgNewMessage(event)"/>
+    <command id="cmd_reply" oncommand="MsgReplyMessage(event)"/>
+    <command id="cmd_replySender" oncommand="MsgReplySender(event);"/>
+    <command id="cmd_replyGroup" oncommand="MsgReplyGroup(event);"/>
+    <command id="cmd_replyall" oncommand="MsgReplyToAllMessage(event);"/>
+    <command id="cmd_replylist" oncommand="MsgReplyToListMessage(event);"/>
+    <command id="cmd_forward" oncommand="MsgForwardMessage(event);"/>
+    <command id="cmd_forwardInline" oncommand="MsgForwardAsInline(event)"/>
+    <command id="cmd_forwardAttachment" oncommand="MsgForwardAsAttachment(event);"/>
+    <command id="cmd_editAsNew" oncommand="MsgEditMessageAsNew(event);"/>
+    <command id="cmd_editDraftMsg" oncommand="MsgEditDraftMessage(event);"/>
+    <command id="cmd_newMsgFromTemplate" oncommand="MsgNewMessageFromTemplate(event);"/>
+    <command id="cmd_editTemplateMsg" oncommand="MsgEditTemplateMessage(event);"/>
+    <command id="cmd_openMessage" oncommand="goDoCommand('cmd_openMessage')"/>
+    <command id="cmd_openConversation" oncommand="goDoCommand('cmd_openConversation')"/>
+    <command id="cmd_moveToFolderAgain" oncommand="goDoCommand('cmd_moveToFolderAgain')"/>
+    <command id="cmd_createFilterFromMenu" oncommand="goDoCommand('cmd_createFilterFromMenu')"/>
+    <command id="cmd_killThread" oncommand="goDoCommand('cmd_killThread')"/>
+    <command id="cmd_killSubthread" oncommand="goDoCommand('cmd_killSubthread')"/>
+    <command id="cmd_watchThread" oncommand="goDoCommand('cmd_watchThread')"/>
+  </commandset>
+
+  <commandset id="mailToolbarItems"
+              commandupdater="true"
+              events="mail-toolbar"
+              oncommandupdate="goUpdateMailMenuItems(this)">
+    <command id="cmd_newMessage"/>
+    <command id="button_reply"/>
+    <command id="button_replyall"/>
+    <command id="button_replylist"/>
+    <command id="button_followup"/>
+    <command id="button_archive"/>
+    <command id="button_forward"/>
+    <command id="button_delete"/>
+    <command id="button_mark"/>
+    <command id="cmd_tag"/>
+    <command id="button_getNewMessages"/>
+    <command id="button_print"/>
+    <command id="button_previous"/>
+    <command id="button_previousMsg"/>
+    <command id="button_next"/>
+    <command id="button_nextMsg"/>
+    <command id="button_goBack"/>
+    <command id="button_goForward"/>
+    <command id="button_file"/>
+    <command id="cmd_delete"/>
+    <command id="button_junk"/>
+    <command id="button_showconversation"/>
+    <command id="button_compact"/>
+    <command id="cmd_chat"/>
+  </commandset>
+
+  <commandset id="mailGetMsgMenuItems"
+              commandupdater="true"
+              events="create-menu-getMsgToolbar,create-menu-file"
+              oncommandupdate="goUpdateMailMenuItems(this)">
+
+      <command id="cmd_getMsgsForAuthAccounts"
+               oncommand="goDoCommand('cmd_getMsgsForAuthAccounts'); event.stopPropagation()"
+               disabled="true"/>
+  </commandset>
+
+  <commandset id="mailMarkMenuItems"
+                commandupdater="true"
+                events="create-menu-mark"
+                oncommandupdate="goUpdateMailMenuItems(this)">
+
+      <command id="cmd_toggleRead" oncommand="goDoCommand('cmd_toggleRead'); event.stopPropagation()" disabled="true"/>
+      <command id="cmd_markAsRead" oncommand="goDoCommand('cmd_markAsRead'); event.stopPropagation()" disabled="true"/>
+      <command id="cmd_markAsUnread" oncommand="goDoCommand('cmd_markAsUnread'); event.stopPropagation()" disabled="true"/>
+      <command id="cmd_markAllRead" oncommand="goDoCommand('cmd_markAllRead'); event.stopPropagation()" disabled="true"/>
+      <command id="cmd_markThreadAsRead" oncommand="goDoCommand('cmd_markThreadAsRead'); event.stopPropagation()" disabled="true"/>
+      <command id="cmd_markReadByDate" oncommand="goDoCommand('cmd_markReadByDate');" disabled="true"/>
+      <command id="cmd_markAsFlagged" oncommand="goDoCommand('cmd_markAsFlagged'); event.stopPropagation()" disabled="true"/>
+      <command id="cmd_markAsJunk" oncommand="goDoCommand('cmd_markAsJunk'); event.stopPropagation()" disabled="true"/>
+      <command id="cmd_markAsNotJunk" oncommand="goDoCommand('cmd_markAsNotJunk'); event.stopPropagation()" disabled="true"/>
+      <command id="cmd_recalculateJunkScore" oncommand="goDoCommand('cmd_recalculateJunkScore');" disabled="true"/>
+      <command id="cmd_viewAllHeader" oncommand="goDoCommand('cmd_viewAllHeader');" disabled="true"/>
+      <command id="cmd_viewNormalHeader" oncommand="goDoCommand('cmd_viewNormalHeader');" disabled="true"/>
+  </commandset>
+
+  <commandset id="mailTagMenuItems"
+              commandupdater="true"
+              events="create-menu-tag"
+              oncommandupdate="goUpdateMailMenuItems(this);">
+
+      <command id="cmd_addTag" oncommand="goDoCommand('cmd_addTag'); event.stopPropagation();"/>
+      <command id="cmd_manageTags" oncommand="goDoCommand('cmd_manageTags'); event.stopPropagation();"/>
+      <command id="cmd_removeTags" oncommand="goDoCommand('cmd_removeTags'); event.stopPropagation();"/>
+  </commandset>
+
+  <commandset id="mailToolsMenuItems"
+                commandupdater="true"
+                events="create-menu-tasks"
+                oncommandupdate="goUpdateMailMenuItems(this)">
+    <command id="cmd_displayMsgFilters"
+             oncommand="goDoCommand('cmd_displayMsgFilters');" disabled="true"/>
+    <command id="cmd_applyFilters" oncommand="goDoCommand('cmd_applyFilters');" disabled="true"/>
+    <command id="cmd_applyFiltersToSelection"
+             oncommand="goDoCommand('cmd_applyFiltersToSelection');"
+             disabled="true"
+             valueSelection="&filtersApplyToSelection.label;"
+             valueSelectionAccessKey="&filtersApplyToSelection.accesskey;"
+             valueMessage="&filtersApplyToMessage.label;"
+             valueMessageAccessKey="&filtersApplyToMessage.accesskey;"/>
+    <command id="cmd_runJunkControls" oncommand="goDoCommand('cmd_runJunkControls');" disabled="true"/>
+    <command id="cmd_deleteJunk" oncommand="goDoCommand('cmd_deleteJunk');" disabled="true"/>
+    <command id="cmd_joinChat" oncommand="goDoCommand('cmd_joinChat');" disabled="true"/>
+    <command id="cmd_chatStatus" oncommand="chatHandler.setStatusMenupopupCommand(event);" disabled="true"/>
+    <command id="cmd_addChatBuddy" oncommand="goDoCommand('cmd_addChatBuddy');" disabled="true"/>
+  </commandset>
+
+#ifdef XP_MACOSX
+  <commandset id="macWindowMenuItems">
+    <!-- Mac Window menu -->
+    <command id="minimizeWindow" label="&minimizeWindow.label;" oncommand="window.minimize();"/>
+    <command id="zoomWindow" label="&zoomWindow.label;" oncommand="zoomWindow();"/>
+    <command id="Tasks:Mail" oncommand="focusOnMail(1);"/>
+    <command id="Tasks:AddressBook" oncommand="toAddressBook();"/>
+  </commandset>
+#endif

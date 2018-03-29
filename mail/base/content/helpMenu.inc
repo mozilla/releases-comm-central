@@ -20,6 +20,10 @@
           <menuitem id="releaseNotes"
                     label="&releaseCmd2.label;" accesskey="&releaseCmd2.accesskey;"
                     oncommand="openFormattedURL('app.releaseNotesURL');"/>
+          <menuitem id="aboutsupport_open"
+                    label="&helpTroubleshootingInfo.label;"
+                    accesskey="&helpTroubleshootingInfo.accesskey;"
+                    oncommand="openAboutSupport();"/>
           <menuseparator id="functionsSeparator"/>
           <menuitem id="helpSafeMode"
                     label="&helpSafeMode.label;"

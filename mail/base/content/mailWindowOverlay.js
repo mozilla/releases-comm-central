@@ -3014,7 +3014,7 @@ var gMessageNotificationBar =
 
   get brandBundle() {
     delete this.brandBundle;
-    return this.brandBundle = document.getElementById("brand_bundle");
+    return this.brandBundle = document.getElementById("bundle_brand");
   },
 
   get msgNotificationBar() {
