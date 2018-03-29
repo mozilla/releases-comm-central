@@ -24,9 +24,23 @@ chat/**
 editor/**
 im/**
 ldap/**
-mail/**
 mailnews/**
 suite/**
+
+# mail exclusions
+mail/app/**
+mail/base/**
+mail/branding/**
+mail/config/**
+mail/extensions/**
+mail/installer/**
+mail/locales/**
+mail/test/**
+mail/themes/**
+
+# mail/components exclusions
+mail/components/*
+!mail/components/extensions
 
 # calendar/ exclusions
 

@@ -10,6 +10,7 @@ DIRS += [
     'cloudfile',
     'devtools',
     'downloads',
+    'extensions',
     'preferences',
     'addrbook',
     'migration',
