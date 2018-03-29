@@ -184,7 +184,7 @@ function _parseModifiers(aEvent)
                   .getService(Ci.nsIAppShellService)
                   .hiddenDOMWindow;
 
-  const masks = Ci.nsIDOMNSEvent;
+  const masks = Ci.nsIDOMEvent;
   var mval = 0;
   if (aEvent.shiftKey)
     mval |= masks.SHIFT_MASK;
