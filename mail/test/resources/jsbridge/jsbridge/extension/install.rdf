@@ -5,6 +5,7 @@
      <em:id>jsbridge@mozilla.com</em:id>
      <em:name>jsbridge</em:name>
      <em:version>2.4.14</em:version>
+     <em:bootstrap>true</em:bootstrap>
      <em:creator>Mikeal Rogers</em:creator>
      <em:description>Python to JavaScript bridge</em:description>
      <em:targetApplication>
