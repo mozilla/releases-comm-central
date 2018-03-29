@@ -1,0 +1,4 @@
+category webextension-modules mail chrome://messenger/content/ext-mail.json
+
+category webextension-scripts c-mail chrome://messenger/content/parent/ext-mail.js
+category webextension-scripts-addon mail chrome://messenger/content/child/ext-mail.js
