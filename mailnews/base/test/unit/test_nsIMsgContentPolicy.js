@@ -3,6 +3,7 @@
  * Test suite for nsIMsgContentPolicy to check we could add/remove customized protocol to
  * nsMsgContentPolicy.
  */
+ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 function makeURI(aURL) {
   var ioService = Cc["@mozilla.org/network/io-service;1"]
@@ -26,36 +27,29 @@ function run_test() {
   var content_uri = makeURI("custom-scheme://custom_content_url/1.jsp");
   Assert.ok(content_uri);
 
-  var decision = content_policy.shouldLoad(Ci.nsIContentPolicy.TYPE_IMAGE,
-                                           content_uri,
-                                           req_uri,
-                                           null,
-                                           "img/jpeg",
-                                           null);
+  let tmpChannel = NetUtil.newChannel({
+    uri: content_uri,
+    loadingNode: req_uri,
+    securityFlags: Ci.nsILoadInfo.SEC_ONLY_FOR_EXPLICIT_CONTENTSEC_CHECK,
+    contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE
+  });
+  let tmpLoadInfo = tmpChannel.loadInfo;
+
+  var decision = content_policy.shouldLoad(content_uri, tmpLoadInfo, "img/jpeg");
   Assert.notEqual(decision,
                   Ci.nsIContentPolicy.ACCEPT,
                   "customized protocol should not load");
 
   msg_content_policy.addExposedProtocol("custom-scheme");
 
-  decision = content_policy.shouldLoad(Ci.nsIContentPolicy.TYPE_IMAGE,
-                                       content_uri,
-                                       req_uri,
-                                       null,
-                                       "img/jpeg",
-                                       null);
+  decision = content_policy.shouldLoad(content_uri, tmpLoadInfo, "img/jpeg");
   Assert.equal(decision,
                Ci.nsIContentPolicy.ACCEPT,
                "customized protocol should load");
 
   msg_content_policy.removeExposedProtocol("custom-scheme");
 
-  decision = content_policy.shouldLoad(Ci.nsIContentPolicy.TYPE_IMAGE,
-                                       content_uri,
-                                       req_uri,
-                                       null,
-                                       "img/jpeg",
-                                       null);
+  decision = content_policy.shouldLoad(content_uri, tmpLoadInfo, "img/jpeg");
   Assert.notEqual(decision,
                   Ci.nsIContentPolicy.ACCEPT,
                   "customized protocol should not load");

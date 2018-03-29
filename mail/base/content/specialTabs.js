@@ -7,6 +7,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 function tabProgressListener(aTab, aStartsBlank) {
   this.mTab = aTab;
@@ -204,11 +205,9 @@ var DOMLinkHandler = {
           }
       }
 
-      const nsIContentPolicy = Ci.nsIContentPolicy;
-
       try {
         var contentPolicy = Cc["@mozilla.org/layout/content-policy;1"]
-          .getService(nsIContentPolicy);
+                              .getService(Ci.nsIContentPolicy);
       }
       catch (e) {
         // Refuse to load if we can't do a security check.
@@ -219,10 +218,15 @@ var DOMLinkHandler = {
       // ensure that the image loaded always obeys the content policy. There
       // may have been a chance that it was cached and we're trying to load it
       // direct from the cache and not the normal route.
-      if (contentPolicy.shouldLoad(nsIContentPolicy.TYPE_IMAGE,
-                                   uri, targetDoc.documentURIObject,
-                                   link, link.type, null) !=
-                                   nsIContentPolicy.ACCEPT)
+      let tmpChannel = NetUtil.newChannel({
+        uri: uri,
+        loadingNode: targetDoc.documentURIObject,
+        securityFlags: Ci.nsILoadInfo.SEC_ONLY_FOR_EXPLICIT_CONTENTSEC_CHECK,
+        contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE
+      });
+      let tmpLoadInfo = tmpChannel.loadInfo;
+      if (contentPolicy.shouldLoad(uri, tmpLoadInfo, link.type) !=
+                                   Ci.nsIContentPolicy.ACCEPT)
         return;
 
       let tab = document.getElementById("tabmail")

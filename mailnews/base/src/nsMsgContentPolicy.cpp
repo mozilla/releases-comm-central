@@ -27,6 +27,7 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "nsINntpUrl.h"
+#include "nsILoadInfo.h"
 
 static const char kBlockRemoteImages[] = "mailnews.message_display.disable_remote_image";
 static const char kTrustedDomains[] =  "mail.trusteddomains";
@@ -139,16 +140,24 @@ bool nsMsgContentPolicy::IsTrustedDomain(nsIURI * aContentLocation)
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
-                               nsIURI           *aContentLocation,
-                               nsIURI           *aRequestingLocation,
-                               nsISupports      *aRequestingContext,
+nsMsgContentPolicy::ShouldLoad(nsIURI           *aContentLocation,
+                               nsILoadInfo      *aLoadInfo,
                                const nsACString &aMimeGuess,
-                               nsISupports      *aExtra,
-                               nsIPrincipal     *aRequestPrincipal,
                                int16_t          *aDecision)
 {
   nsresult rv = NS_OK;
+  uint32_t aContentType = aLoadInfo->GetExternalContentPolicyType();
+  nsCOMPtr<nsISupports> aRequestingContext
+    = aContentType == nsIContentPolicy::TYPE_DOCUMENT ?
+      aLoadInfo->ContextForTopLevelLoad() :
+      aLoadInfo->LoadingNode();
+  nsCOMPtr<nsIPrincipal> aRequestPrincipal = aLoadInfo->TriggeringPrincipal();
+  nsCOMPtr<nsIPrincipal> loadingPrincipal = aLoadInfo->LoadingPrincipal();
+  nsCOMPtr<nsIURI> aRequestingLocation;
+  if (loadingPrincipal) {
+    loadingPrincipal->GetURI(getter_AddRefs(aRequestingLocation));
+  }
+
   // The default decision at the start of the function is to accept the load.
   // Once we have checked the content type and the requesting location, then
   // we switch it to reject.
@@ -850,13 +859,9 @@ nsMsgContentPolicy::GetOriginatingURIForContext(nsISupports *aRequestingContext,
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::ShouldProcess(uint32_t          aContentType,
-                                  nsIURI           *aContentLocation,
-                                  nsIURI           *aRequestingLocation,
-                                  nsISupports      *aRequestingContext,
+nsMsgContentPolicy::ShouldProcess(nsIURI           *aContentLocation,
+                                  nsILoadInfo      *aLoadInfo,
                                   const nsACString &aMimeGuess,
-                                  nsISupports      *aExtra,
-                                  nsIPrincipal     *aRequestPrincipal,
                                   int16_t          *aDecision)
 {
   // XXX Returning ACCEPT is presumably only a reasonable thing to do if we
