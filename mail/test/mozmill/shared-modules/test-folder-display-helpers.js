@@ -1202,8 +1202,8 @@ function assert_folder_mode(aMode, aController) {
     aController = mc;
   let actualMode = aController.folderTreeView.mode;
   if (actualMode != aMode)
-    throw new Error("The folder mode should be " + aMode +
-                    ", but is actually " + actualMode);
+    throw new Error("The folder mode should be '" + aMode +
+                    "', but is actually '" + actualMode + "'");
 }
 
 /**
