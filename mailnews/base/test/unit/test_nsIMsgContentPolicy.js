@@ -29,7 +29,8 @@ function run_test() {
 
   let tmpChannel = NetUtil.newChannel({
     uri: content_uri,
-    loadingNode: req_uri,
+    // Needs one of 'loadingNode', 'loadingPrincipal' or 'loadUsingSystemPrincipal' which we don't have.
+    // Even with `loadUsingSystemPrincipal: true` this fails with "unknown protocol". See bug 1446587.
     securityFlags: Ci.nsILoadInfo.SEC_ONLY_FOR_EXPLICIT_CONTENTSEC_CHECK,
     contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE
   });

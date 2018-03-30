@@ -220,7 +220,7 @@ var DOMLinkHandler = {
       // direct from the cache and not the normal route.
       let tmpChannel = NetUtil.newChannel({
         uri: uri,
-        loadingNode: targetDoc.documentURIObject,
+        loadingNode: targetDoc,
         securityFlags: Ci.nsILoadInfo.SEC_ONLY_FOR_EXPLICIT_CONTENTSEC_CHECK,
         contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE
       });
