@@ -7,6 +7,8 @@
    * Extract the href from the link click event.
    * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,
    * HTMLInputElement.form.action, and nested anchor tags.
+   * If the clicked element was a HTMLInputElement or HTMLButtonElement
+   * we return the form action.
    *
    * @return href for the url being clicked
    */
@@ -35,7 +37,8 @@
       // a link node.
       return href;
     }
-    else if (!aDontCheckInputElement && target instanceof HTMLInputElement)
+    else if (!aDontCheckInputElement && ((target instanceof HTMLInputElement) ||
+                                         (target instanceof HTMLButtonElement)))
     {
       if (target.form && target.form.action)
         href = target.form.action;
