@@ -3,7 +3,6 @@
 TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
 
 . "$TOOLTOOL_DIR/build/unix/mozconfig.linux32"
-. "$TOOLTOOL_DIR/build/mozconfig.stylo"
 . "$TOOLTOOL_DIR/suite/config/mozconfigs/mozconfig.linux.common"
 . "$TOOLTOOL_DIR/suite/config/mozconfigs/common"
 

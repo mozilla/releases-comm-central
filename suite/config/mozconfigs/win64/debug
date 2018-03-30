@@ -4,7 +4,6 @@ TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
 
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
-. "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/build/win64/mozconfig.vs-latest"
 . "$topsrcdir/suite/config/mozconfigs/common"
 

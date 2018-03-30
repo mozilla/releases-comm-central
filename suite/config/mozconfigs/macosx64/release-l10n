@@ -2,7 +2,7 @@
 
 TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
 
-. $TOOLTOOL_DIR/build/macosx/mozconfig.common
+. $TOOLTOOL_DIR/build/macosx/local-mozconfig.common
 . $TOOLTOOL_DIR/suite/config/mozconfigs/common
 
 ac_add_options --with-l10n-base=../../l10n
