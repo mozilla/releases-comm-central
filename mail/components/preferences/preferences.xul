@@ -1,33 +1,21 @@
 <?xml version="1.0"?>
-
 # -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#ifdef XP_WIN
+#define USE_WIN_TITLE_STYLE
+#endif
+
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet href="chrome://messenger/content/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
-
-<!-- XXX This should be in applications.xul, but bug 393953 means putting it
-   - there causes the Applications pane not to work the first time you open
-   - the Preferences dialog in a browsing session, so we work around the problem
-   - by putting it here instead.
-   -->
 <?xml-stylesheet href="chrome://messenger/content/preferences/handlers.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/applications.css"?>
 
-<!DOCTYPE prefwindow [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-<!ENTITY % preferencesDTD SYSTEM "chrome://messenger/locale/preferences/preferences.dtd">
-%brandDTD;
-%preferencesDTD;
-]>
-
-#ifdef XP_WIN
-#define USE_WIN_TITLE_STYLE
-#endif
+#include doctype.inc
 
 <prefwindow type="prefwindow"
             id="MailPreferences"
@@ -59,20 +47,12 @@
   <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
   <script type="application/javascript" src="chrome://messenger/content/preferences/preferences.js"/>
 
-  <prefpane id="paneGeneral" label="&paneGeneral.title;"
-            src="chrome://messenger/content/preferences/general.xul"/>
-  <prefpane id="paneDisplay" label="&paneDisplay.title;"
-            src="chrome://messenger/content/preferences/display.xul"/>
-  <prefpane id="paneCompose" label="&paneComposition.title;"
-            src="chrome://messenger/content/preferences/compose.xul"/>
-  <prefpane id="paneChat" label="&paneChat.title;"
-            src="chrome://messenger/content/preferences/chat.xul"/>
-  <prefpane id="panePrivacy" label="&panePrivacy.title;"
-            src="chrome://messenger/content/preferences/privacy.xul"/>
-  <prefpane id="paneSecurity" label="&paneSecurity.title;"
-            src="chrome://messenger/content/preferences/security.xul"/>
-  <prefpane id="paneApplications" label="&paneAttachments.title;"
-            src="chrome://messenger/content/preferences/applications.xul"/>
-  <prefpane id="paneAdvanced" label="&paneAdvanced.title;"
-            src="chrome://messenger/content/preferences/advanced.xul"/>
+#include general.inc.xul
+#include display.inc.xul
+#include compose.inc.xul
+#include chat.inc.xul
+#include privacy.inc.xul
+#include security.inc.xul
+#include applications.inc.xul
+#include advanced.inc.xul
 </prefwindow>
