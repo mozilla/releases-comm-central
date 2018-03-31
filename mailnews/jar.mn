@@ -115,7 +115,6 @@ messenger.jar:
     content/messenger/messengercompose/askSendFormat.xul                       (compose/content/askSendFormat.xul)
     content/messenger/messengercompose/sendProgress.xul                        (compose/content/sendProgress.xul)
     content/messenger/messengercompose/sendProgress.js                         (compose/content/sendProgress.js)
-    content/messenger/messengercompose/mailComposeEditorOverlay.xul            (compose/content/mailComposeEditorOverlay.xul)
 #ifndef MOZ_THUNDERBIRD
     content/messenger/messengercompose/menulistCompactBindings.xml             (compose/content/menulistCompactBindings.xml)
 #endif

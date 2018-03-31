@@ -7,9 +7,12 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
-
-<!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorTableProperties.dtd">
+<!DOCTYPE dialog [
+<!ENTITY % edTableProperties SYSTEM "chrome://editor/locale/EditorTableProperties.dtd">
+%edTableProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://editor/locale/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
 
 <dialog title="&tableWindow.title;"
     id="tableDlg"
@@ -131,8 +134,11 @@
         <separator class="groove"/>
         <hbox flex="1" align="center">
           <spacer flex="1"/>
-          <!-- From EdDialogOvlerlay.xul -->
-          <button id="AdvancedEditButton"/>
+          <button id="AdvancedEditButton"
+            oncommand="onAdvancedEdit();"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"/>
         </hbox>
         <spacer flex="1"/>
       </vbox><!-- Table Panel -->
@@ -255,8 +261,11 @@
         <separator class="groove"/>
         <hbox align="center">
           <description class="wrap" flex="1" style="width: 1em">&cellUseCheckboxHelp.label;</description>
-          <!-- From EdDialogOvlerlay.xul -->
-          <button id="AdvancedEditButton2"/>
+          <button id="AdvancedEditButton2"
+                  oncommand="onAdvancedEdit()"
+                  label="&AdvancedEditButton.label;"
+                  accesskey="&AdvancedEditButton.accessKey;"
+                  tooltiptext="&AdvancedEditButton.tooltip;"/>
         </hbox>
         <spacer flex="1"/>
       </vbox><!-- Cell Panel -->

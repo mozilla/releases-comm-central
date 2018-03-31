@@ -1,16 +1,19 @@
 <?xml version="1.0"?>
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdImageOverlay.xul"?>
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
-
-<!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorImageProperties.dtd">
-
+<!DOCTYPE dialog [
+<!ENTITY % edImageProperties SYSTEM "chrome://editor/locale/EditorImageProperties.dtd">
+%edImageProperties;
+<!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
+%composeEditorOverlayDTD;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://editor/locale/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
 
 <!-- dialog containing a control requiring initial setup -->
 <dialog id="imageDlg" title="&windowTitle.label;"
@@ -23,25 +26,46 @@
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdImageProps.js"/>
+  <script type="application/javascript" src="chrome://editor/content/EdImageDialog.js"/>
+  <script type="application/javascript" src="chrome://editor/content/EdImageLinkLoader.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
   <broadcaster id="args" value=""/>
 
   <tabbox id="TabBox">
     <tabs flex="1">
-      <tab id="imageLocationTab"/>
-      <tab id="imageDimensionsTab"/>
-      <tab id="imageAppearanceTab"/>
-      <tab id="imageLinkTab"/>
+      <tab id="imageLocationTab" label="&imageLocationTab.label;"/>
+      <tab id="imageDimensionsTab" label="&imageDimensionsTab.label;"/>
+      <tab id="imageAppearanceTab" label="&imageAppearanceTab.label;"/>
+      <tab id="imageLinkTab" label="&imageLinkTab.label;"/>
     </tabs>
     <tabpanels>
-      <!-- panels overlaid from EdImageOverlay.xul -->
-      <vbox id="imageLocation"/>
-      <vbox id="imageDimensions"/>
-      <hbox id="imageAppearance"/>
+#include edImage.inc
       <vbox>
         <spacer class="spacer"/>
-        <vbox id="LinkLocationBox"/>
+        <vbox id="LinkLocationBox">
+          <label control="hrefInput"
+                 accesskey="&LinkURLEditField2.accessKey;"
+                 width="1">&LinkURLEditField2.label;</label>
+          <textbox id="hrefInput" type="autocomplete"
+                   autocompletesearch="unifiedcomplete" timeout="50" maxrows="6"
+                   class="uri-element padded" oninput="ChangeLinkLocation();">
+            <menupopup class="autocomplete-history-popup"
+                       popupalign="topleft" popupanchor="bottomleft"
+                       oncommand="this.parentNode.value = event.target.getAttribute('label'); ChangeLinkLocation();"/>
+          </textbox>
+          <hbox align="center">
+            <checkbox id="MakeRelativeLink"
+                      for="hrefInput"
+                      label="&makeUrlRelative.label;"
+                      accesskey="&makeUrlRelative.accessKey;"
+                      oncommand="MakeInputValueRelativeOrAbsolute(this);"
+                      tooltiptext="&makeUrlRelative.tooltip;"/>
+            <spacer flex="1"/>
+            <button label="&chooseFileLinkButton.label;" accesskey="&chooseFileLinkButton.accessKey;"
+                    oncommand="chooseLinkFile();"/>
+          </hbox>
+        </vbox>
         <spacer class="spacer"/>
         <hbox>
           <checkbox id="showLinkBorder"
@@ -60,10 +84,38 @@
   </tabbox>
 
   <hbox align="end">
-    <groupbox id="imagePreview"/>
+    <groupbox id="imagePreview" orient="horizontal" flex="1">
+      <caption label="&previewBox.label;"/>
+      <hbox id="preview-image-box" align="center">
+        <spacer flex="1"/>
+        <description id="preview-image-holder"/>
+        <spacer flex="1"/>
+      </hbox>
+      <vbox id="PreviewSize" collapsed="true">
+        <spacer flex="1"/>
+        <label value="&actualSize.label;"/>
+        <hbox>
+          <label value="&widthEditField.label;"/>
+          <spacer flex="1"/>
+          <label id="PreviewWidth"/>
+        </hbox>
+        <hbox>
+          <label value="&heightEditField.label;"/>
+          <spacer flex="1"/>
+          <label id="PreviewHeight"/>
+        </hbox>
+        <spacer flex="1"/>
+      </vbox>
+    </groupbox>
 
-    <!-- from EdDialogOverlay -->
-    <vbox id="AdvancedEdit"/>
+    <vbox id="AdvancedEdit">
+      <hbox flex="1" style="margin-top: 0.2em" align="center">
+        <!-- This will right-align the button -->
+        <spacer flex="1"/>
+        <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
+                accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
+      </hbox>
+    </vbox>
   </hbox>
   <separator class="groove"/>
 

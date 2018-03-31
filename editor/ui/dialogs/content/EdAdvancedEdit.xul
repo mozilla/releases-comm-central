@@ -9,10 +9,8 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<!-- May not need this here -->
-<!-- <?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> -->
-
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EdAdvancedEdit.dtd">
+
 <dialog title="&WindowTitle.label;"
     id="advancedEditDlg"
     style="width: 40em;"

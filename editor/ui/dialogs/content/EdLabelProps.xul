@@ -6,9 +6,13 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
+<!DOCTYPE dialog [
+<!ENTITY % edLabelProperties SYSTEM "chrome://editor/locale/EditorLabelProperties.dtd">
+%edLabelProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://editor/locale/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
 
-<!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorLabelProperties.dtd">
 <dialog title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="Startup();"
@@ -51,7 +55,11 @@
     <button id="RemoveLabel" label="&RemoveLabel.label;" accesskey="&RemoveLabel.accesskey;" oncommand="RemoveLabel();"/>
     <!-- This will right-align the button -->
     <spacer flex="1"/>
-    <button id="AdvancedEditButton"/>
+    <button id="AdvancedEditButton"
+            oncommand="onAdvancedEdit();"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"/>
   </hbox>
   <separator class="groove"/>
 

@@ -6,11 +6,8 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
-
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorSaveAsCharset.dtd">
-<!-- dialog containing a control requiring initial setup -->
-<!-- WE SHOULD NOT USE ABSOLUTE WITH AND HEIGHT - USE BOXES INSTEAD? -->
+
 <dialog title="&windowTitle2.label;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     onload = "Startup()"
@@ -18,7 +15,6 @@
     ondialogcancel="return onCancel();"
     style="width: 32em;">
 
-    <!-- Methods common to all editor dialogs -->
     <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
     <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
     <script type="application/javascript" src="chrome://editor/content/EditorSaveAsCharset.js"/>
@@ -27,7 +23,6 @@
     <broadcaster id="args" value=""/>
 
     <groupbox><caption label="&documentTitleTitle.label;"/>
-        <!-- Text labels filled in from editor.properties -->
         <label id="EnterTitleLabel"/>
         <textbox id="TitleInput" oninput="TitleChanged();"/>
         <description id="TitleHelp" class="wrap" style="width:1em" />

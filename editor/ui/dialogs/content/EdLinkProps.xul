@@ -7,9 +7,14 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
-
-<!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorLinkProperties.dtd">
+<!DOCTYPE dialog [
+<!ENTITY % linkPropertiesDTD SYSTEM "chrome://editor/locale/EditorLinkProperties.dtd">
+%linkPropertiesDTD;
+<!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
+%composeEditorOverlayDTD;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://editor/locale/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
 
 <dialog id="linkDlg" title="&windowTitle.label;"
    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -20,6 +25,7 @@
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdLinkProps.js"/>
+  <script type="application/javascript" src="chrome://editor/content/EdImageLinkLoader.js"/>
 
   <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
@@ -33,10 +39,43 @@
     </groupbox>
 
     <groupbox id="LinkURLBox"><caption label="&LinkURLBox.label;"/>
-      <vbox id="LinkLocationBox"/>
-      <!-- mail compose will insert custom item here defined in mailComposeEditorOverlay.xul -->
+      <vbox id="LinkLocationBox">
+        <label control="hrefInput"
+               accesskey="&LinkURLEditField2.accessKey;"
+               width="1">&LinkURLEditField2.label;</label>
+        <textbox id="hrefInput" type="autocomplete"
+                 autocompletesearch="unifiedcomplete" timeout="50" maxrows="6"
+                 class="uri-element padded" oninput="ChangeLinkLocation();">
+          <menupopup class="autocomplete-history-popup"
+                     popupalign="topleft" popupanchor="bottomleft"
+                     oncommand="this.parentNode.value = event.target.getAttribute('label'); ChangeLinkLocation();"/>
+        </textbox>
+        <hbox align="center">
+          <checkbox id="MakeRelativeLink"
+                    for="hrefInput"
+                    label="&makeUrlRelative.label;"
+                    accesskey="&makeUrlRelative.accessKey;"
+                    oncommand="MakeInputValueRelativeOrAbsolute(this);"
+                    tooltiptext="&makeUrlRelative.tooltip;"/>
+          <spacer flex="1"/>
+          <button label="&chooseFileLinkButton.label;" accesskey="&chooseFileLinkButton.accessKey;"
+                  oncommand="chooseLinkFile();"/>
+        </hbox>
+      </vbox>
+      <checkbox id="AttachSourceToMail"
+                hidden="true"
+                label="&attachLinkSource.label;"
+                accesskey="&attachLinkSource.accesskey;"
+                oncommand="DoAttachSourceCheckbox()"/>
     </groupbox>
   </vbox>
-  <!-- from EdDialogOverlay -->
-  <vbox id="AdvancedEdit"/>
+  <vbox id="AdvancedEdit">
+    <hbox flex="1" style="margin-top: 0.2em" align="center">
+      <!-- This will right-align the button -->
+      <spacer flex="1"/>
+      <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
+              accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
+    </hbox>
+    <separator id="advancedSeparator" class="groove"/>
+  </vbox>
 </dialog>

@@ -1,13 +1,10 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
-
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorPageProperties.dtd">
 
@@ -17,7 +14,6 @@
         ondialogaccept="return onAccept();"
         ondialogcancel="return onCancel();">
 
-  <!-- Methods common to all editor dialogs -->
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdPageProps.js"/>

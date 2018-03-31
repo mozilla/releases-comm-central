@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -7,9 +6,14 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
-
-<!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorColorProperties.dtd">
+<!DOCTYPE dialog [
+<!ENTITY % edColorPropertiesDTD SYSTEM "chrome://editor/locale/EditorColorProperties.dtd">
+%edColorPropertiesDTD;
+<!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
+%composeEditorOverlayDTD;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://editor/locale/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
 
 <dialog title="&windowTitle.label;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -106,17 +110,26 @@
   <textbox id="BackgroundImageInput" class="uri-element" oninput="ChangeBackgroundImage()"
            tooltiptext="&backgroundImage.tooltip;" flex="1"/>
   <hbox align="center">
-    <!-- from EdDialogOverlay.xul 'for' identifies the textfield to get URL from -->
-    <checkbox id="MakeRelativeCheckbox" for="BackgroundImageInput"/>
+    <checkbox id="MakeRelativeCheckbox"
+              for="BackgroundImageInput"
+              label="&makeUrlRelative.label;"
+              accesskey="&makeUrlRelative.accessKey;"
+              oncommand="MakeInputValueRelativeOrAbsolute(this);"
+              tooltiptext="&makeUrlRelative.tooltip;"/>
     <spacer flex="1"/>
-    <!-- from EdDialogOverlay.xul -->
-    <button id="ChooseFile"/>
+    <button id="ChooseFile"
+            oncommand="chooseFile()"
+            label="&chooseFileButton.label;"
+            accesskey="&chooseFileButton.accessKey;"/>
   </hbox>
   <spacer class="smallspacer"/>
   <hbox>
     <spacer flex="1"/>
-    <!-- from EdDialogOverlay.xul -->
-    <button id="AdvancedEditButton"/>
+    <button id="AdvancedEditButton"
+            oncommand="onAdvancedEdit();"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"/>
   </hbox>
   <separator class="groove"/>
 </dialog>

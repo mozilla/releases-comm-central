@@ -7,9 +7,12 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
-
-<!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorHLineProperties.dtd">
+<!DOCTYPE dialog [
+<!ENTITY % edHLineProperties SYSTEM "chrome://editor/locale/EditorHLineProperties.dtd">
+%edHLineProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://editor/locale/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
 
 <dialog title="&windowTitle.label;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -63,7 +66,11 @@
          oncommand="onSaveDefault()"
          tooltiptext="&saveSettings.tooltip;" />
     <spacer flex="1"/>
-    <button id="AdvancedEditButton"/>
+    <button id="AdvancedEditButton"
+            oncommand="onAdvancedEdit();"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"/>
   </hbox>
   <separator class="groove"/>
 </dialog>

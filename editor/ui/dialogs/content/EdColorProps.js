@@ -411,8 +411,26 @@ function ValidateData()
 
 function onAccept()
 {
-  if (ValidateData())
-  {
+  // If it's a file, convert to a data URL.
+  if (gBackgroundImage && /^file:/i.test(gBackgroundImage)) {
+    let nsFile = Services.io.newURI(gBackgroundImage)
+      .QueryInterface(Ci.nsIFileURL).file;
+    if (nsFile.exists()) {
+      let reader = new FileReader();
+      reader.addEventListener("load", function() {
+        gBackgroundImage = reader.result;
+        gDialog.BackgroundImageInput.value = reader.result;
+        if (onAccept()) {
+          window.close();
+        }
+      });
+      File.createFromNsIFile(nsFile).then(file => {
+        reader.readAsDataURL(file);
+      });
+      return false; // Don't close just yet...
+    }
+  }
+  if (ValidateData()) {
     // Copy attributes to element we are changing
     try {
       GetCurrentEditor().cloneAttributes(gBodyElement, globalElement);

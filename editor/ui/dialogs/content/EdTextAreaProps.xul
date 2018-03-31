@@ -6,9 +6,13 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
+<!DOCTYPE dialog [
+<!ENTITY % edTextAreaProperties SYSTEM "chrome://editor/locale/EditorTextAreaProperties.dtd">
+%edTextAreaProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://editor/locale/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
 
-<!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorTextAreaProperties.dtd">
 <dialog title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="Startup();"
@@ -97,7 +101,14 @@
     </grid>
   </groupbox>
 
-  <!-- from EdDialogOverlay -->
-  <vbox id="AdvancedEdit"/>
+  <vbox id="AdvancedEdit">
+    <hbox flex="1" style="margin-top: 0.2em" align="center">
+      <!-- This will right-align the button -->
+      <spacer flex="1"/>
+      <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
+              accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
+    </hbox>
+    <separator id="advancedSeparator" class="groove"/>
+  </vbox>
 
 </dialog>
