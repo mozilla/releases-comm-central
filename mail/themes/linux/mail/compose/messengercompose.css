@@ -813,25 +813,6 @@ toolbarbutton.formatting-button {
   margin-inline-end: 2px;
 }
 
-#HighlightColorButton {
-  -moz-image-region: rect(260px 16px 272px 0px);
-  background-color: transparent;
-}
-
-#HighlightColorButton:hover {
-  -moz-image-region: rect(260px 32px 272px 16px);
-}
-
-#HighlightColorButton:hover:active {
-  -moz-image-region: rect(260px 48px 272px 32px);
-}
-
-#HighlightColorButton[disabled="true"],
-#HighlightColorButton[disabled="true"]:hover,
-#HighlightColorButton[disabled="true"]:hover:active {
-  -moz-image-region: rect(260px 64px 272px 48px);
-}
-
 /* ::::: address book sidebar ::::: */
 .ab-closebutton > .toolbarbutton-icon {
   margin-inline-end: 0; /* override toolkit's default value */

@@ -1,0 +1,281 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+        <!-- Formatting toolbar items. "value" are HTML tagnames, don't translate -->
+        <toolbaritem id="paragraph-select-container"
+                     class="formatting-button"
+                     tooltiptext="&ParagraphSelect.tooltip;"
+                     observes="cmd_renderedHTMLEnabler">
+          <menulist id="ParagraphSelect"
+                    class="toolbar-focustarget"
+                    oncommand="doStatefulCommand('cmd_paragraphState', event.target.value)"
+                    crop="right">
+            <observes element="paragraph-select-container" attribute="disabled"/>
+            <observes element="cmd_paragraphState" attribute="state" onbroadcast="onParagraphFormatChange(this.parentNode, 'cmd_paragraphState')"/>
+            <menupopup id="ParagraphPopup">
+              <menuitem id="toolbarmenu_bodyText" label="&bodyTextCmd.label;" value=""/>
+              <menuitem id="toolbarmenu_paragraph" label="&paragraphParagraphCmd.label;" value="p"/>
+              <menuitem id="toolbarmenu_h1" label="&heading1Cmd.label;" value="h1"/>
+              <menuitem id="toolbarmenu_h2"  label="&heading2Cmd.label;" value="h2"/>
+              <menuitem id="toolbarmenu_h3" label="&heading3Cmd.label;" value="h3"/>
+              <menuitem id="toolbarmenu_h4" label="&heading4Cmd.label;" value="h4"/>
+              <menuitem id="toolbarmenu_h5" label="&heading5Cmd.label;" value="h5"/>
+              <menuitem id="toolbarmenu_h6" label="&heading6Cmd.label;" value="h6"/>
+              <menuitem id="toolbarmenu_address" label="&paragraphAddressCmd.label;" value="address"/>
+              <menuitem id="toolbarmenu_pre" label="&paragraphPreformatCmd.label;"  value="pre"/>
+            </menupopup>
+          </menulist>
+        </toolbaritem>
+
+        <!-- "value" are HTML tagnames, don't translate -->
+        <toolbaritem id="font-face-select-container"
+                     class="formatting-button"
+                     tooltiptext="&FontFaceSelect.tooltip;"
+                     observes="cmd_renderedHTMLEnabler">
+          <menulist id="FontFaceSelect"
+                    class="toolbar-focustarget"
+                    oncommand="doStatefulCommand('cmd_fontFace', event.target.value)"
+                    crop="center"
+                    sizetopopup="pref">
+            <observes element="font-face-select-container" attribute="disabled"/>
+            <observes element="cmd_fontFace" attribute="state" onbroadcast="onFontFaceChange(this.parentNode, 'cmd_fontFace')"/>
+            <menupopup id="FontFacePopup">
+              <menuitem id="toolbarmenu_fontVarWidth" label="&fontVarWidth.label;" value=""/>
+              <menuitem id="toolbarmenu_fontFixedWidth" label="&fontFixedWidth.label;" value="tt"/>
+              <menuseparator id="toolbarmenuAfterGenericFontsSeparator"/>
+              <menuitem id="toolbarmenu_fontHelvetica" label="&fontHelvetica.label;"
+                        value="Helvetica, Arial, sans-serif"
+                        value_parsed="helvetica,arial,sans-serif"/>
+              <menuitem id="toolbarmenu_fontTimes" label="&fontTimes.label;"
+                        value="Times New Roman, Times, serif"
+                        value_parsed="times new roman,times,serif"/>
+              <menuitem id="toolbarmenu_fontCourier" label="&fontCourier.label;"
+                        value="Courier New, Courier, monospace"
+                        value_parsed="courier new,courier,monospace"/>
+              <menuseparator id="toolbarmenuAfterDefaultFontsSeparator"
+                             class="fontFaceMenuAfterDefaultFonts"/>
+              <menuseparator id="toolbarmenuAfterUsedFontsSeparator"
+                             class="fontFaceMenuAfterUsedFonts"
+                             hidden="true"/>
+              <!-- Local font face items added here by initLocalFontFaceMenu() -->
+            </menupopup>
+          </menulist>
+        </toolbaritem>
+
+        <toolbaritem id="color-buttons-container"
+                     class="formatting-button"
+                     disableoncustomize="true">
+          <stack id="ColorButtons" align="center">
+            <observes element="cmd_fontColor"       attribute="state" onbroadcast="onFontColorChange()"/>
+            <observes element="cmd_backgroundColor" attribute="state" onbroadcast="onBackgroundColorChange()"/>
+            <box class="color-button" id="BackgroundColorButton"
+                 onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('', event); }"
+                 tooltiptext="&BackgroundColorButton.tooltip;"
+                 oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */">
+              <observes element="cmd_backgroundColor" attribute="disabled"/>
+            </box>
+            <box class="color-button" id="TextColorButton"
+                 onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('Text', event); }"
+                 tooltiptext="&TextColorButton.tooltip;"
+                 oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */">
+              <observes element="cmd_fontColor" attribute="disabled"/>
+            </box>
+          </stack>
+        </toolbaritem>
+
+        <toolbarbutton id="AbsoluteFontSizeButton"
+                       class="formatting-button"
+                       tooltiptext="&absoluteFontSizeToolbarCmd.tooltip;"
+                       type="menu"
+                       observes="cmd_renderedHTMLEnabler">
+          <menupopup id="AbsoluteFontSizeButtonPopup"
+                     onpopupshowing="initFontSizeMenu(this, false);">
+            <menuitem id="toobarmenu_fontSize_x-small"
+                      label="&size-tinyCmd.label;"
+                      type="radio" name="1"
+                      oncommand="EditorSetFontSize('x-small')"/>
+            <menuitem id="toobarmenu_fontSize_small"
+                      label="&size-smallCmd.label;"
+                      type="radio" name="1"
+                      oncommand="EditorSetFontSize('small')"/>
+            <menuitem id="toobarmenu_fontSize_medium"
+                      label="&size-mediumCmd.label;"
+                      type="radio" name="1"
+                      oncommand="EditorSetFontSize('medium')"/>
+            <menuitem id="toobarmenu_fontSize_large"
+                      label="&size-largeCmd.label;"
+                      type="radio" name="1"
+                      oncommand="EditorSetFontSize('large')"/>
+            <menuitem id="toobarmenu_fontSize_x-large"
+                      label="&size-extraLargeCmd.label;"
+                      type="radio" name="1"
+                      oncommand="EditorSetFontSize('x-large')"/>
+            <menuitem id="toobarmenu_fontSize_xx-large"
+                      label="&size-hugeCmd.label;"
+                      type="radio" name="1"
+                      oncommand="EditorSetFontSize('xx-large')"/>
+            <menuitem id="toobarmenu_fontSize_smallBigInfo"
+                      type="checkbox" name="2" disabled="true" hidden="true"/>
+          </menupopup>
+        </toolbarbutton>
+
+        <toolbarbutton id="DecreaseFontSizeButton"
+                       class="formatting-button"
+                       tooltiptext="&decreaseFontSizeToolbarCmd.tooltip;"
+                       observes="cmd_decreaseFontStep"/>
+
+        <toolbarbutton id="IncreaseFontSizeButton"
+                       class="formatting-button"
+                       tooltiptext="&increaseFontSizeToolbarCmd.tooltip;"
+                       observes="cmd_increaseFontStep"/>
+
+        <toolbarseparator class="toolbarseparator-standard"/>
+
+        <toolbarbutton id="boldButton"
+                       class="formatting-button"
+                       tooltiptext="&boldToolbarCmd.tooltip;"
+                       type="checkbox"
+                       autoCheck="false"
+                       observes="cmd_bold">
+          <observes element="cmd_bold" type="checkbox" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_bold')"/>
+        </toolbarbutton>
+
+        <toolbarbutton id="italicButton"
+                       class="formatting-button"
+                       tooltiptext="&italicToolbarCmd.tooltip;"
+                       type="checkbox"
+                       autoCheck="false"
+                       observes="cmd_italic">
+          <observes element="cmd_italic" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_italic')"/>
+        </toolbarbutton>
+
+        <toolbarbutton id="underlineButton"
+                       class="formatting-button"
+                       tooltiptext="&underlineToolbarCmd.tooltip;"
+                       type="checkbox"
+                       autoCheck="false"
+                       observes="cmd_underline">
+          <observes element="cmd_underline" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_underline')"/>
+        </toolbarbutton>
+
+        <toolbarseparator class="toolbarseparator-standard"/>
+
+        <toolbarbutton id="ulButton"
+                       class="formatting-button"
+                       tooltiptext="&bulletListToolbarCmd.tooltip;"
+                       type="radio"
+                       group="lists"
+                       autoCheck="false"
+                       observes="cmd_ul">
+            <observes element="cmd_ul" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_ul')"/>
+        </toolbarbutton>
+
+        <toolbarbutton id="olButton"
+                       class="formatting-button"
+                       tooltiptext="&numberListToolbarCmd.tooltip;"
+                       type="radio"
+                       group="lists"
+                       autoCheck="false"
+                       observes="cmd_ol">
+            <observes element="cmd_ol" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_ol')"/>
+        </toolbarbutton>
+
+        <toolbarbutton id="outdentButton"
+                       class="formatting-button"
+                       tooltiptext="&outdentToolbarCmd.tooltip;"
+                       observes="cmd_outdent"/>
+
+        <toolbarbutton id="indentButton"
+                       class="formatting-button"
+                       tooltiptext="&indentToolbarCmd.tooltip;"
+                       observes="cmd_indent"/>
+
+        <toolbarseparator class="toolbarseparator-standard"/>
+
+        <toolbarbutton id="AlignPopupButton"
+                       class="formatting-button"
+                       tooltiptext="&AlignPopupButton.tooltip;"
+                       type="menu"
+                       observes="cmd_align">
+          <menupopup id="AlignPopup">
+            <menuitem id="AlignLeftItem" class="menuitem-iconic" label="&alignLeft.label;"
+                      oncommand="doStatefulCommand('cmd_align', 'left')"
+                      tooltiptext="&alignLeftButton.tooltip;"    />
+            <menuitem id="AlignCenterItem" class="menuitem-iconic" label="&alignCenter.label;"
+                      oncommand="doStatefulCommand('cmd_align', 'center')"
+                      tooltiptext="&alignCenterButton.tooltip;"  />
+            <menuitem id="AlignRightItem" class="menuitem-iconic" label="&alignRight.label;"
+                      oncommand="doStatefulCommand('cmd_align', 'right')"
+                      tooltiptext="&alignRightButton.tooltip;"   />
+            <menuitem id="AlignJustifyItem" class="menuitem-iconic" label="&alignJustify.label;"
+                      oncommand="doStatefulCommand('cmd_align', 'justify')"
+                      tooltiptext="&alignJustifyButton.tooltip;" />
+          </menupopup>
+        </toolbarbutton>
+
+        <!-- InsertPopupButton is used by messengercompose.xul -->
+        <toolbarbutton id="InsertPopupButton"
+                       class="formatting-button"
+                       tooltiptext="&InsertPopupButton.tooltip;"
+                       type="menu"
+                       observes="cmd_renderedHTMLEnabler">
+          <menupopup id="InsertPopup">
+            <menuitem id="InsertLinkItem" class="menuitem-iconic" observes="cmd_link"
+                      oncommand="goDoCommand('cmd_link')" label="&linkToolbarCmd.label;"
+                      tooltiptext="&linkToolbarCmd.tooltip;"   />
+            <menuitem id="InsertAnchorItem" class="menuitem-iconic" observes="cmd_anchor"
+                      oncommand="goDoCommand('cmd_anchor')" label="&anchorToolbarCmd.label;"
+                      tooltiptext="&anchorToolbarCmd.tooltip;" />
+            <menuitem id="InsertImageItem"  class="menuitem-iconic" observes="cmd_image"
+                      oncommand="goDoCommand('cmd_image')" label="&imageToolbarCmd.label;"
+                      tooltiptext="&imageToolbarCmd.tooltip;"  />
+            <menuitem id="InsertHRuleItem"  class="menuitem-iconic" observes="cmd_hline"
+                      oncommand="goDoCommand('cmd_hline')" label="&hruleToolbarCmd.label;"
+                      tooltiptext="&hruleToolbarCmd.tooltip;"  />
+            <menuitem id="InsertTableItem"  class="menuitem-iconic" observes="cmd_table"
+                      oncommand="goDoCommand('cmd_table')" label="&tableToolbarCmd.label;"
+                      tooltiptext="&tableToolbarCmd.tooltip;"  />
+          </menupopup>
+        </toolbarbutton>
+
+        <toolbarbutton id="smileButtonMenu"
+                       class="formatting-button"
+                       tooltiptext="&SmileButton.tooltip;"
+                       type="menu"
+                       observes="cmd_smiley">
+          <menupopup id="smilyPopup">
+            <menuitem id="smileySmile" class="menuitem-iconic" label="&smiley1Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-)'  )"/>
+            <menuitem id="smileyFrown" class="menuitem-iconic" label="&smiley2Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-('  )"/>
+            <menuitem id="smileyWink" class="menuitem-iconic" label="&smiley3Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ';-)'  )"/>
+            <menuitem id="smileyTongue" class="menuitem-iconic" label="&smiley4Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-P'  )"/>
+            <menuitem id="smileyLaughing" class="menuitem-iconic" label="&smiley5Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-D'  )"/>
+            <menuitem id="smileyEmbarassed" class="menuitem-iconic" label="&smiley6Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-['  )"/>
+            <menuitem id="smileyUndecided" class="menuitem-iconic" label="&smiley7Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-\\' )"/>
+            <menuitem id="smileySurprise" class="menuitem-iconic" label="&smiley8Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', '=-O' )"/>
+            <menuitem id="smileyKiss" class="menuitem-iconic" label="&smiley9Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-*' )"/>
+            <menuitem id="smileyYell" class="menuitem-iconic" label="&smiley10Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', '>:o' )"/>
+            <menuitem id="smileyCool" class="menuitem-iconic" label="&smiley11Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', '8-)' )"/>
+            <menuitem id="smileyMoney" class="menuitem-iconic" label="&smiley12Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-$' )"/>
+            <menuitem id="smileyFoot" class="menuitem-iconic" label="&smiley13Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-!' )"/>
+            <menuitem id="smileyInnocent" class="menuitem-iconic" label="&smiley14Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', 'O:-)' )"/>
+            <menuitem id="smileyCry" class="menuitem-iconic" label="&smiley15Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':\'(' )"/>
+            <menuitem id="smileySealed" class="menuitem-iconic" label="&smiley16Cmd.label;"
+                      oncommand="doStatefulCommand('cmd_smiley', ':-X' )"/>
+          </menupopup>
+        </toolbarbutton>

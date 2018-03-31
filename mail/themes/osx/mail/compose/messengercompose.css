@@ -626,39 +626,6 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmark
   -moz-image-region: rect(12px 60px 24px 40px) !important;
 }
 
-#align-justify-button {
-  -moz-image-region: rect(24px 20px 36px 0px);
-}
-
-#align-justify-button[disabled="true"] {
-  -moz-image-region: rect(24px 60px 36px 40px);
-}
-
-#align-left-button {
-  -moz-image-region: rect(36px 20px 48px 0px);
-}
-
-#align-left-button[disabled="true"] {
-  -moz-image-region: rect(36px 60px 48px 40px);
-}
-
-#align-right-button {
-  -moz-image-region: rect(48px 20px 60px 0px);
-  border: 1px solid red;
-}
-
-#align-right-button[disabled="true"] {
-  -moz-image-region: rect(48px 60px 60px 40px);
-}
-
-#align-center-button {
-  -moz-image-region: rect(60px 20px 72px 0px);
-}
-
-#align-center-button[disabled="true"] {
-  -moz-image-region: rect(60px 60px 72px 40px);
-}
-
 #InsertPopupButton {
   -moz-image-region: rect(72px 20px 84px 0px);
 }
@@ -1216,25 +1183,6 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmark
   margin-bottom: 2px;
   margin-inline-start: 9px;
   margin-inline-end: 2px;
-}
-
-#HighlightColorButton {
-  -moz-image-region: rect(260px 16px 272px 0px);
-  background-color: transparent;
-}
-
-#HighlightColorButton:hover {
-  -moz-image-region: rect(260px 32px 272px 16px);
-}
-
-#HighlightColorButton:hover:active {
-  -moz-image-region: rect(260px 48px 272px 32px);
-}
-
-#HighlightColorButton[disabled="true"],
-#HighlightColorButton[disabled="true"]:hover,
-#HighlightColorButton[disabled="true"]:hover:active {
-  -moz-image-region: rect(260px 64px 272px 48px);
 }
 
 /* ::::: address book sidebar ::::: */
