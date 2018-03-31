@@ -19,7 +19,7 @@ var gColorObj;
 
 // dialog initialization code
 function Startup()
-{ 
+{
   if (!window.arguments[1])
   {
     dump("EdColorPicker: Missing color object param\n");
@@ -40,13 +40,13 @@ function Startup()
   gDialog.ColorSwatch      = document.getElementById("ColorPickerSwatch");
   gDialog.Ok               = document.documentElement.getButton("accept");
 
-  // The type of color we are setting: 
-  //  text: Text, Link, ActiveLink, VisitedLink, 
+  // The type of color we are setting:
+  //  text: Text, Link, ActiveLink, VisitedLink,
   //  or background: Page, Table, or Cell
   if (gColorObj.Type)
   {
     ColorType = gColorObj.Type;
-    // Get string for dialog title from passed-in type 
+    // Get string for dialog title from passed-in type
     //   (note constraint on editor.properties string name)
     let IsCSSPrefChecked = Services.prefs.getBoolPref("editor.use_css");
 
@@ -242,7 +242,7 @@ function ValidateData()
     gColor = LastPickedColor;
   else
     gColor = gDialog.ColorInput.value;
-  
+
   gColor = TrimString(gColor).toLowerCase();
 
   // TODO: Validate the color string!
@@ -251,7 +251,7 @@ function ValidateData()
   {
     ShowInputErrorMessage(GetString("NoColorError"));
     SetTextboxFocus(gDialog.ColorInput);
-    return false;   
+    return false;
   }
   return true;
 }

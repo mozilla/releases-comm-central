@@ -29,7 +29,7 @@
     <spacer class="spacer"/>
     <label value="&browseUrl.label;" accesskey="&browseUrl.accesskey;"
            control="BrowseUrlInput"/>
-    <textbox id="BrowseUrlInput" class="MinWidth20em uri-element" 
+    <textbox id="BrowseUrlInput" class="MinWidth20em uri-element"
              tooltiptext="&browseUrl.tooltip;" oninput="onInputSettings();"/>
     <spacer class="spacer"/>
   </groupbox>
@@ -48,11 +48,11 @@
           <label value="&password.label;" accesskey="&password.accesskey;"
                  control="PasswordInput"/>
           <hbox>
-            <textbox id="PasswordInput" type="password" class="MinWidth5em" 
+            <textbox id="PasswordInput" type="password" class="MinWidth5em"
                      oninput="onInputSettings();"
                      tooltiptext="&password.tooltip;"/>
             <checkbox id="SavePassword" label="&savePassword.label;"
-                      accesskey="&savePassword.accesskey;" 
+                      accesskey="&savePassword.accesskey;"
                       tooltiptext="&savePassword.tooltip;"
                       oncommand="onInputSettings();"/>
           </hbox>

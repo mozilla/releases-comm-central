@@ -153,7 +153,7 @@ function SetDefault()
   {
     gDefaultSiteIndex = index;
     gDefaultSiteName = gPublishSiteData[index].siteName;
-    
+
     // Set bold style on new default
     var item = gDialog.SiteList.firstChild;
     while (item)
@@ -194,10 +194,10 @@ function SetSelectedSiteIndex(index)
 }
 
 function InitSiteSettings(selectedSiteIndex)
-{  
+{
   // Index to the site we will need to update if settings changed
   gCurrentSiteIndex = selectedSiteIndex;
-  
+
   SetSelectedSiteIndex(selectedSiteIndex);
   var haveData = (gPublishSiteData && selectedSiteIndex != -1);
 
@@ -244,7 +244,7 @@ function UpdateSettings()
   }
   if (PublishSiteNameExists(newName, gPublishSiteData, gCurrentSiteIndex))
   {
-    ShowInputErrorMessage(GetString("DuplicateSiteNameError").replace(/%name%/, newName));            
+    ShowInputErrorMessage(GetString("DuplicateSiteNameError").replace(/%name%/, newName));
     SetTextboxFocus(gDialog.SiteNameInput);
     return false;
   }
@@ -274,7 +274,7 @@ function UpdateSettings()
     gCurrentSiteIndex = gPublishSiteData.length;
     newSiteData = true;
   }
-    
+
   if (newSiteData)
   {
     // Init new site profile
@@ -304,12 +304,12 @@ function UpdateSettings()
 
   FillSiteList();
 
-  // Select current site in list  
+  // Select current site in list
   SetSelectedSiteIndex(gCurrentSiteIndex);
 
   // Signal saving data to prefs
   gSiteDataChanged = true;
-  
+
   // Clear current site flags
   gSettingsChanged = false;
   gAddNewSite = false;

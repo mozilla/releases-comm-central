@@ -97,7 +97,7 @@ function ShowHideToolbarButtons()
   ShowHideToolbarSeparators(document.getElementById("EditToolbar"));
   ShowHideToolbarSeparators(document.getElementById("FormatToolbar"));
 }
-  
+
 function nsPrefListener(prefName)
 {
   this.startup(prefName);
@@ -131,7 +131,7 @@ nsPrefListener.prototype =
     // verify that we're changing a button pref
     if (topic != "nsPref:changed")
       return;
-    
+
     let editor = GetCurrentEditor();
     if (prefName == kUseCssPref)
     {
@@ -144,7 +144,7 @@ nsPrefListener.prototype =
           let state = editor.getHighlightColorState(mixedObj);
           cmd.setAttribute("state", state);
           cmd.collapsed = false;
-        }      
+        }
         else {
           cmd.setAttribute("state", "transparent");
           cmd.collapsed = true;
@@ -216,7 +216,7 @@ var DocumentReloadListener =
 
 // implements nsIObserver
 var gEditorDocumentObserver =
-{ 
+{
   observe: function(aSubject, aTopic, aData)
   {
     // Should we allow this even if NOT the focused editor?
@@ -257,7 +257,7 @@ var gEditorDocumentObserver =
             case nsIEditingSession.eEditorErrorUnknown:
               errorStringId = "CantEditDocumentMsg";
               break;
-            // Note that for "eEditorErrorFileNotFound, 
+            // Note that for "eEditorErrorFileNotFound,
             // network code popped up an alert dialog, so we don't need to
           }
           if (errorStringId)
@@ -267,7 +267,7 @@ var gEditorDocumentObserver =
         // We have a bad editor -- nsIEditingSession will rebuild an editor
         //   with a blank page, so simply abort here
         if (editorStatus)
-          return; 
+          return;
 
         if (!("InsertCharWindow" in window))
           window.InsertCharWindow = null;
@@ -331,7 +331,7 @@ var gEditorDocumentObserver =
 /* XXX When paste actually converts formatted rich text to pretty formatted plain text
        and pasteNoFormatting is fixed to paste the text without formatting (what paste
        currently does), then this item shouldn't be hidden: */
-            HideItem("menu_pasteNoFormatting"); 
+            HideItem("menu_pasteNoFormatting");
 
             HideItem("cmd_viewFormatToolbar");
             HideItem("cmd_viewEditModeToolbar");
@@ -349,7 +349,7 @@ var gEditorDocumentObserver =
             for (let i = 0; i < menuPopupChildren.length; i++)
               menuPopupChildren.item(i).hidden = true;
           }
-    
+
           // Set window title
           UpdateWindowTitle();
 
@@ -430,7 +430,7 @@ function EditorSharedStartup()
   else
     SetupTextEditorCommands();
 
-  // add observer to be called when document is really done loading 
+  // add observer to be called when document is really done loading
   // and is modified
   // Note: We're really screwed if we fail to install this observer!
   try {
@@ -521,7 +521,7 @@ async function CheckAndSaveDocument(command, allowDontSave)
 
   // call window.focus, since we need to pop up a dialog
   // and therefore need to be visible (to prevent user confusion)
-  top.document.commandDispatcher.focusedWindow.focus();  
+  top.document.commandDispatcher.focusedWindow.focus();
 
   var scheme = GetScheme(GetDocumentUrl());
   var doPublish = (scheme && scheme != "file");
@@ -542,7 +542,7 @@ async function CheckAndSaveDocument(command, allowDontSave)
       strID = "BeforeValidate";
       break;
   }
-    
+
   var reasonToSave = strID ? GetString(strID) : "";
 
   var title = document.title || GetString("untitledDefaultFilename");
@@ -560,7 +560,7 @@ async function CheckAndSaveDocument(command, allowDontSave)
   {
     promptFlags += Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0;
     button1Title = GetString("Publish");
-    button3Title = GetString("DontPublish");    
+    button3Title = GetString("DontPublish");
   }
   else
   {
@@ -572,7 +572,7 @@ async function CheckAndSaveDocument(command, allowDontSave)
     promptFlags += doPublish ?
         (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2)
         : (Services.prompt.BUTTON_TITLE_DONT_SAVE * Services.prompt.BUTTON_POS_2);
-  
+
   result = Services.prompt.confirmEx(window, dialogTitle, dialogMsg, promptFlags,
                           button1Title, null, button3Title, null, {value:0});
 
@@ -612,7 +612,7 @@ function EditorSetCharacterSet(aEvent)
     var docUrl = GetDocumentUrl();
     if( !IsUrlAboutBlank(docUrl))
     {
-      // reloading the document will reverse any changes to the META charset, 
+      // reloading the document will reverse any changes to the META charset,
       // we need to put them back in, which is achieved by a dedicated listener
       editor.addDocumentStateListener( DocumentReloadListener );
       EditorLoadUrl(docUrl);
@@ -1031,7 +1031,7 @@ function initLocalFontFaceMenu(menuPopup)
   if (!gLocalFonts)
   {
     // Build list of all local fonts once per editor
-    try 
+    try
     {
       var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
                          .getService(Ci.nsIFontEnumerator);
@@ -1610,7 +1610,7 @@ function EditorDblClick(event)
         !["body","p","h1","h2","h3","h4","h5","h6","blockquote","div","pre"]
          .includes(element.nodeName.toLowerCase()))
     {
-      goDoCommand("cmd_objectProperties");  
+      goDoCommand("cmd_objectProperties");
       event.preventDefault();
     }
   }
@@ -1631,7 +1631,7 @@ function EditorClick(event)
                         Ci.nsIDOMElement);
       var name = element.localName;
       if (!["body", "caption", "table", "td", "th", "tr"].includes(name))
-      {          
+      {
         GetCurrentEditor().selectElement(event.explicitOriginalTarget);
         event.preventDefault();
       }
@@ -1758,7 +1758,7 @@ function SetEditMode(mode)
     var flags = (editor.documentCharacterSet == "ISO-8859-1")
       ? kOutputEncodeLatin1Entities
       : kOutputEncodeBasicEntities;
-    try { 
+    try {
       let encodeEntity = Services.prefs.getCharPref("editor.encode_entity");
       switch (encodeEntity) {
         case "basic"  : flags = kOutputEncodeBasicEntities; break;
@@ -1793,7 +1793,7 @@ function SetEditMode(mode)
       inlineSpellCheckItem.removeAttribute('checked');
 
       // Reduce the undo count so we don't use too much memory
-      //   during multiple uses of source window 
+      //   during multiple uses of source window
       //   (reinserting entire doc caches all nodes)
       try {
         editor.transactionManager.maxTransactionCount = 1;
@@ -1905,7 +1905,7 @@ function SetDisplayMode(mode)
       switch (mode)
       {
         case kDisplayModePreview:
-          // Disable all extra "edit mode" style sheets 
+          // Disable all extra "edit mode" style sheets
           editor.enableStyleSheet(kNormalStyleSheet, false);
           editor.enableStyleSheet(kAllTagsStyleSheet, false);
           editor.objectResizingEnabled = true;
@@ -1952,7 +1952,7 @@ function SetDisplayMode(mode)
   if (previousMode >= 0)
     document.getElementById(kDisplayModeMenuIDs[previousMode]).setAttribute("checked","false");
   document.getElementById(kDisplayModeMenuIDs[mode]).setAttribute("checked","true");
-  
+
 
   return true;
 }
@@ -1983,7 +1983,7 @@ function UpdateWindowTitle()
 
     document.title = (title || filename || gUntitledString) +
                      windowTitle +
-                     xulWin.getAttribute("titlemenuseparator") + 
+                     xulWin.getAttribute("titlemenuseparator") +
                      xulWin.getAttribute("titlemodifier");
   } catch (e) { dump(e); }
 }
@@ -2008,7 +2008,7 @@ function SaveRecentFilesPrefs(aTitle, aFileType)
   {
     let url = GetStringPref("editor.history_url_" + i);
 
-    // Continue if URL pref is missing because 
+    // Continue if URL pref is missing because
     //  a URL not found during loading may have been removed
 
     // Skip over current an "data" URLs
@@ -2074,7 +2074,7 @@ function InitObjectPropertiesMenuitem()
             name = "href";
           }
         } catch(e) {}
-        
+
         if (objStr == "")
           objStr = GetString("Image");
         break;
@@ -2273,7 +2273,7 @@ function EditorSetDefaultPrefsAndDoctype()
   var editor = GetCurrentEditor();
 
   var domdoc;
-  try { 
+  try {
     domdoc = editor.document;
   } catch (e) { dump( e + "\n"); }
   if ( !domdoc )
@@ -2282,7 +2282,7 @@ function EditorSetDefaultPrefsAndDoctype()
     return;
   }
 
-  // Insert a doctype element 
+  // Insert a doctype element
   // if it is missing from existing doc
   if (!domdoc.doctype)
   {
@@ -2290,7 +2290,7 @@ function EditorSetDefaultPrefsAndDoctype()
     if (newdoctype)
       domdoc.insertBefore(newdoctype, domdoc.firstChild);
   }
-  
+
   // search for head; we'll need this for meta tag additions
   let headelement = domdoc.querySelector("head");
   if (!headelement)
@@ -2582,7 +2582,7 @@ function InitJoinCellMenuitem(id)
   // Use "Join selected cells if there's more than 1 cell selected
   var numSelected;
   var foundElement;
-  
+
   try {
     var tagNameObj = {};
     var countObj = {value:0}
@@ -2626,7 +2626,7 @@ function InitRemoveStylesMenuitems(removeStylesId, removeLinksId, removeNamedAnc
     try {
       SetElementEnabled(linkItem, !isCollapsed ||
                       editor.getElementOrParentByTagName("href", null));
-    } catch(e) {}      
+    } catch(e) {}
   }
   // Disable if selection is collapsed
   SetElementEnabledById(removeNamedAnchorsId, !isCollapsed);
@@ -2716,7 +2716,7 @@ function IsInTableCell()
     var editor = GetCurrentEditor();
     var flags = editor.flags;
     return (IsHTMLEditor() &&
-            !(flags & nsIPlaintextEditor.eEditorReadonlyMask) && 
+            !(flags & nsIPlaintextEditor.eEditorReadonlyMask) &&
             IsEditingRenderedHTML() &&
             null != editor.getElementOrParentByTagName("td", null));
   } catch (e) {}
@@ -2757,7 +2757,7 @@ function EditorInsertOrEditTable(insertAllowed)
     // Edit properties of existing table
     window.openDialog("chrome://editor/content/EdTableProps.xul", "_blank", "chrome,close,titlebar,modal", "","TablePanel");
     gContentWindow.focus();
-  } 
+  }
   else if (insertAllowed)
   {
     try {

@@ -78,7 +78,7 @@ pref("editor.always_show_publish_dialog",    false);
  * otherwise, we may output 0xa0 depending on the charset.
  *
  * "none"   : don't use any entity names; only use numeric codes.
- * "basic"  : use entity names just for &nbsp; &amp; &lt; &gt; &quot; for 
+ * "basic"  : use entity names just for &nbsp; &amp; &lt; &gt; &quot; for
  *            interoperability/exchange with products that don't support more
  *            than that.
  * "latin1" : use entity names for 8bit accented letters and other special
@@ -97,6 +97,6 @@ pref("editor.dont_lock_spell_files", true);
 
 pref("editor.CR_creates_new_p", false);
 
-// Pasting images from the clipboard, order of encoding preference: 
+// Pasting images from the clipboard, order of encoding preference:
 // JPEG-PNG-GIF=0, PNG-JPEG-GIF=1, GIF-JPEG-PNG=2
 pref("clipboard.paste_image_type", 1);

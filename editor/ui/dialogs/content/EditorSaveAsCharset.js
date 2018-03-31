@@ -54,14 +54,14 @@ function Startup()
   }
 
   gDialog.TitleInput    = document.getElementById("TitleInput");
-  gDialog.charsetTree   = document.getElementById('CharsetTree'); 
+  gDialog.charsetTree   = document.getElementById('CharsetTree');
   gDialog.exportToText  = document.getElementById('ExportToText');
 
   gContenttypeElement = GetMetaElementByAttribute("http-equiv", "content-type");
-  if (!gContenttypeElement && (editor.contentsMIMEType != 'text/plain')) 
+  if (!gContenttypeElement && (editor.contentsMIMEType != 'text/plain'))
   {
     gContenttypeElement = CreateMetaElementWithAttribute("http-equiv", "content-type");
-    if (!gContenttypeElement ) 
+    if (!gContenttypeElement )
 	{
       window.close();
       return;
@@ -87,17 +87,17 @@ function Startup()
   var helpText = document.createTextNode(GetString("DocTitleHelp"));
   if (helpTextParent)
     helpTextParent.appendChild(helpText);
-  
+
   // SET FOCUS TO FIRST CONTROL
   SetTextboxFocus(gDialog.TitleInput);
-  
+
   gInitDone = true;
-  
+
   SetWindowLocation();
 }
 
-  
-function InitDialog() 
+
+function InitDialog()
 {
   gDialog.TitleInput.value = GetDocumentTitle();
 
@@ -115,17 +115,17 @@ function onAccept()
   var editor = GetCurrentEditor();
   editor.beginTransaction();
 
-  if(gCharsetWasChanged) 
+  if(gCharsetWasChanged)
   {
      try {
-       SetMetaElementContent(gContenttypeElement, "text/html; charset=" + gCharset, gInsertNewContentType, true);     
+       SetMetaElementContent(gContenttypeElement, "text/html; charset=" + gCharset, gInsertNewContentType, true);
       editor.documentCharacterSet = gCharset;
     } catch (e) {}
   }
 
   editor.endTransaction();
 
-  if(gTitleWasEdited) 
+  if(gTitleWasEdited)
     SetDocumentTitle(TrimString(gDialog.TitleInput.value));
 
   window.opener.ok = true;
@@ -137,9 +137,9 @@ function onAccept()
 
 function SelectCharset()
 {
-  if(gInitDone) 
+  if(gInitDone)
   {
-    try 
+    try
     {
       gCharset = gCharsetInfo[gDialog.charsetTree.currentIndex].value;
       if (gCharset)
@@ -152,5 +152,5 @@ function SelectCharset()
 
 function TitleChanged()
 {
-  gTitleWasEdited = true; 
+  gTitleWasEdited = true;
 }

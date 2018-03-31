@@ -72,7 +72,7 @@ function Startup()
   InitMoreFewer();
 
   SetTextboxFocus(gDialog.textareaName);
-  
+
   SetWindowLocation();
 }
 

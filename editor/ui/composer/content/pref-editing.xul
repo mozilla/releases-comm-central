@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -50,7 +50,7 @@
                   src="chrome://editor/locale/editor.properties"/>
 
     <vbox>
-      <label value="&authorName.label;" 
+      <label value="&authorName.label;"
              accesskey="&authorName.accesskey;"
              control="editorAuthor">
       </label>
@@ -63,14 +63,14 @@
     </vbox>
     <spacer class="smallspacer"/>
     <groupbox align="start">
-      <caption label="&pageColorHeader;"/> 
+      <caption label="&pageColorHeader;"/>
       <radiogroup id="useCustomColors"
                   preference="editor.use_custom_colors">
         <radio id="defaultColorsRadio"
-               value="false" 
+               value="false"
                label="&defaultColors.label;"
                accesskey="&defaultColors.accesskey;"/>
-        <radio id="customColorsRadio" 
+        <radio id="customColorsRadio"
                value="true"
                label="&customColors.label;"
                accesskey="&customColors.accesskey;"/>
@@ -81,7 +81,7 @@
           <rows id="color-rows">
             <row align="center">
               <label id="textLabel"
-                     value="&normalText.label;&colon.character;" 
+                     value="&normalText.label;&colon.character;"
                      accesskey="&normalText.accesskey;"
                      control="text"/>
               <button id="text"
@@ -92,7 +92,7 @@
             </row>
             <row align="center">
               <label id="linkLabel"
-                     value="&linkText.label;&colon.character;" 
+                     value="&linkText.label;&colon.character;"
                      accesskey="&linkText.accesskey;"
                      control="link"/>
               <button id="link"
@@ -103,7 +103,7 @@
             </row>
             <row align="center">
               <label id="activeLinkLabel"
-                     value="&activeLinkText.label;&colon.character;" 
+                     value="&activeLinkText.label;&colon.character;"
                      accesskey="&activeLinkText.accesskey;"
                      control="active_link"/>
               <button id="active_link"
@@ -114,7 +114,7 @@
             </row>
             <row align="center">
               <label id="visitedLinkLabel"
-                     value ="&visitedLinkText.label;&colon.character;" 
+                     value ="&visitedLinkText.label;&colon.character;"
                      accesskey="&visitedLinkText.accesskey;"
                      control="followed_link"/>
               <button id="followed_link"

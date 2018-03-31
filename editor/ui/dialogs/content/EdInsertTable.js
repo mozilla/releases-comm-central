@@ -54,7 +54,7 @@ function Startup()
   // Set initial number to 2 rows, 2 columns:
   // Note, these are not attributes on the table,
   //  so don't put them in InitDialog(),
-  //  else the user's values will be trashed when they use 
+  //  else the user's values will be trashed when they use
   //  the Advanced Edit dialog
   gDialog.rowsInput.value = 2;
   gDialog.columnsInput.value = 2;
@@ -75,7 +75,7 @@ function Startup()
 // We get them from globalElement copy so this can be used
 //   by AdvancedEdit(), which is shared by all property dialogs
 function InitDialog()
-{  
+{
   // Get default attributes set on the created table:
   // Get the width attribute of the element, stripping out "%"
   // This sets contents of menu combobox list
@@ -90,7 +90,7 @@ function ChangeRowOrColumn(id)
   forceInteger(id);
 
   // Enable OK only if both rows and columns have a value > 0
-  var enable = gDialog.rowsInput.value.length > 0 && 
+  var enable = gDialog.rowsInput.value.length > 0 &&
                               gDialog.rowsInput.value > 0 &&
                               gDialog.columnsInput.value.length > 0 &&
                               gDialog.columnsInput.value > 0;
@@ -180,10 +180,10 @@ function onAccept()
             //  contiguous cells with a table, so
             //  join the selected cells
             gActiveEditor.joinTableCells(false);
-          
+
             // Get the cell everything was merged into
             element = gActiveEditor.getFirstSelectedCell();
-          
+
             // Collapse selection into just that cell
             gActiveEditor.selection.collapse(element,0);
           }
@@ -192,7 +192,7 @@ function onAccept()
           {
             // Empty just the contents of the cell
             gActiveEditor.deleteTableCellContents();
-          
+
             // Collapse selection to start of empty cell...
             gActiveEditor.selection.collapse(element,0);
             // ...but it will contain a <br> placeholder

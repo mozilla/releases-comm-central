@@ -121,7 +121,7 @@ var gTarget =
 /*
    Most elements have the "dir" attribute,
    so we use this value array
-   for all elements instead of specifying  
+   for all elements instead of specifying
    separately for each element
 */
 gHTMLAttr.all_dir =
@@ -307,7 +307,7 @@ gHTMLAttr.basefont =
   "color",
   "face"
 ];
- 
+
 gHTMLAttr.basefont_color = gHTMLColors;
 
 gHTMLAttr.bdo =
@@ -331,7 +331,7 @@ gHTMLAttr.big =
   "^lang",
   "dir"
 ];
- 
+
 gHTMLAttr.blockquote =
 [
   "cite",
@@ -788,7 +788,7 @@ gHTMLAttr.hr =
 
 gHTMLAttr.hr_align = gHAlign;
 
-gHTMLAttr.hr_noshade = 
+gHTMLAttr.hr_noshade =
 [
   "noshade"
 ];
@@ -1202,7 +1202,7 @@ gHTMLAttr.ol_type =
   "1",
   "a",
   "A",
-  "i",     
+  "i",
   "I"
 ];
 
@@ -1718,8 +1718,8 @@ gHTMLAttr._var =
 ];
 
 // ================ JS Attributes ================ //
-// These are element specific even handlers. 
-/* Most all elements use gCoreJSEvents, so those 
+// These are element specific even handlers.
+/* Most all elements use gCoreJSEvents, so those
    are assumed except for those listed here with "noEvents"
 */
 

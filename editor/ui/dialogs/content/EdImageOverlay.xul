@@ -16,7 +16,7 @@
   <tab id="imageAppearanceTab" label="&imageAppearanceTab.label;"/>
   <tab id="imageLinkTab" label="&imageLinkTab.label;"/>
 
-  <vbox id="imageLocation"> 
+  <vbox id="imageLocation">
     <spacer class="spacer"/>
     <label control = "srcInput"
       value = "&locationEditField.label;"
@@ -29,7 +29,7 @@
     <textbox id="srcInput" oninput="ChangeImageSrc();" tabindex="1" class="uri-element"
              tooltiptext="&locationEditField.tooltip;"/>
     <hbox id="MakeRelativeHbox">
-      <checkbox 
+      <checkbox
         id  = "MakeRelativeCheckbox"
         for = "srcInput"
         tabindex="2"/>
@@ -44,7 +44,7 @@
         <columns><column/><column flex="1"/></columns>
         <rows>
           <row align="center">
-            <label 
+            <label
               style   = "margin-left: 26px"
               control = "titleInput"
               accesskey = "&title.accessKey;"
@@ -58,7 +58,7 @@
               tabindex="4"/>
           </row>
           <row align="center">
-            <radio id = "altTextRadio" 
+            <radio id = "altTextRadio"
               label   = "&altText.label;"
               accesskey = "&altText.accessKey;"
               tooltiptext="&altTextEditField.tooltip;"
@@ -74,7 +74,7 @@
         </rows>
       </grid>
 
-      <radio id = "noAltTextRadio" 
+      <radio id = "noAltTextRadio"
         label   = "&noAltText.label;"
         accesskey = "&noAltText.accessKey;"
         oncommand = "SetAltTextDisabled(true);"/>
@@ -110,13 +110,13 @@
     <hbox>
       <radiogroup id="imgSizeGroup">
         <radio
-          id      = "actualSizeRadio" 
+          id      = "actualSizeRadio"
           label   = "&actualSizeRadio.label;"
           accesskey = "&actualSizeRadio.accessKey;"
           tooltiptext="&actualSizeRadio.tooltip;"
           oncommand = "SetActualSize()"/>
         <radio
-          id      = "customSizeRadio" 
+          id      = "customSizeRadio"
           label   = "&customSizeRadio.label;"
           selected = "true"
           accesskey = "&customSizeRadio.accessKey;"
@@ -143,7 +143,7 @@
             accesskey = "&widthEditField.accessKey;"
             value = "&widthEditField.label;" />
           <textbox
-            id       = "widthInput" 
+            id       = "widthInput"
             class    = "narrow"
             oninput  = "constrainProportions(this.id, 'heightInput')"/>
           <menulist id = "widthUnitsMenulist"
@@ -156,14 +156,14 @@
             accesskey = "&heightEditField.accessKey;"
             value = "&heightEditField.label;" />
           <textbox
-            id       = "heightInput" 
+            id       = "heightInput"
             class    = "narrow"
             oninput  = "constrainProportions(this.id, 'widthInput')"/>
           <menulist id = "heightUnitsMenulist"
             oncommand = "doDimensionEnabling();" />
           <!-- contents are appended by JS -->
         </row>
-      </rows>          
+      </rows>
     </grid>
     <spacer flex="1"/>
   </vbox>
@@ -175,31 +175,31 @@
         <columns><column/><column/><column/></columns>
         <rows>
           <row align="center">
-            <label 
-              class = "align-right" 
+            <label
+              class = "align-right"
               id    = "leftrightLabel"
               control = "imageleftrightInput"
               accesskey = "&leftRightEditField.accessKey;"
               value = "&leftRightEditField.label;"/>
             <textbox
               class     = "narrow"
-              id        = "imageleftrightInput" 
+              id        = "imageleftrightInput"
               oninput   = "forceInteger(this.id)"/>
-            <label 
+            <label
               id    = "leftrighttypeLabel"
               value = "&pixelsPopup.value;" />
           </row>
           <spacer class="spacer"/>
           <row align="center">
-            <label 
-              class = "align-right" 
+            <label
+              class = "align-right"
               id    = "topbottomLabel"
               control = "imagetopbottomInput"
               accesskey = "&topBottomEditField.accessKey;"
               value = "&topBottomEditField.label;"/>
             <textbox
               class     = "narrow"
-              id        = "imagetopbottomInput" 
+              id        = "imagetopbottomInput"
               oninput   = "forceInteger(this.id)"/>
             <label
               id    = "topbottomtypeLabel"
@@ -207,16 +207,16 @@
           </row>
           <spacer class="spacer"/>
           <row align="center">
-            <label class = "align-right" 
+            <label class = "align-right"
               id    = "borderLabel"
               control = "border"
               accesskey = "&borderEditField.accessKey;"
               value = "&borderEditField.label;"/>
             <textbox
               class     = "narrow"
-              id        = "border" 
+              id        = "border"
               oninput   = "forceInteger(this.id)"/>
-            <label 
+            <label
               id    = "bordertypeLabel"
               value = "&pixelsPopup.value;" />
           </row>

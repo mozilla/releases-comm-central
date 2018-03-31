@@ -10,7 +10,7 @@ function Startup()
     window.close();
     return;
   }
-  
+
   SetWindowLocation();
 }
 

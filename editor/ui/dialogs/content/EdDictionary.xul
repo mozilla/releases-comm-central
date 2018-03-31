@@ -16,7 +16,7 @@
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdDictionary.js"/>
-  
+
   <broadcaster id="args" value=""/>
   <grid>
     <columns><column style="width: 15em" flex="1"/><column flex="1"/></columns>
@@ -48,7 +48,7 @@
                    accesskey="&RemoveButton.accessKey;"/>
           <spacer class="spacer"/>
           <spacer flex="1"/>
-          <button dlgtype="cancel" class="exit-dialog" id="close" label="&CloseButton.label;" 
+          <button dlgtype="cancel" class="exit-dialog" id="close" label="&CloseButton.label;"
                   default="true" oncommand="onClose();"
                   accesskey="&CloseButton.accessKey;"/>
         </vbox>

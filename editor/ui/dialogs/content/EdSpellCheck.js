@@ -77,12 +77,12 @@ function spellCheckStarted() {
   }
 
   InitLanguageMenu(curLang);
-  
+
   // Get the first misspelled word and setup all UI
   NextWord();
 
-  // When startup param is true, setup different UI when spell checking 
-  //   just before sending mail message  
+  // When startup param is true, setup different UI when spell checking
+  //   just before sending mail message
   if (window.arguments[0])
   {
     // If no misspelled words found, simply close dialog and send message
@@ -236,14 +236,14 @@ function SetWidgetsForMisspelledWord()
 function CheckWord()
 {
   var word = gDialog.ReplaceWordInput.value;
-  if (word) 
+  if (word)
   {
     if (gSpellChecker.CheckCurrentWord(word))
     {
       FillSuggestedList(word);
       SetReplaceEnable();
-    } 
-    else 
+    }
+    else
     {
       ClearListbox(gDialog.SuggestedList);
       var item = gDialog.SuggestedList.appendItem(GetString("CorrectSpelling"), "");
@@ -449,7 +449,7 @@ function FillSuggestedList(misspelledWord)
       // Initialize with first suggested list by selecting it
       gDialog.SuggestedList.selectedIndex = 0;
     }
-  } 
+  }
   else
   {
     item = list.appendItem("", "");

@@ -143,7 +143,7 @@ function onAccept()
 
   try {
     editor.cloneAttributes(legendElement, globalElement);
- 
+
     if (insertNew)
     {
       if (gDialog.legendText.value)

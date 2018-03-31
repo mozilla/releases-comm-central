@@ -25,10 +25,10 @@ function Startup()
   }
   // The word to add word is passed as the 2nd extra parameter in window.openDialog()
   gWordToAdd = window.arguments[1];
-  
+
   gDialog.WordInput = document.getElementById("WordInput");
   gDialog.DictionaryList = document.getElementById("DictionaryList");
-  
+
   gDialog.WordInput.value = gWordToAdd;
   FillDictionaryList();
 
@@ -46,7 +46,7 @@ function ValidateWordToAdd()
   } else {
     return false;
   }
-}    
+}
 
 function SelectWordToAddInList()
 {
@@ -98,7 +98,7 @@ function ReplaceWord()
 
         // Just change the text on the selected item
         //  instead of rebuilding the list
-        selItem.label = gWordToAdd; 
+        selItem.label = gWordToAdd;
       } catch (e) {
         // Rebuild list and select the word - it was probably already in the list
         dump("Exception occurred adding word in ReplaceWord\n");
@@ -154,7 +154,7 @@ function FillDictionaryList()
       haveList = true;
     }
   } while (word != "");
-  
+
   //XXX: BUG 74467: If list is empty, it doesn't layout to full height correctly
   //     (ignores "rows" attribute) (bug is latered, so we are fixing here for now)
   if (!haveList)
@@ -169,7 +169,7 @@ function ResetSelectedItem(index)
   if (index > lastIndex)
     index = lastIndex;
 
-  // If we didn't have a selected item, 
+  // If we didn't have a selected item,
   //  set it to the first item
   if (index == -1 && lastIndex >= 0)
     index = 0;

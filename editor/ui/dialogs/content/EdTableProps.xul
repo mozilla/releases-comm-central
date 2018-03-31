@@ -7,7 +7,7 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorTableProperties.dtd">
 
@@ -171,7 +171,7 @@
             </hbox>
           </vbox>
           <spacer class="bigspacer"/>
-            <description class="wrap" flex="1">&applyBeforeChange.label;</description> 
+            <description class="wrap" flex="1">&applyBeforeChange.label;</description>
         </groupbox>
         <hbox align="center">
           <!-- cell size groupbox -->
@@ -260,7 +260,7 @@
         </hbox>
         <spacer flex="1"/>
       </vbox><!-- Cell Panel -->
-    </tabpanels> 
+    </tabpanels>
   </tabbox>
   <spacer class="spacer"/>
 </dialog>

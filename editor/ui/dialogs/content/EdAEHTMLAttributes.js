@@ -5,7 +5,7 @@
 function BuildHTMLAttributeNameList()
 {
   gDialog.AddHTMLAttributeNameInput.removeAllItems();
-  
+
   var elementName = gElement.localName;
   var attNames = gHTMLAttr[elementName];
 
@@ -44,7 +44,7 @@ function BuildHTMLAttributeNameList()
           var sep = document.createElementNS(XUL_NS, "menuseparator");
           if (sep)
             popup.appendChild(sep);
-        }        
+        }
       }
       else
       {
@@ -90,7 +90,7 @@ function BuildHTMLAttributeTable()
 {
   var nodeMap = gElement.attributes;
   var i;
-  if (nodeMap.length > 0) 
+  if (nodeMap.length > 0)
   {
     var added = false;
     for(i = 0; i < nodeMap.length; i++)
@@ -154,7 +154,7 @@ function onInputHTMLAttributeName()
   // Clear value widget, but prevent triggering update in tree
   gUpdateTreeValue = false;
   gDialog.AddHTMLAttributeValueInput.value = "";
-  gUpdateTreeValue = true; 
+  gUpdateTreeValue = true;
 
   if (attName)
   {
@@ -187,7 +187,7 @@ function onInputHTMLAttributeName()
       if (listLen == 1)
         newValue = valueList[0];
 
-      // Note: For case where "value list" is actually just 
+      // Note: For case where "value list" is actually just
       // one (default) item, don't use menulist for that
       if (listLen > 1)
       {
@@ -211,14 +211,14 @@ function onInputHTMLAttributeName()
               var sep = document.createElementNS(XUL_NS, "menuseparator");
               if (sep)
                 popup.appendChild(sep);
-            }        
+            }
           } else {
             gDialog.AddHTMLAttributeValueMenulist.appendItem(valueList[i]);
           }
         }
       }
     }
-    
+
     if (listLen <= 1 && deckIndex != "0")
     {
       // No list: Use textbox for input instead
@@ -231,7 +231,7 @@ function onInputHTMLAttributeName()
     var existingValue = GetAndSelectExistingAttributeValue(attName, "HTMLAList");
     if (existingValue)
       newValue = existingValue;
-      
+
     gDialog.AddHTMLAttributeValueInput.value = newValue;
 
     if (!existingValue)
@@ -284,11 +284,11 @@ function onInputHTMLAttributeValue()
         if (sign == "+" || sign == "-")
           value = sign + value;
       }
-      
-      // Special case attributes 
+
+      // Special case attributes
       if (selectedItem.getAttribute("limitFirstChar") == "true")
       {
-        // Limit first character to letter, and all others to 
+        // Limit first character to letter, and all others to
         //  letters, numbers, and a few others
         value = value.replace(/^[^a-zA-Z\u0080-\uFFFF]/, "").replace(/[^a-zA-Z0-9_\.\-\:\u0080-\uFFFF]+/g,'');
       }

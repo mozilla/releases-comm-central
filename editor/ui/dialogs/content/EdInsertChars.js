@@ -45,7 +45,7 @@ function onAccept()
   CategoryGroup.setAttribute("category", category);
   CategoryGroup.setAttribute("letter_index", indexL);
   CategoryGroup.setAttribute("char_index", indexM);
-  
+
   // Don't close the dialog
   return false;
 }

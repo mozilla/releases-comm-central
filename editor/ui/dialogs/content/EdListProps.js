@@ -46,7 +46,7 @@ function Startup()
   gDialog.RadioGroup = document.getElementById("RadioGroup");
   gDialog.ChangeAllRadio = document.getElementById("ChangeAll");
   gDialog.ChangeSelectedRadio = document.getElementById("ChangeSelected");
-  
+
   // Try to get an existing list(s)
   var mixedObj = { value: null };
   try {
@@ -85,17 +85,17 @@ function Startup()
 
 function InitDialog()
 {
-  // Note that if mixed, we we pay attention 
+  // Note that if mixed, we we pay attention
   //   only to the anchor node's list type
   // (i.e., don't confuse user with "mixed" designation)
   if (gListElement)
     gListType = gListElement.nodeName.toLowerCase();
   else
     gListType = "";
-  
+
   gDialog.ListTypeList.value = gListType;
   gDialog.StartingNumberInput.value = "";
-  
+
   // Last param = true means attribute value is case-sensitive
   var type = globalElement ? GetHTMLOrCSSStyleValue(globalElement, "type", "list-style-type") : null;
 
@@ -137,7 +137,7 @@ function InitDialog()
     }
 
     // Convert attribute number to appropriate letter or roman numeral
-    gDialog.StartingNumberInput.value = 
+    gDialog.StartingNumberInput.value =
       ConvertStartAttrToUserString(globalElement.getAttribute("start"), type);
   }
   BuildBulletStyleList();
@@ -201,15 +201,15 @@ function BuildBulletStyleList()
     gDialog.BulletStyleList.appendItem(GetString("Style_a"), gLowerLetters);
 
     gDialog.BulletStyleList.value = gNumberStyleType;
-  } 
-  else 
+  }
+  else
   {
     gDialog.BulletStyleList.setAttribute("disabled", "true");
     gDialog.BulletStyleLabel.setAttribute("disabled", "true");
     gDialog.StartingNumberInput.setAttribute("disabled", "true");
     gDialog.StartingNumberLabel.setAttribute("disabled", "true");
   }
-  
+
   // Disable advanced edit button if changing to "normal"
   if (gListType)
     gDialog.AdvancedEditButton.removeAttribute("disabled");
@@ -231,7 +231,7 @@ function SelectListType()
   if (gListType != NewType)
   {
     gListType = NewType;
-    
+
     // Create a newlist object for Advanced Editing
     try {
       if (gListType)
@@ -256,7 +256,7 @@ function SelectBulletStyle()
     {
       // Convert existing input value to attr number first,
       //   then convert to the appropriate format for the newly-selected
-      gDialog.StartingNumberInput.value = 
+      gDialog.StartingNumberInput.value =
         ConvertStartAttrToUserString( ConvertUserStringToStartAttr(gNumberStyleType), type);
 
       gNumberStyleType = type;
@@ -268,7 +268,7 @@ function SelectBulletStyle()
 function ValidateData()
 {
   gBulletStyleType = gDialog.BulletStyleList.value;
-  // globalElement should already be of the correct type 
+  // globalElement should already be of the correct type
 
   if (globalElement)
   {
@@ -282,7 +282,7 @@ function ValidateData()
           editor.removeAttributeOrEquivalent(globalElement, "type", true);
         } catch (e) {}
 
-    } 
+    }
     else if (gListType == "ol")
     {
       if (gBulletStyleType)
@@ -291,7 +291,7 @@ function ValidateData()
         try {
           editor.removeAttributeOrEquivalent(globalElement, "type", true);
         } catch (e) {}
-      
+
       var startingNumber = ConvertUserStringToStartAttr(gBulletStyleType);
       if (startingNumber)
         globalElement.setAttribute("start", startingNumber);
@@ -403,7 +403,7 @@ function onAccept()
       changeList = true;
     }
     else
-      changeList = gMixedListSelection || gListType != gOriginalListType || 
+      changeList = gMixedListSelection || gListType != gOriginalListType ||
                    gBulletStyleType != gOriginalStyleType;
     if (changeList)
     {
@@ -432,7 +432,7 @@ function onAccept()
     }
 
     editor.endTransaction();
-    
+
     SaveWindowLocation();
 
     return true;

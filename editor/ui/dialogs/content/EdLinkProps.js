@@ -77,7 +77,7 @@ function Startup()
       //   the user probably wants to extend existing link to new selection,
       //   so check if either end of selection is within a link
       // POTENTIAL PROBLEM: This prevents user from selecting text in an existing
-      //   link and making 2 links. 
+      //   link and making 2 links.
       // Note that this isn't a problem with images, handled above
 
       anchorElement = gActiveEditor.getElementOrParentByTagName("href", gActiveEditor.selection.anchorNode);
@@ -108,11 +108,11 @@ function Startup()
     dump("Failed to get selected element or create a new one!\n");
     window.close();
     return;
-  } 
+  }
 
   // We insert at caret only when nothing is selected
   insertLinkAtCaret = gActiveEditor.selection.isCollapsed;
-  
+
   var selectedText;
   if (insertLinkAtCaret)
   {
@@ -130,13 +130,13 @@ function Startup()
       // We get here if selection is exactly around a link node
       // Check if selection has some text - use that first
       selectedText = GetSelectionAsText();
-      if (!selectedText) 
+      if (!selectedText)
       {
         // No text, look for first image in the selection
         var children = anchorElement.childNodes;
         if (children)
         {
-          for(var i=0; i < children.length; i++) 
+          for(var i=0; i < children.length; i++)
           {
             var nodeName = children.item(i).nodeName.toLowerCase();
             if (nodeName == "img")
@@ -157,7 +157,7 @@ function Startup()
       gDialog.linkTextMessage.setAttribute("value", imageElement.src);
     } else {
       gDialog.linkTextCaption.setAttribute("label", GetString("LinkText"));
-      if (selectedText) 
+      if (selectedText)
       {
         // Use just the first 60 characters and add "..."
         gDialog.linkTextMessage.setAttribute("value", TruncateStringAtWordEnd(ReplaceWhitespace(selectedText, " "), 60, true));
@@ -178,10 +178,10 @@ function Startup()
 
   // Set data for the dialog controls
   InitDialog();
-  
+
   // Search for a URI pattern in the selected text
   //  as candidate href
-  selectedText = TrimString(selectedText); 
+  selectedText = TrimString(selectedText);
   if (!gDialog.hrefInput.value && TextIsURI(selectedText))
       gDialog.hrefInput.value = selectedText;
 
@@ -196,7 +196,7 @@ function Startup()
     gDialog.linkTextInput.hidden = true;
     gDialog.linkTextInput = null;
   }
-    
+
   // This sets enable state on OK button
   doEnabling();
 
@@ -208,7 +208,7 @@ function Startup()
 //   by AdvancedEdit(), which is shared by all property dialogs
 function InitDialog()
 {
-  // Must use getAttribute, not "globalElement.href", 
+  // Must use getAttribute, not "globalElement.href",
   //  or foreign chars aren't converted correctly!
   gDialog.hrefInput.value = globalElement.getAttribute("href");
 
@@ -220,7 +220,7 @@ function doEnabling()
 {
   // We disable Ok button when there's no href text only if inserting a new link
   var enable = insertNew ? (TrimString(gDialog.hrefInput.value).length > 0) : true;
-  
+
   // anon. content, so can't use SetElementEnabledById here
   var dialogNode = document.getElementById("linkDlg");
   dialogNode.getButton("accept").disabled = !enable;
@@ -288,7 +288,7 @@ function onAccept()
       // Get text to use for a new link
       if (insertLinkAtCaret)
       {
-        // Append the link text as the last child node 
+        // Append the link text as the last child node
         //   of the anchor node
         var textNode = gActiveEditor.document.createTextNode(newLinkText);
         if (textNode)
@@ -311,7 +311,7 @@ function onAccept()
           return true;
         }
       }
-      // Check if the link was to a heading 
+      // Check if the link was to a heading
       if (href in gHNodeArray)
       {
         var anchorNode = gActiveEditor.createElementWithDefaults("a");
@@ -319,7 +319,7 @@ function onAccept()
         {
           anchorNode.name = href.substr(1);
 
-          // Insert the anchor into the document, 
+          // Insert the anchor into the document,
           //  but don't let the transaction change the selection
           gActiveEditor.setShouldTxnSetSelection(false);
           gActiveEditor.insertNode(anchorNode, gHNodeArray[href], 0);
@@ -327,7 +327,7 @@ function onAccept()
         }
       }
       gActiveEditor.endTransaction();
-    } 
+    }
     else if (!insertNew)
     {
       // We already had a link, but empty HREF means remove it

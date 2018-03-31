@@ -70,7 +70,7 @@ function Startup()
   BuildHTMLAttributeTable();
   BuildCSSAttributeTable();
   BuildJSEAttributeTable();
-  
+
   // Build attribute name arrays for menulists
   BuildJSEAttributeNameList();
   BuildHTMLAttributeNameList();
@@ -180,7 +180,7 @@ function UpdateExistingAttribute( attName, attValue, treeChildrenId )
       // Set the text in the "value' column treecell
       SetTreeItemValueStr(item, attValue);
 
-      // Select item just changed, 
+      // Select item just changed,
       //  but don't trigger the tree's onSelect handler
       gDoOnSelectTree = false;
       try {
@@ -237,7 +237,7 @@ function GetAndSelectExistingAttributeValue( attName, treeChildrenId )
   return "";
 }
 
-/* Tree structure: 
+/* Tree structure:
   <treeItem>
     <treeRow>
       <treeCell> // Name Cell

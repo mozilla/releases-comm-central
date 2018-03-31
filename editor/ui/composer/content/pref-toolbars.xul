@@ -111,7 +111,7 @@
                   label="&publish.label;"
                   preference="editor.toolbars.showbutton.publish"/>
         <checkbox id="showPreview"
-                  label="&preview.label;"   
+                  label="&preview.label;"
                   preference="editor.toolbars.showbutton.preview"/>
       </vbox>
       <vbox flex="1">

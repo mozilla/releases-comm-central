@@ -5,7 +5,7 @@
 function BuildJSEAttributeNameList()
 {
   gDialog.AddJSEAttributeNameList.removeAllItems();
-  
+
   // Get events specific to current element
   var elementName = gElement.localName;
   if (elementName in gJSAttr)
@@ -37,7 +37,7 @@ function BuildJSEAttributeNameList()
         sep = document.createElementNS(XUL_NS, "menuseparator");
         if (sep)
           popup.appendChild(sep);
-      }        
+      }
     }
   }
 
@@ -57,7 +57,7 @@ function BuildJSEAttributeNameList()
     else
       gDialog.AddJSEAttributeNameList.appendItem(gCoreJSEvents[i], gCoreJSEvents[i]);
   }
-  
+
   gDialog.AddJSEAttributeNameList.selectedIndex = 0;
 
   // Use current name and value of first tree item if it exists
@@ -94,7 +94,7 @@ function onSelectJSEAttribute()
   if(!gDoOnSelectTree)
     return;
 
-  gDialog.AddJSEAttributeValueInput.value = 
+  gDialog.AddJSEAttributeValueInput.value =
       GetAndSelectExistingAttributeValue(gDialog.AddJSEAttributeNameList.label, "JSEAList");
 }
 
@@ -122,7 +122,7 @@ function onInputJSEAttributeValue()
     var value = TrimString(gDialog.AddJSEAttributeValueInput.value);
 
     // Update value in the tree list
-    // Since we have a non-editable menulist, 
+    // Since we have a non-editable menulist,
     //   we MUST automatically add the event attribute if it doesn't exist
     if (!UpdateExistingAttribute( name, value, "JSEAList" ) && value)
       AddTreeItem( name, value, "JSEAList", JSEAttrs );
@@ -161,7 +161,7 @@ function UpdateJSEAttributes()
 
 function RemoveJSEAttribute()
 {
-  // This differs from HTML and CSS panels: 
+  // This differs from HTML and CSS panels:
   // We reselect after removing, because there is not
   //  editable attribute name input, so we can't clear that
   //  like we do in other panels

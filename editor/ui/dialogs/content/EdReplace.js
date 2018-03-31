@@ -126,7 +126,7 @@ function onFindNext()
     gReplaceDialog.findInput.select();
     gReplaceDialog.findInput.focus();
     return false;
-  } 
+  }
   return true;
 }
 
@@ -242,7 +242,7 @@ function onReplaceAll()
 
   // and to make sure we close the transaction, guard against exceptions:
   try {
-    // Make a range containing the current selection, 
+    // Make a range containing the current selection,
     // so we don't go past it when we wrap.
     var selection = gEditor.selection;
     var selecRange;

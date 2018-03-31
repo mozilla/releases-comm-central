@@ -106,7 +106,7 @@ function Startup()
       }
       if (!siteFound)
       {
-        // Not found in site database 
+        // Not found in site database
         // Setup for a new site and use data from a remote URL
         if (!addNewSite)
           AddNewSite();
@@ -133,7 +133,7 @@ function Startup()
 
   gDialog.PageTitleInput.value = gPreviousTitle;
   gDialog.FilenameInput.value = decodeURIComponent(filename);
-  
+
   if (!addNewSite)
   {
     // If not adding a site and we haven't selected a site -- use initial or default site
@@ -150,7 +150,7 @@ function Startup()
     // No selected site -- assume same directory
     gDialog.OtherDirRadiogroup.selectedItem = gDialog.SameLocationRadio;
   }
-  else if (gPublishSiteData[gDialog.SiteList.selectedIndex].docDir == 
+  else if (gPublishSiteData[gDialog.SiteList.selectedIndex].docDir ==
         gPublishSiteData[gDialog.SiteList.selectedIndex].otherDir)
   {
     // For now, check "same location" if dirs are already set to same directory
@@ -205,7 +205,7 @@ function doEnabling()
 
 function SelectSiteList()
 {
-  var selectedSiteIndex = gDialog.SiteList.selectedIndex;  
+  var selectedSiteIndex = gDialog.SiteList.selectedIndex;
 
   var siteName = "";
   var publishUrl = "";
@@ -265,11 +265,11 @@ function AddNewSite()
   //  to automatically switch to "Settings" panel
   //  to enter data for new site
   SwitchPanel(gDialog.SettingsTab);
-  
+
   gDialog.SiteList.selectedIndex = -1;
 
   SelectSiteList();
-  
+
   gSettingsChanged = true;
 
   SetTextboxFocus(gDialog.SiteNameInput);
@@ -329,7 +329,7 @@ function GetOtherDirInput()
 
 function ChooseDir(menulist)
 {
-  //TODO: For FTP publish destinations, get file listing of just dirs 
+  //TODO: For FTP publish destinations, get file listing of just dirs
   //  and build a tree to let user select dir
 }
 
@@ -344,7 +344,7 @@ function ValidateSettings()
   if (PublishSiteNameExists(siteName, gPublishSiteData, gDialog.SiteList.selectedIndex))
   {
     SwitchPanel(gDialog.SettingsTab);
-    ShowInputErrorMessage(GetString("DuplicateSiteNameError").replace(/%name%/, siteName));            
+    ShowInputErrorMessage(GetString("DuplicateSiteNameError").replace(/%name%/, siteName));
     SetTextboxFocus(gDialog.SiteNameInput);
     return false;
   }
@@ -360,7 +360,7 @@ function ValidateSettings()
     // Assume scheme = "ftp://" if missing
     // This compensates when user enters hostname w/o scheme (as most ISPs provide)
     if (!GetScheme(publishUrl))
-      publishUrl = "ftp://" + publishUrl; 
+      publishUrl = "ftp://" + publishUrl;
 
     gDialog.PublishUrlInput.value = publishUrl;
   }
@@ -375,10 +375,10 @@ function ValidateSettings()
   var savePassword = gDialog.SavePassword.checked;
   var password = gDialog.PasswordInput.value;
   var publishOtherFiles = gDialog.OtherDirCheckbox.checked;
-  
-  //XXX If there was a username and/or password in the publishUrl 
+
+  //XXX If there was a username and/or password in the publishUrl
   //    AND in the input field, which do we use?
-  //    Let's use those in url only if input is empty 
+  //    Let's use those in url only if input is empty
   if (!username)
   {
     username = urlUserObj.value;
@@ -392,7 +392,7 @@ function ValidateSettings()
     gSettingsChanged = true;
   }
 
-  // Update or add data for a site 
+  // Update or add data for a site
   var siteIndex = gDialog.SiteList.selectedIndex;
   var newSite = false;
 
@@ -410,7 +410,7 @@ function ValidateSettings()
       siteIndex = 0;
       gDefaultSiteIndex = 0;
       gDefaultSiteName = siteName;
-    }    
+    }
     gPublishSiteData[siteIndex] = {};
     gPublishSiteData[siteIndex].docDir = "";
     gPublishSiteData[siteIndex].otherDir = "";
@@ -451,7 +451,7 @@ function ValidateSettings()
   }
   else
   {
-    // Update selected item if sitename changed 
+    // Update selected item if sitename changed
     var selectedItem = gDialog.SiteList.selectedItem;
     if (selectedItem)
     {
@@ -466,7 +466,7 @@ function ValidateSettings()
       }
     }
   }
-  
+
   // Get the directory name in site to publish to
   var docDir = GetDocDirInput();
 
@@ -487,7 +487,7 @@ function ValidateSettings()
   gReturnData.publishUrl = publishUrl;
   gReturnData.browseUrl = browseUrl;
   gReturnData.username = username;
-  // Note that we use the password for the next publish action 
+  // Note that we use the password for the next publish action
   // even if savePassword is false; but we won't save it in PasswordManager database
   gReturnData.password = password;
   gReturnData.savePassword = savePassword;

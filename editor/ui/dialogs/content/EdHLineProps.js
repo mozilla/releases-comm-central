@@ -152,7 +152,7 @@ function ValidateData()
   if (gValidationError)
     return false;
 
-  width = ValidateNumber(gDialog.widthInput, gDialog.pixelOrPercentMenulist, 1, gMaxPixels, 
+  width = ValidateNumber(gDialog.widthInput, gDialog.pixelOrPercentMenulist, 1, gMaxPixels,
                          globalElement, "width", false);
   if (gValidationError)
     return false;

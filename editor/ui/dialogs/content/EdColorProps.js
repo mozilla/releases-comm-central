@@ -124,7 +124,7 @@ function InitDialog()
   customBackgroundColor  = GetHTMLOrCSSStyleValue(globalElement, bgcolorStr, cssBackgroundColorStr);
   customBackgroundColor  = ConvertRGBColorIntoHEXColor(customBackgroundColor);
 
-  var haveCustomColor = 
+  var haveCustomColor =
         customTextColor       ||
         customLinkColor       ||
         customVisitedColor    ||
@@ -148,7 +148,7 @@ function InitDialog()
     gDialog.PageColorGroup.selectedItem = gDialog.CustomColorsRadio;
     UseCustomColors();
   }
-  else 
+  else
   {
     gDialog.PageColorGroup.selectedItem = gDialog.DefaultColorsRadio;
     UseDefaultColors();
@@ -216,7 +216,7 @@ function GetColorAndUpdate(ColorWellID)
       break;
   }
 
-  setColorWell(ColorWellID, color); 
+  setColorWell(ColorWellID, color);
   SetColorPreview(ColorWellID, color);
 }
 
@@ -402,9 +402,9 @@ function ValidateData()
         globalElement.setAttribute(backgroundStr, gBackgroundImage);
       else
         editor.removeAttributeOrEquivalent(globalElement, backgroundStr, true);
-  
+
       return true;
-    }  
+    }
   } catch (e) {}
   return false;
 }

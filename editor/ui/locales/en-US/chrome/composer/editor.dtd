@@ -4,7 +4,7 @@
 
 <!-- Window title -->
 <!-- LOCALIZATION NOTE  (editorWindow.titlemodifier): DONT_TRANSLATE -->
-<!ENTITY editorWindow.titlemodifier "Composer"> 
+<!ENTITY editorWindow.titlemodifier "Composer">
 <!ENTITY editorWindow.titlemodifiermenuseparator " - ">
 
 <!-- Menu items:  the . means that the menu item isn't implemented yet -->

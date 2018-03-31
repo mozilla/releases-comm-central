@@ -7,7 +7,7 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditConflict.dtd">
 
@@ -22,7 +22,7 @@
   <script type="application/javascript" src="chrome://editor/content/EditConflict.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  
+
   <label value ="&conflictWarning.label;"/>
   <spacer class="bigspacer"/>
   <label value ="&conflictResolve.label;"/>

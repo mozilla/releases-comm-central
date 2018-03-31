@@ -102,7 +102,7 @@ function onAccept()
   str = str.replace(/\s*<\/p>\s*/g, "");
 
   // Trim whitespace adjacent to <p> and <br> tags
-  //  and replace <p> with <br> 
+  //  and replace <p> with <br>
   //  (which will be replaced with </tr> below)
   str = str.replace(/\s*<p>\s*|\s*<br>\s*/g, "<br>");
 
@@ -142,12 +142,12 @@ function onAccept()
 
         if (/^ol|^ul|^dl/.test(tagContent))
         {
-          //  Replace list tag with <BR> to start new row 
+          //  Replace list tag with <BR> to start new row
           //   at beginning of second or greater list tag
           str = str.slice(0, start) + listSeparator + str.slice(end+1);
           if (listSeparator == "")
             listSeparator = "<br>";
-          
+
           // Reset for list item separation into cells
           listItemSeparator = "";
         }
@@ -165,7 +165,7 @@ function onAccept()
 
           endList = false;
         }
-        else 
+        else
         {
           // Find end tags
           endList = /^\/ol|^\/ul|^\/dl/.test(tagContent);
@@ -178,7 +178,7 @@ function onAccept()
           {
             // Not a list-related tag: Store tag contents in an array
             stack.push(tagContent);
-           
+
             // Keep the "<" and ">" while removing from source string
             start++;
             str = str.slice(0, start) + str.slice(end);
@@ -194,7 +194,7 @@ function onAccept()
   if (gDialog.deleteSepCharacter.checked)
   {
     replaceString = "";
-  }  
+  }
   else
   {
     // Don't delete separator character,
@@ -202,7 +202,7 @@ function onAccept()
     replaceString = sepCharacter;
   }
 
-  replaceString += "<td>"; 
+  replaceString += "<td>";
 
   if (sepCharacter.length > 0)
   {
@@ -213,7 +213,7 @@ function onAccept()
 
     if (gIndex == gSpaceIndex)
     {
-      // If checkbox is checked, 
+      // If checkbox is checked,
       //   one or more adjacent spaces are one separator
       if (gDialog.collapseSpaces.checked)
           tempStr = "\\s+"
@@ -248,7 +248,7 @@ function onAccept()
   str = "<table border=\"1\" width=\"100%\" cellpadding=\"2\" cellspacing=\"2\">\n<tr><td>" + str + "</tr>\n</table>\n";
 
   editor.beginTransaction();
-  
+
   // Delete the selection -- makes it easier to find where table will insert
   var nodeBeforeTable = null;
   var nodeAfterTable = null;
@@ -259,7 +259,7 @@ function onAccept()
     var offset = editor.selection.anchorOffset;
     if (anchorNodeBeforeInsert.nodeType == Node.TEXT_NODE)
     {
-      // Text was split. Table should be right after the first or before 
+      // Text was split. Table should be right after the first or before
       nodeBeforeTable = anchorNodeBeforeInsert.previousSibling;
       nodeAfterTable = anchorNodeBeforeInsert;
     }
@@ -271,7 +271,7 @@ function onAccept()
 
       nodeAfterTable = anchorNodeBeforeInsert.childNodes.item(offset);
     }
-  
+
     editor.insertHTML(str);
   } catch (e) {}
 
@@ -308,7 +308,7 @@ function onAccept()
         if (node2.nodeName.toLowerCase() == "td" ||
             node2.nodeName.toLowerCase() == "th")
         {
-          try { 
+          try {
             editor.selection.collapse(node2, 0);
           } catch(e) {}
           break;

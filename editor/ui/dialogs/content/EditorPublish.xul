@@ -7,8 +7,8 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
-<?xul-overlay href="chrome://editor/content/EditorPublishOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
+<?xul-overlay href="chrome://editor/content/EditorPublishOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorPublish.dtd">
 
@@ -47,7 +47,7 @@
                      accesskey="&siteList.accesskey;"
                      control="SiteList"/>
               <!-- Contents filled in at runtime -->
-              <menulist id="SiteList" 
+              <menulist id="SiteList"
                 style="min-width:18em; max-width:18em;" crop="right"
                 tooltiptext="&siteList.tooltip;"
                 oncommand="SelectSiteList();"/>
@@ -62,7 +62,7 @@
             <row align="center">
               <label value="&pageTitle.label;" accesskey="&pageTitle.accesskey;"
                      control="PageTitleInput"/>
-              <textbox id="PageTitleInput" 
+              <textbox id="PageTitleInput"
                 tooltiptext="&pageTitle.tooltip;" class="minWidth15"/>
               <label value="&pageTitleExample.label;"/>
             </row>
@@ -87,7 +87,7 @@
         <spacer class="spacer"/>
         <groupbox>
           <caption>
-            <checkbox id="OtherDirCheckbox" label="&publishImgCheckbox.label;" 
+            <checkbox id="OtherDirCheckbox" label="&publishImgCheckbox.label;"
                       accesskey="&publishImgCheckbox.accesskey;"
                       tooltiptext="&publishImgCheckbox.tooltip;"
                       oncommand="doEnabling();"/>
@@ -127,6 +127,6 @@
         <!-- from EditorPublishOverlay.xul -->
         <vbox id="PublishSettingsInputs" flex="1"/>
       </hbox><!-- Settings Panel -->
-    </tabpanels> 
+    </tabpanels>
   </tabbox>
 </dialog>

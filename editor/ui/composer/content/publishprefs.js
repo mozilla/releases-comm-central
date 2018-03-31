@@ -59,7 +59,7 @@ function GetPublishSiteData()
 function GetDefaultPublishSiteName()
 {
   var publishBranch = GetPublishPrefsBranch();
-  var name = "";  
+  var name = "";
   if (publishBranch)
     name = GetPublishStringPref(publishBranch, "default_site");
 
@@ -84,7 +84,7 @@ function CreatePublishDataFromUrl(docUrl)
       publishData = pubSiteData[index];
       publishData.docDir = FormatDirForPublishing(dirObj.value)
 
-      //XXX Problem: OtherDir: How do we decide when to use the dir in 
+      //XXX Problem: OtherDir: How do we decide when to use the dir in
       //    publishSiteData (default DocDir) or docDir from current filepath?
       publishData.otherDir = FormatDirForPublishing(pubSiteData[index].otherDir);
 
@@ -109,7 +109,7 @@ function CreatePublishDataFromUrl(docUrl)
 
   var siteName = CreateSiteNameFromUrl(pubUrl, pubSiteData);
 
-  publishData = { 
+  publishData = {
     siteName : siteName,
     previousSiteName : siteName,
     filename : GetFilename(docUrl),
@@ -141,7 +141,7 @@ function CreateSiteNameFromUrl(url, publishSiteData)
     var i = 1;
     var exists = false;
     do {
-      exists = PublishSiteNameExists(siteName, publishSiteData, -1)  
+      exists = PublishSiteNameExists(siteName, publishSiteData, -1)
       if (exists)
         siteName = host + "-" + i + schemePostfix;
       i++;
@@ -202,7 +202,7 @@ function GetPublishData_internal(publishBranch, siteName)
   var prefPrefix = "site_data." + siteName + ".";
 
   // We must have a publish url, else we ignore this site
-  // (siteData and siteNames for sites with incomplete data 
+  // (siteData and siteNames for sites with incomplete data
   //  will get deleted by SavePublishSiteDataToPrefs)
   var publishUrl = GetPublishStringPref(publishBranch, prefPrefix+"url");
   if (!publishUrl)
@@ -215,7 +215,7 @@ function GetPublishData_internal(publishBranch, siteName)
     publishOtherFiles = publishBranch.getBoolPref(prefPrefix+"publish_other_files");
   } catch (e) {}
 
-  var publishData = { 
+  var publishData = {
     siteName : siteName,
     previousSiteName : siteName,
     filename : "",
@@ -245,8 +245,8 @@ function GetPublishData_internal(publishBranch, siteName)
     publishData.savePassword = true;
   }
 
-  // Build history list of directories 
-  // Always supply the root dir 
+  // Build history list of directories
+  // Always supply the root dir
   publishData.dirList = [""];
 
   // Get the rest from prefs
@@ -303,7 +303,7 @@ function SavePublishSiteDataToPrefs(siteArray, defaultName)
 
     // Save default site name
     SetPublishStringPref(publishBranch, "default_site", defaultName);
-  
+
     // Force saving to file so next page edited finds these values
     SavePrefFile();
   }
@@ -341,7 +341,7 @@ function SavePublishDataToPrefs(publishData)
   }
 
   // Use "previous" name if available in case it was changed
-  var previousSiteName =  ("previousSiteName" in publishData && publishData.previousSiteName) ? 
+  var previousSiteName =  ("previousSiteName" in publishData && publishData.previousSiteName) ?
                             publishData.previousSiteName : publishData.siteName;
 
   // Find site number of existing site or fall through at next available one
@@ -368,7 +368,7 @@ function SavePublishDataToPrefs(publishData)
   {
     // Check if siteName was the default and we need to update that
     var defaultSiteName = GetPublishStringPref(publishBranch, "default_site");
-    if (previousSiteName == defaultSiteName 
+    if (previousSiteName == defaultSiteName
         && publishData.siteName != defaultSiteName)
       SetPublishStringPref(publishBranch, "default_site", publishData.siteName);
 
@@ -396,17 +396,17 @@ function SavePublishData_Internal(publishPrefsBranch, publishData, siteIndex)
   SetPublishStringPref(publishPrefsBranch, prefPrefix+"url", publishData.publishUrl);
   SetPublishStringPref(publishPrefsBranch, prefPrefix+"browse_url", publishData.browseUrl);
   SetPublishStringPref(publishPrefsBranch, prefPrefix+"username", publishData.username);
-  
+
   try {
     publishPrefsBranch.setBoolPref(prefPrefix+"save_password", publishData.savePassword);
     publishPrefsBranch.setBoolPref(prefPrefix+"publish_other_files", publishData.publishOtherFiles);
   } catch (e) {}
 
-  // Save password using PasswordManager 
+  // Save password using PasswordManager
   // (If publishData.savePassword = false, this clears existing password)
   SavePassword(publishData);
 
-  SetPublishStringPref(publishPrefsBranch, prefPrefix+"doc_dir", 
+  SetPublishStringPref(publishPrefsBranch, prefPrefix+"doc_dir",
                        FormatDirForPublishing(publishData.docDir));
 
   if (publishData.publishOtherFiles && publishData.otherDir)
@@ -418,7 +418,7 @@ function SavePublishData_Internal(publishPrefsBranch, publishData, siteIndex)
     if (publishData.docDir)
       AppendNewDirToList(publishData, publishData.docDir);
 
-    if (publishData.publishOtherFiles && publishData.otherDir 
+    if (publishData.publishOtherFiles && publishData.otherDir
         && publishData.otherDir != publishData.docDir)
       AppendNewDirToList(publishData, publishData.otherDir);
   }
@@ -629,7 +629,7 @@ function PublishSiteNameExists(name, publishSiteData, skipSiteIndex)
 // Find index of a site record in supplied publish site database
 // docUrl: Document URL with or without filename
 //         (Must end in "/" if no filename)
-// dirObj.value =  the directory of the document URL 
+// dirObj.value =  the directory of the document URL
 //      relative to the base publishing URL, using "" if none
 //
 // XXX: Currently finds the site with the longest-matching url;
@@ -644,7 +644,7 @@ function FindSiteIndexAndDocDir(publishSiteData, docUrl, dirObj)
 
   var siteIndex = -1;
   var siteUrlLen = 0;
-  
+
   for (var i = 0; i < publishSiteData.length; i++)
   {
     // Site publish or browse url needs to be contained in document URL,
@@ -674,7 +674,7 @@ function FindSiteIndexAndDocDir(publishSiteData, docUrl, dirObj)
 // (We need to look at both "publishUrl" and "browseUrl" in case we are editing
 //  an http: document but using ftp: to publish.)
 // If match is found:
-//    Fill in the filename and subirectory based on the docUrl and 
+//    Fill in the filename and subirectory based on the docUrl and
 //    return the length of the docUrl with username+password stripped out
 function FillInMatchingPublishData(publishData, docUrl)
 {
@@ -685,24 +685,24 @@ function FillInMatchingPublishData(publishData, docUrl)
   var lastSlash = docUrl.lastIndexOf("\/");
   var baseUrl = docUrl.slice(0, lastSlash+1);
   var filename = docUrl.slice(lastSlash+1);
-    
+
   // Strip username+password from docUrl because these
   //  are stored separately in publishData, never embedded in the publishUrl
   // If both docUrl and publishData contain usernames,
   //   we must match that as well as the url
   var username = {value:""};
-  baseUrl = StripUsernamePassword(baseUrl, username); 
+  baseUrl = StripUsernamePassword(baseUrl, username);
   username = username.value;
 
   var matchedLength = 0;
   let pubUrlFound = publishData.publishUrl && baseUrl.startsWith(publishData.publishUrl);
   let browseUrlFound = publishData.browseUrl && baseUrl.startsWith(publishData.browseUrl);
 
-  if ((pubUrlFound || browseUrlFound) 
+  if ((pubUrlFound || browseUrlFound)
       && (!username || !publishData.username || username == publishData.username))
   {
     // We found a match
-    matchedLength = pubUrlFound ? publishData.publishUrl.length 
+    matchedLength = pubUrlFound ? publishData.publishUrl.length
                             : publishData.browseUrl.length;
 
     if (matchedLength > 0)
@@ -755,7 +755,7 @@ function FormatUrlForPublishing(url)
 }
 
 // Username and password present in publish url are
-//  extracted into the separate "username" and "password" fields 
+//  extracted into the separate "username" and "password" fields
 //  of the publishData object
 // Returns true if we did change the publishData
 function FixupUsernamePasswordInPublishData(publishData)

@@ -7,7 +7,7 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EdConvertToTable.dtd">
 
@@ -40,7 +40,7 @@
       <radio id="other" label="&otherRadio.label;" oncommand="SelectCharacter('2');"/>
       <textbox class="narrow" id="SepCharacterInput" oninput="InputSepCharacter()"/>
     </hbox>
-  </radiogroup> 
+  </radiogroup>
   <spacer class="spacer"/>
   <checkbox id="DeleteSepCharacter" label="&deleteCharCheck.label;" persist="checked"/>
   <separator class="groove"/>

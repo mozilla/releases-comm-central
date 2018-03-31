@@ -10,13 +10,13 @@ function initEditorContextMenuItems(aEvent)
   var shouldShowEditPage = !gContextMenu.onImage && !gContextMenu.onLink && !gContextMenu.onTextInput && !gContextMenu.inDirList;
   gContextMenu.showItem( "context-editpage", shouldShowEditPage );
 
-  var shouldShowEditLink = gContextMenu.onSaveableLink; 
+  var shouldShowEditLink = gContextMenu.onSaveableLink;
   gContextMenu.showItem( "context-editlink", shouldShowEditLink );
 
-  // Hide the applications separator if there's no add-on apps present. 
+  // Hide the applications separator if there's no add-on apps present.
   gContextMenu.showItem("context-sep-apps", gContextMenu.shouldShowSeparator("context-sep-apps"));
 }
-  
+
 function initEditorContextMenuListener(aEvent)
 {
   var popup = document.getElementById("contentAreaContextMenu");
@@ -26,19 +26,19 @@ function initEditorContextMenuListener(aEvent)
 
 addEventListener("load", initEditorContextMenuListener, false);
 
-function editDocument(aDocument)      
+function editDocument(aDocument)
 {
   if (!aDocument)
     aDocument = window.content.document;
 
-  editPage(aDocument.URL); 
+  editPage(aDocument.URL);
 }
 
 function editPageOrFrame()
 {
   var focusedWindow = document.commandDispatcher.focusedWindow;
 
-  // if the uri is a specific frame, grab it, else use the frameset uri 
+  // if the uri is a specific frame, grab it, else use the frameset uri
   // and let Composer handle error if necessary
   editPage(getContentFrameURI(focusedWindow));
 }
@@ -65,7 +65,7 @@ function editPage(url, aFileType)
   // Always strip off "view-source:" and #anchors
   url = url.replace(/^view-source:/, "").replace(/#.*/, "");
 
-  // if the current window is a browser window, then extract the current charset menu setting from the current 
+  // if the current window is a browser window, then extract the current charset menu setting from the current
   // document and use it to initialize the new composer window...
 
   var wintype = document.documentElement.getAttribute('windowtype');
@@ -131,7 +131,7 @@ function CheckOpenWindowForURIMatch(uri, win)
   try {
     return createURI(win.content.document.URL).equals(uri);
   } catch (e) {}
-  
+
   return false;
 }
 

@@ -7,7 +7,7 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorInsertTable.dtd">
 
@@ -65,7 +65,7 @@
         accesskey="&borderEditField.accessKey;"
         tooltiptext="&borderEditField.tooltip;" />
     <textbox class="narrow" id="borderInput" oninput="forceInteger(this.id)" />
-    <label value="&pixels.label;"/>  
+    <label value="&pixels.label;"/>
   </hbox>
   <!-- from EdDialogOverlay -->
   <vbox id="AdvancedEdit"/>

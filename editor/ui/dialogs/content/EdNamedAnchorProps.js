@@ -32,7 +32,7 @@ function Startup()
     gOriginalName = ConvertToCDATAString(gAnchorElement.name);
   } else {
     gInsertNew = true;
-    // We don't have an element selected, 
+    // We don't have an element selected,
     //  so create one with default attributes
     gAnchorElement = editor.createElementWithDefaults(kTagName);
     if (gAnchorElement) {
@@ -58,7 +58,7 @@ function Startup()
   }
 
   InitDialog();
-  
+
   DoEnabling();
   SetTextboxFocus(gDialog.NameInput);
   SetWindowLocation();
@@ -122,7 +122,7 @@ function ValidateData()
 
     if (gOriginalName != name && AnchorNameExists(name))
     {
-      ShowInputErrorMessage(GetString("DuplicateAnchorNameError").replace(/%name%/,name));            
+      ShowInputErrorMessage(GetString("DuplicateAnchorNameError").replace(/%name%/,name));
       SetTextboxFocus(gDialog.NameInput);
       return false;
     }

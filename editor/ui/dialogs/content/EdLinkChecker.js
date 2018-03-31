@@ -153,8 +153,8 @@ function SetItemStatus(url, status)
   if (!status)
     status = "busy";
 
-  // Just set attribute for status icon 
-  // if we already have this url 
+  // Just set attribute for status icon
+  // if we already have this url
   let listitem = document.querySelector('listitem[label="' + url + '"]');
   if (listitem)
   {

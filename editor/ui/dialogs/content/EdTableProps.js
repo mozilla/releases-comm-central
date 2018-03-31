@@ -715,7 +715,7 @@ function DoCellSelection()
   //   else we ignore CSS, JS, and HTML attributes not already in dialog
   SetElementEnabled(gDialog.AdvancedEditCell, gSelectedCellCount == 1);
 
-  gDialog.AdvancedEditCell.setAttribute("tooltiptext", 
+  gDialog.AdvancedEditCell.setAttribute("tooltiptext",
     gSelectedCellCount > 1 ? GetString("AdvancedEditForCellMsg") :
                              gDialog.AdvancedEditCellToolTipText);
 }
@@ -781,9 +781,9 @@ function ValidateTableData()
   // (This is a global to the dialog and we ask only once per dialog session)
   if ( !gCanDelete &&
         (gNewRowCount < gRowCount ||
-         gNewColCount < gColCount) ) 
+         gNewColCount < gColCount) )
   {
-    if (ConfirmWithTitle(GetString("DeleteTableTitle"), 
+    if (ConfirmWithTitle(GetString("DeleteTableTitle"),
                          GetString("DeleteTableMsg"),
                          GetString("DeleteCells")) )
     {

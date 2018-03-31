@@ -79,12 +79,12 @@ function Startup()
     title = "(" + opener.gUntitledString + ")";
   document.title = GetString("PublishProgressCaption").replace(/%title%/, title);
 
-  document.getElementById("PublishToSite").value = 
-    GetString("PublishToSite").replace(/%title%/, TruncateStringAtWordEnd(gPublishData.siteName, 25)); 
+  document.getElementById("PublishToSite").value =
+    GetString("PublishToSite").replace(/%title%/, TruncateStringAtWordEnd(gPublishData.siteName, 25));
 
   // Show publishing destination URL
   document.getElementById("PublishUrl").value = gPublishData.publishUrl;
-  
+
   // Show subdirectories only if not empty
   if (gPublishData.docDir || gPublishData.otherDir)
   {
@@ -92,7 +92,7 @@ function Startup()
       document.getElementById("docDir").value = gPublishData.docDir;
     else
       document.getElementById("DocSubdir").hidden = true;
-      
+
     if (gPublishData.publishOtherFiles && gPublishData.otherDir)
       document.getElementById("otherDir").value = gPublishData.otherDir;
     else
@@ -197,8 +197,8 @@ function SetProgressFinished(filename, networkStatus)
         break;
       case kNetReset:
         // We get this when subdir doesn't exist AND
-        //   if filename used is same as an existing subdir 
-        var dir = (gPublishData.filename == filename) ? 
+        //   if filename used is same as an existing subdir
+        var dir = (gPublishData.filename == filename) ?
                      gPublishData.docDir : gPublishData.otherDir;
 
         if (dir)
@@ -209,9 +209,9 @@ function SetProgressFinished(filename, networkStatus)
           gStatusMessage = gStatusMessage.replace(/%file%/, filename);
 
           // Remove directory from saved prefs
-          // XXX Note that if subdir is good, 
-          //     but filename = next level subdirectory name, 
-          //     we really shouldn't remove subdirectory, 
+          // XXX Note that if subdir is good,
+          //     but filename = next level subdirectory name,
+          //     we really shouldn't remove subdirectory,
           //     but it's impossible to differentiate this case!
           RemovePublishSubdirectoryFromPrefs(gPublishData, dir);
         }
@@ -340,7 +340,7 @@ function RequestCloseDialog()
 
   if (!gDialog.KeepOpen.checked)
   {
-    // Leave window open a minimum amount of time 
+    // Leave window open a minimum amount of time
     gTimerID = setTimeout(CloseDialog, 3000);
   }
 
@@ -353,7 +353,7 @@ function RequestCloseDialog()
     if (gFileNotFound && gTotalFileCount-gSucceededCount)
     {
       // Show number of files that failed to upload
-      gStatusMessage = 
+      gStatusMessage =
         (GetString("FailedFileMsg").replace(/%x%/,(gTotalFileCount-gSucceededCount)))
           .replace(/%total%/,gTotalFileCount);
 

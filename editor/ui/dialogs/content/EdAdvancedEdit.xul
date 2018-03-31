@@ -39,9 +39,9 @@
     <label value="&currentattributesfor.label;"/>
     <label class="header" id="tagLabel"/>
   </hbox>
-  
+
   <separator class="thin"/>
-  
+
   <tabbox flex="1">
     <tabs>
       <tab label="&tabHTML.label;"/>

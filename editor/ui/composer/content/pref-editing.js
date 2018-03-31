@@ -91,7 +91,7 @@ function UpdateDependent(aCustomEnabled)
 function ToggleElements(aCustomEnabled)
 {
   var buttons = document.getElementById("color-rows").getElementsByTagName("button");
-  
+
   for (var i = 0; i < buttons.length; i++)
   {
     let isLocked = CheckLocked(buttons[i].id);

@@ -6,7 +6,7 @@
 <?xml-stylesheet href="chrome://editor/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorInsertChars.dtd">
 
@@ -35,7 +35,7 @@
       <radio id="Upper"       label="&otherUpper.label;"    oncommand="ChangeCategory(this.id)"/>
       <radio id="Lower"       label="&otherLower.label;"    oncommand="ChangeCategory(this.id)"/>
       <radio id="Symbol"      label="&commonSymbols.label;" oncommand="ChangeCategory(this.id)"/>
-    </radiogroup> 
+    </radiogroup>
     <spacer class="spacer"/>
   </groupbox>
   <hbox equalsize="always">

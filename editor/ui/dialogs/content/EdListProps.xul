@@ -6,7 +6,7 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorListProperties.dtd">
 <dialog title="&windowTitle.label;"
@@ -35,8 +35,8 @@
   </groupbox>
   <spacer class="spacer"/>
 
-  <!-- message text and list items are set in JS 
-       text value should be identical to string with id=BulletStyle in editor.properties 
+  <!-- message text and list items are set in JS
+       text value should be identical to string with id=BulletStyle in editor.properties
   -->
   <groupbox flex="1"><caption id="BulletStyleLabel" label="&bulletStyle.label;"/>
     <menulist class="MinWidth10em" id="BulletStyle" oncommand="SelectBulletStyle()">

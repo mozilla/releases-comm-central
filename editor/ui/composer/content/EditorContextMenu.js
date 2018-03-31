@@ -62,7 +62,7 @@ nsContextMenu.prototype.initEditorItems = function (aShow)
     this.hideDisabledItem("context-copy", true);
     this.hideDisabledItem("context-paste", true);
     this.hideDisabledItem("context-delete", true);
-    
+
     this.showItem("context-sep-undo",
                   this.shouldShowSeparator("context-sep-undo"));
     this.showItem("context-sep-paste",

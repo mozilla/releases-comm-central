@@ -29,7 +29,7 @@ function Startup()
   gDialog.TitleInput       = document.getElementById("TitleInput");
   gDialog.AuthorInput      = document.getElementById("AuthorInput");
   gDialog.DescriptionInput = document.getElementById("DescriptionInput");
-  
+
   // Default string for new page is set from DTD string in XUL,
   //   so set only if not new doc URL
   var location = GetDocumentUrl();
@@ -83,7 +83,7 @@ function Startup()
 
     gInsertNewDescription = true;
   }
-  
+
   InitDialog();
 
   SetTextboxFocus(gDialog.TitleInput);
@@ -140,7 +140,7 @@ function onAccept()
     //  because TITLE is a required HTML element
     if (gTitleWasEdited)
       SetDocumentTitle(gNewTitle);
-    
+
     if (gAuthorWasEdited)
       SetMetaElementContent(gAuthorElement, gAuthor, gInsertNewAuthor, false);
 

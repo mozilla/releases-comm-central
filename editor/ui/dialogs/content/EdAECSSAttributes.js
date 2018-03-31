@@ -115,7 +115,7 @@ function UpdateCSSAttributes()
     // Use editor transactions if modifying the element directly in the document
     doRemoveAttribute("style");
     doSetAttribute("style", styleString);  // NOTE BUG 18894!!!
-  } 
+  }
   else if (gElement.getAttribute("style"))
     doRemoveAttribute("style");
 }
@@ -127,7 +127,7 @@ function RemoveCSSAttribute()
   {
     // Remove the item from the tree
     // We always rebuild complete "style" string,
-    //  so no list of "removed" items 
+    //  so no list of "removed" items
     getSelectedItem(gDialog.AddCSSAttributeTree).remove();
 
     ClearCSSInputWidgets();

@@ -14,7 +14,7 @@
   <commandset id="tasksCommands">
     <!-- XXX insert commands here -->
   </commandset>
-         
+
   <!-- navigator specific UI items -->
   <menupopup id="menu_NewPopup">
     <!-- XXX insert File->New Menu add-ins here -->
@@ -22,6 +22,6 @@
 
   <menupopup id="menu_FilePopup">
     <!-- XXX insert File Menu add-ins here -->
-  </menupopup> 
+  </menupopup>
 </overlay>
 

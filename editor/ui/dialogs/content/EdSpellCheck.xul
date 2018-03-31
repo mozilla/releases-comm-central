@@ -4,8 +4,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?> 
-<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?> 
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorSpellCheck.dtd">
 
 <!-- dialog containing a control requiring initial setup -->
@@ -77,7 +77,7 @@
                 <button id="IgnoreAll"  oncommand="IgnoreAll();" label="&ignoreAllButton.label;"
                         accesskey="&ignoreAllButton.accessKey;"/>
               </row>
-            </rows> 
+            </rows>
           </grid>
           <separator/>
           <label value="&userDictionary.label;"/>
