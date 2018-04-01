@@ -42,6 +42,8 @@
   --lwt-header-image: none;
   --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
   --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
+  --urlbar-popup-url-color: -moz-nativehyperlinktext;
+  --urlbar-popup-action-color: -moz-nativehyperlinktext;
 }
 
 :root:-moz-lwtheme {

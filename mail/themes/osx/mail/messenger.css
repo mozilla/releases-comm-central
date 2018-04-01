@@ -47,6 +47,8 @@
   --lwt-header-image: none;
   --arrowpanel-dimmed: hsla(210, 4%, 10%, .07);
   --arrowpanel-dimmed-further: hsla(210, 4%, 10%, .12);
+  --urlbar-popup-url-color: hsl(210, 77%, 47%);
+  --urlbar-popup-action-color: hsl(178, 100%, 28%);
 }
 
 :root:-moz-window-inactive {

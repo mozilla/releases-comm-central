@@ -3,6 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
+:root {
+  --toolbar-field-focus-border-color: Highlight;
+}
 
 .quick-search-textbox {
   padding-top: 1px;
@@ -77,7 +80,7 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   border-color: Highlight;
 }
 
-/* special treatment because this boxes are on the main toolbars */
+/* special treatment because these boxes are on themable toolbars */
 #searchInput:-moz-lwtheme,
 #IMSearchInput:-moz-lwtheme,
 #peopleSearchInput:-moz-lwtheme,
@@ -92,30 +95,28 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 .remote-gloda-search:not([focused="true"]):-moz-lwtheme {
   border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
 }
-
-#searchInput:not([focused="true"]):-moz-lwtheme:hover,
-#IMSearchInput:not([focused="true"]):-moz-lwtheme:hover,
-#peopleSearchInput:not([focused="true"]):-moz-lwtheme:hover,
-.remote-gloda-search:not([focused="true"]):-moz-lwtheme:hover {
-  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.35));
+#searchInput:-moz-lwtheme:hover,
+#IMSearchInput:-moz-lwtheme:hover,
+#peopleSearchInput:-moz-lwtheme:hover,
+.remote-gloda-search:-moz-lwtheme:hover {
+  background-color: var(--url-and-searchbar-background-color, white);
 }
 
-#searchInput:-moz-lwtheme:hover,
 #searchInput:-moz-lwtheme[focused="true"],
-#IMSearchInput:-moz-lwtheme:hover,
 #IMSearchInput:-moz-lwtheme[focused="true"],
-#peopleSearchInput:-moz-lwtheme:hover,
 #peopleSearchInput:-moz-lwtheme[focused="true"],
-.remote-gloda-search:-moz-lwtheme:hover,
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
-  background-color: var(--url-and-searchbar-background-color, white);
+  background-color: var(--lwt-toolbar-field-focus, var(--url-and-searchbar-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color, var(--url-and-searchbar-color, black));
+  border-color: var(--toolbar-field-focus-border-color);
 }
 
 #PopupGlodaAutocomplete {
   margin-top: -1px;
   border: 1px solid ThreeDShadow;
-  color: -moz-FieldText;
-  background-color: -moz-Field;
+  background: var(--autocomplete-popup-background);
+  color: var(--autocomplete-popup-color);
+  border-color: var(--autocomplete-popup-border-color);
   -moz-appearance: none;
 }
 
@@ -124,8 +125,18 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   margin-bottom: 2px;
 }
 
+.ac-url:not([selected=true]) > .ac-url-text {
+  color: var(--urlbar-popup-url-color);
+}
+
+.ac-action:not([selected=true]) > .ac-url-text {
+  color: var(--urlbar-popup-action-color);
+}
+
 #PopupGlodaAutocomplete > .autocomplete-richlistbox {
   padding: 2px 0;
+  color: inherit;
+  background-color: inherit;
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {
@@ -140,6 +151,6 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 }
 
 .autocomplete-richlistitem[type^="gloda-"][selected] {
-  background-color: Highlight;
-  color: HighlightText;
+  background: var(--autocomplete-popup-highlight-background);
+  color: var(--autocomplete-popup-highlight-color);
 }

@@ -5,24 +5,90 @@
 var EXPORTED_SYMBOLS = ["ThemeVariableMap"];
 
 const ThemeVariableMap = [
-  ["--lwt-accent-color-inactive", "accentcolorInactive"],
-  ["--lwt-background-alignment", "backgroundsAlignment"],
-  ["--lwt-background-tiling", "backgroundsTiling"],
-  ["--tab-loading-fill", "tab_loading"],
-  ["--lwt-tab-text", "tab_text"],
-  ["--tab-line-color", "tab_line"],
-  ["--toolbar-bgcolor", "toolbarColor"],
-  ["--toolbar-color", "toolbar_text"],
-  ["--url-and-searchbar-background-color", "toolbar_field"],
-  ["--url-and-searchbar-color", "toolbar_field_text"],
-  ["--lwt-toolbar-field-border-color", "toolbar_field_border"],
-  ["--urlbar-separator-color", "toolbar_field_separator"],
-  ["--tabs-border-color", "toolbar_top_separator"],
-  ["--lwt-toolbar-vertical-separator", "toolbar_vertical_separator"],
-  ["--toolbox-border-bottom-color", "toolbar_bottom_separator"],
-  ["--lwt-toolbarbutton-icon-fill", "icon_color"],
-  ["--lwt-toolbarbutton-icon-fill-attention", "icon_attention_color"],
-  ["--lwt-toolbarbutton-hover-background", "button_background_hover"],
-  ["--lwt-toolbarbutton-active-background", "button_background_active"],
-  ["--lwt-selected-tab-background-color", "tab_selected"],
+  ["--lwt-accent-color-inactive", {
+    lwtProperty: "accentcolorInactive"
+  }],
+  ["--lwt-background-alignment", {
+    isColor: false,
+    lwtProperty: "backgroundsAlignment"
+  }],
+  ["--lwt-background-tiling", {
+    isColor: false,
+    lwtProperty: "backgroundsTiling"
+  }],
+  ["--tab-loading-fill", {
+    lwtProperty: "tab_loading",
+  }],
+  ["--lwt-tab-text", {
+    lwtProperty: "tab_text"
+  }],
+  ["--tab-line-color", {
+    lwtProperty: "tab_line",
+  }],
+  ["--toolbar-bgcolor", {
+    lwtProperty: "toolbarColor"
+  }],
+  ["--toolbar-color", {
+    lwtProperty: "toolbar_text"
+  }],
+  ["--url-and-searchbar-background-color", {
+    lwtProperty: "toolbar_field"
+  }],
+  ["--url-and-searchbar-color", {
+    lwtProperty: "toolbar_field_text"
+  }],
+  ["--lwt-toolbar-field-border-color", {
+    lwtProperty: "toolbar_field_border"
+  }],
+  ["--lwt-toolbar-field-focus", {
+    lwtProperty: "toolbar_field_focus"
+  }],
+  ["--lwt-toolbar-field-focus-color", {
+    lwtProperty: "toolbar_field_text_focus"
+  }],
+  ["--toolbar-field-focus-border-color", {
+    lwtProperty: "toolbar_field_border_focus"
+  }],
+  ["--urlbar-separator-color", {
+    lwtProperty: "toolbar_field_separator"
+  }],
+  ["--tabs-border-color", {
+    lwtProperty: "toolbar_top_separator",
+  }],
+  ["--lwt-toolbar-vertical-separator", {
+    lwtProperty: "toolbar_vertical_separator"
+  }],
+  ["--toolbox-border-bottom-color", {
+    lwtProperty: "toolbar_bottom_separator"
+  }],
+  ["--lwt-toolbarbutton-icon-fill", {
+    lwtProperty: "icon_color"
+  }],
+  ["--lwt-toolbarbutton-icon-fill-attention", {
+    lwtProperty: "icon_attention_color"
+  }],
+  ["--lwt-toolbarbutton-hover-background", {
+    lwtProperty: "button_background_hover"
+  }],
+  ["--lwt-toolbarbutton-active-background", {
+    lwtProperty: "button_background_active"
+  }],
+  ["--lwt-selected-tab-background-color", {
+    lwtProperty: "tab_selected"
+  }],
+  ["--autocomplete-popup-background", {
+    lwtProperty: "popup"
+  }],
+  ["--autocomplete-popup-color", {
+    lwtProperty: "popup_text"
+  }],
+  ["--autocomplete-popup-border-color", {
+    lwtProperty: "popup_border"
+  }],
+  ["--autocomplete-popup-highlight-background", {
+    lwtProperty: "popup_highlight"
+  }],
+  ["--autocomplete-popup-highlight-color", {
+    lwtProperty: "popup_highlight_text"
+  }],
 ];
