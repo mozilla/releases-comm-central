@@ -423,6 +423,10 @@ function fillFolderPaneContextMenu(aEvent)
                 selectedServers.length == selectedFoldersThatCanGetMessages.length) ||
                selectedFoldersThatCanGetMessages.length == numSelected);
 
+  // --- Setup the Mark All Folders Read menu item.
+  // Show only in case the server item is selected.
+  ShowMenuItem("folderPaneContext-markAllFoldersRead", selectedServers.length > 0);
+
   // --- Set up the pause all updates menu item.
   // Show only if a feed server.
   let showPausedAll = numSelected == 1 && folders[0].isServer &&
@@ -586,6 +590,7 @@ function fillFolderPaneContextMenu(aEvent)
   hideIfAppropriate("folderPaneContext-sep1");
   hideIfAppropriate("folderPaneContext-sep2");
   hideIfAppropriate("folderPaneContext-sep3");
+  hideIfAppropriate("folderPaneContext-sep4");
 
   return true;
 }

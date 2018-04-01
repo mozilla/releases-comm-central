@@ -1642,6 +1642,10 @@
               label="&folderContextProperties2.label;"
               accesskey="&folderContextProperties2.accesskey;"
               oncommand="gFolderTreeController.editFolder();"/>
+    <menuitem id="folderPaneContext-markAllFoldersRead"
+              label="&folderContextMarkAllFoldersRead.label;"
+              oncommand="MsgMarkAllFoldersRead();"/>
+    <menuseparator id="folderPaneContext-sep4"/>
     <menuitem id="folderPaneContext-settings"
               label="&folderContextSettings2.label;"
               accesskey="&folderContextSettings2.accesskey;"

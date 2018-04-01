@@ -2403,6 +2403,22 @@ function MsgMarkAllRead()
 }
 
 /**
+ * Go through each selected server and mark all its folders read.
+ */
+function MsgMarkAllFoldersRead()
+{
+  const selectedFolders = gFolderTreeView.getSelectedFolders();
+  const selectedServers = selectedFolders.filter(folder => folder.isServer);
+
+  selectedServers.forEach(function(server) {
+    const folders = server.rootFolder.descendants;
+    for (let folder of fixIterator(folders, Ci.nsIMsgFolder)) {
+      folder.markAllMessagesRead(msgWindow);
+    }
+  });
+}
+
+/**
  * Opens the filter list.
  * If an email address was passed, first a new filter is offered for creation
  * with the data prefilled.
