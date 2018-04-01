@@ -1938,7 +1938,7 @@ calDavCalendar.prototype = {
         let streamListener = {};
         streamListener.onStreamComplete = function(aLoader, aContext, aStatus, aResultLength, aResult) {
             let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
-            if (request.responseStatus != 200) {
+            if (request.responseStatus != 200 && request.responseStatus != 204) {
                 if (!calHomeSetUrlRetry && request.responseStatus == 404) {
                     // try again with calendar URL, see https://bugzilla.mozilla.org/show_bug.cgi?id=588799
                     cal.LOG("CalDAV: Calendar homeset was not found at parent url of calendar URL" +
