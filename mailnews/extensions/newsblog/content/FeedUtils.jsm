@@ -1318,6 +1318,9 @@ var FeedUtils = {
   },
 
   getSubscriptionsDS: function(aServer) {
+    if (this[aServer.serverURI] && this[aServer.serverURI]["FeedsDS"])
+      return this[aServer.serverURI]["FeedsDS"];
+
     let file = this.getSubscriptionsFile(aServer);
     let url = Services.io.getProtocolHandler("file").
                           QueryInterface(Ci.nsIFileProtocolHandler).
@@ -1331,7 +1334,10 @@ var FeedUtils = {
       throw new Error("FeedUtils.getSubscriptionsDS: can't get feed " +
                       "subscriptions data source - " + url);
 
-    return ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
+    if (!this[aServer.serverURI])
+      this[aServer.serverURI] = {};
+    return this[aServer.serverURI]["FeedsDS"] =
+             ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
   },
 
   getSubscriptionsList: function(aDataSource) {
@@ -1365,6 +1371,9 @@ var FeedUtils = {
     '</RDF:RDF>\n',
 
   getItemsDS: function(aServer) {
+    if (this[aServer.serverURI] && this[aServer.serverURI]["FeedItemsDS"])
+      return this[aServer.serverURI]["FeedItemsDS"];
+
     let file = this.getItemsFile(aServer);
     let url = Services.io.getProtocolHandler("file").
                           QueryInterface(Ci.nsIFileProtocolHandler).
@@ -1381,7 +1390,10 @@ var FeedUtils = {
     // You have to QueryInterface it to nsIRDFRemoteDataSource and check
     // its "loaded" property to be sure.  You can also attach an observer
     // which will get notified when the load is complete.
-    return ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
+    if (!this[aServer.serverURI])
+      this[aServer.serverURI] = {};
+    return this[aServer.serverURI]["FeedItemsDS"] =
+             ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
   },
 
   getItemsFile: function(aServer) {
