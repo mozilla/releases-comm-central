@@ -3734,35 +3734,46 @@ function initAddonPrefsMenu(aMenupopup) {
   }
 
   // Enumerate all enabled addons with URL to XUL document with prefs.
+  let addonsFound = [];
+  let done = false;
   AddonManager.getAddonsByTypes(["extension"], (addons) => {
-    let addonsFound = [];
     for (let addon of addons) {
       if (!addon.userDisabled && !addon.appDisabled && !addon.softDisabled &&
           addon.optionsURL && (addon.optionsType === null || addon.optionsType == 3)) {
         addonsFound.push(addon);
       }
     }
-
-    // Populate the menu with addon names and icons
-    if (addonsFound.length > 0) {
-      addonsFound.sort((a,b) => a.name.localeCompare(b.name));
-      for (let addon of addonsFound) {
-        let newItem = document.createElement("menuitem");
-        newItem.setAttribute("label", addon.name);
-        newItem.setAttribute("value", addon.optionsURL);
-        if (addon.optionsType)
-          newItem.setAttribute("optionsType", addon.optionsType);
-        let iconURL = addon.iconURL || addon.icon64URL;
-        if (iconURL) {
-          newItem.setAttribute("class", "menuitem-iconic");
-          newItem.setAttribute("image", iconURL);
-        }
-        aMenupopup.appendChild(newItem);
-      }
-      noPrefsElem.setAttribute("collapsed", "true");
-    } else {
-      // Only show message that there are no addons with prefs.
-      noPrefsElem.setAttribute("collapsed", "false");
-    }
+    done = true;
   });
+
+  // Wait until the addon manager returns all results.
+  let thread = Components.classes["@mozilla.org/thread-manager;1"]
+                                 .getService().currentThread;
+  while (!done) {
+    thread.processNextEvent(true);
+  }
+
+  // Populate the menu with addon names and icons.
+  // Note: Having the following code in the getAddonsByTypes() async callback
+  // above works on Windows and Linux but doesn't work on Mac, see bug 1419145.
+  if (addonsFound.length > 0) {
+    addonsFound.sort((a,b) => a.name.localeCompare(b.name));
+    for (let addon of addonsFound) {
+      let newItem = document.createElement("menuitem");
+      newItem.setAttribute("label", addon.name);
+      newItem.setAttribute("value", addon.optionsURL);
+      if (addon.optionsType)
+        newItem.setAttribute("optionsType", addon.optionsType);
+      let iconURL = addon.iconURL || addon.icon64URL;
+      if (iconURL) {
+        newItem.setAttribute("class", "menuitem-iconic");
+        newItem.setAttribute("image", iconURL);
+      }
+      aMenupopup.appendChild(newItem);
+    }
+    noPrefsElem.setAttribute("collapsed", "true");
+  } else {
+    // Only show message that there are no addons with prefs.
+    noPrefsElem.setAttribute("collapsed", "false");
+  }
 }
