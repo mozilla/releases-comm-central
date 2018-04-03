@@ -434,7 +434,7 @@ function subtest_html_characters_and_ampersands(w) {
 
   wait_for_search_results(w);
 
-  let displayedName = w.e("FirstAndLastName").innerHTML;
+  let displayedName = w.e("FirstAndLastName").textContent;
 
   assert_not_equals(CLEVER_STRING, displayedName);
   // & should have been replaced with &amp;, and the

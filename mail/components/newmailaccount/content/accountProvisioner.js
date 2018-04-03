@@ -52,6 +52,24 @@ function splitName(str) {
 }
 
 /**
+ * Replace occurrences of placeholder with the given node
+ *
+ * @param aTextContainer {Node}  DOM node containing the text child
+ * @param aTextNode {Node}       Text node containing the text, child of the aTextContainer
+ * @param aPlaceholder {String}  String to look for in aTextNode's textContent
+ * @param aReplacement {Node}    DOM node to insert instead of the found replacement
+ */
+function insertHTMLReplacement(aTextContainer, aTextNode, aPlaceholder, aReplacement) {
+  if (aTextNode.textContent.includes(aPlaceholder)) {
+    let placeIndex = aTextNode.textContent.indexOf(aPlaceholder);
+    let restNode = aTextNode.splitText(placeIndex+aPlaceholder.length);
+    aTextContainer.insertBefore(aReplacement, restNode);
+    let placeholderNode = aTextNode.splitText(placeIndex);
+    placeholderNode.remove();
+  }
+}
+
+/**
  * Logic and functionality for the Account Provisioner dialog.  Sets and reacts
  * to user interaction events, deals with searching and search results, and
  * tracks / maintains window state throughout the Account Provisioner workflow.
@@ -155,8 +173,15 @@ var EmailAccountProvisioner = {
 
       // Set up the fields...
       searchEngineCheck.checked = true;
-      document.getElementById("search_engine_desc").innerHTML =
-        stringBundle.get("searchDesc", [engine.name]);
+
+      let b = document.createElement("b");
+      b.appendChild(document.createTextNode(engine.name));
+
+      let searchStr = document.createTextNode(stringBundle.get("searchEngineDesc"));
+      let searchElem = document.getElementById("search_engine_desc");
+      searchElem.textContent = "";
+      searchElem.appendChild(searchStr);
+      insertHTMLReplacement(searchElem, searchElem.firstChild, "%S", b);
     }
 
     document.getElementById("success-compose").addEventListener("click", function() {
@@ -212,9 +237,6 @@ var EmailAccountProvisioner = {
     if (EmailAccountProvisioner._inited)
       return;
 
-    // See bug 1433405 for details.
-    document.allowUnsafeHTML = true;
-
     gLog.info("Initializing Email Account Provisioner");
 
     // For any anchor element that gets the "external" class, make it so that
@@ -234,11 +256,27 @@ var EmailAccountProvisioner = {
     // Throw the disclaimer into the window.  In the future, this should probably
     // be done in the actual XHTML page, instead of injected via JS.
     let commentary = document.querySelector(".commentary");
-    commentary.innerHTML =
-      commentary.innerHTML +
-      "<span>" +
-      stringBundle.get("disclaimer", ["https://www.mozilla.org/thunderbird/legal/privacy/"]) +
-      "</span>";
+
+    let a = document.createElement("a");
+    a.setAttribute("href", "https://www.mozilla.org/thunderbird/legal/privacy/");
+    a.setAttribute("class", "external");
+    a.appendChild(document.createTextNode(stringBundle.get("privacyPolicy")));
+
+    let span = document.createElement("span");
+    span.appendChild(document.createTextNode(stringBundle.get("privacyDisclaimer")));
+    insertHTMLReplacement(span, span.firstChild, "#1", a);
+
+    let placeHolder = document.createElement("span");
+    placeHolder.setAttribute("class", "placeholder");
+
+    // Replace the other placeholder in whatever child it resides now.
+    let children = span.childNodes;
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].nodeType == Node.TEXT_NODE)
+        insertHTMLReplacement(span, children[i], "#2", placeHolder);
+    }
+
+    commentary.appendChild(span);
 
     EmailAccountProvisioner.tryToPopulateProviderList();
 
@@ -460,7 +498,7 @@ var EmailAccountProvisioner = {
     request.onloadend = function() {
       // Also called if we timeout.
       let firstAndLastName = document.getElementById("FirstAndLastName");
-      firstAndLastName.innerHTML = (firstname + " " + lastname).trim();
+      firstAndLastName.textContent = (firstname + " " + lastname).trim();
       EmailAccountProvisioner.searchEnabled(true);
       EmailAccountProvisioner.spinning(false);
     };
@@ -653,7 +691,7 @@ var EmailAccountProvisioner = {
       let labelSpan = document.createElement("label");
       labelSpan.className = "providerLabel";
       labelSpan.setAttribute("for", checkboxId);
-      labelSpan.innerHTML = provider.label;
+      labelSpan.textContent = provider.label;
       providerEntry.appendChild(labelSpan);
 
       providerCheckbox.addEventListener("change",
@@ -702,7 +740,7 @@ var EmailAccountProvisioner = {
     gLog.info("Refreshing terms and privacy links");
     // Empty the Terms of Service and Privacy links placeholder.
     let placeholder = document.querySelector(".commentary .placeholder");
-    placeholder.innerHTML = "";
+    placeholder.textContent = "";
 
     let selectedProviders =
       [...document.querySelectorAll(".provider input:checked")];
@@ -714,34 +752,50 @@ var EmailAccountProvisioner = {
       return;
     }
 
-    let innerHTML = "";
+    let providerList = new DocumentFragment();
     selectedProviders.forEach((checkbox, i) => {
       let providerId = checkbox.value;
       let provider = EmailAccountProvisioner.providers[providerId];
 
-      innerHTML += '<span>' + provider.label + ' (</span>';
-      innerHTML += '<a href="' + provider.privacy_url + '" ';
-      innerHTML += 'class="privary external ' + provider.id + '">';
-      innerHTML += stringBundle.get("privacyPolicy") + '</a>';
+      let span = document.createElement("span");
+      span.appendChild(document.createTextNode(provider.label + " ("));
+      providerList.appendChild(span);
 
-      innerHTML += '<span>' + stringBundle.get("sepComma") + '</span>';
+      let a = document.createElement("a");
+      a.setAttribute("href", provider.privacy_url);
+      a.setAttribute("class", "privacy external " + provider.id);
+      a.appendChild(document.createTextNode(stringBundle.get("privacyPolicy")));
+      providerList.appendChild(a);
 
-      innerHTML += '<a href="' + provider.tos_url + '" ';
-      innerHTML += 'class="tos external ' + provider.id + '">';
-      innerHTML += stringBundle.get('tos') + '</a>';
+      span = document.createElement("span");
+      span.appendChild(document.createTextNode(stringBundle.get("sepComma")));
+      providerList.appendChild(span);
 
-      innerHTML += '<span>)</span>';
+      a = document.createElement("a");
+      a.setAttribute("href", provider.tos_url);
+      a.setAttribute("class", "tos external " + provider.id);
+      a.appendChild(document.createTextNode(stringBundle.get('tos')));
+      providerList.appendChild(a);
+
+      span = document.createElement("span");
+      span.appendChild(document.createTextNode(")"));
+      providerList.appendChild(span);
 
       if (len != 1) {
         if (i < len - 2) {
-          innerHTML += '<span>' + stringBundle.get("sepComma") + '</span>';
+          span = document.createElement("span");
+          span.appendChild(document.createTextNode(stringBundle.get("sepComma")));
+          providerList.appendChild(span);
         } else if (i == len - 2) {
-          innerHTML += '<span>' + stringBundle.get("sepAnd") + '</span>';
+          span = document.createElement("span");
+          span.appendChild(document.createTextNode(stringBundle.get("sepAnd")));
+          providerList.appendChild(span);
         }
       }
     });
 
-    placeholder.innerHTML = innerHTML;
+    placeholder.textContent = "";
+    placeholder.appendChild(providerList);
   },
 
   /**
@@ -768,7 +822,7 @@ var EmailAccountProvisioner = {
 
     // Empty any old results.
     let results = document.getElementById("results");
-    results.innerHTML = "";
+    results.textContent = "";
 
     if (!data || !data.length) {
       // If we've gotten back nonsense, display the generic
@@ -860,11 +914,21 @@ var EmailAccountProvisioner = {
 
         let templateElement = document.querySelector("#result_tmpl");
         let result = document.importNode(templateElement.content, true).children[0];
-        result.innerHTML =
-          result.innerHTML.replace(/\${address}/g,
-                                   address.address ? address.address : address)
-                          .replace(/\${priceStr}/g, priceStr);
+        let finalAddress = address.address ? address.address : address;
+        function replacePlaceholders(elem) {
+          if (elem.childNodes.length > 0)
+            elem.childNodes.forEach(elem => replacePlaceholders(elem));
 
+          if (elem.nodeType == elem.TEXT_NODE) {
+            if (elem.textContent == "${priceStr}")
+              elem.textContent = priceStr;
+            if (elem.textContent == "${address}")
+              elem.textContent = finalAddress;
+          }
+          if (elem.nodeType == elem.ELEMENT_NODE && elem.getAttribute("address") == "${address}")
+           elem.setAttribute("address", finalAddress);
+        }
+        replacePlaceholders(result);
         group.appendChild(result);
         // Keep a count of the rendered addresses for the "More" buttons, etc.
         renderedAddresses++;
@@ -884,7 +948,10 @@ var EmailAccountProvisioner = {
         let more = renderedAddresses - MAX_SMALL_ADDRESSES;
         let moreStr = PluralForm.get(more, stringBundle.get("moreOptions")).replace("#1", more);
         let last = group.querySelector(".row:nth-child(" + (MAX_SMALL_ADDRESSES + 1) + ")");
-        last.innerHTML += '<div class="more">' + moreStr + '</div>';
+        let div = document.createElement("div");
+        div.setAttribute("class", "more");
+        div.appendChild(document.createTextNode(moreStr));
+        last.appendChild(div);
       }
       for (let node of group.querySelectorAll("button.create")) {
         node.dataset.provider = provider.provider;
@@ -936,7 +1003,7 @@ var EmailAccountProvisioner = {
   beOnline: function EAP_beOnline() {
     let element = document.getElementById("cannotConnectMessage");
     element.style.display = "none";
-    element.innerHTML = "";
+    element.textContent = "";
     this.searchEnabled(true);
     gLog.info("Email Account Provisioner is in online mode.");
   }
