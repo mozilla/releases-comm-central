@@ -163,180 +163,19 @@
 @BINPATH@/AccessibleMarshal.dll
 @BINPATH@/IA2Marshal.dll
 #endif
-@RESPATH@/components/accessibility.xpt
 #endif
-@RESPATH@/components/alerts.xpt
-@RESPATH@/components/appshell.xpt
-@RESPATH@/components/appstartup.xpt
-@RESPATH@/components/autocomplete.xpt
-@RESPATH@/components/autoconfig.xpt
-@RESPATH@/components/browser-element.xpt
-@RESPATH@/components/caps.xpt
-@RESPATH@/components/captivedetect.xpt
-@RESPATH@/components/chrome.xpt
-@RESPATH@/components/commandhandler.xpt
-@RESPATH@/components/commandlines.xpt
-@RESPATH@/components/commuconv.xpt
-@RESPATH@/components/composer.xpt
-@RESPATH@/components/content_events.xpt
-@RESPATH@/components/content_geckomediaplugins.xpt
-@RESPATH@/components/content_html.xpt
-#ifdef MOZ_WEBRTC
-@RESPATH@/components/content_webrtc.xpt
-#endif
-@RESPATH@/components/content_xslt.xpt
-@RESPATH@/components/directory.xpt
-@RESPATH@/components/docshell.xpt
-@RESPATH@/components/dom.xpt
-@RESPATH@/components/dom_base.xpt
-@RESPATH@/components/dom_bindings.xpt
-@RESPATH@/components/dom_core.xpt
-@RESPATH@/components/dom_events.xpt
-@RESPATH@/components/dom_file.xpt
-@RESPATH@/components/dom_geolocation.xpt
-@RESPATH@/components/dom_html.xpt
-@RESPATH@/components/dom_media.xpt
-@RESPATH@/components/dom_network.xpt
-@RESPATH@/components/dom_notification.xpt
-@RESPATH@/components/dom_offline.xpt
-@RESPATH@/components/dom_power.xpt
-@RESPATH@/components/dom_push.xpt
-@RESPATH@/components/dom_presentation.xpt
-@RESPATH@/components/dom_quota.xpt
-@RESPATH@/components/dom_range.xpt
-@RESPATH@/components/dom_security.xpt
-@RESPATH@/components/dom_sidebar.xpt
-@RESPATH@/components/dom_storage.xpt
-@RESPATH@/components/dom_system.xpt
-#ifdef MOZ_WEBSPEECH
-@RESPATH@/components/dom_webspeechrecognition.xpt
-@RESPATH@/components/dom_webspeechsynth.xpt
-#endif
-@RESPATH@/components/dom_workers.xpt
-@RESPATH@/components/dom_xul.xpt
-@RESPATH@/components/editor.xpt
-@RESPATH@/components/extensions.xpt
 @RESPATH@/components/extensions.manifest
-@RESPATH@/components/exthandler.xpt
-@RESPATH@/components/fastfind.xpt
-@RESPATH@/components/feeds.xpt
-@RESPATH@/components/gfx.xpt
-@RESPATH@/components/html5.xpt
-@RESPATH@/components/htmlparser.xpt
-@RESPATH@/components/imglib2.xpt
-@RESPATH@/components/inspector.xpt
-@RESPATH@/components/intl.xpt
-@RESPATH@/components/jar.xpt
-@RESPATH@/components/jsdebugger.xpt
-@RESPATH@/components/downloads.xpt
-@RESPATH@/components/jsinspector.xpt
-@RESPATH@/components/layout_base.xpt
-#ifdef NS_PRINTING
-@RESPATH@/components/layout_printing.xpt
-#endif
-@RESPATH@/components/layout_xul_tree.xpt
-@RESPATH@/components/layout_xul.xpt
-@RESPATH@/components/locale.xpt
-@RESPATH@/components/loginmgr.xpt
-@RESPATH@/components/mimetype.xpt
-@RESPATH@/components/mozfind.xpt
-@RESPATH@/components/mozintl.xpt
 @RESPATH@/components/mozIntl.manifest
 @RESPATH@/components/mozIntl.js
-@RESPATH@/components/necko.xpt
-@RESPATH@/components/necko_about.xpt
-@RESPATH@/components/necko_cache.xpt
-@RESPATH@/components/necko_cache2.xpt
-@RESPATH@/components/necko_cookie.xpt
-@RESPATH@/components/necko_dns.xpt
-@RESPATH@/components/necko_file.xpt
-@RESPATH@/components/necko_ftp.xpt
-@RESPATH@/components/necko_http.xpt
-@RESPATH@/components/necko_mdns.xpt
-@RESPATH@/components/necko_res.xpt
-@RESPATH@/components/necko_socket.xpt
-@RESPATH@/components/necko_strconv.xpt
-@RESPATH@/components/necko_viewsource.xpt
-@RESPATH@/components/necko_websocket.xpt
-#ifdef NECKO_WIFI
-@RESPATH@/components/necko_wifi.xpt
-#endif
-@RESPATH@/components/necko_wyciwyg.xpt
-@RESPATH@/components/parentalcontrols.xpt
-#ifdef MOZ_WEBRTC
-@RESPATH@/components/peerconnection.xpt
-#endif
-@RESPATH@/components/places.xpt
-@RESPATH@/components/plugin.xpt
-@RESPATH@/components/pref.xpt
-@RESPATH@/components/prefetch.xpt
-#ifdef MOZ_GECKO_PROFILER
-@RESPATH@/components/profiler.xpt
-#endif
-@RESPATH@/components/rdf.xpt
-@RESPATH@/components/reputationservice.xpt
-@RESPATH@/components/satchel.xpt
 @RESPATH@/components/satchel.manifest
-@RESPATH@/components/saxparser.xpt
-@RESPATH@/components/services-crypto-component.xpt
-@RESPATH@/components/shellservice.xpt
-@RESPATH@/components/shistory.xpt
-@RESPATH@/components/spellchecker.xpt
-@RESPATH@/components/storage.xpt
 @RESPATH@/components/SuiteBrowser.manifest
-@RESPATH@/components/suitecommon.xpt
 @RESPATH@/components/SuiteCommon.manifest
-@RESPATH@/components/suitefeeds.xpt
 @RESPATH@/components/SuiteFeeds.manifest
-@RESPATH@/components/suitemigration.xpt
-@RESPATH@/components/telemetry.xpt
-@RESPATH@/components/toolkit_asyncshutdown.xpt
-@RESPATH@/components/toolkit_filewatcher.xpt
-@RESPATH@/components/toolkit_finalizationwitness.xpt
-@RESPATH@/components/toolkit_osfile.xpt
-@RESPATH@/components/toolkit_perfmonitoring.xpt
-@RESPATH@/components/toolkit_securityreporter.xpt
-@RESPATH@/components/toolkit_xulstore.xpt
 @RESPATH@/components/toolkitplaces.manifest
-@RESPATH@/components/toolkitprofile.xpt
-#ifdef UNIX_BUT_NOT_MAC
-@RESPATH@/components/toolkitremote.xpt
-#endif
 @RESPATH@/components/toolkitsearch.manifest
-@RESPATH@/components/txmgr.xpt
-@RESPATH@/components/txtsvc.xpt
-@RESPATH@/components/uconv.xpt
-@RESPATH@/components/update.xpt
-@RESPATH@/components/uriloader.xpt
-@RESPATH@/components/url-classifier.xpt
-@RESPATH@/components/urlformatter.xpt
-
 ; Security Reports
 @RESPATH@/components/SecurityReporter.manifest
 @RESPATH@/components/SecurityReporter.js
-
-@RESPATH@/components/webBrowser_core.xpt
-@RESPATH@/components/webbrowserpersist.xpt
-@RESPATH@/components/webextensions.xpt
-@RESPATH@/components/webvtt.xpt
-@RESPATH@/components/widget.xpt
-#ifdef XP_MACOSX
-@RESPATH@/components/widget_cocoa.xpt
-#endif
-@RESPATH@/components/windowcreator.xpt
-@RESPATH@/components/windowwatcher.xpt
-@RESPATH@/components/xpcom_base.xpt
-@RESPATH@/components/xpcom_components.xpt
-@RESPATH@/components/xpcom_ds.xpt
-@RESPATH@/components/xpcom_io.xpt
-@RESPATH@/components/xpcom_system.xpt
-@RESPATH@/components/xpcom_threads.xpt
-@RESPATH@/components/xpcom_xpti.xpt
-@RESPATH@/components/xpconnect.xpt
-@RESPATH@/components/xulapp.xpt
-@RESPATH@/components/xul.xpt
-@RESPATH@/components/zipwriter.xpt
-
 ; JavaScript components
 @RESPATH@/components/addonManager.js
 @RESPATH@/components/amContentHandler.js
@@ -448,7 +287,6 @@
 @RESPATH@/components/nsWebHandlerApp.js
 @RESPATH@/components/nsWebHandlerApp.manifest
 @RESPATH@/components/PageThumbsStorageService.js
-@RESPATH@/components/thumbnails.xpt
 @RESPATH@/components/PageThumbsComponents.manifest
 @RESPATH@/components/PageIconProtocolHandler.js
 @RESPATH@/components/passwordmgr.manifest
@@ -618,7 +456,6 @@
 #ifdef MOZ_DEBUG
 @RESPATH@/chrome/layoutdebug@JAREXT@
 @RESPATH@/chrome/layoutdebug.manifest
-@RESPATH@/components/layout_debug.xpt
 #endif
 #endif
 ; Style Sheets, Graphics and other Resources used by the layout engine.
@@ -683,15 +520,12 @@
 #endif
 @RESPATH@/chrome/pippki@JAREXT@
 @RESPATH@/chrome/pippki.manifest
-@RESPATH@/components/pipnss.xpt
-@RESPATH@/components/pippki.xpt
 
 ; For process sandboxing
 #if defined(MOZ_SANDBOX)
 #if defined(XP_LINUX)
 @BINPATH@/@DLL_PREFIX@mozsandbox@DLL_SUFFIX@
 #endif
-@RESPATH@/components/sandbox.xpt
 #endif
 
 ; for Solaris SPARC
@@ -704,7 +538,6 @@ bin/libfreebl_32int64_3.so
 ; LDAP components need to be in the browser for AutoConfig
 @RESPATH@/components/nsAbLDAPAttributeMap.js
 #ifdef MOZ_LDAP_XPCOM
-@RESPATH@/components/mozldap.xpt
 @RESPATH@/components/nsAbLDAPAutoCompleteSearch.js
 @RESPATH@/components/nsLDAPProtocolHandler.js
 @RESPATH@/components/ldapComponents.manifest
@@ -733,7 +566,6 @@ man/*
 #ifdef MOZ_CRASHREPORTER
 @RESPATH@/components/CrashService.manifest
 @RESPATH@/components/CrashService.js
-@RESPATH@/components/toolkit_crashservice.xpt
 #ifdef XP_MACOSX
 @BINPATH@/crashreporter.app/
 #else
@@ -755,25 +587,9 @@ man/*
 @BINPATH@/pingsender@BIN_SUFFIX@
 
 [mail]
-; MailNews component xpts
-@RESPATH@/components/addrbook.xpt
+; MailNews components
 @RESPATH@/components/nsAddrbook.manifest
-@RESPATH@/components/fts3tok.xpt
-@RESPATH@/components/import.xpt
-@RESPATH@/components/mailview.xpt
-@RESPATH@/components/mime.xpt
-#ifdef MOZ_MAPI_SUPPORT
-@RESPATH@/components/mapihook.xpt
-#endif
-@RESPATH@/components/msgbase.xpt
 @RESPATH@/components/msgBase.manifest
-@RESPATH@/components/msgcompose.xpt
-@RESPATH@/components/msgdb.xpt
-@RESPATH@/components/msgimap.xpt
-@RESPATH@/components/msglocal.xpt
-@RESPATH@/components/msgnews.xpt
-@RESPATH@/components/msgsearch.xpt
-@RESPATH@/components/msgsmime.xpt
 
 ; MailNews JS components
 @RESPATH@/components/mdn-service.js
