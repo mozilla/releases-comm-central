@@ -163,33 +163,16 @@
 @RESPATH@/isp/*
 
 @RESPATH@/components/aboutRedirector.js
-@RESPATH@/components/activity.xpt
 @RESPATH@/components/activityComponents.manifest
 @RESPATH@/components/cloudFileComponents.manifest
-@RESPATH@/components/cloudfile.xpt
-@RESPATH@/components/addrbook.xpt
-@RESPATH@/components/fts3tok.xpt
 @RESPATH@/components/folderLookupService.js
 ; interfaces.manifest doesn't get packaged because it is dynamically
 ; re-created at packaging time when linking the xpts that will actually
 ; go into the package, so the test related interfaces aren't included.
-@RESPATH@/components/msgjsaccount.xpt
-@RESPATH@/components/mime.xpt
 @RESPATH@/components/mimeJSComponents.js
 @RESPATH@/components/msgMime.manifest
 @RESPATH@/components/msgAsyncPrompter.js
-@RESPATH@/components/msgbase.xpt
 @RESPATH@/components/msgBase.manifest
-@RESPATH@/components/msgcompose.xpt
-@RESPATH@/components/msgdb.xpt
-@RESPATH@/components/msgimap.xpt
-@RESPATH@/components/msglocal.xpt
-@RESPATH@/components/msgnews.xpt
-@RESPATH@/components/msgsearch.xpt
-@RESPATH@/components/import.xpt
-@RESPATH@/components/mailcompsbase.xpt
-@RESPATH@/components/mailview.xpt
-@RESPATH@/components/mailprofilemigration.xpt
 @RESPATH@/components/nsActivity.js
 @RESPATH@/components/nsActivityManager.js
 @RESPATH@/components/nsActivityManagerUI.js
@@ -199,9 +182,6 @@
 @RESPATH@/components/nsMailNewsCommandLineHandler.js
 @RESPATH@/components/nsNewsAutoCompleteSearch.js
 @RESPATH@/components/nsNewsAutoCompleteSearch.manifest
-@RESPATH@/components/services-crypto-component.xpt
-@RESPATH@/components/captivedetect.xpt
-@RESPATH@/components/shellservice.xpt
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
 @RESPATH@/chrome/comm@JAREXT@
@@ -240,7 +220,6 @@
 #ifdef MOZ_MAPI_SUPPORT
 @BINPATH@/MapiProxy.dll
 @BINPATH@/mozMapi32.dll
-@RESPATH@/components/mapihook.xpt
 #endif
 @RESPATH@/components/mailComponents.manifest
 @RESPATH@/components/mailContentHandler.js
@@ -256,7 +235,6 @@
 @RESPATH@/components/mdn-service.manifest
 @RESPATH@/components/smime-service.js
 @RESPATH@/components/smime-service.manifest
-@RESPATH@/components/msgsmime.xpt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; instant messaging
@@ -265,7 +243,6 @@
 @RESPATH@/@PREF_DIR@/chat-prefs.js
 @RESPATH@/chrome/chat@JAREXT@
 @RESPATH@/chrome/chat.manifest
-@RESPATH@/components/chat.xpt
 @RESPATH@/components/imAccounts.js
 @RESPATH@/components/imAccounts.manifest
 @RESPATH@/components/imCommands.js
@@ -352,7 +329,6 @@
 ; LDAP components
 @RESPATH@/components/nsAbLDAPAttributeMap.js
 #ifdef MOZ_LDAP_XPCOM
-@RESPATH@/components/mozldap.xpt
 @RESPATH@/components/nsAbLDAPAutoCompleteSearch.js
 @RESPATH@/components/nsLDAPProtocolHandler.js
 @RESPATH@/components/ldapComponents.manifest
@@ -371,7 +347,6 @@
 ; misson control, autoconfig
 #ifdef MOZ_PREF_EXTENSIONS
 @RESPATH@/defaults/autoconfig/prefcalls.js
-@RESPATH@/components/autoconfig.xpt
 #endif
 
 ; Address Book autocomplete
@@ -381,7 +356,6 @@
 ; Windows Search integration
 ; the module is included as part of the "Modules" rule
 #ifdef XP_WIN32
-@RESPATH@/components/mailwinsearch.xpt
 @BINPATH@/WSEnable.exe
 #endif
 
@@ -393,7 +367,6 @@
 ; Base Package Files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-@RESPATH@/components/alerts.xpt
 ; accessibility (out of process API support)
 #ifdef ACCESSIBILITY
 #ifdef XP_WIN32
@@ -402,161 +375,9 @@
 @BINPATH@/AccessibleMarshal.dll
 @BINPATH@/IA2Marshal.dll
 #endif
-@RESPATH@/components/accessibility.xpt
 #endif
-@RESPATH@/components/appshell.xpt
-@RESPATH@/components/appstartup.xpt
-@RESPATH@/components/autocomplete.xpt
-@RESPATH@/components/browser-element.xpt
-; caps (JavaScript security)
-@RESPATH@/components/caps.xpt
-@RESPATH@/components/chrome.xpt
-@RESPATH@/components/commandhandler.xpt
-@RESPATH@/components/commandlines.xpt
-@RESPATH@/components/commuconv.xpt
-@RESPATH@/components/composer.xpt
-@RESPATH@/components/content_events.xpt
-@RESPATH@/components/content_html.xpt
-@RESPATH@/components/content_geckomediaplugins.xpt
-#ifdef MOZ_WEBRTC
-@RESPATH@/components/content_webrtc.xpt
-#endif
-@RESPATH@/components/content_xslt.xpt
-@RESPATH@/components/directory.xpt
-@RESPATH@/components/docshell.xpt
-@RESPATH@/components/dom.xpt
-@RESPATH@/components/dom_base.xpt
-@RESPATH@/components/dom_bindings.xpt
-@RESPATH@/components/dom_core.xpt
-@RESPATH@/components/dom_events.xpt
-@RESPATH@/components/dom_file.xpt
-@RESPATH@/components/dom_geolocation.xpt
-@RESPATH@/components/dom_html.xpt
-@RESPATH@/components/dom_media.xpt
-@RESPATH@/components/dom_network.xpt
-@RESPATH@/components/dom_notification.xpt
-@RESPATH@/components/dom_offline.xpt
-@RESPATH@/components/dom_power.xpt
-@RESPATH@/components/dom_presentation.xpt
-@RESPATH@/components/dom_push.xpt
-@RESPATH@/components/dom_quota.xpt
-@RESPATH@/components/dom_range.xpt
-@RESPATH@/components/dom_security.xpt
-@RESPATH@/components/dom_sidebar.xpt
-@RESPATH@/components/dom_storage.xpt
-@RESPATH@/components/dom_system.xpt
-@RESPATH@/components/dom_webspeechrecognition.xpt
-@RESPATH@/components/dom_workers.xpt
-@RESPATH@/components/dom_xul.xpt
-@RESPATH@/components/downloads.xpt
-@RESPATH@/components/editor.xpt
-@RESPATH@/components/extensions.xpt
-@RESPATH@/components/exthandler.xpt
-@RESPATH@/components/fastfind.xpt
-@RESPATH@/components/feeds.xpt
-@RESPATH@/components/gfx.xpt
-; layout
-@RESPATH@/components/html5.xpt
-@RESPATH@/components/htmlparser.xpt
-@RESPATH@/components/imglib2.xpt
-@RESPATH@/components/inspector.xpt
-@RESPATH@/components/intl.xpt
-@RESPATH@/components/jar.xpt
-@RESPATH@/components/jsdebugger.xpt
-@RESPATH@/components/jsinspector.xpt
-@RESPATH@/components/layout_base.xpt
-#ifdef NS_PRINTING
-@RESPATH@/components/layout_printing.xpt
-#endif
-@RESPATH@/components/layout_xul_tree.xpt
-@RESPATH@/components/layout_xul.xpt
-@RESPATH@/components/locale.xpt
-@RESPATH@/components/mimetype.xpt
-@RESPATH@/components/mozfind.xpt
-@RESPATH@/components/mozintl.xpt
 @RESPATH@/components/mozIntl.manifest
 @RESPATH@/components/mozIntl.js
-; netwerk
-@RESPATH@/components/necko_about.xpt
-@RESPATH@/components/necko_cache.xpt
-@RESPATH@/components/necko_cache2.xpt
-@RESPATH@/components/necko_cookie.xpt
-@RESPATH@/components/necko_dns.xpt
-@RESPATH@/components/necko_file.xpt
-@RESPATH@/components/necko_ftp.xpt
-@RESPATH@/components/necko_http.xpt
-@RESPATH@/components/necko_mdns.xpt
-@RESPATH@/components/necko_res.xpt
-@RESPATH@/components/necko_socket.xpt
-@RESPATH@/components/necko_strconv.xpt
-@RESPATH@/components/necko_viewsource.xpt
-@RESPATH@/components/necko_websocket.xpt
-#ifdef NECKO_WIFI
-@RESPATH@/components/necko_wifi.xpt
-#endif
-@RESPATH@/components/necko_wyciwyg.xpt
-@RESPATH@/components/necko.xpt
-@RESPATH@/components/loginmgr.xpt
-@RESPATH@/components/parentalcontrols.xpt
-#ifdef MOZ_WEBRTC
-@RESPATH@/components/peerconnection.xpt
-#endif
-@RESPATH@/components/places.xpt
-@RESPATH@/components/plugin.xpt
-@RESPATH@/components/pref.xpt
-@RESPATH@/components/prefetch.xpt
-#ifdef MOZ_GECKO_PROFILER
-@RESPATH@/components/profiler.xpt
-#endif
-@RESPATH@/components/rdf.xpt
-@RESPATH@/components/reputationservice.xpt
-@RESPATH@/components/satchel.xpt
-@RESPATH@/components/saxparser.xpt
-@RESPATH@/components/shistory.xpt
-; spellchecker (may not be present)
-@RESPATH@/components/spellchecker.xpt
-@RESPATH@/components/storage.xpt
-@RESPATH@/components/toolkit_asyncshutdown.xpt
-@RESPATH@/components/toolkit_filewatcher.xpt
-@RESPATH@/components/toolkit_finalizationwitness.xpt
-@RESPATH@/components/toolkit_osfile.xpt
-@RESPATH@/components/toolkit_securityreporter.xpt
-#ifdef NIGHTLY_BUILD
-@RESPATH@/components/toolkit_perfmonitoring.xpt
-#endif
-@RESPATH@/components/toolkit_xulstore.xpt
-@RESPATH@/components/toolkitprofile.xpt
-#ifdef UNIX_BUT_NOT_MAC
-@RESPATH@/components/toolkitremote.xpt
-#endif
-; find functionality
-@RESPATH@/components/txtsvc.xpt
-@RESPATH@/components/txmgr.xpt
-@RESPATH@/components/uconv.xpt
-@RESPATH@/components/update.xpt
-@RESPATH@/components/uriloader.xpt
-@RESPATH@/components/urlformatter.xpt
-@RESPATH@/components/webBrowser_core.xpt
-@RESPATH@/components/webbrowserpersist.xpt
-@RESPATH@/components/webextensions.xpt
-@RESPATH@/components/widget.xpt
-#ifdef XP_MACOSX
-@RESPATH@/components/widget_cocoa.xpt
-#endif
-@RESPATH@/components/windowcreator.xpt
-@RESPATH@/components/windowwatcher.xpt
-@RESPATH@/components/xpcom_base.xpt
-@RESPATH@/components/xpcom_system.xpt
-@RESPATH@/components/xpcom_components.xpt
-@RESPATH@/components/xpcom_ds.xpt
-@RESPATH@/components/xpcom_io.xpt
-@RESPATH@/components/xpcom_threads.xpt
-@RESPATH@/components/xpcom_xpti.xpt
-@RESPATH@/components/xpconnect.xpt
-@RESPATH@/components/xulapp.xpt
-@RESPATH@/components/xul.xpt
-@RESPATH@/components/zipwriter.xpt
-@RESPATH@/components/telemetry.xpt
 
 ; toolkit
 @RESPATH@/components/ConsoleAPI.manifest
@@ -567,7 +388,6 @@
 @RESPATH@/components/FeedProcessor.js
 @RESPATH@/components/Downloads.manifest
 @RESPATH@/components/DownloadLegacy.js
-@RESPATH@/components/thumbnails.xpt
 @RESPATH@/components/PageThumbsComponents.manifest
 @RESPATH@/components/crashmonitor.manifest
 @RESPATH@/components/nsCrashMonitor.js
@@ -677,7 +497,6 @@
 @RESPATH@/components/PeerConnection.manifest
 #endif
 
-@RESPATH@/components/dom_webspeechsynth.xpt
 @RESPATH@/components/nsAsyncShutdown.manifest
 @RESPATH@/components/nsAsyncShutdown.js
 
@@ -692,7 +511,6 @@
 @RESPATH@/components/nsUrlClassifierHashCompleter.js
 @RESPATH@/components/nsUrlClassifierListManager.js
 @RESPATH@/components/nsUrlClassifierLib.js
-@RESPATH@/components/url-classifier.xpt
 
 ; Security Reports
 @RESPATH@/components/SecurityReporter.manifest
@@ -780,15 +598,12 @@
 #endif
 @RESPATH@/chrome/pippki@JAREXT@
 @RESPATH@/chrome/pippki.manifest
-@RESPATH@/components/pipnss.xpt
-@RESPATH@/components/pippki.xpt
 
 ; For process sandboxing
 #if defined(MOZ_SANDBOX)
 #if defined(XP_LINUX)
 @BINPATH@/@DLL_PREFIX@mozsandbox@DLL_SUFFIX@
 #endif
-@RESPATH@/components/sandbox.xpt
 #endif
 
 ; for Solaris SPARC
@@ -820,7 +635,6 @@
 #ifdef MOZ_CRASHREPORTER
 @RESPATH@/components/CrashService.manifest
 @RESPATH@/components/CrashService.js
-@RESPATH@/components/toolkit_crashservice.xpt
 #ifdef XP_MACOSX
 @BINPATH@/crashreporter.app/
 #else
@@ -845,7 +659,6 @@
 @RESPATH@/components/terminator.manifest
 
 ; Background Hang Monitor
-@RESPATH@/components/backgroundhangmonitor.xpt
 
 ; NOTE: This must match the config checks in
 ; /toolkit/components/backgroundhangmonitor/moz.build.
