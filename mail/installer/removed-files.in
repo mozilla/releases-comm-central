@@ -35,29 +35,12 @@
 @DIR_MACOS@chrome/qute.jar
 @DIR_MACOS@chrome/US.jar
 #ifdef XP_MACOSX
-  #ifndef ACCESSIBILITY
-    @DIR_MACOS@components/accessibility.xpt
-  #endif
-#endif
-@DIR_MACOS@components/accessibility-atk.xpt
-@DIR_MACOS@components/airbag.xpt
-#ifdef XP_MACOSX
   @DIR_MACOS@components/libalerts.dylib
   @DIR_MACOS@components/libalerts_s.dylib
 #endif
-@DIR_MACOS@components/bookmarks.xpt
-@DIR_MACOS@components/chardet.xpt
-@DIR_MACOS@components/downloadmanager.xpt
 @DIR_MACOS@components/compreg.dat
 @DIR_MACOS@components/components.list
-@DIR_MACOS@components/dom_loadsave.xpt
-@DIR_MACOS@components/history.xpt
-@DIR_MACOS@components/jsconsole.xpt
-@DIR_MACOS@components/layout.xpt
-@DIR_MACOS@components/mailnews.xpt
-@DIR_MACOS@components/mozgnome.xpt
 @DIR_MACOS@components/@DLL_PREFIX@myspell@DLL_SUFFIX@
-@DIR_MACOS@components/necko_data.xpt
 @DIR_MACOS@components/aboutRights.js
 @DIR_MACOS@components/nsAddonRepository.js
 @DIR_MACOS@components/nsBackgroundUpdateService.js
@@ -88,26 +71,13 @@
   components/nsWinSearchIntegration.js
 #endif
 @DIR_MACOS@components/pluginGlue.js
-@DIR_MACOS@components/progressDlg.xpt
-@DIR_MACOS@components/sidebar.xpt
-@DIR_MACOS@components/signonviewer.xpt
-@DIR_MACOS@components/thunderbird.xpt
 @DIR_MACOS@components/@DLL_PREFIX@spellchecker@DLL_SUFFIX@
 @DIR_MACOS@components/spellchk.dll
 @DIR_MACOS@components/uconvd.dll
 @DIR_MACOS@components/@DLL_PREFIX@wallet@DLL_SUFFIX@
-@DIR_MACOS@components/wallet.xpt
-@DIR_MACOS@components/walleteditor.xpt
-@DIR_MACOS@components/walletpreview.xpt
 @DIR_MACOS@components/@DLL_PREFIX@walletviewers@DLL_SUFFIX@
-@DIR_MACOS@components/websrvcs.xpt
-#ifdef XP_MACOSX
-  @DIR_MACOS@components/widget_mac.xpt
-#endif
 @DIR_MACOS@components/@DLL_PREFIX@xpcom_compat_c@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@xpcom_core@DLL_SUFFIX@
-@DIR_MACOS@components/xpcom_obsolete.xpt
-@DIR_MACOS@components/xpinstall.xpt
 @DIR_MACOS@components/@DLL_PREFIX@xpinstal@DLL_SUFFIX@
 @DIR_MACOS@components/@DLL_PREFIX@xpinstall@DLL_SUFFIX@
 @DIR_MACOS@components/xpti.dat
@@ -430,7 +400,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/interfaces.manifest
   @DIR_MACOS@components/jsconsole-clhandler.js
   @DIR_MACOS@components/jsmimeemitter.js
-  @DIR_MACOS@components/mail.xpt
   @DIR_MACOS@components/mailContentHandler.js
   @DIR_MACOS@components/mdn-service.js
   @DIR_MACOS@components/msgAsyncPrompter.js
@@ -652,7 +621,6 @@ uninstall/uninstall.exe
 @DIR_MACOS@components/fullsoft.dll
 @DIR_MACOS@components/master.ini
 @DIR_MACOS@components/qfaservices.dll
-@DIR_MACOS@components/qfaservices.xpt
 @DIR_MACOS@components/talkback-l10n.ini
 @DIR_MACOS@components/talkback.cnt
 @DIR_MACOS@components/talkback.exe
@@ -669,7 +637,6 @@ uninstall/uninstall.exe
 @DIR_MACOS@extensions/talkback@mozilla.org/
 @DIR_MACOS@extensions/talkback@mozilla.org/install.rdf
 @DIR_MACOS@extensions/talkback@mozilla.org/chrome.manifest
-@DIR_MACOS@extensions/talkback@mozilla.org/components/qfaservices.xpt
 @DIR_MACOS@extensions/talkback@mozilla.org/components/@DLL_PREFIX@qfaservices@DLL_SUFFIX@
 #ifdef XP_WIN
   extensions/talkback@mozilla.org/components/BrandRes.dll
@@ -732,7 +699,6 @@ uninstall/uninstall.exe
 @DIR_MACOS@CondMgr.dll
 @DIR_MACOS@mozABConduit.dll
 @DIR_MACOS@components/palmsync.dll
-@DIR_MACOS@components/palmSync.xpt
 # ****************************************************************************
 # * End pre-extensions PalmSync files.                                       *
 # ****************************************************************************
@@ -873,283 +839,10 @@ uninstall/uninstall.exe
 @DIR_MACOS@components/profilemigration.dll
 @DIR_MACOS@components/wlltvwrs.dll
 @DIR_MACOS@components/xmlextras.dll
-@DIR_MACOS@components/xmlextras.xpt
 # ****************************************************************************
 # * End removing old shared dlls.                                            *
 # ****************************************************************************
 
-# ****************************************************************************
-# * Remove the XPTs that were present at the time (2004-09) when we started  *
-# * linking XPTs on Windows. You almost certainly don't want to add anything *
-# * to this section.                                                         *
-# ****************************************************************************
-#ifdef XP_WIN
-  components/accessibility-msaa.xpt
-  components/accessibility.xpt
-  components/addrbook.xpt
-  components/alerts.xpt
-  components/appshell.xpt
-  components/autocomplete.xpt
-  components/caps.xpt
-  components/chrome.xpt
-  components/commandhandler.xpt
-  components/composer.xpt
-  components/content_base.xpt
-  components/content_html.xpt
-  components/content_htmldoc.xpt
-  components/content_xmldoc.xpt
-  components/content_xslt.xpt
-  components/crashreporter.xpt
-  components/docshell_base.xpt
-  components/dom.xpt
-  components/dom_base.xpt
-  components/dom_core.xpt
-  components/dom_events.xpt
-  components/dom_html.xpt
-  components/dom_offline.xpt
-  components/dom_range.xpt
-  components/dom_views.xpt
-  components/dom_xul.xpt
-  components/editor.xpt
-  components/embed_base.xpt
-  components/extensions.xpt
-  components/exthandler.xpt
-  components/find.xpt
-  components/gfx.xpt
-  components/helperAppDlg.xpt
-  components/htmlparser.xpt
-  components/imgicon.xpt
-  components/imglib2.xpt
-  components/impComm4xMail.xpt
-  components/import.xpt
-  components/intl.xpt
-  components/jar.xpt
-  components/jsdservice.xpt
-  components/jsurl.xpt
-  components/layout_base.xpt
-  components/layout_printing.xpt
-  components/layout_xul.xpt
-  components/layout_xul_tree.xpt
-  components/locale.xpt
-  components/lwbrk.xpt
-  components/mailview.xpt
-  components/mapihook.xpt
-  components/mime.xpt
-  components/mimetype.xpt
-  components/mozbrwsr.xpt
-  components/mozfind.xpt
-  components/mozldap.xpt
-  components/msgbase.xpt
-  components/msgcompo.xpt
-  components/msgdb.xpt
-  components/msgimap.xpt
-  components/msglocal.xpt
-  components/msgnews.xpt
-  components/msgsearch.xpt
-  components/msgsmime.xpt
-  components/necko.xpt
-  components/necko_about.xpt
-  components/necko_cache.xpt
-  components/necko_cookie.xpt
-  components/necko_dns.xpt
-  components/necko_file.xpt
-  components/necko_ftp.xpt
-  components/necko_http.xpt
-  components/necko_jar.xpt
-  components/necko_res.xpt
-  components/necko_strconv.xpt
-  components/pipboot.xpt
-  components/pipnss.xpt
-  components/pippki.xpt
-  components/pref.xpt
-  components/prefmigr.xpt
-  components/profile.xpt
-  components/proxyObject.xpt
-  components/rdf.xpt
-  components/spellchecker.xpt
-  components/toolkitprofile.xpt
-  components/txmgr.xpt
-  components/txtsvc.xpt
-  components/uconv.xpt
-  components/ucnative.xpt
-  components/update.xpt
-  components/uriloader.xpt
-  components/util.xpt
-  components/webbrowserpersist.xpt
-  components/webBrowser_core.xpt
-  components/webshell_idls.xpt
-  components/widget.xpt
-  components/windowds.xpt
-  components/windowwatcher.xpt
-  components/winhooks.xpt
-  components/xmlextras.xpt
-  components/xpcom_base.xpt
-  components/xpcom_components.xpt
-  components/xpcom_ds.xpt
-  components/xpcom_io.xpt
-  components/xpcom_thread.xpt
-  components/xpcom_xpti.xpt
-  components/xpcom.xpt
-  components/xpconnect.xpt
-  components/xpinstall.xpt
-  components/xuldoc.xpt
-  components/xultmpl.xpt
-#endif
-# ****************************************************************************
-# * End of XPTs at the time we started linking them on Windows.              *
-# ****************************************************************************
-
-# ****************************************************************************
-# * Remove the XPTs that were present at the time (2009-04) when we started  *
-# * linking XPTs on Linux, and present at the time (2009-08) when we started *
-# * linking XPTs on Mac, plus XPTs that shipped with 3.0 (which didn't link  *
-# * XPTs). You almost certainly don't want to add anything to this section.  *
-# ****************************************************************************
-#ifdef XP_UNIX
-  @DIR_MACOS@components/activity.xpt
-  @DIR_MACOS@components/addrbook.xpt
-  @DIR_MACOS@components/alerts.xpt
-  @DIR_MACOS@components/appshell.xpt
-  @DIR_MACOS@components/appstartup.xpt
-  @DIR_MACOS@components/autocomplete.xpt
-  @DIR_MACOS@components/autoconfig.xpt
-  @DIR_MACOS@components/caps.xpt
-  @DIR_MACOS@components/chrome.xpt
-  @DIR_MACOS@components/commandhandler.xpt
-  @DIR_MACOS@components/commandlines.xpt
-  @DIR_MACOS@components/composer.xpt
-  @DIR_MACOS@components/content_base.xpt
-  @DIR_MACOS@components/content_html.xpt
-  @DIR_MACOS@components/content_htmldoc.xpt
-  @DIR_MACOS@components/content_xmldoc.xpt
-  @DIR_MACOS@components/content_xslt.xpt
-  @DIR_MACOS@components/content_xtf.xpt
-  @DIR_MACOS@components/contentprefs.xpt
-  @DIR_MACOS@components/cookie.xpt
-  @DIR_MACOS@components/docshell.xpt
-  @DIR_MACOS@components/dom.xpt
-  @DIR_MACOS@components/dom_base.xpt
-  @DIR_MACOS@components/dom_core.xpt
-  @DIR_MACOS@components/dom_events.xpt
-  @DIR_MACOS@components/dom_geolocation.xpt
-  @DIR_MACOS@components/dom_html.xpt
-  @DIR_MACOS@components/dom_offline.xpt
-  @DIR_MACOS@components/dom_range.xpt
-  @DIR_MACOS@components/dom_sidebar.xpt
-  @DIR_MACOS@components/dom_storage.xpt
-  @DIR_MACOS@components/dom_threads.xpt
-  @DIR_MACOS@components/dom_views.xpt
-  @DIR_MACOS@components/dom_xul.xpt
-  @DIR_MACOS@components/editor.xpt
-  @DIR_MACOS@components/embed_base.xpt
-  @DIR_MACOS@components/extensions.xpt
-  @DIR_MACOS@components/exthandler.xpt
-  @DIR_MACOS@components/fastfind.xpt
-  @DIR_MACOS@components/feeds.xpt
-  @DIR_MACOS@components/find.xpt
-  @DIR_MACOS@components/fts3tok.xpt
-  @DIR_MACOS@components/gfx.xpt
-  @DIR_MACOS@components/htmlparser.xpt
-  @DIR_MACOS@components/imgicon.xpt
-  @DIR_MACOS@components/imglib2.xpt
-  @DIR_MACOS@components/impComm4xMail.xpt
-  @DIR_MACOS@components/import.xpt
-  @DIR_MACOS@components/inspector.xpt
-  @DIR_MACOS@components/intl.xpt
-  @DIR_MACOS@components/jar.xpt
-  @DIR_MACOS@components/jsdservice.xpt
-  @DIR_MACOS@components/layout_base.xpt
-  @DIR_MACOS@components/layout_printing.xpt
-  @DIR_MACOS@components/layout_xul.xpt
-  @DIR_MACOS@components/layout_xul_tree.xpt
-  @DIR_MACOS@components/locale.xpt
-  @DIR_MACOS@components/loginmgr.xpt
-  @DIR_MACOS@components/lwbrk.xpt
-  @DIR_MACOS@components/mailprofilemigration.xpt
-  @DIR_MACOS@components/mailview.xpt
-  @DIR_MACOS@components/mime.xpt
-  @DIR_MACOS@components/mimetype.xpt
-  @DIR_MACOS@components/mozbrwsr.xpt
-  @DIR_MACOS@components/mozfind.xpt
-  @DIR_MACOS@components/mozldap.xpt
-  @DIR_MACOS@components/msgbase.xpt
-  @DIR_MACOS@components/msgcompose.xpt
-  @DIR_MACOS@components/msgdb.xpt
-  @DIR_MACOS@components/msgimap.xpt
-  @DIR_MACOS@components/msglocal.xpt
-  @DIR_MACOS@components/msgnews.xpt
-  @DIR_MACOS@components/msgsearch.xpt
-  @DIR_MACOS@components/msgsmime.xpt
-  @DIR_MACOS@components/necko.xpt
-  @DIR_MACOS@components/necko_about.xpt
-  @DIR_MACOS@components/necko_cache.xpt
-  @DIR_MACOS@components/necko_cookie.xpt
-  @DIR_MACOS@components/necko_dns.xpt
-  @DIR_MACOS@components/necko_file.xpt
-  @DIR_MACOS@components/necko_ftp.xpt
-  @DIR_MACOS@components/necko_http.xpt
-  @DIR_MACOS@components/necko_res.xpt
-  @DIR_MACOS@components/necko_socket.xpt
-  @DIR_MACOS@components/necko_strconv.xpt
-  @DIR_MACOS@components/necko_viewsource.xpt
-  @DIR_MACOS@components/necko_wifi.xpt
-  @DIR_MACOS@components/parentalcontrols.xpt
-  @DIR_MACOS@components/pipboot.xpt
-  @DIR_MACOS@components/pipnss.xpt
-  @DIR_MACOS@components/pippki.xpt
-  @DIR_MACOS@components/places.xpt
-  @DIR_MACOS@components/plugin.xpt
-  @DIR_MACOS@components/prefetch.xpt
-  @DIR_MACOS@components/pref.xpt
-  @DIR_MACOS@components/profile.xpt
-  @DIR_MACOS@components/proxyObjInst.xpt
-  @DIR_MACOS@components/rdf.xpt
-  @DIR_MACOS@components/satchel.xpt
-  @DIR_MACOS@components/saxparser.xpt
-  @DIR_MACOS@components/shellservice.xpt
-  @DIR_MACOS@components/shistory.xpt
-  @DIR_MACOS@components/spellchecker.xpt
-  @DIR_MACOS@components/storage.xpt
-  @DIR_MACOS@components/toolkitprofile.xpt
-  @DIR_MACOS@components/txmgr.xpt
-  @DIR_MACOS@components/txtsvc.xpt
-  @DIR_MACOS@components/uconv.xpt
-  @DIR_MACOS@components/update.xpt
-  @DIR_MACOS@components/uriloader.xpt
-  @DIR_MACOS@components/url-classifier.xpt
-  @DIR_MACOS@components/urlformatter.xpt
-  @DIR_MACOS@components/webBrowser_core.xpt
-  @DIR_MACOS@components/webbrowserpersist.xpt
-  @DIR_MACOS@components/webshell_idls.xpt
-  @DIR_MACOS@components/widget.xpt
-  @DIR_MACOS@components/windowwatcher.xpt
-  @DIR_MACOS@components/xpautocomplete.xpt
-  @DIR_MACOS@components/xpcom_base.xpt
-  @DIR_MACOS@components/xpcom_components.xpt
-  @DIR_MACOS@components/xpcom_ds.xpt
-  @DIR_MACOS@components/xpcom_io.xpt
-  @DIR_MACOS@components/xpcom_system.xpt
-  @DIR_MACOS@components/xpcom_threads.xpt
-  @DIR_MACOS@components/xpcom_xpti.xpt
-  @DIR_MACOS@components/xpconnect.xpt
-  @DIR_MACOS@components/xpinstall.xpt
-  @DIR_MACOS@components/xulapp.xpt
-  @DIR_MACOS@components/xuldoc.xpt
-  @DIR_MACOS@components/xultmpl.xpt
-  @DIR_MACOS@components/zipwriter.xpt
-  #ifdef XP_MACOSX
-    @DIR_MACOS@components/necko_wifi.xpt
-    @DIR_MACOS@components/widget_cocoa.xpt
-  #else
-    components/accessibility.xpt
-    components/filepicker.xpt
-    components/toolkitremote.xpt
-    components/websrvcs.xpt
-  #endif
-#endif
-# ****************************************************************************
-# * End of XPTs at the time we started linking them on Linux and Mac.        *
-# ****************************************************************************
 #ifndef MOZ_MAINTENANCE_SERVICE
 @DIR_MACOS@maintenanceservice.exe
 @DIR_MACOS@maintenanceservice_installer.exe
