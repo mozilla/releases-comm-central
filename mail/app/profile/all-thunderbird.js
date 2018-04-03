@@ -126,8 +126,8 @@ pref("javascript.options.showInConsole", true);
 // Controls enabling of the extension system logging (can reduce performance)
 pref("extensions.logging.enabled", false);
 
-// Disables strict compatibility, making addons compatible-by-default.
-pref("extensions.strictCompatibility", false);
+// Strict compatibility makes addons in-compatible by default.
+pref("extensions.strictCompatibility", true);
 
 // Specifies a minimum maxVersion an addon needs to say it's compatible with
 // for it to be compatible by default.
