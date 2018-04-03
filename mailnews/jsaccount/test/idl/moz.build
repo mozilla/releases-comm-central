@@ -13,7 +13,3 @@ if 'comm' in CONFIG['MOZ_BUILD_APP']:
   test_harness_base = TEST_HARNESS_FILES.xpcshell.comm
 else:
   test_harness_base = TEST_HARNESS_FILES.xpcshell
-
-test_harness_base.mailnews.jsaccount.test.unit.resources += [
-    '!/dist/bin/components/testJsAccount.xpt',
-]
