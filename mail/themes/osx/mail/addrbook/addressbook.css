@@ -15,6 +15,17 @@
 
 #ab-toolbox:-moz-lwtheme {
   -moz-appearance: none;
+  /* Uses a background image instead of a border to avoid jumping of the toolbar
+     when a theme is enabled. */
+  background-image: linear-gradient(to bottom, var(--tabs-border-color, transparent) 1px, transparent 1px);
+}
+
+#ab-toolbox:-moz-lwtheme::after {
+  content: "";
+  display: -moz-box;
+  margin-top: -1px;
+  height: 1px;
+  border-bottom: 1px solid var(--toolbox-border-bottom-color);
 }
 
 #ab-toolbox > toolbar {
@@ -222,8 +233,7 @@ splitter {
   min-height: 19px; /* aqua size for small buttons */
 }
 
-#titlebar:not(:-moz-lwtheme),
-#addressbookWindow[sizemode="fullscreen"] > #titlebar {
+#titlebar {
   display: none;
 }
 
