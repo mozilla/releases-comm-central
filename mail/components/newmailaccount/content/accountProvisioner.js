@@ -740,7 +740,6 @@ var EmailAccountProvisioner = {
     gLog.info("Refreshing terms and privacy links");
     // Empty the Terms of Service and Privacy links placeholder.
     let placeholder = document.querySelector(".commentary .placeholder");
-    placeholder.textContent = "";
 
     let selectedProviders =
       [...document.querySelectorAll(".provider input:checked")];
