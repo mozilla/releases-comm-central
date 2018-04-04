@@ -947,9 +947,7 @@
       <spacer id="menubar_spacer" flex="100%"/>
       </menubar>
     </toolbaritem>
-#ifdef CAN_DRAW_IN_TITLEBAR
 #ifndef XP_MACOSX
     <hbox class="titlebar-placeholder" type="caption-buttons" ordinal="1000"/>
-#endif
 #endif
   </toolbar>

@@ -1651,73 +1651,77 @@ function InitPageMenu(menuPopup, event) {
 
 var TabsInTitlebar = {
   init() {
-    if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
-      // Don't trust the initial value of the sizemode attribute; wait for the
-      // resize event.
-      this._readPref();
-      Services.prefs.addObserver(this._drawInTitlePref, this);
-      Services.prefs.addObserver(this._autoHidePref, this);
+    // Don't trust the initial value of the sizemode attribute; wait for the
+    // resize event.
+    this._readPref();
+    Services.prefs.addObserver(this._drawInTitlePref, this);
+    Services.prefs.addObserver(this._autoHidePref, this);
 
-      this.allowedBy("sizemode", false);
-      window.addEventListener("resize", function (event) {
-        if (event.target != window)
-          return;
-        TabsInTitlebar.allowedBy("sizemode", true);
-      });
+    this.allowedBy("sizemode", false);
+    window.addEventListener("resize", function (event) {
+      if (event.target != window)
+        return;
+      TabsInTitlebar.allowedBy("sizemode", true);
+    });
 
-      // Always disable on unsupported GTK versions.
-      if (AppConstants.MOZ_WIDGET_TOOLKIT == "gtk3") {
-        this.allowedBy("gtk", window.matchMedia("(-moz-gtk-csd-available)"));
-      }
+    // We need to update the appearance of the titlebar when the menu changes
+    // from the active to the inactive state. We can't, however, rely on
+    // DOMMenuBarInactive, because the menu fires this event and then removes
+    // the inactive attribute after an event-loop spin.
+    //
+    // Because updating the appearance involves sampling the heights and
+    // margins of various elements, it's important that the layout be more or
+    // less settled before updating the titlebar. So instead of listening to
+    // DOMMenuBarActive and DOMMenuBarInactive, we use a MutationObserver to
+    // watch the "invalid" attribute directly.
+    let menu = document.getElementById("mail-toolbar-menubar2");
+    this._menuObserver = new MutationObserver(this._onMenuMutate);
+    this._menuObserver.observe(menu, {attributes: true});
 
-      // We need to update the appearance of the titlebar when the menu changes
-      // from the active to the inactive state. We can't, however, rely on
-      // DOMMenuBarInactive, because the menu fires this event and then removes
-      // the inactive attribute after an event-loop spin.
-      //
-      // Because updating the appearance involves sampling the heights and
-      // margins of various elements, it's important that the layout be more or
-      // less settled before updating the titlebar. So instead of listening to
-      // DOMMenuBarActive and DOMMenuBarInactive, we use a MutationObserver to
-      // watch the "invalid" attribute directly.
-      let menu = document.getElementById("mail-toolbar-menubar2");
-      this._menuObserver = new MutationObserver(this._onMenuMutate);
-      this._menuObserver.observe(menu, {attributes: true});
+    let sizeMode = document.getElementById("messengerWindow");
+    this._sizeModeObserver = new MutationObserver(this._onSizeModeMutate);
+    this._sizeModeObserver.observe(sizeMode, {attributes: true});
 
-      let sizeMode = document.getElementById("messengerWindow");
-      this._sizeModeObserver = new MutationObserver(this._onSizeModeMutate);
-      this._sizeModeObserver.observe(sizeMode, {attributes: true});
-
-      this._initialized = true;
-      if (this._updateOnInit) {
-        // We don't need to call this with 'true', even if original calls
-        // (before init()) did, because this will be the first call and so
-        // we will update anyway.
-        this._update();
-      }
+    this._initialized = true;
+    if (this._updateOnInit) {
+      // We don't need to call this with 'true', even if original calls
+      // (before init()) did, because this will be the first call and so
+      // we will update anyway.
+      this._update();
     }
   },
 
   allowedBy(condition, allow) {
-    if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
-      if (allow) {
-        if (condition in this._disallowed) {
-          delete this._disallowed[condition];
-          this._update(true);
-        }
-      } else {
-        if (!(condition in this._disallowed)) {
-          this._disallowed[condition] = null;
-          this._update(true);
-        }
+    if (allow) {
+      if (condition in this._disallowed) {
+        delete this._disallowed[condition];
+        this._update(true);
+      }
+    } else {
+      if (!(condition in this._disallowed)) {
+        this._disallowed[condition] = null;
+        this._update(true);
       }
     }
   },
 
   updateAppearance: function updateAppearance(aForce) {
-    if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
-      this._update(aForce);
+    this._update(aForce);
+  },
+
+  get systemSupported() {
+    let isSupported = false;
+    switch (AppConstants.MOZ_WIDGET_TOOLKIT) {
+      case "windows":
+      case "cocoa":
+        isSupported = true;
+        break;
+      case "gtk3":
+        isSupported = window.matchMedia("(-moz-gtk-csd-available)");
+        break;
     }
+    delete this.systemSupported;
+    return this.systemSupported = isSupported;
   },
 
   get enabled() {
@@ -1797,7 +1801,8 @@ var TabsInTitlebar = {
       }
     }
 
-    let allowed = (Object.keys(this._disallowed)).length == 0;
+    let allowed = this.systemSupported &&
+                  (Object.keys(this._disallowed)).length == 0;
 
     let titlebar = $("titlebar");
     let titlebarContent = $("titlebar-content");
@@ -1930,31 +1935,27 @@ var TabsInTitlebar = {
   },
 
   uninit() {
-    if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
-      this._initialized = false;
-      Services.prefs.removeObserver(this._drawInTitlePref, this);
-      Services.prefs.removeObserver(this._autoHidePref, this);
-      this._menuObserver.disconnect();
-    }
+    this._initialized = false;
+    Services.prefs.removeObserver(this._drawInTitlePref, this);
+    Services.prefs.removeObserver(this._autoHidePref, this);
+    this._menuObserver.disconnect();
   }
 };
 
-if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
-  function updateTitlebarDisplay() {
-    if (AppConstants.platform == "macosx") {
-      if (TabsInTitlebar.enabled) {
-        document.documentElement.setAttribute("chromemargin", "0,-1,-1,-1");
-        document.documentElement.removeAttribute("drawtitle");
-      } else {
-        document.documentElement.removeAttribute("chromemargin");
-        document.documentElement.setAttribute("drawtitle", "true");
-      }
-    } else if (TabsInTitlebar.enabled) {
-      // not OS X
-      document.documentElement.setAttribute("chromemargin", "0,2,2,2");
+function updateTitlebarDisplay() {
+  if (AppConstants.platform == "macosx") {
+    if (TabsInTitlebar.enabled) {
+      document.documentElement.setAttribute("chromemargin", "0,-1,-1,-1");
+      document.documentElement.removeAttribute("drawtitle");
     } else {
       document.documentElement.removeAttribute("chromemargin");
+      document.documentElement.setAttribute("drawtitle", "true");
     }
+  } else if (TabsInTitlebar.enabled) {
+    // not OS X
+    document.documentElement.setAttribute("chromemargin", "0,2,2,2");
+  } else {
+    document.documentElement.removeAttribute("chromemargin");
   }
 }
 

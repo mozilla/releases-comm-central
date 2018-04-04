@@ -313,7 +313,6 @@
 </popupset>
 #endif
 
-#ifdef CAN_DRAW_IN_TITLEBAR
 <vbox id="titlebar">
   <hbox id="titlebar-content">
     <spacer id="titlebar-spacer" flex="1"/>
@@ -329,7 +328,6 @@
 #endif
   </hbox>
 </vbox>
-#endif
 
   <!-- navigation-toolbox with main menubar and tabs toolbar -->
 #include mainNavigationToolbox.inc
@@ -372,7 +370,7 @@
                    id="alltabs-popup" position="after_end"
                    tabcontainer="tabmail-tabs"/>
       </toolbarbutton>
-#ifdef CAN_DRAW_IN_TITLEBAR
+
       <hbox class="titlebar-placeholder" type="caption-buttons"
 #ifndef XP_MACOSX
             ordinal="1000"
@@ -380,7 +378,6 @@
             />
 #ifdef XP_MACOSX
       <hbox class="titlebar-placeholder" type="fullscreen-button"/>
-#endif
 #endif
     </toolbar>
 
