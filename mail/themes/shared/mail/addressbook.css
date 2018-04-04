@@ -99,6 +99,13 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
   padding-top: 2px;
 }
 
+#CardTitle,
+.CardViewHeading,
+.CardViewText,
+.CardViewLink {
+  -moz-user-select: text;
+}
+
 .CardViewText,
 .CardViewLink {
   padding-inline-start: 20px;
