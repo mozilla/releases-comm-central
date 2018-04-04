@@ -878,3 +878,6 @@ pref("mail.calendar-integration.opt-out", false);
 // SetSecurityLevelForContentProcess() for what the different settings mean.
 pref("security.sandbox.content.level", 0);
 #endif
+
+// Enable FIDO U2F
+pref("security.webauth.u2f", true);
