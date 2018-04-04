@@ -5,7 +5,7 @@ win32/opt:
         job-name: win32-opt
     treeherder:
         platform: windows2012-32/opt
-        symbol: tc(B)
+        symbol: B
         tier: 1
     worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
@@ -40,7 +40,7 @@ win32-nightly/opt:
         type: nightly
     treeherder:
         platform: windows2012-32/opt
-        symbol: tc(N)
+        symbol: N
         tier: 1
     worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
@@ -73,7 +73,7 @@ win32/debug:
         job-name: win32-debug
     treeherder:
         platform: windows2012-32/debug
-        symbol: tc(B)
+        symbol: B
         tier: 1
     worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
@@ -105,7 +105,7 @@ win64/opt:
         job-name: win64-opt
     treeherder:
         platform: windows2012-64/opt
-        symbol: tc(B)
+        symbol: B
         tier: 1
     worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
@@ -139,7 +139,7 @@ win64-nightly/opt:
         type: nightly
     treeherder:
         platform: windows2012-64/opt
-        symbol: tc(N)
+        symbol: N
         tier: 1
     worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
@@ -172,7 +172,7 @@ win64/debug:
         job-name: win64-debug
     treeherder:
         platform: windows2012-64/debug
-        symbol: tc(B)
+        symbol: B
         tier: 1
     worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:

@@ -5,7 +5,7 @@ linux64/opt:
         job-name: linux64-opt
     treeherder:
         platform: linux64/opt
-        symbol: tc(B)
+        symbol: B
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
@@ -37,7 +37,7 @@ linux64-nightly/opt:
         type: nightly
     treeherder:
         platform: linux64/opt
-        symbol: tc(N)
+        symbol: N
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
@@ -67,7 +67,7 @@ linux64/debug:
         job-name: linux64-debug
     treeherder:
         platform: linux64/debug
-        symbol: tc(B)
+        symbol: B
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
@@ -97,7 +97,7 @@ linux/opt:
         job-name: linux32-opt
     treeherder:
         platform: linux32/opt
-        symbol: tc(B)
+        symbol: B
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
@@ -129,7 +129,7 @@ linux-nightly/opt:
         type: nightly
     treeherder:
         platform: linux32/opt
-        symbol: tc(N)
+        symbol: N
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
@@ -159,7 +159,7 @@ linux/debug:
         job-name: linux32-debug
     treeherder:
         platform: linux32/debug
-        symbol: tc(B)
+        symbol: B
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         docker-image: {in-tree: "debian7-i386-build"}

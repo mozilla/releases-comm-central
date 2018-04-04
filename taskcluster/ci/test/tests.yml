@@ -36,7 +36,7 @@ job-defaults:
 xpcshell:
     description: "xpcshell test run"
     suite: xpcshell
-    treeherder-symbol: tc-X(X)
+    treeherder-symbol: X(X)
     run-on-projects: built-projects
     docker-image:
         in-tree: "desktop1604-test"
@@ -75,7 +75,7 @@ xpcshell:
 mozmill:
     description: "mozmill test run"
     suite: mozmill
-    treeherder-symbol: tc-Z(Z)
+    treeherder-symbol: Z(Z)
     run-on-projects: built-projects
     docker-image:
         in-tree: "desktop1604-test"

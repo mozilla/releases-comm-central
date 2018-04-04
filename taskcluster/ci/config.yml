@@ -1,9 +1,8 @@
 trust-domain: comm
 treeherder:
     group-names:
-        'tc': 'Executed by TaskCluster'
-        'tc-X': 'Xpcshell tests executed by TaskCluster'
-        'tc-Z': 'MozMill tests executed by TaskCluster'
+        'X': 'Xpcshell tests'
+        'Z': 'MozMill tests'
         'I': 'Docker Image Builds'
         'TL': 'Toolchain builds for Linux 64-bits'
         'TM': 'Toolchain builds for OSX'
