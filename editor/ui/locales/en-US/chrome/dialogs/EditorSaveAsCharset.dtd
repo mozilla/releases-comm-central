@@ -12,6 +12,3 @@
 <!ENTITY documentCharsetTitle2.label "Text Encoding">
 <!ENTITY documentCharsetDesc2.label "Select the text encoding you want to save a document in:">
 <!ENTITY documentExportToText.label "Export to Text">
-
-
-
