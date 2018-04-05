@@ -71,7 +71,7 @@
 
       <field name="mPrefs">
         Cc["@mozilla.org/preferences-service;1"]
-          .getService(Ci.nsIPrefService);
+          .getService(Ci.nsIPrefService)
           .getBranch(null);
       </field>
 
