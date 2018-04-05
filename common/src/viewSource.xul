@@ -144,9 +144,15 @@
               command="Browser:Forward"
               observes="viewSourceNavigation"/>
     <menuseparator observes="viewSourceNavigation"/>
-    <menuitem id="cMenu_findAgain"/>
+    <menuitem id="cMenu_findAgain"
+              label="&findAgainCmd.label;"
+              accesskey="&findAgainCmd.accesskey;"
+              command="cmd_findAgain"/>
     <menuseparator/>
-    <menuitem id="cMenu_copy"/>
+    <menuitem id="cMenu_copy"
+              label="&copyCmd.label;"
+              accesskey="&copyCmd.accesskey;"
+              command="cmd_copy"/>
     <menuitem id="context-copyLink"
               label="&copyLinkCmd.label;"
               accesskey="&copyLinkCmd.accesskey;"
@@ -156,7 +162,10 @@
               accesskey="&copyEmailCmd.accesskey;"
               oncommand="viewSourceChrome.onContextMenuCopyLinkOrEmail();"/>
     <menuseparator/>
-    <menuitem id="cMenu_selectAll"/>
+    <menuitem id="cMenu_selectAll"
+              label="&selectAllCmd.label;"
+              accesskey="&selectAllCmd.accesskey;"
+              command="cmd_selectAll"/>
   </menupopup>
 
   <!-- Menu -->
