@@ -13,7 +13,7 @@ var body = document.getElementById("ibcontent");
 
 function setColors(target)
 {
-  var senderColor = target.getAttribute("senderColor");
+  var senderColor = target.getAttribute("data-senderColor");
 
   if (senderColor) {
     var regexp = /color:\s*hsl\(\s*(\d{1,3})\s*,\s*\d{1,3}\%\s*,\s*\d{1,3}\%\s*\)/;

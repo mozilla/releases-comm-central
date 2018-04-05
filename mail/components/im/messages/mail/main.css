@@ -138,7 +138,7 @@ p *:any-link img {
 
 /* We style Twitter differently from other types of chat */
 
-.message:-moz-any([prpl="Twitter"], [prpl="twitter"]) {
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) {
   background-color: hsl(0, 0%, 99%);
   border-radius: 5px;
   border: 1px solid hsl(0, 0%, 85%);
@@ -148,7 +148,7 @@ p *:any-link img {
   margin-bottom: 6px;
 }
 
-.message:-moz-any([prpl="Twitter"], [prpl="twitter"]) > .pseudo {
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) > .pseudo {
   float: none;
   text-align: left;
   display: block;
@@ -156,16 +156,16 @@ p *:any-link img {
   padding-left: 64px;
 }
 
-.message:-moz-any([prpl="Twitter"], [prpl="twitter"]) > .next {
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) > .next {
   visibility: visible;
 }
 
-.message:-moz-any([prpl="Twitter"], [prpl="twitter"]) > .ib-msg-txt {
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) > .ib-msg-txt {
   margin-left: 0px;
   padding-left: 64px;
 }
 
-.message:-moz-any([prpl="Twitter"], [prpl="twitter"]) > .usericon {
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) > .usericon {
   position: absolute;
   display: block;
   max-width: 48px;
@@ -174,10 +174,10 @@ p *:any-link img {
   border-radius: 5px;
 }
 
-.message:-moz-any([prpl="Twitter"], [prpl="twitter"]) ~ .event {
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) ~ .event {
   margin-left: 71px;
 }
 
-.message:-moz-any([prpl="Twitter"], [prpl="twitter"]) ~ .event > .date {
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) ~ .event > .date {
   margin-right: 7px;
 }
