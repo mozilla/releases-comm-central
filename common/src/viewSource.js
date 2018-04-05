@@ -272,6 +272,7 @@ ViewSourceChrome.prototype = {
     // This handler should only ever run the first time the XUL is loaded.
     removeEventListener("load", this);
 
+/* eslint-disable */
 #ifdef MOZ_SUITE
     let wrapMenuItem = document.getElementById("menu_wrapLongLines");
     if (this.shouldWrap) {
@@ -283,6 +284,7 @@ ViewSourceChrome.prototype = {
       highlightMenuItem.setAttribute("checked", "true");
     }
 #endif
+/* eslint-enable */
 
     gContextMenu.addEventListener("popupshowing", this);
     gContextMenu.addEventListener("popuphidden", this);
