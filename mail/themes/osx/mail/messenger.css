@@ -123,6 +123,49 @@ toolbar[brighttext] {
   -moz-appearance: none;
 }
 
+/* ::::: Toolbar customization ::::: */
+
+.toolbarpaletteitem-box[type="spacer"] {
+  border: 1px solid #a3a3a3;
+  background-color: #eee;
+  width: 32px;
+  margin-top: 18px;
+}
+
+.toolbarpaletteitem-box[type="spring"] {
+  border: 1px solid #a3a3a3;
+  background: url("chrome://messenger/skin/icons/spring.png") #fff no-repeat;
+  width: 32px;
+  margin-top: 18px;
+}
+
+.toolbarpaletteitem-box[type="spring"][place="toolbar"] {
+  background: #eee;
+}
+
+.toolbarpaletteitem-box[type="spacer"][place="toolbar"],
+.toolbarpaletteitem-box[type="spring"][place="toolbar"] {
+  margin: 2px;
+}
+
+.toolbarpaletteitem-box[type="separator"][place="palette"] {
+  width: 2px;
+  height: 50px;
+}
+
+.toolbarpaletteitem-box[type="spacer"][place="palette"],
+.toolbarpaletteitem-box[type="spring"][place="palette"] {
+  margin-top: 0;
+  margin-bottom: 2px;
+  height: 32px;
+}
+
+.toolbarpaletteitem-box[type="spring"][place="palette"] {
+  background-position: center;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
 /* ::::: toolbarbutton menu-button ::::: */
 
 toolbarbutton[type="menu-button"] {

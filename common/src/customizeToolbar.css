@@ -21,7 +21,7 @@
 .toolbarpaletteitem-box {
   -moz-box-pack: center;
   -moz-box-flex: 1;
-  width: 110px;
+  width: 110px !important;
   max-width: 110px;
 }
 
