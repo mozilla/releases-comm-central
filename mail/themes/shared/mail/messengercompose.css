@@ -1,0 +1,225 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+#attachmentBucket {
+  width: 15em;
+  min-width: 15em;
+}
+
+#attachmentBucket > scrollbox > .scrollbox-innerbox {
+  padding: 1px;
+}
+
+#compose-toolbox > toolbar {
+  /* force iconsize="small" on these toolbars */
+  counter-reset: smallicons;
+}
+
+#composeContentBox {
+  /*
+  * In order to remove the shadow border on left/right edges elegantly,
+  * use left/right margins of -3px. We make up for this by adding 3px
+  * of padding instead.
+  */
+  margin-right: -3px;
+  margin-left: -3px;
+  padding-right: 3px;
+  padding-left: 3px;
+}
+
+/* :::: primary toolbar buttons :::: */
+
+#button-send {
+  list-style-image: url("chrome://messenger/skin/icons/send.svg");
+}
+
+#button-contacts {
+  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  -moz-image-region: auto !important;
+}
+
+#spellingButton {
+  list-style-image: url("chrome://messenger/skin/icons/spelling.svg");
+}
+
+#button-attach {
+  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
+}
+
+#button-security {
+  list-style-image: url("chrome://messenger/skin/icons/security.svg");
+}
+
+#button-save {
+  list-style-image: url("chrome://messenger/skin/icons/save.svg");
+}
+
+#quoteButton {
+  list-style-image: url("chrome://messenger/skin/icons/quote.svg");
+}
+
+#cut-button {
+  list-style-image: url("chrome://messenger/skin/icons/cut.svg");
+}
+
+#copy-button {
+  list-style-image: url("chrome://messenger/skin/icons/copy.svg");
+}
+
+#paste-button {
+  list-style-image: url("chrome://messenger/skin/icons/paste.svg");
+}
+
+#button-print {
+  list-style-image: url("chrome://messenger/skin/icons/print.svg");
+}
+
+#msgIdentityPopup > menuitem[_moz-menuactive="true"] > .menu-description {
+  color: HighlightText;
+  opacity: .7;
+}
+
+.menu-description {
+  font-style: italic;
+  color: GrayText;
+  margin-inline-start: 1ex !important;
+}
+
+.menulist-description {
+  font-style: italic;
+  color: GrayText;
+  margin-inline-start: 1ex !important;
+}
+
+/* :::: Format toolbar :::: */
+
+#FormatToolbar > toolbarbutton > .toolbarbutton-text {
+  display: none;
+}
+
+#FontFaceSelect {
+  max-width: 35ch;
+}
+
+#TextColorButton {
+  margin-top: 2px;
+  margin-bottom: 9px;
+  margin-inline-start: 2px;
+  margin-inline-end: 9px;
+}
+
+#TextColorButton[color="mixed"] {
+  background-image: url("chrome://messenger/skin/icons/multicolor.png");
+  background-size: cover;
+}
+
+#BackgroundColorButton {
+  margin-top: 9px;
+  margin-bottom: 2px;
+  margin-inline-start: 9px;
+  margin-inline-end: 2px;
+}
+
+/* :::: Reorder Attachments Panel :::: */
+
+#reorderAttachmentsPanel > .panel-arrowcontainer > .panel-arrowcontent {
+  --arrowpanel-padding: 4px;
+}
+
+#btn_moveAttachmentTop {
+  list-style-image: url("chrome://messenger/skin/icons/move-top.svg");
+}
+
+#btn_moveAttachmentUp {
+  list-style-image: url("chrome://messenger/skin/icons/move-up.svg");
+}
+
+#btn_moveAttachmentDown {
+  list-style-image: url("chrome://messenger/skin/icons/move-down.svg");
+}
+
+#btn_moveAttachmentBottom {
+  list-style-image: url("chrome://messenger/skin/icons/move-bottom.svg");
+}
+
+#btn_moveAttachmentBundleUp {
+  list-style-image: url("chrome://messenger/skin/icons/move-together.svg");
+}
+
+#btn_sortAttachmentsToggle {
+  list-style-image: url("chrome://messenger/skin/icons/sort.svg");
+}
+
+#btn_sortAttachmentsToggle[sortdirection="descending"] > .toolbarbutton-icon {
+  transform: scaleY(-1);
+}
+
+.autocomplete-richlistitem:hover {
+  background-color: var(--arrowpanel-dimmed);
+}
+
+.autocomplete-richlistitem[selected] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+/* :::: autocomplete icons :::: */
+
+html|span.ac-emphasize-text {
+  font-weight: bold;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url,
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
+  display: -moz-box;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url {
+  -moz-box-ordinal-group: 1;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
+  -moz-box-ordinal-group: 2;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-title {
+  -moz-box-ordinal-group: 3;
+}
+
+.autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
+}
+
+.autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
+}
+
+.autocomplete-richlistitem[type="remote-err"] > .ac-site-icon {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
+}
+
+/* ::::: attachment reminder ::::: */
+
+#attachmentNotificationBox b {
+  font-weight: bold;
+}
+
+#attachmentNotificationBox > notification[image="null"] .messageImage {
+  background-image: url("chrome://messenger/skin/icons/attach.svg");
+}
+
+#attachmentReminderText {
+  margin-inline-start: 0;
+  cursor: pointer;
+}
+
+#attachmentKeywords {
+  font-weight: bold;
+  margin-inline-start: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}

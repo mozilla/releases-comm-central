@@ -7,21 +7,12 @@
   ======================================================================= */
 
 @import url("chrome://messenger/skin/");
+@import url("chrome://messenger/skin/shared/messengercompose.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-@namespace html url("http://www.w3.org/1999/xhtml");
-
-#attachmentBucket {
-  width: 15em;
-  min-width: 15em;
-}
 
 #attachmentBucket[empty]:focus {
   box-shadow: 0 0 2px Highlight inset, 0 0 2px Highlight inset;
-}
-
-#attachmentBucket > scrollbox > .scrollbox-innerbox {
-  padding: 1px;
 }
 
 #attachmentBucket attachmentitem {
@@ -52,11 +43,6 @@
   /* Uses a background image instead of a border to avoid jumping of the toolbar
      when a theme is enabled. */
   background-image: linear-gradient(to bottom, var(--tabs-border-color, transparent) 1px, transparent 1px);
-}
-
-#compose-toolbox > toolbar {
-  /* force iconsize="small" on these toolbars */
-  counter-reset: smallicons;
 }
 
 /** Stock icons for the menu items. */
@@ -96,53 +82,6 @@
 
 #menu_styleStrikeThru {
   list-style-image: url("moz-icon://stock/gtk-strikethrough?size=menu");
-}
-
-/* ::::: primary toolbar buttons ::::: */
-
-#button-send {
-  list-style-image: url("chrome://messenger/skin/icons/send.svg");
-}
-
-#button-contacts {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
-  -moz-image-region: auto !important;
-}
-
-#spellingButton {
-  list-style-image: url("chrome://messenger/skin/icons/spelling.svg");
-}
-
-#button-attach {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
-}
-
-#button-security {
-  list-style-image: url("chrome://messenger/skin/icons/security.svg");
-}
-
-#button-save {
-  list-style-image: url("chrome://messenger/skin/icons/save.svg");
-}
-
-#quoteButton {
-  list-style-image: url("chrome://messenger/skin/icons/quote.svg");
-}
-
-#cut-button {
-  list-style-image: url("chrome://messenger/skin/icons/cut.svg");
-}
-
-#copy-button {
-  list-style-image: url("chrome://messenger/skin/icons/copy.svg");
-}
-
-#paste-button {
-  list-style-image: url("chrome://messenger/skin/icons/paste.svg");
-}
-
-#button-print {
-  list-style-image: url("chrome://messenger/skin/icons/print.svg");
 }
 
 /* ::::: menulists on toolbar ::::: */
@@ -209,28 +148,6 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   padding: 0 1px;
 }
 
-/* ::::: attachment reminder ::::: */
-
-#attachmentNotificationBox b {
-  font-weight: bold;
-}
-
-#attachmentNotificationBox > notification[image="null"] .messageImage {
-  background-image: url("chrome://messenger/skin/icons/attach.svg");
-}
-
-#attachmentReminderText {
-  margin-inline-start: 0;
-  cursor: pointer;
-}
-
-#attachmentKeywords {
-  font-weight: bold;
-  margin-inline-start: 0;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 /* XXX I should really have a selector rule here to select just .listcell-icon objects underneath the attachmentList listbox */
 
 .listcell-icon {
@@ -266,58 +183,16 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
-.autocomplete-richlistitem:hover {
-  background-color: var(--arrowpanel-dimmed);
-}
-
-.autocomplete-richlistitem[selected] {
-  background-color: Highlight;
-  color: HighlightText;
-}
-
 /* ::::: autocomplete icons ::::: */
-
-html|span.ac-emphasize-text {
-  font-weight: bold;
-}
-
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url,
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
-  display: -moz-box;
-}
-
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url {
-  -moz-box-ordinal-group: 1;
-}
-
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
-  -moz-box-ordinal-group: 2;
-}
-
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-title {
-  -moz-box-ordinal-group: 3;
-}
 
 .ac-site-icon {
   display: -moz-box;
   margin: 1px 5px;
 }
 
-.autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
-}
-
-.autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
-}
-
-.autocomplete-richlistitem[type="remote-err"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
-}
-
 .autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
-  -moz-image-region: rect(208px 16px 224px 0px);
+  -moz-image-region: rect(208px 16px 224px 0);
 }
 
 /* ::::: addressing widget ::::: */
@@ -425,18 +300,7 @@ html|span.ac-emphasize-text {
 
 #composeContentBox {
   background-color: -moz-dialog;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4) inset;
-
-  /*
-   * In order to remove the shadow border on left/right edges elegantly,
-   * use left/right margins of -3px. We make up for this by adding 3px
-   * of padding instead.
-   */
-
-  margin-right: -3px;
-  margin-left: -3px;
-  padding-right: 3px;
-  padding-left: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) inset;
 }
 
 #composeContentBox:-moz-window-inactive {
@@ -509,23 +373,6 @@ html|span.ac-emphasize-text {
   display: none;
 }
 
-#msgIdentityPopup > menuitem[_moz-menuactive="true"] > .menu-description {
-  color: HighlightText;
-  opacity: .7;
-}
-
-.menu-description {
-  font-style: italic;
-  color: GrayText;
-  margin-inline-start: 1ex !important;
-}
-
-.menulist-description {
-  font-style: italic;
-  color: GrayText;
-  margin-inline-start: 1ex !important;
-}
-
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {
@@ -536,16 +383,8 @@ html|span.ac-emphasize-text {
   background-image: url("chrome://messenger/skin/messengercompose/linux-noise.png");
 }
 
-#FontFaceSelect {
-  max-width: 35ch;
-}
-
 toolbarbutton.formatting-button {
   list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons.png");
-}
-
-#FormatToolbar > toolbarbutton > .toolbarbutton-text {
-  display: none;
 }
 
 #AbsoluteFontSizeButton {
@@ -632,7 +471,6 @@ toolbarbutton.formatting-button {
   -moz-image-region: rect(64px 16px 80px 0px);
 }
 
-
 #smileButtonMenu {
   -moz-image-region: rect(32px 16px 48px 0px);
 }
@@ -693,82 +531,82 @@ toolbarbutton.formatting-button {
 
 #smileySmile > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-smile.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyFrown > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-frown.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyWink > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-wink.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyTongue > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-tongue-out.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyLaughing > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-laughing.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyEmbarassed > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-embarassed.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyUndecided > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-undecided.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileySurprise > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-surprised.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyKiss > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-kiss.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyYell > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-yell.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyCool > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-cool.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyMoney > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-money-mouth.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyFoot > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-foot-in-mouth.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyInnocent > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-innocent.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileyCry > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-cry.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 #smileySealed > .menu-iconic-left {
   list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-sealed.png");
-  -moz-image-region: auto; /* cut off inheritance */
+  -moz-image-region: auto;
 }
 
 /* ..... fg/bg color picker ..... */
@@ -795,25 +633,6 @@ toolbarbutton.formatting-button {
 .color-button[disabled="true"]:hover {
   border: 1px inset ThreeDFace;
   opacity: 0.5;
-}
-
-#TextColorButton {
-  margin-top: 2px;
-  margin-bottom: 9px;
-  margin-inline-start: 2px;
-  margin-inline-end: 9px;
-}
-
-#TextColorButton[color="mixed"] {
-  background-image: url("chrome://messenger/skin/icons/multicolor.png");
-  background-size: cover;
-}
-
-#BackgroundColorButton {
-  margin-top: 9px;
-  margin-bottom: 2px;
-  margin-inline-start: 9px;
-  margin-inline-end: 2px;
 }
 
 /* ::::: address book sidebar ::::: */
@@ -874,38 +693,4 @@ menu[command="cmd_convertCloud"] .menu-iconic-left {
   /* Ensure that the provider icons are visible even if the Gnome theme says
      menus shouldn't have icons. */
   visibility: visible;
-}
-
-/* ::::: Reorder Attachments Panel ::::: */
-
-#reorderAttachmentsPanel > .panel-arrowcontainer > .panel-arrowcontent {
-  --arrowpanel-padding: 4px;
-}
-
-#btn_moveAttachmentTop {
-  list-style-image: url("chrome://messenger/skin/icons/move-top.svg");
-}
-
-#btn_moveAttachmentUp {
-  list-style-image: url("chrome://messenger/skin/icons/move-up.svg");
-}
-
-#btn_moveAttachmentDown {
-  list-style-image: url("chrome://messenger/skin/icons/move-down.svg");
-}
-
-#btn_moveAttachmentBottom {
-  list-style-image: url("chrome://messenger/skin/icons/move-bottom.svg");
-}
-
-#btn_moveAttachmentBundleUp {
-  list-style-image: url("chrome://messenger/skin/icons/move-together.svg");
-}
-
-#btn_sortAttachmentsToggle {
-  list-style-image: url("chrome://messenger/skin/icons/sort.svg");
-}
-
-#btn_sortAttachmentsToggle[sortdirection="descending"] > .toolbarbutton-icon {
-  transform: scaleY(-1);
 }
