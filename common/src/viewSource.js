@@ -272,13 +272,14 @@ ViewSourceChrome.prototype = {
     // This handler should only ever run the first time the XUL is loaded.
     removeEventListener("load", this);
 
+    // The following two menu items are only present in SeaMonkey.
     let wrapMenuItem = document.getElementById("menu_wrapLongLines");
-    if (this.shouldWrap) {
+    if (wrapMenuItem && this.shouldWrap) {
       wrapMenuItem.setAttribute("checked", "true");
     }
 
     let highlightMenuItem = document.getElementById("menu_highlightSyntax");
-    if (this.shouldHighlight) {
+    if (highlightMenuItem && this.shouldHighlight) {
       highlightMenuItem.setAttribute("checked", "true");
     }
 
