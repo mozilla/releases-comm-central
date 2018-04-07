@@ -90,11 +90,12 @@ timepicker[disabled="true"] {
   padding: 0;
 }
 
-.datepicker-previous {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
-  transform: scaleX(-1);
+.datepicker-previous,
+.datepicker-next:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-left.png");
 }
 
-.datepicker-next {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+.datepicker-next,
+.datepicker-previous:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-right.png");
 }

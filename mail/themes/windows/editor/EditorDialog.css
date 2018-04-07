@@ -132,29 +132,34 @@ tree.list {
 /* ::::: table properties dialog ::::: */
 
 #MoreFewerButton[more="0"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down.png");
   min-width: 12em;
 }
 
 #MoreFewerButton[more="1"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
   min-width: 12em;
 }
 
 #PreviousButton {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft.gif");
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-left.png");
 }
 
 #NextButton {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-right.png");
 }
 
 #PreviousButton[type="row"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
 }
 
 #NextButton[type="row"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down.png");
+}
+
+#PreviousButton > image,
+#NextButton > image {
+  margin-inline-start: 3px;
 }
 
 /* ::::: spelling dialog ::::: */
