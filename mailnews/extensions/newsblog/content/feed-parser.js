@@ -22,7 +22,7 @@ FeedParser.prototype =
   // parseFeed returns an empty feed in addition to calling aFeed.onParseError.
   parseFeed: function (aFeed, aDOM)
   {
-    if (!(aDOM instanceof Ci.nsIDOMXMLDocument))
+    if (ChromeUtils.getClassName(aDOM) !== "XMLDocument")
     {
       // No xml doc.
       aFeed.onParseError(aFeed);

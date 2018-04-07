@@ -1417,7 +1417,7 @@ var FeedUtils = {
     request.responseType = "document";
     request.send();
     let dom = request.responseXML;
-    if (dom instanceof Ci.nsIDOMXMLDocument &&
+    if ((ChromeUtils.getClassName(dom) === "XMLDocument") &&
         dom.documentElement.namespaceURI != this.MOZ_PARSERERROR_NS)
       return file;
 
