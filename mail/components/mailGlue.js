@@ -10,6 +10,7 @@ ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
 ChromeUtils.import("resource:///modules/distribution.js");
 ChromeUtils.import("resource:///modules/mailMigrator.js");
 ChromeUtils.import("resource:///modules/extensionSupport.jsm");
+const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm", {});
 
 /**
  * Glue code that should be executed before any windows are opened. Any
@@ -86,6 +87,10 @@ MailGlue.prototype = {
 
   _onProfileStartup: function MailGlue__onProfileStartup() {
     TBDistCustomizer.applyPrefDefaults();
+
+    let locales = Services.locale.getPackagedLocales();
+    const appSource = new FileSource("app", locales, "resource:///chrome/{locale}/locale/{locale}/");
+    L10nRegistry.registerSource(appSource);
 
     // handle any migration work that has to happen at profile startup
     MailMigrator.migrateAtProfileStartup();
