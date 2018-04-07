@@ -5,6 +5,7 @@
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 
 /**
  * Helper function to asynchronously call a certain method on the objects passed
@@ -69,6 +70,19 @@ calStartupService.prototype = {
         let calMgr = Components.classes["@mozilla.org/calendar/manager;1"]
                                .getService(Components.interfaces.calICalendarManager);
 
+        // Localization service
+        let locales = {
+            startup: function(aCompleteListener) {
+                let locales = Services.locale.getPackagedLocales();
+                let fs = new FileSource("calendar", locales , "resource://calendar/chrome/calendar-{locale}/locale/{locale}/");
+                L10nRegistry.registerSource(fs);
+                aCompleteListener.onResult(null, Components.results.NS_OK);
+            },
+            shutdown: function(aCompleteListener) {
+                aCompleteListener.onResult(null, Components.results.NS_OK);
+            }
+        };
+
         // Notification object
         let notify = {
             startup: function(aCompleteListener) {
@@ -89,7 +103,7 @@ calStartupService.prototype = {
         // We need to spin up the timezone service before the calendar manager
         // to ensure we have the timezones initialized. Make sure "notify" is
         // last in this array!
-        return [tzService, calMgr, notify];
+        return [locales, tzService, calMgr, notify];
     },
 
     /**
