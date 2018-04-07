@@ -185,13 +185,11 @@ nsLDAPConnection::Close()
       // still be synchronous
       //
       rc = ldap_unbind(mConnectionHandle);
-#ifdef PR_LOGGING
       if (rc != LDAP_SUCCESS) {
           MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning,
                  ("nsLDAPConnection::Close(): %s\n",
                   ldap_err2string(rc)));
       }
-#endif
       mConnectionHandle = nullptr;
   }
 
