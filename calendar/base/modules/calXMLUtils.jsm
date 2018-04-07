@@ -6,7 +6,7 @@
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-Components.utils.importGlobalProperties(["XMLHttpRequest"]);
+Cu.importGlobalProperties(["XMLSerializer", "XMLHttpRequest"]);
 
 this.EXPORTED_SYMBOLS = ["cal"];
 cal.xml = {} || cal.xml;
@@ -162,8 +162,7 @@ cal.xml.parseFile = function(uri) {
  * @return          The DOM document as a string.
  */
 cal.xml.serializeDOM = function(doc) {
-    let serializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
-                               .createInstance(Components.interfaces.nsIDOMSerializer);
+    let serializer = new XMLSerializer();
     return serializer.serializeToString(doc);
 };
 

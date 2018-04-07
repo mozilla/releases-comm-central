@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Cu.importGlobalProperties(["XMLSerializer"]);
+
 /**
  * The feed parser. Depends on FeedItem.js, Feed.js.
  *
@@ -11,8 +13,7 @@
  */
 function FeedParser() {
   this.parsedItems = [];
-  this.mSerializer = Cc["@mozilla.org/xmlextras/xmlserializer;1"].
-                     createInstance(Ci.nsIDOMSerializer);
+  this.mSerializer = new XMLSerializer();
 }
 
 FeedParser.prototype =
