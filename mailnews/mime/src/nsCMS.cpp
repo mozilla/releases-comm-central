@@ -29,9 +29,7 @@ using namespace mozilla;
 using namespace mozilla::psm;
 using namespace mozilla::pkix;
 
-#ifdef PR_LOGGING
 extern mozilla::LazyLogModule gPIPNSSLog;
-#endif
 
 NS_IMPL_ISUPPORTS(nsCMSMessage, nsICMSMessage, nsICMSMessage2)
 
