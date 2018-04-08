@@ -73,9 +73,12 @@ calStartupService.prototype = {
         // Localization service
         let locales = {
             startup: function(aCompleteListener) {
-                let locales = Services.locale.getPackagedLocales();
-                let fs = new FileSource("calendar", locales , "resource://calendar/chrome/calendar-{locale}/locale/{locale}/");
-                L10nRegistry.registerSource(fs);
+                let packaged = Services.locale.getPackagedLocales();
+                let fileSrc = new FileSource(
+                    "calendar", packaged,
+                    "resource://calendar/chrome/calendar-{locale}/locale/{locale}/"
+                );
+                L10nRegistry.registerSource(fileSrc);
                 aCompleteListener.onResult(null, Components.results.NS_OK);
             },
             shutdown: function(aCompleteListener) {
