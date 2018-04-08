@@ -5734,6 +5734,37 @@ void nsImapProtocol::ResetAuthMethods()
   m_failedAuthMethods = 0;
 }
 
+nsresult
+nsImapProtocol::SendDataParseIMAPandCheckForNewMail(const char *aData, const char *aCommand)
+{
+  nsresult rv;
+  bool isResend = false;
+  while (true)
+  {
+    // Send authentication string (true: suppress logging the string).
+    rv = SendData(aData, true);
+    if (NS_FAILED(rv))
+      break;
+    ParseIMAPandCheckForNewMail(aCommand);
+    if (!GetServerStateParser().WaitingForMoreClientInput())
+      break;
+
+    // The server is asking for the authentication string again. So we send
+    // the same string again although we know that it might be rejected again.
+    // We do that to get a firm authentication failure instead of a resend
+    // request. That keeps things in order before failing authentication and
+    // trying another method if capable.
+    if (isResend)
+    {
+      rv = NS_ERROR_FAILURE;
+      break;
+    }
+    isResend = true;
+  }
+
+  return rv;
+}
+
 nsresult nsImapProtocol::AuthLogin(const char *userName, const nsString &aPassword, eIMAPCapabilityFlag flag)
 {
   ProgressEventFunctionUsingName("imapStatusSendingAuthLogin");
@@ -5900,29 +5931,7 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsString &aPasswo
       PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s" CRLF, base64Str);
       PR_Free(base64Str);
 
-      bool isResend = false;
-      while (true)
-      {
-        // Send authentication string (true: suppress logging the string).
-        rv = SendData(m_dataOutputBuf, true);
-        if (NS_FAILED(rv))
-          break;
-        ParseIMAPandCheckForNewMail(currentCommand);
-        if (!GetServerStateParser().WaitingForMoreClientInput())
-          break;
-
-        // Server is asking for authentication string again. So we send the
-        // same string again although we already know that it will be
-        // rejected again. We do that to get a firm authentication failure
-        // instead of a resend request. That keeps things in order before
-        // failing "authenticate PLAIN" and trying another method if capable.
-        if (isResend)
-        {
-          rv = NS_ERROR_FAILURE;
-          break;
-        }
-        isResend = true;
-      }
+      rv = SendDataParseIMAPandCheckForNewMail(m_dataOutputBuf, currentCommand);
     } // if the last command succeeded
   } // if auth plain capability
   else if (flag & kHasAuthLoginCapability)
@@ -6002,9 +6011,8 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsString &aPasswo
     command += " AUTHENTICATE XOAUTH2 ";
     command += base64Str;
     command += CRLF;
-    rv = SendData(command.get(), true /* suppress logging */);
-    NS_ENSURE_SUCCESS(rv, rv);
-    ParseIMAPandCheckForNewMail();
+
+    rv = SendDataParseIMAPandCheckForNewMail(command.get(), nullptr);
   }
   else if (flag & kHasAuthNoneCapability)
   {

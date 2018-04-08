@@ -495,6 +495,7 @@ private:
   void Namespace();
   void InsecureLogin(const char *userName, const nsCString &password);
   nsresult AuthLogin(const char *userName, const nsString &password, eIMAPCapabilityFlag flag);
+  nsresult SendDataParseIMAPandCheckForNewMail(const char *data, const char *command);
   void ProcessAuthenticatedStateURL();
   void ProcessAfterAuthenticated();
   void ProcessSelectedStateURL();
