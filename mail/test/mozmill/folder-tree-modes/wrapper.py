@@ -14,5 +14,5 @@ def on_before_start(profile):
     initialized.
     """
 
-    profile.addon_manager.install_addons(
+    profile.addons.install(
         [os.path.join(os.path.dirname(__file__), "test-extension")])
