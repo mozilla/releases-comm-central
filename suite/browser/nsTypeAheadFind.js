@@ -159,7 +159,7 @@ typeAheadFind.prototype = {
       return true;
 
     // Don't start a find if the focus is on a form element.
-    if (element instanceof Ci.nsIDOMXULElement ||
+    if (ChromeUtils.getClassName(element) === "XULElement" ||
         element instanceof Ci.nsIDOMHTMLEmbedElement ||
         element instanceof Ci.nsIDOMHTMLObjectElement ||
         ChromeUtils.getClassName(element) === "HTMLSelectElement" ||
