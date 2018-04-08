@@ -1940,8 +1940,6 @@ var TabsInTitlebar = {
 
   uninit() {
     this._initialized = false;
-    removeEventListener("resolutionchange", this);
-    removeEventListener("resize", this);
     Services.prefs.removeObserver(this._drawInTitlePref, this);
     Services.prefs.removeObserver(this._autoHidePref, this);
     this._menuObserver.disconnect();
