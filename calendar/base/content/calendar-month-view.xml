@@ -82,6 +82,7 @@
             this.mOccurrence = val;
             if (cal.item.isEvent(val)) {
                 if (!val.startDate.isDate) {
+                    let icon = document.getAnonymousElementByAttribute(this, "anonid", "item-icon");
                     let label = document.getAnonymousElementByAttribute(this, "anonid", "item-label");
                     let formatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                               .getService(Components.interfaces.calIDateTimeFormatter);
@@ -95,14 +96,16 @@
                     let comp = endTime.compare(nextDay);
                     if (startTime.compare(parentDate) == -1) {
                         if (comp == 1) {
-                            label.value = "↔";
+                            icon.setAttribute("type", "continue");
                         } else if (comp == 0) {
-                            label.value = "↤";
+                            icon.setAttribute("type", "start");
                         } else {
-                            label.value = "⇥ " + formatter.formatTime(endTime);
+                            icon.setAttribute("type", "end");
+                            label.value = formatter.formatTime(endTime);
                         }
                     } else if (comp == 1) {
-                        label.value = "⇤ " + formatter.formatTime(startTime);
+                        icon.setAttribute("type", "start");
+                        label.value = formatter.formatTime(startTime);
                     } else {
                         label.value = formatter.formatTime(startTime);
                     }

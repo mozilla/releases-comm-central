@@ -6,26 +6,30 @@
  * Reminder icons (used from the event dialog, reminder dialog, views, ...)
  */
 .reminder-icon {
-    /* Initially hide the image, overwrite by setting a correct image region */
-    list-style-image: url(chrome://calendar-common/skin/alarm-icons.png);
-    -moz-image-region: rect(0px 1px 1px 0px);
+    -moz-context-properties: fill;
+    fill: currentColor;
 }
 
 .reminder-icon[value="DISPLAY"] {
-    -moz-image-region: rect(0px 30px 11px 17px);
+    list-style-image: url(chrome://calendar-common/skin/icons/alarm.svg);
 }
 
 .alarm-icons-box[suppressed="true"] > .reminder-icon[value="DISPLAY"] {
-    -moz-image-region: rect(0px 44px 11px 31px);
+    list-style-image: url(chrome://calendar-common/skin/icons/alarm-no.svg);
 }
 
 .reminder-icon[value="EMAIL"] {
-    -moz-image-region: rect(0px 16px 11px 0px);
+    list-style-image: url(chrome://calendar-common/skin/icons/email.svg);
 }
 
 .alarm-icons-box[flashing="true"] > .reminder-icon[value="DISPLAY"] {
-    list-style-image: url(chrome://calendar-common/skin/alarm-flashing.png);
-    -moz-image-region: auto;
+    background: red;
+    fill: white;
+}
+
+.alarm-icons-box > .reminder-icon {
+    width: 12px;
+    height: 12px;
 }
 
 /**

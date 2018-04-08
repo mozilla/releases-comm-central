@@ -81,46 +81,60 @@ window[systemcolors] {
 
 /* Core */
 calendar-category-box:not([categories]) {
-  display: none;
+    display: none;
+}
+
+calendar-category-box[categories] + hbox,
+.multiday-view-main-box .calendar-event-box-container[categories] > .calendar-event-details {
+    margin-inline-end: 8px;
 }
 
 .calendar-category-box-gradient {
     width: 7px;
     background-image: linear-gradient(rgba(255, 255, 255, 0.38), transparent) !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.38);
 }
 
 .calendar-item-image {
-    list-style-image: url(chrome://calendar-common/skin/day-box-item-image.png);
-    padding-top: 2px;
-    padding-bottom: 2px;
     margin-inline-end: 4px;
+    -moz-context-properties: fill;
+    fill: currentColor;
     display: none;
 }
 
+.multiday-view-main-box .calendar-item-image {
+  margin-top: 4px;
+}
+
 .calendar-item-image[itemType="todo"] {
-    -moz-image-region: rect(0px 11px 11px 0px);
+    list-style-image: url("chrome://calendar-common/skin/todo.svg");
     display: -moz-box;
 }
 
-.calendar-item-image[itemType="todo"][todoType="start"] {
-    -moz-image-region: rect(0px 18px 11px 0px);
-}
-
-.calendar-item-image[itemType="todo"][todoType="end"] {
-    -moz-image-region: rect(0px 36px 11px 18px);
-}
-
 .calendar-item-image[itemType="todo"][progress="completed"] {
-    -moz-image-region: rect(0px 47px 11px 36px);
+    list-style-image: url("chrome://calendar-common/skin/todo-complete.svg");
 }
 
-.calendar-item-image[itemType="todo"][progress="completed"][todoType="start"] {
-    -moz-image-region: rect(0px 54px 11px 36px);
+.calendar-item-image[type="start"] {
+    list-style-image: url("chrome://calendar-common/skin/event-start.svg");
+    display: -moz-box;
 }
 
-.calendar-item-image[itemType="todo"][progress="completed"][todoType="end"] {
-    -moz-image-region: rect(0px 72px 11px 54px);
+.calendar-item-image[type="continue"] {
+    list-style-image: url("chrome://calendar-common/skin/event-continue.svg");
+    display: -moz-box;
+}
+
+.calendar-item-image[type="end"] {
+    list-style-image: url("chrome://calendar-common/skin/event-end.svg");
+    display: -moz-box;
+}
+
+.calendar-item-image[type]:-moz-locale-dir(ltr) {
+  transform: rotate(-90deg);
+}
+
+.calendar-item-image[type]:-moz-locale-dir(rtl) {
+  transform: rotate(90deg);
 }
 
 /* Multiday view */
@@ -962,10 +976,11 @@ tab[calview] > .tab-middle {
 }
 
 .item-classification-box {
-    list-style-image: url("chrome://calendar-common/skin/classification.png");
     width: 11px;
     height: 11px;
     display: none;
+    -moz-context-properties: fill;
+    fill: currentColor;
 }
 
 .item-classification-box[classification="PUBLIC"] {
@@ -973,12 +988,12 @@ tab[calview] > .tab-middle {
 }
 
 .item-classification-box[classification="PRIVATE"] {
-    -moz-image-region: rect(0 22px 11px 11px);
+    list-style-image: url(chrome://calendar-common/skin/icons/private.svg);
     display: -moz-box;
 }
 
 .item-classification-box[classification="CONFIDENTIAL"] {
-    -moz-image-region: rect(0 11px 11px 0);
+    list-style-image: url(chrome://calendar-common/skin/icons/confidential.svg);
     display: -moz-box;
 }
 
