@@ -149,6 +149,7 @@ tasks:
                 cd /builds/worker/checkouts/gecko &&
                 ln -s /builds/worker/artifacts artifacts &&
                 ./mach --log-no-times taskgraph action-callback
+                --root=comm/taskcluster/ci
               else: >
                 cd /builds/worker/checkouts/gecko &&
                 ln -s /builds/worker/artifacts artifacts &&
