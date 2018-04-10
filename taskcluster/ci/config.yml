@@ -29,6 +29,9 @@ scriptworker:
     worker-types:
         'scriptworker-prov-v1/tb-depsigning':
             - 'project:comm:thunderbird:releng:signing:cert:dep-signing'
+        'scriptworker-prov-v1/tb-signing-v1':
+            - 'project:comm:thunderbird:releng:signing:cert:nightly-signing'
+            - 'project:comm:thunderbird:releng:signing:cert:release-signing'
         'scriptworker-prov-v1/tb-beetmover-dev':
             - 'project:comm:thunderbird:releng:beetmover:bucket:dep'
         'scriptworker-prov-v1/tb-balrog-dev':
