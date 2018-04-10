@@ -1,8 +1,9 @@
-. "$topsrcdir/build/mozconfig.comm-support"
+. $topsrcdir/build/mozconfig.comm-support
 
 TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
 
 . $TOOLTOOL_DIR/build/macosx/local-mozconfig.common
+. $TOOLTOOL_DIR/build/mozconfig.stylo
 . $TOOLTOOL_DIR/suite/config/mozconfigs/mozconfig.macosx.common
 . $TOOLTOOL_DIR/suite/config/mozconfigs/common
 
