@@ -56,16 +56,27 @@ imgroup[selected] {
   padding-bottom: 3px;
 }
 
-#chat-status-selector:hover > .statusMessageToolbarItem,
-#chat-status-selector > .statusMessageToolbarItem[editing],
-.statusMessageToolbarItem:focus {
-  border-color: #AAAAAA;
-  box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5),
-              0px 1px 0px rgba(255, 255, 255, 0.5) inset;
+#chat-status-selector:not(:-moz-lwtheme):hover > .statusMessageToolbarItem,
+#chat-status-selector:not(:-moz-lwtheme) > .statusMessageToolbarItem[editing],
+.statusMessageToolbarItem:not(:-moz-lwtheme):focus {
+  border-color: #aaa;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5),
+              0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
 
-#chat-status-selector > .statusMessageToolbarItem[editing] {
-  border-color: #888888;
+#chat-status-selector:not(:-moz-lwtheme) > .statusMessageToolbarItem[editing] {
+  border-color: #888;
+}
+
+#chat-status-selector:-moz-lwtheme:hover > .statusMessageToolbarItem,
+.statusMessageToolbarItem:-moz-lwtheme:focus,
+#chat-status-selector:-moz-lwtheme > .statusMessageToolbarItem[editing] {
+  text-shadow: none;
+}
+
+#chat-status-selector:-moz-lwtheme > .statusMessageToolbarItem[editing] {
+  box-shadow: 0 0 0 1px var(--toolbar-field-focus-border-color) inset,
+              0 0 0 1px var(--toolbar-field-focus-border-color);
 }
 
 /* Adaptation of #folderpane_splitter */

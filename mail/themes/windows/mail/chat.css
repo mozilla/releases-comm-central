@@ -154,16 +154,19 @@
     padding: 1px 3px;
   }
 
-  #chat-status-selector:hover > .statusMessageToolbarItem,
-  .statusMessageToolbarItem:focus {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-  }
-
   #chat-status-selector > .statusMessageToolbarItem[editing] {
     -moz-appearance: none;
     padding-inline-start: 2px;
     padding-inline-end: 2px;
+  }
+
+  #chat-status-selector:not(:-moz-lwtheme):hover > .statusMessageToolbarItem,
+  .statusMessageToolbarItem:not(:-moz-lwtheme):focus {
+    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
+                  hsla(210, 54%, 20%, .3);
+  }
+
+  #chat-status-selector:not(:-moz-lwtheme) > .statusMessageToolbarItem[editing] {
     border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
                   hsla(206, 100%, 50%, .65);
     background-color: -moz-field;

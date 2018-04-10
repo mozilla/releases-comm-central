@@ -672,11 +672,19 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   margin-inline-start: -1px;
   padding: 3px 5px 4px;
   border: 1px solid transparent;
+  background-clip: padding-box;
 }
 
 #chat-status-selector:hover > .statusMessageToolbarItem,
 .statusMessageToolbarItem:focus {
   border-color: ThreeDShadow;
+}
+
+#chat-status-selector:-moz-lwtheme:hover > .statusMessageToolbarItem,
+.statusMessageToolbarItem:-moz-lwtheme:focus {
+  background-color: var(--url-and-searchbar-background-color, hsla(0,0%,100%,.8));
+  color: var(--url-and-searchbar-color, black);
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
 }
 
 .statusMessageToolbarItem[statusType="offline"],
@@ -690,6 +698,12 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   padding-inline-end: 4px;
   border-color: ThreeDShadow;
   background-color: -moz-field;
+}
+
+#chat-status-selector:-moz-lwtheme > .statusMessageToolbarItem[editing] {
+  background-color: var(--lwt-toolbar-field-focus, var(--url-and-searchbar-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color, var(--url-and-searchbar-color, black));
+  border-color: var(--toolbar-field-focus-border-color);
 }
 
 .tabmail-tab[type="chat"] {
