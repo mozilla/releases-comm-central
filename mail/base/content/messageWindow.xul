@@ -72,6 +72,7 @@
     <stringbundle id="bundle_editContact"
                   src="chrome://messenger/locale/editContactOverlay.properties"/>
     <stringbundle id="charsetBundle" src="chrome://communicator/content/labelsencodings.properties"/>
+    <stringbundle id="bundle_read_smime" src="chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"/>
   </stringbundleset>
 
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
