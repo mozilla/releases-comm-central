@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Load spell-checker module to properly determine language strings
-ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function Startup()
 {
@@ -97,18 +97,16 @@ function NumberLocales_Load()
 
   let appLocale = Services.locale.getAppLocalesAsBCP47()[0];
   let rsLocale = osprefs.getRegionalPrefsLocales()[0];
-  let spellChecker = new InlineSpellChecker();
-  appLocale = spellChecker.getDictionaryDisplayName(appLocale);
-  rsLocale = spellChecker.getDictionaryDisplayName(rsLocale);
+  let names = Services.intl.getLocaleDisplayNames(undefined, [appLocale, rsLocale]);
 
   let appLocaleRadio = document.getElementById("appLocale");
   let rsLocaleRadio = document.getElementById("rsLocale");
   let prefutilitiesBundle = document.getElementById("bundle_prefutilities");
 
   let appLocaleLabel = prefutilitiesBundle.getFormattedString("appLocale.label",
-                                                              [appLocale]);
+                                                              [names[0]]);
   let rsLocaleLabel = prefutilitiesBundle.getFormattedString("rsLocale.label",
-                                                             [rsLocale]);
+                                                             [names[1]]);
   appLocaleRadio.setAttribute("label", appLocaleLabel);
   rsLocaleRadio.setAttribute("label", rsLocaleLabel);
   appLocaleRadio.accessKey = prefutilitiesBundle.getString("appLocale.accesskey");
