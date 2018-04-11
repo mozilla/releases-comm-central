@@ -127,7 +127,7 @@
             <label value="&authMethod.label;"
                    accesskey="&authMethod.accesskey;"
                    control="server.authMethod"/>
-            <!-- same in smtpEditOverlay.xul/js -->
+            <!-- same in SmtpServerEdit.xul/js -->
             <menulist id="server.authMethod"
                       wsm_persist="true"
                       preftype="int" type="number"
