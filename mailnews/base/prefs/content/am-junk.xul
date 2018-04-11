@@ -202,10 +202,11 @@
                   accesskey="&purge1.accesskey;"
                   oncommand="updateJunkRetention();"
                   label="&purge1.label;"/>
-        <textbox size="3"
-                 type="number"
+        <textbox type="number"
                  min="1"
                  id="server.purgeSpamInterval"
+                 class="value-input"
+                 hidespinbuttons="true"
                  genericattr="true"
                  pref="true"
                  wsm_persist="true"

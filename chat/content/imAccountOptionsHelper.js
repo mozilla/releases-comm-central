@@ -14,8 +14,10 @@ var accountOptionsHelper = {
     container.appendChild(label);
 
     let textbox = document.createElement("textbox");
-    if (aType)
+    if (aType) {
       textbox.setAttribute("type", aType);
+      textbox.setAttribute("hidespinbuttons", "true");
+    }
     textbox.setAttribute("value", aValue);
     textbox.setAttribute("id", aName);
     textbox.setAttribute("flex", "1");

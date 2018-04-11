@@ -329,8 +329,8 @@ type="bool"/>
             <hbox align="center" class="indent">
               <label id="useCacheBefore" control="cacheSize"
                      accesskey="&useCacheBefore.accesskey;" value="&useCacheBefore.label;"/>
-              <textbox id="cacheSize" type="number" size="4" max="1024"
-                       preference="browser.cache.disk.capacity"
+              <textbox id="cacheSize" type="number" hidespinbuttons="true" max="1024"
+                       preference="browser.cache.disk.capacity" class="size-input"
                        onsyncfrompreference="return gAdvancedPane.readCacheSize();"
                        onsynctopreference="return gAdvancedPane.writeCacheSize();"
                        aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
@@ -343,9 +343,9 @@ type="bool"/>
                           command="cmd_toggleCompact"
                           aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"
                           preference="mail.prompt_purge_threshhold"/>
-                <textbox id="offlineCompactFolderMin" size="4" value="20"
+                <textbox id="offlineCompactFolderMin" hidespinbuttons="true" value="20"
                          type="number" min="1" max="2048" increment="10"
-                         preference="mail.purge_threshhold_mb"
+                         preference="mail.purge_threshhold_mb" class="size-input"
                          aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>
                 <label id="compactFolderMB" value="&offlineCompactFoldersMB.label;"/>
             </hbox>

@@ -406,3 +406,12 @@ a {
 #provider-account-settings {
   -moz-box-flex: 0;
 }
+
+/* Input field sizes */
+.size-input {
+  width: calc(4ch + 24px); /* 4 chars + 12px padding on both sides */
+}
+
+.proxy-port-input {
+  width: calc(5ch + 24px); /* 5 chars + 12px padding on both sides */
+}

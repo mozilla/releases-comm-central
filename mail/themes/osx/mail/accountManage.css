@@ -106,3 +106,16 @@ dialogheader {
 .dialogheader-description {
   font-weight: bold !important;
 }
+
+/* Input field sizes */
+.value-input {
+  width: 5ch;
+}
+
+.number-input {
+  width: 6ch;
+}
+
+.port-input {
+  width: 7ch;
+}
