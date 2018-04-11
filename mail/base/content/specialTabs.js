@@ -575,9 +575,7 @@ var specialTabs = {
     // window.
     // Wire up session and global history before any possible
     // progress notifications for back/forward button updating
-    browser.webNavigation.sessionHistory =
-      Cc["@mozilla.org/browser/shistory;1"]
-        .createInstance(Ci.nsISHistory);
+    browser.docShell.initSessionHistory();
     Services.obs.addObserver(browser, "browser:purge-session-history");
 
     // remove the disablehistory attribute so the browser cleans up, as
