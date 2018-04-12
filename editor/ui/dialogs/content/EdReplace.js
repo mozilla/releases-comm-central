@@ -252,7 +252,7 @@ function onReplaceAll()
 
     // We'll need a range for the whole document:
     var wholeDocRange = gEditor.document.createRange();
-    var rootNode = gEditor.rootElement.QueryInterface(Ci.nsIDOMNode);
+    var rootNode = gEditor.rootElement;
     wholeDocRange.selectNodeContents(rootNode);
 
     // And start and end points:
