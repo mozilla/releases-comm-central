@@ -170,6 +170,7 @@
 
   <!-- Menu -->
   <toolbox id="viewSource-toolbox">
+    <toolbar type="menubar">
     <menubar id="viewSource-main-menubar">
 
       <menu id="menu_file" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
@@ -288,6 +289,7 @@
       </menu>
 #endif
     </menubar>
+    </toolbar>
   </toolbox>
 
   <vbox id="appcontent" flex="1">

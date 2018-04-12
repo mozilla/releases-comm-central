@@ -266,6 +266,7 @@
            defaultlabelalign="end">
 
     <!-- Menubar -->
+    <toolbar type="menubar">
     <menubar id="event-menubar">
 
       <!-- Item menu -->
@@ -557,6 +558,7 @@
         </menupopup>
       </menu>
     </menubar>
+    </toolbar>
 
     <!-- toolbarpalette items are added with an overlay -->
     <toolbarpalette id="event-toolbarpalette"/>

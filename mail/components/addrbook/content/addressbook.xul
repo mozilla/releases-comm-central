@@ -300,7 +300,7 @@
            context="toolbar-context-menu" mode="icons">
 
    <toolbaritem id="menubar-items" align="center">
-     <menubar id="mail-menubar" style="border:0px;padding:0px;margin:0px;-moz-appearance:none">
+     <menubar id="mail-menubar">
         <menu id="menu_File" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
 #ifdef XP_MACOSX
             <menupopup id="menu_FilePopup" onpopupshowing="onOSXFileMenuInit();">

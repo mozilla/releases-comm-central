@@ -30,7 +30,7 @@
            insertbefore="tabs-toolbar"
            prependmenuitem="true">
     <toolbaritem id="menubar-items" align="center">
-      <menubar id="mail-menubar" style="border:0px;padding:0px;margin:0px;-moz-appearance:none">
+      <menubar id="mail-menubar">
         <!-- File -->
         <menu id="menu_File"
               label="&fileMenu.label;"
