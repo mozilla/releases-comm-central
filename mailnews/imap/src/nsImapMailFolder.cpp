@@ -7418,8 +7418,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
   return rv;
 }
 
-void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove,
-                                            bool aSetOffline)
+void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove)
 {
 
   GetDatabase();
@@ -7520,14 +7519,8 @@ void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove,
                                                   messageSize);
         mDatabase->SetUint64AttributeOnPendingHdr(msgDBHdr, "msgOffset",
                                                   messageOffset);
-        // Not always setting "flags" attribute to nsMsgMessageFlags::Offline
-        // here because it can cause missing parts (inline or attachments)
-        // when messages are moved or copied manually or by filter action.
-        // However, when a message is copied from file to mailbox, it should
-        // still be set.
-        if (aSetOffline)
-          mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "flags",
-                                                    nsMsgMessageFlags::Offline);
+        mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "flags",
+                                                  nsMsgMessageFlags::Offline);
         mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
                                             storeToken.get());
       }
@@ -8435,9 +8428,7 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
     NS_ENSURE_SUCCESS(rv, rv);
     messages->AppendElement(fakeHdr);
 
-    // We are copying from a file to offline store so set offline flag.
-    SetPendingAttributes(messages, false, true);
-
+    SetPendingAttributes(messages, false);
     // Gloda needs this notification to index the fake message.
     nsCOMPtr<nsIMsgFolderNotificationService>
       notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
