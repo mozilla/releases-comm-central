@@ -913,7 +913,6 @@ var gApplicationsPane = {
 
   QueryInterface: function(aIID) {
     if (aIID.equals(Ci.nsIObserver) ||
-        aIID.equals(Ci.nsIDOMEventListener ||
         aIID.equals(Ci.nsISupports)))
       return this;
 
@@ -944,7 +943,7 @@ var gApplicationsPane = {
 
 
   //**************************************************************************//
-  // nsIDOMEventListener
+  // EventListener
 
   handleEvent: function(aEvent) {
     if (aEvent.type == "unload")

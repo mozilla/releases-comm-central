@@ -10,8 +10,7 @@
 
   <binding id="browser" role="outerdoc">
     <implementation type="application/javascript"
-                    implements="nsIDOMEventListener,
-                                nsIWebProgressListener, nsIController,
+                    implements="nsIWebProgressListener, nsIController,
                                 nsISelectionListener, nsIObserver">
       <property name="autoscrollEnabled">
         <getter>

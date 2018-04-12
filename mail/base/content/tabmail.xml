@@ -1718,7 +1718,7 @@
       </xul:vbox>
     </content>
 
-    <implementation implements="nsITimerCallback, nsIDOMEventListener">
+    <implementation implements="nsITimerCallback">
       <constructor>
         <![CDATA[
           ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -2408,7 +2408,7 @@
 
   <binding id="tabmail-alltabs-popup"
            extends="chrome://global/content/bindings/popup.xml#popup">
-    <implementation implements="nsIDOMEventListener">
+    <implementation>
       <field name="_xulWindow">
         null
       </field>

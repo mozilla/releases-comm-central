@@ -2721,7 +2721,7 @@
       </xul:menu>
     </content>
 
-    <implementation implements="nsIDOMEventListener">
+    <implementation>
       <constructor><![CDATA[
         this._parentMenupopup.addEventListener("DOMMenuItemActive", this);
         this._parentMenupopup.addEventListener("popuphidden", this);

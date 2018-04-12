@@ -56,7 +56,7 @@
         <xul:vbox class="tooltipBuddies" anonid="buddies"/>
       </xul:vbox>
     </content>
-    <implementation implements="nsIObserver, nsIDOMEventListener">
+    <implementation implements="nsIObserver">
      <property name="bundle">
        <getter>
          <![CDATA[
