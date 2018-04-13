@@ -1,3 +1,3 @@
 . "$topsrcdir/build/mozconfig.comm-support"
-. "$commtopsrcdir/mail/config/mozconfigs/l10n-common"
-. "$commtopsrcdir/mail/config/mozconfigs/win64/common-win64"
+. "$topsrcdir/comm/mail/config/mozconfigs/l10n-common"
+. "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"

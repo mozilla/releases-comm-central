@@ -2,8 +2,8 @@
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
-. "$commtopsrcdir/mail/config/mozconfigs/common"
-. "$commtopsrcdir/mail/config/mozconfigs/win64/common-win64"
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
+. "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
 
 ac_add_options --enable-debug
 
@@ -18,7 +18,7 @@ MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_ADDON_SIGNING=0
 
-. "$commtopsrcdir/build/mozconfig.sccache"
+. "$topsrcdir/comm/build/mozconfig.sccache"
 
 . $topsrcdir/build/win64/mozconfig.vs-latest
 

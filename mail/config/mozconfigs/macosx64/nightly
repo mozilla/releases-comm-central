@@ -1,7 +1,7 @@
 . "$topsrcdir/build/mozconfig.comm-support"
 . "$topsrcdir/build/macosx/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
-. "$commtopsrcdir/mail/config/mozconfigs/common"
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --disable-install-strip
@@ -23,7 +23,7 @@ MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_ADDON_SIGNING=0
 
-. "$commtopsrcdir/build/mozconfig.sccache"
+. "$topsrcdir/comm/build/mozconfig.sccache"
 
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1419472
 ac_add_options --disable-clang-plugin

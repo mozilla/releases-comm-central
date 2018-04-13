@@ -1,7 +1,7 @@
 . "$topsrcdir/build/mozconfig.comm-support"
 . "$topsrcdir/build/macosx/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
-. "$commtopsrcdir/mail/config/mozconfigs/common"
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-official-branding

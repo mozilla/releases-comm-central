@@ -1,5 +1,5 @@
 . "$topsrcdir/build/mozconfig.comm-support"
-. "$commtopsrcdir/mail/config/mozconfigs/l10n-common"
+. "$topsrcdir/comm/mail/config/mozconfigs/l10n-common"
 
 if test `uname -m` = "x86_64"; then
   ac_add_options --target=i686-pc-linux
