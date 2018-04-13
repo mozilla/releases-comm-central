@@ -26,6 +26,8 @@ job-template:
     locales-file: comm/mail/locales/all-locales
     locales-per-chunk: 5
     run-on-projects: ['release']
+    attributes:
+        shipping_phase: promote
     ignore-locales:
         by-build-platform:
             # OSX has a special locale for japanese
