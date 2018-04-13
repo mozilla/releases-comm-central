@@ -3871,7 +3871,8 @@ nsImapMailFolder::ReplayOfflineMoveCopy(nsMsgKey *aMsgKeys, uint32_t aNumKeys,
             }
           }
         }
-        destImapFolder->SetPendingAttributes(messages, isMove);
+        // 3rd parameter: Set offline flag.
+        destImapFolder->SetPendingAttributes(messages, isMove, true);
       }
     }
     // if we can't get the dst folder db, we should still try to playback
@@ -7418,7 +7419,8 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
   return rv;
 }
 
-void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove)
+void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove,
+                                            bool aSetOffline)
 {
 
   GetDatabase();
@@ -7519,8 +7521,12 @@ void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove)
                                                   messageSize);
         mDatabase->SetUint64AttributeOnPendingHdr(msgDBHdr, "msgOffset",
                                                   messageOffset);
-        mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "flags",
-                                                  nsMsgMessageFlags::Offline);
+        // Not always setting "flags" attribute to nsMsgMessageFlags::Offline
+        // here because it can cause missing parts (inline or attachments)
+        // when messages are moved or copied manually or by filter action.
+        if (aSetOffline)
+          mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "flags",
+                                                    nsMsgMessageFlags::Offline);
         mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
                                             storeToken.get());
       }
@@ -7641,7 +7647,8 @@ nsImapMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv,rv);
 
-    SetPendingAttributes(sortedMsgs, isMove);
+    // 3rd parameter: Do not set offline flag.
+    SetPendingAttributes(sortedMsgs, isMove, false);
 
     // if the folders aren't on the same server, do a stream base copy
     if (!sameServer)
@@ -8088,7 +8095,7 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file,
           // clear the offline message flag.
           msgToReplace->SetOfflineMessageSize(0);
           messages->AppendElement(msgToReplace);
-          SetPendingAttributes(messages, false);
+          SetPendingAttributes(messages, false, false);
         }
     }
 
@@ -8428,7 +8435,9 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
     NS_ENSURE_SUCCESS(rv, rv);
     messages->AppendElement(fakeHdr);
 
-    SetPendingAttributes(messages, false);
+    // We are copying from a file to offline store so set offline flag.
+    SetPendingAttributes(messages, false, true);
+
     // Gloda needs this notification to index the fake message.
     nsCOMPtr<nsIMsgFolderNotificationService>
       notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));

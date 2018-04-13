@@ -435,7 +435,7 @@ protected:
                                 bool isMove,
                                 nsIMsgWindow *msgWindow,
                                 nsIMsgCopyServiceListener* listener);
-  void SetPendingAttributes(nsIArray* messages, bool aIsMove);
+  void SetPendingAttributes(nsIArray* messages, bool aIsMove, bool aSetOffline);
 
   nsresult CopyOfflineMsgBody(nsIMsgFolder *srcFolder, nsIMsgDBHdr *destHdr,
                               nsIMsgDBHdr *origHdr, nsIInputStream *inputStream,
