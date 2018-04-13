@@ -913,7 +913,7 @@ var gApplicationsPane = {
 
   QueryInterface: function(aIID) {
     if (aIID.equals(Ci.nsIObserver) ||
-        aIID.equals(Ci.nsISupports)))
+        aIID.equals(Ci.nsISupports))
       return this;
 
     throw Cr.NS_ERROR_NO_INTERFACE;
