@@ -1,2 +1,1 @@
-. "$topsrcdir/build/mozconfig.comm-support"
 . "$topsrcdir/comm/mail/config/mozconfigs/l10n-common"

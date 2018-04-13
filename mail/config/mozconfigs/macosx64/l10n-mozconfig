@@ -1,4 +1,3 @@
-. "$topsrcdir/build/mozconfig.comm-support"
 . "$topsrcdir/comm/mail/config/mozconfigs/l10n-common"
 
 if test `uname -s` = "Linux"; then

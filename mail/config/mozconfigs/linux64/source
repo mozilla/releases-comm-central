@@ -1,4 +1,3 @@
-. "$topsrcdir/build/mozconfig.comm-support"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
 
 # The source "build" only needs a mozconfig because we use the build system as
