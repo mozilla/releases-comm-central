@@ -27,6 +27,16 @@ try:
 release-promotion:
     products:
         - 'thunderbird'
+    flavors:
+        promote_thunderbird:
+            product: thunderbird
+            target-tasks-method: promote_desktop
+        push_thunderbird:
+            product: thunderbird
+            target-tasks-method: push_desktop
+        ship_thunderbird:
+            product: thunderbird
+            target-tasks-method: ship_desktop
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
