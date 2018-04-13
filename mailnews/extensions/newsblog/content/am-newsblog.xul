@@ -78,10 +78,9 @@
                   oncommand="setPrefs(this)"/>
         <textbox id="updateValue"
                  type="number"
-                 class="value-input"
+                 size="3"
                  min="1"
                  increment="1"
-                 hidespinbuttons="true"
                  aria-labelledby="updateEnabled updateValue biffMinutes biffDays"
                  onchange="setPrefs(this)"/>
         <radiogroup id="biffUnits"

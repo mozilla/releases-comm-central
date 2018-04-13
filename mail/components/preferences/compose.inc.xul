@@ -75,7 +75,6 @@
               <checkbox id="autoSave" label="&autoSave.label;" preference="mail.compose.autosave"
                         accesskey="&autoSave.accesskey;" command="cmd_toggleAutosave"/>
               <textbox id="autoSaveInterval"
-                       class="size-input"  hidespinbuttons="true"
                        size="2" type="number" min="1" max="35790"
                        preference="mail.compose.autosaveinterval"
                        aria-labelledby="autoSave autoSaveInterval autoSaveEnd"/>

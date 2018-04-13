@@ -57,11 +57,10 @@
                    control="smtp.port"/>
             <hbox align="center">
               <textbox id="smtp.port"
-                       style="width: 6ch"
                        type="number"
                        min="0"
                        max="65535"
-                       hidespinbuttons="true"
+                       size="5"
                        preftype="int"
                        prefstring="mail.smtpserver.%serverkey%.port"/>
               <label value="&serverPortDefault.label;"/>

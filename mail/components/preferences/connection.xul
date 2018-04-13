@@ -76,8 +76,7 @@
                 <textbox id="networkProxyHTTP" flex="1" class="uri-element"
                          preference="network.proxy.http" onsyncfrompreference="return gConnectionsDialog.readHTTPProxyServer();"/>
                 <label value="&HTTPport.label;" accesskey="&HTTPport.accesskey;" control="networkProxyHTTP_Port"/>
-                <textbox id="networkProxyHTTP_Port" class="proxy-port-input"
-                         type="number" max="65535" hidespinbuttons="true"
+                <textbox id="networkProxyHTTP_Port" type="number" max="65535" size="5"
                          preference="network.proxy.http_port"
                          onsyncfrompreference="return gConnectionsDialog.readHTTPProxyPort();"/>
               </hbox>
@@ -99,8 +98,7 @@
                          preference="network.proxy.ssl"
                          onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', false);"/>
                 <label value="&SSLport.label;" accesskey="&SSLport.accesskey;" control="networkProxySSL_Port"/>
-                <textbox id="networkProxySSL_Port" class="proxy-port-input"
-                         type="number" max="65535" hidespinbuttons="true"
+                <textbox id="networkProxySSL_Port" type="number" max="65535" size="5"
                          preference="network.proxy.ssl_port"
                          onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', true);"/>
               </hbox>
@@ -114,8 +112,7 @@
                          preference="network.proxy.socks"
                          onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', false);"/>
                 <label value="&SOCKSport.label;" accesskey="&SOCKSport.accesskey;" control="networkProxySOCKS_Port"/>
-                <textbox id="networkProxySOCKS_Port" class="proxy-port-input"
-                         type="number" max="65535" hidespinbuttons="true"
+                <textbox id="networkProxySOCKS_Port" type="number" max="65535" size="5"
                          preference="network.proxy.socks_port"
                          onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', true);"/>
               </hbox>

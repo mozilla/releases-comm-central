@@ -68,8 +68,7 @@
                      accesskey="&port.accesskey;" control="server.port"/>
               <label id="fixedServerPort" hidefor="movemail"
                      collapsed="true" use="server.port"/>
-              <textbox wsm_persist="true" id="server.port"
-                       class="value-input" hidespinbuttons="true"
+              <textbox wsm_persist="true" size="3" id="server.port"
                        preftype="int" hidefor="movemail"
                        prefstring="mail.server.%serverkey%.port"
                        type="number" min="1" max="65535" increment="1"/>
@@ -170,9 +169,8 @@
                   prefstring="mail.server.%serverkey%.check_new_mail"/>
         <textbox wsm_persist="true"
                  id="server.biffMinutes"
-                 class="value-input"
                  type="number"
-                 hidespinbuttons="true"
+                 size="3"
                  min="1"
                  increment="1"
                  aria-labelledby="server.doBiff server.biffMinutes biffEnd"
@@ -220,9 +218,9 @@
                   accesskey="&deleteByAgeFromServer.accesskey;"
                   prefattribute="value"
                   prefstring="mail.server.%serverkey%.delete_by_age_from_server"/>
-        <textbox wsm_persist="true" id="pop3.numDaysToLeaveOnServer" class="value-input"
+        <textbox wsm_persist="true" id="pop3.numDaysToLeaveOnServer" size="3"
                  aria-labelledby="pop3.deleteByAgeFromServer pop3.numDaysToLeaveOnServer daysEnd"
-                 preftype="int" type="number" min="1" increment="1" hidespinbuttons="true"
+                 preftype="int" type="number" min="1" increment="1"
                  prefstring="mail.server.%serverkey%.num_days_to_leave_on_server"/>
         <label id="daysEnd" control="pop3.numDaysToLeaveOnServer" value="&daysEnd.label;"/>
       </hbox>
@@ -341,9 +339,9 @@
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.notify.on"/>
       <textbox wsm_persist="true" id="nntp.maxArticles"
-               type="number" class="number-input" min="1" increment="10"
+               type="number" size="4" min="1" increment="10"
                aria-labelledby="nntp.notifyOn nntp.maxArticles maxMessagesEnd"
-               preftype="int" hidespinbuttons="true"
+               preftype="int"
                prefstring="mail.server.%serverkey%.max_articles"/>
       <label control="nntp.maxArticles" value="&maxMessagesEnd.label;" id="maxMessagesEnd"/>
     </hbox>
