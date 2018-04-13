@@ -7,6 +7,7 @@
   ======================================================================= */
 
 @import url("chrome://messenger/skin/");
+@import url("chrome://messenger/content/bindings.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 

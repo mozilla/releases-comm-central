@@ -35,6 +35,7 @@ classic.jar:
   skin/classic/messenger/messageIcons.css                        (mail/messageIcons.css)
   skin/classic/messenger/messageQuotes.css                       (mail/messageQuotes.css)
   skin/classic/messenger/messageWindow.css                       (mail/messageWindow.css)
+  skin/classic/messenger/numberbox.css                           (mail/numberbox.css)
   skin/classic/messenger/attachmentList.css                      (mail/attachmentList.css)
   skin/classic/messenger/msgSelectOffline.css                    (mail/msgSelectOffline.css)
   skin/classic/messenger/mailWindow1.css                         (mail/mailWindow1.css)

@@ -48,6 +48,10 @@ timepicker {
   -moz-binding: url('chrome://messenger/content/datetimepicker.xml#timepicker');
 }
 
+textbox[type="number"] {
+  -moz-binding: url('chrome://messenger/content/numberbox.xml#numberbox');
+}
+
 spinbuttons {
   -moz-binding: url("chrome://messenger/content/spinbuttons.xml#spinbuttons");
 }

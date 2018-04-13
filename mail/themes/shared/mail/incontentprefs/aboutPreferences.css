@@ -190,6 +190,42 @@ radio[pane=paneAccount] > .paneButtonIcon {
   list-style-image: url("chrome://messenger/skin/shared/in-content/account.svg");
 }
 
+.spinbuttons-button {
+  min-height: initial;
+  margin-inline-start: 10px !important;
+  margin-inline-end: 2px !important;
+}
+
+.spinbuttons-up {
+  margin-top: 2px !important;
+  border-radius: 1px 1px 0 0;
+}
+
+.spinbuttons-down  {
+  margin-bottom: 2px !important;
+  border-radius: 0 0 1px 1px;
+}
+
+.spinbuttons-button > .button-box {
+  padding: 1px 5px 2px !important;
+}
+
+.spinbuttons-up > .button-box > .button-icon {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
+}
+
+.spinbuttons-up[disabled="true"] > .button-box > .button-icon {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up-dim.png");
+}
+
+.spinbuttons-down > .button-box > .button-icon {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down.png");
+}
+
+.spinbuttons-down[disabled="true"] > .button-box > .button-icon {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down-dim.png");
+}
+
 /* Applications Pane Styles */
 
 #applications-content {
