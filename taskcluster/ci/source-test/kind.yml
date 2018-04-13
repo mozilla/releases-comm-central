@@ -12,4 +12,3 @@ transforms:
 
 jobs-from:
     - mozlint.yml
-    - python.yml
