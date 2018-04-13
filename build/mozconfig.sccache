@@ -4,8 +4,6 @@
 
 # Setup for build cache
 
-if [ "$MOZ_IS_COMM_TOPDIR" != "1" ]; then
-
 # Avoid duplication if the file happens to be included twice.
 if test -z "$NO_CACHE" -a -z "$SCCACHE_DISABLE"; then
 
@@ -57,5 +55,3 @@ if test -n "$bucket"; then
 fi
 
 fi # NO_CACHE && SCCACHE_DISABLE
-
-fi # MOZ_IS_COMM_TOPDIR
