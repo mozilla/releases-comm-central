@@ -1,77 +1,46 @@
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/extensionSupport.jsm");
+
+var addonID;
 
 function install() {}
 
 function uninstall() {}
 
-var gServerStarted = false;
-
 function startup(data, reason) {
-  // Wait for any new windows to open.
-  Services.wm.addListener(WindowListener);
-
-  // Get the list of windows already open.
-  let windows = Services.wm.getEnumerator(null);
-  while (windows.hasMoreElements()) {
-    let domWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
-
-    if (domWindow.document.location.href === "about:blank") {
-      // A window is available, but it's not yet fully loaded.
-      // Add an event listener to fire when the window is completely loaded.
-      domWindow.addEventListener("load", function() {
-        setupServer(domWindow);
-      }, { once: true });
-    }
-    else {
-      setupServer(domWindow);
-    }
-  }
+  addonID = data.id;
+  ExtensionSupport.registerWindowListener(
+    addonID,
+    {
+      chromeURLs: [ "chrome://messenger/content/messenger.xul" ],
+      onLoadWindow: setupServer
+    });
 }
-
 
 function shutdown(data, reason) {
-  // Just ignore shutdowns.
+  // This should have already been unregistered in setupServer().
+  // We do it again, just in case something went wrong.
+  ExtensionSupport.unregisterWindowListener(data.id);
 }
-
 
 function setupServer(domWindow) {
-  switch (domWindow.document.location.href) {
-    case "chrome://messenger/content/messenger.xul":
-      loadScript("chrome://jsbridge/content/overlay.js", domWindow);
+  loadScript("chrome://jsbridge/content/overlay.js", domWindow);
 
-      // The server used to be started via the command line (cmdarg.js) which
-      // doesn't work for a bootstrapped add-on, so let's do it here.
-      let server = {};
-      ChromeUtils.import('chrome://jsbridge/content/modules/server.js', server);
-      if (!gServerStarted) {
-        console.log("=== JS Bridge: Starting server");
-        server.startServer(24242);
-        gServerStarted = true;
-      }
-      break;
-  }
+  // The server used to be started via the command line (cmdarg.js) which
+  // doesn't work for a bootstrapped add-on, so let's do it here.
+  let server = {};
+  ChromeUtils.import('chrome://jsbridge/content/modules/server.js', server);
+  console.log("=== JS Bridge: Starting server");
+  server.startServer(24242);
+
+  // We only needed to start the server once, so unregister the listener.
+  ExtensionSupport.unregisterWindowListener(addonID);
 }
-
-
-var WindowListener = {
-  tearDownUI: function(window) {
-  },
-
-  // nsIWindowMediatorListener functions
-  onOpenWindow: function(xulWindow) {
-    // A new window has opened.
-    let domWindow = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindow);
-    // Wait for it to finish loading.
-    domWindow.addEventListener("load", function() {
-      setupServer(domWindow);
-    }, { once: true });
-  },
-
-  onCloseWindow: function(xulWindow) {},
-
-  onWindowTitleChange: function(xulWindow, newTitle) {}
-};
-
 
 function loadScript(url, targetWindow) {
   let loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);

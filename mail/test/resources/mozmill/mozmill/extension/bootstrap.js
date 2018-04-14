@@ -1,3 +1,9 @@
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+ChromeUtils.import("resource:///modules/extensionSupport.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function install() {}
@@ -7,26 +13,12 @@ function uninstall() {}
 function startup(data, reason) {
   loadDefaultPrefs();
 
-  // Wait for any new windows to open.
-  Services.wm.addListener(WindowListener);
-
-  // Get the list of windows already open.
-  let windows = Services.wm.getEnumerator(null);
-  while (windows.hasMoreElements()) {
-    let domWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
-
-    if (domWindow.document.location.href === "about:blank") {
-      // A window is available, but it's not yet fully loaded.
-      // Add an event listener to fire when the window is completely loaded.
-
-      domWindow.addEventListener("load", function() {
-        setupUI(domWindow);
-      }, { once: true });
-    }
-    else {
-      setupUI(domWindow);
-    }
-  }
+  ExtensionSupport.registerWindowListener(
+    data.id,
+    {
+      chromeURLs: [ "chrome://messenger/content/messenger.xul" ],
+      onLoadWindow: setupUI
+    });
 }
 
 function loadDefaultPrefs() {
@@ -38,7 +30,7 @@ function loadDefaultPrefs() {
 }
 
 function shutdown(data, reason) {
-  // Just ignore shutdowns.
+  ExtensionSupport.unregisterWindowListener(data.id);
 }
 
 
@@ -55,34 +47,9 @@ function setupUI(domWindow) {
   }
 
   console.log("=== Mozmill: Seen window " + domWindow.document.location.href);
-  switch (document.location.href) {
-    case "chrome://messenger/content/messenger.xul":
-      document.getElementById("taskPopup").appendChild(createMozmillMenu());
-      loadScript("chrome://mozmill/content/overlay.js", domWindow);
-      break;
-  }
+  document.getElementById("taskPopup").appendChild(createMozmillMenu());
+  loadScript("chrome://mozmill/content/overlay.js", domWindow);
 }
-
-
-var WindowListener = {
-  tearDownUI: function(window) {
-  },
-
-  // nsIWindowMediatorListener functions
-  onOpenWindow: function(xulWindow) {
-    // A new window has opened.
-    let domWindow = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindow);
-    // Wait for it to finish loading.
-    domWindow.addEventListener("load", function listener() {
-      setupUI(domWindow);
-    }, { once: true });
-  },
-
-  onCloseWindow: function(xulWindow) {},
-
-  onWindowTitleChange: function(xulWindow, newTitle) {}
-};
-
 
 function loadScript(url, targetWindow) {
   let loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);

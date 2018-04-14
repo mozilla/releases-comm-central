@@ -415,7 +415,7 @@ var WindowWatcher = {
   },
 
   /**
-   * This notification gets called when windows tell the widnow mediator when
+   * This notification gets called when windows tell the window mediator when
    *  the window title gets changed.  In theory, we could use this to be
    *  event driven with less polling (effort), but it is not to be.
    */
