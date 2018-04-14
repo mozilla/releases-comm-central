@@ -27,9 +27,9 @@
 <!ENTITY useHtml.accesskey                    "C">
 <!ENTITY autoQuote.label                      "Automatically quote the original message when replying">
 <!ENTITY autoQuote.accesskey                  "m">
-<!-- LOCALIZATION NOTE (then.label): This will concatenate with the 4 strings that follow. -->
-<!ENTITY then.label                           "Then,">
-<!ENTITY then.accesskey                       "T">
+<!-- LOCALIZATION NOTE (quoting.label): This will concatenate with the 4 strings that follow. -->
+<!ENTITY quoting.label                        "When quoting,">
+<!ENTITY quoting.accesskey                    "q">
 <!ENTITY aboveQuote.label                     "start my reply above the quote">
 <!ENTITY belowQuote.label                     "start my reply below the quote">
 <!ENTITY selectAndQuote.label                 "select the quote">

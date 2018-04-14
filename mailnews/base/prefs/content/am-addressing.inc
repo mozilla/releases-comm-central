@@ -18,12 +18,12 @@
 
         <hbox align="center">
           <checkbox wsm_persist="true" id="identity.autoQuote" label="&autoQuote.label;"
-                    oncommand="quoteEnabling();" accesskey="&autoQuote.accesskey;"
+                    accesskey="&autoQuote.accesskey;"
                     pref="true" preftype="bool" prefattribute="value"
                     prefstring="mail.identity.%identitykey%.auto_quote"/>
         </hbox>
-        <hbox class="indent" align="center" id="thenBox">
-          <label value="&then.label;" accesskey="&then.accesskey;" control="identity.replyOnTop"/>
+        <hbox align="center">
+          <label value="&quoting.label;" accesskey="&quoting.accesskey;" control="identity.replyOnTop"/>
           <menulist wsm_persist="true" id="identity.replyOnTop" oncommand="quoteEnabling();"
                     pref="true" preftype="int" prefattribute="value"
                     prefstring="mail.identity.%identitykey%.reply_on_top">
