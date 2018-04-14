@@ -162,7 +162,6 @@ var editContactInlineUI = {
     if (inMailList)
       document.getElementById("contactMoveDisabledText").collapsed = false;
 
-    this.panel.boxObject.setConsumeRollupEvent(PopupBoxObject.ROLLUP_CONSUME);
     this.panel.openPopup(aAnchorElement, aPosition, -1, -1);
   },
 
