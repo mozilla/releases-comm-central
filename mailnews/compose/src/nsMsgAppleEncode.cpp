@@ -17,6 +17,7 @@
 
 #include "nscore.h"
 #include "nsString.h"
+#include "mozilla/ArrayUtils.h"
 #include "nsMimeTypes.h"
 #include "prprf.h"
 #include "nsServiceManagerUtils.h"
