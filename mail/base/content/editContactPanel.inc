@@ -7,6 +7,17 @@
         orient="vertical"
         ignorekeys="true"
         hidden="true"
+#if 0
+        # consumeoutsideclicks=true is here so clicking onto the star icon next
+        # to an address (onClickEmailStar()) for a second time will close the
+        # panel due to the outside click and not trigger opening the panel
+        # again since the panel itself consumes the click.
+        # That's the theory. In practice we haven't seen any platform where
+        # this would be necessary, so we leave it as a reference to the
+        # quirky old past where setConsumeRollupEvent(PopupBoxObject.ROLLUP_CONSUME)
+        # was used.
+        consumeoutsideclicks="true"
+#endif
         aria-labelledby="editContactPanelTitle"
         onpopuphidden="editContactInlineUI.onPopupHidden(event);"
         onpopupshown="editContactInlineUI.onPopupShown(event);"
