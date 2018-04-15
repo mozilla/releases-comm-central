@@ -2710,6 +2710,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
               m_runningUrl->GetMimePartSelectorDetected(&mimePartSelectorDetected);
               m_runningUrl->GetFetchPartsOnDemand(&urlOKToFetchByParts);
 
+#ifdef PR_LOGGING
               {
                 nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_runningUrl);
                 nsAutoCString urlSpec;
@@ -2720,6 +2721,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
                         urlSpec.get(), urlOKToFetchByParts, allowedToBreakApart,
                         GetShouldFetchAllParts()));
               }
+#endif
 
               if (urlOKToFetchByParts &&
                   allowedToBreakApart &&
@@ -4042,11 +4044,13 @@ void nsImapProtocol::NormalMessageEndDownload()
     if (m_fetchingWholeMessage)
     {
       updatedMessageSize = m_bytesToChannel;
+#ifdef PR_LOGGING
       if (m_bytesToChannel != GetServerStateParser().SizeOfMostRecentMessage()) {
         MOZ_LOG(IMAP, LogLevel::Debug, ("STREAM:CLOSE Server's RFC822.SIZE %u, actual size %u",
                                     GetServerStateParser().SizeOfMostRecentMessage(),
                                     m_bytesToChannel));
       }
+#endif
     }
     // need to know if we're downloading for display or not. We'll use action == nsImapMsgFetch for now
     nsImapAction imapAction = nsIImapUrl::nsImapSelectFolder; // just set it to some legal value
