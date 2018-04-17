@@ -1,0 +1,48 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+loader: taskgraph.loader.transform:loader
+
+kind-dependencies:
+    - toolchain
+
+transforms:
+    - taskgraph.transforms.build:transforms
+    - taskgraph.transforms.build_attrs:transforms
+    - taskgraph.transforms.build_lints:transforms
+    - taskgraph.transforms.use_toolchains:transforms
+    - taskgraph.transforms.release_notifications:transforms
+    - taskgraph.transforms.job:transforms
+    - taskgraph.transforms.task:transforms
+
+job-defaults:
+    shipping-phase: promote
+    treeherder:
+        symbol: Src
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker:
+        max-run-time: 3600
+        env:
+            PKG_SRCPACK_BASENAME: source
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [package-source]
+        script: "mozharness/scripts/fx_desktop_build.py"
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/thunderbird_source.py
+        options: []
+        tooltool-downloads: public
+        need-xvfb: false
+    run-on-projects: []
+    optimization: {}
+
+jobs:
+    thunderbird-source/opt:
+        description: "Thunderbird source builder"
+        treeherder:
+            platform: thunderbird-release/opt
+        shipping-product: thunderbird
