@@ -361,9 +361,7 @@ type="bool"/>
               <vbox>
                 <description>
                   &updateApp.version.pre;<label id="version"/>&updateApp.version.post;
-#ifndef NIGHTLY_BUILD
-#expand           <label id="releasenotes" class="text-link" href="https://www.mozilla.org/thunderbird/__MOZ_APP_VERSION__/releasenotes/">&releaseNotes.link;</label>
-#endif
+                  <label id="releasenotes" class="text-link" hidden="true">&releaseNotes.link;</label>
                 </description>
                 <description id="distribution" class="text-blurb" hidden="true"/>
                 <description id="distributionId" class="text-blurb" hidden="true"/>

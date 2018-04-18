@@ -128,6 +128,19 @@ var gAdvancedPane = {
 
       document.getElementById("version").textContent = version;
 
+      if (!AppConstants.NIGHTLY_BUILD) {
+        // Show a release notes link if we have a URL.
+        let relNotesLink = document.getElementById("releasenotes");
+        let relNotesPrefType = Services.prefs.getPrefType("app.releaseNotesURL");
+        if (relNotesPrefType != Services.prefs.PREF_INVALID) {
+          let relNotesURL = Services.urlFormatter.formatURLPref("app.releaseNotesURL");
+          if (relNotesURL != "about:blank") {
+            relNotesLink.href = relNotesURL;
+            relNotesLink.hidden = false;
+          }
+        }
+      }
+
       gAppUpdater = new appUpdater();
     }
 

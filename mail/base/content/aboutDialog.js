@@ -63,6 +63,19 @@ function init(aEvent)
   let arch = bundle.GetStringFromName(archResource);
   versionField.textContent += ` (${arch})`;
 
+  if (!AppConstants.NIGHTLY_BUILD) {
+    // Show a release notes link if we have a URL.
+    let relNotesLink = document.getElementById("releasenotes");
+    let relNotesPrefType = Services.prefs.getPrefType("app.releaseNotesURL");
+    if (relNotesPrefType != Services.prefs.PREF_INVALID) {
+      let relNotesURL = Services.urlFormatter.formatURLPref("app.releaseNotesURL");
+      if (relNotesURL != "about:blank") {
+        relNotesLink.href = relNotesURL;
+        relNotesLink.hidden = false;
+      }
+    }
+  }
+
   if (AppConstants.MOZ_UPDATER) {
     gAppUpdater = new appUpdater();
 
