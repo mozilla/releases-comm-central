@@ -148,15 +148,16 @@
                        accesskey="&customsound.accesskey;"/>
                 <spacer flex="1"/>
               </hbox>
-              <hbox>
-                <filefield id="chatSoundUrlLocation"
-                           class="indent"
-                           readonly="true"
-                           preference="mail.chat.play_sound.url"
-                           preference-editable="true"
-                           onsyncfrompreference="return gChatPane.readSoundLocation();"
-                           aria-labelledby="chatSoundCustom"
-                           flex="1"/>
+              <hbox align="center">
+                <textbox id="chatSoundUrlLocation"
+                         type="filefield"
+                         class="indent"
+                         readonly="true"
+                         preference="mail.chat.play_sound.url"
+                         preference-editable="true"
+                         onsyncfrompreference="return gChatPane.readSoundLocation();"
+                         aria-labelledby="chatSoundCustom"
+                         flex="1"/>
                 <button id="browseForChatSound"
                         label="&browse.label;"
                         accesskey="&browse.accesskey;"

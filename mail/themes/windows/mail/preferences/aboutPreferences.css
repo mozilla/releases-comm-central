@@ -12,11 +12,6 @@
   margin-inline-end: 9px;
 }
 
-textbox + button,
-filefield + button {
-  margin-inline-start: -4px;
-}
-
 /**
  * Dialog
  */

@@ -7,7 +7,7 @@
 
 /* Global Styles */
 #CalendarPreferences radio[pane] {
-    list-style-image: url("chrome://calendar/skin/preferences/Options.png"); 
+    list-style-image: url("chrome://calendar/skin/preferences/Options.png");
 }
 
 radio[pane=paneGeneral] {
@@ -50,43 +50,6 @@ radio[pane=paneAdvanced] {
 }
 radio[pane=paneAdvanced]:hover, radio[pane=paneAdvanced][selected="true"] {
     -moz-image-region: rect(32px, 160px, 64px, 128px)
-}
-
-/* File Field Widget */
-filefield {
-    margin: 2px 4px;
-    -moz-appearance: textfield;
-}
-
-.fileFieldContentBox {
-    background-color: -moz-Dialog;
-    color: -moz-DialogText;
-    margin: 1px;
-}
-
-filefield[disabled="true"] .fileFieldContentBox {
-    opacity: 0.5;
-}
-
-filefield[disabled="true"] .fileFieldIcon {
-    opacity: 0.2;
-}
-
-.fileFieldIcon {
-    width: 16px;
-    height: 16px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    margin-inline-start: 2px;
-    margin-inline-end: 4px;
-}
-
-.fileFieldLabel {
-    -moz-appearance: none;
-    background-color: transparent;
-    border: none;
-    padding: 1px 0px 0px;
-    margin: 0px;
 }
 
 tabpanels caption {

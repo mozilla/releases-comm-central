@@ -7,6 +7,7 @@ var gChatPane = {
   {
     previewObserver.load();
     this.updateDisabledState();
+    this.updatePlaySound();
   },
 
   updateDisabledState: function ()
@@ -48,7 +49,7 @@ var gChatPane = {
     if (chatSoundUrlLocation.value)
     {
       chatSoundUrlLocation.label = this.convertURLToLocalFile(chatSoundUrlLocation.value).leafName;
-      chatSoundUrlLocation.image = "moz-icon://" + chatSoundUrlLocation.label + "?size=16";
+      chatSoundUrlLocation.style.backgroundImage = "url(moz-icon://" + chatSoundUrlLocation.label + "?size=16)";
     }
   },
 

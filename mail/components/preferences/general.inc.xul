@@ -118,15 +118,16 @@
         </hbox>
       </radiogroup>
 #endif
-      <hbox>
-        <filefield id="soundUrlLocation"
-                   class="indent"
-                   readonly="true"
-                   preference="mail.biff.play_sound.url"
-                   preference-editable="true"
-                   onsyncfrompreference="return gGeneralPane.readSoundLocation();"
-                   aria-labelledby="custom"
-                   flex="1"/>
+      <hbox align="center">
+        <textbox id="soundUrlLocation"
+                 type="filefield"
+                 class="indent"
+                 readonly="true"
+                 preference="mail.biff.play_sound.url"
+                 preference-editable="true"
+                 onsyncfrompreference="return gGeneralPane.readSoundLocation();"
+                 aria-labelledby="custom"
+                 flex="1"/>
         <button id="browseForSound"
                 label="&browse.label;"
                 accesskey="&browse.accesskey;"

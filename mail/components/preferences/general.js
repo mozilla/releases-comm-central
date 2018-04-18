@@ -95,7 +95,7 @@ var gGeneralPane = {
     if (soundUrlLocation.value)
     {
       soundUrlLocation.label = this.convertURLToLocalFile(soundUrlLocation.value).leafName;
-      soundUrlLocation.image = "moz-icon://" + soundUrlLocation.label + "?size=16";
+      soundUrlLocation.style.backgroundImage = "url(moz-icon://" + soundUrlLocation.label + "?size=16)";
     }
     return undefined;
   },

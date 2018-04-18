@@ -55,7 +55,7 @@ var gAlarmsPane = {
         } else {
             soundUrl.label = soundUrl.value;
         }
-        soundUrl.image = "moz-icon://" + soundUrl.label + "?size=16";
+        soundUrl.style.backgroundImage = "url(moz-icon://" + soundUrl.label + "?size=16)";
         return undefined;
     },
 

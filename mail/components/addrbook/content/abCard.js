@@ -1264,6 +1264,7 @@ var filePhotoHandler = {
       return false;
 
     aDocument.getElementById("PhotoFile").file = file;
+    this._showFilename(aCard, aDocument);
     return true;
   },
 
@@ -1276,6 +1277,7 @@ var filePhotoHandler = {
 
   onRead: function(aCard, aDocument) {
     let file = aDocument.getElementById("PhotoFile").file;
+    filePhotoHandler._showFilename(aCard, aDocument);
     if (!file)
       return false;
 
@@ -1294,6 +1296,7 @@ var filePhotoHandler = {
       aDocument.getElementById("PhotoFile").setAttribute("PhotoURI", photoURI);
 
       filePhotoHandler.onShow(aCard, aDocument, "photo");
+
     };
 
     gImageDownloader.savePhoto(photoURI, cbSuccess,
@@ -1311,6 +1314,20 @@ var filePhotoHandler = {
       aCard.setProperty("PhotoURI", photoURI);
     }
     return true;
+  },
+
+  _showFilename: function(aCard, aDocument) {
+    let photoElem = aDocument.getElementById("PhotoFile");
+    let photoFile = photoElem.file ? photoElem.file : null;
+    let photoSpec = Services.io.getProtocolHandler("file")
+                            .QueryInterface(Ci.nsIFileProtocolHandler)
+                            .getURLSpecFromFile(photoFile);
+    if (photoFile) {
+      photoElem.style.backgroundImage = "url(moz-icon://" + photoSpec + "?size=16)";
+      photoElem.value = photoFile.leafName;
+    } else {
+      photoElem.value = "";
+    }
   }
 }
 

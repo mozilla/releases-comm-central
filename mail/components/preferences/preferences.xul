@@ -12,6 +12,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet href="chrome://messenger/content/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/filefield.css"?>
 <?xml-stylesheet href="chrome://messenger/content/preferences/handlers.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/applications.css"?>
 

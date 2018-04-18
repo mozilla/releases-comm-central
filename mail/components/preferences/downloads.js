@@ -33,6 +33,7 @@ var gDownloadDirSection = {
 
   onReadUseDownloadDir: function ()
   {
+    this.readDownloadDirPref();
     var downloadFolder = document.getElementById("downloadFolder");
     var chooseFolder = document.getElementById("chooseFolder");
     var preference = document.getElementById("browser.download.useDownloadDir");
@@ -97,12 +98,12 @@ var gDownloadDirSection = {
 
     var customDirPref = document.getElementById("browser.download.dir");
     var customIndex = customDirPref.value ? this._fileToIndex(customDirPref.value) : 0;
-    if (folderListPref.value == 0 || customIndex == 0)
-      downloadFolder.label = bundlePreferences.getString("desktopFolderName");
-    else if (folderListPref.value == 1 || customIndex == 1)
-      downloadFolder.label = bundlePreferences.getString("myDownloadsFolderName");
+    if (customIndex == 0)
+      downloadFolder.value = bundlePreferences.getString("desktopFolderName");
+    else if (customIndex == 1)
+      downloadFolder.value = bundlePreferences.getString("myDownloadsFolderName");
     else
-      downloadFolder.label = customDirPref.value ? customDirPref.value.path : "";
+      downloadFolder.value = customDirPref.value ? customDirPref.value.path : "";
 
     var currentDirPref = document.getElementById("browser.download.downloadDir");
     var downloadDir = currentDirPref.value || this._indexToFile(folderListPref.value);
@@ -110,7 +111,7 @@ var gDownloadDirSection = {
       .QueryInterface(Ci.nsIFileProtocolHandler)
       .getURLSpecFromFile(downloadDir);
 
-    downloadFolder.image = "moz-icon://" + urlSpec + "?size=16";
+    downloadFolder.style.backgroundImage = "url(moz-icon://" + urlSpec + "?size=16)";
 
     return undefined;
   },

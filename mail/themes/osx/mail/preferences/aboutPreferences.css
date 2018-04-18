@@ -66,14 +66,6 @@ radio[pane]:active:hover > .paneButtonIcon {
   margin-inline-end: 8px !important;
 }
 
-textbox + button {
-  margin-inline-start: -4px;
-}
-
-filefield + button {
-  margin-inline-start: -8px;
-}
-
 /**
  * Dialog
  */

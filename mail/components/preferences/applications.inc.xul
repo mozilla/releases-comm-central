@@ -125,28 +125,23 @@
             <radiogroup id="saveWhere" flex="1"
                         preference="browser.download.useDownloadDir"
                         onsyncfrompreference="return gDownloadDirSection.onReadUseDownloadDir();">
-            <hbox id="saveToRow">
+            <hbox id="saveToRow" align="center">
               <radio id="saveTo" value="true"
                      label="&saveTo.label;"
                      accesskey="&saveTo.accesskey;"
                      aria-labelledby="saveTo downloadFolder"/>
-              <filefield id="downloadFolder" flex="1"
-                         readonly="true"
-                         preference="browser.download.folderList"
-                         preference-editable="true"
-                         aria-labelledby="saveTo"
-                         onsyncfrompreference="return gDownloadDirSection.readDownloadDirPref();"
-                         onsynctopreference="return gDownloadDirSection.writeFolderList();"/>
+              <textbox id="downloadFolder" flex="1"
+                       type="filefield"
+                       readonly="true"
+                       aria-labelledby="saveTo"/>
               <button id="chooseFolder" oncommand="gDownloadDirSection.chooseFolder();"
 #ifdef XP_MACOSX
                       accesskey="&chooseFolderMac.accesskey;"
-                      label="&chooseFolderMac.label;"
+                      label="&chooseFolderMac.label;"/>
 #else
                       accesskey="&chooseFolderWin.accesskey;"
-                      label="&chooseFolderWin.label;"
+                      label="&chooseFolderWin.label;"/>
 #endif
-                      preference="browser.download.folderList"
-                      onsynctopreference="return gDownloadDirSection.writeFolderList();"/>
             </hbox>
             <hbox>
               <radio id="alwaysAsk"

@@ -73,6 +73,10 @@
   list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
 }
 
+.menulist-icon {
+  margin-inline-end: 2px;
+}
+
 #photo {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
 }

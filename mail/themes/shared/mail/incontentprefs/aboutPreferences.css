@@ -190,6 +190,25 @@ radio[pane=paneAccount] > .paneButtonIcon {
   list-style-image: url("chrome://messenger/skin/shared/in-content/account.svg");
 }
 
+textbox[type="filefield"] {
+  padding-inline-start: 30px;
+  background-position-x: left 8px;
+  background-color: var(--in-content-box-background);
+  border-color: var(--in-content-box-border-color);
+}
+
+textbox[type="filefield"]:-moz-locale-dir(rtl) {
+  background-position-x: right 8px;
+}
+
+textbox[type="filefield"][disabled="true"] {
+  color: var(--in-content-text-color);
+}
+
+textbox + button {
+  margin-inline-start: -4px;
+}
+
 .spinbuttons-button {
   min-height: initial;
   margin-inline-start: 10px !important;
