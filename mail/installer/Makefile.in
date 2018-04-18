@@ -184,11 +184,6 @@ package-compare:: $(MOZ_PKG_MANIFEST)
 	-diff -u $(DIST)/pack-list.txt $(DIST)/bin-list.txt
 	rm -f $(DIST)/pack-list.txt $(DIST)/bin-list.txt
 
-installer::
-ifdef INSTALLER_DIR
-	$(MAKE) -C $(INSTALLER_DIR)
-endif
-
 # The comm-* source stamp is already there.
 PLATFORM_SOURCE_STAMP = $(firstword $(shell hg -R "$(moztopsrcdir)" parent --template="{node}\n" 2>/dev/null))
 PLATFORM_SOURCE_REPO = $(shell hg -R "$(moztopsrcdir)" showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/https:/")

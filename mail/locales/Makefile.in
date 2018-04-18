@@ -101,20 +101,8 @@ libs-%:
 	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$*
 
 
-package-win32-installer: WIN32_INSTALLER_OUT=$(ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
 package-win32-installer: $(SUBMAKEFILES)
-	@echo 'Packaging $(WIN32_INSTALLER_OUT).'
-	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen l10ngen/setup.exe l10ngen/7zSD.sfx
-	$(RM) -r $(STAGEDIST)/uninstall
-	$(NSINSTALL) -D $(STAGEDIST)/uninstall
-	cp ../installer/windows/l10ngen/helper.exe $(STAGEDIST)/uninstall
-	$(RM) $(ABS_DIST)/l10n-stage/setup.exe
-	cp ../installer/windows/l10ngen/setup.exe $(ABS_DIST)/l10n-stage
-	$(NSINSTALL) -D '$(ABS_DIST)/$(PKG_INST_PATH)'
-	(cd $(DIST)/l10n-stage; \
-	  $(MAKE_PACKAGE))
-	mv -f '$(DIST)/l10n-stage/$(PACKAGE)' '$(WIN32_INSTALLER_OUT)'
-	if test -f '$(DIST)/l10n-stage/$(PACKAGE).asc'; then mv -f '$(DIST)/l10n-stage/$(PACKAGE).asc' '$(WIN32_INSTALLER_OUT).asc'; fi
+	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen ZIP_IN='$(ZIP_OUT)' installer
 
 langpack: langpack-$(AB_CD)
 
@@ -129,7 +117,7 @@ installers-%:
 	@$(MAKE) package-langpack-$*
 	@$(MAKE) repackage-zip-$*
 ifeq (WINNT,$(OS_ARCH))
-	@$(MAKE) package-win32-installer AB_CD=$* MOZ_PKG_FORMAT=SFX7Z
+	@$(MAKE) package-win32-installer AB_CD=$*
 endif
 	@echo 'repackaging done'
 
