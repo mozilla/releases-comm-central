@@ -5,7 +5,7 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(290412eb-5824-4087-8984-05450c9397be)]
+[scriptable, uuid(360848be-f694-40db-80ef-793a2c43ddcb)]
 interface nsIImapFlagAndUidState : nsISupports
 {
   readonly attribute long numberOfMessages;

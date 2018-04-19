@@ -18,7 +18,7 @@ interface nsIImapFlagAndUidState;
 class nsIImapHostSessionList;
 %}
 
-[scriptable, uuid(290412eb-5824-4087-8984-05450c9397be)]
+[scriptable, uuid(6ef189e5-8711-4845-9625-d1c74c22c4b5)]
 interface nsIImapProtocol : nsISupports {
   void LoadImapUrl(in nsIURI aUrl, in nsISupports aConsumer);
 
