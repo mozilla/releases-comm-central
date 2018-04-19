@@ -33,6 +33,7 @@
 #include "mozilla/dom/Element.h"
 #include "mozilla/ErrorResult.h"
 #include "nsITreeBoxObject.h"
+#include "mozilla/dom/DataTransfer.h"
 
 #define INVALID_VERSION         0
 #define VALID_VERSION           2
@@ -1791,7 +1792,7 @@ nsNntpIncomingServer::IsSorted(bool *_retval)
 NS_IMETHODIMP
 nsNntpIncomingServer::CanDrop(int32_t index,
                               int32_t orientation,
-                              nsISupports *dataTransfer,
+                              mozilla::dom::DataTransfer *dataTransfer,
                               bool *_retval)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -1800,7 +1801,7 @@ nsNntpIncomingServer::CanDrop(int32_t index,
 NS_IMETHODIMP
 nsNntpIncomingServer::Drop(int32_t row,
                            int32_t orientation,
-                           nsISupports *dataTransfer)
+                           mozilla::dom::DataTransfer *dataTransfer)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

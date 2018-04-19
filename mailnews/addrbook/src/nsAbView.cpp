@@ -25,6 +25,7 @@
 #include "nsIAddrDatabase.h" // for kPhoneticNameColumn
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
+#include "mozilla/dom/DataTransfer.h"
 
 using namespace mozilla;
 
@@ -405,7 +406,7 @@ NS_IMETHODIMP nsAbView::IsSorted(bool *_retval)
 
 NS_IMETHODIMP nsAbView::CanDrop(int32_t index,
                                 int32_t orientation,
-                                nsISupports *dataTransfer,
+                                mozilla::dom::DataTransfer *dataTransfer,
                                 bool *_retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
@@ -413,7 +414,7 @@ NS_IMETHODIMP nsAbView::CanDrop(int32_t index,
 
 NS_IMETHODIMP nsAbView::Drop(int32_t row,
                              int32_t orientation,
-                             nsISupports *dataTransfer)
+                             mozilla::dom::DataTransfer *dataTransfer)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

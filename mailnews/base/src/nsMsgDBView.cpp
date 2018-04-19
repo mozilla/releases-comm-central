@@ -46,6 +46,7 @@
 #include "nsIAbCard.h"
 #include "mozilla/Services.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/dom/DataTransfer.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsTArray.h"
 
@@ -8562,7 +8563,7 @@ nsMsgDBView::GetImapDeleteModel(nsIMsgFolder *folder)
 NS_IMETHODIMP
 nsMsgDBView::CanDrop(int32_t index,
                      int32_t orient,
-                     nsISupports *dataTransfer,
+                     mozilla::dom::DataTransfer *dataTransfer,
                      bool *_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
@@ -8579,7 +8580,7 @@ nsMsgDBView::CanDrop(int32_t index,
 NS_IMETHODIMP
 nsMsgDBView::Drop(int32_t row,
                   int32_t orient,
-                  nsISupports *dataTransfer)
+                  mozilla::dom::DataTransfer *dataTransfer)
 {
   return NS_OK;
 }
