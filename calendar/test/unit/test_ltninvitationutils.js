@@ -61,7 +61,7 @@ function getIcs(aAsArray=false) {
     return item;
 }
 
-add_task(function* getItipHeader_test() {
+add_task(async function getItipHeader_test() {
     let data = [{
         input: {
             method: "METHOD:REQUEST\r\n",
@@ -159,7 +159,7 @@ add_task(function* getItipHeader_test() {
     }
 });
 
-add_task(function* createInvitationOverlay_test() {
+add_task(async function createInvitationOverlay_test() {
     let data = [{
         input: { description: "DESCRIPTION:Go to https://www.example.net if you can.\r\n" },
         expected: {
@@ -386,7 +386,7 @@ add_task(function* createInvitationOverlay_test() {
     }
 });
 
-add_task(function* compareInvitationOverlay_test() {
+add_task(async function compareInvitationOverlay_test() {
     // eventually it would make sense to set local timezone to Europe/Berlin to avoid test
     // failures when executing in a different timezone
     function getDom(aInput) {
@@ -551,7 +551,7 @@ add_task(function* compareInvitationOverlay_test() {
     Preferences.set("calendar.timezone.local", tzlocal);
 });
 
-add_task(function* getHeaderSection_test() {
+add_task(async function getHeaderSection_test() {
     let data = [{
         input: {
             toList: "recipient@example.net",
@@ -659,7 +659,7 @@ add_task(function* getHeaderSection_test() {
     }
 });
 
-add_task(function* convertFromUnicode_test() {
+add_task(async function convertFromUnicode_test() {
     let data = [{
         input: {
             charset: "UTF-8",
@@ -693,7 +693,7 @@ add_task(function* convertFromUnicode_test() {
     }
 });
 
-add_task(function* encodeUTF8_test() {
+add_task(async function encodeUTF8_test() {
     let data = [{
         input: "müller",
         expected: "mÃ¼ller"
@@ -718,7 +718,7 @@ add_task(function* encodeUTF8_test() {
     }
 });
 
-add_task(function* encodeMimeHeader_test() {
+add_task(async function encodeMimeHeader_test() {
     let data = [{
         input: {
             header: "Max Müller <m.mueller@example.net>",
@@ -747,7 +747,7 @@ add_task(function* encodeMimeHeader_test() {
     }
 });
 
-add_task(function* getRfc5322FormattedDate_test() {
+add_task(async function getRfc5322FormattedDate_test() {
     let data = {
         input: [{
             date: null,
@@ -793,7 +793,7 @@ add_task(function* getRfc5322FormattedDate_test() {
     Preferences.set("calendar.timezone.local", timezone);
 });
 
-add_task(function* parseCounter_test() {
+add_task(async function parseCounter_test() {
     // We are disabling this rule for a more consistent display of this data
     /* eslint-disable object-curly-newline */
     let data = [{

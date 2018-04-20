@@ -15,7 +15,7 @@ function run_test() {
 // the first one is for Windows, the second one for Linux and Mac, unless otherwise noted.
 // If you get a failure for this test, add your pattern here.
 
-add_task(function* formatDate_test() {
+add_task(async function formatDate_test() {
     let data = [{
         input: {
             datetime: "20170401T180000",
@@ -59,7 +59,7 @@ add_task(function* formatDate_test() {
     Preferences.set("calendar.date.format", dateformat);
 });
 
-add_task(function* formatDateShort_test() {
+add_task(async function formatDateShort_test() {
     let data = [{
         input: {
             datetime: "20170401T180000",
@@ -139,7 +139,7 @@ add_task(function* formatDateShort_test() {
     Preferences.set("calendar.date.format", dateformat);
 });
 
-add_task(function* formatDateLong_test() {
+add_task(async function formatDateLong_test() {
     let data = [{
         input: {
             datetime: "20170401T180000",
@@ -219,7 +219,7 @@ add_task(function* formatDateLong_test() {
     Preferences.set("calendar.date.format", dateformat);
 });
 
-add_task(function* formatDateWithoutYear_test() {
+add_task(async function formatDateWithoutYear_test() {
     let data = [{
         input: {
             datetime: "20170401T180000",
@@ -295,7 +295,7 @@ add_task(function* formatDateWithoutYear_test() {
     Preferences.set("calendar.date.format", dateformat);
 });
 
-add_task(function* formatTime_test() {
+add_task(async function formatTime_test() {
     let data = [{
         input: {
             datetime: "20170401T090000",

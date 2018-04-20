@@ -9,7 +9,7 @@ function run_test() {
     do_calendar_startup(run_next_test);
 }
 
-add_task(function* test_setDefaultValues_events() {
+add_task(async function test_setDefaultValues_events() {
     let item, alarm;
 
     Preferences.set("calendar.alarms.onforevents", 1);
@@ -62,7 +62,7 @@ add_task(function* test_setDefaultValues_events() {
     Preferences.reset("calendar.alarms.eventalarmlen");
 });
 
-add_task(function* test_setDefaultValues_tasks() {
+add_task(async function test_setDefaultValues_tasks() {
     let item, alarm;
     let calnow = cal.dtz.now;
     let nowDate = cal.createDateTime("20150815T120000");
@@ -123,7 +123,7 @@ add_task(function* test_setDefaultValues_tasks() {
     cal.dtz.now = calnow;
 });
 
-add_task(function* test_calculateAlarmDate() {
+add_task(async function test_calculateAlarmDate() {
     let item = cal.createEvent();
     item.startDate = cal.createDateTime("20150815T120000");
     item.endDate = cal.createDateTime("20150815T130000");
@@ -164,7 +164,7 @@ add_task(function* test_calculateAlarmDate() {
     equal(calculateAlarmDate(alarm), null);
 });
 
-add_task(function* test_calculateAlarmOffset() {
+add_task(async function test_calculateAlarmOffset() {
     let item = cal.createEvent();
     item.startDate = cal.createDateTime("20150815T120000");
     item.endDate = cal.createDateTime("20150815T130000");
@@ -189,7 +189,7 @@ add_task(function* test_calculateAlarmOffset() {
     equal(calculateAlarmOffset(alarm).icalString, "-PT1H");
 });
 
-add_task(function* test_addReminderImages() {
+add_task(async function test_addReminderImages() {
     function createReminders(actions) {
         let reminders = [];
         for (let action of actions) {

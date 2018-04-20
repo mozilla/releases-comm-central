@@ -16,13 +16,13 @@ function valid_tz_version(aVersionString) {
 }
 
 // check tz database version
-add_task(function* version_test() {
+add_task(async function version_test() {
     let tzs = cal.getTimezoneService();
     ok(valid_tz_version(tzs.version), "timezone version");
 });
 
 // check whether all tz definitions have all properties
-add_task(function* zone_test() {
+add_task(async function zone_test() {
     function resolveZone(aZoneId) {
         let timezone = tzs.getTimezone(aZoneId);
         equal(aZoneId, timezone.tzid, "Zone test " + aZoneId);
@@ -44,7 +44,7 @@ add_task(function* zone_test() {
 });
 
 // check whether all tz aliases resolve to a tz definition
-add_task(function* alias_test() {
+add_task(async function alias_test() {
     function resolveAlias(aAliasId) {
         let timezone = tzs.getTimezone(aAliasId);
         let tzid = timezone && timezone.tzid ? timezone.tzid : "";
@@ -65,7 +65,7 @@ add_task(function* alias_test() {
 // Check completeness to avoid unintended removing of zones/aliases when updating zones.json
 // removed zones should at least remain as alias to not break UI like in bug 1210723.
 // previous.json is generated automatically by executing update-zones.py script
-add_task(function* completeness_test() {
+add_task(async function completeness_test() {
     let jsonFile = do_get_file("data/previous.json");
     let test = readJSONFile(jsonFile);
     ok(test, "previous.json was loaded for completeness test");
