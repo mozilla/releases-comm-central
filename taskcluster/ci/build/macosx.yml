@@ -1,5 +1,6 @@
 macosx64/debug:
     description: "MacOS X x64 Cross-compile"
+    run-on-projects: []
     index:
         product: thunderbird
         job-name: macosx64-debug

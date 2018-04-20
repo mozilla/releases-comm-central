@@ -68,6 +68,7 @@ linux64/debug:
         platform: linux64/debug
         symbol: B
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    run-on-projects: []
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
         max-run-time: 36000
@@ -152,6 +153,7 @@ linux-nightly/opt:
 
 linux/debug:
     description: "Linux32 Debug"
+    run-on-projects: []
     index:
         product: thunderbird
         job-name: linux32-debug
