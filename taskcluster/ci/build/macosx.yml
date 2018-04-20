@@ -96,7 +96,6 @@ macosx64-nightly/opt:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
-            - disable_signing.py
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal

@@ -51,7 +51,6 @@ linux64-nightly/opt:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-            - disable_signing.py
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
@@ -143,7 +142,6 @@ linux-nightly/opt:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
-            - disable_signing.py
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
