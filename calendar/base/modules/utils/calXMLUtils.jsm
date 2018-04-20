@@ -169,8 +169,7 @@ var calxml = {
      * @return          The DOM document as a string.
      */
     serializeDOM: function(doc) {
-        let serializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
-                                   .createInstance(Components.interfaces.nsIDOMSerializer);
+        let serializer = new XMLSerializer();
         return serializer.serializeToString(doc);
     },
 
