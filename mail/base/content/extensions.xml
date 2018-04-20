@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE bindings>
+
+<bindings id="thunderbird-addon-bindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+  <binding id="thunderbird-addon-generic"
+           extends="chrome://mozapps/content/extensions/extensions.xml#addon-generic">
+    <implementation>
+      <constructor><![CDATA[
+        ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+        ChromeUtils.import("resource://gre/modules/Services.jsm");
+        this._updateState = this._updateState.bind(this);
+        ExtensionParent.apiManager.on("startup", this._updateState);
+        ExtensionParent.apiManager.on("shutdown", this._updateState);
+
+        this._bundle = Services.strings.createBundle("chrome://messenger/locale/extensionsOverlay.properties");
+      ]]></constructor>
+      <destructor><![CDATA[
+        ExtensionParent.apiManager.off("startup", this._updateState);
+        ExtensionParent.apiManager.off("shutdown", this._updateState);
+      ]]></destructor>
+      <property name="webextension">
+        <getter><![CDATA[
+          if (!this._webextension) {
+            this._webextension = ExtensionParent.GlobalManager.getExtension(this.mAddon.id);
+          }
+          return this._webextension;
+        ]]></getter>
+      </property>
+      <method name="_updateState">
+        <body><![CDATA[
+          this.__proto__.__proto__._updateState.call(this);
+          let id = this.mAddon.id;
+          let webex = this.webextension;
+
+          if (webex && webex.manifest.legacy && (
+                (webex.startupReason != "APP_STARTUP" && !webex.legacyLoaded) ||
+                (this.mAddon.userDisabled && webex.legacyLoaded)
+              )) {
+            this.setAttribute("notification", "warning");
+            this._warning.textContent = this._bundle.GetStringFromName("warnLegacyRestart");
+            this._warningBtn.label = this._bundle.GetStringFromName("warnLegacyRestartButton");
+            this._warningBtn.setAttribute("oncommand", "BrowserUtils.restartApplication()");
+            this._warningBtn.hidden = false;
+            this._warningLink.hidden = true;
+          }
+        ]]></body>
+      </method>
+    </implementation>
+  </binding>
+</bindings>

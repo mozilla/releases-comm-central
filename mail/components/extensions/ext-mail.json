@@ -1,4 +1,10 @@
 {
+  "legacy": {
+    "url": "chrome://messenger/content/parent/ext-legacy.js",
+    "schema": "chrome://messenger/content/schemas/legacy.json",
+    "scopes": ["addon_parent"],
+    "manifest": ["legacy"]
+  },
   "tabs": {
     "url": "chrome://messenger/content/parent/ext-tabs.js",
     "schema": "chrome://messenger/content/schemas/tabs.json",

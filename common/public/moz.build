@@ -1,9 +1,14 @@
+# vim: set filetype=python:
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-cmdBackTooltip=Go back one page
-cmdForwardTooltip=Go forward one page
+XPIDL_SOURCES += [
+    'nsIComponentManagerExtra.idl'
+]
 
-warnLegacyRestart=This is a legacy add-on, a restart is required to continue.
-warnLegacyRestartButton=Restart
+XPIDL_MODULE = 'msgcommonbase'
+
+EXPORTS += [
+    'nsCommonBaseCID.h'
+]

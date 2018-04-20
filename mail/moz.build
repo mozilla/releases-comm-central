@@ -12,7 +12,7 @@ DIRS += [
     'extensions',
     'themes',
     'app',
-    '../common/src',
+    '../common',
 ]
 
 if CONFIG['MAKENSISU']:

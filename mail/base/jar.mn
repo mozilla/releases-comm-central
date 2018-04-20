@@ -11,6 +11,7 @@ messenger.jar:
 #endif
     content/messenger/mailWindow.js                 (content/mailWindow.js)
     content/messenger/messageDisplay.js             (content/messageDisplay.js)
+    content/messenger/extensions.xml                (content/extensions.xml)
     content/messenger/extensionsOverlay.css         (content/extensionsOverlay.css)
     content/messenger/folderDisplay.js              (content/folderDisplay.js)
     content/messenger/mailWindowOverlay.js          (content/mailWindowOverlay.js)

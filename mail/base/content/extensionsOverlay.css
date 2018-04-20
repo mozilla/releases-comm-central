@@ -11,3 +11,7 @@
 #nav-header {
   height: 50px;
 }
+
+.addon[status="installed"] {
+  -moz-binding: url("chrome://messenger/content/extensions.xml#thunderbird-addon-generic");
+}

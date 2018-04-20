@@ -1,0 +1,16 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "legacy": {
+            "type": "boolean",
+            "optional": true
+          }
+        }
+      }
+    ]
+  }
+]
