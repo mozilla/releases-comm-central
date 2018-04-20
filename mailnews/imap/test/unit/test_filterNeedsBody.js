@@ -53,7 +53,7 @@ function setup() {
 }
 
 // basic preparation done for each test
-function *runFilterAction() {
+async function runFilterAction() {
   let filterList = IMAPPump.incomingServer.getFilterList(null);
   while (filterList.filterCount)
     filterList.removeFilterAt(0);
@@ -68,7 +68,7 @@ function *runFilterAction() {
                               IMAPPump.mailbox.uidnext++, []));
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
-  yield listener.promise;
+  await listener.promise;
 }
 
 function run_test() {

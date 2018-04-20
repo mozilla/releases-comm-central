@@ -77,7 +77,7 @@ function checkMessageHeaders(msgData, expectedHeaders, partNum = "") {
   Assert.ok(seen);
 }
 
-function* testEnvelope() {
+async function testEnvelope() {
   let fields = new CompFields();
   let identity = getSmtpIdentity("from@tinderbox.invalid",
     getBasicSmtpServer());
@@ -90,7 +90,7 @@ function* testEnvelope() {
   fields.replyTo = "Charles <charles@tinderbox.invalid>";
   fields.organization = "World Salvation Committee";
   fields.subject = "This is an obscure reference";
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     // As of bug 87987, the identity does not override the from header.
     "From": "Nobody <nobody@tinderbox.invalid>",
@@ -104,7 +104,7 @@ function* testEnvelope() {
   });
 }
 
-function* testI18NEnvelope() {
+async function testI18NEnvelope() {
   let fields = new CompFields();
   let identity = getSmtpIdentity("from@tinderbox.invalid",
     getBasicSmtpServer());
@@ -115,7 +115,7 @@ function* testI18NEnvelope() {
   fields.bcc = "Étienne <boris@tinderbox.invalid>";
   fields.replyTo = "Frédéric <charles@tinderbox.invalid>";
   fields.subject = "Ceci n'est pas un référence obscure";
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "From": "=?UTF-8?B?44Kx44OE44Kh44Or44Kz44Ki44OI44Or?= <from@tinderbox.invalid>",
     "Organization": "=?UTF-8?Q?Comit=c3=a9_de_la_destruction_du_monde?=",
@@ -127,7 +127,7 @@ function* testI18NEnvelope() {
   });
 }
 
-function* testIDNEnvelope() {
+async function testIDNEnvelope() {
   let fields = new CompFields();
   let domain = "ケツァルコアトル.invalid";
   // We match against rawHeaderText, so we need to encode the string as a binary
@@ -142,7 +142,7 @@ function* testIDNEnvelope() {
   fields.bcc = "Boris <boris@" + domain + ">";
   fields.replyTo = "Charles <charles@" + domain + ">";
   fields.subject = "This is an obscure reference";
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     // The identity sets the from field here.
     "From": "from@tinderbox.invalid",
@@ -154,11 +154,11 @@ function* testIDNEnvelope() {
   });
 }
 
-function* testDraftInfo() {
+async function testDraftInfo() {
   let fields = new CompFields();
   let identity = getSmtpIdentity("from@tinderbox.invalid",
     getBasicSmtpServer());
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "FCC": identity.fccFolder,
     "X-Identity-Key": identity.key,
@@ -167,42 +167,42 @@ function* testDraftInfo() {
   });
 
   fields.attachVCard = true;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
       "vcard=1; receipt=0; DSN=0; uuencode=0; attachmentreminder=0; deliveryformat=4",
   });
 
   fields.returnReceipt = true;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
       "vcard=1; receipt=1; DSN=0; uuencode=0; attachmentreminder=0; deliveryformat=4",
   });
 
   fields.DSN = true;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
       "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=0; deliveryformat=4",
   });
 
   fields.attachmentReminder = true;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
       "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=1; deliveryformat=4",
   });
 
   fields.deliveryFormat = Ci.nsIMsgCompSendFormat.Both;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
       "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=1; deliveryformat=3",
   });
 }
 
-function* testOtherHeaders() {
+async function testOtherHeaders() {
   let fields = new CompFields();
   let identity = getSmtpIdentity("from@tinderbox.invalid",
     getBasicSmtpServer());
@@ -210,7 +210,7 @@ function* testOtherHeaders() {
   fields.references = "<fake@tinderbox.invalid> <more@test.invalid>";
   fields.setHeader("X-Fake-Header", "124");
   let before = Date.now();
-  let msgHdr = yield richCreateMessage(fields, [], identity);
+  let msgHdr = await richCreateMessage(fields, [], identity);
   let after = Date.now();
   let msgData = mailTestUtils.loadMessageToString(msgHdr.folder, msgHdr);
   checkMessageHeaders(msgData, {
@@ -256,14 +256,14 @@ function* testOtherHeaders() {
   let expected = references.slice(47);
   expected.unshift(references[0]);
   fields.references = references.join(" ");
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "References": expected.join(" "),
     "In-Reply-To": references[references.length - 1],
   });
 }
 
-function* testNewsgroups() {
+async function testNewsgroups() {
   let fields = new CompFields();
   let nntpServer = localAccountUtils.create_incoming_server("nntp", 534,
       "", "");
@@ -273,7 +273,7 @@ function* testNewsgroups() {
     getBasicSmtpServer());
   fields.newsgroups = "mozilla.test, mozilla.test.multimedia";
   fields.followupTo = "mozilla.test";
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     // The identity should override the compose fields here.
     "Newsgroups": "mozilla.test,mozilla.test.multimedia",
@@ -282,7 +282,7 @@ function* testNewsgroups() {
   });
 }
 
-function* testSendHeaders() {
+async function testSendHeaders() {
   let fields = new CompFields();
   let identity = getSmtpIdentity("from@tinderbox.invalid",
     getBasicSmtpServer());
@@ -294,7 +294,7 @@ function* testSendHeaders() {
     "replyto@test.invalid");
   fields.to = "list@test.invalid";
   fields.cc = "not-list@test.invalid";
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Custom-1": "A header value",
     "X-Custom-2": "=?UTF-8?Q?_Enchant=c3=a9?=",
@@ -305,7 +305,7 @@ function* testSendHeaders() {
   // Don't set the M-F-T header if there's no list.
   fields.to = "replyto@test.invalid";
   fields.cc = "";
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Custom-1": "A header value",
     "X-Custom-2": "=?UTF-8?Q?_Enchant=c3=a9?=",
@@ -314,14 +314,14 @@ function* testSendHeaders() {
   });
 }
 
-function* testContentHeaders() {
+async function testContentHeaders() {
   // Disable RFC 2047 fallback
   Services.prefs.setIntPref("mail.strictly_mime.parm_folding", 2);
   let fields = new CompFields();
   fields.body = "A body";
   let identity = getSmtpIdentity("from@tinderbox.invalid",
     getBasicSmtpServer());
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "text/html; charset=UTF-8",
     "Content-Transfer-Encoding": "7bit"
@@ -329,7 +329,7 @@ function* testContentHeaders() {
 
   // non-ASCII body should be 8-bit...
   fields.body = "Archæologist";
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "text/html; charset=UTF-8",
     "Content-Transfer-Encoding": "8bit"
@@ -338,7 +338,7 @@ function* testContentHeaders() {
   // What if we change the message charset?
   fields.characterSet = "ISO-8859-1";
   fields.body = "Archæologist";
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "text/html; charset=ISO-8859-1",
     "Content-Transfer-Encoding": "8bit"
@@ -355,7 +355,7 @@ function* testContentHeaders() {
     "Content-Transfer-Encoding": "base64",
     "Content-Disposition": "attachment; filename=\"attachment.txt\"",
   };
-  yield richCreateMessage(fields, [plainAttachment], identity);
+  await richCreateMessage(fields, [plainAttachment], identity);
   checkDraftHeaders({
     "Content-Type": "text/html; charset=ISO-8859-1",
     "Content-Transfer-Encoding": "7bit"
@@ -365,13 +365,13 @@ function* testContentHeaders() {
   plainAttachment.name = "oïl.txt";
   plainAttachmentHeaders["Content-Disposition"] =
     "attachment; filename*=ISO-8859-1''%6F%EF%6C%2E%74%78%74";
-  yield richCreateMessage(fields, [plainAttachment], identity);
+  await richCreateMessage(fields, [plainAttachment], identity);
   checkDraftHeaders(plainAttachmentHeaders, "2");
 
   plainAttachment.name = "\ud83d\udca9.txt";
   plainAttachmentHeaders["Content-Disposition"] =
     "attachment; filename*=UTF-8''%F0%9F%92%A9%2E%74%78%74";
-  yield richCreateMessage(fields, [plainAttachment], identity);
+  await richCreateMessage(fields, [plainAttachment], identity);
   checkDraftHeaders(plainAttachmentHeaders, "2");
 
   let httpAttachment = makeAttachment({
@@ -384,7 +384,7 @@ function* testContentHeaders() {
     "Content-Base": '"data:text/html,<html></html>"',
     "Content-Location": '"data:text/html,<html></html>"',
   };
-  yield richCreateMessage(fields, [httpAttachment], identity);
+  await richCreateMessage(fields, [httpAttachment], identity);
   checkDraftHeaders({
     "Content-Base": undefined,
     "Content-Location": undefined
@@ -405,14 +405,14 @@ function* testContentHeaders() {
       "provider=akey; " +
       "file=" + cloudAttachment.url + "; name=attachment.html",
   };
-  yield richCreateMessage(fields, [cloudAttachment], identity);
+  await richCreateMessage(fields, [cloudAttachment], identity);
   checkDraftHeaders(cloudAttachmentHeaders, "2");
 
   // Some multipart/alternative tests.
   fields.body = "Some text";
   fields.forcePlainText = false;
   fields.useMultipartAlternative = true;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "multipart/alternative; boundary=."
   });
@@ -430,7 +430,7 @@ function* testContentHeaders() {
   //   + text/plain
   //   + text/html
   // + text/plain attachment
-  yield richCreateMessage(fields, [plainAttachment], identity);
+  await richCreateMessage(fields, [plainAttachment], identity);
   checkDraftHeaders({
     "Content-Type": "multipart/mixed; boundary=."
   });
@@ -448,7 +448,7 @@ function* testContentHeaders() {
   checkDraftHeaders(plainAttachmentHeaders, "2");
 
   // Three attachments, and a multipart/alternative. Oh the humanity!
-  yield richCreateMessage(fields,
+  await richCreateMessage(fields,
     [plainAttachment, httpAttachment, cloudAttachment], identity);
   checkDraftHeaders({
     "Content-Type": "multipart/mixed; boundary=."
@@ -471,21 +471,21 @@ function* testContentHeaders() {
   // Test a request for plain text with text/html.
   fields.forcePlainText = true;
   fields.useMultipartAlternative = false;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "text/plain; charset=UTF-8; format=flowed",
     "Content-Transfer-Encoding": "7bit"
   });
 }
 
-function* testSentMessage() {
+async function testSentMessage() {
   let server = setupServerDaemon();
   let daemon = server._daemon;
   server.start();
   try {
     let localserver = getBasicSmtpServer(server.port);
     let identity = getSmtpIdentity("test@tinderbox.invalid", localserver);
-    yield sendMessage({
+    await sendMessage({
       "to": "Nobody <nobody@tinderbox.invalid>",
       "cc": "Alex <alex@tinderbox.invalid>",
       "bcc": "Boris <boris@tinderbox.invalid>",
@@ -502,11 +502,11 @@ function* testSentMessage() {
       "X-Mozilla-Draft-Info": undefined,
       "Fcc": undefined
     });
-    yield sendMessage({"bcc": "Somebody <test@tinderbox.invalid"}, identity);
+    await sendMessage({"bcc": "Somebody <test@tinderbox.invalid"}, identity);
     checkMessageHeaders(daemon.post, {
       "To": "undisclosed-recipients: ;"
     });
-    yield sendMessage({
+    await sendMessage({
       "to": "Somebody <test@tinderbox.invalid>",
       "returnReceipt": true,
       "receiptHeaderType": Ci.nsIMsgMdnGenerator.eDntRrtType,
@@ -522,7 +522,7 @@ function* testSentMessage() {
       name: "attachment.html",
       contentLocation: "http://localhost.invalid/",
     });
-    yield sendMessage({to: "test@tinderbox.invalid"}, identity, {},
+    await sendMessage({to: "test@tinderbox.invalid"}, identity, {},
       [cloudAttachment]);
     checkMessageHeaders(daemon.post, {
       "Content-Type": "application/octet-stream",

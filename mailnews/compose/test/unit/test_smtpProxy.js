@@ -8,7 +8,7 @@ ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 const PORT = 25;
 var daemon, localserver, server;
 
-add_task(function* setup() {
+add_task(async function setup() {
   server = setupServerDaemon();
   daemon = server._daemon;
   server.start();
@@ -19,7 +19,7 @@ add_task(function* setup() {
 let CompFields = CC("@mozilla.org/messengercompose/composefields;1",
                     Ci.nsIMsgCompFields);
 
-add_task(function* sendMessage() {
+add_task(async function sendMessage() {
   equal(daemon.post, undefined);
   let identity = getSmtpIdentity("test@tinderbox.invalid", localserver);
   var testFile = do_get_file("data/message1.eml");
@@ -28,11 +28,11 @@ add_task(function* sendMessage() {
                                     "me@example.org",
                                     null, urlListener, null, null,
                                     false, {}, {});
-  yield urlListener.promise;
+  await urlListener.promise;
   notEqual(daemon.post, "");
 });
 
-add_task(function* cleanUp() {
+add_task(async function cleanUp() {
   NetworkTestUtils.shutdownServers();
 });
 

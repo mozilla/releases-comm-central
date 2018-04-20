@@ -23,7 +23,7 @@ var observer = {
   }
 }
 
-add_task(function* testObserver() {
+add_task(async function testObserver() {
   let fields = new CompFields();
   let identity = getSmtpIdentity("from@tinderbox.invalid",
     getBasicSmtpServer());
@@ -32,13 +32,13 @@ add_task(function* testObserver() {
   fields.cc = "Alex <alex@tinderbox.invalid>";
   fields.subject = "Let's test the observer";
 
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   // observer data should have:
   // (no account), Ci.nsIMsgSend.nsMsgSaveAsDraft, identity.key
   Assert.equal(gData, ",4,id1");
 
   // Now try with an account
-  yield richCreateMessage(fields, [], identity, localAccountUtils.msgAccount);
+  await richCreateMessage(fields, [], identity, localAccountUtils.msgAccount);
   // observer data should have:
   // (local account key), Ci.nsIMsgSend.nsMsgSaveAsDraft, identity.key
   Assert.equal(gData, "account1,4,id1");

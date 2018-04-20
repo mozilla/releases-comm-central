@@ -19,7 +19,7 @@ gPOP3Pump.files = ["../../../data/bugmail1",
 var gTestSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                      "Hello, did you receive my bugmail?"];
 
-add_task(function* setupFolders() {
+add_task(async function setupFolders() {
   let storeID = "@mozilla.org/msgstore/maildirstore;1";
   resetPluggableStoreLocal(storeID);
 
@@ -31,10 +31,10 @@ add_task(function* setupFolders() {
                                  .QueryInterface(Ci.nsIMsgLocalMailFolder)
                                  .createLocalSubfolder("test");
   dump("testFolder is at " + gTestFolder.filePath.path + "\n");
-  yield gPOP3Pump.run();
+  await gPOP3Pump.run();
 });
 
-add_task(function* maildirToMbox() {
+add_task(async function maildirToMbox() {
   // Test for multiple message copy for maildir->mbox.
 
   // get message headers for the inbox folder
@@ -56,7 +56,7 @@ add_task(function* maildirToMbox() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.CopyMessages(gInboxFolder, messages, gTestFolder, true,
                                  promiseCopyListener, null, false);
-  yield promiseCopyListener.promise;
+  await promiseCopyListener.promise;
 
   // Check the destination headers.
   messages.clear();
@@ -88,7 +88,7 @@ add_task(function* maildirToMbox() {
   }
 });
 
-add_task(function* mboxToMaildir() {
+add_task(async function mboxToMaildir() {
   // Test for multiple message copy for mbox->maildir.
 
   // Accumulate messages to copy.
@@ -104,7 +104,7 @@ add_task(function* mboxToMaildir() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.CopyMessages(gTestFolder, messages, gInboxFolder, true,
                                  promiseCopyListener, null, false);
-  yield promiseCopyListener.promise;
+  await promiseCopyListener.promise;
 
   // Check the destination headers.
   messages.clear();

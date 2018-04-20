@@ -9,7 +9,7 @@ const PORT = 110;
 
 var server, daemon, incomingServer;
 
-add_task(function* setup() {
+add_task(async function setup() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
@@ -27,7 +27,7 @@ add_task(function* setup() {
   daemon.setMessages(["message1.eml"]);
 });
 
-add_task(function* downloadEmail() {
+add_task(async function downloadEmail() {
   // Check that we haven't got any messages in the folder, if we have its a test
   // setup issue.
   equal(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
@@ -36,13 +36,13 @@ add_task(function* downloadEmail() {
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(null, urlListener, localAccountUtils.inboxFolder,
                                incomingServer);
-  yield urlListener.promise;
+  await urlListener.promise;
 
   // We downloaded a message, so it works!
   equal(localAccountUtils.inboxFolder.getTotalMessages(false), 1);
 });
 
-add_task(function* cleanUp() {
+add_task(async function cleanUp() {
   NetworkTestUtils.shutdownServers();
   incomingServer.closeCachedConnections();
   server.stop();

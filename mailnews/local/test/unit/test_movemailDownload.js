@@ -63,9 +63,9 @@ var gTestArray = [
     }
     Assert.equal(msgCount, 3);
   },
-  function *streamMessages() {
+  async function streamMessages() {
     for (let msgHdr of gMsgHdrs)
-      yield streamNextMessage(msgHdr);
+      await streamNextMessage(msgHdr);
   }
 ];
 
@@ -81,7 +81,7 @@ function run_test()
   run_next_test();
 }
 
-var streamNextMessage = Task.async(function* (aMsgHdr) {
+var streamNextMessage = async function (aMsgHdr) {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   let msgURI = aMsgHdr.folder.getUriForMsg(aMsgHdr);
   dump("streaming msg " + msgURI + " store token = " +
@@ -89,6 +89,6 @@ var streamNextMessage = Task.async(function* (aMsgHdr) {
   let msgServ = messenger.messageServiceFromURI(msgURI);
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);
-  let data = yield streamListener.promise;
+  let data = await streamListener.promise;
   Assert.ok(data.startsWith("From "));
-});
+};

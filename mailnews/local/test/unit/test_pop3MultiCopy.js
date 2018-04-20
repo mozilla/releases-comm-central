@@ -14,7 +14,7 @@ var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/maildirstore;1");
 
-add_task(function* runPump() {
+add_task(async function runPump() {
   // Test for multiple message copy for maildir.
   let storeID = "@mozilla.org/msgstore/maildirstore;1";
   gPOP3Pump.resetPluggableStore(storeID);
@@ -26,7 +26,7 @@ add_task(function* runPump() {
 
   gPOP3Pump.files = ["../../../data/bugmail1",
                      "../../../data/draft1"];
-  yield gPOP3Pump.run();
+  await gPOP3Pump.run();
 
   // get message headers for the inbox folder
   let inbox = gPOP3Pump.fakeServer
@@ -56,7 +56,7 @@ add_task(function* runPump() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.CopyMessages(inbox, messages, testFolder, false,
                                  promiseCopyListener, null, false);
-  yield promiseCopyListener.promise;
+  await promiseCopyListener.promise;
 
   // Check the destination headers.
   messages.clear();

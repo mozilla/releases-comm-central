@@ -110,18 +110,18 @@ function checkAttachment(expectedCD, expectedCT) {
   Assert.equal(contentType, expectedCT);
 }
 
-function* testInput0() {
+async function testInput0() {
   for (let folding in ParamFoldingPref) {
     Services.prefs.setIntPref("mail.strictly_mime.parm_folding", ParamFoldingPref[folding]);
-    yield createMessage(input0);
+    await createMessage(input0);
     checkAttachment(expectedCD0, expectedCTList0[folding]);
   }
 }
 
-function* testInput1() {
+async function testInput1() {
   for (let folding in ParamFoldingPref) {
     Services.prefs.setIntPref("mail.strictly_mime.parm_folding", ParamFoldingPref[folding]);
-    yield createMessage(input1);
+    await createMessage(input1);
     checkAttachment(expectedCD1, expectedCTList1[folding]);
   }
 }

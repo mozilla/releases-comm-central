@@ -10,7 +10,7 @@ var server, daemon, incomingServer;
 
 const PORT = 143;
 
-add_task(function* setup() {
+add_task(async function setup() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
@@ -40,7 +40,7 @@ add_task(function* setup() {
   imapAccount.incomingServer = incomingServer;
 });
 
-add_task(function* downloadEmail() {
+add_task(async function downloadEmail() {
   let inboxFolder = incomingServer.rootFolder.getChildNamed("INBOX");
 
   // Check that we haven't got any messages in the folder, if we have its a test
@@ -50,13 +50,13 @@ add_task(function* downloadEmail() {
   // Now get the mail
   let asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
   inboxFolder.getNewMessages(null, asyncUrlListener);
-  yield asyncUrlListener.promise;
+  await asyncUrlListener.promise;
 
   // We downloaded a message, so it works!
   Assert.equal(inboxFolder.getTotalMessages(false), 1);
 });
 
-add_task(function* cleanUp() {
+add_task(async function cleanUp() {
   NetworkTestUtils.shutdownServers();
   incomingServer.closeCachedConnections();
   server.stop();

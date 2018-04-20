@@ -9,14 +9,14 @@
 load("../../../resources/POP3pump.js");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-add_task(function* runPump() {
+add_task(async function runPump() {
 
   gPOP3Pump.files = ["../../../data/bugmail1",
                      "../../../data/bugmail1",
                      "../../../data/bugmail1",
                      "../../../data/bugmail1",
                      "../../../data/bugmail1"];
-  yield gPOP3Pump.run();
+  await gPOP3Pump.run();
 
   // get message headers for the inbox folder
   var hdrs = showMessages(localAccountUtils.inboxFolder);
@@ -44,7 +44,7 @@ add_task(function* runPump() {
   // compact
   var listener = new PromiseTestUtils.PromiseUrlListener();
   localAccountUtils.inboxFolder.compact(listener, null);
-  yield listener.promise;
+  await listener.promise;
 
   dump("Messages after compact\n");
   hdrs = showMessages(localAccountUtils.inboxFolder);
@@ -53,7 +53,7 @@ add_task(function* runPump() {
   // Add some more messages. This fails in nsMsgDatabase::AddNewHdrToDB with
   // NS_ERROR("adding hdr that already exists") before bug 1202105.
   gPOP3Pump.files = ["../../../data/draft1"];
-  yield gPOP3Pump.run();
+  await gPOP3Pump.run();
 
   dump("Messages after new message\n");
   hdrs = showMessages(localAccountUtils.inboxFolder);

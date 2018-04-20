@@ -15,7 +15,7 @@ ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-function *setupFolder()
+async function setupFolder()
 {
   // add a single message to the imap inbox.
   let messages = [];
@@ -32,10 +32,10 @@ function *setupFolder()
   // update folder to download header.
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
-  yield listener.promise;
+  await listener.promise;
 }
 
-function *searchTest()
+async function searchTest()
 {
   // Get the IMAP inbox...
   var emptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
@@ -51,11 +51,11 @@ function *searchTest()
   let listener = new PromiseTestUtils.PromiseSearchNotify(
                        searchSession, searchListener);
   searchSession.search(null);
-  yield listener.promise;
+  await listener.promise;
 
   // After the search completes, there still seem to be active URLs, so we
   //   have to wait before we are done and clear.
-  yield PromiseTestUtils.promiseDelay(1000);
+  await PromiseTestUtils.promiseDelay(1000);
 }
 
 // nsIMsgSearchNotify implementation

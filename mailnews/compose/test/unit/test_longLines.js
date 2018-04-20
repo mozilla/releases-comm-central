@@ -84,7 +84,7 @@ let longMultibyteLineCJK = "안".repeat(400);
 // And some Japanese.
 let longMultibyteLineJapanese = "語".repeat(450);
 
-function* testBodyWithLongLine() {
+async function testBodyWithLongLine() {
   let newline;
   // Windows uses CR+LF, the other platforms just LF.
   // Note: Services.appinfo.OS returns "XPCShell" in the test, so we
@@ -108,7 +108,7 @@ function* testBodyWithLongLine() {
     "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">" +
     "</head><body>" + longMultibyteLine + "</body></html>";
   fields.body = htmlMessage;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/html; charset=UTF-8",
@@ -121,7 +121,7 @@ function* testBodyWithLongLine() {
   fields.body = htmlMessage;
   fields.forcePlainText = true;
   fields.useMultipartAlternative = false;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/plain; charset=UTF-8; format=flowed",
@@ -136,7 +136,7 @@ function* testBodyWithLongLine() {
     "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">" +
     "</head><body>" + longMultibyteLineCJK + "</body></html>";
   fields.body = htmlMessage;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/html; charset=UTF-8",
@@ -149,7 +149,7 @@ function* testBodyWithLongLine() {
   fields.body = htmlMessage;
   fields.forcePlainText = true;
   fields.useMultipartAlternative = false;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/plain; charset=UTF-8; format=flowed",
@@ -166,7 +166,7 @@ function* testBodyWithLongLine() {
     "<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-2022-JP\">" +
     "</head><body>" + longMultibyteLineJapanese + "</body></html>";
   fields.body = htmlMessage;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/html; charset=ISO-2022-JP",
@@ -180,7 +180,7 @@ function* testBodyWithLongLine() {
   fields.body = htmlMessage;
   fields.forcePlainText = true;
   fields.useMultipartAlternative = false;
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
 
   // Expected body: The message without the tags and chopped up in
   // chunks of 36 characters with a space appended to each line.
@@ -205,7 +205,7 @@ function* testBodyWithLongLine() {
   fields.body = htmlMessage;
   Services.prefs.setBoolPref("mailnews.send_plaintext_flowed", false);
 
-  yield richCreateMessage(fields, [], identity);
+  await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/plain; charset=ISO-2022-JP",

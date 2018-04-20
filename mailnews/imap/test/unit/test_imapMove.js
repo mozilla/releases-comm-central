@@ -25,23 +25,23 @@ function setupCUSTOM1() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
 }
 
-function *startTest()
+async function startTest()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
-  yield PromiseTestUtils.promiseFolderAdded("folder 1");
+  await PromiseTestUtils.promiseFolderAdded("folder 1");
 
   addImapMessage();
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
-  yield listener.promise;
+  await listener.promise;
 
   // ...and download for offline use.
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
-  yield promiseUrlListener.promise;
+  await promiseUrlListener.promise;
 }
 
-function *doMove() {
+async function doMove() {
   var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   let rootFolder = IMAPPump.incomingServer.rootFolder;
   gFolder1 = rootFolder.getChildNamed("folder 1")
@@ -53,14 +53,14 @@ function *doMove() {
   MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, true,
                                  listener, null, false);
   IMAPPump.server.performTest("UID MOVE");
-  yield listener.promise;
+  await listener.promise;
 }
 
-function *testMove() {
+async function testMove() {
   Assert.equal(IMAPPump.inbox.getTotalMessages(false), 0);
   let listener = new PromiseTestUtils.PromiseUrlListener();
   gFolder1.updateFolderWithListener(null, listener);
-  yield listener.promise;
+  await listener.promise;
   Assert.equal(gFolder1.getTotalMessages(false), 1);
 
   // maildir should also delete the files.

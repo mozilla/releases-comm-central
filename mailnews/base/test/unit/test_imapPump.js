@@ -39,14 +39,14 @@ var gTestArray =
   },
 
   // the main test
-  function* loadImapMessage()
+  async function loadImapMessage()
   {
     IMAPPump.mailbox.addMessage(
       new imapMessage(specForFileName(gMessage),
                       IMAPPump.mailbox.uidnext++, []));
     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
-    yield promiseUrlListener.promise;
+    await promiseUrlListener.promise;
 
     Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
     let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);

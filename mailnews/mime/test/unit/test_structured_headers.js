@@ -21,7 +21,7 @@ function verifyError(block, errorCode) {
 var StructuredHeaders = CC("@mozilla.org/messenger/structuredheaders;1",
                            Ci.msgIWritableStructuredHeaders);
 
-add_task(function* check_addressing() {
+add_task(async function check_addressing() {
   let headers = new StructuredHeaders();
   headers.setHeader("To", [{name: "undisclosed-recipients", group: []}]);
   Assert.ok(Array.isArray(headers.getHeader("To")));
@@ -44,7 +44,7 @@ add_task(function* check_addressing() {
     "\"Comma, Name\" <test@foo.invalid>");
 });
 
-add_task(function* check_custom_header() {
+add_task(async function check_custom_header() {
   // Load an extension for our custom header.
   let url = Services.io.newFileURI(do_get_file("custom_header.js")).spec;
   let promise = new Promise((resolve, reject) => {
@@ -60,7 +60,7 @@ add_task(function* check_custom_header() {
     .getService(Ci.nsICategoryManager)
     .addCategoryEntry("custom-mime-encoder", "X-Unusual", url, false, true);
   // The category manager doesn't fire until a later timestep.
-  yield promise;
+  await promise;
   let headers = new StructuredHeaders();
   headers.setRawHeader("X-Unusual", "10", null);
   Assert.equal(headers.getHeader("X-Unusual"), 16);
@@ -68,7 +68,7 @@ add_task(function* check_custom_header() {
   Assert.equal(headers.getRawHeader("X-Unusual"), "20");
 });
 
-add_task(function* check_raw() {
+add_task(async function check_raw() {
   let headers = new StructuredHeaders();
   Assert.ok(!headers.hasHeader("Date"));
   let day = new Date("2000-01-01T00:00:00Z");
@@ -139,7 +139,7 @@ add_task(function* check_raw() {
   Assert.ok(moreHeaders.hasHeader("Date"));
 })
 
-add_task(function* check_nsIMimeHeaders() {
+add_task(async function check_nsIMimeHeaders() {
   let headers = Cc["@mozilla.org/messenger/mimeheaders;1"]
                   .createInstance(Ci.nsIMimeHeaders);
   Assert.ok(headers instanceof Ci.msgIStructuredHeaders);
@@ -162,7 +162,7 @@ add_task(function* check_nsIMimeHeaders() {
   }
 });
 
-add_task(function* checkBuildMimeText() {
+add_task(async function checkBuildMimeText() {
   let headers = new StructuredHeaders();
   headers.setHeader("To", [{name: "François Smith", email: "user@☃.invalid"}]);
   headers.setHeader("From", [{name: "John Doe", email: "jdoe@test.invalid"}]);

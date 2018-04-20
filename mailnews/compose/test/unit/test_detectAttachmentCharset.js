@@ -23,23 +23,23 @@ function getContentCharset(aContent) {
   return null;
 }
 
-function *testUTF8() {
-  yield createMessage(do_get_file("data/test-UTF-8.txt"));
+async function testUTF8() {
+  await createMessage(do_get_file("data/test-UTF-8.txt"));
   checkAttachmentCharset("UTF-8");
 }
 
-function *testUTF16BE() {
-  yield createMessage(do_get_file("data/test-UTF-16BE.txt"));
+async function testUTF16BE() {
+  await createMessage(do_get_file("data/test-UTF-16BE.txt"));
   checkAttachmentCharset("UTF-16BE");
 }
 
-function *testUTF16LE() {
-  yield createMessage(do_get_file("data/test-UTF-16LE.txt"));
+async function testUTF16LE() {
+  await createMessage(do_get_file("data/test-UTF-16LE.txt"));
   checkAttachmentCharset("UTF-16LE");
 }
 
-function *testShiftJIS() {
-  yield createMessage(do_get_file("data/test-SHIFT_JIS.txt"));
+async function testShiftJIS() {
+  await createMessage(do_get_file("data/test-SHIFT_JIS.txt"));
   checkAttachmentCharset(null); // do not detect SHIFT_JIS in this file anymore
 }
 

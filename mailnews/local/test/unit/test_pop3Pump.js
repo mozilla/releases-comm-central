@@ -7,7 +7,7 @@ load("../../../resources/POP3pump.js");
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?"];
 
-add_task(function* runPump() {
+add_task(async function runPump() {
   // demonstration of access to the local inbox folder
   dump("local inbox folder " + localAccountUtils.inboxFolder.URI + " is loaded\n");
   // demonstration of access to the fake server
@@ -15,7 +15,7 @@ add_task(function* runPump() {
 
   gPOP3Pump.files = ["../../../data/bugmail1",
                       "../../../data/draft1"];
-  yield gPOP3Pump.run();
+  await gPOP3Pump.run();
 
   // get message headers for the inbox folder
   let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();

@@ -9,8 +9,8 @@ var daemon = setupNNTPDaemon();
 // Define these up here for checking with the transaction
 var test = null;
 
-add_task(function *() {
-  yield Services.logins.initializationPromise;
+add_task(async function () {
+  await Services.logins.initializationPromise;
 
   daemon.groupCredentials = {
     "test.subscribe.empty": ["group1", "pass1"],
