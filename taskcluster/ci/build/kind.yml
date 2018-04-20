@@ -16,9 +16,9 @@ transforms:
     - taskgraph.transforms.task:transforms
 
 jobs-from:
-    - linux.yml
+    #- linux.yml
     - macosx.yml
-    - windows.yml
+    #- windows.yml
 
 job-defaults:
     shipping-product: thunderbird
