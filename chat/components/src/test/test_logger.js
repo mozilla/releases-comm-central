@@ -321,7 +321,7 @@ var test_logging = async function () {
   let firstDayMsgs = getMsgsForConv(dummyConv);
   let secondDayMsgs = getMsgsForConv(dummyConv2);
 
-  let logMessagesForConv = Task.async(async function (aConv, aMessages) {
+  let logMessagesForConv = async function (aConv, aMessages) {
     let logWriter = gLogger.getLogWriter(aConv);
     for (let message of aMessages)
       logWriter.logMessage(message);
@@ -333,7 +333,7 @@ var test_logging = async function () {
     await gLogger.gFilePromises.get(logWriter.currentPath);
     // Ensure two different files for the different dates.
     gLogger.closeLogWriter(aConv);
-  });
+  };
   await logMessagesForConv(dummyConv, firstDayMsgs);
   await logMessagesForConv(dummyConv2, secondDayMsgs);
 
@@ -341,7 +341,7 @@ var test_logging = async function () {
   // to ensure they are handled correctly.
   let logDir = OS.Path.dirname(
     gLogger.getLogFilePathForConversation(dummyConv, "json"));
-  let createBadFiles = Task.async(async function (aConv) {
+  let createBadFiles = async function (aConv) {
     let blankFile = OS.Path.join(logDir,
       gLogger.getNewLogFileName("json", (aConv.startDate + oneSec) / 1000));
     let invalidJSONFile = OS.Path.join(logDir,
@@ -350,7 +350,7 @@ var test_logging = async function () {
     await file.close();
     await OS.File.writeAtomic(invalidJSONFile,
                               new TextEncoder().encode("This isn't JSON!"));
-  });
+  };
   await createBadFiles(dummyConv);
   await createBadFiles(dummyConv2);
 
@@ -409,12 +409,12 @@ var test_logging = async function () {
 
   // Remove the created log files, testing forEach in the process.
   await logger.forEach({
-    processLog: Task.async(async function (aLog) {
+    async processLog(aLog) {
       let info = await OS.File.stat(aLog);
       ok(!info.isDir);
       ok(aLog.endsWith(".json"));
       await OS.File.remove(aLog);
-    })
+    }
   });
   let logFolder = OS.Path.dirname(gLogger.getLogFilePathForConversation(dummyConv));
   // The folder should now be empty - this will throw if it isn't.
@@ -435,11 +435,11 @@ var test_logFileSplitting = async function () {
     outgoing: true
   };
 
-  let logMessage = Task.async(async function (aMessage) {
+  let logMessage = async function (aMessage) {
     logWriter.logMessage(aMessage);
     await logWriter._initialized;
     await gLogger.gFilePromises.get(logWriter.currentPath);
-  });
+  };
 
   await logMessage(message);
   message.time += (logWriter.kInactivityLimit / 1000) + 1;
@@ -449,11 +449,11 @@ var test_logFileSplitting = async function () {
   // The log writer's new start time should be the time of the message.
   equal(message.time * 1000, logWriter._startTime);
 
-  let getCurrentHeader = Task.async(async function () {
+  let getCurrentHeader = async function () {
     return JSON.parse(new TextDecoder()
                       .decode(await OS.File.read(logWriter.currentPath))
                       .split("\n")[0]);
-  });
+  };
 
   // The header of the new log file should not have the continuedSession flag set.
   ok(!(await getCurrentHeader()).continuedSession);
