@@ -11,6 +11,8 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
+Cu.importGlobalProperties(["DOMParser"]);
+
 var g_bShutdown = false;
 
 function initLogging() {
@@ -151,8 +153,7 @@ function getCalendarSearchService() {
 
 function getDomParser() {
     if (!getDomParser.m_obj) {
-        getDomParser.m_obj = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-                                       .getService(Components.interfaces.nsIDOMParser);
+        getDomParser.m_obj = new DOMParser();
     }
     return getDomParser.m_obj;
 }

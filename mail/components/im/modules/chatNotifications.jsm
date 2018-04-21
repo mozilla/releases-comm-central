@@ -10,6 +10,7 @@ ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Timer.jsm");
+Cu.importGlobalProperties(["DOMParser"]);
 
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.
@@ -63,7 +64,7 @@ var Notifications = {
     // 2 - show no details about the message being notified.
     switch (notificationContent) {
       case 0:
-        let parser = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
+        let parser = new DOMParser();
         let doc = parser.parseFromString(aMessage.displayMessage, "text/html");
         let body = doc.querySelector("body");
         let encoder =

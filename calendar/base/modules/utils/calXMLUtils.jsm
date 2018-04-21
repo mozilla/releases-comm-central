@@ -6,7 +6,7 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 
-Cu.importGlobalProperties(["XMLSerializer", "XMLHttpRequest"]);
+Cu.importGlobalProperties(["XMLSerializer", "XMLHttpRequest", "DOMParser"]);
 
 /*
  * Helper functions for parsing and serializing XML
@@ -140,8 +140,7 @@ var calxml = {
      * @return          The parsed DOM Document
      */
     parseString: function(str, docUri, baseUri) {
-        let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-                               .createInstance(Components.interfaces.nsIDOMParser);
+        let parser = new DOMParser();
 
         parser.init(null, docUri, baseUri);
         return parser.parseFromString(str, "application/xml");

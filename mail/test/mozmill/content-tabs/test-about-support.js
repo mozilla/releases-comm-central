@@ -9,6 +9,7 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
                        'compose-helpers', 'window-helpers'];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+Cu.importGlobalProperties(["DOMParser"]);
 
 var warningText = new Map();
 
@@ -261,8 +262,7 @@ function test_copy_to_clipboard_public() {
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
     let contentBody;
     if (flavor == "text/html") {
-      let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
-                     .createInstance(Ci.nsIDOMParser);
+      let parser = new DOMParser();
       contentBody = parser.parseFromString(text, "text/html").body;
     } else {
       contentBody = text;
@@ -305,8 +305,7 @@ function test_copy_to_clipboard_private() {
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
     let contentBody;
     if (flavor == "text/html") {
-      let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
-                     .createInstance(Ci.nsIDOMParser);
+      let parser = new DOMParser();
       contentBody = parser.parseFromString(text, "text/html").body;
     } else {
       contentBody = text;

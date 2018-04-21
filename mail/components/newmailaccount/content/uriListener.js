@@ -12,6 +12,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 ChromeUtils.import("resource:///modules/JXON.js");
+Cu.importGlobalProperties(["DOMParser"]);
 
 /**
  * This is an observer that watches all HTTP requests for one where the
@@ -174,8 +175,7 @@ TracingListener.prototype = {
       let data = this.chunks.join("");
 
       // Attempt to derive email account information
-      let domParser = Cc["@mozilla.org/xmlextras/domparser;1"]
-                       .createInstance(Ci.nsIDOMParser);
+      let domParser = new DOMParser();
       let accountConfig = accountCreationFuncs.readFromXML(JXON.build(
         domParser.parseFromString(data, "text/xml")));
       accountCreationFuncs.replaceVariables(accountConfig,

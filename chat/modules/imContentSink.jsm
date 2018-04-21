@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource:///modules/imServices.jsm");
+Cu.importGlobalProperties(["DOMParser"]);
 
 this.EXPORTED_SYMBOLS = [
   "cleanupImMarkup", // used to clean up incoming IMs.
@@ -360,8 +361,7 @@ function cleanupImMarkup(aText, aRuleset, aTextModifiers = [])
   if (!gGlobalRuleset)
     initGlobalRuleset();
 
-  let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
-                 .createInstance(Ci.nsIDOMParser);
+  let parser = new DOMParser();
   // Wrap the text to be parsed in a <span> to avoid losing leading whitespace.
   let doc = parser.parseFromString("<span>" + aText + "</span>", "text/html");
   let span = doc.querySelector("span");

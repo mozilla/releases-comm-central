@@ -17,6 +17,7 @@ this.EXPORTED_SYMBOLS = [
 ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.importGlobalProperties(["DOMParser"]);
 
 var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
 var kThemePref = "theme";
@@ -170,8 +171,7 @@ function getInfoPlistContent(aBaseURI)
                                           Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                           Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
-    let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
-                   .createInstance(Ci.nsIDOMParser);
+    let parser = new DOMParser();
     let doc = parser.parseFromStream(stream, null, stream.available(), "text/xml");
     if (doc.documentElement.localName != "plist")
       throw "Invalid Info.plist file";

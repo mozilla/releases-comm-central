@@ -11,9 +11,9 @@
 
 var iteratorUtils = {};
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm", iteratorUtils);
+Cu.importGlobalProperties(["DOMParser"]);
 
-var gDOMParser = Cc["@mozilla.org/xmlextras/domparser;1"]
-                   .createInstance(Ci.nsIDOMParser);
+var gDOMParser = new DOMParser();
 
 /**
  * Given the name of an XML file, returns the node representation of the file.

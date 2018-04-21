@@ -12,7 +12,7 @@
 ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/JXON.js");
-
+Cu.importGlobalProperties(["DOMParser"]);
 
 function fetchConfigFromDisk(domain, successCallback, errorCallback)
 {
@@ -26,8 +26,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback)
 
       var contents =
         readURLasUTF8(Services.io.newFileURI(configLocation));
-      let domParser = Cc["@mozilla.org/xmlextras/domparser;1"]
-                       .createInstance(Ci.nsIDOMParser);
+      let domParser = new DOMParser();
       successCallback(readFromXML(JXON.build(
         domParser.parseFromString(contents, "text/xml"))));
     } catch (e) { errorCallback(e); }
