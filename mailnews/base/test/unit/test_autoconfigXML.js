@@ -19,7 +19,7 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/JXON.js");
 
-var DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1");
+Cu.importGlobalProperties(["DOMParser"]);
 
 var xmlReader = {};
 try {

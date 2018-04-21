@@ -135,14 +135,10 @@ var calxml = {
      * Parse the given string into a DOM tree
      *
      * @param str       The string to parse
-     * @param docUri    (optional) The document URI to use
-     * @param baseUri   (optional) The base URI to use
      * @return          The parsed DOM Document
      */
     parseString: function(str, docUri, baseUri) {
         let parser = new DOMParser();
-
-        parser.init(null, docUri, baseUri);
         return parser.parseFromString(str, "application/xml");
     },
 
