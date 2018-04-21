@@ -11,7 +11,7 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#attachmentBucket[empty]:focus {
+#attachments-box[empty] > #attachmentBucket:focus {
   box-shadow: 0 0 2px Highlight inset, 0 0 2px Highlight inset;
 }
 

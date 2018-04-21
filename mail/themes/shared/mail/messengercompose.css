@@ -14,6 +14,22 @@
   padding: 1px;
 }
 
+#attachments-box[collapsed="true"]:not([empty="true"]) + #attachments-placeholder-box {
+  display: -moz-box;
+  width: 32px;
+  background: url("chrome://messenger/skin/icons/attach.svg") center / 32px no-repeat;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#attachments-box[collapsed="true"]:not([empty="true"]) + #attachments-placeholder-box:hover {
+  background-color: var(--toolbarbutton-hover-background);
+}
+
+#attachments-box[collapsed="true"]:not([empty="true"]) + #attachments-placeholder-box:hover:active {
+  background-color: var(--toolbarbutton-active-background);
+}
+
 #compose-toolbox > toolbar {
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;

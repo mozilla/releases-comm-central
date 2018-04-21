@@ -2021,6 +2021,9 @@
                           ondragstart="nsDragAndDrop.startDrag(event, attachmentBucketDNDObserver);"
                           onblur="attachmentBucketOnBlur();"/>
         </vbox>
+        <vbox id="attachments-placeholder-box"
+              hidden="true"
+              onclick="goDoCommand('cmd_toggleAttachmentPane')"/>
       </hbox>
     </toolbar>
 
