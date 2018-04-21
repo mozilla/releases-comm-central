@@ -34,10 +34,8 @@
 #include "nsIFile.h"
 #include "nsISimpleEnumerator.h"
 #include "nsIMutableArray.h"
-#include "nsIDOMDocument.h"
 #include "nsNetUtil.h"
 #include "nsIFileStreams.h"
-#include "nsIDOMParser.h"
 #include "nsTArray.h"
 #include <windows.h>
 #include "nsIWindowsRegKey.h"
@@ -48,21 +46,21 @@ class WMSettings {
 public:
   static bool DoImport(nsIMsgAccount **ppAccount);
   static bool DoIMAPServer(nsIMsgAccountManager *pMgr,
-                             nsIDOMDocument *xmlDoc,
+                             nsIDocument *xmlDoc,
                              const nsString& serverName,
                              nsIMsgAccount **ppAccount);
   static bool DoPOP3Server(nsIMsgAccountManager *pMgr,
-                             nsIDOMDocument *xmlDoc,
+                             nsIDocument *xmlDoc,
                              const nsString& serverName,
                              nsIMsgAccount **ppAccount);
   static bool DoNNTPServer(nsIMsgAccountManager *pMgr,
-                             nsIDOMDocument *xmlDoc,
+                             nsIDocument *xmlDoc,
                              const nsString& serverName,
                              nsIMsgAccount **ppAccount);
   static void SetIdentities(nsIMsgAccountManager *pMgr, nsIMsgAccount *pAcc,
-                            nsIDOMDocument *xmlDoc, nsAutoString &userName,
+                            nsIDocument *xmlDoc, nsAutoString &userName,
                             int32_t authMethodIncoming, bool isNNTP);
-  static void SetSmtpServer(nsIDOMDocument *xmlDoc, nsIMsgIdentity *id,
+  static void SetSmtpServer(nsIDocument *xmlDoc, nsIMsgIdentity *id,
                             nsAutoString& inUserName, int32_t authMethodIncoming);
 };
 
@@ -179,7 +177,7 @@ bool WMSettings::DoImport(nsIMsgAccount **ppAccount)
   // Loop through *.oeaccounts files looking for POP3 & IMAP & NNTP accounts
   // Ignore LDAP for now!
   int accounts = 0;
-  nsCOMPtr<nsIDOMDocument> xmlDoc;
+  nsCOMPtr<nsIDocument> xmlDoc;
 
   for (int32_t i = fileArray.Count() - 1 ; i >= 0; i--){
     nsWMUtils::MakeXMLdoc(getter_AddRefs(xmlDoc), fileArray[i]);
@@ -221,7 +219,7 @@ bool WMSettings::DoImport(nsIMsgAccount **ppAccount)
 }
 
 bool WMSettings::DoIMAPServer(nsIMsgAccountManager *pMgr,
-                                nsIDOMDocument *xmlDoc,
+                                nsIDocument *xmlDoc,
                                 const nsString& serverName,
                                 nsIMsgAccount **ppAccount)
 {
@@ -330,7 +328,7 @@ bool WMSettings::DoIMAPServer(nsIMsgAccountManager *pMgr,
 }
 
 bool WMSettings::DoPOP3Server(nsIMsgAccountManager *pMgr,
-                                nsIDOMDocument *xmlDoc,
+                                nsIDocument *xmlDoc,
                                 const nsString& serverName,
                                 nsIMsgAccount **ppAccount)
 {
@@ -491,7 +489,7 @@ bool WMSettings::DoPOP3Server(nsIMsgAccountManager *pMgr,
 }
 
 bool WMSettings::DoNNTPServer(nsIMsgAccountManager *pMgr,
-                                nsIDOMDocument *xmlDoc,
+                                nsIDocument *xmlDoc,
                                 const nsString& serverName,
                                 nsIMsgAccount **ppAccount)
 {
@@ -594,7 +592,7 @@ bool WMSettings::DoNNTPServer(nsIMsgAccountManager *pMgr,
 }
 
 void WMSettings::SetIdentities(nsIMsgAccountManager *pMgr, nsIMsgAccount *pAcc,
-                               nsIDOMDocument *xmlDoc, nsAutoString &inUserName,
+                               nsIDocument *xmlDoc, nsAutoString &inUserName,
                                int32_t authMethodIncoming, bool isNNTP)
 {
   // Get the relevant information for an identity
@@ -648,7 +646,7 @@ void WMSettings::SetIdentities(nsIMsgAccountManager *pMgr, nsIMsgAccount *pAcc,
     SetSmtpServer(xmlDoc, id, inUserName, authMethodIncoming);
 }
 
-void WMSettings::SetSmtpServer(nsIDOMDocument *xmlDoc, nsIMsgIdentity *id,
+void WMSettings::SetSmtpServer(nsIDocument *xmlDoc, nsIMsgIdentity *id,
                                nsAutoString& inUserName, int32_t authMethodIncoming)
 {
   nsresult errorCode;

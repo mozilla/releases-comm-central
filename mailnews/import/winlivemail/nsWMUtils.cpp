@@ -8,11 +8,9 @@
 #include "nsNetCID.h"
 #include "nsString.h"
 #include "nsWMUtils.h"
-#include "nsIDOMDocument.h"
 #include "nsIDocument.h"
 #include "nsINodeList.h"
 #include "nsContentList.h"
-#include "nsIDOMParser.h"
 #include "nsINode.h"
 #include "nsIFileStreams.h"
 #include "nsIFile.h"
@@ -20,6 +18,7 @@
 #include "ImportDebug.h"
 #include "prio.h"
 #include "mozilla/ErrorResult.h"
+#include "DOMParser.h"  // From mozilla/dom/base via moz.build's LOCAL_INCLUDES.
 
 nsresult
 nsWMUtils::FindWMKey(nsIWindowsRegKey **aKey)
@@ -131,7 +130,7 @@ nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
 }
 
 nsresult
-nsWMUtils::MakeXMLdoc(nsIDOMDocument **aXmlDoc,
+nsWMUtils::MakeXMLdoc(nsIDocument **aXmlDoc,
                       nsIFile *aFile)
 {
   nsresult rv;
@@ -140,24 +139,28 @@ nsWMUtils::MakeXMLdoc(nsIDOMDocument **aXmlDoc,
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = stream->Init(aFile, PR_RDONLY, -1, 0);
-  nsCOMPtr<nsIDOMParser> parser = do_CreateInstance(NS_DOMPARSER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  mozilla::ErrorResult rv2;
+  RefPtr<mozilla::dom::DOMParser> parser = mozilla::dom::DOMParser::CreateWithoutGlobal(rv2);
+  if (rv2.Failed()) {
+    return rv2.StealNSResult();
+  }
   int64_t filesize;
   aFile->GetFileSize(&filesize);
-  return parser->ParseFromStream(stream, nullptr, int32_t(filesize),
-                                 "application/xml", aXmlDoc);
+  nsCOMPtr<nsIDocument> xmldoc =
+    parser->ParseFromStream(stream, EmptyString(), int32_t(filesize),
+                            mozilla::dom::SupportedType::Application_xml, rv2);
+  xmldoc.forget(aXmlDoc);
+  return rv2.StealNSResult();
 }
 
 nsresult
-nsWMUtils::GetValueForTag(nsIDOMDocument *aXmlDoc,
+nsWMUtils::GetValueForTag(nsIDocument *aXmlDoc,
                           const char *aTagName,
                           nsAString &aValue)
 {
   nsAutoString tagName;
   tagName.AssignASCII(aTagName);
-  nsCOMPtr<nsIDocument> domDocument = do_QueryInterface(aXmlDoc);
-  nsCOMPtr<nsINodeList> list = domDocument->GetElementsByTagName(tagName);
+  nsCOMPtr<nsINodeList> list = aXmlDoc->GetElementsByTagName(tagName);
   nsCOMPtr<nsINode> node = list->Item(0);
   if (!node)
     return NS_ERROR_FAILURE;
