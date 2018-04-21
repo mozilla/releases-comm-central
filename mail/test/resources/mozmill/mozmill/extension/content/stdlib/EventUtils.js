@@ -184,22 +184,19 @@ function _parseModifiers(aEvent)
                   .getService(Ci.nsIAppShellService)
                   .hiddenDOMWindow;
 
-  const ALT_MASK     = 1;
-  const CONTROL_MASK = 2;
-  const SHIFT_MASK   = 4;
-  const META_MASK    = 8;
   var mval = 0;
   if (aEvent.shiftKey)
-    mval |= SHIFT_MASK;
+    mval |= Ci.nsIDOMWindowUtils.MODIFIER_SHIFT;
   if (aEvent.ctrlKey)
-    mval |= CONTROL_MASK;
+    mval |= Ci.nsIDOMWindowUtils.MODIFIER_CONTROL;
   if (aEvent.altKey)
-    mval |= ALT_MASK;
+    mval |= Ci.nsIDOMWindowUtils.MODIFIER_ALT;
   if (aEvent.metaKey)
-    mval |= META_MASK;
+    mval |= Ci.nsIDOMWindowUtils.MODIFIER_META;
   if (aEvent.accelKey)
-    mval |= (hwindow.navigator.platform.indexOf("Mac") >= 0) ? META_MASK :
-                                                               CONTROL_MASK;
+    mval |= (hwindow.navigator.platform.indexOf("Mac") >= 0) ?
+      Ci.nsIDOMWindowUtils.MODIFIER_META :
+      Ci.nsIDOMWindowUtils.MODIFIER_CONTROL;
 
   return mval;
 }
