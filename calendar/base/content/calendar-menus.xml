@@ -56,7 +56,22 @@
                         propertyValue = tasks[0][this.mType];
                     }
                 } else {
-                    cal.view.applyAttributeToMenuChildren(this, "disabled", !tasksSelected);
+                    let sibling = this.firstChild;
+
+                    while (sibling) {
+                        let domObject = sibling;
+
+                        if (domObject.hasAttribute("command")) {
+                            let commandName = domObject.getAttribute("command");
+                            let command = document.getElementById(commandName);
+                            if (command) {
+                                domObject = command;
+                            }
+                        }
+
+                        domObject.setAttribute("disabled", false);
+                        sibling = sibling.nextSibling;
+                    }
                 }
             }
             if (propertyValue || propertyValue == 0) {

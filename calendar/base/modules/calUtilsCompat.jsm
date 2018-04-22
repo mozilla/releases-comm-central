@@ -116,8 +116,7 @@ var migrations = {
     },
     view: {
         isMouseOverBox: "isMouseOverBox",
-        calRadioGroupSelectItem: "radioGroupSelectItem",
-        applyAttributeToMenuChildren: "applyAttributeToMenuChildren",
+        // calRadioGroupSelectItem and applyAttributeToMenuChildren are no longer available.
         removeChildElementsByAttribute: "removeChildElementsByAttribute",
         getParentNodeOrThis: "getParentNodeOrThis",
         getParentNodeOrThisByAttribute: "getParentNodeOrThisByAttribute",

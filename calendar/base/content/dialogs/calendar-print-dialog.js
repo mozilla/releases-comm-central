@@ -304,8 +304,20 @@ function printAndClose() {
  * Called when once a date has been selected in the datepicker.
  */
 function onDatePick() {
-    cal.view.radioGroupSelectItem("view-field", "custom-range");
-    setTimeout(refreshHtml, 0);
+    let radioGroup = document.getElementById("view-field");
+    let items = radioGroup.getElementsByTagName("radio");
+    let index;
+    for (let i in items) {
+        if (items[i].getAttribute("id") == "custom-range") {
+            index = i;
+            break;
+        }
+    }
+
+    if (index && index != 0) {
+        radioGroup.selectedIndex = index;
+        setTimeout(refreshHtml, 0);
+    }
 }
 
 function eventsAndTasksOptions(targetId) {

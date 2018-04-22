@@ -40,55 +40,6 @@ var calview = {
     },
 
     /**
-     * Selects an item with id aItemId in the radio group with id aRadioGroupId
-     *
-     * @param aRadioGroupId  the id of the radio group which contains the item
-     * @param aItemId        the item to be selected
-     */
-    radioGroupSelectItem: function(aRadioGroupId, aItemId) {
-        let radioGroup = document.getElementById(aRadioGroupId);
-        let items = radioGroup.getElementsByTagName("radio");
-        let index;
-        for (let i in items) {
-            if (items[i].getAttribute("id") == aItemId) {
-                index = i;
-                break;
-            }
-        }
-        cal.ASSERT(index && index != 0, "Can't find radioGroup item to select.", true);
-        radioGroup.selectedIndex = index;
-    },
-
-    /**
-     * Applies a value to all children of a Menu. If the respective childnodes define
-     * a command the value is applied to the attribute of thecommand of the childnode
-     *
-     * @param aElement The parentnode of the elements
-     * @param aAttributeName The name of the attribute
-     * @param aValue The value of the attribute
-     */
-    applyAttributeToMenuChildren: function(aElement, aAttributeName, aValue) {
-        let sibling = aElement.firstChild;
-        do {
-            if (sibling) {
-                let domObject = sibling;
-                let commandName = null;
-                if (sibling.hasAttribute("command")) {
-                    commandName = sibling.getAttribute("command");
-                }
-                if (commandName) {
-                    let command = document.getElementById(commandName);
-                    if (command) {
-                        domObject = command;
-                    }
-                }
-                domObject.setAttribute(aAttributeName, aValue);
-                sibling = sibling.nextSibling;
-            }
-        } while (sibling);
-    },
-
-    /**
      * Removes those childnodes from a node that contain a specified attribute
      * and where the value of this attribute matches a passed value
      *

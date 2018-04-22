@@ -35,6 +35,33 @@ function addCalendarNames(aEvent) {
 }
 
 /**
+ * Applies a value to all children of a menu. If the respective child nodes define
+ * a command the value is applied to the disabled attribute of the command of the
+ * child node.
+ *
+ * @param aElement The parent node of the elements
+ * @param aValue The value of the attribute
+ */
+function applyDisabledAttributeToMenuChildren(aElement, aValue) {
+    let sibling = aElement.firstChild;
+
+    while (sibling) {
+        let domObject = sibling;
+
+        if (domObject.hasAttribute("command")) {
+            let commandName = domObject.getAttribute("command");
+            let command = document.getElementById(commandName);
+            if (command) {
+                domObject = command;
+            }
+        }
+
+        domObject.setAttribute("disabled", aValue);
+        sibling = sibling.nextSibling;
+    }
+}
+
+/**
  * Change the opening context menu for the selected tasks.
  *
  * @param aEvent    The popupshowing event of the opening menu.
@@ -58,7 +85,8 @@ function changeContextMenuForTask(aEvent) {
         (idnode == "calendar-task-tree");
 
     let tasksSelected = (items.length > 0);
-    cal.view.applyAttributeToMenuChildren(aEvent.target, "disabled", !tasksSelected);
+    applyDisabledAttributeToMenuChildren(aEvent.target, !tasksSelected);
+
     if (calendarController.isCommandEnabled("calendar_new_todo_command") &&
         calendarController.isCommandEnabled("calendar_new_todo_todaypane_command")) {
         document.getElementById("calendar_new_todo_command").removeAttribute("disabled");
@@ -74,8 +102,10 @@ function changeContextMenuForTask(aEvent) {
 
     // make sure the filter menu is enabled
     document.getElementById("task-context-menu-filter-todaypane").removeAttribute("disabled");
-    cal.view.applyAttributeToMenuChildren(document.getElementById("task-context-menu-filter-todaypane-popup"),
-                                     "disabled", false);
+    applyDisabledAttributeToMenuChildren(
+        document.getElementById("task-context-menu-filter-todaypane-popup"),
+        false
+    );
 
     changeMenuForTask(aEvent);
 
