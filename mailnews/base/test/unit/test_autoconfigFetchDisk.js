@@ -11,6 +11,7 @@
 // Globals
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+Cu.importGlobalProperties(["DOMParser"]);  // Necessary for fetchConfig.js.
 
 var kXMLFile = "example.com.xml";
 var fetchConfigAbortable;

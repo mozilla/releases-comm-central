@@ -137,8 +137,9 @@ var calxml = {
      * @param str       The string to parse
      * @return          The parsed DOM Document
      */
-    parseString: function(str, docUri, baseUri) {
+    parseString: function(str) {
         let parser = new DOMParser();
+        parser.forceEnableXULXBL();
         return parser.parseFromString(str, "application/xml");
     },
 
