@@ -1060,44 +1060,42 @@ nsresult nsParseMailMessageState::ParseHeaders ()
     }
 
     buf = colon + 1;
-    uint32_t writeOffset = 0; // number of characters replaced with a folded space
+    // We will be shuffling downwards, so this is our insertion point.
+    char *bufWrite = buf;
 
 SEARCH_NEWLINE:
     // move past any non terminating characters, rewriting them if folding white space
     // exists
     while (buf < buf_end && *buf != '\r' && *buf != '\n')
     {
-      if (writeOffset)
-        *(buf - writeOffset) = *buf;
+      // Compress white-space.
+      if ((*buf == ' ' || *buf == '\t') &&
+          (*(bufWrite - 1) == ' ' || *(bufWrite - 1) == '\t')) {
+         buf++;
+         continue;
+      }
+      if (buf != bufWrite)
+        *bufWrite = *buf;
       buf++;
+      bufWrite++;
     }
 
-    /* If "\r\n " or "\r\n\t" is next, that doesn't terminate the header. */
+    // Look for folding, so CRLF, CR or LF followed by space or tab.
     if ((buf + 2 < buf_end && (buf[0] == '\r' && buf[1] == '\n') &&
                               (buf[2] == ' ' || buf[2] == '\t')) ||
-    /* If "\r " or "\r\t" or "\n " or "\n\t" is next, that doesn't terminate
-       the header either. */
         (buf + 1 < buf_end && (buf[0] == '\r' || buf[0] == '\n') &&
                               (buf[1] == ' ' || buf[1] == '\t')))
     {
-      // locate the proper location for a folded space by eliminating any
-      // leading spaces before the end-of-line character
-      char* foldedSpace = buf;
-      while (*(foldedSpace - 1) == ' ' || *(foldedSpace - 1) == '\t')
-        foldedSpace--;
+      // Add a single folding space if necessary.
+      if (*(bufWrite - 1) != ' ' && *(bufWrite - 1) != '\t')
+        *(bufWrite++) = ' ';
 
-      // put a single folded space character
-      *(foldedSpace - writeOffset) = ' ';
-      writeOffset += (buf - foldedSpace);
-      buf++;
+      // Skip CRLF, CR+space or LF+space ...
+      buf += 2;
 
-      // eliminate any additional white space
-      while (buf < buf_end &&
-              (*buf == '\n' || *buf == '\r' || *buf == ' ' || *buf == '\t'))
-      {
+      // ... and skip leading spaces in that line.
+      while (buf < buf_end && (*buf == ' ' || *buf == '\t'))
         buf++;
-        writeOffset++;
-      }
 
       // If we get here, the message headers ended in an empty line, like:
       // To: blah blah blah<CR><LF>  <CR><LF>[end of buffer]. The code below
@@ -1116,17 +1114,17 @@ SEARCH_NEWLINE:
     {
       value = colon + 1;
       // eliminate trailing blanks after the colon
-      while (value < (buf - writeOffset) && (*value == ' ' || *value == '\t'))
+      while (value < bufWrite && (*value == ' ' || *value == '\t'))
         value++;
 
       header->value = value;
-      header->length = buf - header->value - writeOffset;
+      header->length = bufWrite - value;
       if (header->length < 0)
         header->length = 0;
     }
     if (*buf == '\r' || *buf == '\n')
     {
-      char *last = buf - writeOffset;
+      char *last = bufWrite;
       char *saveBuf = buf;
       if (*buf == '\r' && buf + 1 < buf_end && buf[1] == '\n')
         buf++;
