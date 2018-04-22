@@ -13,9 +13,12 @@
 [scriptable, uuid(f86e55c9-530b-483f-91a7-10fb5b852488)]
 interface nsIEncryptedSMIMEURIsService : nsISupports
 {
+  /// Remember that this URI is encrypted.
   void rememberEncrypted(in AUTF8String uri);
 
+  /// Forget that this URI is encrypted.
   void forgetEncrypted(in AUTF8String uri);
 
+  /// Check if this URI is encrypted.
   boolean isEncrypted(in AUTF8String uri);
 };

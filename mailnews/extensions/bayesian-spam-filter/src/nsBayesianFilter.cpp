@@ -994,7 +994,8 @@ NS_IMETHODIMP TokenStreamListener::OnEndMsgDownload(nsIMsgMailNewsUrl *url)
 
 
 NS_IMETHODIMP TokenStreamListener::OnMsgHasRemoteContent(nsIMsgDBHdr *aMsgHdr,
-                                                         nsIURI *aContentURI)
+                                                         nsIURI *aContentURI,
+                                                         bool aCanOverride)
 {
     return NS_OK;
 }

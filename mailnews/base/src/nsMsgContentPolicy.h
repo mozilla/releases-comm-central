@@ -68,6 +68,9 @@ protected:
   int16_t ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr *aMsgHdr,
                                              nsIURI *aRequestingLocation,
                                              nsIURI *aContentLocation);
+  void NotifyContentWasBlocked(nsIURI *aOriginatorLocation,
+                               nsIURI *aContentLocation,
+                               bool aCanOverride);
   void ShouldAcceptContentForPotentialMsg(nsIURI *aOriginatorLocation,
                                           nsIURI *aContentLocation,
                                           int16_t *aDecision);
