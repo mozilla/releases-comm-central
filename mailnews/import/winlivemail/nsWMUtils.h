@@ -7,7 +7,7 @@
 
 #include <windows.h>
 #include "nsIWindowsRegKey.h"
-#include "nsIDocument.h"
+class nsIDocument;
 
 class nsWMUtils {
 public:

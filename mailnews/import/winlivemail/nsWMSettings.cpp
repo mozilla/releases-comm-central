@@ -31,6 +31,7 @@
 #include "nsIImapIncomingServer.h"
 #include "nsINntpIncomingServer.h"
 #include "stdlib.h"
+#include "nsIDocument.h"
 #include "nsIFile.h"
 #include "nsISimpleEnumerator.h"
 #include "nsIMutableArray.h"

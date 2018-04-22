@@ -18,7 +18,7 @@
 #include "ImportDebug.h"
 #include "prio.h"
 #include "mozilla/ErrorResult.h"
-#include "DOMParser.h"  // From mozilla/dom/base via moz.build's LOCAL_INCLUDES.
+#include "mozilla/dom/DOMParser.h"
 
 nsresult
 nsWMUtils::FindWMKey(nsIWindowsRegKey **aKey)

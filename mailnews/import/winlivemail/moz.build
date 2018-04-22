@@ -11,7 +11,3 @@ SOURCES += [
 ]
 
 FINAL_LIBRARY = 'import'
-
-LOCAL_INCLUDES += [
-  '/%s/dom/base' % CONFIG['mozreltopsrcdir'],
-]
