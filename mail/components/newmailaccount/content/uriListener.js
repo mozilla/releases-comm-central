@@ -12,7 +12,6 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 ChromeUtils.import("resource:///modules/JXON.js");
-Cu.importGlobalProperties(["DOMParser"]);
 
 /**
  * This is an observer that watches all HTTP requests for one where the
