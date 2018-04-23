@@ -1068,12 +1068,6 @@ SEARCH_NEWLINE:
     // exists
     while (buf < buf_end && *buf != '\r' && *buf != '\n')
     {
-      // Compress white-space.
-      if ((*buf == ' ' || *buf == '\t') &&
-          (*(bufWrite - 1) == ' ' || *(bufWrite - 1) == '\t')) {
-         buf++;
-         continue;
-      }
       if (buf != bufWrite)
         *bufWrite = *buf;
       buf++;
@@ -1086,9 +1080,11 @@ SEARCH_NEWLINE:
         (buf + 1 < buf_end && (buf[0] == '\r' || buf[0] == '\n') &&
                               (buf[1] == ' ' || buf[1] == '\t')))
     {
-      // Add a single folding space if necessary.
-      if (*(bufWrite - 1) != ' ' && *(bufWrite - 1) != '\t')
-        *(bufWrite++) = ' ';
+      // Remove trailing spaces at the "write position" and add a single
+      // folding space.
+      while (*(bufWrite - 1) == ' ' || *(bufWrite - 1) == '\t')
+        bufWrite--;
+      *(bufWrite++) = ' ';
 
       // Skip CRLF, CR+space or LF+space ...
       buf += 2;
