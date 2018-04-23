@@ -67,7 +67,6 @@ win32-nightly/opt:
 
 win32/debug:
     description: "Win32 Debug"
-    run-on-projects: []
     index:
         product: thunderbird
         job-name: win32-debug
@@ -166,7 +165,6 @@ win64-nightly/opt:
 
 win64/debug:
     description: "Win64 Debug"
-    run-on-projects: []
     index:
         product: thunderbird
         job-name: win64-debug

@@ -16,9 +16,6 @@ treeherder:
         'rs': 'Repackage signing'
         'BMR-L10n': 'Beetmover repackages for locales'
         'c-Up': 'Balrog submission of complete updates'
-        'cs': 'Checksum signing'
-        'BMcs': 'Beetmover checksums,'
-        'Rel': 'Release promotion'
 
 index:
     products:
@@ -26,10 +23,6 @@ index:
 
 try:
     ridealong-builds: {}
-
-release-promotion:
-    products:
-        - 'thunderbird'
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'

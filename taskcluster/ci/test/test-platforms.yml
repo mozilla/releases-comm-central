@@ -21,7 +21,8 @@ linux64/opt:
 
 linux64-nightly/opt:
     build-platform: linux64-nightly/opt
-    test-sets: []
+    test-sets:
+        - common-tests
 
 linux64/debug:
     build-platform: linux64/debug
@@ -35,7 +36,8 @@ linux32/opt:
 
 linux32-nightly/opt:
     build-platform: linux-nightly/opt
-    test-sets: []
+    test-sets:
+        - common-tests
 
 linux32/debug:
     build-platform: linux/debug
@@ -52,7 +54,8 @@ windows7-32/opt:
 
 windows7-32-nightly/opt:
     build-platform: win32-nightly/opt
-    test-sets: []
+    test-sets:
+        - common-tests
 
 windows7-32/debug:
     build-platform: win32/debug
@@ -67,7 +70,8 @@ windows10-64/opt:
 
 windows10-64-nightly/opt:
     build-platform: win64-nightly/opt
-    test-sets: []
+    test-sets:
+        - common-tests
 
 windows10-64/debug:
     build-platform: win64/debug
@@ -88,4 +92,5 @@ macosx64/opt:
 
 macosx64-nightly/opt:
     build-platform: macosx64-nightly/opt
-    test-sets: []
+    test-sets:
+        - common-tests

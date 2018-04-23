@@ -22,7 +22,7 @@ DEFAULTS = {
     #  'INSPECTOR_REV':  'DOMI_2_0_17',
 
     # URL of the default hg repository to clone for Mozilla.
-    'MOZILLA_REPO': 'https://hg.mozilla.org/users/mozilla_hocat.ca/mozilla-cc-taskcluster',
+    'MOZILLA_REPO': 'https://hg.mozilla.org/mozilla-central/',
 }
 
 REPO_SHORT_NAMES = {
