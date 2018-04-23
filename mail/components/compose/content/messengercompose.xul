@@ -8,6 +8,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgCompSMIMEOverlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/compacttheme.css" type="text/css" alternate="yes" title="Light/Dark"?>
 
 <!DOCTYPE window [
   <!ENTITY % messengercomposeDTD SYSTEM "chrome://messenger/locale/messengercompose/messengercompose.dtd" >
@@ -59,6 +60,7 @@
 <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
 <script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
 <script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mail-compacttheme.js"/>
 <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
 <script type="application/javascript" src="chrome://editor/content/editor.js"/>
 <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>

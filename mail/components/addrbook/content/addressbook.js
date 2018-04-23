@@ -12,6 +12,10 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
+});
+
 var nsIAbListener = Ci.nsIAbListener;
 var kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
 var kPersistCollapseMapStorage = "directoryTree.json";
@@ -118,6 +122,7 @@ function OnUnloadAddressBook()
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
 
   ToolbarIconColor.uninit();
+  CompactTheme.uninit();
 
   CloseAbView();
 }
@@ -159,6 +164,7 @@ function OnLoadAddressBook()
     document.documentElement.setAttribute("screenY", screen.availTop);
   }
 
+  CompactTheme.init();
   ToolbarIconColor.init();
 
   if (!chatHandler.ChatCore.initialized)

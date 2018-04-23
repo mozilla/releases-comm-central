@@ -26,6 +26,10 @@ ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(this, "ShortcutUtils",
                                "resource://gre/modules/ShortcutUtils.jsm");
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
+});
+
 /**
  * interfaces
  */
@@ -3107,6 +3111,7 @@ function ComposeLoad()
     return;
   }
 
+  CompactTheme.init();
   ToolbarIconColor.init();
 
   // initialize the customizeDone method on the customizeable toolbar
@@ -3145,6 +3150,7 @@ function ComposeUnload()
   RemoveMessageComposeOfflineQuitObserver();
   gAttachmentNotifier.shutdown();
   ToolbarIconColor.uninit();
+  CompactTheme.uninit();
 
   // Stop observing dictionary removals.
   dictionaryRemovalObserver.removeObserver();

@@ -1,0 +1,90 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* compacttheme.css is loaded in messenger.xul after messenger.css when it
+   is preffed on.  The bulk of the styling is here in the shared file, but
+   there are overrides for each platform in their compacttheme.css files. */
+
+:root:-moz-lwtheme {
+  --toolbar-color: var(--chrome-color);
+  --toolbar-bgcolor: var(--chrome-secondary-background-color);
+  --toolbar-non-lwt-bgcolor: var(--toolbar-bgcolor);
+  --toolbar-non-lwt-textcolor: var(--chrome-color);
+  --toolbar-non-lwt-bgimage: none;
+
+  --toolbarbutton-icon-fill-opacity: .7;
+
+  --tab-line-color: #0a84ff;
+}
+
+:root:-moz-lwtheme-brighttext {
+  /* Chrome */
+  --chrome-background-color: hsl(240, 5%, 5%);
+  --chrome-color: rgb(249, 249, 250);
+  --chrome-secondary-background-color: hsl(240, 1%, 20%);
+  --toolbox-border-bottom-color: hsla(240, 5%, 5%, .1);
+  --chrome-nav-bar-controls-border-color: hsla(240, 5%, 5%, .3);
+  --chrome-selection-color: #fff;
+  --chrome-selection-background-color: #5675b9;
+
+  /* Toolbar buttons */
+  --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
+  --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
+
+  /* Search bars */
+  --lwt-toolbar-field-background-color: rgb(71, 71, 73);
+  --lwt-toolbar-field-color: var(--chrome-color);
+  --urlbar-separator-color: #5F6670;
+}
+
+:root:-moz-lwtheme-darktext {
+  --lwt-toolbar-field-background-color: #fff;
+
+  --chrome-background-color: #e3e4e6;
+  --chrome-color: #18191a;
+  --chrome-secondary-background-color: #f5f6f7;
+  --toolbox-border-bottom-color: #cccccc;
+  --chrome-nav-bar-controls-border-color: #ccc;
+  --chrome-selection-color: #f5f7fa;
+  --chrome-selection-background-color: #4c9ed9;
+}
+
+toolbar[brighttext] .toolbarbutton-1 {
+  fill: rgb(249, 249, 250);
+}
+
+#searchInput ::-moz-selection,
+#IMSearchInput ::-moz-selection,
+#peopleSearchInput ::-moz-selection,
+.remote-gloda-search ::-moz-selection,
+findbar ::-moz-selection {
+  background-color: var(--chrome-selection-background-color);
+  color: var(--chrome-selection-color);
+}
+
+/* Change the base colors for the mail chrome */
+
+#navigation-toolbox,
+.mail-toolbox,
+.contentTabToolbox {
+  background-color: var(--chrome-background-color);
+  color: var(--chrome-color);
+}
+
+.mail-toolbox,
+.contentTabToolbox,
+findbar,
+#browser-bottombox {
+  background-color: var(--chrome-secondary-background-color) !important;
+  background-image: none !important;
+  color: var(--chrome-color);
+}
+
+/* Search bar*/
+#searchInput:not([focused="true"]),
+#IMSearchInput:not([focused="true"]),
+#peopleSearchInput:not([focused="true"]),
+.remote-gloda-search:not([focused="true"]) {
+  border-color: var(--chrome-nav-bar-controls-border-color);
+}

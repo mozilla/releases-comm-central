@@ -12,6 +12,20 @@ ChromeUtils.import("resource:///modules/mailMigrator.js");
 ChromeUtils.import("resource:///modules/extensionSupport.jsm");
 const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm", {});
 
+// lazy module getters
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "gBrandBundle", function() {
+  return Services.strings.createBundle("chrome://branding/locale/brand.properties");
+});
+
+XPCOMUtils.defineLazyGetter(this, "gMailBundle", function() {
+  return Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
+});
+
 /**
  * Glue code that should be executed before any windows are opened. Any
  * window-independent helper methods (a la nsBrowserGlue.js) should go in
@@ -100,6 +114,30 @@ MailGlue.prototype = {
       Services.ww.openWindow(null, "chrome://messenger/content/safeMode.xul",
                              "_blank", "chrome,centerscreen,modal,resizable=no", null);
     }
+
+    let vendorShortName = gBrandBundle.GetStringFromName("vendorShortName");
+
+    LightweightThemeManager.addBuiltInTheme({
+      id: "thunderbird-compact-light@mozilla.org",
+      name: gMailBundle.GetStringFromName("lightTheme.name"),
+      description: gMailBundle.GetStringFromName("lightTheme.description"),
+      iconURL: "resource:///chrome/messenger/content/messenger/light.icon.svg",
+      textcolor: "black",
+      accentcolor: "white",
+      author: vendorShortName,
+    });
+    LightweightThemeManager.addBuiltInTheme({
+      id: "thunderbird-compact-dark@mozilla.org",
+      name: gMailBundle.GetStringFromName("darkTheme.name"),
+      description: gMailBundle.GetStringFromName("darkTheme.description"),
+      iconURL: "resource:///chrome/messenger/content/messenger/dark.icon.svg",
+      textcolor: "white",
+      accentcolor: "black",
+      popup: "#4a4a4f",
+      popup_text: "rgb(249, 249, 250)",
+      popup_border: "#27272b",
+      author: vendorShortName,
+    });
   },
 
   _onMailStartupDone: function MailGlue__onMailStartupDone() {

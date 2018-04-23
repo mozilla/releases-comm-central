@@ -76,6 +76,7 @@
   skin/classic/messenger/icons/toolbarbutton-arrow.svg        (../shared/mail/icons/toolbarbutton-arrow.svg)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
+  skin/classic/messenger/shared/compacttheme.css              (../shared/mail/compacttheme.css)
   skin/classic/messenger/shared/in-content/dialog.css         (../shared/mail/incontentprefs/dialog.css)
   skin/classic/messenger/shared/in-content/aboutPreferences.css (../shared/mail/incontentprefs/aboutPreferences.css)
   skin/classic/messenger/shared/in-content/account.svg        (../shared/mail/incontentprefs/account.svg)

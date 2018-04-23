@@ -243,15 +243,6 @@ toolbarbutton[type="menu-button"] {
   -moz-box-align: stretch;
   -moz-appearance: dualbutton;
   -moz-box-orient: horizontal !important;
-}
-
-toolbarbutton[type="menu-button"],
-toolbarbutton[type="menu-button"]:hover,
-toolbarbutton[type="menu-button"]:hover:active,
-toolbarbutton[type="menu-button"][open="true"],
-toolbarbutton[type="menu-button"][disabled="true"],
-toolbarbutton[type="menu-button"][disabled="true"]:hover,
-toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
   padding: 0 !important;
 }
 
@@ -309,6 +300,10 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   margin: 4px 1px;
   padding: 1px 6px;
   color: inherit;
+}
+
+.toolbarbutton-1[type="menu-button"] {
+  -moz-appearance: none;
 }
 
 .findbar-button {

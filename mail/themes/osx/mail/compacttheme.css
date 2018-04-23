@@ -1,0 +1,23 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/compacttheme.css");
+
+/* Get rid of 1px bright strip at the top of window */
+#messengerWindow[tabsintitlebar] #titlebar-content {
+  background: var(--chrome-background-color);
+}
+
+#tabs-toolbar:-moz-lwtheme-brighttext {
+  -moz-appearance: -moz-mac-vibrant-titlebar-dark;
+  -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-dark;
+  background-color: #232323;
+  color: hsl(240, 9%, 98%);
+  text-shadow: none;
+}
+
+#tabs-toolbar:-moz-lwtheme-darktext {
+  -moz-appearance: -moz-mac-vibrant-titlebar-light;
+  -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-light;
+}

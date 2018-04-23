@@ -1,0 +1,152 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/compacttheme.css");
+
+/* The window background is white due to no accentcolor in the lightweight
+   theme. It can't be changed to transparent when there is no compositor
+   (Win 7 in classic / basic theme), or else dragging and focus become
+   broken. So instead just show the normal titlebar in that case, and override
+   the window color as transparent when the compositor is available. */
+@media (-moz-windows-compositor: 0) {
+  #messengerWindow[tabsintitlebar] #titlebar:-moz-lwtheme {
+    visibility: visible;
+  }
+
+  /* Prevent accent color overriding the window background for
+   * light and dark theme on Aero Basic. This is copied from browser-aero.css. */
+  @media (-moz-windows-default-theme) {
+    #messengerWindow {
+      background-color: rgb(185,209,234) !important;
+    }
+    #messengerWindow:-moz-window-inactive {
+      background-color: rgb(215,228,242) !important;
+    }
+  }
+}
+
+@media (-moz-os-version: windows-win7) {
+  @media (-moz-windows-default-theme) {
+    /* Always show light toolbar elements on aero surface. */
+    #tabs-toolbar {
+      color: hsl(240,9%,98%);
+    }
+
+    /* Keep showing the correct color inside the tabs. */
+    .tabmail-tab {
+      color: var(--chrome-color) !important;
+    }
+
+    /* Because we're forcing the tabs toolbar to be [brighttext] to
+     * get white toolbar button icons, we need to manually set the
+     * correct color for the tab hover state for the light theme. */
+    .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]):-moz-lwtheme-darktext {
+      background-color: rgba(0,0,0,.1) !important;
+    }
+    .tabmail-tab:hover > .tab-stack > .tab-background > .tab-line:not([selected=true]):-moz-lwtheme-darktext {
+      background-color: rgba(0,0,0,.2) !important;
+    }
+  }
+}
+
+@media (-moz-windows-glass) {
+  /* Set to full fill-opacity to improve visibility of toolbar buttons on aero glass. */
+  #tabs-toolbar {
+    --toolbarbutton-icon-fill-opacity: 1;
+  }
+
+  #navigation-toolbox {
+    background-color: transparent;
+  }
+}
+
+@media (-moz-os-version: windows-win7),
+       (-moz-os-version: windows-win8) {
+  #messengerWindow > statusbar {
+    background-color: var(--lwt-accent-color);
+  }
+
+  @media (-moz-windows-compositor) {
+    #messengerWindow {
+      background: transparent !important;
+    }
+  }
+
+  /* Always show full-height tab separators on tabs with borders. */
+  .tabmail-tab::before,
+  .tabmail-tab::after {
+    border-image: none !important;
+  }
+
+  /* Show border on tabs with background colors and
+   * show the tabs toolbar background color inside tabs. */
+  .tabmail-tab {
+    background-color: var(--chrome-background-color) !important;
+    border-top: 1px solid var(--tabs-border-color);
+    background-clip: padding-box;
+  }
+
+  /* The top border on top of the tab background is replaced
+   * by the slightly transparent outside tabs-border-color. */
+  .tab-background {
+    border-top-style: none !important;
+  }
+
+  /* The border at the start of the tab strip is replaced
+   * by the slightly transparent outside tabs-border-color. */
+  .tabmail-tab:first-child {
+    margin-inline-start: 0 !important;
+    border-inline-start: 1px solid var(--tabs-border-color);
+  }
+
+  /* The border at the end of the tab strip is replaced
+   * by the slightly transparent outside tabs-border-color. */
+  .tabmail-tab:last-child {
+    border-inline-end: 1px solid var(--tabs-border-color);
+  }
+
+  .tabmail-tab:first-child::before,
+  .tabmail-tab:last-child::after {
+    display: none !important;
+  }
+
+  /* Use default window colors */
+  #tabs-toolbar,
+  #navigator-toolbox {
+    background-color: transparent;
+  }
+
+  /* Use proper menu text styling in Win7 classic mode (copied from browser.css) */
+  @media (-moz-windows-compositor: 0),
+         (-moz-windows-default-theme: 0) {
+    :root[tabsintitlebar]:not([inFullscreen]) #mail-menubar {
+      color: CaptionText;
+    }
+
+    :root[tabsintitlebar]:not([inFullscreen]) #mail-menubar:-moz-window-inactive {
+      color: InactiveCaptionText;
+    }
+
+    #messengerWindow[tabsintitlebar] #mail-menubar > menu {
+      color: inherit;
+    }
+
+    #tabs-toolbar .toolbarbutton-1,
+    .tabmail-arrowscrollbox > .scrollbutton-up,
+    .tabmail-arrowscrollbox > stack > .scrollbutton-down {
+      fill: CaptionText;
+    }
+  }
+}
+
+/* Restored windows get an artificial border on windows, because the lwtheme background
+ * overlaps the regular window border. That isn't the case for us, so we avoid painting
+ * over the native border with our custom borders: */
+#navigator-toolbox {
+  /* These are !important to avoid specificity-wars with the selectors that add borders here. */
+  background-image: none !important;
+  border-top: none !important;
+  box-shadow: none !important;
+  padding-top: 0 !important;
+}

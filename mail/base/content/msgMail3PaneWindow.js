@@ -20,6 +20,10 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/Color.jsm");
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
+});
+
 /* This is where functions related to the 3 pane window are kept */
 
 // from MailNewsTypes.h
@@ -339,6 +343,7 @@ function OnLoadMessenger()
   // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
   // in delayedOnLoadMessenger...
   UpdateMailPaneConfig(false);
+  CompactTheme.init();
 
   if (AppConstants.platform == "win") {
     // On Win8 set an attribute when the window frame color is too dark for black text.
@@ -630,6 +635,8 @@ function OnUnloadMessenger()
   TabsInTitlebar.uninit();
 
   ToolbarIconColor.uninit();
+
+  CompactTheme.uninit();
 
   let tabmail = document.getElementById("tabmail");
   tabmail._teardown();

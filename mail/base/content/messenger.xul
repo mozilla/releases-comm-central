@@ -20,6 +20,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgHdrViewSMIMEOverlay.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgReadSMIMEOverlay.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/compacttheme.css" type="text/css" alternate="yes" title="Light/Dark"?>
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -96,6 +97,7 @@
 <script type="application/javascript" src="chrome://messenger/content/shareglue.js"/>
 <script type="application/javascript" src="chrome://messenger/content/msgViewNavigation.js"/>
 <script type="application/javascript" src="chrome://messenger/content/mailWindow.js"/>
+<script type="application/javascript" src="chrome://messenger/content/mail-compacttheme.js"/>
 <script type="application/javascript" src="chrome://messenger/content/selectionsummaries.js"/>
 <script type="application/javascript" src="chrome://messenger/content/msgMail3PaneWindow.js"/>
 <script type="application/javascript" src="chrome://messenger/content/specialTabs.js"/>
