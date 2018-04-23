@@ -215,33 +215,31 @@ function setupFilters()
  */
 
 // basic preparation done for each test
-function setupTest(aFilter, aAction)
+async function setupTest(aFilter, aAction)
 {
-  return Task.spawn(async function () {
-    let filterList = IMAPPump.incomingServer.getFilterList(null);
-    while (filterList.filterCount)
-      filterList.removeFilterAt(0);
-    if (aFilter)
-    {
-      aFilter.clearActionList();
-      if (aAction) {
-        aFilter.appendAction(aAction);
-        filterList.insertFilterAt(0, aFilter);
-      }
+  let filterList = IMAPPump.incomingServer.getFilterList(null);
+  while (filterList.filterCount)
+    filterList.removeFilterAt(0);
+  if (aFilter)
+  {
+    aFilter.clearActionList();
+    if (aAction) {
+      aFilter.appendAction(aAction);
+      filterList.insertFilterAt(0, aFilter);
     }
-    if (gInboxListener)
-      gDbService.unregisterPendingListener(gInboxListener);
+  }
+  if (gInboxListener)
+    gDbService.unregisterPendingListener(gInboxListener);
 
-    gInboxListener = new DBListener();
-    gDbService.registerPendingListener(IMAPPump.inbox, gInboxListener);
-    gMoveCallbackCount = 0;
-    IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                            IMAPPump.mailbox.uidnext++, []));
-    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
-    await promiseUrlListener.promise;
-    await PromiseTestUtils.promiseDelay(200);
-  });
+  gInboxListener = new DBListener();
+  gDbService.registerPendingListener(IMAPPump.inbox, gInboxListener);
+  gMoveCallbackCount = 0;
+  IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
+                          IMAPPump.mailbox.uidnext++, []));
+  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  await promiseUrlListener.promise;
+  await PromiseTestUtils.promiseDelay(200);
 }
 
 // Cleanup, null out everything, close all cached connections and stop the

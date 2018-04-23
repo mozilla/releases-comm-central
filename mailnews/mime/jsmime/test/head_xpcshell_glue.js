@@ -94,28 +94,28 @@ function MochaSuite(name) {
   this.suites = [];
 }
 
-/// The real code for running a suite of tests, written as a generator.
-MochaSuite.prototype._runSuite = function *() {
+/// The real code for running a suite of tests, written as async function.
+MochaSuite.prototype._runSuite = async function () {
   info("Running suite " + this.name);
   for (let setup of this.setup) {
-    yield runFunction(setup);
+    await runFunction(setup);
   }
   for (let test of this.tests) {
     info("Running test " + test.name);
-    yield runFunction(test.test);
+    await runFunction(test.test);
   }
   for (let suite of this.suites) {
-    yield suite.runSuite();
+    await suite.runSuite();
   }
   for (let fn of this.teardown) {
-    yield runFunction(fn);
+    await runFunction(fn);
   }
   info("Finished suite " + this.name);
 };
 
 /// The outer call to run a test suite, which returns a promise of completion.
 MochaSuite.prototype.runSuite = function () {
-  return Task.spawn(this._runSuite.bind(this));
+  return this._runSuite();
 };
 
 /// Run the given function, returning a promise of when the test will complete.
