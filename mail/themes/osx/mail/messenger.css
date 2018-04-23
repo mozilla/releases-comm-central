@@ -66,6 +66,7 @@ toolbar[brighttext] {
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #45a1ff);
 }
 
+#FindToolbar:-moz-lwtheme,
 #ab-toolbox > toolbar:-moz-lwtheme,
 .mail-toolbox > toolbar:-moz-lwtheme,
 #compose-toolbox > toolbar:-moz-lwtheme,
@@ -210,6 +211,7 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
 .findbar-button {
   background: none;
   box-shadow: none;
+  color: inherit;
   border: 1px transparent solid;
   border-radius: var(--toolbarbutton-border-radius);
   transition-property: background, border-color;

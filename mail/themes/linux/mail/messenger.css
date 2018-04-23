@@ -76,6 +76,7 @@ toolbar[brighttext] {
   --toolbarbutton-checkedhover-backgroundcolor: rgba(255, 255, 255, .5);
 }
 
+#FindToolbar:-moz-lwtheme,
 #ab-toolbox > toolbar:-moz-lwtheme,
 .mail-toolbox > toolbar:-moz-lwtheme,
 #compose-toolbox > toolbar:-moz-lwtheme,
@@ -310,6 +311,12 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   color: inherit;
 }
 
+.findbar-button {
+  -moz-appearance: none;
+  color: inherit;
+  padding: 5px;
+}
+
 .findbar-button,
 .toolbarbutton-1:not([type="menu-button"]),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
@@ -348,6 +355,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   transition-duration: 10ms;
 }
 
+.findbar-button[checked=true]:not(:active):hover,
 .toolbarbutton-1[checked=true]:not(:active):hover {
   background-color: var(--toolbarbutton-checkedhover-backgroundcolor);
   transition: background-color .4s;

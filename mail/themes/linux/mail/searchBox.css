@@ -85,8 +85,8 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 #IMSearchInput:-moz-lwtheme,
 #peopleSearchInput:-moz-lwtheme,
 .remote-gloda-search:-moz-lwtheme {
-  background-color: var(--url-and-searchbar-background-color, hsla(0,0%,100%,.8));
-  color: var(--url-and-searchbar-color, black);
+  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
+  color: var(--lwt-toolbar-field-color, black);
 }
 
 #searchInput:not([focused="true"]):-moz-lwtheme,
@@ -99,15 +99,15 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 #IMSearchInput:-moz-lwtheme:hover,
 #peopleSearchInput:-moz-lwtheme:hover,
 .remote-gloda-search:-moz-lwtheme:hover {
-  background-color: var(--url-and-searchbar-background-color, white);
+  background-color: var(--lwt-toolbar-field-background-color, white);
 }
 
 #searchInput:-moz-lwtheme[focused="true"],
 #IMSearchInput:-moz-lwtheme[focused="true"],
 #peopleSearchInput:-moz-lwtheme[focused="true"],
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
-  background-color: var(--lwt-toolbar-field-focus, var(--url-and-searchbar-background-color, white));
-  color: var(--lwt-toolbar-field-focus-color, var(--url-and-searchbar-color, black));
+  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
   border-color: var(--toolbar-field-focus-border-color);
 }
 
