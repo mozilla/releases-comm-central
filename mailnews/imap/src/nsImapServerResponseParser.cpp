@@ -3171,7 +3171,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
           (fCurrentLine + strlen(fCurrentLine) - (charsReadSoFar - numberOfCharsInThisChunk + 1));
         // Save so original unmodified fCurrentLine is restored below.
         char saveit1 = displayEndOfLine[1];
-        char saveit2;
+        char saveit2 = 0;  // Keep compiler happy.
         // Determine if EOL is split such that Chunk X has the \r and chunk
         // X+1 has the \n.
         nextChunkStartsWithNewline = (displayEndOfLine[0] == '\r');
