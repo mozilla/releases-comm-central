@@ -23,7 +23,7 @@ interface nsIDOMWindow;
  * sanitization (see bug #284086)
  */
 
-[scriptable, uuid(2559bb36-2eef-4190-9df1-8afcfbd35bd3)]
+[scriptable, uuid(b3a787fd-4c05-4518-98e3-20bc10a0f586)]
 interface nsISuiteGlue : nsISupports
 {
   /**
@@ -39,9 +39,4 @@ interface nsISuiteGlue : nsISupports
    *
    */
   void sanitize(in nsIDOMWindow aParentWindow);
-
-  /**
-   * Add Smart Bookmarks special queries to bookmarks menu and toolbar folder.
-   */
-  void ensurePlacesDefaultQueriesInitialized();
 };
