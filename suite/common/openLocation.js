@@ -54,7 +54,7 @@ function onLoad()
       gOpenAppList.value = Services.prefs.getIntPref("general.open_location.last_window_choice");
   }
 
-  gInput.value = GetStringPref(gLastPref);
+  gInput.value = Services.prefs.getStringPref(gLastPref, "");
   if (gInput.value)
     gInput.select(); // XXX should probably be done automatically
 

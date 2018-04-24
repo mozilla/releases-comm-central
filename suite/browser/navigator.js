@@ -612,7 +612,7 @@ function Startup()
     if (window.arguments[0]) {
       uriArray = window.arguments[0].toString().split('\n'); // stringify and split
     } else {
-      switch (GetIntPref("browser.windows.loadOnNewWindow", 0))
+      switch (Services.prefs.getIntPref("browser.windows.loadOnNewWindow", 0))
       {
         default:
           uriArray = ["about:blank"];
@@ -621,7 +621,7 @@ function Startup()
           uriArray = getHomePage();
           break;
         case 2:
-          uriArray = [GetStringPref("browser.history.last_page_visited")];
+          uriArray = [Services.prefs.getStringPref("browser.history.last_page_visited", "")];
           break;
       }
     }
@@ -978,7 +978,7 @@ function OpenSessionHistoryIn(aWhere, aDelta, aTab)
               .getService(Ci.nsISessionStore)
               .duplicateTab(win, aTab, aDelta, true);
 
-  var loadInBackground = GetBoolPref("browser.tabs.loadInBackground", false);
+  var loadInBackground = Services.prefs.getBoolPref("browser.tabs.loadInBackground");
 
   switch (aWhere) {
   case "tabfocused":
@@ -1336,7 +1336,7 @@ var BrowserSearch = {
     }
 
     // should we try and open up the sidebar to show the "Search Results" panel?
-    if (GetBoolPref("browser.search.opensidebarsearchpanel", false))
+    if (Services.prefs.getBoolPref("browser.search.opensidebarsearchpanel", false))
       this.revealSidebar();
   },
 
@@ -1468,7 +1468,7 @@ function BrowserOpenTab()
 {
   if (!gInPrintPreviewMode) {
     var uriToLoad;
-    var tabPref = GetIntPref("browser.tabs.loadOnNewTab",0);
+    var tabPref = Services.prefs.getIntPref("browser.tabs.loadOnNewTab", 0);
     switch (tabPref)
     {
       default:
@@ -1478,7 +1478,7 @@ function BrowserOpenTab()
         uriToLoad = GetLocalizedStringPref("browser.startup.homepage");
         break;
       case 2:
-        uriToLoad = GetStringPref("browser.history.last_page_visited");
+        uriToLoad = Services.prefs.getStringPref("browser.history.last_page_visited", "");
         break;
     }
 
@@ -1844,7 +1844,7 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
     // Option       | Shift       | Save URL (show Filepicker)
 
     // If false, the save modifier is Alt, which is Option on Mac.
-    var modifierIsShift = GetBoolPref("ui.key.saveLink.shift", true);
+    var modifierIsShift = Services.prefs.getBoolPref("ui.key.saveLink.shift", true);
 
     var shiftPressed = false;
     var saveModifier = false; // if the save modifier was pressed
@@ -1862,7 +1862,7 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
          ('metaKey' in aTriggeringEvent && aTriggeringEvent.metaKey) ||
          ('button'  in aTriggeringEvent && aTriggeringEvent.button == 1))) {
       // Check if user requests Tabs instead of windows
-      if (GetBoolPref("browser.tabs.opentabfor.urlbar", false)) {
+      if (Services.prefs.getBoolPref("browser.tabs.opentabfor.urlbar", false)) {
         // Reset url in the urlbar
         URLBarSetURI();
         // Open link in new tab
@@ -2774,7 +2774,7 @@ function updateFileUploadItem()
 function isBidiEnabled()
 {
   // first check the pref.
-  if (GetBoolPref("bidi.browser.ui", false)) {
+  if (Services.prefs.getBoolPref("bidi.browser.ui", false)) {
     return true;
   }
 

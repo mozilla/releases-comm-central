@@ -153,8 +153,9 @@ function openDownload(aDownload)
   var file = new nsLocalFile(aDownload.target.path);
 
   if (file.isExecutable()) {
-    var alertOnEXEOpen = GetBoolPref("browser.download.manager.alertOnEXEOpen",
-                                     true);
+    var alertOnEXEOpen = 
+      Services.prefs.getBoolPref("browser.download.manager.alertOnEXEOpen",
+                                 true);
 
     // On Windows 7 and above, we rely on native security prompting for
     // downloaded content unless it's disabled.

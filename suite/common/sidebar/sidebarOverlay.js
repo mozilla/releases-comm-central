@@ -748,7 +748,7 @@ function sidebar_overlay_init() {
       debug("sidebarObj.datasource_uri = " + sidebarObj.datasource_uri);
 
       // Obtain the pref for limiting the number of tabs in view, defaults to 8.
-      gNumTabsInViewPref = GetIntPref("sidebar.num_tabs_in_view", 8);
+      gNumTabsInViewPref = Services.prefs.getIntPref("sidebar.num_tabs_in_view", 8);
 
       // Show the header for the panels area. Use a splitter if there
       // is stuff over the panels area.

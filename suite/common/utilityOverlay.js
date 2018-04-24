@@ -94,7 +94,7 @@ function InitProxyMenu()
   // Checking for proxy manual settings.
   var proxyManuallyConfigured = false;
   for (var i = 0; i < kProxyManual.length; i++) {
-    if (GetStringPref(kProxyManual[i]) != "") {
+    if (Services.prefs.getStringPref(kProxyManual[i], "") != "") {
       proxyManuallyConfigured = true;
       break;
     }
@@ -109,7 +109,7 @@ function InitProxyMenu()
 
   //Checking for proxy PAC settings.
   var proxyAutoConfigured = false;
-  if (GetStringPref("network.proxy.autoconfig_url") != "")
+  if (Services.prefs.getStringPref("network.proxy.autoconfig_url", "") != "")
     proxyAutoConfigured = true;
 
   if (proxyAutoConfigured && !proxyLocked) {
@@ -124,7 +124,7 @@ function InitProxyMenu()
   var networkProxyStatus = [networkProxyNo, networkProxyManual, networkProxyPac,
                             networkProxyNo, networkProxyWpad,
                             networkProxySystem];
-  var networkProxyType = GetIntPref("network.proxy.type", 0);
+  var networkProxyType = Services.prefs.getIntPref("network.proxy.type", 0);
   networkProxyStatus[networkProxyType].setAttribute("checked", "true");
 }
 
@@ -134,24 +134,16 @@ function setProxyTypeUI()
   if (!panel)
     return;
 
-  var onlineTooltip = "onlineTooltip" + GetIntPref("network.proxy.type", 0);
+  var onlineTooltip = "onlineTooltip" +
+                      Services.prefs.getIntPref("network.proxy.type", 0);
   panel.setAttribute("tooltiptext", gUtilityBundle.getString(onlineTooltip));
 }
 
 function SetStringPref(aPref, aValue)
 {
-  const nsISupportsString = Ci.nsISupportsString;
   try {
     Services.prefs.setStringPref(aPref, aValue);
   } catch (e) {}
-}
-
-function GetStringPref(name)
-{
-  try {
-    return Services.prefs.getStringPref(name);
-  } catch (e) {}
-  return "";
 }
 
 function GetLocalizedStringPref(aPrefName, aDefaultValue)
@@ -293,7 +285,8 @@ function goCustomizeToolbar(toolbox)
 
   var customizeURL = "chrome://communicator/content/customizeToolbar.xul";
 
-  gCustomizeSheet = GetBoolPref("toolbar.customization.usesheet", false);
+  gCustomizeSheet =
+    Services.prefs.getBoolPref("toolbar.customization.usesheet", false);
 
   if (gCustomizeSheet) {
     var sheetFrame = document.getElementById("customizeToolbarSheetIFrame");
@@ -1130,7 +1123,7 @@ function BrowserOnCommand(event)
 
       let params = { exceptionAdded : false, sslStatus : sslStatus };
 
-      switch (GetIntPref("browser.ssl_override_behavior", 2)) {
+      switch (services.prefs.getIntPref("browser.ssl_override_behavior", 2)) {
         case 2 : // Pre-fetch & pre-populate.
           params.prefetchCert = true;
           // Fall through.
@@ -1357,24 +1350,6 @@ function closeMenus(node) {
   }
 }
 
-function GetBoolPref(aPrefName, aDefaultValue)
-{
-  try {
-    return Services.prefs.getBoolPref(aPrefName);
-  } catch (e) {}
-  return aDefaultValue;
-}
-
-function GetIntPref(aPrefName, aDefaultValue)
-{
-  try {
-    return Services.prefs.getIntPref(aPrefName);
-  } catch (e) {
-    Cu.reportError("Couldn't get " + aPrefName + " pref: " + e);
-  }
-  return aDefaultValue;
-}
-
 /**
  * Toggle a splitter to show or hide some piece of UI (e.g. the message preview
  * pane).
@@ -1467,15 +1442,15 @@ function whereToOpenLink(e, ignoreButton, ignoreSave, ignoreBackground = false)
   var metaKey = AppConstants.platform == "macosx" ? meta : ctrl;
 
   if (metaKey || middle) {
-    if (GetBoolPref("browser.tabs.opentabfor.middleclick", true))
+    if (Services.prefs.getBoolPref("browser.tabs.opentabfor.middleclick", true))
       return ignoreBackground ? "tabfocused" : shift ? "tabshifted" : "tab";
-    if (GetBoolPref("middlemouse.openNewWindow", true))
+    if (Services.prefs.getBoolPref("middlemouse.openNewWindow", true))
       return "window";
     if (middle)
       return null;
   }
   if (!ignoreSave) {
-    if (GetBoolPref("ui.key.saveLink.shift", true) ? shift : alt)
+    if (Services.prefs.getBoolPref("ui.key.saveLink.shift", true) ? shift : alt)
       return "save";
   }
   if (alt || shift || meta || ctrl)
@@ -1624,7 +1599,8 @@ function openLinkIn(url, where, params)
     return;
   }
 
-  var loadInBackground = GetBoolPref("browser.tabs.loadInBackground", false);
+  var loadInBackground =
+    Services.prefs.getBoolPref("browser.tabs.loadInBackground");
 
   // reuse the browser if its current tab is empty
   if (isBrowserEmpty(w.getBrowser()))
@@ -1701,7 +1677,8 @@ function openUILinkArrayIn(urlArray, where, allowThirdPartyFixup)
                              null, null, null, allowThirdPartyFixup);
   }
 
-  var loadInBackground = GetBoolPref("browser.tabs.loadInBackground", false);
+  var loadInBackground = 
+    Services.prefs.getBoolPref("browser.tabs.loadInBackground");
 
   var browser = w.getBrowser();
   switch (where) {

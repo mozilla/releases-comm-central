@@ -122,7 +122,7 @@
           if (openNewTabOrWindow(event, href, linkNode))
             return true;
         }
-        var saveModifier = GetBoolPref("ui.key.saveLink.shift", true);
+        var saveModifier = Services.prefs.getBoolPref("ui.key.saveLink.shift", true);
         saveModifier = saveModifier ? event.shiftKey : event.altKey;
 
         if (saveModifier) {                                           // if saveModifier is down

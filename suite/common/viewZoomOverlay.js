@@ -106,7 +106,7 @@ var FullZoom = FullZoom || {
       pref = "mousewheel.default.action";
 
     // Don't do anything if this isn't a "zoom" scroll event.
-    if (GetIntPref(pref, 0) != MOUSE_SCROLL_ZOOM)
+    if (Services.prefs.getIntPref(pref, 0) != MOUSE_SCROLL_ZOOM)
       return;
 
     // XXX Lazily cache all the possible action prefs so we don't have to get
