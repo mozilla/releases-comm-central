@@ -222,7 +222,10 @@ SuiteGlue.prototype = {
         }
         break;
       case "profile-before-change":
-        this._onProfileShutdown();
+         // Any component depending on Places should be finalized in
+         // _onPlacesShutdown.  Any component that doesn't need to act after
+         // the UI has gone should be finalized in _onQuitApplicationGranted.
+        this._dispose();
         break;
       case "profile-after-change":
         this._onProfileAfterChange();
@@ -273,12 +276,7 @@ SuiteGlue.prototype = {
         this._onQuitRequest(subject, data);
         break;
       case "quit-application-granted":
-        AutoCompletePopup.uninit();
-
-        if (this._saveSession) {
-          this._setPrefToSaveSession();
-        }
-        Sanitizer.checkSettings();
+        this._onQuitApplicationGranted();
         break;
       case "browser-lastwindow-close-requested":
         // The application is not actually quitting, but the last full browser
@@ -426,6 +424,10 @@ SuiteGlue.prototype = {
     Cc['@mozilla.org/docloaderservice;1']
       .getService(Ci.nsIWebProgress)
       .addProgressListener(this, Ci.nsIWebProgress.NOTIFY_LOCATION);
+  },
+
+  // cleanup (called on application shutdown)
+  _dispose: function BG__dispose() {
   },
 
   // profile is available
@@ -661,12 +663,19 @@ SuiteGlue.prototype = {
   },
 
   /**
-   * Profile shutdown handler (contains profile cleanup routines).
-   * All components depending on Places should be shut down in
-   * _onPlacesShutdown() and not here.
+   * Application shutdown handler.
    */
-  _onProfileShutdown: function()
+  _onQuitApplicationGranted: function()
   {
+    if (this._saveSession) {
+      this._setPrefToSaveSession();
+    }
+    Sanitizer.checkSettings();
+    AutoCompletePopup.uninit();
+
+    if (!Sanitizer.doPendingSanitize()) {
+      Services.prefs.setBoolPref("privacy.sanitize.didShutdownSanitize", true);
+    }
   },
 
   _promptForMasterPassword: function()
@@ -1141,9 +1150,6 @@ SuiteGlue.prototype = {
         }
       }
     } catch(ex) { /* Don't export */ }
-
-    if (!Sanitizer.doPendingSanitize())
-      Services.prefs.setBoolPref("privacy.sanitize.didShutdownSanitize", true);
   },
 
   /**
