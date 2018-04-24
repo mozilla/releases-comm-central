@@ -62,8 +62,6 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "PrivateBrowsingUtils",
                                "resource://gre/modules/PrivateBrowsingUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "PromiseUtils",
-                               "resource://gre/modules/PromiseUtils.jsm");
 
 const BOOKMARK_ITEM = 0;
 const BOOKMARK_FOLDER = 1;
@@ -101,7 +99,6 @@ var BookmarkPropertiesPanel = {
 
   _defaultInsertionPoint: null,
   _hiddenRows: [],
-  _batching: false,
 
   /**
    * This method returns the correct label for the dialog's "accept"
@@ -150,7 +147,7 @@ var BookmarkPropertiesPanel = {
   /**
    * Determines the initial data for the item edited or added by this dialog
    */
-  _determineItemInfo() {
+  async _determineItemInfo() {
     let dialogInfo = window.arguments[0];
     this._action = dialogInfo.action == "add" ? ACTION_ADD : ACTION_EDIT;
     this._hiddenRows = dialogInfo.hiddenRows ? dialogInfo.hiddenRows : [];
@@ -164,9 +161,10 @@ var BookmarkPropertiesPanel = {
         this._defaultInsertionPoint = dialogInfo.defaultInsertionPoint;
       } else {
         this._defaultInsertionPoint =
-          new InsertionPoint(PlacesUtils.bookmarksMenuFolderId,
-                             PlacesUtils.bookmarks.DEFAULT_INDEX,
-                             Ci.nsITreeView.DROP_ON);
+          new InsertionPoint({
+            parentId: PlacesUtils.bookmarksMenuFolderId,
+            parentGuid: PlacesUtils.bookmarks.menuGuid
+          });
       }
 
       switch (dialogInfo.type) {
@@ -177,11 +175,11 @@ var BookmarkPropertiesPanel = {
                       "uri property should be a uri object");
             this._uri = dialogInfo.uri;
             if (typeof(this._title) != "string") {
-              this._title = this._getURITitleFromHistory(this._uri) ||
+              this._title = await PlacesUtils.history.fetch(this._uri) ||
                             this._uri.spec;
             }
           } else {
-            this._uri = PlacesUtils._uri("about:blank");
+            this._uri = Services.io.newURI("about:blank");
             this._title = this._strings.getString("newBookmarkDefault");
             this._dummyItem = true;
           }
@@ -220,7 +218,7 @@ var BookmarkPropertiesPanel = {
 
           if (!this._title) {
             if (this._feedURI) {
-              this._title = this._getURITitleFromHistory(this._feedURI) ||
+              this._title = await PlacesUtils.history.fetch(this._feedURI) ||
                             this._feedURI.spec;
             } else
               this._title = this._strings.getString("newLivemarkDefault");
@@ -240,33 +238,33 @@ var BookmarkPropertiesPanel = {
   },
 
   /**
-   * This method returns the title string corresponding to a given URI.
-   * If none is available from the bookmark service (probably because
-   * the given URI doesn't appear in bookmarks or history), we synthesize
-   * a title from the first 100 characters of the URI.
-   *
-   * @param aURI
-   *        nsIURI object for which we want the title
-   *
-   * @returns a title string
-   */
-  _getURITitleFromHistory: function BPP__getURITitleFromHistory(aURI) {
-    NS_ASSERT(aURI instanceof Ci.nsIURI);
-
-    // get the title from History
-    return PlacesUtils.history.getPageTitle(aURI);
-  },
-
-  /**
    * This method should be called by the onload of the Bookmark Properties
    * dialog to initialize the state of the panel.
    */
   async onDialogLoad() {
-    this._determineItemInfo();
+    await this._determineItemInfo();
 
     document.title = this._getDialogTitle();
-    var acceptButton = document.documentElement.getButton("accept");
+
+    // Disable the buttons until we have all the information required.
+    let acceptButton = document.documentElement.getButton("accept");
+    acceptButton.disabled = true;
+
+    // Allow initialization to complete in a truely async manner so that we're
+    // not blocking the main thread.
+    this._initDialog().catch(ex => {
+      Cu.reportError(`Failed to initialize dialog: ${ex}`);
+    });
+  },
+
+  /**
+   * Initializes the dialog, gathering the required bookmark data. This function
+   * will enable the accept button (if appropraite) when it is complete.
+   */
+  async _initDialog() {
+    let acceptButton = document.documentElement.getButton("accept");
     acceptButton.label = this._getAcceptLabel();
+    let acceptButtonDisabled = false;
 
     // Do not use sizeToContent, otherwise, due to bug 90276, the dialog will
     // grow at every opening.
@@ -305,14 +303,12 @@ var BookmarkPropertiesPanel = {
     // the dialog is resized.
     window.addEventListener("resize", this);
 
-    this._beginBatch();
-
     switch (this._action) {
       case ACTION_EDIT:
         gEditItemOverlay.initPanel({ node: this._node,
                                      hiddenRows: this._hiddenRows,
                                      focusedElement: "first" });
-        acceptButton.disabled = gEditItemOverlay.readOnly;
+        acceptButtonDisabled = gEditItemOverlay.readOnly;
         break;
       case ACTION_ADD:
         this._node = await this._promiseNewItem();
@@ -332,7 +328,7 @@ var BookmarkPropertiesPanel = {
         // if this is an uri related dialog disable accept button until
         // the user fills an uri value.
         if (this._itemType == BOOKMARK_ITEM)
-          acceptButton.disabled = !this._inputIsValid();
+          acceptButtonDisabled = !this._inputIsValid();
         break;
     }
 
@@ -347,6 +343,8 @@ var BookmarkPropertiesPanel = {
         }
       }
     }
+    // Only enable the accept button once we've finished everything.
+    acceptButton.disabled = acceptButtonDisabled;
   },
 
   // nsIDOMEventListener
@@ -369,37 +367,6 @@ var BookmarkPropertiesPanel = {
         }
         break;
     }
-  },
-
-  // Hack for implementing batched-Undo around the editBookmarkOverlay
-  // instant-apply code. For all the details see the comment above beginBatch
-  // in browser-places.js
-  _batchBlockingDeferred: null,
-  _beginBatch() {
-    if (this._batching)
-      return;
-    if (PlacesUIUtils.useAsyncTransactions) {
-      this._batchBlockingDeferred = PromiseUtils.defer();
-      PlacesTransactions.batch(async () => {
-        await this._batchBlockingDeferred.promise;
-      });
-    } else {
-      PlacesUtils.transactionManager.beginBatch(null);
-    }
-    this._batching = true;
-  },
-
-  _endBatch() {
-    if (!this._batching)
-      return;
-
-    if (PlacesUIUtils.useAsyncTransactions) {
-      this._batchBlockingDeferred.resolve();
-      this._batchBlockingDeferred = null;
-    } else {
-      PlacesUtils.transactionManager.endBatch(false);
-    }
-    this._batching = false;
   },
 
   // nsISupports
@@ -431,23 +398,16 @@ var BookmarkPropertiesPanel = {
   onDialogAccept() {
     // We must blur current focused element to save its changes correctly
     document.commandDispatcher.focusedElement.blur();
-    // The order here is important! We have to uninit the panel first, otherwise
-    // late changes could force it to commit more transactions.
+    // We have to uninit the panel first, otherwise late changes could force it
+    // to commit more transactions.
     gEditItemOverlay.uninitPanel(true);
-    this._endBatch();
     window.arguments[0].performed = true;
   },
 
   onDialogCancel() {
-    // The order here is important! We have to uninit the panel first, otherwise
-    // changes done as part of Undo may change the panel contents and by
-    // that force it to commit more transactions.
+    // We have to uninit the panel first, otherwise late changes could force it
+    // to commit more transactions.
     gEditItemOverlay.uninitPanel(true);
-    this._endBatch();
-    if (PlacesUIUtils.useAsyncTransactions)
-      PlacesTransactions.undo().catch(Cu.reportError);
-    else
-      PlacesUtils.transactionManager.undoTransaction();
     window.arguments[0].performed = false;
   },
 
@@ -493,147 +453,16 @@ var BookmarkPropertiesPanel = {
    * The container-identifier and insertion-index are returned separately in
    * the form of [containerIdentifier, insertionIndex]
    */
-  _getInsertionPointDetails: function BPP__getInsertionPointDetails() {
-    var containerId = this._defaultInsertionPoint.itemId;
-    var indexInContainer = this._defaultInsertionPoint.index;
-
-    return [containerId, indexInContainer];
-  },
-
-  /**
-   * Returns a transaction for creating a new bookmark item representing the
-   * various fields and opening arguments of the dialog.
-   */
-  _getCreateNewBookmarkTransaction:
-  function BPP__getCreateNewBookmarkTransaction(aContainer, aIndex) {
-    var annotations = [];
-    var childTransactions = [];
-
-    if (this._description) {
-      let annoObj = { name: PlacesUIUtils.DESCRIPTION_ANNO,
-                      type: Ci.nsIAnnotationService.TYPE_STRING,
-                      flags: 0,
-                      value: this._description,
-                      expires: Ci.nsIAnnotationService.EXPIRE_NEVER };
-      let editItemTxn = new PlacesSetItemAnnotationTransaction(-1, annoObj);
-      childTransactions.push(editItemTxn);
-    }
-
-    if (this._loadInSidebar) {
-      let annoObj = { name: PlacesUIUtils.LOAD_IN_SIDEBAR_ANNO,
-                      value: true };
-      let setLoadTxn = new PlacesSetItemAnnotationTransaction(-1, annoObj);
-      childTransactions.push(setLoadTxn);
-    }
-
-    // XXX TODO: this should be in a transaction!
-    if (this._charSet && !PrivateBrowsingUtils.isWindowPrivate(window))
-      PlacesUtils.setCharsetForURI(this._uri, this._charSet);
-
-    let createTxn = new PlacesCreateBookmarkTransaction(this._uri,
-                                                        aContainer,
-                                                        aIndex,
-                                                        this._title,
-                                                        this._keyword,
-                                                        annotations,
-                                                        childTransactions,
-                                                        this._postData);
-
-    return new PlacesAggregatedTransaction(this._getDialogTitle(),
-                                           [createTxn]);
-  },
-
-  /**
-   * Returns a childItems-transactions array representing the URIList with
-   * which the dialog has been opened.
-   */
-  _getTransactionsForURIList: function BPP__getTransactionsForURIList() {
-    var transactions = [];
-    for (let uri of this._URIs) {
-      // uri should be an object in the form { uri, title }. Though add-ons
-      // could still use the legacy form, where it's an nsIURI.
-      // TODO: Remove This from v57 on.
-      let [_uri, _title] = uri instanceof Ci.nsIURI ?
-        [uri, this._getURITitleFromHistory(uri)] : [uri.uri, uri.title];
-
-      let createTxn =
-        new PlacesCreateBookmarkTransaction(_uri, -1,
-                                            PlacesUtils.bookmarks.DEFAULT_INDEX,
-                                            _title);
-      transactions.push(createTxn);
-    }
-    return transactions;
-  },
-
-  /**
-   * Returns a transaction for creating a new folder item representing the
-   * various fields and opening arguments of the dialog.
-   */
-  _getCreateNewFolderTransaction:
-  function BPP__getCreateNewFolderTransaction(aContainer, aIndex) {
-    var annotations = [];
-    var childItemsTransactions;
-    if (this._URIs.length)
-      childItemsTransactions = this._getTransactionsForURIList();
-
-    if (this._description)
-      annotations.push(this._getDescriptionAnnotation(this._description));
-
-    return new PlacesCreateFolderTransaction(this._title, aContainer,
-                                             aIndex, annotations,
-                                             childItemsTransactions);
-  },
-
-  async _createNewItem() {
-    let [container, index] = this._getInsertionPointDetails();
-    let txn;
-    switch (this._itemType) {
-      case BOOKMARK_FOLDER:
-        txn = this._getCreateNewFolderTransaction(container, index);
-        break;
-      case LIVEMARK_CONTAINER:
-        txn = new PlacesCreateLivemarkTransaction(this._feedURI, this._siteURI,
-                                                  this._title, container, index);
-        break;
-      default: // BOOKMARK_ITEM
-        txn = this._getCreateNewBookmarkTransaction(container, index);
-    }
-
-    PlacesUtils.transactionManager.doTransaction(txn);
-    // This is a temporary hack until we use PlacesTransactions.jsm
-    if (txn._promise) {
-      await txn._promise;
-    }
-
-    let folderGuid = await PlacesUtils.promiseItemGuid(container);
-    let bm = await PlacesUtils.bookmarks.fetch({
-      parentGuid: folderGuid,
-      index
-    });
-    this._itemId = await PlacesUtils.promiseItemId(bm.guid);
-
-    return Object.freeze({
-      itemId: this._itemId,
-      bookmarkGuid: bm.guid,
-      title: this._title,
-      uri: this._uri ? this._uri.spec : "",
-      type: this._itemType == BOOKMARK_ITEM ?
-              Ci.nsINavHistoryResultNode.RESULT_TYPE_URI :
-              Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER,
-      parent: {
-        itemId: container,
-        bookmarkGuid: await PlacesUtils.promiseItemGuid(container),
-        type: Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER
-      }
-    });
+  async _getInsertionPointDetails() {
+    return [
+      this._defaultInsertionPoint.itemId,
+      await this._defaultInsertionPoint.getIndex(),
+      this._defaultInsertionPoint.guid,
+    ];
   },
 
   async _promiseNewItem() {
-    if (!PlacesUIUtils.useAsyncTransactions)
-      return this._createNewItem();
-
-    let [containerId, index] = this._getInsertionPointDetails();
-    let parentGuid = await PlacesUtils.promiseItemGuid(containerId);
+    let [containerId, index, parentGuid] = await this._getInsertionPointDetails();
     let annotations = [];
     if (this._description) {
       annotations.push({ name: PlacesUIUtils.DESCRIPTION_ANNO,
@@ -664,14 +493,11 @@ var BookmarkPropertiesPanel = {
 
       itemGuid = await PlacesTransactions.NewLivemark(info).transact();
     } else if (this._itemType == BOOKMARK_FOLDER) {
+      // NewFolder requires a url rather than uri.
+      info.children = this._URIs.map(item => {
+        return { url: item.uri, title: item.title };
+      });
       itemGuid = await PlacesTransactions.NewFolder(info).transact();
-      // URIs is an array of objects in the form { uri, title }.  It is still
-      // named URIs because for backwards compatibility it could also be an
-      // array of nsIURIs. TODO: Fix the property names from v57.
-      for (let { uri: url, title } of this._URIs) {
-        await PlacesTransactions.NewBookmark({ parentGuid: itemGuid, url, title })
-                                .transact();
-      }
     } else {
       throw new Error(`unexpected value for _itemType:  ${this._itemType}`);
     }

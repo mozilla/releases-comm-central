@@ -16,15 +16,9 @@
   <script type="application/javascript"
           src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript"><![CDATA[
-    // TODO: Bug 406371.
-    // A bunch of browser code depends on us defining these, sad but true :(
-    var Cc = Cc;
-    var Ci = Ci;
-    var Cr = Cr;
-    var Cu = Cu;
-
     ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-    ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+    ChromeUtils.defineModuleGetter(window,
+      "PlacesUtils", "resource://gre/modules/PlacesUtils.jsm");
     ChromeUtils.defineModuleGetter(window,
       "PlacesUIUtils", "resource:///modules/PlacesUIUtils.jsm");
     ChromeUtils.defineModuleGetter(window,
@@ -90,6 +84,10 @@
 
   <menupopup id="placesContext"
              onpopupshowing="this._view = PlacesUIUtils.getViewForNode(document.popupNode);
+                             if (!PlacesUIUtils.openInTabClosesMenu) {
+                               document.getElementById ('placesContext_open:newtab')
+                               .setAttribute('closemenu', 'single');
+                             }
                              return this._view.buildContextMenu(this);"
              onpopuphiding="this._view.destroyContextMenu();">
     <menuitem id="placesContext_open"
@@ -198,7 +196,6 @@
               closemenu="single"
               selection="link|host"
               selectiontype="single"
-              hideifprivatebrowsing="true"
               forcehideselection="bookmark"/>
     <menuseparator id="placesContext_deleteSeparator"/>
     <menuitem id="placesContext_sortBy:name"

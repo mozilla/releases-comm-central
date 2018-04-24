@@ -179,10 +179,12 @@
     <!-- Bookmarks Menu -->
     <command id="Browser:AddBookmark"
              label="&addCurPageCmd.label;" accesskey="&addCurPageCmd.accesskey;"
-             oncommand="PlacesCommandHook.bookmarkCurrentPage(false, PlacesUtils.bookmarksMenuFolderId);"/>
+             oncommand="PlacesCommandHook.bookmarkPage(gBrowser.selectedBrowser,
+                                                       false);"/>
     <command id="Browser:AddBookmarkAs"
              label="&addCurPageAsCmd.label;" accesskey="&addCurPageAsCmd.accesskey;"
-             oncommand="PlacesCommandHook.bookmarkPage(gBrowser.selectedBrowser, PlacesUtils.bookmarksMenuFolderId, true);"/>
+             oncommand="PlacesCommandHook.bookmarkPage(gBrowser.selectedBrowser,
+                                                       true);"/>
     <!-- The command is disabled for the hidden window. Otherwise its enabled
          state is handled by BookmarksEventHandler.onPopupShowing. -->
     <command id="Browser:BookmarkAllTabs"

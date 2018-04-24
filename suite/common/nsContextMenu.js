@@ -1191,7 +1191,6 @@ nsContextMenu.prototype = {
 
   bookmarkThisPage : function() {
     window.top.PlacesCommandHook.bookmarkPage(this.browser,
-                                              PlacesUtils.bookmarksMenuFolderId,
                                               true);
   },
 

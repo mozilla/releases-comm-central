@@ -229,7 +229,6 @@
       <toolbarspring id="toolbar-spacer"/>
 
       <textbox id="searchFilter"
-               clickSelectsAll="true"
                type="search"
                aria-controls="placeContent"
                oncommand="PlacesSearchBox.search(this.value);"

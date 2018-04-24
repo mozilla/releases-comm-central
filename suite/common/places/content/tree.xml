@@ -242,7 +242,7 @@
             // opening each folder as we go.
             for (var i = parents.length - 1; i >= 0; --i) {
               let index = view.treeIndexForNode(parents[i]);
-              if (index != Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE &&
+              if (index != -1 &&
                   view.isContainer(index) && !view.isContainerOpen(index))
                 view.toggleOpenState(index);
             }
@@ -250,7 +250,7 @@
           }
 
           let index = view.treeIndexForNode(node);
-          if (index == Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE)
+          if (index == -1)
             return;
 
           view.selection.select(index);
@@ -471,7 +471,7 @@
           var result = this.result;
           var resultview = this.view;
           var container = result.root;
-          var dropNearItemId = -1;
+          var dropNearNode = null;
           NS_ASSERT(container, "null container");
           // When there's no selection, assume the container is the container
           // the view is populated from (i.e. the result's itemId).
@@ -500,7 +500,7 @@
 
               // Avoid the potentially expensive call to getChildIndex
               // if we know this container doesn't allow insertion
-              if (PlacesControllerDragHelper.disallowInsertion(container))
+              if (PlacesControllerDragHelper.disallowInsertion(container, this))
                 return null;
 
               var queryOptions = PlacesUtils.asQuery(result.root).queryOptions;
@@ -515,7 +515,7 @@
                 // We don't replace index here to avoid requests to the db,
                 // instead it will be calculated later by the controller.
                 index = -1;
-                dropNearItemId = lastSelected.itemId;
+                dropNearNode = lastSelected;
               } else {
                 var lsi = container.getChildIndex(lastSelected);
                 index = orientation == Ci.nsITreeView.DROP_BEFORE ? lsi : lsi + 1;
@@ -523,7 +523,7 @@
             }
           }
 
-          if (PlacesControllerDragHelper.disallowInsertion(container))
+          if (PlacesControllerDragHelper.disallowInsertion(container, this))
             return null;
 
           // TODO (Bug 1160193): properly support dropping on a tag root.
@@ -534,10 +534,11 @@
               return null;
           }
 
-          return new InsertionPoint(PlacesUtils.getConcreteItemId(container),
-                                    index, orientation,
-                                    tagName,
-                                    dropNearItemId);
+          return new InsertionPoint({
+            parentId: PlacesUtils.getConcreteItemId(container),
+            parentGuid: PlacesUtils.getConcreteItemGuid(container),
+            index, orientation, tagName, dropNearNode
+          });
         ]]></body>
       </method>
 
@@ -549,8 +550,10 @@
       </method>
 
       <!-- This method will select the first node in the tree that matches
-           each given item id. It will open any folder nodes that it needs
+           each given item guid. It will open any folder nodes that it needs
            to in order to show the selected items.
+           Note: An array of ids or guids (or a mixture) may be passed as aIDs.
+           Passing IDs should be considered deprecated.
       -->
       <method name="selectItems">
         <parameter name="aIDs"/>
@@ -597,6 +600,16 @@
                 node.type == Ci.nsINavHistoryResultNode.RESULT_TYPE_FOLDER_SHORTCUT)
               index = ids.indexOf(PlacesUtils.asQuery(node).folderItemId);
 
+            if (index == -1) {
+              index = ids.indexOf(node.bookmarkGuid);
+              if (index == -1) {
+                let concreteGuid = PlacesUtils.getConcreteItemGuid(node);
+                if (concreteGuid != node.bookmarkGuid) {
+                  index = ids.indexOf(concreteGuid);
+                }
+              }
+            }
+
             if (index != -1) {
               nodes.push(node);
               foundOne = true;
@@ -639,7 +652,7 @@
           let result = this.result;
           let didSuppressNotifications = result.suppressNotifications;
           if (!didSuppressNotifications)
-            result.suppressNotifications = true
+            result.suppressNotifications = true;
           try {
             findNodes(this.result.root);
           } finally {
@@ -659,7 +672,7 @@
           }
           for (let i = 0; i < nodes.length; i++) {
             var index = resultview.treeIndexForNode(nodes[i]);
-            if (index == Ci.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE)
+            if (index == -1)
               continue;
             selection.rangedSelect(index, index, true);
           }
@@ -732,7 +745,7 @@
 
           // If this node is child of a readonly container (e.g. a livemark)
           // or cannot be moved, we must force a copy.
-          if (!PlacesControllerDragHelper.canMoveNode(node)) {
+          if (!PlacesControllerDragHelper.canMoveNode(node, this)) {
             event.dataTransfer.effectAllowed = "copyLink";
             break;
           }

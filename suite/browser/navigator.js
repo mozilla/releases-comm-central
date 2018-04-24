@@ -8,18 +8,13 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadTaskbarProgress.jsm");
 ChromeUtils.import("resource:///modules/WindowsPreviewPerTab.jsm");
 
-this.__defineGetter__("PluralForm", function() {
-  ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-  return this.PluralForm;
-});
-this.__defineSetter__("PluralForm", function (val) {
-  delete this.PluralForm;
-  return this.PluralForm = val;
+XPCOMUtils.defineLazyModuleGetters(this, {
+  PluralForm: "resource://gre/modules/PluralForm.jsm",
+  PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.jsm",
+  PromiseUtils: "resource://gre/modules/PromiseUtils.jsm",
+  SafeBrowsing: "resource://gre/modules/SafeBrowsing.jsm",
 });
 
-ChromeUtils.defineModuleGetter(this, "SafeBrowsing",
-  "resource://gre/modules/SafeBrowsing.jsm");
-  
 XPCOMUtils.defineLazyScriptGetter(this, "gEditItemOverlay",
                                   "chrome://communicator/content/places/editBookmarkOverlay.js");
 

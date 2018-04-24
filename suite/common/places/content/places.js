@@ -42,7 +42,7 @@ var PlacesOrganizer = {
     this._places.place = "place:excludeItems=1&expandQueries=0&folder=" + leftPaneRoot;
   },
 
-  selectLeftPaneQuery: function PO_selectLeftPaneQuery(aQueryName) {
+  selectLeftPaneBuiltIn(aQueryName) {
     var itemId = PlacesUIUtils.leftPaneQueries[aQueryName];
     this._places.selectItems([itemId]);
     // Forcefully expand all-bookmarks
@@ -78,7 +78,7 @@ var PlacesOrganizer = {
             if (container.substr(0, 6) == "place:")
               this._places.selectPlaceURI(container);
             else if (container in PlacesUIUtils.leftPaneQueries)
-              this.selectLeftPaneQuery(container);
+              this.selectLeftPaneBuiltIn(container);
             else
               throw new Error("Invalid container found: " + container);
             break;
@@ -124,6 +124,8 @@ var PlacesOrganizer = {
             .removeChild(document.getElementById("placesContext_show:info"));
 
     ContentArea.focus();
+    // sync is currently disabled
+    // gSync.init();
   },
 
   QueryInterface: function PO_QueryInterface(aIID) {
@@ -225,22 +227,15 @@ var PlacesOrganizer = {
     if (!this._places.hasSelection)
       return;
 
-    var node = this._places.selectedNode;
-    var queries = PlacesUtils.asQuery(node).getQueries();
-
-    // Items are only excluded on the left pane.
-    var options = node.queryOptions.clone();
-    options.excludeItems = false;
-    var placeURI = PlacesUtils.history.queriesToQueryString(queries,
-                                                            queries.length,
-                                                            options);
+    let node = this._places.selectedNode;
+    let placeURI = node.uri;
 
     // If either the place of the content tree in the right pane has changed or
     // the user cleared the search box, update the place, hide the search UI,
     // and update the back/forward buttons by setting location.
     if (ContentArea.currentPlace != placeURI || !resetSearchBox) {
       ContentArea.currentPlace = placeURI;
-      this.location = node.uri;
+      this.location = placeURI;
     }
 
     // When we invalidate a container we use suppressSelectionEvent, when it is
@@ -249,9 +244,9 @@ var PlacesOrganizer = {
     // that we cannot return any earlier than this point, because when
     // !resetSearchBox, we need to update location and hide the UI as above,
     // even though the selection has not changed.
-    if (node.uri == this._cachedLeftPaneSelectedURI)
+    if (placeURI == this._cachedLeftPaneSelectedURI)
       return;
-    this._cachedLeftPaneSelectedURI = node.uri;
+    this._cachedLeftPaneSelectedURI = placeURI;
 
     // At this point, resetSearchBox is true, because the left pane selection
     // has changed; otherwise we would have returned earlier.
@@ -270,7 +265,7 @@ var PlacesOrganizer = {
     let itemId = aNode.itemId;
 
     if (PlacesUtils.nodeIsHistoryContainer(aNode) ||
-        itemId == PlacesUIUtils.leftPaneQueries["History"]) {
+        itemId == PlacesUIUtils.leftPaneQueries.History) {
       PlacesQueryBuilder.setScope("history");
     } else {
       // Default to All Bookmarks for all other nodes, per bug 469437.
@@ -398,7 +393,7 @@ var PlacesOrganizer = {
     const dtOptions = {
       dateStyle: "long"
     };
-    let dateFormatter = Services.intl.createDateTimeFormat(undefined, dtOptions);
+    let dateFormatter = new Services.intl.DateTimeFormat(undefined, dtOptions);
 
     // Remove existing menu items.  Last item is the restoreFromFile item.
     while (restorePopup.childNodes.length > 1)
@@ -461,9 +456,7 @@ var PlacesOrganizer = {
    * Prompts for a file and restores bookmarks to those in the file.
    */
   onRestoreBookmarksFromFile: function PO_onRestoreBookmarksFromFile() {
-    let dirSvc = Cc["@mozilla.org/file/directory_service;1"]
-                   .getService(Ci.nsIProperties);
-    let backupsDir = dirSvc.get("Desk", Ci.nsIFile);
+    let backupsDir = Services.dirsvc.get("Desk", Ci.nsIFile);
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     let fpCallback = aResult => {
       if (aResult != Ci.nsIFilePicker.returnCancel) {
@@ -492,11 +485,9 @@ var PlacesOrganizer = {
     }
 
     // confirm ok to delete existing bookmarks
-    var prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"]
-                    .getService(Ci.nsIPromptService);
-    if (!prompts.confirm(null,
-                         PlacesUIUtils.getString("bookmarksRestoreAlertTitle"),
-                         PlacesUIUtils.getString("bookmarksRestoreAlert")))
+    if (!Services.prompt.confirm(null,
+           PlacesUIUtils.getString("bookmarksRestoreAlertTitle"),
+           PlacesUIUtils.getString("bookmarksRestoreAlert")))
       return;
 
     (async function() {
@@ -512,9 +503,7 @@ var PlacesOrganizer = {
     var brandShortName = document.getElementById("brandStrings").
                                   getString("brandShortName");
 
-    Cc["@mozilla.org/embedcomp/prompt-service;1"]
-      .getService(Ci.nsIPromptService)
-      .alert(window, brandShortName, aMsg);
+    Services.prompt.alert(window, brandShortName, aMsg);
   },
 
   /**
@@ -523,14 +512,13 @@ var PlacesOrganizer = {
    * of those items.
    */
   backupBookmarks: function PO_backupBookmarks() {
-    let dirSvc = Cc["@mozilla.org/file/directory_service;1"]
-                   .getService(Ci.nsIProperties);
-    let backupsDir = dirSvc.get("Desk", Ci.nsILocalFile);
+    let backupsDir = Services.dirsvc.get("Desk", Ci.nsIFile);
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     let fpCallback = function fpCallback_done(aResult) {
       if (aResult != Ci.nsIFilePicker.returnCancel) {
         // There is no OS.File version of the filepicker yet (Bug 937812).
-        PlacesBackups.saveBookmarksToJSONFile(fp.file.path);
+        PlacesBackups.saveBookmarksToJSONFile(fp.file.path)
+                     .catch(Cu.reportError);
       }
     };
 
@@ -633,7 +621,7 @@ var PlacesOrganizer = {
       this._detectAndSetDetailsPaneMinimalState(selectedNode);
     } else if (!selectedNode && aNodeList[0]) {
       if (aNodeList.every(PlacesUtils.nodeIsURI)) {
-        let uris = aNodeList.map(node => PlacesUtils._uri(node.uri));
+        let uris = aNodeList.map(node => Services.io.newURI(node.uri));
         detailsDeck.selectedIndex = 1;
         gEditItemOverlay.initPanel({ uris,
                                      hiddenRows: ["folderPicker",
@@ -769,7 +757,6 @@ var PlacesSearchBox = {
     }
 
     let currentView = ContentArea.currentView;
-    let currentOptions = PO.getCurrentOptions();
 
     // Search according to the current scope, which was set by
     // PQB_setScope()
@@ -778,6 +765,7 @@ var PlacesSearchBox = {
         currentView.applyFilter(filterString, this.folders);
         break;
       case "history": {
+        let currentOptions = PO.getCurrentOptions();
         if (currentOptions.queryType != Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY) {
           let query = PlacesUtils.history.getNewQuery();
           query.searchTerms = filterString;
@@ -861,6 +849,9 @@ var PlacesSearchBox = {
    * Set up the gray text in the search bar as the Places View loads.
    */
   init: function PSB_init() {
+    if (Services.prefs.getBoolPref("browser.urlbar.clickSelectsAll", false)) {
+      this.searchFilter.setAttribute("clickSelectsAll", true);
+    }
     this.updateCollectionTitle();
   },
 
@@ -1168,7 +1159,7 @@ var ViewMenu = {
     result.sortingAnnotation = colLookupTable[columnId].anno || "";
     result.sortingMode = Ci.nsINavHistoryQueryOptions[sortConst];
   }
-}
+};
 
 var ContentArea = {
   _specialViews: new Map(),
