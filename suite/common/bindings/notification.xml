@@ -35,6 +35,12 @@
         ]]>
       </field>
 
+      <field name="_placesBundle" readonly="true">
+        <![CDATA[
+         Services.strings.createBundle("chrome://communicator/locale/places/places.properties");
+        ]]>
+      </field>
+
       <field name="_prefs" readonly="true">
         <![CDATA[
           Cc["@mozilla.org/preferences-service;1"]
@@ -1212,10 +1218,10 @@
         <body>
           <![CDATA[
             var brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
-            var message = this._stringBundle.formatStringFromName("lockPrompt.text", [brandShortName], 1);
+            var message = this._placesBundle.formatStringFromName("lockPrompt.text", [brandShortName], 1);
             var buttons = [{
-              label: this._stringBundle.GetStringFromName("lockPromptInfoButton.label"),
-              accessKey: this._stringBundle.GetStringFromName("lockPromptInfoButton.accesskey"),
+              label: this._placesBundle.GetStringFromName("lockPromptInfoButton.label"),
+              accessKey: this._placesBundle.GetStringFromName("lockPromptInfoButton.accesskey"),
               popup: null,
               callback: function() {
                 openHelp("places-locked", "chrome://communicator/locale/help/suitehelp.rdf");

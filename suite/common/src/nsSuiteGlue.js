@@ -25,6 +25,9 @@ ChromeUtils.defineModuleGetter(this, "PlacesUtils",
 ChromeUtils.defineModuleGetter(this, "PlacesBackups",
                                "resource://gre/modules/PlacesBackups.jsm");
 
+ChromeUtils.defineModuleGetter(this, "AsyncShutdown",
+                               "resource://gre/modules/AsyncShutdown.jsm");
+
 ChromeUtils.defineModuleGetter(this, "AutoCompletePopup",
                                "resource://gre/modules/AutoCompletePopup.jsm");
 
@@ -78,12 +81,12 @@ const listeners = {
 };
 
 // We try to backup bookmarks at idle times, to avoid doing that at shutdown.
-// Number of idle seconds before trying to backup bookmarks.  15 minutes.
-const BOOKMARKS_BACKUP_IDLE_TIME = 15 * 60;
-// Minimum interval in milliseconds between backups.
-const BOOKMARKS_BACKUP_INTERVAL = 86400 * 1000;
-// Maximum number of backups to create.  Old ones will be purged.
-const BOOKMARKS_BACKUP_MAX_BACKUPS = 10;
+// Number of idle seconds before trying to backup bookmarks 8 minutes.
+const BOOKMARKS_BACKUP_IDLE_TIME_SEC = 15 * 60;
+// Minimum interval between backups. We try to not create more than one backup
+// per interval.
+const BOOKMARKS_BACKUP_MIN_INTERVAL_DAYS = 1;
+
 // Devtools Preferences
 const DEBUGGER_REMOTE_ENABLED = "devtools.debugger.remote-enabled";
 const DEBUGGER_REMOTE_PORT = "devtools.debugger.remote-port";
@@ -310,14 +313,6 @@ SuiteGlue.prototype = {
           this._initPlaces(false);
 
         Services.obs.removeObserver(this, "places-init-complete");
-        // No longer needed, since history was initialized completely.
-        Services.obs.removeObserver(this, "places-database-locked");
-        break;
-      case "places-database-locked":
-        this._isPlacesDatabaseLocked = true;
-        // Stop observing, so further attempts to load history service
-        // will not show the prompt.
-        Services.obs.removeObserver(this, "places-database-locked");
         break;
       case "places-shutdown":
         Services.obs.removeObserver(this, "places-shutdown");
@@ -325,8 +320,7 @@ SuiteGlue.prototype = {
         this._onPlacesShutdown();
         break;
       case "idle":
-        if (this._idleService.idleTime > BOOKMARKS_BACKUP_IDLE_TIME * 1000)
-          this._backupBookmarks();
+        this._backupBookmarks();
         break;
       case "initial-migration":
         this._initialMigrationPerformed = true;
@@ -415,7 +409,6 @@ SuiteGlue.prototype = {
     Services.obs.addObserver(this, "session-save", true);
     Services.obs.addObserver(this, "dl-done", true);
     Services.obs.addObserver(this, "places-init-complete", true);
-    Services.obs.addObserver(this, "places-database-locked", true);
     Services.obs.addObserver(this, "places-shutdown", true);
     Services.obs.addObserver(this, "browser-search-engine-modified", true);
     Services.obs.addObserver(this, "notifications-open-settings", true);
@@ -428,6 +421,10 @@ SuiteGlue.prototype = {
 
   // cleanup (called on application shutdown)
   _dispose: function BG__dispose() {
+    if (this._isIdleObserver) {
+      this._idleService.removeIdleObserver(this, BOOKMARKS_BACKUP_IDLE_TIME_SEC);
+      delete this._isIdleObserver;
+    }
   },
 
   // profile is available
@@ -652,8 +649,9 @@ SuiteGlue.prototype = {
 
     // Load the "more info" page for a locked places.sqlite
     // This property is set earlier by places-database-locked topic.
-    if (this._isPlacesDatabaseLocked)
+    if (this._isPlacesDatabaseLocked) {
       notifyBox.showPlacesLockedWarning();
+    }
 
     // Detect if updates are off and warn for outdated builds.
     if (this._shouldShowUpdateWarning())
@@ -672,10 +670,6 @@ SuiteGlue.prototype = {
     }
     Sanitizer.checkSettings();
     AutoCompletePopup.uninit();
-
-    if (!Sanitizer.doPendingSanitize()) {
-      Services.prefs.setBoolPref("privacy.sanitize.didShutdownSanitize", true);
-    }
   },
 
   _promptForMasterPassword: function()
@@ -971,204 +965,191 @@ SuiteGlue.prototype = {
    *   Set to true by safe-mode dialog to indicate we must restore default
    *   bookmarks.
    */
-  async _initPlaces(aInitialMigrationPerformed) {
+  _initPlaces: function BG__initPlaces(aInitialMigrationPerformed) {
     // We must instantiate the history service since it will tell us if we
     // need to import or restore bookmarks due to first-run, corruption or
     // forced migration (due to a major schema change).
-    var bookmarksBackupFile = await PlacesBackups.getMostRecentBackup();
-
     // If the database is corrupt or has been newly created we should
-    // import bookmarks. Same if we don't have any JSON backups, which
-    // probably means that we never have used bookmarks in places yet.
-    var dbStatus = PlacesUtils.history.databaseStatus;
-    var importBookmarks = !aInitialMigrationPerformed &&
-                          (dbStatus == PlacesUtils.history.DATABASE_STATUS_CREATE ||
-                           dbStatus == PlacesUtils.history.DATABASE_STATUS_CORRUPT ||
-                           !bookmarksBackupFile);
+    // import bookmarks.
+    let dbStatus = PlacesUtils.history.databaseStatus;
 
-    // Check if user or an extension has required to import bookmarks.html
-    var importBookmarksHTML = false;
+    // The places.sqlite database is locked. We show a notification box for
+    // it in _onBrowserStartup.
+    if (dbStatus == PlacesUtils.history.DATABASE_STATUS_LOCKED) {
+      this._isPlacesDatabaseLocked = true;
+      Services.console.logStringMessage("places.sqlite is locked");
+      // Note: initPlaces should always happen when the first window is ready,
+      // in any case, better safe than sorry.
+      Services.obs.notifyObservers(null, "places-browser-init-complete");
+      return;
+    }
+
+    let importBookmarks = !aInitialMigrationPerformed &&
+                          (dbStatus == PlacesUtils.history.DATABASE_STATUS_CREATE ||
+                           dbStatus == PlacesUtils.history.DATABASE_STATUS_CORRUPT);
+
+    // Check if user or an extension has required to import bookmarks.html.
+    let importBookmarksHTML = false;
     try {
       importBookmarksHTML =
         Services.prefs.getBoolPref("browser.places.importBookmarksHTML");
       if (importBookmarksHTML)
         importBookmarks = true;
-    } catch(ex) {}
+    } catch (ex) {}
 
-    // Check if Safe Mode or the user has required to restore bookmarks from
-    // default profile's bookmarks.html
-    var restoreDefaultBookmarks = false;
-    try {
-      restoreDefaultBookmarks =
-        Services.prefs.getBoolPref("browser.bookmarks.restore_default_bookmarks");
-      if (restoreDefaultBookmarks) {
-        // Ensure that we already have a bookmarks backup for today.
-        this._backupBookmarks();
-        importBookmarks = true;
-      }
-    } catch(ex) {}
+    // Support legacy bookmarks.html format for apps that depend on that format.
+    // Default if the pref does not exists is 'Do not export'.
+    let autoExportHTML = Services.prefs.getBoolPref("browser.bookmarks.autoExportHTML", false);
 
-    // If the user did not require to restore default bookmarks, or import
-    // from bookmarks.html, we will try to restore from JSON.
-    if (importBookmarks && !restoreDefaultBookmarks && !importBookmarksHTML) {
-      // Get latest JSON backup.
-      if (bookmarksBackupFile) {
-        // Restore from JSON backup.
-        await BookmarkJSONUtils.importFromFile(bookmarksBackupFile, true);
-        importBookmarks = false;
-      }
-      else if (dbStatus == PlacesUtils.history.DATABASE_STATUS_OK) {
-        importBookmarks = false;
-      }
-      else {
-        // We have created a new database but we don't have any backup available.
-        importBookmarks = true;
-        var bookmarksHTMLFile = Services.dirsvc.get("BMarks", Ci.nsIFile);
-        if (bookmarksHTMLFile.exists()) {
-          // If bookmarks.html is available in current profile import it...
-          importBookmarksHTML = true;
-        }
-        else {
-          // ...otherwise we will restore defaults.
-          restoreDefaultBookmarks = true;
-        }
-      }
+    if (autoExportHTML) {
+      // Sqlite.jsm and Places shutdown happen at profile-before-change, thus,
+      // to be on the safe side, this should run earlier.
+      AsyncShutdown.profileChangeTeardown.addBlocker(
+        "Places: export bookmarks.html",
+        () => BookmarkHTMLUtils.exportToFile(Services.dirsvc.get("BMarks",
+                                                                 Ci.nsIFile).path));
     }
 
-    // If bookmarks are not imported, then initialize smart bookmarks. This
-    // happens during a common startup.
-    // Otherwise, if any kind of import runs, smart bookmarks creation should
-    // be delayed till the import operations has finished. Not doing so would
-    // cause them to be overwritten by the newly imported bookmarks.
-    if (!importBookmarks) {
+    (async () => {
+      // Check if Safe Mode or the user has required to restore bookmarks from
+      // default profile's bookmarks.html.
+      let restoreDefaultBookmarks = false;
       try {
-        await this.ensurePlacesDefaultQueriesInitialized();
-      } catch (e) {
-        Cu.reportError(e);
-      }
-    } else {
-      // An import operation is about to run.
-      // Don't try to recreate smart bookmarks if autoExportHTML is true or
-      // smart bookmarks are disabled.
-      var autoExportHTML = false;
-      try {
-        autoExportHTML = Services.prefs.getBoolPref("browser.bookmarks.autoExportHTML");
-      } catch(ex) {}
-      var smartBookmarksVersion = 0;
-      try {
-        smartBookmarksVersion = Services.prefs.getIntPref("browser.places.smartBookmarksVersion");
-      } catch(ex) {}
-      if (!autoExportHTML && smartBookmarksVersion != -1)
-        Services.prefs.setIntPref("browser.places.smartBookmarksVersion", 0);
+        restoreDefaultBookmarks =
+          Services.prefs.getBoolPref("browser.bookmarks.restore_default_bookmarks");
+        if (restoreDefaultBookmarks) {
+          // Ensure that we already have a bookmarks backup for today.
+          await this._backupBookmarks();
+          importBookmarks = true;
+        }
+      } catch (ex) {}
 
-      var bookmarksURI = null;
-      if (restoreDefaultBookmarks) {
-        // User wants to restore bookmarks.html file from default profile folder.
-        bookmarksURI = Services.io.newURI("resource:///defaults/profile/bookmarks.html");
-      }
-      else {
-        // Get bookmarks.html file location.
-        var bookmarksFile = Services.dirsvc.get("BMarks", Ci.nsIFile);
-        if (bookmarksFile.exists())
-          bookmarksURI = Services.io.newFileURI(bookmarksFile);
+      // This may be reused later, check for "=== undefined" to see if it has
+      // been populated already.
+      let lastBackupFile;
+
+      // If the user did not require to restore default bookmarks, or import
+      // from bookmarks.html, we will try to restore from JSON.
+      if (importBookmarks && !restoreDefaultBookmarks && !importBookmarksHTML) {
+        // Get latest JSON backup.
+        lastBackupFile = await PlacesBackups.getMostRecentBackup();
+        if (lastBackupFile) {
+          // Restore from JSON backup.
+          await BookmarkJSONUtils.importFromFile(lastBackupFile, true);
+          importBookmarks = false;
+        } else {
+          // We have created a new database but we don't have any backup available.
+          importBookmarks = true;
+          let bookmarksHTMLFile = Services.dirsvc.get("BMarks", Ci.nsIFile);
+          if (bookmarksHTMLFile.exists(bookmarksHTMLFile)) {
+            // If bookmarks.html is available in current profile import it...
+            importBookmarksHTML = true;
+          } else {
+            // ...otherwise we will restore defaults.
+            restoreDefaultBookmarks = true;
+          }
+        }
       }
 
-      if (bookmarksURI) {
-        // Import from bookmarks.html file.
+      // If bookmarks are not imported, then initialize smart bookmarks.  This
+      // happens during a common startup.
+      // Otherwise, if any kind of import runs, smart bookmarks creation should
+      // be delayed till the import operations has finished. Not doing so would
+      // cause them to be overwritten by the newly imported bookmarks.
+      if (!importBookmarks) {
         try {
-          BookmarkHTMLUtils.importFromURL(bookmarksURI.spec, true).then(null,
-            function onFailure() {
-              Cu.reportError("Bookmarks.html file could be corrupt.");
-            }
-          ).then(
+          await this.ensurePlacesDefaultQueriesInitialized();
+        } catch (e) {
+          Cu.reportError(e);
+        }
+      } else {
+        // An import operation is about to run.
+        // Don't try to recreate smart bookmarks if autoExportHTML is true or
+        // smart bookmarks are disabled.
+        let smartBookmarksVersion = Services.prefs.getIntPref("browser.places.smartBookmarksVersion", 0);
+        if (!autoExportHTML && smartBookmarksVersion != -1)
+          Services.prefs.setIntPref("browser.places.smartBookmarksVersion", 0);
+
+        let bookmarksURI = null;
+        if (restoreDefaultBookmarks) {
+          // User wants to restore bookmarks.html file from default profile folder
+          bookmarksURI = Services.io.newURI("resource:///defaults/profile/bookmarks.html");
+        } else {
+          let bookmarksFile = Services.dirsvc.get("BMarks", Ci.nsIFile);
+          if (bookmarksFile.exists(bookmarksFile)) {
+            bookmarksURI = Services.io.newFileURI(bookmarksFile);
+          }
+        }
+
+        if (bookmarksURI) {
+          // Import from bookmarks.html file.
+          try {
+            await BookmarkHTMLUtils.importFromURL(bookmarksURI.spec, true);
+          } catch (e) {
+            Cu.reportError("Bookmarks.html file could be corrupt. " + e);
+          }
+          try {
             // Ensure that smart bookmarks are created once the operation is
             // complete.
-            await this.ensurePlacesDefaultQueriesInitialized.bind(this)
-          );
+            await this.ensurePlacesDefaultQueriesInitialized();
+          } catch (e) {
+            Cu.reportError(e);
+          }
+        } else {
+          Cu.reportError(new Error("Unable to find bookmarks.html file."));
         }
-        catch(ex) {
-          Cu.reportError("bookmarks.html file could be corrupt. " + ex);
-        }
-      }
-      else {
-        Cu.reportError("Unable to find bookmarks.html file.");
+
+        // Reset preferences, so we won't try to import again at next run
+        if (importBookmarksHTML)
+          Services.prefs.setBoolPref("browser.places.importBookmarksHTML", false);
+        if (restoreDefaultBookmarks)
+          Services.prefs.setBoolPref("browser.bookmarks.restore_default_bookmarks",
+                                     false);
       }
 
-      // Reset preferences, so we won't try to import again at next run.
-      if (importBookmarksHTML)
-        Services.prefs.setBoolPref("browser.places.importBookmarksHTML", false);
-      if (restoreDefaultBookmarks)
-        Services.prefs.setBoolPref("browser.bookmarks.restore_default_bookmarks",
-                                   false);
-    }
+      AsyncShutdown.quitApplicationGranted.addBlocker(
+        "Places: export bookmarks at dawn",
+        () => this._backupBookmarks());
 
-    // Initialize bookmark archiving on idle.
-    // Once a day, either on idle or shutdown, bookmarks are backed up.
-    if (!this._isIdleObserver) {
-      this._idleService.addIdleObserver(this, BOOKMARKS_BACKUP_IDLE_TIME);
-      this._isIdleObserver = true;
-    }
+      // Initialize bookmark archiving on idle.
+      if (!this._isIdleObserver) {
+        this._idleService.addIdleObserver(this, BOOKMARKS_BACKUP_IDLE_TIME_SEC);
+        this._isIdleObserver = true;
+      }
+
+    })().catch(ex => {
+      Cu.reportError(ex);
+    }).then(() => {
+      // NB: deliberately after the catch so that we always do this, even if
+      // we threw halfway through initializing in the Task above.
+      Services.obs.notifyObservers(null, "places-browser-init-complete");
+    });
   },
 
   /**
    * Places shut-down tasks
-   * - back up bookmarks if needed.
-   * - export bookmarks as HTML, if so configured.
    * - finalize components depending on Places.
    */
   _onPlacesShutdown: function() {
-    if (this._isIdleObserver) {
-      this._idleService.removeIdleObserver(this, BOOKMARKS_BACKUP_IDLE_TIME);
-      this._isIdleObserver = false;
+    if (!Sanitizer.doPendingSanitize()) {
+      Services.prefs.setBoolPref("privacy.sanitize.didShutdownSanitize", true);
     }
-    this._backupBookmarks();
-
-    // Backup bookmarks to bookmarks.html to support apps that depend
-    // on the legacy format.
-    try {
-      // If this fails to get the preference value, we don't export.
-      if (Services.prefs.getBoolPref("browser.bookmarks.autoExportHTML")) {
-        // Exceptionally, since this is a non-default setting and HTML format is
-        // discouraged in favor of the JSON backups, we spin the event loop on
-        // shutdown, to wait for the export to finish.  We cannot safely spin
-        // the event loop on shutdown until we include a watchdog to prevent
-        // potential hangs (bug 518683).  The asynchronous shutdown operations
-        // will then be handled by a shutdown service (bug 435058).
-        var shutdownComplete = false;
-        BookmarkHTMLUtils.exportToFile(Services.dirsvc.get("BMarks", Ci.nsIFile)).then(
-          function onSuccess() {
-            shutdownComplete = true;
-          },
-          function onFailure() {
-            // There is no point in reporting errors since we are shutting down.
-            shutdownComplete = true;
-          }
-        );
-        var thread = Services.tm.currentThread;
-        while (!shutdownComplete) {
-          thread.processNextEvent(true);
-        }
-      }
-    } catch(ex) { /* Don't export */ }
   },
 
   /**
-   * Backup bookmarks if needed.
+   * If a backup for today doesn't exist, this creates one.
    */
-  _backupBookmarks: function() {
-    let lastBackupFile = PlacesBackups.getMostRecent();
-
-    // Backup bookmarks if there are no backups or the maximum interval between
-    // backups elapsed.
-    if (!lastBackupFile ||
-        new Date() - PlacesBackups.getDateForFile(lastBackupFile) > BOOKMARKS_BACKUP_INTERVAL) {
-      let maxBackups = BOOKMARKS_BACKUP_MAX_BACKUPS;
-      try {
-        maxBackups = Services.prefs.getIntPref("browser.bookmarks.max_backups");
-      } catch(ex) { /* Use default. */ }
-
-      PlacesBackups.create(maxBackups); // Don't force creation.
-    }
+  _backupBookmarks: function BG__backupBookmarks() {
+    return (async function() {
+      let lastBackupFile = await PlacesBackups.getMostRecentBackup();
+      // Should backup bookmarks if there are no backups or the maximum
+      // interval between backups elapsed.
+      if (!lastBackupFile ||
+          new Date() - PlacesBackups.getDateForFile(lastBackupFile) > BOOKMARKS_BACKUP_MIN_INTERVAL_DAYS * 86400000) {
+        let maxBackups = Services.prefs.getIntPref("browser.bookmarks.max_backups");
+        await PlacesBackups.create(maxBackups);
+      }
+    })();
   },
 
   _updatePrefs: function()
