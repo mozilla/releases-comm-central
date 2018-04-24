@@ -39,10 +39,12 @@ textbox[nomatch="true"][highlightnonmatches="true"] {
   margin-inline-end: 1px;
 }
 
-/* ::::: popups ::::: */
+/* ::::: autocomplete popups ::::: */
 
-.autocomplete-history-popup,
-panel[type="autocomplete"] {
+panel[type="autocomplete"],
+panel[type="autocomplete-richlistbox"],
+.autocomplete-history-popup {
+  -moz-appearance: none;
   border: 1px solid;
   -moz-border-top-colors: #6B747E;
   -moz-border-right-colors: #6B747E;
@@ -52,7 +54,7 @@ panel[type="autocomplete"] {
 }
 
 .autocomplete-history-popup {
-  max-height: 25em;
+  max-height: 180px;
 }
 
 /* ::::: tree ::::: */
@@ -84,4 +86,23 @@ panel[type="autocomplete"] {
 .autocomplete-treebody::-moz-tree-image(treecolAutoCompleteValue) {
   max-width: 16px;
   height: 16px;
+}
+
+/* ::::: richlistbox autocomplete ::::: */
+
+.autocomplete-richlistbox {
+  -moz-appearance: none;
+  margin: 0px !important;
+  border: none !important;
+  padding: 0px !important;
+}
+
+/* ::::: textboxes inside toolbarpaletteitems ::::: */
+
+toolbarpaletteitem > toolbaritem > textbox > hbox > hbox > html|*.textbox-input {
+  visibility: hidden;
+}
+
+toolbarpaletteitem > toolbaritem > * > textbox > hbox > hbox > html|*.textbox-input {
+  visibility: hidden;
 }
