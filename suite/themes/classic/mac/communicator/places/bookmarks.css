@@ -50,23 +50,19 @@ treechildren::-moz-tree-image(title, livemarkItem, visited) {
   list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
 }
 
-treechildren::-moz-tree-image(container, OrganizerQuery_AllBookmarks) {
-  list-style-image: url("chrome://communicator/skin/places/allBookmarks.png");
-}
-
 #bookmarksToolbarFolderMenu,
 #BMB_bookmarksToolbarFolderMenu,
-treechildren::-moz-tree-image(container, OrganizerQuery_BookmarksToolbar) {
+treechildren::-moz-tree-image(container, queryFolder_toolbar_____) {
   list-style-image: url("chrome://communicator/skin/places/bookmarksToolbar.png");
 }
 
-treechildren::-moz-tree-image(container, OrganizerQuery_BookmarksMenu) {
+treechildren::-moz-tree-image(container, queryFolder_menu________) {
   list-style-image: url("chrome://communicator/skin/places/bookmarksMenu.png");
 }
 
 #unsortedBookmarksFolderMenu,
 #BMB_unsortedBookmarksFolderMenu,
-treechildren::-moz-tree-image(container, OrganizerQuery_UnfiledBookmarks) {
+treechildren::-moz-tree-image(container, queryFolder_unfiled_____) {
   list-style-image: url("chrome://communicator/skin/places/unsortedBookmarks.png");
 }
 
@@ -75,6 +71,11 @@ treechildren::-moz-tree-image(container, OrganizerQuery_UnfiledBookmarks) {
 treechildren::-moz-tree-image(query) {
   list-style-image: url("chrome://communicator/skin/places/query.png");
 }
+
+treechildren::-moz-tree-image(query, OrganizerQuery_AllBookmarks) {
+  list-style-image: url("chrome://communicator/skin/places/allBookmarks.png");
+}
+
 
 .bookmark-item[query][tagContainer],
 treechildren::-moz-tree-image(title, query, tagContainer),
