@@ -95,10 +95,10 @@ pref("app.update.url", "https://aus5.mozilla.org/update/6/%PRODUCT%/%VERSION%/%B
 
 // URL user can browse to manually if for some reason all update installation
 // attempts fail.
-pref("app.update.url.manual", "http://www.getthunderbird.com");
+pref("app.update.url.manual", "https://www.thunderbird.net");
 // A default value for the "More information about this update" link
 // supplied in the "An update is available" page of the update wizard.
-pref("app.update.url.details", "https://www.mozilla.org/%LOCALE%/%APP%/releases/");
+pref("app.update.url.details", "https://www.thunderbird.net/%LOCALE%/%APP%/releases/");
 
 // app.update.promptWaitTime is in branding section
 
@@ -111,14 +111,14 @@ pref("app.update.service.enabled", true);
 #endif
 
 // Release notes URL
-pref("app.releaseNotesURL", "https://live.mozillamessaging.com/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&os=%OS%&buildid=%APPBUILDID%");
+pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&os=%OS%&buildid=%APPBUILDID%");
 
 // URL for "Learn More" for Crash Reporter.
 pref("toolkit.crashreporter.infoURL",
      "https://www.mozilla.org/thunderbird/legal/privacy/#crash-reporter");
 
 // Base URL for web-based support pages.
-pref("app.support.baseURL", "https://support.live.mozillamessaging.com/%LOCALE%/%APP%/%APPBUILDID%/");
+pref("app.support.baseURL", "https://support.thunderbird.net/%LOCALE%/%APP%/%APPBUILDID%/");
 
 // Show error messages in error console.
 pref("javascript.options.showInConsole", true);
@@ -764,7 +764,7 @@ pref("plugins.hide_infobar_for_carbon_failure_plugin", false);
 
 pref("plugins.update.url", "https://www.mozilla.org/%LOCALE%/plugincheck/");
 pref("plugins.update.notifyUser", false);
-pref("plugins.crash.supportUrl", "https://live.mozillamessaging.com/%APP%/plugin-crashed?locale=%LOCALE%&version=%VERSION%&os=%OS%&buildid=%APPBUILDID%");
+pref("plugins.crash.supportUrl", "https://live.thunderbird.net/%APP%/plugin-crashed?locale=%LOCALE%&version=%VERSION%&os=%OS%&buildid=%APPBUILDID%");
 
 // Click-to-play has not been ported for TB yet, see bug 814168.
 // The default plugin state should be changed to "ask to activate" when this
@@ -794,8 +794,8 @@ pref("gfx.direct2d.disabled", true);
 #endif
 
 // Account provisioner.
-pref("mail.provider.providerList", "https://broker-live.mozillamessaging.com/provider/list");
-pref("mail.provider.suggestFromName", "https://broker-live.mozillamessaging.com/provider/suggest");
+pref("mail.provider.providerList", "https://broker.thunderbird.net/provider/list");
+pref("mail.provider.suggestFromName", "https://broker.thunderbird.net/provider/suggest");
 pref("mail.provider.enabled", true);
 
 // Pointer to the default engine name.
@@ -833,11 +833,11 @@ pref("mail.chat.play_sound.url", "");
 
 // BigFiles
 pref("mail.cloud_files.enabled", true);
-pref("mail.cloud_files.inserted_urls.footer.link", "http://www.getthunderbird.com");
-pref("mail.cloud_files.learn_more_url", "https://support.mozillamessaging.com/kb/filelink-large-attachments");
+pref("mail.cloud_files.inserted_urls.footer.link", "https://www.thunderbird.net");
+pref("mail.cloud_files.learn_more_url", "https://support.thunderbird.net/kb/filelink-large-attachments");
 
 // Ignore threads
-pref("mail.ignore_thread.learn_more_url", "https://support.mozillamessaging.com/kb/ignore-threads");
+pref("mail.ignore_thread.learn_more_url", "https://support.thunderbird.net/kb/ignore-threads");
 
 // Sanitize dialog window
 pref("privacy.cpd.history", true);

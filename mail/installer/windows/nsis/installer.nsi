@@ -47,7 +47,7 @@ Var PreventRebootRequired
 ; are a member of the Administrators group.
 !define NONADMIN_ELEVATE
 
-!define AbortSurveyURL "http://live.mozillamessaging.com/survey/cancel/?page="
+!define AbortSurveyURL "https://live.thunderbird.net/survey/cancel/?page="
 
 ; Other included files may depend upon these includes!
 ; The following includes are provided by NSIS.

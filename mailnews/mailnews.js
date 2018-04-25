@@ -881,9 +881,9 @@ pref("mailnews.emptyJunk.dontAskAgain", false);
 pref("mailnews.emptyTrash.dontAskAgain", false);
 
 // where to fetch auto config information from.
-pref("mailnews.auto_config_url", "https://live.mozillamessaging.com/autoconfig/v1.1/");
+pref("mailnews.auto_config_url", "https://live.thunderbird.net/autoconfig/v1.1/");
 // Added in bug 551519. Remove when bug 545866 is fixed.
-pref("mailnews.mx_service_url", "https://live.mozillamessaging.com/dns/mx/");
+pref("mailnews.mx_service_url", "https://live.thunderbird.net/dns/mx/");
 // Allow to contact ISP (email address domain)
 // This happens via insecure means (HTTP), so the config cannot be trusted,
 // and also contains the email address
