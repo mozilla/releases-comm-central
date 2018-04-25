@@ -12,6 +12,7 @@
   --toolbar-non-lwt-bgcolor: var(--toolbar-bgcolor);
   --toolbar-non-lwt-textcolor: var(--chrome-color);
   --toolbar-non-lwt-bgimage: none;
+  --lwt-toolbar-field-border-color: hsla(240,5%,5%,.25);
 
   --toolbarbutton-icon-fill-opacity: .7;
 
@@ -75,10 +76,30 @@ findbar ::-moz-selection {
 .mail-toolbox,
 .contentTabToolbox,
 findbar,
+#msgHeaderView,
 #browser-bottombox {
   background-color: var(--chrome-secondary-background-color) !important;
   background-image: none !important;
   color: var(--chrome-color);
+}
+
+/* Let the message headers use the theme colors */
+.headerValue {
+  color: inherit;
+}
+
+/* Style the editContactPanel textfields */
+.editContactTextbox {
+  background-color: var(--lwt-toolbar-field-background-color);
+  color: var(--lwt-toolbar-field-color);
+}
+.editContactTextbox:not([readonly="true"]):not([focused="true"]) {
+  border-color: var(--lwt-toolbar-field-border-color);
+}
+
+.editContactTextbox ::-moz-selection {
+  background-color: var(--chrome-selection-background-color);
+  color: var(--chrome-selection-color);
 }
 
 /* Search bar*/
