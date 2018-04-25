@@ -9,7 +9,6 @@ messenger.jar:
 % override chrome://browser/content/browser-development-helpers.js chrome://messenger/content/browser-development-helpers.js
   content/messenger/browser-development-helpers.js (../../common/src/browser-development-helpers.js)
 #endif
-% overlay chrome://global/content/config.xul chrome://messenger/content/configEditorOverlay.xul
 % overlay about:addons chrome://messenger/content/extensionsOverlay.xul
 % style about:addons chrome://messenger/content/extensionsOverlay.css
 % style chrome://messenger/content/customizeToolbar.xul chrome://messenger/content/messenger.css
@@ -83,7 +82,6 @@ messenger.jar:
     content/messenger/tabmail.css                   (content/tabmail.css)
     content/messenger/newTagDialog.xul              (content/newTagDialog.xul)
     content/messenger/newTagDialog.js               (content/newTagDialog.js)
-    content/messenger/configEditorOverlay.xul       (content/configEditorOverlay.xul)
     content/messenger/composerOverlay.css           (content/composerOverlay.css)
     content/messenger/threadPane.js                 (content/threadPane.js)
     content/messenger/threadPaneColumnPicker.xml    (content/threadPaneColumnPicker.xml)
