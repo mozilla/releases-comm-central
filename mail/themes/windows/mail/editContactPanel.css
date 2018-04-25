@@ -39,11 +39,23 @@
   min-width: 20em;
 }
 
-.editContactTextbox[readonly="true"] {
+.editContactTextbox {
   -moz-appearance: none;
-  margin: 4px 7px;
-  border: none;
+  cursor: text;
+  margin: 1px 4px;
+  background-color: -moz-Field;
+  border: 1px solid ThreeDShadow;
+  padding: 3px 6px;
+}
+
+.editContactTextbox[focused="true"] {
+  border-color: Highlight;
+}
+
+.editContactTextbox[readonly="true"] {
+  border-color: transparent;
   background-color: inherit;
+  color: inherit;
 }
 
 #editContactAddressBookList[disabled="true"] {

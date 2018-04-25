@@ -49,6 +49,26 @@
   color: GrayText !important;
 }
 
+.editContactTextbox {
+  -moz-appearance: none;
+  cursor: text;
+  margin: 1px 4px;
+  background-color: -moz-Field;
+  border-radius: 3px;
+  border: 1px solid ThreeDShadow;
+  padding: 3px 6px;
+}
+
+.editContactTextbox[focused="true"] {
+  border-color: Highlight;
+}
+
+.editContactTextbox[readonly="true"] {
+  border-color: transparent;
+  background-color: inherit;
+  color: inherit;
+}
+
 /* align with textbox and menulist */
 button {
   margin-inline-end: 4px;
