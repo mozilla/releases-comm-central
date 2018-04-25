@@ -1,9 +1,0 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-messenger.jar:
-% overlay chrome://devtools/content/webconsole/webconsole.xul chrome://messenger/content/devtools/webconsole-overlay.xul
-% overlay chrome://devtools/content/framework/toolbox-process-window.xul chrome://messenger/content/devtools/toolbox-process-overlay.xul
-  content/messenger/devtools/webconsole-overlay.xul        (webconsole-overlay.xul)
-  content/messenger/devtools/toolbox-process-overlay.xul   (toolbox-process-overlay.xul)

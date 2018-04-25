@@ -11,5 +11,3 @@ EXTRA_COMPONENTS += [
     "devtools-loader.js",
     "devtools-loader.manifest",
 ]
-
-JAR_MANIFESTS += ['jar.mn']

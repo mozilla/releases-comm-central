@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
@@ -52,6 +54,32 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "handle-xul-text-link");
     Services.obs.addObserver(this, "profile-after-change");
     Services.obs.addObserver(this, "chrome-document-global-created");
+
+    // Inject scripts into some devtools windows.
+    function _setupBrowserConsole(domWindow) {
+      domWindow.document.documentElement.setAttribute("title", gMailBundle.GetStringFromName("errorConsoleTitle"));
+      Services.scriptloader.loadSubScript("chrome://global/content/viewSourceUtils.js", domWindow);
+    }
+
+    ExtensionSupport.registerWindowListener(
+      "Thunderbird-internal-BrowserConsole",
+      {
+        chromeURLs: [ "chrome://devtools/content/webconsole/browserconsole.xul" ],
+        onLoadWindow: _setupBrowserConsole
+      });
+
+    function _setupToolbox(domWindow) {
+      // Defines openUILinkIn and openWebLinkIn
+      Services.scriptloader.loadSubScript("chrome://communicator/content/contentAreaClick.js", domWindow);
+    }
+
+    ExtensionSupport.registerWindowListener(
+      "Thunderbird-internal-Toolbox",
+      {
+        chromeURLs: [ "chrome://devtools/content/framework/toolbox-process-window.xul" ],
+        onLoadWindow: _setupToolbox
+      });
+
   },
 
   // cleanup (called at shutdown)
@@ -62,6 +90,9 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "profile-after-change");
     Services.obs.removeObserver(this, "chrome-document-global-created");
+
+    ExtensionSupport.unregisterWindowListener("Thunderbird-internal-Toolbox");
+    ExtensionSupport.unregisterWindowListener("Thunderbird-internal-BrowserConsole");
   },
 
   // nsIObserver implementation
