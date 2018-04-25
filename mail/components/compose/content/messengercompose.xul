@@ -570,7 +570,6 @@
 
 <!-- Reorder Attachments Panel -->
 <panel id="reorderAttachmentsPanel"
-       backdrag="true"
        orient="vertical"
        type="arrow"
        flip="slide"
