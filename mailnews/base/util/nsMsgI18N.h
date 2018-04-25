@@ -138,8 +138,11 @@ NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
                                                 const nsACString& charset,
                                                 nsACString& outString);
 
+// Decode UTF-7 to UTF-16. No encoding supported.
+NS_MSG_BASE nsresult CopyUTF7toUTF16(const nsACString& aSrc, nsAString& aDest);
+
 // Convert between UTF-16 and modified UTF-7 used for IMAP.
-NS_MSG_BASE nsresult CopyUTF16toMUTF7(const nsString &aSrc, nsACString& aDest);
-NS_MSG_BASE nsresult CopyMUTF7toUTF16(const nsCString& aSrc, nsAString& aDest);
+NS_MSG_BASE nsresult CopyUTF16toMUTF7(const nsAString &aSrc, nsACString& aDest);
+NS_MSG_BASE nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest);
 
 #endif /* _nsMsgI18N_H_ */

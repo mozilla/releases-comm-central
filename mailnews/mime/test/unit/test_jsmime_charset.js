@@ -8,6 +8,8 @@
 ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 var tests = [
+  ["=?UTF-7?Q?+AKM-1?=", "\u00A31"],
+  ["=?UTF-7?Q?+AK?= =?UTF-7?Q?M-1?=", "\u00A31"],
   ["=?UTF-8?Q?=C2?=", "\uFFFD"], // Replacement character for invalid input.
   ["=?NotARealCharset?Q?text?=", "=?NotARealCharset?Q?text?="],
   ["\xC2\xA31", "\u00A31", "ISO-8859-2"],

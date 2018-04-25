@@ -16,6 +16,12 @@ Services.scriptloader.loadSubScript("resource:///modules/jsmime/jsmime.js");
 
 var EXPORTED_SYMBOLS = ["jsmime"];
 
+function bytesToString(buffer) {
+  var string = '';
+  for (var i = 0; i < buffer.length; i++)
+    string += String.fromCharCode(buffer[i]);
+  return string;
+}
 
 // A polyfill to support non-encoding-spec charsets. Since the only converter
 // available to us from JavaScript has a very, very weak and inflexible API, we
@@ -33,14 +39,26 @@ FakeTextDecoder.prototype = {
       "@mozilla.org/intl/scriptableunicodeconverter"]
       .createInstance(Ci.nsIScriptableUnicodeConverter);
     this._encoder.isInternal = true;
-    let manager = Cc[
-      "@mozilla.org/charset-converter-manager;1"]
-      .createInstance(Ci.nsICharsetConverterManager);
-    this._encoder.charset = manager.getCharsetAlias(label);
+    let manager = Cc["@mozilla.org/charset-converter-manager;1"]
+                    .createInstance(Ci.nsICharsetConverterManager);
+    this.charset = manager.getCharsetAlias(label);
+    if (this.charset.toLowerCase() != "utf-7")
+      this._encoder.charset = this.charset;
+    else
+      this.collectInput = "";
   },
   get encoding() { return this._encoder.charset; },
   decode: function (input, options = {}) {
     let more = 'stream' in options ? options.stream : false;
+    if (this.charset.toLowerCase() == "utf-7") {
+      this.collectInput += bytesToString(input);
+      if (more)
+        return "";
+      let manager = Cc["@mozilla.org/charset-converter-manager;1"]
+                      .getService(Ci.nsICharsetConverterManager);
+      return manager.utf7ToUnicode(this.collectInput);
+    }
+
     let result = "";
     if (input !== undefined) {
       let data = new Uint8Array(input);

@@ -195,13 +195,19 @@ nsCharsetConverterManager::GetCharsetLangGroupRaw(const char * aCharset,
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::Mutf7ToUnicode(const char* aSrc, nsAString& aDest)
+nsCharsetConverterManager::Utf7ToUnicode(const nsACString& aSrc, nsAString& aDest)
 {
-  return CopyMUTF7toUTF16(nsDependentCString(aSrc), aDest);
+  return CopyUTF7toUTF16(aSrc, aDest);
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::UnicodeToMutf7(const char16_t* aSrc, nsACString& aDest)
+nsCharsetConverterManager::Mutf7ToUnicode(const nsACString& aSrc, nsAString& aDest)
 {
-  return CopyUTF16toMUTF7(nsDependentString(aSrc), aDest);
+  return CopyMUTF7toUTF16(aSrc, aDest);
+}
+
+NS_IMETHODIMP
+nsCharsetConverterManager::UnicodeToMutf7(const nsAString& aSrc, nsACString& aDest)
+{
+  return CopyUTF16toMUTF7(aSrc, aDest);
 }

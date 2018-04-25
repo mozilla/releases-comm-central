@@ -61,8 +61,13 @@ interface nsICharsetConverterManager : nsISupports
     AUTF8String getCharsetLangGroupRaw(in string aCharset);
 
     /**
+     * Decoding of UTF-7 in message headers and bodies.
+     */
+    AString utf7ToUnicode(in ACString aMutf7);
+
+    /**
      * Support for Modified UTF-7 (MUTF-7) used by IMAP.
      */
-    AString mutf7ToUnicode(in string aMutf7);
-    ACString unicodeToMutf7(in wstring aUnicode);
+    AString mutf7ToUnicode(in ACString aMutf7);
+    ACString unicodeToMutf7(in AString aUnicode);
 };

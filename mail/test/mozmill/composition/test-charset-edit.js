@@ -126,26 +126,20 @@ function test_wrong_reply_charset() {
 
 /**
  * Test that replying to bad charsets don't screw up the existing text.
- * UTF-16 can be decoded but is not a valid reply charset.
  */
 function test_no_mojibake() {
   let folder = gDrafts;
-  let nonASCII = "€€€"; // U+20AC
-  let UTF16    = "\xAC\x20\xAC\x20\xAC\x20";
+  let nonASCII = "ケツァルコアトル";
+  let UTF7 = "+MLEwxDChMOswszCiMMgw6w-";
   let msg0 = create_message({
-    bodyPart: new SyntheticPartLeaf(UTF16, {charset: "UTF-16LE"})
+    bodyPart: new SyntheticPartLeaf(UTF7, {charset: "utf-7"})
   });
   add_message_to_folder(folder, msg0);
   be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
-  assert_equals(getMsgHeaders(msg).get("").charset, "UTF-16LE");
-  // We need to check for includes() here since the message
-  // also contains CRLF, which is interpreted as invalid UTF-16.
-  // UTF-16 isn't the perfect charset for this test, but after UTF-7 is no
-  // longer supported, it's the only one which can be decoded but is invalid
-  // to use.
-  assert_true(getMsgHeaders(msg, true).get("").includes(nonASCII));
+  assert_equals(getMsgHeaders(msg).get("").charset, "utf-7");
+  assert_equals(getMsgHeaders(msg, true).get("").trim(), nonASCII);
 
   let rwc = open_compose_with_reply();
   // Ctrl+S = save as draft.
@@ -173,7 +167,7 @@ function test_no_mojibake() {
   close_compose_window(rwc);
   msg = select_click_row(0);
   assert_equals(getMsgHeaders(msg).get("").charset.toUpperCase(), "UTF-8");
-  assert_true(getMsgHeaders(msg, true).get("").includes(nonASCII));
+  assert_equals(getMsgHeaders(msg, true).get("").trim(), nonASCII);
   press_delete(mc); // Delete message
 }
 

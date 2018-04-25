@@ -66,7 +66,13 @@ function testDecodeAliasesInternal()
   var converter = CreateScriptableConverter();
   converter.isInternal = true;
   for (var i = 0; i < aliases.length; ++i) {
-    checkDecode(converter, aliases[i], inString, expectedString);
+    if (aliases[i].toLowerCase() == "utf-7") {
+      let manager = Cc['@mozilla.org/charset-converter-manager;1']
+                      .getService(Ci.nsICharsetConverterManager);
+      Assert.equal(manager.utf7ToUnicode(inString), expectedString);
+    } else {
+      checkDecode(converter, aliases[i], inString, expectedString);
+    }
   }
 }
 

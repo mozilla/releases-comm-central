@@ -26,6 +26,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsUnicharUtils.h"
 #include "nsIFileStreams.h"
+#include "../../intl/nsUTF7ToUnicode.h"
 #include "../../intl/nsMUTF7ToUnicode.h"
 #include "../../intl/nsUnicodeToMUTF7.h"
 
@@ -76,6 +77,10 @@ nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
     CopyASCIItoUTF16(inString, outString);
     return NS_OK;
   }
+  else if (aCharset.Equals("UTF-7", nsCaseInsensitiveCStringComparator())) {
+    // Special treatment for decoding UTF-7 since it's not handled by encoding_rs.
+    return CopyUTF7toUTF16(inString, outString);
+  }
   else if (aCharset.Equals("UTF-8", nsCaseInsensitiveCStringComparator())) {
     return UTF_8_ENCODING->DecodeWithBOMRemoval(inString, outString);
   }
@@ -87,12 +92,26 @@ nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
                                                                  outString);
 }
 
-nsresult CopyUTF16toMUTF7(const nsString &aSrc, nsACString& aDest)
+// This is used to decode UTF-7. No support for encoding in UTF-7.
+nsresult CopyUTF7toUTF16(const nsACString& aSrc, nsAString& aDest)
+{
+  // UTF-7 encoding size cannot be larger than the size in UTF-16.
+  nsUTF7ToUnicode converter;
+  int32_t inLen = aSrc.Length();
+  int32_t outLen = inLen;
+  aDest.SetCapacity(outLen);
+  converter.ConvertNoBuff(aSrc.BeginReading(), &inLen, aDest.BeginWriting(), &outLen);
+  MOZ_ASSERT(inLen == (int32_t)aSrc.Length(), "UTF-7 should not produce a longer output");
+  aDest.SetLength(outLen);
+  return NS_OK;
+}
+
+nsresult CopyUTF16toMUTF7(const nsAString &aSrc, nsACString& aDest)
 {
   #define IMAP_UTF7_BUF_LENGTH 100
   nsUnicodeToMUTF7 converter;
   static char buffer[IMAP_UTF7_BUF_LENGTH];
-  char16_t *in = (char16_t *)aSrc.get();
+  const char16_t *in = aSrc.BeginReading();
   int32_t inLen = aSrc.Length();
   int32_t outLen;
   aDest.Truncate();
@@ -111,14 +130,14 @@ nsresult CopyUTF16toMUTF7(const nsString &aSrc, nsACString& aDest)
   return NS_OK;
 }
 
-nsresult CopyMUTF7toUTF16(const nsCString& aSrc, nsAString& aDest)
+nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest)
 {
   // UTF-7 encoding size cannot be larger than the size in UTF-16.
   nsMUTF7ToUnicode converter;
   int32_t inLen = aSrc.Length();
   int32_t outLen = inLen;
   aDest.SetCapacity(outLen);
-  converter.ConvertNoBuff(aSrc.get(), &inLen, aDest.BeginWriting(), &outLen);
+  converter.ConvertNoBuff(aSrc.BeginReading(), &inLen, aDest.BeginWriting(), &outLen);
   MOZ_ASSERT(inLen == (int32_t)aSrc.Length(), "UTF-7 should not produce a longer output");
   aDest.SetLength(outLen);
   return NS_OK;
