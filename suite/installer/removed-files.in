@@ -607,7 +607,6 @@ Throbber-small.gif
   @DIR_MACOS@components/nsAboutRights.js
   @DIR_MACOS@components/nsAboutSessionRestore.js
   @DIR_MACOS@components/nsBadCertHandler.js
-  @DIR_MACOS@components/nsBlocklistService.js
   @DIR_MACOS@components/nsBrowserContentHandler.js
   @DIR_MACOS@components/nsComposerCmdLineHandler.js
   @DIR_MACOS@components/nsContentDispatchChooser.js

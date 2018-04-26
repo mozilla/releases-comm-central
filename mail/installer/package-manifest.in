@@ -407,7 +407,6 @@
 @RESPATH@/components/addonManager.js
 @RESPATH@/components/amContentHandler.js
 @RESPATH@/components/amInstallTrigger.js
-@RESPATH@/components/nsBlocklistService.js
 #ifdef MOZ_UPDATER
 @RESPATH@/components/nsUpdateService.manifest
 @RESPATH@/components/nsUpdateService.js
