@@ -393,6 +393,7 @@ toolbarbutton.formatting-button {
   padding: 0;
   border: 0;
   border-radius: 3px;
+  color: -moz-dialogText;
   min-width: 28px;
   list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons.png");
 }
