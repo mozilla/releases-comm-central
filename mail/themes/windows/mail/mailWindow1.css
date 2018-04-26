@@ -514,6 +514,19 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     opacity: .6;
   }
 
+  .menulist-dropmarker {
+    -moz-appearance: none;
+    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+    -moz-context-properties: fill;
+    fill: currentColor;
+    margin-top: 0;
+  }
+
+  .menulist-dropmarker > .dropmarker-icon {
+    width: 9px;
+    height: 7px;
+  }
+
   #viewPickerPopup > menu,
   #viewPickerPopup > menuitem {
     margin: 1px;
