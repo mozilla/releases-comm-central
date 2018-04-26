@@ -326,11 +326,8 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
 .headerValue {
   min-width: 50px;
   white-space: normal;
-  color: black !important;
   line-height: 1.5em;
-
   -moz-appearance: none !important;
-
   padding: .1em 0px !important;
   margin: 0px !important;
   margin-bottom: 3px !important;
