@@ -6,7 +6,7 @@ var MODULE_NAME = "test-mail-account-setup-wizard";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                         "account-manager-helpers", "keyboard-helpers" ];
+                       "account-manager-helpers", "keyboard-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
@@ -26,21 +26,6 @@ function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
-
-  try {
-    let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
-    user.name = userInfo.fullname;
-  } catch(e) {
-     // nsIUserInfo may not be implemented on all platforms, and name might
-     // not be available even if it is.
-  }
-}
-
-// Select File > New > Mail Account to open the Mail Account Setup Wizard
-function open_mail_account_setup_wizard(k) {
-  plan_for_modal_dialog("mail:autoconfig", k);
-  mc.click(new elib.Elem(mc.menus.menu_File.menu_New.newMailAccountMenuItem));
-  return wait_for_modal_dialog("mail:autoconfig");
 }
 
 // Remove an account in the Account Manager, but not via the UI.
@@ -74,26 +59,24 @@ function test_mail_account_setup() {
 
   open_mail_account_setup_wizard(function (awc) {
     // Input user's account information
-    awc.e("realname").focus();
-    if (!awc.e("realname").value) {
-       // Realname is likely already filled, if not, fill it now.
-      input_value(awc, user.name);
+    awc.click(awc.eid("realname"));
+    if (awc.e("realname").value) {
+      // If any realname is already filled, clear it out, we have our own.
+      delete_all_existing(awc, awc.eid("realname"));
     }
+    input_value(awc, user.name);
     awc.keypress(null, "VK_TAB", {});
     input_value(awc, user.email);
     awc.keypress(null, "VK_TAB", {});
     input_value(awc, user.password);
 
     // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
-    awc.e("next_button").click();
-
-    let config = null;
+    awc.click(awc.eid("next_button"));
 
     // XXX: This should probably use a notification, once we fix bug 561143.
     awc.waitFor(() => awc.window.gEmailConfigWizard._currentConfig != null,
                 "Timeout waiting for current config to become non-null",
                 8000, 600);
-    config = awc.window.gEmailConfigWizard.getConcreteConfig();
 
     // Open the advanced settings (Account Manager) to create the account
     // immediately.  We use an invalid email/password so the setup will fail
@@ -163,11 +146,12 @@ function test_bad_password_uses_old_settings() {
   open_mail_account_setup_wizard(function (awc) {
     try {
       // Input user's account information
-      awc.e("realname").focus();
-      if (!awc.e("realname").value) {
-         // Realname is likely already filled, if not, fill it now.
-        input_value(awc, user.name);
+      awc.click(awc.eid("realname"));
+      if (awc.e("realname").value) {
+        // If any realname is already filled, clear it out, we have our own.
+        delete_all_existing(awc, awc.eid("realname"));
       }
+      input_value(awc, user.name);
       awc.keypress(null, "VK_TAB", {});
       input_value(awc, user.email);
       awc.keypress(null, "VK_TAB", {});
@@ -240,8 +224,7 @@ function remember_password_test(aPrefValue) {
       }
 
       // empty the password field
-      awc.keypress(password, 'a', {accelKey: true});
-      awc.keypress(password, 'VK_DELETE', {});
+      delete_all_existing(awc, password);
 
       // restore the saved signon.rememberSignons value
       Services.prefs.setBoolPref("signon.rememberSignons", rememberSignons_pref_save);

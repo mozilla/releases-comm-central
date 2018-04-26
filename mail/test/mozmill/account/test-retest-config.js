@@ -5,7 +5,8 @@
 var MODULE_NAME = "test-retest-config";
 
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "keyboard-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
+                       "keyboard-helpers", "account-manager-helpers"];
 
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
@@ -33,20 +34,17 @@ function tearDownModule(module) {
   Services.prefs.clearUserPref("mail.wizard.logging.dump");
 }
 
-// Select File > New > Mail Account to open the Mail Account Setup Wizard
-function open_mail_account_setup_wizard(k) {
-  plan_for_modal_dialog("mail:autoconfig", k);
-  mc.click(new elib.Elem(mc.menus.menu_File.menu_New.newMailAccountMenuItem));
-  return wait_for_modal_dialog("mail:autoconfig", 30000);
-}
-
 function test_re_test_config() {
   // Opening multiple windows in the same run seems to require letting the stack
   // unwind before opening the next one, so do that here.
   mc.sleep(0);
   open_mail_account_setup_wizard(function (awc) {
     // Input user's account information
-    awc.e("realname").focus();
+    awc.click(awc.eid("realname"));
+    if (awc.e("realname").value) {
+      // If any realname is already filled, clear it out, we have our own.
+      delete_all_existing(awc, awc.eid("realname"));
+    }
     input_value(awc, user.name);
     awc.keypress(null, "VK_TAB", {});
     input_value(awc, user.email);

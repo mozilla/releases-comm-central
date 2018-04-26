@@ -28,6 +28,7 @@ function installInto(module) {
   module.open_advanced_settings = open_advanced_settings;
   module.open_advanced_settings_from_account_wizard =
     open_advanced_settings_from_account_wizard;
+  module.open_mail_account_setup_wizard = open_mail_account_setup_wizard;
   module.click_account_tree_row = click_account_tree_row;
   module.get_account_tree_row = get_account_tree_row;
   module.remove_account = remove_account;
@@ -57,6 +58,18 @@ function open_advanced_settings_from_account_wizard(aCallback, aController) {
   aController.e("manual-edit_button").click();
   aController.e("advanced-setup_button").click();
   return wh.wait_for_modal_dialog("mailnews:accountmanager");
+}
+
+/**
+ * Use File > New > Mail Account to open the Mail Account Setup Wizard.
+ *
+ * @param aCallback  Function to run once the dialog is open. The function
+ *                   gets the new window controller passed as first argument.
+ */
+function open_mail_account_setup_wizard(aCallback) {
+  wh.plan_for_modal_dialog("mail:autoconfig", aCallback);
+  mc.click(new elib.Elem(mc.menus.menu_File.menu_New.newMailAccountMenuItem));
+  return wh.wait_for_modal_dialog("mail:autoconfig", 30000);
 }
 
 /**

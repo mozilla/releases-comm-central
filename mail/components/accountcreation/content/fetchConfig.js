@@ -23,6 +23,10 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback)
       configLocation.append("isp");
       configLocation.append(sanitize.hostname(domain) + ".xml");
 
+      if (!configLocation.exists() || !configLocation.isReadable()) {
+        errorCallback("local file not found");
+        return;
+      }
       var contents =
         readURLasUTF8(Services.io.newFileURI(configLocation));
       let domParser = new DOMParser();
