@@ -60,8 +60,8 @@ tasks:
           - "tc-treeherder-stage.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
           - $if: 'tasks_for == "hg-push"'
             then:
-              - "index.comm.v2.${repository.project}.latest.thunderbird.decision"
-              - "index.comm.v2.${repository.project}.revision.${push.revision}.thunderbird.decision"
+              - "index.comm.v2.${repository.project}.latest.taskgraph.decision"
+              - "index.comm.v2.${repository.project}.revision.${push.revision}.taskgraph.decision"
               - "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision"
               - "notify.email.${ownerEmail}.on-failed"
               - $if: '"mozilla@hocat.ca" in ownerEmail'
@@ -70,7 +70,7 @@ tasks:
             else:
               - $if: 'tasks_for == "action"'
                 then: "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.actions.$ownTaskId"
-                else: "index.comm.v2.${repository.project}.latest.thunderbird.decision-${cron.job_name}"
+                else: "index.comm.v2.${repository.project}.latest.taskgraph.decision-${cron.job_name}"
 
       scopes:
         $if: 'tasks_for == "hg-push"'
