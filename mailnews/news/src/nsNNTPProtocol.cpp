@@ -780,7 +780,7 @@ nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew, nsIApplic
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCOMPtr<nsIOutputStream> outStream;
-      rv = entry->OpenOutputStream(0, getter_AddRefs(outStream));
+      rv = entry->OpenOutputStream(0, -1, getter_AddRefs(outStream));
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = tee->Init(m_channelListener, outStream, nullptr);

@@ -9229,7 +9229,7 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew, nsIApp
         nsCOMPtr<nsIOutputStream> out;
         // This will fail with the cache turned off, so we need to fall through
         // to ReadFromImapConnection instead of aborting with NS_ENSURE_SUCCESS(rv,rv).
-        rv = entry->OpenOutputStream(0, getter_AddRefs(out));
+        rv = entry->OpenOutputStream(0, -1, getter_AddRefs(out));
         if (NS_SUCCEEDED(rv))
         {
           rv = tee->Init(m_channelListener, out, nullptr);
