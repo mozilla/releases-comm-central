@@ -37,6 +37,9 @@
   --lwt-toolbar-field-background-color: rgb(71, 71, 73);
   --lwt-toolbar-field-color: var(--chrome-color);
   --urlbar-separator-color: #5F6670;
+
+  /* composer header fields bottom border */
+  --composer-header-border-color: rgb(127, 127, 128);
 }
 
 :root:-moz-lwtheme-darktext {
@@ -45,10 +48,13 @@
   --chrome-background-color: #e3e4e6;
   --chrome-color: #18191a;
   --chrome-secondary-background-color: #f5f6f7;
-  --toolbox-border-bottom-color: #cccccc;
+  --toolbox-border-bottom-color: #ccc;
   --chrome-nav-bar-controls-border-color: #ccc;
   --chrome-selection-color: #f5f7fa;
   --chrome-selection-background-color: #4c9ed9;
+
+  /* composer header fields bottom border */
+  --composer-header-border-color: #aaa;
 }
 
 toolbar[brighttext] .toolbarbutton-1 {
@@ -66,18 +72,16 @@ findbar ::-moz-selection {
 
 /* Change the base colors for the mail chrome */
 
-#navigation-toolbox,
-.mail-toolbox,
-.contentTabToolbox {
+#headers-box,
+#navigation-toolbox {
   background-color: var(--chrome-background-color);
   color: var(--chrome-color);
 }
 
+findbar,
 .mail-toolbox,
 .contentTabToolbox,
-findbar,
-#msgHeaderView,
-#browser-bottombox {
+#msgHeaderView {
   background-color: var(--chrome-secondary-background-color) !important;
   background-image: none !important;
   color: var(--chrome-color);
@@ -108,4 +112,70 @@ findbar,
 #peopleSearchInput:not([focused="true"]),
 .remote-gloda-search:not([focused="true"]) {
   border-color: var(--chrome-nav-bar-controls-border-color);
+}
+
+/* Composer header box styling */
+#headers-box:-moz-lwtheme-brighttext {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
+
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
+}
+
+#MsgHeadersToolbar,
+#addressingWidget,
+.aw-menulist {
+  color: inherit;
+}
+
+#msgIdentity,
+#msgSubject,
+.textbox-addressingWidget,
+.dummy-row-cell:not(:first-child) {
+  border-bottom-color: var(--composer-header-border-color) !important;
+  color: var(--chrome-color);
+}
+
+#msgIdentity:hover,
+#msgIdentity:focus,
+#msgSubject:hover,
+#msgSubject[focused="true"],
+.textbox-addressingWidget:hover,
+.textbox-addressingWidget[focused="true"] {
+  background-color: var(--lwt-toolbar-field-background-color);
+  color: var(--lwt-toolbar-field-color);
+  border-color: var(--lwt-toolbar-field-border-color) !important;
+}
+
+#msgIdentity ::-moz-selection,
+#msgSubject ::-moz-selection,
+.textbox-addressingWidget ::-moz-selection {
+  background-color: var(--chrome-selection-background-color);
+  color: var(--chrome-selection-color);
+}
+
+.textbox-addressingWidget > .autocomplete-result-popupset {
+  -moz-appearance: none;
+  margin-top: -1px;
+  background: var(--autocomplete-popup-background);
+  color: var(--autocomplete-popup-color);
+}
+
+.textbox-addressingWidget panel[type="autocomplete-richlistbox"] {
+  padding: 2px 0;
+  color: inherit;
+  background-color: inherit;
+  border-color: var(--autocomplete-popup-border-color);
+}
+
+.textbox-addressingWidget .autocomplete-richlistbox {
+  color: inherit;
+  background-color: inherit;
+}
+
+.textbox-addressingWidget .autocomplete-richlistitem[selected] {
+  background: #0a84ff;
+  color: #fff;
 }

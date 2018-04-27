@@ -406,7 +406,16 @@ toolbarbutton.formatting-button:not([disabled="true"]):-moz-any([open="true"],[c
   box-shadow: var(--toolbarbutton-active-boxshadow);
 }
 
-toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon {
+.formatting-button > .toolbarbutton-menu-dropmarker {
+  -moz-appearance: none !important;
+  list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin-inline-start: 3px;
+}
+
+toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
+.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker {
   opacity: 0.4;
 }
 

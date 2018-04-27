@@ -98,6 +98,7 @@
   skin/classic/messenger/icons/anchor.svg                     (../shared/mail/icons/anchor.svg)
   skin/classic/messenger/icons/bold.svg                       (../shared/mail/icons/bold.svg)
   skin/classic/messenger/icons/bullet-list.svg                (../shared/mail/icons/bullet-list.svg)
+  skin/classic/messenger/messengercompose/format-dropmarker.svg (../shared/mail/icons/format-dropmarker.svg)
   skin/classic/messenger/icons/center-align.svg               (../shared/mail/icons/center-align.svg)
   skin/classic/messenger/icons/decrease.svg                   (../shared/mail/icons/decrease.svg)
   skin/classic/messenger/icons/hline.svg                      (../shared/mail/icons/hline.svg)

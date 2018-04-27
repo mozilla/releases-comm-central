@@ -22,6 +22,20 @@
   -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-light;
 }
 
+#headers-box {
+  -moz-appearance: none;
+}
+
+#FormatToolbar {
+  background-image: none;
+  background-color: transparent !important;
+}
+
+#compose-toolbar-sizer {
+  background-image: none;
+  background-color: var(--chrome-background-color);
+}
+
 .tabmail-tab[selected="true"] {
   -moz-font-smoothing-background-color: var(--toolbar-bgcolor);
 }
