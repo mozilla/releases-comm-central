@@ -21,7 +21,6 @@
 #include "nntpCore.h"
 #include "nsIWindowWatcher.h"
 #include "nsITreeColumns.h"
-#include "nsIDOMElement.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgI18N.h"
 #include "nsUnicharUtils.h"
@@ -1898,14 +1897,13 @@ nsNntpIncomingServer::SetTree(nsITreeBoxObject *tree)
   if (!col)
     return NS_OK;
 
-  nsCOMPtr<nsIDOMElement> element;
+  RefPtr<Element> element;
   col->GetElement(getter_AddRefs(element));
   if (!element)
     return NS_OK;
 
   nsAutoString dir;
-  nsCOMPtr<Element> element2 = do_QueryInterface(element);
-  element2->GetAttribute(NS_LITERAL_STRING("sortDirection"), dir);
+  element->GetAttribute(NS_LITERAL_STRING("sortDirection"), dir);
   mSearchResultSortDescending = dir.EqualsLiteral("descending");
   return NS_OK;
 }
@@ -1925,16 +1923,15 @@ nsNntpIncomingServer::CycleHeader(nsITreeColumn* col)
   col->GetCycler(&cycler);
   if (!cycler) {
     NS_NAMED_LITERAL_STRING(dir, "sortDirection");
-    nsCOMPtr<nsIDOMElement> element;
+    RefPtr<Element> element;
     col->GetElement(getter_AddRefs(element));
     mSearchResultSortDescending = !mSearchResultSortDescending;
-    nsCOMPtr<Element> element2 = do_QueryInterface(element);
     mozilla::IgnoredErrorResult rv2;
-    element2->SetAttribute(dir,
-                           mSearchResultSortDescending ?
-                             NS_LITERAL_STRING("descending") :
-                             NS_LITERAL_STRING("ascending"),
-                           rv2);
+    element->SetAttribute(dir,
+                          mSearchResultSortDescending ?
+                            NS_LITERAL_STRING("descending") :
+                            NS_LITERAL_STRING("ascending"),
+                          rv2);
     mTree->Invalidate();
   }
   return NS_OK;
