@@ -1593,8 +1593,7 @@ function EditorDblClick(event)
     // Only bring up properties if clicked on an element or selected link
     var element;
     try {
-      element = event.explicitOriginalTarget.QueryInterface(
-                    Ci.nsIDOMElement);
+      element = event.explicitOriginalTarget;
     } catch (e) {}
 
      //  We use "href" instead of "a" to not be fooled by named anchor
@@ -1627,8 +1626,7 @@ function EditorClick(event)
     {
       // We check event.explicitOriginalTarget here because .target will never
       // be a textnode (bug 193689)
-      var element = event.explicitOriginalTarget.QueryInterface(
-                        Ci.nsIDOMElement);
+      var element = event.explicitOriginalTarget;
       var name = element.localName;
       if (!["body", "caption", "table", "td", "th", "tr"].includes(name))
       {

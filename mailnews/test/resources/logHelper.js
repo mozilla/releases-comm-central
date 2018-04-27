@@ -11,6 +11,7 @@
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 ChromeUtils.import("resource:///modules/IOUtils.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+Cu.importGlobalProperties(["Element"]);
 
 var _mailnewsTestLogger;
 var _xpcshellLogger;
@@ -417,7 +418,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     let name = aObj.nodeName;
     let objAttrs = {};
 
-    if (aObj instanceof Ci.nsIDOMElement)
+    if (Element.isInstance(aObj))
       name += "#" + aObj.getAttribute("id");
 
     if ("attributes" in aObj) {

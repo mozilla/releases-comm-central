@@ -17,7 +17,7 @@ this.EXPORTED_SYMBOLS = [
 ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.importGlobalProperties(["DOMParser"]);
+Cu.importGlobalProperties(["DOMParser", "Element"]);
 
 var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
 var kThemePref = "theme";
@@ -141,7 +141,7 @@ function plistToJSON(aElt)
         if (nodes[i].nodeName == 'key') {
           let key = nodes[i].textContent;
           ++i;
-          while (!(nodes[i] instanceof Ci.nsIDOMElement))
+          while (!Element.isInstance(nodes[i]))
             ++i;
           res[key] = plistToJSON(nodes[i]);
         }
@@ -152,7 +152,7 @@ function plistToJSON(aElt)
       let array = [];
       nodes = aElt.childNodes;
       for (let i = 0; i < nodes.length; ++i) {
-        if (nodes[i] instanceof Ci.nsIDOMElement)
+        if (Element.isInstance(nodes[i]))
           array.push(plistToJSON(nodes[i]));
       }
       return array;
@@ -176,7 +176,7 @@ function getInfoPlistContent(aBaseURI)
     if (doc.documentElement.localName != "plist")
       throw "Invalid Info.plist file";
     let node = doc.documentElement.firstChild;
-    while (node && !(node instanceof Ci.nsIDOMElement))
+    while (node && !Element.isInstance(node))
       node = node.nextSibling;
     if (!node || node.localName != "dict")
       throw "Empty or invalid Info.plist file";
