@@ -5,7 +5,7 @@
 ---
 
 jobs:
-    - name: nightly
+    - name: nightly-desktop
       job:
           type: decision-task
           treeherder-symbol: Nd
