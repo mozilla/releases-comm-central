@@ -131,14 +131,7 @@ var nsOfflineStartup =
   },
 
 
-  QueryInterface: function(aIID)
-  {
-    if (aIID.equals(Ci.nsIObserver) ||
-        aIID.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 }
 
 function nsOfflineStartupModule()

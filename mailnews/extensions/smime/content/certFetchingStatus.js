@@ -197,13 +197,7 @@ function boundListener() {
 }
 
 boundListener.prototype.QueryInterface =
-  function(iid) {
-    if (iid.equals(Ci.nsISupports) ||
-        iid.equals(Ci.nsILDAPMessageListener))
-        return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
+  ChromeUtils.generateQI(["nsILDAPMessageListener"]);
 
 boundListener.prototype.onLDAPMessage =
   function(aMessage) {
@@ -219,13 +213,7 @@ function ldapMessageListener() {
 }
 
 ldapMessageListener.prototype.QueryInterface =
-  function(iid) {
-    if (iid.equals(Ci.nsISupports) ||
-        iid.equals(Ci.nsILDAPMessageListener))
-        return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
+  ChromeUtils.generateQI(["nsILDAPMessageListener"]);
 
 ldapMessageListener.prototype.onLDAPMessage =
   function(aMessage) {

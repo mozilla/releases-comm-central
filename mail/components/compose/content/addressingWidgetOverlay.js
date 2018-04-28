@@ -1199,13 +1199,7 @@ AutomatedAutoCompleteHandler.prototype =
     awAddRecipientsArray(this.recipientType, this.finalAddresses);
   },
 
-  QueryInterface : function(iid)
-  {
-      if (iid.equals(Ci.nsIAutoCompleteListener) ||
-          iid.equals(Ci.nsISupports))
-        return this;
-      throw Cr.NS_NOINTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIAutoCompleteListener"]),
 }
 
 // Returns the load context for the current window

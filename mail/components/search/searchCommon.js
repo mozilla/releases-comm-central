@@ -791,12 +791,7 @@ var SearchSupport =
     /// Reindex time for this message header
     _reindexTime: null,
 
-    QueryInterface: function(aIId, instance) {
-      if (aIId.equals(Ci.nsIStreamListener) || aIId.equals(Ci.nsISupports))
-        return this;
-
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    },
+    QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
     /// "Finish" function, cleans up behind itself if unsuccessful
     _onDoneStreaming: function search_on_done_streaming(successful)

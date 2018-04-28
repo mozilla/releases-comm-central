@@ -483,15 +483,8 @@ function Startup()
   // Define a custom view for the tree
   treeBoxObject = gDialog.tree.treeBoxObject;
   treeBoxObject.view = {
-    QueryInterface : function QueryInterface(aIID)
-    {
-      if (aIID.equals(Ci.nsITreeView) ||
-          aIID.equals(Ci.nsISupportsWeakReference) ||
-          aIID.equals(Ci.nsISupports))
-        return this;
-
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    },
+    QueryInterface: ChromeUtils.generateQI(["nsITreeView",
+                                            "nsISupportsWeakReference"]),
     // useful for debugging
     get wrappedJSObject() { return this; },
     get rowCount() { return itemArray.length; },

@@ -750,13 +750,7 @@ function nsFlavorDataProvider()
 
 nsFlavorDataProvider.prototype =
 {
-  QueryInterface : function(iid)
-  {
-      if (iid.equals(Ci.nsIFlavorDataProvider) ||
-          iid.equals(Ci.nsISupports))
-        return this;
-      throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
   getFlavorData : function(aTransferable, aFlavor, aData, aDataLen)
   {

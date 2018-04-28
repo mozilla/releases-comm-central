@@ -170,14 +170,8 @@ var progressListener = {
   onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {},
   onSecurityChange: function(aWebProgress, aRequest, state) {},
 
-  QueryInterface : function(iid) {
-    if (iid.equals(Ci.nsIWebProgressListener) ||
-        iid.equals(Ci.nsISupportsWeakReference) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_NOINTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
+                                          "nsISupportsWeakReference"]),
 };
 
 /*

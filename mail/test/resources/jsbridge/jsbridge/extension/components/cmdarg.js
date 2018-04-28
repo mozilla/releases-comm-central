@@ -58,15 +58,8 @@ jsbridgeHandler.prototype = {
   _xpcom_categories: [{category: "command-line-handler", entry: clh_category}],
 
   /* nsISupports */
-  QueryInterface : function clh_QI(iid)
-  {
-    if (iid.equals(nsICommandLineHandler) ||
-        iid.equals(nsIFactory) ||
-        iid.equals(nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsICommandLineHandler",
+                                          "nsIFactory"]),
 
   /* nsICommandLineHandler */
 

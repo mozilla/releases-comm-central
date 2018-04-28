@@ -108,8 +108,8 @@ XPCOMUtils.defineLazyGetter(Cu.getGlobalForObject({}), "gLogLevels", function() 
       else
         delete gLogLevels[module];
     },
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                           Ci.nsISupportsWeakReference]),
+    QueryInterface: ChromeUtils.generateQI(["nsIObserver",
+                                            "nsISupportsWeakReference"]),
   };
 
   // Add weak pref observer to see log level pref changes.

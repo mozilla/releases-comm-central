@@ -697,15 +697,8 @@ nsHttpServer.prototype =
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Ci.nsIHttpServer) ||
-        iid.equals(Ci.nsIServerSocketListener) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIHttpServer",
+                                          "nsIServerSocketListener"]),
 
 
   // NON-XPCOM PUBLIC API
@@ -990,13 +983,7 @@ ServerIdentity.prototype =
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Ci.nsIHttpServerIdentity) || iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIHttpServerIdentity"]),
 
 
   // PRIVATE IMPLEMENTATION
@@ -1338,14 +1325,7 @@ RequestReader.prototype =
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface: function(aIID)
-  {
-    if (aIID.equals(Ci.nsIInputStreamCallback) ||
-        aIID.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIInputStreamCallback"]),
 
 
   // PRIVATE API
@@ -3726,13 +3706,7 @@ Response.prototype =
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Ci.nsIHttpResponse) || iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIHttpResponse"]),
 
 
   // POST-CONSTRUCTION API (not exposed externally)
@@ -4023,13 +3997,7 @@ Response.prototype =
           }
         },
 
-        QueryInterface: function(aIID)
-        {
-          if (aIID.equals(Ci.nsIRequestObserver) || aIID.equals(Ci.nsISupports))
-            return this;
-
-          throw Cr.NS_ERROR_NO_INTERFACE;
-        }
+        QueryInterface: ChromeUtils.generateQI(["nsIRequestObserver"]),
       };
 
     var headerCopier = this._asyncCopier =
@@ -4086,13 +4054,7 @@ Response.prototype =
           }
         },
 
-        QueryInterface: function(aIID)
-        {
-          if (aIID.equals(Ci.nsIRequestObserver) || aIID.equals(Ci.nsISupports))
-            return this;
-
-          throw Cr.NS_ERROR_NO_INTERFACE;
-        }
+        QueryInterface: ChromeUtils.generateQI(["nsIRequestObserver"]),
       };
 
     dumpn("*** starting async copier of body data...");
@@ -4210,18 +4172,9 @@ WriteThroughCopier.prototype =
 {
   /* nsISupports implementation */
 
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Ci.nsIInputStreamCallback) ||
-        iid.equals(Ci.nsIOutputStreamCallback) ||
-        iid.equals(Ci.nsIRequest) ||
-        iid.equals(Ci.nsISupports))
-    {
-      return this;
-    }
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIInputStreamCallback",
+                                          "nsIOutputStreamCallback",
+                                          "nsIRequest"]),
 
 
   // NSIINPUTSTREAMCALLBACK
@@ -5030,14 +4983,7 @@ nsSimpleEnumerator.prototype =
 
     return this._items[this._nextIndex++];
   },
-  QueryInterface: function(aIID)
-  {
-    if (Ci.nsISimpleEnumerator.equals(aIID) ||
-        Ci.nsISupports.equals(aIID))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
 };
 
 
@@ -5207,13 +5153,7 @@ Request.prototype =
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Ci.nsIHttpRequest) || iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIHttpRequest"]),
 
 
   // PRIVATE IMPLEMENTATION

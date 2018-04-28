@@ -120,12 +120,7 @@ var smimeHeaderSink =
     }
   },
 
-  QueryInterface : function(iid)
-  {
-    if (iid.equals(Ci.nsIMsgSMIMEHeaderSink) || iid.equals(Ci.nsISupports))
-      return this;
-    throw Cr.NS_NOINTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMEHeaderSink"]),
 };
 
 function forgetEncryptedURI()

@@ -451,11 +451,6 @@ XMPPParser.prototype = {
       this._listener.onXMLError("parse-warning", aError);
   },
 
-  QueryInterface: function(aInterfaceId) {
-    if (!aInterfaceId.equals(Ci.nsISupports) &&
-        !aInterfaceId.equals(Ci.nsISAXContentHandler) &&
-        !aInterfaceId.equals(Ci.nsISAXErrorHandler))
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    return this;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsISAXContentHandler",
+                                          "nsISAXErrorHandler"]),
 };

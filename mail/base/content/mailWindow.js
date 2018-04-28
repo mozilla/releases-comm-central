@@ -265,16 +265,11 @@ nsMsgStatusFeedback.prototype =
     return originalTarget;
   },
 
-  QueryInterface: function(iid) {
-    if (iid.equals(Ci.nsIMsgStatusFeedback) ||
-        iid.equals(Ci.nsIXULBrowserWindow) ||
-        iid.equals(Ci.nsIActivityMgrListener) ||
-        iid.equals(Ci.nsIActivityListener) ||
-        iid.equals(Ci.nsISupportsWeakReference) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgStatusFeedback",
+                                          "nsIXULBrowserWindow",
+                                          "nsIActivityMgrListener",
+                                          "nsIActivityListener",
+                                          "nsISupportsWeakReference"]),
 
   // nsIMsgStatusFeedback implementation.
   showStatusString: function(statusText) {
@@ -488,13 +483,7 @@ function nsMsgWindowCommands()
 
 nsMsgWindowCommands.prototype =
 {
-  QueryInterface : function(iid)
-  {
-    if (iid.equals(Ci.nsIMsgWindowCommands) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgWindowCommands"]),
 
   selectFolder: function(folderUri)
   {
@@ -623,13 +612,8 @@ BadCertHandler.prototype = {
   },
 
   // nsISupports
-  QueryInterface: function(iid) {
-    if (!iid.equals(Ci.nsIBadCertListener2) &&
-      !iid.equals(Ci.nsIInterfaceRequestor) &&
-      !iid.equals(Ci.nsISupports))
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    return this;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIBadCertListener2",
+                                          "nsIInterfaceRequestor"]),
 };
 
 function InformUserOfCertError(socketInfo, status, targetSite)
@@ -647,7 +631,7 @@ function InformUserOfCertError(socketInfo, status, targetSite)
 function nsBrowserAccess() { }
 
 nsBrowserAccess.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIBrowserDOMWindow]),
+  QueryInterface: ChromeUtils.generateQI(["nsIBrowserDOMWindow"]),
 
   // The following function may be called during account creation, it is called by
   // the Mozmill test test-newmailaccount.js::test_window_open_link_opening_behaviour.

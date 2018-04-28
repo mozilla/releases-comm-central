@@ -2704,13 +2704,8 @@ FakeTreeBoxObject.prototype = {
   removeProperty : function FakeTreeBoxObject_removeProperty(propertyName) {
     return this.domNode.boxObject.removeProperty(propertyName);
   },
-  QueryInterface: function FakeTreeBoxObject_QueryInterface(aIID) {
-    if (!aIID.equals(Ci.nsISupports) &&
-        !aIID.equals(Ci.nsIBoxObject) &&
-        !aIID.equals(Ci.nsITreeBoxObject))
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    return this;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIBoxObject",
+                                          "nsITreeBoxObject"]),
 };
 /*
  * Provide attribute and function implementations that complain very loudly if

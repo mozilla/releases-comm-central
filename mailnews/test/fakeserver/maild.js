@@ -212,13 +212,7 @@ nsMailServer.prototype = {
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface : function (iid) {
-    if (iid.equals(Ci.nsIServerSocketListener) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIServerSocketListener"]),
 
 
   // NON-XPCOM PUBLIC API
@@ -347,12 +341,7 @@ function nsMailReader(server, handler, transport, debug, logTransaction) {
       this.server.stopTest();
       this.server.stop();
     },
-    QueryInterface : function (iid) {
-      if (iid.equals(Ci.nsITimerCallback) || iid.equals(Ci.nsISupports))
-        return this;
-
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    }
+    QueryInterface: ChromeUtils.generateQI(["nsITimerCallback"]),
   };
   this.timer = Cc["@mozilla.org/timer;1"].createInstance()
                                          .QueryInterface(Ci.nsITimer);
@@ -519,11 +508,5 @@ nsMailReader.prototype = {
     this._server.stopTest();
   },
 
-  QueryInterface : function (iid) {
-    if (iid.equals(Ci.nsIInputStreamCallback) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIInputStreamCallback"]),
 };

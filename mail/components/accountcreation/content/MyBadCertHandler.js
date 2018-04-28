@@ -31,11 +31,6 @@ BadCertHandler.prototype =
   },
 
   // nsISupports
-  QueryInterface: function(iid) {
-    if (!iid.equals(Ci.nsIBadCertListener2) &&
-        !iid.equals(Ci.nsIInterfaceRequestor) &&
-        !iid.equals(Ci.nsISupports))
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    return this;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIBadCertListener2",
+                                          "nsIInterfaceRequestor"]),
 };

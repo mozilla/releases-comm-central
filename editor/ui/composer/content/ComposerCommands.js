@@ -1295,16 +1295,10 @@ var gEditorOutputProgressListener =
     }
   },
 
-  QueryInterface : function(aIID)
-  {
-    if (aIID.equals(Ci.nsIWebProgressListener)
-    || aIID.equals(Ci.nsISupports)
-    || aIID.equals(Ci.nsISupportsWeakReference)
-    || aIID.equals(Ci.nsIPrompt)
-    || aIID.equals(Ci.nsIAuthPrompt))
-      return this;
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
+                                          "nsISupportsWeakReference",
+                                          "nsIPrompt",
+                                          "nsIAuthPrompt"]),
 
 // nsIPrompt
   alert : function(dlgTitle, text)

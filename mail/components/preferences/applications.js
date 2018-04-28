@@ -804,8 +804,8 @@ var gCloudFileTab = {
     !document.getElementById("enableThreshold").checked;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                         Ci.nsISupportsWeakReference])
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver",
+                                          "nsISupportsWeakReference"])
 }
 
 //****************************************************************************//
@@ -911,14 +911,7 @@ var gApplicationsPane = {
   //**************************************************************************//
   // nsISupports
 
-  QueryInterface: function(aIID) {
-    if (aIID.equals(Ci.nsIObserver) ||
-        aIID.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
-
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
   //**************************************************************************//
   // nsIObserver

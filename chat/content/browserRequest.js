@@ -25,13 +25,9 @@ var reporterListener = {
     return this.securityDisplay = document.getElementById("security-display");
   },
 
-  QueryInterface: function(aIID) {
-    if (aIID.equals(Ci.nsIWebProgressListener)   ||
-        aIID.equals(Ci.nsISupportsWeakReference) ||
-        aIID.equals(Ci.nsISupports))
-      return this;
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
+                                          "nsISupportsWeakReference"]),
+
   onStateChange: function(/*in nsIWebProgress*/ aWebProgress,
                      /*in nsIRequest*/ aRequest,
                      /*in unsigned long*/ aStateFlags,

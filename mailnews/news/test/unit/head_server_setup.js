@@ -150,13 +150,7 @@ function setupProtocolTest(port, newsUrl, incomingServer) {
       }
     },
     onDataAvailable : function () {},
-    QueryInterface : function (iid) {
-      if (iid.equals(Ci.nsIStreamListener) ||
-          iid.equals(Ci.nsISupports))
-        return this;
-
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    }
+    QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   }
   listener.called = false;
   newsServer.loadNewsUrl(url, null, listener);

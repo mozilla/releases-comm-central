@@ -632,15 +632,8 @@ var progressListener = {
       // we can ignore this notification
     },
 
-    QueryInterface : function(iid)
-    {
-      if (iid.equals(Ci.nsIWebProgressListener) ||
-          iid.equals(Ci.nsISupportsWeakReference) ||
-          iid.equals(Ci.nsISupports))
-        return this;
-
-      throw Cr.NS_NOINTERFACE;
-    }
+    QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
+                                            "nsISupportsWeakReference"]),
 };
 
 var defaultController = {
@@ -1694,8 +1687,8 @@ uploadListener.prototype = {
     updateSendCommands(true);
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIRequestObserver,
-                                         Ci.nsISupportsWeakReference])
+  QueryInterface: ChromeUtils.generateQI(["nsIRequestObserver",
+                                          "nsISupportsWeakReference"])
 };
 
 function deletionListener(aAttachment, aCloudProvider)
@@ -1720,8 +1713,8 @@ deletionListener.prototype = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIRequestObserver,
-                                         Ci.nsISupportsWeakReference])
+  QueryInterface: ChromeUtils.generateQI(["nsIRequestObserver",
+                                          "nsISupportsWeakReference"])
 };
 
 /**
@@ -5513,14 +5506,8 @@ function nsAttachmentOpener()
 
 nsAttachmentOpener.prototype =
 {
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Ci.nsIURIContentListener) ||
-        iid.equals(Ci.nsIInterfaceRequestor) ||
-        iid.equals(Ci.nsISupports))
-        return this;
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIURIContentListener",
+                                          "nsIInterfaceRequestor"]),
 
   onStartURIOpen: function(uri)
   {

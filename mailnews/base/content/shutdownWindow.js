@@ -54,15 +54,8 @@ function nsMsgShutdownTaskListener()
 
 nsMsgShutdownTaskListener.prototype =
 {
-  QueryInterface : function(iid)
-  {
-    if (iid.equals(Ci.nsIWebProgressListener) ||
-        iid.equals(Ci.nsISupportsWeakReference) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
+                                          "nsISupportsWeakReference"]),
 
   onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
   {

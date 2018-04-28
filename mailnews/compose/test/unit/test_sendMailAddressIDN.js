@@ -106,14 +106,8 @@ msgListener.prototype =
   },
 
   // QueryInterface
-  QueryInterface: function (iid)
-  {
-    if (iid.equals(Ci.nsIMsgSendListener) ||
-        iid.equals(Ci.nsIMsgCopyServiceListener) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSendListener",
+                                          "nsIMsgCopyServiceListener"]),
 }
 
 

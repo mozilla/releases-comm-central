@@ -684,15 +684,12 @@ var Socket = {
   sendPing: function() { },
 
   /* QueryInterface and nsIInterfaceRequestor implementations */
-  _interfaces: [Ci.nsIServerSocketListener, Ci.nsIStreamListener,
-                Ci.nsIRequestObserver, Ci.nsITransportEventSink,
-                Ci.nsIBadCertListener2, Ci.nsIProtocolProxyCallback],
-  QueryInterface: function(iid) {
-    if (iid.equals(Ci.nsISupports) ||
-        this._interfaces.some(i => i.equals(iid)))
-      return this;
+  QueryInterface: ChromeUtils.generateQI(["nsIServerSocketListener",
+                                          "nsIStreamListener",
+                                          "nsIRequestObserver",
+                                          "nsITransportEventSink",
+                                          "nsIBadCertListener2",
+                                          "nsIProtocolProxyCallback"]),
 
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
   getInterface: function(iid) { return this.QueryInterface(iid); }
 };
