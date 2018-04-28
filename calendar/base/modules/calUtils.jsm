@@ -170,28 +170,20 @@ var cal = {
         Object.defineProperty(aGlobal, "QueryInterface", { value: XPCOMUtils.generateQI(aInterfaces) });
         return aGlobal.QueryInterface(aIID);
     },
-
     /**
      * Loads an array of calendar scripts into the passed scope.
      *
      * @param scriptNames an array of calendar script names
      * @param scope       scope to load into
-     * @param baseDir     base dir; defaults to calendar-js/
      */
-    loadScripts: function(scriptNames, scope, baseDir) {
-        if (!baseDir) {
-            baseDir = __LOCATION__.parent.parent.clone();
-            baseDir.append("calendar-js");
-        }
-
+    loadScripts: function(scriptNames, scope) {
+        let baseUri = "resource://calendar/calendar-js/";
         for (let script of scriptNames) {
             if (!script) {
                 // If the array element is null, then just skip this script.
                 continue;
             }
-            let scriptFile = baseDir.clone();
-            scriptFile.append(script);
-            let scriptUrlSpec = Services.io.newFileURI(scriptFile).spec;
+            let scriptUrlSpec = baseUri + script;
             try {
                 Services.scriptloader.loadSubScript(scriptUrlSpec, scope);
             } catch (exc) {
