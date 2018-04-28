@@ -70,9 +70,11 @@ var calcategory = {
         if (!aCategories) {
             return [];
         }
+        /* eslint-disable no-control-regex */
         // \u001A is the unicode "SUBSTITUTE" character
         let categories = aCategories.replace(/\\,/g, "\u001A").split(",")
                                     .map(name => name.replace(/\u001A/g, ","));
+        /* eslint-enable no-control-regex */
         if (categories.length == 1 && categories[0] == "") {
             // Split will return an array with an empty element when splitting an
             // empty string, correct this.
