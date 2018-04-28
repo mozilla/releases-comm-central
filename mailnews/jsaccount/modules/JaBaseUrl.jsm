@@ -25,6 +25,14 @@ const JaBaseUrlProperties = {
                         Ci.nsISupports,
                         Ci.nsIInterfaceRequestor,
                         ],
+  // Don't pass Ci.nsISupports to generateQI().
+  baseInterfacesQI:   [ Ci.nsIURI,
+                        Ci.nsIURL,
+                        Ci.nsIMsgMailNewsUrl,
+                        Ci.nsIMsgMessageUrl,
+                        Ci.msgIOverride,
+                        Ci.nsIInterfaceRequestor,
+                        ],
 
   // We don't typically define this as a creatable component, but if we do use
   // these. Subclasses for particular account types require these defined for
@@ -56,7 +64,7 @@ JaBaseUrl.prototype = {
   _JsPrototypeToDelegate: true,
 
   // QI to the interfaces.
-  QueryInterface: XPCOMUtils.generateQI(JaBaseUrlProperties.baseInterfaces),
+  QueryInterface: XPCOMUtils.generateQI(JaBaseUrlProperties.baseInterfacesQI),
 
   // Used to access an instance as JS, bypassing XPCOM.
   get wrappedJSObject() {
