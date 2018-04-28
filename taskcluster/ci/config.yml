@@ -35,7 +35,7 @@ scriptworker:
             - 'project:comm:thunderbird:releng:signing:cert:release-signing'
         'scriptworker-prov-v1/tb-beetmover-dev':
             - 'project:comm:thunderbird:releng:beetmover:bucket:dep'
-        'scriptworker-prov-v1/tb-beetmover':
+        'scriptworker-prov-v1/tb-beetmover-v1':
             - 'project:comm:thunderbird:releng:beetmover:bucket:nightly'
         'scriptworker-prov-v1/tb-balrog-dev':
             - 'project:comm:thunderbird:releng:balrog:server:dep'
