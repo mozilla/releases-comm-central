@@ -1084,10 +1084,9 @@
             }
 
             document.popupNode = null;
-            this._autoScrollPopup.showPopup(document.documentElement,
+            this._autoScrollPopup.openPopup(null, "after_start",
                                             event.screenX,
-                                            event.screenY,
-                                            "popup", null, null);
+                                            event.screenY);
             this._ignoreMouseEvents = true;
             this._startX = event.screenX;
             this._startY = event.screenY;

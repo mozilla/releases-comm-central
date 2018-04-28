@@ -92,7 +92,7 @@
             this, "anonid", "popup"
           );
           this.buildPopup(popup);
-          popup.showPopup(this, -1, -1, "popup", "bottomright", "topright");
+          popup.openPopup(this, "after_end");
         ]]></body>
       </method>
 
