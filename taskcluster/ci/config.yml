@@ -39,3 +39,5 @@ scriptworker:
             - 'project:comm:thunderbird:releng:beetmover:bucket:nightly'
         'scriptworker-prov-v1/tb-balrog-dev':
             - 'project:comm:thunderbird:releng:balrog:server:dep'
+        'scriptworker-prov-v1/tb-balrog-v1':
+            - 'project:comm:thunderbird:releng:balrog:server:nightly'
