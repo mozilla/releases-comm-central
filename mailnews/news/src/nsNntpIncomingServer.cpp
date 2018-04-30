@@ -1897,7 +1897,7 @@ nsNntpIncomingServer::SetTree(nsITreeBoxObject *tree)
   if (!col)
     return NS_OK;
 
-  RefPtr<Element> element;
+  RefPtr<mozilla::dom::Element> element;
   col->GetElement(getter_AddRefs(element));
   if (!element)
     return NS_OK;
@@ -1923,7 +1923,7 @@ nsNntpIncomingServer::CycleHeader(nsITreeColumn* col)
   col->GetCycler(&cycler);
   if (!cycler) {
     NS_NAMED_LITERAL_STRING(dir, "sortDirection");
-    RefPtr<Element> element;
+    RefPtr<mozilla::dom::Element> element;
     col->GetElement(getter_AddRefs(element));
     mSearchResultSortDescending = !mSearchResultSortDescending;
     mozilla::IgnoredErrorResult rv2;

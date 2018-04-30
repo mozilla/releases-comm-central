@@ -352,7 +352,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
           continue;
 
         RefPtr<mozilla::dom::HTMLImageElement> image =
-          mozilla::dom::HTMLImageElement::FromNodeOrNull(domElement);
+          mozilla::dom::HTMLImageElement::FromNode(domElement);
         if (!image)
           continue;
         nsCString partNum;
