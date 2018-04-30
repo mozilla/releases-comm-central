@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var SUNBIRD_UID = "{718e30fb-e89b-41dd-9da7-e25a45638b28}";
 var FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
@@ -19,14 +18,14 @@ var gMigrateWizard = {
      * that were passed in via window.arguments and adds them to checklist. The
      * user can then check these off to migrate the data from those sources.
      */
-    loadMigrators: function gmw_load() {
-        var listbox = document.getElementById("datasource-list");
+    loadMigrators: function() {
+        let listbox = document.getElementById("datasource-list");
 
-        //XXX Once we have branding for lightning, this hack can go away
-        var props = Services.strings.createBundle("chrome://calendar/locale/migration.properties");
+        // XXX Once we have branding for lightning, this hack can go away
+        let props = Services.strings.createBundle("chrome://calendar/locale/migration.properties");
 
-        var wizard = document.getElementById("migration-wizard");
-        var desc = document.getElementById("wizard-desc");
+        let wizard = document.getElementById("migration-wizard");
+        let desc = document.getElementById("wizard-desc");
         // Since we don't translate "Lightning"...
         wizard.title = props.formatStringFromName("migrationTitle",
                                                   ["Lightning"],
@@ -36,8 +35,8 @@ var gMigrateWizard = {
                                                       1);
 
         migLOG("migrators: " + window.arguments.length);
-        for (var migrator of window.arguments[0]) {
-            var listItem = document.createElement("listitem");
+        for (let migrator of window.arguments[0]) {
+            let listItem = document.createElement("listitem");
             listItem.setAttribute("type", "checkbox");
             listItem.setAttribute("checked", true);
             listItem.setAttribute("label", migrator.title);
@@ -51,12 +50,12 @@ var gMigrateWizard = {
      * that were checked and begins migrating their data.  Also controls the
      * progress dialog so the user can see what is happening. (somewhat)
      */
-    migrateChecked: function gmw_migrate() {
-        var migrators = [];
+    migrateChecked: function() {
+        let migrators = [];
 
         // Get all the checked migrators into an array
-        var listbox = document.getElementById("datasource-list");
-        for (var i = listbox.childNodes.length-1; i >= 0; i--) {
+        let listbox = document.getElementById("datasource-list");
+        for (let i = listbox.childNodes.length-1; i >= 0; i--) {
             if (listbox.childNodes[i].getAttribute("checked")) {
                 migrators.push(listbox.childNodes[i].migrator);
             }
@@ -68,35 +67,34 @@ var gMigrateWizard = {
         }
 
         // Don't let the user get away while we're migrating
-        //XXX may want to wire this into the 'cancel' function once that's
+        // XXX may want to wire this into the 'cancel' function once that's
         //    written
-        var wizard = document.getElementById("migration-wizard");
+        let wizard = document.getElementById("migration-wizard");
         wizard.canAdvance = false;
         wizard.canRewind = false;
 
         // We're going to need this for the progress meter's description
-        var props = Services.strings.createBundle("chrome://calendar/locale/migration.properties");
-        var label = document.getElementById("progress-label");
-        var meter = document.getElementById("migrate-progressmeter");
+        let props = Services.strings.createBundle("chrome://calendar/locale/migration.properties");
+        let label = document.getElementById("progress-label");
+        let meter = document.getElementById("migrate-progressmeter");
 
-        var i = 0;
+        let i = 0;
         // Because some of our migrators involve async code, we need this
         // call-back function so we know when to start the next migrator.
         function getNextMigrator() {
             if (migrators[i]) {
-                var mig = migrators[i];
+                let mig = migrators[i];
 
                 // Increment i to point to the next migrator
                 i++;
                 migLOG("starting migrator: " + mig.title);
                 label.value = props.formatStringFromName("migratingApp",
-                                                         [mig.title],
-                                                         1);
+                                                         [mig.title], 1);
                 meter.value = (i-1)/migrators.length*100;
                 mig.args.push(getNextMigrator);
 
                 try {
-                    mig.migrate.apply(mig, mig.args);
+                    mig.migrate(...mig.args);
                 } catch (e) {
                     migLOG("Failed to migrate: " + mig.title);
                     migLOG(e);
@@ -109,17 +107,17 @@ var gMigrateWizard = {
                 meter.value = 100;
                 gMigrateWizard.setCanRewindFalse();
             }
-         }
+        }
 
         // And get the first migrator
         getNextMigrator();
-   },
+    },
 
     /**
      * Makes sure the wizard "back" button can not be pressed.
      */
-    setCanRewindFalse: function gmw_finish() {
-        document.getElementById('migration-wizard').canRewind = false;
+    setCanRewindFalse: function() {
+        document.getElementById("migration-wizard").canRewind = false;
     }
 };
 
@@ -165,7 +163,7 @@ var gDataMigrator = {
      * If there is at least one valid migrator, we'll pop open the migration
      * wizard, otherwise, we'll return silently.
      */
-    checkAndMigrate: function gdm_migrate() {
+    checkAndMigrate: function() {
         if (Services.appinfo.ID == FIREFOX_UID) {
             this.mIsInFirefox = true;
             // We can't handle Firefox Lightning yet
@@ -177,16 +175,16 @@ var gDataMigrator = {
 
         migLOG("mPlatform is: " + this.mPlatform);
 
-        var DMs = [];
-        var migrators = [this.checkOldCal,
-                         this.checkEvolution,
-                         this.checkWindowsMail,
-                         this.checkIcal];
+        let DMs = [];
+        let migrators = [
+            this.checkOldCal, this.checkEvolution,
+            this.checkWindowsMail, this.checkIcal
+        ];
         // XXX also define a category and an interface here for pluggability
-        for (var migrator of migrators) {
-            var migs = migrator.call(this);
-            for (var dm of migs) {
-                DMs.push(dm);
+        for (let migrator of migrators) {
+            let migs = migrator.call(this);
+            for (let mig of migs) {
+                DMs.push(mig);
             }
         }
 
@@ -196,9 +194,9 @@ var gDataMigrator = {
         }
         migLOG("DMs: " + DMs.length);
 
-        var url = "chrome://calendar/content/calendar-migration-dialog.xul";
+        let url = "chrome://calendar/content/calendar-migration-dialog.xul";
         if (AppConstants.platform == "macosx") {
-            var win = Services.wm.getMostRecentWindow("Calendar:MigrationWizard");
+            let win = Services.wm.getMostRecentWindow("Calendar:MigrationWizard");
             if (win) {
                 win.focus();
             } else {
@@ -214,16 +212,14 @@ var gDataMigrator = {
      * This could be either the old calendar-extension, or Sunbird 0.2.  If so,
      * it offers to move that data into our new storage format.
      */
-    checkOldCal: function gdm_calold() {
-        migLOG("Checking for the old calendar extension/app");
-
+    checkOldCal: function() {
         // This is the function that the migration wizard will call to actually
         // migrate the data.  It's defined here because we may use it multiple
         // times (with different aProfileDirs), for instance if there is both
         // a Thunderbird and Firefox cal-extension
         function extMigrator(aProfileDir, aCallback) {
             // Get the old datasource
-            var dataSource = aProfileDir.clone();
+            let dataSource = aProfileDir.clone();
             dataSource.append("CalendarManager.rdf");
             if (!dataSource.exists()) {
                 return;
@@ -232,12 +228,12 @@ var gDataMigrator = {
             // Let this be a lesson to anyone designing APIs. The RDF API is so
             // impossibly confusing that it's actually simpler/cleaner/shorter
             // to simply parse as XML and use the better DOM APIs.
-            var req = new XMLHttpRequest();
-            req.open('GET', "file://" + dataSource.path, true);
-            req.onreadystatechange = function calext_onreadychange() {
+            let req = new XMLHttpRequest();
+            req.open("GET", "file://" + dataSource.path, true);
+            req.onreadystatechange = function() {
                 if (req.readyState == 4) {
                     migLOG(req.responseText);
-                    parseAndMigrate(req.responseXML, aCallback)
+                    parseAndMigrate(req.responseXML, aCallback);
                 }
             };
             req.send(null);
@@ -246,35 +242,35 @@ var gDataMigrator = {
         // Callback from the XHR above.  Parses CalendarManager.rdf and imports
         // the data describe therein.
         function parseAndMigrate(aDoc, aCallback) {
-            // For duplicate detection
-            var calManager = cal.getCalendarManager();
-            var uris = [];
-            for (var oldCal of calManager.getCalendars({})) {
-                uris.push(oldCal.uri);
-            }
-
             function getRDFAttr(aNode, aAttr) {
                 return aNode.getAttributeNS("http://home.netscape.com/NC-rdf#",
                                             aAttr);
             }
 
+            // For duplicate detection
+            let calManager = cal.getCalendarManager();
+            let uris = [];
+            for (let oldCal of calManager.getCalendars({})) {
+                uris.push(oldCal.uri);
+            }
+
             const RDFNS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-            var nodes = aDoc.getElementsByTagNameNS(RDFNS, "Description");
+            let nodes = aDoc.getElementsByTagNameNS(RDFNS, "Description");
             migLOG("nodes: " + nodes.length);
-            for (var i = 0; i < nodes.length; i++) {
+            for (let i = 0; i < nodes.length; i++) {
                 migLOG("Beginning calendar node");
-                var calendar;
-                var node = nodes[i];
+                let calendar;
+                let node = nodes[i];
                 if (getRDFAttr(node, "remote") == "false") {
                     migLOG("not remote");
-                    var localFile = Components.classes["@mozilla.org/file/local;1"]
-                                    .createInstance(Components.interfaces.nsIFile);
+                    let localFile = Cc["@mozilla.org/file/local;1"]
+                                    .createInstance(Ci.nsIFile);
                     localFile.initWithPath(getRDFAttr(node, "path"));
                     calendar = gDataMigrator.importICSToStorage(localFile);
                 } else {
                     // Remote subscription
                     // XXX check for duplicates
-                    var url = Services.io.newURI(getRDFAttr(node, "remotePath"));
+                    let url = Services.io.newURI(getRDFAttr(node, "remotePath"));
                     calendar = calManager.createCalendar("ics", url);
                 }
                 calendar.name = getRDFAttr(node, "name");
@@ -285,11 +281,12 @@ var gDataMigrator = {
             aCallback();
         }
 
-        var migrators = [];
+        migLOG("Checking for the old calendar extension/app");
+        let migrators = [];
 
         // Look in our current profile directory, in case we're upgrading in
         // place
-        var profileDir = this.dirService.get("ProfD", Components.interfaces.nsIFile);
+        let profileDir = this.dirService.get("ProfD", Ci.nsIFile);
         profileDir.append("Calendar");
         if (profileDir.exists()) {
             migLOG("Found old extension directory in current app");
@@ -298,10 +295,10 @@ var gDataMigrator = {
         }
 
         // Check the profiles of the various other moz-apps for calendar data
-        var profiles = [];
+        let profiles = [];
 
         // Do they use Firefox?
-        var ffProf, sbProf, tbProf;
+        let ffProf, sbProf;
         if ((ffProf = this.getFirefoxProfile())) {
             profiles.push(ffProf);
         }
@@ -312,17 +309,17 @@ var gDataMigrator = {
         }
 
         // Now check all of the profiles in each of these folders for data
-        for (var prof of profiles) {
-            var dirEnum = prof.directoryEntries;
+        for (let prof of profiles) {
+            let dirEnum = prof.directoryEntries;
             while (dirEnum.hasMoreElements()) {
-                var profile = dirEnum.getNext().QueryInterface(Components.interfaces.nsIFile);
+                let profile = dirEnum.getNext().QueryInterface(Ci.nsIFile);
                 if (profile.isFile()) {
                     continue;
                 } else {
                     profile.append("Calendar");
                     if (profile.exists()) {
                         migLOG("Found old extension directory at" + profile.path);
-                        var title = "Mozilla Calendar";
+                        let title = "Mozilla Calendar";
                         migrators.push(new dataMigrator(title, extMigrator, [profile]));
                     }
                 }
@@ -336,65 +333,61 @@ var gDataMigrator = {
      * Checks to see if Apple's iCal is installed and offers to migrate any data
      * the user has created in it.
      */
-    checkIcal: function gdm_ical() {
-        migLOG("Checking for ical data");
-
+    checkIcal: function() {
         function icalMigrate(aDataDir, aCallback) {
             aDataDir.append("Sources");
-            var dirs = aDataDir.directoryEntries;
-            var calManager = cal.getCalendarManager();
+            let dirs = aDataDir.directoryEntries;
+            let calManager = cal.getCalendarManager();
 
-            var i = 1;
-            while(dirs.hasMoreElements()) {
-                var dataDir = dirs.getNext().QueryInterface(Components.interfaces.nsIFile);
-                var dataStore = dataDir.clone();
+            let i = 1;
+            while (dirs.hasMoreElements()) {
+                let dataDir = dirs.getNext().QueryInterface(Ci.nsIFile);
+                let dataStore = dataDir.clone();
                 dataStore.append("corestorage.ics");
                 if (!dataStore.exists()) {
                     continue;
                 }
 
-                var chars = [];
-                var fileStream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-                                 .createInstance(Components.interfaces.nsIFileInputStream);
+                let fileStream = Cc["@mozilla.org/network/file-input-stream;1"]
+                                 .createInstance(Ci.nsIFileInputStream);
 
                 fileStream.init(dataStore, 0x01, parseInt("0444", 8), {});
-                var convStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
-                                 .getService(Components.interfaces.nsIConverterInputStream);
-                                 convStream.init(fileStream, 'UTF-8', 0, 0x0000);
-                var tmpStr = {};
-                var str = "";
-                while (convStream.readString(-1, tmpStr)) {
+                let convIStream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+                                  .getService(Ci.nsIConverterInputStream);
+                convIStream.init(fileStream, "UTF-8", 0, 0x0000);
+                let tmpStr = {};
+                let str = "";
+                while (convIStream.readString(-1, tmpStr)) {
                     str += tmpStr.value;
                 }
 
                 // Strip out the timezone definitions, since it makes the file
                 // invalid otherwise
-                var index = str.indexOf(";TZID=");
+                let index = str.indexOf(";TZID=");
                 while (index != -1) {
-                    var endIndex = str.indexOf(':', index);
-                    var otherEnd = str.indexOf(';', index+2);
+                    let endIndex = str.indexOf(":", index);
+                    let otherEnd = str.indexOf(";", index+2);
                     if (otherEnd < endIndex) {
                         endIndex = otherEnd;
                     }
-                    var sub = str.substring(index, endIndex);
+                    let sub = str.substring(index, endIndex);
                     str = str.split(sub).join("");
                     index = str.indexOf(";TZID=");
                 }
-                var tempFile = gDataMigrator.dirService.get("TmpD", Components.interfaces.nsIFile);
+                let tempFile = gDataMigrator.dirService.get("TmpD", Ci.nsIFile);
                 tempFile.append("icalTemp.ics");
-                tempFile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE,
+                tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE,
                                       parseInt("0600", 8));
-                var tempUri = Services.io.newFileURI(tempFile);
 
-                var stream = Components.classes["@mozilla.org/network/file-output-stream;1"]
-                             .createInstance(Components.interfaces.nsIFileOutputStream);
+                let stream = Cc["@mozilla.org/network/file-output-stream;1"]
+                             .createInstance(Ci.nsIFileOutputStream);
                 stream.init(tempFile, 0x2A, parseInt("0600", 8), 0);
-                var convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
-                                .createInstance(Components.interfaces.nsIConverterOutputStream);
-                convStream.init(stream, 'UTF-8');
-                convStream.writeString(str);
+                let convOStream = Cc["@mozilla.org/intl/converter-output-stream;1"]
+                                 .createInstance(Ci.nsIConverterOutputStream);
+                convOStream.init(stream, "UTF-8");
+                convOStream.writeString(str);
 
-                var calendar = gDataMigrator.importICSToStorage(tempFile);
+                let calendar = gDataMigrator.importICSToStorage(tempFile);
                 calendar.name = "iCalendar"+i;
                 i++;
                 calManager.registerCalendar(calendar);
@@ -403,15 +396,16 @@ var gDataMigrator = {
             migLOG("icalMig making callback");
             aCallback();
         }
-        var profileDir = this.dirService.get("ProfD", Components.interfaces.nsIFile);
-        var icalSpec = profileDir.path;
-        var diverge = icalSpec.indexOf("Thunderbird");
+
+        migLOG("Checking for ical data");
+        let profileDir = this.dirService.get("ProfD", Ci.nsIFile);
+        let icalSpec = profileDir.path;
+        let diverge = icalSpec.indexOf("Thunderbird");
         if (diverge == -1) {
             return [];
         }
         icalSpec = icalSpec.substr(0, diverge);
-        var icalFile = Components.classes["@mozilla.org/file/local;1"]
-                   .createInstance(Components.interfaces.nsIFile);
+        let icalFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
         icalFile.initWithPath(icalSpec);
         icalFile.append("Application Support");
 
@@ -427,25 +421,25 @@ var gDataMigrator = {
      * Checks to see if Evolution is installed and offers to migrate any data
      * stored there.
      */
-    checkEvolution: function gdm_evolution() {
+    checkEvolution: function() {
         function evoMigrate(aDataDir, aCallback) {
-            var i = 1;
-            function evoDataMigrate(dataStore) {
+            let i = 1;
+            let evoDataMigrate = function(dataStore) {
                 migLOG("Migrating evolution data file in " + dataStore.path);
                 if (dataStore.exists()) {
-                    var calendar = gDataMigrator.importICSToStorage(dataStore);
+                    let calendar = gDataMigrator.importICSToStorage(dataStore);
                     calendar.name = "Evolution " + (i++);
                     calManager.registerCalendar(calendar);
                     cal.view.getCompositeCalendar(window).addCalendar(calendar);
                 }
                 return dataStore.exists();
-            }
+            };
 
-            var calManager = cal.getCalendarManager();
-            var dirs = aDataDir.directoryEntries;
+            let calManager = cal.getCalendarManager();
+            let dirs = aDataDir.directoryEntries;
             while (dirs.hasMoreElements()) {
-                var dataDir = dirs.getNext().QueryInterface(Components.interfaces.nsIFile);
-                var dataStore = dataDir.clone();
+                let dataDir = dirs.getNext().QueryInterface(Ci.nsIFile);
+                let dataStore = dataDir.clone();
                 dataStore.append("calendar.ics");
                 evoDataMigrate(dataStore);
             }
@@ -453,14 +447,14 @@ var gDataMigrator = {
             aCallback();
         }
 
-        var evoDir = this.dirService.get("Home", Components.interfaces.nsIFile);
+        let evoDir = this.dirService.get("Home", Ci.nsIFile);
         evoDir.append(".evolution");
         evoDir.append("calendar");
         evoDir.append("local");
         return (evoDir.exists() ? [new dataMigrator("Evolution", evoMigrate, [evoDir])] : []);
     },
 
-    checkWindowsMail: function gdm_windowsMail() {
+    checkWindowsMail: function() {
         function doMigrate(aCalendarNodes, aMailDir, aCallback) {
             let calManager = cal.getCalendarManager();
 
@@ -479,7 +473,7 @@ var gDataMigrator = {
                 calfile.append(name + ".ics");
 
                 if (calfile.exists()) {
-                    let storage = gDataMigrator.importICSToStorage(calfile)
+                    let storage = gDataMigrator.importICSToStorage(calfile);
                     storage.name = name;
 
                     if (color) {
@@ -500,8 +494,7 @@ var gDataMigrator = {
             return [];
         }
 
-        let maildir = this.dirService.get("LocalAppData",
-                                          Components.interfaces.nsIFile);
+        let maildir = this.dirService.get("LocalAppData", Ci.nsIFile);
 
         maildir.append("Microsoft");
         maildir.append("Windows Calendar");
@@ -520,7 +513,6 @@ var gDataMigrator = {
             if (req.status == 0) {
                 // The file was found, it seems we are on windows vista.
                 let doc = req.responseXML;
-                let root = doc.documentElement;
 
                 // Get all calendar property tags and return the migrator.
                 let calendars = doc.getElementsByTagName("VCalendar");
@@ -537,14 +529,17 @@ var gDataMigrator = {
      *
      * @param icsFile     The nsI(Local)File to import.
      */
-    importICSToStorage: function migrateIcsStorage(icsFile) {
-        const uri = 'moz-storage-calendar://';
-        let calendar = cal.getCalendarManager().createCalendar("storage", Services.io.newURI(uri));
-        let icsImporter = Components.classes["@mozilla.org/calendar/import;1?type=ics"]
-                                    .getService(Components.interfaces.calIImporter);
+    importICSToStorage: function(icsFile) {
+        const uri = "moz-storage-calendar://";
+        let calendar = cal.getCalendarManager().createCalendar(
+            "storage",
+            Services.io.newURI(uri)
+        );
+        let icsImporter = Cc["@mozilla.org/calendar/import;1?type=ics"]
+                          .getService(Ci.calIImporter);
 
-        let inputStream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-                                    .createInstance(Components.interfaces.nsIFileInputStream);
+        let inputStream = Cc["@mozilla.org/network/file-input-stream;1"]
+                          .createInstance(Ci.nsIFileInputStream);
         let items = [];
 
         calendar.id = cal.getUUID();
@@ -552,16 +547,16 @@ var gDataMigrator = {
         try {
             inputStream.init(icsFile, MODE_RDONLY, parseInt("0444", 8), {});
             items = icsImporter.importFromStream(inputStream, {});
-        } catch(ex) {
+        } catch (ex) {
             switch (ex.result) {
-                case Components.interfaces.calIErrors.INVALID_TIMEZONE:
+                case Ci.calIErrors.INVALID_TIMEZONE:
                     cal.showError(cal.l10n.getCalString("timezoneError", [icsFile.path]), window);
                     break;
                 default:
                     cal.showError(cal.l10n.getCalString("unableToRead") + icsFile.path + "\n"+ ex, window);
             }
         } finally {
-           inputStream.close();
+            inputStream.close();
         }
 
         // Defined in import-export.js
@@ -592,15 +587,15 @@ var gDataMigrator = {
      * Notice that Firefox and Sunbird follow essentially the same pattern, so
      * we group them with getNormalProfile
      */
-    getFirefoxProfile: function gdm_getFF() {
+    getFirefoxProfile: function() {
         return this.getNormalProfile("Firefox");
     },
 
     /**
      * @see getFirefoxProfile
      */
-    getThunderbirdProfile: function gdm_getTB() {
-        let profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsIFile);
+    getThunderbirdProfile: function() {
+        let profileRoot = this.dirService.get("DefProfRt", Ci.nsIFile);
         migLOG("searching for Thunderbird in " + profileRoot.path);
         return profileRoot.exists() ? profileRoot : null;
     },
@@ -608,7 +603,7 @@ var gDataMigrator = {
     /**
      * @see getFirefoxProfile
      */
-    getSunbirdProfile: function gdm_getSB() {
+    getSunbirdProfile: function() {
         return this.getNormalProfile("Sunbird");
     },
 
@@ -616,9 +611,9 @@ var gDataMigrator = {
      * Common function to retrieve the profile directory for a given app.
      * @see getFirefoxProfile
      */
-    getNormalProfile: function gdm_getNorm(aAppName) {
-        var localFile;
-        var profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsIFile);
+    getNormalProfile: function(aAppName) {
+        let localFile;
+        let profileRoot = this.dirService.get("DefProfRt", Ci.nsIFile);
         migLOG("profileRoot = " + profileRoot.path);
 
         switch (this.mPlatform) {
