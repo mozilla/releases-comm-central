@@ -52,7 +52,6 @@ function registerPlayPreview(mimeType, targetUrl) {
   function OverlayStreamConverter() {}
   OverlayStreamConverter.prototype = {
     QueryInterface: XPCOMUtils.generateQI([
-        Ci.nsISupports,
         Ci.nsIStreamConverter,
         Ci.nsIStreamListener,
         Ci.nsIRequestObserver

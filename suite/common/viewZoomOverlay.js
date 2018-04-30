@@ -41,8 +41,7 @@ var FullZoom = FullZoom || {
                          Ci.nsIObserver,
                          Ci.nsIContentPrefObserver,
                          Ci.nsIContentPrefCallback2,
-                         Ci.nsISupportsWeakReference,
-                         Ci.nsISupports]),
+                         Ci.nsISupportsWeakReference]),
 
   //**************************************************************************//
   // Initialization & Destruction

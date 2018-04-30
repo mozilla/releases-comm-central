@@ -62,8 +62,7 @@ WebContentConverter.prototype = {
 
   QueryInterface: XPCOMUtils.generateQI(
     [Ci.nsIStreamConverter,
-     Ci.nsIStreamListener,
-     Ci.nsISupports])
+     Ci.nsIStreamListener])
 };
 
 var WebContentConverterFactory = {
@@ -74,8 +73,7 @@ var WebContentConverterFactory = {
   },
 
   QueryInterface: XPCOMUtils.generateQI(
-    [Ci.nsIFactory,
-     Ci.nsISupports])
+    [Ci.nsIFactory])
 };
 
 function ServiceInfo(contentType, uri, name) {
@@ -129,8 +127,7 @@ ServiceInfo.prototype = {
   },
 
   QueryInterface: XPCOMUtils.generateQI(
-    [Ci.nsIWebContentHandlerInfo,
-     Ci.nsISupports])
+    [Ci.nsIWebContentHandlerInfo])
 };
 
 function WebContentConverterRegistrar() {

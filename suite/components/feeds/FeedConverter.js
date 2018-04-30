@@ -126,8 +126,7 @@ FeedConverter.prototype = {
     [Ci.nsIFeedResultListener,
      Ci.nsIStreamConverter,
      Ci.nsIStreamListener,
-     Ci.nsIRequestObserver,
-     Ci.nsISupports]),
+     Ci.nsIRequestObserver]),
   classID: Components.ID("{88592f45-3866-4c8e-9d8a-ab58b290fcf7}"),
 
   /**
@@ -462,8 +461,7 @@ FeedResultService.prototype = {
       delete this._results[uri.spec];
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFeedResultService,
-                                         Ci.nsISupports]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFeedResultService]),
   classID: Components.ID("{e5b05e9d-f037-48e4-b9a4-b99476582927}")
 };
 
@@ -541,8 +539,7 @@ GenericProtocolHandler.prototype = {
     return channel;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolHandler,
-                                         Ci.nsISupports])
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolHandler])
 };
 
 function FeedProtocolHandler() {
