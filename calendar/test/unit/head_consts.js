@@ -25,6 +25,10 @@ updateAppInfo();
     bindir.append("chrome.manifest");
     dump("Loading" + bindir.path + "\n");
     Components.manager.autoRegister(bindir);
+
+    // Make sure to load the backend loader as early as possible, as xpcshell doesn't have the
+    // normal app flow with profile-after-change et al.
+    Components.classes["@mozilla.org/calendar/backend-loader;1"].getService();
 })();
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");

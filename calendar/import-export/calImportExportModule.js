@@ -2,30 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var scriptLoadOrder = [
-    "calIcsImportExport.js",
-    "calHtmlExport.js",
-    "calOutlookCSVImportExport.js",
+this.NSGetFactory = (cid) => {
+    let scriptLoadOrder = [
+        "resource://calendar/calendar-js/calIcsImportExport.js",
+        "resource://calendar/calendar-js/calHtmlExport.js",
+        "resource://calendar/calendar-js/calOutlookCSVImportExport.js",
 
-    "calListFormatter.js",
-    "calMonthGridPrinter.js",
-    "calWeekPrinter.js"
-];
-
-function getComponents() {
-    return [
-        calIcsImporter,
-        calIcsExporter,
-        calHtmlExporter,
-        calOutlookCSVImporter,
-        calOutlookCSVExporter,
-
-        calListFormatter,
-        calMonthPrinter,
-        calWeekPrinter
+        "resource://calendar/calendar-js/calListFormatter.js",
+        "resource://calendar/calendar-js/calMonthGridPrinter.js",
+        "resource://calendar/calendar-js/calWeekPrinter.js"
     ];
-}
 
-this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, getComponents, this);
+    for (let script of scriptLoadOrder) {
+        Services.scriptloader.loadSubScript(script, this);
+    }
+
+    let components = [
+        calIcsImporter, calIcsExporter, calHtmlExporter, calOutlookCSVImporter,
+        calOutlookCSVExporter, calListFormatter, calMonthPrinter, calWeekPrinter
+    ];
+
+    this.NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+    return this.NSGetFactory(cid);
+};

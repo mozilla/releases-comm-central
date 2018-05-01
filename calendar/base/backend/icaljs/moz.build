@@ -7,10 +7,6 @@ EXTRA_COMPONENTS += [
     'calICALJSComponents.js',
 ]
 
-FINAL_TARGET_FILES.components += [
-    'icaljs-manifest'
-]
-
 FINAL_TARGET_FILES['calendar-js'] += [
     'calDateTime.js',
     'calDuration.js',

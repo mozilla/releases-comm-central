@@ -170,41 +170,6 @@ var cal = {
         Object.defineProperty(aGlobal, "QueryInterface", { value: XPCOMUtils.generateQI(aInterfaces) });
         return aGlobal.QueryInterface(aIID);
     },
-    /**
-     * Loads an array of calendar scripts into the passed scope.
-     *
-     * @param scriptNames an array of calendar script names
-     * @param scope       scope to load into
-     */
-    loadScripts: function(scriptNames, scope) {
-        let baseUri = "resource://calendar/calendar-js/";
-        for (let script of scriptNames) {
-            if (!script) {
-                // If the array element is null, then just skip this script.
-                continue;
-            }
-            let scriptUrlSpec = baseUri + script;
-            try {
-                Services.scriptloader.loadSubScript(scriptUrlSpec, scope);
-            } catch (exc) {
-                Components.utils.reportError(exc + " (" + scriptUrlSpec + ")");
-            }
-        }
-    },
-
-    loadingNSGetFactory: function(scriptNames, components, scope) {
-        return function(cid) {
-            if (!this.inner) {
-                let global = Components.utils.getGlobalForObject(scope);
-                cal.loadScripts(scriptNames, global);
-                if (typeof components == "function") {
-                    components = components.call(global);
-                }
-                this.inner = XPCOMUtils.generateNSGetFactory(components);
-            }
-            return this.inner(cid);
-        };
-    },
 
     /**
      * Schedules execution of the passed function to the current thread's queue.

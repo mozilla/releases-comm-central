@@ -3023,8 +3023,8 @@ calDavObserver.prototype = {
 };
 
 /** Module Registration */
-var scriptLoadOrder = [
-    "calDavRequestHandlers.js"
-];
-
-this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calDavCalendar], this);
+this.NSGetFactory = (cid) => {
+    Services.scriptloader.loadSubScript("resource://calendar/calendar-js/calDavRequestHandlers.js", this);
+    this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calDavCalendar]);
+    return this.NSGetFactory(cid);
+};

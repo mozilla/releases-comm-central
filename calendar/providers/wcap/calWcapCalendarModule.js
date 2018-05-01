@@ -67,23 +67,23 @@ function initWcapProvider() {
 }
 
 /** Module Registration */
-var scriptLoadOrder = [
-    "calWcapUtils.js",
-    "calWcapErrors.js",
-    "calWcapRequest.js",
-    "calWcapSession.js",
-    "calWcapCalendar.js",
-    "calWcapCalendarItems.js"
-];
+this.NSGetFactory = (cid) => {
+    let scriptLoadOrder = [
+        "resource://calendar/calendar-js/calWcapUtils.js",
+        "resource://calendar/calendar-js/calWcapErrors.js",
+        "resource://calendar/calendar-js/calWcapRequest.js",
+        "resource://calendar/calendar-js/calWcapSession.js",
+        "resource://calendar/calendar-js/calWcapCalendar.js",
+        "resource://calendar/calendar-js/calWcapCalendarItems.js"
+    ];
 
-function getComponents() {
+    for (let script of scriptLoadOrder) {
+        Services.scriptloader.loadSubScript(script, this);
+    }
+
     initWcapProvider();
 
-    return [
-        calWcapCalendar,
-        calWcapNetworkRequest,
-        calWcapSession
-    ];
-}
-
-this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, getComponents, this);
+    let components = [calWcapCalendar, calWcapNetworkRequest, calWcapSession];
+    this.NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+    return this.NSGetFactory(cid);
+};

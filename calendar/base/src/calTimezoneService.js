@@ -809,4 +809,8 @@ function guessSystemTimezone() {
     return probableTZId;
 }
 
-this.NSGetFactory = cal.loadingNSGetFactory(["calTimezone.js"], [calTimezoneService], this);
+this.NSGetFactory = (cid) => {
+    Services.scriptloader.loadSubScript("resource://calendar/calendar-js/calTimezone.js", this);
+    this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calTimezoneService]);
+    return this.NSGetFactory(cid);
+};

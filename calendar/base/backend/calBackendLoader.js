@@ -4,13 +4,14 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 function calBackendLoader() {
     this.wrappedJSObject = this;
     try {
         this.loadBackend();
     } catch (e) {
-        dump("### Error loading backend: " + e + "\n");
+        dump(`### Error loading backend:${e.filename || e.fileName}:${e.lineNumber}: ${e}\n`);
     }
 }
 
@@ -38,36 +39,29 @@ calBackendLoader.prototype = {
             return;
         }
 
-        if (Services.prefs.getBoolPref("calendar.icaljs")) {
-            let contracts = [
-                "@mozilla.org/calendar/datetime;1",
-                "@mozilla.org/calendar/duration;1",
-                "@mozilla.org/calendar/ics-service;1",
-                "@mozilla.org/calendar/period;1",
-                "@mozilla.org/calendar/recurrence-rule;1"
-            ];
+        if (Preferences.get("calendar.icaljs", false)) {
+            let contracts = {
+                "@mozilla.org/calendar/datetime;1": "{36783242-ec94-4d8a-9248-d2679edd55b9}",
+                "@mozilla.org/calendar/ics-service;1": "{c61cb903-4408-41b3-bc22-da0b27efdfe1}",
+                "@mozilla.org/calendar/period;1": "{394a281f-7299-45f7-8b1f-cce21258972f}",
+                "@mozilla.org/calendar/recurrence-rule;1": "{df19281a-5389-4146-b941-798cb93a7f0d}",
+                "@mozilla.org/calendar/duration;1": "{7436f480-c6fc-4085-9655-330b1ee22288}",
+            };
 
-            // Unregister libical components
+            // Load ical.js backend
+            let scope = {};
+            Services.scriptloader.loadSubScript("resource://calendar/components/calICALJSComponents.js", scope);
+
+            // Register the icaljs components. We used to unregisterFactory, but this caused all
+            // sorts of problems. Just registering over it seems to work quite fine.
             let registrar = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-            for (let contractId of contracts) {
-                let classId = registrar.contractIDToCID(contractId);
-                let factory = Components.manager.getClassObject(classId, Components.interfaces.nsIFactory);
-                registrar.unregisterFactory(classId, factory);
+            for (let [contractID, classID] of Object.entries(contracts)) {
+                let newClassID = Components.ID(classID);
+                let newFactory = lazyFactoryFor(scope, newClassID);
+                registrar.registerFactory(newClassID, "", contractID, newFactory);
             }
 
-            // Now load ical.js backend
-            let uri = Services.io.getProtocolHandler("resource")
-                              .QueryInterface(Components.interfaces.nsIResProtocolHandler)
-                              .getSubstitution("calendar");
-
-            let file = Services.io.getProtocolHandler("file")
-                               .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
-                               .getFileFromURLSpec(uri.spec);
-            file.append("components");
-            file.append("icaljs-manifest");
-
-            registrar.autoRegister(file);
-            dump("[calBackendLoader] Using icaljs backend at " + file.path + "\n");
+            dump("[calBackendLoader] Using Lightning's icaljs backend\n");
         } else {
             dump("[calBackendLoader] Using Thunderbird's builtin libical backend\n");
         }
@@ -75,5 +69,18 @@ calBackendLoader.prototype = {
         this.loaded = true;
     }
 };
+
+function lazyFactoryFor(backendScope, classID) {
+    return {
+        createInstance: function(aOuter, aIID) {
+            let realFactory = backendScope.NSGetFactory(classID);
+            return realFactory.createInstance(aOuter, aIID);
+        },
+        lockFactory: function(lock) {
+            let realFactory = backendScope.NSGetFactory(classID);
+            return realFactory.lockFactory(aOuter, aIID);
+        }
+    };
+}
 
 this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calBackendLoader]);
