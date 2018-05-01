@@ -252,6 +252,50 @@ var kTelemetryPromptRev   = 2;
 
 var contentTabBaseType = {
   inContentWhitelist: ['about:addons', 'about:preferences'],
+
+  // Code to run if a particular document is loaded in a tab.
+  // The array members (functions) are for the respective document URLs
+  // as specified in inContentWhitelist .
+  inContentOverlays: [
+    // about:addons
+    function(aDocument) {
+      let contentStylesheet = aDocument.createProcessingInstruction(
+        "xml-stylesheet",
+        'href="chrome://messenger/content/extensionsOverlay.css" type="text/css"');
+        aDocument.insertBefore(contentStylesheet, aDocument.documentElement);
+
+      let extBundle =
+        new StringBundle("chrome://messenger/locale/extensionsOverlay.properties");
+
+      // Add navigation buttons for back and forward on the addons page.
+      let hbox = aDocument.createElement("hbox");
+      hbox.setAttribute("id", "nav-header");
+      hbox.setAttribute("align", "center");
+      hbox.setAttribute("pack", "center");
+
+      let button1 = aDocument.createElement("toolbarbutton");
+      button1.setAttribute("id", "back-btn");
+      button1.setAttribute("class", "nav-button header-button");
+      button1.setAttribute("command", "cmd_back");
+      button1.setAttribute("tooltiptext", extBundle.get("cmdBackTooltip"));
+      button1.setAttribute("disabled", "true");
+
+      let button2 = aDocument.createElement("toolbarbutton");
+      button2.setAttribute("id", "forward-btn");
+      button2.setAttribute("class", "nav-button header-button");
+      button2.setAttribute("command", "cmd_forward");
+      button2.setAttribute("tooltiptext", extBundle.get("cmdForwardTooltip"));
+      button2.setAttribute("disabled", "true");
+      hbox.appendChild(button1);
+      hbox.appendChild(button2);
+
+      aDocument.getElementById("category-box")
+               .insertBefore(hbox, aDocument.getElementById("categories"));
+    },
+
+    // about:preferences
+    null],
+
   shouldSwitchTo: function onSwitchTo({contentPage: aContentPage}) {
     let tabmail = document.getElementById("tabmail");
     let tabInfo = tabmail.tabInfo;
@@ -321,6 +365,13 @@ var contentTabBaseType = {
       } else {
         doc.documentElement.removeAttribute("disablechrome");
       }
+
+     // If this document has an overlay defined, run it now.
+     if (self.inContentWhitelist.includes(doc.defaultView.location.href)) {
+       let overlayFunction = self.inContentOverlays[self.inContentWhitelist.indexOf(doc.defaultView.location.href)];
+       if (overlayFunction)
+         overlayFunction(doc);
+     }
     }
 
     aTab.loadListener = onLoad;

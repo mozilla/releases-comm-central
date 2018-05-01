@@ -7,3 +7,7 @@
 .legacy-warning {
   display: none;
 }
+
+#nav-header {
+  height: 50px;
+}
