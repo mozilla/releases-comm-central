@@ -19,14 +19,7 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
  * @see calIcalendarViewController
  */
 var calendarViewController = {
-    QueryInterface: function(aIID) {
-        if (!aIID.equals(Components.interfaces.calICalendarViewController) &&
-            !aIID.equals(Components.interfaces.nsISupports)) {
-            throw Components.results.NS_ERROR_NO_INTERFACE;
-        }
-
-        return this;
-    },
+    QueryInterface: XPCOMUtils.generateQI([Ci.calICalendarViewController]),
 
     /**
      * Creates a new event
