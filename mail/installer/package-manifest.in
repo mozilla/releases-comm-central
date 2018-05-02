@@ -185,6 +185,9 @@
 @RESPATH@/chrome/toolkit.manifest
 @RESPATH@/chrome/comm@JAREXT@
 @RESPATH@/chrome/comm.manifest
+; Browser: Hack to get built_in_addons.json packaged
+@RESPATH@/chrome/browser@JAREXT@
+@RESPATH@/chrome/browser.manifest
 @RESPATH@/chrome/messenger@JAREXT@
 @RESPATH@/chrome/messenger.manifest
 #ifndef XP_UNIX
