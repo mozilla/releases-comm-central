@@ -171,6 +171,26 @@ MailGlue.prototype = {
     });
   },
 
+ _offertToEnableAddons(aAddons) {
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
+    let tabmail = win.document.getElementById("tabmail");
+
+    aAddons.forEach(function(aAddon) {
+    // If the add-on isn't user disabled or can't be enabled, then skip it.
+    if (!aAddon.userDisabled || !(aAddon.permissions & AddonManager.PERM_CAN_ENABLE))
+      return;
+
+    tabmail.openTab("contentTab",
+                    { contentPage: "about:newaddon?id=" + aAddon.id,
+                      clickHandler: null });
+    });
+  },
+
+  _detectNewSideloadedAddons: async function () {
+    let newSideloadedAddons = await AddonManagerPrivate.getNewSideloads();
+    this._offertToEnableAddons(newSideloadedAddons);
+  },
+
   _onMailStartupDone: function MailGlue__onMailStartupDone() {
     // On Windows 7 and above, initialize the jump list module.
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
@@ -182,20 +202,10 @@ MailGlue.prototype = {
 
     // For any add-ons that were installed disabled and can be enabled, offer
     // them to the user.
-    var win = Services.wm.getMostRecentWindow("mail:3pane");
-    var tabmail = win.document.getElementById("tabmail");
     var changedIDs = AddonManager.getStartupChanges(AddonManager.STARTUP_CHANGE_INSTALLED);
-    AddonManager.getAddonsByIDs(changedIDs, function (aAddons) {
-      aAddons.forEach(function(aAddon) {
-        // If the add-on isn't user disabled or can't be enabled then skip it.
-        if (!aAddon.userDisabled || !(aAddon.permissions & AddonManager.PERM_CAN_ENABLE))
-          return;
+    AddonManager.getAddonsByIDs(changedIDs, this._offertToEnableAddons.bind(this));
 
-        tabmail.openTab("contentTab",
-                        { contentPage: "about:newaddon?id=" + aAddon.id,
-                          clickHandler: null });
-      });
-    });
+    this._detectNewSideloadedAddons();
   },
 
   _handleLink: function MailGlue__handleLink(aSubject, aData) {
