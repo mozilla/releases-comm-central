@@ -24,6 +24,10 @@ index:
 try:
     ridealong-builds: {}
 
+release-promotion:
+    products:
+        - 'thunderbird'
+
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
 
