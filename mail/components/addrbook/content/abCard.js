@@ -460,6 +460,12 @@ function NewCardOKButton()
   return true;  // close the window
 }
 
+function NewCardCancelButton()
+{
+  // If a new photo was created, remove it now as it won't be used.
+  purgeOldPhotos(false);
+}
+
 // Move the data from the cardproperty to the dialog
 function GetCardValues(cardproperty, doc)
 {
