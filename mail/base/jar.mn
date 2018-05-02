@@ -9,13 +9,6 @@ messenger.jar:
 % override chrome://browser/content/browser-development-helpers.js chrome://messenger/content/browser-development-helpers.js
   content/messenger/browser-development-helpers.js (../../common/src/browser-development-helpers.js)
 #endif
-% style chrome://messenger/content/customizeToolbar.xul chrome://messenger/content/messenger.css
-% style chrome://messenger/content/customizeToolbar.xul chrome://messenger/skin/
-% style chrome://messenger/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
-% style chrome://messenger/content/customizeToolbar.xul chrome://messenger/skin/messengercompose/messengercompose.css
-% style chrome://messenger/content/customizeToolbar.xul chrome://messenger/skin/smime/msgCompSMIMEOverlay.css
-% style chrome://messenger/content/customizeToolbar.xul chrome://messenger/skin/messageHeader.css
-% style chrome://messenger/content/customizeToolbar.xul chrome://messenger/skin/primaryToolbar.css
     content/messenger/mailWindow.js                 (content/mailWindow.js)
     content/messenger/messageDisplay.js             (content/messageDisplay.js)
     content/messenger/extensionsOverlay.css         (content/extensionsOverlay.css)

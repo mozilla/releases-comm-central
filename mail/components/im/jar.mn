@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-% style chrome://messenger/content/customizeToolbar.xul chrome://messenger/skin/chat.css
     content/messenger/chat/chat-messenger.js             (content/chat-messenger.js)
     content/messenger/chat/chat.css                      (content/chat.css)
     content/messenger/am-im.js                           (content/am-im.js)
