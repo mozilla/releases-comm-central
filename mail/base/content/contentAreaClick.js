@@ -16,6 +16,10 @@
   ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
   ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+  XPCOMUtils.defineLazyServiceGetter(this, "asyncHistory",
+                                     "@mozilla.org/browser/history;1",
+                                     "mozIAsyncHistory");
+
   function hRefForClickEvent(aEvent, aDontCheckInputElement)
   {
     var href;
@@ -180,7 +184,7 @@ function openLinkExternally(url)
 
   // This can fail if there is a problem with the places database.
   try {
-    PlacesUtils.asyncHistory.updatePlaces({
+    asyncHistory.updatePlaces({
       uri: uri,
       visits:  [{
         visitDate: Date.now() * 1000,

@@ -5,6 +5,10 @@
 ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+XPCOMUtils.defineLazyServiceGetter(this, "asyncHistory",
+                                   "@mozilla.org/browser/history;1",
+                                   "mozIAsyncHistory");
+
 var gShowBiDi = false;
 
 function getBrowserURL() {
@@ -189,7 +193,7 @@ function togglePaneSplitter(splitterId)
 function openUILink(url, event)
 {
   if (!event.button) {
-    PlacesUtils.asyncHistory.updatePlaces({
+    asyncHistory.updatePlaces({
       uri: makeURI(url),
       visits:  [{
         visitDate: Date.now() * 1000,
