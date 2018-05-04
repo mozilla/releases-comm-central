@@ -3,17 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-/** Constructor for webcal: protocol handler */
-function calProtocolHandlerWebcal() {
-    calProtocolHandler.call(this, "webcal");
-}
-
-/** Constructor for webcals: protocl handler */
-function calProtocolHandlerWebcals() {
-    calProtocolHandler.call(this, "webcals");
-}
 
 /**
  * Generic webcal constructor
@@ -66,30 +55,24 @@ calProtocolHandler.prototype = {
     allowPort: function(aPort, aScheme) { return false; }
 };
 
-var calProtocolHandlerWebcalClassID = Components.ID("{1153c73a-39be-46aa-9ba9-656d188865ca}");
-var calProtocolHandlerWebcalInterfaces = [Components.interfaces.nsIProtocolHandler];
+/** Constructor for webcal: protocol handler */
+function calProtocolHandlerWebcal() {
+    calProtocolHandler.call(this, "webcal");
+}
 calProtocolHandlerWebcal.prototype = {
     __proto__: calProtocolHandler.prototype,
-    classID: calProtocolHandlerWebcalClassID,
-    QueryInterface: XPCOMUtils.generateQI(calProtocolHandlerWebcalInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calProtocolHandlerWebcalClassID,
-        contractID: "@mozilla.org/network/protocol;1?name=webcal",
-        classDescription: "Calendar webcal protocal handler",
-        interfaces: calProtocolHandlerWebcalInterfaces
-    }),
+
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
+    classID: Components.ID("{1153c73a-39be-46aa-9ba9-656d188865ca}"),
 };
 
-var calProtocolHandlerWebcalsClassID = Components.ID("{bdf71224-365d-4493-856a-a7e74026f766}");
-var calProtocolHandlerWebcalsInterfaces = [Components.interfaces.nsIProtocolHandler];
+/** Constructor for webcals: protocl handler */
+function calProtocolHandlerWebcals() {
+    calProtocolHandler.call(this, "webcals");
+}
 calProtocolHandlerWebcals.prototype = {
     __proto__: calProtocolHandler.prototype,
-    classID: calProtocolHandlerWebcalsClassID,
-    QueryInterface: XPCOMUtils.generateQI(calProtocolHandlerWebcalsInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calProtocolHandlerWebcalsClassID,
-        contractID: "@mozilla.org/network/protocol;1?name=webcals",
-        classDescription: "Calendar webcals protocal handler",
-        interfaces: calProtocolHandlerWebcalsInterfaces
-    }),
+
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
+    classID: Components.ID("{bdf71224-365d-4493-856a-a7e74026f766}"),
 };

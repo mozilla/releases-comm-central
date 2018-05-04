@@ -29,7 +29,7 @@ var calWcapCalendarInterfaces = [
 calWcapCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
     classID: calWcapCalendarClassID,
-    QueryInterface: XPCOMUtils.generateQI(calWcapCalendarInterfaces),
+    QueryInterface: cal.generateQI(calWcapCalendarInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calWcapCalendarClassID,
         contractID: "@mozilla.org/calendar/calendar;1?type=wcap",

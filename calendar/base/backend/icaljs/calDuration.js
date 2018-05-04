@@ -3,24 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://calendar/modules/ical.js");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function calDuration(innerObject) {
     this.innerObject = innerObject || new ICAL.Duration();
     this.wrappedJSObject = this;
 }
 
-var calDurationInterfaces = [Components.interfaces.calIDuration];
-var calDurationClassID = Components.ID("{7436f480-c6fc-4085-9655-330b1ee22288}");
 calDuration.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calDurationInterfaces),
-    classID: calDurationClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/duration;1",
-        classDescription: "Calendar Duration Object",
-        classID: calDurationClassID,
-        interfaces: calDurationInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIDuration]),
+    classID: Components.ID("{7436f480-c6fc-4085-9655-330b1ee22288}"),
 
     get icalDuration() { return this.innerObject; },
     set icalDuration(val) { this.innerObject = val; },

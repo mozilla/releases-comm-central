@@ -11,17 +11,9 @@ function calDateTimeFormatter() {
     this.wrappedJSObject = this;
     this.mDateStringBundle = Services.strings.createBundle("chrome://calendar/locale/dateFormat.properties");
 }
-var calDateTimeFormatterClassID = Components.ID("{4123da9a-f047-42da-a7d0-cc4175b9f36a}");
-var calDateTimeFormatterInterfaces = [Components.interfaces.calIDateTimeFormatter];
 calDateTimeFormatter.prototype = {
-    classID: calDateTimeFormatterClassID,
-    QueryInterface: XPCOMUtils.generateQI(calDateTimeFormatterInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calDateTimeFormatterClassID,
-        contractID: "@mozilla.org/calendar/datetime-formatter;1",
-        classDescription: "Formats Dates and Times",
-        interfaces: calDateTimeFormatterInterfaces,
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIDateTimeFormatter]),
+    classID: Components.ID("{4123da9a-f047-42da-a7d0-cc4175b9f36a}"),
 
     formatDate: function(aDate) {
         // Format the date using user's format preference (long or short)

@@ -12,18 +12,9 @@ function ltnMimeConverter() {
     this.wrappedJSObject = this;
 }
 
-var ltnMimeConverterClassID = Components.ID("{c70acb08-464e-4e55-899d-b2c84c5409fa}");
-var ltnMimeConverterInterfaces = [Components.interfaces.nsISimpleMimeConverter];
 ltnMimeConverter.prototype = {
-    classID: ltnMimeConverterClassID,
-    QueryInterface: XPCOMUtils.generateQI(ltnMimeConverterInterfaces),
-
-    classInfo: XPCOMUtils.generateCI({
-        classID: ltnMimeConverterClassID,
-        contractID: "@mozilla.org/lightning/mime-converter;1",
-        classDescription: "Lightning text/calendar handler",
-        interfaces: ltnMimeConverterInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleMimeConverter]),
+    classID: Components.ID("{c70acb08-464e-4e55-899d-b2c84c5409fa}"),
 
     uri: null,
 

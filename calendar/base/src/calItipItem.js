@@ -1,9 +1,6 @@
-/* -*- Mode: javascript; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -14,19 +11,11 @@ function calItipItem() {
     this.wrappedJSObject = this;
     this.mCurrentItemIndex = 0;
 }
-var calItipItemClassID = Components.ID("{f41392ab-dcad-4bad-818f-b3d1631c4d93}");
-var calItipItemInterfaces = [Components.interfaces.calIItipItem];
 calItipItem.prototype = {
-    mIsInitialized: false,
+    QueryInterface: ChromeUtils.generateQI([Ci.calIItipItem]),
+    classID: Components.ID("{f41392ab-dcad-4bad-818f-b3d1631c4d93}"),
 
-    classID: calItipItemClassID,
-    QueryInterface: XPCOMUtils.generateQI(calItipItemInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calItipItemClassID,
-        contractID: "@mozilla.org/calendar/itip-item;1",
-        classDescription: "Calendar iTIP item",
-        interfaces: calItipItemInterfaces
-    }),
+    mIsInitialized: false,
 
     mSender: null,
     get sender() {

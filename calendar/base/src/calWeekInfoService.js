@@ -2,25 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 function calWeekInfoService() {
     this.wrappedJSObject = this;
 }
-var calWeekInfoServiceClassID = Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}");
-var calWeekInfoServiceInterfaces = [Components.interfaces.calIWeekInfoService];
 calWeekInfoService.prototype = {
-    classID: calWeekInfoServiceClassID,
-    QueryInterface: XPCOMUtils.generateQI(calWeekInfoServiceInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calWeekInfoServiceClassID,
-        contractID: "@mozilla.org/calendar/weekinfo-service;1",
-        classDescription: "Calendar WeekInfo Service",
-        interfaces: calWeekInfoServiceInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIWeekInfoService]),
+    classID: Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}"),
 
     // calIWeekInfoService:
     getWeekTitle: function(aDateTime) {

@@ -1,1 +1,2 @@
 ac_add_options --enable-application=comm/mail
+ac_add_options --enable-calendar

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -13,7 +12,7 @@ ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 function getIcsFileTypes(aCount) {
     aCount.value = 1;
     return [{
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIFileType]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIFileType]),
         defaultExtension: "ics",
         extensionFilter: "*.ics",
         description: cal.l10n.getCalString("filterIcs", ["*.ics"])
@@ -25,17 +24,9 @@ function calIcsImporter() {
     this.wrappedJSObject = this;
 }
 
-var calIcsImporterClassID = Components.ID("{1e3e33dc-445a-49de-b2b6-15b2a050bb9d}");
-var calIcsImporterInterfaces = [Components.interfaces.calIImporter];
 calIcsImporter.prototype = {
-    classID: calIcsImporterClassID,
-    QueryInterface: XPCOMUtils.generateQI(calIcsImporterInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calIcsImporterClassID,
-        contractID: "@mozilla.org/calendar/import;1?type=ics",
-        classDescription: "Calendar ICS Importer",
-        interfaces: calIcsImporterInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIImporter]),
+    classID: Components.ID("{1e3e33dc-445a-49de-b2b6-15b2a050bb9d}"),
 
     getFileTypes: getIcsFileTypes,
 
@@ -52,18 +43,9 @@ function calIcsExporter() {
     this.wrappedJSObject = this;
 }
 
-var calIcsExporterClassID = Components.ID("{a6a524ce-adff-4a0f-bb7d-d1aaad4adc60}");
-var calIcsExporterInterfaces = [Components.interfaces.calIExporter];
 calIcsExporter.prototype = {
-    classID: calIcsExporterClassID,
-    QueryInterface: XPCOMUtils.generateQI(calIcsExporterInterfaces),
-
-    classInfo: XPCOMUtils.generateCI({
-        classID: calIcsExporterClassID,
-        contractID: "@mozilla.org/calendar/export;1?type=ics",
-        classDescription: "Calendar ICS Exporter",
-        interfaces: calIcsExporterInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIExporter]),
+    classID: Components.ID("{a6a524ce-adff-4a0f-bb7d-d1aaad4adc60}"),
 
     getFileTypes: getIcsFileTypes,
 

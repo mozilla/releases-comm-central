@@ -30,7 +30,7 @@ calTodo.prototype = {
     __proto__: calItemBase.prototype,
 
     classID: calTodoClassID,
-    QueryInterface: XPCOMUtils.generateQI(calTodoInterfaces),
+    QueryInterface: cal.generateQI(calTodoInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calTodoClassID,
         contractID: "@mozilla.org/calendar/todo;1",

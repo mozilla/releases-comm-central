@@ -4,7 +4,6 @@
 
 ChromeUtils.import("resource://calendar/modules/ical.js");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var UNIX_TIME_TO_PRTIME = 1000000;
 
@@ -13,17 +12,9 @@ function calDateTime(innerObject) {
     this.innerObject = innerObject || ICAL.Time.epochTime.clone();
 }
 
-var calDateTimeInterfaces = [Components.interfaces.calIDateTime];
-var calDateTimeClassID = Components.ID("{36783242-ec94-4d8a-9248-d2679edd55b9}");
 calDateTime.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calDateTimeInterfaces),
-    classID: calDateTimeClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/datetime;1",
-        classDescription: "Describes a Date/Time Object",
-        classID: calDateTimeClassID,
-        interfaces: calDateTimeInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIDateTime]),
+    classID: Components.ID("{36783242-ec94-4d8a-9248-d2679edd55b9}"),
 
     isMutable: true,
     makeImmutable: function() { this.isMutable = false; },

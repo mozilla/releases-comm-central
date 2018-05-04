@@ -3,24 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://calendar/modules/ical.js");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function calPeriod(innerObject) {
     this.innerObject = innerObject || new ICAL.Period({});
     this.wrappedJSObject = this;
 }
 
-var calPeriodInterfaces = [Components.interfaces.calIPeriod];
-var calPeriodClassID = Components.ID("{394a281f-7299-45f7-8b1f-cce21258972f}");
 calPeriod.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calPeriodInterfaces),
-    classID: calPeriodClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/period;1",
-        classDescription: "A period between two dates",
-        classID: calPeriodClassID,
-        interfaces: calPeriodInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIPeriod]),
+    classID: Components.ID("{394a281f-7299-45f7-8b1f-cce21258972f}"),
 
     isMutable: true,
     innerObject: null,

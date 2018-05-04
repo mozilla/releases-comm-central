@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -13,25 +11,16 @@ function calHtmlExporter() {
     this.wrappedJSObject = this;
 }
 
-var calHtmlExporterClassID = Components.ID("{72d9ab35-9b1b-442a-8cd0-ae49f00b159b}");
-var calHtmlExporterInterfaces = [Components.interfaces.calIExporter];
 calHtmlExporter.prototype = {
-    classID: calHtmlExporterClassID,
-    QueryInterface: XPCOMUtils.generateQI(calHtmlExporterInterfaces),
-
-    classInfo: XPCOMUtils.generateCI({
-        classID: calHtmlExporterClassID,
-        contractID: "@mozilla.org/calendar/export;1?type=html",
-        classDescription: "Calendar HTML Exporter",
-        interfaces: calHtmlExporterInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIExporter]),
+    classID: Components.ID("{72d9ab35-9b1b-442a-8cd0-ae49f00b159b}"),
 
     getFileTypes: function(aCount) {
         aCount.value = 1;
         let wildmat = "*.html; *.htm";
         let label = cal.l10n.getCalString("filterHtml", [wildmat]);
         return [{
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIFileType]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIFileType]),
             defaultExtension: "html",
             extensionFilter: wildmat,
             description: label

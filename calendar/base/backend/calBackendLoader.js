@@ -15,18 +15,9 @@ function calBackendLoader() {
     }
 }
 
-var calBackendLoaderClassID = Components.ID("{0314c271-7168-40fa-802e-83c8c46a557e}");
-var calBackendLoaderInterfaces = [Components.interfaces.nsIObserver];
 calBackendLoader.prototype = {
-    classID: calBackendLoaderClassID,
-    QueryInterface: XPCOMUtils.generateQI(calBackendLoaderInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calBackendLoaderClassID,
-        contractID: "@mozilla.org/calendar/backend-loader;1",
-        classDescription: "Calendar Backend Loader",
-        interfaces: calBackendLoaderInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
-    }),
+    classID: Components.ID("{0314c271-7168-40fa-802e-83c8c46a557e}"),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 
     loaded: false,
 

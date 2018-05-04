@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 //
@@ -15,20 +13,12 @@ function calAttachment() {
     this.mProperties = new cal.data.PropertyMap();
 }
 
-var calAttachmentClassID = Components.ID("{5f76b352-ab75-4c2b-82c9-9206dbbf8571}");
-var calAttachmentInterfaces = [Components.interfaces.calIAttachment];
 calAttachment.prototype = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIAttachment]),
+    classID: Components.ID("{5f76b352-ab75-4c2b-82c9-9206dbbf8571}"),
+
     mData: null,
     mHashId: null,
-
-    classID: calAttachmentClassID,
-    QueryInterface: XPCOMUtils.generateQI(calAttachmentInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calAttachmentClassID,
-        contractID: "@mozilla.org/calendar/attachment;1",
-        classDescription: "Calendar Item Attachment",
-        interfaces: calAttachmentInterfaces
-    }),
 
     get hashId() {
         if (!this.mHashId) {

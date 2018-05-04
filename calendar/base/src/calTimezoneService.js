@@ -48,7 +48,7 @@ calTimezoneService.prototype = {
     mZones: null,
 
     classID: calTimezoneServiceClassID,
-    QueryInterface: XPCOMUtils.generateQI(calTimezoneServiceInterfaces),
+    QueryInterface: cal.generateQI(calTimezoneServiceInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calTimezoneServiceClassID,
         contractID: "@mozilla.org/calendar/timezone-service;1",

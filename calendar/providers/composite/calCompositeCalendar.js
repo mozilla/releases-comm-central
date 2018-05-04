@@ -22,7 +22,7 @@ function calCompositeCalendarObserverHelper(compCalendar) {
 calCompositeCalendarObserverHelper.prototype = {
     pendingLoads: null,
 
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
 
     onStartBatch: function() {
         this.compCalendar.mObservers.notify("onStartBatch");
@@ -441,6 +441,8 @@ function calCompositeGetListenerHelper(aCompositeCalendar, aRealListener, aMaxIt
 }
 
 calCompositeGetListenerHelper.prototype = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+
     mNumQueries: 0,
     mRealListener: null,
     mOpGroup: null,
@@ -466,8 +468,6 @@ calCompositeGetListenerHelper.prototype = {
         }
         return this.mOpGroup;
     },
-
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
 
     onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
         if (!this.mRealListener) {

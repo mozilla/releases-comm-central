@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/ical.js");
 
@@ -11,17 +10,9 @@ function calICALJSTimezone(innerObject) {
     this.wrappedJSObject = this;
 }
 
-var calTimezoneInterfaces = [Components.interfaces.calITimezone];
-var calTimezoneClassID = Components.ID("{6702eb17-a968-4b43-b562-0d0c5f8e9eb5}");
 calICALJSTimezone.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calTimezoneInterfaces),
-    classID: calTimezoneClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/timezone;1",
-        classDescription: "Calendar Timezone",
-        classID: calTimezoneClassID,
-        interfaces: calTimezoneInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calITimezone]),
+    classID: Components.ID("{6702eb17-a968-4b43-b562-0d0c5f8e9eb5}"),
 
     innerObject: null,
 
@@ -68,14 +59,8 @@ function calLibicalTimezone(tzid, component, latitude, longitude) {
     this.longitude = longitude;
 }
 calLibicalTimezone.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calTimezoneInterfaces),
-    classID: calTimezoneClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/timezone;1",
-        classDescription: "Calendar Timezone",
-        classID: calTimezoneClassID,
-        interfaces: calTimezoneInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calITimezone]),
+    classID: Components.ID("{6702eb17-a968-4b43-b562-0d0c5f8e9eb5}"),
 
     toString: function() {
         return (this.icalComponent ? this.icalComponent.toString() : this.tzid);

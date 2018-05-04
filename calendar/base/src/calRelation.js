@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -16,20 +14,12 @@ function calRelation() {
     this.wrappedJSObject = this;
     this.mProperties = new cal.data.PropertyMap();
 }
-var calRelationClassID = Components.ID("{76810fae-abad-4019-917a-08e95d5bbd68}");
-var calRelationInterfaces = [Components.interfaces.calIRelation];
 calRelation.prototype = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIRelation]),
+    classID: Components.ID("{76810fae-abad-4019-917a-08e95d5bbd68}"),
+
     mType: null,
     mId: null,
-
-    classID: calRelationClassID,
-    QueryInterface: XPCOMUtils.generateQI(calRelationInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calRelationClassID,
-        contractID: "@mozilla.org/calendar/relation;1",
-        classDescription: "Calendar Item Relation",
-        interfaces: calRelationInterfaces
-    }),
 
     /**
      * @see calIRelation

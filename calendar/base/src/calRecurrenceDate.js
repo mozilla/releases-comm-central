@@ -10,7 +10,10 @@ function calRecurrenceDate() {
 }
 
 var calRecurrenceDateClassID = Components.ID("{806b6423-3aaa-4b26-afa3-de60563e9cec}");
-var calRecurrenceDateInterfaces = [Components.interfaces.calIRecurrenceDate];
+var calRecurrenceDateInterfaces = [
+    Components.interfaces.calIRecurrenceItem,
+    Components.interfaces.calIRecurrenceDate
+];
 calRecurrenceDate.prototype = {
     isMutable: true,
 
@@ -18,7 +21,7 @@ calRecurrenceDate.prototype = {
     mDate: null,
 
     classID: calRecurrenceDateClassID,
-    QueryInterface: XPCOMUtils.generateQI(calRecurrenceDateInterfaces),
+    QueryInterface: cal.generateQI(calRecurrenceDateInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calRecurrenceDateClassID,
         contractID: "@mozilla.org/calendar/recurrence-date;1",

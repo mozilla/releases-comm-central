@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -14,18 +12,9 @@ function calWeekPrinter() {
     this.wrappedJSObject = this;
 }
 
-var calWeekPrinterClassID = Components.ID("{2d6ec97b-9109-4b92-89c5-d4b4806619ce}");
-var calWeekPrinterInterfaces = [Components.interfaces.calIPrintFormatter];
 calWeekPrinter.prototype = {
-    classID: calWeekPrinterClassID,
-    QueryInterface: XPCOMUtils.generateQI(calWeekPrinterInterfaces),
-
-    classInfo: XPCOMUtils.generateCI({
-        classID: calWeekPrinterClassID,
-        contractID: "@mozilla.org/calendar/printformatter;1?type=weekplan",
-        classDescription: "Calendar Week Print Formatter",
-        interfaces: calWeekPrinterInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIPrintFormatter]),
+    classID: Components.ID("{2d6ec97b-9109-4b92-89c5-d4b4806619ce}"),
 
     get name() { return cal.l10n.getCalString("weekPrinterName"); },
 

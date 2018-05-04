@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /* calDefaultACLManager */
@@ -12,21 +10,11 @@ function calDefaultACLManager() {
     this.mCalendarEntries = {};
 }
 
-var calDefaultACLManagerClassID = Components.ID("{7463258c-6ef3-40a2-89a9-bb349596e927}");
-var calDefaultACLManagerInterfaces = [Components.interfaces.calICalendarACLManager];
 calDefaultACLManager.prototype = {
-    mCalendarEntries: null,
+    QueryInterface: ChromeUtils.generateQI([Ci.calICalendarACLManager]),
+    classID: Components.ID("{7463258c-6ef3-40a2-89a9-bb349596e927}"),
 
-    /* nsISupports, nsIClassInfo */
-    classID: calDefaultACLManagerClassID,
-    QueryInterface: XPCOMUtils.generateQI(calDefaultACLManagerInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calDefaultACLManagerClassID,
-        contractID: "@mozilla.org/calendar/acl-manager;1?type=default",
-        classDescription: "Default Calendar ACL Provider",
-        interfaces: calDefaultACLManagerInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
-    }),
+    mCalendarEntries: null,
 
     /* calICalendarACLManager */
     _getCalendarEntryCached: function(aCalendar) {
@@ -57,10 +45,9 @@ function calDefaultCalendarACLEntry(aMgr, aCalendar) {
 }
 
 calDefaultCalendarACLEntry.prototype = {
-    mACLManager: null,
+    QueryInterface: ChromeUtils.generateQI([Ci.calICalendarACLEntry]),
 
-    /* nsISupports */
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarACLEntry]),
+    mACLManager: null,
 
     /* calICalendarACLCalendarEntry */
     get aclManager() {
@@ -107,8 +94,7 @@ function calDefaultItemACLEntry(aCalendarEntry) {
 }
 
 calDefaultItemACLEntry.prototype = {
-    /* nsISupports */
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIItemACLEntry]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIItemACLEntry]),
 
     /* calIItemACLEntry */
     calendarEntry: null,

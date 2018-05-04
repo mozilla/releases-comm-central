@@ -11,10 +11,13 @@ function calRecurrenceRule(innerObject) {
     this.wrappedJSObject = this;
 }
 
-var calRecurrenceRuleInterfaces = [Components.interfaces.calIRecurrenceRule];
+var calRecurrenceRuleInterfaces = [
+    Components.interfaces.calIRecurrenceRule,
+    Components.interfaces.calIRecurrenceItem
+];
 var calRecurrenceRuleClassID = Components.ID("{df19281a-5389-4146-b941-798cb93a7f0d}");
 calRecurrenceRule.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calRecurrenceRuleInterfaces),
+    QueryInterface: cal.generateQI(calRecurrenceRuleInterfaces),
     classID: calRecurrenceRuleClassID,
     classInfo: XPCOMUtils.generateCI({
         contractID: "@mozilla.org/calendar/recurrence-rule;1",

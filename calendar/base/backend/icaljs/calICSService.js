@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://calendar/modules/ical.js");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function calIcalProperty(innerObject) {
@@ -11,17 +10,9 @@ function calIcalProperty(innerObject) {
     this.wrappedJSObject = this;
 }
 
-var calIcalPropertyInterfaces = [Components.interfaces.calIIcalProperty];
-var calIcalPropertyClassID = Components.ID("{423ac3f0-f612-48b3-953f-47f7f8fd705b}");
 calIcalProperty.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calIcalPropertyInterfaces),
-    classID: calIcalPropertyClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/ical-property;1",
-        classDescription: "Wrapper for a libical property",
-        classID: calIcalPropertyClassID,
-        interfaces: calIcalPropertyInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIIcalProperty]),
+    classID: Components.ID("{423ac3f0-f612-48b3-953f-47f7f8fd705b}"),
 
     get icalString() { return this.innerObject.toICALString() + ICAL.newLineChar; },
     get icalProperty() { return this.innerObject; },
@@ -213,17 +204,9 @@ function calIcalComponent(innerObject) {
     this.mReferencedZones = {};
 }
 
-var calIcalComponentInterfaces = [Components.interfaces.calIIcalComponent];
-var calIcalComponentClassID = Components.ID("{51ac96fd-1279-4439-a85b-6947b37f4cea}");
 calIcalComponent.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calIcalComponentInterfaces),
-    classID: calIcalComponentClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/ical-component;1",
-        classDescription: "Wrapper for a icaljs component",
-        classID: calIcalComponentClassID,
-        interfaces: calIcalComponentInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIIcalComponent]),
+    classID: Components.ID("{51ac96fd-1279-4439-a85b-6947b37f4cea}"),
 
     clone: function() { return new calIcalComponent(new ICAL.Component(this.innerObject.toJSON())); },
 
@@ -455,17 +438,9 @@ function calICSService() {
     this.wrappedJSObject = this;
 }
 
-var calICSServiceInterfaces = [Components.interfaces.calIICSService];
-var calICSServiceClassID = Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}");
 calICSService.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calICSServiceInterfaces),
-    classID: calICSServiceClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/ics-service;1",
-        classDescription: "ICS component and property service",
-        classID: calICSServiceClassID,
-        interfaces: [Components.interfaces.calIICSService]
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIICSService]),
+    classID: Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}"),
 
     parseICS: function(serialized, tzProvider) {
         // TODO ical.js doesn't support tz providers, but this is usually null

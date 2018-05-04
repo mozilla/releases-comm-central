@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function calFreeBusyListener(numOperations, finalListener) {
@@ -14,11 +13,11 @@ function calFreeBusyListener(numOperations, finalListener) {
     });
 }
 calFreeBusyListener.prototype = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIGenericOperationListener]),
+
     mFinalListener: null,
     mNumOperations: 0,
     opGroup: null,
-
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIGenericOperationListener]),
 
     notifyResult: function(result) {
         let listener = this.mFinalListener;
@@ -54,23 +53,11 @@ function calFreeBusyService() {
     this.wrappedJSObject = this;
     this.mProviders = new Set();
 }
-var calFreeBusyServiceClassID = Components.ID("{29c56cd5-d36e-453a-acde-0083bd4fe6d3}");
-var calFreeBusyServiceInterfaces = [
-    Components.interfaces.calIFreeBusyProvider,
-    Components.interfaces.calIFreeBusyService
-];
 calFreeBusyService.prototype = {
-    mProviders: null,
+    QueryInterface: ChromeUtils.generateQI([Ci.calIFreeBusyProvider, Ci.calIFreeBusyService]),
+    classID: Components.ID("{29c56cd5-d36e-453a-acde-0083bd4fe6d3}"),
 
-    classID: calFreeBusyServiceClassID,
-    QueryInterface: XPCOMUtils.generateQI(calFreeBusyServiceInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calFreeBusyServiceClassID,
-        contractID: "@mozilla.org/calendar/freebusy-service;1",
-        classDescription: "Calendar FreeBusy Service",
-        interfaces: calFreeBusyServiceInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
-    }),
+    mProviders: null,
 
     // calIFreeBusyProvider:
     getFreeBusyIntervals: function(aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {

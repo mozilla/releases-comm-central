@@ -32,9 +32,8 @@ function calAlarmService() {
     this.mObservers = new cal.data.ListenerSet(Components.interfaces.calIAlarmServiceObserver);
 
     this.calendarObserver = {
+        QueryInterface: ChromeUtils.generateQI([Components.interfaces.calIObserver]),
         alarmService: this,
-
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
 
         // calIObserver:
         onStartBatch: function() { },
@@ -78,9 +77,8 @@ function calAlarmService() {
     };
 
     this.calendarManagerObserver = {
+        QueryInterface: ChromeUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
         alarmService: this,
-
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
 
         onCalendarRegistered: function(aCalendar) {
             this.alarmService.observeCalendar(aCalendar);
@@ -112,7 +110,7 @@ calAlarmService.prototype = {
     mTimezone: null,
 
     classID: calAlarmServiceClassID,
-    QueryInterface: XPCOMUtils.generateQI(calAlarmServiceInterfaces),
+    QueryInterface: cal.generateQI(calAlarmServiceInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calAlarmServiceClassID,
         contractID: "@mozilla.org/calendar/alarm-service;1",
@@ -496,7 +494,7 @@ calAlarmService.prototype = {
 
     findAlarms: function(aCalendars, aStart, aUntil) {
         let getListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Components.interfaces.calIOperationListener]),
             alarmService: this,
             addRemovePromise: PromiseUtils.defer(),
             batchCount: 0,

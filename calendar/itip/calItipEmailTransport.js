@@ -16,17 +16,9 @@ function calItipEmailTransport() {
     this.wrappedJSObject = this;
     this._initEmailTransport();
 }
-var calItipEmailTransportClassID = Components.ID("{d4d7b59e-c9e0-4a7a-b5e8-5958f85515f0}");
-var calItipEmailTransportInterfaces = [Ci.calIItipTransport];
 calItipEmailTransport.prototype = {
-    classID: calItipEmailTransportClassID,
-    QueryInterface: XPCOMUtils.generateQI(calItipEmailTransportInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calItipEmailTransportClassID,
-        contractID: "@mozilla.org/calendar/itip-transport;1?type=email",
-        classDescription: "Calendar iTIP Email Transport",
-        interfaces: calItipEmailTransportInterfaces,
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIItipTransport]),
+    classID: Components.ID("{d4d7b59e-c9e0-4a7a-b5e8-5958f85515f0}"),
 
     mHasXpcomMail: false,
     mDefaultAccount: null,

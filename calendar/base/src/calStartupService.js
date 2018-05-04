@@ -4,7 +4,6 @@
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 
 /**
@@ -31,18 +30,9 @@ function calStartupService() {
     this.setupObservers();
 }
 
-var calStartupServiceInterfaces = [Components.interfaces.nsIObserver];
-var calStartupServiceClassID = Components.ID("{2547331f-34c0-4a4b-b93c-b503538ba6d6}");
 calStartupService.prototype = {
-    QueryInterface: XPCOMUtils.generateQI(calStartupServiceInterfaces),
-    classID: calStartupServiceClassID,
-    classInfo: XPCOMUtils.generateCI({
-        contractID: "@mozilla.org/calendar/startup-service;1",
-        classDescription: "Calendar Startup Service",
-        classID: calStartupServiceClassID,
-        interfaces: calStartupServiceInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+    classID: Components.ID("{2547331f-34c0-4a4b-b93c-b503538ba6d6}"),
 
     // Startup Service Methods
 

@@ -4,7 +4,6 @@
 
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var ALARM_RELATED_ABSOLUTE = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
 var ALARM_RELATED_START = Components.interfaces.calIAlarm.ALARM_RELATED_START;
@@ -18,9 +17,9 @@ function calAlarm() {
     this.mAttachments = [];
 }
 
-var calAlarmClassID = Components.ID("{b8db7c7f-c168-4e11-becb-f26c1c4f5f8f}");
-var calAlarmInterfaces = [Components.interfaces.calIAlarm];
 calAlarm.prototype = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIAlarm]),
+    classID: Components.ID("{b8db7c7f-c168-4e11-becb-f26c1c4f5f8f}"),
 
     mProperties: null,
     mPropertyParams: null,
@@ -36,15 +35,6 @@ calAlarm.prototype = {
     mImmutable: false,
     mRelated: 0,
     mRepeat: 0,
-
-    classID: calAlarmClassID,
-    QueryInterface: XPCOMUtils.generateQI(calAlarmInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calAlarmClassID,
-        contractID: "@mozilla.org/calendar/alarm;1",
-        classDescription: "Describes a VALARM",
-        interfaces: calAlarmInterfaces
-    }),
 
     /**
      * calIAlarm

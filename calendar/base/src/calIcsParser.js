@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function calIcsParser() {
@@ -13,18 +11,9 @@ function calIcsParser() {
     this.mComponents = [];
     this.mProperties = [];
 }
-var calIcsParserClassID = Components.ID("{6fe88047-75b6-4874-80e8-5f5800f14984}");
-var calIcsParserInterfaces = [Components.interfaces.calIIcsParser];
 calIcsParser.prototype = {
-    classID: calIcsParserClassID,
-    QueryInterface: XPCOMUtils.generateQI(calIcsParserInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calIcsParserClassID,
-        contractID: "@mozilla.org/calendar/ics-parser;1",
-        classDescription: "Calendar ICS Parser",
-        interfaces: calIcsParserInterfaces,
-        flags: Components.interfaces.nsIClassInfo.THREADSAFE
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIIcsParser]),
+    classID: Components.ID("{6fe88047-75b6-4874-80e8-5f5800f14984}"),
 
     processIcalComponent: function(rootComp, aAsyncParsing) {
         let calComp;

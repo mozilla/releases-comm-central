@@ -41,7 +41,7 @@ calAlarmMonitor.prototype = {
     mSound: null,
 
     classID: calAlarmMonitorClassID,
-    QueryInterface: XPCOMUtils.generateQI(calAlarmMonitorInterfaces),
+    QueryInterface: cal.generateQI(calAlarmMonitorInterfaces),
     classInfo: XPCOMUtils.generateCI({
         contractID: "@mozilla.org/calendar/alarm-monitor;1",
         classDescription: "Calendar Alarm Monitor",

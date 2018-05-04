@@ -159,7 +159,7 @@ var cal = {
      *     }
      *
      * The function is cached, once this is called QueryInterface is replaced with
-     * XPCOMUtils.generateQI()'s result.
+     * cal.generateQI()'s result.
      *
      * @param {Object} aGlobal      The object to define the method on
      * @param {nsIIDRef} aIID       The IID to query for
@@ -167,8 +167,38 @@ var cal = {
      * @return {nsQIResult}         The object queried for aIID
      */
     generateClassQI: function(aGlobal, aIID, aInterfaces) {
-        Object.defineProperty(aGlobal, "QueryInterface", { value: XPCOMUtils.generateQI(aInterfaces) });
+        Object.defineProperty(aGlobal, "QueryInterface", { value: cal.generateQI(aInterfaces) });
         return aGlobal.QueryInterface(aIID);
+    },
+
+
+    /**
+     * Generates the QueryInterface function. This is a replacement for XPCOMUtils.generateQI, which
+     * is being replaced. Unfortunately Lightning's code depends on some of its classes providing
+     * nsIClassInfo, which causes xpconnect/xpcom to make all methods available, e.g. for an event
+     * both calIItemBase and calIEvent.
+     *
+     * @param {Array<String|nsIIDRef>} aInterfaces      The interfaces to generate QI for.
+     * @return {Function}                               The QueryInterface function
+     */
+    generateQI: function(aInterfaces) {
+        if (aInterfaces.length == 1) {
+            cal.WARN("When generating QI for one interface, please use ChromeUtils.generateQI", cal.STACK(10));
+            return ChromeUtils.generateQI(aInterfaces);
+        } else {
+            /* Note that Ci[Ci.x] == Ci.x for all x */
+            let names = [];
+            if (aInterfaces) {
+                for (let i = 0; i < aInterfaces.length; i++) {
+                    let iface = aInterfaces[i];
+                    let name = (iface && iface.name) || String(iface);
+                    if (name in Ci) {
+                        names.push(name);
+                    }
+                }
+            }
+            return makeQI(names);
+        }
     },
 
     /**
@@ -426,6 +456,30 @@ function shutdownCleanup(obj, prop) {
         });
     }
     shutdownCleanup.mEntries.push({ mObj: obj, mProp: prop });
+}
+
+/**
+ * This is the makeQI function from XPCOMUtils.jsm, it is separate to avoid leaks
+ *
+ * @param {Array<String|nsIIDRef>} aInterfaces      The interfaces to make QI for.
+ * @return {Function}                               The QueryInterface function.
+ */
+function makeQI(aInterfaces) {
+    return function(iid) {
+        if (iid.equals(Ci.nsISupports)) {
+            return this;
+        }
+        if (iid.equals(Ci.nsIClassInfo) && "classInfo" in this) {
+            return this.classInfo;
+        }
+        for (let i = 0; i < aInterfaces.length; i++) {
+            if (Ci[aInterfaces[i]].equals(iid)) {
+                return this;
+            }
+        }
+
+        throw Cr.NS_ERROR_NO_INTERFACE;
+    };
 }
 
 // Backwards compatibility for bug 905097. Please remove with Thunderbird 61.

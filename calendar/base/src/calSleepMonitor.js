@@ -6,22 +6,14 @@ ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var calSleepMonitorClassID = Components.ID("9b987a8d-c2ef-4cb9-9602-1261b4b2f6fa");
-var calSleepMonitorInterfaces = [Components.interfaces.nsIObserver];
 
 function calSleepMonitor() {
+    this.wrappedJSObject = this;
 }
 
 calSleepMonitor.prototype = {
-    classID: calSleepMonitorClassID,
-    QueryInterface: XPCOMUtils.generateQI(calSleepMonitorInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calSleepMonitorClassID,
-        contractID: "@mozilla.org/calendar/sleep-monitor;1",
-        classDescription: "Calendar Sleep Monitor",
-        interfaces: calSleepMonitorInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+    classID: Components.ID("9b987a8d-c2ef-4cb9-9602-1261b4b2f6fa"),
 
     interval: 60000,
     timer: null,

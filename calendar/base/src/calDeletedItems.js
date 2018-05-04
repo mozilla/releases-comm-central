@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
@@ -32,7 +33,7 @@ var calDeletedItemsInterfaces = [
 calDeletedItems.prototype = {
 
     classID: calDeletedItemsClassID,
-    QueryInterface: XPCOMUtils.generateQI(calDeletedItemsInterfaces),
+    QueryInterface: cal.generateQI(calDeletedItemsInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calDeletedItemsClassID,
         contractID: "@mozilla.org/calendar/deleted-items-manager;1",

@@ -114,7 +114,7 @@ var calWcapSessionInterfaces = [
 ];
 calWcapSession.prototype = {
     classID: calWcapSessionClassID,
-    QueryInterface: XPCOMUtils.generateQI(calWcapSessionInterfaces),
+    QueryInterface: cal.generateQI(calWcapSessionInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calWcapSessionClassID,
         contractID: "@mozilla.org/calendar/wcap/session;1",

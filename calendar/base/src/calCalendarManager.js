@@ -26,7 +26,7 @@ var calCalendarManagerInterfaces = [
 ];
 calCalendarManager.prototype = {
     classID: calCalendarManagerClassID,
-    QueryInterface: XPCOMUtils.generateQI(calCalendarManagerInterfaces),
+    QueryInterface: cal.generateQI(calCalendarManagerInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calCalendarManagerClassID,
         contractID: "@mozilla.org/calendar/manager;1",
@@ -808,7 +808,7 @@ calMgrCalendarObserver.prototype = {
     storedReadOnly: null,
     calMgr: null,
 
-    QueryInterface: XPCOMUtils.generateQI([
+    QueryInterface: ChromeUtils.generateQI([
         Components.interfaces.nsIWindowMediatorListener,
         Components.interfaces.calIObserver
     ]),

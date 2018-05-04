@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function calTransactionManager() {
     this.wrappedJSObject = this;
@@ -14,19 +13,9 @@ function calTransactionManager() {
     }
 }
 
-var calTransactionManagerClassID = Components.ID("{1d529847-d292-4222-b066-b8b17a794d62}");
-var calTransactionManagerInterfaces = [Components.interfaces.calITransactionManager];
 calTransactionManager.prototype = {
-
-    classID: calTransactionManagerClassID,
-    QueryInterface: XPCOMUtils.generateQI(calTransactionManagerInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calTransactionManagerClassID,
-        classDescription: "Calendar Transaction Manager",
-        contractID: "mozilla.org/calendar/transactionmanager;1",
-        interfaces: calTransactionManagerInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calITransactionManager]),
+    classID: Components.ID("{1d529847-d292-4222-b066-b8b17a794d62}"),
 
     transactionManager: null,
     createAndCommitTxn: function(aAction, aItem, aCalendar, aOldItem, aListener, aExtResponse) {

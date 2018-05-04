@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function getRidKey(date) {
     if (!date) {
@@ -17,30 +16,21 @@ function getRidKey(date) {
 }
 
 function calRecurrenceInfo() {
+    this.wrappedJSObject = this;
     this.mRecurrenceItems = [];
     this.mExceptionMap = {};
-
-    this.wrappedJSObject = this;
 }
 
-var calRecurrenceInfoClassID = Components.ID("{04027036-5884-4a30-b4af-f2cad79f6edf}");
-var calRecurrenceInfoInterfaces = [Components.interfaces.calIRecurrenceInfo];
 calRecurrenceInfo.prototype = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIRecurrenceInfo]),
+    classID: Components.ID("{04027036-5884-4a30-b4af-f2cad79f6edf}"),
+
     mImmutable: false,
     mBaseItem: null,
     mRecurrenceItems: null,
     mPositiveRules: null,
     mNegativeRules: null,
     mExceptionMap: null,
-
-    classID: calRecurrenceInfoClassID,
-    QueryInterface: XPCOMUtils.generateQI(calRecurrenceInfoInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calRecurrenceInfoClassID,
-        contractID: "@mozilla.org/calendar/recurrence-info;1",
-        classDescription: "Calendar Recurrence Info",
-        interfaces: calRecurrenceInfoInterfaces,
-    }),
 
     /**
      * Helpers

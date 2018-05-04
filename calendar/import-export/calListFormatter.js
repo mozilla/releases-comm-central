@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -12,18 +11,9 @@ function calListFormatter() {
     this.wrappedJSObject = this;
 }
 
-var calListFormatterClassID = Components.ID("{9ae04413-fee3-45b9-8bbb-1eb39a4cbd1b}");
-var calListFormatterInterfaces = [Components.interfaces.calIPrintFormatter];
 calListFormatter.prototype = {
-    classID: calListFormatterClassID,
-    QueryInterface: XPCOMUtils.generateQI(calListFormatterInterfaces),
-
-    classInfo: XPCOMUtils.generateCI({
-        classID: calListFormatterClassID,
-        contractID: "@mozilla.org/calendar/printformatter;1?type=list",
-        classDescription: "Calendar List Print Formatter",
-        interfaces: calListFormatterInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIPrintFormatter]),
+    classID: Components.ID("{9ae04413-fee3-45b9-8bbb-1eb39a4cbd1b}"),
 
     get name() { return cal.l10n.getCalString("formatListName"); },
 

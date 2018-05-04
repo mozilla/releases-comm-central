@@ -27,7 +27,7 @@ calEvent.prototype = {
     __proto__: calItemBase.prototype,
 
     classID: calEventClassID,
-    QueryInterface: XPCOMUtils.generateQI(calEventInterfaces),
+    QueryInterface: cal.generateQI(calEventInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calEventClassID,
         contractID: "@mozilla.org/calendar/event;1",

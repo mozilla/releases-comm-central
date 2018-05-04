@@ -102,7 +102,7 @@ var calDavCalendarInterfaces = [
 calDavCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
     classID: calDavCalendarClassID,
-    QueryInterface: XPCOMUtils.generateQI(calDavCalendarInterfaces),
+    QueryInterface: cal.generateQI(calDavCalendarInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calDavCalendarClassID,
         contractID: "@mozilla.org/calendar/calendar;1?type=caldav",
@@ -261,7 +261,7 @@ calDavCalendar.prototype = {
         let self = this;
         let refreshNeeded = false;
         let getMetaListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
             onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for (let item of aItems) {
                     if (!(item.id in self.mItemInfoCache)) {
@@ -1331,7 +1331,7 @@ calDavCalendar.prototype = {
         if (!this.mACLEntry) {
             let self = this;
             let opListener = {
-                QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+                QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
                 onGetResult: function(calendar, status, itemType, detail, count, items) {
                     cal.ASSERT(false, "unexpected!");
                 },
@@ -2635,7 +2635,7 @@ calDavCalendar.prototype = {
         let self = this;
 
         let getItemListener = {};
-        getItemListener.QueryInterface = XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]);
+        getItemListener.QueryInterface = ChromeUtils.generateQI([Ci.calIOperationListener]);
         getItemListener.onOperationComplete = function(aCalendar, aStatus, aOperationType, aId, aDetail) {
         };
         getItemListener.onGetResult = function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
@@ -2659,7 +2659,7 @@ calDavCalendar.prototype = {
         };
 
         let modListener = {};
-        modListener.QueryInterface = XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]);
+        modListener.QueryInterface = ChromeUtils.generateQI([Ci.calIOperationListener]);
         modListener.onOperationComplete = function(aCalendar, aStatus, aOperationType, aItemId, aDetail) {
             cal.LOG("CalDAV: status " + aStatus + " while processing iTIP REPLY " +
                     " for " + self.name);

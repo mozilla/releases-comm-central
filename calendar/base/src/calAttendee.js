@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function calAttendee() {
@@ -11,17 +9,9 @@ function calAttendee() {
     this.mProperties = new cal.data.PropertyMap();
 }
 
-var calAttendeeClassID = Components.ID("{5c8dcaa3-170c-4a73-8142-d531156f664d}");
-var calAttendeeInterfaces = [Components.interfaces.calIAttendee];
 calAttendee.prototype = {
-    classID: calAttendeeClassID,
-    QueryInterface: XPCOMUtils.generateQI(calAttendeeInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calAttendeeClassID,
-        contractID: "@mozilla.org/calendar/attendee;1",
-        classDescription: "Calendar Attendee",
-        interfaces: calAttendeeInterfaces
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIAttendee]),
+    classID: Components.ID("{5c8dcaa3-170c-4a73-8142-d531156f664d}"),
 
     mImmutable: false,
     get isMutable() { return !this.mImmutable; },

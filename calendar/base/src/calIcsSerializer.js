@@ -10,17 +10,9 @@ function calIcsSerializer() {
     this.mProperties = [];
     this.mComponents = [];
 }
-var calIcsSerializerClassID = Components.ID("{207a6682-8ff1-4203-9160-729ec28c8766}");
-var calIcsSerializerInterfaces = [Components.interfaces.calIIcsSerializer];
 calIcsSerializer.prototype = {
-    classID: calIcsSerializerClassID,
-    QueryInterface: XPCOMUtils.generateQI(calIcsSerializerInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calIcsSerializerClassID,
-        contractID: "@mozilla.org/calendar/ics-serializer;1",
-        classDescription: "Calendar ICS Serializer",
-        interfaces: calIcsSerializerInterfaces,
-    }),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIIcsSerializer]),
+    classID: Components.ID("{207a6682-8ff1-4203-9160-729ec28c8766}"),
 
     addItems: function(aItems, aCount) {
         if (aCount > 0) {

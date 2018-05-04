@@ -34,7 +34,7 @@ var calStorageCalendarInterfaces = [
 calStorageCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
     classID: calStorageCalendarClassID,
-    QueryInterface: XPCOMUtils.generateQI(calStorageCalendarInterfaces),
+    QueryInterface: cal.generateQI(calStorageCalendarInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calStorageCalendarClassID,
         contractID: "@mozilla.org/calendar/calendar;1?type=storage",
