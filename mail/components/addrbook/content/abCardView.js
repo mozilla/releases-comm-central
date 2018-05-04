@@ -7,6 +7,7 @@
 
 ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyServiceGetter(this, "asyncHistory",
                                    "@mozilla.org/browser/history;1",
