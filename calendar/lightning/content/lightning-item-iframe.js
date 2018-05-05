@@ -2201,7 +2201,6 @@ function deleteAttachment() {
     let documentLink = document.getElementById("attachment-link");
     let item = documentLink.selectedItem;
     delete gAttachMap[item.attachment.hashId];
-    documentLink.removeItemAt(documentLink.selectedIndex);
 
     if (item.attachLocalFile && item.attachCloudProvider) {
         try {
@@ -2222,6 +2221,7 @@ function deleteAttachment() {
                       "Exception: " + e);
         }
     }
+    item.remove();
 
     updateAttachment();
 }

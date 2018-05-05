@@ -132,11 +132,15 @@
         <parameter name="compare" />
         <body><![CDATA[
             let newIndex = cal.data.binaryInsert(categories, category, compare, true);
-            let item = categoryListbox.childNodes[Math.min(newIndex, categoryListbox.childNodes.length - 1)];
+            let item = categoryListbox.getItemAtIndex(Math.min(newIndex, categoryListbox.itemCount - 1));
 
             if (!item || item.getAttribute("value") != category) {
                 // The item doesn't exist, insert it at the correct spot.
-                item = categoryListbox.insertItemAt(newIndex, category, category);
+                item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listitem");
+                item.setAttribute("label", category);
+                item.setAttribute("value", category);
+                let beforeItem = categoryListbox.getItemAtIndex(newIndex);
+                categoryListbox.insertBefore(item, beforeItem);  // Will append if 'beforeItem' is null.
 
                 if (this.maxCount != 1) {
                     item.setAttribute("type", "checkbox");
