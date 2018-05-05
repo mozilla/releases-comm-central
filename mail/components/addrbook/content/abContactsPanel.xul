@@ -121,7 +121,7 @@
       <menulist id="addressbookList"
                 oncommand="AddressBookMenuListChange();" flex="1"
                 persist="value">
-        <menupopup id="addressbookList-menupopup" class="addrbooksPopup"/>
+        <menupopup id="addressbookList-menupopup" class="addrbooksPopup" alladdressbooks="true"/>
       </menulist>
     </hbox>
 

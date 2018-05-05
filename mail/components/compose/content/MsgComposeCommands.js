@@ -4777,7 +4777,7 @@ function RemoveAllAttachments()
                              .createInstance(Ci.nsIMutableArray);
 
   while (bucket.itemCount > 0) {
-    let item = bucket.removeItemAt(bucket.itemCount - 1);
+    let item = bucket.getItemAtIndex(bucket.itemCount - 1);
     if (item.attachment.size != -1) {
       gAttachmentsSize -= item.attachment.size;
     }
@@ -4798,6 +4798,7 @@ function RemoveAllAttachments()
     // Let's release the attachment object hold by the node else it won't go
     // away until the window is destroyed.
     item.attachment = null;
+    item.remove();
   }
 
   if (removedAttachments.length > 0) {
@@ -4870,7 +4871,7 @@ function RemoveSelectedAttachment()
                              .createInstance(Ci.nsIMutableArray);
 
   for (let i = bucket.selectedCount - 1; i >= 0; i--) {
-    let item = bucket.removeItemAt(bucket.getIndexOfItem(bucket.getSelectedItem(i)));
+    let item = bucket.getSelectedItem(i);
     if (item.attachment.size != -1) {
       gAttachmentsSize -= item.attachment.size;
     }
@@ -4891,6 +4892,7 @@ function RemoveSelectedAttachment()
     // Let's release the attachment object held by the node else it won't go
     // away until the window is destroyed
     item.attachment = null;
+    item.remove();
   }
 
   updateAttachmentPane();

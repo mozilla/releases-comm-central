@@ -63,7 +63,7 @@
         <hbox align="center">
           <label value="&abSearchHeading.label;" accesskey="&abSearchHeading.accesskey;" control="abPopup"/>
           <menulist id="abPopup" oncommand="SelectDirectory(this.value);">
-            <menupopup id="abPopup-menupopup" class="addrbooksPopup"/>
+            <menupopup id="abPopup-menupopup" class="addrbooksPopup" alladdressbooks="true"/>
           </menulist>
           <spacer flex="10"/>
           <button id="search-button" oncommand="onSearchButton(event);" default="true"/>

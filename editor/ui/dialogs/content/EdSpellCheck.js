@@ -147,7 +147,7 @@ function InitLanguageMenu(aCurLang)
   var sortedList = inlineSpellChecker.sortDictionaryList(dictList);
 
   // Remove any languages from the list.
-  var languageMenuPopup = gDialog.LanguageMenulist.firstChild;
+  var languageMenuPopup = gDialog.LanguageMenulist.menupopup;
   while (languageMenuPopup.firstChild.localName != "menuseparator")
     languageMenuPopup.firstChild.remove();
 
@@ -155,7 +155,12 @@ function InitLanguageMenu(aCurLang)
 
   for (var i = 0; i < count; i++)
   {
-    var item = gDialog.LanguageMenulist.insertItemAt(i, sortedList[i].label, sortedList[i].id);
+    let item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "menuitem");
+    item.setAttribute("label", sortedList[i].label);
+    item.setAttribute("value", sortedList[i].id);
+    let beforeItem = gDialog.LanguageMenulist.getItemAtIndex(i);
+    languageMenuPopup.insertBefore(item, beforeItem);
+
     if (aCurLang && sortedList[i].id == aCurLang)
       defaultItem = item;
   }

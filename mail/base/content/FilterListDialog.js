@@ -443,7 +443,7 @@ function onDeleteFilter()
   for (let index = items.length - 1; index >= 0; --index) {
     let item = items[index];
     gCurrentFilterList.removeFilter(item._filter);
-    gFilterListbox.removeItemAt(gFilterListbox.getIndexOfItem(item));
+    item.remove();
   }
   updateCountBox();
 

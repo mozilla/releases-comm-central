@@ -68,7 +68,9 @@
                     <label accesskey="&defaultFont.accesskey;"
                            control="defaultFont">&defaultFont.label;</label>
                     <menulist id="defaultFont" flex="1" sizetopopup="pref" crop="center"
-                              onsyncfrompreference="return gDisplayPane.readFontSelection()"/>
+                              onsyncfrompreference="return gDisplayPane.readFontSelection()">
+                      <menupopup/>
+                    </menulist>
                     <label accesskey="&defaultSize.accesskey;"
                            control="defaultFontSize">&defaultSize.label;</label>
                     <menulist id="defaultFontSize">

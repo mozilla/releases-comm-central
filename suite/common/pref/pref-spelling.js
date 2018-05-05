@@ -88,7 +88,7 @@ function InitLanguageMenu() {
 
   var languageMenuList = document.getElementById("languageMenuList");
   // Remove any languages from the list.
-  var languageMenuPopup = languageMenuList.firstChild;
+  var languageMenuPopup = languageMenuList.menupopup;
   while (languageMenuPopup.firstChild.localName != "menuseparator")
     languageMenuPopup.firstChild.remove();
 
@@ -96,7 +96,12 @@ function InitLanguageMenu() {
   var defaultItem = null;
 
   for (let i = 0; i < count; i++) {
-    let item = languageMenuList.insertItemAt(i, dictList[i][0], dictList[i][1]);
+    let item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "menuitem");
+    item.setAttribute("label", dictList[i][0]);
+    item.setAttribute("value", dictList[i][1]);
+    let beforeItem = gDialog.LanguageMenulist.getItemAtIndex(i);
+    languageMenuPopup.insertBefore(item, beforeItem);
+
     if (curLang && dictList[i][1] == curLang)
       defaultItem = item;
   }

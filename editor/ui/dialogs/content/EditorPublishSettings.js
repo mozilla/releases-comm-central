@@ -116,17 +116,16 @@ function RemoveSite()
     return;
 
   var index = gDialog.SiteList.selectedIndex;
-  var item;
   if (index != -1)
   {
-    item = gDialog.SiteList.selectedItems[0];
+    let item = gDialog.SiteList.selectedItem;
     var nameToRemove = item.getAttribute("label");
 
     // Remove one item from site data array
     gPublishSiteData.splice(index, 1);
     // Remove item from site list
     gDialog.SiteList.clearSelection();
-    gDialog.SiteList.removeItemAt(index);
+    item.remove();
 
     // Adjust if we removed last item and reselect a site
     if (index >= gPublishSiteData.length)

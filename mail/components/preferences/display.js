@@ -21,7 +21,11 @@ var gDisplayPane = {
     this.updateMarkAsReadOptions(document.getElementById("automaticallyMarkAsRead").checked);
     var menulist = document.getElementById("defaultFont");
     if (menulist.selectedIndex == -1) {
-      menulist.insertItemAt(0, "", "", "");
+      // Prepend menuitem with empty name and value.
+      let item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "menuitem");
+      item.setAttribute("label", "");
+      item.setAttribute("value", "");
+      menulist.menupopup.insertBefore(item, menulist.menupopup.firstChild);
       menulist.selectedIndex = 0;
     }
 
@@ -238,7 +242,7 @@ var gDisplayPane = {
     {
       var itemToRemove = this.mTagListBox.getItemAtIndex(index);
       MailServices.tags.deleteKey(itemToRemove.getAttribute("value"));
-      this.mTagListBox.removeItemAt(index);
+      itemToRemove.remove();
       var numItemsInListBox = this.mTagListBox.getRowCount();
       this.mTagListBox.selectedIndex = index < numItemsInListBox ? index : numItemsInListBox - 1;
     }

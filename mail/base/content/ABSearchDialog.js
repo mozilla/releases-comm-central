@@ -62,9 +62,6 @@ function searchOnLoad()
 
   // Initialize globals, see abCommon.js , InitCommonJS()
   abList = document.getElementById("abPopup");
-  if (abList.getItemAtIndex(0) != (kAllDirectoryRoot + "?"))
-    abList.insertItemAt(0, gAddressBookBundle.getString("allAddressBooks"),
-                        kAllDirectoryRoot + "?");
 
   if (window.arguments && window.arguments[0])
     SelectDirectory(window.arguments[0].directory);
@@ -77,10 +74,6 @@ function searchOnLoad()
 
 function searchOnUnload()
 {
-  let abPopup = document.getElementById('abPopup');
-  if (abPopup.getItemAtIndex(0) == (kAllDirectoryRoot + "?"))
-    document.getElementById('abPopup').removeItemAt(0);
-
   CloseAbView();
 }
 

@@ -356,12 +356,6 @@ function InitCommonJS()
   gDirTree = document.getElementById("dirTree");
   abList = document.getElementById("addressbookList");
   gAddressBookBundle = document.getElementById("bundle_addressBook");
-
-  // Make an entry for "All Address Books".
-  if (abList) {
-    abList.insertItemAt(0, gAddressBookBundle.getString("allAddressBooks"),
-                        kAllDirectoryRoot + "?");
-  }
 }
 
 function AbDelete()

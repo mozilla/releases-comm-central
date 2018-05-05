@@ -41,23 +41,26 @@ var gAttachmentReminderOptionsDialog = {
                                     this.bundle.getString("attachmentReminderNewDialogTitle"),
                                     this.bundle.getString("attachmentReminderNewText"),
                                     input, null, {value:0});
-    if (ok && input.value)
-      this.keywordListBox.appendItem(input.value, input.value);
+    if (ok && input.value) {
+      let newKey = this.keywordListBox.appendItem(input.value, input.value);
+      this.keywordListBox.ensureElementIsVisible(newKey);
+      this.keywordListBox.selectItem(newKey);
+    }
   },
 
   editKeyword: function()
   {
     if (this.keywordListBox.selectedIndex < 0)
       return;
-    var keywordToEdit = this.keywordListBox.getItemAtIndex(this.keywordListBox.selectedIndex);
+    var keywordToEdit = this.keywordListBox.selectedItem;
     var input = {value: keywordToEdit.getAttribute("value")};
     var ok = Services.prompt.prompt(window,
                                     this.bundle.getString("attachmentReminderEditDialogTitle"),
                                     this.bundle.getString("attachmentReminderEditText"),
                                     input, null, {value:0});
     if (ok && input.value) {
-      this.keywordListBox.removeItemAt(this.keywordListBox.selectedIndex);
-      this.keywordListBox.appendItem(input.value, input.value);
+      this.keywordListBox.selectedItem.value = input.value;
+      this.keywordListBox.selectedItem.label = input.value;
     }
   },
 
@@ -65,7 +68,7 @@ var gAttachmentReminderOptionsDialog = {
   {
     if (this.keywordListBox.selectedIndex < 0)
       return;
-    this.keywordListBox.removeItemAt(this.keywordListBox.selectedIndex);
+    this.keywordListBox.selectedItem.remove();
   },
 
   saveKeywords: function()

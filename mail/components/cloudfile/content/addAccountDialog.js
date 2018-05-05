@@ -164,10 +164,8 @@ var addAccountDialog = {
 
   removeTitleMenuItem: function AAD_removeTitleMenuItem() {
     let menuitem = this._accountType.querySelector('menuitem[value=""]');
-    if (menuitem) {
-      let index = this._accountType.getIndexOfItem(menuitem);
-      this._accountType.removeItemAt(index);
-    }
+    if (menuitem)
+      menuitem.remove();
   },
 
   // Return number of additions to the menulist, zero if none happened.

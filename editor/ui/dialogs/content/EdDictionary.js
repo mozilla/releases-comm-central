@@ -117,7 +117,7 @@ function RemoveWord()
     var word = gDialog.DictionaryList.selectedItem.label;
 
     // Remove word from list
-    gDialog.DictionaryList.removeItemAt(selIndex);
+    gDialog.DictionaryList.selectedItem.remove();
 
     // Remove from dictionary
     try {

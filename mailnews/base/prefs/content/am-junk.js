@@ -58,8 +58,8 @@ function onInit(aPageId, aServerId)
   // set up the whitelist UI
   var wList = document.getElementById("whiteListAbURI");
   // Ensure the whitelist is empty
-  for (let i = wList.itemCount - 1; i >= 0; i--) {
-    wList.removeItemAt(i);
+  while (wList.hasChildNodes()) {
+    wList.lastChild.remove();
   }
 
   // Populate the listbox with address books

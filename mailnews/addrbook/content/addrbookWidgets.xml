@@ -73,10 +73,35 @@
 
           this._teardown();
 
-          // Now create menuitems for all displayed directories.
           let menulist = this.parentNode;
+
+          if (this.hasAttribute("none")) {
+            // Create a dummy menuitem representing no selection.
+            this._directories.unshift(null);
+            let listItem = menulist.appendItem(this.getAttribute("none"), "");
+            listItem.setAttribute("class", "menuitem-iconic abMenuItem");
+            listItem.setAttribute("IsNone", "true");
+          }
+
+          if (this.hasAttribute("alladdressbooks")) {
+            // Insert a menuitem representing All Addressbooks.
+            let allABLabel = this.getAttribute("alladdressbooks");
+            if (allABLabel == "true")
+              allABLabel = this._stringBundle.getString("allAddressBooks");
+            const allABURI = "moz-abdirectory://?";
+            this._directories.unshift(null);
+            let listItem = menulist.appendItem(allABLabel, allABURI);
+            listItem.setAttribute("class", "menuitem-iconic abMenuItem");
+            listItem.setAttribute("AddrBook", "true");
+            listItem.setAttribute("IsAllAB", "true");
+          }
+
+          // Now create menuitems for all displayed directories.
           let value = this._value;
           for (let ab of this._directories) {
+            if (!ab) // Skip the empty members added above.
+              continue;
+
             let listItem = menulist.appendItem(ab.dirName, ab[value]);
             listItem.setAttribute("class", "menuitem-iconic abMenuItem");
 
@@ -90,27 +115,6 @@
               listItem.setAttribute("IsRemote", "true");
             if (ab.isSecure)
               listItem.setAttribute("IsSecure", "true");
-          }
-
-          if (this.hasAttribute("alladdressbooks")) {
-            // Insert a menuitem representing All addressbooks.
-            let allABLabel = this.getAttribute("alladdressbooks");
-            if (allABLabel == "true")
-              allABLabel = this._stringBundle.getString("allAddressBooks");
-            const allABURI = "moz-abdirectory://?";
-            this._directories.unshift(null);
-            let listItem = menulist.insertItemAt(0, allABLabel, allABURI);
-            listItem.setAttribute("class", "menuitem-iconic abMenuItem");
-            listItem.setAttribute("AddrBook", "true");
-            listItem.setAttribute("IsAllAB", "true");
-          }
-
-          if (this.hasAttribute("none")) {
-            // Create a dummy menuitem representing no selection.
-            this._directories.unshift(null);
-            let listItem = menulist.insertItemAt(0, this.getAttribute("none"), "");
-            listItem.setAttribute("class", "menuitem-iconic abMenuItem");
-            listItem.setAttribute("IsNone", "true");
           }
 
           // Attempt to select the persisted or otherwise first directory.

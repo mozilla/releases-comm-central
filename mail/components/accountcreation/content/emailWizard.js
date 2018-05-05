@@ -202,9 +202,13 @@ EmailConfigWizard.prototype =
     if (!Services.prefs.getBoolPref("mail.provider.enabled"))
       _hide("provisioner_button");
 
+    let menulist = e("outgoing_hostname");
+    // Add the entry for the new host to the menulist
+    let menuitem = menulist.appendItem("", "-new-"); // label,value
+    menuitem.serverKey = null;
+
     // Populate SMTP server dropdown with already configured SMTP servers from
     // other accounts.
-    var menulist = e("outgoing_hostname");
     let smtpServers = MailServices.smtp.servers;
     while (smtpServers.hasMoreElements()) {
       let server = smtpServers.getNext().QueryInterface(Ci.nsISmtpServer);
@@ -214,12 +218,9 @@ EmailConfigWizard.prototype =
           MailServices.smtp.defaultServer.key == key) {
         label += " " + gStringsBundle.getString("default_server_tag");
       }
-      let menuitem = menulist.appendItem(label, key, ""); // label,value,descr
+      menuitem = menulist.appendItem(label, key, ""); // label,value,descr
       menuitem.serverKey = key;
     }
-    // Add the entry for the new host to the menulist
-    let menuitem = menulist.insertItemAt(0, "", "-new-"); // pos,label,value
-    menuitem.serverKey = null;
 
     // admin-locked prefs hurray
     if (!Services.prefs.getBoolPref("signon.rememberSignons")) {
