@@ -3710,6 +3710,10 @@ nsresult nsNNTPProtocol::DoCancel()
     otherHeaders += distribution;
     otherHeaders.AppendLiteral(CRLF);
   }
+  otherHeaders.AppendLiteral("MIME-Version: 1.0");
+  otherHeaders.AppendLiteral(CRLF);
+  otherHeaders.AppendLiteral("Content-Type: text/plain");
+  otherHeaders.AppendLiteral(CRLF);
 
   PL_strcpy (body, "This message was cancelled from within ");
   PL_strcat (body, appName.get());

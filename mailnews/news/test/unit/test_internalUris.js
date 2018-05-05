@@ -38,6 +38,17 @@ var tests = [
   cleanUp
 ];
 
+var kCancelArticle =
+  "From: fake@acme.invalid\n"+
+  "Newsgroups: test.filter\n"+
+  "Subject: cancel <4@regular.invalid>\n"+
+  "References: <4@regular.invalid>\n"+
+  "Control: cancel <4@regular.invalid>\n"+
+  "MIME-Version: 1.0\n"+
+  "Content-Type: text/plain\n"+
+  "\n"+
+  "This message was cancelled from within ";
+
 function* test_newMsgs() {
   // This tests nsMsgNewsFolder::GetNewsMessages via getNewMessages
   let folder = localserver.rootFolder.getChildNamed("test.filter");
@@ -71,6 +82,12 @@ function* test_cancel() {
   yield false;
 
   Assert.equal(folder.getTotalMessages(false), 7);
+
+  // Check the content of the CancelMessage itself.
+  let article = daemon.getGroup("test.filter")[9];
+  // Since the cancel message includes the brand name (Daily, Thunderbird), we
+  // only check the beginning of the string.
+  Assert.ok(article.fullText.startsWith(kCancelArticle));
   yield true;
 }
 
