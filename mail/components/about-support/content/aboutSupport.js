@@ -503,6 +503,7 @@ var snapshotFormatters = {
     addRowFromKey("features", "supportsHardwareH264", "hardwareH264");
     addRowFromKey("features", "direct2DEnabled", "#Direct2D");
     addRowFromKey("features", "usesTiling");
+    // addRowFromKey("features", "contentUsesTiling"); - For content processes in Firefox.
     addRowFromKey("features", "offMainThreadPaintEnabled");
     addRowFromKey("features", "offMainThreadPaintWorkerCount");
 
