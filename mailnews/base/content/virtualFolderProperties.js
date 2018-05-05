@@ -92,7 +92,7 @@ function onLoad()
 
 function setupSearchRows(aSearchTerms)
 {
-  if (aSearchTerms && aSearchTerms.Count() > 0)
+  if (aSearchTerms && aSearchTerms.length > 0)
     initializeSearchRows(nsMsgSearchScope.offlineMail, aSearchTerms); // load the search terms for the folder
   else
     onMore(null);

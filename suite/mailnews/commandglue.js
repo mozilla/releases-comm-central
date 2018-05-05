@@ -876,7 +876,7 @@ function getSearchTermString(searchTerms)
 {
   var searchIndex;
   var condition = "";
-  var count = searchTerms.Count();
+  var count = searchTerms.length;
   for (searchIndex = 0; searchIndex < count; )
   {
     var term = searchTerms.queryElementAt(searchIndex++, Ci.nsIMsgSearchTerm);
