@@ -43,7 +43,7 @@
                  expandFolders="nntp"
                  showFileHereLabel="true"
                  showAccountsFileHere="true"
-                 oncommand="onFilterFolderClick(event.target._folder);"/>
+                 oncommand="setFilterFolder(event.target._folder);"/>
     </menulist>
     <textbox id="searchBox"
              class="searchBox"
@@ -147,7 +147,7 @@
                          type="folder"
                          showFileHereLabel="true"
                          showAccountsFileHere="false"
-                         oncommand="onTargetSelect(event);"/>
+                         oncommand="setRunFolder(event.target._folder);"/>
             </menulist>
           <button id="runFiltersButton"
                   label="&runFilters.label;"
