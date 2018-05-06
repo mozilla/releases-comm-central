@@ -2,14 +2,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "prprf.h"
 #include "prmem.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
 #include "nsIStringBundle.h"
 #include "nsOutlookStringBundle.h"
-#include "nsIServiceManager.h"
-#include "nsIURI.h"
 #include "mozilla/Services.h"
 
 #define OUTLOOK_MSGS_URL       "chrome://messenger/locale/outlookImportMsgs.properties"

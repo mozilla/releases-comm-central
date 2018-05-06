@@ -28,12 +28,13 @@
 #include "MapiMimeTypes.h"
 
 #include "nsMsgI18N.h"
-#include "nsICharsetConverterManager.h"
 #include "nsCRT.h"
 #include "nsNetUtil.h"
 #include "MapiMessage.h"
 
 #include "nsOutlookMail.h"
+
+#include "mozilla/Encoding.h"
 
 // needed for the call the OpenStreamOnFile
 extern LPMAPIALLOCATEBUFFER gpMapiAllocateBuffer;

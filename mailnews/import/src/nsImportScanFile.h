@@ -5,6 +5,7 @@
 
 #ifndef nsImportScanFile_h__
 #define nsImportScanFile_h__
+
 #include "mozilla/Attributes.h"
 #include "nsCOMPtr.h"
 #include "nsIInputStream.h"

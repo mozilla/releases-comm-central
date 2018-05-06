@@ -6,15 +6,10 @@
 #ifndef nsImportService_h__
 #define nsImportService_h__
 
-#include "nsICharsetConverterManager.h"
-
 #include "nsString.h"
-#include "nsIComponentManager.h"
-#include "nsIServiceManager.h"
 #include "nsMemory.h"
 #include "nsIImportModule.h"
 #include "nsIImportService.h"
-#include "nsICategoryManager.h"
 #include "nsIStringBundle.h"
 
 class nsImportModuleList;
@@ -26,16 +21,15 @@ public:
   nsImportService();
 
   NS_DECL_THREADSAFE_ISUPPORTS
-
-    NS_DECL_NSIIMPORTSERVICE
+  NS_DECL_NSIIMPORTSERVICE
 
 private:
   virtual ~nsImportService();
-    nsresult LoadModuleInfo(const char*pClsId, const char *pSupports);
+  nsresult LoadModuleInfo(const char*pClsId, const char *pSupports);
   nsresult DoDiscover(void);
 
 private:
-    nsImportModuleList * m_pModules;
+  nsImportModuleList * m_pModules;
   bool m_didDiscovery;
   nsCString m_sysCharset;
   nsCOMPtr<nsIStringBundle> m_stringBundle;

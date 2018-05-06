@@ -4,9 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
-
   Windows Live Mail (Win32) settings
-
 */
 
 #include "nsCOMPtr.h"
@@ -14,8 +12,6 @@
 #include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsWMImport.h"
-#include "nsIComponentManager.h"
-#include "nsIServiceManager.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgAccount.h"
 #include "nsIImportSettings.h"
@@ -33,10 +29,7 @@
 #include "stdlib.h"
 #include "nsIDocument.h"
 #include "nsIFile.h"
-#include "nsISimpleEnumerator.h"
-#include "nsIMutableArray.h"
 #include "nsNetUtil.h"
-#include "nsIFileStreams.h"
 #include "nsTArray.h"
 #include <windows.h>
 #include "nsIWindowsRegKey.h"

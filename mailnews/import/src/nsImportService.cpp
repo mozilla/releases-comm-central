@@ -3,12 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsICharsetConverterManager.h"
-#include "nsICharsetConverterManager.h"
-
 #include "nsString.h"
-#include "nsIComponentManager.h"
-#include "nsIServiceManager.h"
 #include "nsMemory.h"
 #include "nsIImportModule.h"
 #include "nsIImportService.h"
@@ -23,14 +18,12 @@
 #include "prmem.h"
 #include "nsMsgCompCID.h"
 #include "nsThreadUtils.h"
-#include "nsIEditor.h"
 #include "ImportDebug.h"
 #include "nsImportService.h"
 #include "nsImportStringBundle.h"
 #include "nsCRTGlue.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsIMutableArray.h"
 #include "nsIArray.h"
 #include "nsIMsgSend.h"
 #include "nsMsgUtils.h"

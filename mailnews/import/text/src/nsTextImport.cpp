@@ -4,26 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 /*
+ * Text import addressbook interfaces
+ */
 
-  Text import addressbook interfaces
-
-*/
 #include "nscore.h"
-#include "nsIServiceManager.h"
 #include "nsCOMPtr.h"
 #include "nsIImportService.h"
 #include "nsMsgI18N.h"
-#include "nsIComponentManager.h"
 #include "nsTextImport.h"
-#include "nsIMemory.h"
 #include "nsIMutableArray.h"
 #include "nsIImportGeneric.h"
 #include "nsIImportAddressBooks.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIImportFieldMap.h"
-#include "nsIOutputStream.h"
 #include "nsIAddrDatabase.h"
 #include "nsIAbLDIFService.h"
 #include "nsAbBaseCID.h"

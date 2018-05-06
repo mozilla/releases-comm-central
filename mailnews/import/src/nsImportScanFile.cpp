@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nscore.h"
-#include "nsIFile.h"
 #include "nsImportScanFile.h"
 #include "ImportCharSet.h"
 

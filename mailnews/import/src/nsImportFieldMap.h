@@ -8,7 +8,7 @@
 
 #include "nscore.h"
 #include "nsIImportFieldMap.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAddrDatabase.h" // For SetFieldValue() arguments
 #include "nsTArray.h"
 #include "nsString.h"
 

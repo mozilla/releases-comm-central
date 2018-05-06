@@ -4,18 +4,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
-
   Outlook (Win32) settings
-
 */
 
 #include "nsCOMPtr.h"
 #include "nscore.h"
 #include "nsMsgUtils.h"
 #include "nsOutlookImport.h"
-#include "nsIComponentManager.h"
-#include "nsIServiceManager.h"
-#include "nsIImportService.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgAccount.h"
 #include "nsIImportSettings.h"

@@ -31,7 +31,6 @@
 #include "nsTextFormatter.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsIImportService.h"
 #include "ImportDebug.h"
 #include "plstr.h"
 #include "MailNewsTypes.h"

@@ -9,7 +9,6 @@
 #include "nsNativeCharsetUtils.h"
 #include "nsIFile.h"
 #include "nsIInputStream.h"
-#include "nsILineInputStream.h"
 #include "nsNetUtil.h"
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"

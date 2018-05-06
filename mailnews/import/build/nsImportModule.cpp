@@ -14,7 +14,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "nsImportService.h"
 #include "nsImportMimeEncode.h"
-#include "nsImportStringBundle.h"
 
 NS_DEFINE_NAMED_CID(NS_IMPORTSERVICE_CID);
 NS_DEFINE_NAMED_CID(NS_IMPORTMIMEENCODE_CID);

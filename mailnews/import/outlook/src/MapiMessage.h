@@ -9,7 +9,6 @@
 #include "nsString.h"
 #include "nsIFile.h"
 #include "MapiApi.h"
-#include "nsIMsgSend.h"
 
 #include <vector>
 
