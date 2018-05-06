@@ -138,7 +138,7 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(bool doNewMailNotification /* = fals
 NS_IMETHODIMP
 nsImapMoveCoalescer::OnStartRunningUrl(nsIURI *aUrl)
 {
-  NS_PRECONDITION(aUrl, "just a sanity check");
+  NS_ASSERTION(aUrl, "just a sanity check");
   return NS_OK;
 }
 

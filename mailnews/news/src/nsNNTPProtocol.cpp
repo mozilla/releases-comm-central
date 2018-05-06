@@ -350,7 +350,7 @@ NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL, nsIMsgWindow *aMsgWindow)
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  NS_PRECONDITION(m_url, "invalid URL passed into NNTP Protocol");
+  NS_ASSERTION(m_url, "invalid URL passed into NNTP Protocol");
 
   m_runningURL = do_QueryInterface(m_url, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1340,7 +1340,7 @@ nsresult nsNNTPProtocol::NewsResponse(nsIInputStream *inputStream, uint32_t leng
 {
   uint32_t status = 0;
 
-  NS_PRECONDITION(nullptr != inputStream, "invalid input stream");
+  NS_ASSERTION(nullptr != inputStream, "invalid input stream");
 
   bool pauseForMoreData = false;
   char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status, pauseForMoreData);
@@ -1536,7 +1536,7 @@ nsresult nsNNTPProtocol::SendListSearchesResponse(nsIInputStream * inputStream, 
   uint32_t status = 0;
   nsresult rv = NS_OK;
 
-  NS_PRECONDITION(inputStream, "invalid input stream");
+  NS_ASSERTION(inputStream, "invalid input stream");
 
   bool pauseForMoreData = false;
   char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status, pauseForMoreData, &rv);

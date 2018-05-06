@@ -85,15 +85,15 @@ nsSubscribeDataSource::GetURI(nsACString& aURI)
 NS_IMETHODIMP
 nsSubscribeDataSource::GetSource(nsIRDFResource *property, nsIRDFNode *target, bool tv, nsIRDFResource **source)
 {
-    NS_PRECONDITION(property != nullptr, "null ptr");
+    NS_ASSERTION(property != nullptr, "null ptr");
     if (! property)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(target != nullptr, "null ptr");
+    NS_ASSERTION(target != nullptr, "null ptr");
     if (! target)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(source != nullptr, "null ptr");
+    NS_ASSERTION(source != nullptr, "null ptr");
     if (! source)
         return NS_ERROR_NULL_POINTER;
 
@@ -109,15 +109,15 @@ nsSubscribeDataSource::GetTarget(nsIRDFResource *source,
 {
 	nsresult rv = NS_RDF_NO_VALUE;
 
-	NS_PRECONDITION(source != nullptr, "null ptr");
+	NS_ASSERTION(source != nullptr, "null ptr");
 	if (! source)
 		return NS_ERROR_NULL_POINTER;
 
-	NS_PRECONDITION(property != nullptr, "null ptr");
+	NS_ASSERTION(property != nullptr, "null ptr");
 	if (! property)
 		return NS_ERROR_NULL_POINTER;
 
-	NS_PRECONDITION(target != nullptr, "null ptr");
+	NS_ASSERTION(target != nullptr, "null ptr");
 	if (! target)
 		return NS_ERROR_NULL_POINTER;
 
@@ -216,15 +216,15 @@ nsSubscribeDataSource::GetTargets(nsIRDFResource *source,
 {
 	nsresult rv = NS_OK;
 
-	NS_PRECONDITION(source != nullptr, "null ptr");
+	NS_ASSERTION(source != nullptr, "null ptr");
 	if (! source)
 		return NS_ERROR_NULL_POINTER;
 
-	NS_PRECONDITION(property != nullptr, "null ptr");
+	NS_ASSERTION(property != nullptr, "null ptr");
 	if (! property)
 		return NS_ERROR_NULL_POINTER;
 
-	NS_PRECONDITION(targets != nullptr, "null ptr");
+	NS_ASSERTION(targets != nullptr, "null ptr");
 	if (! targets)
 		return NS_ERROR_NULL_POINTER;
 
@@ -400,19 +400,19 @@ nsSubscribeDataSource::HasAssertion(nsIRDFResource *source,
 {
     nsresult rv = NS_OK;
 
-	NS_PRECONDITION(source != nullptr, "null ptr");
+	NS_ASSERTION(source != nullptr, "null ptr");
 	if (! source)
 		return NS_ERROR_NULL_POINTER;
 
-	NS_PRECONDITION(property != nullptr, "null ptr");
+	NS_ASSERTION(property != nullptr, "null ptr");
 	if (! property)
 		return NS_ERROR_NULL_POINTER;
 
-	NS_PRECONDITION(target != nullptr, "null ptr");
+	NS_ASSERTION(target != nullptr, "null ptr");
 	if (! target)
 		return NS_ERROR_NULL_POINTER;
 
-	NS_PRECONDITION(hasAssertion != nullptr, "null ptr");
+	NS_ASSERTION(hasAssertion != nullptr, "null ptr");
 	if (! hasAssertion)
 		return NS_ERROR_NULL_POINTER;
 
@@ -519,11 +519,11 @@ nsSubscribeDataSource::ArcLabelsOut(nsIRDFResource *source,
 {
     nsresult rv = NS_OK;
 
-    NS_PRECONDITION(source != nullptr, "null ptr");
+    NS_ASSERTION(source != nullptr, "null ptr");
     if (! source)
 	return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(labels != nullptr, "null ptr");
+    NS_ASSERTION(labels != nullptr, "null ptr");
     if (! labels)
 	return NS_ERROR_NULL_POINTER;
 

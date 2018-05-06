@@ -5163,7 +5163,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl *runningUrl,
 NS_IMETHODIMP
 nsImapMailFolder::OnStartRunningUrl(nsIURI *aUrl)
 {
-  NS_PRECONDITION(aUrl, "sanity check - need to be be running non-null url");
+  NS_ASSERTION(aUrl, "sanity check - need to be be running non-null url");
   nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(aUrl);
   if (mailUrl)
   {
@@ -7793,7 +7793,7 @@ nsresult nsImapFolderCopyState::AdvanceToNextFolder(nsresult aStatus)
 NS_IMETHODIMP
 nsImapFolderCopyState::OnStartRunningUrl(nsIURI *aUrl)
 {
-  NS_PRECONDITION(aUrl, "sanity check - need to be be running non-null url");
+  NS_ASSERTION(aUrl, "sanity check - need to be be running non-null url");
   return NS_OK;
 }
 

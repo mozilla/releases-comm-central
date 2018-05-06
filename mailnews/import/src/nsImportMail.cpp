@@ -144,9 +144,9 @@ nsresult ProxyForceDBClosed(nsIMsgFolder *aFolder);
 
 nsresult NS_NewGenericMail(nsIImportGeneric** aImportGeneric)
 {
-    NS_PRECONDITION(aImportGeneric != nullptr, "null ptr");
-    if (! aImportGeneric)
-        return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(aImportGeneric != nullptr, "null ptr");
+  if (!aImportGeneric)
+    return NS_ERROR_NULL_POINTER;
 
   RefPtr<nsImportGenericMail> pGen = new nsImportGenericMail();
   return pGen->QueryInterface(NS_GET_IID(nsIImportGeneric), (void **)aImportGeneric);
@@ -237,7 +237,7 @@ NS_IMETHODIMP nsImportGenericMail::GetData(const char *dataId, nsISupports **_re
 NS_IMETHODIMP nsImportGenericMail::SetData(const char *dataId, nsISupports *item)
 {
   nsresult rv = NS_OK;
-  NS_PRECONDITION(dataId != nullptr, "null ptr");
+  NS_ASSERTION(dataId != nullptr, "null ptr");
   if (!dataId)
     return NS_ERROR_NULL_POINTER;
 
@@ -290,8 +290,8 @@ NS_IMETHODIMP nsImportGenericMail::SetData(const char *dataId, nsISupports *item
 
 NS_IMETHODIMP nsImportGenericMail::GetStatus(const char *statusKind, int32_t *_retval)
 {
-  NS_PRECONDITION(statusKind != nullptr, "null ptr");
-  NS_PRECONDITION(_retval != nullptr, "null ptr");
+  NS_ASSERTION(statusKind != nullptr, "null ptr");
+  NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!statusKind || !_retval)
     return NS_ERROR_NULL_POINTER;
 
@@ -356,7 +356,7 @@ void nsImportGenericMail::GetDefaultDestination(void)
 
 NS_IMETHODIMP nsImportGenericMail::WantsProgress(bool *_retval)
 {
-  NS_PRECONDITION(_retval != nullptr, "null ptr");
+  NS_ASSERTION(_retval != nullptr, "null ptr");
   NS_ENSURE_ARG_POINTER(_retval);
 
   if (m_pThreadData) {
@@ -424,9 +424,9 @@ void nsImportGenericMail::GetMailboxName(uint32_t index, nsISupportsString *pStr
 
 NS_IMETHODIMP nsImportGenericMail::BeginImport(nsISupportsString *successLog, nsISupportsString *errorLog, bool *_retval)
 {
-  NS_PRECONDITION(_retval != nullptr, "null ptr");
-    if (!_retval)
-        return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(_retval != nullptr, "null ptr");
+  if (!_retval)
+    return NS_ERROR_NULL_POINTER;
 
   nsString  success;
   nsString  error;
@@ -503,9 +503,9 @@ NS_IMETHODIMP nsImportGenericMail::BeginImport(nsISupportsString *successLog, ns
 
 NS_IMETHODIMP nsImportGenericMail::ContinueImport(bool *_retval)
 {
-    NS_PRECONDITION(_retval != nullptr, "null ptr");
-    if (!_retval)
-        return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(_retval != nullptr, "null ptr");
+  if (!_retval)
+    return NS_ERROR_NULL_POINTER;
 
   *_retval = true;
   if (m_pThreadData) {
@@ -521,9 +521,9 @@ NS_IMETHODIMP nsImportGenericMail::GetProgress(int32_t *_retval)
 {
   // This returns the progress from the the currently
   // running import mail or import address book thread.
-    NS_PRECONDITION(_retval != nullptr, "null ptr");
-    if (!_retval)
-        return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(_retval != nullptr, "null ptr");
+  if (!_retval)
+    return NS_ERROR_NULL_POINTER;
 
   if (!m_pThreadData || !(m_pThreadData->threadAlive)) {
     *_retval = 100;
@@ -816,7 +816,7 @@ ImportMailThread(void *stuff)
 
   // Now save the new acct info to pref file.
   nsCOMPtr <nsIMsgAccountManager> accMgr = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-        if (NS_SUCCEEDED(rv) && accMgr) {
+  if (NS_SUCCEEDED(rv) && accMgr) {
     rv = accMgr->SaveAccountInfo();
     NS_ASSERTION(NS_SUCCEEDED(rv), "Can't save account info to pref file");
   }
@@ -837,7 +837,6 @@ ImportMailThread(void *stuff)
   IMPORT_LOG1("Import mailbox thread done: %d\n", (int) pData->currentTotal);
 
   pData->ThreadDelete();
-
 }
 
 // Creates a folder in Local Folders with the module name + mail

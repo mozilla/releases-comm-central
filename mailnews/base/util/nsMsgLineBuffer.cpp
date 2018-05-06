@@ -250,7 +250,7 @@ nsresult nsMsgLineBuffer::FlushLastLine()
 nsMsgLineStreamBuffer::nsMsgLineStreamBuffer(uint32_t aBufferSize, bool aAllocateNewLines, bool aEatCRLFs, char aLineToken)
            : m_eatCRLFs(aEatCRLFs), m_allocateNewLines(aAllocateNewLines), m_lineToken(aLineToken)
 {
-  NS_PRECONDITION(aBufferSize > 0, "invalid buffer size!!!");
+  NS_ASSERTION(aBufferSize > 0, "invalid buffer size!!!");
   m_dataBuffer = nullptr;
   m_startPos = 0;
     m_numBytesInBuffer = 0;
@@ -297,7 +297,7 @@ char * nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream * aInputStream, uint32
   // then read more bytes out from the stream. If the stream is empty then wait
   // on the monitor for more data to come in.
 
-  NS_PRECONDITION(m_dataBuffer && m_dataBufferSize > 0, "invalid input arguments for read next line from input");
+  NS_ASSERTION(m_dataBuffer && m_dataBufferSize > 0, "invalid input arguments for read next line from input");
 
   if (prv)
     *prv = NS_OK;

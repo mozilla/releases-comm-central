@@ -79,7 +79,7 @@ nsImportFieldMap::~nsImportFieldMap()
 
 NS_IMETHODIMP nsImportFieldMap::GetNumMozFields(int32_t *aNumFields)
 {
-    NS_PRECONDITION(aNumFields != nullptr, "null ptr");
+  NS_ASSERTION(aNumFields != nullptr, "null ptr");
   if (!aNumFields)
     return NS_ERROR_NULL_POINTER;
 
@@ -89,7 +89,7 @@ NS_IMETHODIMP nsImportFieldMap::GetNumMozFields(int32_t *aNumFields)
 
 NS_IMETHODIMP nsImportFieldMap::GetMapSize(int32_t *aNumFields)
 {
-    NS_PRECONDITION(aNumFields != nullptr, "null ptr");
+  NS_ASSERTION(aNumFields != nullptr, "null ptr");
   if (!aNumFields)
     return NS_ERROR_NULL_POINTER;
 
@@ -99,7 +99,7 @@ NS_IMETHODIMP nsImportFieldMap::GetMapSize(int32_t *aNumFields)
 
 NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index, char16_t **_retval)
 {
-    NS_PRECONDITION(_retval != nullptr, "null ptr");
+  NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!_retval)
     return NS_ERROR_NULL_POINTER;
 
@@ -138,7 +138,7 @@ NS_IMETHODIMP nsImportFieldMap::DefaultFieldMap(int32_t size)
 
 NS_IMETHODIMP nsImportFieldMap::GetFieldMap(int32_t index, int32_t *_retval)
 {
-    NS_PRECONDITION(_retval != nullptr, "null ptr");
+  NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!_retval)
     return NS_ERROR_NULL_POINTER;
 
@@ -173,7 +173,7 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldMap(int32_t index, int32_t fieldNum)
 
 NS_IMETHODIMP nsImportFieldMap::GetFieldActive(int32_t index, bool *active)
 {
-    NS_PRECONDITION(active != nullptr, "null ptr");
+  NS_ASSERTION(active != nullptr, "null ptr");
   if (!active)
     return NS_ERROR_NULL_POINTER;
   if ((index < 0) || (index >= m_numFields))
@@ -195,9 +195,9 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldActive(int32_t index, bool active)
 
 NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database, nsIMdbRow *row, int32_t fieldNum, const char16_t *value)
 {
-  NS_PRECONDITION(database != nullptr, "null ptr");
-  NS_PRECONDITION(row != nullptr, "null ptr");
-  NS_PRECONDITION(value != nullptr, "null ptr");
+  NS_ASSERTION(database != nullptr, "null ptr");
+  NS_ASSERTION(row != nullptr, "null ptr");
+  NS_ASSERTION(value != nullptr, "null ptr");
   if (!database || !row || !value)
     return NS_ERROR_NULL_POINTER;
 

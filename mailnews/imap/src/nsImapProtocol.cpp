@@ -529,8 +529,8 @@ NS_IMETHODIMP
 nsImapProtocol::Initialize(nsIImapHostSessionList * aHostSessionList,
                            nsIImapIncomingServer *aServer)
 {
-  NS_PRECONDITION(aHostSessionList && aServer,
-     "oops...trying to initialize with a null host session list or server!");
+  NS_ASSERTION(aHostSessionList && aServer,
+    "oops...trying to initialize with a null host session list or server!");
   if (!aHostSessionList || !aServer)
     return NS_ERROR_NULL_POINTER;
 
@@ -683,7 +683,7 @@ static void SetSecurityCallbacksFromChannel(nsISocketTransport* aTrans, nsIChann
 nsresult nsImapProtocol::SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer)
 {
   nsresult rv = NS_ERROR_FAILURE;
-  NS_PRECONDITION(aURL, "null URL passed into Imap Protocol");
+  NS_ASSERTION(aURL, "null URL passed into Imap Protocol");
   if (aURL)
   {
     m_runningUrl = do_QueryInterface(aURL, &rv);
@@ -3842,8 +3842,8 @@ nsImapProtocol::PostLineDownLoadEvent(const char *line, uint32_t uidOfMessage)
 void nsImapProtocol::HandleMessageDownLoadLine(const char *line, bool isPartialLine,
                                                char *lineCopy)
 {
-  NS_PRECONDITION(lineCopy == nullptr || !PL_strcmp(line, lineCopy),
-                  "line and lineCopy must contain the same string");
+  NS_ASSERTION(lineCopy == nullptr || !PL_strcmp(line, lineCopy),
+               "line and lineCopy must contain the same string");
   const char *messageLine = line;
   uint32_t lineLength = strlen(messageLine);
   const char *cEndOfLine = messageLine + lineLength;
@@ -3864,7 +3864,7 @@ void nsImapProtocol::HandleMessageDownLoadLine(const char *line, bool isPartialL
     if (m_imapAction == nsIImapUrl::nsImapSaveMessageToDisk && msgUrl)
       msgUrl->GetCanonicalLineEnding(&canonicalLineEnding);
 
-    NS_PRECONDITION(MSG_LINEBREAK_LEN == 1 ||
+    NS_ASSERTION(MSG_LINEBREAK_LEN == 1 ||
                     (MSG_LINEBREAK_LEN == 2 && !PL_strcmp(CRLF, MSG_LINEBREAK)),
                     "violated assumptions on MSG_LINEBREAK");
     if (MSG_LINEBREAK_LEN == 1 && !canonicalLineEnding)

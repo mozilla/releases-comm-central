@@ -273,7 +273,7 @@ nsLDAPOperation::SimpleBind(const nsACString& passwd)
     if (!passwd.IsEmpty())
       mSavePassword = passwd;
 
-    NS_PRECONDITION(mMessageListener, "MessageListener not set");
+    NS_ASSERTION(mMessageListener, "MessageListener not set");
 
     rv = connection->GetBindName(bindName);
     if (NS_FAILED(rv))

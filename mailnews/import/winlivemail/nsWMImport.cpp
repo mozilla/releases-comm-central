@@ -109,7 +109,7 @@ NS_IMETHODIMP nsWMImport::GetDescription(char16_t **name)
 
 NS_IMETHODIMP nsWMImport::GetSupports(char **supports)
 {
-  NS_PRECONDITION(supports != nullptr, "null ptr");
+  NS_ASSERTION(supports != nullptr, "null ptr");
   if (! supports)
       return NS_ERROR_NULL_POINTER;
 
@@ -119,7 +119,7 @@ NS_IMETHODIMP nsWMImport::GetSupports(char **supports)
 
 NS_IMETHODIMP nsWMImport::GetSupportsUpgrade(bool *pUpgrade)
 {
-  NS_PRECONDITION(pUpgrade != nullptr, "null ptr");
+  NS_ASSERTION(pUpgrade != nullptr, "null ptr");
   if (! pUpgrade)
     return NS_ERROR_NULL_POINTER;
 

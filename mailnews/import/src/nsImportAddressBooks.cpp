@@ -116,9 +116,9 @@ public:
 
 nsresult NS_NewGenericAddressBooks(nsIImportGeneric** aImportGeneric)
 {
-    NS_PRECONDITION(aImportGeneric != nullptr, "null ptr");
-    if (! aImportGeneric)
-        return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(aImportGeneric != nullptr, "null ptr");
+  if (! aImportGeneric)
+    return NS_ERROR_NULL_POINTER;
 
   RefPtr<nsImportGenericAddressBooks> pGen = new nsImportGenericAddressBooks();
   return pGen->QueryInterface(NS_GET_IID(nsIImportGeneric), (void **)aImportGeneric);
@@ -234,7 +234,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId, nsISuppor
 
 NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char *dataId, nsISupports *item)
 {
-  NS_PRECONDITION(dataId != nullptr, "null ptr");
+  NS_ASSERTION(dataId != nullptr, "null ptr");
   if (!dataId)
     return NS_ERROR_NULL_POINTER;
 
@@ -281,8 +281,8 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char *dataId, nsISuppor
 
 NS_IMETHODIMP nsImportGenericAddressBooks::GetStatus(const char *statusKind, int32_t *_retval)
 {
-  NS_PRECONDITION(statusKind != nullptr, "null ptr");
-  NS_PRECONDITION(_retval != nullptr, "null ptr");
+  NS_ASSERTION(statusKind != nullptr, "null ptr");
+  NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!statusKind || !_retval)
     return NS_ERROR_NULL_POINTER;
 
@@ -390,7 +390,7 @@ void nsImportGenericAddressBooks::GetDefaultFieldMap(void)
 
 NS_IMETHODIMP nsImportGenericAddressBooks::WantsProgress(bool *_retval)
 {
-  NS_PRECONDITION(_retval != nullptr, "null ptr");
+  NS_ASSERTION(_retval != nullptr, "null ptr");
   NS_ENSURE_ARG_POINTER(_retval);
 
   GetDefaultLocation();
@@ -555,9 +555,9 @@ already_AddRefed<nsIAddrDatabase> GetAddressBook(const char16_t *name,
 
 NS_IMETHODIMP nsImportGenericAddressBooks::BeginImport(nsISupportsString *successLog, nsISupportsString *errorLog, bool *_retval)
 {
-  NS_PRECONDITION(_retval != nullptr, "null ptr");
-    if (!_retval)
-        return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(_retval != nullptr, "null ptr");
+  if (!_retval)
+    return NS_ERROR_NULL_POINTER;
 
   nsString  success;
   nsString  error;
@@ -640,9 +640,9 @@ NS_IMETHODIMP nsImportGenericAddressBooks::BeginImport(nsISupportsString *succes
 
 NS_IMETHODIMP nsImportGenericAddressBooks::ContinueImport(bool *_retval)
 {
-    NS_PRECONDITION(_retval != nullptr, "null ptr");
-    if (!_retval)
-        return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(_retval != nullptr, "null ptr");
+  if (!_retval)
+    return NS_ERROR_NULL_POINTER;
 
   *_retval = true;
   if (m_pThreadData) {
@@ -658,9 +658,9 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetProgress(int32_t *_retval)
 {
   // This returns the progress from the the currently
   // running import mail or import address book thread.
-    NS_PRECONDITION(_retval != nullptr, "null ptr");
-    if (!_retval)
-        return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(_retval != nullptr, "null ptr");
+  if (!_retval)
+    return NS_ERROR_NULL_POINTER;
 
   if (!m_pThreadData || !(m_pThreadData->threadAlive)) {
     *_retval = 100;

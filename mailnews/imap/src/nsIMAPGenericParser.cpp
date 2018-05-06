@@ -176,7 +176,7 @@ void nsIMAPGenericParser::AdvanceToNextLine()
 // advances |fLineOfTokens| by |bytesToAdvance| bytes
 void nsIMAPGenericParser::AdvanceTokenizerStartingPoint(int32_t bytesToAdvance)
 {
-  NS_PRECONDITION(bytesToAdvance>=0, "bytesToAdvance must not be negative");
+  NS_ASSERTION(bytesToAdvance>=0, "bytesToAdvance must not be negative");
   if (!fStartOfLineOfTokens)
   {
     AdvanceToNextToken();  // the tokenizer was not yet initialized, do it now

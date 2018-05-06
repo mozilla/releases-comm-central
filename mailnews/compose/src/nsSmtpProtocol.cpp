@@ -234,7 +234,7 @@ nsSmtpProtocol::~nsSmtpProtocol()
 
 nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
 {
-    NS_PRECONDITION(aURL, "invalid URL passed into Smtp Protocol");
+    NS_ASSERTION(aURL, "invalid URL passed into Smtp Protocol");
     nsresult rv = NS_OK;
 
     m_flags = 0;

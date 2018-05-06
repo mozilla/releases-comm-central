@@ -91,7 +91,7 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int64_t si
 
 nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
 {
-  NS_PRECONDITION(aURL, "invalid URL passed into MAILBOX Protocol");
+  NS_ASSERTION(aURL, "invalid URL passed into MAILBOX Protocol");
   nsresult rv = NS_OK;
   if (aURL)
   {
