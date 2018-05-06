@@ -1,0 +1,151 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/plugins.css");
+@import url("chrome://global/skin/button.css"); 
+
+html {
+  height: 100%;
+}
+
+body {
+  display: block;
+  align-items: stretch;
+  height: 100%;
+}
+
+#sectionTitle {
+  float: left;
+}
+
+#refreshDiv {
+  text-align: end;
+  margin-bottom: 0.5em;
+}
+
+#refreshButton {
+  vertical-align: middle;
+}
+
+/** Categories **/
+
+#categories > .category
+{
+  -moz-appearance: button;
+  display: inline-block;
+
+  margin: 2px;
+  border: 6px solid;
+  -moz-border-top-colors: transparent transparent transparent #000000 #BBC6D1 #B1BBC9;
+  -moz-border-right-colors: transparent transparent transparent #000000 #A2AEBB #A7B4C1;
+  -moz-border-bottom-colors: transparent transparent transparent #000000 #97A6B6 #9DAAB9;
+  -moz-border-left-colors: transparent transparent transparent #000000 #BBC6D1 #B1BBC9;
+  border-radius: 5px;
+  min-width: 6em;
+  background-color: #AAB6C4;
+  background-clip: padding-box;
+  color: #000000;
+  font: menu;
+}
+
+.category {
+  cursor: pointer;
+  /* Center category names */
+  align-items: center;
+}
+
+.category .category-name {
+  pointer-events: none;
+}
+
+#categories hr {
+  display: none;
+}
+
+/** Warning container **/
+
+/* XXX: a lot of this is duplicated from info-pages.css since that stylesheet
+   is incompatible with this type of layout */
+.warningBackground:not([hidden]) {
+  display: flex;
+}
+
+.warningBackground {
+  flex-direction: column;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 50%;
+  top: 0;
+  left: 0;
+  position: fixed;
+}
+
+.container {
+  width: 40%;
+  color: #22262F;
+  background-color: #C7D0D9;
+  background-image: url("chrome://global/skin/icons/warning-48.png");
+  background-repeat: no-repeat;
+  background-position: 30px 3em;
+  border: 1px solid #494F5D;
+  border-radius: 10px;
+  padding: 3em;
+  padding-inline-start: 78px;
+}
+
+.title {
+  display: inline-block;
+  font-size: 1rem;
+  position: relative;
+  border-bottom: 1px solid #000000;
+  margin-bottom: 1em;
+  padding-bottom: 0.5em;
+}
+
+.warningBackground button {
+  margin-top: 1em;
+  margin-left: 0;
+  min-width: 100px;
+}
+
+/** Content area **/
+
+.warningBackground:not([hidden]) ~ div
+{
+  display: none;
+}
+
+.main-content {
+  flex: 1;
+  margin: 5px 0px;
+  padding: 5px;
+  border: 1px solid #2D3B49;
+  border-radius: 6px;
+}
+
+.header-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+} 
+
+.tab {
+  padding: 0.5em 0;
+}
+
+.tab table {
+  border: 1px solid;
+  width: 100%;
+}
+
+th, td, table {
+  text-align: start;
+}
+
+th {
+  font-size: medium;
+  text-align: start;
+  border-top: 1px dotted #2D3B49;
+}
