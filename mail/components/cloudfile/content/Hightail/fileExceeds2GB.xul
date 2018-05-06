@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<!DOCTYPE overlay [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+<!DOCTYPE dialog [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
-<!ENTITY % fileExceeds2GBDTD SYSTEM "chrome://messenger/locale/cloudfile/Hightail/fileExceeds2GB.dtd" >
+<!ENTITY % fileExceeds2GBDTD SYSTEM "chrome://messenger/locale/cloudfile/Hightail/fileExceeds2GB.dtd">
 %fileExceeds2GBDTD;
 ]>
 
