@@ -72,8 +72,7 @@ function()
         currentNode = currentNode.nextSibling;
       }
     }
-    else if (currentNode instanceof Ci.nsIDOMElement)
-    {
+    else if (currentNode.nodeType == currentNode.ELEMENT_NODE) {
       // head is supposed to be the first element inside html.
       // Got something else instead. returning
        return;

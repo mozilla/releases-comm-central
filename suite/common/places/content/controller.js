@@ -1574,7 +1574,7 @@ function goDoPlacesCommand(aCommand) {
  *                  if one could not be found.
  */
 function getResultForBatching(viewOrElement) {
-  if (viewOrElement && viewOrElement instanceof Ci.nsIDOMElement &&
+  if (viewOrElement && Element.isInstance(viewOrElement) &&
       viewOrElement.id === "placesList") {
     // Note: fall back to the existing item if we can't find the right-hane pane.
     viewOrElement = document.getElementById("placeContent") || viewOrElement;

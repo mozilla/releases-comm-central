@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsDirectoryServiceDefs.h"
-#include "nsIDOMElement.h"
 #include "nsIImageLoadingContent.h"
 #include "nsIDocument.h"
 #include "nsIContent.h"
@@ -22,10 +21,13 @@
 #include "nsString.h"
 #include "nsIDocShell.h"
 #include "nsILoadContext.h"
+#include "mozilla/dom/Element.h"
 
 #include <ApplicationServices/ApplicationServices.h>
 
 #define SAFARI_BUNDLE_IDENTIFIER "com.apple.Safari"
+
+using mozilla::dom::Element;
 
 NS_IMPL_ISUPPORTS(nsMacShellService, nsIShellService, nsIWebProgressListener)
 
@@ -175,7 +177,8 @@ nsMacShellService::GetCanSetDesktopBackground(bool* aResult)
 }
 
 NS_IMETHODIMP
-nsMacShellService::SetDesktopBackground(nsIDOMElement* aElement, int32_t aPosition)
+nsMacShellService::SetDesktopBackground(Element* aElement,
+                                        int32_t aPosition)
 {
   // Note: We don't support aPosition on OS X.
 
@@ -187,11 +190,7 @@ nsMacShellService::SetDesktopBackground(nsIDOMElement* aElement, int32_t aPositi
   rv = imageContent->GetCurrentURI(getter_AddRefs(imageURI));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // We need the referer URI for nsIWebBrowserPersist::saveURI.
-  nsCOMPtr<nsIContent> content = do_QueryInterface(aElement, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsIURI *docURI = content->OwnerDoc()->GetDocumentURI();
+  nsIURI *docURI = aElement->OwnerDoc()->GetDocumentURI();
   if (!docURI)
     return NS_ERROR_FAILURE;
 
@@ -235,7 +234,7 @@ nsMacShellService::SetDesktopBackground(nsIDOMElement* aElement, int32_t aPositi
   wbp->SetProgressListener(this);
 
   nsCOMPtr<nsILoadContext> loadContext;
-  nsCOMPtr<nsISupports> container = content->OwnerDoc()->GetContainer();
+  nsCOMPtr<nsISupports> container = aElement->OwnerDoc()->GetContainer();
   nsCOMPtr<nsIDocShell> docShell = do_QueryInterface(container);
   if (docShell)
   {
@@ -243,7 +242,7 @@ nsMacShellService::SetDesktopBackground(nsIDOMElement* aElement, int32_t aPositi
   }
 
   return wbp->SaveURI(imageURI, 0,
-                      docURI, content->OwnerDoc()->GetReferrerPolicy(),
+                      docURI, aElement->OwnerDoc()->GetReferrerPolicy(),
                       nullptr, nullptr,
                       mBackgroundFile, loadContext);
 }

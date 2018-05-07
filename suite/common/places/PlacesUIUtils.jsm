@@ -9,6 +9,8 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
+Cu.importGlobalProperties(["Element"]);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   PlacesUtils: "resource://gre/modules/PlacesUtils.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
@@ -390,7 +392,7 @@ this.PlacesUIUtils = {
         node.lastChild._placesView)
       return node.lastChild._placesView;
 
-    while (node instanceof Ci.nsIDOMElement) {
+    while (Element.isInstance(node)) {
       if (node._placesView)
         return node._placesView;
       if (node.localName == "tree" && node.getAttribute("type") == "places")

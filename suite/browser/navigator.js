@@ -858,7 +858,7 @@ function WindowFocusTimerCallback(element)
     if (element instanceof Ci.nsIDOMWindow) {
       document.commandDispatcher.focusedWindow = element;
       document.commandDispatcher.focusedElement = null;
-    } else if (element instanceof Ci.nsIDOMElement) {
+    } else if (Element.isInstance(element)) {
       document.commandDispatcher.focusedWindow = element.ownerDocument.defaultView;
       document.commandDispatcher.focusedElement = element;
     }

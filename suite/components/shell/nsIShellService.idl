@@ -6,8 +6,9 @@
 
 #include "nsISupports.idl"
 
-interface nsIDOMElement;
 interface nsIFile;
+
+webidl Element;
 
 [scriptable, uuid(4244d99e-0fbf-4cf3-903a-893634704e84)]
 interface nsIShellService : nsISupports
@@ -78,7 +79,8 @@ interface nsIShellService : nsISupports
    * @param aPosition     How to place the image on the desktop
    */
 
-  void setDesktopBackground(in nsIDOMElement aElement, in long aPosition);
+  void setDesktopBackground(in Element aElement,
+                            in long aPosition);
 
   /**
    * Flags for positioning/sizing of the Desktop Background image.

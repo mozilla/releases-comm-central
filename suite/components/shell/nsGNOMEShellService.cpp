@@ -22,11 +22,11 @@
 #include "nsIProcess.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsIDOMElement.h"
 #include "nsIImageLoadingContent.h"
 #include "imgIRequest.h"
 #include "imgIContainer.h"
 #include "mozilla/Sprintf.h"
+#include "mozilla/dom/Element.h"
 #include "nsIImageToPixbuf.h"
 #include "nsXULAppAPI.h"
 
@@ -51,6 +51,8 @@
 #define OGDB_IMAGE "picture-uri"
 #define OGDB_DRAWBG "draw-background"
 #define OGDB_COLOR "primary-color"
+
+using namespace mozilla;
 
 struct ProtocolAssociation {
   uint16_t app;
@@ -314,7 +316,7 @@ nsGNOMEShellService::GetCanSetDesktopBackground(bool* aResult)
 }
 
 NS_IMETHODIMP
-nsGNOMEShellService::SetDesktopBackground(nsIDOMElement* aElement,
+nsGNOMEShellService::SetDesktopBackground(dom::Element* aElement,
                                           int32_t aPosition)
 {
   nsCString brandName;
