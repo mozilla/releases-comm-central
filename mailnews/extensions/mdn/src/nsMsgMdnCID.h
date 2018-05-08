@@ -6,12 +6,6 @@
 #ifndef nsMsgMdnCID_h__
 #define nsMsgMdnCID_h__
 
-#include "nsISupports.h"
-#include "nsIFactory.h"
-#include "nsIComponentManager.h"
-
-#include "nsIMsgMdnGenerator.h"
-
 #define NS_MSGMDNGENERATOR_CONTRACTID \
   "@mozilla.org/messenger-mdn/generator;1"
 #define NS_MSGMDNGENERATOR_CID                    \

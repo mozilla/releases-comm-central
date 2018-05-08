@@ -6,7 +6,6 @@
 #include "nsMsgMailViewList.h"
 #include "nsArray.h"
 #include "nsIMutableArray.h"
-#include "nsIFileChannel.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgSearchTerm.h"

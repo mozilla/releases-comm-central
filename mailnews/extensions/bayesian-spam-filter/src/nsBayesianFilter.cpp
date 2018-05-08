@@ -18,7 +18,6 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsIMIMEHeaderParam.h"
 #include "nsNetCID.h"
-#include "nsIMimeHeaders.h"
 #include "nsMsgMimeCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMimeMiscStatus.h"
@@ -38,7 +37,6 @@ using namespace mozilla;
 #include "nsIMsgHdr.h"
 
 // needed to strip html out of the body
-#include "nsIContentSerializer.h"
 #include "nsLayoutCID.h"
 #include "nsIParserUtils.h"
 #include "nsIDocumentEncoder.h"

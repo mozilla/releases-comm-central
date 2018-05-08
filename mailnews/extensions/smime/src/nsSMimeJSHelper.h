@@ -6,7 +6,6 @@
 #define _nsSMimeJSHelper_H_
 
 #include "nsISMimeJSHelper.h"
-#include "nsIX509Cert.h"
 #include "nsIMsgCompFields.h"
 
 class nsSMimeJSHelper : public nsISMimeJSHelper

@@ -6,12 +6,6 @@
 #ifndef nsBayesianFilterCID_h__
 #define nsBayesianFilterCID_h__
 
-#include "nsISupports.h"
-#include "nsIFactory.h"
-#include "nsIComponentManager.h"
-
-#include "nsIMsgMdnGenerator.h"
-
 #define NS_BAYESIANFILTER_CONTRACTID \
   "@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"
 #define NS_BAYESIANFILTER_CID                    \

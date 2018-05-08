@@ -12,7 +12,6 @@
 #include "nsString.h"
 #include "nsIX509CertDB.h"
 #include "nsIX509CertValidity.h"
-#include "nsIServiceManager.h"
 #include "nsServiceManagerUtils.h"
 #include "nsCRTGlue.h"
 

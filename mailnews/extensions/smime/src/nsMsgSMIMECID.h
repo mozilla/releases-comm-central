@@ -6,10 +6,6 @@
 #ifndef nsMsgSMIMECID_h__
 #define nsMsgSMIMECID_h__
 
-#include "nsISupports.h"
-#include "nsIFactory.h"
-#include "nsIComponentManager.h"
-
 #define NS_MSGSMIMECOMPFIELDS_CONTRACTID \
   "@mozilla.org/messenger-smime/composefields;1"
 
