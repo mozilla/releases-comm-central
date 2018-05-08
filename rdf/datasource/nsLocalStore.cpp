@@ -209,11 +209,11 @@ LocalStoreImpl::~LocalStoreImpl(void)
 nsresult
 NS_NewLocalStore(nsISupports* aOuter, REFNSIID aIID, void** aResult)
 {
-    NS_PRECONDITION(aOuter == nullptr, "no aggregation");
+    NS_ASSERTION(aOuter == nullptr, "no aggregation");
     if (aOuter)
         return NS_ERROR_NO_AGGREGATION;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 

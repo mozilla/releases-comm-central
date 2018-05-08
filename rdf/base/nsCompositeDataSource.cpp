@@ -162,7 +162,7 @@ NS_IMPL_QUERY_INTERFACE(CompositeEnumeratorImpl, nsISimpleEnumerator)
 NS_IMETHODIMP
 CompositeEnumeratorImpl::HasMoreElements(bool* aResult)
 {
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -573,15 +573,15 @@ CompositeDataSourceImpl::GetSources(nsIRDFResource* aProperty,
                                     bool aTruthValue,
                                     nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -606,15 +606,15 @@ CompositeDataSourceImpl::GetTarget(nsIRDFResource* aSource,
                                    bool aTruthValue,
                                    nsIRDFNode** aResult)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -678,15 +678,15 @@ CompositeDataSourceImpl::GetTargets(nsIRDFResource* aSource,
                                     bool aTruthValue,
                                     nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -713,15 +713,15 @@ CompositeDataSourceImpl::Assert(nsIRDFResource* aSource,
                                 nsIRDFNode* aTarget,
                                 bool aTruthValue)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -753,15 +753,15 @@ CompositeDataSourceImpl::Unassert(nsIRDFResource* aSource,
                                   nsIRDFResource* aProperty,
                                   nsIRDFNode* aTarget)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -819,19 +819,19 @@ CompositeDataSourceImpl::Change(nsIRDFResource* aSource,
                                 nsIRDFNode* aOldTarget,
                                 nsIRDFNode* aNewTarget)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aOldTarget != nullptr, "null ptr");
+    NS_ASSERTION(aOldTarget != nullptr, "null ptr");
     if (! aOldTarget)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aNewTarget != nullptr, "null ptr");
+    NS_ASSERTION(aNewTarget != nullptr, "null ptr");
     if (! aNewTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -863,19 +863,19 @@ CompositeDataSourceImpl::Move(nsIRDFResource* aOldSource,
                               nsIRDFResource* aProperty,
                               nsIRDFNode* aTarget)
 {
-    NS_PRECONDITION(aOldSource != nullptr, "null ptr");
+    NS_ASSERTION(aOldSource != nullptr, "null ptr");
     if (! aOldSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aNewSource != nullptr, "null ptr");
+    NS_ASSERTION(aNewSource != nullptr, "null ptr");
     if (! aNewSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -909,15 +909,15 @@ CompositeDataSourceImpl::HasAssertion(nsIRDFResource* aSource,
                                       bool aTruthValue,
                                       bool* aResult)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -962,7 +962,7 @@ CompositeDataSourceImpl::HasAssertion(nsIRDFResource* aSource,
 NS_IMETHODIMP
 CompositeDataSourceImpl::AddObserver(nsIRDFObserver* aObserver)
 {
-    NS_PRECONDITION(aObserver != nullptr, "null ptr");
+    NS_ASSERTION(aObserver != nullptr, "null ptr");
     if (! aObserver)
         return NS_ERROR_NULL_POINTER;
 
@@ -975,7 +975,7 @@ CompositeDataSourceImpl::AddObserver(nsIRDFObserver* aObserver)
 NS_IMETHODIMP
 CompositeDataSourceImpl::RemoveObserver(nsIRDFObserver* aObserver)
 {
-    NS_PRECONDITION(aObserver != nullptr, "null ptr");
+    NS_ASSERTION(aObserver != nullptr, "null ptr");
     if (! aObserver)
         return NS_ERROR_NULL_POINTER;
 
@@ -1017,11 +1017,11 @@ CompositeDataSourceImpl::HasArcOut(nsIRDFResource *aSource, nsIRDFResource *aArc
 NS_IMETHODIMP
 CompositeDataSourceImpl::ArcLabelsIn(nsIRDFNode* aTarget, nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -1043,11 +1043,11 @@ NS_IMETHODIMP
 CompositeDataSourceImpl::ArcLabelsOut(nsIRDFResource* aSource,
                                       nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 

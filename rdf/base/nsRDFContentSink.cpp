@@ -325,7 +325,7 @@ NS_IMPL_RELEASE(RDFContentSinkImpl)
 NS_IMETHODIMP
 RDFContentSinkImpl::QueryInterface(REFNSIID iid, void** result)
 {
-    NS_PRECONDITION(result, "null ptr");
+    NS_ASSERTION(result, "null ptr");
     if (! result)
         return NS_ERROR_NULL_POINTER;
 
@@ -496,7 +496,7 @@ RDFContentSinkImpl::ReportError(const char16_t* aErrorText,
                                 nsIScriptError *aError,
                                 bool *_retval)
 {
-  NS_PRECONDITION(aError && aSourceText && aErrorText, "Check arguments!!!");
+  NS_ASSERTION(aError && aSourceText && aErrorText, "Check arguments!!!");
 
   // The expat driver should report the error.
   *_retval = true;
@@ -569,7 +569,7 @@ RDFContentSinkImpl::SetParser(nsParserBase* aParser)
 NS_IMETHODIMP
 RDFContentSinkImpl::Init(nsIURI* aURL)
 {
-    NS_PRECONDITION(aURL != nullptr, "null ptr");
+    NS_ASSERTION(aURL != nullptr, "null ptr");
     if (! aURL)
         return NS_ERROR_NULL_POINTER;
 
@@ -581,7 +581,7 @@ RDFContentSinkImpl::Init(nsIURI* aURL)
 NS_IMETHODIMP
 RDFContentSinkImpl::SetDataSource(nsIRDFDataSource* aDataSource)
 {
-    NS_PRECONDITION(aDataSource != nullptr, "SetDataSource null ptr");
+    NS_ASSERTION(aDataSource != nullptr, "SetDataSource null ptr");
     mDataSource = aDataSource;
     NS_ASSERTION(mDataSource != nullptr,"Couldn't QI RDF DataSource");
     return NS_OK;
@@ -1430,7 +1430,7 @@ RDFContentSinkImpl::PopContext(nsIRDFResource         *&aResource,
 nsresult
 NS_NewRDFContentSink(nsIRDFContentSink** aResult)
 {
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 

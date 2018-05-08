@@ -598,7 +598,7 @@ NS_IMPL_QUERY_INTERFACE(InMemoryArcsEnumeratorImpl, nsISimpleEnumerator)
 NS_IMETHODIMP
 InMemoryArcsEnumeratorImpl::HasMoreElements(bool* aResult)
 {
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -691,7 +691,7 @@ InMemoryArcsEnumeratorImpl::GetNext(nsISupports** aResult)
 nsresult
 NS_NewRDFInMemoryDataSource(nsISupports* aOuter, const nsIID& aIID, void** aResult)
 {
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
     *aResult = nullptr;
@@ -838,15 +838,15 @@ InMemoryDataSource::GetSource(nsIRDFResource* property,
                               bool tv,
                               nsIRDFResource** source)
 {
-    NS_PRECONDITION(source != nullptr, "null ptr");
+    NS_ASSERTION(source != nullptr, "null ptr");
     if (! source)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(property != nullptr, "null ptr");
+    NS_ASSERTION(property != nullptr, "null ptr");
     if (! property)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(target != nullptr, "null ptr");
+    NS_ASSERTION(target != nullptr, "null ptr");
     if (! target)
         return NS_ERROR_NULL_POINTER;
 
@@ -867,15 +867,15 @@ InMemoryDataSource::GetTarget(nsIRDFResource* source,
                               bool tv,
                               nsIRDFNode** target)
 {
-    NS_PRECONDITION(source != nullptr, "null ptr");
+    NS_ASSERTION(source != nullptr, "null ptr");
     if (! source)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(property != nullptr, "null ptr");
+    NS_ASSERTION(property != nullptr, "null ptr");
     if (! property)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(target != nullptr, "null ptr");
+    NS_ASSERTION(target != nullptr, "null ptr");
     if (! target)
         return NS_ERROR_NULL_POINTER;
 
@@ -963,15 +963,15 @@ InMemoryDataSource::GetSources(nsIRDFResource* aProperty,
                                bool aTruthValue,
                                nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -994,15 +994,15 @@ InMemoryDataSource::GetTargets(nsIRDFResource* aSource,
                                bool aTruthValue,
                                nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -1118,15 +1118,15 @@ InMemoryDataSource::Assert(nsIRDFResource* aSource,
                            nsIRDFNode* aTarget,
                            bool aTruthValue)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -1273,15 +1273,15 @@ InMemoryDataSource::Unassert(nsIRDFResource* aSource,
                              nsIRDFResource* aProperty,
                              nsIRDFNode* aTarget)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -1318,19 +1318,19 @@ InMemoryDataSource::Change(nsIRDFResource* aSource,
                            nsIRDFNode* aOldTarget,
                            nsIRDFNode* aNewTarget)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aOldTarget != nullptr, "null ptr");
+    NS_ASSERTION(aOldTarget != nullptr, "null ptr");
     if (! aOldTarget)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aNewTarget != nullptr, "null ptr");
+    NS_ASSERTION(aNewTarget != nullptr, "null ptr");
     if (! aNewTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -1373,19 +1373,19 @@ InMemoryDataSource::Move(nsIRDFResource* aOldSource,
                          nsIRDFResource* aProperty,
                          nsIRDFNode* aTarget)
 {
-    NS_PRECONDITION(aOldSource != nullptr, "null ptr");
+    NS_ASSERTION(aOldSource != nullptr, "null ptr");
     if (! aOldSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aNewSource != nullptr, "null ptr");
+    NS_ASSERTION(aNewSource != nullptr, "null ptr");
     if (! aNewSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -1425,7 +1425,7 @@ InMemoryDataSource::Move(nsIRDFResource* aOldSource,
 NS_IMETHODIMP
 InMemoryDataSource::AddObserver(nsIRDFObserver* aObserver)
 {
-    NS_PRECONDITION(aObserver != nullptr, "null ptr");
+    NS_ASSERTION(aObserver != nullptr, "null ptr");
     if (! aObserver)
         return NS_ERROR_NULL_POINTER;
 
@@ -1438,7 +1438,7 @@ InMemoryDataSource::AddObserver(nsIRDFObserver* aObserver)
 NS_IMETHODIMP
 InMemoryDataSource::RemoveObserver(nsIRDFObserver* aObserver)
 {
-    NS_PRECONDITION(aObserver != nullptr, "null ptr");
+    NS_ASSERTION(aObserver != nullptr, "null ptr");
     if (! aObserver)
         return NS_ERROR_NULL_POINTER;
 
@@ -1494,7 +1494,7 @@ InMemoryDataSource::HasArcOut(nsIRDFResource *aSource, nsIRDFResource *aArc, boo
 NS_IMETHODIMP
 InMemoryDataSource::ArcLabelsIn(nsIRDFNode* aTarget, nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 
@@ -1513,7 +1513,7 @@ InMemoryDataSource::ArcLabelsIn(nsIRDFNode* aTarget, nsISimpleEnumerator** aResu
 NS_IMETHODIMP
 InMemoryDataSource::ArcLabelsOut(nsIRDFResource* aSource, nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
@@ -1668,15 +1668,15 @@ InMemoryDataSource::Mark(nsIRDFResource* aSource,
                          bool aTruthValue,
                          bool* aDidMark)
 {
-    NS_PRECONDITION(aSource != nullptr, "null ptr");
+    NS_ASSERTION(aSource != nullptr, "null ptr");
     if (! aSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aProperty != nullptr, "null ptr");
+    NS_ASSERTION(aProperty != nullptr, "null ptr");
     if (! aProperty)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aTarget != nullptr, "null ptr");
+    NS_ASSERTION(aTarget != nullptr, "null ptr");
     if (! aTarget)
         return NS_ERROR_NULL_POINTER;
 

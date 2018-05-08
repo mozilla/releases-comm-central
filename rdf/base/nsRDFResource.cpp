@@ -50,7 +50,7 @@ NS_IMPL_ISUPPORTS(nsRDFResource, nsIRDFResource, nsIRDFNode)
 NS_IMETHODIMP
 nsRDFResource::EqualsNode(nsIRDFNode* aNode, bool* aResult)
 {
-    NS_PRECONDITION(aNode != nullptr, "null ptr");
+    NS_ASSERTION(aNode != nullptr, "null ptr");
     if (! aNode)
         return NS_ERROR_NULL_POINTER;
 
@@ -76,7 +76,7 @@ nsRDFResource::EqualsNode(nsIRDFNode* aNode, bool* aResult)
 NS_IMETHODIMP
 nsRDFResource::Init(const char* aURI)
 {
-    NS_PRECONDITION(aURI != nullptr, "null ptr");
+    NS_ASSERTION(aURI != nullptr, "null ptr");
     if (! aURI)
         return NS_ERROR_NULL_POINTER;
 
@@ -121,11 +121,11 @@ nsRDFResource::GetValueConst(const char** aURI)
 NS_IMETHODIMP
 nsRDFResource::EqualsString(const char* aURI, bool* aResult)
 {
-    NS_PRECONDITION(aURI != nullptr, "null ptr");
+    NS_ASSERTION(aURI != nullptr, "null ptr");
     if (! aURI)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult, "null ptr");
+    NS_ASSERTION(aResult, "null ptr");
 
     *aResult = mURI.Equals(aURI);
     return NS_OK;
@@ -134,7 +134,7 @@ nsRDFResource::EqualsString(const char* aURI, bool* aResult)
 NS_IMETHODIMP
 nsRDFResource::GetDelegate(const char* aKey, REFNSIID aIID, void** aResult)
 {
-    NS_PRECONDITION(aKey != nullptr, "null ptr");
+    NS_ASSERTION(aKey != nullptr, "null ptr");
     if (! aKey)
         return NS_ERROR_NULL_POINTER;
 
@@ -193,7 +193,7 @@ nsRDFResource::GetDelegate(const char* aKey, REFNSIID aIID, void** aResult)
 NS_IMETHODIMP
 nsRDFResource::ReleaseDelegate(const char* aKey)
 {
-    NS_PRECONDITION(aKey != nullptr, "null ptr");
+    NS_ASSERTION(aKey != nullptr, "null ptr");
     if (! aKey)
         return NS_ERROR_NULL_POINTER;
 

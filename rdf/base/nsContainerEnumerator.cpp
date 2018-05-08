@@ -113,7 +113,7 @@ NS_IMPL_ISUPPORTS(ContainerEnumeratorImpl, nsISimpleEnumerator)
 NS_IMETHODIMP
 ContainerEnumeratorImpl::HasMoreElements(bool* aResult)
 {
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -235,15 +235,15 @@ NS_NewContainerEnumerator(nsIRDFDataSource* aDataSource,
                           nsIRDFResource* aContainer,
                           nsISimpleEnumerator** aResult)
 {
-    NS_PRECONDITION(aDataSource != nullptr, "null ptr");
+    NS_ASSERTION(aDataSource != nullptr, "null ptr");
     if (! aDataSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aContainer != nullptr, "null ptr");
+    NS_ASSERTION(aContainer != nullptr, "null ptr");
     if (! aContainer)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 

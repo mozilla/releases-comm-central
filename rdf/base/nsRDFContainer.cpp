@@ -115,11 +115,11 @@ RDFContainerImpl::GetResource(nsIRDFResource** _retval)
 NS_IMETHODIMP
 RDFContainerImpl::Init(nsIRDFDataSource *aDataSource, nsIRDFResource *aContainer)
 {
-    NS_PRECONDITION(aDataSource != nullptr, "null ptr");
+    NS_ASSERTION(aDataSource != nullptr, "null ptr");
     if (! aDataSource)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aContainer != nullptr, "null ptr");
+    NS_ASSERTION(aContainer != nullptr, "null ptr");
     if (! aContainer)
         return NS_ERROR_NULL_POINTER;
 
@@ -205,7 +205,7 @@ RDFContainerImpl::AppendElement(nsIRDFNode *aElement)
     if (!mDataSource || !mContainer)
         return NS_ERROR_NOT_INITIALIZED;
 
-    NS_PRECONDITION(aElement != nullptr, "null ptr");
+    NS_ASSERTION(aElement != nullptr, "null ptr");
     if (! aElement)
         return NS_ERROR_NULL_POINTER;
 
@@ -228,7 +228,7 @@ RDFContainerImpl::RemoveElement(nsIRDFNode *aElement, bool aRenumber)
     if (!mDataSource || !mContainer)
         return NS_ERROR_NOT_INITIALIZED;
 
-    NS_PRECONDITION(aElement != nullptr, "null ptr");
+    NS_ASSERTION(aElement != nullptr, "null ptr");
     if (! aElement)
         return NS_ERROR_NULL_POINTER;
 
@@ -268,11 +268,11 @@ RDFContainerImpl::InsertElementAt(nsIRDFNode *aElement, int32_t aIndex, bool aRe
     if (!mDataSource || !mContainer)
         return NS_ERROR_NOT_INITIALIZED;
 
-    NS_PRECONDITION(aElement != nullptr, "null ptr");
+    NS_ASSERTION(aElement != nullptr, "null ptr");
     if (! aElement)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aIndex >= 1, "illegal value");
+    NS_ASSERTION(aIndex >= 1, "illegal value");
     if (aIndex < 1)
         return NS_ERROR_ILLEGAL_VALUE;
 

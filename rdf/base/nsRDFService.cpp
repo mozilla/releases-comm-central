@@ -804,8 +804,8 @@ NS_IMETHODIMP
 RDFServiceImpl::GetResource(const nsACString& aURI, nsIRDFResource** aResource)
 {
     // Sanity checks
-    NS_PRECONDITION(aResource != nullptr, "null ptr");
-    NS_PRECONDITION(!aURI.IsEmpty(), "URI is empty");
+    NS_ASSERTION(aResource != nullptr, "null ptr");
+    NS_ASSERTION(!aURI.IsEmpty(), "URI is empty");
     if (! aResource)
         return NS_ERROR_NULL_POINTER;
     if (aURI.IsEmpty())
@@ -975,11 +975,11 @@ static int32_t kShift = 6;
 NS_IMETHODIMP
 RDFServiceImpl::GetLiteral(const char16_t* aValue, nsIRDFLiteral** aLiteral)
 {
-    NS_PRECONDITION(aValue != nullptr, "null ptr");
+    NS_ASSERTION(aValue != nullptr, "null ptr");
     if (! aValue)
         return NS_ERROR_NULL_POINTER;
 
-    NS_PRECONDITION(aLiteral != nullptr, "null ptr");
+    NS_ASSERTION(aLiteral != nullptr, "null ptr");
     if (! aLiteral)
         return NS_ERROR_NULL_POINTER;
 
@@ -1057,7 +1057,7 @@ RDFServiceImpl::GetBlobLiteral(const uint8_t *aBytes, int32_t aLength,
 NS_IMETHODIMP
 RDFServiceImpl::IsAnonymousResource(nsIRDFResource* aResource, bool* _result)
 {
-    NS_PRECONDITION(aResource != nullptr, "null ptr");
+    NS_ASSERTION(aResource != nullptr, "null ptr");
     if (! aResource)
         return NS_ERROR_NULL_POINTER;
 
@@ -1085,7 +1085,7 @@ RDFServiceImpl::IsAnonymousResource(nsIRDFResource* aResource, bool* _result)
 NS_IMETHODIMP
 RDFServiceImpl::RegisterResource(nsIRDFResource* aResource, bool aReplace)
 {
-    NS_PRECONDITION(aResource != nullptr, "null ptr");
+    NS_ASSERTION(aResource != nullptr, "null ptr");
     if (! aResource)
         return NS_ERROR_NULL_POINTER;
 
@@ -1140,7 +1140,7 @@ RDFServiceImpl::RegisterResource(nsIRDFResource* aResource, bool aReplace)
 NS_IMETHODIMP
 RDFServiceImpl::UnregisterResource(nsIRDFResource* aResource)
 {
-    NS_PRECONDITION(aResource != nullptr, "null ptr");
+    NS_ASSERTION(aResource != nullptr, "null ptr");
     if (! aResource)
         return NS_ERROR_NULL_POINTER;
 
@@ -1170,7 +1170,7 @@ RDFServiceImpl::UnregisterResource(nsIRDFResource* aResource)
 NS_IMETHODIMP
 RDFServiceImpl::RegisterDataSource(nsIRDFDataSource* aDataSource, bool aReplace)
 {
-    NS_PRECONDITION(aDataSource != nullptr, "null ptr");
+    NS_ASSERTION(aDataSource != nullptr, "null ptr");
     if (! aDataSource)
         return NS_ERROR_NULL_POINTER;
 
@@ -1219,7 +1219,7 @@ RDFServiceImpl::RegisterDataSource(nsIRDFDataSource* aDataSource, bool aReplace)
 NS_IMETHODIMP
 RDFServiceImpl::UnregisterDataSource(nsIRDFDataSource* aDataSource)
 {
-    NS_PRECONDITION(aDataSource != nullptr, "null ptr");
+    NS_ASSERTION(aDataSource != nullptr, "null ptr");
     if (! aDataSource)
         return NS_ERROR_NULL_POINTER;
 
@@ -1273,7 +1273,7 @@ RDFServiceImpl::GetDataSourceBlocking(const char* aURI, nsIRDFDataSource** aData
 nsresult
 RDFServiceImpl::GetDataSource(const char* aURI, bool aBlock, nsIRDFDataSource** aDataSource)
 {
-    NS_PRECONDITION(aURI != nullptr, "null ptr");
+    NS_ASSERTION(aURI != nullptr, "null ptr");
     if (! aURI)
         return NS_ERROR_NULL_POINTER;
 

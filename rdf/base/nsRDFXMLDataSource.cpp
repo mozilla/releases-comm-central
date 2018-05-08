@@ -368,7 +368,7 @@ static const char kResourceURIPrefix[] = "resource:";
 nsresult
 NS_NewRDFXMLDataSource(nsIRDFDataSource** aResult)
 {
-    NS_PRECONDITION(aResult != nullptr, "null ptr");
+    NS_ASSERTION(aResult != nullptr, "null ptr");
     if (! aResult)
         return NS_ERROR_NULL_POINTER;
 
@@ -572,7 +572,7 @@ RDFXMLDataSourceImpl::GetLoaded(bool* _result)
 NS_IMETHODIMP
 RDFXMLDataSourceImpl::Init(const char* uri)
 {
-    NS_PRECONDITION(mInner != nullptr, "not initialized");
+    NS_ASSERTION(mInner != nullptr, "not initialized");
     if (! mInner)
         return NS_ERROR_OUT_OF_MEMORY;
 
@@ -785,7 +785,7 @@ RDFXMLDataSourceImpl::rdfXMLFlush(nsIURI *aURI)
 NS_IMETHODIMP
 RDFXMLDataSourceImpl::FlushTo(const char *aURI)
 {
-    NS_PRECONDITION(aURI != nullptr, "not initialized");
+    NS_ASSERTION(aURI != nullptr, "not initialized");
     if (!aURI)
         return NS_ERROR_NULL_POINTER;
 
@@ -863,7 +863,7 @@ RDFXMLDataSourceImpl::AsyncOnChannelRedirect(nsIChannel *aOldChannel,
                                              uint32_t aFlags,
                                              nsIAsyncVerifyRedirectCallback *cb)
 {
-    NS_PRECONDITION(aNewChannel, "Redirecting to null channel?");
+    NS_ASSERTION(aNewChannel, "Redirecting to null channel?");
 
     nsresult rv;
     nsCOMPtr<nsIScriptSecurityManager> secMan =
