@@ -49,7 +49,6 @@ MailGlue.prototype = {
   // init (called at app startup)
   _init: function MailGlue__init() {
     Services.obs.addObserver(this, "xpcom-shutdown");
-    Services.obs.addObserver(this, "document-element-inserted");
     Services.obs.addObserver(this, "final-ui-startup");
     Services.obs.addObserver(this, "mail-startup-done");
     Services.obs.addObserver(this, "handle-xul-text-link");
@@ -86,7 +85,6 @@ MailGlue.prototype = {
   // cleanup (called at shutdown)
   _dispose: function MailGlue__dispose() {
     Services.obs.removeObserver(this, "xpcom-shutdown");
-    Services.obs.removeObserver(this, "document-element-inserted");
     Services.obs.removeObserver(this, "final-ui-startup");
     Services.obs.removeObserver(this, "mail-startup-done");
     Services.obs.removeObserver(this, "handle-xul-text-link");
@@ -124,20 +122,6 @@ MailGlue.prototype = {
         }
       }, {once: true});
       break;
-    case "document-element-inserted":
-      // Set up Custom Elements for XUL windows before anything else happens
-      // in the document. Anything loaded here should be considered part of
-      // core XUL functionality. Any window-specific elements can be registered
-      // via <script> tags at the top of individual documents.
-      const doc = aSubject;
-      if (doc.nodePrincipal.isSystemPrincipal &&
-          doc.contentType == "application/vnd.mozilla.xul+xml") {
-        for (let script of [
-          "chrome://global/content/elements/stringbundle.js",
-        ]) {
-          Services.scriptloader.loadSubScript(script, doc.ownerGlobal);
-        }
-      }
     }
   },
 
