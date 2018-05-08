@@ -1858,6 +1858,55 @@
         ]]></setter>
       </property>
 
+      <!-- Override the selectedIndex property of tabs since it stopped sending
+           the "select" event in bug 1456530. -->
+      <property name="selectedIndex">
+        <getter>
+        <![CDATA[
+          const tabs = this.childNodes;
+          for (var i = 0; i < tabs.length; i++) {
+            if (tabs[i].selected)
+              return i;
+          }
+          return -1;
+        ]]>
+        </getter>
+
+        <setter>
+        <![CDATA[
+          var tab = this.getItemAtIndex(val);
+          if (tab) {
+            var alreadySelected = tab.selected;
+
+            Array.forEach(this.childNodes, function(aTab) {
+              if (aTab.selected && aTab != tab)
+                aTab._selected = false;
+            });
+            tab._selected = true;
+
+            this.setAttribute("value", tab.value);
+
+            let linkedPanel = this.getRelatedElement(tab);
+            if (linkedPanel) {
+              this.tabbox.setAttribute("selectedIndex", val);
+
+              // This will cause an onselect event to fire for the tabpanel
+              // element.
+              this.tabbox.tabpanels.selectedPanel = linkedPanel;
+            }
+
+            if (!alreadySelected) {
+              // Fire an onselect event for the tabs element.
+              var event = document.createEvent("Events");
+              event.initEvent("select", true, true);
+              this.dispatchEvent(event);
+            }
+          }
+          return val;
+        ]]>
+        </setter>
+      </property>
+
       <method name="_updateCloseButtons">
         <body><![CDATA[
           // modes for tabstrip
