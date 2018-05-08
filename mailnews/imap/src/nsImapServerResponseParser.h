@@ -7,7 +7,7 @@
 #define _nsIMAPServerResponseParser_H_
 
 #include "mozilla/Attributes.h"
-#include "nsIMAPHostSessionList.h"
+#include "nsIIMAPHostSessionList.h"
 #include "nsImapSearchResults.h"
 #include "nsString.h"
 #include "MailNewsTypes.h"

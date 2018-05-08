@@ -6,17 +6,11 @@
 #include "msgCore.h"
 #include "nsImapUtils.h"
 #include "nsCOMPtr.h"
-#include "nsIServiceManager.h"
 #include "prsystem.h"
 #include "prprf.h"
 #include "nsNetCID.h"
 
-// stuff for temporary root folder hack
-#include "nsIMsgAccountManager.h"
-#include "nsIMsgIncomingServer.h"
-#include "nsIImapIncomingServer.h"
 #include "nsMsgBaseCID.h"
-#include "nsImapCore.h"
 #include "nsMsgUtils.h"
 #include "nsImapFlagAndUidState.h"
 #include "nsIMAPNamespace.h"

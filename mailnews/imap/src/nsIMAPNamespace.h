@@ -6,6 +6,7 @@
 #ifndef _nsIMAPNamespace_H_
 #define _nsIMAPNamespace_H_
 
+#include "nsImapCore.h"
 #include "nsTArray.h"
 
 class nsIMAPNamespace

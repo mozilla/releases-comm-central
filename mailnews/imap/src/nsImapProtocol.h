@@ -29,6 +29,7 @@
 // UI Thread proxy helper
 #include "nsIImapProtocolSink.h"
 
+#include "nsIIMAPHostSessionList.h"
 #include "nsImapServerResponseParser.h"
 #include "nsImapFlagAndUidState.h"
 #include "nsIMAPNamespace.h"

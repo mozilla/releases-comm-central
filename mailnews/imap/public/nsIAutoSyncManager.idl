@@ -10,7 +10,6 @@ interface nsIMsgDBHdr;
 interface nsIAutoSyncState;
 interface nsIAutoSyncMgrListener;
 interface nsIMsgFolder;
-interface nsIMsgAccount;
 
 [scriptable, uuid(41ec36a7-1a53-4ca3-b698-dca6452a8761)]
 interface nsIAutoSyncMgrListener : nsISupports {

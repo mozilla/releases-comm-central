@@ -7,11 +7,12 @@
 #define nsImapFlagAndUidState_h___
 
 #include "MailNewsTypes.h"
-#include "nsTArray.h"
 #include "nsIImapFlagAndUidState.h"
+#include "nsImapCore.h"
+#include "nsTArray.h"
 #include "mozilla/Mutex.h"
 
-const int32_t kImapFlagAndUidStateSize =	100;
+const int32_t kImapFlagAndUidStateSize = 100;
 
 #include "nsBaseHashtable.h"
 #include "nsDataHashtable.h"
@@ -48,8 +49,5 @@ private:
     bool                    fPartialUIDFetch;
     mozilla::Mutex mLock;
 };
-
-
-
 
 #endif

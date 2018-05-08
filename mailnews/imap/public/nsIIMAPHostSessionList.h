@@ -8,6 +8,7 @@
 
 #include "nsISupports.h"
 #include "nsImapCore.h"
+#include "nsIMAPNamespace.h"
 
 class nsIMAPBodyShellCache;
 class nsIMAPBodyShell;

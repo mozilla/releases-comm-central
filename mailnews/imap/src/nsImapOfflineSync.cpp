@@ -15,7 +15,6 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgAccountManager.h"
 #include "nsINntpIncomingServer.h"
-#include "nsIRequestObserver.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsISeekableStream.h"
 #include "nsIMsgCopyService.h"

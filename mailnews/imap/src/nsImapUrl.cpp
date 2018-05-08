@@ -6,7 +6,6 @@
 #include "msgCore.h"    // precompiled header...
 #include "nsMsgImapCID.h"
 
-#include "nsIURL.h"
 #include "nsImapUrl.h"
 #include "nsIIMAPHostSessionList.h"
 #include "nsThreadUtils.h"
@@ -16,18 +15,13 @@
 #include "prprf.h"
 #include "nsMemory.h"
 #include "nsCOMPtr.h"
-#include "nsIImapIncomingServer.h"
 #include "nsMsgBaseCID.h"
 #include "nsImapUtils.h"
 #include "nsIMAPNamespace.h"
 #include "nsICacheEntry.h"
 #include "nsIMsgFolder.h"
-#include "nsIDocShell.h"
-#include "nsIInterfaceRequestor.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgHdr.h"
-#include "nsIProgressEventSink.h"
 #include "nsServiceManagerUtils.h"
 
 using namespace mozilla;

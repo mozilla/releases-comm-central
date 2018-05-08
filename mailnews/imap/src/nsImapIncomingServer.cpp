@@ -7,7 +7,7 @@
 #include "nsMsgImapCID.h"
 
 #include "netCore.h"
-#include "nsIMAPHostSessionList.h"
+#include "nsIIMAPHostSessionList.h"
 #include "nsImapIncomingServer.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIdentity.h"

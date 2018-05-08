@@ -18,7 +18,7 @@
 #include "nsImapCore.h"
 #include "nsImapProtocol.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMAPHostSessionList.h"
+#include "nsIIMAPHostSessionList.h"
 #include "nsIMAPBodyShell.h"
 #include "nsImapMailFolder.h"
 #include "nsIMsgAccountManager.h"

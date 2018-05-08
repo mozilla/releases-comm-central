@@ -8,7 +8,6 @@
 
 #include "MailNewsTypes.h"
 #include "nsString.h"
-#include "nsIMailboxSpec.h"
 #include "nsIImapFlagAndUidState.h"
 
 class nsIMAPNamespace;
@@ -53,7 +52,7 @@ typedef uint16_t imapMessageFlagsType;
 #define kImapMsgDeletedFlag           0x0008
 #define kImapMsgDraftFlag             0x0010
 #define kImapMsgRecentFlag            0x0020
-#define	kImapMsgForwardedFlag         0x0040		/* Not always supported, check mailbox folder */
+#define kImapMsgForwardedFlag         0x0040		/* Not always supported, check mailbox folder */
 #define kImapMsgMDNSentFlag           0x0080		/* Not always supported. check mailbox folder */
 #define kImapMsgCustomKeywordFlag     0x0100            /* this msg has a custom keyword */
 #define kImapMsgLabelFlags            0x0E00            /* supports 5 labels only supported if the folder supports keywords */

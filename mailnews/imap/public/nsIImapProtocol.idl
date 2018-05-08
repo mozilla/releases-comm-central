@@ -7,7 +7,6 @@
 
 interface nsIURI;
 interface nsIImapUrl;
-interface nsIImapProtocol;
 interface nsIImapIncomingServer;
 interface nsIMsgFolder;
 interface nsIMsgWindow;

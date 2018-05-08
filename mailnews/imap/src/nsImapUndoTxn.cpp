@@ -7,7 +7,6 @@
 #include "nsMsgImapCID.h"
 #include "nsIMsgHdr.h"
 #include "nsImapUndoTxn.h"
-#include "nsIIMAPHostSessionList.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsImapMailFolder.h"
 #include "nsIDBFolderInfo.h"

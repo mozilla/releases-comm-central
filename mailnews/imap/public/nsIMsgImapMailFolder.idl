@@ -4,9 +4,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsIMsgFolder.idl"
-#include "nsIStringEnumerator.idl"
+#include "MailNewsTypes2.idl"
 
+interface nsIMsgFolder;
+interface nsIUTF8StringEnumerator;
+interface nsIUrlListener;
+interface nsIURI;
+interface nsIMsgDBHdr;
 interface nsIMsgWindow;
 interface nsIImapIncomingServer;
 interface nsIMsgParseMailMsgState;

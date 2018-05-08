@@ -8,6 +8,7 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "nsIMsgHdr.h"
+#include "nsIMsgFolder.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIImapIncomingServer.h"
 

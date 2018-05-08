@@ -5,7 +5,7 @@
 #include "nsISupports.idl"
 #include "nsIAutoSyncMsgStrategy.idl"
 
-interface nsIMsgAccount;
+interface nsIMsgFolder;
 
 [scriptable, uuid(d3bf91cc-37bb-4752-9994-1a8473e46a90)]
 interface nsIAutoSyncFolderStrategy : nsISupports {

@@ -6,9 +6,6 @@
 #ifndef nsMsgImapCID_h__
 #define nsMsgImapCID_h__
 
-#include "nsISupports.h"
-#include "nsIFactory.h"
-#include "nsIComponentManager.h"
 #include "nsMsgBaseCID.h"
 
 #define NS_IMAPURL_CID							\

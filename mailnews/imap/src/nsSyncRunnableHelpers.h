@@ -11,7 +11,6 @@
 #include "mozilla/Monitor.h"
 #include "msgIOAuth2Module.h"
 #include "nsIStreamListener.h"
-#include "nsIInterfaceRequestor.h"
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapServerSink.h"
 #include "nsIImapProtocolSink.h"

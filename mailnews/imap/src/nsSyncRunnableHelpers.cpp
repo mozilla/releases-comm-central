@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsSyncRunnableHelpers.h"
+#include "nsImapCore.h"
 #include "nsIMsgMailNewsUrl.h"
+#include "nsIMsgIncomingServer.h"
 #include "nsIMsgWindow.h"
-#include "nsImapMailFolder.h"
+#include "nsIImapMailFolderSink.h"
 
 #include "mozilla/Monitor.h"
 

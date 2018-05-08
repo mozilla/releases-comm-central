@@ -8,8 +8,6 @@
 #include "nsString.h"
 #include "nsIStringBundle.h"
 #include "nsImapStringBundle.h"
-#include "nsIServiceManager.h"
-#include "nsIURI.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
 

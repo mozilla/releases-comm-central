@@ -11,7 +11,6 @@
 #include "nsIImapMockChannel.h"
 #include "nsCOMPtr.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsIMsgIncomingServer.h"
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapServerSink.h"
 #include "nsIImapMessageSink.h"
