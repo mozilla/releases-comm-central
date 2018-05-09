@@ -32,18 +32,11 @@ function restoreDefaultBookmarks() {
 }
 
 function deleteLocalstore() {
-  const nsIDirectoryServiceContractID = "@mozilla.org/file/directory_service;1";
-  const nsIProperties = Ci.nsIProperties;
-  var directoryService = Cc[nsIDirectoryServiceContractID]
-                           .getService(nsIProperties);
-  // Delete the old localstore otherwise it will get imported.
-  var localstoreFile = directoryService.get("LStoreS", Ci.nsIFile);
-  if (localstoreFile.exists())
-    localstoreFile.remove(false);
-  // Delete the new xulstore file.
-  localstoreFile.leafName = "xulstore.json";
-  if (localstoreFile.exists())
-    localstoreFile.remove(false);
+  // Delete the xulstore file.
+  let xulstoreFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  xulstoreFile.append("xulstore.json");
+  if (xulstoreFile.exists())
+    xulstoreFile.remove(false);
 }
 
 function disableAddons() {
