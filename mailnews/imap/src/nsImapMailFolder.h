@@ -6,35 +6,29 @@
 #define nsImapMailFolder_h__
 
 #include "mozilla/Attributes.h"
-#include "nsImapCore.h"
+#include "nsImapCore.h" // so that consumers including ImapMailFolder.h also get the kImapMsg* constants
 #include "nsMsgDBFolder.h"
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapMessageSink.h"
 #include "nsICopyMessageListener.h"
-#include "nsIImapService.h"
 #include "nsIUrlListener.h"
 #include "nsAutoPtr.h"
 #include "nsIImapIncomingServer.h" // we need this for its IID
 #include "nsIMsgParseMailMsgState.h"
-#include "nsITransactionManager.h"
 #include "nsImapUndoTxn.h"
 #include "nsIMsgMessageService.h"
 #include "nsIMsgFilterHitNotify.h"
 #include "nsIMsgFilterList.h"
 #include "prmon.h"
 #include "nsIMsgImapMailFolder.h"
-#include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgThread.h"
 #include "nsIImapMailFolderSink.h"
-#include "nsIImapServerSink.h"
 #include "nsIMsgFilterPlugin.h"
-#include "nsIThread.h"
 #include "nsDataHashtable.h"
 #include "nsIMutableArray.h"
 #include "nsITimer.h"
 #include "nsCOMArray.h"
 #include "nsAutoSyncState.h"
-#include "nsIRequestObserver.h"
 
 class nsImapMoveCoalescer;
 class nsIMsgIdentity;

@@ -8,11 +8,6 @@
 
 #include "MailNewsTypes.h"
 #include "nsString.h"
-#include "nsIImapFlagAndUidState.h"
-
-class nsIMAPNamespace;
-class nsImapProtocol;
-class nsImapFlagAndUidState;
 
 /* imap message flags */
 typedef uint16_t imapMessageFlagsType;

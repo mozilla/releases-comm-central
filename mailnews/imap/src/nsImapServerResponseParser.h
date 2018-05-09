@@ -15,12 +15,10 @@
 #include "nsImapUtils.h"
 #include "nsAutoPtr.h"
 
-class nsIMAPNamespace;
-class nsIMAPNamespaceList;
 class nsIMAPBodyShell;
 class nsIMAPBodypart;
 class nsImapSearchResultIterator;
-class nsImapFlagAndUidState;
+class nsIImapFlagAndUidState;
 
 #include "nsIMAPGenericParser.h"
 

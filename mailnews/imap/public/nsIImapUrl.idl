@@ -31,7 +31,7 @@ interface nsImapContentModifiedTypes
 interface nsIImapUrl : nsISupports
 {
   ///////////////////////////////////////////////////////////////////////////////
-  // Getters and Setters for the imap specific event sinks to bind to to the url
+  // Getters and Setters for the imap specific event sinks to bind to the url
   ///////////////////////////////////////////////////////////////////////////////
   attribute nsIImapMailFolderSink imapMailFolderSink;
   attribute nsIImapMessageSink imapMessageSink;

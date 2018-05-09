@@ -7,9 +7,7 @@
 #include "msgCore.h"  // for pre-compiled headers
 #include "nsMsgUtils.h"
 
-#include "nsIServiceManager.h"
-#include "nsICharsetConverterManager.h"
-#include "nsIStringBundle.h"
+#include "nsImapStringBundle.h"
 #include "nsVersionComparator.h"
 
 #include "nsMsgImapCID.h"
@@ -34,7 +32,6 @@
 #include "nsIPipe.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgMessageFlags.h"
-#include "nsICopyMsgStreamListener.h"
 #include "nsTextFormatter.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgI18N.h"
@@ -44,19 +41,15 @@
 #include "nsICacheEntryOpenCallback.h"
 #include "nsIURIMutator.h"
 
-#include "nsIPrompt.h"
 #include "nsIDocShell.h"
-#include "nsIDocShellLoadInfo.h"
 #include "nsILoadInfo.h"
-#include "nsIMessengerWindowService.h"
-#include "nsIWindowMediator.h"
-#include "nsIWindowWatcher.h"
 #include "nsCOMPtr.h"
 #include "nsMimeTypes.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsXPCOMCIDInternal.h"
 #include "nsIXULAppInfo.h"
 #include "nsSyncRunnableHelpers.h"
+#include "nsICancelable.h"
 
 // netlib required files
 #include "nsIStreamListener.h"
@@ -78,6 +71,11 @@
 #include "mozilla/SlicedInputStream.h"
 #include "nsIPrincipal.h"
 #include "nsContentSecurityManager.h"
+
+// imap event sinks
+#include "nsIImapMailFolderSink.h"
+#include "nsIImapServerSink.h"
+#include "nsIImapMessageSink.h"
 
 using namespace mozilla;
 

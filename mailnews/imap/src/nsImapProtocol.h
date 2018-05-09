@@ -18,13 +18,7 @@
 #include "nsString.h"
 #include "nsIProgressEventSink.h"
 #include "nsIInterfaceRequestor.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsISocketTransport.h"
-
-// imap event sinks
-#include "nsIImapMailFolderSink.h"
-#include "nsIImapServerSink.h"
-#include "nsIImapMessageSink.h"
 
 // UI Thread proxy helper
 #include "nsIImapProtocolSink.h"
@@ -44,12 +38,10 @@
 #include "nsIImapMockChannel.h"
 #include "nsILoadGroup.h"
 #include "nsCOMPtr.h"
-#include "nsIImapIncomingServer.h"
 #include "nsIMsgWindow.h"
 #include "nsIImapHeaderXferInfo.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIAsyncInputStream.h"
-#include "nsITimer.h"
 #include "nsAutoPtr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgAsyncPrompter.h"
@@ -57,13 +49,10 @@
 #include "nsSyncRunnableHelpers.h"
 #include "nsICacheEntryOpenCallback.h"
 #include "nsIProtocolProxyCallback.h"
-#include "nsICancelable.h"
-#include "nsImapStringBundle.h"
+#include "nsIStringBundle.h"
 
 class nsIMAPMessagePartIDArray;
-class nsIMsgIncomingServer;
 class nsIPrefBranch;
-class nsIMAPMailboxInfo;
 
 #define kDownLoadCacheSize 16000 // was 1536 - try making it bigger
 
@@ -112,6 +101,25 @@ private:
   virtual ~nsMsgImapHdrXferInfo();
   nsCOMArray<nsIImapHeaderInfo> m_hdrInfos;
   int32_t   m_nextFreeHdrInfo;
+};
+
+// This class contains the name of a mailbox and whether or not
+// its children have been listed.
+class nsIMAPMailboxInfo
+{
+public:
+  nsIMAPMailboxInfo(const nsACString &aName, char aDelimiter);
+  virtual ~nsIMAPMailboxInfo();
+
+  void   SetChildrenListed(bool childrenListed);
+  bool   GetChildrenListed();
+  const  nsACString& GetMailboxName();
+  char   GetDelimiter();
+
+protected:
+  nsCString mMailboxName;
+  bool     mChildrenListed;
+  char     mDelimiter;
 };
 
 // State Flags (Note, I use the word state in terms of storing
@@ -751,25 +759,6 @@ protected:
 
   // we end up daisy chaining multiple nsIStreamListeners into the load process.
   nsresult SetupPartExtractorListener(nsIImapUrl * aUrl, nsIStreamListener * aConsumer);
-};
-
-// This class contains the name of a mailbox and whether or not
-// its children have been listed.
-class nsIMAPMailboxInfo
-{
-public:
-  nsIMAPMailboxInfo(const nsACString &aName, char aDelimiter);
-  virtual ~nsIMAPMailboxInfo();
-
-  void   SetChildrenListed(bool childrenListed);
-  bool GetChildrenListed();
-  const  nsACString& GetMailboxName();
-  char   GetDelimiter();
-
-protected:
-  nsCString mMailboxName;
-  bool     mChildrenListed;
-  char     mDelimiter;
 };
 
 #endif  // nsImapProtocol_h___

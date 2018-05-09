@@ -8,12 +8,12 @@
 
 #include "mozilla/Attributes.h"
 #include "nsIImapUrl.h"
-#include "nsIImapMockChannel.h"
 #include "nsCOMPtr.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsIImapMailFolderSink.h"
-#include "nsIImapServerSink.h"
-#include "nsIImapMessageSink.h"
+#include "nsIImapMockChannel.h" // for the mockChannel attribute from .idl
+#include "nsIImapMailFolderSink.h" // for the imapMailFolderSink attribute from .idl
+#include "nsIImapServerSink.h" // for the imapServerSink attribute from .idl
+#include "nsIImapMessageSink.h" // for the imapMessageSink attribute from .idl
 
 #include "nsWeakPtr.h"
 #include "nsIFile.h"

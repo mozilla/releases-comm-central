@@ -9,6 +9,7 @@
 #include "nsImapUndoTxn.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsImapMailFolder.h"
+#include "nsIImapService.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgUtils.h"

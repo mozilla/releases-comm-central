@@ -9,6 +9,7 @@
 #include "mozilla/Attributes.h"
 #include "nsImapCore.h"
 #include "nsIIMAPHostSessionList.h"
+#include "nsIMAPBodyShell.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
 #include "nspr.h"
@@ -121,7 +122,7 @@ public:
 
   // Message Body Shells
   NS_IMETHOD AddShellToCacheForHost(const char *serverKey, nsIMAPBodyShell *shell) override;
-  NS_IMETHOD FindShellInCacheForHost(const char *serverKey, const char *mailboxName, const char *UID, IMAP_ContentModifiedType modType, nsIMAPBodyShell	**result) override;
+  NS_IMETHOD FindShellInCacheForHost(const char *serverKey, const char *mailboxName, const char *UID, IMAP_ContentModifiedType modType, nsIMAPBodyShell **result) override;
   NS_IMETHOD ClearShellCacheForHost(const char *serverKey) override;
   PRMonitor *gCachedHostInfoMonitor;
   nsIMAPHostInfo *fHostInfoList;

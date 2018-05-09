@@ -10,8 +10,6 @@ nsIMAPGenericParser is the base parser class used by the server parser and body 
 #ifndef nsIMAPGenericParser_H
 #define nsIMAPGenericParser_H
 
-#include "nsImapCore.h"
-
 #define WHITESPACE " \015\012"     // token delimiter
 
 
@@ -19,8 +17,8 @@ class nsIMAPGenericParser
 {
 
 public:
-	nsIMAPGenericParser();
-	virtual ~nsIMAPGenericParser();
+  nsIMAPGenericParser();
+  virtual ~nsIMAPGenericParser();
 
   // Add any specific stuff in the derived class
   virtual bool       LastCommandSuccessful();
@@ -61,7 +59,7 @@ protected:
 	// use with care
   const char     *fNextToken;
   char           *fCurrentLine;
-	char					 *fLineOfTokens;
+  char           *fLineOfTokens;
   char           *fStartOfLineOfTokens;
   char           *fCurrentTokenPlaceHolder;
   bool            fAtEndOfLine;

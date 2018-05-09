@@ -6,12 +6,8 @@
 #include "msgCore.h"
 #include "nsIMAPBodyShell.h"
 #include "nsImapProtocol.h"
-#include "nsImapStringBundle.h"
 
 #include "nsMimeTypes.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
-#include "nsITransport.h"
 #include "nsServiceManagerUtils.h"
 
 // need to talk to Rich about this...

@@ -7,14 +7,12 @@
 
 #include "MailNewsTypes.h"
 #include "nsIAutoSyncState.h"
-#include "nsIAutoSyncManager.h"
 #include "nsIUrlListener.h"
 #include "nsWeakPtr.h"
 #include "nsTHashtable.h"
 #include "nsHashKeys.h"
 #include "nsTArray.h"
 #include "prlog.h"
-#include "nsIWeakReferenceUtils.h"
 
 class nsImapMailFolder;
 class nsIAutoSyncMsgStrategy;

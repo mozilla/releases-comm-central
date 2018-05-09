@@ -4,10 +4,10 @@
 
 #include "nsAutoSyncState.h"
 #include "nsImapMailFolder.h"
+#include "nsIImapService.h"
 #include "nsMsgImapCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMsgKeyArray.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgMailSession.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIAutoSyncManager.h"

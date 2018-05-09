@@ -119,8 +119,6 @@ private:
 
 class msgIOAuth2Module;
 class nsIMsgIncomingServer;
-class nsIVariant;
-class nsIWritableVariant;
 
 namespace mozilla {
 namespace mailnews {

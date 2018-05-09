@@ -7,7 +7,6 @@
 #include "nsIMAPHostSessionList.h"
 #include "nsIMAPBodyShell.h"
 #include "nsIMAPNamespace.h"
-#include "nsISupportsUtils.h"
 #include "nsIImapIncomingServer.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgIncomingServer.h"

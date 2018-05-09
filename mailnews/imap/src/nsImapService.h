@@ -16,10 +16,8 @@
 #include "nsIContentHandler.h"
 #include "nsICacheStorage.h"
 
-class nsIImapHostSessionList;
 class nsIImapUrl;
 class nsIMsgFolder;
-class nsIMsgStatusFeedback;
 class nsIMsgIncomingServer;
 
 class nsImapService : public nsIImapService,

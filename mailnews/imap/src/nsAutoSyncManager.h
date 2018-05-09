@@ -15,12 +15,8 @@
 #include "nsIAutoSyncManager.h"
 #include "nsIAutoSyncMsgStrategy.h"
 #include "nsIAutoSyncFolderStrategy.h"
+#include "nsIIdleService.h"
 #include "prtime.h"
-
-class nsImapMailFolder;
-class nsIMsgDBHdr;
-class nsIIdleService;
-class nsIMsgFolder;
 
 /* Auto-Sync
  *
