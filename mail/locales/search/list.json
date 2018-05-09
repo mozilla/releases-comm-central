@@ -1,6 +1,6 @@
 {
   "default": {
-    "searchDefault": "bing",
+    "searchDefault": "Bing",
     "visibleDefaultEngines": [
       "amazondotcom", "aol-web-search", "bing", "twitter", "wikipedia", "yahoo"
     ]
@@ -30,6 +30,7 @@
     },
     "be": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "be.wikipedia.org", "be-x-old.wikipedia.org", "ru.wikipedia.org-be", "tut.by", "yahoo", "yandex.by"
         ]
@@ -58,6 +59,7 @@
     },
     "cs": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "seznam-cz", "duckduckgo-cz", "heureka-cz", "mapy-cz", "wikipedia-cz"
         ]
@@ -86,6 +88,7 @@
     },
     "es-AR": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "yahoo-ar", "amazondotcom", "mercadolibre-ar", "drae", "wikipedia-es"
         ]
@@ -100,6 +103,7 @@
     },
     "et": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "neti-ee", "osta-ee", "eki-ee", "wikipedia-et"
         ]
@@ -128,6 +132,7 @@
     },
     "ga-IE": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "twitter", "yahoo-en-GB", "amazon-en-GB", "focal", "wikipedia-ga-IE"
         ]
@@ -135,6 +140,7 @@
     },
     "gd": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "yahoo-en-GB", "bbc-alba", "amazon-en-GB", "faclair-beag", "wikipedia-gd"
         ]
@@ -156,6 +162,7 @@
     },
     "hu": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "sztaki-en-hu", "vatera", "wikipedia-hu"
         ]
@@ -163,6 +170,7 @@
     },
     "id": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "yahoo-id", "wikipedia-id"
         ]
@@ -184,6 +192,7 @@
     },
     "ja-JP-mac": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google-jp", "yahoo-jp", "amazon-jp", "rakuten", "yahoo-jp-auctions", "oshiete-goo", "twitter-ja", "wikipedia-ja"
         ]
@@ -191,6 +200,7 @@
     },
     "ja": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google-jp", "yahoo-jp", "amazon-jp", "rakuten", "yahoo-jp-auctions", "oshiete-goo", "twitter-ja", "wikipedia-ja"
         ]
@@ -212,8 +222,9 @@
     },
     "ko": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
-          "danawa-kr", "daum-kr", "google","naver-kr", "wikipedia-kr"
+          "danawa-kr", "daum-kr", "google", "naver-kr", "wikipedia-kr"
         ]
       }
     },
@@ -254,6 +265,7 @@
     },
     "pl": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "allegro-pl", "google", "pwn-pl", "wikipedia-pl", "wolnelektury-pl"
         ]
@@ -261,6 +273,7 @@
     },
     "pt-PT": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "sapo", "priberam", "wikipedia-ptpt", "amazon-en-GB"
         ]
@@ -296,6 +309,7 @@
     },
     "sl": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "najdi-si", "ceneji", "google", "odpiralni", "twitter", "wikipedia-sl"
         ]
@@ -317,6 +331,7 @@
     },
     "tr": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "yandex-tr", "wikipedia-tr"
         ]
@@ -324,6 +339,7 @@
     },
     "uk": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "yandex", "meta-ua", "metamarket", "wikipedia-uk"
         ]
@@ -338,6 +354,7 @@
     },
     "zh-TW": {
       "default": {
+        "searchDefault": "Google",
         "visibleDefaultEngines": [
           "google", "yahoo-zh-TW", "yahoo-bid-zh-TW", "wikipedia-zh-TW", "chunghwapost-zh-TW", "google-maps-zh-TW", "ipeen-zh-TW", "findbook-zh-TW"
         ]
