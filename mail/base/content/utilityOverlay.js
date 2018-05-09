@@ -4,11 +4,6 @@
 
 ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-XPCOMUtils.defineLazyServiceGetter(this, "asyncHistory",
-                                   "@mozilla.org/browser/history;1",
-                                   "mozIAsyncHistory");
 
 var gShowBiDi = false;
 
@@ -194,13 +189,12 @@ function togglePaneSplitter(splitterId)
 function openUILink(url, event)
 {
   if (!event.button) {
-    asyncHistory.updatePlaces({
-      uri: makeURI(url),
-      visits:  [{
-        visitDate: Date.now() * 1000,
-        transitionType: Ci.nsINavHistoryService.TRANSITION_LINK
+    PlacesUtils.history.insert({
+      url,
+      visits: [{
+        date: new Date()
       }]
-    });
+    }).catch(Cu.reportError);
     messenger.launchExternalURL(url);
   }
 }

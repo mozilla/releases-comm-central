@@ -16,10 +16,6 @@ XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
   return new tmp.PageMenuParent();
 });
 
-XPCOMUtils.defineLazyServiceGetter(this, "asyncHistory",
-                                   "@mozilla.org/browser/history;1",
-                                   "mozIAsyncHistory");
-
 var gSpellChecker = new InlineSpellChecker();
 
 function nsContextMenu(aXulMenu, aIsShift) {
@@ -958,28 +954,25 @@ nsContextMenu.prototype = {
   },
 
   openInBrowser: function CM_openInBrowser() {
-    let uri = Services.io.newURI(this.target.ownerDocument.defaultView.
-                                 top.location.href);
-    asyncHistory.updatePlaces({
-      uri: uri,
-      visits:  [{
-        visitDate: Date.now() * 1000,
-        transitionType: Ci.nsINavHistoryService.TRANSITION_LINK
+    let url = this.target.ownerDocument.defaultView.top.location.href;
+    PlacesUtils.history.insert({
+      url,
+      visits: [{
+        date: new Date()
       }]
-    });
+    }).catch(Cu.reportError);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
-      .loadURI(uri);
+      .loadURI(Services.io.newURI(url));
   },
 
   openLinkInBrowser: function CM_openLinkInBrowser() {
-    asyncHistory.updatePlaces({
-      uri: this.linkURI,
-      visits:  [{
-        visitDate: Date.now() * 1000,
-        transitionType: Ci.nsINavHistoryService.TRANSITION_LINK
+    PlacesUtils.history.insert({
+      url: this.linkURL,
+      visits: [{
+        date: new Date()
       }]
-    });
+    }).catch(Cu.reportError);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(this.linkURI);

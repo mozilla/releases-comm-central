@@ -7,11 +7,6 @@
 
 ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-XPCOMUtils.defineLazyServiceGetter(this, "asyncHistory",
-                                   "@mozilla.org/browser/history;1",
-                                   "mozIAsyncHistory");
 
 var gProfileDirURL;
 var gFileHandler = Services.io.getProtocolHandler("file")
@@ -538,14 +533,13 @@ function HandleLink(node, label, value, box, link)
 
 function OpenURLWithHistory(url)
 {
+  PlacesUtils.history.insert({
+    url,
+    visits: [{
+      date: new Date()
+    }]
+  }).catch(Cu.reportError);
   try {
-    asyncHistory.updatePlaces({
-      uri: Services.io.newURI(url),
-      visits:  [{
-        visitDate: Date.now() * 1000,
-        transitionType: Ci.nsINavHistoryService.TRANSITION_LINK
-      }]
-    });
     var messenger = Cc["@mozilla.org/messenger;1"].createInstance();
     messenger = messenger.QueryInterface(Ci.nsIMessenger);
     messenger.launchExternalURL(url);

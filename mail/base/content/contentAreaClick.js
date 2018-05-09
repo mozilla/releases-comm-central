@@ -15,11 +15,6 @@
 
   ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
   ChromeUtils.import("resource://gre/modules/Services.jsm");
-  ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-  XPCOMUtils.defineLazyServiceGetter(this, "asyncHistory",
-                                     "@mozilla.org/browser/history;1",
-                                     "mozIAsyncHistory");
 
   function hRefForClickEvent(aEvent, aDontCheckInputElement)
   {
@@ -184,17 +179,12 @@ function openLinkExternally(url)
     uri = Services.io.newURI(url);
 
   // This can fail if there is a problem with the places database.
-  try {
-    asyncHistory.updatePlaces({
-      uri: uri,
-      visits:  [{
-        visitDate: Date.now() * 1000,
-        transitionType: Ci.nsINavHistoryService.TRANSITION_LINK
-      }]
-    });
-  } catch (ex) {
-    Cu.reportError(ex);
-  }
+  PlacesUtils.history.insert({
+    url, // accepts both string and nsIURI
+    visits: [{
+      date: new Date(),
+    }]
+  }).catch(Cu.reportError);
 
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)
