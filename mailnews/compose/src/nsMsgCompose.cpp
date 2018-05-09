@@ -73,8 +73,8 @@
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "mozilla/dom/HTMLLinkElement.h"
+#include "mozilla/dom/Selection.h"
 #include "nsStreamConverter.h"
-#include "nsISelection.h"
 #include "nsJSEnvironment.h"
 #include "nsIObserverService.h"
 #include "nsIProtocolHandler.h"
@@ -580,11 +580,11 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
   rv = GetNodeLocation(divElem->AsDOMNode(), address_of(parent), &offset);
   if (NS_SUCCEEDED(rv))
   {
-    nsCOMPtr<nsISelection> selection;
+    RefPtr<Selection> selection;
     m_editor->GetSelection(getter_AddRefs(selection));
 
     if (selection)
-      selection->CollapseNative(parent, offset + 1);
+      selection->Collapse(parent, offset + 1);
   }
   if (divElem) {
     nsCOMPtr<Element> divElem2 = do_QueryInterface(divElem);
@@ -808,9 +808,9 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
           NS_ENSURE_SUCCESS(rv, rv);
 
           // Position into the div, so out content goes there.
-          nsCOMPtr<nsISelection> selection;
+          RefPtr<Selection> selection;
           m_editor->GetSelection(getter_AddRefs(selection));
-          rv = selection->CollapseNative(divElem, 0);
+          rv = selection->Collapse(divElem, 0);
           NS_ENSURE_SUCCESS(rv, rv);
         }
 
@@ -875,7 +875,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
           break;
         }
 
-        nsCOMPtr<nsISelection> selection;
+        RefPtr<Selection> selection;
         nsCOMPtr<nsINode> parent;
         int32_t offset;
         nsresult rv;
@@ -897,7 +897,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
         }
 
         // place selection after mailcite
-        selection->CollapseNative(parent, offset+1);
+        selection->Collapse(parent, offset+1);
 
         // insert a break at current selection
         if (!paragraphMode || !aHTMLEditor)
@@ -905,7 +905,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
 
         // i'm not sure if you need to move the selection back to before the
         // break. expirement.
-        selection->CollapseNative(parent, offset+1);
+        selection->Collapse(parent, offset+1);
 
         break;
       }
@@ -3099,7 +3099,7 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
     nsCOMPtr<nsIPlaintextEditor> textEditor = do_QueryInterface(aEditor);
     if (textEditor)
     {
-      nsCOMPtr<nsISelection> selection;
+      RefPtr<Selection> selection;
       nsCOMPtr<nsINode> parent;
       int32_t offset;
       nsresult rv;
@@ -3113,10 +3113,10 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
       if (selection)
       {
         // place selection after mailcite
-        selection->CollapseNative(parent, offset+1);
+        selection->Collapse(parent, offset+1);
         // insert a break at current selection
         textEditor->InsertLineBreak();
-        selection->CollapseNative(parent, offset+1);
+        selection->Collapse(parent, offset+1);
       }
       nsCOMPtr<nsISelectionController> selCon;
       aEditor->GetSelectionController(getter_AddRefs(selCon));
@@ -5649,10 +5649,10 @@ nsMsgCompose::MoveToAboveQuote(void)
       return rv;
     }
   }
-  nsCOMPtr<nsISelection> selection;
+  RefPtr<Selection> selection;
   m_editor->GetSelection(getter_AddRefs(selection));
   if (selection)
-    rv = selection->CollapseNative(rootElement, offset);
+    rv = selection->Collapse(rootElement, offset);
 
   return rv;
 }
@@ -5671,10 +5671,10 @@ nsMsgCompose::MoveToBeginningOfDocument(void)
     return rv;
   }
 
-  nsCOMPtr<nsISelection> selection;
+  RefPtr<Selection> selection;
   m_editor->GetSelection(getter_AddRefs(selection));
   if (selection)
-    rv = selection->CollapseNative(rootElement, 0);
+    rv = selection->Collapse(rootElement, 0);
 
   return rv;
 }
@@ -5707,10 +5707,10 @@ nsMsgCompose::MoveToEndOfDocument(void)
     return rv;
   }
 
-  nsCOMPtr<nsISelection> selection;
+  RefPtr<Selection> selection;
   m_editor->GetSelection(getter_AddRefs(selection));
   if (selection)
-    rv = selection->CollapseNative(rootElement, offset + 1);
+    rv = selection->Collapse(rootElement, offset + 1);
 
   return rv;
 }

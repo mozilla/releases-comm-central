@@ -42,7 +42,7 @@
 #include "nsIMsgDatabase.h"
 #include "nsIDocumentEncoder.h"
 #include "nsContentCID.h"
-#include "nsISelection.h"
+#include "mozilla/dom/Selection.h"
 #include "nsUTF8Utils.h"
 #include "mozilla/intl/LineBreaker.h"
 #include "mozilla/Services.h"
@@ -276,7 +276,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   nsCOMPtr<mozIDOMWindowProxy> domWindow(do_GetInterface(childAsItem));
   NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
   nsCOMPtr<nsPIDOMWindowOuter> privateWindow = nsPIDOMWindowOuter::From(domWindow);
-  nsCOMPtr<nsISelection> sel = privateWindow->GetSelection();
+  RefPtr<mozilla::dom::Selection> sel = privateWindow->GetSelection();
   NS_ENSURE_TRUE(sel, NS_ERROR_FAILURE);
 
   bool requireMultipleWords = true;
@@ -286,8 +286,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   if (sel && (requireMultipleWords || !charsOnlyIf.IsEmpty()))
   {
     nsAutoString selPlain;
-    rv = sel->ToString(selPlain);
-    NS_ENSURE_SUCCESS(rv, rv);
+    sel->Stringify(selPlain);
 
     // If "mailnews.reply_quoting_selection.multi_word" is on, then there must be at least
     // two words selected in order to quote just the selected text
