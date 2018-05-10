@@ -45,3 +45,7 @@ scriptworker:
             - 'project:comm:thunderbird:releng:balrog:server:dep'
         'scriptworker-prov-v1/tb-balrog-v1':
             - 'project:comm:thunderbird:releng:balrog:server:nightly'
+
+partner:
+    release: {}
+    staging: {}
