@@ -894,7 +894,7 @@ SocketAppender.prototype = {
   /* nsITransportEventSink */
   onTransportStatus: function SApp_onTransportStatus(aTransport, aStatus,
       aProgress, aProgressMax) {
-    if (aStatus == 0x804b0004) // STATUS_CONNECTED_TO is not a constant.
+    if (aStatus == Ci.nsISocketTransport.STATUS_CONNECTED_TO)
       this._connected = true;
   },
 };

@@ -343,7 +343,7 @@ function RefreshViewPopup(aViewPopup)
   {
     let imapServer =
       server.QueryInterface(Ci.nsIImapIncomingServer);
-    if (imapServer.deleteModel == 0)  // nsMsgImapDeleteModels.IMAPDelete == 0
+    if (imapServer.deleteModel == Ci.nsMsgImapDeleteModels.IMAPDelete)
     {
       viewNotDeleted.setAttribute("hidden", false);
       viewNotDeleted.setAttribute("checked",

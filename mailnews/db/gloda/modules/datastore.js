@@ -1615,7 +1615,7 @@ var GlodaDatastore = {
       }
       catch (e) {
         // SQLITE_BUSY becomes NS_ERROR_FAILURE
-        if (e.result == 0x80004005) {
+        if (e.result == Cr.NS_ERROR_FAILURE) {
           tries++;
           // we really need to delay here, somehow.  unfortunately, we can't
           //  allow event processing to happen, and most of the things we could

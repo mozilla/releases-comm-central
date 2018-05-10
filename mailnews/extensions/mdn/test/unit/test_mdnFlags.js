@@ -3,9 +3,6 @@
  * reprompt when the user re-selects a message.
  */
 
-var gMessenger = Cc["@mozilla.org/messenger;1"].
-                   createInstance(Ci.nsIMessenger);
-
 localAccountUtils.loadLocalMailAccount();
 
 var localAccount = MailServices.accounts
@@ -47,9 +44,7 @@ function run_test()
   // Everything looks good so far, let's generate the MDN response.
   var mdnGenerator = Cc["@mozilla.org/messenger-mdn/generator;1"]
                        .createInstance(Ci.nsIMsgMdnGenerator);
-  const MDN_DISPOSE_TYPE_DISPLAYED = 0;
-
-  mdnGenerator.process(MDN_DISPOSE_TYPE_DISPLAYED, msgWindow, msgFolder,
+  mdnGenerator.process(Ci.nsIMsgMdnGenerator.eDisplayed, msgWindow, msgFolder,
                        msgHdr.messageKey, mimeHdr, false);
   mdnGenerator.userDeclined();
   Assert.notEqual(msgHdr.flags & Ci.nsMsgMessageFlags.MDNReportSent, 0);
