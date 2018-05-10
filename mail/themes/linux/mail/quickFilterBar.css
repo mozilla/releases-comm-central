@@ -49,28 +49,8 @@
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-#quick-filter-bar #qfb-sticky,
-#quick-filter-bar #qfb-sticky[checked] {
-  background: none;
-  border-width: 0;
-  border-image: none;
-}
-
 #qfb-sticky {
   list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
-}
-
-#qfb-sticky[checked] {
-  fill: #b20606;
-}
-
-/* we use both IDs so we are more precise than the other # toolbarbutton rules */
-#quick-filter-bar #qfb-sticky:hover {
-  text-shadow: none;
-  background: none;
-  border: 1px solid transparent;
-  border-radius: 0;
-  border-width: 0;
 }
 
 #qfb-unread {

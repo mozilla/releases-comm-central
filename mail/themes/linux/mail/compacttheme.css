@@ -17,6 +17,11 @@
   color: inherit;
 }
 
+/* Quick-Filter-Bar */
+#quick-filter-bar {
+  border-bottom-color: var(--toolbox-border-bottom-color);
+}
+
 #MsgHeadersToolbar {
   background-image: none;
 }

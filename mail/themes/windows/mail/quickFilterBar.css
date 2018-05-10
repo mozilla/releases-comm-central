@@ -87,10 +87,6 @@
   list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
 }
 
-#qfb-sticky[checked] {
-  fill: #b20606;
-}
-
 #qfb-unread {
   list-style-image: url("chrome://messenger/skin/icons/mark.svg");
 }

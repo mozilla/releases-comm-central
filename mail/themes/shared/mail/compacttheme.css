@@ -65,6 +65,7 @@ toolbar[brighttext] .toolbarbutton-1 {
 #IMSearchInput ::-moz-selection,
 #peopleSearchInput ::-moz-selection,
 .remote-gloda-search ::-moz-selection,
+#qfb-qs-textbox ::-moz-selection,
 findbar ::-moz-selection {
   background-color: var(--chrome-selection-background-color);
   color: var(--chrome-selection-color);
@@ -104,6 +105,41 @@ findbar,
 .editContactTextbox ::-moz-selection {
   background-color: var(--chrome-selection-background-color);
   color: var(--chrome-selection-color);
+}
+
+/* Quick-Filter-Bar */
+#quick-filter-bar {
+  background-color: var(--chrome-background-color);
+  color: var(--chrome-color);
+}
+#quick-filter-bar:-moz-lwtheme-brighttext {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
+
+  --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background);
+
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
+}
+
+#qfb-qs-textbox {
+  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
+  color: var(--lwt-toolbar-field-color, black);
+}
+
+#qfb-qs-textbox:not([focused="true"]):-moz-lwtheme {
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
+}
+
+#qfb-qs-textbox:-moz-lwtheme:hover {
+  background-color: var(--lwt-toolbar-field-background-color, white);
+}
+
+#qfb-qs-textbox:-moz-lwtheme[focused="true"] {
+  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
+  border-color: var(--toolbar-field-focus-border-color);
 }
 
 /* Search bar*/

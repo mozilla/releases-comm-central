@@ -10,6 +10,7 @@
             onoverflow="QuickFilterBarMuxer.onOverflow();"
             >
         <toolbarbutton id="qfb-sticky" type="checkbox"
+                       class="toolbarbutton-1" orient="horizontal"
                        crop="none" minwidth="16"
                        tooltiptext="&quickFilterBar.sticky.tooltip;"
                        />
@@ -17,26 +18,31 @@
         <hbox id="quick-filter-bar-collapsible-buttons">
           <toolbarseparator id="qfb-separator"/>
           <toolbarbutton id="qfb-unread" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          crop="none" minwidth="16"
                          label="&quickFilterBar.unread.label;"
                          tooltiptext="&quickFilterBar.unread.tooltip;"
                          />
           <toolbarbutton id="qfb-starred" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          crop="none" minwidth="16"
                          label="&quickFilterBar.starred.label;"
                          tooltiptext="&quickFilterBar.starred.tooltip;"
                          />
           <toolbarbutton id="qfb-inaddrbook" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          crop="none" minwidth="16"
                          label="&quickFilterBar.inaddrbook.label;"
                          tooltiptext="&quickFilterBar.inaddrbook.tooltip;"
                          />
           <toolbarbutton id="qfb-tags" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          crop="none" minwidth="16"
                          label="&quickFilterBar.tags.label;"
                          tooltiptext="&quickFilterBar.tags.tooltip;"
                          />
           <toolbarbutton id="qfb-attachment" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          crop="none" minwidth="16"
                          label="&quickFilterBar.attachment.label;"
                          tooltiptext="&quickFilterBar.attachment.tooltip;"/>
@@ -89,12 +95,16 @@
           <label id="qfb-qs-label"
                  value="&quickFilterBar.textFilter.explanation.label;"/>
           <toolbarbutton id="qfb-qs-sender" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          label="&quickFilterBar.textFilter.sender.label;" />
           <toolbarbutton id="qfb-qs-recipients" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          label="&quickFilterBar.textFilter.recipients.label;" />
           <toolbarbutton id="qfb-qs-subject" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          label="&quickFilterBar.textFilter.subject.label;" />
           <toolbarbutton id="qfb-qs-body" type="checkbox"
+                         class="toolbarbutton-1" orient="horizontal"
                          label="&quickFilterBar.textFilter.body.label;" />
         </hbox>
       </hbox>
