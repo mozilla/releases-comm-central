@@ -22,7 +22,7 @@
 
 <!-- LOCALIZATION NOTE (community.exp.*) This paragraph is shown in "experimental" builds, i.e. Nightly builds, instead of the other "community.*" strings below. -->
 <!ENTITY community.exp.start        "">
-<!-- LOCALIZATION NOTE (community.exp.mozillaLink): This is a link title that links to http://www.mozilla.org/. -->
+<!-- LOCALIZATION NOTE (community.exp.mozillaLink): This is a link title that links to https://www.mozilla.org/. -->
 <!ENTITY community.exp.mozillaLink  "&vendorShortName;">
 <!ENTITY community.exp.middle       " is a ">
 <!-- LOCALIZATION NOTE (community.exp.creditslink): This is a link title that links to about:credits. -->
@@ -30,7 +30,7 @@
 <!ENTITY community.exp.end          " working together to keep the Web open, public and accessible to all.">
 
 <!ENTITY community.start2           "&brandShortName; is designed by ">
-<!-- LOCALIZATION NOTE (community.mozillaLink): This is a link title that links to http://www.mozilla.org/. -->
+<!-- LOCALIZATION NOTE (community.mozillaLink): This is a link title that links to https://www.mozilla.org/. -->
 <!ENTITY community.mozillaLink      "&vendorShortName;">
 <!ENTITY community.middle2          ", a ">
 <!-- LOCALIZATION NOTE (community.creditsLink): This is a link title that links to about:credits. -->
@@ -41,7 +41,7 @@
 <!-- LOCALIZATION NOTE (helpus.donateLink): This is a link title that links to the thunderbird donation page -->
 <!ENTITY helpus.donateLink          "Make a donation">
 <!ENTITY helpus.middle              " or ">
-<!-- LOCALIZATION NOTE (helpus.getInvolvedLink): This is a link title that links to http://www.mozilla.org/contribute/. -->
+<!-- LOCALIZATION NOTE (helpus.getInvolvedLink): This is a link title that links to https://www.mozilla.org/contribute/. -->
 <!ENTITY helpus.getInvolvedLink     "get involved!">
 <!ENTITY helpus.end                 "">
 
@@ -68,7 +68,7 @@
 <!-- LOCALIZATION NOTE (update.failed.start,update.failed.linkText,update.failed.end):
      update.failed.start, update.failed.linkText, and update.failed.end all go into
      one line with linkText being wrapped in an anchor that links to a site to download
-     the latest version of Firefox (e.g. http://www.firefox.com). As this is all in
+     the latest version of Firefox (e.g. https://www.firefox.com). As this is all in
      one line, try to make the localized text short (see bug 596813 for screenshots). -->
 <!ENTITY update.failed.start        "Update failed. ">
 <!ENTITY update.failed.linkText     "Download the latest version">
@@ -76,7 +76,7 @@
 
 <!-- LOCALIZATION NOTE (update.manual.start,update.manual.end): update.manual.start and update.manual.end
      all go into one line and have an anchor in between with text that is the same as the link to a site
-     to download the latest version of Firefox (e.g. http://www.firefox.com). As this is all in one line,
+     to download the latest version of Firefox (e.g. https://www.firefox.com). As this is all in one line,
      try to make the localized text short (see bug 596813 for screenshots). -->
 <!ENTITY update.manual.start        "Download the ">
 <!ENTITY update.manual.linkText     "latest version">
