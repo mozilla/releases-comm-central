@@ -335,8 +335,7 @@ typeAheadFind.prototype = {
       this.mSelection = editable.editor.selection;
     else
       this.mSelection = commandDispatcher.focusedWindow.getSelection();
-    this.mSelection.QueryInterface(Ci.nsISelectionPrivate)
-                   .addSelectionListener(this);
+    this.mSelection.addSelectionListener(this);
     return false;
   },
   startFind: function(aWindow, aLinks) {

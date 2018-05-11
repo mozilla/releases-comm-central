@@ -49,7 +49,7 @@ function EditorTestSelection()
 
   dump("Selection contains:\n");
   // 3rd param = column to wrap
-  dump(selection.QueryInterface(Ci.nsISelectionPrivate)
+  dump(selection
        .toStringWithFormat("text/plain",
                            kOutputFormatted | kOutputSelectionOnly,
                            0) + "\n");
