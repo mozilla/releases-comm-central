@@ -4,7 +4,7 @@
 }
 
 #leftBox {
-  background-image: url("chrome://branding/content/about-logo.png");
+  background-image: url("chrome://branding/content/about-logo.svg");
   background-repeat: no-repeat;
   /* min-width and min-height create room for the logo */
   min-width: 210px;
