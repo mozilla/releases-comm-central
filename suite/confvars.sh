@@ -9,8 +9,8 @@ MOZ_APP_BASENAME=SeaMonkey
 MOZ_APP_VENDOR=Mozilla
 MOZ_APP_NAME=seamonkey
 MOZ_APP_DISPLAYNAME=SeaMonkey
-MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/suite/branding/nightly
-MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/suite/branding/nightly
+MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/suite/branding/seamonkey
+MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/suite/branding/seamonkey
 MOZ_UPDATER=1
 # This should usually be the same as the value MAR_CHANNEL_ID.
 # If more than one ID is needed, then you should use a comma separated list
