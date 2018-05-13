@@ -268,8 +268,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/media/stal
 chrome/toolkit/skin/classic/global/media/stalled.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/sync/sync-bg.png
 chrome/classic/skin/classic/communicator/sync/sync-bg.png
-chrome/icons/default/html-file.ico
-chrome/icons/default/misc-file.ico
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/sync/sync-32-throbber.png
 chrome/classic/skin/classic/communicator/sync/sync-32-throbber.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/brand/throbber16-anim.png

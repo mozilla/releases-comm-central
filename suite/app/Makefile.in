@@ -5,8 +5,8 @@
 AB_CD = $(MOZ_UI_LOCALE) 
 
 DEFINES += \
-	-DSEAMONKEY_ICO=\"$(DIST)/branding/seamonkey.ico\" \
-	-DHTML_FILE_ICO=\"$(DIST)/branding/html-file.ico\" \
+	-DSEAMONKEY_ICO=\"$(DIST)/bin/chrome/icons/default/main-window.ico\" \
+	-DHTML_FILE_ICO=\"$(DIST)/bin/chrome/icons/default/html-file.ico\" \
 	$(NULL)
 
 # Build a binary bootstrapping with XRE_main

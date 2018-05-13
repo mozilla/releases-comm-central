@@ -157,7 +157,7 @@ OpenKeyForReading(HKEY aKeyRoot, const wchar_t* aKeyName, HKEY* aKey)
 //   That aliases to this class:
 //   HKCU\SOFTWARE\Classes\SeaMonkeyEML\ (default)        REG_SZ    SeaMonkey (Mail) Document
 //                                      FriendlyTypeName  REG_SZ    SeaMonkey (Mail) Document
-//     DefaultIcon                      (default)         REG_SZ    <appfolder>\chrome\icons\default\misc-file.ico
+//     DefaultIcon                      (default)         REG_SZ    <appfolder>\chrome\icons\default\html-file.ico
 //     shell\open\command               (default)         REG_SZ    <apppath> "%1"
 //
 // - Windows Vista Protocol Handler

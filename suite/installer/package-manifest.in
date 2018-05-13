@@ -389,6 +389,7 @@
 @RESPATH@/chrome/icons/default/default.png
 @RESPATH@/chrome/icons/default/default16.png
 @RESPATH@/chrome/icons/default/default48.png
+@RESPATH@/chrome/icons/default/default128.png
 @RESPATH@/chrome/icons/default/downloadManager.png
 @RESPATH@/chrome/icons/default/downloadManager16.png
 @RESPATH@/chrome/icons/default/downloadManager48.png
@@ -413,7 +414,6 @@
 @RESPATH@/chrome/icons/default/places.png
 @RESPATH@/chrome/icons/default/places16.png
 @RESPATH@/chrome/icons/default/places48.png
-@RESPATH@/chrome/icons/default/seamonkey.png
 #ifdef MOZ_UPDATER
 @RESPATH@/icons/updater.png
 #endif
@@ -430,7 +430,6 @@
 @RESPATH@/chrome/icons/default/jpeg-file.ico
 @RESPATH@/chrome/icons/default/JSConsoleWindow.ico
 @RESPATH@/chrome/icons/default/main-window.ico
-@RESPATH@/chrome/icons/default/misc-file.ico
 @RESPATH@/chrome/icons/default/places.ico
 @RESPATH@/chrome/icons/default/script-file.ico
 @RESPATH@/chrome/icons/default/xml-file.ico

@@ -40,7 +40,6 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk3'):
         desktop_icons += [
             'gif-file',
             'html-file',
-            'misc-file',
             'image-file',
             'jpeg-file',
             'script-file',
@@ -53,7 +52,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk3'):
 
     if icon_dir == 'gtk':
         FINAL_TARGET_FILES.chrome.icons.default += [
-            'icons/gtk/seamonkey.png'
+            'icons/gtk/default128.png'
         ]
 
         desktop_icons += [

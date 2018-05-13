@@ -354,7 +354,7 @@
 
   ; An empty string is used for the 5th param because SeaMonkeyEML is not a
   ; protocol handler
-  ${AddHandlerValues} "$0\SeaMonkeyEML"  "$1" "$INSTDIR\chrome\icons\default\misc-file.ico,0" "${AppRegNameMail} Document" "" ""
+  ${AddHandlerValues} "$0\SeaMonkeyEML"  "$1" "$INSTDIR\chrome\icons\default\html-file.ico,0" "${AppRegNameMail} Document" "" ""
 
   ${AddHandlerValues} "$0\SeaMonkeyCOMPOSE" "$2" "$8,0" "${AppRegNameMail} URL" "delete" ""
 
@@ -719,7 +719,7 @@
   ${IsHandlerForInstallDir} "SeaMonkeyEML" $R9
   ${If} "$R9" == "true"
     ${AddHandlerValues} "SOFTWARE\Classes\SeaMonkeyEML" "$2" \
-                        "$INSTDIR\chrome\icons\default\misc-file.ico,0" \
+                        "$INSTDIR\chrome\icons\default\html-file.ico,0" \
                         "${AppRegNameMail} Document" "" ""
   ${EndIf}
 
@@ -873,7 +873,7 @@
   ${EndUnless}
 
   StrCpy $1 "$\"$8$\" $\"%1$\""
-  ${AddHandlerValues} "$0\SeaMonkeyEML" "$1" "$INSTDIR\chrome\icons\default\misc-file.ico,0" "${AppRegNameMail} Document" "" ""
+  ${AddHandlerValues} "$0\SeaMonkeyEML" "$1" "$INSTDIR\chrome\icons\default\html-file.ico,0" "${AppRegNameMail} Document" "" ""
 
   StrCpy $1 "$\"$8$\" -osint -mail $\"%1$\""
   ${AddHandlerValues} "$0\SeaMonkeyNEWS" "$1" "$8,0" "${AppRegNameNews} URL" "delete" ""
