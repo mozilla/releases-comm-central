@@ -1,0 +1,17 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#filter substitution
+
+comm.jar:
+% content branding %content/branding/ contentaccessible=yes
+  content/branding/about.png                              (about.png)
+  content/branding/icon16.png                             (../default16.png) 
+  content/branding/icon32.png                             (../default.png)
+  content/branding/icon48.png                             (../default48.png)
+  content/branding/icon64.png                             (../default64.png)
+  content/branding/icon128.png                            (../default128.png)
+  content/branding/aboutRights.js                         (aboutRights.js)
+  content/branding/aboutRights.xhtml                      (aboutRights.xhtml)
+  content/branding/messenger-start-bg.png                 (messenger-start-bg.png)
+  content/branding/messenger-start-hdr.png                (messenger-start-hdr.png)

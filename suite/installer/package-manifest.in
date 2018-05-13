@@ -389,6 +389,7 @@
 @RESPATH@/chrome/icons/default/default.png
 @RESPATH@/chrome/icons/default/default16.png
 @RESPATH@/chrome/icons/default/default48.png
+@RESPATH@/chrome/icons/default/default64.png
 @RESPATH@/chrome/icons/default/default128.png
 @RESPATH@/chrome/icons/default/downloadManager.png
 @RESPATH@/chrome/icons/default/downloadManager16.png

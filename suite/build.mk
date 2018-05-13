@@ -3,9 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ifndef COMM_BUILD
-installer:
-	@$(MAKE) -C $(commtopobjdir)/suite/installer installer
-
 package:
 	@$(MAKE) -C $(commtopobjdir)/suite/installer
 
@@ -26,7 +23,7 @@ source-upload::
 
 # make -j1 because dependencies in l10n build targets don't work
 # with parallel builds
-merge-% installers-% langpack-% chrome-%:
+merge-% installers-% langpack-% chrome-% clobber-%:
 	$(MAKE) -j1 -C $(commtopobjdir)/suite/locales $@
 
 # mochitests need to be run from the Mozilla build system

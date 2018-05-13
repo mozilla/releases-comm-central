@@ -2,11 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-AB_CD = $(MOZ_UI_LOCALE) 
+AB_CD = $(MOZ_UI_LOCALE)
 
+# For splash.rc
 DEFINES += \
-	-DSEAMONKEY_ICO=\"$(DIST)/bin/chrome/icons/default/main-window.ico\" \
-	-DHTML_FILE_ICO=\"$(DIST)/bin/chrome/icons/default/html-file.ico\" \
+	-DSEAMONKEY_ICO='"$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/icons/windows/main-window.ico"' \
+	-DHTML_FILE_ICO='"$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/icons/windows/html-file.ico"' \
 	$(NULL)
 
 # Build a binary bootstrapping with XRE_main
@@ -145,9 +146,10 @@ tools:: $(PROGRAM)
 	rm -f '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/$(APPFILES)/mangle' '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/$(APPFILES)/shlibsign'
 	rm -f '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/$(PROGRAM)'
 	rsync -aL $(PROGRAM) '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS'
+	cp -RL $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/seamonkey.icns '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/seamonkey.icns'
+	cp -RL $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/document.icns '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/document.icns'
 	-cp -L $(DIST)/bin/mangle $(DIST)/bin/shlibsign '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/$(APPFILES)'
-	cp -RL $(DIST)/branding/icons/*.icns '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/'
 	printf APPLMOZZ > '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/PkgInfo'
-#       remove CVS dirs from packaged app
+#	remove CVS dirs from packaged app
 	find '$(DIST)/$(MOZ_MACBUNDLE_NAME)' -type d -name "CVS" -prune -exec rm -rf {} \;
 endif

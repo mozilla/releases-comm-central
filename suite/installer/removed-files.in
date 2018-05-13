@@ -670,7 +670,6 @@ Throbber-small.gif
   @DIR_MACOS@defaults/pref/services-aitc.js
   @DIR_MACOS@defaults/pref/services-notifications.js
   @DIR_MACOS@defaults/pref/smime.js
-  @DIR_MACOS@defaults/pref/suite-l10n.js
   @DIR_MACOS@defaults/autoconfig/
   @DIR_MACOS@defaults/autoconfig/platform.js
   @DIR_MACOS@defaults/autoconfig/prefcalls.js
