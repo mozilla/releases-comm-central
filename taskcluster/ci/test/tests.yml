@@ -52,6 +52,7 @@ xpcshell:
     allow-software-gl-layers: false
     mozharness:
         script: desktop_unittest.py
+        no-read-buildbot-config: true
         config:
             by-test-platform:
                 windows.*:
@@ -90,6 +91,7 @@ mozmill:
     allow-software-gl-layers: false
     mozharness:
         script: desktop_unittest.py
+        no-read-buildbot-config: true
         config:
             by-test-platform:
                 windows.*:
