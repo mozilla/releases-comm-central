@@ -156,7 +156,7 @@ nsMsgSendLater::Observe(nsISupports *aSubject, const char* aTopic,
 
     mTimerSet = false;
   }
-  else if (!strcmp(aTopic, "xpcom-shutdown"))
+  else if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID))
   {
     // We're shutting down. Unsubscribe from the unsentFolder notifications
     // they aren't any use to us now, we don't want to start sending more

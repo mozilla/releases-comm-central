@@ -21,6 +21,7 @@
 #include "nsIMsgFilterPlugin.h"
 #include "nsDataHashtable.h"
 #include "nsIMsgPluggableStore.h"
+#include "nsIObserver.h"
 
 class nsIMsgFolderCache;
 class nsIMsgProtocolInfo;
@@ -36,13 +37,16 @@ class nsIMsgProtocolInfo;
 #define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
 
 class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
-                                        public nsSupportsWeakReference
+                                        public nsSupportsWeakReference,
+                                        public nsIObserver
 {
  public:
   nsMsgIncomingServer();
+  nsresult Init();
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGINCOMINGSERVER
+  NS_DECL_NSIOBSERVER
 
 protected:
   virtual ~nsMsgIncomingServer();
