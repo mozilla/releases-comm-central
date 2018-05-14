@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgCompose.h"
-#include "nsIDOMDocument.h"
+#include "nsIDocument.h"
 #include "nsIDOMNode.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
@@ -531,7 +531,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
   NS_ENSURE_SUCCESS_VOID(rv);
 
   // We need the document
-  nsCOMPtr<nsIDOMDocument> doc;
+  nsCOMPtr<nsIDocument> doc;
   rv = m_editor->GetDocument(getter_AddRefs(doc));
   NS_ENSURE_SUCCESS_VOID(rv);
 
@@ -546,9 +546,8 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
     if (delimiter == kNotFound)
       delimiter = end;
 
-    nsCOMPtr<nsIDocument> doc2 = do_QueryInterface(doc);
     RefPtr<nsTextNode> textNode =
-      doc2->CreateTextNode(Substring(aText, start, delimiter - start));
+      doc->CreateTextNode(Substring(aText, start, delimiter - start));
 
     IgnoredErrorResult rv2;
     divElem->AppendChild(*textNode, rv2);
@@ -5559,7 +5558,7 @@ nsMsgCompose::BodyConvertible(int32_t *_retval)
     NS_ENSURE_ARG_POINTER(_retval);
     NS_ENSURE_STATE(m_editor);
 
-    nsCOMPtr<nsIDOMDocument> rootDocument;
+    nsCOMPtr<nsIDocument> rootDocument;
     nsresult rv = m_editor->GetDocument(getter_AddRefs(rootDocument));
     if (NS_FAILED(rv))
       return rv;
@@ -5567,8 +5566,7 @@ nsMsgCompose::BodyConvertible(int32_t *_retval)
       return NS_ERROR_UNEXPECTED;
 
     // get the top level element, which contains <html>
-    nsCOMPtr<nsIDocument> rootDocument2 = do_QueryInterface(rootDocument);
-    nsCOMPtr<Element> rootElement = rootDocument2->GetDocumentElement();
+    nsCOMPtr<Element> rootElement = rootDocument->GetDocumentElement();
     if (!rootElement)
       return NS_ERROR_UNEXPECTED;
 
