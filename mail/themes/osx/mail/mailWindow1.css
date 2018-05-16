@@ -83,10 +83,12 @@ treechildren::-moz-tree-twisty {
 @media (-moz-mac-yosemite-theme) {
   #folderTree treechildren::-moz-tree-cell-text {
     font-family: 'Helvetica Neue';
+    font-size: 9.5pt;
+    font-weight: 300;
   }
 
   #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
-    color: black;
+    color: #282828;
   }
 }
 

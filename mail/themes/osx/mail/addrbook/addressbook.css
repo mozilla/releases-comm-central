@@ -68,8 +68,14 @@
 }
 
 @media (-moz-mac-yosemite-theme) {
+  #dirTree treechildren::-moz-tree-cell-text {
+    font-family: 'Helvetica Neue';
+    font-size: 9.5pt;
+    font-weight: 300;
+  }
+  
   #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
-    color: black;
+    color: #282828;
   }
 }
 
