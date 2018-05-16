@@ -139,6 +139,8 @@ pref("extensions.minCompatibleAppVersion", "5.0");
 
 pref("extensions.update.autoUpdateDefault", true);
 
+pref("extensions.systemAddon.update.enabled", false);  // See bug 1462160.
+
 pref("extensions.hotfix.id", "thunderbird-hotfix@mozilla.org");
 pref("extensions.hotfix.cert.checkAttributes", true);
 pref("extensions.hotfix.certs.1.sha1Fingerprint", "91:53:98:0C:C1:86:DF:47:8F:35:22:9E:11:C9:A7:31:04:49:A1:AA");
