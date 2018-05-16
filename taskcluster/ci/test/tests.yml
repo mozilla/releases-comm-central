@@ -25,6 +25,7 @@ job-defaults:
             - comm/mozharness
             - comm/other-licenses
             - comm/python
+            - comm/rdf
             - comm/taskcluster
             - comm/testing
             - comm/.taskcluster.yml
