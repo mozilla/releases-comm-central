@@ -374,7 +374,11 @@ LocalStoreImpl::LoadData()
     // directory. Bomb if we can't find it.
 
     nsCOMPtr<nsIFile> aFile;
-    rv = NS_GetSpecialDirectory(NS_APP_LOCALSTORE_50_FILE, getter_AddRefs(aFile));
+    // NS_APP_LOCALSTORE_50_FILE was removed in bug 1430023, see bug 1462004.
+    // rv = NS_GetSpecialDirectory(NS_APP_LOCALSTORE_50_FILE, getter_AddRefs(aFile));
+    // It's questionable whether this function works at all now. This needs
+    // investigation as to whether it can be removed. Let's hack the string for now.
+    rv = NS_GetSpecialDirectory("LclSt", getter_AddRefs(aFile));
     if (NS_FAILED(rv)) return rv;
 
     bool fileExistsFlag = false;
