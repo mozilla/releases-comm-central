@@ -7,14 +7,33 @@
    If you find a bug here, check that class, too.
 */
 
+/* The MimeInlineTextHTMLSanitized class cleans up HTML
+
+   This removes offending HTML features that have no business in mail.
+   It is a low-level stop gap for many classes of attacks,
+   and intended for security conscious users.
+   Paranoia is a feature here, and has served very well in practice.
+
+   It has already prevented countless serious exploits.
+
+   It pushes the HTML that we get from the sender of the message
+   through a sanitizer (nsTreeSanitizer), which lets only allowed tags through.
+   With the appropriate configuration, this protects from most of the
+   security and visual-formatting problems that otherwise usually come with HTML
+   (and which partly gave HTML in email the bad reputation that it has).
+
+   However, due to the parsing and serializing (and later parsing again)
+   required, there is an inherent, significant performance hit, when doing the
+   santinizing here at the MIME / HTML source level. But users of this class
+   will most likely find it worth the cost.
+ */
+
 #include "mimethsa.h"
 #include "prmem.h"
 #include "prlog.h"
 #include "msgCore.h"
 #include "mimemoz2.h"
 #include "nsString.h"
-
-//#define DEBUG_BenB
 
 #define MIME_SUPERCLASS mimeInlineTextHTMLClass
 MimeDefClass(MimeInlineTextHTMLSanitized, MimeInlineTextHTMLSanitizedClass,
@@ -42,33 +61,16 @@ MimeInlineTextHTMLSanitizedClassInitialize(MimeInlineTextHTMLSanitizedClass *cla
 static int
 MimeInlineTextHTMLSanitized_parse_begin (MimeObject *obj)
 {
-#ifdef DEBUG_BenB
-printf("parse_begin\n");
-#endif
-  MimeInlineTextHTMLSanitized *textHTMLSan =
-                                       (MimeInlineTextHTMLSanitized *) obj;
-  textHTMLSan->complete_buffer = new nsString();
-#ifdef DEBUG_BenB
-printf(" B1\n");
-printf(" cbp: %d\n", textHTMLSan->complete_buffer);
-#endif
+  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *) obj;
+  me->complete_buffer = new nsString();
   int status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
   if (status < 0)
     return status;
-#ifdef DEBUG_BenB
-printf(" B2\n");
-#endif
 
-  // charset
-  /* honestly, I don't know how that charset stuff works in libmime.
-     The part in mimethtm doesn't make much sense to me either.
-     I'll just dump the charset we get in the mime headers into a
-     HTML meta http-equiv.
-     XXX Not sure, if that is correct, though. */
-  char *content_type =
-    (obj->headers
-     ? MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false)
-     : 0);
+  // Dump the charset we get from the mime headers into a HTML <meta http-equiv>.
+  char *content_type = obj->headers
+    ? MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false)
+    : 0;
   if (content_type)
   {
     char* charset = MimeHeaders_get_parameter(content_type,
@@ -90,154 +92,72 @@ printf(" B2\n");
         return status;
     }
   }
-#ifdef DEBUG_BenB
-printf("/parse_begin\n");
-#endif
   return 0;
 }
 
 static int
 MimeInlineTextHTMLSanitized_parse_eof (MimeObject *obj, bool abort_p)
 {
-#ifdef DEBUG_BenB
-printf("parse_eof\n");
-#endif
-
   if (obj->closed_p)
     return 0;
   int status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0)
     return status;
-  MimeInlineTextHTMLSanitized *textHTMLSan =
-                                       (MimeInlineTextHTMLSanitized *) obj;
+  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *) obj;
 
-#ifdef DEBUG_BenB
-printf(" cbp: %d\n", textHTMLSan->complete_buffer);
-printf(" closed_p: %s\n", obj->closed_p?"true":"false");
-#endif
-  if (!textHTMLSan || !textHTMLSan->complete_buffer)
-  {
-#ifdef DEBUG_BenB
-printf("/parse_eof (early exit)\n");
-#endif
+  // We have to cache all lines and parse the whole document at once.
+  // There's a useful sounding function parseFromStream(), but it only allows XML
+  // mimetypes, not HTML. Methinks that's because the HTML soup parser
+  // needs the entire doc to make sense of the glibberish that people write.
+  if (!me || !me->complete_buffer)
     return 0;
-  }
-#ifdef DEBUG_BenB
-printf(" E1\n");
-printf("buffer: -%s-\n", NS_LossyConvertUTF16toASCII(*textHTMLSan->complete_buffer).get());
-#endif
 
-#ifdef DEBUG_BenB
-printf(" E2\n");
-#endif
-  nsString& cb = *(textHTMLSan->complete_buffer);
-#ifdef DEBUG_BenB
-printf(" E3\n");
-#endif
+  nsString& cb = *(me->complete_buffer);
   nsString sanitized;
-#ifdef DEBUG_BenB
-printf(" E4\n");
-#endif
-  HTMLSanitize(cb, sanitized);
-#ifdef DEBUG_BenB
-printf(" E5\n");
-#endif
 
+  // Sanitize.
+  HTMLSanitize(cb, sanitized);
+
+  // Write it out.
   NS_ConvertUTF16toUTF8 resultCStr(sanitized);
-#ifdef DEBUG_BenB
-printf(" E6\n");
-#endif
-  // TODO parse each line independently
-  /* That function doesn't work correctly, if the first META tag is no
-     charset spec. (It assumes that it's on its own line.)
-     Most likely not fatally wrong, however. */
   status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_line(
                              resultCStr.BeginWriting(),
                              resultCStr.Length(),
                              obj);
-#ifdef DEBUG_BenB
-printf(" E7\n");
-#endif
-
-#ifdef DEBUG_BenB
-printf(" E8\n");
-#endif
-
   cb.Truncate();
-
-#ifdef DEBUG_BenB
-printf("/parse_eof\n");
-#endif
-
   return status;
 }
 
 void
 MimeInlineTextHTMLSanitized_finalize (MimeObject *obj)
 {
-#ifdef DEBUG_BenB
-printf("finalize\n");
-#endif
-  MimeInlineTextHTMLSanitized *textHTMLSan =
+  MimeInlineTextHTMLSanitized *me =
                                         (MimeInlineTextHTMLSanitized *) obj;
-#ifdef DEBUG_BenB
-printf(" cbp: %d\n", textHTMLSan->complete_buffer);
-printf(" F1\n");
-#endif
 
-  if (textHTMLSan && textHTMLSan->complete_buffer)
+  if (me && me->complete_buffer)
   {
     obj->clazz->parse_eof(obj, false);
-#ifdef DEBUG_BenB
-printf(" F2\n");
-#endif
-    delete textHTMLSan->complete_buffer;
-#ifdef DEBUG_BenB
-printf(" cbp: %d\n", textHTMLSan->complete_buffer);
-printf(" F3\n");
-#endif
-    textHTMLSan->complete_buffer = NULL;
+    delete me->complete_buffer;
+    me->complete_buffer = NULL;
   }
 
-#ifdef DEBUG_BenB
-printf(" cbp: %d\n", textHTMLSan->complete_buffer);
-printf(" F4\n");
-#endif
   ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize (obj);
-#ifdef DEBUG_BenB
-printf("/finalize\n");
-#endif
 }
 
 static int
 MimeInlineTextHTMLSanitized_parse_line (const char *line, int32_t length,
                                           MimeObject *obj)
 {
-#ifdef DEBUG_BenB
-printf("p");
-#endif
-  MimeInlineTextHTMLSanitized *textHTMLSan =
-                                       (MimeInlineTextHTMLSanitized *) obj;
-#ifdef DEBUG_BenB
-printf("%d", textHTMLSan->complete_buffer);
-#endif
+  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *) obj;
 
-  if (!textHTMLSan || !(textHTMLSan->complete_buffer))
-  {
-#ifdef DEBUG
-printf("Can't output: %s\n", line);
-#endif
+  if (!me || !(me->complete_buffer))
     return -1;
-  }
 
   nsCString linestr(line, length);
   NS_ConvertUTF8toUTF16 line_ucs2(linestr.get());
   if (length && line_ucs2.IsEmpty())
     CopyASCIItoUTF16(linestr, line_ucs2);
-  (textHTMLSan->complete_buffer)->Append(line_ucs2);
+  (me->complete_buffer)->Append(line_ucs2);
 
-#ifdef DEBUG_BenB
-printf("l ");
-#endif
   return 0;
 }

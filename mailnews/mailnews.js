@@ -613,7 +613,6 @@ pref("mailnews.display.date_senders_timezone", false);
 pref("mailnews.display.prefer_plaintext", false);  // Ignore HTML parts in multipart/alternative
 pref("mailnews.display.html_as", 0);  // How to display HTML/MIME parts. 0 = Render the sender's HTML; 1 = HTML->TXT->HTML; 2 = Show HTML source; 3 = Sanitize HTML; 4 = Show all body parts
 pref("mailnews.display.show_all_body_parts_menu", false); // Whether the View > Message body as > All body parts menu item is available
-pref("mailnews.display.html_sanitizer.allowed_tags.migrated", false); // whether legacy mailnews.display.html_sanitizer.allowed_tags pref has been migrated to values of the two prefs below
 pref("mailnews.display.html_sanitizer.drop_non_css_presentation", true); // whether to drop <font>, <center>, align='...', etc.
 pref("mailnews.display.html_sanitizer.drop_media", false); // whether to drop <img>, <video> and <audio>
 pref("mailnews.display.disallow_mime_handlers", 0);  /* Let only a few classes process incoming data. This protects from bugs (e.g. buffer overflows) and from security loopholes (e.g. allowing unchecked HTML in some obscure classes, although the user has html_as > 0).
