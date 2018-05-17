@@ -5,6 +5,10 @@
 # PLEASE DO NOT ADD MORE EXCEPTIONS TO THIS LIST
 #
 
+# browser (see bug 1451050)
+defaults/settings/pinning/pins.json
+defaults/settings/main/tippytop.json
+
 # mail
 chrome/chat/content/chat/conv.html
 chrome/classic/skin/classic/messenger/icons/accounts.svg

@@ -4,6 +4,11 @@
 #
 # PLEASE DO NOT ADD MORE EXCEPTIONS TO THIS LIST UNLESS NECESSARY FOR THEMES OR EXTENSIONS
 #
+
+# browser (see bug 1451050)
+defaults/settings/pinning/pins.json
+defaults/settings/main/tippytop.json
+
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/console/error-dash.gif
 chrome/classic/skin/classic/communicator/console/console-error-dash.gif
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/console/error-caret.gif
