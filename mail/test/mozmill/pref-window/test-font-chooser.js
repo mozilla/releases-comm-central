@@ -105,7 +105,7 @@ function _verify_fonts_displayed(aSerif, aSansSerif, aMonospace) {
  * font.name.<type>.<language> is displayed in the font chooser (if it is
  * present on the cocomputer).
  */
-function test_font_name_displayed() {
+function disabled_test_font_name_displayed() {  // See bug 1460721.
   Services.prefs.setCharPref("font.language.group", kLanguage);
 
   // Pick the first font for each font type and set it.
@@ -137,7 +137,7 @@ const kFakeFonts = {
  * present on the computer, we fall back to displaying what's in
  * font.name-list.<type>.<language>.
  */
-function test_font_name_not_present() {
+function disabled_test_font_name_not_present() {  // See bug 1460721.
   Services.prefs.setCharPref("font.language.group", kLanguage);
 
   // The fonts we're expecting to see selected in the font chooser for
