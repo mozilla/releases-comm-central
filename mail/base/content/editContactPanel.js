@@ -107,10 +107,6 @@ var editContactInlineUI = {
     document.getElementById("editContactPanelEditDetailsButton").accessKey =
       bundle.getString(type + "DetailsAccessKey");
 
-    // We don't need a cancel button for a read only card.
-    document.getElementById("editContactPanelCancelButton").hidden =
-      !this._writeable;
-
     // We don't need a delete button for a read only card.
     document.getElementById("editContactPanelDeleteContactButton").hidden =
       !this._writeable;

@@ -13,8 +13,13 @@
   margin-inline-start: 0px;
 }
 
-#editContactPanel > #editContactContent {
-  margin-top: 6px;
+#editContactPanel .panel-arrowcontent {
+  padding: 0;
+}
+
+#editContactHeader {
+  padding: 10px;
+  border-bottom: 1px solid var(--panel-separator-color)
 }
 
 #editContactPanelIcon {
@@ -34,34 +39,12 @@
   margin-inline-end: 12px;
 }
 
+#editContactContent {
+  padding: 20px 10px;
+}
+
 #editContactEmail {
   min-width: 20em;
-}
-
-/**** HUD style buttons ****/
-
-#editContactAddressBookList,
-#editContactPanel > hbox > button,
-#editContactPanelBottomButtons > button {
-  -moz-appearance: none;
-  color: #434343;
-  border-radius: 4px;
-  border: 1px solid #b5b5b5;
-  background: linear-gradient(#fff, #f2f2f2);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.8),
-              inset 0 0 1px rgba(255, 255, 255, 0.25),
-              0 1px rgba(255, 255, 255, 0.3);
-  background-clip: padding-box;
-  background-origin: padding-box;
-  padding: 2px 6px;
-  margin: 6px;
-  min-width: 79px;
-  min-height: 22px;
-}
-
-#editContactPanel > hbox > button:hover:active,
-#editContactPanelBottomButtons > button:hover:active {
-  box-shadow: inset 0 1px 4px -3px #000, 0 1px rgba(255, 255, 255, 0.3);
 }
 
 #editContactAddressBookList:focus,
@@ -71,7 +54,7 @@
 }
 
 #editContactAddressBookList[disabled="true"] {
-  color: GrayText !important;
+  opacity: .5;
 }
 
 #editContactAddressBookList > .menulist-dropmarker {
@@ -112,4 +95,67 @@
 #contactMoveDisabledText {
   margin-left: 8px;
   width: 20em;
+}
+
+#editContactPanel button,
+#editContactPanel menulist {
+  -moz-appearance: none;
+  margin-inline-end: 6px;
+  min-height: 22px;
+  background-color: var(--arrowpanel-dimmed);
+  background-image: none;
+  border: 1px solid;
+  border-color: var(--panel-separator-color) !important;
+  box-shadow: none;
+  color: inherit;
+}
+
+#editContactPanel button:hover,
+#editContactPanel menulist:not([disabled="true"]):not([open="true"]):hover {
+  background-image: linear-gradient(var(--arrowpanel-dimmed),
+                                    var(--arrowpanel-dimmed));
+  background-color: var(--arrowpanel-dimmed);
+}
+
+#editContactPanel button:hover:active,
+#editContactPanel menulist[open="true"] {
+  background-image: linear-gradient(var(--arrowpanel-dimmed-further),
+                                    var(--arrowpanel-dimmed-further));
+  box-shadow: 0 1px 0 hsla(210,4%,10%,.05) inset;
+}
+
+#editContactPanel .editContactPanelButton {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  min-height: 41px;
+  border-width: 0;
+  border-top-width: 1px;
+}
+
+#editContactPanel .editContactPanelButton[default] {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#editContactPanel .editContactPanelButton[default] {
+  background-color: #0996f8;
+  color: white;
+}
+
+#editContactPanel .editContactPanelButton[default]:hover {
+  background-image: linear-gradient(#0675d3, #0675d3);
+}
+
+#editContactPanel .editContactPanelButton[default]:hover:active {
+  background-image: linear-gradient(#0568ba, #0568ba);
+}
+
+#editContactPanel .editContactPanelButton > .button-box {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+#editContactPanelBottomButtons > #editContactPanelDeleteContactButton {
+  border-inline-start-width: 1px;
 }

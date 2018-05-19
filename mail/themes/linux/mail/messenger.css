@@ -37,6 +37,7 @@
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
 
   --lwt-header-image: none;
+  --panel-separator-color: ThreeDShadow;
   --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
   --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
   --urlbar-popup-url-color: -moz-nativehyperlinktext;
@@ -48,9 +49,12 @@
   --toolbar-bgimage: none;
 
   --toolbarbutton-icon-fill-opacity: 1;
+
+  --panel-separator-color: hsla(210, 4%, 10%, .14);
 }
 
 :root[lwt-popup-brighttext] {
+  --panel-separator-color: rgba(249, 249, 250, .1);
   --arrowpanel-dimmed: rgba(249, 249, 250, .1);
   --arrowpanel-dimmed-further: rgba(249, 249, 250, .15);
 }
