@@ -53,6 +53,11 @@
   --toolbarbutton-icon-fill-opacity: 1;
 }
 
+:root[lwt-popup-brighttext] {
+  --arrowpanel-dimmed: rgba(249, 249, 250, .1);
+  --arrowpanel-dimmed-further: rgba(249, 249, 250, .15);
+}
+
 toolbar[brighttext] {
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #45a1ff);
 }

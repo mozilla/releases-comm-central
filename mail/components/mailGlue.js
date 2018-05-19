@@ -155,6 +155,9 @@ MailGlue.prototype = {
       iconURL: "resource:///chrome/messenger/content/messenger/light.icon.svg",
       textcolor: "black",
       accentcolor: "white",
+      popup: "#fff",
+      popup_text: "#0c0c0d",
+      popup_border: "#ccc",
       author: vendorShortName,
     });
     LightweightThemeManager.addBuiltInTheme({
@@ -167,6 +170,8 @@ MailGlue.prototype = {
       popup: "#4a4a4f",
       popup_text: "rgb(249, 249, 250)",
       popup_border: "#27272b",
+      toolbar_field_text: "rgb(249, 249, 250)",
+      toolbar_field_border: "rgba(249, 249, 250, 0.2)",
       author: vendorShortName,
     });
   },

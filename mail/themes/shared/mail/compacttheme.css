@@ -38,6 +38,11 @@
   --lwt-toolbar-field-color: var(--chrome-color);
   --urlbar-separator-color: #5F6670;
 
+  /* !important to override LightweightThemeManager.addBuiltInTheme in
+     mailGlue.js */
+  --autocomplete-popup-background: #2A2A2E !important;
+  --autocomplete-popup-highlight-background: #0060DF;
+
   /* composer header fields bottom border */
   --composer-header-border-color: rgb(127, 127, 128);
 }
