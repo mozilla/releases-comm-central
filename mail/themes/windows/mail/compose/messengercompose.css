@@ -628,6 +628,10 @@ toolbar:not(:-moz-lwtheme) {
   background-color: transparent;
 }
 
+#attachments-header-box {
+  min-height: 26px;
+}
+
 #attachmentBucketSize {
   padding-inline-end: 2px;
   color: GrayText;
