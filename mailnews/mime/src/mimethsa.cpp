@@ -39,16 +39,16 @@
 MimeDefClass(MimeInlineTextHTMLSanitized, MimeInlineTextHTMLSanitizedClass,
        mimeInlineTextHTMLSanitizedClass, &MIME_SUPERCLASS);
 
-static int MimeInlineTextHTMLSanitized_parse_line (const char *, int32_t,
-                                                   MimeObject *);
-static int MimeInlineTextHTMLSanitized_parse_begin (MimeObject *obj);
-static int MimeInlineTextHTMLSanitized_parse_eof (MimeObject *, bool);
-static void MimeInlineTextHTMLSanitized_finalize (MimeObject *obj);
+static int MimeInlineTextHTMLSanitized_parse_line(const char *, int32_t,
+                                                  MimeObject *);
+static int MimeInlineTextHTMLSanitized_parse_begin(MimeObject *obj);
+static int MimeInlineTextHTMLSanitized_parse_eof(MimeObject *, bool);
+static void MimeInlineTextHTMLSanitized_finalize(MimeObject *obj);
 
 static int
 MimeInlineTextHTMLSanitizedClassInitialize(MimeInlineTextHTMLSanitizedClass *clazz)
 {
-  MimeObjectClass *oclass = (MimeObjectClass *) clazz;
+  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
   NS_ASSERTION(!oclass->class_initialized, "problem with superclass");
   oclass->parse_line  = MimeInlineTextHTMLSanitized_parse_line;
   oclass->parse_begin = MimeInlineTextHTMLSanitized_parse_begin;
@@ -59,18 +59,17 @@ MimeInlineTextHTMLSanitizedClassInitialize(MimeInlineTextHTMLSanitizedClass *cla
 }
 
 static int
-MimeInlineTextHTMLSanitized_parse_begin (MimeObject *obj)
+MimeInlineTextHTMLSanitized_parse_begin(MimeObject *obj)
 {
-  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *) obj;
+  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *)obj;
   me->complete_buffer = new nsString();
   int status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
   if (status < 0)
     return status;
 
   // Dump the charset we get from the mime headers into a HTML <meta http-equiv>.
-  char *content_type = obj->headers
-    ? MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false)
-    : 0;
+  char *content_type = obj->headers ?
+    MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false) : 0;
   if (content_type)
   {
     char* charset = MimeHeaders_get_parameter(content_type,
@@ -96,14 +95,14 @@ MimeInlineTextHTMLSanitized_parse_begin (MimeObject *obj)
 }
 
 static int
-MimeInlineTextHTMLSanitized_parse_eof (MimeObject *obj, bool abort_p)
+MimeInlineTextHTMLSanitized_parse_eof(MimeObject *obj, bool abort_p)
 {
   if (obj->closed_p)
     return 0;
   int status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0)
     return status;
-  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *) obj;
+  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *)obj;
 
   // We have to cache all lines and parse the whole document at once.
   // There's a useful sounding function parseFromStream(), but it only allows XML
@@ -129,10 +128,9 @@ MimeInlineTextHTMLSanitized_parse_eof (MimeObject *obj, bool abort_p)
 }
 
 void
-MimeInlineTextHTMLSanitized_finalize (MimeObject *obj)
+MimeInlineTextHTMLSanitized_finalize(MimeObject *obj)
 {
-  MimeInlineTextHTMLSanitized *me =
-                                        (MimeInlineTextHTMLSanitized *) obj;
+  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *)obj;
 
   if (me && me->complete_buffer)
   {
@@ -141,14 +139,14 @@ MimeInlineTextHTMLSanitized_finalize (MimeObject *obj)
     me->complete_buffer = NULL;
   }
 
-  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize (obj);
+  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(obj);
 }
 
 static int
-MimeInlineTextHTMLSanitized_parse_line (const char *line, int32_t length,
-                                          MimeObject *obj)
+MimeInlineTextHTMLSanitized_parse_line(const char *line, int32_t length,
+                                       MimeObject *obj)
 {
-  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *) obj;
+  MimeInlineTextHTMLSanitized *me = (MimeInlineTextHTMLSanitized *)obj;
 
   if (!me || !(me->complete_buffer))
     return -1;
