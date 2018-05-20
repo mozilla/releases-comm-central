@@ -118,6 +118,19 @@ toolbar[brighttext] {
   min-width: 24px;
 }
 
+.inline-toolbar {
+  -moz-appearance: none;
+}
+
+.inline-toolbar toolbarpaletteitem toolbarseparator,
+.inline-toolbar toolbarseparator {
+  height: 24px;
+}
+
+.inline-toolbar toolbarspacer {
+  height: 20px;
+}
+
 /* ::::: menubar ::::: */
 
 #menubar-items {

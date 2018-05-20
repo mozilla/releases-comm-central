@@ -287,22 +287,6 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
   min-height: 10px;
 }
 
-.inline-toolbar {
-  -moz-appearance: none;
-  -moz-box-pack: end;
-  min-width: 50px;
-  min-height: 14px;
-}
-
-.inline-toolbar toolbarseparator {
-  height: 20px;
-  margin-top: 2px;
-}
-
-.inline-toolbar toolbarspacer {
-  height: 22px;
-}
-
 #msgHeaderView textbox {
   color: inherit;
 }

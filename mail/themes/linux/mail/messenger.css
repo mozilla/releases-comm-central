@@ -186,6 +186,20 @@ toolbar:not(.inline-toolbar):not(:-moz-lwtheme) {
   color: -moz-menubartext;
 }
 
+.inline-toolbar {
+  -moz-appearance: none;
+  min-height: 0;
+  padding: 0;
+}
+
+.inline-toolbar toolbarseparator {
+  height: 28px;
+}
+
+.inline-toolbar toolbarspacer {
+  height: 23px;
+}
+
 /*
  * Override the menulist icon forbidding in menu.css so that we can show
  * check-marks. radio-marks and folder icons. bug 443516

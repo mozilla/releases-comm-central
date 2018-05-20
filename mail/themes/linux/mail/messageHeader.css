@@ -43,21 +43,6 @@
   padding-inline-end: 2px;
 }
 
-.inline-toolbar {
-  -moz-appearance: none;
-  -moz-box-pack: end;
-  min-height: 0;
-  padding: 0;
-}
-
-.inline-toolbar toolbarseparator {
-  height: 28px;
-}
-
-.inline-toolbar toolbarspacer {
-  height: 23px;
-}
-
 /* ::::: attachment view ::::: */
 
 #attachmentList {

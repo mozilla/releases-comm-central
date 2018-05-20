@@ -108,6 +108,21 @@ toolbar[brighttext] {
   }
 }
 
+.inline-toolbar {
+  -moz-appearance: none;
+  min-width: 50px;
+  min-height: 14px;
+}
+
+.inline-toolbar toolbarseparator {
+  height: 20px;
+  margin-top: 2px;
+}
+
+.inline-toolbar toolbarspacer {
+  height: 22px;
+}
+
 #messengerWindow:not([tabsintitlebar="true"]) >
 #titlebar:not(:-moz-lwtheme),
 #messengerWindow[sizemode="fullscreen"]:not([tabsintitlebar="true"]) >

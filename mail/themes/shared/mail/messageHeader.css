@@ -82,6 +82,10 @@ window[inlinetoolbox] #modefull {
   background: grey;
 }
 
+#header-view-toolbar {
+  -moz-box-pack: end;
+}
+
 /* Only show the dummy smart reply button when customizing. */
 .inline-toolbox[doCustomization] #hdrSmartReplyButton > toolbarbutton,
 toolbarpaletteitem #hdrSmartReplyButton > toolbarbutton {
