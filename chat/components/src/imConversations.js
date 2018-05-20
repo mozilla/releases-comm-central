@@ -656,7 +656,7 @@ ConversationsService.prototype = {
     return null;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.imIConversationsService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.imIConversationsService]),
   classDescription: "Conversations",
   classID: Components.ID("{b2397cd5-c76d-4618-8410-f344c7c6443a}"),
   contractID: "@mozilla.org/chat/conversations-service;1"

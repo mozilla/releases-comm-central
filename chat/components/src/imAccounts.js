@@ -1065,7 +1065,7 @@ AccountsService.prototype = {
       list.split(",").filter(k => k.trim() != aAccountId).join(",");
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.imIAccountsService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.imIAccountsService]),
   classDescription: "Accounts",
   classID: Components.ID("{a94b5427-cd8d-40cf-b47e-b67671953e70}"),
   contractID: "@mozilla.org/chat/accounts-service;1"

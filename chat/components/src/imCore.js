@@ -357,7 +357,7 @@ CoreService.prototype = {
     return proto;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.imICoreService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.imICoreService]),
   classDescription: "Core",
   classID: Components.ID("{073f5953-853c-4a38-bd81-255510c31c2e}"),
   contractID: "@mozilla.org/chat/core-service;1"

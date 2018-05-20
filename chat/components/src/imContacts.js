@@ -180,7 +180,7 @@ TagsService.prototype = {
     return otherContactsTag;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.imITagsService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.imITagsService]),
   classDescription: "Tags",
   classID: Components.ID("{1fa92237-4303-4384-b8ac-4e65b50810a5}"),
   contractID: "@mozilla.org/chat/tags-service;1"
@@ -248,7 +248,7 @@ Tag.prototype = {
   },
   getHelperForLanguage: language => null,
   flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.imITag, Ci.nsIClassInfo])
+  QueryInterface: ChromeUtils.generateQI([Ci.imITag, Ci.nsIClassInfo])
 };
 
 
@@ -381,7 +381,7 @@ var otherContactsTag = {
   },
   getHelperForLanguage: language => null,
   flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.imITag, Ci.nsIObserver, Ci.nsIClassInfo])
+  QueryInterface: ChromeUtils.generateQI([Ci.imITag, Ci.nsIObserver, Ci.nsIClassInfo])
 };
 
 
@@ -915,7 +915,7 @@ Contact.prototype = {
   },
   getHelperForLanguage: language => null,
   flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.imIContact, Ci.nsIClassInfo])
+  QueryInterface: ChromeUtils.generateQI([Ci.imIContact, Ci.nsIClassInfo])
 };
 
 var BuddiesById = { };
@@ -1231,7 +1231,7 @@ Buddy.prototype = {
   },
   getHelperForLanguage: language => null,
   flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.imIBuddy, Ci.nsIClassInfo])
+  QueryInterface: ChromeUtils.generateQI([Ci.imIBuddy, Ci.nsIClassInfo])
 };
 
 
@@ -1527,7 +1527,7 @@ ContactsService.prototype = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.imIContactsService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.imIContactsService]),
   classDescription: "Contacts",
   classID: Components.ID("{8c3725dd-ee26-489d-8135-736015af8c7f}"),
   contractID: "@mozilla.org/chat/contacts-service;1"

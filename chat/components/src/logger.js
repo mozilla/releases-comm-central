@@ -470,7 +470,7 @@ LogConversation.prototype = {
       _messages: this._messages,
       hasMoreElements: function() { return this._index < this._messages.length; },
       getNext: function() { return new LogMessage(this._messages[this._index++], this._conv); },
-      QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+      QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
     };
     return enumerator;
   }
@@ -671,7 +671,7 @@ DailyLogEnumerator.prototype = {
     let dayID = this._days[this._index++];
     return new Log(this._entries[dayID]);
   },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
 };
 
 function LogEnumerator(aEntries) {
@@ -687,7 +687,7 @@ LogEnumerator.prototype = {
     // Create and return a log from the first entry.
     return new Log(this._entries.shift().path);
   },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
 };
 
 
@@ -943,7 +943,7 @@ Logger.prototype = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver, Ci.imILogger]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.imILogger]),
   classDescription: "Logger",
   classID: Components.ID("{fb0dc220-2c7a-4216-9f19-6b8f3480eae9}"),
   contractID: "@mozilla.org/chat/logger;1"

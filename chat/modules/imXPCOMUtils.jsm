@@ -236,11 +236,11 @@ nsSimpleEnumerator.prototype = {
 
     return this._items[this._nextIndex++];
   },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
 };
 
 var EmptyEnumerator = {
   hasMoreElements: () => false,
   getNext: function() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
 };

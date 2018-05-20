@@ -153,7 +153,7 @@ var GenericAccountPrototype = {
       _remove: function() {
         this._account.removeBuddyRequest(this);
       },
-      QueryInterface: XPCOMUtils.generateQI([Ci.prplIBuddyRequest])
+      QueryInterface: ChromeUtils.generateQI([Ci.prplIBuddyRequest])
     };
     this._pendingBuddyRequests.push(buddyRequest);
     Services.obs.notifyObservers(buddyRequest, "buddy-authorization-request");
@@ -887,7 +887,7 @@ var GenericProtocolPrototype = {
       if (!command.hasOwnProperty("name") || !command.hasOwnProperty("run"))
         throw "Every command must have a name and a run function.";
       if (!("QueryInterface" in command))
-        command.QueryInterface = XPCOMUtils.generateQI([Ci.imICommand]);
+        command.QueryInterface = ChromeUtils.generateQI([Ci.imICommand]);
       if (!command.hasOwnProperty("usageContext"))
         command.usageContext = Ci.imICommand.CMD_CONTEXT_ALL;
       if (!command.hasOwnProperty("priority"))

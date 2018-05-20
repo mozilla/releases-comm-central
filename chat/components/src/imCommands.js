@@ -247,7 +247,7 @@ CommandsService.prototype = {
     return true;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.imICommandsService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.imICommandsService]),
   classDescription: "Commands",
   classID: Components.ID("{7cb20c68-ccc8-4a79-b6f1-0b4771ed6c23}"),
   contractID: "@mozilla.org/chat/commands-service;1"

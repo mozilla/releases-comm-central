@@ -37,7 +37,7 @@ smileProtocolHandler.prototype = {
   classDescription: "Smile Protocol Handler",
   classID: Components.ID("{04e58eae-dfbc-4c9e-8130-6d9ef19cbff4}"),
   contractID: "@mozilla.org/network/protocol;1?name=smile",
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolHandler])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler])
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([smileProtocolHandler]);

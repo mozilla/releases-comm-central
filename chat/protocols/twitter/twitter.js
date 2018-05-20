@@ -933,7 +933,7 @@ Account.prototype = {
           return;
 
         this._listener = {
-          QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
+          QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
                                                  Ci.nsISupportsWeakReference]),
           _cleanUp: function() {
             this.webProgress.removeProgressListener(this);
@@ -966,7 +966,7 @@ Account.prototype = {
         aWebProgress.addProgressListener(this._listener,
                                          Ci.nsIWebProgress.NOTIFY_ALL);
       },
-      QueryInterface: XPCOMUtils.generateQI([Ci.prplIRequestBrowser])
+      QueryInterface: ChromeUtils.generateQI([Ci.prplIRequestBrowser])
     };
     Services.obs.notifyObservers(this._browserRequest, "browser-request");
   },
