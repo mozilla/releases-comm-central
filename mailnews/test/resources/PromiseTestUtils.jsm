@@ -32,7 +32,7 @@ PromiseTestUtils.PromiseUrlListener = function(aWrapped) {
 };
 
 PromiseTestUtils.PromiseUrlListener.prototype = {
-  QueryInterface:   XPCOMUtils.generateQI([Ci.nsIUrlListener]),
+  QueryInterface:   ChromeUtils.generateQI([Ci.nsIUrlListener]),
 
   OnStartRunningUrl: function(aUrl) {
     if (this.wrapped && this.wrapped.OnStartRunningUrl)
@@ -66,7 +66,7 @@ PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
 };
 
 PromiseTestUtils.PromiseCopyListener.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
   OnStartCopy: function() {
     if (this.wrapped && this.wrapped.OnStartCopy)
       this.wrapped.OnStartCopy();
@@ -116,7 +116,7 @@ PromiseTestUtils.PromiseStreamListener = function(aWrapped) {
 };
 
 PromiseTestUtils.PromiseStreamListener.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   onStartRequest : function (aRequest, aContext) {
     if (this.wrapped && this.wrapped.onStartRequest)
@@ -161,7 +161,7 @@ var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 PromiseTestUtils.promiseFolderEvent = function promiseFolderEvent(folder, event) {
   return new Promise( (resolve, reject) => {
     let folderListener = {
-      QueryInterface: XPCOMUtils.generateQI([Ci.nsIFolderListener]),
+      QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
       OnItemEvent: function onItemEvent(aEventFolder, aEvent) {
         if (folder === aEventFolder &&
             event == aEvent) {
@@ -267,7 +267,7 @@ PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
 }
 
 PromiseTestUtils.PromiseSearchNotify.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgSearchNotify]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSearchNotify]),
   onSearchHit: function(aHeader, aFolder) {
     if (this.wrapped && this.wrapped.onSearchHit)
       this.wrapped.onSearchHit(aHeader, aFolder);

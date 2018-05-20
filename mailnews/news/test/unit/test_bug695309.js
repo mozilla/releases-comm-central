@@ -74,7 +74,7 @@ function* trigger_bug() {
         async_driver();
       }
     },
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIFolderListener])
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener])
   };
   MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
   // Again, two things will need to be listened for

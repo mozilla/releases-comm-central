@@ -110,7 +110,7 @@ function accessOver2GBMsg()
 }
 
 var gStreamListener = {
-  QueryInterface : XPCOMUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
   _stream : null,
   _data : null,
   onStartRequest : function (aRequest, aContext) {

@@ -77,7 +77,7 @@ nsAbAutoCompleteResult.prototype = {
 
   // nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([ACR, nsIAbAutoCompleteResult])
+  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult])
 }
 
 function createCard(chars, popularity) {

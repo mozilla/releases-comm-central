@@ -51,7 +51,7 @@ JaBaseIncomingServer.prototype = {
   _JsPrototypeToDelegate: true,
 
   // QI to the (partially implemented only) interfaces.
-  QueryInterface: XPCOMUtils.generateQI(JaBaseIncomingServerProperties.delegateInterfaces),
+  QueryInterface: ChromeUtils.generateQI(JaBaseIncomingServerProperties.delegateInterfaces),
 
   // Used to access an instance as JS, bypassing XPCOM.
   get wrappedJSObject() {

@@ -216,7 +216,7 @@ var articleTextListener = {
   finished: false,
 
   QueryInterface:
-    XPCOMUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+    ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
   onStartRequest: function(aRequest, aContext) {

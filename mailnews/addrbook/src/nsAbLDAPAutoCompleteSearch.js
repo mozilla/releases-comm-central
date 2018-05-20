@@ -74,7 +74,7 @@ nsAbLDAPAutoCompleteResult.prototype = {
 
   // nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([ACR, nsIAbAutoCompleteResult])
+  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult])
 }
 
 function nsAbLDAPAutoCompleteSearch() {
@@ -313,9 +313,9 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   // nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                         Ci.nsIAutoCompleteSearch,
-                                         Ci.nsIAbDirSearchListener])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
+                                          Ci.nsIAutoCompleteSearch,
+                                          Ci.nsIAbDirSearchListener])
 };
 
 // Module

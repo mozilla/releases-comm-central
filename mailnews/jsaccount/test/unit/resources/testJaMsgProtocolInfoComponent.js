@@ -51,7 +51,7 @@ testJaMsgProtocolInfo.prototype = {
   classDescription: "testja Msg Protocol Info implementation",
   classID: Components.ID("{74b9b9c3-9594-41c4-b9f0-326e5daac2e0}"),
   contractID: "@mozilla.org/messenger/protocol/info;1?type=testja",
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgProtocolInfo])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgProtocolInfo])
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([testJaMsgProtocolInfo]);

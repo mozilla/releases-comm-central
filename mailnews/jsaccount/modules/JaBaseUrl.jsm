@@ -64,7 +64,7 @@ JaBaseUrl.prototype = {
   _JsPrototypeToDelegate: true,
 
   // QI to the interfaces.
-  QueryInterface: XPCOMUtils.generateQI(JaBaseUrlProperties.baseInterfacesQI),
+  QueryInterface: ChromeUtils.generateQI(JaBaseUrlProperties.baseInterfacesQI),
 
   // Used to access an instance as JS, bypassing XPCOM.
   get wrappedJSObject() {

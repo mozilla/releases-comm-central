@@ -7,7 +7,7 @@ function MockWindowsRegKey(registryData) {
 }
 
 MockWindowsRegKey.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIWindowsRegKey]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowsRegKey]),
 
   open: function(aRootKey, aRelPath, aMode) {
     if (!this._registryData[aRelPath])

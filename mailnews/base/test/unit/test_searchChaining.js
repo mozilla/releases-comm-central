@@ -62,7 +62,7 @@ async function searchTest()
 var searchListener =
 {
   numTotalMessages: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgSearchNotify]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSearchNotify]),
   onNewSearch: function()
   {
     this.numTotalMessages = 0;

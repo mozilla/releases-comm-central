@@ -59,7 +59,7 @@ nsNewsAutoCompleteResult.prototype = {
 
   // nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([kACR])
+  QueryInterface: ChromeUtils.generateQI([kACR])
 }
 
 function nsNewsAutoCompleteSearch() {}
@@ -130,7 +130,7 @@ nsNewsAutoCompleteSearch.prototype = {
 
   // nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIAutoCompleteSearch])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch])
 };
 
 // Module

@@ -52,7 +52,7 @@ function SocksClient(client_in, client_out) {
 }
 SocksClient.prototype = {
   // ... implement nsIInputStreamCallback ...
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIInputStreamCallback]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIInputStreamCallback]),
   onInputStreamReady(input) {
     var len = input.available();
     var bin = new BinaryInputStream(input);
@@ -179,7 +179,7 @@ function SocksTestServer() {
   this.client_connections = [];
 }
 SocksTestServer.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIServerSocketListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIServerSocketListener]),
 
   onSocketAccepted(socket, trans) {
     var input = trans.openInputStream(0, 0, 0);
@@ -239,7 +239,7 @@ var NetworkTestUtils = {
       let pps = Cc["@mozilla.org/network/protocol-proxy-service;1"]
                   .getService(Ci.nsIProtocolProxyService);
       let filter = {
-        QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolProxyFilter]),
+        QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolProxyFilter]),
         applyFilter(aProxyService, aURI, aProxyInfo, aCallback) {
           if (aURI.host != "localhost" && aURI.host != "127.0.0.1") {
             aCallback.onProxyFilterResult(pps.newProxyInfo("socks", "localhost", gSocksServer.port,

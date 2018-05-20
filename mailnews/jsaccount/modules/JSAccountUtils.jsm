@@ -84,7 +84,7 @@ var log = configureLogging();
 JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor)
 {
   let factory = {};
-  factory.QueryInterface = XPCOMUtils.generateQI([Ci.nsIFactory]);
+  factory.QueryInterface = ChromeUtils.generateQI([Ci.nsIFactory]);
   factory.lockFactory = function() {};
 
   factory.createInstance = function(outer, iid)

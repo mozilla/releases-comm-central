@@ -27,7 +27,7 @@ var gFakeView = {
   rowCount: 1,
   selectionChanged: function() {
   },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsITreeView]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
 };
 
 var gFakeSelection = new JSTreeSelection(null);

@@ -116,8 +116,8 @@ OAuth2.prototype = {
                     webProgress: aWebProgress,
                     _parent: this.account,
 
-                    QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
-                                                           Ci.nsISupportsWeakReference]),
+                    QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
+                                                            Ci.nsISupportsWeakReference]),
 
                     _cleanUp: function() {
                       this.webProgress.removeProgressListener(this);

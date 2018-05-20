@@ -25,7 +25,7 @@ FeedDownloader.prototype = {
                classDescription: "Feed Downloader",
                interfaces: [Ci.nsINewsBlogFeedDownloader],
                flags: Ci.nsIClassInfo.SINGLETON}),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsINewsBlogFeedDownloader]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsINewsBlogFeedDownloader]),
 };
 
 function FeedAcctMgrExtension() { }
@@ -41,7 +41,7 @@ FeedAcctMgrExtension.prototype = {
                classDescription: "Feed Account Manager Extension",
                interfaces: [Ci.nsIMsgAccountManagerExtension],
                flags: Ci.nsIClassInfo.SINGLETON}),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgAccountManagerExtension]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgAccountManagerExtension]),
 };
 
 var components = [FeedDownloader, FeedAcctMgrExtension];

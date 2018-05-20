@@ -18,7 +18,7 @@ function StringEnumerator(iterator) {
   this._next = undefined;
 }
 StringEnumerator.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsIUTF8StringEnumerator]),
   _setNext: function () {
     if (this._next !== undefined)
@@ -133,7 +133,7 @@ MimeHeaders.prototype = {
   classDescription: "Mime headers implementation",
   classID: Components.ID("d1258011-f391-44fd-992e-c6f4b461a42f"),
   contractID: "@mozilla.org/messenger/mimeheaders;1",
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMimeHeaders,
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMimeHeaders,
     Ci.msgIStructuredHeaders]),
 
   initialize: function MimeHeaders_initialize(allHeaders) {
@@ -165,7 +165,7 @@ function MimeWritableStructuredHeaders() {
 MimeWritableStructuredHeaders.prototype = {
   __proto__: MimeStructuredHeaders.prototype,
   classID: Components.ID("c560806a-425f-4f0f-bf69-397c58c599a7"),
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.msgIStructuredHeaders,
     Ci.msgIWritableStructuredHeaders]),
 
@@ -261,7 +261,7 @@ function MimeAddressParser() {
 }
 MimeAddressParser.prototype = {
   classID: Components.ID("96bd8769-2d0e-4440-963d-22b97fb3ba77"),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgHeaderParser]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderParser]),
 
   parseEncodedHeader: function (aHeader, aCharset, aPreserveGroups, count) {
     aHeader = aHeader || "";
@@ -438,7 +438,7 @@ function MimeConverter() {
 }
 MimeConverter.prototype = {
   classID: Components.ID("93f8c049-80ed-4dda-9000-94ad8daba44c"),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMimeConverter]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMimeConverter]),
 
   encodeMimePartIIStr_UTF8: function (aHeader, aStructured, aCharset,
       aFieldNameLen, aLineLength) {

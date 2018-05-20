@@ -38,7 +38,7 @@ function folderLookupService() {
 }
 folderLookupService.prototype = {
   // XPCOM registration stuff
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFolderLookupService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderLookupService]),
   classID: Components.ID("{a30be08c-afc8-4fed-9af7-79778a23db23}"),
 
   // nsIFolderLookupService impl

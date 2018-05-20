@@ -36,7 +36,7 @@ var messages = [
 
 var gStreamListener = {
   stream: null,
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
   onStartRequest: function (aRequest, aContext) {

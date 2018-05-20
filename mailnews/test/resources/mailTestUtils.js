@@ -497,7 +497,7 @@ var mailTestUtils = {
       },
 
       QueryInterface:
-        XPCOMUtils.generateQI([Ci.nsIDirectoryServiceProvider])
+        ChromeUtils.generateQI([Ci.nsIDirectoryServiceProvider])
     };
 
     this._providerSvc = provider;

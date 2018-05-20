@@ -15,7 +15,7 @@ function OAuth2Module() {
 }
 OAuth2Module.prototype = {
   // XPCOM registration stuff
-  QueryInterface: XPCOMUtils.generateQI([Ci.msgIOAuth2Module]),
+  QueryInterface: ChromeUtils.generateQI([Ci.msgIOAuth2Module]),
   classID: Components.ID("{b63d8e4c-bf60-439b-be0e-7c9f67291042}"),
 
   _loadOAuthClientDetails(aIssuer) {

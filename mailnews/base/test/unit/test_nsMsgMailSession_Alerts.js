@@ -30,7 +30,7 @@ var msgWindow = {
     return alertUtilsPrompts;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgWindow])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow])
 };
 
 var msgUrl = {
@@ -40,7 +40,7 @@ var msgUrl = {
     return this._msgWindow;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgMailNewsUrl])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgMailNewsUrl])
 };
 
 function alertListener() {}

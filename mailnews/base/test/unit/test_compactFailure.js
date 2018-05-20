@@ -20,7 +20,7 @@ function LockedFileOutputStream() {
 }
 
 LockedFileOutputStream.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFileOutputStream]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIFileOutputStream]),
 
   init: function(file, ioFlags, perm, behaviorFlags) {
     throw Cr.NS_ERROR_FILE_IS_LOCKED;
@@ -28,7 +28,7 @@ LockedFileOutputStream.prototype = {
 }
 
 var MsgDBServiceFailure = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgDBService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgDBService]),
 
   openMailDBFromFile: function(file, folder, create, leaveInvalidDB) {
     if (folder.name == "ShouldFail")

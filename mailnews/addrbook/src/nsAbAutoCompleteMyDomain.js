@@ -9,7 +9,7 @@ function nsAbAutoCompleteMyDomain() {}
 
 nsAbAutoCompleteMyDomain.prototype = {
   classID: Components.ID("{5b259db2-e451-4de9-8a6f-cfba91402973}"),
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
       Ci.nsIAutoCompleteSearch]),
 
   cachedIdKey: "",

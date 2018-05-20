@@ -128,7 +128,7 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIPrompt])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIPrompt])
 };
 
 var alertUtilsPromptService = {
@@ -234,8 +234,8 @@ var alertUtilsPromptService = {
     return this.QueryInterface(iid);
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIPromptService,
-                                         Ci.nsIPromptService2])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptService,
+                                          Ci.nsIPromptService2])
 };
 
 var alertUtilsWindowWatcher = {
@@ -248,7 +248,7 @@ var alertUtilsWindowWatcher = {
             .getService(Ci.nsIAuthPrompt);
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIWindowWatcher])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowWatcher])
 };
 
 function registerAlertTestUtils()

@@ -14,7 +14,7 @@ function getLoadContext() {
 }
 
 var abFlavorDataProvider = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFlavorDataProvider]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
   getFlavorData: function(aTransferable, aFlavor, aData, aDataLen)
   {

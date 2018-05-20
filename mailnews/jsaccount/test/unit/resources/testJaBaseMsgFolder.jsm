@@ -54,7 +54,7 @@ JaBaseMsgFolder.prototype = {
   _JsPrototypeToDelegate: true,
 
   // QI to the (partially implemented only) interfaces.
-  QueryInterface: XPCOMUtils.generateQI(JaBaseMsgFolderProperties.delegateInterfaces),
+  QueryInterface: ChromeUtils.generateQI(JaBaseMsgFolderProperties.delegateInterfaces),
 
   // Used to access an instance as JS, bypassing XPCOM.
   get wrappedJSObject() {

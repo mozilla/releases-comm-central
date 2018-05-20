@@ -70,7 +70,7 @@ var deathToNewlines = /\n/g;
 MimeMessageEmitter.prototype = {
   classID: Components.ID("{8cddbbbc-7ced-46b0-a936-8cddd1928c24}"),
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMimeEmitter]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMimeEmitter]),
 
   initialize: function mime_emitter_initialize(aUrl, aChannel, aFormat) {
     this._url = aUrl;

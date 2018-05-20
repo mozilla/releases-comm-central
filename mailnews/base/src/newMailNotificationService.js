@@ -57,7 +57,9 @@ NewMailNotificationService.prototype = {
   classDescription: "Maintain counts of new and unread messages",
   classID:              Components.ID("{740880E6-E299-4165-B82F-DF1DCAB3AE22}"),
   contractID:           "@mozilla.org/newMailNotificationService;1",
-  QueryInterface:       XPCOMUtils.generateQI([Ci.nsIObserver, Ci.nsIFolderListener, Ci.mozINewMailNotificationService]),
+  QueryInterface:       ChromeUtils.generateQI([Ci.nsIObserver,
+                                                Ci.nsIFolderListener,
+                                                Ci.mozINewMailNotificationService]),
   _xpcom_factory: XPCOMUtils.generateSingletonFactory(NewMailNotificationService),
 
   _mUnreadCount: 0,

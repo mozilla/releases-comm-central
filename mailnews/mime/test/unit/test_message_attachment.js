@@ -61,7 +61,7 @@ var messages = [
 
 
 var gStreamListener = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   index: 0, // The index of the message we're currently looking at.
 

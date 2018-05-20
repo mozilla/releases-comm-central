@@ -619,7 +619,7 @@ JSTreeSelection.prototype = {
     return this._shiftSelectPivot != null ? this._shiftSelectPivot : -1;
   },
 
-  QueryInterface: XPCOMUtils.generateQI(
+  QueryInterface: ChromeUtils.generateQI(
     [Ci.nsITreeSelection]),
 
   /*

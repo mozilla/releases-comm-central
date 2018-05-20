@@ -147,8 +147,8 @@ var nsMailNewsCommandLineHandler =
     return this.QueryInterface(iid);
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler,
-                                         Ci.nsIFactory])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler,
+                                          Ci.nsIFactory])
 };
 
 function mailNewsCommandLineHandlerModule() {}
@@ -157,7 +157,7 @@ mailNewsCommandLineHandlerModule.prototype =
   // XPCOM registration
   classID: CMDLINEHANDLER_CID,
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIModule]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIModule]),
 
   _xpcom_factory: nsMailNewsCommandLineHandler
 };

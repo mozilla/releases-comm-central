@@ -9,7 +9,7 @@ var fakeView = {
   rowCount: 101,
   selectionChanged: function() {
   },
-  QueryInterface: XPCOMUtils.generateQI(
+  QueryInterface: ChromeUtils.generateQI(
     [Ci.nsITreeView]),
 };
 

@@ -39,7 +39,7 @@ var streamListener =
   _data: "",
 
   QueryInterface:
-    XPCOMUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+    ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
   onStartRequest: function(aRequest, aContext) {
@@ -215,7 +215,7 @@ var tests = [
 ]
 
 var gStreamListener = {
-  QueryInterface : XPCOMUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
   _stream : null,
   _data : null,
   onStartRequest : function (aRequest, aContext) {

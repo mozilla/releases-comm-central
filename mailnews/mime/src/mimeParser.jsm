@@ -120,7 +120,7 @@ var MimeParser = {
         // Use readBytes instead of read to handle embedded NULs properly.
         this._parser.deliverData(scriptIn.readBytes(aCount));
       },
-      QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener,
+      QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
         Ci.nsIRequestObserver])
     };
     setDefaultParserOptions(opts);

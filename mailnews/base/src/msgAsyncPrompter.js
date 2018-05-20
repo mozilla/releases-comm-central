@@ -64,7 +64,7 @@ function msgAsyncPrompter() {
 
 msgAsyncPrompter.prototype = {
   classID: Components.ID("{49b04761-23dd-45d7-903d-619418a4d319}"),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgAsyncPrompter]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgAsyncPrompter]),
 
   _pendingPrompts: null,
   _asyncPromptInProgress: 0,

@@ -22,8 +22,8 @@ var dummyMsgWindow = {
   get promptDialog() {
     return alertUtilsPrompts;
   },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgWindow,
-                                         Ci.nsISupportsWeakReference])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow,
+                                          Ci.nsISupportsWeakReference])
 };
 var daemon, localserver, server;
 
@@ -84,8 +84,8 @@ function* test_fetchMessage() {
     onStopRequest: function (aRequest, aContext, aStatus) {
       statuscode = aStatus;
     },
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener,
-                                           Ci.nsIRequestObserver])
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
+                                            Ci.nsIRequestObserver])
   };
   let folder = localserver.rootFolder.getChildNamed("test.filter");
   MailServices.nntp.fetchMessage(folder, 2, null, streamlistener, asyncUrlListener);
@@ -204,8 +204,8 @@ function* test_escapedName() {
     onStopRequest: function (aRequest, aContext, aStatus) {
       statuscode = aStatus;
     },
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener,
-                                           Ci.nsIRequestObserver])
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
+                                            Ci.nsIRequestObserver])
   };
   MailServices.nntp.fetchMessage(folder, 1, null, streamlistener, asyncUrlListener);
   yield false;
