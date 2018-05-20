@@ -79,7 +79,7 @@ MimeInlineTextHTMLSanitized_parse_begin(MimeObject *obj)
     if (charset)
     {
       nsAutoCString charsetline(
-        "\n<meta http-equiv=\"Context-Type\" content=\"text/html; charset=");
+        "\n<meta http-equiv=\"content-type\" content=\"text/html; charset=");
       charsetline += charset;
       charsetline += "\">\n";
       int status = MimeObject_write(obj,
@@ -107,7 +107,7 @@ MimeInlineTextHTMLSanitized_parse_eof(MimeObject *obj, bool abort_p)
   // We have to cache all lines and parse the whole document at once.
   // There's a useful sounding function parseFromStream(), but it only allows XML
   // mimetypes, not HTML. Methinks that's because the HTML soup parser
-  // needs the entire doc to make sense of the glibberish that people write.
+  // needs the entire doc to make sense of the gibberish that people write.
   if (!me || !me->complete_buffer)
     return 0;
 
