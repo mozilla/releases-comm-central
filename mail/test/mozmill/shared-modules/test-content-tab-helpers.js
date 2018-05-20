@@ -80,7 +80,7 @@ function installInto(module) {
  */
 var gMockExtProtSvc = {
   _loadedURLs: [],
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIExternalProtocolService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIExternalProtocolService]),
 
   externalProtocolHandlerExists: function(aProtocolScheme) {
   },

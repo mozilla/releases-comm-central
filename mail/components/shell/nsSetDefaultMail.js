@@ -17,7 +17,7 @@ function nsSetDefaultMail() {
 
 nsSetDefaultMail.prototype = {
   /* nsISupports */
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler]),
 
   /* nsICommandLineHandler */
   handle : function nsSetDefault_handle(cmdline) {

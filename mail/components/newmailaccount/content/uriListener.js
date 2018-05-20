@@ -98,7 +98,7 @@ httpRequestObserver.prototype = {
     return null;
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 }
 
 /**
@@ -241,7 +241,7 @@ TracingListener.prototype = {
                                      aOffset, aCount);
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener,
-                                         Ci.nsIRequestObserver])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
+                                          Ci.nsIRequestObserver])
 
 }

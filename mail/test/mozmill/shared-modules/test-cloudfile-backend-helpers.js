@@ -74,8 +74,8 @@ SimpleRequestObserver.prototype = {
       this.success = false;
     }
   },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIRequestObserver,
-                                         Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIRequestObserver,
+                                          Ci.nsISupportsWeakReference]),
 }
 
 /**

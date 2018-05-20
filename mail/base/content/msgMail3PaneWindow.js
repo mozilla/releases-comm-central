@@ -1366,7 +1366,7 @@ function messageFlavorDataProvider() {
 }
 
 messageFlavorDataProvider.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFlavorDataProvider]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
   getFlavorData : function(aTransferable, aFlavor, aData, aDataLen) {
     if (aFlavor !== "application/x-moz-file-promise") {

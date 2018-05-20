@@ -108,8 +108,8 @@ function openURI(uri)
       Services.startup.exitLastWindowClosingSurvivalArea();
     },
 
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIRequestObserver,
-                                           Ci.nsISupportsWeakReference])
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIRequestObserver,
+                                            Ci.nsISupportsWeakReference])
   };
 
   loadgroup.groupObserver = loadlistener;
@@ -144,9 +144,9 @@ function openURI(uri)
 }
 
 var nsMailDefaultHandler = {
-  QueryInterface: XPCOMUtils.generateQI([nsICommandLineHandler,
-                                         nsICommandLineValidator,
-                                         nsIFactory]),
+  QueryInterface: ChromeUtils.generateQI([nsICommandLineHandler,
+                                          nsICommandLineValidator,
+                                          nsIFactory]),
 
   /* nsICommandLineHandler */
 
@@ -476,7 +476,7 @@ mailDefaultCommandLineHandler.prototype = {
   classID: Components.ID("{44346520-c5d2-44e5-a1ec-034e04d7fac4}"),
   contractID: "@mozilla.org/mail/clh;1",
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIModule]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIModule]),
 
   _xpcom_factory: nsMailDefaultHandler
 }

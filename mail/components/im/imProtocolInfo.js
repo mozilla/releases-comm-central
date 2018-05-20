@@ -29,7 +29,7 @@ imProtocolInfo.prototype = {
   classDescription: "IM Msg Protocol Info implementation",
   classID: Components.ID("{13118758-dad2-418c-a03d-1acbfed0cd01}"),
   contractID: "@mozilla.org/messenger/protocol/info;1?type=im",
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgProtocolInfo])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgProtocolInfo])
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([imProtocolInfo]);

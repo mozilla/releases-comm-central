@@ -27,7 +27,7 @@ var gMsgMinutes = 9000;
 var gMockAlertsService = {
   _doFail: false,
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIAlertsService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAlertsService]),
 
   showAlertNotification: function(imageUrl, title, text, textClickable, cookie,
                                   alertListener, name) {

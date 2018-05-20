@@ -10,7 +10,7 @@ ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Service
 function DevToolsStartup() {}
 
 DevToolsStartup.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler]),
   classID: Components.ID("{089694e9-106a-4704-abf7-62a88545e194}"),
 
   helpInfo: "",

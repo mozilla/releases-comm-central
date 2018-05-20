@@ -400,7 +400,7 @@ function OnAddressBookDataChanged(aAction, aParentDir, aItem) {
  * as we display the message through our mime converter.
  */
 var messageHeaderSink = {
-    QueryInterface: XPCOMUtils.generateQI(
+    QueryInterface: ChromeUtils.generateQI(
       [Ci.nsIMsgHeaderSink]),
     onStartHeaders: function()
     {

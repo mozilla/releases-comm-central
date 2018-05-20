@@ -25,8 +25,8 @@ ChromeUtils.import("resource:///modules/gloda/log4moz.js");
  * just have to do it here.
  */
 var sendMsgProgressListener = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgStatusFeedback,
-                                         Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgStatusFeedback,
+                                          Ci.nsISupportsWeakReference]),
 
   showStatusString: function(aStatusText) {
     sendLaterModule.onMsgStatus(aStatusText);
@@ -69,7 +69,7 @@ var sendLaterModule =
       .createBundle("chrome://messenger/locale/activity.properties");
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgSendLaterListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSendLaterListener]),
 
   _displayTextForHeader: function(aLocaleStringBase, aSubject) {
     return aSubject ?

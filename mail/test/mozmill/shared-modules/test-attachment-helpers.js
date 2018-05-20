@@ -36,7 +36,7 @@ function MockFilePickerConstructor() {
 };
 
 var gMockFilePicker = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFilePicker]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIFilePicker]),
   defaultExtension: "",
   filterIndex: null,
   displayDirectory: null,
@@ -61,7 +61,7 @@ var gMockFilePicker = {
     let self = this;
     return {
       index: 0,
-      QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator]),
+      QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
       hasMoreElements: function() {
         return this.index < self.returnFiles.length;
       },

@@ -154,9 +154,9 @@ tabProgressListener.prototype =
       this.mProgressListener.onRefreshAttempted(aWebProgress, aURI, aDelay,
         aSameURI);
   },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
-                                         Ci.nsIWebProgressListener2,
-                                         Ci.nsISupportsWeakReference])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
+                                          Ci.nsIWebProgressListener2,
+                                          Ci.nsISupportsWeakReference])
 };
 
 var DOMLinkHandler = {

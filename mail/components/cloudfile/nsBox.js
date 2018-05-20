@@ -58,7 +58,7 @@ function nsBox() {
 
 nsBox.prototype = {
   /* nsISupports */
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
 
   classID: Components.ID("{c06a8707-7463-416c-8b39-e85044a4ff6e}"),
 

@@ -235,8 +235,8 @@ MailGlue.prototype = {
 
   // for XPCOM
   classID: Components.ID("{eb239c82-fac9-431e-98d7-11cacd0f71b8}"),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                         Ci.nsIMailGlue]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
+                                          Ci.nsIMailGlue]),
 };
 
 var components = [MailGlue];

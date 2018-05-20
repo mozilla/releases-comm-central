@@ -238,7 +238,7 @@ imIncomingServer.prototype = {
     return {
       level: 0,
       initialize: function(aServer) {},
-      QueryInterface: XPCOMUtils.generateQI([Ci.nsISpamSettings])
+      QueryInterface: ChromeUtils.generateQI([Ci.nsISpamSettings])
     };
   },
 
@@ -276,7 +276,7 @@ imIncomingServer.prototype = {
       getStringProperty: aPropertyName => "",
       getNumUnread: aDeep => 0,
       Shutdown: function() {},
-      QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgFolder])
+      QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgFolder])
     });
   },
 
@@ -290,7 +290,7 @@ imIncomingServer.prototype = {
   classDescription: "IM Msg Incoming Server implementation",
   classID: Components.ID("{9dd7f36b-5960-4f0a-8789-f5f516bd083d}"),
   contractID: "@mozilla.org/messenger/server;1?type=im",
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgIncomingServer])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgIncomingServer])
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([imIncomingServer]);

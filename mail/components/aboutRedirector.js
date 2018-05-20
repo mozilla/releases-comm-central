@@ -8,7 +8,7 @@ function AboutRedirector() {}
 AboutRedirector.prototype = {
   classDescription: "Mail about: Redirector",
   classID: Components.ID("{8cc51368-6aa0-43e8-b762-bde9b9fd828c}"),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAboutModule]),
 
   // Each entry in the map has the key as the part after the "about:" and the
   // value as a record with url and flags entries. Note that each addition here

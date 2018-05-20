@@ -77,7 +77,7 @@ function MockCloudfileAccount() {
 
 MockCloudfileAccount.prototype = {
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
 
   init: function MCA_init(aAccountKey) {
     this.accountKey = aAccountKey;

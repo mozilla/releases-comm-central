@@ -228,7 +228,7 @@ nsActivityProcess.prototype = {
   //////////////////////////////////////////////////////////////////////////////
   //// nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIActivityProcess, Ci.nsIActivity])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityProcess, Ci.nsIActivity])
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ nsActivityEvent.prototype = {
   //////////////////////////////////////////////////////////////////////////////
   //// nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIActivityEvent, Ci.nsIActivity])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityEvent, Ci.nsIActivity])
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -335,7 +335,7 @@ nsActivityWarning.prototype = {
   //////////////////////////////////////////////////////////////////////////////
   //// nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIActivityWarning, Ci.nsIActivity])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityWarning, Ci.nsIActivity])
 };
 
 ///////////////////////////////////////////////////////////////////////////////

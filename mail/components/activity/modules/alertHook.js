@@ -35,7 +35,7 @@ var alertHook =
       .GetStringFromName("brandShortName");
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgUserFeedbackListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgUserFeedbackListener]),
 
   onAlert: function (aMessage, aUrl) {
     // Create a new warning.

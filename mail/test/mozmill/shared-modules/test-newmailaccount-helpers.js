@@ -165,7 +165,7 @@ function type_in_search_name(aController, aName) {
  * messages appear in the console.
  */
 var gConsoleListener = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIConsoleListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIConsoleListener]),
   _msg: null,
   _sawMsg: false,
 

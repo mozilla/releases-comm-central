@@ -37,7 +37,7 @@ function MockAuthPromptFactoryConstructor() {
 }
 
 var gMockAuthPromptFactory = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIPromptFactory]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptFactory]),
   getPrompt: function(aParent, aIID, aResult) {
     return gMockAuthPrompt.QueryInterface(aIID);
   }
@@ -47,7 +47,7 @@ var gMockAuthPromptFactory = {
 var gMockAuthPrompt = {
   password: "",
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIAuthPrompt]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAuthPrompt]),
 
   prompt: function MAP_prompt(aTitle, aText, aRealm, aSave,
                               aDefaultText) {
@@ -70,7 +70,7 @@ var gMockAuthPrompt = {
 
 var gMockPromptService = {
   _registered: false,
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIPromptService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptService]),
   _will_return: null,
   _inout_value: null,
   _promptState: null,

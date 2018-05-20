@@ -558,8 +558,8 @@ var gPluginHandler = {
       // show an updated message when a report is submitted.
       if (doPrompt) {
         let observer = {
-          QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                                 Ci.nsISupportsWeakReference]),
+          QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
+                                                  Ci.nsISupportsWeakReference]),
           observe : function(subject, topic, data) {
             let propertyBag = subject;
             if (!(propertyBag instanceof Ci.nsIPropertyBag2))

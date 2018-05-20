@@ -13,7 +13,7 @@ alertHook.init();
 var gAlertShown = false;
 
 var mockAlertsService = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIAlertsService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAlertsService]),
 
   showAlertNotification: function(imageUrl, title, text, textClickable, cookie,
                                   alertListener, name) {

@@ -225,7 +225,7 @@ var gAdvancedPane = {
         actualSizeLabel.value = prefStrBundle.getFormattedString("actualDiskCacheSize", size);
       },
 
-      QueryInterface: XPCOMUtils.generateQI([
+      QueryInterface: ChromeUtils.generateQI([
         Ci.nsICacheStorageConsumptionObserver,
         Ci.nsISupportsWeakReference
       ])

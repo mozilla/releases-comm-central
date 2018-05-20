@@ -33,7 +33,7 @@ function nsHightail() {
 
 nsHightail.prototype = {
   /* nsISupports */
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
 
   classID: Components.ID("{dd2bce44-ca71-42ce-b806-6fa4e073919c}"),
 

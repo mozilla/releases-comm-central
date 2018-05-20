@@ -20,7 +20,7 @@ mailContentHandler.prototype = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIContentHandler]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIContentHandler]),
 
   openInExternal: function mch_OpenInExternal(uri) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
