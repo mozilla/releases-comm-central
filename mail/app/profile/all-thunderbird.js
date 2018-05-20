@@ -133,10 +133,6 @@ pref("extensions.strictCompatibility", false);
 pref("extensions.strictCompatibility", true);
 #endif
 
-// Specifies a minimum maxVersion an addon needs to say it's compatible with
-// for it to be compatible by default.
-pref("extensions.minCompatibleAppVersion", "5.0");
-
 pref("extensions.update.autoUpdateDefault", true);
 
 pref("extensions.systemAddon.update.enabled", true);  // See bug 1462160.
