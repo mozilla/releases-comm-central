@@ -39,6 +39,7 @@
 #include "mimetpfl.h"   /*   |     |     |--- MimeInlineTextPlainFlowed     */
 #include "mimethtm.h"  /*   |     |     |--- MimeInlineTextHTML      */
 #include "mimethsa.h"  /*   |     |     |     |--- M.I.TextHTMLSanitized   */
+#include "mimeTextHTMLParsed.h" /*|     |     |--- M.I.TextHTMLParsed   */
 #include "mimetric.h"  /*   |     |     |--- MimeInlineTextRichtext    */
 #include "mimetenr.h"  /*   |     |     |     |--- MimeInlineTextEnriched  */
 /* SUPPORTED VIA PLUGIN      |     |     |--- MimeInlineTextVCard           */
@@ -327,7 +328,7 @@ bool mime_is_allowed_class(const MimeObjectClass *clazz,
      !(
         (avoid_html
          && (
-              clazz == (MimeObjectClass *)&mimeInlineTextHTMLClass
+              clazz == (MimeObjectClass *)&mimeInlineTextHTMLParsedClass
                          /* Should not happen - we protect against that in
                             mime_find_class(). Still for safety... */
             )) ||
@@ -508,11 +509,11 @@ mime_find_class (const char *content_type, MimeHeaders *hdrs,
             && opts->format_out == nsMimeOutput::nsMimeMessageSaveAs)
           // SaveAs in new modes doesn't work yet.
         {
-          clazz = (MimeObjectClass *)&mimeInlineTextHTMLClass;
+          clazz = (MimeObjectClass *)&mimeInlineTextHTMLParsedClass;
           types_of_classes_to_disallow = 0;
         }
         else if (html_as == 0 || html_as == 4) // Render sender's HTML
-          clazz = (MimeObjectClass *)&mimeInlineTextHTMLClass;
+          clazz = (MimeObjectClass *)&mimeInlineTextHTMLParsedClass;
         else if (html_as == 1) // convert HTML to plaintext
           // Do a HTML->TXT->HTML conversion, see mimethpl.h.
           clazz = (MimeObjectClass *)&mimeInlineTextHTMLAsPlaintextClass;
@@ -914,22 +915,20 @@ mime_create (const char *content_type, MimeHeaders *hdrs,
     ;  /* Use the class we've got. */
   else
   {
-    //
-    // rhp: Ok, this is a modification to try to deal with messages
-    //      that have content disposition set to "attachment" even though
-    //      we probably should show them inline.
-    //
-    if (  (clazz != (MimeObjectClass *)&mimeInlineTextHTMLClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextClass) &&
+    // override messages that have content disposition set to "attachment"
+    // even though we probably should show them inline.
+    if (  (clazz != (MimeObjectClass *)&mimeInlineTextClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextPlainClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextPlainFlowedClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextHTMLClass) &&
+          (clazz != (MimeObjectClass *)&mimeInlineTextHTMLParsedClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextHTMLSanitizedClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextHTMLAsPlaintextClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextRichtextClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextEnrichedClass) &&
           (clazz != (MimeObjectClass *)&mimeMessageClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineImageClass) )
+      // not a special inline type, so show as attachment
       clazz = (MimeObjectClass *)&mimeExternalObjectClass;
   }
 

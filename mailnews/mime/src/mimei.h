@@ -71,6 +71,8 @@
       |     |     |
       |     |     +--- MimeInlineTextHTML
       |     |     |     |
+      |     |     |     +--- MimeInlineTextHTMLParsed
+      |     |     |     |
       |     |     |     \--- MimeInlineTextHTMLSanitized
       |     |     |
       |     |     +--- MimeInlineTextRichtext

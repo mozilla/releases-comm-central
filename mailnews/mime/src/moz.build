@@ -55,6 +55,7 @@ SOURCES += [
     'mimesun.cpp',
     'mimetenr.cpp',
     'mimetext.cpp',
+    'mimeTextHTMLParsed.cpp',
     'mimethpl.cpp',
     'mimethsa.cpp',
     'mimethtm.cpp',
