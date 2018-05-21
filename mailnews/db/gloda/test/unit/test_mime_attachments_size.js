@@ -216,6 +216,9 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
 
   // undefined means true
   if (checkTotalSize !== false) {
+    // Account for stuff added by libmime, incl. two CRLF or LF before and after.
+    totalSize += "<meta http-equiv=\"content-type\" content=\"text\/html; \">".length;
+    totalSize += ("@mozilla.org/windows-registry-key;1" in Cc) ? 4 : 2;
     dump("*** Total size comparison: " + totalSize + " vs " + aMimeMsg.size + "\n");
     Assert.ok(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
   }

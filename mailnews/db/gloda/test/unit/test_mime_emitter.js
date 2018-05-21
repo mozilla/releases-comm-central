@@ -340,7 +340,11 @@ function verify_body_part_equivalence(aSynBodyPart, aMimePart) {
   if (aSynBodyPart.body && !aSynBodyPart._filename &&
       aSynBodyPart._contentType.startsWith("text/"))
     Assert.equal(synTransformBody(aSynBodyPart),
-                 aMimePart.body.trim().replace(/\r/g, ""));
+                 aMimePart.body.trim().replace(/\r/g, "")
+                 // Remove stuff added by libmime for HTML parts.
+                 .replace(/[\n]*<meta http-equiv="content-type" content="text\/html; .*">[\n]*/g, "")
+                 .replace(/[\n]+<\/body>/, "</body>")
+                );
   if (aSynBodyPart.parts) {
     let iPart;
     let realPartOffsetCompensator = 0;
