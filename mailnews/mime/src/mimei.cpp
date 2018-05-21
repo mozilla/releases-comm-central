@@ -1696,7 +1696,7 @@ MimeOptions_write(MimeHeaders *hdrs, MimeDisplayOptions *opt, const char *data,
     if (opt->state->separator_suppressed_p)
       opt->state->separator_suppressed_p = false;
     else {
-      const char *sep = "<!--'\"--><BR><FIELDSET CLASS=\"mimeAttachmentHeader\">";
+      const char *sep = "<BR><FIELDSET CLASS=\"mimeAttachmentHeader\">";
       int lstatus = opt->output_fn(sep, strlen(sep), closure);
       opt->state->separator_suppressed_p = false;
       if (lstatus < 0) return lstatus;
