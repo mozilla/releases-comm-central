@@ -1,6 +1,7 @@
 {
   "default": {
     "searchDefault": "Bing",
+    "searchOrder": [ "Bing", "Google" ],
     "visibleDefaultEngines": [
       "amazondotcom", "aol-web-search", "bing", "twitter", "wikipedia", "yahoo"
     ]
