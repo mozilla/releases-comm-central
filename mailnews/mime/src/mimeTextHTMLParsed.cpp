@@ -60,30 +60,6 @@ MimeInlineTextHTMLParsed_parse_begin(MimeObject *obj)
   if (status < 0)
     return status;
 
-  // Dump the charset we get from the mime headers into a HTML <meta http-equiv>.
-  char *content_type = obj->headers ?
-    MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false) : 0;
-  if (content_type)
-  {
-    char* charset = MimeHeaders_get_parameter(content_type,
-                                              HEADER_PARM_CHARSET,
-                                              NULL, NULL);
-    PR_Free(content_type);
-    if (charset)
-    {
-      nsAutoCString charsetline(
-        "\n<meta http-equiv=\"content-type\" content=\"text/html; charset=");
-      charsetline += charset;
-      charsetline += "\">\n";
-      int status = MimeObject_write(obj,
-                                    charsetline.get(),
-                                    charsetline.Length(),
-                                    true);
-      PR_Free(charset);
-      if (status < 0)
-        return status;
-    }
-  }
   return 0;
 }
 
