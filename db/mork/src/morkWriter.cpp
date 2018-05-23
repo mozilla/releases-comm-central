@@ -673,11 +673,11 @@ morkWriter::DirtyAll(morkEnv* ev)
               {
                 if ( row && row->IsRow() ) // need to dirty row?
                 {
-                	if ( row->IsRowUsed() || row->IsRowDirty() )
-                	{
-	                  row->DirtyAllRowContent(ev);
-	                  ++mWriter_TotalCount;
-                	}
+                  if ( row->IsRowUsed() || row->IsRowDirty() )
+                  {
+                    row->DirtyAllRowContent(ev);
+                    ++mWriter_TotalCount;
+                  }
                 }
                 else
                   row->NonRowTypeWarning(ev);
@@ -704,14 +704,14 @@ morkWriter::DirtyAll(morkEnv* ev)
               {
                 if ( table && table->IsTable() ) // need to dirty table?
                 {
-                	if ( table->IsTableUsed() || table->IsTableDirty() )
-                	{
-	                  // table->DirtyAllTableContent(ev);
-	                  // only necessary to mark table itself dirty:
-	                  table->SetTableDirty();
-	                  table->SetTableRewrite();
-	                  ++mWriter_TotalCount;
-                	}
+                  if ( table->IsTableUsed() || table->IsTableDirty() )
+                  {
+                    // table->DirtyAllTableContent(ev);
+                    // only necessary to mark table itself dirty:
+                    table->SetTableDirty();
+                    table->SetTableRewrite();
+                    ++mWriter_TotalCount;
+                  }
                 }
                 else
                   table->NonTableTypeWarning(ev);

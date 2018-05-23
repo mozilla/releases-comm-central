@@ -164,7 +164,7 @@ public: // external row methods
   void NextColumn(morkEnv* ev, mdb_column* ioColumn, mdbYarn* outYarn);
 
   void SeekColumn(morkEnv* ev, mdb_pos inPos,
-	  mdb_column* outColumn, mdbYarn* outYarn);
+  mdb_column* outColumn, mdbYarn* outYarn);
 
   void CutColumn(morkEnv* ev, mdb_column inColumn);
 

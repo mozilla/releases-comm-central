@@ -1162,7 +1162,7 @@ void morkParser::ReadGroup(morkEnv* mev)
      int c;
     if ( (c = s->Getc(mev)) == '@' )
     {
-    	// we really need the following span inside morkBuilder::OnNewGroup():
+      // we really need the following span inside morkBuilder::OnNewGroup():
       this->StartSpanOnThisByte(mev, &mParser_GroupSpan);
       mork_pos startPos = mParser_GroupSpan.mSpan_Start.mPlace_Pos;
 

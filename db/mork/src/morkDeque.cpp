@@ -149,11 +149,11 @@ void morkList::PushTail(morkNext* ioLink) // add to tail of list
   ioLink->mNext_Link = 0;
   if ( tail )
   {
-	  tail->mNext_Link = ioLink;
-	  mList_Tail = ioLink;
+    tail->mNext_Link = ioLink;
+    mList_Tail = ioLink;
   }
   else // list was previously empty?
-	  mList_Head = mList_Tail = ioLink; // tail is also head for first member added
+    mList_Head = mList_Tail = ioLink; // tail is also head for first member added
 }
 
 /*=============================================================================
