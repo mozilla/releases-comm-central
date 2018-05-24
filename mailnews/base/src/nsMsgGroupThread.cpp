@@ -536,9 +536,9 @@ nsresult nsMsgGroupThreadEnumerator::Prefetch()
   mFoundChildren = true;
 
 #ifdef DEBUG_bienvenu1
-	nsMsgKey debugMsgKey;
-	mResultHdr->GetMessageKey(&debugMsgKey);
-	printf("next for %ld = %ld\n", mThreadParentKey, debugMsgKey);
+  nsMsgKey debugMsgKey;
+  mResultHdr->GetMessageKey(&debugMsgKey);
+  printf("next for %ld = %ld\n", mThreadParentKey, debugMsgKey);
 #endif
 
   return rv;

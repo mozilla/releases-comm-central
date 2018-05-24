@@ -72,7 +72,7 @@ nsSubscribeDataSource::Init()
 
     rv = mRDFService->GetLiteral(u"false", getter_AddRefs(kFalseLiteral));
     NS_ENSURE_SUCCESS(rv,rv);
-	return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -107,24 +107,24 @@ nsSubscribeDataSource::GetTarget(nsIRDFResource *source,
                                 bool tv,
                                 nsIRDFNode **target /* out */)
 {
-	nsresult rv = NS_RDF_NO_VALUE;
+  nsresult rv = NS_RDF_NO_VALUE;
 
-	NS_ASSERTION(source != nullptr, "null ptr");
-	if (! source)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(source != nullptr, "null ptr");
+  if (! source)
+    return NS_ERROR_NULL_POINTER;
 
-	NS_ASSERTION(property != nullptr, "null ptr");
-	if (! property)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(property != nullptr, "null ptr");
+  if (! property)
+    return NS_ERROR_NULL_POINTER;
 
-	NS_ASSERTION(target != nullptr, "null ptr");
-	if (! target)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(target != nullptr, "null ptr");
+  if (! target)
+    return NS_ERROR_NULL_POINTER;
 
-	*target = nullptr;
+  *target = nullptr;
 
-	// we only have positive assertions in the subscribe data source.
-	if (! tv) return NS_RDF_NO_VALUE;
+  // we only have positive assertions in the subscribe data source.
+  if (! tv) return NS_RDF_NO_VALUE;
 
     nsCOMPtr<nsISubscribableServer> server;
     nsCString relativePath;
@@ -210,35 +210,35 @@ nsSubscribeDataSource::GetTarget(nsIRDFResource *source,
 
 NS_IMETHODIMP
 nsSubscribeDataSource::GetTargets(nsIRDFResource *source,
-				nsIRDFResource *property,
-				bool tv,
-				nsISimpleEnumerator **targets /* out */)
+        nsIRDFResource *property,
+        bool tv,
+        nsISimpleEnumerator **targets /* out */)
 {
-	nsresult rv = NS_OK;
+  nsresult rv = NS_OK;
 
-	NS_ASSERTION(source != nullptr, "null ptr");
-	if (! source)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(source != nullptr, "null ptr");
+  if (! source)
+    return NS_ERROR_NULL_POINTER;
 
-	NS_ASSERTION(property != nullptr, "null ptr");
-	if (! property)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(property != nullptr, "null ptr");
+  if (! property)
+    return NS_ERROR_NULL_POINTER;
 
-	NS_ASSERTION(targets != nullptr, "null ptr");
-	if (! targets)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(targets != nullptr, "null ptr");
+  if (! targets)
+    return NS_ERROR_NULL_POINTER;
 
-    *targets = nullptr;
+  *targets = nullptr;
 
-	// we only have positive assertions in the subscribe data source.
-	if (!tv) return NS_RDF_NO_VALUE;
+  // we only have positive assertions in the subscribe data source.
+  if (!tv) return NS_RDF_NO_VALUE;
 
     nsCOMPtr<nsISubscribableServer> server;
     nsCString relativePath;  // UTF-8
 
     rv = GetServerAndRelativePathFromResource(source, getter_AddRefs(server), getter_Copies(relativePath));
     if (NS_FAILED(rv) || !server) {
-	    return NS_NewEmptyEnumerator(targets);
+      return NS_NewEmptyEnumerator(targets);
     }
 
     if (property == kNC_Child.get()) {
@@ -299,7 +299,7 @@ nsSubscribeDataSource::GetTargets(nsIRDFResource *source,
         // do nothing
     }
 
-	return NS_NewEmptyEnumerator(targets);
+  return NS_NewEmptyEnumerator(targets);
 }
 
 NS_IMETHODIMP
@@ -308,7 +308,7 @@ nsSubscribeDataSource::Assert(nsIRDFResource *source,
                        nsIRDFNode *target,
                        bool tv)
 {
-	return NS_RDF_ASSERTION_REJECTED;
+  return NS_RDF_ASSERTION_REJECTED;
 }
 
 
@@ -398,30 +398,30 @@ nsSubscribeDataSource::HasAssertion(nsIRDFResource *source,
                              bool tv,
                              bool *hasAssertion /* out */)
 {
-    nsresult rv = NS_OK;
+  nsresult rv = NS_OK;
 
-	NS_ASSERTION(source != nullptr, "null ptr");
-	if (! source)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(source != nullptr, "null ptr");
+  if (! source)
+    return NS_ERROR_NULL_POINTER;
 
-	NS_ASSERTION(property != nullptr, "null ptr");
-	if (! property)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(property != nullptr, "null ptr");
+  if (! property)
+    return NS_ERROR_NULL_POINTER;
 
-	NS_ASSERTION(target != nullptr, "null ptr");
-	if (! target)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(target != nullptr, "null ptr");
+  if (! target)
+    return NS_ERROR_NULL_POINTER;
 
-	NS_ASSERTION(hasAssertion != nullptr, "null ptr");
-	if (! hasAssertion)
-		return NS_ERROR_NULL_POINTER;
+  NS_ASSERTION(hasAssertion != nullptr, "null ptr");
+  if (! hasAssertion)
+    return NS_ERROR_NULL_POINTER;
 
-	*hasAssertion = false;
+  *hasAssertion = false;
 
   // we only have positive assertions in the subscribe data source.
-	if (!tv) return NS_OK;
+  if (!tv) return NS_OK;
 
-	if (property == kNC_Child.get()) {
+  if (property == kNC_Child.get()) {
     nsCOMPtr<nsISubscribableServer> server;
     nsCString relativePath;
 
@@ -459,7 +459,7 @@ nsSubscribeDataSource::HasAssertion(nsIRDFResource *source,
         // do nothing
     }
 
-	return NS_OK;
+  return NS_OK;
 }
 
 
@@ -479,10 +479,10 @@ nsSubscribeDataSource::HasArcOut(nsIRDFResource *source, nsIRDFResource *aArc, b
 
     if (aArc == kNC_Child.get()) {
     rv = GetServerAndRelativePathFromResource(source, getter_AddRefs(server), getter_Copies(relativePath));
-    if (NS_FAILED(rv) || !server) {
-	    *result = false;
-        return NS_OK;
-    }
+        if (NS_FAILED(rv) || !server) {
+          *result = false;
+            return NS_OK;
+        }
 
         bool hasChildren = false;
         rv = server->HasChildren(relativePath, &hasChildren);
@@ -508,24 +508,24 @@ NS_IMETHODIMP
 nsSubscribeDataSource::ArcLabelsIn(nsIRDFNode *node,
                             nsISimpleEnumerator ** labels /* out */)
 {
-	return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 
 
 NS_IMETHODIMP
 nsSubscribeDataSource::ArcLabelsOut(nsIRDFResource *source,
-				   nsISimpleEnumerator **labels /* out */)
+           nsISimpleEnumerator **labels /* out */)
 {
     nsresult rv = NS_OK;
 
     NS_ASSERTION(source != nullptr, "null ptr");
     if (! source)
-	return NS_ERROR_NULL_POINTER;
+      return NS_ERROR_NULL_POINTER;
 
     NS_ASSERTION(labels != nullptr, "null ptr");
     if (! labels)
-	return NS_ERROR_NULL_POINTER;
+      return NS_ERROR_NULL_POINTER;
 
     nsCOMPtr<nsISubscribableServer> server;
     nsCString relativePath;
@@ -559,8 +559,8 @@ nsSubscribeDataSource::ArcLabelsOut(nsIRDFResource *source,
 NS_IMETHODIMP
 nsSubscribeDataSource::GetAllResources(nsISimpleEnumerator** aCursor)
 {
-	MOZ_ASSERT_UNREACHABLE("sorry!");
-	return NS_ERROR_NOT_IMPLEMENTED;
+  MOZ_ASSERT_UNREACHABLE("sorry!");
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 
@@ -594,7 +594,7 @@ NS_IMETHODIMP
 nsSubscribeDataSource::GetAllCmds(nsIRDFResource* source,
                                      nsISimpleEnumerator/*<nsIRDFResource>*/** commands)
 {
-	return(NS_NewEmptyEnumerator(commands));
+  return(NS_NewEmptyEnumerator(commands));
 }
 
 NS_IMETHODIMP
@@ -603,7 +603,7 @@ nsSubscribeDataSource::IsCommandEnabled(nsISupports/*nsISupportsArray<nsIRDFReso
                                         nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments,
                                         bool* aResult)
 {
-	return(NS_ERROR_NOT_IMPLEMENTED);
+  return(NS_ERROR_NOT_IMPLEMENTED);
 }
 
 
@@ -613,7 +613,7 @@ nsSubscribeDataSource::DoCommand(nsISupports/*nsISupportsArray<nsIRDFResource>*/
                                  nsIRDFResource*   aCommand,
                                  nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments)
 {
-	return(NS_ERROR_NOT_IMPLEMENTED);
+  return(NS_ERROR_NOT_IMPLEMENTED);
 }
 
 

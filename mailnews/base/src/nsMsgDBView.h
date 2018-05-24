@@ -338,14 +338,14 @@ protected:
   nsresult SetExtraFlag(nsMsgViewIndex index, uint32_t extraflag);
   virtual nsresult RemoveByIndex(nsMsgViewIndex index);
   virtual void OnExtraFlagChanged(nsMsgViewIndex /*index*/, uint32_t /*extraFlag*/) {}
-  virtual void OnHeaderAddedOrDeleted() {}	
-  nsresult ToggleWatched( nsMsgViewIndex* indices,	int32_t numIndices);
+  virtual void OnHeaderAddedOrDeleted() {}
+  nsresult ToggleWatched( nsMsgViewIndex* indices,  int32_t numIndices);
   nsresult SetThreadWatched(nsIMsgThread *thread, nsMsgViewIndex index, bool watched);
   nsresult SetThreadIgnored(nsIMsgThread *thread, nsMsgViewIndex threadIndex, bool ignored);
   nsresult SetSubthreadKilled(nsIMsgDBHdr *header, nsMsgViewIndex msgIndex, bool ignored);
   nsresult DownloadForOffline(nsIMsgWindow *window, nsMsgViewIndex *indices, int32_t numIndices);
   nsresult DownloadFlaggedForOffline(nsIMsgWindow *window);
-  nsMsgViewIndex	GetThreadFromMsgIndex(nsMsgViewIndex index, nsIMsgThread **threadHdr);
+  nsMsgViewIndex  GetThreadFromMsgIndex(nsMsgViewIndex index, nsIMsgThread **threadHdr);
   /// Should junk commands be enabled for the current message in the view?
   bool JunkControlsEnabled(nsMsgViewIndex aViewIndex);
 

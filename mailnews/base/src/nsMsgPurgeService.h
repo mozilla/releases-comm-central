@@ -18,20 +18,20 @@
 #include "nsIMutableArray.h"
 
 class nsMsgPurgeService
-	: public nsIMsgPurgeService,
-		public nsIMsgSearchNotify
+  : public nsIMsgPurgeService,
+    public nsIMsgSearchNotify
 {
 public:
-	nsMsgPurgeService();
+  nsMsgPurgeService();
 
-	NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGPURGESERVICE
-	NS_DECL_NSIMSGSEARCHNOTIFY
+  NS_DECL_NSIMSGSEARCHNOTIFY
 
-	nsresult PerformPurge();
+  nsresult PerformPurge();
 
 protected:
-	virtual ~nsMsgPurgeService();
+  virtual ~nsMsgPurgeService();
   int32_t FindServer(nsIMsgIncomingServer *server);
   nsresult SetupNextPurge();
   nsresult PurgeSurver(nsIMsgIncomingServer *server);

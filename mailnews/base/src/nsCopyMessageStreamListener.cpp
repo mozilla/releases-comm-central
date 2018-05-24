@@ -19,13 +19,13 @@ static nsresult GetMessage(nsIURI *aURL, nsIMsgDBHdr **message)
 {
   NS_ENSURE_ARG_POINTER(message);
 
-	nsCOMPtr<nsIMsgMessageUrl> uriURL;
-	nsresult rv;
+  nsCOMPtr<nsIMsgMessageUrl> uriURL;
+  nsresult rv;
 
-	//Need to get message we are about to copy
-	uriURL = do_QueryInterface(aURL, &rv);
-	if(NS_FAILED(rv))
-		return rv;
+  //Need to get message we are about to copy
+  uriURL = do_QueryInterface(aURL, &rv);
+  if(NS_FAILED(rv))
+    return rv;
 
   // get the uri.  first try and use the original message spec
   // if that fails, use the spec of nsIURI that we're called with
@@ -52,56 +52,56 @@ nsCopyMessageStreamListener::nsCopyMessageStreamListener()
 
 nsCopyMessageStreamListener::~nsCopyMessageStreamListener()
 {
-	//All member variables are nsCOMPtr's.
+  //All member variables are nsCOMPtr's.
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::Init(nsIMsgFolder *srcFolder, nsICopyMessageListener *destination, nsISupports *listenerData)
 {
-	mSrcFolder = srcFolder;
-	mDestination = destination;
-	mListenerData = listenerData;
-	return NS_OK;
+  mSrcFolder = srcFolder;
+  mDestination = destination;
+  mListenerData = listenerData;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::StartMessage()
 {
-	if (mDestination)
-		mDestination->StartMessage();
+  if (mDestination)
+    mDestination->StartMessage();
 
-	return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::EndMessage(nsMsgKey key)
 {
-	if (mDestination)
-		mDestination->EndMessage(key);
+  if (mDestination)
+    mDestination->EndMessage(key);
 
-	return NS_OK;
+  return NS_OK;
 }
 
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnDataAvailable(nsIRequest * /* request */, nsISupports *ctxt, nsIInputStream *aIStream, uint64_t sourceOffset, uint32_t aLength)
 {
-	nsresult rv;
-	rv = mDestination->CopyData(aIStream, aLength);
-	return rv;
+  nsresult rv;
+  rv = mDestination->CopyData(aIStream, aLength);
+  return rv;
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest * request, nsISupports *ctxt)
 {
-	nsCOMPtr<nsIMsgDBHdr> message;
-	nsresult rv = NS_OK;
-	nsCOMPtr<nsIURI> uri = do_QueryInterface(ctxt, &rv);
+  nsCOMPtr<nsIMsgDBHdr> message;
+  nsresult rv = NS_OK;
+  nsCOMPtr<nsIURI> uri = do_QueryInterface(ctxt, &rv);
 
   NS_ASSERTION(NS_SUCCEEDED(rv), "ahah...someone didn't pass in the expected context!!!");
-	
-	if (NS_SUCCEEDED(rv))
-		rv = GetMessage(uri, getter_AddRefs(message));
-	if(NS_SUCCEEDED(rv))
-		rv = mDestination->BeginCopy(message);
+
+  if (NS_SUCCEEDED(rv))
+    rv = GetMessage(uri, getter_AddRefs(message));
+  if(NS_SUCCEEDED(rv))
+    rv = mDestination->BeginCopy(message);
 
   NS_ENSURE_SUCCESS(rv, rv);
-	return rv;
+  return rv;
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsISupports *url, nsresult aStatus)

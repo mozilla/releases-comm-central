@@ -17,10 +17,10 @@
 #include "nsIStringBundle.h"
 
 class nsMsgOfflineManager
-	: public nsIMsgOfflineManager,
-      public nsIObserver,
-      public nsSupportsWeakReference,
-      public nsIMsgSendLaterListener,
+  : public nsIMsgOfflineManager,
+    public nsIObserver,
+    public nsSupportsWeakReference,
+    public nsIMsgSendLaterListener,
     public nsIUrlListener
 {
 public:
@@ -39,10 +39,10 @@ public:
   typedef enum
   {
     eStarting = 0,
-	  eSynchronizingOfflineImapChanges = 1,
+    eSynchronizingOfflineImapChanges = 1,
     eDownloadingNews = 2,
     eDownloadingMail = 3,
-	  eSendingUnsent = 4,
+    eSendingUnsent = 4,
     eDone = 5,
     eNoState = 6  // we're not doing anything
   } offlineManagerState;

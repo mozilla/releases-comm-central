@@ -202,7 +202,7 @@ nsMsgStatusFeedback::ShowProgress(int32_t aPercentage)
   m_lastPercent = aPercentage;
 
   int64_t nowMS = 0;
-  if (aPercentage < 100)	// always need to do 100%
+  if (aPercentage < 100)  // always need to do 100%
   {
     nowMS = PR_IntervalToMilliseconds(PR_IntervalNow());
     if (nowMS < m_lastProgressTime + 250)

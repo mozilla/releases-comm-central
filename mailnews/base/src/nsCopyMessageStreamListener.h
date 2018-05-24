@@ -16,22 +16,20 @@
 class nsCopyMessageStreamListener : public nsIStreamListener, public nsICopyMessageStreamListener {
 
 public:
-	nsCopyMessageStreamListener();
+  nsCopyMessageStreamListener();
 
-	NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSICOPYMESSAGESTREAMLISTENER
-    NS_DECL_NSIREQUESTOBSERVER
-    NS_DECL_NSISTREAMLISTENER
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSICOPYMESSAGESTREAMLISTENER
+  NS_DECL_NSIREQUESTOBSERVER
+  NS_DECL_NSISTREAMLISTENER
 
 protected:
-	virtual ~nsCopyMessageStreamListener();
+  virtual ~nsCopyMessageStreamListener();
 
-	nsCOMPtr<nsICopyMessageListener> mDestination;
-	nsCOMPtr<nsISupports> mListenerData;
-	nsCOMPtr<nsIMsgFolder> mSrcFolder;
+  nsCOMPtr<nsICopyMessageListener> mDestination;
+  nsCOMPtr<nsISupports> mListenerData;
+  nsCOMPtr<nsIMsgFolder> mSrcFolder;
 
 };
-
-
 
 #endif

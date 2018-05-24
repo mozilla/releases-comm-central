@@ -50,7 +50,7 @@ protected:
   virtual nsMsgViewIndex FindMsgHdr(nsIMsgDBHdr *hdr);
 
   nsMsgKey        m_threadKey;
-  uint32_t        m_numUnreadChildren;	
+  uint32_t        m_numUnreadChildren;
   uint32_t        m_flags;
   nsMsgKey        m_threadRootKey;
   uint32_t        m_newestMsgDate;

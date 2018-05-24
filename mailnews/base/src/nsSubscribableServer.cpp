@@ -327,23 +327,23 @@ nsSubscribableServer::Notify(nsIRDFResource *subject, nsIRDFResource *property, 
 NS_IMETHODIMP
 nsSubscribableServer::SetSubscribeListener(nsISubscribeListener *aListener)
 {
-	mSubscribeListener = aListener;
-	return NS_OK;
+  mSubscribeListener = aListener;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsSubscribableServer::GetSubscribeListener(nsISubscribeListener **aListener)
 {
-	if (!aListener) return NS_ERROR_NULL_POINTER;
-	NS_IF_ADDREF(*aListener = mSubscribeListener);
-	return NS_OK;
+  if (!aListener) return NS_ERROR_NULL_POINTER;
+  NS_IF_ADDREF(*aListener = mSubscribeListener);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsSubscribableServer::SubscribeCleanup()
 {
-	NS_ASSERTION(false,"override this.");
-	return NS_ERROR_FAILURE;
+  NS_ASSERTION(false,"override this.");
+  return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP
@@ -377,29 +377,29 @@ nsSubscribableServer::StopPopulating(nsIMsgWindow *aMsgWindow)
 NS_IMETHODIMP
 nsSubscribableServer::UpdateSubscribed()
 {
-	NS_ASSERTION(false,"override this.");
-	return NS_ERROR_FAILURE;
+  NS_ASSERTION(false,"override this.");
+  return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP
 nsSubscribableServer::Subscribe(const char16_t *aName)
 {
-	NS_ASSERTION(false,"override this.");
-	return NS_ERROR_FAILURE;
+  NS_ASSERTION(false,"override this.");
+  return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP
 nsSubscribableServer::Unsubscribe(const char16_t *aName)
 {
-	NS_ASSERTION(false,"override this.");
-	return NS_ERROR_FAILURE;
+  NS_ASSERTION(false,"override this.");
+  return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP
 nsSubscribableServer::SetShowFullName(bool showFullName)
 {
-	mShowFullName = showFullName;
-	return NS_OK;
+  mShowFullName = showFullName;
+  return NS_OK;
 }
 
 nsresult

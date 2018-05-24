@@ -98,7 +98,7 @@ nsMsgCompressOStream::Write(const char *buf, uint32_t count, uint32_t *result)
       nsresult rv = m_oStream->Write(out_buf, out_size, &out_result);
       NS_ENSURE_SUCCESS(rv, rv);
       if (!out_result)
-	return NS_BASE_STREAM_CLOSED;
+        return NS_BASE_STREAM_CLOSED;
       out_size -= out_result;
       out_buf += out_result;
     }

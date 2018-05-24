@@ -168,7 +168,7 @@ nsresult nsMsgOfflineManager::AdvanceToNextState(nsresult exitStatus)
 nsresult nsMsgOfflineManager::SynchronizeOfflineImapChanges()
 {
   nsresult rv = NS_OK;
-	nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+  nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return imapService->PlaybackAllOfflineOperations(m_window, this, getter_AddRefs(mOfflineImapSync));
 }
@@ -258,7 +258,7 @@ nsresult nsMsgOfflineManager::ShowStatus(const char *statusMsgName)
 
 nsresult nsMsgOfflineManager::DownloadOfflineNewsgroups()
 {
-	nsresult rv;
+  nsresult rv;
   ShowStatus("downloadingNewsgroups");
   nsCOMPtr<nsINntpService> nntpService(do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv));
   if (NS_SUCCEEDED(rv) && nntpService)
@@ -273,7 +273,7 @@ nsresult nsMsgOfflineManager::DownloadMail()
 {
   nsresult rv = NS_OK;
   ShowStatus("downloadingMail");
-	nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+  nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return imapService->DownloadAllOffineImapFolders(m_window, this);
   // ### we should do get new mail on pop servers, and download imap messages for offline use.
