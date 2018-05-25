@@ -1,0 +1,48 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.release_deps:transforms
+    - taskgraph.transforms.release_version_bump:transforms
+    - taskgraph.transforms.task:transforms
+
+kind-dependencies:
+    - release-beetmover-push-to-release
+
+job-defaults:
+    description: Release Promotion version bump/tag
+    run-on-projects: []
+    shipping-phase: ship
+    worker-type:
+        by-project:
+            comm-(beta|esr60): scriptworker-prov-v1/tb-treescript-comm-v1
+            default: scriptworker-prov-v1/tb-treescript-comm-dev
+    worker:
+        implementation: treescript
+        tag: true
+        bump: true
+        bump-files:
+            by-project:
+                default: ["mail/config/version_display.txt"]
+                comm-(beta|esr60):
+                    - "mail/config/version.txt"
+                    - "mail/config/version_display.txt"
+        push:
+            by-project:
+                comm-(beta|esr60): true
+                default: false
+
+jobs:
+    thunderbird-comm:
+        name: thunderbird-comm-version-bump
+        worker:
+            repo-param-prefix: comm_
+        shipping-product: thunderbird
+        treeherder:
+            platform: thunderbird-release/opt
+            symbol: Rel(VerBump)
+            tier: 1
+            kind: build

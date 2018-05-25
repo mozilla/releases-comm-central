@@ -43,6 +43,7 @@ release-promotion:
         ship_thunderbird:
             product: thunderbird
             target-tasks-method: ship_desktop
+            version-bump: true
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
