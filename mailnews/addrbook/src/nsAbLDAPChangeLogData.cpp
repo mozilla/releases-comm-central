@@ -62,7 +62,7 @@ NS_IMETHODIMP nsAbLDAPProcessChangeLogData::Init(nsIAbLDAPReplicationQuery * que
 nsresult nsAbLDAPProcessChangeLogData::OnLDAPBind(nsILDAPMessage *aMessage)
 {
     NS_ENSURE_ARG_POINTER(aMessage);
-	if(!mInitialized)
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
     int32_t errCode;
@@ -272,7 +272,7 @@ nsresult nsAbLDAPProcessChangeLogData::GetAuthData()
     nsString username;
     nsString password;
     bool btnResult = false;
-	rv = dialog->PromptUsernameAndPassword(title, desc,
+    rv = dialog->PromptUsernameAndPassword(title, desc,
                                             NS_ConvertUTF8toUTF16(serverUri).get(),
                                             nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY,
                                             getter_Copies(username), getter_Copies(password),

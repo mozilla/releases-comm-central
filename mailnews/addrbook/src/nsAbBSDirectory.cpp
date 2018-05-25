@@ -45,7 +45,7 @@ nsresult nsAbBSDirectory::CreateDirectoriesFromFactory(const nsACString &aURI,
   nsCOMPtr<nsIAbDirFactoryService> dirFactoryService =
     do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID,&rv);
   NS_ENSURE_SUCCESS (rv, rv);
-		
+
   // Get the directory factory from the URI
   nsCOMPtr<nsIAbDirFactory> dirFactory;
   rv = dirFactoryService->GetDirFactory(aURI, getter_AddRefs(dirFactory));
@@ -175,7 +175,7 @@ NS_IMETHODIMP nsAbBSDirectory::CreateNewDirectory(const nsAString &aDirName,
    * This procedure is still MDB specific
    * due to the dependence on the current
    * nsDirPref.cpp code
-	 */
+   */
 
   nsCString URI(aURI);
 
@@ -223,7 +223,7 @@ NS_IMETHODIMP nsAbBSDirectory::CreateDirectoryByURI(const nsAString &aDisplayNam
 
   rv = CreateDirectoriesFromFactory(aURI, server, true /* notify */);
   NS_ENSURE_SUCCESS(rv,rv);
-	return rv;
+  return rv;
 }
 
 NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)

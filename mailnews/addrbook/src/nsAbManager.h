@@ -23,17 +23,17 @@ class nsAbManager : public nsIAbManager,
 {
 
 public:
-	nsAbManager();
+  nsAbManager();
 
-	NS_DECL_THREADSAFE_ISUPPORTS
- 	NS_DECL_NSIABMANAGER
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIABMANAGER
   NS_DECL_NSIOBSERVER
   NS_DECL_NSICOMMANDLINEHANDLER
 
   nsresult Init();
 
 private:
-	virtual ~nsAbManager();
+  virtual ~nsAbManager();
   nsresult GetRootDirectory(nsIAbDirectory **aResult);
   nsresult ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory, const char *aDelim,
                                           uint32_t aDelimLen, nsIFile *aLocalFile, bool useUTF8);

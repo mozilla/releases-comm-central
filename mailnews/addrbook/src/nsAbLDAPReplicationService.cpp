@@ -30,7 +30,7 @@ nsAbLDAPReplicationService::~nsAbLDAPReplicationService()
 
 /* void startReplication(in string aURI, in nsIWebProgressListener progressListener); */
 NS_IMETHODIMP nsAbLDAPReplicationService::StartReplication(nsIAbLDAPDirectory *aDirectory,
-							   nsIWebProgressListener *progressListener)
+                 nsIWebProgressListener *progressListener)
 {
   NS_ENSURE_ARG_POINTER(aDirectory);
 
@@ -66,17 +66,17 @@ NS_IMETHODIMP nsAbLDAPReplicationService::StartReplication(nsIAbLDAPDirectory *a
     {
       rv = mQuery->DoReplicationQuery();
       if (NS_SUCCEEDED(rv))
-	{
-	  mReplicating = true;
-	  return rv;
-	}
+      {
+        mReplicating = true;
+        return rv;
+      }
     }
   }
 
   if (progressListener && NS_FAILED(rv))
     progressListener->OnStateChange(nullptr, nullptr,
-				    nsIWebProgressListener::STATE_STOP,
-				    NS_OK);
+            nsIWebProgressListener::STATE_STOP,
+            NS_OK);
 
   if (NS_FAILED(rv))
   {

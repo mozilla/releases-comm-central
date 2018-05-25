@@ -36,14 +36,14 @@ NS_IMPL_ISUPPORTS_INHERITED(nsAbMDBDirProperty, nsAbDirProperty,
 
 NS_IMETHODIMP nsAbMDBDirProperty::GetDbRowID(uint32_t *aDbRowID)
 {
-	*aDbRowID = m_dbRowID;
-	return NS_OK;
+  *aDbRowID = m_dbRowID;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbMDBDirProperty::SetDbRowID(uint32_t aDbRowID)
 {
-	m_dbRowID = aDbRowID;
-	return NS_OK;
+  m_dbRowID = aDbRowID;
+  return NS_OK;
 }
 
 
@@ -85,18 +85,18 @@ NS_IMETHODIMP nsAbMDBDirProperty::AddAddressToList(nsIAbCard *card)
 
 NS_IMETHODIMP nsAbMDBDirProperty::CopyDBMailList(nsIAbMDBDirectory* srcListDB)
 {
-	nsresult err = NS_OK;
-	nsCOMPtr<nsIAbDirectory> srcList(do_QueryInterface(srcListDB));
-	if (NS_FAILED(err))
-		return NS_ERROR_NULL_POINTER;
+  nsresult err = NS_OK;
+  nsCOMPtr<nsIAbDirectory> srcList(do_QueryInterface(srcListDB));
+  if (NS_FAILED(err))
+    return NS_ERROR_NULL_POINTER;
 
-	CopyMailList (srcList);
+  CopyMailList (srcList);
 
-	uint32_t rowID;
-	srcListDB->GetDbRowID(&rowID);
-	SetDbRowID(rowID);
+  uint32_t rowID;
+  srcListDB->GetDbRowID(&rowID);
+  SetDbRowID(rowID);
 
-	return NS_OK;
+  return NS_OK;
 }
 
 

@@ -28,7 +28,7 @@
  */
 
 class nsAbMDBDirectory:
-  public nsAbMDBDirProperty,	// nsIAbDirectory, nsIAbMDBDirectory
+  public nsAbMDBDirProperty,  // nsIAbDirectory, nsIAbMDBDirectory
   public nsIAbDirSearchListener,
   public nsIAddrDBListener,
   public nsIAbDirectorySearch

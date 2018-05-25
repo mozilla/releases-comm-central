@@ -68,8 +68,8 @@ nsAbOutlookDirFactory::GetDirectories(const nsAString &aDirName,
     buildAbWinUri(kOutlookDirectoryScheme, abType, uri);
     uri.Append(entryId);
 
-	nsCOMPtr<nsIAbDirectory> directory;
-	rv = abManager->GetDirectory(uri, getter_AddRefs(directory));
+    nsCOMPtr<nsIAbDirectory> directory;
+    rv = abManager->GetDirectory(uri, getter_AddRefs(directory));
     NS_ENSURE_SUCCESS(rv, rv);
     directories->AppendElement(directory);
   }

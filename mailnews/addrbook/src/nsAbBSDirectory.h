@@ -16,11 +16,11 @@
 class nsAbBSDirectory : public nsAbDirProperty
 {
 public:
-	NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_ISUPPORTS_INHERITED
 
-	nsAbBSDirectory();
+  nsAbBSDirectory();
 
-	// nsIAbDirectory methods
+  // nsIAbDirectory methods
   NS_IMETHOD Init(const char *aURI) override;
   NS_IMETHOD GetChildNodes(nsISimpleEnumerator* *result) override;
   NS_IMETHOD CreateNewDirectory(const nsAString &aDirName,
@@ -38,13 +38,13 @@ public:
 protected:
   virtual ~nsAbBSDirectory();
   nsresult EnsureInitialized();
-	nsresult CreateDirectoriesFromFactory(const nsACString &aURI,
+  nsresult CreateDirectoriesFromFactory(const nsACString &aURI,
                                         DIR_Server* aServer, bool aNotify);
 
 protected:
-	bool mInitialized;
-	nsCOMArray<nsIAbDirectory> mSubDirectories;
-	nsDataHashtable<nsISupportsHashKey, DIR_Server*> mServers;
+  bool mInitialized;
+  nsCOMArray<nsIAbDirectory> mSubDirectories;
+  nsDataHashtable<nsISupportsHashKey, DIR_Server*> mServers;
 };
 
 #endif

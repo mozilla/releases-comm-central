@@ -38,8 +38,8 @@ public:
 
 protected:
   virtual ~nsAbCardProperty();
-	bool     m_IsMailList;
-	nsCString m_MailListURI;
+  bool     m_IsMailList;
+  nsCString m_MailListURI;
 
   // Store most of the properties here
   nsInterfaceHashtable<nsCStringHashKey, nsIVariant> m_properties;

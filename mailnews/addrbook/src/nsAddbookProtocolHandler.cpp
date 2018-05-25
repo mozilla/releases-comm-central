@@ -39,8 +39,8 @@ NS_IMPL_ISUPPORTS(nsAddbookProtocolHandler, nsIProtocolHandler)
 
 NS_IMETHODIMP nsAddbookProtocolHandler::GetScheme(nsACString &aScheme)
 {
-	aScheme = "addbook";
-	return NS_OK;
+  aScheme = "addbook";
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAddbookProtocolHandler::GetDefaultPort(int32_t *aDefaultPort)
@@ -232,7 +232,7 @@ nsAddbookProtocolHandler::GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
    into "moz-abmdbdirectory/abook.mab"
    */
   int32_t pos = uri.Find("?action=print");
-	if (pos == -1)
+  if (pos == -1)
     return NS_ERROR_UNEXPECTED;
 
   uri.SetLength(pos);

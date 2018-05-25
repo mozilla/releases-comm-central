@@ -28,7 +28,7 @@ class nsAbDirProperty: public nsIAbDirectory,
                        public nsSupportsWeakReference
 {
 public:
-	nsAbDirProperty(void);
+  nsAbDirProperty(void);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABITEM
@@ -36,20 +36,20 @@ public:
   NS_DECL_NSIABDIRECTORY
 
 protected:
-	virtual ~nsAbDirProperty(void);
+  virtual ~nsAbDirProperty(void);
 
   /**
    * Initialise the directory prefs for this branch
    */
   nsresult InitDirectoryPrefs();
 
-	uint32_t m_LastModifiedDate;
+  uint32_t m_LastModifiedDate;
 
-	nsString m_ListDirName;
-	nsString m_ListName;
-	nsString m_ListNickName;
-	nsString m_Description;
-	bool     m_IsMailList;
+  nsString m_ListDirName;
+  nsString m_ListName;
+  nsString m_ListNickName;
+  nsString m_Description;
+  bool     m_IsMailList;
 
   nsCString mURI;
   nsCString mQueryString;

@@ -1160,7 +1160,7 @@ nsresult nsAbOutlookDirectory::UpdateAddressList(void)
 {
     if (!m_AddressList)
     {
-	nsresult rv;
+        nsresult rv;
         m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
     }

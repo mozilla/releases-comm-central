@@ -16,7 +16,7 @@
 class nsAddbookProtocolHandler : public nsIProtocolHandler
 {
 public:
-	nsAddbookProtocolHandler();
+  nsAddbookProtocolHandler();
 
   NS_DECL_ISUPPORTS
 
@@ -26,7 +26,7 @@ public:
   NS_DECL_NSIPROTOCOLHANDLER
 
 private:
-	virtual ~nsAddbookProtocolHandler();
+  virtual ~nsAddbookProtocolHandler();
   nsresult    GenerateXMLOutputChannel(nsString &aOutput,
                                          nsIAddbookUrl *addbookUrl,
                                          nsIURI *aURI,

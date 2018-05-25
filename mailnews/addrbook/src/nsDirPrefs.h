@@ -24,8 +24,8 @@
 /* DIR_Server.dirType */
 typedef enum
 {
-	LDAPDirectory,
-	HTMLDirectory,
+  LDAPDirectory,
+  HTMLDirectory,
   PABDirectory,
   MAPIDirectory,
   FixedQueryLDAPDirectory = 777
@@ -33,37 +33,37 @@ typedef enum
 
 typedef enum
 {
-	idNone = 0,					/* Special value                          */
-	idPrefName,
-	idPosition,
-	idDescription,
-	idFileName,
-	idUri,
-	idType
+  idNone = 0,  /* Special value */
+  idPrefName,
+  idPosition,
+  idDescription,
+  idFileName,
+  idUri,
+  idType
 } DIR_PrefId;
 
 #define DIR_Server_typedef 1     /* this quiets a redeclare warning in libaddr */
 
 typedef struct DIR_Server
 {
-	/* Housekeeping fields */
-	char   *prefName;			/* preference name, this server's subtree */
-	int32_t  position;			/* relative position in server list       */
+  /* Housekeeping fields */
+  char    *prefName;      /* preference name, this server's subtree */
+  int32_t  position;      /* relative position in server list       */
 
-	/* General purpose fields */
-	char   *description;		/* human readable name                    */
-	char   *fileName;			/* XP path name of local DB               */
-	DirectoryType dirType;	
-  char    *uri;       // URI of the address book
+  /* General purpose fields */
+  char   *description;    /* human readable name                    */
+  char   *fileName;       /* XP path name of local DB               */
+  DirectoryType dirType;
+  char   *uri;            // URI of the address book
 
   // Set whilst saving the server to avoid updating it again
   bool savingServer;
 } DIR_Server;
 
 /* We are developing a new model for managing DIR_Servers. In the 4.0x world, the FEs managed each list.
-	Calls to FE_GetDirServer caused the FEs to manage and return the DIR_Server list. In our new view of the
-	world, the back end does most of the list management so we are going to have the back end create and
-	manage the list. Replace calls to FE_GetDirServers() with DIR_GetDirServers(). */
+  Calls to FE_GetDirServer caused the FEs to manage and return the DIR_Server list. In our new view of the
+  world, the back end does most of the list management so we are going to have the back end create and
+  manage the list. Replace calls to FE_GetDirServers() with DIR_GetDirServers(). */
 
 nsTArray<DIR_Server*>* DIR_GetDirectories();
 DIR_Server* DIR_GetServerFromList(const char* prefName);
@@ -79,7 +79,7 @@ nsresult DIR_ContainsServer(DIR_Server* pServer, bool *hasDir);
 
 nsresult DIR_DeleteServerFromList (DIR_Server *);
 
-void    DIR_SavePrefsForOneServer(DIR_Server *server);
+void DIR_SavePrefsForOneServer(DIR_Server *server);
 
 void DIR_SetServerFileName(DIR_Server* pServer);
 

@@ -1402,7 +1402,7 @@ NS_IMETHODIMP nsAbView::GetSelectedAddresses(nsIArray **_retval)
       NS_ENSURE_SUCCESS(rv,rv);
 
       uint32_t mailListCount = 0;
-      mailListAddresses->GetLength(&mailListCount);	
+      mailListAddresses->GetLength(&mailListCount);
 
       for (uint32_t j = 0; j < mailListCount; j++) {
         nsCOMPtr<nsIAbCard> mailListCard = do_QueryElementAt(mailListAddresses, j, &rv);

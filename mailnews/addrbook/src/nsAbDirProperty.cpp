@@ -23,7 +23,7 @@ nsAbDirProperty::nsAbDirProperty(void)
     mIsValidURI(false),
     mIsQueryURI(false)
 {
-	m_IsMailList = false;
+  m_IsMailList = false;
 }
 
 nsAbDirProperty::~nsAbDirProperty(void)
@@ -167,11 +167,11 @@ NS_IMETHODIMP nsAbDirProperty::GetLastModifiedDate(uint32_t *aLastModifiedDate)
 
 NS_IMETHODIMP nsAbDirProperty::SetLastModifiedDate(uint32_t aLastModifiedDate)
 {
-	if (aLastModifiedDate)
-	{
-		m_LastModifiedDate = aLastModifiedDate;
-	}
-	return NS_OK;
+  if (aLastModifiedDate)
+  {
+    m_LastModifiedDate = aLastModifiedDate;
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetListNickName(nsAString &aListNickName)
@@ -200,14 +200,14 @@ NS_IMETHODIMP nsAbDirProperty::SetDescription(const nsAString &aDescription)
 
 NS_IMETHODIMP nsAbDirProperty::GetIsMailList(bool *aIsMailList)
 {
-	*aIsMailList = m_IsMailList;
-	return NS_OK;
+  *aIsMailList = m_IsMailList;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbDirProperty::SetIsMailList(bool aIsMailList)
 {
-	m_IsMailList = aIsMailList;
-	return NS_OK;
+  m_IsMailList = aIsMailList;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetAddressLists(nsIMutableArray * *aAddressLists)
