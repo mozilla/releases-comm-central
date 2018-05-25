@@ -19,7 +19,6 @@
 #include "nsIWebProgressListener.h"
 #include "nsIMimeConverter.h"
 #include "nsIMsgFolder.h"
-#include "nsIDOMNode.h"
 #include "mozIDOMWindow.h"
 #include "mozilla/dom/Element.h"
 

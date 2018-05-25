@@ -1728,7 +1728,7 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     {
       //
       // Now we have to get all of the interesting information from
-      // the nsIDOMNode we have in hand...
+      // the DOM node we have in hand...
       m_attachments[i]->mURL = attachment->m_url;
 
       m_attachments[i]->m_overrideType = attachment->m_realType;

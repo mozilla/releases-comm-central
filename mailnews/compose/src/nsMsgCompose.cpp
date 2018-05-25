@@ -5,7 +5,6 @@
 
 #include "nsMsgCompose.h"
 #include "nsIDocument.h"
-#include "nsIDOMNode.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
 #include "nsISelectionController.h"
@@ -224,7 +223,7 @@ GetChildOffset(nsINode *aChild, nsINode *aParent, int32_t &aOffset)
 }
 
 nsresult
-GetNodeLocation(nsIDOMNode *inChild, nsCOMPtr<nsINode> *outParent, int32_t *outOffset)
+GetNodeLocation(nsINode *inChild, nsCOMPtr<nsINode> *outParent, int32_t *outOffset)
 {
   NS_ASSERTION((outParent && outOffset), "bad args");
   nsresult result = NS_ERROR_NULL_POINTER;
@@ -576,7 +575,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
   nsCOMPtr<nsINode> parent;
   int32_t offset;
 
-  rv = GetNodeLocation(divElem->AsDOMNode(), address_of(parent), &offset);
+  rv = GetNodeLocation(divElem, address_of(parent), &offset);
   if (NS_SUCCEEDED(rv))
   {
     RefPtr<Selection> selection;
@@ -603,7 +602,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
   NS_ENSURE_TRUE(m_editor && m_identity, NS_ERROR_NOT_INITIALIZED);
 
   // First, get the nsIEditor interface for future use
-  nsCOMPtr<nsIDOMNode> nodeInserted;
+  nsCOMPtr<nsINode> nodeInserted;
 
   TranslateLineEnding(aPrefix);
   TranslateLineEnding(aBuf);
@@ -832,14 +831,14 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
             if (brBeforeDiv) {
               tagLocalName = brBeforeDiv->LocalName();
               if (tagLocalName.EqualsLiteral("br")) {
-                rv = m_editor->DeleteNode(brBeforeDiv->AsDOMNode());
+                rv = m_editor->DeleteNode(brBeforeDiv);
                 NS_ENSURE_SUCCESS(rv, rv);
               }
             }
           }
 
           // Clean up the <br> we inserted.
-          rv = m_editor->DeleteNode(extraBr->AsDOMNode());
+          rv = m_editor->DeleteNode(extraBr);
           NS_ENSURE_SUCCESS(rv, rv);
         }
 
@@ -3060,7 +3059,7 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
                                              bool aHTMLEditor)
 {
   // First, get the nsIEditor interface for future use
-  nsCOMPtr<nsIDOMNode> nodeInserted;
+  nsCOMPtr<nsINode> nodeInserted;
 
   TranslateLineEnding(mMsgBody);
 
@@ -5768,7 +5767,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
     {
       m_editor->BeginTransaction();
       tempNode = node->GetPreviousSibling();
-      rv = m_editor->DeleteNode(node->AsDOMNode());
+      rv = m_editor->DeleteNode(node);
       if (NS_FAILED(rv))
       {
         m_editor->EndTransaction();
@@ -5780,7 +5779,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
       {
         tagLocalName = tempNode->LocalName();
         if (tagLocalName.EqualsLiteral("br"))
-          m_editor->DeleteNode(tempNode->AsDOMNode());
+          m_editor->DeleteNode(tempNode);
       }
       m_editor->EndTransaction();
     }
