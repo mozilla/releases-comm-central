@@ -538,7 +538,7 @@ NS_DEFINE_NAMED_CID(NS_BAYESIANFILTER_CID);
 // compose factories
 ////////////////////////////////////////////////////////////////////////////////
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsSmtpService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsSmtpServer)
+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSmtpServer, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCompose)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeParams)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeSendListener)

@@ -18,12 +18,14 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "nsMemory.h"
+#include "nsIObserverService.h"
 
 NS_IMPL_ADDREF(nsSmtpServer)
 NS_IMPL_RELEASE(nsSmtpServer)
 NS_INTERFACE_MAP_BEGIN(nsSmtpServer)
     NS_INTERFACE_MAP_ENTRY(nsISmtpServer)
     NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
+    NS_INTERFACE_MAP_ENTRY(nsIObserver)
     NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsISmtpServer)
 NS_INTERFACE_MAP_END
 
@@ -37,6 +39,44 @@ nsSmtpServer::nsSmtpServer():
 nsSmtpServer::~nsSmtpServer()
 {
 }
+
+nsresult nsSmtpServer::Init()
+{
+  // We need to know when the password manager changes.
+  nsCOMPtr<nsIObserverService> observerService =
+           mozilla::services::GetObserverService();
+  NS_ENSURE_TRUE(observerService, NS_ERROR_UNEXPECTED);
+
+  observerService->AddObserver(this, "passwordmgr-storage-changed", false);
+  observerService->AddObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID, false);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsSmtpServer::Observe(nsISupports *aSubject, const char* aTopic,
+                             const char16_t *aData)
+{
+  // When the state of the password manager changes we need to clear the
+  // password from the cache in case the user just removed it.
+  if (strcmp(aTopic, "passwordmgr-storage-changed") == 0)
+  {
+    m_password.Truncate();
+  }
+  else if (strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID) == 0)
+  {
+    // Now remove ourselves from the observer service as well.
+    nsCOMPtr<nsIObserverService> observerService =
+      mozilla::services::GetObserverService();
+    NS_ENSURE_TRUE(observerService, NS_ERROR_UNEXPECTED);
+
+    observerService->RemoveObserver(this, "passwordmgr-storage-changed");
+    observerService->RemoveObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID);
+  }
+
+  return NS_OK;
+}
+
 
 NS_IMETHODIMP
 nsSmtpServer::GetKey(char * *aKey)

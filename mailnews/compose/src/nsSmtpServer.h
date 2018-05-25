@@ -11,15 +11,19 @@
 #include "nsISmtpServer.h"
 #include "nsIPrefBranch.h"
 #include "nsWeakReference.h"
+#include "nsIObserver.h"
 
 class nsSmtpServer : public nsISmtpServer,
-                     public nsSupportsWeakReference
+                     public nsSupportsWeakReference,
+                     public nsIObserver
 {
 public:
     nsSmtpServer();
+    nsresult Init();
 
     NS_DECL_ISUPPORTS
     NS_DECL_NSISMTPSERVER
+    NS_DECL_NSIOBSERVER
 
 private:
     virtual ~nsSmtpServer();
