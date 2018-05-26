@@ -153,7 +153,7 @@ MimeExternalBody_make_url(const char *ct,
   {
     if (!site || !name)
       return 0;
-	
+
     slen = strlen(name) + strlen(site) + (dir ? strlen(dir) : 0) + 20;
     s = (char *) PR_MALLOC(slen);
 
@@ -203,7 +203,7 @@ else if (!PL_strcasecmp(at, "mail-server"))
 {
   if (!svr)
     return 0;
-	
+
   slen =  (strlen(svr)*4 + (subj ? strlen(subj)*4 : 0) +
                          (body ? strlen(body)*4 : 0) + 25); // dpv xxx: why 4x? %xx escaping should be 3x
   s = (char *) PR_MALLOC(slen);
@@ -290,7 +290,7 @@ MimeExternalBody_parse_eof (MimeObject *obj, bool abort_p)
     /* the *internal* content-type */
     ct = MimeHeaders_get(bod->hdrs, HEADER_CONTENT_TYPE,
                          true, false);
-						
+
     uint32_t hlen = ((at ? strlen(at) : 0) +
                     (lexp ? strlen(lexp) : 0) +
                     (size ? strlen(size) : 0) +
@@ -303,8 +303,8 @@ MimeExternalBody_parse_eof (MimeObject *obj, bool abort_p)
                     (subj ? strlen(subj) : 0) +
                     (ct ? strlen(ct) : 0) +
                     (url ? strlen(url) : 0) + 100);
-					
-	h = (char *) PR_MALLOC(hlen);
+
+    h = (char *) PR_MALLOC(hlen);
     if (!h)
     {
       status = MIME_OUT_OF_MEMORY;

@@ -71,11 +71,11 @@ public:
         return NS_OK ;
     }
 
-	/* void OnSendNotPerformed */
-	NS_IMETHOD OnSendNotPerformed(const char *aMsgID, nsresult aStatus)
-	{
-		return OnStopSending(aMsgID, aStatus, nullptr, nullptr) ;
-	}
+    /* void OnSendNotPerformed */
+    NS_IMETHOD OnSendNotPerformed(const char *aMsgID, nsresult aStatus)
+    {
+      return OnStopSending(aMsgID, aStatus, nullptr, nullptr) ;
+    }
 
     /* void OnGetDraftFolderURI (); */
     NS_IMETHOD OnGetDraftFolderURI(const char *aFolderURI) {return NS_OK;}
@@ -324,7 +324,7 @@ nsresult nsMapiHook::BlindSendMail (unsigned long aSession, nsIMsgCompFields * a
 
   // If we're in offline mode, we'll need to queue it for later. No point in trying to send it.
   return pMsgCompose->SendMsg(WeAreOffline() ? nsIMsgSend::nsMsgQueueForLater : nsIMsgSend::nsMsgDeliverNow,
-			      pMsgId, nullptr, nullptr, nullptr);
+                              pMsgId, nullptr, nullptr, nullptr);
   if (NS_FAILED(rv)) return rv ;
 
   // assign to interface pointer from nsCOMPtr to facilitate typecast below

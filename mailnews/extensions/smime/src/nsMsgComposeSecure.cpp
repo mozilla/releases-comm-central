@@ -1023,14 +1023,14 @@ NS_IMETHODIMP nsMsgComposeSecure::MimeCryptoWriteBlock (const char *buf, int32_t
   if (mDataHash) {
     PR_SetError(0,0);
     mDataHash->Update((const uint8_t*) buf, size);
-	  status = PR_GetError();
-	  if (status < 0) goto FAIL;
-	}
+    status = PR_GetError();
+    if (status < 0) goto FAIL;
+  }
 
   PR_SetError(0,0);
   if (mEncryptionContext) {
-	  /* If we're encrypting, or signing-and-encrypting, write this data
-		 by filtering it through the crypto library. */
+    /* If we're encrypting, or signing-and-encrypting, write this data
+       by filtering it through the crypto library. */
 
     /* We want to create equally sized encryption strings */
     const char *inputBytesIterator = buf;
@@ -1090,7 +1090,7 @@ make_multipart_signed_header_string(bool outer_p,
   *boundary_return = mime_make_separator("ms");
 
   if (!*boundary_return)
-	return NS_ERROR_OUT_OF_MEMORY;
+    return NS_ERROR_OUT_OF_MEMORY;
 
   switch (hash_type) {
   case nsICryptoHash::SHA1:
@@ -1112,22 +1112,22 @@ make_multipart_signed_header_string(bool outer_p,
   *header_return = PR_smprintf(
         "Content-Type: " MULTIPART_SIGNED "; "
         "protocol=\"" APPLICATION_PKCS7_SIGNATURE "\"; "
-				"micalg=%s; "
-				"boundary=\"%s\"" CRLF
-				CRLF
-				"%s%s"
-				"--%s" CRLF,
-				hashStr,
-				*boundary_return,
-				(outer_p ? crypto_multipart_blurb : ""),
-				(outer_p ? CRLF CRLF : ""),
-				*boundary_return);
+        "micalg=%s; "
+        "boundary=\"%s\"" CRLF
+        CRLF
+        "%s%s"
+        "--%s" CRLF,
+        hashStr,
+        *boundary_return,
+        (outer_p ? crypto_multipart_blurb : ""),
+        (outer_p ? CRLF CRLF : ""),
+        *boundary_return);
 
   if (!*header_return) {
-	  PR_Free(*boundary_return);
-	  *boundary_return = 0;
-	  return NS_ERROR_OUT_OF_MEMORY;
-	}
+    PR_Free(*boundary_return);
+    *boundary_return = 0;
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
 
   return NS_OK;
 }

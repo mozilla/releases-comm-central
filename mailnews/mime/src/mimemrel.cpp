@@ -192,9 +192,9 @@ MimeMultipartRelated_finalize (MimeObject *obj)
   PR_FREEIF(relobj->base_url);
   PR_FREEIF(relobj->curtag);
   if (relobj->buffered_hdrs) {
-	PR_FREEIF(relobj->buffered_hdrs->all_headers);
-	PR_FREEIF(relobj->buffered_hdrs->heads);
-	PR_FREEIF(relobj->buffered_hdrs);
+    PR_FREEIF(relobj->buffered_hdrs->all_headers);
+    PR_FREEIF(relobj->buffered_hdrs->heads);
+    PR_FREEIF(relobj->buffered_hdrs);
   }
   PR_FREEIF(relobj->head_buffer);
   relobj->head_buffer_fp = 0;

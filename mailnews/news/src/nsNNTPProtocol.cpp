@@ -3680,7 +3680,7 @@ nsresult nsNNTPProtocol::DoCancel()
     rv = dialog->ConfirmEx(nullptr, confirmText.get(), nsIPrompt::STD_YES_NO_BUTTONS,
                            nullptr, nullptr, nullptr, nullptr, &dummyValue, &confirmCancelResult);
     if (NS_FAILED(rv))
-    	confirmCancelResult = 1; // Default to No.
+      confirmCancelResult = 1; // Default to No.
   }
   else
     confirmCancelResult = 0; // Default to Yes.

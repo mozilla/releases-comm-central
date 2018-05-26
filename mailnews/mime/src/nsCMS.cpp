@@ -635,14 +635,12 @@ nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
 
   /* we want the cert chain included for this one */
   if (NSS_CMSSignerInfo_IncludeCerts(signerinfo, NSSCMSCM_CertChain,
-                                       certUsageEmailSigner)
-          != SECSuccess) {
+                                     certUsageEmailSigner) != SECSuccess) {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned - can't include signer cert chain\n"));
     goto loser;
   }
 
-  if (NSS_CMSSignerInfo_AddSigningTime(signerinfo, PR_Now())
-	      != SECSuccess) {
+  if (NSS_CMSSignerInfo_AddSigningTime(signerinfo, PR_Now()) != SECSuccess) {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned - can't add signing time\n"));
     goto loser;
   }
@@ -654,15 +652,13 @@ nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
 
   if (ecert) {
     if (NSS_CMSSignerInfo_AddSMIMEEncKeyPrefs(signerinfo, ecert.get(),
-	                                      CERT_GetDefaultCertDB())
-	  != SECSuccess) {
+                                              CERT_GetDefaultCertDB()) != SECSuccess) {
       MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned - can't add smime enc key prefs\n"));
       goto loser;
     }
 
     if (NSS_CMSSignerInfo_AddMSSMIMEEncKeyPrefs(signerinfo, ecert.get(),
-	                                        CERT_GetDefaultCertDB())
-	  != SECSuccess) {
+                                                CERT_GetDefaultCertDB()) != SECSuccess) {
       MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned - can't add MS smime enc key prefs\n"));
       goto loser;
     }
