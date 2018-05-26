@@ -317,8 +317,6 @@ var FeedUtils = {
         FeedUtils.log.debug("downloadFeed: CONTINUE foldername:urlArray - " +
                             folder.name + " : " + feedUrlArray);
 
-        FeedUtils.progressNotifier.init(aMsgWindow, false);
-
         // We need to kick off a download for each feed.
         let now = Date.now();
         for (let url of feedUrlArray)
@@ -342,6 +340,10 @@ var FeedUtils = {
 
           // Create a feed object.
           let feed = new Feed(url, folder);
+
+          // init can be called multiple times. Checks if it should actually
+          // init itself.
+          FeedUtils.progressNotifier.init(aMsgWindow, false);
 
           // Bump our pending feed download count. From now on, all feeds will
           // be resolved and finish with progressNotifier.downloaded(). Any
@@ -417,7 +419,7 @@ var FeedUtils = {
     // We don't support the ability to subscribe to several feeds at once yet.
     // For now, abort the subscription if we are already in the middle of
     // subscribing to a feed via drag and drop.
-    if (FeedUtils.progressNotifier.mNumPendingFeedDownloads)
+    if (FeedUtils.progressNotifier.mNumPendingFeedDownloads > 0)
     {
       FeedUtils.log.warn("subscribeToFeed: Aborting RSS subscription. " +
                          "Feed downloads already in progress\n");
@@ -1778,7 +1780,7 @@ var FeedUtils = {
 
     init: function(aMsgWindow, aSubscribeMode)
     {
-      if (!this.mNumPendingFeedDownloads)
+      if (this.mNumPendingFeedDownloads == 0)
       {
         // If we aren't already in the middle of downloading feed items.
         this.mStatusFeedback = aMsgWindow ? aMsgWindow.statusFeedback : null;
@@ -1947,7 +1949,9 @@ var FeedUtils = {
         this.mStatusFeedback.stopMeteors();
       }
 
-      if (!--this.mNumPendingFeedDownloads)
+      this.mNumPendingFeedDownloads--;
+
+      if (this.mNumPendingFeedDownloads == 0)
       {
         if (feed.server)
           FeedUtils.getSubscriptionsDS(feed.server).Flush();
