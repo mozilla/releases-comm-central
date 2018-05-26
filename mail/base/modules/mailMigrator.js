@@ -97,8 +97,9 @@ var MailMigrator = {
   _migrateUI: function() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 16;
+    const UI_VERSION = 17;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
+    const MESSENGERCOMPOSE_DOCURL = "chrome://messenger/content/messengercompose/messengercompose.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
 
@@ -395,6 +396,37 @@ var MailMigrator = {
           }
           Services.prefs.clearUserPref(SELECTED_LOCALE_PREF);
           Services.prefs.clearUserPref(MATCHOS_LOCALE_PREF);
+        }
+      }
+
+      if (currentUIVersion < 17) {
+        // Move composition's [Attach |v] button to the right end of Composition
+        // Toolbar (unless the button was removed by user), so that it is
+        // right above the attachment pane.
+        // First, get value of currentset (string of comma-separated button ids).
+        let cs = xulStore.getValue(MESSENGERCOMPOSE_DOCURL, "composeToolbar2",
+                                   "currentset");
+        if (cs && cs.includes("button-attach")) {
+          // Get array of button ids from currentset string.
+          let csArray = cs.split(",");
+          let attachButtonIndex = csArray.indexOf("button-attach");
+          // Remove attach button id from current array position.
+          csArray.splice(attachButtonIndex, 1);
+          // If the currentset string does not contain a spring which causes
+          // elements after the spring to be right-aligned, add it now at the
+          // end of the array. Note: Prior to this UI version, only MAC OS
+          // defaultset contained a spring; in any case, user might have added
+          // or removed it via customization.
+          if (!cs.includes("spring")) {
+            csArray.push("spring");
+          }
+          // Add attach button id to the end of the array.
+          csArray.push("button-attach");
+          // Join array values back into comma-separated string.
+          cs = csArray.join(",");
+          // Apply changes to currentset.
+          xulStore.setValue(MESSENGERCOMPOSE_DOCURL, "composeToolbar2",
+                            "currentset", cs);
         }
       }
 

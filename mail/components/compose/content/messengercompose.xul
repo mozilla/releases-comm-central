@@ -1885,11 +1885,10 @@
            fullscreentoolbar="true" mode="full"
 #ifdef XP_MACOSX
            iconsize="small"
-           defaultset="button-send,separator,button-address,spellingButton,button-attach,button-security,button-save,spring"
-#else
-           defaultset="button-send,separator,button-address,spellingButton,button-attach,button-security,button-save"
 #endif
-           customizable="true" context="toolbar-context-menu">
+           defaultset="button-send,separator,button-address,spellingButton,button-security,button-save,spring,button-attach"
+           customizable="true"
+           context="toolbar-context-menu">
   </toolbar>
 
   <toolbarset id="customToolbars" context="toolbar-context-menu"/>
