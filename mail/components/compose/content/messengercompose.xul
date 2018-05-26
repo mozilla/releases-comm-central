@@ -1899,7 +1899,9 @@
       <sidebarheader id="sidebarHeader" align="center">
         <label id="sidebar-title" value="&addressesSidebarTitle.label;"/>
         <spacer flex="1"/>
-        <toolbarbutton class="ab-closebutton close-icon" oncommand="toggleAddressPicker();"/>
+        <toolbarbutton id="sidebarCloseButton"
+                       class="ab-closebutton close-icon"
+                       oncommand="sidebarCloseButtonOnCommand();"/>
       </sidebarheader>
       <browser id="sidebar" flex="1" src="" disablehistory="true"
                style="min-width: 150px; width: 200px; max-width: 400px;"/>
@@ -1988,23 +1990,28 @@
                   onmouseup="attachmentBucketSizerOnMouseUp();"/>
         <vbox id="attachments-box" collapsed="true" persist="width">
           <hbox id="attachments-header-box"
-                align="center"
+                align="stretch"
                 tooltiptext="&attachmentBucketHeader.tooltip;"
                 onclick="attachmentBucketHeaderOnClick();"
                 context="attachmentHeaderContext">
-            <label id="attachmentBucketCount"
-                   accesskey="&attachments.accesskey;"
-                   flex="1" crop="end"
-                   context=""
-                   control="attachmentBucket"/>
+            <hbox id="attachmentBucketCountBox"
+                  align="center"
+                  context="msgComposeAttachmentListContext">
+              <label id="attachmentBucketCount"
+                     accesskey="&attachments.accesskey;"
+                     flex="1" crop="end"/>
+            </hbox>
             <toolbarspring/>
-            <label id="attachmentBucketSize"
-                   context=""/>
+            <hbox id="attachmentBucketSizeBox"
+                  align="center"
+                  context="msgComposeAttachmentListContext">
+              <label id="attachmentBucketSize"/>
+            </hbox>
             <toolbarbutton id="attachmentBucketCloseButton"
                            class="ab-closebutton close-icon"
                            tooltiptext="&attachmentBucketCloseButton.tooltip;"
                            context=""
-                           oncommand="toggleAttachmentPane('hide');"/>
+                           oncommand="attachmentBucketCloseButtonOnCommand();"/>
           </hbox>
           <attachmentlist id="attachmentBucket"
                           tooltiptext=""
