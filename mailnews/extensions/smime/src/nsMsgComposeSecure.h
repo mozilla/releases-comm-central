@@ -41,11 +41,11 @@ private:
 };
 
 typedef enum {
-  mime_crypto_none,				/* normal unencapsulated MIME message */
-  mime_crypto_clear_signed,		/* multipart/signed encapsulation */
-  mime_crypto_opaque_signed,	/* application/x-pkcs7-mime (signedData) */
-  mime_crypto_encrypted,		/* application/x-pkcs7-mime */
-  mime_crypto_signed_encrypted	/* application/x-pkcs7-mime */
+  mime_crypto_none,            /* normal unencapsulated MIME message */
+  mime_crypto_clear_signed,    /* multipart/signed encapsulation */
+  mime_crypto_opaque_signed,   /* application/x-pkcs7-mime (signedData) */
+  mime_crypto_encrypted,       /* application/x-pkcs7-mime */
+  mime_crypto_signed_encrypted /* application/x-pkcs7-mime */
 } mimeDeliveryCryptoState;
 
 class nsMsgComposeSecure : public nsIMsgComposeSecure
@@ -72,9 +72,9 @@ private:
   nsresult MimeCryptoHackCerts(const char *aRecipients, nsIMsgSendReport *sendReport, bool aEncrypt, bool aSign, nsIMsgIdentity *aIdentity);
   bool InitializeSMIMEBundle();
   nsresult SMIMEBundleFormatStringFromName(const char *name,
-					   const char16_t **params,
-					   uint32_t numParams,
-					   nsAString& outString);
+                                           const char16_t **params,
+                                           uint32_t numParams,
+                                           nsAString& outString);
   nsresult ExtractEncryptionState(nsIMsgIdentity * aIdentity, nsIMsgCompFields * aComposeFields, bool * aSignMessage, bool * aEncrypt);
 
   mimeDeliveryCryptoState mCryptoState;

@@ -16,7 +16,7 @@ var gToggleOccurred = false;
 
 function onInit(aPageId, aServerId)
 {
-    onLockPreference();	
+    onLockPreference();
 
     // init values here
     initServerSettings();

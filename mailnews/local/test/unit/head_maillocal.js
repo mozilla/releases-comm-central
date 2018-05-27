@@ -64,8 +64,8 @@ var gCopyListener =
   OnStopCopy: function(aStatus) {
     if (this.callbackFunction) {
       mailTestUtils.do_timeout_function(0, this.callbackFunction,
-					null,
-					[ this.copiedMessageHeaderKeys, aStatus ]);
+                                        null,
+                                        [ this.copiedMessageHeaderKeys, aStatus ]);
     }
   }
 };

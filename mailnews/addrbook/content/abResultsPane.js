@@ -219,7 +219,7 @@ function GetSelectedAbCards()
       // avoid inserting null element into the list. GetRangeAt() may be buggy.
       let tmp = abView.getCardFromRow(j);
       if (tmp) {
-	cards.push(tmp);
+        cards.push(tmp);
       }
     }
   }

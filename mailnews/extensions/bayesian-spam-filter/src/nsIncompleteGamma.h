@@ -116,7 +116,7 @@ static const struct fact_table_s FactTable[] = {
 #define FactTableLength (int)(sizeof(FactTable)/sizeof(FactTable[0]))
 
 // for speed
-static const double ln_2pi_2 = 0.918938533204672741803;	// log(2*PI)/2
+static const double ln_2pi_2 = 0.918938533204672741803;  // log(2*PI)/2
 
 /* A simple lgamma function, not very robust.
 
@@ -136,7 +136,7 @@ static double nsLnGamma (double z_in, int *gsign)
   if (z_in == (double) zi)
   {
     if (0 < zi && zi <= FactTableLength)
-	    return FactTable[zi - 1].lnfact;	// gamma(z) = (z-1)!
+      return FactTable[zi - 1].lnfact;  // gamma(z) = (z-1)!
   }
 
   for (scale = 1.0, z = z_in; z < 8.0; ++z)
@@ -151,7 +151,7 @@ static double nsLnGamma (double z_in, int *gsign)
 // log( e^(-x)*x^a/Gamma(a) )
 static inline double lnPQfactor (double a, double x)
 {
-  int gsign;				// ignored because a > 0
+  int gsign;  // ignored because a > 0
   return a * log (x) - x - nsLnGamma (a, &gsign);
 }
 
@@ -165,14 +165,14 @@ static double Pseries (double a, double x, int *error)
   sum = term = 1.0 / a;
   for (i = 1; i < imax; ++i)
   {
-	  term *= x / (a + i);
-	  sum += term;
-	  if (fabs (term) < eps * fabs (sum))
+    term *= x / (a + i);
+    sum += term;
+    if (fabs (term) < eps * fabs (sum))
       break;
   }
 
   if (i >= imax)
-	  *error = 1;
+    *error = 1;
 
   return sum;
 }
@@ -222,9 +222,9 @@ static double nsIncompleteGammaP (double a, double x, int *error)
   //  to return something.
   *error = -1;
   if (a <= 0.0)
-	  return 1.0;
+    return 1.0;
   if (x < 0.0)
-	  return 0.0;
+    return 0.0;
   *error = 0;
   if (x == 0.0)
     return 0.0;
@@ -243,8 +243,8 @@ static double nsIncompleteGammaP (double a, double x, int *error)
   {
     if (x < a)
       result = dom * Pseries (a, x, error);
-	  else
-	    result = 1.0 - dom * Qcontfrac (a, x, error);
+    else
+      result = 1.0 - dom * Qcontfrac (a, x, error);
   }
 
   // not clear if this can ever happen

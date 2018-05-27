@@ -95,7 +95,7 @@ POP3Pump.prototype._createPop3ServerAndLocalFolders =
 
   if (!this.fakeServer)
     this.fakeServer = localAccountUtils.create_incoming_server("pop3", this.kPOP3_PORT,
-							       "fred", "wilma");
+                                                               "fred", "wilma");
 
   return this.fakeServer;
 };

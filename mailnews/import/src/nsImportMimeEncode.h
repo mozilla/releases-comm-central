@@ -19,53 +19,53 @@
 
 class nsImportMimeEncode : public nsImportEncodeScan {
 public:
-	nsImportMimeEncode();
-	~nsImportMimeEncode();
-	
-	void	EncodeFile(nsIFile *pInFile, ImportOutFile *pOut, const char *pFileName, const char *pMimeType);
+  nsImportMimeEncode();
+  ~nsImportMimeEncode();
 
-	bool	DoWork(bool *pDone);
-	
-	long	NumBytesProcessed(void) { long val = m_bytesProcessed; m_bytesProcessed = 0; return val;}
+  void EncodeFile(nsIFile *pInFile, ImportOutFile *pOut, const char *pFileName, const char *pMimeType);
 
-protected:
-	void	CleanUp(void);
-	bool	SetUpEncode(void);
-	bool	WriteFileName(nsCString& fName, bool wasTrans, const char *pTag);
-	bool	TranslateFileName(nsCString& inFile, nsCString& outFile);
+  bool DoWork(bool *pDone);
 
-
-	virtual bool	ScanBuffer(bool *pDone) override;
-
+  long NumBytesProcessed(void) { long val = m_bytesProcessed; m_bytesProcessed = 0; return val;}
 
 protected:
-	nsCString             m_fileName;
-	nsCOMPtr <nsIFile>    m_pMimeFile;
-	ImportOutFile *		m_pOut;
-	nsCString			m_mimeType;
+  void CleanUp(void);
+  bool SetUpEncode(void);
+  bool WriteFileName(nsCString& fName, bool wasTrans, const char *pTag);
+  bool TranslateFileName(nsCString& inFile, nsCString& outFile);
 
-	int				m_state;
-	long			m_bytesProcessed;
-	uint8_t *		m_pInputBuf;
-	bool			m_appleSingle;
-	
-	// Actual encoding variables
-	int			m_lineLen;
+
+  virtual bool ScanBuffer(bool *pDone) override;
+
+
+protected:
+  nsCString            m_fileName;
+  nsCOMPtr <nsIFile>   m_pMimeFile;
+  ImportOutFile      * m_pOut;
+  nsCString            m_mimeType;
+
+  int                  m_state;
+  long                 m_bytesProcessed;
+  uint8_t            * m_pInputBuf;
+  bool                 m_appleSingle;
+  
+  // Actual encoding variables
+  int                  m_lineLen;
 };
 
 
 class nsIImportMimeEncodeImpl : public nsIImportMimeEncode {
 public:
-	NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS
 
-	NS_DECL_NSIIMPORTMIMEENCODE
+  NS_DECL_NSIIMPORTMIMEENCODE
 
-	nsIImportMimeEncodeImpl();
+  nsIImportMimeEncodeImpl();
 
 private:
-	virtual ~nsIImportMimeEncodeImpl();
-	ImportOutFile *			m_pOut;
-	nsImportMimeEncode *	m_pEncode;
+  virtual ~nsIImportMimeEncodeImpl();
+  ImportOutFile * m_pOut;
+  nsImportMimeEncode * m_pEncode;
 };
 
 

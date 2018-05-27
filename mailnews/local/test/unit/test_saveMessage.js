@@ -49,7 +49,7 @@ var UrlListener = {
   OnStopRunningUrl: function(aUrl, aExitCode) {
     Assert.equal(aExitCode, 0);
     check_each_line(IOUtils.loadFileToString(dot),
-		    IOUtils.loadFileToString(saveFile));
+                    IOUtils.loadFileToString(saveFile));
     do_test_finished();
   }
 };

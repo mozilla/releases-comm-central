@@ -7,7 +7,7 @@ var inString = "\u2C62-\u2132\u22A5\u2229 \u0287\u0279oddns \u01DD\u028D s\u0131
 var expectedString = "?-??? ??oddns ?? s??? p??? u?? no? ?I";
 
 var aliases = [ "UTF-7", "utf-7", "x-unicode-2-0-utf-7", "unicode-2-0-utf-7",
-		  "unicode-1-1-utf-7", "csunicode11utf7" ];
+               "unicode-1-1-utf-7", "csunicode11utf7" ];
 
 function run_test() {
   testEncodeAliases();

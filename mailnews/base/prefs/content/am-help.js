@@ -58,9 +58,9 @@ function doHelpButton()
   }
 
   if ( helpTag )
-  	openHelp(helpTag);
+    openHelp(helpTag);
   else
-	openHelp('mail');
+    openHelp('mail');
 }
 
 /**

@@ -1149,7 +1149,7 @@ function bindMethods(aObj) {
     delete aObj[name];
     Object.defineProperty(aObj, name, {
       get: function getterFunc() {
-	return realFunc.bind(this);
+        return realFunc.bind(this);
       }
     });
   }
