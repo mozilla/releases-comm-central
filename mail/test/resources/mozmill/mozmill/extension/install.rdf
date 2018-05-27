@@ -8,6 +8,7 @@
      <em:creator>Adam Christian</em:creator>
      <em:description>A testing extension based on the Windmill Testing Framework client source</em:description>
      <em:bootstrap>true</em:bootstrap>
+     <em:optionsURL>chrome://mozmill/content/prefs.xul</em:optionsURL>
      <em:targetApplication>
        <!-- Firefox -->
        <Description>

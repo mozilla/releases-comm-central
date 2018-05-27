@@ -3735,7 +3735,7 @@ function initAppMenuPopup(aMenuPopup, aEvent)
  *
  *  @option aMenupopup  The menupopup element to populate.
  */
-function initAddonPrefsMenu(aMenupopup) {
+async function initAddonPrefsMenu(aMenupopup) {
   // Starting at the bottom, clear all menu items until we hit
   // "no add-on prefs", which is the only disabled element. Above this element
   // there may be further items that we want to preserve.
@@ -3745,24 +3745,10 @@ function initAddonPrefsMenu(aMenupopup) {
   }
 
   // Enumerate all enabled addons with URL to XUL document with prefs.
-  let addonsFound = [];
-  let done = false;
-  AddonManager.getAddonsByTypes(["extension"], (addons) => {
-    for (let addon of addons) {
-      if (!addon.userDisabled && !addon.appDisabled && !addon.softDisabled &&
-          addon.optionsURL && (addon.optionsType === null || addon.optionsType == 3)) {
-        addonsFound.push(addon);
-      }
-    }
-    done = true;
-  });
-
-  // Wait until the addon manager returns all results.
-  let thread = Components.classes["@mozilla.org/thread-manager;1"]
-                                 .getService().currentThread;
-  while (!done) {
-    thread.processNextEvent(true);
-  }
+  let addonsFound = await AddonManager.getAddonsByTypes(["extension"]);
+  addonsFound = addonsFound.filter(addon => !addon.userDisabled && !addon.appDisabled &&
+                                            !addon.softDisabled && addon.optionsURL &&
+                                            (addon.optionsType === null || addon.optionsType == 3));
 
   // Populate the menu with addon names and icons.
   // Note: Having the following code in the getAddonsByTypes() async callback
