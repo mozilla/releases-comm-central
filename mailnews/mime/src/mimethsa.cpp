@@ -34,6 +34,7 @@
 #include "msgCore.h"
 #include "mimemoz2.h"
 #include "nsString.h"
+#include "mimethtm.h"
 
 #define MIME_SUPERCLASS mimeInlineTextHTMLClass
 MimeDefClass(MimeInlineTextHTMLSanitized, MimeInlineTextHTMLSanitizedClass,
@@ -95,6 +96,7 @@ MimeInlineTextHTMLSanitized_parse_eof(MimeObject *obj, bool abort_p)
 
   // Write it out.
   NS_ConvertUTF16toUTF8 resultCStr(sanitized);
+  MimeInlineTextHTML_insert_lang_div(obj, resultCStr);
   status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_line(
                              resultCStr.BeginWriting(),
                              resultCStr.Length(),

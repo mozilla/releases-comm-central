@@ -27,6 +27,7 @@
 #include "nsIDocumentEncoder.h"
 #include "mozilla/ErrorResult.h"
 #include "nsIPrefBranch.h"
+#include "mimethtm.h"
 
 #define MIME_SUPERCLASS mimeInlineTextHTMLClass
 MimeDefClass(MimeInlineTextHTMLParsed, MimeInlineTextHTMLParsedClass,
@@ -106,6 +107,7 @@ MimeInlineTextHTMLParsed_parse_eof(MimeObject *obj, bool abort_p)
 
   // Write it out.
   NS_ConvertUTF16toUTF8 resultCStr(parsed);
+  MimeInlineTextHTML_insert_lang_div(obj, resultCStr);
   status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_line(
     resultCStr.BeginWriting(), resultCStr.Length(), obj);
   rawHTML.Truncate();
