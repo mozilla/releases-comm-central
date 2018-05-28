@@ -139,7 +139,7 @@ function onSaveDefault()
 
     // Write the prefs out NOW!
     Services.prefs.savePrefFile(null);
-	}
+  }
 }
 
 // Get and validate data from widgets.

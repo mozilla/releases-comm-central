@@ -14,8 +14,8 @@ var gJSAttr = {};
 var gCoreHTMLAttr =
 [
   "^id",
-	"class",
-	"title"
+  "class",
+  "title"
 ];
 
 // Core event attribute values //
@@ -24,17 +24,17 @@ var gCoreHTMLAttr =
 //   as a value in their gJSAttr array.
 var gCoreJSEvents =
 [
-	"onclick",
-	"ondblclick",
-	"onmousedown",
-	"onmouseup",
-	"onmouseover",
-	"onmousemove",
-	"onmouseout",
+  "onclick",
+  "ondblclick",
+  "onmousedown",
+  "onmouseup",
+  "onmouseover",
+  "onmousemove",
+  "onmouseout",
   "-",
   "onkeypress",
-	"onkeydown",
-	"onkeyup"
+  "onkeydown",
+  "onkeyup"
 ];
 
 // Following are commonly-used strings
@@ -42,54 +42,54 @@ var gCoreJSEvents =
 // Also accept: sRGB: #RRGGBB //
 var gHTMLColors =
 [
-	"Aqua",
-	"Black",
-	"Blue",
-	"Fuchsia",
-	"Gray",
-	"Green",
-	"Lime",
-	"Maroon",
-	"Navy",
-	"Olive",
-	"Purple",
-	"Red",
-	"Silver",
-	"Teal",
-	"White",
-	"Yellow"
+  "Aqua",
+  "Black",
+  "Blue",
+  "Fuchsia",
+  "Gray",
+  "Green",
+  "Lime",
+  "Maroon",
+  "Navy",
+  "Olive",
+  "Purple",
+  "Red",
+  "Silver",
+  "Teal",
+  "White",
+  "Yellow"
 ];
 
 var gHAlign =
 [
-	"left",
-	"center",
-	"right"
+  "left",
+  "center",
+  "right"
 ];
 
 var gHAlignJustify =
 [
-	"left",
-	"center",
-	"right",
-	"justify"
+  "left",
+  "center",
+  "right",
+  "justify"
 ];
 
 var gHAlignTableContent =
 [
-	"left",
-	"center",
-	"right",
-	"justify",
-	"char"
+  "left",
+  "center",
+  "right",
+  "justify",
+  "char"
 ];
 
 var gVAlignTable =
 [
-	"top",
-	"middle",
-	"bottom",
-	"baseline"
+  "top",
+  "middle",
+  "bottom",
+  "baseline"
 ];
 
 var gTarget =
@@ -142,8 +142,8 @@ gHTMLAttr.a =
   "rel",
   "rev",
   "!accesskey",
-  "shape",		// with imagemap //
-  "coords",		// with imagemap //
+  "shape",   // with imagemap //
+  "coords",  // with imagemap //
   "#tabindex",
   "-",
   "_core",

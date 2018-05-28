@@ -62,7 +62,7 @@ function Startup()
   {
     gContenttypeElement = CreateMetaElementWithAttribute("http-equiv", "content-type");
     if (!gContenttypeElement )
-	{
+    {
       window.close();
       return;
     }
