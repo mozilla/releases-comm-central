@@ -1,0 +1,37 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.release_deps:transforms
+    - taskgraph.transforms.scriptworker:add_balrog_scopes
+    - taskgraph.transforms.task:transforms
+
+kind-dependencies:
+    - release-bouncer-check
+
+job-defaults:
+    run-on-projects: []
+    shipping-phase: ship
+    worker:
+        implementation: balrog
+        balrog-action: schedule
+
+jobs:
+    thunderbird:
+        description: Schedule Thunderbird publishing in balrog
+        name: release-thunderbird_schedule_publishing_in_balrog
+        shipping-product: thunderbird
+        worker:
+            product: thunderbird
+            publish-rules:
+                by-project:
+                    comm-beta: [43]
+                    default: []
+        treeherder:
+            platform: thunderbird-release/opt
+            symbol: Rel(BS)
+            tier: 1
+            kind: build
