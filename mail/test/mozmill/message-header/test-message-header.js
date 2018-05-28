@@ -661,7 +661,7 @@ function test_show_all_header_mode() {
   // generate message with 35 recips (effectively guarantees overflow for n=3)
   be_in_folder(folder);
   let msg = create_message({toCount: 35,
-			    subject: "many To addresses for test_show_all_header_mode" });
+                            subject: "many To addresses for test_show_all_header_mode" });
 
   // add the message to the end of the folder
   add_message_to_folder(folder, msg);

@@ -116,27 +116,27 @@ function getXSPath(node){
   return stringXpath;
 }
 function getXULXpath (el, xml) {
-	var xpath = '';
-	var pos, tempitem2;
+  var xpath = '';
+  var pos, tempitem2;
 
-	while(el !== xml.documentElement) {
-		pos = 0;
-		tempitem2 = el;
-		while(tempitem2) {
-			if (tempitem2.nodeType === 1 && tempitem2.nodeName === el.nodeName) {
-			  // If it is ELEMENT_NODE of the same name
-				pos += 1;
-			}
-			tempitem2 = tempitem2.previousSibling;
-		}
+  while(el !== xml.documentElement) {
+    pos = 0;
+    tempitem2 = el;
+    while(tempitem2) {
+      if (tempitem2.nodeType === 1 && tempitem2.nodeName === el.nodeName) {
+        // If it is ELEMENT_NODE of the same name
+        pos += 1;
+      }
+      tempitem2 = tempitem2.previousSibling;
+    }
 
-		xpath = "*[name()='"+el.nodeName+"' and namespace-uri()='"+(el.namespaceURI===null?'':el.namespaceURI)+"']["+pos+']'+'/'+xpath;
+    xpath = "*[name()='"+el.nodeName+"' and namespace-uri()='"+(el.namespaceURI===null?'':el.namespaceURI)+"']["+pos+']'+'/'+xpath;
 
-		el = el.parentNode;
-	}
-	xpath = '/*'+"[name()='"+xml.documentElement.nodeName+"' and namespace-uri()='"+(el.namespaceURI===null?'':el.namespaceURI)+"']"+'/'+xpath;
-	xpath = xpath.replace(/\/$/, '');
-	return xpath;
+    el = el.parentNode;
+  }
+  xpath = '/*'+"[name()='"+xml.documentElement.nodeName+"' and namespace-uri()='"+(el.namespaceURI===null?'':el.namespaceURI)+"']"+'/'+xpath;
+  xpath = xpath.replace(/\/$/, '');
+  return xpath;
 }
 
 var getDocument = function (elem) {
@@ -242,12 +242,12 @@ var getLookupForElem = function (_document, elem) {
 }
 
 var removeHTMLTags = function(str){
- 	 	str = str.replace(/&(lt|gt);/g, function (strMatch, p1){
- 		 	return (p1 == "lt")? "<" : ">";
- 		});
- 		var strTagStrippedText = str.replace(/<\/?[^>]+(>|$)/g, "");
- 		strTagStrippedText = strTagStrippedText.replace(/&nbsp;/g,"");
-	return strTagStrippedText;
+  str = str.replace(/&(lt|gt);/g, function (strMatch, p1) {
+          return (p1 == "lt")? "<" : ">";
+        });
+  var strTagStrippedText = str.replace(/<\/?[^>]+(>|$)/g, "");
+  strTagStrippedText = strTagStrippedText.replace(/&nbsp;/g,"");
+  return strTagStrippedText;
 }
 
 var isMagicAnonymousDiv = function (_document, node) {

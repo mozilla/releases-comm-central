@@ -660,8 +660,8 @@ MozMillController.prototype.radio = function(el)
   this.waitFor(function() {
     // If we have a XUL element, unwrap its XPCNativeWrapper
     if (element.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul") {
-  	  element = utils.unwrapNode(element);
-  	  return element.selected == true;
+      element = utils.unwrapNode(element);
+      return element.selected == true;
     }
     return element.checked == true;
   }, "Radio button " + el.getInfo() + " could not be selected", 500);

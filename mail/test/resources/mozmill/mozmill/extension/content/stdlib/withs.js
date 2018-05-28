@@ -126,21 +126,21 @@ function _stringTailMatch(str, substr, start, end, fromStart) {
 
 function _adjustIndices(start, end, len)
 {
-	if (end > len) {
-	    end = len;
-	} else if (end < 0) {
-	    end += len;
-	}
+  if (end > len) {
+    end = len;
+  } else if (end < 0) {
+    end += len;
+  }
 
     if (end < 0) {
         end = 0;
     }
-	if (start < 0) {
-	    start += len;
-	}
-	if (start < 0) {
-		start = 0;
-	}
+  if (start < 0) {
+    start += len;
+  }
+  if (start < 0) {
+    start = 0;
+  }
 
-	return [start, end, len];
+  return [start, end, len];
 }

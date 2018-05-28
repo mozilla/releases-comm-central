@@ -127,13 +127,13 @@ function tempfile(appention) {
   if (appention == undefined) {
     var appention = "mozmill.utils.tempfile"
   }
-	var tempfile = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile);
-	tempfile.append(uuidgen.generateUUID().toString().replace('-', '').replace('{', '').replace('}',''))
-	tempfile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o777);
-	tempfile.append(appention);
-	tempfile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o666);
-	// do whatever you need to the created file
-	return tempfile.clone()
+  var tempfile = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile);
+  tempfile.append(uuidgen.generateUUID().toString().replace('-', '').replace('{', '').replace('}',''))
+  tempfile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o777);
+  tempfile.append(appention);
+  tempfile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o666);
+  // do whatever you need to the created file
+  return tempfile.clone()
 }
 
 var checkChrome = function() {

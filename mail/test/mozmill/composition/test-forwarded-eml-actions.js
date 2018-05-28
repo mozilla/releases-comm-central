@@ -62,8 +62,8 @@ var setupModule = function(module) {
     "\n" +
     "Return-Path: <example@invalid>\n" +
     "Received: from xxx (smtpu [10.0.0.51])\n" +
-    "	 by storage (Cyrus v2.3.7-Invoca-RPM-2.3.7-1.1) with LMTPA;\n" +
-    "	 Mon, 16 Apr 2012 22:54:36 +0300\n" +
+    "  by storage (Cyrus v2.3.7-Invoca-RPM-2.3.7-1.1) with LMTPA;\n" +
+    "  Mon, 16 Apr 2012 22:54:36 +0300\n" +
     "Message-ID: <4F8C78F5.4000704@invalid>\n" +
     "Date: Mon, 16 Apr 2012 22:54:29 +0300\n" +
     "From: Mr Example <example@invalid>\n" +
