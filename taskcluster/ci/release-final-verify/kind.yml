@@ -1,0 +1,39 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+loader: taskgraph.loader.transform:loader
+
+kind-dependencies:
+    - release-bouncer-check
+    - release-update-verify-config
+
+transforms:
+    - taskgraph.transforms.release_deps:transforms
+    - taskgraph.transforms.final_verify:transforms
+    - taskgraph.transforms.task:transforms
+
+job-defaults:
+    name: final-verify
+    run-on-projects: []  # to make sure this never runs as part of CI
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker:
+        implementation: docker-worker
+        os: linux
+        docker-image:
+            in-tree: "update-verify"
+        max-run-time: 7200
+        retry-exit-status: [1]
+        env:
+            BUILD_TOOLS_REPO: https://hg.mozilla.org/build/tools
+
+jobs:
+    thunderbird:
+        description: final verify
+        shipping-phase: push
+        shipping-product: thunderbird
+        treeherder:
+            platform: thunderbird-release/opt
+            kind: test
+            symbol: Rel(FV)
+            tier: 1
