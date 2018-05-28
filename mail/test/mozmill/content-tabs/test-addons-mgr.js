@@ -2,10 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// make SOLO_TEST=content-tabs/test-addons-mgr.js mozmill-one
+
 var MODULE_NAME = "test-addons-mgr";
 
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers",
+                       "window-helpers"];
+
+var elib = {};
+ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -46,16 +52,25 @@ function test_addon_prefs() {
   mc.click(mc.eid("tasksMenu"));
   let popups = mc.click_menus_in_sequence(mc.e("taskPopup"), [ { id: "addonsManager_prefs" } ], true);
   let foundAddon = false;
-  // MozMill add-on should be somewhere in the list.
+  plan_for_modal_dialog("mozmill-prefs", function (controller) {
+     // Add |mc.sleep(1000);| here to see the popup dialog.
+    controller.window.close();
+  });
+
+  // MozMill add-on should be somewhere in the list. When found, click it.
   for (let item of popups[popups.length-1].children) {
     if (item.tagName == "menuitem" && item.getAttribute("collapsed") != "true" &&
         item.label == "MozMill") {
       foundAddon = true;
+      mc.click(new elib.Elem(item));
       break;
     }
   }
   assert_true(foundAddon);
-  mc.close_popup_sequence(popups);
+
+  // Wait for the options dialog to open and close.
+  wait_for_modal_dialog();
+  wait_for_window_close();
 }
 // The test operates the main menu which is not accessible from MozMill on Mac.
 test_addon_prefs.EXCLUDED_PLATFORMS = ["darwin"];
