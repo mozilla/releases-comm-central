@@ -21,7 +21,6 @@ jobs-from:
     - windows.yml
 
 job-defaults:
-    shipping-product: thunderbird
     when:
         files-changed:
             # Include everything in comm-central except suite/ and im/

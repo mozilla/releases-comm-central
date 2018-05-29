@@ -34,6 +34,8 @@ win32-nightly/opt:
     description: "Win32 Nightly"
     attributes:
         nightly: true
+    shipping-phase: build
+    shipping-product: thunderbird
     index:
         product: thunderbird
         job-name: win32-opt
@@ -132,6 +134,8 @@ win64-nightly/opt:
     description: "Win64 Nightly"
     attributes:
         nightly: true
+    shipping-phase: build
+    shipping-product: thunderbird
     index:
         product: thunderbird
         job-name: win64-opt

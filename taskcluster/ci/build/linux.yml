@@ -31,6 +31,8 @@ linux64-nightly/opt:
     description: "Linux64 Nightly"
     attributes:
         nightly: true
+    shipping-phase: build
+    shipping-product: thunderbird
     index:
         product: thunderbird
         job-name: linux64-opt
@@ -122,6 +124,8 @@ linux-nightly/opt:
     description: "Linux32 Nightly"
     attributes:
         nightly: true
+    shipping-phase: build
+    shipping-product: thunderbird
     index:
         product: thunderbird
         job-name: linux32-opt
