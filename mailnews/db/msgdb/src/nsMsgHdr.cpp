@@ -374,12 +374,12 @@ NS_IMETHODIMP nsMsgHdr::SetMessageId(const char *messageId)
 
 NS_IMETHODIMP nsMsgHdr::SetSubject(const char *subject)
 {
-	return SetStringColumn(subject, m_mdb->m_subjectColumnToken);
+  return SetStringColumn(subject, m_mdb->m_subjectColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::SetAuthor(const char *author)
 {
-	return SetStringColumn(author, m_mdb->m_senderColumnToken);
+  return SetStringColumn(author, m_mdb->m_senderColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::SetReferences(const char *references)
@@ -401,7 +401,7 @@ NS_IMETHODIMP nsMsgHdr::SetRecipients(const char *recipients)
 
 NS_IMETHODIMP nsMsgHdr::SetCcList(const char *ccList)
 {
-	return SetStringColumn(ccList, m_mdb->m_ccListColumnToken);
+  return SetStringColumn(ccList, m_mdb->m_ccListColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::SetBccList(const char *bccList)

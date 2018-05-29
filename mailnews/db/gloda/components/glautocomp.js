@@ -226,7 +226,7 @@ ContactIdentityCompleter.prototype = {
 
     let contactQuery = Gloda.newQuery(Gloda.NOUN_CONTACT);
     contactQuery.nameLike(contactQuery.WILDCARD, aString,
-	contactQuery.WILDCARD);
+                          contactQuery.WILDCARD);
     pending.contactColl = contactQuery.getCollection(this, aResult);
     pending.contactColl.becomeExplicit();
 

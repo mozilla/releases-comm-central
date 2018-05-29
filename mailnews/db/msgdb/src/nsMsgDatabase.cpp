@@ -4358,8 +4358,8 @@ nsIMsgThread *nsMsgDatabase::GetThreadForReference(nsCString &msgID, nsIMsgDBHdr
   // Referenced message not found, check if there are messages that reference same message
   else if (UseCorrectThreading())
   {
-	if (NS_SUCCEEDED(GetRefFromHash(msgID, &threadId)))
-	  thread = GetThreadForThreadId(threadId);
+    if (NS_SUCCEEDED(GetRefFromHash(msgID, &threadId)))
+      thread = GetThreadForThreadId(threadId);
   }
 
   return thread;

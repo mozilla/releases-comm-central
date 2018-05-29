@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* This class encapsulates the global information about a folder stored in the
-	summary file.
+   summary file.
 */
 #ifndef _nsDBFolderInfo_H
 #define _nsDBFolderInfo_H
@@ -37,7 +37,7 @@ public:
     // interface methods.
     NS_DECL_NSIDBFOLDERINFO
     // create the appropriate table and row in a new db.
-    nsresult			AddToNewMDB();
+    nsresult AddToNewMDB();
   // accessor methods.
 
   bool      TestFlag(int32_t flags);
@@ -92,7 +92,7 @@ protected:
   // configured for off-line use, use default retrieval, purge article/header options
 
   uint16_t    m_version;                // for upgrading...
-  int16_t     m_IMAPHierarchySeparator;	// imap path separator
+  int16_t     m_IMAPHierarchySeparator; // imap path separator
 
   // mail only (for now)
 
@@ -102,12 +102,12 @@ protected:
   int32_t     m_unreadPendingMessages;
 
   // news only (for now)
-  nsMsgKey    m_expiredMark;		// Highest invalid article number in group - for expiring
+  nsMsgKey    m_expiredMark;  // Highest invalid article number in group - for expiring
   // the db folder info will have to know what db and row it belongs to, since it is really
   // just a wrapper around the singleton folder info row in the mdb.
   nsMsgDatabase *m_mdb;
-  nsIMdbTable   *m_mdbTable;	// singleton table in db
-  nsIMdbRow     *m_mdbRow;	// singleton row in table;
+  nsIMdbTable   *m_mdbTable;  // singleton table in db
+  nsIMdbRow     *m_mdbRow;    // singleton row in table;
 
   nsCString     m_charSet;
   bool          m_charSetOverride;

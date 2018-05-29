@@ -24,7 +24,7 @@
 #define NS_MAILBOXDB_CONTRACTID \
   NS_MSGDB_CONTRACTID"mailbox"
 
-//	a86c86ae-e97f-11d2-a506-0060b0fc04b7
+// a86c86ae-e97f-11d2-a506-0060b0fc04b7
 #define NS_MAILDB_CID                      \
 { 0xa86c86ae, 0xe97f, 0x11d2,                   \
     { 0xa5, 0x06, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7 } }

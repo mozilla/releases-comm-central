@@ -509,7 +509,7 @@ MimeContainer.prototype = {
         // text/enriched gets transformed into HTML, use it if we don't already
         //  have an HTML part.
         else if (!htmlPart && part.contentType == "text/enriched")
-	  htmlPart = part;
+          htmlPart = part;
       }
       // convert the HTML part if we have one
       if (htmlPart)

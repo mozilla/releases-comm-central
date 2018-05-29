@@ -19,7 +19,7 @@ class nsIMsgThread;
 class nsMsgHdr : public nsIMsgDBHdr {
 public:
     NS_DECL_NSIMSGDBHDR
-	friend class nsMsgDatabase;
+    friend class nsMsgDatabase;
     friend class nsMsgPropertyEnumerator; // accesses m_mdb
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
@@ -58,16 +58,16 @@ protected:
     nsresult GetUInt64Column(mdb_token token, uint64_t *pvalue, uint64_t defaultValue = 0);
 
     // reference and threading stuff.
-    nsresult	ParseReferences(const char *references);
+    nsresult ParseReferences(const char *references);
     const char* GetNextReference(const char *startNextRef, nsCString &reference,
                                  bool acceptNonDelimitedReferences);
 
-    nsMsgKey	m_threadId;
-    nsMsgKey	m_messageKey; 	//news: article number, mail mbox offset, imap uid...
-    nsMsgKey	m_threadParent;	// message this is a reply to, in thread.
+    nsMsgKey    m_threadId;
+    nsMsgKey    m_messageKey;   // news: article number, mail mbox offset, imap uid...
+    nsMsgKey    m_threadParent; // message this is a reply to, in thread.
     PRTime      m_date;
-    uint32_t    m_messageSize;	// lines for news articles, bytes for mail messages
-    uint32_t    m_statusOffset;	// offset in a local mail message of the mozilla status hdr
+    uint32_t    m_messageSize;  // lines for news articles, bytes for mail messages
+    uint32_t    m_statusOffset; // offset in a local mail message of the mozilla status hdr
     uint32_t    m_flags;
     // avoid parsing references every time we want one
     nsTArray<nsCString> m_references;

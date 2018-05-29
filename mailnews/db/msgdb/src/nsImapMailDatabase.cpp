@@ -9,7 +9,7 @@
 #include "nsImapMailDatabase.h"
 #include "nsDBFolderInfo.h"
 
-const char *kPendingHdrsScope = "ns:msg:db:row:scope:pending:all";	// scope for all offine ops table
+const char *kPendingHdrsScope = "ns:msg:db:row:scope:pending:all";  // scope for all offine ops table
 const char *kPendingHdrsTableKind = "ns:msg:db:table:kind:pending";
 struct mdbOid gAllPendingHdrsTableOID;
 
@@ -22,7 +22,7 @@ nsImapMailDatabase::~nsImapMailDatabase()
 {
 }
 
-NS_IMETHODIMP	nsImapMailDatabase::GetSummaryValid(bool *aResult)
+NS_IMETHODIMP nsImapMailDatabase::GetSummaryValid(bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
   if (m_dbFolderInfo)
@@ -37,7 +37,7 @@ NS_IMETHODIMP	nsImapMailDatabase::GetSummaryValid(bool *aResult)
   return NS_OK;
 }
 
-NS_IMETHODIMP	nsImapMailDatabase::SetSummaryValid(bool valid)
+NS_IMETHODIMP nsImapMailDatabase::SetSummaryValid(bool valid)
 {
   if (m_dbFolderInfo)
   {

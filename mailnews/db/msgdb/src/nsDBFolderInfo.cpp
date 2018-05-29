@@ -270,7 +270,7 @@ nsresult nsDBFolderInfo::AddToNewMDB()
     if (m_mdbRow && NS_SUCCEEDED(err))
       err = m_mdbTable->AddRow(m_mdb->GetEnv(), m_mdbRow);
 
-    ret = err;	// what are we going to do about nsresult's?
+    ret = err;  // what are we going to do about nsresult's?
   }
   return ret;
 }
@@ -283,13 +283,13 @@ nsresult nsDBFolderInfo::InitFromExistingDB()
     nsIMdbStore *store = m_mdb->GetStore();
     if (store)
     {
-      mdb_pos		rowPos;
+      mdb_pos rowPos;
       mdb_count outTableCount; // current number of such tables
       mdb_bool mustBeUnique; // whether port can hold only one of these
       mdb_bool hasOid;
       ret = store->GetTableKind(m_mdb->GetEnv(), m_rowScopeToken, m_tableKindToken, &outTableCount,
         &mustBeUnique, &m_mdbTable);
-      //			NS_ASSERTION(mustBeUnique && outTableCount == 1, "only one global db info allowed");
+      // NS_ASSERTION(mustBeUnique && outTableCount == 1, "only one global db info allowed");
 
       if (m_mdbTable)
       {
@@ -324,7 +324,7 @@ nsresult nsDBFolderInfo::InitMDBInfo()
   if (!m_mdbTokensInitialized && m_mdb && m_mdb->GetStore())
   {
     nsIMdbStore *store = m_mdb->GetStore();
-    nsIMdbEnv	*env = m_mdb->GetEnv();
+    nsIMdbEnv *env = m_mdb->GetEnv();
 
     store->StringToToken(env,  kNumMessagesColumnName, &m_numMessagesColumnToken);
     store->StringToToken(env,  kNumUnreadMessagesColumnName, &m_numUnreadMessagesColumnToken);
@@ -600,7 +600,7 @@ NS_IMETHODIMP nsDBFolderInfo::AndFlags(int32_t flags, int32_t *result)
   return SetInt32PropertyWithToken(m_flagsColumnToken, m_flags);
 }
 
-NS_IMETHODIMP	nsDBFolderInfo::GetImapUidValidity(int32_t *result)
+NS_IMETHODIMP nsDBFolderInfo::GetImapUidValidity(int32_t *result)
 {
   *result = m_ImapUidValidity;
   return NS_OK;
@@ -887,7 +887,7 @@ NS_IMETHODIMP nsDBFolderInfo::GetBooleanProperty(const char *propertyName, bool 
   *propertyValue = (returnValue != 0);
   return rv;
 }
-NS_IMETHODIMP	nsDBFolderInfo::SetBooleanProperty(const char *propertyName, bool propertyValue)
+NS_IMETHODIMP nsDBFolderInfo::SetBooleanProperty(const char *propertyName, bool propertyValue)
 {
   return m_mdb->SetUint32Property(m_mdbRow, propertyName, propertyValue ? 1 : 0);
 }

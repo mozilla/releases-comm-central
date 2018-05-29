@@ -139,7 +139,7 @@ nsresult  nsNewsDatabase::ExpireUpTo(nsMsgKey expireKey)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-nsresult		nsNewsDatabase::ExpireRange(nsMsgKey startRange, nsMsgKey endRange)
+nsresult nsNewsDatabase::ExpireRange(nsMsgKey startRange, nsMsgKey endRange)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

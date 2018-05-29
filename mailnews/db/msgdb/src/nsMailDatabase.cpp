@@ -150,8 +150,8 @@ NS_IMETHODIMP  nsMailDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation *op)
 
 NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(nsMsgKey msgKey, bool create, nsIMsgOfflineImapOperation **offlineOp)
 {
-  mdb_bool	hasOid;
-  mdbOid		rowObjectId;
+  mdb_bool hasOid;
+  mdbOid rowObjectId;
   nsresult err;
 
   nsresult rv = GetAllOfflineOpsTable();
@@ -225,7 +225,7 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(nsTArray<nsMsgKey> *offlineOpI
     while (NS_SUCCEEDED(err) && rowCursor)
     {
       mdbOid outOid;
-      mdb_pos	outPos;
+      mdb_pos outPos;
 
       err = rowCursor->NextRowOid(GetEnv(), &outOid, &outPos);
       // is this right? Mork is returning a 0 id, but that should valid.
@@ -319,13 +319,13 @@ public:
 
 protected:
   virtual ~nsMsgOfflineOpEnumerator();
-  nsresult					GetRowCursor();
-  nsresult					PrefetchNext();
-  nsMailDatabase*              mDB;
-  nsIMdbTableRowCursor*       mRowCursor;
+  nsresult GetRowCursor();
+  nsresult PrefetchNext();
+  nsMailDatabase* mDB;
+  nsIMdbTableRowCursor* mRowCursor;
   nsCOMPtr <nsIMsgOfflineImapOperation> mResultOp;
-  bool              mDone;
-  bool						mNextPrefetched;
+  bool  mDone;
+  bool mNextPrefetched;
 };
 
 nsMsgOfflineOpEnumerator::nsMsgOfflineOpEnumerator(nsMailDatabase* db)

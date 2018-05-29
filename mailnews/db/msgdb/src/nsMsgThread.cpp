@@ -694,8 +694,8 @@ NS_IMPL_ISUPPORTS(nsMsgThreadEnumerator, nsISimpleEnumerator)
 
 int32_t nsMsgThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey)
 {
-  //	if (msgKey != mThreadParentKey)
-  //		mDone = true;
+  // if (msgKey != mThreadParentKey)
+  //   mDone = true;
   // look through rest of thread looking for a child of this message.
   // If the inMsgKey is the first message in the thread, then all children
   // without parents are considered to be children of inMsgKey.
@@ -811,9 +811,9 @@ nsresult nsMsgThreadEnumerator::Prefetch()
   mFoundChildren = true;
 
 #ifdef DEBUG_bienvenu1
-	nsMsgKey debugMsgKey;
-	mResultHdr->GetMessageKey(&debugMsgKey);
-	printf("next for %ld = %ld\n", mThreadParentKey, debugMsgKey);
+  nsMsgKey debugMsgKey;
+  mResultHdr->GetMessageKey(&debugMsgKey);
+  printf("next for %ld = %ld\n", mThreadParentKey, debugMsgKey);
 #endif
 
   return rv;
@@ -955,7 +955,7 @@ nsresult nsMsgThread::ChangeChildCount(int32_t delta)
   childCount += delta;
 
   NS_WARNING_ASSERTION((int32_t) childCount >= 0, "child count gone to 0 or below");
-  if ((int32_t) childCount < 0)	// force child count to >= 0
+  if ((int32_t) childCount < 0)  // force child count to >= 0
     childCount = 0;
 
   rv = m_mdbDB->UInt32ToRowCellColumn(m_metaRow, m_mdbDB->m_threadChildrenColumnToken, childCount);
