@@ -612,10 +612,10 @@ function updateSelectedLabel(aElement) {
 /**
  * Sets up the attendance context menu, based on the given items
  *
- * @param {nsIDOMNode}  aMenu   The context menu item containing the required
- *                                menu or menuitem elements
- * @param {Array}       aItems  An array of the selecetd calEvent or calTodo
- *                                items to display the context menu for
+ * @param {Node}  aMenu   The context menu item containing the required
+ *                          menu or menuitem elements
+ * @param {Array} aItems  An array of the selecetd calEvent or calTodo
+ *                          items to display the context menu for
  */
 function setupAttendanceMenu(aMenu, aItems) {
     /**
@@ -711,11 +711,11 @@ function setupAttendanceMenu(aMenu, aItems) {
      * will not be displayed, if the status is already different (consistent
      * how we deal with that case at other places)
      *
-     * @param {nsIDOMNodeList}  aMenuItems    A list of DOM nodes
-     * @param {String}          aScope        Either 'this-occurrence' or
-     *                                          'all-occurrences'
-     * @param {String}          aPartStat     A valid participation status
-     *                                          as per RfC 5545
+     * @param {NodeList}  aMenuItems    A list of DOM nodes
+     * @param {String}    aScope        Either 'this-occurrence' or
+     *                                    'all-occurrences'
+     * @param {String}    aPartStat     A valid participation status
+     *                                    as per RfC 5545
      */
     function checkMenuItem(aMenuItems, aScope, aPartStat) {
         let toRemove = [];
@@ -781,9 +781,9 @@ function setupAttendanceMenu(aMenu, aItems) {
      * Hides the items from the provided node list. If a partstat is provided,
      * only the matching item will be hidden
      *
-     * @param {nsIDOMNodeList}  aMenuItems    A list of DOM nodes
-     * @param {String}          aPartStat     [optional] A valid participation
-     *                                          status as per RfC 5545
+     * @param {NodeList}  aMenuItems    A list of DOM nodes
+     * @param {String}    aPartStat     [optional] A valid participation
+     *                                    status as per RfC 5545
      */
     function hideItems(aNodeList, aPartStat=null) {
         for (let item of aNodeList) {

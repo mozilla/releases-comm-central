@@ -891,7 +891,7 @@ function InitViewCalendarPaneMenu() {
  * Move the event toolbox, containing the toolbar, into view for a tab
  * or back to its hiding place where it is accessed again for other tabs.
  *
- * @param {nsIDOMNode} aDestination  Destination where the toolbox will be moved
+ * @param {Node} aDestination  Destination where the toolbox will be moved
  */
 function moveEventToolbox(aDestination) {
     let toolbox = document.getElementById("event-toolbox");

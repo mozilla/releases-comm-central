@@ -489,7 +489,7 @@ function rotatePrivacy() {
  * Handler for changing privacy. aEvent is used for the popup menu
  * event-privacy-menupopup in the Privacy toolbar button.
  *
- * @param {nsIDOMNode} aTarget      Has the new privacy in its "value" attribute
+ * @param {Node}       aTarget      Has the new privacy in its "value" attribute
  * @param {XULCommandEvent} aEvent  (optional) the UI element selection event
  */
 function editPrivacy(aTarget, aEvent) {
@@ -634,7 +634,7 @@ function rotatePriority() {
 /**
  * Handler to change the priority.
  *
- * @param {nsIDOMNode} aTarget  Has the new priority in its "value" attribute
+ * @param {Node} aTarget  Has the new priority in its "value" attribute
  */
 function editPriority(aTarget) {
     let newPriority = parseInt(aTarget.getAttribute("value"), 10);
@@ -727,7 +727,7 @@ function rotateStatus() {
 /**
  * Handler for changing the status.
  *
- * @param {nsIDOMNode} aTarget  Has the new status in its "value" attribute
+ * @param {Node} aTarget  Has the new status in its "value" attribute
  */
 function editStatus(aTarget) {
     let newStatus = aTarget.getAttribute("value");
@@ -789,7 +789,7 @@ function rotateShowTimeAs() {
 /**
  * Handler for changing the transparency.
  *
- * @param {nsIDOMNode} aTarget  Has the new transparency in its "value" attribute
+ * @param {Node} aTarget  Has the new transparency in its "value" attribute
  */
 function editShowTimeAs(aTarget) {
     let newValue = aTarget.getAttribute("value");
@@ -1050,7 +1050,7 @@ function loadCloudProviders(aItemObjects) {
      * Deletes any existing menu items in aParentNode that have a
      * cloudProviderAccountKey attribute.
      *
-     * @param {nsIDOMNode} aParentNode  A menupopup containing menu items
+     * @param {Node} aParentNode  A menupopup containing menu items
      */
     function deleteAlreadyExisting(aParentNode) {
         for (let node of aParentNode.childNodes) {
