@@ -33,6 +33,7 @@
   margin: 0;
   margin-inline-end: 1px;
   padding: 0;
+  list-style-image: url("chrome://messenger/skin/icons/file-item.svg");
 }
 
 /* The selected tab should appear above adjacent tabs and the highlight
@@ -320,6 +321,10 @@
 }
 
 /* All Tabs Menupopup */
+
+.alltabs-item {
+  list-style-image: url("chrome://messenger/skin/icons/file-item.svg");
+}
 
 .alltabs-item[selected] {
   font-weight: bold;

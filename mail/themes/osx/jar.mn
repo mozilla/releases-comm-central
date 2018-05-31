@@ -168,7 +168,6 @@ classic.jar:
   skin/classic/messenger/icons/insecure.png                      (mail/icons/insecure.png)
   skin/classic/messenger/icons/identity.png                      (mail/icons/identity.png)
   skin/classic/messenger/icons/identity@2x.png                   (mail/icons/identity@2x.png)
-  skin/classic/messenger/icons/item.png                          (mail/icons/item.png)
   skin/classic/messenger/icons/error.png                         (mail/icons/error.png)
   skin/classic/messenger/icons/symbol-forwarded.png              (mail/icons/symbol-forwarded.png)
   skin/classic/messenger/icons/symbol-forwarded-selected.png     (mail/icons/symbol-forwarded-selected.png)

@@ -25,11 +25,6 @@
  * Tab
  */
 
-.tabmail-tab {
-  list-style-image: url("chrome://global/skin/icons/folder-item.png");
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
-}
-
 tabpanels {
   -moz-appearance: none;
   background-color: transparent;
@@ -199,13 +194,4 @@ tabpanels {
        titlebar text change for inactive windows. */
     opacity: .6;
   }
-}
-
-/**
- * All Tabs Menupopup
- */
-
-.alltabs-item {
-  list-style-image: url("chrome://global/skin/icons/folder-item.png");
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
 }

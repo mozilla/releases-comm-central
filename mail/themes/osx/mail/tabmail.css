@@ -27,10 +27,6 @@
   margin-bottom: 0;
 }
 
-.tabmail-tab {
-  list-style-image: url("chrome://messenger/skin/icons/item.png");
-}
-
 :root[tabsintitlebar]:not([sizemode=fullscreen]) .tabmail-tab:first-child::before {
   content: '';
   display: -moz-box;
@@ -180,10 +176,6 @@ tabmail > tabbox > tabpanels {
 /**
  * All Tabs Menupopup
  */
-
-.alltabs-item {
-  list-style-image: url("chrome://messenger/skin/icons/item.png");
-}
 
 @media (min-resolution: 1.1dppx) {
   alltabs-item[busy] {

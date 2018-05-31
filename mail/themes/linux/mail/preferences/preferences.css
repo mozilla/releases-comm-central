@@ -147,19 +147,6 @@ menulist > menupopup > menuitem > .menu-iconic-left {
 }
 
 /* Cookies Manager */
-#cookiesChildren::-moz-tree-image(domainCol) {
-  width: 16px;
-  height: 16px;
-  margin: 0 2px;
-  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.svg");
-}
-
-#cookiesChildren::-moz-tree-image(domainCol, container) {
-  list-style-image: url("moz-icon://stock/gtk-directory?size=menu");
-  width: 16px;
-  height: 16px;
-}
-
 #cookieInfoBox {
   border: 1px solid ThreeDShadow;
   border-radius: 0;

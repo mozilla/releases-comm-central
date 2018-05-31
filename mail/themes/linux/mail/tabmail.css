@@ -39,10 +39,6 @@ tabpanels {
  * Tab
  */
 
-.tabmail-tab {
-  list-style-image: url("moz-icon://stock/gtk-file?size=menu");
-}
-
 .tabmail-tab > .tab-stack > .tab-content > .tab-label-container {
   /* tabmail-tab focus ring */
   border: 1px dotted transparent;
@@ -93,10 +89,6 @@ tabpanels {
 /**
  * All Tabs Menupopup
  */
-
-.alltabs-item {
-  list-style-image: url("moz-icon://stock/gtk-file?size=menu");
-}
 
 .tabs-alltabs-button {
   min-width: 24px;
