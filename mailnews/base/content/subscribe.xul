@@ -110,11 +110,12 @@
                     <tree id="searchTree" flex="1"
                           disableKeyNavigation="true"
                           hidecolumnpicker="true"
-                           onkeypress="onSearchTreeKeyPress(event);"
-                           onclick="SearchOnClick(event);">
+                          onkeypress="onSearchTreeKeyPress(event);"
+                          onclick="SearchOnClick(event);">
                       <treecols>
                         <treecol id="nameColumn2" primary="true"
-                                 flex="10" hideheader="true"/>
+                                 flex="10" hideheader="true"
+                                 sortDirection="ascending"/>
                         <splitter class="tree-splitter"/>
                         <treecol id="subscribedColumn2"
                                  flex="1" hideheader="true"/>
@@ -146,7 +147,7 @@
         </tabbox>
       </row>
       <row>
-        <hbox id="statusContainerBox" >
+        <hbox id="statusContainerBox">
            <statusbarpanel id="statusText" crop="right" flex="1"/>
            <statusbarpanel class="statusbarpanel-progress" collapsed="true" id="statusbar-progresspanel">
              <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>

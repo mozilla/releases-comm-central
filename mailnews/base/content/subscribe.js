@@ -14,17 +14,12 @@ var gServerURI = null;
 var gSubscribableServer = null;
 var gNameField = null;
 var gNameFieldLabel = null;
-var gFolderDelimiter = ".";
 var gStatusFeedback;
 var gSubscribeDeck = null;
 var gSearchView = null;
 var gSearchTreeBoxObject = null;
 var gItemsFound = new Map();
 var gSubscribeBundle;
-
-function goDoCommand()
-{
-}
 
 function Stop()
 {
@@ -51,16 +46,6 @@ function SetServerTypeSpecificTextValues()
   document.getElementById("currentListTab").setAttribute("accesskey", currentListTabAccesskey);
   document.getElementById("newGroupsTab").collapsed = (serverType != "nntp"); // show newGroupsTab only for nntp servers
   document.getElementById("subscribeLabel").setAttribute("value", subscribeLabelString);
-
-  // XXX this isn't used right now.
-  //set the delimiter
-  try {
-    gFolderDelimiter = gSubscribableServer.delimiter;
-  }
-  catch (ex) {
-    //dump(ex + "\n");
-    gFolderDelimiter = ".";
-  }
 }
 
 function onServerClick(aFolder)
@@ -221,14 +206,14 @@ function SubscribeOnLoad()
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                 .createInstance(Ci.nsIMsgWindow);
   msgWindow.domWindow = window;
-  gStatusFeedback = new nsMsgStatusFeedback
+  gStatusFeedback = new nsMsgStatusFeedback;
   msgWindow.statusFeedback = gStatusFeedback;
   msgWindow.rootDocShell.allowAuth = true;
   msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0]) {
-    if ( window.arguments[0].okCallback ) {
+    if (window.arguments[0].okCallback) {
       top.okCallback = window.arguments[0].okCallback;
     }
   }
@@ -236,19 +221,19 @@ function SubscribeOnLoad()
   var serverMenu = document.getElementById("serverMenu");
 
   gServerURI = null;
-  let folder = window.arguments[0].folder;
+  let folder = ("folder" in window.arguments[0]) ? window.arguments[0].folder : null;
   if (folder && folder.server instanceof Ci.nsISubscribableServer) {
     serverMenu.menupopup.selectFolder(folder.server.rootMsgFolder);
     try {
-                        CleanUpSearchView();
+      CleanUpSearchView();
       gSubscribableServer = folder.server.QueryInterface(Ci.nsISubscribableServer);
-                        // enable (or disable) the search related UI
-                        EnableSearchUI();
+      // Enable (or disable) the search related UI.
+      EnableSearchUI();
       gServerURI = folder.server.serverURI;
     }
     catch (ex) {
       //dump("not a subscribable server\n");
-                        CleanUpSearchView();
+      CleanUpSearchView();
       gSubscribableServer = null;
       gServerURI = null;
     }
