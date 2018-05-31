@@ -9,8 +9,6 @@ var gSecurityPane = {
   mPane: null,
   mInitialized: false,
 
-  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
-
   init: function ()
   {
     this.mPane = document.getElementById("paneSecurity");
@@ -52,13 +50,7 @@ var gSecurityPane = {
 
   openJunkLog: function()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/junkLog.xul");
-    } else {
-      document.documentElement.openWindow("mailnews:junklog",
-                                          "chrome://messenger/content/junkLog.xul",
-                                          "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/junkLog.xul");
   },
 
   resetTrainingData: function()
@@ -143,14 +135,8 @@ var gSecurityPane = {
                             bundle.getString("pw_change2empty_in_fips_mode"));
     }
     else {
-      if (this._loadInContent) {
-        gSubDialog.open("chrome://mozapps/content/preferences/removemp.xul",
-                        null, null, this._initMasterPasswordUI.bind(this));
-      } else {
-        document.documentElement
-                .openSubDialog("chrome://mozapps/content/preferences/removemp.xul",
-                               "", null);
-      }
+      gSubDialog.open("chrome://mozapps/content/preferences/removemp.xul",
+                      null, null, this._initMasterPasswordUI.bind(this));
     }
     this._initMasterPasswordUI();
   },
@@ -160,15 +146,8 @@ var gSecurityPane = {
    */
   changeMasterPassword: function ()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://mozapps/content/preferences/changemp.xul",
-                      null, null, this._initMasterPasswordUI.bind(this));
-    } else {
-      document.documentElement
-              .openSubDialog("chrome://mozapps/content/preferences/changemp.xul",
-                             "", null);
-      this._initMasterPasswordUI();
-    }
+    gSubDialog.open("chrome://mozapps/content/preferences/changemp.xul",
+                    null, null, this._initMasterPasswordUI.bind(this));
   },
 
   /**
@@ -177,14 +156,7 @@ var gSecurityPane = {
    */
   showPasswords: function ()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://passwordmgr/content/passwordManager.xul");
-    } else {
-      document.documentElement
-              .openWindow("Toolkit:PasswordManager",
-                          "chrome://passwordmgr/content/passwordManager.xul",
-                          "", null);
-    }
+    gSubDialog.open("chrome://passwordmgr/content/passwordManager.xul");
   },
 
   updateDownloadedPhishingListState: function()

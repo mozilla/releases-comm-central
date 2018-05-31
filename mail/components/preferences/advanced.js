@@ -15,8 +15,6 @@ var gAdvancedPane = {
   mShellServiceWorking: false,
   mBundle: null,
 
-  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
-
   init: function ()
   {
     this.mPane = document.getElementById("paneAdvanced");
@@ -169,25 +167,13 @@ var gAdvancedPane = {
       return;
 
     // otherwise, bring up the default client dialog
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/systemIntegrationDialog.xul",
-                      "resizable=no", "calledFromPrefs");
-    } else {
-      window.openDialog("chrome://messenger/content/systemIntegrationDialog.xul",
-                        "SystemIntegration",
-                        "modal,centerscreen,chrome,resizable=no", "calledFromPrefs");
-    }
+    gSubDialog.open("chrome://messenger/content/systemIntegrationDialog.xul",
+                    "resizable=no", "calledFromPrefs");
   },
 
   showConfigEdit: function()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://global/content/config.xul");
-    } else {
-      document.documentElement.openWindow("Preferences:ConfigManager",
-                                          "chrome://global/content/config.xul",
-                                          "", null);
-    }
+    gSubDialog.open("chrome://global/content/config.xul");
   },
 
   /**
@@ -382,13 +368,7 @@ updateWritePrefs: function ()
 
   showUpdates: function ()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://mozapps/content/update/history.xul");
-    } else {
-      var prompter = Cc["@mozilla.org/updates/update-prompt;1"]
-                       .createInstance(Ci.nsIUpdatePrompt);
-      prompter.showUpdateHistory(window);
-    }
+    gSubDialog.open("chrome://mozapps/content/update/history.xul");
   },
 
   updateCompactOptions: function(aCompactEnabled)
@@ -409,14 +389,8 @@ updateWritePrefs: function ()
    */
   showReturnReceipts: function()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/receipts.xul",
-                      "resizable=no");
-    } else {
-      document.documentElement
-              .openSubDialog("chrome://messenger/content/preferences/receipts.xul",
-                             "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/receipts.xul",
+                    "resizable=no");
   },
 
   /**
@@ -424,14 +398,8 @@ updateWritePrefs: function ()
    */
   showConnections: function ()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/connection.xul",
-                      "resizable=no");
-    } else {
-      document.documentElement
-              .openSubDialog("chrome://messenger/content/preferences/connection.xul",
-                             "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/connection.xul",
+                    "resizable=no");
   },
 
   /**
@@ -439,14 +407,8 @@ updateWritePrefs: function ()
    */
   showOffline: function()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/offline.xul",
-                      "resizable=no");
-    } else {
-      document.documentElement
-              .openSubDialog("chrome://messenger/content/preferences/offline.xul",
-                             "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/offline.xul",
+                    "resizable=no");
   },
 
   /**
@@ -454,13 +416,7 @@ updateWritePrefs: function ()
    */
   showCertificates: function ()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://pippki/content/certManager.xul");
-    } else {
-      document.documentElement.openWindow("mozilla:certmanager",
-                                          "chrome://pippki/content/certManager.xul",
-                                          "", null);
-    }
+    gSubDialog.open("chrome://pippki/content/certManager.xul");
   },
 
   /**
@@ -491,13 +447,7 @@ updateWritePrefs: function ()
    */
   showSecurityDevices: function ()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://pippki/content/device_manager.xul");
-    } else {
-      document.documentElement.openWindow("mozilla:devicemanager",
-                                          "chrome://pippki/content/device_manager.xul",
-                                          "", null);
-    }
+    gSubDialog.open("chrome://pippki/content/device_manager.xul");
   },
 
   /**

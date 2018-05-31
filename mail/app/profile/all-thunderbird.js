@@ -244,9 +244,6 @@ pref("browser.preferences.animateFadeIn", true);
 pref("browser.preferences.animateFadeIn", false);
 #endif
 
-// load the Preferences in a tab
-pref("mail.preferences.inContent", false);
-
 pref("browser.download.show_plugins_in_list", false);
 pref("browser.download.hide_plugins_without_extensions", true);
 

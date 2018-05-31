@@ -10,8 +10,6 @@ var gComposePane = {
   mSpellChecker: null,
   mDictCount : 0,
 
-  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
-
   init: function ()
   {
     this.enableAutocomplete();
@@ -49,25 +47,13 @@ var gComposePane = {
 
   sendOptionsDialog: function()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/sendoptions.xul");
-    } else {
-      document.documentElement
-              .openSubDialog("chrome://messenger/content/preferences/sendoptions.xul",
-                             "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/sendoptions.xul");
   },
 
   attachmentReminderOptionsDialog: function()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/attachmentReminder.xul",
-                      "resizable=no");
-    } else {
-      document.documentElement
-              .openSubDialog("chrome://messenger/content/preferences/attachmentReminder.xul",
-                             "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/attachmentReminder.xul",
+                    "resizable=no");
   },
 
   updateAutosave: function()
@@ -106,12 +92,7 @@ var gComposePane = {
 
   editDirectories: function()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/addressbook/pref-editdirectories.xul");
-    } else {
-      window.openDialog("chrome://messenger/content/addressbook/pref-editdirectories.xul",
-                        "editDirectories", "chrome,modal=yes,resizable=no", null);
-    }
+    gSubDialog.open("chrome://messenger/content/addressbook/pref-editdirectories.xul");
   },
 
   initAbDefaultStartupDir: function() {

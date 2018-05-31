@@ -19,7 +19,6 @@ var gCategoriesPane = {
 
     mCategoryDialog: null,
     mWinProp: null,
-    mLoadInContent: false,
 
     /**
      * Initialize the categories pref pane. Sets up dialog controls to show the
@@ -62,12 +61,7 @@ var gCategoriesPane = {
         this.mWinProp = "centerscreen, chrome, resizable=no";
         if (AppConstants.platform != "linux") {
             this.mWinProp += ", modal";
-        }
-
-        this.mLoadInContent = Preferences.get(
-            "mail.preferences.inContent",
-            false
-        );
+        };
     },
 
     /**
@@ -127,11 +121,7 @@ var gCategoriesPane = {
             category: "",
             color: null
         };
-        if (this.mLoadInContent) {
-            gSubDialog.open(this.mCategoryDialog, "resizable=no", params);
-        } else {
-            window.openDialog(this.mCategoryDialog, "addCategory", this.mWinProp, params);
-        }
+        gSubDialog.open(this.mCategoryDialog, "resizable=no", params);
     },
 
     /**
@@ -148,11 +138,7 @@ var gCategoriesPane = {
             color: currentColor
         };
         if (list.selectedItem) {
-            if (this.mLoadInContent) {
-                gSubDialog.open(this.mCategoryDialog, "resizable=no", params);
-            } else {
-                window.openDialog(this.mCategoryDialog, "editCategory", this.mWinProp, params);
-            }
+            gSubDialog.open(this.mCategoryDialog, "resizable=no", params);
         }
     },
 

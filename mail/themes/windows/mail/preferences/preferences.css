@@ -41,14 +41,7 @@ prefwindow[type="child"] > prefpane {
 
 prefwindow[type="child"] .prefWindow-dlgbuttons {
   padding: 0;
-}
 
-radio[pane] {
-  -moz-appearance: none;
-  margin: 0 1px;
-  padding: 1px 3px;
-  min-width: 4.5em;
-}
 
 .paneSelector {
   border-bottom: 2px groove ThreeDFace;
@@ -58,58 +51,11 @@ radio[pane] {
   color: -moz-FieldText;
 }
 
-.paneButtonIcon {
-  width: 32px;
-  height: 32px;
-}
-
-radio[pane]:hover {
-  background-color: #e0e8f6;
-  color: black;
-  -moz-appearance: none;
-}
-
-radio[pane][selected="true"] {
-  background-color: #c1d2ee;
-  color: black;
-  -moz-appearance: none;
-}
-
-radio[pane] {
-  padding-top: 5px;
-  min-width: 80px;
-}
-
 @media (-moz-windows-default-theme) {
   menulist > .menulist-label-box > .menulist-icon[src] {
     margin-inline-start: 7px;
     margin-inline-end: 10px;
   }
-}
-
-radio[pane=paneGeneral] {
-  list-style-image: url("chrome://messenger/skin/preferences/general.png");
-}
-radio[pane=paneDisplay] {
-  list-style-image: url("chrome://messenger/skin/preferences/display.png");
-}
-radio[pane=paneCompose] {
-  list-style-image: url("chrome://messenger/skin/preferences/composition.png");
-}
-radio[pane=paneChat] {
-  list-style-image: url("chrome://messenger/skin/preferences/chat.png");
-}
-radio[pane=panePrivacy] {
-  list-style-image: url("chrome://messenger/skin/preferences/privacy.png");
-}
-radio[pane=paneSecurity] {
-  list-style-image: url("chrome://messenger/skin/preferences/security.png");
-}
-radio[pane=paneApplications] {
-  list-style-image: url("chrome://messenger/skin/preferences/attachments.png");
-}
-radio[pane=paneAdvanced] {
-  list-style-image: url("chrome://messenger/skin/preferences/advanced.png");
 }
 
 /* Attachments Pane */

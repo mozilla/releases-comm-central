@@ -56,36 +56,6 @@ radio[pane] {
   height: 32px;
 }
 
-radio[pane][selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
-}
-
-radio[pane=paneGeneral] {
-  list-style-image: url("chrome://messenger/skin/preferences/general.png");
-}
-radio[pane=paneDisplay] {
-  list-style-image: url("chrome://messenger/skin/preferences/display.png");
-}
-radio[pane=paneCompose] {
-  list-style-image: url("chrome://messenger/skin/preferences/composition.png");
-}
-radio[pane=paneChat] {
-  list-style-image: url("chrome://messenger/skin/preferences/chat.png");
-}
-radio[pane=panePrivacy] {
-  list-style-image: url("chrome://messenger/skin/preferences/privacy.png");
-}
-radio[pane=paneSecurity] {
-  list-style-image: url("chrome://messenger/skin/preferences/security.png");
-}
-radio[pane=paneApplications] {
-  list-style-image: url("chrome://messenger/skin/preferences/attachments.png");
-}
-radio[pane=paneAdvanced] {
-  list-style-image: url("chrome://messenger/skin/preferences/advanced.png");
-}
-
 menulist > .menulist-label-box > .menulist-icon[src] {
   margin-inline-start: 5px;
   margin-inline-end: 5px;

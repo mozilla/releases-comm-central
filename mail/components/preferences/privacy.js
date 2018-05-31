@@ -5,8 +5,6 @@
 
 var gPrivacyPane = {
 
-  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
-
   init: function()
   {
   },
@@ -74,14 +72,8 @@ var gPrivacyPane = {
                    permissionType : "cookie",
                    windowTitle    : bundle.getString("cookiepermissionstitle"),
                    introText      : bundle.getString("cookiepermissionstext") };
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/permissions.xul",
-                      null, params);
-    } else {
-      document.documentElement.openWindow("mailnews:permissions",
-                        "chrome://messenger/content/preferences/permissions.xul",
-                        "", params);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/permissions.xul",
+                    null, params);
   },
 
   /**
@@ -89,12 +81,7 @@ var gPrivacyPane = {
    */
   showCookies: function(aCategory)
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/cookies.xul");
-    } else {
-      document.documentElement.openWindow("mailnews:cookies",
-        "chrome://messenger/content/preferences/cookies.xul", "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/cookies.xul");
   },
 
   /**
@@ -149,13 +136,7 @@ var gPrivacyPane = {
                    permissionType : "image",
                    windowTitle    : bundle.getString("imagepermissionstitle"),
                    introText      : bundle.getString("imagepermissionstext") };
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/permissions.xul",
-                      null, params);
-    } else {
-      document.documentElement.openWindow("mailnews:permissions",
-        "chrome://messenger/content/preferences/permissions.xul", "", params);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/permissions.xul",
+                    null, params);
   },
-
 };

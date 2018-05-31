@@ -7,8 +7,6 @@ var gDisplayPane = {
   mInitialized: false,
   mTagListBox:  null,
 
-  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
-
   init: function ()
   {
     if (!(("arguments" in window) && window.arguments[1])) {
@@ -191,13 +189,7 @@ var gDisplayPane = {
    */
   configureFonts: function ()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/fonts.xul");
-    } else {
-      document.documentElement
-              .openSubDialog("chrome://messenger/content/preferences/fonts.xul",
-                             "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/fonts.xul");
   },
 
   /**
@@ -206,14 +198,8 @@ var gDisplayPane = {
    */
   configureColors: function ()
   {
-    if (this._loadInContent) {
-      gSubDialog.open("chrome://messenger/content/preferences/colors.xul",
-                      "resizable=no");
-    } else {
-      document.documentElement
-              .openSubDialog("chrome://messenger/content/preferences/colors.xul",
-                             "", null);
-    }
+    gSubDialog.open("chrome://messenger/content/preferences/colors.xul",
+                    "resizable=no");
   },
 
 
@@ -258,32 +244,16 @@ var gDisplayPane = {
     {
       var tagElToEdit = this.mTagListBox.getItemAtIndex(index);
       var args = {result: "", keyToEdit: tagElToEdit.getAttribute("value"), okCallback: editTagCallback};
-      if (this._loadInContent) {
-        let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
-                                     "resizable=no", args);
-      } else {
-        let dialog = window.openDialog(
-                    "chrome://messenger/content/newTagDialog.xul",
-                    "",
-                    "centerscreen,chrome,titlebar,modal",
-                    args);
-      }
+      let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
+                                   "resizable=no", args);
     }
   },
 
   addTag: function()
   {
     var args = {result: "", okCallback: addTagCallback};
-    if (this._loadInContent) {
-      let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
-                                   "resizable=no", args);
-    } else {
-      let dialog = window.openDialog(
-                   "chrome://messenger/content/newTagDialog.xul",
-                   "",
-                   "centerscreen,chrome,titlebar,modal",
-                   args);
-    }
+    let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
+                                 "resizable=no", args);
   },
 
   onSelect: function()
