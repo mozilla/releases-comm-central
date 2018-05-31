@@ -149,10 +149,11 @@ nsMsgContentPolicy::ShouldLoad(nsIURI           *aContentLocation,
 {
   nsresult rv = NS_OK;
   uint32_t aContentType = aLoadInfo->GetExternalContentPolicyType();
-  nsCOMPtr<nsISupports> aRequestingContext
-    = aContentType == nsIContentPolicy::TYPE_DOCUMENT ?
-      aLoadInfo->ContextForTopLevelLoad() :
-      aLoadInfo->LoadingNode();
+  nsCOMPtr<nsISupports> aRequestingContext;
+  if (aContentType == nsIContentPolicy::TYPE_DOCUMENT)
+    aRequestingContext = aLoadInfo->ContextForTopLevelLoad();
+  else
+    aRequestingContext = aLoadInfo->LoadingNode();
   nsCOMPtr<nsIPrincipal> aRequestPrincipal = aLoadInfo->TriggeringPrincipal();
   nsCOMPtr<nsIPrincipal> loadingPrincipal = aLoadInfo->LoadingPrincipal();
   nsCOMPtr<nsIURI> aRequestingLocation;
