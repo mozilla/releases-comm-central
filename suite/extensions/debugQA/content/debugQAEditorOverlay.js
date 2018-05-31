@@ -222,7 +222,8 @@ function EditorShowEmbeddedObjects()
     var objectArray = GetCurrentEditor().getEmbeddedObjects();
     dump(objectArray.length + " embedded objects\n");
     for (let i = 0; i < objectArray.length; ++i)
-      dump(objectArray.queryElementAt(i, Ci.nsIDOMNode) + "\n");
+      // FIXME nsIDOMNode has been removed.
+      // dump(objectArray.queryElementAt(i, Ci.nsIDOMNode) + "\n");
   } catch(e) {}
 }
 

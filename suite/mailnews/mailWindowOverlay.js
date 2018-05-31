@@ -2786,7 +2786,7 @@ function onRemoteContentOptionsShowing(aEvent)
 
 /**
  * Add privileges to display remote content for the given uri.
- * @param aItem |nsIDOMNode| Item that was selected. The origin
+ * @param aItem |Node| Item that was selected. The origin
  *        is extracted and converted to a uri and used to add
  *        permissions for the site.
  */

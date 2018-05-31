@@ -5,7 +5,7 @@
 #include "nsISupports.idl"
 
 interface nsIDOMWindow;
-interface nsIDOMNode;
+interface nsINode;
 
 /**
  * nsISessionStore keeps track of the current browsing state - i.e.
@@ -74,13 +74,13 @@ interface nsISessionStore : nsISupports
    * @return a JSON string representing the state of the tab
    *         (note: doesn't contain cookies - if you need them, use getWindowState instead).
    */
-  AString getTabState(in nsIDOMNode aTab);
+  AString getTabState(in nsINode aTab);
 
   /**
    * @param aTab   is the tab whose state is to be set.
    * @param aState is a JSON string representing a session state.
    */
-  void setTabState(in nsIDOMNode aTab, in AString aState);
+  void setTabState(in nsINode aTab, in AString aState);
 
   /**
    * Duplicates a given tab as thoroughly as possible.
@@ -92,7 +92,7 @@ interface nsISessionStore : nsISupports
    * @param aRelated is a flag to be passed to addTab().
    * @return a reference to the newly created tab, or null if opening a window.
    */
-  nsIDOMNode duplicateTab(in nsIDOMWindow aWindow, in nsIDOMNode aTab,
+  nsINode duplicateTab(in nsIDOMWindow aWindow, in nsINode aTab,
                           [optional] in long aDelta,
                           [optional] in boolean aRelated);
 
@@ -114,13 +114,13 @@ interface nsISessionStore : nsISupports
    *          Indicates the window to be restored (FIFO ordered).
    * @returns a reference to the reopened tab.
    */
-  nsIDOMNode undoCloseTab(in nsIDOMWindow aWindow, in unsigned long aIndex);
+  nsINode undoCloseTab(in nsIDOMWindow aWindow, in unsigned long aIndex);
 
   /**
    * @param aWindow is the browser window associated with the closed tab.
    * @param aIndex  is the index of the closed tab to be removed (FIFO ordered).
    */
-  nsIDOMNode forgetClosedTab(in nsIDOMWindow aWindow, in unsigned long aIndex);
+  nsINode forgetClosedTab(in nsIDOMWindow aWindow, in unsigned long aIndex);
 
   /**
    * @param aWindow is the window to get the value for.
@@ -149,20 +149,20 @@ interface nsISessionStore : nsISupports
    *
    * @return A string value or "" if none is set.
    */
-  AString getTabValue(in nsIDOMNode aTab, in AString aKey);
+  AString getTabValue(in nsINode aTab, in AString aKey);
 
   /**
    * @param aTab         is the tab to set the value for.
    * @param aKey         is the value's name.
    * @param aStringValue is the value itself (use toSource/eval before setting JS objects).
    */
-  void setTabValue(in nsIDOMNode aTab, in AString aKey, in AString aStringValue);
+  void setTabValue(in nsINode aTab, in AString aKey, in AString aStringValue);
 
   /**
    * @param aTab is the tab to get the value for.
    * @param aKey is the value's name.
    */
-  void deleteTabValue(in nsIDOMNode aTab, in AString aKey);
+  void deleteTabValue(in nsINode aTab, in AString aKey);
 
   /**
    * @param aName is the name of the attribute to save/restore for all xul:tabs.
