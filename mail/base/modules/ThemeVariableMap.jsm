@@ -25,6 +25,9 @@ const ThemeVariableMap = [
   ["--tab-line-color", {
     lwtProperty: "tab_line",
   }],
+  ["--lwt-background-tab-separator-color", {
+    lwtProperty: "tab_background_separator",
+  }],
   ["--toolbar-bgcolor", {
     lwtProperty: "toolbarColor"
   }],
