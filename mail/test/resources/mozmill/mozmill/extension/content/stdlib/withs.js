@@ -132,9 +132,9 @@ function _adjustIndices(start, end, len)
     end += len;
   }
 
-    if (end < 0) {
-        end = 0;
-    }
+  if (end < 0) {
+    end = 0;
+  }
   if (start < 0) {
     start += len;
   }

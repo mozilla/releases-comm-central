@@ -18,7 +18,7 @@
     <types>
         <type name="com.mozilla.thunderbird.mozeml">
             <note>
-		The keys that this metadata importer handles.
+                The keys that this metadata importer handles.
             </note>
             <allattrs>
                 kMDItemAuthorEmailAddresses

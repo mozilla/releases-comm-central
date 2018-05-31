@@ -25,7 +25,7 @@
             ondialogaccept="gSanitizePromptDialog.sanitize();">
 
   <prefpane id="SanitizeDialogPane" onpaneload="gSanitizePromptDialog.init();">
-	<stringbundle id="bundleBrowser"
+    <stringbundle id="bundleBrowser"
             src="chrome://messenger/locale/messenger.properties"/>
 
     <script type="application/javascript"

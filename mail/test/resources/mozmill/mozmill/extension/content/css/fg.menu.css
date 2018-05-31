@@ -1,6 +1,6 @@
 /* Styles for jQuery menu widget
-Author:	Maggie Wachs, maggie@filamentgroup.com
-Date:		September 2008
+Author: Maggie Wachs, maggie@filamentgroup.com
+Date:   September 2008
 */
 
 
@@ -67,7 +67,7 @@ Date:		September 2008
 
 
 /* REQUIRED LINK STYLES: links are "display:block" by default; if the menu options are split into
-	selectable node links and 'next' links, the script floats the node links left and floats the 'next' links to the right	*/
+   selectable node links and 'next' links, the script floats the node links left and floats the 'next' links to the right */
 
 .fg-menu a:link,
 .fg-menu a:visited,
