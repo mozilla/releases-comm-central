@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
-**	AD_Codes.h
+**  AD_Codes.h
 **
-**	---------------
+**  ---------------
 **
-**		Head file for Apple Decode/Encode essential codes.
+**  Head file for Apple Decode/Encode essential codes.
 **
 **
 */
@@ -24,68 +24,68 @@
   #pragma options align=mac68k
 #endif
 
-#define APPLESINGLE_MAGIC	0x00051600L
-#define APPLEDOUBLE_MAGIC 	0x00051607L
-#define VERSION 			0x00020000
+#define APPLESINGLE_MAGIC 0x00051600L
+#define APPLEDOUBLE_MAGIC 0x00051607L
+#define VERSION 0x00020000
 
-#define NUM_ENTRIES 		6
+#define NUM_ENTRIES  6
 
-#define ENT_DFORK   		1L
-#define ENT_RFORK   		2L
-#define ENT_NAME    		3L
-#define ENT_COMMENT 		4L
-#define ENT_DATES   		8L
-#define ENT_FINFO   		9L
-#define CONVERT_TIME 		1265437696L
+#define ENT_DFORK    1L
+#define ENT_RFORK    2L
+#define ENT_NAME     3L
+#define ENT_COMMENT  4L
+#define ENT_DATES    8L
+#define ENT_FINFO    9L
+#define CONVERT_TIME 1265437696L
 
 /*
 ** data type used in the encoder/decoder.
 */
 typedef struct ap_header
 {
-	int32_t 	magic;
-	int32_t	version;
-	char 	fill[16];
-	int16_t 	entries;
+  int32_t   magic;
+  int32_t   version;
+  char      fill[16];
+  int16_t   entries;
 
 } ap_header;
 
 typedef struct ap_entry
 {
-	int32_t  id;
-	int32_t	offset;
-	int32_t	length;
-	
+  int32_t  id;
+  int32_t  offset;
+  int32_t  length;
+
 } ap_entry;
 
 typedef struct ap_dates
 {
-	int32_t create, modify, backup, access;
+  int32_t create, modify, backup, access;
 
 } ap_dates;
 
-typedef struct myFInfo			/* the mac FInfo structure for the cross platform. */
-{	
-	int32_t	fdType, fdCreator;
-	int16_t	fdFlags;
-	int32_t	fdLocation;			/* it really should  be a pointer, but just a place-holder  */
-	int16_t	fdFldr;	
+typedef struct myFInfo      /* the mac FInfo structure for the cross platform. */
+{
+  int32_t  fdType, fdCreator;
+  int16_t  fdFlags;
+  int32_t  fdLocation;      /* it really should  be a pointer, but just a place-holder  */
+  int16_t  fdFldr;
 
-}	myFInfo;
+}  myFInfo;
 
 PR_BEGIN_EXTERN_C
 /*
-**	string utils.
+**  string utils.
 */
 int write_stream(appledouble_encode_object *p_ap_encode_obj, const char *s,int len);
 
 int fill_apple_mime_header(appledouble_encode_object *p_ap_encode_obj);
 int ap_encode_file_infor(appledouble_encode_object *p_ap_encode_obj);
 int ap_encode_header(appledouble_encode_object* p_ap_encode_obj, bool firstTime);
-int ap_encode_data(  appledouble_encode_object* p_ap_encode_obj, bool firstTime);
+int ap_encode_data(appledouble_encode_object* p_ap_encode_obj, bool firstTime);
 
 /*
-**	the prototypes for the ap_decoder.
+**  the prototypes for the ap_decoder.
 */
 int  fetch_a_line(appledouble_decode_object* p_ap_decode_obj, char *buff);
 int  ParseFileHeader(appledouble_decode_object* p_ap_decode_obj);

@@ -386,128 +386,128 @@ nsMailtoUrl::GetNewsHostPart(nsACString &aResult)
 
 NS_IMETHODIMP nsMailtoUrl::GetSpec(nsACString &aSpec)
 {
-	return m_baseURL->GetSpec(aSpec);
+  return m_baseURL->GetSpec(aSpec);
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetPrePath(nsACString &aPrePath)
 {
-	return m_baseURL->GetPrePath(aPrePath);
+  return m_baseURL->GetPrePath(aPrePath);
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetScheme(nsACString &aScheme)
 {
-	return m_baseURL->GetScheme(aScheme);
+  return m_baseURL->GetScheme(aScheme);
 }
 
 nsresult nsMailtoUrl::SetScheme(const nsACString &aScheme)
 {
   nsresult rv = NS_MutateURI(m_baseURL).SetScheme(aScheme).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
-	return ParseUrl();
+  return ParseUrl();
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetUserPass(nsACString &aUserPass)
 {
-	return m_baseURL->GetUserPass(aUserPass);
+  return m_baseURL->GetUserPass(aUserPass);
 }
 
 nsresult nsMailtoUrl::SetUserPass(const nsACString &aUserPass)
 {
   nsresult rv = NS_MutateURI(m_baseURL).SetUserPass(aUserPass).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
-	return ParseUrl();
+  return ParseUrl();
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetUsername(nsACString &aUsername)
 {
-	return m_baseURL->GetUsername(aUsername);
+  return m_baseURL->GetUsername(aUsername);
 }
 
 nsresult nsMailtoUrl::SetUsername(const nsACString &aUsername)
 {
   nsresult rv = NS_MutateURI(m_baseURL).SetUsername(aUsername).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
-	return ParseUrl();
+  return ParseUrl();
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetPassword(nsACString &aPassword)
 {
-	return m_baseURL->GetPassword(aPassword);
+  return m_baseURL->GetPassword(aPassword);
 }
 
 nsresult nsMailtoUrl::SetPassword(const nsACString &aPassword)
 {
   nsresult rv = NS_MutateURI(m_baseURL).SetPassword(aPassword).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
-	return ParseUrl();
+  return ParseUrl();
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetHostPort(nsACString &aHostPort)
 {
-	return m_baseURL->GetHost(aHostPort);
+  return m_baseURL->GetHost(aHostPort);
 }
 
 nsresult nsMailtoUrl::SetHostPort(const nsACString &aHostPort)
 {
   nsresult rv = NS_MutateURI(m_baseURL).SetHostPort(aHostPort).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
-	return ParseUrl();
+  return ParseUrl();
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetHost(nsACString &aHost)
 {
-	return m_baseURL->GetHost(aHost);
+  return m_baseURL->GetHost(aHost);
 }
 
 nsresult nsMailtoUrl::SetHost(const nsACString &aHost)
 {
   nsresult rv = NS_MutateURI(m_baseURL).SetHost(aHost).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
-	return ParseUrl();
+  return ParseUrl();
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetPort(int32_t *aPort)
 {
-	return m_baseURL->GetPort(aPort);
+  return m_baseURL->GetPort(aPort);
 }
 
 nsresult nsMailtoUrl::SetPort(int32_t aPort)
 {
   nsresult rv = NS_MutateURI(m_baseURL).SetPort(aPort).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
-	return ParseUrl();
+  return ParseUrl();
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetPathQueryRef(nsACString &aPath)
 {
-	return m_baseURL->GetPathQueryRef(aPath);
+  return m_baseURL->GetPathQueryRef(aPath);
 }
 
 nsresult nsMailtoUrl::SetPathQueryRef(const nsACString &aPath)
 {
   nsresult rv = NS_MutateURI(m_baseURL).SetPathQueryRef(aPath).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
-	return ParseUrl();
+  return ParseUrl();
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetAsciiHost(nsACString &aHostA)
 {
-	return m_baseURL->GetAsciiHost(aHostA);
+  return m_baseURL->GetAsciiHost(aHostA);
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetAsciiHostPort(nsACString &aHostPortA)
 {
-	return m_baseURL->GetAsciiHostPort(aHostPortA);
+  return m_baseURL->GetAsciiHostPort(aHostPortA);
 }
 
 NS_IMETHODIMP nsMailtoUrl::GetAsciiSpec(nsACString &aSpecA)
 {
-	return m_baseURL->GetAsciiSpec(aSpecA);
+  return m_baseURL->GetAsciiSpec(aSpecA);
 }
 
 NS_IMETHODIMP nsMailtoUrl::SchemeIs(const char *aScheme, bool *_retval)
 {
-	return m_baseURL->SchemeIs(aScheme, _retval);
+  return m_baseURL->SchemeIs(aScheme, _retval);
 }
 
 NS_IMETHODIMP nsMailtoUrl::Equals(nsIURI *other, bool *_retval)

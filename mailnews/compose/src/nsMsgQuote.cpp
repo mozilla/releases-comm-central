@@ -39,7 +39,7 @@ nsMsgQuoteListener::~nsMsgQuoteListener()
 
 NS_IMETHODIMP nsMsgQuoteListener::SetMsgQuote(nsIMsgQuote * msgQuote)
 {
-	mMsgQuote = do_GetWeakReference(msgQuote);
+  mMsgQuote = do_GetWeakReference(msgQuote);
   return NS_OK;
 }
 

@@ -832,8 +832,8 @@ CONTENT_LOC_HACK:
       else if (*s == '\r')
         buf.AppendLiteral("%0D");
       else {
-	      tmp[0]=*s;
-	      buf.Append(tmp);
+        tmp[0]=*s;
+        buf.Append(tmp);
       }
       s++;
       col += (buf.Length() - ot);

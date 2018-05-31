@@ -23,9 +23,9 @@ class nsMsgComposeService :
   public nsSupportsWeakReference
 {
 public:
-	nsMsgComposeService();
+  nsMsgComposeService();
 
-	NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSESERVICE
   NS_DECL_NSICOMMANDLINEHANDLER
 
@@ -35,7 +35,7 @@ public:
   nsresult AddGlobalHtmlDomains();
 
 private:
-	virtual ~nsMsgComposeService();
+  virtual ~nsMsgComposeService();
   bool mLogComposePerformance;
 
   nsresult LoadDraftOrTemplate(const nsACString& aMsgURI, nsMimeOutputType aOutType,

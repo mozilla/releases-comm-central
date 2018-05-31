@@ -18,16 +18,16 @@ class nsMsgQuote;
 class nsMsgQuoteListener: public nsIMsgQuoteListener
 {
 public:
-	nsMsgQuoteListener();
+  nsMsgQuoteListener();
 
-	NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_THREADSAFE_ISUPPORTS
 
-	// nsIMimeStreamConverterListener support
-	NS_DECL_NSIMIMESTREAMCONVERTERLISTENER
+  // nsIMimeStreamConverterListener support
+  NS_DECL_NSIMIMESTREAMCONVERTERLISTENER
   NS_DECL_NSIMSGQUOTELISTENER
 
 private:
-	virtual ~nsMsgQuoteListener();
+  virtual ~nsMsgQuoteListener();
   nsWeakPtr mMsgQuote;
 };
 
@@ -44,7 +44,7 @@ private:
   // Implementation data...
   //
   nsCOMPtr<nsIMsgQuotingOutputStreamListener> mStreamListener;
-  bool			mQuoteHeaders;
+  bool mQuoteHeaders;
   nsCOMPtr<nsIMsgQuoteListener> mQuoteListener;
   nsCOMPtr<nsIChannel> mQuoteChannel;
 };

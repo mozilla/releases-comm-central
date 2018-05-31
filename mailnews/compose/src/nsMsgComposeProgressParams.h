@@ -8,13 +8,13 @@
 class nsMsgComposeProgressParams : public nsIMsgComposeProgressParams
 {
 public:
-	NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSEPROGRESSPARAMS
 
-	nsMsgComposeProgressParams();
+  nsMsgComposeProgressParams();
 
 private:
-	virtual ~nsMsgComposeProgressParams();
+  virtual ~nsMsgComposeProgressParams();
   nsString                          m_subject;
   MSG_DeliverMode                   m_deliveryMode;
 };

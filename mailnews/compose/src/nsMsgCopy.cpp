@@ -194,7 +194,7 @@ nsMsgCopy::StartCopyOperation(nsIMsgIdentity       *aUserIdentity,
     rv = GetTemplatesFolder(aUserIdentity, getter_AddRefs(dstFolder), &waitForUrl);
     isDraft = false;
     if (!dstFolder || NS_FAILED(rv))
-	    return NS_MSG_UNABLE_TO_SAVE_TEMPLATE;
+      return NS_MSG_UNABLE_TO_SAVE_TEMPLATE;
   }
   else // SaveInSentFolder (Sent) -  nsMsgDeliverNow or nsMsgSendUnsent
   {
@@ -534,7 +534,7 @@ nsresult
 MessageFolderIsLocal(nsIMsgIdentity   *userIdentity,
                      nsMsgDeliverMode aFolderType,
                      const char       *aFolderURI,
-		     bool 	      *aResult)
+                     bool            *aResult)
 {
   nsresult rv;
 

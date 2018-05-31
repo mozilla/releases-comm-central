@@ -47,11 +47,11 @@ public:
 
   NS_IMETHOD SetMsgComposeAndSendObject(nsIMsgSend *obj);
 
-  bool                            mCopyInProgress;
+  bool mCopyInProgress;
 
 private:
   virtual ~CopyListener();
-  nsCOMPtr<nsIMsgSend>       mComposeAndSend;
+  nsCOMPtr<nsIMsgSend> mComposeAndSend;
 };
 
 //
@@ -72,49 +72,49 @@ public:
   // Object methods...
   //////////////////////////////////////////////////////////////////////
   //
-  nsresult              StartCopyOperation(nsIMsgIdentity       *aUserIdentity,
+  nsresult              StartCopyOperation(nsIMsgIdentity   *aUserIdentity,
                                            nsIFile          *aFile,
-                                           nsMsgDeliverMode     aMode,
-                                           nsIMsgSend           *aMsgSendObj,
-                                           const char           *aSavePref,
-                                           nsIMsgDBHdr          *aMsgToReplace);
+                                           nsMsgDeliverMode aMode,
+                                           nsIMsgSend       *aMsgSendObj,
+                                           const char       *aSavePref,
+                                           nsIMsgDBHdr      *aMsgToReplace);
 
   nsresult              DoCopy(nsIFile *aDiskFile, nsIMsgFolder *dstFolder,
                                nsIMsgDBHdr *aMsgToReplace, bool aIsDraft,
                                nsIMsgWindow *msgWindow,
                                nsIMsgSend   *aMsgSendObj);
 
-  nsresult	GetUnsentMessagesFolder(nsIMsgIdentity *userIdentity, nsIMsgFolder **msgFolder, bool *waitForUrl);
-  nsresult	GetDraftsFolder(nsIMsgIdentity *userIdentity, nsIMsgFolder **msgFolder, bool *waitForUrl);
-  nsresult	GetTemplatesFolder(nsIMsgIdentity *userIdentity, nsIMsgFolder **msgFolder, bool *waitForUrl);
-  nsresult	GetSentFolder(nsIMsgIdentity *userIdentity,  nsIMsgFolder **msgFolder, bool *waitForUrl);
-  nsresult   CreateIfMissing(nsIMsgFolder **folder, bool *waitForUrl);
+  nsresult GetUnsentMessagesFolder(nsIMsgIdentity *userIdentity, nsIMsgFolder **msgFolder, bool *waitForUrl);
+  nsresult GetDraftsFolder(nsIMsgIdentity *userIdentity, nsIMsgFolder **msgFolder, bool *waitForUrl);
+  nsresult GetTemplatesFolder(nsIMsgIdentity *userIdentity, nsIMsgFolder **msgFolder, bool *waitForUrl);
+  nsresult GetSentFolder(nsIMsgIdentity *userIdentity,  nsIMsgFolder **msgFolder, bool *waitForUrl);
+  nsresult CreateIfMissing(nsIMsgFolder **folder, bool *waitForUrl);
 
 
   //
   // Vars for implementation...
   //
-  nsIFile                     *mFile;     // the file we are sending...
-  nsMsgDeliverMode                mMode;
-  nsCOMPtr<nsIMsgFolder>          mDstFolder;
-  nsCOMPtr<nsIMsgDBHdr>           mMsgToReplace;
-  bool                            mIsDraft;
-  nsCOMPtr<nsIMsgSend>            mMsgSendObj;
-  char                            *mSavePref;
+  nsIFile                *mFile;     // the file we are sending...
+  nsMsgDeliverMode       mMode;
+  nsCOMPtr<nsIMsgFolder> mDstFolder;
+  nsCOMPtr<nsIMsgDBHdr>  mMsgToReplace;
+  bool                   mIsDraft;
+  nsCOMPtr<nsIMsgSend>   mMsgSendObj;
+  char                   *mSavePref;
 
 private:
   virtual ~nsMsgCopy();
 };
 
 // Useful function for the back end...
-nsresult	LocateMessageFolder(nsIMsgIdentity   *userIdentity,
-                                       nsMsgDeliverMode aFolderType,
-                                       const char       *aSaveURI,
-				       nsIMsgFolder **msgFolder);
+nsresult LocateMessageFolder(nsIMsgIdentity   *userIdentity,
+                             nsMsgDeliverMode aFolderType,
+                             const char       *aSaveURI,
+                             nsIMsgFolder **msgFolder);
 
-nsresult	MessageFolderIsLocal(nsIMsgIdentity   *userIdentity,
-                                       nsMsgDeliverMode aFolderType,
-                                       const char       *aSaveURI,
-				       bool		*aResult);
+nsresult MessageFolderIsLocal(nsIMsgIdentity   *userIdentity,
+                              nsMsgDeliverMode aFolderType,
+                              const char       *aSaveURI,
+                              bool             *aResult);
 
 #endif /* _nsMsgCopy_H_ */

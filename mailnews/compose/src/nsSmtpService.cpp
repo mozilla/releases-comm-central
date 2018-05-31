@@ -104,7 +104,7 @@ NS_IMETHODIMP nsSmtpService::SendMailMessage(nsIFile * aFilePath,
     rv = NS_MsgBuildSmtpUrl(aFilePath, smtpServer, aRecipients, aSenderIdentity, aSender,
                             aUrlListener, aStatusFeedback,
                             aNotificationCallbacks, &urlToRun, aRequestDSN);
-    if (NS_SUCCEEDED(rv) && urlToRun)	
+    if (NS_SUCCEEDED(rv) && urlToRun)
       rv = NS_MsgLoadSmtpUrl(urlToRun, nullptr, aRequest);
 
     if (aURL) // does the caller want a handle on the url?

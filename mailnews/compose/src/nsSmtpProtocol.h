@@ -170,14 +170,14 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // Protocol Methods --> This protocol is state driven so each protocol method is
-    //						designed to re-act to the current "state". I've attempted to
-    //						group them together based on functionality.
+    //                      designed to re-act to the current "state". I've attempted to
+    //                      group them together based on functionality.
     ////////////////////////////////////////////////////////////////////////////////////////
 
     nsresult SmtpResponse(nsIInputStream * inputStream, uint32_t length);
     nsresult ExtensionLoginResponse(nsIInputStream * inputStream, uint32_t length);
     nsresult SendHeloResponse(nsIInputStream * inputStream, uint32_t length);
-    nsresult SendEhloResponse(nsIInputStream * inputStream, uint32_t length);	
+    nsresult SendEhloResponse(nsIInputStream * inputStream, uint32_t length);
     nsresult SendQuit(SmtpState aNextStateAfterResponse = SMTP_DONE);
 
     nsresult AuthGSSAPIFirst();

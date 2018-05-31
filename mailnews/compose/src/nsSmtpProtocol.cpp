@@ -164,19 +164,19 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode,
 
      xchar = any ASCII CHAR between "!" (33) and "~" (126) inclusive, except for "+" and "=".
 
-	; "hexchar"s are intended to encode octets that cannot appear
-	; as ASCII characters within an esmtp-value.
+    ; "hexchar"s are intended to encode octets that cannot appear
+    ; as ASCII characters within an esmtp-value.
 
-		 hexchar = ASCII "+" immediately followed by two upper case hexadecimal digits
+         hexchar = ASCII "+" immediately followed by two upper case hexadecimal digits
 
-	When encoding an octet sequence as xtext:
+    When encoding an octet sequence as xtext:
 
-	+ Any ASCII CHAR between "!" and "~" inclusive, except for "+" and "=",
-		 MAY be encoded as itself. (A CHAR in this range MAY instead be encoded as a "hexchar", at the
-		 implementor's discretion.)
+    + Any ASCII CHAR between "!" and "~" inclusive, except for "+" and "=",
+         MAY be encoded as itself. (A CHAR in this range MAY instead be encoded as a "hexchar", at the
+         implementor's discretion.)
 
-	+ ASCII CHARs that fall outside the range above must be encoded as
-		 "hexchar".
+    + ASCII CHARs that fall outside the range above must be encoded as
+         "hexchar".
 
  */
 /* caller must free the return buffer */
@@ -1895,30 +1895,28 @@ void nsSmtpProtocol::SendMessageInFile()
 
 void nsSmtpProtocol::SendPostData()
 {
-	// mscott: as a first pass, I'm writing everything at once and am not
-	// doing it in chunks...
+  // mscott: as a first pass, I'm writing everything at once and am not
+  // doing it in chunks...
 
-	/* returns 0 on done and negative on error
-	 * positive if it needs to continue.
-	 */
+  /* returns 0 on done and negative on error
+   * positive if it needs to continue.
+   */
 
-	// check to see if url is a file..if it is...call our file handler...
-	bool postMessageInFile = true;
-	m_runningURL->GetPostMessage(&postMessageInFile);
-	if (postMessageInFile)
-	{
-		SendMessageInFile();
-	}
+  // check to see if url is a file..if it is...call our file handler...
+  bool postMessageInFile = true;
+  m_runningURL->GetPostMessage(&postMessageInFile);
+  if (postMessageInFile)
+  {
+    SendMessageInFile();
+  }
 
-	/* Update the thermo and the status bar.  This is done by hand, rather
-	   than using the FE_GraphProgress* functions, because there seems to be
-	   no way to make FE_GraphProgress shut up and not display anything more
-	   when all the data has arrived.  At the end, we want to show the
-	   "message sent; waiting for reply" status; FE_GraphProgress gets in
-	   the way of that.  See bug #23414. */
+  /* Update the thermo and the status bar.  This is done by hand, rather
+     than using the FE_GraphProgress* functions, because there seems to be
+     no way to make FE_GraphProgress shut up and not display anything more
+     when all the data has arrived.  At the end, we want to show the
+     "message sent; waiting for reply" status; FE_GraphProgress gets in
+     the way of that.  See bug #23414. */
 }
-
-
 
 nsresult nsSmtpProtocol::SendMessageResponse()
 {

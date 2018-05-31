@@ -256,7 +256,7 @@ nsresult nsMsgAttachment::DeleteAttachment()
 
   // remove it if it's a valid file
   if (isAFile)
-	  rv = urlFile->Remove(false);
+    rv = urlFile->Remove(false);
 
   return rv;
 }
