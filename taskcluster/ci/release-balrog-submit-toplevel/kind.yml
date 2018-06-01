@@ -1,0 +1,54 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.release_deps:transforms
+    - taskgraph.transforms.scriptworker:add_balrog_scopes
+    - taskgraph.transforms.task:transforms
+
+job-defaults:
+    run-on-projects: []  # to make sure this never runs in CI
+    shipping-phase: promote
+    worker:
+        implementation: balrog
+        balrog-action: submit-toplevel
+        require-mirrors: true
+
+jobs:
+    thunderbird:
+        name: submit-toplevel-thunderbird-release-to-balrog
+        description: Submit toplevel Thunderbird release to balrog
+        shipping-product: thunderbird
+        worker:
+            product: thunderbird
+            archive-domain:
+                by-project:
+                    comm-beta: archive.mozilla.org
+                    default: ftp.stage.mozaws.net
+            download-domain:
+                by-project:
+                    comm-beta: download.mozilla.org
+                    default: bouncer-bouncer-releng.stage.mozaws.net
+            channel-names:
+                by-project:
+                    try-comm-central: ["beta", "beta-localtest", "beta-cdntest"]
+                    commm-beta: ["beta", "beta-localtest", "beta-cdntest"]
+                    default: []
+            publish-rules:
+                by-project:
+                    comm-beta: [43]
+                    default: []
+            rules-to-update:
+                by-project:
+                    try-comm-central: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
+                    comm-beta: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
+                    default: []
+            platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
+        treeherder:
+            platform: thunderbird-release/opt
+            symbol: Rel(BPTb)
+            tier: 1
+            kind: build
