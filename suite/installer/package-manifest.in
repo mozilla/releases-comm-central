@@ -308,6 +308,8 @@
 @RESPATH@/components/ProcessSelector.manifest
 @RESPATH@/components/SlowScriptDebug.js
 @RESPATH@/components/SlowScriptDebug.manifest
+@RESPATH@/components/ClearDataService.manifest
+@RESPATH@/components/ClearDataService.js
 @RESPATH@/components/storage-json.js
 @RESPATH@/components/SuiteProfileMigrator.js
 @RESPATH@/components/SuiteProfileMigrator.manifest
