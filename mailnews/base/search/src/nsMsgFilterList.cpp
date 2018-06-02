@@ -496,7 +496,7 @@ nsresult nsMsgFilterList::LoadTextFilters(already_AddRefed<nsIInputStream> aStre
   uint64_t bytesAvailable;
 
   nsCOMPtr<nsIInputStream> bufStream;
-  nsCOMPtr<nsIInputStream> stream = mozilla::Move(aStream);
+  nsCOMPtr<nsIInputStream> stream = std::move(aStream);
   err = NS_NewBufferedInputStream(getter_AddRefs(bufStream), stream.forget(), FILE_IO_BUFFER_SIZE);
   NS_ENSURE_SUCCESS(err, err);
 
