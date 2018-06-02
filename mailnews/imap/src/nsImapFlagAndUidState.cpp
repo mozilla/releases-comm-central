@@ -183,7 +183,7 @@ int32_t nsImapFlagAndUidState::NumberOfDeletedMessages()
 {
   return fNumberDeleted;
 }
-	
+
 // since the uids are sorted, start from the back (rb)
 
 uint32_t  nsImapFlagAndUidState::GetHighestNonDeletedUID()

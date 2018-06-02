@@ -58,26 +58,26 @@ protected:
   void      ProcessAppendMsgOperation(nsIMsgOfflineImapOperation *currentOp,
                                       nsOfflineImapOperationType opType);
 
-  nsCOMPtr <nsIMsgFolder> m_currentFolder;
-  nsCOMPtr <nsIMsgFolder> m_singleFolderToUpdate;
-  nsCOMPtr <nsIMsgWindow> m_window;
-  nsCOMPtr <nsIArray> m_allServers;
-  nsCOMPtr <nsIArray> m_allFolders;
-  nsCOMPtr <nsIMsgIncomingServer> m_currentServer;
-  nsCOMPtr <nsISimpleEnumerator> m_serverEnumerator;
-  nsCOMPtr <nsIFile> m_curTempFile;
+  nsCOMPtr<nsIMsgFolder> m_currentFolder;
+  nsCOMPtr<nsIMsgFolder> m_singleFolderToUpdate;
+  nsCOMPtr<nsIMsgWindow> m_window;
+  nsCOMPtr<nsIArray> m_allServers;
+  nsCOMPtr<nsIArray> m_allFolders;
+  nsCOMPtr<nsIMsgIncomingServer> m_currentServer;
+  nsCOMPtr<nsISimpleEnumerator> m_serverEnumerator;
+  nsCOMPtr<nsIFile> m_curTempFile;
 
   nsTArray<nsMsgKey> m_CurrentKeys;
   nsCOMArray<nsIMsgOfflineImapOperation> m_currentOpsToClear;
-  uint32_t      m_KeyIndex;
+  uint32_t m_KeyIndex;
   nsCOMPtr <nsIMsgDatabase> m_currentDB;
   nsCOMPtr <nsIUrlListener> m_listener;
-  int32_t	mCurrentUIDValidity;
-  int32_t	mCurrentPlaybackOpType;	// kFlagsChanged -> kMsgCopy -> kMsgMoved
-  bool	m_mailboxupdatesStarted;
-  bool          m_mailboxupdatesFinished;
-  bool	m_pseudoOffline;		// for queueing online events in offline db
-  bool	m_createdOfflineFolders;
+  int32_t mCurrentUIDValidity;
+  int32_t mCurrentPlaybackOpType;  // kFlagsChanged -> kMsgCopy -> kMsgMoved
+  bool m_mailboxupdatesStarted;
+  bool m_mailboxupdatesFinished;
+  bool m_pseudoOffline;  // for queueing online events in offline db
+  bool m_createdOfflineFolders;
 
 };
 

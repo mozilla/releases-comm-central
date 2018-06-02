@@ -2927,7 +2927,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
 
           }
           bool deleteSelf = false;
-          DeleteSubFolders(mailboxName.get(), deleteSelf);	// don't delete self
+          DeleteSubFolders(mailboxName.get(), deleteSelf);  // don't delete self
         }
         break;
       case nsIImapUrl::nsImapAppendDraftFromFile:
@@ -4723,7 +4723,7 @@ void nsImapProtocol::SetContentModified(IMAP_ContentModifiedType modified)
 }
 
 
-bool	nsImapProtocol::GetShouldFetchAllParts()
+bool nsImapProtocol::GetShouldFetchAllParts()
 {
   if (m_runningUrl  && !DeathSignalReceived())
   {
@@ -7041,7 +7041,7 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
         strcmp(selectedMailbox, longestName) &&
         !strncmp(selectedMailbox, longestName, strlen(selectedMailbox)))
       {
-          if( selectedMailboxDir && !strcmp(selectedMailboxDir, longestName) )	// just myself
+          if( selectedMailboxDir && !strcmp(selectedMailboxDir, longestName) )  // just myself
           {
               if( aDeleteSelf )
               {
@@ -7057,7 +7057,7 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
               if (m_imapServerSink)
                   m_imapServerSink->ResetServerConnection(nsDependentCString(longestName));
               bool deleted = false;
-              if( folderInSubfolderList )	// for performance
+              if( folderInSubfolderList )  // for performance
               {
                   nsTArray<char*> *pDeletableChildren = m_deletableChildren;
                   m_deletableChildren = nullptr;
@@ -7297,7 +7297,7 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes()
           case kOtherUsersNamespace:
             boxSpec->mBoxFlags |= kOtherUsersMailbox;
             break;
-          default:	// (kUnknownNamespace)
+          default:  // (kUnknownNamespace)
             break;
           }
 
@@ -7310,7 +7310,7 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes()
         if (!m_imapServerSink) return;
 
         m_imapServerSink->SetServerDoingLsub(true);
-        Lsub(allPattern.get(), true);	// LSUB all the subscribed
+        Lsub(allPattern.get(), true);  // LSUB all the subscribed
 
         m_imapServerSink->SetServerDoingLsub(false);
         List(allPattern.get(), true); // LIST all folders

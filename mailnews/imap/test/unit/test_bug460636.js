@@ -60,7 +60,7 @@ function* setup() {
 
 function checkSavedMessage() {
   Assert.equal(IOUtils.loadFileToString(gMsgFile),
-	      IOUtils.loadFileToString(gSavedMsgFile));
+  IOUtils.loadFileToString(gSavedMsgFile));
 }
 
 function teardown() {

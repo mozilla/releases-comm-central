@@ -52,7 +52,7 @@ function makeServer(daemon, infoString, otherProps) {
 
 function createLocalIMAPServer(port, hostname="localhost") {
   let server = localAccountUtils.create_incoming_server("imap", port,
-							"user", "password", hostname);
+    "user", "password", hostname);
   server.QueryInterface(Ci.nsIImapIncomingServer);
   return server;
 }

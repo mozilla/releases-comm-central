@@ -110,7 +110,7 @@ public:
   // Interrupt a Fetch, without really Interrupting (through netlib)
   bool GetLastFetchChunkReceived();
   void ClearLastFetchChunkReceived();
-  virtual uint16_t	SupportsUserFlags() { return fSupportsUserDefinedFlags; }
+  virtual uint16_t SupportsUserFlags() { return fSupportsUserDefinedFlags; }
   virtual uint16_t  SettablePermanentFlags() { return fSettablePermanentFlags;}
   void SetFlagState(nsIImapFlagAndUidState *state);
   bool GetDownloadingHeaders();
@@ -229,7 +229,7 @@ private:
 
   nsImapSearchResultSequence    *fSearchResults;
 
-  nsCOMPtr <nsIImapFlagAndUidState> fFlagState;		// NOT owned by us, it's a copy, do not destroy
+  nsCOMPtr <nsIImapFlagAndUidState> fFlagState;  // NOT owned by us, it's a copy, do not destroy
 
   eIMAPstate               fIMAPstate;
 

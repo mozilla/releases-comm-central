@@ -1140,7 +1140,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(const nsACString& folder
     // If there is a hierarchy, there is a parent.
     // Don't strip off slash if it's the first character
     parentName.SetLength(leafPos);
-    folderName.Cut(0, leafPos + 1);	// get rid of the parent name
+    folderName.Cut(0, leafPos + 1);  // get rid of the parent name
     haveParent = true;
     parentUri.Append('/');
     parentUri.Append(parentName);

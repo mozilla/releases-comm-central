@@ -29,11 +29,11 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
                              public nsIUrlListener
 {
 public:
-    NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_ISUPPORTS_INHERITED
 
-    nsImapIncomingServer();
+  nsImapIncomingServer();
 
-    // overriding nsMsgIncomingServer methods
+  // overriding nsMsgIncomingServer methods
   NS_IMETHOD SetKey(const nsACString& aKey) override;  // override nsMsgIncomingServer's implementation...
   NS_IMETHOD GetLocalStoreType(nsACString& type) override;
   NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
@@ -48,22 +48,18 @@ public:
   NS_IMETHOD CloseCachedConnections() override;
   NS_IMETHOD GetConstructedPrettyName(nsAString& retval) override;
   NS_IMETHOD GetCanBeDefaultServer(bool *canBeDefaultServer) override;
-  NS_IMETHOD GetCanCompactFoldersOnServer(bool *canCompactFoldersOnServer
-                                          ) override;
+  NS_IMETHOD GetCanCompactFoldersOnServer(bool *canCompactFoldersOnServer) override;
   NS_IMETHOD GetCanUndoDeleteOnServer(bool *canUndoDeleteOnServer) override;
   NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
   NS_IMETHOD GetCanEmptyTrashOnExit(bool *canEmptyTrashOnExit) override;
   NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) override;
   NS_IMETHOD GeneratePrettyNameForMigration(nsAString& aPrettyName) override;
   NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) override;
-  NS_IMETHOD GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServer
-                                         ) override;
-  NS_IMETHOD GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer
-                                        ) override;
+  NS_IMETHOD GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServer) override;
+  NS_IMETHOD GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer) override;
   NS_IMETHOD GetFilterScope(nsMsgSearchScopeValue *filterScope) override;
   NS_IMETHOD GetSearchScope(nsMsgSearchScopeValue *searchScope) override;
-  NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff
-                                              ) override;
+  NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) override;
   NS_IMETHOD OnUserOrHostNameChanged(const nsACString& oldName,
                                      const nsACString& newName,
                                      bool hostnameChanged) override;
@@ -108,16 +104,16 @@ private:
 
   nsCOMArray<nsIImapProtocol> m_connectionCache;
   nsCOMArray<nsIImapUrl> m_urlQueue;
-  nsCOMPtr<nsIStringBundle>	m_stringBundle;
+  nsCOMPtr<nsIStringBundle>m_stringBundle;
   nsCOMArray<nsIMsgFolder> m_subscribeFolders; // used to keep folder resources around while subscribe UI is up.
   nsCOMArray<nsIMsgImapMailFolder> m_foldersToStat; // folders to check for new mail with Status
   nsTArray<nsISupports*> m_urlConsumers;
-  eIMAPCapabilityFlags          m_capability;
-  nsCString         m_manageMailAccountUrl;
-  bool              m_userAuthenticated;
-  bool              mDoingSubscribeDialog;
-  bool              mDoingLsub;
-  bool              m_shuttingDown;
+  eIMAPCapabilityFlags m_capability;
+  nsCString m_manageMailAccountUrl;
+  bool m_userAuthenticated;
+  bool mDoingSubscribeDialog;
+  bool mDoingLsub;
+  bool m_shuttingDown;
 
   mozilla::Mutex mLock;
   // subscribe dialog stuff

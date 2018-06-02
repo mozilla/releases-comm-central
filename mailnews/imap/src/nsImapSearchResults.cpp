@@ -45,7 +45,7 @@ void nsImapSearchResultSequence::AddSearchResultLine(const char *searchLine)
   // The first add becomes node 2.  Fix this.
   char *copiedSequence = PL_strdup(searchLine + 9); // 9 == "* SEARCH "
 
-  if (copiedSequence)	// if we can't allocate this then the search won't hit
+  if (copiedSequence)  // if we can't allocate this then the search won't hit
     AppendElement(copiedSequence);
 }
 
@@ -71,19 +71,19 @@ int32_t nsImapSearchResultIterator::GetNextMessageNumber()
 {
   int32_t returnValue = 0;
   if (fPositionInCurrentLine)
-  {	
+  {
     returnValue = atoi(fPositionInCurrentLine);
 
     // eat the current number
     while (isdigit(*++fPositionInCurrentLine))
       ;
 
-    if (*fPositionInCurrentLine == 0xD)	// found CR, no more digits on line
+    if (*fPositionInCurrentLine == 0xD)  // found CR, no more digits on line
     {
       fCurrentLine = (char *) fSequence.SafeElementAt(++fSequenceIndex);
       fPositionInCurrentLine = fCurrentLine;
     }
-    else	// eat the space
+    else  // eat the space
       fPositionInCurrentLine++;
   }
 

@@ -211,7 +211,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
         }
 
         // command continuation request [RFC3501, Sec. 7.5]
-        if (ContinueParse() && fNextToken && *fNextToken == '+')	// never pipeline APPEND or AUTHENTICATE
+        if (ContinueParse() && fNextToken && *fNextToken == '+')  // never pipeline APPEND or AUTHENTICATE
         {
           NS_ASSERTION((fNumberOfTaggedResponsesExpected - numberOfTaggedResponsesReceived) == 1,
             " didn't get the number of tagged responses we expected");
@@ -304,10 +304,10 @@ void nsImapServerResponseParser::PreProcessCommandToken(const char *commandToken
         if (*currentChar == '\\')
         {
           PL_strcpy(currentChar, currentChar+1);
-          currentChar++;	// skip what we are escaping
+          currentChar++;  // skip what we are escaping
         }
         else if (*currentChar == '\"')
-          *currentChar = 0;	// end quote
+          *currentChar = 0;  // end quote
         else
           currentChar++;
       }
@@ -316,14 +316,14 @@ void nsImapServerResponseParser::PreProcessCommandToken(const char *commandToken
       HandleMemoryFailure();
 
     // we don't want bogus info for this new box
-    //delete fFlagState;	// not our object
+    //delete fFlagState;  // not our object
     //fFlagState = nullptr;
   }
   else if (!PL_strcasecmp(commandToken, "CLOSE"))
   {
-    return;	// just for debugging
+    return;  // just for debugging
     // we don't want bogus info outside the selected state
-    //delete fFlagState;	// not our object
+    //delete fFlagState;  // not our object
     //fFlagState = nullptr;
   }
   else if (!PL_strcasecmp(commandToken, "UID"))
@@ -434,7 +434,7 @@ void nsImapServerResponseParser::ProcessOkCommand(const char *commandToken)
       else if (m_shell->GetIsValid())
       {
         // If we have a valid shell that has not already been cached, then cache it.
-        if (!m_shell->IsShellCached() && fHostSessionList)	// cache is responsible for destroying it
+        if (!m_shell->IsShellCached() && fHostSessionList)  // cache is responsible for destroying it
         {
           MOZ_LOG(IMAP, mozilla::LogLevel::Info,
             ("BODYSHELL:  Adding shell to cache."));
@@ -861,7 +861,7 @@ void nsImapServerResponseParser::mailbox_list(bool discoveredFromLsub)
       else
         boxSpec->mHierarchySeparator = *fNextToken;
     }
-    else	// likely NIL.  Discovered late in 4.02 that we do not handle literals here (e.g. {10} <10 chars>), although this is almost impossibly unlikely
+    else  // likely NIL.  Discovered late in 4.02 that we do not handle literals here (e.g. {10} <10 chars>), although this is almost impossibly unlikely
       boxSpec->mHierarchySeparator = kOnlineHierarchySeparatorNil;
     AdvanceToNextToken();
     if (ContinueParse())
@@ -912,18 +912,16 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec *boxSpec)
       case kOtherUsersNamespace:
         boxSpec->mBoxFlags |= kOtherUsersMailbox;
         break;
-      default:	// (kUnknownNamespace)
+      default:  // (kUnknownNamespace)
         break;
       }
       boxSpec->mNamespaceForFolder = ns;
     }
 
-    //    	char *convertedName =
-    //            fServerConnection.CreateUtf7ConvertedString(boxname, false);
-    //		char16_t *unicharName;
-    //        unicharName = fServerConnection.CreatePRUnicharStringFromUTF7(boxname);
-    //    	PL_strfree(boxname);
-    //    	boxname = convertedName;
+    // char *convertedName = fServerConnection.CreateUtf7ConvertedString(boxname, false);
+    // char16_t *unicharName = fServerConnection.CreatePRUnicharStringFromUTF7(boxname);
+    // PL_strfree(boxname);
+    // boxname = convertedName;
   }
 
   if (!boxname)
@@ -1108,13 +1106,12 @@ void nsImapServerResponseParser::msg_fetch()
       }
     }
     else if (!PL_strcasecmp(fNextToken, "RFC822") ||
-      !PL_strcasecmp(fNextToken, "RFC822.HEADER") ||
-      !PL_strncasecmp(fNextToken, "BODY[HEADER",11) ||
-      !PL_strncasecmp(fNextToken, "BODY[]", 6) ||
-      !PL_strcasecmp(fNextToken, "RFC822.TEXT") ||
-      (!PL_strncasecmp(fNextToken, "BODY[", 5) &&
-				  PL_strstr(fNextToken, "HEADER"))
-                                  )
+             !PL_strcasecmp(fNextToken, "RFC822.HEADER") ||
+             !PL_strncasecmp(fNextToken, "BODY[HEADER",11) ||
+             !PL_strncasecmp(fNextToken, "BODY[]", 6) ||
+             !PL_strcasecmp(fNextToken, "RFC822.TEXT") ||
+             (!PL_strncasecmp(fNextToken, "BODY[", 5) &&
+              PL_strstr(fNextToken, "HEADER")))
     {
       if (fCurrentResponseUID == 0)
         fFlagState->GetUidOfMessage(fFetchResponseIndex - 1, &fCurrentResponseUID);
@@ -1190,7 +1187,7 @@ void nsImapServerResponseParser::msg_fetch()
             tokenCopy = PL_strdup(fNextToken);
             if (tokenCopy)
             {
-              char *originString = tokenCopy + 7;	// where the byte number starts
+              char *originString = tokenCopy + 7;  // where the byte number starts
               char *closeBracket = PL_strchr(tokenCopy,'>');
               if (closeBracket && originString && *originString)
               {
@@ -1421,14 +1418,14 @@ void nsImapServerResponseParser::msg_fetch()
 
 typedef enum _envelopeItemType
 {
-	envelopeString,
-	envelopeAddress
+  envelopeString,
+  envelopeAddress
 } envelopeItemType;
 
 typedef struct
 {
-	const char * name;
-	envelopeItemType type;
+  const char * name;
+  envelopeItemType type;
 } envelopeItem;
 
 // RFC3501:  envelope  = "(" env-date SP env-subject SP env-from SP
@@ -1543,7 +1540,7 @@ void nsImapServerResponseParser::xaolenvelope_data()
         fServerConnection.HandleMessageDownLoadLine(fromLine.get(), false);
         if (ContinueParse())
         {
-          AdvanceToNextToken();	// ge attachment size
+          AdvanceToNextToken();  // ge attachment size
           int32_t attachmentSize = atoi(fNextToken);
           if (attachmentSize != 0)
           {
@@ -1554,7 +1551,7 @@ void nsImapServerResponseParser::xaolenvelope_data()
         }
         if (ContinueParse())
         {
-          AdvanceToNextToken();	// skip image size
+          AdvanceToNextToken();  // skip image size
           int32_t imageSize = atoi(fNextToken);
           if (imageSize != 0)
           {
@@ -1564,7 +1561,7 @@ void nsImapServerResponseParser::xaolenvelope_data()
           }
         }
         if (ContinueParse())
-          AdvanceToNextToken();	// skip )
+          AdvanceToNextToken();  // skip )
       }
     }
   }
@@ -1628,7 +1625,7 @@ void nsImapServerResponseParser::parse_address(nsAutoCString &addressLine)
   }
   if (*fNextToken == ')')
     fNextToken++;
-  //	AdvanceToNextToken();	// skip "))"
+  // AdvanceToNextToken();  // skip "))"
 }
 
 void nsImapServerResponseParser::internal_date()
@@ -1763,7 +1760,7 @@ void nsImapServerResponseParser::flags()
     while(*fNextToken != ')')
       fNextToken++;
 
-  fCurrentLineContainedFlagInfo = true;	// handled in PostProcessEndOfLine
+  fCurrentLineContainedFlagInfo = true;  // handled in PostProcessEndOfLine
   fSavedFlagInfo = messageFlags;
 }
 
@@ -1900,7 +1897,7 @@ void nsImapServerResponseParser::resp_text_code()
   {
     if (!PL_strcasecmp(fNextToken,"ALERT]"))
     {
-      char *alertMsg = fCurrentTokenPlaceHolder;	// advance past ALERT]
+      char *alertMsg = fCurrentTokenPlaceHolder;  // advance past ALERT]
       if (alertMsg && *alertMsg && (!fLastAlert || PL_strcmp(fNextToken, fLastAlert)))
       {
         fServerConnection.AlertUserEvent(alertMsg);
@@ -1921,7 +1918,7 @@ void nsImapServerResponseParser::resp_text_code()
     else if (!PL_strcasecmp(fNextToken,"PERMANENTFLAGS"))
     {
       uint32_t saveSettableFlags = fSettablePermanentFlags;
-      fSupportsUserDefinedFlags = 0;		// assume no unless told
+      fSupportsUserDefinedFlags = 0;  // assume no unless told
       fSettablePermanentFlags = 0;            // assume none, unless told otherwise.
       parse_folder_flags();
       // if the server tells us there are no permanent flags, we're
@@ -2141,7 +2138,7 @@ void nsImapServerResponseParser::msg_fetch_content(bool chunk, int32_t origin, c
       fLastChunk = msg_fetch_literal(chunk, origin);
   }
   else
-    AdvanceToNextToken();	// eat "NIL"
+    AdvanceToNextToken();  // eat "NIL"
 
   if (fLastChunk && (GetFillingInShell() ? m_shell->GetGeneratingWholeMessage() : true))
   {
@@ -2293,7 +2290,7 @@ void nsImapServerResponseParser::capability_data()
   } while (fNextToken && endToken < 0 && !fAtEndOfLine && ContinueParse());
 
   nsImapProtocol *navCon = &fServerConnection;
-  NS_ASSERTION(navCon, "null imap protocol connection while parsing capability response");	// we should always have this
+  NS_ASSERTION(navCon, "null imap protocol connection while parsing capability response");  // we should always have this
   if (navCon)
     navCon->CommitCapability();
   skip_to_CRLF();
@@ -2393,113 +2390,112 @@ void nsImapServerResponseParser::authChallengeResponse_data()
 
 void nsImapServerResponseParser::namespace_data()
 {
-	EIMAPNamespaceType namespaceType = kPersonalNamespace;
-	bool namespacesCommitted = false;
+  EIMAPNamespaceType namespaceType = kPersonalNamespace;
+  bool namespacesCommitted = false;
   const char* serverKey = fServerConnection.GetImapServerKey();
-	while ((namespaceType != kUnknownNamespace) && ContinueParse())
-	{
-		AdvanceToNextToken();
-		while (fAtEndOfLine && ContinueParse())
-			AdvanceToNextToken();
-		if (!PL_strcasecmp(fNextToken,"NIL"))
-		{
-			// No namespace for this type.
-			// Don't add anything to the Namespace object.
-		}
-		else if (fNextToken[0] == '(')
-		{
-			// There may be multiple namespaces of the same type.
-			// Go through each of them and add them to our Namespace object.
+  while ((namespaceType != kUnknownNamespace) && ContinueParse())
+  {
+    AdvanceToNextToken();
+    while (fAtEndOfLine && ContinueParse())
+      AdvanceToNextToken();
+    if (!PL_strcasecmp(fNextToken,"NIL"))
+    {
+      // No namespace for this type.
+      // Don't add anything to the Namespace object.
+    }
+    else if (fNextToken[0] == '(')
+    {
+      // There may be multiple namespaces of the same type.
+      // Go through each of them and add them to our Namespace object.
 
-			fNextToken++;
-			while (fNextToken[0] == '(' && ContinueParse())
-			{
-				// we have another namespace for this namespace type
-				fNextToken++;
-				if (fNextToken[0] != '"')
-				{
-					SetSyntaxError(true);
-				}
-				else
-				{
-					char *namespacePrefix = CreateQuoted(false);
+      fNextToken++;
+      while (fNextToken[0] == '(' && ContinueParse())
+      {
+        // we have another namespace for this namespace type
+        fNextToken++;
+        if (fNextToken[0] != '"')
+        {
+          SetSyntaxError(true);
+        }
+        else
+        {
+          char *namespacePrefix = CreateQuoted(false);
 
-					AdvanceToNextToken();
-					const char *quotedDelimiter = fNextToken;
-					char namespaceDelimiter = '\0';
+          AdvanceToNextToken();
+          const char *quotedDelimiter = fNextToken;
+          char namespaceDelimiter = '\0';
 
-					if (quotedDelimiter[0] == '"')
-					{
-						quotedDelimiter++;
-						namespaceDelimiter = quotedDelimiter[0];
-					}
-					else if (!PL_strncasecmp(quotedDelimiter, "NIL", 3))
-					{
-						// NIL hierarchy delimiter.  Leave namespace delimiter nullptr.
-					}
-					else
-					{
-						// not quoted or NIL.
-						SetSyntaxError(true);
-					}
-					if (ContinueParse())
-					{
+          if (quotedDelimiter[0] == '"')
+          {
+            quotedDelimiter++;
+            namespaceDelimiter = quotedDelimiter[0];
+          }
+          else if (!PL_strncasecmp(quotedDelimiter, "NIL", 3))
+          {
+            // NIL hierarchy delimiter.  Leave namespace delimiter nullptr.
+          }
+          else
+          {
+            // not quoted or NIL.
+            SetSyntaxError(true);
+          }
+          if (ContinueParse())
+          {
             // add code to parse the TRANSLATE attribute if it is present....
             // we'll also need to expand the name space code to take in the translated prefix name.
 
-						nsIMAPNamespace *newNamespace = new nsIMAPNamespace(namespaceType, namespacePrefix, namespaceDelimiter, false);
-						// add it to a temporary list in the host
-						if (newNamespace && fHostSessionList)
-							fHostSessionList->AddNewNamespaceForHost(
-                                serverKey, newNamespace);
+            nsIMAPNamespace *newNamespace = new nsIMAPNamespace(namespaceType, namespacePrefix, namespaceDelimiter, false);
+            // add it to a temporary list in the host
+            if (newNamespace && fHostSessionList)
+              fHostSessionList->AddNewNamespaceForHost(serverKey, newNamespace);
 
-						skip_to_close_paren();	// Ignore any extension data
+            skip_to_close_paren();  // Ignore any extension data
 
-						bool endOfThisNamespaceType = (fNextToken[0] == ')');
-						if (!endOfThisNamespaceType && fNextToken[0] != '(')	// no space between namespaces of the same type
-						{
-							SetSyntaxError(true);
-						}
-					}
-					PR_Free(namespacePrefix);
-				}
-			}
-		}
-		else
-		{
-			SetSyntaxError(true);
-		}
-		switch (namespaceType)
-		{
-		case kPersonalNamespace:
-			namespaceType = kOtherUsersNamespace;
-			break;
-		case kOtherUsersNamespace:
-			namespaceType = kPublicNamespace;
-			break;
-		default:
-			namespaceType = kUnknownNamespace;
-			break;
-		}
-	}
-	if (ContinueParse())
-	{
-		nsImapProtocol *navCon = &fServerConnection;
-		NS_ASSERTION(navCon, "null protocol connection while parsing namespace");	// we should always have this
-		if (navCon)
-		{
-			navCon->CommitNamespacesForHostEvent();
-			namespacesCommitted = true;
-		}
-	}
-	skip_to_CRLF();
+            bool endOfThisNamespaceType = (fNextToken[0] == ')');
+            if (!endOfThisNamespaceType && fNextToken[0] != '(')  // no space between namespaces of the same type
+            {
+              SetSyntaxError(true);
+            }
+          }
+          PR_Free(namespacePrefix);
+        }
+      }
+    }
+    else
+    {
+      SetSyntaxError(true);
+    }
+    switch (namespaceType)
+    {
+    case kPersonalNamespace:
+      namespaceType = kOtherUsersNamespace;
+      break;
+    case kOtherUsersNamespace:
+      namespaceType = kPublicNamespace;
+      break;
+    default:
+      namespaceType = kUnknownNamespace;
+      break;
+    }
+  }
+  if (ContinueParse())
+  {
+    nsImapProtocol *navCon = &fServerConnection;
+    NS_ASSERTION(navCon, "null protocol connection while parsing namespace");  // we should always have this
+    if (navCon)
+    {
+      navCon->CommitNamespacesForHostEvent();
+      namespacesCommitted = true;
+    }
+  }
+  skip_to_CRLF();
 
-	if (!namespacesCommitted && fHostSessionList)
-	{
-		bool success;
-		fHostSessionList->FlushUncommittedNamespacesForHost(serverKey,
+  if (!namespacesCommitted && fHostSessionList)
+  {
+    bool success;
+    fHostSessionList->FlushUncommittedNamespacesForHost(serverKey,
                                                             success);
-	}
+  }
 }
 
 void nsImapServerResponseParser::myrights_data(bool unsolicited)
@@ -2558,7 +2554,7 @@ void nsImapServerResponseParser::acl_data()
   AdvanceToNextToken();
   if (ContinueParse() && !fAtEndOfLine)
   {
-    char *mailboxName = CreateAstring();	// PL_strdup(fNextToken);
+    char *mailboxName = CreateAstring();  // PL_strdup(fNextToken);
     if (mailboxName && ContinueParse())
     {
       AdvanceToNextToken();
@@ -2622,7 +2618,7 @@ void nsImapServerResponseParser::mime_header_data()
     {
       *(end-1) = 0;
       AdvanceToNextToken();
-      char *mimeHeaderData = CreateAstring();	// is it really this simple?
+      char *mimeHeaderData = CreateAstring();  // is it really this simple?
       AdvanceToNextToken();
       if (m_shell)
       {
@@ -2633,7 +2629,7 @@ void nsImapServerResponseParser::mime_header_data()
     {
       SetSyntaxError(true);
     }
-    PR_Free(partNumber);	// partNumber is not adopted by the body shell.
+    PR_Free(partNumber);  // partNumber is not adopted by the body shell.
   }
   else
   {
@@ -2664,7 +2660,7 @@ void nsImapServerResponseParser::mime_part_data()
     }
     PR_Free(checkOriginToken);
     AdvanceToNextToken();
-    msg_fetch_content(originFound, origin, MESSAGE_RFC822);	// keep content type as message/rfc822, even though the
+    msg_fetch_content(originFound, origin, MESSAGE_RFC822);  // keep content type as message/rfc822, even though the
     // MIME part might not be, because then libmime will
     // still handle and decode it.
   }
@@ -3052,7 +3048,7 @@ bool nsImapServerResponseParser::GetDownloadingHeaders()
 }
 
 // Tells the server state parser to use a previously cached shell.
-void	nsImapServerResponseParser::UseCachedShell(nsIMAPBodyShell *cachedShell)
+void nsImapServerResponseParser::UseCachedShell(nsIMAPBodyShell *cachedShell)
 {
   // We shouldn't already have another shell we're dealing with.
   if (m_shell && cachedShell)
@@ -3243,7 +3239,7 @@ bool nsImapServerResponseParser::CurrentFolderReadOnly()
   return fCurrentFolderReadOnly;
 }
 
-int32_t	nsImapServerResponseParser::NumberOfMessages()
+int32_t nsImapServerResponseParser::NumberOfMessages()
 {
   return fNumberOfExistingMessages;
 }
@@ -3304,7 +3300,7 @@ nsImapServerResponseParser::CreateCurrentMailboxSpec(const char *mailboxName /* 
     const char *serverKey = fServerConnection.GetImapServerKey();
     nsIMAPNamespace *ns = nullptr;
     if (serverKey && fHostSessionList)
-      fHostSessionList->GetNamespaceForMailboxForHost(serverKey, mailboxNameToConvert, ns);	// for
+      fHostSessionList->GetNamespaceForMailboxForHost(serverKey, mailboxNameToConvert, ns);  // for
       // delimiter
     returnSpec->mHierarchySeparator = (ns) ? ns->GetDelimiter(): '/';
 
@@ -3320,8 +3316,8 @@ nsImapServerResponseParser::CreateCurrentMailboxSpec(const char *mailboxName /* 
 
   returnSpec->mSupportedUserFlags = fSupportsUserDefinedFlags;
 
-  returnSpec->mBoxFlags = kNoFlags;	// stub
-  returnSpec->mOnlineVerified = false;	// we're fabricating this.  The flags aren't verified.
+  returnSpec->mBoxFlags = kNoFlags;  // stub
+  returnSpec->mOnlineVerified = false;  // we're fabricating this.  The flags aren't verified.
   returnSpec->mAllocatedPathName.Assign(mailboxNameToConvert);
   returnSpec->mConnection = &fServerConnection;
   if (returnSpec->mConnection)
