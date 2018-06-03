@@ -90,8 +90,7 @@
       <property name="editor" readonly="true">
         <getter><![CDATA[
           if (!this.mEditor) {
-            const nsIDOMNSEditableElement = Components.interfaces.nsIDOMNSEditableElement;
-            this.mEditor = this.inputField.QueryInterface(nsIDOMNSEditableElement).editor;
+            this.mEditor = this.inputField.editor;
           }
           return this.mEditor;
         ]]></getter>

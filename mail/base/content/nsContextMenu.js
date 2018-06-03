@@ -491,7 +491,7 @@ nsContextMenu.prototype = {
       } else if (editFlags & (SpellCheckHelper.INPUT | SpellCheckHelper.TEXTAREA)) {
         if (!this.target.readOnly) {
           this.onEditableArea = true;
-          gSpellChecker.init(this.target.QueryInterface(Ci.nsIDOMNSEditableElement).editor);
+          gSpellChecker.init(this.target.editor);
           gSpellChecker.initFromEvent(document.popupRangeParent, document.popupRangeOffset);
         }
       } else if (editFlags & (SpellCheckHelper.CONTENTEDITABLE)) {
