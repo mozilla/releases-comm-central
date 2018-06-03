@@ -731,7 +731,7 @@ pref("mail.biff.show_balloon", false);
 #elifdef XP_MACOSX
 pref("mail.biff.animate_dock_icon", false);
 #elifdef XP_UNIX
-pref("mail.biff.use_system_alert", false);
+pref("mail.biff.use_system_alert", true);
 #endif
 
 // add jitter to biff interval
