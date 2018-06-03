@@ -34,6 +34,8 @@
     </preferences>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+    <link rel="localization" href="messenger/preferences/fonts.ftl"/>
+    <script type="application/javascript" src="chrome://global/content/l10n.js"/>
     <script type="application/javascript" src="chrome://mozapps/content/preferences/fontbuilder.js"/>
     <script type="application/javascript" src="chrome://messenger/content/preferences/fonts.js"/>
 

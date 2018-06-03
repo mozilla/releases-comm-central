@@ -34,6 +34,8 @@
   <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundlePreferences"
                 src="chrome://messenger/locale/preferences/preferences.properties"/>
+  <link rel="localization" href="messenger/preferences/fonts.ftl"/>
+  <script type="application/javascript" src="chrome://global/content/l10n.js"/>
 
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
