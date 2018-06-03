@@ -110,7 +110,7 @@ var UrlListener =
 
     // File contents were not modified
     Assert.equal(IOUtils.loadFileToString(gMsgFile),
-    IOUtils.loadFileToString(gSavedMsgFile));
+                 IOUtils.loadFileToString(gSavedMsgFile));
 
     // The file doesn't get closed straight away, but does after a little bit.
     // So wait, and then remove it. We need to test this to ensure we don't
