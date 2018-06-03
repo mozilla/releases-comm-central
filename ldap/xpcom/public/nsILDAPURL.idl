@@ -53,7 +53,7 @@ interface nsILDAPURL : nsIURI {
      * for the getter:
      *
      * @exception NS_ERROR_NULL_POINTER     NULL pointer to GET method
-     * @exception NS_ERROR_OUT_OF_MEMORY	Ran out of memory
+     * @exception NS_ERROR_OUT_OF_MEMORY    Ran out of memory
      */
     attribute AUTF8String dn;
 
@@ -76,7 +76,7 @@ interface nsILDAPURL : nsIURI {
      * the attribute didn't exist in the array, this becomes a noop.
      *
      * @param aAttribute                    An LDAP attribute (e.g. "cn")
-     * @exception NS_ERROR_OUT_OF_MEMORY	Ran out of memory
+     * @exception NS_ERROR_OUT_OF_MEMORY    Ran out of memory
      */
     void removeAttribute(in ACString aAttribute);
 
@@ -93,7 +93,7 @@ interface nsILDAPURL : nsIURI {
      * The scope of the search.  defaults to SCOPE_BASE. 
      *
      * @exception NS_ERROR_NULL_POINTER     NULL pointer to GET method
-     * @exception NS_ERROR_MALFORMED_URI	Illegal base to SET method
+     * @exception NS_ERROR_MALFORMED_URI    Illegal base to SET method
      */
     attribute long scope;
 

@@ -17,7 +17,7 @@ interface nsIAbLDAPReplicationService: nsISupports {
      * Start Replication of given LDAP directory represented by the URI
      */
     void startReplication(in nsIAbLDAPDirectory aDirectory,
-			  in nsIWebProgressListener progressListener);
+                          in nsIWebProgressListener progressListener);
 
    /**
      * Cancel Replication of given LDAP directory represented by the URI

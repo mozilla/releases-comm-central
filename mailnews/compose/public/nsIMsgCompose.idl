@@ -72,11 +72,11 @@ interface nsIMsgCompConvertible/*ToTXT*/ {
 [scriptable, uuid(6ce49b2a-07dc-4783-b307-9a355423163f)]
 interface nsIMsgComposeStateListener : nsISupports
 {
-	/* ... */
-	void        NotifyComposeFieldsReady();
-	void        ComposeProcessDone(in nsresult aResult);
-	void        SaveInFolderDone(in string folderName);
-	void        NotifyComposeBodyReady();
+  /* ... */
+  void        NotifyComposeFieldsReady();
+  void        ComposeProcessDone(in nsresult aResult);
+  void        SaveInFolderDone(in string folderName);
+  void        NotifyComposeBodyReady();
 };
 
 [scriptable, uuid(061aae23-7e0a-4818-9a15-1b5db3ceb7f4)]
@@ -201,19 +201,19 @@ interface nsIMsgCompose : nsIMsgSendListener {
   /* ... */
   attribute nsIEditor editor;
 
-	/* ... */
+  /* ... */
   readonly attribute mozIDOMWindowProxy domWindow;
 
-	/* ... */
+  /* ... */
   readonly attribute nsIMsgCompFields compFields;
 
-	/* ... */
+  /* ... */
   readonly attribute boolean composeHTML;
 
-	/* ... */
+  /* ... */
   attribute MSG_ComposeType type;
 
-	/* ... */
+  /* ... */
   readonly attribute long wrapLength;
 
   /* by reading this value, you can determine if yes or not the message has been mofified
@@ -268,13 +268,13 @@ interface nsIMsgCompose : nsIMsgSendListener {
   /* Retrieve the progress object */
   readonly attribute nsIMsgProgress progress;
 
-	/* ... */
+  /* ... */
   [noscript] void buildBodyMessageAndSignature();
 
-	/* ... */
+  /* ... */
   [noscript] void buildQuotedMessageAndSignature();
 
- 	/* ... */
+  /* ... */
   [noscript] void getQuotingToFollow(out boolean quotingToFollow);
 
   readonly attribute string originalMsgURI;

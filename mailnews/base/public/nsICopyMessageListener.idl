@@ -15,10 +15,10 @@ interface nsIInputStream;
 
 interface nsICopyMessageListener :  nsISupports
 {
-	void beginCopy(in nsIMsgDBHdr message);
-	void startMessage();
-	void copyData(in nsIInputStream aIStream, in long aLength);
-	void endMessage(in nsMsgKey key);
-	void endCopy(in boolean copySucceeded);
-	void endMove(in boolean moveSucceeded);
+  void beginCopy(in nsIMsgDBHdr message);
+  void startMessage();
+  void copyData(in nsIInputStream aIStream, in long aLength);
+  void endMessage(in nsMsgKey key);
+  void endCopy(in boolean copySucceeded);
+  void endMove(in boolean moveSucceeded);
 };

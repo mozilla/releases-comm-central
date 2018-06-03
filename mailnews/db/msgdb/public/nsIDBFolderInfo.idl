@@ -79,8 +79,8 @@ interface  nsIDBFolderInfo : nsISupports {
   long long     getInt64Property(in string propertyName, in long long defaultValue);
   boolean getBooleanProperty(in string propertyName, in boolean defaultValue);
   void setBooleanProperty(in string propertyName, in boolean aPropertyValue);
-  nsIDBFolderInfo	GetTransferInfo();
-  void	initFromTransferInfo(in nsIDBFolderInfo transferInfo);
+  nsIDBFolderInfo GetTransferInfo();
+  void initFromTransferInfo(in nsIDBFolderInfo transferInfo);
 
   /**
    * Gets/Sets the current character set for the folder. If there is no

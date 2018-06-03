@@ -41,7 +41,7 @@ interface nsIMsgSendListener : nsISupports {
      * returnFileSpec The returned file spec for save to file operations.
      */
     void onStopSending(in string aMsgID, in nsresult aStatus, in wstring aMsg,
-					             in nsIFile aReturnFile);
+                       in nsIFile aReturnFile);
 
     /**
      * Notify the observer with the folder uri before the draft is copied.

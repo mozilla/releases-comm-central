@@ -26,7 +26,7 @@ interface nsIRDFCompositeDataSource : nsIRDFDataSource {
      *
      * By default, this value is <code>true</true>.
      */
-    attribute boolean	allowNegativeAssertions;
+    attribute boolean allowNegativeAssertions;
 
     /**
      * Set to <code>true</code> if the composite datasource should
@@ -39,7 +39,7 @@ interface nsIRDFCompositeDataSource : nsIRDFDataSource {
      *
      * By default, this value is <code>true</code>.
      */
-    attribute boolean	coalesceDuplicateArcs;
+    attribute boolean coalesceDuplicateArcs;
 
     /**
      * Add a datasource the the composite data source.

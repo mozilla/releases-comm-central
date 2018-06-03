@@ -75,9 +75,9 @@ interface nsILDAPBERElement : nsISupports
   const unsigned long TAG_LBER_INTEGER = 0x02;
   const unsigned long TAG_LBER_BITSTRING = 0x03;
   const unsigned long TAG_LBER_OCTETSTRING = 0x04;
-  const unsigned long TAG_LBER_NULL =	0x05;
+  const unsigned long TAG_LBER_NULL = 0x05;
   const unsigned long TAG_LBER_ENUMERATED = 0x0a;
-  const unsigned long TAG_LBER_SEQUENCE	= 0x30;
+  const unsigned long TAG_LBER_SEQUENCE = 0x30;
   const unsigned long TAG_LBER_SET = 0x31;
 
   /**

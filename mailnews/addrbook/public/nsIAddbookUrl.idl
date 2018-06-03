@@ -10,7 +10,7 @@ interface nsIAddbookUrlOperation
 {
     const long InvalidUrl = 0;
     const long PrintAddressBook = 1;
-	const long AddVCard = 2;
+    const long AddVCard = 2;
 };
 
 [builtinclass, uuid(5f965083-e866-4bfb-ba40-13c344395798)]
