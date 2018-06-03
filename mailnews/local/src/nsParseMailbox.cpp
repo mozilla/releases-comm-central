@@ -1209,35 +1209,15 @@ nsresult nsParseMailMessageState::ParseEnvelope (const char *line, uint32_t line
   return NS_OK;
 }
 
-#ifdef WE_CONDENSE_MIME_STRINGS
-static char *
-msg_condense_mime2_string(char *sourceStr)
-{
-  char *returnVal = strdup(sourceStr);
-  if (!returnVal)
-    return nullptr;
-
-  MIME_StripContinuations(returnVal);
-
-  return returnVal;
-}
-#endif // WE_CONDENSE_MIME_STRINGS
-
 nsresult nsParseMailMessageState::InternSubject (struct message_header *header)
 {
-  char *key;
-  uint32_t L;
-
   if (!header || header->length == 0)
   {
     m_newMsgHdr->SetSubject("");
     return NS_OK;
   }
 
-  key = (char *) header->value;  /* #### const evilness */
-
-  L = header->length;
-
+  const char *key = header->value;
 
   uint32_t flags;
   (void)m_newMsgHdr->GetFlags(&flags);
@@ -1250,23 +1230,14 @@ nsresult nsParseMailMessageState::InternSubject (struct message_header *header)
         edited the subject line by hand?)
      */
   nsCString modifiedSubject;
-  if (NS_MsgStripRE((const char **) &key, &L, getter_Copies(modifiedSubject)))
+  if (NS_MsgStripRE(nsDependentCString(key), modifiedSubject))
     flags |= nsMsgMessageFlags::HasRe;
   else
     flags &= ~nsMsgMessageFlags::HasRe;
   m_newMsgHdr->SetFlags(flags); // this *does not* update the mozilla-status header in the local folder
 
-  //  if (!*key) return 0; /* To catch a subject of "Re:" */
-
   // Condense the subject text into as few MIME-2 encoded words as possible.
-#ifdef WE_CONDENSE_MIME_STRINGS
-  char *condensedKey = msg_condense_mime2_string(modifiedSubject.IsEmpty() ? key : modifiedSubject.get());
-#else
-  char *condensedKey = nullptr;
-#endif
-  m_newMsgHdr->SetSubject(condensedKey ? condensedKey :
-  (modifiedSubject.IsEmpty() ? key : modifiedSubject.get()));
-  PR_FREEIF(condensedKey);
+  m_newMsgHdr->SetSubject(modifiedSubject.IsEmpty() ? key : modifiedSubject.get());
 
   return NS_OK;
 }

@@ -531,13 +531,12 @@ nsNNTPNewsgroupList::ParseLine(char *line, uint32_t * message_number)
   GET_TOKEN (); /* subject */
   if (line) {
     const char *subject = line;  /* #### const evilness */
-    uint32_t subjectLen = strlen(line);
 
     uint32_t flags = 0;
     // ### should call IsHeaderRead here...
     /* strip "Re: " */
     nsCString modifiedSubject;
-    if (NS_MsgStripRE(&subject, &subjectLen, getter_Copies(modifiedSubject)))
+    if (NS_MsgStripRE(nsDependentCString(subject), modifiedSubject))
       (void) newMsgHdr->OrFlags(nsMsgMessageFlags::HasRe, &flags);
 
     // this will make sure read flags agree with newsrc
@@ -1051,13 +1050,12 @@ nsNNTPNewsgroupList::AddHeader(const char *header, const char *value)
   else if (PL_strcmp(header, "subject") == 0)
   {
     const char *subject = value;
-    uint32_t subjectLen = strlen(value);
 
     uint32_t flags = 0;
     // ### should call IsHeaderRead here...
     /* strip "Re: " */
     nsCString modifiedSubject;
-    if (NS_MsgStripRE(&subject, &subjectLen, getter_Copies(modifiedSubject)))
+    if (NS_MsgStripRE(nsDependentCString(subject), modifiedSubject))
       // this will make sure read flags agree with newsrc
      (void) m_newMsgHdr->OrFlags(nsMsgMessageFlags::HasRe, &flags);
 

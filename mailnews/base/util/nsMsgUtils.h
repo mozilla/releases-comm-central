@@ -91,15 +91,9 @@ NS_MsgCreatePathStringFromFolderURI(const char *aFolderURI,
  *
  * @return true if it made a change (in which case the caller should look to
  *         modifiedSubject for the result) and false otherwise (in which
- *         case the caller should look at stringp/length for the result)
- *
- * @note In the case of a true return value, the string is not altered:
- *       the pointer to its head is merely advanced, and the length
- *       correspondingly decreased.
- *
- * @note This API is insane and should be fixed.
+ *         case the caller should look at subject for the result)
  */
-NS_MSG_BASE bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubject=nullptr);
+NS_MSG_BASE bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject);
 
 NS_MSG_BASE char * NS_MsgSACopy(char **destination, const char *source);
 

@@ -621,15 +621,11 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char *aFolderURI,
   return NS_CopyUnicodeToNative(path, aPathCString);
 }
 
-bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubject)
+bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject)
 {
-  const char *s, *s_end;
-  uint32_t L;
   bool result = false;
-  NS_ASSERTION(stringP, "bad null param");
-  if (!stringP) return false;
 
-  // get localizedRe pref
+  // Get localizedRe pref.
   nsresult rv;
   nsString utf16LocalizedRe;
   NS_GetLocalizedUnicharPreferenceWithDefault(nullptr,
@@ -638,67 +634,70 @@ bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubje
                                               utf16LocalizedRe);
   NS_ConvertUTF16toUTF8 localizedRe(utf16LocalizedRe);
 
-  // hardcoded "Re" so that no one can configure Mozilla standards incompatible
+  // Hardcoded "Re" so that no one can configure Mozilla standards incompatible.
   nsAutoCString checkString("Re,RE,re,rE");
   if (!localizedRe.IsEmpty()) {
     checkString.Append(',');
     checkString.Append(localizedRe);
   }
 
-  // decode the string
+  // Decode the string.
   nsCString decodedString;
   nsCOMPtr<nsIMimeConverter> mimeConverter;
-  // we cannot strip "Re:" for MIME encoded subject without modifying the original
-  if (modifiedSubject && strstr(*stringP, "=?"))
+  // We cannot strip "Re:" for RFC2047-encoded subject without modifying the original.
+  if (subject.Find("=?") != kNotFound)
   {
     mimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
     if (NS_SUCCEEDED(rv))
-      rv = mimeConverter->DecodeMimeHeaderToUTF8(nsDependentCString(*stringP),
+      rv = mimeConverter->DecodeMimeHeaderToUTF8(subject,
         nullptr, false, true, decodedString);
   }
 
-  s = !decodedString.IsEmpty() ? decodedString.get() : *stringP;
-  L = lengthP ? *lengthP : strlen(s);
+  const char *s, *s_end;
+  if (decodedString.IsEmpty()) {
+    s = subject.BeginReading();
+    s_end = s + subject.Length();
+  } else {
+    s = decodedString.BeginReading();
+    s_end = s + decodedString.Length();
+  }
 
-  s_end = s + L;
-
- AGAIN:
-
+AGAIN:
   while (s < s_end && IS_SPACE(*s))
-  s++;
+    s++;
 
   const char *tokPtr = checkString.get();
   while (*tokPtr)
   {
-    //tokenize the comma separated list
+    // Tokenize the comma separated list.
     size_t tokenLength = 0;
     while (*tokPtr && *tokPtr != ',') {
       tokenLength++;
       tokPtr++;
     }
-    //check if the beginning of s is the actual token
+    // Check if the beginning of s is the actual token.
     if (tokenLength && !strncmp(s, tokPtr - tokenLength, tokenLength))
     {
       if (s[tokenLength] == ':')
       {
         s = s + tokenLength + 1; /* Skip over "Re:" */
-        result = true;        /* Yes, we stripped it. */
+        result = true;           /* Yes, we stripped it. */
         goto AGAIN;              /* Skip whitespace and try again. */
       }
       else if (s[tokenLength] == '[' || s[tokenLength] == '(')
       {
         const char *s2 = s + tokenLength + 1; /* Skip over "Re[" */
 
-        /* Skip forward over digits after the "[". */
+        // Skip forward over digits after the "[".
         while (s2 < (s_end - 2) && isdigit((unsigned char)*s2))
           s2++;
 
-        /* Now ensure that the following thing is "]:"
-           Only if it is do we alter `s'. */
+        // Now ensure that the following thing is "]:".
+        // Only if it is do we alter `s`.
         if ((s2[0] == ']' || s2[0] == ')') && s2[1] == ':')
         {
           s = s2 + 2;       /* Skip over "]:" */
-          result = true; /* Yes, we stripped it. */
+          result = true;    /* Yes, we stripped it. */
           goto AGAIN;       /* Skip whitespace and try again. */
         }
       }
@@ -707,47 +706,21 @@ bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubje
       tokPtr++;
   }
 
-  if (!decodedString.IsEmpty())
-  {
-    // encode the string back if any modification is made
-    if (s != decodedString.get())
-    {
-      // extract between "=?" and "?"
-      // e.g. =?ISO-2022-JP?
-      const char *p1 = strstr(*stringP, "=?");
-      if (p1)
-      {
-        p1 += sizeof("=?")-1;         // skip "=?"
-        const char *p2 = strchr(p1, '?');   // then search for '?'
-        if (p2)
-        {
-          char charset[nsIMimeConverter::MAX_CHARSET_NAME_LENGTH] = "";
-          if (nsIMimeConverter::MAX_CHARSET_NAME_LENGTH >= (p2 - p1))
-            strncpy(charset, p1, p2 - p1);
-          nsAutoCString encodedString;
-          rv = mimeConverter->EncodeMimePartIIStr_UTF8(nsDependentCString(s),
-            false, "UTF-8", sizeof("Subject:"),
-            nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
-          if (NS_SUCCEEDED(rv))
-          {
-            *modifiedSubject = PL_strdup(encodedString.get());
-            return result;
-          }
-        }
-      }
-    }
-    else
-      s = *stringP;   // no modification, set the original encoded string
+  // If we didn't strip anything, we can return here.
+  if (!result)
+    return false;
+
+  if (decodedString.IsEmpty()) {
+    // We didn't decode anything, so just return a new string.
+    modifiedSubject.Assign(s);
+    return true;
   }
 
-
-  /* Decrease length by difference between current ptr and original ptr.
-   Then store the current ptr back into the caller. */
-  if (lengthP)
-    *lengthP -= (s - (*stringP));
-  *stringP = s;
-
-  return result;
+  // We decoded the string, so we need to encode it again. We always encode in UTF-8.
+  mimeConverter->EncodeMimePartIIStr_UTF8(nsDependentCString(s),
+    false, "UTF-8", sizeof("Subject:"),
+    nsIMimeConverter::MIME_ENCODED_WORD_SIZE, modifiedSubject);
+  return true;
 }
 
 /*  Very similar to strdup except it free's too
