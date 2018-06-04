@@ -34,8 +34,6 @@ MOZ_TYPE_SPECIFIC_UNIQUE_PTR_TEMPLATE(UniqueCERTCertNicknames,
 CERTCertNicknames*
 getNSSCertNicknamesFromCertList(const UniqueCERTCertList& certList)
 {
-  static NS_DEFINE_CID(kNSSComponentCID, NS_NSSCOMPONENT_CID);
-
   nsAutoString expiredString, notYetValidString;
   nsAutoString expiredStringLeadingSpace, notYetValidStringLeadingSpace;
 
