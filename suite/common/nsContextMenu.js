@@ -637,7 +637,7 @@ nsContextMenu.prototype = {
         if (this.onTextInput && !this.target.readOnly &&
             this.target.mozIsTextField(true) && this.target.spellcheck) {
           this.possibleSpellChecking = true;
-          InlineSpellCheckerUI.init(this.target.QueryInterface(Ci.nsIDOMNSEditableElement).editor);
+          InlineSpellCheckerUI.init(this.target.editor);
           InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
         }
         this.onKeywordField = this.isTargetAKeywordField(this.target);
@@ -646,7 +646,7 @@ nsContextMenu.prototype = {
         this.onTextInput = this.isTextBoxEnabled(this.target);
         if (this.onTextInput && !this.target.readOnly && this.target.spellcheck) {
           this.possibleSpellChecking = true;
-          InlineSpellCheckerUI.init(this.target.QueryInterface(Ci.nsIDOMNSEditableElement).editor);
+          InlineSpellCheckerUI.init(this.target.editor);
           InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
         }
       }
