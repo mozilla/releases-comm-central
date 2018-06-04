@@ -18,9 +18,6 @@
 
   <binding id="preftab"
            extends="chrome://messenger/content/preferences/preferences.xml#prefwindow">
-    <resources>
-      <stylesheet src="chrome://global/skin/preferences.css"/>
-    </resources>
     <content dlgbuttons="accept,cancel" persist="lastSelected"
              closebuttonlabel="&preferencesCloseButton.label;"
              closebuttonaccesskey="&preferencesCloseButton.accesskey;"

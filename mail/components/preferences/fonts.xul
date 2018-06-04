@@ -13,27 +13,22 @@
 %fontsDTD;
 ]>
 
-<prefwindow id="FontsDialog" type="child"
+<dialog id="FontsDialog" type="child" class="prefwindow"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             title="&fontsAndEncodingsDialog.title;"
-            dlgbuttons="accept,cancel"
+            buttons="accept,cancel"
+            persist="lastSelected screenX screenY"
+            role="dialog"
             ondialogaccept="gFontsDialog.ondialogaccept();">
 
-  <prefpane id="FontsDialogPane"
-            class="largeDialogContainer">
+  <keyset>
+    <key data-l10n-id="fonts-window-close" modifiers="accel" oncommand="Preferences.close(event)"/>
+  </keyset>
 
-    <preferences id="fontPreferences">
-      <preference id="font.language.group"  name="font.language.group"  type="wstring"/>
-      <preference id="mail.fixed_width_messages" name="mail.fixed_width_messages" type="bool"/>
-      <preference id="browser.display.use_document_fonts"
-                  name="browser.display.use_document_fonts"
-                  type="int"/>
-      <preference id="mailnews.send_default_charset" name="mailnews.send_default_charset" type="wstring"/>
-      <preference id="mailnews.view_default_charset" name="mailnews.view_default_charset" type="wstring"/>
-      <preference id="mailnews.reply_in_default_charset" name="mailnews.reply_in_default_charset" type="bool"/>
-    </preferences>
+  <vbox id="FontsDialogPane" class="prefpane largeDialogContainer">
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+    <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
     <link rel="localization" href="messenger/preferences/fonts.ftl"/>
     <script type="application/javascript" src="chrome://global/content/l10n.js"/>
     <script type="application/javascript" src="chrome://mozapps/content/preferences/fontbuilder.js"/>
@@ -116,7 +111,7 @@
                      control="sizeVar"/>
             </hbox>
 
-            <menulist id="sizeVar" class="small-margin">
+            <menulist id="sizeVar" class="small-margin" delayprefsave="true">
               <menupopup>
                 <menuitem value="9" label="9"/>
                 <menuitem value="10" label="10"/>
@@ -151,8 +146,8 @@
               <label accesskey="&serif.accesskey;"
                      control="serif">&serif.label;</label>
             </hbox>
-            <menulist id="serif" flex="1" style="width: 0px;"
-                      onsyncfrompreference="return gFontsDialog.readFontSelection(document.getElementById('serif'));"/>
+            <menulist id="serif" flex="1" style="width: 0px;" delayprefsave="true"
+                      onsyncfrompreference="return FontBuilder.readFontSelection(this);"/>
             <spacer/>
           </row>
           <row align="center">
@@ -160,8 +155,8 @@
               <label accesskey="&sans-serif.accesskey;"
                      control="sans-serif">&sans-serif.label;</label>
             </hbox>
-            <menulist id="sans-serif" flex="1" style="width: 0px;"
-                      onsyncfrompreference="return gFontsDialog.readFontSelection(document.getElementById('sans-serif'));"/>
+            <menulist id="sans-serif" flex="1" style="width: 0px;" delayprefsave="true"
+                      onsyncfrompreference="return FontBuilder.readFontSelection(this);"/>
             <spacer/>
           </row>
           <row align="center">
@@ -169,13 +164,13 @@
               <label accesskey="&monospace.accesskey;"
                      control="monospace">&monospace.label;</label>
             </hbox>
-            <menulist id="monospace" flex="1" style="width: 0px;" crop="right"
-                      onsyncfrompreference="return gFontsDialog.readFontSelection(document.getElementById('monospace'));"/>
+            <menulist id="monospace" flex="1" style="width: 0px;" crop="right" delayprefsave="true"
+                      onsyncfrompreference="return FontBuilder.readFontSelection(this);"/>
             <hbox align="center" pack="end">
               <label accesskey="&sizeMonospace.accesskey;"
                      control="sizeMono">&size.label;</label>
             </hbox>
-            <menulist id="sizeMono" class="small-margin">
+            <menulist id="sizeMono" class="small-margin" delayprefsave="true">
               <menupopup>
                 <menuitem value="9" label="9"/>
                 <menuitem value="10" label="10"/>
@@ -299,7 +294,7 @@
                    accesskey="&viewDefaultCharsetList.accesskey;"/>
             <menulist id="viewDefaultCharsetList" type="charset"
                       subset="viewing"
-                      preference="mailnews.view_default_charset" />
+                      preference="mailnews.view_default_charset"/>
           </row>
         </rows>
       </grid>
@@ -311,5 +306,5 @@
                 accesskey="&replyInDefaultCharset3.accesskey;"/>
     </groupbox>
     <separator/>
-  </prefpane>
-</prefwindow>
+  </vbox>
+</dialog>

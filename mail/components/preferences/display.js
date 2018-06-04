@@ -41,7 +41,8 @@ var gDisplayPane = {
   _rebuildFonts: function ()
   {
     var langGroupPref = document.getElementById("font.language.group");
-    this._safelySelectDefaultLanguageGroup(langGroupPref.value);
+    var isSerif = this._readDefaultFontTypeForLanguage(langGroupPref.value) == "serif";
+    this._selectDefaultLanguageGroup(langGroupPref.value, isSerif);
   },
 
   /**
@@ -49,74 +50,69 @@ var gDisplayPane = {
    */
   _selectDefaultLanguageGroupPromise: Promise.resolve(),
 
-  async _selectDefaultLanguageGroup(aLanguageGroup, aIsSerif) {
-    // Avoid overlapping language group selections by awaiting the resolution
-    // of the previous one.  We do this because this function is re-entrant,
-    // as inserting <preference> elements into the DOM sometimes triggers a call
-    // back into this function.  And since this function is also asynchronous,
-    // that call can enter this function before the previous run has completed,
-    // which would corrupt the font menulists.  Awaiting the previous call's
-    // resolution avoids that fate.
-    await this._selectDefaultLanguageGroupPromise;
+  _selectDefaultLanguageGroup(aLanguageGroup, aIsSerif) {
+    this._selectDefaultLanguageGroupPromise = (async () => {
+      // Avoid overlapping language group selections by awaiting the resolution
+      // of the previous one.  We do this because this function is re-entrant,
+      // as inserting <preference> elements into the DOM sometimes triggers a call
+      // back into this function.  And since this function is also asynchronous,
+      // that call can enter this function before the previous run has completed,
+      // which would corrupt the font menulists.  Awaiting the previous call's
+      // resolution avoids that fate.
+      await this._selectDefaultLanguageGroupPromise;
 
-    const kFontNameFmtSerif         = "font.name.serif.%LANG%";
-    const kFontNameFmtSansSerif     = "font.name.sans-serif.%LANG%";
-    const kFontNameListFmtSerif     = "font.name-list.serif.%LANG%";
-    const kFontNameListFmtSansSerif = "font.name-list.sans-serif.%LANG%";
-    const kFontSizeFmtVariable      = "font.size.variable.%LANG%";
+      const kFontNameFmtSerif         = "font.name.serif.%LANG%";
+      const kFontNameFmtSansSerif     = "font.name.sans-serif.%LANG%";
+      const kFontNameListFmtSerif     = "font.name-list.serif.%LANG%";
+      const kFontNameListFmtSansSerif = "font.name-list.sans-serif.%LANG%";
+      const kFontSizeFmtVariable      = "font.size.variable.%LANG%";
 
-    // Make sure font.name-list is created before font.name so that it's
-    // available at the time readFontSelection below is called.
-    var prefs = [{format: aIsSerif ? kFontNameListFmtSerif : kFontNameListFmtSansSerif,
-                  type: "unichar",
-                  element: null,
-                  fonttype: aIsSerif ? "serif" : "sans-serif" },
-                 {format: aIsSerif ? kFontNameFmtSerif : kFontNameFmtSansSerif,
-                  type: "fontname",
-                  element: "defaultFont",
-                  fonttype: aIsSerif ? "serif" : "sans-serif" },
-                 {format: kFontSizeFmtVariable,
-                  type: "int",
-                  element: "defaultFontSize",
-                  fonttype: null }];
+      // Make sure font.name-list is created before font.name so that it's
+      // available at the time readFontSelection below is called.
+      var prefs = [{format: aIsSerif ? kFontNameListFmtSerif : kFontNameListFmtSansSerif,
+                    type: "unichar",
+                    element: null,
+                    fonttype: aIsSerif ? "serif" : "sans-serif" },
+                   {format: aIsSerif ? kFontNameFmtSerif : kFontNameFmtSansSerif,
+                    type: "fontname",
+                    element: "defaultFont",
+                    fonttype: aIsSerif ? "serif" : "sans-serif" },
+                   {format: kFontSizeFmtVariable,
+                    type: "int",
+                    element: "defaultFontSize",
+                    fonttype: null }];
 
-    var preferences = document.getElementById("displayPreferences");
-    for (var i = 0; i < prefs.length; ++i) {
-      var preference = document.getElementById(prefs[i].format.replace(/%LANG%/,
-                                                               aLanguageGroup));
-      if (!preference) {
-        preference = document.createElement("preference");
-        var name = prefs[i].format.replace(/%LANG%/, aLanguageGroup);
-        preference.id = name;
-        preference.setAttribute("name", name);
-        preference.setAttribute("type", prefs[i].type);
-        preferences.appendChild(preference);
+      var preferences = document.getElementById("displayPreferences");
+      for (var i = 0; i < prefs.length; ++i) {
+        var preference = document.getElementById(prefs[i].format.replace(/%LANG%/,
+                                                                 aLanguageGroup));
+        if (!preference) {
+          preference = document.createElement("preference");
+          var name = prefs[i].format.replace(/%LANG%/, aLanguageGroup);
+          preference.id = name;
+          preference.setAttribute("name", name);
+          preference.setAttribute("type", prefs[i].type);
+          preferences.appendChild(preference);
+        }
+
+        if (!prefs[i].element)
+          continue;
+
+        var element = document.getElementById(prefs[i].element);
+        if (element) {
+          // Make sure we have the font list ready for readFontSelection below to
+          // work. readFontSelection gets called at onsyncfrompreference, but the
+          // exact semantics of when it is called (whether during setAttribute or
+          // during setElementValue) aren't obvious.
+          if (prefs[i].fonttype)
+            await FontBuilder.buildFontList(aLanguageGroup, prefs[i].fonttype, element);
+
+          element.setAttribute("preference", preference.id);
+
+          preference.setElementValue(element);
+        }
       }
-
-      if (!prefs[i].element)
-        continue;
-
-      var element = document.getElementById(prefs[i].element);
-      if (element) {
-        // Make sure we have the font list ready for readFontSelection below to
-        // work. readFontSelection gets called at onsyncfrompreference, but the
-        // exact semantics of when it is called (whether during setAttribute or
-        // during setElementValue) aren't obvious.
-        if (prefs[i].fonttype)
-          await FontBuilder.buildFontList(aLanguageGroup, prefs[i].fonttype, element);
-
-        element.setAttribute("preference", preference.id);
-
-        preference.setElementValue(element);
-      }
-    }
-  },
-
-  _safelySelectDefaultLanguageGroup(aLanguageGroup) {
-    var isSerif = this._readDefaultFontTypeForLanguage(aLanguageGroup) == "serif";
-    this._selectDefaultLanguageGroupPromise =
-      this._selectDefaultLanguageGroup(aLanguageGroup, isSerif)
-        .catch(Cu.reportError);
+    })().catch(Cu.reportError);
   },
 
   /**
@@ -129,10 +125,10 @@ var gDisplayPane = {
     var defaultFontTypePref = kDefaultFontType.replace(/%LANG%/, aLanguageGroup);
     var preference = document.getElementById(defaultFontTypePref);
     if (!preference) {
-      preference = document.createElement("preference");
+      preference = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "preference");
       preference.id = defaultFontTypePref;
-      preference.setAttribute("name", defaultFontTypePref);
-      preference.setAttribute("type", "string");
+      preference.type = "string";
+      preference.name = defaultFontTypePref;
       preference.setAttribute("onchange", "gDisplayPane._rebuildFonts();");
       document.getElementById("displayPreferences").appendChild(preference);
     }

@@ -16,10 +16,20 @@ var kFontSizeFmtVariable      = "font.size.variable.%LANG%";
 var kFontSizeFmtFixed         = "font.size.fixed.%LANG%";
 var kFontMinSizeFmt           = "font.minimum-size.%LANG%";
 
+Preferences.addAll([
+  { id: "font.language.group", type: "wstring" },
+  { id: "browser.display.use_document_fonts", type: "int" },
+  { id: "mail.fixed_width_messages", type: "bool" },
+  { id: "mailnews.send_default_charset", type: "wstring" },
+  { id: "mailnews.view_default_charset", type: "wstring" },
+  { id: "mailnews.reply_in_default_charset", type: "bool" },
+]);
+
 var gFontsDialog = {
   _selectLanguageGroupPromise: Promise.resolve(),
 
-  async _selectLanguageGroup(aLanguageGroup) {
+  _selectLanguageGroup(aLanguageGroup) {
+   this._selectLanguageGroupPromise = (async () => {
     // Avoid overlapping language group selections by awaiting the resolution
     // of the previous one.  We do this because this function is re-entrant,
     // as inserting <preference> elements into the DOM sometimes triggers a call
@@ -29,7 +39,7 @@ var gFontsDialog = {
     // resolution avoids that fate.
     await this._selectLanguageGroupPromise;
 
-    var prefs = [{ format: kDefaultFontType,          type: "string",   element: "defaultFontType", fonttype: null},
+    var prefs = [{ format: kDefaultFontType,          type: "string",   element: "defaultFontType", fonttype: null     },
                  { format: kFontNameFmtSerif,         type: "fontname", element: "serif",      fonttype: "serif"       },
                  { format: kFontNameFmtSansSerif,     type: "fontname", element: "sans-serif", fonttype: "sans-serif"  },
                  { format: kFontNameFmtMonospace,     type: "fontname", element: "monospace",  fonttype: "monospace"   },
@@ -39,16 +49,11 @@ var gFontsDialog = {
                  { format: kFontSizeFmtVariable,      type: "int",      element: "sizeVar",    fonttype: null          },
                  { format: kFontSizeFmtFixed,         type: "int",      element: "sizeMono",   fonttype: null          },
                  { format: kFontMinSizeFmt,           type: "int",      element: "minSize",    fonttype: null          }];
-    var preferences = document.getElementById("fontPreferences");
     for (var i = 0; i < prefs.length; ++i) {
-      var preference = document.getElementById(prefs[i].format.replace(/%LANG%/, aLanguageGroup));
+      var name = prefs[i].format.replace(/%LANG%/, aLanguageGroup);
+      var preference = Preferences.get(name);
       if (!preference) {
-        preference = document.createElement("preference");
-        var name = prefs[i].format.replace(/%LANG%/, aLanguageGroup);
-        preference.id = name;
-        preference.setAttribute("name", name);
-        preference.setAttribute("type", prefs[i].type);
-        preferences.appendChild(preference);
+        preference = Preferences.add({ id: name, type: prefs[i].type });
       }
 
       if (!prefs[i].element)
@@ -60,76 +65,35 @@ var gFontsDialog = {
 
         if (prefs[i].fonttype)
           await FontBuilder.buildFontList(aLanguageGroup, prefs[i].fonttype, element);
-
         preference.setElementValue(element);
       }
     }
+   })()
+    .catch(Cu.reportError);
   },
 
-  _safelySelectLanguageGroup(aLanguageGroup) {
-    this._selectLanguageGroupPromise =
-      this._selectLanguageGroup(aLanguageGroup)
-        .catch(Cu.reportError);
-  },
-
-  readFontLanguageGroup: function ()
+  readFontLanguageGroup()
   {
-    var languagePref = document.getElementById("font.language.group");
-    this._safelySelectLanguageGroup(languagePref.value);
+    var languagePref = Preferences.get("font.language.group");
+    this._selectLanguageGroup(languagePref.value);
     return undefined;
-  },
-
-  readFontSelection: function (aElement)
-  {
-    // Determine the appropriate value to select, for the following cases:
-    // - there is no setting
-    // - the font selected by the user is no longer present (e.g. deleted from
-    //   fonts folder)
-    let preference = document.getElementById(aElement.getAttribute("preference"));
-    let fontItem;
-    if (preference.value) {
-      fontItem = aElement.querySelector('[value="' + preference.value + '"]');
-
-      // There is a setting that actually is in the list. Respect it.
-      if (fontItem)
-        return undefined;
-    }
-
-    let defaultValue = aElement.firstChild.firstChild.getAttribute("value");
-    let languagePref = document.getElementById("font.language.group");
-    let prefId = "font.name-list." + aElement.id + "." + languagePref.value;
-    preference = document.getElementById(prefId);
-    if (!preference || !preference.value)
-      return defaultValue;
-
-    let fontNames = preference.value.split(",");
-
-    for (let i = 0; i < fontNames.length; ++i) {
-      let fontName = fontNames[i].trim();
-      fontItem = aElement.querySelector('[value="' + fontName + '"]');
-      if (fontItem)
-        break;
-    }
-    if (fontItem)
-      return fontItem.getAttribute("value");
-    return defaultValue;
   },
 
   readUseDocumentFonts: function ()
   {
-    var preference = document.getElementById("browser.display.use_document_fonts");
+    var preference = Preferences.get("browser.display.use_document_fonts");
     return preference.value == 1;
   },
 
   writeUseDocumentFonts: function ()
   {
     var useDocumentFonts = document.getElementById("useDocumentFonts");
-    return useDocumentFonts.checked;
+    return useDocumentFonts.checked ? 1 : 0;
   },
 
   readFixedWidthForPlainText: function ()
   {
-    var preference = document.getElementById("mail.fixed_width_messages");
+    var preference = Preferences.get("mail.fixed_width_messages");
     return preference.value == 1;
   },
 
