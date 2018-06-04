@@ -23,7 +23,7 @@ only-for-build-platforms:
 
 job-template:
     description: Localization
-    locales-file: comm/mail/locales/all-locales
+    locales-file: comm/mail/locales/l10n-changesets.json
     locales-per-chunk: 5
     run-on-projects: ['release']
     attributes:
