@@ -66,6 +66,17 @@ jobs:
         attributes:
             build_platform: linux-nightly
 
+    thunderbird-win64:
+        description: win64 update verify
+        shipping-product: thunderbird
+        treeherder:
+            symbol: UV(UV)
+            platform: windows2012-64/opt
+            kind: test
+            tier: 1
+        attributes:
+            build_platform: win64-nightly
+
     thunderbird-win32:
         description: win32 update verify
         shipping-product: thunderbird

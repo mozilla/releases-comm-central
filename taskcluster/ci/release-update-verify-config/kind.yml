@@ -149,3 +149,26 @@ jobs:
                     comm-beta: beta
                     try-comm-central: beta
                     default: null
+
+    thunderbird-win64:
+        shipping-product: thunderbird
+        treeherder:
+            symbol: UVC
+            platform: windows2012-64/opt
+            kind: test
+            tier: 1
+        attributes:
+            build_platform: win64-nightly
+        extra:
+            product: thunderbird
+            platform: win64
+            updater-platform: linux-x86_64
+            channel:
+                by-project:
+                    comm-beta: "beta-localtest"
+                    default: "default"
+            mar-channel-id-override:
+                by-project:
+                    comm-beta: beta
+                    try-comm-central: beta
+                    default: null
