@@ -19,5 +19,6 @@ FINAL_LIBRARY = 'mail'
 
 LOCAL_INCLUDES += [
     '/%s/security/manager/pki' % CONFIG['mozreltopsrcdir'],
+    '/%s/security/manager/ssl' % CONFIG['mozreltopsrcdir'],
     '/%s/security/pkix/include' % CONFIG['mozreltopsrcdir']
 ]

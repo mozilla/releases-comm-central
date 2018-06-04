@@ -20,6 +20,7 @@
 #include "nsNSSComponent.h"
 #include "nsNSSDialogHelper.h"
 #include "nsNSSHelper.h"
+#include "nsNSSCertHelper.h"
 #include "nsReadableUtils.h"
 #include "nsString.h"
 #include "pkix/pkixtypes.h"
@@ -35,17 +36,11 @@ getNSSCertNicknamesFromCertList(const UniqueCERTCertList& certList)
 {
   static NS_DEFINE_CID(kNSSComponentCID, NS_NSSCOMPONENT_CID);
 
-  nsresult rv;
-
-  nsCOMPtr<nsINSSComponent> nssComponent(do_GetService(kNSSComponentCID, &rv));
-  if (NS_FAILED(rv))
-    return nullptr;
-
   nsAutoString expiredString, notYetValidString;
   nsAutoString expiredStringLeadingSpace, notYetValidStringLeadingSpace;
 
-  nssComponent->GetPIPNSSBundleString("NicknameExpired", expiredString);
-  nssComponent->GetPIPNSSBundleString("NicknameNotYetValid", notYetValidString);
+  GetPIPNSSBundleString("NicknameExpired", expiredString);
+  GetPIPNSSBundleString("NicknameNotYetValid", notYetValidString);
 
   expiredStringLeadingSpace.Append(' ');
   expiredStringLeadingSpace.Append(expiredString);
