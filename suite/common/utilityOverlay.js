@@ -1123,7 +1123,7 @@ function BrowserOnCommand(event)
 
       let params = { exceptionAdded : false, sslStatus : sslStatus };
 
-      switch (services.prefs.getIntPref("browser.ssl_override_behavior", 2)) {
+      switch (Services.prefs.getIntPref("browser.ssl_override_behavior", 2)) {
         case 2 : // Pre-fetch & pre-populate.
           params.prefetchCert = true;
           // Fall through.
