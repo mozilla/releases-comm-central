@@ -16,3 +16,4 @@ jobs:
     - image_builder
     - lint
     - toolchain-build
+    - update-verify

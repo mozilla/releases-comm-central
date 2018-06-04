@@ -1,0 +1,89 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+loader: taskgraph.loader.transform:loader
+
+kind-dependencies:
+    - post-balrog-dummy
+    - post-beetmover-dummy
+    - release-balrog-submit-toplevel
+    - release-update-verify-config
+
+transforms:
+    - taskgraph.transforms.release_deps:transforms
+    - taskgraph.transforms.update_verify:transforms
+    - taskgraph.transforms.task:transforms
+
+job-defaults:
+    name: update-verify
+    run-on-projects: []  # to make sure this never runs as part of CI
+    shipping-phase: promote
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker:
+        artifacts:
+            - name: 'public/build/diff-summary.log'
+              path: '/builds/worker/tools/release/updates/diff-summary.log'
+              type: file
+        implementation: docker-worker
+        os: linux
+        docker-image:
+            in-tree: "update-verify"
+        max-run-time: 7200
+        retry-exit-status:
+            - 255
+        env:
+            NO_BBCONFIG: "1"
+            BUILD_TOOLS_REPO: https://hg.mozilla.org/build/tools
+            CHANNEL:
+                by-project:
+                    comm-beta: "beta-localtest"
+                    try-comm-central: "beta-localtest"
+                    default: "default"
+    extra:
+        chunks: 12
+
+jobs:
+    thunderbird-linux64:
+        description: linux64 update verify
+        shipping-product: thunderbird
+        treeherder:
+            symbol: UV(UV)
+            platform: linux64/opt
+            kind: test
+            tier: 1
+        attributes:
+            build_platform: linux64-nightly
+
+    thunderbird-linux:
+        description: linux update verify
+        shipping-product: thunderbird
+        treeherder:
+            symbol: UV(UV)
+            platform: linux32/opt
+            kind: test
+            tier: 1
+        attributes:
+            build_platform: linux-nightly
+
+    thunderbird-win32:
+        description: win32 update verify
+        shipping-product: thunderbird
+        treeherder:
+            symbol: UV(UV)
+            platform: windows2012-32/opt
+            kind: test
+            tier: 1
+        attributes:
+            build_platform: win32-nightly
+
+    thunderbird-macosx64:
+        description: macosx64 update verify
+        shipping-product: thunderbird
+        treeherder:
+            symbol: UV(UV)
+            platform: osx-cross/opt
+            kind: test
+            tier: 1
+        attributes:
+            build_platform: macosx64-nightly

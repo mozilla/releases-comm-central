@@ -21,6 +21,7 @@ treeherder:
         'Rel': 'Release promotion'
         'css': 'Checksum signing for source'
         'BMcss': 'Beetmover checksums for source'
+        'UV': 'Update verify'
 
 index:
     products:
