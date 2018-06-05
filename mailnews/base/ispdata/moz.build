@@ -1,8 +1,0 @@
-# vim: set filetype=python:
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-# Disable movemail for Thunderbird on OSX
-if CONFIG['MOZ_MOVEMAIL'] and not (CONFIG['MOZ_THUNDERBIRD'] and CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa'):
-    FINAL_TARGET_FILES.isp += ['movemail.rdf']

@@ -5,7 +5,12 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountWizard.css" type="text/css"?>
 
-<!DOCTYPE wizard SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
+<!DOCTYPE wizard [
+<!ENTITY % AccountWizardDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
+%AccountWizardDTD;
+<!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd">
+%newsblogDTD;
+]>
 
 <wizard id="AccountWizard" title="&windowTitle.label;"
         onwizardcancel="return onCancel();"
@@ -47,6 +52,15 @@
         <radio id="mailaccount" value="mailaccount"
                label="&accountTypeMail.label;" accesskey="&accountTypeMail.accesskey;"
                selected="true"/>
+#endif
+#ifdef MOZ_MOVEMAIL
+        <radio id="movemailaccount" label="&accountTypeMovemail.label;"
+               accesskey="&accountTypeMovemail.accesskey;"
+               value="movemail" />
+#endif
+#ifndef MOZ_THUNDERBIRD
+        <radio id="rssaccount" value="rss" label="&feeds.wizardLongName;"
+               accesskey="&feeds.wizardLongName.accesskey;"/>
 #endif
         <vbox datasources="rdf:ispdefaults"
               containment="http://home.netscape.com/NC-rdf#providers"

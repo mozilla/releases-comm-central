@@ -13,8 +13,3 @@ EXTRA_JS_MODULES += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
-
-if not CONFIG['MOZ_THUNDERBIRD']:
-    FINAL_TARGET_FILES.isp += [
-        'rss.rdf',
-    ]

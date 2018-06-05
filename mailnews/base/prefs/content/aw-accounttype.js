@@ -63,9 +63,42 @@ function setupWizardPanels() {
         wizardPanels = new Array("identitypage", "incomingpage", "outgoingpage", "accnamepage");
       else if (isNewsAccount && isNewsAccount.value)
         wizardPanels = new Array("identitypage", "newsserver", "accnamepage");
-      else { // An account created by an extension and XUL overlays
-        var button = document.getElementById("acctyperadio").selectedItem;
-        wizardPanels = button.value.split(/ *, */);
+      else {
+        let pages = document.getElementById("acctyperadio").selectedItem.value;
+        if (pages == "movemail") {
+          SetCurrentAccountData({
+            wizardHideIncoming: true,
+            showServerDetailsOnWizardSummary: true,
+            incomingServer: {},
+          });
+          wizardPanels = ["identitypage", "outgoingpage", "accnamepage"];
+          setPageData(pageData, "server", "servertype", "movemail");
+          setPageData(pageData, "server", "hostname", "localhost");
+          setPageData(pageData, "server", "port", "");
+        } else if (pages == "rss") {
+          let accountName = Cc["@mozilla.org/intl/stringbundle;1"]
+                              .getService(Ci.nsIStringBundleService)
+                              .createBundle("chrome://messenger-newsblog/locale/newsblog.properties")
+                              .GetStringFromName("feeds-accountname");
+          SetCurrentAccountData({
+            wizardAccountName: accountName,
+            wizardAutoGenerateUniqueHostname: true,
+            wizardHideIncoming: true,
+            showServerDetailsOnWizardSummary: false,
+            incomingServer: {
+              biffMinutes: 100
+            }
+          });
+          wizardPanels = ["accnamepage"];
+          setPageData(pageData, "server", "servertype", "rss");
+          setPageData(pageData, "server", "hostname", "Feeds");
+          setPageData(pageData, "server", "port", "");
+          setPageData(pageData, "server", "username", "nobody");
+          setPageData(pageData, "identity", "email", null);
+          setPageData(pageData, "identity", "fullName", null);
+        } else { // An account created by an extension
+          wizardPanels = button.value.split(/ *, */);
+        }
       }
 
       // Create a hash table of the panels to skip

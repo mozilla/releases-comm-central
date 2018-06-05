@@ -7,7 +7,6 @@ DIRS += [
     'public',
     'src',
     'util',
-    'ispdata',
     'search/public',
     'search/src',
 ]

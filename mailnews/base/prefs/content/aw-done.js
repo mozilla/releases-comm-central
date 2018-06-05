@@ -37,9 +37,6 @@ function donePageInit() {
     if (currentAccountData) {
         // find out if we need to hide server details
         showMailServerDetails = currentAccountData.showServerDetailsOnWizardSummary;
-        // Change the username field description to email field label in aw-identity
-        if (currentAccountData.emailIDFieldTitle)
-          setUserNameDescField(currentAccountData.emailIDFieldTitle);
     }
 
     // Find out if we need to hide details for incoming servers
@@ -62,8 +59,7 @@ function donePageInit() {
     if (!userName && email) {
         if (currentAccountData && currentAccountData.incomingServerUserNameRequiresDomain == undefined)
             currentAccountData.incomingServerUserNameRequiresDomain = false;
-        userName = getUsernameFromEmail(email, currentAccountData &&
-                                        currentAccountData.incomingServerUserNameRequiresDomain);
+        userName = getUsernameFromEmail(email, false);
     }
     // Hide the "username" field if we don't want to show information
     // on the incoming server.
@@ -73,8 +69,7 @@ function donePageInit() {
     if (pageData.login && pageData.login.smtpusername)
         smtpUserName = pageData.login.smtpusername.value;
     if (!smtpUserName && email)
-        smtpUserName = getUsernameFromEmail(email, currentAccountData &&
-                                            currentAccountData.smtpUserNameRequiresDomain);
+        smtpUserName = getUsernameFromEmail(email, false);
     setDivTextFromForm("smtpServer.username", smtpUserName);
 
     if (pageData.accname && pageData.accname.prettyName) {
@@ -204,12 +199,4 @@ function setDivTextFromForm(divid, value) {
 
     // set the value
     div.setAttribute("value", value);
-}
-
-function setUserNameDescField(name)
-{
-   if (name) {
-       var userNameField = document.getElementById("server.username.label");
-       userNameField.setAttribute("value", name);
-   }
 }
