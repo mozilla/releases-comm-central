@@ -41,7 +41,7 @@ prefwindow[type="child"] > prefpane {
 
 prefwindow[type="child"] .prefWindow-dlgbuttons {
   padding: 0;
-
+}
 
 .paneSelector {
   border-bottom: 2px groove ThreeDFace;
