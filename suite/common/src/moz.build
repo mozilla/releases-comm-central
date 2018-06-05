@@ -8,7 +8,6 @@ EXTRA_COMPONENTS += [
     'nsGopherProtocolStubHandler.js',
     'nsSessionStartup.js',
     'nsSidebar.js',
-    'nsSuiteDownloadManagerUI.js',
     'nsSuiteGlue.js',
     'SuiteCommon.manifest',
 ]

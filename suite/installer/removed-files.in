@@ -640,7 +640,6 @@ Throbber-small.gif
   @DIR_MACOS@components/nsSetDefault.js
   @DIR_MACOS@components/nsSidebar.js
   @DIR_MACOS@components/nsSMTPProtocolHandler.js
-  @DIR_MACOS@components/nsSuiteDownloadManagerUI.js
   @DIR_MACOS@components/nsSuiteGlue.js
   @DIR_MACOS@components/nsTaggingService.js
   @DIR_MACOS@components/nsTryToClose.js

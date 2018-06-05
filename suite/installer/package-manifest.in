@@ -264,7 +264,6 @@
 @RESPATH@/components/nsSessionStartup.js
 @RESPATH@/components/nsSessionStore.js
 @RESPATH@/components/nsSidebar.js
-@RESPATH@/components/nsSuiteDownloadManagerUI.js
 @RESPATH@/components/nsSuiteGlue.js
 @RESPATH@/components/nsSetDefault.js
 @RESPATH@/components/nsSetDefault.manifest
