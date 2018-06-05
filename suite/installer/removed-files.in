@@ -917,10 +917,6 @@ Throbber-small.gif
   @DIR_MACOS@modules/ctypes.jsm
   @DIR_MACOS@modules/debug.js
   @DIR_MACOS@modules/dictUtils.js
-  @DIR_MACOS@modules/DownloadLastDir.jsm
-  @DIR_MACOS@modules/DownloadPaths.jsm
-  @DIR_MACOS@modules/DownloadTaskbarProgress.jsm
-  @DIR_MACOS@modules/DownloadUtils.jsm
   @DIR_MACOS@modules/errUtils.js
   @DIR_MACOS@modules/FileUtils.jsm
   @DIR_MACOS@modules/folderUtils.jsm

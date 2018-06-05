@@ -6,7 +6,6 @@
 XPCSHELL_TESTS_MANIFESTS += ['test/unit/xpcshell.ini']
 
 EXTRA_JS_MODULES += [
-    'DownloadTaskbarProgress.jsm',
     'RecentWindow.jsm',
     'Sanitizer.jsm',
     'WindowsPreviewPerTab.jsm',

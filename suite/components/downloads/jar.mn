@@ -1,0 +1,14 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+comm.jar:
+% content communicator %content/communicator/ contentaccessible=yes
+   content/communicator/downloads/downloadmanager.js                (content/downloadmanager.js)
+   content/communicator/downloads/downloadmanager.xul               (content/downloadmanager.xul)
+   content/communicator/downloads/DownloadProgressListener.js       (content/DownloadProgressListener.js)
+   content/communicator/downloads/progressDialog.xul                (content/progressDialog.xul)
+   content/communicator/downloads/progressDialog.js                 (content/progressDialog.js)
+   content/communicator/downloads/uploadProgress.xul                (content/uploadProgress.xul)
+   content/communicator/downloads/uploadProgress.js                 (content/uploadProgress.js)
+   content/communicator/downloads/treeView.js                       (content/treeView.js)

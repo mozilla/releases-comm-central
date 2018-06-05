@@ -12,12 +12,10 @@ DIRS += [
 
 BROWSER_CHROME_MANIFESTS += [
     'dataman/tests/browser.ini',
-    'downloads/tests/browser/browser.ini',
     'tests/preferences/browser.ini',
 ]
 
 MOCHITEST_CHROME_MANIFESTS += [
-    'downloads/tests/chrome/chrome.ini',
     'tests/chrome/chrome.ini',
 ]
 
