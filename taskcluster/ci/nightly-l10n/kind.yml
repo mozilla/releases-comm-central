@@ -129,5 +129,5 @@ job-template:
         options:
             - revision=$GECKO_HEAD_REV
         actions: ['clone-locales', 'list-locales', 'setup', 'repack',
-                  'submit-to-balrog', 'summary']
+                  'summary']
         script: mozharness/scripts/desktop_l10n.py
