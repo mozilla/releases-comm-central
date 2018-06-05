@@ -694,9 +694,6 @@ pref("places.frecency.defaultVisitBonus", 0);
 pref("places.frecency.unvisitedBookmarkBonus", 140);
 pref("places.frecency.unvisitedTypedBonus", 200);
 
-pref("browser.urlbar.autoFill", true);      // See bug 1466304.
-pref("browser.urlbar.maxRichResults", 10);  // See bug 1466304.
-
 // The default for this pref reflects whether the build is capable of IPC.
 // (Turning it on in a no-IPC build will have no effect.)
 #ifdef XP_MACOSX
