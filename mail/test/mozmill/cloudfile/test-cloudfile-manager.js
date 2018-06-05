@@ -79,7 +79,7 @@ function open_cloudfile_manager(aCallback) {
  * account richlistbox in the correct order (by displayName,
  * case-insensitive)
  */
-function test_load_accounts_and_properly_order() {
+function disabled_test_load_accounts_and_properly_order() {  // See bug 1465061.
   open_cloudfile_manager(function(w) {
     let richList = w.e("cloudFileView");
     assert_equals(4, richList.itemCount,

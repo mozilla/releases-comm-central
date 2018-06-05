@@ -29,7 +29,7 @@ function setupModule(module) {
  * we'll automatically be viewing the same tab we were viewing
  * last time.
  */
-function test_persist_tabs() {
+function disabled_test_persist_tabs() {  // See bug 1465061.
   open_pref_window("paneApplications", function(w) {
     let tabbox = w.e("attachmentPrefs");
 
