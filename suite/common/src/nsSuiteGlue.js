@@ -40,6 +40,9 @@ ChromeUtils.defineModuleGetter(this, "BookmarkJSONUtils",
 ChromeUtils.defineModuleGetter(this, "RecentWindow",
                                "resource:///modules/RecentWindow.jsm");
 
+ChromeUtils.defineModuleGetter(this, "DownloadsCommon",
+                               "resource:///modules/DownloadsCommon.jsm");
+
 XPCOMUtils.defineLazyGetter(this, "DebuggerServer", () => {
   var tmp = {};
   ChromeUtils.import("resource://devtools/shared/Loader.jsm", tmp);
@@ -96,40 +99,10 @@ const DOWNLOAD_MANAGER_URL = "chrome://communicator/content/downloads/downloadma
 const PROGRESS_DIALOG_URL = "chrome://communicator/content/downloads/progressDialog.xul";
 const PREF_FOCUS_WHEN_STARTING = "browser.download.manager.focusWhenStarting";
 const PREF_FLASH_COUNT = "browser.download.manager.flashCount";
-const PREF_DM_BEHAVIOR = "browser.download.manager.behavior";
 
 var gDownloadManager;
-var gDownloadsLoaded;
-var gTaskbarProgress;
-var gWinTaskbar;
-var gDownloadsSummary;
-
-function onSummaryChanged()
-{
-  if (!gTaskbarProgress)
-    return;
-
-  const nsITaskbarProgress = Ci.nsITaskbarProgress;
-  var currentBytes = gDownloadsSummary.progressCurrentBytes;
-  var totalBytes = gDownloadsSummary.progressTotalBytes;
-  var state = gDownloadsSummary.allHaveStopped ?
-                currentBytes ? nsITaskbarProgress.STATE_PAUSED :
-                               nsITaskbarProgress.STATE_NO_PROGRESS :
-                currentBytes < totalBytes ? nsITaskbarProgress.STATE_NORMAL :
-                             nsITaskbarProgress.STATE_INDETERMINATE;
-  switch (state) {
-    case nsITaskbarProgress.STATE_NO_PROGRESS:
-    case nsITaskbarProgress.STATE_INDETERMINATE:
-      gTaskbarProgress.setProgressState(state, 0, 0);
-      break;
-    default:
-      gTaskbarProgress.setProgressState(state, currentBytes, totalBytes);
-      break;
-  }
-}
 
 // Constructor
-
 function SuiteGlue() {
   XPCOMUtils.defineLazyServiceGetter(this, "_idleService",
                                      "@mozilla.org/widget/idleservice;1",
@@ -239,33 +212,11 @@ SuiteGlue.prototype = {
         this._checkForNewAddons();
         Services.search.init();
         listeners.init();
+
         Cc["@mozilla.org/globalmessagemanager;1"]
           .getService(Ci.nsIMessageListenerManager)
           .loadFrameScript("chrome://navigator/content/content.js", true);
         ChromeUtils.import("resource://gre/modules/NotificationDB.jsm");
-        ChromeUtils.import("resource://gre/modules/Downloads.jsm");
-        ChromeUtils.import("resource://gre/modules/DownloadIntegration.jsm");
-        DownloadIntegration.shouldPersistDownload = function() { return true; }
-        Downloads.getList(Downloads.ALL).then(list => list.addView(this))
-                                        .then(() => gDownloadsLoaded = true);
-
-        if ("@mozilla.org/widget/macdocksupport;1" in Cc)
-          gTaskbarProgress = Cc["@mozilla.org/widget/macdocksupport;1"]
-                               .getService(Ci.nsITaskbarProgress);
-        else if ("@mozilla.org/windows-taskbar;1" in Cc) {
-          gWinTaskbar = Cc["@mozilla.org/windows-taskbar;1"]
-                          .getService(Ci.nsIWinTaskbar);
-          if (!gWinTaskbar.available) {
-            gWinTaskbar = null;
-            break;
-          }
-        } else {
-          break;
-        }
-        Downloads.getSummary(Downloads.PUBLIC).then(list => {
-          gDownloadsSummary = list;
-          list.addView(this);
-        });
         break;
       case "sessionstore-windows-restored":
         this._onBrowserStartup(subject);
@@ -658,6 +609,23 @@ SuiteGlue.prototype = {
       notifyBox.showUpdateWarning();
 
     this._checkForDefaultClient(aWindow);
+
+    // Initialize the download manager after the app starts so that
+    // auto-resume downloads begin (such as after crashing or quitting with
+    // active downloads) and speeds up the first-load of the download manager.
+    // If the user manually opens the download manager before the init is
+    // done, the downloads will start right away, and initializing again
+    // won't hurt.
+    // Afterwards init the taskbar and eventuall show the download progress if
+    // on a supported platform.
+    (async () => {
+      DownloadsCommon.init();
+    })().catch(ex => {
+      Cu.reportError(ex);
+    }).then(() => {
+      Cu.import("resource:///modules/DownloadsTaskbar.jsm", {})
+        .DownloadsTaskbar.registerIndicator(aWindow);
+    });
   },
 
   /**
@@ -1278,50 +1246,6 @@ SuiteGlue.prototype = {
     this.dbgStart();
   },
 
-  // Download view
-  onDownloadAdded: function(aDownload, aNewest)
-  {
-    aDownload.displayName =
-                 aDownload.target.path ? OS.Path.basename(aDownload.target.path)
-                                       : aDownload.source.url;
-    this.onDownloadChanged(aDownload);
-    if (!gDownloadsLoaded)
-      return;
-
-    var behavior = aDownload.source.isPrivate ? 1 :
-                     Services.prefs.getIntPref(PREF_DM_BEHAVIOR);
-    switch (behavior) {
-      case 0:
-        this.showDownloadManager(aDownload);
-        break;
-      case 1:
-        Services.ww.openWindow(null, PROGRESS_DIALOG_URL, null,
-                               "chrome,titlebar,centerscreen,minimizable=yes,dialog=no",
-                               { wrappedJSObject: aDownload });
-        break;
-    }
-
-    return; // No UI for behavior >= 2
-  },
-
-  onDownloadChanged: function(aDownload) {
-    const nsIDownloadManager = Ci.nsIDownloadManager;
-    aDownload.state =
-                !aDownload.stopped ? nsIDownloadManager.DOWNLOAD_DOWNLOADING :
-                aDownload.succeeded ? nsIDownloadManager.DOWNLOAD_FINISHED :
-                aDownload.error ?  aDownload.error.becauseBlocked ?
-                  nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY :
-                  nsIDownloadManager.DOWNLOAD_FAILED :
-                !aDownload.canceled ? nsIDownloadManager.DOWNLOAD_NOTSTARTED :
-                aDownload.hasPartialData ? nsIDownloadManager.DOWNLOAD_PAUSED :
-                                           nsIDownloadManager.DOWNLOAD_CANCELED;
-    if (gDownloadsLoaded && (aDownload.succeeded || !aDownload.stopped))
-      aDownload.endTime = Date.now();
-  },
-
-  // Download summary
-  onSummaryChanged: onSummaryChanged,
-
   // ------------------------------
   // public nsISuiteGlue members
   // ------------------------------
@@ -1335,16 +1259,10 @@ SuiteGlue.prototype = {
       gDownloadManager.addEventListener("load", function() {
         gDownloadManager.addEventListener("unload", function() {
           gDownloadManager = null;
-          if (gWinTaskbar)
-            gTaskbarProgress = null;
         });
-        if (gWinTaskbar) {
-          var docShell = gDownloadManager.QueryInterface(Ci.nsIInterfaceRequestor)
-                                         .getInterface(Ci.nsIWebNavigation)
-                                         .QueryInterface(Ci.nsIDocShell);
-          gTaskbarProgress = gWinTaskbar.getTaskbarProgress(docShell);
-          onSummaryChanged();
-        }
+        // Attach the taskbar progress meter to the download manager window.
+        Components.utils.import("resource:///modules/DownloadsTaskbar.jsm", {})
+                  .DownloadsTaskbar.attachIndicator(gDownloadManager);
       });
     } else if (!aDownload ||
                Services.prefs.getBoolPref(PREF_FOCUS_WHEN_STARTING)) {

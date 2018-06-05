@@ -5,7 +5,6 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/DownloadsTaskbar.jsm");
 ChromeUtils.import("resource:///modules/WindowsPreviewPerTab.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -748,8 +747,6 @@ function Startup()
   AeroPeek.onOpenWindow(window);
 
   if (!gPrivate) {
-    DownloadTaskbarProgress.onBrowserWindowLoad(window);
-
     // initialize the sync UI
     // gSyncUI.init();
 

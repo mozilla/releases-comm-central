@@ -5,381 +5,162 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 this.EXPORTED_SYMBOLS = [
-  "DownloadTaskbarProgress",
+  "DownloadsTaskbar",
 ];
 
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.defineModuleGetter(this, "Downloads",
+                               "resource://gre/modules/Downloads.jsm");
 ChromeUtils.defineModuleGetter(this, "Services",
                                "resource://gre/modules/Services.jsm");
 
-// Constants
+XPCOMUtils.defineLazyGetter(this, "gWinTaskbar", function() {
+  if (!("@mozilla.org/windows-taskbar;1" in Cc)) {
+    return null;
+  }
+  let winTaskbar = Cc["@mozilla.org/windows-taskbar;1"]
+                     .getService(Ci.nsIWinTaskbar);
+  return winTaskbar.available && winTaskbar;
+});
 
-const kTaskbarIDWin = "@mozilla.org/windows-taskbar;1";
-const kTaskbarIDMac = "@mozilla.org/widget/macdocksupport;1";
+XPCOMUtils.defineLazyGetter(this, "gMacTaskbarProgress", function() {
+  return ("@mozilla.org/widget/macdocksupport;1" in Cc) &&
+         Cc["@mozilla.org/widget/macdocksupport;1"]
+           .getService(Ci.nsITaskbarProgress);
+});
 
-// DownloadTaskbarProgress Object
+// DownloadsTaskbar
 
-this.DownloadTaskbarProgress =
-{
-  init: function DTP_init()
-  {
-    if (DownloadTaskbarProgressUpdater) {
-      DownloadTaskbarProgressUpdater._init();
-    }
-  },
+/**
+ * Handles the download progress indicator in the taskbar.
+ */
+var DownloadsTaskbar = {
+  /**
+   * Underlying DownloadSummary providing the aggregate download information, or
+   * null if the indicator has never been initialized.
+   */
+  _summary: null,
 
   /**
-   * Called when a browser window appears. This has an effect only when we
-   * don't already have an active window.
+   * nsITaskbarProgress object to which download information is dispatched.
+   * This can be null if the indicator has never been initialized or if the
+   * indicator is currently hidden on Windows.
+   */
+  _taskbarProgress: null,
+
+  /**
+   * This method is called after a new browser window is opened, and ensures
+   * that the download progress indicator is displayed in the taskbar.
    *
-   * @param aWindow
-   *        The browser window that we'll potentially use to display the
-   *        progress.
+   * On Windows, the indicator is attached to the first browser window that
+   * calls this method.  When the window is closed, the indicator is moved to
+   * another browser window, if available, in no particular order.  When there
+   * are no browser windows visible, the indicator is hidden.
+   *
+   * On Mac OS X, the indicator is initialized globally when this method is
+   * called for the first time.  Subsequent calls have no effect.
+   *
+   * @param aBrowserWindow
+   *        nsIDOMWindow object of the newly opened browser window to which the
+   *        indicator may be attached.
    */
-  onBrowserWindowLoad: function DTP_onBrowserWindowLoad(aWindow)
-  {
-    this.init();
-    if (!DownloadTaskbarProgressUpdater) {
-      return;
-    }
-    if (!DownloadTaskbarProgressUpdater._activeTaskbarProgress) {
-      DownloadTaskbarProgressUpdater._setActiveWindow(aWindow, false);
-    }
-  },
-
-  /**
-   * Called when the download window appears. The download window will take
-   * over as the active window.
-   */
-  onDownloadWindowLoad: function DTP_onDownloadWindowLoad(aWindow)
-  {
-    if (!DownloadTaskbarProgressUpdater) {
-      return;
-    }
-    DownloadTaskbarProgressUpdater._setActiveWindow(aWindow, true);
-  },
-
-  /**
-   * Getters for internal DownloadTaskbarProgressUpdater values
-   */
-
-  get activeTaskbarProgress() {
-    if (!DownloadTaskbarProgressUpdater) {
-      return null;
-    }
-    return DownloadTaskbarProgressUpdater._activeTaskbarProgress;
-  },
-
-  get activeWindowIsDownloadWindow() {
-    if (!DownloadTaskbarProgressUpdater) {
-      return null;
-    }
-    return DownloadTaskbarProgressUpdater._activeWindowIsDownloadWindow;
-  },
-
-  get taskbarState() {
-    if (!DownloadTaskbarProgressUpdater) {
-      return null;
-    }
-    return DownloadTaskbarProgressUpdater._taskbarState;
-  },
-
-};
-
-// DownloadTaskbarProgressUpdater Object
-
-var DownloadTaskbarProgressUpdater =
-{
-  // / Whether the taskbar is initialized.
-  _initialized: false,
-
-  // / Reference to the taskbar.
-  _taskbar: null,
-
-  /**
-   * Initialize and register ourselves as a download progress listener.
-   */
-  _init: function DTPU_init()
-  {
-    if (this._initialized) {
-      return; // Already initialized
-    }
-    this._initialized = true;
-
-    if (kTaskbarIDWin in Cc) {
-      this._taskbar = Cc[kTaskbarIDWin].getService(Ci.nsIWinTaskbar);
-      if (!this._taskbar.available) {
-        // The Windows version is probably too old
-        DownloadTaskbarProgressUpdater = null;
+  registerIndicator(aWindow) {
+    if (!this._taskbarProgress) {
+      if (gMacTaskbarProgress) {
+        // On Mac OS X, we have to register the global indicator only once.
+        this._taskbarProgress = gMacTaskbarProgress;
+        // Free the XPCOM reference on shutdown, to prevent detecting a leak.
+        Services.obs.addObserver(() => {
+          this._taskbarProgress = null;
+          gMacTaskbarProgress = null;
+        }, "quit-application-granted");
+      } else if (gWinTaskbar) {
+        // On Windows, the indicator is currently hidden because we have no
+        // previous window, thus we should attach the indicator now.
+        this.attachIndicator(aWindow);
+      } else {
+        // The taskbar indicator is not available on this platform.
         return;
       }
-    } else if (kTaskbarIDMac in Cc) {
-      this._activeTaskbarProgress = Cc[kTaskbarIDMac].
-                                      getService(Ci.nsITaskbarProgress);
-    } else {
-      DownloadTaskbarProgressUpdater = null;
-      return;
     }
 
-    this._taskbarState = Ci.nsITaskbarProgress.STATE_NO_PROGRESS;
-
-    this._os = Cc["@mozilla.org/observer-service;1"].
-               getService(Ci.nsIObserverService);
-    this._os.addObserver(this, "quit-application-granted");
-
-    this._updateStatus();
-    // onBrowserWindowLoad/onDownloadWindowLoad are going to set the active
-    // window, so don't do it here.
-  },
-
-  /**
-   * Unregisters ourselves as a download progress listener.
-   */
-  _uninit: function DTPU_uninit() {
-    this._os.removeObserver(this, "quit-application-granted");
-    this._activeTaskbarProgress = null;
-    this._initialized = false;
-  },
-
-  /**
-   * This holds a reference to the taskbar progress for the window we're
-   * working with. This window would preferably be download window, but can be
-   * another window if it isn't open.
-   */
-  _activeTaskbarProgress: null,
-
-  // / Whether the active window is the download window
-  _activeWindowIsDownloadWindow: false,
-
-  /**
-   * Sets the active window, and whether it's the download window. This takes
-   * care of clearing out the previous active window's taskbar item, updating
-   * the taskbar, and setting an onunload listener.
-   *
-   * @param aWindow
-   *        The window to set as active.
-   * @param aIsDownloadWindow
-   *        Whether this window is a download window.
-   */
-  _setActiveWindow: function DTPU_setActiveWindow(aWindow, aIsDownloadWindow)
-  {
-    if (AppConstants.platform == "win") {
-      // Clear out the taskbar for the old active window. (If there was no active
-      // window, this is a no-op.)
-      this._clearTaskbar();
-
-      this._activeWindowIsDownloadWindow = aIsDownloadWindow;
-      if (aWindow) {
-        // Get the taskbar progress for this window
-        let docShell = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
-                         getInterface(Ci.nsIWebNavigation).
-                         QueryInterface(Ci.nsIDocShellTreeItem).treeOwner.
-                         QueryInterface(Ci.nsIInterfaceRequestor).
-                         getInterface(Ci.nsIXULWindow).docShell;
-        let taskbarProgress = this._taskbar.getTaskbarProgress(docShell);
-        this._activeTaskbarProgress = taskbarProgress;
-
-        this._updateTaskbar();
-        // _onActiveWindowUnload is idempotent, so we don't need to check whether
-        // we've already set this before or not.
-        aWindow.addEventListener("unload", function() {
-          DownloadTaskbarProgressUpdater._onActiveWindowUnload(taskbarProgress);
-        });
-      }
-      else {
-        this._activeTaskbarProgress = null;
-      }
-    }
-  },
-
-  // / Current state displayed on the active window's taskbar item
-  _taskbarState: null,
-  _totalSize: 0,
-  _totalTransferred: 0,
-
-  _shouldSetState: function DTPU_shouldSetState()
-  {
-    if (AppConstants.platform == "win") {
-      // If the active window is not the download manager window, set the state
-      // only if it is normal or indeterminate.
-      return this._activeWindowIsDownloadWindow ||
-             (this._taskbarState == Ci.nsITaskbarProgress.STATE_NORMAL ||
-              this._taskbarState == Ci.nsITaskbarProgress.STATE_INDETERMINATE);
-    }
-    return true;
-  },
-
-  /**
-   * Update the active window's taskbar indicator with the current state. There
-   * are two cases here:
-   * 1. If the active window is the download window, then we always update
-   *    the taskbar indicator.
-   * 2. If the active window isn't the download window, then we update only if
-   *    the status is normal or indeterminate. i.e. one or more downloads are
-   *    currently progressing or in scan mode. If we aren't, then we clear the
-   *    indicator.
-   */
-  _updateTaskbar: function DTPU_updateTaskbar()
-  {
-    if (!this._activeTaskbarProgress) {
-      return;
-    }
-
-    if (this._shouldSetState()) {
-      this._activeTaskbarProgress.setProgressState(this._taskbarState,
-                                                   this._totalTransferred,
-                                                   this._totalSize);
-    }
-    // Clear any state otherwise
-    else {
-      this._clearTaskbar();
-    }
-  },
-
-  /**
-   * Clear taskbar state. This is needed:
-   * - to transfer the indicator off a window before transferring it onto
-   *   another one
-   * - whenever we don't want to show it for a non-download window.
-   */
-  _clearTaskbar: function DTPU_clearTaskbar()
-  {
-    if (this._activeTaskbarProgress) {
-      this._activeTaskbarProgress.setProgressState(
-        Ci.nsITaskbarProgress.STATE_NO_PROGRESS
-      );
-    }
-  },
-
-  /**
-   * Update this._taskbarState, this._totalSize and this._totalTransferred.
-   * This is called when the download manager is initialized or when the
-   * progress or state of a download changes.
-   * We compute the number of active and paused downloads, and the total size
-   * and total amount already transferred across whichever downloads we have
-   * the data for.
-   * - If there are no active downloads, then we don't want to show any
-   *   progress.
-   * - If the number of active downloads is equal to the number of paused
-   *   downloads, then we show a paused indicator if we know the size of at
-   *   least one download, and no indicator if we don't.
-   * - If the number of active downloads is more than the number of paused
-   *   downloads, then we show a "normal" indicator if we know the size of at
-   *   least one download, and an indeterminate indicator if we don't.
-   */
-  _updateStatus: function DTPU_updateStatus()
-  {
-    let numActive = 0;
-    // this._dm.activeDownloadCount + this._dm.activePrivateDownloadCount;
-    let totalSize = 0, totalTransferred = 0;
-
-    if (numActive == 0) {
-      this._taskbarState = Ci.nsITaskbarProgress.STATE_NO_PROGRESS;
-    }
-    else {
-      let numPaused = 0, numScanning = 0;
-
-      // Enumerate all active downloads
-      /* [this._dm.activeDownloads, this._dm.activePrivateDownloads].forEach(function(downloads) {
-        while (downloads.hasMoreElements()) {
-          let download = downloads.getNext().QueryInterface(Ci.nsIDownload);
-          // Only set values if we actually know the download size
-          if (download.percentComplete != -1) {
-            totalSize += download.size;
-            totalTransferred += download.amountTransferred;
-          }
-          // We might need to display a paused state, so track this
-          if (download.state == this._dm.DOWNLOAD_PAUSED) {
-            numPaused++;
-          } else if (download.state == this._dm.DOWNLOAD_SCANNING) {
-            numScanning++;
-          }
-        } 
-      }.bind(this)); */
-
-      // If all downloads are paused, show the progress as paused, unless we
-      // don't have any information about sizes, in which case we don't
-      // display anything
-      if (numActive == numPaused) {
-        if (totalSize == 0) {
-          this._taskbarState = Ci.nsITaskbarProgress.STATE_NO_PROGRESS;
-          totalTransferred = 0;
+    // Ensure that the DownloadSummary object will be created asynchronously.
+    if (!this._summary) {
+      Downloads.getSummary(Downloads.ALL).then(summary => {
+        // In case the method is re-entered, we simply ignore redundant
+        // invocations of the callback, instead of keeping separate state.
+        if (this._summary) {
+          return undefined;
         }
-        else {
-          this._taskbarState = Ci.nsITaskbarProgress.STATE_PAUSED;
-        }
-      }
-      // If at least one download is not paused, and we don't have any
-      // information about download sizes, display an indeterminate indicator
-      else if (totalSize == 0 || numActive == numScanning) {
-        this._taskbarState = Ci.nsITaskbarProgress.STATE_INDETERMINATE;
-        totalSize = 0;
-        totalTransferred = 0;
-      }
-      // Otherwise display a normal progress bar
-      else {
-        this._taskbarState = Ci.nsITaskbarProgress.STATE_NORMAL;
-      }
+        this._summary = summary;
+        return this._summary.addView(this);
+      }).catch(Cu.reportError);
     }
-
-    this._totalSize = totalSize;
-    this._totalTransferred = totalTransferred;
   },
 
   /**
-   * Called when a window that at one point has been an active window is
-   * closed. If this window is currently the active window, we need to look for
-   * another window and make that our active window.
-   *
-   * This function is idempotent, so multiple calls for the same window are not
-   * a problem.
-   *
-   * @param aTaskbarProgress
-   *        The taskbar progress for the window that is being unloaded.
+   * On Windows, attaches the taskbar indicator to the specified window.
    */
-  _onActiveWindowUnload: function DTPU_onActiveWindowUnload(aTaskbarProgress)
-  {
-    if (this._activeTaskbarProgress == aTaskbarProgress) {
+  attachIndicator(aWindow) {
+    // If there is already a taskbarProgress this usually means the download
+    //  manager became active. So clear the taskbar state first.
+    if (this._taskbarProgress) {
+      this._taskbarProgress.setProgressState(Ci.nsITaskbarProgress.STATE_NO_PROGRESS);
+    }
+
+    // Activate the indicator on the specified window.
+    let docShell = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                          .getInterface(Ci.nsIWebNavigation)
+                          .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
+                          .QueryInterface(Ci.nsIInterfaceRequestor)
+                          .getInterface(Ci.nsIXULWindow).docShell;
+    this._taskbarProgress = gWinTaskbar.getTaskbarProgress(docShell);
+
+    // If the DownloadSummary object has already been created, we should update
+    // the state of the new indicator, otherwise it will be updated as soon as
+    // the DownloadSummary view is registered.
+    if (this._summary) {
+      this.onSummaryChanged();
+    }
+
+    aWindow.addEventListener("unload", () => {
       let windows = Services.wm.getEnumerator(null);
       let newActiveWindow = null;
       if (windows.hasMoreElements()) {
         newActiveWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
       }
+      if (newActiveWindow) {
+        // Move the progress indicator to the other browser window.
+        this.attachIndicator(newActiveWindow, false);
+      } else {
+        // The last window has been closed. We remove the reference to
+        // the taskbar progress object.
+        this._taskbarProgress = null;
+      }
+    });
+  },
 
-      // We aren't ever going to reach this point while the download manager is
-      // open, so it's safe to assume false for the second operand
-      this._setActiveWindow(newActiveWindow, false);
+  // DownloadSummary view
+  onSummaryChanged() {
+    // If the last browser window has been closed, we have no indicator any more.
+    if (!this._taskbarProgress) {
+      return;
+    }
+
+    if (this._summary.allHaveStopped || this._summary.progressTotalBytes == 0) {
+      this._taskbarProgress.setProgressState(
+                               Ci.nsITaskbarProgress.STATE_NO_PROGRESS, 0, 0);
+    } else {
+      // For a brief moment before completion, some download components may
+      // report more transferred bytes than the total number of bytes.  Thus,
+      // ensure that we never break the expectations of the progress indicator.
+      let progressCurrentBytes = Math.min(this._summary.progressTotalBytes,
+                                          this._summary.progressCurrentBytes);
+      this._taskbarProgress.setProgressState(
+                               Ci.nsITaskbarProgress.STATE_NORMAL,
+                               progressCurrentBytes,
+                               this._summary.progressTotalBytes);
     }
   },
-
-  // nsIDownloadProgressListener
-
-  /**
-   * Update status if a download's progress has changed.
-   */
-  onProgressChange: function DTPU_onProgressChange()
-  {
-    this._updateStatus();
-    this._updateTaskbar();
-  },
-
-  /**
-   * Update status if a download's state has changed.
-   */
-  onDownloadStateChange: function DTPU_onDownloadStateChange()
-  {
-    this._updateStatus();
-    this._updateTaskbar();
-  },
-
-  onSecurityChange: function() { },
-
-  onStateChange: function() { },
-
-  observe: function DTPU_observe(aSubject, aTopic, aData) {
-    if (aTopic == "quit-application-granted") {
-      this._uninit();
-    }
-  }
 };
