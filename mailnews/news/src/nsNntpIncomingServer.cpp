@@ -20,7 +20,7 @@
 #include "nsIStringBundle.h"
 #include "nntpCore.h"
 #include "nsIWindowWatcher.h"
-#include "nsITreeColumns.h"
+#include "nsTreeColumns.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgI18N.h"
 #include "nsUnicharUtils.h"
@@ -1887,13 +1887,12 @@ nsNntpIncomingServer::SetTree(nsITreeBoxObject *tree)
   if (!tree)
     return NS_OK;
 
-  nsCOMPtr<nsITreeColumns> cols;
+  RefPtr<nsTreeColumns> cols;
   tree->GetColumns(getter_AddRefs(cols));
   if (!cols)
     return NS_OK;
 
-  nsCOMPtr<nsITreeColumn> col;
-  cols->GetKeyColumn(getter_AddRefs(col));
+  nsCOMPtr<nsITreeColumn> col = cols->GetKeyColumn();
   if (!col)
     return NS_OK;
 
