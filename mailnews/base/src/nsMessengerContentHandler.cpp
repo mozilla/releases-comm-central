@@ -15,6 +15,7 @@
 #include "plstr.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsServiceManagerUtils.h"
+#include "nsIURIMutator.h"
 
 nsMessengerContentHandler::nsMessengerContentHandler()
 {
@@ -61,7 +62,19 @@ NS_IMETHODIMP nsMessengerContentHandler::HandleContent(const char * aContentType
         }
         else
         {
-          NS_WARNING("Trying to handle content that's not a nsIMsgMailNewsUrl?");
+          // Not an nsIMsgMailNewsUrl, so maybe a file URL, like opening a
+          // message attachment (.eml file in a temp directory).
+          nsAutoCString scheme;
+          rv = aUri->GetScheme(scheme);
+          NS_ENSURE_SUCCESS(rv, rv);
+          if (scheme.Equals("file")) {
+            // Add a special bit like in MsgOpenFromFile().
+            rv = NS_MutateURI(aUri)
+                   .SetQuery(NS_LITERAL_CSTRING("type=application/x-message-display"))
+                   .Finalize(aUri);
+            NS_ENSURE_SUCCESS(rv, rv);
+          }
+          rv = OpenWindow(aUri);
         }
       }
     }
