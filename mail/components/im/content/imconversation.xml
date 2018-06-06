@@ -1281,10 +1281,10 @@
              if (this.buddies.has(nick)) {
                let buddy = this.buddies.get(nick);
                elt.setAttribute("style", buddy.colorStyle);
-               elt.setAttribute("nickColor", buddy.color);
+               elt.setAttribute("data-nickColor", buddy.color);
              }
              else
-               elt.setAttribute("left", "true");
+               elt.setAttribute("data-left", "true");
              nickNode.parentNode.replaceChild(elt, nickNode);
              elt.textContent = nick;
              result += 2;

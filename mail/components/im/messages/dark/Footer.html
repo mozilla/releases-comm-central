@@ -34,8 +34,8 @@ function checkNewText(target)
   var nicks = target.getElementsByClassName("ib-nick");
   for (var i = 0; i < nicks.length; ++i) {
     var nick = nicks[i];
-    if (!nick.hasAttribute("left"))
-      nick.style.background = nick_background.replace(/#/g, nick.getAttribute("nickColor"));
+    if (!nick.hasAttribute("data-left"))
+      nick.style.background = nick_background.replace(/#/g, nick.getAttribute("data-nickColor"));
   }
 }
 

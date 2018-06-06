@@ -169,9 +169,9 @@ function checkNewText(target)
   var nicks = target.getElementsByClassName("ib-nick");
   for (var i = 0; i < nicks.length; ++i) {
     var nick = nicks[i];
-    if (nick.hasAttribute("left"))
+    if (nick.hasAttribute("data-left"))
       continue;
-    var hue = nick.getAttribute("nickColor");
+    var hue = nick.getAttribute("data-nickColor");
     var senderHue = ((Math.round(hue / 10)) * 10) % 360;
     var lightness = elements_lightness[senderHue / 10];
     nick.style.backgroundColor = pseudo_background.replace("#", senderHue).replace("#", lightness[1]);
