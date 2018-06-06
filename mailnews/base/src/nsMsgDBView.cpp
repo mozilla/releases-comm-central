@@ -29,7 +29,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsISpamSettings.h"
 #include "nsIMsgAccountManager.h"
-#include "nsITreeColumns.h"
+#include "nsTreeColumns.h"
 #include "nsTextFormatter.h"
 #include "nsIMutableArray.h"
 #include "nsIMimeConverter.h"
@@ -1044,16 +1044,14 @@ nsMsgDBView::GetMessageEnumerator(nsISimpleEnumerator **enumerator)
 
 NS_IMETHODIMP
 nsMsgDBView::IsEditable(int32_t row,
-                        nsITreeColumn* col,
+                        nsTreeColumn* col,
                         bool* _retval)
 {
   NS_ENSURE_ARG_POINTER(col);
   NS_ENSURE_ARG_POINTER(_retval);
   // Attempt to retrieve a custom column handler. If it exists call it and
   // return.
-  const char16_t* colID;
-  col->GetIdConst(&colID);
-
+  const nsAString& colID = col->GetId();
   nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
 
   if (colHandler)
@@ -1068,7 +1066,7 @@ nsMsgDBView::IsEditable(int32_t row,
 
 NS_IMETHODIMP
 nsMsgDBView::IsSelectable(int32_t row,
-                          nsITreeColumn* col,
+                          nsTreeColumn* col,
                           bool* _retval)
 {
   *_retval = false;
@@ -1077,7 +1075,7 @@ nsMsgDBView::IsSelectable(int32_t row,
 
 NS_IMETHODIMP
 nsMsgDBView::SetCellValue(int32_t row,
-                          nsITreeColumn* col,
+                          nsTreeColumn* col,
                           const nsAString& value)
 {
   return NS_OK;
@@ -1085,7 +1083,7 @@ nsMsgDBView::SetCellValue(int32_t row,
 
 NS_IMETHODIMP
 nsMsgDBView::SetCellText(int32_t row,
-                         nsITreeColumn* col,
+                         nsTreeColumn* col,
                          const nsAString& value)
 {
   return NS_OK;
@@ -1443,14 +1441,14 @@ nsMsgDBView::GetRowProperties(int32_t index,
 }
 
 NS_IMETHODIMP
-nsMsgDBView::GetColumnProperties(nsITreeColumn* col, nsAString& properties)
+nsMsgDBView::GetColumnProperties(nsTreeColumn* col, nsAString& properties)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgDBView::GetCellProperties(int32_t aRow,
-                               nsITreeColumn *col,
+                               nsTreeColumn *col,
                                nsAString& properties)
 {
   if (!IsValidIndex(aRow))
@@ -1470,8 +1468,7 @@ nsMsgDBView::GetCellProperties(int32_t aRow,
     return NS_MSG_INVALID_DBVIEW_INDEX;
   }
 
-  const char16_t* colID;
-  col->GetIdConst(&colID);
+  const nsAString& colID = col->GetId();
   nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
   if (colHandler != nullptr)
   {
@@ -1853,15 +1850,13 @@ nsMsgDBView::GetDBForViewIndex(nsMsgViewIndex index,
 
 NS_IMETHODIMP
 nsMsgDBView::GetImageSrc(int32_t aRow,
-                         nsITreeColumn* aCol,
+                         nsTreeColumn* aCol,
                          nsAString& aValue)
 {
   NS_ENSURE_ARG_POINTER(aCol);
   // Attempt to retrieve a custom column handler. If it exists call it and
   // return.
-  const char16_t* colID;
-  aCol->GetIdConst(&colID);
-
+  const nsAString& colID = aCol->GetId();
   nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
 
   if (colHandler)
@@ -1875,7 +1870,7 @@ nsMsgDBView::GetImageSrc(int32_t aRow,
 
 NS_IMETHODIMP
 nsMsgDBView::GetCellValue(int32_t aRow,
-                          nsITreeColumn* aCol,
+                          nsTreeColumn* aCol,
                           nsAString& aValue)
 {
   if (!IsValidIndex(aRow))
@@ -1890,17 +1885,19 @@ nsMsgDBView::GetCellValue(int32_t aRow,
     return NS_MSG_INVALID_DBVIEW_INDEX;
   }
 
-  const char16_t* colID;
-  aCol->GetIdConst(&colID);
+  const nsAString& colID = aCol->GetId();
+
+  aValue.Truncate();
+  if (colID.IsEmpty())
+    return NS_OK;
 
   uint32_t flags;
   msgHdr->GetFlags(&flags);
 
-  aValue.Truncate();
   // Provide a string "value" for cells that do not normally have text.
   // Use empty string for the normal states "Read", "Not Starred",
   // "No Attachment" and "Not Junk".
-  switch (colID[0])
+  switch (colID.First())
   {
     case 'a': // attachment column
       if (flags & nsMsgMessageFlags::Attachment)
@@ -1933,7 +1930,8 @@ nsMsgDBView::GetCellValue(int32_t aRow,
       }
       break;
     case 't':
-      if (colID[1] == 'h' && (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
+      if (colID.Length() >= 2 && colID.CharAt(1) == 'h' &&
+          (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
       {
         // thread column
         bool isContainer, isContainerEmpty, isContainerOpen;
@@ -2074,7 +2072,7 @@ nsMsgDBView::RemoveColumnHandler(const nsAString& aColID)
 //TODO: NS_ENSURE_SUCCESS
 nsIMsgCustomColumnHandler* nsMsgDBView::GetCurColumnHandler()
 {
-  return GetColumnHandler(m_curCustomColumn.get());
+  return GetColumnHandler(m_curCustomColumn);
 }
 
 NS_IMETHODIMP
@@ -2107,9 +2105,9 @@ nsMsgDBView::GetSecondaryCustomColumn(nsAString &result)
   return NS_OK;
 }
 
-nsIMsgCustomColumnHandler* nsMsgDBView::GetColumnHandler(const char16_t *colID)
+nsIMsgCustomColumnHandler* nsMsgDBView::GetColumnHandler(const nsAString &colID)
 {
-  size_t index = m_customColumnHandlerIDs.IndexOf(nsDependentString(colID));
+  size_t index = m_customColumnHandlerIDs.IndexOf(colID);
   return (index != m_customColumnHandlerIDs.NoIndex) ?
     m_customColumnHandlers[index] : nullptr;
 }
@@ -2120,7 +2118,7 @@ nsMsgDBView::GetColumnHandler(const nsAString& aColID,
 {
   NS_ENSURE_ARG_POINTER(aHandler);
   nsAutoString column(aColID);
-  NS_IF_ADDREF(*aHandler = GetColumnHandler(column.get()));
+  NS_IF_ADDREF(*aHandler = GetColumnHandler(column));
   return (*aHandler) ? NS_OK : NS_ERROR_FAILURE;
 }
 
@@ -2154,11 +2152,13 @@ bool nsMsgDBView::CustomColumnsInSortAndNotRegistered()
 
 NS_IMETHODIMP
 nsMsgDBView::GetCellText(int32_t aRow,
-                         nsITreeColumn* aCol,
+                         nsTreeColumn* aCol,
                          nsAString& aValue)
 {
-  const char16_t* colID;
-  aCol->GetIdConst(&colID);
+  nsAutoString colID;  // This is null-terminated which we need for
+  aCol->GetId(colID);  // the call to CellTextForColumn() below.
+                       // XXX: That's defined in the IDL and sadly the function
+                       // is dangerous due to reaching into the character string.
 
   if (!IsValidIndex(aRow))
     return NS_MSG_INVALID_DBVIEW_INDEX;
@@ -2175,7 +2175,7 @@ nsMsgDBView::GetCellText(int32_t aRow,
     return NS_OK;
   }
 
-  return CellTextForColumn(aRow, colID, aValue);
+  return CellTextForColumn(aRow, colID.get(), aValue);
 }
 
 NS_IMETHODIMP
@@ -2317,7 +2317,7 @@ nsMsgDBView::ToggleOpenState(int32_t index)
 }
 
 NS_IMETHODIMP
-nsMsgDBView::CycleHeader(nsITreeColumn* aCol)
+nsMsgDBView::CycleHeader(nsTreeColumn* aCol)
 {
   // Let HandleColumnClick() in threadPane.js handle it
   // since it will set / clear the sort indicators.
@@ -2326,13 +2326,12 @@ nsMsgDBView::CycleHeader(nsITreeColumn* aCol)
 
 NS_IMETHODIMP
 nsMsgDBView::CycleCell(int32_t row,
-                       nsITreeColumn* col)
+                       nsTreeColumn* col)
 {
   if (!IsValidIndex(row))
     return NS_MSG_INVALID_DBVIEW_INDEX;
 
-  const char16_t* colID;
-  col->GetIdConst(&colID);
+  const nsAString& colID = col->GetId();
 
   // Attempt to retrieve a custom column handler. If it exists call it and
   // return.
@@ -2350,7 +2349,10 @@ nsMsgDBView::CycleCell(int32_t row,
       m_flags[row] & MSG_VIEW_FLAG_DUMMY)
     return NS_OK;
 
-  switch (colID[0])
+  if (colID.IsEmpty())
+    return NS_OK;
+
+  switch (colID.First())
   {
     case 'u': // unreadButtonColHeader
       if (colID[6] == 'B')
@@ -2424,7 +2426,7 @@ nsMsgDBView::PerformActionOnRow(const char16_t *action, int32_t row)
 NS_IMETHODIMP
 nsMsgDBView::PerformActionOnCell(const char16_t *action,
                                  int32_t row,
-                                 nsITreeColumn* col)
+                                 nsTreeColumn* col)
 {
   return NS_OK;
 }
@@ -4621,7 +4623,7 @@ nsMsgDBView::DecodeColumnSort(nsString &columnSortString)
         sortColumnInfo.mCustomColumnName.Append(*stringPtr++);
 
       sortColumnInfo.mColHandler =
-        GetColumnHandler(sortColumnInfo.mCustomColumnName.get());
+        GetColumnHandler(sortColumnInfo.mCustomColumnName);
 
       // Advance past '\r'.
       if (*stringPtr)

@@ -14,7 +14,7 @@
 #include "nsIAbManager.h"
 #include "nsAbBaseCID.h"
 #include "nsXPCOM.h"
-#include "nsITreeColumns.h"
+#include "nsTreeColumns.h"
 #include "nsCRTGlue.h"
 #include "nsIMutableArray.h"
 #include "nsIPrefService.h"
@@ -252,7 +252,7 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
     // Need to check if _Generic is valid.  GetCardValue() will always return NS_OK for _Generic
     // We're going to have to ask mDirectory if it is.
     // It might not be.  example:  _ScreenName is valid in Netscape, but not Mozilla.
-    rv = GetCardValue(card, PromiseFlatString(aSortColumn).get(), value);
+    rv = GetCardValue(card, aSortColumn, value);
     if (NS_FAILED(rv))
       actualSortColumn = generatedNameColumnId;
     else
@@ -347,17 +347,16 @@ NS_IMETHODIMP nsAbView::GetRowProperties(int32_t index, nsAString& properties)
     return NS_OK;
 }
 
-NS_IMETHODIMP nsAbView::GetCellProperties(int32_t row, nsITreeColumn* col, nsAString& properties)
+NS_IMETHODIMP nsAbView::GetCellProperties(int32_t row, nsTreeColumn* col, nsAString& properties)
 {
   NS_ENSURE_TRUE(row >= 0, NS_ERROR_UNEXPECTED);
 
   if (mCards.Length() <= (size_t)row)
     return NS_OK;
 
-  const char16_t* colID;
-  col->GetIdConst(&colID);
+  const nsAString& colID = col->GetId();
   // "G" == "GeneratedName"
-  if (colID[0] != char16_t('G'))
+  if (colID.IsEmpty() || colID.First() != 'G')
     return NS_OK;
 
   nsIAbCard *card = mCards.ElementAt(row)->card;
@@ -372,7 +371,7 @@ NS_IMETHODIMP nsAbView::GetCellProperties(int32_t row, nsITreeColumn* col, nsASt
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbView::GetColumnProperties(nsITreeColumn* col, nsAString& properties)
+NS_IMETHODIMP nsAbView::GetColumnProperties(nsTreeColumn* col, nsAString& properties)
 {
     return NS_OK;
 }
@@ -436,20 +435,20 @@ NS_IMETHODIMP nsAbView::GetLevel(int32_t index, int32_t *_retval)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbView::GetImageSrc(int32_t row, nsITreeColumn* col, nsAString& _retval)
+NS_IMETHODIMP nsAbView::GetImageSrc(int32_t row, nsTreeColumn* col, nsAString& _retval)
 {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbView::GetCellValue(int32_t row, nsITreeColumn* col, nsAString& _retval)
+NS_IMETHODIMP nsAbView::GetCellValue(int32_t row, nsTreeColumn* col, nsAString& _retval)
 {
   return NS_OK;
 }
 
-nsresult nsAbView::GetCardValue(nsIAbCard *card, const char16_t *colID,
+nsresult nsAbView::GetCardValue(nsIAbCard *card, const nsAString& colID,
                                 nsAString &_retval)
 {
-  if (nsString(colID).EqualsLiteral("addrbook")) {
+  if (colID.EqualsLiteral("addrbook")) {
     nsCString dirID;
     nsresult rv = card->GetDirectoryId(dirID);
     if (NS_SUCCEEDED(rv))
@@ -467,7 +466,7 @@ nsresult nsAbView::GetCardValue(nsIAbCard *card, const char16_t *colID,
     // Use LN/FN order for the phonetic name
     return card->GeneratePhoneticName(true, _retval);
 
-  if (!NS_strcmp(colID, u"ChatName"))
+  if (colID.EqualsLiteral("ChatName"))
     return card->GenerateChatName(_retval);
 
   nsresult rv = card->GetPropertyAsAString(NS_ConvertUTF16toUTF8(colID).get(), _retval);
@@ -515,13 +514,12 @@ nsresult nsAbView::RefreshTree()
   return rv;
 }
 
-NS_IMETHODIMP nsAbView::GetCellText(int32_t row, nsITreeColumn* col, nsAString& _retval)
+NS_IMETHODIMP nsAbView::GetCellText(int32_t row, nsTreeColumn* col, nsAString& _retval)
 {
   NS_ENSURE_TRUE(row >= 0 && (size_t)row < mCards.Length(), NS_ERROR_UNEXPECTED);
 
   nsIAbCard *card = mCards.ElementAt(row)->card;
-  const char16_t* colID;
-  col->GetIdConst(&colID);
+  const nsAString& colID = col->GetId();
   return GetCardValue(card, colID, _retval);
 }
 
@@ -536,7 +534,7 @@ NS_IMETHODIMP nsAbView::ToggleOpenState(int32_t index)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::CycleHeader(nsITreeColumn* col)
+NS_IMETHODIMP nsAbView::CycleHeader(nsTreeColumn* col)
 {
   return NS_OK;
 }
@@ -561,27 +559,27 @@ NS_IMETHODIMP nsAbView::SelectionChanged()
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbView::CycleCell(int32_t row, nsITreeColumn* col)
+NS_IMETHODIMP nsAbView::CycleCell(int32_t row, nsTreeColumn* col)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::IsEditable(int32_t row, nsITreeColumn* col, bool* _retval)
+NS_IMETHODIMP nsAbView::IsEditable(int32_t row, nsTreeColumn* col, bool* _retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::IsSelectable(int32_t row, nsITreeColumn* col, bool* _retval)
+NS_IMETHODIMP nsAbView::IsSelectable(int32_t row, nsTreeColumn* col, bool* _retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::SetCellValue(int32_t row, nsITreeColumn* col, const nsAString& value)
+NS_IMETHODIMP nsAbView::SetCellValue(int32_t row, nsTreeColumn* col, const nsAString& value)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::SetCellText(int32_t row, nsITreeColumn* col, const nsAString& value)
+NS_IMETHODIMP nsAbView::SetCellText(int32_t row, nsTreeColumn* col, const nsAString& value)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -596,7 +594,7 @@ NS_IMETHODIMP nsAbView::PerformActionOnRow(const char16_t *action, int32_t row)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::PerformActionOnCell(const char16_t *action, int32_t row, nsITreeColumn* col)
+NS_IMETHODIMP nsAbView::PerformActionOnCell(const char16_t *action, int32_t row, nsTreeColumn* col)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -722,7 +720,7 @@ NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir, b
     for (int32_t i = 0; i < count; i++) {
       AbCard *abcard = mCards.ElementAt(i);
 
-      rv = GenerateCollationKeysForCard(sortColumn.get(), abcard);
+      rv = GenerateCollationKeysForCard(sortColumn, abcard);
       NS_ENSURE_SUCCESS(rv,rv);
     }
 
@@ -781,7 +779,7 @@ int32_t nsAbView::CompareCollationKeys(uint8_t *key1, uint32_t len1, uint8_t *ke
   return result;
 }
 
-nsresult nsAbView::GenerateCollationKeysForCard(const char16_t *colID, AbCard *abcard)
+nsresult nsAbView::GenerateCollationKeysForCard(const nsAString& colID, AbCard *abcard)
 {
   nsresult rv;
   nsString value;
@@ -876,7 +874,7 @@ NS_IMETHODIMP nsAbView::OnItemAdded(nsISupports *parentDir, nsISupports *item)
       abcard->card = addedCard;
       NS_IF_ADDREF(abcard->card);
 
-      rv = GenerateCollationKeysForCard(mSortColumn.get(), abcard);
+      rv = GenerateCollationKeysForCard(mSortColumn, abcard);
       NS_ENSURE_SUCCESS(rv,rv);
 
       int32_t index;
@@ -1055,7 +1053,7 @@ NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item, const char *pro
   newCard->card = card;
   NS_IF_ADDREF(newCard->card);
 
-  rv = GenerateCollationKeysForCard(mSortColumn.get(), newCard);
+  rv = GenerateCollationKeysForCard(mSortColumn, newCard);
   NS_ENSURE_SUCCESS(rv,rv);
 
   bool cardWasSelected = false;

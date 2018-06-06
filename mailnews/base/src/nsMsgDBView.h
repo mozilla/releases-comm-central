@@ -515,7 +515,7 @@ protected:
   nsCOMArray <nsIMsgCustomColumnHandler> m_customColumnHandlers;
   nsTArray<nsString> m_customColumnHandlerIDs;
 
-  nsIMsgCustomColumnHandler* GetColumnHandler(const char16_t*);
+  nsIMsgCustomColumnHandler* GetColumnHandler(const nsAString &colID);
   nsIMsgCustomColumnHandler* GetCurColumnHandler();
   bool CustomColumnsInSortAndNotRegistered();
   void EnsureCustomColumnsValid();

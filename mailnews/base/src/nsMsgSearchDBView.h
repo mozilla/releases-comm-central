@@ -66,7 +66,7 @@ public:
                                uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs) override;
   // override to get location
-  NS_IMETHOD GetCellText(int32_t aRow, nsITreeColumn* aCol, nsAString& aValue) override;
+  NS_IMETHOD GetCellText(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) override;
   virtual nsresult GetMsgHdrForViewIndex(nsMsgViewIndex index, nsIMsgDBHdr **msgHdr) override;
   virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr,
                                nsMsgKey parentKey,

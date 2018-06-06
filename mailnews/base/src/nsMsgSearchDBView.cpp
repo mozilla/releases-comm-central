@@ -13,7 +13,7 @@
 #include "nsIMsgCopyService.h"
 #include "nsICopyMsgStreamListener.h"
 #include "nsMsgUtils.h"
-#include "nsITreeColumns.h"
+#include "nsTreeColumns.h"
 #include "nsIMsgMessageService.h"
 #include "nsArrayUtils.h"
 #include "nsIMutableArray.h"
@@ -152,19 +152,19 @@ void nsMsgSearchDBView::InternalClose()
 
 NS_IMETHODIMP
 nsMsgSearchDBView::GetCellText(int32_t aRow,
-                               nsITreeColumn* aCol,
+                               nsTreeColumn* aCol,
                                nsAString& aValue)
 {
   NS_ENSURE_TRUE(IsValidIndex(aRow), NS_MSG_INVALID_DBVIEW_INDEX);
   NS_ENSURE_ARG_POINTER(aCol);
 
-  const char16_t* colID;
-  aCol->GetIdConst(&colID);
+  const nsAString& colID = aCol->GetId();
   // The only thing we contribute is location; dummy rows have no location, so
   // bail in that case. Otherwise, check if we are dealing with 'location'.
   // 'location', need to check for "lo" not just "l" to avoid "label" column.
   if (!(m_flags[aRow] & MSG_VIEW_FLAG_DUMMY) &&
-      colID[0] == 'l' && colID[1] == 'o')
+      colID.Length() >= 2 &&
+      colID.First() == 'l' && colID.CharAt(1) == 'o')
     return FetchLocation(aRow, aValue);
   else
     return nsMsgGroupView::GetCellText(aRow, aCol, aValue);

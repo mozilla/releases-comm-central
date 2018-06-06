@@ -1723,16 +1723,18 @@ nsNntpIncomingServer::GetRowProperties(int32_t index, nsAString& properties)
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::GetCellProperties(int32_t row, nsITreeColumn* col, nsAString& properties)
+nsNntpIncomingServer::GetCellProperties(int32_t row, nsTreeColumn* col, nsAString& properties)
 {
   if (!IsValidRow(row))
     return NS_ERROR_UNEXPECTED;
 
   NS_ENSURE_ARG_POINTER(col);
 
-  const char16_t* colID;
-  col->GetIdConst(&colID);
-  if (colID[0] == 's') {
+  const nsAString& colID = col->GetId();
+  if (colID.IsEmpty())
+    return NS_OK;
+
+  if (colID.First() == 's') {
     // if <name> is in our temporary list of subscribed groups
     // add the "subscribed-true" property so the check mark shows up
     // in the "subscribedColumn2"
@@ -1742,7 +1744,7 @@ nsNntpIncomingServer::GetCellProperties(int32_t row, nsITreeColumn* col, nsAStri
       properties.AssignLiteral("subscribed-true");
     }
   }
-  else if (colID[0] == 'n') {
+  else if (colID.First() == 'n') {
     // add the "serverType-nntp" property to the "nameColumn2"
     // so we get the news folder icon in the search view
     properties.AssignLiteral("serverType-nntp");
@@ -1751,7 +1753,7 @@ nsNntpIncomingServer::GetCellProperties(int32_t row, nsITreeColumn* col, nsAStri
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::GetColumnProperties(nsITreeColumn* col, nsAString& properties)
+nsNntpIncomingServer::GetColumnProperties(nsTreeColumn* col, nsAString& properties)
 {
   return NS_OK;
 }
@@ -1831,24 +1833,22 @@ nsNntpIncomingServer::IsValidRow(int32_t row)
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::GetImageSrc(int32_t row, nsITreeColumn* col, nsAString& _retval)
+nsNntpIncomingServer::GetImageSrc(int32_t row, nsTreeColumn* col, nsAString& _retval)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::GetCellValue(int32_t row, nsITreeColumn* col, nsAString& _retval)
+nsNntpIncomingServer::GetCellValue(int32_t row, nsTreeColumn* col, nsAString& _retval)
 {
   if (!IsValidRow(row))
     return NS_ERROR_UNEXPECTED;
 
   NS_ENSURE_ARG_POINTER(col);
 
-  const char16_t* colID;
-  col->GetIdConst(&colID);
-
+  const nsAString& colID = col->GetId();
   nsresult rv = NS_OK;
-  if (colID[0] == 'n') {
+  if (!colID.IsEmpty() && colID.First() == 'n') {
     nsAutoCString str;
     if (mSearchResultSortDescending)
       row = mSubscribeSearchResult.Length() - 1 - row;
@@ -1858,18 +1858,16 @@ nsNntpIncomingServer::GetCellValue(int32_t row, nsITreeColumn* col, nsAString& _
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::GetCellText(int32_t row, nsITreeColumn* col, nsAString& _retval)
+nsNntpIncomingServer::GetCellText(int32_t row, nsTreeColumn* col, nsAString& _retval)
 {
   if (!IsValidRow(row))
     return NS_ERROR_UNEXPECTED;
 
   NS_ENSURE_ARG_POINTER(col);
 
-  const char16_t* colID;
-  col->GetIdConst(&colID);
-
+  const nsAString& colID = col->GetId();
   nsresult rv = NS_OK;
-  if (colID[0] == 'n') {
+  if (!colID.IsEmpty() && colID.First() == 'n') {
     nsAutoCString str;
     if (mSearchResultSortDescending)
       row = mSubscribeSearchResult.Length() - 1 - row;
@@ -1892,12 +1890,11 @@ nsNntpIncomingServer::SetTree(nsITreeBoxObject *tree)
   if (!cols)
     return NS_OK;
 
-  nsCOMPtr<nsITreeColumn> col = cols->GetKeyColumn();
+  RefPtr<nsTreeColumn> col = cols->GetKeyColumn();
   if (!col)
     return NS_OK;
 
-  RefPtr<mozilla::dom::Element> element;
-  col->GetElement(getter_AddRefs(element));
+  RefPtr<mozilla::dom::Element> element = col->Element();
   if (!element)
     return NS_OK;
 
@@ -1914,16 +1911,14 @@ nsNntpIncomingServer::ToggleOpenState(int32_t index)
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::CycleHeader(nsITreeColumn* col)
+nsNntpIncomingServer::CycleHeader(nsTreeColumn* col)
 {
   NS_ENSURE_ARG_POINTER(col);
 
-  bool cycler;
-  col->GetCycler(&cycler);
+  bool cycler = col->Cycler();
   if (!cycler) {
     NS_NAMED_LITERAL_STRING(dir, "sortDirection");
-    RefPtr<mozilla::dom::Element> element;
-    col->GetElement(getter_AddRefs(element));
+    RefPtr<mozilla::dom::Element> element = col->Element();
     mSearchResultSortDescending = !mSearchResultSortDescending;
     mozilla::IgnoredErrorResult rv2;
     element->SetAttribute(dir,
@@ -1943,33 +1938,33 @@ nsNntpIncomingServer::SelectionChanged()
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::CycleCell(int32_t row, nsITreeColumn* col)
+nsNntpIncomingServer::CycleCell(int32_t row, nsTreeColumn* col)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::IsEditable(int32_t row, nsITreeColumn* col, bool *_retval)
-{
-  *_retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsNntpIncomingServer::IsSelectable(int32_t row, nsITreeColumn* col, bool *_retval)
+nsNntpIncomingServer::IsEditable(int32_t row, nsTreeColumn* col, bool *_retval)
 {
   *_retval = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::SetCellValue(int32_t row, nsITreeColumn* col, const nsAString& value)
+nsNntpIncomingServer::IsSelectable(int32_t row, nsTreeColumn* col, bool *_retval)
+{
+  *_retval = false;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsNntpIncomingServer::SetCellValue(int32_t row, nsTreeColumn* col, const nsAString& value)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::SetCellText(int32_t row, nsITreeColumn* col, const nsAString& value)
+nsNntpIncomingServer::SetCellText(int32_t row, nsTreeColumn* col, const nsAString& value)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -1987,7 +1982,7 @@ nsNntpIncomingServer::PerformActionOnRow(const char16_t *action, int32_t row)
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::PerformActionOnCell(const char16_t *action, int32_t row, nsITreeColumn* col)
+nsNntpIncomingServer::PerformActionOnCell(const char16_t *action, int32_t row, nsTreeColumn* col)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

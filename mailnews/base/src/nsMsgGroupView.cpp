@@ -11,7 +11,7 @@
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgSearchSession.h"
 #include "nsMsgGroupThread.h"
-#include "nsITreeColumns.h"
+#include "nsTreeColumns.h"
 #include "nsMsgMessageFlags.h"
 #include <plhash.h>
 #include "mozilla/Attributes.h"
@@ -796,7 +796,7 @@ nsMsgGroupView::GetRowProperties(int32_t aRow,
 
 NS_IMETHODIMP
 nsMsgGroupView::GetCellProperties(int32_t aRow,
-                                  nsITreeColumn *aCol,
+                                  nsTreeColumn *aCol,
                                   nsAString& aProperties)
 {
   if (!IsValidIndex(aRow))
