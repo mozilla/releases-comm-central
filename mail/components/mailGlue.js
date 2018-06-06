@@ -134,7 +134,7 @@ MailGlue.prototype = {
     TBDistCustomizer.applyPrefDefaults();
 
     let locales = Services.locale.getPackagedLocales();
-    const appSource = new FileSource("app", locales, "resource:///chrome/{locale}/locale/{locale}/");
+    const appSource = new FileSource("app", locales, "resource:///localization/{locale}/");
     L10nRegistry.registerSource(appSource);
 
     // handle any migration work that has to happen at profile startup
