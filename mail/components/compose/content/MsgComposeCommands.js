@@ -6086,7 +6086,7 @@ var envelopeDragObserver = {
             rawData = fileHandler.getURLSpecFromFile(rawData);
             isValidAttachment = true;
           } catch (e) {
-            Cu.reportError("Couldn't process the dragged file " + rawData.leafNamee + ":" + e);
+            Cu.reportError("Couldn't process the dragged file " + rawData.leafName + ":" + e);
           }
           break;
         }
