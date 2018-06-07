@@ -37,11 +37,15 @@ def reference_loader(kind, path, config, params, loaded_tasks):
     loader = _get_loader(sub_path, sub_config)
     inputs = loader(kind, sub_path, sub_config, params, loaded_tasks)
 
-    jobs = set(config.pop('jobs'))
+    jobs = config.pop('jobs', None)
 
     config.update(sub_config)
 
-    return (job for job in inputs if (_get_aliases(kind, job) & jobs))
+    if jobs is not None:
+        jobs = set(jobs)
+        return (job for job in inputs if (_get_aliases(kind, job) & jobs))
+    else:
+        return inputs
 
 
 def remove_widevine_and_stub_installer(config, jobs):

@@ -4,18 +4,3 @@
 
 loader: comm_taskgraph:reference_loader
 base-path: taskcluster/ci
-
-kind-dependencies:
-    - packages
-
-jobs:
-    - debian7-amd64-build
-    - debian7-base
-    - debian7-i386-build
-    - debian9-base
-    - desktop1604-test
-    - fetch
-    - image_builder
-    - lint
-    - toolchain-build
-    - update-verify

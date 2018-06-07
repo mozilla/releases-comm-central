@@ -22,3 +22,5 @@ jobs:
     - deb7-python-zstandard
     - deb7-valgrind
     - deb7-xz-utils
+    - deb9-mercurial
+    - deb9-python-zstandard

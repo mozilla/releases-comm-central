@@ -11,6 +11,7 @@ treeherder:
         'TW32': 'Toolchain builds for Windows 32-bits'
         'TW64': 'Toolchain builds for Windows 64-bits'
         'Deb7': 'Packages for Debian 7'
+        'Deb9': 'Packages for Debian 9'
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
         'rs': 'Repackage signing'
