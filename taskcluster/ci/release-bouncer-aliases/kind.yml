@@ -16,7 +16,7 @@ job-defaults:
     description: Update bouncer aliases job
     worker-type:
         by-project:
-            comm-beta: scriptworker-prov-v1/bouncer-v1
+            comm-beta: scriptworker-prov-v1/tb-bouncer-v1
             comm-esr.*: scriptworker-prov-v1/tb-bouncer-v1
             default: scriptworker-prov-v1/tb-bouncer-dev
     worker:

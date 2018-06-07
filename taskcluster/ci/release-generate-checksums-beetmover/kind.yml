@@ -15,5 +15,5 @@ job-template:
     shipping-phase: promote
     worker-type:
         by-project:
-            comm-(beta|esr.*): scriptworker-prov-v1/tb-beetmover
+            comm-(beta|esr.*): scriptworker-prov-v1/tb-beetmover-v1
             default: scriptworker-prov-v1/tb-beetmover-dev
