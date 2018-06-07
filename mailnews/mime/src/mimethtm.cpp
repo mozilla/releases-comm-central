@@ -196,7 +196,7 @@ MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message)
   int32_t index = message.Find("<body");
   if (index == kNotFound)
     return;
-  index = message.Find(">", index) + 1;
+  index = message.FindChar('>', index) + 1;
 
   // Insert <div class="moz-text-html" lang="..."> for the following two purposes:
   // 1) Users can configure their HTML display via CSS for .moz-text-html.
