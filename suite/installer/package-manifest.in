@@ -656,15 +656,7 @@ man/*
 @BINPATH@/mozMapi32.dll
 #endif
 
-#ifdef MOZ_MOVEMAIL
-@RESPATH@/isp/movemail.rdf
-#endif
-@RESPATH@/isp/rss.rdf
-@RESPATH@/isp/Bogofilter.sfd
-@RESPATH@/isp/DSPAM.sfd
-@RESPATH@/isp/POPFile.sfd
-@RESPATH@/isp/SpamAssassin.sfd
-@RESPATH@/isp/SpamPal.sfd
+@RESPATH@/isp/*
 
 ; Gloda
 @RESPATH@/chrome/gloda@JAREXT@
