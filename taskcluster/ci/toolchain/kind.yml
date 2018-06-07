@@ -6,7 +6,7 @@ loader: comm_taskgraph:reference_loader
 base-path: taskcluster/ci
 
 kind-dependencies:
-   - fetch
+    - fetch
 
 jobs:
     - linux64-cctools-port
