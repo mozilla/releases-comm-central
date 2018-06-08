@@ -35,7 +35,7 @@ jobs:
             channel-names:
                 by-project:
                     try-comm-central: ["beta", "beta-localtest", "beta-cdntest"]
-                    commm-beta: ["beta", "beta-localtest", "beta-cdntest"]
+                    comm-beta: ["beta", "beta-localtest", "beta-cdntest"]
                     default: []
             publish-rules:
                 by-project:
