@@ -35,7 +35,7 @@ job-defaults:
         emails:
             by-project:
                 # ???
-                comm-(beta|esr60): ["tb-drivers@mozilla.org"]
+                comm-(beta|esr60): ["thunderbird-drivers@mozilla.org"]
                 try-comm-central: ["{config[params][owner]}"]
                 default: []
 
