@@ -528,12 +528,42 @@ tabmail > tabbox {
   margin: 0;
 }
 
-#status-bar:-moz-lwtheme  {
-  padding-top: 1px;
-}
+/* ::::: Trees ::::: */
 
 treechildren::-moz-tree-cell-text {
   padding-inline-start: 2px;
+}
+
+tree > treechildren::-moz-tree-twisty {
+  -moz-appearance: none;
+  padding: 0 2px;
+  list-style-image: url("chrome://global/skin/tree/arrow-collapsed.svg");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.6;
+}
+
+tree > treechildren::-moz-tree-twisty(selected) {
+  fill: currentColor;
+  fill-opacity: 1;
+}
+
+tree > treechildren::-moz-tree-twisty(open) {
+  list-style-image: url("chrome://global/skin/tree/arrow-expanded.svg");
+}
+
+tree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed) {
+  list-style-image: url("chrome://global/skin/tree/arrow-collapsed-rtl.svg");
+}
+
+@media (-moz-mac-yosemite-theme) {
+  tree > treechildren::-moz-tree-twisty(selected) {
+    fill-opacity: 0.6;
+  }
+
+  tree > treechildren::-moz-tree-twisty(selected, focus) {
+    fill-opacity: 1;
+  }
 }
 
 /* ::::: Notifications ::::: */
@@ -636,6 +666,10 @@ button[type="menu-button"] > dropmarker {
 }
 
 /* Status bar */
+
+#status-bar:-moz-lwtheme  {
+  padding-top: 1px;
+}
 
 statusbar {
   min-width: 1px; /* DON'T DELETE!
