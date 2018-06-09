@@ -786,7 +786,8 @@ function onWhoTimeout()
         // The time since the last check, with a 5s error margin to
         // stop us from not checking because the timer fired a tad early:
         var waited = Number(new Date()) - net.lastWhoCheckTime + 5000;
-        if (net.isConnected() && (period != 0) && (period * 60000 < waited))
+        if (net.isConnected() && (period != 0) && (period * 60000 < waited) &&
+            !net.primServ.caps["away-notify"])
             checkWho();
     }
 }
@@ -2345,6 +2346,23 @@ function my_cap(e)
         this.display(getMsg(MSG_CAPS_ERROR, e.caps.join(", ")));
     }
     return true;
+}
+
+/* user away status */
+CIRCNetwork.prototype.onAway =
+function my_away(e)
+{
+    var userlist = document.getElementById("user-list");
+    for (var c in e.server.channels)
+    {
+        var chan = e.server.channels[c];
+        if (chan.active && (e.user.canonicalName in chan.users))
+        {
+            var index = chan.users[e.user.canonicalName].chanListEntry.childIndex;
+            userlist.treeBoxObject.invalidateRow(index);
+            e.server.channels[c].updateUsers([e.user.canonicalName]);
+        }
+    }
 }
 
 CIRCNetwork.prototype.reclaimName =

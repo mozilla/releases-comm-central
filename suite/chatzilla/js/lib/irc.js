@@ -14,7 +14,7 @@ const JSIRC_ERR_PAC_LOADING = "JSIRCE:PAC_LOADING";
 const JSIRCV3_SUPPORTED_CAPS = [
     //"account-notify",
     //"account-tag",
-    //"away-notify",
+    "away-notify",
     //"batch",
     //"cap-notify",
     //"chghost",
@@ -2119,6 +2119,15 @@ function my_cap (e)
     e.set = "network";
 }
 
+/* User away status changed */
+CIRCServer.prototype.onAway =
+function serv_away(e)
+{
+    e.user.isAway = e.params[1] ? true : false;
+    e.destObject = this.parent;
+    e.set = "network";
+}
+
 /* user changed the mode */
 CIRCServer.prototype.onMode =
 function serv_mode (e)
@@ -2438,6 +2447,12 @@ function serv_join(e)
             {
                 e.server.sendData("MODE " + e.channel.encodedName + " +e\n");
                 e.channel.pendingExceptList = true;
+            }
+
+            //If away-notify is active, query the list of users for away status.
+            if (e.server.caps["away-notify"])
+            {
+                e.server.sendData("WHO " + e.channel.encodedName + "\n");
             }
         };
         // Between 10s - 20s.
