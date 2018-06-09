@@ -11,6 +11,27 @@ const JSIRC_ERR_NO_SECURE = "JSIRCE:NO_SECURE";
 const JSIRC_ERR_OFFLINE   = "JSIRCE:OFFLINE";
 const JSIRC_ERR_PAC_LOADING = "JSIRCE:PAC_LOADING";
 
+const JSIRCV3_SUPPORTED_CAPS = [
+    //"account-notify",
+    //"account-tag",
+    //"away-notify",
+    //"batch",
+    //"cap-notify",
+    //"chghost",
+    //"echo-message",
+    //"extended-join",
+    //"invite-notify",
+    //"labeled-response",
+    //"message-tags",
+    //"metadata",
+    //"monitor",
+    "multi-prefix",
+    //"sasl",
+    //"server-time",
+    //"tls",
+    //"userhost-in-name",
+];
+
 function userIsMe (user)
 {
 
@@ -495,6 +516,7 @@ function CIRCServer (parent, hostname, port, isSecure, password)
     s.userModes = null;
     s.maxLineLength = 400;
     s.caps = new Object();
+    s.capvals = new Object();
 
     parent.servers[s.canonicalName] = s;
     if ("onInit" in s)
@@ -720,6 +742,13 @@ CIRCServer.prototype.onConnect =
 function serv_onconnect (e)
 {
     this.parent.primServ = e.server;
+
+    this.sendData("CAP LS 302\n");
+    this.pendingCapNegotiation = true;
+
+    this.caps = new Object();
+    this.capvals = new Object();
+
     this.login(this.parent.INITIAL_NICK, this.parent.INITIAL_NAME,
                this.parent.INITIAL_DESC);
     return true;
@@ -1382,6 +1411,8 @@ function serv_001 (e)
 {
     this.parent.connectAttempt = 0;
     this.parent.connectCandidate = 0;
+    //Mark capability negotiation as finished, if we haven't already.
+    delete this.parent.pendingCapNegotiation;
     this.parent.state = NET_ONLINE;
     // nextHost is incremented after picking a server. Push it back here.
     this.parent.nextHost--;
@@ -1979,11 +2010,38 @@ function my_cap (e)
          * capabilities are only enabled on request).
          */
         var caps = e.params[3].split(/\s+/);
+        var multiline = (e.params[3] == "*");
+        if (multiline)
+            caps = e.params[4].split(/\s+/);
+
         for (var i = 0; i < caps.length; i++)
         {
-            var cap = caps[i].replace(/^-/, "").trim();
+            var [cap, value] = caps[i].split(/=(.+)/);
+            cap = cap.replace(/^-/, "").trim();
             if (!(cap in this.caps))
                 this.caps[cap] = null;
+            if (value)
+                this.capvals[cap] = value;
+        }
+
+        // Don't do anything until the end of the response.
+        if (multiline)
+            return true;
+
+        //Only request capabilities we support if we are connecting.
+        if (this.pendingCapNegotiation)
+        {
+            var caps_req = JSIRCV3_SUPPORTED_CAPS.filter(i => (i in this.caps));
+            if (caps_req.length > 0)
+            {
+                caps_req = caps_req.join(" ");
+                e.server.sendData("CAP REQ :" + caps_req + "\n");
+            }
+            else
+            {
+                e.server.sendData("CAP END\n");
+                delete this.pendingCapNegotiation;
+            }
         }
     }
     else if (e.params[2] == "LIST")
@@ -1991,10 +2049,18 @@ function my_cap (e)
         /* Received list of enabled capabilities. Just use this as a sanity
          * check. */
         var caps = e.params[3].trim().split(/\s+/);
+        var multiline = (e.params[3] == "*");
+        if (multiline)
+            caps = e.params[4].trim().split(/\s+/);
+
         for (var i = 0; i < caps.length; i++)
         {
             this.caps[caps[i]] = true;
         }
+
+        // Don't do anything until the end of the response.
+        if (multiline)
+            return true;
     }
     else if (e.params[2] == "ACK")
     {
@@ -2002,18 +2068,47 @@ function my_cap (e)
          * capability is just "cap" whilst a disabled capability is "-cap".
          */
         var caps = e.params[3].trim().split(/\s+/);
+        e.capsOn = new Array();
+        e.capsOff = new Array();
         for (var i = 0; i < caps.length; i++)
         {
-            var cap = caps[i];
-            e.cap = cap.replace(/^-/, "").trim();
-            e.capEnabled = cap[0] != "-";
-            this.caps[e.cap] = e.capEnabled;
+            var cap = caps[i].replace(/^-/,"").trim();
+            var enabled = caps[i][0] != "-";
+            if (enabled)
+                e.capsOn.push(cap);
+            else
+                e.capsOff.push(cap);
+            this.caps[cap] = enabled;
+        }
+
+        if (this.pendingCapNegotiation)
+        {
+            e.server.sendData("CAP END\n");
+            delete this.pendingCapNegotiation;
+
+            //Don't show the raw message while connecting.
+            return true;
         }
     }
     else if (e.params[2] == "NAK")
     {
         // A capability change has failed.
-        e.cap = e.params[3].replace(/^-/, "").trim();
+        var caps = e.params[3].trim().split(/\s+/);
+        e.caps = new Array();
+        for (var i = 0; i < caps.length; i++)
+        {
+            var cap = caps[i].replace(/^-/, "").trim();
+            e.caps.push(cap);
+        }
+
+        if (this.pendingCapNegotiation)
+        {
+            e.server.sendData("CAP END\n");
+            delete this.pendingCapNegotiation;
+
+            //Don't show the raw message while connecting.
+            return true;
+        }
     }
     else
     {
@@ -2450,7 +2545,7 @@ function serv_notice_privmsg (e)
     /* The capability identify-msg adds a + or - in front the message to
      * indicate their network registration status.
      */
-    if (this.caps["identify-msg"])
+    if (("identify-msg" in this.caps) && this.caps["identify-msg"])
     {
         e.identifyMsg = false;
         var flag = e.params[2].substring(0,1);

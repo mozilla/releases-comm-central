@@ -2298,15 +2298,23 @@ function my_cap(e)
 {
     if (e.params[2] == "LS")
     {
-        var listCaps = new Array();
-        for (var cap in e.server.caps)
+        // Don't show the raw message until we've registered.
+        if (this.state == NET_ONLINE)
         {
-            listCaps.push(cap);
-        }
-        if (listCaps.length > 0)
-        {
-            listCaps.sort();
-            display(getMsg(MSG_SUPPORTS_CAPS, listCaps.join(MSG_COMMASP)));
+
+            var listCaps = new Array();
+            for (var cap in e.server.caps)
+            {
+                var value = e.server.capvals[cap];
+                if (value)
+                    cap += "=" + value;
+                listCaps.push(cap);
+            }
+            if (listCaps.length > 0)
+            {
+                listCaps.sort();
+                this.display(getMsg(MSG_SUPPORTS_CAPS, listCaps.join(MSG_COMMASP)));
+            }
         }
     }
     else if (e.params[2] == "LIST")
@@ -2322,19 +2330,19 @@ function my_cap(e)
         if (listCapsEnabled.length > 0)
         {
             listCapsEnabled.sort();
-            display(getMsg(MSG_SUPPORTS_CAPSON, listCapsEnabled.join(MSG_COMMASP)));
+            this.display(getMsg(MSG_SUPPORTS_CAPSON, listCapsEnabled.join(MSG_COMMASP)));
         }
     }
     else if (e.params[2] == "ACK")
     {
-        if (e.capEnabled)
-            display(getMsg(MSG_CAPS_ON, e.cap));
-        else
-            display(getMsg(MSG_CAPS_OFF, e.cap));
+        if (e.capsOn.length)
+            this.display(getMsg(MSG_CAPS_ON, e.capsOn.join(", ")));
+        if (e.capsOff.length)
+            this.display(getMsg(MSG_CAPS_OFF, e.capsOff.join(", ")));
     }
     else if (e.params[2] == "NAK")
     {
-        display(getMsg(MSG_CAPS_ERROR, e.cap));
+        this.display(getMsg(MSG_CAPS_ERROR, e.caps.join(", ")));
     }
     return true;
 }
