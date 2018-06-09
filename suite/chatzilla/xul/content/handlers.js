@@ -2298,7 +2298,32 @@ function my_cap(e)
 {
     if (e.params[2] == "LS")
     {
-        display(getMsg(MSG_CAPS_LIST, keys(e.server.caps).join(MSG_COMMASP)));
+        var listCaps = new Array();
+        for (var cap in e.server.caps)
+        {
+            listCaps.push(cap);
+        }
+        if (listCaps.length > 0)
+        {
+            listCaps.sort();
+            display(getMsg(MSG_SUPPORTS_CAPS, listCaps.join(MSG_COMMASP)));
+        }
+    }
+    else if (e.params[2] == "LIST")
+    {
+        var listCapsEnabled = new Array();
+        for (var cap in e.server.caps)
+        {
+            if (e.server.caps[cap])
+            {
+                listCapsEnabled.push(cap);
+            }
+        }
+        if (listCapsEnabled.length > 0)
+        {
+            listCapsEnabled.sort();
+            display(getMsg(MSG_SUPPORTS_CAPSON, listCapsEnabled.join(MSG_COMMASP)));
+        }
     }
     else if (e.params[2] == "ACK")
     {

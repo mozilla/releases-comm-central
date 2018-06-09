@@ -1986,14 +1986,29 @@ function my_cap (e)
                 this.caps[cap] = null;
         }
     }
+    else if (e.params[2] == "LIST")
+    {
+        /* Received list of enabled capabilities. Just use this as a sanity
+         * check. */
+        var caps = e.params[3].trim().split(/\s+/);
+        for (var i = 0; i < caps.length; i++)
+        {
+            this.caps[caps[i]] = true;
+        }
+    }
     else if (e.params[2] == "ACK")
     {
-        /* A capability change has been successfully applied. An enabled
+        /* One or more capability changes have been successfully applied. An enabled
          * capability is just "cap" whilst a disabled capability is "-cap".
          */
-        e.cap = e.params[3].replace(/^-/, "").trim();
-        e.capEnabled = e.params[3][0] != "-";
-        this.caps[e.cap] = e.capEnabled;
+        var caps = e.params[3].trim().split(/\s+/);
+        for (var i = 0; i < caps.length; i++)
+        {
+            var cap = caps[i];
+            e.cap = cap.replace(/^-/, "").trim();
+            e.capEnabled = cap[0] != "-";
+            this.caps[e.cap] = e.capEnabled;
+        }
     }
     else if (e.params[2] == "NAK")
     {
