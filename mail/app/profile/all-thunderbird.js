@@ -434,6 +434,7 @@ pref("mail.phishing.detection.enabled", true);
 // of the local, static tests
 pref("mail.phishing.detection.ipaddresses", true);
 pref("mail.phishing.detection.mismatched_hosts", true);
+pref("mail.phishing.detection.disallow_form_actions", true);
 
 pref("browser.safebrowsing.reportPhishURL", "https://%LOCALE%.phish-report.mozilla.com/?hl=%LOCALE%");
 

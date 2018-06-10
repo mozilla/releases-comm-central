@@ -15,6 +15,7 @@ var kPhishingWithMismatchedHosts = 2;
 var gPhishingDetector = {
   mCheckForIPAddresses: true,
   mCheckForMismatchedHosts: true,
+  mDisallowFormActions: true,
 
   shutdown: function()
   {
@@ -31,11 +32,12 @@ var gPhishingDetector = {
 
     this.mCheckForIPAddresses = Services.prefs.getBoolPref("mail.phishing.detection.ipaddresses");
     this.mCheckForMismatchedHosts = Services.prefs.getBoolPref("mail.phishing.detection.mismatched_hosts");
+    this.mDisallowFormActions = Services.prefs.getBoolPref("mail.phishing.detection.disallow_form_actions");
   },
 
   /**
    * Analyzes the urls contained in the currently loaded message in the message pane, looking for
-   * phishing URLs.
+   * phishing URLs. Also checks for forms with action URLs, which are disallowed.
    * Assumes the message has finished loading in the message pane (i.e. OnMsgParsed has fired).
    *
    * @param aUrl nsIURI for the message being analyzed.
@@ -76,9 +78,17 @@ var gPhishingDetector = {
 
     // extract the action urls associated with any form elements in the message and analyze them.
     let formNodes = document.getElementById('messagepane').contentDocument.querySelectorAll("form[action]");
-    for (index = 0; index < formNodes.length; index++)
+
+    if (this.mDisallowFormActions && formNodes.length > 0)
     {
-      this.analyzeUrl(formNodes[index].action);
+      gMessageNotificationBar.setPhishingMsg();
+    }
+    else
+    {
+      for (index = 0; index < formNodes.length; index++)
+      {
+        this.analyzeUrl(formNodes[index].action);
+      }
     }
   },
 
@@ -115,7 +125,7 @@ var gPhishingDetector = {
       var failsStaticTests = false;
       // If the link text and url differs by something other than a trailing
       // slash, do some further checks.
-      if (aLinkText != aUrl &&
+      if (aLinkText && aLinkText != aUrl &&
           aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, ""))
       {
         if (this.mCheckForIPAddresses)

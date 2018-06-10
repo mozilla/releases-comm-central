@@ -49,6 +49,10 @@ function setupModule(module) {
     body: '<a href="http://evilhost">http://localhost</a>.',
     contentType: "text/html"
   }}));
+  add_message_to_folder(folder, create_message({body: {
+    body: '<form action="http://localhost/download-me"><input></form>.',
+    contentType: "text/html"
+  }}));
 }
 
 /**
@@ -152,5 +156,14 @@ function test_no_phishing_warning_for_subdomain() {
 function test_phishing_warning_for_local_domain() {
   be_in_folder(folder);
   select_click_row(5);
+  assert_notification_displayed(mc, kBoxId, kNotificationValue, true); // shown
+}
+
+/**
+ * Test that we warn about emails which contain <form>s with action attributes.
+ */
+function test_phishing_warning_for_action_form() {
+  be_in_folder(folder);
+  select_click_row(6);
   assert_notification_displayed(mc, kBoxId, kNotificationValue, true); // shown
 }
