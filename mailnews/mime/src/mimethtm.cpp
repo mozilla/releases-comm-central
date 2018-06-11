@@ -193,7 +193,7 @@ MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message)
     return;
 
   // Make sure we have a <body> before we start.
-  int32_t index = message.Find("<body");
+  int32_t index = message.Find("<body", /* ignoreCase = */ true);
   if (index == kNotFound)
     return;
   index = message.FindChar('>', index) + 1;
@@ -218,7 +218,33 @@ MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message)
                    index);
   }
 
-  index = message.RFind("</body>");
+  index = message.RFind("</body>", /* ignoreCase = */ true);
   if (index != kNotFound)
     message.Insert(NS_LITERAL_CSTRING("</div>"), index);
 }
+
+/*
+ * The following function replaces <plaintext> tags with <x-plaintext>.
+ * <plaintext> is a funny beast: It leads to everything following it
+ * being displayed verbatim, even a </plaintext> tag is ignored.
+ */
+void
+MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj, nsCString &message)
+{
+  if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay &&
+      obj->options->format_out != nsMimeOutput::nsMimeMessagePrintOutput)
+    return;
+
+  // Replace all <plaintext> and </plaintext> tags.
+  int32_t index = 0;
+  while ((index = message.Find("<plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
+    message.Insert("x-", index+1);
+    index += 12;
+  }
+  index = 0;
+  while ((index = message.Find("</plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
+    message.Insert("x-", index+2);
+    index += 13;
+  }
+}
+

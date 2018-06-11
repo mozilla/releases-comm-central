@@ -30,4 +30,6 @@ struct MimeInlineTextHTML {
 
 void
 MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message);
+void
+MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj, nsCString &message);
 #endif /* _MIMETHTM_H_ */

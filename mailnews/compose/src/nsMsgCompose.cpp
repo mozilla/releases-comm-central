@@ -591,6 +591,27 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
   }
 }
 
+/*
+ * The following function replaces <plaintext> tags with <x-plaintext>.
+ * <plaintext> is a funny beast: It leads to everything following it
+ * being displayed verbatim, even a </plaintext> tag is ignored.
+ */
+static void
+remove_plaintext_tag(nsString &body)
+{
+  // Replace all <plaintext> and </plaintext> tags.
+  int32_t index = 0;
+  while ((index = body.Find("<plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
+    body.Insert(u"x-", index+1);
+    index += 12;
+  }
+  index = 0;
+  while ((index = body.Find("</plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
+    body.Insert(u"x-", index+2);
+    index += 13;
+  }
+}
+
 NS_IMETHODIMP
 nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
                                           nsString& aBuf,
@@ -676,15 +697,17 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
     if (!aBuf.IsEmpty() && mailEditor)
     {
       // This leaves the caret at the right place to insert a bottom signature.
-      if (aHTMLEditor)
-        mailEditor->InsertAsCitedQuotation(aBuf,
+      if (aHTMLEditor) {
+        nsAutoString body(aBuf);
+        remove_plaintext_tag(body);
+        mailEditor->InsertAsCitedQuotation(body,
                                            mCiteReference,
                                            true,
                                            getter_AddRefs(nodeInserted));
-      else
+      } else {
         mailEditor->InsertAsQuotation(aBuf,
                                       getter_AddRefs(nodeInserted));
-
+      }
     }
 
     mInsertingQuotedContent = false;
@@ -728,6 +751,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
         nsString divTag;
         divTag.AssignLiteral("<div class=\"moz-forward-container\">");
         newBody.Insert(divTag, sizeof(MIME_FORWARD_HTML_PREFIX)-1-8);
+        remove_plaintext_tag(newBody);
         htmlEditor->RebuildDocumentFromSource(newBody);
       } else {
         htmlEditor->RebuildDocumentFromSource(aBuf);
@@ -3083,11 +3107,14 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
     nsCOMPtr<nsIEditorMailSupport> mailEditor (do_QueryInterface(aEditor));
     if (mailEditor)
     {
-      if (aHTMLEditor)
-        mailEditor->InsertAsCitedQuotation(mMsgBody, EmptyString(), true,
+      if (aHTMLEditor) {
+        nsAutoString body(mMsgBody);
+        remove_plaintext_tag(body);
+        mailEditor->InsertAsCitedQuotation(body, EmptyString(), true,
                                            getter_AddRefs(nodeInserted));
-      else
+      } else {
         mailEditor->InsertAsQuotation(mMsgBody, getter_AddRefs(nodeInserted));
+      }
     }
     compose->SetInsertingQuotedContent(false);
   }

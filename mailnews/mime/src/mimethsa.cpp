@@ -97,6 +97,7 @@ MimeInlineTextHTMLSanitized_parse_eof(MimeObject *obj, bool abort_p)
   // Write it out.
   NS_ConvertUTF16toUTF8 resultCStr(sanitized);
   MimeInlineTextHTML_insert_lang_div(obj, resultCStr);
+  MimeInlineTextHTML_remove_plaintext_tag(obj, resultCStr);
   status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_line(
                              resultCStr.BeginWriting(),
                              resultCStr.Length(),
