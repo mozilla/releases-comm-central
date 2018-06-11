@@ -253,9 +253,6 @@ private:
   int32_t charsReadSoFar;
   bool fLastChunk;
 
-  // Flags split of \r and \n between chunks in msg_fetch_literal().
-  bool fNextChunkStartsWithNewline;
-
   // points to the current body shell, if any
   RefPtr<nsIMAPBodyShell> m_shell;
 

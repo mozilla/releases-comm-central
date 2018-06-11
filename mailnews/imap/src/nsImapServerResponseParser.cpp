@@ -35,7 +35,6 @@ nsImapServerResponseParser::nsImapServerResponseParser(nsImapProtocol &imapProto
     fSelectedMailboxName(nullptr),
     fIMAPstate(kNonAuthenticated),
     fLastChunk(false),
-    fNextChunkStartsWithNewline(false),
     fServerConnection(imapProtocolConnection),
     fHostSessionList(nullptr)
 {
@@ -3087,7 +3086,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
 #endif
 
   charsReadSoFar = 0;
-  fNextChunkStartsWithNewline = false;
+  static bool nextChunkStartsWithNewline = false;
 
   while (ContinueParse() && !fServerConnection.DeathSignalReceived() && (charsReadSoFar < numberOfCharsInThisChunk))
   {
@@ -3102,7 +3101,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
       // '\r' is not inserted so the beginning line of the next chunk remains
       // just '\n' and no discard is required.
       // In any case, this "orphan" line is ignored and not processed below.
-      if (fNextChunkStartsWithNewline && (*fCurrentLine == '\r'))
+      if (nextChunkStartsWithNewline && (*fCurrentLine == '\r'))
       {
         // Cause fCurrentLine to point to '\n' which discards the '\r'.
         char *usableCurrentLine = PL_strdup(fCurrentLine + 1);
@@ -3170,8 +3169,8 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
         char saveit2 = 0;  // Keep compiler happy.
         // Determine if EOL is split such that Chunk X has the \r and chunk
         // X+1 has the \n.
-        fNextChunkStartsWithNewline = (displayEndOfLine[0] == '\r');
-        if (fNextChunkStartsWithNewline)
+        nextChunkStartsWithNewline = (displayEndOfLine[0] == '\r');
+        if (nextChunkStartsWithNewline)
         {
           saveit2 = displayEndOfLine[2];
           // Add the missing newline and terminate the string.
@@ -3189,13 +3188,13 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
         fServerConnection.HandleMessageDownLoadLine(fCurrentLine, !lastChunk);
         // Restore fCurrentLine's original content.
         displayEndOfLine[1] = saveit1;
-        if (fNextChunkStartsWithNewline)
+        if (nextChunkStartsWithNewline)
           displayEndOfLine[2] = saveit2;
       }
       else
       {
         // Not the last line of a chunk.
-        if (!fNextChunkStartsWithNewline)
+        if (!nextChunkStartsWithNewline)
         {
           // Process unmodified fCurrentLine string.
           fServerConnection.HandleMessageDownLoadLine(fCurrentLine,
@@ -3207,7 +3206,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
           // Ignore the orphan '\n' on a line by itself.
           MOZ_ASSERT(strlen(fCurrentLine) == 1 && fCurrentLine[0] == '\n',
                      "Expect '\n' as only character in this line");
-          fNextChunkStartsWithNewline = false;
+          nextChunkStartsWithNewline = false;
         }
       }
     }
@@ -3230,7 +3229,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
   }
   else
   {
-    fNextChunkStartsWithNewline = false;
+    nextChunkStartsWithNewline = false;
   }
   return lastChunk;
 }
