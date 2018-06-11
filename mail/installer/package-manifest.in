@@ -50,6 +50,7 @@
 [@AB_CD@]
 @RESPATH@/@PREF_DIR@/all-l10n.js
 @RESPATH@/dictionaries/*
+@RESPATH@/localization/*
 #ifdef MOZ_BUNDLED_FONTS
 @RESPATH@/fonts/*
 #endif
