@@ -113,7 +113,7 @@ findbar,
 }
 
 /* Quick-Filter-Bar */
-#quick-filter-bar {
+#quick-filter-bar:-moz-lwtheme {
   background-color: var(--chrome-background-color);
   color: var(--chrome-color);
 }
@@ -128,7 +128,7 @@ findbar,
   --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
 }
 
-#qfb-qs-textbox {
+#qfb-qs-textbox:-moz-lwtheme {
   background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
   color: var(--lwt-toolbar-field-color, black);
 }
