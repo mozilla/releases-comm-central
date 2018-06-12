@@ -237,14 +237,18 @@ MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj, nsCString &message)
 
   // Replace all <plaintext> and </plaintext> tags.
   int32_t index = 0;
+  bool replaced = false;
   while ((index = message.Find("<plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
     message.Insert("x-", index+1);
     index += 12;
+    replaced = true;
   }
-  index = 0;
-  while ((index = message.Find("</plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
-    message.Insert("x-", index+2);
-    index += 13;
+  if (replaced) {
+    index = 0;
+    while ((index = message.Find("</plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
+      message.Insert("x-", index+2);
+      index += 13;
+    }
   }
 }
 

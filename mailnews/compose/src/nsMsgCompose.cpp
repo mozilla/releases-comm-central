@@ -601,14 +601,18 @@ remove_plaintext_tag(nsString &body)
 {
   // Replace all <plaintext> and </plaintext> tags.
   int32_t index = 0;
+  bool replaced = false;
   while ((index = body.Find("<plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
     body.Insert(u"x-", index+1);
     index += 12;
+    replaced = true;
   }
-  index = 0;
-  while ((index = body.Find("</plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
-    body.Insert(u"x-", index+2);
-    index += 13;
+  if (replaced) {
+    index = 0;
+    while ((index = body.Find("</plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
+      body.Insert(u"x-", index+2);
+      index += 13;
+    }
   }
 }
 
