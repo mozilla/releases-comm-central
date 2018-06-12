@@ -53,8 +53,10 @@ def remove_widevine_and_stub_installer(config, jobs):
     Remove references to widevine signing and to packaging a stub installer.
 
     This is an expedient hack to avoid adding special cases for handling these in
-    mozilla-central code. The proper fix is to address Bug 1331143 which should allow
-    thunderbird to just have a different list of artifacts to generate.
+    mozilla-central code.  This code should become unnesssary after the
+    declarative artifact[1] work is complete.
+
+    [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1466714
     """
     for job in jobs:
         task = job['task']
@@ -80,4 +82,37 @@ def remove_widevine_and_stub_installer(config, jobs):
             if 'SIGNED_SETUP_STUB' in payload['env']:
                 del payload['env']['SIGNED_SETUP_STUB']
 
+        yield job
+
+
+def beetmover_add_langpack(config, jobs):
+    """
+    Add langpacks to beetmover jobs.
+
+    Firefox signs addons as part of the release process, so has separate tasks
+    for signing and then publishing. Gettin the mozilla-central code to handle
+    uploading unsigned langpacks is complex, so add them afterwards. This code
+    should become unnesssary after the declarative artifact[1] work is complete.
+
+    [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1466714
+    """
+    for job in jobs:
+        task = job['task']
+        payload = task['payload']
+        locale = job['attributes'].get('locale')
+
+        artifact_prefix = "public/build"
+        if locale:
+            artifact_prefix = '{}/{}'.format(artifact_prefix, locale)
+
+        payload['upstreamArtifacts'].append({
+            "locale": locale or 'en-US',
+            "paths": [
+                "{}/target.langpack.xpi".format(artifact_prefix),
+            ],
+            "taskId": {
+                "task-reference": "<build>"
+            },
+            "taskType": "build"
+        })
         yield job
