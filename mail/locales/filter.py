@@ -20,7 +20,4 @@ def test(mod, path, entity=None):
     return ("ignore" if (re.match(r"browser\.search\.order\.[1-9]", entity))
             else "error")
 
-  # ignore search plugins
-  if re.match(r"searchplugins\/.+\.xml", path):
-    return "ignore"
   return "error"

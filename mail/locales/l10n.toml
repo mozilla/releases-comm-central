@@ -132,8 +132,3 @@ locales = [
     path = "{l}mail/chrome/messenger-region/region.properties"
     key = "re:browser\\.search\\.order\\.[1-9].*"
     action = "ignore"
-
-# search plugins are different per locale, ignore file difference
-[[filters]]
-    path = "{l}mail/searchplugins/*.xml"
-    action = "ignore"
