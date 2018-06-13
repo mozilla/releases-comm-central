@@ -190,3 +190,8 @@ notification[value="draftMsgContent"] .messageImage {
   float: right;
   color: GrayText;
 }
+
+toolbarpaletteitem toolbarspacer,
+toolbarpaletteitem toolbarspring {
+  -moz-window-dragging: no-drag;
+}
