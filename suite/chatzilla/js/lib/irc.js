@@ -17,7 +17,7 @@ const JSIRCV3_SUPPORTED_CAPS = [
     "away-notify",
     //"batch",
     //"cap-notify",
-    //"chghost",
+    "chghost",
     //"echo-message",
     //"extended-join",
     //"invite-notify",
@@ -29,7 +29,7 @@ const JSIRCV3_SUPPORTED_CAPS = [
     //"sasl",
     //"server-time",
     //"tls",
-    //"userhost-in-name",
+    "userhost-in-names",
 ];
 
 function userIsMe (user)
@@ -1838,7 +1838,18 @@ function serv_353 (e)
             }
         } while (found && multiPrefix);
 
-        new CIRCChanUser(e.channel, null, nick, modes, true);
+        var ary = nick.match(/([^ ]+)!([^ ]+)@(.*)/);
+        var user = null;
+        var host = null;
+
+        if (this.caps["userhost-in-names"] && ary)
+        {
+            nick = ary[1];
+            user = ary[2];
+            host = ary[3];
+        }
+
+        new CIRCChanUser(e.channel, null, nick, modes, true, user, host);
     }
 
     return true;
@@ -2124,6 +2135,16 @@ CIRCServer.prototype.onAway =
 function serv_away(e)
 {
     e.user.isAway = e.params[1] ? true : false;
+    e.destObject = this.parent;
+    e.set = "network";
+}
+
+/* User host changed */
+CIRCServer.prototype.onChghost =
+function serv_chghost(e)
+{
+    this.users[e.user.canonicalName].name = e.params[1];
+    this.users[e.user.canonicalName].host = e.params[2];
     e.destObject = this.parent;
     e.set = "network";
 }
@@ -3448,7 +3469,7 @@ function usr_whois ()
 /*
  * channel user
  */
-function CIRCChanUser(parent, unicodeName, encodedName, modes, userInChannel)
+function CIRCChanUser(parent, unicodeName, encodedName, modes, userInChannel, name, host)
 {
     // Both unicodeName and encodedName are optional, but at least one must be
     // present.
@@ -3514,7 +3535,7 @@ function CIRCChanUser(parent, unicodeName, encodedName, modes, userInChannel)
         return existingUser;
     }
 
-    var protoUser = new CIRCUser(parent.parent, unicodeName, encodedName);
+    var protoUser = new CIRCUser(parent.parent, unicodeName, encodedName, name, host);
 
     this.__proto__ = protoUser;
     this.getURL = cusr_geturl;

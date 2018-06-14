@@ -2365,6 +2365,13 @@ function my_away(e)
     }
 }
 
+/* user host changed */
+CIRCNetwork.prototype.onChghost =
+function my_chghost(e)
+{
+    e.user.updateHeader();
+}
+
 CIRCNetwork.prototype.reclaimName =
 function my_reclaimname()
 {
