@@ -2660,10 +2660,12 @@ void nsImapProtocol::ProcessSelectedStateURL()
                   IMAP_CONTENT_MODIFIED_VIEW_INLINE :
                   IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS ;
 
+                nsCString messageIdValString(messageIdString);
+                messageIdValString.AppendInt(m_uidValidity);
                 RefPtr<nsIMAPBodyShell> foundShell;
                 res = m_hostSessionList->FindShellInCacheForHost(GetImapServerKey(),
                   GetServerStateParser().GetSelectedMailboxName(),
-                  messageIdString.get(), modType, getter_AddRefs(foundShell));
+                  messageIdValString.get(), modType, getter_AddRefs(foundShell));
                 if (!foundShell)
                 {
                   // The shell wasn't in the cache.  Deal with this case later.
@@ -2741,9 +2743,11 @@ void nsImapProtocol::ProcessSelectedStateURL()
                 SetContentModified(modType);  // This will be looked at by the cache
                 if (bMessageIdsAreUids)
                 {
+                  nsCString messageIdValString(messageIdString);
+                  messageIdValString.AppendInt(m_uidValidity);
                   res = m_hostSessionList->FindShellInCacheForHost(GetImapServerKey(),
                     GetServerStateParser().GetSelectedMailboxName(),
-                    messageIdString.get(), modType, getter_AddRefs(foundShell));
+                    messageIdValString.get(), modType, getter_AddRefs(foundShell));
                   if (foundShell)
                   {
                     Log("SHELL",NULL,"Loading message, using cached shell.");

@@ -2691,7 +2691,8 @@ void nsImapServerResponseParser::bodystructure_data()
       delete message;
       message = nullptr;
     }
-    m_shell = new nsIMAPBodyShell(&fServerConnection, message, CurrentResponseUID(), GetSelectedMailboxName());
+    m_shell = new nsIMAPBodyShell(&fServerConnection, message, CurrentResponseUID(),
+                                  FolderUID(), GetSelectedMailboxName());
     // ignore syntax errors in parsing the body structure response. If there's an error
     // we'll just fall back to fetching the whole message.
     SetSyntaxError(false);

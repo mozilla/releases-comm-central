@@ -210,7 +210,7 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   nsIMAPBodyShell(nsImapProtocol *protocolConnection,
                   nsIMAPBodypartMessage *message, uint32_t UID,
-                  const char *folderName);
+                  uint32_t UIDValidity, const char *folderName);
   // To be used after a shell is uncached
   void SetConnection(nsImapProtocol *con) { m_protocolConnection = con; }
   virtual bool GetIsValid() { return m_isValid; }
@@ -251,6 +251,7 @@ public:
   bool GetPseudoInterrupted();
   bool DeathSignalReceived();
   nsCString &GetUID() { return m_UID; }
+  nsCString &GetUID_validity() { return m_UID_validity; }
   const char *GetFolderName() { return m_folderName; }
   char *GetGeneratingPart() { return m_generatingPart; }
   // Returns true if this is in the process of being generated,
@@ -271,6 +272,7 @@ protected:
   bool                      m_isValid;
   nsImapProtocol            *m_protocolConnection;    // Connection, for filling in parts
   nsCString                 m_UID;                    // UID of this message
+  nsCString                 m_UID_validity;           // appended UID and UID-validity of this message
   char                      *m_folderName;            // folder that contains this message
   char                      *m_generatingPart;        // If a specific part is being generated, this is it.  Otherwise, NULL.
   bool                      m_isBeingGenerated;       // true if this body shell is in the process of being generated
@@ -291,8 +293,8 @@ protected:
 // shells themselves won't be very large, this cache will not grow very big (relatively)
 // and should handle most common usage scenarios.
 
-// A body cache is associated with a given host, spanning folders.
-// It should pay attention to UIDVALIDITY.
+// A body cache is associated with a given host, spanning folders, so
+// it uses both UID and UIDVALIDITY .
 
 class nsIMAPBodyShellCache
 {

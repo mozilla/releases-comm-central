@@ -38,7 +38,7 @@ NS_IMPL_ISUPPORTS0(nsIMAPBodyShell)
 
 nsIMAPBodyShell::nsIMAPBodyShell(nsImapProtocol *protocolConnection,
                                  nsIMAPBodypartMessage *message, uint32_t UID,
-                                 const char *folderName)
+                                 uint32_t UIDValidity, const char *folderName)
 {
   m_isValid = false;
   m_isBeingGenerated = false;
@@ -56,6 +56,8 @@ nsIMAPBodyShell::nsIMAPBodyShell(nsImapProtocol *protocolConnection,
     return;
   m_UID = "";
   m_UID.AppendInt(UID);
+  m_UID_validity = m_UID;
+  m_UID_validity.AppendInt(UIDValidity);
 #ifdef DEBUG_chrisf
   NS_ASSERTION(folderName);
 #endif
@@ -1197,7 +1199,7 @@ bool nsIMAPBodyShellCache::AddShellToCache(nsIMAPBodyShell *shell)
   // If it's already in the cache, then just return.
   // This has the side-effect of re-ordering the LRU list
   // to put this at the top, which is good, because it's what we want.
-  if (FindShellForUID(shell->GetUID(), shell->GetFolderName(), shell->GetContentModified()))
+  if (FindShellForUID(shell->GetUID_validity(), shell->GetFolderName(), shell->GetContentModified()))
     return true;
 
   // OK, so it's not in the cache currently.
@@ -1206,17 +1208,17 @@ bool nsIMAPBodyShellCache::AddShellToCache(nsIMAPBodyShell *shell)
   // just in case we have a collision between two messages in different
   // folders with the same UID.
   RefPtr<nsIMAPBodyShell> foundShell;
-  m_shellHash.Get(shell->GetUID(), getter_AddRefs(foundShell));
+  m_shellHash.Get(shell->GetUID_validity(), getter_AddRefs(foundShell));
   if (foundShell)
   {
-    m_shellHash.Remove(foundShell->GetUID());
+    m_shellHash.Remove(foundShell->GetUID_validity());
     m_shellList->RemoveElement(foundShell);
   }
 
   // Add the new one to the cache
   m_shellList->AppendElement(shell);
 
-  m_shellHash.Put(shell->GetUID(), shell);
+  m_shellHash.Put(shell->GetUID_validity(), shell);
   shell->SetIsCached(true);
 
   // while we're not over our size limit, eject entries
