@@ -53,13 +53,13 @@
  * Macros:
  */
 
-/* #define PRLDAP_DEBUG	1	*/ 	/* uncomment to enable debugging printfs */
+/* #define PRLDAP_DEBUG 1 */   /* uncomment to enable debugging printfs */
 
 /*
  * All of the sockets we use are IPv6 capable.
  * Change the following #define to PR_AF_INET to support IPv4 only.
  */
-#define PRLDAP_DEFAULT_ADDRESS_FAMILY	PR_AF_INET6
+#define PRLDAP_DEFAULT_ADDRESS_FAMILY PR_AF_INET6
 
 /*
  * Max length for sending message with one PR_Send.
@@ -86,17 +86,17 @@
 
 /* data structure that populates the I/O callback session arg. */
 typedef struct lextiof_session_private {
-	PRPollDesc	*prsess_pollds;		/* for poll callback */
-	int		prsess_pollds_count;	/* # of elements in pollds */
-	int		prsess_io_max_timeout;	/* in milliseconds */
-	void		*prsess_appdata;	/* application specific data */
+  PRPollDesc *prsess_pollds;  /* for poll callback */
+  int prsess_pollds_count;  /* # of elements in pollds */
+  int prsess_io_max_timeout;  /* in milliseconds */
+  void *prsess_appdata;  /* application specific data */
 } PRLDAPIOSessionArg;
 
 /* data structure that populates the I/O callback socket-specific arg. */
 typedef struct lextiof_socket_private {
-	PRFileDesc	*prsock_prfd;		/* associated NSPR file desc. */
-	int		prsock_io_max_timeout;	/* in milliseconds */
-	void		*prsock_appdata;	/* application specific data */
+  PRFileDesc *prsock_prfd;  /* associated NSPR file desc. */
+  int prsock_io_max_timeout;  /* in milliseconds */
+  void *prsock_appdata;  /* application specific data */
 } PRLDAPIOSocketArg;
 
 
@@ -110,9 +110,9 @@ typedef struct lextiof_socket_private {
 int prldap_install_io_functions( LDAP *ld, int shared );
 int prldap_session_arg_from_ld( LDAP *ld, PRLDAPIOSessionArg **sessargpp );
 int prldap_set_io_max_timeout( PRLDAPIOSessionArg *prsessp,
-	int io_max_timeout );
+  int io_max_timeout );
 int prldap_get_io_max_timeout( PRLDAPIOSessionArg *prsessp,
-	int *io_max_timeoutp );
+  int *io_max_timeoutp );
 int prldap_socket_arg_from_ld( LDAP *ld, PRLDAPIOSocketArg **sockargpp );
 PRLDAPIOSocketArg *prldap_socket_arg_alloc( PRLDAPIOSessionArg *sessionarg );
 

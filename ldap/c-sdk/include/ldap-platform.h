@@ -53,14 +53,14 @@ extern "C" {
 #ifndef LDAP_TYPE_TIMEVAL_DEFINED
 #include <utime.h>
 #endif
-#ifndef LDAP_TYPE_SOCKET_DEFINED	/* API extension */
+#ifndef LDAP_TYPE_SOCKET_DEFINED  /* API extension */
 #include "macsocket.h"
 #endif
 #else /* everything else, e.g., Unix */
 #ifndef LDAP_TYPE_TIMEVAL_DEFINED
 #include <sys/time.h>
 #endif
-#ifndef LDAP_TYPE_SOCKET_DEFINED	/* API extension */
+#ifndef LDAP_TYPE_SOCKET_DEFINED  /* API extension */
 #include <sys/types.h>
 #include <sys/socket.h>
 #endif

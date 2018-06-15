@@ -40,8 +40,8 @@ static void
 nsLDAPSSLFreeSocketClosure(nsLDAPSSLSocketClosure **aClosure)
 {
     if (aClosure && *aClosure) {
-	free(*aClosure);
-	*aClosure = nullptr;
+      free(*aClosure);
+      *aClosure = nullptr;
     }
 }
 
@@ -60,8 +60,8 @@ nsLDAPSSLClose(int s, struct lextiof_socket_private *socketarg)
     memset(&socketInfo, 0, sizeof(socketInfo));
     socketInfo.soinfo_size = PRLDAP_SOCKETINFO_SIZE;
     if (prldap_get_socket_info(s, socketarg, &socketInfo) != LDAP_SUCCESS) {
-	NS_ERROR("nsLDAPSSLClose(): prldap_get_socket_info() failed\n");
-	return -1;
+      NS_ERROR("nsLDAPSSLClose(): prldap_get_socket_info() failed\n");
+      return -1;
     }
 
     // save off the session closure data in an automatic, since we're going to
@@ -74,7 +74,7 @@ nsLDAPSSLClose(int s, struct lextiof_socket_private *socketarg)
     // free the socket closure data
     //
     nsLDAPSSLFreeSocketClosure(
-	reinterpret_cast<nsLDAPSSLSocketClosure **>
+                 reinterpret_cast<nsLDAPSSLSocketClosure **>
                  (&socketInfo.soinfo_appdata));
 
     // call the real close function
@@ -86,15 +86,15 @@ nsLDAPSSLClose(int s, struct lextiof_socket_private *socketarg)
 //
 extern "C" int LDAP_CALLBACK
 nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
-		 unsigned long options,
-		 struct lextiof_session_private *sessionarg,
-		 struct lextiof_socket_private **socketargp )
+                 unsigned long options,
+                 struct lextiof_session_private *sessionarg,
+                 struct lextiof_socket_private **socketargp)
 {
     PRLDAPSocketInfo socketInfo;
     PRLDAPSessionInfo sessionInfo;
     nsLDAPSSLSocketClosure *socketClosure = nullptr;
     nsLDAPSSLSessionClosure *sessionClosure;
-    int	intfd = -1;
+    int intfd = -1;
     nsCOMPtr <nsISupports> securityInfo;
     nsCOMPtr <nsISocketProvider> tlsSocketProvider;
     nsCOMPtr <nsISSLSocketControl> sslSocketControl;
@@ -105,7 +105,7 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     // how to handle the secure option).
     //
     NS_ASSERTION(options & LDAP_X_EXTIOF_OPT_SECURE,
-		 "nsLDAPSSLConnect(): called for non-secure connection");
+                 "nsLDAPSSLConnect(): called for non-secure connection");
     options &= ~LDAP_X_EXTIOF_OPT_SECURE;
 
     // Retrieve session info. so we can store a pointer to our session info.
@@ -113,9 +113,8 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     //
     memset(&sessionInfo, 0, sizeof(sessionInfo));
     sessionInfo.seinfo_size = PRLDAP_SESSIONINFO_SIZE;
-    if (prldap_get_session_info(nullptr, sessionarg, &sessionInfo)
-	!= LDAP_SUCCESS) {
-	NS_ERROR("nsLDAPSSLConnect(): unable to get session info");
+    if (prldap_get_session_info(nullptr, sessionarg, &sessionInfo) != LDAP_SUCCESS) {
+        NS_ERROR("nsLDAPSSLConnect(): unable to get session info");
         return -1;
     }
     sessionClosure = reinterpret_cast<nsLDAPSSLSessionClosure *>
@@ -125,11 +124,10 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     // succeeds, *socketargp is set.
     //
     intfd = (*(sessionClosure->realConnect))(hostlist, defport, timeout,
-					     options, sessionarg, socketargp);
+                                             options, sessionarg, socketargp);
     if ( intfd < 0 ) {
-	MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-	       ("nsLDAPSSLConnect(): standard connect() function returned %d",
-		intfd));
+        MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
+                ("nsLDAPSSLConnect(): standard connect() function returned %d", intfd));
         return intfd;
     }
 
@@ -138,29 +136,27 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     //
     memset(&socketInfo, 0, sizeof(socketInfo));
     socketInfo.soinfo_size = PRLDAP_SOCKETINFO_SIZE;
-    if (prldap_get_socket_info(intfd, *socketargp, &socketInfo)
-	!= LDAP_SUCCESS)  {
-	NS_ERROR("nsLDAPSSLConnect(): unable to get socket info");
+    if (prldap_get_socket_info(intfd, *socketargp, &socketInfo) != LDAP_SUCCESS)  {
+        NS_ERROR("nsLDAPSSLConnect(): unable to get socket info");
         goto close_socket_and_exit_with_error;
     }
 
     // Allocate a structure to hold our socket-specific data.
     //
-    socketClosure = static_cast<nsLDAPSSLSocketClosure *>(moz_xmalloc(
-				       sizeof(nsLDAPSSLSocketClosure)));
+    socketClosure = static_cast<nsLDAPSSLSocketClosure *>
+                      (moz_xmalloc(sizeof(nsLDAPSSLSocketClosure)));
     if (!socketClosure) {
-	NS_WARNING("nsLDAPSSLConnect(): unable to allocate socket closure");
-	goto close_socket_and_exit_with_error;
+        NS_WARNING("nsLDAPSSLConnect(): unable to allocate socket closure");
+        goto close_socket_and_exit_with_error;
     }
     memset(socketClosure, 0, sizeof(nsLDAPSSLSocketClosure));
     socketClosure->sessionClosure = sessionClosure;
 
     // Add the NSPR layer for SSL provided by PSM to this socket.
     //
-    tlsSocketProvider = do_GetService(NS_STARTTLSSOCKETPROVIDER_CONTRACTID,
-				      &rv);
+    tlsSocketProvider = do_GetService(NS_STARTTLSSOCKETPROVIDER_CONTRACTID, &rv);
     if (NS_FAILED(rv)) {
-	NS_ERROR("nsLDAPSSLConnect(): unable to get socket provider service");
+        NS_ERROR("nsLDAPSSLConnect(): unable to get socket provider service");
         goto close_socket_and_exit_with_error;
     }
     // XXXdmose: Note that hostlist can be a list of hosts (in the
@@ -182,7 +178,7 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
                                         socketInfo.soinfo_prfd,
                                         getter_AddRefs(securityInfo));
     if (NS_FAILED(rv)) {
-	NS_ERROR("nsLDAPSSLConnect(): unable to add SSL layer to socket");
+        NS_ERROR("nsLDAPSSLConnect(): unable to add SSL layer to socket");
         goto close_socket_and_exit_with_error;
     }
 
@@ -197,25 +193,24 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     if (NS_FAILED(rv)) {
         NS_WARNING("nsLDAPSSLConnect(): unable to QI to nsISSLSocketControl");
     } else {
-	rv = sslSocketControl->StartTLS();
-	if (NS_FAILED(rv)) {
-	    NS_WARNING("nsLDAPSSLConnect(): StartTLS failed");
-	}
+        rv = sslSocketControl->StartTLS();
+        if (NS_FAILED(rv)) {
+            NS_WARNING("nsLDAPSSLConnect(): StartTLS failed");
+        }
     }
 
     // Attach our closure to the socketInfo.
     //
     socketInfo.soinfo_appdata = reinterpret_cast<prldap_socket_private *>
                                                 (socketClosure);
-    if (prldap_set_socket_info(intfd, *socketargp, &socketInfo)
-	!= LDAP_SUCCESS ) {
-	NS_ERROR("nsLDAPSSLConnect(): unable to set socket info");
+    if (prldap_set_socket_info(intfd, *socketargp, &socketInfo) != LDAP_SUCCESS ) {
+        NS_ERROR("nsLDAPSSLConnect(): unable to set socket info");
     }
-    return intfd;	// success
+    return intfd;  // success
 
 close_socket_and_exit_with_error:
     if (socketInfo.soinfo_prfd) {
-	PR_Close(socketInfo.soinfo_prfd);
+        PR_Close(socketInfo.soinfo_prfd);
     }
     if (socketClosure) {
         nsLDAPSSLFreeSocketClosure(&socketClosure);
@@ -234,17 +229,17 @@ nsLDAPSSLFreeSessionClosure(nsLDAPSSLSessionClosure **aSessionClosure)
 {
     if (aSessionClosure && *aSessionClosure) {
 
-	// free the hostname
-	//
-	if ( (*aSessionClosure)->hostname ) {
-	    PL_strfree((*aSessionClosure)->hostname);
-	    (*aSessionClosure)->hostname = nullptr;
-	}
+        // free the hostname
+        //
+        if ( (*aSessionClosure)->hostname ) {
+            PL_strfree((*aSessionClosure)->hostname);
+            (*aSessionClosure)->hostname = nullptr;
+        }
 
-	// free the structure itself
-	//
-	free(*aSessionClosure);
-	*aSessionClosure = nullptr;
+        // free the structure itself
+        //
+        free(*aSessionClosure);
+        *aSessionClosure = nullptr;
     }
 }
 
@@ -261,11 +256,11 @@ nsLDAPSSLDisposeHandle(LDAP *ld, struct lextiof_session_private *sessionarg)
     memset(&sessionInfo, 0, sizeof(sessionInfo));
     sessionInfo.seinfo_size = PRLDAP_SESSIONINFO_SIZE;
     if (prldap_get_session_info(ld, nullptr, &sessionInfo) == LDAP_SUCCESS) {
-	sessionClosure = reinterpret_cast<nsLDAPSSLSessionClosure *>
+        sessionClosure = reinterpret_cast<nsLDAPSSLSessionClosure *>
                                   (sessionInfo.seinfo_appdata);
-	disposehdl_fn = sessionClosure->realDisposeHandle;
-	nsLDAPSSLFreeSessionClosure(&sessionClosure);
-	(*disposehdl_fn)(ld, sessionarg);
+        disposehdl_fn = sessionClosure->realDisposeHandle;
+        nsLDAPSSLFreeSessionClosure(&sessionClosure);
+        (*disposehdl_fn)(ld, sessionarg);
     }
 }
 
@@ -282,10 +277,10 @@ nsLDAPInstallSSL( LDAP *ld, const char *aHostName)
 
     // Allocate our own session information.
     //
-    sessionClosure = static_cast<nsLDAPSSLSessionClosure *>(moz_xmalloc(
-					sizeof(nsLDAPSSLSessionClosure)));
+    sessionClosure = static_cast<nsLDAPSSLSessionClosure *>
+                       (moz_xmalloc(sizeof(nsLDAPSSLSessionClosure)));
     if (!sessionClosure) {
-	return NS_ERROR_OUT_OF_MEMORY;
+        return NS_ERROR_OUT_OF_MEMORY;
     }
     memset(sessionClosure, 0, sizeof(nsLDAPSSLSessionClosure));
 
@@ -295,10 +290,10 @@ nsLDAPInstallSSL( LDAP *ld, const char *aHostName)
     memset(&iofns, 0, sizeof(iofns));
     iofns.lextiof_size = LDAP_X_EXTIO_FNS_SIZE;
     if (ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS,
-			static_cast<void *>(&iofns)) != LDAP_SUCCESS) {
-	NS_ERROR("nsLDAPInstallSSL(): unexpected error getting"
-		 " LDAP_X_OPT_EXTIO_FN_PTRS");
-	nsLDAPSSLFreeSessionClosure(&sessionClosure);
+                        static_cast<void *>(&iofns)) != LDAP_SUCCESS) {
+        NS_ERROR("nsLDAPInstallSSL(): unexpected error getting"
+                 " LDAP_X_OPT_EXTIO_FN_PTRS");
+        nsLDAPSSLFreeSessionClosure(&sessionClosure);
         return NS_ERROR_UNEXPECTED;
     }
 
@@ -306,9 +301,9 @@ nsLDAPInstallSSL( LDAP *ld, const char *aHostName)
     //
     sessionClosure->hostname = PL_strdup(aHostName);
     if (!sessionClosure->hostname) {
-	NS_ERROR("nsLDAPInstallSSL(): PL_strdup failed\n");
-	nsLDAPSSLFreeSessionClosure(&sessionClosure);
-	return NS_ERROR_OUT_OF_MEMORY;
+        NS_ERROR("nsLDAPInstallSSL(): PL_strdup failed\n");
+        nsLDAPSSLFreeSessionClosure(&sessionClosure);
+        return NS_ERROR_OUT_OF_MEMORY;
     }
 
     // Override functions
@@ -321,9 +316,9 @@ nsLDAPInstallSSL( LDAP *ld, const char *aHostName)
     iofns.lextiof_disposehandle = nsLDAPSSLDisposeHandle;
 
     if (ldap_set_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS,
-			static_cast<void *>(&iofns)) != LDAP_SUCCESS) {
-	NS_ERROR("nsLDAPInstallSSL(): error setting LDAP_X_OPT_EXTIO_FN_PTRS");
-	nsLDAPSSLFreeSessionClosure(&sessionClosure);
+                        static_cast<void *>(&iofns)) != LDAP_SUCCESS) {
+        NS_ERROR("nsLDAPInstallSSL(): error setting LDAP_X_OPT_EXTIO_FN_PTRS");
+        nsLDAPSSLFreeSessionClosure(&sessionClosure);
         return NS_ERROR_FAILURE;
     }
 
@@ -333,9 +328,9 @@ nsLDAPInstallSSL( LDAP *ld, const char *aHostName)
     sessionInfo.seinfo_appdata = reinterpret_cast<prldap_session_private *>
                                                  (sessionClosure);
     if (prldap_set_session_info(ld, nullptr, &sessionInfo) != LDAP_SUCCESS) {
-	NS_ERROR("nsLDAPInstallSSL(): error setting prldap session info");
-	free(sessionClosure);
-	return NS_ERROR_UNEXPECTED;
+        NS_ERROR("nsLDAPInstallSSL(): error setting prldap session info");
+        free(sessionClosure);
+        return NS_ERROR_UNEXPECTED;
     }
 
     return NS_OK;

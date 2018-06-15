@@ -34,7 +34,7 @@ protected:
     friend class nsLDAPControl;
 
     uint8_t *mValue;    // pointer to an array
-    uint32_t mSize;	    // size of the value, in bytes
+    uint32_t mSize;     // size of the value, in bytes
 };
 
 #endif // _nsLDAPBERValue_h_

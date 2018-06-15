@@ -23,8 +23,8 @@ function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
                   .createInstance(Ci.nsIURI);
 
       if (url instanceof Ci.nsILDAPURL)
-	url.init(Ci.nsIStandardURL.URLTYPE_STANDARD,
-		 aDefaultPort, aSpec, aOriginCharset, aBaseURI);
+        url.init(Ci.nsIStandardURL.URLTYPE_STANDARD,
+          aDefaultPort, aSpec, aOriginCharset, aBaseURI);
 
       return url;
     },

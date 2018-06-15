@@ -62,38 +62,38 @@ extern "C" {
  * LDAP_API_FEATURE_X_IO_FUNCTIONS).
  * Use of the extended I/O functions instead is recommended
  */
-#define LDAP_OPT_IO_FN_PTRS		0x0B	/* 11 - API extension */
+#define LDAP_OPT_IO_FN_PTRS 0x0B  /* 11 - API extension */
 
 /*
  * I/O callback functions (note that types for the read and write callbacks
  * are actually in lber.h):
  */
-typedef int	(LDAP_C LDAP_CALLBACK LDAP_IOF_SELECT_CALLBACK)( int nfds,
-	fd_set *readfds, fd_set *writefds, fd_set *errorfds,
-	struct timeval *timeout );
+typedef int (LDAP_C LDAP_CALLBACK LDAP_IOF_SELECT_CALLBACK)( int nfds,
+  fd_set *readfds, fd_set *writefds, fd_set *errorfds,
+  struct timeval *timeout );
 typedef LBER_SOCKET (LDAP_C LDAP_CALLBACK LDAP_IOF_SOCKET_CALLBACK)(
-	int domain, int type, int protocol );
-typedef int	(LDAP_C LDAP_CALLBACK LDAP_IOF_IOCTL_CALLBACK)( LBER_SOCKET s,
-	int option, ... );
-typedef int	(LDAP_C LDAP_CALLBACK LDAP_IOF_CONNECT_CALLBACK )(
-	LBER_SOCKET s, struct sockaddr *name, int namelen );
-typedef int	(LDAP_C LDAP_CALLBACK LDAP_IOF_CLOSE_CALLBACK )(
-	LBER_SOCKET s );
-typedef int	(LDAP_C LDAP_CALLBACK LDAP_IOF_SSL_ENABLE_CALLBACK )(
-	LBER_SOCKET s );
+  int domain, int type, int protocol );
+typedef int (LDAP_C LDAP_CALLBACK LDAP_IOF_IOCTL_CALLBACK)( LBER_SOCKET s,
+  int option, ... );
+typedef int (LDAP_C LDAP_CALLBACK LDAP_IOF_CONNECT_CALLBACK )(
+  LBER_SOCKET s, struct sockaddr *name, int namelen );
+typedef int (LDAP_C LDAP_CALLBACK LDAP_IOF_CLOSE_CALLBACK )(
+  LBER_SOCKET s );
+typedef int (LDAP_C LDAP_CALLBACK LDAP_IOF_SSL_ENABLE_CALLBACK )(
+  LBER_SOCKET s );
 
 /*
  * Structure to hold I/O function pointers:
  */
 struct ldap_io_fns {
-	LDAP_IOF_READ_CALLBACK *liof_read;
-	LDAP_IOF_WRITE_CALLBACK *liof_write;
-	LDAP_IOF_SELECT_CALLBACK *liof_select;
-	LDAP_IOF_SOCKET_CALLBACK *liof_socket;
-	LDAP_IOF_IOCTL_CALLBACK *liof_ioctl;
-	LDAP_IOF_CONNECT_CALLBACK *liof_connect;
-	LDAP_IOF_CLOSE_CALLBACK *liof_close;
-	LDAP_IOF_SSL_ENABLE_CALLBACK *liof_ssl_enable;
+  LDAP_IOF_READ_CALLBACK *liof_read;
+  LDAP_IOF_WRITE_CALLBACK *liof_write;
+  LDAP_IOF_SELECT_CALLBACK *liof_select;
+  LDAP_IOF_SOCKET_CALLBACK *liof_socket;
+  LDAP_IOF_IOCTL_CALLBACK *liof_ioctl;
+  LDAP_IOF_CONNECT_CALLBACK *liof_connect;
+  LDAP_IOF_CLOSE_CALLBACK *liof_close;
+  LDAP_IOF_SSL_ENABLE_CALLBACK *liof_ssl_enable;
 };
 
 /*
@@ -124,7 +124,7 @@ struct ldap_dns_fns {
         int                             lddnsfn_bufsize;
         LDAP_DNSFN_GETHOSTBYNAME        *lddnsfn_gethostbyname;
         LDAP_DNSFN_GETHOSTBYADDR        *lddnsfn_gethostbyaddr;
-	LDAP_DNSFN_GETPEERNAME          *lddnsfn_getpeername;
+        LDAP_DNSFN_GETPEERNAME          *lddnsfn_getpeername;
 };
 
 /*

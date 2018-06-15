@@ -57,19 +57,19 @@ extern "C" {
  * an ExtendedRequest [LDAPv3] specifying the OID for the
  * Start TLS operation: RFC 2830
  */
-#define LDAP_EXOP_START_TLS			"1.3.6.1.4.1.1466.20037"
+#define LDAP_EXOP_START_TLS "1.3.6.1.4.1.1466.20037"
 
 /*
  * Initialize LDAP library for SSL
  */
 LDAP * LDAP_CALL ldapssl_init( const char *defhost, int defport,
-	int defsecure );
+  int defsecure );
 
 /*
  * Shutdown LDAP library for SSL :
  * Perform necessary cleanup and attempt to shutdown NSS. All existing
  * ld session handles should be ldap_unbind(ld) prior to calling this.
- */	
+ */
 int LDAP_CALL ldapssl_shutdown();
 
 /* Initialize LDAP library for TLS(SSL) and sends StartTLS extended
@@ -77,7 +77,7 @@ int LDAP_CALL ldapssl_shutdown();
  * Returns LDAP_SUCCESS if all goes well.
  */
 int LDAP_CALL ldap_start_tls_s( LDAP *ld, LDAPControl **serverctrls,
- 					  LDAPControl **clientctrls );
+                                LDAPControl **clientctrls );
 /*
  * Install I/O routines to make SSL over LDAP possible.
  * Use this after ldap_init() or just use ldapssl_init() instead.
@@ -148,12 +148,12 @@ int LDAP_CALL ldapssl_client_init(
  *                         issued the certificate and if the value
  *                         of the cn attribute is the DNS hostname
  *                         of the server.  If this option is selected,
- *			   please ensure that the "defhost" parameter
- *			   passed to ldapssl_init() consist of only
- *			   one hostname and not a list of hosts.
- *			   Furthermore, the port number must be passed
- *			   via the "defport" parameter, and cannot
- *			   be passed via a host:port option.
+ *                         please ensure that the "defhost" parameter
+ *                         passed to ldapssl_init() consist of only
+ *                         one hostname and not a list of hosts.
+ *                         Furthermore, the port number must be passed
+ *                         via the "defport" parameter, and cannot
+ *                         be passed via a host:port option.
  *
  * Returns 0 if all goes well.
  */
@@ -205,7 +205,7 @@ const char * LDAP_CALL ldapssl_err2string( const int prerrno );
  * Returns 0 if all goes well.
  */
 int LDAP_CALL ldapssl_enable_clientauth( LDAP *ld, char *keynickname,
-	char *keypasswd, char *certnickname );
+  char *keypasswd, char *certnickname );
 
 /*
  * Set the SSL strength for an existing SSL-enabled LDAP session handle.

@@ -62,7 +62,7 @@ extern "C" {
 #define NEEDPROTOS
 #endif
 
-#ifdef _SLDAPD_H_	/* server build: no need to use LDAP_CALL stuff */
+#ifdef _SLDAPD_H_  /* server build: no need to use LDAP_CALL stuff */
 #ifdef LDAP_CALL
 #undef LDAP_CALL
 #define LDAP_CALL

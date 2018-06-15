@@ -119,8 +119,8 @@ extern "C" {
 #define NSLDAPI_LBER_SOCKET_IS_PTR
 #endif
 
-#define OLD_LBER_SEQUENCE	0x10	/* w/o constructed bit - broken */
-#define OLD_LBER_SET		0x11	/* w/o constructed bit - broken */
+#define OLD_LBER_SEQUENCE 0x10  /* w/o constructed bit - broken */
+#define OLD_LBER_SET 0x11  /* w/o constructed bit - broken */
 
 #ifndef _IFP
 #define _IFP
@@ -128,13 +128,13 @@ typedef int (LDAP_C LDAP_CALLBACK *IFP)();
 #endif
 
 typedef struct seqorset {
-  ber_len_t	sos_clen;
-  ber_tag_t	sos_tag;
-  char		*sos_first;
-  char		*sos_ptr;
-  struct seqorset	*sos_next;
+  ber_len_t sos_clen;
+  ber_tag_t sos_tag;
+  char *sos_first;
+  char *sos_ptr;
+  struct seqorset *sos_next;
 } Seqorset;
-#define NULLSEQORSET	((Seqorset *) 0)
+#define NULLSEQORSET ((Seqorset *) 0)
 
 #define SOS_STACK_SIZE 8 /* depth of the pre-allocated sos structure stack */
 
@@ -159,27 +159,27 @@ struct berelement {
   char          ber_suf_contents[MAX_LEN_SIZE+1];
 
   char      *ber_buf; /* update the value value when writing in case realloc is called */
-  char		*ber_ptr;
-  char		*ber_end;
-  struct seqorset	*ber_sos;
+  char *ber_ptr;
+  char *ber_end;
+  struct seqorset *ber_sos;
   ber_len_t ber_tag_len_read;
-  ber_tag_t	ber_tag; /* Remove me someday */
-  ber_len_t	ber_len; /* Remove me someday */
-  int		ber_usertag;
-  char		ber_options;
-  char		*ber_rwptr;
+  ber_tag_t ber_tag; /* Remove me someday */
+  ber_len_t ber_len; /* Remove me someday */
+  int ber_usertag;
+  char ber_options;
+  char *ber_rwptr;
   BERTranslateProc ber_encode_translate_proc;
   BERTranslateProc ber_decode_translate_proc;
-  int		ber_flags;
-#define LBER_FLAG_NO_FREE_BUFFER	1	/* don't free ber_buf */
-  unsigned  int ber_buf_reallocs;		/* realloc counter */
-  int		ber_sos_stack_posn;
-  Seqorset	ber_sos_stack[SOS_STACK_SIZE];
+  int ber_flags;
+#define LBER_FLAG_NO_FREE_BUFFER 1  /* don't free ber_buf */
+  unsigned  int ber_buf_reallocs;  /* realloc counter */
+  int ber_sos_stack_posn;
+  Seqorset ber_sos_stack[SOS_STACK_SIZE];
 };
 
 #define BER_CONTENTS_STRUCT_SIZE (sizeof(ldap_x_iovec) * BER_ARRAY_QUANTITY)
 
-#define NULLBER	((BerElement *)NULL)
+#define NULLBER ((BerElement *)NULL)
 
 #ifdef LDAP_DEBUG
 void ber_dump( BerElement *ber, int inout );
@@ -191,8 +191,8 @@ void ber_dump( BerElement *ber, int inout );
  * structure for read/write I/O callback functions.
  */
 struct nslberi_io_fns {
-    LDAP_IOF_READ_CALLBACK	*lbiof_read;
-    LDAP_IOF_WRITE_CALLBACK	*lbiof_write;
+    LDAP_IOF_READ_CALLBACK *lbiof_read;
+    LDAP_IOF_WRITE_CALLBACK *lbiof_write;
 };
 
 
@@ -200,36 +200,36 @@ struct nslberi_io_fns {
  * Old  structure for use with LBER_SOCKBUF_OPT_EXT_IO_FNS:
  */
 struct lber_x_ext_io_fns_rev0 {
-	    /* lbextiofn_size should always be set to LBER_X_EXTIO_FNS_SIZE */
-	int				lbextiofn_size;
-	LDAP_X_EXTIOF_READ_CALLBACK	*lbextiofn_read;
-	LDAP_X_EXTIOF_WRITE_CALLBACK	*lbextiofn_write;
-	struct lextiof_socket_private	*lbextiofn_socket_arg;
+      /* lbextiofn_size should always be set to LBER_X_EXTIO_FNS_SIZE */
+  int lbextiofn_size;
+  LDAP_X_EXTIOF_READ_CALLBACK *lbextiofn_read;
+  LDAP_X_EXTIOF_WRITE_CALLBACK *lbextiofn_write;
+  struct lextiof_socket_private *lbextiofn_socket_arg;
 };
 #define LBER_X_EXTIO_FNS_SIZE_REV0    sizeof(struct lber_x_ext_io_fns_rev0)
 
 
 
 struct sockbuf {
-	LBER_SOCKET	sb_sd;
-	BerElement	sb_ber;
-	int		sb_naddr;	/* > 0 implies using CLDAP (UDP) */
-	void		*sb_useaddr;	/* pointer to sockaddr to use next */
-	void		*sb_fromaddr;	/* pointer to message source sockaddr */
-	void		**sb_addrs;	/* actually an array of pointers to
-					   sockaddrs */
+  LBER_SOCKET sb_sd;
+  BerElement sb_ber;
+  int sb_naddr;  /* > 0 implies using CLDAP (UDP) */
+  void *sb_useaddr;  /* pointer to sockaddr to use next */
+  void *sb_fromaddr;  /* pointer to message source sockaddr */
+  void **sb_addrs;  /* actually an array of pointers to
+                       sockaddrs */
 
-	int		sb_options;	/* to support copying ber elements */
-	LBER_SOCKET	sb_copyfd;	/* for LBER_SOCKBUF_OPT_TO_FILE* opts */
-	ber_len_t	sb_max_incoming;
-	ber_tag_t   sb_valid_tag;	/* valid tag to accept */
-	struct nslberi_io_fns
-			sb_io_fns;	/* classic I/O callback functions */
+  int sb_options;  /* to support copying ber elements */
+  LBER_SOCKET sb_copyfd;  /* for LBER_SOCKBUF_OPT_TO_FILE* opts */
+  ber_len_t sb_max_incoming;
+  ber_tag_t   sb_valid_tag;  /* valid tag to accept */
+  struct nslberi_io_fns
+      sb_io_fns;  /* classic I/O callback functions */
 
-	struct lber_x_ext_io_fns
-			sb_ext_io_fns;	/* extended I/O callback functions */
+  struct lber_x_ext_io_fns
+      sb_ext_io_fns;  /* extended I/O callback functions */
 };
-#define NULLSOCKBUF	((Sockbuf *)NULL)
+#define NULLSOCKBUF ((Sockbuf *)NULL)
 
 /* needed by libldap, even in non-DEBUG builds */
 void ber_err_print( char *data );
@@ -240,19 +240,19 @@ void ber_err_print( char *data );
  * defined.  The code under ../libraries/libldap defines this.
  */
 
-#define READBUFSIZ	8192
+#define READBUFSIZ 8192
 
 /*
  * macros used to check validity of data structures and parameters
  */
 #define NSLBERI_VALID_BERELEMENT_POINTER( ber ) \
-	( (ber) != NULLBER )
+  ( (ber) != NULLBER )
 
 #define NSLBERI_VALID_SOCKBUF_POINTER( sb ) \
-	( (sb) != NULLSOCKBUF )
+  ( (sb) != NULLSOCKBUF )
 
-#define LBER_HTONL( l )	htonl( l )
-#define LBER_NTOHL( l )	ntohl( l )
+#define LBER_HTONL( l ) htonl( l )
+#define LBER_NTOHL( l ) ntohl( l )
 
 /* function prototypes */
 #ifdef LDAP_DEBUG
@@ -272,9 +272,9 @@ int nslberi_ber_realloc( BerElement *ber, ber_len_t len );
  */
 
 #ifdef sunos4
-#define THEMEMCPY( d, s, n )	bcopy( s, d, n )
+#define THEMEMCPY( d, s, n ) bcopy( s, d, n )
 #else /* sunos4 */
-#define THEMEMCPY( d, s, n )	memmove( d, s, n )
+#define THEMEMCPY( d, s, n ) memmove( d, s, n )
 #endif /* sunos4 */
 
 #ifdef SAFEMEMCPY
@@ -287,10 +287,10 @@ int nslberi_ber_realloc( BerElement *ber, ber_len_t len );
  * following macros. This is so we can plug-in alternative memory
  * allocators, etc. as the need arises.
  */
-#define NSLBERI_MALLOC( size )		nslberi_malloc( size )
-#define NSLBERI_CALLOC( nelem, elsize )	nslberi_calloc( nelem, elsize )
-#define NSLBERI_REALLOC( ptr, size )	nslberi_realloc( ptr, size )
-#define NSLBERI_FREE( ptr )		nslberi_free( ptr )
+#define NSLBERI_MALLOC( size ) nslberi_malloc( size )
+#define NSLBERI_CALLOC( nelem, elsize ) nslberi_calloc( nelem, elsize )
+#define NSLBERI_REALLOC( ptr, size ) nslberi_realloc( ptr, size )
+#define NSLBERI_FREE( ptr ) nslberi_free( ptr )
 
 /* allow the library to access the debug variable */
 

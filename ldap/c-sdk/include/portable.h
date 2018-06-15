@@ -104,18 +104,18 @@
  * define the wait status argument type
  */
 #if ( defined( SunOS ) && SunOS < 40 ) || defined( nextstep )
-#define WAITSTATUSTYPE	union wait
+#define WAITSTATUSTYPE union wait
 #else
-#define WAITSTATUSTYPE	int
+#define WAITSTATUSTYPE int
 #endif
 
 /*
  * defined the options for openlog (syslog)
  */
 #ifdef ultrix
-#define OPENLOG_OPTIONS		LOG_PID
+#define OPENLOG_OPTIONS LOG_PID
 #else
-#define OPENLOG_OPTIONS		( LOG_PID | LOG_NOWAIT )
+#define OPENLOG_OPTIONS ( LOG_PID | LOG_NOWAIT )
 #endif
 
 /*
@@ -190,8 +190,8 @@
  * is necessary on some buggy UNIXes.
  */
 #if !defined(NSLDAPI_CONNECT_MUST_NOT_BE_INTERRUPTED) && \
-	( defined(AIX) || defined(IRIX) || defined(HPUX) || defined(SUNOS4) \
-	|| defined(SOLARIS) || defined(OSF1) ||defined(freebsd))
+  ( defined(AIX) || defined(IRIX) || defined(HPUX) || defined(SUNOS4) \
+  || defined(SOLARIS) || defined(OSF1) ||defined(freebsd))
 #define NSLDAPI_CONNECT_MUST_NOT_BE_INTERRUPTED
 #endif
 
@@ -200,20 +200,20 @@
  * But not everywhere.
  */
 #ifdef AIX
-#define NSLDAPI_MT_SAFE_SIGPROCMASK(h,s,o)	sigthreadmask(h,s,o)
+#define NSLDAPI_MT_SAFE_SIGPROCMASK(h,s,o) sigthreadmask(h,s,o)
 #else
-#define NSLDAPI_MT_SAFE_SIGPROCMASK(h,s,o)	sigprocmask(h,s,o)
+#define NSLDAPI_MT_SAFE_SIGPROCMASK(h,s,o) sigprocmask(h,s,o)
 #endif
 
 /*
  * toupper and tolower macros are different under bsd and sys v
  */
 #if defined( SYSV ) && !defined( hpux )
-#define TOUPPER(c)	(isascii(c) && islower(c) ? _toupper(c) : c)
-#define TOLOWER(c)	(isascii(c) && isupper(c) ? _tolower(c) : c)
+#define TOUPPER(c) (isascii(c) && islower(c) ? _toupper(c) : c)
+#define TOLOWER(c) (isascii(c) && isupper(c) ? _tolower(c) : c)
 #else
-#define TOUPPER(c)	(isascii(c) && islower(c) ? toupper(c) : c)
-#define TOLOWER(c)	(isascii(c) && isupper(c) ? tolower(c) : c)
+#define TOUPPER(c) (isascii(c) && islower(c) ? toupper(c) : c)
+#define TOLOWER(c) (isascii(c) && isupper(c) ? tolower(c) : c)
 #endif
 
 /*
@@ -222,22 +222,22 @@
 #if defined( NeXT ) || (defined(SunOS) && SunOS < 40)
 #define TERMIO_TYPE struct sgttyb
 #define TERMFLAG_TYPE int
-#define GETATTR( fd, tiop )	ioctl((fd), TIOCGETP, (caddr_t)(tiop))
-#define SETATTR( fd, tiop )	ioctl((fd), TIOCSETP, (caddr_t)(tiop))
-#define GETFLAGS( tio )		(tio).sg_flags
-#define SETFLAGS( tio, flags )	(tio).sg_flags = (flags)
+#define GETATTR( fd, tiop ) ioctl((fd), TIOCGETP, (caddr_t)(tiop))
+#define SETATTR( fd, tiop ) ioctl((fd), TIOCSETP, (caddr_t)(tiop))
+#define GETFLAGS( tio ) (tio).sg_flags
+#define SETFLAGS( tio, flags ) (tio).sg_flags = (flags)
 #else
 #define USE_TERMIOS
 #define TERMIO_TYPE struct termios
 #define TERMFLAG_TYPE tcflag_t
-#define GETATTR( fd, tiop )	tcgetattr((fd), (tiop))
-#define SETATTR( fd, tiop )	tcsetattr((fd), TCSANOW /* 0 */, (tiop))
-#define GETFLAGS( tio )		(tio).c_lflag
-#define SETFLAGS( tio, flags )	(tio).c_lflag = (flags)
+#define GETATTR( fd, tiop ) tcgetattr((fd), (tiop))
+#define SETATTR( fd, tiop ) tcsetattr((fd), TCSANOW /* 0 */, (tiop))
+#define GETFLAGS( tio ) (tio).c_lflag
+#define SETFLAGS( tio, flags ) (tio).c_lflag = (flags)
 #endif
 
 #if ( !defined( HPUX9 )) && ( !defined( sunos4 )) && ( !defined( SNI )) && \
-	( !defined( HAVE_TIME_R ))
+  ( !defined( HAVE_TIME_R ))
 #define HAVE_TIME_R
 #endif
 
@@ -253,18 +253,18 @@ int strncasecmp(const char *, const char *, size_t);
 
 #if defined(_WINDOWS) || defined(macintosh) || defined(XP_OS2) || defined(DARWIN)
 #define GETHOSTBYNAME( n, r, b, l, e )  gethostbyname( n )
-#define NSLDAPI_CTIME( c, b, l )	ctime( c )
-#define STRTOK( s1, s2, l )		strtok( s1, s2 )
+#define NSLDAPI_CTIME( c, b, l ) ctime( c )
+#define STRTOK( s1, s2, l ) strtok( s1, s2 )
 #elif defined(XP_BEOS)
 #define GETHOSTBYNAME( n, r, b, l, e )  gethostbyname( n )
 #define NSLDAPI_CTIME( c, b, l )                ctime_r( c, b )
-#define STRTOK( s1, s2, l )		strtok_r( s1, s2, l )
+#define STRTOK( s1, s2, l ) strtok_r( s1, s2, l )
 #define HAVE_STRTOK_R
 #else /* UNIX */
 #if (defined(AIX) && defined(_THREAD_SAFE)) || defined(OSF1)
-#define NSLDAPI_NETDB_BUF_SIZE	 sizeof(struct protoent_data)
+#define NSLDAPI_NETDB_BUF_SIZE sizeof(struct protoent_data)
 #else
-#define NSLDAPI_NETDB_BUF_SIZE	1024
+#define NSLDAPI_NETDB_BUF_SIZE 1024
 #endif
 
 #if defined(sgi) || defined(HPUX9) || defined(SCOOS) || \
@@ -285,10 +285,10 @@ int strncasecmp(const char *, const char *, size_t);
 typedef char GETHOSTBYNAME_buf_t [NSLDAPI_NETDB_BUF_SIZE];
 #define GETHOSTBYNAME_BUF_T GETHOSTBYNAME_buf_t
 #define GETHOSTBYNAME( n, r, b, l, e ) \
-	(memset (&b, 0, l), gethostbyname_r (n, r, &b) ? NULL : r)
+  (memset (&b, 0, l), gethostbyname_r (n, r, &b) ? NULL : r)
 #elif defined(HPUX10)
 #define GETHOSTBYNAME_BUF_T struct hostent_data
-#define GETHOSTBYNAME( n, r, b, l, e )	nsldapi_compat_gethostbyname_r( n, r, (char *)&b, l, e )
+#define GETHOSTBYNAME( n, r, b, l, e ) nsldapi_compat_gethostbyname_r( n, r, (char *)&b, l, e )
 #elif defined(LINUX) || defined(DRAGONFLY)
 typedef char GETHOSTBYNAME_buf_t [NSLDAPI_NETDB_BUF_SIZE];
 #define GETHOSTBYNAME_BUF_T GETHOSTBYNAME_buf_t
@@ -304,31 +304,31 @@ typedef char GETHOSTBYNAME_buf_t [NSLDAPI_NETDB_BUF_SIZE];
     defined(SCOOS) || defined(BSDI) || defined(NCR) || \
     defined(NEC) || ( defined(HPUX10) && !defined(_REENTRANT)) || \
     (defined(AIX) && !defined(USE_REENTRANT_LIBC))
-#define NSLDAPI_CTIME( c, b, l )	ctime( c )
+#define NSLDAPI_CTIME( c, b, l ) ctime( c )
 #elif defined(HPUX10) && defined(_REENTRANT) && !defined(HPUX11)
-#define NSLDAPI_CTIME( c, b, l )	nsldapi_compat_ctime_r( c, b, l )
+#define NSLDAPI_CTIME( c, b, l ) nsldapi_compat_ctime_r( c, b, l )
 #elif defined( IRIX6_2 ) || defined( IRIX6_3 ) || defined(UNIXWARE) \
-	|| defined(OSF1V4) || defined(AIX) || defined(UnixWare) \
+  || defined(OSF1V4) || defined(AIX) || defined(UnixWare) \
         || defined(hpux) || defined(HPUX11) || defined(NETBSD) \
         || defined(IRIX6) || defined(FREEBSD) || defined(VMS) \
         || defined(NTO) || defined(OPENBSD) || defined(DRAGONFLY)
 #define NSLDAPI_CTIME( c, b, l )        ctime_r( c, b )
 #elif defined( OSF1V3 )
-#define NSLDAPI_CTIME( c, b, l )	(ctime_r( c, b, l ) ? NULL : b)
+#define NSLDAPI_CTIME( c, b, l ) (ctime_r( c, b, l ) ? NULL : b)
 #else
-#define NSLDAPI_CTIME( c, b, l )	ctime_r( c, b, l )
+#define NSLDAPI_CTIME( c, b, l ) ctime_r( c, b, l )
 #endif
 #if defined(hpux9) || defined(SUNOS4) || defined(SNI) || \
     defined(SCOOS) || defined(BSDI) || defined(NCR) || defined(VMS) || \
     defined(NEC) || (defined(LINUX) && __GNU_LIBRARY__ != 6) || \
     (defined(AIX) && !defined(USE_REENTRANT_LIBC))
-#define STRTOK( s1, s2, l )		strtok( s1, s2 )
+#define STRTOK( s1, s2, l ) strtok( s1, s2 )
 #else
 #define HAVE_STRTOK_R
 #ifndef strtok_r
 char *strtok_r(char *, const char *, char **);
 #endif
-#define STRTOK( s1, s2, l )		(char *)strtok_r( s1, s2, l )
+#define STRTOK( s1, s2, l ) (char *)strtok_r( s1, s2, l )
 #endif /* STRTOK */
 #endif /* UNIX */
 
@@ -337,16 +337,16 @@ extern char *strdup();
 #endif /* ultrix || nextstep */
 
 #if defined( sunos4 ) || defined( OSF1 )
-#define	BSD_TIME	1	/* for servers/slapd/log.h */
+#define BSD_TIME 1  /* for servers/slapd/log.h */
 #endif /* sunos4 || osf */
 
 #if defined(XP_OS2)
 #include <machine/endian.h>   /* for htonl, et.al. */
-#include <arpa/inet.h>	      /* for inet_addr() */
+#include <arpa/inet.h>  /* for inet_addr() */
 #elif !defined(_WINDOWS) && !defined(macintosh)
 #include <netinet/in.h>
 #if !defined(XP_BEOS)
-#include <arpa/inet.h>	/* for inet_addr() */
+#include <arpa/inet.h>  /* for inet_addr() */
 #endif
 #endif
 
@@ -355,10 +355,10 @@ extern char *strdup();
  * Define portable 32-bit integral types.
  */
 #include <limits.h>
-#if UINT_MAX >= 0xffffffffU	/* an int holds at least 32 bits */
+#if UINT_MAX >= 0xffffffffU  /* an int holds at least 32 bits */
     typedef signed int nsldapi_int_32;
     typedef unsigned int nsldapi_uint_32;
-#else				/* ints are < 32 bits; use long instead */
+#else  /* ints are < 32 bits; use long instead */
     typedef signed long nsldapi_int_32;
     typedef unsigned long nsldapi_uint_32;
 #endif
@@ -367,13 +367,13 @@ extern char *strdup();
  * Define a portable type for IPv4 style Internet addresses (32 bits):
  */
 #if defined(_IN_ADDR_T) || defined(aix) || defined(HPUX11) || defined(OSF1)
-typedef in_addr_t	nsldapi_in_addr_t;
+typedef in_addr_t nsldapi_in_addr_t;
 #else
-typedef nsldapi_uint_32	nsldapi_in_addr_t;
+typedef nsldapi_uint_32 nsldapi_in_addr_t;
 #endif
 
 #ifdef SUNOS4
-#include <pcfs/pc_dir.h>	/* for toupper() */
+#include <pcfs/pc_dir.h>  /* for toupper() */
 int fprintf(FILE *, char *, ...);
 int fseek(FILE *, long, int);
 int fread(char *, int, int, FILE *);
@@ -405,12 +405,12 @@ int select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
  * SAFEMEMCPY is an overlap-safe copy from s to d of n bytes
  */
 #ifdef macintosh
-#define SAFEMEMCPY( d, s, n )	BlockMoveData( (Ptr)s, (Ptr)d, n )
+#define SAFEMEMCPY( d, s, n ) BlockMoveData( (Ptr)s, (Ptr)d, n )
 #else /* macintosh */
 #ifdef sunos4
-#define SAFEMEMCPY( d, s, n )	bcopy( s, d, n )
+#define SAFEMEMCPY( d, s, n ) bcopy( s, d, n )
 #else /* sunos4 */
-#define SAFEMEMCPY( d, s, n )	memmove( d, s, n )
+#define SAFEMEMCPY( d, s, n ) memmove( d, s, n )
 #endif /* sunos4 */
 #endif /* macintosh */
 
@@ -443,9 +443,9 @@ int select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
 
 /* Define a macro to support large files */
 #ifdef _LARGEFILE64_SOURCE
-#define NSLDAPI_FOPEN( filename, mode )	fopen64( filename, mode )
+#define NSLDAPI_FOPEN( filename, mode ) fopen64( filename, mode )
 #else
-#define NSLDAPI_FOPEN( filename, mode )	fopen( filename, mode )
+#define NSLDAPI_FOPEN( filename, mode ) fopen( filename, mode )
 #endif
 
 #if defined(LINUX) || defined(AIX) || defined(HPUX) || defined(_WINDOWS)

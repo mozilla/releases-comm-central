@@ -36,7 +36,7 @@ private:
   ~nsLDAPControl();
 
 protected:
-  nsCOMPtr<nsILDAPBERValue> mValue;	// the value portion of this control
+  nsCOMPtr<nsILDAPBERValue> mValue;  // the value portion of this control
   bool mIsCritical;      // should server abort if control not understood?
   nsCString mOid;          // Object ID for this control
 };

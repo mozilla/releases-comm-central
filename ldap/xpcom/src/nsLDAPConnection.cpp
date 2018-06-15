@@ -555,7 +555,7 @@ nsLDAPConnection::OnLookupComplete(nsICancelable *aRequest,
                 version = LDAP_VERSION3;
                 ldap_set_option(mConnectionHandle, LDAP_OPT_PROTOCOL_VERSION,
                                 &version);
-		break;
+                break;
             default:
                 NS_ERROR("nsLDAPConnection::OnLookupComplete(): mVersion"
                          " invalid");

@@ -69,12 +69,12 @@ extern BOOL MultipleInstances();
 extern BOOL SlapdIsAService();
 extern void InitializeSlapdLogging( LPTSTR lpszRegLocation, LPTSTR lpszEventLogName, LPTSTR lpszMessageFile );
 extern void ReportSlapdEvent(WORD wEventType, DWORD dwIdEvent, WORD wNumInsertStrings,
-						char *pszStrings);
+                             char *pszStrings);
 extern BOOL ReportSlapdStatusToSCMgr(
-					SERVICE_STATUS *serviceStatus,
-					SERVICE_STATUS_HANDLE serviceStatusHandle,
-					HANDLE Event,
-					DWORD dwCurrentState,
+                    SERVICE_STATUS *serviceStatus,
+                    SERVICE_STATUS_HANDLE serviceStatusHandle,
+                    HANDLE Event,
+                    DWORD dwCurrentState,
                     DWORD dwWin32ExitCode,
                     DWORD dwCheckPoint,
                     DWORD dwWaitHint);
