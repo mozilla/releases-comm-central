@@ -8,24 +8,13 @@
 
 #include "nsCOMPtr.h"
 #include "nsString.h"
-#include "nsIMsgIncomingServer.h"
-#include "nsITreeBoxObject.h"
-#include "nsITreeSelection.h"
-#include "nsITreeView.h"
 #include "nsISubscribableServer.h"
 #include "nsIRDFService.h"
 #include "nsSubscribeDataSource.h"
 #include "nsIRDFResource.h"
-#include "nsTArray.h"
 
-/**
- * The basic structure for the tree of the implementation.
- *
- * These elements are stored in reverse alphabetical order.
- */
 typedef struct _subscribeTreeNode {
   char *name;
-  nsCString path;
   bool isSubscribed;
   struct _subscribeTreeNode *prevSibling;
   struct _subscribeTreeNode *nextSibling;
@@ -40,21 +29,21 @@ typedef struct _subscribeTreeNode {
   uint32_t messages;
 #endif
   bool isSubscribable;
-  bool isOpen;
 } SubscribeTreeNode;
 
+#if defined(DEBUG_sspitzer) || defined(DEBUG_seth)
+#define DEBUG_SUBSCRIBE 1
+#endif
 
-class nsSubscribableServer : public nsISubscribableServer,
-                             public nsITreeView
+class nsSubscribableServer : public nsISubscribableServer
 {
-public:
+ public:
   nsSubscribableServer();
 
   nsresult Init();
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSISUBSCRIBABLESERVER
-  NS_DECL_NSITREEVIEW
 
 private:
   virtual ~nsSubscribableServer();
@@ -66,7 +55,6 @@ private:
   char mDelimiter;
   bool mShowFullName;
   bool mStopped;
-  nsCString mServerType;
 
   nsCOMPtr <nsIRDFResource>      kNC_Child;
   nsCOMPtr <nsIRDFResource>      kNC_Subscribed;
@@ -75,33 +63,18 @@ private:
 
   nsCOMPtr <nsIRDFService>       mRDFService;
 
-  SubscribeTreeNode *mTreeRoot;          // root of the folder tree while items are discovered on the server
-  nsTArray<SubscribeTreeNode*> mRowMap;  // array of nodes representing the rows for the tree element
-  nsCOMPtr<nsITreeSelection> mSelection;
-  nsCOMPtr<nsITreeBoxObject> mTree;
+  SubscribeTreeNode *mTreeRoot;
   nsresult FreeSubtree(SubscribeTreeNode *node);
-  nsresult FreeRows();
-  nsresult CreateNode(SubscribeTreeNode *parent, const char *name, const nsACString &aPath, SubscribeTreeNode **result);
-  nsresult AddChildNode(SubscribeTreeNode *parent, const char *name, const nsACString &aPath, SubscribeTreeNode **child);
-  nsresult FindAndCreateNode(const nsACString &aPath, SubscribeTreeNode **aResult);
+  nsresult CreateNode(SubscribeTreeNode *parent, const char *name, SubscribeTreeNode **result);
+  nsresult AddChildNode(SubscribeTreeNode *parent, const char *name, SubscribeTreeNode **child);
+  nsresult FindAndCreateNode(const nsACString &aPath,
+                             SubscribeTreeNode **aResult);
   nsresult NotifyAssert(SubscribeTreeNode *subjectNode, nsIRDFResource *property, SubscribeTreeNode *objectNode);
   nsresult NotifyChange(SubscribeTreeNode *subjectNode, nsIRDFResource *property, bool value);
   nsresult Notify(nsIRDFResource *subject, nsIRDFResource *property, nsIRDFNode *object, bool isAssert, bool isChange);
   void BuildURIFromNode(SubscribeTreeNode *node, nsACString &uri);
   nsresult EnsureSubscribeDS();
   nsresult EnsureRDFService();
-
-  int32_t GetRow(SubscribeTreeNode *node, bool *open);
-  int32_t AddSubtree(SubscribeTreeNode *node, int32_t index);
-};
-
-class nsSubscribeListener : public nsISubscribeListener
-{
-public:
-  NS_DECL_THREADSAFE_ISUPPORTS
-  NS_DECL_NSISUBSCRIBELISTENER
-private:
-  virtual ~nsSubscribeListener();
 };
 
 #endif // nsSubscribableServer_h__

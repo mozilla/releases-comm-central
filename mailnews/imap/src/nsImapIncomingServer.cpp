@@ -2992,14 +2992,6 @@ nsImapIncomingServer::GetSupportsSubscribeSearch(bool *retVal)
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::GetFolderView(nsITreeView **aView)
-{
-  nsresult rv = EnsureInner();
-  NS_ENSURE_SUCCESS(rv,rv);
-  return mInner->GetFolderView(aView);
-}
-
-NS_IMETHODIMP
 nsImapIncomingServer::GetFilterScope(nsMsgSearchScopeValue *filterScope)
 {
   NS_ENSURE_ARG_POINTER(filterScope);
