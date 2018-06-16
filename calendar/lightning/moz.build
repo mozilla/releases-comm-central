@@ -24,7 +24,7 @@ export('DIST_SUBDIR')
 
 FINAL_TARGET_PP_FILES += [
     'app.ini',
-    'install.rdf',
+    'manifest.json',
 ]
 
 JAR_MANIFESTS += ['jar.mn']
@@ -41,6 +41,10 @@ else:
 
 JS_PREFERENCE_PP_FILES += [
     'content/lightning.js',
+]
+
+FINAL_TARGET_FILES += [
+    'install.rdf',
 ]
 
 FINAL_TARGET_FILES.timezones += [

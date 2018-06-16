@@ -1,0 +1,23 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+#filter substitution
+{
+  "manifest_version": 2,
+  "name": "Lightning",
+  "description": "Integrated Calendaring & Scheduling for your Email client",
+  "version": "@LIGHTNING_VERSION@",
+  "author": "Mozilla Calendar Project",
+  "homepage_url": "https://www.mozilla.org/projects/calendar/",
+  "legacy": true,
+  "applications": {
+    "gecko": {
+      "id": "@XPI_EM_ID@",
+      "strict_min_version": "@THUNDERBIRD_VERSION@"
+    }
+  },
+  "icons": {
+    "32": "chrome/skin/linux/calendar/cal-icon32.png"
+  }
+}
