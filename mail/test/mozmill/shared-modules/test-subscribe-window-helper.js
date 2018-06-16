@@ -38,7 +38,12 @@ function installInto(module) {
  */
 function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   folderDisplayHelper.right_click_on_folder(aFolder);
-  windowHelper.plan_for_modal_dialog("mailnews:subscribe", aFunction);
+  let callback = function(controller) {
+    // When the "stop button" is disabled, the panel is populated.
+    controller.waitFor(() => controller.e("stopButton").disabled);
+    aFunction(controller);
+  }
+  windowHelper.plan_for_modal_dialog("mailnews:subscribe", callback);
   mc.click(mc.eid("folderPaneContext-subscribe"));
   windowHelper.wait_for_modal_dialog("mailnews:subscribe");
   folderDisplayHelper.close_popup(mc, mc.eid("folderPaneContext"));

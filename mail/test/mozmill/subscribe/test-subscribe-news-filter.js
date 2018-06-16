@@ -21,7 +21,7 @@ function setupModule(module) {
  * (shows only newsgroups matching all of several search strings
  * separated by whitespace)
  */
-function disabled_test_subscribe_newsgroup_filter() {
+function test_subscribe_newsgroup_filter() {
   var daemon = setupNNTPDaemon();
   var remoteServer = startupNNTPServer(daemon, NNTP_PORT);
   let server = setupLocalServer(NNTP_PORT);
