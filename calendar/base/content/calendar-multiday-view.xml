@@ -3764,13 +3764,11 @@
             aMinute = Math.min(maxFirstMin, Math.max(0, aMinute));
 
             if (scrollBoxObject && scrollbox.scrollHeight > 0) {
-                let x = {}, y = {};
-                scrollBoxObject.getPosition(x, y);
                 let pos = Math.round(aMinute * this.mPixPerMin);
                 if (scrollbox.getAttribute("orient") == "horizontal") {
-                    scrollBoxObject.scrollTo(x.value, pos);
+                    scrollBoxObject.scrollTo(scrollBoxObject.positionX, pos);
                 } else {
-                    scrollBoxObject.scrollTo(pos, y.value);
+                    scrollBoxObject.scrollTo(pos, scrollBoxObject.positionY);
                 }
             }
 
@@ -3878,12 +3876,10 @@
           if (scrollBoxObject && scrollbox.scrollHeight > 0) {
               // We need to update the first visible minute, but only if the
               // scrollbox has been sized.
-              let x = {}, y = {};
-              scrollBoxObject.getPosition(x, y);
               if (scrollbox.getAttribute("orient") == "horizontal") {
-                  this.mFirstVisibleMinute = Math.round(y.value / this.mPixPerMin);
+                  this.mFirstVisibleMinute = Math.round(scrollBoxObject.positionY / this.mPixPerMin);
               } else {
-                  this.mFirstVisibleMinute = Math.round(x.value / this.mPixPerMin);
+                  this.mFirstVisibleMinute = Math.round(scrollBoxObject.positionX / this.mPixPerMin);
               }
           }
       ]]></handler>
