@@ -311,7 +311,7 @@ MimeMessage_close_headers (MimeObject *obj)
       obj->options->decompose_headers_info_fn)
     {
 #ifdef ENABLE_SMIME
-      if (obj->options->decrypt_p && !mime_crypto_object_p (msg->hdrs, false))
+      if (obj->options->decrypt_p && !mime_crypto_object_p(msg->hdrs, false, obj->options))
         obj->options->decrypt_p = false;
 #endif /* ENABLE_SMIME */
       if (!obj->options->caller_need_root_headers || (obj == obj->options->state->root))
@@ -410,7 +410,7 @@ MimeMessage_close_headers (MimeObject *obj)
         obj->options &&
         obj->options->decrypt_p
 #ifdef ENABLE_SMIME
-        && !mime_crypto_object_p (msg->hdrs, false)
+        && !mime_crypto_object_p(msg->hdrs, false, obj->options)
 #endif /* ENABLE_SMIME */
         )
     {

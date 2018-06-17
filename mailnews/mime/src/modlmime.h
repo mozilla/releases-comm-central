@@ -177,6 +177,9 @@ public:
                  dexlate it before sending it.
                */
 
+  /* Whether this MIME part is a child of another part (and not top level). */
+  bool is_child = false;
+
   uint32_t whattodo ;       /* from the prefs, we'll get if the user wants to do glyph or structure substitutions and set this member variable. */
 
   char *default_charset;  /* If this is non-NULL, then it is the charset to

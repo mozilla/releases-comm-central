@@ -323,7 +323,7 @@ extern int mime_parse_url_options(const char *url, MimeDisplayOptions *);
    or encrypted objects that we know about.  (MimeMessageClass uses this
    to decide if the headers need to be presented differently.)
  */
-extern bool mime_crypto_object_p(MimeHeaders *, bool clearsigned_counts);
+extern bool mime_crypto_object_p(MimeHeaders *, bool clearsigned_counts, MimeDisplayOptions *);
 
 /* Tells whether the given MimeObject is a message which has been encrypted
    or signed.  (Helper for MIME_GetMessageCryptoState()).

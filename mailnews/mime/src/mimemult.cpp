@@ -430,6 +430,9 @@ MimeMultipart_create_child(MimeObject *obj)
   MimeObject *body = NULL;
 
   mult->state = MimeMultipartPartFirstLine;
+  if (obj->options)
+    obj->options->is_child = true;
+
   /* Don't pass in NULL as the content-type (this means that the
    auto-uudecode-hack won't ever be done for subparts of a
    multipart, but only for untyped children of message/rfc822.

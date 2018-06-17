@@ -417,7 +417,7 @@ MimeEncrypted_emit_buffered_child(MimeObject *obj)
     obj->options->headers != MimeHeadersCitation &&
     obj->options->write_html_p &&
     obj->options->output_fn)
-    // && !mime_crypto_object_p(enc->hdrs, true)) // XXX fix later XXX //
+    // && !mime_crypto_object_p(enc->hdrs, true, obj->options)) // XXX fix later XXX //
   {
     char *html;
 #if 0 // XXX Fix this later XXX //
