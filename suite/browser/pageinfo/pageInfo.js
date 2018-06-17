@@ -838,15 +838,24 @@ function onBeginLinkDrag(event,urlField,descField)
 }
 
 //******** Image Stuff
-function getSelectedImage(tree)
-{
-  if (!gImageView.rowCount)
-    return null;
+function getSelectedRows(tree) {
+  var start = { };
+  var end   = { };
+  var numRanges = tree.view.selection.getRangeCount();
 
-  // Only works if only one item is selected
-  var clickedRow = tree.currentIndex;
-  // image-node
-  return gImageView.data[clickedRow][COL_IMAGE_NODE];
+  var rowArray = [ ];
+  for (var t = 0; t < numRanges; t++) {
+    tree.view.selection.getRangeAt(t, start, end);
+    for (var v = start.value; v <= end.value; v++)
+      rowArray.push(v);
+  }
+
+  return rowArray;
+}
+
+function getSelectedRow(tree) {
+  var rows = getSelectedRows(tree);
+  return (rows.length == 1) ? rows[0] : -1;
 }
 
 function selectSaveFolder(aCallback) {
@@ -880,10 +889,11 @@ function selectSaveFolder(aCallback) {
 function saveMedia()
 {
   var tree = document.getElementById("imagetree");
-  var count = tree.view.selection.count;
-  if (count == 1) {
-    var item = getSelectedImage(tree);
-    var url = gImageView.data[tree.currentIndex][COL_IMAGE_ADDRESS];
+  var rowArray = getSelectedRows(tree);
+  if (rowArray.length == 1) {
+    let row = rowArray[0];
+    let item = gImageView.data[row][COL_IMAGE_NODE];
+    let url = gImageView.data[row][COL_IMAGE_ADDRESS];
 
     if (url) {
       let titleKey = "SaveImageTitle";
