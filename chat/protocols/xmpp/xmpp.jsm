@@ -2628,7 +2628,8 @@ var XMPPAccountPrototype = {
         return;
       try {
         let type = channel.contentType;
-        let readImage = imgTools.decodeImage(inputStream, type);
+        let buffer = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+        let readImage = imgTools.decodeImageFromBuffer(buffer, buffer.length, type);
         let scaledImage;
         if (readImage.width <= 96 && readImage.height <= 96)
           scaledImage = imgTools.encodeImage(readImage, type);
