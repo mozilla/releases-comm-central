@@ -17,23 +17,23 @@ var SortOrder = Ci.nsMsgViewSortOrder;
 // and the second element is a map of column names to expected values when
 // requesting the cell text for a given column name.
 var tests = [
-  [{from: "John Doe <db@tinderbox.invalid>"}, {sender: "John Doe"}],
-  [{from: "\"Doe, John\" <db@tinderbox.invalid>"}, {sender: "Doe, John"}],
+  [{from: "John Doe <db@tinderbox.invalid>"}, {senderCol: "John Doe"}],
+  [{from: "\"Doe, John\" <db@tinderbox.invalid>"}, {senderCol: "Doe, John"}],
   [{from: "John Doe <db@tinderbox.invalid>, Sally Ann <db@null.invalid>"},
-    {sender: "John Doe"}],
+    {senderCol: "John Doe"}],
   [{from: "=?UTF-8?Q?David_H=C3=A5s=C3=A4ther?= <db@null.invalid>"},
-    {sender: "David Håsäther"}],
+    {senderCol: "David Håsäther"}],
   [{from: "=?UTF-8?Q?H=C3=A5s=C3=A4ther=2C_David?= <db@null.invalid>"},
-    {sender: "Håsäther, David"}],
+    {senderCol: "Håsäther, David"}],
   [{from: "John Doe \xF5  <db@null.invalid>",
      clobberHeaders: { "Content-type" : "text/plain; charset=ISO-8859-1" }},
-    {sender: "John Doe õ"}],
+    {senderCol: "John Doe õ"}],
   [{from: "John Doe \xF5 <db@null.invalid>",
      clobberHeaders: { "Content-type" : "text/plain; charset=ISO-8859-2" }},
-    {sender: "John Doe ő"}],
+    {senderCol: "John Doe ő"}],
   [{from: "=?UTF-8?Q?H=C3=A5s=C3=A4ther=2C_David?= <db@null.invalid>",
      clobberHeaders: { "Content-type" : "text/plain; charset=ISO-8859-2" }},
-    {sender: "Håsäther, David"}],
+    {senderCol: "Håsäther, David"}],
 ];
 
 function* real_test() {

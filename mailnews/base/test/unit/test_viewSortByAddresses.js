@@ -66,8 +66,8 @@ function run_test() {
   setup_view("threaded", ViewFlags.kNone);
   // Check that sorting by sender uses the display name
   gDBView.sort(SortType.byAuthor, SortOrder.ascending);
-  let sender1 = gDBView.cellTextForColumn(0, "sender");
-  let sender2 = gDBView.cellTextForColumn(1, "sender");
+  let sender1 = gDBView.cellTextForColumn(0, "senderCol");
+  let sender2 = gDBView.cellTextForColumn(1, "senderCol");
 
   if (sender1 != 2)
     view_throw("expected sender 1 to be 2");
@@ -75,8 +75,8 @@ function run_test() {
     view_throw("expected sender 2 to be 4");
 
   gDBView.sort(SortType.byRecipient, SortOrder.ascending);
-  let recip1 = gDBView.cellTextForColumn(0, "recipient");
-  let recip2 = gDBView.cellTextForColumn(1, "recipient");
+  let recip1 = gDBView.cellTextForColumn(0, "recipientCol");
+  let recip2 = gDBView.cellTextForColumn(1, "recipientCol");
 
   if (recip1 != 1)
     view_throw("expected recip 1 to be 1");
@@ -119,10 +119,11 @@ function dump_view_contents() {
       s += gTreeView.isContainerOpen(iViewIndex) ? "- " : "+ ";
     else
       s += ". ";
+    let MSG_VIEW_FLAG_DUMMY = 0x20000000;
     if (flags & MSG_VIEW_FLAG_DUMMY)
       s += "dummy: ";
-    s += gDBView.cellTextForColumn(iViewIndex, "subject") + " " +
-         gDBView.cellTextForColumn(iViewIndex, "sender");
+    s += gDBView.cellTextForColumn(iViewIndex, "subjectCol") + " " +
+         gDBView.cellTextForColumn(iViewIndex, "senderCol");
 
     dump(s + "\n");
   }

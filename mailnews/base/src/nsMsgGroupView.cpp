@@ -837,12 +837,22 @@ nsMsgGroupView::GetCellProperties(int32_t aRow,
 
 NS_IMETHODIMP
 nsMsgGroupView::CellTextForColumn(int32_t aRow,
-                                  const char16_t *aColumnName,
+                                  const nsAString& aColumnName,
                                   nsAString &aValue) {
   if (!IsValidIndex(aRow))
     return NS_MSG_INVALID_DBVIEW_INDEX;
 
-  if (m_flags[aRow] & MSG_VIEW_FLAG_DUMMY && aColumnName[0] != 'u')
+  if (!(m_flags[aRow] & MSG_VIEW_FLAG_DUMMY) || aColumnName.EqualsLiteral("unreadCol"))
+    return nsMsgDBView::CellTextForColumn(aRow, aColumnName, aValue);
+
+  // We only treat "subject" and "total" here.
+  bool isSubject;
+  if (!(isSubject = aColumnName.EqualsLiteral("subjectCol")) &&
+      !aColumnName.EqualsLiteral("totalCol"))
+    return NS_OK;
+
+  // block left in place here to avoid indentation changes, will be removed
+  // before landing.
   {
     nsCOMPtr <nsIMsgDBHdr> msgHdr;
     nsresult rv = GetMsgHdrForViewIndex(aRow, getter_AddRefs(msgHdr));
@@ -854,7 +864,7 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow,
     nsCOMPtr<nsIMsgThread> msgThread;
     m_groupsTable.Get(hashKey, getter_AddRefs(msgThread));
     nsMsgGroupThread * groupThread = static_cast<nsMsgGroupThread *>(msgThread.get());
-    if (aColumnName[0] == 's'  && aColumnName[1] == 'u' )
+    if (isSubject)
     {
       uint32_t flags;
       bool rcvDate = false;
@@ -1015,7 +1025,7 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow,
         aValue.Append(u')');
       }
     }
-    else if (aColumnName[0] == 't' && aColumnName[1] == 'o')
+    else
     {
       nsAutoString formattedCountString;
       uint32_t numChildren = (groupThread) ? groupThread->NumRealChildren() : 0;
@@ -1024,7 +1034,6 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow,
     }
     return NS_OK;
   }
-  return nsMsgDBView::CellTextForColumn(aRow, aColumnName, aValue);
 }
 
 NS_IMETHODIMP

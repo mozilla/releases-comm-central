@@ -489,7 +489,7 @@ interface nsIMsgDBView : nsISupports
    * @returns The cell text for the given row and column, if any.
    * @notes This does not work for custom columns yet.
    */
-  AString cellTextForColumn(in long aRow, in wstring aColumnName);
+  AString cellTextForColumn(in long aRow, in AString aColumnName);
 };
 
 /* this interface is rapidly morphing from a command updater interface into a more generic
