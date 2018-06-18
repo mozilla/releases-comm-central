@@ -7,6 +7,7 @@
  *          createTodoFromIcalString, createEventFromIcalString, createDate, Cc, Ci, Cr, Cu
  */
 
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
@@ -20,8 +21,43 @@ updateAppInfo();
 
 (function() {
     let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);
+    if (!AppConstants.NIGHTLY_BUILD) {
+        bindir.append("distribution");
+    }
     bindir.append("extensions");
+
+    let xpiFile = bindir.clone();
+    xpiFile.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}.xpi");
+
     bindir.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}");
+    if (!bindir.exists()) {
+        const ZipReader = Components.Constructor("@mozilla.org/libjar/zip-reader;1", "nsIZipReader", "open");
+
+        let zip = ZipReader(xpiFile);
+        let entries = zip.findEntries(null);
+        while (entries.hasMore()) {
+            let entry = entries.getNext();
+            let target = bindir.clone();
+            for (let part of entry.split("/")) {
+                if (!part) {
+                    continue;
+                }
+                target.append(part);
+                if (!part.includes(".")) {
+                    if (!target.exists()) {
+                        target.create(Ci.nsIFile.DIRECTORY_TYPE, FileUtils.PERMS_DIRECTORY);
+                    }
+                    continue;
+                }
+            }
+            if (!target.exists()) {
+                zip.extract(entry, target);
+                target.permissions |= FileUtils.PERMS_FILE;
+            }
+        }
+        zip.close();
+    }
+
     bindir.append("chrome.manifest");
     dump("Loading" + bindir.path + "\n");
     Components.manager.autoRegister(bindir);
