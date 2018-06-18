@@ -143,9 +143,7 @@ libs-%:
 	@$(MAKE) -C $(DEPTH)/toolkit/locales libs-$*
 #	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../editor/ui/locales AB_CD=$* XPI_NAME=locale-$*
-ifdef MOZ_CALENDAR
 	@$(MAKE) -C ../../calendar/locales AB_CD=$* XPI_NAME=locale-$*
-endif
 ifdef MOZ_IRC
 	@$(MAKE) -C $(DEPTH)/extensions/irc/locales libs-$*
 endif
