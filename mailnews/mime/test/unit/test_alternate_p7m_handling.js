@@ -16,7 +16,7 @@ var msgGen = gMessageGenerator = new MessageGenerator();
 var p7mAttachment = "dGhpcyBpcyBub3QgYSByZWFsIHMvbWltZSBwN20gZW50aXR5";
 
 // create a message with a p7m attachment
-var messages = [{
+var messages = {
   attachments: [{
     body: p7mAttachment,
     filename: 'test.txt.p7m',
@@ -24,68 +24,24 @@ var messages = [{
     format:'',
     encoding: "base64"
   }]
-}];
+};
 
 var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 
-function* thunderbird_default(messageInfo) {
-  let synMsg = gMessageGenerator.makeMessage(messageInfo);
+function* worker(params) {
+  let synMsg = gMessageGenerator.makeMessage(params.messages);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
 
-  MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
-    try {
-      Assert.ok(aMimeMsg.allUserAttachments.length == 0);
-      info("Strange p7m is discarded, so attachment number is 0 (thunderbird default behaviour)");
-      async_driver();
-    } catch (err) {
-      do_throw(err);
-    }
-  });
-
-  yield false;
-}
-
-function* set_preference_to_true(messageInfo) {
-  let synMsg = gMessageGenerator.makeMessage(messageInfo);
-  let synSet = new SyntheticMessageSet([synMsg]);
-  yield add_sets_to_folder(gInbox, [synSet]);
-
-  let msgHdr = synSet.getMsgHdr(0);
-
-  Services.prefs.setBoolPref("mailnews.p7m_external", true);
+  Services.prefs.setBoolPref("mailnews.p7m_external", params.all_external);
+  Services.prefs.setBoolPref("mailnews.p7m_subparts_external", params.subparts_external);
 
   MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
-      Assert.ok(aMimeMsg.allUserAttachments.length == 1);
-      info("Setting preference mailnews.p7m_external to true");
-      info("Strange p7m is presented to the end user as attachment (attachment number = 1)");
-      async_driver();
-    } catch (err) {
-      do_throw(err);
-    }
-  });
-
-  yield false;
-}
-
-function* set_preference_to_false(messageInfo) {
-  let synMsg = gMessageGenerator.makeMessage(messageInfo);
-  let synSet = new SyntheticMessageSet([synMsg]);
-  yield add_sets_to_folder(gInbox, [synSet]);
-
-  let msgHdr = synSet.getMsgHdr(0);
-
-  Services.prefs.setBoolPref("mailnews.p7m_external", false);
-
-  MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
-    try {
-      Assert.ok(aMimeMsg.allUserAttachments.length == 0);
-      info("Setting preference mailnews.p7m_external to false");
-      info("Strange p7m is discarded, so attachment number is 0 (thunderbird default behaviour)");
+      Assert.ok(aMimeMsg.allUserAttachments.length == params.count);
       async_driver();
     } catch (err) {
       do_throw(err);
@@ -98,9 +54,12 @@ function* set_preference_to_false(messageInfo) {
 /* ===== Driver ===== */
 
 var tests = [
-  parameterizeTest(thunderbird_default, messages),
-  parameterizeTest(set_preference_to_true, messages),
-  parameterizeTest(set_preference_to_false, messages)
+  parameterizeTest(worker, [{ messages, all_external: false, subparts_external: false, count: 0 }]),
+  // We are only testing with a p7m attachment, so whether all parts or just subparts are
+  // made external yields the same result: one attachment which is not inlined.
+  parameterizeTest(worker, [{ messages, all_external: true,  subparts_external: false, count: 1 }]),
+  parameterizeTest(worker, [{ messages, all_external: false, subparts_external: true,  count: 1 }]),
+  parameterizeTest(worker, [{ messages, all_external: true,  subparts_external: true,  count: 1 }])
 ];
 
 var gInbox;
