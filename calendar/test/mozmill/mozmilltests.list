@@ -1,1 +1,5 @@
-testDummy.js
+cal-recurrence
+invitations
+testBasicFunctionality.js
+testLocalICS.js
+testTodayPane.js
