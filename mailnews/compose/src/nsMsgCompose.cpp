@@ -74,7 +74,6 @@
 #include "mozilla/dom/HTMLLinkElement.h"
 #include "mozilla/dom/Selection.h"
 #include "nsStreamConverter.h"
-#include "nsJSEnvironment.h"
 #include "nsIObserverService.h"
 #include "nsIProtocolHandler.h"
 #include "nsContentUtils.h"
