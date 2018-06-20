@@ -12,7 +12,7 @@ var MODULE_NAME = 'test-cloudfile-manager';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers',
                        'pref-window-helpers',
-                       'window-helpers',
+                       "content-tab-helpers",
                        'cloudfile-helpers'];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -56,47 +56,32 @@ function destroy_account(aKey) {
 }
 
 /**
- * A helper function to open the preferences dialog and switch
- * to the attachments pane.
- *
- * @param aCallback the function to execute once we've switched
- *                  to the attachment pane.  This function takes
- *                  precisely one argument, which is the
- *                  augmented controller for the preferences
- *                  window.
- */
-function open_cloudfile_manager(aCallback) {
-  open_pref_window("paneApplications", function(w) {
-    let tabbox = w.e("attachmentPrefs");
-    tabbox.selectedIndex = 1;
-    aCallback(w);
-    close_window(w);
-  });
-}
-
-/**
  * Tests that we load the accounts and display them in the
  * account richlistbox in the correct order (by displayName,
  * case-insensitive)
  */
-function disabled_test_load_accounts_and_properly_order() {  // See bug 1465061.
-  open_cloudfile_manager(function(w) {
-    let richList = w.e("cloudFileView");
-    assert_equals(4, richList.itemCount,
-                  "Should be displaying 4 accounts");
+function test_load_accounts_and_properly_order() {
+  let prefTab = open_pref_tab("paneApplications");
+  let tabbox = content_tab_e(prefTab, "attachmentPrefs");
+  tabbox.selectedIndex = 1;
 
-    // Since we're sorting alphabetically by the displayName,
-    // case-insensitive, the items should be ordered with the
-    // following accountKeys:
-    //
-    // someKey3, someKey2, someKey4, someKey1
-    const kExpected = ["someKey3", "someKey2", "someKey4",
-                       "someKey1"];
+  let richList = content_tab_e(prefTab, "cloudFileView");
+  assert_equals(4, richList.itemCount,
+                "Should be displaying 4 accounts");
 
-    for (let [index, expectedKey] of kExpected.entries()) {
-      let item = richList.getItemAtIndex(index);
-      assert_equals(expectedKey, item.value,
-                    "The account list is out of order");
-    }
-  });
+  // Since we're sorting alphabetically by the displayName,
+  // case-insensitive, the items should be ordered with the
+  // following accountKeys:
+  //
+  // someKey3, someKey2, someKey4, someKey1
+  const kExpected = ["someKey3", "someKey2", "someKey4",
+                     "someKey1"];
+
+  for (let [index, expectedKey] of kExpected.entries()) {
+    let item = richList.getItemAtIndex(index);
+    assert_equals(expectedKey, item.value,
+                  "The account list is out of order");
+  }
+
+  close_pref_tab(prefTab);
 }

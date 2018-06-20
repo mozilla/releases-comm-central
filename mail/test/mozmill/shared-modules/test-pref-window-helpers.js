@@ -10,52 +10,47 @@
 var MODULE_NAME = "pref-window-helpers";
 
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
 
 var utils = {};
 ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
 var fdh;
-var wh;
+var cth;
 
 function setupModule() {
   fdh = collector.getModule("folder-display-helpers");
-  wh = collector.getModule("window-helpers");
+  cth = collector.getModule("content-tab-helpers");
 }
 
 function installInto(module) {
   setupModule();
 
   // Now copy helper functions
-  module.open_pref_window = open_pref_window;
+  module.open_pref_tab = open_pref_tab;
+  module.close_pref_tab = close_pref_tab;
 }
 
 /**
- * Open the preferences window with the given pane displayed. The pane needs to
- * be one of the prefpane ids in mail/components/preferences/preferences.xul.
- *
- * Since the preferences window might be modal (it is currently modal on
- * platforms without instantApply), it spins its own event loop. This means
- * that you need to provide a callback to be executed when the window is loaded.
+ * Open the preferences tab with the given pane displayed. The pane needs to
+ * be one of the prefpane ids in mail/components/preferences/aboutPreferences.xul.
  *
  * @param aPaneID The ID of the pref pane to display (see
- *     mail/components/preferences/preferences.xul for valid IDs.)
- * @param aCallback A callback to be executed once the window is loaded. It will
- *     be passed the controller for the pref window as its one and only argument.
+ *     mail/components/preferences/aboutPreferences.xul for valid IDs.)
  */
-function open_pref_window(aPaneID, aCallback) {
-  function waitForPaneLoad(prefc) {
-    let pane = prefc.e(aPaneID);
-    function paneLoadedChecker() {
-      return pane.loaded;
-    }
+function open_pref_tab(aPaneID) {
+  let tab = cth.open_content_tab_with_click(function() { fdh.mc.window.openOptionsDialog(aPaneID) },
+                                            "about:preferences", fdh.mc, "preferencesTab");
+  utils.waitFor(() => tab.browser.contentDocument.documentElement.currentPane.id == aPaneID,
+                "Timed out waiting for prefpane " + aPaneID + " to load.");
+  return tab;
+}
 
-    utils.waitFor(paneLoadedChecker,
-                  "Timed out waiting for prefpane " + aPaneID + " to load.");
-    aCallback(prefc);
-  }
-
-  wh.plan_for_modal_dialog("Mail:Preferences", waitForPaneLoad);
-  fdh.mc.window.openOptionsDialog(aPaneID);
-  wh.wait_for_modal_dialog("Mail:Preferences");
+/**
+ * Close the preferences tab.
+ *
+ * @param aTab  The content tab to close.
+ */
+function close_pref_tab(aTab) {
+  fdh.mc.tabmail.closeTab(aTab);
 }

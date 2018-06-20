@@ -112,6 +112,9 @@
               break;
             }
           }
+          let event = document.createEvent("Events");
+          event.initEvent("paneSelected", true, true);
+          this.dispatchEvent(event);
         ]]>
         </body>
       </method>

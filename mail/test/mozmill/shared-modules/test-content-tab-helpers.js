@@ -191,9 +191,10 @@ function open_content_tab_with_url(aURL, aClickHandler, aBackground, aController
  * @param aExpectedURL  The URL that is expected to be opened (string).
  * @param [aController] The controller the element is associated with. Defaults
  *                      to |mc|.
+ * @param [aTabType]    Optional tab type to expect (string).
  * @returns The newly-opened tab.
  */
-function open_content_tab_with_click(aElem, aExpectedURL, aController) {
+function open_content_tab_with_click(aElem, aExpectedURL, aController, aTabType = "contentTab") {
   if (aController === undefined)
     aController = mc;
 
@@ -211,7 +212,7 @@ function open_content_tab_with_click(aElem, aExpectedURL, aController) {
   // We append new tabs at the end, so check the last one.
   let expectedNewTab = aController.tabmail.tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
-  folderDisplayHelper.assert_tab_mode_name(expectedNewTab, "contentTab");
+  folderDisplayHelper.assert_tab_mode_name(expectedNewTab, aTabType);
   wait_for_content_tab_load(expectedNewTab, aExpectedURL);
   return expectedNewTab;
 }

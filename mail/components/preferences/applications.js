@@ -419,8 +419,6 @@ var gApplicationsTabController = {
       tabbox.selectedIndex = preference.value != null ? preference.value : this.mDefaultIndex;
     }
 
-    let loadInContent = Services.prefs.getBoolPref("mail.preferences.inContent");
-
     this.mInitialized = true;
   },
 

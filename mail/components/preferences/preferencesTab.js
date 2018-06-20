@@ -84,11 +84,24 @@ var preferencesTabType = {
     this._setUpTitleListener(aTab);
     this._setUpCloseWindowListener(aTab);
 
-    if ("onLoad" in aArgs) {
-      aTab.browser.addEventListener("paneload",
-        function _contentTab_onLoad (event) { aArgs.onLoad(event, aTab.browser); },
-        {capture: true, once: true});
-    }
+    // Wait for full loading of the tab and the automatic selecting of last tab.
+    // Then run the given onload code.
+    aTab.browser.addEventListener("paneSelected",
+      function _contentTab_onLoad(event) {
+        aTab.pageLoading = false;
+        aTab.pageLoaded = true;
+
+        if ("onLoad" in aArgs) {
+          aArgs.onLoad(event, aTab.browser);
+        }
+      }, {capture: true, once: true}
+    );
+
+
+    // Initialize our unit testing variables.
+    aTab.pageLoading = true;
+    aTab.pageLoaded = false;
+
     // Now start loading the content.
     aTab.title = this.loadingTabString;
 
