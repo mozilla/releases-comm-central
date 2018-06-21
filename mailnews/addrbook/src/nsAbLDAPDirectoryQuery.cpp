@@ -19,6 +19,7 @@
 #include "nsAbLDAPDirectory.h"
 #include "nsAbLDAPListenerBase.h"
 #include "nsXPCOMCIDInternal.h"
+#include "nsIURIMutator.h"
 
 using namespace mozilla;
 
@@ -389,7 +390,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
   }
 
   nsCOMPtr<nsIURI> uri;
-  rv = mDirectoryUrl->Clone(getter_AddRefs(uri));
+  rv = NS_MutateURI(mDirectoryUrl).Finalize(uri);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsILDAPURL> url(do_QueryInterface(uri, &rv));

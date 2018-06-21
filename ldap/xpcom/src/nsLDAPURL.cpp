@@ -391,7 +391,7 @@ nsLDAPURL::CloneInternal(RefHandlingEnum aRefHandlingMode,
 
   nsresult rv;
   if (aRefHandlingMode == eHonorRef) {
-    rv = mBaseURL->Clone(getter_AddRefs(clone->mBaseURL));
+    rv = NS_MutateURI(mBaseURL).Finalize(mBaseURL);
   } else if (aRefHandlingMode == eReplaceRef) {
     rv = mBaseURL->CloneWithNewRef(newRef, getter_AddRefs(clone->mBaseURL));
   } else {
@@ -403,7 +403,7 @@ nsLDAPURL::CloneInternal(RefHandlingEnum aRefHandlingMode,
   return NS_OK;
 }
 
-NS_IMETHODIMP
+nsresult
 nsLDAPURL::Clone(nsIURI** result)
 {
   return CloneInternal(eHonorRef, EmptyCString(), result);

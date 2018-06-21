@@ -21,6 +21,7 @@ public:
     nsAddbookUrl();
 
 protected:
+  virtual nsresult Clone(nsIURI **_retval);
   virtual nsresult SetSpecInternal(const nsACString &aSpec);
   virtual nsresult SetScheme(const nsACString &aScheme);
   virtual nsresult SetUserPass(const nsACString &aUserPass);

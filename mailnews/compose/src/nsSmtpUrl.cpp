@@ -533,7 +533,7 @@ nsMailtoUrl::CloneInternal(RefHandlingEnum aRefHandlingMode,
 
   nsresult rv;
   if (aRefHandlingMode == eHonorRef) {
-    rv = m_baseURL->Clone(getter_AddRefs(clone->m_baseURL));
+    rv = NS_MutateURI(m_baseURL).Finalize(m_baseURL);
   } else if (aRefHandlingMode == eReplaceRef) {
     rv = m_baseURL->CloneWithNewRef(newRef, getter_AddRefs(clone->m_baseURL));
   } else {
@@ -545,7 +545,7 @@ nsMailtoUrl::CloneInternal(RefHandlingEnum aRefHandlingMode,
   return NS_OK;
 }
 
-NS_IMETHODIMP
+nsresult
 nsMailtoUrl::Clone(nsIURI **_retval)
 {
   return CloneInternal(eHonorRef, EmptyCString(), _retval);

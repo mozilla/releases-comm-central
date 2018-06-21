@@ -51,6 +51,7 @@ public:
     NS_DECL_NSIURIWITHPRINCIPAL
 
 protected:
+  virtual nsresult Clone(nsIURI **_retval);
   virtual nsresult SetScheme(const nsACString &aScheme);
   virtual nsresult SetUserPass(const nsACString &aUserPass);
   virtual nsresult SetUsername(const nsACString &aUsername);

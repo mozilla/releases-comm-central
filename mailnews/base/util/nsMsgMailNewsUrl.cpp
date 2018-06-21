@@ -650,7 +650,7 @@ nsMsgMailNewsUrl::CloneInternal(uint32_t aRefHandlingMode,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::Clone(nsIURI **_retval)
+nsresult nsMsgMailNewsUrl::Clone(nsIURI **_retval)
 {
   return CloneInternal(nsIMsgMailNewsUrl::HONOR_REF, EmptyCString(), _retval);
 }
