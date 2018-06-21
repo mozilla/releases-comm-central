@@ -19,8 +19,23 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
 
-XPCOMUtils.defineLazyScriptGetter(this, "gViewSourceUtils",
-                                  "chrome://global/content/viewSourceUtils.js");
+XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
+  let scope = {};
+  Services.scriptloader.loadSubScript("chrome://global/content/viewSourceUtils.js", scope);
+  scope.gViewSourceUtils.viewSource = async function (aArgs) {
+    // Check if external view source is enabled. If so, try it. If it fails,
+    // fallback to internal view source.
+    if (Services.prefs.getBoolPref("view_source.editor.external")) {
+      try {
+        await this.openInExternalEditor(aArgs);
+        return;
+      } catch (ex) {}
+    }
+
+    window.openDialog("chrome://messenger/content/viewSource.xul", "_blank", "all,dialog=no", aArgs);
+  };
+  return scope.gViewSourceUtils;
+});
 
 var gCustomizeSheet = false;
 
