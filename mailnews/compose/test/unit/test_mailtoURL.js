@@ -39,12 +39,11 @@ function run_test() {
     test(tests[i]);
 
   // Test cloning reparses the url by checking the to field.
-  let uriToClone = Services.io.newURI(tests[0].url);
-  let clonedUrl = uriToClone.clone().QueryInterface(Ci.nsIMailtoUrl);
+  let uri = Services.io.newURI(tests[0].url).QueryInterface(Ci.nsIMailtoUrl);
   var to = {}, cc = {}, bcc = {}, subject = {}, body = {}, html = {},
       reference = {}, newsgroup = {}, composeformat = {};
-  clonedUrl.getMessageContents(to, cc, bcc, subject, body, html, reference,
-                               newsgroup, composeformat);
+  uri.getMessageContents(to, cc, bcc, subject, body, html, reference,
+                         newsgroup, composeformat);
   Assert.equal(to.value, tests[0].to);
 };
 
