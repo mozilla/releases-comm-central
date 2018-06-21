@@ -191,7 +191,7 @@ nsAddbookUrl::CloneInternal(RefHandlingEnum aRefHandlingMode,
 
   nsresult rv;
   if (aRefHandlingMode == eHonorRef) {
-    rv = NS_MutateURI(m_baseURL).Finalize(m_baseURL);
+    rv = NS_MutateURI(m_baseURL).Finalize(clone->m_baseURL);
   } else if (aRefHandlingMode == eReplaceRef) {
     rv = m_baseURL->CloneWithNewRef(newRef, getter_AddRefs(clone->m_baseURL));
   } else {

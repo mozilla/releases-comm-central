@@ -276,7 +276,7 @@ function run_test() {
 
   url = url.mutate().setSpec("ldap://localhost/dc=short?abc,def,ghi,jkl?one?(objectclass=*)").finalize();
 
-  var newUrl = url.clone();
+  var newUrl = url.mutate().finalize();
 
   Assert.equal(newUrl.spec,
                "ldap://localhost/dc=short?abc,def,ghi,jkl?one?(objectclass=*)");
