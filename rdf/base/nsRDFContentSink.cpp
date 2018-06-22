@@ -660,7 +660,7 @@ RDFContentSinkImpl::ParseText(nsIRDFNode **aResult)
         break;
 
     default:
-        NS_NOTREACHED("unknown parse type");
+        MOZ_ASSERT_UNREACHABLE("unknown parse type");
         break;
     }
 }
@@ -1329,7 +1329,7 @@ RDFContentSinkImpl::InitContainer(nsIRDFResource* aContainerType, nsIRDFResource
         return rv;
     }
 
-    NS_NOTREACHED("not an RDF container type");
+    MOZ_ASSERT_UNREACHABLE("not an RDF container type");
     return NS_ERROR_FAILURE;
 }
 

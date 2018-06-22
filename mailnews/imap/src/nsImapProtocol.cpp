@@ -9079,7 +9079,7 @@ NS_IMETHODIMP nsImapMockChannel::GetOriginalURI(nsIURI* *aURI)
 NS_IMETHODIMP nsImapMockChannel::SetOriginalURI(nsIURI* aURI)
 {
   // IMap does not seem to have the notion of an original URI :-(
-  //    NS_NOTREACHED("nsImapMockChannel::SetOriginalURI");
+  //    MOZ_ASSERT_UNREACHABLE("nsImapMockChannel::SetOriginalURI");
   //    return NS_ERROR_NOT_IMPLEMENTED;
   return NS_OK;       // ignore
 }
@@ -9941,13 +9941,13 @@ NS_IMETHODIMP nsImapMockChannel::Cancel(nsresult status)
 
 NS_IMETHODIMP nsImapMockChannel::Suspend()
 {
-    NS_NOTREACHED("nsImapMockChannel::Suspend");
+    MOZ_ASSERT_UNREACHABLE("nsImapMockChannel::Suspend");
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsImapMockChannel::Resume()
 {
-    NS_NOTREACHED("nsImapMockChannel::Resume");
+    MOZ_ASSERT_UNREACHABLE("nsImapMockChannel::Resume");
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 

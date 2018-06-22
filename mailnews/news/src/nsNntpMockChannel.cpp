@@ -80,13 +80,13 @@ NS_IMETHODIMP nsNntpMockChannel::Cancel(nsresult status)
 
 NS_IMETHODIMP nsNntpMockChannel::Suspend()
 {
-  NS_NOTREACHED("nsNntpMockChannel::Suspend");
+  MOZ_ASSERT_UNREACHABLE("nsNntpMockChannel::Suspend");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsNntpMockChannel::Resume()
 {
-  NS_NOTREACHED("nsNntpMockChannel::Resume");
+  MOZ_ASSERT_UNREACHABLE("nsNntpMockChannel::Resume");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -342,7 +342,7 @@ nsNntpMockChannel::AttachNNTPConnection(nsNNTPProtocol &protocol)
     rv = protocol.AsyncOpen(m_channelListener, m_context);
     break;
   default:
-    NS_NOTREACHED("Unknown channel state got us here.");
+    MOZ_ASSERT_UNREACHABLE("Unknown channel state got us here.");
     return NS_ERROR_FAILURE;
   }
 

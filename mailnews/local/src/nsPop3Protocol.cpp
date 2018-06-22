@@ -721,7 +721,7 @@ Pop3StatesEnum nsPop3Protocol::GetNextPasswordObtainState()
     return POP3_FINISH_OBTAIN_PASSWORD_BEFORE_PASSWORD;
   default:
     // Should never get here.
-    NS_NOTREACHED("Invalid next_state in GetNextPasswordObtainState");
+    MOZ_ASSERT_UNREACHABLE("Invalid next_state in GetNextPasswordObtainState");
   }
   return POP3_ERROR_DONE;
 }
@@ -936,7 +936,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
 
 NS_IMETHODIMP nsPop3Protocol::OnPromptAuthAvailable()
 {
-  NS_NOTREACHED("Did not expect to get POP3 protocol queuing up auth "
+  MOZ_ASSERT_UNREACHABLE("Did not expect to get POP3 protocol queuing up auth "
                 "connections for same server");
   return NS_OK;
 }

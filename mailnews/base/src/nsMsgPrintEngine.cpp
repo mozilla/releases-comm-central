@@ -188,7 +188,7 @@ nsMsgPrintEngine::OnLocationChange(nsIWebProgress* aWebProgress,
                       nsIURI *location,
                       uint32_t aFlags)
 {
-    NS_NOTREACHED("notification excluded in AddProgressListener(...)");
+    MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
     return NS_OK;
 }
 
@@ -208,7 +208,7 @@ nsMsgPrintEngine::OnSecurityChange(nsIWebProgress *aWebProgress,
                       nsIRequest *aRequest,
                       uint32_t state)
 {
-    NS_NOTREACHED("notification excluded in AddProgressListener(...)");
+    MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
     return NS_OK;
 }
 

@@ -175,7 +175,7 @@ nsMsgFileStream::Flush(void)
 NS_IMETHODIMP
 nsMsgFileStream::WriteFrom(nsIInputStream *inStr, uint32_t count, uint32_t *_retval)
 {
-  NS_NOTREACHED("WriteFrom (see source comment)");
+  MOZ_ASSERT_UNREACHABLE("WriteFrom (see source comment)");
   return NS_ERROR_NOT_IMPLEMENTED;
   // File streams intentionally do not support this method.
   // If you need something like this, then you should wrap
@@ -185,7 +185,7 @@ nsMsgFileStream::WriteFrom(nsIInputStream *inStr, uint32_t count, uint32_t *_ret
 NS_IMETHODIMP
 nsMsgFileStream::WriteSegments(nsReadSegmentFun reader, void * closure, uint32_t count, uint32_t *_retval)
 {
-  NS_NOTREACHED("WriteSegments (see source comment)");
+  MOZ_ASSERT_UNREACHABLE("WriteSegments (see source comment)");
   return NS_ERROR_NOT_IMPLEMENTED;
   // File streams intentionally do not support this method.
   // If you need something like this, then you should wrap

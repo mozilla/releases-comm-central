@@ -479,14 +479,14 @@ SendOperationListener::OnProgress(uint32_t aProgress, uint32_t aProgressMax)
 NS_IMETHODIMP
 SendOperationListener::SetMessageKey(nsMsgKey aKey)
 {
-  NS_NOTREACHED("SendOperationListener::SetMessageKey()");
+  MOZ_ASSERT_UNREACHABLE("SendOperationListener::SetMessageKey()");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 SendOperationListener::GetMessageId(nsACString& messageId)
 {
-  NS_NOTREACHED("SendOperationListener::GetMessageId()\n");
+  MOZ_ASSERT_UNREACHABLE("SendOperationListener::GetMessageId()\n");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

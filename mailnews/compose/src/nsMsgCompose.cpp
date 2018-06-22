@@ -4725,7 +4725,7 @@ nsresult nsMsgCompose::NotifyStateListeners(int32_t aNotificationType, nsresult 
       break;
 
     default:
-      NS_NOTREACHED("Unknown notification");
+      MOZ_ASSERT_UNREACHABLE("Unknown notification");
       break;
     }
   }

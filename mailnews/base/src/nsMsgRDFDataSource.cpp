@@ -90,7 +90,7 @@ NS_INTERFACE_MAP_END
 NS_IMETHODIMP
 nsMsgRDFDataSource::GetURI(nsACString& aURI)
 {
-    NS_NOTREACHED("should be implemented by a subclass");
+    MOZ_ASSERT_UNREACHABLE("should be implemented by a subclass");
     return NS_ERROR_UNEXPECTED;
 }
 

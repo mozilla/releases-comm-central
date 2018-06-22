@@ -1069,7 +1069,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
     m_typeWanted = ARTICLE_WANTED;
   else
   {
-    NS_NOTREACHED("Unknown news action");
+    MOZ_ASSERT_UNREACHABLE("Unknown news action");
     rv = NS_ERROR_FAILURE;
   }
 

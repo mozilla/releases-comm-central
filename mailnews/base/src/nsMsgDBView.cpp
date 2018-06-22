@@ -6306,7 +6306,7 @@ nsMsgDBView::ListIdsInThreadOrder(nsIMsgThread *threadHdr,
     {
       if (*pNumListed == numChildren)
       {
-        NS_NOTREACHED("thread corrupt in db");
+        MOZ_ASSERT_UNREACHABLE("thread corrupt in db");
         // If we've listed more messages than are in the thread, then the db
         // is corrupt, and we should invalidate it.
         // We'll use this rv to indicate there's something wrong with the db
@@ -6499,7 +6499,7 @@ nsMsgDBView::ListIdsInThread(nsIMsgThread *threadHdr,
 
     if (ignoredHeaders + *pNumListed < numChildren)
     {
-      NS_NOTREACHED("thread corrupt in db");
+      MOZ_ASSERT_UNREACHABLE("thread corrupt in db");
       // If we've listed fewer messages than are in the thread, then the db
       // is corrupt, and we should invalidate it.
       // We'll use this rv to indicate there's something wrong with the db

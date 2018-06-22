@@ -232,7 +232,7 @@ nsLDAPConnection::Observe(nsISupports *aSubject, const char *aTopic,
     }
     Close();
   } else {
-    NS_NOTREACHED("unexpected topic");
+    MOZ_ASSERT_UNREACHABLE("unexpected topic");
     return NS_ERROR_UNEXPECTED;
   }
   return NS_OK;

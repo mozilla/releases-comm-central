@@ -382,7 +382,7 @@ nsURLFetcher::OnLocationChange(nsIWebProgress* aWebProgress,
                                nsIURI *aURI,
                                uint32_t aFlags)
 {
-  NS_NOTREACHED("notification excluded in AddProgressListener(...)");
+  MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
   return NS_OK;
 }
 
@@ -392,7 +392,7 @@ nsURLFetcher::OnStatusChange(nsIWebProgress* aWebProgress,
                              nsresult aStatus,
                              const char16_t* aMessage)
 {
-  NS_NOTREACHED("notification excluded in AddProgressListener(...)");
+  MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
   return NS_OK;
 }
 
@@ -401,7 +401,7 @@ nsURLFetcher::OnSecurityChange(nsIWebProgress *aWebProgress,
                                nsIRequest *aRequest,
                                uint32_t state)
 {
-  NS_NOTREACHED("notification excluded in AddProgressListener(...)");
+  MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
   return NS_OK;
 }
 
