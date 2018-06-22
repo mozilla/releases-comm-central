@@ -350,9 +350,9 @@ function showOnlyCalendar(aCalendar) {
 }
 
 var compositeObserver = {
-    QueryInterface: XPCOMUtils.generateQI([
-        Components.interfaces.calIObserver,
-        Components.interfaces.calICompositeObserver
+    QueryInterface: cal.generateQI([
+        Ci.calIObserver,
+        Ci.calICompositeObserver
     ]),
 
     onStartBatch: function() {},
@@ -406,7 +406,7 @@ function openCalendarSubscriptionsDialog() {
  * Calendar Offline Manager
  */
 var calendarOfflineManager = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 
     init: function() {
         if (this.initialized) {

@@ -61,10 +61,10 @@
       <field name="mObserver"><![CDATA[
           // the calIObserver, calICompositeObserver, and calIAlarmServiceObserver
           ({
-              QueryInterface: XPCOMUtils.generateQI([
-                  Components.interfaces.calIObserver,
-                  Components.interfaces.calIAlarmServiceObserver,
-                  Components.interfaces.calICompositeObserver
+              QueryInterface: cal.generateQI([
+                  Ci.calIObserver,
+                  Ci.calIAlarmServiceObserver,
+                  Ci.calICompositeObserver
               ]),
 
               calView: this,
@@ -451,7 +451,7 @@
         <parameter name="aCalendar"/>
         <body><![CDATA[
             let refreshJob = {
-                QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+                QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
                 calView: this,
                 calendar: null,
                 calId: null,

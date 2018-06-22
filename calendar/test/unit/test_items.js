@@ -21,7 +21,7 @@ function really_run_test() {
 
 function test_aclmanager() {
     let mockCalendar = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendar]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calICalendar]),
 
         get superCalendar() { return this; },
         get aclManager() { return this; },
@@ -35,7 +35,7 @@ function test_aclmanager() {
     };
 
     let itemEntry = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIItemACLEntry]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIItemACLEntry]),
         userCanModify: true,
         userCanRespond: false,
         userCanViewAll: true,
@@ -72,7 +72,7 @@ function test_calendar() {
     let parentEntry = cal.createEvent();
 
     let mockCalendar = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendar]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calICalendar]),
         id: "one"
     };
 

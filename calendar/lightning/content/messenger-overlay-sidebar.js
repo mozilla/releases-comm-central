@@ -658,7 +658,7 @@ var FIRST_DELAY_UNREGISTER = 0;
 var gInvitationsOperationListener = {
     mCount: 0,
 
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
     onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
         let invitationsBox = document.getElementById("calendar-invitations-panel");
         if (Components.isSuccessCode(aStatus)) {
@@ -681,7 +681,7 @@ var gInvitationsOperationListener = {
 var gInvitationsCalendarManagerObserver = {
     mSideBar: this,
 
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
 
     onCalendarRegistered: function(aCalendar) {
         this.mSideBar.rescheduleInvitationsUpdate(FIRST_DELAY_REGISTER);

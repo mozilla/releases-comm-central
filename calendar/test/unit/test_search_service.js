@@ -94,7 +94,10 @@ function test_cancel() {
     search.getProviders({}).forEach(search.removeProvider, search);
 
     let provider = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarSearchProvider, Components.interfaces.calIOperation]),
+        QueryInterface: ChromeUtils.generateQI([
+            Ci.calICalendarSearchProvider,
+            Ci.calIOperation
+        ]),
         searchForCalendars: function(aStr, aHint, aMax, aListener) {
             Services.tm.currentThread.dispatch({
                 run: function() {

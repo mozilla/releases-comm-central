@@ -1447,7 +1447,7 @@ function ItipOpListener(aOpListener, aOldItem, aExtResponse=null) {
     this.mExtResponse = aExtResponse;
 }
 ItipOpListener.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
 
     mOpListener: null,
     mOldItem: null,
@@ -1535,9 +1535,9 @@ function ItipItemFinder(aId, itipItem, optionsFunc) {
 
 ItipItemFinder.prototype = {
 
-    QueryInterface: XPCOMUtils.generateQI([
-        Components.interfaces.calIObserver,
-        Components.interfaces.calIOperationListener
+    QueryInterface: cal.generateQI([
+        Ci.calIObserver,
+        Ci.calIOperationListener
     ]),
 
     mSearchId: null,

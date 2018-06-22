@@ -21,7 +21,7 @@ class PropertyMap extends Map {
         let index = 0;
 
         return {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsISimpleEnumerator]),
+            QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
 
             hasMoreElements: function() {
                 return index < entries.length;
@@ -34,7 +34,7 @@ class PropertyMap extends Map {
 
                 let [name, value] = entries[index++];
                 return {
-                    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProperty]),
+                    QueryInterface: ChromeUtils.generateQI([Ci.nsIProperty]),
                     name: name,
                     value: value
                 };

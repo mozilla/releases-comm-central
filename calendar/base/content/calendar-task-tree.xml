@@ -337,7 +337,7 @@
 
       <field name="mTreeView"><![CDATA[
         ({
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsITreeView]),
+            QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
 
             /**
              * Attributes
@@ -807,9 +807,9 @@
         ({
             binding: this,
 
-            QueryInterface: XPCOMUtils.generateQI([
-                Components.interfaces.calICompositeObserver,
-                Components.interfaces.calIObserver
+            QueryInterface: cal.generateQI([
+                Ci.calICompositeObserver,
+                Ci.calIObserver
             ]),
 
             /**
@@ -902,7 +902,7 @@
         <parameter name="aCalendar"/>
         <body><![CDATA[
             let refreshJob = {
-                QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+                QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
                 binding: this,
                 calendar: null,
                 items: null,

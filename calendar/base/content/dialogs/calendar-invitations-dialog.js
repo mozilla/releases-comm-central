@@ -13,7 +13,7 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
  */
 function onLoad() {
     let operationListener = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             let updatingBox = document.getElementById("updating-box");
             updatingBox.setAttribute("hidden", "true");

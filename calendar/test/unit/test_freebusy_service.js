@@ -108,7 +108,10 @@ function test_cancel() {
     _clearProviders();
 
     let provider = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIFreeBusyProvider, Components.interfaces.calIOperation]),
+        QueryInterface: cal.generateQI([
+            Ci.calIFreeBusyProvider,
+            Ci.calIOperation
+        ]),
         getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
             Services.tm.currentThread.dispatch({
                 run: function() {

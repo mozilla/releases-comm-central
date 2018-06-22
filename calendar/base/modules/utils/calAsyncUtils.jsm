@@ -107,7 +107,7 @@ var calasync = {
      */
     promiseOperationListener: function(deferred) {
         return {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
             items: [],
             itemStatus: Components.results.NS_OK,
             onGetResult: function(aCalendar, aStatus, aItemType, aDetail,

@@ -1021,7 +1021,7 @@ calStorageCalendar.prototype = {
     modifyOfflineItem: function(aItem, aListener) {
         let self = this;
         let opListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
             onGetResult: function(calendar, status, itemType, detail, count, items) {
             },
             onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
@@ -1044,7 +1044,7 @@ calStorageCalendar.prototype = {
     deleteOfflineItem: function(aItem, aListener) {
         let self = this;
         let opListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
             onGetResult: function(calendar, status, itemType, detail, count, items) {
 
             },

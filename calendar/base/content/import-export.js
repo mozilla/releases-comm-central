@@ -158,7 +158,7 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
     //  quite easy to trigger, so we really should do this)
     let lastError;
     let listener = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             count++;
             if (!Components.isSuccessCode(aStatus)) {
@@ -328,7 +328,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 function exportEntireCalendar(aCalendar) {
     let itemArray = [];
     let getListener = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
         onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDetail) {
             saveEventsToFile(itemArray, aOpCalendar.name);
         },

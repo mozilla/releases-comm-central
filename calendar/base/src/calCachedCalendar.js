@@ -12,7 +12,7 @@ var cICL = Components.interfaces.calIChangeLog;
 var cIOL = Components.interfaces.calIOperationListener;
 
 var gNoOpListener = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI([Components.interfaces.calIOperationListener]),
     onGetResult: function(calendar, status, itemType, detail, count, items) {
     },
 
@@ -56,7 +56,7 @@ function calCachedCalendarObserverHelper(home, isCachedObserver) {
     this.isCachedObserver = isCachedObserver;
 }
 calCachedCalendarObserverHelper.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
+    QueryInterface: ChromeUtils.generateQI([Components.interfaces.calIObserver]),
     isCachedObserver: false,
 
     onStartBatch: function() {
@@ -132,6 +132,7 @@ function calCachedCalendar(uncachedCalendar) {
     this.offlineCachedItemFlags = {};
 }
 calCachedCalendar.prototype = {
+    /* eslint-disable mozilla/use-chromeutils-generateqi */
     QueryInterface: function(aIID) {
         if (aIID.equals(Components.interfaces.calISchedulingSupport) &&
             this.mUncachedCalendar.QueryInterface(aIID)) {
@@ -144,6 +145,7 @@ calCachedCalendar.prototype = {
             throw Components.results.NS_ERROR_NO_INTERFACE;
         }
     },
+    /* eslint-enable mozilla/use-chromeutils-generateqi */
 
     mCachedCalendar: null,
     mCachedObserver: null,
@@ -229,7 +231,7 @@ calCachedCalendar.prototype = {
         let self = this;
         self.offlineCachedItems = {};
         let getListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for (let item of aItems) {
                     self.offlineCachedItems[item.hashId] = item;
@@ -248,7 +250,7 @@ calCachedCalendar.prototype = {
     getOfflineModifiedItems: function(callbackFunc) {
         let self = this;
         let getListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for (let item of aItems) {
                     self.offlineCachedItems[item.hashId] = item;
@@ -267,7 +269,7 @@ calCachedCalendar.prototype = {
     getOfflineDeletedItems: function(callbackFunc) {
         let self = this;
         let getListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for (let item of aItems) {
                     self.offlineCachedItems[item.hashId] = item;
@@ -343,7 +345,7 @@ calCachedCalendar.prototype = {
 
         cal.LOG("[calCachedCalendar] Doing full sync for calendar " + this.uri.spec);
         let completeListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Components.interfaces.calIOperationListener]),
             modifiedTimes: {},
             hasRenewedCalendar: false,
             getsCompleted: 0,

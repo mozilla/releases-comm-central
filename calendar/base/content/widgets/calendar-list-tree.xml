@@ -67,7 +67,7 @@
       <field name="calMgrObserver"><![CDATA[
         ({
             listTree: this,
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
 
             // calICalendarManagerObserver
             onCalendarRegistered: function(aCalendar) {
@@ -95,9 +95,9 @@
       <field name="compositeObserver"><![CDATA[
         ({
             listTree: this,
-            QueryInterface: XPCOMUtils.generateQI([
-                Components.interfaces.calICompositeObserver,
-                Components.interfaces.calIObserver
+            QueryInterface: cal.generateQI([
+                Ci.calICompositeObserver,
+                Ci.calIObserver
             ]),
 
             // calICompositeObserver
@@ -254,7 +254,7 @@
       <field name="calObserver"><![CDATA[
         ({
             listTree: this,
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
 
             // calIObserver. Note that each registered calendar uses this observer
             onStartBatch: function() { },
@@ -296,7 +296,7 @@
       <field name="compositeObserver"><![CDATA[
         ({
             listTree: this,
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICompositeObserver]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calICompositeObserver]),
 
             // calICompositeObserver
             onCalendarAdded: function(aCalendar) {

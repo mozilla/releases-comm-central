@@ -92,7 +92,7 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
 
     let itemArray = [];
     let getListener = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             publishItemArray(itemArray, CalendarPublishObject.remotePath, aProgressDialog);
         },
@@ -197,7 +197,7 @@ var notificationCallbacks = {
 
 
 var publishingListener = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIStreamListener]),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
     onStartRequest: function(request, ctxt) {
     },

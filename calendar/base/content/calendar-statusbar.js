@@ -24,7 +24,7 @@ var gCalendarStatusFeedback = {
     mInitialized: false,
     mCalendars: {},
 
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIStatusObserver]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIStatusObserver]),
 
     initialize: function(aWindow) {
         if (!this.mInitialized) {

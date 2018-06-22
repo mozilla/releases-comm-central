@@ -129,7 +129,7 @@ InvitationsManager.prototype = {
         let cals = cal.getCalendarManager().getCalendars({});
 
         let opListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
             mCount: cals.length,
             mRequestManager: gInvitationsRequestManager,
             mInvitationsManager: this,
@@ -268,7 +268,7 @@ InvitationsManager.prototype = {
             this.mOldItem = oldItem_;
         }
         operationListener.prototype = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
             onOperationComplete: function(aCalendar,
                                           aStatus,
                                           aOperationType,

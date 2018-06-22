@@ -19,7 +19,7 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
  * @see calIcalendarViewController
  */
 var calendarViewController = {
-    QueryInterface: XPCOMUtils.generateQI([Ci.calICalendarViewController]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calICalendarViewController]),
 
     /**
      * Creates a new event
@@ -408,7 +408,7 @@ function updateStyleSheetForViews(aCalendar) {
  */
 var categoryPrefBranch;
 var categoryManagement = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 
     initCategories: function() {
         categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
@@ -646,7 +646,7 @@ function editSelectedEvents() {
 function selectAllEvents() {
     let items = [];
     let listener = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             currentView().setSelectedItems(items.length, items, false);
         },

@@ -142,7 +142,7 @@ function getPrintSettings(receiverFunc) {
     // then fetch the items here.
     if (requiresFetch) {
         let listener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
             onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDateTime) {
                 receiverFunc(settings);
             },

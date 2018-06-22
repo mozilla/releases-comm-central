@@ -112,7 +112,7 @@ function onCalendarViewResize(aEvent) {
 var calendarWindowPrefs = {
 
     /** nsISupports QueryInterface */
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 
     /** Initialize the preference observers */
     init: function() {

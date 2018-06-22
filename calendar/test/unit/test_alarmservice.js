@@ -12,7 +12,7 @@ var EXPECT_TIMER = 2;
 function do_check_xor(a, b, aMessage) { return ok((a && !b) || (!a && b), aMessage); }
 
 var alarmObserver = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIAlarmServiceObserver]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIAlarmServiceObserver]),
 
     service: null,
     firedMap: {},

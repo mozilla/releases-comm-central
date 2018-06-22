@@ -595,7 +595,7 @@ agendaListbox.setupContextMenu = function(popup) {
  */
 agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
     let refreshJob = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
         agendaListbox: this,
         calendar: null,
         calId: null,
@@ -868,14 +868,10 @@ agendaListbox.calendarOpListener = { agendaListbox: agendaListbox };
  */
 agendaListbox.calendarObserver = { agendaListbox: agendaListbox };
 
-agendaListbox.calendarObserver.QueryInterface = function(aIID) {
-    if (!aIID.equals(Components.interfaces.calIObserver) &&
-        !aIID.equals(Components.interfaces.calICompositeObserver) &&
-        !aIID.equals(Components.interfaces.nsISupports)) {
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    }
-    return this;
-};
+agendaListbox.calendarObserver.QueryInterface = cal.generateQI([
+    Ci.calIObserver,
+    Ci.calICompositeObserver
+]);
 
 // calIObserver:
 agendaListbox.calendarObserver.onStartBatch = function() {

@@ -83,7 +83,7 @@ var calTransactionInterfaces = [
 ];
 calTransaction.prototype = {
     classID: calTransactionClassID,
-    QueryInterface: XPCOMUtils.generateQI(calTransactionInterfaces),
+    QueryInterface: ChromeUtils.generateQI(calTransactionInterfaces),
     classInfo: XPCOMUtils.generateCI({
         classID: calTransactionClassID,
         classDescription: "Calendar Transaction",

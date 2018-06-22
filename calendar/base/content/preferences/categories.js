@@ -61,7 +61,7 @@ var gCategoriesPane = {
         this.mWinProp = "centerscreen, chrome, resizable=no";
         if (AppConstants.platform != "linux") {
             this.mWinProp += ", modal";
-        };
+        }
     },
 
     /**

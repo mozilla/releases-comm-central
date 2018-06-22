@@ -265,7 +265,7 @@ var cal = {
                 adapter[method] = function() {};
             }
         }
-        adapter.QueryInterface = XPCOMUtils.generateQI([iface]);
+        adapter.QueryInterface = ChromeUtils.generateQI([iface]);
 
         return adapter;
     },

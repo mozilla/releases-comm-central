@@ -1312,7 +1312,7 @@ calWcapCalendar.prototype.replayChangesOn = function(listener) {
 
     try {
         let writeListener = {
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
             onGetResult: function() {},
             onOperationComplete: function(aCalendar, status, opType, id, detail) {
                 if (!Components.isSuccessCode(status)) {

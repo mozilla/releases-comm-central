@@ -171,7 +171,7 @@ var taskEdit = {
      * @see calIObserver
      */
     calendarObserver: {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
+        QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
 
         // calIObserver:
         onStartBatch: function() {},
@@ -216,9 +216,9 @@ var taskEdit = {
      * @see calICompositeObserver
      */
     compositeObserver: {
-        QueryInterface: XPCOMUtils.generateQI([
-            Components.interfaces.calIObserver,
-            Components.interfaces.calICompositeObserver
+        QueryInterface: cal.generateQI([
+            Ci.calIObserver,
+            Ci.calICompositeObserver
         ]),
 
         // calIObserver:

@@ -560,7 +560,7 @@ function invokeEventDragSession(aItem, aXULBox) {
     transfer.addDataFlavor("text/calendar");
 
     let flavourProvider = {
-        QueryInterface: XPCOMUtils.generateQI([Ci.nsIFlavorDataProvider]),
+        QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
         item: aItem,
         getFlavorData: function(aInTransferable, aInFlavor, aOutData, aOutDataLen) {
@@ -609,6 +609,8 @@ function invokeEventDragSession(aItem, aXULBox) {
     }
 }
 
+/* exported calendarViewDNDObserver, calendarMailButtonDNDObserver,
+   calendarCalendarButtonDNDObserver, calendarTaskButtonDNDObserver */
 var calendarViewDNDObserver = new calViewDNDObserver();
 var calendarMailButtonDNDObserver = new calMailButtonDNDObserver();
 var calendarCalendarButtonDNDObserver = new calCalendarButtonDNDObserver();

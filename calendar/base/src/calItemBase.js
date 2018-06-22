@@ -53,7 +53,7 @@ calItemBase.prototype = {
     /**
      * @see nsISupports
      */
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIItemBase]),
+    QueryInterface: ChromeUtils.generateQI([Ci.calIItemBase]),
 
     /**
      * @see calIItemBase
@@ -463,7 +463,7 @@ calItemBase.prototype = {
             getNext: function() {
                 let paramName = this.mParamNames.pop();
                 return { // nsIProperty
-                    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProperty]),
+                    QueryInterface: ChromeUtils.generateQI([Ci.nsIProperty]),
                     name: paramName,
                     value: parameters[paramName]
                 };

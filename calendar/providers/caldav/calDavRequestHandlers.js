@@ -44,11 +44,11 @@ etagsHandler.prototype = {
     itemsReported: null,
     itemsNeedFetching: null,
 
-    QueryInterface: XPCOMUtils.generateQI([
-        Components.interfaces.nsISAXContentHandler,
-        Components.interfaces.nsISAXErrorHandler,
-        Components.interfaces.nsIRequestObserver,
-        Components.interfaces.nsIStreamListener
+    QueryInterface: cal.generateQI([
+        Ci.nsISAXContentHandler,
+        Ci.nsISAXErrorHandler,
+        Ci.nsIRequestObserver,
+        Ci.nsIStreamListener
     ]),
 
     /**
@@ -305,11 +305,11 @@ webDavSyncHandler.prototype = {
     itemsNeedFetching: null,
     additionalSyncNeeded: false,
 
-    QueryInterface: XPCOMUtils.generateQI([
-        Components.interfaces.nsISAXContentHandler,
-        Components.interfaces.nsISAXErrorHandler,
-        Components.interfaces.nsIRequestObserver,
-        Components.interfaces.nsIStreamListener
+    QueryInterface: cal.generateQI([
+        Ci.nsISAXContentHandler,
+        Ci.nsISAXErrorHandler,
+        Ci.nsIRequestObserver,
+        Ci.nsIStreamListener
     ]),
 
     doWebDAVSync: function() {
@@ -672,11 +672,11 @@ multigetSyncHandler.prototype = {
     additionalSyncNeeded: false,
     timer: null,
 
-    QueryInterface: XPCOMUtils.generateQI([
-        Components.interfaces.nsISAXContentHandler,
-        Components.interfaces.nsISAXErrorHandler,
-        Components.interfaces.nsIRequestObserver,
-        Components.interfaces.nsIStreamListener
+    QueryInterface: cal.generateQI([
+        Ci.nsISAXContentHandler,
+        Ci.nsISAXErrorHandler,
+        Ci.nsIRequestObserver,
+        Ci.nsIStreamListener
     ]),
 
     doMultiGet: function() {
