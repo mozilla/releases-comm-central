@@ -22,7 +22,7 @@ job-defaults:
             default: scriptworker-prov-v1/tb-treescript-comm-dev
     worker:
         implementation: treescript
-        tag: true
+        tags: ['buildN', 'release']
         bump: true
         bump-files:
             by-project:
