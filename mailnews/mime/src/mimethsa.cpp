@@ -89,6 +89,8 @@ MimeInlineTextHTMLSanitized_parse_eof(MimeObject *obj, bool abort_p)
     return 0;
 
   nsString& cb = *(me->complete_buffer);
+  if (cb.IsEmpty())
+    return 0;
   nsString sanitized;
 
   // Sanitize.

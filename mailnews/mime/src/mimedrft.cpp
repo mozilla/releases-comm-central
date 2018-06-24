@@ -664,8 +664,8 @@ mime_insert_all_headers(char            **body,
   bool htmlEdit = (composeFormat == nsIMsgCompFormat::HTML);
   char *newBody = NULL;
   char *html_tag = nullptr;
-  if (*body)
-    html_tag = PL_strcasestr(*body, "<HTML>");
+  if (*body && PL_strncasecmp(*body, "<HTML", 5) == 0)
+    html_tag = PL_strchr(*body, '>') + 1;
   int i;
 
   if (!headers->done_p)
@@ -759,7 +759,7 @@ mime_insert_all_headers(char            **body,
     NS_MsgSACat(&newBody, "</TABLE>");
     NS_MsgSACat(&newBody, MSG_LINEBREAK "<BR><BR>");
     if (html_tag)
-      NS_MsgSACat(&newBody, html_tag+6);
+      NS_MsgSACat(&newBody, html_tag);
     else if (*body)
         NS_MsgSACat(&newBody, *body);
   }
@@ -800,8 +800,8 @@ mime_insert_normal_headers(char             **body,
   char *followup_to = MimeHeaders_get(headers, HEADER_FOLLOWUP_TO, false, true);
   char *references = MimeHeaders_get(headers, HEADER_REFERENCES, false, true);
   const char *html_tag = nullptr;
-  if (*body)
-    html_tag = PL_strcasestr(*body, "<HTML>");
+  if (*body && PL_strncasecmp(*body, "<HTML", 5) == 0)
+    html_tag = PL_strchr(*body, '>') + 1;
   bool htmlEdit = composeFormat == nsIMsgCompFormat::HTML;
 
   if (from.IsEmpty())
@@ -927,7 +927,7 @@ mime_insert_normal_headers(char             **body,
     NS_MsgSACat(&newBody, "</TABLE>");
     NS_MsgSACat(&newBody, MSG_LINEBREAK "<BR><BR>");
     if (html_tag)
-      NS_MsgSACat(&newBody, html_tag+6);
+      NS_MsgSACat(&newBody, html_tag);
     else if (*body)
         NS_MsgSACat(&newBody, *body);
   }
@@ -968,8 +968,8 @@ mime_insert_micro_headers(char            **body,
   char *newsgroups = MimeHeaders_get(headers, HEADER_NEWSGROUPS, false,
                      true);
   const char *html_tag = nullptr;
-  if (*body)
-    html_tag = PL_strcasestr(*body, "<HTML>");
+  if (*body && PL_strncasecmp(*body, "<HTML", 5) == 0)
+    html_tag = PL_strchr(*body, '>') + 1;
   bool htmlEdit = composeFormat == nsIMsgCompFormat::HTML;
 
   if (from.IsEmpty())
@@ -1046,7 +1046,7 @@ mime_insert_micro_headers(char            **body,
     NS_MsgSACat(&newBody, "</TABLE>");
     NS_MsgSACat(&newBody, MSG_LINEBREAK "<BR><BR>");
     if (html_tag)
-      NS_MsgSACat(&newBody, html_tag+6);
+      NS_MsgSACat(&newBody, html_tag);
     else if (*body)
         NS_MsgSACat(&newBody, *body);
   }

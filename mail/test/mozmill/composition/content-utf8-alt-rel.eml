@@ -22,7 +22,8 @@ Content-Type: multipart/related;
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-<html>
+<html attr>
+  <!-- This also needs to work when the html tag has an attribute -->
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
   </head>

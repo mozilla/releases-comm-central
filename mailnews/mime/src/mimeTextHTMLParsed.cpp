@@ -83,6 +83,8 @@ MimeInlineTextHTMLParsed_parse_eof(MimeObject *obj, bool abort_p)
     return 0;
 
   nsString& rawHTML = *(me->complete_buffer);
+  if (rawHTML.IsEmpty())
+    return 0;
   nsString parsed;
   nsresult rv;
 

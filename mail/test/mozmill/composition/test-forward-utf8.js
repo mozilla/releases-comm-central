@@ -105,9 +105,17 @@ function test_utf8_forwarding_from_opened_file() {
 
 function test_utf8_forwarding_from_via_folder() {
   forwardViaFolder("./content-utf8-rel-only.eml");
-  forwardViaFolder("./content-utf8-rel-alt.eml");
-  forwardViaFolder("./content-utf8-alt-rel.eml");
+  forwardViaFolder("./content-utf8-rel-alt.eml");   // Also tests HTML part without <html> tag.
+  forwardViaFolder("./content-utf8-alt-rel.eml");   // Also tests <html attr>.
+  forwardViaFolder("./content-utf8-alt-rel2.eml");  // Also tests content before <html>.
+
+  // Repeat the last three in simple HTML view.
+  Services.prefs.setIntPref("mailnews.display.html_as", 3);
+  forwardViaFolder("./content-utf8-rel-alt.eml");   // Also tests HTML part without <html> tag.
+  forwardViaFolder("./content-utf8-alt-rel.eml");   // Also tests <html attr>.
+  forwardViaFolder("./content-utf8-alt-rel2.eml");  // Also tests content before <html>.
 }
 
 function teardownModule() {
+  Services.prefs.clearUserPref("mailnews.display.html_as");
 }
