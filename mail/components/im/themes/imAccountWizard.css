@@ -60,20 +60,28 @@
   margin-inline-start: 1px;
   margin-inline-end: 3px;
 %ifdef XP_WIN
-  background-image: url("chrome://global/skin/tree/twisty.svg#open");
+  background-image: url("chrome://global/skin/tree/twisty-expanded.svg");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 1;
 %else
   background-image: url("chrome://global/skin/tree/twisty-open.png");
 %endif
 }
 
-
 .collapsable[closed="true"] .caption-icon {
 %ifdef XP_WIN
-  background-image: url("chrome://global/skin/tree/twisty.svg#clsd");
+  background-image: url("chrome://global/skin/tree/twisty-collapsed.svg");
 %else
   background-image: url("chrome://global/skin/tree/twisty-clsd.png");
 %endif
 }
+
+%ifdef XP_WIN
+.collapsable[closed="true"] .caption-icon:Z:-moz-locale-dir(rtl) {
+  background-image: url("chrome://global/skin/tree/twisty-collapsed-rtl.svg");
+}
+%endif
 %endif
 
 #value-column {

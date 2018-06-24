@@ -10,35 +10,24 @@ treenode-checkbox > .checkbox-check {
   border: none;
   width: 9px; /* The image's width is 9 pixels */
   height: 9px;
-  background: url(chrome://global/skin/tree/twisty.svg#clsd) center no-repeat;
+  background: url(chrome://global/skin/tree/twisty-collapsed.svg) center no-repeat;
+  -moz-context-properties: fill, fill-opacity;
+  fill: #b6b6b6;
+  fill-opacity: 1;
 }
 
 treenode-checkbox[checked="true"] > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty.svg#open);
+  list-style-image: url("chrome://global/skin/tree/twisty-expanded.svg");
+  fill: #636363;
 }
 
-treenode-checkbox:hover > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty.svg#clsd-hover);
-}
-
+treenode-checkbox:hover > .checkbox-check,
 treenode-checkbox[checked="true"]:hover > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty.svg#open-hover);
+  fill: #4ed0f9;
 }
 
 treenode-checkbox:-moz-locale-dir(rtl) > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty.svg#clsd-rtl);
-}
-
-treenode-checkbox[checked="true"]:-moz-locale-dir(rtl) > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty.svg#open-rtl);
-}
-
-treenode-checkbox:-moz-locale-dir(rtl):hover > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty.svg#clsd-hover-rtl);
-}
-
-treenode-checkbox[checked="true"]:-moz-locale-dir(rtl):hover > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty.svg#open-hover-rtl);
+  list-style-image: url("chrome://global/skin/tree/twisty-collapsed-rtl.svg");
 }
 
 #task-tree-filtergroup {

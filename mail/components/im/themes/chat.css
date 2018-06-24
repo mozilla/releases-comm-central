@@ -610,12 +610,20 @@ imgroup .twisty {
   height: 9px;
   margin-inline-end: 3px;
   margin-inline-start: 5px;
-  background: url("chrome://global/skin/tree/twisty.svg#open") no-repeat center;
+  background: url("chrome://global/skin/tree/twisty-expanded.svg") no-repeat center;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 1;
 }
 
 imgroup[closed] .twisty {
-  background: url("chrome://global/skin/tree/twisty.svg#clsd") no-repeat center;
+  background: url("chrome://global/skin/tree/twisty-collapsed.svg") no-repeat center;
 }
+
+imgroup[closed]:-moz-locale-dir(rtl) .twisty {
+  background: url("chrome://global/skin/tree/twisty-collapsed-rtl.svg");
+}
+
 %else
 %ifdef XP_MACOSX
 imgroup .twisty {

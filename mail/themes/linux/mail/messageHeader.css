@@ -316,12 +316,6 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
   list-style-image: url("chrome://messenger/skin/icons/arrow-dn-grey.png");
 }
 
-/* ::::: view expand twisty  ::::: */
-
-.expandHeaderViewButton {
-  list-style-image: url("chrome://global/skin/tree/twisty-open.png");
-}
-
 window[inlinetoolbox] #smallicons,
 window[inlinetoolbox] #newtoolbar {
   display: none;
