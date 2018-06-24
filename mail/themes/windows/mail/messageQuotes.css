@@ -29,17 +29,17 @@ body {
 
 /* ::::: Turn on borders and padding for quotes. ::::: */
 
-blockquote[type=cite] {
+body blockquote[type=cite] {
   padding: 0.4ex 1ex;
-  margin: 1ex;
+  margin-block-start: 1ex;
+  margin-block-end: 1ex;
   border-width: 0 2px;
-  border-style: none solid none solid;
-  border-radius: 2px;
+  border-style: none solid;
 }
 
 /* ::::: Colorize block quote borders. We only go 5 levels deep. ::::: */
 
-blockquote[type=cite] {
+body blockquote[type=cite] {
   border-color: rgb(114,159,207); /* Sky Blue 1 */
 }
 

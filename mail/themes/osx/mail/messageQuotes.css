@@ -29,17 +29,18 @@ body {
 
 /* Quote Levels Colors */
 
-blockquote[type=cite] {
+body blockquote[type=cite] {
   color: blue !important;
   border-color: blue !important;
+  border-inline-start-width: 2px;
 }
 
-blockquote[type=cite] > blockquote {
+blockquote[type=cite] blockquote[type=cite] {
   color: green !important;
   border-color: green !important;
 }
 
-blockquote[type=cite] > blockquote > blockquote {
+blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] {
   color: maroon !important;
   border-color: maroon !important;
 }
