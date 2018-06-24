@@ -3016,7 +3016,7 @@ function onCommandSave(aIsClosing) {
     let resp = document.getElementById("notify-attendees-checkbox").checked
              ? Components.interfaces.calIItipItem.AUTO
              : Components.interfaces.calIItipItem.NONE;
-    let extResponse = { autoResponse: resp };
+    let extResponse = { responseMode: resp };
     window.onAcceptCallback(item, calendar, originalItem, listener, extResponse);
 }
 
