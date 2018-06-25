@@ -296,11 +296,7 @@ var contentTabBaseType = {
     // about:preferences
     null],
 
-  shouldSwitchTo: function onSwitchTo({contentPage: aContentPage, duplicate: aDuplicate}) {
-    if (aDuplicate) {
-      return -1;
-    }
-
+  shouldSwitchTo: function onSwitchTo({contentPage: aContentPage}) {
     let tabmail = document.getElementById("tabmail");
     let tabInfo = tabmail.tabInfo;
 
@@ -310,7 +306,8 @@ var contentTabBaseType = {
 
     let contentUrl = aContentPage.replace(regEx, "");
 
-    for (let selectedIndex = 0; selectedIndex < tabInfo.length; ++selectedIndex) {
+    for (let selectedIndex = 0; selectedIndex < tabInfo.length;
+         ++selectedIndex) {
       if (tabInfo[selectedIndex].mode.name == this.name &&
           tabInfo[selectedIndex].browser.currentURI.spec
                                 .replace(regEx, "") == contentUrl) {
@@ -822,9 +819,8 @@ var specialTabs = {
     restoreTab: function onRestoreTab(aTabmail, aPersistedState) {
       aTabmail.openTab("contentTab", { contentPage: aPersistedState.tabURI,
                                        clickHandler: aPersistedState.clickHandler,
-                                       duplicate: aPersistedState.duplicate,
                                        background: true } );
-    }
+    },
   },
 
   /**

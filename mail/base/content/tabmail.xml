@@ -274,7 +274,7 @@
       </xul:tabbox>
     </content>
 
-    <implementation implements="nsIController, nsIWebProgressListener, nsIWebProgressListener2">
+    <implementation implements="nsIController">
       <constructor>
         window.controllers.insertControllerAt(0, this);
         this._restoringTabState = null;
@@ -318,9 +318,6 @@
       </field>
       <field name="mLastTabOpener">
         null
-      </field>
-      <field name="mTabsProgressListeners">
-        new Set();
       </field>
       <method name="createTooltip">
         <parameter name="event"/>
@@ -506,7 +503,7 @@
             this.saveCurrentTabState();
 
           let tab = {mode: tabMode, busy: false, canClose: true,
-                     thinking: false, beforeTabOpen: true, _ext: {}};
+                     thinking: false, _ext: {}};
           tabMode.tabs.push(tab);
 
           var t = document.createElementNS(
@@ -603,22 +600,6 @@
             // Update the toolbar status - we don't need to do menus as they
             // do themselves when we open them.
             UpdateMailToolbar("tabmail");
-
-          let moving = restoreState ? restoreState.moving : null;
-
-          // Dispatch tab opening event
-          let evt = new CustomEvent("TabOpen", { bubbles: true, detail: { tabInfo: tab, moving } });
-          t.dispatchEvent(evt);
-          delete tab.beforeTabOpen;
-
-          // Register browser progress listeners
-          let browser = this.getBrowserForTab(tab);
-          if (browser) {
-            // It would probably be better to have the tabs register this listener, since the
-            // browser can change. This wasn't trivial to do while implementing basic WebExtension
-            // support, so let's assume one browser only for now.
-            browser.webProgress.addProgressListener(this, Ci.nsIWebProgress.NOTIFY_ALL);
-          }
 
           return tab;
         } catch (e) {
@@ -735,12 +716,6 @@
             if (tryCloseFunc && !tryCloseFunc.call(tab.mode.tabType, tab))
               return;
 
-            let evt = new CustomEvent("TabClose", {
-              bubbles: true,
-              detail: { tabInfo: tab, moving: tab.moving }
-            });
-            tabNode.dispatchEvent(evt);
-
             for (let tabMonitor of this.tabMonitors) {
               if ("onTabClosing" in tabMonitor)
                 tabMonitor.onTabClosing(tab);
@@ -827,8 +802,6 @@
       </method>
       <method name="replaceTabWithWindow">
         <parameter name="aTab"/>
-        <parameter name="aTargetWindow"/>
-        <parameter name="aTargetPosition"/>
         <body>
           <![CDATA[
             if (this.tabInfo.length <= 1)
@@ -848,65 +821,48 @@
             // object with absolutely no references to our current window.
             tab = JSON.parse(JSON.stringify(tab));
 
-            // Set up an identifier for the move, consumers may want to correlate TabClose and
-            // TabOpen events.
-            let moveSession = Cc["@mozilla.org/uuid-generator;1"]
-              .getService(Ci.nsIUUIDGenerator)
-              .generateUUID().toString();
-
-            tab.moving = moveSession;
-            aTab.moving = moveSession;
-
             this.closeTab(aTab,true);
 
-            if (aTargetWindow && aTargetWindow !== "popup") {
-              let targetTabmail = aTargetWindow.document.getElementById("tabmail");
-              targetTabmail.restoreTab(tab);
-
-              if (aTargetPosition) {
-                let droppedTab = targetTabmail.tabInfo[targetTabmail.tabInfo.length - 1];
-                targetTabmail.moveTabTo(droppedTab, aTargetPosition);
-              }
-              return aTargetWindow;
-            } else {
-              let features = ["chrome"];
-              if (aTargetWindow === "popup") {
-                features.push("dialog", "resizable", "minimizable", "centerscreen", "titlebar", "close");
-              } else {
-                features.push("dialog=no", "all", "status", "toolbar");
-              }
-
-              return window.openDialog("chrome://messenger/content/", "_blank",
-                 features.join(","), null,
-                 { action : "restore", tabs: [tab] } ).focus();
-            }
+            return window.openDialog("chrome://messenger/content/", "_blank",
+               "chrome,dialog=no,all", null,
+               { action : "restore", tabs: [tab] } ).focus();
           ]]>
         </body>
       </method>
       <method name="moveTabTo">
-        <parameter name="aTabIndexNodeOrInfo"/>
+        <parameter name="aTab"/>
         <parameter name="aIndex"/>
         <body><![CDATA[
-          let [oldIdx, tab, tabNode] =
-            this._getTabContextForTabbyThing(aTabIndexNodeOrInfo, false);
 
-          if (!tab || !tabNode || tabNode.tagName != "tab" || oldIdx < 0 || oldIdx == aIndex) {
+          if ((!aTab) || (aTab.tagName != "tab"))
             return -1;
-          }
 
-          // remove the entries from tabInfo, tabMode and the tabContainer
+          let oldIdx = this.tabContainer.getIndexOfItem(aTab);
+          if (oldIdx < 0)
+            return -1;
+
+          if (oldIdx == aIndex)
+            return -1;
+
+          // Cache the old tabInfo
+          let tab = this.tabInfo[oldIdx]
+
+          if (!tab)
+            return -1;
+
+          // remove the entries form tabInfo, tabMode and the tabContainer
           this.tabInfo.splice(oldIdx, 1);
           tab.mode.tabs.splice(tab.mode.tabs.indexOf(tab), 1);
-          tabNode.remove();
+          aTab.remove();
+
 
           // as we removed items, we might need to update indices
-          if (oldIdx < aIndex) {
-            aIndex--;
-          }
+          if (oldIdx < aIndex)
+            aIndex --;
 
           // Read it into tabInfo and the tabContainer
           this.tabInfo.splice(aIndex, 0, tab);
-          this.tabContainer.insertBefore(tabNode, this.tabContainer.childNodes[aIndex]);
+          this.tabContainer.insertBefore(aTab, this.tabContainer.childNodes[aIndex]);
 
           // Now it's getting a bit ugly, as tabModes stores redundant
           // information we need to get it in sync with tabInfo.
@@ -918,9 +874,10 @@
           // found our tab, we insert the moved tab directly behind into tabModes
 
           // In case find no tab we simply append it
-          let modeIdx = tab.mode.tabs.length + 1;
+          let modeIdx = tab.mode.tabs.length+1;
 
           for (let i = 0; i < tab.mode.tabs.length; i++) {
+
             if (this.tabInfo.indexOf(tab.mode.tabs[i]) < aIndex)
               continue;
 
@@ -929,11 +886,6 @@
           }
 
           tab.mode.tabs.splice(modeIdx, 0, tab);
-
-          let evt = new CustomEvent("TabMove", {
-            bubbles: true, view: window, detail: { idx: oldIdx, tabInfo: tab }
-          });
-          tabNode.dispatchEvent(evt);
 
           return aIndex;
          ]]>
@@ -1104,16 +1056,13 @@
         </body>
       </method>
 
-      <property name="selectedTab">
+      <property name="selectedTab" readonly="true">
         <getter><![CDATA[
           if (!this.currentTabInfo)
             this.currentTabInfo = this.tabInfo[0];
 
           return this.currentTabInfo;
         ]]></getter>
-        <setter><![CDATA[
-          this.switchToTab(val);
-        ]]></setter>
       </property>
 
       <!-- getBrowserForSelectedTab is required as some toolkit functions
@@ -1127,18 +1076,13 @@
           if (!tab)
             return null;
 
-          return this.getBrowserForTab(tab);
+          let browserFunc = tab.mode.getBrowser || tab.mode.tabType.getBrowser;
+          if (browserFunc)
+            return browserFunc.call(tab.mode.tabType, tab);
+
+          return null;
         ]]></body>
       </method>
-
-      <method name="getBrowserForTab">
-        <parameter name="aTab"/>
-        <body><![CDATA[
-          let browserFunc = aTab ? aTab.mode.getBrowser || aTab.mode.tabType.getBrowser : null;
-          return browserFunc ? browserFunc.call(aTab.mode.tabType, aTab) : null;
-        ]]></body>
-      </method>
-
       <!-- getBrowserForDocument is used to find the browser for a specific
            document that's been loaded -->
       <method name="getBrowserForDocument">
@@ -1172,17 +1116,6 @@
               if (possBrowser &&
                   possBrowser.contentDocument.documentElement.id == aDocumentId)
                 return this.tabInfo[i];
-            }
-          }
-          return null;
-        ]]></body>
-      </method>
-      <method name="getTabForBrowser">
-        <parameter name="aBrowser"/>
-        <body><![CDATA[
-          for (let tabInfo of this.tabInfo) {
-            if (this.getBrowserForTab(tabInfo) == aBrowser) {
-              return tabInfo;
             }
           }
           return null;
@@ -1252,10 +1185,6 @@
               // We switched tabs, so we don't need to know the last tab
               // opener anymore.
               this.mLastTabOpener = null;
-
-              let evt = new CustomEvent("TabSelect", { bubbles: true, detail: { tabInfo: tab } });
-              this.tabContainer.selectedItem.dispatchEvent(evt);
-
             }
           ]]>
         </body>
@@ -1298,14 +1227,6 @@
               let tabNode =
                 this.tabContainer.childNodes[iTab];
 
-              let defaultTabTitle = document.documentElement.getAttribute("defaultTabTitle");
-              let oldLabel = tabNode.getAttribute("label");
-              let newLabel = aTabNodeOrInfo ? tab.title : defaultTabTitle;
-
-              if (oldLabel == newLabel) {
-                return;
-              }
-
               let titleChangeFunc = tab.mode.onTitleChanged ||
                                     tab.mode.tabType.onTitleChanged;
               if (titleChangeFunc)
@@ -1317,21 +1238,13 @@
 
               // If the displayed tab is the one at the moment of creation
               // (aTabNodeOrInfo is null), set the default title as its title.
-              tabNode.setAttribute("label", newLabel);
+              tabNode.setAttribute("label", aTabNodeOrInfo ?
+                                            tab.title :
+                                            document.documentElement.getAttribute("defaultTabTitle"));
 
               // Update the window title if we're the displayed tab.
               if (iTab == this.tabContainer.selectedIndex)
                 this.setDocumentTitle(tab);
-
-              // Notify tab title change
-              if (!tab.beforeTabOpen) {
-                let evt = new CustomEvent("TabAttrModified", {
-                  bubbles: true,
-                  cancelable: false,
-                  detail: { changed: ["label"], tabInfo: tab }
-                });
-                tabNode.dispatchEvent(evt);
-              }
             }
           ]]>
         </body>
@@ -1350,16 +1263,6 @@
 
             if (tab) {
               let tabNode = this.tabContainer.childNodes[iTab];
-              let oldIcon = tabNode.getAttribute("image");
-
-              if (oldIcon != aIcon && !tab.beforeTabOpen) {
-                let evt = new CustomEvent("TabAttrModified", {
-                  bubbles: true,
-                  cancelable: false,
-                  detail: { changed: ["image"], tabInfo: tab }
-                });
-                tabNode.dispatchEvent(evt);
-              }
 
               if (aIcon)
                 tabNode.setAttribute("image", aIcon);
@@ -1622,127 +1525,6 @@
           ]]>
         </body>
       </method>
-      <method name="addTabsProgressListener">
-        <parameter name="aListener"/>
-        <body>
-          <![CDATA[
-            this.mTabsProgressListeners.add(aListener);
-           ]]>
-        </body>
-      </method>
-      <method name="removeTabsProgressListener">
-        <parameter name="aListener"/>
-        <body>
-          <![CDATA[
-            this.mTabsProgressListeners.delete(aListener);
-           ]]>
-        </body>
-      </method>
-      <method name="_callTabListeners">
-        <parameter name="aMethod"/>
-        <parameter name="aArgs"/>
-        <body>
-          <![CDATA[
-            for (let listener of  this.mTabsProgressListeners.values()) {
-              if (aMethod in listener) {
-                try {
-                  listener[aMethod](...aArgs);
-                } catch (e) {
-                  Cu.reportError(e);
-                }
-              }
-            }
-           ]]>
-        </body>
-      </method>
-      <method name="onProgressChange">
-        <parameter name="aWebProgress"/>
-        <parameter name="aRequest"/>
-        <parameter name="aCurSelf"/>
-        <parameter name="aMaxSelf"/>
-        <parameter name="aCurTotal"/>
-        <parameter name="aMaxTotal"/>
-        <body><![CDATA[
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
-          this._callTabListeners("onProgressChange", [browser, ...arguments]);
-        ]]></body>
-      </method>
-      <method name="onProgressChange64">
-        <parameter name="aWebProgress"/>
-        <parameter name="aRequest"/>
-        <parameter name="aCurSelf"/>
-        <parameter name="aMaxSelf"/>
-        <parameter name="aCurTotal"/>
-        <parameter name="aMaxTotal"/>
-        <body><![CDATA[
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
-          this._callTabListeners("onProgressChange64", [browser, ...arguments]);
-        ]]></body>
-      </method>
-      <method name="onLocationChange">
-        <parameter name="aWebProgress"/>
-        <parameter name="aRequest"/>
-        <parameter name="aLocationURI"/>
-        <parameter name="aFlags"/>
-        <body><![CDATA[
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
-          this._callTabListeners("onLocationChange", [browser, ...arguments]);
-        ]]></body>
-      </method>
-      <method name="onStateChange">
-        <parameter name="aWebProgress"/>
-        <parameter name="aRequest"/>
-        <parameter name="aStateFlags"/>
-        <parameter name="aStatus"/>
-        <body><![CDATA[
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
-          this._callTabListeners("onStateChange", [browser, ...arguments]);
-        ]]></body>
-      </method>
-      <method name="onStatusChange">
-        <parameter name="aWebProgress"/>
-        <parameter name="aRequest"/>
-        <parameter name="aStatus"/>
-        <parameter name="aMessage"/>
-        <body><![CDATA[
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
-          this._callTabListeners("onStatusChange", [browser, ...arguments]);
-        ]]></body>
-      </method>
-      <method name="onSecurityChange">
-        <parameter name="aWebProgress"/>
-        <parameter name="aRequest"/>
-        <parameter name="aState"/>
-        <body><![CDATA[
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
-          this._callTabListeners("onSecurityChange", [browser, ...arguments]);
-        ]]></body>
-      </method>
-      <method name="onRefreshAttempted">
-        <parameter name="aWebProgress"/>
-        <parameter name="aURI"/>
-        <parameter name="aDelay"/>
-        <parameter name="aSameURI"/>
-        <body><![CDATA[
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
-          this._callTabListeners("onRefreshAttempted", [browser, ...arguments]);
-        ]]></body>
-      </method>
-
     </implementation>
   </binding>
 

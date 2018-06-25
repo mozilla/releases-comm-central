@@ -335,7 +335,7 @@
   <!-- navigation-toolbox with main menubar and tabs toolbar -->
 #include mainNavigationToolbox.inc
 
-    <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
+    <toolbar id="tabs-toolbar">
       <!-- class tabmail-tabs is unused and only maintained for add-ons. -->
       <tabs flex="1"
             id="tabmail-tabs"
