@@ -1151,23 +1151,23 @@ function updateSaveControls(aSendNotSave) {
     window.calItemSaveControls.state = aSendNotSave;
     if (aSendNotSave) {
         if (saveBtn) {
-            saveBtn.label = cal.calGetString("calendar-event-dialog",
-                                             "saveandsendButtonLabel");
-            saveBtn.tooltiptext = cal.calGetString("calendar-event-dialog",
-                                                   "saveandsendButtonTooltip");
+            saveBtn.label = cal.l10n.getString("calendar-event-dialog",
+                                               "saveandsendButtonLabel");
+            saveBtn.tooltiptext = cal.l10n.getString("calendar-event-dialog",
+                                                     "saveandsendButtonTooltip");
             saveBtn.setAttribute("mode", "send");
         }
         if (saveandcloseBtn) {
-            saveandcloseBtn.label = cal.calGetString("calendar-event-dialog",
-                                                     "sendandcloseButtonLabel");
-            saveandcloseBtn.tooltiptext = cal.calGetString("calendar-event-dialog",
-                                                           "sendandcloseButtonTooltip");
+            saveandcloseBtn.label = cal.l10n.getString("calendar-event-dialog",
+                                                       "sendandcloseButtonLabel");
+            saveandcloseBtn.tooltiptext = cal.l10n.getString("calendar-event-dialog",
+                                                             "sendandcloseButtonTooltip");
             saveandcloseBtn.setAttribute("mode", "send");
         }
-        saveMenu.label = cal.calGetString("calendar-event-dialog",
-                                          "saveandsendMenuLabel");
-        saveandcloseMenu.label = cal.calGetString("calendar-event-dialog",
-                                                  "sendandcloseMenuLabel");
+        saveMenu.label = cal.l10n.getString("calendar-event-dialog",
+                                            "saveandsendMenuLabel");
+        saveandcloseMenu.label = cal.l10n.getString("calendar-event-dialog",
+                                                    "sendandcloseMenuLabel");
     } else {
         if (saveBtn) {
             saveBtn.label = window.calItemSaveControls.saveBtn.label;

@@ -190,7 +190,7 @@ function injectCalUtilsCompat(global) {
                            " and the parameter order has changed",
                            "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
                            Components.stack.caller);
-        return cal.l10n.getAnyString(aComponent, aBundleName, aStringName, aParams);
+        return global.l10n.getAnyString(aComponent, aBundleName, aStringName, aParams);
     };
 
     global.ProviderBase = class extends global.provider.BaseClass {

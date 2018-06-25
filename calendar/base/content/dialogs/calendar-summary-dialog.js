@@ -338,7 +338,7 @@ function updateToolbar() {
         msgStr["NEEDS-ACTION"] = type + "NeedsAction";
         msgStr["IN-PROGRESS"] = "taskInProgress";
 
-        let msg = cal.calGetString("calendar-event-dialog", msgStr[partStat]);
+        let msg = cal.l10n.getString("calendar-event-dialog", msgStr[partStat]);
 
         notificationBox.appendNotification(msg,
                                            "statusNotification",
