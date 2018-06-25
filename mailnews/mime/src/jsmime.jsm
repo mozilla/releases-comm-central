@@ -27,13 +27,8 @@ function bytesToString(buffer) {
 function UTF7TextDecoder(label, options = {}) {
   this.manager = Cc["@mozilla.org/charset-converter-manager;1"]
                    .createInstance(Ci.nsICharsetConverterManager);
-  let charset;
-  try {
-    charset = this.manager.getCharsetAlias(label);
-  } catch (ex) {
-    // Unknown charset, nothing we can do.
-    throw ex;
-  }
+  // The following will throw if the charset is unknown.
+  let charset = this.manager.getCharsetAlias(label);
   if (charset.toLowerCase() != "utf-7")
     throw new Error("UTF7TextDecoder: This code should never be reached for " + label);
   this.collectInput = "";
