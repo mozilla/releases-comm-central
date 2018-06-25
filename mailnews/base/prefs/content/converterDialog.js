@@ -205,8 +205,7 @@ function startContinue(aSelectedStoreType, aResponse) {
    * @param {String} aReason - error because of which the promise was rejected.
    */
   function promiseRejected(aReason){
-    log.error("Conversion to '" + mailstoreContractId + "' failed: " +
-      aReason);
+    log.error("Conversion to '" + aSelectedStoreType + "' failed: " + aReason);
     document.getElementById("messageSpan").style.display = "none";
 
     document.getElementById("errorSpan").style.display = "block";
@@ -232,15 +231,14 @@ function startContinue(aSelectedStoreType, aResponse) {
    * promise returned by convertMailStoreTo() is resolved.
    */
   function promiseResolved(aVal) {
-    let newMailstoreContractId = aSelectedStoreType;
-    log.info("Converted to '" + newMailstoreContractId + "' - " + aVal);
+    log.info("Converted to '" + aSelectedStoreType + "' - " + aVal);
 
     gResponse.newRootFolder = aVal;
     for (let deferredAccount of gDeferredAccounts) {
       let defServer = deferredAccount.incomingServer;
       defServer.rootMsgFolder.filePath = new FileUtils.File(aVal);
       Services.prefs.setCharPref("mail.server." + defServer.key +
-        ".storeContractID", newMailstoreContractId);
+        ".storeContractID", aSelectedStoreType);
     }
 
     Services.io.offline = gOriginalOffline;
