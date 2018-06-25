@@ -666,7 +666,7 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                        let str = cal.provider.convertByteArray(aResult, aResultLength);
+                        let str = new TextDecoder().decode(aResult);
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
@@ -785,7 +785,7 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                        let str = cal.provider.convertByteArray(aResult, aResultLength);
+                        let str = new TextDecoder().decode(aResult);
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
@@ -913,7 +913,7 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                        let str = cal.provider.convertByteArray(aResult, aResultLength);
+                        let str = new TextDecoder().decode(aResult);
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
@@ -983,7 +983,7 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                        let str = cal.provider.convertByteArray(aResult, aResultLength);
+                        let str = new TextDecoder().decode(aResult);
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
@@ -1414,7 +1414,7 @@ calDavCalendar.prototype = {
                 return;
             }
 
-            let str = cal.provider.convertByteArray(aResult, aResultLength);
+            let str = new TextDecoder().decode(aResult);
             if (!str) {
                 cal.LOG("CalDAV: Failed to get ctag from server for calendar " +
                         self.name);
@@ -1790,7 +1790,7 @@ calDavCalendar.prototype = {
                 cal.LOG("CalDAV: realm " + self.mAuthRealm);
             }
 
-            let str = cal.provider.convertByteArray(aResult, aResultLength);
+            let str = new TextDecoder().decode(aResult);
             if (!str || request.responseStatus == 404) {
                 // No response, or the calendar no longer exists.
                 cal.LOG("CalDAV: Failed to determine resource type for" +
@@ -1959,7 +1959,7 @@ calDavCalendar.prototype = {
             } catch (ex) {
                 cal.LOG("CalDAV: Error getting DAV header for " + self.name +
                         ", status " + request.responseStatus +
-                        ", data: " + cal.provider.convertByteArray(aResult, aResultLength));
+                        ", data: " + new TextDecoder().decode(aResult));
             }
             // Google does not yet support OPTIONS but does support scheduling
             // so we'll spoof the DAV header until Google gets fixed
@@ -2055,7 +2055,7 @@ calDavCalendar.prototype = {
                 return;
             }
 
-            let str = cal.provider.convertByteArray(aResult, aResultLength);
+            let str = new TextDecoder().decode(aResult);
             if (!str) {
                 cal.LOG("CalDAV: Failed to propstat principal namespace for " + self.name);
                 self.completeCheckServerInfo(aChangeLogListener,
@@ -2172,7 +2172,7 @@ calDavCalendar.prototype = {
         let streamListener = {};
         streamListener.onStreamComplete = function(aLoader, aContext, aStatus, aResultLength, aResult) {
             let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
-            let str = cal.provider.convertByteArray(aResult, aResultLength);
+            let str = new TextDecoder().decode(aResult);
             if (!str) {
                 cal.LOG("CalDAV: Failed to report principals namespace for " + self.name);
                 doesntSupportScheduling();
@@ -2442,7 +2442,7 @@ calDavCalendar.prototype = {
         streamListener.onStreamComplete = function(aLoader, aContext, aStatus,
                                                    aResultLength, aResult) {
             let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
-            let str = cal.provider.convertByteArray(aResult, aResultLength);
+            let str = new TextDecoder().decode(aResult);
             if (!str) {
                 cal.LOG("CalDAV: Failed to parse freebusy response from " + self.name);
             } else if (self.verboseLogging()) {
@@ -2802,7 +2802,12 @@ calDavCalendar.prototype = {
                                 " for " + self.name);
                     }
 
-                    let str = cal.provider.convertByteArray(aResult, aResultLength, "UTF-8", false);
+                    let str;
+                    try {
+                        str = new TextDecoder().decode(aResult);
+                    } catch (e) {
+                        str = null;
+                    }
                     if (str) {
                         if (self.verboseLogging()) {
                             cal.LOG("CalDAV: recv: " + str);

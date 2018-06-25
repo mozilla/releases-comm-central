@@ -236,13 +236,9 @@ calICSCalendar.prototype = {
         // This conversion is needed, because the stream only knows about
         // byte arrays, not about strings or encodings. The array of bytes
         // need to be interpreted as utf8 and put into a javascript string.
-        let unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                         .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-        // ics files are always utf8
-        unicodeConverter.charset = "UTF-8";
         let str;
         try {
-            str = unicodeConverter.convertFromByteArray(result, result.length);
+            str = new TextDecoder().decode(result);
         } catch (e) {
             this.mObserver.onError(this.superCalendar, calIErrors.CAL_UTF8_DECODING_FAILED, e.toString());
             this.mObserver.onError(this.superCalendar, calIErrors.READ_FAILED, "");
@@ -1004,14 +1000,9 @@ httpHooks.prototype = {
             let self = this; // need to reference in callback
 
             etagListener.onStreamComplete = function(aLoader, aContext, aStatus, aResultLength, aResult) {
-                let resultConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                                .createInstance(Components
-                                                .interfaces.nsIScriptableUnicodeConverter);
-                resultConverter.charset = "UTF-8";
-
                 let multistatus;
                 try {
-                    let str = resultConverter.convertFromByteArray(aResult, aResultLength);
+                    let str = new TextDecoder().decode(aResult);
                     multistatus = cal.xml.parseString(str);
                 } catch (ex) {
                     cal.LOG("[calICSCalendar] Failed to fetch channel etag");

@@ -9,6 +9,7 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+XPCOMUtils.defineLazyModuleGetter(this, "Deprecated", "resource://gre/modules/Deprecated.jsm");
 
 /*
  * Helpers and base class for calendar providers
@@ -101,12 +102,13 @@ var calprovider = {
      * @param {Boolean} aThrow          If true, the function will raise an exception on error
      * @return {?String}                The string result, or null on error
      */
-    convertByteArray: function(aResult, aResultLength, aCharset, aThrow) {
+    convertByteArray: function(aResult, aResultLength, aCharset="utf-8", aThrow) {
+        Deprecated.warning(
+            "The cal.provider.convertByteArray() function has been superseded by the use of TextDecoder.",
+            "https://bugzilla.mozilla.org/show_bug.cgi?id=1469499"
+        );
         try {
-            let resultConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                            .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-            resultConverter.charset = aCharset || "UTF-8";
-            return resultConverter.convertFromByteArray(aResult, aResultLength);
+            return new TextDecoder(aCharset).decode(aResult);
         } catch (e) {
             if (aThrow) {
                 throw e;

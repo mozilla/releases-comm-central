@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 function calIcsParser() {
     this.wrappedJSObject = this;
@@ -156,32 +157,7 @@ calIcsParser.prototype = {
         // because likely, the file is utf8. The multibyte chars show up as multiple
         // 'chars' in this string. So call it an array of octets for now.
 
-        let octetArray = [];
-        let binaryIS = Components.classes["@mozilla.org/binaryinputstream;1"]
-                                 .createInstance(Components.interfaces.nsIBinaryInputStream);
-        binaryIS.setInputStream(aStream);
-        octetArray = binaryIS.readByteArray(binaryIS.available());
-
-        // Some other apps (most notably, sunbird 0.2) happily splits an UTF8
-        // character between the octets, and adds a newline and space between them,
-        // for ICS folding. Unfold manually before parsing the file as utf8.This is
-        // UTF8 safe, because octets with the first bit 0 are always one-octet
-        // characters. So the space or the newline never can be part of a multi-byte
-        // char.
-        for (let i = octetArray.length - 2; i >= 0; i--) {
-            if (octetArray[i] == "\n" && octetArray[i + 1] == " ") {
-                octetArray = octetArray.splice(i, 2);
-            }
-        }
-
-        // Interpret the byte-array as a UTF8-string, and convert into a
-        // javascript string.
-        let unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                         .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-        // ICS files are always UTF8
-        unicodeConverter.charset = "UTF-8";
-        let stringData = unicodeConverter.convertFromByteArray(octetArray, octetArray.length);
-
+        let stringData = NetUtil.readInputStreamToString(aStream, aStream.available(), { charset: "utf-8" });
         this.parseString(stringData, aTzProvider, aAsyncParsing);
     },
 
