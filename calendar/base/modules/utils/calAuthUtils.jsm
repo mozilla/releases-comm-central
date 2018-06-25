@@ -223,7 +223,7 @@ var calauth = {
      */
     _ensureOrigin: function(aOrigin) {
         try {
-            let {prePath, spec} = Services.io.newURI(aOrigin);
+            let { prePath, spec } = Services.io.newURI(aOrigin);
             if (prePath == "oauth:") {
                 return spec;
             }
