@@ -740,6 +740,7 @@ function rebuildFilterList()
       nameCell = document.createElement("listcell");
       enabledCell = document.createElement("listcell");
       enabledCell.setAttribute("class", "listcell-iconic");
+      enabledCell.setAttribute("pack", "center");
       listitem.appendChild(nameCell);
       listitem.appendChild(enabledCell);
       gFilterListbox.appendChild(listitem);

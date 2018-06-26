@@ -23,6 +23,10 @@
    margin: 8px;
 }
 
+.listcell-iconic .listcell-label {
+  display: none;
+}
+
 /* ::::: columns :::::: */
 
 listcell[enabled="false"] {

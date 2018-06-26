@@ -20,6 +20,10 @@ listcell[enabled="true"] {
   list-style-image: url("chrome://messenger/skin/icons/check.gif");
 }
 
+.listcell-iconic .listcell-label {
+  display: none;
+}
+
 #gray_horizontal_splitter {
   margin-right: -6px;
   margin-left: -6px;

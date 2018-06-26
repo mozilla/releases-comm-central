@@ -69,6 +69,14 @@ spinbuttons {
   -moz-user-focus: ignore;
 }
 
+.listitem-iconic {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listitem-iconic");
+}
+
+.listcell-iconic {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listcell-iconic");
+}
+
 statusbar {
   -moz-binding: url("chrome://messenger/content/generalBindings.xml#statusbar");
 }

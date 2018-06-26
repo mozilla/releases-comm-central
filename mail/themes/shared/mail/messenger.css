@@ -195,3 +195,7 @@ toolbarpaletteitem toolbarspacer,
 toolbarpaletteitem toolbarspring {
   -moz-window-dragging: no-drag;
 }
+
+.listcell-icon {
+  margin-inline-end: 2px;
+}
