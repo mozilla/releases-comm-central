@@ -119,21 +119,21 @@ distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/c
 @MOZ_APP_NAME@-bin
 # devtools reduction is bug 1311178
 chrome/devtools/content/dom/content/dom-view.css
-chrome/devtools/content/dom/dom.html
+chrome/devtools/content/dom/index.html
 chrome/devtools/content/dom/main.js
 chrome/devtools/content/framework/toolbox-options.js
 chrome/devtools/content/inspector/fonts/fonts.js
-chrome/devtools/content/inspector/inspector.xhtml
+chrome/devtools/content/inspector/index.xhtml
 chrome/devtools/content/memory/initializer.js
 chrome/devtools/content/projecteditor/lib/helpers/readdir.js
 chrome/devtools/content/shared/frame-script-utils.js
 chrome/devtools/content/shared/theme-switching.js
 chrome/devtools/modules/devtools/client/dom/content/dom-view.css
-chrome/devtools/modules/devtools/client/dom/dom.html
+chrome/devtools/modules/devtools/client/dom/index.html
 chrome/devtools/modules/devtools/client/dom/main.js
 chrome/devtools/modules/devtools/client/framework/toolbox-options.js
 chrome/devtools/modules/devtools/client/inspector/fonts/fonts.js
-chrome/devtools/modules/devtools/client/inspector/inspector.xhtml
+chrome/devtools/modules/devtools/client/inspector/index.xhtml
 chrome/devtools/modules/devtools/client/jsonview/css/controls.png
 chrome/devtools/modules/devtools/client/jsonview/css/controls@2x.png
 chrome/devtools/modules/devtools/client/memory/initializer.js
