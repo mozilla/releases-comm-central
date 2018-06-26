@@ -36,7 +36,10 @@ nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation)
 
   nsresult rv;
   nsCOMPtr<nsIFile> directory;
-  rv = GetSpecialDirectoryWithFileName(NS_WIN_DOCUMENTS_DIR,
+  // XXX: The following won't work since M-C removed retrieving the "documents"
+  // directory in bug 1449686. See bug 1471278. Either M-C needs to restore this
+  // or we will have to insert Windows system calls here ourselves :-(
+  rv = GetSpecialDirectoryWithFileName("Docs",
                                        "Becky",
                                        getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
