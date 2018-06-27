@@ -28,6 +28,7 @@
 #include "nsThreadUtils.h"
 
 #include "nsBeckyUtils.h"
+#include "SpecialSystemDirectory.h"
 
 nsresult
 nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation)
@@ -36,12 +37,9 @@ nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation)
 
   nsresult rv;
   nsCOMPtr<nsIFile> directory;
-  // XXX: The following won't work since M-C removed retrieving the "documents"
-  // directory in bug 1449686. See bug 1471278. Either M-C needs to restore this
-  // or we will have to insert Windows system calls here ourselves :-(
-  rv = GetSpecialDirectoryWithFileName("Docs",
-                                       "Becky",
-                                       getter_AddRefs(directory));
+  rv = GetSpecialSystemDirectory(Win_Documents, getter_AddRefs(directory));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = directory->AppendNative(NS_LITERAL_CSTRING("Becky"));
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool exists = false;
