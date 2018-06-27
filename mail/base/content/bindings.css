@@ -69,7 +69,7 @@ spinbuttons {
   -moz-user-focus: ignore;
 }
 
-.listitem-iconic {
+.listitem-iconic:not([type="checkbox"]) {
   -moz-binding: url("chrome://messenger/content/listbox.xml#listitem-iconic");
 }
 
