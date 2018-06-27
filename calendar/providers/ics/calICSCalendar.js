@@ -238,7 +238,7 @@ calICSCalendar.prototype = {
         // need to be interpreted as utf8 and put into a javascript string.
         let str;
         try {
-            str = new TextDecoder().decode(result);
+            str = new TextDecoder().decode(Uint8Array.from(result));
         } catch (e) {
             this.mObserver.onError(this.superCalendar, calIErrors.CAL_UTF8_DECODING_FAILED, e.toString());
             this.mObserver.onError(this.superCalendar, calIErrors.READ_FAILED, "");
@@ -1002,7 +1002,7 @@ httpHooks.prototype = {
             etagListener.onStreamComplete = function(aLoader, aContext, aStatus, aResultLength, aResult) {
                 let multistatus;
                 try {
-                    let str = new TextDecoder().decode(aResult);
+                    let str = new TextDecoder().decode(Uint8Array.from(aResult));
                     multistatus = cal.xml.parseString(str);
                 } catch (ex) {
                     cal.LOG("[calICSCalendar] Failed to fetch channel etag");

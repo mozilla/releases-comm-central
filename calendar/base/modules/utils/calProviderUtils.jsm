@@ -108,7 +108,7 @@ var calprovider = {
             "https://bugzilla.mozilla.org/show_bug.cgi?id=1469499"
         );
         try {
-            return new TextDecoder(aCharset).decode(aResult);
+            return new TextDecoder(aCharset).decode(Uint8Array.from(aResult));
         } catch (e) {
             if (aThrow) {
                 throw e;
