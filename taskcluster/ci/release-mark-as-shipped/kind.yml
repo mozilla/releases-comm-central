@@ -21,7 +21,7 @@ job-defaults:
             comm-(beta|esr60): scriptworker-prov-v1/tb-shipit-v1
             default: scriptworker-prov-v1/tb-shipit-dev
     worker:
-        implementation: shipit
+        implementation: shipit-shipped
     scopes:
         by-project:
             comm-(beta|esr60): ['project:comm:thunderbird:releng:ship-it:production']
