@@ -22,7 +22,7 @@ var CompactTheme = {
   },
 
   get isThemeCurrentlyApplied() {
-    let theme = LightweightThemeManager.currentTheme;
+    let theme = LightweightThemeManager.currentThemeForDisplay;
     return theme && (
            theme.id == "thunderbird-compact-dark@mozilla.org" ||
            theme.id == "thunderbird-compact-light@mozilla.org");
