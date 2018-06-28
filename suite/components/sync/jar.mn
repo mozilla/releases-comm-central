@@ -1,0 +1,21 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+comm.jar:
+   content/communicator/aboutSyncTabs.xul                           (content/aboutSyncTabs.xul)
+   content/communicator/aboutSyncTabs.js                            (content/aboutSyncTabs.js)
+   content/communicator/aboutSyncTabs.css                           (content/aboutSyncTabs.css)
+   content/communicator/aboutSyncTabs-bindings.xml                  (content/aboutSyncTabs-bindings.xml)
+   content/communicator/sync/syncAddDevice.xul                      (content/syncAddDevice.xul)
+   content/communicator/sync/syncAddDevice.js                       (content/syncAddDevice.js)
+   content/communicator/sync/syncSetup.xul                          (content/syncSetup.xul)
+   content/communicator/sync/syncSetup.js                           (content/syncSetup.js)
+   content/communicator/sync/syncGenericChange.xul                  (content/syncGenericChange.xul)
+   content/communicator/sync/syncGenericChange.js                   (content/syncGenericChange.js)
+   content/communicator/sync/syncKey.xhtml                          (content/syncKey.xhtml)
+   content/communicator/sync/syncNotification.xml                   (content/syncNotification.xml)
+   content/communicator/sync/syncQuota.xul                          (content/syncQuota.xul)
+   content/communicator/sync/syncQuota.js                           (content/syncQuota.js)
+   content/communicator/sync/syncUtils.js                           (content/syncUtils.js)
+   content/communicator/sync/syncUI.js                              (content/syncUI.js)

@@ -1,0 +1,15 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+comm.jar:
+% content communicator %content/communicator/ contentaccessible=yes
+   content/communicator/search/engineManager.js                     (content/engineManager.js)
+   content/communicator/search/engineManager.xul                    (content/engineManager.xul)
+   content/communicator/search/search.xml                           (content/search.xml)
+   content/communicator/search/searchbarBindings.css                (content/searchbarBindings.css)
+   content/communicator/search/search-panel.js                      (content/search-panel.js)
+   content/communicator/search/search-panel.xul                     (content/search-panel.xul)
+
+# L10n resource overrides
+% resource search-plugins chrome://communicator/locale/searchplugins/

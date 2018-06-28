@@ -1,0 +1,10 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+comm.jar:
+   content/communicator/permissions/cookieViewer.js                 (content/cookieViewer.js)
+   content/communicator/permissions/cookieViewer.xul                (content/cookieViewer.xul)
+   content/communicator/permissions/permissionsManager.js           (content/permissionsManager.js)
+   content/communicator/permissions/permissionsManager.xul          (content/permissionsManager.xul)
+   content/communicator/permissions/treeUtils.js                    (content/treeUtils.js)

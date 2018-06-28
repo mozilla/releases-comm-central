@@ -169,8 +169,10 @@
 @RESPATH@/components/mozIntl.js
 @RESPATH@/components/satchel.manifest
 @RESPATH@/components/SuiteBrowser.manifest
-@RESPATH@/components/SuiteCommon.manifest
+@RESPATH@/components/SuiteComponents.manifest
 @RESPATH@/components/SuiteFeeds.manifest
+@RESPATH@/components/SuiteProfileMigrator.manifest
+@RESPATH@/components/SuiteSidebar.manifest
 @RESPATH@/components/toolkitplaces.manifest
 @RESPATH@/components/toolkitsearch.manifest
 ; Security Reports

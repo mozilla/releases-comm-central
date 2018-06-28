@@ -1,0 +1,17 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+comm.jar:
+   content/communicator/customizeToolbar.css                        (../../../common/src/customizeToolbar.css)
+   content/communicator/customizeToolbar.js                         (../../../common/src/customizeToolbar.js)
+*  content/communicator/customizeToolbar.xul                        (../../../common/src/customizeToolbar.xul)
+*  content/communicator/bindings/datetimepicker.xml                 (../../../common/bindings/datetimepicker.xml)
+   content/communicator/bindings/findbar.xml                        (findbar.xml)
+   content/communicator/bindings/general.xml                        (general.xml)
+   content/communicator/bindings/generalBindings.xml                (../../../common/bindings/generalBindings.xml)
+   content/communicator/bindings/notification.xml                   (notification.xml)
+*  content/communicator/bindings/preferences.xml                    (../../../common/bindings/preferences.xml)
+*  content/communicator/bindings/toolbar.xml                        (../../../common/bindings/toolbar.xml)
+   content/communicator/bindings/toolbar-xpfe.xml                   (toolbar-xpfe.xml)
+*  content/communicator/bindings/prefwindow.xml                     (prefwindow.xml)

@@ -1,0 +1,103 @@
+#filter substitution
+
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.comm.jar:
+
+comm.jar:
+% content communicator %content/communicator/ contentaccessible=yes
+% override chrome://global/content/license.html chrome://communicator/content/license.html
+% overlay chrome://global/content/viewSource.xul chrome://communicator/content/viewSourceOverlay.xul
+% overlay chrome://global/content/viewPartialSource.xul chrome://communicator/content/viewSourceOverlay.xul
+% overlay chrome://editor/content/EdAdvancedEdit.xul chrome://communicator/content/helpEditorOverlay.xul
+% overlay chrome://editor/content/EdImageProps.xul chrome://communicator/content/helpEditorOverlay.xul
+% overlay chrome://editor/content/EditorPublish.xul chrome://communicator/content/helpEditorOverlay.xul
+% overlay chrome://editor/content/EditorPublishProgress.xul chrome://communicator/content/helpEditorOverlay.xul
+% overlay chrome://editor/content/EditorPublishSettings.xul chrome://communicator/content/helpEditorOverlay.xul
+% overlay chrome://editor/content/EdLinkProps.xul chrome://communicator/content/helpEditorOverlay.xul
+% overlay chrome://editor/content/EdTableProps.xul chrome://communicator/content/helpEditorOverlay.xul
+% overlay chrome://pippki/content/certManager.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/certViewer.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/changepassword.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/device_manager.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/choosetoken.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/clientauthask.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/crlImportDialog.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/deletecert.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/editcacert.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/editemailcert.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/editsslcert.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/escrowWarn.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/getp12password.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/setp12password.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/pref-crlupdate.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/serverCrlNextupdate.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/crlManager.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/resetpassword.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://pippki/content/downloadcert.xul chrome://communicator/content/helpSecurityOverlay.xul
+% overlay chrome://messenger/content/addressbook/pref-editdirectories.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/addressbook/pref-directory-add.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/AccountManager.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/FilterEditor.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/junkMailInfo.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/msgSelectOfflineFolders.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/subscribe.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/mailViewList.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger/content/mailViewSetup.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger-smime/content/msgCompSecurityInfo.xul chrome://communicator/content/helpMessengerOverlay.xul
+% overlay chrome://messenger-smime/content/msgReadSecurityInfo.xul chrome://communicator/content/helpMessengerOverlay.xul
+% content communicator-region %content/communicator-region/
+   content/communicator/about.js                                    (content/about.js)
+   content/communicator/about.xhtml                                 (content/about.xhtml)
+   content/communicator/aboutLife.xhtml                             (content/aboutLife.xhtml)
+   content/communicator/aboutPrivateBrowsing.css                    (content/aboutPrivateBrowsing.css)
+   content/communicator/aboutPrivateBrowsing.js                     (content/aboutPrivateBrowsing.js)
+   content/communicator/aboutPrivateBrowsing.xul                    (content/aboutPrivateBrowsing.xul)
+   content/communicator/askViewZoom.xul                             (content/askViewZoom.xul)
+   content/communicator/askViewZoom.js                              (content/askViewZoom.js)
+   content/communicator/blockedSite.js                              (content/blockedSite.js)
+   content/communicator/blockedSite.xhtml                           (content/blockedSite.xhtml)
+   content/communicator/certError.css                               (content/certError.css)
+   content/communicator/certError.js                                (content/certError.js)
+   content/communicator/certError.xhtml                             (content/certError.xhtml)
+   content/communicator/certError.xml                               (content/certError.xml)
+   content/communicator/charsetOverlay.xul                          (content/charsetOverlay.xul)
+*  content/communicator/communicator.css                            (content/communicator.css)
+   content/communicator/contentAreaClick.js                         (content/contentAreaClick.js)
+   content/communicator/contentAreaContextOverlay.xul               (content/contentAreaContextOverlay.xul)
+   content/communicator/defaultClientDialog.js                      (content/defaultClientDialog.js)
+   content/communicator/defaultClientDialog.xul                     (content/defaultClientDialog.xul)
+   content/communicator/findUtils.js                                (content/findUtils.js)
+   content/communicator/fullscreen-video.xhtml                      (content/fullscreen-video.xhtml)
+   content/communicator/gopherAddon.xhtml                           (content/gopherAddon.xhtml)
+   content/communicator/helpEditorOverlay.xul                       (content/helpEditorOverlay.xul)
+   content/communicator/helpMessengerOverlay.xul                    (content/helpMessengerOverlay.xul)
+   content/communicator/helpSecurityOverlay.xul                     (content/helpSecurityOverlay.xul)
+   content/communicator/labelsencodings.properties                  (/@mozreltopsrcdir@/dom/encoding/labelsencodings.properties)
+# the following file is a suite-specific override of the generic license.html, using suite/common/app-license.html as input:
+*  content/communicator/license.html                                (/@mozreltopsrcdir@/toolkit/content/license.html)
+   content/communicator/nsContextMenu.js                            (content/nsContextMenu.js)
+   content/communicator/openLocation.js                             (content/openLocation.js)
+   content/communicator/openLocation.xul                            (content/openLocation.xul)
+   content/communicator/safeMode.js                                 (content/safeMode.js)
+   content/communicator/safeMode.xul                                (content/safeMode.xul)
+   content/communicator/sanitize.xul                                (content/sanitize.xul)
+   content/communicator/tasksOverlay.js                             (content/tasksOverlay.js)
+   content/communicator/tasksOverlay.xul                            (content/tasksOverlay.xul)
+   content/communicator/utilityOverlay.js                           (content/utilityOverlay.js)
+   content/communicator/utilityOverlay.xul                          (content/utilityOverlay.xul)
+   content/communicator/viewApplyThemeOverlay.xul                   (content/viewApplyThemeOverlay.xul)
+   content/communicator/viewApplyThemeOverlay.js                    (content/viewApplyThemeOverlay.js)
+   content/communicator/viewSourceOverlay.js                        (content/viewSourceOverlay.js)
+   content/communicator/viewSourceOverlay.xul                       (content/viewSourceOverlay.xul)
+   content/communicator/viewZoomOverlay.xul                         (content/viewZoomOverlay.xul)
+   content/communicator/viewZoomOverlay.js                          (content/viewZoomOverlay.js)
+#ifdef XP_MACOSX
+   content/communicator/platformCommunicatorOverlay.xul             (content/mac/platformCommunicatorOverlay.xul)
+#else
+#ifdef XP_WIN
+   content/communicator/platformCommunicatorOverlay.xul             (content/win/platformCommunicatorOverlay.xul)
+#else
+   content/communicator/platformCommunicatorOverlay.xul             (content/unix/platformCommunicatorOverlay.xul)
+#endif
+#endif

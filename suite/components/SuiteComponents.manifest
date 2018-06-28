@@ -11,17 +11,8 @@ contract @mozilla.org/network/protocol/about;1?what=rights {d54f2c89-8fd6-4eeb-a
 contract @mozilla.org/network/protocol/about;1?what=sessionrestore {d54f2c89-8fd6-4eeb-a7a4-51d4dcdf460f}
 component {22042bdb-56e4-47c6-8b12-fdfa859c05a9} nsGopherProtocolStubHandler.js
 contract @mozilla.org/network/protocol;1?name=gopher {22042bdb-56e4-47c6-8b12-fdfa859c05a9}
-component {4e6c1112-57b6-44ba-adf9-99fb573b0a30} nsSessionStartup.js
-contract @mozilla.org/suite/sessionstartup;1 {4e6c1112-57b6-44ba-adf9-99fb573b0a30}
-category app-startup SessionStartup service,@mozilla.org/suite/sessionstartup;1
-component {d37ccdf1-496f-4135-9575-037180af010d} nsSessionStore.js
-contract @mozilla.org/suite/sessionstore;1 {d37ccdf1-496f-4135-9575-037180af010d}
 component {bbbbe845-5a1b-40ee-813c-f84b8faaa07c} nsSuiteGlue.js
 contract @mozilla.org/suite/suiteglue;1 {bbbbe845-5a1b-40ee-813c-f84b8faaa07c}
 category app-startup nsSuiteGlue service,@mozilla.org/suite/suiteglue;1
 component {9d4c845d-3f09-402a-b66d-50f291d7d50f} nsSuiteGlue.js
 contract @mozilla.org/content-permission/prompt;1 {9d4c845d-3f09-402a-b66d-50f291d7d50f}
-component {22117140-9c6e-11d3-aaf1-00805f8a4905} nsSidebar.js
-contract @mozilla.org/sidebar;1 {22117140-9c6e-11d3-aaf1-00805f8a4905}
-category JavaScript-global-property sidebar @mozilla.org/sidebar;1
-category JavaScript-global-property external @mozilla.org/sidebar;1

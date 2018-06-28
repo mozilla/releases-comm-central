@@ -3,5 +3,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 comm.jar:
-  content/communicator/migration/migration.xul
-  content/communicator/migration/migration.js
+% override chrome://mozapps/content/profile/profileSelection.xul chrome://communicator/content/profile/profileSelection.xul
+  content/communicator/migration/migration.xul                     (content/migration.xul)
+  content/communicator/migration/migration.js                      (content/migration.js)
+  content/communicator/profile/profileSelection.js                 (content/profileSelection.js)
+  content/communicator/profile/profileSelection.xul                (content/profileSelection.xul)
+

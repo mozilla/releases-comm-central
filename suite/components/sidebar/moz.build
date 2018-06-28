@@ -5,23 +5,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIFeedResultService.idl',
-    'nsIWebContentConverterRegistrar.idl',
+    'nsISidebar.idl',
 ]
 
-XPIDL_MODULE = 'suite-feeds'
-
-SOURCES += [
-    'nsFeedSniffer.cpp',
-]
+XPIDL_MODULE = 'suite-sidebar'
 
 EXTRA_COMPONENTS += [
-    'FeedConverter.js',
-    'FeedWriter.js',
-    'SuiteFeeds.manifest',
-    'WebContentConverter.js',
+    'nsSidebar.js',
+    'SuiteSidebar.manifest',
 ]
-
-FINAL_LIBRARY = 'suite'
 
 JAR_MANIFESTS += ['jar.mn']
