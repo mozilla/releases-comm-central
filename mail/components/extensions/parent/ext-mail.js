@@ -36,7 +36,7 @@ const getSender = (extension, target, sender) => {
   }
 };
 
-// Used by Extension.jsm
+// Used by Extension.jsm.
 global.tabGetSender = getSender;
 
 global.makeWidgetId = id => {
@@ -47,7 +47,7 @@ global.makeWidgetId = id => {
 
 
 /**
- * Gets the tab browser for the tabmail tabInfo
+ * Gets the tab browser for the tabmail tabInfo.
  *
  * @param {NativeTabInfo} nativeTabInfo     The tabInfo object to get the browser for
  * @return {?XULElement}                    The browser element for the tab
@@ -70,12 +70,12 @@ function getTabBrowser(nativeTabInfo) {
 global.getTabBrowser = getTabBrowser;
 
 /**
- * Thw window tracker tracks opening and closing Thunderbird windows. Each window has an id, which
+ * The window tracker tracks opening and closing Thunderbird windows. Each window has an id, which
  * is mapped to native window objects.
  */
 class WindowTracker extends WindowTrackerBase {
   /**
-   * Adds a tab progress listener to the given mail window
+   * Adds a tab progress listener to the given mail window.
    *
    * @param {DOMWindow} window      The mail window to which to add the listener.
    * @param {Object} listener       The listener to add
@@ -194,7 +194,7 @@ global.WindowEventManager = class extends EventManager {
 
 /**
  * Tracks the opening and closing of tabs and maps them between their numeric WebExtension ID and
- * the native tab info objects
+ * the native tab info objects.
  */
 class TabTracker extends TabTrackerBase {
   constructor() {
@@ -210,7 +210,7 @@ class TabTracker extends TabTrackerBase {
   }
 
   /**
-   * Initialize tab tracking listeners the first time that an event listener is added
+   * Initialize tab tracking listeners the first time that an event listener is added.
    */
   init() {
     if (this.initialized) {
@@ -253,7 +253,7 @@ class TabTracker extends TabTrackerBase {
   }
 
   /**
-   * Returns the tab id corresponding to the given browser element
+   * Returns the tab id corresponding to the given browser element.
    *
    * @param {XULElement} browser        The <browser> element to retrieve for
    * @return {Integer}                  The tab's numeric ID
@@ -276,7 +276,7 @@ class TabTracker extends TabTrackerBase {
   }
 
   /**
-   * Records the tab information for the given tabInfo object
+   * Records the tab information for the given tabInfo object.
    *
    * @param {NativeTabInfo} nativeTabInfo       The tab info to record for
    * @param {Integer} id                        The tab id to record
@@ -291,7 +291,7 @@ class TabTracker extends TabTrackerBase {
   }
 
   /**
-   * Function to call when a tab was close, deletes tab information for the tab
+   * Function to call when a tab was close, deletes tab information for the tab.
    *
    * @param {Event} event                  The event triggering the detroyal
    * @param {{ nativeTabInfo:NativeTabInfo}}  The object containing tab info
@@ -483,7 +483,7 @@ class TabTracker extends TabTrackerBase {
   }
 
   /**
-   * Returns tab id and window id for the given browser element
+   * Returns tab id and window id for the given browser element.
    *
    * @param {Element} browser                       The browser element to check
    * @return {{ tabId:Integer, windowId:Integer }}  The browsing data for the element
@@ -513,7 +513,7 @@ windowTracker = new WindowTracker();
 Object.assign(global, { tabTracker, windowTracker });
 
 /**
- * Extension-specific wrapper around a Thunderbird tab
+ * Extension-specific wrapper around a Thunderbird tab.
  */
 class Tab extends TabBase {
   /** Returns the XUL browser for the tab. */
@@ -526,122 +526,122 @@ class Tab extends TabBase {
     return this.browser.ownerDocument.getElementById("tabmail");
   }
 
-  /** Returns the frame loader for the tab */
+  /** Returns the frame loader for the tab. */
   get frameLoader() {
     // If we don't have a frameLoader yet, just return a dummy with no width and
     // height.
     return super.frameLoader || { lazyWidth: 0, lazyHeight: 0 };
   }
 
-  /** Returns the favIcon, without permission checks */
+  /** Returns the favIcon, without permission checks. */
   get _favIconUrl() {
     return this.browser.mIconURL;
   }
 
-  /** Returns the last accessed time */
+  /** Returns the last accessed time. */
   get lastAccessed() {
     return 0;
   }
 
-  /** Returns the audible state */
+  /** Returns the audible state. */
   get audible() {
     return false;
   }
 
-  /** Returns the cookie store id */
+  /** Returns the cookie store id. */
   get cookieStoreId() {
     return 0;
   }
 
-  /** Returns the discarded state */
+  /** Returns the discarded state. */
   get discarded() {
     return false;
   }
 
-  /** Returns the tab height */
+  /** Returns the tab height. */
   get height() {
     return this.frameLoader.lazyHeight;
   }
 
-  /** Returns hidden status */
+  /** Returns hidden status. */
   get hidden() {
     return false;
   }
 
-  /** Returns the tab index */
+  /** Returns the tab index. */
   get index() {
     return this.tabmail.tabInfo.filter(info => getTabBrowser(info)).indexOf(this.nativeTab);
   }
 
-  /** Returns information about the muted state of the tab */
+  /** Returns information about the muted state of the tab. */
   get mutedInfo() {
     return { muted: false };
   }
 
-  /** Returns information about the sharing state of the tab */
+  /** Returns information about the sharing state of the tab. */
   get sharingState() {
     return { camera: false, microphone: false, screen: false };
   }
 
-  /** Returns the pinned state of the tab */
+  /** Returns the pinned state of the tab. */
   get pinned() {
     return false;
   }
 
-  /** Returns the active state of the tab */
+  /** Returns the active state of the tab. */
   get active() {
     return this.nativeTab == this.tabmail.selectedTab;
   }
 
-  /** Returns the highlighted state of the tab */
+  /** Returns the highlighted state of the tab. */
   get highlighted() {
     return this.active;
   }
 
-  /** Returns the selected state of the tab */
+  /** Returns the selected state of the tab. */
   get selected() {
     return this.active;
   }
 
-  /** Returns the loading status of the tab */
+  /** Returns the loading status of the tab. */
   get status() {
     return this.browser.webProgress.isLoadingDocument ? "loading" : "complete";
   }
 
-  /** Returns the title of the tab, without permission checks */
+  /** Returns the title of the tab, without permission checks. */
   get _title() {
     let tabNode = this.tabmail._getTabContextForTabbyThing(this.nativeTab)[2];
     return tabNode.getAttribute("label");
   }
 
-  /** Returns the width of the tab */
+  /** Returns the width of the tab. */
   get width() {
     return this.frameLoader.lazyWidth;
   }
 
-  /** Returns the native window object of the tab */
+  /** Returns the native window object of the tab. */
   get window() {
     return this.browser.ownerGlobal;
   }
 
-  /** Returns the window id of the tab */
+  /** Returns the window id of the tab. */
   get windowId() {
     return windowTracker.getId(this.window);
   }
 
-  /** Returns the article state of the tab */
+  /** Returns the article state of the tab. */
   get isArticle() {
     return false;
   }
 
-  /** Returns the reader mode state of the tab */
+  /** Returns the reader mode state of the tab. */
   get isInReaderMode() {
     return false;
   }
 }
 
 /**
- * Extension-specific wrapper around a Thunderbird window
+ * Extension-specific wrapper around a Thunderbird window.
  */
 class Window extends WindowBase {
   /**
@@ -681,12 +681,12 @@ class Window extends WindowBase {
     return this.window.document.getElementById("tabmail");
   }
 
-  /** Returns the title of the tab, without permission checks */
+  /** Returns the title of the tab, without permission checks. */
   get _title() {
     return this.window.document.title;
   }
 
-  /** Returns the title of the tab, checking tab permissions */
+  /** Returns the title of the tab, checking tab permissions. */
   get title() {
     // Thunderbird can have an empty active tab while a window is loading
     if (this.activeTab && this.activeTab.hasTabPermission) {
@@ -704,48 +704,48 @@ class Window extends WindowBase {
     this.window.document.documentElement.setAttribute("titlepreface", titlePreface);
   }
 
-  /** Gets the foucsed state of the window */
+  /** Gets the foucsed state of the window. */
   get focused() {
     return this.window.document.hasFocus();
   }
 
-  /** Gets the top position of the window */
+  /** Gets the top position of the window. */
   get top() {
     return this.window.screenY;
   }
 
-  /** Gets the left position of the window */
+  /** Gets the left position of the window. */
   get left() {
     return this.window.screenX;
   }
 
-  /** Gets the width of the window */
+  /** Gets the width of the window. */
   get width() {
     return this.window.outerWidth;
   }
 
-  /** Gets the height of the window */
+  /** Gets the height of the window. */
   get height() {
     return this.window.outerHeight;
   }
 
-  /** Gets the private browsing status of the window */
+  /** Gets the private browsing status of the window. */
   get incognito() {
     return PrivateBrowsingUtils.isWindowPrivate(this.window);
   }
 
-  /** Checks if the window is considered always on top */
+  /** Checks if the window is considered always on top. */
   get alwaysOnTop() {
     return this.xulWindow.zLevel >= Ci.nsIXULWindow.raisedZ;
   }
 
-  /** Checks if the window was the last one focused */
+  /** Checks if the window was the last one focused. */
   get isLastFocused() {
     return this.window === windowTracker.topWindow;
   }
 
   /**
-   * Returns the window state for the given window
+   * Returns the window state for the given window.
    *
    * @param {DOMWindow} window      The window to check
    * @return {String}               "maximized", "minimized", "normal" or "fullscreen"
@@ -763,13 +763,13 @@ class Window extends WindowBase {
     return state;
   }
 
-  /** Returns the window state for this specific window */
+  /** Returns the window state for this specific window. */
   get state() {
     return Window.getState(this.window);
   }
 
   /**
-   * Sets the window state for this speific window
+   * Sets the window state for this speific window.
    *
    * @param {String} state          "maximized", "minimized", "normal" or "fullscreen"
    */
@@ -814,7 +814,7 @@ class Window extends WindowBase {
   }
 
   /**
-   * Retrieves the (relevant) tabs in this window
+   * Retrieves the (relevant) tabs in this window.
    *
    * @yields {Tab}      The wrapped Tab in this window
    */
@@ -840,7 +840,7 @@ class Window extends WindowBase {
   }
 
   /**
-   * Retrieves the tab at the given index
+   * Retrieves the tab at the given index.
    *
    * @param {Number} index      The index to look at
    * @return {Tab}              The wrapped tab at the index

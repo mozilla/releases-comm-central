@@ -66,22 +66,19 @@ this.windows = class extends ExtensionAPI {
         },
 
         getAll: function(getInfo) {
-          let doNotCheckTypes = getInfo === null || getInfo.windowTypes === null;
+          let doNotCheckTypes = !getInfo || !getInfo.windowTypes;
 
-          function typeFilter(win) {
-            return doNotCheckTypes || getInfo.windowTypes.includes(win.type);
-          }
-
-          let windows = Array.from(windowManager.getAll(), win => win.convert(getInfo)).filter(typeFilter);
+          let windows = Array.from(windowManager.getAll(), win => win.convert(getInfo))
+            .filter(win => doNotCheckTypes || getInfo.windowTypes.includes(win.type));
           return Promise.resolve(windows);
         },
 
         create: function(createData) {
-          let needResize = (createData.left !== null || createData.top !== null ||
-                            createData.width !== null || createData.height !== null);
+          let needResize = (createData.left || createData.top ||
+                            createData.width || createData.height);
 
           if (needResize) {
-            if (createData.state !== null && createData.state != "normal") {
+            if (createData.state && createData.state != "normal") {
               return Promise.reject({ message: `"state": "${createData.state}" may not be combined with "left", "top", "width", or "height"` });
             }
             createData.state = "normal";
@@ -118,8 +115,8 @@ this.windows = class extends ExtensionAPI {
             }
           }
 
-          if (createData.tabId !== null) {
-            if (createData.url !== null) {
+          if (createData.tabId) {
+            if (createData.url) {
               return Promise.reject({ message: "`tabId` may not be used in conjunction with `url`" });
             }
 
@@ -131,7 +128,7 @@ this.windows = class extends ExtensionAPI {
             let tabmail = getTabBrowser(nativeTabInfo).ownerDocument.getElementById("tabmail");
             let targetType = wantNormalWindow ? null : "popup";
             window = tabmail.replaceTabWithWindow(nativeTabInfo, targetType)[0];
-          } else if (createData.url !== null) { // eslint-disable-line no-negated-condition
+          } else if (createData.url) {
             let uris = Array.isArray(createData.url) ? createData.url : [createData.url];
             let args = createWindowArgs(uris);
             window = Services.ww.openWindow(null, "chrome://messenger/content/", "_blank", features.join(","), args);
@@ -161,9 +158,9 @@ this.windows = class extends ExtensionAPI {
         },
 
         update: function(windowId, updateInfo) {
-          if (updateInfo.state !== null && updateInfo.state != "normal") {
-            if (updateInfo.left !== null || updateInfo.top !== null ||
-                updateInfo.width !== null || updateInfo.height !== null) {
+          if (updateInfo.state && updateInfo.state != "normal") {
+            if (updateInfo.left || updateInfo.top ||
+                updateInfo.width || updateInfo.height) {
               return Promise.reject({ message: `"state": "${updateInfo.state}" may not be combined with "left", "top", "width", or "height"` });
             }
           }
@@ -173,7 +170,7 @@ this.windows = class extends ExtensionAPI {
             Services.focus.activeWindow = win.window;
           }
 
-          if (updateInfo.state !== null) {
+          if (updateInfo.state) {
             win.state = updateInfo.state;
           }
 
@@ -184,7 +181,7 @@ this.windows = class extends ExtensionAPI {
 
           win.updateGeometry(updateInfo);
 
-          if (updateInfo.titlePreface !== null) {
+          if (updateInfo.titlePreface) {
             win.setTitlePreface(updateInfo.titlePreface);
             win.window.gBrowser.updateTitlebar();
           }

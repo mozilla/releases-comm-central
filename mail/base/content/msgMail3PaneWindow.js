@@ -72,7 +72,7 @@ var folderListener = {
 
     OnItemIntPropertyChanged: function(item, property, oldValue, newValue) {
       if (item == gFolderDisplay.displayedFolder) {
-        if(property == "TotalMessages" || property == "TotalUnreadMessages") {
+        if (property == "TotalMessages" || property == "TotalUnreadMessages") {
           UpdateStatusMessageCounts(gFolderDisplay.displayedFolder);
         }
       }
@@ -754,8 +754,8 @@ function loadExtraTabs()
 
   if (tab.action == "open") {
     for (let i = 0; i < tab.tabs.length; i++)
-      if("tabType" in tab.tabs[i])
-        tabmail.openTab(tab.tabs[i].tabType,tab.tabs[i].tabParams);
+      if ("tabType" in tab.tabs[i])
+        tabmail.openTab(tab.tabs[i].tabType, tab.tabs[i].tabParams);
 
     return;
   }
@@ -791,9 +791,10 @@ function loadStartFolder(initialUri)
     //First get default account
     try
     {
-
-        if(initialUri)
+        if (initialUri)
+        {
             startFolder = MailUtils.getFolderForURI(initialUri);
+        }
         else
         {
             try {

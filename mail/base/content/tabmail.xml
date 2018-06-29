@@ -868,18 +868,17 @@
                 targetTabmail.moveTabTo(droppedTab, aTargetPosition);
               }
               return aTargetWindow;
-            } else {
-              let features = ["chrome"];
-              if (aTargetWindow === "popup") {
-                features.push("dialog", "resizable", "minimizable", "centerscreen", "titlebar", "close");
-              } else {
-                features.push("dialog=no", "all", "status", "toolbar");
-              }
-
-              return window.openDialog("chrome://messenger/content/", "_blank",
-                 features.join(","), null,
-                 { action : "restore", tabs: [tab] } ).focus();
             }
+            let features = ["chrome"];
+            if (aTargetWindow === "popup") {
+              features.push("dialog", "resizable", "minimizable", "centerscreen", "titlebar", "close");
+            } else {
+              features.push("dialog=no", "all", "status", "toolbar");
+            }
+
+            return window.openDialog("chrome://messenger/content/", "_blank",
+              features.join(","), null,
+              { action : "restore", tabs: [tab] } ).focus();
           ]]>
         </body>
       </method>

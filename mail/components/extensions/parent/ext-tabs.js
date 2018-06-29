@@ -7,7 +7,7 @@ ChromeUtils.defineModuleGetter(this, "PromiseUtils",
 var { ExtensionError } = ExtensionUtils;
 
 /**
- * A listener that allows waiting until tabs are fully loaded, e.g. off of about:blank
+ * A listener that allows waiting until tabs are fully loaded, e.g. off of about:blank.
  */
 let tabListener = {
   tabReadyInitialized: false,
@@ -15,7 +15,7 @@ let tabListener = {
   initializingTabs: new WeakSet(),
 
   /**
-   * Initialize the progress listener for tab ready changes
+   * Initialize the progress listener for tab ready changes.
    */
   initTabReady() {
     if (!this.tabReadyInitialized) {
@@ -26,7 +26,7 @@ let tabListener = {
   },
 
   /**
-   * Web Progress listener method for the location change
+   * Web Progress listener method for the location change.
    *
    * @param {Element} browser               The browser element that caused the change
    * @param {nsIWebProgress} webProgress    The web progress for the location change
@@ -52,7 +52,7 @@ let tabListener = {
   },
 
   /**
-   * Promise that the given tab completes loading
+   * Promise that the given tab completes loading.
    *
    * @param {NativeTabInfo} nativeTabInfo       The tabInfo describing the tab
    * @return {Promise<NativeTabInfo>}           Resolves when the tab completes loading
@@ -74,7 +74,7 @@ let tabListener = {
   }
 };
 
-// Attributes and properties used in the TabsUpdateFilterManager
+// Attributes and properties used in the TabsUpdateFilterManager.
 const allAttrs = new Set(["favIconUrl", "title"]);
 const allProperties = new Set([
   "favIconUrl",
@@ -84,7 +84,7 @@ const allProperties = new Set([
 const restricted = new Set(["url", "favIconUrl", "title"]);
 
 /**
- * An EventManager for the tabs.onUpdated listener
+ * An EventManager for the tabs.onUpdated listener.
  */
 class TabsUpdateFilterEventManager extends EventManager {
   constructor(context) {
@@ -230,20 +230,20 @@ this.tabs = class extends ExtensionAPI {
     let { tabManager } = extension;
 
     /**
-     * Gets the tab for the given tab id, or the active tab if the id is null
+     * Gets the tab for the given tab id, or the active tab if the id is null.
      *
      * @param {?Integer} tabId          The tab id to get
      * @return {Tab}                    The matching tab, or the active tab
      */
     function getTabOrActive(tabId) {
-      if (tabId !== null) {
+      if (tabId) {
         return tabTracker.getTab(tabId);
       }
       return tabTracker.activeTab;
     }
 
     /**
-     * Promise that the tab with the given tab id is ready
+     * Promise that the tab with the given tab id is ready.
      *
      * @param {Integer} tabId       The tab id to check
      * @return {Promise<NativeTabInfo>}     Resolved when the loading is complete
@@ -370,7 +370,7 @@ this.tabs = class extends ExtensionAPI {
           let tabmail = window.document.getElementById("tabmail");
 
           let url;
-          if (createProperties.url !== null) {
+          if (createProperties.url) {
             url = context.uri.resolve(createProperties.url);
 
             if (!context.checkLoadURL(url, { dontReportErrors: true })) {
@@ -381,7 +381,7 @@ this.tabs = class extends ExtensionAPI {
           let currentTab = tabmail.selectedTab;
 
           let active = true;
-          if (createProperties.active !== null) {
+          if (createProperties.active) {
             active = createProperties.active;
           }
 
@@ -392,14 +392,14 @@ this.tabs = class extends ExtensionAPI {
             background: !active
           });
 
-          if (createProperties.index !== null) {
+          if (createProperties.index) {
             tabmail.moveTabTo(nativeTabInfo, createProperties.index);
             tabmail.updateCurrentTab();
           }
 
           if (createProperties.url && createProperties.url !== "about:blank") {
             // Mark tabs as initializing, so operations like `executeScript` wait until the
-            // requested URL is loaded
+            // requested URL is loaded.
             tabListener.initializingTabs.add(nativeTabInfo);
           }
 
@@ -424,7 +424,7 @@ this.tabs = class extends ExtensionAPI {
           let browser = getTabBrowser(nativeTabInfo);
           let tabmail = browser.ownerDocument.getElementById("tabmail");
 
-          if (updateProperties.url !== null) {
+          if (updateProperties.url) {
             let url = context.uri.resolve(updateProperties.url);
 
             if (!context.checkLoadURL(url, { dontReportErrors: true })) {
@@ -440,7 +440,7 @@ this.tabs = class extends ExtensionAPI {
             browser.loadURI(url, options);
           }
 
-          if (updateProperties.active !== null) {
+          if (updateProperties.active) {
             if (updateProperties.active) {
               tabmail.selectedTab = nativeTabInfo;
             } else {
@@ -476,21 +476,21 @@ this.tabs = class extends ExtensionAPI {
 
         async query(queryInfo) {
           if (!extension.hasPermission("tabs")) {
-            if (queryInfo.url !== null || queryInfo.title !== null) {
+            if (queryInfo.url || queryInfo.title) {
               return Promise.reject({ message: 'The "tabs" permission is required to use the query API with the "url" or "title" parameters' });
             }
           }
 
           queryInfo = Object.assign({}, queryInfo);
 
-          if (queryInfo.url !== null) {
+          if (queryInfo.url) {
             queryInfo.url = new MatchPatternSet([].concat(queryInfo.url));
           }
-          if (queryInfo.title !== null) {
+          if (queryInfo.title) {
             queryInfo.title = new MatchGlob(queryInfo.title);
           }
 
-          // Make ext-tabs-base happy since it does a strict check
+          // Make ext-tabs-base happy since it does a strict check.
           queryInfo.screen = null;
 
           return Array.from(tabManager.query(queryInfo, context), tab => tab.convert());
@@ -524,7 +524,7 @@ this.tabs = class extends ExtensionAPI {
           }
 
           let destinationWindow = null;
-          if (moveProperties.windowId !== null) {
+          if (moveProperties.windowId) {
             destinationWindow = windowTracker.getWindow(moveProperties.windowId);
             // Fail on an invalid window.
             if (!destinationWindow) {
