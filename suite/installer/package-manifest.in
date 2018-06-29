@@ -264,6 +264,7 @@
 @RESPATH@/components/nsSearchService.js
 @RESPATH@/components/nsSearchSuggestions.js
 @RESPATH@/components/nsSessionStartup.js
+@RESPATH@/components/nsSessionStartup.manifest
 @RESPATH@/components/nsSessionStore.js
 @RESPATH@/components/nsSidebar.js
 @RESPATH@/components/nsSuiteGlue.js
