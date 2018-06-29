@@ -603,7 +603,7 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 /* from instantbird/themes/blist.css */
-%ifdef XP_WIN
+%ifndef XP_MACOSX
 imgroup .twisty {
   padding-top: 1px;
   width: 9px; /* The image's width is 9 pixels */
@@ -611,9 +611,8 @@ imgroup .twisty {
   margin-inline-end: 3px;
   margin-inline-start: 5px;
   background: url("chrome://global/skin/tree/twisty-expanded.svg") no-repeat center;
-  -moz-context-properties: fill, fill-opacity;
+  -moz-context-properties: fill;
   fill: currentColor;
-  fill-opacity: 1;
 }
 
 imgroup[closed] .twisty {
@@ -625,7 +624,6 @@ imgroup[closed]:-moz-locale-dir(rtl) .twisty {
 }
 
 %else
-%ifdef XP_MACOSX
 imgroup .twisty {
   width: 9px;
   height: 9px;
@@ -637,16 +635,6 @@ imgroup .twisty {
 imgroup[closed] .twisty {
   background: url("chrome://global/skin/arrow/arrow-rit-sharp.gif") no-repeat center;
 }
-%else
-imgroup .twisty {
-  -moz-appearance: treetwistyopen;
-  margin-inline-start: 5px;
-}
-
-imgroup[closed] .twisty {
-  -moz-appearance: treetwisty;
-}
-%endif
 %endif
 
 .prplBuddyIcon {
