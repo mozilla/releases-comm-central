@@ -129,7 +129,7 @@ function install_theme(themeNo, previousThemeNo) {
                     " got " + currentTheme.id);
 }
 
-function test_lightweight_themes_install() {
+function disabled_test_lightweight_themes_install() {  // See bug 1472089.
   // Before we run the test, check we've not got a theme already installed.
   if (!currentThemeIsDefault())
     throw new Error("A different lightweight theme than the default one selected.");
@@ -140,7 +140,7 @@ function test_lightweight_themes_install() {
   install_theme(1);
 }
 
-function test_lightweight_themes_install_and_undo() {
+function disabled_test_lightweight_themes_install_and_undo() {  // See bug 1472089.
   // Now try the second one, checking that the first is selected when we undo.
   install_theme(2, 1);
 
