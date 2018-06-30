@@ -212,8 +212,7 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
     }
     for (let i = 0; i < aPropArray.length; i++) {
         equal(getProps(aLeftItem, aPropArray[i]),
-              getProps(aRightItem, aPropArray[i]),
-              Components.stack.caller);
+              getProps(aRightItem, aPropArray[i]));
     }
 }
 
