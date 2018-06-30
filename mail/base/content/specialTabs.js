@@ -180,10 +180,6 @@ var DOMLinkHandler = {
       let targetDoc = link.ownerDocument;
       let uri = makeURI(link.href, targetDoc.characterSet);
 
-      // Is this a failed icon?
-      if (specialTabs.mFaviconService.isFailedFavicon(uri))
-        return;
-
       // Verify that the load of this icon is legal.
       // Some error or special pages can load their favicon.
       // To be on the safe side, only allow chrome:// favicons.
@@ -1576,10 +1572,7 @@ var specialTabs = {
     // Use documentURIObject in the check for shouldLoadFavIcon so that we do
     // the right thing with about:-style error pages.
     else if (this._shouldLoadFavIcon(docURIObject)) {
-      let url = docURIObject.prePath + "/favicon.ico";
-
-      if (!specialTabs.mFaviconService.isFailedFavicon(makeURI(url)))
-        icon = url;
+      icon = docURIObject.prePath + "/favicon.ico";
     }
 
     specialTabs.setTabIcon(aTab, icon);
