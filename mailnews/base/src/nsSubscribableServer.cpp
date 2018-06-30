@@ -986,11 +986,22 @@ nsSubscribableServer::ToggleOpenState(int32_t aIndex)
   SubscribeTreeNode *node = mRowMap[aIndex];
   if (node->isOpen)
   {
-    // Close the node by finding the next sibling
     node->isOpen = false;
-    int32_t count = node->prevSibling
-      ? (mRowMap.IndexOf(node->prevSibling, aIndex) - aIndex - 1)
-      : (mRowMap.Length() - aIndex - 1);
+
+    // Remove subtree by deleting elements from array up to next sibling.
+    int32_t count = 0;
+    do {
+      // Find next sibling or the beginning of the next subtree.
+      if (node->prevSibling) {
+        count = mRowMap.IndexOf(node->prevSibling, aIndex) - aIndex - 1;
+      } else {
+        node = node->parent;
+        // When node reaches the root, delete the rest of the array.
+        if (!node->parent) {
+          count = mRowMap.Length() - aIndex - 1;
+        }
+      }
+    } while (!count && node->parent);
     mRowMap.RemoveElementsAt(aIndex + 1, count);
     if (mTree)
     {
