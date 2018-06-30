@@ -1315,12 +1315,6 @@ static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
   { "mime-emitter", NS_RAW_MIME_EMITTER_CONTRACTID, NS_RAW_MIME_EMITTER_CONTRACTID },
   // News Entries
   { "command-line-handler", "m-news", NS_NEWSSTARTUPHANDLER_CONTRACTID },
-  // Mail View Entries
-  // mdn Entries
-  // i18n Entries
-  { NS_TITLE_BUNDLE_CATEGORY, "chrome://messenger/locale/charsetTitles.properties", "" },
-  { NS_DATA_BUNDLE_CATEGORY, "resource://gre-resources/charsetData.properties", "" },
-  // Tokenizer Entries
   { NULL }
 };
 

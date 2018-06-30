@@ -43,15 +43,14 @@ void nsCharsetConverterManager::Shutdown()
 }
 
 static
-nsresult LoadExtensibleBundle(const char* aCategory,
-                              nsIStringBundle ** aResult)
+nsresult LoadBundle(const char* aBundleURLSpec, nsIStringBundle ** aResult)
 {
   nsCOMPtr<nsIStringBundleService> sbServ =
     mozilla::services::GetStringBundleService();
   if (!sbServ)
     return NS_ERROR_FAILURE;
 
-  return sbServ->CreateExtensibleBundle(aCategory, aResult);
+  return sbServ->CreateBundle(aBundleURLSpec, aResult);
 }
 
 static
@@ -95,7 +94,7 @@ nsresult GetCharsetDataImpl(const char * aCharset, const char16_t * aProp,
   // aProp can be nullptr
 
   if (!sDataBundle) {
-    nsresult rv = LoadExtensibleBundle(NS_DATA_BUNDLE_CATEGORY, &sDataBundle);
+    nsresult rv = LoadBundle("resource://gre-resources/charsetData.properties", &sDataBundle);
     if (NS_FAILED(rv))
       return rv;
   }
@@ -147,7 +146,7 @@ nsCharsetConverterManager::GetCharsetTitle(const char * aCharset,
   NS_ENSURE_ARG_POINTER(aCharset);
 
   if (!sTitleBundle) {
-    nsresult rv = LoadExtensibleBundle(NS_TITLE_BUNDLE_CATEGORY, &sTitleBundle);
+    nsresult rv = LoadBundle("chrome://messenger/locale/charsetTitles.properties", &sTitleBundle);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
