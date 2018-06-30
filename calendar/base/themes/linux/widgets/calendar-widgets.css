@@ -16,11 +16,11 @@ treenode-checkbox > .checkbox-check {
 }
 
 treenode-checkbox[checked="true"] > .checkbox-check {
-  list-style-image: url("chrome://global/skin/tree/twisty-expanded.svg");
+  background-image: url("chrome://global/skin/tree/twisty-expanded.svg");
 }
 
 treenode-checkbox:-moz-locale-dir(rtl) > .checkbox-check {
-  list-style-image: url("chrome://global/skin/tree/twisty-collapsed-rtl.svg");
+  background-image: url("chrome://global/skin/tree/twisty-collapsed-rtl.svg");
 }
 
 #task-tree-filtergroup {
