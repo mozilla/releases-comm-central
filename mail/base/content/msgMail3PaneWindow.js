@@ -1537,9 +1537,18 @@ var LightWeightThemeWebInstaller = {
     notificationBar.persistence = 1;
   },
 
-  _install: function (newTheme) {
+  _executeSoon: function (callback) {
+    Services.tm.dispatchToMainThread(callback);
+  },
+
+  _setTheme: function (theme) {
+    this._manager.currentTheme = theme;
+    return new Promise(this._executeSoon);
+  },
+
+  _install: async function (newTheme) {
     let previousTheme = this._manager.currentTheme;
-    this._manager.currentTheme = newTheme;
+    await this._setTheme(newTheme);
     if (this._manager.currentTheme &&
         this._manager.currentTheme.id == newTheme.id)
       this._postInstallNotification(newTheme, previousTheme);
