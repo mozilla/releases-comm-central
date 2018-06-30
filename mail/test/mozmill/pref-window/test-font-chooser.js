@@ -14,9 +14,11 @@ var MODULE_NAME = "test-font-chooser";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "pref-window-helpers"];
+                       "pref-window-helpers", "content-tab-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var gFontEnumerator;
 
@@ -51,12 +53,14 @@ async function buildFontList() {
   }
 }
 
-function assert_fonts_equal(aDescription, aExpected, aActual) {
-  if (aExpected != aActual)
-    throw new Error("The " + aDescription + " font should be " + aExpected +
-                    ", but " + (aActual.length == 0 ?
+function assert_fonts_equal(aDescription, aExpected, aActual, aPrefix = false) {
+  if (!((!aPrefix && (aExpected == aActual)) ||
+        (aPrefix && aActual.startsWith(aExpected)))) {
+    throw new Error("The " + aDescription + " font should be '" + aExpected +
+                    "', but " + (aActual.length == 0 ?
                                 "nothing is actually selected." :
-                                "is actually " + aActual + "."));
+                                "is actually: " + aActual + "."));
+  }
 }
 
 /**
@@ -64,48 +68,64 @@ function assert_fonts_equal(aDescription, aExpected, aActual) {
  * pref window to the display pane and checks that, then opens the font chooser
  * and checks that too.
  */
-function _verify_fonts_displayed(aSerif, aSansSerif, aMonospace) {
-  function verify_display_pane(prefc) {
-    let isSansDefault = (Services.prefs.getCharPref("font.default." + kLanguage) ==
-                         "sans-serif");
-    let displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
-    let displayPaneActual = prefc.e("defaultFont");
-    prefc.waitFor(() => displayPaneActual.itemCount > 0,
-                  "No font names were populated in the font picker.");
-    assert_fonts_equal("display pane", displayPaneExpected, displayPaneActual.value);
-  }
-
+function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
   // Bring up the preferences window.
-  open_pref_window("paneDisplay", verify_display_pane);
+  let prefTab = open_pref_tab("paneDisplay");
+
+  let isSansDefault = (Services.prefs.getCharPref("font.default." + kLanguage) ==
+                       "sans-serif");
+  let displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
+  let displayPaneActual = content_tab_e(prefTab, "defaultFont");
+  mc.waitFor(() => displayPaneActual.itemCount > 0,
+                "No font names were populated in the font picker.");
+  assert_fonts_equal("display pane", displayPaneExpected, displayPaneActual.value);
 
   // Now verify the advanced dialog.
   function verify_advanced(fontc) {
     // The font pickers are populated async so we need to wait for it.
     for (let fontElemId of ["serif", "sans-serif", "monospace"]) {
-      fontc.waitFor(() => fontc.e(fontElemId).value != "",
-                    "Timeout waiting for font picker " + fontElemId + " to populate.");
+      fontc.waitFor(() => fontc.e(fontElemId).label != "",
+                    "Timeout waiting for font picker '" + fontElemId + "' to populate.");
     }
-    assert_fonts_equal("serif", aSerif, fontc.e("serif").value);
-    assert_fonts_equal("sans-serif", aSansSerif, fontc.e("sans-serif").value);
-    assert_fonts_equal("monospace", aMonospace, fontc.e("monospace").value);
+
+    if (!aDefaults) {
+      assert_fonts_equal("serif", aSerif, fontc.e("serif").value);
+      assert_fonts_equal("sans-serif", aSansSerif, fontc.e("sans-serif").value);
+      assert_fonts_equal("monospace", aMonospace, fontc.e("monospace").value);
+    } else {
+      // When default fonts are displayed in the menulist, there is no value set,
+      // only the label, in the form "Default (font name)".
+      if (AppConstants.platform == "linux") {
+        // On Linux the prefs we set contained only the generic font names,
+        // like 'serif', but here a specific font name will be shown, but it is
+        // system-dependent what it will be. So we just check for the 'Default'
+        // prefix.
+        assert_fonts_equal("serif", `Default (`, fontc.e("serif").label, true);
+        assert_fonts_equal("sans-serif", `Default (`, fontc.e("sans-serif").label, true);
+        assert_fonts_equal("monospace", `Default (`, fontc.e("monospace").label, true);
+      } else {
+        assert_fonts_equal("serif", `Default (${aSerif})`, fontc.e("serif").label);
+        assert_fonts_equal("sans-serif", `Default (${aSansSerif})`, fontc.e("sans-serif").label);
+        assert_fonts_equal("monospace", `Default (${aMonospace})`, fontc.e("monospace").label);
+      }
+    }
   }
 
   // Now open the advanced dialog.
   plan_for_modal_dialog("FontsDialog", verify_advanced);
-  // XXX This would have been better done from within the prefs dialog, but
-  // test-window-helper.js's WindowWatcher can only handle one modal window at a
-  // time.
   mc.window.openDialog("chrome://messenger/content/preferences/fonts.xul",
                        "Fonts", "chrome,titlebar,toolbar,centerscreen,modal");
   wait_for_modal_dialog("FontsDialog");
+
+  close_pref_tab(prefTab);
 }
 
 /**
  * Test that for a particular language, whatever's in
  * font.name.<type>.<language> is displayed in the font chooser (if it is
- * present on the cocomputer).
+ * present on the computer).
  */
-function disabled_test_font_name_displayed() {  // See bug 1460721.
+function test_font_name_displayed() {
   Services.prefs.setCharPref("font.language.group", kLanguage);
 
   // Pick the first font for each font type and set it.
@@ -121,7 +141,7 @@ function disabled_test_font_name_displayed() {  // See bug 1460721.
   }
 
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);
-  _verify_fonts_displayed(...fontTypes);
+  _verify_fonts_displayed(false, ...fontTypes);
 }
 
 // Fonts definitely not present on a computer -- we simply use UUIDs. These
@@ -137,7 +157,7 @@ const kFakeFonts = {
  * present on the computer, we fall back to displaying what's in
  * font.name-list.<type>.<language>.
  */
-function disabled_test_font_name_not_present() {  // See bug 1460721.
+function test_font_name_not_present() {
   Services.prefs.setCharPref("font.language.group", kLanguage);
 
   // The fonts we're expecting to see selected in the font chooser for
@@ -150,23 +170,33 @@ function disabled_test_font_name_not_present() {  // See bug 1460721.
     let fontList = Services.prefs.getCharPref(listPref);
     let fonts = fontList.split(",").map(font => font.trim());
     if (fonts.length != 2)
-      throw new Error(listPref + " should have exactly two fonts, but it is " +
-                      fontList + ".");
+      throw new Error(listPref + " should have exactly two fonts, but it is '" +
+                      fontList + "'.");
 
     if (fonts[0] != fakeFont)
-      throw new Error("The first font in " + listPref + " should be " + fakeFont +
-                      ", but is actually " + fonts[0] + ".");
+      throw new Error("The first font in " + listPref + " should be '" + fakeFont +
+                      "', but is actually: " + fonts[0] + ".");
 
     if (!gRealFontLists[fontType].includes(fonts[1]))
       throw new Error("The second font in " + listPref + " (" + fonts[1] +
                       ") should be present on this computer, but isn't.");
     expected[fontType] = fonts[1];
 
-    // Set font.name to be the fake font. font.name-list is handled by
-    // wrapper.py.
+    // Set font.name to be a nonsense name that shouldn't exist.
+    // font.name-list is handled by wrapper.py.
     Services.prefs.setCharPref("font.name." + fontType + "." + kLanguage, fakeFont);
   }
 
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);
-  _verify_fonts_displayed(...fontTypes);
+  _verify_fonts_displayed(true, ...fontTypes);
+}
+
+function teardownTest() {
+  // nsIPrefBranch.resetBranch() is not implemented in M-C, so we can't use
+  // Services.prefs.resetBranch().
+  Preferences.resetBranch("font.name.");
+}
+
+function teardownModule() {
+  Services.prefs.clearUserPref("font.language.group");
 }
