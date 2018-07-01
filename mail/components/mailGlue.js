@@ -173,6 +173,8 @@ MailGlue.prototype = {
       toolbar_field_text: "rgb(249, 249, 250)",
       toolbar_field_border: "rgba(249, 249, 250, 0.2)",
       author: vendorShortName,
+    }, {
+      useInDarkMode: true
     });
   },
 
