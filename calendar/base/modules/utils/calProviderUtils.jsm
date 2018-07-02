@@ -9,7 +9,7 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
-XPCOMUtils.defineLazyModuleGetter(this, "Deprecated", "resource://gre/modules/Deprecated.jsm");
+ChromeUtils.defineModuleGetter(this, "Deprecated", "resource://gre/modules/Deprecated.jsm");
 
 /*
  * Helpers and base class for calendar providers

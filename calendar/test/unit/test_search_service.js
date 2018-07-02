@@ -94,7 +94,7 @@ function test_cancel() {
     search.getProviders({}).forEach(search.removeProvider, search);
 
     let provider = {
-        QueryInterface: ChromeUtils.generateQI([
+        QueryInterface: cal.generateQI([
             Ci.calICalendarSearchProvider,
             Ci.calIOperation
         ]),
