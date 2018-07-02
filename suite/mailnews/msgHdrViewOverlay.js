@@ -4,6 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/gloda/utils.js");
+
 
 /* This is where functions related to displaying the headers for a selected message in the
    message pane live. */
@@ -606,6 +609,35 @@ var messageHeaderSink = {
       }
       if (!currentAttachments.length && this.mSaveHdr)
         this.mSaveHdr.markHasAttachments(false);
+
+      let browser = getBrowser();
+      if (currentAttachments.length &&
+          Services.prefs.getBoolPref("mail.inline_attachments") &&
+          this.mSaveHdr && gFolderDisplay.selectedMessageIsFeed &&
+          browser && browser.contentDocument && browser.contentDocument.body) {
+        for (let img of browser.contentDocument.body.getElementsByClassName("moz-attached-image")) {
+          for (let attachment of currentAttachments) {
+            let partID = img.src.split("&part=")[1];
+            partID = partID ? partID.split("&")[0] : null;
+            if (attachment.partID && partID == attachment.partID) {
+              img.src = attachment.url;
+              break;
+            }
+            else {
+              // GlodaUtils.PART_RE fails to extract a partID for urls with
+              // an embedded ?, at least. So, check the filename too. Frontend
+              // feed parsing ensures no duplicate urls in enclosures.
+              let name = decodeURI(img.src.split("&filename=")[1]);
+              name = name ? name.split("&")[0] : null;
+              if (name == attachment.displayName) {
+                img.src = attachment.url;
+                break;
+              }
+            }
+          }
+        }
+      }
+
       OnMsgParsed(url);
     },
 
@@ -1349,6 +1381,9 @@ function createNewAttachmentInfo(contentType, url, displayName, uri,
   this.isExternalAttachment = isExternalAttachment;
   this.attachment = this;
   this.size = size;
+
+  let match = GlodaUtils.PART_RE.exec(url);
+  this.partID = match && match[1];
 }
 
 createNewAttachmentInfo.prototype.saveAttachment = function saveAttachment()
