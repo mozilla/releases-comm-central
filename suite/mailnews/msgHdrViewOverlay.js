@@ -1384,6 +1384,19 @@ function createNewAttachmentInfo(contentType, url, displayName, uri,
     this.partID = match && match[1];
   }
 
+  // Make sure to communicate it if it's an external http attachment and not a
+  // local attachment. For feeds attachments (enclosures) are always remote,
+  // so there is nothing to communicate.
+  if (isExternalAttachment && url.startsWith("http") &&
+      !gFolderDisplay.selectedMessageIsFeed) {
+    if (this.displayName) {
+      this.displayName = url + " - " + this.displayName;
+    }
+    else {
+      this.displayName = url;
+    }
+  }
+
   this.url = url;
 
 }
