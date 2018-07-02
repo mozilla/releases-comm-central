@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "PrivateBrowsingUtils",
-                               "resource://gre/modules/PrivateBrowsingUtils.jsm");
-
 var {
   ExtensionError,
   defineLazyGetter,
@@ -731,7 +728,7 @@ class Window extends WindowBase {
 
   /** Gets the private browsing status of the window. */
   get incognito() {
-    return PrivateBrowsingUtils.isWindowPrivate(this.window);
+    return false;
   }
 
   /** Checks if the window is considered always on top. */
@@ -846,6 +843,7 @@ class Window extends WindowBase {
    * @return {Tab}              The wrapped tab at the index
    */
   getTabAtIndex(index) {
+    let { tabManager } = this.extension;
     let nativeTabInfo = this.tabmail.tabInfo.filter(info => getTabBrowser(info))[index];
     if (nativeTabInfo) {
       return tabManager.getWrapper(nativeTabInfo);

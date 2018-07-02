@@ -47,7 +47,7 @@ this.windows = class extends ExtensionAPI {
           }
         }).api(),
 
-        get: function(windowId, getInfo) {
+        get(windowId, getInfo) {
           let window = windowTracker.getWindow(windowId, context);
           if (!window) {
             return Promise.reject({ message: `Invalid window ID: ${windowId}` });
@@ -55,17 +55,17 @@ this.windows = class extends ExtensionAPI {
           return Promise.resolve(windowManager.convert(window, getInfo));
         },
 
-        getCurrent: function(getInfo) {
+        getCurrent(getInfo) {
           let window = context.currentWindow || windowTracker.topWindow;
           return Promise.resolve(windowManager.convert(window, getInfo));
         },
 
-        getLastFocused: function(getInfo) {
+        getLastFocused(getInfo) {
           let window = windowTracker.topWindow;
           return Promise.resolve(windowManager.convert(window, getInfo));
         },
 
-        getAll: function(getInfo) {
+        getAll(getInfo) {
           let doNotCheckTypes = !getInfo || !getInfo.windowTypes;
 
           let windows = Array.from(windowManager.getAll(), win => win.convert(getInfo))
@@ -73,7 +73,7 @@ this.windows = class extends ExtensionAPI {
           return Promise.resolve(windows);
         },
 
-        create: function(createData) {
+        create(createData) {
           let needResize = (createData.left !== null || createData.top !== null ||
                             createData.width !== null || createData.height !== null);
 
@@ -157,7 +157,7 @@ this.windows = class extends ExtensionAPI {
           });
         },
 
-        update: function(windowId, updateInfo) {
+        update(windowId, updateInfo) {
           if (updateInfo.state && updateInfo.state != "normal") {
             if (updateInfo.left !== null || updateInfo.top !== null ||
                 updateInfo.width !== null || updateInfo.height !== null) {
@@ -191,7 +191,7 @@ this.windows = class extends ExtensionAPI {
           return Promise.resolve(win.convert());
         },
 
-        remove: function(windowId) {
+        remove(windowId) {
           let window = windowTracker.getWindow(windowId, context);
           window.close();
 

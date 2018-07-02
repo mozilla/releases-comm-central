@@ -8,7 +8,7 @@ this.tabs = class extends ExtensionAPI {
   getAPI(context) {
     return {
       tabs: {
-        connect: function(tabId, connectInfo) {
+        connect(tabId, connectInfo) {
           let name = "";
           if (connectInfo && connectInfo.name !== null) {
             name = connectInfo.name;
@@ -23,10 +23,10 @@ this.tabs = class extends ExtensionAPI {
           return context.messenger.connect(context.messageManager, name, recipient);
         },
 
-        sendMessage: function(tabId, message, options, responseCallback) {
+        sendMessage(tabId, message, options, responseCallback) {
           let recipient = {
             extensionId: context.extension.id,
-            tabId: tabId,
+            tabId,
           };
           if (options && options.frameId !== null) {
             recipient.frameId = options.frameId;
