@@ -74,8 +74,8 @@ this.windows = class extends ExtensionAPI {
         },
 
         create: function(createData) {
-          let needResize = (createData.left || createData.top ||
-                            createData.width || createData.height);
+          let needResize = (createData.left !== null || createData.top !== null ||
+                            createData.width !== null || createData.height !== null);
 
           if (needResize) {
             if (createData.state && createData.state != "normal") {
@@ -159,8 +159,8 @@ this.windows = class extends ExtensionAPI {
 
         update: function(windowId, updateInfo) {
           if (updateInfo.state && updateInfo.state != "normal") {
-            if (updateInfo.left || updateInfo.top ||
-                updateInfo.width || updateInfo.height) {
+            if (updateInfo.left !== null || updateInfo.top !== null ||
+                updateInfo.width !== null || updateInfo.height !== null) {
               return Promise.reject({ message: `"state": "${updateInfo.state}" may not be combined with "left", "top", "width", or "height"` });
             }
           }

@@ -476,7 +476,7 @@ this.tabs = class extends ExtensionAPI {
 
         async query(queryInfo) {
           if (!extension.hasPermission("tabs")) {
-            if (queryInfo.url || queryInfo.title) {
+            if (queryInfo.url || queryInfo.title !== null) {
               return Promise.reject({ message: 'The "tabs" permission is required to use the query API with the "url" or "title" parameters' });
             }
           }
@@ -486,7 +486,7 @@ this.tabs = class extends ExtensionAPI {
           if (queryInfo.url) {
             queryInfo.url = new MatchPatternSet([].concat(queryInfo.url));
           }
-          if (queryInfo.title) {
+          if (queryInfo.title !== null) {
             queryInfo.title = new MatchGlob(queryInfo.title);
           }
 
@@ -524,7 +524,7 @@ this.tabs = class extends ExtensionAPI {
           }
 
           let destinationWindow = null;
-          if (moveProperties.windowId) {
+          if (moveProperties.windowId !== null) {
             destinationWindow = windowTracker.getWindow(moveProperties.windowId);
             // Fail on an invalid window.
             if (!destinationWindow) {
