@@ -1375,7 +1375,6 @@ function createNewAttachmentInfo(contentType, url, displayName, uri,
                                  isExternalAttachment, size)
 {
   this.contentType = contentType;
-  this.url = url;
   this.displayName = displayName;
   this.uri = uri;
   this.isExternalAttachment = isExternalAttachment;
@@ -1384,6 +1383,13 @@ function createNewAttachmentInfo(contentType, url, displayName, uri,
 
   let match = GlodaUtils.PART_RE.exec(url);
   this.partID = match && match[1];
+
+  // Remove [?&]part= from remote urls, after getting the partID.
+  if (url.startsWith("http") || url.startsWith("file"))
+    url = url.replace(new RegExp("[?&]part=" + this.partID + "$"), "");
+
+  this.url = url;
+
 }
 
 createNewAttachmentInfo.prototype.saveAttachment = function saveAttachment()
