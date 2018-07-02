@@ -623,17 +623,6 @@ var messageHeaderSink = {
               img.src = attachment.url;
               break;
             }
-            else {
-              // GlodaUtils.PART_RE fails to extract a partID for urls with
-              // an embedded ?, at least. So, check the filename too. Frontend
-              // feed parsing ensures no duplicate urls in enclosures.
-              let name = decodeURI(img.src.split("&filename=")[1]);
-              name = name ? name.split("&")[0] : null;
-              if (name == attachment.displayName) {
-                img.src = attachment.url;
-                break;
-              }
-            }
           }
         }
       }
@@ -1380,13 +1369,20 @@ function createNewAttachmentInfo(contentType, url, displayName, uri,
   this.isExternalAttachment = isExternalAttachment;
   this.attachment = this;
   this.size = size;
+  let match;
 
-  let match = GlodaUtils.PART_RE.exec(url);
-  this.partID = match && match[1];
-
-  // Remove [?&]part= from remote urls, after getting the partID.
-  if (url.startsWith("http") || url.startsWith("file"))
-    url = url.replace(new RegExp("[?&]part=" + this.partID + "$"), "");
+  // Remote urls, unlike non external mail part urls, may also contain query
+  // strings starting with ?; PART_RE does not handle this.
+  if (url.startsWith("http") || url.startsWith("file")) {
+    match = url.match(/[?&]part=[^&]+$/);
+    match = match && match[0];
+    this.partID = match && match.split("part=")[1];
+    url = url.replace(match, "");
+  }
+  else {
+    match = GlodaUtils.PART_RE.exec(url);
+    this.partID = match && match[1];
+  }
 
   this.url = url;
 
