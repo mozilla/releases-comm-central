@@ -35,6 +35,8 @@
   <stringbundleset id="appManagerBundleset">
     <stringbundle id="appManagerBundle"
                   src="chrome://messenger/locale/preferences/applicationManager.properties"/>
+    <stringbundle id="bundlePreferences"
+                  src="chrome://messenger/locale/preferences/preferences.properties"/>
   </stringbundleset>
 
   <description id="appDescription"/>

@@ -9,6 +9,7 @@ var gAppManagerDialog = {
     this.handlerInfo = window.arguments[0];
 
     var bundle = document.getElementById("appManagerBundle");
+    gApplicationsPane._prefsBundle = document.getElementById("bundlePreferences");
 
     var description = gApplicationsPane._describeType(this.handlerInfo);
     var key = (this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) ?
