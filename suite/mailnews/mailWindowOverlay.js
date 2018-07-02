@@ -2600,7 +2600,7 @@ var gMessageNotificationBar =
 
   remoteOrigins: null,
 
-  setRemoteContentMsg: function(aMsgHdr, aContentURI)
+  setRemoteContentMsg: function(aMsgHdr, aContentURI, aCanOverride)
   {
     // remoteOrigins is a Set of all blockable Origins.
     if (!this.remoteOrigins)
@@ -2640,7 +2640,7 @@ var gMessageNotificationBar =
                             "remoteContent",
                             null,
                             this.mMsgNotificationBar.PRIORITY_WARNING_MEDIUM,
-                            buttons);
+                            (aCanOverride ? buttons : []));
   },
 
   // aUrl is the nsIURI for the message currently loaded in the message pane
