@@ -613,11 +613,12 @@
 
           // Register browser progress listeners
           let browser = this.getBrowserForTab(tab);
-          if (browser) {
+          if (browser && !browser._progressListenerAdded) {
             // It would probably be better to have the tabs register this listener, since the
             // browser can change. This wasn't trivial to do while implementing basic WebExtension
             // support, so let's assume one browser only for now.
             browser.webProgress.addProgressListener(this, Ci.nsIWebProgress.NOTIFY_ALL);
+            browser._progressListenerAdded = true;
           }
 
           return tab;
