@@ -20,6 +20,8 @@ ChromeUtils.defineModuleGetter(this, "NetUtil", "resource://gre/modules/NetUtil.
 updateAppInfo();
 
 (function() {
+    let manager = Cc["@mozilla.org/component-manager-extra;1"].getService(Ci.nsIComponentManagerExtra);
+
     let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);
     if (!AppConstants.NIGHTLY_BUILD) {
         bindir.append("distribution");
@@ -29,38 +31,16 @@ updateAppInfo();
     let xpiFile = bindir.clone();
     xpiFile.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}.xpi");
 
-    bindir.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}");
-    if (!bindir.exists()) {
-        const ZipReader = Components.Constructor("@mozilla.org/libjar/zip-reader;1", "nsIZipReader", "open");
-
-        let zip = ZipReader(xpiFile);
-        let entries = zip.findEntries(null);
-        while (entries.hasMore()) {
-            let entry = entries.getNext();
-            let target = bindir.clone();
-            for (let part of entry.split("/")) {
-                if (!part) {
-                    continue;
-                }
-                target.append(part);
-                if (!part.includes(".")) {
-                    if (!target.exists()) {
-                        target.create(Ci.nsIFile.DIRECTORY_TYPE, FileUtils.PERMS_DIRECTORY);
-                    }
-                    continue;
-                }
-            }
-            if (!target.exists()) {
-                zip.extract(entry, target);
-                target.permissions |= FileUtils.PERMS_FILE;
-            }
-        }
-        zip.close();
+    if (xpiFile.exists()) {
+        dump("Loading " + xpiFile.path + "\n");
+        manager.addLegacyExtensionManifestLocation(xpiFile);
+    } else {
+        // The XPI file is created by the automation, and not available on a local build.
+        // Use the unpacked version instead.
+        bindir.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}");
+        dump("Loading " + bindir.path + "\n");
+        manager.addLegacyExtensionManifestLocation(bindir);
     }
-
-    bindir.append("chrome.manifest");
-    dump("Loading" + bindir.path + "\n");
-    Components.manager.autoRegister(bindir);
 
     // Make sure to load the backend loader as early as possible, as xpcshell doesn't have the
     // normal app flow with profile-after-change et al.
