@@ -157,7 +157,8 @@ ltn.invitation = {
                 if (exc instanceof Components.interfaces.calIRecurrenceDate) {
                     if (exc.isNegative) {
                         // This is an EXDATE
-                        formattedExDates.push(formatter.formatDateTime(exc.date));
+                        let excDate = exc.date.getInTimezone(kDefaultTimezone);
+                        formattedExDates.push(formatter.formatDateTime(excDate));
                     } else {
                         // This is an RDATE, close enough to a modified occurrence
                         let excItem = aEvent.recurrenceInfo.getOccurrenceFor(exc.date);
