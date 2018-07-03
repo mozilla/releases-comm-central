@@ -1652,6 +1652,18 @@
               oncommand="gFolderTreeController.editFolder();"/>
   </menupopup>
 
+  <menupopup id="aboutPagesContext"
+             onpopupshowing="goUpdateCommand('cmd_copy');goUpdateCommand('cmd_selectAll');">
+    <menuitem id="aboutPagesContext-copy"
+              label="&copyCmd.label;"
+              accesskey="&copyCmd.accesskey;"
+              command="cmd_copy"/>
+    <menuitem id="aboutPagesContext-selectall"
+              label="&selectAllCmd.label;"
+              accesskey="&selectAllCmd.accesskey;"
+              command="cmd_selectAll"/>
+  </menupopup>
+
   <menupopup id="toolbar-context-menu"
              onpopupshowing="onViewToolbarsPopupShowing(event, 'mail-toolbox');">
     <menuseparator id="customizeMailToolbarMenuSeparator"/>

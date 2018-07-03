@@ -247,14 +247,20 @@ var kTelemetryServerOwner = "toolkit.telemetry.server_owner";
 var kTelemetryPromptRev   = 2;
 
 var contentTabBaseType = {
-  inContentWhitelist: ['about:addons', 'about:preferences'],
+  // List of URLs that will receive special treatment when opened in a tab.
+  // Note that about:preferences is loaded via a different mechanism.
+  inContentWhitelist: [
+    "about:addons",
+    "about:blank",
+    "about:*"
+  ],
 
   // Code to run if a particular document is loaded in a tab.
   // The array members (functions) are for the respective document URLs
-  // as specified in inContentWhitelist .
+  // as specified in inContentWhitelist.
   inContentOverlays: [
     // about:addons
-    function(aDocument) {
+    function (aDocument, aTab) {
       let contentStylesheet = aDocument.createProcessingInstruction(
         "xml-stylesheet",
         'href="chrome://messenger/content/extensionsOverlay.css" type="text/css"');
@@ -287,10 +293,20 @@ var contentTabBaseType = {
 
       aDocument.getElementById("category-box")
                .insertBefore(hbox, aDocument.getElementById("categories"));
+
+      // Switch off the context menu.
+      aTab.browser.removeAttribute("context");
     },
 
-    // about:preferences
-    null],
+    // Let's not mess with about:blank.
+    null,
+
+    // Other about:* pages.
+    function (aDocument, aTab) {
+      // Provide context menu for about:* pages.
+      aTab.browser.setAttribute("context", "aboutPagesContext");
+    }
+  ],
 
   shouldSwitchTo: function onSwitchTo({contentPage: aContentPage, duplicate: aDuplicate}) {
     if (aDuplicate) {
@@ -345,32 +361,24 @@ var contentTabBaseType = {
     return aTab.browser;
   },
 
-  hideChromeForLocation: function hideChromeForLocation(aLocation) {
-    return this.inContentWhitelist.includes(aLocation);
-  },
-
-  /* _setUpLoadListener attaches a load listener to the tab browser that
-   * checks the loaded URL to see if it matches the inContentWhitelist.
-   * If so, then we apply the disablechrome attribute to the contentTab
-   * container.
-   */
   _setUpLoadListener: function setUpLoadListener(aTab) {
     let self = this;
 
     function onLoad(aEvent) {
       let doc = aEvent.originalTarget;
-      if (self.hideChromeForLocation(doc.defaultView.location.href)) {
-        aTab.root.setAttribute("disablechrome", "true");
-      } else {
-        doc.documentElement.removeAttribute("disablechrome");
-      }
+      let url = doc.defaultView.location.href;
 
-     // If this document has an overlay defined, run it now.
-     if (self.inContentWhitelist.includes(doc.defaultView.location.href)) {
-       let overlayFunction = self.inContentOverlays[self.inContentWhitelist.indexOf(doc.defaultView.location.href)];
-       if (overlayFunction)
-         overlayFunction(doc);
-     }
+      // If this document has an overlay defined, run it now.
+      let ind = self.inContentWhitelist.indexOf(url);
+      if (ind < 0) {
+        // Try a wildcard.
+        ind = self.inContentWhitelist.indexOf(url.replace(/:.*/, ":*"));
+      }
+      if (ind >= 0) {
+        let overlayFunction = self.inContentOverlays[ind];
+        if (overlayFunction)
+          overlayFunction(doc, aTab);
+      }
     }
 
     aTab.loadListener = onLoad;
