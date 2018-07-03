@@ -16,7 +16,7 @@ DIRS += [
     'themes/classic',
     'themes/modern',
     'security',
-    '../common/src',
+    '../common',
 ]
 
 if CONFIG['MAKENSISU']:
