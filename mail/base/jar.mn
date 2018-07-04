@@ -40,6 +40,7 @@ messenger.jar:
 *   content/messenger/spinbuttons.xml               (../../common/bindings/spinbuttons.xml)
 *   content/messenger/textbox.xml                   (../../common/bindings/textbox.xml)
 *   content/messenger/toolbar.xml                   (../../common/bindings/toolbar.xml)
+    content/messenger/attachmentList.css            (content/attachmentList.css)
 *   content/messenger/bindings.css                  (content/bindings.css)
     content/messenger/nsDragAndDrop.js              (content/nsDragAndDrop.js)
     content/messenger/editContactPanel.js           (content/editContactPanel.js)

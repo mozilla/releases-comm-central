@@ -15,6 +15,7 @@
                             <image id="attachmentIcon"/>
                             <label id="attachmentCount"/>
                             <label id="attachmentName" crop="center" flex="1"
+                                   role="button"
                                    tooltiptext="&openAttachment.tooltip;"
                                    onclick="OpenAttachmentFromBar(event);"
                                    ondragstart="nsDragAndDrop.startDrag(event,attachmentNameDNDObserver);"/>
@@ -101,6 +102,6 @@
                         </hbox>
                         <attachmentlist orient="horizontal" id="attachmentList" flex="1"
                                         seltype="multiple" context="attachmentListContext"
-                                        itemcontext="attachmentItemContext"
+                                        role="listbox" itemcontext="attachmentItemContext"
                                         ondragstart="nsDragAndDrop.startDrag(event,attachmentListDNDObserver);"
                                         ondragover="nsDragAndDrop.dragOver(event, attachmentListDNDObserver);"/>

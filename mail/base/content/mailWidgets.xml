@@ -190,6 +190,8 @@
           const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
           let item = this.ownerDocument.createElementNS(XULNS, "attachmentitem");
           item.setAttribute("name", name || attachment.name);
+          item.setAttribute("role", "option");
+          item.setAttribute("tabindex", "0");
 
           let size;
           if (attachment.size != null && attachment.size != -1)
