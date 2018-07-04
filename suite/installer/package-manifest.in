@@ -171,7 +171,6 @@
 @RESPATH@/components/SuiteBrowser.manifest
 @RESPATH@/components/SuiteComponents.manifest
 @RESPATH@/components/SuiteFeeds.manifest
-@RESPATH@/components/SuiteProfileMigrator.manifest
 @RESPATH@/components/SuiteSidebar.manifest
 @RESPATH@/components/toolkitplaces.manifest
 @RESPATH@/components/toolkitsearch.manifest
