@@ -36,7 +36,7 @@ add_task(function test_title_in_subject() {
 add_task(function test_title_in_summary() {
     Preferences.set("calendar.itip.useInvitationSubjectPrefixes", true);
     let items = transport._prepareItems(itipItemForTest("bar"));
-    equal(items.subject, "Event Invitation: bar");
+    equal(items.subject, "Invitation: bar");
 });
 
 add_task(function test_updated_title_in_subject() {
@@ -48,5 +48,5 @@ add_task(function test_updated_title_in_subject() {
 add_task(function test_updated_title_in_summary() {
     Preferences.set("calendar.itip.useInvitationSubjectPrefixes", true);
     let items = transport._prepareItems(itipItemForTest("bar", 2));
-    equal(items.subject, "Updated Event Invitation: bar");
+    equal(items.subject, "Updated: bar");
 });
