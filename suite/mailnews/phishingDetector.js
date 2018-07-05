@@ -89,7 +89,11 @@ function isPhishingURL(aLinkNode, aSilentMode, aHref)
   var linkTextURL = {};
   var isPhishingURL = false;
 
-  var hrefURL = Services.io.newURI(href);
+  var hrefURL;
+  // Make sure relative link urls don't make us bail out.
+  try {
+    hrefURL = Services.io.newURI(href);
+  } catch(ex) { return false; }
 
   // only check for phishing urls if the url is an http or https link.
   // this prevents us from flagging imap and other internally handled urls
