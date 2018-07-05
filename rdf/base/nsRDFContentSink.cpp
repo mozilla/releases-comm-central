@@ -356,7 +356,8 @@ NS_IMETHODIMP
 RDFContentSinkImpl::HandleStartElement(const char16_t *aName,
                                        const char16_t **aAtts,
                                        uint32_t aAttsCount,
-                                       uint32_t aLineNumber)
+                                       uint32_t aLineNumber,
+                                       uint32_t aColNumber)
 {
   FlushText();
 
@@ -388,8 +389,8 @@ RDFContentSinkImpl::HandleStartElement(const char16_t *aName,
 
   case eRDFContentSinkState_InEpilog:
       MOZ_LOG(gLog, LogLevel::Warning,
-             ("rdfxml: unexpected content in epilog at line %d",
-              aLineNumber));
+             ("rdfxml: unexpected content in epilog at line %d, column %d",
+              aLineNumber, aColNumber));
       break;
   }
 
