@@ -2682,6 +2682,25 @@ SessionStoreService.prototype = {
     let browser = aTab.linkedBrowser;
     let tabData = browser.__SS_data;
 
+    // If the tabData which we're sending down has any sessionStorage associated
+    // with it, we need to send down permissions for the domains, as this
+    // information will be needed to correctly restore the session.
+    if (tabData.storage) {
+      for (let origin of Object.getOwnPropertyNames(tabData.storage)) {
+        try {
+          let {frameLoader} = browser.QueryInterface(Ci.nsIFrameLoaderOwner);
+          if (frameLoader.tabParent) {
+            let attrs = browser.contentPrincipal.originAttributes;
+            let dataPrincipal = Services.scriptSecurityManager.createCodebasePrincipalFromOrigin(origin);
+            let principal = Services.scriptSecurityManager.createCodebasePrincipal(dataPrincipal.URI, attrs);
+            frameLoader.tabParent.transmitPermissionsForPrincipal(principal);
+          }
+        } catch (e) {
+          Cu.reportError(e);
+        }
+      }
+    }
+
     // There are cases within where we haven't actually started a load. In that
     // that case we'll reset state changes we made and return false to the caller
     // can handle appropriately.
@@ -3003,6 +3022,9 @@ SessionStoreService.prototype = {
         // want to use the spec instead of the origin as the key, and avoid
         // transmitting origin attribute information which we then discard when
         // restoring.
+        //
+        // If changing this logic, make sure to also change the principal
+        // computation logic in restoretab.
         let attrs = aDocShell.getOriginAttributes();
         let dataPrincipal = Services.scriptSecurityManager.createCodebasePrincipalFromOrigin(origin);
         principal = Services.scriptSecurityManager.createCodebasePrincipal(dataPrincipal.URI, attrs);
