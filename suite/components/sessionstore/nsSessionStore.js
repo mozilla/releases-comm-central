@@ -2991,9 +2991,21 @@ SessionStoreService.prototype = {
       let principal;
 
       try {
+        // NOTE: We record the full origin for the URI which the
+        // sessionStorage is being captured for. As of bug 1319114 this code
+        // stopped parsing any origins which have originattributes correctly, as
+        // it decided to use the origin attributes from the docshell, and try to
+        // interpret the origin as a URI. Since bug 1473426 code now correctly
+        // parses the full origin, and then discards the origin attributes, to
+        // make the behavior line up with the original intentions in bug 1235657
+        // while preserving the ability to read all session storage from
+        // previous versions. In the future, if this behavior is desired, we may
+        // want to use the spec instead of the origin as the key, and avoid
+        // transmitting origin attribute information which we then discard when
+        // restoring.
         let attrs = aDocShell.getOriginAttributes();
-        let originURI = Services.io.newURI(origin);
-        principal = Services.scriptSecurityManager.createCodebasePrincipal(originURI, attrs);
+        let dataPrincipal = Services.scriptSecurityManager.createCodebasePrincipalFromOrigin(origin);
+        principal = Services.scriptSecurityManager.createCodebasePrincipal(dataPrincipal.URI, attrs);
       } catch (e) {
         Cu.reportError(e);
         continue;
