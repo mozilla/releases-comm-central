@@ -5428,28 +5428,6 @@ function attachmentBucketOnKeyPress(aEvent) {
     // keyboard equivalent of single-click on bucket whitespace.
     goDoCommand("cmd_attachFile");
   }
-
-  // For user's convenience, we want the access key combo for attachments pane
-  // (e.g. Alt+M) to also work as a shortcut key to toggle the attachment pane.
-  // Hence localizations have been advised to define the access key combo as a
-  // shortcut key in <key_toggleAttachmentPane/>. This is important especially
-  // for Mac which does not have access keys for UI elements, but it should work
-  // if defined as a shortcut key.
-  // On Windows (and Linux?), unfortunately access key intercepts the identical
-  // shortcut key, so we have to trigger the shortcut key action here.
-  // This means that if the shortcut key is identical with the access key on
-  // Windows/Linux, the shortcut never triggers and we always end up here.
-  // We still want the shortcut key on those OS because localizations might
-  // ignore our advice and define a shortcut key which is different from the
-  // access key. And we can't use the shortcut key only because removing the
-  // control attribute of the access key breaks screen readers. Sigh.
-  let attachmentsAccessKey = document.getElementById("attachmentBucketCount")
-                                     .accessKey;
-  // We can get away with hardcoding the access key modifier key as aEvent.altKey
-  // because it's ALT for Windows and Linux, and Mac doesn't have XUL access keys.
-  if (aEvent.key == attachmentsAccessKey && aEvent.altKey) {
-    goDoCommand('cmd_toggleAttachmentPane');
-  }
 }
 
 function attachmentBucketOnDragStart(aEvent) {

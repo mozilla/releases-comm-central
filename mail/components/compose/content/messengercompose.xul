@@ -1999,7 +1999,6 @@
                   context="msgComposeAttachmentListContext">
               <label id="attachmentBucketCount"
                      accesskey="&attachments.accesskey;"
-                     control="attachmentBucket"
                      flex="1" crop="end"/>
             </hbox>
             <toolbarspring/>
