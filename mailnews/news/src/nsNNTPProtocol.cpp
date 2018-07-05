@@ -91,7 +91,7 @@
 #define READ_NEWS_LIST_COUNT_MAX 500 /* number of groups to process at a time when reading the list from the server */
 #define READ_NEWS_LIST_TIMEOUT 50  /* uSec to wait until doing more */
 #define RATE_STR_BUF_LEN 32
-#define UPDATE_THRESHHOLD 25600 /* only update every 25 KB */
+#define UPDATE_THRESHOLD 25600 /* only update every 25 KB */
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -2771,7 +2771,7 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream * inputStream, uint32_t len
     mBytesReceived += status;
     mBytesReceivedSinceLastStatusUpdate += status;
 
-    if ((mBytesReceivedSinceLastStatusUpdate > UPDATE_THRESHHOLD) && m_msgWindow) {
+    if ((mBytesReceivedSinceLastStatusUpdate > UPDATE_THRESHOLD) && m_msgWindow) {
       mBytesReceivedSinceLastStatusUpdate = 0;
 
       nsCOMPtr <nsIMsgStatusFeedback> msgStatusFeedback;

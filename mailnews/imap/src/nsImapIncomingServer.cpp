@@ -291,8 +291,8 @@ NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, CleanupInboxOnExit,
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, OfflineDownload,
                         "offline_download")
 
-NS_IMPL_SERVERPREF_INT(nsImapIncomingServer, EmptyTrashThreshhold,
-                       "empty_trash_threshhold")
+NS_IMPL_SERVERPREF_INT(nsImapIncomingServer, EmptyTrashThreshold,
+                       "empty_trash_threshold")
 
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, DownloadBodiesOnGetNewMail,
                         "download_bodies_on_get_new_mail")

@@ -29,7 +29,7 @@
       <preference id="mail.prompt_purge_threshhold"
                   name="mail.prompt_purge_threshhold"
                   type="bool"
-                  onchange="EnableMailPurgeThreshhold(this.value);"/>
+                  onchange="EnableMailPurgeThreshold(this.value);"/>
       <preference id="mail.purge_threshhold_mb"
                   name="mail.purge_threshhold_mb"
                   type="int"/>

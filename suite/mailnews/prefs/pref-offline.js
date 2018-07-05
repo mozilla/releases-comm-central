@@ -11,7 +11,7 @@ function Startup()
   EnableElementById("offlineCompactFolderMin", value, false);
 }
 
-function EnableMailPurgeThreshhold(aValue)
+function EnableMailPurgeThreshold(aValue)
 {
   var focus = (document.getElementById("offlineCompactFolder") == document.commandDispatcher.focusedElement);
   EnableElementById("offlineCompactFolderMin", aValue, focus);

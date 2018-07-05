@@ -34,7 +34,7 @@ interface nsIImapIncomingServer : nsISupports {
   attribute boolean cleanupInboxOnExit;
   attribute nsMsgImapDeleteModel deleteModel;
   attribute boolean dualUseFolders;
-  attribute long emptyTrashThreshhold;
+  attribute long emptyTrashThreshold;
   attribute ACString personalNamespace;
   attribute ACString publicNamespace;
   attribute ACString otherUsersNamespace;

@@ -73,7 +73,7 @@
 #include "mozilla/intl/LocaleService.h"
 #include "nsIURIMutator.h"
 
-static PRTime gtimeOfLastPurgeCheck;    //variable to know when to check for purge_threshhold
+static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for purge threshold
 
 #define PREF_MAIL_PROMPT_PURGE_THRESHOLD "mail.prompt_purge_threshhold"
 #define PREF_MAIL_PURGE_THRESHOLD "mail.purge_threshhold"
