@@ -4168,7 +4168,13 @@ SessionStoreSHistoryListener.prototype = {
     this.ss.restoreTab(this.tab);
     // Returning false will stop the load that docshell is attempting.
     return false;
-  }
+  },
+  OnLengthChanged(aCount) {
+    // Ignore, the method is implemented so that XPConnect doesn't throw!
+  },
+  OnIndexChanged(aIndex) {
+    // Ignore, the method is implemented so that XPConnect doesn't throw!
+  },
 }
 
 
