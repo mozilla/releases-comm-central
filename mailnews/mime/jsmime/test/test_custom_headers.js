@@ -55,13 +55,13 @@ suite('Custom decoder support', function () {
   test('addStructuredDecoder', function () {
     assert.throws(function () {
       jsmime.headerparser.parseStructuredHeader('X-Base64', 'U3RyaW5n');
-    });
+    }, /Unknown structured header/);
     jsmime.headerparser.addStructuredDecoder('X-Base64', customDecoder);
     assert.equal('String',
       jsmime.headerparser.parseStructuredHeader('X-Base64', 'U3RyaW5n'));
     assert.throws(function () {
       jsmime.headerparser.addStructuredDecoder('To', customDecoder);
-    });
+    }, /Cannot override header/);
   });
 });
 

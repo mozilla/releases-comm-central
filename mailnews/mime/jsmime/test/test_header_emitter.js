@@ -308,9 +308,9 @@ suite('headeremitter', function () {
     // An invalid date should throw an error instead of make a malformed header.
     test('Invalid dates', function () {
       let emitter = headeremitter.makeStreamingEmitter(handler, { });
-      assert.throws(function () { emitter.addDate(new Date(NaN)); });
-      assert.throws(function () { emitter.addDate(new Date("1850-01-01")); });
-      assert.throws(function () { emitter.addDate(new Date("10000-01-01")); });
+      assert.throws(function () { emitter.addDate(new Date(NaN)); }, /Cannot encode an invalid date/);
+      assert.throws(function () { emitter.addDate(new Date("1850-01-01")); }, /Date year is out of encodable range/);
+      assert.throws(function () { emitter.addDate(new Date("10000-01-01")); }, /Cannot encode an invalid date/);
     });
 
     // Test preferred breaking for the date header.
@@ -371,7 +371,7 @@ suite('headeremitter', function () {
         });
         handler.reset(data[1]);
         if (data[1] instanceof Error)
-          assert.throws(function () { emitter.addAddresses(data[0]); });
+          assert.throws(function () { emitter.addAddresses(data[0]); }, /Cannot encode/);
         else {
           assert.doesNotThrow(function () { emitter.addAddresses(data[0]); });
           emitter.finish(true);
