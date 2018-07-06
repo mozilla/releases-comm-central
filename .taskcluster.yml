@@ -1,6 +1,7 @@
 ---
 # This file is rendered via JSON-e by
 # - mozilla-taskcluster - https://docs.taskcluster.net/reference/integrations/mozilla-taskcluster/docs/taskcluster-yml
+# - cron tasks - taskcluster/taskgraph/cron/decision.py
 # - action tasks - taskcluster/taskgraph/actions/registry.py
 
 version: 1
