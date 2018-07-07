@@ -252,21 +252,4 @@
     </implementation>
   </binding>
 
-  <binding id="searchBarDropMarker">
-    <resources>
-      <stylesheet src="chrome://messenger/skin/searchBox.css"/>
-    </resources>
-    <content popup="_child">
-      <children/>
-      <xul:stack flex="1">
-        <xul:hbox align="center">
-          <xul:image class="quick-search-button-image" xbl:inherits="src"/>
-        </xul:hbox>
-        <xul:hbox align="center">
-          <xul:image class="quick-search-button-dropmarker"/>
-        </xul:hbox>
-      </xul:stack>
-    </content>
-  </binding>
-
 </bindings>

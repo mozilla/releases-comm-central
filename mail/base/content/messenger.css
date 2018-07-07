@@ -149,17 +149,6 @@ dummy.usesMailWidgets {
   min-width: 10em;
 }
 
-.quick-search-button {
-  -moz-binding: url("chrome://messenger/content/search.xml#searchBarDropMarker");
-  cursor: default;
-  -moz-user-focus: none;
-}
-
-.quick-search-clearbutton{
-  cursor: default;
-  -moz-user-focus: none;
-}
-
 .folderSummaryPopup
 {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#folderSummary-popup");
