@@ -18,14 +18,14 @@ toolbarbutton.bookmark-item {
 }
 
 .bookmark-item > .toolbarbutton-icon {
-  background-image: url("chrome://communicator/skin/bookmarks/filters.svg"); /* Preload filter */
+  background-image: url("chrome://communicator/skin/places/filters.svg"); /* Preload filter */
   width: 16px;
   height: 16px;
 }
 
 .bookmark-item:not([disabled="true"]):hover:active > .toolbarbutton-icon,
 .bookmark-item[open] > .toolbarbutton-icon {
-  filter: url("chrome://communicator/skin/bookmarks/filters.svg#iconPressed");
+  filter: url("chrome://communicator/skin/places/filters.svg#iconPressed");
 }
 
 toolbarbutton.bookmark-item[disabled="true"] > .toolbarbutton-icon {
