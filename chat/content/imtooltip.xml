@@ -11,10 +11,6 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="tooltip" extends="chrome://global/content/bindings/popup.xml#tooltip">
-    <resources>
-      <stylesheet src="chrome://chat/content/imtooltip.css"/>
-      <stylesheet src="chrome://chat/skin/imtooltip.css"/>
-    </resources>
     <content noautohide="true" orient="vertical">
       <children>
         <xul:label class="tooltip-label" xbl:inherits="xbl:text=label" flex="1"/>

@@ -86,6 +86,7 @@
 }
 
 .userIcon:not([src]),
+.statusTypeIcon:not([status]),
 .userIconHolder:not([userIcon]) {
   display: none;
 }

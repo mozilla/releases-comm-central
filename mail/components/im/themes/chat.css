@@ -242,6 +242,7 @@ imcontact[aliasing] .contactDisplayName {
   padding: 0 0;
   border-style: none;
   -moz-appearance: none;
+  -moz-window-dragging: no-drag;
 %ifdef XP_MACOSX
   /* Copy of .main-header-area from osx/mail/messageHeader.css */
   color: #2E3436; /* Aluminium 6 */

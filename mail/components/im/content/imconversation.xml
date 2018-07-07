@@ -1685,9 +1685,6 @@
 
   <binding id="conv-info-large"
            extends="chrome://messenger/content/toolbar.xml#toolbar">
-    <resources>
-      <stylesheet src="chrome://messenger/content/chat/chat.css"/>
-    </resources>
     <content>
       <xul:stack anonid="statusImageStack" class="statusImageStack">
         <!-- The box around the user icon is a workaround for bug 955673. -->
