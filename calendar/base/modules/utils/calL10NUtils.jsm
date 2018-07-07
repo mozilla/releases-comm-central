@@ -31,7 +31,7 @@ function _getString(aComponent, aBundleName, aStringName, aParams=[]) {
         }
         let props = _getString._bundleCache[propName];
 
-        if (aParams.length) {
+        if (aParams && aParams.length) {
             return props.formatStringFromName(aStringName, aParams, aParams.length);
         } else {
             return props.GetStringFromName(aStringName);

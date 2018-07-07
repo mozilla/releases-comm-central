@@ -312,7 +312,7 @@ function onLoad() {
     // new items should have a non-empty title.
     if (item.isMutable && (!item.title || item.title.length <= 0)) {
         item.title = cal.l10n.getString("calendar-event-dialog",
-                                      cal.item.isEvent(item) ? "newEvent" : "newTask");
+                                        cal.item.isEvent(item) ? "newEvent" : "newTask");
     }
 
     window.onAcceptCallback = args.onOk;
