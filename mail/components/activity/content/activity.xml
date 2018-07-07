@@ -19,9 +19,6 @@
 
   <binding id="activity-group"
            extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
-    <resources>
-      <stylesheet src="chrome://messenger/skin/activity/activity.css"/>
-    </resources>
     <implementation>
       <constructor>
        <![CDATA[
@@ -106,9 +103,6 @@
   </binding>
 
   <binding id="activity-base" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
-    <resources>
-      <stylesheet src="chrome://messenger/skin/activity/activity.css"/>
-    </resources>
     <implementation implements="nsIActivityListener">
       <constructor>
        <![CDATA[
