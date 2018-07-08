@@ -11,8 +11,10 @@
 this.EXPORTED_SYMBOLS = ["Overlays"];
 
 ChromeUtils.import("resource://gre/modules/Console.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "setTimeout", "resource://gre/modules/Timer.jsm");
+XPCOMUtils.defineLazyServiceGetter(this, "xulStoreService", "@mozilla.org/xul/xulstore;1", "nsIXULStore");
 
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 
@@ -37,10 +39,8 @@ class Overlays {
    */
   static load(overlayProvider, window) {
     let instance = new Overlays(overlayProvider, window);
-    let location = window.location.protocol + "//" +
-        window.location.host + window.location.pathname;
 
-    let urls = overlayProvider.overlay.get(location, false);
+    let urls = overlayProvider.overlay.get(instance.location, false);
     instance.load(urls);
   }
 
@@ -52,8 +52,10 @@ class Overlays {
    * @param {DOMWindow} window                      The window to load into
    */
   constructor(overlayProvider, window) {
-    this.window = window;
     this.overlayProvider = overlayProvider;
+    this.window = window;
+
+    this.location = window.location.origin + window.location.pathname;
   }
 
   /**
@@ -170,6 +172,20 @@ class Overlays {
       // script itself may have some asynchronous side-effects (xbl bindings attached). Throwing in a
       // 1500ms timeout before we fire the load handlers seems to help, even though it is an ugly hack.
       setTimeout(() => {
+        let ids = xulStoreService.getIDsEnumerator(this.location);
+        while (ids.hasMore()) {
+          let id = ids.getNext();
+          let element = this.document.getElementById(id);
+          if (element) {
+            let attrNames = xulStoreService.getAttributeEnumerator(this.location, id);
+            while (attrNames.hasMore()) {
+              let attrName = attrNames.getNext();
+              let attrValue = xulStoreService.getValue(this.location, id, attrName);
+              element.setAttribute(attrName, attrValue);
+            }
+          }
+        }
+
         // Now execute load handlers since we are done loading scripts
         let bubbles = [];
         for (let { listener, useCapture } of deferredLoad) {
