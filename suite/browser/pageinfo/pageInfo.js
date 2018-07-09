@@ -914,16 +914,17 @@ function saveMedia()
       else if (item instanceof HTMLAudioElement)
         titleKey = "SaveAudioTitle";
 
-      saveURL(url, null, titleKey, false, true, makeURI(item.baseURI),
-              gDocument);
+      saveURL(url, null, titleKey, false, false, makeURI(item.baseURI),
+              null, (opener.gPrivate ? true : false));
     }
   } else {
     selectSaveFolder(function(aDirectory) {
       if (aDirectory) {
         var saveAnImage = function(aURIString, aChosenData, aBaseURI) {
           uniqueFile(aChosenData.file);
-          internalSave(aURIString, null, null, null, null, false, "SaveImageTitle",
-                       aChosenData, aBaseURI, null, false, null, gDocument.isContentWindowPrivate);
+          internalSave(aURIString, null, null, null, null, false,
+                       "SaveImageTitle", aChosenData, aBaseURI, null, false,
+                       null, (opener.gPrivate ? true : false));
         };
 
         for (var i = 0; i < rowArray.length; i++) {
@@ -1246,8 +1247,9 @@ function getContentTypeFromHeaders(cacheEntryDescriptor)
   if (!cacheEntryDescriptor)
     return null;
 
-  return (/^Content-Type:\s*(.*?)\s*(?:\;|$)/mi
-          .exec(cacheEntryDescriptor.getMetaDataElement("response-head")))[1];
+  let headers = cacheEntryDescriptor.getMetaDataElement("response-head");
+  let type = /^Content-Type:\s*(.*?)\s*(?:\;|$)/mi.exec(headers);
+  return type && type[1];
 }
 
 //******** Other Misc Stuff
