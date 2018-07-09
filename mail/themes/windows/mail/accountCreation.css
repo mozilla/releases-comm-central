@@ -157,7 +157,7 @@ textbox.port {
 }
 
 textbox.username {
-  width: 12em;
+  width: 15em;
   margin-bottom: 4px !important;
   margin-top: 4px !important;
 }
@@ -243,7 +243,6 @@ textbox.padded html|*.textbox-input::placeholder {
   height: 16px;
 }
 
-
 .menulist-dropmarker[disabled="true"] {
   visibility: hidden;
 }
@@ -263,20 +262,15 @@ textbox.port[disabled="true"] {
 #initialSettings, #status_area {
   margin-bottom: 1em;
 }
+
 #result_area, #result_imappop {
   margin-bottom: 1.5em;
 }
+
 #manual-edit_area {
   margin-bottom: 2em;
 }
 
 #status_msg {
   min-height: 2em;
-}
-
-#incoming_hostname {
-  width: 15em;
-}
-#incoming_username {
-  width: 10em;
 }

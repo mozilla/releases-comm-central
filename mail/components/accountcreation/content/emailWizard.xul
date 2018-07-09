@@ -247,7 +247,7 @@
         <columns>
           <column/><!-- row label, e.g. "incoming" -->
           <column/><!-- protocol, e.g. "IMAP" -->
-          <column flex="1"/><!-- hostname / username -->
+          <column/><!-- hostname / username -->
           <column/><!-- port -->
           <column/><!-- SSL -->
           <column/><!-- auth method -->
@@ -288,7 +288,7 @@
             <menulist id="incoming_ssl"
                       class="security"
                       oncommand="gEmailConfigWizard.onChangedSSLIncoming();"
-                      sizetopopup="always">
+                      sizetopopup="none">
               <menupopup>
                 <!-- values defined in nsMsgSocketType -->
                 <menuitem label="&autodetect.label;" value="0"/>
@@ -300,7 +300,7 @@
             <menulist id="incoming_authMethod"
                       class="auth"
                       oncommand="gEmailConfigWizard.onChangedInAuth();"
-                      sizetopopup="always">
+                      sizetopopup="none">
               <menupopup>
                 <menuitem label="&autodetect.label;" value="0"/>
                 <!-- values defined in nsMsgAuthMethod -->
@@ -339,7 +339,7 @@
             <menulist id="outgoing_ssl"
                       class="security"
                       oncommand="gEmailConfigWizard.onChangedSSLOutgoing();"
-                      sizetopopup="always">
+                      sizetopopup="none">
               <menupopup>
                 <!-- @see incoming -->
                 <menuitem label="&autodetect.label;" value="0"/>
@@ -351,7 +351,7 @@
             <menulist id="outgoing_authMethod"
                       class="auth"
                       oncommand="gEmailConfigWizard.onChangedOutAuth(this.selectedItem);"
-                      sizetopopup="always">
+                      sizetopopup="none">
               <menupopup>
                 <menuitem label="&autodetect.label;" value="0"/>
                 <!-- @see incoming -->
