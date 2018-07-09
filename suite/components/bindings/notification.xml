@@ -1925,6 +1925,8 @@
 
       <method name="ignoreSafeBrowsingWarning">
         <parameter name="aReason"/>
+        <parameter name="aBlockedInfo"/>
+
         <body>
           <![CDATA[
             var uri = this.activeBrowser.currentURI;
@@ -1972,13 +1974,17 @@
             if (reportName) {
               var tmp = {};
               ChromeUtils.import("resource://gre/modules/SafeBrowsing.jsm", tmp);
-              var reportUrl = tmp.SafeBrowsing.getReportURL(reportName, uri);
+              var reportUrl = tmp.SafeBrowsing.getReportURL(reportName, aBlockedInfo);
 
-              buttons.push({
-                label: this._stringBundle.GetStringFromName(label),
-                accessKey: this._stringBundle.GetStringFromName(accessKey),
-                callback() { openUILinkIn(reportUrl, "tabfocused"); }
-              });
+              // There's no button if we can not get report url, for example
+              // if the provider of blockedInfo is not Google.
+              if (reportUrl) {
+                buttons.push({
+                  label: this._stringBundle.GetStringFromName(label),
+                  accessKey: this._stringBundle.GetStringFromName(accessKey),
+                  callback() { openUILinkIn(reportUrl, "tabfocused"); }
+                });
+              }
             }
 
             var type = "blocked-badware-page";

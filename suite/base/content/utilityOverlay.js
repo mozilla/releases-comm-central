@@ -1155,11 +1155,34 @@ function BrowserOnCommand(event)
       reason = "unwanted";
     }
 
+    let docShell = ownerDoc.defaultView
+                           .QueryInterface(Ci.nsIInterfaceRequestor)
+                           .getInterface(Ci.nsIWebNavigation)
+                           .QueryInterface(Ci.nsIDocShell);
+    let blockedInfo = {};
+    if (docShell.failedChannel) {
+      let classifiedChannel = docShell.failedChannel.
+                              QueryInterface(Ci.nsIClassifiedChannel);
+      if (classifiedChannel) {
+        let httpChannel = docShell.failedChannel.QueryInterface(Ci.nsIHttpChannel);
+
+        let reportUri = httpChannel.URI.clone();
+
+        // Remove the query to avoid leaking sensitive data
+        if (reportUri instanceof Ci.nsIURL) {
+          reportUri = reportUri.mutate().setQuery("").finalize();
+        }
+
+        blockedInfo = { list: classifiedChannel.matchedList,
+                        provider: classifiedChannel.matchedProvider,
+                        uri: reportUri.asciiSpec };
+      }
+    }
+
     switch (buttonID) {
       case "getMeOutOfHereButton":
         getMeOutOfHere();
         break;
-
       case "reportButton":
         // This is the "Why is this site blocked" button. We redirect
         // to the generic page describing phishing/malware protection.
@@ -1169,13 +1192,11 @@ function BrowserOnCommand(event)
           Cu.reportError("Couldn't get phishing info URL: " + e);
         }
         break;
-
       case "ignoreWarningButton":
         if (Services.prefs.getBoolPref("browser.safebrowsing.allowOverride")) {
-          getBrowser().getNotificationBox().ignoreSafeBrowsingWarning(reason);
+          getBrowser().getNotificationBox().ignoreSafeBrowsingWarning(reason, blockedInfo);
         }
         break;
-
     }
   }
 }

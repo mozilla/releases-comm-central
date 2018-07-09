@@ -428,6 +428,10 @@ pref("browser.safebrowsing.provider.google.gethashURL", "https://safebrowsing.go
 pref("browser.safebrowsing.provider.mozilla.updateURL", "https://shavar.services.mozilla.com/downloads?client=SAFEBROWSING_ID&appver=%VERSION%&pver=2.2");
 pref("browser.safebrowsing.provider.mozilla.gethashURL", "https://shavar.services.mozilla.com/gethash?client=SAFEBROWSING_ID&appver=%VERSION%&pver=2.2");
 
+// The following prefs are for testing safebrowsing reporting only. Do not activate them in regular builds.
+// pref("browser.safebrowsing.provider.test.reportPhishMistakeURL", "https://%LOCALE%.phish-error.mozilla.com/?hl=%LOCALE%&url=");
+// pref("browser.safebrowsing.provider.test.reportMalwareMistakeURL", "https://%LOCALE%.malware-error.mozilla.com/?hl=%LOCALE%&url=");
+
 //Theoretically the "client ID" sent in updates should be appinfo.name but
 //anything except "Firefox" or "navclient-auto-ffox" will cause safebrowsing
 //updates to fail. So we pretend to be Firefox here.

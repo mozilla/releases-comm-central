@@ -42,13 +42,28 @@ var gSafeBrowsing = {
 
   /**
    * Used to report a phishing page or a false positive
-   * @param   aName
-   *          A String One of "Phish", "PhishMistake" or "MalwareMistake".
-   * @returns A String containing the report phishing URL.
+   *
+   * @param name
+   *        String One of "PhishMistake", "MalwareMistake", or "Phish"
+   * @param info
+   *        Information about the reasons for blocking the resource.
+   *        In the case false positive, it may contain SafeBrowsing
+   *        matching list and provider of the list
+   * @return String the report phishing URL.
    */
-  getReportURL: function getReportURL(aName) {
-    var pageUri = getBrowser().currentURI.cloneIgnoringRef();
-    return SafeBrowsing.getReportURL(aName, pageUri);
+  getReportURL(name, info) {
+    let reportInfo = info;
+    if (!reportInfo) {
+      let pageUri = getBrowser().currentURI.clone();
+
+      // Remove the query to avoid including potentially sensitive data
+      if (pageUri instanceof Ci.nsIURL) {
+        pageUri = pageUri.mutate().setQuery("").finalize();
+      }
+
+      reportInfo = { uri: pageUri.asciiSpec };
+    }
+    return SafeBrowsing.getReportURL(name, reportInfo);
   },
 
   initOverlay: function initOverlay(aEvent) {
