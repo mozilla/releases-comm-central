@@ -249,6 +249,8 @@ Section "-InstallStartCleanup"
   ; Remove the updates directory for Windows 7 and above
   ${CleanUpdateDirectories} "Mozilla\SeaMonkey" "Mozilla\updates"
 
+  ${RemoveDeprecatedFiles}
+
   ${InstallStartCleanupCommon}
 SectionEnd
 

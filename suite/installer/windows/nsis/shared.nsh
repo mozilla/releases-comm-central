@@ -76,6 +76,8 @@
   ; VirtualStore directory.
   ${CleanVirtualStore}
 
+  ${RemoveDeprecatedFiles}
+
   ; Register AccessibleHandler.dll with COM (this writes to HKLM)
   ${RegisterAccessibleHandler}
 !macroend
@@ -791,6 +793,25 @@
   ${EndIf}
 !macroend
 !define RemoveDeprecatedKeys "!insertmacro RemoveDeprecatedKeys"
+
+; Removes various directories and files for reasons noted below.
+!macro RemoveDeprecatedFiles
+  ; Remove the Java Console extension (bug 1165156)
+  FindFirst $0 $1 "$INSTDIR\extensions\{CAFEEFAC-00*-0000-*-ABCDEFFEDCBA}"
+  loopDirs:
+  StrCmp $1 "" doneDirs
+  ${If} ${FileExists} "$INSTDIR\extensions\$1"
+    !ifndef NO_LOG
+      ${LogMsg} "Removing Java console edition in: $INSTDIR\extensions\$1"
+    !endif
+    RmDir /r /REBOOTOK "$INSTDIR\extensions\$1"
+  ${EndIf}
+  FindNext $0 $1
+  Goto loopDirs
+  doneDirs:
+  FindClose $0
+!macroend
+!define RemoveDeprecatedFiles "!insertmacro RemoveDeprecatedFiles"
 
 !macro FixClassKeys
   StrCpy $0 "SOFTWARE\Classes"
