@@ -37,7 +37,7 @@ messenger.jar:
     content/messenger/listbox.xml                   (../../common/bindings/listbox.xml)
     content/messenger/numberbox.xml                 (../../common/bindings/numberbox.xml)
     content/messenger/generalBindings.xml           (../../common/bindings/generalBindings.xml)
-*   content/messenger/spinbuttons.xml               (../../common/bindings/spinbuttons.xml)
+    content/messenger/spinbuttons.xml               (../../common/bindings/spinbuttons.xml)
 *   content/messenger/textbox.xml                   (../../common/bindings/textbox.xml)
 *   content/messenger/toolbar.xml                   (../../common/bindings/toolbar.xml)
     content/messenger/attachmentList.css            (content/attachmentList.css)

@@ -592,9 +592,6 @@
 
   <binding id="prefwindow"
            extends="chrome://global/content/bindings/dialog.xml#dialog">
-    <resources>
-      <stylesheet src="chrome://global/skin/preferences.css"/>
-    </resources>
     <content dlgbuttons="accept,cancel" persist="lastSelected screenX screenY"
              closebuttonlabel="&preferencesCloseButton.label;"
              closebuttonaccesskey="&preferencesCloseButton.accesskey;"
@@ -1168,9 +1165,6 @@
   </binding>
 
   <binding id="prefpane">
-    <resources>
-      <stylesheet src="chrome://global/skin/preferences.css"/>
-    </resources>
     <content>
       <xul:vbox class="content-box" xbl:inherits="flex">
         <children/>
@@ -1382,9 +1376,6 @@
 
   <binding id="panebutton" role="xul:listitem"
            extends="chrome://global/content/bindings/radio.xml#radio">
-    <resources>
-      <stylesheet src="chrome://global/skin/preferences.css"/>
-    </resources>
     <content>
       <xul:image class="paneButtonIcon" xbl:inherits="src"/>
       <xul:label class="paneButtonLabel" xbl:inherits="value=label"/>

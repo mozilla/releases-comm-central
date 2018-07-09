@@ -12,14 +12,6 @@
   <binding id="spinbuttons"
            extends="chrome://global/content/bindings/general.xml#basecontrol">
 
-    <resources>
-#ifdef MOZ_SUITE
-      <stylesheet src="chrome://communicator/skin/spinbuttons.css"/>
-#else
-      <stylesheet src="chrome://messenger/skin/spinbuttons.css"/>
-#endif
-    </resources>
-
     <content>
       <xul:vbox class="spinbuttons-box" flex="1">
         <xul:button anonid="increaseButton" type="repeat" flex="1"

@@ -174,7 +174,7 @@
   padding-bottom: 2px;
 }
 
-.textbox-addressingWidget,
+textbox.textbox-addressingWidget,
 .dummy-row-cell:not(:first-child) {
   margin-bottom: 2px !important;
   padding: 2px !important;
@@ -184,14 +184,14 @@
 }
 
 @media (-moz-windows-default-theme: 0) {
-  .textbox-addressingWidget,
+  textbox.textbox-addressingWidget,
   .dummy-row-cell:not(:first-child) {
     border-bottom-color: ThreeDShadow !important;
     margin-inline-end: 1px !important;
   }
 
-  .textbox-addressingWidget:hover,
-  .textbox-addressingWidget[focused="true"] {
+  textbox.textbox-addressingWidget:hover,
+  textbox.textbox-addressingWidget[focused="true"] {
     background-color: -moz-field;
     border-color: ThreeDShadow !important;
   }
@@ -667,18 +667,19 @@ toolbar:not(:-moz-lwtheme) {
 /* ::::: addressing widget ::::: */
 
 @media (-moz-windows-default-theme) {
-  .textbox-addressingWidget,
+  textbox.textbox-addressingWidget,
   .dummy-row-cell:not(:first-child) {
     border-bottom-color: #a9b7c9 !important;
   }
 
-  .textbox-addressingWidget:hover,
-  .textbox-addressingWidget[focused="true"] {
+  textbox.textbox-addressingWidget:hover,
+  textbox.textbox-addressingWidget[focused="true"] {
     background-color: -moz-field;
     border-color: #a9b7c9 !important;
   }
 
-  menulist {
+  menulist,
+  menulist[disabled="true"] {
     color: inherit;
     border: 1px solid;
     background: var(--toolbarbutton-hover-background);
@@ -686,6 +687,10 @@ toolbar:not(:-moz-lwtheme) {
     box-shadow: var(--toolbarbutton-hover-boxshadow);
     transition-property: background-color, border-color, box-shadow;
     transition-duration: 150ms;
+  }
+
+  menulist[disabled="true"] {
+    opacity: 0.5;
   }
 
   menulist:not([disabled="true"]):not([open="true"]):hover {
@@ -699,7 +704,8 @@ toolbar:not(:-moz-lwtheme) {
     box-shadow: var(--toolbarbutton-active-boxshadow);
   }
 
-  .menulist-dropmarker {
+  .menulist-dropmarker,
+  .menulist-dropmarker[disabled="true"] {
     -moz-appearance: none;
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
     -moz-context-properties: fill;

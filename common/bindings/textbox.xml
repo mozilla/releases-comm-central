@@ -18,10 +18,6 @@
    xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="textbox" extends="xul:box" role="xul:textbox">
-    <resources>
-      <stylesheet src="chrome://global/content/textbox.css"/>
-      <stylesheet src="chrome://global/skin/textbox.css"/>
-    </resources>
 
     <content>
       <children/>

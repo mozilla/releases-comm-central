@@ -11,10 +11,6 @@
 
   <binding id="numberbox" extends="chrome://messenger/content/textbox.xml#textbox">
 
-    <resources>
-      <stylesheet src="chrome://messenger/skin/numberbox.css"/>
-    </resources>
-
     <content>
       <xul:hbox class="textbox-input-box numberbox-input-box" flex="1" xbl:inherits="context,disabled,focused">
         <html:input class="numberbox-input textbox-input" anonid="input"

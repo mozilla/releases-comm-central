@@ -279,7 +279,7 @@ toolbar[nowindowdrag="true"] {
   color: inherit !important;
 }
 
-.textbox-addressingWidget,
+textbox.textbox-addressingWidget,
 .dummy-row-cell:not(:first-child) {
   border: 1px solid transparent !important;
   border-bottom-color: #C6C6C6 !important;
@@ -293,8 +293,8 @@ toolbar[nowindowdrag="true"] {
   transition: border .2s, background-color .2s;
 }
 
-.textbox-addressingWidget[focused="true"],
-.textbox-addressingWidget:hover {
+textbox.textbox-addressingWidget[focused="true"],
+textbox.textbox-addressingWidget:hover {
   background-color: white;
   background-image: none;
   border-color: #C6C6C6 !important;

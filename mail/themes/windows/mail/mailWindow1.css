@@ -485,7 +485,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 @media (-moz-windows-default-theme) {
-  menulist {
+  menulist,
+  menulist[disabled="true"] {
     -moz-appearance: none;
     min-height: 24px;
     color: inherit;
@@ -497,6 +498,10 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     box-shadow: var(--toolbarbutton-hover-boxshadow);
     transition-property: background-color, border-color, box-shadow;
     transition-duration: 150ms;
+  }
+
+  menulist[disabled="true"] {
+    opacity: 0.5;
   }
 
   menulist:not([disabled="true"]):not([open="true"]):hover {
@@ -514,7 +519,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     opacity: .6;
   }
 
-  .menulist-dropmarker {
+  .menulist-dropmarker,
+  .menulist-dropmarker[disabled="true"] {
     -moz-appearance: none;
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
     -moz-context-properties: fill;

@@ -23,17 +23,6 @@
   <binding id="datetimepicker-base"
            extends="chrome://global/content/bindings/general.xml#basecontrol">
 
-    <resources>
-      <stylesheet src="chrome://global/content/textbox.css"/>
-      <stylesheet src="chrome://global/skin/textbox.css"/>
-      <stylesheet src="chrome://global/skin/dropmarker.css"/>
-#ifdef MOZ_SUITE
-      <stylesheet src="chrome://communicator/skin/datetimepicker.css"/>
-#else
-      <stylesheet src="chrome://messenger/skin/datetimepicker.css"/>
-#endif
-    </resources>
-
     <content align="center">
       <xul:hbox class="datetimepicker-input-box" align="center"
                 xbl:inherits="context,disabled,readonly">

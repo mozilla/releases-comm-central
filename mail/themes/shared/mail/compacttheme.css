@@ -173,7 +173,7 @@ findbar,
 
 #msgIdentity,
 #msgSubject,
-.textbox-addressingWidget,
+textbox.textbox-addressingWidget,
 .dummy-row-cell:not(:first-child) {
   border-bottom-color: var(--composer-header-border-color) !important;
   color: var(--chrome-color);
@@ -183,8 +183,8 @@ findbar,
 #msgIdentity:focus,
 #msgSubject:hover,
 #msgSubject[focused="true"],
-.textbox-addressingWidget:hover,
-.textbox-addressingWidget[focused="true"] {
+textbox.textbox-addressingWidget:hover,
+textbox.textbox-addressingWidget[focused="true"] {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
   border-color: var(--lwt-toolbar-field-border-color) !important;
@@ -192,7 +192,7 @@ findbar,
 
 #msgIdentity ::-moz-selection,
 #msgSubject ::-moz-selection,
-.textbox-addressingWidget ::-moz-selection {
+textbox.textbox-addressingWidget ::-moz-selection {
   background-color: var(--chrome-selection-background-color);
   color: var(--chrome-selection-color);
 }

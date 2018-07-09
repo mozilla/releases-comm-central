@@ -214,7 +214,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   color: inherit !important;
 }
 
-.textbox-addressingWidget,
+textbox.textbox-addressingWidget,
 .dummy-row-cell:not(:first-child) {
   padding: 4px 2px !important;
   padding-inline-start: 5px !important;
@@ -228,8 +228,8 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   border-bottom-color: transparent;
 }
 
-.textbox-addressingWidget[focused="true"],
-.textbox-addressingWidget:hover {
+textbox.textbox-addressingWidget[focused="true"],
+textbox.textbox-addressingWidget:hover {
   background-color: -moz-field;
   border-color: var(--toolbarbutton-hover-bordercolor) !important;
 }

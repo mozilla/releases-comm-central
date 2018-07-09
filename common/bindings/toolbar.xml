@@ -9,18 +9,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="toolbar-base">
-    <resources>
-      <stylesheet src="chrome://global/skin/toolbar.css"/>
-    </resources>
-  </binding>
-
-  <binding id="toolbox"
-#ifdef MOZ_SUITE
-           extends="chrome://communicator/content/bindings/toolbar.xml#toolbar-base">
-#else
-           extends="chrome://messenger/content/toolbar.xml#toolbar-base">
-#endif
+  <binding id="toolbox">
     <implementation>
       <field name="palette">
         null
@@ -98,12 +87,7 @@
     </implementation>
   </binding>
 
-  <binding id="toolbar" role="xul:toolbar"
-#ifdef MOZ_SUITE
-           extends="chrome://communicator/content/bindings/toolbar.xml#toolbar-base">
-#else
-           extends="chrome://messenger/content/toolbar.xml#toolbar-base">
-#endif
+  <binding id="toolbar" role="xul:toolbar">
     <implementation>
       <property name="toolbarName"
                 onget="return this.getAttribute('toolbarname');"
@@ -536,13 +520,7 @@
     </implementation>
   </binding>
 
-  <binding id="menubar" role="xul:menubar"
-#ifdef MOZ_SUITE
-           extends="chrome://communicator/content/bindings/toolbar.xml#toolbar-base"
-#else
-           extends="chrome://messenger/content/toolbar.xml#toolbar-base"
-#endif
-           display="xul:menubar">
+  <binding id="menubar" role="xul:menubar" display="xul:menubar">
     <implementation>
        <field name="_active">false</field>
        <field name="_statusbar">null</field>
@@ -586,21 +564,7 @@
     </handlers>
   </binding>
 
-  <binding id="toolbardecoration" role="xul:toolbarseparator"
-#ifdef MOZ_SUITE
-           extends="chrome://communicator/content/bindings/toolbar.xml#toolbar-base">
-#else
-           extends="chrome://messenger/content/toolbar.xml#toolbar-base">
-#endif
-  </binding>
-
-  <binding id="toolbarpaletteitem"
-#ifdef MOZ_SUITE
-           extends="chrome://communicator/content/bindings/toolbar.xml#toolbar-base"
-#else
-           extends="chrome://messenger/content/toolbar.xml#toolbar-base"
-#endif
-           display="xul:button">
+  <binding id="toolbarpaletteitem" display="xul:button">
     <content>
       <xul:hbox class="toolbarpaletteitem-box" flex="1" xbl:inherits="type,place">
         <children/>
@@ -638,9 +602,6 @@
 
   <binding id="menu-button" display="xul:menu"
            extends="chrome://global/content/bindings/button.xml#menu-button-base">
-    <resources>
-      <stylesheet src="chrome://global/skin/toolbarbutton.css"/>
-    </resources>
 
     <content>
       <children includes="observes|template|menupopup|panel|tooltip"/>
