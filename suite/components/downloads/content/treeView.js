@@ -3,18 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
-const nsITreeView = Ci.nsITreeView;
-// const nsIDownloadManager is already defined in downloadmanager.js
+XPCOMUtils.defineLazyScriptGetter(this, "DownloadsCommon",
+                                  "resource:///modules/DownloadsCommon.jsm");
+
+XPCOMUtils.defineLazyScriptGetter(this, "DownloadHistory",
+                                  "resource://gre/modules/DownloadHistory.jsm");
 
 function DownloadTreeView() {
   this._dlList = [];
   this._searchTerms = [];
+  this.dateTimeFormatter =
+    new Services.intl.DateTimeFormat(undefined,
+                                     {dateStyle: "short",
+                                      timeStyle: "long"});
 }
 
 DownloadTreeView.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([nsITreeView]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsITreeView]),
 
   // ***** nsITreeView attributes and methods *****
   get rowCount() {
@@ -24,35 +32,38 @@ DownloadTreeView.prototype = {
   selection: null,
 
   getRowProperties: function(aRow) {
-    var dl = this._dlList[aRow];
+    let dl = this._dlList[aRow];
     // (in)active
-    var properties = dl.isActive ? "active": "inactive";
+    let properties = dl.isActive ? "active": "inactive";
     // resumable
     if (dl.hasPartialData)
       properties += " resumable";
+
     // Download states
-    switch (dl.state) {
-      case nsIDownloadManager.DOWNLOAD_PAUSED:
+    let state = DownloadsCommon.stateOfDownload(dl);
+    switch (state) {
+      case DownloadsCommon.DOWNLOAD_PAUSED:
         properties += " paused";
         break;
-      case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
+      case DownloadsCommon.DOWNLOAD_DOWNLOADING:
         properties += " downloading";
         break;
-      case nsIDownloadManager.DOWNLOAD_FINISHED:
+      case DownloadsCommon.DOWNLOAD_FINISHED:
         properties += " finished";
         break;
-      case nsIDownloadManager.DOWNLOAD_FAILED:
+      case DownloadsCommon.DOWNLOAD_FAILED:
         properties += " failed";
         break;
-      case nsIDownloadManager.DOWNLOAD_CANCELED:
+      case DownloadsCommon.DOWNLOAD_CANCELED:
         properties += " canceled";
         break;
-      case nsIDownloadManager.DOWNLOAD_BLOCKED_PARENTAL: // Parental Controls
-      case nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY:   // Security Zone Policy
-      case nsIDownloadManager.DOWNLOAD_DIRTY:            // possible virus/spyware
+      case DownloadsCommon.DOWNLOAD_BLOCKED_PARENTAL: // Parental Controls
+      case DownloadsCommon.DOWNLOAD_BLOCKED_POLICY:   // Security Zone Policy
+      case DownloadsCommon.DOWNLOAD_DIRTY:            // possible virus/spyware
         properties += " blocked";
         break;
     }
+
     return properties;
   },
   getCellProperties: function(aRow, aColumn) {
@@ -80,7 +91,7 @@ DownloadTreeView.prototype = {
   getProgressMode: function(aRow, aColumn) {
     if (aColumn.id == "Progress")
       return this._dlList[aRow].progressMode;
-    return nsITreeView.PROGRESS_NONE;
+    return Ci.nsITreeView.PROGRESS_NONE;
   },
 
   getCellValue: function(aRow, aColumn) {
@@ -95,39 +106,11 @@ DownloadTreeView.prototype = {
       case "Name":
         return dl.displayName;
       case "Status":
-        switch (dl.state) {
-          case nsIDownloadManager.DOWNLOAD_PAUSED:
-            return this._dlbundle.getString("paused");
-          case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
-            return this._dlbundle.getString("downloading");
-          case nsIDownloadManager.DOWNLOAD_FINISHED:
-            return this._dlbundle.getString("finished");
-          case nsIDownloadManager.DOWNLOAD_FAILED:
-            return this._dlbundle.getString("failed");
-          case nsIDownloadManager.DOWNLOAD_CANCELED:
-            return this._dlbundle.getString("canceled");
-          case nsIDownloadManager.DOWNLOAD_BLOCKED_PARENTAL: // Parental Controls
-          case nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY:   // Security Zone Policy
-          case nsIDownloadManager.DOWNLOAD_DIRTY:            // possible virus/spyware
-            return this._dlbundle.getString("blocked");
-        }
-        return this._dlbundle.getString("notStarted");
+        return DownloadsCommon.stateOfDownloadText(dl);
       case "Progress":
         if (dl.isActive)
           return dl.progress;
-        switch (dl.state) {
-          case nsIDownloadManager.DOWNLOAD_FINISHED:
-            return this._dlbundle.getString("finished");
-          case nsIDownloadManager.DOWNLOAD_FAILED:
-            return this._dlbundle.getString("failed");
-          case nsIDownloadManager.DOWNLOAD_CANCELED:
-            return this._dlbundle.getString("canceled");
-          case nsIDownloadManager.DOWNLOAD_BLOCKED_PARENTAL: // Parental Controls
-          case nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY:   // Security Zone Policy
-          case nsIDownloadManager.DOWNLOAD_DIRTY:            // possible virus/spyware
-            return this._dlbundle.getString("blocked");
-        }
-        return this._dlbundle.getString("notStarted");
+        return DownloadsCommon.stateOfDownloadText(dl);
       case "ProgressPercent":
         return dl.succeeded ? 100 : dl.progress;
       case "TimeRemaining":
@@ -143,21 +126,55 @@ DownloadTreeView.prototype = {
         }
         return "";
       case "Transferred":
-        if (dl.succeeded)
-          return DownloadUtils.getTransferTotal(dl.totalBytes, -1);
-        if (dl.stopped && !dl.currentBytes)
+        let currentBytes;
+        let totalBytes;
+        // Download in progress.
+        // Download paused / canceled and has partial data.
+        if (!dl.stopped ||
+            (dl.canceled && dl.hasPartialData)) {
+          currentBytes = dl.currentBytes,
+          totalBytes = dl.hasProgress ? dl.totalBytes : -1;
+        // Download done but file missing.
+        } else if (dl.succeeded && !dl.exists) {
+          currentBytes = dl.totalBytes ? dl.totalBytes : -1;
+          totalBytes = -1;
+        // For completed downloads, show the file size
+        } else if (dl.succeeded && dl.target.size !== undefined) {
+           currentBytes = dl.target.size;
+           totalBytes = -1;
+        // Some local files saves e.g. from attachments also have no size.
+        // They only have a target in downloads.json but no target.path.
+        // FIX ME later.
+        } else {
+          currentBytes = -1;
+          totalBytes = -1;
+        }
+
+        // We do not want to show 0 of xxx bytes.
+        if (currentBytes == 0) {
+          currentBytes = -1;
+        }
+
+        if (totalBytes == 0) {
+          totalBytes = -1;
+        }
+
+        // We tried everything.
+        if (currentBytes == -1 && totalBytes == -1) {
           return "";
-        return DownloadUtils.getTransferTotal(dl.currentBytes, dl.totalBytes);
+        }
+
+        return DownloadUtils.getTransferTotal(currentBytes, totalBytes);
       case "TransferRate":
-        switch (dl.state) {
-          case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
+        let state = DownloadsCommon.stateOfDownload(dl);
+        switch (state) {
+          case DownloadsCommon.DOWNLOAD_DOWNLOADING:
             var [rate, unit] = DownloadUtils.convertByteUnits(dl.speed);
             return this._dlbundle.getFormattedString("speedFormat", [rate, unit]);
-          case nsIDownloadManager.DOWNLOAD_PAUSED:
-            return this._dlbundle.getString("paused");
-          case nsIDownloadManager.DOWNLOAD_NOTSTARTED:
-          case nsIDownloadManager.DOWNLOAD_QUEUED:
-            return this._dlbundle.getString("notStarted");
+          case DownloadsCommon.DOWNLOAD_PAUSED:
+            return this._dlbundle.getString("statePaused");
+          case DownloadsCommon.DOWNLOAD_NOTSTARTED:
+            return this._dlbundle.getString("stateNotStarted");
         }
         return "";
       case "TimeElapsed":
@@ -171,12 +188,18 @@ DownloadTreeView.prototype = {
         }
         return "";
       case "StartTime":
-        if (dl.startTime)
-          return this._convertTimeToString(dl.startTime);
+        if (dl.startTime) {
+          return this.dateTimeFormatter.format(dl.startTime);
+        }
         return "";
       case "EndTime":
-        if (dl.endTime)
-          return this._convertTimeToString(dl.endTime);
+        // This might end with an exception if it is an unsupported uri
+        // scheme.
+        let metaData = DownloadHistory.getPlacesMetaDataFor(dl.source.url);
+
+        if (metaData.endTime) {
+          return this.dateTimeFormatter.format(metaData.endTime);
+        }
         return "";
       case "Source":
         return dl.source.url;
@@ -223,19 +246,18 @@ DownloadTreeView.prototype = {
   // ***** local public methods *****
 
   addDownload: function(aDownload) {
-    aDownload.progressMode = nsITreeView.PROGRESS_NONE;
+    aDownload.progressMode = Ci.nsITreeView.PROGRESS_NONE;
     aDownload.lastSec = Infinity;
-    switch (aDownload.state) {
-      case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
+    let state = DownloadsCommon.stateOfDownload(aDownload);
+    switch (state) {
+      case DownloadsCommon.DOWNLOAD_DOWNLOADING:
         aDownload.endTime = Date.now();
         // At this point, we know if we are an indeterminate download or not.
         aDownload.progressMode = aDownload.hasProgress ?
-                                               nsITreeView.PROGRESS_UNDETERMINED :
-                                               nsITreeView.PROGRESS_NORMAL;
-      case nsIDownloadManager.DOWNLOAD_NOTSTARTED:
-      case nsIDownloadManager.DOWNLOAD_PAUSED:
-      case nsIDownloadManager.DOWNLOAD_QUEUED:
-      case nsIDownloadManager.DOWNLOAD_SCANNING:
+                                               Ci.nsITreeView.PROGRESS_UNDETERMINED :
+                                               Ci.nsITreeView.PROGRESS_NORMAL;
+      case DownloadsCommon.DOWNLOAD_NOTSTARTED:
+      case DownloadsCommon.DOWNLOAD_PAUSED:
         aDownload.isActive = 1;
         break;
       default:
@@ -266,20 +288,19 @@ DownloadTreeView.prototype = {
       this.onDownloadAdded(aDownload);
       return;
     }
-    switch (aDownload.state) {
-      case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
+    let state = DownloadsCommon.stateOfDownload(aDownload);
+    switch (state) {
+      case DownloadsCommon.DOWNLOAD_DOWNLOADING:
         // At this point, we know if we are an indeterminate download or not.
         aDownload.progressMode = aDownload.hasProgress ?
-          nsITreeView.PROGRESS_NORMAL : nsITreeView.PROGRESS_UNDETERMINED;
-      case nsIDownloadManager.DOWNLOAD_NOTSTARTED:
-      case nsIDownloadManager.DOWNLOAD_PAUSED:
-      case nsIDownloadManager.DOWNLOAD_QUEUED:
-      case nsIDownloadManager.DOWNLOAD_SCANNING:
+          Ci.nsITreeView.PROGRESS_NORMAL : Ci.nsITreeView.PROGRESS_UNDETERMINED;
+      case DownloadsCommon.DOWNLOAD_NOTSTARTED:
+      case DownloadsCommon.DOWNLOAD_PAUSED:
         aDownload.isActive = 1;
         break;
       default:
         aDownload.isActive = 0;
-        aDownload.progressMode = nsITreeView.PROGRESS_NONE;
+        aDownload.progressMode = Ci.nsITreeView.PROGRESS_NONE;
         // This preference may not be set, so defaulting to two.
         var flashCount = 2;
         try {
@@ -374,8 +395,8 @@ DownloadTreeView.prototype = {
           comp_b = b.displayName.toLowerCase();
           break;
         case "Status":
-          comp_a = a.state;
-          comp_b = b.state;
+          comp_a = DownloadsCommon.stateOfDownload(a);
+          comp_b = DownloadsCommon.stateOfDownload(b);
           break;
         case "Progress":
         case "ProgressPercent":
@@ -479,7 +500,7 @@ DownloadTreeView.prototype = {
     if (this.selection.count < 1)
       return;
 
-    // Walk all selected rows and cache theior download IDs
+    // Walk all selected rows and cache their download IDs
     var start = {};
     var end = {};
     var numRanges = this.selection.getRangeCount();
@@ -507,44 +528,4 @@ DownloadTreeView.prototype = {
     // Work done, clear the cache
     this._selectionCache = null;
   },
-
-  _convertTimeToString: function(aTime) {
-    const MS_PER_MINUTE = 60000;
-    const MS_PER_DAY = 86400000;
-    let timeMs = aTime / 1000; // PRTime is in microseconds
-
-    // Date is calculated starting from midnight, so the modulo with a day are
-    // milliseconds from today's midnight.
-    // getTimezoneOffset corrects that based on local time, notice midnight
-    // can have a different offset during DST-change days.
-    let dateObj = new Date();
-    let now = dateObj.getTime() - dateObj.getTimezoneOffset() * MS_PER_MINUTE;
-    let midnight = now - (now % MS_PER_DAY);
-    midnight += new Date(midnight).getTimezoneOffset() * MS_PER_MINUTE;
-
-    let timeObj = new Date(timeMs);
-    return timeMs >= midnight ? this._todayFormatter.format(timeObj)
-                              : this._dateFormatter.format(timeObj);
-  },
-
-  // We use a different formatter for times within the current day,
-  // so we cache both a "today" formatter and a general date formatter.
-  __todayFormatter: null,
-  get _todayFormatter() {
-    if (!this.__todayFormatter) {
-      const dtOptions = { timeStyle: "short" };
-      this.__todayFormatter = new Services.intl.DateTimeFormat(undefined, dtOptions);
-    }
-    return this.__todayFormatter;
-  },
-
-  __dateFormatter: null,
-  get _dateFormatter() {
-    if (!this.__dateFormatter) {
-      const dtOptions = { dateStyle: "short", timeStyle: "short" };
-      this.__dateFormatter = new Services.intl.DateTimeFormat(undefined, dtOptions);
-    }
-    return this.__dateFormatter;
-  },
-
 };

@@ -330,6 +330,7 @@
           <menuitem id="dlMenu_find"
                     label="&search.label;"
                     accesskey="&search.accesskey;"
+                    hidden="true"
                     command="cmd_search_focus"
                     key="key_search_focus"/>
           <menuseparator/>
@@ -345,6 +346,7 @@
       <textbox id="search-box"
                clickSelectsAll="true"
                type="search"
+               hidden="true"
                aria-controls="downloadTree"
                class="compact"
                placeholder="&search.placeholder;"

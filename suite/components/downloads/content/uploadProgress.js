@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
 const kInterval = 750; // Default to .75 seconds.
@@ -33,7 +33,7 @@ function onLoad()
   gSize = document.getElementById("size");
   gProgress = document.getElementById("progressText");
   gMeter = document.getElementById("progress");
-  var status = gBundle.getString("notStarted");
+  var status = gBundle.getString("stateNotStarted");
   document.title =
       gBundle.getFormattedString("progressTitle", [gFileName, status]);
   gStatus.value = status;
@@ -75,7 +75,7 @@ var gProgressListener = {
         aRequest.URI.equals(gTarget) &&
         aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       gPersist = null;
-      var status = gBundle.getString("finished");
+      var status = gBundle.getString("stateCompleted");
       setPercent(100, status);
       gStatus.value = status;
       gSize.value = DownloadUtils.getTransferTotal(gFileSize, gFileSize);
@@ -113,7 +113,7 @@ var gProgressListener = {
       var elapsed = (now - gStartTime) / 1000;
 
       // Calculate percentage.
-      var status = gBundle.getString("uploading");
+      var status = gBundle.getString("stateUploading");
       var percent = -1;
       if (gFileSize > 0)
         percent = Math.floor(aCurTotalProgress * 100 / gFileSize);

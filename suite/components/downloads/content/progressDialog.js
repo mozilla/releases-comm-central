@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+
+XPCOMUtils.defineLazyScriptGetter(this, "DownloadsCommon",
+                                  "resource:///modules/DownloadsCommon.jsm");
 
 var gDownload;
 var gDownloadBundle;
@@ -100,32 +105,8 @@ function updateDownload() {
     gProgressMeter.style.opacity = 1;
   }
   // Update window title
-  var statusString;
-  switch (gDownload.state) {
-    case nsIDownloadManager.DOWNLOAD_PAUSED:
-      statusString = gDownloadBundle.getString("paused");
-      break;
-    case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
-      statusString = gDownloadBundle.getString("downloading");
-      break;
-    case nsIDownloadManager.DOWNLOAD_FINISHED:
-      statusString = gDownloadBundle.getString("finished");
-      break;
-    case nsIDownloadManager.DOWNLOAD_FAILED:
-      statusString = gDownloadBundle.getString("failed");
-      break;
-    case nsIDownloadManager.DOWNLOAD_CANCELED:
-      statusString = gDownloadBundle.getString("canceled");
-      break;
-    case nsIDownloadManager.DOWNLOAD_BLOCKED_PARENTAL: // Parental Controls
-    case nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY:   // Security Zone Policy
-    case nsIDownloadManager.DOWNLOAD_DIRTY:            // possible virus/spyware
-      statusString = gDownloadBundle.getString("blocked");
-      break;
-    default:
-      statusString = gDownloadBundle.getString("notStarted");
-      break;
-  }
+  let statusString = DownloadsCommon.stateOfDownloadText(gDownloadBundle);
+
   if (gDownload.hasProgress) {
     document.title = gDownloadBundle.getFormattedString("progressTitlePercent",
                                                         [gDownload.progress,
@@ -159,14 +140,16 @@ function updateDownload() {
     var [timeLeft, newLast] = DownloadUtils.getTimeLeft(seconds, gLastSec);
     gLastSec = newLast;
   }
-  switch (gDownload.state) {
-    case nsIDownloadManager.DOWNLOAD_BLOCKED_PARENTAL: // Parental Controls
+
+  let state = DownloadsCommon.stateOfDownload(gDownload);
+  switch (state) {
+    case DownloadsCommon.DOWNLOAD_BLOCKED_PARENTAL: // Parental Controls
       gDlStatus.value = gTkDlBundle.getString("stateBlocked");
       break;
-    case nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY:   // Security Zone Policy
+    case DownloadsCommon.DOWNLOAD_BLOCKED_POLICY:   // Security Zone Policy
       gDlStatus.value = gTkDlBundle.getString("stateBlockedPolicy");
       break;
-    case nsIDownloadManager.DOWNLOAD_DIRTY:            // possible virus/spyware
+    case DownloadsCommon.DOWNLOAD_DIRTY:            // possible virus/spyware
       gDlStatus.value = gTkDlBundle.getString("stateDirty");
       break;
     default:

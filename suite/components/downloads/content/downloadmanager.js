@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Downloads.jsm");
 
-const nsIDownloadManager = Ci.nsIDownloadManager;
-const nsLocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                           Ci.nsIFile,
-                                           "initWithPath");
+XPCOMUtils.defineLazyScriptGetter(this, "DownloadsCommon",
+                                  "resource:///modules/DownloadsCommon.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "PlacesUtils",
+                                  "resource://gre/modules/PlacesUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "FileUtils",
+                                  "resource://gre/modules/FileUtils.jsm");
 
 var gDownloadTree;
 var gDownloadTreeView;
@@ -129,102 +133,45 @@ function sortDownloads(aEventTarget)
   }
 }
 
-function removeDownload(aDownload)
+async function removeDownload(aDownload)
 {
-  aDownload.finalize(true);
-  gDownloadList.remove(aDownload);
+  // Remove the associated history element first, if any, so that the views
+  // that combine history and session downloads won't resurrect the history
+  // download into the view just before it is deleted permanently.
+  try {
+    await PlacesUtils.history.remove(aDownload.source.url);
+  } catch (ex) {
+    Cu.reportError(ex);
+  }
+  let list = await Downloads.getList(Downloads.ALL);
+  await list.remove(aDownload);
+  await aDownload.finalize(true);
 }
 
 function cancelDownload(aDownload)
 {
-  aDownload.cancel().then(function() {
-    var currentBytes = aDownload.currentBytes;
-    if (aDownload.hasPartialData) {
-      aDownload.removePartialData().then(function() {
-        aDownload.currentBytes = currentBytes;
-      });
-    }
-  });
+  // This is the correct way to avoid race conditions when cancelling.
+  aDownload.cancel().catch(() => {});
+  aDownload.removePartialData().catch(Cu.reportError);
 }
 
 function openDownload(aDownload)
 {
-  var name = aDownload.displayName;
-  var file = new nsLocalFile(aDownload.target.path);
-
-  if (file.isExecutable()) {
-    var alertOnEXEOpen = 
-      Services.prefs.getBoolPref("browser.download.manager.alertOnEXEOpen",
-                                 true);
-
-    // On Windows 7 and above, we rely on native security prompting for
-    // downloaded content unless it's disabled.
-    try {
-      var sysInfo = Cc["@mozilla.org/system-info;1"]
-                      .getService(Ci.nsIPropertyBag2);
-      if (/^Windows/.test(sysInfo.getProperty("name")) &&
-          Services.prefs.getBoolPref("browser.download.manager.scanWhenDone"))
-        alertOnEXEOpen = false;
-    } catch (ex) { }
-
-    if (alertOnEXEOpen) {
-      var dlbundle = document.getElementById("dmBundle");
-      var message = dlbundle.getFormattedString("fileExecutableSecurityWarning", [name, name]);
-
-      var title = dlbundle.getString("fileExecutableSecurityWarningTitle");
-      var dontAsk = dlbundle.getString("fileExecutableSecurityWarningDontAsk");
-
-      var checkbox = { value: false };
-      if (!Services.prompt.confirmCheck(window, title, message, dontAsk, checkbox))
-        return;
-      Services.prefs.setBoolPref("browser.download.manager.alertOnEXEOpen", !checkbox.value);
-    }
-  }
-
-  try {
-    var mimeInfo = aDownload.MIMEInfo;
-    if (mimeInfo && mimeInfo.preferredAction == mimeInfo.useHelperApp) {
-      mimeInfo.launchWithFile(file);
-      return;
-    }
-  } catch (ex) { }
-
-  try {
-    file.launch();
-  } catch (ex) {
-    // If launch fails, try sending it through the system's external
-    // file: URL handler
-    var uri = Services.io.newFileURI(file);
-    var protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-                        .getService(Ci.nsIExternalProtocolService);
-    protocolSvc.loadURI(uri);
-  }
+  let file = new FileUtils.File(aDownload.target.path);
+  DownloadsCommon.openDownloadedFile(file, null, window);
 }
 
 function showDownload(aDownload)
 {
-  var file = new nsLocalFile(aDownload.target.path);
+  let file;
 
-  try {
-    // Show the directory containing the file and select the file
-    file.reveal();
-  } catch (e) {
-    // If reveal fails for some reason (e.g., it's not implemented on unix or
-    // the file doesn't exist), try using the parent if we have it.
-    var parent = file.parent.QueryInterface(Ci.nsIFile);
-
-    try {
-      // "Double click" the parent directory to show where the file should be
-      parent.launch();
-    } catch (e) {
-      // If launch also fails (probably because it's not implemented), let the
-      // OS handler try to open the parent
-      var uri = Services.io.newFileURI(parent);
-      var protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-                          .getService(Ci.nsIExternalProtocolService);
-      protocolSvc.loadURI(uri);
-    }
+  if (aDownload.succeeded &&
+      aDownload.target.exists) {
+    file = new FileUtils.File(aDownload.target.path);
+  } else {
+    file = new FileUtils.File(aDownload.target.partFilePath);
   }
+  DownloadsCommon.showDownloadedFile(file);
 }
 
 function showProperties(aDownload)
@@ -451,8 +398,15 @@ var dlTreeController = {
                selItemData[0].succeeded &&
                selItemData[0].target.exists;
       case "cmd_show":
+        // target.exists is only set if the download finished and the target
+        // is still located there.
+        // For simplicity we just assume the target is there if the download
+        // has not succeeded e.g. is still in progress. This might be wrong
+        // but showDownload will deal with it.
         return selectionCount == 1 &&
-               selItemData[0].target.exists;
+               ((selItemData[0].succeeded &&
+                 selItemData[0].target.exists) ||
+                 !selItemData[0].succeeded);
       case "cmd_cancel":
         if (!selectionCount)
           return false;
@@ -490,7 +444,7 @@ var dlTreeController = {
         // Since active downloads always sort before removable downloads,
         // we only need to check that the last download has stopped.
         return gDownloadTreeView.rowCount &&
-               gDownloadTreeView.getRowData(gDownloadTreeView.rowCount - 1).isActive;
+               !gDownloadTreeView.getRowData(gDownloadTreeView.rowCount - 1).isActive;
       case "cmd_paste":
         return true;
       default:
@@ -531,8 +485,10 @@ var dlTreeController = {
         break;
       case "cmd_resume":
       case "cmd_retry":
-        for (let dldata of selItemData)
-          dldata.start();
+        for (let dldata of selItemData) {
+         // Errors when retrying are already reported as download failures.
+         dldata.start();
+        }
         break;
       case "cmd_cancel":
         for (let dldata of selItemData)
@@ -540,7 +496,7 @@ var dlTreeController = {
         break;
       case "cmd_remove":
         for (let dldata of selItemData)
-          removeDownload(dldata);
+          removeDownload(dldata).catch(Cu.reportError);
         break;
       case "cmd_stop":
         for (let dldata of selItemData) {
@@ -623,7 +579,7 @@ var gDownloadDNDObserver = {
       return;
 
     var selItemData = gDownloadTreeView.getRowData(gDownloadTree.currentIndex);
-    var file = new nsLocalFile(selItemData.target.path);
+    var file = new FileUtils.File(selItemData.target.path);
 
     if (!file.exists())
       return;
