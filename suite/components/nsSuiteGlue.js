@@ -406,7 +406,7 @@ SuiteGlue.prototype = {
 
   _migrateUI: function()
   {
-    const UI_VERSION = 3;
+    const UI_VERSION = 5;
 
     // If the pref is not set this is a new or pre SeaMonkey 2.49 profile.
     // We can't tell so we just run migration with version 0.
@@ -481,8 +481,37 @@ SuiteGlue.prototype = {
       } catch (ex) {}
     }
 
+    // Pretend currentUIVersion 3 never happend (used in 2.57 for a time and became 5).
+
+    // Remove obsolete download preferences set by user.
+    if (currentUIVersion < 4) {
+      try {
+        if (Services.prefs.prefHasUserValue("browser.download.manager.showAlertOnComplete")) {
+          Services.prefs.clearUserPref("browser.download.manager.showAlertOnComplete");
+        }
+        if (Services.prefs.prefHasUserValue("browser.download.manager.showAlertInterval")) {
+          Services.prefs.clearUserPref("browser.download.manager.showAlertInterval");
+        }
+        if (Services.prefs.prefHasUserValue("browser.download.manager.retention")) {
+          Services.prefs.clearUserPref("browser.download.manager.retention");
+        }
+        if (Services.prefs.prefHasUserValue("browser.download.manager.quitBehavior")) {
+          Services.prefs.clearUserPref("browser.download.manager.quitBehavior");
+        }
+        if (Services.prefs.prefHasUserValue("browser.download.manager.scanWhenDone")) {
+          Services.prefs.clearUserPref("browser.download.manager.scanWhenDone");
+        }
+        if (Services.prefs.prefHasUserValue("browser.download.manager.showWhenStarting")) {
+          Services.prefs.clearUserPref("browser.download.manager.showWhenStarting");
+        }
+        if (Services.prefs.prefHasUserValue("browser.download.manager.closeWhenDone")) {
+          Services.prefs.clearUserPref("browser.download.manager.closeWhenDone");
+        }
+      } catch (ex) {}
+    }
+
     // The XUL directory viewer is no longer provided.
-    if (currentUIVersion < 3) {
+    if (currentUIVersion < 5) {
       try {
         if (Services.prefs.getIntPref("network.dir.format") == 3) {
           Services.prefs.setIntPref("network.dir.format", 2);

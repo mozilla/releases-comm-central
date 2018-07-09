@@ -63,17 +63,10 @@ pref("browser.download.finished_sound_url", "");
 pref("browser.download.useDownloadDir", false);
 pref("browser.download.folderList", 1);
 
-pref("browser.download.manager.showAlertOnComplete", true);
-pref("browser.download.manager.showAlertInterval", 2000);
-pref("browser.download.manager.retention", 2);
-pref("browser.download.manager.quitBehavior", 0);
 pref("browser.download.manager.addToRecentDocs", true);
-pref("browser.download.manager.scanWhenDone", true);
 pref("browser.download.manager.resumeOnWakeDelay", 10000);
 pref("browser.download.manager.flashCount", 2);
-pref("browser.download.manager.showWhenStarting", true);
 pref("browser.download.manager.focusWhenStarting", false);
-pref("browser.download.manager.closeWhenDone", false);
 pref("browser.download.progress.closeWhenDone", false);
 
 // Number of milliseconds to wait for the http headers (and thus
@@ -847,10 +840,6 @@ pref("services.sync.prefs.sync.addons.ignoreUserEnabledChanges", true);
 // source, and this would propagate automatically to other,
 // uncompromised Sync-connected devices.
 pref("services.sync.prefs.sync.browser.download.manager.behavior", true);
-pref("services.sync.prefs.sync.browser.download.manager.closeWhenDone", true);
-pref("services.sync.prefs.sync.browser.download.manager.retention", true);
-pref("services.sync.prefs.sync.browser.download.manager.showWhenStarting", true);
-pref("services.sync.prefs.sync.browser.download.manager.scanWhenDone", true);
 pref("services.sync.prefs.sync.browser.formfill.enable", true);
 pref("services.sync.prefs.sync.browser.link.open_external", true);
 pref("services.sync.prefs.sync.browser.link.open_newwindow", true);

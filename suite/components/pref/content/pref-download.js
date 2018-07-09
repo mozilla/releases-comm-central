@@ -23,12 +23,6 @@ function Startup()
                           .QueryInterface(Ci.nsIFileProtocolHandler);
   gSoundUrlPref = document.getElementById("browser.download.finished_sound_url");
   setSoundEnabled(document.getElementById("browser.download.finished_download_sound").value);
-
-  // if we don't have the alert service, hide the pref UI for using alerts to
-  // notify on download completion
-  // see bug #158711
-  var downloadDoneNotificationAlertUI = document.getElementById("finishedNotificationAlert");
-  downloadDoneNotificationAlertUI.hidden = !("@mozilla.org/alerts-service;1" in Cc);
 }
 
 /**
