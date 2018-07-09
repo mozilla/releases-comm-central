@@ -3,6 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/FileUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetter(this, "Downloads",
+                                  "resource://gre/modules/Downloads.jsm");
+
 //******** define a js object to implement nsITreeView
 function pageInfoTreeView(copycol)
 {
@@ -859,31 +866,35 @@ function getSelectedRow(tree) {
 }
 
 function selectSaveFolder(aCallback) {
-  const nsIFile = Ci.nsIFile;
-  const nsIFilePicker = Ci.nsIFilePicker;
-  let titleText = gBundle.getString("mediaSelectFolder");
-  let fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(nsIFilePicker);
-  let fpCallback = function fpCallback_done(aResult) {
-    if (aResult == nsIFilePicker.returnOK) {
-      aCallback(fp.file.QueryInterface(nsIFile));
-    } else {
-      aCallback(null);
-    }
-  };
+  return selectSaveFolderTask(aCallback).catch(Cu.reportError);
+}
 
-  fp.init(window, titleText, nsIFilePicker.modeGetFolder);
-  fp.appendFilters(nsIFilePicker.filterAll);
+async function selectSaveFolderTask(aCallback) {
+  let titleText = gBundle.getString("mediaSelectFolder");
+  let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+
+  fp.init(window, titleText, Ci.nsIFilePicker.modeGetFolder);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
   try {
-    let prefs = Cc[PREFERENCES_CONTRACTID]
-                  .getService(Ci.nsIPrefBranch);
-    let initialDir = prefs.getComplexValue("browser.download.dir", nsIFile);
-    if (initialDir) {
-      fp.displayDirectory = initialDir;
+    let prefs = Cc[PREFERENCES_CONTRACTID].getService(Ci.nsIPrefBranch);
+    let initialDir = prefs.getComplexValue("browser.download.dir",
+                                           Ci.nsIFile);
+    if (!initialDir) {
+      let downloadsDir = await Downloads.getSystemDownloadsDirectory();
+      initialDir = new FileUtils.File(downloadsDir);
     }
+
+    fp.displayDirectory = initialDir;
   } catch (ex) {
   }
-  fp.open(fpCallback);
+
+  let result = await new Promise(resolve => fp.open(resolve));
+
+  if (result == Ci.nsIFilePicker.returnOK) {
+    aCallback(fp.file.QueryInterface(Ci.nsIFile));
+  } else {
+    aCallback(null);
+  }
 }
 
 function saveMedia()

@@ -188,7 +188,7 @@ function updateButtons() {
  * in the progress dialog such as displaying amount transferred, transfer
  * rate, and time left for the download.
  *
- * This class implements the nsIDownloadProgressListener interface.
+ * This class implements the downloadProgressListener interface.
  */
 function DlProgressListener() {}
 

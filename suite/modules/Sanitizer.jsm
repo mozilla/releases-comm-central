@@ -6,8 +6,15 @@
 var EXPORTED_SYMBOLS = ["Sanitizer"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(this, "FormHistory",
-                               "resource://gre/modules/FormHistory.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
+  Downloads: "resource://gre/modules/Downloads.jsm",
+  DownloadsCommon: "resource:///modules/DownloadsCommon.jsm",
+  FormHistory: "resource://gre/modules/FormHistory.jsm",
+  PlacesUtils: "resource://gre/modules/PlacesUtils.jsm",
+});
 
 var Sanitizer = {
   get _prefs() {
@@ -296,17 +303,16 @@ var Sanitizer = {
     },
 
     downloads: {
-      clear: function() {
-        var dlMgr = Cc["@mozilla.org/download-manager;1"]
-                      .getService(Ci.nsIDownloadManager);
-        dlMgr.cleanUp();
+      // Just say yes to avoid adding some async logic.
+      canClear: true,
+      async clear() {
+        try {
+          // Clear all completed/cancelled downloads.
+          let list = await Downloads.getList(Downloads.ALL);
+          list.removeFinished(null);
+        } finally {
+        }
       },
-
-      get canClear() {
-        var dlMgr = Cc["@mozilla.org/download-manager;1"]
-                      .getService(Ci.nsIDownloadManager);
-        return dlMgr.canCleanUp;
-      }
     },
 
     passwords: {

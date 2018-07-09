@@ -73,6 +73,7 @@ const kPartialDownloadSuffix = ".part";
 const kPrefBranch = Services.prefs.getBranch("browser.download.");
 
 const PREF_DM_BEHAVIOR = "browser.download.manager.behavior";
+const PROGRESS_DIALOG_URL = "chrome://communicator/content/downloads/progressDialog.xul";
 
 var PrefObserver = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
@@ -552,6 +553,10 @@ DownloadsDataCtor.prototype = {
   initializeDataLink() {},
 
   /**
+   * Used by sound logic when download ends.
+   */
+  _sound: null,
+  /**
    * Promise resolved with the underlying DownloadList object once we started
    * receiving events for current downloads.
    */
@@ -614,7 +619,6 @@ DownloadsDataCtor.prototype = {
                      Services.prefs.getIntPref(PREF_DM_BEHAVIOR);
     switch (behavior) {
       case 0:
-        // TODO Better move this out of nsSuiteGlue.
         Cc["@mozilla.org/suite/suiteglue;1"]
           .getService(Ci.nsISuiteGlue)
           .showDownloadManager(download);
@@ -641,11 +645,14 @@ DownloadsDataCtor.prototype = {
       // Store the end time that may be displayed by the views.
       download.endTime = Date.now();
 
-      DownloadsCommon.log("DownloadHistory.updateMetaData");
       // This state transition code should actually be located in a Downloads
       // API module (bug 941009).
       // This might end with an exception if it is an unsupported uri scheme.
       DownloadHistory.updateMetaData(download);
+
+      if (download.succeeded) {
+        this.playDownloadSound();
+      }
     }
   },
 
@@ -654,29 +661,45 @@ DownloadsDataCtor.prototype = {
   },
 
   // Download summary
-  onSummaryChanged:  function() {
+  onSummaryChanged: function() {
 
-  if (!gTaskbarProgress)
-    return;
+    if (!gTaskbarProgress)
+      return;
 
-  const nsITaskbarProgress = Ci.nsITaskbarProgress;
-  var currentBytes = gDownloadsSummary.progressCurrentBytes;
-  var totalBytes = gDownloadsSummary.progressTotalBytes;
-  var state = gDownloadsSummary.allHaveStopped ?
-                currentBytes ? nsITaskbarProgress.STATE_PAUSED :
-                               nsITaskbarProgress.STATE_NO_PROGRESS :
-                currentBytes < totalBytes ? nsITaskbarProgress.STATE_NORMAL :
-                             nsITaskbarProgress.STATE_INDETERMINATE;
-  switch (state) {
-    case nsITaskbarProgress.STATE_NO_PROGRESS:
-    case nsITaskbarProgress.STATE_INDETERMINATE:
-      gTaskbarProgress.setProgressState(state, 0, 0);
-      break;
-    default:
-      gTaskbarProgress.setProgressState(state, currentBytes, totalBytes);
-      break;
-  }
-},
+    const nsITaskbarProgress = Ci.nsITaskbarProgress;
+    var currentBytes = gDownloadsSummary.progressCurrentBytes;
+    var totalBytes = gDownloadsSummary.progressTotalBytes;
+    var state = gDownloadsSummary.allHaveStopped ?
+                  currentBytes ? nsITaskbarProgress.STATE_PAUSED :
+                                 nsITaskbarProgress.STATE_NO_PROGRESS :
+                  currentBytes < totalBytes ? nsITaskbarProgress.STATE_NORMAL :
+                               nsITaskbarProgress.STATE_INDETERMINATE;
+    switch (state) {
+      case nsITaskbarProgress.STATE_NO_PROGRESS:
+      case nsITaskbarProgress.STATE_INDETERMINATE:
+        gTaskbarProgress.setProgressState(state, 0, 0);
+        break;
+      default:
+        gTaskbarProgress.setProgressState(state, currentBytes, totalBytes);
+        break;
+    }
+  },
+
+  // Play a download sound.
+  playDownloadSound: function()
+  {
+    if (Services.prefs.getBoolPref("browser.download.finished_download_sound")) {
+      if (!this._sound)
+        this._sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
+      try {
+        let url = Services.prefs.getComplexValue("browser.download.finished_sound_url",
+                                                 Ci.nsISupportsString);
+        this._sound.play(Services.io.newURI(url.data));
+      } catch (e) {
+        this._sound.beep();
+      }
+    }
+  },
 
   // Registration of views
 

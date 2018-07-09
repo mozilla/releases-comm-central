@@ -31,14 +31,14 @@
       <preference id="browser.download.folderList"
                   name="browser.download.folderList"
                   type="int"
-                  onchange="DisplayDownloadDirPref();"/>
+                  onchange="displayDownloadDirPref();"/>
       <preference id="browser.download.manager.retention"
                   name="browser.download.manager.retention"
                   type="int"/>
       <preference id="browser.download.finished_download_sound"
                   name="browser.download.finished_download_sound"
                   type="bool"
-                  onchange="SetSoundEnabled(this.value);"/>
+                  onchange="setSoundEnabled(this.value);"/>
       <preference id="browser.download.manager.showAlertOnComplete"
                   name="browser.download.manager.showAlertOnComplete"
                   type="bool"/>
@@ -72,7 +72,7 @@
       <caption label="&downloadLocation.label;"/>
       <radiogroup id="saveWhere"
                   preference="browser.download.useDownloadDir"
-                  onsyncfrompreference="return document.getElementById('download_pane').ReadUseDownloadDir();">
+                  onsyncfrompreference="return document.getElementById('download_pane').readUseDownloadDir();">
         <hbox id="saveToRow">
           <radio id="saveTo" value="true"
                  label="&saveTo.label;"
@@ -82,8 +82,8 @@
                      preference="browser.download.dir"
                      preference-editable="true"
                      aria-labelledby="saveTo"
-                     onsyncfrompreference="document.getElementById('download_pane').DisplayDownloadDirPref();"/>
-          <button id="chooseFolder" oncommand="ChooseFolder();"
+                     onsyncfrompreference="document.getElementById('download_pane').displayDownloadDirPref();"/>
+          <button id="chooseFolder" oncommand="chooseFolder();"
                   label="&chooseDownloadFolder.label;"
                   accesskey="&chooseDownloadFolder.accesskey;"/>
         </hbox>
