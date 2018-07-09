@@ -496,7 +496,6 @@ SessionStoreService.prototype = {
       case "pageshow":
         this.onTabLoad(win, aEvent.currentTarget, aEvent);
         break;
-      case "change":
       case "input":
       case "DOMAutoComplete":
         this.onTabInput(win, aEvent.currentTarget);
@@ -753,7 +752,6 @@ SessionStoreService.prototype = {
     let browser = aTab.linkedBrowser;
     browser.addEventListener("load", this, true);
     browser.addEventListener("pageshow", this, true);
-    browser.addEventListener("change", this, true);
     browser.addEventListener("input", this, true);
     browser.addEventListener("DOMAutoComplete", this, true);
 
