@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["ThemeVariableMap"];
+var EXPORTED_SYMBOLS = ["ThemeVariableMap", "ThemeContentPropertyList"];
 
 const ThemeVariableMap = [
   ["--lwt-accent-color-inactive", {
@@ -76,4 +76,7 @@ const ThemeVariableMap = [
   ["--autocomplete-popup-highlight-color", {
     lwtProperty: "popup_highlight_text"
   }],
+];
+
+const ThemeContentPropertyList = [
 ];
