@@ -4,6 +4,7 @@
 
 @import url("chrome://global/content/textbox.css");
 @import url("chrome://global/skin/textbox.css");
+@import url("chrome://messenger/skin/listbox.css");
 @import url("chrome://messenger/skin/numberbox.css");
 @import url("chrome://messenger/skin/spinbuttons.css");
 @import url("chrome://messenger/skin/datetimepicker.css");
@@ -73,6 +74,97 @@ spinbuttons {
 
 .spinbuttons-button {
   -moz-user-focus: ignore;
+}
+
+/******** listbox **********/
+
+listbox {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listbox");
+}
+
+listhead {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listhead");
+}
+
+listrows {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listrows");
+}
+
+listitem {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listitem");
+}
+
+listitem[type="checkbox"] {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listitem-checkbox");
+}
+
+listheader {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listheader");
+  -moz-box-ordinal-group: 2147483646;
+}
+
+richlistbox > listheader {
+  -moz-box-ordinal-group: 1;
+}
+
+listcell {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listcell");
+}
+
+listcell[type="checkbox"] {
+  -moz-binding: url("chrome://messenger/content/listbox.xml#listcell-checkbox");
+}
+
+listbox {
+  display: -moz-grid;
+}
+
+listbox[rows] {
+  height: auto;
+}
+
+listcols, listhead, listrows, listboxbody {
+  display: -moz-grid-group;
+}
+
+listcol, listitem, listheaditem {
+  display: -moz-grid-line;
+}
+
+listbox {
+  -moz-user-focus: normal;
+  -moz-box-orient: vertical;
+  min-width: 0;
+  min-height: 0;
+  width: 200px;
+  height: 200px;
+}
+
+listhead {
+  -moz-box-orient: vertical;
+}
+
+listrows {
+  -moz-box-orient: vertical;
+  -moz-box-flex: 1;
+}
+
+listboxbody {
+  -moz-box-orient: vertical;
+  -moz-box-flex: 1;
+  /* Don't permit a horizontal scrollbar. See bug 285449 */
+  overflow-x: hidden !important;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+listcol {
+  -moz-box-orient: vertical;
+  min-width: 16px;
+}
+
+listcell {
+  -moz-box-align: center;
 }
 
 .listitem-iconic:not([type="checkbox"]) {
