@@ -163,12 +163,13 @@ pref("extensions.getAddons.cache.enabled", true);
 pref("extensions.getAddons.maxResults", 15);
 pref("extensions.getAddons.get.url", "https://live.thunderbird.net/services.addons/api/v3/addons/search/?guid=%IDS%&lang=%LOCALE%");
 pref("extensions.getAddons.compatOverides.url", "https://live.thunderbird.net/services.addons/api/v3/addons/compat-override/?guid=%IDS%&lang=%LOCALE%");
-pref("extensions.getAddons.link.url", "https://addons.mozilla.org/%LOCALE%/%APP%/");
-pref("extensions.getAddons.recommended.url", "https://services.addons.mozilla.org/%LOCALE%/%APP%/api/%API_VERSION%/list/recommended/all/%MAX_RESULTS%/%OS%/%VERSION%?src=thunderbird");
-pref("extensions.getAddons.search.browseURL", "https://addons.mozilla.org/%LOCALE%/%APP%/search/?q=%TERMS%");
-pref("extensions.getAddons.search.url", "https://services.addons.mozilla.org/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/%MAX_RESULTS%/%OS%/%VERSION%/%COMPATIBILITY_MODE%?src=thunderbird");
-pref("extensions.webservice.discoverURL", "https://services.addons.mozilla.org/%LOCALE%/%APP%/discovery/pane/%VERSION%/%OS%");
-pref("extensions.getAddons.themes.browseURL", "https://addons.mozilla.org/%LOCALE%/thunderbird/themes/?src=thunderbird");
+pref("extensions.getAddons.link.url", "https://addons.thunderbird.net/%LOCALE%/%APP%/");
+pref("extensions.getAddons.recommended.url", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/api/%API_VERSION%/list/recommended/all/%MAX_RESULTS%/%OS%/%VERSION%?src=thunderbird");
+pref("extensions.getAddons.search.browseURL", "https://addons.thunderbird.net/%LOCALE%/%APP%/search/?q=%TERMS%");
+pref("extensions.getAddons.search.url", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/%MAX_RESULTS%/%OS%/%VERSION%/%COMPATIBILITY_MODE%?src=thunderbird");
+pref("extensions.webservice.discoverURL", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/discovery/pane/%VERSION%/%OS%");
+pref("extensions.getAddons.themes.browseURL", "https://addons.thunderbird.net/%LOCALE%/thunderbird/themes/?src=thunderbird");
+pref("extensions.getAddons.siteRegExp", "^https://.*addons\\.thunderbird\\.net");
 
 // Blocklist preferences
 pref("extensions.blocklist.url", "https://live.thunderbird.net/blocklists.settings/v1/blocklist/3/%APP_ID%/%APP_VERSION%/%PRODUCT%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/%PING_COUNT%/%TOTAL_PING_COUNT%/%DAYS_SINCE_LAST_PING%/");
@@ -187,9 +188,9 @@ pref("security.cert_pinning.enforcement_level", 1);
 //  .. etc ..
 //
 pref("extensions.update.enabled", true);
-pref("extensions.update.url", "https://versioncheck.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
+pref("extensions.update.url", "https://versioncheck.addons.thunderbird.net/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
 
-pref("extensions.update.background.url", "https://versioncheck-bg.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
+pref("extensions.update.background.url", "https://versioncheck-bg.addons.thunderbird.net/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
 
 pref("extensions.update.interval", 86400);  // Check for updates to Extensions and
                                             // Themes every day
@@ -203,7 +204,7 @@ pref("lightweightThemes.selectedThemeID", "default-theme@mozilla.org", sticky);
 
 pref("lightweightThemes.update.enabled", true);
 
-pref("xpinstall.whitelist.add", "addons.mozilla.org");
+pref("xpinstall.whitelist.add", "addons.thunderbird.net");
 
 pref("general.smoothScroll", true);
 #ifdef UNIX_BUT_NOT_MAC
@@ -416,7 +417,7 @@ pref("browser.helperApps.deleteTempFileOnExit", true);
 
 pref("spellchecker.dictionary", "");
 // Dictionary download preference
-pref("spellchecker.dictionaries.download.url", "https://addons.mozilla.org/%LOCALE%/%APP%/dictionaries/");
+pref("spellchecker.dictionaries.download.url", "https://addons.thunderbird.net/%LOCALE%/%APP%/dictionaries/");
 
 // profile.force.migration can be used to bypass the migration wizard, forcing migration from a particular
 // mail application without any user intervention. Possible values are:
@@ -815,7 +816,7 @@ pref("privacy.sanitize.timeSpan", 1);
 pref("privacy.userContext.enabled", false);
 
 // PgpMime Proxy
-pref("mail.pgpmime.addon_url", "https://addons.mozilla.org/thunderbird/addon/enigmail/");
+pref("mail.pgpmime.addon_url", "https://addons.thunderbird.net/thunderbird/addon/enigmail/");
 
 // If set to true, Thunderbird will collapse the main menu for new profiles
 // (or, more precisely, profiles that start with no accounts created).

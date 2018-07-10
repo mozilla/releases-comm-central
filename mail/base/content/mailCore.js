@@ -481,7 +481,8 @@ function openAddonsMgr(aView)
     }
   }
 
-  openContentTab("about:addons", "tab", "addons.mozilla.org");
+  let addonSiteRegExp = Services.prefs.getCharPref("extensions.getAddons.siteRegExp");
+  openContentTab("about:addons", "tab", addonSiteRegExp);
 
 
   if (aView) {

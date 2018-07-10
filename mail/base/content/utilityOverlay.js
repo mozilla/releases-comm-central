@@ -307,7 +307,9 @@ function openPreferencesTab(paneID, tabID, otherArgs)
 function openDictionaryList(where) {
   let dictUrl = Services.urlFormatter
     .formatURLPref("spellchecker.dictionaries.download.url");
-  openContentTab(dictUrl, where, "^https://addons.mozilla.org/");
+  let dictUrlRegExp = Services.prefs.getCharPref("extensions.getAddons.siteRegExp");
+
+  openContentTab(dictUrl, where, dictUrlRegExp);
 }
 
 /**
