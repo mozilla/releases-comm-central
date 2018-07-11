@@ -60,7 +60,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::Init(const char *aUri)
 
   mAbWinType = getAbWinType(kOutlookDirectoryScheme, mURINoQuery.get(), stub, entry);
   if (mAbWinType == nsAbWinType_Unknown) {
-    PRINTF(("Huge problem URI=%s.\n", mURINoQuery));
+    PRINTF(("Huge problem URI=%s.\n", mURINoQuery.get()));
     return NS_ERROR_INVALID_ARG;
   }
   nsAbWinHelperGuard mapiAddBook (mAbWinType);

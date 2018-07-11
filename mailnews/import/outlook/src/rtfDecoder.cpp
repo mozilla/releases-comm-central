@@ -146,7 +146,7 @@ public:
   enum Type {ltGroupBegin, ltGroupEnd, ltKeyword, ltPCDATA_A, ltPCDATA_W,
              ltBDATA, ltEOF, ltError};
   Lexem(Type t=ltError) : m_type(t) {}
-  Lexem(Lexem& from) // Move pointers when copying
+  Lexem(Lexem& from)
   {
     switch (m_type = from.m_type) {
     case ltKeyword:
@@ -159,8 +159,8 @@ public:
       m_pcdata_w = from.m_pcdata_w;
       break;
     case ltBDATA:
-      m_bdata = from.m_bdata;
-      from.m_type = ltError;
+      m_bdata = from.m_bdata;  // Move pointers when copying.
+      from.m_type = ltError;   // Invalidate the original. Not nice.
       break;
     }
   }
@@ -180,8 +180,8 @@ public:
         m_pcdata_w = from.m_pcdata_w;
         break;
       case ltBDATA:
-        m_bdata = from.m_bdata;
-        from.m_type = ltError;
+        m_bdata = from.m_bdata;  // Move pointers when copying.
+        from.m_type = ltError;   // Invalidate the original. Not nice.
         break;
       }
     }
@@ -314,9 +314,8 @@ Keyword GetKeyword(std::istream& stream)
   return keyword;
 }
 
-Lexem GetLexem(std::istream& stream)
+void GetLexem(std::istream& stream, Lexem& result)
 {
-  Lexem result;
   // We always stay at the beginning of the next lexem or a crlf
   // If it's a brace then it's group begin/end
   // If it's a backslash -> Preprocess
@@ -347,7 +346,6 @@ Lexem GetLexem(std::istream& stream)
       break;
     }
   }
-  return result;
 }
 
 void PreprocessLexem(/*inout*/Lexem& lexem, std::istream& stream, int uc)
@@ -464,11 +462,12 @@ void UpdateState(const Lexem& lexem, /*inout*/GlobalState& globalState)
 void DecodeRTF(std::istream& rtf, CRTFDecoder& decoder)
 {
   // Check if this is the rtf
-  Lexem lexem = GetLexem(rtf);
+  Lexem lexem;
+  GetLexem(rtf, lexem);
   if (lexem.type() != Lexem::ltGroupBegin)
     return;
   decoder.BeginGroup();
-  lexem = GetLexem(rtf);
+  GetLexem(rtf, lexem);
   if ((lexem.type() != Lexem::ltKeyword) || !eq(lexem.KeywordName(), "rtf") ||
       !lexem.KeywordVal() || (*lexem.KeywordVal() != 1))
     return;
@@ -478,7 +477,7 @@ void DecodeRTF(std::istream& rtf, CRTFDecoder& decoder)
   // Level is the count of elements in the stack
 
   while (!state.stream.eof() && (state.stack.size()>0)) { // Don't go past the global group
-    lexem = GetLexem(state.stream);
+    GetLexem(state.stream, lexem);
     PreprocessLexem(lexem, state.stream, state.stack.top().uc);
     UpdateState(lexem, state);
 

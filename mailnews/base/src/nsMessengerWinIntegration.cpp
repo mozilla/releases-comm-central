@@ -286,7 +286,7 @@ nsMessengerWinIntegration::ResetCurrent()
   return NS_OK;
 }
 
-NOTIFYICONDATAW sBiffIconData = { NOTIFYICONDATAW_V2_SIZE,
+NOTIFYICONDATAW sBiffIconData = { (DWORD)NOTIFYICONDATAW_V2_SIZE,
                                   0,
                                   2,
                                   NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_INFO,
