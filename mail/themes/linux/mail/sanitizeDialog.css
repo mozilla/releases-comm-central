@@ -65,15 +65,6 @@
   list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
 }
 
-.expander-down:hover:active {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn-hov.gif");
-}
-
-.expander-up:hover:active {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up-hov.gif");
-}
-
-
 /* Make the item list the same width as the warning box */
 #itemList {
   margin-inline-start: 0;
