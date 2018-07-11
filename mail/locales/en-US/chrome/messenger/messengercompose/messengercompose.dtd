@@ -359,6 +359,9 @@
 <!ENTITY customizeFromAddress.label "Customize From Address…">
 <!ENTITY customizeFromAddress.accesskey "A">
 
+<!-- Accessibility name for the document -->
+<!ENTITY aria.message.bodyName "Message body">
+
 <!-- Status Bar -->
 <!ENTITY languageStatusButton.tooltip "Spellcheck language">
 <!ENTITY encodingStatusPanel.tooltip "Text encoding">

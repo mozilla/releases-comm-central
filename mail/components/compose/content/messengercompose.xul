@@ -2055,6 +2055,7 @@
             primary="true"
             src="about:blank"
             name="browser.message.body"
+            aria-label="&aria.message.bodyName;"
             minheight="100"
             flex="1"
             ondblclick="EditorDblClick(event);"
