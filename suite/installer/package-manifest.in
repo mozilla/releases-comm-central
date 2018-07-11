@@ -306,6 +306,7 @@
 @RESPATH@/components/recording-cmdline.manifest
 @RESPATH@/components/servicesComponents.manifest
 @RESPATH@/components/servicesSettings.manifest
+@RESPATH@/components/RemoteSettingsComponents.js
 @RESPATH@/components/ProcessSelector.js
 @RESPATH@/components/ProcessSelector.manifest
 @RESPATH@/components/SlowScriptDebug.js
