@@ -47,7 +47,8 @@
 /* for access to docshell */
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
-#include "nsIDocShellLoadInfo.h"
+#include "mozilla/net/ReferrerPolicy.h"
+#include "nsDocShellLoadInfo.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
 #include "nsContentUtils.h"
@@ -588,10 +589,8 @@ nsMessenger::LoadURL(mozIDOMWindowProxy *aWin, const nsACString& aURL)
     }
   }
 
-  nsCOMPtr<nsIDocShellLoadInfo> loadInfo;
-  rv = mDocShell->CreateLoadInfo(getter_AddRefs(loadInfo));
-  NS_ENSURE_SUCCESS(rv, rv);
-  loadInfo->SetLoadType(nsIDocShellLoadInfo::loadNormal);
+  RefPtr<nsDocShellLoadInfo> loadInfo = new nsDocShellLoadInfo();
+  loadInfo->SetLoadType(LOAD_NORMAL);
   AddMsgUrlToNavigateHistory(aURL);
   mNavigatingToUri.Truncate();
   mLastDisplayURI = aURL; // Remember the last uri we displayed.

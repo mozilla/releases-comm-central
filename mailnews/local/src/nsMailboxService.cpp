@@ -21,7 +21,8 @@
 #include "nsMsgUtils.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsNetUtil.h"
-#include "nsIDocShellLoadInfo.h"
+#include "mozilla/net/ReferrerPolicy.h"
+#include "nsDocShellLoadInfo.h"
 #include "nsIWebNavigation.h"
 #include "prprf.h"
 #include "nsIMsgHdr.h"
@@ -232,14 +233,14 @@ nsresult nsMailboxService::FetchMessage(const char* aMessageURI,
   // if we were given a docShell, run the url in the docshell..otherwise just run it normally.
   if (NS_SUCCEEDED(rv) && docShell)
   {
-    nsCOMPtr<nsIDocShellLoadInfo> loadInfo;
+    RefPtr<nsDocShellLoadInfo> loadInfo;
     // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
     if (mailboxAction == nsIMailboxUrl::ActionFetchPart)
     {
-      docShell->CreateLoadInfo(getter_AddRefs(loadInfo));
-      loadInfo->SetLoadType(nsIDocShellLoadInfo::loadLink);
+      loadInfo = new nsDocShellLoadInfo();
+      loadInfo->SetLoadType(LOAD_LINK);
     }
     rv = docShell->LoadURI(url, loadInfo, nsIWebNavigation::LOAD_FLAGS_NONE, false);
   }
@@ -362,12 +363,12 @@ NS_IMETHODIMP nsMailboxService::OpenAttachment(const char *aContentType,
   // if we were given a docShell, run the url in the docshell..otherwise just run it normally.
   if (NS_SUCCEEDED(rv) && docShell)
   {
-    nsCOMPtr<nsIDocShellLoadInfo> loadInfo;
+    RefPtr<nsDocShellLoadInfo> loadInfo;
     // DIRTY LITTLE HACK --> since we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
-    docShell->CreateLoadInfo(getter_AddRefs(loadInfo));
-    loadInfo->SetLoadType(nsIDocShellLoadInfo::loadLink);
+    loadInfo = new nsDocShellLoadInfo();
+    loadInfo->SetLoadType(LOAD_LINK);
     return docShell->LoadURI(URL, loadInfo, nsIWebNavigation::LOAD_FLAGS_NONE, false);
   }
   return RunMailboxUrl(URL, aDisplayConsumer);

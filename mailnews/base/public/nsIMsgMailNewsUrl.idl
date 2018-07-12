@@ -19,8 +19,12 @@ interface nsIStreamListener;
 interface nsIMsgFolder;
 interface nsIMsgHeaderSink;
 interface nsIMsgDBHdr;
-interface nsIDocShellLoadInfo;
 interface nsIDocShell;
+
+%{ C++
+class nsDocShellLoadInfo;
+%}
+native nsDocShellLoadInfoPtr(nsDocShellLoadInfo*);
 
 [scriptable, builtinclass, uuid(995455ba-5bb4-4643-8d70-2b877a2e1320)]
 interface nsIMsgMailNewsUrl : nsIURL {
@@ -151,7 +155,7 @@ interface nsIMsgMailNewsUrl : nsIURL {
    *                     be allowed. Use at your own risk. See nsIDocShell.idl
    */
    void loadURI(in nsIDocShell docshell,
-                in nsIDocShellLoadInfo loadInfo,
+                in nsDocShellLoadInfoPtr loadInfo,
                 in unsigned long aLoadFlags);
 
 };

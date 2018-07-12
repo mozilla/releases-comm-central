@@ -833,7 +833,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetMimeHeaders(nsIMimeHeaders *mimeHeaders)
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
-                                        nsIDocShellLoadInfo* loadInfo,
+                                        nsDocShellLoadInfo* loadInfo,
                                         uint32_t aLoadFlags)
 {
   NS_ENSURE_ARG_POINTER(docShell);
