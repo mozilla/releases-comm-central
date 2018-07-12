@@ -1606,7 +1606,7 @@ calDavCalendar.prototype = {
                 this.oauth = new OAuth2(OAUTH_BASE_URI, OAUTH_SCOPE,
                                         OAUTH_CLIENT_ID, OAUTH_HASH);
                 this.oauth.requestWindowTitle = authTitle;
-                this.oauth.requestWindowFeatures = "chrome,private,centerscreen,width=430,height=600";
+                this.oauth.requestWindowFeatures = "chrome,private,centerscreen,width=430,height=750";
 
                 Object.defineProperty(this.oauth, "refreshToken", {
                     get: function() {
