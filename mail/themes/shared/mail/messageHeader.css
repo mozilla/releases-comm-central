@@ -261,6 +261,11 @@ mail-headerfield > .headerValue {
   word-wrap: break-word;
 }
 
+mail-headerfield > .headerValue:focus {
+  outline: 1px dotted;
+  outline-offset: -1px;
+}
+
 #header-view-toolbox:-moz-locale-dir(rtl) {
   float: left;
 }

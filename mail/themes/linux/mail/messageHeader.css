@@ -248,9 +248,7 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
   white-space: normal;
   color: WindowText;
   line-height: 1.5em;
-
   -moz-appearance: none !important;
-
   padding: .1em 0px !important;
   margin: 0px !important;
   margin-bottom: 3px !important;
@@ -267,6 +265,10 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
 
 .headerValueUrl:hover {
   color: -moz-activehyperlinktext;
+}
+
+mail-headerfield > .headerValue:focus {
+  outline-color: Highlight;
 }
 
 .moreIndicator {
