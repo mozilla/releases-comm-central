@@ -1,2 +1,0 @@
-echo "cross-building with comm-central as top dir not supported"
-exit 1
