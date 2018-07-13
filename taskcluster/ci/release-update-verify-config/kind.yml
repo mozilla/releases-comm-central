@@ -47,7 +47,6 @@ job-defaults:
         # is behind a watershed
         include-version:
             by-project:
-                try-comm-central: beta
                 comm-beta: beta
                 default: beta
         last-watershed:
@@ -57,10 +56,6 @@ job-defaults:
                         win64.*: "60.0b7"
                         default: "56.0b3"
                 comm-esr60: "60.0"
-                try-comm-central:
-                    by-platform:
-                        win64.*: "60.0b7"
-                        default: "56.0b3"
                 default: null
 
 jobs:
@@ -85,7 +80,6 @@ jobs:
             mar-channel-id-override:
                 by-project:
                     comm-beta: beta
-                    try-comm-central: beta
                     default: null
 
     thunderbird-linux64:
@@ -109,7 +103,6 @@ jobs:
             mar-channel-id-override:
                 by-project:
                     comm-beta: beta
-                    try-comm-central: beta
                     default: null
 
     thunderbird-macosx64:
@@ -133,7 +126,6 @@ jobs:
             mar-channel-id-override:
                 by-project:
                     comm-beta: beta
-                    try-comm-central: beta
                     default: null
 
     thunderbird-win32:
@@ -180,5 +172,4 @@ jobs:
             mar-channel-id-override:
                 by-project:
                     comm-beta: beta
-                    try-comm-central: beta
                     default: null

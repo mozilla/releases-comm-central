@@ -39,7 +39,6 @@ job-defaults:
                 by-project:
                     comm-beta: "beta-localtest"
                     comm-esr.*: "release-localtest"
-                    try-comm-central: "beta-localtest"
                     default: "default"
     extra:
         chunks: 12
