@@ -12,17 +12,13 @@ job-defaults:
     description: release bouncer submission job
     worker-type:
         by-project:
-            comm-beta: scriptworker-prov-v1/tb-bouncer-v1
-            comm-esr60: scriptworker-prov-v1/tb-bouncer-v1
+            comm-(beta|esr.*): scriptworker-prov-v1/tb-bouncer-v1
             default: scriptworker-prov-v1/tb-bouncer-dev
     worker:
         implementation: bouncer-submission
     scopes:
         by-project:
-            comm-beta:
-                - project:comm:thunderbird:releng:bouncer:action:submission
-                - project:comm:thunderbird:releng:bouncer:server:production
-            comm-esr.*:
+            comm-(beta|esr.*):
                 - project:comm:thunderbird:releng:bouncer:action:submission
                 - project:comm:thunderbird:releng:bouncer:server:production
             default:

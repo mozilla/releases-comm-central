@@ -44,7 +44,7 @@ jobs:
                 - releases/bouncer_thunderbird.py
             extra-config:
                 by-project:
-                    comm-beta: {}
+                    comm-(beta|esr60): {}
                     default:
                         locales: ['en-US', 'fr', 'de']
                         bouncer_prefix: "https://bouncer-bouncer-releng.stage.mozaws.net/"

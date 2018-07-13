@@ -66,7 +66,7 @@ scriptworker:
         'scriptworker-prov-v1/tb-balrog-v1':
             - 'project:comm:thunderbird:releng:balrog:server:nightly'
             - 'project:comm:thunderbird:releng:balrog:server:beta'
-            - 'project:comm:thunderbird:releng:balrog:server:esr'
+            - 'project:comm:thunderbird:releng:balrog:server:release'
 
 partner:
     release: {}

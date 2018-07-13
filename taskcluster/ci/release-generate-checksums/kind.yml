@@ -62,10 +62,7 @@ jobs:
         run:
             extra-config:
                 by-project:
-                    comm-esr.*:
-                        stage_product: "thunderbird"
-                        bucket_name: "net-mozaws-prod-delivery-archive"
-                    comm-beta:
+                    comm-(beta|esr.*):
                         stage_product: "thunderbird"
                         bucket_name: "net-mozaws-prod-delivery-archive"
                     default:

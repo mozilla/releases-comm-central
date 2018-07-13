@@ -38,6 +38,7 @@ job-defaults:
             CHANNEL:
                 by-project:
                     comm-beta: "beta-localtest"
+                    comm-esr.*: "release-localtest"
                     try-comm-central: "beta-localtest"
                     default: "default"
     extra:

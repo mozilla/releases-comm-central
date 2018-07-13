@@ -26,25 +26,28 @@ jobs:
             product: thunderbird
             archive-domain:
                 by-project:
-                    comm-beta: archive.mozilla.org
+                    comm-(beta|esr.*): archive.mozilla.org
                     default: ftp.stage.mozaws.net
             download-domain:
                 by-project:
-                    comm-beta: download.mozilla.org
+                    comm-(beta|esr.*): download.mozilla.org
                     default: bouncer-bouncer-releng.stage.mozaws.net
             channel-names:
                 by-project:
                     try-comm-central: ["beta", "beta-localtest", "beta-cdntest"]
                     comm-beta: ["beta", "beta-localtest", "beta-cdntest"]
+                    comm-esr.*: ["release", "release-localtest", "release-cdntest"]
                     default: []
             publish-rules:
                 by-project:
                     comm-beta: [43]
+                    comm-esr60: [820]
                     default: []
             rules-to-update:
                 by-project:
                     try-comm-central: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
                     comm-beta: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
+                    comm-esr60: ["thunderbird-release60-cdntest", "thunderbird-release60-localtest"]
                     default: []
             platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
         treeherder:

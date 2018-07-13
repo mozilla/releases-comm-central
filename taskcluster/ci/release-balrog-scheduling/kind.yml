@@ -29,6 +29,7 @@ jobs:
             publish-rules:
                 by-project:
                     comm-beta: [43]
+                    comm-esr60: [820]
                     default: []
         treeherder:
             platform: thunderbird-release/opt

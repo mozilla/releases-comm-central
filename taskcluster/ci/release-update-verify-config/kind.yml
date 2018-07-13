@@ -56,7 +56,7 @@ job-defaults:
                     by-platform:
                         win64.*: "60.0b7"
                         default: "56.0b3"
-                comm-esr60: "60.0esr"
+                comm-esr60: "60.0"
                 try-comm-central:
                     by-platform:
                         win64.*: "60.0b7"
@@ -80,6 +80,7 @@ jobs:
             channel:
                 by-project:
                     comm-beta: "beta-localtest"
+                    comm-esr.*: "release-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-project:
@@ -103,6 +104,7 @@ jobs:
             channel:
                 by-project:
                     comm-beta: "beta-localtest"
+                    comm-esr.*: "release-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-project:
@@ -126,6 +128,7 @@ jobs:
             channel:
                 by-project:
                     comm-beta: "beta-localtest"
+                    comm-esr.*: "release-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-project:
@@ -172,6 +175,7 @@ jobs:
             channel:
                 by-project:
                     comm-beta: "beta-localtest"
+                    comm-esr.*: "release-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-project:
