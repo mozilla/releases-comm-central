@@ -6,15 +6,13 @@ loader: taskgraph.loader.single_dep:loader
 
 transforms:
     - taskgraph.transforms.name_sanity:transforms
-    - taskgraph.transforms.beetmover_repackage_l10n:transforms
-    - taskgraph.transforms.beetmover_repackage:transforms
+    - taskgraph.transforms.repackage_signing:transforms
     - taskgraph.transforms.task:transforms
     - comm_taskgraph:remove_widevine_and_stub_installer
-    - comm_taskgraph:beetmover_add_langpack
+
 
 kind-dependencies:
-    - repackage-signing
-    - repackage-signing-l10n
+    - repackage-l10n
 
 only-for-build-platforms:
     - linux-nightly/opt
@@ -22,6 +20,3 @@ only-for-build-platforms:
     - macosx64-nightly/opt
     - win32-nightly/opt
     - win64-nightly/opt
-
-job-template:
-    shipping-phase: promote
