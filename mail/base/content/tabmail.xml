@@ -2162,8 +2162,7 @@
         <body><![CDATA[
           switch (aEvent.type) {
             case "overflow":
-              this.arrowScrollbox.scrollBoxObject
-                            .ensureElementIsVisible(this.selectedItem);
+              this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
               break;
             case "underflow":
               break;
@@ -2227,7 +2226,7 @@
       <method name="_notifyBackgroundTab">
         <parameter name="aTab"/>
         <body><![CDATA[
-          var tsbo = this.arrowScrollbox.scrollBoxObject;
+          var tsbo = this.arrowScrollbox.boxObject;
           var tsboStart = tsbo.screenX;
           var tsboEnd = tsboStart + tsbo.width;
 
@@ -2748,7 +2747,7 @@
           if (tabContainer.getAttribute("overflow") != "true")
             return;
 
-          var tabstripBO = tabContainer.arrowScrollbox.scrollBoxObject;
+          var tabstripBO = tabContainer.arrowScrollbox.boxObject;
           for (var i = 0; i < this.childNodes.length; i++) {
             var curTabBO = this.childNodes[i].tab.boxObject;
             if (curTabBO.screenX >= tabstripBO.screenX &&
