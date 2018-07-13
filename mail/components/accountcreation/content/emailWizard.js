@@ -239,8 +239,8 @@ EmailConfigWizard.prototype =
     _hide("manual-edit_area");
     window.sizeToContent();
     e("mastervbox").setAttribute("style",
-        "min-width: " + document.width + "px; " +
-        "min-height: " + (document.height + 10) + "px;");
+        "min-width: " + document.documentElement.clientWidth + "px; " +
+        "min-height: " + (document.documentElement.clientHeight + 10) + "px;");
 
     this.switchToMode("start");
     e("realname").select();

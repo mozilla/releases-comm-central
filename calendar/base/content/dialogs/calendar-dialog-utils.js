@@ -699,7 +699,7 @@ function determineAttendeesInRow() {
     // as default value a reasonable high value is appropriate
     // it will be recalculated anyway.
     let minWidth = window.maxLabelWidth || 200;
-    let inRow = Math.floor(document.width / minWidth);
+    let inRow = Math.floor(document.documentElement.clientWidth / minWidth);
     return inRow > 1 ? inRow : 1;
 }
 
