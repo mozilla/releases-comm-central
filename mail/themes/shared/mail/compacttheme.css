@@ -26,8 +26,6 @@
   --chrome-secondary-background-color: hsl(240, 1%, 20%);
   --toolbox-border-bottom-color: hsla(240, 5%, 5%, .1);
   --chrome-nav-bar-controls-border-color: hsla(240, 5%, 5%, .3);
-  --chrome-selection-color: #fff;
-  --chrome-selection-background-color: #5675b9;
 
   /* Toolbar buttons */
   --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
@@ -55,8 +53,6 @@
   --chrome-secondary-background-color: #f5f6f7;
   --toolbox-border-bottom-color: #ccc;
   --chrome-nav-bar-controls-border-color: #ccc;
-  --chrome-selection-color: #f5f7fa;
-  --chrome-selection-background-color: #4c9ed9;
 
   /* composer header fields bottom border */
   --composer-header-border-color: #aaa;
@@ -64,16 +60,6 @@
 
 toolbar[brighttext] .toolbarbutton-1 {
   fill: rgb(249, 249, 250);
-}
-
-#searchInput ::-moz-selection,
-#IMSearchInput ::-moz-selection,
-#peopleSearchInput ::-moz-selection,
-.remote-gloda-search ::-moz-selection,
-#qfb-qs-textbox ::-moz-selection,
-findbar ::-moz-selection {
-  background-color: var(--chrome-selection-background-color);
-  color: var(--chrome-selection-color);
 }
 
 /* Change the base colors for the mail chrome */
@@ -105,11 +91,6 @@ findbar,
 }
 .editContactTextbox:not([readonly="true"]):not([focused="true"]) {
   border-color: var(--lwt-toolbar-field-border-color);
-}
-
-.editContactTextbox ::-moz-selection {
-  background-color: var(--chrome-selection-background-color);
-  color: var(--chrome-selection-color);
 }
 
 /* Quick-Filter-Bar */
@@ -188,13 +169,6 @@ textbox.textbox-addressingWidget[focused="true"] {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
   border-color: var(--lwt-toolbar-field-border-color) !important;
-}
-
-#msgIdentity ::-moz-selection,
-#msgSubject ::-moz-selection,
-textbox.textbox-addressingWidget ::-moz-selection {
-  background-color: var(--chrome-selection-background-color);
-  color: var(--chrome-selection-color);
 }
 
 .textbox-addressingWidget > .autocomplete-result-popupset {
