@@ -3774,3 +3774,9 @@ async function initAddonPrefsMenu(aMenupopup) {
     noPrefsElem.setAttribute("collapsed", "false");
   }
 }
+
+function openNewCardDialog()
+{
+  window.openDialog("chrome://messenger/content/addressbook/abNewCardDialog.xul",
+                    "", "chrome,modal,resizable=no,centerscreen");
+}
