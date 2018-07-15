@@ -12,6 +12,10 @@
   margin-inline-end: 9px;
 }
 
+caption {
+  background-color: transparent;
+}
+
 /**
  * Dialog
  */

@@ -348,6 +348,47 @@ tabs {
 }
 
 /**
+ * toolkit element overrides
+ */
+
+groupbox {
+  -moz-appearance: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+caption,
+tabpanels caption {
+  -moz-appearance: none;
+  margin: 0;
+}
+
+richlistbox {
+  -moz-appearance: none;
+  background-color: var(--in-content-box-background);
+  color: var(--in-content-text-color);
+}
+
+richlistbox richlistitem {
+  padding: 0.3em;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-image: none;
+}
+
+richlistbox richlistitem:hover {
+  background-color: var(--in-content-item-hover);
+}
+
+richlistbox richlistitem[selected="true"],
+richlistbox:focus richlistitem[selected="true"] {
+  background-color: var(--in-content-item-selected);
+  color: var(--in-content-selected-text);
+}
+
+/**
  * Dialog
  */
 
@@ -359,6 +400,7 @@ tabs {
 }
 
 .dialogBox {
+  -moz-appearance: none;
   background-color: #fbfbfb;
   color: #424e5a;
   /* `transparent` will use the dialogText color in high-contrast themes and

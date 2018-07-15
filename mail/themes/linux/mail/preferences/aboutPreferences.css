@@ -31,6 +31,12 @@ menulist.actionsMenu > .menulist-dropmarker {
   margin-bottom: 11px;
 }
 
+textbox[type="number"] {
+  -moz-appearance: none;
+  border: 1px solid var(--in-content-box-border-color);
+  background-color: var(--in-content-box-background);
+}
+
 /**
  * Dialog
  */
