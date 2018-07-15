@@ -26,14 +26,10 @@
 
   <vbox flex="1">
     <hbox flex="1">
-      <listbox id="mailViewList" flex="1"  onselect="onMailViewSelect(event);">
-        <listcols>
-          <listcol flex="1" width="0"/>
-        </listcols>
-        <listhead>
-          <listheader label="&viewName.label;"/>
-        </listhead>
-      </listbox>
+      <richlistbox id="mailViewList"
+                   class="theme-listbox"
+                   flex="1"
+                   onselect="onMailViewSelect(event);"/>
 
       <vbox>
        <button id="newButton" label="&newButton.label;" accesskey="&newButton.accesskey;" oncommand="onNewMailView();"/>

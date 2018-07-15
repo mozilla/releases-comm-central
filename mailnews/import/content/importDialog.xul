@@ -85,8 +85,10 @@
                    value="&selectDescriptionB.label;"
                    accesskey="&selectDescription.accesskey;"/>
           </deck>
-          <listbox id="moduleList" flex="3"
-                   onselect="ImportSelectionChanged(); enableAdvance();"/>
+          <richlistbox id="moduleList"
+                       class="theme-listbox"
+                       height="250px"
+                       onselect="ImportSelectionChanged(); enableAdvance();"/>
         </vbox>
         <label>&noModulesFound.label;</label>
       </deck>

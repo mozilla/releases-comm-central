@@ -45,11 +45,19 @@
           src="chrome://messenger/content/systemIntegrationDialog.js"/>
 
   <label control="defaultClientList">&defaultClient.intro;</label>
-  <listbox rows="3" seltype="single" id="defaultClientList">
-    <listitem id="checkMail" type="checkbox" label="&email.label;" tooltiptext="&unsetDefault.tooltip;"/>
-    <listitem id="checkNews" type="checkbox" label="&newsgroups.label;" tooltiptext="&unsetDefault.tooltip;"/>
-    <listitem id="checkRSS"  type="checkbox" label="&feeds.label;" tooltiptext="&unsetDefault.tooltip;"/>
-  </listbox>
+  <vbox id="defaultClientList">
+    <checkbox id="checkMail"
+              label="&email.label;"
+              tooltiptext="&unsetDefault.tooltip;"/>
+    <checkbox id="checkNews"
+              label="&newsgroups.label;"
+              tooltiptext="&unsetDefault.tooltip;"/>
+    <checkbox id="checkRSS"
+              label="&feeds.label;"
+              tooltiptext="&unsetDefault.tooltip;"/>
+  </vbox>
+
+  <separator class="groove"/>
 
   <checkbox id="searchIntegration"
             hidden="true"

@@ -81,13 +81,14 @@ function onInit(aPageId, aServerId)
 
   // And then append each item to the listbox
   for (let abItem of abItems) {
-    let item = wList.appendItem(abItem.label, abItem.URI);
-    item.setAttribute("type", "checkbox");
-    item.setAttribute("class", "listitem-iconic");
+    let checkbox = document.createElement("checkbox");
+    checkbox.setAttribute("label", abItem.label);
+    checkbox.setAttribute("checked", currentArray.includes(abItem.URI));
 
-    // Due to bug 448582, we have to use setAttribute to set the
-    // checked value of the listitem.
-    item.setAttribute("checked", currentArray.includes(abItem.URI));
+    let item = document.createElement("richlistitem");
+    item.appendChild(checkbox);
+    item.setAttribute("value", abItem.URI);
+    wList.appendChild(item);
   }
 
   // enable or disable the whitelist
@@ -206,7 +207,7 @@ function onSaveWhiteList()
     // as they may not return the right value or may even not exist.
     // Always get the attributes only.
     var wlNode = wList.getItemAtIndex(i);
-    if (wlNode.getAttribute("checked") == "true") {
+    if (wlNode.firstChild.getAttribute("checked") == "true") {
       let abURI = wlNode.getAttribute("value");
       wlArray.push(abURI);
     }

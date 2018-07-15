@@ -69,6 +69,9 @@
 #itemList {
   margin-inline-start: 0;
   margin-inline-end: 0;
+  border: 1px solid ThreeDShadow;
+  background-color: -moz-Field;
+  color: -moz-FieldText;
 }
 
 /* Without this a useless scrollbar appears in the listbox when its rows

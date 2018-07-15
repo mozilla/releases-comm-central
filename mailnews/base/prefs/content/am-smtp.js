@@ -199,7 +199,7 @@ var gSmtpServerListWindow =
 
   createSmtpListItem: function(aServer, aIsDefault)
   {
-    var listitem = document.createElement("listitem");
+    var listitem = document.createElement("richlistitem");
     var serverName = "";
 
     if (aServer.description)
@@ -215,7 +215,9 @@ var gSmtpServerListWindow =
       listitem.setAttribute("default", "true");
     }
 
-    listitem.setAttribute("label", serverName);
+    let label = document.createElement("label");
+    label.setAttribute("value", serverName);
+    listitem.appendChild(label);
     listitem.setAttribute("key", aServer.key);
     listitem.setAttribute("class", "smtpServerListItem");
 

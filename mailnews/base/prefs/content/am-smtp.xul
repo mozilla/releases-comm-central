@@ -26,11 +26,12 @@
     <separator class="thin"/>
 
     <hbox flex="1">
-      <listbox id="smtpList"
-               onselect="gSmtpServerListWindow.onSelectionChanged(event);"
-               ondblclick="gSmtpServerListWindow.onEditServer(event);"
-               seltype="single"
-               flex="1"/>
+      <richlistbox id="smtpList"
+                   class="theme-listbox"
+                   onselect="gSmtpServerListWindow.onSelectionChanged(event);"
+                   ondblclick="gSmtpServerListWindow.onEditServer(event);"
+                   seltype="single"
+                   flex="1"/>
 
       <vbox>
         <button id="addButton"

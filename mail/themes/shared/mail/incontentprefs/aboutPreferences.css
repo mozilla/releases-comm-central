@@ -245,6 +245,11 @@ textbox + button {
   list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down-dim.png");
 }
 
+separator.groove:not([orient="vertical"]) {
+  border-top-color: #c1c1c1;
+  border-bottom-width: 0;
+}
+
 /* Applications Pane Styles */
 
 #applications-content {

@@ -99,7 +99,7 @@
         <label id="whiteListLabel"
                accesskey="&whitelistHeader.accesskey;"
                control="whiteListAbURI">&whitelistHeader.label;</label>
-        <listbox id="whiteListAbURI" rows="5"/>
+        <richlistbox id="whiteListAbURI" class="theme-listbox" height="100px"/>
       </vbox>
 
       <separator/>

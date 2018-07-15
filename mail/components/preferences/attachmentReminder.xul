@@ -29,8 +29,8 @@
     <groupbox>
       <label control="keywordList">&attachKeywordText.label;</label>
       <hbox>
-        <listbox id="keywordList" flex="1" rows="5"
-                 ondblclick="gAttachmentReminderOptionsDialog.editKeyword();"/>
+        <richlistbox id="keywordList" flex="1" height="250px"
+                     ondblclick="gAttachmentReminderOptionsDialog.editKeyword();"/>
         <vbox>
           <button label="&newKeywordButton.label;" accesskey="&newKeywordButton.accesskey;"
                   oncommand="gAttachmentReminderOptionsDialog.addKeyword();"/>

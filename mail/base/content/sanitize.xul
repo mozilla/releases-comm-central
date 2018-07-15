@@ -95,23 +95,20 @@
              accesskey="&detailsProgressiveDisclosure.accesskey;"
              control="detailsExpander"/>
     </hbox>
-    <listbox id="itemList" rows="3" collapsed="true" persist="collapsed">
-      <listitem label="&itemHistory.label;"
-                type="checkbox"
+    <vbox id="itemList" collapsed="true" persist="collapsed">
+      <checkbox label="&itemHistory.label;"
                 accesskey="&itemHistory.accesskey;"
                 preference="privacy.cpd.history"
                 onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
-      <listitem label="&itemCookies.label;"
-                type="checkbox"
+      <checkbox label="&itemCookies.label;"
                 accesskey="&itemCookies.accesskey;"
                 preference="privacy.cpd.cookies"
                 onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
-      <listitem label="&itemCache.label;"
-                type="checkbox"
+      <checkbox label="&itemCache.label;"
                 accesskey="&itemCache.accesskey;"
                 preference="privacy.cpd.cache"
                 onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
-    </listbox>
+    </vbox>
 
   </prefpane>
 </prefwindow>

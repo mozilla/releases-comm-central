@@ -72,8 +72,10 @@ function fillDirectoryList()
   holdingArray.sort(function (a, b) { return a.dirName.localeCompare(b.dirName); });
 
   holdingArray.forEach(function (ab) {
-    var item = document.createElement('listitem');
-    item.setAttribute("label", ab.dirName);
+    let item = document.createElement("richlistitem");
+    let label = document.createElement("label");
+    label.setAttribute("value", ab.dirName);
+    item.appendChild(label);
     item.setAttribute("value", ab.URI);
 
     abList.appendChild(item);

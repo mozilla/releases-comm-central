@@ -161,8 +161,11 @@
         <tabpanel orient="vertical">
           <label control="tagList">&displayTagsText.label;</label>
           <hbox>
-            <listbox id="tagList" flex="1" rows="10" ondblclick="gDisplayPane.editTag();"
-                     onselect="gDisplayPane.onSelect();"/>
+            <richlistbox id="tagList"
+                         flex="1"
+                         height="300px"
+                         ondblclick="gDisplayPane.editTag();"
+                         onselect="gDisplayPane.onSelect();"/>
             <vbox>
               <button label="&newTagButton.label;" accesskey="&newTagButton.accesskey;"
                       oncommand="gDisplayPane.addTag();"/>
