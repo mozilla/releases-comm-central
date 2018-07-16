@@ -58,8 +58,10 @@
     <rows>
       <row flex="1">
         <!-- BUG! setting class="MinWidth20em" on tree doesn't work (width=0) -->
-        <listbox  rows="6" id="SuggestedList" onselect="SelectSuggestedWord()"
-                  ondblclick="if (gAllowSelectWord) Replace(event.target.getAttribute('label'));"/>
+        <richlistbox id="SuggestedList"
+                     class="theme-listbox"
+                     onselect="SelectSuggestedWord()"
+                     ondblclick="if (gAllowSelectWord) Replace(event.target.label);"/>
         <vbox>
           <grid>
             <columns><column class="spell-check" flex="1"/><column class="spell-check" flex="1"/></columns>

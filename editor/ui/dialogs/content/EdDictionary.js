@@ -96,9 +96,9 @@ function ReplaceWord()
         // Add to the dictionary list
         gSpellChecker.AddWordToDictionary(gWordToAdd);
 
-        // Just change the text on the selected item
-        //  instead of rebuilding the list
-        selItem.label = gWordToAdd;
+        // Just change the text on the selected item instead of rebuilding the list.
+        // The items are richlist items, so the label sits in the first child.
+        selItem.firstChild.setAttribute("value", gWordToAdd);
       } catch (e) {
         // Rebuild list and select the word - it was probably already in the list
         dump("Exception occurred adding word in ReplaceWord\n");

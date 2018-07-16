@@ -50,8 +50,11 @@ function refreshIdentityList(aSelectIndex)
   {
     if (identity.valid)
     {
-      let listitem = document.createElement("listitem");
-      listitem.setAttribute("label", identity.identityName);
+      let label = document.createElement("label");
+      label.setAttribute("value", identity.identityName);
+
+      let listitem = document.createElement("richlistitem");
+      listitem.appendChild(label);
       listitem.setAttribute("key", identity.key);
       gIdentityListBox.appendChild(listitem);
     }

@@ -39,7 +39,10 @@
         <spacer/>
       </row>
       <row>
-        <listbox rows="8" id="DictionaryList" flex="1"/>
+        <richlistbox id="DictionaryList"
+                     class="theme-listbox"
+                     flex="1"
+                     height="150px"/>
         <vbox flex="1">
           <button  id="ReplaceWord" oncommand="ReplaceWord()" label="&ReplaceButton.label;"
                    accesskey="&ReplaceButton.accessKey;"/>

@@ -41,12 +41,12 @@
 <separator class="thin"/>
 
 <hbox flex="1">
-  <listbox id="identitiesList"
-           ondblclick="onEdit(event);"
-           onselect="updateButtons();"
-           seltype="single"
-           flex="1"
-           style="height: 0px;"/>
+  <richlistbox id="identitiesList"
+               class="theme-listbox"
+               ondblclick="onEdit(event);"
+               onselect="updateButtons();"
+               seltype="single"
+               flex="1"/>
 
   <vbox>
     <button id="addButton"

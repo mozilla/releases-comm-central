@@ -171,10 +171,7 @@ function GetListItemAttributeStr(listitem)
 
 function addRow(newHdr)
 {
-  var listitem = document.createElement("listitem");
-  listitem.setAttribute("label", newHdr);
-  gHdrsList.appendChild(listitem);
-  return listitem;
+  return gHdrsList.appendItem(newHdr, "");
 }
 
 function updateAddButton(aDisable)

@@ -266,7 +266,7 @@ function SelectSuggestedWord()
     var selectedItem
     if (gDialog.SuggestedList.selectedItem)
     {
-      var selValue = gDialog.SuggestedList.selectedItem.getAttribute("label");
+      var selValue = gDialog.SuggestedList.selectedItem.label;
       gDialog.ReplaceWordInput.value = selValue;
       gPreviousReplaceWord = selValue;
     }
@@ -294,7 +294,7 @@ function ChangeReplaceWord()
     for (var i = 0; i < gDialog.SuggestedList.getRowCount(); i++)
     {
       var item = gDialog.SuggestedList.getItemAtIndex(i);
-      if (item.getAttribute("label") == replaceWord)
+      if (item.label == replaceWord)
       {
         newSelectedItem = item;
         break;
