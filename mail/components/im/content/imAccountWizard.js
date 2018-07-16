@@ -20,10 +20,17 @@ var accountWizard = {
       protos.push(proto);
     protos.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
     protos.forEach(function(proto) {
-      var id = proto.id;
-      var item = protoList.appendItem(proto.name, id, id);
-      item.setAttribute("image", proto.iconBaseURI + "icon.png");
-      item.setAttribute("class", "listitem-iconic");
+      let image = document.createElement("image");
+      image.setAttribute("src", proto.iconBaseURI + "icon.png");
+
+      let label = document.createElement("label");
+      label.setAttribute("value", proto.name);
+
+      let item = document.createElement("richlistitem");
+      item.setAttribute("value", proto.id);
+      item.appendChild(image);
+      item.appendChild(label);
+      protoList.appendChild(item);
     });
 
     // there is a strange selection bug without this timeout
