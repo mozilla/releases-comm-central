@@ -94,14 +94,3 @@ dialogheader {
   font-size: larger;
   font-weight: bold;
 }
-
-#whiteListAbURI > richlistitem > image {
-  -moz-appearance: checkbox;
-  -moz-box-align: center;
-  -moz-box-ordinal-group: 0;
-  margin: 0 2px;
-  border: 1px solid -moz-DialogText;
-  min-width: 13px;
-  min-height: 13px;
-  background: -moz-Field no-repeat 50% 50%;
-}
