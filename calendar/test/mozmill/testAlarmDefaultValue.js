@@ -27,6 +27,7 @@ function setupModule(module) {
         menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule();
+    collector.getModule("content-tab-helpers").installInto(module);
     Object.assign(module, helpersForController(controller));
 }
 
@@ -79,32 +80,28 @@ function testDefaultAlarms() {
     });
 }
 
-function handlePrefDialog(prefs) {
-    let { eid: prefsid } = helpersForController(prefs);
-
+function handlePrefDialog(tab) {
     // Click on the alarms tab
-    prefs.click(prefsid("calPreferencesTabAlarms"));
+    content_tab_e(tab, "calPreferencesTabAlarms").click();
 
     // Turn on alarms for events and tasks
-    prefs.waitForElement(prefsid("eventdefalarm"));
-    menulistSelect(prefsid("eventdefalarm"), "1", prefs);
-    menulistSelect(prefsid("tododefalarm"), "1", prefs);
+    menulistSelect(content_tab_eid(tab, "eventdefalarm"), "1", controller);
+    menulistSelect(content_tab_eid(tab, "tododefalarm"), "1", controller);
 
     // Selects "days" as a unit
-    menulistSelect(prefsid("tododefalarmunit"), "days", prefs);
-    menulistSelect(prefsid("eventdefalarmunit"), "days", prefs);
+    menulistSelect(content_tab_eid(tab, "tododefalarmunit"), "days", controller);
+    menulistSelect(content_tab_eid(tab, "eventdefalarmunit"), "days", controller);
 
     // Sets default alarm length for events to DEFVALUE
-    let eventdefalarmlen = prefsid("eventdefalarmlen");
-    prefs.click(eventdefalarmlen);
-    prefs.keypress(eventdefalarmlen, "a", { accelKey: true });
-    prefs.type(eventdefalarmlen, DEFVALUE.toString());
+    let eventdefalarmlen = content_tab_eid(tab, "eventdefalarmlen");
+    controller.click(eventdefalarmlen);
+    controller.keypress(eventdefalarmlen, "a", { accelKey: true });
+    controller.type(eventdefalarmlen, DEFVALUE.toString());
 
-    let tododefalarmlen = prefsid("tododefalarmlen");
-    prefs.click(tododefalarmlen);
-    prefs.keypress(tododefalarmlen, "a", { accelKey: true });
-    prefs.type(tododefalarmlen, DEFVALUE.toString());
-    prefs.window.document.documentElement.acceptDialog();
+    let tododefalarmlen = content_tab_eid(tab, "tododefalarmlen");
+    controller.click(tododefalarmlen);
+    controller.keypress(tododefalarmlen, "a", { accelKey: true });
+    controller.type(tododefalarmlen, DEFVALUE.toString());
 }
 
 function teardownTest(module) {

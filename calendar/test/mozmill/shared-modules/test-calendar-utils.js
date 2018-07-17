@@ -12,6 +12,8 @@ var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var frame = {};
 ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
+var utils = {};
+ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
 var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;
@@ -46,7 +48,7 @@ var REC_DLG_UNTIL_INPUT = `
         anon({"anonid":"input"})
 `;
 
-var plan_for_modal_dialog, wait_for_modal_dialog, open_pref_window;
+var plan_for_modal_dialog, wait_for_modal_dialog, open_pref_tab;
 
 function setupModule() {
     ({ plan_for_modal_dialog, wait_for_modal_dialog } =
@@ -56,7 +58,7 @@ function setupModule() {
     // loading of modules in shared modules does not setup the module correctly.
     collector.getModule("folder-display-helpers").setupModule();
 
-    ({ open_pref_window } = collector.getModule("pref-window-helpers"));
+    ({ open_pref_tab } = collector.getModule("pref-window-helpers"));
     collector.getModule("pref-window-helpers").setupModule();
 }
 
@@ -833,9 +835,12 @@ function setData(dialog, iframe, data) {
 }
 
 function openLightningPrefs(aCallback, aParentController) {
-    open_pref_window("paneLightning", aCallback);
-
-    aParentController.waitFor(() => mozmill.utils.getWindows("Mail:Preferences").length == 0, "Error closing preferences window", 2000);
+    // Since the Lightning pane is added after load, asking for it with open_pref_tab won't work. Cheat instead.
+    let tab = open_pref_tab("paneGeneral");
+    tab.browser.contentDocument.querySelector('#category-box radio[pane="paneLightning"]').click();
+    utils.waitFor(() => tab.browser.contentDocument.documentElement.currentPane.id == "paneLightning",
+                  "Timed out waiting for prefpane paneLightning to load.");
+    aCallback(tab);
 }
 
 /**
