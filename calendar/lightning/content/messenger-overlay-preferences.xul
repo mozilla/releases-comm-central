@@ -18,18 +18,14 @@
     <prefwindow id="MailPreferences">
         <prefpane id="paneLightning"
                   insertbefore="paneAdvanced"
-                  label="&lightning.preferencesLabel;"
-                  onpaneload="gCalendarGeneralPane.init(); gAlarmsPane.init();
-                              gCategoriesPane.init(); gViewsPane.init();
-                              gLightningPane.init();">
+                  label="&lightning.preferencesLabel;">
             <preferences>
                 <preference id="calendar.preferences.lightning.selectedTabIndex"
                             name="calendar.preferences.lightning.selectedTabIndex"
                             type="int"/>
             </preferences>
             <tabbox id="calPreferencesTabbox"
-                    flex="1"
-                    onselect="gLightningPane.tabSelectionChanged();">
+                    flex="1">
                 <tabs>
                     <tab id="calPreferencesTabGeneral"
                          label="&paneGeneral.title;"/>
@@ -57,9 +53,9 @@
             </tabbox>
         </prefpane>
 
-        <script type="application/javascript"
-                src="chrome://lightning/content/messenger-overlay-preferences.js"/>
-
     </prefwindow>
+
+    <script type="application/javascript"
+            src="chrome://lightning/content/messenger-overlay-preferences.js"/>
 
 </overlay>

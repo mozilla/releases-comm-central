@@ -13,12 +13,12 @@
 <overlay id="ViewsPaneOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <vbox id="calPreferencesBoxViews">
-        <script type="application/javascript"
-                src="chrome://calendar/content/preferences/views.js"/>
-        <script type="application/javascript"
-                src="chrome://calendar/content/calendar-ui-utils.js"/>
+    <script type="application/javascript"
+            src="chrome://calendar/content/preferences/views.js"/>
+    <script type="application/javascript"
+            src="chrome://calendar/content/calendar-ui-utils.js"/>
 
+    <vbox id="calPreferencesBoxViews">
         <preferences>
             <preference id="calendar.week.start"
                         name="calendar.week.start"

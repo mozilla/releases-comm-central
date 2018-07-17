@@ -13,16 +13,16 @@
 <overlay id="AlarmsPaneOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+    <script type="application/javascript"
+            src="chrome://calendar/content/preferences/alarms.js"/>
+    <script type="application/javascript"
+            src="chrome://calendar/content/calendar-dialog-utils.js"/>
+    <script type="application/javascript"
+            src="chrome://calendar/content/calendar-ui-utils.js"/>
+
     <vbox id="calPreferencesBoxAlarms">
         <stringbundle id="bundleCalendarPreferences"
                       src="chrome://calendar/locale/calendar.properties"/>
-        <script type="application/javascript"
-                src="chrome://calendar/content/preferences/alarms.js"/>
-        <script type="application/javascript"
-                src="chrome://calendar/content/calendar-dialog-utils.js"/>
-        <script type="application/javascript"
-                src="chrome://calendar/content/calendar-ui-utils.js"/>
-
         <preferences>
             <preference id="calendar.alarms.playsound"
                         name="calendar.alarms.playsound"

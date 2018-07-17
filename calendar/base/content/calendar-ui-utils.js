@@ -13,7 +13,6 @@
  */
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 /**
@@ -241,6 +240,9 @@ function removeChildren(aElement) {
  * @param calendars     An array of calendars to sort.
  */
 function sortCalendarArray(calendars) {
+    // Be careful not to pollute the window object, as things break.
+    let { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm", {});
+
     let ret = calendars.concat([]);
     let sortOrder = {};
     let sortOrderPref = Preferences.get("calendar.list.sortOrder", "").split(" ");
