@@ -236,6 +236,8 @@ function prepareCalendarUnifinder() {
             gUnifinderNeedsRefresh = false;
             refreshEventTree();
         }
+
+        unifinderTreeView.ready = true;
     }
 }
 
@@ -398,6 +400,7 @@ var unifinderTreeView = {
         invalidate: function() {}
     },
 
+    ready: false,
     treeElement: null,
     doingSelection: false,
     mFilter: null,
@@ -599,7 +602,8 @@ var unifinderTreeView = {
      * @param aItemArray        An array of items to select.
      */
     setSelectedItems: function(aItemArray) {
-        if (this.doingSelection || !this.tree || !this.tree.view) {
+        if (this.doingSelection || !this.tree || !this.tree.view ||
+            !("getSelectedItems" in currentView())) {
             return;
         }
 
@@ -826,6 +830,10 @@ var unifinderTreeView = {
  * applying the current filter.
  */
 function refreshEventTree() {
+    if (!unifinderTreeView.ready) {
+        return;
+    }
+
     let field = document.getElementById("unifinder-search-field");
     if (field) {
         unifinderTreeView.mFilter.filterText = field.value;

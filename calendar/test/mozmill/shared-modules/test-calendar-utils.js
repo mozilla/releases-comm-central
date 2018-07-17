@@ -317,7 +317,7 @@ function invokeEventDialog(controller, clickBox, body) {
 
     controller.waitFor(() => {
         return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;
-    }, MID_SLEEP);
+    }, "event-dialog did not load in time", MID_SLEEP);
 
     let eventWindow = mozmill.utils.getWindows("Calendar:EventDialog")[0];
     let eventController = new mozmill.controller.MozMillController(eventWindow);

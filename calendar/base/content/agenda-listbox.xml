@@ -47,6 +47,8 @@
     <implementation>
       <field name="kCheckbox">null</field>;
       <constructor><![CDATA[
+          this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
+
           ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           this.kCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-checkbox-widget");
       ]]></constructor>

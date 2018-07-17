@@ -24,13 +24,18 @@ var TodayPane = {
     /**
      * Load Handler, sets up the today pane controls.
      */
-    onLoad: function() {
+    onLoad: async function() {
+        let panel = document.getElementById("agenda-panel");
+        if (!("isVisible" in panel)) {
+            await new Promise(resolve => panel.addEventListener("bindingattached", resolve, { once: true }));
+        }
+
         TodayPane.paneViews = [
             cal.l10n.getCalString("eventsandtasks"),
             cal.l10n.getCalString("tasksonly"),
             cal.l10n.getCalString("eventsonly")
         ];
-        agendaListbox.setupCalendar();
+        await agendaListbox.setupCalendar();
         TodayPane.initializeMiniday();
         TodayPane.setShortWeekdays();
 

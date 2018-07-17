@@ -901,10 +901,6 @@ function deleteSelectedItems() {
 }
 
 function calendarUpdateNewItemsCommand() {
-    // keep current current status
-    let oldEventValue = CalendarNewEventsCommandEnabled;
-    let oldTaskValue = CalendarNewTasksCommandEnabled;
-
     // define command set to update
     let eventCommands = [
         "calendar_new_event_command",
@@ -927,13 +923,8 @@ function calendarUpdateNewItemsCommand() {
         CalendarNewTasksCommandEnabled = true;
     }
 
-    // update command status if required
-    if (CalendarNewEventsCommandEnabled != oldEventValue) {
-        eventCommands.forEach(goUpdateCommand);
-    }
-    if (CalendarNewTasksCommandEnabled != oldTaskValue) {
-        taskCommands.forEach(goUpdateCommand);
-    }
+    eventCommands.forEach(goUpdateCommand);
+    taskCommands.forEach(goUpdateCommand);
 }
 
 function calendarUpdateDeleteCommand(selectedItems) {

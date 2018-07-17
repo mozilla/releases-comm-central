@@ -59,6 +59,8 @@ function testSmokeTest() {
     // there should be search field
     controller.assertNode(eid("unifinder-search-field"));
 
+    controller.click(eid("calendar-day-view-button"));
+
     // default view is day view which should have 09:00 label and box
     let someTime = cal.createDateTime();
     someTime.resetTo(someTime.year, someTime.month, someTime.day, 9, 0, 0, someTime.timezone);

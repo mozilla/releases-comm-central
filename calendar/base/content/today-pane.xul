@@ -168,21 +168,7 @@
                                oncommand="agendaListbox.createNewEvent(event)">
                   <observes element="calendar_new_event_command" attribute="disabled"/>
                 </toolbarbutton>
-             </hbox>
-             <vbox id="richlistitem-container" hidden="true">
-                <agenda-checkbox-richlist-item id="today-header-hidden"
-                                               title="&calendar.today.button.label;"
-                                               checked="true"
-                                               persist="checked"/>
-                <agenda-checkbox-richlist-item id="tomorrow-header-hidden"
-                                               title="&calendar.tomorrow.button.label;"
-                                               checked="false"
-                                               persist="checked"/>
-                <agenda-checkbox-richlist-item id="nextweek-header-hidden"
-                                               title="&calendar.upcoming.button.label;"
-                                               checked="false"
-                                               persist="checked"/>
-              </vbox>
+              </hbox>
               <richlistbox id="agenda-listbox" flex="1" context="_child"
                            onblur="agendaListbox.onBlur();"
                            onfocus="agendaListbox.onFocus();"
@@ -378,6 +364,18 @@
                     </menupopup>
                   </menu>
                 </menupopup>
+                <agenda-checkbox-richlist-item id="today-header"
+                                               title="&calendar.today.button.label;"
+                                               checked="true"
+                                               persist="checked"/>
+                <agenda-checkbox-richlist-item id="tomorrow-header"
+                                               title="&calendar.tomorrow.button.label;"
+                                               checked="false"
+                                               persist="checked"/>
+                <agenda-checkbox-richlist-item id="nextweek-header"
+                                               title="&calendar.upcoming.button.label;"
+                                               checked="false"
+                                               persist="checked"/>
               </richlistbox>
             </vbox>
         </modevbox>

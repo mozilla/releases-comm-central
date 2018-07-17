@@ -8,8 +8,8 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-function Synthetic(aOpen, aDuration, aMultiday) {
-    this.open = aOpen;
+function Synthetic(aHeader, aDuration, aMultiday) {
+    this.open = aHeader.getAttribute("checked") == "true";
     this.duration = aDuration;
     this.multiday = aMultiday;
 }
@@ -25,12 +25,21 @@ var agendaListbox = {
 /**
  * Initialize the agenda listbox, used on window load.
  */
-agendaListbox.init = function() {
+agendaListbox.init = async function() {
     this.agendaListboxControl = document.getElementById("agenda-listbox");
     this.agendaListboxControl.removeAttribute("suppressonselect");
-    let showTodayHeader = (document.getElementById("today-header-hidden").getAttribute("checked") == "true");
-    let showTomorrowHeader = (document.getElementById("tomorrow-header-hidden").getAttribute("checked") == "true");
-    let showSoonHeader = (document.getElementById("nextweek-header-hidden").getAttribute("checked") == "true");
+    let showTodayHeader = document.getElementById("today-header");
+    let showTomorrowHeader = document.getElementById("tomorrow-header");
+    let showSoonHeader = document.getElementById("nextweek-header");
+    if (!("getCheckbox" in showTodayHeader)) {
+        await new Promise(resolve => showTodayHeader.addEventListener("bindingattached", resolve, { once: true }));
+    }
+    if (!("getCheckbox" in showTomorrowHeader)) {
+        await new Promise(resolve => showTomorrowHeader.addEventListener("bindingattached", resolve, { once: true }));
+    }
+    if (!("getCheckbox" in showSoonHeader)) {
+        await new Promise(resolve => showSoonHeader.addEventListener("bindingattached", resolve, { once: true }));
+    }
     this.today = new Synthetic(showTodayHeader, 1, false);
     this.addPeriodListItem(this.today, "today-header");
     this.tomorrow = new Synthetic(showTomorrowHeader, 1, false);
@@ -38,6 +47,10 @@ agendaListbox.init = function() {
     this.soon = new Synthetic(showSoonHeader, this.soonDays, true);
     this.periods = [this.today, this.tomorrow, this.soon];
     this.mPendingRefreshJobs = new Map();
+
+    for (let header of [showTodayHeader, showTomorrowHeader, showSoonHeader]) {
+        header.getCheckbox().addEventListener("CheckboxStateChange", this.onCheckboxChange, true);
+    }
 
     let prefObserver = {
         observe: function(aSubject, aTopic, aPrefName) {
@@ -82,15 +95,12 @@ agendaListbox.uninit = function() {
  * copy of the template node is made and added to the agenda listbox.
  *
  * @param aPeriod       The period item to add.
- * @param aItemId       The id of an <agenda-checkbox-richlist-item> to add to,
- *                        without the "-hidden" suffix.
+ * @param aItemId       The id of an <agenda-checkbox-richlist-item> to add to.
  */
 agendaListbox.addPeriodListItem = function(aPeriod, aItemId) {
-    aPeriod.listItem = document.getElementById(aItemId + "-hidden").cloneNode(true);
-    agendaListbox.agendaListboxControl.appendChild(aPeriod.listItem);
-    aPeriod.listItem.id = aItemId;
+    aPeriod.listItem = document.getElementById(aItemId);
+    aPeriod.listItem.hidden = false;
     aPeriod.listItem.getCheckbox().checked = aPeriod.open;
-    aPeriod.listItem.getCheckbox().addEventListener("CheckboxStateChange", this.onCheckboxChange, true);
 };
 
 /**
@@ -101,7 +111,7 @@ agendaListbox.removePeriodListItem = function(aPeriod) {
     if (aPeriod.listItem) {
         aPeriod.listItem.getCheckbox().removeEventListener("CheckboxStateChange", this.onCheckboxChange, true);
         if (aPeriod.listItem) {
-            aPeriod.listItem.remove();
+            aPeriod.listItem.hidden = true;
             aPeriod.listItem = null;
         }
     }
@@ -117,10 +127,14 @@ agendaListbox.onCheckboxChange = function(event) {
     let lopen = (periodCheckbox.getAttribute("checked") == "true");
     let listItem = cal.view.getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
     let period = listItem.getItem();
+    if (!period) {
+        return;
+    }
+
     period.open = lopen;
     // as the agenda-checkboxes are only transient we have to set the "checked"
     // attribute at their hidden origins to make that attribute persistent.
-    document.getElementById(listItem.id + "-hidden").setAttribute("checked",
+    document.getElementById(listItem.id).setAttribute("checked",
                             periodCheckbox.getAttribute("checked"));
     if (lopen) {
         agendaListbox.refreshCalendarQuery(period.start, period.end);
@@ -682,8 +696,9 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
 /**
  * Sets up the calendar for the agenda listbox.
  */
-agendaListbox.setupCalendar = function() {
-    this.init();
+agendaListbox.setupCalendar = async function() {
+    await this.init();
+
     if (this.calendar == null) {
         this.calendar = cal.view.getCompositeCalendar(window);
     }

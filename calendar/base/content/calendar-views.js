@@ -388,9 +388,16 @@ function updateStyleSheetForViews(aCalendar) {
         // We haven't create a rule for this calendar yet, do so now.
         let sheet = getViewStyleSheet();
         let ruleString = '.calendar-color-box[calendar-id="' + aCalendar.id + '"] {} ';
-        let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
 
-        ruleCache[aCalendar.id] = sheet.cssRules[ruleIndex];
+        try {
+            let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
+            ruleCache[aCalendar.id] = sheet.cssRules[ruleIndex];
+        } catch (ex) {
+            sheet.ownerNode.addEventListener("load",
+                                             () => updateStyleSheetForViews(aCalendar),
+                                             { once: true });
+            return;
+        }
     }
 
     let color = aCalendar.getProperty("color") || "#A8C2E1";
@@ -608,7 +615,7 @@ function goToDate(aDate) {
  */
 function getLastCalendarView() {
     let deck = getViewDeck();
-    if (deck.selectedIndex > -1) {
+    if (deck.hasAttribute("selectedIndex")) {
         let viewNode = deck.childNodes[deck.selectedIndex];
         return viewNode.id.replace(/-view/, "");
     }

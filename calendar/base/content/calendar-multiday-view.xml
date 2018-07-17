@@ -30,9 +30,10 @@
       <field name="mDayStartHour">0</field>
       <field name="mDayEndHour">24</field>
 
-      <constructor>
+      <constructor><![CDATA[
           this.relayout();
-      </constructor>
+          this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
+      ]]></constructor>
 
       <method name="setDayStartEndHours">
         <parameter name="aDayStartHour"/>
@@ -2639,7 +2640,11 @@
             // Update the position of the indicator.
             let position = Math.round(this.mPixPerMin * this.mTimeIndicatorMinutes) - 1;
             let posAttr = (this.orient == "vertical" ? "top: " : "left: ");
-            this.timeBarTimeIndicator.setAttribute("style", posAttr + position + "px;");
+
+            if (this.timeBarTimeIndicator) {
+                this.timeBarTimeIndicator.setAttribute("style", posAttr + position + "px;");
+            }
+
             let todayColumn = this.findColumnForDate(this.today());
             if (todayColumn) {
                 todayColumn.column.timeIndicatorBox.setAttribute("style", "margin-" + posAttr + position + "px;");
@@ -3175,10 +3180,15 @@
         ]]></setter>
       </property>
 
+      <property name="timebar" readonly="true">
+        <getter><![CDATA[
+            return document.getAnonymousElementByAttribute(this, "anonid", "timebar");
+        ]]></getter>
+      </property>
+
       <property name="timeBarTimeIndicator" readonly="true">
         <getter><![CDATA[
-            let timebar = document.getAnonymousElementByAttribute(this, "anonid", "timebar");
-            return document.getAnonymousElementByAttribute(timebar, "anonid", "timeIndicatorBoxTimeBar");
+            return document.getAnonymousElementByAttribute(this.timebar, "anonid", "timeIndicatorBoxTimeBar");
         ]]></getter>
       </property>
 
@@ -3774,6 +3784,12 @@
         <parameter name="aDayStartMin"/>
         <parameter name="aDayEndMin"/>
         <body><![CDATA[
+            if (!("setDayStartEndHours" in this.timebar)) {
+                this.timebar.addEventListener(
+                  "bindingattached", () => this.setDayStartEndMinutes(aDayStartMin, aDayEndMin), { once: true }
+                );
+                return;
+            }
             if (aDayStartMin < this.mStartMin || aDayStartMin > aDayEndMin ||
                 aDayEndMin > this.mEndMin) {
                 throw Components.results.NS_ERROR_INVALID_ARG;
@@ -3784,9 +3800,8 @@
                 this.mDayEndMin = aDayEndMin;
 
                 // Also update on the time-bar
-                document.getAnonymousElementByAttribute(this, "anonid", "timebar")
-                        .setDayStartEndHours(this.mDayStartMin / 60,
-                                             this.mDayEndMin / 60);
+                this.timebar.setDayStartEndHours(this.mDayStartMin / 60,
+                                                 this.mDayEndMin / 60);
             }
 
         ]]></body>

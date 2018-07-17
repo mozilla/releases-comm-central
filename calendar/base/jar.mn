@@ -108,7 +108,6 @@ calendar.jar:
 % style chrome://messenger/content/customizeToolbar.xul chrome://calendar/skin/calendar-task-view.css
 % style chrome://messenger/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
-% style chrome://lightning/content/lightning-item-iframe.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog-attendees.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
     ../icons/default/calendar-alarm-dialog.ico        (themes/common/icons/calendar-alarm-dialog.ico)
     ../icons/default/calendar-alarm-dialog.png        (themes/common/icons/calendar-alarm-dialog.png)

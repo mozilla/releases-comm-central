@@ -19,9 +19,6 @@ function commonInitCalendar() {
     // Load the Calendar Manager
     loadCalendarManager();
 
-    // Restore the last shown calendar view
-    switchCalendarView(getLastCalendarView(), false);
-
     // set up the unifinder
     prepareCalendarToDoUnifinder();
 

@@ -318,6 +318,9 @@
       <field name="mTabsProgressListeners">
         new Set();
       </field>
+      <field name="unrestoredTabs" readonly="true">
+        new Array();
+      </field>
       <method name="createTooltip">
         <parameter name="event"/>
         <body><![CDATA[
@@ -355,6 +358,20 @@
             throw("Trying to register a tab type with neither panelId " +
                   "nor perTabPanel attributes.")
           }
+
+          setTimeout(() => {
+            for (let modeName of Object.keys(aTabType.modes)) {
+              for (let i = 0; i < this.unrestoredTabs.length;) {
+                let state = this.unrestoredTabs[i];
+                if (state.mode == modeName) {
+                  this.restoreTab(state);
+                  this.unrestoredTabs.splice(i, 1);
+                } else {
+                  i++;
+                }
+              }
+            }
+          }, 0);
         ]]></body>
       </method>
       <method name="unregisterTabType">
@@ -1027,8 +1044,10 @@
 
           // if we no longer know about the mode, we can't restore the tab
           let mode = this.tabModes[aState.mode];
-          if (!mode)
+          if (!mode) {
+            this.unrestoredTabs.push(aState);
             return false;
+          }
 
           let restoreFunc = mode.restoreTab || mode.tabType.restoreTab;
 

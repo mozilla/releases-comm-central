@@ -334,6 +334,8 @@
                   this.mRefControl.addEventListener("CheckboxStateChange", this.mControlHandler, true);
               }
           }
+
+          this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
       ]]></constructor>
 
       <destructor><![CDATA[

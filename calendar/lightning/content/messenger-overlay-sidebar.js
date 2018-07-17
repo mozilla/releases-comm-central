@@ -59,6 +59,8 @@ var calendarTabType = {
             type: "calendar",
             maxTabs: 1,
             openTab: function(aTab, aArgs) {
+                gLastShownCalendarView = getLastCalendarView();
+
                 aTab.title = aArgs.title;
                 if (!("background" in aArgs) || !aArgs.background) {
                     // Only do calendar mode switching if the tab is opened in

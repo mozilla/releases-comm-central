@@ -602,9 +602,16 @@
                                          "::-moz-tree-cell(color-treecol, id-" +
                                          aCalendar.id + ", disabled) {}";
 
-                let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
-                let disabledIndex = sheet.insertRule(disabledRuleString, sheet.cssRules.length);
-                this.ruleCache[aCalendar.id] = [sheet.cssRules[ruleIndex], sheet.cssRules[disabledIndex]];
+                try {
+                    let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
+                    let disabledIndex = sheet.insertRule(disabledRuleString, sheet.cssRules.length);
+                    this.ruleCache[aCalendar.id] = [sheet.cssRules[ruleIndex], sheet.cssRules[disabledIndex]];
+                } catch (ex) {
+                    sheet.ownerNode.addEventListener("load",
+                                                     () => this.updateCalendarColor(aCalendar),
+                                                     { once: true });
+                    return;
+                }
             }
 
             let [enabledRule, disabledRule] = this.ruleCache[aCalendar.id];
