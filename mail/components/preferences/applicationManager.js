@@ -26,10 +26,20 @@ var gAppManagerDialog = {
         continue;
 
       app.QueryInterface(Ci.nsIHandlerApp);
-      var item = list.appendItem(app.name);
-      item.setAttribute("image", gApplicationsPane._getIconURLForHandlerApp(app));
-      item.className = "listitem-iconic";
+
+      // Ensure the XBL binding is created eagerly.
+      // eslint-disable-next-line no-undef
+      list.appendChild(MozXULElement.parseXULToFragment("<richlistitem/>"));
+      let item = list.lastChild;
       item.app = app;
+
+      let image = document.createElement("image");
+      image.setAttribute("src", gApplicationsPane._getIconURLForHandlerApp(app));
+      item.appendChild(image);
+
+      let label = document.createElement("label");
+      label.setAttribute("value", app.name);
+      item.appendChild(label);
     }
 
     list.selectedIndex = 0;

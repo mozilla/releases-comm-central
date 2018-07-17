@@ -42,7 +42,10 @@
   <description id="appDescription"/>
   <separator class="thin"/>
   <hbox flex="1">
-    <listbox id="appList" onselect="gAppManagerDialog.onSelect();" flex="1"/>
+    <richlistbox id="appList"
+                 onselect="gAppManagerDialog.onSelect();"
+                 flex="1"
+                 style="min-height: 150px;"/>
     <vbox>
       <button id="remove"
               label="&remove.label;"
