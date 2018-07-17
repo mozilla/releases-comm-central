@@ -82,17 +82,20 @@ var gCategoriesPane = {
         this.updateButtons();
 
 
-        while (listbox.lastChild.id != "categoryColumns") {
+        while (listbox.lastChild) {
             listbox.lastChild.remove();
         }
 
         for (let i = 0; i < gCategoryList.length; i++) {
-            let newListItem = document.createElement("listitem");
-            let categoryName = document.createElement("listcell");
+            let newListItem = document.createElement("richlistitem");
+            let categoryName = document.createElement("label");
             categoryName.setAttribute("id", gCategoryList[i]);
-            categoryName.setAttribute("label", gCategoryList[i]);
+            categoryName.setAttribute("flex", "1");
+            categoryName.setAttribute("value", gCategoryList[i]);
             let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[i]);
-            let categoryColor = document.createElement("listcell");
+
+            let categoryColor = document.createElement("box");
+            categoryColor.setAttribute("width", "150");
             try {
                 let colorCode = categoryPrefBranch.getCharPref(categoryNameFix);
                 categoryColor.setAttribute("id", colorCode);

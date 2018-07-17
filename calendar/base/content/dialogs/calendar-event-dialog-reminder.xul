@@ -29,11 +29,11 @@
 
   <!-- Listbox with custom reminders -->
   <vbox flex="1">
-    <listbox id="reminder-listbox"
-             seltype="single"
-             class="event-dialog-listbox"
-             onselect="onReminderSelected()"
-             flex="1"/>
+    <richlistbox id="reminder-listbox"
+                 seltype="single"
+                 class="event-dialog-listbox"
+                 onselect="onReminderSelected()"
+                 flex="1"/>
     <hbox id="reminder-action-buttons-box" pack="end">
       <button id="reminder-new-button"
               label="&reminder.add.label;"

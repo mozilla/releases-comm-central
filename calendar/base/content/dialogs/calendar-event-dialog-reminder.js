@@ -208,7 +208,7 @@ function setupMaxReminders() {
  * @return              The  XUL listitem node showing the passed reminder.
  */
 function setupListItem(aListItem, aReminder, aItem) {
-    let listitem = aListItem || createXULElement("listitem");
+    let listitem = aListItem || createXULElement("richlistitem");
 
     // Create a random id to be used for accessibility
     let reminderId = cal.getUUID();
@@ -216,10 +216,25 @@ function setupListItem(aListItem, aReminder, aItem) {
 
     listitem.reminder = aReminder;
     listitem.setAttribute("id", reminderId);
-    listitem.setAttribute("label", aReminder.toString(aItem));
+    listitem.setAttribute("align", "center");
     listitem.setAttribute("aria-labelledby", ariaLabel);
-    listitem.setAttribute("class", "reminder-icon listitem-iconic");
     listitem.setAttribute("value", aReminder.action);
+
+    let image = listitem.querySelector("image");
+    if (!image) {
+        image = createXULElement("image");
+        image.setAttribute("class", "reminder-icon");
+        listitem.appendChild(image);
+    }
+    image.setAttribute("value", aReminder.action);
+
+    let label = listitem.querySelector("label");
+    if (!label) {
+        label = createXULElement("label");
+        listitem.appendChild(label);
+    }
+    label.setAttribute("value", aReminder.toString(aItem));
+
     return listitem;
 }
 
@@ -292,7 +307,8 @@ function onReminderSelected() {
  * @param event         The DOM event caused by the change.
  */
 function updateReminder(event) {
-    if (event.explicitOriginalTarget.localName == "listitem" ||
+    if (event.explicitOriginalTarget.localName == "richlistitem" ||
+        event.explicitOriginalTarget.parentNode.localName == "richlistitem" ||
         event.explicitOriginalTarget.id == "reminder-remove-button" ||
         !document.commandDispatcher.focusedElement) {
         // Do not set things if the select came from selecting or removing an

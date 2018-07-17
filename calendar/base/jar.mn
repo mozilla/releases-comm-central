@@ -81,6 +81,7 @@ calendar.jar:
     content/calendar/calendar-subscriptions-dialog.xul     (content/dialogs/calendar-subscriptions-dialog.xul)
     content/calendar/calendar-summary-dialog.js            (content/dialogs/calendar-summary-dialog.js)
     content/calendar/calendar-summary-dialog.xul           (content/dialogs/calendar-summary-dialog.xul)
+    content/calendar/chooseCalendarDialog.js               (content/dialogs/chooseCalendarDialog.js)
     content/calendar/chooseCalendarDialog.xul              (content/dialogs/chooseCalendarDialog.xul)
     content/calendar/preferences/alarms.xul                (content/preferences/alarms.xul)
     content/calendar/preferences/alarms.js                 (content/preferences/alarms.js)

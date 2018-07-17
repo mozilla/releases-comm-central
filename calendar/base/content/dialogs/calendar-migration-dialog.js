@@ -36,12 +36,11 @@ var gMigrateWizard = {
 
         migLOG("migrators: " + window.arguments.length);
         for (let migrator of window.arguments[0]) {
-            let listItem = document.createElement("listitem");
-            listItem.setAttribute("type", "checkbox");
-            listItem.setAttribute("checked", true);
-            listItem.setAttribute("label", migrator.title);
-            listItem.migrator = migrator;
-            listbox.appendChild(listItem);
+            let checkbox = document.createElement("checkbox");
+            checkbox.setAttribute("checked", true);
+            checkbox.setAttribute("label", migrator.title);
+            checkbox.migrator = migrator;
+            listbox.appendChild(checkbox);
         }
     },
 

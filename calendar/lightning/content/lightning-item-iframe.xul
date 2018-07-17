@@ -579,14 +579,14 @@
           </tabpanel>
           <tabpanel id="event-grid-tabpanel-attachements">
             <vbox flex="1">
-              <listbox id="attachment-link"
-                       context="attachment-popup"
-                       rows="3"
-                       flex="1"
-                       disable-on-readonly="true"
-                       onkeypress="attachmentLinkKeyPress(event)"
-                       onclick="attachmentClick(event);"
-                       ondblclick="attachmentDblClick(event);"/>
+              <richlistbox id="attachment-link"
+                           seltype="single"
+                           context="attachment-popup"
+                           rows="3"
+                           flex="1"
+                           disable-on-readonly="true"
+                           onkeypress="attachmentLinkKeyPress(event)"
+                           ondblclick="attachmentDblClick(event);"/>
             </vbox>
           </tabpanel>
           <tabpanel id="event-grid-tabpanel-attendees"
@@ -684,7 +684,7 @@
                 oncommand="sendMailToAttendees([event.target.attendee])"
                 crop="end"/>
     </menupopup>
-    <menupopup id="attachment-popup">
+    <menupopup id="attachment-popup" onpopupshowing="attachmentClick(event)">
       <menuitem id="attachment-popup-open"
                 label="&event.attachments.popup.open.label;"
                 accesskey="&event.attachments.popup.open.accesskey;"

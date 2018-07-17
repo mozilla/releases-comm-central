@@ -30,8 +30,7 @@
                 next="progressPage"
                 label="&migration.welcome;">
         <label id="wizard-desc" control="datasource-list">&migration.list.description;</label>
-        <listbox id="datasource-list" flex="1">
-        </listbox>
+        <vbox id="datasource-list" flex="1"/>
     </wizardpage>
 
     <wizardpage id="wizardPage2"

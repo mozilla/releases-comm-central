@@ -21,27 +21,18 @@
         var noBlankCategories = "&pref.categories.noBlankCategories;";
     </script>
 
-    <vbox id="calPreferencesBoxCategories">
+    <vbox id="calPreferencesBoxCategories" flex="1">
         <preferences>
             <preference id="calendar.categories.names"
                         name="calendar.categories.names"
                         type="string"/>
         </preferences>
 
-        <listbox id="categorieslist"
-                 flex="1"
-                 seltype="multiple"
-                 onselect="gCategoriesPane.updateButtons()"
-                 ondblclick="gCategoriesPane.listOnDblClick(event)">
-            <listhead>
-                <listheader label="&pref.categories.name.label;"/>
-                <listheader label="&pref.categories.color.label;"/>
-            </listhead>
-            <listcols id="categoryColumns">
-                <listcol flex="3"/>
-                <listcol flex="1"/>
-            </listcols>
-        </listbox>
+        <richlistbox id="categorieslist"
+                     flex="1"
+                     seltype="multiple"
+                     onselect="gCategoriesPane.updateButtons()"
+                     ondblclick="gCategoriesPane.listOnDblClick(event)"/>
         <hbox pack="end">
             <button label="&pref.categories.newButton.label;"
                     accesskey="&pref.categories.newButton.accesskey;"

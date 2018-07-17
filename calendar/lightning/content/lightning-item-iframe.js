@@ -2140,27 +2140,28 @@ function addAttachment(attachment, cloudProvider) {
     // We currently only support uri attachments
     if (attachment.uri) {
         let documentLink = document.getElementById("attachment-link");
-        let listItem = createXULElement("listitem");
-
-        // Set listitem attributes
-        listItem.setAttribute("label", makePrettyName(attachment.uri));
-        listItem.setAttribute("crop", "end");
-        listItem.setAttribute("class", "listitem-iconic");
+        let listItem = createXULElement("richlistitem");
+        let image = document.createElement("image");
+        listItem.appendChild(image);
+        let label = document.createElement("label");
+        label.setAttribute("value", makePrettyName(attachment.uri));
+        label.setAttribute("crop", "end");
+        listItem.appendChild(label);
         listItem.setAttribute("tooltiptext", attachment.uri.spec);
         if (cloudProvider) {
             if (attachment.uri.schemeIs("file")) {
                 // Its still a local url, needs to be uploaded
-                listItem.setAttribute("image", "chrome://messenger/skin/icons/connecting.png");
+                image.setAttribute("src", "chrome://messenger/skin/icons/connecting.png");
                 uploadCloudAttachment(attachment, cloudProvider, listItem);
             } else {
                 let leafName = attachment.getParameter("FILENAME");
-                listItem.setAttribute("image", cloudProvider.iconClass);
+                image.setAttribute("src", cloudProvider.iconClass);
                 if (leafName) {
                     listItem.setAttribute("label", leafName);
                 }
             }
         } else if (attachment.uri.schemeIs("file")) {
-            listItem.setAttribute("image", "moz-icon://" + attachment.uri);
+            image.setAttribute("src", "moz-icon://" + attachment.uri);
         } else {
             let leafName = attachment.getParameter("FILENAME");
             let providerType = attachment.getParameter("PROVIDER");
@@ -2172,9 +2173,9 @@ function addAttachment(attachment, cloudProvider) {
             }
             if (providerType && cloudFileEnabled) {
                 let provider = cloudFileAccounts.getProviderForType(providerType);
-                listItem.setAttribute("image", provider.iconClass);
+                image.setAttribute("src", provider.iconClass);
             } else {
-                listItem.setAttribute("image", "moz-icon://dummy.html");
+                image.setAttribute("src", "moz-icon://dummy.html");
             }
         }
 
@@ -2259,8 +2260,8 @@ function deleteAllAttachments() {
 function openAttachment() {
     // Only one file has to be selected and we don't handle base64 files at all
     let documentLink = document.getElementById("attachment-link");
-    if (documentLink.selectedItems.length == 1) {
-        let attURI = documentLink.getSelectedItem(0).attachment.uri;
+    if (documentLink.selectedItem) {
+        let attURI = documentLink.selectedItem.attachment.uri;
         let externalLoader = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                                        .getService(Components.interfaces.nsIExternalProtocolService);
         // TODO There should be a nicer dialog
@@ -2273,10 +2274,12 @@ function openAttachment() {
  */
 function copyAttachment() {
     let documentLink = document.getElementById("attachment-link");
-    let attURI = documentLink.getSelectedItem(0).attachment.uri.spec;
-    let clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                              .getService(Components.interfaces.nsIClipboardHelper);
-    clipboard.copyString(attURI);
+    if (documentLink.selectedItem) {
+        let attURI = documentLink.selectedItem.attachment.uri.spec;
+        let clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                  .getService(Components.interfaces.nsIClipboardHelper);
+        clipboard.copyString(attURI);
+    }
 }
 
 /**
@@ -2292,6 +2295,7 @@ function attachmentLinkKeyPress(aEvent) {
             break;
         case "Enter":
             openAttachment();
+            aEvent.preventDefault();
             break;
     }
 }
@@ -2302,8 +2306,13 @@ function attachmentLinkKeyPress(aEvent) {
  * @param aEvent     The DOM event caused by the clicking.
  */
 function attachmentDblClick(aEvent) {
+    let item = aEvent.originalTarget;
+    while (item && item.localName != "richlistbox" && item.localName != "richlistitem") {
+        item = item.parentNode;
+    }
+
     // left double click on a list item
-    if (aEvent.originalTarget.localName == "listitem" && aEvent.button == 0) {
+    if (item.localName == "richlistitem" && aEvent.button == 0) {
         openAttachment();
     }
 }
@@ -2314,14 +2323,13 @@ function attachmentDblClick(aEvent) {
  * @param aEvent     The DOM event caused by the clicking.
  */
 function attachmentClick(aEvent) {
-    // we take only care about right clicks
-    if (aEvent.button != 2) {
-        return;
+    let item = document.popupNode;
+    while (item && item.localName != "richlistbox" && item.localName != "richlistitem") {
+        item = item.parentNode;
     }
-    let attachmentPopup = document.getElementById("attachment-popup");
-    for (let node of attachmentPopup.childNodes) {
-        if (aEvent.originalTarget.localName == "listitem" ||
-            node.id == "attachment-popup-attachPage") {
+
+    for (let node of event.target.children) {
+        if (item.localName == "richlistitem" || node.id == "attachment-popup-attachPage") {
             showElement(node);
         } else {
             hideElement(node);

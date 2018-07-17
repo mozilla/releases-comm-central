@@ -17,6 +17,7 @@
 
     <prefwindow id="MailPreferences">
         <prefpane id="paneLightning"
+                  flex="1"
                   insertbefore="paneAdvanced"
                   label="&lightning.preferencesLabel;">
             <preferences>
