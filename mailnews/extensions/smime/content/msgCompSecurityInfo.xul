@@ -16,6 +16,18 @@
   onload="onLoad();">
 
   <script type="application/javascript" src="chrome://messenger-smime/content/msgCompSecurityInfo.js"/>
+  <script><![CDATA[
+      function resizeColumns() {
+        let list = document.getElementById("infolist");
+        let cols = list.getElementsByTagName("treecol");
+        list.style.setProperty("--recipientWidth", cols[0].boxObject.width + "px");
+        list.style.setProperty("--statusWidth", cols[1].boxObject.width + "px");
+        list.style.setProperty("--issuedWidth", cols[2].boxObject.width + "px");
+        list.style.setProperty("--expireWidth", cols[3].boxObject.width - 5 + "px");
+      }
+      addEventListener("load", resizeColumns, { once: true });
+      addEventListener("resize", resizeColumns);
+  ]]></script>
 
   <stringbundle id="bundle_smime_comp_info" src="chrome://messenger-smime/locale/msgCompSecurityInfo.properties"/>
 
@@ -42,24 +54,17 @@
   <separator class="thin"/>
   <label value="&status.certificates;" control="infolist"/>
 
-  <listbox id="infolist" flex="1"
-        onselect="onSelectionChange(event);">
-    <listcols>
-      <listcol flex="3" width="0"/>
-      <splitter class="tree-splitter"/>
-      <listcol flex="1" width="0"/>
-      <splitter class="tree-splitter"/>
-      <listcol flex="2" width="0"/>
-      <splitter class="tree-splitter"/>
-      <listcol flex="2" width="0"/>
-    </listcols>
-    <listhead>
-      <listheader label="&tree.recipient;"/>
-      <listheader label="&tree.status;"/>
-      <listheader label="&tree.issuedDate;"/>
-      <listheader label="&tree.expiresDate;"/>
-    </listhead>
-  </listbox>
+  <richlistbox id="infolist"
+               class="theme-listbox"
+               flex="1"
+               onselect="onSelectionChange(event);">
+    <treecols>
+      <treecol flex="3" label="&tree.recipient;"/>
+      <treecol flex="1" label="&tree.status;"/>
+      <treecol flex="2" label="&tree.issuedDate;"/>
+      <treecol flex="2" label="&tree.expiresDate;"/>
+    </treecols>
+  </richlistbox>
   <hbox pack="start">
     <button id="viewCertButton" disabled="true"
             label="&view.label;" accesskey="&view.accesskey;"

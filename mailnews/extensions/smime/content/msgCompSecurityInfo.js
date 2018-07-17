@@ -191,19 +191,36 @@ function onLoad()
 
   for (var i = 0; i < imax; ++i)
   {
-    var listitem  = document.createElement("listitem");
+    let email = document.createElement("label");
+    email.setAttribute("value", gEmailAddresses.value[i]);
+    email.setAttribute("style", "width: var(--recipientWidth)");
 
-    listitem.appendChild(createCell(gEmailAddresses.value[i]));
+    let listitem = document.createElement("richlistitem");
+    listitem.appendChild(email);
 
     if (!gCerts.value[i])
     {
-      listitem.appendChild(createCell(gBundle.getString("StatusNotFound")));
+      let notFound = document.createElement("label");
+      notFound.setAttribute("value", gBundle.getString("StatusNotFound"));
+      notFound.setAttribute("style", "width: var(--statusWidth)");
+
+      listitem.appendChild(notFound);
     }
     else
     {
-      listitem.appendChild(createCell(getStatusExplanation(gCertStatusSummaries.value[i])));
-      listitem.appendChild(createCell(gCertIssuedInfos.value[i]));
-      listitem.appendChild(createCell(gCertExpiresInfos.value[i]));
+      let status = document.createElement("label");
+      status.setAttribute("value", getStatusExplanation(gCertStatusSummaries.value[i]));
+      status.setAttribute("style", "width: var(--statusWidth)");
+      let issued = document.createElement("label");
+      issued.setAttribute("value", gCertIssuedInfos.value[i]);
+      issued.setAttribute("style", "width: var(--issuedWidth)");
+      let expire = document.createElement("label");
+      expire.setAttribute("value", gCertExpiresInfos.value[i]);
+      expire.setAttribute("style", "width: var(--expireWidth)");
+
+      listitem.appendChild(status);
+      listitem.appendChild(issued);
+      listitem.appendChild(expire);
     }
 
     gListBox.appendChild(listitem);
