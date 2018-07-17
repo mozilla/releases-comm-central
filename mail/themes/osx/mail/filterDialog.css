@@ -23,18 +23,19 @@
    margin: 8px;
 }
 
-.listcell-iconic .listcell-label {
+/* ::::: columns :::::: */
+
+treecolpicker {
   display: none;
 }
 
-/* ::::: columns :::::: */
-
-listcell[enabled="false"] {
-  list-style-image: url("chrome://messenger/skin/icons/dot.png");
+richlistitem > checkbox {
+  width: 100px;
+  margin: 0;
 }
 
-listcell[enabled="true"] {
- list-style-image: url("chrome://messenger/skin/icons/check.png");
+checkbox:not([label]) .checkbox-label-box {
+  display: none;
 }
 
 .small-button {

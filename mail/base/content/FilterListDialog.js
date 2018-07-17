@@ -294,18 +294,19 @@ function setRunFolder(aFolder) {
  *
  * @param aFilterItem  an item (row) of the filter list to be toggled
  */
-function toggleFilter(aFilterItem)
+function toggleFilter(aFilterItem, aSetForEvent)
 {
   let filter = aFilterItem._filter;
-  if (filter.unparseable && !filter.enabled)
-  {
+  if (filter.unparseable && !filter.enabled) {
     Services.prompt.alert(window, null, gFilterBundle.getString("cannotEnableFilter"));
     return;
   }
-  filter.enabled = !filter.enabled;
+  filter.enabled = aSetForEvent === undefined ? !filter.enabled : aSetForEvent;
 
   // Now update the checkbox
-  aFilterItem.childNodes[1].setAttribute("enabled", filter.enabled);
+  if (aSetForEvent === undefined) {
+    aFilterItem.firstChild.nextSibling.setAttribute("checked", filter.enabled);
+  }
   // For accessibility set the checked state on listitem
   aFilterItem.setAttribute("aria-checked", filter.enabled);
 }
@@ -728,33 +729,34 @@ function rebuildFilterList()
     if (listitemCount > listitemIndex) {
       // If there is a free existing listitem, reuse it.
       // Use .children[] instead of .getItemAtIndex() as it is much faster.
-      listitem = gFilterListbox.children[listitemIndex + 1];
-      nameCell = listitem.childNodes[0];
-      enabledCell = listitem.childNodes[1];
+      listitem = gFilterListbox.children[listitemIndex];
+      nameCell = listitem.firstChild;
+      enabledCell = nameCell.nextSibling;
     }
     else
     {
       // If there are not enough listitems in the list, create a new one.
-      listitem = document.createElement("listitem");
+      listitem = document.createElement("richlistitem");
+      listitem.setAttribute("align", "center");
       listitem.setAttribute("role", "checkbox");
-      nameCell = document.createElement("listcell");
-      enabledCell = document.createElement("listcell");
-      enabledCell.setAttribute("class", "listcell-iconic");
-      enabledCell.setAttribute("pack", "center");
+      nameCell = document.createElement("label");
+      nameCell.setAttribute("flex", "1");
+      enabledCell = document.createElement("checkbox");
+      enabledCell.setAttribute("style", "padding-inline-start: 25px;");
+      enabledCell.addEventListener("click", onFilterClick, true);
       listitem.appendChild(nameCell);
       listitem.appendChild(enabledCell);
       gFilterListbox.appendChild(listitem);
       // We have to attach this listener to the listitem, even though we only care
       // about clicks on the enabledCell. However, attaching to that item doesn't
       // result in any events actually getting received.
-      listitem.addEventListener("click", onFilterClick, true);
       listitem.addEventListener("dblclick", onFilterDoubleClick, true);
     }
     // For accessibility set the label on listitem.
     listitem.setAttribute("label", filter.filterName);
     // Set the listitem values to represent the current filter.
-    nameCell.setAttribute("label", filter.filterName);
-    enabledCell.setAttribute("enabled", filter.enabled);
+    nameCell.setAttribute("value", filter.filterName);
+    enabledCell.setAttribute("checked", filter.enabled);
     listitem.setAttribute("aria-checked", filter.enabled);
     listitem._filter = filter;
 
@@ -891,17 +893,11 @@ function getServerThatCanHaveFilters()
 function onFilterClick(event)
 {
     // we only care about button 0 (left click) events
-    if (event.button != 0)
+    if (event.button != 0) {
       return;
-
-    // Remember, we had to attach the click-listener to the whole listitem, so
-    // now we need to see if the clicked the enable-column
-    let toggle = event.target.childNodes[1];
-    if ((event.clientX < toggle.boxObject.x + toggle.boxObject.width) &&
-        (event.clientX > toggle.boxObject.x)) {
-      toggleFilter(event.target);
-      event.stopPropagation();
     }
+
+    toggleFilter(this.parentNode, !this.checked);
 }
 
 function onFilterDoubleClick(event)
