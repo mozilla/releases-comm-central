@@ -31,12 +31,12 @@ var gSendOptionsDialog = {
 
     for (var item = listbox.firstChild; item != null; item = item.nextSibling)
     {
-      var domainid = item.getAttribute('label');
+      var domainid = item.firstChild.getAttribute("value");
       if (domainid.length > 1)
       {
         num_domains++;
 
-        //separate >1 domains by commas
+        // Separate >1 domains by commas.
         if (num_domains > 1)
           pref_string = pref_string + "," + domainid;
         else
@@ -61,12 +61,11 @@ var gSendOptionsDialog = {
 
   removeDomains: function(aHTML)
   {
-    var listbox = aHTML ? this.mHTMLListBox : this.mPlainTextListBox;
+    let listbox = aHTML ? this.mHTMLListBox : this.mPlainTextListBox;
 
-    var currentIndex = listbox.currentIndex;
-
-    while (listbox.selectedItems.length > 0)
-      listbox.selectedItems[0].remove();
+    let selectedCount = listbox.selectedItems.length;
+    for (let i = selectedCount - 1; i >= 0; i--)
+      listbox.selectedItems[i].remove();
 
     document.getElementById('SendOptionsDialogPane').userChangedValue(listbox);
   },
@@ -91,10 +90,10 @@ var gSendOptionsDialog = {
 
   domainAlreadyPresent: function(aDomainName)
   {
-    let matchingDomains = this.mHTMLListBox.querySelectorAll('[label="' + aDomainName + '"]');
+    let matchingDomains = this.mHTMLListBox.querySelectorAll('[value="' + aDomainName + '"]');
 
     if (!matchingDomains.length)
-      matchingDomains = this.mPlainTextListBox.querySelectorAll('[label="' + aDomainName + '"]');
+      matchingDomains = this.mPlainTextListBox.querySelectorAll('[value="' + aDomainName + '"]');
 
     if (matchingDomains.length)
     {
@@ -107,8 +106,10 @@ var gSendOptionsDialog = {
 
   addItemToDomainList: function (aListBox, aDomainTitle)
   {
-    var item = document.createElement('listitem');
-    item.setAttribute('label', aDomainTitle);
+    let label = document.createElement("label");
+    label.setAttribute("value", aDomainTitle);
+    let item = document.createElement("richlistitem");
+    item.appendChild(label);
     aListBox.appendChild(item);
   }
 };
