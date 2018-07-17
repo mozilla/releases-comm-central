@@ -7,3 +7,5 @@ DIRS += [
     'public',
     'src'
 ]
+
+JAR_MANIFESTS += ['jar.mn']

@@ -4,8 +4,11 @@
 
 var {
   ExtensionError,
-  defineLazyGetter,
 } = ExtensionUtils;
+
+var {
+  defineLazyGetter,
+} = ExtensionCommon;
 
 let tabTracker;
 let windowTracker;
@@ -20,8 +23,8 @@ const getSender = (extension, target, sender) => {
     // page-open listener below).
     tabId = sender.tabId;
     delete sender.tabId;
-  } else if (ExtensionUtils.instanceOf(target, "XULElement") ||
-             ExtensionUtils.instanceOf(target, "HTMLIFrameElement")) {
+  } else if (ExtensionCommon.instanceOf(target, "XULElement") ||
+             ExtensionCommon.instanceOf(target, "HTMLIFrameElement")) {
     tabId = tabTracker.getBrowserData(target).tabId;
   }
 

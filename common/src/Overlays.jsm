@@ -54,8 +54,11 @@ class Overlays {
   constructor(overlayProvider, window) {
     this.overlayProvider = overlayProvider;
     this.window = window;
-
-    this.location = window.location.origin + window.location.pathname;
+    if (window.location.protocol == "about:") {
+      this.location = window.location.protocol + window.location.pathname;
+    } else {
+      this.location = window.location.origin + window.location.pathname;
+    }
   }
 
   /**
@@ -72,15 +75,23 @@ class Overlays {
    * @param {String[]} urls                         The urls to load
    */
   load(urls) {
-    let unloadedOverlays = urls;
+    let unloadedOverlays = this._collectOverlays(this.document).concat(urls);
     let forwardReferences = [];
     let unloadedScripts = [];
     let unloadedSheets = [];
+    this._toolbarsToResolve = [];
+
+    // Load css styles from the registry
+    for (let sheet of this.overlayProvider.style.get(this.location, false)) {
+      unloadedSheets.push(sheet);
+    }
 
     while (unloadedOverlays.length) {
       let url = unloadedOverlays.shift();
       let xhr = this.fetchOverlay(url);
       let doc = xhr.responseXML;
+
+      oconsole.debug(`Applying ${url} to ${this.location}`);
 
       // clean the document a bit
       let emptyNodes = doc.evaluate("//text()[normalize-space(.) = '']", doc, null, 7, null);
@@ -111,14 +122,7 @@ class Overlays {
       }
 
       // Prepare loading further nested xul overlays from the overlay
-      let xuloverlays = doc.evaluate("/processing-instruction('xul-overlay')", doc, null, 7, null);
-      for (let i = 0, len = xuloverlays.snapshotLength; i < len; ++i) {
-        let node = xuloverlays.snapshotItem(i);
-        let match = node.nodeValue.match(/href=["']([^"']*)["']/);
-        if (match) {
-          unloadedOverlays.push(match[1]);
-        }
-      }
+      unloadedOverlays.push(...this._collectOverlays(doc));
 
       // Prepare loading further nested xul overlays from the registry
       for (let overlayUrl of this.overlayProvider.overlay.get(url, false)) {
@@ -161,16 +165,28 @@ class Overlays {
       this.loadCSS(sheet);
     }
 
+    for (let bar of this._toolbarsToResolve) {
+      let currentset = xulStoreService.getValue(this.location, bar.id, "currentset");
+      if (currentset) {
+        bar.currentSet = currentset;
+      } else {
+        bar.currentSet = bar.getAttribute("defaultset");
+      }
+    }
+
     // We've resolved all the forward references we can, we can now go ahead and load the scripts
     let deferredLoad = [];
     for (let script of unloadedScripts) {
       deferredLoad.push(...this.loadScript(script));
     }
 
-    if (this.window.document.readyState == "complete") {
-      // Now here is where it gets a little tricky. The subscript loader is synchronous, but the
-      // script itself may have some asynchronous side-effects (xbl bindings attached). Throwing in a
-      // 1500ms timeout before we fire the load handlers seems to help, even though it is an ugly hack.
+    let sheet;
+    let overlayTrigger = this.document.createElement("overlayTrigger");
+    overlayTrigger.addEventListener("bindingattached", () => {
+      oconsole.debug("XBL binding attached, continuing with load");
+      sheet.remove();
+      overlayTrigger.remove();
+
       setTimeout(() => {
         let ids = xulStoreService.getIDsEnumerator(this.location);
         while (ids.hasMore()) {
@@ -182,6 +198,9 @@ class Overlays {
               let attrName = attrNames.getNext();
               let attrValue = xulStoreService.getValue(this.location, id, attrName);
               element.setAttribute(attrName, attrValue);
+              if (attrName == "currentset") {
+                element.currentSet = attrValue;
+              }
             }
           }
         }
@@ -199,13 +218,29 @@ class Overlays {
         for (let listener of bubbles) {
           this._fireEventListener(listener);
         }
-      }, 1500);
-    } else {
-      // Window load is not yet complete, just add the listener normally
-      for (let { listener, useCapture } of deferredLoad) {
-        this.window.addEventListener("load", listener, useCapture);
+      }, 0);
+    }, { once: true });
+    this.document.documentElement.appendChild(overlayTrigger);
+    sheet = this.loadCSS("chrome://messenger/content/overlayBindings.css");
+  }
+
+  /**
+   * Gets the overlays referenced by processing instruction on a document.
+   *
+   * @param {DOMDocument} document  The document to read instuctions from
+   * @return {String[]}             URLs of the overlays from the document
+   */
+  _collectOverlays(doc) {
+    let urls = [];
+    let instructions = doc.evaluate("/processing-instruction('xul-overlay')", doc, null, 7, null);
+    for (let i = 0, len = instructions.snapshotLength; i < len; ++i) {
+      let node = instructions.snapshotItem(i);
+      let match = node.nodeValue.match(/href=["']([^"']*)["']/);
+      if (match) {
+        urls.push(match[1]);
       }
     }
+    return urls;
   }
 
   /**
@@ -234,13 +269,10 @@ class Overlays {
    */
   _resolveForwardReference(node) {
     if (node.id && node.localName == "toolbarpalette") {
-      let palette = this.document.getElementById(node.id);
-      if (!palette) {
-        // These vanish from the document but still exist via the palette property
-        let boxes = [...this.document.getElementsByTagName("toolbox")];
-        let box = boxes.find(box => box.palette && box.palette.id == node.id);
-        palette = box ? box.palette : null;
-      }
+      // These vanish from the document but still exist via the palette property
+      let boxes = [...this.document.getElementsByTagName("toolbox")];
+      let box = boxes.find(box => box.palette && box.palette.id == node.id);
+      let palette = box ? box.palette : null;
 
       if (!palette) {
         oconsole.debug(`The palette for ${node.id} could not be found, deferring to later`);
@@ -248,6 +280,7 @@ class Overlays {
       }
 
       this._mergeElement(palette, node);
+      this._toolbarsToResolve.push(...box.getElementsByTagName("toolbar"));
     } else if (node.id) {
       let target = this.document.getElementById(node.id);
       if (!target) {
@@ -429,6 +462,7 @@ class Overlays {
    * Load the CSS stylesheet from the given url
    *
    * @param {String} url        The url to load from
+   * @return {Element}          An HTML link element for this stylesheet
    */
   loadCSS(url) {
     oconsole.debug(`Loading ${url} into ${this.window.location}`);
@@ -441,5 +475,6 @@ class Overlays {
     link.setAttribute("href", url);
 
     this.document.documentElement.appendChild(link);
+    return link;
   }
 }

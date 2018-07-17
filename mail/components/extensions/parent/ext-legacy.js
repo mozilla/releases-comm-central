@@ -20,8 +20,10 @@ this.legacy = class extends ExtensionAPI {
   }
 
   async register() {
-    if (this.extension.startupReason != "APP_STARTUP") {
-      console.log(`Legacy WebExtension ${this.extension.id} loading for other reason than startup (${this.extension.startupReason}), refusing to load immediately`);
+    let enumerator = Services.wm.getEnumerator("mail:3pane");
+    if (enumerator.hasMoreElements() && enumerator.getNext().document.readyState == "complete") {
+      // It's too late!
+      console.log(`Legacy WebExtension ${this.extension.id} loading after app startup, refusing to load immediately.`);
       return;
     }
 
@@ -92,22 +94,18 @@ this.legacy = class extends ExtensionAPI {
       }
     }
 
-    // Load overlays for each window
-    console.log("Loading legacy overlays for", this.extension.id);
-    let chromeManifestLoad = Overlays.load.bind(null, chromeManifest);
-    let targets = [...chromeManifest.overlay.keys()];
-    for (let target of targets) {
-      ExtensionSupport.registerWindowListener(this.extension.id + "-" + target, {
-        chromeURLs: [target],
-        onLoadWindow: chromeManifestLoad
-      });
-    }
+    let documentObserver = {
+      observe(document) {
+        if (ExtensionCommon.instanceOf(document, "XULDocument")) {
+          Overlays.load(chromeManifest, document.defaultView);
+        }
+      }
+    };
+    Services.obs.addObserver(documentObserver, "chrome-document-loaded");
 
     this.extension.callOnClose({
       close: () => {
-        for (let target of targets) {
-          ExtensionSupport.unregisterWindowListener(this.extension.id + "-" + target);
-        }
+        Services.obs.removeObserver(documentObserver, "chrome-document-loaded");
       }
     });
   }
