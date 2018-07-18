@@ -78,9 +78,8 @@ calHtmlExporter.prototype = {
             } else {
                 let row = itemNode.querySelector(".intervalrow");
                 row.remove();
-                if (row.nextSibling &&
-                    (row.nextSibling.nodeType == row.nextSibling.TEXT_NODE ||
-                     row.nextSibling.nodeType == row.nextSibling.CDATA_SECTION_NODE)) {
+                if (row.nextSibling.nodeType == row.nextSibling.TEXT_NODE ||
+                    row.nextSibling.nodeType == row.nextSibling.CDATA_SECTION_NODE) {
                     row.nextSibling.remove();
                 }
             }

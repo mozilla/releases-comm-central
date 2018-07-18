@@ -7,8 +7,6 @@
 ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var printContent = "";
-
 /**
  * Gets the calendar view from the opening window
  */
@@ -206,10 +204,12 @@ function refreshHtml(finishFunc) {
     getPrintSettings((settings) => {
         document.title = cal.l10n.getCalString("PrintPreviewWindowTitle", [settings.title]);
 
-        let printformatter = Cc[settings.layoutCId].createInstance(Ci.calIPrintFormatter);
-        printContent = "";
+        let printformatter = Components.classes[settings.layoutCId]
+                                       .createInstance(Components.interfaces.calIPrintFormatter);
+        let html = "";
         try {
-            let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+            let pipe = Components.classes["@mozilla.org/pipe;1"]
+                                 .createInstance(Components.interfaces.nsIPipe);
             const PR_UINT32_MAX = 4294967295; // signals "infinite-length"
             pipe.init(true, true, 0, PR_UINT32_MAX, null);
             printformatter.formatToHtml(pipe.outputStream,
@@ -220,14 +220,14 @@ function refreshHtml(finishFunc) {
                                         settings.title);
             pipe.outputStream.close();
             // convert byte-array to UTF-8 string:
-            let convStream = Cc["@mozilla.org/intl/converter-input-stream;1"]
-                                 .createInstance(Ci.nsIConverterInputStream);
+            let convStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
+                                       .createInstance(Components.interfaces.nsIConverterInputStream);
             convStream.init(pipe.inputStream, "UTF-8", 0,
-                            Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+                            Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
             try {
                 let portion = {};
                 while (convStream.readString(-1, portion)) {
-                    printContent += portion.value;
+                    html += portion.value;
                 }
             } finally {
                 convStream.close();
@@ -236,8 +236,10 @@ function refreshHtml(finishFunc) {
             Components.utils.reportError("Calendar print dialog:refreshHtml: " + e);
         }
 
-        printContent = "data:text/html," + encodeURIComponent(printContent);
-        document.getElementById("content").src = printContent;
+        let iframeDoc = document.getElementById("content").contentDocument;
+        // eslint-disable-next-line no-unsanitized/property
+        iframeDoc.documentElement.innerHTML = html;
+        iframeDoc.title = settings.title;
 
         if (finishFunc) {
             finishFunc();
@@ -247,42 +249,52 @@ function refreshHtml(finishFunc) {
 }
 
 /**
+ * This is a nsIWebProgressListener that closes the dialog on completion, makes
+ * sure printing works without issues
+ */
+var closeOnComplete = {
+    onStateChange: function(aProgress, aRequest, aStateFlags, aStatus) {
+        if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
+            // The request is complete, close the window.
+            document.documentElement.cancelDialog();
+        }
+    },
+
+    onProgressChange: function() {},
+    onLocationChange: function() {},
+    onStatusChange: function() {},
+    onSecurityChange: function() {}
+};
+
+/**
  * Prints the document and then closes the window
  */
 function printAndClose() {
     refreshHtml(() => {
+        let webBrowserPrint = PrintUtils.getWebBrowserPrint();
         let printSettings = PrintUtils.getPrintSettings();
+
         // Evicts "about:blank" header
         printSettings.docURL = " ";
 
-        // we don't do anything with statusFeedback, msgPrintEngine requires it
-        let statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"]
-                                 .createInstance();
-        statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
-
-        let printWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
-                                            "", "chrome,dialog=no,all", 1, [printContent],
-                                            statusFeedback, false, 0);
-
-        let closer = (aEvent) => {
-            // printWindow is loaded multiple time in the print process and only
-            // at the end with fully loaded document, so we must not register a
-            // onetime listener here nor should we close too early so that the
-            // the opener is still available when the document finally loaded
-            if (aEvent.type == "unload" && printWindow.document.readyState == "complete") {
-                printWindow.removeEventListener("unload", closer);
-                window.close();
+        // Start the printing, this is just what PrintUtils does, but we
+        // apply our own settings.
+        try {
+            webBrowserPrint.print(printSettings, closeOnComplete);
+            if (gPrintSettingsAreGlobal && gSavePrintSettings) {
+                let PSSVC = Components.classes["@mozilla.org/gfx/printsettings-service;1"]
+                                      .getService(Components.interfaces.nsIPrintSettingsService);
+                PSSVC.savePrintSettingsToPrefs(printSettings, true,
+                                                    printSettings.kInitSaveAll);
+                PSSVC.savePrintSettingsToPrefs(printSettings, false,
+                                               printSettings.kInitSavePrinterName);
             }
-        };
-        printWindow.addEventListener("unload", closer);
-
-        if (gPrintSettingsAreGlobal && gSavePrintSettings) {
-            let PSSVC = Cc["@mozilla.org/gfx/printsettings-service;1"]
-                            .getService(Ci.nsIPrintSettingsService);
-            PSSVC.savePrintSettingsToPrefs(printSettings, true,
-                                           printSettings.kInitSaveAll);
-            PSSVC.savePrintSettingsToPrefs(printSettings, false,
-                                           printSettings.kInitSavePrinterName);
+        } catch (e) {
+            // Pressing cancel is expressed as an NS_ERROR_ABORT return value,
+            // causing an exception to be thrown which we catch here.
+            if (e.result != Components.results.NS_ERROR_ABORT) {
+                throw e;
+            }
         }
     });
     return false; // leave open
