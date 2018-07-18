@@ -16,6 +16,12 @@ var kHostnames = new Map([
 
   ["imap.mail.ru", ["o2.mail.ru", "mail.imap"]],
   ["smtp.mail.ru", ["o2.mail.ru", "mail.imap"]],
+
+  ["imap.mail.yahoo.com", ["login.yahoo.com", "mail-w"]],
+  ["smtp.mail.yahoo.com", ["login.yahoo.com", "mail-w"]],
+
+  ["imap.aol.com", ["login.aol.com", "mail-w"]],
+  ["smtp.aol.com", ["login.aol.com", "mail-w"]],
 ]);
 
 // map of issuers to appKey, appSecret, authURI, tokenURI
@@ -37,6 +43,18 @@ var kIssuers = new Map ([
     'I0dCAXrcaNFujaaY',
     'https://o2.mail.ru/login',
     'https://o2.mail.ru/token'
+  ]],
+  ["login.yahoo.com", [
+    'dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--',
+    'f2de6a30ae123cdbc258c15e0812799010d589cc',
+    'https://api.login.yahoo.com/oauth2/request_auth',
+    'https://api.login.yahoo.com/oauth2/get_token'
+  ]],
+  ["login.aol.com", [
+    'dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--',
+    '79c1c11991d148ddd02a919000d69879942fc278',
+    'https://api.login.aol.com/oauth2/request_auth',
+    'https://api.login.aol.com/oauth2/get_token'
   ]],
 ]);
 
