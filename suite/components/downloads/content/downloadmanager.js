@@ -37,7 +37,7 @@ function dmAsyncStartup(aList)
   // Insert as first controller on the whole window
   window.controllers.insertControllerAt(0, dlTreeController);
 
-  // We need to keep the oview object around globally to access "local"
+  // We need to keep the view object around globally to access "local"
   // non-nsITreeView methods
   gDownloadTreeView = new DownloadTreeView();
   gDownloadTree.view = gDownloadTreeView;

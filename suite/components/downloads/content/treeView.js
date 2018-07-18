@@ -178,12 +178,16 @@ DownloadTreeView.prototype = {
         }
         return "";
       case "TimeElapsed":
-        if (dl.endTime && dl.startTime && (dl.endTime > dl.startTime)) {
-          var seconds = (dl.endTime - dl.startTime) / 1000;
-          var [time1, unit1, time2, unit2] =
+        // With no end time persisted in the downloads backend this is
+        // utterly useless unless the download is progressing.
+        if (DownloadsCommon.stateOfDownload(dl) ==
+              DownloadsCommon.DOWNLOAD_DOWNLOADING && dl.startTime) {
+          let seconds = (Date.now() - dl.startTime) / 1000;
+          let [time1, unit1, time2, unit2] =
             DownloadUtils.convertTimeUnits(seconds);
-          if (seconds < 3600 || time2 == 0)
+          if (seconds < 3600 || time2 == 0) {
             return this._dlbundle.getFormattedString("timeSingle", [time1, unit1]);
+          }
           return this._dlbundle.getFormattedString("timeDouble", [time1, unit1, time2, unit2]);
         }
         return "";
