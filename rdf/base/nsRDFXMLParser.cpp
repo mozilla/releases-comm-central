@@ -14,7 +14,7 @@
 #include "nsParserCIID.h"
 #include "nsStringStream.h"
 #include "nsNetUtil.h"
-#include "NullPrincipal.h"
+#include "mozilla/NullPrincipal.h"
 
 static NS_DEFINE_CID(kParserCID, NS_PARSER_CID);
 
