@@ -87,7 +87,7 @@
           </deck>
           <richlistbox id="moduleList"
                        class="theme-listbox"
-                       height="250px"
+                       height="200px"
                        onselect="ImportSelectionChanged(); enableAdvance();"/>
         </vbox>
         <label>&noModulesFound.label;</label>
