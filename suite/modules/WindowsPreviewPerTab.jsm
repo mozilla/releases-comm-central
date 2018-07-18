@@ -85,7 +85,7 @@ function _imageFromURI(uri, privateMode, callback) {
     if (!Components.isSuccessCode(resultCode))
       return;
     try {
-      let out_img = imgTools.decodeImage(inputStream, channel.contentType);
+      let out_img = imgTools.decodeImageAsync(inputStream, channel.contentType);
       callback(out_img);
     } catch (e) {
       // We failed, so use the default favicon (only if this wasn't the default
