@@ -1929,16 +1929,16 @@
               <menupopup id="msgIdentityPopup"/>
             </menulist>
           </hbox>
-          <listbox id="addressingWidget" flex="1" seltype="multiple" rows="1"
-                   onkeydown="awKeyDown(event, this)"
-                   onclick="awClickEmptySpace(event.originalTarget, true)"
-                   disableonsend="true">
-            <listcols>
-              <listcol id="typecol-addressingWidget" style="&headersSpace.style;"/>
-              <listcol id="textcol-addressingWidget" flex="1"/>
-            </listcols>
-            <listitem class="addressingWidgetItem" allowevents="true">
-              <listcell class="addressingWidgetCell">
+          <richlistbox id="addressingWidget" flex="1" seltype="multiple"
+                       onkeydown="awKeyDown(event, this)"
+                       onclick="awClickEmptySpace(event.originalTarget, true)"
+                       disableonsend="true">
+            <treecols hidden="true">
+              <treecol id="typecol-addressingWidget" style="&headersSpace.style;"/>
+              <treecol id="textcol-addressingWidget" flex="1"/>
+            </treecols>
+            <richlistitem class="addressingWidgetItem" allowevents="true">
+              <hbox class="addressingWidgetCell" align="center" style="&headersSpace.style;">
                 <menulist id="addressCol1#1" disableonsend="true"
                           class="aw-menulist" flex="1"
                           oncommand="onAddressColCommand(this.id);">
@@ -1953,8 +1953,8 @@
                 </menulist>
                 <image class="deleteAddress close-icon"
                        onclick="awDeleteHit(this.parentNode.nextSibling.querySelector('textbox.textbox-addressingWidget'));"/>
-              </listcell>
-              <listcell class="addressingWidgetCell">
+              </hbox>
+              <hbox class="addressingWidgetCell" flex="1">
                 <textbox id="addressCol2#1" class="plain textbox-addressingWidget uri-element"
                          aria-labelledby="addressCol1#1"
                          type="autocomplete" flex="1"
@@ -1972,9 +1972,9 @@
                          onkeydown="awRecipientKeyDown(event, this)"
                          disableonsend="true">
                 </textbox>
-              </listcell>
-            </listitem>
-          </listbox>
+              </hbox>
+            </richlistitem>
+          </richlistbox>
           <hbox id="subject-box">
             <hbox align="center" pack="end" style="&headersSpace.style;">
               <label id="subjectLabel" value="&subject.label;" accesskey="&subject.accesskey;" control="msgSubject"/>

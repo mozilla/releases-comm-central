@@ -34,8 +34,8 @@ function awGetNumberOfCols()
 {
   if (gNumberOfCols == 0)
   {
-    var listbox = document.getElementById('addressingWidget');
-    var listCols = listbox.getElementsByTagName('listcol');
+    var listbox = document.getElementById("addressingWidget");
+    var listCols = listbox.getElementsByTagName("treecol");
     gNumberOfCols = listCols.length;
     if (!gNumberOfCols)
       gNumberOfCols = 1;  /* if no cols defined, that means we have only one! */
@@ -68,9 +68,9 @@ function awInitializeNumberOfRowsShown()
   // especially on small screens.
   msgHeadersToolbar.minHeight = msgHeadersToolbar.boxObject.height;
 
-  // Set default number of rows shown for address widget.
-  addressingWidget.setAttribute("rows", awNumRowsShownDefault);
-  msgHeadersToolbar.height = msgHeadersToolbar.boxObject.height + extraHeight;
+  msgHeadersToolbar.height = msgHeadersToolbar.boxObject.height +
+    addressingWidget.boxObject.height * (awNumRowsShownDefault - 1) +
+    extraHeight;
 
   // Update addressingWidget internals.
   awCreateOrRemoveDummyRows();
@@ -188,11 +188,11 @@ function Recipients2CompFields(msgCompFields)
 function CompFields2Recipients(msgCompFields)
 {
   if (msgCompFields) {
-    let listbox = document.getElementById('addressingWidget');
+    let listbox = document.getElementById("addressingWidget");
     let newListBoxNode = listbox.cloneNode(false);
     let listBoxColsClone = listbox.firstChild.cloneNode(true);
     newListBoxNode.appendChild(listBoxColsClone);
-    let templateNode = listbox.querySelector("listitem");
+    let templateNode = listbox.getElementsByTagName("richlistitem")[0];
     // dump("replacing child in comp fields 2 recips \n");
     listbox.parentNode.replaceChild(newListBoxNode, listbox);
 
@@ -435,8 +435,8 @@ function awTestRowSequence()
 
   /* debug code to verify the sequence still good */
 
-  let listbox = document.getElementById('addressingWidget');
-  let listitems = listbox.getElementsByTagName('listitem');
+  let listbox = document.getElementById("addressingWidget");
+  let listitems = listbox.getElementsByTagName("richlistitem");
   if (listitems.length >= top.MAX_RECIPIENTS )
   {
     for (let i = 1; i <= listitems.length; i ++)
@@ -495,9 +495,9 @@ function awDeleteRow(rowToDelete)
 function awClickEmptySpace(target, setFocus)
 {
   if (document.getElementById("addressCol2#1").disabled || target == null ||
-      (target.localName != "listboxbody" &&
-      target.localName != "listcell" &&
-      target.localName != "listitem"))
+      (target.localName != "richlistbox" &&
+      target.localName != "richlistcell" &&
+      target.localName != "richlistitem"))
     return;
 
   var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
@@ -674,11 +674,11 @@ function awGetElementByCol(row, col)
 
 function awGetListItem(row)
 {
-  var listbox = document.getElementById('addressingWidget');
+  var listbox = document.getElementById("addressingWidget");
 
   if ( listbox && row > 0)
   {
-    var listitems = listbox.getElementsByTagName('listitem');
+    var listitems = listbox.getElementsByTagName("richlistitem");
     if ( listitems && listitems.length >= row )
       return listitems[row-1];
   }
@@ -691,8 +691,9 @@ function awGetRowByInputElement(inputElement)
   if (inputElement) {
     var listitem = inputElement.parentNode.parentNode;
     while (listitem) {
-      if (listitem.localName == "listitem")
+      if (listitem.localName == "richlistitem") {
         ++row;
+      }
       listitem = listitem.previousSibling;
     }
   }
@@ -944,7 +945,7 @@ function awCreateOrRemoveDummyRows()
 function awCalcContentHeight()
 {
   var listbox = document.getElementById("addressingWidget");
-  var items = listbox.getElementsByTagName("listitem");
+  var items = listbox.getElementsByTagName("richlistitem");
 
   gAWContentHeight = 0;
   if (items.length > 0) {
@@ -961,22 +962,34 @@ function awCalcContentHeight()
 
 function awCreateDummyItem(aParent)
 {
-  var titem = document.createElement("listitem");
+  var listbox = document.getElementById("addressingWidget");
+  var item = listbox.getElementsByTagName("richlistitem")[0];
+
+  var titem = document.createElement("richlistitem");
   titem.setAttribute("_isDummyRow", "true");
   titem.setAttribute("class", "dummy-row");
+  titem.style.height = item.boxObject.height + "px";
 
-  for (var i = awGetNumberOfCols(); i > 0; i--)
-    awCreateDummyCell(titem);
+  for (let i = 0; i < awGetNumberOfCols(); i++) {
+    let cell = awCreateDummyCell(titem);
+    if (item.children[i].hasAttribute("style")) {
+      cell.setAttribute("style", item.children[i].getAttribute("style"));
+    }
+    if (item.children[i].hasAttribute("flex")) {
+      cell.setAttribute("flex", item.children[i].getAttribute("flex"));
+    }
+  }
 
-  if (aParent)
+  if (aParent) {
     aParent.appendChild(titem);
+  }
 
   return titem;
 }
 
 function awCreateDummyCell(aParent)
 {
-  var cell = document.createElement("listcell");
+  var cell = document.createElement("hbox");
   cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
   if (aParent)
     aParent.appendChild(cell);

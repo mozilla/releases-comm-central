@@ -64,9 +64,9 @@
            accesskey="&AddressTitle.accesskey;"/>
     <spacer style="height:0.1em"/>
 
-    <listbox id="addressingWidget" style="height: 15em;" onclick="awClickEmptySpace(event.target, true)">
-      <listitem class="addressingWidgetItem" allowevents="true">
-        <listcell class="addressingWidgetCell">
+    <richlistbox id="addressingWidget" style="height: 15em;" onclick="awClickEmptySpace(event.target, true)">
+      <richlistitem class="addressingWidgetItem" allowevents="true">
+        <hbox class="addressingWidgetCell" flex="1">
           <textbox id="addressCol1#1" class="plain textbox-addressingWidget uri-element"
                    type="autocomplete" flex="1"
                    autocompletesearch="addrbook ldap"
@@ -80,8 +80,8 @@
                    onclick="awNotAnEmptyArea(event);">
             <image onclick="this.parentNode.select();" class="person-icon"/>
           </textbox>
-        </listcell>
-      </listitem>
-    </listbox>
+        </hbox>
+      </richlistitem>
+    </richlistbox>
   </vbox>
 </dialog>
