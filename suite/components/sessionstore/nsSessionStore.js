@@ -2614,11 +2614,34 @@ SessionStoreService.prototype = {
       delete tab.__SS_extdata;
 
     for (var i = 0; i < tabData.entries.length; i++) {
+      let cloneEntry = false;
       //XXXzpao Wallpaper patch for bug 509315
       if (!tabData.entries[i].url)
         continue;
-      history.addEntry(this._deserializeHistoryEntry(tabData.entries[i],
-                                                     aIdMap, aDocIdentMap), true);
+
+      let shEntry = this._deserializeHistoryEntry(tabData.entries[i],
+                                                  aIdMap, aDocIdentMap);
+      try {
+        history.addEntry(shEntry, true);
+      }
+      catch (ex) {
+        cloneEntry = true;
+      }
+
+      // Workaround for bug 1466911.
+      // FIXME Remove this after the issue which caused the exception above
+      // to be thrown has been fixed.
+      if (cloneEntry) {
+        shEntry = shEntry.clone();
+        shEntry.abandonBFCacheEntry();
+
+        try {
+          history.addEntry(shEntry, true);
+        }
+        catch (ex) {
+          Cu.reportError(ex);
+        }
+      }
     }
 
     // make sure to reset the capabilities and attributes, in case this tab gets reused
