@@ -7,6 +7,8 @@
 #else
 <?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 #endif
+<?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/fieldMapImport.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/fieldMapImport.dtd">
 
@@ -18,6 +20,16 @@
         onload="OnLoadFieldMapImport();">
 
   <script type="application/javascript" src="chrome://messenger/content/fieldMapImport.js"/>
+  <script><![CDATA[
+      function resizeColumns() {
+        let list = document.getElementById("fieldList");
+        let cols = list.getElementsByTagName("treecol");
+        list.style.setProperty("--column1width", cols[0].boxObject.width + "px");
+        list.style.setProperty("--column2width", cols[1].boxObject.width + "px");
+      }
+      addEventListener("load", resizeColumns, { once: true });
+      addEventListener("resize", resizeColumns);
+  ]]></script>
 
   <hbox align="center">
     <label value="&fieldMapImport.recordNumber;"/>
@@ -43,19 +55,16 @@
 
   <!-- field list -->
   <hbox flex="1">
-    <listbox id="fieldList" flex="1" onselect="disableMoveButtons();">
-      <listcols>
-        <listcol flex="1"/>
-        <listcol flex="7"/>
-        <listcol flex="13"/>
-      </listcols>
-
-      <listhead>
-        <listheader/>
-        <listheader id="fieldNameHeader" label="&fieldMapImport.fieldListTitle;"/>
-        <listheader id="sampleDataHeader" label="&fieldMapImport.dataTitle;"/>
-      </listhead>
-    </listbox>
+    <richlistbox id="fieldList"
+                 class="theme-listbox"
+                 flex="1"
+                 onselect="disableMoveButtons();">
+      <treecols>
+        <treecol flex="3"/>
+        <treecol flex="7" id="fieldNameHeader" label="&fieldMapImport.fieldListTitle;"/>
+        <treecol flex="13" id="sampleDataHeader" label="&fieldMapImport.dataTitle;"/>
+      </treecols>
+    </richlistbox>
 
     <vbox>
       <spacer flex="1"/>

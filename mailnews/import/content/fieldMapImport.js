@@ -79,22 +79,27 @@ function ListFields() {
 
 function CreateField(name, index, on)
 {
-  var item = document.createElement("listitem");
+  var item = document.createElement("richlistitem");
+  item.setAttribute("align", "center");
   item.setAttribute("field-index", index);
   item.setAttribute("allowevents", "true");
 
-  var checkboxCell = document.createElement("listcell");
-  checkboxCell.setAttribute("type", "checkbox");
-  checkboxCell.addEventListener("click", cellClicked);
-  if (on)
-    checkboxCell.setAttribute("checked", "true");
+  var checkboxCell = document.createElement("hbox");
+  checkboxCell.setAttribute("style", "width: var(--column1width)");
+  let checkbox = document.createElement("checkbox");
+  checkbox.addEventListener("click", cellClicked);
+  if (on) {
+    checkbox.setAttribute("checked", "true");
+  }
+  checkboxCell.appendChild(checkbox);
 
-  var firstCell = document.createElement("listcell");
-  firstCell.setAttribute("label", name);
+  var firstCell = document.createElement("label");
+  firstCell.setAttribute("style", "width: var(--column2width)");
+  firstCell.setAttribute("value", name);
 
-  var secondCell = document.createElement("listcell");
+  var secondCell = document.createElement("label");
   secondCell.setAttribute("class", "importsampledata");
-  secondCell.setAttribute("label", "");
+  secondCell.setAttribute("flex", "1");
 
   item.appendChild(checkboxCell);
   item.appendChild(firstCell);
@@ -124,9 +129,9 @@ function moveItem(up)
   var swapPartner = (up ? gListbox.getPreviousItem(selectedItem, 1)
                         : gListbox.getNextItem(selectedItem, 1));
 
-  var tmpLabel = swapPartner.lastChild.getAttribute('label');
-  swapPartner.lastChild.setAttribute('label', selectedItem.lastChild.getAttribute('label'));
-  selectedItem.lastChild.setAttribute('label', tmpLabel);
+  var tmpLabel = swapPartner.lastChild.getAttribute("value");
+  swapPartner.lastChild.setAttribute("value", selectedItem.lastChild.getAttribute("value"));
+  selectedItem.lastChild.setAttribute("value", tmpLabel);
 
   var newItemPosition = (up ? selectedItem.nextSibling : selectedItem);
   gListbox.insertBefore(swapPartner, newItemPosition);
@@ -145,7 +150,7 @@ function ShowSampleData(data)
 {
   var fields = data.split("\n");
   for (var i = 0; i < gListbox.getRowCount(); i++)
-    gListbox.getItemAtIndex(i).lastChild.setAttribute('label', (i < fields.length) ? fields[i] : '');
+    gListbox.getItemAtIndex(i).lastChild.setAttribute("value", (i < fields.length) ? fields[i] : "");
 }
 
 function FetchSampleData(num)

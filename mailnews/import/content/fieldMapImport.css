@@ -1,0 +1,7 @@
+treecolpicker {
+  display: none;
+}
+
+richlistitem > hbox > checkbox {
+  margin: 0;
+}
