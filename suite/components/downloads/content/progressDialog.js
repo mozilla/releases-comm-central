@@ -4,10 +4,11 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
-XPCOMUtils.defineLazyScriptGetter(this, "DownloadsCommon",
-                                  "resource:///modules/DownloadsCommon.jsm");
+XPCOMUtils.defineLazyModuleGetters(this, {
+  DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
+  DownloadsCommon: "resource:///modules/DownloadsCommon.jsm",
+});
 
 var gDownload;
 var gDownloadBundle;
