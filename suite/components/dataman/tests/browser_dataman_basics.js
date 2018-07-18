@@ -20,7 +20,7 @@ const kPreexistingDomains = 13;
 function test() {
   // Preload data.
   // Note that before this test starts, what is already set are permissions for
-  // addons.mozilla.org to install addons as well as
+  // addons.thunderbird.net to install addons as well as
   // permissions for a number of sites used in mochitest to load XUL/XBL.
   // For the latter, those 13 domains are used/listed: 127.0.0.1, bank1.com,
   // bank2.com, example.com, example.org, mochi.test, mozilla.com, test,

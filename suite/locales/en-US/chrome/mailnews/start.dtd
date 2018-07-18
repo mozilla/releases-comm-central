@@ -25,7 +25,7 @@ client, supporting advanced junk mail detection and other useful features.">
 <!ENTITY dict_info.label
 'Many additional languages can be installed from the
 <a id="dictURL" href="">dictionaries</a> section on
-<a href="https://addons.mozilla.org/seamonkey/">Mozilla Add-ons</a>.'>
+<a href="https://addons.thunderbird.net/seamonkey/">SeaMonkey and Thunderbird Add-ons</a>.'>
 <!ENTITY info.title "More Information">
 <!--# LOCALIZATION NOTE (info_bugs.label): the URL for <a id="releaseNotesURL"> is fetched from brand.properties -->
 <!ENTITY info_bugs.label

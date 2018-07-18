@@ -7,6 +7,6 @@
 # See nsPermissionManager.cpp for more...
 
 # XPInstall
-origin	install	1	https://addons.mozilla.org
+origin	install	1	https://addons.thunderbird.net
 origin	install	1	http://downloads.mozdev.org
 origin	install	1	https://downloads.mozdev.org

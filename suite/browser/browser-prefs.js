@@ -85,7 +85,7 @@ pref("browser.findbar.enabled", true);
 pref("browser.doorhanger.enabled", true);
 
 // search engines URL
-pref("browser.search.searchEnginesURL", "https://addons.mozilla.org/%LOCALE%/%APP%/search/?atype=4");
+pref("browser.search.searchEnginesURL", "https://addons.thunderbird.net/%LOCALE%/%APP%/search/?atype=4");
 
 // pointer to the default engine name
 pref("browser.search.defaultenginename", "chrome://communicator-region/locale/region.properties");
@@ -568,12 +568,46 @@ pref("app.update.idletime", 60);
 
 // Extension preferences
 
-// Enables some extra Extension System Logging (can reduce performance)
+// Controls enabling of the extension system logging (can reduce performance)
 pref("extensions.logging.enabled", false);
 
-// Disables strict compatibility, making addons compatible-by-default.
+// Strict compatibility makes add-ons incompatible by default.
 pref("extensions.strictCompatibility", false);
 
+// Disable add-ons installed into the shared user and shared system areas by
+// default. This does not include the application directory. See the SCOPE
+// constants in AddonManager.jsm for values to use here
+pref("extensions.autoDisableScopes", 15);
+
+// Enable add-ons installed and owned by the application, like the default theme.
+pref("extensions.startupScanScopes", 4);
+
+// Allow "legacy" XUL/XPCOM extensions.
+pref("extensions.legacy.enabled", true);
+// Extensions that should not be flagged as legacy in about:addons
+// {972ce4c6-7e08-4474-a285-3208198ce6fd} default theme
+// {59c81df5-4b7a-477b-912d-4e0fdf64e5f2} chatZilla
+// {e2fda1a4-762b-4020-b5ad-a41df1933103} calendar
+pref("extensions.legacy.exceptions", "{972ce4c6-7e08-4474-a285-3208198ce6fd},debugQA@mozilla.org,modern@themes.mozilla.org,inspector@mozilla.org,{59c81df5-4b7a-477b-912d-4e0fdf64e5f2},{e2fda1a4-762b-4020-b5ad-a41df1933103}");
+
+// Preferences for AMO integration
+pref("extensions.getAddons.cache.enabled", true);  // This also toggles personalized recommendations
+pref("extensions.getAddons.maxResults", 15);
+pref("extensions.getAddons.get.url", "https://live.thunderbird.net/services.addons/api/v3/addons/search/?guid=%IDS%&lang=%LOCALE%");
+pref("extensions.getAddons.compatOverides.url", "https://live.thunderbird.net/services.addons/api/v3/addons/compat-override/?guid=%IDS%&lang=%LOCALE%");
+pref("extensions.getAddons.link.url", "https://addons.thunderbird.net/%LOCALE%/%APP%/");
+pref("extensions.getAddons.recommended.url", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/api/%API_VERSION%/list/recommended/all/%MAX_RESULTS%/%OS%/%VERSION%?src=seamonkey");
+pref("extensions.getAddons.search.browseURL", "https://addons.thunderbird.net/%LOCALE%/%APP%/search/?q=%TERMS%");
+pref("extensions.getAddons.search.url", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/%MAX_RESULTS%/%OS%/%VERSION%/%COMPATIBILITY_MODE%?src=seamonkey");
+pref("extensions.getAddons.themes.browseURL", "https://addons.thunderbird.net/%LOCALE%/thunderbird/themes/?src=seamonkey");
+pref("extensions.getAddons.siteRegExp", "^https://.*addons\\.thunderbird\\.net");
+
+pref("extensions.webservice.discoverURL", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/discovery/pane/%VERSION%/%OS%");
+
+// Blocklist preferences
+pref("extensions.blocklist.url", "https://live.thunderbird.net/blocklists.settings/v1/blocklist/3/%APP_ID%/%APP_VERSION%/%PRODUCT%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/%PING_COUNT%/%TOTAL_PING_COUNT%/%DAYS_SINCE_LAST_PING%/");
+pref("extensions.blocklist.detailsURL", "https://live.thunderbird.net/blocked.cdn/");
+pref("extensions.blocklist.itemURL", "https://live.thunderbird.net/blocked.cdn/%blockID%.html");
 
 // Update preferences for installed Extensions and Themes.
 // Symmetric (can be overridden by individual extensions),
@@ -583,43 +617,20 @@ pref("extensions.strictCompatibility", false);
 //  extensions.{GUID}.update.interval
 //  extensions.{GUID}.update.autoUpdateDefault
 //  .. etc ..
-//
-pref("extensions.update.enabled", true);
-pref("extensions.update.url", "https://versioncheck.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
-pref("extensions.update.interval", 86400);         // Check daily for updates to add-ons
+pref("extensions.update.url", "https://versioncheck.addons.thunderbird.net/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
 pref("extensions.update.autoUpdateDefault", true); // Download and install automatically
-
-// Disable add-ons installed into the shared user and shared system areas by
-// default. This does not include the application directory. See the SCOPE
-// constants in AddonManager.jsm for values to use here.
-pref("extensions.autoDisableScopes", 15);
-
-// Enable add-ons installed and owned by the application, like the default theme.
-pref("extensions.startupScanScopes", 4);
-
-pref("extensions.legacy.enabled", true);
-// Extensions that should not be flagged as legacy in about:addons
-// {972ce4c6-7e08-4474-a285-3208198ce6fd} default theme
-// {59c81df5-4b7a-477b-912d-4e0fdf64e5f2} chatZilla
-// {e2fda1a4-762b-4020-b5ad-a41df1933103} calendar
-pref("extensions.legacy.exceptions", "{972ce4c6-7e08-4474-a285-3208198ce6fd},debugQA@mozilla.org,modern@themes.mozilla.org,inspector@mozilla.org,{59c81df5-4b7a-477b-912d-4e0fdf64e5f2},{e2fda1a4-762b-4020-b5ad-a41df1933103}");
-
-// Preferences for AMO integration
-pref("extensions.getAddons.cache.enabled", true);  // also toggles personalized recommendations
-pref("extensions.getAddons.maxResults", 15);
-pref("extensions.getAddons.get.url", "https://services.addons.mozilla.org/%LOCALE%/%APP%/api/%API_VERSION%/search/guid:%IDS%?src=seamonkey&appOS=%OS%&appVersion=%VERSION%");
-pref("extensions.getAddons.getWithPerformance.url", "https://services.addons.mozilla.org/%LOCALE%/%APP%/api/%API_VERSION%/search/guid:%IDS%?src=seamonkey&appOS=%OS%&appVersion=%VERSION%&tMain=%TIME_MAIN%&tFirstPaint=%TIME_FIRST_PAINT%&tSessionRestored=%TIME_SESSION_RESTORED%");
-pref("extensions.getAddons.link.url", "https://addons.mozilla.org/%LOCALE%/%APP%/");
-pref("extensions.getAddons.recommended.url", "https://services.addons.mozilla.org/%LOCALE%/%APP%/api/%API_VERSION%/list/recommended/all/%MAX_RESULTS%/%OS%/%VERSION%?src=seamonkey");
-pref("extensions.getAddons.search.browseURL", "https://addons.mozilla.org/%LOCALE%/%APP%/search?q=%TERMS%");
-pref("extensions.getAddons.search.url", "https://services.addons.mozilla.org/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/%MAX_RESULTS%/%OS%/%VERSION%/%COMPATIBILITY_MODE%?src=seamonkey");
-pref("extensions.webservice.discoverURL", "https://services.addons.mozilla.org/%LOCALE%/%APP%/discovery/pane/%VERSION%/%OS%");
+pref("extensions.update.enabled", true);
+pref("extensions.update.url", "https://versioncheck.addons.thunderbird.net/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
+pref("extensions.update.background.url", "https://versioncheck-bg.addons.thunderbird.net/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
+// Check for updates to Extensions and Themes every day
+pref("extensions.update.interval", 86400);
 
 // getMoreThemes is used by our UI under our switch theme menu
 pref("extensions.getMoreThemesURL", "chrome://branding/locale/brand.properties");
 pref("extensions.getPersonasURL", "chrome://branding/locale/brand.properties");
-pref("extensions.dss.switchPending", false);    // Non-dynamic switch pending after next
-                                                // restart.
+
+// Non-dynamic switch pending after next restart.
+pref("extensions.dss.switchPending", false);
 
 pref("extensions.{972ce4c6-7e08-4474-a285-3208198ce6fd}.name", "chrome://navigator/locale/navigator.properties");
 pref("extensions.{972ce4c6-7e08-4474-a285-3208198ce6fd}.description", "chrome://navigator/locale/navigator.properties");
@@ -627,12 +638,15 @@ pref("extensions.{972ce4c6-7e08-4474-a285-3208198ce6fd}.description", "chrome://
 pref("extensions.modern@themes.mozilla.org.name", "chrome://navigator/locale/navigator.properties");
 pref("extensions.modern@themes.mozilla.org.description", "chrome://navigator/locale/navigator.properties");
 
+pref("lightweightThemes.selectedThemeID", "");
+pref("lightweightThemes.update.enabled", true);
+
+pref("xpinstall.whitelist.add", "addons.thunderbird.net");
 pref("xpinstall.enabled", true);
 pref("xpinstall.signatures.required", false);
+
 // Built-in default permissions.
 pref("permissions.manager.defaultsUrl", "resource:///defaults/permissions");
-
-pref("lightweightThemes.update.enabled", true);
 
 // Customizable toolbar stuff
 pref("custtoolbar.personal_toolbar_folder", "");
@@ -747,7 +761,7 @@ pref("plugin.disable", false);
 
 // Digital Rights Management, Encrypted Media Extensions
 pref("media.eme.enabled", false);
- 
+
 // Turn off WebRTC by default (bug 1419507)
 pref("media.navigator.enabled", false);
 pref("media.peerconnection.enabled", false);
