@@ -729,7 +729,7 @@
                 onget="return this.getAttribute('lastSelected');">
         <setter>
           this.setAttribute("lastSelected", val);
-          document.persist(this.id, "lastSelected");
+          Services.xulStore.persist(this, "lastSelected");
           return val;
         </setter>
       </property>

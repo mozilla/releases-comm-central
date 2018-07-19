@@ -164,20 +164,20 @@ function persistCurrentSets() {
         // Persist custom toolbar info on the <toolbarset/>
         gToolbox.toolbarset.setAttribute("toolbar" + (++customCount),
                                          toolbar.toolbarName + ":" + currentSet);
-        gToolboxDocument.persist(gToolbox.toolbarset.id, "toolbar" + customCount);
+        Services.xulStore.persist(gToolbox.toolbarset, "toolbar" + customCount);
       }
     }
 
     if (!customIndex) {
       // Persist the currentset attribute directly on hardcoded toolbars.
-      gToolboxDocument.persist(toolbar.id, "currentset");
+      Services.xulStore.persist(toolbar, "currentset");
     }
   });
 
   // Remove toolbarX attributes for removed toolbars.
   while (gToolbox.toolbarset && gToolbox.toolbarset.hasAttribute("toolbar" + (++customCount))) {
     gToolbox.toolbarset.removeAttribute("toolbar" + customCount);
-    gToolboxDocument.persist(gToolbox.toolbarset.id, "toolbar" + customCount);
+    Services.xulStore.persist(gToolbox.toolbarset, "toolbar" + customCount);
   }
 }
 
@@ -546,7 +546,7 @@ function updateToolboxProperty(aProp, aValue, aToolkitDefault) {
                        aToolkitDefault;
 
   gToolbox.setAttribute(aProp, aValue || toolboxDefault);
-  gToolboxDocument.persist(gToolbox.id, aProp);
+  Services.xulStore.persist(gToolbox, aProp);
 
   forEachCustomizableToolbar(function(toolbar) {
     var toolbarDefault = toolbar.getAttribute("default" + aProp) ||
@@ -556,7 +556,7 @@ function updateToolboxProperty(aProp, aValue, aToolkitDefault) {
       return;
 
     toolbar.setAttribute(aProp, aValue || toolbarDefault);
-    gToolboxDocument.persist(toolbar.id, aProp);
+    Services.xulStore.persist(toolbar, aProp);
   });
 
   toolboxChanged(aProp);

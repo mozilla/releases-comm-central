@@ -161,8 +161,8 @@ function goToggleToolbar( id, elementID )
     toolbar.setAttribute("hidden", !isHidden);
     if ( element )
       element.setAttribute("checked", isHidden)
-    document.persist(id, 'hidden');
-    document.persist(elementID, 'checked');
+    Services.xulStore.persist(toolbar, "hidden");
+    Services.xulStore.persist(element, "checked");
   }
 }
 

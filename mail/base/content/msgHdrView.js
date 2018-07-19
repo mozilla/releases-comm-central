@@ -307,14 +307,14 @@ function initInlineToolbox(toolboxId, toolbarId, popupId, customizeChange) {
       toolbox.setAttribute("mode", mode);
       toolbox.setAttribute("labelalign", align);
       toolbox.setAttribute("iconsize", iconsize);
-      toolbox.ownerDocument.persist(toolbox.id, "mode");
-      toolbox.ownerDocument.persist(toolbox.id, "iconsize");
-      toolbox.ownerDocument.persist(toolbox.id, "labelalign");
+      Services.xulStore.persist(toolbox, "mode");
+      Services.xulStore.persist(toolbox, "iconsize");
+      Services.xulStore.persist(toolbox, "labelalign");
 
       /* set toolbar attributes to default values */
       iconsize = toolbar.getAttribute("defaulticonsize");
       toolbar.setAttribute("iconsize", iconsize);
-      toolbar.ownerDocument.persist(toolbar.id, "iconsize");
+      Services.xulStore.persist(toolbar, "iconsize");
     }
   }
 }

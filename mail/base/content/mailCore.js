@@ -106,7 +106,7 @@ function overlayUpdateToolbarMode(aModeValue)
   if( aModeValue == "textbesideicon" || aModeValue == "full") {
     var align = aModeValue == "textbesideicon" ? "end" : "bottom";
     toolbox.setAttribute("labelalign", align);
-    toolbox.ownerDocument.persist(toolbox.id, "labelalign");
+    Services.xulStore.persist(toolbox, "labelalign");
     aModeValue = "full";
   }
   updateToolbarMode(aModeValue);
@@ -153,7 +153,7 @@ function overlayOnLoad()
   // Re-set and re-persist the mode, if we changed it above.
   if (mode == "full" && align == "end") {
     toolbox.setAttribute("mode", mode);
-    toolbox.ownerDocument.persist(toolbox.id, "mode");
+    Services.xulStore.persist(toolbox, "mode");
   }
 }
 
@@ -357,7 +357,7 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
         let onMenuItemCommand = function(aEvent) {
           let hidden = aEvent.originalTarget.getAttribute("checked") != "true";
           toolbar.setAttribute(hidingAttribute, hidden);
-          document.persist(toolbar.id, hidingAttribute);
+          Services.xulStore.persist(toolbar, hidingAttribute);
         }
 
         menuItem.addEventListener("command", onMenuItemCommand);
