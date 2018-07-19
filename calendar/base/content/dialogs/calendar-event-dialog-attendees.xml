@@ -177,6 +177,8 @@
             // create a new listbox item and append it to our parent control.
             let newNode = aTemplateNode.cloneNode(true);
 
+            aParentNode.appendChild(newNode);
+
             let input =
                 document.getAnonymousElementByAttribute(
                     newNode, "anonid", "input");
@@ -198,8 +200,6 @@
             if (input.getAttribute("focused") != "") {
                 input.removeAttribute("focused");
             }
-
-            aParentNode.appendChild(newNode);
 
             // the template could have its fields disabled,
             // that's why we need to reset their status.
