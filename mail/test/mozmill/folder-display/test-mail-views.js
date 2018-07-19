@@ -35,7 +35,7 @@ function test_put_view_picker_on_toolbar() {
 /**
  * https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c97
  */
-function test_save_view_as_folder() {
+function disabled_test_save_view_as_folder() {
   // - enter the folder
   be_in_folder(baseFolder);
 
@@ -67,7 +67,7 @@ function subtest_save_mail_view(savc) {
   savc.window.onOK();
 }
 
-function test_verify_saved_mail_view() {
+function disabled_test_verify_saved_mail_view() {
   // - make sure the folder got created
   savedFolder = baseFolder.findSubFolder(baseFolder.prettyName + "-Important");
   if (!savedFolder)
