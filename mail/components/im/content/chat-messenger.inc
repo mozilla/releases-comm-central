@@ -169,14 +169,14 @@
                              value="&chat.participants;"/>
                       <textbox flex="1" readonly="true" class="plain" id="participantCount"/>
                     </hbox>
-                    <listbox id="nicklist" class="conv-nicklist"
-                             flex="1" seltype="multiple"
-                             tooltip="imTooltip"
-                             onclick="chatHandler.onNickClick(event);"
-                             onkeypress="chatHandler.onNicklistKeyPress(event);"/>
+                    <richlistbox id="nicklist" class="conv-nicklist theme-listbox"
+                                 flex="1" seltype="multiple"
+                                 tooltip="imTooltip"
+                                 onclick="chatHandler.onNickClick(event);"
+                                 onkeypress="chatHandler.onNicklistKeyPress(event);"/>
                   </vbox>
                   <splitter id="logsSplitter" class="conv-chat" collapse="after"/>
-                  <vbox flex="1" id="previousConversations">
+                  <vbox flex="1" id="previousConversations" style="min-height: 200px;">
                     <label class="conv-logs-header-label"
                            id="participantLabel"
                            value="&chat.previousConversations;"/>

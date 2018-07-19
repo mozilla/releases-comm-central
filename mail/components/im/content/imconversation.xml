@@ -172,7 +172,7 @@
           aMsg.color = "color: hsl(" + color + ", 100%, 40%);";
         }
 
-        // Porting note: In TB, this.tab points at the imconv listitem element.
+        // Porting note: In TB, this.tab points at the imconv richlistitem element.
         let read = this._readCount > 0;
         let isUnreadMessage = !read && aMsg.incoming && !aMsg.system;
         let isTabFocused = this.tab && this.tab.selected && document.hasFocus();
@@ -1050,9 +1050,9 @@
              image = "founder";
          }
          if (image)
-           aItem.setAttribute("image", "chrome://messenger/skin/" + image + ".png");
+           aItem.firstChild.setAttribute("src", "chrome://messenger/skin/" + image + ".png");
          else
-           aItem.removeAttribute("image");
+           aItem.firstChild.removeAttribute("image");
        ]]>
        </body>
      </method>
@@ -1109,10 +1109,14 @@
 
          this.trackNick(name);
 
-         var item = document.createElement("listitem");
+         let image = document.createElement("image");
+         let label = document.createElement("label");
+         label.setAttribute("value", name);
+
+         var item = document.createElement("richlistitem");
          item.chatBuddy = aBuddy;
-         item.setAttribute("class", "listitem-iconic");
-         item.setAttribute("label", name);
+         item.appendChild(image);
+         item.appendChild(label);
          this.setBuddyAttributes(item);
 
          var color = this._computeColor(name);

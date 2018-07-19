@@ -177,14 +177,9 @@
     border-bottom: 1px solid #a9b7c9;
   }
 
-  .listitem-iconic[selected] .listcell-label,
-  #nicklist:focus > .listitem-iconic[inactive][selected] .listcell-label {
+  richlistitem[selected] > label,
+  #nicklist:focus > richlistitem[inactive][selected] > label {
     color: -moz-dialogtext !important;
-  }
-
-  #nicklist > listitem {
-    border-width: 1px !important;
-    outline: none !important;
   }
 }
 

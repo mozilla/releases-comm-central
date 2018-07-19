@@ -527,7 +527,8 @@ imcontact[aliasing] .contactDisplayName {
   margin: 0 0;
 }
 
-.conv-nicklist > .listitem-iconic .listcell-label {
+.conv-nicklist > richlistitem > label {
+  pointer-events: none;
   font-weight: bold;
   padding-inline-start: 1px;
 %ifdef XP_MACOSX
@@ -535,7 +536,8 @@ imcontact[aliasing] .contactDisplayName {
 %endif
 }
 
-.conv-nicklist > .listitem-iconic .listcell-icon {
+.conv-nicklist > richlistitem > image {
+  pointer-events: none;
   min-width: 16px;
   margin: 0 2px;
 }
@@ -578,20 +580,20 @@ imcontact[aliasing] .contactDisplayName {
 }
 %endif
 
-.listitem-iconic[inactive] .listcell-icon {
+richlistitem[inactive] > image {
   opacity: 0.45;
 }
 
-.listitem-iconic[inactive][selected] .listcell-icon {
+richlistitem[inactive][selected] > image {
   opacity: 0.7;
 }
 
-.listitem-iconic[inactive] .listcell-label {
+richlistitem[inactive] > label {
   color: GrayText !important;
   font-weight: normal;
 }
 
-.listitem-iconic[inactive][selected] .listcell-label {
+richlistitem[inactive][selected] > label {
 %ifdef MACOSX
   color: -moz-DialogText !important;
 %else
@@ -599,7 +601,7 @@ imcontact[aliasing] .contactDisplayName {
 %endif
 }
 
-.conv-nicklist:focus > .listitem-iconic[inactive][selected] .listcell-label {
+.conv-nicklist:focus > richlistitem[inactive][selected] > label {
   color: HighlightText !important;
 }
 
