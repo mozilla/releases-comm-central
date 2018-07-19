@@ -437,10 +437,10 @@
                     }
                 }
                 this.setAttribute("collapsedinmodes", collapsedModes.join(","));
-                let id = this.getAttribute("id");
-                if (id) {
-                    document.persist(id, "collapsedinmodes");
-                }
+
+                // This binding is used all over the place. We can't guarantee that Services is available.
+                ChromeUtils.import("resource://gre/modules/Services.jsm");
+                Services.xulStore.persist(this, "collapsedinmodes");
             }
             if (notifyRefControl === true) {
                 if (this.hasAttribute("refcontrol")) {

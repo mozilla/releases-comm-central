@@ -976,8 +976,8 @@ function onCommandViewToolbar(aToolbarId, aMenuItemId) {
     // toggle visibility of the toolbar
     toolbar.collapsed = !toolbarCollapsed;
 
-    document.persist(aToolbarId, "collapsed");
-    document.persist(aMenuItemId, "checked");
+    Services.xulStore.persist(toolbar, "collapsed");
+    Services.xulStore.persist(menuItem, "checked");
 }
 
 /**
