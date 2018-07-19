@@ -76,8 +76,8 @@ mail-tagfield[collapsed="true"] {
   display: none;
 }
 
-#searchTermList > listitem {
-  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#listitem");
+#searchTermList > richlistitem {
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#filterlistitem");
 }
 
 searchattribute {

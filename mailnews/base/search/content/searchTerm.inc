@@ -14,14 +14,14 @@
 
           <hbox flex="1">
             <hbox id="searchterms"/>
-            <listbox flex="1" id="searchTermList" rows="4" minheight="35%">
-              <listcols>
-                <listcol flex="&searchTermListAttributesFlexValue;"/>
-                <listcol flex="&searchTermListOperatorsFlexValue;"/>
-                <listcol flex="&searchTermListValueFlexValue;"/>
-                <listcol class="filler"/>
-              </listcols>
-            </listbox>
+            <richlistbox flex="1" id="searchTermList" minheight="35%">
+              <treecols hidden="true">
+                <treecol flex="&searchTermListAttributesFlexValue;"/>
+                <treecol flex="&searchTermListOperatorsFlexValue;"/>
+                <treecol flex="&searchTermListValueFlexValue;"/>
+                <treecol class="filler"/>
+              </treecols>
+            </richlistbox>
 
           </hbox>
         </vbox>

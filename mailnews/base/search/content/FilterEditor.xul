@@ -114,14 +114,18 @@
     <label value="&filterActionDesc.label;"
            accesskey="&filterActionDesc.accesskey;"
            control="filterActionList"/>
-    <listbox id="filterActionList" flex="1" rows="4" minheight="35%"
-             onfocus="setLastActionFocus();" focusedAction="0">
-      <listcols>
-        <listcol flex="&filterActionTypeFlexValue;"/>
-        <listcol flex="&filterActionTargetFlexValue;"/>
-        <listcol class="filler"/>
-      </listcols>
-    </listbox>
+    <richlistbox id="filterActionList"
+                 class="theme-listbox"
+                 flex="1"
+                 style="min-height: 100px;"
+                 onfocus="setLastActionFocus();"
+                 focusedAction="0">
+      <treecols hidden="true">
+        <treecol flex="&filterActionTypeFlexValue;"/>
+        <treecol flex="&filterActionTargetFlexValue;"/>
+        <treecol class="filler"/>
+      </treecols>
+    </richlistbox>
   </vbox>
 
   <vbox id="statusbar" style="visibility: hidden;">

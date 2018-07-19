@@ -223,7 +223,7 @@ function getSearchRowIndexForElement(aElement)
 {
   var listItem = aElement;
 
-  while (listItem && listItem.localName != "listitem")
+  while (listItem && listItem.localName != "richlistitem")
     listItem = listItem.parentNode;
 
   return gSearchTermList.getIndexOfItem(listItem);
@@ -419,7 +419,7 @@ function initializeTermFromIndex(index)
 }
 
 /**
- * Creates a <listitem> using the array children as the children
+ * Creates a <richlistitem> using the array children as the children
  * of each listcell.
  * @param aChildren  An array of XUL elements to put into the listitem.
  *                   Each array member is put into a separate listcell.
@@ -428,10 +428,13 @@ function initializeTermFromIndex(index)
  */
 function constructRow(aChildren)
 {
-    let listitem = document.createElement("listitem");
+    let cols = gSearchTermList.firstChild.childNodes; // treecol elements
+    let listitem = document.createElement("richlistitem");
     listitem.setAttribute("allowevents", "true");
     for (let i = 0; i < aChildren.length; i++) {
-      let listcell = document.createElement("listcell");
+      let listcell = document.createElement("hbox");
+      if (cols[i].hasAttribute("flex"))
+        listcell.setAttribute("flex", cols[i].getAttribute("flex"));
       let child = aChildren[i];
 
       if (child instanceof Array) {
@@ -463,7 +466,7 @@ function removeSearchRow(index)
     var listitem = searchTermObj.searchattribute;
 
     while (listitem) {
-        if (listitem.localName == "listitem") break;
+        if (listitem.localName == "richlistitem") break;
         listitem = listitem.parentNode;
     }
 

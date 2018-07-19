@@ -295,10 +295,20 @@
     </handlers>
   </binding>
 
-  <!-- This binding exists to disable the default binding of a listitem
+  <!-- This binding exists to disable the default binding of a richlistitem
        in the search terms. -->
-  <binding id="listitem">
+  <binding id="filterlistitem" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <implementation>
+      <property name="selected" onget="return false;">
+        <setter>
+          <![CDATA[
+            /* This provides a dummy selected property that
+               the listbox expects to be able to call.
+               See bug 202036. */
+          ]]>
+        </setter>
+      </property>
+
       <method name="_fireEvent">
         <parameter name="aName"/>
         <body>
@@ -312,13 +322,15 @@
     </implementation>
   </binding>
 
-  <binding id="ruleaction" extends="#listitem">
+  <binding id="ruleaction" extends="#filterlistitem">
     <content allowevents="true">
-      <xul:listcell class="ruleactiontype"
+      <xul:hbox class="ruleactiontype"
+                    flex="&filterActionTypeFlexValue;"
                     orient="vertical" align="stretch" pack="center"/>
-      <xul:listcell class="ruleactiontarget" xbl:inherits="type=value"
+      <xul:hbox class="ruleactiontarget" xbl:inherits="type=value"
+                    flex="&filterActionTargetFlexValue;"
                     orient="vertical" align="stretch" pack="center"/>
-      <xul:listcell>
+      <xul:hbox>
         <xul:button class="small-button"
                     label="+"
                     tooltiptext="&addAction.tooltip;"
@@ -328,7 +340,7 @@
                     tooltiptext="&removeAction.tooltip;"
                     oncommand="this.parentNode.parentNode.removeRow();"
                     anonid="removeButton"/>
-      </xul:listcell>
+      </xul:hbox>
     </content>
 
     <implementation>
@@ -557,7 +569,7 @@
       <method name="addRow">
         <body>
           <![CDATA[
-            let listItem = document.createElement('listitem');
+            let listItem = document.createElement("richlistitem");
             listItem.className = 'ruleaction';
             listItem.setAttribute('onfocus','this.storeFocus();');
             this.mListBox.insertBefore(listItem, this.nextSibling);

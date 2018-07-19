@@ -383,7 +383,7 @@ function initializeDialog(filter)
   {
     let filterAction = filter.getActionAt(actionIndex);
 
-    var newActionRow = document.createElement('listitem');
+    let newActionRow = document.createElement("richlistitem");
     newActionRow.setAttribute('initialActionIndex', actionIndex);
     newActionRow.className = 'ruleaction';
     gFilterActionList.appendChild(newActionRow);
@@ -403,7 +403,7 @@ function ensureActionRow()
   // make sure we have at least one action row visible to the user
   if (!gFilterActionList.getRowCount())
   {
-    var newActionRow = document.createElement('listitem');
+    let newActionRow = document.createElement("richlistitem");
     newActionRow.className = 'ruleaction';
     gFilterActionList.appendChild(newActionRow);
     newActionRow.mRemoveButton.disabled = true;

@@ -81,3 +81,7 @@ textbox {
 #countBox[filterActive="nomatches"] {
   color: #cc0000;
 }
+
+treecolpicker {
+  display: none;
+}
