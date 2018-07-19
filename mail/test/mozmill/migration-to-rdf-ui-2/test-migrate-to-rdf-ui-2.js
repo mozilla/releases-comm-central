@@ -29,8 +29,7 @@ function test_collapsed_removed() {
   // excised from folderPaneBox.
   const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
 
-  let xulStore = Cc["@mozilla.org/xul/xulstore;1"].getService(Ci.nsIXULStore);
-  if (xulStore.hasValue(MESSENGER_DOCURL, "folderPaneBox", "collapsed"))
+  if (Services.xulStore.hasValue(MESSENGER_DOCURL, "folderPaneBox", "collapsed"))
     throw Error("The collapsed property still seems to exist for folderPaneBox.");
 }
 

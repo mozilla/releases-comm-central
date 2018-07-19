@@ -110,7 +110,7 @@ var MailMigrator = {
     if (currentUIVersion >= UI_VERSION)
       return;
 
-    let xulStore = Cc["@mozilla.org/xul/xulstore;1"].getService(Ci.nsIXULStore);
+    let xulStore = Services.xulStore;
 
     try {
       // Initially, we checked if currentUIVersion < 1, and stripped the

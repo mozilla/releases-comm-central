@@ -1478,8 +1478,7 @@ var gAccountTree = {
   },
   onServerChanged: function at_onServerChanged(aServer) {},
 
-  _dataStore: Cc["@mozilla.org/xul/xulstore;1"]
-                .getService(Ci.nsIXULStore),
+  _dataStore: Services.xulStore,
 
   /**
    * Retrieve from XULStore.json whether the account should be expanded (open)

@@ -14,7 +14,6 @@ ChromeUtils.import("resource://gre/modules/Console.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "setTimeout", "resource://gre/modules/Timer.jsm");
-XPCOMUtils.defineLazyServiceGetter(this, "xulStoreService", "@mozilla.org/xul/xulstore;1", "nsIXULStore");
 
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 
@@ -80,6 +79,7 @@ class Overlays {
     let unloadedScripts = [];
     let unloadedSheets = [];
     this._toolbarsToResolve = [];
+    let xulStore = Services.xulStore;
 
     // Load css styles from the registry
     for (let sheet of this.overlayProvider.style.get(this.location, false)) {
@@ -166,7 +166,7 @@ class Overlays {
     }
 
     for (let bar of this._toolbarsToResolve) {
-      let currentset = xulStoreService.getValue(this.location, bar.id, "currentset");
+      let currentset = xulStore.getValue(this.location, bar.id, "currentset");
       if (currentset) {
         bar.currentSet = currentset;
       } else {
@@ -188,15 +188,15 @@ class Overlays {
       overlayTrigger.remove();
 
       setTimeout(() => {
-        let ids = xulStoreService.getIDsEnumerator(this.location);
+        let ids = xulStore.getIDsEnumerator(this.location);
         while (ids.hasMore()) {
           let id = ids.getNext();
           let element = this.document.getElementById(id);
           if (element) {
-            let attrNames = xulStoreService.getAttributeEnumerator(this.location, id);
+            let attrNames = xulStore.getAttributeEnumerator(this.location, id);
             while (attrNames.hasMore()) {
               let attrName = attrNames.getNext();
-              let attrValue = xulStoreService.getValue(this.location, id, attrName);
+              let attrValue = xulStore.getValue(this.location, id, attrName);
               element.setAttribute(attrName, attrValue);
               if (attrName == "currentset") {
                 element.currentSet = attrValue;
