@@ -482,8 +482,7 @@
             else
               element.setAttribute(attribute, value);
           }
-          if (aElement.localName == "checkbox" ||
-              aElement.localName == "listitem")
+          if (aElement.localName == "checkbox")
             setValue(aElement, "checked", val);
           else if (aElement.localName == "colorpicker")
             setValue(aElement, "color", val);
@@ -529,8 +528,7 @@
               return element[attribute];
             return element.getAttribute(attribute);
           }
-          if (aElement.localName == "checkbox" ||
-              aElement.localName == "listitem")
+          if (aElement.localName == "checkbox")
             var value = getValue(aElement, "checked");
           else if (aElement.localName == "colorpicker")
             value = getValue(aElement, "color");
@@ -557,8 +555,6 @@
           case "colorpicker":
           case "radiogroup":
           case "textbox":
-          case "listitem":
-          case "listbox":
           case "menulist":
             return true;
           }
@@ -1374,7 +1370,7 @@
     </handlers>
   </binding>
 
-  <binding id="panebutton" role="xul:listitem"
+  <binding id="panebutton" role="listitem"
            extends="chrome://global/content/bindings/radio.xml#radio">
     <content>
       <xul:image class="paneButtonIcon" xbl:inherits="src"/>
