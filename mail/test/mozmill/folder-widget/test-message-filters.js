@@ -166,7 +166,7 @@ function create_simple_filter() {
 /*
  * Test that the address books can appear in the message filter dropdown
  */
-function disabled_test_address_books_appear_in_message_filter_dropdown()
+function test_address_books_appear_in_message_filter_dropdown()
 {
   // Create a remote address book - we don't want this to appear in the
   // dropdown.
@@ -217,7 +217,7 @@ function disabled_test_address_books_appear_in_message_filter_dropdown()
  *
  * This also tests whether or not cancelling quit works.
  */
-function disabled_test_can_cancel_quit_on_filter_changes() {
+function test_can_cancel_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
@@ -255,7 +255,7 @@ function disabled_test_can_cancel_quit_on_filter_changes() {
  *
  * This also tests whether or not allowing quit works.
  */
-function disabled_test_can_quit_on_filter_changes() {
+function test_can_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 

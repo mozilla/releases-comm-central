@@ -55,7 +55,7 @@ function test_show_search_window() {
 /**
  * Set up the search.
  */
-function disabled_test_enter_some_stuff() {
+function test_enter_some_stuff() {
   // - turn off search subfolders
   // (we're not testing the UI, direct access is fine)
   swc.e("checkSearchSubFolders").removeAttribute("checked");
@@ -83,7 +83,7 @@ function disabled_test_enter_some_stuff() {
 /**
  * Trigger the search, make sure the right results show up.
  */
-function disabled_test_go_search() {
+function test_go_search() {
   // - Trigger the search
   // The "Search" button has id "search-button"
   swc.click(swc.eid("search-button"));
@@ -105,7 +105,7 @@ function disabled_test_go_search() {
 /**
  * Test opening a single search result in a new tab.
  */
-function disabled_test_open_single_search_result_in_tab() {
+function test_open_single_search_result_in_tab() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
@@ -134,7 +134,7 @@ function disabled_test_open_single_search_result_in_tab() {
 /**
  * Test opening multiple search results in new tabs.
  */
-function disabled_test_open_multiple_search_results_in_new_tabs() {
+function test_open_multiple_search_results_in_new_tabs() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
@@ -173,7 +173,7 @@ function disabled_test_open_multiple_search_results_in_new_tabs() {
 /**
  * Test opening a search result in a new window.
  */
-function disabled_test_open_search_result_in_new_window() {
+function test_open_search_result_in_new_window() {
   swc.window.focus();
   set_open_message_behavior("NEW_WINDOW");
 
@@ -196,7 +196,7 @@ function disabled_test_open_search_result_in_new_window() {
 /**
  * Test reusing an existing window to open another search result.
  */
-function disabled_test_open_search_result_in_existing_window() {
+function test_open_search_result_in_existing_window() {
   swc.window.focus();
   set_open_message_behavior("EXISTING_WINDOW");
 
@@ -257,7 +257,7 @@ function test_close_search_window() {
  * Make sure the folder showed up with the right name, and that displaying it
  *  has the right contents.
  */
-function disabled_test_verify_saved_search() {
+function test_verify_saved_search() {
   let savedFolder = folder.findSubFolder("SearchSaved");
   if (savedFolder == null)
     throw new Error("Saved folder did not show up.");
