@@ -8,8 +8,8 @@ treenode-checkbox > .checkbox-check {
   -moz-appearance: none;
   -moz-box-align: center;
   border: none;
-  width: 9px; /* The image's width is 9 pixels */
-  height: 9px;
+  min-width: 9px; /* The image's width is 9 pixels */
+  min-height: 9px;
   background: url(chrome://global/skin/tree/twisty-collapsed.svg) center no-repeat;
   -moz-context-properties: fill, fill-opacity;
   fill: #b6b6b6;
@@ -17,7 +17,7 @@ treenode-checkbox > .checkbox-check {
 }
 
 treenode-checkbox[checked="true"] > .checkbox-check {
-  list-style-image: url("chrome://global/skin/tree/twisty-expanded.svg");
+  background-image: url("chrome://global/skin/tree/twisty-expanded.svg");
   fill: #636363;
 }
 
