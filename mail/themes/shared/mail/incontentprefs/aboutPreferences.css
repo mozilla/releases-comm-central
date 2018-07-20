@@ -262,6 +262,16 @@ separator.groove:not([orient="vertical"]) {
 
 #handlersView > richlistitem {
   min-height: 36px !important;
+  padding: 0;
+}
+
+.shortDetails {
+  text-align: end;
+  opacity: 0.5;
+}
+
+#handlersView richlistitem[selected="true"] .shortDetails {
+  color: inherit;
 }
 
 .typeIcon {
@@ -387,10 +397,9 @@ richlistbox richlistitem:hover {
   background-color: var(--in-content-item-hover);
 }
 
-richlistbox richlistitem[selected="true"],
-richlistbox:focus richlistitem[selected="true"] {
+richlistbox:focus > richlistitem[selected="true"] {
   background-color: var(--in-content-item-selected);
-  color: var(--in-content-selected-text);
+  color: var(--in-content-selected-text) !important;
 }
 
 /**

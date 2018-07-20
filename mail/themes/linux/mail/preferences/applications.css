@@ -25,10 +25,6 @@
   margin-top: 2px;
 }
 
-#handlersView richlistitem {
-  min-height: 25px;
-}
-
 richlistitem[appHandlerIcon="ask"],
 menuitem[appHandlerIcon="ask"] {
   list-style-image: url("chrome://messenger/skin/preferences/alwaysAsk.png");
@@ -57,15 +53,6 @@ menuitem[appHandlerIcon="plugin"] {
 
 .actionsMenu > menupopup > menuitem {
   padding-inline-start: 3px;
-}
-
-.shortDetails {
-  text-align: right;
-  color: GrayText;
-}
-
-#handlersView richlistbox:focus .shortDetails.selected {
-  color: inherit;
 }
 
 /**

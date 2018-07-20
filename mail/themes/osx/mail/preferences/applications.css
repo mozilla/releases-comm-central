@@ -52,16 +52,6 @@ menuitem[appHandlerIcon="plugin"] {
   padding-inline-end: 1px;
 }
 
-.shortDetails {
-  text-align: right;
-  color: GrayText;
-}
-
-richlistbox:focus .shortDetails.selected {
-  color: inherit;
-}
-
-
 .cloudfileAccount {
   padding: 4px;
 }
