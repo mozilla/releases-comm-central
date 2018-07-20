@@ -193,6 +193,7 @@ function onLoad()
   {
     let email = document.createElement("label");
     email.setAttribute("value", gEmailAddresses.value[i]);
+    email.setAttribute("crop", "end");
     email.setAttribute("style", "width: var(--recipientWidth)");
 
     let listitem = document.createElement("richlistitem");
@@ -210,12 +211,15 @@ function onLoad()
     {
       let status = document.createElement("label");
       status.setAttribute("value", getStatusExplanation(gCertStatusSummaries.value[i]));
+      status.setAttribute("crop", "end");
       status.setAttribute("style", "width: var(--statusWidth)");
       let issued = document.createElement("label");
       issued.setAttribute("value", gCertIssuedInfos.value[i]);
+      issued.setAttribute("crop", "end");
       issued.setAttribute("style", "width: var(--issuedWidth)");
       let expire = document.createElement("label");
       expire.setAttribute("value", gCertExpiresInfos.value[i]);
+      expire.setAttribute("crop", "end");
       expire.setAttribute("style", "width: var(--expireWidth)");
 
       listitem.appendChild(status);
