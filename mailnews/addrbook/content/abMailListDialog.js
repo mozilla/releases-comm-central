@@ -361,8 +361,7 @@ function awClickEmptySpace(target, setFocus)
 {
   if (target == null ||
       (target.localName != "richlistbox" &&
-      target.localName != "richlistcell" &&
-      target.localName != "richlistitem"))
+       target.localName != "richlistitem"))
     return;
 
   var lastInput = awGetInputElement(top.MAX_RECIPIENTS);

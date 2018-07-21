@@ -496,8 +496,7 @@ function awClickEmptySpace(target, setFocus)
 {
   if (document.getElementById("addressCol2#1").disabled || target == null ||
       (target.localName != "richlistbox" &&
-      target.localName != "richlistcell" &&
-      target.localName != "richlistitem"))
+       target.localName != "richlistitem"))
     return;
 
   var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
