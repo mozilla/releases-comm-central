@@ -3,6 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
@@ -115,7 +116,6 @@
            accesskey="&filterActionDesc.accesskey;"
            control="filterActionList"/>
     <richlistbox id="filterActionList"
-                 class="theme-listbox"
                  flex="1"
                  style="min-height: 100px;"
                  onfocus="setLastActionFocus();"
@@ -123,7 +123,7 @@
       <treecols hidden="true">
         <treecol flex="&filterActionTypeFlexValue;"/>
         <treecol flex="&filterActionTargetFlexValue;"/>
-        <treecol class="filler"/>
+        <treecol/>
       </treecols>
     </richlistbox>
   </vbox>

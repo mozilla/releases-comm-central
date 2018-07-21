@@ -16,6 +16,11 @@ treecolpicker {
   display: none;
 }
 
+richlistitem {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
 richlistitem > checkbox {
   width: 100px;
   margin: 0;
@@ -43,7 +48,12 @@ checkbox:not([label]) .checkbox-label-box {
 .small-button {
   min-width: 3em;
   padding: 0;
-  margin: 0 1px;
+  margin: 2px;
+}
+
+.small-button + .small-button {
+  margin-inline-start: 0;
+  margin-inline-end: 4px;
 }
 
 .search-menulist, .search-value-menulist {
@@ -54,16 +64,9 @@ checkbox:not([label]) .checkbox-label-box {
   color: GrayText;
 }
 
-textbox {
-  margin: 1px 4px;
-}
-
-.filler {
-  padding-inline-end: 22px;
-}
-
-.ruleaction {
-  border: 1px solid transparent;
+.search-value-textbox {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .ruleactionitem {

@@ -118,7 +118,7 @@ notification[value="draftMsgContent"] .messageImage {
 
 /* ::::: searchTermOverlay ::::: */
 
-#searchTermList > listitem[highlight = "true"] {
+#searchTermList > richlistitem[highlight = "true"] {
   animation: highlight .4s ease-in;
 }
 

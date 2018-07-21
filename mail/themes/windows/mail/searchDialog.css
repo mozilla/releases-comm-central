@@ -35,6 +35,11 @@
   height: 100px;
 }
 
+#searchTermList > richlistitem {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
 .search-menulist[unavailable="true"] {
   color: GrayText;
 }
@@ -47,18 +52,14 @@ menulist > menupopup > menuitem {
   padding-inline-end: 2px;
 }
 
-textbox {
-  margin: 1px 4px;
-}
-
-.filler {
-  padding-inline-end: 22px;
-}
-
 .small-button {
   min-width: 3em;
-  padding: 0;
-  margin: 0 1px;
+  margin: 1px 2px;
+}
+
+.small-button + .small-button {
+  margin-inline-start: 0;
+  margin-inline-end: 4px;
 }
 
 /* ::::: thread decoration ::::: */

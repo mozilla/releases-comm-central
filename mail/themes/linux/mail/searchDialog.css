@@ -35,8 +35,18 @@
   height: 100px;
 }
 
+#searchTermList > richlistitem {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
 .search-menulist[unavailable="true"] {
   color: GrayText;
+}
+
+.search-value-textbox {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 menulist {
@@ -47,18 +57,14 @@ menulist > menupopup > menuitem {
   padding-inline-end: 2px;
 }
 
-textbox {
-  margin: 1px 4px;
-}
-
 .small-button {
   min-width: 3em;
-  padding: 0px;
-  margin: 0px 1px;
+  margin: 2px;
 }
 
-.filler {
-  padding-inline-end: 22px;
+.small-button + .small-button {
+  margin-inline-start: 0;
+  margin-inline-end: 4px;
 }
 
 /* ::::: thread decoration ::::: */

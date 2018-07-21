@@ -325,11 +325,9 @@
   <binding id="ruleaction" extends="#filterlistitem">
     <content allowevents="true">
       <xul:hbox class="ruleactiontype"
-                    flex="&filterActionTypeFlexValue;"
-                    orient="vertical" align="stretch" pack="center"/>
+                    flex="&filterActionTypeFlexValue;"/>
       <xul:hbox class="ruleactiontarget" xbl:inherits="type=value"
-                    flex="&filterActionTargetFlexValue;"
-                    orient="vertical" align="stretch" pack="center"/>
+                    flex="&filterActionTargetFlexValue;"/>
       <xul:hbox>
         <xul:button class="small-button"
                     label="+"
