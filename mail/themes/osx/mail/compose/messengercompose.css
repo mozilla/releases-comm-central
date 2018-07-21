@@ -263,13 +263,9 @@ toolbar[nowindowdrag="true"] {
   -moz-user-focus: none;
   -moz-appearance: none;
   width: 0;
-  margin: 0px;
+  margin: 0;
+  padding-inline-end: 1px;
   border: none;
-  background-color: transparent;
-}
-
-#addressingWidget listboxbody {
-  margin: 1px 0;
   background-color: transparent;
 }
 

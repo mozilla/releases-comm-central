@@ -155,10 +155,7 @@
   background-color: transparent;
   margin-top: 1px;
   margin-bottom: 0;
-}
-
-#addressingWidget listboxbody {
-  margin: 1px 0;
+  padding-inline-end: 1px;
 }
 
 #addressingWidget > .addressingWidgetItem,

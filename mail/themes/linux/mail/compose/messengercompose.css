@@ -199,12 +199,8 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   width: 0;
   margin-top: 0;
   margin-bottom: 0;
+  padding-inline-end: 1px;
   border: none;
-  background-color: transparent;
-}
-
-#addressingWidget listboxbody {
-  margin: 1px 0;
   background-color: transparent;
 }
 
