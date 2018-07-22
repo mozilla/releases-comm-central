@@ -36,7 +36,8 @@ var TodayPane = {
             cal.l10n.getCalString("eventsonly")
         ];
         await agendaListbox.setupCalendar();
-        TodayPane.initializeMiniday();
+        agendaListbox.addListener(TodayPane);
+        TodayPane.setDay(cal.dtz.now());
         TodayPane.setShortWeekdays();
 
         document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", TodayPane.onModeModified);
@@ -46,10 +47,6 @@ var TodayPane = {
         TodayPane.updateSplitterState();
         TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         TodayPane.showTodayPaneStatusLabel();
-        // Workaround for bug 1360914. For unknown reasons, setTodayHeader() sets
-        // the selectedIndex of the "monthNameContainer" deck to a wrong value so
-        // the miniday needs to be initialized again.
-        TodayPane.initializeMiniday();
     },
 
     /**
@@ -98,28 +95,6 @@ var TodayPane = {
         }
 
         onCalendarViewResize();
-    },
-
-    /**
-     * Sets up the miniday display in the today pane.
-     */
-    initializeMiniday: function() {
-        // initialize the label denoting the current month, year and calendarweek
-        // with numbers that are supposed to consume the largest width
-        // in order to guarantee that the text will not be cropped when modified
-        // during runtime
-        const kYEARINIT = "5555";
-        const kCALWEEKINIT = "55";
-        let monthdisplaydeck = document.getElementById("monthNameContainer");
-        let childNodes = monthdisplaydeck.childNodes;
-
-        for (let i = 0; i < childNodes.length; i++) {
-            let monthlabel = childNodes[i];
-            this.setMonthDescription(monthlabel, i, kYEARINIT, kCALWEEKINIT);
-        }
-
-        agendaListbox.addListener(this);
-        this.setDay(cal.dtz.now());
     },
 
     /**
@@ -274,24 +249,6 @@ var TodayPane = {
     },
 
     /**
-     * Helper function to set the month description on the today pane header.
-     *
-     * @param aMonthLabel       The XUL node to set the month label on.
-     * @param aIndex            The month number, 0-based.
-     * @param aYear             The year this month should be displayed with
-     * @param aCalWeek          The calendar week that should be shown.
-     * @return                  The value set on aMonthLabel.
-     */
-    setMonthDescription: function(aMonthLabel, aIndex, aYear, aCalWeek) {
-        if (this.cwlabel == null) {
-            this.cwlabel = cal.l10n.getCalString("shortcalendarweek");
-        }
-        document.getElementById("currentWeek-label").value = this.cwlabel + " " + aCalWeek;
-        aMonthLabel.value = cal.getDateFormatter().shortMonthName(aIndex) + " " + aYear;
-        return aMonthLabel.value;
-    },
-
-    /**
      * Cycle the view shown in the today pane (event+task, event, task).
      *
      * @param aCycleForward     If true, the views are cycled in the forward
@@ -350,6 +307,11 @@ var TodayPane = {
      *                                    updated to show the same date.
      */
     setDay: function(aNewDate, aDontUpdateMinimonth) {
+        if (this.setDay.alreadySettingDay) {
+            // If we update the mini-month, this function gets called again.
+            return;
+        }
+        this.setDay.alreadySettingDay = true;
         this.start = aNewDate.clone();
 
         let daylabel = document.getElementById("datevalue-label");
@@ -358,18 +320,17 @@ var TodayPane = {
         let weekdaylabel = document.getElementById("weekdayNameContainer");
         weekdaylabel.selectedIndex = this.start.weekday;
 
-        let monthnamedeck = document.getElementById("monthNameContainer");
-        monthnamedeck.selectedIndex = this.start.month;
+        let monthnamelabel = document.getElementById("monthNameContainer");
+        monthnamelabel.value = cal.getDateFormatter().shortMonthName(this.start.month) + " " + this.start.year;
 
-        let selMonthPanel = monthnamedeck.selectedPanel;
-        this.setMonthDescription(selMonthPanel,
-                                 this.start.month,
-                                 this.start.year,
-                                 cal.getWeekInfoService().getWeekTitle(this.start));
+        let currentweeklabel = document.getElementById("currentWeek-label");
+        currentweeklabel.value = cal.l10n.getCalString("shortcalendarweek") + " " + cal.getWeekInfoService().getWeekTitle(this.start);
+
         if (!aDontUpdateMinimonth) {
             document.getElementById("today-Minimonth").value = cal.dtz.dateTimeToJsDate(this.start);
         }
         this.updatePeriod();
+        this.setDay.alreadySettingDay = false;
     },
 
     /**

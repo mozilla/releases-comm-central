@@ -123,21 +123,8 @@
                         </hbox>
                       </hbox>
                       <hbox pack="start">
-                        <deck id ="monthNameContainer" class="monthlabel"
-                              ondblclick="TodayPane.onDoubleClick(event);">
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                          <label/>
-                        </deck>
+                        <label id="monthNameContainer" class="monthlabel"
+                               ondblclick="TodayPane.onDoubleClick(event);"/>
                         <label id="currentWeek-label" class="monthlabel"
                                ondblclick="TodayPane.onDoubleClick(event);"/>
                         <spacer flex="1"/>
