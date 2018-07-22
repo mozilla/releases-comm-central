@@ -168,8 +168,8 @@ var calprovider = {
      * Dialog if a certificate Problem occurs.
      */
     BadCertHandler: class {
-        QueryInterface(iid) {
-            return cal.generateClassQI(this, iid, [Components.interfaces.nsIBadCertListener2]);
+        QueryInterface() {
+            return ChromeUtils.generateQI([Ci.nsIBadCertListener2]);
         }
 
         constructor(thisProvider) {
@@ -226,8 +226,8 @@ var calprovider = {
      * @return               The fresh calIFreeBusyInterval.
      */
     FreeBusyInterval: class {
-        QueryInterface(iid) {
-            return cal.generateClassQI(this, iid, [Components.interfaces.calIFreeBusyInterval]);
+        QueryInterface() {
+            return ChromeUtils.generateQI([Ci.calIFreeBusyInterval]);
         }
 
         constructor(aCalId, aFreeBusyType, aStart, aEnd) {
