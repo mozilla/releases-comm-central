@@ -169,7 +169,7 @@ class Overlays {
       let currentset = xulStore.getValue(this.location, bar.id, "currentset");
       if (currentset) {
         bar.currentSet = currentset;
-      } else {
+      } else if (bar.getAttribute("defaultset")) {
         bar.currentSet = bar.getAttribute("defaultset");
       }
     }
