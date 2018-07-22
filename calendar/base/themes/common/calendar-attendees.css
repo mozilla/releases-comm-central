@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
 /* this is for attendee and organizer decoration in summary and event dialog */
 
 #item-attendees-box {
@@ -95,6 +98,33 @@
 .itip-icon[role="CHAIR"] {
     --itip-icon-role: -32px;
     --itip-icon-usertype: -16px;
+}
+
+/* Autocomplete popup label formatting */
+
+html|span.ac-emphasize-text {
+  font-weight: bold;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url,
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
+  display: -moz-box;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url {
+  -moz-box-ordinal-group: 1;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
+  -moz-box-ordinal-group: 2;
+}
+
+.autocomplete-richlistitem:not([ac-comment=""]) > .ac-title {
+  -moz-box-ordinal-group: 3;
+}
+
+.ac-url-text {
+  max-width: unset !important;
 }
 
 /* the following will get obsolete once porting to new itip icons is complete */
