@@ -2908,13 +2908,13 @@ function assert_not_equals(a, b, comment)
 }
 
 // something less sucky than do_check_true
-function assert_true(aBeTrue, aWhy) {
+function assert_true(aBeTrue, aWhy = "Expected value of expression is not 'true'") {
   if (!aBeTrue)
     throw new Error(aWhy);
 }
 
 // something less sucky than do_check_false
-function assert_false(aBeTrue, aWhy) {
+function assert_false(aBeTrue, aWhy = "Expected value of expression is not 'false'") {
   if (aBeTrue)
     throw new Error(aWhy);
 }

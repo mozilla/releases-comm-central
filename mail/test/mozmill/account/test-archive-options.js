@@ -158,10 +158,15 @@ function subtest_disable_archive(amc) {
   let iframe = amc.window.document.getElementById("contentFrame");
   let checkbox = iframe.contentDocument.getElementById("identity.archiveEnabled");
 
+  assert_true(checkbox.checked);
+  assert_false(checkbox.disabled);
   amc.click(new elib.Elem(checkbox));
+  utils.waitFor(() => !checkbox.checked, "Archive checkbox didn't toggle to unchecked");
+  plan_for_window_close(amc);
   amc.window.document.getElementById("accountManager").acceptDialog();
+  wait_for_window_close();
 
-  assert_equals(defaultIdentity.archiveEnabled, false);
+  assert_false(defaultIdentity.archiveEnabled);
 }
 
 function test_disable_archive() {
