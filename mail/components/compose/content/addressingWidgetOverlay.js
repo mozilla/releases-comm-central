@@ -494,9 +494,9 @@ function awDeleteRow(rowToDelete)
 
 function awClickEmptySpace(target, setFocus)
 {
-  if (document.getElementById("addressCol2#1").disabled || target == null ||
-      (target.localName != "richlistbox" &&
-       target.localName != "richlistitem"))
+  if (document.getElementById("addressCol2#1").disabled ||
+      target == null ||
+      target.localName != "hbox")
     return;
 
   var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
