@@ -443,7 +443,7 @@
        command="cmd_reorderAttachments"/>
   <key id="key_toggleAttachmentPane"
        key="&toggleAttachmentPaneCmd.key;" modifiers="control"
-       command="keyToggleAttachmentPaneOnCommand();"/>
+       oncommand="keyToggleAttachmentPaneOnCommand();"/>
 #else
   <key id="key_delete" keycode="VK_DELETE" command="cmd_delete"/>
   <key id="key_renameAttachment" keycode="VK_F2"
@@ -452,7 +452,7 @@
        key="&reorderAttachmentsCmd.key;" modifiers="alt"
        command="cmd_reorderAttachments"/>
   <key id="key_toggleAttachmentPane"
-       key="&toggleAttachmentPaneCmd.key;" modifiers="alt"
+       key="&attachments.accesskey;" modifiers="alt"
        oncommand="keyToggleAttachmentPaneOnCommand();"/>
 #endif
   <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="accel"/>

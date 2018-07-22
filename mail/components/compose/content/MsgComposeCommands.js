@@ -5202,10 +5202,8 @@ function moveSelectedAttachments(aDirection)
 }
 
 function keyToggleAttachmentPaneOnCommand() {
-  // For easy and efficient UX with (access key == shortcut key), and working
-  // around a bug where focusing a tree from an associated access key will
-  // deselect first, remember that we're coming from key_toggleAttachmentPane
-  // before we go into command handling.
+  // For easy and efficient UX with (access key == command key), remember that
+  // we're coming from key_toggleAttachmentPane before going into command handling.
   document.getElementById("cmd_toggleAttachmentPane").setAttribute("eventsource",
                                                                    "key");
   goDoCommand("cmd_toggleAttachmentPane");
@@ -5429,26 +5427,29 @@ function attachmentBucketOnKeyPress(aEvent) {
     goDoCommand("cmd_attachFile");
   }
 
-  // For user's convenience, we want the access key combo for attachments pane
-  // (e.g. Alt+M) to also work as a shortcut key to toggle the attachment pane.
-  // Hence localizations have been advised to define the access key combo as a
-  // shortcut key in <key_toggleAttachmentPane/>. This is important especially
-  // for Mac which does not have access keys for UI elements, but it should work
-  // if defined as a shortcut key.
-  // On Windows (and Linux?), unfortunately access key intercepts the identical
-  // shortcut key, so we have to trigger the shortcut key action here.
-  // This means that if the shortcut key is identical with the access key on
-  // Windows/Linux, the shortcut never triggers and we always end up here.
-  // We still want the shortcut key on those OS because localizations might
-  // ignore our advice and define a shortcut key which is different from the
-  // access key. And we can't use the shortcut key only because removing the
-  // control attribute of the access key breaks screen readers. Sigh.
-  let attachmentsAccessKey = document.getElementById("attachmentBucketCount")
-                                     .accessKey;
-  // We can get away with hardcoding the access key modifier key as aEvent.altKey
-  // because it's ALT for Windows and Linux, and Mac doesn't have XUL access keys.
-  if (aEvent.key == attachmentsAccessKey && aEvent.altKey) {
-    goDoCommand('cmd_toggleAttachmentPane');
+  // Every locale has a dedicated access key for attachment pane on the
+  // "N attachments" label (Windows and Linux). For users' convenience and
+  // high mnemonic value, we want the access key combo (e.g. Alt+M) to also work
+  // as a shortcut key to toggle the pane (keyboard equivalent of clicking
+  // "N attachments" label or pane header).
+  // Unfortunately access key intercepts the identical shortcut key, so we have
+  // to trigger the shortcut key action here.
+  // And we can't use the shortcut key only because removing the control
+  // attribute of the label breaks screen readers. Sigh.
+  if (AppConstants.platform == "macosx") {
+    // Mac does not have localized access keys, so here we're reconstructing the
+    // typically non-localized shortcut key, Ctrl+M.
+    let attachmentsCommandKeyMac =
+      document.getElementById("key_toggleAttachmentPane").getAttribute("key");
+    if (aEvent.key == attachmentsCommandKeyMac && aEvent.ctrlKey)
+      goDoCommand("cmd_toggleAttachmentPane");
+  } else {
+    let attachmentsAccessKey = document.getElementById("attachmentBucketCount")
+                                       .accessKey;
+    // We can get away with hardcoding the access key modifier key as aEvent.altKey
+    // because it's ALT for Windows and Linux.
+    if (aEvent.key == attachmentsAccessKey && aEvent.altKey)
+      goDoCommand("cmd_toggleAttachmentPane");
   }
 }
 
