@@ -144,13 +144,6 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   padding: 0 1px;
 }
 
-/* XXX I should really have a selector rule here to select just .listcell-icon objects underneath the attachmentList listbox */
-
-.listcell-icon {
-  margin-inline-start: 2px;
-  margin-top: 2px;
-}
-
 #subjectLabel {
   margin-inline-end: 6px;
   padding-bottom: 1px;

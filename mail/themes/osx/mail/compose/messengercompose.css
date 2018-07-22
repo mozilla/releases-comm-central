@@ -194,13 +194,6 @@ toolbar[nowindowdrag="true"] {
   border-inline-end: 1px solid #9b9b9b;
 }
 
-/* XXX I should really have a selector rule here to select just .listcell-icon objects underneath the attachmentList listbox */
-
-.listcell-icon {
-  margin-inline-start: 2px;
-  margin-top: 2px;
-}
-
 #subjectLabel {
   margin-top: 0;
   margin-bottom: 4px;
