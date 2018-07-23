@@ -620,15 +620,16 @@ PlacesController.prototype = {
       }
     }
 
-    // Make sure correct PluralForms are diplayed when multiple pages are selected.
-    var deleteHistoryItem = document.getElementById("placesContext_delete_history");
-    deleteHistoryItem.label = PlacesUIUtils.getPluralString("cmd.deletePages.label",
-                                                            metadata.length);
-    deleteHistoryItem.accessKey = PlacesUIUtils.getString("cmd.deletePages.accesskey");
-    var createBookmarkItem = document.getElementById("placesContext_createBookmark");
-    createBookmarkItem.label = PlacesUIUtils.getPluralString("cmd.bookmarkPages.label",
-                                                             metadata.length);
-    createBookmarkItem.accessKey = PlacesUIUtils.getString("cmd.bookmarkPages.accesskey");
+    // Make sure to display the correct string when multiple pages are selected.
+    let stringId = metadata.length === 1 ? "SinglePage" : "MultiplePages";
+
+    let deleteHistoryItem = document.getElementById("placesContext_delete_history");
+    deleteHistoryItem.label = PlacesUIUtils.getString(`cmd.delete${stringId}.label`);
+    deleteHistoryItem.accessKey = PlacesUIUtils.getString(`cmd.delete${stringId}.accesskey`);
+
+    let createBookmarkItem = document.getElementById("placesContext_createBookmark");
+    createBookmarkItem.label = PlacesUIUtils.getString(`cmd.bookmark${stringId}.label`);
+    createBookmarkItem.accessKey = PlacesUIUtils.getString(`cmd.bookmark${stringId}.accesskey`);
 
     return usableItemCount > 0;
   },
@@ -1381,11 +1382,12 @@ var PlacesControllerDragHelper = {
         unwrappedNode.id <= 0 || PlacesUtils.isRootItem(unwrappedNode.id)) {
       return false;
     }
-    let parentId = unwrappedNode.parent;
-    if (parentId <= 0 ||
-        parentId == PlacesUtils.placesRootId ||
-        parentId == PlacesUtils.tagsFolderId ||
-        unwrappedNode.grandParentId == PlacesUtils.tagsFolderId) {
+
+    let parentGuid = unwrappedNode.parentGuid;
+    // If there's no parent Guid, this was likely a virtual query that returns
+    // bookmarks, such as a tags query.
+    if (!parentGuid ||
+        parentGuid == PlacesUtils.bookmarks.rootGuid) {
       return false;
     }
     // leftPaneFolderId and allBookmarksFolderId are lazy getters running
@@ -1393,7 +1395,7 @@ var PlacesControllerDragHelper = {
     // them first, especially because isCommandEnabled may be called way
     // before the left pane folder is even necessary.
     if (typeof Object.getOwnPropertyDescriptor(PlacesUIUtils, "leftPaneFolderId").get != "function" &&
-        (parentId == PlacesUIUtils.leftPaneFolderId)) {
+        (unwrappedNode.parent == PlacesUIUtils.leftPaneFolderId)) {
       return false;
     }
     return true;

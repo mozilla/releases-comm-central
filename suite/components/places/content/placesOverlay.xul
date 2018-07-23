@@ -23,11 +23,11 @@
       "PlacesUIUtils", "resource:///modules/PlacesUIUtils.jsm");
     ChromeUtils.defineModuleGetter(window,
       "PlacesTransactions", "resource://gre/modules/PlacesTransactions.jsm");
+    XPCOMUtils.defineLazyScriptGetter(window, "PlacesTreeView",
+      "chrome://communicator/content/places/treeView.js");
   ]]></script>
   <script type="application/javascript"
           src="chrome://communicator/content/places/controller.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/places/treeView.js"/>
 
   <!-- Bookmarks and history tooltip -->
   <tooltip id="bhTooltip" noautohide="true"

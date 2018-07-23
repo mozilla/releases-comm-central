@@ -162,8 +162,6 @@ var PlacesOrganizer = {
             .removeChild(document.getElementById("placesContext_show:info"));
 
     ContentArea.focus();
-    // sync is currently disabled
-    // gSync.init();
   },
 
   QueryInterface: function PO_QueryInterface(aIID) {
