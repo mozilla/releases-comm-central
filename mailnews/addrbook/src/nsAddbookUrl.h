@@ -71,15 +71,7 @@ public:
   friend BaseURIMutator<nsAddbookUrl>;
 
 protected:
-  enum RefHandlingEnum {
-    eIgnoreRef,
-    eHonorRef,
-    eReplaceRef
-  };
   virtual ~nsAddbookUrl();
-  nsresult
-  CloneInternal(RefHandlingEnum aRefHandlingMode,
-                const nsACString& newRef, nsIURI** _retval);
 
   nsresult                      ParseUrl();
   int32_t                       mOperationType;     // the internal ID for the operation

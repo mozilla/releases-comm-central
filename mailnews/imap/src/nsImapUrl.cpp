@@ -1155,12 +1155,9 @@ NS_IMETHODIMP nsImapUrl::GetAllowContentChange(bool *result)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapUrl::CloneInternal(uint32_t aRefHandlingMode,
-                                       const nsACString& newRef,
-                                       nsIURI** _retval)
+NS_IMETHODIMP nsImapUrl::Clone(nsIURI** _retval)
 {
-  nsresult rv =
-    nsMsgMailNewsUrl::CloneInternal(aRefHandlingMode, newRef, _retval);
+  nsresult rv = nsMsgMailNewsUrl::Clone(_retval);
   NS_ENSURE_SUCCESS(rv, rv);
   // also clone the mURI member, because GetUri below won't work if
   // mURI isn't set due to escaping issues.

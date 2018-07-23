@@ -373,8 +373,7 @@ NS_IMETHODIMP nsLDAPURL::SchemeIs(const char *aScheme, bool *aEquals)
 // nsIURI clone ();
 //
 nsresult
-nsLDAPURL::CloneInternal(RefHandlingEnum aRefHandlingMode,
-                         const nsACString& newRef, nsIURI** aResult)
+nsLDAPURL::Clone(nsIURI** aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
 
@@ -389,36 +388,11 @@ nsLDAPURL::CloneInternal(RefHandlingEnum aRefHandlingMode,
   clone->mOptions = mOptions;
   clone->mAttributes = mAttributes;
 
-  nsresult rv;
-  if (aRefHandlingMode == eHonorRef) {
-    rv = NS_MutateURI(mBaseURL).Finalize(clone->mBaseURL);
-  } else if (aRefHandlingMode == eReplaceRef) {
-    rv = mBaseURL->CloneWithNewRef(newRef, getter_AddRefs(clone->mBaseURL));
-  } else {
-    rv = mBaseURL->CloneIgnoringRef(getter_AddRefs(clone->mBaseURL));
-  }
+  nsresult rv = NS_MutateURI(mBaseURL).Finalize(clone->mBaseURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_ADDREF(*aResult = clone);
   return NS_OK;
-}
-
-nsresult
-nsLDAPURL::Clone(nsIURI** result)
-{
-  return CloneInternal(eHonorRef, EmptyCString(), result);
-}
-
-NS_IMETHODIMP
-nsLDAPURL::CloneIgnoringRef(nsIURI** result)
-{
-  return CloneInternal(eIgnoreRef, EmptyCString(), result);
-}
-
-NS_IMETHODIMP
-nsLDAPURL::CloneWithNewRef(const nsACString& newRef, nsIURI** result)
-{
-  return CloneInternal(eReplaceRef, newRef, result);
 }
 
 // string resolve (in string relativePath);

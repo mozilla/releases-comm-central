@@ -522,8 +522,7 @@ NS_IMETHODIMP nsMailtoUrl::Equals(nsIURI *other, bool *_retval)
 }
 
 nsresult
-nsMailtoUrl::CloneInternal(RefHandlingEnum aRefHandlingMode,
-                           const nsACString& newRef, nsIURI** _retval)
+nsMailtoUrl::Clone(nsIURI** _retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
 
@@ -531,36 +530,11 @@ nsMailtoUrl::CloneInternal(RefHandlingEnum aRefHandlingMode,
 
   NS_ENSURE_TRUE(clone, NS_ERROR_OUT_OF_MEMORY);
 
-  nsresult rv;
-  if (aRefHandlingMode == eHonorRef) {
-    rv = NS_MutateURI(m_baseURL).Finalize(clone->m_baseURL);
-  } else if (aRefHandlingMode == eReplaceRef) {
-    rv = m_baseURL->CloneWithNewRef(newRef, getter_AddRefs(clone->m_baseURL));
-  } else {
-    rv = m_baseURL->CloneIgnoringRef(getter_AddRefs(clone->m_baseURL));
-  }
+  nsresult rv = NS_MutateURI(m_baseURL).Finalize(clone->m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
   clone->ParseUrl();
   clone.forget(_retval);
   return NS_OK;
-}
-
-nsresult
-nsMailtoUrl::Clone(nsIURI **_retval)
-{
-  return CloneInternal(eHonorRef, EmptyCString(), _retval);
-}
-
-NS_IMETHODIMP
-nsMailtoUrl::CloneIgnoringRef(nsIURI** _retval)
-{
-  return CloneInternal(eIgnoreRef, EmptyCString(), _retval);
-}
-
-NS_IMETHODIMP
-nsMailtoUrl::CloneWithNewRef(const nsACString& newRef, nsIURI** _retval)
-{
-  return CloneInternal(eReplaceRef, newRef, _retval);
 }
 
 NS_IMETHODIMP nsMailtoUrl::Resolve(const nsACString &relativePath, nsACString &result)

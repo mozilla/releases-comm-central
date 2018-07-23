@@ -615,8 +615,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SchemeIs(const char *aScheme, bool *_retval)
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::CloneInternal(uint32_t aRefHandlingMode,
-                                const nsACString& newRef, nsIURI** _retval)
+nsMsgMailNewsUrl::Clone(nsIURI** _retval)
 {
   nsresult rv;
   nsAutoCString urlSpec;
@@ -638,33 +637,8 @@ nsMsgMailNewsUrl::CloneInternal(uint32_t aRefHandlingMode,
     msgMailNewsUrl->SetMsgWindow(msgWindow);
   }
 
-  if (aRefHandlingMode == nsIMsgMailNewsUrl::REPLACE_REF) {
-    rv = NS_MutateURI(newUri).SetRef(newRef).Finalize(newUri);
-    NS_ENSURE_SUCCESS(rv, rv);
-  } else if (aRefHandlingMode == nsIMsgMailNewsUrl::IGNORE_REF) {
-    rv = NS_MutateURI(newUri).SetRef(EmptyCString()).Finalize(newUri);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
   newUri.forget(_retval);
   return rv;
-}
-
-nsresult nsMsgMailNewsUrl::Clone(nsIURI **_retval)
-{
-  return CloneInternal(nsIMsgMailNewsUrl::HONOR_REF, EmptyCString(), _retval);
-}
-
-NS_IMETHODIMP
-nsMsgMailNewsUrl::CloneIgnoringRef(nsIURI** _retval)
-{
-  return CloneInternal(nsIMsgMailNewsUrl::IGNORE_REF, EmptyCString(), _retval);
-}
-
-NS_IMETHODIMP
-nsMsgMailNewsUrl::CloneWithNewRef(const nsACString& newRef, nsIURI** _retval)
-{
-  return CloneInternal(nsIMsgMailNewsUrl::REPLACE_REF, newRef, _retval);
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString &relativePath, nsACString &result)
