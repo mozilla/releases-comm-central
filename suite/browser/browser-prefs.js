@@ -359,7 +359,7 @@ pref("mailnews.ui.deleteMarksRead", true);
 // (This is intentionally on the high side; see bugs 746055 and 768015.)
 pref("image.mem.max_decoded_image_kb", 256000);
 
-pref("spellchecker.dictionaries.download.url", "chrome://branding/locale/brand.properties");
+pref("spellchecker.dictionaries.download.url", "https://addons.thunderbird.net/%LOCALE%/%APP%/dictionaries");
 
 // this will automatically enable inline spellchecking (if it is available) for
 // editable elements in HTML
@@ -626,8 +626,8 @@ pref("extensions.update.background.url", "https://versioncheck-bg.addons.thunder
 pref("extensions.update.interval", 86400);
 
 // getMoreThemes is used by our UI under our switch theme menu
-pref("extensions.getMoreThemesURL", "chrome://branding/locale/brand.properties");
-pref("extensions.getPersonasURL", "chrome://branding/locale/brand.properties");
+pref("extensions.getMoreThemesURL", "https://addons.thunderbird.net/%LOCALE%/%APP%/complete-themes/");
+pref("extensions.getPersonasURL", "https://addons.thunderbird.net/%LOCALE%/%APP%/themes/?sort=up-and-coming");
 
 // Non-dynamic switch pending after next restart.
 pref("extensions.dss.switchPending", false);

@@ -22,7 +22,7 @@ client, supporting advanced junk mail detection and other useful features.">
 <!ENTITY dict.title "Dictionaries">
 <!ENTITY dict_intro.label "Dictionaries are used to check the spelling of your messages.">
 <!--# LOCALIZATION NOTE (dict_info.label): the URL for <a id="dictURL"> is fetched from brand.properties -->
-<!ENTITY dict_info.label
+<!ENTITY dict_info.label2
 'Many additional languages can be installed from the
 <a id="dictURL" href="">dictionaries</a> section on
 <a href="https://addons.thunderbird.net/seamonkey/">SeaMonkey and Thunderbird Add-ons</a>.'>
