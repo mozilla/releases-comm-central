@@ -25,11 +25,10 @@ public:
 
   NS_DECL_ISUPPORTS_INHERITED
 
-  // nsIMsgMailNewsUrl override
+  // nsMsgMailNewsUrl overrides
   nsresult SetSpecInternal(const nsACString &aSpec) override;
   nsresult SetQuery(const nsACString &aQuery) override;
-  // nsIURI override
-  NS_IMETHOD Clone(nsIURI **_retval) override;
+  nsresult Clone(nsIURI **_retval) override;
 
   //////////////////////////////////////////////////////////////////////////////
   // we support the nsIImapUrl interface

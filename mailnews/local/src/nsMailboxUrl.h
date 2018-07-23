@@ -60,8 +60,8 @@ public:
 
   NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder) override;
 
-  // nsIMsgMailNewsUrl override
-  NS_IMETHOD Clone(nsIURI **_retval) override;
+  // nsMsgMailNewsUrl override
+  nsresult Clone(nsIURI **_retval) override;
 
   // nsMailboxUrl
   nsMailboxUrl();

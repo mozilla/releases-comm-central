@@ -614,7 +614,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SchemeIs(const char *aScheme, bool *_retval)
   return m_baseURL->SchemeIs(aScheme, _retval);
 }
 
-NS_IMETHODIMP
+nsresult
 nsMsgMailNewsUrl::Clone(nsIURI** _retval)
 {
   nsresult rv;

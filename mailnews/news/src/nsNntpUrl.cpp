@@ -560,7 +560,7 @@ NS_IMETHODIMP nsNntpUrl::SetCharsetOverRide(const char * aCharacterSet)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::Clone(nsIURI **_retval)
+nsresult nsNntpUrl::Clone(nsIURI **_retval)
 {
   nsresult rv;
   rv = nsMsgMailNewsUrl::Clone(_retval);

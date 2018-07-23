@@ -1155,7 +1155,7 @@ NS_IMETHODIMP nsImapUrl::GetAllowContentChange(bool *result)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapUrl::Clone(nsIURI** _retval)
+nsresult nsImapUrl::Clone(nsIURI** _retval)
 {
   nsresult rv = nsMsgMailNewsUrl::Clone(_retval);
   NS_ENSURE_SUCCESS(rv, rv);

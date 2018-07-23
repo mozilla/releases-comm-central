@@ -172,7 +172,7 @@ NS_IMETHODIMP nsMailboxUrl::SetUri(const char * aURI)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::Clone(nsIURI **_retval)
+nsresult nsMailboxUrl::Clone(nsIURI **_retval)
 {
   nsresult rv = nsMsgMailNewsUrl::Clone(_retval);
   NS_ENSURE_SUCCESS(rv, rv);
