@@ -2246,6 +2246,10 @@ this.PlacesPanelview = class extends PlacesViewBase {
     }
   }
 
+  _isPopupOpen() {
+    return PanelView.forNode(this._viewElt).active;
+  }
+
   _onPopupHidden(event) {
     let panelview = event.originalTarget;
     let placesNode = panelview._placesNode;
