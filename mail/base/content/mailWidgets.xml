@@ -20,7 +20,7 @@
   <!-- dummy widget to force this file to load -->
   <binding id="dummy" extends="xul:box"/>
 
-  <binding id="attachmentlist-base" extends="chrome://global/content/bindings/listbox.xml#listbox-base">
+  <binding id="attachmentlist-base" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
     <implementation>
       <constructor><![CDATA[
         let children = Array.from(this._childNodes);
@@ -414,7 +414,7 @@
     </implementation>
   </binding>
 
-  <binding id="attachmentitem" extends="chrome://global/content/bindings/listbox.xml#listitem">
+  <binding id="attachmentitem" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <implementation>
       <constructor><![CDATA[
         this._updateImage();
