@@ -8,7 +8,6 @@
 
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/TelemetryStopwatch.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 ChromeUtils.defineModuleGetter(this, "MigrationUtils",
@@ -23,7 +22,6 @@ ChromeUtils.defineModuleGetter(this, "OS",
                                "resource://gre/modules/osfile.jsm");
 
 const RESTORE_FILEPICKER_FILTER_EXT = "*.json;*.jsonlz4";
-const HISTORY_LIBRARY_SEARCH_TELEMETRY = "PLACES_HISTORY_LIBRARY_SEARCH_TIME_MS";
 
 var PlacesOrganizer = {
   _places: null,
@@ -377,7 +375,7 @@ var PlacesOrganizer = {
    * cookies, history, preferences, and bookmarks.
    */
   importFromBrowser: function PO_importFromBrowser() {
-    // We pass in the type of source we're using for use in telemetry:
+    // We pass in the type of source we're using for future use:
     MigrationUtils.showMigrationWizard(window, [MigrationUtils.MIGRATION_ENTRYPOINT_PLACES]);
   },
 
@@ -812,9 +810,7 @@ var PlacesSearchBox = {
           options.includeHidden = true;
           currentView.load([query], options);
         } else {
-          TelemetryStopwatch.start(HISTORY_LIBRARY_SEARCH_TELEMETRY);
           currentView.applyFilter(filterString, null, true);
-          TelemetryStopwatch.finish(HISTORY_LIBRARY_SEARCH_TELEMETRY);
         }
         break;
       }
