@@ -1297,7 +1297,8 @@ calDavCalendar.prototype = {
                                              null,
                                              null);
             }
-        } else if (this.checkedServerInfo) {
+        } else if (this.checkedServerInfo ||
+                   this.getProperty("currentStatus") == Ci.calIErrors.READ_FAILED) {
             this.mOfflineStorage.getItems(...arguments);
         } else {
             this.mQueuedQueries.push(Array.from(arguments));
