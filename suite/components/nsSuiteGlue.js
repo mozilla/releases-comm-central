@@ -24,6 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   RecentWindow: "resource:///modules/RecentWindow.jsm",
   Sanitizer: "resource:///modules/Sanitizer.jsm",
   DownloadsCommon: "resource:///modules/DownloadsCommon.jsm",
+  PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "DebuggerServer", () => {

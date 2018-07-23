@@ -14,6 +14,7 @@
 ------------------------------------------------------------------------------*/
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gContextMenuContentData = null;
 
@@ -29,10 +30,11 @@ XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
   return new tmp.PageMenuParent();
 });
 
-ChromeUtils.defineModuleGetter(this, "DevToolsShim",
-  "chrome://devtools-shim/content/DevToolsShim.jsm");
-ChromeUtils.defineModuleGetter(this, "findCssSelector",
-  "resource://gre/modules/css-selector.js");
+XPCOMUtils.defineLazyModuleGetters(this, {
+  DevToolsShim: "chrome://devtools-shim/content/DevToolsShim.jsm",
+  findCssSelector: "resource://gre/modules/css-selector.js",
+  NetUtil: "resource://gre/modules/NetUtil.jsm",
+});
 
 function nsContextMenu(aXulMenu, aIsShift, aEvent) {
   this.shouldDisplay = true;

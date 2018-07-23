@@ -8,6 +8,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/WindowsPreviewPerTab.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  NetUtil: "resource://gre/modules/NetUtil.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
   PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.jsm",
   PromiseUtils: "resource://gre/modules/PromiseUtils.jsm",
