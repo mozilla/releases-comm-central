@@ -247,8 +247,7 @@
 
 .tab-scrollbutton-up:-moz-locale-dir(ltr),
 .tab-scrollbutton-down:-moz-locale-dir(rtl) {
-  border-right: 2px solid;
-  -moz-border-right-colors: rgba(0, 0, 0, 0.19) transparent;
+  border-right: 1px solid rgba(0, 0, 0, 0.19);
   list-style-image: url("chrome://messenger/skin/icons/tab-arrow-left.png");
   -moz-image-region: rect(0, 7px, 11px, 0);
 }
@@ -256,13 +255,12 @@
 .tab-scrollbutton-up[disabled="true"]:-moz-locale-dir(ltr),
 .tab-scrollbutton-down[disabled="true"]:-moz-locale-dir(rtl) {
   -moz-image-region: rect(0, 14px, 11px, 7px);
-  -moz-border-right-colors: transparent transparent;
+  border-right-color: transparent;
 }
 
 .tab-scrollbutton-down:-moz-locale-dir(ltr),
 .tab-scrollbutton-up:-moz-locale-dir(rtl) {
-  border-left: 2px solid;
-  -moz-border-left-colors: rgba(0, 0, 0, 0.19) transparent;
+  border-left: 1px solid rgba(0, 0, 0, 0.19);
   list-style-image: url("chrome://messenger/skin/icons/tab-arrow-right.png");
   -moz-image-region: rect(0, 7px, 11px, 0);
 }
@@ -270,7 +268,7 @@
 .tab-scrollbutton-down[disabled="true"]:-moz-locale-dir(ltr),
 .tab-scrollbutton-up[disabled="true"]:-moz-locale-dir(rtl) {
   -moz-image-region: rect(0, 14px, 11px, 7px);
-  -moz-border-left-colors: transparent transparent;
+  border-left-color: transparent;
 }
 
 .tab-scrollbutton-up:hover:not([disabled="true"]),

@@ -108,11 +108,8 @@
 .box-texttab[selected="true"],
 .box-texttab[selected="true"]:hover,
 .box-texttab[selected="true"]:hover:active {
-  border: 2px solid;
-  -moz-border-top-colors: ThreeDHighlight ThreeDLightShadow;
-  -moz-border-right-colors: ThreeDShadow ThreeDLightShadow;
-  -moz-border-bottom-colors: ThreeDShadow  ThreeDLightShadow;
-  -moz-border-left-colors: ThreeDHighlight ThreeDLightShadow;
+  border: 1px solid;
+  border-color: ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight;
   padding-top: 2px;
   padding-bottom: 2px;
   padding-inline-start: 0px;
@@ -120,15 +117,12 @@
 }
 
 .box-texttab:hover {
-  -moz-border-right-colors: ThreeDDarkShadow ThreeDShadow;
-  -moz-border-bottom-colors: ThreeDDarkShadow  ThreeDShadow;
+  border-right-color: ThreeDDarkShadow;
+  border-bottom-color: ThreeDDarkShadow;
 }
 
 .box-texttab:hover:active {
-  -moz-border-top-colors: ThreeDShadow ThreeDLightShadow;
-  -moz-border-right-colors: ThreeDShadow ThreeDLightShadow;
-  -moz-border-bottom-colors: ThreeDShadow  ThreeDLightShadow;
-  -moz-border-left-colors: ThreeDShadow ThreeDLightShadow;
+  border-color: ThreeDShadow;
 }
 
 .sbtab-label {

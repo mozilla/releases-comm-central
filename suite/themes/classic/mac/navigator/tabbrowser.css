@@ -18,8 +18,7 @@ tabpanels {
 }
 
 .tabs-bottom {
-  border-bottom: 3px solid;
-  -moz-border-bottom-colors: #888 rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .tabbrowser-tabs {
@@ -28,6 +27,7 @@ tabpanels {
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   padding: 0;
   margin: 0;
+  margin-bottom: 2px;
   -moz-box-align: end;
 }
 
@@ -46,22 +46,22 @@ tabpanels {
   padding: 0;
   list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
   border: solid transparent;
-  border-width: 0 2px;
+  border-width: 0 1px;
   -moz-appearance: none;
 }
 
 .tabbrowser-tab:not([selected="true"]):-moz-locale-dir(ltr),
 .tabbrowser-tab:not([selected="true"]):-moz-locale-dir(rtl):first-child {
-  -moz-border-right-colors: transparent rgba(0, 0, 0, 0.19);
+  border-right-color: rgba(0, 0, 0, 0.19);
 }
 
 .tabbrowser-tab:not([selected="true"]):-moz-locale-dir(ltr):first-child,
 .tabbrowser-tab:not([selected="true"]):-moz-locale-dir(rtl) {
-  -moz-border-left-colors: transparent rgba(0, 0, 0, 0.19);
+  border-left-color: rgba(0, 0, 0, 0.19);
 }
 
 .tabbrowser-tab:not(:first-child) {
-  margin-inline-start: -3px;
+  margin-inline-start: -1px;
 }
 
 .tab-middle {
@@ -101,11 +101,11 @@ tabpanels {
   color: #000000;
   text-shadow: none;
   border-radius: 2px;
-  border-top-width: 2px;
-  -moz-border-top-colors: rgba(0, 0, 0, 0.1) #888;
-  -moz-border-left-colors: rgba(0, 0, 0, 0.08) #888;
-  -moz-border-right-colors: rgba(0, 0, 0, 0.08) #888;
-  margin-top: 1px;
+  border-top-width: 1px;
+  border-top-color: rgba(0, 0, 0, 0.1);
+  border-left-color: rgba(0, 0, 0, 0.08);
+  border-right-color: rgba(0, 0, 0, 0.08);
+  margin-top: 2px;
 }
 
 .tabbrowser-tab:focus {
@@ -115,11 +115,11 @@ tabpanels {
 }
 
 .tabbrowser-tab[beforeselected="true"]:-moz-locale-dir(ltr) {
-  -moz-border-right-colors: transparent transparent;
+  border-right-color: transparent;
 }
 
 .tabbrowser-tab[beforeselected="true"]:-moz-locale-dir(rtl) {
-  -moz-border-left-colors: transparent transparent;
+  border-left-color: transparent;
 }
 
 .tabs-newbutton > .toolbarbutton-text,
@@ -139,8 +139,8 @@ tabpanels {
 
 .scrollbutton-up:-moz-locale-dir(ltr),
 .scrollbutton-down:-moz-locale-dir(rtl) {
-  border-right: 2px solid;
-  -moz-border-right-colors: rgba(0, 0, 0, 0.19) transparent;
+  border-right: 1px solid;
+  border-right-color: rgba(0, 0, 0, 0.19);
   list-style-image: url("chrome://messenger/skin/icons/tab-arrow-left.png");
   -moz-image-region: rect(0, 7px, 11px, 0);
 }
@@ -148,13 +148,13 @@ tabpanels {
 .scrollbutton-up[disabled="true"]:-moz-locale-dir(ltr),
 .scrollbutton-down[disabled="true"]:-moz-locale-dir(rtl) {
   -moz-image-region: rect(0, 14px, 11px, 7px);
-  -moz-border-right-colors: transparent transparent;
+  border-right-color: transparent;
 }
 
 .scrollbutton-down:-moz-locale-dir(ltr),
 .scrollbutton-up:-moz-locale-dir(rtl) {
-  border-left: 2px solid;
-  -moz-border-left-colors: rgba(0, 0, 0, 0.19) transparent;
+  border-left: 1px solid;
+  border-left-color: rgba(0, 0, 0, 0.19);
   list-style-image: url("chrome://messenger/skin/icons/tab-arrow-right.png");
   -moz-image-region: rect(0, 7px, 11px, 0);
   box-shadow: 0 0 0 9px transparent inset;
@@ -169,7 +169,7 @@ tabpanels {
 .scrollbutton-down[disabled="true"]:-moz-locale-dir(ltr),
 .scrollbutton-up[disabled="true"]:-moz-locale-dir(rtl) {
   -moz-image-region: rect(0, 14px, 11px, 7px);
-  -moz-border-left-colors: transparent transparent;
+  border-left-color: transparent;
 }
 
 .scrollbutton-up:hover:not([disabled="true"]),

@@ -31,8 +31,7 @@
   background-color: rgba(0, 0, 0, 0.1);
   padding: 0;
   margin: 0;
-  border-top: 2px solid;
-  -moz-border-top-colors: #888 rgba(0, 0, 0, 0.08);
+  border-top: 1px solid #888;
   -moz-box-align: start;
   font: message-box;
 }
@@ -48,6 +47,10 @@
   border-inline-end: 1px solid rgba(0, 0, 0, 0.19);
 }
 
+.tab-bottom:first-of-type {
+  border-inline-start: 1px solid rgba(0, 0, 0, 0.19);
+}
+
 .tab-bottom > .tab-middle {
   padding: 1px 2px 0 2px;
 }
@@ -61,24 +64,11 @@
   color: #000;
   text-shadow: none;
   border: solid #888;
-  border-width: 0 2px 2px;
+  border-width: 0 1px 1px;
   border-radius: 2px;
-  -moz-border-left-colors: rgba(0, 0, 0, 0.08) #888;
-  -moz-border-right-colors: rgba(0, 0, 0, 0.08) #888;
-  -moz-border-bottom-colors: rgba(0, 0, 0, 0.08) #888;
   margin-inline-end: -1px;
-  margin-top: -2px;
   margin-bottom: 1px;
   padding: 0;
-}
-
-.tab-bottom[beforeselected=true] {
-  border-inline-end-color: transparent;
-  margin-inline-end: -2px;
-}
-
-.tab-bottom:first-of-type[visuallyselected=true] {
-  margin-inline-start: -2px;
 }
 
 .tab-bottom[visuallyselected=true] > .tab-middle {
