@@ -172,3 +172,6 @@ function subtest_disable_archive(amc) {
 function test_disable_archive() {
   open_advanced_settings(subtest_disable_archive);
 }
+// Disable test on Windows since for some yet unknown reason clicking the checkbox
+// doesn't have the desired result. See bug 1461173 for details.
+test_disable_archive.EXCLUDED_PLATFORMS = ['winnt'];
