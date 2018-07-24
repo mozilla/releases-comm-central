@@ -20,7 +20,7 @@ function setupModule(module) {
   collector.getModule('address-book-helpers').installInto(module);
 }
 
-function disabled_test_contact_in_mailing_list_updated() {  // See bug 1475836.
+function test_contact_in_mailing_list_updated() {
   const kOldAddress = "before@example.com";
   const kNewAddress = "after@example.com";
 
