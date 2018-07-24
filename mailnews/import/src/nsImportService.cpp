@@ -406,7 +406,7 @@ nsresult nsImportService::DoDiscover(void)
     nsCString contractIdStr;
     contractid->ToString(getter_Copies(contractIdStr));
     nsCString supportsStr;
-    rv = catMan->GetCategoryEntry("mailnewsimport", contractIdStr.get(), getter_Copies(supportsStr));
+    rv = catMan->GetCategoryEntry("mailnewsimport", contractIdStr, supportsStr);
     if (NS_SUCCEEDED(rv))
       LoadModuleInfo(contractIdStr.get(), supportsStr.get());
     rv = e->GetNext(getter_AddRefs(supports));

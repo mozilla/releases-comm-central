@@ -128,7 +128,7 @@ Initialize(MimeObject *obj)
 
     nsCString value;
     rv = catman->GetCategoryEntry(NS_SIMPLEMIMECONVERTERS_CATEGORY,
-                                  contentType.get(), getter_Copies(value));
+                                  contentType, value);
     if (NS_FAILED(rv) || value.IsEmpty())
         return -1;
 

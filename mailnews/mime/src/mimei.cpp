@@ -191,7 +191,7 @@ mime_locate_external_content_handler(const char *content_type,
 
     nsCString value;
     rv = catman->GetCategoryEntry(NS_SIMPLEMIMECONVERTERS_CATEGORY,
-                                  contentType.get(), getter_Copies(value));
+                                  contentType, value);
     if (NS_FAILED(rv) || value.IsEmpty())
       return nullptr;
     rv = MIME_NewSimpleMimeConverterStub(contentType.get(),

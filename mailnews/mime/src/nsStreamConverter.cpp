@@ -598,7 +598,7 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI *aURI, nsIStreamListener * aOutList
     if (NS_SUCCEEDED(rv))
     {
       nsCString contractID;
-      catman->GetCategoryEntry("mime-emitter", categoryName.get(), getter_Copies(contractID));
+      catman->GetCategoryEntry("mime-emitter", categoryName, contractID);
       if (!contractID.IsEmpty())
         categoryName = contractID;
     }

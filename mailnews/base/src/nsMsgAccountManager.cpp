@@ -2477,8 +2477,8 @@ nsMsgAccountManager::GetChromePackageName(const nsACString& aExtensionName, nsAC
          break;
 
       nsCString contractidString;
-      rv = catman->GetCategoryEntry(MAILNEWS_ACCOUNTMANAGER_EXTENSIONS, entryString.get(),
-                                    getter_Copies(contractidString));
+      rv = catman->GetCategoryEntry(MAILNEWS_ACCOUNTMANAGER_EXTENSIONS, entryString,
+                                    contractidString);
       if (NS_FAILED(rv))
         break;
 
