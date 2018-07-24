@@ -27,6 +27,8 @@ MOZ_APP_VERSION_DISPLAY_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version_display.
 MOZ_APP_VERSION_DISPLAY=`cat $MOZ_APP_VERSION_DISPLAY_TXT`
 THUNDERBIRD_VERSION=$MOZ_APP_VERSION
 
+BROWSER_CHROME_URL=chrome://messenger/content/messengercompose/messengercompose.xul
+
 MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/mail/branding/nightly
 MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/mail/branding/thunderbird
 

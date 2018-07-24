@@ -8,7 +8,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 var gShowBiDi = false;
 
 function getBrowserURL() {
-  return Services.prefs.getCharPref("browser.chromeURL");
+  return AppConstants.BROWSER_CHROME_URL;
 }
 
 // update menu items that rely on focus
