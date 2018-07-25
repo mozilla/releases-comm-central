@@ -324,7 +324,7 @@ function test_inserts_linebreak_on_empty_compose_with_signature() {
 /**
  * Tests that removing all Filelinks causes the root node to be removed.
  */
-function test_removing_filelinks_removes_root_node() {
+function disabled_test_removing_filelinks_removes_root_node() {  // See bug 1478268.
   try_with_plaintext_and_html_mail(subtest_removing_filelinks_removes_root_node);
 }
 
@@ -390,7 +390,7 @@ function subtest_adding_filelinks_to_written_message() {
  * Tests for inserting Filelinks into a reply, when we're configured to
  * reply above the quote.
  */
-function test_adding_filelinks_to_empty_reply_above() {
+function disabled_test_adding_filelinks_to_empty_reply_above() {  // See bug 1478268.
   let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
 
@@ -409,7 +409,7 @@ function test_adding_filelinks_to_empty_reply_above() {
  * Tests for inserting Filelinks into a reply, when we're configured to
  * reply above the quote, after entering some text.
  */
-function test_adding_filelinks_to_nonempty_reply_above() {
+function disabled_test_adding_filelinks_to_nonempty_reply_above() {  // See bug 1478268.
   let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
 
@@ -491,7 +491,7 @@ function subtest_adding_filelinks_to_reply_above(aText) {
  * Tests for inserting Filelinks into a reply, when we're configured to
  * reply below the quote.
  */
-function test_adding_filelinks_to_empty_reply_below() {
+function disabled_test_adding_filelinks_to_empty_reply_below() {  // See bug 1478268.
   let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
 
@@ -509,7 +509,7 @@ function test_adding_filelinks_to_empty_reply_below() {
  * Tests for inserting Filelinks into a reply, when we're configured to
  * reply below the quote, after entering some text.
  */
-function test_adding_filelinks_to_nonempty_reply_below() {
+function disabled_test_adding_filelinks_to_nonempty_reply_below() {  // See bug 1478268.
   let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
 
