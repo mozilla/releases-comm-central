@@ -269,6 +269,8 @@ var contentTabBaseType = {
       let extBundle =
         new StringBundle("chrome://messenger/locale/extensionsOverlay.properties");
 
+      aDocument.defaultView.isCorrectlySigned = function() { return true; };
+
       // Add navigation buttons for back and forward on the addons page.
       let hbox = aDocument.createElement("hbox");
       hbox.setAttribute("id", "nav-header");
