@@ -17,7 +17,6 @@
 #include "nsIMimeHeaders.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIURL.h"
-#include "nsIURIWithPrincipal.h"
 #include "nsILoadGroup.h"
 #include "nsIMsgSearchSession.h"
 #include "nsICacheEntry.h"
@@ -38,8 +37,7 @@
 #undef  IMETHOD_VISIBILITY
 #define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
 
-class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
-                                     public nsIURIWithPrincipal
+class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl
 {
 public:
     nsMsgMailNewsUrl();
@@ -48,7 +46,6 @@ public:
     NS_DECL_NSIMSGMAILNEWSURL
     NS_DECL_NSIURI
     NS_DECL_NSIURL
-    NS_DECL_NSIURIWITHPRINCIPAL
 
 protected:
   virtual nsresult Clone(nsIURI **_retval);

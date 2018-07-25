@@ -68,6 +68,9 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl()
   }
 }
 
+NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl, nsIMsgMailNewsUrl, nsIURL, nsIURI)
+
+#if 0
 NS_IMPL_ADDREF(nsMsgMailNewsUrl)
 NS_IMPL_RELEASE(nsMsgMailNewsUrl)
 
@@ -121,6 +124,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetPrincipalUri(nsIURI **aPrincipalURI)
     return NS_ERROR_NULL_POINTER;
   return m_principal->GetURI(aPrincipalURI);
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Begin nsIMsgMailNewsUrl specific support
