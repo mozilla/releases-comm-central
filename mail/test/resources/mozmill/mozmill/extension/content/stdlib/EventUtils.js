@@ -219,8 +219,7 @@ function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow)
   if (!aWindow)
     aWindow = window;
 
-  var utils = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
-                      getInterface(Ci.nsIDOMWindowUtils);
+  var utils = aWindow.windowUtils;
   if (utils) {
     var button = aEvent.button || 0;
     var clickCount = aEvent.clickCount || 1;
@@ -267,8 +266,7 @@ function synthesizeMouseScroll(aTarget, aOffsetX, aOffsetY, aEvent, aWindow)
   if (!aWindow)
     aWindow = window;
 
-  var utils = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
-                      getInterface(Ci.nsIDOMWindowUtils);
+  var utils = aWindow.windowUtils;
   if (utils) {
     // See nsMouseScrollFlags in nsGUIEvent.h
     const kIsVertical = 0x02;
@@ -593,9 +591,7 @@ function synthesizeDrop(srcElement, destElement, dragData, dropEffect, aWindow)
 
 function disableNonTestMouseEvents(aDisable)
 {
-  var utils =
-    window.QueryInterface(Ci.nsIInterfaceRequestor).
-           getInterface(Ci.nsIDOMWindowUtils);
+  var utils = window.windowUtils;
   if (utils)
     utils.disableNonTestMouseEvents(aDisable);
 }
@@ -605,8 +601,7 @@ function _getDOMWindowUtils(aWindow)
   if (!aWindow) {
     aWindow = window;
   }
-  return aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
-                 getInterface(Ci.nsIDOMWindowUtils);
+  return aWindow.windowUtils;
 }
 
 /**

@@ -114,9 +114,7 @@ function getWindowByType(type) {
 function getWindowId(aWindow) {
   try {
     // Normally we can retrieve the id via window utils
-    return aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
-                   getInterface(Ci.nsIDOMWindowUtils).
-                   outerWindowID;
+    return aWindow.windowUtils.outerWindowID;
   } catch (e) {
     // ... but for observer notifications we need another interface
     return aWindow.QueryInterface(Ci.nsISupportsPRUint64).data;
