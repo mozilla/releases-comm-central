@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals CLASS_DATA_PRIVATE, CLASS_DATA_PUBLIC, CLASS_DATA_UIONLY, createElement,
+createParentElement, getAccountsText, getLoadContext, MailServices, Services */
+
 "use strict";
 
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
@@ -116,21 +119,16 @@ function cleanUpText(aElem, aHidePrivateData) {
       node.remove();
       node = nextNode;
       continue;
-    }
-    // Replace private data with a blank string
-    else if (aHidePrivateData && classList && classList.contains(CLASS_DATA_PRIVATE)) {
+    } else if (aHidePrivateData && classList && classList.contains(CLASS_DATA_PRIVATE)) {
+      // Replace private data with a blank string.
       node.textContent = "";
-    }
-    // Replace public data with a blank string
-    else if (!aHidePrivateData && classList && classList.contains(CLASS_DATA_PUBLIC)) {
+    } else if (!aHidePrivateData && classList && classList.contains(CLASS_DATA_PUBLIC)) {
+      // Replace public data with a blank string.
       node.textContent = "";
-    }
-    else {
-      // Replace localized text with non-localized text
-      if (copyData != null) {
-        node.textContent = copyData;
-        copyData = null;
-      }
+    } else if (copyData != null) {
+      // Replace localized text with non-localized text.
+      node.textContent = copyData;
+      copyData = null;
     }
 
     if (node.nodeType == Node.ELEMENT_NODE)
@@ -181,11 +179,10 @@ function generateTextForElement(elem, aHidePrivateData, indent,
     let replaceFn = gElementsToReplace[elem.id];
     textFragmentAccumulator.push(replaceFn(aHidePrivateData, indent + "  "));
     return;
-  };
+  }
 
   if (AppConstants.MOZ_CRASHREPORTER) {
-    if (elem.id == "crashes-table")
-    {
+    if (elem.id == "crashes-table") {
       textFragmentAccumulator.push(getCrashesText(indent));
       return;
     }
@@ -208,8 +205,7 @@ function generateTextForElement(elem, aHidePrivateData, indent,
     if (node.nodeType == Node.TEXT_NODE) {
       // Text belonging to this element uses its indentation level.
       generateTextForTextNode(node, indent, textFragmentAccumulator);
-    }
-    else if (node.nodeType == Node.ELEMENT_NODE) {
+    } else if (node.nodeType == Node.ELEMENT_NODE) {
       // Recurse on the child element with an extra level of indentation (but
       // only if there's more than one child).
       generateTextForElement(node, aHidePrivateData,
@@ -241,8 +237,7 @@ function generateTextForTextNode(node, indent, textFragmentAccumulator) {
 function getCrashesText(aIndent) {
   let crashesData = "";
   let recentCrashesSubmitted = document.querySelectorAll("#crashes-tbody > tr");
-  for (let i = 0; i < recentCrashesSubmitted.length; i++)
-  {
+  for (let i = 0; i < recentCrashesSubmitted.length; i++) {
     let tds = recentCrashesSubmitted.item(i).querySelectorAll("td");
     crashesData += aIndent.repeat(2) + tds.item(0).firstChild.href +
                    " (" + tds.item(1).textContent + ")\n";

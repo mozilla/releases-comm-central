@@ -5,6 +5,8 @@
 /* This file is a copy of mozilla/toolkit/content/aboutSupport.js with
    modifications for TB. */
 
+/* globals AboutSupportPlatform, populateAccountsSection, sendViaEmail */
+
 "use strict";
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -167,8 +169,7 @@ var snapshotFormatters = {
       let fsTextNode = document.createElement("span");
       fsTextNode.textContent = fsText;
       profElem.appendChild(fsTextNode);
-    }
-    catch (x) {
+    } catch (x) {
       Cu.reportError(x);
     }
     // end of TB addition
@@ -227,7 +228,7 @@ var snapshotFormatters = {
       }
       return $.new("tr", [
         $.new("td", [
-          $.new("a", crash.id, null, {href : reportURL + crash.id})
+          $.new("a", crash.id, null, {href: reportURL + crash.id})
         ]),
         $.new("td", formattedDate)
       ]);
@@ -293,6 +294,7 @@ var snapshotFormatters = {
     ));
   },
 
+  /* eslint-disable complexity */
   graphics: function graphics(data) {
     let strings = stringBundle();
 
@@ -666,6 +668,7 @@ var snapshotFormatters = {
       addRow("diagnostics", key, value);
     }
   },
+  /* eslint-enable complexity */
 
   media: function media(data) {
     let strings = stringBundle();
@@ -832,7 +835,7 @@ var snapshotFormatters = {
     for (let key in data) {
       // Simplify the display a little in the common case.
       if (key === "hasPrivilegedUserNamespaces" &&
-          data[key] === data["hasUserNamespaces"]) {
+          data[key] === data.hasUserNamespaces) {
         continue;
       }
       if (key === "syscallLog") {
@@ -933,9 +936,9 @@ function assembleFromGraphicsFailure(i, data) {
     what = "Assert";
     message = message.substring(8);
   }
-  let assembled = {"index" : index,
-                   "header" : ("(#" + index + ") " + what),
-                   "message" : message};
+  let assembled = {"index": index,
+                   "header": ("(#" + index + ") " + what),
+                   "message": message};
   return assembled;
 }
 
@@ -1247,7 +1250,7 @@ function safeModeRestart() {
   }
 }
 
-//added for TB
+// Added for TB.
 function onShowPrivateDataChange(aCheckbox) {
   document.getElementById("about-support-private").disabled = aCheckbox.checked;
 }

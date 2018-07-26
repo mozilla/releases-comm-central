@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals CLASS_DATA_PRIVATE, CLASS_DATA_PUBLIC, fixIterator, MailServices */
+
 "use strict";
 
 ChromeUtils.import("resource:///modules/mailServices.js");
@@ -58,7 +60,7 @@ var AboutSupport = {
                         name: smtpServer.value.displayname,
                         authMethod: smtpServer.value.authMethod,
                         socketType: smtpServer.value.socketType,
-                        isDefault: isDefault});
+                        isDefault});
     }
 
     return smtpDetails;
@@ -117,8 +119,7 @@ var AboutSupport = {
     try {
       prettySocketType = gMessengerBundle.GetStringFromName(
         "smtpServer-ConnectionSecurityType-" + aIndex);
-    }
-    catch (e) {
+    } catch (e) {
       if (e.result == Cr.NS_ERROR_FAILURE) {
         // The string wasn't found in the bundle. Make do without it.
         prettySocketType = plainSocketType;
@@ -140,8 +141,7 @@ var AboutSupport = {
     if (aIndex in gAuthMethodProperties) {
       prettyAuthMethod =
         gMessengerBundle.GetStringFromName(gAuthMethodProperties[aIndex]);
-    }
-    else {
+    } else {
       prettyAuthMethod = plainAuthMethod;
     }
     return {localized: prettyAuthMethod, neutral: plainAuthMethod};

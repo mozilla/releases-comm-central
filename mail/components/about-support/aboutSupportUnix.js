@@ -109,10 +109,8 @@ var AboutSupportPlatform = {
         return "unknown";
       else if (kNetworkFilesystems.includes(fsType.readString()))
         return "network";
-      else
-        return "local";
-    }
-    finally {
+      return "local";
+    } finally {
       if (filePath)
         g_free(filePath);
       if (glibFile && !glibFile.isNull())

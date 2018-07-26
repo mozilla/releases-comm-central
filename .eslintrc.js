@@ -18,7 +18,8 @@ module.exports = {
   "rules": {
     // XXX We are waiting for m-c to create a script to fix these in bug 1433175.
     // Disabling this rule as part of bug 1436605 until that is the case.
-    "mozilla/use-cc-etc": "off"
+    "mozilla/use-cc-etc": "off",
+    "no-multi-spaces": ["error", { ignoreEOLComments: true }],
   },
 
   // The html plugin is enabled via a command line option on eslint. To avoid

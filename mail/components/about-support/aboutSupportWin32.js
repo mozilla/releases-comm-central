@@ -24,10 +24,10 @@ var AboutSupportPlatform = {
       let GetVolumePathName = kernel32.declare(
         "GetVolumePathNameW",
         ctypes.winapi_abi,
-        BOOL,              // return type: 1 indicates success, 0 failure
+        BOOL,                // return type: 1 indicates success, 0 failure
         ctypes.char16_t.ptr, // in: lpszFileName
         ctypes.char16_t.ptr, // out: lpszVolumePathName
-        ctypes.uint32_t    // in: cchBufferLength
+        ctypes.uint32_t      // in: cchBufferLength
       );
 
       // Returns the last error.
@@ -53,7 +53,7 @@ var AboutSupportPlatform = {
       let GetDriveType = kernel32.declare(
         "GetDriveTypeW",
         ctypes.winapi_abi,
-        ctypes.uint32_t,  // return type: the drive type
+        ctypes.uint32_t,    // return type: the drive type
         ctypes.char16_t.ptr // in: lpRootPathName
       );
       let type = GetDriveType(volumePath);
@@ -62,10 +62,8 @@ var AboutSupportPlatform = {
         return "unknown";
       else if (type == DRIVE_NETWORK)
         return "network";
-      else
-        return "local";
-    }
-    finally {
+      return "local";
+    } finally {
       kernel32.close();
     }
   },
