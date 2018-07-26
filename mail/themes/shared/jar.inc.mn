@@ -8,6 +8,7 @@
 # to the location of the actual manifest.
 
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
+  skin/classic/messenger/aboutNewAddon.css                    (../shared/mail/aboutNewAddon.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
   skin/classic/messenger/addressbook/icons/menu.svg           (../shared/mail/icons/menu.svg)
   skin/classic/messenger/downloads/download.svg               (../shared/mail/icons/download.svg)

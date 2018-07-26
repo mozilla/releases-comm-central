@@ -63,6 +63,8 @@ messenger.jar:
     content/messenger/aboutDialog-appUpdater.js     (content/aboutDialog-appUpdater.js)
 *   content/messenger/aboutDialog.xul               (content/aboutDialog.xul)
     content/messenger/aboutDialog.js                (content/aboutDialog.js)
+    content/messenger/aboutNewAddon.js              (content/aboutNewAddon.js)
+    content/messenger/aboutNewAddon.xul             (content/aboutNewAddon.xul)
 *   content/messenger/aboutRights.xhtml             (content/aboutRights.xhtml)
 *   content/messenger/systemIntegrationDialog.xul   (content/systemIntegrationDialog.xul)
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)
