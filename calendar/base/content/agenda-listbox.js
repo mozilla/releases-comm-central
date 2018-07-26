@@ -785,9 +785,9 @@ agendaListbox.showsToday = function(aStartDate) {
  */
 agendaListbox.moveSelection = function() {
     if (this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
-        this.agendaListboxControl.goDown();
+        this.agendaListboxControl.moveByOffset(-1);
     } else {
-        this.agendaListboxControl.goUp();
+        this.agendaListboxControl.moveByOffset(1);
     }
 };
 
