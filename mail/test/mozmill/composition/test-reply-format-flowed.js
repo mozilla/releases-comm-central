@@ -63,7 +63,7 @@ function subtest_reply_format_flowed(aFlowed) {
   press_delete();
 }
 
-function disabled_test_reply_format_flowed() {  // See bug 1478268.
+function test_reply_format_flowed() {
   subtest_reply_format_flowed(true);
   subtest_reply_format_flowed(false);
 }
