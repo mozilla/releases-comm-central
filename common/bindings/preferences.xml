@@ -644,7 +644,7 @@
             var docElt = document.documentElement;
             var acceptButton = docElt.getButton("accept");
             acceptButton.hidden = true;
-            var cancelButton  = docElt.getButton("cancel");
+            var cancelButton = docElt.getButton("cancel");
             if (/Mac/.test(navigator.platform)) {
               // no buttons on Mac except Help
               cancelButton.hidden = true;
