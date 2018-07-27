@@ -735,17 +735,7 @@ function _awSetFocus()
 {
   var listbox = document.getElementById('addressingWidget');
   var theNewRow = awGetListItem(top.awRow);
-
-  // Warning: firstVisibleRow is zero base but top.awRow is one base!
-  var firstVisibleRow = listbox.getIndexOfFirstVisibleRow();
-  var numOfVisibleRows = listbox.getNumberOfVisibleRows();
-
-  // Do we need to scroll in order to see the selected row?
-  if (top.awRow <= firstVisibleRow)
-    listbox.scrollToIndex(top.awRow - 1);
-  else if (top.awRow - 1 >= (firstVisibleRow + numOfVisibleRows))
-    listbox.scrollToIndex(top.awRow - numOfVisibleRows);
-
+  listbox.ensureElementIsVisible(theNewRow);
   top.awInputElement.focus();
 }
 

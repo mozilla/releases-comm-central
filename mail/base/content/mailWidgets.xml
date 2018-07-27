@@ -92,12 +92,6 @@
           return this._childNodes.length;
         ]]></body>
       </method>
-      <method name="getNumberOfVisibleRows">
-        <body><![CDATA[
-          let itemsPerRow = this._itemsPerRow();
-          return itemsPerRow * this._itemsPerCol(itemsPerRow);
-        ]]></body>
-      </method>
       <method name="getIndexOfFirstVisibleRow">
         <body><![CDATA[
           if (this._childNodes.length == 0)
@@ -220,37 +214,6 @@
 
           this.insertBefore(item, this.getItemAtIndex(index));
           return item;
-        ]]></body>
-      </method>
-
-      <method name="scrollOnePage">
-        <parameter name="direction"/>  <!-- Must be -1 or 1 -->
-        <body><![CDATA[
-          let pageOffset = this.getNumberOfVisibleRows() * direction;
-          let firstVisibleIndex = this.getIndexOfFirstVisibleRow();
-
-          // skip over invisible elements - the user won't care about them
-          for (let i = 0; i != pageOffset; i += direction) {
-            let item = this.getItemAtIndex(firstVisibleIndex + i);
-            if (item && !this._canUserSelect(item))
-              pageOffset += direction;
-          }
-
-          let newTop = firstVisibleIndex + pageOffset;
-          if (direction == 1) {
-            let maxTop = this.getRowCount() - this.getNumberOfVisibleRows();
-            for (let i = this.getRowCount(); i >= 0 && i > maxTop; i--) {
-              let item = this.getItemAtIndex(i);
-              if (item && !this._canUserSelect(item))
-                maxTop--;
-            }
-            if (newTop >= maxTop)
-              newTop = maxTop;
-          }
-          if (newTop < 0)
-            newTop = 0;
-          this.scrollToIndex(newTop);
-          return pageOffset;
         ]]></body>
       </method>
 
