@@ -80,6 +80,7 @@ class Overlays {
     let unloadedSheets = [];
     this._toolbarsToResolve = [];
     let xulStore = Services.xulStore;
+    this.persistedIDs = new Set();
 
     // Load css styles from the registry
     for (let sheet of this.overlayProvider.style.get(this.location, false)) {
@@ -140,6 +141,11 @@ class Overlays {
       }
     }
 
+    let ids = xulStore.getIDsEnumerator(this.location);
+    while (ids.hasMore()) {
+      this.persistedIDs.add(ids.getNext());
+    }
+
     // At this point, all (recursive) overlays are loaded. Unloaded scripts and sheets are ready and
     // in order, and forward references are good to process.
     let previous = 0;
@@ -188,9 +194,7 @@ class Overlays {
       overlayTrigger.remove();
 
       setTimeout(() => {
-        let ids = xulStore.getIDsEnumerator(this.location);
-        while (ids.hasMore()) {
-          let id = ids.getNext();
+        for (let id of this.persistedIDs.values()) {
           let element = this.document.getElementById(id);
           if (element) {
             let attrNames = xulStore.getAttributeEnumerator(this.location, id);
@@ -302,6 +306,14 @@ class Overlays {
    * @param {Element} node          The node to insert.
    */
   _insertElement(parent, node) {
+    // If a radiogroup is added to the document DOM with no value attribute,
+    // the first radio gets selected, the value persisted, and then we've lost the old value.
+    for (let radiogroup of node.getElementsByTagName("radiogroup")) {
+      if (radiogroup.id && this.persistedIDs.has(radiogroup.id)) {
+        radiogroup.setAttribute("value", Services.xulStore.getValue(this.location, radiogroup.id, "value"));
+      }
+    }
+
     let wasInserted = false;
     let pos = node.getAttribute("insertafter");
     let after = true;
