@@ -303,12 +303,6 @@ var MailMigrator = {
         }
       }
 
-      // The obsolete files signons.txt, signons2.txt and signons3.txt got
-      // removed from the profile directory.
-      if (currentUIVersion < 12) {
-        LoginHelper.removeLegacySignonFiles();
-      }
-
       // Untangled starting in Paragraph mode from Enter key preference
       if (currentUIVersion < 13) {
         Services.prefs.setBoolPref("mail.compose.default_to_paragraph",
