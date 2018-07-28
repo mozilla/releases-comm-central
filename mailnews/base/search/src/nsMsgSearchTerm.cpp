@@ -1116,16 +1116,19 @@ nsresult nsMsgSearchTerm::MatchString(const nsACString &stringToMatch,
   else
   {
     nsAutoString utf16StrToMatch;
-    if (charset != nullptr)
+    rv = NS_ERROR_UNEXPECTED;
+    if (charset)
     {
-      nsMsgI18NConvertToUnicode(nsDependentCString(charset),
-                                stringToMatch,
-                                utf16StrToMatch);
+      rv = nsMsgI18NConvertToUnicode(nsDependentCString(charset),
+                                     stringToMatch,
+                                     utf16StrToMatch);
     }
-    else {
+    if (NS_FAILED(rv)) {
+      // No charset or conversion failed, maybe due to a bad charset, try UTF-8.
       NS_ASSERTION(MsgIsUTF8(stringToMatch), "stringToMatch is not UTF-8");
       CopyUTF8toUTF16(stringToMatch, utf16StrToMatch);
     }
+
     rv = MatchString(utf16StrToMatch, &result);
   }
 

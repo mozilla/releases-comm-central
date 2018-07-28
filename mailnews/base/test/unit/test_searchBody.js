@@ -35,6 +35,7 @@ var Files =
   "../../../data/basic1",
   "../../../data/multipart-base64-2",
   "../../../data/bug132340",
+  "../../../data/bad-charset.eml",
 
   // Base64 encoded bodies.
   "../../../data/01-plaintext.eml",
@@ -90,6 +91,10 @@ var Tests =
   { value: "PGh", op: Contains, count: 0 },
   /* An encoded base-64 text/plain match */
   { value: "base 64 text", op: Contains, count: 1 },
+
+  // From the message with the bad charset.
+  { value: "Matterhorn1", op: Contains, count: 1 },
+  { value: "Matterhorn2", op: Contains, count: 1 },
 
   // Comprehensive test of various MIME structures, messages 01 to 10.
   // Messages 01 to 10 contain "huhu" once.
