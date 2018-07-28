@@ -6,7 +6,7 @@
 #ifndef nsMailWinIntegration_h_
 #define nsMailWinIntegration_h_
 
-#include "nsIWindowsShellService.h"
+#include "nsIShellService.h"
 #include "nsIObserver.h"
 #include "nsString.h"
 
@@ -24,7 +24,7 @@ typedef struct {
   int32_t flags;
 } SETTING;
 
-class nsWindowsShellService : public nsIWindowsShellService
+class nsWindowsShellService : public nsIShellService
 {
 public:
   nsWindowsShellService();
@@ -32,7 +32,6 @@ public:
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
-  NS_DECL_NSIWINDOWSSHELLSERVICE
 
 protected:
   bool TestForDefault(SETTING aSettings[], int32_t aSize);
