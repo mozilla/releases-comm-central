@@ -143,13 +143,13 @@ label.label {
 
 .icon-holder[type="calendarEvent"],
 .tabmail-tab[type="calendarEvent"] {
-    list-style-image: url(chrome://calendar-common/skin/calendar-event-tab.png);
+    list-style-image: url(chrome://calendar-common/skin/icons/event.svg);
     -moz-image-region: auto;
 }
 
 .icon-holder[type="calendarTask"],
 .tabmail-tab[type="calendarTask"] {
-    list-style-image: url(chrome://calendar-common/skin/calendar-task-tab.png);
+    list-style-image: url(chrome://calendar-common/skin/icons/task.svg);
     -moz-image-region: auto;
 }
 

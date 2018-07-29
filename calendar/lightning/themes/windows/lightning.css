@@ -57,18 +57,6 @@ radio[pane=paneLightning] {
   margin-top: 3px;
 }
 
-.icon-holder[type="calendar"],
-.tabmail-tab[type="calendar"] {
-  list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
-  -moz-image-region: rect(16px 16px 32px 0);
-}
-
-.icon-holder[type="tasks"],
-.tabmail-tab[type="tasks"] {
-  list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
-  -moz-image-region: rect(16px 32px 32px 16px);
-}
-
 #calsidebar_splitter,
 #today-splitter {
   border-width: 0;

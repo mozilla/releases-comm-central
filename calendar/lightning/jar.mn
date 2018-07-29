@@ -82,7 +82,6 @@ lightning.jar:
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://communicator/skin/communicator.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % style chrome://messenger/content/customizeToolbar.xul chrome://lightning-common/skin/lightning.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % style chrome://messenger/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
-    ../skin/lightning-common/mode-switch-icons.png            (themes/common/images/mode-switch-icons.png)
     ../skin/lightning-common/todayButton-arrow.svg            (themes/common/images/todayButton-arrow.svg)
     ../skin/lightning-common/suite-accountCentral.css         (themes/common/suite-accountCentral.css)
 
@@ -106,8 +105,6 @@ lightning.jar:
     ../skin/windows/lightning/lightning.css                   (themes/windows/lightning.css)
     ../skin/windows/lightning/lightning-toolbar.css           (themes/windows/lightning-toolbar.css)
     ../skin/windows/lightning/lightning-widgets.css           (themes/windows/lightning-widgets.css)
-    ../skin/windows/lightning/mode-switch-icons-aero.png      (themes/windows/images/mode-switch-icons-aero.png)
-
 
 calendar.jar:
     content/calendar/calendarCreation.xul                  (../resources/content/calendarCreation.xul)

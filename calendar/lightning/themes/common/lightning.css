@@ -15,6 +15,19 @@
     -moz-image-region: auto;
 }
 
+/* ::: tab icons ::: */
+.icon-holder[type="calendar"],
+.tabmail-tab[type="calendar"] {
+    list-style-image: url(chrome://calendar-common/skin/icons/calendar-tab.svg);
+    -moz-image-region: auto;
+}
+
+.icon-holder[type="tasks"],
+.tabmail-tab[type="tasks"] {
+    list-style-image: url(chrome://calendar-common/skin/icons/task-tab.svg);
+    -moz-image-region: auto;
+}
+
 /* avoids contributing to the min width when Lightning is not selected */
 #calendarTabPanel:not([selected]) {
   visibility: collapse;
