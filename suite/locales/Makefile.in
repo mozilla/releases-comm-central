@@ -15,8 +15,6 @@ EN_US_OR_L10N_FILE = $(firstword \
 	$(wildcard $(srcdir)/en-US/$(1)) \
 	$(LOCALE_SRCDIR)/$(1) )
 
-_ABS_SRCDIR := $(abspath $(commtopsrcdir))
-
 SUBMAKEFILES += \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales/Makefile \
