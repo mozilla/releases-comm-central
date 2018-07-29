@@ -488,7 +488,7 @@ nsWindowsShellService::SetDefaultClient(bool aForAllUsers,
 {
   nsAutoString appHelperPath;
   if (NS_FAILED(GetHelperPath(appHelperPath)))
-    return NS_ERROR_UNEXPECTED;
+    return NS_ERROR_FAILURE;
 
   if (aForAllUsers)
     appHelperPath.AppendLiteral(" /SetAsDefaultAppGlobal");
@@ -504,19 +504,7 @@ nsWindowsShellService::SetDefaultClient(bool aForAllUsers,
       appHelperPath.AppendLiteral(" News");
    }
 
-  STARTUPINFOW si = {sizeof(si), 0};
-  PROCESS_INFORMATION pi = {0};
-
-  BOOL ok = CreateProcessW(nullptr, (LPWSTR)appHelperPath.get(), nullptr,
-                           nullptr, FALSE, 0, nullptr, nullptr, &si, &pi);
-
-  if (!ok)
-    return NS_ERROR_FAILURE;
-
-  CloseHandle(pi.hProcess);
-  CloseHandle(pi.hThread);
-
-  return NS_OK;
+  return LaunchHelper(appHelperPath);
 }
 
 NS_IMETHODIMP
