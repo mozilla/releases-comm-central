@@ -1122,8 +1122,12 @@ nsresult nsMsgSearchTerm::MatchString(const nsACString &stringToMatch,
     }
     if (NS_FAILED(rv)) {
       // No charset or conversion failed, maybe due to a bad charset, try UTF-8.
-      NS_ASSERTION(MsgIsUTF8(stringToMatch), "stringToMatch is not UTF-8");
-      CopyUTF8toUTF16(stringToMatch, utf16StrToMatch);
+      if (MsgIsUTF8(stringToMatch)) {
+        CopyUTF8toUTF16(stringToMatch, utf16StrToMatch);
+      } else {
+        // Bad luck, let's assume ASCII/windows-1252 then.
+        CopyASCIItoUTF16(stringToMatch, utf16StrToMatch);
+      }
     }
 
     rv = MatchString(utf16StrToMatch, &result);

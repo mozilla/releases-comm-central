@@ -93,8 +93,8 @@ var Tests =
   { value: "base 64 text", op: Contains, count: 1 },
 
   // From the message with the bad charset.
-  { value: "Matterhorn1", op: Contains, count: 1 },
-  { value: "Matterhorn2", op: Contains, count: 1 },
+  { value: "Mätterhorn", op: Contains, count: 1 },
+  { value: "Matterhörn", op: Contains, count: 1 },
 
   // Comprehensive test of various MIME structures, messages 01 to 10.
   // Messages 01 to 10 contain "huhu" once.

@@ -14,13 +14,16 @@ This is a multi-part message in MIME format.
 Content-Type: text/plain; charset="bad-charset"
 Content-Transfer-Encoding: quoted-printable
 
-Despite the bad charset we can find the search term Matterhorn1.
+Despite the bad charset we can find the search term M‰tterhorn.
+Note that the umlaut is encoded in windows-1252.
 
 
 --------------FAB286B8794CC63C0A0FD1BB
 Content-Type: text/html; charset="bad-charset"
 Content-Transfer-Encoding: quoted-printable
 
-<body>Despite the bad charset we can find the search term Matterhorn2.</body>
+<body>
+Despite the bad charset we can find the search term Matterh√∂rn.
+Note that the umlaut is encoded in UTF-8.</body>
 
 --------------FAB286B8794CC63C0A0FD1BB--
