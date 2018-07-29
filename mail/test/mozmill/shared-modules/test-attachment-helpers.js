@@ -28,6 +28,7 @@ function installInto(module) {
   module.create_body_part = create_body_part;
   module.create_detached_attachment = create_detached_attachment;
   module.create_deleted_attachment = create_deleted_attachment;
+  module.create_enclosure_attachment = create_enclosure_attachment;
   module.gMockFilePickReg = gMockFilePickReg;
   module.gMockFilePicker = gMockFilePicker;
   module.select_attachments = select_attachments;
@@ -172,10 +173,27 @@ function create_deleted_attachment(filename, type) {
             "Content-Transfer-Encoding: 8bit\r\n" +
             "Content-Disposition: inline; filename=\"Deleted: " + filename +
               "\"\r\n" +
-            "X-Mozilla-Altered: AttachmentDeleted; date=\""
+            "X-Mozilla-Altered: AttachmentDeleted; date=\"" +
               "Wed Oct 06 17:28:24 2010\"\r\n\r\n";
   str += help_create_detached_deleted_attachment(filename, type);
   return str;
+}
+
+/**
+ * Create the raw data for a feed enclosure attachment.
+ *
+ * @param filename the filename
+ * @param type the content type
+ * @param url the remote link url
+ * @param size the optional size (use > 1 for real size)
+ * @return a string representing the attachment
+ */
+function create_enclosure_attachment(filename, type, url, size) {
+  return "Content-Type: " + type + "; name=\"" + filename +
+           (size ? "\"; size=" + size : "\"") + "\r\n" +
+         "X-Mozilla-External-Attachment-URL: " + url + "\r\n" +
+         "Content-Disposition: attachment; filename=\"" + filename + "\"\r\n\r\n" +
+         "This MIME attachment is stored separately from the message.";
 }
 
 /**
@@ -201,5 +219,3 @@ function select_attachments(aController, aIndexStart, aIndexEnd) {
   bucket.focus();
   return [...bucket.selectedItems];
 }
-
-

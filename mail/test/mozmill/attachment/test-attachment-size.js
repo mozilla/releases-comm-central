@@ -15,6 +15,7 @@ var messenger;
 var epsilon;
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
 
 var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
@@ -67,17 +68,18 @@ var messages = [
   },
   { name: 'detached_attachment',
     bodyPart: null,
+    // Sizes filled in on message creation.
     attachmentSizes: [null],
     attachmentTotalSize: { size: 0, exact: true },
   },
   { name: 'detached_attachment_with_missing_file',
     bodyPart: null,
-    attachmentSizes: [null],
+    attachmentSizes: [-1],
     attachmentTotalSize: { size: 0, exact: false },
   },
   { name: 'deleted_attachment',
     bodyPart: null,
-    attachmentSizes: [null],
+    attachmentSizes: [-1],
     attachmentTotalSize: { size: 0, exact: true },
   },
   { name: 'multiple_attachments',
@@ -121,7 +123,7 @@ var messages = [
     attachments: [{ body: textAttachment,
                     filename: 'ubik.txt',
                     format: '' }],
-    attachmentSizes: [null, textAttachment.length],
+    attachmentSizes: [-1, textAttachment.length],
     attachmentTotalSize: { size: textAttachment.length, exact: false },
   },
   { name: 'multiple_attachments_one_deleted',
@@ -129,28 +131,24 @@ var messages = [
     attachments: [{ body: textAttachment,
                     filename: 'ubik.txt',
                     format: '' }],
-    attachmentSizes: [null, textAttachment.length],
+    attachmentSizes: [-1, textAttachment.length],
     attachmentTotalSize: { size: textAttachment.length, exact: true },
   },
   // this is an attached message that itself has an attachment
   {
     name: 'attached_message_with_attachment',
     bodyPart: null,
-    attachmentSizes: [null, textAttachment.length],
+    attachmentSizes: [-1, textAttachment.length],
     attachmentTotalSize: { size: 0, exact: true },
   },
 ];
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
-  let ah = collector.getModule('attachment-helpers');
-  ah.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
-  messenger = Cc['@mozilla.org/messenger;1']
-                .createInstance(Ci.nsIMessenger);
+  messenger = Cc['@mozilla.org/messenger;1'].createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,
@@ -262,12 +260,14 @@ function check_no_attachment_size(index) {
   let list = mc.e('attachmentList');
   let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
-  if (node.attachment.size != null)
+  if (node.attachment.size != -1)
     throw new Error('attachmentSize attribute of deleted attachment should ' +
-                    'be null!');
+                    'be -1!');
 
   // If there's no size, the size attribute is the zero-width space.
-  if (node.getAttribute('size') != '\u200b')
+  let nodeSize = node.getAttribute('size');
+  mc.window.console.log("check_no_attachment_size: node.size->"+nodeSize+"<-");
+  if (nodeSize != '\u200b' && nodeSize != '')
     throw new Error('Attachment size should not be displayed!');
 }
 
@@ -292,8 +292,8 @@ function check_total_attachment_size(count, expectedSize, exact) {
     if (!lastPartID || attachment.partID.indexOf(lastPartID) != 0) {
       lastPartID = attachment.partID;
       let currSize = attachment.size;
-      if (!isNaN(currSize))
-        size += currSize;
+      if (currSize > 0 && !isNaN(currSize))
+        size += Number(currSize);
     }
   }
 
@@ -327,10 +327,17 @@ function check_total_attachment_size(count, expectedSize, exact) {
 function help_test_attachment_size(index) {
   be_in_folder(folder);
   let curMessage = select_click_row(index);
-
   let expectedSizes = messages[index].attachmentSizes;
+
+  mc.window.toggleAttachmentList(true);
+
+  // Test funcs are generated in the global scope, and there isn't a way to
+  // do this async (like within an async add_task in xpcshell) so await can
+  // force serial execution of each test. Wait here for the fetch() to complete.
+  controller.sleep(2000);
+
   for (let i = 0; i < expectedSizes.length; i++) {
-    if (expectedSizes[i] == null)
+    if (expectedSizes[i] == -1)
       check_no_attachment_size(i);
     else
       check_attachment_size(i, expectedSizes[i]);

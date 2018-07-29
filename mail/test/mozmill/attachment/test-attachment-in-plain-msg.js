@@ -25,7 +25,7 @@ function setupModule(module) {
  * Check that a non-empty image is shown as attachment and is detected as non-empty
  * when message is viewed as plain text.
  */
-function test_attachment_not_empty() {
+async function test_attachment_not_empty() {
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
 
   let thisFilePath = os.getFileForPath(__file__);
@@ -43,7 +43,7 @@ function test_attachment_not_empty() {
   assert_equals(attachmentElem.attachment.contentType, "image/jpeg");
   assert_equals(attachmentElem.attachment.name, "bug.png");
   assert_true(attachmentElem.attachment.hasFile);
-  assert_false(attachmentElem.attachment.isEmpty,
+  assert_false(await attachmentElem.attachment.isEmpty(),
                "Attachment incorrectly determined empty");
 
   close_window(msgc);

@@ -16,6 +16,7 @@ var epsilon;
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
 
 var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
@@ -107,6 +108,34 @@ var messages = [
                  { open: false, save: false, detach: false, delete_: false }],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
+  { name: "link_enclosure_valid",
+    bodyPart: null,
+    menuStates: [{ open: true, save: true, detach: false, delete_: false }],
+    allMenuStates: { open: true, save: true, detach: false, delete_: false },
+  },
+  { name: "link_enclosure_invalid",
+    bodyPart: null,
+    menuStates: [{ open: false, save: false, detach: false, delete_: false }],
+    allMenuStates: { open: false, save: false, detach: false, delete_: false },
+  },
+  { name: "link_multiple_enclosures",
+    bodyPart: null,
+    menuStates: [{ open: true, save: true, detach: false, delete_: false },
+                 { open: true, save: true, detach: false, delete_: false }],
+    allMenuStates: { open: true, save: true, detach: false, delete_: false },
+  },
+  { name: "link_multiple_enclosures_one_invalid",
+    bodyPart: null,
+    menuStates: [{ open: true, save: true, detach: false, delete_: false },
+                 { open: false, save: false, detach: false, delete_: false }],
+    allMenuStates: { open: true, save: true, detach: false, delete_: false },
+  },
+  { name: "link_multiple_enclosures_all_invalid",
+    bodyPart: null,
+    menuStates: [{ open: false, save: false, detach: false, delete_: false },
+                 { open: false, save: false, detach: false, delete_: false }],
+    allMenuStates: { open: false, save: false, detach: false, delete_: false },
+  },
 ];
 
 function setupModule(module) {
@@ -164,6 +193,30 @@ function setupModule(module) {
      create_deleted_attachment(deletedName, "text/plain")]
   );
 
+  var enclosure_valid_url = create_body_part(
+    "My blog has the best enclosure",
+    [create_enclosure_attachment("purr.mp3", "audio/mpeg", "http://example.com", 12345678)]
+  );
+  var enclosure_invalid_url = create_body_part(
+    "My blog has the best enclosure with a dead link",
+    [create_enclosure_attachment("meow.mp3", "audio/mpeg", "http://example.com/invalid")]
+  );
+  var multiple_enclosures = create_body_part(
+    "My blog has the best 2 cat sound enclosures",
+    [create_enclosure_attachment("purr.mp3", "audio/mpeg", "http://example.com", 1234567),
+     create_enclosure_attachment("meow.mp3", "audio/mpeg", "http://example.com", 987654321)]
+  );
+  var multiple_enclosures_one_link_invalid = create_body_part(
+    "My blog has the best 2 cat sound enclosures but one is invalid",
+    [create_enclosure_attachment("purr.mp3", "audio/mpeg", "http://example.com", 1234567),
+     create_enclosure_attachment("meow.mp3", "audio/mpeg", "http://example.com/invalid")]
+  );
+  var multiple_enclosures_all_links_invalid = create_body_part(
+    "My blog has 2 enclosures with 2 bad links",
+    [create_enclosure_attachment("purr.mp3", "audio/mpeg", "http://example.com/invalid"),
+     create_enclosure_attachment("meow.mp3", "audio/mpeg", "http://example.com/invalid")]
+  );
+
   folder = create_folder("AttachmentMenusA");
   for (let i = 0; i < messages.length; i++) {
     // First, add any missing info to the message object.
@@ -188,6 +241,21 @@ function setupModule(module) {
         break;
       case "multiple_attachments_all_deleted":
         messages[i].bodyPart = multiple_deleted;
+        break;
+      case "link_enclosure_valid":
+        messages[i].bodyPart = enclosure_valid_url;
+        break;
+      case "link_enclosure_invalid":
+        messages[i].bodyPart = enclosure_invalid_url;
+        break;
+      case "link_multiple_enclosures":
+        messages[i].bodyPart = multiple_enclosures;
+        break;
+      case "link_multiple_enclosures_one_invalid":
+        messages[i].bodyPart = multiple_enclosures_one_link_invalid;
+        break;
+      case "link_multiple_enclosures_all_invalid":
+        messages[i].bodyPart = multiple_enclosures_all_links_invalid;
         break;
     }
 
@@ -301,7 +369,7 @@ function check_menu_states_single(index, expected) {
   let clickable = mc.window
                     .document
                     .getAnonymousElementByAttribute(node, "class",
-                                                    "attachmentcell-name");
+                                                    "attachmentcell-nameselection");
 
   attachmentList.selectItem(node);
   let menu = mc.getMenu("#attachmentItemContext");
@@ -366,6 +434,17 @@ function help_test_attachment_menus(index) {
   let expectedStates = messages[index].menuStates;
 
   mc.window.toggleAttachmentList(true);
+
+  for (let attachment of mc.window.currentAttachments) {
+    // Ensure all attachments are resolved; other than external they already
+    // should be.
+    attachment.isEmpty();
+  }
+
+  // Test funcs are generated in the global scope, and there isn't a way to
+  // do this async (like within an async add_task in xpcshell) so await can
+  // force serial execution of each test. Wait here for the fetch() to complete.
+  controller.sleep(1000);
 
   if (expectedStates.length == 1)
     check_toolbar_menu_states_single(messages[index].allMenuStates);
