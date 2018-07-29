@@ -342,6 +342,9 @@
 @RESPATH@/components/extension-process-script.js
 
 ; [Browser Chrome Files]
+; Browser: Hack to get built_in_addons.json packaged
+@RESPATH@/chrome/browser@JAREXT@
+@RESPATH@/chrome/browser.manifest
 @RESPATH@/chrome/comm@JAREXT@
 @RESPATH@/chrome/comm.manifest
 @RESPATH@/chrome/recording.manifest
