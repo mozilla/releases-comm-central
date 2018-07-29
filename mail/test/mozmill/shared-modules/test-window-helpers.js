@@ -142,8 +142,7 @@ function getWindowTypeForXulWindow(aXULWindow, aBusyOk) {
     return windowType;
 
   // As a last resort, use the name given to the DOM window.
-  let domWindow = aXULWindow.docShell.QueryInterface(Ci.nsIInterfaceRequestor)
-                                     .getInterface(Ci.nsIDOMWindow);
+  let domWindow = aXULWindow.docShell.domWindow;
 
   return domWindow.name;
 }
@@ -262,8 +261,7 @@ var WindowWatcher = {
 
     this.waitingForOpen = null;
     let xulWindow = this.waitingList.get(aWindowType);
-    let domWindow = xulWindow.docShell.QueryInterface(Ci.nsIInterfaceRequestor)
-                                      .getInterface(Ci.nsIDOMWindow);
+    let domWindow = xulWindow.docShell.domWindow;
     this.waitingList.delete(aWindowType);
     // spin the event loop to make sure any setTimeout 0 calls have gotten their
     //  time in the sun.
@@ -311,8 +309,7 @@ var WindowWatcher = {
     if (this.monitorizeOpen()) {
       // okay, the window is opened, and we should be in its event loop now.
       let xulWindow = this.waitingList.get(this.waitingForOpen);
-      let domWindow = xulWindow.docShell.QueryInterface(Ci.nsIInterfaceRequestor)
-                                        .getInterface(Ci.nsIDOMWindow);
+      let domWindow = xulWindow.docShell.domWindow;
       let troller = new controller.MozMillController(domWindow);
       augment_controller(troller, this.waitingForOpen);
 
@@ -517,8 +514,7 @@ var WindowWatcher = {
    *  so things like their windowtype are immediately available.
    */
   onCloseWindow: function WindowWatcher_onCloseWindow(aXULWindow) {
-    let domWindow = aXULWindow.docShell.QueryInterface(Ci.nsIInterfaceRequestor)
-                                       .getInterface(Ci.nsIDOMWindow);
+    let domWindow = aXULWindow.docShell.domWindow;
     let windowType = getWindowTypeOrId(domWindow.document.documentElement);
     mark_action("winhelp", "onCloseWindow",
                 [getWindowTypeForXulWindow(aXULWindow, true) +
@@ -1485,8 +1481,7 @@ function describeEventElementInHierarchy(aNode) {
                     .getInterface(Ci.nsIWebNavigation)
                     .QueryInterface(Ci.nsIDocShellTreeItem);
   while (treeItem) {
-    win = treeItem.QueryInterface(Ci.nsIInterfaceRequestor)
-                  .getInterface(Ci.nsIDOMWindow);
+    win = treeItem.domWindow;
     // capture the window itself
     arr.push("in");
     arr.push(normalize_for_json(win));
@@ -1498,8 +1493,7 @@ function describeEventElementInHierarchy(aNode) {
       arr.push(normalize_for_json(win.frameElement));
     }
     else if (parentTreeItem) {
-      let parentWin = parentTreeItem.QueryInterface(Ci.nsIInterfaceRequestor)
-                        .getInterface(Ci.nsIDOMWindow);
+      let parentWin = parentTreeItem.domWindow;
       let frame = _findFrameElementForWindowInWindow(win, parentWin);
       arr.push("frame:");
       arr.push(normalize_for_json(frame));
@@ -1545,13 +1539,7 @@ function getWindowDescribeyFromEvent(event) {
   // assume it's a window if there's no ownerDocument attribute
   var win = ("ownerDocument" in target) ? target.ownerDocument.defaultView
                                         : target;
-  var owningWin =
-    win.QueryInterface(Ci.nsIInterfaceRequestor)
-       .getInterface(Ci.nsIWebNavigation)
-       .QueryInterface(Ci.nsIDocShellTreeItem)
-       .rootTreeItem
-       .QueryInterface(Ci.nsIInterfaceRequestor)
-       .getInterface(Ci.nsIDOMWindow);
+  var owningWin = win.docShell.rootTreeItem.domWindow;
   var docElem = owningWin.document.documentElement;
   return (getWindowTypeOrId(docElem) || "mysterious") +
          " (" + (UNIQUE_WINDOW_ID_ATTR in owningWin ?

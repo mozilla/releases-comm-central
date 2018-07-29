@@ -227,8 +227,7 @@ var ExtensionSupport = {
     // nsIWindowMediatorListener functions
     onOpenWindow(xulWindow) {
       // A new window has opened.
-      let domWindow = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-                               .getInterface(Ci.nsIDOMWindow);
+      let domWindow = xulWindow.docShell.domWindow;
 
       // Here we pass no caller ID, so all registered callers get notified.
       ExtensionSupport._waitForLoad(domWindow);
@@ -236,8 +235,7 @@ var ExtensionSupport = {
 
     onCloseWindow(xulWindow) {
       // One of the windows has closed.
-      let domWindow = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-                               .getInterface(Ci.nsIDOMWindow);
+      let domWindow = xulWindow.docShell.domWindow;
       openWindowList.delete(domWindow);
     }
   },

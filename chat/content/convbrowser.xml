@@ -160,7 +160,7 @@
 
       <property name="contentWindow"
                 readonly="true"
-                onget="return this._contentWindow || (this._contentWindow = this.docShell.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindow));"/>
+                onget="return this._contentWindow || (this._contentWindow = this.docShell.domWindow);"/>
 
       <property name="contentWindowAsCPOW"
                 readonly="true"

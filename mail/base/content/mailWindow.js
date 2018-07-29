@@ -692,9 +692,7 @@ nsBrowserAccess.prototype = {
                                                 background: loadInBackground,
                                                 clickHandler: clickHandler});
 
-    newWindow = newTab.browser.docShell
-                      .QueryInterface(Ci.nsIInterfaceRequestor)
-                      .getInterface(Ci.nsIDOMWindow);
+    newWindow = newTab.browser.docShell.domWindow;
     try {
       if (aURI) {
         let referrer = null;

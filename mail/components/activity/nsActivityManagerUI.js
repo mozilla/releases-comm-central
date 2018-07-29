@@ -34,7 +34,7 @@ nsActivityManagerUI.prototype = {
     let parent = null;
     try {
       if (aWindowContext)
-        parent = aWindowContext.getInterface(Ci.nsIDOMWindow);
+        parent = aWindowContext.docShell.domWindow;
     } catch (e) { /* it's OK to not have a parent window */ }
 
     Services.ww.openWindow(parent,

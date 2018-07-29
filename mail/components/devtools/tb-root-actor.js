@@ -222,14 +222,12 @@ TBTabList.prototype = {
     // doesn't even have its document yet. Wait until its document has
     // loaded, and then see what we've got. This also avoids
     // nsIWindowMediator enumeration from within listeners (bug 873589).
-    aWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-                     .getInterface(Ci.nsIDOMWindow);
+    aWindow = aWindow.docShell.domWindow;
     aWindow.addEventListener("load", handleLoad, {capture: false, once: true});
   }, "TBTabList.prototype.onOpenWindow"),
 
   onCloseWindow: DevToolsUtils.makeInfallible(function(aWindow) {
-    aWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-                     .getInterface(Ci.nsIDOMWindow);
+    aWindow = aWindow.docShell.domWindow;
 
     // Only handle our window types
     if (this._checkedWindows.has(appShellDOMWindowType(aWindow))) {

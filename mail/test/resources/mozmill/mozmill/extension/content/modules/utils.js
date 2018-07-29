@@ -57,15 +57,7 @@ function Copy (obj) {
 }
 
 function getChromeWindow(aWindow) {
-  var chromeWin = aWindow
-           .QueryInterface(Ci.nsIInterfaceRequestor)
-           .getInterface(Ci.nsIWebNavigation)
-           .QueryInterface(Ci.nsIDocShellTreeItem)
-           .rootTreeItem
-           .QueryInterface(Ci.nsIInterfaceRequestor)
-           .getInterface(Ci.nsIDOMWindow)
-           .QueryInterface(Ci.nsIDOMChromeWindow);
-  return chromeWin;
+  return aWindow.docShell.rootTreeItem.domWindow;
 }
 
 function getWindows(type) {

@@ -13,7 +13,6 @@ var nsISupports              = Ci.nsISupports;
 var nsICommandLine           = Ci.nsICommandLine;
 var nsICommandLineHandler    = Ci.nsICommandLineHandler;
 var nsICommandLineValidator  = Ci.nsICommandLineValidator;
-var nsIDOMWindow             = Ci.nsIDOMWindow;
 var nsIFactory               = Ci.nsIFactory;
 var nsIFileURL               = Ci.nsIFileURL;
 var nsINetUtil               = Ci.nsINetUtil;

@@ -864,13 +864,9 @@ function reachOutAndTouchFrame() {
                  .getInterface(Ci.nsIWebNavigation)
                  .QueryInterface(Ci.nsIDocShellTreeItem);
 
-  FacetContext.rootWin = us.rootTreeItem
-                    .QueryInterface(Ci.nsIInterfaceRequestor)
-                    .getInterface(Ci.nsIDOMWindow);
+  FacetContext.rootWin = us.rootTreeItem.domWindow;
 
-  let parentWin = us.parent
-                    .QueryInterface(Ci.nsIInterfaceRequestor)
-                    .getInterface(Ci.nsIDOMWindow);
+  let parentWin = us.parent.domWindow;
   let aTab = FacetContext.tab = parentWin.tab;
   parentWin.tab = null;
   window.addEventListener("resize", function() {
