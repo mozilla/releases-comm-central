@@ -903,13 +903,14 @@ var FeedSubscriptions = {
   selectFeed: function(aFeed, aParentIndex)
   {
     let folder = aFeed.folder;
+    let server = aFeed.server || aFeed.folder.server;
     let found = false;
 
     if (aFeed.folder.isServer) {
       // If passed the root folder, the caller wants to get the feed's folder
       // from the db (for cases of an ancestor folder rename/move).
       let itemResource = FeedUtils.rdf.GetResource(aFeed.url);
-      let ds = FeedUtils.getSubscriptionsDS(aFeed.server);
+      let ds = FeedUtils.getSubscriptionsDS(server);
       folder = ds.GetTarget(itemResource, FeedUtils.FZ_DESTFOLDER, true);
     }
 

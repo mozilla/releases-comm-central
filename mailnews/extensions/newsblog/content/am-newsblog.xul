@@ -53,13 +53,6 @@
 
     <groupbox>
       <caption label="&serverSettings.label;"/>
-
-      <checkbox id="server.loginAtStartUp"
-                wsm_persist="true"
-                label="&loginAtStartup.label;"
-                accesskey="&loginAtStartup.accesskey;"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.login_at_startup"/>
       <checkbox id="doBiff"
                 label="&biffAll.label;"
                 accesskey="&biffAll.accesskey;"

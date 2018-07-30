@@ -246,8 +246,7 @@ var FeedUtils = {
  * @param   nsIDOMWindow aMsgWindow      - window
  */
   downloadFeed: function(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
-    FeedUtils.log.debug("downloadFeed: account loginAtStartUp:isBiff:isOffline - " +
-                        aFolder.server.loginAtStartUp + " : " +
+    FeedUtils.log.debug("downloadFeed: account isBiff:isOffline - " +
                         aIsBiff + " : " + Services.io.offline);
     // User set.
     if (Services.io.offline)
@@ -274,21 +273,6 @@ var FeedUtils = {
     }
 
     let forceDownload = !aIsBiff;
-    if (aFolder.isServer)
-    {
-      // The lastUpdateTime is |null| only at startup/initialization. Check
-      // if download at startup is wanted; this overrides individual feed
-      // lastUpdateTime or enabled status, just like manual get messages.
-      // However, note that the MAX_CONCURRENT_FEEDS throttle is still applied.
-      // Setting loginAtStartUp is not very useful for feeds, as the biff poll
-      // will go off in about kBiffPollMinutes (1) anyway and process each feed
-      // according to its own lastUpdatTime/update frequency.
-      if (FeedUtils.getStatus(aFolder, aFolder.URI).lastUpdateTime === null)
-        forceDownload = aFolder.server.loginAtStartUp;
-
-      FeedUtils.setStatus(aFolder, aFolder.URI, "lastUpdateTime", Date.now());
-    }
-
     let allFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     if (!aFolder.isServer) {
       // Add the base folder; it does not get returned by ListDescendants. Do not

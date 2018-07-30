@@ -74,7 +74,7 @@ NS_IMETHODIMP nsRssService::GetCanDelete(bool *aCanDelete)
 NS_IMETHODIMP nsRssService::GetCanLoginAtStartUp(bool *aCanLoginAtStartUp)
 {
     NS_ENSURE_ARG_POINTER(aCanLoginAtStartUp);
-    *aCanLoginAtStartUp = true;
+    *aCanLoginAtStartUp = false;
     return NS_OK;
 }
 
