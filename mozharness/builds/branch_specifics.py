@@ -72,7 +72,7 @@ config = {
     "comm-esr60": {
         "enable_release_promotion": True,
         'repo_path': 'releases/comm-esr60',
-        'update_channel': 'beta',
+        'update_channel': 'release',
         'platform_overrides': {
             'linux': {
                 'mozconfig_variant': 'release',
