@@ -62,7 +62,7 @@ function readURLasUTF8(uri) {
             Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
 
     let content = "";
-    let strOut = new Object();
+    let strOut = {};
     try {
       while (is.readString(1024, strOut) != 0)
         content += strOut.value;
@@ -112,13 +112,7 @@ function getStringBundle(bundleURI) {
 
 function Exception(msg) {
   this._message = msg;
-
-  // get stack
-  try {
-    not.found.here += 1; // force a native exception ...
-  } catch (e) {
-    this.stack = e.stack; // ... to get the current stack
-  }
+  this.stack = Components.stack.formattedStack;
 }
 Exception.prototype =
 {
@@ -207,7 +201,7 @@ function deepCopy(org) {
   if (typeof(org) == "number")
     return org;
   if (typeof(org) == "boolean")
-    return org == true;
+    return org;
   if (typeof(org) == "function")
     return org;
   if (typeof(org) != "object")
@@ -215,9 +209,9 @@ function deepCopy(org) {
 
   // TODO still instanceof org != instanceof copy
   // var result = new org.constructor();
-  var result = new Object();
+  var result = {};
   if (typeof(org.length) != "undefined")
-    var result = new Array();
+    result = [];
   for (var prop in org)
     result[prop] = deepCopy(org[prop]);
   return result;

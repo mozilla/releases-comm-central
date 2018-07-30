@@ -15,6 +15,7 @@
 ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+/* eslint-disable complexity */
 function createAccountInBackend(config) {
   // incoming server
   let inServer = MailServices.accounts.createIncomingServer(
@@ -189,6 +190,7 @@ function createAccountInBackend(config) {
   }
   return account;
 }
+/* eslint-enable complexity */
 
 function setFolders(identity, server) {
   // TODO: support for local folders for global inbox (or use smart search
@@ -214,10 +216,11 @@ function setFolders(identity, server) {
 }
 
 function rememberPassword(server, password) {
+  let passwordURI;
   if (server instanceof Ci.nsIMsgIncomingServer)
-    var passwordURI = server.localStoreType + "://" + server.hostName;
+    passwordURI = server.localStoreType + "://" + server.hostName;
   else if (server instanceof Ci.nsISmtpServer)
-    var passwordURI = "smtp://" + server.hostname;
+    passwordURI = "smtp://" + server.hostname;
   else
     throw new NotReached("Server type not supported");
 

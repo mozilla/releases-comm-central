@@ -31,7 +31,6 @@ ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
  * - If user clicks OK, create the account
  */
 
-
 // from http://xyfer.blogspot.com/2005/01/javascript-regexp-email-validator.html
 var emailRE = /^[-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@(?:[-a-z0-9.]+\.[a-z]{2,20}|\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/i;
 
@@ -44,8 +43,9 @@ var gStringsBundle;
 var gMessengerBundle;
 var gBrandShortName;
 
-/** *******************
-TODO for bug 549045
+/**
+TODO for bug 549045:
+
 - autodetect protocol
 Polish
 - reformat code style to match
@@ -71,9 +71,10 @@ Things to test (works for me):
   - enter nonsense domain. guess fails, (so automatically) manual,
     change domain to real one (not in DB), guess succeeds.
     former bug: goes to manual first shortly, then to result
-**********************/
+*/
 
 // To debug, set mail.wizard.logging.dump (or .console)="All" and kDebug = true
+const kDebug = false;
 
 function e(elementID) {
   return document.getElementById(elementID);
@@ -519,8 +520,7 @@ EmailConfigWizard.prototype =
     this.findConfig(this._domain, this._email);
   },
 
-
-  // ///////////////////////////////////////////////////////////////
+  // --------------
   // Detection step
 
   /**
@@ -536,28 +536,24 @@ EmailConfigWizard.prototype =
     this.startSpinner("looking_up_settings_disk");
     var self = this;
     this._abortable = fetchConfigFromDisk(domain,
-      function(config) // success
-      {
+      function(config) { // success
         self._abortable = null;
         self.foundConfig(config);
         self.stopSpinner("found_settings_disk");
       },
-      function(e) // fetchConfigFromDisk failed
-      {
+      function(e) { // fetchConfigFromDisk failed
         if (e instanceof CancelledException) {
           return;
         }
         gEmailWizardLogger.info("fetchConfigFromDisk failed: " + e);
         self.startSpinner("looking_up_settings_isp");
         self._abortable = fetchConfigFromISP(domain, email,
-          function(config) // success
-          {
+          function(config) { // success
             self._abortable = null;
             self.foundConfig(config);
             self.stopSpinner("found_settings_isp");
           },
-          function(e) // fetchConfigFromISP failed
-          {
+          function(e) { // fetchConfigFromISP failed
             if (e instanceof CancelledException) {
               return;
             }
@@ -565,14 +561,12 @@ EmailConfigWizard.prototype =
             logException(e);
             self.startSpinner("looking_up_settings_db");
             self._abortable = fetchConfigFromDB(domain,
-              function(config) // success
-              {
+              function(config) { // success
                 self._abortable = null;
                 self.foundConfig(config);
                 self.stopSpinner("found_settings_db");
               },
-              function(e) // fetchConfigFromDB failed
-              {
+              function(e) { // fetchConfigFromDB failed
                 if (e instanceof CancelledException) {
                   return;
                 }
@@ -580,14 +574,12 @@ EmailConfigWizard.prototype =
                 gEmailWizardLogger.info("fetchConfigFromDB failed: " + e);
                 self.startSpinner("looking_up_settings_db");
                 self._abortable = fetchConfigForMX(domain,
-                  function(config) // success
-                  {
+                  function(config) { // success
                     self._abortable = null;
                     self.foundConfig(config);
                     self.stopSpinner("found_settings_db");
                   },
-                  function(e) // fetchConfigForMX failed
-                  {
+                  function(e) { // fetchConfigForMX failed
                     if (e instanceof CancelledException) {
                       return;
                     }
@@ -609,21 +601,18 @@ EmailConfigWizard.prototype =
     this.startSpinner("looking_up_settings_guess");
     var self = this;
     self._abortable = guessConfig(domain,
-      function(type, hostname, port, ssl, done, config) // progress
-      {
+      function(type, hostname, port, ssl, done, config) { // progress
         gEmailWizardLogger.info("progress callback host " + hostname +
                                 " port " + port + " type " + type);
       },
-      function(config) // success
-      {
+      function(config) { // success
         self._abortable = null;
         self.foundConfig(config);
         self.stopSpinner(Services.io.offline ?
                          "guessed_settings_offline" : "found_settings_guess");
         window.sizeToContent();
       },
-      function(e, config) // guessconfig failed
-      {
+      function(e, config) { // guessconfig failed
         if (e instanceof CancelledException) {
           return;
         }
@@ -692,10 +681,8 @@ EmailConfigWizard.prototype =
     this.validateManualEditComplete();
   },
 
-
-
-  // /////////////////////////////////////////////////////////////////
-  // status area
+  // -----------
+  // Status area
 
   startSpinner(actionStrName) {
     e("status_area").setAttribute("status", "loading");
@@ -731,9 +718,7 @@ EmailConfigWizard.prototype =
     gEmailWizardLogger.info("status msg: " + msg);
   },
 
-
-
-  // ///////////////////////////////////////////////////////////////
+  // -----------
   // Result area
 
   /**
@@ -844,9 +829,7 @@ EmailConfigWizard.prototype =
     this.displayConfigResult(config);
   },
 
-
-
-  // ///////////////////////////////////////////////////////////////
+  // ----------------
   // Manual Edit area
 
   /**
@@ -1371,20 +1354,17 @@ EmailConfigWizard.prototype =
     // if (this._userPickedOutgoingServer) TODO
     var self = this;
     this._abortable = guessConfig(this._domain,
-      function(type, hostname, port, ssl, done, config) // progress
-      {
+      function(type, hostname, port, ssl, done, config) { // progress
         gEmailWizardLogger.info("progress callback host " + hostname +
                                 " port " + port + " type " + type);
       },
-      function(config) // success
-      {
+      function(config) { // success
         self._abortable = null;
         self._fillManualEditFields(config);
         self.switchToMode("manual-edit-complete");
         self.stopSpinner("found_settings_halfmanual");
       },
-      function(e, config) // guessconfig failed
-      {
+      function(e, config) { // guessconfig failed
         if (e instanceof CancelledException) {
           return;
         }
@@ -1397,9 +1377,7 @@ EmailConfigWizard.prototype =
       newConfig.outgoing.existingServerKey ? "incoming" : "both");
   },
 
-
-
-  // ///////////////////////////////////////////////////////////////
+  // -------------------
   // UI helper functions
 
   _prefillConfig(initialConfig) {
@@ -1426,9 +1404,7 @@ EmailConfigWizard.prototype =
     } catch (ex) { alertPrompt("missing error string", msg_name); }
   },
 
-
-
-  // ///////////////////////////////////////////////////////////////
+  // -------------------------------
   // Finish & dialog close functions
 
   onKeyDown(event) {
@@ -1472,7 +1448,6 @@ EmailConfigWizard.prototype =
     gEmailWizardLogger.info("Shutting down email config dialog");
   },
 
-
   onCreate() {
     try {
       gEmailWizardLogger.info("Create button clicked");
@@ -1481,11 +1456,11 @@ EmailConfigWizard.prototype =
       var self = this;
       // If the dialog is not needed, it will go straight to OK callback
       gSecurityWarningDialog.open(this._currentConfig, configFilledIn, true,
-        function() // on OK
-        {
+        function() { // on OK
           self.validateAndFinish(configFilledIn);
         },
-        function() {}); // on cancel, do nothing
+        function() { // on cancel, do nothing
+        });
     } catch (ex) {
       gEmailWizardLogger.error("Error creating account.  ex=" + ex +
                                ", stack=" + ex.stack);
@@ -1530,8 +1505,7 @@ EmailConfigWizard.prototype =
       // Find out what it was and fix it.
       // concreteConfig.source == AccountConfig.kSourceGuess,
       this._parentMsgWindow,
-      function(successfulConfig) // success
-      {
+      function(successfulConfig) { // success
         self.stopSpinner(successfulConfig.incoming.password ?
                          "password_ok" : null);
 
@@ -1549,8 +1523,7 @@ EmailConfigWizard.prototype =
 
         self.finish();
       },
-      function(e) // failed
-      {
+      function(e) { // failed
         self.showErrorStatus("config_unverifiable");
         // TODO bug 555448: wrong error msg, there may be a 1000 other
         // reasons why this failed, and this is misleading users.
@@ -1589,13 +1562,12 @@ var _gAllStandardPorts = _gStandardPorts.smtp
     .concat(_gStandardPorts.imap).concat(_gStandardPorts.pop3);
 
 function isStandardPort(port) {
-  return _gAllStandardPorts.indexOf(port) != -1;
+  return _gAllStandardPorts.includes(port);
 }
 
 function getStandardPorts(protocolType) {
   return _gStandardPorts[protocolType];
 }
-
 
 /**
  * Warning dialog, warning user about lack of, or inappropriate, encryption.
@@ -1605,7 +1577,7 @@ function getStandardPorts(protocolType) {
  * the this part, and vice versa, and resizing the dialog.
  */
 function SecurityWarningDialog() {
-  this._acknowledged = new Array();
+  this._acknowledged = [];
 }
 SecurityWarningDialog.prototype =
 {
@@ -1839,7 +1811,7 @@ SecurityWarningDialog.prototype =
   showCertOverrideDialog(config) {
     if (config.incoming.socketType > 1 && // SSL or STARTTLS
         config.incoming.badCert) {
-      var params = {
+      let params = {
         exceptionAdded: false,
         prefetchCert: true,
         location: config.incoming.targetSite,
@@ -1855,7 +1827,7 @@ SecurityWarningDialog.prototype =
     if (!config.outgoing.existingServerKey) {
       if (config.outgoing.socketType > 1 && // SSL or STARTTLS
           config.outgoing.badCert) {
-        var params = {
+        let params = {
           exceptionAdded: false,
           prefetchCert: true,
           location: config.outgoing.targetSite,

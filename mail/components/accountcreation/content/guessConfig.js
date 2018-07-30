@@ -72,7 +72,7 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
   if (!Services.prefs.getBoolPref(
       "mailnews.auto_config.guess.enabled")) {
     errorCallback("Guessing config disabled per user preference");
-    return;
+    return null;
   }
 
   var incomingHostDetector = null;
@@ -259,12 +259,11 @@ GuessAbortable.prototype.cancel = function(ex) {
   this._outgoingHostDetector.cancel(ex);
 };
 
-// ////////////////////////////////////////////////////////////////////////////
+// --------------
 // Implementation
-//
+
 // Objects, functions and constants that follow are not to be used outside
 // this file.
-
 var kNotTried = 0;
 var kOngoing = 1;
 var kFailed = 2;
@@ -334,7 +333,7 @@ function HostDetector(progressCallback, successCallback, errorCallback) {
   this.mErrorCallback = errorCallback;
   this._cancel = false;
   // {Array of {HostTry}}, ordered by decreasing preference
-  this._hostsToTry = new Array();
+  this._hostsToTry = [];
 
   // init logging
   this._log = Log4Moz.getConfiguredLogger("mail.wizard");
@@ -436,16 +435,14 @@ HostDetector.prototype =
           thisTry.hostname, thisTry.port, thisTry.ssl,
           thisTry.commands, TIMEOUT,
           new SSLErrorHandler(thisTry, this._log),
-          function(wiredata) // result callback
-          {
+          function(wiredata) { // result callback
             if (me._cancel)
               return; // don't use response anymore
             me.mProgressCallback(thisTry);
             me._processResult(thisTry, wiredata);
             me._checkFinished();
           },
-          function(e) // error callback
-          {
+          function(e) { // error callback
             if (me._cancel)
               return; // who set cancel to true already called mErrorCallback()
             me._log.warn(e);
@@ -536,8 +533,7 @@ HostDetector.prototype =
       this.mSuccessCallback(successfulTry,
           successfulTryAlternative ? [ successfulTryAlternative ] : []);
       this.cancel(new CancelOthersException());
-    } else if (!unfinishedBusiness) // all failed
-    {
+    } else if (!unfinishedBusiness) { // all failed
       this._log.info("ran out of options");
       var errorMsg = getStringBundle(
           "chrome://messenger/locale/accountCreationModel.properties")
@@ -547,7 +543,6 @@ HostDetector.prototype =
     }
     // else let ongoing calls continue
   },
-
 
   /**
    * Which auth mechanism the server claims to support.
@@ -569,7 +564,7 @@ HostDetector.prototype =
     // For smtp, EHLO will return AUTH and then a list of the
     // mechanism(s) supported, e.g.,
     // AUTH LOGIN NTLM MSN CRAM-MD5 GSSAPI
-    var result = new Array();
+    var result = [];
     var line = capaResponse.join("\n").toUpperCase();
     var prefix = "";
     if (protocol == POP)
@@ -612,7 +607,6 @@ function chooseBestAuthMethod(authMethods) {
   return authMethods.shift(); // take first (= most preferred)
 }
 
-
 function IncomingHostDetector(
   progressCallback, successCallback, errorCallback) {
   HostDetector.call(this, progressCallback, successCallback, errorCallback);
@@ -652,7 +646,7 @@ OutgoingHostDetector.prototype =
   _portsToTry: getOutgoingTryOrder,
 };
 
-// ////////////////////////////////////////////////////////////////////////
+// ---------------------------------------------
 // Encode protocol ports and order of preference
 
 // Protocol Types
@@ -838,9 +832,7 @@ function protocolToString(type) {
   throw new NotReached("unexpected protocol");
 }
 
-
-
-// ///////////////////////////////////////////////////////
+// ----------------------
 // SSL cert error handler
 
 /**
@@ -933,11 +925,8 @@ SSLErrorHandler.prototype =
   },
 };
 
-
-
-// ////////////////////////////////////////////////////////////////
+// -----------
 // Socket Util
-
 
 /**
  * @param hostname {String} The DNS hostname to connect to.
@@ -985,7 +974,12 @@ function SocketUtil(hostname, port, ssl, commands, timeout,
                          .getService(Ci.nsISocketTransportService);
 
   // @see NS_NETWORK_SOCKET_CONTRACTID_PREFIX
-  var socketTypeName = ssl == SSL ? "ssl" : (ssl == TLS ? "starttls" : null);
+  var socketTypeName = null;
+  if (ssl == SSL) {
+    socketTypeName = "ssl";
+  } else if (ssl == TLS) {
+    socketTypeName = "starttls";
+  }
   var transport = transportService.createTransport([socketTypeName],
                                                    ssl == NONE ? 0 : 1,
                                                    hostname, port, null);
@@ -1005,7 +999,7 @@ function SocketUtil(hostname, port, ssl, commands, timeout,
 
   var dataListener =
   {
-    data: new Array(),
+    data: [],
     onStartRequest(request, context) {
       try {
         initialized = true;

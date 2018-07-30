@@ -120,8 +120,7 @@ FetchHTTP.prototype =
     var errorStr = null;
 
     if (success && this._request.status >= 200 &&
-        this._request.status < 300) // HTTP level success
-    {
+        this._request.status < 300) { // HTTP level success
       try {
         // response
         var mimetype = this._request.getResponseHeader("Content-Type");

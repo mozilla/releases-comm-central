@@ -59,7 +59,7 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
   if (!Services.prefs.getBoolPref(
       "mailnews.auto_config.fetchFromISP.enabled")) {
     errorCallback("ISP fetch disabled per user preference");
-    return;
+    return null;
   }
 
   let url1 = "http://autoconfig." + sanitize.hostname(domain) +
@@ -78,8 +78,7 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
     function(result) {
       successCallback(readFromXML(result));
     },
-    function(e1) // fetch1 failed
-    {
+    function(e1) { // fetch1 failed
       ddump("fetchisp 1 <" + url1 + "> took " + (Date.now() - time) +
           "ms and failed with " + e1);
       time = Date.now();
@@ -162,8 +161,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
   var sucAbortable = new SuccessiveAbortable();
   var time = Date.now();
   sucAbortable.current = getMX(domain,
-    function(mxHostname) // success
-    {
+    function(mxHostname) { // success
       ddump("getmx took " + (Date.now() - time) + "ms");
       let sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
       ddump("base domain " + sld + " for " + mxHostname);

@@ -19,6 +19,7 @@
  */
 ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
+/* eslint-disable complexity */
 function readFromXML(clientConfigXML) {
   function array_or_undef(value) {
     return value === undefined ? [] : value;
@@ -28,7 +29,7 @@ function readFromXML(clientConfigXML) {
       !("clientConfig" in clientConfigXML) ||
       !("emailProvider" in clientConfigXML.clientConfig)) {
     dump("client config xml = " + JSON.stringify(clientConfigXML) + "\n");
-    var stringBundle = getStringBundle(
+    let stringBundle = getStringBundle(
         "chrome://messenger/locale/accountCreationModel.properties");
     throw stringBundle.GetStringFromName("no_emailProvider.error");
   }
@@ -52,8 +53,7 @@ function readFromXML(clientConfigXML) {
   exception = null;
 
   // incoming server
-  for (let iX of array_or_undef(xml.$incomingServer)) // input (XML)
-  {
+  for (let iX of array_or_undef(xml.$incomingServer)) { // input (XML)
     let iO = d.createNewIncoming(); // output (object)
     try {
       // throws if not supported
@@ -127,12 +127,11 @@ function readFromXML(clientConfigXML) {
   exception = null;
 
   // outgoing server
-  for (let oX of array_or_undef(xml.$outgoingServer)) // input (XML)
-  {
+  for (let oX of array_or_undef(xml.$outgoingServer)) { // input (XML)
     let oO = d.createNewOutgoing(); // output (object)
     try {
       if (oX["@type"] != "smtp") {
-        var stringBundle = getStringBundle(
+        let stringBundle = getStringBundle(
             "chrome://messenger/locale/accountCreationModel.properties");
         throw stringBundle.GetStringFromName("outgoing_not_smtp.error");
       }
@@ -210,7 +209,7 @@ function readFromXML(clientConfigXML) {
     throw exception ? exception : "Need proper <outgoingServer> in XML file";
   exception = null;
 
-  d.inputFields = new Array();
+  d.inputFields = [];
   for (let inputField of array_or_undef(xml.$inputField)) {
     try {
       var fieldset =
@@ -226,3 +225,4 @@ function readFromXML(clientConfigXML) {
 
   return d;
 }
+/* eslint-enable complexity */

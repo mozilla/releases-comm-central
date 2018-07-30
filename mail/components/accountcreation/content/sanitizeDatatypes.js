@@ -104,7 +104,7 @@ var sanitize =
    * A non-chrome URL that's safe to request.
    */
   url(unchecked) {
-    var str =  this.string(unchecked);
+    var str = this.string(unchecked);
     if (!str.startsWith("http") && !str.startsWith("https"))
       throw new MalformedException("url_scheme.error", unchecked);
 
@@ -185,7 +185,7 @@ function MalformedException(msgID, uncheckedBadValue) {
       "chrome://messenger/locale/accountCreationUtil.properties");
   var msg = stringBundle.GetStringFromName(msgID);
   if (kDebug)
-    msg += " (bad value: " + new String(uncheckedBadValue) + ")";
+    msg += " (bad value: " + uncheckedBadValue + ")";
   Exception.call(this, msg);
 }
 MalformedException.prototype = Object.create(Exception.prototype);

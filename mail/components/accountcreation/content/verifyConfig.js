@@ -97,22 +97,19 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) 
                               config.oauthSettings.issuer + ", " + config.oauthSettings.scope);
     }
 
-    if (inServer.password ||
-        inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2)
-      verifyLogon(config, inServer, alter, msgWindow,
-                  successCallback, errorCallback);
-    else {
+    if (inServer.password || inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
+      verifyLogon(config, inServer, alter, msgWindow, successCallback, errorCallback);
+    } else {
       // Avoid pref pollution, clear out server prefs.
       MailServices.accounts.removeIncomingServer(inServer, true);
       successCallback(config);
     }
-    return;
   } catch (e) {
     gEmailWizardLogger.error("ERROR: verify logon shouldn't have failed");
+    // Avoid pref pollution, clear out server prefs.
+    MailServices.accounts.removeIncomingServer(inServer, true);
+    errorCallback(e);
   }
-  // Avoid pref pollution, clear out server prefs.
-  MailServices.accounts.removeIncomingServer(inServer, true);
-  errorCallback(e);
 }
 
 function verifyLogon(config, inServer, alter, msgWindow, successCallback,
@@ -172,18 +169,16 @@ urlListener.prototype =
     if (Components.isSuccessCode(aExitCode)) {
       this._cleanup();
       this.mSuccessCallback(this.mConfig);
-    }
-    // Logon failed, and we aren't supposed to try other variations.
-    else if (!this.mAlter) {
+    } else if (!this.mAlter) {
+      // Logon failed, and we aren't supposed to try other variations.
       this._cleanup();
       var errorMsg = getStringBundle(
           "chrome://messenger/locale/accountCreationModel.properties")
           .GetStringFromName("cannot_login.error");
       this.mErrorCallback(new Exception(errorMsg));
-    }
-    // Try other variations, unless there's a cert error, in which
-    // case we'll see what the user chooses.
-    else if (!this.mCertError) {
+    } else if (!this.mCertError) {
+      // Try other variations, unless there's a cert error, in which
+      // case we'll see what the user chooses.
       this.tryNextLogon();
     }
   },
@@ -228,11 +223,10 @@ urlListener.prototype =
         (this.mServer.socketType == Ci.nsMsgSocketType.SSL ||
          this.mServer.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS));
     if (this.mConfig.incoming.authAlternatives &&
-        this.mConfig.incoming.authAlternatives.length)
-        // We may be dropping back to insecure auth methods here,
-        // which is not good. But then again, we already warned the user,
-        // if it is a config without SSL.
-    {
+        this.mConfig.incoming.authAlternatives.length) {
+      // We may be dropping back to insecure auth methods here,
+      // which is not good. But then again, we already warned the user,
+      // if it is a config without SSL.
       this._log.info("  auth alternatives = " +
           this.mConfig.incoming.authAlternatives.join(","));
       this._log.info("  Decreasing auth.");
@@ -247,9 +241,9 @@ urlListener.prototype =
       // Broken assumption, but we currently have no SMTP verification.
       // TODO implement real SMTP verification
       if (this.mConfig.outgoing.auth == brokenAuth &&
-          this.mConfig.outgoing.authAlternatives.indexOf(
-            this.mConfig.incoming.auth) != -1)
+          this.mConfig.outgoing.authAlternatives.includes(this.mConfig.incoming.auth)) {
         this.mConfig.outgoing.auth = this.mConfig.incoming.auth;
+      }
       this._log.info("  outgoing auth: " + this.mConfig.outgoing.auth);
       verifyLogon(this.mConfig, this.mServer, this.mAlter, this.mMsgWindow,
                   this.mSuccessCallback, this.mErrorCallback);
