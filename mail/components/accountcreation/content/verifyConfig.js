@@ -37,8 +37,7 @@ if (typeof gEmailWizardLogger == "undefined") {
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
 }
 
-function verifyConfig(config, alter, msgWindow, successCallback, errorCallback)
-{
+function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) {
   ddump(debugObject(config, "config", 3));
   assert(config instanceof AccountConfig,
          "BUG: Arg 'config' needs to be an AccountConfig object");
@@ -108,8 +107,7 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback)
       successCallback(config);
     }
     return;
-  }
-  catch (e) {
+  } catch (e) {
     gEmailWizardLogger.error("ERROR: verify logon shouldn't have failed");
   }
   // Avoid pref pollution, clear out server prefs.
@@ -118,8 +116,7 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback)
 }
 
 function verifyLogon(config, inServer, alter, msgWindow, successCallback,
-                     errorCallback)
-{
+                     errorCallback) {
   gEmailWizardLogger.info("verifyLogon for server at " + inServer.hostName);
   // hack - save away the old callbacks.
   let saveCallbacks = msgWindow.notificationCallbacks;
@@ -135,9 +132,7 @@ function verifyLogon(config, inServer, alter, msgWindow, successCallback,
     let uri = inServer.verifyLogon(listener, msgWindow);
     // clear msgWindow so url won't prompt for passwords.
     uri.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = null;
-  }
-  catch (e) { gEmailWizardLogger.error("verifyLogon failed: " + e); throw e;}
-  finally {
+  } catch (e) { gEmailWizardLogger.error("verifyLogon failed: " + e); throw e; } finally {
     // restore them
     msgWindow.notificationCallbacks = saveCallbacks;
   }
@@ -151,8 +146,7 @@ function verifyLogon(config, inServer, alter, msgWindow, successCallback,
  */
 
 function urlListener(config, server, alter, msgWindow, successCallback,
-                     errorCallback)
-{
+                     errorCallback) {
   this.mConfig = config;
   this.mServer = server;
   this.mAlter = alter;
@@ -164,8 +158,7 @@ function urlListener(config, server, alter, msgWindow, successCallback,
 }
 urlListener.prototype =
 {
-  OnStartRunningUrl: function(aUrl)
-  {
+  OnStartRunningUrl(aUrl) {
     this._log.info("Starting to test username");
     this._log.info("  username=" + (this.mConfig.incoming.username !=
                           this.mConfig.identity.emailAddress) +
@@ -174,17 +167,14 @@ urlListener.prototype =
     this._log.info("  authMethod=" + this.mServer.authMethod);
   },
 
-  OnStopRunningUrl: function(aUrl, aExitCode)
-  {
+  OnStopRunningUrl(aUrl, aExitCode) {
     this._log.info("Finished verifyConfig resulted in " + aExitCode);
-    if (Components.isSuccessCode(aExitCode))
-    {
+    if (Components.isSuccessCode(aExitCode)) {
       this._cleanup();
       this.mSuccessCallback(this.mConfig);
     }
     // Logon failed, and we aren't supposed to try other variations.
-    else if (!this.mAlter)
-    {
+    else if (!this.mAlter) {
       this._cleanup();
       var errorMsg = getStringBundle(
           "chrome://messenger/locale/accountCreationModel.properties")
@@ -193,14 +183,12 @@ urlListener.prototype =
     }
     // Try other variations, unless there's a cert error, in which
     // case we'll see what the user chooses.
-    else if (!this.mCertError)
-    {
-      this.tryNextLogon()
+    else if (!this.mCertError) {
+      this.tryNextLogon();
     }
   },
 
-  tryNextLogon: function()
-  {
+  tryNextLogon() {
     this._log.info("tryNextLogon()");
     this._log.info("  username=" + (this.mConfig.incoming.username !=
                           this.mConfig.identity.emailAddress) +
@@ -208,8 +196,7 @@ urlListener.prototype =
                           (this.mConfig.usernameSaved ? "true" : "false"));
     this._log.info("  authMethod=" + this.mServer.authMethod);
     // check if we tried full email address as username
-    if (this.mConfig.incoming.username != this.mConfig.identity.emailAddress)
-    {
+    if (this.mConfig.incoming.username != this.mConfig.identity.emailAddress) {
       this._log.info("  Changing username to email address.");
       this.mConfig.usernameSaved = this.mConfig.incoming.username;
       this.mConfig.incoming.username = this.mConfig.identity.emailAddress;
@@ -221,8 +208,7 @@ urlListener.prototype =
       return;
     }
 
-    if (this.mConfig.usernameSaved)
-    {
+    if (this.mConfig.usernameSaved) {
       this._log.info("  Re-setting username.");
       // If we tried the full email address as the username, then let's go
       // back to trying just the username before trying the other cases.
@@ -277,11 +263,10 @@ urlListener.prototype =
         "chrome://messenger/locale/accountCreationModel.properties")
         .GetStringFromName("cannot_login.error");
     this.mErrorCallback(new Exception(errorMsg));
-    return;
+
   },
 
-  _cleanup : function()
-  {
+  _cleanup() {
     try {
       // Avoid pref pollution, clear out server prefs.
       if (this.mServer) {
@@ -292,27 +277,27 @@ urlListener.prototype =
   },
 
   // Suppress any certificate errors
-  notifyCertProblem: function(socketInfo, status, targetSite) {
+  notifyCertProblem(socketInfo, status, targetSite) {
     this.mCertError = true;
     this._log.error("cert error");
     let self = this;
-    setTimeout(function () {
+    setTimeout(function() {
       try {
         self.informUserOfCertError(socketInfo, status, targetSite);
-      } catch (e)  { logException(e); }
+      } catch (e) { logException(e); }
     }, 0);
     return true;
   },
 
-  informUserOfCertError : function(socketInfo, status, targetSite) {
+  informUserOfCertError(socketInfo, status, targetSite) {
     var params = {
-      exceptionAdded : false,
-      sslStatus : status,
-      prefetchCert : true,
-      location : targetSite,
+      exceptionAdded: false,
+      sslStatus: status,
+      prefetchCert: true,
+      location: targetSite,
     };
     window.openDialog("chrome://pippki/content/exceptionDialog.xul",
-                      "","chrome,centerscreen,modal", params);
+                      "", "chrome,centerscreen,modal", params);
     this._log.info("cert exception dialog closed");
     this._log.info("cert exceptionAdded = " + params.exceptionAdded);
     if (!params.exceptionAdded) {
@@ -321,8 +306,7 @@ urlListener.prototype =
           "chrome://messenger/locale/accountCreationModel.properties")
           .GetStringFromName("cannot_login.error");
       this.mErrorCallback(new Exception(errorMsg));
-    }
-    else {
+    } else {
       // Retry the logon now that we've added the cert exception.
       verifyLogon(this.mConfig, this.mServer, this.mAlter, this.mMsgWindow,
                   this.mSuccessCallback, this.mErrorCallback);
@@ -330,7 +314,7 @@ urlListener.prototype =
   },
 
   // nsIInterfaceRequestor
-  getInterface: function(iid) {
+  getInterface(iid) {
     return this.QueryInterface(iid);
   },
 
@@ -338,4 +322,4 @@ urlListener.prototype =
   QueryInterface: ChromeUtils.generateQI(["nsIBadCertListener2",
                                           "nsIInterfaceRequestor",
                                           "nsIUrlListener"]),
-}
+};

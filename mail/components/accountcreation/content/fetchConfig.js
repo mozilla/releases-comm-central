@@ -13,10 +13,8 @@ ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/JXON.js");
 
-function fetchConfigFromDisk(domain, successCallback, errorCallback)
-{
-  return new TimeoutAbortable(runAsync(function()
-  {
+function fetchConfigFromDisk(domain, successCallback, errorCallback) {
+  return new TimeoutAbortable(runAsync(function() {
     try {
       // <TB installdir>/isp/example.com.xml
       var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
@@ -57,8 +55,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback)
  *         The first parameter will be an exception object or error string.
  */
 function fetchConfigFromISP(domain, emailAddress, successCallback,
-                            errorCallback)
-{
+                            errorCallback) {
   if (!Services.prefs.getBoolPref(
       "mailnews.auto_config.fetchFromISP.enabled")) {
     errorCallback("ISP fetch disabled per user preference");
@@ -78,8 +75,7 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
     delete urlArgs.emailaddress;
   }
   let fetch1 = new FetchHTTP(url1, urlArgs, false,
-    function(result)
-    {
+    function(result) {
       successCallback(readFromXML(result));
     },
     function(e1) // fetch1 failed
@@ -87,19 +83,16 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
       ddump("fetchisp 1 <" + url1 + "> took " + (Date.now() - time) +
           "ms and failed with " + e1);
       time = Date.now();
-      if (e1 instanceof CancelledException)
-      {
+      if (e1 instanceof CancelledException) {
         errorCallback(e1);
         return;
       }
 
       let fetch2 = new FetchHTTP(url2, urlArgs, false,
-        function(result)
-        {
+        function(result) {
           successCallback(readFromXML(result));
         },
-        function(e2)
-        {
+        function(e2) {
           ddump("fetchisp 2 <" + url2 + "> took " + (Date.now() - time) +
               "ms and failed with " + e2);
           // return the error for the primary call,
@@ -120,8 +113,7 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
  * Params @see fetchConfigFromISP()
  */
 
-function fetchConfigFromDB(domain, successCallback, errorCallback)
-{
+function fetchConfigFromDB(domain, successCallback, errorCallback) {
   let url = Services.prefs.getCharPref("mailnews.auto_config_url");
   domain = sanitize.hostname(domain);
 
@@ -135,8 +127,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback)
   if (!url.length)
     return errorCallback("no fetch url set");
   let fetch = new FetchHTTP(url, null, false,
-                            function(result)
-                            {
+                            function(result) {
                               successCallback(readFromXML(result));
                             },
                             errorCallback);
@@ -165,8 +156,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback)
  *
  * Params @see fetchConfigFromISP()
  */
-function fetchConfigForMX(domain, successCallback, errorCallback)
-{
+function fetchConfigForMX(domain, successCallback, errorCallback) {
   domain = sanitize.hostname(domain);
 
   var sucAbortable = new SuccessiveAbortable();
@@ -177,8 +167,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback)
       ddump("getmx took " + (Date.now() - time) + "ms");
       let sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
       ddump("base domain " + sld + " for " + mxHostname);
-      if (sld == domain)
-      {
+      if (sld == domain) {
         errorCallback("MX lookup would be no different from domain");
         return;
       }
@@ -211,8 +200,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback)
  * @param errorCallback @see fetchConfigFromISP()
  * @returns @see fetchConfigFromISP()
  */
-function getMX(domain, successCallback, errorCallback)
-{
+function getMX(domain, successCallback, errorCallback) {
   domain = sanitize.hostname(domain);
 
   let url = Services.prefs.getCharPref("mailnews.mx_service_url");
@@ -221,16 +209,14 @@ function getMX(domain, successCallback, errorCallback)
   url += domain;
 
   let fetch = new FetchHTTP(url, null, false,
-    function(result)
-    {
+    function(result) {
       // result is plain text, with one line per server.
       // So just take the first line
       ddump("MX query result: \n" + result + "(end)");
       assert(typeof(result) == "string");
       let first = result.split("\n")[0];
       first.toLowerCase().replace(/[^a-z0-9\-_\.]*/g, "");
-      if (first.length == 0)
-      {
+      if (first.length == 0) {
         errorCallback("no MX found");
         return;
       }

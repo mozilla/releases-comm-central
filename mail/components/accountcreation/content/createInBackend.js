@@ -15,8 +15,7 @@
 ChromeUtils.import("resource:///modules/mailServices.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-function createAccountInBackend(config)
-{
+function createAccountInBackend(config) {
   // incoming server
   let inServer = MailServices.accounts.createIncomingServer(
       config.incoming.username,
@@ -40,7 +39,7 @@ function createAccountInBackend(config)
     inServer.socketType = Ci.nsMsgSocketType.SSL;
   else if (config.incoming.socketType == 3) // STARTTLS
     inServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
-  //inServer.prettyName = config.displayName;
+  // inServer.prettyName = config.displayName;
   inServer.prettyName = config.identity.emailAddress;
 
   inServer.doBiff = true;
@@ -51,8 +50,7 @@ function createAccountInBackend(config)
     loginAtStartupPrefTemplate.replace("%serverkey%", inServer.key);
   Services.prefs.setBoolPref(loginAtStartupPref,
                              config.incoming.loginAtStartup);
-  if (config.incoming.type == "pop3")
-  {
+  if (config.incoming.type == "pop3") {
     const leaveOnServerPrefTemplate =
       "mail.server.%serverkey%.leave_on_server";
     const daysToLeaveOnServerPrefTemplate =
@@ -93,14 +91,12 @@ function createAccountInBackend(config)
          config.outgoing.existingServerKey,
          "No SMTP server: inconsistent flags");
 
-  if (config.outgoing.addThisServer && !outServer)
-  {
+  if (config.outgoing.addThisServer && !outServer) {
     outServer = MailServices.smtp.createServer();
     outServer.hostname = config.outgoing.hostname;
     outServer.port = config.outgoing.port;
     outServer.authMethod = config.outgoing.auth;
-    if (config.outgoing.auth > 1)
-    {
+    if (config.outgoing.auth > 1) {
       outServer.username = username;
       outServer.password = config.incoming.password;
       if (config.rememberPassword && config.incoming.password.length)
@@ -141,19 +137,16 @@ function createAccountInBackend(config)
 
   // for new accounts, default to replies being positioned above the quote
   // if a default account is defined already, take its settings instead
-  if (config.incoming.type == "imap" || config.incoming.type == "pop3")
-  {
+  if (config.incoming.type == "imap" || config.incoming.type == "pop3") {
     identity.replyOnTop = 1;
     // identity.sigBottom = false; // don't set this until Bug 218346 is fixed
 
     if (MailServices.accounts.accounts.length &&
-        MailServices.accounts.defaultAccount)
-    {
+        MailServices.accounts.defaultAccount) {
       let defAccount = MailServices.accounts.defaultAccount;
       let defIdentity = defAccount.defaultIdentity;
       if (defAccount.incomingServer.canBeDefaultServer &&
-          defIdentity && defIdentity.valid)
-      {
+          defIdentity && defIdentity.valid) {
         identity.replyOnTop = defIdentity.replyOnTop;
         identity.sigBottom = defIdentity.sigBottom;
       }
@@ -197,8 +190,7 @@ function createAccountInBackend(config)
   return account;
 }
 
-function setFolders(identity, server)
-{
+function setFolders(identity, server) {
   // TODO: support for local folders for global inbox (or use smart search
   // folder instead)
 
@@ -221,8 +213,7 @@ function setFolders(identity, server)
   identity.tmplFolderPickerMode = 0;
 }
 
-function rememberPassword(server, password)
-{
+function rememberPassword(server, password) {
   if (server instanceof Ci.nsIMsgIncomingServer)
     var passwordURI = server.localStoreType + "://" + server.hostName;
   else if (server instanceof Ci.nsISmtpServer)
@@ -255,8 +246,7 @@ function rememberPassword(server, password)
  *     object is returned.
  *     If it's a new server, |null| is returned.
  */
-function checkIncomingServerAlreadyExists(config)
-{
+function checkIncomingServerAlreadyExists(config) {
   assert(config instanceof AccountConfig);
   let incoming = config.incoming;
   let existing = MailServices.accounts.findRealServer(incoming.username,
@@ -272,7 +262,7 @@ function checkIncomingServerAlreadyExists(config)
           sanitize.enum(incoming.type, ["pop3", "imap", "nntp"]),
           incoming.port);
   return existing;
-};
+}
 
 /**
  * Check whether the user's setup already has an outgoing server
@@ -284,12 +274,10 @@ function checkIncomingServerAlreadyExists(config)
  *     object is returned.
  *     If it's a new server, |null| is returned.
  */
-function checkOutgoingServerAlreadyExists(config)
-{
+function checkOutgoingServerAlreadyExists(config) {
   assert(config instanceof AccountConfig);
   let smtpServers = MailServices.smtp.servers;
-  while (smtpServers.hasMoreElements())
-  {
+  while (smtpServers.hasMoreElements()) {
     let existingServer = smtpServers.getNext()
         .QueryInterface(Ci.nsISmtpServer);
     // TODO check username with full email address, too, like for incoming
@@ -299,35 +287,30 @@ function checkOutgoingServerAlreadyExists(config)
       return existingServer;
   }
   return null;
-};
+}
 
 /**
  * Check if there already is a "Local Folders". If not, create it.
  * Copied from AccountWizard.js with minor updates.
  */
-function verifyLocalFoldersAccount(am)
-{
+function verifyLocalFoldersAccount(am) {
   let localMailServer;
   try {
     localMailServer = am.localFoldersServer;
-  }
-  catch (ex) {
+  } catch (ex) {
     localMailServer = null;
   }
 
   try {
-    if (!localMailServer)
-    {
+    if (!localMailServer) {
       // creates a copy of the identity you pass in
       am.createLocalMailAccount();
       try {
         localMailServer = am.localFoldersServer;
-      }
-      catch (ex) {
+      } catch (ex) {
         ddump("Error! we should have found the local mail server " +
               "after we created it.");
       }
     }
-  }
-  catch (ex) { ddump("Error in verifyLocalFoldersAccount " + ex); }
+  } catch (ex) { ddump("Error in verifyLocalFoldersAccount " + ex); }
 }

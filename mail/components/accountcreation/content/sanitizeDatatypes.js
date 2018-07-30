@@ -20,8 +20,7 @@ ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 var sanitize =
 {
-  integer : function(unchecked)
-  {
+  integer(unchecked) {
     if (typeof(unchecked) == "number" && !isNaN(unchecked))
       return unchecked;
 
@@ -32,8 +31,7 @@ var sanitize =
     return r;
   },
 
-  integerRange : function(unchecked, min, max)
-  {
+  integerRange(unchecked, min, max) {
     var int = this.integer(unchecked);
     if (int < min)
       throw new MalformedException("number_too_small.error", unchecked);
@@ -44,8 +42,7 @@ var sanitize =
     return int;
   },
 
-  boolean : function(unchecked)
-  {
+  boolean(unchecked) {
     if (typeof(unchecked) == "boolean")
       return unchecked;
 
@@ -58,13 +55,11 @@ var sanitize =
     throw new MalformedException("boolean.error", unchecked);
   },
 
-  string : function(unchecked)
-  {
+  string(unchecked) {
     return String(unchecked);
   },
 
-  nonemptystring : function(unchecked)
-  {
+  nonemptystring(unchecked) {
     if (!unchecked)
       throw new MalformedException("string_empty.error", unchecked);
 
@@ -76,8 +71,7 @@ var sanitize =
    *
    * Empty strings not allowed (good idea?).
    */
-  alphanumdash : function(unchecked)
-  {
+  alphanumdash(unchecked) {
     var str = this.nonemptystring(unchecked);
     if (!/^[a-zA-Z0-9\-\_]*$/.test(str))
       throw new MalformedException("alphanumdash.error", unchecked);
@@ -91,8 +85,7 @@ var sanitize =
    * Empty strings not allowed.
    * Currently does not support IDN (international domain names).
    */
-  hostname : function(unchecked)
-  {
+  hostname(unchecked) {
     let str = cleanUpHostName(this.nonemptystring(unchecked));
 
     // Allow placeholders. TODO move to a new hostnameOrPlaceholder()
@@ -110,8 +103,7 @@ var sanitize =
   /**
    * A non-chrome URL that's safe to request.
    */
-  url : function (unchecked)
-  {
+  url(unchecked) {
     var str =  this.string(unchecked);
     if (!str.startsWith("http") && !str.startsWith("https"))
       throw new MalformedException("url_scheme.error", unchecked);
@@ -133,8 +125,7 @@ var sanitize =
   /**
    * A value which should be shown to the user in the UI as label
    */
-  label : function(unchecked)
-  {
+  label(unchecked) {
     return this.string(unchecked);
   },
 
@@ -149,10 +140,8 @@ var sanitize =
    *       no |defaultValue| is passed.
    * @throws MalformedException
    */
-  enum : function(unchecked, allowedValues, defaultValue)
-  {
-    for (let allowedValue of allowedValues)
-    {
+  enum(unchecked, allowedValues, defaultValue) {
+    for (let allowedValue of allowedValues) {
       if (allowedValue == unchecked)
         return allowedValue;
     }
@@ -179,10 +168,8 @@ var sanitize =
    *       no |defaultValue| is passed.
    * @throws MalformedException
    */
-  translate : function(unchecked, mapping, defaultValue)
-  {
-    for (var inputValue in mapping)
-    {
+  translate(unchecked, mapping, defaultValue) {
+    for (var inputValue in mapping) {
       if (inputValue == unchecked)
         return mapping[inputValue];
     }
@@ -193,8 +180,7 @@ var sanitize =
   }
 };
 
-function MalformedException(msgID, uncheckedBadValue)
-{
+function MalformedException(msgID, uncheckedBadValue) {
   var stringBundle = getStringBundle(
       "chrome://messenger/locale/accountCreationUtil.properties");
   var msg = stringBundle.GetStringFromName(msgID);

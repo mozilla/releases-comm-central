@@ -9,24 +9,23 @@
  * 'callback' object's method "processCertError" so that it can deal with it as
  * needed (in the case of autoconfig, setting up temporary overrides).
  */
-function BadCertHandler(callback)
-{
+function BadCertHandler(callback) {
   this._init(callback);
 }
 
 BadCertHandler.prototype =
 {
-  _init: function(callback) {
+  _init(callback) {
     this._callback = callback;
   },
 
   // Suppress any certificate errors
-  notifyCertProblem: function(socketInfo, status, targetSite) {
+  notifyCertProblem(socketInfo, status, targetSite) {
     return this._callback.processCertError(socketInfo, status, targetSite);
   },
 
   // nsIInterfaceRequestor
-  getInterface: function(iid) {
+  getInterface(iid) {
     return this.QueryInterface(iid);
   },
 

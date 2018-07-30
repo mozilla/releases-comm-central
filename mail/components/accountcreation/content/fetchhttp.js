@@ -69,8 +69,7 @@ ChromeUtils.import("resource:///modules/JXON.js");
  *   (sending XML).
  *   Usually, you have nothing to upload, so just pass |null|.
  */
-function FetchHTTP(url, urlArgs, post, successCallback, errorCallback)
-{
+function FetchHTTP(url, urlArgs, post, successCallback, errorCallback) {
   assert(typeof(successCallback) == "function", "BUG: successCallback");
   assert(typeof(errorCallback) == "function", "BUG: errorCallback");
   this._url = sanitize.string(url);
@@ -85,19 +84,17 @@ function FetchHTTP(url, urlArgs, post, successCallback, errorCallback)
 FetchHTTP.prototype =
 {
   __proto__: Abortable.prototype,
-  _url : null, // URL as passed to ctor, without arguments
-  _urlArgs : null,
-  _post : null,
-  _successCallback : null,
-  _errorCallback : null,
-  _request : null, // the XMLHttpRequest object
-  result : null,
+  _url: null, // URL as passed to ctor, without arguments
+  _urlArgs: null,
+  _post: null,
+  _successCallback: null,
+  _errorCallback: null,
+  _request: null, // the XMLHttpRequest object
+  result: null,
 
-  start : function()
-  {
+  start() {
     var url = this._url;
-    for (var name in this._urlArgs)
-    {
+    for (var name in this._urlArgs) {
       url += (!url.includes("?") ? "?" : "&") +
               name + "=" + encodeURIComponent(this._urlArgs[name]);
     }
@@ -113,22 +110,19 @@ FetchHTTP.prototype =
     //    } catch (e) { dump(e + "\n"); }
 
     var me = this;
-    request.onload = function() { me._response(true); }
-    request.onerror = function() { me._response(false); }
+    request.onload = function() { me._response(true); };
+    request.onerror = function() { me._response(false); };
     request.send(null);
   },
-  _response : function(success, exStored)
-  {
-    try
-    {
+  _response(success, exStored) {
+    try {
     var errorCode = null;
     var errorStr = null;
 
     if (success && this._request.status >= 200 &&
         this._request.status < 300) // HTTP level success
     {
-      try
-      {
+      try {
         // response
         var mimetype = this._request.getResponseHeader("Content-Type");
         if (!mimetype)
@@ -136,31 +130,23 @@ FetchHTTP.prototype =
         mimetype = mimetype.split(";")[0];
         if (mimetype == "text/xml" ||
             mimetype == "application/xml" ||
-            mimetype == "text/rdf")
-        {
+            mimetype == "text/rdf") {
           this.result = JXON.build(this._request.responseXML);
-        }
-        else
-        {
-          //ddump("mimetype: " + mimetype + " only supported as text");
+        } else {
+          // ddump("mimetype: " + mimetype + " only supported as text");
           this.result = this._request.responseText;
         }
-        //ddump("result:\n" + this.result);
-      }
-      catch (e)
-      {
+        // ddump("result:\n" + this.result);
+      } catch (e) {
         success = false;
         errorStr = getStringBundle(
                    "chrome://messenger/locale/accountCreationUtil.properties")
                    .GetStringFromName("bad_response_content.error");
         errorCode = -4;
       }
-    }
-    else
-    {
+    } else {
       success = false;
-      try
-      {
+      try {
         errorCode = this._request.status;
         errorStr = this._request.statusText;
       } catch (e) {
@@ -174,22 +160,19 @@ FetchHTTP.prototype =
     }
 
     // Callbacks
-    if (success)
-    {
+    if (success) {
       try {
         this._successCallback(this.result);
       } catch (e) {
         logException(e);
         this._error(e);
       }
-    }
-    else if (exStored)
+    } else if (exStored)
       this._error(exStored);
     else
       this._error(new ServerException(errorStr, errorCode, this._url));
 
-    if (this._finishedCallback)
-    {
+    if (this._finishedCallback) {
       try {
         this._finishedCallback(this);
       } catch (e) {
@@ -204,8 +187,7 @@ FetchHTTP.prototype =
       this._error(e);
     }
   },
-  _error : function(e)
-  {
+  _error(e) {
     try {
       this._errorCallback(e);
     } catch (e) {
@@ -217,8 +199,7 @@ FetchHTTP.prototype =
   /**
    * Call this between start() and finishedCallback fired.
    */
-  cancel : function(ex)
-  {
+  cancel(ex) {
     assert(!this.result, "Call already returned");
 
     this._request.abort();
@@ -232,21 +213,18 @@ FetchHTTP.prototype =
    * This is useful to enable and disable a Cancel button in the UI,
    * which allows to cancel the network request.
    */
-  setFinishedCallback : function(finishedCallback)
-  {
+  setFinishedCallback(finishedCallback) {
     this._finishedCallback = finishedCallback;
   }
-}
+};
 
-function CancelledException(msg)
-{
+function CancelledException(msg) {
   Exception.call(this, msg);
 }
 CancelledException.prototype = Object.create(Exception.prototype);
 CancelledException.prototype.constructor = CancelledException;
 
-function UserCancelledException(msg)
-{
+function UserCancelledException(msg) {
   // The user knows they cancelled so I don't see a need
   // for a message to that effect.
   if (!msg)
@@ -256,8 +234,7 @@ function UserCancelledException(msg)
 UserCancelledException.prototype = Object.create(CancelledException.prototype);
 UserCancelledException.prototype.constructor = UserCancelledException;
 
-function ServerException(msg, code, uri)
-{
+function ServerException(msg, code, uri) {
   Exception.call(this, msg);
   this.code = code;
   this.uri = uri;

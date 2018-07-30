@@ -41,6 +41,7 @@ mail/themes/**
 # mail/components exclusions
 mail/components/*
 !mail/components/about-support
+!mail/components/accountcreation
 !mail/components/extensions
 
 # calendar/ exclusions

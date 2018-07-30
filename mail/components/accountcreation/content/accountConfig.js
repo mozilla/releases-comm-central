@@ -20,8 +20,7 @@
  * for values stored.
  */
 
-function AccountConfig()
-{
+function AccountConfig() {
   this.incoming = this.createNewIncoming();
   this.incomingAlternatives = [];
   this.outgoing = this.createNewOutgoing();
@@ -29,58 +28,57 @@ function AccountConfig()
   this.identity =
   {
     // displayed real name of user
-    realname : "%REALNAME%",
+    realname: "%REALNAME%",
     // email address of user, as shown in From of outgoing mails
-    emailAddress : "%EMAILADDRESS%",
+    emailAddress: "%EMAILADDRESS%",
   };
   this.inputFields = [];
   this.domains = [];
-};
+}
 AccountConfig.prototype =
 {
   // @see createNewIncoming()
-  incoming : null,
+  incoming: null,
   // @see createNewOutgoing()
-  outgoing : null,
+  outgoing: null,
   /**
    * Other servers which can be used instead of |incoming|,
    * in order of decreasing preference.
    * (|incoming| itself should not be included here.)
    * { Array of incoming/createNewIncoming() }
    */
-  incomingAlternatives : null,
-  outgoingAlternatives : null,
+  incomingAlternatives: null,
+  outgoingAlternatives: null,
   // OAuth2 configuration, if needed.
-  oauthSettings : null,
+  oauthSettings: null,
   // just an internal string to refer to this. Do not show to user.
-  id : null,
+  id: null,
   // who created the config.
   // { one of kSource* }
-  source : 0,
-  displayName : null,
+  source: 0,
+  displayName: null,
   // { Array of { varname (value without %), displayName, exampleValue } }
-  inputFields : null,
+  inputFields: null,
   // email address domains for which this config is applicable
   // { Array of Strings }
-  domains : null,
+  domains: null,
 
   /**
    * Factory function for incoming and incomingAlternatives
    */
-  createNewIncoming : function()
-  {
+  createNewIncoming() {
     return {
       // { String-enum: "pop3", "imap", "nntp" }
-      type : null,
-      hostname : null,
+      type: null,
+      hostname: null,
       // { Integer }
-      port : null,
+      port: null,
       // May be a placeholder (starts and ends with %). { String }
-      username : null,
-      password : null,
+      username: null,
+      password: null,
       // { enum: 1 = plain, 2 = SSL/TLS, 3 = STARTTLS always, 0 = not inited }
       // ('TLS when available' is insecure and not supported here)
-      socketType : 0,
+      socketType: 0,
       /**
        * true when the cert is invalid (and thus SSL useless), because it's
        * 1) not from an accepted CA (including self-signed certs)
@@ -88,57 +86,56 @@ AccountConfig.prototype =
        * 3) expired.
        * May go back to false when user explicitly accepted the cert.
        */
-      badCert : false,
+      badCert: false,
       /**
        * How to log in to the server: plaintext or encrypted pw, GSSAPI etc.
        * Defined by Ci.nsMsgAuthMethod
        * Same as server pref "authMethod".
        */
-      auth : 0,
+      auth: 0,
       /**
        * Other auth methods that we think the server supports.
        * They are ordered by descreasing preference.
        * (|auth| itself is not included in |authAlternatives|)
        * {Array of Ci.nsMsgAuthMethod} (same as .auth)
        */
-      authAlternatives : null,
+      authAlternatives: null,
       // in minutes { Integer }
-      checkInterval : 10,
-      loginAtStartup : true,
+      checkInterval: 10,
+      loginAtStartup: true,
       // POP3 only:
       // Not yet implemented. { Boolean }
-      useGlobalInbox : false,
-      leaveMessagesOnServer : true,
-      daysToLeaveMessagesOnServer : 14,
-      deleteByAgeFromServer : true,
+      useGlobalInbox: false,
+      leaveMessagesOnServer: true,
+      daysToLeaveMessagesOnServer: 14,
+      deleteByAgeFromServer: true,
       // When user hits delete, delete from local store and from server
-      deleteOnServerWhenLocalDelete : true,
-      downloadOnBiff : true,
+      deleteOnServerWhenLocalDelete: true,
+      downloadOnBiff: true,
     };
   },
   /**
    * Factory function for outgoing and outgoingAlternatives
    */
-  createNewOutgoing : function()
-  {
+  createNewOutgoing() {
     return {
-      type : "smtp",
-      hostname : null,
-      port : null, // see incoming
-      username : null, // see incoming. may be null, if auth is 0.
-      password : null, // see incoming. may be null, if auth is 0.
-      socketType : 0, // see incoming
-      badCert : false, // see incoming
-      auth : 0, // see incoming
-      authAlternatives : null, // see incoming
-      addThisServer : true, // if we already have an SMTP server, add this
+      type: "smtp",
+      hostname: null,
+      port: null,     // see incoming
+      username: null, // see incoming. may be null, if auth is 0.
+      password: null, // see incoming. may be null, if auth is 0.
+      socketType: 0,  // see incoming
+      badCert: false, // see incoming
+      auth: 0,        // see incoming
+      authAlternatives: null, // see incoming
+      addThisServer: true,    // if we already have an SMTP server, add this
       // if we already have an SMTP server, use it.
-      useGlobalPreferredServer : false,
+      useGlobalPreferredServer: false,
       // we should reuse an already configured SMTP server.
       // nsISmtpServer.key
-      existingServerKey : null,
+      existingServerKey: null,
       // user display value for existingServerKey
-      existingServerLabel : null,
+      existingServerLabel: null,
     };
   },
 
@@ -146,8 +143,7 @@ AccountConfig.prototype =
    * Returns a deep copy of this object,
    * i.e. modifying the copy will not affect the original object.
    */
-  copy : function()
-  {
+  copy() {
     // Workaround: deepCopy() fails to preserve base obj (instanceof)
     var result = new AccountConfig();
     for (var prop in this)
@@ -155,8 +151,7 @@ AccountConfig.prototype =
 
     return result;
   },
-  isComplete : function()
-  {
+  isComplete() {
     return (!!this.incoming.hostname && !!this.incoming.port &&
          !!this.incoming.socketType && !!this.incoming.auth &&
          !!this.incoming.username &&
@@ -209,8 +204,7 @@ AccountConfig.kSourceGuess = 3; // guessConfig()
  * @param password {String}
  * The password for the incoming server and (if necessary) the outgoing server
  */
-function replaceVariables(account, realname, emailfull, password)
-{
+function replaceVariables(account, realname, emailfull, password) {
   sanitize.nonemptystring(emailfull);
   let emailsplit = emailfull.split("@");
   assert(emailsplit.length == 2,
@@ -246,8 +240,7 @@ function replaceVariables(account, realname, emailfull, password)
   account.displayName = _replaceVariable(account.displayName, otherVariables);
 }
 
-function _replaceVariable(variable, values)
-{
+function _replaceVariable(variable, values) {
   let str = variable;
   if (typeof(str) != "string")
     return str;
