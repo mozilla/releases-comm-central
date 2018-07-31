@@ -79,6 +79,13 @@
   transform: scaleY(-1);
 }
 
+/* iMIP notification bar */
+#imip-bar > image {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  list-style-image: url(chrome://calendar-common/skin/icons/imip-bar.svg);
+}
+
 .imipMoreButton > .toolbarbutton-icon {
   display: none;
 }

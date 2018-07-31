@@ -21,7 +21,6 @@ radio[pane=paneLightning] {
 
 /* iMIP notification bar */
 #imip-bar > image {
-    list-style-image: url("chrome://calendar/skin/cal-icon32.png");
     margin-inline-end: 8px;
 }
 

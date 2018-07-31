@@ -58,7 +58,10 @@ calendar-alarm-widget[selected="true"] .action-buttons-box {
 }
 
 calendar-alarm-widget[selected="true"] .alarm-calendar-image {
-    list-style-image: url(chrome://calendar/skin/cal-icon32.png);
+    -moz-context-properties: fill;
+    fill: currentColor;
+    list-style-image: url(chrome://calendar-common/skin/icons/icon32.svg);
+    margin-top: 2px;
 }
 
 .resizer-box {

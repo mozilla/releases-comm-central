@@ -18,6 +18,6 @@
     }
   },
   "icons": {
-    "32": "chrome/skin/linux/calendar/cal-icon32.png"
+    "32": "chrome/skin/common/icons/icon32.svg"
   }
 }

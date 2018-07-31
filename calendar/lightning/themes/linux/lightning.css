@@ -51,12 +51,6 @@ radio[pane=paneLightning] {
     list-style-image: url("chrome://calendar/skin/cal-icon32.png");
 }
 
-/* iMIP notification bar */
-#imip-bar > image {
-    list-style-image: url("chrome://calendar/skin/cal-icon32.png");
-    -moz-image-region: rect(0px, 32px, 32px, 0px);
-}
-
 /* Lightning sidebar in calendar and task mode */
 #ltnSidebar {
   background-color: -moz-field;
