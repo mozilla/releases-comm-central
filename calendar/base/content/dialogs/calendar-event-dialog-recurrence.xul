@@ -506,9 +506,8 @@
 
   <!-- preview -->
   <groupbox id="preview-border" flex="1">
-    <label id="recurrence-preview-label"
-           value="&event.recurrence.preview.label;"
-           control="recurrence-preview"/>
+    <caption id="recurrence-preview-label"
+             label="&event.recurrence.preview.label;"/>
     <recurrence-preview id="recurrence-preview" flex="1"/>
   </groupbox>
 </dialog>

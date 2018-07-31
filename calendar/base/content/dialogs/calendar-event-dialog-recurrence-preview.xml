@@ -166,6 +166,9 @@
       <method name="updatePreview">
         <parameter name="aRecurrenceInfo"/>
         <body><![CDATA[
+            let minimonth = document.getAnonymousElementByAttribute(this, "anonid", "minimonth");
+            this.style.minHeight = minimonth.boxObject.height + "px";
+
             this.mRecurrenceInfo = aRecurrenceInfo;
             let start = this.dateTime.clone();
             start.day = 1;
@@ -185,7 +188,7 @@
                 for (let i = 0; i < numChilds; i++) {
                     // we now have one of the minimonth controls while 'start'
                     // and 'end' are set to the interval this minimonth shows.
-                    let minimonth = row.childNodes[i];
+                    minimonth = row.childNodes[i];
                     minimonth.showMonth(cal.dtz.dateTimeToJsDate(start));
                     if (aRecurrenceInfo) {
                         // retrieve an array of dates that represents all occurrences

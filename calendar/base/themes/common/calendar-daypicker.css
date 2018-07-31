@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 daypicker {
+  display: -moz-box;
   -moz-binding: url(chrome://calendar/content/calendar-daypicker.xml#daypicker);
   background-image: linear-gradient(rgba(0, 0, 0, .0) 5%, rgba(0, 0, 0, .20));
   background-color: -moz-Field;

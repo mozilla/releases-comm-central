@@ -33,6 +33,10 @@
  * Please make sure rules added here are very specific and won't hurt other
  * dialogs.
  */
+#reminder-listbox {
+    min-height: 100px;
+}
+
 #reminder-relative-radio > .radio-label-center-box > .radio-label-box,
 #reminder-absolute-radio > .radio-label-center-box > .radio-label-box {
     display: none;
