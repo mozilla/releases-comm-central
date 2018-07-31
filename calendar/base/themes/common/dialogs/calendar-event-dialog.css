@@ -219,8 +219,10 @@ label.label {
 
 .cal-statusbar-1 {
     -moz-box-orient: vertical;
-    min-width: 0px;
-    list-style-image: url("chrome://calendar-common/skin/calendar-event-dialog.png");
+    min-width: 0;
+    list-style-image: url("chrome://calendar-common/skin/statusbar-priority.svg");
+    -moz-context-properties: fill;
+    fill: currentColor;
 }
 
 /*--------------------------------------------------------------------
@@ -239,7 +241,7 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #image-priority-low {
-    -moz-image-region: rect(0px 100px 16px 84px);
+    -moz-image-region: rect(0 16px 16px 0);
 }
 
 /*--------------------------------------------------------------------
@@ -247,7 +249,7 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #image-priority-normal {
-    -moz-image-region: rect(0px 116px 16px 100px);
+    -moz-image-region: rect(0 32px 16px 16px);
 }
 
 /*--------------------------------------------------------------------
@@ -255,7 +257,7 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #image-priority-high {
-    -moz-image-region: rect(0px 132px 16px 116px);
+    -moz-image-region: rect(0 48px 16px 32px);
 }
 
 /*--------------------------------------------------------------------

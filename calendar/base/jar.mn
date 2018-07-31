@@ -167,7 +167,7 @@ calendar.jar:
     ../skin/common/timezones.png                      (themes/common/images/timezones.png)
     ../skin/common/todo.svg                           (themes/common/images/todo.svg)
     ../skin/common/todo-complete.svg                  (themes/common/images/todo-complete.svg)
-    ../skin/common/calendar-event-dialog.png          (themes/common/dialogs/images/calendar-event-dialog.png)
+    ../skin/common/statusbar-priority.svg             (themes/common/dialogs/images/statusbar-priority.svg)
     ../skin/common/chain-lock.svg                     (themes/common/dialogs/images/chain-lock.svg)
     ../skin/common/chain-unlock.svg                   (themes/common/dialogs/images/chain-unlock.svg)
     ../skin/common/link-image-bottom.svg              (themes/common/dialogs/images/link-image-bottom.svg)
