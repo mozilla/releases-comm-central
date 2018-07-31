@@ -9,7 +9,6 @@
 #include "nsIMsgIdentity.idl"
 
 interface nsIMsgDBHdr;
-interface nsIDOMWindow;
 interface mozIDOMWindowProxy;
 interface nsITransactionManager;
 interface nsIMsgMessageService;

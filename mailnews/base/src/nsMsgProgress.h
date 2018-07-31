@@ -9,7 +9,6 @@
 #include "nsIMsgProgress.h"
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
-#include "nsIDOMWindow.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsString.h"
 #include "nsIMsgWindow.h"

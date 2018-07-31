@@ -126,7 +126,6 @@
 #include "nsIMsgIdentity.h"
 #include "nsWeakReference.h"
 #include "nsPIDOMWindow.h"
-#include "nsIDOMWindow.h"
 #include "nsIMsgComposeSecure.h"
 #include "nsAutoPtr.h"
 #include "nsMsgAttachmentData.h"
