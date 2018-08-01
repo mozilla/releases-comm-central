@@ -51,7 +51,7 @@ mozmill-one:
 # We need to add the mozmill tests to the package for tests.
 # If Lightning is enabled, also stage the lightning extension
 ifdef MOZ_CALENDAR
-package-tests: stage-mozmill stage-calendar
+package-tests: stage-calendar
 else
 package-tests: stage-mozmill
 endif
@@ -59,7 +59,7 @@ endif
 stage-mozmill: make-stage-dir
 	$(MAKE) -C $(commtopobjdir)/mail/test/mozmill stage-package
 
-stage-calendar: make-stage-dir
+stage-calendar: stage-mozmill
 	$(MAKE) -C $(commtopobjdir)/calendar/lightning stage-package
 	$(MAKE) -C $(commtopobjdir)/calendar/providers/gdata stage-package
 
