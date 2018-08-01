@@ -52,6 +52,9 @@ wrapper = None
 # a screenshot at the time the failure happened?
 USE_RICH_FAILURES = False
 
+# Save screenshots of failures, so they can be uploaded as a TaskCluster artifact?
+UPLOAD_SCREENSHOTS = False
+
 # We need this because rmtree-ing read-only files fails on Windows
 def rmtree_onerror(func, path, exc_info):
     """
@@ -508,6 +511,28 @@ def dumpRichResults():
                     failure['testName'] = result['name']
                     print json.dumps(failure)
         print '##### MOZMILL-RICH-FAILURES-END #####'
+
+@atexit.register
+def uploadScreenshots():
+    if not UPLOAD_SCREENSHOTS:
+        return
+
+    parent_dir = os.environ.get('MOZ_UPLOAD_DIR', None)
+    if not parent_dir:
+        return
+
+    from base64 import b64decode
+    from os import fdopen
+    from tempfile import mkstemp
+
+    for result in TEST_RESULTS:
+        for failure in result['fails']:
+            for win in failure['failureContext']['windows']['windows']:
+                prefix = result['name'].replace(':', '_')
+                fp, path = mkstemp(prefix=prefix + '-', suffix='.png', dir=parent_dir)
+                with fdopen(fp, 'wb') as shot:
+                    shot.write(b64decode(win['screenshotDataUrl'][len('data:image/png;base64,'):]))
+                print 'Wrote screenshot to', path
 
 def checkCrashesAtExit():
     if mozcrash.check_for_crashes(dump_directory=os.path.join(PROFILE_DIR, 'minidumps'),
