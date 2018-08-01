@@ -169,6 +169,7 @@ var taskDetailsView = {
         }
         if (maxCount == 1) {
             let menuitem = document.createElement("menuitem");
+            menuitem.setAttribute("class", "menuitem-iconic");
             menuitem.setAttribute("label", cal.l10n.getCalString("None"));
             menuitem.setAttribute("type", "radio");
             if (itemCategories.length === 0) {
@@ -178,7 +179,7 @@ var taskDetailsView = {
         }
         for (let cat of categoryList) {
             let menuitem = document.createElement("menuitem");
-            menuitem.setAttribute("class", "calendar-category");
+            menuitem.setAttribute("class", "menuitem-iconic calendar-category");
             menuitem.setAttribute("label", cat);
             menuitem.setAttribute("value", cat);
             menuitem.setAttribute("type", (maxCount === null || maxCount > 1) ? "checkbox" : "radio");
@@ -279,7 +280,7 @@ var taskDetailsView = {
             let maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
 
             let menuitem = document.createElement("menuitem");
-            menuitem.setAttribute("class", "calendar-category");
+            menuitem.setAttribute("class", "menuitem-iconic calendar-category");
             menuitem.setAttribute("label", category);
             menuitem.setAttribute("value", category);
             menuitem.setAttribute("type", (maxCount === null || maxCount > 1) ? "checkbox" : "radio");

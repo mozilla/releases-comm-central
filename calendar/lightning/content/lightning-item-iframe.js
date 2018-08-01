@@ -857,6 +857,7 @@ function loadCategories(aItem) {
     let categoryPopup = document.getElementById("item-categories-popup");
     if (maxCount == 1) {
         let item = document.createElement("menuitem");
+        item.setAttribute("class", "menuitem-iconic");
         item.setAttribute("label", cal.l10n.getCalString("None"));
         item.setAttribute("type", "radio");
         if (itemCategories.length === 0) {
@@ -866,7 +867,7 @@ function loadCategories(aItem) {
     }
     for (let cat of categoryList) {
         let item = document.createElement("menuitem");
-        item.setAttribute("class", "calendar-category");
+        item.setAttribute("class", "menuitem-iconic calendar-category");
         item.setAttribute("label", cat);
         item.setAttribute("value", cat);
         item.setAttribute("type", (maxCount === null || maxCount > 1) ? "checkbox" : "radio");
@@ -981,7 +982,7 @@ function categoryTextboxKeypress(event) {
         let maxCount = calendar.getProperty("capabilities.categories.maxCount");
 
         let item = document.createElement("menuitem");
-        item.setAttribute("class", "calendar-category");
+        item.setAttribute("class", "menuitem-iconic calendar-category");
         item.setAttribute("label", category);
         item.setAttribute("value", category);
         item.setAttribute("type", (maxCount === null || maxCount > 1) ? "checkbox" : "radio");
