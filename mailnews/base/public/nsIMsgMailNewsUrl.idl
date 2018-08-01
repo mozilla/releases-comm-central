@@ -156,8 +156,11 @@ interface nsIMsgMessageUrl : nsISupports {
   attribute boolean canonicalLineEnding;
   attribute string originalSpec;
 
-  // This is used when creating a principal for the URL.
-  readonly attribute AUTF8String principalSpec;
+  // This is used when creating a principal for the URL with a "normalized" spec
+  // that doesn't contain all the bits in the query part that mailnews URLs have.
+  // We need this to implement nsIURIWithSpecialOrigin, since mailnews URLs
+  // have ORIGIN_IS_FULL_SPEC.
+  readonly attribute AUTF8String normalizedSpec;
 
   /**
    *  A message db header for that message.

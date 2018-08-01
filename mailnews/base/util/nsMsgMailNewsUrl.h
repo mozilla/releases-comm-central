@@ -17,7 +17,7 @@
 #include "nsIMimeHeaders.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIURL.h"
-#include "nsIURIWithPrincipal.h"
+#include "nsIURIWithSpecialOrigin.h"
 #include "nsILoadGroup.h"
 #include "nsIMsgSearchSession.h"
 #include "nsICacheEntry.h"
@@ -39,7 +39,7 @@
 #define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
 
 class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
-                                     public nsIURIWithPrincipal
+                                     public nsIURIWithSpecialOrigin
 {
 public:
     nsMsgMailNewsUrl();
@@ -48,7 +48,7 @@ public:
     NS_DECL_NSIMSGMAILNEWSURL
     NS_DECL_NSIURI
     NS_DECL_NSIURL
-    NS_DECL_NSIURIWITHPRINCIPAL
+    NS_DECL_NSIURIWITHSPECIALORIGIN
 
 protected:
   virtual nsresult Clone(nsIURI **_retval);
@@ -103,7 +103,7 @@ protected:
   virtual ~nsMsgMailNewsUrl();
 
   nsCOMPtr<nsIURL> m_baseURL;
-  nsCOMPtr<nsIPrincipal> m_principal;
+  nsCOMPtr<nsIURI> m_normalizedOrigin;
   nsWeakPtr m_statusFeedbackWeak;
   nsWeakPtr m_msgWindowWeak;
   nsWeakPtr m_loadGroupWeak;
@@ -117,7 +117,7 @@ protected:
   bool m_updatingFolder;
   bool m_msgIsInLocalCache;
   bool m_suppressErrorMsgs;
-  bool m_isPrincipalURL;
+  bool m_hasNormalizedOrigin;
 
   // the following field is really a bit of a hack to make
   // open attachments work. The external applications code sometimes tries to figure out the right

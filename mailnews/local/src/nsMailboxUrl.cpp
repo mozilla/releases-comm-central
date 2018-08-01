@@ -123,7 +123,7 @@ nsresult nsMailboxUrl::SetMessageSize(uint32_t aMessageSize)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
+NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString& aPrincipalSpec)
 {
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsURL;
   QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
@@ -131,7 +131,7 @@ NS_IMETHODIMP nsMailboxUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   nsAutoCString spec;
   mailnewsURL->GetSpecIgnoringRef(spec);
 
-  // mailbox: URLs contain a lot of query parts. We want need a normalised form:
+  // mailbox: URLs contain a lot of query parts. We want need a normalized form:
   // mailbox:///path/to/folder?number=nn.
   // We also need to translate the second form mailbox://user@domain@server/folder?number=nn.
 

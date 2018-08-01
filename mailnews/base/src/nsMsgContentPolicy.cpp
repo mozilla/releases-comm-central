@@ -267,15 +267,15 @@ nsMsgContentPolicy::ShouldLoad(nsIURI           *aContentLocation,
       // Mail message (mailbox, imap or JsAccount) content requested, for example
       // a message part, like an image:
       // To load mail message content the requester must have the same
-      // "normalised" principal. This is basically a "same origin" test, it
+      // "normalized" principal. This is basically a "same origin" test, it
       // protects against cross-loading of mail message content from
       // other mail or news messages.
       nsCOMPtr<nsIMsgMessageUrl> requestURL(do_QueryInterface(aRequestingLocation));
       // If the request URL is not also a message URL, then we don't accept.
       if (requestURL) {
         nsCString contentPrincipalSpec, requestPrincipalSpec;
-        nsresult rv1 = contentURL->GetPrincipalSpec(contentPrincipalSpec);
-        nsresult rv2 = requestURL->GetPrincipalSpec(requestPrincipalSpec);
+        nsresult rv1 = contentURL->GetNormalizedSpec(contentPrincipalSpec);
+        nsresult rv2 = requestURL->GetNormalizedSpec(requestPrincipalSpec);
         if (NS_SUCCEEDED(rv1) && NS_SUCCEEDED(rv2) &&
             contentPrincipalSpec.Equals(requestPrincipalSpec))
           *aDecision = nsIContentPolicy::ACCEPT; // (1)

@@ -300,7 +300,7 @@ NS_IMETHODIMP nsNntpUrl::GetKey(nsMsgKey *key)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
+NS_IMETHODIMP nsNntpUrl::GetNormalizedSpec(nsACString& aPrincipalSpec)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

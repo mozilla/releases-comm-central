@@ -26,7 +26,6 @@
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
 #include "nsProxyRelease.h"
-#include "mozilla/BasePrincipal.h"
 #include "mozilla/Encoding.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
@@ -36,7 +35,7 @@ nsMsgMailNewsUrl::nsMsgMailNewsUrl()
   m_updatingFolder = false;
   m_msgIsInLocalCache = false;
   m_suppressErrorMsgs = false;
-  m_isPrincipalURL = false;
+  m_hasNormalizedOrigin = false;  // SetSpecInternal() will set this correctly.
   mMaxProgress = -1;
 }
 
@@ -71,55 +70,40 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl()
 NS_IMPL_ADDREF(nsMsgMailNewsUrl)
 NS_IMPL_RELEASE(nsMsgMailNewsUrl)
 
-// We want part URLs to QI to nsIURIWithPrincipal so we can give
-// them a "normalised" origin. URLs that already have a "normalised"
-// origin should not QI to nsIURIWithPrincipal.
+// We want part URLs to QI to nsIURIWithSpecialOrigin so we can give
+// them a "normalized" origin. URLs that already have a "normalized"
+// origin should not QI to nsIURIWithSpecialOrigin.
 NS_INTERFACE_MAP_BEGIN(nsMsgMailNewsUrl)
   NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIMsgMailNewsUrl)
   NS_INTERFACE_MAP_ENTRY(nsIMsgMailNewsUrl)
   NS_INTERFACE_MAP_ENTRY(nsIURL)
   NS_INTERFACE_MAP_ENTRY(nsIURI)
-  NS_INTERFACE_MAP_ENTRY_CONDITIONAL(nsIURIWithPrincipal, !m_isPrincipalURL)
+  NS_INTERFACE_MAP_ENTRY_CONDITIONAL(nsIURIWithSpecialOrigin, m_hasNormalizedOrigin)
 NS_INTERFACE_MAP_END
 
-// Support for nsIURIWithPrincipal.
-NS_IMETHODIMP nsMsgMailNewsUrl::GetPrincipal(nsIPrincipal **aPrincipal)
+// Support for nsIURIWithSpecialOrigin.
+NS_IMETHODIMP nsMsgMailNewsUrl::GetOrigin(nsIURI **aOrigin)
 {
-  MOZ_ASSERT(!m_isPrincipalURL,
-    "nsMsgMailNewsUrl::GetPrincipal() can only be called for non-principal URLs");
+  MOZ_ASSERT(m_hasNormalizedOrigin,
+    "nsMsgMailNewsUrl::GetOrigin() can only be called for URLs with normalized spec");
 
-  if (!m_principal) {
+  if (!m_normalizedOrigin) {
     nsCOMPtr <nsIMsgMessageUrl> msgUrl;
     QueryInterface(NS_GET_IID(nsIMsgMessageUrl), getter_AddRefs(msgUrl));
 
     nsAutoCString spec;
-    if (!msgUrl || NS_FAILED(msgUrl->GetPrincipalSpec(spec))) {
-      MOZ_ASSERT(false, "Can't get principal spec");
+    if (!msgUrl || NS_FAILED(msgUrl->GetNormalizedSpec(spec))) {
+      MOZ_ASSERT(false, "Can't get normalized spec");
       // just use the normal spec.
       GetSpec(spec);
     }
 
-    nsCOMPtr<nsIURI> uri;
-    nsresult rv = NS_NewURI(getter_AddRefs(uri), spec);
+    nsresult rv = NS_NewURI(getter_AddRefs(m_normalizedOrigin), spec);
     NS_ENSURE_SUCCESS(rv, rv);
-    mozilla::OriginAttributes attrs;
-    m_principal = mozilla::BasePrincipal::CreateCodebasePrincipal(uri, attrs);
   }
 
-  NS_IF_ADDREF(*aPrincipal = m_principal);
+  NS_IF_ADDREF(*aOrigin = m_normalizedOrigin);
   return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::GetPrincipalUri(nsIURI **aPrincipalURI)
-{
-  NS_ENSURE_ARG_POINTER(aPrincipalURI);
-  if (!m_principal) {
-    nsCOMPtr<nsIPrincipal> p;
-    GetPrincipal(getter_AddRefs(p));
-  }
-  if (!m_principal)
-    return NS_ERROR_NULL_POINTER;
-  return m_principal->GetURI(aPrincipalURI);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -419,16 +403,16 @@ nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString &aSpec)
   nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(aSpec).Finalize(m_baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Check whether the URL is in normalised form.
+  // Check whether the URL is in normalized form.
   nsCOMPtr <nsIMsgMessageUrl> msgUrl;
   QueryInterface(NS_GET_IID(nsIMsgMessageUrl), getter_AddRefs(msgUrl));
 
-  nsAutoCString principalSpec;
-  if (!msgUrl || NS_FAILED(msgUrl->GetPrincipalSpec(principalSpec))) {
-    // If we can't get the principal spec, never QI this to nsIURIWithPrincipal.
-    m_isPrincipalURL = true;
+  nsAutoCString normalizedSpec;
+  if (!msgUrl || NS_FAILED(msgUrl->GetNormalizedSpec(normalizedSpec))) {
+    // If we can't get the normalized spec, never QI this to nsIURIWithSpecialOrigin.
+    m_hasNormalizedOrigin = false;
   } else {
-    m_isPrincipalURL = spec.Equals(principalSpec);
+    m_hasNormalizedOrigin = !spec.Equals(normalizedSpec);
   }
   return NS_OK;
 }

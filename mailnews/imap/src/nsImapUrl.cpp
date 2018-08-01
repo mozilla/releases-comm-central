@@ -1167,7 +1167,7 @@ nsresult nsImapUrl::Clone(nsIURI** _retval)
   return rv;
 }
 
-NS_IMETHODIMP nsImapUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
+NS_IMETHODIMP nsImapUrl::GetNormalizedSpec(nsACString& aPrincipalSpec)
 {
   // URLs look like this:
   // imap://user@domain@server:port/fetch>UID>folder>nn
