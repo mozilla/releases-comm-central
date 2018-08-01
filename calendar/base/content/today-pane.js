@@ -37,8 +37,10 @@ var TodayPane = {
         ];
         await agendaListbox.setupCalendar();
         agendaListbox.addListener(TodayPane);
-        TodayPane.setDay(cal.dtz.now());
         TodayPane.setShortWeekdays();
+        // Wait until after the initialisation of #weekdayNameContainer,
+        // to avoid its selectedIndex being reset to the wrong value.
+        setTimeout(() => TodayPane.setDay(cal.dtz.now()), 0);
 
         document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", TodayPane.onModeModified);
         TodayPane.setTodayHeader();
