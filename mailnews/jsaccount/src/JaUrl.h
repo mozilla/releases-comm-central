@@ -82,6 +82,7 @@ public:
   JaCppUrlDelegator();
 
   class Super : public nsIMsgMailNewsUrl,
+                public nsIURIWithPrincipal,
                 public nsIMsgMessageUrl,
                 public msgIJaUrl,
                 public nsIInterfaceRequestor,
@@ -93,6 +94,7 @@ public:
       NS_FORWARD_NSIMSGMAILNEWSURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIURI(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIURL(mFakeThis->JaBaseCppUrl::)
+      NS_FORWARD_NSIURIWITHPRINCIPAL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIMSGMESSAGEURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_MSGIJAURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppUrl::)
