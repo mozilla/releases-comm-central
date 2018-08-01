@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported onEventDialogUnload, changeUndiscloseCheckboxStatus,
+ *          categoryPopupHiding, categoryTextboxKeypress,
  *          toggleKeepDuration, dateTimeControls2State, onUpdateAllDay,
  *          openNewEvent, openNewTask, openNewMessage, openNewCardDialog,
  *          deleteAllAttachments, copyAttachment, attachmentLinkKeyPress,
@@ -840,8 +841,41 @@ function changeUndiscloseCheckboxStatus() {
  * @param aItem     The item to load into the category panel
  */
 function loadCategories(aItem) {
-    let categoryPanel = document.getElementById("item-categories-panel");
-    categoryPanel.loadItem(aItem);
+    let itemCategories = aItem.getCategories({});
+    let categoryList = cal.category.fromPrefs();
+    for (let cat of itemCategories) {
+        if (!categoryList.includes(cat)) {
+            categoryList.push(cat);
+        }
+    }
+    cal.l10n.sortArrayByLocaleCollator(categoryList);
+
+    // Make sure the maximum number of categories is applied to the listbox
+    let calendar = getCurrentCalendar();
+    let maxCount = calendar.getProperty("capabilities.categories.maxCount");
+
+    let categoryPopup = document.getElementById("item-categories-popup");
+    if (maxCount == 1) {
+        let item = document.createElement("menuitem");
+        item.setAttribute("label", cal.l10n.getCalString("None"));
+        item.setAttribute("type", "radio");
+        if (itemCategories.length === 0) {
+            item.setAttribute("checked", "true");
+        }
+        categoryPopup.appendChild(item);
+    }
+    for (let cat of categoryList) {
+        let item = document.createElement("menuitem");
+        item.setAttribute("class", "calendar-category");
+        item.setAttribute("label", cat);
+        item.setAttribute("value", cat);
+        item.setAttribute("type", (maxCount === null || maxCount > 1) ? "checkbox" : "radio");
+        if (itemCategories.includes(cat)) {
+            item.setAttribute("checked", "true");
+        }
+        categoryPopup.appendChild(item);
+    }
+
     updateCategoryMenulist();
 }
 
@@ -851,12 +885,11 @@ function loadCategories(aItem) {
  */
 function updateCategoryMenulist() {
     let categoryMenulist = document.getElementById("item-categories");
-    let categoryPanel = document.getElementById("item-categories-panel");
+    let categoryPopup = document.getElementById("item-categories-popup");
 
     // Make sure the maximum number of categories is applied to the listbox
     let calendar = getCurrentCalendar();
     let maxCount = calendar.getProperty("capabilities.categories.maxCount");
-    categoryPanel.maxCount = (maxCount === null ? -1 : maxCount);
 
     // Hide the categories listbox and label in case categories are not
     // supported
@@ -866,15 +899,100 @@ function updateCategoryMenulist() {
     setBooleanAttribute("item-calendar-aux-label", "hidden", (maxCount !== 0));
 
     let label;
-    let categoryList = categoryPanel.categories;
+    let categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
     if (categoryList.length > 1) {
         label = cal.l10n.getCalString("multipleCategories");
     } else if (categoryList.length == 1) {
-        label = categoryList[0];
+        label = categoryList[0].getAttribute("label");
     } else {
         label = cal.l10n.getCalString("None");
     }
     categoryMenulist.setAttribute("label", label);
+}
+
+/**
+ * Updates the categories menulist label and decides if the popup should close
+ *
+ * @param aItem     The popuphiding event
+ * @return          Whether the popup should close
+ */
+function categoryPopupHiding(event) {
+    updateCategoryMenulist();
+    let calendar = getCurrentCalendar();
+    let maxCount = calendar.getProperty("capabilities.categories.maxCount");
+    if (maxCount === null || maxCount > 1) {
+        return event.explicitOriginalTarget.localName != "menuitem";
+    }
+    return true;
+}
+
+/**
+ * Prompts for a new category name, then adds it to the list
+ */
+function categoryTextboxKeypress(event) {
+    let category = event.target.value;
+    let categoryPopup = document.getElementById("item-categories-popup");
+    switch (event.key) {
+        case "Tab":
+        case "ArrowDown":
+        case "ArrowUp": {
+            event.target.blur();
+            event.preventDefault();
+
+            let code = event.key == "ArrowUp" ? KeyboardEvent.DOM_VK_UP : KeyboardEvent.DOM_VK_DOWN;
+            let keyEvent = document.createEvent("KeyboardEvent");
+            keyEvent.initKeyEvent("keydown", true, true, null, false, false, false, false, code, 0);
+            categoryPopup.dispatchEvent(keyEvent);
+            keyEvent.initKeyEvent("keyup", true, true, null, false, false, false, false, code, 0);
+            categoryPopup.dispatchEvent(keyEvent);
+            return;
+        }
+        case "Escape":
+            if (category) {
+                event.target.value = "";
+            } else {
+                categoryPopup.hidePopup();
+            }
+            event.preventDefault();
+            return;
+        case "Enter":
+            category = category.trim();
+            if (category != "") {
+                break;
+            }
+            return;
+        default:
+            return;
+    }
+    event.preventDefault();
+
+    let categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category");
+    let categories = Array.from(categoryList, cat => cat.getAttribute("value"));
+
+    let newIndex = categories.indexOf(category);
+    if (newIndex > -1) {
+        categoryList[newIndex].setAttribute("checked", true);
+    } else {
+        let localeCollator = cal.l10n.createLocaleCollator();
+        let compare = localeCollator.compareString.bind(localeCollator, 0);
+        newIndex = cal.data.binaryInsert(categories, category, compare, true);
+
+        let calendar = getCurrentCalendar();
+        let maxCount = calendar.getProperty("capabilities.categories.maxCount");
+
+        let item = document.createElement("menuitem");
+        item.setAttribute("class", "calendar-category");
+        item.setAttribute("label", category);
+        item.setAttribute("value", category);
+        item.setAttribute("type", (maxCount === null || maxCount > 1) ? "checkbox" : "radio");
+        item.setAttribute("checked", true);
+        categoryPopup.insertBefore(item, categoryList[newIndex]);
+    }
+
+    event.target.value = "";
+    // By pushing this to the end of the event loop, the other checked items in the list
+    // are cleared, where only one category is allowed.
+    setTimeout(updateCategoryMenulist, 0);
 }
 
 /**
@@ -883,8 +1001,11 @@ function updateCategoryMenulist() {
  * @param aItem     The item to set the categories on
  */
 function saveCategories(aItem) {
-    let categoryPanel = document.getElementById("item-categories-panel");
-    let categoryList = categoryPanel.categories;
+    let categoryPopup = document.getElementById("item-categories-popup");
+    let categoryList = Array.from(
+        categoryPopup.querySelectorAll("menuitem.calendar-category[checked]"),
+        cat => cat.getAttribute("label")
+    );
     aItem.setCategories(categoryList.length, categoryList);
 }
 

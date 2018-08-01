@@ -187,9 +187,15 @@
                     type="panel-menulist"
                     disable-on-readonly="true"
                     flex="1">
-            <panel id="item-categories-panel"
-                   type="category-panel"
-                   onpopuphiding="updateCategoryMenulist()"/>
+            <menupopup id="item-categories-popup"
+                       onpopuphiding="return categoryPopupHiding(event);">
+              <textbox id="item-categories-textbox"
+                       placeholder="&event.categories.textbox.label;"
+                       onblur="this.parentNode.removeAttribute(&quot;ignorekeys&quot;);"
+                       onfocus="this.parentNode.setAttribute(&quot;ignorekeys&quot;, &quot;true&quot;);"
+                       onkeypress="categoryTextboxKeypress(event);"/>
+              <menuseparator />
+            </menupopup>
           </menulist>
           <label value="&event.calendar.label;"
                  accesskey="&event.calendar.accesskey;"

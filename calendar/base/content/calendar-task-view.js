@@ -149,35 +149,157 @@ var taskDetailsView = {
         }
     },
 
-    loadCategories: function(event) {
-        let panel = event.target;
+    loadCategories: function() {
+        let categoryPopup = document.getElementById("task-actions-category-popup");
         let item = document.getElementById("calendar-task-tree").currentTask;
-        panel.loadItem(item);
+
+        let itemCategories = item.getCategories({});
+        let categoryList = cal.category.fromPrefs();
+        for (let cat of itemCategories) {
+            if (!categoryList.includes(cat)) {
+                categoryList.push(cat);
+            }
+        }
+        cal.l10n.sortArrayByLocaleCollator(categoryList);
+
+        let maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
+
+        while (categoryPopup.childElementCount > 2) {
+            categoryPopup.lastElementChild.remove();
+        }
+        if (maxCount == 1) {
+            let menuitem = document.createElement("menuitem");
+            menuitem.setAttribute("label", cal.l10n.getCalString("None"));
+            menuitem.setAttribute("type", "radio");
+            if (itemCategories.length === 0) {
+                menuitem.setAttribute("checked", "true");
+            }
+            categoryPopup.appendChild(menuitem);
+        }
+        for (let cat of categoryList) {
+            let menuitem = document.createElement("menuitem");
+            menuitem.setAttribute("class", "calendar-category");
+            menuitem.setAttribute("label", cat);
+            menuitem.setAttribute("value", cat);
+            menuitem.setAttribute("type", (maxCount === null || maxCount > 1) ? "checkbox" : "radio");
+            if (itemCategories.includes(cat)) {
+                menuitem.setAttribute("checked", "true");
+            }
+            categoryPopup.appendChild(menuitem);
+        }
     },
 
     saveCategories: function(event) {
-        let panel = event.target;
+        let categoryPopup = document.getElementById("task-actions-category-popup");
         let item = document.getElementById("calendar-task-tree").currentTask;
-        let categoriesMap = {};
 
-        for (let cat of item.getCategories({})) {
-            categoriesMap[cat] = true;
+        let oldCategories = item.getCategories({});
+        let categories = Array.from(
+            categoryPopup.querySelectorAll("menuitem.calendar-category[checked]"),
+            menuitem => menuitem.value
+        );
+        let unchanged = oldCategories.length == categories.length;
+        for (let i = 0; unchanged && i < categories.length; i++) {
+            unchanged = oldCategories[i] == categories[i];
         }
 
-        for (let cat of panel.categories) {
-            if (cat in categoriesMap) {
-                delete categoriesMap[cat];
-            } else {
-                categoriesMap[cat] = false;
+        if (!unchanged) {
+            let newItem = item.clone();
+            newItem.setCategories(categories.length, categories);
+            doTransaction("modify", newItem, newItem.calendar, item, null);
+            return false;
+        }
+
+        return true;
+    },
+
+    categoryTextboxKeypress: function(event) {
+        let category = event.target.value;
+        let categoryPopup = document.getElementById("task-actions-category-popup");
+
+        switch (event.key) {
+            case " ": {
+                // The menu popup seems to eat this keypress.
+                let start = event.target.selectionStart;
+                event.target.value =
+                    category.substring(0, start) +
+                    " " +
+                    category.substring(event.target.selectionEnd);
+                event.target.selectionStart = event.target.selectionEnd = start + 1;
+                return;
+            }
+            case "Tab":
+            case "ArrowDown":
+            case "ArrowUp": {
+                event.target.blur();
+                event.preventDefault();
+
+                let key = event.key == "ArrowUp" ? "ArrowUp" : "ArrowDown";
+                categoryPopup.dispatchEvent(new KeyboardEvent("keydown", { key }));
+                categoryPopup.dispatchEvent(new KeyboardEvent("keyup", { key }));
+                return;
+            }
+            case "Escape":
+                if (category) {
+                    event.target.value = "";
+                } else {
+                    categoryPopup.hidePopup();
+                }
+                event.preventDefault();
+                return;
+            case "Enter":
+                category = category.trim();
+                if (category != "") {
+                    break;
+                }
+                return;
+            default: {
+                return;
             }
         }
 
-        if (categoriesMap.toSource() != "({})") {
-            let newItem = item.clone();
-            newItem.setCategories(panel.categories.length, panel.categories);
+        event.preventDefault();
 
+        let categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category");
+        let categories = Array.from(categoryList, cat => cat.getAttribute("value"));
+
+        let modified = false;
+        let newIndex = categories.indexOf(category);
+        if (newIndex > -1) {
+            if (categoryList[newIndex].getAttribute("checked") != "true") {
+                categoryList[newIndex].setAttribute("checked", "true");
+                modified = true;
+            }
+        } else {
+            let localeCollator = cal.l10n.createLocaleCollator();
+            let compare = localeCollator.compareString.bind(localeCollator, 0);
+            newIndex = cal.data.binaryInsert(categories, category, compare, true);
+
+            let item = document.getElementById("calendar-task-tree").currentTask;
+            let maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
+
+            let menuitem = document.createElement("menuitem");
+            menuitem.setAttribute("class", "calendar-category");
+            menuitem.setAttribute("label", category);
+            menuitem.setAttribute("value", category);
+            menuitem.setAttribute("type", (maxCount === null || maxCount > 1) ? "checkbox" : "radio");
+            menuitem.setAttribute("checked", true);
+            categoryPopup.insertBefore(menuitem, categoryList[newIndex]);
+
+            modified = true;
+        }
+
+        if (modified) {
+            categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
+            categories = Array.from(categoryList, cat => cat.getAttribute("value"));
+
+            let item = document.getElementById("calendar-task-tree").currentTask;
+            let newItem = item.clone();
+            newItem.setCategories(categories.length, categories);
             doTransaction("modify", newItem, newItem.calendar, item, null);
         }
+
+        event.target.value = "";
     }
 };
 
