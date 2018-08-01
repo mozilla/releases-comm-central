@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals require, exports */
+
 /**
  * Actors for Thunderbird Developer Tools, for example the root actor or tab
  * list actor.
  */
 
-var { Ci, Cc } = require("chrome");
 var Services = require("Services");
 var DevToolsUtils = require("devtools/shared/DevToolsUtils");
-var promise = require('promise');
+var promise = require("promise");
 var { RootActor } = require("devtools/server/actors/root");
 var { DebuggerServer } = require("devtools/server/main");
 var { BrowserTabList, BrowserTabActor, BrowserAddonList } = require("devtools/server/actors/webbrowser");
@@ -79,7 +80,7 @@ function getChromeWindowTypes() {
  */
 function appShellDOMWindowType(aWindow) {
   // This is what nsIWindowMediator's enumerator checks.
-  return aWindow.document.documentElement.getAttribute('windowtype');
+  return aWindow.document.documentElement.getAttribute("windowtype");
 }
 
 /**
@@ -127,14 +128,14 @@ TBTabList.prototype = {
   },
 
   set onListChanged(v) {
-    if (v !== null && typeof v !== 'function') {
+    if (v !== null && typeof v !== "function") {
       throw Error("onListChanged property may only be set to 'null' or a function");
     }
     this._onListChanged = v;
     this._checkListening();
   },
 
-  _checkListening: function() {
+  _checkListening() {
     let shouldListenToMediator =
         ((this._onListChanged && this._mustNotify) ||
          this._actorByBrowser.size > 0);
@@ -146,14 +147,14 @@ TBTabList.prototype = {
     }
   },
 
-  _notifyListChanged: function() {
+  _notifyListChanged() {
     if (this._onListChanged && this._mustNotify) {
       this._onListChanged();
       this._mustNotify = false;
     }
   },
 
-  _getTopWindow: function() {
+  _getTopWindow() {
     let winIter = Services.wm.getZOrderDOMWindowEnumerator(null, true);
     while (winIter.hasMoreElements()) {
       let win = winIter.getNext();
@@ -165,7 +166,7 @@ TBTabList.prototype = {
     return null;
   },
 
-  getList: function() {
+  getList() {
     let topWindow = this._getTopWindow();
 
     // Look for all browser elements in all the windows we care about
@@ -243,7 +244,7 @@ TBTabList.prototype = {
       // Scan the whole map for browsers that were in this window.
       for (let [browser, actor] of this._actorByBrowser) {
         // The browser document of a closed window has no default view.
-        if (!browser.ownerDocument.defaultView) {
+        if (!browser.ownerGlobal) {
           this._actorByBrowser.delete(browser);
           actor.exit();
           shouldNotify = true;
@@ -257,7 +258,7 @@ TBTabList.prototype = {
     }, "TBTabList.prototype.onCloseWindow's delayed body"), 0);
   }, "TBTabList.prototype.onCloseWindow"),
 
-  onWindowTitleChange: function() {}
+  onWindowTitleChange() {}
 };
 
 exports.register = function(handle) {

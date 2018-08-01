@@ -14,7 +14,7 @@ DevToolsStartup.prototype = {
   classID: Components.ID("{089694e9-106a-4704-abf7-62a88545e194}"),
 
   helpInfo: "",
-  handle: function (cmdLine) {
+  handle(cmdLine) {
     this.initialize();
 
     // We want to overwrite the -devtools flag and open the toolbox instead
@@ -24,7 +24,7 @@ DevToolsStartup.prototype = {
     }
   },
 
-  handleDevToolsFlag: function (cmdLine) {
+  handleDevToolsFlag(cmdLine) {
     ChromeUtils.import("resource://devtools/client/framework/ToolboxProcess.jsm");
     BrowserToolboxProcess.init();
 
@@ -33,11 +33,10 @@ DevToolsStartup.prototype = {
     }
   },
 
-  initialize: function() {
+  initialize() {
     var { devtools, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm", {});
     var { DebuggerServer } = require("devtools/server/main");
     var { gDevTools } = require("devtools/client/framework/devtools");
-    var { HUDService } = require("devtools/client/webconsole/hudservice");
 
     if (DebuggerServer.chromeWindowType != "mail:3pane") {
       // Set up the server chrome window type, make sure it can't be set
