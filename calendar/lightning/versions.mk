@@ -12,8 +12,6 @@ else
 LIGHTNING_VERSION := $(shell $(PYTHON) $(commtopsrcdir)/calendar/lightning/build/makeversion.py $(word 1,$(MOZ_PKG_VERSION) $(THUNDERBIRD_VERSION)))
 endif
 
-#GDATA_VERSION := $(shell $(PYTHON) $(commtopsrcdir)/calendar/providers/gdata/makeversion.py $(LIGHTNING_VERSION))
-
 # For extensions we require a max version that is compatible across security releases.
 # THUNDERBIRD_MAXVERSION and SEAMONKEY_MAXVERSION is our method for doing that.
 # Alpha versions 10.0a1 and 10.0a2 aren't affected
