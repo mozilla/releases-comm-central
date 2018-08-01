@@ -331,7 +331,9 @@ daypicker-monthday {
 }
 
 /* remove on Windows the double border with the splitter */
-@media (-moz-windows-theme) {
+@media (-moz-os-version: windows-win7),
+       (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
     #attendees-list > .listbox-noborder {
         border-inline-end-style: none;
     }
