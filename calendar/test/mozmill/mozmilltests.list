@@ -1,2 +1,6 @@
+cal-recurrence
 invitations
+testAlarmDefaultValue.js
 testBasicFunctionality.js
+testLocalICS.js
+testTodayPane.js
