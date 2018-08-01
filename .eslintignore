@@ -43,6 +43,7 @@ mail/components/*
 !mail/components/about-support
 !mail/components/accountcreation
 !mail/components/devtools
+!mail/components/downloads
 !mail/components/extensions
 
 # calendar/ exclusions

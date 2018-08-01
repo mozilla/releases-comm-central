@@ -4,6 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
   * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals goUpdateCommand */
+
 "use strict";
 
 ChromeUtils.defineModuleGetter(this, "Downloads", "resource://gre/modules/Downloads.jsm");
@@ -33,7 +35,7 @@ var DownloadsView = {
     let compare = (a, b) => {
       // active downloads always before stopped downloads
       if (a.stopped != b.stopped) {
-        return b.stopped ? -1 : 1
+        return b.stopped ? -1 : 1;
       }
       // most recent downloads first
       return b.startTime - a.startTime;
@@ -55,10 +57,10 @@ var DownloadsView = {
                          .createInstance(Ci.nsIFile);
       targetFile.initWithPath(download.target.path);
       return !targetFile.exists();
-    }
+    };
     if (isPurgedFromDisk(aDownload)) {
       Downloads.getList(Downloads.ALL)
-               .then(list => list.remove(aDownload))
+               .then(list => list.remove(aDownload));
       return;
     }
 
