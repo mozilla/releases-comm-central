@@ -1261,7 +1261,9 @@ function stripUserData(item_) {
         aCalUser.deleteProperty("SCHEDULE-STATUS");
     };
     item.getAttendees({}).forEach(removeSchedulingParams);
-    removeSchedulingParams(item.organizer);
+    if (item.organizer) {
+        removeSchedulingParams(item.organizer);
+    }
 
     item.setProperty("DTSTAMP", stamp);
     item.setProperty("LAST-MODIFIED", lastModified); // need to be last to undirty the item
