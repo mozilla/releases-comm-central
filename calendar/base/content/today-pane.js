@@ -38,9 +38,7 @@ var TodayPane = {
         await agendaListbox.setupCalendar();
         agendaListbox.addListener(TodayPane);
         TodayPane.setShortWeekdays();
-        // Wait until after the initialisation of #weekdayNameContainer,
-        // to avoid its selectedIndex being reset to the wrong value.
-        setTimeout(() => TodayPane.setDay(cal.dtz.now()), 0);
+        TodayPane.setDay(cal.dtz.now());
 
         document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", TodayPane.onModeModified);
         TodayPane.setTodayHeader();
@@ -319,8 +317,12 @@ var TodayPane = {
         let daylabel = document.getElementById("datevalue-label");
         daylabel.value = this.start.day;
 
-        let weekdaylabel = document.getElementById("weekdayNameContainer");
-        weekdaylabel.selectedIndex = this.start.weekday;
+        // Wait until after the initialisation of #weekdayNameContainer,
+        // to avoid its selectedIndex being reset to the wrong value.
+        setTimeout(() => {
+            let weekdaylabel = document.getElementById("weekdayNameContainer");
+            weekdaylabel.selectedIndex = this.start.weekday;
+        }, 0);
 
         let monthnamelabel = document.getElementById("monthNameContainer");
         monthnamelabel.value = cal.getDateFormatter().shortMonthName(this.start.month) + " " + this.start.year;
