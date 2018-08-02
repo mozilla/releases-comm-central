@@ -15,13 +15,19 @@ calendar-list-tree > tree > treechildren::-moz-tree-cell(calendarname-treecol) {
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readonly) {
-    list-style-image: url(chrome://calendar-common/skin/calendar-status.png);
-    -moz-image-region: rect(0, 14px, 14px, 0);
+    list-style-image: url(chrome://calendar-common/skin/icons/locked.svg);
+}
+
+calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readonly, selected) {
+    list-style-image: url(chrome://calendar-common/skin/icons/locked-selected.svg);
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfailed) {
-    list-style-image: url(chrome://calendar-common/skin/calendar-status.png);
-    -moz-image-region: rect(0px, 28px, 14px, 14px);
+    list-style-image: url(chrome://calendar-common/skin/icons/warn.svg);
+}
+
+calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfailed, selected) {
+    list-style-image: url(chrome://calendar-common/skin/icons/warn-selected.svg);
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-cell-text(disabled) {
