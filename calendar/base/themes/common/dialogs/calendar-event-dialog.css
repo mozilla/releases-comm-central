@@ -322,6 +322,7 @@ daypicker-monthday {
     -moz-appearance: none;
     margin: 0px 0px;
     border: 1px solid var(--eventBorderColor);
+    background-color: #fff;
 }
 
 #timebar > .listbox-noborder {
@@ -454,6 +455,15 @@ freebusy-day > box {
     padding-inline-end: 10px;
 }
 
+/* --spacer-top-height and --spacer-bottom-height are defined at runtime */
+.attendee-spacer-top {
+    height: var(--spacer-top-height);
+}
+
+.attendee-spacer-bottom {
+    height: var(--spacer-bottom-height);
+}
+
 #addressingWidget {
     -moz-user-focus: none;
 }
@@ -475,7 +485,8 @@ freebusy-day > box {
      ensure that the rows of the freebusy-grid and
      the attendee-list always have the same height,
      regardless of the font size. */
-    min-height: 16px;
+    height: 17px;
+    overflow: hidden;
 }
 
 .addressingWidgetCell {

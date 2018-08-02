@@ -13,11 +13,6 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <!--
-  ########################################################################
-  ## scroll-container
-  ########################################################################
-  -->
   <binding id="scroll-container" extends="xul:box">
     <content>
       <xul:box class="container"
@@ -71,11 +66,6 @@
     </implementation>
   </binding>
 
-  <!--
-  ########################################################################
-  ## freebusy-day
-  ########################################################################
-  -->
   <binding id="freebusy-day" extends="xul:box">
     <content>
       <xul:box orient="vertical">
@@ -206,7 +196,7 @@
                     let newNode = template.cloneNode(false);
                     let value = this.mDateFormatter.formatTime(date);
                     if (first) {
-                        newNode.className += " first-in-day";
+                        newNode.classList.add("first-in-day");
                         first = false;
                     }
                     newNode.setAttribute("value", value);
@@ -214,7 +204,7 @@
                     date.minute += step_in_minutes;
 
                     if (remain == 0) {
-                        newNode.className += " last-in-day";
+                        newNode.classList.add("last-in-day");
                     }
                 }
             }
@@ -225,34 +215,7 @@
     </implementation>
   </binding>
 
-  <!--
-  ########################################################################
-  ## freebusy-timebar
-  ########################################################################
-  -->
-  <binding id="freebusy-timebar" extends="xul:box">
-    <content>
-      <xul:listbox anonid="listbox"
-                   class="listbox-noborder"
-                   seltype="multiple"
-                   rows="1"
-                   flex="1"
-                   disabled="true">
-        <xul:listcols>
-          <xul:listcol anonid="day-column" flex="1"/>
-        </xul:listcols>
-        <xul:listitem anonid="item"
-                      class="freebusy-listitem"
-                      allowevents="true">
-          <xul:listcell >
-            <xul:scroll-container anonid="container">
-              <xul:freebusy-day anonid="template"/>
-            </xul:scroll-container>
-          </xul:listcell>
-        </xul:listitem>
-      </xul:listbox>
-    </content>
-
+  <binding id="freebusy-timebar" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
     <implementation>
       <field name="mNumDays">0</field>
       <field name="mRange">0</field>
@@ -272,9 +235,7 @@
         <setter><![CDATA[
             this.mZoomFactor = val;
 
-            let template =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "template");
+            let template = this.getElementsByTagName("freebusy-day")[0];
             let parent = template.parentNode;
             while (parent.childNodes.length > 1) {
                 parent.lastChild.remove();
@@ -297,9 +258,7 @@
             this.mForce24Hours = val;
             this.initTimeRange();
 
-            let template =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "template");
+            let template = this.getElementsByTagName("freebusy-day")[0];
 
             let parent = template.parentNode;
             while (parent.childNodes.length > 1) {
@@ -320,9 +279,7 @@
             // Calculate the difference between the first to day-elements, since
             // the width of the head element does not specify the width we need
             // due to an arbitrary margin value.
-            let template =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "template");
+            let template = this.getElementsByTagName("freebusy-day")[0];
             return template.nextSibling.boxObject.x - template.boxObject.x;
         ]]></getter>
       </property>
@@ -358,9 +315,7 @@
       <property name="dayOffset">
         <setter><![CDATA[
             this.mDayOffset = val;
-            let container =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "container");
+            let container = this.getElementsByTagName("scroll-container")[0];
             let date = this.mStartDate.clone();
             date.day += val;
             let numChilds = container.childNodes.length;
@@ -412,9 +367,7 @@
             offset %= oneday;
 
             // Set the offset at the content node.
-            let container =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "container");
+            let container = this.getElementsByTagName("scroll-container")[0];
             container.x = offset;
             return val;
         ]]></setter>
@@ -440,7 +393,8 @@
           let kDefaultTimezone = cal.dtz.defaultTimezone;
           this.startDate = startTime.getInTimezone(kDefaultTimezone);
           this.endDate = endTime.getInTimezone(kDefaultTimezone);
-          this.mRange = Number(this.getAttribute("range"));
+          let grid = document.getElementById("freebusy-grid");
+          this.mRange = Number(grid.getAttribute("range"));
 
           window.addEventListener("load", this.onLoad.bind(this), true);
       ]]></constructor>
@@ -448,9 +402,7 @@
       <method name="refresh">
         <body><![CDATA[
             let date = this.mStartDate.clone();
-            let template =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "template");
+            let template = this.getElementsByTagName("freebusy-day")[0];
             let parent = template.parentNode;
             let numChilds = parent.childNodes.length;
             for (let i = 0; i < numChilds; i++) {
@@ -468,14 +420,14 @@
       <method name="onLoad">
         <body><![CDATA[
             this.initialize();
-            let template =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "template");
-            let event = document.createEvent("Events");
-            event.initEvent("timebar", true, false);
-            event.details = this.contentWidth;
-            event.height = template.dayHeight;
-            this.dispatchEvent(event);
+            setTimeout(() => {
+                let template = this.getElementsByTagName("freebusy-day")[0];
+                let event = document.createEvent("Events");
+                event.initEvent("timebar", true, false);
+                event.details = this.contentWidth;
+                event.height = template.dayHeight;
+                this.dispatchEvent(event);
+            }, 0);
         ]]></body>
       </method>
 
@@ -486,8 +438,8 @@
             let endTime = args.endTime;
 
             let kDefaultTimezone = cal.dtz.defaultTimezone;
-            this.startDate = startTime.getInTimezone(kDefaultTimezone);
-            this.endDate = endTime.getInTimezone(kDefaultTimezone);
+            this.mStartDate = startTime.getInTimezone(kDefaultTimezone);
+            this.mEndDate = endTime.getInTimezone(kDefaultTimezone);
 
             // Set the number of 'freebusy-day'-elements
             // we need to fill up the content box.
@@ -499,9 +451,7 @@
 
             // Now create those elements and set their date property.
             let date = this.mStartDate.clone();
-            let template =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "template");
+            let template = this.getElementsByTagName("freebusy-day")[0];
             template.force24Hours = this.mForce24Hours;
             template.zoomFactor = this.mZoomFactor;
             template.startDate = this.mStartDate;
@@ -514,12 +464,12 @@
                     for (let i = 0; i < count; i++) {
                         date.day++;
                         let newNode = template.cloneNode(false);
+                        parent.appendChild(newNode);
                         newNode.force24Hours = this.mForce24Hours;
                         newNode.zoomFactor = this.mZoomFactor;
                         newNode.startDate = this.mStartDate;
                         newNode.endDate = this.mEndDate;
                         newNode.date = date;
-                        parent.appendChild(newNode);
                     }
                 }
             }
@@ -540,11 +490,6 @@
     </implementation>
   </binding>
 
-  <!--
-  ########################################################################
-  ## freebusy-row
-  ########################################################################
-  -->
   <binding id="freebusy-row" extends="xul:box">
     <content>
       <xul:scroll-container flex="1" anonid="container">
@@ -657,31 +602,11 @@
 
       <property name="scroll">
         <setter><![CDATA[
-            // How much pixels spans a single day
-            let oneday = this.contentWidth;
-            if (oneday <= 0) {
-                return val;
-            }
-
-            // The difference in pixels between the content and the container.
-            let shift = (oneday * this.mRange) - (this.containerWidth);
-
-            // Now calculate the (positive) offset in pixels which the content
-            // needs to be shifted. This is a simple scaling in one dimension.
-            let offset = Math.floor(val * shift);
-
-            // Now find out how much days this offset effectively skips.
-            // this is a simple division which always yields a positive integer value.
-            this.dayOffset = (offset - (offset % oneday)) / oneday;
-
-            // Set the pixel offset for the content which will always need
-            // to be in the range [0 <= offset <= oneday].
-            offset %= oneday;
+            let timebarContainer = document.querySelector("#timebar scroll-container");
+            let offset = timebarContainer.x;
 
             // Set the offset at the content node.
-            let container =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "container");
+            let container = document.getAnonymousElementByAttribute(this, "anonid", "container");
             container.x = offset;
             return val;
         ]]></setter>
@@ -692,7 +617,8 @@
           ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.initTimeRange();
-          this.mRange = Number(this.getAttribute("range"));
+          let grid = document.getElementById("freebusy-grid");
+          this.mRange = Number(grid.getAttribute("range"));
           this.onLoad();
       ]]></constructor>
 
@@ -729,7 +655,7 @@
                         let newNode = template.cloneNode(false);
                         let value = formatter.formatTime(date);
                         if (first) {
-                            newNode.className += " first-in-day";
+                            newNode.classList.add("first-in-day");
                             first = false;
                         }
 
@@ -738,7 +664,7 @@
                         date.minute += step_in_minutes;
 
                         if (remain == 0) {
-                            newNode.className += " last-in-day";
+                            newNode.classList.add("last-in-day");
                         }
                     }
                     date.hour = this.mStartHour;
@@ -972,40 +898,10 @@
     </implementation>
   </binding>
 
-  <!-- ############################################################################# -->
-  <!-- 'freebusy-grid'-binding                                                       -->
-  <!-- ############################################################################# -->
-
-  <!-- id's are evil, use anonid -->
-  <binding id="freebusy-grid">
-    <content>
-      <xul:listbox anonid="listbox"
-                   class="listbox-noborder"
-                   seltype="multiple"
-                   rows="-1"
-                   disabled="true"
-                   flex="1"
-                   style="min-width: 50em; min-height: 30em">
-        <xul:listcols>
-          <xul:listcol anonid="grid-column" flex="1"/>
-        </xul:listcols>
-        <xul:listitem anonid="item"
-                      class="addressingWidgetItem"
-                      allowevents="true">
-          <xul:listcell class="addressingWidgetCell">
-            <xul:freebusy-row id="attendeeCol4#1"
-                              anonid="grid"
-                              dirty="true"
-                              xbl:inherits="range"/>
-          </xul:listcell>
-        </xul:listitem>
-      </xul:listbox>
-    </content>
-
+  <binding id="freebusy-grid" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
     <implementation>
       <field name="mContentHeight">0</field>
       <field name="mRowHeight">0</field>
-      <field name="mNumColumns">0</field>
       <field name="mMaxFreeBusy">0</field>
       <field name="mPendingRequests">null</field>
       <field name="mStartDate">null</field>
@@ -1049,27 +945,18 @@
 
       <property name="firstVisibleRow">
         <getter><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            return listbox.getIndexOfFirstVisibleRow();
+            return this.getIndexOfFirstVisibleRow();
         ]]></getter>
         <setter><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            listbox.scrollToIndex(val);
+            this.scrollToIndex(val);
             return val;
         ]]></setter>
       </property>
 
       <property name="ratio">
         <setter><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let rowcount = listbox.getRowCount();
-            listbox.scrollToIndex(Math.floor(rowcount * val));
+            let rowcount = this.getRowCount();
+            this.scrollToIndex(Math.floor(rowcount * val));
             return val;
         ]]></setter>
       </property>
@@ -1080,7 +967,8 @@
 
           this.initTimeRange();
 
-          this.mRange = Number(this.getAttribute("range"));
+          let grid = document.getElementById("freebusy-grid");
+          this.mRange = Number(grid.getAttribute("range"));
 
           this.mMaxFreeBusy = 0;
           this.mPendingRequests = [];
@@ -1150,13 +1038,8 @@
             this.startDate = startTime.getInTimezone(kDefaultTimezone);
             this.endDate = endTime.getInTimezone(kDefaultTimezone);
 
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let template =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "item");
-            this.appendNewRow(listbox, template, null);
+            let template = this.getElementsByTagName("richlistitem")[0];
+            this.appendNewRow(template, null);
             template.remove();
 
             this.updateFreeBusy();
@@ -1171,25 +1054,18 @@
 
       <!-- appends a new empty row -->
       <method name="appendNewRow">
-        <parameter name="aParentNode"/>
         <parameter name="aTemplateNode"/>
         <parameter name="aReplaceNode"/>
         <body><![CDATA[
             this.mMaxFreeBusy++;
             let newNode = aTemplateNode.cloneNode(true);
             if (aReplaceNode) {
-                aParentNode.replaceChild(newNode, aReplaceNode);
+                this.replaceChild(newNode, aReplaceNode);
             } else {
-                aParentNode.appendChild(newNode);
+                this.appendChild(newNode);
             }
 
-            let grid =
-                document.getAnonymousElementByAttribute(
-                    newNode, "anonid", "grid");
-            let rowNumber = this.mMaxFreeBusy;
-            if (rowNumber >= 0) {
-                grid.setAttribute("id", "attendeeCol4#" + rowNumber);
-            }
+            let grid = newNode.getElementsByTagName("freebusy-row")[0];
 
             // Propagate start/enddate to the new row.
             grid.startDate = this.mStartDate;
@@ -1229,18 +1105,11 @@
             // contained in the list passed as argument.
             let list = event.details;
             if (this.mMaxFreeBusy != list.length) {
-                let listbox =
-                    document.getAnonymousElementByAttribute(
-                        this, "anonid", "listbox");
-                let template =
-                    document.getAnonymousElementByAttribute(
-                        this, "anonid", "item");
+                let template = this.getElementsByTagName("richlistitem")[0];
                 while (this.mMaxFreeBusy < list.length) {
                     let nextDummy = this.getNextDummyRow();
-                    this.appendNewRow(listbox, template, nextDummy);
-                    template =
-                        document.getAnonymousElementByAttribute(
-                            this, "anonid", "item");
+                    this.appendNewRow(template, nextDummy);
+                    template = this.getElementsByTagName("richlistitem")[0];
                 }
                 while (this.mMaxFreeBusy > list.length) {
                     this.deleteRow(this.mMaxFreeBusy);
@@ -1421,49 +1290,25 @@
         ]]></body>
       </method>
 
-      <!-- This method returns the <xul:listitem> at row numer 'aRow' -->
+      <!-- This method returns the <xul:richlistitem> at row numer 'aRow' -->
       <method name="getListItem">
         <parameter name="aRow"/>
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            if (listbox && aRow > 0) {
-                let listitems = listbox.getElementsByTagNameNS("*", "listitem");
-                if (listitems && listitems.length >= aRow) {
-                    return listitems[aRow - 1];
-                }
-            }
-            return 0;
+            return this.getElementsByTagName("richlistitem")[aRow - 1];
         ]]></body>
       </method>
 
       <method name="getFreeBusyElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-            return document.getAnonymousElementByAttribute(this, "id",
-                                                           "attendeeCol4#" + aRow);
+            return this.getListItem(aRow).getElementsByTagName("freebusy-row")[0];
         ]]></body>
       </method>
 
       <method name="deleteRow">
         <parameter name="aRow"/>
         <body><![CDATA[
-            // Reset id's in order to not break the sequence
-            let max = this.mMaxFreeBusy;
             this.removeRow(aRow);
-            let numberOfCols = this.numColumns;
-            for (let row = aRow + 1; row <= max; row++) {
-                for (let col = 1; col <= numberOfCols; col++) {
-                    let colID = "attendeeCol" + col + "#" + row;
-                    let elem = document.getAnonymousElementByAttribute(this, "id", colID);
-                    if (elem) {
-                        elem.setAttribute(
-                            "id",
-                            "attendeeCol" + (col) + "#" + (row - 1));
-                    }
-                }
-            }
         ]]></body>
       </method>
 
@@ -1479,10 +1324,7 @@
       <!-- gets the next row from the top down -->
       <method name="getNextDummyRow">
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let kids = listbox.childNodes;
+            let kids = this.childNodes;
             for (let i = 0; i < kids.length; ++i) {
                 if (kids[i].hasAttribute("_isDummyRow")) {
                     return kids[i];
@@ -1503,10 +1345,7 @@
 
       <method name="calcContentHeight">
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let items = listbox.getElementsByTagNameNS("*", "listitem");
+            let items = this.getElementsByTagName("richlistitem");
             this.mContentHeight = 0;
             if (items.length > 0) {
                 let i = 0;
@@ -1521,13 +1360,10 @@
 
       <method name="createOrRemoveDummyRows">
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let listboxHeight = listbox.boxObject.height;
+            let listboxHeight = this.boxObject.height;
 
             // Remove rows to remove scrollbar
-            let kids = listbox.childNodes;
+            let kids = this.childNodes;
             for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
                 if (kids[i].hasAttribute("_isDummyRow")) {
                     this.mContentHeight -= this.mRowHeight;
@@ -1538,53 +1374,26 @@
             // Add rows to fill space
             if (this.mRowHeight) {
                 while (this.mContentHeight + this.mRowHeight < listboxHeight) {
-                    this.createDummyItem(listbox);
+                    this.createDummyItem();
                     this.mContentHeight += this.mRowHeight;
                 }
             }
         ]]></body>
       </method>
 
-      <method name="createDummyCell">
-        <parameter name="aParent"/>
-        <body><![CDATA[
-            let cell = document.createElement("listcell");
-            cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
-            if (aParent) {
-                aParent.appendChild(cell);
-            }
-            return cell;
-        ]]></body>
-      </method>
-
       <method name="createDummyItem">
-        <parameter name="aParent"/>
         <body><![CDATA[
-            let titem = document.createElement("listitem");
-            titem.setAttribute("_isDummyRow", "true");
-            titem.setAttribute("class", "dummy-row");
-            for (let i = this.numColumns; i > 0; i--) {
-                this.createDummyCell(titem);
-            }
-            if (aParent) {
-                aParent.appendChild(titem);
-            }
-            return titem;
+            let item = document.createElement("richlistitem");
+            item.setAttribute("_isDummyRow", "true");
+            item.setAttribute("class", "dummy-row");
+            let cell = document.createElement("hbox");
+            cell.setAttribute("flex", "1");
+            cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
+            item.appendChild(cell);
+            this.appendChild(item);
+            return item;
         ]]></body>
       </method>
-
-      <property name="numColumns">
-        <getter><![CDATA[
-            if (!this.mNumColumns) {
-                let listbox =
-                    document.getAnonymousElementByAttribute(
-                        this, "anonid", "listbox");
-                let listCols = listbox.getElementsByTagNameNS("*", "listcol");
-                this.mNumColumns = listCols.length || 1;
-            }
-            return this.mNumColumns;
-        ]]></getter>
-      </property>
 
       <method name="initTimeRange">
         <body><![CDATA[

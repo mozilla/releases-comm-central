@@ -89,23 +89,6 @@ function onLoad() {
     scrollToCurrentTime();
     updateButtons();
 
-    // we need to enforce several layout constraints which can't be modelled
-    // with plain xul and css, at least as far as i know.
-    const kStylesheet = "chrome://calendar/skin/calendar-event-dialog.css";
-    for (let stylesheet of document.styleSheets) {
-        if (stylesheet.href == kStylesheet) {
-            // make the dummy-spacer #1 [top] the same height as the timebar
-            let timebar = document.getElementById("timebar");
-            stylesheet.insertRule(".attendee-spacer-top { height: " +
-                                  timebar.boxObject.height + "px; }", 0);
-            // make the dummy-spacer #2 [bottom] the same height as the scrollbar
-            let scrollbar = document.getElementById("horizontal-scrollbar");
-            stylesheet.insertRule(".attendee-spacer-bottom { height: " +
-                                  scrollbar.boxObject.height + "px; }", 0);
-            break;
-        }
-    }
-
     // attach an observer to get notified of changes
     // that are relevant to this dialog.
     let prefObserver = {
@@ -941,9 +924,14 @@ function onAttrModified(event) {
  * @param event     The "timebar" event with details and height property.
  */
 function onTimebar(event) {
-    document.getElementById(
-        "selection-bar")
-            .init(event.details, event.height);
+    document.getElementById("selection-bar").init(event.details, event.height);
+
+    // we need to enforce several layout constraints which can't be modelled
+    // with plain xul and css, at least as far as i know.
+    let timebar = document.getElementById("timebar");
+    let scrollbar = document.getElementById("horizontal-scrollbar");
+    document.documentElement.style.setProperty("--spacer-top-height", timebar.boxObject.height + "px");
+    document.documentElement.style.setProperty("--spacer-bottom-height", scrollbar.boxObject.height + "px");
 }
 
 /**

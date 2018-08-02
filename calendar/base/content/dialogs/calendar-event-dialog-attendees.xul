@@ -68,7 +68,34 @@
   <hbox flex="1">
     <vbox id="attendees-container" flex="1" persist="width">
       <box class="attendee-spacer-top"/>
-      <attendees-list flex="1" id="attendees-list"/>
+      <attendees-list flex="1" id="attendees-list" class="listbox-noborder">
+        <richlistitem class="addressingWidgetItem" allowevents="true">
+          <hbox class="addressingWidgetCell" width="27" align="center" pack="center">
+            <image class="status-icon"/>
+          </hbox>
+          <hbox class="addressingWidgetCell" width="16">
+            <image class="usertype-icon" onclick="this.parentNode.select();"/>
+          </hbox>
+          <hbox class="addressingWidgetCell" flex="1">
+            <textbox class="plain textbox-addressingWidget uri-element"
+                     type="autocomplete"
+                     flex="1"
+                     autocompletesearch="addrbook ldap"
+                     autocompletesearchparam="{}"
+                     timeout="300"
+                     maxrows="4"
+                     completedefaultindex="true"
+                     forcecomplete="true"
+                     completeselectedindex="true"
+                     minresultsforpopup="1"
+                     onblur="if (this.localName == 'textbox') this.closest(&quot;attendees-list&quot;).returnHit(this, true)"
+                     ignoreblurwhilesearching="true"
+                     oninput="this.setAttribute('dirty', 'true');"
+                     ontextentered="this.closest(&quot;attendees-list&quot;).returnHit(this);">
+            </textbox>
+          </hbox>
+        </richlistitem>
+      </attendees-list>
       <box class="attendee-spacer-bottom"/>
     </vbox>
     <splitter id="splitter"/>
@@ -76,10 +103,34 @@
       <stack flex="1">
         <vbox flex="1">
           <freebusy-timebar id="timebar"
-                            range="16"/>
+                            class="listbox-noborder"
+                            seltype="multiple"
+                            rows="1"
+                            disabled="true"
+                            range="16">
+            <richlistitem class="freebusy-listitem"
+                          allowevents="true">
+              <hbox flex="1">
+                <scroll-container flex="1">
+                  <freebusy-day/>
+                </scroll-container>
+              </hbox>
+            </richlistitem>
+          </freebusy-timebar>
           <freebusy-grid flex="1"
                          id="freebusy-grid"
-                         range="16"/>
+                         range="16"
+                         class="listbox-noborder"
+                         seltype="multiple"
+                         rows="-1"
+                         disabled="true">
+            <richlistitem class="addressingWidgetItem"
+                          allowevents="true">
+              <hbox class="addressingWidgetCell">
+                <freebusy-row dirty="true"/>
+              </hbox>
+            </richlistitem>
+          </freebusy-grid>
         </vbox>
         <selection-bar id="selection-bar"
                        range="16"/>

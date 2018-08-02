@@ -12,54 +12,12 @@
 <bindings xmlns="http://www.mozilla.org/xbl"
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <binding id="attendees-list">
-    <content>
-      <xul:listbox anonid="listbox"
-                   seltype="multiple"
-                   class="listbox-noborder"
-                   rows="-1"
-                   flex="1">
-        <xul:listcols>
-          <xul:listcol/>
-          <xul:listcol/>
-          <xul:listcol flex="1"/>
-        </xul:listcols>
-        <xul:listitem anonid="item" class="addressingWidgetItem" allowevents="true">
-          <xul:listcell class="addressingWidgetCell" align="center" pack="center">
-            <xul:image id="attendeeCol1#1" anonid="rolestatus-icon"/>
-          </xul:listcell>
-          <xul:listcell class="addressingWidgetCell">
-              <xul:image id="attendeeCol2#1" anonid="usertype-icon" class="usertype-icon" onclick="this.parentNode.select();"/>
-          </xul:listcell>
-          <xul:listcell class="addressingWidgetCell">
-            <xul:textbox id="attendeeCol3#1"
-                         anonid="input"
-                         class="plain textbox-addressingWidget uri-element"
-                         type="autocomplete"
-                         flex="1"
-                         autocompletesearch="addrbook ldap"
-                         autocompletesearchparam="{}"
-                         timeout="300"
-                         maxrows="4"
-                         completedefaultindex="true"
-                         forcecomplete="true"
-                         completeselectedindex="true"
-                         minresultsforpopup="1"
-                         onblur="if (this.localName == 'textbox') document.getBindingParent(this).returnHit(this, true)"
-                         ignoreblurwhilesearching="true"
-                         oninput="this.setAttribute('dirty', 'true');"
-                         ontextentered="document.getBindingParent(this).returnHit(this);">
-            </xul:textbox>
-          </xul:listcell>
-        </xul:listitem>
-      </xul:listbox>
-    </content>
-
+  <binding id="attendees-list" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
     <implementation>
       <field name="mMaxAttendees">0</field>
       <field name="mContentHeight">0</field>
       <field name="mRowHeight">0</field>
-      <field name="mNumColumns">0</field>
+      <field name="mNumColumns">3</field>
       <field name="mIsOffline">0</field>
       <field name="mIsReadOnly">false</field>
       <field name="mIsInvitation">false</field>
@@ -109,16 +67,11 @@
             calendar = cal.wrapInstance(calendar, Components.interfaces.calISchedulingSupport);
             this.mIsInvitation = (calendar && calendar.isInvitation(args.item));
 
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let template =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "item");
+            let template = this.querySelector(".addressingWidgetItem");
             template.focus();
 
             if (this.mIsReadOnly || this.mIsInvitation) {
-                listbox.setAttribute("disabled", "true");
+                this.setAttribute("disabled", "true");
             }
 
             // TODO: the organizer should show up in the attendee list, but this information
@@ -145,18 +98,18 @@
                     organizer.commonName = calendar.getProperty("organizerCN");
                 }
                 organizer.isOrganizer = true;
-                this.appendAttendee(organizer, listbox, template, true);
+                this.appendAttendee(organizer, template, true);
             }
 
             let numRowsAdded = 0;
             if (attendees.length > 0) {
                 for (let attendee of attendees) {
-                    this.appendAttendee(attendee, listbox, template, false);
+                    this.appendAttendee(attendee, template, false);
                     numRowsAdded++;
                 }
             }
             if (numRowsAdded == 0) {
-                this.appendAttendee(null, listbox, template, false);
+                this.appendAttendee(null, template, false);
             }
 
             // detach the template item from the listbox, but hold the reference.
@@ -170,24 +123,17 @@
       <!-- appends a new row using an existing attendee structure -->
       <method name="appendAttendee">
         <parameter name="aAttendee"/>
-        <parameter name="aParentNode"/>
         <parameter name="aTemplateNode"/>
         <parameter name="aDisableIfOrganizer"/>
         <body><![CDATA[
             // create a new listbox item and append it to our parent control.
             let newNode = aTemplateNode.cloneNode(true);
 
-            aParentNode.appendChild(newNode);
+            this.appendChild(newNode);
 
-            let input =
-                document.getAnonymousElementByAttribute(
-                    newNode, "anonid", "input");
-            let roleStatusIcon =
-                document.getAnonymousElementByAttribute(
-                    newNode, "anonid", "rolestatus-icon");
-            let userTypeIcon =
-                document.getAnonymousElementByAttribute(
-                    newNode, "anonid", "usertype-icon");
+            let input = newNode.querySelector(".textbox-addressingWidget");
+            let roleStatusIcon = newNode.querySelector(".status-icon");
+            let userTypeIcon = newNode.querySelector(".usertype-icon");
 
             // We always clone the first row. The problem is that the first row
             // could be focused. When we clone that row, we end up with a cloned
@@ -220,12 +166,6 @@
             }
 
             this.mMaxAttendees++;
-            let rowNumber = this.mMaxAttendees;
-            if (rowNumber >= 0) {
-                roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
-                userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
-                input.setAttribute("id", "attendeeCol3#" + rowNumber);
-            }
 
             if (!aAttendee) {
                 aAttendee = this.createAttendee();
@@ -279,34 +219,25 @@
         <parameter name="aSetFocus"/>
         <parameter name="aInsertAfter"/>
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
             let listitem1 = this.getListItem(1);
             let newNode = null;
 
-            if (listbox && listitem1) {
+            if (listitem1) {
                 let newAttendee = this.createAttendee();
                 let nextDummy = this.getNextDummyRow();
                 newNode = listitem1.cloneNode(true);
 
                 if (aInsertAfter) {
-                    listbox.insertBefore(newNode, aInsertAfter.nextSibling);
+                    this.insertBefore(newNode, aInsertAfter.nextSibling);
                 } else if (nextDummy) {
-                    listbox.replaceChild(newNode, nextDummy);
+                    this.replaceChild(newNode, nextDummy);
                 } else {
-                    listbox.appendChild(newNode);
+                    this.appendChild(newNode);
                 }
 
-                let input =
-                    document.getAnonymousElementByAttribute(
-                        newNode, "anonid", "input");
-                let roleStatusIcon =
-                    document.getAnonymousElementByAttribute(
-                        newNode, "anonid", "rolestatus-icon");
-                let userTypeIcon =
-                    document.getAnonymousElementByAttribute(
-                        newNode, "anonid", "usertype-icon");
+                let input = newNode.querySelector(".textbox-addressingWidget");
+                let roleStatusIcon = newNode.querySelector(".status-icon");
+                let userTypeIcon = newNode.querySelector(".usertype-icon");
 
                 // the template could have its fields disabled,
                 // that's why we need to reset their status.
@@ -321,12 +252,6 @@
                 }
 
                 this.mMaxAttendees++;
-                let rowNumber = this.mMaxAttendees;
-                if (rowNumber >= 0) {
-                    roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
-                    userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
-                    input.setAttribute("id", "attendeeCol3#" + rowNumber);
-                }
 
                 input.value = null;
                 input.removeAttribute("value");
@@ -552,9 +477,8 @@
         <parameter name="rowNumber"/>
         <body><![CDATA[
               let newAttendee = this.createAttendee(entry);
-              let input = document.getAnonymousElementByAttribute(listitem, "anonid", "input");
+              let input = listitem.querySelector(".textbox-addressingWidget");
               input.removeAttribute("disabled");
-              input.setAttribute("id", "attendeeCol3#" + rowNumber);
 
               input.attendee = newAttendee;
               input.value = entry;
@@ -564,15 +488,13 @@
                   input.removeAttribute("focused");
               }
 
-              let roleStatusIcon = document.getAnonymousElementByAttribute(listitem, "anonid", "rolestatus-icon");
+              let roleStatusIcon = listitem.querySelector(".status-icon");
               roleStatusIcon.removeAttribute("disabled");
-              roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
               roleStatusIcon.setAttribute("class", "role-icon");
               roleStatusIcon.setAttribute("role", newAttendee.role);
 
-              let userTypeIcon = document.getAnonymousElementByAttribute(listitem, "anonid", "usertype-icon");
+              let userTypeIcon = listitem.querySelector(".usertype-icon");
               userTypeIcon.removeAttribute("disabled");
-              userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
               userTypeIcon.setAttribute("cutype", newAttendee.userType);
           ]]></body>
     </method>
@@ -587,7 +509,7 @@
                     let entries = this._getListEntries(mailingList);
                     if (entries.length > 0) {
                         let currentIndex = parseInt(aInput.id.substr(13), 10);
-                        let template = document.getAnonymousElementByAttribute(this, "anonid", "item");
+                        let template = this.querySelector(".addressingWidgetItem");
                         let currentNode = template.parentNode.childNodes[currentIndex];
                         this._fillListItemWithEntry(currentNode, entries[0], currentIndex);
                         entries.shift();
@@ -602,14 +524,7 @@
                         this.mMaxAttendees += entries.length;
                         for (let i = currentIndex; i <= this.mMaxAttendees; i++) {
                             let row = template.parentNode.childNodes[i];
-                            let roleStatusIcon = document.getAnonymousElementByAttribute(row, "anonid", "rolestatus-icon");
-                            roleStatusIcon.setAttribute("id", "attendeeCol1#" + i);
-
-                            let userTypeIcon = document.getAnonymousElementByAttribute(row, "anonid", "usertype-icon");
-                            userTypeIcon.setAttribute("id", "attendeeCol2#" + i);
-
-                            let input = document.getAnonymousElementByAttribute(row, "anonid", "input");
-                            input.setAttribute("id", "attendeeCol3#" + i);
+                            let input = row.querySelector(".textbox-addressingWidget");
                             input.setAttribute("dirty", "true");
                         }
                     }
@@ -653,7 +568,7 @@
       <parameter name="targetIcon"/>
       <body><![CDATA[
           // Function setting the tooltip of attendeeicons based on their role
-          if (targetIcon.className == "role-icon") {
+          if (targetIcon.classList.contains("role-icon")) {
               let role = targetIcon.getAttribute("role");
               // Set tooltip for rolenames
 
@@ -669,7 +584,7 @@
                                                roleNameString,
                                                role in roleMap ? []: [role]);
               targetIcon.setAttribute("tooltiptext", tooltip);
-          } else if (targetIcon.className == "usertype-icon") {
+          } else if (targetIcon.classList.contains("usertype-icon")) {
               let cutype = targetIcon.getAttribute("cutype");
               const cutypeMap = {
                   INDIVIDUAL: "individual",
@@ -705,10 +620,7 @@
 
       <method name="calcContentHeight">
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let items = listbox.getElementsByTagNameNS("*", "listitem");
+            let items = this.getElementsByTagName("richlistitem");
             this.mContentHeight = 0;
             if (items.length > 0) {
                 let i = 0;
@@ -723,13 +635,10 @@
 
       <method name="createOrRemoveDummyRows">
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let listboxHeight = listbox.boxObject.height;
+            let listboxHeight = this.boxObject.height;
 
             // remove rows to remove scrollbar
-            let kids = listbox.childNodes;
+            let kids = this.childNodes;
             for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
                 if (kids[i].hasAttribute("_isDummyRow")) {
                     this.mContentHeight -= this.mRowHeight;
@@ -740,37 +649,25 @@
             // add rows to fill space
             if (this.mRowHeight) {
                 while (this.mContentHeight + this.mRowHeight < listboxHeight) {
-                    this.createDummyItem(listbox);
+                    this.createDummyItem();
                     this.mContentHeight += this.mRowHeight;
                 }
             }
         ]]></body>
       </method>
 
-      <method name="createDummyCell">
-        <parameter name="aParent"/>
-        <body><![CDATA[
-            let cell = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listcell");
-            cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
-            if (aParent) {
-                aParent.appendChild(cell);
-            }
-            return cell;
-        ]]></body>
-      </method>
-
       <method name="createDummyItem">
-        <parameter name="aParent"/>
         <body><![CDATA[
-            let titem = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listitem");
+            let titem = document.createElement("richlistitem");
             titem.setAttribute("_isDummyRow", "true");
             titem.setAttribute("class", "dummy-row");
-            for (let i = this.numColumns; i > 0; i--) {
-                this.createDummyCell(titem);
+            for (let i = this.mNumColumns; i > 0; i--) {
+                let cell = document.createElement("hbox");
+                cell.setAttribute("flex", "1");
+                cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
+                titem.appendChild(cell);
             }
-            if (aParent) {
-                aParent.appendChild(titem);
-            }
+            this.appendChild(titem);
             return titem;
         ]]></body>
       </method>
@@ -778,10 +675,7 @@
       <!-- gets the next row from the top down -->
       <method name="getNextDummyRow">
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let kids = listbox.childNodes;
+            let kids = this.childNodes;
             for (let i = 0; i < kids.length; ++i) {
                 if (kids[i].hasAttribute("_isDummyRow")) {
                     return kids[i];
@@ -791,27 +685,18 @@
         ]]></body>
       </method>
 
-      <!-- This method returns the <xul:listitem> at row numer 'aRow' -->
+      <!-- This method returns the <xul:richlistitem> at row numer 'aRow' -->
       <method name="getListItem">
         <parameter name="aRow"/>
         <body><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            if (listbox && aRow > 0) {
-                let listitems = listbox.getElementsByTagNameNS("*", "listitem");
-                if (listitems && listitems.length >= aRow) {
-                    return listitems[aRow - 1];
-                }
-            }
-            return 0;
+            return this.getElementsByTagName("richlistitem")[aRow - 1];
         ]]></body>
       </method>
 
       <method name="getInputFromListitem">
         <parameter name="aListItem"/>
         <body><![CDATA[
-            return aListItem.getElementsByTagNameNS("*", "textbox")[0];
+            return aListItem.getElementsByTagName("textbox")[0];
         ]]></body>
       </method>
 
@@ -819,12 +704,10 @@
         <parameter name="aElement"/>
         <body><![CDATA[
             let row = 0;
-            while (aElement && aElement.localName != "listitem") {
-                aElement = aElement.parentNode;
-            }
+            aElement = aElement.closest("richlistitem");
             if (aElement) {
                 while (aElement) {
-                    if (aElement.localName == "listitem") {
+                    if (aElement.localName == "richlistitem") {
                         ++row;
                     }
                     aElement = aElement.previousSibling;
@@ -839,69 +722,53 @@
       <method name="getInputElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-            return document.getAnonymousElementByAttribute(this, "id", "attendeeCol3#" + aRow);
+            return this.getListItem(aRow).querySelector(".textbox-addressingWidget");
         ]]></body>
       </method>
 
       <method name="getRoleElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-            return document.getAnonymousElementByAttribute(this, "id", "attendeeCol1#" + aRow);
+            return this.getListItem(aRow).querySelector(".status-icon");
         ]]></body>
       </method>
 
       <method name="getStatusElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-            return document.getAnonymousElementByAttribute(this, "id", "attendeeCol1#" + aRow);
+            return this.getListItem(aRow).querySelector(".status-icon");
         ]]></body>
       </method>
 
       <method name="getUserTypeElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-            return document.getAnonymousElementByAttribute(this, "id", "attendeeCol2#" + aRow);
+            return this.getListItem(aRow).querySelector(".usertype-icon");
         ]]></body>
       </method>
 
       <method name="setFocus">
         <parameter name="aRow"/>
         <body><![CDATA[
-            let self = this;
-            let set_focus = function() {
+            setTimeout(() => {
                 let node;
                 if (typeof aRow == "number") {
-                    node = self.getListItem(aRow);
+                    node = this.getListItem(aRow);
                 } else {
                     node = aRow;
                 }
 
-                // do we need to scroll in order to see the selected row?
-                let listbox =
-                    document.getAnonymousElementByAttribute(
-                        self, "anonid", "listbox");
-                let firstVisibleRow = listbox.getIndexOfFirstVisibleRow();
-                let numOfVisibleRows = listbox.getNumberOfVisibleRows();
-                if (aRow <= firstVisibleRow) {
-                    listbox.scrollToIndex(aRow - 1);
-                } else if (aRow - 1 >= (firstVisibleRow + numOfVisibleRows)) {
-                    listbox.scrollToIndex(aRow - numOfVisibleRows);
-                }
-                let input =
-                    document.getAnonymousElementByAttribute(
-                        node, "anonid", "input");
+                this.ensureElementIsVisible(node);
+
+                let input = node.querySelector(".textbox-addressingWidget");
                 input.focus();
-            };
-            setTimeout(set_focus, 0);
+            }, 0);
         ]]></body>
       </method>
 
       <property name="firstVisibleRow">
         <getter><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            return listbox.getIndexOfFirstVisibleRow();
+            return this.getIndexOfFirstVisibleRow();
         ]]></getter>
       </property>
 
@@ -916,29 +783,10 @@
         ]]></body>
       </method>
 
-      <property name="numColumns">
-        <getter><![CDATA[
-            if (!this.mNumColumns) {
-                let listbox =
-                    document.getAnonymousElementByAttribute(
-                        this, "anonid", "listbox");
-                let listCols = listbox.getElementsByTagNameNS("*", "listcol");
-                this.mNumColumns = listCols.length;
-                if (!this.mNumColumns) {
-                    this.mNumColumns = 1;
-                }
-            }
-            return this.mNumColumns;
-        ]]></getter>
-      </property>
-
       <property name="ratio">
         <setter><![CDATA[
-            let listbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "listbox");
-            let rowcount = listbox.getRowCount();
-            listbox.scrollToIndex(Math.floor(rowcount * val));
+            let rowcount = this.getRowCount();
+            this.scrollToIndex(Math.floor(rowcount * val));
             return val;
         ]]></setter>
       </property>
@@ -1033,19 +881,7 @@
       <method name="deleteRow">
         <parameter name="aRow"/>
         <body><![CDATA[
-            // reset id's in order to not break the sequence
-            let maxAttendees = this.mMaxAttendees;
             this.removeRow(aRow);
-            let numberOfCols = this.numColumns;
-            for (let row = aRow + 1; row <= maxAttendees; row++) {
-                for (let col = 1; col <= numberOfCols; col++) {
-                    let colID = "attendeeCol" + col + "#" + row;
-                    let elem = document.getAnonymousElementByAttribute(this, "id", colID);
-                    if (elem) {
-                        elem.setAttribute("id", "attendeeCol" + col + "#" + (row - 1));
-                    }
-                }
-            }
         ]]></body>
       </method>
 
@@ -1067,7 +903,7 @@
           }
 
           let target = event.originalTarget;
-          if (target.className == "role-icon") {
+          if (target.classList.contains("role-icon")) {
               if (target.getAttribute("disabled") != "true") {
                   const roleCycle = [
                       "REQ-PARTICIPANT", "OPT-PARTICIPANT",
@@ -1078,7 +914,7 @@
                   target.setAttribute("role", nextValue);
                   this.updateTooltip(target);
               }
-          } else if (target.className == "status-icon") {
+          } else if (target.classList.contains("status-icon")) {
               if (target.getAttribute("disabled") != "true") {
                   const statusCycle = ["ACCEPTED", "DECLINED", "TENTATIVE"];
 
@@ -1086,7 +922,7 @@
                   target.setAttribute("status", nextValue);
                   this.updateTooltip(target);
               }
-          } else if (target.className == "usertype-icon") {
+          } else if (target.classList.contains("usertype-icon")) {
               let fieldNum = target.getAttribute("id").split("#")[1];
               let inputField = this.getInputElement(fieldNum);
               if (target.getAttribute("disabled") != "true" &&
@@ -1097,10 +933,7 @@
                   target.setAttribute("cutype", nextValue);
                   this.updateTooltip(target);
               }
-          } else if (this.mIsReadOnly || this.mIsInvitation || target == null ||
-                     (target.localName != "listboxbody" &&
-                      target.localName != "listcell" &&
-                      target.localName != "listitem")) {
+          } else if (this.mIsReadOnly || this.mIsInvitation || target == null || target.closest("richlistitem")) {
               // These are cases where we don't want to append a new row, keep
               // them here so we can put the rest in the else case.
           } else {
@@ -1152,8 +985,7 @@
 
                           // set cursor to begin or end of focused input box based on deletion direction
                           let cPos = 0;
-                          let input = document.getAnonymousElementByAttribute(this.getListItem(targetRowId),
-                                                                              "anonid", "input");
+                          let input = this.getListItem(targetRowId).querySelector(".textbox-addressingWidget");
                           if (targetRowId != curRowId) {
                               cPos = input.textLength;
                           }
@@ -1272,9 +1104,7 @@
           // we should be able to show. the start- and enddate
           // is the time the event is scheduled for.
           this.mRange = Number(this.getAttribute("range"));
-          this.mSelectionbar =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "selection-bar");
+          this.mSelectionbar = document.getAnonymousElementByAttribute(this, "anonid", "selection-bar");
       ]]></constructor>
 
       <property name="baseDate">
