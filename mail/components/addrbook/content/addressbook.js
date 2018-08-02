@@ -222,10 +222,7 @@ function delayedOnLoadAddressBook()
   toolbox.toolbarset = toolbarset;
 
   // Ensure we don't load xul error pages into the main window
-  window.QueryInterface(Ci.nsIInterfaceRequestor)
-        .getInterface(Ci.nsIWebNavigation)
-        .QueryInterface(Ci.nsIDocShell)
-        .useErrorPages = false;
+  window.docShell.useErrorPages = false;
 
   MailServices.mailSession.AddMsgWindow(msgWindow);
 

@@ -5604,9 +5604,7 @@ nsAttachmentOpener.prototype =
     if (iid.equals(Ci.nsIDOMWindow)) {
       return window;
     } else if (iid.equals(Ci.nsIDocShell)) {
-      return window.QueryInterface(Ci.nsIInterfaceRequestor)
-                   .getInterface(Ci.nsIWebNavigation)
-                   .QueryInterface(Ci.nsIDocShell);
+      return window.docShell;
     } else {
       return this.QueryInterface(iid);
     }
