@@ -110,3 +110,4 @@ macosx64-nightly/opt:
         - linux64-libdmg
         - linux64-llvm-dsymutil
         - linux64-rust-macos
+        - linux64-node
