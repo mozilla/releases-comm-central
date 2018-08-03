@@ -504,8 +504,7 @@ var mailTabType = {
     aTab.folderDisplay = new FolderDisplayWidget(aTab, aTab.messageDisplay);
     aTab.folderDisplay.msgWindow = msgWindow;
     aTab.folderDisplay.tree = document.getElementById("threadTree");
-    aTab.folderDisplay.treeBox = aTab.folderDisplay.tree.boxObject.QueryInterface(
-                                   Ci.nsITreeBoxObject);
+    aTab.folderDisplay.treeBox = aTab.folderDisplay.tree.boxObject;
     aTab.folderDisplay.folderPaneVisible = aFolderPaneVisible;
 
     if (aIsFirstTab) {

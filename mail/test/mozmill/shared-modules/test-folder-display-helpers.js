@@ -2220,7 +2220,7 @@ function assert_visible(aViewIndexOrMessage) {
     viewIndex = _normalize_view_index(aViewIndexOrMessage);
   else
     viewIndex = mc.dbView.findIndexOfMsgHdr(aViewIndexOrMessage, false);
-  let treeBox = mc.threadTree.boxObject.QueryInterface(Ci.nsITreeBoxObject);
+  let treeBox = mc.threadTree.boxObject;
   if (viewIndex < treeBox.getFirstVisibleRow() ||
       viewIndex > treeBox.getLastVisibleRow())
     throw new Error("View index " + viewIndex + " is not visible! (" +
