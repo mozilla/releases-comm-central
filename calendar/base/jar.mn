@@ -231,7 +231,6 @@ calendar.jar:
     ../skin/osx/calendar/widgets/calendar-widgets.css                   (themes/osx/widgets/calendar-widgets.css)
     ../skin/osx/calendar/checkbox-images-graphite.png                   (themes/osx/images/checkbox-images-graphite.png)
     ../skin/osx/calendar/locked-selected-mac.svg                        (themes/osx/images/locked-selected-mac.svg)
-    ../skin/osx/calendar/sidebar-item.png                               (themes/osx/images/sidebar-item.png)
     ../skin/osx/calendar/warn-selected-mac.svg                          (themes/osx/images/warn-selected-mac.svg)
 
 # Windows theme files
