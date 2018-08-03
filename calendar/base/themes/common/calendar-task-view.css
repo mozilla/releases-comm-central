@@ -40,6 +40,13 @@
     border: none;
 }
 
+.item-date-row > .selectable-label {
+    margin-top: 1px !important;
+    margin-bottom: 2px !important;
+    margin-inline-start: 6px !important;
+    margin-inline-end: 5px !important;
+}
+
 #calendar-task-details-grid > rows > .item-date-row > .headline {
     font-weight: normal;
 }
