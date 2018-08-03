@@ -432,8 +432,21 @@ calMailButtonDNDObserver.prototype = {
     onDropItems: function(aItems) {
         if (aItems && aItems.length > 0) {
             let item = aItems[0];
-            let recipients = cal.email.createRecipientList(item.getAttendees({}));
             let identity = item.calendar.getProperty("imip.identity");
+            let parties = item.getAttendees({});
+            if (item.organizer) {
+                parties.push(item.organizer);
+            }
+            if (identity) {
+                // if no identity is defined, the composer will fall back to
+                // whatever seems suitable - in this case we don't try to remove
+                // the sender from the recipient list
+                identity = identity.QueryInterface(Ci.nsIMsgIdentity);
+                parties = parties.filter(aParty => {
+                    return identity.email != cal.email.getAttendeeEmail(aParty, false);
+                });
+            }
+            let recipients = cal.email.createRecipientList(parties);
             cal.email.sendTo(recipients, item.title, item.getProperty("DESCRIPTION"), identity);
         }
     },
