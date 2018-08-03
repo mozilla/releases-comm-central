@@ -41,11 +41,13 @@ function canPaste() {
 /**
  * Copy the ics data of the current view's selected events to the clipboard and
  * deletes the events on success
+ *
+ * @param aCalendarItemArray    (optional) an array of items to cut. If not
+ *                                passed, the current view's selected items will
+ *                                be used.
  */
-function cutToClipboard() {
-    if (copyToClipboard(null, true)) {
-        deleteSelectedItems();
-    }
+function cutToClipboard(aCalendarItemArray=null) {
+    copyToClipboard(aCalendarItemArray, true);
 }
 
 /**
@@ -56,13 +58,23 @@ function cutToClipboard() {
  *                                passed, the current view's selected items will
  *                                be used.
  * @param aCutMode              (optional) set to true, if this is a cut operation
- * @return                      A boolean indicating if the operation succeeded.
  */
 function copyToClipboard(aCalendarItemArray=null, aCutMode=false) {
     let calendarItemArray = aCalendarItemArray || getSelectedItems();
     if (!calendarItemArray.length) {
-        cal.LOG("[calendar-clipboard] No items to copy.");
-        return false;
+        cal.LOG("[calendar-clipboard] No items selected.");
+        return;
+    }
+    if (aCutMode) {
+        let items = calendarItemArray.filter(aItem =>
+            cal.acl.userCanModifyItem(aItem) ||
+            (aItem.calendar && cal.acl.userCanDeleteItemsFromCalendar(aItem.calendar))
+        );
+        if (items.length < calendarItemArray.length) {
+            cal.LOG("[calendar-clipboard] No priviledge to delete some or all selected items.");
+            return;
+        }
+        calendarItemArray = items;
     }
     let [targetItems, , response] = promptOccurrenceModification(
         calendarItemArray,
@@ -71,13 +83,12 @@ function copyToClipboard(aCalendarItemArray=null, aCutMode=false) {
     );
     if (!response) {
         // The user canceled the dialog, bail out
-        return false;
+        return;
     }
-    calendarItemArray = targetItems;
 
     let icsSerializer = Cc["@mozilla.org/calendar/ics-serializer;1"]
                         .createInstance(Ci.calIIcsSerializer);
-    icsSerializer.addItems(calendarItemArray, calendarItemArray.length);
+    icsSerializer.addItems(targetItems, targetItems.length);
     let icsString = icsSerializer.serializeToString();
 
     let clipboard = Services.clipboard;
@@ -106,10 +117,15 @@ function copyToClipboard(aCalendarItemArray=null, aCutMode=false) {
                               icsWrapper.data.length * 2);
 
         clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
-
-        return true;
+        if (aCutMode) {
+            // check for MODIFICATION_PARENT
+            let useParent = (response == 3);
+            calendarViewController.deleteOccurrences(targetItems.length,
+                                                     targetItems,
+                                                     useParent,
+                                                     true);
+        }
     }
-    return false;
 }
 
 /**
@@ -232,7 +248,7 @@ function pasteFromClipboard() {
 
                     if (validPasteText) {
                         pasteText = cal.l10n.getCalString(pasteText);
-                        let note = cal.l10n.getCalString("pasteNotifyAbout", pasteText);
+                        let note = cal.l10n.getCalString("pasteNotifyAbout", [pasteText]);
                         args.promptNotify = note;
 
                         args.labelExtra1 = cal.l10n.getCalString("pasteDontNotifyLabel");
@@ -274,7 +290,7 @@ function pasteFromClipboard() {
 
                 let extResp = { responseMode: Ci.calIItipItem.NONE };
                 if (item.getAttendees({}).length > 0) {
-                    Ci.calIItipItem.USERextResp.responseMode = notify;
+                    extResp.responseMode = notify;
                 }
 
                 doTransaction("add", newItem, destCal, null, null, extResp);
