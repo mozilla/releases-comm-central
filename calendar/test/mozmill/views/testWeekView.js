@@ -127,11 +127,11 @@ function testWeekView() {
         // fill in title, description and calendar
         event.type(eventlookup(`
             ${eventDialog}/id("event-grid-title-row")/id("item-title")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), TITLE1);
         event.type(eventlookup(`
             ${eventDialog}/id("event-grid-description-row")/id("item-description")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), DESC);
         event.select(eventid("item-calendar"), null, CALENDARNAME);
 
@@ -145,7 +145,7 @@ function testWeekView() {
         // change title and save changes
         let titleTextBox = eventlookup(`
             ${eventDialog}/id("event-grid-title-row")/id("item-title")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `);
         event.waitForElement(titleTextBox);
         event.type(titleTextBox, TITLE2);

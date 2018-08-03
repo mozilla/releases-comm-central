@@ -123,7 +123,7 @@ function testEventDialog() {
             id("event-grid-startdate-picker-box")/id("event-starttime")/
             anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/
             anon({"class":"timepicker-box-class"})/id("timepicker-text")/
-            anon({"class":"menulist-editable-box textbox-input-box"})/
+            anon({"class":"menulist-editable-box moz-input-box"})/
             anon({"anonid":"input"})
         `);
         event.waitForElement(startTimeInput);
@@ -139,17 +139,17 @@ function testEventDialog() {
         // fill in name, location, description
         event.type(eventlookup(`
             ${eventDialog}/id("event-grid-title-row")/id("item-title")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), eventTitle);
 
         event.type(eventlookup(`
             ${eventDialog}/id("event-grid-location-row")/id("item-location")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), eventLocation);
 
         event.type(eventlookup(`
             ${eventDialog}/id("event-grid-description-row")/
-            id("item-description")/anon({"class":"textbox-input-box"})/
+            id("item-description")/anon({"anonid":"moz-input-box"})/
             anon({"anonid":"input"})
         `), eventDescription);
 
@@ -290,7 +290,7 @@ function handleAttendees(attendees) {
     let input = attendeeslookup(`
         /id("calendar-event-dialog-attendees-v2")/[6]/[0]/id("attendees-list")/
         anon({"anonid":"listbox"})/[1]/[1]/anon({"anonid":"input"})/
-        {"class":"textbox-input-box"}/anon({"anonid":"input"})
+        {"anonid":"moz-input-box"}/anon({"anonid":"input"})
     `);
     attendees.waitForElement(input);
     attendees.type(input, eventAttendee);

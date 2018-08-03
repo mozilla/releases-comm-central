@@ -72,11 +72,11 @@ function testTaskView() {
     // add task
     controller.type(lookup(`
         ${taskView}/id("task-addition-box")/id("view-task-edit-field")/
-        anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+        anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
     `), TITLE);
     controller.keypress(lookup(`
         ${taskView}/id("task-addition-box")/id("view-task-edit-field")/
-        anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+        anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
     `), "VK_RETURN", {});
 
     // verify added
@@ -106,7 +106,7 @@ function testTaskView() {
         // add description, mark needs action and add percent complete
         task.type(tasklookup(`
             ${taskDialog}/id("event-grid-description-row")/id("item-description")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), DESCRIPTION);
         task.click(taskid("todo-status-needsaction-menuitem"));
 
@@ -134,7 +134,7 @@ function testTaskView() {
     controller.assertValue(lookup(`
         ${taskView}/{"flex":"1"}/id("calendar-task-details-container")/
         id("calendar-task-details-description")/
-        anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+        anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
     `), DESCRIPTION);
     let status = utils.getProperty("chrome://calendar/locale/calendar.properties", "taskDetailsStatusNeedsAction");
     controller.assertValue(eid("calendar-task-details-status"), status);

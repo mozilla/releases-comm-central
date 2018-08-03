@@ -48,7 +48,7 @@ function testTodayPane() {
     let eventName = `
         id("calendar-event-dialog-inner")/id("event-grid")/
         id("event-grid-rows")/id("event-grid-title-row")/id("item-title")/
-        anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+        anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
     `;
 
     // open calendar view

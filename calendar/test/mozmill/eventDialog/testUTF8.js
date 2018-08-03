@@ -45,17 +45,17 @@ function testUTF8() {
         // fill in name, location, description
         let titleTextBox = eventlookup(`
             ${eventDialog}/id("event-grid-title-row")/id("item-title")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `);
         event.waitForElement(titleTextBox);
         event.type(titleTextBox, UTF8STRING);
         event.type(eventlookup(`
             ${eventDialog}/id("event-grid-location-row")/id("item-location")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), UTF8STRING);
         event.type(eventlookup(`
             ${eventDialog}/id("event-grid-description-row")/id("item-description")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), UTF8STRING);
 
         // select category
@@ -74,17 +74,17 @@ function testUTF8() {
         // check values
         titleTextBox = eventlookup(`
             ${eventDialog}/id("event-grid-title-row")/id("item-title")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `);
         event.waitForElement(titleTextBox);
         event.assertValue(titleTextBox, UTF8STRING);
         event.assertValue(eventlookup(`
             ${eventDialog}/id("event-grid-location-row")/id("item-location")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), UTF8STRING);
         event.assertValue(eventlookup(`
             ${eventDialog}/id("event-grid-description-row")/id("item-description")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), UTF8STRING);
         event.assertValue(eventid("item-categories"), UTF8STRING);
 

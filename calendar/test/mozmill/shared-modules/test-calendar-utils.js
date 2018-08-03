@@ -528,7 +528,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
         wizard.type(wizardlookup(`
             /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/
             {"align":"center"}/id("calendar-uri")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), data.network.location);
 
         // choose offline support
@@ -766,7 +766,7 @@ function setData(dialog, iframe, data) {
     if (data.description != undefined) {
         let descField = iframeLookup(`
             ${innerFrame}/id("event-grid-description-row")/id("item-description")/
-            anon({"class":"textbox-input-box"})/anon({"anonid":"input"})
+            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `);
         descField.getNode().value = data.description;
     }

@@ -37,7 +37,7 @@ var test_foo = function(){
   controller.sleep(1000);
 
   // Type in searchbox and hit return
-  e = new elementslib.Lookup(chrome, '/id("main-window")/id("navigator-toolbox")/id("nav-bar")/id("search-container")/id("searchbar")/anon({"anonid":"searchbar-textbox"})/anon({"anonid":"textbox-input-box"})/anon({"anonid":"input"})');
+  e = new elementslib.Lookup(chrome, '/id("main-window")/id("navigator-toolbox")/id("nav-bar")/id("search-container")/id("searchbar")/anon({"anonid":"searchbar-textbox"})/anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})');
   controller.type(e, "mozilla");
   controller.keypress(e, 13);
 }
