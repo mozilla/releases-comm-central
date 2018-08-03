@@ -37,6 +37,9 @@ class nsLDAPOperation : public nsILDAPOperation
      */
     void Clear();
 
+    // Stores the request number for later check of the operation is still valid
+    uint32_t mRequestNum;
+
   private:
     virtual ~nsLDAPOperation();
 

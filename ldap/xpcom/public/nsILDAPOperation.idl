@@ -52,6 +52,10 @@ interface nsILDAPOperation : nsISupports
      * private parameter (anything caller desires)
      */
     attribute nsISupports closure;
+    /**
+     * number of the request for compare that the request is still valid.
+     */
+    attribute unsigned long requestNum;
 
     /**
      * No time and/or size limit specified

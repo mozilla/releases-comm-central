@@ -23,6 +23,8 @@
 
 using namespace mozilla;
 
+extern mozilla::LazyLogModule gLDAPLogModule;  // defined in nsLDAPService.cpp
+
 // nsAbLDAPListenerBase inherits nsILDAPMessageListener
 class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase
 {
@@ -67,7 +69,6 @@ protected:
 
   bool mFinished;
   bool mCanceled;
-  bool mWaitingForPrevQueryToFinish;
 
   nsCOMPtr<nsIMutableArray> mServerSearchControls;
   nsCOMPtr<nsIMutableArray> mClientSearchControls;
@@ -95,7 +96,6 @@ nsAbQueryLDAPMessageListener::nsAbQueryLDAPMessageListener(
   mResultLimit(resultLimit),
   mFinished(false),
   mCanceled(false),
-  mWaitingForPrevQueryToFinish(false),
   mServerSearchControls(serverSearchControls),
   mClientSearchControls(clientSearchControls)
 {
@@ -117,9 +117,6 @@ nsresult nsAbQueryLDAPMessageListener::Cancel ()
         return NS_OK;
 
     mCanceled = true;
-    if (!mFinished)
-      mWaitingForPrevQueryToFinish = true;
-
     return NS_OK;
 }
 
@@ -130,6 +127,8 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMessa
 
   int32_t messageType;
   rv = aMessage->GetType(&messageType);
+  uint32_t requestNum;
+  mOperation->GetRequestNum(&requestNum);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool cancelOperation = false;
@@ -137,6 +136,14 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMessa
   // Enter lock
   {
     MutexAutoLock lock (mLock);
+
+    if (requestNum != sCurrentRequestNum) {
+      MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
+           ("nsAbQueryLDAPMessageListener::OnLDAPMessage: Ignoring message with "
+            "request num %" PRIx32 ", current request num is %" PRIx32 ".",
+            requestNum, sCurrentRequestNum));
+      return NS_OK;
+    }
 
     if (mFinished)
       return NS_OK;
@@ -167,11 +174,10 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMessa
         rv = OnLDAPMessageSearchResult(aMessage);
       break;
     case nsILDAPMessage::RES_SEARCH_ENTRY:
-      if (!mFinished && !mWaitingForPrevQueryToFinish)
+      if (!mFinished)
         rv = OnLDAPMessageSearchEntry(aMessage);
       break;
     case nsILDAPMessage::RES_SEARCH_RESULT:
-      mWaitingForPrevQueryToFinish = false;
       rv = OnLDAPMessageSearchResult(aMessage);
       NS_ENSURE_SUCCESS(rv, rv);
       break;
@@ -207,6 +213,8 @@ nsresult nsAbQueryLDAPMessageListener::DoTask()
 
   rv = mOperation->Init(mConnection, this, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  mOperation->SetRequestNum(++sCurrentRequestNum);
 
   nsAutoCString dn;
   rv = mSearchUrl->GetDn(dn);

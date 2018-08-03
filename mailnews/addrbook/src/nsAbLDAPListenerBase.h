@@ -47,6 +47,7 @@ protected:
   int32_t mTimeOut;
   bool mBound;
   bool mInitialized;
+  static uint32_t sCurrentRequestNum;
 
   mozilla::Mutex mLock;
 };

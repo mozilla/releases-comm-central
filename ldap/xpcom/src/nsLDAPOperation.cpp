@@ -400,6 +400,19 @@ convertControlArray(nsIArray *aXpcomArray, LDAPControl ***aArray)
     return NS_OK;
 }
 
+  /* attribute unsigned long requestNum; */
+NS_IMETHODIMP nsLDAPOperation::GetRequestNum(uint32_t *aRequestNum)
+{
+    *aRequestNum = mRequestNum;
+    return NS_OK;
+}
+
+NS_IMETHODIMP nsLDAPOperation::SetRequestNum(uint32_t aRequestNum)
+{
+    mRequestNum = aRequestNum;
+    return NS_OK;
+}
+
 NS_IMETHODIMP
 nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
                            const nsACString& aFilter,

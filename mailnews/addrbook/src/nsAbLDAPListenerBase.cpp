@@ -20,6 +20,8 @@
 
 using namespace mozilla;
 
+uint32_t nsAbLDAPListenerBase::sCurrentRequestNum = 0;
+
 nsAbLDAPListenerBase::nsAbLDAPListenerBase(nsILDAPURL* url,
                                            nsILDAPConnection* connection,
                                            const nsACString &login,
@@ -249,6 +251,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     InitFailed();
     return rv;
   }
+  mOperation->SetRequestNum(++sCurrentRequestNum);
 
   // Try non-password mechanisms first
   if (mSaslMechanism.EqualsLiteral("GSSAPI"))
