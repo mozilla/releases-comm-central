@@ -717,6 +717,11 @@ var calendarController2 = {
     },
 
     doCommand: function(aCommand) {
+        if (!this.isCommandEnabled(aCommand)) {
+            // doCommand is triggered for cmd_cut even if the command is disabled
+            // so we bail out here
+            return;
+        }
         switch (aCommand) {
             case "cmd_cut":
                 cutToClipboard();
