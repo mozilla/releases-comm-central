@@ -581,6 +581,9 @@
 ; svg
 @RESPATH@/res/svg.css
 
+@RESPATH@/components/mozDOMLocalization.js
+@RESPATH@/components/mozDOMLocalization.manifest
+
 ; [Extensions]
 @RESPATH@/components/extensions-toolkit.manifest
 @RESPATH@/components/extension-process-script.js
