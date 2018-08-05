@@ -306,11 +306,11 @@ class Overlays {
    * @param {Element} node          The node to insert.
    */
   _insertElement(parent, node) {
-    // If a radiogroup is added to the document DOM with no value attribute,
-    // the first radio gets selected, the value persisted, and then we've lost the old value.
-    for (let radiogroup of node.getElementsByTagName("radiogroup")) {
-      if (radiogroup.id && this.persistedIDs.has(radiogroup.id)) {
-        radiogroup.setAttribute("value", Services.xulStore.getValue(this.location, radiogroup.id, "value"));
+    // These elements need their values set before they are added to
+    // the document, or bad things happen.
+    for (let element of node.querySelectorAll("menulist, radiogroup")) {
+      if (element.id && this.persistedIDs.has(element.id)) {
+        element.setAttribute("value", Services.xulStore.getValue(this.location, element.id, "value"));
       }
     }
 

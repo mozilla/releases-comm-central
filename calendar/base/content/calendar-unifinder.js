@@ -230,14 +230,15 @@ function prepareCalendarUnifinder() {
                 }
             }
         }
+
+        unifinderTreeView.ready = true;
+
         // Display something upon first load. onLoad doesn't work properly for
         // observers
         if (!isUnifinderHidden()) {
             gUnifinderNeedsRefresh = false;
             refreshEventTree();
         }
-
-        unifinderTreeView.ready = true;
     }
 }
 
