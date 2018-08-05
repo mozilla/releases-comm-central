@@ -528,7 +528,11 @@ var gCloudFileTab = {
       this._list.selectedIndex = 0;
 
     window.addEventListener("unload", this, {capture: false, once: true});
-    CommandUpdate_CloudFile();
+
+    // We need to defer the command updating a bit otherwise it will happen too early.
+    window.addEventListener("load", () => {
+      setTimeout(CommandUpdate_CloudFile, 0);
+    }, {capture: false, once: true});
 
     this.updateThreshold();
 
