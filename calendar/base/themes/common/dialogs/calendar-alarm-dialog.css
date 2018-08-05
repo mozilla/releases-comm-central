@@ -68,38 +68,19 @@ calendar-alarm-widget[selected="true"] .alarm-calendar-image {
     min-height: 15px;
 }
 
+.snooze-popup-button {
+    min-width: 0;
+    -moz-appearance: toolbarbutton;
+    -moz-context-properties: fill;
+    fill: currentColor;
+}
+
 .snooze-popup-ok-button {
-    -moz-image-region: rect(0px, 14px, 14px, 0px);
-}
-
-.snooze-popup-ok-button:hover {
-    -moz-image-region: rect(14px, 14px, 28px, 0px);
-}
-
-.snooze-popup-ok-button:active {
-    -moz-image-region: rect(28px, 14px, 42px, 0px);
-}
-
-.snooze-popup-ok-button[disabled="true"] {
-    -moz-image-region: rect(42px, 14px, 56px, 0px);
+    list-style-image: url(chrome://calendar-common/skin/icons/complete.svg);
 }
 
 .snooze-popup-cancel-button {
-    -moz-image-region: rect(0px, 28px, 14px, 14px);
-}
-
-.snooze-popup-cancel-button:hover {
-    -moz-image-region: rect(14px, 28px, 28px, 14px);
-}
-
-.snooze-popup-cancel-button:active {
-    -moz-image-region: rect(28px, 28px, 42px, 14px);
-}
-
-.snooze-popup-button {
-    list-style-image: url(chrome://calendar-common/skin/ok-cancel.png);
-    min-width: 0;
-    -moz-appearance: toolbarbutton;
+    list-style-image: url(chrome://calendar-common/skin/icons/decline.svg);
 }
 
 .snooze-popup-button > .button-box > .button-icon {

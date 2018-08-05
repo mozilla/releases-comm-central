@@ -161,7 +161,6 @@ calendar.jar:
     ../skin/common/event-grippy-right.png             (themes/common/images/event-grippy-right.png)
     ../skin/common/event-grippy-top.png               (themes/common/images/event-grippy-top.png)
     ../skin/common/event-start.svg                    (themes/common/images/event-start.svg)
-    ../skin/common/ok-cancel.png                      (themes/common/images/ok-cancel.png)
     ../skin/common/task-images.png                    (themes/common/images/task-images.png)
     ../skin/common/timezone_map.png                   (themes/common/images/timezone_map.png)
     ../skin/common/timezones.png                      (themes/common/images/timezones.png)
