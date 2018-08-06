@@ -37,6 +37,7 @@ var gMsgHdrs = new Array();
 var gExpectedInboxSize;
 var gExpectedFolder2Size;
 var gExpectedFolder3Size;
+var gMsgLinebreak = "";
 
 // Transfer message keys between function calls.
 var gMsgKeys = [];
@@ -114,11 +115,15 @@ function calculateFolderSize(folder)
   let totalSize = 0;
   if (enumerator)
   {
+    if (gMsgLinebreak == "") {
+      // Figure out what the linebreak sequence is on the platform running the tests.
+      gMsgLinebreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
+    }
     while (enumerator.hasMoreElements())
     {
       var header = enumerator.getNext();
       if (header instanceof Ci.nsIMsgDBHdr)
-        totalSize += header.messageSize;
+        totalSize += header.messageSize + gMsgLinebreak.length;
     }
   }
   return totalSize;

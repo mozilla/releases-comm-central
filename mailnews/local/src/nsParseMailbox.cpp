@@ -591,6 +591,7 @@ NS_IMETHODIMP nsParseMailMessageState::Clear()
   m_mdn_original_recipient.length = 0;
   m_bccList.length = 0;
   m_body_lines = 0;
+  m_lastLineBlank = 0;
   m_newMsgHdr = nullptr;
   m_envelope_pos = 0;
   m_new_key = nsMsgKey_None;
@@ -687,6 +688,9 @@ nsresult nsParseMailMessageState::ParseFolderLine(const char *line, uint32_t lin
   else if ( m_state == nsIMsgParseMailMsgState::ParseBodyState)
   {
     m_body_lines++;
+    // See comment in msgCore.h for why we use `IS_MSG_LINEBREAK` rather than
+    // just comparing `line` to `MSG_LINEBREAK`.
+    m_lastLineBlank = IS_MSG_LINEBREAK(line);
   }
 
   m_position += lineLength;
@@ -817,7 +821,9 @@ NS_IMETHODIMP nsParseMailMessageState::FinishHeader()
   if (m_newMsgHdr)
   {
     m_newMsgHdr->SetMessageOffset(m_envelope_pos);
-    m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos);
+    if (m_lastLineBlank)
+      m_body_lines--;
+    m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos - m_lastLineBlank);
     m_newMsgHdr->SetLineCount(m_body_lines);
   }
   return NS_OK;
@@ -1873,7 +1879,9 @@ NS_IMETHODIMP nsParseNewMailState::FinishHeader()
 {
   if (m_newMsgHdr)
   {
-    m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos);
+    if (m_lastLineBlank)
+      m_body_lines--;
+    m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos - m_lastLineBlank);
     m_newMsgHdr->SetLineCount(m_body_lines);
   }
   return NS_OK;
