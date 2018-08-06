@@ -759,6 +759,7 @@ nsFolderCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
   }
   else
   {
+    // XXX TODO: Error checking and handling missing here.
     EndCopy(nullptr, status);
     if (m_curIndex >= m_size)
     {
@@ -1239,6 +1240,8 @@ nsFolderCompactState::EndMessage(nsMsgKey key)
   return NS_OK;
 }
 
+// XXX TODO: This function is sadly lacking all status checking, it always
+// returns NS_OK and moves onto the next message.
 NS_IMETHODIMP
 nsFolderCompactState::EndCopy(nsISupports *url, nsresult aStatus)
 {
@@ -1250,6 +1253,10 @@ nsFolderCompactState::EndCopy(nsISupports *url, nsresult aStatus)
     NS_ASSERTION(false, "m_curIndex out of bounds");
     return NS_OK;
   }
+
+  /* Messages need to have trailing blank lines */
+  uint32_t bytesWritten;
+  (void) m_fileStream->Write(MSG_LINEBREAK, MSG_LINEBREAK_LEN, &bytesWritten);
 
   /**
    * Done with the current message; copying the existing message header
@@ -1280,7 +1287,7 @@ nsFolderCompactState::EndCopy(nsISupports *url, nsresult aStatus)
       msgSize += m_addedHeaderSize;
       newMsgHdr->SetMessageSize(msgSize);
     }
-    m_totalMsgSize += msgSize;
+    m_totalMsgSize += msgSize + MSG_LINEBREAK_LEN;
   }
 
 //  m_db->Commit(nsMsgDBCommitType::kLargeCommit);  // no sense committing until the end

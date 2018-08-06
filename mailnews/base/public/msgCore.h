@@ -182,6 +182,19 @@ NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
 #define MSG_LINEBREAK_LEN 1
 #endif
 
+/*
+ * On Windows, we use \r\n as the line terminator in mbox files. On
+ * other platforms, we use \n. However, we need to be able to
+ * recognize line terminators produced on any platform, because we
+ * allow profiles (including the mbox files they contain) to be shared
+ * between platforms.
+ *
+ * Returns 0 (i.e., false) if the line is not blank, or otherwise the
+ * length of the line terminator, i.e., 1 for \n or 2 for \r\n.
+ */
+#define IS_MSG_LINEBREAK(line) \
+  (line[0] == '\012' ? 1 : ((line[0] == '\015' && line[1] == '\012') ? 2 : 0))
+
 #define NS_MSG_BASE
 #define NS_MSG_BASE_STATIC_MEMBER_(type) type
 

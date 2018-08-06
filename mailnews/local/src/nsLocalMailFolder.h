@@ -239,6 +239,10 @@ protected:
   void CopyHdrPropertiesWithSkipList(nsIMsgDBHdr *destHdr,
                                      nsIMsgDBHdr *srcHdr,
                                      const nsCString &skipList);
+  nsresult FinishNewLocalMessage(nsIOutputStream *outputStream,
+                                 nsIMsgDBHdr *newHdr,
+                                 nsIMsgPluggableStore *msgStore,
+                                 nsParseMailMessageState *parseMsgState);
 
 protected:
   nsLocalMailCopyState *mCopyState; //We only allow one of these at a time
