@@ -37,7 +37,6 @@ var gMsgHdrs = new Array();
 var gExpectedInboxSize;
 var gExpectedFolder2Size;
 var gExpectedFolder3Size;
-var gMsgLinebreak = "";
 
 // Transfer message keys between function calls.
 var gMsgKeys = [];
@@ -115,27 +114,11 @@ function calculateFolderSize(folder)
   let totalSize = 0;
   if (enumerator)
   {
-    if (gMsgLinebreak == "") {
-      // Figure out what the linebreak sequence is on the platform running the tests.
-      var sis = Cc["@mozilla.org/network/file-input-stream;1"]
-                  .createInstance(Ci.nsIFileInputStream)
-                  .QueryInterface(Ci.nsISeekableStream);
-      sis.init(folder.filePath, -1, -1, 0);
-      var inStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                       .createInstance(Ci.nsIScriptableInputStream);
-      inStream.init(sis);
-      sis.seek(sis, Ci.nsISeekableStream.NS_SEEK_END, -2);
-      var ending = inStream.read(2);
-      if (ending[0] == '\r' && ending[1] == '\n')
-        gMsgLinebreak = '\r\n';
-      else
-        gMsgLinebreak = ending[1];
-    }
     while (enumerator.hasMoreElements())
     {
       var header = enumerator.getNext();
       if (header instanceof Ci.nsIMsgDBHdr)
-        totalSize += header.messageSize + gMsgLinebreak.length;
+        totalSize += header.messageSize;
     }
   }
   return totalSize;
