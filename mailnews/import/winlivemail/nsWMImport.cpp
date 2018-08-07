@@ -57,7 +57,6 @@ public:
 
 private:
   virtual ~ImportWMMailImpl();
-  uint32_t m_bytesDone;
 };
 
 nsWMImport::nsWMImport()

@@ -1428,7 +1428,7 @@ void CMapiApi::GetPropTagName(ULONG tag, nsCString& s)
   PR_snprintf(numStr, 256, "0x%lx, %ld", tag, tag);
   s = numStr;
   switch(tag) {
-#include "mapitagstrs.cpp"
+#include "MapiTagStrs.cpp"
   }
   s += ", data: ";
   switch(PROP_TYPE(tag)) {
@@ -1728,7 +1728,7 @@ CMsgStore::~CMsgStore()
 
   if (m_lpMdb) {
     ULONG flags = LOGOFF_NO_WAIT;
-    HRESULT hr = m_lpMdb->StoreLogoff(&flags);
+    m_lpMdb->StoreLogoff(&flags);
     m_lpMdb->Release();
     m_lpMdb = NULL;
   }
@@ -1736,8 +1736,6 @@ CMsgStore::~CMsgStore()
 
 void CMsgStore::SetEntryID(ULONG cbEid, LPENTRYID lpEid)
 {
-  HRESULT    hr;
-
   if (m_lpEid)
     delete m_lpEid;
 
@@ -1750,7 +1748,7 @@ void CMsgStore::SetEntryID(ULONG cbEid, LPENTRYID lpEid)
 
   if (m_lpMdb) {
     ULONG flags = LOGOFF_NO_WAIT;
-    hr = m_lpMdb->StoreLogoff(&flags);
+    m_lpMdb->StoreLogoff(&flags);
     m_lpMdb->Release();
     m_lpMdb = NULL;
   }

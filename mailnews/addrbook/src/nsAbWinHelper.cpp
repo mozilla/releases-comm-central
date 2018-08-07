@@ -72,12 +72,6 @@ void nsMapiEntry::Assign(ULONG aByteCount, LPENTRYID aEntryId)
     mByteCount = aByteCount ;
 }
 
-static char UnsignedToChar(unsigned char aUnsigned)
-{
-    if (aUnsigned < 0xA) { return '0' + aUnsigned ; }
-    return 'A' + aUnsigned - 0xA ;
-}
-
 static char kBase64Encoding[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-." ;
 static const int kARank = 0 ;
 static const int kaRank = 26 ;
@@ -111,12 +105,6 @@ static void UnsignedToBase64(unsigned char *& aUnsigned,
             aString.Append(kBase64Encoding[remain0]) ;
         }
     }
-}
-
-static unsigned char CharToUnsigned(char aChar)
-{
-    if (aChar >= '0' && aChar <= '9') { return static_cast<unsigned char>(aChar) - '0' ; }
-    return static_cast<unsigned char>(aChar) - 'A' + 0xA ;
 }
 
 // This function must return the rank in kBase64Encoding of the
@@ -961,7 +949,6 @@ const int kOutlookStubLength = 3 ;
 const char *kOutlookExpStub = "oe/" ;
 const int kOutlookExpStubLength = 3 ;
 const char *kOutlookCardScheme = "moz-aboutlookcard://" ;
-const int kOutlookCardSchemeLength = 16 ;
 
 nsAbWinType getAbWinType(const char *aScheme, const char *aUri, nsCString& aStub, nsCString& aEntry)
 {

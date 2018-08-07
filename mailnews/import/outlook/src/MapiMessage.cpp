@@ -838,7 +838,6 @@ bool CMapiMessage::GetTmpFile(/*out*/ nsIFile **aResult)
 
 bool CMapiMessage::CopyMsgAttachToFile(LPATTACH lpAttach, /*out*/ nsIFile **tmp_file)
 {
-  bool bResult = true;
   LPMESSAGE  lpMsg;
   HRESULT hr = lpAttach->OpenProperty(PR_ATTACH_DATA_OBJ, &IID_IMessage, 0, 0,
                                       reinterpret_cast<LPUNKNOWN *>(&lpMsg));

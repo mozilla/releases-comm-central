@@ -17,9 +17,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsSeamonkeyProfileMigrator)
 
 #ifdef XP_WIN32
 
-#include "nsOEProfileMigrator.h"
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsOEProfileMigrator)
-
 #include "nsOutlookProfileMigrator.h"
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsOutlookProfileMigrator)
 

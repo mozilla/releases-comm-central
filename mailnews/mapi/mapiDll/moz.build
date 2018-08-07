@@ -20,3 +20,6 @@ DEFINES['UNICODE'] = True
 DEFINES['_UNICODE'] = True
 
 DEFFILE = SRCDIR + '/Mapi32.def'
+
+if CONFIG['CC_TYPE'] == 'clang-cl':
+    AllowCompilerWarnings()  # workaround for bug 1090497 / bug 1481326

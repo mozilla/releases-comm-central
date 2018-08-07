@@ -12,7 +12,6 @@ SOURCES += [
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     SOURCES += [
-        'nsOEProfileMigrator.cpp',
         'nsOutlookProfileMigrator.cpp',
         'nsProfileMigratorBase.cpp',
     ]

@@ -53,3 +53,5 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 
 FINAL_LIBRARY = 'mork'
 
+if CONFIG['CC_TYPE'] == 'clang-cl':
+    AllowCompilerWarnings()  # workaround for bug 1090497 / bug 1481326

@@ -102,14 +102,6 @@ static SETTING gNewsSettings[] = {
   { MAKE_KEY_NAME1("nntp", SOP), "", VAL_MAIL_OPEN, APP_PATH_SUBSTITUTION },
 };
 
-static SETTING gFeedSettings[] = {
-   // Protocol Handler Class - for Vista and above
-  { MAKE_KEY_NAME1(CLS_FEEDURL, SOP), "", VAL_MAIL_OPEN, APP_PATH_SUBSTITUTION },
-
-  // Protocol Handlers
-  { MAKE_KEY_NAME1("feed", SOP), "", VAL_MAIL_OPEN, APP_PATH_SUBSTITUTION },
-};
-
 nsresult
 GetHelperPath(nsAutoString& aPath)
 {
@@ -210,7 +202,6 @@ nsWindowsShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool 
   // until it is fixed (bug 445823).
   if (aApps & nsIShellService::RSS)
     *aIsDefaultClient &= true;
-//    *aIsDefaultClient &= TestForDefault(gFeedSettings, sizeof(gFeedSettings)/sizeof(SETTING));
 
   return NS_OK;
 }

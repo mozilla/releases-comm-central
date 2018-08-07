@@ -5,6 +5,7 @@
 #include "nsMapiAddressBook.h"
 
 #include "mozilla/Logging.h"
+#include "mozilla/DebugOnly.h"
 
 static mozilla::LazyLogModule gMapiAddressBookLog("MAPIAddressBook");
 
@@ -101,7 +102,7 @@ void nsMapiAddressBook::FreeMapiLibrary(void)
 nsMapiAddressBook::nsMapiAddressBook(void)
 : nsAbWinHelper()
 {
-    BOOL result = Initialize() ;
+    mozilla::DebugOnly<BOOL> result = Initialize() ;
 
     NS_ASSERTION(result == TRUE, "Couldn't initialize Mapi Helper") ;
     MOZ_COUNT_CTOR(nsMapiAddressBook) ;

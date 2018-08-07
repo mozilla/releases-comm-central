@@ -175,7 +175,7 @@ NS_IMETHODIMP nsImapMailboxSpec::SetAllocatedPathName(const nsACString &aAllocat
 
 NS_IMETHODIMP nsImapMailboxSpec::GetUnicharPathName(nsAString &aUnicharPathName)
 {
-  aUnicharPathName = aUnicharPathName;
+  aUnicharPathName = mUnicharPathName;
   return NS_OK;
 }
 

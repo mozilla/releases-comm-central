@@ -16,7 +16,7 @@
 #include "nsIImportABDescriptor.h"
 #include "nsIMutableArray.h"
 #include "nsOutlookStringBundle.h"
-#include "nsABBaseCID.h"
+#include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
 #include "mdb.h"
 #include "ImportDebug.h"

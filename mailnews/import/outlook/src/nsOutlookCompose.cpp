@@ -40,7 +40,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgLocalFolderHdrs.h"
 
-static NS_DEFINE_CID(kMsgSendCID, NS_MSGSEND_CID);
 static NS_DEFINE_CID(kMsgCompFieldsCID, NS_MSGCOMPFIELDS_CID);
 
 #ifdef IMPORT_DEBUG

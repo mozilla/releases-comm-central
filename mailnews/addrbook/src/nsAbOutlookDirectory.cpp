@@ -264,7 +264,7 @@ static nsresult ExtractDirectoryEntry(nsIAbDirectory *aDirectory, nsCString& aEn
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString stub;
-  nsAbWinType objType = getAbWinType(kOutlookDirectoryScheme, uri.get(), stub, aEntry);
+  getAbWinType(kOutlookDirectoryScheme, uri.get(), stub, aEntry);
 
   return NS_OK;
 }

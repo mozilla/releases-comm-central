@@ -6,6 +6,7 @@
 #include <tchar.h>
 #include "nsWabAddressBook.h"
 #include "mozilla/Logging.h"
+#include "mozilla/DebugOnly.h"
 
 using namespace mozilla;
 
@@ -81,7 +82,7 @@ void nsWabAddressBook::FreeWabLibrary(void)
 nsWabAddressBook::nsWabAddressBook(void)
 : nsAbWinHelper()
 {
-    BOOL result = Initialize() ;
+    mozilla::DebugOnly<BOOL> result = Initialize() ;
 
     NS_ASSERTION(result == TRUE, "Couldn't initialize Wab Helper") ;
     MOZ_COUNT_CTOR(nsWabAddressBook) ;

@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -46,6 +46,7 @@
 #include "nsMsgUtils.h"
 #include "mozilla/LookAndFeel.h"
 #include "mozilla/Services.h"
+#include "mozilla/DebugOnly.h"
 #include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
 
@@ -257,7 +258,7 @@ nsMessengerWinIntegration::~nsMessengerWinIntegration()
   }
 
   // one last attempt, update the registry
-  nsresult rv = UpdateRegistryWithCurrent();
+  mozilla::DebugOnly<nsresult> rv = UpdateRegistryWithCurrent();
   NS_ASSERTION(NS_SUCCEEDED(rv), "failed to update registry on shutdown");
   DestroyBiffIcon();
 }
@@ -296,7 +297,7 @@ NOTIFYICONDATAW sBiffIconData = { (DWORD)NOTIFYICONDATAW_V2_SIZE,
                                   0,
                                   0,
                                   L"",
-                                  30000,
+                                  { 30000 },
                                   L"",
                                   NIIF_USER | NIIF_NOSOUND };
 // allow for the null terminator
@@ -590,7 +591,7 @@ nsresult nsMessengerWinIntegration::AlertClickedSimple()
   mSuppressBiffIcon = true;
   return NS_OK;
 }
-#endif MOZ_SUITE
+#endif
 
 NS_IMETHODIMP
 nsMessengerWinIntegration::Observe(nsISupports* aSubject, const char* aTopic, const char16_t* aData)
@@ -929,7 +930,7 @@ nsMessengerWinIntegration::OnUnreadCountUpdateTimer(nsITimer *timer, void *osInt
   nsMessengerWinIntegration *winIntegration = (nsMessengerWinIntegration*)osIntegration;
 
   winIntegration->mUnreadTimerActive = false;
-  nsresult rv = winIntegration->UpdateUnreadCount();
+  mozilla::DebugOnly<nsresult> rv = winIntegration->UpdateUnreadCount();
   NS_ASSERTION(NS_SUCCEEDED(rv), "updating unread count failed");
 }
 
@@ -1016,9 +1017,9 @@ nsMessengerWinIntegration::UpdateRegistryWithCurrent()
       CopyASCIItoUTF16(mEmail, pBuffer);
 
     // Write the info into the registry
-    HRESULT hr = SHSetUnreadMailCountW(pBuffer.get(),
-                                       mCurrentUnreadCount,
-                                       commandLinerForAppLaunch.get());
+    SHSetUnreadMailCountW(pBuffer.get(),
+                          mCurrentUnreadCount,
+                          commandLinerForAppLaunch.get());
   }
 
   // do this last

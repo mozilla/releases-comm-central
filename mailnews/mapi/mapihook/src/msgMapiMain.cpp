@@ -268,9 +268,7 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError (nsresult res)
 nsMAPISession::nsMAPISession(uint32_t aHwnd, const char16_t *aUserName,
                              const char16_t *aPassword,
                              bool aForceDownLoad, const char *aKey)
-: m_bIsForcedDownLoad(aForceDownLoad),
-  m_hAppHandle(aHwnd),
-  m_nShared(1),
+: m_nShared(1),
   m_pIdKey(aKey)
 {
   m_listContext = NULL;

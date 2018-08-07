@@ -21,3 +21,6 @@ OS_LIBS += [
 
 DEFINES['UNICODE'] = True
 DEFINES['_UNICODE'] = True
+
+if CONFIG['CC_TYPE'] == 'clang-cl':
+    AllowCompilerWarnings()  # workaround for bug 1090497 / bug 1481326

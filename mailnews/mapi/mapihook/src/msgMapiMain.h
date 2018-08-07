@@ -58,14 +58,10 @@ class nsMAPISession
   friend class nsMAPIConfiguration;
 
   private :
-    bool     m_bIsForcedDownLoad;
-    bool     m_bApp_or_Service;
-    uint32_t m_hAppHandle;
     uint32_t m_nShared;
     nsCString m_pIdKey;
     nsString m_pProfileName;
     nsString m_pPassword;
-    int32_t m_messageIndex;
     void   *m_listContext; // used by findNext
 
   public :
