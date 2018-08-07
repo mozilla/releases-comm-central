@@ -1112,6 +1112,8 @@
          let image = document.createElement("image");
          let label = document.createElement("label");
          label.setAttribute("value", name);
+         label.setAttribute("flex", "1");
+         label.setAttribute("crop", "end");
 
          var item = document.createElement("richlistitem");
          item.chatBuddy = aBuddy;
