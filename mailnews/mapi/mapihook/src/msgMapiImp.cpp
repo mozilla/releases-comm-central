@@ -574,7 +574,7 @@ lpnsMapiMessage MsgMapiListContext::GetMessage (nsMsgKey key, unsigned long flFl
     nsCString author;
     nsCOMPtr <nsIMsgDBHdr> msgHdr;
 
-    nsresult rv = m_db->GetMsgHdrForKey (key, getter_AddRefs(msgHdr));
+    m_db->GetMsgHdrForKey (key, getter_AddRefs(msgHdr));
     if (msgHdr)
     {
       msgHdr->GetSubject (getter_Copies(subject));
