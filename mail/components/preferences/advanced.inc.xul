@@ -79,10 +79,9 @@
                   type="bool"/>
 #ifdef MOZ_UPDATER
       <!-- Update tab -->
-      <preference id="app.update.enabled" name="app.update.enabled"
-type="bool"/>
-      <preference id="app.update.auto" name="app.update.auto"
-type="bool"/>
+      <preference id="app.update.auto"
+                  name="app.update.auto"
+                  type="bool"/>
       <preference id="app.update.disable_button.showUpdateHistory"
                   name="app.update.disable_button.showUpdateHistory"
                   type="bool"/>
@@ -417,7 +416,7 @@ type="bool"/>
                           accesskey="&update.checkForUpdatesButton.accesskey;"
                           oncommand="gAppUpdater.checkForUpdates();"/>
                 </hbox>
-                <hbox id="adminDisabled" align="center">
+                <hbox id="policyDisabled" align="center">
                   <label>&update.adminDisabled;</label>
                 </hbox>
                 <hbox id="noUpdatesFound" align="center">
@@ -452,9 +451,6 @@ type="bool"/>
               <radio value="checkOnly"
                      label="&updateCheck.label;"
                      accesskey="&updateCheck.accesskey;"/>
-              <radio value="manual"
-                     label="&updateManual.label;"
-                     accesskey="&updateManual.accesskey;"/>
             </radiogroup>
           </groupbox>
 

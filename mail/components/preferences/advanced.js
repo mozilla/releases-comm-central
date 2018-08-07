@@ -292,37 +292,25 @@ var gAdvancedPane = {
  * UI state matrix for update preference conditions
  *
  * UI Components:                              Preferences
- * Radiogroup                                  i   = app.update.enabled
- *                                             ii  = app.update.auto
- *
- * Disabled states:
- * Element           pref  value  locked  disabled
- * radiogroup        i     t/f    f       false
- *                   i     t/f    *t*     *true*
- *                   ii    t/f    f       false
- *                   ii    t/f    *t*     *true*
+ * Radiogroup                                  i   = app.update.auto
  */
 updateReadPrefs: function ()
 {
-  var enabledPref = document.getElementById("app.update.enabled");
   var autoPref = document.getElementById("app.update.auto");
   var radiogroup = document.getElementById("updateRadioGroup");
 
-  if (!enabledPref.value)   // Don't care for autoPref.value in this case.
-    radiogroup.value="manual"     // 3. Never check for updates.
-  else if (autoPref.value)  // enabledPref.value && autoPref.value
-    radiogroup.value="auto";      // 1. Automatically install updates
-  else                      // enabledPref.value && !autoPref.value
-    radiogroup.value="checkOnly"; // 2. Check, but let me choose
+  if (autoPref.value)
+    radiogroup.value="auto";      // Automatically install updates
+  else
+    radiogroup.value="checkOnly"; // Check, but let me choose
 
   var canCheck = Cc["@mozilla.org/updates/update-service;1"].
                    getService(Ci.nsIApplicationUpdateService).
                    canCheckForUpdates;
 
-  // canCheck is false if the enabledPref is false and locked,
-  // or the binary platform or OS version is not known.
+  // canCheck is false if the binary platform or OS version is not known.
   // A locked pref is sufficient to disable the radiogroup.
-  radiogroup.disabled = !canCheck || enabledPref.locked || autoPref.locked;
+  radiogroup.disabled = !canCheck || autoPref.locked;
 
   if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
     // Check to see if the maintenance service is installed.
@@ -348,21 +336,15 @@ updateReadPrefs: function ()
  */
 updateWritePrefs: function ()
 {
-  var enabledPref = document.getElementById("app.update.enabled");
   var autoPref = document.getElementById("app.update.auto");
   var radiogroup = document.getElementById("updateRadioGroup");
   switch (radiogroup.value) {
-    case "auto":      // 1. Automatically install updates
-      enabledPref.value = true;
+    case "auto":      // Automatically install updates
       autoPref.value = true;
       break;
-    case "checkOnly": // 2. Check, but but let me choose
-      enabledPref.value = true;
+    case "checkOnly": // Check, but but let me choose
       autoPref.value = false;
       break;
-    case "manual":    // 3. Never check for updates.
-      enabledPref.value = false;
-      autoPref.value = false;
   }
 },
 

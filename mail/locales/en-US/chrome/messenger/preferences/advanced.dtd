@@ -70,8 +70,6 @@
 <!ENTITY updateAuto.accesskey            "A">
 <!ENTITY updateCheck.label               "Check for updates, but let me choose whether to install them">
 <!ENTITY updateCheck.accesskey           "C">
-<!ENTITY updateManual.label              "Never check for updates (not recommended: security risk)">
-<!ENTITY updateManual.accesskey          "N">
 <!ENTITY updateHistory.label             "Show Update History">
 <!ENTITY updateHistory.accesskey         "p">
 
