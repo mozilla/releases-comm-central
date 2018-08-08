@@ -188,7 +188,6 @@ NS_IMETHODIMP nsMailWinSearchHelper::SetFANCIBit(nsIFile* aFile, bool aBit, bool
 NS_IMETHODIMP nsMailWinSearchHelper::GetIsFileAssociationSet(bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = false;
 
   // We'll use the Vista method here
   RefPtr<IApplicationAssociationRegistration> pAAR;
@@ -198,7 +197,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::GetIsFileAssociationSet(bool *aResult)
                                 IID_IApplicationAssociationRegistration,
                                 getter_AddRefs(pAAR));
 
-  BOOL res;
+  BOOL res = false;
   if (SUCCEEDED(hr))
     pAAR->QueryAppIsDefault(L".wdseml", AT_FILEEXTENSION, AL_EFFECTIVE, APP_REG_NAME_MAIL, &res);
   *aResult = res;
@@ -258,7 +257,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::RunSetup(bool aEnable)
   executeInfo.lpParameters = params.get();
   executeInfo.nShow = SW_SHOWNORMAL;
 
-  DWORD dwRet;
+  DWORD dwRet = ERROR_SUCCESS;
 
   if (ShellExecuteExW(&executeInfo))
   {

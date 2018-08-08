@@ -16,9 +16,9 @@ static const WCHAR* const sFoldersToIndex[] = {L"\\Mail\\", L"\\ImapMail\\", L"\
 struct RegKey
 {
   HKEY mRoot;
-  LPWSTR mSubKey;
-  LPWSTR mName;
-  LPWSTR mValue;
+  const LPWSTR mSubKey;
+  const LPWSTR mName;
+  const LPWSTR mValue;
 
   RegKey(HKEY aRoot, LPWSTR aSubKey, LPWSTR aName, LPWSTR aValue)
     : mRoot(aRoot), mSubKey(aSubKey), mName(aName), mValue(aValue) {}

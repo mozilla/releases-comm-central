@@ -33,6 +33,3 @@ EXTRA_COMPONENTS += [
 FINAL_LIBRARY = 'mailcomps'
 
 CXXFLAGS += CONFIG['TK_CFLAGS']
-
-if CONFIG['CC_TYPE'] == 'clang-cl':
-    AllowCompilerWarnings()  # workaround for bug 1090497 / bug 1481326

@@ -23,7 +23,7 @@ public:
   nsMailWinSearchHelper();
 
 private:
-  ~nsMailWinSearchHelper();
+  virtual ~nsMailWinSearchHelper();
   nsCOMPtr<nsIFile> mProfD;
   nsCOMPtr<nsIFile> mCurProcD;
 };

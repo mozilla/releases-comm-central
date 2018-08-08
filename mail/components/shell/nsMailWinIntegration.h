@@ -17,9 +17,9 @@
 {0x2ebbe84, 0xc179, 0x4598, {0xaf, 0x18, 0x1b, 0xf2, 0xc4, 0xbc, 0x1d, 0xf9}}
 
 typedef struct {
-  char* keyName;
-  char* valueName;
-  char* valueData;
+  const char* keyName;
+  const char* valueName;
+  const char* valueData;
 
   int32_t flags;
 } SETTING;
