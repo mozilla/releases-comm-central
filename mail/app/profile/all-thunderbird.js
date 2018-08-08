@@ -836,3 +836,6 @@ pref("security.sandbox.content.level", 0);
 
 // Enable FIDO U2F
 pref("security.webauth.u2f", true);
+
+// Multi-lingual preferences
+pref("intl.multilingual.enabled", false);

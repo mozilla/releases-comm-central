@@ -402,6 +402,10 @@ richlistbox:focus > richlistitem[selected="true"] {
   color: var(--in-content-selected-text) !important;
 }
 
+#defaultMessengerLanguage {
+  min-width: 20em;
+}
+
 /**
  * Dialog
  */
