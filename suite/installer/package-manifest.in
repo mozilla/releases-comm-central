@@ -652,6 +652,11 @@ man/*
 @RESPATH@/chrome/icons/default/addressbookWindow.ico
 @RESPATH@/chrome/icons/default/messengerWindow.ico
 @RESPATH@/chrome/icons/default/msgcomposeWindow.ico
+@RESPATH@/chrome/icons/default/calendar-alarm-dialog.ico
+@RESPATH@/chrome/icons/default/calendar-event-dialog.ico
+@RESPATH@/chrome/icons/default/calendar-event-summary-dialog.ico
+@RESPATH@/chrome/icons/default/calendar-task-dialog.ico
+@RESPATH@/chrome/icons/default/calendar-task-summary-dialog.ico
 #endif
 
 ; [MailNews Default Preferences]
