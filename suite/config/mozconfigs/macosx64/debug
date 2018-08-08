@@ -1,12 +1,10 @@
-. $topsrcdir/build/mozconfig.comm-support
+TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir}
 
-TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
-
-. $TOOLTOOL_DIR/build/macosx/local-mozconfig.common
+. $TOOLTOOL_DIR/build/macosx/mozconfig.common
 . $TOOLTOOL_DIR/build/mozconfig.stylo
-. $TOOLTOOL_DIR/suite/config/mozconfigs/common
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/common
 
-ac_add_options --enable-application=suite
+ac_add_options --enable-application=comm/suite
 ac_add_options --enable-debug
 ac_add_options --enable-calendar
 
@@ -17,6 +15,3 @@ export MOZILLA_OFFICIAL=1
 export MOZ_PACKAGE_JSSHELL=1
 
 ac_add_options --with-ccache
-
-# XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1385855)
-ac_add_options RUSTFLAGS='-C debuginfo=1'

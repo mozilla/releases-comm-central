@@ -1,15 +1,13 @@
-. "$topsrcdir/build/mozconfig.comm-support"
-
-TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
+TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir}
 
 . $TOOLTOOL_DIR/build/mozconfig.win-common
-. $TOOLTOOL_DIR/build/mozconfig.common
 . $TOOLTOOL_DIR/build/mozconfig.stylo
-. $TOOLTOOL_DIR/suite/config/mozconfigs/win32/mozconfig.vs2017
-. $TOOLTOOL_DIR/suite/config/mozconfigs/mozconfig.win.common
-. $TOOLTOOL_DIR/suite/config/mozconfigs/common
+. $TOOLTOOL_DIR/build/mozconfig.common
+. $TOOLTOOL_DIR/build/win32/mozconfig.vs-latest
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/mozconfig.win.common
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/common
 
-ac_add_options --enable-application=suite
+ac_add_options --enable-application=comm/suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --enable-official-branding
 ac_add_options --enable-jemalloc

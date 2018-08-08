@@ -1,8 +1,8 @@
 # Common statements that are applicable to both Linux32 and Linux64.
 
-# Due to bug 1426758, we need to re-include mozconfig.gtk with our
+# Due to bug 1426785, we need to re-include mozconfig.gtk with our
 # linux* builders.
-. ${TOOLTOOL_DIR}/build/unix/mozconfig.gtk
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/unix/mozconfig.gtk
 
 ac_add_options --with-google-api-keyfile=/builds/google-api.key
 

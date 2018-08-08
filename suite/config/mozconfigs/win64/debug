@@ -1,19 +1,21 @@
-. $topsrcdir/build/mozconfig.comm-support
-
-TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
+TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir}
 
 . $TOOLTOOL_DIR/build/mozconfig.win-common
 . $TOOLTOOL_DIR/build/mozconfig.stylo
 . $TOOLTOOL_DIR/build/mozconfig.common
 . $TOOLTOOL_DIR/build/win64/mozconfig.vs-latest
-. $TOOLTOOL_DIR/suite/config/mozconfigs/common
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/mozconfig.win.common
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/common
 
 ac_add_options --target=x86_64-pc-mingw32
 ac_add_options --host=x86_64-pc-mingw32
 
-ac_add_options --enable-application=suite
+ac_add_options --enable-application=comm/suite
 ac_add_options --enable-debug
 ac_add_options --enable-calendar
+
+# Disable MAPI in x64 builds until Bug 393302 is resolved.
+ac_add_options --disable-mapi
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1

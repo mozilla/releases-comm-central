@@ -1,18 +1,14 @@
 # Common statements that are applicable to both l10n Linux32 and Linux64.
 
-. "$TOOLTOOL_DIR/build/mozconfig.stylo"
-. "$TOOLTOOL_DIR/suite/config/mozconfigs/common"
+. $TOOLTOOL_DIR/build/mozconfig.stylo
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/common
 
-# Due to bug 1426758, we need to re-include mozconfig.gtk with our
+# Due to bug 1426785, we need to re-include mozconfig.gtk with our
 # linux* builders.
-. ${TOOLTOOL_DIR}/build/unix/mozconfig.gtk
-
-# Disable webrender on Linux buildbot builders to avoid the Rust requirement
-# of libX11 version > 1.4.99.1 (see bug 1350011).
-ac_add_options --disable-webrender
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/unix/mozconfig.gtk
 
 ac_add_options --with-l10n-base=../../l10n
-ac_add_options --enable-application=suite
+ac_add_options --enable-application=comm/suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 
 # Build lightning locales

@@ -3,5 +3,5 @@
 # extra dependencies on specific toolchains, e.g. gtk3.
 ac_add_options --disable-compile-environment
 
-ac_add_options --enable-application=suite
+ac_add_options --enable-application=comm/suite
 ac_add_options --enable-calendar

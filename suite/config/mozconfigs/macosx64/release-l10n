@@ -1,13 +1,11 @@
-. $topsrcdir/build/mozconfig.comm-support
+TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir}
 
-TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
-
-. $TOOLTOOL_DIR/build/macosx/local-mozconfig.common
+. $TOOLTOOL_DIR/build/macosx/mozconfig.common
 . $TOOLTOOL_DIR/build/mozconfig.stylo
-. $TOOLTOOL_DIR/suite/config/mozconfigs/common
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/common
 
 ac_add_options --with-l10n-base=../../l10n
-ac_add_options --enable-application=suite
+ac_add_options --enable-application=comm/suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --disable-install-strip
 
@@ -16,6 +14,3 @@ ac_add_options --enable-calendar
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
-
-# XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1385855)
-ac_add_options RUSTFLAGS='-C debuginfo=1'
