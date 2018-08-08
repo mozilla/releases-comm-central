@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef MSG_MAPI_MAIN_H_
-#define NSG_MAPI_MAIN_H_
+#define MSG_MAPI_MAIN_H_
 
 #define        MAX_NAME_LEN    256
 #define        MAX_PW_LEN      256
@@ -71,7 +71,7 @@ class nsMAPISession
     uint32_t IncrementSession();
     uint32_t DecrementSession();
     uint32_t GetSessionCount();
-    char16_t *nsMAPISession::GetPassword();
+    char16_t *GetPassword();
     void GetIdKey(nsCString& aKey);
     ~nsMAPISession();
     // For enumerating Messages...

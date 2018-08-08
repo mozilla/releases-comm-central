@@ -35,5 +35,6 @@ DEFFILE = SRCDIR + '/MapiProxy.def'
 if CONFIG['CC_TYPE'] == 'clang-cl':
     CFLAGS += ['-Wno-extra-tokens']
 
+# clang-cl complains about these in generated code:
 if CONFIG['CC_TYPE'] == 'clang-cl':
-    AllowCompilerWarnings()  # workaround for bug 1090497 / bug 1481326
+    CFLAGS += ['-Wno-error=extern-initializer','-Wno-error=missing-braces','-Wno-error=unused-const-variable']

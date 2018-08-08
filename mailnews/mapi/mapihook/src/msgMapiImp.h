@@ -64,7 +64,7 @@ public :
   STDMETHODIMP CleanUp();
 
   CMapiImp();
-  ~CMapiImp();
+  virtual ~CMapiImp();
 
   LONG InitContext(unsigned long session, MsgMapiListContext **listContext);
   nsresult GetDefaultInbox(nsIMsgFolder **inboxFolder);

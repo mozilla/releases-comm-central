@@ -25,7 +25,7 @@ class nsMapiSupport : public nsIMapiSupport,
         NS_DECL_NSIMAPISUPPORT
 
     private :
-        ~nsMapiSupport();
+        virtual ~nsMapiSupport();
 
         DWORD   m_dwRegister;
         CMapiFactory *m_nsMapiFactory;

@@ -197,7 +197,7 @@ ULONG FAR PASCAL MAPISendMail (LHANDLE lhSession, ULONG ulUIParam, nsMapiMessage
 
     if (!lhSession || pNsMapi->IsValidSession(lhSession) != S_OK)
     {
-        FLAGS LoginFlag ;
+        FLAGS LoginFlag = 0;
         if ( (flFlags & MAPI_LOGON_UI) && (flFlags & MAPI_NEW_SESSION) )
             LoginFlag = MAPI_LOGON_UI | MAPI_NEW_SESSION ;
         else if (flFlags & MAPI_LOGON_UI)
@@ -279,8 +279,8 @@ ULONG FAR PASCAL MAPISendDocuments(ULONG ulUIParam, LPTSTR lpszDelimChar, LPTSTR
     return hr ;
 }
 
-ULONG FAR PASCAL MAPIFindNext(LHANDLE lhSession, ULONG ulUIParam, LPTSTR lpszMessageType,
-                              LPTSTR lpszSeedMessageID, FLAGS flFlags, ULONG ulReserved,
+ULONG FAR PASCAL MAPIFindNext(LHANDLE lhSession, ULONG ulUIParam, const LPTSTR lpszMessageType,
+                              const LPTSTR lpszSeedMessageID, FLAGS flFlags, ULONG ulReserved,
                               unsigned char lpszMessageID[64])
 {
   nsIMapi *pNsMapi = NULL;
@@ -291,15 +291,10 @@ ULONG FAR PASCAL MAPIFindNext(LHANDLE lhSession, ULONG ulUIParam, LPTSTR lpszMes
   if (lhSession == 0)
     return MAPI_E_INVALID_SESSION;
 
-  if (!lpszMessageType)
-    lpszMessageType = L"";
-
-  if (!lpszSeedMessageID)
-    lpszSeedMessageID = L"";
-
-  return pNsMapi->FindNext(lhSession, ulUIParam, lpszMessageType,
-                              lpszSeedMessageID, flFlags, ulReserved,
-                              lpszMessageID) ;
+  const LPTSTR type = lpszMessageType ? lpszMessageType : (const LPTSTR)(L"");
+  const LPTSTR id = lpszSeedMessageID ? lpszSeedMessageID : (const LPTSTR)(L"");
+  return pNsMapi->FindNext(lhSession, ulUIParam, type, id,
+                           flFlags, ulReserved, lpszMessageID);
 }
 
 

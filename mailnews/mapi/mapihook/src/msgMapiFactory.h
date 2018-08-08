@@ -32,7 +32,7 @@ public :
 private:
     mozilla::ThreadSafeAutoRefCnt m_cRef;
 
-    ~CMapiFactory ();
+    virtual ~CMapiFactory ();
 };
 
 #endif  // MSG_MAPI_FACTORY_H
