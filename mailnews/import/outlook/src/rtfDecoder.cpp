@@ -363,7 +363,7 @@ void PreprocessLexem(/*inout*/Lexem& lexem, std::istream& stream, int uc)
     }
     else if (eq(lexem.KeywordName(), "'")) {
        // 8-bit character (\'hh) -> use current codepage
-      char ch, ch1;
+      char ch = 0, ch1 = 0;
       if (!stream.get(ch).eof()) ch1 = HexToInt(ch);
       if (!stream.get(ch).eof()) (ch1 <<= 4) += HexToInt(ch);
       lexem.SetPCDATA_A(ch1);

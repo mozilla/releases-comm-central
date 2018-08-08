@@ -137,6 +137,7 @@ private:
 
   void ClearHeaderFields();
   void Add(CHeaderField* f);
+  static void Delete(CHeaderField* p);
   static SpecialHeader CheckSpecialHeader(const char* fname);
   const CHeaderField* CFind(const char* name) const;
   inline CHeaderField* Find(const char* name) { return const_cast<CHeaderField*>(CFind(name)); }

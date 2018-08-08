@@ -20,12 +20,10 @@ void nsWMStringBundle::GetStringBundle(void)
   if (m_pBundle)
     return;
 
-  char*  propertyURL = WM_MSGS_URL;
-
   nsCOMPtr<nsIStringBundleService> sBundleService =
     mozilla::services::GetStringBundleService();
   if (sBundleService) {
-    sBundleService->CreateBundle(propertyURL, getter_AddRefs(m_pBundle));
+    sBundleService->CreateBundle(WM_MSGS_URL, getter_AddRefs(m_pBundle));
   }
 }
 

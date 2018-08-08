@@ -22,5 +22,6 @@ LOCAL_INCLUDES += [
     '../../src'
 ]
 
+# clang-cl rightly complains about switch on nsresult.
 if CONFIG['CC_TYPE'] == 'clang-cl':
-    AllowCompilerWarnings()  # workaround for bug 1090497 / bug 1481326
+    CXXFLAGS += ['-Wno-error=switch']

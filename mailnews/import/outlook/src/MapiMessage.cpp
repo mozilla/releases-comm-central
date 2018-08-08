@@ -1300,7 +1300,7 @@ CMapiMessageHeaders::~CMapiMessageHeaders()
   ClearHeaderFields();
 }
 
-void Delete(void* p) { delete p; }
+void CMapiMessageHeaders::Delete(CHeaderField* p) { delete p; }
 
 void CMapiMessageHeaders::ClearHeaderFields()
 {
