@@ -53,5 +53,6 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 
 FINAL_LIBRARY = 'mork'
 
+# clang-cl complains about this.
 if CONFIG['CC_TYPE'] == 'clang-cl':
-    AllowCompilerWarnings()  # workaround for bug 1090497 / bug 1481326
+    CXXFLAGS += ['-Wno-error=overloaded-virtual']
