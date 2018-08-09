@@ -13,6 +13,9 @@
 // need to talk to Rich about this...
 #define IMAP_EXTERNAL_CONTENT_HEADER "X-Mozilla-IMAP-Part"
 
+using namespace mozilla;
+extern LazyLogModule IMAPCache;  // defined in nsImapProtocol.cpp
+
 // imapbody.cpp
 // Implementation of the nsIMAPBodyShell and associated classes
 // These are used to parse IMAP BODYSTRUCTURE responses, and intelligently (?)
@@ -216,6 +219,7 @@ int32_t nsIMAPBodyShell::Generate(char *partNum)
 #endif
     m_generatingWholeMessage = true;
     uint32_t messageSize = m_protocolConnection->GetMessageSize(GetUID().get(), true);
+    MOZ_LOG(IMAPCache, LogLevel::Debug, ("Generate(): Set IMAP_CONTENT_NOT MODIFIED"));
     m_protocolConnection->SetContentModified(IMAP_CONTENT_NOT_MODIFIED);  // So that when we cache it, we know we have the whole message
     if (!DeathSignalReceived())
       m_protocolConnection->FallbackToFetchWholeMsg(GetUID(), messageSize);
@@ -449,6 +453,8 @@ int32_t nsIMAPBodypart::GeneratePart(nsIMAPBodyShell *aShell, bool stream, bool 
     bool fetchingSpecificPart = (generatingPart && !PL_strcmp(generatingPart, m_partNumberString));
 
     aShell->GetConnection()->Log("SHELL","GENERATE-Part-Inline",m_partNumberString);
+    MOZ_LOG(IMAPCache, LogLevel::Debug,
+      ("GeneratePart(): Call FetchTryChunking() part length=%" PRIi32 ", part number=%s", m_partLength, m_partNumberString));
     aShell->GetConnection()->FetchTryChunking(aShell->GetUID(), kMIMEPart, true, m_partNumberString, m_partLength, !fetchingSpecificPart);
   }
   return m_partLength;  // the part length has been filled in from the BODYSTRUCTURE response

@@ -29,6 +29,7 @@
 #include "nsServiceManagerUtils.h"
 
 using namespace mozilla;
+extern LazyLogModule IMAPCache;  // defined in nsImapProtocol.cpp
 
 static NS_DEFINE_CID(kCImapHostSessionListCID, NS_IIMAPHOSTSESSIONLIST_CID);
 
@@ -1053,7 +1054,14 @@ NS_IMETHODIMP nsImapUrl::SetContentModified(nsImapContentModifiedType contentMod
       contentModifiedAnnotation = "Force Content Not Modified";
       break;
     }
+    MOZ_LOG(IMAPCache, LogLevel::Debug,
+      ("SetContentModified(): Set annotation to |%s|", contentModifiedAnnotation));
     cacheEntry->SetMetaDataElement("ContentModified", contentModifiedAnnotation);
+  }
+  else
+  {
+    MOZ_LOG(IMAPCache, LogLevel::Debug,
+      ("SetContentModified(): Set annotation FAILED -- no cacheEntry"));
   }
   return NS_OK;
 }
