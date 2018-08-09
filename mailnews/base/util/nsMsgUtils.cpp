@@ -116,10 +116,6 @@ NS_MSG_BASE void MsgLogToConsole4(const nsAString &aErrorText,
 using namespace mozilla;
 using namespace mozilla::net;
 
-static NS_DEFINE_CID(kImapUrlCID, NS_IMAPURL_CID);
-static NS_DEFINE_CID(kCMailboxUrl, NS_MAILBOXURL_CID);
-static NS_DEFINE_CID(kCNntpUrlCID, NS_NNTPURL_CID);
-
 #define ILLEGAL_FOLDER_CHARS ";#"
 #define ILLEGAL_FOLDER_CHARS_AS_FIRST_LETTER "."
 #define ILLEGAL_FOLDER_CHARS_AS_LAST_LETTER  ".~ "
@@ -168,51 +164,6 @@ nsresult GetMsgDBHdrFromURI(const char *uri, nsIMsgDBHdr **msgHdr)
 
   return msgMessageService->MessageURIToMsgHdr(uri, msgHdr);
 }
-
-nsresult CreateStartupUrl(const char *uri, nsIURI** aUrl)
-{
-  nsresult rv = NS_ERROR_NULL_POINTER;
-  if (!uri || !*uri || !aUrl) return rv;
-  *aUrl = nullptr;
-
-  // XXX fix this, so that base doesn't depend on imap, local or news.
-  // we can't do NS_NewURI(uri, aUrl), because these are imap-message://, mailbox-message://, news-message:// uris.
-  // I think we should do something like GetMessageServiceFromURI() to get the service, and then have the service create the
-  // appropriate nsI*Url, and then QI to nsIURI, and return it.
-  // see bug #110689
-  nsCOMPtr<nsIMsgMailNewsUrl> newUri;
-  if (PL_strncasecmp(uri, "imap", 4) == 0)
-  {
-    nsCOMPtr<nsIImapUrl> imapUrl = do_CreateInstance(kImapUrlCID, &rv);
-
-    if (NS_SUCCEEDED(rv) && imapUrl)
-      rv = imapUrl->QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(newUri));
-
-    // XXX Consider: NS_MutateURI(new nsImapUrl::Mutator()).SetSpec(nsDependentCString(uri)).Finalize(newUri);
-  }
-  else if (PL_strncasecmp(uri, "mailbox", 7) == 0)
-  {
-    nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_CreateInstance(kCMailboxUrl, &rv);
-    if (NS_SUCCEEDED(rv) && mailboxUrl)
-      rv = mailboxUrl->QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(newUri));
-  }
-  else if (PL_strncasecmp(uri, "news", 4) == 0)
-  {
-    nsCOMPtr<nsINntpUrl> nntpUrl = do_CreateInstance(kCNntpUrlCID, &rv);
-    if (NS_SUCCEEDED(rv) && nntpUrl)
-      rv = nntpUrl->QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(newUri));
-  }
-
-  if (newUri) {
-    // SetSpecInternal must not fail, or else the URL won't have a base URL and we'll crash later.
-    rv = newUri->SetSpecInternal(nsDependentCString(uri));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    newUri.forget(aUrl);
-  }
-  return rv;
-}
-
 
 // Where should this live? It's a utility used to convert a string priority,
 //  e.g., "High, Low, Normal" to an enum.

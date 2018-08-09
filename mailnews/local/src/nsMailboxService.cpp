@@ -355,8 +355,8 @@ NS_IMETHODIMP nsMailboxService::OpenAttachment(const char *aContentType,
   urlString += aContentType;
   urlString += "&filename=";
   urlString += aFileName;
-  CreateStartupUrl(urlString.get(), getter_AddRefs(URL));
-  nsresult rv;
+  nsresult rv = NS_NewURI(getter_AddRefs(URL), urlString);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // try to run the url in the docshell...
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
