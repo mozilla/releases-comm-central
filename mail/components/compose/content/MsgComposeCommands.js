@@ -2855,7 +2855,7 @@ function ComposeStartup(aParams)
     // Search for a matching identity.
     if (from) {
       for (let ident of fixIterator(identities, Ci.nsIMsgIdentity)) {
-        if (from == ident.email.toLowerCase()) {
+        if (ident.email && from == ident.email.toLowerCase()) {
           if (suitableCount == 0)
             params.identity = ident;
           suitableCount++;
