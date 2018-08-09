@@ -16,9 +16,13 @@ var gLightningPane = {
         ltnPrefs.addEventListener("select", gLightningPane.tabSelectionChanged.bind(this));
         this.mInitialized = true;
 
-        let lightningButton = document.documentElement._makePaneButton(document.getElementById("paneLightning"));
+        let prefTab = document.documentElement;
+        let lightningButton = prefTab._makePaneButton(document.getElementById("paneLightning"));
         let advancedButton = document.querySelector('#category-box radio[pane="paneAdvanced"]');
         advancedButton.parentNode.insertBefore(lightningButton, advancedButton);
+
+        // We probably messed this up just by existing. Fix it.
+        prefTab._paneDeck.selectedIndex = prefTab._selector.selectedIndex;
 
         let elements = document.querySelectorAll("#paneLightning preference");
         for (let element of elements) {
