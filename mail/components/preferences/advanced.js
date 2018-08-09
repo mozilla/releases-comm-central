@@ -540,10 +540,15 @@ updateWritePrefs: function ()
     rsLocaleRadio.accessKey = this.mBundle.getString("rsLocale.accesskey");
   },
 
-  // Load the preferences string bundle for a given locale.
+  // Load the preferences string bundle for a given locale with fallbacks.
   getBundleForLocale(locale) {
+    let locales = Array.from(new Set([
+      locale,
+      ...Services.locale.getRequestedLocales(),
+      Services.locale.lastFallbackLocale,
+    ]));
     function generateContexts(resourceIds) {
-      return L10nRegistry.generateContexts([locale], resourceIds);
+      return L10nRegistry.generateContexts(locales, resourceIds);
     }
     return new Localization([
       "messenger/preferences/preferences.ftl",
