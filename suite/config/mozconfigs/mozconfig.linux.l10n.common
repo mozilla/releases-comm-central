@@ -5,7 +5,9 @@
 
 # Due to bug 1426785, we need to re-include mozconfig.gtk with our
 # linux* builders.
-. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/unix/mozconfig.gtk
+. $TOOLTOOL_DIR/comm/suite/config/mozconfigs/mozconfig.gtk
+
+export PKG_CONFIG_LIBDIR=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
 
 ac_add_options --with-l10n-base=../../l10n
 ac_add_options --enable-application=comm/suite
