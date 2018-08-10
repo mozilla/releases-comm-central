@@ -75,6 +75,7 @@ macosx64-nightly/opt:
     description: "MacOS X x64 Cross-compile Nightly"
     attributes:
         nightly: true
+        enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird
     index:
