@@ -24,6 +24,7 @@ def ThunderbirdBranding():
             'default16.png',
             'default22.png',
             'default24.png',
+            'default256.png',
             'default32.png',
             'default48.png',
             'default64.png',
