@@ -28,6 +28,9 @@ nsMsgLocalStoreUtils::AddDirectorySeparator(nsIFile *path)
 bool
 nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name)
 {
+  if (name.IsEmpty())
+    return true;
+
   char16_t firstChar = name.First();
   if (firstChar == '.' || firstChar == '#' ||
       name.CharAt(name.Length() - 1) == '~')
