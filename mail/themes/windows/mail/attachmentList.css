@@ -93,10 +93,6 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
       border-radius: 3px;
     }
 
-    attachmentitem[current="true"] {
-      border-color: rgb(217, 217, 217);
-    }
-
     attachmentitem[selected="true"] {
       border-color: rgb(217, 217, 217);
       background-image: linear-gradient(rgba(190, 190, 190, 0.1),
@@ -146,10 +142,6 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
   }
 
   @media not all and (-moz-os-version: windows-win7) {
-    attachmentitem[current="true"] {
-      border-color: rgb(217, 217, 217);
-    }
-
     attachmentitem[selected="true"] {
       border-color: rgb(217, 217, 217);
       background-color: rgb(217, 217, 217);
