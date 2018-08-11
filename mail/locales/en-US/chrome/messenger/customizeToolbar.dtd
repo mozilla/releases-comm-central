@@ -13,5 +13,6 @@
 <!ENTITY useSmallIcons.label      "Use Small Icons">
 <!ENTITY restoreDefaultSet.label  "Restore Default Set">
 <!ENTITY addNewToolbar.label      "Add New Toolbar">
+<!ENTITY showTitltbar.label       "Show Title Bar">
 <!ENTITY saveChanges.label        "Done">
 <!ENTITY undoChanges.label        "Undo Changes">

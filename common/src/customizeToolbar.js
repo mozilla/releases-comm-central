@@ -81,6 +81,16 @@ function initDialog() {
   if (mode == "text")
     smallIconsCheckbox.disabled = true;
 
+  if (AppConstants.MOZ_APP_NAME == "thunderbird") {
+    let titlebarCheckbox = document.getElementById("showTitlebar");
+    if (window.opener &&
+       (window.opener.document.documentElement.getAttribute("windowtype") ==
+        "mail:3pane")) {
+      titlebarCheckbox.hidden = false;
+      titlebarCheckbox.checked = !Services.prefs.getBoolPref("mail.tabs.drawInTitlebar");
+    }
+  }
+
   // Build up the palette of other items.
   buildPalette();
 
@@ -530,6 +540,15 @@ function restoreDefaultSet() {
 
 function updateIconSize(aSize) {
   return updateToolboxProperty("iconsize", aSize, "large");
+}
+
+function updateTitlebar() {
+  let titlebarCheckbox = document.getElementById("showTitlebar");
+  Services.prefs.setBoolPref("mail.tabs.drawInTitlebar", !titlebarCheckbox.checked);
+
+  // Bring the customizeToolbar window to front (on linux it's behind the main
+  // window). Otherwise the customization window gets left in the background.
+  setTimeout(function() { window.focus() }, 100);
 }
 
 function updateToolbarMode(aModeValue) {
