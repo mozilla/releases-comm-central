@@ -14,7 +14,6 @@
 #attachmentBucket {
   -moz-appearance: none;
   border-top: 1px solid #a9b7c9; /* The same color as the splitters */
-  border-inline-start: 1px solid #a9b7c9;
   border-bottom: 1px solid #a9b7c9;
   background-color: -moz-Field;
   color: -moz-FieldText;
@@ -613,8 +612,13 @@ toolbar:not(:-moz-lwtheme) {
   width: 5px;
   margin-inline-end: -4px;
   border-inline-end-width: 0;
-  border-inline-start: 1px solid transparent;
+  border-inline-start: 1px solid #a9b7c9;
   background-color: transparent;
+}
+
+#attachmentbucket-sizer[state="collapsed"] {
+  border-inline-start-color: transparent;
+  cursor: default;
 }
 
 #attachments-header-box {
