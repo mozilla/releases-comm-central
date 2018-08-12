@@ -13,10 +13,6 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="doubleimage-toolbarbutton" extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/widgets/calendar-widgets.css"/>
-    </resources>
-
     <content>
       <children includes="observes|template|menupopup|tooltip"/>
       <xul:image class="toolbarbutton-icon-begin" xbl:inherits="validate,src-begin=image,toolbarmode,buttonstyle"/>
@@ -55,19 +51,11 @@
 
   <!-- this binding directly extends to a checkbox but is visualized as
        a treenode in a treecontrol-->
-  <binding id="treenode-checkbox" extends="chrome://global/content/bindings/checkbox.xml#checkbox">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/widgets/calendar-widgets.css"/>
-    </resources>
-  </binding>
+  <binding id="treenode-checkbox" extends="chrome://global/content/bindings/checkbox.xml#checkbox"/>
 
   <!-- this binding directly extends to a xul:box element and automatically
        sets the "orient" attribute to "vertical" thus behaving like a vbox-->
   <binding id="modevbox" extends="chrome://calendar/content/widgets/calendar-widgets.xml#modebox">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/widgets/calendar-widgets.css"/>
-    </resources>
-
     <implementation>
       <constructor><![CDATA[
           this.setAttribute("orient", "vertical");
@@ -78,9 +66,6 @@
   <!-- this binding directly extends to a xul:box element and automatically
        sets the "orient" attribute to "horizontal" thus behaving like a vbox-->
   <binding id="modehbox" extends="chrome://calendar/content/widgets/calendar-widgets.xml#modebox">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/widgets/calendar-widgets.css"/>
-    </resources>
     <implementation>
       <constructor><![CDATA[
           this.setAttribute("orient", "horizontal");
@@ -106,9 +91,6 @@
       "collapsedinmodes" with the collpsed modes comma-separated e.g. "mail,calendar,task. This attribute is also made
       persistent-->
   <binding id="modebox" extends="xul:box">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/widgets/calendar-widgets.css"/>
-    </resources>
     <implementation>
       <field name="mBroadcaster">null</field>;
       <field name="mModHandler">null</field>;
@@ -523,10 +505,6 @@
   </binding>
 
   <binding id="view-tab" extends="chrome://global/content/bindings/tabbox.xml#tab">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/widgets/calendar-widgets.css"/>
-    </resources>
-
     <content>
       <xul:hbox class="tab-middle box-inherit" xbl:inherits="align,dir,pack,orient,selected" flex="1">
         <xul:image class="tab-icon" xbl:inherits="validate,src=image"/>

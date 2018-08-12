@@ -90,21 +90,18 @@ lightning.jar:
     ../skin/linux/lightning/imip.css                          (themes/linux/imip.css)
     ../skin/linux/lightning/lightning.css                     (themes/linux/lightning.css)
     ../skin/linux/lightning/lightning-toolbar.css             (themes/linux/lightning-toolbar.css)
-    ../skin/linux/lightning/lightning-widgets.css             (themes/linux/lightning-widgets.css)
 
 # OS X theme files
     ../skin/osx/lightning/accountCentral.css                  (themes/osx/accountCentral.css)
     ../skin/osx/lightning/imip.css                            (themes/osx/imip.css)
     ../skin/osx/lightning/lightning.css                       (themes/osx/lightning.css)
     ../skin/osx/lightning/lightning-toolbar.css               (themes/osx/lightning-toolbar.css)
-    ../skin/osx/lightning/lightning-widgets.css               (themes/osx/lightning-widgets.css)
 
 # Windows theme files
     ../skin/windows/lightning/accountCentral.css              (themes/windows/accountCentral.css)
     ../skin/windows/lightning/imip.css                        (themes/windows/imip.css)
     ../skin/windows/lightning/lightning.css                   (themes/windows/lightning.css)
     ../skin/windows/lightning/lightning-toolbar.css           (themes/windows/lightning-toolbar.css)
-    ../skin/windows/lightning/lightning-widgets.css           (themes/windows/lightning-widgets.css)
 
 calendar.jar:
     content/calendar/calendarCreation.xul                  (../resources/content/calendarCreation.xul)

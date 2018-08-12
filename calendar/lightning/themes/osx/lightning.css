@@ -4,9 +4,15 @@
 
 @import url(chrome://lightning-common/skin/lightning.css);
 
+lightning-notification-bar {
+    background-color: #baeeff;
+    padding: 6px 8px;
+    color: -moz-dialogtext;
+}
+
 #calendarContent:-moz-lwtheme {
-  color: -moz-dialogText;
-  text-shadow: none;
+    color: -moz-dialogText;
+    text-shadow: none;
 }
 
 /* Calendar list rules */

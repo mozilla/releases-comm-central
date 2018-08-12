@@ -19,9 +19,6 @@
   </binding>
 
   <binding id="item-date-row" extends="xul:row">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/calendar-event-dialog.css"/>
-    </resources>
     <content xbl:inherits="mode">
       <xul:label anonid="item-datetime-label"
                  class="headline"

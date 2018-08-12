@@ -246,9 +246,6 @@
          So navigate parents to textbox in order to call parseTextBoxDate.
          [this comment is outside the <content> so it won't become a
          node that interferes with navigation to interior nodes.] -->
-    <resources>
-      <stylesheet src="chrome://calendar/content/widgets/calendar-widget-bindings.css"/>
-    </resources>
     <content>
       <xul:hbox flex="1" id="hbox" class="datepicker-box-class">
         <xul:menulist editable="true" type="panel" sizetopopup="false"
@@ -747,10 +744,6 @@
   </binding>
 
   <binding id="timepicker-grids" extends="xul:box">
-    <resources>
-      <stylesheet src="chrome://lightning-common/skin/datetimepickers.css"/>
-    </resources>
-
     <content>
       <vbox anonid="time-picker-grids"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -1452,9 +1445,6 @@
 
   <binding id="datetimepicker-base" extends="chrome://global/content/bindings/general.xml#basecontrol"
            inherits="value,onchange">
-    <resources>
-      <stylesheet src="chrome://lightning-common/skin/datetimepickers.css"/>
-    </resources>
     <implementation>
       <constructor><![CDATA[
           ChromeUtils.import("resource://calendar/modules/calUtils.jsm");

@@ -322,10 +322,6 @@
   </binding>
 
   <binding id="minimonth" extends="xul:box">
-    <resources>
-      <stylesheet src="chrome://calendar-common/skin/widgets/minimonth.css"/>
-    </resources>
-
     <content orient="vertical" xbl:inherits="onchange,onmonthchange,onpopuplisthidden,readonly" role="group">
       <xul:minimonth-header anonid="minimonth-header" xbl:inherits="readonly,month,year"/>
       <html:table anonid="minimonth-calendar" class="minimonth-cal-box">

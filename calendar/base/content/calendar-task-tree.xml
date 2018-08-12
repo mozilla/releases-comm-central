@@ -14,9 +14,6 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <binding id="calendar-task-tree">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/calendar-task-tree.css"/>
-    </resources>
     <content>
       <xul:tree anonid="calendar-task-tree"
                 class="calendar-task-tree"

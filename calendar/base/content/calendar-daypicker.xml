@@ -15,9 +15,6 @@
 
   <binding id="daypicker" display="xul:button"
            extends="chrome://global/content/bindings/button.xml#button-base">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/calendar-daypicker.css"/>
-    </resources>
     <content>
       <xul:hbox anonid="daypickerId" class="daypickerclass" align="center" flex="1">
         <xul:label anonid="daytext"
@@ -52,10 +49,6 @@
   -->
 
   <binding id="daypicker-weekday" extends="xul:box">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/calendar-daypicker.css"/>
-    </resources>
-
     <content>
       <xul:hbox anonid="mainbox" flex="1">
         <xul:daypicker bottom="true" xbl:inherits="disabled,mode=id"/>
@@ -148,10 +141,6 @@
   -->
 
   <binding id="daypicker-monthday" extends="xul:box">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/calendar-daypicker.css"/>
-    </resources>
-
     <content>
       <xul:vbox anonid="mainbox" class="daypicker-monthday-mainbox" flex="1" >
         <xul:hbox class="daypicker-row" flex="1">

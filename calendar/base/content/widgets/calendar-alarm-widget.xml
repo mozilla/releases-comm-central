@@ -15,11 +15,6 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <binding id="calendar-alarm-widget" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
-    <resources>
-      <stylesheet src="chrome://global/skin/button.css"/>
-      <stylesheet src="chrome://calendar/skin/calendar-alarm-dialog.css"/>
-    </resources>
-
     <content orient="horizontal">
       <xul:vbox pack="start">
         <xul:image class="alarm-calendar-image"/>

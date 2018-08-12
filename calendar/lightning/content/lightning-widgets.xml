@@ -8,9 +8,6 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <binding id="lightning-notification-bar" extends="xul:hbox">
-    <resources>
-      <stylesheet src="chrome://lightning/skin/lightning-widgets.css"/>
-    </resources>
     <content pack="center" align="center">
       <xul:image anonid="notification-image"/>
       <xul:description anonid="notification-description"
