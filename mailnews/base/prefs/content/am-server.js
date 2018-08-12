@@ -143,7 +143,7 @@ function initServerType()
   setLabelFromStringBundle("authMethod-any", "authAny");
   setLabelFromStringBundle("authMethod-password-encrypted",
       "authPasswordEncrypted");
-  //authMethod-password-cleartext already set in selectSelect()
+  // authMethod-password-cleartext already set in secureSelect()
 
   // Hide deprecated/hidden auth options, unless selected
   hideUnlessSelected(document.getElementById("authMethod-no"));

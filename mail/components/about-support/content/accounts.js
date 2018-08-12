@@ -30,15 +30,20 @@ for (let [str, index] of Object.entries(Ci.nsMsgAuthMethod))
   gAuthMethods[index] = str;
 
 // l10n properties in messenger.properties corresponding to each auth method
-var gAuthMethodProperties = {
-  "1": "authOld",
-  "2": "authPasswordCleartextInsecurely",
-  "3": "authPasswordCleartextViaSSL",
-  "4": "authPasswordEncrypted",
-  "5": "authKerberos",
-  "6": "authNTLM",
-  "8": "authAnySecure"
-};
+var gAuthMethodProperties = new Map([
+  [ 0,                                    "authNo" ], // Special value defined to be invalid.
+                                                      // Some accounts without auth report this.
+  [ Ci.nsMsgAuthMethod.none,              "authNo" ],
+  [ Ci.nsMsgAuthMethod.old,               "authOld" ],
+  [ Ci.nsMsgAuthMethod.passwordCleartext, "authPasswordCleartextViaSSL" ],
+  [ Ci.nsMsgAuthMethod.passwordEncrypted, "authPasswordEncrypted" ],
+  [ Ci.nsMsgAuthMethod.GSSAPI,            "authKerberos" ],
+  [ Ci.nsMsgAuthMethod.NTLM,              "authNTLM" ],
+  [ Ci.nsMsgAuthMethod.External,          "authExternal" ],
+  [ Ci.nsMsgAuthMethod.secure,            "authAnySecure" ],
+  [ Ci.nsMsgAuthMethod.anything,          "authAny" ],
+  [ Ci.nsMsgAuthMethod.OAuth2,            "authOAuth2" ]
+]);
 
 var AboutSupport = {
   /**
@@ -138,9 +143,9 @@ var AboutSupport = {
     let prettyAuthMethod;
     let plainAuthMethod = (aIndex in gAuthMethods ?
                            gAuthMethods[aIndex] : aIndex);
-    if (aIndex in gAuthMethodProperties) {
+    if (gAuthMethodProperties.has(parseInt(aIndex))) {
       prettyAuthMethod =
-        gMessengerBundle.GetStringFromName(gAuthMethodProperties[aIndex]);
+        gMessengerBundle.GetStringFromName(gAuthMethodProperties.get(parseInt(aIndex)));
     } else {
       prettyAuthMethod = plainAuthMethod;
     }
