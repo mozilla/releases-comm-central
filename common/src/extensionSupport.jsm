@@ -34,21 +34,7 @@ function extensionDefaults() {
 var ExtensionSupport = {
   loadAddonPrefs(addonFile) {
     function setPref(preferDefault, name, value) {
-      let branch = Services.prefs.getBranch("");
-      if (preferDefault) {
-        let defaultBranch = Services.prefs.getDefaultBranch("");
-        if (defaultBranch.getPrefType(name) == Ci.nsIPrefBranch.PREF_INVALID) {
-          // Only use the default branch if it doesn't already have the pref set.
-          // If there is already a pref with this value on the default branch, the
-          // extension wants to override a built-in value.
-          branch = defaultBranch;
-        } else if (defaultBranch.prefHasUserValue(name)) {
-          // If a pref already has a user-set value it proper type
-          // will be returned (not PREF_INVALID). In that case keep the user's
-          // value and overwrite the default.
-          branch = defaultBranch;
-        }
-      }
+      let branch = preferDefault ? Services.prefs.getDefaultBranch("") : Services.prefs.getBranch("");
 
       if (typeof value == "boolean") {
         branch.setBoolPref(name, value);
@@ -81,19 +67,27 @@ var ExtensionSupport = {
         if (!prefFile.exists() || !prefFile.isDirectory())
           return [];
 
+        let unsortedFiles = [];
         for (let file of fixIterator(prefFile.directoryEntries, Ci.nsIFile)) {
           if (file.isFile() && file.leafName.toLowerCase().endsWith(".js")) {
-            foundPrefStrings.push(IOUtils.loadFileToString(file));
+            unsortedFiles.push(file);
           }
+        }
+
+        for (let file of unsortedFiles.sort((a, b) => a.path < b.path ? 1 : -1)) {
+          foundPrefStrings.push(IOUtils.loadFileToString(file));
         }
       } else if (prefFile.isFile() && prefFile.leafName.endsWith("xpi")) {
         let zipReader = Cc["@mozilla.org/libjar/zip-reader;1"]
                           .createInstance(Ci.nsIZipReader);
         zipReader.open(prefFile);
         let entries = zipReader.findEntries("defaults/preferences/*.js");
-
+        let unsortedEntries = [];
         while (entries.hasMore()) {
-          let entryName = entries.getNext();
+          unsortedEntries.push(entries.getNext());
+        }
+
+        for (let entryName of unsortedEntries.sort().reverse()) {
           let stream = zipReader.getInputStream(entryName);
           let entrySize = zipReader.getEntry(entryName).realSize;
           if (entrySize > 0) {
