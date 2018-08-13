@@ -414,7 +414,10 @@ nsresult nsMailboxUrl::ParseUrl()
 nsresult nsMailboxUrl::SetSpecInternal(const nsACString &aSpec)
 {
   nsresult rv = nsMsgMailNewsUrl::SetSpecInternal(aSpec);
-  if (NS_SUCCEEDED(rv))
+  // Do not try to parse URLs of the form
+  // mailbox://user@domain@server/folder?number=nn since this will fail.
+  // Check for format lacking absolute path.
+  if (NS_SUCCEEDED(rv) && PromiseFlatCString(aSpec).Find("///") != kNotFound)
     rv = ParseUrl();
   return rv;
 }

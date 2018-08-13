@@ -49,7 +49,6 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "nsIURIMutator.h"
-#include "mozilla/Unused.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
 #include "mozilla/Logging.h"
@@ -1328,14 +1327,14 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
     rv = messageService->GetUrlForUri(PromiseFlatCString(aMsgURI).get(), getter_AddRefs(url), aMsgWindow);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // ignore errors here - it's not fatal, and in the case of mailbox messages,
-  // we're always passing in an invalid spec...
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(url);
   if (!mailnewsurl) {
     NS_WARNING("Trying to run a message through MIME which doesn't have a nsIMsgMailNewsUrl?");
     return NS_ERROR_UNEXPECTED;
   }
-  mozilla::Unused << mailnewsurl->SetSpecInternal(mailboxUri);
+  // SetSpecInternal must not fail, or else the URL won't have a base URL and we'll crash later.
+  rv = mailnewsurl->SetSpecInternal(mailboxUri);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // if we are forwarding a message and that message used a charset over ride
   // then use that over ride charset instead of the charset specified in the message

@@ -204,8 +204,9 @@ nsresult CreateStartupUrl(const char *uri, nsIURI** aUrl)
   }
 
   if (newUri) {
-    // SetSpec can fail, for mailbox urls, but we still have a url.
-    (void)newUri->SetSpecInternal(nsDependentCString(uri));
+    // SetSpecInternal must not fail, or else the URL won't have a base URL and we'll crash later.
+    rv = newUri->SetSpecInternal(nsDependentCString(uri));
+    NS_ENSURE_SUCCESS(rv, rv);
 
     newUri.forget(aUrl);
   }

@@ -553,20 +553,19 @@ NS_IMETHODIMP nsMailboxService::NewURI(const nsACString &aSpec,
   nsresult rv;
   nsCOMPtr<nsIMsgMailNewsUrl> aMsgUri = do_CreateInstance(NS_MAILBOXURL_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  // SetSpec calls below may fail if the mailbox url is of the form
-  // mailbox://<account>/<mailbox name>?... instead of
-  // mailbox://<path to folder>?.... This is the case for pop3 download urls.
-  // We know this, and the failure is harmless.
+  // SetSpecInternal must not fail, or else the URL won't have a base URL and we'll crash later.
   if (aBaseURI)
   {
     nsAutoCString newSpec;
     rv = aBaseURI->Resolve(aSpec, newSpec);
     NS_ENSURE_SUCCESS(rv, rv);
-    (void)aMsgUri->SetSpecInternal(newSpec);
+    rv = aMsgUri->SetSpecInternal(newSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
   else
   {
-    (void)aMsgUri->SetSpecInternal(aSpec);
+    rv = aMsgUri->SetSpecInternal(aSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
   aMsgUri.forget(_retval);
 
