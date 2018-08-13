@@ -390,6 +390,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 /* ::::: toolbar buttons on tabbar toolbar ::::: */
 
 #alltabs-button,
+#tabbar-toolbar menulist,
 #tabbar-toolbar .toolbarbutton-1,
 #tabbar-toolbar .toolbarbutton-1[type="menu-button"] {
   margin-top: 2px;
