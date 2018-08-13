@@ -823,9 +823,6 @@ pref("mail.main_menu.collapse_by_default", true);
 // instead of space in the file name.
 pref("mail.save_msg_filename_underscores_for_space", false);
 
-// calendar promotion status
-pref("mail.calendar-integration.opt-out", false);
-
 #ifdef MOZ_CONTENT_SANDBOX
 // This controls the strength of the Windows content process sandbox for testing
 // purposes. This will require a restart.
