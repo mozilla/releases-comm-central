@@ -290,7 +290,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
     padding-inline-end: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
-    font-family: "Segoe UI Semibold", "Segoe UI", sans-serif;
   }
   #appmenuSecondaryPane:-moz-locale-dir(rtl) {
     box-shadow: -1px 0 2px var(--appMenu-bg-box-shadow) inset;
