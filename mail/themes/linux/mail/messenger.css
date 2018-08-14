@@ -668,6 +668,10 @@ statusbarpanel {
   -moz-appearance: none !important;
 }
 
+treechildren::-moz-tree-row {
+  min-height: 18px;
+}
+
 treechildren::-moz-tree-cell-text {
   padding-inline-start: 5px;
 }

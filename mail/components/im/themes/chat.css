@@ -606,39 +606,28 @@ richlistitem[inactive][selected] > label {
 }
 
 /* from instantbird/themes/blist.css */
-%ifndef XP_MACOSX
 imgroup .twisty {
   padding-top: 1px;
   width: 9px; /* The image's width is 9 pixels */
   height: 9px;
+%ifndef XP_MACOSX
   margin-inline-end: 3px;
+%else
+  margin-inline-end: 2px;
+%endif
   margin-inline-start: 5px;
-  background: url("chrome://global/skin/tree/twisty-expanded.svg") no-repeat center;
+  background: url("chrome://global/skin/icons/twisty-expanded.svg") no-repeat center;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
 imgroup[closed] .twisty {
-  background: url("chrome://global/skin/tree/twisty-collapsed.svg") no-repeat center;
+  background: url("chrome://global/skin/icons/twisty-collapsed.svg") no-repeat center;
 }
 
 imgroup[closed]:-moz-locale-dir(rtl) .twisty {
-  background: url("chrome://global/skin/tree/twisty-collapsed-rtl.svg");
+  background: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
 }
-
-%else
-imgroup .twisty {
-  width: 9px;
-  height: 9px;
-  margin-inline-end: 2px;
-  margin-inline-start: 5px;
-  background: url("chrome://global/skin/arrow/arrow-dn-sharp.gif") no-repeat center;
-}
-
-imgroup[closed] .twisty {
-  background: url("chrome://global/skin/arrow/arrow-rit-sharp.gif") no-repeat center;
-}
-%endif
 
 .prplBuddyIcon {
   margin: 2px 0;

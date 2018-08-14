@@ -4,25 +4,6 @@
 
 @import url(chrome://calendar-common/skin/widgets/calendar-widgets.css);
 
-treenode-checkbox > .checkbox-check {
-  -moz-appearance: none;
-  -moz-box-align: center;
-  border: none;
-  width: 9px; /* The image's width is 9 pixels */
-  height: 9px;
-  background: url(chrome://global/skin/tree/twisty-collapsed.svg) center no-repeat;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-treenode-checkbox[checked="true"] > .checkbox-check {
-  background-image: url("chrome://global/skin/tree/twisty-expanded.svg");
-}
-
-treenode-checkbox:-moz-locale-dir(rtl) > .checkbox-check {
-  background-image: url("chrome://global/skin/tree/twisty-collapsed-rtl.svg");
-}
-
 #task-tree-filtergroup {
   padding-inline-start: 12px;
 }

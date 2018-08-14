@@ -4,14 +4,6 @@
 
 @import url(chrome://calendar-common/skin/widgets/calendar-widgets.css);
 
-treenode-checkbox[checked="true"] > .checkbox-check {
-  -moz-appearance: treetwistyopen;
-}
-
-treenode-checkbox > .checkbox-check {
-  -moz-appearance: treetwisty;
-}
-
 #task-tree-filtergroup {
   padding-inline-start: 18px;
 }
