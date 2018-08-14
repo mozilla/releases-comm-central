@@ -15,7 +15,7 @@ nsMsgSearchValueImpl::nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue)
     if (IS_STRING_ATTRIBUTE(aInitialValue->attribute) && aInitialValue->string)
     {
         mValue.string = NS_strdup(aInitialValue->string);
-        CopyUTF8toUTF16(mValue.string, mValue.utf16String);
+        CopyUTF8toUTF16(mozilla::MakeStringSpan(mValue.string), mValue.utf16String);
     }
     else
         mValue.string = 0;

@@ -61,7 +61,7 @@ nsresult GetBundleValueInner(nsIStringBundle * aBundle,
 {
   nsAutoString key;
 
-  CopyASCIItoUTF16(aName, key);
+  CopyASCIItoUTF16(mozilla::MakeStringSpan(aName), key);
   ToLowerCase(key); // we lowercase the main comparison key
   key.Append(aProp);
 

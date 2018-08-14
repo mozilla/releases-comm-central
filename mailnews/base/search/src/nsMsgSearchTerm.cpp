@@ -606,7 +606,7 @@ nsresult nsMsgSearchTerm::ParseValue(char *inStream)
     m_value.string = (char *) PR_Malloc(valueLen + 1);
     PL_strncpy(m_value.string, inStream, valueLen + 1);
     m_value.string[valueLen] = '\0';
-    CopyUTF8toUTF16(m_value.string, m_value.utf16String);
+    CopyUTF8toUTF16(mozilla::MakeSpan(m_value.string, valueLen), m_value.utf16String);
   }
   else
   {
@@ -733,7 +733,7 @@ nsresult nsMsgSearchTerm::DeStreamNew (char *inStream, int16_t /*length*/)
     m_value.attribute = m_attribute = nsMsgSearchAttrib::Keywords;
     keyword.Append('0' + m_value.u.label);
     m_value.string = PL_strdup(keyword.get());
-    CopyUTF8toUTF16(m_value.string, m_value.utf16String);
+    CopyUTF8toUTF16(mozilla::MakeStringSpan(m_value.string), m_value.utf16String);
   }
   return NS_OK;
 }

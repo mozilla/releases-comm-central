@@ -803,7 +803,7 @@ RDFContentSinkImpl::GetIdAboutAttribute(const char16_t** aAttributes,
             // attribute.
             nsAutoCString name;
             nsAutoCString ref('#');
-            AppendUTF16toUTF8(aAttributes[1], ref);
+            AppendUTF16toUTF8(mozilla::MakeStringSpan(aAttributes[1]), ref);
 
             rv = mDocumentURL->Resolve(ref, name);
             if (NS_FAILED(rv)) return rv;

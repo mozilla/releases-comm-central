@@ -411,7 +411,7 @@ nsresult nsMapiHook::PopulateCompFields(lpnsMapiMessage aMessage,
   if (aMessage->lpszNoteText)
   {
       nsString Body;
-      CopyASCIItoUTF16(aMessage->lpszNoteText, Body);
+      CopyASCIItoUTF16(mozilla::MakeStringSpan(aMessage->lpszNoteText), Body);
       if (Body.IsEmpty() || Body.Last() != '\n')
         Body.AppendLiteral(CRLF);
 
@@ -719,7 +719,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompField
         if (_getdcwd(_getdrive(), cwd, MAX_PATH))
         {
           nsAutoString cwdStr;
-          CopyASCIItoUTF16(cwd, cwdStr);
+          CopyASCIItoUTF16(mozilla::MakeStringSpan(cwd), cwdStr);
           cwdStr.Append('\\');
           RemainingPaths.Insert(cwdStr, 0);
         }
