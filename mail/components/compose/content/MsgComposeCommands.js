@@ -676,13 +676,8 @@ var defaultController = {
       isEnabled: function() {
         let cmdToggleAttachmentPane =
           document.getElementById("cmd_toggleAttachmentPane");
-        let bucket = GetMsgAttachmentElement();
         let paneShown = !document.getElementById("attachments-box").collapsed;
-        if (!paneShown) {
-          cmdToggleAttachmentPane.setAttribute("checked", "false");
-        } else {
-          cmdToggleAttachmentPane.setAttribute("checked", "true");
-        }
+        cmdToggleAttachmentPane.setAttribute("checked", paneShown);
 
         // Enable this command when the compose window isn't locked.
         return !gWindowLocked;
