@@ -107,7 +107,9 @@ tasks:
               TASKCLUSTER_CACHES: /builds/worker/checkouts
             - $if: 'tasks_for != "action"'
               then:
-                COMM_COMMIT_MSG: '${push.comment}'
+                # scriptworker expects an environment variable named GECKO_COMMIT_MSG,
+                # see: https://github.com/mozilla-releng/scriptworker/blob/master/scriptworker/task.py
+                GECKO_COMMIT_MSG: '${push.comment}'
             - $if: 'tasks_for == "action"'
               then:
                 ACTION_TASK_GROUP_ID: '${ownTaskId}'
@@ -159,7 +161,7 @@ tasks:
                 --pushlog-id='${push.pushlog_id}'
                 --pushdate='${push.pushdate}'
                 --project='${repository.project}'
-                --message="$COMM_COMMIT_MSG"
+                --message="$GECKO_COMMIT_MSG"
                 --owner='${ownerEmail}'
                 --level='${repository.level}'
                 --base-repository="$GECKO_BASE_REPOSITORY"
