@@ -89,11 +89,6 @@ treechildren::-moz-tree-image(attachmentCol, attach) {
   list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
 }
 
-treechildren::-moz-tree-image(attachmentCol, attach, focus, selected) {
-  list-style-image: url(chrome://messenger/skin/icons/attachment-selected.svg);
-}
-
-treechildren::-moz-tree-image(attachmentCol),
 #threadCols > .attachmentColumnHeader > .treecol-icon {
   width: 14px;
   height: 14px;

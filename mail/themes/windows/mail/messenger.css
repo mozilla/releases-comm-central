@@ -431,6 +431,8 @@ treechildren::-moz-tree-indentation {
     background-color: transparent;
   }
 
+  treechildren::-moz-tree-image(selected, focus),
+  treechildren::-moz-tree-twisty(selected, focus),
   treechildren::-moz-tree-cell-text(selected, focus) {
     color: -moz-DialogText;
   }

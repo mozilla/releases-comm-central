@@ -143,7 +143,6 @@ classic.jar:
   skin/classic/messenger/icons/twisty-open.gif                   (mail/icons/twisty-open.gif)
   skin/classic/messenger/icons/attachment-deleted.png            (mail/icons/attachment-deleted.png)
   skin/classic/messenger/icons/attachment-deleted-large.png      (mail/icons/attachment-deleted-large.png)
-  skin/classic/messenger/icons/attachment-selected.svg           (mail/icons/attachment-selected.svg)
   skin/classic/messenger/icons/check.png                         (mail/icons/check.png)
   skin/classic/messenger/icons/dot.png                           (mail/icons/dot.png)
   skin/classic/messenger/icons/column-headers.png                (mail/icons/column-headers.png)
