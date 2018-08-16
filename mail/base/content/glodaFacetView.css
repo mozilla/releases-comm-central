@@ -656,7 +656,8 @@ html[dir="rtl"] .message-attachment-icon {
   margin-inline-start: 0;
   margin-inline-end: 3px;
   padding: 0 0.5ex;
-  background-image: url("chrome://messenger/skin/tagbg.png");
+  background-image: linear-gradient(rgba(255,255,255,0.35),
+                                    rgba(255,255,255,0.35));
   border-radius: var(--borderRadius);
   border-style: outset;
   border-width: 0.5px;

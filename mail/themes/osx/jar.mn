@@ -233,7 +233,6 @@ classic.jar:
   skin/classic/messenger/icons/arrow/arrow-right-dim.png         (mail/icons/arrow/arrow-right-dim.png)
   skin/classic/messenger/icons/arrow/arrow-up-dim.png            (mail/icons/arrow/arrow-up-dim.png)
   skin/classic/messenger/icons/arrow/arrow-down-dim.png          (mail/icons/arrow/arrow-down-dim.png)
-  skin/classic/messenger/tagbg.png                               (mail/tagbg.png)
   skin/classic/messenger/newmailaccount/accountProvisioner.css   (mail/newmailaccount/accountProvisioner.css)
   skin/classic/messenger/newmailaccount/search.gif               (mail/newmailaccount/search.gif)
   skin/classic/messenger/newmailaccount/spinner.gif              (mail/newmailaccount/spinner.gif)
