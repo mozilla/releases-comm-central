@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsMailGNOMEIntegration.h"
+#include "nsGNOMEShellService.h"
 #include "nsIGConfService.h"
 #include "nsIGIOService.h"
 #include "nsCOMPtr.h"
@@ -64,13 +64,13 @@ static const AppTypeAssociation sAppTypes[] = {
   }
 };
 
-nsMailGNOMEIntegration::nsMailGNOMEIntegration():
+nsGNOMEShellService::nsGNOMEShellService():
                           mCheckedThisSession(false),
                           mAppIsInPath(false)
 {}
 
 nsresult
-nsMailGNOMEIntegration::Init()
+nsGNOMEShellService::Init()
 {
   nsresult rv;
 
@@ -101,10 +101,10 @@ nsMailGNOMEIntegration::Init()
   return rv;
 }
 
-NS_IMPL_ISUPPORTS(nsMailGNOMEIntegration, nsIShellService)
+NS_IMPL_ISUPPORTS(nsGNOMEShellService, nsIShellService)
 
 bool
-nsMailGNOMEIntegration::GetAppPathFromLauncher()
+nsGNOMEShellService::GetAppPathFromLauncher()
 {
   gchar *tmp;
 
@@ -133,7 +133,7 @@ nsMailGNOMEIntegration::GetAppPathFromLauncher()
 }
 
 NS_IMETHODIMP
-nsMailGNOMEIntegration::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool * aIsDefaultClient)
+nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool * aIsDefaultClient)
 {
   *aIsDefaultClient = true;
 
@@ -152,7 +152,7 @@ nsMailGNOMEIntegration::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool
 }
 
 NS_IMETHODIMP
-nsMailGNOMEIntegration::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
+nsGNOMEShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
 {
   nsresult rv = NS_OK;
   for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(sAppTypes); i++) {
@@ -171,7 +171,7 @@ nsMailGNOMEIntegration::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
 }
 
 NS_IMETHODIMP
-nsMailGNOMEIntegration::GetShouldCheckDefaultClient(bool* aResult)
+nsGNOMEShellService::GetShouldCheckDefaultClient(bool* aResult)
 {
   if (mCheckedThisSession)
   {
@@ -184,14 +184,14 @@ nsMailGNOMEIntegration::GetShouldCheckDefaultClient(bool* aResult)
 }
 
 NS_IMETHODIMP
-nsMailGNOMEIntegration::SetShouldCheckDefaultClient(bool aShouldCheck)
+nsGNOMEShellService::SetShouldCheckDefaultClient(bool aShouldCheck)
 {
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
   return prefs->SetBoolPref("mail.shell.checkDefaultClient", aShouldCheck);
 }
 
 bool
-nsMailGNOMEIntegration::KeyMatchesAppName(const char *aKeyValue) const
+nsGNOMEShellService::KeyMatchesAppName(const char *aKeyValue) const
 {
   gchar *commandPath;
   if (mUseLocaleFilenames) {
@@ -216,7 +216,7 @@ nsMailGNOMEIntegration::KeyMatchesAppName(const char *aKeyValue) const
 }
 
 bool
-nsMailGNOMEIntegration::CheckHandlerMatchesAppName(const nsACString &handler) const
+nsGNOMEShellService::CheckHandlerMatchesAppName(const nsACString &handler) const
 {
   gint argc;
   gchar **argv;
@@ -233,7 +233,7 @@ nsMailGNOMEIntegration::CheckHandlerMatchesAppName(const nsACString &handler) co
 }
 
 bool
-nsMailGNOMEIntegration::checkDefault(const char* const *aProtocols, unsigned int aLength)
+nsGNOMEShellService::checkDefault(const char* const *aProtocols, unsigned int aLength)
 {
   nsCOMPtr<nsIGConfService> gconf = do_GetService(NS_GCONFSERVICE_CONTRACTID);
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
@@ -272,7 +272,7 @@ nsMailGNOMEIntegration::checkDefault(const char* const *aProtocols, unsigned int
 }
 
 nsresult
-nsMailGNOMEIntegration::MakeDefault(const char* const *aProtocols,
+nsGNOMEShellService::MakeDefault(const char* const *aProtocols,
                                     unsigned int aProtocolsLength,
                                     const char *aMimeType,
                                     const char *aExtensions)

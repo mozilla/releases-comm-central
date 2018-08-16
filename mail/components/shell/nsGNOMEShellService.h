@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMailGNOMEIntegration_h_
-#define nsMailGNOMEIntegration_h_
+#ifndef nsGNOMEShellService_h_
+#define nsGNOMEShellService_h_
 
 #include "nsIShellService.h"
 #include "nsString.h"
@@ -14,17 +14,17 @@
 #define NS_MAILGNOMEINTEGRATION_CID \
 {0xbddef0f4, 0x5e2d, 0x4846, {0xbd, 0xec, 0x86, 0xd0, 0x78, 0x1d, 0x8d, 0xed}}
 
-class nsMailGNOMEIntegration : public nsIShellService
+class nsGNOMEShellService : public nsIShellService
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
 
   NS_HIDDEN_(nsresult) Init();
-  nsMailGNOMEIntegration();
+  nsGNOMEShellService();
 
 protected:
-  virtual ~nsMailGNOMEIntegration() {};
+  virtual ~nsGNOMEShellService() {};
 
   bool KeyMatchesAppName(const char *aKeyValue) const;
   bool checkDefault(const char* const *aProtocols, unsigned int aLength);

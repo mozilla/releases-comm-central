@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsMailMacIntegration.h"
+#include "nsMacShellService.h"
 #include "nsCOMPtr.h"
 #include "nsIServiceManager.h"
 #include "nsIStringBundle.h"
@@ -25,13 +25,13 @@ extern "C" {
   extern OSStatus _LSSaveAndRefresh(void);
 }
 
-NS_IMPL_ISUPPORTS(nsMailMacIntegration, nsIShellService)
+NS_IMPL_ISUPPORTS(nsMacShellService, nsIShellService)
 
-nsMailMacIntegration::nsMailMacIntegration(): mCheckedThisSession(false)
+nsMacShellService::nsMacShellService(): mCheckedThisSession(false)
 {}
 
 NS_IMETHODIMP
-nsMailMacIntegration::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool * aIsDefaultClient)
+nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool * aIsDefaultClient)
 {
   *aIsDefaultClient = true;
   if (aApps & nsIShellService::MAIL)
@@ -51,7 +51,7 @@ nsMailMacIntegration::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool *
 }
 
 NS_IMETHODIMP
-nsMailMacIntegration::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
+nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
 {
   nsresult rv = NS_OK;
   if (aApps & nsIShellService::MAIL)
@@ -65,7 +65,7 @@ nsMailMacIntegration::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
 }
 
 NS_IMETHODIMP
-nsMailMacIntegration::GetShouldCheckDefaultClient(bool* aResult)
+nsMacShellService::GetShouldCheckDefaultClient(bool* aResult)
 {
   if (mCheckedThisSession)
   {
@@ -78,14 +78,14 @@ nsMailMacIntegration::GetShouldCheckDefaultClient(bool* aResult)
 }
 
 NS_IMETHODIMP
-nsMailMacIntegration::SetShouldCheckDefaultClient(bool aShouldCheck)
+nsMacShellService::SetShouldCheckDefaultClient(bool aShouldCheck)
 {
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
   return prefs->SetBoolPref("mail.shell.checkDefaultClient", aShouldCheck);
 }
 
 bool
-nsMailMacIntegration::isDefaultHandlerForProtocol(CFStringRef aScheme)
+nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme)
 {
   bool isDefault = false;
   // Since neither Launch Services nor Internet Config actually differ between
@@ -146,7 +146,7 @@ nsMailMacIntegration::isDefaultHandlerForProtocol(CFStringRef aScheme)
 }
 
 nsresult
-nsMailMacIntegration::setAsDefaultHandlerForProtocol(CFStringRef aScheme)
+nsMacShellService::setAsDefaultHandlerForProtocol(CFStringRef aScheme)
 {
   CFURLRef tbirdURL = ::CFBundleCopyBundleURL(CFBundleGetMainBundle());
 

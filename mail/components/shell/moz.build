@@ -3,33 +3,41 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ['public']
-
 SOURCES += [
     'DirectoryProvider.cpp',
 ]
 
 DEFINES['MOZ_APP_NAME'] = '"%s"' % CONFIG['MOZ_APP_NAME']
 
+XPIDL_SOURCES += [
+    'nsIShellService.idl',
+]
+
+XPIDL_MODULE = 'shellservice'
+
 if CONFIG['OS_ARCH'] == 'WINNT':
     SOURCES += [
-        'nsMailWinIntegration.cpp',
+        'nsWindowsShellService.cpp',
     ]
     LOCAL_INCLUDES += [
         '/%s/other-licenses/nsis/Contrib/CityHash/cityhash' % (CONFIG['mozreltopsrcdir'],),
     ]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk3':
-    SOURCES += ['nsMailGNOMEIntegration.cpp']
-
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
-    SOURCES += ['nsMailMacIntegration.cpp']
+elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+    SOURCES += [
+        'nsMacShellService.cpp',
+    ]
+elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
+    SOURCES += [
+        'nsGNOMEShellService.cpp',
+    ]
 
 EXTRA_COMPONENTS += [
     'nsSetDefaultMail.js',
     'shell.manifest',
 ]
 
-FINAL_LIBRARY = 'mailcomps'
+if SOURCES:
+    FINAL_LIBRARY = 'mailcomps'
 
 CXXFLAGS += CONFIG['TK_CFLAGS']

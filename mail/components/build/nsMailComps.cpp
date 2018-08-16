@@ -20,17 +20,17 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsSeamonkeyProfileMigrator)
 #include "nsOutlookProfileMigrator.h"
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsOutlookProfileMigrator)
 
-#include "nsMailWinIntegration.h"
+#include "nsWindowsShellService.h"
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsWindowsShellService, Init)
 #endif
 
 #ifdef MOZ_WIDGET_GTK
-#include "nsMailGNOMEIntegration.h"
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMailGNOMEIntegration, Init)
+#include "nsGNOMEShellService.h"
+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsGNOMEShellService, Init)
 #endif
 #ifdef XP_MACOSX
-#include "nsMailMacIntegration.h"
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMailMacIntegration)
+#include "nsMacShellService.h"
+NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacShellService)
 #endif
 
 #if defined(XP_WIN32)
@@ -66,10 +66,10 @@ const mozilla::Module::CIDEntry kMailCIDs[] = {
   { &kNS_MAILWINSEARCHHELPER_CID, false, NULL, nsMailWinSearchHelperConstructor },
 #endif // !XP_WIN32
 #ifdef MOZ_WIDGET_GTK
-  { &kNS_MAILGNOMEINTEGRATION_CID, false, NULL, nsMailGNOMEIntegrationConstructor },
+  { &kNS_MAILGNOMEINTEGRATION_CID, false, NULL, nsGNOMEShellServiceConstructor },
 #endif
 #ifdef XP_MACOSX
-  { &kNS_MAILMACINTEGRATION_CID, false, NULL, nsMailMacIntegrationConstructor },
+  { &kNS_MAILMACINTEGRATION_CID, false, NULL, nsMacShellServiceConstructor },
 #endif
   { NULL }
 };

@@ -16,15 +16,13 @@ DIRS += [
     'migration',
     'activity',
     'search',
+    'shell',
     'about-support',
     'accountcreation',
     'wintaskbar',
     'newmailaccount',
     'im',
 ]
-
-if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk3', 'cocoa'):
-    DIRS += ['shell']
 
 TEST_DIRS += ['test']
 

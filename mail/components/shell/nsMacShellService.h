@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMailMacIntegration_h_
-#define nsMailMacIntegration_h_
+#ifndef nsMacShellService_h_
+#define nsMacShellService_h_
 
 #include "nsIShellService.h"
 #include "nsString.h"
@@ -14,19 +14,19 @@
 #define NS_MAILMACINTEGRATION_CID \
 {0x85a27035, 0xb970, 0x4079, {0xb9, 0xd2, 0xe2, 0x1f, 0x69, 0xe6, 0xb2, 0x1f}}
 
-class nsMailMacIntegration : public nsIShellService
+class nsMacShellService : public nsIShellService
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
-  nsMailMacIntegration();
+  nsMacShellService();
 
 protected:
   bool isDefaultHandlerForProtocol(CFStringRef aScheme);
   nsresult setAsDefaultHandlerForProtocol(CFStringRef aScheme);
 
 private:
-  virtual ~nsMailMacIntegration() {};
+  virtual ~nsMacShellService() {};
   bool mCheckedThisSession;
 };
 #endif
