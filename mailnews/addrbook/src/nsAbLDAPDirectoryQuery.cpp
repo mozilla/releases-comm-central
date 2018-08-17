@@ -140,7 +140,7 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMessa
     if (requestNum != sCurrentRequestNum) {
       MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsAbQueryLDAPMessageListener::OnLDAPMessage: Ignoring message with "
-            "request num %" PRIx32 ", current request num is %" PRIx32 ".",
+            "request num %" PRIu32 ", current request num is %" PRIu32 ".",
             requestNum, sCurrentRequestNum));
       return NS_OK;
     }
