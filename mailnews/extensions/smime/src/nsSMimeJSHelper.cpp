@@ -115,7 +115,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 
         nsCOMPtr<nsIX509Cert> cert;
         if (NS_SUCCEEDED(nsMsgComposeSecure::FindCertByEmailAddress(
-                           email_lowercase, getter_AddRefs(cert))))
+                         email_lowercase, false, getter_AddRefs(cert))))
         {
           cert.forget(iCert);
 
@@ -222,7 +222,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
 
       nsCOMPtr<nsIX509Cert> cert;
       if (NS_SUCCEEDED(nsMsgComposeSecure::FindCertByEmailAddress(
-                         email_lowercase, getter_AddRefs(cert))))
+                       email_lowercase, true, getter_AddRefs(cert))))
         haveCert[i] = true;
 
       if (!haveCert[i])

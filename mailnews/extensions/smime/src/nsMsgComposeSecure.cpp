@@ -961,7 +961,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
       nsCString mailbox_lowercase;
       ToLowerCase(mailboxes[i], mailbox_lowercase);
       nsCOMPtr<nsIX509Cert> cert;
-      res = FindCertByEmailAddress(mailbox_lowercase, getter_AddRefs(cert));
+      // TODO: allow user to override and go ahead with an invalid certificate
+      res = FindCertByEmailAddress(mailbox_lowercase, true, getter_AddRefs(cert));
       if (NS_FAILED(res)) {
         // Failure to find a valid encryption cert is fatal.
         // Here I assume that mailbox is ascii rather than utf8.
@@ -1187,7 +1188,8 @@ mime_nested_encoder_output_fn (const char *buf, int32_t size, void *closure)
 
 nsresult
 nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
-                                                 nsIX509Cert** _retval)
+                                           bool aRequireValidCert,
+                                           nsIX509Cert** _retval)
 {
   nsresult rv = BlockUntilLoadableRootsLoaded();
   if (NS_FAILED(rv)) {
@@ -1214,7 +1216,6 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
   for (node = CERT_LIST_HEAD(certlist);
        !CERT_LIST_END(node, certlist);
        node = CERT_LIST_NEXT(node)) {
-
     UniqueCERTCertList unusedCertChain;
     mozilla::pkix::Result result =
       certVerifier->VerifyCert(node->cert, certificateUsageEmailRecipient,
@@ -1228,12 +1229,16 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
     }
   }
 
-  if (CERT_LIST_END(node, certlist)) {
-    // no valid cert found
-    return NS_ERROR_FAILURE;
+  if (CERT_LIST_END(node, certlist)) { // no valid cert found
+    if (aRequireValidCert)
+      return NS_ERROR_FAILURE;
+
+    // Get the first non-valid then.
+    node = CERT_LIST_HEAD(certlist);
   }
 
-  // node now contains the first valid certificate with correct usage
+  // |node| now contains the first valid (if aRequireValidCert true)
+  // certificate with correct usage.
   RefPtr<nsNSSCertificate> nssCert = nsNSSCertificate::Create(node->cert);
   if (!nssCert)
     return NS_ERROR_OUT_OF_MEMORY;

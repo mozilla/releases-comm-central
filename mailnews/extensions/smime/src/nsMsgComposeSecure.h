@@ -60,6 +60,7 @@ public:
   nsresult GetSMIMEBundleString(const char16_t *name, nsString &outString);
   static nsresult
   FindCertByEmailAddress(const nsACString& aEmailAddress,
+                         bool aRequireValidCert,
                          nsIX509Cert** _retval);
 
 private:
