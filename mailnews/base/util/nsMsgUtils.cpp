@@ -34,6 +34,7 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIRelativeFilePref.h"
+#include "nsRelativeFilePref.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsISpamSettings.h"
 #include "nsICryptoHash.h"
@@ -79,6 +80,7 @@
 #include "nsIInputStream.h"
 #include "nsIChannel.h"
 #include "nsIURIMutator.h"
+#include "mozilla/Unused.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -1171,13 +1173,13 @@ NS_MSG_BASE nsresult NS_SetPersistentFile(const char *relPrefName,
     nsresult rv = prefBranch->SetComplexValue(absPrefName, NS_GET_IID(nsIFile), aFile);
 
     // Write the relative path.
-    nsCOMPtr<nsIRelativeFilePref> relFilePref;
-    NS_NewRelativeFilePref(aFile, nsDependentCString(NS_APP_USER_PROFILE_50_DIR), getter_AddRefs(relFilePref));
-    if (relFilePref) {
-        nsresult rv2 = prefBranch->SetComplexValue(relPrefName, NS_GET_IID(nsIRelativeFilePref), relFilePref);
-        if (NS_FAILED(rv2) && NS_SUCCEEDED(rv))
-            prefBranch->ClearUserPref(relPrefName);
-    }
+    nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref();
+    mozilla::Unused << relFilePref->SetFile(aFile);
+    mozilla::Unused << relFilePref->SetRelativeToKey(NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
+
+    nsresult rv2 = prefBranch->SetComplexValue(relPrefName, NS_GET_IID(nsIRelativeFilePref), relFilePref);
+    if (NS_FAILED(rv2) && NS_SUCCEEDED(rv))
+        prefBranch->ClearUserPref(relPrefName);
 
     return rv;
 }

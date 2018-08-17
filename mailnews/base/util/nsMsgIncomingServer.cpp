@@ -29,6 +29,7 @@
 #include "nsIMutableArray.h"
 #include "nsIPrefService.h"
 #include "nsIRelativeFilePref.h"
+#include "nsRelativeFilePref.h"
 #include "nsIDocShell.h"
 #include "nsIAuthPrompt.h"
 #include "nsNetUtil.h"
@@ -54,6 +55,7 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "nsIObserverService.h"
+#include "mozilla/Unused.h"
 
 #define PORT_NOT_SET -1
 
@@ -490,13 +492,13 @@ nsMsgIncomingServer::GetFileValue(const char* aRelPrefName,
     if (NS_FAILED(rv))
       return rv;
 
-    rv = NS_NewRelativeFilePref(*aLocalFile,
-                                NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR),
-                                getter_AddRefs(relFilePref));
-    if (relFilePref)
-      rv = mPrefBranch->SetComplexValue(aRelPrefName,
-                                        NS_GET_IID(nsIRelativeFilePref),
-                                        relFilePref);
+    nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref();
+    mozilla::Unused << relFilePref->SetFile(*aLocalFile);
+    mozilla::Unused << relFilePref->SetRelativeToKey(NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
+
+    rv = mPrefBranch->SetComplexValue(aRelPrefName,
+                                      NS_GET_IID(nsIRelativeFilePref),
+                                      relFilePref);
   }
 
   return rv;
@@ -511,17 +513,16 @@ nsMsgIncomingServer::SetFileValue(const char* aRelPrefName,
     return NS_ERROR_NOT_INITIALIZED;
 
   // Write the relative path.
-  nsCOMPtr<nsIRelativeFilePref> relFilePref;
-  NS_NewRelativeFilePref(aLocalFile,
-                         NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR),
-                         getter_AddRefs(relFilePref));
-  if (relFilePref) {
-    nsresult rv = mPrefBranch->SetComplexValue(aRelPrefName,
-                                               NS_GET_IID(nsIRelativeFilePref),
-                                               relFilePref);
-    if (NS_FAILED(rv))
-      return rv;
-  }
+  nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref();
+  mozilla::Unused << relFilePref->SetFile(aLocalFile);
+  mozilla::Unused << relFilePref->SetRelativeToKey(NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
+
+  nsresult rv = mPrefBranch->SetComplexValue(aRelPrefName,
+                                             NS_GET_IID(nsIRelativeFilePref),
+                                             relFilePref);
+  if (NS_FAILED(rv))
+    return rv;
+
   return mPrefBranch->SetComplexValue(aAbsPrefName, NS_GET_IID(nsIFile), aLocalFile);
 }
 
