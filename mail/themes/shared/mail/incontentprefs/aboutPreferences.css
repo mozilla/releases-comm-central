@@ -65,18 +65,20 @@ tabpanel > hbox > description {
   border-bottom: none;
   padding: 54px 0 0;
   margin: 0;
-  max-height: 100vh;
-  overflow-x: auto;
+  min-height: 100vh;
 }
 
 radio[pane] {
   -moz-box-orient: horizontal;
+  -moz-binding: url("chrome://global/content/bindings/radio.xml#radio") !important;
   -moz-appearance: none;
   width: 240px;
   color: var(--in-content-category-text);
   border-right-width: 0;
   border-left-width: 0;
   border-radius: 2px;
+  margin-top: 0;
+  margin-bottom: 0;
   margin-inline-start: 34px;
   margin-inline-end: 0;
   padding: 5px 10px;
@@ -107,25 +109,37 @@ radio[pane][selected]::before {
   display: none;
 }
 
-.paneButtonLabel {
+radio[pane] > .radio-label-box {
   line-height: 22px;
-  font-size: 1.45rem;
   padding-bottom: 2px;
   padding-inline-start: 9px;
   margin: 0;
   -moz-user-select: none;
 }
 
-.paneButtonIcon {
+radio[pane][focused="true"] > .radio-label-box {
+  outline: none;
+}
+
+radio[pane] > .radio-label-box > .radio-label {
+  margin: 0;
+}
+
+radio[pane] > .radio-check {
   width: 24px;
   height: 24px;
+  border-width: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  margin-inline-end: 0;
   -moz-image-region: auto;
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 0.8;
 }
 
-radio[pane][selected] > .paneButtonIcon {
+radio[pane][selected] > .radio-check {
   fill-opacity: 1;
 }
 
@@ -134,7 +148,7 @@ radio[pane][selected] > .paneButtonIcon {
     width: 118px;
   }
 
-  .paneButtonLabel {
+  radio[pane] > .radio-label-box {
     display: none;
   }
 
@@ -150,43 +164,43 @@ radio[pane][selected] > .paneButtonIcon {
   }
 }
 
-radio[pane=paneGeneral] > .paneButtonIcon {
+radio[pane=paneGeneral] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/general.svg");
 }
 
-radio[pane=paneDisplay] > .paneButtonIcon {
+radio[pane=paneDisplay] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/display.svg");
 }
 
-radio[pane=paneApplications] > .paneButtonIcon {
+radio[pane=paneApplications] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/attachment.svg");
 }
 
-radio[pane=panePrivacy] > .paneButtonIcon {
+radio[pane=panePrivacy] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/privacy.svg");
 }
 
-radio[pane=paneSecurity]> .paneButtonIcon {
+radio[pane=paneSecurity]> .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/security.svg");
 }
 
-radio[pane=paneCompose] > .paneButtonIcon {
+radio[pane=paneCompose] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/compose.svg");
 }
 
-radio[pane=paneAdvanced] > .paneButtonIcon {
+radio[pane=paneAdvanced] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/advanced.svg");
 }
 
-radio[pane=paneChat] > .paneButtonIcon {
+radio[pane=paneChat] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/chat.svg");
 }
 
-radio[pane=paneLightning] > .paneButtonIcon {
+radio[pane=paneLightning] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/calendar.svg");
 }
 
-radio[pane=paneAccount] > .paneButtonIcon {
+radio[pane=paneAccount] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/account.svg");
 }
 

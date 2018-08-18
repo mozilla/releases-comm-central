@@ -8,6 +8,14 @@
   font-size: 1.36em;
 }
 
+radio[pane] > .radio-label-box {
+  font-size: 1.46rem;
+}
+
+radio[pane][focused="true"] > .radio-check {
+  outline: none;
+}
+
 prefpane .groupbox-title {
   background: none;
   margin-bottom: 0;
@@ -69,10 +77,6 @@ radio[pane] {
 
 radio[pane][selected] {
   border-image: none;
-}
-
-radio[pane]:active:hover > .paneButtonIcon {
-  filter: none;
 }
 
 .actionsMenu > .menulist-label-box > .menulist-icon {

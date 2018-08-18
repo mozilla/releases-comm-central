@@ -8,6 +8,10 @@
   font-size: 1.11em;
 }
 
+radio[pane] > .radio-label-box {
+  font-size: 1.2rem;
+}
+
 checkbox {
   -moz-binding: url("chrome://global/content/bindings/checkbox.xml#checkbox") !important;
 }
