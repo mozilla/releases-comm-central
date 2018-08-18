@@ -26,11 +26,11 @@ win32/opt:
             - builds/taskcluster_base_win32.py
             - builds/taskcluster_sub_win32/opt.py
     toolchains:
+        - win64-cbindgen
         - win64-clang-cl
+        - win64-node
         - win64-rust
         - win64-sccache
-        - win64-cbindgen
-        - win64-node
 
 win32-nightly/opt:
     description: "Win32 Nightly"
@@ -67,10 +67,10 @@ win32-nightly/opt:
             - builds/taskcluster_sub_win32/opt.py
             - taskcluster_nightly.py
     toolchains:
-        - win64-clang-cl
-        - win64-rust
         - win64-cbindgen
+        - win64-clang-cl
         - win64-node
+        - win64-rust
 
 win32/debug:
     description: "Win32 Debug"
@@ -100,11 +100,11 @@ win32/debug:
             - builds/taskcluster_base_win32.py
             - builds/taskcluster_sub_win32/debug.py
     toolchains:
+        - win64-cbindgen
         - win64-clang-cl
+        - win64-node
         - win64-rust
         - win64-sccache
-        - win64-cbindgen
-        - win64-node
 
 win64/opt:
     description: "Win64 Opt"
@@ -133,11 +133,11 @@ win64/opt:
             - builds/taskcluster_base_win64.py
             - builds/taskcluster_sub_win64/opt.py
     toolchains:
+        - win64-cbindgen
         - win64-clang-cl
+        - win64-node
         - win64-rust
         - win64-sccache
-        - win64-cbindgen
-        - win64-node
 
 win64-nightly/opt:
     description: "Win64 Nightly"
@@ -174,10 +174,10 @@ win64-nightly/opt:
             - builds/taskcluster_sub_win64/opt.py
             - taskcluster_nightly.py
     toolchains:
-        - win64-clang-cl
-        - win64-rust
         - win64-cbindgen
+        - win64-clang-cl
         - win64-node
+        - win64-rust
 
 win64/debug:
     description: "Win64 Debug"
@@ -206,8 +206,8 @@ win64/debug:
             - builds/taskcluster_base_win64.py
             - builds/taskcluster_sub_win64/debug.py
     toolchains:
+        - win64-cbindgen
         - win64-clang-cl
+        - win64-node
         - win64-rust
         - win64-sccache
-        - win64-cbindgen
-        - win64-node

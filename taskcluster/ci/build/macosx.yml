@@ -26,15 +26,15 @@ macosx64/debug:
         custom-build-variant-cfg: cross-debug
         tooltool-downloads: internal
     toolchains:
+        - linux64-cbindgen
         - linux64-cctools-port
         - linux64-clang
         - linux64-hfsplus
         - linux64-libdmg
         - linux64-llvm-dsymutil
+        - linux64-node
         - linux64-rust-macos
         - linux64-sccache
-        - linux64-cbindgen
-        - linux64-node
 
 macosx64/opt:
     description: "MacOS X x64 Cross-compile"
@@ -63,15 +63,15 @@ macosx64/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal
     toolchains:
+        - linux64-cbindgen
         - linux64-cctools-port
         - linux64-clang
         - linux64-hfsplus
         - linux64-libdmg
         - linux64-llvm-dsymutil
+        - linux64-node
         - linux64-rust-macos
         - linux64-sccache
-        - linux64-cbindgen
-        - linux64-node
 
 macosx64-nightly/opt:
     description: "MacOS X x64 Cross-compile Nightly"
@@ -107,11 +107,11 @@ macosx64-nightly/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal
     toolchains:
+        - linux64-cbindgen
         - linux64-cctools-port
         - linux64-clang
         - linux64-hfsplus
         - linux64-libdmg
         - linux64-llvm-dsymutil
-        - linux64-rust-macos
-        - linux64-cbindgen
         - linux64-node
+        - linux64-rust-macos
