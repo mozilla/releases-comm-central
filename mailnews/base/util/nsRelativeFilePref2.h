@@ -4,24 +4,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
  // Forked from modules/libpref/Preferences.cpp
-class nsRelativeFilePref final : public nsIRelativeFilePref
+class nsRelativeFilePref2 final : public nsIRelativeFilePref
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIRELATIVEFILEPREF
-  nsRelativeFilePref();
+  nsRelativeFilePref2();
 
 private:
-  virtual ~nsRelativeFilePref();
+  virtual ~nsRelativeFilePref2();
   nsCOMPtr<nsIFile> mFile;
   nsCString mRelativeToKey;
 };
 
-NS_IMPL_ISUPPORTS(nsRelativeFilePref, nsIRelativeFilePref)
-nsRelativeFilePref::nsRelativeFilePref() = default;
-nsRelativeFilePref::~nsRelativeFilePref() = default;
+NS_IMPL_ISUPPORTS(nsRelativeFilePref2, nsIRelativeFilePref)
+nsRelativeFilePref2::nsRelativeFilePref2() = default;
+nsRelativeFilePref2::~nsRelativeFilePref2() = default;
 
-NS_IMETHODIMP nsRelativeFilePref::GetFile(nsIFile** aFile)
+NS_IMETHODIMP nsRelativeFilePref2::GetFile(nsIFile** aFile)
 {
   NS_ENSURE_ARG_POINTER(aFile);
   *aFile = mFile;
@@ -29,19 +29,19 @@ NS_IMETHODIMP nsRelativeFilePref::GetFile(nsIFile** aFile)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRelativeFilePref::SetFile(nsIFile* aFile)
+NS_IMETHODIMP nsRelativeFilePref2::SetFile(nsIFile* aFile)
 {
   mFile = aFile;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRelativeFilePref::GetRelativeToKey(nsACString& aRelativeToKey)
+NS_IMETHODIMP nsRelativeFilePref2::GetRelativeToKey(nsACString& aRelativeToKey)
 {
   aRelativeToKey.Assign(mRelativeToKey);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRelativeFilePref::SetRelativeToKey(const nsACString& aRelativeToKey)
+NS_IMETHODIMP nsRelativeFilePref2::SetRelativeToKey(const nsACString& aRelativeToKey)
 {
   mRelativeToKey.Assign(aRelativeToKey);
   return NS_OK;
