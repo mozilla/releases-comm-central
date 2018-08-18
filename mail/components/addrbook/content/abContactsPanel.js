@@ -127,6 +127,10 @@ function AddressBookMenuListChange() {
 var mutationObs = null;
 
 function AbPanelLoad() {
+  if (location.search == "?focus") {
+    document.getElementById("peopleSearchInput").focus();
+  }
+
   InitCommonJS();
 
   document.title = parent.document.getElementById("sidebar-title").value;
