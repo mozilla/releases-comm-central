@@ -55,4 +55,4 @@ FINAL_LIBRARY = 'mork'
 
 # clang-cl complains about this.
 if CONFIG['CC_TYPE'] == 'clang-cl':
-    CXXFLAGS += ['-Wno-error=overloaded-virtual']
+    CXXFLAGS += ['-Wno-overloaded-virtual']

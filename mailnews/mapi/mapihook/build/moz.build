@@ -37,4 +37,4 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
 
 # clang-cl complains about these in generated code:
 if CONFIG['CC_TYPE'] == 'clang-cl':
-    CFLAGS += ['-Wno-error=extern-initializer','-Wno-error=missing-braces','-Wno-error=unused-const-variable']
+    CFLAGS += ['-Wno-extern-initializer','-Wno-missing-braces','-Wno-unused-const-variable']

@@ -24,4 +24,4 @@ DEFINES['_UNICODE'] = True
 
 # clang-cl rightly complains about switch on nsresult.
 if CONFIG['CC_TYPE'] == 'clang-cl':
-    CXXFLAGS += ['-Wno-error=switch']
+    CXXFLAGS += ['-Wno-switch']
