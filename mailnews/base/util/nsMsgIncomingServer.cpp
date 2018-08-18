@@ -29,7 +29,9 @@
 #include "nsIMutableArray.h"
 #include "nsIPrefService.h"
 #include "nsIRelativeFilePref.h"
+#define NSRELATIVEFILEPREF_CLASS nsRelativeFilePref2
 #include "nsRelativeFilePref.h"
+#undef NSRELATIVEFILEPREF_CLASS
 #include "nsIDocShell.h"
 #include "nsIAuthPrompt.h"
 #include "nsNetUtil.h"
@@ -492,7 +494,7 @@ nsMsgIncomingServer::GetFileValue(const char* aRelPrefName,
     if (NS_FAILED(rv))
       return rv;
 
-    nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref();
+    nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref2();
     mozilla::Unused << relFilePref->SetFile(*aLocalFile);
     mozilla::Unused << relFilePref->SetRelativeToKey(NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
 
@@ -513,7 +515,7 @@ nsMsgIncomingServer::SetFileValue(const char* aRelPrefName,
     return NS_ERROR_NOT_INITIALIZED;
 
   // Write the relative path.
-  nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref();
+  nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref2();
   mozilla::Unused << relFilePref->SetFile(aLocalFile);
   mozilla::Unused << relFilePref->SetRelativeToKey(NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
 
