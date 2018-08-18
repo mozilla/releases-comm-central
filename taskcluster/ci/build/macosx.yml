@@ -33,6 +33,7 @@ macosx64/debug:
         - linux64-llvm-dsymutil
         - linux64-rust-macos
         - linux64-sccache
+        - linux64-cbindgen
         - linux64-node
 
 macosx64/opt:
@@ -69,6 +70,7 @@ macosx64/opt:
         - linux64-llvm-dsymutil
         - linux64-rust-macos
         - linux64-sccache
+        - linux64-cbindgen
         - linux64-node
 
 macosx64-nightly/opt:
@@ -111,4 +113,5 @@ macosx64-nightly/opt:
         - linux64-libdmg
         - linux64-llvm-dsymutil
         - linux64-rust-macos
+        - linux64-cbindgen
         - linux64-node

@@ -26,6 +26,7 @@ linux64/opt:
         - linux64-gcc
         - linux64-rust
         - linux64-sccache
+        - linux64-cbindgen
         - linux64-node
 
 linux64-nightly/opt:
@@ -62,6 +63,7 @@ linux64-nightly/opt:
         - linux64-clang
         - linux64-gcc
         - linux64-rust
+        - linux64-cbindgen
         - linux64-node
 
 linux64/debug:
@@ -92,6 +94,7 @@ linux64/debug:
         - linux64-clang
         - linux64-gcc
         - linux64-sccache
+        - linux64-cbindgen
         - linux64-node
         - linux64-rust
 
@@ -123,6 +126,7 @@ linux/opt:
         - linux64-gcc
         - linux64-rust
         - linux64-sccache
+        - linux64-cbindgen
         - linux64-node
 
 linux-nightly/opt:
@@ -159,6 +163,7 @@ linux-nightly/opt:
         - linux64-clang
         - linux64-gcc
         - linux64-rust
+        - linux64-cbindgen
         - linux64-node
 
 linux/debug:
@@ -189,5 +194,6 @@ linux/debug:
         - linux64-clang
         - linux64-gcc
         - linux64-sccache
+        - linux64-cbindgen
         - linux64-node
         - linux64-rust
