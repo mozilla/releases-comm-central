@@ -291,9 +291,8 @@ function onSelectionChange(event)
 }
 
 function viewCertHelper(parent, cert) {
-  var cd = Cc[nsCertificateDialogs].getService(nsICertificateDialogs);
-  cd.viewCert(parent, cert);
-}
+  Services.ww.openWindow(parent, "chrome://pippki/content/certViewer.xul",
+                         "_blank", "centerscreen,chrome,titlebar", cert);}
 
 function certForRow(aRowIndex) {
   return gCerts.value[aRowIndex];

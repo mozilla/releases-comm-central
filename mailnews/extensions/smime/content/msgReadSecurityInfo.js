@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var nsIDialogParamBlock = Ci.nsIDialogParamBlock;
 var nsIX509Cert = Ci.nsIX509Cert;
 var nsICMSMessageErrors = Ci.nsICMSMessageErrors;
@@ -208,8 +210,8 @@ function onLoad()
 }
 
 function viewCertHelper(parent, cert) {
-  var cd = Cc[nsCertificateDialogs].getService(nsICertificateDialogs);
-  cd.viewCert(parent, cert);
+  Services.ww.openWindow(parent, "chrome://pippki/content/certViewer.xul",
+                         "_blank", "centerscreen,chrome,titlebar", cert);}
 }
 
 function viewSignatureCert()
