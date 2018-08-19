@@ -141,6 +141,7 @@ function test_font_name_displayed() {
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);
   _verify_fonts_displayed(false, ...fontTypes);
 }
+test_font_name_displayed.EXCLUDED_PLATFORMS = ["linux"];  // See bug 1484449.
 
 // Fonts definitely not present on a computer -- we simply use UUIDs. These
 // should be kept in sync with the ones in *-prefs.js.
@@ -188,6 +189,7 @@ function test_font_name_not_present() {
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);
   _verify_fonts_displayed(true, ...fontTypes);
 }
+test_font_name_not_present.EXCLUDED_PLATFORMS = ["linux"];  // See bug 1484449.
 
 function teardownTest() {
   // nsIPrefBranch.resetBranch() is not implemented in M-C, so we can't use
