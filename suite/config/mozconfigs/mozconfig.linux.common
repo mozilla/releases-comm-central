@@ -1,6 +1,6 @@
 # Common statements that are applicable to both Linux32 and Linux64.
 
-export PKG_CONFIG_PAHT="${PKG_CONFIG_PATH}:/usr/lib64/pkgconfig:/usr/lib/pkgconfig"
+export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/usr/lib64/pkgconfig:/usr/lib/pkgconfig"
 # Due to bug 1426785, we need to re-include mozconfig.gtk with our
 # linux* builders.
 . $TOOLTOOL_DIR/comm/suite/config/mozconfigs/mozconfig.gtk
