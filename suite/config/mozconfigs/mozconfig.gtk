@@ -1,13 +1,11 @@
-TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir}
-
-# $TOOLTOOL_DIR/gtk3 comes from tooltool, and must be included in the tooltool manifest.
+TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir} # $TOOLTOOL_DIR/gtk3 comes from tooltool, and must be included in the tooltool manifest.
 if [ -z "$PKG_CONFIG_LIBDIR" ]; then
   echo PKG_CONFIG_LIBDIR must be set >&2
   exit 1
 fi
 export PKG_CONFIG_SYSROOT_DIR="$TOOLTOOL_DIR/gtk3"
 export PKG_CONFIG_PATH="$TOOLTOOL_DIR/gtk3/usr/local/lib/pkgconfig"
-PKG_CONFIG="$TOOLTOOL_DIR/gtk3/usr/local/bin/pkg-config"
+PKG_CONFIG="${PKG_CONFIG_PATH}:$TOOLTOOL_DIR/gtk3/usr/local/bin/pkg-config"
 export PATH="$TOOLTOOL_DIR/gtk3/usr/local/bin:${PATH}"
 # Ensure cairo, gdk-pixbuf, etc. are not taken from the system installed packages.
 LDFLAGS="-L$TOOLTOOL_DIR/gtk3/usr/local/lib ${LDFLAGS}"
