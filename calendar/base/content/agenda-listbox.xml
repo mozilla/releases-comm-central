@@ -40,7 +40,7 @@
   <binding id="agenda-checkbox-richlist-item"
            extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
-      <xul:treenode-checkbox class="agenda-checkbox" anonid="agenda-checkbox-widget"
+      <xul:checkbox class="agenda-checkbox treenode-checkbox" anonid="agenda-checkbox-widget"
                                                    flex="1"
                                                    xbl:inherits="selected,label,hidden,disabled"/>
     </content>

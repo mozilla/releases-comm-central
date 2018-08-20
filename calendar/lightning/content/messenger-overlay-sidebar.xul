@@ -150,7 +150,7 @@
           <separator id="minimonth-splitter" minwidth="100"/>
           <vbox id="calendar-panel" flex="1">
             <modevbox id="task-filter-pane" mode="task" broadcaster="modeBroadcaster" refcontrol="calendar_toggle_filter_command">
-              <treenode-checkbox id="task-tree-filter-header"
+              <checkbox id="task-tree-filter-header"
                                checked="true"
                                class="treenode-checkbox"
                                label="&calendar.task.filter.title.label;"/>
@@ -173,7 +173,7 @@
             </modevbox>
             <modevbox id="calendar-list-pane" flex="1" mode="calendar,task" broadcaster="modeBroadcaster"
                       refcontrol="calendar_toggle_calendarlist_command">
-              <treenode-checkbox id="calendar-list-header"
+              <checkbox id="calendar-list-header"
                                checked="true"
                                class="treenode-checkbox"
                                ondrop="return document.getElementById('calendar-list-tree-widget').foreignDrop(event)"
