@@ -26,9 +26,7 @@
 }
 
 caption label {
-  font-size: 1.3rem;
   font-weight: 600;
-  line-height: 22px;
   margin: 0 !important;
 }
 
@@ -40,8 +38,6 @@ caption label {
 #MailPreferences > prefpane {
   max-width: 800px;
   padding: 0;
-  font-size: 1.25rem;
-  line-height: 22px;
 }
 
 tabpanel > label,

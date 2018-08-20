@@ -4,12 +4,13 @@
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
 
-:root > * {
+.dialogBox,
+#MailPreferences > prefpane {
   font-size: 1.11em;
 }
 
 radio[pane] > .radio-label-box {
-  font-size: 1.2rem;
+  font-size: 1.2em;
 }
 
 checkbox {
