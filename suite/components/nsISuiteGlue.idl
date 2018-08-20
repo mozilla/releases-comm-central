@@ -13,9 +13,9 @@ interface nsIDOMWindow;
  * The component implementing this interface is meant to be a singleton
  * (service) and should progressively replace some of the shared "glue" code
  * scattered in suite/ (e.g. bits of utilOverlay.js,
- * contentAreaUtils.js, globalOverlay.js, browser.js), avoiding dynamic
+ * contentAreaUtils.js, globalOverlay.js), avoiding dynamic
  * inclusion and initialization of a ton of JS code for *each* window.
- * Dued to its nature and origin, this interface won't probably be the most
+ * Due to its nature and origin, this interface won't probably be the most
  * elegant or stable in the mozilla codebase, but its aim is rather pragmatic:
  * 1) reducing the performance overhead which affects browser window load;
  * 2) allow global hooks (e.g. startup and shutdown observers) which survive

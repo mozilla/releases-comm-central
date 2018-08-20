@@ -237,7 +237,7 @@
       That list is accessed here via this.SearchService, and it's that sort of
       Engine that is passed to this binding's observer as aEngine.
 
-      In addition, browser.js fills two lists of autodetected search engines
+      In addition, navigator.js fills two lists of autodetected search engines
       (browser.engines and browser.hiddenEngines) as properties of
       mCurrentBrowser.  Those lists contain unnamed JS objects of the form
       { uri:, title:, icon: }, and that's what the searchbar uses to determine
