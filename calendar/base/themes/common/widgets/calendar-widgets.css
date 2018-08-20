@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-treenode-checkbox {
+checkbox.treenode-checkbox {
   -moz-box-align: center;
   padding-top: 4px;
   padding-inline-start: 4px;
@@ -10,7 +10,7 @@ treenode-checkbox {
   font-weight: bold;
 }
 
-treenode-checkbox > .checkbox-check {
+checkbox.treenode-checkbox > .checkbox-check {
   -moz-appearance: none;
   -moz-box-align: center;
   border: none;
@@ -21,11 +21,11 @@ treenode-checkbox > .checkbox-check {
   fill: currentColor;
 }
 
-treenode-checkbox[checked="true"] > .checkbox-check {
+checkbox.treenode-checkbox[checked="true"] > .checkbox-check {
   background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
 }
 
-treenode-checkbox:-moz-locale-dir(rtl) > .checkbox-check {
+checkbox.treenode-checkbox:-moz-locale-dir(rtl) > .checkbox-check {
   background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
 }
 
@@ -41,7 +41,7 @@ treenode-checkbox:-moz-locale-dir(rtl) > .checkbox-check {
   margin: 0 !important;
 }
 
-treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox-label {
+checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox-label {
   font-weight: bold;
   border-bottom: 1px solid -moz-Dialog;
 }

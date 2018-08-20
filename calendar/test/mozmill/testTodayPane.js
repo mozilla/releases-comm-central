@@ -264,13 +264,13 @@ function testTodayPane() {
     tomorrow = lookup(`
         /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
         [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[1]/
-        anon({"class":"agenda-checkbox"})
+        anon({"class":"agenda-checkbox treenode-checkbox"})
     `).getNode();
 
     let soon = lookup(`
         /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
         [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[2]/
-        anon({"class":"agenda-checkbox"})
+        anon({"class":"agenda-checkbox treenode-checkbox"})
     `).getNode();
 
     // TODO This is failing, which might actually be an error in our code!
