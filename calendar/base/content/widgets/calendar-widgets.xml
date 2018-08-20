@@ -52,26 +52,6 @@
        a treenode in a treecontrol-->
   <binding id="treenode-checkbox" extends="chrome://global/content/bindings/checkbox.xml#checkbox"/>
 
-  <!-- this binding directly extends to a xul:box element and automatically
-       sets the "orient" attribute to "vertical" thus behaving like a vbox-->
-  <binding id="modevbox" extends="chrome://calendar/content/widgets/calendar-widgets.xml#modebox">
-    <implementation>
-      <constructor><![CDATA[
-          this.setAttribute("orient", "vertical");
-      ]]></constructor>
-    </implementation>
-  </binding>
-
-  <!-- this binding directly extends to a xul:box element and automatically
-       sets the "orient" attribute to "horizontal" thus behaving like a vbox-->
-  <binding id="modehbox" extends="chrome://calendar/content/widgets/calendar-widgets.xml#modebox">
-    <implementation>
-      <constructor><![CDATA[
-          this.setAttribute("orient", "horizontal");
-      ]]></constructor>
-    </implementation>
-  </binding>
-
   <!-- this binding directly extends to a xul:box element and enriches this with some functionality: It is designed
       to be displayed only 1) in given application modes (e.g "task" mode, "calendar" mode) and 2) only in relation
       to the "checked" attribute of command or a checkbox control.

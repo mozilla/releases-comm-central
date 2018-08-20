@@ -6,19 +6,14 @@ treenode-checkbox {
   -moz-binding: url("chrome://calendar/content/widgets/calendar-widgets.xml#treenode-checkbox");
 }
 
-modebox {
+modebox,
+modevbox {
   -moz-binding: url(chrome://calendar/content/widgets/calendar-widgets.xml#modebox);
   -moz-user-focus: normal;
 }
 
 modevbox {
-  -moz-binding: url(chrome://calendar/content/widgets/calendar-widgets.xml#modevbox);
-  -moz-user-focus: normal;
-}
-
-modehbox {
-  -moz-binding: url(chrome://calendar/content/widgets/calendar-widgets.xml#modehbox);
-  -moz-user-focus: normal;
+  -moz-box-orient: vertical;
 }
 
 toolbarbutton[doubleimage="true"] {
