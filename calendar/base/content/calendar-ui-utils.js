@@ -262,10 +262,11 @@ function sortCalendarArray(calendars) {
     }
     ret.sort(sortFunc);
 
-    // check and repair pref:
+    // check and repair pref when an array of all calendars has been passed:
     let sortOrderString = Preferences.get("calendar.list.sortOrder", "");
     let wantedOrderString = ret.map(calendar => calendar.id).join(" ");
-    if (wantedOrderString != sortOrderString) {
+    if (wantedOrderString != sortOrderString &&
+        cal.getCalendarManager().getCalendars({}).length == ret.length) {
         Preferences.set("calendar.list.sortOrder", wantedOrderString);
     }
 
