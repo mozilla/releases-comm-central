@@ -6850,6 +6850,12 @@ function InitEditor()
     gMsgCompose.composeHTML &&
     Services.prefs.getBoolPref("mail.compose.default_to_paragraph") ?
                                "p" : "br");
+  if (gMsgCompose.composeHTML) {
+    // Re-enable table/image resizers.
+    editor.QueryInterface(Ci.nsIHTMLAbsPosEditor).absolutePositioningEnabled = true;
+    editor.QueryInterface(Ci.nsIHTMLInlineTableEditor).inlineTableEditingEnabled = true;
+    editor.QueryInterface(Ci.nsIHTMLObjectResizer).objectResizingEnabled = true;
+  }
 
   editor.QueryInterface(nsIEditorStyleSheets);
   // We use addOverrideStyleSheet rather than addStyleSheet so that we get
