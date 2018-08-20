@@ -46,6 +46,7 @@
   locale/@AB_CD@/communicator/shellservice.properties                       (%chrome/common/shellservice.properties)
   locale/@AB_CD@/communicator/sanitize.dtd                                  (%chrome/common/sanitize.dtd)
   locale/@AB_CD@/communicator/setDesktopBackground.dtd                      (%chrome/common/setDesktopBackground.dtd)
+  locale/@AB_CD@/communicator/sitePermissions.properties                    (%chrome/common/sitePermissions.properties)
   locale/@AB_CD@/communicator/tasksOverlay.dtd                              (%chrome/common/tasksOverlay.dtd)
   locale/@AB_CD@/communicator/typeaheadfind.properties                      (%chrome/common/typeaheadfind.properties)
   locale/@AB_CD@/communicator/utilityOverlay.dtd                            (%chrome/common/utilityOverlay.dtd)

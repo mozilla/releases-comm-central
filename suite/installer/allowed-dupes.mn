@@ -153,6 +153,8 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icon
 chrome/classic/skin/classic/communicator/icons/smileys/smiley-sealed.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/geo.png
 chrome/classic/skin/classic/communicator/icons/geo.png
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/notification-icons.svg
+chrome/classic/skin/classic/communicator/icons/notification-icons.svg
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/save.png
 chrome/classic/skin/classic/communicator/icons/save.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/smileys/smiley-foot.png

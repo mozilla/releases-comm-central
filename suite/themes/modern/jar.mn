@@ -71,6 +71,7 @@ modern.jar:
   skin/modern/communicator/icons/lock-secure-16.png                (communicator/icons/lock-secure-16.png)
   skin/modern/communicator/icons/notification-16.png               (communicator/icons/notification-16.png)
   skin/modern/communicator/icons/notification-64.png               (communicator/icons/notification-64.png)
+  skin/modern/communicator/icons/notification-icons.svg            (communicator/icons/notification-icons.svg)
   skin/modern/communicator/icons/offline.gif                       (communicator/icons/offline.gif)
   skin/modern/communicator/icons/online.gif                        (communicator/icons/online.gif)
   skin/modern/communicator/icons/plugin.png                        (communicator/icons/plugin.png)

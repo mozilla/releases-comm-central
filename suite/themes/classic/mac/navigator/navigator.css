@@ -254,6 +254,10 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   list-style-image: url("chrome://communicator/skin/icons/geolocation-64.png");
 }
 
+.popup-notification-icon[popupid="persistent-storage"] {
+  list-style-image: url("chrome://communicator/skin/icons/notification-icons.svg#persistent-storage");
+}
+
 .popup-notification-icon[popupid="web-notifications"] {
   list-style-image: url("chrome://communicator/skin/icons/notification-64.png");
 }

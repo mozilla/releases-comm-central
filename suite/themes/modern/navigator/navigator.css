@@ -495,6 +495,10 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
   list-style-image: url("chrome://communicator/skin/icons/geolocation-64.png");
 }
 
+.popup-notification-icon[popupid="persistent-storage"] {
+  list-style-image: url("chrome://communicator/skin/icons/notification-icons.svg#persistent-storage");
+}
+
 .popup-notification-icon[popupid="web-notifications"] {
   list-style-image: url("chrome://communicator/skin/icons/notification-64.png");
 }

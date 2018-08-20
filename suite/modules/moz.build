@@ -7,8 +7,10 @@ XPCSHELL_TESTS_MANIFESTS += ['test/unit/xpcshell.ini']
 
 EXTRA_JS_MODULES += [
     'OpenInTabsUtils.jsm',
+    'PermissionUI.jsm',
     'RecentWindow.jsm',
     'Sanitizer.jsm',
+    'SitePermissions.jsm',
     'WindowsPreviewPerTab.jsm',
 ]
 

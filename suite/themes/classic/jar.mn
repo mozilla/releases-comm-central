@@ -118,6 +118,7 @@ classic.jar:
   skin/classic/communicator/icons/question-48.png                       (communicator/icons/question-48.png)
   skin/classic/communicator/icons/warning-24.png                        (communicator/icons/warning-24.png)
 #endif
+  skin/classic/communicator/icons/notification-icons.svg                (communicator/icons/notification-icons.svg)
   skin/classic/communicator/about.css                                   (communicator/about.css)
   skin/classic/communicator/aboutSupport.css                            (communicator/aboutSupport.css)
   skin/classic/communicator/brand.css                                   (communicator/brand.css)

@@ -136,6 +136,12 @@ toolbar[iconsize="small"] > #print-button[disabled="true"] {
   list-style-image: url("chrome://communicator/skin/icons/geo.png");
 }
 
+.messageImage[value="persistent-storage"] {
+  list-style-image: url("chrome://communicator/skin/icons/notification-icons.svg#persistent-storage");
+  width: 16px;
+  height: 16px;
+}
+
 .messageImage[value="webNotifications"] {
   list-style-image: url("chrome://communicator/skin/icons/notification-16.png");
 }

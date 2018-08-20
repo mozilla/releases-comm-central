@@ -13,6 +13,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.jsm",
   PromiseUtils: "resource://gre/modules/PromiseUtils.jsm",
   SafeBrowsing: "resource://gre/modules/SafeBrowsing.jsm",
+  SitePermissions: "resource:///modules/SitePermissions.jsm",
 });
 
 XPCOMUtils.defineLazyScriptGetter(this, "gEditItemOverlay",
@@ -303,15 +304,17 @@ function getWebNavigation()
 
 function BrowserReloadWithFlags(reloadFlags)
 {
-  /* First, we'll try to use the session history object to reload so
-   * that framesets are handled properly. If we're in a special
-   * window (such as view-source) that has no session history, fall
-   * back on using the web navigation's reload method.
-   */
+  // Reset temporary permissions on the current tab. This is done here
+  // because we only want to reset permissions on user reload.
+  SitePermissions.clearTemporaryPermissions(gBrowser.selectedBrowser);
 
-  var webNav = getWebNavigation();
+  // First, we'll try to use the session history object to reload so
+  // that framesets are handled properly. If we're in a special
+  // window (such as view-source) that has no session history, fall
+  // back on using the web navigation's reload method.
+  let webNav = getWebNavigation();
   try {
-    var sh = webNav.sessionHistory;
+    let sh = webNav.sessionHistory;
     if (sh)
       webNav = sh.QueryInterface(Components.interfaces.nsIWebNavigation);
   } catch (e) {

@@ -25,6 +25,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Sanitizer: "resource:///modules/Sanitizer.jsm",
   DownloadsCommon: "resource:///modules/DownloadsCommon.jsm",
   PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.jsm",
+  Integration: "resource://gre/modules/Integration.jsm",
+  PermissionUI: "resource:///modules/PermissionUI.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "DebuggerServer", () => {
@@ -1445,6 +1447,54 @@ SuiteGlue.prototype = {
 
 }
 
+/**
+ * ContentPermissionIntegration is responsible for showing the user
+ * simple permission prompts when content requests additional
+ * capabilities.
+ *
+ * While there are some built-in permission prompts, createPermissionPrompt
+ * can also be overridden by system add-ons or tests to provide new ones.
+ *
+ * This override ability is provided by Integration.jsm. See
+ * PermissionUI.jsm for an example of how to provide a new prompt
+ * from an add-on.
+ */
+const ContentPermissionIntegration = {
+  /**
+   * Creates a PermissionPrompt for a given permission type and
+   * nsIContentPermissionRequest.
+   *
+   * @param {string} type
+   *        The type of the permission request from content. This normally
+   *        matches the "type" field of an nsIContentPermissionType, but it
+   *        can be something else if the permission does not use the
+   *        nsIContentPermissionRequest model. Note that this type might also
+   *        be different from the permission key used in the permissions
+   *        database.
+   *        Example: "geolocation"
+   * @param {nsIContentPermissionRequest} request
+   *        The request for a permission from content.
+   * @return {PermissionPrompt} (see PermissionUI.jsm),
+   *         or undefined if the type cannot be handled.
+   */
+  createPermissionPrompt(type, request) {
+    switch (type) {
+      case "geolocation": {
+        return new PermissionUI.GeolocationPermissionPrompt(request);
+      }
+      case "desktop-notification": {
+        return new PermissionUI.DesktopNotificationPermissionPrompt(request);
+      }
+      case "persistent-storage": {
+        if (Services.prefs.getBoolPref("browser.storageManager.enabled")) {
+          return new PermissionUI.PersistentStoragePermissionPrompt(request);
+        }
+      }
+    }
+    return undefined;
+  },
+};
+
 function ContentPermissionPrompt() {}
 
 ContentPermissionPrompt.prototype = {
@@ -1452,74 +1502,48 @@ ContentPermissionPrompt.prototype = {
 
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIContentPermissionPrompt]),
 
-  prompt: function(aRequest)
-  {
-    // Only allow exactly one permission type here.
-    if (aRequest.types.length != 1)
-      return;
+  /**
+   * This implementation of nsIContentPermissionPrompt.prompt ensures
+   * that there's only one nsIContentPermissionType in the request,
+   * and that it's of type nsIContentPermissionType. Failing to
+   * satisfy either of these conditions will result in this method
+   * throwing NS_ERRORs. If the combined ContentPermissionIntegration
+   * cannot construct a prompt for this particular request, an
+   * NS_ERROR_FAILURE will be thrown.
+   *
+   * Any time an error is thrown, the nsIContentPermissionRequest is
+   * cancelled automatically.
+   *
+   * @param {nsIContentPermissionRequest} request
+   *        The request that we're to show a prompt for.
+   */
+  prompt(request) {
+    try {
+      // Only allow exactly one permission request here.
+      let types = request.types.QueryInterface(Ci.nsIArray);
+      if (types.length != 1) {
+        throw Components.Exception(
+          "Expected an nsIContentPermissionRequest with only 1 type.",
+          Cr.NS_ERROR_UNEXPECTED);
+      }
 
-    const kFeatureKeys = { "geolocation" : "geo",
-                           "desktop-notification" : "desktop-notification",
-                         };
+      let type = types.queryElementAt(0, Ci.nsIContentPermissionType).type;
+      let combinedIntegration =
+        Integration.contentPermission.getCombined(ContentPermissionIntegration);
 
-    // Make sure that we support the request.
-    var type = aRequest.types.queryElementAt(0, Ci.nsIContentPermissionType).type;
-    if (!(type in kFeatureKeys))
-      return;
+      let permissionPrompt =
+        combinedIntegration.createPermissionPrompt(type, request);
+      if (!permissionPrompt) {
+        throw Components.Exception(
+          "Failed to handle permission of type ${type}",
+          Cr.NS_ERROR_FAILURE);
+      }
 
-    var path, host;
-    var requestingPrincipal = aRequest.principal;
-    var requestingURI = requestingPrincipal.URI;
-
-    if (requestingURI instanceof Ci.nsIFileURL)
-      path = requestingURI.file.path;
-    else if (requestingURI instanceof Ci.nsIStandardURL)
-      host = requestingURI.host;
-    // Ignore requests from non-nsIStandardURLs
-    else
-      return;
-
-    var perm = kFeatureKeys[type];
-    switch (Services.perms.testExactPermissionFromPrincipal(requestingPrincipal, perm)) {
-      case Services.perms.ALLOW_ACTION:
-        aRequest.allow();
-        return;
-      case Services.perms.DENY_ACTION:
-        aRequest.cancel();
-        return;
-    }
-
-    function allowCallback(remember, expireType) {
-      if (remember)
-        Services.perms.addFromPrincipal(requestingPrincipal, perm,
-                                        Services.perms.ALLOW_ACTION,
-                                        expireType);
-      aRequest.allow();
-    }
-
-    function cancelCallback(remember, expireType) {
-      if (remember)
-        Services.perms.addFromPrincipal(requestingPrincipal, perm,
-                                        Services.perms.DENY_ACTION,
-                                        expireType);
-      aRequest.cancel();
-    }
-
-    var nb = aRequest.window
-                     .QueryInterface(Ci.nsIInterfaceRequestor)
-                     .getInterface(Ci.nsIWebNavigation)
-                     .QueryInterface(Ci.nsIDocShell)
-                     .chromeEventHandler.parentNode;
-
-    // Show the prompt.
-    switch (type) {
-      case "geolocation":
-        nb.showGeolocationPrompt(path, host, allowCallback, cancelCallback);
-        break;
-      case "desktop-notification":
-        if (host)
-          nb.showWebNotificationPrompt(host, allowCallback, cancelCallback);
-        break;
+      permissionPrompt.prompt();
+    } catch (ex) {
+      Cu.reportError(ex);
+      request.cancel();
+      throw ex;
     }
   },
 };

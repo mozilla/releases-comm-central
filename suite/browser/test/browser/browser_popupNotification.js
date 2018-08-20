@@ -733,9 +733,7 @@ function triggerMainCommand(popup) {
   let notifications = popup.childNodes;
   ok(notifications.length > 0, "at least one notification displayed");
   let notification = notifications[0];
-
-  // 20, 10 so that the inner button is hit
-  EventUtils.synthesizeMouse(notification.button, 20, 10, {});
+  EventUtils.synthesizeMouseAtCenter(notification.button, {});
 }
 
 function triggerSecondaryCommand(popup, index) {
@@ -743,8 +741,8 @@ function triggerSecondaryCommand(popup, index) {
   let notifications = popup.childNodes;
   ok(notifications.length > 0, "at least one notification displayed");
   let notification = notifications[0];
-
-  notification.button.focus();
+  info("Triggering secondary command for notification " + notification.id);
+  notification.button.nextSibling.nextSibling.focus();
 
   popup.addEventListener("popupshown", function triggerPopupShown() {
     popup.removeEventListener("popupshown", triggerPopupShown);
