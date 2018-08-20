@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-LOCALE_TOPDIR=$(commtopsrcdir)
+LOCALE_TOPDIR=$(topsrcdir)/comm
 LOCALE_RELATIVEDIR=suite/locales
 
-include $(moztopsrcdir)/config/config.mk
+include $(topsrcdir)/config/config.mk
 
 MERGE_FILES = $(foreach f,$(1),$(call MERGE_FILE,$(f)))
 
@@ -42,7 +42,7 @@ MOZ_PKG_MAC_ICON=$(ABS_DIST)/branding/disk.icns
 MOZ_PKG_MAC_EXTRA=--symlink '/Applications:/ '
 endif
 
-MOZ_SFX_PACKAGE=$(commtopsrcdir)/other-licenses/7zstub/seamonkey/7zSD.sfx
+MOZ_SFX_PACKAGE=$(topsrcdir)/comm/other-licenses/7zstub/seamonkey/7zSD.sfx
 
 NON_OMNIJAR_FILES = \
 	defaults/messenger/mailViews.dat \
@@ -72,13 +72,11 @@ libs:: searchplugins
 # Currently not set in SeaMonkey.
 DIST_SUBDIRS = $(DIST_SUBDIR)
 
-include $(moztopsrcdir)/config/rules.mk
+include $(topsrcdir)/config/rules.mk
 
-ifeq ($(commreltopsrcdir),comm)
 COMPARE_LOCALES_DEFINES += -Dmozilla=..
-endif
 
-include $(moztopsrcdir)/toolkit/locales/l10n.mk
+include $(topsrcdir)/toolkit/locales/l10n.mk
 
 $(list-txt): $(call mkdir_deps,$(SEARCHPLUGINS_PATH)) $(if $(IS_LANGUAGE_REPACK),FORCE)
 	$(RM) $(list-txt)
@@ -202,13 +200,13 @@ endif
 
 ident:
 	@printf 'comm_revision '
-	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App SourceStamp
 	@printf 'moz_revision '
-	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/platform.ini' Build SourceStamp
 	@printf 'buildid '
-	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App BuildID
 
 ifdef MOZ_IRC

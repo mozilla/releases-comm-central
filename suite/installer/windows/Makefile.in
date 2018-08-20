@@ -2,12 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(moztopsrcdir)/toolkit/mozapps/installer/package-name.mk
+include $(topsrcdir)/toolkit/mozapps/installer/package-name.mk
 
 CONFIG_DIR = instgen
-SFX_MODULE = $(commtopsrcdir)/other-licenses/7zstub/seamonkey/7zSD.sfx
+SFX_MODULE = $(topsrcdir)/comm/other-licenses/7zstub/seamonkey/7zSD.sfx
 
-EXPAND_COMM_LOCALE_SRCDIR = $(if $(filter en-US,$(AB_CD)),$(topsrcdir)/$(commreltopsrcdir)/$(1)/en-US,$(or $(realpath $(L10NBASEDIR)),$(abspath $(L10NBASEDIR)))/$(AB_CD)/$(subst /locales,,$(1)))
+EXPAND_COMM_LOCALE_SRCDIR = $(if $(filter en-US,$(AB_CD)),$(topsrcdir)/comm/$(1)/en-US,$(or $(realpath $(L10NBASEDIR)),$(abspath $(L10NBASEDIR)))/$(AB_CD)/$(subst /locales,,$(1)))
 
 INSTALLER_FILES = \
 	app.tag \
@@ -28,13 +28,13 @@ ifdef MOZ_UPDATER
 DEFINES += -DMOZ_UPDATER=1
 endif
 
-include $(moztopsrcdir)/config/config.mk
+include $(topsrcdir)/config/config.mk
 
 ifdef IS_LANGUAGE_REPACK
 PPL_LOCALE_ARGS = \
   --l10n-dir=$(REAL_LOCALE_MERGEDIR)/suite/installer/windows \
   --l10n-dir=$(call EXPAND_COMM_LOCALE_SRCDIR,suite/locales)/installer/windows \
-  --l10n-dir=$(commtopsrcdir)/suite/locales/en-US/installer/windows \
+  --l10n-dir=$(topsrcdir)/comm/suite/locales/en-US/installer/windows \
   $(NULL)
 else
 PPL_LOCALE_ARGS=$(call EXPAND_COMM_LOCALE_SRCDIR,suite/locales)/installer/windows
@@ -45,15 +45,15 @@ $(CONFIG_DIR)/setup.exe::
 	$(MKDIR) $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(srcdir)/,$(INSTALLER_FILES)) $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/,$(BRANDING_FILES)) $(CONFIG_DIR)
-	$(PYTHON) $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
-	  --convert-utf8-utf16le $(commtopsrcdir)/suite/installer/license.txt $(CONFIG_DIR)/license.txt
+	$(PYTHON) $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
+	  --convert-utf8-utf16le $(topsrcdir)/comm/suite/installer/license.txt $(CONFIG_DIR)/license.txt
 	$(call py_action,preprocessor,-Fsubstitution $(DEFINES) $(ACDEFINES) \
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
-	$(PYTHON) $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
-	  --preprocess-locale $(moztopsrcdir) \
+	$(PYTHON) $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
+	  --preprocess-locale $(topsrcdir) \
 	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
 
 GARBARGE_DIRS += instgen
 
-include $(moztopsrcdir)/config/rules.mk
-include $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/makensis.mk
+include $(topsrcdir)/config/rules.mk
+include $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/makensis.mk

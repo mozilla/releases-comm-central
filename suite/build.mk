@@ -2,29 +2,28 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-ifndef COMM_BUILD
 package:
-	@$(MAKE) -C $(commtopobjdir)/suite/installer
+	@$(MAKE) -C comm/suite/installer
 
 package-compare:
-	@$(MAKE) -C $(commtopobjdir)/suite/installer package-compare
+	@$(MAKE) -C comm/suite/installer package-compare
 
 install::
-	@$(MAKE) -C $(commtopobjdir)/suite/installer install
+	@$(MAKE) -C comm/suite/installer install
 
 source-package::
-	@$(MAKE) -C $(commtopobjdir)/suite/installer source-package
+	@$(MAKE) -C comm/suite/installer source-package
 
 upload::
-	@$(MAKE) -C $(commtopobjdir)/suite/installer upload
+	@$(MAKE) -C comm/suite/installer upload
 
 source-upload::
-	@$(MAKE) -C $(commtopobjdir)/suite/installer source-upload
+	@$(MAKE) -C comm/suite/installer source-upload
 
 # make -j1 because dependencies in l10n build targets don't work
 # with parallel builds
 merge-% installers-% langpack-% chrome-% clobber-%:
-	$(MAKE) -j1 -C $(commtopobjdir)/suite/locales $@
+	$(MAKE) -j1 -C comm/suite/locales $@
 
 # mochitests need to be run from the Mozilla build system
 ifdef ENABLE_TESTS
@@ -38,5 +37,4 @@ mochitest-browser-chrome:
 mochitest:: mochitest-browser-chrome
 
 .PHONY: mochitest-browser-chrome
-endif
 endif

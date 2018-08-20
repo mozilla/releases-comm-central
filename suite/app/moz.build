@@ -12,10 +12,10 @@ USE_LIBS += ['mozglue']
 SOURCES += ['nsSuiteApp.cpp']
 LOCAL_INCLUDES += [
     '!/build',
-    '/%s/ipc/contentproc/' % CONFIG['mozreltopsrcdir'],
-    '/%s/toolkit/xre' % CONFIG['mozreltopsrcdir'],
-    '/%s/xpcom/base' % CONFIG['mozreltopsrcdir'],
-    '/%s/xpcom/build' % CONFIG['mozreltopsrcdir'],
+    '/ipc/contentproc/',
+    '/toolkit/xre',
+    '/xpcom/base',
+    '/xpcom/build',
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
@@ -25,7 +25,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 if CONFIG['LIBFUZZER']:
     USE_LIBS += [ 'fuzzer' ]
     LOCAL_INCLUDES += [
-        '/%s/tools/fuzzing/libfuzzer' % CONFIG['mozreltopsrcdir'],
+        '/tools/fuzzing/libfuzzer',
     ]
 
 if CONFIG['_MSC_VER']:
@@ -36,8 +36,8 @@ if CONFIG['_MSC_VER']:
 if CONFIG['MOZ_SANDBOX'] and CONFIG['OS_ARCH'] == 'WINNT':
     # For sandbox includes and the include dependencies those have
     LOCAL_INCLUDES += [
-        '/%s/security/sandbox/chromium' % CONFIG['mozreltopsrcdir'],
-        '/%s/security/sandbox/chromium-shim' % CONFIG['mozreltopsrcdir'],
+        '/security/sandbox/chromium',
+        '/security/sandbox/chromium-shim',
     ]
 
     USE_LIBS += [

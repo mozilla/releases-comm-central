@@ -20,7 +20,7 @@ MOZ_WINCONSOLE = 0
 endif
 endif
 
-include $(moztopsrcdir)/config/config.mk
+include $(topsrcdir)/config/config.mk
 
 # If we are trying to show an error dialog about the lack of SSE2 support,
 # make sure that code itself doesn't use SSE2.
@@ -39,14 +39,14 @@ ifeq ($(OS_ARCH),WINNT)
 EXTRA_DEPS += seamonkey.exe.manifest
 endif
 
-include $(moztopsrcdir)/config/rules.mk
+include $(topsrcdir)/config/rules.mk
 
 libs::
 ifeq ($(OS_ARCH),WINNT)
 	$(EXIT_ON_ERROR) \
-	$(PERL) -pe 's/(?<!\r)\n/\r\n/g;' < $(commtopsrcdir)/suite/installer/license.txt > $(DIST)/bin/license.txt
+	$(PERL) -pe 's/(?<!\r)\n/\r\n/g;' < $(topsrcdir)/comm/suite/installer/license.txt > $(DIST)/bin/license.txt
 else
-	$(INSTALL) $(IFLAGS1) $(commtopsrcdir)/suite/installer/license.txt $(DIST)/bin/
+	$(INSTALL) $(IFLAGS1) $(topsrcdir)/comm/suite/installer/license.txt $(DIST)/bin/
 endif
 
 ifneq ($(OS_ARCH),WINNT)
