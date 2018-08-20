@@ -671,15 +671,6 @@
           }
         }
 
-        var paneToLoad;
-        if ("arguments" in window && window.arguments[0] && document.getElementById(window.arguments[0]) && document.getElementById(window.arguments[0]).nodeName == "prefpane") {
-          paneToLoad = document.getElementById(window.arguments[0]);
-          this.lastSelected = paneToLoad.id;
-        } else if (lastPane)
-          paneToLoad = lastPane;
-        else
-          paneToLoad = panes[0];
-
         for (var i = 0; i < panes.length; ++i) {
           this._makePaneButton(panes[i]);
           if (panes[i].loaded) {
@@ -687,7 +678,8 @@
             this._fireEvent("paneload", panes[i]);
           }
         }
-        this.showPane(paneToLoad);
+
+        this.showPane(lastPane || panes[0]);
 
         if (panes.length == 1)
           this._selector.setAttribute("collapsed", "true");

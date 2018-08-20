@@ -7,26 +7,6 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource:///modules/mailServices.js");
 
 window.addEventListener("load", function () {
-  /**
-   * Arguments passed to openDialog() will appear here as follows:
-   *
-   * @param window.arguments[0]  ID of prefpane to select
-   * @param window.arguments[1]  ID of tab to select on the prefpane
-   * @param window.arguments[2]  Other prefpane specific arguments.
-   *                             If it contains a "subdialog" property, then
-   *                             the value is used as an element ID
-   *                             of a button to activate to open a subdialog.
-   */
-  let paneID = null;
-  let tabID = null;
-  let subdialogID = null;
-  if ("arguments" in window) {
-    paneID = window.arguments[0];
-    tabID = window.arguments[1];
-    if (window.arguments[2] && ("subdialog" in window.arguments[2]))
-      subdialogID = window.arguments[2].subdialog;
-  }
-
   let prefWindow = document.getElementById("MailPreferences");
   if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
     let radio =
@@ -35,8 +15,6 @@ window.addEventListener("load", function () {
       prefWindow.showPane(document.getElementById("paneGeneral"));
     radio.hidden = true;
   }
-
-  selectPaneAndTab(prefWindow, paneID, tabID, subdialogID);
 });
 
 /**

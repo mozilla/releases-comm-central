@@ -92,9 +92,13 @@ var preferencesTabType = {
         aTab.pageLoaded = true;
 
         if ("onLoad" in aArgs) {
-          aArgs.onLoad(event, aTab.browser);
+          // Let selection of the initial pane complete before selecting another.
+          // Otherwise we can end up with two panes selected at once.
+          setTimeout(() => {
+            aArgs.onLoad(event, aTab.browser);
+          }, 0);
         }
-      }, {capture: true, once: true}
+      }, { once: true }
     );
 
 
