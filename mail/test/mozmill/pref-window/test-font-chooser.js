@@ -21,6 +21,7 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var gFontEnumerator;
+var gTodayPane;
 
 // We'll test with Western. Unicode has issues on Windows (bug 550443).
 const kLanguage = "x-western";
@@ -39,6 +40,17 @@ function setupModule(module) {
   let finished = false;
   buildFontList().then(() => finished = true, Cu.reportError);
   mc.waitFor(() => finished, "Timeout waiting for font enumeration to complete.");
+
+  // Hide Lightning's Today pane as it obscures buttons in preferences in the
+  // small TB window our tests run in.
+  gTodayPane = mc.e("today-pane-panel");
+  if (gTodayPane) {
+    if (!gTodayPane.collapsed) {
+      mc.keypress(null, "VK_F11", {});
+    } else {
+      gTodayPane = null;
+    }
+  }
 }
 
 async function buildFontList() {
@@ -197,4 +209,7 @@ function teardownTest() {
 
 function teardownModule() {
   Services.prefs.clearUserPref("font.language.group");
+  if (gTodayPane && gTodayPane.collapsed) {
+    mc.keypress(null, "VK_F11", {});
+  }
 }
