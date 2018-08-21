@@ -10,7 +10,7 @@ const nsIProtocolHandler = Ci.nsIProtocolHandler;
 function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
   return {
     classID: Components.ID(aCID),
-    QueryInterface: XPCOMUtils.generateQI([nsIProtocolHandler]),
+    QueryInterface: ChromeUtils.generateQI([nsIProtocolHandler]),
 
     scheme: aProtocol,
     defaultPort: aDefaultPort,

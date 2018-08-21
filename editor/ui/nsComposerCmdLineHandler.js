@@ -16,7 +16,7 @@ nsComposerCmdLineHandler.prototype = {
   },
 
   /* nsISupports */
-  QueryInterface: XPCOMUtils.generateQI([nsICommandLineHandler]),
+  QueryInterface: ChromeUtils.generateQI([nsICommandLineHandler]),
 
   /* nsICommandLineHandler */
   handle : function handle(cmdLine) {

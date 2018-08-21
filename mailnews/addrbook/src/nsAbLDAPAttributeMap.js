@@ -207,8 +207,7 @@ nsAbLDAPAttributeMap.prototype = {
     return;
   },
 
-  QueryInterface: XPCOMUtils
-    .generateQI([Ci.nsIAbLDAPAttributeMap])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbLDAPAttributeMap])
 }
 
 function nsAbLDAPAttributeMapService() {
@@ -239,8 +238,7 @@ nsAbLDAPAttributeMapService.prototype = {
     return attrMap;
   },
 
-  QueryInterface: XPCOMUtils
-    .generateQI([Ci.nsIAbLDAPAttributeMapService])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbLDAPAttributeMapService])
 }
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsAbLDAPAttributeMap, nsAbLDAPAttributeMapService]);
