@@ -134,11 +134,6 @@ var nsMailNewsCommandLineHandler =
   helpInfo: "  -mail              Open the mail folder view.\n" +
             "  -mail <URL>        Open the message specified by this URL.\n",
 
-  classInfo: XPCOMUtils.generateCI({classID: CMDLINEHANDLER_CID,
-                                    contractID: CMDLINEHANDLER_CONTRACTID,
-                                    interfaces: [Ci.nsICommandLineHandler],
-                                    flags: Ci.nsIClassInfo.SINGLETON}),
-
   /* nsIFactory */
   createInstance: function(outer, iid) {
     if (outer != null)

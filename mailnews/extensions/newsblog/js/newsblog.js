@@ -19,12 +19,6 @@ FeedDownloader.prototype = {
   },
 
   classID: Components.ID("{5c124537-adca-4456-b2b5-641ab687d1f6}"),
-  classInfo: XPCOMUtils.generateCI({
-               classID: "{5c124537-adca-4456-b2b5-641ab687d1f6}",
-               contractID: "@mozilla.org/newsblog-feed-downloader;1",
-               classDescription: "Feed Downloader",
-               interfaces: [Ci.nsINewsBlogFeedDownloader],
-               flags: Ci.nsIClassInfo.SINGLETON}),
   QueryInterface: ChromeUtils.generateQI([Ci.nsINewsBlogFeedDownloader]),
 };
 
@@ -35,12 +29,6 @@ FeedAcctMgrExtension.prototype = {
   showPanel: server => false,
 
   classID: Components.ID("{E109C05F-D304-4ca5-8C44-6DE1BFAF1F74}"),
-  classInfo: XPCOMUtils.generateCI({
-               classID: "{E109C05F-D304-4ca5-8C44-6DE1BFAF1F74}",
-               contractID: "@mozilla.org/accountmanager/extension;1?name=newsblog",
-               classDescription: "Feed Account Manager Extension",
-               interfaces: [Ci.nsIMsgAccountManagerExtension],
-               flags: Ci.nsIClassInfo.SINGLETON}),
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgAccountManagerExtension]),
 };
 
