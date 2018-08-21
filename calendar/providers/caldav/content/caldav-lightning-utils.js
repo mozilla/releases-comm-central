@@ -6,8 +6,6 @@
  *          caldavUpdateForceEmailSchedulingControl
  */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
 /**
  * Initializing calendar creation wizard and properties dialog to display the
  * option to enforce email scheduling for outgoing scheduling operations

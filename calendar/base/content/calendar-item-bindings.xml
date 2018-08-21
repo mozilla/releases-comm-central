@@ -30,10 +30,6 @@
     <implementation>
       <field name="mItem">null</field>
 
-      <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-      ]]></constructor>
-
       <property name="mode"
                 readonly="true">
         <getter><![CDATA[

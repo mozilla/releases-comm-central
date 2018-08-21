@@ -4,7 +4,7 @@
 
 /* exported onLoad, onAccept, onCancel */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 function onLoad() {
     let extension = window.arguments[0].extension;

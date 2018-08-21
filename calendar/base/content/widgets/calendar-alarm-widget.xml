@@ -53,10 +53,6 @@
     </content>
 
     <implementation>
-      <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-      ]]></constructor>
-
       <field name="mItem">null</field>
       <field name="mAlarm">null</field>
 
@@ -260,7 +256,6 @@
     <implementation>
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           let snoozePref = Preferences.get("calendar.alarms.defaultsnoozelength", 0);
           if (snoozePref <= 0) {

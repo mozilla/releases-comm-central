@@ -5,7 +5,7 @@
 /* exported recurrenceRule2String, splitRecurrenceRules, checkRecurrenceRule */
 
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 this.EXPORTED_SYMBOLS = ["recurrenceRule2String", "splitRecurrenceRules", "checkRecurrenceRule"];
 

@@ -7,7 +7,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "pref-window-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var frame = {};

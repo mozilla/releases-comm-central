@@ -36,7 +36,6 @@
 
     <implementation>
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           this.setUpTodayDate();
       ]]></constructor>
 
@@ -310,10 +309,6 @@
     <implementation>
       <field name="mDropShadows">[]</field>
       <field name="mCalendarView">null</field>
-
-      <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-      ]]></constructor>
 
       <!-- The ViewController that supports the interface 'calICalendarView'-->
       <property name="calendarView"

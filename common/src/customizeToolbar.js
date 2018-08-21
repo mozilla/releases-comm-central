@@ -548,7 +548,7 @@ function updateTitlebar() {
 
   // Bring the customizeToolbar window to front (on linux it's behind the main
   // window). Otherwise the customization window gets left in the background.
-  setTimeout(function() { window.focus() }, 100);
+  setTimeout(() => window.focus(), 100);
 }
 
 function updateToolbarMode(aModeValue) {

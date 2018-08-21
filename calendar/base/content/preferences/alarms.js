@@ -4,7 +4,6 @@
 
 /* exported gAlarmsPane */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**

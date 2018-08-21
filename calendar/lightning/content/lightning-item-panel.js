@@ -13,20 +13,9 @@
  */
 
 // XXX Need to determine which of these we really need here.
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-try {
-    ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-} catch (e) {
-    // This will fail on Seamonkey, but thats ok since the pref for cloudfiles
-    // is false, which means the UI will not be shown
-}
+var { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
 
 // gTabmail is null if we are in a dialog window and not in a tab.
 var gTabmail = document.getElementById("tabmail") || null;

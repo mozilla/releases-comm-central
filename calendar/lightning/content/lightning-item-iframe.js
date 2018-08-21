@@ -14,13 +14,15 @@
  *          applyValues
  */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+const {
+    recurrenceRule2String,
+    splitRecurrenceRules,
+    checkRecurrenceRule
+} = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 try {
     ChromeUtils.import("resource:///modules/cloudFileAccounts.js");

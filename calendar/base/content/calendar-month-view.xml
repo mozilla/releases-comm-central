@@ -69,10 +69,6 @@
       </xul:vbox>
     </content>
     <implementation>
-      <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-      ]]></constructor>
-
       <property name="occurrence">
         <getter><![CDATA[
             return this.mOccurrence;
@@ -143,10 +139,6 @@
     </content>
 
     <implementation>
-      <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-      ]]></constructor>
-
       <field name="mDate">null</field>
       <field name="mItemHash">{}</field>
       <field name="mShowMonthLabel">false</field>
@@ -423,7 +415,6 @@
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           // Set the preference for the default start of the week
           this.weekStartOffset = Preferences.get("calendar.week.start", 0);

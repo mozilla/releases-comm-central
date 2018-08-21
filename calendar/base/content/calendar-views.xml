@@ -12,9 +12,6 @@
   <binding id="calendar-day-view"
            extends="chrome://calendar/content/calendar-multiday-view.xml#calendar-multiday-view">
     <implementation implements="calICalendarView">
-      <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-      ]]></constructor>
       <property name="observerID">
         <getter><![CDATA[
             return "day-view-observer";
@@ -56,8 +53,6 @@
            extends="chrome://calendar/content/calendar-multiday-view.xml#calendar-multiday-view">
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
           // add a listener for the mode change
           this.mModeHandler = (event) => {
               if (event.attrName == "mode") {
@@ -123,7 +118,6 @@
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           this.mWeeksInView = Preferences.get("calendar.weeks.inview", 4);
       ]]></constructor>
 
@@ -228,10 +222,6 @@
 
   <binding id="calendar-month-view" extends="chrome://calendar/content/calendar-month-view.xml#calendar-month-base-view">
     <implementation implements="calICalendarView">
-      <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-      ]]></constructor>
-
       <property name="observerID">
         <getter><![CDATA[
             return "month-view-observer";

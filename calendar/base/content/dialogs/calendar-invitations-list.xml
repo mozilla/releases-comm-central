@@ -118,7 +118,7 @@
 
       <!-- constructor -->
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
           this.mDateFormatter = cal.getDateFormatter();
       ]]></constructor>
 

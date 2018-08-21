@@ -4,9 +4,8 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 function Synthetic(aHeader, aDuration, aMultiday) {
     this.open = aHeader.getAttribute("checked") == "true";
@@ -956,7 +955,7 @@ agendaListbox.calendarObserver.onModifyItem = function(newItem, oldItem) {
     setCurrentEvent();
 };
 
-agendaListbox.calendarObserver.onError = function(cal, errno, msg) {};
+agendaListbox.calendarObserver.onError = function(_cal, errno, msg) {};
 
 agendaListbox.calendarObserver.onPropertyChanged = function(aCalendar, aName, aValue, aOldValue) {
     switch (aName) {

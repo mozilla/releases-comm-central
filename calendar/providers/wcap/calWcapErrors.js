@@ -6,8 +6,6 @@
  *          errorToString
  */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
 var NS_ERROR_INVALID_ARG = Components.results.NS_ERROR_INVALID_ARG;
 
 //

@@ -12,7 +12,7 @@
  *          getOtherOrientation, updateSelectedLabel, setupAttendanceMenu
  */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 /**

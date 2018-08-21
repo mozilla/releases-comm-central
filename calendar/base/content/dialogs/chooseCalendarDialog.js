@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported loadCalendars, doOK, doExtra1 */
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 function loadCalendars() {
     const calendarManager = Components.classes["@mozilla.org/calendar/manager;1"]

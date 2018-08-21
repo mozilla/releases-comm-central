@@ -4,8 +4,7 @@
 
 /* exported onLoad, onUnload, onAccept, onCancel */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 /**
  * Sets up the invitations dialog from the window arguments, retrieves the

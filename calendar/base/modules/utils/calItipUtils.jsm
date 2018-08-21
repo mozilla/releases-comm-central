@@ -5,7 +5,7 @@
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+const { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 

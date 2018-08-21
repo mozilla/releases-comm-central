@@ -9,9 +9,8 @@
  *          editSelectedEvents, selectAllEvents
  */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
@@ -685,7 +684,6 @@ function selectAllEvents() {
     composite.getItems(filter, 0, currentView().startDay, end, listener);
 }
 
-var cal = cal || {};
 cal.navigationBar = {
     setDateRange: function(aStartDate, aEndDate) {
         let docTitle = "";

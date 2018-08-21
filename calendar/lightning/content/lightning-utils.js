@@ -6,9 +6,9 @@
  *          ltnSaveMailIdentitySelection, ltnNotifyOnIdentitySelection
  */
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+var { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 /**
  * Initializing the email identity row

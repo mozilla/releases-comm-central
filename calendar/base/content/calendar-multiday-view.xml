@@ -93,7 +93,7 @@
 
       <method name="relayout">
         <body><![CDATA[
-            ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+            const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
             let topbox = document.getAnonymousElementByAttribute(this, "anonid", "topbox");
             let orient = topbox.getAttribute("orient");
 
@@ -245,7 +245,7 @@
 
     <implementation>
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
           this.mEventInfos = [];
           this.mTimezone = cal.dtz.UTC;
@@ -1943,7 +1943,7 @@
         <parameter name="aFirstColumn"/>
         <parameter name="aLastColumn"/>
         <body><![CDATA[
-            ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+            const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
             if (!this.mDragState) {
                 return;
             }
@@ -2105,8 +2105,6 @@
     <implementation>
       <field name="mItemBoxes">null</field>
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
           this.mItemBoxes = [];
       ]]></constructor>
 
@@ -2297,8 +2295,6 @@
 
     <implementation>
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
           this.orient = this.getAttribute("orient");
       ]]></constructor>
 
@@ -2515,7 +2511,6 @@
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           // get day start/end hour from prefs and set on the view
           this.setDayStartEndMinutes(Preferences.get("calendar.view.daystarthour", 8) * 60,

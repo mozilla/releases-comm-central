@@ -4,7 +4,7 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Console.jsm");
+const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm", null);
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 // Usually the backend loader gets loaded via profile-after-change, but in case
@@ -483,5 +483,5 @@ function makeQI(aInterfaces) {
 }
 
 // Backwards compatibility for bug 905097. Please remove with Thunderbird 61.
-ChromeUtils.import("resource://calendar/modules/calUtilsCompat.jsm");
+const { injectCalUtilsCompat } = ChromeUtils.import("resource://calendar/modules/calUtilsCompat.jsm", null);
 injectCalUtilsCompat(cal);

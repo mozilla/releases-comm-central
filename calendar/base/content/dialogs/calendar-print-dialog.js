@@ -4,8 +4,7 @@
 
 /* exported loadCalendarPrintDialog, printAndClose, onDatePick */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 var printContent = "";
 

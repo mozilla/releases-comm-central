@@ -16,10 +16,8 @@
       -->
     <implementation>
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           let calMgr = cal.getCalendarManager();
           calMgr.addObserver(this.calMgrObserver);
-
       ]]></constructor>
       <destructor><![CDATA[
           let calMgr = cal.getCalendarManager();
@@ -230,8 +228,6 @@
       <field name="cycleDebounce">200</field>
 
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-          ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
           this.tree.view = this;
           this.ruleCache = {};
           this.mCycleCalendarFlag = {};

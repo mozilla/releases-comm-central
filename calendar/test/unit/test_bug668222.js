@@ -12,7 +12,7 @@ function run_test() {
 
     // Reserialize the property, this has caused the property to go away
     // in the past.
-    attendee.icalProperty = attendee.icalProperty;
+    attendee.icalProperty = attendee.icalProperty; // eslint-disable-line no-self-assign
     equal(attendee.getProperty("SCHEDULE-AGENT"), "CLIENT");
 
     // Also make sure there are no promoted properties set. This does not

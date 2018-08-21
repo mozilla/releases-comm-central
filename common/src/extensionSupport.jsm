@@ -13,7 +13,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 // ChromeUtils.import("resource://gre/modules/Deprecated.jsm") - needed for warning.
 ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var extensionHooks = new Map();

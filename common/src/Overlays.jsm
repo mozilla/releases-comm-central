@@ -10,8 +10,7 @@
 
 this.EXPORTED_SYMBOLS = ["Overlays"];
 
-ChromeUtils.import("resource://gre/modules/Console.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm", null);
 ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "setTimeout", "resource://gre/modules/Timer.jsm");
 

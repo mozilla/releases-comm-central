@@ -4,7 +4,7 @@
 
 /* exported onLoad, onAccept, onCancel */
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 /**
  * Sets up the timezone dialog from the window arguments, also setting up all

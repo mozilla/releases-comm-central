@@ -378,7 +378,6 @@
 
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           let args = window.arguments[0];
           let startTime = args.startTime;
@@ -614,7 +613,6 @@
 
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.initTimeRange();
           let grid = document.getElementById("freebusy-grid");
@@ -963,7 +961,6 @@
 
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.initTimeRange();
 

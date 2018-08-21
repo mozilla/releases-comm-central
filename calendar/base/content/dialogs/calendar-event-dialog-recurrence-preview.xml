@@ -33,8 +33,6 @@
       <field name="mDateTime">null</field>
 
       <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
           this.mResizeHandler = this.onResize.bind(this);
           window.addEventListener("resize", this.mResizeHandler, true);
       ]]></constructor>

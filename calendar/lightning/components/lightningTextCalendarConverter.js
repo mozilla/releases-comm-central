@@ -4,9 +4,8 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm", null);
 
 function ltnMimeConverter() {
     this.wrappedJSObject = this;

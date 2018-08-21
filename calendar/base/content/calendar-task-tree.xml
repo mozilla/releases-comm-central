@@ -112,8 +112,7 @@
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
           ChromeUtils.import("resource://gre/modules/Services.jsm");
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-          ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
           // set up the tree filter
           this.mFilter = new calFilter();
@@ -1154,10 +1153,6 @@
 
   <binding id="calendar-task-tree-todaypane" extends="chrome://calendar/content/calendar-task-tree.xml#calendar-task-tree">
     <implementation>
-      <constructor><![CDATA[
-          ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-      ]]></constructor>
-
       <method name="getInitialDate">
         <body><![CDATA[
             let initialDate = agendaListbox.today ? agendaListbox.today.start : cal.dtz.now();

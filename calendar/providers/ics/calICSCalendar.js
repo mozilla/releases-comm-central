@@ -6,7 +6,7 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 //
 // calICSCalendar.js
@@ -86,7 +86,7 @@ calICSCalendar.prototype = {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    deleteCalendar: function(cal, listener) {
+    deleteCalendar: function(_cal, listener) {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
 

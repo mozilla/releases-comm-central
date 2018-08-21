@@ -4,8 +4,8 @@
 
 /* exported onLoad, onAccept, onCancel */
 
-ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { splitRecurrenceRules } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gIsReadOnly = false;
@@ -499,30 +499,6 @@ function enableRecurrenceFields(aAttributeName) {
     for (let i = 0; i < enableElements.length; i++) {
         enableElements[i].removeAttribute("disabled");
     }
-}
-
-/**
- * Split rules into negative and positive rules.
- *
- * XXX This function is duplicate from calendar-dialog-utils.js, which we may
- * want to include in this dialog.
- *
- * @param recurrenceInfo    An item's recurrence info to parse.
- * @return                  An array with two elements: an array of positive
- *                            rules and an array of negative rules.
- */
-function splitRecurrenceRules(recurrenceInfo) {
-    let recItems = recurrenceInfo.getRecurrenceItems({});
-    let rules = [];
-    let exceptions = [];
-    for (let recItem of recItems) {
-        if (recItem.isNegative) {
-            exceptions.push(recItem);
-        } else {
-            rules.push(recItem);
-        }
-    }
-    return [rules, exceptions];
 }
 
 /**

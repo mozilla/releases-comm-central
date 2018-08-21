@@ -8,6 +8,6 @@ function run_test() {
     evt.addRelation(rel);
 
     equal(1, evt.icalString.match(/RELATED-TO/g).length);
-    evt.icalString = evt.icalString;
+    evt.icalString = evt.icalString; // eslint-disable-line no-self-assign
     equal(1, evt.icalString.match(/RELATED-TO/g).length);
 }

@@ -5,11 +5,8 @@
 ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.import("resource://calendar/modules/calHashedArray.jsm");
-
-XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+const { cal } = ChromeUtils.import("resource://calendar/modules/calHashedArray.jsm", null);
 
 /*
  * Calendar item related functions

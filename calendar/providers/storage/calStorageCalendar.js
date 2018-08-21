@@ -5,9 +5,13 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-ChromeUtils.import("resource://calendar/modules/calStorageUpgrade.jsm");
-ChromeUtils.import("resource://calendar/modules/calStorageHelpers.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+const {
+    DB_SCHEMA_VERSION,
+    getSqlTable,
+    upgradeDB
+} = ChromeUtils.import("resource://calendar/modules/calStorageUpgrade.jsm", null);
+const { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import("resource://calendar/modules/calStorageHelpers.jsm", null);
 
 var USECS_PER_SECOND = 1000000;
 var kCalICalendar = Components.interfaces.calICalendar;
