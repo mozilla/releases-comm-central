@@ -321,16 +321,20 @@
                         attendee = attendee.clone();
                     }
                     attendee.id = cal.email.prependMailTo(aAddress.email);
+                    let commonName = null;
                     if (aAddress.name.length > 0) {
                         // we remove any double quotes within CN due to bug 1209399
-                        attendee.commonName = aAddress.name.replace(/(?:[\\]"|")/, "");
+                        let name = aAddress.name.replace(/(?:(?:[\\]")|(?:"))/g, "");
+                        if (aAddress.email != name) {
+                            commonName = name;
+                        }
                     }
+                    attendee.commonName = commonName;
                     attendees.push(attendee);
                     j++;
                 };
                 parsedInput.forEach(addAttendee);
             }
-
             return attendees;
         ]]></getter>
       </property>
@@ -359,9 +363,14 @@
                 if (parsedInput[0].email > 0) {
                     attendee.id = cal.email.prependMailTo(parsedInput[0].email);
                 }
+                let commonName = null;
                 if (parsedInput[0].name.length > 0) {
-                    attendee.commonName = parsedInput[0].name;
+                    let name = parsedInput[0].name.replace(/(?:(?:[\\]")|(?:"))/g, "");
+                    if (attendee.email != name) {
+                        commonName = name;
+                    }
                 }
+                attendee.commonName = commonName;
 
                 if (attendee.isOrganizer) {
                     return attendee;
