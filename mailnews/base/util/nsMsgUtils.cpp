@@ -34,9 +34,7 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIRelativeFilePref.h"
-#define NSRELATIVEFILEPREF_CLASS nsRelativeFilePref1
-#include "nsRelativeFilePref.h"
-#undef NSRELATIVEFILEPREF_CLASS
+#include "mozilla/nsRelativeFilePref.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsISpamSettings.h"
 #include "nsICryptoHash.h"
@@ -1175,7 +1173,7 @@ NS_MSG_BASE nsresult NS_SetPersistentFile(const char *relPrefName,
     nsresult rv = prefBranch->SetComplexValue(absPrefName, NS_GET_IID(nsIFile), aFile);
 
     // Write the relative path.
-    nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref1();
+    nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref();
     mozilla::Unused << relFilePref->SetFile(aFile);
     mozilla::Unused << relFilePref->SetRelativeToKey(NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
 
