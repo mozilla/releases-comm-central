@@ -71,9 +71,10 @@ xpcshell:
             by-test-platform:
                 windows.*: true
                 default: false
-    fetches:
-        build:
-            - gdata-provider.en-US.xpi
+    # See bug 1484957:
+    # fetches:
+    #     build:
+    #         - gdata-provider.en-US.xpi
 
 mozmill:
     description: "mozmill test run"
