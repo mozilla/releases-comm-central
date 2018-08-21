@@ -248,8 +248,6 @@
 @RESPATH@/components/nsHelperAppDlg.manifest
 @RESPATH@/components/PresentationControlService.js
 @RESPATH@/components/BuiltinProviders.manifest
-@RESPATH@/components/nsINIProcessor.js
-@RESPATH@/components/nsINIProcessor.manifest
 @RESPATH@/components/nsInputListAutoComplete.js
 @RESPATH@/components/nsLivemarkService.js
 @RESPATH@/components/nsLoginInfo.js
