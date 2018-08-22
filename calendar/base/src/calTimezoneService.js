@@ -277,6 +277,7 @@ calTimezoneService.prototype = {
             // Unsetting the default timezone will make the next call to the
             // default timezone getter set up the correct timezone again.
             this.mDefaultTimezone = null;
+            Services.obs.notifyObservers(null, "defaultTimezoneChanged");
         }
     }
 };

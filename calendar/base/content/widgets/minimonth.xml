@@ -932,6 +932,8 @@
                         day.setAttribute("aria-label", dateFormatter.format(date));
                     }
 
+                    day.removeAttribute("busy");
+
                     day.date = new Date(date);
                     day.textContent = date.getDate();
                     date.setDate(date.getDate() + 1);

@@ -47,6 +47,8 @@ var TodayPane = {
         TodayPane.updateSplitterState();
         TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         TodayPane.showTodayPaneStatusLabel();
+
+        Services.obs.addObserver(TodayPane, "defaultTimezoneChanged");
     },
 
     /**
@@ -55,6 +57,14 @@ var TodayPane = {
     onUnload: function() {
         document.getElementById("modeBroadcaster").removeEventListener("DOMAttrModified", TodayPane.onModeModified);
         document.getElementById("today-splitter").removeEventListener("command", onCalendarViewResize);
+        Services.obs.removeObserver(TodayPane, "defaultTimezoneChanged");
+    },
+
+    /**
+     * React if the default timezone changes.
+     */
+    observe: function() {
+        this.setDay(cal.dtz.now());
     },
 
     /**

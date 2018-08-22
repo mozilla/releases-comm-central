@@ -2732,6 +2732,16 @@
       <field name="mModeHandler">null</field>
       <field name="mTimeIndicatorMinutes">0</field>
 
+      <field name="mTimezoneObserver"><![CDATA[
+        ({
+            observe: () => {
+                this.timezone = cal.dtz.defaultTimezone;
+                this.refreshView();
+                this.updateTimeIndicatorPosition(true);
+            }
+        })
+      ]]></field>
+
       <method name="flashAlarm">
         <parameter name="aAlarmItem"/>
         <parameter name="aStop"/>

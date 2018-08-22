@@ -248,6 +248,7 @@
           this.viewBroadcaster.addEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
           // add a preference observer to monitor changes
           Services.prefs.addObserver("calendar.", this.mPrefObserver);
+          Services.obs.addObserver(this.mTimezoneObserver, "defaultTimezoneChanged");
           this.weekStartOffset = Preferences.get("calendar.week.start", 0);
           this.updateDaysOffPrefs();
           this.mPendingRefreshJobs = new Map();
@@ -266,6 +267,7 @@
           alarmService.removeObserver(this.mObserver);
           this.viewBroadcaster.removeEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
           Services.prefs.removeObserver("calendar.", this.mPrefObserver);
+          Services.obs.removeObserver(this.mTimezoneObserver, "defaultTimezoneChanged");
       ]]></destructor>
 
       <property name="type" readonly="true">
@@ -627,10 +629,6 @@
                 case "calendar.week.d5fridaysoff":
                 case "calendar.week.d6saturdaysoff":
                     this.updateDaysOffPrefs();
-                    break;
-                case "calendar.timezone.local":
-                    this.timezone = cal.dtz.defaultTimezone;
-                    this.refreshView();
                     break;
                 case "calendar.alarms.indicator.show":
                     // Break here to ensure the view is refreshed

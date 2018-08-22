@@ -26,7 +26,6 @@ var gCalendarEventTreeClicked = false;
 // Store the start and enddate, because the providers can't be trusted when
 // dealing with all-day events. So we need to filter later. See bug 306157
 
-var kDefaultTimezone;
 var gUnifinderNeedsRefresh = true;
 
 /**
@@ -168,13 +167,8 @@ var unifinderObserver = {
         unifinderTreeView.removeItems(items.filter(filter.isItemInFilters, filter));
     },
 
-    observe: function(aSubject, aTopic, aPrefName) {
-        switch (aPrefName) {
-            case "calendar.date.format":
-            case "calendar.timezone.local":
-                refreshEventTree();
-                break;
-        }
+    observe: function() {
+        refreshEventTree();
     }
 };
 
@@ -188,16 +182,14 @@ function prepareCalendarUnifinder() {
     let unifinderTree = document.getElementById("unifinder-search-results-tree");
 
     // Add pref observer
-    let branch = Services.prefs.getBranch("");
-    branch.addObserver("calendar.", unifinderObserver);
+    Services.prefs.addObserver("calendar.date.format", unifinderObserver);
+    Services.obs.addObserver(unifinderObserver, "defaultTimezoneChanged");
 
     // Check if this is not the hidden window, which has no UI elements
     if (unifinderTree) {
         // set up our calendar event observer
         let ccalendar = cal.view.getCompositeCalendar(window);
         ccalendar.addObserver(unifinderObserver);
-
-        kDefaultTimezone = cal.dtz.defaultTimezone;
 
         // Set up the filter
         unifinderTreeView.mFilter = new calFilter();
@@ -250,8 +242,8 @@ function finishCalendarUnifinder() {
     ccalendar.removeObserver(unifinderObserver);
 
     // Remove pref observer
-    let branch = Services.prefs.getBranch("");
-    branch.removeObserver("calendar.", unifinderObserver);
+    Services.prefs.removeObserver("calendar.date.format", unifinderObserver);
+    Services.obs.removeObserver(unifinderObserver, "defaultTimezoneChanged");
 
     let viewDeck = getViewDeck();
     if (viewDeck) {
@@ -295,7 +287,7 @@ function unifinderItemSelect(aEvent) {
  * @return              The passed date's formatted in the default timezone.
  */
 function formatUnifinderEventDateTime(aDatetime) {
-    return cal.getDateFormatter().formatDateTime(aDatetime.getInTimezone(kDefaultTimezone));
+    return cal.getDateFormatter().formatDateTime(aDatetime.getInTimezone(cal.dtz.defaultTimezone));
 }
 
 /**

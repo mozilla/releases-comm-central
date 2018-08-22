@@ -84,13 +84,15 @@
                                               .getService(Components.interfaces.calIDateTimeFormatter);
                     let timezone = this.calendarView ? this.calendarView.mTimezone
                                                      : cal.dtz.defaultTimezone;
-                    let parentDate = cal.dtz.ensureDateTime(this.parentBox.date);
+                    let parentDate = this.parentBox.date;
+                    let parentTime = cal.createDateTime();
+                    parentTime.resetTo(parentDate.year, parentDate.month, parentDate.day, 0, 0, 0, timezone);
                     let startTime = val.startDate.getInTimezone(timezone);
                     let endTime = val.endDate.getInTimezone(timezone);
-                    let nextDay = parentDate.clone();
+                    let nextDay = parentTime.clone();
                     nextDay.day++;
                     let comp = endTime.compare(nextDay);
-                    if (startTime.compare(parentDate) == -1) {
+                    if (startTime.compare(parentTime) == -1) {
                         if (comp == 1) {
                             icon.setAttribute("type", "continue");
                         } else if (comp == 0) {
@@ -439,6 +441,15 @@
       <field name="mShowWeekNumber">true</field>
 
       <field name="mClickedTime">null</field>
+
+      <field name="mTimezoneObserver"><![CDATA[
+        ({
+            observe: () => {
+                this.timezone = cal.dtz.defaultTimezone;
+                this.refreshView();
+            }
+        })
+      ]]></field>
 
       <!-- other methods -->
       <method name="setAttribute">
