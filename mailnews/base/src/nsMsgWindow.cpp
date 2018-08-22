@@ -33,8 +33,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIAuthPrompt.h"
 #include "nsMsgUtils.h"
-
-static NS_DEFINE_CID(kTransactionManagerCID, NS_TRANSACTIONMANAGER_CID);
+#include "mozilla/TransactionManager.h"
 
 NS_IMPL_ISUPPORTS(nsMsgWindow,
                               nsIMsgWindow,
@@ -66,8 +65,7 @@ nsresult nsMsgWindow::Init()
     return rv;
 
   // create Undo/Redo Transaction Manager
-  mTransactionManager = do_CreateInstance(kTransactionManagerCID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  mTransactionManager = new mozilla::TransactionManager();
   return mTransactionManager->SetMaxTransactionCount(-1);
 }
 
