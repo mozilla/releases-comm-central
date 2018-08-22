@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 //
 // constructor
@@ -31,7 +30,7 @@ calTodo.prototype = {
 
     classID: calTodoClassID,
     QueryInterface: cal.generateQI(calTodoInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calTodoClassID,
         contractID: "@mozilla.org/calendar/todo;1",
         classDescription: "Calendar Todo",

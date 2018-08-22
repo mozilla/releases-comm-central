@@ -39,7 +39,7 @@ calStorageCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
     classID: calStorageCalendarClassID,
     QueryInterface: cal.generateQI(calStorageCalendarInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calStorageCalendarClassID,
         contractID: "@mozilla.org/calendar/calendar;1?type=storage",
         classDescription: "Calendar Storage Provider",

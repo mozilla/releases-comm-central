@@ -20,7 +20,6 @@
 /* exported issueNetworkRequest, getWcapRequestStatusString, stringToIcal, stringToXml */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 function generateRequestId() {
@@ -208,7 +207,7 @@ calWcapNetworkRequest.prototype = {
 
     classID: calWcapNetworkRequestClassID,
     QueryInterface: cal.generateQI(calWcapNetworkRequestInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calWcapNetworkRequestClassID,
         contractID: "@mozilla.org/calendar/wcap/network-request;1",
         classDescription: "Sun Java System Calendar Server WCAP Network Request",

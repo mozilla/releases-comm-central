@@ -52,7 +52,7 @@ calICSCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
     classID: calICSCalendarClassID,
     QueryInterface: cal.generateQI(calICSCalendarInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calICSCalendarClassID,
         contractID: "@mozilla.org/calendar/calendar;1?type=ics",
         classDescription: "Calendar ICS provider",

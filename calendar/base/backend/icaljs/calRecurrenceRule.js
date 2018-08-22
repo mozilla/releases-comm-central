@@ -4,7 +4,6 @@
 
 var { ICAL, unwrapSetter, unwrapSingle, wrapGetter } = ChromeUtils.import("resource://calendar/modules/ical.js", null);
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function calRecurrenceRule(innerObject) {
     this.innerObject = innerObject || new ICAL.Recur();
@@ -19,7 +18,7 @@ var calRecurrenceRuleClassID = Components.ID("{df19281a-5389-4146-b941-798cb93a7
 calRecurrenceRule.prototype = {
     QueryInterface: cal.generateQI(calRecurrenceRuleInterfaces),
     classID: calRecurrenceRuleClassID,
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         contractID: "@mozilla.org/calendar/recurrence-rule;1",
         classDescription: "Calendar Recurrence Rule",
         classID: calRecurrenceRuleClassID,

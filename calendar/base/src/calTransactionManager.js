@@ -84,12 +84,6 @@ var calTransactionInterfaces = [
 calTransaction.prototype = {
     classID: calTransactionClassID,
     QueryInterface: ChromeUtils.generateQI(calTransactionInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calTransactionClassID,
-        classDescription: "Calendar Transaction",
-        contractID: "mozilla.org/calendar/transaction;1",
-        interfaces: calTransactionInterfaces,
-    }),
 
     mAction: null,
     mCalendar: null,

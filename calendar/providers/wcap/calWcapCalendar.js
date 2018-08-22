@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
  * The calendar provider class for WCAP calendars. Usually instanciated through
@@ -30,7 +29,7 @@ calWcapCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
     classID: calWcapCalendarClassID,
     QueryInterface: cal.generateQI(calWcapCalendarInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calWcapCalendarClassID,
         contractID: "@mozilla.org/calendar/calendar;1?type=wcap",
         classDescription: "Sun Java System Calendar Server WCAP Provider",

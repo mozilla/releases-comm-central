@@ -58,7 +58,7 @@ calCalendarSearchService.prototype = {
 
     classID: calCalendarSearchServiceClassID,
     QueryInterface: cal.generateQI(calCalendarSearchServiceInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calCalendarSearchServiceClassID,
         contractID: "@mozilla.org/calendar/calendarsearch-service;1",
         classDescription: "Calendar Search Service",

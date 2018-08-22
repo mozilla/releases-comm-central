@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 //
 // constructor
@@ -28,7 +27,7 @@ calEvent.prototype = {
 
     classID: calEventClassID,
     QueryInterface: cal.generateQI(calEventInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calEventClassID,
         contractID: "@mozilla.org/calendar/event;1",
         classDescription: "Calendar Event",

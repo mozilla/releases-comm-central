@@ -90,12 +90,6 @@ var calCompositeCalendarInterfaces = [
 calCompositeCalendar.prototype = {
     classID: calCompositeCalendarClassID,
     QueryInterface: ChromeUtils.generateQI(calCompositeCalendarInterfaces),
-    classInfo: XPCOMUtils.generateCI({
-        classID: calCompositeCalendarClassID,
-        contractID: "@mozilla.org/calendar/calendar;1?type=composite",
-        classDescription: "Composite Calendar Provider",
-        interfaces: calCompositeCalendarInterfaces,
-    }),
 
     //
     // calICalendarProvider interface

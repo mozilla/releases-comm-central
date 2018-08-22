@@ -103,7 +103,7 @@ calDavCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
     classID: calDavCalendarClassID,
     QueryInterface: cal.generateQI(calDavCalendarInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calDavCalendarClassID,
         contractID: "@mozilla.org/calendar/calendar;1?type=caldav",
         classDescription: "Calendar CalDAV back-end",

@@ -4,7 +4,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 function peekAlarmWindow() {
@@ -42,7 +41,7 @@ calAlarmMonitor.prototype = {
 
     classID: calAlarmMonitorClassID,
     QueryInterface: cal.generateQI(calAlarmMonitorInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         contractID: "@mozilla.org/calendar/alarm-monitor;1",
         classDescription: "Calendar Alarm Monitor",
         classID: calAlarmMonitorClassID,

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 function calRecurrenceDate() {
@@ -22,12 +21,13 @@ calRecurrenceDate.prototype = {
 
     classID: calRecurrenceDateClassID,
     QueryInterface: cal.generateQI(calRecurrenceDateInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calRecurrenceDateClassID,
         contractID: "@mozilla.org/calendar/recurrence-date;1",
         classDescription: "The date of an occurrence of a recurring item",
         interfaces: calRecurrenceDateInterfaces
     }),
+
     makeImmutable: function() {
         this.isMutable = false;
     },

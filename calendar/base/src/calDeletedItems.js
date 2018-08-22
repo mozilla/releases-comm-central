@@ -4,7 +4,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 /**
@@ -34,7 +33,7 @@ calDeletedItems.prototype = {
 
     classID: calDeletedItemsClassID,
     QueryInterface: cal.generateQI(calDeletedItemsInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calDeletedItemsClassID,
         contractID: "@mozilla.org/calendar/deleted-items-manager;1",
         classDescription: "Database containing information about deleted items",

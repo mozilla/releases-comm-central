@@ -202,6 +202,42 @@ var cal = {
     },
 
     /**
+     * Generate a ClassInfo implementation for a component. The returned object
+     * must be assigned to the 'classInfo' property of a JS object. The first and
+     * only argument should be an object that contains a number of optional
+     * properties: "interfaces", "contractID", "classDescription", "classID" and
+     * "flags". The values of the properties will be returned as the values of the
+     * various properties of the nsIClassInfo implementation.
+     */
+    generateCI: function(classInfo) {
+        if (QueryInterface in classInfo) {
+            throw Error("In generateCI, don't use a component for generating classInfo");
+        }
+        /* Note that Ci[Ci.x] == Ci.x for all x */
+        let _interfaces = [];
+        for (let i = 0; i < classInfo.interfaces.length; i++) {
+            let iface = classInfo.interfaces[i];
+            if (Ci[iface]) {
+                _interfaces.push(Ci[iface]);
+            }
+        }
+        return {
+            getInterfaces: function(countRef) {
+                countRef.value = _interfaces.length;
+                return _interfaces;
+            },
+            getScriptableHelper: function() {
+                return null;
+            },
+            contractID: classInfo.contractID,
+            classDescription: classInfo.classDescription,
+            classID: classInfo.classID,
+            flags: classInfo.flags,
+            QueryInterface: ChromeUtils.generateQI([Ci.nsIClassInfo])
+        };
+    },
+
+    /**
      * Schedules execution of the passed function to the current thread's queue.
      */
     postPone: function(func) {

@@ -4,7 +4,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 
@@ -111,7 +110,7 @@ calAlarmService.prototype = {
 
     classID: calAlarmServiceClassID,
     QueryInterface: cal.generateQI(calAlarmServiceInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calAlarmServiceClassID,
         contractID: "@mozilla.org/calendar/alarm-service;1",
         classDescription: "Calendar Alarm Service",

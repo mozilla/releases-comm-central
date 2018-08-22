@@ -28,7 +28,7 @@ calMemoryCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
     classID: calMemoryCalendarClassID,
     QueryInterface: cal.generateQI(calMemoryCalendarInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calMemoryCalendarClassID,
         contractID: "@mozilla.org/calendar/calendar;1?type=memory",
         classDescription: "Calendar Memory Provider",

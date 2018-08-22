@@ -6,7 +6,6 @@
 
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
@@ -115,7 +114,7 @@ var calWcapSessionInterfaces = [
 calWcapSession.prototype = {
     classID: calWcapSessionClassID,
     QueryInterface: cal.generateQI(calWcapSessionInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calWcapSessionClassID,
         contractID: "@mozilla.org/calendar/wcap/session;1",
         classDescription: "Sun Java System Calendar Server WCAP Session",

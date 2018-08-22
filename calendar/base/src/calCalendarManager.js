@@ -27,7 +27,7 @@ var calCalendarManagerInterfaces = [
 calCalendarManager.prototype = {
     classID: calCalendarManagerClassID,
     QueryInterface: cal.generateQI(calCalendarManagerInterfaces),
-    classInfo: XPCOMUtils.generateCI({
+    classInfo: cal.generateCI({
         classID: calCalendarManagerClassID,
         contractID: "@mozilla.org/calendar/manager;1",
         classDescription: "Calendar Manager",
