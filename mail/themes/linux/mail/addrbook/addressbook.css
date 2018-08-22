@@ -15,12 +15,6 @@
   border-bottom: 1px solid var(--toolbox-border-bottom-color);
 }
 
-/* Uses a background image instead of a border to avoid jumping of the toolbar
-   when a theme is enabled. */
-#ab-toolbox:-moz-lwtheme {
-  background-image: linear-gradient(to bottom, var(--tabs-border-color, transparent) 1px, transparent 1px);
-}
-
 #ab-toolbox > toolbar {
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;

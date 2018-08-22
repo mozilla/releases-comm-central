@@ -5,9 +5,30 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+:root {
+  --lwt-additional-images: none;
+  --lwt-background-alignment: right top;
+  --lwt-background-tiling: no-repeat;
+}
+
 #ab-toolbox:-moz-lwtheme {
-  background-color: var(--toolbar-bgcolor);
+  position: relative;
   color: var(--toolbar-color, inherit);
+}
+
+#ab-toolbox > toolbar:-moz-lwtheme {
+  background-color: var(--toolbar-bgcolor);
+}
+
+#ab-toolbox:-moz-lwtheme::after {
+  content: "";
+  display: -moz-box;
+  position: absolute;
+  pointer-events: none;
+  top: -1px;
+  width: -moz-available;
+  height: 1px;
+  border-bottom: 1px solid var(--tabs-border-color, transparent);
 }
 
 toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {

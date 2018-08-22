@@ -32,7 +32,8 @@
   }
 }
 
-#navigation-toolbox {
+#navigation-toolbox,
+#mail-toolbar-menubar2 {
   -moz-appearance: none;
 }
 

@@ -544,14 +544,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   }
 }
 
-#compose-toolbox:-moz-lwtheme {
-  background-color: var(--toolbar-bgcolor);
-  color: var(--toolbar-color, inherit);
-  /* Uses a background image instead of a border to avoid jumping of the toolbar
-     when a theme is enabled. */
-  background-image: linear-gradient(to bottom, var(--tabs-border-color, transparent) 1px, transparent 1px);
-}
-
 toolbar:not(:-moz-lwtheme) {
   -moz-appearance: none;
 }

@@ -13,6 +13,7 @@
      toolbars.
 -->
 <toolbox id="navigation-toolbox" class="toolbox-top" labelalign="end" defaultlabelalign="end">
+  <hbox id="LW-background-box"/>
   <!-- Menu -->
   <toolbar type="menubar" id="mail-toolbar-menubar2" class="chromeclass-menubar" customizable="true"
            toolboxid="mail-toolbox"

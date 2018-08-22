@@ -4,6 +4,12 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+:root {
+  --lwt-additional-images: none;
+  --lwt-background-alignment: right top;
+  --lwt-background-tiling: no-repeat;
+}
+
 #attachmentBucket {
   width: 15em;
   min-width: 15em;
@@ -32,6 +38,28 @@
 #compose-toolbox > toolbar {
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;
+}
+
+#compose-toolbox:-moz-lwtheme {
+  -moz-appearance: none;
+  position: relative;
+  background-color: none;
+  color: var(--toolbar-color, inherit);
+}
+
+#compose-toolbox:-moz-lwtheme::after {
+  content: "";
+  display: -moz-box;
+  position: absolute;
+  pointer-events: none;
+  top: -1px;
+  width: -moz-available;
+  height: 1px;
+  border-bottom: 1px solid var(--tabs-border-color, transparent);
+}
+
+#compose-toolbox > toolbar:-moz-lwtheme {
+  background-color: var(--toolbar-bgcolor);
 }
 
 #composeContentBox {

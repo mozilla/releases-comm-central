@@ -11,18 +11,11 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#compose-toolbox:-moz-lwtheme {
-  -moz-appearance: none;
-  background-color: var(--toolbar-bgcolor);
-  color: var(--toolbar-color, inherit);
-  /* Uses a background image instead of a border to avoid jumping of the toolbar
-     when a theme is enabled. */
-  background-image: linear-gradient(to bottom, var(--tabs-border-color, transparent) 1px, transparent 1px);
-}
-
-#compose-toolbox:-moz-lwtheme::after {
+#compose-toolbox:-moz-lwtheme::before {
   content: "";
   display: -moz-box;
+  position: absolute;
+  top: 100%;
   margin-top: -1px;
   height: 1px;
   border-bottom: 1px solid var(--toolbox-border-bottom-color);
@@ -54,11 +47,10 @@
 #compose-toolbox > toolbar:-moz-window-inactive {
   border-top-color: rgba(255,255,255,0.45);
   border-bottom-color: rgba(0,0,0,0.35);
-  background-color: #cfcfcf;
 }
 
-#compose-toolbox > toolbar:-moz-lwtheme {
-  background-color: transparent;
+#compose-toolbox > toolbar:not(:-moz-lwtheme) {
+  background-color: #cfcfcf;
 }
 
 #composeToolbar2 {

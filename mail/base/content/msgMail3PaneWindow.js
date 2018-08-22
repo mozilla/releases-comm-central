@@ -1808,7 +1808,7 @@ var TabsInTitlebar = {
                   (Object.keys(this._disallowed)).length == 0;
 
     if (document.documentElement.getAttribute("chromehidden").includes("toolbar")) {
-      // Don't draw in titlebar in case of a popup window
+      // Don't draw in titlebar in case of a popup window.
       allowed = false;
     }
 
@@ -1840,6 +1840,16 @@ var TabsInTitlebar = {
 
     let titlebar = $("titlebar");
     let menubar = $("mail-toolbar-menubar2");
+
+    // Calculate the LW-backgroundBox height to place the images correctly.
+    let root = $("messengerWindow");
+    let bgBox = $("LW-background-box");
+    if (root.getAttribute("lwtheme-image")) {
+      let bgBoxHeight = rect($("navigation-toolbox")).height + rect($("mail-toolbox")).height;
+      bgBox.style.height = bgBoxHeight + "px";
+    } else {
+      bgBox.style.removeProperty("height");
+    }
 
     if (!drawInTitlebar) {
       if (AppConstants.platform == "macosx") {
