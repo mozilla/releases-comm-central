@@ -1172,7 +1172,7 @@ NS_IMETHODIMP nsImapUrl::GetNormalizedSpec(nsACString& aPrincipalSpec)
   // URLs look like this:
   // imap://user@domain@server:port/fetch>UID>folder>nn
   // We simply strip any query part beginning with ? & or /;
-  // Normalised spec: imap://user@domain@server:port/fetch>UID>folder>nn
+  // Normalized spec: imap://user@domain@server:port/fetch>UID>folder>nn
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsURL;
   QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
 
