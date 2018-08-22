@@ -73,7 +73,7 @@
             <image class="status-icon"/>
           </hbox>
           <hbox class="addressingWidgetCell" width="16">
-            <image class="usertype-icon" onclick="this.parentNode.select();"/>
+            <image class="usertype-icon"/>
           </hbox>
           <hbox class="addressingWidgetCell" flex="1">
             <textbox class="plain textbox-addressingWidget uri-element"

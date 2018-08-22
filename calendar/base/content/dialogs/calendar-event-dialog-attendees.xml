@@ -734,14 +734,14 @@
       <method name="getRoleElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-            return this.getListItem(aRow).querySelector(".status-icon");
+            return this.getListItem(aRow).querySelector(".role-icon, .status-icon");
         ]]></body>
       </method>
 
       <method name="getStatusElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-            return this.getListItem(aRow).querySelector(".status-icon");
+            return this.getListItem(aRow).querySelector(".role-icon, .status-icon");
         ]]></body>
       </method>
 
@@ -928,8 +928,8 @@
                   this.updateTooltip(target);
               }
           } else if (target.classList.contains("usertype-icon")) {
-              let fieldNum = target.getAttribute("id").split("#")[1];
-              let inputField = this.getInputElement(fieldNum);
+              let row = target.closest("richlistitem");
+              let inputField = row.querySelector(".textbox-addressingWidget");
               if (target.getAttribute("disabled") != "true" &&
                   !inputField.attendee.isOrganizer) {
                   const cutypeCycle = ["INDIVIDUAL", "GROUP", "RESOURCE", "ROOM"];
