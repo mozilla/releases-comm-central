@@ -54,6 +54,18 @@ X-Bugzilla-Priority: --
 X-Bugzilla-Assigned-To: nobody@mozilla.org
 X-Bugzilla-Target-Milestone: ---
 X-Bugzilla-Changed-Fields: Blocks
+X-Duplicated-Header: one value
+X-Duplicated-Header: second
+X-Duplicated-Header: third value for test purposes
+X-Duplicated-Header: multiline value  
+       that needs to be   
+       handled.
+X-Duplicated-Header: here comes a continuation line
+ that contains the word 'fifth' we're looking for  
+ and then another one
+X-Duplicated-Header: This is
+   the end
+      my friend
 In-Reply-To: <bug-397009-254728@https.bugzilla.mozilla.org/>
 References: <bug-397009-254728@https.bugzilla.mozilla.org/>
 X-Priority: 4

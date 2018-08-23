@@ -741,16 +741,16 @@ nsresult nsMsgSearchTerm::DeStreamNew (char *inStream, int16_t /*length*/)
 
 // Looks in the MessageDB for the user specified arbitrary header, if it finds the header, it then looks for a match against
 // the value for the header.
-nsresult nsMsgSearchTerm::MatchArbitraryHeader (nsIMsgSearchScopeTerm *scope,
-                                                uint32_t length /* in lines*/,
-                                                const char *charset,
-                                                bool charsetOverride,
-                                                nsIMsgDBHdr *msg,
-                                                nsIMsgDatabase* db,
-                                                const char * headers,
-                                                uint32_t headersSize,
-                                                bool ForFiltering,
-                                                bool *pResult)
+nsresult nsMsgSearchTerm::MatchArbitraryHeader(nsIMsgSearchScopeTerm *scope,
+                                               uint32_t length /* in lines*/,
+                                               const char *charset,
+                                               bool charsetOverride,
+                                               nsIMsgDBHdr *msg,
+                                               nsIMsgDatabase* db,
+                                               const char * headers,
+                                               uint32_t headersSize,
+                                               bool ForFiltering,
+                                               bool *pResult)
 {
   NS_ENSURE_ARG_POINTER(pResult);
 
@@ -760,59 +760,61 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader (nsIMsgSearchScopeTerm *scope,
                        m_operator == nsMsgSearchOp::Is ||
                        m_operator == nsMsgSearchOp::BeginsWith ||
                        m_operator == nsMsgSearchOp::EndsWith;
-  // init result to what we want if we don't find the header at all
+  // Initialize result to what we want if we don't find the header at all.
   bool result = !matchExpected;
 
   nsCString dbHdrValue;
   msg->GetStringProperty(m_arbitraryHeader.get(), getter_Copies(dbHdrValue));
-  if (!dbHdrValue.IsEmpty())
-    // match value with the other info.
-    return MatchRfc2047String(dbHdrValue, charset, charsetOverride, pResult);
+  if (!dbHdrValue.IsEmpty()) {
+    // Match value with the other info. It doesn't check all header occurences,
+    // so we use it only if we match and do line by line headers parsing otherwise.
+    rv = MatchRfc2047String(dbHdrValue, charset, charsetOverride, pResult);
+    if (*pResult)
+      return rv;
 
-  nsMsgBodyHandler * bodyHandler =
-    new nsMsgBodyHandler (scope, length, msg, db, headers, headersSize,
-                          ForFiltering);
-  NS_ENSURE_TRUE(bodyHandler, NS_ERROR_OUT_OF_MEMORY);
+    rv = NS_OK;
+  }
 
+  nsMsgBodyHandler *bodyHandler = new nsMsgBodyHandler(scope, length, msg, db,
+                                                       headers, headersSize,
+                                                       ForFiltering);
   bodyHandler->SetStripHeaders (false);
 
-  nsCString headerFullValue; // contains matched header value accumulated over multiple lines.
+  nsCString headerFullValue;  // Contains matched header value accumulated over multiple lines.
   nsAutoCString buf;
   nsAutoCString curMsgHeader;
-  bool searchingHeaders = true;
+  bool processingHeaders = true;
 
-  // We will allow accumulation of received headers;
-  bool isReceivedHeader = m_arbitraryHeader.EqualsLiteral("received");
-
-  while (searchingHeaders)
+  while (processingHeaders)
   {
     nsCString charsetIgnored;
     if (bodyHandler->GetNextLine(buf, charsetIgnored) < 0 || EMPTY_MESSAGE_LINE(buf))
-      searchingHeaders = false;
-    bool isContinuationHeader = searchingHeaders ?
+      processingHeaders = false;  // No more lines or emtpy line teminating headers.
+
+    bool isContinuationHeader = processingHeaders ?
       NS_IsAsciiWhitespace(buf.CharAt(0)) : false;
 
-    // We try to match the header from the last time through the loop, which should now
-    //  have accumulated over possible multiple lines. For all headers except received,
-    //  we process a single accumulation, but process accumulated received at the end.
-    if (!searchingHeaders || (!isContinuationHeader &&
-         (!headerFullValue.IsEmpty() && !isReceivedHeader)))
+    // If we're not on a continuation header the header value is not empty,
+    // we have finished accumulating the header value by iterating over all
+    // header lines. Now we need to check whether the value is a match.
+    if (!isContinuationHeader && !headerFullValue.IsEmpty())
     {
-      // Make sure buf has info besides just the header.
-      // Otherwise, it's either an empty header, or header not found.
-      if (!headerFullValue.IsEmpty())
+      bool stringMatches;
+      // Match value with the other info.
+      rv = MatchRfc2047String(headerFullValue, charset, charsetOverride, &stringMatches);
+      if (matchExpected == stringMatches) // if we found a match
       {
-        bool stringMatches;
-        // match value with the other info.
-        rv = MatchRfc2047String(headerFullValue, charset, charsetOverride, &stringMatches);
-        if (matchExpected == stringMatches) // if we found a match
-        {
-          searchingHeaders = false;   // then stop examining the headers
-          result = stringMatches;
-        }
+        // If we found a match, stop examining the headers.
+        processingHeaders = false;
+        result = stringMatches;
       }
-      break;
+      // Prepare for repeated header of the same type.
+      headerFullValue.Truncate();
     }
+
+    // We got result or finished processing all lines.
+    if (!processingHeaders)
+      break;
 
     char * buf_end = (char *) (buf.get() + buf.Length());
     int headerLength = m_arbitraryHeader.Length();
@@ -820,38 +822,38 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader (nsIMsgSearchScopeTerm *scope,
     // If the line starts with whitespace, then we use the current header.
     if (!isContinuationHeader)
     {
-      // here we start a new header
+      // Here we start a new header.
       uint32_t colonPos = buf.FindChar(':');
       curMsgHeader = StringHead(buf, colonPos);
     }
 
     if (curMsgHeader.Equals(m_arbitraryHeader, nsCaseInsensitiveCStringComparator()))
     {
-      // process the value
-      // value occurs after the header name or whitespace continuation char.
-      const char * headerValue = buf.get() + (isContinuationHeader ? 1 : headerLength);
+      // Process the value:
+      // Value occurs after the header name or whitespace continuation char.
+      const char *headerValue = buf.get() + (isContinuationHeader ? 1 : headerLength);
       if (headerValue < buf_end && headerValue[0] == ':')  // + 1 to account for the colon which is MANDATORY
         headerValue++;
 
-      // strip leading white space
+      // Strip leading white space.
       while (headerValue < buf_end && isspace(*headerValue))
-        headerValue++; // advance to next character
+        headerValue++;
 
-      // strip trailing white space
+      // Strip trailing white space.
       char * end = buf_end - 1;
-      while (end > headerValue && isspace(*end)) // while we haven't gone back past the start and we are white space....
+      while (headerValue < end && isspace(*end))
       {
-        *end = '\0';  // eat up the white space
-        end--;      // move back and examine the previous character....
+        *end = '\0';
+        end--;
       }
 
-      // any continuation whitespace is converted to a single space. This includes both a continuation line, or a
-      //  second value of the same header (eg the received header)
+      // Any continuation whitespace is converted to a single space.
       if (!headerFullValue.IsEmpty())
         headerFullValue.Append(' ');
       headerFullValue.Append(nsDependentCString(headerValue));
     }
   }
+
   delete bodyHandler;
   *pResult = result;
   return rv;
