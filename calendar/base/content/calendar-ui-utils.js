@@ -241,7 +241,7 @@ function removeChildren(aElement) {
  */
 function sortCalendarArray(calendars) {
     // Be careful not to pollute the window object, as things break.
-    let { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm", {});
+    let { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm", null);
 
     let ret = calendars.concat([]);
     let sortOrder = {};
