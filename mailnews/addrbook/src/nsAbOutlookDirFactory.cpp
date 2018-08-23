@@ -67,7 +67,7 @@ nsAbOutlookDirFactory::GetDirectories(const nsAString &aDirName,
     NS_ENSURE_SUCCESS(rv, rv);
     directories->AppendElement(directory);
   }
-  return NS_NewArrayEnumerator(aDirectories, directories);
+  return NS_NewArrayEnumerator(aDirectories, directories, NS_GET_IID(nsIAbDirectory));
 }
 
 // No actual deletion, since you cannot create the address books from Mozilla.

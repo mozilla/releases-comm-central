@@ -2308,7 +2308,7 @@ public:
 
     const nsID& DefaultInterface() override
     {
-      return NS_GET_IID(nsIFile);
+      return NS_GET_IID(nsIAbCard);
     }
 
     // nsISimpleEnumerator methods:
@@ -2487,6 +2487,7 @@ public:
     nsListAddressEnumerator(nsAddrDatabase* aDb, mdb_id aRowID);
 
 protected:
+    ~nsListAddressEnumerator() override = default;
     RefPtr<nsAddrDatabase> mDb;
     nsIMdbTable *mDbTable;
     nsCOMPtr<nsIMdbRow> mListRow;

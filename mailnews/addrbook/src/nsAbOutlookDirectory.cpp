@@ -134,7 +134,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildNodes(nsISimpleEnumerator **aNodes)
   rv = GetChildNodes(nodeList);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return NS_NewArrayEnumerator(aNodes, nodeList);
+  return NS_NewArrayEnumerator(aNodes, nodeList, NS_GET_IID(nsIAbDirectory));
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(nsISimpleEnumerator **aCards)
@@ -161,7 +161,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(nsISimpleEnumerator **aCards)
   // Also update the address list and notify any changes.
   uint32_t nbCards = 0;
 
-  NS_NewArrayEnumerator(aCards, cardList);
+  NS_NewArrayEnumerator(aCards, cardList, NS_GET_IID(nsIAbCard));
   cardList->GetLength(&nbCards);
 
   nsCOMPtr<nsIAbCard> card;

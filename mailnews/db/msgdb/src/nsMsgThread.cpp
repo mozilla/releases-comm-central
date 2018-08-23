@@ -608,6 +608,7 @@ public:
   int32_t MsgKeyFirstChildIndex(nsMsgKey inMsgKey);
 
 protected:
+  ~nsMsgThreadEnumerator() override = default;
   nsresult                Prefetch();
 
   nsIMdbTableRowCursor*   mRowCursor;

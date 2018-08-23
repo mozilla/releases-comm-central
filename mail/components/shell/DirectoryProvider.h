@@ -49,6 +49,7 @@ private:
     AppendingEnumerator(nsISimpleEnumerator* aBase,
                         char const *const *aAppendList);
   private:
+    ~AppendingEnumerator() override = default;
     nsCOMPtr<nsISimpleEnumerator> mBase;
     char const *const *const      mAppendList;
     nsCOMPtr<nsIFile>             mNext;

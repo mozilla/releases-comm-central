@@ -38,6 +38,7 @@ private:
     AppendingEnumerator(nsISimpleEnumerator* aBase);
 
   private:
+    ~AppendingEnumerator() override = default;
     nsCOMPtr<nsISimpleEnumerator> mBase;
     nsCOMPtr<nsIFile>             mNext;
     nsCOMPtr<nsIFile>             mNextWithLocale;

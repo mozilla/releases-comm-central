@@ -911,7 +911,7 @@ nsAbOSXDirectory::GetChildNodes(nsISimpleEnumerator **aNodes)
   if (mIsQueryURI || m_IsMailList || !m_AddressList)
     return NS_NewEmptyEnumerator(aNodes);
 
-  return NS_NewArrayEnumerator(aNodes, m_AddressList);
+  return NS_NewArrayEnumerator(aNodes, m_AddressList, NS_GET_IID(nsIAbDirectory));
 }
 
 NS_IMETHODIMP
@@ -968,12 +968,13 @@ nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator **aCards)
       mCardList->AppendElement(card);
     }
 
-    return NS_NewArrayEnumerator(aCards, mCardList);
+    return NS_NewArrayEnumerator(aCards, mCardList, NS_GET_IID(nsIAbCard));
   }
 
   // Not a search, so just return the appropriate list of items.
-  return m_IsMailList ? NS_NewArrayEnumerator(aCards, m_AddressList) :
-         NS_NewArrayEnumerator(aCards, mCardList);
+  return m_IsMailList ?
+         NS_NewArrayEnumerator(aCards, m_AddressList, NS_GET_IID(nsIAbDirectory)) :
+         NS_NewArrayEnumerator(aCards, mCardList, NS_GET_IID(nsIAbCard));
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 }
@@ -1112,7 +1113,7 @@ nsAbOSXDirectory::GetCardsFromProperty(const char *aProperty,
     }
   }
 
-  return NS_NewArrayEnumerator(aResult, resultArray);
+  return NS_NewArrayEnumerator(aResult, resultArray, NS_GET_IID(nsIAbCard));
 }
 
 NS_IMETHODIMP
@@ -1277,7 +1278,7 @@ nsAbOSXDirectory::FallbackSearch(nsIAbBooleanExpression *aExpression,
   rv = queryProxy->DoQuery(directory, arguments, this, -1, 0, &context);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return NS_NewArrayEnumerator(aCards, m_AddressList);
+  return NS_NewArrayEnumerator(aCards, m_AddressList, NS_GET_IID(nsIAbDirectory));
 }
 
 nsresult nsAbOSXDirectory::DeleteUid(const nsACString &aUid)

@@ -95,7 +95,7 @@ public:
 
     nsresult                        GetRowCursor();
     virtual nsresult                PrefetchNext();
-    RefPtr<nsMsgDatabase>         mDB;
+    RefPtr<nsMsgDatabase>           mDB;
     nsCOMPtr<nsIMdbTableRowCursor>  mRowCursor;
     mdb_pos                         mRowPos;
     nsCOMPtr<nsIMsgDBHdr>           mResultHdr;
