@@ -120,7 +120,7 @@ var calauth = {
             let self = this;
             let promptlistener = {
                 onPromptStartAsync: function(callback) {
-                  callback.onAuthResult(this.onPromptStart());
+                    callback.onAuthResult(this.onPromptStart());
                 },
 
                 onPromptStart: function() {
