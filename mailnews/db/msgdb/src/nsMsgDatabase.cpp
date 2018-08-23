@@ -38,6 +38,7 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsArrayEnumerator.h"
+#include "nsSimpleEnumerator.h"
 #include "nsIMemoryReporter.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
@@ -2826,8 +2827,6 @@ void nsMsgDBEnumerator::Clear()
   mDB = nullptr;
 }
 
-NS_IMPL_ISUPPORTS(nsMsgDBEnumerator, nsISimpleEnumerator)
-
 nsresult nsMsgDBEnumerator::GetRowCursor()
 {
   mDone = false;
@@ -3164,13 +3163,18 @@ NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsIMsgKeyArray *aKeys)
   return rv;
 }
 
-class nsMsgDBThreadEnumerator : public nsISimpleEnumerator, public nsIDBChangeListener
+class nsMsgDBThreadEnumerator : public nsSimpleEnumerator, nsIDBChangeListener
 {
 public:
-    NS_DECL_ISUPPORTS
+    NS_DECL_ISUPPORTS_INHERITED
 
     // nsISimpleEnumerator methods:
     NS_DECL_NSISIMPLEENUMERATOR
+
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIMsgThread);
+    }
 
     NS_DECL_NSIDBCHANGELISTENER
 
@@ -3180,7 +3184,7 @@ public:
     nsMsgDBThreadEnumerator(nsMsgDatabase* db, nsMsgDBThreadEnumeratorFilter filter);
 
 protected:
-    virtual ~nsMsgDBThreadEnumerator();
+    ~nsMsgDBThreadEnumerator() override;
     nsresult          GetTableCursor(void);
     nsresult          PrefetchNext();
     nsMsgDatabase*    mDB;
@@ -3208,7 +3212,7 @@ nsMsgDBThreadEnumerator::~nsMsgDBThreadEnumerator()
     mDB->RemoveListener(this);
 }
 
-NS_IMPL_ISUPPORTS(nsMsgDBThreadEnumerator, nsISimpleEnumerator, nsIDBChangeListener)
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBThreadEnumerator, nsSimpleEnumerator, nsIDBChangeListener)
 
 
 /* void OnHdrFlagsChanged (in nsIMsgDBHdr aHdrChanged, in unsigned long aOldFlags, in unsigned long aNewFlags, in nsIDBChangeListener aInstigator); */

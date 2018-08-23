@@ -536,7 +536,7 @@ const char* nsMsgCompFields::GetBody()
 /* readonly attribute nsISimpleEnumerator attachmentsArray; */
 NS_IMETHODIMP nsMsgCompFields::GetAttachments(nsISimpleEnumerator * *aAttachmentsEnum)
 {
-  return aAttachmentsEnum ? NS_NewArrayEnumerator(aAttachmentsEnum, m_attachments) : NS_ERROR_NULL_POINTER;
+  return aAttachmentsEnum ? NS_NewArrayEnumerator(aAttachmentsEnum, m_attachments, NS_GET_IID(nsIMsgAttachment)) : NS_ERROR_NULL_POINTER;
 }
 
 /* void addAttachment (in nsIMsgAttachment attachment); */

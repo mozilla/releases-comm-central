@@ -29,13 +29,14 @@
 #include "nsIServiceManager.h"
 #include "nsRDFCID.h"
 #include "nsString.h"
+#include "nsSimpleEnumerator.h"
 #include "mozilla/Logging.h"
 #include "rdf.h"
 #include "rdfutil.h"
 
 ////////////////////////////////////////////////////////////////////////
 
-class ContainerEnumeratorImpl : public nsISimpleEnumerator {
+class ContainerEnumeratorImpl : public nsSimpleEnumerator {
 private:
     // pseudo-constants
     static nsrefcnt              gRefCnt;
@@ -50,15 +51,19 @@ private:
     nsCOMPtr<nsIRDFNode>            mResult;
     int32_t mNextIndex;
 
-    virtual ~ContainerEnumeratorImpl();
+    ~ContainerEnumeratorImpl() override;
 
 public:
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIRDFNode);
+    }
+
+    NS_DECL_NSISIMPLEENUMERATOR
+
     ContainerEnumeratorImpl(nsIRDFDataSource* ds, nsIRDFResource* container);
 
     nsresult Init();
-
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSISIMPLEENUMERATOR
 };
 
 nsrefcnt              ContainerEnumeratorImpl::gRefCnt;
@@ -106,9 +111,6 @@ ContainerEnumeratorImpl::~ContainerEnumeratorImpl()
         NS_IF_RELEASE(gRDFC);
     }
 }
-
-NS_IMPL_ISUPPORTS(ContainerEnumeratorImpl, nsISimpleEnumerator)
-
 
 NS_IMETHODIMP
 ContainerEnumeratorImpl::HasMoreElements(bool* aResult)

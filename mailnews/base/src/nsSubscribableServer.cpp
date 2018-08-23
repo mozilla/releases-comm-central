@@ -830,7 +830,7 @@ nsSubscribableServer::GetChildren(const nsACString &aPath,
         current = current->prevSibling;
     }
 
-    return NS_NewArrayEnumerator(aResult, result);
+    return NS_NewArrayEnumerator(aResult, result, NS_GET_IID(nsIRDFResource));
 }
 
 NS_IMETHODIMP

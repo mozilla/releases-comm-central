@@ -8837,8 +8837,6 @@ nsMsgDBView::SetMRUTimeForFolder(nsIMsgFolder *folder)
   folder->SetStringProperty(MRU_TIME_PROPERTY, nowStr);
 }
 
-NS_IMPL_ISUPPORTS(nsMsgDBView::nsMsgViewHdrEnumerator, nsISimpleEnumerator)
-
 nsMsgDBView::nsMsgViewHdrEnumerator::nsMsgViewHdrEnumerator(nsMsgDBView *view)
 {
   // We need to clone the view because the caller may clear the

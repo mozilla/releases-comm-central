@@ -379,7 +379,7 @@ NS_IMETHODIMP nsAbMDBDirectory::GetChildNodes(nsISimpleEnumerator* *aResult)
   if (mIsQueryURI)
     return NS_NewEmptyEnumerator(aResult);
 
-  return NS_NewArrayEnumerator(aResult, mSubDirectories);
+  return NS_NewArrayEnumerator(aResult, mSubDirectories, NS_GET_IID(nsIAbDirectory));
 }
 
 NS_IMETHODIMP nsAbMDBDirectory::GetChildCards(nsISimpleEnumerator* *result)
@@ -398,7 +398,7 @@ NS_IMETHODIMP nsAbMDBDirectory::GetChildCards(nsISimpleEnumerator* *result)
     for (auto iter = mSearchCache.Iter(); !iter.Done(); iter.Next()) {
       array->AppendElement(iter.Data());
     }
-    return NS_NewArrayEnumerator(result, array);
+    return NS_NewArrayEnumerator(result, array, NS_GET_IID(nsIAbCard));
   }
 
   rv = GetAbDatabase();

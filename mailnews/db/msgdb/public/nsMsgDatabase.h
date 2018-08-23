@@ -28,6 +28,8 @@
 #include "PLDHashTable.h"
 #include "nsTArray.h"
 #include "nsTObserverArray.h"
+#include "nsSimpleEnumerator.h"
+
 class ListContext;
 class nsMsgKeySet;
 class nsMsgThread;
@@ -73,9 +75,12 @@ protected:
   AutoTArray<nsMsgDatabase*, kInitialMsgDBCacheSize> m_dbCache;
 };
 
-class nsMsgDBEnumerator : public nsISimpleEnumerator {
+class nsMsgDBEnumerator : public nsSimpleEnumerator {
 public:
-    NS_DECL_ISUPPORTS
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIMsgDBHdr);
+    }
 
     // nsISimpleEnumerator methods:
     NS_DECL_NSISIMPLEENUMERATOR
@@ -105,7 +110,7 @@ public:
     mdb_pos                         mStopPos;
 
 protected:
-    virtual ~nsMsgDBEnumerator();
+    ~nsMsgDBEnumerator() override;
 };
 
 class nsMsgFilteredDBEnumerator : public nsMsgDBEnumerator

@@ -2999,7 +2999,7 @@ typedef bool
 NS_IMETHODIMP
 nsMsgDBFolder::GetSubFolders(nsISimpleEnumerator **aResult)
 {
-  return aResult ? NS_NewArrayEnumerator(aResult, mSubFolders) : NS_ERROR_NULL_POINTER;
+  return aResult ? NS_NewArrayEnumerator(aResult, mSubFolders, NS_GET_IID(nsIMsgFolder)) : NS_ERROR_NULL_POINTER;
 }
 
 NS_IMETHODIMP

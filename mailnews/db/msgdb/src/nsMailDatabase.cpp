@@ -14,6 +14,7 @@
 #include "prprf.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgPluggableStore.h"
+#include "nsSimpleEnumerator.h"
 
 using namespace mozilla;
 
@@ -308,9 +309,12 @@ void nsMailDatabase::SetReparse(bool reparse)
   m_reparse = reparse;
 }
 
-class nsMsgOfflineOpEnumerator : public nsISimpleEnumerator {
+class nsMsgOfflineOpEnumerator : public nsSimpleEnumerator {
 public:
-  NS_DECL_ISUPPORTS
+  const nsID& DefaultInterface() override
+  {
+    return NS_GET_IID(nsIMsgOfflineImapOperation);
+  }
 
   // nsISimpleEnumerator methods:
   NS_DECL_NSISIMPLEENUMERATOR
@@ -318,7 +322,7 @@ public:
   nsMsgOfflineOpEnumerator(nsMailDatabase* db);
 
 protected:
-  virtual ~nsMsgOfflineOpEnumerator();
+  ~nsMsgOfflineOpEnumerator() override;
   nsresult GetRowCursor();
   nsresult PrefetchNext();
   nsMailDatabase* mDB;
@@ -340,8 +344,6 @@ nsMsgOfflineOpEnumerator::~nsMsgOfflineOpEnumerator()
   NS_IF_RELEASE(mRowCursor);
   NS_RELEASE(mDB);
 }
-
-NS_IMPL_ISUPPORTS(nsMsgOfflineOpEnumerator, nsISimpleEnumerator)
 
 nsresult nsMsgOfflineOpEnumerator::GetRowCursor()
 {

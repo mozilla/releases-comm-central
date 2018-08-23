@@ -7,6 +7,7 @@
 #include "nsMsgDatabase.h"
 #include "nsCOMPtr.h"
 #include "nsMsgThread.h"
+#include "nsSimpleEnumerator.h"
 #include "MailNewsTypes2.h"
 #include "mozilla/DebugOnly.h"
 
@@ -589,9 +590,12 @@ NS_IMETHODIMP nsMsgThread::MarkChildRead(bool bRead)
   return NS_OK;
 }
 
-class nsMsgThreadEnumerator : public nsISimpleEnumerator {
+class nsMsgThreadEnumerator : public nsSimpleEnumerator {
 public:
-  NS_DECL_ISUPPORTS
+  const nsID& DefaultInterface() override
+  {
+    return NS_GET_IID(nsIMsgDBHdr);
+  }
 
   // nsISimpleEnumerator methods:
   NS_DECL_NSISIMPLEENUMERATOR
@@ -604,12 +608,10 @@ public:
   int32_t MsgKeyFirstChildIndex(nsMsgKey inMsgKey);
 
 protected:
-  virtual ~nsMsgThreadEnumerator();
-
   nsresult                Prefetch();
 
   nsIMdbTableRowCursor*   mRowCursor;
-  nsCOMPtr<nsIMsgDBHdr>  mResultHdr;
+  nsCOMPtr<nsIMsgDBHdr>   mResultHdr;
   RefPtr<nsMsgThread>     mThread;
   nsMsgKey                mThreadParentKey;
   nsMsgKey                mFirstMsgKey;
@@ -685,12 +687,6 @@ nsMsgThreadEnumerator::nsMsgThreadEnumerator(nsMsgThread *thread, nsMsgKey start
   }
 #endif
 }
-
-nsMsgThreadEnumerator::~nsMsgThreadEnumerator()
-{
-}
-
-NS_IMPL_ISUPPORTS(nsMsgThreadEnumerator, nsISimpleEnumerator)
 
 int32_t nsMsgThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey)
 {

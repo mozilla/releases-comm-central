@@ -923,7 +923,7 @@ NS_IMETHODIMP nsMsgFilterService::GetCustomActions(nsISimpleEnumerator** aResult
 {
   NS_ENSURE_ARG_POINTER(aResult);
 
-  return NS_NewArrayEnumerator(aResult, mCustomActions);
+  return NS_NewArrayEnumerator(aResult, mCustomActions, NS_GET_IID(nsIMsgFilterCustomAction));
 }
 
 NS_IMETHODIMP
@@ -956,7 +956,7 @@ NS_IMETHODIMP nsMsgFilterService::GetCustomTerms(nsISimpleEnumerator** aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
 
-  return NS_NewArrayEnumerator(aResult, mCustomTerms);
+  return NS_NewArrayEnumerator(aResult, mCustomTerms, NS_GET_IID(nsIMsgSearchCustomTerm));
 }
 
 NS_IMETHODIMP

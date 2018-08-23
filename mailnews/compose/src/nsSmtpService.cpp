@@ -385,7 +385,7 @@ nsSmtpService::GetServers(nsISimpleEnumerator **aResult)
   if (serverCount <= 0)
     loadSmtpServers();
 
-  return NS_NewArrayEnumerator(aResult, mSmtpServers);
+  return NS_NewArrayEnumerator(aResult, mSmtpServers, NS_GET_IID(nsISmtpServer));
 }
 
 nsresult

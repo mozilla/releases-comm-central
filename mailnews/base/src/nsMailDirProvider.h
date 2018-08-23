@@ -7,9 +7,10 @@
 #define nsMailDirProvider_h__
 
 #include "nsIDirectoryService.h"
-#include "nsISimpleEnumerator.h"
+#include "nsSimpleEnumerator.h"
 #include "nsString.h"
 #include "nsCOMPtr.h"
+#include "nsIFile.h"
 
 class nsMailDirProvider final : public nsIDirectoryServiceProvider2
 {
@@ -23,16 +24,20 @@ private:
 
   nsresult EnsureDirectory(nsIFile *aDirectory);
 
-  class AppendingEnumerator final : public nsISimpleEnumerator
+
+  class AppendingEnumerator final : public nsSimpleEnumerator
   {
   public:
-    NS_DECL_ISUPPORTS
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIFile);
+    }
+
     NS_DECL_NSISIMPLEENUMERATOR
 
     AppendingEnumerator(nsISimpleEnumerator* aBase);
 
   private:
-    ~AppendingEnumerator() {}
     nsCOMPtr<nsISimpleEnumerator> mBase;
     nsCOMPtr<nsIFile>             mNext;
     nsCOMPtr<nsIFile>             mNextWithLocale;

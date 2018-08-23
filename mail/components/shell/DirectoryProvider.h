@@ -7,7 +7,7 @@
 
 #include "nsIDirectoryService.h"
 #include "nsComponentManagerUtils.h"
-#include "nsISimpleEnumerator.h"
+#include "nsSimpleEnumerator.h"
 #include "nsIFile.h"
 
 #define NS_MAILDIRECTORYPROVIDER_CONTRACTID \
@@ -36,17 +36,19 @@ public:
 
 private:
   virtual ~DirectoryProvider() {}
-  class AppendingEnumerator : public nsISimpleEnumerator
+  class AppendingEnumerator : public nsSimpleEnumerator
   {
   public:
-    NS_DECL_ISUPPORTS
     NS_DECL_NSISIMPLEENUMERATOR
+
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIFile);
+    }
 
     AppendingEnumerator(nsISimpleEnumerator* aBase,
                         char const *const *aAppendList);
-
   private:
-    virtual ~AppendingEnumerator() {}
     nsCOMPtr<nsISimpleEnumerator> mBase;
     char const *const *const      mAppendList;
     nsCOMPtr<nsIFile>             mNext;

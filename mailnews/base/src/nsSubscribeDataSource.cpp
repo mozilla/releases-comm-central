@@ -553,7 +553,7 @@ nsSubscribeDataSource::ArcLabelsOut(nsIRDFResource *source,
         array.AppendObject(kNC_Child);
     }
 
-    return NS_NewArrayEnumerator(labels, array);
+    return NS_NewArrayEnumerator(labels, array, NS_GET_IID(nsIRDFResource));
 }
 
 NS_IMETHODIMP

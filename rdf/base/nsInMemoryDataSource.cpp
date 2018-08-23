@@ -38,6 +38,7 @@
 #include "nsIServiceManager.h"
 #include "nsCOMArray.h"
 #include "nsEnumeratorUtils.h"
+#include "nsSimpleEnumerator.h"
 #include "nsTArray.h"
 #include "nsCRT.h"
 #include "nsRDFCID.h"
@@ -350,7 +351,7 @@ mozilla::LazyLogModule InMemoryDataSource::gLog("InMemoryDataSource");
 /**
  * InMemoryAssertionEnumeratorImpl
  */
-class InMemoryAssertionEnumeratorImpl : public nsISimpleEnumerator
+class InMemoryAssertionEnumeratorImpl : public nsSimpleEnumerator
 {
 private:
     InMemoryDataSource* mDataSource;
@@ -361,20 +362,22 @@ private:
     bool            mTruthValue;
     Assertion*      mNextAssertion;
 
-    virtual ~InMemoryAssertionEnumeratorImpl();
+    ~InMemoryAssertionEnumeratorImpl() override;
 
 public:
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIRDFNode);
+    }
+
+    // nsISimpleEnumerator interface
+    NS_DECL_NSISIMPLEENUMERATOR
+
     InMemoryAssertionEnumeratorImpl(InMemoryDataSource* aDataSource,
                                     nsIRDFResource* aSource,
                                     nsIRDFResource* aProperty,
                                     nsIRDFNode* aTarget,
                                     bool aTruthValue);
-
-    // nsISupports interface
-    NS_DECL_ISUPPORTS
-
-    // nsISimpleEnumerator interface
-    NS_DECL_NSISIMPLEENUMERATOR
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -435,10 +438,6 @@ InMemoryAssertionEnumeratorImpl::~InMemoryAssertionEnumeratorImpl()
     NS_IF_RELEASE(mTarget);
     NS_IF_RELEASE(mValue);
 }
-
-NS_IMPL_ADDREF(InMemoryAssertionEnumeratorImpl)
-NS_IMPL_RELEASE(InMemoryAssertionEnumeratorImpl)
-NS_IMPL_QUERY_INTERFACE(InMemoryAssertionEnumeratorImpl, nsISimpleEnumerator)
 
 NS_IMETHODIMP
 InMemoryAssertionEnumeratorImpl::HasMoreElements(bool* aResult)
@@ -517,7 +516,7 @@ InMemoryAssertionEnumeratorImpl::GetNext(nsISupports** aResult)
  * out for is the multiple inheritance clashes.
  */
 
-class InMemoryArcsEnumeratorImpl : public nsISimpleEnumerator
+class InMemoryArcsEnumeratorImpl : public nsSimpleEnumerator
 {
 private:
     InMemoryDataSource* mDataSource;
@@ -528,18 +527,20 @@ private:
     Assertion*          mAssertion;
     nsCOMArray<nsIRDFNode>* mHashArcs;
 
-    virtual ~InMemoryArcsEnumeratorImpl();
+    ~InMemoryArcsEnumeratorImpl() override;
 
 public:
-    InMemoryArcsEnumeratorImpl(InMemoryDataSource* aDataSource,
-                               nsIRDFResource* aSource,
-                               nsIRDFNode* aTarget);
-
-    // nsISupports interface
-    NS_DECL_ISUPPORTS
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIRDFResource);
+    }
 
     // nsISimpleEnumerator interface
     NS_DECL_NSISIMPLEENUMERATOR
+
+    InMemoryArcsEnumeratorImpl(InMemoryDataSource* aDataSource,
+                               nsIRDFResource* aSource,
+                               nsIRDFNode* aTarget);
 };
 
 
@@ -590,10 +591,6 @@ InMemoryArcsEnumeratorImpl::~InMemoryArcsEnumeratorImpl()
     NS_IF_RELEASE(mCurrent);
     delete mHashArcs;
 }
-
-NS_IMPL_ADDREF(InMemoryArcsEnumeratorImpl)
-NS_IMPL_RELEASE(InMemoryArcsEnumeratorImpl)
-NS_IMPL_QUERY_INTERFACE(InMemoryArcsEnumeratorImpl, nsISimpleEnumerator)
 
 NS_IMETHODIMP
 InMemoryArcsEnumeratorImpl::HasMoreElements(bool* aResult)

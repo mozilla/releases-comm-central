@@ -93,7 +93,7 @@ NS_IMETHODIMP nsAbBSDirectory::GetChildNodes(nsISimpleEnumerator* *aResult)
   nsresult rv = EnsureInitialized();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return NS_NewArrayEnumerator(aResult, mSubDirectories);
+  return NS_NewArrayEnumerator(aResult, mSubDirectories, NS_GET_IID(nsIAbDirectory));
 }
 
 nsresult nsAbBSDirectory::EnsureInitialized()

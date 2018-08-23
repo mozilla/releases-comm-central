@@ -31,6 +31,7 @@
 #include "nsIMsgCustomColumnHandler.h"
 #include "nsAutoPtr.h"
 #include "nsIWeakReferenceUtils.h"
+#include "nsSimpleEnumerator.h"
 #define MESSENGER_STRING_URL       "chrome://messenger/locale/messenger.properties"
 
 typedef AutoTArray<nsMsgViewIndex, 1> nsMsgViewIndexArray;
@@ -541,10 +542,13 @@ private:
                                          bool &changeReadState,
                                          nsIMsgFolder** targetFolder);
 
-  class nsMsgViewHdrEnumerator final : public nsISimpleEnumerator
+  class nsMsgViewHdrEnumerator final : public nsSimpleEnumerator
   {
   public:
-    NS_DECL_ISUPPORTS
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIMsgDBHdr);
+    }
 
     // nsISimpleEnumerator methods:
     NS_DECL_NSISIMPLEENUMERATOR
@@ -556,7 +560,7 @@ private:
     nsMsgViewIndex m_curHdrIndex;
 
   private:
-    ~nsMsgViewHdrEnumerator();
+    ~nsMsgViewHdrEnumerator() override;
   };
 };
 

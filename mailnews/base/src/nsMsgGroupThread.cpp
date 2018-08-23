@@ -8,6 +8,7 @@
 #include "nsMsgDBView.h"
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
+#include "nsSimpleEnumerator.h"
 
 NS_IMPL_ISUPPORTS(nsMsgGroupThread, nsIMsgThread)
 
@@ -325,9 +326,12 @@ NS_IMETHODIMP nsMsgGroupThread::MarkChildRead(bool bRead)
 }
 
 // this could be moved into utils, because I think it's the same as the db impl.
-class nsMsgGroupThreadEnumerator : public nsISimpleEnumerator {
+class nsMsgGroupThreadEnumerator : public nsSimpleEnumerator {
 public:
-  NS_DECL_ISUPPORTS
+  const nsID& DefaultInterface() override
+  {
+    return NS_GET_IID(nsIMsgDBHdr);
+  }
 
   // nsISimpleEnumerator methods:
   NS_DECL_NSISIMPLEENUMERATOR
@@ -422,8 +426,6 @@ nsMsgGroupThreadEnumerator::nsMsgGroupThreadEnumerator(nsMsgGroupThread *thread,
 nsMsgGroupThreadEnumerator::~nsMsgGroupThreadEnumerator()
 {
 }
-
-NS_IMPL_ISUPPORTS(nsMsgGroupThreadEnumerator, nsISimpleEnumerator)
 
 int32_t nsMsgGroupThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey)
 {

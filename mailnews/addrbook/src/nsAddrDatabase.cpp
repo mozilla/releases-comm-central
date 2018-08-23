@@ -27,6 +27,7 @@
 #include "nsIVariant.h"
 #include "nsCOMArray.h"
 #include "nsArrayEnumerator.h"
+#include "nsSimpleEnumerator.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIAbManager.h"
@@ -2300,20 +2301,25 @@ nsresult nsAddrDatabase::GetListFromDB(nsIAbDirectory *newList, nsIMdbRow* listR
   return err;
 }
 
-class nsAddrDBEnumerator : public nsISimpleEnumerator, public nsIAddrDBListener
+class nsAddrDBEnumerator : public nsSimpleEnumerator, public nsIAddrDBListener
 {
 public:
-    NS_DECL_ISUPPORTS
+    NS_DECL_ISUPPORTS_INHERITED
+
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIFile);
+    }
 
     // nsISimpleEnumerator methods:
     NS_DECL_NSISIMPLEENUMERATOR
     NS_DECL_NSIADDRDBLISTENER
-    // nsAddrDBEnumerator methods:
 
+    // nsAddrDBEnumerator methods:
     nsAddrDBEnumerator(nsAddrDatabase* aDb);
     void Clear();
 protected:
-    virtual ~nsAddrDBEnumerator();
+    ~nsAddrDBEnumerator() override;
     RefPtr<nsAddrDatabase> mDb;
     nsIMdbTable *mDbTable;
     nsCOMPtr<nsIMdbTableRowCursor> mRowCursor;
@@ -2344,7 +2350,7 @@ void nsAddrDBEnumerator::Clear()
     mDb->RemoveListener(this);
 }
 
-NS_IMPL_ISUPPORTS(nsAddrDBEnumerator, nsISimpleEnumerator, nsIAddrDBListener)
+NS_IMPL_ISUPPORTS_INHERITED(nsAddrDBEnumerator, nsSimpleEnumerator, nsIAddrDBListener)
 
 NS_IMETHODIMP
 nsAddrDBEnumerator::HasMoreElements(bool *aResult)
@@ -2466,20 +2472,21 @@ NS_IMETHODIMP nsAddrDBEnumerator::OnAnnouncerGoingAway()
   return NS_OK;
 }
 
-class nsListAddressEnumerator final : public nsISimpleEnumerator
+class nsListAddressEnumerator final : public nsSimpleEnumerator
 {
 public:
-    NS_DECL_ISUPPORTS
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIAbCard);
+    }
 
     // nsISimpleEnumerator methods:
     NS_DECL_NSISIMPLEENUMERATOR
 
     // nsListAddressEnumerator methods:
-
     nsListAddressEnumerator(nsAddrDatabase* aDb, mdb_id aRowID);
 
 protected:
-    ~nsListAddressEnumerator() {}
     RefPtr<nsAddrDatabase> mDb;
     nsIMdbTable *mDbTable;
     nsCOMPtr<nsIMdbRow> mListRow;
@@ -2498,8 +2505,6 @@ nsListAddressEnumerator::nsListAddressEnumerator(nsAddrDatabase* aDb,
     mDb->GetListRowByRowID(mListRowID, getter_AddRefs(mListRow));
     mAddressTotal = aDb->GetListAddressTotal(mListRow);
 }
-
-NS_IMPL_ISUPPORTS(nsListAddressEnumerator, nsISimpleEnumerator)
 
 NS_IMETHODIMP
 nsListAddressEnumerator::HasMoreElements(bool *aResult)
@@ -2913,7 +2918,7 @@ NS_IMETHODIMP nsAddrDatabase::GetCardsFromAttribute(nsIAbDirectory *aDirectory,
       done = true;
   } while (!done);
 
-  return NS_NewArrayEnumerator(cards, list);
+  return NS_NewArrayEnumerator(cards, list, NS_GET_IID(nsIAbCard));
 }
 
 NS_IMETHODIMP nsAddrDatabase::AddListDirNode(nsIMdbRow * listRow)

@@ -240,7 +240,7 @@ nsMsgNewsFolder::GetSubFolders(nsISimpleEnumerator **aResult)
     (void)UpdateSummaryTotals(false);
   }
 
-  return aResult ? NS_NewArrayEnumerator(aResult, mSubFolders) : NS_ERROR_NULL_POINTER;
+  return aResult ? NS_NewArrayEnumerator(aResult, mSubFolders, NS_GET_IID(nsIMsgFolder)) : NS_ERROR_NULL_POINTER;
 }
 
 //Makes sure the database is open and exists.  If the database is valid then

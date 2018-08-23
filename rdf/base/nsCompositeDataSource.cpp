@@ -36,6 +36,7 @@
 #include "nsTArray.h"
 #include "nsCOMArray.h"
 #include "nsArrayEnumerator.h"
+#include "nsSimpleEnumerator.h"
 #include "nsString.h"
 #include "rdf.h"
 #include "nsCycleCollectionParticipant.h"
@@ -101,10 +102,12 @@ protected:
 // CompositeEnumeratorImpl
 //
 
-class CompositeEnumeratorImpl : public nsISimpleEnumerator
+class CompositeEnumeratorImpl : public nsSimpleEnumerator
 {
-    // nsISupports
-    NS_DECL_ISUPPORTS
+    const nsID& DefaultInterface() override
+    {
+      return NS_GET_IID(nsIRDFNode);
+    }
 
     // nsISimpleEnumerator interface
     NS_DECL_NSISIMPLEENUMERATOR
@@ -121,7 +124,7 @@ protected:
                             bool aAllowNegativeAssertions,
                             bool aCoalesceDuplicateArcs);
 
-    virtual ~CompositeEnumeratorImpl();
+    ~CompositeEnumeratorImpl() override;
 
     CompositeDataSourceImpl* mCompositeDataSource;
 
@@ -140,7 +143,7 @@ CompositeEnumeratorImpl::CompositeEnumeratorImpl(CompositeDataSourceImpl* aCompo
     : mCompositeDataSource(aCompositeDataSource),
       mCurrent(nullptr),
       mResult(nullptr),
-	  mNext(0),
+      mNext(0),
       mAllowNegativeAssertions(aAllowNegativeAssertions),
       mCoalesceDuplicateArcs(aCoalesceDuplicateArcs)
 {
@@ -154,10 +157,6 @@ CompositeEnumeratorImpl::~CompositeEnumeratorImpl(void)
     NS_IF_RELEASE(mResult);
     NS_RELEASE(mCompositeDataSource);
 }
-
-NS_IMPL_ADDREF(CompositeEnumeratorImpl)
-NS_IMPL_RELEASE(CompositeEnumeratorImpl)
-NS_IMPL_QUERY_INTERFACE(CompositeEnumeratorImpl, nsISimpleEnumerator)
 
 NS_IMETHODIMP
 CompositeEnumeratorImpl::HasMoreElements(bool* aResult)

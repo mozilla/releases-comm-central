@@ -243,7 +243,7 @@ NS_IMETHODIMP nsAbCardProperty::GetProperties(nsISimpleEnumerator **props)
     propertyArray.AppendObject(new nsAbSimpleProperty(iter.Key(),
                                                       iter.UserData()));
   }
-  return NS_NewArrayEnumerator(props, propertyArray);
+  return NS_NewArrayEnumerator(props, propertyArray, NS_GET_IID(nsIProperty));
 }
 
 NS_IMETHODIMP nsAbCardProperty::GetProperty(const nsACString &name,

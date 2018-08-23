@@ -118,7 +118,7 @@ NS_IMETHODIMP nsMsgTxn::GetEnumerator(nsISimpleEnumerator* *_retval)
                                                            iter.Data());
     propertyArray.AppendObject(sprop);
   }
-  return NS_NewArrayEnumerator(_retval, propertyArray);
+  return NS_NewArrayEnumerator(_retval, propertyArray, NS_GET_IID(nsIProperty));
 }
 
 #define IMPL_GETSETPROPERTY_AS(Name, Type) \

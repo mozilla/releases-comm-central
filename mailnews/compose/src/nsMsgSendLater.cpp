@@ -812,7 +812,7 @@ nsMsgSendLater::InternalSendMessages(bool aUserInitiated,
   }
 
   // Now get an enumerator for our array.
-  rv = NS_NewArrayEnumerator(getter_AddRefs(mEnumerator), mMessagesToSend);
+  rv = NS_NewArrayEnumerator(getter_AddRefs(mEnumerator), mMessagesToSend, NS_GET_IID(nsIMsgDBHdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // We're now sending messages so its time to signal that and reset our counts.
