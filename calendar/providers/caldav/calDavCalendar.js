@@ -4,7 +4,7 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm", null);
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm", null);
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 ChromeUtils.import("resource:///modules/OAuth2.jsm");

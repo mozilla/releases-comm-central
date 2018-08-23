@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm", null);
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm", null);
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 
