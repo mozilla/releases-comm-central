@@ -7,7 +7,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Timer.jsm");
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 
-const { Loader, Require, Module } = ChromeUtils.import("resource://devtools/shared/base-loader.js", {});
+const { Loader, Require, Module } = ChromeUtils.import("resource://devtools/shared/base-loader.js", null);
 
 this.EXPORTED_SYMBOLS = ["MatrixSDK"];
 

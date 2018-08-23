@@ -121,7 +121,7 @@
             if (!this.docShell)
               return null;
 
-            let Finder = ChromeUtils.import("resource://gre/modules/Finder.jsm", {}).Finder;
+            const { Finder } = ChromeUtils.import("resource://gre/modules/Finder.jsm", null);
             this._finder = new Finder(this.docShell);
           }
           return this._finder;

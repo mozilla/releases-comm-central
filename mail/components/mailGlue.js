@@ -12,7 +12,7 @@ ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
 ChromeUtils.import("resource:///modules/distribution.js");
 ChromeUtils.import("resource:///modules/mailMigrator.js");
 ChromeUtils.import("resource:///modules/extensionSupport.jsm");
-const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm", {});
+const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm", null);
 
 // lazy module getters
 
