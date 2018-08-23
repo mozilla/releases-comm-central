@@ -225,7 +225,9 @@ var ltnImipBar = {
                 data = {
                     label: cal.l10n.getLtnString("imipBarSentButRemovedText"),
                     buttons: [],
-                    hideMenuItems: []
+                    hideMenuItems: [],
+                    hideItems: [],
+                    showItems: []
                 };
             }
         }
