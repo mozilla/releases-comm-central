@@ -13,6 +13,9 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
  * Common initialization steps for calendar chrome windows.
  */
 function commonInitCalendar() {
+    // load locale specific default values for preferences
+    setLocaleDefaultPreferences();
+
     // Move around toolbarbuttons and whatever is needed in the UI.
     migrateCalendarUI();
 
@@ -222,4 +225,52 @@ function migrateCalendarUI() {
         cal.ERROR("Error upgrading UI from " + currentUIVersion + " to " +
                   UI_VERSION + ": " + e);
     }
+}
+
+function setLocaleDefaultPreferences() {
+    function setDefaultLocaleValue(aName) {
+        let startDefault = calendarInfo.firstDayOfWeek - 1;
+        if (aName == "calendar.categories.names" &&
+            defaultBranch.getStringPref(aName) == "") {
+            defaultBranch.setStringPref(aName, cal.l10n.getString("categories", "categories2"));
+        } else if (aName == "calendar.week.start" &&
+                   defaultBranch.getIntPref(aName) != startDefault) {
+            defaultBranch.setIntPref(aName, startDefault);
+        } else if (aName.startsWith("calendar.week.d")) {
+            let weStart = calendarInfo.weekendStart - 1;
+            let weEnd = calendarInfo.weekendEnd - 1;
+            if (weStart > weEnd) {
+                weEnd += 7;
+            }
+            let weekend = [];
+            for (let i = weStart; i <= weEnd; i++) {
+                weekend.push(i > 6 ? i - 7 : i);
+            }
+            if (defaultBranch.getBoolPref(aName) === weekend.includes(aName[15])) {
+                defaultBranch.setBoolPref(aName, weekend.includes(aName[15]));
+            }
+        }
+    }
+
+    cal.LOG("Start loading of locale dependent preference default values...");
+
+    let defaultBranch = Services.prefs.getDefaultBranch("");
+    let calendarInfo = cal.l10n.calendarInfo();
+
+    let prefDefaults = [
+        "calendar.week.start",
+        "calendar.week.d0sundaysoff",
+        "calendar.week.d1mondaysoff",
+        "calendar.week.d2tuesdaysoff",
+        "calendar.week.d3wednesdaysoff",
+        "calendar.week.d4thursdaysoff",
+        "calendar.week.d5fridaysoff",
+        "calendar.week.d6saturdaysoff",
+        "calendar.categories.names"
+    ];
+    for (let prefDefault of prefDefaults) {
+        setDefaultLocaleValue(prefDefault);
+    }
+
+    cal.LOG("Loading of locale sensitive preference default values completed.");
 }
