@@ -735,10 +735,7 @@ nsMsgDatabase::MatchEntry(const PLDHashEntryHdr* aEntry, const void* aKey)
 void
 nsMsgDatabase::MoveEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aFrom, PLDHashEntryHdr* aTo)
 {
-  const MsgHdrHashElement* from = static_cast<const MsgHdrHashElement*>(aFrom);
-  MsgHdrHashElement* to = static_cast<MsgHdrHashElement*>(aTo);
-  // ### eh? Why is this needed? I don't think we have a copy operator?
-  *to = *from;
+  new (KnownNotNull, aTo) MsgHdrHashElement(std::move(*((MsgHdrHashElement *)aFrom)));
 }
 
 void

@@ -79,6 +79,12 @@ struct Token : public BaseToken {
     uint32_t mCount;
     uint32_t mAnalysisLink; // index in mAnalysisStore of the AnalysisPerToken
                             // object for the first trait for this token
+    // Helper to support Tokenizer::copyTokens()
+    void clone(const Token& other) {
+      mWord = other.mWord;
+      mCount = other.mCount;
+      mAnalysisLink = other.mAnalysisLink;
+    }
 };
 
 // token stored in a training file for a group of messages
@@ -891,18 +897,21 @@ void Tokenizer::UnescapeCString(nsCString& aCString)
 
 Token* Tokenizer::copyTokens()
 {
-    uint32_t count = countTokens();
-    if (count > 0) {
-        Token* tokens = new Token[count];
-        if (tokens) {
-            Token* tp = tokens;
-            TokenEnumeration e(&mTokenTable);
-            while (e.hasMoreTokens())
-                *tp++ = *(static_cast<Token*>(e.nextToken()));
-        }
-        return tokens;
+  uint32_t count = countTokens();
+  if (count > 0) {
+    Token* tokens = new Token[count];
+    if (tokens) {
+      Token* tp = tokens;
+      TokenEnumeration e(&mTokenTable);
+      while (e.hasMoreTokens()) {
+        Token* src = static_cast<Token*>(e.nextToken());
+        tp->clone(*src);
+        ++tp;
+      }
     }
-    return NULL;
+    return tokens;
+  }
+  return NULL;
 }
 
 class TokenAnalyzer {
