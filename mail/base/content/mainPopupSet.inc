@@ -890,7 +890,7 @@
                       command="cmd_newMsgFromTemplate"/>
             <menuitem id="appmenu_editTemplateMsgCmd"
                       label="&editTemplateMsgCmd.label;"
-                      command="cmd_editTemplate"/>
+                      command="cmd_editTemplateMsg"/>
             <menuseparator id="appmenu_messageMenuAfterCompositionCommandsSeparator"/>
             <menuitem id="appmenu_openMessageWindowMenuitem"
                       label="&openMessageWindowCmd.label;"
@@ -1297,6 +1297,11 @@
               label="&contextNewMsgFromTemplate.label;"
               default="true"
               oncommand="MsgNewMessageFromTemplate(event);"/>
+    <menuseparator id="mailContext-sep-editTemplate"/>
+    <menuitem id="mailContext-editTemplateMsg"
+              label="&contextEditTemplate.label;"
+              accesskey="&contextEditTemplate.accesskey;"
+              oncommand="MsgEditTemplateMessage(event);"/>
     <menuseparator id="mailContext-sep-open"/>
     <menuitem id="mailContext-media-play"
               label="&contextPlay.label;"
@@ -1369,17 +1374,13 @@
               label="&contextMultiForwardAsAttachment.label;"
               accesskey="&contextMultiForwardAsAttachment.accesskey;"
               oncommand="MsgForwardAsAttachment(event);"/>
-    <!-- The following two items are not hooked to their commands because we need
-         to enable them even in some cases there is no real selected message yet,
-         only a rightclick on a message. -->
+    <!-- The following item (mailContext-editAsNew) is not hooked to its command
+         because we need to enable it even in some cases there is no real
+         selected message yet, only a rightclick on a message. -->
     <menuitem id="mailContext-editAsNew"
               label="&contextEditMsgAsNew.label;"
               accesskey="&contextEditMsgAsNew.accesskey;"
               oncommand="MsgEditMessageAsNew(event);"/>
-    <menuitem id="mailContext-editTemplateMsg"
-              label="&contextEditTemplate.label;"
-              accesskey="&contextEditTemplate.accesskey;"
-              oncommand="MsgEditTemplateMessage(event);"/>
     <menuseparator id="mailContext-sep-reply"/>
     <menu id="mailContext-tags" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;">
       <menupopup id="mailContext-tagpopup"
