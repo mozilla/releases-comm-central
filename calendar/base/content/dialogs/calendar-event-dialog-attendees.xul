@@ -5,8 +5,11 @@
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-attendees.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/datetimepickers/datetimepickers.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/content/widgets/calendar-widget-bindings.css"?>
+<?xml-stylesheet type="text/css" href="chrome://lightning-common/skin/datetimepickers.css"?>
 
 <!DOCTYPE dialog [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd1;
@@ -20,6 +23,7 @@
         ondialogaccept="return onAccept();"
         ondialogcancel="return onCancel();"
         defaultButton="none"
+        height="500"
         persist="screenX screenY height width"
         orient="vertical"
         style="padding-top: 8px; padding-bottom: 10px; padding-inline-start: 8px; padding-inline-end: 10px;"
@@ -65,7 +69,7 @@
                    oncommand="zoomWithButtons(false);"/>
   </hbox>
   <hbox flex="1">
-    <vbox id="attendees-container" flex="1" persist="width">
+    <vbox id="attendees-container" flex="1" width="250" persist="width">
       <box class="attendee-spacer-top"/>
       <attendees-list flex="1" id="attendees-list" class="listbox-noborder">
         <richlistitem class="addressingWidgetItem" allowevents="true">
@@ -98,7 +102,7 @@
       <box class="attendee-spacer-bottom"/>
     </vbox>
     <splitter id="splitter"/>
-    <vbox id="freebusy-container" persist="width">
+    <vbox id="freebusy-container" width="750" persist="width">
       <stack flex="1">
         <vbox flex="1">
           <freebusy-timebar id="timebar"
