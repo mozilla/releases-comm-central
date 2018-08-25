@@ -470,7 +470,8 @@ LogConversation.prototype = {
       _messages: this._messages,
       hasMoreElements: function() { return this._index < this._messages.length; },
       getNext: function() { return new LogMessage(this._messages[this._index++], this._conv); },
-      QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
+      QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+      * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); }
     };
     return enumerator;
   }
@@ -671,7 +672,9 @@ DailyLogEnumerator.prototype = {
     let dayID = this._days[this._index++];
     return new Log(this._entries[dayID]);
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); }
+  }
 };
 
 function LogEnumerator(aEntries) {
@@ -687,7 +690,8 @@ LogEnumerator.prototype = {
     // Create and return a log from the first entry.
     return new Log(this._entries.shift().path);
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); }
 };
 
 
