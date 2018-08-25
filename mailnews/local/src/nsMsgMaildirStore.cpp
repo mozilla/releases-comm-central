@@ -14,6 +14,7 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsISimpleEnumerator.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsMsgFolderFlags.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
@@ -1149,7 +1150,7 @@ class MaildirStoreParser
 {
 public:
   MaildirStoreParser(nsIMsgFolder *aFolder, nsIMsgDatabase *aMsgDB,
-                     nsISimpleEnumerator *aDirectoryEnumerator,
+                     nsIDirectoryEnumerator *aDirectoryEnumerator,
                      nsIUrlListener *aUrlListener);
   virtual ~MaildirStoreParser();
 
@@ -1157,7 +1158,7 @@ public:
   static void TimerCallback(nsITimer *aTimer, void *aClosure);
   nsresult StartTimer();
 
-  nsCOMPtr<nsISimpleEnumerator> m_directoryEnumerator;
+  nsCOMPtr<nsIDirectoryEnumerator> m_directoryEnumerator;
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsCOMPtr<nsIMsgDatabase> m_db;
   nsCOMPtr<nsITimer> m_timer;
@@ -1166,7 +1167,7 @@ public:
 
 MaildirStoreParser::MaildirStoreParser(nsIMsgFolder *aFolder,
                                        nsIMsgDatabase *aMsgDB,
-                                       nsISimpleEnumerator *aDirEnum,
+                                       nsIDirectoryEnumerator *aDirEnum,
                                        nsIUrlListener *aUrlListener)
 {
   m_folder = aFolder;
