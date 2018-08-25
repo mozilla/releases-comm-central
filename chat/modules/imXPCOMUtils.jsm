@@ -236,11 +236,31 @@ nsSimpleEnumerator.prototype = {
 
     return this._items[this._nextIndex++];
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  [Symbol.iterator]: function () {
+    let self = this;
+    return {
+      i: -1,
+      next: function () {
+        this.i++;
+        if (this.i < self._items.length)
+          return { value : self._items[this.i], done: false };
+        else
+          return { value : undefined, done: true };
+      }
+    }
+  }
 };
 
 var EmptyEnumerator = {
   hasMoreElements: () => false,
   getNext: function() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  [Symbol.iterator]: function () {
+    return {
+      next: function () {
+        return { value : undefined, done: true };
+      }
+    }
+  }
 };
