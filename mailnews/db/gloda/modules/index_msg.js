@@ -1157,11 +1157,7 @@ var GlodaMsgIndexer = {
     let numHeadersSeen = 0;
 
     // We are consuming two lists; our loop structure has to reflect that.
-    let headerIterator = function* (aEnumerator) {
-      while (aEnumerator.hasMoreElements())
-        yield aEnumerator.getNext().QueryInterface(nsIMsgDBHdr);
-    };
-    let headerIter = headerIterator(this._indexingEnumerator);
+    let headerIter = this._indexingEnumerator[Symbol.iterator]();
     let mayHaveMoreGlodaMessages = true;
     let keepIterHeader = false;
     let keepGlodaTuple = false;
