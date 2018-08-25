@@ -122,7 +122,7 @@ nsresult RecursiveCopy(nsIFile* srcDir, nsIFile* destDir)
   if (NS_FAILED(rv)) return rv;
 
   bool hasMore = false;
-  nsCOMPtr<nsISimpleEnumerator> dirIterator;
+  nsCOMPtr<nsIDirectoryEnumerator> dirIterator;
   rv = srcDir->GetDirectoryEntries(getter_AddRefs(dirIterator));
   if (NS_FAILED(rv)) return rv;
 
@@ -423,7 +423,7 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile *path)
   rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr <nsISimpleEnumerator> children;
+  nsCOMPtr<nsIDirectoryEnumerator> children;
   rv = path->GetDirectoryEntries(getter_AddRefs(children));
   bool more = false;
   if (children)
@@ -8004,7 +8004,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder,
         NS_ENSURE_SUCCESS(rv,rv);
 
         AddDirectorySeparator(parentPathFile);
-        nsCOMPtr <nsISimpleEnumerator> children;
+        nsCOMPtr<nsIDirectoryEnumerator> children;
         parentPathFile->GetDirectoryEntries(getter_AddRefs(children));
         bool more;
         // checks if the directory is empty or not

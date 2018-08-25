@@ -7,7 +7,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIFile.h"
-#include "nsISimpleEnumerator.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsIMutableArray.h"
 #include "nsString.h"
 #include "nsAbBaseCID.h"
@@ -156,7 +156,7 @@ nsBeckyAddressBooks::HasAddressBookFile(nsIFile *aDirectory)
   if (NS_FAILED(rv) || !isDirectory)
     return false;
 
-  nsCOMPtr<nsISimpleEnumerator> entries;
+  nsCOMPtr<nsIDirectoryEnumerator> entries;
   rv = aDirectory->GetDirectoryEntries(getter_AddRefs(entries));
   NS_ENSURE_SUCCESS(rv, false);
 
@@ -187,7 +187,7 @@ nsBeckyAddressBooks::CountAddressBookSize(nsIFile *aDirectory)
   if (NS_FAILED(rv) || !isDirectory)
     return 0;
 
-  nsCOMPtr<nsISimpleEnumerator> entries;
+  nsCOMPtr<nsIDirectoryEnumerator> entries;
   rv = aDirectory->GetDirectoryEntries(getter_AddRefs(entries));
   NS_ENSURE_SUCCESS(rv, 0);
 
@@ -244,7 +244,7 @@ nsBeckyAddressBooks::CollectAddressBooks(nsIFile *aTarget,
   nsresult rv = AppendAddressBookDescriptor(aTarget, aCollected);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> entries;
+  nsCOMPtr<nsIDirectoryEnumerator> entries;
   rv = aTarget->GetDirectoryEntries(getter_AddRefs(entries));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -318,7 +318,7 @@ nsBeckyAddressBooks::ImportAddressBook(nsIImportABDescriptor *aSource,
   nsresult rv = aSource->GetAbFile(getter_AddRefs(file));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> entries;
+  nsCOMPtr<nsIDirectoryEnumerator> entries;
   rv = file->GetDirectoryEntries(getter_AddRefs(entries));
   NS_ENSURE_SUCCESS(rv, rv);
 

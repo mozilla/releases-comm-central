@@ -14,7 +14,7 @@
 #include "nsINode.h"
 #include "nsIFileStreams.h"
 #include "nsIFile.h"
-#include "nsISimpleEnumerator.h"
+#include "nsIDirectoryEnumerator.h"
 #include "ImportDebug.h"
 #include "prio.h"
 #include "mozilla/ErrorResult.h"
@@ -97,7 +97,7 @@ nsresult
 nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
                                      nsCOMArray<nsIFile> &aFileArray)
 {
-  nsCOMPtr<nsISimpleEnumerator> entries;
+  nsCOMPtr<nsIDirectoryEnumerator> entries;
   nsresult rv = aFolder->GetDirectoryEntries(getter_AddRefs(entries));
   if (NS_FAILED(rv) || !entries)
     return NS_ERROR_FAILURE;

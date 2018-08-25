@@ -24,6 +24,8 @@
 #include "nsIMsgThread.h"
 #include "nsIImapMailFolderSink.h"
 #include "nsIMsgFilterPlugin.h"
+#include "nsISimpleEnumerator.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsDataHashtable.h"
 #include "nsIMutableArray.h"
 #include "nsITimer.h"

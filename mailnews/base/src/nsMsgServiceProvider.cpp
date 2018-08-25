@@ -90,13 +90,9 @@ void nsMsgServiceProviderService::LoadISPFilesFromDir(nsIFile* aDir)
   if (NS_FAILED(rv) || !check)
     return;
 
-  nsCOMPtr<nsISimpleEnumerator> e;
-  rv = aDir->GetDirectoryEntries(getter_AddRefs(e));
+  nsCOMPtr<nsIDirectoryEnumerator> files;
+  rv = aDir->GetDirectoryEntries(getter_AddRefs(files));
   if (NS_FAILED(rv))
-    return;
-
-  nsCOMPtr<nsIDirectoryEnumerator> files(do_QueryInterface(e));
-  if (!files)
     return;
 
   // we only care about the .rdf files in this directory

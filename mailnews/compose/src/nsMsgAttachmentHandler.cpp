@@ -24,6 +24,7 @@
 #include "nsITextToSubURI.h"
 #include "nsIURL.h"
 #include "nsIFileURL.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsNetCID.h"
 #include "nsIMimeStreamConverter.h"
 #include "nsMsgMimeCID.h"
@@ -90,11 +91,8 @@ nsresult nsSimpleZipper::AddToZip(nsIZipWriter *aZipWriter,
 
   // if it's a directory, add all its contents too
   if (isDirectory) {
-    nsCOMPtr<nsISimpleEnumerator> e;
-    nsresult rv = aFile->GetDirectoryEntries(getter_AddRefs(e));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIDirectoryEnumerator> dirEnumerator = do_QueryInterface(e, &rv);
+    nsCOMPtr<nsIDirectoryEnumerator> dirEnumerator;
+    nsresult rv = aFile->GetDirectoryEntries(getter_AddRefs(dirEnumerator));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIFile> currentFile;

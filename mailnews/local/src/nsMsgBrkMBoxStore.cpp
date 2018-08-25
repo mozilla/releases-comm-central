@@ -571,7 +571,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(nsIMsgFolder *aSrcFolder,
       NS_ENSURE_SUCCESS(rv,rv);
 
       AddDirectorySeparator(parentPath);
-      nsCOMPtr<nsISimpleEnumerator> children;
+      nsCOMPtr<nsIDirectoryEnumerator> children;
       parentPath->GetDirectoryEntries(getter_AddRefs(children));
       bool more;
       // checks if the directory is empty or not
@@ -1033,7 +1033,7 @@ nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent, nsCOMPtr<nsIFile> &path,
   // while creating new subfolders; we don't want to modify and iterate the same
   // directory at once.
   nsCOMArray<nsIFile> currentDirEntries;
-  nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
+  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
   rv = path->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
   NS_ENSURE_SUCCESS(rv, rv);
 

@@ -9,6 +9,7 @@
 #include "nsIImportService.h"
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIImportGeneric.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsIFile.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgFolder.h"
@@ -228,7 +229,7 @@ NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(nsIFile *aMailboxFile, nsIArr
 // and add their .mbox dirs
 void nsAppleMailImportMail::FindAccountMailDirs(nsIFile *aRoot, nsIMutableArray *aMailboxDescs, nsIImportService *aImportService)
 {
-  nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
+  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
   nsresult rv = aRoot->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
   if (NS_FAILED(rv))
     return;
@@ -329,7 +330,7 @@ nsresult nsAppleMailImportMail::AddMboxDir(nsIFile *aFolder, nsIMutableArray *aM
 
       // count the number of messages in this folder. it sucks that we have to iterate through the folder
       // but XPCOM doesn't give us any way to just get the file count, unfortunately. :-(
-      nsCOMPtr<nsISimpleEnumerator> dirEnumerator;
+      nsCOMPtr<nsIDirectoryEnumerator> dirEnumerator;
       messagesFolder->GetDirectoryEntries(getter_AddRefs(dirEnumerator));
       if (dirEnumerator) {
         bool hasMore = false;
@@ -393,7 +394,7 @@ nsresult nsAppleMailImportMail::FindMboxDirs(nsIFile *aFolder, nsIMutableArray *
     return NS_ERROR_FAILURE;
 
   // iterate through the folder contents
-  nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
+  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
   nsresult rv = aFolder->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
   if (NS_FAILED(rv) || !directoryEnumerator)
     return rv;
@@ -513,7 +514,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
     }
 
     // let's import the messages!
-    nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
+    nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
     rv = messagesFolder->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
     if (NS_FAILED(rv)) {
       ReportStatus(u"ApplemailImportMailboxConvertError", mailboxName, errorLog);

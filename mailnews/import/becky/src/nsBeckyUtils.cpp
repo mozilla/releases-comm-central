@@ -5,7 +5,7 @@
 
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
-#include "nsISimpleEnumerator.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsString.h"
@@ -82,7 +82,7 @@ nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile **aLocation)
   if (!isDirectory)
     return NS_ERROR_FILE_NOT_FOUND;
 
-  nsCOMPtr<nsISimpleEnumerator> entries;
+  nsCOMPtr<nsIDirectoryEnumerator> entries;
   rv = directory->GetDirectoryEntries(getter_AddRefs(entries));
   NS_ENSURE_SUCCESS(rv, rv);
 

@@ -21,7 +21,7 @@
 #include "prprf.h"
 #include "nsINIParser.h"
 #include "nsMailProfileMigratorUtils.h"
-#include "nsISimpleEnumerator.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsServiceManagerUtils.h"
 
 #define MIGRATION_BUNDLE "chrome://messenger/locale/migration/migration.properties"
@@ -230,7 +230,7 @@ nsNetscapeProfileMigratorBase::GetSignonFileName(bool aReplace, nsACString& aFil
 nsresult
 nsNetscapeProfileMigratorBase::LocateSignonsFile(nsACString& aResult)
 {
-  nsCOMPtr<nsISimpleEnumerator> entries;
+  nsCOMPtr<nsIDirectoryEnumerator> entries;
   nsresult rv = mSourceProfile->GetDirectoryEntries(getter_AddRefs(entries));
   if (NS_FAILED(rv)) return rv;
 
@@ -285,7 +285,7 @@ nsresult nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir, nsIFile* 
   if (NS_FAILED(rv)) return rv;
 
   bool hasMore = false;
-  nsCOMPtr<nsISimpleEnumerator> dirIterator;
+  nsCOMPtr<nsIDirectoryEnumerator> dirIterator;
   rv = srcDir->GetDirectoryEntries(getter_AddRefs(dirIterator));
   if (NS_FAILED(rv)) return rv;
 

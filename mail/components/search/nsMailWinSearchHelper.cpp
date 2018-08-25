@@ -7,7 +7,7 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsAutoPtr.h"
 #include "nsString.h"
-#include "nsISimpleEnumerator.h"
+#include "nsIDirectoryEnumerator.h"
 #include "mozilla/ArrayUtils.h"
 
 #ifdef _WIN32_WINNT
@@ -167,7 +167,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::SetFANCIBit(nsIFile* aFile, bool aBit, bool
   NS_ENSURE_SUCCESS(rv, rv);
   if (aRecurse && isDirectory)
   {
-    nsCOMPtr<nsISimpleEnumerator> children;
+    nsCOMPtr<nsIDirectoryEnumerator> children;
     rv = aFile->GetDirectoryEntries(getter_AddRefs(children));
     NS_ENSURE_SUCCESS(rv, rv);
 

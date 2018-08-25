@@ -23,6 +23,7 @@
 #include "nsTArray.h"
 #include "nspr.h"
 #include "nsThreadUtils.h"
+#include "nsIDirectoryEnumerator.h"
 
 #include "nsBeckyMail.h"
 #include "nsBeckyUtils.h"
@@ -205,7 +206,7 @@ nsBeckyMail::CollectMailboxesInDirectory(nsIFile *aDirectory,
     folderListExists = true;
   }
 
-  nsCOMPtr<nsISimpleEnumerator> entries;
+  nsCOMPtr<nsIDirectoryEnumerator> entries;
   rv = aDirectory->GetDirectoryEntries(getter_AddRefs(entries));
   NS_ENSURE_SUCCESS(rv, rv);
 

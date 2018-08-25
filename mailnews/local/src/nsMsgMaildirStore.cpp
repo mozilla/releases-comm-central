@@ -55,7 +55,7 @@ nsresult nsMsgMaildirStore::AddSubFolders(nsIMsgFolder *parent, nsIFile *path,
 {
   nsCOMArray<nsIFile> currentDirEntries;
 
-  nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
+  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
   nsresult rv = path->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -539,7 +539,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(nsIMsgFolder *aSrcFolder,
       NS_ENSURE_SUCCESS(rv,rv);
 
       AddDirectorySeparator(parentPath);
-      nsCOMPtr<nsISimpleEnumerator> children;
+      nsCOMPtr<nsIDirectoryEnumerator> children;
       parentPath->GetDirectoryEntries(getter_AddRefs(children));
       bool more;
       // checks if the directory is empty or not
@@ -1295,7 +1295,7 @@ NS_IMETHODIMP nsMsgMaildirStore::RebuildIndex(nsIMsgFolder *aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   path->Append(NS_LITERAL_STRING("cur"));
 
-  nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
+  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
   rv = path->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
   NS_ENSURE_SUCCESS(rv, rv);
 
