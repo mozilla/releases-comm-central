@@ -68,17 +68,8 @@ var gMockFilePicker = {
       getNext: function() {
         return self.returnFiles[this.index++];
       },
-      [Symbol.iterator]: function () {
-        return {
-          i: 0,
-          next: function () {
-            this.i++;
-            if (this.i <= self.returnFiles.length)
-              return { value : self.returnFiles[this.i-1], done: false };
-            else
-              return { value : undefined, done: true };
-          }
-        }
+      [Symbol.iterator]() {
+        return self.returnFiles.values();
       }
     }
   },
