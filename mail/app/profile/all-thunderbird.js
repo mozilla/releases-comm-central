@@ -157,8 +157,8 @@ pref("extensions.legacy.enabled", true);
 // Preferences for AMO integration
 pref("extensions.getAddons.cache.enabled", true);
 pref("extensions.getAddons.maxResults", 15);
-pref("extensions.getAddons.get.url", "https://live.thunderbird.net/services.addons/api/v3/addons/search/?guid=%IDS%&lang=%LOCALE%");
-pref("extensions.getAddons.compatOverides.url", "https://live.thunderbird.net/services.addons/api/v3/addons/compat-override/?guid=%IDS%&lang=%LOCALE%");
+pref("extensions.getAddons.get.url", "https://services.addons.thunderbird.net/api/v3/addons/search/?guid=%IDS%&lang=%LOCALE%");
+pref("extensions.getAddons.compatOverides.url", "https://services.addons.thunderbird.net/api/v3/addons/compat-override/?guid=%IDS%&lang=%LOCALE%");
 pref("extensions.getAddons.link.url", "https://addons.thunderbird.net/%LOCALE%/%APP%/");
 pref("extensions.getAddons.recommended.url", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/api/%API_VERSION%/list/recommended/all/%MAX_RESULTS%/%OS%/%VERSION%?src=thunderbird");
 pref("extensions.getAddons.search.browseURL", "https://addons.thunderbird.net/%LOCALE%/%APP%/search/?q=%TERMS%");
@@ -168,9 +168,9 @@ pref("extensions.getAddons.themes.browseURL", "https://addons.thunderbird.net/%L
 pref("extensions.getAddons.siteRegExp", "^https://.*addons\\.thunderbird\\.net");
 
 // Blocklist preferences
-pref("extensions.blocklist.url", "https://live.thunderbird.net/blocklists.settings/v1/blocklist/3/%APP_ID%/%APP_VERSION%/%PRODUCT%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/%PING_COUNT%/%TOTAL_PING_COUNT%/%DAYS_SINCE_LAST_PING%/");
-pref("extensions.blocklist.detailsURL", "https://live.thunderbird.net/blocked.cdn/");
-pref("extensions.blocklist.itemURL", "https://live.thunderbird.net/blocked.cdn/%blockID%.html");
+pref("extensions.blocklist.url", "https://blocklists.settings.services.mozilla.com/v1/blocklist/3/%APP_ID%/%APP_VERSION%/%PRODUCT%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/%PING_COUNT%/%TOTAL_PING_COUNT%/%DAYS_SINCE_LAST_PING%/");
+pref("extensions.blocklist.detailsURL", "https://blocked.cdn.mozilla.net/");
+pref("extensions.blocklist.itemURL", "https://blocked.cdn.mozilla.net/%blockID%.html");
 
 // 1 = allow "Man In The Middle" (local proxy, web filter, etc.) for certificate
 //     pinning checks.
