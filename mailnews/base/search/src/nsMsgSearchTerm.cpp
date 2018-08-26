@@ -769,10 +769,11 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(nsIMsgSearchScopeTerm *scope,
     // Match value with the other info. It doesn't check all header occurences,
     // so we use it only if we match and do line by line headers parsing otherwise.
     rv = MatchRfc2047String(dbHdrValue, charset, charsetOverride, pResult);
-    if (*pResult)
+    if (matchExpected == *pResult)
       return rv;
 
-    rv = NS_OK;
+    // Preset result in case we don't have access to the headers, like for IMAP.
+    result = *pResult;
   }
 
   nsMsgBodyHandler *bodyHandler = new nsMsgBodyHandler(scope, length, msg, db,
