@@ -60,13 +60,15 @@ function toArray(aObj) {
  *         let array = toArray(fixIterator(xpcomEnumerator));
  */
 function fixIterator(aEnum, aIface) {
-  // If the input is an array or something that sports Symbol.iterator, then
-  // the original input is sufficient to directly return. However, if we want
+  // If the input is an array, nsISimpleEnumerator or something that sports Symbol.iterator,
+  // then the original input is sufficient to directly return. However, if we want
   // to support the aIface parameter, we need to do a lazy version of
   // Array.prototype.map.
-  if (Array.isArray(aEnum) || ITERATOR_SYMBOL in aEnum) {
+  if (Array.isArray(aEnum) ||
+      aEnum instanceof Ci.nsISimpleEnumerator ||
+      ITERATOR_SYMBOL in aEnum) {
     if (!aIface) {
-      return aEnum;
+      return aEnum[ITERATOR_SYMBOL]();
     } else {
       return (function*() {
         for (let o of aEnum)
@@ -83,14 +85,6 @@ function fixIterator(aEnum, aIface) {
       let count = aEnum.length;
       for (let i = 0; i < count; i++)
         yield aEnum.queryElementAt(i, face);
-    })();
-  }
-
-  // How about nsISimpleEnumerator? This one is nice and simple.
-  if (aEnum instanceof Ci.nsISimpleEnumerator) {
-    return (function*() {
-      while (aEnum.hasMoreElements())
-        yield aEnum.getNext().QueryInterface(face);
     })();
   }
 
