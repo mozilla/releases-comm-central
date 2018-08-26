@@ -674,7 +674,6 @@ DailyLogEnumerator.prototype = {
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
   * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); }
-  }
 };
 
 function LogEnumerator(aEntries) {
