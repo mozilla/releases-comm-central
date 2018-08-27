@@ -288,7 +288,7 @@ function AbDeleteDirectory(aURI) {
     confirmDeleteMessageID = "confirmDeleteThisMailingList";
     confirmDeleteTitleID = "confirmDeleteThisMailingListTitle";
   } else if (Services.prefs.getCharPref("mail.collect_addressbook") == aURI &&
-      Services.prefs.getBoolPref("mail.collect_email_address_outgoing")) {
+             Services.prefs.getBoolPref("mail.collect_email_address_outgoing")) {
     // It's a collection address book: let's be clear about the consequences.
     brandShortName = document.getElementById("bundle_brand").getString("brandShortName");
     confirmDeleteMessageID = "confirmDeleteThisCollectionAddressbook";
