@@ -588,11 +588,8 @@ nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder *aFolder,
   *aReusable = false; // message per file
 
   nsCOMPtr<nsIMsgDatabase> db;
-  aFolder->GetMsgDatabase(getter_AddRefs(db));
-  if (!db)
-    NS_ERROR("no db");
-
-  nsresult rv;
+  nsresult rv = aFolder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (!*aNewMsgHdr)
   {
