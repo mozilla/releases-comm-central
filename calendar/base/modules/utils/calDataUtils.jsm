@@ -15,34 +15,6 @@ XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calU
 
 this.EXPORTED_SYMBOLS = ["caldata"]; /* exported caldata */
 
-class PropertyMap extends Map {
-    get simpleEnumerator() {
-        let entries = [...this.entries()].filter(([key, value]) => value !== undefined);
-        let index = 0;
-
-        return {
-            QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-
-            hasMoreElements: function() {
-                return index < entries.length;
-            },
-
-            getNext: function() {
-                if (!this.hasMoreElements()) {
-                    throw Components.results.NS_ERROR_UNEXPECTED;
-                }
-
-                let [name, value] = entries[index++];
-                return {
-                    QueryInterface: ChromeUtils.generateQI([Ci.nsIProperty]),
-                    name: name,
-                    value: value
-                };
-            }
-        };
-    }
-}
-
 class ListenerSet extends Set {
     constructor(iid, iterable) {
         super(iterable);
@@ -187,7 +159,6 @@ class OperationGroup {
 var caldata = {
     ListenerSet: ListenerSet,
     ObserverSet: ObserverSet,
-    PropertyMap: PropertyMap,
     OperationGroup: OperationGroup,
 
     /**

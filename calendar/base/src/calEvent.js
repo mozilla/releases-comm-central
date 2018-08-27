@@ -96,15 +96,12 @@ calEvent.prototype = {
         this.fillIcalComponentFromBase(icalcomp);
         this.mapPropsToICS(icalcomp, this.icsEventPropMap);
 
-        let bagenum = this.propertyEnumerator;
-        while (bagenum.hasMoreElements()) {
-            let iprop = bagenum.getNext()
-                               .QueryInterface(Components.interfaces.nsIProperty);
+        for (let [name, value] of this.properties) {
             try {
-                if (!this.eventPromotedProps[iprop.name]) {
-                    let icalprop = icssvc.createIcalProperty(iprop.name);
-                    icalprop.value = iprop.value;
-                    let propBucket = this.mPropertyParams[iprop.name];
+                if (!this.eventPromotedProps[name]) {
+                    let icalprop = icssvc.createIcalProperty(name);
+                    icalprop.value = value;
+                    let propBucket = this.mPropertyParams[name];
                     if (propBucket) {
                         for (let paramName in propBucket) {
                             try {
@@ -123,7 +120,7 @@ calEvent.prototype = {
                     icalcomp.addProperty(icalprop);
                 }
             } catch (e) {
-                cal.ERROR("failed to set " + iprop.name + " to " + iprop.value + ": " + e + "\n");
+                cal.ERROR("failed to set " + name + " to " + value + ": " + e + "\n");
             }
         }
         return icalcomp;

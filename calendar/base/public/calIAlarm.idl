@@ -6,6 +6,7 @@
 
 interface nsIVariant;
 interface nsISimpleEnumerator;
+interface nsIJSEnumerator;
 
 interface calIAttachment;
 interface calIAttendee;
@@ -155,5 +156,5 @@ interface calIAlarm : nsISupports
     void setProperty(in AUTF8String name, in nsIVariant value);
     void deleteProperty(in AUTF8String name);
 
-    readonly attribute nsISimpleEnumerator propertyEnumerator;
+    readonly attribute nsIJSEnumerator properties;
 };

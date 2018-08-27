@@ -6,7 +6,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
 
 function calAttendee() {
     this.wrappedJSObject = this;
-    this.mProperties = new cal.data.PropertyMap();
+    this.mProperties = new Map();
 }
 
 calAttendee.prototype = {
@@ -76,7 +76,7 @@ calAttendee.prototype = {
 
         // Reset the property bag for the parameters, it will be re-initialized
         // from the ical property.
-        this.mProperties = new cal.data.PropertyMap();
+        this.mProperties = new Map();
 
         for (let [name, value] of cal.iterate.icalParameter(icalatt)) {
             if (!promotedProps[name]) {
@@ -143,7 +143,7 @@ calAttendee.prototype = {
         return val;
     },
 
-    get propertyEnumerator() { return this.mProperties.simpleEnumerator; },
+    get properties() { return this.mProperties.entries(); },
 
     // The has/get/set/deleteProperty methods are case-insensitive.
     getProperty: function(aName) {

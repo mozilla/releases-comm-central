@@ -10,8 +10,6 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 // Variables related to whether we are in a tab or a window dialog.
@@ -359,11 +357,10 @@ function saveReminder(item) {
 
         // Recurring item alarms potentially have more snooze props, remove them
         // all.
-        let propIterator = fixIterator(item.propertyEnumerator, Components.interfaces.nsIProperty);
         let propsToDelete = [];
-        for (let prop of propIterator) {
-            if (prop.name.startsWith(cmp)) {
-                propsToDelete.push(prop.name);
+        for (let [name] of item.properties) {
+            if (name.startsWith(cmp)) {
+                propsToDelete.push(name);
             }
         }
 

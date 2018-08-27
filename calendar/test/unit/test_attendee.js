@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-
 function run_test() {
     test_values();
     test_serialize();
@@ -173,21 +171,21 @@ function test_properties() {
 
     // Only X-Props should show up in the enumerator
     a.setProperty("X-NAME", "X-VALUE");
-    for (let x of fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
-        equal(x.name, "X-NAME");
-        equal(x.value, "X-VALUE");
+    for (let [name, value] of a.properties) {
+        equal(name, "X-NAME");
+        equal(value, "X-VALUE");
     }
 
     a.deleteProperty("X-NAME");
-    for (let x of fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
-        do_throw("Unexpected property " + x.name + " = " + x.value);
+    for (let [name, value] of a.properties) {
+        do_throw("Unexpected property " + name + " = " + value);
     }
 
     a.setProperty("X-NAME", "X-VALUE");
     a.setProperty("X-NAME", null);
 
-    for (let x of fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
-        do_throw("Unexpected property after setting null " + x.name + " = " + x.value);
+    for (let [name, value] of a.properties) {
+        do_throw("Unexpected property after setting null " + name + " = " + value);
     }
 }
 

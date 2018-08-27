@@ -3,41 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    test_property_map();
     test_listener_set();
     test_observer_set();
     test_operation_group();
-}
-
-function test_property_map() {
-    let data = {
-        key1: "value1",
-        key2: undefined,
-        key3: "value2"
-    };
-
-    let map = new cal.data.PropertyMap(Object.entries(data));
-    let keys = new Set(Object.keys(data));
-
-    let enumerator = map.simpleEnumerator;
-
-    while (enumerator.hasMoreElements()) {
-        let next = enumerator.getNext();
-        ok(keys.has(next.name));
-        equal(data[next.name], next.value);
-
-        keys.delete(next.name);
-
-        // An extra hasMoreElements shouldn't disrupt the enumeration
-        enumerator.hasMoreElements();
-    }
-
-    equal(keys.size, 1);
-    ok(keys.has("key2"));
-
-    throws(() => {
-        enumerator.getNext();
-    }, code => code == Components.results.NS_ERROR_UNEXPECTED);
 }
 
 function test_listener_set() {

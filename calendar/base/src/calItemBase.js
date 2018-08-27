@@ -43,7 +43,7 @@ calItemBase.prototype = {
      */
     initItemBase: function() {
         this.wrappedJSObject = this;
-        this.mProperties = new cal.data.PropertyMap();
+        this.mProperties = new Map();
         this.mPropertyParams = {};
         this.mProperties.set("CREATED", cal.dtz.jsDateToDateTime(new Date()));
     },
@@ -270,7 +270,7 @@ calItemBase.prototype = {
             cloned.mAttendees.push(att.clone());
         }
 
-        cloned.mProperties = new cal.data.PropertyMap();
+        cloned.mProperties = new Map();
         for (let [name, value] of this.mProperties.entries()) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
@@ -342,19 +342,19 @@ calItemBase.prototype = {
         return this.getProperty("DTSTAMP");
     },
 
-    // readonly attribute nsISimpleEnumerator propertyEnumerator;
-    get propertyEnumerator() {
+    // readonly attribute nsIJSEnumerator properties;
+    get properties() {
         let properties = this.mProperties;
         if (this.mIsProxy) {
             let parentProperties = this.mParentItem.wrappedJSObject.mProperties;
             let thisProperties = this.mProperties;
-            properties = new cal.data.PropertyMap((function* () {
+            properties = new Map((function* () {
                 yield* parentProperties;
                 yield* thisProperties;
             })());
         }
 
-        return properties.simpleEnumerator;
+        return properties.entries();
     },
 
     // nsIVariant getProperty(in AString name);
@@ -792,7 +792,7 @@ calItemBase.prototype = {
 
         // re-initializing from scratch -- no light proxy anymore:
         this.mIsProxy = false;
-        this.mProperties = new cal.data.PropertyMap();
+        this.mProperties = new Map();
         this.mPropertyParams = {};
 
         this.mapPropsFromICS(icalcomp, this.icsBasePropMap);

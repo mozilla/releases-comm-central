@@ -2155,14 +2155,12 @@ calStorageCalendar.prototype = {
 
     writeProperties: function(item, olditem) {
         let ret = 0;
-        let propEnumerator = item.propertyEnumerator;
-        while (propEnumerator.hasMoreElements()) {
+        for (let [name, value] of item.properties) {
             ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
-            let prop = propEnumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
-            if (item.isPropertyPromoted(prop.name)) {
+            if (item.isPropertyPromoted(name)) {
                 continue;
             }
-            this.writeProperty(item, prop.name, prop.value);
+            this.writeProperty(item, name, value);
         }
 
         let cats = item.getCategories({});

@@ -11,7 +11,7 @@ var ALARM_RELATED_END = Components.interfaces.calIAlarm.ALARM_RELATED_END;
 
 function calAlarm() {
     this.wrappedJSObject = this;
-    this.mProperties = new cal.data.PropertyMap();
+    this.mProperties = new Map();
     this.mPropertyParams = {};
     this.mAttendees = [];
     this.mAttachments = [];
@@ -120,7 +120,7 @@ calAlarm.prototype = {
         }
 
         // X-Props
-        cloned.mProperties = new cal.data.PropertyMap();
+        cloned.mProperties = new Map();
         for (let [name, value] of this.mProperties.entries()) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
@@ -553,7 +553,7 @@ calAlarm.prototype = {
         // VALUE=DATE-TIME.
         this.lastAck = (lastAckProp ? cal.createDateTime(lastAckProp.valueAsIcalString) : null);
 
-        this.mProperties = new cal.data.PropertyMap();
+        this.mProperties = new Map();
         this.mPropertyParams = {};
 
         // Other properties
@@ -606,7 +606,7 @@ calAlarm.prototype = {
         }
     },
 
-    get propertyEnumerator() { return this.mProperties.simpleEnumerator; },
+    get properties() { return this.mProperties.entries(); },
 
     toString: function(aItem) {
         function alarmString(aPrefix) {

@@ -44,7 +44,7 @@ calMemoryCalendar.prototype = {
         this.mObservers = new cal.data.ObserverSet(Components.interfaces.calIObserver);
         this.mItems = {};
         this.mOfflineFlags = {};
-        this.mMetaData = new cal.data.PropertyMap();
+        this.mMetaData = new Map();
     },
 
     //
@@ -65,7 +65,7 @@ calMemoryCalendar.prototype = {
     deleteCalendar: function(calendar, listener) {
         calendar = calendar.wrappedJSObject;
         calendar.mItems = {};
-        calendar.mMetaData = new cal.data.PropertyMap();
+        calendar.mMetaData = new Map();
 
         try {
             listener.onDeleteCalendar(calendar, Components.results.NS_OK, null);

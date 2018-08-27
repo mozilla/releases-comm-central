@@ -12,7 +12,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
  */
 function calRelation() {
     this.wrappedJSObject = this;
-    this.mProperties = new cal.data.PropertyMap();
+    this.mProperties = new Map();
 }
 calRelation.prototype = {
     QueryInterface: ChromeUtils.generateQI([Ci.calIRelation]),
@@ -69,7 +69,7 @@ calRelation.prototype = {
     set icalProperty(attProp) {
         // Reset the property bag for the parameters, it will be re-initialized
         // from the ical property.
-        this.mProperties = new cal.data.PropertyMap();
+        this.mProperties = new Map();
 
         if (attProp.value) {
             this.mId = attProp.value;

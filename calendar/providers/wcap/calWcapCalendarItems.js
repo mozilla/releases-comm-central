@@ -595,11 +595,8 @@ calWcapCalendar.prototype.tunnelXProps = function(destItem, srcItem) {
     // tunnel alarm X-MOZ-SNOOZE only if alarm is still set:
     // TODO ALARMSUPPORT still needed when showing alarms as EMAIL for wcap?
     let hasAlarms = destItem.getAlarms({}).length;
-    let enumerator = srcItem.propertyEnumerator;
-    while (enumerator.hasMoreElements()) {
+    for (let [name, value] of srcItem.properties) {
         try {
-            let prop = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
-            let name = prop.name;
             if (name.startsWith("X-MOZ-")) {
                 switch (name) {
                     // keep snooze stamps for occurrences only and if alarm is still set:
@@ -610,9 +607,9 @@ calWcapCalendar.prototype.tunnelXProps = function(destItem, srcItem) {
                         // falls through
                     default:
                         if (LOG_LEVEL > 1) {
-                            log("tunneling " + name + "=" + prop.value, this);
+                            log("tunneling " + name + "=" + value, this);
                         }
-                        destItem.setProperty(name, prop.value);
+                        destItem.setProperty(name, value);
                         break;
                 }
             }

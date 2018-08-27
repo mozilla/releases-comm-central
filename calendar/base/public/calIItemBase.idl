@@ -5,6 +5,7 @@
 #include "nsISupports.idl"
 
 interface nsISimpleEnumerator;
+interface nsIJSEnumerator;
 interface nsIVariant;
 
 interface nsIPropertyBag;
@@ -177,7 +178,7 @@ interface calIItemBase : nsISupports
 
   // these forward to an internal property bag; implemented here, so we can
   // do access control on set/delete to have control over mutability.
-  readonly attribute nsISimpleEnumerator propertyEnumerator;
+  readonly attribute nsIJSEnumerator properties;
   boolean hasProperty(in AString name);
 
   /**

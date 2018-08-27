@@ -1240,12 +1240,10 @@ function stripUserData(item_) {
     item.setCategories(0, []);
     item.deleteProperty("RECEIVED-SEQUENCE");
     item.deleteProperty("RECEIVED-DTSTAMP");
-    let propEnum = item.propertyEnumerator;
-    while (propEnum.hasMoreElements()) {
-        let prop = propEnum.getNext().QueryInterface(Components.interfaces.nsIProperty);
-        let pname = prop.name;
+    for (let [name] of item.properties) {
+        let pname = name;
         if (pname.substr(0, "X-MOZ-".length) == "X-MOZ-") {
-            item.deleteProperty(prop.name);
+            item.deleteProperty(name);
         }
     }
     item.getAttendees({}).forEach((att) => {
