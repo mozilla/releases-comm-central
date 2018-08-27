@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+var { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
 
 var kNonVcardFields =
         ["NickNameContainer", "SecondaryEmailContainer", "ScreenNameContainer",
@@ -69,8 +69,8 @@ var kVcardFields =
         ];
 
 var gEditCard;
-var gOnSaveListeners = new Array();
-var gOnLoadListeners = new Array();
+var gOnSaveListeners = [];
+var gOnLoadListeners = [];
 var gOkCallback = null;
 var gHideABPicker = false;
 var gPhotoHandlers = {};
@@ -81,8 +81,7 @@ var gOldPhotos = [];
 // If a new photo was added, the name is stored here.
 var gNewPhoto = null;
 
-function OnLoadNewCard()
-{
+function OnLoadNewCard() {
   InitEditCard();
 
   gEditCard.card =
@@ -94,8 +93,7 @@ function OnLoadNewCard()
   gEditCard.titleProperty = "newContactTitle";
   gEditCard.selectedAB = "";
 
-  if ("arguments" in window && window.arguments[0])
-  {
+  if ("arguments" in window && window.arguments[0]) {
     gEditCard.selectedAB = kPersonalAddressbookURI;
 
     if ("selectedAB" in window.arguments[0] &&
@@ -108,9 +106,9 @@ function OnLoadNewCard()
         var parentURI = GetParentDirectoryFromMailingListURI(abURI);
         if (parentURI)
           gEditCard.selectedAB = parentURI;
-      }
-      else if (!directory.readOnly)
+      } else if (!directory.readOnly) {
         gEditCard.selectedAB = window.arguments[0].selectedAB;
+      }
     }
 
     // we may have been given properties to pre-initialize the window with....
@@ -147,7 +145,7 @@ function OnLoadNewCard()
   }
 
   // set popup with address book names
-  var abPopup = document.getElementById('abPopup');
+  var abPopup = document.getElementById("abPopup");
   abPopup.value = gEditCard.selectedAB || kPersonalAddressbookURI;
 
   if (gHideABPicker && abPopup) {
@@ -187,8 +185,7 @@ function getContainingDirectory() {
   return directory;
 }
 
-function EditCardOKButton()
-{
+function EditCardOKButton() {
   if (!CheckCardRequiredDataPresence(document))
     return false;  // don't close window
 
@@ -219,7 +216,7 @@ function EditCardOKButton()
         let card = subdir.addressLists
                          .queryElementAt(index, Ci.nsIAbCard);
         if (card.equals(gEditCard.card))
-          foundDirectories.push({directory:subdir, cardIndex:index});
+          foundDirectories.push({directory: subdir, cardIndex: index});
       }
     }
   }
@@ -245,20 +242,17 @@ function EditCardOKButton()
   return true;  // close the window
 }
 
-function EditCardCancelButton()
-{
+function EditCardCancelButton() {
   // If a new photo was created, remove it now as it won't be used.
   purgeOldPhotos(false);
 }
 
-function OnLoadEditCard()
-{
+function OnLoadEditCard() {
   InitEditCard();
 
   gEditCard.titleProperty = "editContactTitle";
 
-  if (window.arguments && window.arguments[0])
-  {
+  if (window.arguments && window.arguments[0]) {
     if (window.arguments[0].card)
       gEditCard.card = window.arguments[0].card;
     if (window.arguments[0].okCallback)
@@ -272,8 +266,7 @@ function OnLoadEditCard()
   if (gEditCard.generateDisplayName &&
       (gEditCard.card.firstName.length +
        gEditCard.card.lastName.length +
-       gEditCard.card.displayName.length > 0))
-  {
+       gEditCard.card.displayName.length > 0)) {
     gEditCard.generateDisplayName = false;
   }
 
@@ -283,14 +276,12 @@ function OnLoadEditCard()
 
   // check if selectedAB is a writeable
   // if not disable all the fields
-  if ("arguments" in window && window.arguments[0])
-  {
+  if ("arguments" in window && window.arguments[0]) {
     if ("abURI" in window.arguments[0]) {
       var abURI = window.arguments[0].abURI;
       var directory = GetDirectoryFromURI(abURI);
 
-      if (directory.readOnly)
-      {
+      if (directory.readOnly) {
         // Set all the editable vcard fields to read only
         for (var i = kVcardFields.length; i-- > 0; )
           document.getElementById(kVcardFields[i][0]).readOnly = true;
@@ -330,21 +321,18 @@ function OnLoadEditCard()
  * extensions have added extra fields to the nsIAbCard, and
  * need to display them in the contact editor.
  */
-function RegisterLoadListener(aFunc)
-{
+function RegisterLoadListener(aFunc) {
   gOnLoadListeners[gOnLoadListeners.length] = aFunc;
 }
 
-function UnregisterLoadListener(aFunc)
-{
+function UnregisterLoadListener(aFunc) {
   var fIndex = gOnLoadListeners.indexOf(aFunc);
   if (fIndex != -1)
     gOnLoadListeners.splice(fIndex, 1);
 }
 
 // Notifies load listeners that an nsIAbCard is being loaded.
-function NotifyLoadListeners(aCard, aDoc)
-{
+function NotifyLoadListeners(aCard, aDoc) {
   if (!gOnLoadListeners.length)
     return;
 
@@ -357,21 +345,18 @@ function NotifyLoadListeners(aCard, aDoc)
  * fields to the user interface, and need to set those values
  * in their nsIAbCard.
  */
-function RegisterSaveListener(func)
-{
+function RegisterSaveListener(func) {
   gOnSaveListeners[gOnSaveListeners.length] = func;
 }
 
-function UnregisterSaveListener(aFunc)
-{
+function UnregisterSaveListener(aFunc) {
   var fIndex = gOnSaveListeners.indexOf(aFunc);
   if (fIndex != -1)
     gOnSaveListeners.splice(fIndex, 1);
 }
 
 // Notifies save listeners that an nsIAbCard is being saved.
-function NotifySaveListeners(directory)
-{
+function NotifySaveListeners(directory) {
   if (!gOnSaveListeners.length)
     return;
 
@@ -383,29 +368,26 @@ function NotifySaveListeners(directory)
   directory.modifyCard(gEditCard.card);
 }
 
-function InitPhoneticFields()
-{
+function InitPhoneticFields() {
   var showPhoneticFields =
     Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
       Ci.nsIPrefLocalizedString).data;
 
   // show phonetic fields if indicated by the pref
-  if (showPhoneticFields == "true")
-  {
+  if (showPhoneticFields == "true") {
     for (var i = kPhoneticFields.length; i-- > 0; )
       document.getElementById(kPhoneticFields[i]).hidden = false;
   }
 }
 
-function InitEditCard()
-{
+function InitEditCard() {
   InitPhoneticFields();
 
   InitCommonJS();
 
   // Create gEditCard object that contains global variables for the current js
   //   file.
-  gEditCard = new Object();
+  gEditCard = {};
 
   // get specific prefs that gEditCard will need
   try {
@@ -415,16 +397,13 @@ function InitEditCard()
     gEditCard.displayLastNameFirst = (displayLastNameFirst == "true");
     gEditCard.generateDisplayName =
       Services.prefs.getBoolPref("mail.addr_book.displayName.autoGeneration");
-  }
-  catch (ex) {
+  } catch (ex) {
     dump("ex: failed to get pref" + ex + "\n");
   }
 }
 
-function NewCardOKButton()
-{
-  if (gOkCallback)
-  {
+function NewCardOKButton() {
+  if (gOkCallback) {
     if (!CheckAndSetCardValues(gEditCard.card, document, true))
       return false;  // don't close window
 
@@ -432,9 +411,8 @@ function NewCardOKButton()
     return true;  // close the window
   }
 
-  var popup = document.getElementById('abPopup');
-  if (popup)
-  {
+  var popup = document.getElementById("abPopup");
+  if (popup) {
     var uri = popup.value;
 
     // FIX ME - hack to avoid crashing if no ab selected because of blank option bug from template
@@ -443,8 +421,7 @@ function NewCardOKButton()
       return false;  // don't close window
     // -----
 
-    if (gEditCard.card)
-    {
+    if (gEditCard.card) {
       if (!CheckAndSetCardValues(gEditCard.card, document, true))
         return false;  // don't close window
 
@@ -460,15 +437,13 @@ function NewCardOKButton()
   return true;  // close the window
 }
 
-function NewCardCancelButton()
-{
+function NewCardCancelButton() {
   // If a new photo was created, remove it now as it won't be used.
   purgeOldPhotos(false);
 }
 
 // Move the data from the cardproperty to the dialog
-function GetCardValues(cardproperty, doc)
-{
+function GetCardValues(cardproperty, doc) {
   if (!cardproperty)
     return;
 
@@ -523,14 +498,13 @@ function GetCardValues(cardproperty, doc)
   var preferDisplayNameEl = document.getElementById("preferDisplayName");
   if (preferDisplayNameEl)
     // getProperty may return a "1" or "0" string, we want a boolean
-    preferDisplayNameEl.checked = cardproperty.getProperty("PreferDisplayName", true) != false;
+    preferDisplayNameEl.checked = !cardproperty.getProperty("PreferDisplayName", true);
 
   // get phonetic fields if exist
   try {
     doc.getElementById("PhoneticFirstName").value = cardproperty.getProperty("PhoneticFirstName", "");
     doc.getElementById("PhoneticLastName").value = cardproperty.getProperty("PhoneticLastName", "");
-  }
-  catch (ex) {}
+  } catch (ex) {}
 
   // Select the type if there is a valid value stored for that type, otherwise
   // select the generic photo
@@ -542,8 +516,7 @@ function GetCardValues(cardproperty, doc)
 // when the ab card dialog is being loaded to show a vCard,
 // hide the fields which aren't supported
 // by vCard so the user does not try to edit them.
-function HideNonVcardFields()
-{
+function HideNonVcardFields() {
   document.getElementById("homeTabButton").hidden = true;
   document.getElementById("chatTabButton").hidden = true;
   document.getElementById("photoTabButton").hidden = true;
@@ -557,8 +530,7 @@ function HideNonVcardFields()
 // Move the data from the dialog to the cardproperty to be stored in the database
 // @Returns false - Some required data are missing (card values were not set);
 //          true - Card values were set, or there is no card to set values on.
-function CheckAndSetCardValues(cardproperty, doc, check)
-{
+function CheckAndSetCardValues(cardproperty, doc, check) {
   // If requested, check the required data presence.
   if (check && !CheckCardRequiredDataPresence(document))
     return false;
@@ -593,8 +565,7 @@ function CheckAndSetCardValues(cardproperty, doc, check)
   try {
     cardproperty.setProperty("PhoneticFirstName", doc.getElementById("PhoneticFirstName").value);
     cardproperty.setProperty("PhoneticLastName", doc.getElementById("PhoneticLastName").value);
-  }
-  catch (ex) {}
+  } catch (ex) {}
 
   let photoType = doc.getElementById("PhotoType").value;
   if (gPhotoHandlers[photoType]) {
@@ -610,25 +581,20 @@ function CheckAndSetCardValues(cardproperty, doc, check)
   return true;
 }
 
-function CleanUpWebPage(webPage)
-{
+function CleanUpWebPage(webPage) {
   // no :// yet so we should add something
-  if (webPage.length && !webPage.includes("://"))
-  {
+  if (webPage.length && !webPage.includes("://")) {
     // check for missing / on http://
     if (webPage.startsWith("http:/"))
-      return("http://" + webPage.substr(6));
-    else
-      return("http://" + webPage);
+      return ("http://" + webPage.substr(6));
+    return ("http://" + webPage);
   }
-  else
-    return(webPage);
+  return (webPage);
 }
 
 // @Returns false - Some required data are missing;
 //          true - All required data are present.
-function CheckCardRequiredDataPresence(doc)
-{
+function CheckCardRequiredDataPresence(doc) {
   // Bug 314995 We require at least one of the following fields to be
   // filled in: email address, first name, last name, display name,
   //            organization (company name).
@@ -637,8 +603,7 @@ function CheckCardRequiredDataPresence(doc)
     doc.getElementById("FirstName").textLength == 0 &&
     doc.getElementById("LastName").textLength == 0 &&
     doc.getElementById("DisplayName").textLength == 0 &&
-    doc.getElementById("Company").textLength == 0)
-  {
+    doc.getElementById("Company").textLength == 0) {
     Services.prompt.alert(
       window,
       gAddressBookBundle.getString("cardRequiredDataMissingTitle"),
@@ -650,8 +615,7 @@ function CheckCardRequiredDataPresence(doc)
   // Simple checks that the primary email should be of the form |user@host|.
   // Note: if the length of the primary email is 0 then we skip the check
   // as some other field must have something as per the check above.
-  if (primaryEmail.textLength != 0 && !/.@./.test(primaryEmail.value))
-  {
+  if (primaryEmail.textLength != 0 && !/.@./.test(primaryEmail.value)) {
     Services.prompt.alert(
       window,
       gAddressBookBundle.getString("incorrectEmailAddressFormatTitle"),
@@ -667,8 +631,7 @@ function CheckCardRequiredDataPresence(doc)
   return true;
 }
 
-function GenerateDisplayName()
-{
+function GenerateDisplayName() {
   if (!gEditCard.generateDisplayName)
     return;
 
@@ -680,8 +643,7 @@ function GenerateDisplayName()
     displayName = (gEditCard.displayLastNameFirst)
       ? gAddressBookBundle.getFormattedString("lastFirstFormat", [lastNameValue, firstNameValue])
       : gAddressBookBundle.getFormattedString("firstLastFormat", [firstNameValue, lastNameValue]);
-  }
-  else {
+  } else {
     // one (or both) of these is empty, so this works.
     displayName = firstNameValue + lastNameValue;
   }
@@ -691,16 +653,14 @@ function GenerateDisplayName()
   SetCardDialogTitle(displayName);
 }
 
-function DisplayNameChanged()
-{
+function DisplayNameChanged() {
   // turn off generateDisplayName if the user changes the display name
   gEditCard.generateDisplayName = false;
 
   SetCardDialogTitle(document.getElementById("DisplayName").value);
 }
 
-function SetCardDialogTitle(displayName)
-{
+function SetCardDialogTitle(displayName) {
   document.title = displayName
     ? gAddressBookBundle.getFormattedString(gEditCard.titleProperty + "WithDisplayName", [displayName])
     : gAddressBookBundle.getString(gEditCard.titleProperty);
@@ -736,8 +696,7 @@ function calculateAge(aEvent, aElement) {
     ageElem.value = null;
     datepicker.year = kDefaultYear;
     return;
-  }
-  else if (aElement == yearElem)
+  } else if (aElement == yearElem)
     datepicker.year = year;
   // calculate the length of time between the event and now
   try {
@@ -749,8 +708,7 @@ function calculateAge(aEvent, aElement) {
     var age = new Date(new Date() - event);
     // get the number of years of the difference and subtract 1970 (epoch)
     ageElem.value = age.getFullYear() - 1970;
-  }
-  catch(e) {
+  } catch (e) {
     datepicker.year = kDefaultYear;
     // if there was an error (like invalid year) set the year and age to null
     yearElem.value = null;
@@ -790,10 +748,9 @@ function calculateYear(aEvent, aElement) {
     // get the difference between today and the age (the year is offset by 1970)
     var difference = new Date(today - date);
     datepicker.year = yearElem.value = difference.getFullYear() - 1970;
-  }
-  // the above code may throw an invalid year exception.  If that happens, set
-  // the year to kDefaultYear and set the year element's value to 0
-  catch (e) {
+  } catch (e) {
+    // The above code may throw an invalid year exception. If that happens, set
+    // the year to kDefaultYear and set the year element's value to 0.
     datepicker.year = kDefaultYear;
     // if there was an error (like invalid year) set the year and age to null
     yearElem.value = null;
@@ -849,42 +806,41 @@ function modifyDatepicker(aDatepicker) {
       var dt = new Date(this.year, currentMonth, aValue);
       return dt.getMonth() != currentMonth ? 1 : aValue;
     }
+    var min = (aField == this.monthField) ? 0 : 1;
     var max = (aField == this.monthField) ? 11 : kMaxYear;
     // make sure the value isn't too high
     if (aValue > max)
       return aNoWrap ? max : min;
     return aValue;
-  }
+  };
   // sets the specified field to the given value, but allows blank fields
   // from: mozilla/toolkit/content/widgets/datetimepicker.xml#698
   aDatepicker._setFieldValue = function setValue(aField, aValue) {
     if (aField == this.yearField && aValue >= kMinYear && aValue <= kMaxYear) {
-      var oldDate = this._dateValue;
+      let oldDate = this._dateValue;
       this._dateValue.setFullYear(aValue);
       if (oldDate != this._dateValue) {
         this._dateValue.setDate(0);
         this._updateUI(this.dateField, this.date);
       }
-    }
-    // update the month if the value isn't null
-    else if (aField == this.monthField && aValue != null) {
-      var oldDate = this.date;
+    } else if (aField == this.monthField && aValue != null) {
+      // update the month if the value isn't null
+      let oldDate = this.date;
       this._dateValue.setMonth(aValue);
       if (oldDate != this.date)
         this._dateValue.setDate(0);
       this._updateUI(this.dateField, this.date);
-      var date = this._dateValue.getDate();
+      let date = this._dateValue.getDate();
       this.dateField.value = date < 10 && this.dateLeadingZero ? "0" + date : date;
-      var month = this._dateValue.getMonth() + 1;
+      let month = this._dateValue.getMonth() + 1;
       this.monthField.value = month < 10 && this.monthLeadingZero ? "0" + month : month;
-    }
-    // update the date if the value isn't null
-    else if (aField == this.dateField && aValue != null) {
+    } else if (aField == this.dateField && aValue != null) {
+      // update the date if the value isn't null
       this._dateValue.setDate(aValue);
       this._updateUI(this.dateField, this.date);
-      var date = this._dateValue.getDate();
+      let date = this._dateValue.getDate();
       this.dateField.value = date < 10 && this.dateLeadingZero ? "0" + date : date;
-      var month = this._dateValue.getMonth() + 1;
+      let month = this._dateValue.getMonth() + 1;
       this.monthField.value = month < 10 && this.monthLeadingZero ? "0" + month : month;
     }
     this.setAttribute("value", this.value);
@@ -899,7 +855,7 @@ function modifyDatepicker(aDatepicker) {
     // make the field's value null if aValue is null and the field's value isn't
     if (aValue == null && aField.value != null)
       aField.value = null;
-  }
+  };
 }
 
 var chatNameFieldIds =
@@ -909,10 +865,9 @@ var chatNameFieldIds =
  * Show the 'Chat' tab and focus the first field that has a value, or
  * the first field if none of them has a value.
  */
-function showChat()
-{
-  document.getElementById('abTabPanels').parentNode.selectedTab =
-    document.getElementById('chatTabButton');
+function showChat() {
+  document.getElementById("abTabPanels").parentNode.selectedTab =
+    document.getElementById("chatTabButton");
   for (let id of chatNameFieldIds) {
     let elt = document.getElementById(id);
     if (elt.value) {
@@ -927,8 +882,7 @@ function showChat()
  * Fill in the value of the ChatName readonly field with the first
  * value of the fields in the Chat tab.
  */
-function updateChatName()
-{
+function updateChatName() {
   let value = "";
   for (let id of chatNameFieldIds) {
     let val = document.getElementById(id).value;
@@ -1012,8 +966,7 @@ function removePhoto(aName) {
     file.append(aName);
     file.remove(false);
     return true;
-  }
-  catch (e) {}
+  } catch (e) {}
   return false;
 }
 
@@ -1061,7 +1014,7 @@ function browsePhoto(aEvent) {
   fp.init(window, gAddressBookBundle.getString("browsePhoto"), Ci.nsIFilePicker.modeOpen);
 
   // Open the directory of the currently chosen photo (if any)
-  let currentPhotoFile = document.getElementById("PhotoFile").file
+  let currentPhotoFile = document.getElementById("PhotoFile").file;
   if (currentPhotoFile) {
     fp.displayDirectory = currentPhotoFile.parent;
   }
@@ -1137,7 +1090,7 @@ var gPhotoDownloadUI = (function() {
       elPhotoType = document.getElementById("PhotoType");
     if (!elProgressContainer)
       elProgressContainer = document.getElementById("ProgressContainer");
-  }, false);
+  });
 
   function onStart() {
     elProgressContainer.setAttribute("class", "expanded");
@@ -1180,11 +1133,11 @@ var gPhotoDownloadUI = (function() {
   }
 
   return {
-    onStart: onStart,
-    onSuccess: onSuccess,
-    onError: onError,
-    onProgress: onProgress
-  }
+    onStart,
+    onSuccess,
+    onError,
+    onProgress
+  };
 })();
 
 /* A photo handler defines the behaviour of the contact editor
@@ -1223,11 +1176,11 @@ var gPhotoDownloadUI = (function() {
  */
 
 var genericPhotoHandler = {
-  onLoad: function(aCard, aDocument) {
+  onLoad(aCard, aDocument) {
     return true;
   },
 
-  onShow: function(aCard, aDocument, aTargetID) {
+  onShow(aCard, aDocument, aTargetID) {
     // XXX TODO: this ignores any other value from the generic photos
     // menulist than "default".
     aDocument.getElementById(aTargetID)
@@ -1235,7 +1188,7 @@ var genericPhotoHandler = {
     return true;
   },
 
-  onRead: function(aCard, aDocument) {
+  onRead(aCard, aDocument) {
     gPhotoDownloadUI.onSuccess();
 
     newPhotoAdded("", aCard);
@@ -1244,7 +1197,7 @@ var genericPhotoHandler = {
     return true;
   },
 
-  onSave: function(aCard, aDocument) {
+  onSave(aCard, aDocument) {
     // XXX TODO: this ignores any other value from the generic photos
     // menulist than "default".
 
@@ -1253,10 +1206,10 @@ var genericPhotoHandler = {
     aCard.setProperty("PhotoURI", "");
     return true;
   }
-}
+};
 
 var filePhotoHandler = {
-  onLoad: function(aCard, aDocument) {
+  onLoad(aCard, aDocument) {
     let photoURI = aCard.getProperty("PhotoURI", "");
     let file;
     try {
@@ -1274,14 +1227,14 @@ var filePhotoHandler = {
     return true;
   },
 
-  onShow: function(aCard, aDocument, aTargetID) {
+  onShow(aCard, aDocument, aTargetID) {
     let photoName = gNewPhoto || aCard.getProperty("PhotoName", null);
     let photoURI = getPhotoURI(photoName);
     aDocument.getElementById(aTargetID).setAttribute("src", photoURI);
     return true;
   },
 
-  onRead: function(aCard, aDocument) {
+  onRead(aCard, aDocument) {
     let file = aDocument.getElementById("PhotoFile").file;
     filePhotoHandler._showFilename(aCard, aDocument);
     if (!file)
@@ -1311,7 +1264,7 @@ var filePhotoHandler = {
     return true;
   },
 
-  onSave: function(aCard, aDocument) {
+  onSave(aCard, aDocument) {
     // Update contact
     if (gNewPhoto) {
       // The file may not be valid unless the photo has changed.
@@ -1322,7 +1275,7 @@ var filePhotoHandler = {
     return true;
   },
 
-  _showFilename: function(aCard, aDocument) {
+  _showFilename(aCard, aDocument) {
     let photoElem = aDocument.getElementById("PhotoFile");
     let photoFile = photoElem.file ? photoElem.file : null;
     let photoSpec = Services.io.getProtocolHandler("file")
@@ -1335,10 +1288,10 @@ var filePhotoHandler = {
       photoElem.value = "";
     }
   }
-}
+};
 
 var webPhotoHandler = {
-  onLoad: function(aCard, aDocument) {
+  onLoad(aCard, aDocument) {
     let photoURI = aCard.getProperty("PhotoURI", null);
 
     if (!photoURI)
@@ -1348,7 +1301,7 @@ var webPhotoHandler = {
     return true;
   },
 
-  onShow: function(aCard, aDocument, aTargetID) {
+  onShow(aCard, aDocument, aTargetID) {
     let photoName = gNewPhoto || aCard.getProperty("PhotoName", null);
     if (!photoName)
       return false;
@@ -1359,7 +1312,7 @@ var webPhotoHandler = {
     return true;
   },
 
-  onRead: function(aCard, aDocument) {
+  onRead(aCard, aDocument) {
     let photoURI = aDocument.getElementById("PhotoURI").value;
     if (!photoURI)
       return false;
@@ -1373,7 +1326,7 @@ var webPhotoHandler = {
 
       webPhotoHandler.onShow(aCard, aDocument, "photo");
 
-    }
+    };
 
     gImageDownloader.savePhoto(photoURI, cbSuccess,
                                gPhotoDownloadUI.onError,
@@ -1381,7 +1334,7 @@ var webPhotoHandler = {
     return true;
   },
 
-  onSave: function(aCard, aDocument) {
+  onSave(aCard, aDocument) {
     // Update contact
     if (gNewPhoto) {
       let photoURI = aDocument.getElementById("PhotoURI").value;
@@ -1390,7 +1343,7 @@ var webPhotoHandler = {
     }
     return true;
   }
-}
+};
 
 function newPhotoAdded(aPhotoName, aCard) {
   // If we had the photo saved locally, shedule it for removal if card is saved.
@@ -1404,8 +1357,7 @@ function newPhotoAdded(aPhotoName, aCard) {
  * @param aType the type of photo to handle
  * @param aPhotoHandler the photo handler to register
  */
-function registerPhotoHandler(aType, aPhotoHandler)
-{
+function registerPhotoHandler(aType, aPhotoHandler) {
   gPhotoHandlers[aType] = aPhotoHandler;
 }
 

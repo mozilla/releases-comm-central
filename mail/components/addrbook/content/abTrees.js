@@ -2,13 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// mailnews/addrbook/content/abDragDrop.js
+/* globals abDirTreeObserver */
+// mailnews/base/content/jsTreeView.js
+/* globals PROTO_TREE_VIEW */
+
 /**
  * This file contains our implementation for various addressbook trees.  It
  * depends on jsTreeView.js being loaded before this script is loaded.
  */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+var { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
 ChromeUtils.import("resource:///modules/IOUtils.js");
 
 // Tree Sort helper methods.
@@ -109,7 +114,7 @@ abDirTreeItem.prototype = {
       while (myEnum.hasMoreElements()) {
         var abItem = new abDirTreeItem(myEnum.getNext()
                                        .QueryInterface(Ci.nsIAbDirectory));
-        if (gDirectoryTreeView&&
+        if (gDirectoryTreeView &&
             this.id == kAllDirectoryRoot + "?" &&
             getDirectoryValue(abItem, "ab_type") == "ldap")
           gDirectoryTreeView.hasRemoteAB = true;
@@ -195,8 +200,6 @@ directoryTreeView.prototype = {
     var oldCount = this._rowMap.length;
     this._rowMap = [];
 
-    var dirEnum = MailServices.ab.directories;
-
     // Make an entry for All Address Books.
     let rootAB = MailServices.ab.getDirectory(kAllDirectoryRoot + "?");
     rootAB.dirName = gAddressBookBundle.getString("allAddressBooks");
@@ -211,7 +214,7 @@ directoryTreeView.prototype = {
     this._restoreOpenStates();
   },
 
-  getIndexForId: function(aId) {
+  getIndexForId(aId) {
     for (let i = 0; i < this._rowMap.length; i++) {
       if (this._rowMap[i].id == aId)
         return i;
@@ -224,7 +227,7 @@ directoryTreeView.prototype = {
   onItemAdded: function dtv_onItemAdded(aParent, aItem) {
     if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
-    //xxx we can optimize this later
+    // XXX we can optimize this later
     this._rebuild();
 
     if (!this._tree)
@@ -242,7 +245,7 @@ directoryTreeView.prototype = {
   onItemRemoved: function dtv_onItemRemoved(aParent, aItem) {
     if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
-    //xxx we can optimize this later
+    // XXX we can optimize this later
     this._rebuild();
 
     if (!this._tree)
@@ -268,7 +271,7 @@ directoryTreeView.prototype = {
     if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
 
-    for (var i in this._rowMap)  {
+    for (let i in this._rowMap) {
       if (this._rowMap[i]._directory == aItem) {
         this._tree.invalidateRow(i);
         break;

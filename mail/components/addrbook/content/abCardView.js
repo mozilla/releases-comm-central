@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//NOTE: gAddressBookBundle must be defined and set or this Overlay won't work
+// NOTE: gAddressBookBundle must be defined and set or this Overlay won't work
 
 ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -40,8 +40,7 @@ var zIRC;
 
 var cvData;
 
-function OnLoadCardView()
-{
+function OnLoadCardView() {
   zPrimaryEmail = gAddressBookBundle.getString("propertyPrimaryEmail");
   zSecondaryEmail = gAddressBookBundle.getString("propertySecondaryEmail");
   zNickname = gAddressBookBundle.getString("propertyNickname");
@@ -72,7 +71,7 @@ function OnLoadCardView()
   /* data for address book, prefixes: "cvb" = card view box
                     "cvh" = crad view header
                     "cv"  = card view (normal fields) */
-  cvData = new Object;
+  cvData = {};
 
   // Card View Box
   cvData.CardViewBox    = doc.getElementById("CardViewInnerBox");
@@ -159,8 +158,7 @@ function OnLoadCardView()
 // XXX todo
 // some similar code (in spirit) already exists, see OnLoadEditList()
 // perhaps we could combine and put in abCommon.js?
-function GetAddressesFromURI(uri)
-{
+function GetAddressesFromURI(uri) {
   var addresses = "";
 
   var editList = GetDirectoryFromURI(uri);
@@ -169,27 +167,27 @@ function GetAddressesFromURI(uri)
     var total = addressList.length;
     if (total > 0)
       addresses = addressList.queryElementAt(0, Ci.nsIAbCard).primaryEmail;
-    for (var i = 1;  i < total; i++ ) {
+    for (let i = 1; i < total; i++) {
       addresses += ", " + addressList.queryElementAt(i, Ci.nsIAbCard).primaryEmail;
     }
   }
   return addresses;
 }
 
-function DisplayCardViewPane(realCard)
-{
+/* eslint-disable complexity */
+function DisplayCardViewPane(realCard) {
   let generatedName = realCard.generateName(
     Services.prefs.getIntPref("mail.addr_book.lastnamefirst"));
 
   // This will become neater when bug 312116 is fixed...
   // (card.property instead of card.getProperty("Property"))
-  var card = { getProperty : function (prop) {
+  var card = { getProperty(prop) {
                  return realCard.getProperty(prop, "");
                },
-               primaryEmail : realCard.primaryEmail,
-               displayName : realCard.displayName,
-               isMailList : realCard.isMailList,
-               mailListURI : realCard.mailListURI
+               primaryEmail: realCard.primaryEmail,
+               displayName: realCard.displayName,
+               isMailList: realCard.isMailList,
+               mailListURI: realCard.mailListURI
   };
 
   var data = top.cvData;
@@ -219,8 +217,7 @@ function DisplayCardViewPane(realCard)
     cvSetVisible(data.cvEmail1Box, false);
 
     visible = HandleLink(data.cvListName, zListName, card.displayName, data.cvListNameBox, "mailto:" + encodeURIComponent(GenerateAddressFromCard(card))) || visible;
-  }
-  else {
+  } else {
     // listname always hidden if not a mailing list
     cvSetVisible(data.cvListNameBox, false);
 
@@ -258,7 +255,7 @@ function DisplayCardViewPane(realCard)
   cvSetVisible(data.cvbHome, visible);
   if (card.isMailList) {
     // Description section
-    visible = cvSetNode(data.cvDescription, card.getProperty("Notes"))
+    visible = cvSetNode(data.cvDescription, card.getProperty("Notes"));
     cvSetVisible(data.cvbDescription, visible);
 
     // Addresses section
@@ -268,8 +265,7 @@ function DisplayCardViewPane(realCard)
     // Other and Chat sections, not shown for mailing lists.
     cvSetVisible(data.cvbOther, false);
     cvSetVisible(data.cvbChat, false);
-  }
-  else {
+  } else {
     // Other section
     // setup the birthday information
     var day = card.getProperty("BirthDay", null);
@@ -286,17 +282,16 @@ function DisplayCardViewPane(realCard)
         date.setUTCFullYear(year); // to handle two-digit years properly
         formatter = new Services.intl.DateTimeFormat(undefined,
                       { dateStyle: "long", timeZone: "UTC" });
-      }
-      // if the year doesn't exist, display Month DD (ex. January 01)
-      else {
+      } else {
+        // if the year doesn't exist, display Month DD (ex. January 01)
         date = new Date(Date.UTC(saneBirthYear(year), month - 1, day));
         formatter = new Services.intl.DateTimeFormat(undefined,
                       { month: "long", day: "numeric", timeZone: "UTC" });
       }
       dateStr = formatter.format(date);
-    }
-    else if (year)
+    } else if (year) {
       dateStr = year;
+    }
     visible = cvSetNodeWithLabel(data.cvBirthday, zBirthday, dateStr);
 
     visible = cvSetNodeWithLabel(data.cvCustom1, zCustom1,
@@ -392,9 +387,9 @@ function DisplayCardViewPane(realCard)
   // make the card view box visible
   cvSetVisible(top.cvData.CardViewBox, true);
 }
+/* eslint-enable complexity */
 
-function setBuddyIcon(card, buddyIcon)
-{
+function setBuddyIcon(card, buddyIcon) {
   try {
     let myScreenName = Services.prefs.getCharPref("aim.session.screenname");
     if (myScreenName && card.primaryEmail) {
@@ -417,8 +412,7 @@ function setBuddyIcon(card, buddyIcon)
         return true;
       }
     }
-  }
-  catch (ex) {
+  } catch (ex) {
     // can get here if no screenname
   }
 
@@ -426,25 +420,20 @@ function setBuddyIcon(card, buddyIcon)
   return false;
 }
 
-function ClearCardViewPane()
-{
+function ClearCardViewPane() {
   cvSetVisible(top.cvData.CardViewBox, false);
 }
 
-function cvSetNodeWithLabel(node, label, text)
-{
+function cvSetNodeWithLabel(node, label, text) {
   if (text) {
     if (label)
       return cvSetNode(node, label + ": " + text);
-    else
-      return cvSetNode(node, text);
+    return cvSetNode(node, text);
   }
-  else
-    return cvSetNode(node, "");
+  return cvSetNode(node, "");
 }
 
-function cvSetCityStateZip(node, city, state, zip)
-{
+function cvSetCityStateZip(node, city, state, zip) {
   let text = "";
 
   if (city && state && zip)
@@ -464,8 +453,7 @@ function cvSetCityStateZip(node, city, state, zip)
   return cvSetNode(node, text);
 }
 
-function cvSetNode(node, text)
-{
+function cvSetNode(node, text) {
   if (!node)
     return false;
 
@@ -476,8 +464,7 @@ function cvSetNode(node, text)
   return visible;
 }
 
-function cvAddAddressNodes(node, uri)
-{
+function cvAddAddressNodes(node, uri) {
   var visible = false;
 
   if (node) {
@@ -490,7 +477,7 @@ function cvAddAddressNodes(node, uri)
         while (node.hasChildNodes()) {
           node.lastChild.remove();
         }
-        for (i = 0;  i < total; i++ ) {
+        for (let i = 0; i < total; i++) {
           var descNode = document.createElement("description");
           var card = addressList.queryElementAt(i, Ci.nsIAbCard);
 
@@ -513,26 +500,23 @@ function cvAddAddressNodes(node, uri)
   return visible;
 }
 
-function cvSetVisible(node, visible)
-{
-  if ( visible )
+function cvSetVisible(node, visible) {
+  if (visible)
     node.removeAttribute("collapsed");
   else
     node.setAttribute("collapsed", "true");
 }
 
-function HandleLink(node, label, value, box, link)
-{
+function HandleLink(node, label, value, box, link) {
   var visible = cvSetNodeWithLabel(node, label, value);
   if (visible)
-    node.setAttribute('href', link);
+    node.setAttribute("href", link);
   cvSetVisible(box, visible);
 
   return visible;
 }
 
-function OpenURLWithHistory(url)
-{
+function OpenURLWithHistory(url) {
   PlacesUtils.history.insert({
     url,
     visits: [{
@@ -546,16 +530,14 @@ function OpenURLWithHistory(url)
   } catch (ex) {}
 }
 
-function openLink(id)
-{
+function openLink(id) {
   OpenURLWithHistory(document.getElementById(id).getAttribute("href"));
 
   // return false, so we don't load the href in the addressbook window
   return false;
 }
 
-function openLinkWithUrl(aUrl)
-{
+function openLinkWithUrl(aUrl) {
   if (aUrl)
     OpenURLWithHistory(aUrl);
 
@@ -567,12 +549,11 @@ function openLinkWithUrl(aUrl)
  * If the photo cannot be displayed, show the generic contact
  * photo.
  */
-function displayPhoto(aCard, aImg)
-{
+function displayPhoto(aCard, aImg) {
   var type = aCard.getProperty("PhotoType", "");
   if (!gPhotoDisplayHandlers[type] ||
       !gPhotoDisplayHandlers[type](aCard, aImg))
-    gPhotoDisplayHandlers["generic"](aCard, aImg);
+    gPhotoDisplayHandlers.generic(aCard, aImg);
 }
 
 /* In order to display the contact photos in the card view, there
@@ -592,14 +573,12 @@ function displayPhoto(aCard, aImg)
  * web photo types.
  */
 
-var genericPhotoDisplayHandler = function(aCard, aImg)
-{
+function genericPhotoDisplayHandler(aCard, aImg) {
   aImg.setAttribute("src", defaultPhotoURI);
   return true;
 }
 
-var photoNameDisplayHandler = function(aCard, aImg)
-{
+function photoNameDisplayHandler(aCard, aImg) {
   var photoSrc = getPhotoURI(aCard.getProperty("PhotoName"));
   aImg.setAttribute("src", photoSrc);
   return true;
@@ -608,8 +587,7 @@ var photoNameDisplayHandler = function(aCard, aImg)
 /* In order for a photo display handler to be registered for
  * a particular photo type, it must be registered here.
  */
-function registerPhotoDisplayHandler(aType, aPhotoDisplayHandler)
-{
+function registerPhotoDisplayHandler(aType, aPhotoDisplayHandler) {
   if (!gPhotoDisplayHandlers[aType])
     gPhotoDisplayHandlers[aType] = aPhotoDisplayHandler;
 }

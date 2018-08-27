@@ -4,7 +4,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+// addressbook.js
+/* globals PluralForm, ResultsPaneSelectionChanged, gPreviousDirTreeIndex, onEnterInSearchBar */
+// abTrees.js
+/* globals gDirectoryTreeView */
+
+// mail/base/content/utilityOverlay.js
+/* globals goSetMenuValue */
+
+// mailnews/addrbook/content/abResultsPane.js
+/* globals kCardsOnly, kListsAndCards, kMultipleListsOnly, kNothingSelected, kSingleListOnly */
+
+// toolkit/content/globalOverlay.js
+/* globals goUpdateCommand */
+
+var { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
 ChromeUtils.import("resource:///modules/IOUtils.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
@@ -40,8 +54,7 @@ var PERMS_DIRECTORY = parseInt("0755", 8);
 // Controller object for Dir Pane
 var DirPaneController =
 {
-  supportsCommand: function(command)
-  {
+  supportsCommand(command) {
     switch (command) {
       case "cmd_selectAll":
       case "cmd_delete":
@@ -58,8 +71,7 @@ var DirPaneController =
     }
   },
 
-  isCommandEnabled: function(command)
-  {
+  isCommandEnabled(command) {
     switch (command) {
       case "cmd_selectAll":
         // The gDirTree pane only handles single selection, but normally we
@@ -96,14 +108,12 @@ var DirPaneController =
         // If the selected directory is an ldap directory,
         // and if the prefs for this directory are locked,
         // return false to disable deletion.
-        if (selectedDirURI.startsWith(kLdapUrlPrefix))
-        {
+        if (selectedDirURI.startsWith(kLdapUrlPrefix)) {
           let disable = false;
           try {
             let prefName = selectedDirURI.substr(kLdapUrlPrefix.length);
             disable = Services.prefs.getBoolPref(prefName + ".disable_delete");
-          }
-          catch(ex) {
+          } catch (ex) {
             // If this preference is not set, that's ok.
           }
           if (disable)
@@ -149,8 +159,7 @@ var DirPaneController =
     }
   },
 
-  doCommand: function(command)
-  {
+  doCommand(command) {
     switch (command) {
       case "cmd_printcard":
       case "cmd_printcardpreview":
@@ -177,16 +186,14 @@ var DirPaneController =
     }
   },
 
-  onEvent: function(event)
-  {
+  onEvent(event) {
     // on blur events set the menu item texts back to the normal values
     if (event == "blur")
       goSetMenuValue("cmd_delete", "valueDefault");
   }
 };
 
-function SendCommandToResultsPane(command)
-{
+function SendCommandToResultsPane(command) {
   ResultsPaneController.doCommand(command);
 
   // if we are sending the command so the results pane
@@ -194,24 +201,21 @@ function SendCommandToResultsPane(command)
   gAbResultsTree.focus();
 }
 
-function AbNewLDAPDirectory()
-{
+function AbNewLDAPDirectory() {
   window.openDialog("chrome://messenger/content/addressbook/pref-directory-add.xul",
                     "",
                     "chrome,modal,resizable=no,centerscreen",
                     null);
 }
 
-function AbNewAddressBook()
-{
+function AbNewAddressBook() {
   window.openDialog("chrome://messenger/content/addressbook/abAddressBookNameDialog.xul",
                     "",
                     "chrome,modal,resizable=no,centerscreen",
                     null);
 }
 
-function AbEditSelectedDirectory()
-{
+function AbEditSelectedDirectory() {
   let selectedDir = getSelectedDirectory();
   if (!selectedDir)
     return;
@@ -237,8 +241,7 @@ function updateDirTreeContext() {
   }
 }
 
-function abToggleSelectedDirStartup()
-{
+function abToggleSelectedDirStartup() {
   let selectedDirURI = getSelectedDirectoryURI();
   if (!selectedDirURI)
     return;
@@ -261,8 +264,7 @@ function abToggleSelectedDirStartup()
   goUpdateCommand("cmd_abToggleStartupDir");
 }
 
-function AbDeleteSelectedDirectory()
-{
+function AbDeleteSelectedDirectory() {
   let selectedDirURI = getSelectedDirectoryURI();
   if (!selectedDirURI)
     return;
@@ -270,8 +272,7 @@ function AbDeleteSelectedDirectory()
   AbDeleteDirectory(selectedDirURI);
 }
 
-function AbDeleteDirectory(aURI)
-{
+function AbDeleteDirectory(aURI) {
   // Determine strings for smart and context-sensitive user prompts
   // for confirming deletion.
   let directory = GetDirectoryFromURI(aURI);
@@ -286,24 +287,21 @@ function AbDeleteDirectory(aURI)
     // It's a mailing list.
     confirmDeleteMessageID = "confirmDeleteThisMailingList";
     confirmDeleteTitleID = "confirmDeleteThisMailingListTitle";
+  } else if (Services.prefs.getCharPref("mail.collect_addressbook") == aURI &&
+      Services.prefs.getBoolPref("mail.collect_email_address_outgoing")) {
+    // It's a collection address book: let's be clear about the consequences.
+    brandShortName = document.getElementById("bundle_brand").getString("brandShortName");
+    confirmDeleteMessageID = "confirmDeleteThisCollectionAddressbook";
+    confirmDeleteTitleID = "confirmDeleteThisCollectionAddressbookTitle";
+    clearCollectionPrefs = true;
+  } else if (directory.URI.startsWith(kLdapUrlPrefix)) {
+    // It's an LDAP directory, so we only delete our offline copy.
+    confirmDeleteMessageID = "confirmDeleteThisLDAPDir";
+    confirmDeleteTitleID = "confirmDeleteThisLDAPDirTitle";
   } else {
-    // It's an address book: check which type.
-    if (Services.prefs.getCharPref("mail.collect_addressbook") == aURI &&
-        Services.prefs.getBoolPref("mail.collect_email_address_outgoing")) {
-      // It's a collection address book: let's be clear about the consequences.
-      brandShortName = document.getElementById("bundle_brand").getString("brandShortName");
-      confirmDeleteMessageID = "confirmDeleteThisCollectionAddressbook";
-      confirmDeleteTitleID = "confirmDeleteThisCollectionAddressbookTitle";
-      clearCollectionPrefs = true;
-    } else if (directory.URI.startsWith(kLdapUrlPrefix)) {
-      // It's an LDAP directory, so we only delete our offline copy.
-      confirmDeleteMessageID = "confirmDeleteThisLDAPDir";
-      confirmDeleteTitleID = "confirmDeleteThisLDAPDirTitle";
-    } else {
-      // It's a normal personal address book: we'll delete its contacts, too.
-      confirmDeleteMessageID = "confirmDeleteThisAddressbook";
-      confirmDeleteTitleID = "confirmDeleteThisAddressbookTitle";
-    }
+    // It's a normal personal address book: we'll delete its contacts, too.
+    confirmDeleteMessageID = "confirmDeleteThisAddressbook";
+    confirmDeleteTitleID = "confirmDeleteThisAddressbookTitle";
   }
 
   // Get the raw strings with placeholders.
@@ -337,8 +335,7 @@ function AbDeleteDirectory(aURI)
   MailServices.ab.deleteAddressBook(aURI);
 }
 
-function GetParentRow(aTree, aRow)
-{
+function GetParentRow(aTree, aRow) {
   var row = aRow;
   var level = aTree.view.getLevel(row);
   var parentLevel = level;
@@ -351,15 +348,13 @@ function GetParentRow(aTree, aRow)
   return row;
 }
 
-function InitCommonJS()
-{
+function InitCommonJS() {
   gDirTree = document.getElementById("dirTree");
   abList = document.getElementById("addressbookList");
   gAddressBookBundle = document.getElementById("bundle_addressBook");
 }
 
-function AbDelete()
-{
+function AbDelete() {
   let types = GetSelectedCardTypes();
   if (types == kNothingSelected)
     return;
@@ -375,7 +370,7 @@ function AbDelete()
   let selectedDir = getSelectedDirectory();
   let numSelectedItems = gAbView.selection.count;
 
-  switch(types) {
+  switch (types) {
     case kListsAndCards:
       confirmDeleteMessageID = "confirmDelete2orMoreContactsAndLists";
       confirmDeleteTitleID   = "confirmDelete2orMoreContactsAndListsTitle";
@@ -403,15 +398,13 @@ function AbDelete()
         }
         // For removing contacts from mailing list, set placeholder value
         containingListName = selectedDir.dirName;
-      } else {
+      } else if (numSelectedItems == 1) {
         // Contact(s) in address books will be deleted.
-        if (numSelectedItems == 1) {
-          confirmDeleteMessageID = "confirmDeleteThisContact";
-          confirmDeleteTitleID   = "confirmDeleteThisContactTitle";
-        } else {
-          confirmDeleteMessageID = "confirmDelete2orMoreContacts";
-          confirmDeleteTitleID   = "confirmDelete2orMoreContactsTitle";
-        }
+        confirmDeleteMessageID = "confirmDeleteThisContact";
+        confirmDeleteTitleID   = "confirmDeleteThisContactTitle";
+      } else {
+        confirmDeleteMessageID = "confirmDelete2orMoreContacts";
+        confirmDeleteTitleID   = "confirmDelete2orMoreContactsTitle";
       }
       if (numSelectedItems == 1) {
         // Set item name for single contact.
@@ -472,13 +465,11 @@ function AbDelete()
   }
 }
 
-function AbNewCard()
-{
+function AbNewCard() {
   goNewCardDialog(getSelectedDirectoryURI());
 }
 
-function AbEditCard(card)
-{
+function AbEditCard(card) {
   // Need a card,
   // but not allowing AOL special groups to be edited.
   if (!card)
@@ -486,14 +477,12 @@ function AbEditCard(card)
 
   if (card.isMailList) {
     goEditListDialog(card, card.mailListURI);
-  }
-  else {
+  } else {
     goEditCardDialog(getSelectedDirectoryURI(), card);
   }
 }
 
-function AbNewMessage()
-{
+function AbNewMessage() {
   let msgComposeType = Ci.nsIMsgCompType;
   let msgComposeFormat = Ci.nsIMsgCompFormat;
 
@@ -510,7 +499,7 @@ function AbNewMessage()
           // This is a bit of hackery so that extensions can have mailing lists
           // where recipients are sent messages via BCC.
           hidesRecipients = selectedDir.getBoolValue("HidesRecipients", false);
-        } catch(e) {
+        } catch (e) {
           // Standard Thunderbird mailing lists do not have preferences
           // associated with them, so we'll silently eat the error.
         }
@@ -552,8 +541,7 @@ function InitViewLayoutMenuPopup(event) {
 // and get a comma separated list of card addresses. If the
 // item selected in the directory pane is not a mailing list,
 // an empty string is returned.
-function GetSelectedAddressesFromDirTree()
-{
+function GetSelectedAddressesFromDirTree() {
   let selectedDir = getSelectedDirectory();
 
   if (!selectedDir || !selectedDir.isMailList)
@@ -569,16 +557,13 @@ function GetSelectedAddressesFromDirTree()
 
 // Generate a comma separated list of addresses from a given
 // set of cards.
-function GetAddressesForCards(cards)
-{
+function GetAddressesForCards(cards) {
   var addresses = "";
 
   if (!cards) {
     Cu.reportError("GetAddressesForCards: |cards| is null.");
     return addresses;
   }
-
-  var count = cards.length;
 
   // We do not handle the case where there is one or more null-ish
   // element in the Array.  Always non-null element is pushed into
@@ -588,11 +573,10 @@ function GetAddressesForCards(cards)
     .filter(function(aAddress) {
       return aAddress;
     });
-  return generatedAddresses.join(',');
+  return generatedAddresses.join(",");
 }
 
-function SelectFirstAddressBook()
-{
+function SelectFirstAddressBook() {
   if (gDirTree.view.selection.currentIndex != 0) {
     gDirTree.view.selection.select(0);
     // If gPreviousDirTreeIndex == 0 then DirPaneSelectionChange() and
@@ -608,12 +592,11 @@ function SelectFirstAddressBook()
  * Get the startup view directory from pref and select it in the
  * directory tree so that it gets shown.
  */
-function selectStartupViewDirectory()
-{
+function selectStartupViewDirectory() {
   let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
   if (!startupURI) {
     // If pref is empty, fall back to "All Address Books" root directory.
-    startupURI = kAllDirectoryRoot + "?"
+    startupURI = kAllDirectoryRoot + "?";
   }
   let startupDirTreeIndex = gDirectoryTreeView.getIndexForId(startupURI);
   // XXX TODO: If directory of startupURI is collapsed, we fail to find and
@@ -629,8 +612,7 @@ function selectStartupViewDirectory()
   gDirectoryTreeView.selection.select(startupDirTreeIndex);
 }
 
-function DirPaneClick(event)
-{
+function DirPaneClick(event) {
   // we only care about left button events
   if (event.button != 0)
     return;
@@ -638,19 +620,18 @@ function DirPaneClick(event)
   // if the user clicks on the header / trecol, do nothing
   if (event.originalTarget.localName == "treecol") {
     event.stopPropagation();
-    return;
+
   }
 }
 
-function DirPaneDoubleClick(event)
-{
+function DirPaneDoubleClick(event) {
   // We only care about left button events.
   if (event.button != 0)
     return;
 
   // Ignore double clicking on invalid rows.
   let row = gDirTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
-  if (row == -1 || row > gDirTree.view.rowCount-1)
+  if (row == -1 || row > gDirTree.view.rowCount - 1)
     return;
 
   // Default action for double click is expand/collapse which ships with the tree.
@@ -663,13 +644,12 @@ function DirPaneDoubleClick(event)
   }
 }
 
-function DirPaneSelectionChange()
-{
+function DirPaneSelectionChange() {
   let uri = getSelectedDirectoryURI();
   // clear out the search box when changing folders...
   onAbClearSearch(false);
   if (gDirTree && gDirTree.view.selection && gDirTree.view.selection.count == 1) {
-    gPreviousDirTreeIndex = gDirTree.currentIndex;
+    gPreviousDirTreeIndex = gDirTree.currentIndex; // eslint-disable-line no-native-reassign
     ChangeDirectoryByURI(uri);
     document.getElementById("localResultsOnlyMessage")
             .setAttribute("hidden",
@@ -677,12 +657,11 @@ function DirPaneSelectionChange()
                           uri != kAllDirectoryRoot + "?");
   }
 
-  goUpdateCommand('cmd_newlist');
-  goUpdateCommand('cmd_newCard');
+  goUpdateCommand("cmd_newlist");
+  goUpdateCommand("cmd_newCard");
 }
 
-function ChangeDirectoryByURI(uri = kPersonalAddressbookURI)
-{
+function ChangeDirectoryByURI(uri = kPersonalAddressbookURI) {
   SetAbView(uri);
 
   // Actively de-selecting if there are any pre-existing selections
@@ -691,27 +670,24 @@ function ChangeDirectoryByURI(uri = kPersonalAddressbookURI)
     gAbView.selection.clearSelection();
   else
     // the selection changes if we were switching directories.
-    ResultsPaneSelectionChanged()
+    ResultsPaneSelectionChanged();
 }
 
-function AbNewList()
-{
+function AbNewList() {
   goNewListDialog(getSelectedDirectoryURI());
 }
 
-function goNewListDialog(selectedAB)
-{
+function goNewListDialog(selectedAB) {
   window.openDialog("chrome://messenger/content/addressbook/abMailListDialog.xul",
                     "",
                     "chrome,modal,resizable=no,centerscreen",
-                    {selectedAB:selectedAB});
+                    {selectedAB});
 }
 
-function goEditListDialog(abCard, listURI)
-{
+function goEditListDialog(abCard, listURI) {
   let params = {
-    abCard: abCard,
-    listURI: listURI,
+    abCard,
+    listURI,
     refresh: false, // This is an out param, true if OK in dialog is clicked.
   };
   window.openDialog("chrome://messenger/content/addressbook/abEditListDialog.xul",
@@ -723,78 +699,69 @@ function goEditListDialog(abCard, listURI)
   }
 }
 
-function goNewCardDialog(selectedAB)
-{
+function goNewCardDialog(selectedAB) {
   window.openDialog("chrome://messenger/content/addressbook/abNewCardDialog.xul",
                     "",
                     "chrome,modal,resizable=no,centerscreen",
-                    {selectedAB:selectedAB});
+                    {selectedAB});
 }
 
-function goEditCardDialog(abURI, card)
-{
+function goEditCardDialog(abURI, card) {
   window.openDialog("chrome://messenger/content/addressbook/abEditCardDialog.xul",
                     "",
                     "chrome,modal,resizable=no,centerscreen",
-                    {abURI:abURI, card:card});
+                    {abURI, card});
 }
 
-function setSortByMenuItemCheckState(id, value)
-{
-    var menuitem = document.getElementById(id);
-    if (menuitem) {
-      menuitem.setAttribute("checked", value);
-    }
+function setSortByMenuItemCheckState(id, value) {
+  var menuitem = document.getElementById(id);
+  if (menuitem)
+    menuitem.setAttribute("checked", value);
 }
 
-function InitViewSortByMenu()
-{
-    var sortColumn = kDefaultSortColumn;
-    var sortDirection = kDefaultAscending;
+function InitViewSortByMenu() {
+  var sortColumn = kDefaultSortColumn;
+  var sortDirection = kDefaultAscending;
 
-    if (gAbView) {
-      sortColumn = gAbView.sortColumn;
-      sortDirection = gAbView.sortDirection;
-    }
+  if (gAbView) {
+    sortColumn = gAbView.sortColumn;
+    sortDirection = gAbView.sortDirection;
+  }
 
-    // this approach is necessary to support generic columns that get overlaid.
-    let elements = document.querySelectorAll('[name="sortas"]');
-    for (let i = 0; i < elements.length; i++) {
-      let cmd = elements[i].id;
-      let columnForCmd = cmd.substr(10); // everything right of cmd_SortBy
-      setSortByMenuItemCheckState(cmd, (sortColumn == columnForCmd));
-    }
+  // this approach is necessary to support generic columns that get overlaid.
+  let elements = document.querySelectorAll('[name="sortas"]');
+  for (let i = 0; i < elements.length; i++) {
+    let cmd = elements[i].id;
+    let columnForCmd = cmd.substr(10); // everything right of cmd_SortBy
+    setSortByMenuItemCheckState(cmd, (sortColumn == columnForCmd));
+  }
 
-    setSortByMenuItemCheckState("sortAscending", (sortDirection == kDefaultAscending));
-    setSortByMenuItemCheckState("sortDescending", (sortDirection == kDefaultDescending));
+  setSortByMenuItemCheckState("sortAscending", (sortDirection == kDefaultAscending));
+  setSortByMenuItemCheckState("sortDescending", (sortDirection == kDefaultDescending));
 }
 
-function GenerateAddressFromCard(card)
-{
+function GenerateAddressFromCard(card) {
   if (!card)
     return "";
 
   var email;
 
-  if (card.isMailList)
-  {
+  if (card.isMailList) {
     var directory = GetDirectoryFromURI(card.mailListURI);
     email = directory.description || card.displayName;
-  }
-  else
+  } else {
     email = card.primaryEmail;
+  }
 
   return MailServices.headerParser.makeMimeAddress(card.displayName, email);
 }
 
-function GetDirectoryFromURI(uri)
-{
+function GetDirectoryFromURI(uri) {
   return MailServices.ab.getDirectory(uri);
 }
 
 // returns null if abURI is not a mailing list URI
-function GetParentDirectoryFromMailingListURI(abURI)
-{
+function GetParentDirectoryFromMailingListURI(abURI) {
   var abURIArr = abURI.split("/");
   /*
    turn turn "moz-abmdbdirectory://abook.mab/MailList6"
@@ -812,8 +779,7 @@ function GetParentDirectoryFromMailingListURI(abURI)
 /**
  * Return true if the directory pane has focus, otherwise false.
  */
-function DirPaneHasFocus()
-{
+function DirPaneHasFocus() {
   return (top.document.commandDispatcher.focusedElement == gDirTree);
 }
 
@@ -822,8 +788,7 @@ function DirPaneHasFocus()
  *
  * @return The object of the currently selected directory
  */
-function getSelectedDirectory()
-{
+function getSelectedDirectory() {
   // Contacts Sidebar
   if (abList)
     return MailServices.ab.getDirectory(abList.value);
@@ -839,8 +804,7 @@ function getSelectedDirectory()
  *
  * @return The URI of the currently selected directory
  */
-function getSelectedDirectoryURI()
-{
+function getSelectedDirectoryURI() {
   // Contacts Sidebar
   if (abList)
     return abList.value;
@@ -856,8 +820,7 @@ function getSelectedDirectoryURI()
  * use getSelectedDirectoryURI() instead!
  * Return the URI of the selected directory.
  */
-function GetSelectedDirectory()
-{
+function GetSelectedDirectory() {
   return getSelectedDirectoryURI();
 }
 
@@ -868,8 +831,7 @@ function GetSelectedDirectory()
  * @param aRefresh  Set to false if the refresh isn't needed,
  *                  e.g. window/AB is going away so user will not see anything.
  */
-function onAbClearSearch(aRefresh = true)
-{
+function onAbClearSearch(aRefresh = true) {
   let searchInput = document.getElementById("peopleSearchInput");
   if (!searchInput || !searchInput.value)
     return;
@@ -880,8 +842,7 @@ function onAbClearSearch(aRefresh = true)
 }
 
 // sets focus into the quick search box
-function QuickSearchFocus()
-{
+function QuickSearchFocus() {
   let searchInput = document.getElementById("peopleSearchInput");
   if (searchInput) {
     searchInput.focus();
@@ -917,8 +878,7 @@ function getPhotoURI(aPhotoName) {
   var file = getPhotosDir();
   try {
     file.append(aPhotoName);
-  }
-  catch (e) {
+  } catch (e) {
     return defaultPhotoURI;
   }
   if (!file.exists())
@@ -938,7 +898,7 @@ function makePhotoFile(aDir, aExtension) {
   var filename, newFile;
   // Find a random filename for the photo that doesn't exist yet
   do {
-    filename = new String(Math.random()).replace("0.", "") + "." + aExtension;
+    filename = Math.random().toString().replace("0.", "") + "." + aExtension;
     newFile = aDir.clone();
     newFile.append(filename);
   } while (newFile.exists());
@@ -1019,7 +979,7 @@ var gImageDownloader = (function() {
                             | Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES
                             | Ci.nsIWebBrowserPersist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
     downloader.progressListener = {
-      onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress,
+      onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress,
                                  aCurTotalProgress, aMaxTotalProgress) {
         if (aMaxTotalProgress > -1 && callbackProgress) {
           // Download progress is 0-90%, 90-100% is verifying and scaling the image.
@@ -1027,7 +987,7 @@ var gImageDownloader = (function() {
           callbackProgress(STATE_TRANSFERRING, percent);
         }
       },
-      onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
+      onStateChange(aWebProgress, aRequest, aStateFlag, aStatus) {
         // Check if the download successfully finished.
         if ((aStateFlag & Ci.nsIWebProgressListener.STATE_STOP) &&
             !(aStateFlag & Ci.nsIWebProgressListener.STATE_IS_REQUEST)) {
@@ -1036,10 +996,8 @@ var gImageDownloader = (function() {
             let http = aRequest.QueryInterface(Ci.nsIHttpChannel);
             if (http.responseStatus == 200) {
               verifyImage();
-            } else {
-              if (callbackError) {
-                callbackError(ERROR_UNAVAILABLE);
-              }
+            } else if (callbackError) {
+              callbackError(ERROR_UNAVAILABLE);
             }
           } catch (err) {
             // The nsIHttpChannel interface is not available - just proceed
@@ -1051,7 +1009,7 @@ var gImageDownloader = (function() {
 
     let source;
     try {
-      source = Services.io.newURI(aURI, null, null);
+      source = Services.io.newURI(aURI);
     } catch (err) {
       if (callbackError) {
         callbackError(ERROR_INVALID_URI);
@@ -1087,7 +1045,7 @@ var gImageDownloader = (function() {
       if (callbackError) {
         callbackError(ERROR_INVALID_IMG);
       }
-    }
+    };
     img.onload = function() {
       if (callbackProgress) {
         callbackProgress(STATE_RESIZING, 95);
@@ -1108,7 +1066,7 @@ var gImageDownloader = (function() {
 
       // Remove the temporary file.
       cleanup();
-    }
+    };
 
     if (callbackProgress) {
       callbackProgress(92);
@@ -1187,7 +1145,7 @@ var gImageDownloader = (function() {
     file = makePhotoFile(file, "png");
 
     // Create a data url from the canvas and then create URIs of the source and targets
-    let source = Services.io.newURI(aCanvas.toDataURL("image/png", ""), "UTF8", null);
+    let source = Services.io.newURI(aCanvas.toDataURL("image/png", ""), "UTF8");
     let target = Services.io.newFileURI(file);
 
     downloader = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
@@ -1196,7 +1154,7 @@ var gImageDownloader = (function() {
                             | Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES
                             | Ci.nsIWebBrowserPersist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
     downloader.progressListener = {
-      onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
+      onStateChange(aWebProgress, aRequest, aFlag, aStatus) {
         if ((aFlag & Ci.nsIWebProgressListener.STATE_STOP) &&
             !(aFlag & Ci.nsIWebProgressListener.STATE_IS_REQUEST)) {
           if (callbackSuccess) {
@@ -1215,16 +1173,16 @@ var gImageDownloader = (function() {
 
   // Publicly accessible methods.
   return {
-    cancelSave: cancelSave,
-    savePhoto: savePhoto,
-    STATE_TRANSFERRING: STATE_TRANSFERRING,
-    STATE_RESIZING: STATE_RESIZING,
-    STATE_OK: STATE_OK,
-    ERROR_UNAVAILABLE: ERROR_UNAVAILABLE,
-    ERROR_INVALID_URI: ERROR_INVALID_URI,
-    ERROR_INVALID_IMG: ERROR_INVALID_IMG,
-    ERROR_SAVE: ERROR_SAVE
-  }
+    cancelSave,
+    savePhoto,
+    STATE_TRANSFERRING,
+    STATE_RESIZING,
+    STATE_OK,
+    ERROR_UNAVAILABLE,
+    ERROR_INVALID_URI,
+    ERROR_INVALID_IMG,
+    ERROR_SAVE
+  };
 })();
 
 
@@ -1271,8 +1229,7 @@ function nearestLeap(aYear) {
  * @param aTooltipTextAttribute  (optional) the name of a custom tooltiptext attribute of aID, or ""
  */
 function goSetLabelAccesskeyTooltiptext(aID, aLabelAttribute, aAccessKeyAttribute,
-                                             aTooltipTextAttribute)
-{
+                                             aTooltipTextAttribute) {
   let node = top.document.getElementById(aID);
   if (!node) {
     // tweak for composition's abContactsPanel
@@ -1293,7 +1250,7 @@ function goSetLabelAccesskeyTooltiptext(aID, aLabelAttribute, aAccessKeyAttribut
         node.setAttribute(attr, value);
       } else {  // missing custom attribute
         dump('Something wrong here: goSetLabelAccesskeyTooltiptext("' + aID + '", ...): ' +
-             'Missing custom attribute: ' + customAttr + '\n');
+             "Missing custom attribute: " + customAttr + "\n");
       }
     } else if (customAttr === "") {
       node.removeAttribute(attr);
