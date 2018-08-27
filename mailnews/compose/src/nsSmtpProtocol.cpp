@@ -1457,7 +1457,10 @@ void nsSmtpProtocol::AuthLoginStep0Response()
 
 nsresult nsSmtpProtocol::AuthLoginStep1()
 {
-  char buffer[512]; // TODO nsAutoCString
+  // The longest message we are going to send is:
+  // "AUTH PLAIN " followed by 684 bytes (base64 encoding of 512 bytes of
+  // username/password) followed by CRLF: 11 + 684 + 2 + 1 = 698.
+  char buffer[698];
   nsresult rv;
   nsresult status = NS_OK;
   nsCString username;
@@ -1480,7 +1483,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
   smtpServer->GetHostname(hostname);
 
   MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP AuthLoginStep1() for %s@%s",
-      username.get(), hostname.get()));
+          username.get(), hostname.get()));
 
   GetPassword(password);
   if (password.IsEmpty())
@@ -1489,7 +1492,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
     m_urlErrorState = NS_ERROR_SMTP_PASSWORD_UNDEFINED;
     return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
-  NS_ConvertUTF16toUTF8 uniPassword(password);
+  NS_ConvertUTF16toUTF8 passwordUTF8(password);
 
   if (m_currentAuthMethod == SMTP_AUTH_CRAM_MD5_ENABLED)
   {
@@ -1503,31 +1506,37 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
     nsAutoCString response;
     rv = DoNtlmStep1(username, password, response);
     PR_snprintf(buffer, sizeof(buffer), TestFlag(SMTP_AUTH_NTLM_ENABLED) ?
-                                        "AUTH NTLM %.256s" CRLF :
-                                        "%.256s" CRLF, response.get());
+                                        "AUTH NTLM %.512s" CRLF :
+                                        "%.512s" CRLF, response.get());
   }
   else if (m_currentAuthMethod == SMTP_AUTH_PLAIN_ENABLED)
   {
     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("PLAIN auth"));
-    char plain_string[512];
-    int len = 1; /* first <NUL> char */
+    // Up to 255 octets.
+    if (username.Length() > 255)  // RFC 4616: authcid; up to 255 octets
+      username.Truncate(255);
+    if (passwordUTF8.Length() > 255)  // RFC 4616: passwd; up to 255 octets
+      passwordUTF8.Truncate(255);
 
-    memset(plain_string, 0, 512);
-    PR_snprintf(&plain_string[1], 510, "%s", username.get());
-    len += username.Length();
-    len++; /* second <NUL> char */
-    PR_snprintf(&plain_string[len], 511-len, "%s", uniPassword.get());
+    // RFC 4616: UTF8NUL authcid UTF8NUL passwd
+    char plain_string[513];
+    memset(plain_string, 0, 513);
+    PR_snprintf(&plain_string[1], 255, "%s", username.get());
+    int len = username.Length() + 2;  // We include two <NUL> characters.
+    PR_snprintf(&plain_string[len], 255, "%s", passwordUTF8.get());
     len += password.Length();
 
     base64Str = PL_Base64Encode(plain_string, len, nullptr);
-    PR_snprintf(buffer, sizeof(buffer), "AUTH PLAIN %.256s" CRLF, base64Str);
+    PR_snprintf(buffer, sizeof(buffer), "AUTH PLAIN %s" CRLF, base64Str);
   }
   else if (m_currentAuthMethod == SMTP_AUTH_LOGIN_ENABLED)
   {
     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("LOGIN auth"));
-    base64Str = PL_Base64Encode(username.get(),
-        username.Length(), nullptr);
-    PR_snprintf(buffer, sizeof(buffer), "%.256s" CRLF, base64Str);
+    if (username.Length() > 255)
+      username.Truncate(255);
+    base64Str = PL_Base64Encode(username.get(), username.Length(), nullptr);
+    // Base64 encoding of 255 bytes gives 340 bytes.
+    PR_snprintf(buffer, sizeof(buffer), "%s" CRLF, base64Str);
   }
   else
     return (NS_ERROR_COMMUNICATIONS_ERROR);
@@ -1550,20 +1559,23 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
   */
   nsresult status = NS_OK;
   nsresult rv;
-  nsAutoString uniPassword;
+  nsAutoString password;
 
-  GetPassword(uniPassword);
-  if (uniPassword.IsEmpty())
+  GetPassword(password);
+  if (password.IsEmpty())
   {
     m_urlErrorState = NS_ERROR_SMTP_PASSWORD_UNDEFINED;
     return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
-  NS_ConvertUTF16toUTF8 password(uniPassword);
+  NS_ConvertUTF16toUTF8 passwordUTF8(password);
   MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP AuthLoginStep2"));
 
-  if (!password.IsEmpty())
+  if (!passwordUTF8.IsEmpty())
   {
-    char buffer[512];
+    // We use 515 characters here so we can transmit a 512 byte response followed by CRLF.
+    // User name and encoded digest, currently 255 + 1 + 2*16 bytes, will need
+    // 4 * (255 + 1 + 32) / 3 = 384 bytes when base64 encoded.
+    char buffer[515];
     if (m_currentAuthMethod == SMTP_AUTH_CRAM_MD5_ENABLED)
     {
       MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("CRAM auth, step 2"));
@@ -1572,19 +1584,22 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
         m_responseText.Length(), nullptr);
 
       if (decodedChallenge)
-        rv = MSGCramMD5(decodedChallenge, strlen(decodedChallenge), password.get(), password.Length(), digest);
+        rv = MSGCramMD5(decodedChallenge, strlen(decodedChallenge),
+                        passwordUTF8.get(), passwordUTF8.Length(), digest);
       else
         rv = NS_ERROR_FAILURE;
 
       PR_Free(decodedChallenge);
       if (NS_SUCCEEDED(rv))
       {
-        nsAutoCString encodedDigest;
-        char hexVal[8];
+        // The encoded digest is the hexadecimal representation of
+        // DIGEST_LENGTH characters, so it will be twice that length.
+        nsAutoCStringN<2 * DIGEST_LENGTH> encodedDigest;
 
-        for (uint32_t j=0; j<16; j++)
+        for (uint32_t j = 0; j < DIGEST_LENGTH; j++)
         {
-          PR_snprintf (hexVal,8, "%.2x", 0x0ff & (unsigned short)digest[j]);
+          char hexVal[3];
+          PR_snprintf (hexVal, 3, "%.2x", 0x0ff & (unsigned short)digest[j]);
           encodedDigest.Append(hexVal);
         }
 
@@ -1595,6 +1610,8 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
         nsCString userName;
         rv = smtpServer->GetUsername(userName);
 
+        if (userName.Length() > 255)
+          userName.Truncate(255);
         PR_snprintf(buffer, sizeof(buffer), "%s %s", userName.get(), encodedDigest.get());
         char *base64Str = PL_Base64Encode(buffer, strlen(buffer), nullptr);
         PR_snprintf(buffer, sizeof(buffer), "%s" CRLF, base64Str);
@@ -1609,14 +1626,17 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
       MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("NTLM/MSN auth, step 2"));
       nsAutoCString response;
       rv = DoNtlmStep2(m_responseText, response);
-      PR_snprintf(buffer, sizeof(buffer), "%.509s" CRLF, response.get());
+      PR_snprintf(buffer, sizeof(buffer), "%.512s" CRLF, response.get());
     }
     else if (m_currentAuthMethod == SMTP_AUTH_PLAIN_ENABLED ||
              m_currentAuthMethod == SMTP_AUTH_LOGIN_ENABLED)
     {
       MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("PLAIN/LOGIN auth, step 2"));
-      char *base64Str = PL_Base64Encode(password.get(), password.Length(), nullptr);
-      PR_snprintf(buffer, sizeof(buffer), "%.256s" CRLF, base64Str);
+      if (passwordUTF8.Length() > 255)
+        passwordUTF8.Truncate(255);
+      char *base64Str = PL_Base64Encode(passwordUTF8.get(), passwordUTF8.Length(), nullptr);
+      // Base64 encoding of 255 bytes gives 340 bytes.
+      PR_snprintf(buffer, sizeof(buffer), "%s" CRLF, base64Str);
       free(base64Str);
     }
     else

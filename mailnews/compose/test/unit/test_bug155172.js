@@ -28,10 +28,10 @@ var kIdentityMail = "identity@foo.invalid";
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 var kUsername = "test.smtp@fakeserver";
-// kPassword 2 is the one defined in signons-smtp.json, the other one
+// kPasswordSaved is the one defined in signons-smtp.json, the other one
 // is intentionally wrong.
-var kPassword1 = "wrong";
-var kPassword2 = "smtptest";
+var kPasswordWrong = "wrong";
+var kPasswordSaved = "smtptest";
 
 add_task(async function () {
   registerAlertTestUtils();
@@ -41,7 +41,7 @@ add_task(async function () {
     // Username needs to match the login information stored in the signons json
     // file.
     handler.kUsername = kUsername;
-    handler.kPassword = kPassword1;
+    handler.kPassword = kPasswordWrong;
     handler.kAuthRequired = true;
     handler.kAuthSchemes = [ "PLAIN", "LOGIN" ]; // make match expected transaction below
     return handler;
@@ -79,15 +79,15 @@ add_task(async function () {
                                       false, {}, {});
 
     // Set the new password for when we get a prompt
-    gNewPassword = kPassword1;
+    gNewPassword = kPasswordWrong;
 
     server.performTest();
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, ["EHLO test",
-                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword2),
+                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPasswordSaved),
                                        "AUTH LOGIN",
-                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword1),
+                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPasswordWrong),
                                        "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);

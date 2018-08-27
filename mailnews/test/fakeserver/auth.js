@@ -56,6 +56,8 @@ var AuthPLAIN = {
    */
   encodeLine : function(username, password)
   {
+    username = username.substring(0, 255);
+    password = password.substring(0, 255);
     return btoa("\u0000" + username + "\u0000" + password); // base64 encode
   },
 };
