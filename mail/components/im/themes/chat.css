@@ -608,8 +608,8 @@ richlistitem[inactive][selected] > label {
 /* from instantbird/themes/blist.css */
 imgroup .twisty {
   padding-top: 1px;
-  width: 9px; /* The image's width is 9 pixels */
-  height: 9px;
+  width: 8px; /* The image's width is 8 pixels */
+  height: 8px;
 %ifndef XP_MACOSX
   margin-inline-end: 3px;
 %else

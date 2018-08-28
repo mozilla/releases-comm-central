@@ -14,8 +14,8 @@ treenode-checkbox > .checkbox-check {
   -moz-appearance: none;
   -moz-box-align: center;
   border: none;
-  width: 9px; /* The image's width is 9 pixels */
-  height: 9px;
+  width: 8px; /* The image's width is 8 pixels */
+  height: 8px;
   background: url(chrome://global/skin/icons/twisty-collapsed.svg) center no-repeat;
   -moz-context-properties: fill;
   fill: currentColor;
