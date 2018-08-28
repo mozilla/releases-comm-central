@@ -47,6 +47,8 @@
       <preference id="network.proxy.backup.socks"        name="network.proxy.backup.socks"        type="string"/>
       <preference id="network.proxy.backup.socks_port"   name="network.proxy.backup.socks_port"   type="int"/>
       <preference id="network.proxy.socks_remote_dns"    name="network.proxy.socks_remote_dns"    type="bool"/>
+      <preference id="network.trr.mode"                  name="network.trr.mode"                  type="int"/>
+      <preference id="network.trr.uri"                   name="network.trr.uri"                   type="string"/>
       <preference id="signon.autologin.proxy"            name="signon.autologin.proxy"            type="bool"/>
     </preferences>
 
@@ -159,7 +161,24 @@
     <checkbox id="networkProxySOCKSRemoteDNS"
               preference="network.proxy.socks_remote_dns"
               label="&socksRemoteDNS.label;"
-              accesskey="&socksRemoteDNS.accesskey;" />
+              accesskey="&socksRemoteDNS.accesskey;"/>
+    <checkbox id="networkDnsOverHttps"
+              label="&dnsOverHttps.label;"
+              accesskey="&dnsOverHttps.accesskey;"
+              preference="network.trr.mode"
+              onsyncfrompreference="return gConnectionsDialog.readDnsOverHttpsMode();"
+              onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsMode()"/>
+    <hbox class="indent" flex="1" align="center">
+      <label control="networkDnsOverHttpsUrl"
+             label="&dnsOverHttpsUrl.label;"
+             accesskey="&dnsOverHttpsUrl.accesskey;"
+             tooltiptext="&dnsOverHttpsUrl.tooltip;"/>
+      <textbox id="networkDnsOverHttpsUrl"
+               flex="1"
+               preference="network.trr.uri"
+               placeholder="https://doh.example.com/dns-query"
+               onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsUri()"/>
+    </hbox>
     <separator/>
   </prefpane>
 </prefwindow>
