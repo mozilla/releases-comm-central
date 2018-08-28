@@ -28,7 +28,7 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <binding id="panellist" extends="chrome://global/content/bindings/menulist.xml#menulist-editable">
+  <binding id="panellist" extends="chrome://messenger/content/menulist.xml#menulist-editable">
     <content sizetopopup="pref">
       <xul:hbox class="menulist-editable-box textbox-input-box" xbl:inherits="context,disabled,readonly,focused" flex="1">
         <html:input class="menulist-editable-input" flex="1" anonid="input" allowevents="true"

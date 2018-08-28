@@ -1,0 +1,40 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace html url("http://www.w3.org/1999/xhtml"); /* namespace for HTML elements */
+
+menulist[editable="true"] {
+  -moz-binding: url("chrome://messenger/content/menulist.xml#menulist-editable");
+}
+
+html|*.menulist-editable-input {
+  -moz-appearance: none !important;
+  background: transparent ! important;
+  -moz-box-flex: 1;
+}
+
+menulist[editable="true"] {
+  -moz-appearance: none;
+  color: -moz-FieldText;
+}
+
+.menulist-editable-box {
+  -moz-appearance: menulist-textfield;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-inline-start: 2px;
+  padding-inline-end: 0px;
+}
+
+menulist[editable="true"] > .menulist-dropmarker {
+  display: -moz-box;
+  -moz-appearance: -moz-menulist-button;
+}
+
+html|*.menulist-editable-input {
+  margin: 0px !important;
+  border: none !important;
+  padding: 0px !important;
+  font: inherit;
+}
