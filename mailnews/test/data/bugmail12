@@ -66,6 +66,12 @@ X-Duplicated-Header: here comes a continuation line
 X-Duplicated-Header: This is
    the end
       my friend
+X-Duplicated-Header-DB: this header  
+   tests DB   
+      string properties
+X-Duplicated-Header-DB: which can be handled
+X-Duplicated-Header-DB: differently than
+   X-Duplicated-Header, so better test it
 In-Reply-To: <bug-397009-254728@https.bugzilla.mozilla.org/>
 References: <bug-397009-254728@https.bugzilla.mozilla.org/>
 X-Priority: 4
