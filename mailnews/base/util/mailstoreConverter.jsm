@@ -60,7 +60,7 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
   // account if no. of msgs is more than 0 and mailstore type is mbox.
   // No. of messages in any non nntp account if no. of msgs is more than 0 and
   // mailstore type is maildir.
-  var count = 0;
+  var totalCount = 0;
   // If there are zero msgs in the account "zeroMessages" is true else it is
   // false.
   var zeroMessages = false;
@@ -107,7 +107,10 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
       var content = contents.getNext()
                             .QueryInterface(Ci.nsIFile);
       if (content.isDirectory()) {
-        count = count + 1 + countImapFileFolders(content);
+        // Don't count Windows Search integration dir.
+        if (content.leafName.substr(-8) != ".mozmsgs") {
+          count = count + 1 + countImapFileFolders(content);
+        }
       } else {
         count++;
       }
@@ -125,15 +128,24 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
     var contents = aFolder.directoryEntries;
     while (contents.hasMoreElements()) {
       var content = contents.getNext().QueryInterface(Ci.nsIFile);
-      if (content.isDirectory() && content.leafName.substr(-4) != ".sbd") {
+      if (!content.isDirectory()) {
+        continue;
+      }
+      if (content.leafName.substr(-8) == ".mozmsgs") {
+        // Windows Search integration dir. Ignore.
+        continue;
+      }
+      if (content.leafName.substr(-4) == ".sbd") {
+        // A subfolder. Recurse into it.
+        count = count + countMaildirMsgs(content);
+      } else {
+        // We assume everything else is an actual maildir, and count the messages.
         var cur = FileUtils.File(OS.Path.join(content.path,"cur"));
         var curContents = cur.directoryEntries;
         while (curContents.hasMoreElements()) {
           curContents.getNext();
           count++;
         }
-      } else if (content.isDirectory()) {
-        count = count + countMaildirMsgs(content);
       }
     }
     return count;
@@ -149,13 +161,14 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
     var contents = aFolder.directoryEntries;
     while (contents.hasMoreElements()) {
       var content = contents.getNext().QueryInterface(Ci.nsIFile);
-      // Count maildir msg folders as 1 and don't count "cur" and "tmp"
-      // folders.
-      if ((content.isDirectory() && content.leafName.substr(-4) != ".sbd") ||
-            !content.isDirectory()) {
+      if (!content.isDirectory()) {
         count++;
-      } else if (content.isDirectory()) {
+      } else if (content.leafName.substr(-4) == ".sbd") {
+        // A subfolder. Recurse into it.
         count = count + 1 + countMaildirMsgs(content);
+      } else if (content.leafName.substr(-8) != ".mozmsgs") {
+        // Assume any other dir is an actual maildir.
+        count++;
       }
     }
     return count;
@@ -181,14 +194,10 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
    */
   var subDir = function(aFolder, aDestPath) {
     let contents = aFolder.directoryEntries;
+    // For each file in the source folder...
     while (contents.hasMoreElements()) {
       let content = contents.getNext()
                             .QueryInterface(Ci.nsIFile);
-      let converterWorker = new ChromeWorker(
-        "resource:///modules/converterWorker.js");
-      gConverterWorkerArray.push(converterWorker);
-      log.debug("Processing " + content.path + " => : " + aDestPath.path +
-                " - "+ count + "items");
 
       // Data to be passed to the worker. Initially "dataArray" contains
       // path of the directory in which the files and directories are to be
@@ -205,9 +214,8 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
       ];
 
       if (content.isDirectory()) {
-        // If it is not a ".sbd" directory we know that it is a maildir msg
-        // folder.
-        if (content.leafName.substr(-4) != ".sbd") {
+        if (content.leafName.substr(-4) != ".sbd" && content.leafName.substr(-8) != ".mozmsgs") {
+          // Assume it's a maildir, and grab the list of messages.
           // Array to hold unsorted list of maildir msg filenames.
           let dataArrayUnsorted = [];
           // "cur" directory inside the maildir msg folder.
@@ -217,6 +225,7 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
 
           while (msgs.hasMoreElements()) {
             // Add filenames as integers into 'dataArrayUnsorted'.
+            // TODO: this'll break if maildir scheme changes! (eg .eml extension)
             let msg = msgs.getNext()
                           .QueryInterface(Ci.nsIFile);
             dataArrayUnsorted.push(parseInt(msg.leafName));
@@ -229,8 +238,12 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
         }
       }
 
-      // Send 'dataArray' to the worker.
-      converterWorker.postMessage(dataArray);
+      // Set up the worker.
+      let converterWorker = new ChromeWorker(
+        "resource:///modules/converterWorker.js");
+      gConverterWorkerArray.push(converterWorker);
+      log.debug("Processing " + content.path + " => : " + aDestPath.path);
+
       converterWorker.addEventListener("message", function(e) {
         var responseWorker = e.data[0];
         log.debug("Type of file or folder encountered: " + e.data);
@@ -266,10 +279,10 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
           log.debug("Progress: " + progressValue);
 
           let event = new Event("progress");
-          event.detail = parseInt((progressValue/count) * 100);
+          event.detail = parseInt((progressValue/totalCount) * 100);
           aEventTarget.dispatchEvent(event);
-          if (progressValue == count) {
-            log.info("Migration completed. Migrated " + count + " items");
+          if (progressValue == totalCount) {
+            log.info("Migration completed. Migrated " + totalCount + " items");
 
             // Migration is complete, get path of parent of account root
             // folder into "parentPath" check if Converter folder already
@@ -413,6 +426,9 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
         conversionFailed(e.message);
       });
 
+      // Kick off the worker.
+      converterWorker.postMessage(dataArray);
+
       if (content.isDirectory()) {
         if (content.leafName.substr(-4) == ".sbd") {
           let dirNew = new FileUtils.File(OS.Path.join(aDestPath.path,
@@ -474,22 +490,25 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
   }
 
   if (isMaildir && aServer.type != "nntp") {
-    count = countMaildirMsgs(accountRootFolder);
-    if (count == 0) {
-      count = countMaildirZeroMsgs(accountRootFolder);
+
+    // TODO: why can't maildir count use aServer.rootFolder.getTotalMessages(true)?
+    totalCount = countMaildirMsgs(accountRootFolder);
+    if (totalCount == 0) {
+      totalCount = countMaildirZeroMsgs(accountRootFolder);
       zeroMessages = true;
     }
   } else if (aServer.type == "pop3" ||
              aServer.type == "none" || // none: Local Folders.
              aServer.type == "movemail") {
-    count = aServer.rootFolder.getTotalMessages(true);
-    if (count == 0) {
-      count = countImapFileFolders(accountRootFolder);
+    totalCount = aServer.rootFolder.getTotalMessages(true);
+    if (totalCount == 0) {
+      totalCount = countImapFileFolders(accountRootFolder);
       zeroMessages = true;
     }
   } else if (aServer.type == "imap" || aServer.type == "nntp") {
-    count = countImapFileFolders(accountRootFolder);
+    totalCount = countImapFileFolders(accountRootFolder);
   }
+  log.debug("totalCount = " + totalCount + " (zeroMessages = " + zeroMessages + ")");
 
   // Go offline before conversion, so there aren't messages coming in during
   // the process.
