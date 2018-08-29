@@ -126,9 +126,9 @@
                 onget="return this.hasAttribute('disableautoselect');">
         <setter><![CDATA[
             if (val) {
-                this.setAttribute('disableautoselect','true');
+                this.setAttribute("disableautoselect", "true");
             } else {
-                this.removeAttribute('disableautoselect');
+                this.removeAttribute("disableautoselect");
             }
             return val;
         ]]></setter>
@@ -144,9 +144,9 @@
         <setter><![CDATA[
             this.inputField.readOnly = val;
             if (val) {
-                this.setAttribute('readonly', 'true');
+                this.setAttribute("readonly", "true");
             } else {
-                this.removeAttribute('readonly');
+                this.removeAttribute("readonly");
             }
             return val;
         ]]></setter>
