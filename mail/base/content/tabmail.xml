@@ -264,7 +264,7 @@
     -->
   <binding id="tabmail">
     <content>
-      <xul:tabbox anonid="tabbox" class="tabmail-tabbox" flex="1" eventnode="document">
+      <xul:tabbox anonid="tabbox" class="tabmail-tabbox" flex="1" eventnode="document" tabcontainer="tabmail-tabs">
         <!-- Remember, user of this binding, you need to provide tabpanels!  -->
         <children includes="tabpanels"/>
       </xul:tabbox>
@@ -1820,14 +1820,6 @@
       ]]>
       </handler>
     </handlers>
-  </binding>
-
-  <binding id="tabmail-tabbox"
-           extends="chrome://global/content/bindings/tabbox.xml#tabbox">
-    <implementation>
-      <property name="tabs" readonly="true"
-                onget="return document.getBindingParent(this).tabContainer;"/>
-    </implementation>
   </binding>
 
   <binding id="tabmail-arrowscrollbox" extends="chrome://global/content/bindings/scrollbox.xml#arrowscrollbox-clicktoscroll">
