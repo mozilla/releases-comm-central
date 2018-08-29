@@ -222,9 +222,8 @@ menupopup[type="folder"] {
 /* Add a box to draw additional background images. */
 #LW-background-box:-moz-lwtheme {
   display: -moz-box;
-  z-index: -1;
   height: 60px;
-  position: absolute;
+  position: fixed;
   pointer-events: none;
   top: 0;
   width: -moz-available;

@@ -2,6 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+<!-- Placeholder box for drawing additional background images. -->
+<hbox id="LW-background-box"/>
+
 <!-- The reason we put the menubar inside a toolbox is due to the labelalign and
      defaultlabelalign attributes that the toolbars might expect from their
      parent toolboxes.  This lets us control how toolbar buttons appear in the
@@ -13,7 +16,6 @@
      toolbars.
 -->
 <toolbox id="navigation-toolbox" class="toolbox-top" labelalign="end" defaultlabelalign="end">
-  <hbox id="LW-background-box"/>
   <!-- Menu -->
   <toolbar type="menubar" id="mail-toolbar-menubar2" class="chromeclass-menubar" customizable="true"
            toolboxid="mail-toolbox"
