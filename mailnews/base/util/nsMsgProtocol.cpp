@@ -939,7 +939,7 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse, nsCString &res
                 rv = NS_ERROR_OUT_OF_MEMORY;
         }
         else
-            response.Adopt((char *)nsMemory::Clone("",1));
+            response.Adopt((char *)moz_xmemdup("",1));
     }
 
 #ifdef DEBUG_BenB

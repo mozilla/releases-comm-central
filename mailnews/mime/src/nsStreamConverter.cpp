@@ -678,7 +678,7 @@ NS_IMETHODIMP nsStreamConverter::GetContentType(char **aOutputContentType)
   if (!mRealContentType.IsEmpty())
     *aOutputContentType = ToNewCString(mRealContentType);
   else if (mOutputFormat.EqualsLiteral("raw"))
-    *aOutputContentType = (char *) nsMemory::Clone(UNKNOWN_CONTENT_TYPE, sizeof(UNKNOWN_CONTENT_TYPE));
+    *aOutputContentType = (char *) moz_xmemdup(UNKNOWN_CONTENT_TYPE, sizeof(UNKNOWN_CONTENT_TYPE));
   else
     *aOutputContentType = ToNewCString(mOutputFormat);
   return NS_OK;

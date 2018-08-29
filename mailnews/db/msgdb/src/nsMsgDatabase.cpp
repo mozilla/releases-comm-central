@@ -2279,8 +2279,8 @@ nsMsgDatabase::MarkThreadRead(nsIMsgThread *thread, nsIDBChangeListener *instiga
   if (thoseMarked.Length())
   {
     *aThoseMarked =
-      (nsMsgKey *) nsMemory::Clone(&thoseMarked[0],
-                                   thoseMarked.Length() * sizeof(nsMsgKey));
+      (nsMsgKey *) moz_xmemdup(&thoseMarked[0],
+                               thoseMarked.Length() * sizeof(nsMsgKey));
     if (!*aThoseMarked)
       return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -2714,8 +2714,8 @@ NS_IMETHODIMP nsMsgDatabase::MarkAllRead(uint32_t *aNumKeys, nsMsgKey **aThoseMa
 
   if (thoseMarked.Length())
   {
-    *aThoseMarked = (nsMsgKey *) nsMemory::Clone(&thoseMarked[0],
-                                                 thoseMarked.Length() * sizeof(nsMsgKey));
+    *aThoseMarked = (nsMsgKey *) moz_xmemdup(&thoseMarked[0],
+                                             thoseMarked.Length() * sizeof(nsMsgKey));
     if (!*aThoseMarked)
       return NS_ERROR_OUT_OF_MEMORY;
   }

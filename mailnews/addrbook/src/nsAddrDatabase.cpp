@@ -1703,7 +1703,7 @@ NS_IMETHODIMP nsAddrDatabase::GetCardValue(nsIAbCard *card, const char *name, ch
     return NS_OK;
   }
 
-  *value = NS_strdup(tempString.get());
+  *value = NS_xstrdup(tempString.get());
   if (!*value)
     return NS_ERROR_OUT_OF_MEMORY;
   return NS_OK;

@@ -280,7 +280,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetCustomFlags(uint32_t uid, char **customF
   nsCString value;
   if (m_customFlagsHash.Get(uid, &value))
   {
-    *customFlags = NS_strdup(value.get());
+    *customFlags = NS_xstrdup(value.get());
     return (*customFlags) ? NS_OK : NS_ERROR_FAILURE;
   }
   *customFlags = nullptr;

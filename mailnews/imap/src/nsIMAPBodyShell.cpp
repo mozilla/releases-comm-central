@@ -63,7 +63,7 @@ nsIMAPBodyShell::nsIMAPBodyShell(nsImapProtocol *protocolConnection,
 #endif
   if (!folderName)
     return;
-  m_folderName = NS_strdup(folderName);
+  m_folderName = NS_xstrdup(folderName);
   if (!m_folderName)
     return;
 
@@ -917,10 +917,10 @@ nsIMAPBodypart(partNum, parentPart)
       m_partNumberString = PR_smprintf("0");
     }
     else
-      m_partNumberString = NS_strdup(m_parentPart->GetPartNumberString());
+      m_partNumberString = NS_xstrdup(m_parentPart->GetPartNumberString());
   }
   m_partList = new nsTArray<nsIMAPBodypart*>();
-  m_bodyType = NS_strdup("multipart");
+  m_bodyType = NS_xstrdup("multipart");
   if (m_partList && m_parentPart && m_bodyType)
     SetIsValid(true);
   else
@@ -1084,7 +1084,7 @@ nsIMAPBodypart(partNum, parentPart)
     SetIsValid(false);
     return;
   }
-  m_partNumberString = NS_strdup(partNum);
+  m_partNumberString = NS_xstrdup(partNum);
   if (!m_partNumberString)
   {
     SetIsValid(false);

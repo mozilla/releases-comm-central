@@ -4375,8 +4375,8 @@ NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(bool *aMoreToDownload,
     *aMoreToDownload = true;
     startIndex = m_keysToFetch.Length() - hdrChunkSize;
   }
-  *aKeys = (nsMsgKey *) nsMemory::Clone(&m_keysToFetch[startIndex],
-                                       numKeysToFetch * sizeof(nsMsgKey));
+  *aKeys = (nsMsgKey *) moz_xmemdup(&m_keysToFetch[startIndex],
+                                    numKeysToFetch * sizeof(nsMsgKey));
   NS_ENSURE_TRUE(*aKeys, NS_ERROR_OUT_OF_MEMORY);
   // Remove these for the incremental header download case, so that
   // we know we don't have to download them again.

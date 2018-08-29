@@ -458,7 +458,7 @@ char *nsIMAPNamespaceList::AllocateServerFolderName(const char *canonicalFolderN
 {
   if (delimiter)
     return nsImapUrl::ReplaceCharsInCopiedString(canonicalFolderName, '/', delimiter);
-  return NS_strdup(canonicalFolderName);
+  return NS_xstrdup(canonicalFolderName);
 }
 
 /*

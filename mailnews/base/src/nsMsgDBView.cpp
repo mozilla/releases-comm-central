@@ -223,7 +223,7 @@ char16_t * nsMsgDBView::GetString(const char16_t *aStringName)
   if (NS_SUCCEEDED(res))
     return ToNewUnicode(str);
   else
-    return NS_strdup(aStringName);
+    return NS_xstrdup(aStringName);
 }
 
 // Helper function used to fetch localized strings from the prefs

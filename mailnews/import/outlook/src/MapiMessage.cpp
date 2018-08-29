@@ -1015,7 +1015,7 @@ bool CMapiMessage::AddAttachment(DWORD aNum)
     if (bResult) {
       // Now we have the file; proceed to the other properties
 
-      data->encoding = NS_strdup(ENCODING_BINARY);
+      data->encoding = NS_xstrdup(ENCODING_BINARY);
 
       nsString fname, fext;
       pVal = CMapiApi::GetMapiProperty(lpAttach, PR_ATTACH_LONG_FILENAME_W);
@@ -1046,7 +1046,7 @@ bool CMapiMessage::AddAttachment(DWORD aNum)
       nsCString tmp;
        // We have converted it to the rfc822 document
       if (aMethod == ATTACH_EMBEDDED_MSG) {
-        data->type = NS_strdup(MESSAGE_RFC822);
+        data->type = NS_xstrdup(MESSAGE_RFC822);
       } else {
         pVal = CMapiApi::GetMapiProperty(lpAttach, PR_ATTACH_MIME_TAG_A);
         CMapiApi::GetStringFromProp(pVal, tmp);
@@ -1057,9 +1057,9 @@ bool CMapiMessage::AddAttachment(DWORD aNum)
             pType = CMimeTypes::GetMimeType(fext);
           }
           if (pType)
-            data->type = NS_strdup((PC_S8)pType);
+            data->type = NS_xstrdup((PC_S8)pType);
           else
-            data->type = NS_strdup(APPLICATION_OCTET_STREAM);
+            data->type = NS_xstrdup(APPLICATION_OCTET_STREAM);
         }
         else
           data->type = ToNewCString(tmp);

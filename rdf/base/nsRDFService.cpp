@@ -467,7 +467,7 @@ LiteralImpl::GetValue(char16_t* *value)
         return NS_ERROR_NULL_POINTER;
 
     const char16_t *temp = GetValue();
-    *value = temp? NS_strdup(temp) : 0;
+    *value = temp? NS_xstrdup(temp) : 0;
     return NS_OK;
 }
 

@@ -541,7 +541,7 @@ NS_IMETHODIMP ImportAddressImpl::GetSampleData(int32_t index, bool *pFound, char
 
   if (!fileExists) {
     *pFound = false;
-    *pStr = NS_strdup(&term);
+    *pStr = NS_xstrdup(&term);
     return NS_OK;
   }
 
@@ -567,7 +567,7 @@ NS_IMETHODIMP ImportAddressImpl::GetSampleData(int32_t index, bool *pFound, char
   }
   else {
     *pFound = false;
-    *pStr = NS_strdup(&term);
+    *pStr = NS_xstrdup(&term);
   }
 
   return NS_OK;

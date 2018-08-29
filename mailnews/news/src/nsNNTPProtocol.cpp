@@ -1655,7 +1655,7 @@ nsresult nsNNTPProtocol::GetPropertiesResponse(nsIInputStream * inputStream, uin
 
   if ('.' != line[0])
   {
-    char *propertyName = NS_strdup(line);
+    char *propertyName = NS_xstrdup(line);
     if (propertyName)
     {
       char *space = PL_strchr(propertyName, ' ');

@@ -273,8 +273,8 @@ calRecurrenceRule::GetComponent(const nsACString &aComponentType, uint32_t *aCou
                 break;                                                  \
         }                                                               \
         if (count) {                                                    \
-            *aValues = (int16_t*) nsMemory::Clone(mIcalRecur._icalvar,  \
-                                                  count * sizeof(int16_t)); \
+            *aValues = (int16_t*) moz_xmemdup(mIcalRecur._icalvar,      \
+                                              count * sizeof(int16_t)); \
             if (!*aValues) return NS_ERROR_OUT_OF_MEMORY;               \
         } else {                                                        \
             *aValues = nullptr;                                          \

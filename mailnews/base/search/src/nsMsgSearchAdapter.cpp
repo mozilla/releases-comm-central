@@ -168,7 +168,7 @@ nsMsgSearchAdapter::GetImapCharsetParam(const char16_t *destCharset)
 */
 char16_t *nsMsgSearchAdapter::EscapeSearchUrl (const char16_t *nntpCommand)
 {
-  return nntpCommand ? NS_strdup(nntpCommand) : nullptr;
+  return nntpCommand ? NS_xstrdup(nntpCommand) : nullptr;
 }
 
 /*
@@ -180,7 +180,7 @@ char16_t *nsMsgSearchAdapter::EscapeSearchUrl (const char16_t *nntpCommand)
 char16_t *
 nsMsgSearchAdapter::EscapeImapSearchProtocol(const char16_t *imapCommand)
 {
-  return imapCommand ? NS_strdup(imapCommand) : nullptr;
+  return imapCommand ? NS_xstrdup(imapCommand) : nullptr;
 }
 
 /*
@@ -192,7 +192,7 @@ nsMsgSearchAdapter::EscapeImapSearchProtocol(const char16_t *imapCommand)
 char16_t *
 nsMsgSearchAdapter::EscapeQuoteImapSearchProtocol(const char16_t *imapCommand)
 {
-  return imapCommand ? NS_strdup(imapCommand) : nullptr;
+  return imapCommand ? NS_xstrdup(imapCommand) : nullptr;
 }
 
 char *nsMsgSearchAdapter::UnEscapeSearchUrl (const char *commandSpecificData)

@@ -2065,7 +2065,7 @@ nsSaveAllAttachmentsState::nsSaveAllAttachmentsState(uint32_t count,
         m_displayNameArray[i] = strdup(nameArray[i]);
         m_messageUriArray[i] = strdup(uriArray[i]);
     }
-    m_directoryName = NS_strdup(dirName);
+    m_directoryName = NS_xstrdup(dirName);
     m_detachingAttachments = detachingAttachments;
 }
 

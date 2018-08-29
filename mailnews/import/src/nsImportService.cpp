@@ -189,8 +189,8 @@ NS_IMETHODIMP nsImportService::GetModuleInfo(const char *filter, int32_t index, 
     pDesc = m_pModules->GetModuleDesc(i);
     if (pDesc->SupportsThings(filter)) {
       if (count == index) {
-        *name = NS_strdup(pDesc->GetName());
-        *moduleDescription = NS_strdup(pDesc->GetDescription());
+        *name = NS_xstrdup(pDesc->GetName());
+        *moduleDescription = NS_xstrdup(pDesc->GetDescription());
         return NS_OK;
       }
       else
@@ -222,7 +222,7 @@ NS_IMETHODIMP nsImportService::GetModuleName(const char *filter, int32_t index, 
     pDesc = m_pModules->GetModuleDesc(i);
     if (pDesc->SupportsThings(filter)) {
       if (count == index) {
-        *_retval = NS_strdup(pDesc->GetName());
+        *_retval = NS_xstrdup(pDesc->GetName());
         return NS_OK;
       }
       else
@@ -255,7 +255,7 @@ NS_IMETHODIMP nsImportService::GetModuleDescription(const char *filter, int32_t 
     pDesc = m_pModules->GetModuleDesc(i);
     if (pDesc->SupportsThings(filter)) {
       if (count == index) {
-        *_retval = NS_strdup(pDesc->GetDescription());
+        *_retval = NS_xstrdup(pDesc->GetDescription());
         return NS_OK;
       }
       else
