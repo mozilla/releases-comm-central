@@ -1521,9 +1521,9 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
     // RFC 4616: UTF8NUL authcid UTF8NUL passwd
     char plain_string[513];
     memset(plain_string, 0, 513);
-    PR_snprintf(&plain_string[1], 255, "%s", username.get());
+    PR_snprintf(&plain_string[1], 256, "%s", username.get());
     int len = username.Length() + 2;  // We include two <NUL> characters.
-    PR_snprintf(&plain_string[len], 255, "%s", passwordUTF8.get());
+    PR_snprintf(&plain_string[len], 256, "%s", passwordUTF8.get());
     len += password.Length();
 
     base64Str = PL_Base64Encode(plain_string, len, nullptr);
