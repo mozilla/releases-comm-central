@@ -17,7 +17,7 @@ class calDuration final : public calIDurationLibical
 public:
     calDuration ();
     calDuration (const calDuration& cdt);
-    calDuration (const struct icaldurationtype * const aDurationPtr);
+    explicit calDuration (const struct icaldurationtype * const aDurationPtr);
 
     // nsISupports interface
     NS_DECL_ISUPPORTS

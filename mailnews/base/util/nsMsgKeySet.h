@@ -80,7 +80,7 @@ public:
 
 protected:
   nsMsgKeySet(/* MSG_NewsHost* host */);
-  nsMsgKeySet(const char* /* , MSG_NewsHost* host */);
+  explicit nsMsgKeySet(const char* /* , MSG_NewsHost* host */);
   bool Grow();
   bool Optimize();
 

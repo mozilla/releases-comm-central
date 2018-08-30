@@ -935,7 +935,7 @@ public:
     NS_DECL_NSISTREAMLISTENER
     NS_DECL_NSIMSGHEADERSINK
 
-    TokenStreamListener(TokenAnalyzer* analyzer);
+    explicit TokenStreamListener(TokenAnalyzer* analyzer);
 protected:
     virtual ~TokenStreamListener();
     TokenAnalyzer* mAnalyzer;

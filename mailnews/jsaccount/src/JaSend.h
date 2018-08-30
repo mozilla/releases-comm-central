@@ -66,7 +66,7 @@ private:
                 public nsIInterfaceRequestor
   {
     public:
-      Super(JaCppSendDelegator* aFakeThis) {mFakeThis = aFakeThis;}
+      explicit Super(JaCppSendDelegator* aFakeThis) {mFakeThis = aFakeThis;}
       NS_DECL_ISUPPORTS
       // Forward all overridable methods, bypassing JS override.
       NS_FORWARD_NSIMSGSEND(mFakeThis->JaBaseCppSend::)

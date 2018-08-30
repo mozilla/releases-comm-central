@@ -89,7 +89,7 @@ public:
                 public nsISupportsWeakReference
   {
     public:
-      Super(JaCppUrlDelegator *aFakeThis) {mFakeThis = aFakeThis;}
+      explicit Super(JaCppUrlDelegator *aFakeThis) {mFakeThis = aFakeThis;}
       NS_DECL_ISUPPORTS
       NS_FORWARD_NSIMSGMAILNEWSURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIURI(mFakeThis->JaBaseCppUrl::)

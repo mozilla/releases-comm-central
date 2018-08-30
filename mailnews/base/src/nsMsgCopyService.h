@@ -29,7 +29,7 @@ class nsCopySource
 {
 public:
     nsCopySource();
-    nsCopySource(nsIMsgFolder* srcFolder);
+    explicit nsCopySource(nsIMsgFolder* srcFolder);
     ~nsCopySource();
     void AddMessage(nsIMsgDBHdr* aMsg);
 

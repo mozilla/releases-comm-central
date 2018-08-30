@@ -996,7 +996,7 @@ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIUTF8STRINGENUMERATOR
 
-  nsMsgPropertyEnumerator(nsMsgHdr* aHdr);
+  explicit nsMsgPropertyEnumerator(nsMsgHdr* aHdr);
   void PrefetchNext();
 
 protected:

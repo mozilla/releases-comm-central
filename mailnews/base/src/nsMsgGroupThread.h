@@ -21,7 +21,7 @@ public:
   friend class nsMsgGroupView;
 
   nsMsgGroupThread();
-  nsMsgGroupThread(nsIMsgDatabase *db);
+  explicit nsMsgGroupThread(nsIMsgDatabase *db);
 
   NS_DECL_NSIMSGTHREAD
   NS_DECL_ISUPPORTS

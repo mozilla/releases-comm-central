@@ -50,7 +50,7 @@ public:
   // flush last line, though it won't be CRLF terminated.
   virtual nsresult FlushLastLine();
 protected:
-  nsMsgLineBuffer(bool convertNewlinesP);
+  explicit nsMsgLineBuffer(bool convertNewlinesP);
 
   nsresult ConvertAndSendBuffer();
   void SetLookingForCRLF(bool b);

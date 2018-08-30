@@ -27,7 +27,7 @@
 class ImportVCardAddressImpl : public nsIImportAddressBooks
 {
 public:
-  ImportVCardAddressImpl(nsIStringBundle* aStringBundle);
+  explicit ImportVCardAddressImpl(nsIStringBundle* aStringBundle);
 
   static nsresult Create(
       nsIImportAddressBooks** aImport, nsIStringBundle* aStringBundle);

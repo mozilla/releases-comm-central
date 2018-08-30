@@ -95,7 +95,7 @@ public: // flags bit twiddling
 
 public: // other row methods
   morkRow( ) { }
-  morkRow(const mdbOid* inOid) :mRow_Oid(*inOid) { }
+  explicit morkRow(const mdbOid* inOid) :mRow_Oid(*inOid) { }
   void InitRow(morkEnv* ev, const mdbOid* inOid, morkRowSpace* ioSpace,
     mork_size inLength, morkPool* ioPool);
     // if inLength is nonzero, cells will be allocated from ioPool

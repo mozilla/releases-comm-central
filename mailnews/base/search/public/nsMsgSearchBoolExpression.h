@@ -41,7 +41,7 @@ class nsMsgSearchBoolExpression
 public:
 
   // create a leaf node expression
-  nsMsgSearchBoolExpression(nsIMsgSearchTerm * aNewTerm,
+  explicit nsMsgSearchBoolExpression(nsIMsgSearchTerm * aNewTerm,
                               char * aEncodingString = NULL);
 
   // create a non-leaf node expression containing 2 expressions

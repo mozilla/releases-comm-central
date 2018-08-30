@@ -25,7 +25,7 @@ private:
 
 class nsImapSearchResultIterator {
 public:
-    nsImapSearchResultIterator(nsImapSearchResultSequence &sequence);
+    explicit nsImapSearchResultIterator(nsImapSearchResultSequence &sequence);
     virtual ~nsImapSearchResultIterator();
 
     void  ResetIterator();

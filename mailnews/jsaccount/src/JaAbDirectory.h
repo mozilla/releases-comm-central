@@ -60,7 +60,7 @@ private:
                 public nsIInterfaceRequestor
   {
     public:
-      Super(JaCppAbDirectoryDelegator* aFakeThis) {mFakeThis = aFakeThis;}
+      explicit Super(JaCppAbDirectoryDelegator* aFakeThis) {mFakeThis = aFakeThis;}
       NS_DECL_ISUPPORTS
       NS_FORWARD_NSIABDIRECTORY(mFakeThis->JaBaseCppAbDirectory::)
       NS_FORWARD_NSIABCOLLECTION(mFakeThis->JaBaseCppAbDirectory::)

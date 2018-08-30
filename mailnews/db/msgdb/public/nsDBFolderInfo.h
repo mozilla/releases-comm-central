@@ -31,7 +31,7 @@ class nsDBFolderInfo : public nsIDBFolderInfo
 public:
   friend class nsMsgDatabase;
 
-  nsDBFolderInfo(nsMsgDatabase *mdb);
+  explicit nsDBFolderInfo(nsMsgDatabase *mdb);
 
   NS_DECL_ISUPPORTS
     // interface methods.

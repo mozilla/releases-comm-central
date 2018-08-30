@@ -15,7 +15,7 @@
 class CharPtrArrayGuard
 {
 public:
-    CharPtrArrayGuard (bool freeElements = true) :
+    explicit CharPtrArrayGuard (bool freeElements = true) :
         mFreeElements (freeElements),
         mArray (0),
         mSize (0)
@@ -80,7 +80,7 @@ private:
 class PRUnicharPtrArrayGuard
 {
 public:
-    PRUnicharPtrArrayGuard (bool freeElements = true) :
+    explicit PRUnicharPtrArrayGuard (bool freeElements = true) :
         mFreeElements (freeElements),
         mArray (0),
         mSize (0)

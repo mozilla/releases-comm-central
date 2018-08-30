@@ -250,7 +250,7 @@ class nsPop3Protocol : public nsMsgProtocol,
                        public nsIProtocolProxyCallback
 {
 public:
-  nsPop3Protocol(nsIURI* aURL);
+  explicit nsPop3Protocol(nsIURI* aURL);
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIPOP3PROTOCOL

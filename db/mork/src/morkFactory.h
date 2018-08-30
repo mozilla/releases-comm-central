@@ -161,7 +161,7 @@ public: // morkFactory virtual methods
 
 public: // morkYarn construction & destruction
   morkFactory(); // uses orkinHeap
-  morkFactory(nsIMdbHeap* ioHeap); // caller supplied heap
+  explicit morkFactory(nsIMdbHeap* ioHeap); // caller supplied heap
   morkFactory(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);
   void CloseFactory(morkEnv* ev); // called by CloseMorkNode();
 

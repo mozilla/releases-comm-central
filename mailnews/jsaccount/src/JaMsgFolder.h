@@ -95,7 +95,7 @@ private:
       // Why fake this? Because this method is fully owned by
       // JaCppMsgFolderDelegator, and this reference is to the "this" of the
       // main method. But it is not really the local "this".
-      Super(JaCppMsgFolderDelegator* aFakeThis) {mFakeThis = aFakeThis;}
+      explicit Super(JaCppMsgFolderDelegator* aFakeThis) {mFakeThis = aFakeThis;}
       NS_DECL_ISUPPORTS
       NS_FORWARD_NSIMSGFOLDER(mFakeThis->JaBaseCppMsgFolder::)
       NS_FORWARD_NSIRDFRESOURCE(mFakeThis->JaBaseCppMsgFolder::)

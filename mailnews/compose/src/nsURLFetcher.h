@@ -85,7 +85,7 @@ private:
 class nsURLFetcherStreamConsumer : public nsIStreamListener
 {
 public:
-  nsURLFetcherStreamConsumer(nsURLFetcher* urlFetcher);
+  explicit nsURLFetcherStreamConsumer(nsURLFetcher* urlFetcher);
 
   /* additional members */
   NS_DECL_ISUPPORTS

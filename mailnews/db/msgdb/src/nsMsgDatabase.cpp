@@ -1021,7 +1021,7 @@ class MsgDBReporter final : public nsIMemoryReporter
 {
   nsMsgDatabase *mDatabase;
 public:
-  MsgDBReporter(nsMsgDatabase *db) : mDatabase(db) {}
+  explicit MsgDBReporter(nsMsgDatabase *db) : mDatabase(db) {}
 
   NS_DECL_ISUPPORTS
   NS_IMETHOD GetName(nsACString &aName)

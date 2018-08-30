@@ -56,7 +56,7 @@ public:
   mork_usage     mUsage_Code;  // kHeap, kStack, kMember, or kGhost
 
 public:
-  morkUsage(mork_usage inCode);
+  explicit morkUsage(mork_usage inCode);
 
   morkUsage(); // does nothing except maybe call EnsureReadyStaticUsage()
   void InitUsage( mork_usage inCode)
@@ -163,7 +163,7 @@ public: // morkNode memory management operators
 protected: // construction without an anv needed for first env constructed:
   morkNode(const morkUsage& inUsage, nsIMdbHeap* ioHeap);
 
-  morkNode(mork_usage inCode); // usage == inCode, heap == nil
+  explicit morkNode(mork_usage inCode); // usage == inCode, heap == nil
 
 // { ===== begin basic node interface =====
 public: // morkNode virtual methods

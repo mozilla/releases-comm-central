@@ -1017,7 +1017,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning)
 
 class nsImapThreadShutdownEvent : public mozilla::Runnable {
 public:
-  nsImapThreadShutdownEvent(nsIThread *thread)
+  explicit nsImapThreadShutdownEvent(nsIThread *thread)
     : mozilla::Runnable("nsImapThreadShutdownEvent"), mThread(thread) {
   }
   NS_IMETHOD Run() {
@@ -1030,7 +1030,7 @@ private:
 
 class nsImapCancelProxy : public mozilla::Runnable {
 public:
-  nsImapCancelProxy(nsICancelable *aProxyRequest)
+  explicit nsImapCancelProxy(nsICancelable *aProxyRequest)
     : mozilla::Runnable("nsImapCancelProxy"), m_proxyRequest(aProxyRequest) {
   }
   NS_IMETHOD Run() {
@@ -9537,7 +9537,7 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
 class nsReadFromImapConnectionFailure : public mozilla::Runnable
 {
 public:
-  nsReadFromImapConnectionFailure(nsImapMockChannel *aChannel)
+  explicit nsReadFromImapConnectionFailure(nsImapMockChannel *aChannel)
     : mozilla::Runnable("nsReadFromImapConnectionFailure")
     , mImapMockChannel(aChannel)
   {}

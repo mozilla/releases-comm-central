@@ -164,7 +164,7 @@ MimeSimpleStubClassInitialize(MimeSimpleStubClass *clazz)
 class nsSimpleMimeConverterStub : public nsIMimeContentTypeHandler
 {
 public:
-    nsSimpleMimeConverterStub(const char *aContentType) : mContentType(aContentType) { }
+    explicit nsSimpleMimeConverterStub(const char *aContentType) : mContentType(aContentType) { }
 
     NS_DECL_ISUPPORTS
 

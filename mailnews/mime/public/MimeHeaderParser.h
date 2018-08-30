@@ -47,7 +47,7 @@ template <uint32_t N = 5>
 class UTF16ArrayAdapter
 {
 public:
-  UTF16ArrayAdapter(nsTArray<nsCString> &aUTF8Array)
+  explicit UTF16ArrayAdapter(nsTArray<nsCString> &aUTF8Array)
   : mUTF8Array(aUTF8Array) {}
   ~UTF16ArrayAdapter() { detail::DoConversion(mUTF16Array, mUTF8Array); }
   operator nsTArray<nsString>&() { return mUTF16Array; }

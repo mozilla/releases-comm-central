@@ -6337,7 +6337,7 @@ NS_IMETHODIMP nsImapMailFolder::GetOtherUsersWithAccess(
 class AdoptUTF8StringEnumerator final : public nsIUTF8StringEnumerator
 {
 public:
-  AdoptUTF8StringEnumerator(nsTArray<nsCString>* array) :
+  explicit AdoptUTF8StringEnumerator(nsTArray<nsCString>* array) :
     mStrings(array), mIndex(0)
   {}
 

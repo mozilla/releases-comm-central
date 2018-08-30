@@ -241,7 +241,7 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
 
   struct GetDirectories
   {
-    GetDirectories(DIR_Server* aServer) : mServer(aServer) { }
+    explicit GetDirectories(DIR_Server* aServer) : mServer(aServer) { }
 
     nsCOMArray<nsIAbDirectory> directories;
     DIR_Server* mServer;

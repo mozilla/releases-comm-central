@@ -319,7 +319,7 @@ public:
   // nsISimpleEnumerator methods:
   NS_DECL_NSISIMPLEENUMERATOR
 
-  nsMsgOfflineOpEnumerator(nsMailDatabase* db);
+  explicit nsMsgOfflineOpEnumerator(nsMailDatabase* db);
 
 protected:
   ~nsMsgOfflineOpEnumerator() override;

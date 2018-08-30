@@ -29,7 +29,7 @@ class SendOperationListener : public nsIMsgSendListener,
                               public nsIMsgCopyServiceListener
 {
 public:
-  SendOperationListener(nsMsgSendLater *aSendLater);
+  explicit SendOperationListener(nsMsgSendLater *aSendLater);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSENDLISTENER

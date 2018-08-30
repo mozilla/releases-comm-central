@@ -25,7 +25,7 @@ class nsIImapFlagAndUidState;
 class nsImapServerResponseParser : public nsIMAPGenericParser
 {
 public:
-  nsImapServerResponseParser(nsImapProtocol &imapConnection);
+  explicit nsImapServerResponseParser(nsImapProtocol &imapConnection);
   virtual ~nsImapServerResponseParser();
 
   // Overridden from the base parser class

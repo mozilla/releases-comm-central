@@ -23,7 +23,7 @@
 class StreamListenerProxy final : public nsIStreamListener
 {
 public:
-  StreamListenerProxy(nsIStreamListener* receiver)
+  explicit StreamListenerProxy(nsIStreamListener* receiver)
     : mReceiver(receiver)
   {
     MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
@@ -43,7 +43,7 @@ private:
 class ImapMailFolderSinkProxy final : public nsIImapMailFolderSink
 {
 public:
-  ImapMailFolderSinkProxy(nsIImapMailFolderSink* receiver)
+  explicit ImapMailFolderSinkProxy(nsIImapMailFolderSink* receiver)
     : mReceiver(receiver)
   {
     MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
@@ -62,7 +62,7 @@ private:
 class ImapServerSinkProxy final : public nsIImapServerSink
 {
 public:
-  ImapServerSinkProxy(nsIImapServerSink* receiver)
+  explicit ImapServerSinkProxy(nsIImapServerSink* receiver)
     : mReceiver(receiver)
   {
     MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
@@ -82,7 +82,7 @@ private:
 class ImapMessageSinkProxy final : public nsIImapMessageSink
 {
 public:
-  ImapMessageSinkProxy(nsIImapMessageSink* receiver)
+  explicit ImapMessageSinkProxy(nsIImapMessageSink* receiver)
     : mReceiver(receiver)
   {
     MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
@@ -101,7 +101,7 @@ private:
 class ImapProtocolSinkProxy final : public nsIImapProtocolSink
 {
 public:
-  ImapProtocolSinkProxy(nsIImapProtocolSink* receiver)
+  explicit ImapProtocolSinkProxy(nsIImapProtocolSink* receiver)
     : mReceiver(receiver)
   {
     MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
@@ -126,7 +126,7 @@ namespace mailnews {
 class OAuth2ThreadHelper final : public msgIOAuth2ModuleListener
 {
 public:
-  OAuth2ThreadHelper(nsIMsgIncomingServer *aServer);
+  explicit OAuth2ThreadHelper(nsIMsgIncomingServer *aServer);
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_MSGIOAUTH2MODULELISTENER

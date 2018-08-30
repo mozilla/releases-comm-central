@@ -21,7 +21,7 @@ class DelegateList : public msgIDelegateList
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_MSGIDELEGATELIST
-  DelegateList(const char *aWindowsPrefix) :
+  explicit DelegateList(const char *aWindowsPrefix) :
     mPrefix(aWindowsPrefix)
   { }
   nsDataHashtable<nsCStringHashKey, bool> mMethods;

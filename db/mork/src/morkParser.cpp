@@ -119,7 +119,7 @@ morkParser::morkParser(morkEnv* ev,
 , mParser_ColumnSpool(ev, &mParser_ColumnCoil)
 , mParser_StringSpool(ev, &mParser_StringCoil)
 
-, mParser_MidYarn(ev, morkUsage_kMember, ioSlotHeap)
+, mParser_MidYarn(ev, morkUsage(morkUsage_kMember), ioSlotHeap)
 {
   if ( inBytesPerParseSegment < morkParser_kMinGranularity )
     inBytesPerParseSegment = morkParser_kMinGranularity;

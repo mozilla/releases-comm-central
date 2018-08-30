@@ -554,7 +554,7 @@ private:
     NS_DECL_NSISIMPLEENUMERATOR
 
     // nsMsgThreadEnumerator methods:
-    nsMsgViewHdrEnumerator(nsMsgDBView *view);
+    explicit nsMsgViewHdrEnumerator(nsMsgDBView *view);
 
     RefPtr<nsMsgDBView> m_view;
     nsMsgViewIndex m_curHdrIndex;

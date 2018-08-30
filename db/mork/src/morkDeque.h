@@ -41,9 +41,9 @@ public:
   morkNext*  mNext_Link;
 
 public:
-  morkNext(int inZero) : mNext_Link( 0 ) { }
+  explicit morkNext(int inZero) : mNext_Link( 0 ) { }
 
-  morkNext(morkNext* ioLink) : mNext_Link( ioLink ) { }
+  explicit morkNext(morkNext* ioLink) : mNext_Link( ioLink ) { }
 
   morkNext(); // mNext_Link( 0 ), { }
 
@@ -118,7 +118,7 @@ public:
   morkLink*  mLink_Prev;
 
 public:
-  morkLink(int inZero) : mLink_Next( 0 ), mLink_Prev( 0 ) { }
+  explicit morkLink(int inZero) : mLink_Next( 0 ), mLink_Prev( 0 ) { }
 
   morkLink(); // mLink_Next( 0 ), mLink_Prev( 0 ) { }
 

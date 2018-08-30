@@ -54,7 +54,7 @@ public:
   NS_DECL_NSIAUTOSYNCSTATE
   NS_DECL_NSIURLLISTENER
 
-  nsAutoSyncState(nsImapMailFolder *aOwnerFolder, PRTime aLastSyncTime = 0UL);
+  explicit nsAutoSyncState(nsImapMailFolder *aOwnerFolder, PRTime aLastSyncTime = 0UL);
 
   /// Called by owner folder when new headers are fetched from the server
   void OnNewHeaderFetchCompleted(const nsTArray<nsMsgKey> &aMsgKeyList);

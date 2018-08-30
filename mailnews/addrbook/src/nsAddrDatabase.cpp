@@ -2316,7 +2316,7 @@ class nsAddrDBEnumerator : public nsSimpleEnumerator, public nsIAddrDBListener
     NS_DECL_NSIADDRDBLISTENER
 
     // nsAddrDBEnumerator methods:
-    nsAddrDBEnumerator(nsAddrDatabase* aDb);
+    explicit nsAddrDBEnumerator(nsAddrDatabase* aDb);
     void Clear();
   protected:
     ~nsAddrDBEnumerator() override;

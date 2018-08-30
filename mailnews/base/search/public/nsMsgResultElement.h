@@ -20,7 +20,7 @@
 class nsMsgResultElement
 {
 public:
-  nsMsgResultElement (nsIMsgSearchAdapter *);
+  explicit nsMsgResultElement (nsIMsgSearchAdapter *);
   virtual ~nsMsgResultElement ();
 
   static nsresult AssignValues (nsIMsgSearchValue *src, nsMsgSearchValue *dst);

@@ -284,7 +284,7 @@ public:
 
 public: // empty construction does nothing
   morkWeeBookAtom() { }
-  morkWeeBookAtom(mork_aid inAid);
+  explicit morkWeeBookAtom(mork_aid inAid);
 
   void InitWeeBookAtom(morkEnv* ev, const morkBuf& inBuf,
     morkAtomSpace* ioSpace, mork_aid inAid);

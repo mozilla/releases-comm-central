@@ -24,7 +24,7 @@ public:
 
   NS_DECL_NSIIMPORTFIELDMAP
 
-  nsImportFieldMap(nsIStringBundle *aBundle);
+  explicit nsImportFieldMap(nsIStringBundle *aBundle);
 
   static nsresult Create(nsIStringBundle *aBundle, nsISupports *aOuter, REFNSIID aIID, void **aResult);
 

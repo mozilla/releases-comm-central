@@ -11,7 +11,7 @@
 
 class nsMsgSearchValueImpl : public nsIMsgSearchValue {
   public:
-    nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue);
+    explicit nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue);
 
     NS_DECL_ISUPPORTS
     NS_DECL_NSIMSGSEARCHVALUE

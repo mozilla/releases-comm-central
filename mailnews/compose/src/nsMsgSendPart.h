@@ -22,7 +22,7 @@ typedef int (*MSG_SendPartWriteFunc)(const char* line, int32_t size,
 class nsMsgSendPart {
   typedef mozilla::mailnews::MimeEncoder MimeEncoder;
 public:
-    nsMsgSendPart(nsIMsgSend* state, const char *part_charset = NULL);
+    explicit nsMsgSendPart(nsIMsgSend* state, const char *part_charset = NULL);
     virtual ~nsMsgSendPart();  // Note that the destructor also destroys
                                // any children that were added.
 
