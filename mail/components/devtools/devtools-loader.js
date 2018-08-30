@@ -70,7 +70,11 @@ DevToolsStartup.prototype = {
 
     if (!DebuggerServer.createRootActor.isMailRootActor) {
       // Register the Thunderbird root actor
-      DebuggerServer.registerModule("resource:///modules/tb-root-actor.js");
+      DebuggerServer.registerModule("resource:///modules/tb-root-actor.js", {
+        prefix: "tb-root-actor",
+        constructor: "RootActor",
+        type: { global: true }
+      });
     }
   }
 };
