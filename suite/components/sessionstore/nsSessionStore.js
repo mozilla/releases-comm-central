@@ -2603,7 +2603,6 @@ SessionStoreService.prototype = {
     if (history.count > 0) {
       history.PurgeHistory(history.count);
     }
-    history.QueryInterface(Ci.nsISHistoryInternal);
 
     browser.__SS_shistoryListener = new SessionStoreSHistoryListener(this, tab);
     history.addSHistoryListener(browser.__SS_shistoryListener);

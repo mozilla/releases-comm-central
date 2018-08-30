@@ -2008,7 +2008,7 @@
             this.savedBrowsers.unshift(tabData);
 
             var newSH = Cc["@mozilla.org/browser/shistory;1"]
-                          .createInstance(Ci.nsISHistoryInternal);
+                          .createInstance(Ci.nsISHistory);
             oldBrowser.webNavigation.sessionHistory = newSH;
             var entry = oldSH.getEntryAtIndex(oldSH.index, false)
                              .QueryInterface(Ci.nsISHEntry)
