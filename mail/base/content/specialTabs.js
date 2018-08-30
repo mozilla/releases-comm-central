@@ -8,6 +8,7 @@ ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 
 function tabProgressListener(aTab, aStartsBlank) {
   this.mTab = aTab;
@@ -743,6 +744,8 @@ var specialTabs = {
       // Start setting up the browser.
       aTab.browser = aTab.panel.querySelector("browser");
       aTab.toolbar = aTab.panel.querySelector(".contentTabToolbar");
+
+      ExtensionParent.apiManager.emit("extension-browser-inserted", aTab.browser);
 
       // As we're opening this tab, showTab may not get called, so set
       // the type according to if we're opening in background or not.
