@@ -601,7 +601,7 @@
   </binding>
 
   <binding id="menu-button" display="xul:menu"
-           extends="chrome://global/content/bindings/button.xml#menu-button-base">
+           extends="chrome://global/content/bindings/button.xml#button-base">
 
     <content>
       <children includes="observes|template|menupopup|panel|tooltip"/>
