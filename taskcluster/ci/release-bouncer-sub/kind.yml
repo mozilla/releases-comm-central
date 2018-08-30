@@ -35,7 +35,10 @@ job-defaults:
 jobs:
     thunderbird:
         bouncer-platforms: ['linux', 'linux64', 'osx', 'win', 'win64']
-        bouncer-products: ['complete-mar', 'installer', 'installer-ssl', 'partial-mar']
+        bouncer-products:
+            by-project:
+                default: ['complete-mar', 'installer', 'installer-ssl', 'partial-mar']
+                comm-esr60: ['complete-mar', 'complete-mar-bz2', 'installer', 'installer-ssl', 'partial-mar']
         shipping-product: thunderbird
         treeherder:
             platform: thunderbird-release/opt
