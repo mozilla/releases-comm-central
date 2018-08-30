@@ -18,7 +18,7 @@
 #include "nsIURL.h"
 #include "nsNetscapeProfileMigratorBase.h"
 #include "nsNetUtil.h"
-#include "nsISimpleEnumerator.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsIFileProtocolHandler.h"
 #include "nsServiceManagerUtils.h"
 #include "prtime.h"
@@ -465,7 +465,7 @@ nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir,
 
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> dirIterator;
+  nsCOMPtr<nsIDirectoryEnumerator> dirIterator;
   rv = srcDir->GetDirectoryEntries(getter_AddRefs(dirIterator));
   NS_ENSURE_SUCCESS(rv, rv);
 
