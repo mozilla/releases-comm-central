@@ -739,3 +739,17 @@ statusbarpanel:-moz-lwtheme {
   border-top-left-radius: .3em;
   margin-left: 1em;
 }
+
+/* menu-button */
+
+button[type="menu-button"] {
+  -moz-appearance: dualbutton;
+}
+
+.button-menubutton-dropmarker {
+  -moz-appearance: toolbarbutton-dropdown !important;
+}
+
+.button-menubutton-dropmarker {
+  margin-inline-end: 3px;
+}

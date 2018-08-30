@@ -622,8 +622,8 @@ notification[value="addon-install-complete"] > button:active:hover {
 }
 
 button[type="menu-button"] {
-  margin-right: 6px;
-  margin-left: 6px;
+  border: none;
+  margin: 0 6px;
 }
 
 button[type="menu-button"] > button {
@@ -631,6 +631,13 @@ button[type="menu-button"] > button {
   margin-bottom: -3px;
   margin-inline-start: -7px;
   margin-inline-end: 0;
+}
+
+.button-menubutton-dropmarker {
+  -moz-appearance: none !important;
+  border: none;
+  background-color: transparent !important;
+  margin: 1px;
 }
 
 button[type="menu-button"] > dropmarker {

@@ -43,6 +43,14 @@ toolbarpaletteitem[place="palette"] {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbarpaletteitem-palette");
 }
 
+notificationbox {
+  -moz-binding: url("chrome://messenger/content/notificationbox.xml#notificationbox");
+}
+
+button[type="menu-button"] {
+  -moz-binding: url("chrome://messenger/content/menubutton.xml#menu-button");
+}
+
 menulist[type="description"] {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#menulist-description");
 }

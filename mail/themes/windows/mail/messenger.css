@@ -506,6 +506,13 @@ button[type="menu-button"] > button {
   }
 }
 
+-.button-menubutton-dropmarker {
+  -moz-appearance: none !important;
+  margin: 1px;
+  width: 11px;
+  height: 11px;
+}
+
 .notification-button {
   margin-bottom: 1px;
 }
