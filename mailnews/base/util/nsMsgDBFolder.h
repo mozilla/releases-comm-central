@@ -214,8 +214,7 @@ protected:
   bool mNotifyCountChanges;
   int64_t mExpungedBytes;
   nsCOMArray<nsIMsgFolder> mSubFolders;
-  // This can't be refcounted due to ownsership issues
-  nsTObserverArray<nsIFolderListener*> mListeners;
+  nsTObserverArray<nsCOMPtr<nsIFolderListener>> mListeners;
 
   bool mInitializedFromCache;
   nsISupports *mSemaphoreHolder; // set when the folder is being written to
