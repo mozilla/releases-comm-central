@@ -5850,7 +5850,7 @@ function MakeFromFieldEditable(ignoreWarning)
   customizeMenuitem.setAttribute("disabled", "true");
   var identityElement = document.getElementById("msgIdentity");
   identityElement.removeAttribute("type");
-  identityElement.editable = true;
+  identityElement.setAttribute("editable", "true");
   identityElement.focus();
   identityElement.value = identityElement.selectedItem.value;
   identityElement.select();

@@ -59,6 +59,8 @@
         ]]></body>
       </method>
 
+      <property name="editable" readonly="true" onget="return true;"/>
+
       <property name="inputField" readonly="true">
         <getter><![CDATA[
             if (!this.mInputField)
