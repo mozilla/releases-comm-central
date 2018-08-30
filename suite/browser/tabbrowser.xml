@@ -1678,7 +1678,8 @@
             // aReferrerURI is null or undefined if the tab is opened from
             // an external application or bookmark, i.e. somewhere other
             // than the current tab.
-            if ((aRelatedToCurrent || aReferrerURI) &&
+            if ((aRelatedToCurrent || aReferrerURI ||
+                 this.mPrefs.getBoolPref("browser.tabs.insertAllTabsAfterCurrent")) &&
                 this.mPrefs.getBoolPref("browser.tabs.insertRelatedAfterCurrent")) {
               var lastRelatedIndex = this.mLastRelatedIndex ||
                                      this.tabContainer.selectedIndex;

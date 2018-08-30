@@ -237,6 +237,7 @@ pref("browser.tabs.warnOnCloseOther", true);
 pref("browser.tabs.warnOnOpen", true);
 pref("browser.tabs.maxOpenBeforeWarn", 15);
 pref("browser.tabs.insertRelatedAfterCurrent", true);
+pref("browser.tabs.insertAllTabsAfterCurrent", false);
 // 0 = append, 1 = replace
 pref("browser.tabs.loadGroup", 1);
 
