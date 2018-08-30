@@ -28,6 +28,12 @@ XPCOMUtils.defineLazyGetter(this, "gMailBundle", function() {
   return Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
 });
 
+ChromeUtils.defineModuleGetter(this, "ActorManagerParent",
+                               "resource://gre/modules/ActorManagerParent.jsm");
+
+let ACTORS = {
+};
+
 /**
  * Glue code that should be executed before any windows are opened. Any
  * window-independent helper methods (a la nsBrowserGlue.js) should go in
@@ -80,6 +86,8 @@ MailGlue.prototype = {
         onLoadWindow: _setupToolbox
       });
 
+    ActorManagerParent.addActors(ACTORS);
+    ActorManagerParent.flush();
   },
 
   // cleanup (called at shutdown)
