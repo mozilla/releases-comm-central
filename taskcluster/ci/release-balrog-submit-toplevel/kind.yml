@@ -53,3 +53,41 @@ jobs:
             symbol: Rel(BPTb)
             tier: 1
             kind: build
+
+    # FIXME: (Bug 1487172) This task should only run on esr60-like branches
+    thunderbird-bz2:
+        name: submit-toplevel-thunderbird-release-to-balrog-bz2
+        description: Submit toplevel Thunderbird release to balrog (bz2)
+        shipping-product: thunderbird
+        worker:
+            product: thunderbird
+            archive-domain:
+                by-project:
+                    comm-esr60: archive.mozilla.org
+                    default: ftp.stage.mozaws.net
+            download-domain:
+                by-project:
+                    comm-esr60: download.mozilla.org
+                    default: bouncer-bouncer-releng.stage.mozaws.net
+            channel-names:
+                by-project:
+                    comm-esr60: ["release", "release-localtest", "release-cdntest"]
+                    default: []
+            publish-rules:
+                by-project:
+                    comm-esr60: [516]
+                    default: []
+            rules-to-update:
+                by-project:
+                    comm-esr60: ["thunderbird-esr52-cdntest", "thunderbird-esr52-localtest"]
+                    default: []
+            platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
+            blob-suffix: -bz2
+            complete-mar-filename-pattern: '%s-%s.bz2.complete.mar'
+            complete-mar-bouncer-product-pattern: '%s-%s-complete-bz2'
+        treeherder:
+            platform: thunderbird-release/opt
+            symbol: Rel(BPTb-bz2)
+            tier: 1
+            kind: build
+
