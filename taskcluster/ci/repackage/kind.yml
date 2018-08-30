@@ -42,3 +42,21 @@ job-template:
                 win64.*:
                     - repackage/win64_signed.py
                     - repackage/thunderbird_win.py
+    package-formats:
+        by-project:
+            # Build bz2 mar's on try to excerise the code
+            (comm-esr60|try):
+                by-build-platform:
+                    linux-.*: [mar, mar-bz2]
+                    linux64.*: [mar, mar-bz2]
+                    macosx64.*: [mar, mar-bz2, dmg]
+                    win32.*: [mar, mar-bz2, installer]
+                    win64.*: [mar, mar-bz2, installer]
+            default:
+                by-build-platform:
+                    linux-.*: [mar]
+                    linux64.*: [mar]
+                    macosx64.*: [mar, dmg]
+                    win32.*: [mar, installer]
+                    win64.*: [mar, installer]
+
