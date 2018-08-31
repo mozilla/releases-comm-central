@@ -31,7 +31,6 @@
 #define FILE_NAME_CERT8DB         NS_LITERAL_STRING("cert8.db")
 #define FILE_NAME_KEY3DB          NS_LITERAL_STRING("key3.db")
 #define FILE_NAME_SECMODDB        NS_LITERAL_STRING("secmod.db")
-#define FILE_NAME_MIMETYPES       NS_LITERAL_STRING("mimeTypes.rdf")
 #define FILE_NAME_PREFS           NS_LITERAL_STRING("prefs.js")
 #define FILE_NAME_USER_PREFS      NS_LITERAL_STRING("user.js")
 
@@ -616,11 +615,6 @@ nsSeamonkeyProfileMigrator::CopyPreferences(bool aReplace)
     rv = tmp;
   }
 
-  // User MIME Type overrides
-  tmp = CopyFile(FILE_NAME_MIMETYPES, FILE_NAME_MIMETYPES);
-  if (NS_FAILED(tmp)) {
-    rv = tmp;
-  }
   tmp = CopyFile(FILE_NAME_PERSONALDICTIONARY, FILE_NAME_PERSONALDICTIONARY);
   if (NS_FAILED(tmp)) {
     rv = tmp;

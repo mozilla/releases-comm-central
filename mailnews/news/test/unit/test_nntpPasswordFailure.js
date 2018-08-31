@@ -162,8 +162,6 @@ function* endTest() {
 
 function run_test()
 {
-  mailTestUtils.registerUMimTypProvider();
-
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);

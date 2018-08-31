@@ -17,9 +17,6 @@ load("../../../resources/messageInjection.js");
 ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
 
-// Register the mime types provider we need for this test.
-mailTestUtils.registerUMimTypProvider();
-
 var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 

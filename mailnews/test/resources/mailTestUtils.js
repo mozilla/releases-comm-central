@@ -475,33 +475,5 @@ var mailTestUtils = {
         return i;
     }
     return -1;
-  },
-
-  /**
-   * Registers a directory provider for UMimTyp for when its needed.
-   */
-  registerUMimTypProvider: function() {
-    if (this._providerSvc)
-      return;
-
-    // Register our own provider for the profile directory.
-    // It will simply return the current directory.
-    const provider = {
-      getFile : function(prop, persistent) {
-        if (prop == "UMimTyp") {
-          var mimeTypes = Services.dirsvc.get("ProfD", Ci.nsIFile);
-          mimeTypes.append("mimeTypes.rdf");
-          return mimeTypes;
-        }
-        throw Cr.NS_ERROR_FAILURE;
-      },
-
-      QueryInterface:
-        ChromeUtils.generateQI([Ci.nsIDirectoryServiceProvider])
-    };
-
-    this._providerSvc = provider;
-    Services.dirsvc.QueryInterface(Ci.nsIDirectoryService)
-                   .registerProvider(provider);
   }
 };

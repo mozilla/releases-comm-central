@@ -13,9 +13,6 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-// Register the mime types provider we need for this test.
-mailTestUtils.registerUMimTypProvider();
-
 // javascript mime emitter functions
 var mimeMsg = {};
 ChromeUtils.import("resource:///modules/gloda/mimemsg.js", mimeMsg);
