@@ -59,4 +59,3 @@ job-template:
                     macosx64.*: [mar, dmg]
                     win32.*: [mar, installer]
                     win64.*: [mar, installer]
-
