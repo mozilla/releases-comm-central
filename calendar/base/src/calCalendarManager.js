@@ -593,19 +593,6 @@ calCalendarManager.prototype = {
         this.clearRefreshTimer(calendar);
     },
 
-    // Delete this method for Lightning 4.7 at latest
-    deleteCalendar: function(calendar) {
-        if (!this.deleteCalendar.warningIssued) {
-            cal.WARN("Use of calICalendarManager::deleteCalendar is deprecated" +
-                     " and will be removed with the next release. Use" +
-                     " ::removeCalendar instead.\n" + cal.STACK(10));
-            this.deleteCalendar.warningIssued = true;
-        }
-
-        const cICM = Components.interfaces.calICalendarManager;
-        this.removeCalendar(calendar, cICM.REMOVE_NO_UNREGISTER);
-    },
-
     removeCalendar: function(calendar, mode=0) {
         const cICM = Components.interfaces.calICalendarManager;
 

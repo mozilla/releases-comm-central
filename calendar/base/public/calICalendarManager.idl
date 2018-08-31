@@ -40,9 +40,6 @@ interface calICalendarManager : nsISupports
   /* unregister a calendar */
   void unregisterCalendar(in calICalendar aCalendar);
 
-  /** @deprecated This method has been replaced by ::removeCalendar */
-  void deleteCalendar(in calICalendar aCalendar);
-
   /** Remove the calendar following the calendar's capabilities.removeModes. */
   const unsigned short REMOVE_AUTO = 0;
 
