@@ -4,7 +4,7 @@
  * expandMailingLists.
  */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
 var MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";

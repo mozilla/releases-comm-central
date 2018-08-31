@@ -11,7 +11,7 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 ChromeUtils.import("resource:///modules/errUtils.js");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/searchSpec.js");
 
 var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;

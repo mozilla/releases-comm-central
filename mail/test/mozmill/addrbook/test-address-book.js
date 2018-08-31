@@ -15,7 +15,7 @@ var MODULE_REQUIRES = ['address-book-helpers', 'folder-display-helpers',
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var abController = null;
 var addrBook1, addrBook2, addrBook3, addrBook4;

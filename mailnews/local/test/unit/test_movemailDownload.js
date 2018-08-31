@@ -2,7 +2,7 @@
  * The intent of this file is to test that movemail download code
  * works correctly.
  */
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Task.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");

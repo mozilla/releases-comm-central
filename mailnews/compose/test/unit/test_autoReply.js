@@ -9,7 +9,7 @@
 
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 load("../../../resources/logHelper.js"); // watch for errors in the error console

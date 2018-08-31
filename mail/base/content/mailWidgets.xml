@@ -1301,7 +1301,7 @@
       </method>
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource:///modules/mailServices.js");
+          ChromeUtils.import("resource:///modules/MailServices.jsm");
         ]]>
       </constructor>
     </implementation>
@@ -1629,7 +1629,7 @@
       </property>
       <constructor>
       <![CDATA[
-        ChromeUtils.import("resource:///modules/mailServices.js");
+        ChromeUtils.import("resource:///modules/MailServices.jsm");
         ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         initializeTermFromId(this.id);
       ]]>
@@ -1703,7 +1703,7 @@
       </property>
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource:///modules/mailServices.js");
+          ChromeUtils.import("resource:///modules/MailServices.jsm");
           ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         ]]>
       </constructor>
@@ -2118,7 +2118,7 @@
       </method>
       <constructor>
       <![CDATA[
-        ChromeUtils.import("resource:///modules/mailServices.js");
+        ChromeUtils.import("resource:///modules/MailServices.jsm");
         ChromeUtils.import("resource://gre/modules/Services.jsm", this);
 
         // initialize strings
@@ -2610,7 +2610,7 @@
       </method>
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource:///modules/mailServices.js");
+          ChromeUtils.import("resource:///modules/MailServices.jsm");
           ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         ]]>
       </constructor>

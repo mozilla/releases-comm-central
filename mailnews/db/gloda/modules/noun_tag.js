@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ['TagNoun'];
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 ChromeUtils.import("resource:///modules/gloda/gloda.js");
 

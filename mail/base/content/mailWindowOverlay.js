@@ -6,7 +6,7 @@
 ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 ChromeUtils.import("resource:///modules/gloda/dbview.js");
 ChromeUtils.import("resource:///modules/MailConsts.js");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/MailUtils.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");

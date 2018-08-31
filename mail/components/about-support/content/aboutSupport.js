@@ -14,7 +14,7 @@ ChromeUtils.import("resource://gre/modules/Troubleshoot.jsm");
 ChromeUtils.import("resource://gre/modules/ResetProfile.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 // added for TB
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 // end of TB addition
 
 ChromeUtils.defineModuleGetter(this, "PluralForm",

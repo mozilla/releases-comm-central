@@ -3,7 +3,7 @@
 // Original Author: David Bienvenu <dbienvenu@mozilla.com>
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Globals
 var gMsg1;

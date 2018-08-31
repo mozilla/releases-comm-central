@@ -5,7 +5,7 @@
 
 ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gSmtpServer;
 var gSmtpUsername;

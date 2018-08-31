@@ -14,7 +14,7 @@ load("../../../resources/messageInjection.js");
 ChromeUtils.import("resource:///modules/jsTreeSelection.js");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 

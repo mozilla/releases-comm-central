@@ -16,7 +16,7 @@ load("../../../../mailnews/resources/messageInjection.js");
 
 load("resources/viewWrapperTestUtils.js");
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 initViewWrapperTestUtils({mode: "imap", offline: false});
 

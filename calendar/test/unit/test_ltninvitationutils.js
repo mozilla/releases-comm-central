@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm", null);
-var { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 function run_test() {

@@ -13,7 +13,7 @@
  */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/IOUtils.js");
 
 // Tree Sort helper methods.

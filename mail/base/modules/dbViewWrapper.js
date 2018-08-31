@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ['DBViewWrapper', 'IDBViewWrapperListener'];
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/mailViewManager.js");
 ChromeUtils.import("resource:///modules/searchSpec.js");
 ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");

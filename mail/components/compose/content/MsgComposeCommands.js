@@ -14,7 +14,7 @@ ChromeUtils.import("resource:///modules/mimeParser.jsm");
 ChromeUtils.import("resource:///modules/errUtils.js");
 ChromeUtils.import("resource:///modules/folderUtils.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/MailUtils.js");
 ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");

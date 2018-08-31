@@ -11,7 +11,7 @@ ChromeUtils.import("resource:///modules/gloda/indexer.js");
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 ChromeUtils.import("resource:///modules/gloda/noun_freetag.js");
 ChromeUtils.import("resource:///modules/gloda/utils.js");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 
 var GlodaABIndexer = {

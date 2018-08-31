@@ -4,70 +4,11 @@
 
 var EXPORTED_SYMBOLS = ["MailServices"];
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var MailServices = {};
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "mailSession",
-                                   "@mozilla.org/messenger/services/session;1",
-                                   "nsIMsgMailSession");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "accounts",
-                                   "@mozilla.org/messenger/account-manager;1",
-                                   "nsIMsgAccountManager");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "pop3",
-                                   "@mozilla.org/messenger/popservice;1",
-                                   "nsIPop3Service");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "imap",
-                                   "@mozilla.org/messenger/imapservice;1",
-                                   "nsIImapService");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "nntp",
-                                   "@mozilla.org/messenger/nntpservice;1",
-                                   "nsINntpService");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "smtp",
-                                   "@mozilla.org/messengercompose/smtp;1",
-                                   "nsISmtpService");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "compose",
-                                   "@mozilla.org/messengercompose;1",
-                                   "nsIMsgComposeService");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "ab",
-                                   "@mozilla.org/abmanager;1",
-                                   "nsIAbManager");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "copy",
-                                   "@mozilla.org/messenger/messagecopyservice;1",
-                                   "nsIMsgCopyService");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "mfn",
-                                   "@mozilla.org/messenger/msgnotificationservice;1",
-                                   "nsIMsgFolderNotificationService");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "headerParser",
-                                   "@mozilla.org/messenger/headerparser;1",
-                                   "nsIMsgHeaderParser");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "mimeConverter",
-                                   "@mozilla.org/messenger/mimeconverter;1",
-                                   "nsIMimeConverter");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "tags",
-                                   "@mozilla.org/messenger/tagservice;1",
-                                   "nsIMsgTagService");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "filters",
-                                   "@mozilla.org/messenger/services/filters;1",
-                                   "nsIMsgFilterService");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "junk",
-                                   "@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter",
-                                   "nsIJunkMailPlugin");
-
-XPCOMUtils.defineLazyServiceGetter(MailServices, "newMailNotification",
-                                   "@mozilla.org/newMailNotificationService;1",
-                                   "mozINewMailNotificationService");
+ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
+Deprecated.warning(
+    "mailServices.js has been renamed MailServices.jsm",
+    "https://bugzilla.mozilla.org/show_bug.cgi?id=1487572",
+    Components.stack.caller
+);

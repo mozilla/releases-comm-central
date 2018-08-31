@@ -6,7 +6,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function getMessageHeaderFromUrl(aUrl) {
   let msgUrl = MailServices.nntp

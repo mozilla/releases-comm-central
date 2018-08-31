@@ -29,7 +29,7 @@
  *   The ex.message will contain a user-presentable message.
  */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
 
 if (typeof gEmailWizardLogger == "undefined") {

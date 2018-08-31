@@ -6,7 +6,7 @@ this.EXPORTED_SYMBOLS = ['mailTestUtils'];
 
 ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var CC = Components.Constructor;

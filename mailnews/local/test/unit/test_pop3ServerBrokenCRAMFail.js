@@ -3,7 +3,7 @@
  * Server which advertises CRAM-MD5, but fails when it's tried.
  * This reportedly happens for some misconfigured servers.
  */
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var server;
 var daemon;

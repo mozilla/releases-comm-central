@@ -1,5 +1,5 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/IOUtils.js");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
@@ -24,7 +24,7 @@ ChromeUtils.import("resource://testing-common/mailnews/maild.js");
 ChromeUtils.import("resource://testing-common/mailnews/smtpd.js");
 ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gDraftFolder;
 

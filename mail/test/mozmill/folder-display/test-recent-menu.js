@@ -8,7 +8,7 @@
  * don't get updated when we archive.
  */
 ChromeUtils.import("resource:///modules/MailUtils.js");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var MODULE_NAME = 'test-recent-menu';
 

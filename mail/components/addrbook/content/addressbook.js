@@ -27,7 +27,7 @@
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.import("resource:///modules/activity/activityModules.js");
 ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
-var { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");

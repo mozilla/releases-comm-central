@@ -3,7 +3,7 @@
 
 load("../../../resources/filterTestUtils.js");
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   // Set up the server and add in filters

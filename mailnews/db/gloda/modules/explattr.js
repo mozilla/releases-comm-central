@@ -17,7 +17,7 @@ ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource:///modules/gloda/utils.js");
 ChromeUtils.import("resource:///modules/gloda/gloda.js");
 ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 
 var nsMsgMessageFlags_Replied = Ci.nsMsgMessageFlags.Replied;

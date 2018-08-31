@@ -22,7 +22,7 @@
 
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource:///modules/mailServices.js", this);
+          ChromeUtils.import("resource:///modules/MailServices.jsm", this);
           ChromeUtils.import("resource:///modules/iteratorUtils.jsm", this);
           ChromeUtils.import("resource:///modules/StringBundle.js", this);
           this._stringBundle = new this

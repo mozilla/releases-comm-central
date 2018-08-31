@@ -14,7 +14,7 @@ this.EXPORTED_SYMBOLS = [ "migrateMailnews" ];
 
 ChromeUtils.import("resource:///modules/errUtils.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 var kServerPrefVersion = 1;
 var kSmtpPrefVersion = 1;
 var kABRemoteContentPrefVersion = 1;

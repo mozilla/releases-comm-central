@@ -8,7 +8,7 @@
  */
 
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
  * Represents a set of synthetic messages, also supporting insertion into and

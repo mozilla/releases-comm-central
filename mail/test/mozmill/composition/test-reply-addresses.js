@@ -25,7 +25,7 @@ var myEmail2 = "otherme@example.com";
 var identity;
 var identity2;
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);

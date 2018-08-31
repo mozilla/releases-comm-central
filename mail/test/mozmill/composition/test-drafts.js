@@ -16,7 +16,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                        "window-helpers", "notificationbox-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var kBoxId = "msgNotificationBar";
 var draftsFolder;

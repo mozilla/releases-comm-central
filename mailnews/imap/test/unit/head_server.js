@@ -4,7 +4,7 @@ if (typeof gDEPTH == "undefined")
   var gDEPTH = "../../../../";
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
 ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");

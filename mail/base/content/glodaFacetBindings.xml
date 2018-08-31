@@ -18,7 +18,7 @@
   </content>
   <implementation>
     <constructor><![CDATA[
-      ChromeUtils.import("resource:///modules/mailServices.js");
+      ChromeUtils.import("resource:///modules/MailServices.jsm");
     ]]></constructor>
     <!-- Indicate that we are based on a fulltext search-->
     <method name="setFulltext">
@@ -1507,7 +1507,7 @@
   </content>
   <implementation>
     <constructor><![CDATA[
-      ChromeUtils.import("resource:///modules/mailServices.js");
+      ChromeUtils.import("resource:///modules/MailServices.jsm");
       this.build();
     ]]></constructor>
     <method name="build">

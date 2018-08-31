@@ -5,7 +5,7 @@
 const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 const { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-const { MailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 this.EXPORTED_SYMBOLS = ["ltn"]; /* exported ltn */
 var ltn = {};

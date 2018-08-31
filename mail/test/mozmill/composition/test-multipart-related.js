@@ -16,7 +16,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-help
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 ChromeUtils.import('resource://gre/modules/Services.jsm');
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);

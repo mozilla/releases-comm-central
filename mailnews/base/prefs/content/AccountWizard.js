@@ -40,7 +40,7 @@ var okCallback = null;
    (server vs. newsserver)
 */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var contentWindow;
 

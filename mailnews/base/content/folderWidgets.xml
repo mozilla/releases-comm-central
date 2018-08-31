@@ -17,7 +17,7 @@
         ChromeUtils.import("resource:///modules/FeedUtils.jsm", this);
         ChromeUtils.import("resource:///modules/folderUtils.jsm", this);
         ChromeUtils.import("resource:///modules/iteratorUtils.jsm", this);
-        ChromeUtils.import("resource:///modules/mailServices.js", this);
+        ChromeUtils.import("resource:///modules/MailServices.jsm", this);
         ChromeUtils.import("resource:///modules/MailUtils.js", this);
         ChromeUtils.import("resource:///modules/StringBundle.js", this);
         this._stringBundle = new this

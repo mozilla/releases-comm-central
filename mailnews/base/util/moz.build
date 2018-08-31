@@ -59,6 +59,7 @@ EXTRA_JS_MODULES += [
     'JXON.js',
     'mailnewsMigrator.js',
     'mailServices.js',
+    'MailServices.jsm',
     'mailstoreConverter.jsm',
     'msgDBCacheManager.js',
     'OAuth2.jsm',

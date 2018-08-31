@@ -3,7 +3,7 @@
  * Test handling of special chars in folder names
  */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {

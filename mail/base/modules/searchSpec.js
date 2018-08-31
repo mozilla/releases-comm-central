@@ -5,7 +5,7 @@
 this.EXPORTED_SYMBOLS = ['SearchSpec'];
 
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;

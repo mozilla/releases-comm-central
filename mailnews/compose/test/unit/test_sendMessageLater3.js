@@ -10,7 +10,7 @@
 
 load("../../../resources/alertTestUtils.js");
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var type = null;
 var test = null;

@@ -20,7 +20,7 @@
  *
  */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
 // Import the pop3 server scripts

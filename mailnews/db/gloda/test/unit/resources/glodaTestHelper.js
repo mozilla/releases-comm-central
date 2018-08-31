@@ -23,7 +23,7 @@
 // Services
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 // MailServices
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Import the main scripts that mailnews tests need to set up and tear down
 load("../../../../resources/abSetup.js");

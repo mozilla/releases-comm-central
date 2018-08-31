@@ -5,7 +5,7 @@
  * Test code <copied from="test_pop3GetNewMail.js">
  */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var server;
 var daemon;

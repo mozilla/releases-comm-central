@@ -7,7 +7,7 @@ ChromeUtils.import("resource:///modules/gloda/gloda.js");
 ChromeUtils.import("resource:///modules/gloda/connotent.js");
 ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 ChromeUtils.import("resource:///modules/displayNameUtils.js");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/templateUtils.js");
 
 var gMessenger = Cc["@mozilla.org/messenger;1"]

@@ -11,7 +11,7 @@ ChromeUtils.import("resource:///modules/jsTreeSelection.js");
 ChromeUtils.import("resource:///modules/MailConsts.js");
 ChromeUtils.import("resource:///modules/mailInstrumentation.js");
 ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
 ChromeUtils.import("resource:///modules/sessionStoreManager.js");
 ChromeUtils.import("resource:///modules/summaryFrameManager.js");

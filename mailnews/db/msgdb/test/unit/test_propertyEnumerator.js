@@ -4,7 +4,7 @@
 
  // tests propertyEnumerator in nsIMsgDBHdr;
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gHdr;
 

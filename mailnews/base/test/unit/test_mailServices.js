@@ -6,7 +6,7 @@
  * Tests for the MailServices module.
  */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function check_service(aService, aInterface) {
   Assert.ok(aService in MailServices);
@@ -31,6 +31,12 @@ function check_services() {
   check_service("junk", Ci.nsIJunkMailPlugin);
 }
 
+function check_shim() {
+  let { MailServices: oldMailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
+  Assert.equal(oldMailServices, MailServices);
+}
+
 function run_test() {
   check_services();
+  check_shim();
 }
