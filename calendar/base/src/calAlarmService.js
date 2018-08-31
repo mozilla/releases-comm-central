@@ -90,7 +90,10 @@ function calAlarmService() {
             // dismissing those alarms may write data...
             this.alarmService.unobserveCalendar(aCalendar);
         },
-        onCalendarDeleting: function(aCalendar) {}
+        onCalendarDeleting: function(aCalendar) {
+            this.alarmService.unobserveCalendar(aCalendar);
+            delete this.alarmService.mLoadedCalendars[aCalendar.id];
+        }
     };
 }
 
