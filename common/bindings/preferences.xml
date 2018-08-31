@@ -773,7 +773,7 @@
                 this._pane.loaded = true;
                 this._outer._fireEvent("paneload", this._pane);
                 this._outer._selectPane(this._pane);
-              }
+              },
             };
 
             var obs = new OverlayLoadObserver(aPaneElement);
@@ -1255,7 +1255,7 @@
             configurable: true,
             enumerable: true,
             writable: true,
-            value: module.DeferredTask
+            value: module.DeferredTask,
           });
           return module.DeferredTask;
         ]]></getter>

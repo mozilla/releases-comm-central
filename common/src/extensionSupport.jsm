@@ -231,7 +231,7 @@ var ExtensionSupport = {
       // One of the windows has closed.
       let domWindow = xulWindow.docShell.domWindow;
       openWindowList.delete(domWindow);
-    }
+    },
   },
 
   /**
@@ -311,5 +311,5 @@ var ExtensionSupport = {
 
   get registeredWindowListenerCount() {
     return extensionHooks.size;
-  }
+  },
 };

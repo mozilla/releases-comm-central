@@ -18,7 +18,7 @@ ChromeUtils.defineModuleGetter(this, "Deprecated",
 [
   ["gBrowser",          "content"],
   ["gViewSourceBundle", "viewSourceBundle"],
-  ["gContextMenu",      "viewSourceContextMenu"]
+  ["gContextMenu",      "viewSourceContextMenu"],
 ].forEach(function([name, id]) {
   Object.defineProperty(window, name, {
     configurable: true,

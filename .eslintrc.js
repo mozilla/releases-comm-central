@@ -7,12 +7,12 @@ module.exports = {
   // We would like the same base rules as provided by
   // mozilla/tools/lint/eslint/eslint-plugin-mozilla/lib/configs/recommended.js
   "extends": [
-    "plugin:mozilla/recommended"
+    "plugin:mozilla/recommended",
   ],
 
   // When adding items to this file please check for effects on sub-directories.
   "plugins": [
-    "mozilla"
+    "mozilla",
   ],
 
   "rules": {
@@ -24,17 +24,17 @@ module.exports = {
         "ArrayExpression": true,
         "AssignmentExpression": true,
         "ObjectExpression": true,
-        "VariableDeclarator": true
+        "VariableDeclarator": true,
       },
-      ignoreEOLComments: true
-    }]
+      ignoreEOLComments: true,
+    }],
   },
 
   // The html plugin is enabled via a command line option on eslint. To avoid
   // bad interactions with the xml preprocessor in eslint-plugin-mozilla, we
   // turn off processing of the html plugin for .xml files.
   "settings": {
-    "html/xml-extensions": [ ".xhtml" ]
+    "html/xml-extensions": [ ".xhtml" ],
   },
 
   "overrides": [{
@@ -43,6 +43,6 @@ module.exports = {
     "files": "**/*.*html",
     "rules": {
       "eol-last": "off",
-    }
-  }]
+    },
+  }],
 };
