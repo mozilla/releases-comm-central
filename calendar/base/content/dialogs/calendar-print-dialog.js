@@ -38,16 +38,14 @@ function loadCalendarPrintDialog() {
             .setAttribute("selected", true);
 
     // Get a list of formatters
-    let catman = Components.classes["@mozilla.org/categorymanager;1"]
-                           .getService(Components.interfaces.nsICategoryManager);
-    let catenum = catman.enumerateCategory("cal-print-formatters");
+    let catenum = Services.catMan.enumerateCategory("cal-print-formatters");
 
     // Walk the list, adding items to the layout menupopup
     let layoutList = document.getElementById("layout-field");
     while (catenum.hasMoreElements()) {
         let entry = catenum.getNext();
         entry = entry.QueryInterface(Components.interfaces.nsISupportsCString);
-        let contractid = catman.getCategoryEntry("cal-print-formatters", entry);
+        let contractid = Services.catMan.getCategoryEntry("cal-print-formatters", entry);
         let formatter = Components.classes[contractid]
                                   .getService(Components.interfaces.calIPrintFormatter);
         // Use the contractid as value
