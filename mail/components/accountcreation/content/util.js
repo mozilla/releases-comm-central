@@ -121,7 +121,7 @@ Exception.prototype =
   },
   toString() {
     return this._message;
-  }
+  },
 };
 
 function NotReached(msg) {
@@ -142,7 +142,7 @@ function Abortable() {
 Abortable.prototype =
 {
   cancel() {
-  }
+  },
 };
 
 /**
@@ -188,7 +188,7 @@ SuccessiveAbortable.prototype = {
   cancel() {
     if (this._current)
       this._current.cancel();
-  }
+  },
 };
 
 function deepCopy(org) {

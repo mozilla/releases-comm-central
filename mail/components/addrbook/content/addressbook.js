@@ -117,7 +117,7 @@ var gAddressBookAbListener = {
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
     // will not be called
-  }
+  },
 };
 
 function OnUnloadAddressBook() {
@@ -149,7 +149,7 @@ var gAddressBookAbViewListener = {
   },
   onCountChanged(total) {
     SetStatusText(total);
-  }
+  },
 };
 
 function GetAbViewListener() {
@@ -822,7 +822,7 @@ var abResultsController = {
       doCommand() {
         AbIMSelected();
       },
-    }
+    },
   },
 
   supportsCommand(aCommand) {
@@ -845,5 +845,5 @@ var abResultsController = {
     cmd.doCommand();
   },
 
-  onEvent(aEvent) {}
+  onEvent(aEvent) {},
 };

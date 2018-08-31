@@ -190,7 +190,7 @@ var DirPaneController =
     // on blur events set the menu item texts back to the normal values
     if (event == "blur")
       goSetMenuValue("cmd_delete", "valueDefault");
-  }
+  },
 };
 
 function SendCommandToResultsPane(command) {
@@ -1004,7 +1004,7 @@ var gImageDownloader = (function() {
             verifyImage();
           }
         }
-      }
+      },
     };
 
     let source;
@@ -1161,7 +1161,7 @@ var gImageDownloader = (function() {
             callbackSuccess(file.leafName);
           }
         }
-      }
+      },
     };
 
     // Obtain the privacy context of the browser window that the URL
@@ -1181,7 +1181,7 @@ var gImageDownloader = (function() {
     ERROR_UNAVAILABLE,
     ERROR_INVALID_URI,
     ERROR_INVALID_IMG,
-    ERROR_SAVE
+    ERROR_SAVE,
   };
 })();
 

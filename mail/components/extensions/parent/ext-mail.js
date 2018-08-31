@@ -423,7 +423,7 @@ class TabTracker extends TabTrackerBase {
 
     this.emit("tab-activated", {
       tabId: this.getId(nativeTabInfo),
-      windowId: windowTracker.getId(browser.ownerGlobal)
+      windowId: windowTracker.getId(browser.ownerGlobal),
     });
   }
 
@@ -491,7 +491,7 @@ class TabTracker extends TabTrackerBase {
   getBrowserData(browser) {
     return {
       tabId: this.getBrowserTabId(browser),
-      windowId: windowTracker.getId(browser.ownerGlobal)
+      windowId: windowTracker.getId(browser.ownerGlobal),
     };
   }
 

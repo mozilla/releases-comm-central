@@ -71,7 +71,7 @@ let tabListener = {
       }
     }
     return deferred.promise;
-  }
+  },
 };
 
 // Attributes and properties used in the TabsUpdateFilterManager.
@@ -275,7 +275,7 @@ this.tabs = class extends ExtensionAPI {
             return () => {
               tabTracker.off("tab-activated", listener);
             };
-          }
+          },
         }).api(),
 
         onCreated: new EventManager({
@@ -290,7 +290,7 @@ this.tabs = class extends ExtensionAPI {
             return () => {
               tabTracker.off("tab-created", listener);
             };
-          }
+          },
         }).api(),
 
         onAttached: new EventManager({
@@ -335,7 +335,7 @@ this.tabs = class extends ExtensionAPI {
             return () => {
               tabTracker.off("tab-removed", listener);
             };
-          }
+          },
         }).api(),
 
         onMoved: new EventManager({
@@ -350,7 +350,7 @@ this.tabs = class extends ExtensionAPI {
               fire.async(tabTracker.getId(nativeTabInfo), {
                 windowId: windowTracker.getId(nativeTab.ownerGlobal),
                 fromIndex: event.detail.idx,
-                toIndex: tabmail.tabInfo.indexOf(nativeTabInfo)
+                toIndex: tabmail.tabInfo.indexOf(nativeTabInfo),
               });
             };
 
@@ -358,7 +358,7 @@ this.tabs = class extends ExtensionAPI {
             return () => {
               windowTracker.removeListener("TabMove", moveListener);
             };
-          }
+          },
         }).api(),
 
         onUpdated: new TabsUpdateFilterEventManager(context).api(),
@@ -389,7 +389,7 @@ this.tabs = class extends ExtensionAPI {
 
           let nativeTabInfo = tabmail.openTab("contentTab", {
             contentPage: url || "about:blank",
-            background: !active
+            background: !active,
           });
 
           if (createProperties.index) {
@@ -610,8 +610,8 @@ this.tabs = class extends ExtensionAPI {
             tabmail.restoreTab(state);
             return tabManager.convert(mode.tabs[mode.tabs.length - 1]);
           }
-        }
-      }
+        },
+      },
     };
   }
 };

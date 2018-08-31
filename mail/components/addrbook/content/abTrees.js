@@ -138,7 +138,7 @@ abDirTreeItem.prototype = {
     if (this._directory.isSecure)
       properties.push("IsSecure-true");
     return properties.join(" ");
-  }
+  },
 };
 
 /**
@@ -277,7 +277,7 @@ directoryTreeView.prototype = {
         break;
       }
     }
-  }
+  },
 };
 
 var gDirectoryTreeView = new directoryTreeView();

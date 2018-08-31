@@ -164,8 +164,8 @@ var DownloadsView = {
 
   commands: [
     "msgDownloadsCmd_clearDownloads",
-    "msgDownloadsCmd_searchDownloads"
-  ]
+    "msgDownloadsCmd_searchDownloads",
+  ],
 };
 
 function DownloadItem(aDownload) {
@@ -188,7 +188,7 @@ var kDownloadStatePropertyNames = [
   "succeeded",
   "canceled",
   "error",
-  "startTime"
+  "startTime",
 ];
 
 DownloadItem.prototype = {
@@ -327,6 +327,6 @@ DownloadItem.prototype = {
   commands: [
     "msgDownloadsCmd_remove",
     "msgDownloadsCmd_open",
-    "msgDownloadsCmd_show"
-  ]
+    "msgDownloadsCmd_show",
+  ],
 };

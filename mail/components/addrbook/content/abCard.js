@@ -65,7 +65,7 @@ var kVcardFields =
          ["MSN", "_MSN"],
          ["ICQ", "_ICQ"],
          ["XMPP", "_JabberId"],
-         ["IRC", "_IRC"]
+         ["IRC", "_IRC"],
         ];
 
 var gEditCard;
@@ -1136,7 +1136,7 @@ var gPhotoDownloadUI = (function() {
     onStart,
     onSuccess,
     onError,
-    onProgress
+    onProgress,
   };
 })();
 
@@ -1205,7 +1205,7 @@ var genericPhotoHandler = {
     aCard.setProperty("PhotoName", "");
     aCard.setProperty("PhotoURI", "");
     return true;
-  }
+  },
 };
 
 var filePhotoHandler = {
@@ -1287,7 +1287,7 @@ var filePhotoHandler = {
     } else {
       photoElem.value = "";
     }
-  }
+  },
 };
 
 var webPhotoHandler = {
@@ -1342,7 +1342,7 @@ var webPhotoHandler = {
       aCard.setProperty("PhotoURI", photoURI);
     }
     return true;
-  }
+  },
 };
 
 function newPhotoAdded(aPhotoName, aCard) {

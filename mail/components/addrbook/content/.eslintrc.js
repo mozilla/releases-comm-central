@@ -50,5 +50,5 @@ module.exports = { // eslint-disable-line no-undef
     "SelectFirstCard": true,
     "SetAbView": true,
     "SortAndUpdateIndicators": true,
-  }
+  },
 };

@@ -258,7 +258,7 @@ TBTabList.prototype = {
     }, "TBTabList.prototype.onCloseWindow's delayed body"), 0);
   }, "TBTabList.prototype.onCloseWindow"),
 
-  onWindowTitleChange() {}
+  onWindowTitleChange() {},
 };
 
 exports.register = function(handle) {

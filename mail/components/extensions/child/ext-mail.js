@@ -11,5 +11,5 @@ extensions.registerModules({
     paths: [
       ["tabs"],
     ],
-  }
+  },
 });

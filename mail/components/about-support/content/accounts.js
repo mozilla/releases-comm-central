@@ -42,7 +42,7 @@ var gAuthMethodProperties = new Map([
   [ Ci.nsMsgAuthMethod.External,          "authExternal" ],
   [ Ci.nsMsgAuthMethod.secure,            "authAnySecure" ],
   [ Ci.nsMsgAuthMethod.anything,          "authAny" ],
-  [ Ci.nsMsgAuthMethod.OAuth2,            "authOAuth2" ]
+  [ Ci.nsMsgAuthMethod.OAuth2,            "authOAuth2" ],
 ]);
 
 var AboutSupport = {
@@ -150,7 +150,7 @@ var AboutSupport = {
       prettyAuthMethod = plainAuthMethod;
     }
     return {localized: prettyAuthMethod, neutral: plainAuthMethod};
-  }
+  },
 };
 
 function createParentElement(tagName, childElems) {

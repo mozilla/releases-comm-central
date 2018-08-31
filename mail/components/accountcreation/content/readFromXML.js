@@ -216,7 +216,7 @@ function readFromXML(clientConfigXML) {
       {
         varname: sanitize.alphanumdash(inputField["@key"]).toUpperCase(),
         displayName: sanitize.label(inputField["@label"]),
-        exampleValue: sanitize.label(inputField.value)
+        exampleValue: sanitize.label(inputField.value),
       };
       d.inputFields.push(fieldset);
     } catch (e) { logException(e); } // for now, don't throw,

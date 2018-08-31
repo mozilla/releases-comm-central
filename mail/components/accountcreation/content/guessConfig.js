@@ -102,7 +102,7 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
       type: "pop3",
       port: 110,
       socketType: 3,
-      auth: Ci.nsMsgAuthMethod.passwordCleartext
+      auth: Ci.nsMsgAuthMethod.passwordCleartext,
     });
     successCallback(resultConfig);
     return null;
@@ -1029,7 +1029,7 @@ function SocketUtil(hostname, port, ssl, commands, timeout,
           }
         }
       } catch (e) { _error(e); }
-    }
+    },
   };
 
   try {

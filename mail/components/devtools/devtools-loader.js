@@ -43,7 +43,7 @@ DevToolsStartup.prototype = {
       Object.defineProperty(DebuggerServer, "chromeWindowType", {
         get: () => "mail:3pane",
         set: () => {},
-        configurable: true
+        configurable: true,
       });
     }
 
@@ -52,7 +52,7 @@ DevToolsStartup.prototype = {
       Object.defineProperty(gDevTools, "chromeWindowType", {
         get: () => "mail:3pane",
         set: () => {},
-        configurable: true
+        configurable: true,
       });
     }
 
@@ -73,10 +73,10 @@ DevToolsStartup.prototype = {
       DebuggerServer.registerModule("resource:///modules/tb-root-actor.js", {
         prefix: "tb-root-actor",
         constructor: "RootActor",
-        type: { global: true }
+        type: { global: true },
       });
     }
-  }
+  },
 };
 
 this.NSGetFactory = XPCOMUtils.generateNSGetFactory([DevToolsStartup]);

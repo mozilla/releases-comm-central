@@ -44,7 +44,7 @@ this.windows = class extends ExtensionAPI {
               windowTracker.removeListener("focus", listener);
               windowTracker.removeListener("blur", listener);
             };
-          }
+          },
         }).api(),
 
         get(windowId, getInfo) {
@@ -88,7 +88,7 @@ this.windows = class extends ExtensionAPI {
             let args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
             let actionData = {
               action: "open",
-              tabs: urls.map(url => ({ tabType: "contentTab", tabParams: { contentPage: url } }))
+              tabs: urls.map(url => ({ tabType: "contentTab", tabParams: { contentPage: url } })),
             };
             actionData.wrappedJSObject = actionData;
             args.appendElement(null);

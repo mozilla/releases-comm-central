@@ -214,7 +214,7 @@ FetchHTTP.prototype =
    */
   setFinishedCallback(finishedCallback) {
     this._finishedCallback = finishedCallback;
-  }
+  },
 };
 
 function CancelledException(msg) {

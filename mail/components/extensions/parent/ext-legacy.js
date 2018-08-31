@@ -62,7 +62,7 @@ this.legacy = class extends ExtensionAPI {
       platformversion: appinfo.platformVersion,
       os: appinfo.OS,
       osversion: Services.sysinfo.getProperty("version"),
-      abi: appinfo.XPCOMABI
+      abi: appinfo.XPCOMABI,
     };
     let loader = async (filename) => {
       let url = this.extension.getURL(filename);
@@ -99,14 +99,14 @@ this.legacy = class extends ExtensionAPI {
         if (ExtensionCommon.instanceOf(document, "XULDocument")) {
           Overlays.load(chromeManifest, document.defaultView);
         }
-      }
+      },
     };
     Services.obs.addObserver(documentObserver, "chrome-document-loaded");
 
     this.extension.callOnClose({
       close: () => {
         Services.obs.removeObserver(documentObserver, "chrome-document-loaded");
-      }
+      },
     });
   }
 };

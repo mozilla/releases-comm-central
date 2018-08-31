@@ -187,7 +187,7 @@ function DisplayCardViewPane(realCard) {
                primaryEmail: realCard.primaryEmail,
                displayName: realCard.displayName,
                isMailList: realCard.isMailList,
-               mailListURI: realCard.mailListURI
+               mailListURI: realCard.mailListURI,
   };
 
   var data = top.cvData;
@@ -520,8 +520,8 @@ function OpenURLWithHistory(url) {
   PlacesUtils.history.insert({
     url,
     visits: [{
-      date: new Date()
-    }]
+      date: new Date(),
+    }],
   }).catch(Cu.reportError);
   try {
     var messenger = Cc["@mozilla.org/messenger;1"].createInstance();

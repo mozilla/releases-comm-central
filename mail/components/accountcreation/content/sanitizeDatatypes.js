@@ -177,7 +177,7 @@ var sanitize =
     if (typeof(defaultValue) == "undefined")
       throw new MalformedException("allowed_value.error", unchecked);
     return defaultValue;
-  }
+  },
 };
 
 function MalformedException(msgID, uncheckedBadValue) {
