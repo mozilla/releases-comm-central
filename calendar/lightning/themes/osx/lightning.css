@@ -20,11 +20,6 @@ lightning-notification-bar {
     padding-bottom: 5px;
 }
 
-/* Lightning preferences icon */
-radio[pane=paneLightning] {
-    list-style-image: url("chrome://calendar/skin/cal-icon32.png");
-}
-
 /* iMIP notification bar */
 #imip-bar > image {
     margin-inline-end: 8px;

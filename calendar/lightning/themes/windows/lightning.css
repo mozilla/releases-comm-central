@@ -21,11 +21,6 @@ lightning-notification-bar {
     padding-bottom: 5px;
 }
 
-/* Lightning preferences icon */
-radio[pane=paneLightning] {
-    list-style-image: url(chrome://calendar/skin/cal-icon32.png);
-}
-
 /* Lightning sidebar background in calendar and task mode */
 #ltnSidebar {
   background-color: -moz-field;
