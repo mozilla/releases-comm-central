@@ -802,7 +802,8 @@
                     yi = i;
                     yfield = fieldForNumber(i);
                     break;
-                  case 9, 10:
+                  case 9:
+                  case 10:
                     mi = i;
                     mfield = fieldForNumber(i);
                     break;
