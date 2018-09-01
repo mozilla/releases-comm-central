@@ -16,6 +16,7 @@ var gAdvancedPane = {
   mInitialized: false,
   mShellServiceWorking: false,
   mBundle: null,
+  requestingLocales: null,
 
   init: function ()
   {
@@ -540,10 +541,10 @@ updateWritePrefs: function ()
     rsLocaleRadio.accessKey = this.mBundle.getString("rsLocale.accesskey");
   },
 
-  // Load the preferences string bundle for a given locale with fallbacks.
-  getBundleForLocale(locale) {
+  // Load the preferences string bundle for other locales with fallbacks.
+  getBundleForLocales(newLocales) {
     let locales = Array.from(new Set([
-      locale,
+      ...newLocales,
       ...Services.locale.getRequestedLocales(),
       Services.locale.lastFallbackLocale,
     ]));
@@ -577,30 +578,58 @@ updateWritePrefs: function ()
     document.getElementById("messengerLanguagesBox").hidden = false;
   },
 
-  /* Show the confirmation message bar to allow a restart into the new language. */
-  async onLanguageChange(event) {
-    let locale = event.target.value;
-    let messageBar = document.getElementById("confirmMessengerLanguage");
-    if (locale == Services.locale.getRequestedLocale()) {
-      messageBar.hidden = true;
+  showMessengerLanguages() {
+    gSubDialog.open(
+      "chrome://messenger/content/preferences/messengerLanguages.xul",
+      null, this.requestingLocales, this.messengerLanguagesClosed);
+  },
+
+  /* Show or hide the confirm change message bar based on the updated ordering. */
+  messengerLanguagesClosed() {
+    let requesting = this.gMessengerLanguagesDialog.requestedLocales;
+    let requested = Services.locale.getRequestedLocales();
+    let defaultMessengerLanguage = document.getElementById("defaultMessengerLanguage");
+    if (requesting && requesting.join(",") != requested.join(",")) {
+      gAdvancedPane.showConfirmLanguageChangeMessageBar(requesting);
+      defaultMessengerLanguage.value = requesting[0];
       return;
     }
+    defaultMessengerLanguage.value = Services.locale.getRequestedLocale();
+    gAdvancedPane.hideConfirmLanguageChangeMessageBar();
+  },
+
+  /* Show the confirmation message bar to allow a restart into the new locales. */
+  async showConfirmLanguageChangeMessageBar(locales) {
+    let messageBar = document.getElementById("confirmMessengerLanguage");
     // Set the text in the message bar for the new locale.
-    let newBundle = this.getBundleForLocale(locale);
-    let description = messageBar.querySelector("description");
+    let newBundle = this.getBundleForLocales(locales);
+    let description = messageBar.querySelector(".message-bar-description");
     description.textContent = await newBundle.formatValue(
       "confirm-messenger-language-change-description");
-    let button = messageBar.querySelector("button");
+    let button = messageBar.querySelector(".message-bar-button");
     button.setAttribute(
       "label", await newBundle.formatValue(
         "confirm-messenger-language-change-button"));
+    button.setAttribute("locales", locales.join(","));
     messageBar.hidden = false;
+    this.requestingLocales = locales;
+  },
+
+  hideConfirmLanguageChangeMessageBar() {
+    let messageBar = document.getElementById("confirmMessengerLanguage");
+    messageBar.hidden = true;
+    messageBar.querySelector(".message-bar-button").removeAttribute("locales");
+    this.requestingLocales = null;
   },
 
   /* Confirm the locale change and restart the Thunderbird in the new locale. */
   confirmLanguageChange() {
-    let locale = document.getElementById("defaultMessengerLanguage").value;
-    Services.locale.setRequestedLocales([locale]);
+    let localesString = (event.target.getAttribute("locales") || "").trim();
+    if (!localesString || localesString.length == 0) {
+      return;
+    }
+    let locales = localesString.split(",");
+    Services.locale.setRequestedLocales(locales);
 
     // Restart with the new locale.
     let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(Ci.nsISupportsPRBool);
@@ -608,5 +637,19 @@ updateWritePrefs: function ()
     if (!cancelQuit.data) {
       Services.startup.quit(Services.startup.eAttemptQuit | Services.startup.eRestart);
     }
+  },
+
+  /* Show or hide the confirm change message bar based on the new locale. */
+  onMessengerLanguageChange(event) {
+    let locale = event.target.value;
+    if (locale == Services.locale.getRequestedLocale()) {
+      this.hideConfirmLanguageChangeMessageBar();
+      return;
+    }
+    let locales = Array.from(new Set([
+      locale,
+      ...Services.locale.getRequestedLocales(),
+    ]).values());
+    this.showConfirmLanguageChangeMessageBar(locales);
   },
 };

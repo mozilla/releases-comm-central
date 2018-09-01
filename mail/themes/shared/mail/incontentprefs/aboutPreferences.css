@@ -413,6 +413,7 @@ richlistbox:focus > richlistitem[selected="true"] {
 }
 
 #defaultMessengerLanguage {
+  margin-inline-start: 0;
   min-width: 20em;
 }
 

@@ -189,12 +189,16 @@
               <description flex="1"
                            controls="chooseMessengerLanguage"
                            data-l10n-id="choose-messenger-language-description"/>
-              <menulist id="defaultMessengerLanguage"
+              <hbox>
+                <menulist id="defaultMessengerLanguage"
+                          oncommand="gAdvancedPane.onMessengerLanguageChange(event)">
+                  <menupopup/>
+                </menulist>
+                <button id="manageMessengerLanguagesButton"
                         class="accessory-button"
-                        flex="1"
-                        oncommand="gAdvancedPane.onLanguageChange(event)">
-                <menupopup/>
-              </menulist>
+                        data-l10n-id="manage-messenger-languages-button"
+                        oncommand="gAdvancedPane.showMessengerLanguages()"/>
+              </hbox>
             </vbox>
             <hbox id="confirmMessengerLanguage"
                   class="message-bar"
@@ -202,7 +206,7 @@
                   hidden="true">
               <image class="message-bar-icon"/>
               <hbox class="message-bar-content" align="center" flex="1">
-                <description flex="1"/>
+                <description class="message-bar-description" flex="1"/>
                 <button class="message-bar-button"
                         oncommand="gAdvancedPane.confirmLanguageChange()"/>
               </hbox>
