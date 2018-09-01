@@ -305,7 +305,16 @@ calWcapSession.prototype = {
                     } else {
                         if (outSavePW.value) {
                             // so try to remove old pw from db first:
-                            cal.auth.passwordManagerSave(outUser.value, outPW.value, this.uri.spec, "wcap login");
+                            try {
+                                cal.auth.passwordManagerSave(outUser.value, outPW.value, this.uri.spec, "wcap login");
+                            } catch (e) {
+                                // User might have cancelled the master password prompt, or password saving
+                                // could be disabled. That is ok, throw for everything else.
+                                if (e.result != Components.results.NS_ERROR_ABORT &&
+                                    e.result != Components.results.NS_ERROR_NOT_AVAILABLE) {
+                                    throw e;
+                                }
+                            }
                         }
                         this.credentials.userId = outUser.value;
                         this.credentials.pw = outPW.value; // eslint-disable-line id-length

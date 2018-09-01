@@ -251,6 +251,11 @@ var calauth = {
 
         let origin = this._ensureOrigin(aOrigin);
 
+        if (!Services.logins.getLoginSavingEnabled(origin)) {
+            throw new Components.Exception("Password saving is disabled for " + origin,
+                                           Cr.NS_ERROR_NOT_AVAILABLE);
+        }
+
         try {
             let logins = Services.logins.findLogins({}, origin, null, aRealm);
 
@@ -288,10 +293,6 @@ var calauth = {
         let origin = this._ensureOrigin(aOrigin);
 
         try {
-            if (!Services.logins.getLoginSavingEnabled(origin)) {
-                return false;
-            }
-
             let logins = Services.logins.findLogins({}, origin, null, aRealm);
             for (let loginInfo of logins) {
                 if (loginInfo.username == aUsername) {
