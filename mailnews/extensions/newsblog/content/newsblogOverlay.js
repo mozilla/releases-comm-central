@@ -39,7 +39,7 @@ var FeedMessageHandler = {
    * Load web page on threadpane select.
    */
   get loadWebPageOnSelectPref() {
-    return Services.prefs.getIntPref("rss.message.loadWebPageOnSelect") ? true : false;
+    return Services.prefs.getIntPref("rss.message.loadWebPageOnSelect");
   },
 
   /**
@@ -58,11 +58,11 @@ var FeedMessageHandler = {
    * be in an rss acount type folder. In Tb15 and later, a flag is set on the
    * message itself upon initial store; the message can be moved to any folder.
    *
-   * @param nsIMsgDBHdr aMsgHdr - the message.
+   * @param {nsIMsgDBHdr} aMsgHdr - The message.
    *
-   * @return true if message is a feed, false if not.
+   * @returns {Boolean} - true if message is a feed, false if not.
    */
-  isFeedMessage: function(aMsgHdr) {
+  isFeedMessage(aMsgHdr) {
     return Boolean(aMsgHdr instanceof Ci.nsIMsgDBHdr &&
                    (aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg ||
                     this.isFeedFolder(aMsgHdr.folder)));
@@ -72,11 +72,12 @@ var FeedMessageHandler = {
    * Determine if a folder is a feed acount folder. Trash or a folder in Trash
    * should be checked with FeedUtils.isInTrash() if required.
    *
-   * @param nsIMsgFolder aFolder - the folder.
+   * @param {nsIMsgFolder} aFolder - The folder.
    *
-   * @return true if folder's server.type is in FeedAccountTypes, false if not.
+   * @returns {Boolean} - true if folder's server.type is in FeedAccountTypes,
+   *                      false if not.
    */
-  isFeedFolder: function(aFolder) {
+  isFeedFolder(aFolder) {
     return Boolean(aFolder instanceof Ci.nsIMsgFolder &&
                    this.FeedAccountTypes.includes(aFolder.server.type));
   },
@@ -85,19 +86,21 @@ var FeedMessageHandler = {
    * Determine whether to show a feed message summary or load a web page in the
    * message pane.
    *
-   * @param nsIMsgDBHdr aMsgHdr - the message.
-   * @param bool aToggle        - true if in toggle mode, false otherwise.
+   * @param {nsIMsgDBHdr} aMsgHdr - The message.
+   * @param {Boolean} aToggle     - true if in toggle mode, false otherwise.
    *
-   * @return true if summary is to be displayed, false if web page.
+   * @returns {Boolean} - true if summary is to be displayed, false if web page.
    */
-  shouldShowSummary: function(aMsgHdr, aToggle) {
+  shouldShowSummary(aMsgHdr, aToggle) {
     // Not a feed message, always show summary (the message).
-    if (!this.isFeedMessage(aMsgHdr))
+    if (!this.isFeedMessage(aMsgHdr)) {
       return true;
+    }
 
     // Notified of a summary reload when toggling, reset toggle and return.
-    if (!aToggle && this.gToggle)
+    if (!aToggle && this.gToggle) {
       return !(this.gToggle = false);
+    }
 
     let showSummary = true;
     this.gToggle = aToggle;
@@ -109,14 +112,17 @@ var FeedMessageHandler = {
     let contentDoc = browser ? browser.contentDocument : null;
     let rssIframe = contentDoc ? contentDoc.getElementById("_mailrssiframe") : null;
     if (rssIframe) {
-      if (this.gToggle || this.onSelectPref == this.kSelectOverrideSummary)
+      if (this.gToggle || this.onSelectPref == this.kSelectOverrideSummary) {
         this.gToggle = false;
+      }
+
       return false;
     }
 
-    if (aToggle)
+    if (aToggle) {
       // Toggle mode, flip value.
       return gShowFeedSummary = this.gShowSummary = !this.gShowSummary;
+    }
 
     let wintype = document.documentElement.getAttribute("windowtype");
     let tabMail = document.getElementById("tabmail");
@@ -128,7 +134,7 @@ var FeedMessageHandler = {
         showSummary = false;
         break;
       case this.kSelectOverrideSummary:
-        showSummary = true
+        showSummary = true;
         break;
       case this.kSelectFeedDefault:
         // Get quickmode per feed folder pref from feeds.rdf. If the feed
@@ -142,15 +148,14 @@ var FeedMessageHandler = {
         try {
           targetRes = FeedUtils.getParentTargetForChildResource(
                         folder.URI, FeedUtils.FZ_QUICKMODE, folder.server);
-        }
-        catch (ex) {
+        } catch (ex) {
           // Not in a feed account folder or other error.
           FeedUtils.log.info("FeedMessageHandler.shouldShowSummary: could not " +
                              "get summary pref for this folder");
         }
 
         showSummary = targetRes && targetRes.QueryInterface(Ci.nsIRDFLiteral).
-                                             Value == "false" ? false : true;
+                                             Value == "false";
         break;
     }
 
@@ -176,8 +181,9 @@ var FeedMessageHandler = {
 
     // Auto load web page in browser on select, per pref; shouldShowSummary() is
     // always called first to 1)test if feed, 2)get summary pref, so do it here.
-    if (this.loadWebPageOnSelectPref)
-      setTimeout(FeedMessageHandler.loadWebPage, 20, aMsgHdr, {browser:true});
+    if (this.loadWebPageOnSelectPref) {
+      setTimeout(FeedMessageHandler.loadWebPage, 20, aMsgHdr, {browser: true});
+    }
 
     return showSummary;
   },
@@ -189,11 +195,12 @@ var FeedMessageHandler = {
    * displayMessageChanged(), and in the case of a collapsed message pane it
    * is not streamed.
    *
-   * @param nsIMsgDBHdr aMessageHdr - the message.
-   * @param {obj} aWhere            - name value=true pair, where name is in:
-   *                                  'messagepane', 'browser', 'tab', 'window'.
+   * @param {nsIMsgDBHdr} aMessageHdr - The message.
+   * @param {Object} aWhere           - name value=true pair, where name is in:
+   *                                    'messagepane', 'browser', 'tab', 'window'.
+   * @returns {void}
    */
-  loadWebPage: function(aMessageHdr, aWhere) {
+  loadWebPage(aMessageHdr, aWhere) {
     MsgHdrToMimeMessage(aMessageHdr, null, function(aMsgHdr, aMimeMsg) {
       if (aMimeMsg && aMimeMsg.headers["content-base"] &&
           aMimeMsg.headers["content-base"][0]) {
@@ -204,28 +211,27 @@ var FeedMessageHandler = {
           // for idn and non-ascii urls with this api.
           url = decodeURIComponent(escape(url));
           uri = Services.io.newURI(url);
-        }
-        catch (ex) {
+        } catch (ex) {
           FeedUtils.log.info("FeedMessageHandler.loadWebPage: " +
                              "invalid Content-Base header url - " + url);
           return;
         }
-        if (aWhere.browser)
+        if (aWhere.browser) {
           Cc["@mozilla.org/uriloader/external-protocol-service;1"]
             .getService(Ci.nsIExternalProtocolService)
             .loadURI(uri);
-        else if (aWhere.messagepane) {
+        } else if (aWhere.messagepane) {
           let loadFlag = getBrowser().webNavigation.LOAD_FLAGS_NONE;
           getBrowser().webNavigation.loadURI(url, loadFlag, null, null, null);
-        }
-        else if (aWhere.tab)
+        } else if (aWhere.tab) {
           openContentTab(url, "tab", "^");
-        else if (aWhere.window)
+        } else if (aWhere.window) {
           openContentTab(url, "window", "^");
-      }
-      else
+        }
+      } else {
         FeedUtils.log.info("FeedMessageHandler.loadWebPage: could not get " +
                            "Content-Base header url for this message");
+      }
     });
   },
 
@@ -233,50 +239,48 @@ var FeedMessageHandler = {
    * Display summary or load web page for feed messages. Caller should already
    * know if the message is a feed message.
    *
-   * @param nsIMsgDBHdr aMsgHdr - the message.
-   * @param bool aShowSummary   - true if summary is to be displayed, false if
-   *                              web page.
+   * @param {nsIMsgDBHdr} aMsgHdr  - The message.
+   * @param {Boolean} aShowSummary - true if summary is to be displayed,
+   *                                 false if web page.
+   * @returns {void}
    */
-  setContent: function(aMsgHdr, aShowSummary) {
+  setContent(aMsgHdr, aShowSummary) {
     if (aShowSummary) {
       // Only here if toggling to summary in 3pane.
-      if (this.gToggle && gDBView && GetNumSelectedMessages() == 1)
+      if (this.gToggle && gDBView && GetNumSelectedMessages() == 1) {
         ReloadMessage();
-    }
-    else {
+      }
+    } else {
       let browser = getBrowser();
-      if (browser && browser.contentDocument && browser.contentDocument.body)
+      if (browser && browser.contentDocument && browser.contentDocument.body) {
         browser.contentDocument.body.hidden = true;
+      }
       // If in a non rss folder, hide possible remote content bar on a web
       // page load, as it doesn't apply.
-      if ("msgNotificationBar" in window)
+      if ("msgNotificationBar" in window) {
         gMessageNotificationBar.clearMsgNotifications();
+      }
 
-      this.loadWebPage(aMsgHdr, {messagepane:true});
+      this.loadWebPage(aMsgHdr, {messagepane: true});
       this.gToggle = false;
     }
-  }
-}
+  },
+};
 
-function openSubscriptionsDialog(aFolder)
-{
+function openSubscriptionsDialog(aFolder) {
   // Check for an existing feed subscriptions window and focus it.
   let subscriptionsWindow =
     Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
 
-  if (subscriptionsWindow)
-  {
-    if (aFolder)
-    {
+  if (subscriptionsWindow) {
+    if (aFolder) {
       subscriptionsWindow.FeedSubscriptions.selectFolder(aFolder);
       subscriptionsWindow.FeedSubscriptions.mView.treeBox.ensureRowIsVisible(
         subscriptionsWindow.FeedSubscriptions.mView.selection.currentIndex);
     }
 
     subscriptionsWindow.focus();
-  }
-  else
-  {
+  } else {
     window.openDialog("chrome://messenger-newsblog/content/feed-subscriptions.xul",
                       "", "centerscreen,chrome,dialog=no,resizable",
                       { folder: aFolder});
@@ -290,8 +294,7 @@ function openSubscriptionsDialog(aFolder)
 // The user may choose whether to load a summary or web page link by ensuring
 // the current feed message is being viewed as either a summary or web page.
 function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
-                                        aType, aFormat, aIdentity, aMsgWindow)
-{
+                                        aType, aFormat, aIdentity, aMsgWindow) {
   // Ensure right content is handled for web pages in window/tab.
   let tabmail = document.getElementById("tabmail");
   let is3pane = tabmail && tabmail.selectedTab && tabmail.selectedTab.mode ?
@@ -299,15 +302,12 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
   let showingwebpage = ("FeedMessageHandler" in window) && !is3pane &&
                        FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenWebPage;
 
-  if (gShowFeedSummary && !showingwebpage)
-  {
+  if (gShowFeedSummary && !showingwebpage) {
     // The user is viewing the summary.
     MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
                                            aType, aFormat, aIdentity, aMsgWindow);
 
-  }
-  else
-  {
+  } else {
     // Set up the compose message and get the feed message's web page link.
     let msgHdr = aMsgHdr;
     let type = aType;
@@ -326,13 +326,10 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
         type == msgComposeType.ReplyAll ||
         type == msgComposeType.ReplyToSender ||
         type == msgComposeType.ReplyToGroup ||
-        type == msgComposeType.ReplyToSenderAndGroup)
-    {
+        type == msgComposeType.ReplyToSenderAndGroup) {
       subject = "Re: " + subject;
-    }
-    else if (type == msgComposeType.ForwardInline ||
-             type == msgComposeType.ForwardAsAttachment)
-    {
+    } else if (type == msgComposeType.ForwardInline ||
+               type == msgComposeType.ForwardAsAttachment) {
       subject = fwdPrefix + subject;
     }
 
@@ -343,27 +340,23 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
     params.bodyIsLink = false;
     params.identity = aIdentity;
 
-    try
-    {
+    try {
       // The feed's web page url is stored in the Content-Base header.
       MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
         if (aMimeMsg && aMimeMsg.headers["content-base"] &&
-            aMimeMsg.headers["content-base"][0])
-        {
+            aMimeMsg.headers["content-base"][0]) {
           let url = decodeURIComponent(escape(aMimeMsg.headers["content-base"]));
           params.composeFields.body = url;
           params.bodyIsLink = true;
           MailServices.compose.OpenComposeWindowWithParams(null, params);
-        }
-        else
+        } else {
           // No content-base url, use the summary.
           MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
                                                  aType, aFormat, aIdentity, aMsgWindow);
+        }
 
       }, false, {saneBodySize: true});
-    }
-    catch (ex)
-    {
+    } catch (ex) {
       // Error getting header, use the summary.
       MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
                                              aType, aFormat, aIdentity, aMsgWindow);

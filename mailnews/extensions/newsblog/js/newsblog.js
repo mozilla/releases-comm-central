@@ -8,13 +8,13 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function FeedDownloader() { }
 FeedDownloader.prototype = {
-  downloadFeed: function(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
+  downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
     FeedUtils.downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow);
   },
-  subscribeToFeed: function(aUrl, aFolder, aMsgWindow) {
+  subscribeToFeed(aUrl, aFolder, aMsgWindow) {
     FeedUtils.subscribeToFeed(aUrl, aFolder, aMsgWindow);
   },
-  updateSubscriptionsDS: function(aFolder, aOrigFolder, aAction) {
+  updateSubscriptionsDS(aFolder, aOrigFolder, aAction) {
     FeedUtils.updateSubscriptionsDS(aFolder, aOrigFolder, aAction);
   },
 

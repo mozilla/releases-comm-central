@@ -9,37 +9,37 @@ ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var FeedAccountWizard = {
   accountName: "",
 
-  accountSetupPageInit: function() {
+  accountSetupPageInit() {
     this.accountSetupPageValidate();
   },
 
-  accountSetupPageValidate: function() {
+  accountSetupPageValidate() {
     this.accountName = document.getElementById("prettyName").value.trim();
     document.documentElement.canAdvance = this.accountName;
   },
 
-  accountSetupPageUnload: function() {
-    return;
+  accountSetupPageUnload() {
   },
 
-  donePageInit: function() {
+  donePageInit() {
     document.getElementById("account.name.text").value = this.accountName;
   },
 
-  onCancel: function() {
+  onCancel() {
     return true;
   },
 
-  onFinish: function() {
+  onFinish() {
     let account = FeedUtils.createRssAccount(this.accountName);
-    if ("gFolderTreeView" in window.opener.top)
+    if ("gFolderTreeView" in window.opener.top) {
       // Opened from 3pane File->New or Appmenu New Message, or
       // Account Central link.
       window.opener.top.gFolderTreeView.selectFolder(account.incomingServer.rootMsgFolder);
-    else if ("selectServer" in window.opener)
+    } else if ("selectServer" in window.opener) {
       // Opened from Account Settings.
       window.opener.selectServer(account.incomingServer);
+    }
 
     window.close();
-  }
-}
+  },
+};

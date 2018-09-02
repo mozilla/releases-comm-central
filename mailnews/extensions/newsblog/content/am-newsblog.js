@@ -8,17 +8,17 @@ ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var gServer, gUpdateEnabled, gUpdateValue, gBiffUnits,
     gAutotagEnable, gAutotagUsePrefix, gAutotagPrefix;
 
-function onInit(aPageId, aServerId)
-{
+function onInit(aPageId, aServerId) {
   var accountName = document.getElementById("server.prettyName");
   var title = document.getElementById("am-newsblog-title");
   var defaultTitle = title.getAttribute("defaultTitle");
 
   var titleValue;
-  if (accountName.value)
+  if (accountName.value) {
     titleValue = defaultTitle + " - <" + accountName.value + ">";
-  else
+  } else {
     titleValue = defaultTitle;
+  }
 
   title.setAttribute("title", titleValue);
   document.title = titleValue;
@@ -48,13 +48,11 @@ function onInit(aPageId, aServerId)
   gAutotagPrefix.value = optionsAcct.category.prefix;
 }
 
-function onPreInit(account, accountValues)
-{
+function onPreInit(account, accountValues) {
   gServer = account.incomingServer;
 }
 
-function setPrefs(aNode)
-{
+function setPrefs(aNode) {
   let optionsAcct =  FeedUtils.getOptionsAcct(gServer);
   switch (aNode.id) {
     case "doBiff":
@@ -85,5 +83,5 @@ function setPrefs(aNode)
       break;
   }
 
-  FeedUtils.setOptionsAcct(gServer, optionsAcct)
+  FeedUtils.setOptionsAcct(gServer, optionsAcct);
 }
