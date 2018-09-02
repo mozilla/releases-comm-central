@@ -221,6 +221,13 @@ static int
 mime_decode_base64_buffer (MimeDecoderData *data,
                const char *buffer, int32_t length, int32_t *outSize)
 {
+  if (outSize)
+    *outSize = 0;
+
+  // Without input there is nothing to do.
+  if (length == 0)
+    return 1;
+
   /* Warning, we are overwriting the buffer which was passed in.
    This is ok, because decoding these formats will never result
    in larger data than the input, only smaller. */
@@ -274,9 +281,11 @@ mime_decode_base64_buffer (MimeDecoderData *data,
        case, just write prematurely. */
       int n;
       n = mime_decode_base64_token (token, token);
-      n = data->write_buffer (token, n, data->closure);
+      if (outSize)
+        *outSize += n;
+      n = data->write_buffer(token, n, data->closure);
       if (n < 0) /* abort */
-      return n;
+        return n;
 
       /* increment buffer so that we don't write the 1 or 2 unused
        characters now at the front. */
@@ -294,12 +303,12 @@ mime_decode_base64_buffer (MimeDecoderData *data,
   }
 
   if (outSize)
-    *outSize = out - buffer;
+    *outSize += out - buffer;
   /* Now that we've altered the data in place, write it. */
   if (out > buffer)
-  return data->write_buffer (buffer, (out - buffer), data->closure);
+    return data->write_buffer(buffer, (out - buffer), data->closure);
   else
-  return 1;
+    return 1;
 }
 
 
