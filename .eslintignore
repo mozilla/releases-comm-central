@@ -24,8 +24,27 @@ chat/**
 editor/**
 im/**
 ldap/**
-mailnews/**
 suite/**
+
+# mailnews exclusions
+mailnews/addrbook/*
+mailnews/base/*
+mailnews/build/*
+mailnews/compose/*
+mailnews/db/*
+mailnews/imap/*
+mailnews/import/*
+mailnews/intl/*
+mailnews/jsaccount/*
+mailnews/local/*
+mailnews/mapi/*
+mailnews/mime/*
+mailnews/news/*
+mailnews/test/*
+
+# mailnews/extensions exclusions
+mailnews/extensions/*
+!mailnews/extensions/newsblog
 
 # mail exclusions
 mail/app/**
