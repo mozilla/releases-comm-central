@@ -207,19 +207,11 @@ menupopup[type="folder"] {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color)) !important;
 }
 
-/* Set position: relative to let the LW-background-box be behind them. */
-#navigation-toolbox:-moz-lwtheme,
-#tabmail-container:-moz-lwtheme,
-#mail-toolbox:-moz-lwtheme,
-#messagepaneboxwrapper:-moz-lwtheme {
-  position: relative;
-}
-
+/* Add a box to draw additional background images. */
 #LW-background-box {
   display: none;
 }
 
-/* Add a box to draw additional background images. */
 #LW-background-box:-moz-lwtheme {
   display: -moz-box;
   height: 60px;
@@ -227,6 +219,10 @@ menupopup[type="folder"] {
   pointer-events: none;
   top: 0;
   width: -moz-available;
+}
+
+#messengerWindow[windowtype="mail:3pane"] > #LW-background-box:-moz-lwtheme {
+  z-index: -1;
 }
 
 /* Set additional backgrounds alignment relative to toolbox.

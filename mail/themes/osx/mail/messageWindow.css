@@ -15,7 +15,7 @@
 /* ::::: Mail Toolbars and Menubars ::::: */
 
 .mail-toolbox {
-  border-bottom: 0px;
+  border-bottom: 0;
 }
 
 #mail-toolbox:-moz-lwtheme {
@@ -25,6 +25,13 @@
 
 .mail-toolbox > toolbar:not(:-moz-lwtheme) {
   -moz-appearance: toolbar;
+}
+
+/* Set position: relative to let the LW-background-box be behind them. */
+#navigation-toolbox:-moz-lwtheme,
+#mail-toolbox:-moz-lwtheme,
+#messagepaneboxwrapper:-moz-lwtheme {
+  position: relative;
 }
 
 /* ::::: message header borders ::::: */

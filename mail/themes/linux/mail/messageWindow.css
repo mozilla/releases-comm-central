@@ -13,8 +13,15 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 .mail-toolbox {
-  margin-top: 0px;
-  padding-top: 0px;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Set position: relative to let the LW-background-box be behind them. */
+#navigation-toolbox:-moz-lwtheme,
+#mail-toolbox:-moz-lwtheme,
+#messagepaneboxwrapper:-moz-lwtheme {
+  position: relative;
 }
 
 #messagepanebox {
