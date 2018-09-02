@@ -93,7 +93,7 @@
     <button id="newtoolbar" label="&addNewToolbar.label;" oncommand="addNewToolbar();" icon="add"/>
     <button id="restoreDefault" label="&restoreDefaultSet.label;" oncommand="restoreDefaultSet();" icon="revert"/>
 #ifndef MOZ_SUITE
-    <checkbox id="showTitlebar" oncommand="updateTitlebar();" label="&showTitltbar.label;" hidden="true"/>
+    <checkbox id="showTitlebar" oncommand="updateTitlebar();" label="&showTitlebar.label;" hidden="true"/>
 #endif
   </box>
 
