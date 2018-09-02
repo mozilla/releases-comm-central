@@ -3,8 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-if ("@mozilla.org/suite/shell-service;1" in Cc)
-  var nsIShellService = Ci.nsIShellService;
+ChromeUtils.import("resource:///modules/ShellService.jsm");
 
 function Startup()
 {
@@ -30,14 +29,11 @@ function setHomePageToDefaultPage()
 
 function defaultClientSetup()
 {
-  if ("@mozilla.org/suite/shell-service;1" in Cc) try {
-    var shellService = Cc["@mozilla.org/suite/shell-service;1"]
-                         .getService(nsIShellService);
-
+  if (ShellService) try {
     ["Mail", "News", "Rss"].forEach(function(aType) {
       var button = document.getElementById("setDefault" + aType);
       try {
-        button.disabled = shellService.isDefaultClient(false, nsIShellService[aType.toUpperCase()]);
+        button.disabled = ShellService.isDefaultClient(false, Ci.nsIShellService[aType.toUpperCase()]);
         document.getElementById("defaultMailPrefs").hidden = false;
       } catch (e) {
         button.hidden = true;
@@ -49,11 +45,8 @@ function defaultClientSetup()
 
 function onSetDefault(aButton, aType)
 {
-  var shellService = Cc["@mozilla.org/suite/shell-service;1"]
-                       .getService(nsIShellService);
-
-  shellService.setDefaultClient(false, false, nsIShellService[aType]);
-  shellService.shouldBeDefaultClientFor |= nsIShellService[aType];
+  ShellService.setDefaultClient(false, false, Ci.nsIShellService[aType]);
+  ShellService.shouldBeDefaultClientFor |= Ci.nsIShellService[aType];
 
   aButton.disabled = true;
 }

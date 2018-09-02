@@ -6,7 +6,7 @@
 #ifndef nsmacshellservice_h____
 #define nsmacshellservice_h____
 
-#include "nsShellService.h"
+#include "nsIMacShellService.h"
 #include "nsIWebProgressListener.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
@@ -19,7 +19,7 @@ class nsMacShellService final : public nsIShellService,
                                 public nsIWebProgressListener
 {
 public:
-  nsMacShellService() : mCheckedThisSessionClient(false) {};
+  nsMacShellService() {};
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
@@ -31,7 +31,6 @@ protected:
 
 private:
   nsCOMPtr<nsIFile> mBackgroundFile;
-  bool mCheckedThisSessionClient;
 };
 
 #endif

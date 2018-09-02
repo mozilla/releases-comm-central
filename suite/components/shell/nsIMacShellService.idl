@@ -1,0 +1,14 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsIShellService.idl"
+
+[scriptable, uuid(66f4a5cf-8807-43dd-8e65-9954f3c34cf2)]
+interface nsIMacShellService : nsIShellService
+{
+  const long APPLICATION_KEYCHAIN_ACCESS  = 2;
+  const long APPLICATION_NETWORK          = 3;
+  const long APPLICATION_DESKTOP          = 4;
+};

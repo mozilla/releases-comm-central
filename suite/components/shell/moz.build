@@ -8,6 +8,15 @@ XPIDL_SOURCES += [
     'nsIShellService.idl',
 ]
 
+if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+    XPIDL_SOURCES += [
+        'nsIMacShellService.idl',
+    ]
+elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk3':
+    XPIDL_SOURCES += [
+        'nsIGNOMEShellService.idl',
+    ]
+
 XPIDL_MODULE = 'shellservice'
 
 if CONFIG['OS_ARCH'] == 'WINNT':
@@ -33,6 +42,10 @@ if SOURCES:
         'nsSetDefault.js',
         'nsSetDefault.manifest',
     ]
+
+EXTRA_JS_MODULES += [
+    'ShellService.jsm',
+]
 
 FINAL_LIBRARY = 'suite'
 

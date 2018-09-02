@@ -23,7 +23,7 @@ typedef struct {
 class nsWindowsShellService final : public nsIShellService
 {
 public:
-  nsWindowsShellService() : mCheckedThisSessionClient(false) {};
+  nsWindowsShellService() {};
   nsresult Init();
 
   NS_DECL_ISUPPORTS
@@ -35,7 +35,6 @@ protected:
   bool TestForDefault(SETTING aSettings[], int32_t aSize);
 
 private:
-  bool mCheckedThisSessionClient;
   nsString mAppLongPath;
   nsString mAppShortPath;
 };

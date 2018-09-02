@@ -10,7 +10,7 @@ interface nsIFile;
 
 webidl Element;
 
-[scriptable, uuid(4244d99e-0fbf-4cf3-903a-893634704e84)]
+[scriptable, uuid(5a00c44b-e3bd-4769-b021-a83c8212a794)]
 interface nsIShellService : nsISupports
 {
   /**
@@ -48,26 +48,6 @@ interface nsIShellService : nsISupports
    * @param aApps the application types being tested (Mail, News, Browser, RSS)
    */
   void setDefaultClient(in boolean aForAllUsers, in boolean aClaimAllTypes, in unsigned short aApps);
-
-  /**
-   * Used to determine whether or not to show a "Set Default Client"
-   * query dialog. This attribute is true if the application is starting
-   * up and "shell.checkDefaultClient" is true, otherwise it
-   * is false.
-   */
-  attribute boolean shouldCheckDefaultClient;
-
-
-  /**
-   * Returns the appTypes constants we should be the default client for.
-   * Saves/reads the default apps to/from the pref shell.checkDefaultApps
-   */
-  attribute unsigned short shouldBeDefaultClientFor;
-
-  /**
-   * Attempt to determine whether it is possible to change the wallpaper.
-   */
-  readonly attribute boolean canSetDesktopBackground;
 
   /**
    * Sets the desktop background image using either the HTML <IMG>

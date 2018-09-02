@@ -81,7 +81,7 @@ static const MimeTypeAssociation gMimeTypes[] = {
   { nsIShellService::RSS, "application/rss+xml", "rss" }
 };
 
-NS_IMPL_ISUPPORTS(nsGNOMEShellService, nsIShellService)
+NS_IMPL_ISUPPORTS(nsGNOMEShellService, nsIGNOMEShellService, nsIShellService)
 
 nsresult
 GetBrandName(nsACString& aBrandName)
@@ -95,7 +95,7 @@ GetBrandName(nsACString& aBrandName)
   rv = bundleService->CreateBundle(BRAND_PROPERTIES, getter_AddRefs(brandBundle));
   NS_ENSURE_TRUE(brandBundle, rv);
 
-  nsString brandName;
+  nsAutoString brandName;
   rv = brandBundle->GetStringFromName("brandShortName", brandName);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -170,10 +170,8 @@ NS_IMETHODIMP
 nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
                                      bool* aIsDefaultClient)
 {
-  if (aStartupCheck)
-    mCheckedThisSessionClient = true;
-
   *aIsDefaultClient = false;
+
   nsCString handler;
   nsCOMPtr<nsIGIOMimeApp> gioApp;
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
@@ -261,50 +259,6 @@ nsGNOMEShellService::SetDefaultClient(bool aForAllUsers,
   }
 
   return NS_OK;
-}
-
-NS_IMETHODIMP
-nsGNOMEShellService::GetShouldCheckDefaultClient(bool* aResult)
-{
-  if (mCheckedThisSessionClient) {
-    *aResult = false;
-    return NS_OK;
-  }
-
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->GetBoolPref(PREF_CHECKDEFAULTCLIENT, aResult);
-}
-
-NS_IMETHODIMP
-nsGNOMEShellService::SetShouldCheckDefaultClient(bool aShouldCheck)
-{
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->SetBoolPref(PREF_CHECKDEFAULTCLIENT, aShouldCheck);
-}
-
-NS_IMETHODIMP
-nsGNOMEShellService::GetShouldBeDefaultClientFor(uint16_t* aApps)
-{
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  int32_t result;
-  rv = prefs->GetIntPref("shell.checkDefaultApps", &result);
-  *aApps = result;
-  return rv;
-}
-
-NS_IMETHODIMP
-nsGNOMEShellService::SetShouldBeDefaultClientFor(uint16_t aApps)
-{
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->SetIntPref("shell.checkDefaultApps", aApps);
 }
 
 NS_IMETHODIMP

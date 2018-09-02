@@ -34,12 +34,6 @@ NS_IMPL_ISUPPORTS(nsMacShellService, nsIShellService, nsIWebProgressListener)
 NS_IMETHODIMP
 nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool *aIsDefaultClient)
 {
-  // If this is the first window, maintain internal state that we've
-  // checked this session (so that subsequent window opens don't show the
-  // default client dialog).
-  if (aStartupCheck)
-    mCheckedThisSessionClient = true;
-
   *aIsDefaultClient = false;
 
   if (aApps & nsIShellService::BROWSER)
@@ -95,30 +89,6 @@ nsMacShellService::SetDefaultClient(bool aForAllUsers,
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMacShellService::GetShouldCheckDefaultClient(bool* aResult)
-{
-  if (mCheckedThisSessionClient)
-  {
-    *aResult = false;
-    return NS_OK;
-  }
-
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->GetBoolPref(PREF_CHECKDEFAULTCLIENT, aResult);
-}
-
-NS_IMETHODIMP
-nsMacShellService::SetShouldCheckDefaultClient(bool aShouldCheck)
-{
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->SetBoolPref(PREF_CHECKDEFAULTCLIENT, aShouldCheck);
-}
-
 bool
 nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme)
 {
@@ -146,34 +116,6 @@ nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme)
    }
 
   return isDefault;
-}
-
-NS_IMETHODIMP
-nsMacShellService::GetShouldBeDefaultClientFor(uint16_t* aApps)
-{
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  int32_t result;
-  rv = prefs->GetIntPref("shell.checkDefaultApps", &result);
-  *aApps = result;
-  return rv;
-}
-
-NS_IMETHODIMP
-nsMacShellService::SetShouldBeDefaultClientFor(uint16_t aApps)
-{
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->SetIntPref("shell.checkDefaultApps", aApps);
-}
-
-NS_IMETHODIMP
-nsMacShellService::GetCanSetDesktopBackground(bool* aResult)
-{
-  *aResult = true;
-  return NS_OK;
 }
 
 NS_IMETHODIMP

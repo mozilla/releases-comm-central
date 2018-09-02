@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource:///modules/ShellService.jsm");
+
 function Startup()
 {
   SysPrefCheck();
@@ -24,12 +26,8 @@ function SysPrefCheck()
 
 function ShellServiceCheck()
 {
-  const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1";
-
-  if (NS_SHELLSERVICE_CID in Cc) try {
-    Cc[NS_SHELLSERVICE_CID]
-      .getService(Ci.nsIShellService)
-      .shouldCheckDefaultClient;
+  if (ShellService) try {
+    ShellService.shouldCheckDefaultClient;
     document.getElementById("checkDefault").hidden = false;
   } catch (e) {
   }

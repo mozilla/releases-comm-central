@@ -23,6 +23,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   BookmarkJSONUtils: "resource://gre/modules/BookmarkJSONUtils.jsm",
   RecentWindow: "resource:///modules/RecentWindow.jsm",
   Sanitizer: "resource:///modules/Sanitizer.jsm",
+  ShellService: "resource:///modules/ShellService.jsm",
   DownloadsCommon: "resource:///modules/DownloadsCommon.jsm",
   PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.jsm",
   Integration: "resource://gre/modules/Integration.jsm",
@@ -886,19 +887,14 @@ SuiteGlue.prototype = {
   // This will do nothing on platforms without a shell service.
   _checkForDefaultClient: function checkForDefaultClient(aWindow)
   {
-    const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1";
-    if (NS_SHELLSERVICE_CID in Cc) try {
-      var nsIShellService = Ci.nsIShellService;
-
-      var shellService = Cc[NS_SHELLSERVICE_CID]
-                           .getService(nsIShellService);
-      var appTypes = shellService.shouldBeDefaultClientFor;
+    if (ShellService) try {
+      var appTypes = ShellService.shouldBeDefaultClientFor;
 
       // Show the default client dialog only if we should check for the default
       // client and we aren't already the default for the stored app types in
       // shell.checkDefaultApps.
-      if (appTypes && shellService.shouldCheckDefaultClient &&
-          !shellService.isDefaultClient(true, appTypes)) {
+      if (appTypes && ShellService.shouldCheckDefaultClient &&
+          !ShellService.isDefaultClient(true, appTypes)) {
         aWindow.openDialog("chrome://communicator/content/defaultClientDialog.xul",
                            "DefaultClient",
                            "modal,centerscreen,chrome,resizable=no");

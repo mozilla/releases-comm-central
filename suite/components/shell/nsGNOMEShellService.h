@@ -6,31 +6,32 @@
 #ifndef nsgnomeshellservice_h____
 #define nsgnomeshellservice_h____
 
-#include "nsShellService.h"
+#include "nsIGNOMEShellService.h"
 #include "nsString.h"
 #include "mozilla/Attributes.h"
 #include "nsSuiteCID.h"
 
 struct ProtocolAssociation;
 
-class nsGNOMEShellService final : public nsIShellService
+class nsGNOMEShellService final : public nsIGNOMEShellService
 {
 public:
-  nsGNOMEShellService() : mCheckedThisSessionClient(false) { }
+  nsGNOMEShellService() {};
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
+  NS_DECL_NSIGNOMESHELLSERVICE
 
   nsresult Init();
 
 private:
   ~nsGNOMEShellService() {}
+
   bool HandlerMatchesAppName(const char* aHandler);
 
+  bool mUseLocaleFilenames;
   nsCString mAppPath;
   bool mAppIsInPath;
-  bool mUseLocaleFilenames;
-  bool mCheckedThisSessionClient;
 };
 
 #endif // nsgnomeshellservice_h____
