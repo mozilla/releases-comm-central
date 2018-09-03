@@ -19,7 +19,7 @@ Cu.importGlobalProperties(["XMLHttpRequest"]);
 let oconsole = new ConsoleAPI({
   prefix: "Overlays.jsm",
   consoleID: "overlays-jsm",
-  maxLogLevelPref: "extensions.overlayloader.loglevel"
+  maxLogLevelPref: "extensions.overlayloader.loglevel",
 });
 
 /**
