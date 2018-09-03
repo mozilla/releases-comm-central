@@ -20,13 +20,6 @@ this.legacy = class extends ExtensionAPI {
   }
 
   async register() {
-    let enumerator = Services.wm.getEnumerator("mail:3pane");
-    if (enumerator.hasMoreElements() && enumerator.getNext().document.readyState == "complete") {
-      // It's too late!
-      console.log(`Legacy WebExtension ${this.extension.id} loading after app startup, refusing to load immediately.`);
-      return;
-    }
-
     this.extension.legacyLoaded = true;
 
     if (loadedOnce.has(this.extension.id)) {
@@ -94,6 +87,13 @@ this.legacy = class extends ExtensionAPI {
       }
     }
 
+    // Add overlays to all existing windows.
+    let enumerator = Services.wm.getEnumerator("mail:3pane");
+    if (enumerator.hasMoreElements() && enumerator.getNext().document.readyState == "complete") {
+      getAllWindows().forEach(w => Overlays.load(chromeManifest, w));
+    }
+
+    // Listen for new windows to overlay.
     let documentObserver = {
       observe(document) {
         if (ExtensionCommon.instanceOf(document, "XULDocument")) {
@@ -101,12 +101,36 @@ this.legacy = class extends ExtensionAPI {
         }
       },
     };
-    Services.obs.addObserver(documentObserver, "chrome-document-loaded");
+    Services.obs.addObserver(documentObserver, "chrome-document-interactive");
 
     this.extension.callOnClose({
       close: () => {
-        Services.obs.removeObserver(documentObserver, "chrome-document-loaded");
+        Services.obs.removeObserver(documentObserver, "chrome-document-interactive");
       },
     });
   }
 };
+
+function getAllWindows() {
+  function getChildDocShells(parentDocShell) {
+    let docShellEnum = parentDocShell.getDocShellEnumerator(
+      Ci.nsIDocShellTreeItem.typeAll,
+      Ci.nsIDocShell.ENUMERATE_FORWARDS
+    );
+
+    for (let docShell of docShellEnum) {
+      docShell.QueryInterface(Ci.nsIInterfaceRequestor)
+              .getInterface(Ci.nsIWebProgress);
+      domWindows.push(docShell.domWindow);
+    }
+  }
+
+  let domWindows = [];
+  for (let win of Services.ww.getWindowEnumerator()) {
+    let parentDocShell = win.QueryInterface(Ci.nsIInterfaceRequestor)
+                            .getInterface(Ci.nsIWebNavigation)
+                            .QueryInterface(Ci.nsIDocShell);
+    getChildDocShells(parentDocShell);
+  }
+  return domWindows;
+}

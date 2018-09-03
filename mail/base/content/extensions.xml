@@ -36,10 +36,7 @@
           let id = this.mAddon.id;
           let webex = this.webextension;
 
-          if (webex && webex.manifest.legacy && (
-                (webex.startupReason != "APP_STARTUP" && !webex.legacyLoaded) ||
-                (this.mAddon.userDisabled && webex.legacyLoaded)
-              )) {
+          if (webex && webex.manifest.legacy && this.mAddon.userDisabled && webex.legacyLoaded) {
             this.setAttribute("notification", "warning");
             this._warning.textContent = this._bundle.GetStringFromName("warnLegacyRestart");
             this._warningBtn.label = this._bundle.GetStringFromName("warnLegacyRestartButton");

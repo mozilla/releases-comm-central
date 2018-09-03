@@ -787,7 +787,7 @@ function injectCalendarCommandController() {
     // gets alive. Please note that setTimeout with a value of 0 means that
     // we leave the current thread in order to re-enter the message loop.
 
-    let tbController = top.controllers.getControllerForCommand("cmd_runJunkControls");
+    let tbController = top.DefaultController;
     if (tbController) {
         calendarController.defaultController = tbController;
         top.controllers.insertControllerAt(0, calendarController);

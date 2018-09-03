@@ -86,6 +86,10 @@ class Overlays {
       unloadedSheets.push(sheet);
     }
 
+    if (!unloadedOverlays.length && !unloadedSheets.length) {
+      return;
+    }
+
     while (unloadedOverlays.length) {
       let url = unloadedOverlays.shift();
       let xhr = this.fetchOverlay(url);
@@ -170,12 +174,20 @@ class Overlays {
       this.loadCSS(sheet);
     }
 
-    for (let bar of this._toolbarsToResolve) {
-      let currentset = xulStore.getValue(this.location, bar.id, "currentset");
-      if (currentset) {
-        bar.currentSet = currentset;
-      } else if (bar.getAttribute("defaultset")) {
-        bar.currentSet = bar.getAttribute("defaultset");
+    this._decksToResolve = new Map();
+    for (let id of this.persistedIDs.values()) {
+      let element = this.document.getElementById(id);
+      if (element) {
+        let attrNames = xulStore.getAttributeEnumerator(this.location, id);
+        while (attrNames.hasMore()) {
+          let attrName = attrNames.getNext();
+          let attrValue = xulStore.getValue(this.location, id, attrName);
+          if (attrName == "selectedIndex" && element.localName == "deck") {
+            this._decksToResolve.set(element, attrValue);
+          } else {
+            element.setAttribute(attrName, attrValue);
+          }
+        }
       }
     }
 
@@ -185,46 +197,52 @@ class Overlays {
       deferredLoad.push(...this.loadScript(script));
     }
 
-    let sheet;
-    let overlayTrigger = this.document.createElement("overlayTrigger");
-    overlayTrigger.addEventListener("bindingattached", () => {
-      oconsole.debug("XBL binding attached, continuing with load");
-      sheet.remove();
-      overlayTrigger.remove();
+    if (this.document.readyState == "complete") {
+      let sheet;
+      let overlayTrigger = this.document.createElement("overlayTrigger");
+      overlayTrigger.addEventListener("bindingattached", () => {
+        oconsole.debug("XBL binding attached, continuing with load");
+        sheet.remove();
+        overlayTrigger.remove();
 
-      setTimeout(() => {
-        for (let id of this.persistedIDs.values()) {
-          let element = this.document.getElementById(id);
-          if (element) {
-            let attrNames = xulStore.getAttributeEnumerator(this.location, id);
-            while (attrNames.hasMore()) {
-              let attrName = attrNames.getNext();
-              let attrValue = xulStore.getValue(this.location, id, attrName);
-              element.setAttribute(attrName, attrValue);
-              if (attrName == "currentset") {
-                element.currentSet = attrValue;
-              }
+        setTimeout(() => {
+          this._finish();
+
+          // Now execute load handlers since we are done loading scripts
+          let bubbles = [];
+          for (let { listener, useCapture } of deferredLoad) {
+            if (useCapture) {
+              this._fireEventListener(listener);
+            } else {
+              bubbles.push(listener);
             }
           }
-        }
 
-        // Now execute load handlers since we are done loading scripts
-        let bubbles = [];
-        for (let { listener, useCapture } of deferredLoad) {
-          if (useCapture) {
+          for (let listener of bubbles) {
             this._fireEventListener(listener);
-          } else {
-            bubbles.push(listener);
           }
-        }
+        }, 0);
+      }, { once: true });
+      this.document.documentElement.appendChild(overlayTrigger);
+      sheet = this.loadCSS("chrome://messenger/content/overlayBindings.css");
+    } else {
+      this.document.defaultView.addEventListener("load", this._finish.bind(this), { once: true });
+    }
+  }
 
-        for (let listener of bubbles) {
-          this._fireEventListener(listener);
-        }
-      }, 0);
-    }, { once: true });
-    this.document.documentElement.appendChild(overlayTrigger);
-    sheet = this.loadCSS("chrome://messenger/content/overlayBindings.css");
+  _finish() {
+    for (let [deck, selectedIndex] of this._decksToResolve.entries()) {
+      deck.setAttribute("selectedIndex", selectedIndex);
+    }
+
+    for (let bar of this._toolbarsToResolve) {
+      let currentset = Services.xulStore.getValue(this.location, bar.id, "currentset");
+      if (currentset) {
+        bar.currentSet = currentset;
+      } else if (bar.getAttribute("defaultset")) {
+        bar.currentSet = bar.getAttribute("defaultset");
+      }
+    }
   }
 
   /**
@@ -271,22 +289,28 @@ class Overlays {
    * @return {Boolean}              True, if the node was merged/inserted, false otherwise
    */
   _resolveForwardReference(node) {
-    if (node.id && node.localName == "toolbarpalette") {
-      // These vanish from the document but still exist via the palette property
-      let boxes = [...this.document.getElementsByTagName("toolbox")];
-      let box = boxes.find(box => box.palette && box.palette.id == node.id);
-      let palette = box ? box.palette : null;
-
-      if (!palette) {
-        oconsole.debug(`The palette for ${node.id} could not be found, deferring to later`);
-        return false;
-      }
-
-      this._mergeElement(palette, node);
-      this._toolbarsToResolve.push(...box.getElementsByTagName("toolbar"));
-    } else if (node.id) {
+    if (node.id) {
       let target = this.document.getElementById(node.id);
-      if (!target) {
+      if (node.localName == "toolbarpalette") {
+        let box;
+        if (target) {
+          box = target.closest("toolbox");
+        } else {
+          // These vanish from the document but still exist via the palette property
+          let boxes = [...this.document.getElementsByTagName("toolbox")];
+          box = boxes.find(box => box.palette && box.palette.id == node.id);
+          let palette = box ? box.palette : null;
+
+          if (!palette) {
+            oconsole.debug(`The palette for ${node.id} could not be found, deferring to later`);
+            return false;
+          }
+
+          target = palette;
+        }
+
+        this._toolbarsToResolve.push(...box.querySelectorAll("toolbar:not([type=\"menubar\"])"));
+      } else if (!target) {
         oconsole.debug(`The node ${node.id} could not be found, deferring to later`);
         return false;
       }
@@ -427,20 +451,22 @@ class Overlays {
     let deferredLoad = [];
 
     let oldAddEventListener = this.window.addEventListener;
-    this.window.addEventListener = function(type, listener, useCapture, ...args) {
-      if (type == "load") {
-        if (typeof useCapture == "object") {
-          useCapture = useCapture.capture;
-        }
+    if (this.document.readyState == "complete") {
+      this.window.addEventListener = function(type, listener, useCapture, ...args) {
+        if (type == "load") {
+          if (typeof useCapture == "object") {
+            useCapture = useCapture.capture;
+          }
 
-        if (typeof useCapture == "undefined") {
-          useCapture = true;
+          if (typeof useCapture == "undefined") {
+            useCapture = true;
+          }
+          deferredLoad.push({ listener, useCapture });
+          return null;
         }
-        deferredLoad.push({ listener, useCapture });
-        return null;
-      }
-      return oldAddEventListener.call(this, type, listener, useCapture, ...args);
-    };
+        return oldAddEventListener.call(this, type, listener, useCapture, ...args);
+      };
+    }
 
     if (node.hasAttribute("src")) {
       let url = node.getAttribute("src");
@@ -448,7 +474,7 @@ class Overlays {
       try {
         Services.scriptloader.loadSubScript(url, this.window);
       } catch (ex) {
-        oconsole.error(`Error loading script ${url} into ${this.window.location}`, ex.message);
+        Cu.reportError(ex);
       }
     } else if (node.textContent) {
       oconsole.debug(`Loading eval'd script into ${this.window.location}`);
@@ -457,12 +483,13 @@ class Overlays {
         // window.eval will have to do.
         this.window.eval(node.textContent);
       } catch (ex) {
-        oconsole.error(`Error loading eval script from ${node.baseURI} into ` +
-                       this.window.location, ex.message);
+        Cu.reportError(ex);
       }
     }
 
-    this.window.addEventListener = oldAddEventListener;
+    if (this.document.readyState == "complete") {
+      this.window.addEventListener = oldAddEventListener;
+    }
 
     // This works because we only care about immediately executed addEventListener calls and
     // loadSubScript is synchronous. Everyone else should be checking readyState anyway.
