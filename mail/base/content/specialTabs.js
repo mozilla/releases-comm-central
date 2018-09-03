@@ -262,49 +262,12 @@ var contentTabBaseType = {
   inContentOverlays: [
     // about:addons
     function (aDocument, aTab) {
-      let contentStylesheet = aDocument.createProcessingInstruction(
-        "xml-stylesheet",
-        'href="chrome://messenger/content/extensionsOverlay.css" type="text/css"');
-        aDocument.insertBefore(contentStylesheet, aDocument.documentElement);
-
-      let extBundle =
-        new StringBundle("chrome://messenger/locale/extensionsOverlay.properties");
-
-      aDocument.defaultView.isCorrectlySigned = function() { return true; };
-
-      // Add navigation buttons for back and forward on the addons page.
-      let hbox = aDocument.createElement("hbox");
-      hbox.setAttribute("id", "nav-header");
-      hbox.setAttribute("align", "center");
-      hbox.setAttribute("pack", "center");
-
-      let button1 = aDocument.createElement("toolbarbutton");
-      button1.setAttribute("id", "back-btn");
-      button1.setAttribute("class", "nav-button header-button");
-      button1.setAttribute("command", "cmd_back");
-      button1.setAttribute("tooltiptext", extBundle.get("cmdBackTooltip"));
-      button1.setAttribute("disabled", "true");
-
-      let button2 = aDocument.createElement("toolbarbutton");
-      button2.setAttribute("id", "forward-btn");
-      button2.setAttribute("class", "nav-button header-button");
-      button2.setAttribute("command", "cmd_forward");
-      button2.setAttribute("tooltiptext", extBundle.get("cmdForwardTooltip"));
-      button2.setAttribute("disabled", "true");
-      hbox.appendChild(button1);
-      hbox.appendChild(button2);
-
-      aDocument.getElementById("category-box")
-               .insertBefore(hbox, aDocument.getElementById("categories"));
-
       // Switch off the context menu.
       aTab.browser.removeAttribute("context");
 
-      // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
-      let textbox = aDocument.getElementById("header-search");
-      let placeholder = textbox.getAttribute("placeholder");
-      placeholder = placeholder.replace("addons.mozilla.org", "addons.thunderbird.net");
-      textbox.setAttribute("placeholder", placeholder);
+      Services.scriptloader.loadSubScript(
+        "chrome://messenger/content/aboutAddonsExtra.js", aDocument.defaultView
+      );
     },
 
     // Let's not mess with about:blank.

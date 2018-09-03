@@ -32,6 +32,8 @@ function extensionDefaults() {
 }
 
 var ExtensionSupport = {
+  loadedLegacyExtensions: new Set(),
+
   loadAddonPrefs(addonFile) {
     function setPref(preferDefault, name, value) {
       let branch = preferDefault ? Services.prefs.getDefaultBranch("") : Services.prefs.getBranch("");

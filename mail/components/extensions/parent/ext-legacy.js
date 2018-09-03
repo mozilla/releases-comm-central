@@ -10,8 +10,6 @@ Cu.importGlobalProperties(["fetch"]);
 
 var { ExtensionError } = ExtensionUtils;
 
-var loadedOnce = new Set();
-
 this.legacy = class extends ExtensionAPI {
   async onManifestEntry(entryName) {
     if (this.extension.manifest.legacy) {
@@ -22,11 +20,11 @@ this.legacy = class extends ExtensionAPI {
   async register() {
     this.extension.legacyLoaded = true;
 
-    if (loadedOnce.has(this.extension.id)) {
+    if (ExtensionSupport.loadedLegacyExtensions.has(this.extension.id)) {
       console.log(`Legacy WebExtension ${this.extension.id} has already been loaded in this run, refusing to do so again. Please restart`);
       return;
     }
-    loadedOnce.add(this.extension.id);
+    ExtensionSupport.loadedLegacyExtensions.add(this.extension.id);
 
 
     let extensionRoot;

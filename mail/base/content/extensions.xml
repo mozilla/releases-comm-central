@@ -15,34 +15,51 @@
         this._updateState = this._updateState.bind(this);
         ExtensionParent.apiManager.on("startup", this._updateState);
         ExtensionParent.apiManager.on("shutdown", this._updateState);
-
-        this._bundle = Services.strings.createBundle("chrome://messenger/locale/extensionsOverlay.properties");
       ]]></constructor>
       <destructor><![CDATA[
         ExtensionParent.apiManager.off("startup", this._updateState);
         ExtensionParent.apiManager.off("shutdown", this._updateState);
       ]]></destructor>
-      <property name="webextension">
-        <getter><![CDATA[
-          if (!this._webextension) {
-            this._webextension = ExtensionParent.GlobalManager.getExtension(this.mAddon.id);
-          }
-          return this._webextension;
-        ]]></getter>
-      </property>
       <method name="_updateState">
         <body><![CDATA[
           this.__proto__.__proto__._updateState.call(this);
-          let id = this.mAddon.id;
-          let webex = this.webextension;
+          let pending = this.mAddon.pendingOperations;
+          let undoButton = this._warningContainer.querySelector("button.undo-btn");
 
-          if (webex && webex.manifest.legacy && this.mAddon.userDisabled && webex.legacyLoaded) {
+          if (ExtensionSupport.loadedLegacyExtensions.has(this.mAddon.id)) {
+            this.setAttribute("active", "true");
+            this.removeAttribute("pending");
+          }
+
+          if (
+            ExtensionSupport.loadedLegacyExtensions.has(this.mAddon.id) &&
+            (this.mAddon.userDisabled || pending & AddonManager.PENDING_UNINSTALL)
+          ) {
             this.setAttribute("notification", "warning");
-            this._warning.textContent = this._bundle.GetStringFromName("warnLegacyRestart");
-            this._warningBtn.label = this._bundle.GetStringFromName("warnLegacyRestartButton");
+            let stringName = this.mAddon.userDisabled ? "warnLegacyDisable" : "warnLegacyUninstall";
+            this._warning.textContent = gStrings.mailExt.formatStringFromName(stringName, [this.mAddon.name, gStrings.brandShortName], 2);
+
+            this._warningLink.hidden = true;
+
+            this._warningBtn.label = gStrings.mailExt.GetStringFromName("warnLegacyRestartButton");
             this._warningBtn.setAttribute("oncommand", "BrowserUtils.restartApplication()");
             this._warningBtn.hidden = false;
-            this._warningLink.hidden = true;
+
+            if (!undoButton) {
+              undoButton = document.createElement("button");
+              undoButton.className = "button-link undo-btn";
+              undoButton.setAttribute("label", gStrings.mailExt.GetStringFromName("warnLegacyUndoButton"));
+              // We shouldn't really attach non-anonymous content to anonymous content, but we can.
+              this._warningContainer.insertBefore(undoButton, this._warningContainer.lastElementChild);
+            }
+            if (this.mAddon.userDisabled) {
+              undoButton.setAttribute("oncommand", "document.getBindingParent(this).mAddon.enable()");
+            } else {
+              undoButton.setAttribute("oncommand", "document.getBindingParent(this).mAddon.cancelUninstall()");
+            }
+            undoButton.hidden = false;
+          } else if (undoButton) {
+            undoButton.hidden = true;
           }
         ]]></body>
       </method>
