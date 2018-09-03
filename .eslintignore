@@ -27,6 +27,7 @@ ldap/**
 suite/**
 
 # mailnews exclusions
+mailnews/mailnews.js
 mailnews/addrbook/*
 mailnews/base/*
 mailnews/build/*

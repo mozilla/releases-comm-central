@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = {
+module.exports = { // eslint-disable-line no-undef
   "globals": {
     "Log4Moz": true,
     "MailServices": true,
@@ -33,5 +33,4 @@ module.exports = {
       },
     }],
   },
-
 };
