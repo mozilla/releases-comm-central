@@ -2404,7 +2404,6 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream *fileStream,
                                                   uint32_t length,
                                                   nsIMsgFolder *destFolder)
 {
-  nsCOMPtr <nsISeekableStream> seekableStream = do_QueryInterface(fileStream);
   nsCOMPtr<nsIMsgPluggableStore> store;
   nsCOMPtr<nsIOutputStream> destOutputStream;
   nsresult rv = destFolder->GetMsgStore(getter_AddRefs(store));

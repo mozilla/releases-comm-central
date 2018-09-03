@@ -824,6 +824,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   nsresult rv;
   bool isAllowedContent = !ShouldBlockUnexposedProtocol(aContentLocation);
   nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(aContentLocation, &rv);
+  mozilla::Unused << msgUrl;
   if (NS_FAILED(rv) && !isAllowedContent) {
     // If it's not a mailnews url or allowed content url (http[s]|file) then
     // bail; otherwise set whether js and plugins are allowed.
@@ -1023,7 +1024,7 @@ nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
 #endif
 
   nsCOMPtr<nsIMsgMessageUrl> messageUrl = do_QueryInterface(aLocation, &rv);
-
+  mozilla::Unused << messageUrl;
   if (NS_SUCCEEDED(rv)) {
     // Disable javascript on message URLs.
     rv = docShell->SetAllowJavascript(false);

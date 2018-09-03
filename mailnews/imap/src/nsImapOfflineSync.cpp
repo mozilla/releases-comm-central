@@ -1062,13 +1062,6 @@ nsresult nsImapOfflineSync::ProcessNextOperation()
     {
       m_singleFolderToUpdate->ClearFlag(nsMsgFolderFlags::OfflineEvents);
       m_singleFolderToUpdate->UpdateFolder(m_window);
-      nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(m_singleFolderToUpdate));
-      if (imapFolder)
-      {
-        nsCOMPtr<nsIUrlListener> saveListener = m_listener;
-//        m_listener = nullptr;
-//        imapFolder->UpdateFolderWithListener(m_window, saveListener);
-      }
     }
   }
   // if we get here, then I *think* we're done. Not sure, though.

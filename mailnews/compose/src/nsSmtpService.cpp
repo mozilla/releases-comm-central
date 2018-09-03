@@ -216,6 +216,7 @@ nsresult NS_MsgLoadSmtpUrl(nsIURI * aUrl, nsISupports * aConsumer, nsIRequest **
   // For now, assume the url is an smtp url and load it.
   nsresult rv;
   nsCOMPtr<nsISmtpUrl> smtpUrl(do_QueryInterface(aUrl, &rv));
+  mozilla::Unused << smtpUrl;
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Create a smtp protocol instance to run the url in.

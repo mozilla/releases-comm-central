@@ -343,8 +343,6 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder *aFolder,
   if (!parentFolder)
     return NS_ERROR_NULL_POINTER;
 
-  nsCOMPtr<nsISupports> parentSupport = do_QueryInterface(parentFolder);
-
   nsCOMPtr<nsIFile> oldSummaryFile;
   rv = aFolder->GetSummaryFile(getter_AddRefs(oldSummaryFile));
   NS_ENSURE_SUCCESS(rv, rv);

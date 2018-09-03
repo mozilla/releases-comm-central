@@ -112,9 +112,6 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(bool doNewMailNotification /* = fals
 
     m_sourceFolder->SetNumNewMessages(oldNewMessageCount);
 
-    nsCOMPtr <nsISupports> sourceSupports = do_QueryInterface(m_sourceFolder, &rv);
-    nsCOMPtr <nsIUrlListener> urlListener(do_QueryInterface(sourceSupports));
-
     keysToAdd.Clear();
     nsCOMPtr<nsIMsgCopyService> copySvc = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID);
     if (copySvc)

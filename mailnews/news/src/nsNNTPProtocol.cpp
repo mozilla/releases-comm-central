@@ -2217,8 +2217,6 @@ nsresult nsNNTPProtocol::ReadArticle(nsIInputStream * inputStream, uint32_t leng
   if(!line)
     return rv;  /* no line yet or error */
 
-  nsCOMPtr<nsISupports> ctxt = do_QueryInterface(m_runningURL);
-
   if (m_typeWanted == CANCEL_WANTED && m_responseCode != MK_NNTP_RESPONSE_ARTICLE_HEAD)
   {
     /* HEAD command failed. */
@@ -3007,7 +3005,6 @@ nsresult nsNNTPProtocol::FigureNextChunk()
     nsresult rv = NS_OK;
   int32_t status = 0;
 
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_runningURL);
   if (m_firstArticle > 0)
   {
       MOZ_LOG(NNTP, LogLevel::Info,("(%p) add to known articles:  %d - %d", this, m_firstArticle, m_lastArticle));

@@ -354,6 +354,7 @@ nsNntpService::FetchMessage(nsIMsgFolder *folder, nsMsgKey key, nsIMsgWindow *aM
   NS_ENSURE_ARG_POINTER(folder);
   nsresult rv;
   nsCOMPtr<nsIMsgNewsFolder> msgNewsFolder = do_QueryInterface(folder, &rv);
+  mozilla::Unused << msgNewsFolder;
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr <nsIMsgDBHdr> hdr;

@@ -175,7 +175,6 @@ bool nsNewsDownloader::GetNextHdrToRetrieve()
     }
 
     m_lastProgressTime = nowMS;
-    nsCOMPtr <nsIMsgNewsFolder> newsFolder = do_QueryInterface(m_folder);
     nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
     NS_ENSURE_TRUE(bundleService, false);

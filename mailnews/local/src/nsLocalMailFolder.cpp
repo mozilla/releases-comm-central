@@ -2009,6 +2009,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow *aWindow, nsIUrl
   // XXX todo, move all this into nsILocalMailIncomingServer's GetNewMail
   // so that we don't have to have RSS foo here.
   nsCOMPtr<nsIRssIncomingServer> rssServer = do_QueryInterface(server, &rv);
+  mozilla::Unused << rssServer;
   if (NS_SUCCEEDED(rv))
     return localMailServer->GetNewMail(aWindow, aListener, this, nullptr);
 
@@ -3274,6 +3275,7 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI * aUrl, nsresult aExitCode)
   {
     // if we are the inbox and running pop url
     nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(aUrl, &rv);
+    mozilla::Unused << popurl;
     if (NS_SUCCEEDED(rv))
     {
       nsCOMPtr<nsIMsgIncomingServer> server;

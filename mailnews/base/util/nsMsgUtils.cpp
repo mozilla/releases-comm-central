@@ -968,6 +968,7 @@ nsresult IsRSSArticle(nsIURI * aMsgURI, bool *aIsRSSArticle)
   }
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aMsgURI, &rv);
+  mozilla::Unused << mailnewsUrl;
   NS_ENSURE_SUCCESS(rv, rv);
 
   // get the folder and the server from the msghdr

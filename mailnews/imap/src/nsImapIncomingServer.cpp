@@ -539,7 +539,6 @@ nsImapIncomingServer::LoadNextQueuedUrl(nsIImapProtocol *aProtocol, bool *aResul
   while (cnt > 0 && !urlRun && keepGoing)
   {
     nsCOMPtr<nsIImapUrl> aImapUrl(m_urlQueue[0]);
-    nsCOMPtr<nsIMsgMailNewsUrl> aMailNewsUrl(do_QueryInterface(aImapUrl, &rv));
 
     bool removeUrlFromQueue = false;
     if (aImapUrl)

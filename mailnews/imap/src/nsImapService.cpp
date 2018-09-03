@@ -1829,7 +1829,6 @@ NS_IMETHODIMP nsImapService::DiscoverAllFolders(nsIMsgFolder *aImapMailFolder,
       nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(imapUrl);
       mailnewsurl->SetMsgWindow(aMsgWindow);
       urlSpec.AppendLiteral("/discoverallboxes");
-      nsCOMPtr <nsIURI> url = do_QueryInterface(imapUrl, &rv);
       rv = mailnewsurl->SetSpecInternal(urlSpec);
       if (NS_SUCCEEDED(rv))
         rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, aURL);

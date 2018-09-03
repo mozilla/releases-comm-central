@@ -416,7 +416,6 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(nsIMsgFolder *aSrcFolder,
 
   nsAutoString safeFolderName(folderName);
   NS_MsgHashIfNecessary(safeFolderName);
-  nsCOMPtr<nsIMsgLocalMailFolder> localSrcFolder(do_QueryInterface(aSrcFolder));
   aSrcFolder->ForceDBClosed();
 
   nsCOMPtr<nsIFile> oldPath;

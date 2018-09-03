@@ -560,6 +560,7 @@ NS_IMETHODIMP nsAbMDBDirectory::HasDirectory(nsIAbDirectory *dir, bool *hasDir)
   nsresult rv;
 
   nsCOMPtr<nsIAbMDBDirectory> dbdir(do_QueryInterface(dir, &rv));
+  mozilla::Unused << dbdir;
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool bIsMailingList  = false;
@@ -852,6 +853,7 @@ NS_IMETHODIMP nsAbMDBDirectory::OnListEntryChange
     NS_ENSURE_SUCCESS(rv,rv);
 
     nsCOMPtr<nsIAbMDBDirectory> dblist(do_QueryInterface(list, &rv));
+    mozilla::Unused << dblist;
     NS_ENSURE_SUCCESS(rv,rv);
 
     if (bIsMailList) {

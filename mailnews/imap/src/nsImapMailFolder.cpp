@@ -363,6 +363,7 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name, nsIFile *dbPath
 
   folder->SetFilePath(dbPath);
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder, &rv);
+  mozilla::Unused << imapFolder;
   NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t flags = 0;

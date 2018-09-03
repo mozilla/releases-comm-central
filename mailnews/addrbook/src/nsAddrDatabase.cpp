@@ -591,7 +591,6 @@ NS_IMETHODIMP nsAddrDatabase::CloseMDB(bool commit)
 NS_IMETHODIMP nsAddrDatabase::ForceClosed()
 {
   nsresult err = NS_OK;
-  nsCOMPtr<nsIAddrDatabase> aDb(do_QueryInterface(this, &err));
 
   // make sure someone has a reference so object won't get deleted out from under us.
   NS_ADDREF_THIS();
