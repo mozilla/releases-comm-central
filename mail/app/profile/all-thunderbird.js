@@ -121,6 +121,7 @@ pref("javascript.options.showInConsole", true);
 
 // Controls enabling of the extension system logging (can reduce performance)
 pref("extensions.logging.enabled", false);
+pref("extensions.overlayloader.loglevel", "warn");
 
 // Strict compatibility makes add-ons incompatible by default.
 #ifndef RELEASE_OR_BETA
