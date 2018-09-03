@@ -10,30 +10,26 @@ var gSendOptionsDialog = {
   mHTMLListBox: null,
   mPlainTextListBox: null,
 
-  init: function ()
-  {
-    this.mPrefsBundle = document.getElementById('bundlePreferences');
-    this.mHTMLListBox = document.getElementById('html_domains');
-    this.mPlainTextListBox = document.getElementById('plaintext_domains');
+  init() {
+    this.mPrefsBundle = document.getElementById("bundlePreferences");
+    this.mHTMLListBox = document.getElementById("html_domains");
+    this.mPlainTextListBox = document.getElementById("plaintext_domains");
 
-    var htmlDomainPrefString = document.getElementById('mailnews.html_domains').value;
-    this.loadDomains(document.getElementById('mailnews.html_domains').value,
+    var htmlDomainPrefString = document.getElementById("mailnews.html_domains").value;
+    this.loadDomains(document.getElementById("mailnews.html_domains").value,
                      this.mHTMLListBox);
-    this.loadDomains(document.getElementById('mailnews.plaintext_domains').value,
+    this.loadDomains(document.getElementById("mailnews.plaintext_domains").value,
                      this.mPlainTextListBox);
   },
 
-  saveDomainPref: function(aHTML)
-  {
+  saveDomainPref(aHTML) {
     var listbox = aHTML ? this.mHTMLListBox : this.mPlainTextListBox;
     var num_domains = 0;
     var pref_string = "";
 
-    for (var item = listbox.firstChild; item != null; item = item.nextSibling)
-    {
+    for (var item = listbox.firstChild; item != null; item = item.nextSibling) {
       var domainid = item.firstChild.getAttribute("value");
-      if (domainid.length > 1)
-      {
+      if (domainid.length > 1) {
         num_domains++;
 
         // Separate >1 domains by commas.
@@ -47,69 +43,61 @@ var gSendOptionsDialog = {
     return pref_string;
   },
 
-  loadDomains: function (aPrefString, aListBox)
-  {
-    var arrayOfPrefs = aPrefString.split(',');
+  loadDomains(aPrefString, aListBox) {
+    var arrayOfPrefs = aPrefString.split(",");
     if (arrayOfPrefs)
-      for (var i = 0; i < arrayOfPrefs.length; i++)
-      {
-        var str = arrayOfPrefs[i].replace(/ /g,"");
+      for (var i = 0; i < arrayOfPrefs.length; i++) {
+        var str = arrayOfPrefs[i].replace(/ /g, "");
         if (str)
           this.addItemToDomainList(aListBox, str);
       }
   },
 
-  removeDomains: function(aHTML)
-  {
+  removeDomains(aHTML) {
     let listbox = aHTML ? this.mHTMLListBox : this.mPlainTextListBox;
 
     let selectedCount = listbox.selectedItems.length;
     for (let i = selectedCount - 1; i >= 0; i--)
       listbox.selectedItems[i].remove();
 
-    document.getElementById('SendOptionsDialogPane').userChangedValue(listbox);
+    document.getElementById("SendOptionsDialogPane").userChangedValue(listbox);
   },
 
-  addDomain: function (aHTML)
-  {
+  addDomain(aHTML) {
     var listbox = aHTML ? this.mHTMLListBox : this.mPlainTextListBox;
 
     var domainName;
-    var result = {value:null};
-    if (Services.prompt.prompt(window, this.mPrefsBundle.getString(listbox.id + 'AddDomainTitle'),
-                               this.mPrefsBundle.getString(listbox.id + 'AddDomain'), result, null, {value:0}))
-      domainName = result.value.replace(/ /g,"");
+    var result = {value: null};
+    if (Services.prompt.prompt(window, this.mPrefsBundle.getString(listbox.id + "AddDomainTitle"),
+                               this.mPrefsBundle.getString(listbox.id + "AddDomain"), result, null, {value: 0}))
+      domainName = result.value.replace(/ /g, "");
 
-    if (domainName && !this.domainAlreadyPresent(domainName))
-    {
+    if (domainName && !this.domainAlreadyPresent(domainName)) {
       this.addItemToDomainList(listbox, domainName);
-      document.getElementById('SendOptionsDialogPane').userChangedValue(listbox);
+      document.getElementById("SendOptionsDialogPane").userChangedValue(listbox);
     }
 
   },
 
-  domainAlreadyPresent: function(aDomainName)
-  {
+  domainAlreadyPresent(aDomainName) {
     let matchingDomains = this.mHTMLListBox.querySelectorAll('[value="' + aDomainName + '"]');
 
     if (!matchingDomains.length)
       matchingDomains = this.mPlainTextListBox.querySelectorAll('[value="' + aDomainName + '"]');
 
-    if (matchingDomains.length)
-    {
-      Services.prompt.alert(window, this.mPrefsBundle.getString('domainNameErrorTitle'),
+    if (matchingDomains.length) {
+      Services.prompt.alert(window, this.mPrefsBundle.getString("domainNameErrorTitle"),
                             this.mPrefsBundle.getFormattedString("domainDuplicationError", [aDomainName]));
     }
 
     return matchingDomains.length;
   },
 
-  addItemToDomainList: function (aListBox, aDomainTitle)
-  {
+  addItemToDomainList(aListBox, aDomainTitle) {
     let label = document.createElement("label");
     label.setAttribute("value", aDomainTitle);
     let item = document.createElement("richlistitem");
     item.appendChild(label);
     aListBox.appendChild(item);
-  }
+  },
 };

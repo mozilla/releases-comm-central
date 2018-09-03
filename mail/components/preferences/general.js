@@ -7,8 +7,7 @@ var gGeneralPane = {
   mPane: null,
   mStartPageUrl: "",
 
-  init: function ()
-  {
+  init() {
     this.mPane = document.getElementById("paneGeneral");
 
     this.updateStartPage();
@@ -20,8 +19,7 @@ var gGeneralPane = {
   /**
    * Restores the default start page as the user's start page
    */
-  restoreDefaultStartPage: function()
-  {
+  restoreDefaultStartPage() {
     var startPage = document.getElementById("mailnews.start_page.url");
     startPage.value = startPage.defaultValue;
   },
@@ -30,8 +28,7 @@ var gGeneralPane = {
    * Returns a formatted url corresponding to the value of mailnews.start_page.url
    * Stores the original value of mailnews.start_page.url
    */
-  readStartPageUrl: function()
-  {
+  readStartPageUrl() {
     var pref = document.getElementById("mailnews.start_page.url");
     this.mStartPageUrl = pref.value;
     return Services.urlFormatter.formatURL(this.mStartPageUrl);
@@ -42,52 +39,43 @@ var gGeneralPane = {
    * If the url matches the formatted version of our stored value, then
    * return the unformatted url.
    */
-  writeStartPageUrl: function()
-  {
-    var startPage = document.getElementById('mailnewsStartPageUrl');
+  writeStartPageUrl() {
+    var startPage = document.getElementById("mailnewsStartPageUrl");
     return Services.urlFormatter.formatURL(this.mStartPageUrl) == startPage.value ? this.mStartPageUrl : startPage.value;
   },
 
-  customizeMailAlert: function()
-  {
+  customizeMailAlert() {
     gSubDialog.open("chrome://messenger/content/preferences/notifications.xul",
                     "resizable=no");
   },
 
-  configureDockOptions: function()
-  {
+  configureDockOptions() {
     gSubDialog.open("chrome://messenger/content/preferences/dockoptions.xul",
                     "resizable=no");
   },
 
-  convertURLToLocalFile: function(aFileURL)
-  {
+  convertURLToLocalFile(aFileURL) {
     // convert the file url into a nsIFile
-    if (aFileURL)
-    {
+    if (aFileURL) {
       return Services.io
                      .getProtocolHandler("file")
                      .QueryInterface(Ci.nsIFileProtocolHandler)
                      .getFileFromURLSpec(aFileURL);
     }
-    else
-      return null;
+    return null;
   },
 
-  readSoundLocation: function()
-  {
+  readSoundLocation() {
     var soundUrlLocation = document.getElementById("soundUrlLocation");
     soundUrlLocation.value = document.getElementById("mail.biff.play_sound.url").value;
-    if (soundUrlLocation.value)
-    {
+    if (soundUrlLocation.value) {
       soundUrlLocation.label = this.convertURLToLocalFile(soundUrlLocation.value).leafName;
       soundUrlLocation.style.backgroundImage = "url(moz-icon://" + soundUrlLocation.label + "?size=16)";
     }
     return undefined;
   },
 
-  previewSound: function ()
-  {
+  previewSound() {
     let sound = Cc["@mozilla.org/sound;1"]
                   .createInstance(Ci.nsISound);
 
@@ -95,8 +83,8 @@ var gGeneralPane = {
     // soundType radio-group isn't used for macOS so it is not in the XUL file
     // for the platform.
     soundLocation = (AppConstants.platform == "macosx" ||
-                     document.getElementById('soundType').value == 1) ?
-                       document.getElementById('soundUrlLocation').value : "";
+                     document.getElementById("soundType").value == 1) ?
+                       document.getElementById("soundUrlLocation").value : "";
 
     if (!soundLocation.includes("file://")) {
       // User has not set any custom sound file to be played
@@ -107,14 +95,13 @@ var gGeneralPane = {
     }
   },
 
-  browseForSoundFile: function ()
-  {
+  browseForSoundFile() {
     const nsIFilePicker = Ci.nsIFilePicker;
     var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 
     // if we already have a sound file, then use the path for that sound file
     // as the initial path in the dialog.
-    var localFile = this.convertURLToLocalFile(document.getElementById('soundUrlLocation').value);
+    var localFile = this.convertURLToLocalFile(document.getElementById("soundUrlLocation").value);
     if (localFile)
       fp.displayDirectory = localFile.parent;
 
@@ -142,29 +129,28 @@ var gGeneralPane = {
     });
   },
 
-  updatePlaySound: function()
-  {
+  updatePlaySound() {
     // Update the sound type radio buttons based on the state of the
     // play sound checkbox.
-    var soundsDisabled = !document.getElementById('newMailNotification').checked;
-    var soundUrlLocation = document.getElementById('soundUrlLocation').value;
+    var soundsDisabled = !document.getElementById("newMailNotification").checked;
+    var soundUrlLocation = document.getElementById("soundUrlLocation").value;
 
     // The UI is different on OS X as the user can only choose between letting
     // the system play a default sound or setting a custom one. Therefore,
     // "soundTypeEl" does not exist on OS X.
     if (AppConstants.platform != "macosx") {
-      var soundTypeEl = document.getElementById('soundType');
+      var soundTypeEl = document.getElementById("soundType");
       soundTypeEl.disabled = soundsDisabled;
       document.getElementById("soundUrlLocation").disabled =
         soundsDisabled || soundTypeEl.value != 1;
-      document.getElementById('playSound').disabled =
+      document.getElementById("playSound").disabled =
         soundsDisabled || (!soundUrlLocation && soundTypeEl.value != 0);
     } else {
       // On OS X, if there is no selected custom sound then default one will
       // be played. We keep consistency by disabling the "Play sound" checkbox
       // if the user hasn't selected a custom sound file yet.
-      document.getElementById('newMailNotification').disabled = !soundUrlLocation;
-      document.getElementById('playSound').disabled = !soundUrlLocation;
+      document.getElementById("newMailNotification").disabled = !soundUrlLocation;
+      document.getElementById("playSound").disabled = !soundUrlLocation;
       // The sound type radiogroup is hidden, but we have to keep the
       // play_sound.type pref set appropriately.
       document.getElementById("mail.biff.play_sound.type").value =
@@ -172,14 +158,12 @@ var gGeneralPane = {
     }
   },
 
-  updateStartPage: function()
-  {
+  updateStartPage() {
     document.getElementById("mailnewsStartPageUrl").disabled =
       !document.getElementById("mailnewsStartPageEnabled").checked;
   },
 
-  updateCustomizeAlert: function()
-  {
+  updateCustomizeAlert() {
     // The button does not exist on all platforms.
     let customizeAlertButton = document.getElementById("customizeMailAlert");
     if (customizeAlertButton) {
@@ -188,9 +172,9 @@ var gGeneralPane = {
     }
   },
 
-  updateWebSearch: function() {
+  updateWebSearch() {
     Services.search.init({
-      onInitComplete: function() {
+      onInitComplete() {
         let engineList = document.getElementById("defaultWebSearch");
         for (let engine of Services.search.getVisibleEngines()) {
           let item = engineList.appendItem(engine.name);
@@ -207,7 +191,7 @@ var gGeneralPane = {
         engineList.addEventListener("command", function() {
           Services.search.currentEngine = engineList.selectedItem.engine;
         });
-      }
+      },
     });
   },
 };

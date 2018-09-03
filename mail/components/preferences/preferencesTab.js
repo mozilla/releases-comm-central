@@ -30,10 +30,10 @@ var preferencesTabType = {
   modes: {
     preferencesTab: {
       type: "preferencesTab",
-    }
+    },
   },
 
-  initialize: function() {
+  initialize() {
     let tabmail = document.getElementById("tabmail");
     tabmail.registerTabType(this);
   },
@@ -47,13 +47,13 @@ var preferencesTabType = {
     return document.getElementById("tabmail").tabInfo.indexOf(gPrefTab);
   },
 
-  closeTab: function(aTab) {
+  closeTab(aTab) {
     gPrefTab = null;
   },
 
   openTab: function onTabOpened(aTab, aArgs) {
-    if (!"contentPage" in aArgs) {
-      throw("contentPage must be specified");
+    if (!("contentPage" in aArgs)) {
+      throw ("contentPage must be specified");
     }
 
     // First clone the page and set up the basics.

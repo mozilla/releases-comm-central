@@ -6,7 +6,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-window.addEventListener("load", function () {
+window.addEventListener("load", function() {
   let prefWindow = document.getElementById("MailPreferences");
   if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
     let radio =

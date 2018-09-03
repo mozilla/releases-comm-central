@@ -9,12 +9,11 @@ var gSecurityPane = {
   mPane: null,
   mInitialized: false,
 
-  init: function ()
-  {
+  init() {
     this.mPane = document.getElementById("paneSecurity");
 
-    this.updateManualMarkMode(document.getElementById('manualMark').checked);
-    this.updateJunkLogButton(document.getElementById('enableJunkLogging').checked);
+    this.updateManualMarkMode(document.getElementById("manualMark").checked);
+    this.updateJunkLogButton(document.getElementById("enableJunkLogging").checked);
 
     this._initMasterPasswordUI();
 
@@ -31,30 +30,25 @@ var gSecurityPane = {
     this.mInitialized = true;
   },
 
-  tabSelectionChanged: function ()
-  {
+  tabSelectionChanged() {
     if (this.mInitialized)
       document.getElementById("mail.preferences.security.selectedTabIndex")
               .valueFromPreferences = document.getElementById("securityPrefs").selectedIndex;
   },
 
-  updateManualMarkMode: function(aEnableRadioGroup)
-  {
-    document.getElementById('manualMarkMode').disabled = !aEnableRadioGroup;
+  updateManualMarkMode(aEnableRadioGroup) {
+    document.getElementById("manualMarkMode").disabled = !aEnableRadioGroup;
   },
 
-  updateJunkLogButton: function(aEnableButton)
-  {
-    document.getElementById('openJunkLogButton').disabled = !aEnableButton;
+  updateJunkLogButton(aEnableButton) {
+    document.getElementById("openJunkLogButton").disabled = !aEnableButton;
   },
 
-  openJunkLog: function()
-  {
+  openJunkLog() {
     gSubDialog.open("chrome://messenger/content/junkLog.xul");
   },
 
-  resetTrainingData: function()
-  {
+  resetTrainingData() {
     // make sure the user really wants to do this
     var bundle = document.getElementById("bundlePreferences");
     var title = bundle.getString("confirmResetJunkTrainingTitle");
@@ -73,9 +67,8 @@ var gSecurityPane = {
    * Reload the current message after a preference affecting the view
    * has been changed and we are in instantApply mode.
    */
-  reloadMessageInOpener: function()
-  {
-    if(Services.prefs.getBoolPref("browser.preferences.instantApply") &&
+  reloadMessageInOpener() {
+    if (Services.prefs.getBoolPref("browser.preferences.instantApply") &&
        window.opener && typeof(window.opener.ReloadMessage) == "function")
       window.opener.ReloadMessage();
   },
@@ -86,8 +79,7 @@ var gSecurityPane = {
    * The master password is controlled by various bits of NSS functionality,
    * so the UI for it can't be controlled by the normal preference bindings.
    */
-  _initMasterPasswordUI: function ()
-  {
+  _initMasterPasswordUI() {
     var noMP = !LoginHelper.isMasterPasswordSet();
 
     document.getElementById("changeMasterPassword").disabled = noMP;
@@ -100,8 +92,7 @@ var gSecurityPane = {
    * "use master password" checkbox, and prompts for master password removal
    * if one is set.
    */
-  updateMasterPasswordButton: function ()
-  {
+  updateMasterPasswordButton() {
     var checkbox = document.getElementById("useMasterPassword");
     var button = document.getElementById("changeMasterPassword");
     button.disabled = !checkbox.checked;
@@ -124,8 +115,7 @@ var gSecurityPane = {
    * the current master password.  When the dialog is dismissed, master password
    * UI is automatically updated.
    */
-  _removeMasterPassword: function ()
-  {
+  _removeMasterPassword() {
     var secmodDB = Cc["@mozilla.org/security/pkcs11moduledb;1"].
                    getService(Ci.nsIPKCS11ModuleDB);
     if (secmodDB.isFIPSEnabled) {
@@ -133,8 +123,7 @@ var gSecurityPane = {
       Services.prompt.alert(window,
                             bundle.getString("pw_change_failed_title"),
                             bundle.getString("pw_change2empty_in_fips_mode"));
-    }
-    else {
+    } else {
       gSubDialog.open("chrome://mozapps/content/preferences/removemp.xul",
                       null, null, this._initMasterPasswordUI.bind(this));
     }
@@ -144,8 +133,7 @@ var gSecurityPane = {
   /**
    * Displays a dialog in which the master password may be changed.
    */
-  changeMasterPassword: function ()
-  {
+  changeMasterPassword() {
     gSubDialog.open("chrome://mozapps/content/preferences/changemp.xul",
                     null, null, this._initMasterPasswordUI.bind(this));
   },
@@ -154,14 +142,12 @@ var gSecurityPane = {
    * Shows the sites where the user has saved passwords and the associated
    * login information.
    */
-  showPasswords: function ()
-  {
+  showPasswords() {
     gSubDialog.open("chrome://passwordmgr/content/passwordManager.xul");
   },
 
-  updateDownloadedPhishingListState: function()
-  {
-    document.getElementById('useDownloadedList').disabled = !document.getElementById('enablePhishingDetector').checked;
+  updateDownloadedPhishingListState() {
+    document.getElementById("useDownloadedList").disabled = !document.getElementById("enablePhishingDetector").checked;
   },
 
 };

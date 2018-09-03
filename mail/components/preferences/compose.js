@@ -8,10 +8,9 @@ ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 var gComposePane = {
   mInitialized: false,
   mSpellChecker: null,
-  mDictCount : 0,
+  mDictCount: 0,
 
-  init: function ()
-  {
+  init() {
     this.enableAutocomplete();
 
     this.initLanguageMenu();
@@ -36,53 +35,44 @@ var gComposePane = {
     this.mInitialized = true;
   },
 
-  tabSelectionChanged: function ()
-  {
-    if (this.mInitialized)
-    {
+  tabSelectionChanged() {
+    if (this.mInitialized) {
       var preference = document.getElementById("mail.preferences.compose.selectedTabIndex");
       preference.valueFromPreferences = document.getElementById("composePrefs").selectedIndex;
     }
   },
 
-  sendOptionsDialog: function()
-  {
+  sendOptionsDialog() {
     gSubDialog.open("chrome://messenger/content/preferences/sendoptions.xul");
   },
 
-  attachmentReminderOptionsDialog: function()
-  {
+  attachmentReminderOptionsDialog() {
     gSubDialog.open("chrome://messenger/content/preferences/attachmentReminder.xul",
                     "resizable=no");
   },
 
-  updateAutosave: function()
-  {
+  updateAutosave() {
     this.enableElement(document.getElementById("autoSaveInterval"),
       document.getElementById("autoSave").checked);
   },
 
-  updateAttachmentCheck: function()
-  {
+  updateAttachmentCheck() {
     this.enableElement(document.getElementById("attachment_reminder_button"),
       document.getElementById("attachment_reminder_label").checked);
   },
 
-  updateEmailCollection: function()
-  {
+  updateEmailCollection() {
     this.enableElement(document.getElementById("localDirectoriesList"),
       document.getElementById("emailCollectionOutgoing").checked);
   },
 
-  enableElement: function(aElement, aEnable)
-  {
+  enableElement(aElement, aEnable) {
     let pref = aElement.getAttribute("preference");
     let prefIsLocked = pref ? document.getElementById(pref).locked : false;
     aElement.disabled = !aEnable || prefIsLocked;
   },
 
-  enableAutocomplete: function()
-  {
+  enableAutocomplete() {
     var acLDAPPref = document.getElementById("ldap_2.autoComplete.useDirectory")
                              .value;
 
@@ -90,12 +80,11 @@ var gComposePane = {
     this.enableElement(document.getElementById("editButton"), acLDAPPref);
   },
 
-  editDirectories: function()
-  {
+  editDirectories() {
     gSubDialog.open("chrome://messenger/content/addressbook/pref-editdirectories.xul");
   },
 
-  initAbDefaultStartupDir: function() {
+  initAbDefaultStartupDir() {
     if (!this.startupDirListener.inited)
       this.startupDirListener.load();
 
@@ -117,7 +106,7 @@ var gComposePane = {
     }
   },
 
-  setDefaultStartupDir: function(aDirURI) {
+  setDefaultStartupDir(aDirURI) {
     if (aDirURI) {
       // Some AB directory was selected. Set prefs to make this directory
       // the default view when starting up the main AB.
@@ -129,10 +118,9 @@ var gComposePane = {
     }
   },
 
-  initLanguageMenu: function ()
-  {
+  initLanguageMenu() {
     var languageMenuList = document.getElementById("languageMenuList");
-    this.mSpellChecker = Cc['@mozilla.org/spellchecker/engine;1'].getService(Ci.mozISpellCheckingEngine);
+    this.mSpellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(Ci.mozISpellCheckingEngine);
     var o1 = {};
     var o2 = {};
 
@@ -167,54 +155,49 @@ var gComposePane = {
     languageMenuList.setInitialSelection();
   },
 
-  populateFonts: function()
-  {
+  populateFonts() {
     var fontsList = document.getElementById("FontSelect");
-    try
-    {
+    try {
       var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
                          .getService(Ci.nsIFontEnumerator);
-      var localFontCount = { value: 0 }
+      var localFontCount = { value: 0 };
       var localFonts = enumerator.EnumerateAllFonts(localFontCount);
-      for (var i = 0; i < localFonts.length; ++i)
-      {
+      for (var i = 0; i < localFonts.length; ++i) {
         // Remove Linux system generic fonts that collide with CSS generic fonts.
         if (localFonts[i] != "" && localFonts[i] != "serif" &&
             localFonts[i] != "sans-serif" && localFonts[i] != "monospace")
           fontsList.appendItem(localFonts[i], localFonts[i]);
       }
-    }
-    catch(e) { }
+    } catch (e) { }
     // Choose the item after the list is completely generated.
     var preference = document.getElementById(fontsList.getAttribute("preference"));
     fontsList.value = preference.value;
   },
 
-   restoreHTMLDefaults: function()
-   {
+   restoreHTMLDefaults() {
      // reset throws an exception if the pref value is already the default so
      // work around that with some try/catch exception handling
      try {
-       document.getElementById('msgcompose.font_face').reset();
+       document.getElementById("msgcompose.font_face").reset();
      } catch (ex) {}
 
      try {
-       document.getElementById('msgcompose.font_size').reset();
+       document.getElementById("msgcompose.font_size").reset();
      } catch (ex) {}
 
      try {
-       document.getElementById('msgcompose.text_color').reset();
+       document.getElementById("msgcompose.text_color").reset();
      } catch (ex) {}
 
      try {
-       document.getElementById('msgcompose.background_color').reset();
+       document.getElementById("msgcompose.background_color").reset();
      } catch (ex) {}
   },
 
   startupDirListener: {
     inited: false,
     domain: "mail.addr_book.view.startupURI",
-    observe: function(subject, topic, prefName) {
+    observe(subject, topic, prefName) {
       if (topic != "nsPref:changed")
         return;
 
@@ -222,7 +205,7 @@ var gComposePane = {
       // reinitialize the default startup dir picker to show the new value.
       gComposePane.initAbDefaultStartupDir();
     },
-    load: function() {
+    load() {
       // Observe changes of our prefs.
       Services.prefs.addObserver(this.domain, this);
       // Unload the pref observer when preferences window is closed.
@@ -230,9 +213,9 @@ var gComposePane = {
       this.inited = true;
     },
 
-    unload: function(event) {
+    unload(event) {
       Services.prefs.removeObserver(gComposePane.startupDirListener.domain,
                                     gComposePane.startupDirListener);
-    }
-  }
+    },
+  },
 };

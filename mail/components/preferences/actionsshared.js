@@ -8,24 +8,23 @@ var FILEACTION_OPEN_INTERNALLY  = 2;
 var FILEACTION_OPEN_DEFAULT     = 3;
 var FILEACTION_OPEN_CUSTOM      = 4;
 var FILEACTION_OPEN_PLUGIN      = 5;
-function FileAction ()
-{
+function FileAction() {
 }
 FileAction.prototype = {
-  type        : "",
-  extension   : "",
+  type: "",
+  extension: "",
   hasExtension: true,
-  editable    : true,
-  smallIcon   : "",
-  bigIcon     : "",
-  typeName    : "",
-  action      : "",
-  mimeInfo    : null,
-  customHandler       : "",
-  handleMode          : false,
-  pluginAvailable     : false,
-  pluginEnabled       : false,
-  handledOnlyByPlugin : false
+  editable: true,
+  smallIcon: "",
+  bigIcon: "",
+  typeName: "",
+  action: "",
+  mimeInfo: null,
+  customHandler: "",
+  handleMode: false,
+  pluginAvailable: false,
+  pluginEnabled: false,
+  handledOnlyByPlugin: false,
 };
 
 

@@ -18,8 +18,7 @@ var gAdvancedPane = {
   mBundle: null,
   requestingLocales: null,
 
-  init: function ()
-  {
+  init() {
     this.mPane = document.getElementById("paneAdvanced");
     this.updateCompactOptions();
     this.mBundle = document.getElementById("bundlePreferences");
@@ -29,8 +28,7 @@ var gAdvancedPane = {
       this.initMessengerLocale();
     }
 
-    if (!(("arguments" in window) && window.arguments[1]))
-    {
+    if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
       let preference = document.getElementById("mail.preferences.advanced.selectedTabIndex");
       if (preference.value)
@@ -55,24 +53,18 @@ var gAdvancedPane = {
     let hideSearchUI = false;
     let disableSearchUI = false;
     ChromeUtils.import("resource:///modules/SearchIntegration.js");
-    if (SearchIntegration)
-    {
+    if (SearchIntegration) {
       if (SearchIntegration.osVersionTooLow)
         hideSearchUI = true;
       else if (SearchIntegration.osComponentsNotRunning)
         disableSearchUI = true;
-    }
-    else
-    {
+    } else {
       hideSearchUI = true;
     }
 
-    if (hideSearchUI)
-    {
+    if (hideSearchUI) {
       document.getElementById("searchIntegrationContainer").hidden = true;
-    }
-    else if (disableSearchUI)
-    {
+    } else if (disableSearchUI) {
       let searchCheckbox = document.getElementById("searchIntegration");
       searchCheckbox.checked = false;
       document.getElementById("searchintegration.enable").disabled = true;
@@ -96,7 +88,7 @@ var gAdvancedPane = {
     }
 
     if (AppConstants.MOZ_UPDATER) {
-      let distroId = Services.prefs.getCharPref("distribution.id" , "");
+      let distroId = Services.prefs.getCharPref("distribution.id", "");
       if (distroId) {
         let distroVersion = Services.prefs.getCharPref("distribution.version");
 
@@ -152,10 +144,8 @@ var gAdvancedPane = {
     this.mInitialized = true;
   },
 
-  tabSelectionChanged: function ()
-  {
-    if (this.mInitialized)
-    {
+  tabSelectionChanged() {
+    if (this.mInitialized) {
       document.getElementById("mail.preferences.advanced.selectedTabIndex")
               .valueFromPreferences = document.getElementById("advancedPrefs").selectedIndex;
     }
@@ -168,8 +158,7 @@ var gAdvancedPane = {
    * default for each type; otherwise, the user is informed that Thunderbird is
    * already the default.
    */
-  checkDefaultNow: function (aAppType)
-  {
+  checkDefaultNow(aAppType) {
     if (!this.mShellServiceWorking)
       return;
 
@@ -178,16 +167,14 @@ var gAdvancedPane = {
                     "resizable=no", "calledFromPrefs");
   },
 
-  showConfigEdit: function()
-  {
+  showConfigEdit() {
     gSubDialog.open("chrome://global/content/config.xul");
   },
 
   /**
    * Set the default store contract ID.
    */
-  updateDefaultStore: function(storeID)
-  {
+  updateDefaultStore(storeID) {
     Services.prefs.setCharPref("mail.serverDefaultStoreContractID", storeID);
   },
 
@@ -201,14 +188,13 @@ var gAdvancedPane = {
    */
 
   // Retrieves the amount of space currently used by disk cache
-  updateActualCacheSize: function()
-  {
+  updateActualCacheSize() {
     let actualSizeLabel = document.getElementById("actualDiskCacheSize");
     let prefStrBundle = document.getElementById("bundlePreferences");
 
     // Needs to root the observer since cache service keeps only a weak reference.
     this.observer = {
-      onNetworkCacheDiskConsumption: function(consumption) {
+      onNetworkCacheDiskConsumption(consumption) {
         let size = DownloadUtils.convertByteUnits(consumption);
         // The XBL binding for the string bundle may have been destroyed if
         // the page was closed before this callback was executed.
@@ -220,8 +206,8 @@ var gAdvancedPane = {
 
       QueryInterface: ChromeUtils.generateQI([
         Ci.nsICacheStorageConsumptionObserver,
-        Ci.nsISupportsWeakReference
-      ])
+        Ci.nsISupportsWeakReference,
+      ]),
     };
 
     actualSizeLabel.value = prefStrBundle.getString("actualDiskCacheSizeCalculated");
@@ -234,15 +220,13 @@ var gAdvancedPane = {
     } catch (e) {}
   },
 
-  updateCacheSizeUI: function (smartSizeEnabled)
-  {
+  updateCacheSizeUI(smartSizeEnabled) {
     document.getElementById("useCacheBefore").disabled = smartSizeEnabled;
     document.getElementById("cacheSize").disabled = smartSizeEnabled;
     document.getElementById("useCacheAfter").disabled = smartSizeEnabled;
   },
 
-  readSmartSizeEnabled: function ()
-  {
+  readSmartSizeEnabled() {
     // The smart_size.enabled preference element is inverted="true", so its
     // value is the opposite of the actual pref value
     var disabled = document.getElementById("browser.cache.disk.smart_size.enabled").value;
@@ -253,8 +237,7 @@ var gAdvancedPane = {
    * Converts the cache size from units of KB to units of MB and returns that
    * value.
    */
-  readCacheSize: function ()
-  {
+  readCacheSize() {
     var preference = document.getElementById("browser.cache.disk.capacity");
     return preference.value / 1024;
   },
@@ -263,8 +246,7 @@ var gAdvancedPane = {
    * Converts the cache size as specified in UI (in MB) to KB and returns that
    * value.
    */
-  writeCacheSize: function ()
-  {
+  writeCacheSize() {
     var cacheSize = document.getElementById("cacheSize");
     var intValue = parseInt(cacheSize.value, 10);
     return isNaN(intValue) ? 0 : intValue * 1024;
@@ -273,8 +255,7 @@ var gAdvancedPane = {
   /**
    * Clears the cache.
    */
-  clearCache: function ()
-  {
+  clearCache() {
     try {
       let cache = Cc["@mozilla.org/netwerk/cache-storage-service;1"]
                     .getService(Ci.nsICacheStorageService);
@@ -283,8 +264,7 @@ var gAdvancedPane = {
     this.updateActualCacheSize();
   },
 
-  updateButtons: function (aButtonID, aPreferenceID)
-  {
+  updateButtons(aButtonID, aPreferenceID) {
     var button = document.getElementById(aButtonID);
     var preference = document.getElementById(aPreferenceID);
     // This is actually before the value changes, so the value is not as you expect.
@@ -301,15 +281,14 @@ var gAdvancedPane = {
  * UI Components:                              Preferences
  * Radiogroup                                  i   = app.update.auto
  */
-updateReadPrefs: function ()
-{
+updateReadPrefs() {
   var autoPref = document.getElementById("app.update.auto");
   var radiogroup = document.getElementById("updateRadioGroup");
 
   if (autoPref.value)
-    radiogroup.value="auto";      // Automatically install updates
+    radiogroup.value = "auto";      // Automatically install updates
   else
-    radiogroup.value="checkOnly"; // Check, but let me choose
+    radiogroup.value = "checkOnly"; // Check, but let me choose
 
   var canCheck = Cc["@mozilla.org/updates/update-service;1"].
                    getService(Ci.nsIApplicationUpdateService).
@@ -331,7 +310,7 @@ updateReadPrefs: function ()
                wrk.ACCESS_READ | wrk.WOW64_64);
       installed = wrk.readIntValue("Installed");
       wrk.close();
-    } catch(e) { }
+    } catch (e) { }
     if (installed != 1) {
       document.getElementById("useService").hidden = true;
     }
@@ -341,8 +320,7 @@ updateReadPrefs: function ()
 /**
  * Sets the pref values based on the selected item of the radiogroup.
  */
-updateWritePrefs: function ()
-{
+updateWritePrefs() {
   var autoPref = document.getElementById("app.update.auto");
   var radiogroup = document.getElementById("updateRadioGroup");
   switch (radiogroup.value) {
@@ -355,20 +333,17 @@ updateWritePrefs: function ()
   }
 },
 
-  showUpdates: function ()
-  {
+  showUpdates() {
     gSubDialog.open("chrome://mozapps/content/update/history.xul");
   },
 
-  updateCompactOptions: function(aCompactEnabled)
-  {
+  updateCompactOptions(aCompactEnabled) {
     document.getElementById("offlineCompactFolderMin").disabled =
       !document.getElementById("offlineCompactFolder").checked ||
       document.getElementById("mail.purge_threshhold_mb").locked;
   },
 
-  updateSubmitCrashReports: function(aChecked)
-  {
+  updateSubmitCrashReports(aChecked) {
     Cc["@mozilla.org/toolkit/crash-reporter;1"]
       .getService(Ci.nsICrashReporter)
       .submitReports = aChecked;
@@ -376,8 +351,7 @@ updateWritePrefs: function ()
   /**
    * Display the return receipts configuration dialog.
    */
-  showReturnReceipts: function()
-  {
+  showReturnReceipts() {
     gSubDialog.open("chrome://messenger/content/preferences/receipts.xul",
                     "resizable=no");
   },
@@ -385,8 +359,7 @@ updateWritePrefs: function ()
   /**
    * Display the the connection settings dialog.
    */
-  showConnections: function ()
-  {
+  showConnections() {
     gSubDialog.open("chrome://messenger/content/preferences/connection.xul",
                     "resizable=no");
   },
@@ -394,8 +367,7 @@ updateWritePrefs: function ()
   /**
    * Display the the offline settings dialog.
    */
-  showOffline: function()
-  {
+  showOffline() {
     gSubDialog.open("chrome://messenger/content/preferences/offline.xul",
                     "resizable=no");
   },
@@ -403,8 +375,7 @@ updateWritePrefs: function ()
   /**
    * Display the user's certificates and associated options.
    */
-  showCertificates: function ()
-  {
+  showCertificates() {
     gSubDialog.open("chrome://pippki/content/certManager.xul");
   },
 
@@ -412,8 +383,7 @@ updateWritePrefs: function ()
    * security.OCSP.enabled is an integer value for legacy reasons.
    * A value of 1 means OCSP is enabled. Any other value means it is disabled.
    */
-  readEnableOCSP: function ()
-  {
+  readEnableOCSP() {
     var preference = document.getElementById("security.OCSP.enabled");
     // This is the case if the preference is the default value.
     if (preference.value === undefined) {
@@ -425,8 +395,7 @@ updateWritePrefs: function ()
   /**
    * See documentation for readEnableOCSP.
    */
-  writeEnableOCSP: function ()
-  {
+  writeEnableOCSP() {
     var checkbox = document.getElementById("enableOCSP");
     return checkbox.checked ? 1 : 0;
   },
@@ -434,8 +403,7 @@ updateWritePrefs: function ()
   /**
    * Display a dialog from which the user can manage his security devices.
    */
-  showSecurityDevices: function ()
-  {
+  showSecurityDevices() {
     gSubDialog.open("chrome://pippki/content/device_manager.xul");
   },
 
@@ -443,8 +411,7 @@ updateWritePrefs: function ()
    * When the user toggles the layers.acceleration.disabled pref,
    * sync its new value to the gfx.direct2d.disabled pref too.
    */
-  updateHardwareAcceleration: function(aVal)
-  {
+  updateHardwareAcceleration(aVal) {
     if (AppConstants.platforms == "win")
       Services.prefs.setBoolPref("gfx.direct2d.disabled", !aVal);
   },
@@ -454,7 +421,7 @@ updateWritePrefs: function ()
   /**
    * Open a text link.
    */
-  openTextLink: function (evt) {
+  openTextLink(evt) {
     // Opening links behind a modal dialog is poor form. Work around flawed
     // text-link handling by opening in browser if we'd instead get a content
     // tab behind the modal options dialog.
@@ -472,7 +439,7 @@ updateWritePrefs: function ()
   /**
    * Set up or hide the Learn More links for various data collection options
    */
-  _setupLearnMoreLink: function (pref, element) {
+  _setupLearnMoreLink(pref, element) {
     // set up the Learn More link with the correct URL
     let url = Services.prefs.getCharPref(pref);
     let el = document.getElementById(element);
@@ -484,8 +451,7 @@ updateWritePrefs: function ()
     }
   },
 
-  initSubmitCrashes: function ()
-  {
+  initSubmitCrashes() {
     var checkbox = document.getElementById("submitCrashesBox");
     try {
       var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"].
@@ -497,8 +463,7 @@ updateWritePrefs: function ()
     this._setupLearnMoreLink("toolkit.crashreporter.infoURL", "crashReporterLearnMore");
   },
 
-  updateSubmitCrashes: function ()
-  {
+  updateSubmitCrashes() {
     var checkbox = document.getElementById("submitCrashesBox");
     try {
       var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"].
@@ -513,13 +478,12 @@ updateWritePrefs: function ()
    *
    * In all cases, set up the Learn More link sanely
    */
-  initTelemetry: function ()
-  {
+  initTelemetry() {
     if (AppConstants.MOZ_TELEMETRY_REPORTING)
       this._setupLearnMoreLink("toolkit.telemetry.infoURL", "telemetryLearnMore");
   },
 
-  formatLocaleSetLabels: function() {
+  formatLocaleSetLabels() {
     const localeService =
       Cc["@mozilla.org/intl/localeservice;1"]
         .getService(Ci.mozILocaleService);

@@ -3,26 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var gChatPane = {
-  init: function ()
-  {
+  init() {
     previewObserver.load();
     this.updateDisabledState();
     this.updatePlaySound();
   },
 
-  updateDisabledState: function ()
-  {
+  updateDisabledState() {
     let broadcaster = document.getElementById("idleReportingEnabled");
     if (document.getElementById("messenger.status.reportIdle").value) {
       broadcaster.removeAttribute("disabled");
       this.updateMessageDisabledState();
-    }
-    else
+    } else
       broadcaster.setAttribute("disabled", "true");
   },
 
-  updateMessageDisabledState: function ()
-  {
+  updateMessageDisabledState() {
     let textbox = document.getElementById("defaultIdleAwayMessage");
     if (document.getElementById("messenger.status.awayWhenIdle").value)
       textbox.removeAttribute("disabled");
@@ -30,11 +26,9 @@ var gChatPane = {
       textbox.setAttribute("disabled", "true");
   },
 
-  convertURLToLocalFile: function(aFileURL)
-  {
+  convertURLToLocalFile(aFileURL) {
     // convert the file url into a nsIFile
-    if (aFileURL)
-    {
+    if (aFileURL) {
       return Services.io.getProtocolHandler("file")
                         .QueryInterface(Ci.nsIFileProtocolHandler)
                         .getFileFromURLSpec(aFileURL);
@@ -42,19 +36,16 @@ var gChatPane = {
     return null;
   },
 
-  readSoundLocation: function()
-  {
+  readSoundLocation() {
     let chatSoundUrlLocation = document.getElementById("chatSoundUrlLocation");
     chatSoundUrlLocation.value = document.getElementById("mail.chat.play_sound.url").value;
-    if (chatSoundUrlLocation.value)
-    {
+    if (chatSoundUrlLocation.value) {
       chatSoundUrlLocation.label = this.convertURLToLocalFile(chatSoundUrlLocation.value).leafName;
       chatSoundUrlLocation.style.backgroundImage = "url(moz-icon://" + chatSoundUrlLocation.label + "?size=16)";
     }
   },
 
-  previewSound: function ()
-  {
+  previewSound() {
     let sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
 
     let soundLocation = document.getElementById("chatSoundType").value == 1 ?
@@ -72,8 +63,7 @@ var gChatPane = {
     }
   },
 
-  browseForSoundFile: function ()
-  {
+  browseForSoundFile() {
     const nsIFilePicker = Ci.nsIFilePicker;
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 
@@ -110,8 +100,7 @@ var gChatPane = {
     });
   },
 
-  updatePlaySound: function()
-  {
+  updatePlaySound() {
     // update the sound type radio buttons based on the state of the play sound checkbox
     let soundsDisabled = !document.getElementById("chatNotification").checked;
     let soundTypeEl = document.getElementById("chatSoundType");
@@ -121,5 +110,5 @@ var gChatPane = {
       soundsDisabled || (soundTypeEl.value != 1);
     document.getElementById("playChatSound").disabled =
       soundsDisabled || (!chatSoundUrlLocation && soundTypeEl.value != 0);
-  }
+  },
 };

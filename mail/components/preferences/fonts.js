@@ -72,33 +72,28 @@ var gFontsDialog = {
     .catch(Cu.reportError);
   },
 
-  readFontLanguageGroup()
-  {
+  readFontLanguageGroup() {
     var languagePref = Preferences.get("font.language.group");
     this._selectLanguageGroup(languagePref.value);
     return undefined;
   },
 
-  readUseDocumentFonts: function ()
-  {
+  readUseDocumentFonts() {
     var preference = Preferences.get("browser.display.use_document_fonts");
     return preference.value == 1;
   },
 
-  writeUseDocumentFonts: function ()
-  {
+  writeUseDocumentFonts() {
     var useDocumentFonts = document.getElementById("useDocumentFonts");
     return useDocumentFonts.checked ? 1 : 0;
   },
 
-  readFixedWidthForPlainText: function ()
-  {
+  readFixedWidthForPlainText() {
     var preference = Preferences.get("mail.fixed_width_messages");
     return preference.value == 1;
   },
 
-  writeFixedWidthForPlainText: function ()
-  {
+  writeFixedWidthForPlainText() {
     var mailFixedWidthMessages = document.getElementById("mailFixedWidthMessages");
     return mailFixedWidthMessages.checked;
   },
@@ -108,8 +103,7 @@ var gFontsDialog = {
    * are nsIPrefLocalizedString. Its default value is different depending
    * on the user locale (see bug 48842).
    */
-  ondialogaccept: function()
-  {
+  ondialogaccept() {
     var sendCharsetStr = Services.prefs.getComplexValue(
       "mailnews.send_default_charset", Ci.nsIPrefLocalizedString).data;
 
@@ -129,5 +123,5 @@ var gFontsDialog = {
       Services.prefs.clearUserPref("mailnews.view_default_charset");
 
     return true;
-  }
+  },
 };

@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//****************************************************************************//
+//* ***************************************************************************//
 // Constants & Enumeration Values
 
 var PREF_DISABLED_PLUGIN_TYPES = "plugin.disable_full_page_plugin_for_types";
@@ -29,7 +29,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-//****************************************************************************//
+//* ***************************************************************************//
 // Utilities
 
 function getDisplayNameForFile(aFile) {
@@ -37,18 +37,15 @@ function getDisplayNameForFile(aFile) {
     if (aFile instanceof Ci.nsILocalFileWin) {
       try {
         return aFile.getVersionInfoField("FileDescription");
-      }
-      catch(ex) {
+      } catch (ex) {
         // fall through to the file name
       }
     }
-  }
-  else if (AppConstants.platform == "macosx") {
+  } else if (AppConstants.platform == "macosx") {
     if (aFile instanceof Ci.nsILocalFileMac) {
       try {
         return aFile.bundleDisplayName;
-      }
-      catch(ex) {
+      } catch (ex) {
         // fall through to the file name
       }
     }
@@ -81,16 +78,16 @@ function ArrayEnumerator(aItems) {
 ArrayEnumerator.prototype = {
   _index: 0,
 
-  hasMoreElements: function() {
+  hasMoreElements() {
     return this._index < this._contents.length;
   },
 
-  getNext: function() {
+  getNext() {
     return this._contents[this._index++];
-  }
+  },
 };
 
-//****************************************************************************//
+//* ***************************************************************************//
 // HandlerInfoWrapper
 
 /**
@@ -119,7 +116,7 @@ HandlerInfoWrapper.prototype = {
   // we haven't (yet?) implemented, so we make it a public property.
   wrappedHandlerInfo: null,
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Convenience Utils
 
   _handlerSvc: Cc["@mozilla.org/uriloader/handler-service;1"]
@@ -128,7 +125,7 @@ HandlerInfoWrapper.prototype = {
   _categoryMgr: Cc["@mozilla.org/categorymanager;1"]
                   .getService(Ci.nsICategoryManager),
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // nsIHandlerInfo
 
   // The MIME type or protocol scheme.
@@ -158,14 +155,14 @@ HandlerInfoWrapper.prototype = {
 
     // Make sure the preferred handler is in the set of possible handlers.
     if (aNewValue)
-      this.addPossibleApplicationHandler(aNewValue)
+      this.addPossibleApplicationHandler(aNewValue);
   },
 
   get possibleApplicationHandlers() {
     return this.wrappedHandlerInfo.possibleApplicationHandlers;
   },
 
-  addPossibleApplicationHandler: function(aNewHandler) {
+  addPossibleApplicationHandler(aNewHandler) {
     try {
       if (this.possibleApplicationHandlers.indexOf(0, aNewHandler) != -1)
         return;
@@ -173,7 +170,7 @@ HandlerInfoWrapper.prototype = {
     this.possibleApplicationHandlers.appendElement(aNewHandler);
   },
 
-  removePossibleApplicationHandler: function(aHandler) {
+  removePossibleApplicationHandler(aHandler) {
     var defaultApp = this.preferredApplicationHandler;
     if (defaultApp && aHandler.equals(defaultApp)) {
       // If the app we remove was the default app, we must make sure
@@ -213,8 +210,7 @@ HandlerInfoWrapper.prototype = {
         !gApplicationsPane.isValidHandlerApp(this.preferredApplicationHandler)) {
       if (this.wrappedHandlerInfo.hasDefaultHandler)
         return Ci.nsIHandlerInfo.useSystemDefault;
-      else
-        return Ci.nsIHandlerInfo.saveToDisk;
+      return Ci.nsIHandlerInfo.saveToDisk;
     }
 
     return this.wrappedHandlerInfo.preferredAction;
@@ -257,7 +253,7 @@ HandlerInfoWrapper.prototype = {
   },
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // nsIMIMEInfo
 
   // The primary file extension associated with this type, if any.
@@ -270,13 +266,13 @@ HandlerInfoWrapper.prototype = {
       if (this.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo &&
           this.wrappedHandlerInfo.primaryExtension)
         return this.wrappedHandlerInfo.primaryExtension;
-    } catch(ex) {}
+    } catch (ex) {}
 
     return null;
   },
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Plugin Handling
 
   // A plugin that can handle this type, if any.
@@ -304,7 +300,7 @@ HandlerInfoWrapper.prototype = {
     return this._getDisabledPluginTypes().includes(this.type);
   },
 
-  _getDisabledPluginTypes: function() {
+  _getDisabledPluginTypes() {
     var types = "";
 
     if (Services.prefs.prefHasUserValue(PREF_DISABLED_PLUGIN_TYPES))
@@ -315,7 +311,7 @@ HandlerInfoWrapper.prototype = {
     return types ? types.split(",") : [];
   },
 
-  disablePluginType: function() {
+  disablePluginType() {
     var disabledPluginTypes = this._getDisabledPluginTypes();
 
     if (!disabledPluginTypes.includes(this.type))
@@ -330,7 +326,7 @@ HandlerInfoWrapper.prototype = {
                                           false);
   },
 
-  enablePluginType: function() {
+  enablePluginType() {
     var disabledPluginTypes = this._getDisabledPluginTypes();
 
     var type = this.type;
@@ -349,19 +345,19 @@ HandlerInfoWrapper.prototype = {
   },
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Storage
 
-  store: function() {
+  store() {
     this._handlerSvc.store(this.wrappedHandlerInfo);
   },
 
-  remove: function() {
+  remove() {
     this._handlerSvc.remove(this.wrappedHandlerInfo);
   },
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Icons
 
   get smallIcon() {
@@ -372,7 +368,7 @@ HandlerInfoWrapper.prototype = {
     return this._getIcon(32);
   },
 
-  _getIcon: function(aSize) {
+  _getIcon(aSize) {
     if (this.primaryExtension)
       return "moz-icon://goat." + this.primaryExtension + "?size=" + aSize;
 
@@ -382,7 +378,7 @@ HandlerInfoWrapper.prototype = {
     // FIXME: consider returning some generic icon when we can't get a URL for
     // one (for example in the case of protocol schemes).  Filed as bug 395141.
     return null;
-  }
+  },
 };
 
 var gApplicationsTabController = {
@@ -391,7 +387,7 @@ var gApplicationsTabController = {
   // of the attachmentPrefs tabs.
   mDefaultIndex: 1,
 
-  init: function() {
+  init() {
     if (this.mInitialized)
       return;
 
@@ -422,58 +418,58 @@ var gApplicationsTabController = {
     this.mInitialized = true;
   },
 
-  tabSelectionChanged: function() {
+  tabSelectionChanged() {
     if (this.mInitialized)
       document.getElementById("mail.preferences.applications.selectedTabIndex")
               .valueFromPreferences = document.getElementById("attachmentPrefs")
               .selectedIndex;
   },
 
-}
+};
 
 var gCloudFileController = {
   commands: {
     cmd_addCloudfileAccount: {
-      isEnabled: function() {
+      isEnabled() {
         return true;
       },
-      doCommand: function() {
+      doCommand() {
         gCloudFileTab.addCloudFileAccount();
       },
     },
 
     cmd_removeCloudfileAccount: {
-      isEnabled: function() {
+      isEnabled() {
         let listbox = document.getElementById("cloudFileView");
         return listbox.selectedCount > 0;
       },
-      doCommand: function() {
+      doCommand() {
         gCloudFileTab.removeCloudFileAccount();
       },
     },
 
     cmd_reauthCloudfileAccount: {
-      isEnabled: function() {
+      isEnabled() {
         return true;
       },
-      doCommand: function() {
+      doCommand() {
         gCloudFileTab.authSelected();
       },
     },
 
   },
 
-  supportsCommand: function(aCommand) {
+  supportsCommand(aCommand) {
     return (aCommand in this.commands);
   },
 
-  isCommandEnabled: function(aCommand) {
+  isCommandEnabled(aCommand) {
     if (!this.supportsCommand(aCommand))
       return false;
     return this.commands[aCommand].isEnabled();
   },
 
-  doCommand: function(aCommand) {
+  doCommand(aCommand) {
     if (!this.supportsCommand(aCommand))
       return;
 
@@ -484,8 +480,8 @@ var gCloudFileController = {
 
     cmd.doCommand();
   },
-  onEvent: function(event) {},
-}
+  onEvent(event) {},
+};
 
 function CommandUpdate_CloudFile() {
   goUpdateCommand("cmd_removeCloudfileAccount");
@@ -509,7 +505,7 @@ var gCloudFileTab = {
                    .createBundle("chrome://messenger/locale/preferences/applications.properties");
   },
 
-  init: function() {
+  init() {
     if (this._initialized)
       return;
 
@@ -613,18 +609,18 @@ var gCloudFileTab = {
     let account = cloudFileAccounts.getAccount(accountKey);
 
     let observer = {
-      onStopRequest: function(aRequest, aContext, aStatusCode) {
+      onStopRequest(aRequest, aContext, aStatusCode) {
         gCloudFileTab._accountCache[accountKey].result = aStatusCode;
         gCloudFileTab.onUserInfoRequestDone(accountKey);
       },
-      onStartRequest: function(aRequest, aContext) {
+      onStartRequest(aRequest, aContext) {
         aItem.setAttribute("state", "connecting");
       },
     };
 
-    let accountInfo = {account: account,
+    let accountInfo = {account,
                        listItem: aItem,
-                       result: Cr.NS_ERROR_NOT_AVAILABLE}
+                       result: Cr.NS_ERROR_NOT_AVAILABLE};
 
     this._accountCache[accountKey] = accountInfo;
 
@@ -686,17 +682,15 @@ var gCloudFileTab = {
     else if (result == Cr.NS_OK) {
       this._settingsDeck.selectedPanel = this._settingsPanelWrap;
       this._showAccountManagement(account);
-    }
-    else if (result == Ci.nsIMsgCloudFileProvider.authErr) {
+    } else if (result == Ci.nsIMsgCloudFileProvider.authErr) {
       this._settingsDeck.selectedPanel = this._authErrorPanel;
-    }
-    else {
+    } else {
       Cu.reportError("Unexpected connection error.");
     }
   },
 
   _showAccountManagement: function CFT__showAccountManagement(aProvider) {
-    let iframe = document.createElement('iframe');
+    let iframe = document.createElement("iframe");
 
     iframe.setAttribute("src", aProvider.managementURL);
     iframe.setAttribute("flex", "1");
@@ -716,7 +710,7 @@ var gCloudFileTab = {
           iframe.contentWindow
                 .wrappedJSObject
                 .onLoadProvider(aProvider);
-        } catch(e) {
+        } catch (e) {
           Cu.reportError(e);
         }
       }, {capture: false, once: true});
@@ -807,10 +801,10 @@ var gCloudFileTab = {
   },
 
   QueryInterface: ChromeUtils.generateQI(["nsIObserver",
-                                          "nsISupportsWeakReference"])
-}
+                                          "nsISupportsWeakReference"]),
+};
 
-//****************************************************************************//
+//* ***************************************************************************//
 // Prefpane Controller
 
 var gApplicationsPane = {
@@ -834,28 +828,28 @@ var gApplicationsPane = {
   _visibleTypeDescriptionCount: new Map(),
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Convenience & Performance Shortcuts
 
   // These get defined by init().
-  _brandShortName : null,
-  _prefsBundle    : null,
-  _list           : null,
-  _filter         : null,
+  _brandShortName: null,
+  _prefsBundle: null,
+  _list: null,
+  _filter: null,
 
-  _mimeSvc      : Cc["@mozilla.org/mime;1"]
+  _mimeSvc: Cc["@mozilla.org/mime;1"]
                     .getService(Ci.nsIMIMEService),
 
-  _helperAppSvc : Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
+  _helperAppSvc: Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
                     .getService(Ci.nsIExternalHelperAppService),
 
-  _handlerSvc   : Cc["@mozilla.org/uriloader/handler-service;1"]
+  _handlerSvc: Cc["@mozilla.org/uriloader/handler-service;1"]
                     .getService(Ci.nsIHandlerService),
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Initialization & Destruction
 
-  init: function() {
+  init() {
     // Initialize shortcuts to some commonly accessed elements & values.
     this._brandShortName =
       document.getElementById("bundleBrand").getString("brandShortName");
@@ -874,7 +868,7 @@ var gApplicationsPane = {
     // Figure out how we should be sorting the list.  We persist sort settings
     // across sessions, so we can't assume the default sort column/direction.
     // XXX should we be using the XUL sort service instead?
-    this._sortColumn = document.getElementById("typeColumn")
+    this._sortColumn = document.getElementById("typeColumn");
     if (document.getElementById("actionColumn").hasAttribute("sortDirection")) {
       this._sortColumn = document.getElementById("actionColumn");
       // The typeColumn element always has a sortDirection attribute,
@@ -898,25 +892,25 @@ var gApplicationsPane = {
 
       // Notify observers that the UI is now ready
       Services.obs.notifyObservers(window, "app-handler-pane-loaded");
-    }
+    };
     setTimeout(_delayedPaneLoad, 0, this);
   },
 
-  destroy: function() {
+  destroy() {
     Services.prefs.removeObserver(PREF_SHOW_PLUGINS_IN_LIST, this);
     Services.prefs.removeObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this);
   },
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // nsISupports
 
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // nsIObserver
 
-  observe: function (aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     // Rebuild the list when there are changes to preferences that influence
     // whether or not to show certain entries in the list.
     if (aTopic == "nsPref:changed" && !this._storingAction) {
@@ -935,19 +929,19 @@ var gApplicationsPane = {
   },
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // EventListener
 
-  handleEvent: function(aEvent) {
+  handleEvent(aEvent) {
     if (aEvent.type == "unload")
       this.destroy();
   },
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Composed Model Construction
 
-  _loadData: function() {
+  _loadData() {
     this._loadPluginHandlers();
     this._loadApplicationHandlers();
   },
@@ -972,7 +966,7 @@ var gApplicationsPane = {
    * So even if we could use enabledPlugin to get the plugin that would be used,
    * we'd still need to check the pref ourselves to find out if it's enabled.
    */
-  _loadPluginHandlers: function() {
+  _loadPluginHandlers() {
     for (let i = 0; i < navigator.plugins.length; ++i) {
       let plugin = navigator.plugins[i];
       for (let j = 0; j < plugin.length; ++j) {
@@ -997,7 +991,7 @@ var gApplicationsPane = {
   /**
    * Load the set of handlers defined by the application datastore.
    */
-  _loadApplicationHandlers: function() {
+  _loadApplicationHandlers() {
     var wrappedHandlerInfos = this._handlerSvc.enumerate();
     while (wrappedHandlerInfos.hasMoreElements()) {
       let wrappedHandlerInfo =
@@ -1007,8 +1001,7 @@ var gApplicationsPane = {
       let handlerInfoWrapper;
       if (type in this._handledTypes) {
         handlerInfoWrapper = this._handledTypes[type];
-      }
-      else {
+      } else {
         handlerInfoWrapper = new HandlerInfoWrapper(type, wrappedHandlerInfo);
         this._handledTypes[type] = handlerInfoWrapper;
       }
@@ -1017,10 +1010,10 @@ var gApplicationsPane = {
     }
   },
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // View Construction
 
-  _rebuildVisibleTypes: function() {
+  _rebuildVisibleTypes() {
     // Reset the list of visible types and the visible type description counts.
     this._visibleTypes.length = 0;
     this._visibleTypeDescriptionCount.clear();
@@ -1058,7 +1051,7 @@ var gApplicationsPane = {
     }
   },
 
-  rebuildView: function() {
+  rebuildView() {
     // Clear the list of entries.
     while (this._list.childNodes.length > 1)
       this._list.lastChild.remove();
@@ -1090,7 +1083,7 @@ var gApplicationsPane = {
     this._selectLastSelectedType();
   },
 
-  _matchesFilter: function(aType) {
+  _matchesFilter(aType) {
     var filterValue = this._filter.value.toLowerCase();
     return this._describeType(aType).toLowerCase().includes(filterValue) ||
            this._describePreferredAction(aType).toLowerCase().includes(filterValue);
@@ -1106,7 +1099,7 @@ var gApplicationsPane = {
    * @param aHandlerInfo {nsIHandlerInfo} the type being described
    * @return {string} a description of the type
    */
-  _describeType: function(aHandlerInfo) {
+  _describeType(aHandlerInfo) {
     let details = this._typeDetails(aHandlerInfo);
 
     if (details)
@@ -1123,12 +1116,12 @@ var gApplicationsPane = {
    * @param aHandlerInfo {nsIHandlerInfo} the type to get the extensions for.
    * @return {string} the extensions for the type
    */
-  _typeDetails: function(aHandlerInfo) {
+  _typeDetails(aHandlerInfo) {
     let exts = [];
     if (aHandlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) {
       let extIter = aHandlerInfo.wrappedHandlerInfo.getFileExtensions();
-      while(extIter.hasMore()) {
-        let ext = "."+extIter.getNext();
+      while (extIter.hasMore()) {
+        let ext = "." + extIter.getNext();
         if (!exts.includes(ext))
           exts.push(ext);
       }
@@ -1160,7 +1153,7 @@ var gApplicationsPane = {
    *                                      is being described
    * @return {string} a description of the action
    */
-  _describePreferredAction: function(aHandlerInfo) {
+  _describePreferredAction(aHandlerInfo) {
     // alwaysAskBeforeHandling overrides the preferred action, so if that flag
     // is set, then describe that behavior instead.  For most types, this is
     // the "alwaysAsk" string, but for the feed type we show something special.
@@ -1209,7 +1202,7 @@ var gApplicationsPane = {
     }
   },
 
-  _selectLastSelectedType: function() {
+  _selectLastSelectedType() {
     // If the list is disabled by the pref.downloads.disable_button.edit_actions
     // preference being locked, then don't select the type, as that would cause
     // it to appear selected, with a different background and an actions menu
@@ -1233,7 +1226,7 @@ var gApplicationsPane = {
    * @param aHandlerApp {nsIHandlerApp} the handler app in question
    * @return {boolean} whether or not it's valid
    */
-  isValidHandlerApp: function(aHandlerApp) {
+  isValidHandlerApp(aHandlerApp) {
     if (!aHandlerApp)
       return false;
 
@@ -1249,7 +1242,7 @@ var gApplicationsPane = {
     return false;
   },
 
-  _isValidHandlerExecutable: function(aExecutable) {
+  _isValidHandlerExecutable(aExecutable) {
     let isExecutable = aExecutable &&
                        aExecutable.exists() &&
                        aExecutable.isExecutable();
@@ -1269,7 +1262,7 @@ var gApplicationsPane = {
    * Rebuild the actions menu for the selected entry.  Gets called by
    * the richlistitem constructor when an entry in the list gets selected.
    */
-  rebuildActionsMenu: function() {
+  rebuildActionsMenu() {
     var typeItem = this._list.selectedItem;
 
     if (!typeItem)
@@ -1379,8 +1372,7 @@ var gApplicationsPane = {
         createItem = false;
     }
 
-    if (createItem)
-    {
+    if (createItem) {
       let menuItem = document.createElement("menuitem");
       menuItem.setAttribute("oncommand", "gApplicationsPane.chooseApp(event)");
       let label = this._prefsBundle.getString("useOtherApp");
@@ -1438,7 +1430,7 @@ var gApplicationsPane = {
   },
 
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Sorting & Filtering
 
   _sortColumn: null,
@@ -1446,7 +1438,7 @@ var gApplicationsPane = {
   /**
    * Sort the list when the user clicks on a column header.
    */
-  sort: function (event) {
+  sort(event) {
     var column = event.target;
 
     // If the user clicked on a new sort column, remove the direction indicator
@@ -1469,7 +1461,7 @@ var gApplicationsPane = {
   /**
    * Sort the list of visible types by the current sort column/direction.
    */
-  _sortVisibleTypes: function() {
+  _sortVisibleTypes() {
     if (!this._sortColumn)
       return;
 
@@ -1498,15 +1490,15 @@ var gApplicationsPane = {
       this._visibleTypes.reverse();
   },
 
-  focusFilterBox: function() {
+  focusFilterBox() {
     this._filter.focus();
     this._filter.select();
   },
 
-  //**************************************************************************//
+  //* *************************************************************************//
   // Changes
 
-  onSelectAction: function(aActionItem) {
+  onSelectAction(aActionItem) {
     this._storingAction = true;
 
     let typeItem = this._list.selectedItem;
@@ -1515,20 +1507,18 @@ var gApplicationsPane = {
     menu.previousSelectedItem = aActionItem;
     try {
       this._storeAction(aActionItem);
-    }
-    finally {
+    } finally {
       this._storingAction = false;
     }
   },
 
-  _storeAction: function(aActionItem) {
+  _storeAction(aActionItem) {
     var typeItem = this._list.selectedItem;
     var handlerInfo = this._handledTypes[typeItem.type];
 
     if (aActionItem.hasAttribute("alwaysAsk")) {
       handlerInfo.alwaysAskBeforeHandling = true;
-    }
-    else if (aActionItem.hasAttribute("action")) {
+    } else if (aActionItem.hasAttribute("action")) {
       let action = parseInt(aActionItem.getAttribute("action"));
 
       // Set the plugin state if we're enabling or disabling a plugin.
@@ -1568,7 +1558,7 @@ var gApplicationsPane = {
     }
   },
 
-  manageApp: function(aEvent) {
+  manageApp(aEvent) {
     // Don't let the normal "on select action" handler get this event,
     // as we handle it specially ourselves.
     aEvent.stopPropagation();
@@ -1595,7 +1585,7 @@ var gApplicationsPane = {
       "resizable=no", handlerInfo, closingCallback);
   },
 
-  chooseApp: function(aEvent) {
+  chooseApp(aEvent) {
     // Don't let the normal "on select action" handler get this event,
     // as we handle it specially ourselves.
     aEvent.stopPropagation();
@@ -1678,13 +1668,13 @@ var gApplicationsPane = {
 
   // Mark which item in the list was last selected so we can reselect it
   // when we rebuild the list or when the user returns to the prefpane.
-  onSelectionChanged: function() {
+  onSelectionChanged() {
     if (this._list.selectedItem)
       this._list.setAttribute("lastSelectedType",
                               this._list.selectedItem.getAttribute("type"));
   },
 
-  confirmDelete: function(aEvent) {
+  confirmDelete(aEvent) {
     aEvent.stopPropagation();
     if (Services.prompt.confirm(null,
                                 this._prefsBundle.getString("confirmDeleteTitle"),
@@ -1699,7 +1689,7 @@ var gApplicationsPane = {
     }
   },
 
-  onDelete: function(aEvent) {
+  onDelete(aEvent) {
     // We want to delete if either the request came from the confirmDelete
     // method (which is the only thing that populates the aEvent parameter),
     // or we've hit the delete/backspace key while the list has focus.
@@ -1716,7 +1706,7 @@ var gApplicationsPane = {
     }
   },
 
-  _setIconClassForPreferredAction: function(aHandlerInfo, aElement) {
+  _setIconClassForPreferredAction(aHandlerInfo, aElement) {
     // If this returns true, the attribute that CSS sniffs for was set to something
     // so you shouldn't manually set an icon URI.
     // This removes the existing actionIcon attribute if any, even if returning false.
@@ -1743,7 +1733,7 @@ var gApplicationsPane = {
     return false;
   },
 
-  _getIconURLForPreferredAction: function(aHandlerInfo) {
+  _getIconURLForPreferredAction(aHandlerInfo) {
     switch (aHandlerInfo.preferredAction) {
       case Ci.nsIHandlerInfo.useSystemDefault:
         return this._getIconURLForSystemDefault(aHandlerInfo);
@@ -1758,7 +1748,7 @@ var gApplicationsPane = {
     return ICON_URL_APP;
   },
 
-  _getIconURLForHandlerApp: function(aHandlerApp) {
+  _getIconURLForHandlerApp(aHandlerApp) {
     if (aHandlerApp instanceof Ci.nsILocalHandlerApp)
       return this._getIconURLForFile(aHandlerApp.executable);
 
@@ -1766,13 +1756,13 @@ var gApplicationsPane = {
       return this._getIconURLForWebApp(aHandlerApp.uriTemplate);
 
     if (aHandlerApp instanceof Ci.nsIWebContentHandlerInfo)
-      return this._getIconURLForWebApp(aHandlerApp.uri)
+      return this._getIconURLForWebApp(aHandlerApp.uri);
 
     // We know nothing about other kinds of handler apps.
     return "";
   },
 
-  _getIconURLForFile: function(aFile) {
+  _getIconURLForFile(aFile) {
     let urlSpec = Services.io.getProtocolHandler("file")
       .QueryInterface(Ci.nsIFileProtocolHandler)
       .getURLSpecFromFile(aFile);
@@ -1780,7 +1770,7 @@ var gApplicationsPane = {
     return "moz-icon://" + urlSpec + "?size=16";
   },
 
-  _getIconURLForWebApp: function(aWebAppURITemplate) {
+  _getIconURLForWebApp(aWebAppURITemplate) {
     var uri = Services.io.newURI(aWebAppURITemplate);
 
     // Unfortunately we can't use the favicon service to get the favicon,
@@ -1796,7 +1786,7 @@ var gApplicationsPane = {
     return /^https?/.test(uri.scheme) ? uri.resolve("/favicon.ico") : "";
   },
 
-  _getIconURLForSystemDefault: function(aHandlerInfo) {
+  _getIconURLForSystemDefault(aHandlerInfo) {
     // Handler info objects for MIME types on some OSes implement a property bag
     // interface from which we can get an icon for the default app, so if we're
     // dealing with a MIME type on one of those OSes, then try to get the icon.
@@ -1809,8 +1799,7 @@ var gApplicationsPane = {
           let url = wrappedHandlerInfo.getProperty("defaultApplicationIconURL");
           if (url)
             return url + "?size=16";
-        }
-        catch(ex) { }
+        } catch (ex) { }
       }
     }
 
@@ -1818,5 +1807,5 @@ var gApplicationsPane = {
     // the icon, or if we couldn't retrieve the icon for some other reason,
     // then use a generic icon.
     return ICON_URL_APP;
-  }
+  },
 };

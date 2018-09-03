@@ -4,8 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var gDownloadDirSection = {
-  chooseFolder: function ()
-  {
+  chooseFolder() {
     const nsIFilePicker = Ci.nsIFilePicker;
     var fp = Cc["@mozilla.org/filepicker;1"]
                .createInstance(nsIFilePicker);
@@ -31,8 +30,7 @@ var gDownloadDirSection = {
     });
   },
 
-  onReadUseDownloadDir: function ()
-  {
+  onReadUseDownloadDir() {
     this.readDownloadDirPref();
     var downloadFolder = document.getElementById("downloadFolder");
     var chooseFolder = document.getElementById("chooseFolder");
@@ -42,8 +40,7 @@ var gDownloadDirSection = {
     return undefined;
   },
 
-  _fileToIndex: function (aFile)
-  {
+  _fileToIndex(aFile) {
     if (!aFile || aFile.equals(this._getDownloadsFolder("Desktop")))
       return 0;
     else if (aFile.equals(this._getDownloadsFolder("Downloads")))
@@ -51,8 +48,7 @@ var gDownloadDirSection = {
     return 2;
   },
 
-  _indexToFile: function (aIndex)
-  {
+  _indexToFile(aIndex) {
     switch (aIndex) {
     case 0:
       return this._getDownloadsFolder("Desktop");
@@ -63,8 +59,7 @@ var gDownloadDirSection = {
     return customDirPref.value;
   },
 
-  _getSpecialFolderKey: function (aFolderType)
-  {
+  _getSpecialFolderKey(aFolderType) {
     if (aFolderType == "Desktop")
       return "Desk";
 
@@ -80,8 +75,7 @@ var gDownloadDirSection = {
     return "Home";
   },
 
-  _getDownloadsFolder: function (aFolder)
-  {
+  _getDownloadsFolder(aFolder) {
     let dir = Services.dirsvc.get(this._getSpecialFolderKey(aFolder),
                                   Ci.nsIFile);
     if (aFolder != "Desktop")
@@ -90,8 +84,7 @@ var gDownloadDirSection = {
     return dir;
   },
 
-  readDownloadDirPref: function ()
-  {
+  readDownloadDirPref() {
     var folderListPref = document.getElementById("browser.download.folderList");
     var bundlePreferences = document.getElementById("bundlePreferences");
     var downloadFolder = document.getElementById("downloadFolder");
@@ -116,9 +109,8 @@ var gDownloadDirSection = {
     return undefined;
   },
 
-  writeFolderList: function ()
-  {
+  writeFolderList() {
     var currentDirPref = document.getElementById("browser.download.downloadDir");
     return this._fileToIndex(currentDirPref.value);
-  }
+  },
 };

@@ -66,6 +66,7 @@ mail/components/*
 !mail/components/devtools
 !mail/components/downloads
 !mail/components/extensions
+!mail/components/preferences
 
 # calendar/ exclusions
 

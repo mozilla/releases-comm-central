@@ -17,7 +17,7 @@ Conversation.prototype = {
   __proto__: jsProtoHelper.GenericConvIMPrototype,
   account: {protocol: {name: "Fake Protocol"},
             alias: "", name: "Fake Account",
-            statusInfo: Services.core.globalUserStatus}
+            statusInfo: Services.core.globalUserStatus},
 };
 
 function Message(aWho, aMessage, aObject) {
@@ -25,7 +25,7 @@ function Message(aWho, aMessage, aObject) {
 }
 Message.prototype = {
   __proto__: jsProtoHelper.GenericMessagePrototype,
-  get displayMessage() { return this.originalMessage; }
+  get displayMessage() { return this.originalMessage; },
 };
 
 // Message style tooltips use this.
@@ -33,7 +33,7 @@ function getBrowser() { return document.getElementById("previewbrowser"); }
 
 var previewObserver = {
   _loaded: false,
-  load: function() {
+  load() {
     let makeDate = function(aDateString) {
       let array = aDateString.split(":");
       let now = new Date();
@@ -50,7 +50,7 @@ var previewObserver = {
     conv.messages = [
       new Message(msg.buddy1, msg.message1, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:22"), _conversation: conv}),
       new Message(msg.buddy1, msg.message2, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:25"), _conversation: conv}),
-      new Message(msg.buddy2, msg.message3, {incoming: true, _alias: msg.nick2, time: makeDate("10:43:01"), _conversation: conv})
+      new Message(msg.buddy2, msg.message3, {incoming: true, _alias: msg.nick2, time: makeDate("10:43:01"), _conversation: conv}),
     ];
     previewObserver.conv = conv;
 
@@ -65,7 +65,7 @@ var previewObserver = {
     this._loaded = true;
   },
 
-  showHeaderChanged: function() {
+  showHeaderChanged() {
     if (!previewObserver._loaded)
       return;
 
@@ -73,7 +73,7 @@ var previewObserver = {
     previewObserver.reloadPreview();
   },
 
-  currentThemeChanged: function() {
+  currentThemeChanged() {
     if (!this._loaded)
       return;
 
@@ -85,7 +85,7 @@ var previewObserver = {
   },
 
   _ignoreVariantChange: false,
-  currentVariantChanged: function() {
+  currentVariantChanged() {
     if (!this._loaded || this._ignoreVariantChange)
       return;
 
@@ -97,11 +97,10 @@ var previewObserver = {
     this.reloadPreview();
   },
 
-  displayTheme: function(aTheme) {
+  displayTheme(aTheme) {
     try {
       this.theme = getThemeByName(aTheme);
-    }
-    catch(e) {
+    } catch (e) {
       document.getElementById("previewDeck").selectedIndex = 0;
       return;
     }
@@ -160,13 +159,13 @@ var previewObserver = {
     document.getElementById("previewDeck").selectedIndex = 1;
   },
 
-  reloadPreview: function() {
+  reloadPreview() {
     this.browser.init(this.conv);
     this.browser._theme = this.theme;
     Services.obs.addObserver(this, "conversation-loaded");
   },
 
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic != "conversation-loaded" || aSubject != this.browser)
       return;
 
@@ -186,5 +185,5 @@ var previewObserver = {
     }, 0);
 
     Services.obs.removeObserver(this, "conversation-loaded");
-  }
+  },
 };

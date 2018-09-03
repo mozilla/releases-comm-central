@@ -7,8 +7,7 @@ var gDisplayPane = {
   mInitialized: false,
   mTagListBox:  null,
 
-  init: function ()
-  {
+  init() {
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
       let preference = document.getElementById("mail.preferences.display.selectedTabIndex");
@@ -38,8 +37,7 @@ var gDisplayPane = {
   /**
    * Populates the default font list in UI.
    */
-  _rebuildFonts: function ()
-  {
+  _rebuildFonts() {
     var langGroupPref = document.getElementById("font.language.group");
     var isSerif = this._readDefaultFontTypeForLanguage(langGroupPref.value) == "serif";
     this._selectDefaultLanguageGroup(langGroupPref.value, isSerif);
@@ -119,8 +117,7 @@ var gDisplayPane = {
    * Returns the type of the current default font for the language denoted by
    * aLanguageGroup.
    */
-  _readDefaultFontTypeForLanguage: function (aLanguageGroup)
-  {
+  _readDefaultFontTypeForLanguage(aLanguageGroup) {
     const kDefaultFontType = "font.default.%LANG%";
     var defaultFontTypePref = kDefaultFontType.replace(/%LANG%/, aLanguageGroup);
     var preference = document.getElementById(defaultFontTypePref);
@@ -142,8 +139,7 @@ var gDisplayPane = {
    * - the font selected by the user is no longer present (e.g. deleted from
    *   fonts folder)
    */
-  readFontSelection: function gDisplayPane_readFontSelection()
-  {
+  readFontSelection: function gDisplayPane_readFontSelection() {
     let element = document.getElementById("defaultFont");
     let preference = document.getElementById(element.getAttribute("preference"));
     if (preference.value) {
@@ -172,8 +168,7 @@ var gDisplayPane = {
     return defaultValue;
   },
 
-  tabSelectionChanged: function ()
-  {
+  tabSelectionChanged() {
     if (this.mInitialized)
       document.getElementById("mail.preferences.display.selectedTabIndex")
               .valueFromPreferences = document.getElementById("displayPrefs").selectedIndex;
@@ -183,8 +178,7 @@ var gDisplayPane = {
    * Displays the fonts dialog, where web page font names and sizes can be
    * configured.
    */
-  configureFonts: function ()
-  {
+  configureFonts() {
     gSubDialog.open("chrome://messenger/content/preferences/fonts.xul");
   },
 
@@ -192,36 +186,30 @@ var gDisplayPane = {
    * Displays the colors dialog, where default web page/link/etc. colors can be
    * configured.
    */
-  configureColors: function ()
-  {
+  configureColors() {
     gSubDialog.open("chrome://messenger/content/preferences/colors.xul",
                     "resizable=no");
   },
 
 
   // appends the tag to the tag list box
-  appendTagItem: function(aTagName, aKey, aColor)
-  {
+  appendTagItem(aTagName, aKey, aColor) {
     let item = this.mTagListBox.appendItem(aTagName, aKey);
     item.style.color = aColor;
     return item;
   },
 
-  buildTagList: function()
-  {
+  buildTagList() {
     let tagArray = MailServices.tags.getAllTags({});
-    for (let i = 0; i < tagArray.length; ++i)
-    {
+    for (let i = 0; i < tagArray.length; ++i) {
       let taginfo = tagArray[i];
       this.appendTagItem(taginfo.tag, taginfo.key, taginfo.color);
     }
   },
 
-  removeTag: function()
-  {
+  removeTag() {
     var index = this.mTagListBox.selectedIndex;
-    if (index >= 0)
-    {
+    if (index >= 0) {
       var itemToRemove = this.mTagListBox.getItemAtIndex(index);
       MailServices.tags.deleteKey(itemToRemove.getAttribute("value"));
       itemToRemove.remove();
@@ -233,11 +221,9 @@ var gDisplayPane = {
   /**
    * Open the edit tag dialog
    */
-  editTag: function()
-  {
+  editTag() {
     var index = this.mTagListBox.selectedIndex;
-    if (index >= 0)
-    {
+    if (index >= 0) {
       var tagElToEdit = this.mTagListBox.getItemAtIndex(index);
       var args = {result: "", keyToEdit: tagElToEdit.getAttribute("value"), okCallback: editTagCallback};
       let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
@@ -245,15 +231,13 @@ var gDisplayPane = {
     }
   },
 
-  addTag: function()
-  {
+  addTag() {
     var args = {result: "", okCallback: addTagCallback};
     let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
                                  "resizable=no", args);
   },
 
-  onSelect: function()
-  {
+  onSelect() {
     let btnEdit = document.getElementById("editTagButton");
     let listBox = document.getElementById("tagList");
 
@@ -271,8 +255,7 @@ var gDisplayPane = {
    *
    * @param aEnableRadioGroup  Boolean value indicating whether the feature is enabled.
    */
-  updateMarkAsReadOptions: function(aEnableRadioGroup)
-  {
+  updateMarkAsReadOptions(aEnableRadioGroup) {
     let autoMarkAsPref = document.getElementById("mailnews.mark_message_read.delay");
     let autoMarkDisabled = !aEnableRadioGroup || autoMarkAsPref.locked;
     document.getElementById("markAsReadAutoPreferences").disabled = autoMarkDisabled;
@@ -287,8 +270,7 @@ var gDisplayPane = {
    * @param aFocusTextBox  Boolean value whether Mark As Read On Delay
    *                       option was selected and the textbox should be focused.
    */
-  updateMarkAsReadTextbox: function(aFocusTextBox)
-  {
+  updateMarkAsReadTextbox(aFocusTextBox) {
     let globalCheckbox = document.getElementById("automaticallyMarkAsRead");
     let delayRadioOption = document.getElementById("markAsReadAfterDelay");
     let delayTextbox = document.getElementById("markAsReadDelay");
@@ -297,11 +279,10 @@ var gDisplayPane = {
                             !delayRadioOption.selected || intervalPref.locked;
     if (!delayTextbox.disabled && aFocusTextBox)
       delayTextbox.focus();
-  }
+  },
 };
 
-function addTagCallback(aName, aColor)
-{
+function addTagCallback(aName, aColor) {
   MailServices.tags.addTag(aName, aColor, "");
 
   var item = gDisplayPane.appendTagItem(aName, MailServices.tags.getKeyForTag(aName), aColor);
@@ -311,13 +292,11 @@ function addTagCallback(aName, aColor)
   tagListBox.focus();
 }
 
-function editTagCallback()
-{
+function editTagCallback() {
   // update the values of the selected item
   var tagListEl = document.getElementById("tagList");
   var index = tagListEl.selectedIndex;
-  if (index >= 0)
-  {
+  if (index >= 0) {
     var tagElToEdit = tagListEl.getItemAtIndex(index);
     var key = tagElToEdit.getAttribute("value");
     // update the color and label elements

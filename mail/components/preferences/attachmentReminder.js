@@ -9,15 +9,13 @@ var gAttachmentReminderOptionsDialog = {
   keywordListBox: null,
   bundle: null,
 
-  init: function()
-  {
+  init() {
     this.keywordListBox = document.getElementById("keywordList");
     this.bundle = document.getElementById("bundlePreferences");
     this.buildKeywordList();
   },
 
-  buildKeywordList: function()
-  {
+  buildKeywordList() {
     var keywordsInCsv = Services.prefs
       .getComplexValue("mail.compose.attachment_reminder_keywords",
                        Ci.nsIPrefLocalizedString);
@@ -25,8 +23,7 @@ var gAttachmentReminderOptionsDialog = {
       return;
     var keywordsInCsv = keywordsInCsv.data;
     var keywordsInArr = keywordsInCsv.split(",");
-    for (var i = 0; i < keywordsInArr.length; i++)
-    {
+    for (var i = 0; i < keywordsInArr.length; i++) {
       if (keywordsInArr[i])
         this.keywordListBox.appendItem(keywordsInArr[i], keywordsInArr[i]);
     }
@@ -34,13 +31,12 @@ var gAttachmentReminderOptionsDialog = {
       this.keywordListBox.selectedIndex = 0;
   },
 
-  addKeyword: function()
-  {
+  addKeyword() {
     var input = {value: ""}; // Default to empty.
     var ok = Services.prompt.prompt(window,
                                     this.bundle.getString("attachmentReminderNewDialogTitle"),
                                     this.bundle.getString("attachmentReminderNewText"),
-                                    input, null, {value:0});
+                                    input, null, {value: 0});
     if (ok && input.value) {
       let newKey = this.keywordListBox.appendItem(input.value, input.value);
       this.keywordListBox.ensureElementIsVisible(newKey);
@@ -48,8 +44,7 @@ var gAttachmentReminderOptionsDialog = {
     }
   },
 
-  editKeyword: function()
-  {
+  editKeyword() {
     if (this.keywordListBox.selectedIndex < 0)
       return;
     var keywordToEdit = this.keywordListBox.selectedItem;
@@ -57,22 +52,20 @@ var gAttachmentReminderOptionsDialog = {
     var ok = Services.prompt.prompt(window,
                                     this.bundle.getString("attachmentReminderEditDialogTitle"),
                                     this.bundle.getString("attachmentReminderEditText"),
-                                    input, null, {value:0});
+                                    input, null, {value: 0});
     if (ok && input.value) {
       this.keywordListBox.selectedItem.value = input.value;
       this.keywordListBox.selectedItem.label = input.value;
     }
   },
 
-  removeKeyword: function()
-  {
+  removeKeyword() {
     if (this.keywordListBox.selectedIndex < 0)
       return;
     this.keywordListBox.selectedItem.remove();
   },
 
-  saveKeywords: function()
-  {
+  saveKeywords() {
     var keywordList = "";
     for (var i = 0; i < this.keywordListBox.getRowCount(); i++) {
       keywordList += this.keywordListBox.getItemAtIndex(i).getAttribute("value");
@@ -82,5 +75,5 @@ var gAttachmentReminderOptionsDialog = {
 
     Services.prefs.setStringPref("mail.compose.attachment_reminder_keywords",
                                  keywordList);
-  }
+  },
 };
