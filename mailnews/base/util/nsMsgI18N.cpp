@@ -99,7 +99,7 @@ nsresult CopyUTF7toUTF16(const nsACString& aSrc, nsAString& aDest)
   nsUTF7ToUnicode converter;
   int32_t inLen = aSrc.Length();
   int32_t outLen = inLen;
-  aDest.SetCapacity(outLen);
+  aDest.SetLength(outLen);
   converter.ConvertNoBuff(aSrc.BeginReading(), &inLen, aDest.BeginWriting(), &outLen);
   MOZ_ASSERT(inLen == (int32_t)aSrc.Length(), "UTF-7 should not produce a longer output");
   aDest.SetLength(outLen);
@@ -136,7 +136,7 @@ nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest)
   nsMUTF7ToUnicode converter;
   int32_t inLen = aSrc.Length();
   int32_t outLen = inLen;
-  aDest.SetCapacity(outLen);
+  aDest.SetLength(outLen);
   converter.ConvertNoBuff(aSrc.BeginReading(), &inLen, aDest.BeginWriting(), &outLen);
   MOZ_ASSERT(inLen == (int32_t)aSrc.Length(), "UTF-7 should not produce a longer output");
   aDest.SetLength(outLen);
