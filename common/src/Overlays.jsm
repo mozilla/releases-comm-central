@@ -202,7 +202,9 @@ class Overlays {
       let overlayTrigger = this.document.createElement("overlayTrigger");
       overlayTrigger.addEventListener("bindingattached", () => {
         oconsole.debug("XBL binding attached, continuing with load");
-        sheet.remove();
+        if (sheet) {
+          sheet.remove();
+        }
         overlayTrigger.remove();
 
         setTimeout(() => {
@@ -224,7 +226,9 @@ class Overlays {
         }, 0);
       }, { once: true });
       this.document.documentElement.appendChild(overlayTrigger);
-      sheet = this.loadCSS("chrome://messenger/content/overlayBindings.css");
+      if (overlayTrigger.parentNode) {
+        sheet = this.loadCSS("chrome://messenger/content/overlayBindings.css");
+      }
     } else {
       this.document.defaultView.addEventListener("load", this._finish.bind(this), { once: true });
     }
