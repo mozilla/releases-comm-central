@@ -454,11 +454,11 @@ function assert_previous_text(aStart, aText) {
  * Helper to get the raw contents of a message. It only reads the first 64KiB.
  *
  * @param aMsgHdr  nsIMsgDBHdr addressing a message which will be returned as text.
- * @param aUTF8    True if the contents should be returned in UTF-8.
+ * @param aCharset Charset to use to decode the message.
  *
  * @return         String with the message source.
  */
-function get_msg_source(aMsgHdr, aUTF8 = false) {
+function get_msg_source(aMsgHdr, aCharset = "") {
   let msgUri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
 
   let messenger = Cc["@mozilla.org/messenger;1"]
@@ -480,10 +480,11 @@ function get_msg_source(aMsgHdr, aUTF8 = false) {
   let content = sis.read(MAX_MESSAGE_LENGTH);
   sis.close();
 
-  if (!aUTF8)
+  if (!aCharset)
     return content;
 
-  return Cc["@mozilla.org/intl/utf8converterservice;1"]
-           .getService(Ci.nsIUTF8ConverterService)
-           .convertURISpecToUTF8(content, "UTF-8");
+  let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                    .createInstance(Ci.nsIScriptableUnicodeConverter);
+  converter.charset = aCharset;
+  return converter.ConvertToUnicode(content);
 }

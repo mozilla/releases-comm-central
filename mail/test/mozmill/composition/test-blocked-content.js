@@ -111,7 +111,7 @@ function test_paste_file_urls() {
 
   be_in_folder(gOutboxFolder);
   let outMsg = select_click_row(0);
-  let outMsgContent = get_msg_source(outMsg, true);
+  let outMsgContent = get_msg_source(outMsg);
 
   assert_true(outMsgContent.includes("file://foo/non-existant"),
     "non-existant file not in content=" + outMsgContent);
