@@ -12,9 +12,6 @@ module.exports = { // eslint-disable-line no-undef
   },
 
   "rules": {
-    // Require trailing commas for easy list extension and consistent style.
-    "comma-dangle": ["error", "always-multiline"],
-
     // Require braces around blocks that start a new line.
     "curly": ["error", "multi-line"],
 

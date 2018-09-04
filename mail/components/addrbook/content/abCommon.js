@@ -649,7 +649,7 @@ function DirPaneSelectionChange() {
   // clear out the search box when changing folders...
   onAbClearSearch(false);
   if (gDirTree && gDirTree.view.selection && gDirTree.view.selection.count == 1) {
-    gPreviousDirTreeIndex = gDirTree.currentIndex; // eslint-disable-line no-native-reassign
+    gPreviousDirTreeIndex = gDirTree.currentIndex; // eslint-disable-line no-global-assign
     ChangeDirectoryByURI(uri);
     document.getElementById("localResultsOnlyMessage")
             .setAttribute("hidden",

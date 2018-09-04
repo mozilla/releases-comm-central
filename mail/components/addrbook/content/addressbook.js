@@ -364,13 +364,13 @@ function AbPrintCardInternal(doPrintPreview, msgType) {
     }
   }
 
-  /* eslint-disable no-native-reassign */
+  /* eslint-disable no-global-assign */
   printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
                                          "",
                                          "chrome,dialog=no,all",
                                          selectionArray.length, selectionArray,
                                          statusFeedback, doPrintPreview, msgType);
-  /* eslint-enable no-native-reassign */
+  /* eslint-enable no-global-assign */
 }
 
 function AbPrintCard() {
@@ -402,12 +402,12 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType) {
   var abURIArr = uri.split("://");
   var printUrl = "addbook://" + abURIArr[0] + "/" + abURIArr[1] + "?action=print";
 
-  /* eslint-disable no-native-reassign */
+  /* eslint-disable no-global-assign */
   printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
                     "",
                     "chrome,dialog=no,all",
                     1, [printUrl], statusFeedback, doPrintPreview, msgType);
-  /* eslint-enable no-native-reassign */
+  /* eslint-enable no-global-assign */
 }
 
 function AbPrintAddressBook() {
