@@ -23,7 +23,8 @@ var Body = nsMsgSearchAttrib.Body;
 var Files =
 [
   "../../../data/bugmail1",
-  "../../../data/bodySearchCrash"
+  "../../../data/bodySearchCrash",            // Test for bug 465805.
+  "../../../data/base64-with-whitespace.eml"  // Test for bug 1487421.
 ]
 
 var Tests =
@@ -31,6 +32,12 @@ var Tests =
 
 // this number appears in bugmail1
   { value: "432710",
+    attrib: Body,
+    op: Contains,
+    count: 1 },
+
+// this appears in base64-with-whitespace.eml
+  { value: "abcdefghijklmnopqrstuvwxyz",
     attrib: Body,
     op: Contains,
     count: 1 },
