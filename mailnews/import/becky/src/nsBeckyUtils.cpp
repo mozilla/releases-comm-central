@@ -10,7 +10,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsString.h"
 #include "nsMsgI18N.h"
-#include "nsUConvCID.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"

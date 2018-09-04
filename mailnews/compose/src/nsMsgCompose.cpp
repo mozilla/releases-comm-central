@@ -52,7 +52,6 @@
 #include "nsIContentViewer.h"
 #include "nsIMsgMdnGenerator.h"
 #include "plbase64.h"
-#include "nsUConvCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgAttachment.h"
 #include "nsIMsgProgress.h"
