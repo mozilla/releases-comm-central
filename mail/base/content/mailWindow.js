@@ -761,8 +761,12 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams) {
   }
 
   if (aOpenNew) {
-    // Open a new tab.
-    openContentTab(aURI, "tab");
+    // Open a new tab, keeping links from the new tab in Thunderbird if the regexp is set.
+    if (aOpenParams && ("handlerRegExp" in aOpenParams)) {
+      openContentTab(aURI, "tab", aOpenParams.handlerRegExp);
+    } else {
+      openContentTab(aURI, "tab");
+    }
   }
 
   return false;

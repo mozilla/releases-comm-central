@@ -329,8 +329,9 @@ function openPrivacyPolicy(where) {
 function openLinkIn(aURL, aWhere, aOpenParams) {
   if (!aURL)
     return;
-  // Open a new tab.
-  switchToTabHavingURI(aURL, true);
+  // Open a new tab and set the regexp to open links from the Addons site in Thunderbird.
+  let addonRegExp = Services.prefs.getCharPref("extensions.getAddons.siteRegExp");
+  switchToTabHavingURI(aURL, true, {handlerRegExp: addonRegExp});
 }
 
 /**
