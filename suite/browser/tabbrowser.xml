@@ -2010,7 +2010,7 @@
             var newSH = Cc["@mozilla.org/browser/shistory;1"]
                           .createInstance(Ci.nsISHistory);
             oldBrowser.webNavigation.sessionHistory = newSH;
-            var entry = oldSH.getEntryAtIndex(oldSH.index, false)
+            var entry = oldSH.getEntryAtIndex(oldSH.index)
                              .QueryInterface(Ci.nsISHEntry)
                              .clone();
             // The bfcache entry is tightly coupled to the original shistory it

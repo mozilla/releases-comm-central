@@ -1466,7 +1466,7 @@ SessionStoreService.prototype = {
     else if (history && history.count > 0) {
       try {
         for (var j = 0; j < history.count; j++) {
-          let entry = this._serializeHistoryEntry(history.getEntryAtIndex(j, false),
+          let entry = this._serializeHistoryEntry(history.getEntryAtIndex(j),
                                                   aFullData, aTab.pinned);
           tabData.entries.push(entry);
         }
@@ -1697,7 +1697,7 @@ SessionStoreService.prototype = {
     for (let i = 0; i < aHistory.count; i++) {
       let principal;
       try {
-        let uri = aHistory.getEntryAtIndex(i, false).URI;
+        let uri = aHistory.getEntryAtIndex(i).URI;
         principal = SecMan.getDocShellCodebasePrincipal(uri, aDocShell);
       }
       catch (ex) {
@@ -2768,7 +2768,7 @@ SessionStoreService.prototype = {
         // force session history to update its internal index and call reload
         // instead of gotoIndex. See bug 597315.
         var sessionHistory = browser.webNavigation.sessionHistory;
-        sessionHistory.getEntryAtIndex(activeIndex, true);
+        sessionHistory.index = activeIndex;
         sessionHistory.reloadCurrentEntry();
       }
       catch (ex) {

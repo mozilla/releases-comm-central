@@ -45,7 +45,7 @@ function FillHistoryMenu(aParent, aMenu)
         return false;
       for (let j = index - 1; j >= end; j--)
       {
-        let entry = sessionHistory.getEntryAtIndex(j, false);
+        let entry = sessionHistory.getEntryAtIndex(j);
         if (entry)
           createHistoryMenuItem(aParent, j, entry);
       }
@@ -57,7 +57,7 @@ function FillHistoryMenu(aParent, aMenu)
         return false;
       for (let j = index + 1; j <= end; j++)
       {
-        let entry = sessionHistory.getEntryAtIndex(j, false);
+        let entry = sessionHistory.getEntryAtIndex(j);
         if (entry)
           createHistoryMenuItem(aParent, j, entry);
       }
@@ -71,7 +71,7 @@ function FillHistoryMenu(aParent, aMenu)
                                            : 0;
       for (let j = count - 1; j >= end; j--)
       {
-        let entry = sessionHistory.getEntryAtIndex(j, false);
+        let entry = sessionHistory.getEntryAtIndex(j);
         if (entry)
           createHistoryMenuItem(aParent, j, entry, endHistory, j == index);
       }

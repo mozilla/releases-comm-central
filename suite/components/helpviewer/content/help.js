@@ -490,7 +490,7 @@ function FillHistoryMenu(aParent, aMenu)
           if ((index - 1) < end) return false;
           for (j = index - 1; j >= end; j--)
             {
-              entry = sessionHistory.getEntryAtIndex(j, false);
+              entry = sessionHistory.getEntryAtIndex(j);
               if (entry)
                 createMenuItem(aParent, j, entry.title);
             }
@@ -500,7 +500,7 @@ function FillHistoryMenu(aParent, aMenu)
           if ((index + 1) > end) return false;
           for (j = index + 1; j <= end; j++)
             {
-              entry = sessionHistory.getEntryAtIndex(j, false);
+              entry = sessionHistory.getEntryAtIndex(j);
               if (entry)
                 createMenuItem(aParent, j, entry.title);
             }

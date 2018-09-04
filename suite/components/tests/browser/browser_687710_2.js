@@ -41,11 +41,11 @@ function test()
 
 function compareEntries(i, j, history)
 {
-  let e1 = history.getEntryAtIndex(i, false)
+  let e1 = history.getEntryAtIndex(i)
                   .QueryInterface(Ci.nsISHEntry)
                   .QueryInterface(Ci.nsISHContainer);
 
-  let e2 = history.getEntryAtIndex(j, false)
+  let e2 = history.getEntryAtIndex(j)
                   .QueryInterface(Ci.nsISHEntry)
                   .QueryInterface(Ci.nsISHContainer);
 
