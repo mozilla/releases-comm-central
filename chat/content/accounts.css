@@ -6,11 +6,12 @@ richlistitem {
   -moz-binding: url("chrome://chat/content/account.xml#account");
 }
 
-richlistitem .account-buttons {
-  -moz-binding: url("chrome://chat/content/account.xml#nobuttons");
-}
 richlistitem[selected="true"] .account-buttons {
   -moz-binding: url("chrome://chat/content/account.xml#buttons");
+}
+
+richlistitem:not([selected="true"]) .account-buttons {
+  display: none;
 }
 
 richlistitem:not([state="connected"]) .connected,
