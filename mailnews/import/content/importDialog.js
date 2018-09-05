@@ -899,10 +899,8 @@ function ImportFilters(module, error)
 */
 async function ImportFeeds()
 {
-  // Get file to open from filepicker.
-  let openFile = await FeedSubscriptions.opmlPickOpenFile();
-  if (!openFile)
-    return false;
+  // Get file and file url to open from filepicker.
+  let [openFile, openFileUrl] = await FeedSubscriptions.opmlPickOpenFile();
 
   let acctName;
   let acctNewExist = gFeedsBundle.getString("ImportFeedsExisting");
@@ -934,6 +932,7 @@ async function ImportFeeds()
       let feedWin = subscriptionsWindow.FeedSubscriptions;
       if (aLastFolder)
         feedWin.FolderListener.folderAdded(aLastFolder);
+
       feedWin.mActionMode = null;
       feedWin.updateButtons(feedWin.mView.currentItem);
       feedWin.clearStatusInfo();
@@ -941,7 +940,7 @@ async function ImportFeeds()
     }
   }
 
-  if (!FeedSubscriptions.importOPMLFile(openFile, server, callback))
+  if (!(await FeedSubscriptions.importOPMLFile(openFile, openFileUrl, server, callback)))
     return false;
 
   let subscriptionsWindow = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");

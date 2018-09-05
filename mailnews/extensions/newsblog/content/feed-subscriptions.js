@@ -2241,7 +2241,7 @@ var FeedSubscriptions = {
 /**
  * Import feeds opml file Open filepicker function.
  *
- * @returns {Promise} nsIFile or null.
+ * @returns {Promise} [{nsIFile} file, {String} fileUrl] or null.
  */
   opmlPickOpenFile() {
     let title = FeedUtils.strings.GetStringFromName("subscribe-OPMLImportTitle");
@@ -2267,7 +2267,7 @@ var FeedSubscriptions = {
         }
 
         this.opmlLastOpenDir = fp.file.parent;
-        resolve(fp.file);
+        resolve([fp.file, fp.fileURL.spec]);
       });
     });
   },
@@ -2456,11 +2456,8 @@ var FeedSubscriptions = {
     }
 
     let server = item.folder.server;
-    // Get file to open from filepicker.
-    let openFile = await this.opmlPickOpenFile();
-    if (!openFile) {
-      return;
-    }
+    // Get file and file url to open from filepicker.
+    let [openFile, openFileUrl] = await this.opmlPickOpenFile();
 
     this.mActionMode = this.kImportingOPML;
     this.updateButtons(null);
@@ -2470,7 +2467,8 @@ var FeedSubscriptions = {
     // If there were a getElementsByAttribute in html, we could go determined...
     this.updateStatusItem("progressMeter", "?");
 
-    if (!this.importOPMLFile(openFile, server, this.importOPMLFinished)) {
+    if (!(await this.importOPMLFile(openFile, openFileUrl,
+                                    server, this.importOPMLFinished))) {
       this.mActionMode = null;
       this.updateButtons(item);
       this.clearStatusInfo();
@@ -2482,50 +2480,63 @@ var FeedSubscriptions = {
  * the Import wizard.
  *
  * @param {nsIFile} aFile                - The opml file.
+ * @param {String} aFileUrl              - The opml file url.
  * @param {nsIMsgIncomingServer} aServer - The account server.
  * @param {Function} aCallback           - Callback function.
  *
  * @returns {Boolean}                    - false if error.
  */
-  importOPMLFile(aFile, aServer, aCallback) {
+  async importOPMLFile(aFile, aFileUrl, aServer, aCallback) {
     if (aServer && (aServer instanceof Ci.nsIMsgIncomingServer)) {
       this.mRSSServer = aServer;
     }
 
-    if (!aFile || !this.mRSSServer || !aCallback) {
+    if (!aFile || !aFileUrl || !this.mRSSServer) {
       return false;
     }
 
     let opmlDom, statusReport;
-    let stream = Cc["@mozilla.org/network/file-input-stream;1"].
-                 createInstance(Ci.nsIFileInputStream);
+    FeedUtils.log.debug("importOPMLFile: fileName:fileUrl - " +
+                        aFile.leafName + ":" + aFileUrl);
+    let request = new Request(aFileUrl);
+    await fetch(request)
+      .then(function(response) {
+        if (!response.ok) {
+          // If the OPML file is not readable/accessible.
+          statusReport = FeedUtils.strings.GetStringFromName(
+                           "subscribe-errorOpeningFile");
+          return null;
+        }
 
-    // Read in file as raw bytes, so Expat can do the decoding for us.
-    try {
-      stream.init(aFile, FileUtils.MODE_RDONLY, FileUtils.PERMS_FILE, 0);
-      let parser = new DOMParser();
-      opmlDom = parser.parseFromStream(stream, null, stream.available(),
-                                       "application/xml");
-    } catch (ex) {
-      statusReport = FeedUtils.strings.GetStringFromName(
-                       "subscribe-errorOpeningFile");
+        return response.text();
+      })
+      .then(function(responseText) {
+        if (responseText != null) {
+          opmlDom = (new DOMParser()).parseFromString(responseText, "application/xml");
+          if (!(opmlDom instanceof XMLDocument) ||
+              opmlDom.documentElement.namespaceURI == FeedUtils.MOZ_PARSERERROR_NS ||
+              opmlDom.documentElement.tagName != "opml" ||
+              !(opmlDom.querySelector("body") &&
+                opmlDom.querySelector("body").childElementCount)) {
+            // If the OPML file is invalid or empty.
+            statusReport = FeedUtils.strings.formatStringFromName(
+                             "subscribe-OPMLImportInvalidFile", [aFile.leafName], 1);
+          }
+        }
+      })
+      .catch(function(error) {
+        statusReport = FeedUtils.strings.GetStringFromName(
+                         "subscribe-errorOpeningFile");
+        FeedUtils.log.error("importOPMLFile: error - " + error.message);
+      });
+
+    if (statusReport) {
+      FeedUtils.log.error("importOPMLFile: status - " + statusReport);
       Services.prompt.alert(window, null, statusReport);
       return false;
-    } finally {
-      stream.close();
     }
 
-    let body = opmlDom ? opmlDom.querySelector("body") : null;
-
-    // Return if the OPML file is invalid or empty.
-    if (!body || !body.childElementCount ||
-        opmlDom.documentElement.tagName != "opml") {
-      statusReport = FeedUtils.strings.formatStringFromName(
-                       "subscribe-OPMLImportInvalidFile", [aFile.leafName], 1);
-      Services.prompt.alert(window, null, statusReport);
-      return false;
-    }
-
+    let body = opmlDom.querySelector("body");
     this.importOPMLOutlines(body, this.mRSSServer, aCallback);
     return true;
   },
