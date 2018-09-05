@@ -16,17 +16,6 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
-/* ::::::::: Global override :::::::::: */
-
-treechildren::-moz-tree-twisty {
-  margin-top: 0px !important;
-  margin-bottom: 0px !important;
-  margin-inline-start: 0px !important;
-  margin-inline-end: -4px !important;
-}
-
-/* :::::::::::::::::::::::::::::::::::: */
-
 #tabmail:-moz-lwtheme {
   text-shadow: inherit;
 }
@@ -69,12 +58,13 @@ treechildren::-moz-tree-twisty {
   -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
-@media not all and (-moz-mac-yosemite-theme) {
+@media (-moz-mac-yosemite-theme: 0) {
   #folderTree treechildren::-moz-tree-row(selected, focus) {
     -moz-appearance: -moz-mac-active-source-list-selection;
     -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
   }
 
+  #folderTree treechildren::-moz-tree-twisty(selected),
   #folderTree treechildren::-moz-tree-cell-text(selected) {
     color: white;
   }
@@ -87,6 +77,7 @@ treechildren::-moz-tree-twisty {
     font-weight: 300;
   }
 
+  #folderTree treechildren::-moz-tree-twisty(selected, focus),
   #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
     color: #282828;
   }

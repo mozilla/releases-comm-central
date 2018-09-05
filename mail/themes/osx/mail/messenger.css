@@ -531,7 +531,7 @@ tabmail > tabbox {
 /* ::::: Trees ::::: */
 
 treechildren::-moz-tree-row {
-  min-height: 18px;
+  min-height: 19px;
 }
 
 treechildren::-moz-tree-cell-text {
