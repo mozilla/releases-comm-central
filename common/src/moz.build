@@ -12,7 +12,6 @@ EXTRA_JS_MODULES += [
 SOURCES += [
     'nsCommonModule.cpp',
     'nsComponentManagerExtra.cpp',
-    'nsTransactionManagerExtra.cpp',
 ]
 
 FINAL_LIBRARY = 'xul'

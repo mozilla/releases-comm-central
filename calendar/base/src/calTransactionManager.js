@@ -8,9 +8,7 @@ function calTransactionManager() {
     this.wrappedJSObject = this;
     if (!this.transactionManager) {
         this.transactionManager =
-            Cc["@mozilla.org/transaction-manager-extra;1"]
-                .getService(Ci.nsITransactionManagerExtra)
-                .createTransactionManager();
+            Cc["@mozilla.org/transactionmanager;1"].createInstance(Ci.nsITransactionManager);
     }
 }
 
