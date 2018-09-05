@@ -3,7 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//* ***************************************************************************//
+// applications.inc.xul
+/* globals ICON_URL_APP */
+// mail/base/content/contentAreaClick.js
+/* globals openLinkExternally */
+// toolkit/content/globalOverlay.js
+/* globals goUpdateCommand */
+
+// ------------------------------
 // Constants & Enumeration Values
 
 var PREF_DISABLED_PLUGIN_TYPES = "plugin.disable_full_page_plugin_for_types";
@@ -29,7 +36,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-//* ***************************************************************************//
+// ---------
 // Utilities
 
 function getDisplayNameForFile(aFile) {
@@ -87,7 +94,7 @@ ArrayEnumerator.prototype = {
   },
 };
 
-//* ***************************************************************************//
+// ------------------
 // HandlerInfoWrapper
 
 /**
@@ -116,16 +123,13 @@ HandlerInfoWrapper.prototype = {
   // we haven't (yet?) implemented, so we make it a public property.
   wrappedHandlerInfo: null,
 
-  //* *************************************************************************//
+  // -----------------
   // Convenience Utils
 
   _handlerSvc: Cc["@mozilla.org/uriloader/handler-service;1"]
                  .getService(Ci.nsIHandlerService),
 
-  _categoryMgr: Cc["@mozilla.org/categorymanager;1"]
-                  .getService(Ci.nsICategoryManager),
-
-  //* *************************************************************************//
+  // --------------
   // nsIHandlerInfo
 
   // The MIME type or protocol scheme.
@@ -164,8 +168,10 @@ HandlerInfoWrapper.prototype = {
 
   addPossibleApplicationHandler(aNewHandler) {
     try {
+      /* eslint-disable mozilla/use-includes-instead-of-indexOf */
       if (this.possibleApplicationHandlers.indexOf(0, aNewHandler) != -1)
         return;
+      /* eslint-enable mozilla/use-includes-instead-of-indexOf */
     } catch (e) { }
     this.possibleApplicationHandlers.appendElement(aNewHandler);
   },
@@ -252,8 +258,7 @@ HandlerInfoWrapper.prototype = {
     this.wrappedHandlerInfo.alwaysAskBeforeHandling = aNewValue;
   },
 
-
-  //* *************************************************************************//
+  // -----------
   // nsIMIMEInfo
 
   // The primary file extension associated with this type, if any.
@@ -271,8 +276,7 @@ HandlerInfoWrapper.prototype = {
     return null;
   },
 
-
-  //* *************************************************************************//
+  // ---------------
   // Plugin Handling
 
   // A plugin that can handle this type, if any.
@@ -321,9 +325,7 @@ HandlerInfoWrapper.prototype = {
                                disabledPluginTypes.join(","));
 
     // Update the category manager so existing browser windows update.
-    this._categoryMgr.deleteCategoryEntry("Gecko-Content-Viewers",
-                                          this.type,
-                                          false);
+    Services.catMan.deleteCategoryEntry("Gecko-Content-Viewers", this.type, false);
   },
 
   enablePluginType() {
@@ -336,16 +338,14 @@ HandlerInfoWrapper.prototype = {
                                disabledPluginTypes.join(","));
 
     // Update the category manager so existing browser windows update.
-    this._categoryMgr.
-      addCategoryEntry("Gecko-Content-Viewers",
-                       this.type,
-                       "@mozilla.org/content/plugin/document-loader-factory;1",
-                       false,
-                       true);
+    Services.catMan.addCategoryEntry(
+      "Gecko-Content-Viewers", this.type,
+      "@mozilla.org/content/plugin/document-loader-factory;1",
+      false, true
+    );
   },
 
-
-  //* *************************************************************************//
+  // -------
   // Storage
 
   store() {
@@ -356,8 +356,7 @@ HandlerInfoWrapper.prototype = {
     this._handlerSvc.remove(this.wrappedHandlerInfo);
   },
 
-
-  //* *************************************************************************//
+  // -----
   // Icons
 
   get smallIcon() {
@@ -618,9 +617,11 @@ var gCloudFileTab = {
       },
     };
 
-    let accountInfo = {account,
-                       listItem: aItem,
-                       result: Cr.NS_ERROR_NOT_AVAILABLE};
+    let accountInfo = {
+      account,
+      listItem: aItem,
+      result: Cr.NS_ERROR_NOT_AVAILABLE,
+    };
 
     this._accountCache[accountKey] = accountInfo;
 
@@ -804,7 +805,7 @@ var gCloudFileTab = {
                                           "nsISupportsWeakReference"]),
 };
 
-//* ***************************************************************************//
+// -------------------
 // Prefpane Controller
 
 var gApplicationsPane = {
@@ -828,7 +829,7 @@ var gApplicationsPane = {
   _visibleTypeDescriptionCount: new Map(),
 
 
-  //* *************************************************************************//
+  // -----------------------------------
   // Convenience & Performance Shortcuts
 
   // These get defined by init().
@@ -837,16 +838,15 @@ var gApplicationsPane = {
   _list: null,
   _filter: null,
 
-  _mimeSvc: Cc["@mozilla.org/mime;1"]
-                    .getService(Ci.nsIMIMEService),
+  _mimeSvc: Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService),
 
   _helperAppSvc: Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
-                    .getService(Ci.nsIExternalHelperAppService),
+                   .getService(Ci.nsIExternalHelperAppService),
 
   _handlerSvc: Cc["@mozilla.org/uriloader/handler-service;1"]
-                    .getService(Ci.nsIHandlerService),
+                 .getService(Ci.nsIHandlerService),
 
-  //* *************************************************************************//
+  // ----------------------------
   // Initialization & Destruction
 
   init() {
@@ -901,13 +901,12 @@ var gApplicationsPane = {
     Services.prefs.removeObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this);
   },
 
-
-  //* *************************************************************************//
+  // -----------
   // nsISupports
 
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
-  //* *************************************************************************//
+  // -----------
   // nsIObserver
 
   observe(aSubject, aTopic, aData) {
@@ -928,8 +927,7 @@ var gApplicationsPane = {
     }
   },
 
-
-  //* *************************************************************************//
+  // -------------
   // EventListener
 
   handleEvent(aEvent) {
@@ -937,8 +935,7 @@ var gApplicationsPane = {
       this.destroy();
   },
 
-
-  //* *************************************************************************//
+  // ---------------------------
   // Composed Model Construction
 
   _loadData() {
@@ -1010,7 +1007,7 @@ var gApplicationsPane = {
     }
   },
 
-  //* *************************************************************************//
+  // -----------------
   // View Construction
 
   _rebuildVisibleTypes() {
@@ -1405,9 +1402,6 @@ var gApplicationsPane = {
     if (handlerInfo.alwaysAskBeforeHandling)
       menu.selectedItem = askMenuItem;
     else switch (handlerInfo.preferredAction) {
-      case Ci.nsIHandlerInfo.handleInternally:
-        menu.selectedItem = internalMenuItem;
-        break;
       case Ci.nsIHandlerInfo.useSystemDefault:
         menu.selectedItem = defaultMenuItem;
         break;
@@ -1429,8 +1423,7 @@ var gApplicationsPane = {
     menu.previousSelectedItem = menu.selectedItem || askMenuItem;
   },
 
-
-  //* *************************************************************************//
+  // -------------------
   // Sorting & Filtering
 
   _sortColumn: null,
@@ -1495,7 +1488,7 @@ var gApplicationsPane = {
     this._filter.select();
   },
 
-  //* *************************************************************************//
+  // -------
   // Changes
 
   onSelectAction(aActionItem) {
@@ -1682,7 +1675,6 @@ var gApplicationsPane = {
       this.onDelete(aEvent);
     else {
       // They hit cancel, so return them to the previously selected item.
-      let typeItem = this._list.selectedItem;
       let menu = document.getAnonymousElementByAttribute(this._list.selectedItem,
                                                          "class", "actionsMenu");
       menu.selectedItem = menu.previousSelectedItem;

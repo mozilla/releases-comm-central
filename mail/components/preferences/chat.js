@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// messagestyle.js
+/* globals previewObserver */
+
 var gChatPane = {
   init() {
     previewObserver.load();
@@ -14,8 +17,9 @@ var gChatPane = {
     if (document.getElementById("messenger.status.reportIdle").value) {
       broadcaster.removeAttribute("disabled");
       this.updateMessageDisabledState();
-    } else
+    } else {
       broadcaster.setAttribute("disabled", "true");
+    }
   },
 
   updateMessageDisabledState() {

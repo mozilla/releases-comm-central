@@ -60,13 +60,15 @@ var gPrivacyPane = {
    */
   showCookieExceptions() {
     let bundle = document.getElementById("bundlePreferences");
-    let params = { blockVisible: true,
-                   sessionVisible: true,
-                   allowVisible: true,
-                   prefilledHost: "",
-                   permissionType: "cookie",
-                   windowTitle: bundle.getString("cookiepermissionstitle"),
-                   introText: bundle.getString("cookiepermissionstext") };
+    let params = {
+      blockVisible: true,
+      sessionVisible: true,
+      allowVisible: true,
+      prefilledHost: "",
+      permissionType: "cookie",
+      windowTitle: bundle.getString("cookiepermissionstitle"),
+      introText: bundle.getString("cookiepermissionstext"),
+    };
     gSubDialog.open("chrome://messenger/content/preferences/permissions.xul",
                     null, params);
   },
@@ -118,13 +120,15 @@ var gPrivacyPane = {
    */
   showRemoteContentExceptions() {
     let bundle = document.getElementById("bundlePreferences");
-    let params = { blockVisible: true,
-                   sessionVisible: false,
-                   allowVisible: true,
-                   prefilledHost: "",
-                   permissionType: "image",
-                   windowTitle: bundle.getString("imagepermissionstitle"),
-                   introText: bundle.getString("imagepermissionstext") };
+    let params = {
+      blockVisible: true,
+      sessionVisible: false,
+      allowVisible: true,
+      prefilledHost: "",
+      permissionType: "image",
+      windowTitle: bundle.getString("imagepermissionstitle"),
+      introText: bundle.getString("imagepermissionstext"),
+    };
     gSubDialog.open("chrome://messenger/content/preferences/permissions.xul",
                     null, params);
   },

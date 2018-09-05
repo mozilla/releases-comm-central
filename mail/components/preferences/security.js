@@ -69,8 +69,9 @@ var gSecurityPane = {
    */
   reloadMessageInOpener() {
     if (Services.prefs.getBoolPref("browser.preferences.instantApply") &&
-       window.opener && typeof(window.opener.ReloadMessage) == "function")
+        window.opener && typeof(window.opener.ReloadMessage) == "function") {
       window.opener.ReloadMessage();
+    }
   },
 
   /**
@@ -147,7 +148,8 @@ var gSecurityPane = {
   },
 
   updateDownloadedPhishingListState() {
-    document.getElementById("useDownloadedList").disabled = !document.getElementById("enablePhishingDetector").checked;
+    document.getElementById("useDownloadedList").disabled =
+      !document.getElementById("enablePhishingDetector").checked;
   },
 
 };

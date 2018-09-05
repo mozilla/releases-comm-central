@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// toolkit/mozapps/preferences/fontbuilder.js
+/* globals FontBuilder */
+
 var gDisplayPane = {
   mInitialized: false,
   mTagListBox:  null,
@@ -226,15 +229,13 @@ var gDisplayPane = {
     if (index >= 0) {
       var tagElToEdit = this.mTagListBox.getItemAtIndex(index);
       var args = {result: "", keyToEdit: tagElToEdit.getAttribute("value"), okCallback: editTagCallback};
-      let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
-                                   "resizable=no", args);
+      gSubDialog.open("chrome://messenger/content/newTagDialog.xul", "resizable=no", args);
     }
   },
 
   addTag() {
     var args = {result: "", okCallback: addTagCallback};
-    let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
-                                 "resizable=no", args);
+    gSubDialog.open("chrome://messenger/content/newTagDialog.xul", "resizable=no", args);
   },
 
   onSelect() {

@@ -13,7 +13,8 @@ var gOfflineDialog = {
     offlineStartupStatePref.disabled = offlineAutoDetection.value;
     if (offlineStartupStatePref.disabled) {
       offlineStartupStatePref.value = kAutomatic;
-    } else if (offlineStartupStatePref.value == kAutomatic)
-        offlineStartupStatePref.value = kRememberLastState;
+    } else if (offlineStartupStatePref.value == kAutomatic) {
+      offlineStartupStatePref.value = kRememberLastState;
+    }
   },
 };

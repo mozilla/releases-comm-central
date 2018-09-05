@@ -162,7 +162,7 @@ var gComposePane = {
                          .getService(Ci.nsIFontEnumerator);
       var localFontCount = { value: 0 };
       var localFonts = enumerator.EnumerateAllFonts(localFontCount);
-      for (var i = 0; i < localFonts.length; ++i) {
+      for (let i = 0; i < localFonts.length; ++i) {
         // Remove Linux system generic fonts that collide with CSS generic fonts.
         if (localFonts[i] != "" && localFonts[i] != "serif" &&
             localFonts[i] != "sans-serif" && localFonts[i] != "monospace")

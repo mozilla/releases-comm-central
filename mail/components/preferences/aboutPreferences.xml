@@ -103,9 +103,9 @@
                 this.lastSelected = aPaneElement.id;
                 this.currentPane = aPaneElement;
 
-                let targetHeight = parseInt(window.getComputedStyle(this._paneDeckContainer, "").height);
-                let verticalPadding = parseInt(window.getComputedStyle(aPaneElement, "").paddingTop);
-                verticalPadding += parseInt(window.getComputedStyle(aPaneElement, "").paddingBottom);
+                let targetHeight = parseInt(window.getComputedStyle(this._paneDeckContainer).height);
+                let verticalPadding = parseInt(window.getComputedStyle(aPaneElement).paddingTop);
+                verticalPadding += parseInt(window.getComputedStyle(aPaneElement).paddingBottom);
                 if (aPaneElement.contentHeight + verticalPadding < targetHeight)
                   aPaneElement._content.style.height = targetHeight - verticalPadding + "px";
               }

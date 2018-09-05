@@ -18,6 +18,8 @@
       <!-- Overriding listitem -->
       <property name="selected" onget="return this.getAttribute('selected') == 'true';">
         <setter><![CDATA[
+          // applications.js
+          /* globals gApplicationsPane */
           if (val) {
             this.setAttribute("selected", "true");
             gApplicationsPane.rebuildActionsMenu();

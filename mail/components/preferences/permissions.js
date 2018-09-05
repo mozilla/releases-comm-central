@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// toolkit/content/treeUtils.js
+/* globals gTreeUtils */
+
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
@@ -224,7 +227,7 @@ var gPermissionManager = {
 
     var permissionsText = document.getElementById("permissionsText");
     while (permissionsText.hasChildNodes())
-      permissionsText.removeChild(permissionsText.firstChild);
+      permissionsText.firstChild.remove();
     permissionsText.appendChild(document.createTextNode(aParams.introText));
 
     document.title = aParams.windowTitle;
@@ -378,7 +381,6 @@ var gPermissionManager = {
     this._permissions = [];
 
     // load permissions into a table
-    var count = 0;
     var enumerator = Services.perms.enumerator;
     while (enumerator.hasMoreElements()) {
       var nextPermission = enumerator.getNext().QueryInterface(Ci.nsIPermission);

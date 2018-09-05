@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// mail/base/content/aboutDialog-appUpdater.js
+/* globals appUpdater, gAppUpdater */
+
 // Load DownloadUtils module for convertByteUnits
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -73,8 +76,7 @@ var gAdvancedPane = {
     // If the shell service is not working, disable the "Check now" button
     // and "perform check at startup" checkbox.
     try {
-      let shellSvc = Cc["@mozilla.org/mail/shell-service;1"]
-                       .getService(Ci.nsIShellService);
+      Cc["@mozilla.org/mail/shell-service;1"].getService(Ci.nsIShellService);
       this.mShellServiceWorking = true;
     } catch (ex) {
       // The elements may not exist if HAVE_SHELL_SERVICE is off.
@@ -138,7 +140,7 @@ var gAdvancedPane = {
         }
       }
 
-      gAppUpdater = new appUpdater();
+      gAppUpdater = new appUpdater(); // eslint-disable-line no-global-assign
     }
 
     this.mInitialized = true;
@@ -213,10 +215,7 @@ var gAdvancedPane = {
     actualSizeLabel.value = prefStrBundle.getString("actualDiskCacheSizeCalculated");
 
     try {
-      let cacheService =
-        Cc["@mozilla.org/netwerk/cache-storage-service;1"]
-          .getService(Ci.nsICacheStorageService);
-      cacheService.asyncGetDiskConsumption(this.observer);
+      Services.cache2.asyncGetDiskConsumption(this.observer);
     } catch (e) {}
   },
 
@@ -257,81 +256,71 @@ var gAdvancedPane = {
    */
   clearCache() {
     try {
-      let cache = Cc["@mozilla.org/netwerk/cache-storage-service;1"]
-                    .getService(Ci.nsICacheStorageService);
-      cache.clear();
+      Services.cache2.clear();
     } catch (ex) {}
     this.updateActualCacheSize();
   },
 
-  updateButtons(aButtonID, aPreferenceID) {
-    var button = document.getElementById(aButtonID);
-    var preference = document.getElementById(aPreferenceID);
-    // This is actually before the value changes, so the value is not as you expect.
-    button.disabled = preference.value == true;
-    return undefined;
+  /**
+   * Selects the item of the radiogroup based on the pref values and locked
+   * states.
+   *
+   * UI state matrix for update preference conditions
+   *
+   * UI Components:                              Preferences
+   * Radiogroup                                  i   = app.update.auto
+   */
+  updateReadPrefs() {
+    let autoPref = document.getElementById("app.update.auto");
+    let radiogroup = document.getElementById("updateRadioGroup");
+
+    if (autoPref.value)
+      radiogroup.value = "auto";      // Automatically install updates
+    else
+      radiogroup.value = "checkOnly"; // Check, but let me choose
+
+    let canCheck = Cc["@mozilla.org/updates/update-service;1"].
+                     getService(Ci.nsIApplicationUpdateService).
+                     canCheckForUpdates;
+
+    // canCheck is false if the binary platform or OS version is not known.
+    // A locked pref is sufficient to disable the radiogroup.
+    radiogroup.disabled = !canCheck || autoPref.locked;
+
+    if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
+      // Check to see if the maintenance service is installed.
+      // If it is don't show the preference at all.
+      let installed;
+      try {
+        let wrk = Cc["@mozilla.org/windows-registry-key;1"]
+                    .createInstance(Ci.nsIWindowsRegKey);
+        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
+                 "SOFTWARE\\Mozilla\\MaintenanceService",
+                 wrk.ACCESS_READ | wrk.WOW64_64);
+        installed = wrk.readIntValue("Installed");
+        wrk.close();
+      } catch (e) { }
+      if (installed != 1) {
+        document.getElementById("useService").hidden = true;
+      }
+    }
   },
 
-/**
- * Selects the item of the radiogroup based on the pref values and locked
- * states.
- *
- * UI state matrix for update preference conditions
- *
- * UI Components:                              Preferences
- * Radiogroup                                  i   = app.update.auto
- */
-updateReadPrefs() {
-  var autoPref = document.getElementById("app.update.auto");
-  var radiogroup = document.getElementById("updateRadioGroup");
-
-  if (autoPref.value)
-    radiogroup.value = "auto";      // Automatically install updates
-  else
-    radiogroup.value = "checkOnly"; // Check, but let me choose
-
-  var canCheck = Cc["@mozilla.org/updates/update-service;1"].
-                   getService(Ci.nsIApplicationUpdateService).
-                   canCheckForUpdates;
-
-  // canCheck is false if the binary platform or OS version is not known.
-  // A locked pref is sufficient to disable the radiogroup.
-  radiogroup.disabled = !canCheck || autoPref.locked;
-
-  if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
-    // Check to see if the maintenance service is installed.
-    // If it is don't show the preference at all.
-    let installed;
-    try {
-      let wrk = Cc["@mozilla.org/windows-registry-key;1"]
-                  .createInstance(Ci.nsIWindowsRegKey);
-      wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-               "SOFTWARE\\Mozilla\\MaintenanceService",
-               wrk.ACCESS_READ | wrk.WOW64_64);
-      installed = wrk.readIntValue("Installed");
-      wrk.close();
-    } catch (e) { }
-    if (installed != 1) {
-      document.getElementById("useService").hidden = true;
+  /**
+   * Sets the pref values based on the selected item of the radiogroup.
+   */
+  updateWritePrefs() {
+    let autoPref = document.getElementById("app.update.auto");
+    let radiogroup = document.getElementById("updateRadioGroup");
+    switch (radiogroup.value) {
+      case "auto":      // Automatically install updates
+        autoPref.value = true;
+        break;
+      case "checkOnly": // Check, but but let me choose
+        autoPref.value = false;
+        break;
     }
-  }
-},
-
-/**
- * Sets the pref values based on the selected item of the radiogroup.
- */
-updateWritePrefs() {
-  var autoPref = document.getElementById("app.update.auto");
-  var radiogroup = document.getElementById("updateRadioGroup");
-  switch (radiogroup.value) {
-    case "auto":      // Automatically install updates
-      autoPref.value = true;
-      break;
-    case "checkOnly": // Check, but but let me choose
-      autoPref.value = false;
-      break;
-  }
-},
+  },
 
   showUpdates() {
     gSubDialog.open("chrome://mozapps/content/update/history.xul");
@@ -484,13 +473,10 @@ updateWritePrefs() {
   },
 
   formatLocaleSetLabels() {
-    const localeService =
-      Cc["@mozilla.org/intl/localeservice;1"]
-        .getService(Ci.mozILocaleService);
     const osprefs =
       Cc["@mozilla.org/intl/ospreferences;1"]
         .getService(Ci.mozIOSPreferences);
-    let appLocale = localeService.getAppLocalesAsBCP47()[0];
+    let appLocale = Services.locale.getAppLocalesAsBCP47()[0];
     let rsLocale = osprefs.getRegionalPrefsLocales()[0];
     let names = Services.intl.getLocaleDisplayNames(undefined, [appLocale, rsLocale]);
     let appLocaleRadio = document.getElementById("appLocale");

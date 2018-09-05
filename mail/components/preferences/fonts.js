@@ -3,6 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// toolkit/content/preferencesBindings.js
+/* globals Preferences */
+// toolkit/mozapps/preferences/fontbuilder.js
+/* globals FontBuilder */
+
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kDefaultFontType          = "font.default.%LANG%";

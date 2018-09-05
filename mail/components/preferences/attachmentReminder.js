@@ -21,9 +21,9 @@ var gAttachmentReminderOptionsDialog = {
                        Ci.nsIPrefLocalizedString);
     if (!keywordsInCsv)
       return;
-    var keywordsInCsv = keywordsInCsv.data;
+    keywordsInCsv = keywordsInCsv.data;
     var keywordsInArr = keywordsInCsv.split(",");
-    for (var i = 0; i < keywordsInArr.length; i++) {
+    for (let i = 0; i < keywordsInArr.length; i++) {
       if (keywordsInArr[i])
         this.keywordListBox.appendItem(keywordsInArr[i], keywordsInArr[i]);
     }

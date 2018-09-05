@@ -15,7 +15,6 @@ var gSendOptionsDialog = {
     this.mHTMLListBox = document.getElementById("html_domains");
     this.mPlainTextListBox = document.getElementById("plaintext_domains");
 
-    var htmlDomainPrefString = document.getElementById("mailnews.html_domains").value;
     this.loadDomains(document.getElementById("mailnews.html_domains").value,
                      this.mHTMLListBox);
     this.loadDomains(document.getElementById("mailnews.plaintext_domains").value,
@@ -27,7 +26,7 @@ var gSendOptionsDialog = {
     var num_domains = 0;
     var pref_string = "";
 
-    for (var item = listbox.firstChild; item != null; item = item.nextSibling) {
+    for (let item = listbox.firstChild; item != null; item = item.nextSibling) {
       var domainid = item.firstChild.getAttribute("value");
       if (domainid.length > 1) {
         num_domains++;
@@ -44,13 +43,12 @@ var gSendOptionsDialog = {
   },
 
   loadDomains(aPrefString, aListBox) {
-    var arrayOfPrefs = aPrefString.split(",");
-    if (arrayOfPrefs)
-      for (var i = 0; i < arrayOfPrefs.length; i++) {
-        var str = arrayOfPrefs[i].replace(/ /g, "");
-        if (str)
-          this.addItemToDomainList(aListBox, str);
+    for (let str of aPrefString.split(",")) {
+      str = str.replace(/ /g, "");
+      if (str) {
+        this.addItemToDomainList(aListBox, str);
       }
+    }
   },
 
   removeDomains(aHTML) {

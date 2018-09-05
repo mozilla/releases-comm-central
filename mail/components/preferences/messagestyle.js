@@ -4,7 +4,7 @@
 
 var jsProtoHelper = {};
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
-ChromeUtils.import("resource:///modules/imThemes.jsm");
+const { getThemeByName, getThemeVariants } = ChromeUtils.import("resource:///modules/imThemes.jsm", null);
 
 function Conversation(aName) {
   this._name = aName;
@@ -55,8 +55,6 @@ var previewObserver = {
     previewObserver.conv = conv;
 
     let themeName = document.getElementById("messagestyle-themename");
-    if (themeName.value && !themeName.selectedItem)
-      themeName.value = themeName.value;
     previewObserver.browser = document.getElementById("previewbrowser");
     document.getElementById("showHeaderCheckbox")
             .addEventListener("CheckboxStateChange",
