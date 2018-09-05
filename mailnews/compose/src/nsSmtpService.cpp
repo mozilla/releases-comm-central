@@ -360,6 +360,10 @@ NS_IMETHODIMP nsSmtpService::NewURI(const nsACString &aSpec,
   // get a new smtp url
   nsresult rv;
 
+  // Note bug 1488356 comment #19:
+  // "A non-UTF-8 charset would be passed if the URL object is created because
+  // the URL string exists in a link in a non-UTF-8 HTML page."
+  // In other words: We need this code for mailto: URLs on non-UTF-8 HTML pages.
   nsAutoCString utf8Spec;
   if (aOriginCharset)
   {
