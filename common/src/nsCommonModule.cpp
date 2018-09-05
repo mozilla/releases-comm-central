@@ -1,19 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "mozilla/ModuleUtils.h"
+#include "nsBaseCommandController.h"
 #include "nsCommonBaseCID.h"
 #include "nsComponentManagerExtra.h"
 #include "nsTransactionManagerExtra.h"
-#include "nsBaseCommandController.h"
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsComponentManagerExtra)
 NS_DEFINE_NAMED_CID(NS_COMPONENTMANAGEREXTRA_CID);
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsTransactionManagerExtra)
 NS_DEFINE_NAMED_CID(NS_TRANSACTIONMANAGEREXTRA_CID);
-
-#define NS_BASECOMMANDCONTROLLER_CID \
-  { 0xbf88b48c, 0xfd8e, 0x40b4, { 0xba, 0x36, 0xc7, 0xc3, 0xad, 0x6d, 0x8a, 0xc9 } }
-#define NS_BASECOMMANDCONTROLLER_CONTRACTID \
-  "@mozilla.org/embedcomp/base-command-controller;1"
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsBaseCommandController)
 NS_DEFINE_NAMED_CID(NS_BASECOMMANDCONTROLLER_CID);
