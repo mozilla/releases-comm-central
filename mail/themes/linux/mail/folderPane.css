@@ -135,12 +135,12 @@ treechildren::-moz-tree-cell-text(folderNameCol, isPaused) {
 }
 treechildren::-moz-tree-image(folderNameCol, closed, isBusy),
 treechildren::-moz-tree-image(folderNameCol, leaf, isBusy) {
-  list-style-image: url("chrome://messenger/skin/icons/status.png");
-  -moz-image-region: rect(0 32px 16px 16px);
+  list-style-image: url("chrome://messenger/skin/icons/waiting.svg");
+  -moz-image-region: rect(0 16px 16px 0);
 }
 treechildren::-moz-tree-image(folderNameCol, closed, hasError),
 treechildren::-moz-tree-image(folderNameCol, leaf, hasError) {
-  list-style-image: url("chrome://global/skin/icons/error-16.png");
+  list-style-image: url("chrome://mozapps/skin/extensions/alerticon-error.svg");
   -moz-image-region: rect(0 16px 16px 0);
 }
 
