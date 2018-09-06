@@ -25,7 +25,6 @@
 #include "nsComposeStrings.h"
 #include "nsIAsyncInputStream.h"
 #include "nsIPrincipal.h"
-#include "mozilla/Encoding.h"
 
 #define SERVER_DELIMITER ','
 #define APPEND_SERVERS_VERSION_PREF_NAME "append_preconfig_smtpservers.version"
@@ -288,102 +287,21 @@ NS_IMETHODIMP nsSmtpService::GetProtocolFlags(uint32_t *result)
     return NS_OK;
 }
 
-// Copied from M-C's nsMIMEHeaderParamImpl.cpp
-static nsresult
-ToUTF8(const nsACString& aString,
-       const char* aCharset,
-       bool aAllowSubstitution,
-       nsACString& aResult)
-{
-  if (!aCharset || !*aCharset)
-    return NS_ERROR_INVALID_ARG;
-
-  auto encoding = mozilla::Encoding::ForLabelNoReplacement(
-                    mozilla::MakeStringSpan(aCharset));
-  if (!encoding) {
-    return NS_ERROR_UCONV_NOCONV;
-  }
-  if (aAllowSubstitution) {
-    nsresult rv = encoding->DecodeWithoutBOMHandling(aString, aResult);
-    if (NS_SUCCEEDED(rv)) {
-      return NS_OK;
-    }
-    return rv;
-  }
-  return encoding->DecodeWithoutBOMHandlingAndWithoutReplacement(aString,
-                                                                 aResult);
-}
-
-// Copied from M-C's nsUTF8ConverterService.cpp after its removal in bug 1488115.
-static nsresult
-ConvertURISpecToUTF8(const nsACString& aSpec,
-                     const char* aCharset,
-                     nsACString& aUTF8Spec)
-{
-  // assume UTF-8 if the spec contains unescaped non-ASCII characters.
-  // No valid spec in Mozilla would break this assumption.
-  if (!IsASCII(aSpec)) {
-    aUTF8Spec = aSpec;
-    return NS_OK;
-  }
-
-  aUTF8Spec.Truncate();
-
-  nsAutoCString unescapedSpec;
-  // NS_UnescapeURL does not fill up unescapedSpec unless there's at least
-  // one character to unescape.
-  bool written = NS_UnescapeURL(PromiseFlatCString(aSpec).get(),
-                                aSpec.Length(),
-                                esc_OnlyNonASCII,
-                                unescapedSpec);
-
-  if (!written) {
-    aUTF8Spec = aSpec;
-    return NS_OK;
-  }
-  // return if ASCII only or escaped UTF-8
-  if (IsASCII(unescapedSpec) || IsUTF8(unescapedSpec)) {
-    aUTF8Spec = unescapedSpec;
-    return NS_OK;
-  }
-
-  return ToUTF8(unescapedSpec, aCharset, true, aUTF8Spec);
-}
-
 // the smtp service is also the protocol handler for mailto urls....
 
 NS_IMETHODIMP nsSmtpService::NewURI(const nsACString &aSpec,
-                                    const char *aOriginCharset,
+                                    const char *aOriginCharset,  // ignored, always UTF-8.
                                     nsIURI *aBaseURI,
                                     nsIURI **_retval)
 {
   // get a new smtp url
   nsresult rv;
 
-  // Note bug 1488356 comment #19:
-  // "A non-UTF-8 charset would be passed if the URL object is created because
-  // the URL string exists in a link in a non-UTF-8 HTML page."
-  // In other words: We need this code for mailto: URLs on non-UTF-8 HTML pages.
-  nsAutoCString utf8Spec;
-  if (aOriginCharset)
-  {
-    rv = ConvertURISpecToUTF8(aSpec, aOriginCharset, utf8Spec);
-  }
-
-  // utf8Spec is filled up only when aOriginCharset is specified and
-  // the conversion is successful. Otherwise, fall back to aSpec.
   nsCOMPtr<nsIURI> mailtoUrl;
-  if (aOriginCharset && NS_SUCCEEDED(rv)) {
-    rv = NS_MutateURI(new nsMailtoUrl::Mutator())
-           .SetSpec(utf8Spec)
-           .Finalize(mailtoUrl);
-    NS_ENSURE_SUCCESS(rv, rv);
-  } else {
-    rv = NS_MutateURI(new nsMailtoUrl::Mutator())
-           .SetSpec(aSpec)
-           .Finalize(mailtoUrl);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
+  rv = NS_MutateURI(new nsMailtoUrl::Mutator())
+         .SetSpec(aSpec)
+         .Finalize(mailtoUrl);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   mailtoUrl.forget(_retval);
   return NS_OK;
