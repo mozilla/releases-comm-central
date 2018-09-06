@@ -392,8 +392,10 @@ function delete_attachment(aComposeWindow, aIndex) {
  * @param aController the controller for a compose window.
  */
 function get_compose_body(aController) {
-  let mailDoc = aController.e("content-frame").contentDocument;
-  return mailDoc.querySelector("body");
+  let mailBody = aController.e("content-frame").contentDocument.querySelector("body");
+  if (!mailBody)
+    throw new Error("Compose body not found!");
+  return mailBody;
 }
 
 /**

@@ -108,9 +108,7 @@ function test_reply_to_base64_eml() {
 
   let compWin = open_compose_with_reply(msgc);
 
-  let bodyText = compWin.e("content-frame").contentDocument
-                        .querySelector("body").textContent;
-
+  let bodyText = get_compose_body(compWin).textContent;
   const message = "You have decoded this text from base64.";
   if (!bodyText.includes(message))
     throw new Error("body text didn't contain the decoded text; message=" +
@@ -131,9 +129,7 @@ function test_forward_base64_eml() {
 
   let compWin = open_compose_with_forward(msgc);
 
-  let bodyText = compWin.e("content-frame").contentDocument
-                        .querySelector("body").textContent;
-
+  let bodyText = get_compose_body(compWin).textContent;
   const message = "You have decoded this text from base64.";
   if (!bodyText.includes(message))
     throw new Error("body text didn't contain the decoded text; message=" +

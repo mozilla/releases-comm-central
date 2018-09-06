@@ -261,9 +261,7 @@ function test_remove_space_stuffing_format_flowed() {
   mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
   cwc = wait_for_compose_window();
 
-  let bodyText = cwc.e("content-frame").contentDocument
-                    .querySelector("body").innerHTML;
-
+  let bodyText = get_compose_body(cwc).innerHTML;
   if (!bodyText.includes("NoSpace<br> OneSpace<br>  TwoSpaces")) {
     assert_true(false, "Something went wrong with space stuffing");
   }

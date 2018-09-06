@@ -83,7 +83,7 @@ var setupModule = function(module) {
 }
 
 /**
- * Helper to opend an attached .eml file, invoke the hotkey and check some
+ * Helper to open an attached .eml file, invoke the hotkey and check some
  * properties of the composition content we get.
  */
 function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
@@ -101,8 +101,7 @@ function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   msgWin.keypress(null, hotkeyToHit, hotkeyModifiers);
   let compWin = wait_for_compose_window(msgWin);
 
-  let bodyText= compWin.e("content-frame").contentDocument
-                       .querySelector("body").textContent;
+  let bodyText = get_compose_body(compWin).textContent;
   if (bodyText.includes("html"))
     throw new Error("body text contains raw html; bodyText=" + bodyText);
 
