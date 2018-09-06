@@ -20,7 +20,9 @@
                 src="chrome://messenger/locale/messenger.properties"/>
 
   <vbox flex="1" style="overflow: auto;">
-    <dialogheader title="&smtpServer.label;"/>
+    <hbox class="dialogheader">
+      <label class="dialogheader-title" value="&smtpServer.label;"/>
+    </hbox>
 
     <label control="smtpList">&smtpDescription.label;</label>
     <separator class="thin"/>

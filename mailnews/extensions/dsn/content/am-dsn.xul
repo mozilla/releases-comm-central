@@ -17,7 +17,9 @@
   <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
   <script type="application/javascript" src="chrome://messenger/content/am-dsn.js"/>
 
-  <dialogheader title="&pane.title;"/>
+  <hbox class="dialogheader">
+    <label class="dialogheader-title" value="&pane.title;"/>
+  </hbox>
 
   <groupbox>
 

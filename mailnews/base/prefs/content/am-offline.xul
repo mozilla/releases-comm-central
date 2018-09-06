@@ -22,7 +22,9 @@
            wsm_persist="true" preftype="int"
            prefstring="mail.server.%serverkey%.autosync_max_age_days"/>
 
-    <dialogheader id="headertitle"/>
+    <hbox id="headertitle" class="dialogheader">
+      <label class="dialogheader-title"/>
+    </hbox>
 
     <groupbox id="offline.titlebox" hidefor="movemail,pop3,none,rss">
       <caption label="&syncGroupTitle.label;"/>

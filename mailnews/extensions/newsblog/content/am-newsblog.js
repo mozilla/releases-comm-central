@@ -10,7 +10,7 @@ var gAccount, gUpdateEnabled, gUpdateValue, gBiffUnits,
 
 function onInit(aPageId, aServerId) {
   var accountName = document.getElementById("server.prettyName");
-  var title = document.getElementById("am-newsblog-title");
+  var title = document.querySelector("#am-newsblog-title .dialogheader-title");
   var defaultTitle = title.getAttribute("defaultTitle");
 
   var titleValue;
@@ -20,7 +20,7 @@ function onInit(aPageId, aServerId) {
     titleValue = defaultTitle;
   }
 
-  title.setAttribute("title", titleValue);
+  title.setAttribute("value", titleValue);
   document.title = titleValue;
 
   let optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);

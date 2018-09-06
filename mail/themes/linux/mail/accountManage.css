@@ -80,8 +80,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 
 /* ::::: dialog header ::::: */
 
-dialogheader {
-  -moz-binding: url("chrome://messenger/content/generalBindings.xml#dialogheader");
+.dialogheader {
   margin: 0 5px 5px;
   border: 1px solid ThreeDDarkShadow;
   padding: 5px 8px;

@@ -35,7 +35,9 @@
 
   <vbox flex="1" style="overflow: auto;">
 
-    <dialogheader id="am-newsblog-title" defaultTitle="&accountTitle.label;"/>
+    <hbox id="am-newsblog-title" class="dialogheader">
+      <label class="dialogheader-title" defaultTitle="&accountTitle.label;"/>
+    </hbox>
 
     <description class="secDesc">&accountSettingsDesc.label;</description>
 

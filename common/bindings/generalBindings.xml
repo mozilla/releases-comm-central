@@ -39,13 +39,6 @@
     </implementation>
   </binding>
 
-  <binding id="dialogheader">
-    <content>
-      <xul:label class="dialogheader-title" xbl:inherits="value=title,crop" crop="right" flex="1"/>
-      <xul:label class="dialogheader-description" xbl:inherits="value=description"/>
-    </content>
-  </binding>
-
   <binding id="menu-vertical" display="xul:menu"
            extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
     <content>

@@ -36,7 +36,9 @@
            genericattr="true"
            id="server.storeContractID"/>
 
-    <dialogheader title="&serverSettings.label;"/>
+    <hbox class="dialogheader">
+      <label class="dialogheader-title" value="&serverSettings.label;"/>
+    </hbox>
 
     <grid>
       <columns>

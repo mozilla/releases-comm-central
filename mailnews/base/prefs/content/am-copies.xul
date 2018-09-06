@@ -18,7 +18,9 @@
     <script type="application/javascript" src="chrome://messenger/content/am-copies.js"/>
     <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
 
-    <dialogheader title="&copyAndFolderTitle.label;"/>
+    <hbox class="dialogheader">
+      <label class="dialogheader-title" value="&copyAndFolderTitle.label;"/>
+    </hbox>
 #include am-copies.inc
   </vbox>
 </page>

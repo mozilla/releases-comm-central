@@ -8,7 +8,7 @@ var gAccount;
 function onInit(aPageId, aServerId)
 {
   var accountName = document.getElementById("server.prettyName");
-  var title = document.getElementById("am-main-title");
+  var title = document.querySelector("#am-main-title .dialogheader-title");
   var defaultTitle = title.getAttribute("defaultTitle");
   var titleValue;
 
@@ -17,7 +17,7 @@ function onInit(aPageId, aServerId)
   else
     titleValue = defaultTitle;
 
-  title.setAttribute("title",titleValue);
+  title.setAttribute("value", titleValue);
   document.title = titleValue;
 
   setupSignatureItems();
