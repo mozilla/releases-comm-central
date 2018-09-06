@@ -553,7 +553,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     border-bottom: 1px solid #a9b1b8;
   }
 
-  #folderTree {
+  :root:not([lwt-tree]) #folderTree {
     background-color: #fafafa;
   }
 
@@ -578,6 +578,93 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }
+}
+
+:root[lwt-tree] #folderTree,
+:root[lwt-tree] #folderPane-toolbar {
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] #folderPane-toolbar {
+  border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree-brighttext] #folderPane-toolbar {
+  border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+  --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
+  --toolbarbutton-hover-bordercolor: rgba(255, 255, 255, .5);
+  --toolbarbutton-header-bordercolor: rgba(255, 255, 255, .25);
+  --toolbarbutton-active-background: rgba(255, 255, 255, .4);
+  --toolbarbutton-active-bordercolor: rgba(255, 255, 255, .7);
+  --toolbarbutton-active-boxshadow: 0 0 0 1px rgba(255, 255, 255, .4) inset;
+  --toolbarbutton-checkedhover-backgroundcolor: rgba(255, 255, 255, .5);
+}
+
+:root[lwt-tree] #folderTree treechildren::-moz-tree-image,
+:root[lwt-tree] #folderTree treechildren::-moz-tree-twisty,
+:root[lwt-tree] #folderTree treechildren::-moz-tree-cell-text {
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] #folderTree treechildren::-moz-tree-row(current, focus) {
+  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
+  outline: none;
+}
+
+:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(current, focus) {
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
+}
+
+:root[lwt-tree] #folderTree treechildren::-moz-tree-row(hover),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-row(hover, current),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-row(hover, selected),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-row(selected),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-row(selected, focus),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-row(selected, current, focus) {
+  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  outline: none;
+}
+
+:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(hover),
+:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(hover, current),
+:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(hover, selected),
+:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(selected),
+:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(selected, focus),
+:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(selected, current, focus) {
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+}
+
+:root[lwt-tree] #folderTree treechildren::-moz-tree-image(hover),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-image(selected),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-image(selected, focus),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-twisty(hover),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-twisty(selected),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-twisty(selected, focus),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-cell-text(hover),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-cell-text(selected),
+:root[lwt-tree] #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+:root[lwt-tree] #folderTree treecol,
+:root[lwt-tree] #folderTree treecolpicker {
+  -moz-appearance: none;
+  color: inherit;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree] #folderTree treecol {
+  border-inline-end: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree-brighttext] #folderTree treecol,
+:root[lwt-tree-brighttext] #folderTree treecolpicker {
+  border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
 }
 
 #viewPicker > .menulist-label-box > .menulist-icon,

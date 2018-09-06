@@ -13,7 +13,7 @@
   --imgroup-selected-background-color: ThreeDLightShadow;
 }
 
-imgroup[selected] {
+:root:not([lwt-tree]) imgroup[selected] {
   -moz-appearance: -moz-mac-source-list-selection;
   -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
@@ -26,7 +26,7 @@ imgroup[selected] {
   margin-top: 3px;
 }
 
-#contactlistbox {
+:root:not([lwt-tree]) #contactlistbox {
   /* border-inline-start because of the inverted direction */
   border-inline-start: 1px solid var(--imbox-selected-border-color);
 }
@@ -122,7 +122,7 @@ imgroup[selected] {
 }
 
 /* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
-#listPaneBox {
+:root:not([lwt-tree]) #listPaneBox {
   -moz-appearance: -moz-mac-source-list;
   -moz-font-smoothing-background-color: -moz-mac-source-list;
 }
@@ -134,7 +134,7 @@ imgroup[selected] {
 
 /* Set a background color to avoid lightweight theme backgrounds */
 #contextPane {
-  background-color: #FFFFFF;
+  background-color: #fff;
 }
 
 #statusTypeIcon[status="available"],

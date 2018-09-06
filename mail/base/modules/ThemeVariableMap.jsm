@@ -4,6 +4,10 @@
 
 var EXPORTED_SYMBOLS = ["ThemeVariableMap", "ThemeContentPropertyList"];
 
+function _isTextColorDark(r, g, b) {
+  return (0.2125 * r + 0.7154 * g + 0.0721 * b) <= 110;
+}
+
 const ThemeVariableMap = [
   ["--lwt-accent-color-inactive", {
     lwtProperty: "accentcolorInactive"
@@ -75,6 +79,36 @@ const ThemeVariableMap = [
   }],
   ["--autocomplete-popup-highlight-color", {
     lwtProperty: "popup_highlight_text"
+  }],
+  ["--sidebar-background-color", {
+    lwtProperty: "sidebar",
+  }],
+  ["--sidebar-text-color", {
+    lwtProperty: "sidebar_text",
+    processColor(rgbaChannels, element) {
+      if (!rgbaChannels) {
+        element.removeAttribute("lwt-tree");
+        element.removeAttribute("lwt-tree-brighttext");
+        return null;
+      }
+
+      element.setAttribute("lwt-tree", "true");
+      const {r, g, b, a} = rgbaChannels;
+      if (!_isTextColorDark(r, g, b)) {
+        element.setAttribute("lwt-tree-brighttext", "true");
+      }
+
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    },
+  }],
+  ["--sidebar-highlight-background-color", {
+    lwtProperty: "sidebar_highlight",
+  }],
+  ["--sidebar-highlight-text-color", {
+    lwtProperty: "sidebar_highlight_text",
+  }],
+  ["--sidebar-border-color", {
+    lwtProperty: "sidebar_border",
   }],
 ];
 

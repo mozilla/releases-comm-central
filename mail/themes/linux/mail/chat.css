@@ -54,7 +54,7 @@
 }
 
 /* Adaptation from #folderTree */
-#listPaneBox {
+:root:not([lwt-tree]) #listPaneBox {
   background-color: -moz-OddTreeRow;
 }
 
@@ -65,7 +65,7 @@
 }
 
 .conv-textbox {
-  margin-inline-start: 1px;
+  margin: 0;
   -moz-appearance: none;
 }
 

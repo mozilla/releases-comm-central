@@ -75,7 +75,8 @@ toolbar[brighttext] {
 #ab-toolbox > toolbar:-moz-lwtheme,
 .mail-toolbox > toolbar:-moz-lwtheme,
 #compose-toolbox > toolbar:-moz-lwtheme,
-#navigation-toolbox > toolbar:-moz-lwtheme {
+#navigation-toolbox > toolbar:-moz-lwtheme,
+:root[lwt-tree-brighttext] #folderPane-toolbar {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 100%, .1));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 0%, .2));
 
@@ -672,6 +673,10 @@ statusbar:-moz-lwtheme {
   background: none;
   border-style: none;
   text-shadow: inherit;
+}
+
+statusbar:-moz-lwtheme-brighttext {
+  --tabs-border-color: hsla(0,0%,60%,.4);
 }
 
 /* Status panel */

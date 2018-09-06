@@ -39,7 +39,7 @@
   height: 16px;
 }
 
-#dirTree {
+:root:not([lwt-tree]) #dirTree {
   -moz-appearance: -moz-mac-source-list;
   -moz-font-smoothing-background-color: -moz-mac-source-list;
   border-inline-end: 1px solid #bdbdbd;
@@ -50,13 +50,13 @@
   background-color: transparent;
 }
 
-#dirTree treechildren::-moz-tree-row(selected) {
+:root:not([lwt-tree]) #dirTree treechildren::-moz-tree-row(selected) {
   -moz-appearance: -moz-mac-source-list-selection;
   -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
 @media not all and (-moz-mac-yosemite-theme) {
-  #dirTree treechildren::-moz-tree-row(selected, focus) {
+  :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-row(selected, focus) {
     -moz-appearance: -moz-mac-active-source-list-selection;
     -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
   }
@@ -72,7 +72,7 @@
     font-size: 9.5pt;
     font-weight: 300;
   }
-  
+
   #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
     color: #282828;
   }
@@ -102,6 +102,32 @@
   }
 }
 
+:root[lwt-tree] #dirTree {
+  background-color: var(--sidebar-background-color);
+}
+
+:root[lwt-tree] #dirTree treechildren::-moz-tree-image,
+:root[lwt-tree] #dirTree treechildren::-moz-tree-twisty,
+:root[lwt-tree] #dirTree treechildren::-moz-tree-cell-text {
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] #dirTree treechildren::-moz-tree-row(selected) {
+  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+}
+
+:root[lwt-tree-brighttext] #dirTree treechildren::-moz-tree-row(selected) {
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+}
+
+:root[lwt-tree] #dirTree treechildren::-moz-tree-image(selected),
+:root[lwt-tree] #dirTree treechildren::-moz-tree-twisty(selected),
+:root[lwt-tree] #dirTree treechildren::-moz-tree-cell-text(selected) {
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
 /* ::::: splitters ::::: */
 
 splitter {
@@ -115,10 +141,6 @@ splitter {
 #results-splitter {
   height: 7px !important;
   min-height: 7px;
-}
-
-#status-bar {
-  border-top: none !important;
 }
 
 /* ::::: results pane ::::: */

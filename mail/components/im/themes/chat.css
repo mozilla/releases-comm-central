@@ -72,7 +72,19 @@
   border-inline-end: 1px solid var(--imbox-selected-border-color);
 }
 
+:root[lwt-tree] #listPaneBox {
+  -moz-appearance:  none;
+  background-color: var(--sidebar-background-color);
+  border-inline-end-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree-brighttext] #listPaneBox {
+  border-inline-end-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+}
+
 #contactlistbox {
+  color: inherit;
   margin: 0;
   /* make it possible to let the children overwrite the end border.
      margin-inline-start because of the inverted direction */
@@ -110,6 +122,7 @@ imconv[attention] {
 
 imgroup[selected] {
   background-color: var(--imgroup-selected-background-color);
+  color: var(--imbox-selected-text-color);
 }
 
 imconv,
@@ -136,10 +149,38 @@ imcontact > .box-line {
   background-color: rgba(0,0,0,.1);
 }
 
+:root[lwt-tree] imgroup,
+:root[lwt-tree] imconv:not([selected]),
+:root[lwt-tree] imcontact:not([selected]) {
+  color: var(--sidebar-text-color);
+}
+
 imconv[selected=true],
 imcontact[selected=true] {
   background-color: var(--imbox-selected-background-color);
   border-color: var(--imbox-selected-border-color);
+  color: var(--imbox-selected-text-color);
+}
+
+:root[lwt-tree] imgroup[selected],
+:root[lwt-tree] :-moz-any(imconv, imcontact, imgroup):not([selected=true]):hover {
+  background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+:root[lwt-tree-brighttext] imgroup[selected],
+:root[lwt-tree-brighttext] :-moz-any(imconv, imcontact, imgroup):not([selected=true]):hover {
+  background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+}
+
+:root[lwt-tree] imconv[selected=true],
+:root[lwt-tree] imcontact[selected=true] {
+  border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4))
+}
+
+:root[lwt-tree-brighttext] imconv[selected=true],
+:root[lwt-tree-brighttext] imcontact[selected=true] {
+  border-color: var(--sidebar-border-color, rgba(249,249,250,.2))
 }
 
 imconv:not(:hover) > .closeConversationButton {

@@ -68,7 +68,8 @@ toolbar[brighttext] {
 #event-toolbox > toolbar[brighttext],
 #compose-toolbox > toolbar[brighttext],
 #headers-box > toolbar[brighttext],
-#FormatToolbox > toolbar[brighttext]  {
+#FormatToolbox > toolbar[brighttext],
+:root[lwt-tree-brighttext] #folderPane-toolbar {
   --toolbarbutton-text-color: #fff;
   --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
   --toolbarbutton-hover-bordercolor: rgba(255, 255, 255, .5);
@@ -677,10 +678,6 @@ menuitem:not([type]) {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
-statusbarpanel {
-  -moz-appearance: none !important;
-}
-
 treechildren::-moz-tree-row {
   min-height: 18px;
 }
@@ -705,8 +702,12 @@ statusbar:-moz-lwtheme {
   -moz-appearance: none;
 }
 
+statusbar:-moz-lwtheme-brighttext {
+  --tabs-border-color: hsla(0,0%,60%,.4);
+}
+
 statusbarpanel {
-  -moz-appearance: statusbarpanel;
+  -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;
   padding: 0 4px;
@@ -717,10 +718,6 @@ statusbarpanel {
   -moz-box-pack: end;
   -moz-appearance: resizerpanel;
   padding: 0;
-}
-
-statusbarpanel:-moz-lwtheme {
-  -moz-appearance: none;
 }
 
 /* Status panel */

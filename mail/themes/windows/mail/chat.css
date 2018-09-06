@@ -14,7 +14,7 @@
 }
 
 /* Adaptation from #folderTree */
-#listPaneBox {
+:root:not([lwt-tree]) #listPaneBox {
   -moz-appearance:  none;
   background-color: -moz-Field;
   color: -moz-FieldText;
@@ -223,7 +223,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #listPaneBox {
+  :root:not([lwt-tree]) #listPaneBox {
     background-color: rgb(238, 243, 250);
   }
 
@@ -238,13 +238,13 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
-  #listPaneBox {
+  :root:not([lwt-tree]) #listPaneBox {
     background-color: -moz-Dialog;
   }
 }
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  #listPaneBox {
+  :root:not([lwt-tree]) #listPaneBox {
     background-color: #fafafa;
   }
 }
