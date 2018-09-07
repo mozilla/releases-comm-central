@@ -31,21 +31,24 @@ job-template:
         config:
             by-build-platform:
                 linux-.*:
+                    - repackage/base.py
                     - repackage/linux32_signed.py
                 linux64.*:
+                    - repackage/base.py
                     - repackage/linux64_signed.py
                 macosx64.*:
+                    - repackage/base.py
                     - repackage/osx_signed.py
                 win32.*:
+                    - repackage/base.py
                     - repackage/win32_signed.py
-                    - repackage/thunderbird_win.py
                 win64.*:
+                    - repackage/base.py
                     - repackage/win64_signed.py
-                    - repackage/thunderbird_win.py
     package-formats:
         by-project:
             # Build bz2 mar's on try to excerise the code
-            (comm-esr60|try):
+            (comm-esr60|try-comm-central):
                 by-build-platform:
                     linux-.*: [mar, mar-bz2]
                     linux64.*: [mar, mar-bz2]
