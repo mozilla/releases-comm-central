@@ -2007,7 +2007,7 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommandResponse()
       // call nsDocShell::Stop(STOP_NETWORK), which will eventually
       // call nsNNTPProtocol::Cancel(), which will close the socket.
       // we need to fix this, since the connection is still valid.
-      rv = m_msgWindow->DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(uri).get(), true,
+      rv = m_msgWindow->DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(uri), true,
                                                 nsContentUtils::GetSystemPrincipal());
       NS_ENSURE_SUCCESS(rv,rv);
     }

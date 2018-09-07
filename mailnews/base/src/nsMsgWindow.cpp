@@ -493,7 +493,7 @@ NS_IMETHODIMP nsMsgWindow::SetPromptDialog(nsIPrompt* aPromptDialog)
 }
 
 NS_IMETHODIMP
-nsMsgWindow::DisplayURIInMessagePane(const char16_t *uri, bool clearMsgHdr, nsIPrincipal *principal)
+nsMsgWindow::DisplayURIInMessagePane(const nsAString& uri, bool clearMsgHdr, nsIPrincipal *principal)
 {
   if (clearMsgHdr && mMsgWindowCommands)
     mMsgWindowCommands->ClearMsgPane();
@@ -505,7 +505,7 @@ nsMsgWindow::DisplayURIInMessagePane(const char16_t *uri, bool clearMsgHdr, nsIP
   nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(docShell));
   NS_ENSURE_TRUE(webNav, NS_ERROR_FAILURE);
 
-  return webNav->LoadURI(nsDependentString(uri), nsIWebNavigation::LOAD_FLAGS_NONE,
+  return webNav->LoadURI(uri, nsIWebNavigation::LOAD_FLAGS_NONE,
                          nullptr, nullptr, nullptr,
                          principal);
 }
@@ -528,7 +528,7 @@ nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& b
 
   PR_FREEIF(encodedHtml);
 
-  return DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(dataSpec).get(),
+  return DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(dataSpec),
                                  clearMsgHdr, nsContentUtils::GetSystemPrincipal());
 }
 

@@ -58,7 +58,7 @@ interface nsIMsgWindow : nsISupports {
    */
   attribute nsIInterfaceRequestor notificationCallbacks;
 
-  void displayURIInMessagePane(in wstring uri, in boolean clearMsgHdr, in nsIPrincipal principal);
+  void displayURIInMessagePane(in AString uri, in boolean clearMsgHdr, in nsIPrincipal principal);
 
   void displayHTMLInMessagePane(in AString title, in AString body, in boolean clearMsgHdr);
 
