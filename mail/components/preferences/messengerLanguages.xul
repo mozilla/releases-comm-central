@@ -16,9 +16,10 @@
         onload="gMessengerLanguagesDialog.onLoad();"
         onbeforeaccept="return gMessengerLanguagesDialog.beforeAccept();">
 
-  <link rel="localization" href="branding/brand.ftl"/>
-  <link rel="localization" href="messenger/preferences/languages.ftl"/>
-  <script type="application/javascript" src="chrome://global/content/l10n.js"></script>
+  <linkset>
+    <link rel="localization" href="branding/brand.ftl"/>
+    <link rel="localization" href="messenger/preferences/languages.ftl"/>
+  </linkset>
 
   <script type="application/javascript" src="chrome://messnger/content/utilityOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
