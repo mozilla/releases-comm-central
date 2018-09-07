@@ -2861,7 +2861,7 @@ SessionStoreService.prototype = {
                     .createInstance(Ci.nsISHEntry);
 
     shEntry.setURI(this._getURIFromString(aEntry.url));
-    shEntry.setTitle(aEntry.title || aEntry.url);
+    shEntry.title = aEntry.title || aEntry.url;
     if (aEntry.subframe)
       shEntry.setIsSubFrame(aEntry.subframe || false);
     shEntry.loadType = Ci.nsIDocShellLoadInfo.loadHistory;
