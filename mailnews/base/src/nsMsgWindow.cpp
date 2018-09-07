@@ -505,7 +505,7 @@ nsMsgWindow::DisplayURIInMessagePane(const char16_t *uri, bool clearMsgHdr, nsIP
   nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(docShell));
   NS_ENSURE_TRUE(webNav, NS_ERROR_FAILURE);
 
-  return webNav->LoadURI(uri, nsIWebNavigation::LOAD_FLAGS_NONE,
+  return webNav->LoadURI(nsDependentString(uri), nsIWebNavigation::LOAD_FLAGS_NONE,
                          nullptr, nullptr, nullptr,
                          principal);
 }

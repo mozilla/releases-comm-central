@@ -493,8 +493,8 @@ nsMsgPrintEngine::FireThatLoadOperation(const nsString& uri)
   {
     nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(mDocShell));
     if (webNav)
-      rv = webNav->LoadURI(uri.get(),                        // URI string
-                           nsIWebNavigation::LOAD_FLAGS_NONE, // Load flags
+      rv = webNav->LoadURI(uri,                                // URI string
+                           nsIWebNavigation::LOAD_FLAGS_NONE,  // Load flags
                            nullptr,                            // Referring URI
                            nullptr,                            // Post data
                            nullptr,                            // Extra headers

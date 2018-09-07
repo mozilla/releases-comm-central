@@ -478,8 +478,8 @@ nsMessenger::OpenURL(const nsACString& aURL)
   nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(mDocShell));
   if(!webNav)
     return NS_ERROR_FAILURE;
-  rv = webNav->LoadURI(NS_ConvertASCIItoUTF16(aURL).get(),   // URI string
-                       nsIWebNavigation::LOAD_FLAGS_IS_LINK, // Load flags
+  rv = webNav->LoadURI(NS_ConvertASCIItoUTF16(aURL),          // URI string
+                       nsIWebNavigation::LOAD_FLAGS_IS_LINK,  // Load flags
                        nullptr,                               // Referring URI
                        nullptr,                               // Post stream
                        nullptr,                               // Extra headers
