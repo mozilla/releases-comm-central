@@ -5,15 +5,15 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 
-calendar-day-view { 
+calendar-day-view {
   -moz-binding: url(chrome://calendar/content/calendar-views.xml#calendar-day-view);
 }
 
-calendar-week-view { 
+calendar-week-view {
   -moz-binding: url(chrome://calendar/content/calendar-views.xml#calendar-week-view);
 }
 
-calendar-multiweek-view { 
+calendar-multiweek-view {
   -moz-binding: url(chrome://calendar/content/calendar-views.xml#calendar-multiweek-view);
 }
 
@@ -21,7 +21,7 @@ calendar-month-view {
   -moz-binding: url(chrome://calendar/content/calendar-views.xml#calendar-month-view);
 }
 
-calendar-task-tree { 
+calendar-task-tree {
   -moz-binding: url(chrome://calendar/content/calendar-task-tree.xml#calendar-task-tree);
 }
 
@@ -35,10 +35,6 @@ menupopup[type="task-priority"] > arrowscrollbox {
 
 task-menupopup {
   -moz-binding: url(chrome://calendar/content/calendar-menus.xml#task-menupopup);
-}
-
-calendar-caption {
-  -moz-binding: url("chrome://calendar/content/calendar-item-bindings.xml#calendar-caption");
 }
 
 .item-date-row {

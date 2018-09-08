@@ -48,8 +48,10 @@
     </hbox>
   </vbox>
 
-  <!-- Custom reminder details -->
-  <calendar-caption id="reminder-details-caption" label="&reminder.reminderDetails.label;"/>
+  <hbox id="reminder-details-caption" class="calendar-caption" align="center">
+    <label value="&reminder.reminderDetails.label;" class="header"/>
+    <separator class="groove" flex="1"/>
+  </hbox>
   <radiogroup id="reminder-relation-radiogroup"
                 onselect="setupRadioEnabledState(); updateReminder(event)">
     <hbox id="reminder-relative-box" align="top" flex="1">
@@ -100,10 +102,11 @@
     </hbox>
   </radiogroup>
 
-  <!-- Custom reminder action -->
-  <calendar-caption id="reminder-actions-caption"
-                    control="reminder-actions-menulist"
-                    label="&reminder.action.label;"/>
+  <hbox id="reminder-actions-caption" class="calendar-caption" align="center">
+    <label value="&reminder.action.label;" control="reminder-actions-menulist"
+           class="header"/>
+    <separator class="groove" flex="1"/>
+  </hbox>
   <menulist id="reminder-actions-menulist"
             oncommand="updateReminder(event)"
             class="reminder-icon">

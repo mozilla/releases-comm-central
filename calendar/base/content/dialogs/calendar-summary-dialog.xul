@@ -129,7 +129,10 @@
 
   <!-- General -->
   <box id="item-general-box" orient="vertical">
-    <calendar-caption label="&read.only.general.label;"/>
+    <hbox id="item-general-caption" class="calendar-caption" align="center">
+      <label value="&read.only.general.label;" class="header"/>
+      <separator class="groove" flex="1"/>
+    </hbox>
     <box orient="horizontal">
       <grid flex="1">
         <columns>
@@ -336,16 +339,22 @@
   <!-- Attendees -->
   <box id="item-attendees" orient="vertical" hidden="true" flex="1">
     <spacer class="default-spacer"/>
-    <calendar-caption label="&read.only.attendees.label;"
-                      control="item-attendees-box"/>
+    <hbox id="item-attendees-caption" class="calendar-caption" align="center">
+      <label value="&read.only.attendees.label;"
+             control="item-attendees-box" class="header"/>
+      <separator class="groove" flex="1"/>
+    </hbox>
     <vbox id="item-attendees-box" flex="1" />
   </box>
 
   <!-- Description -->
   <box id="item-description-box" hidden="true" orient="vertical" flex="1">
     <spacer class="default-spacer"/>
-    <calendar-caption label="&read.only.description.label;"
-                      control="item-description"/>
+    <hbox id="item-description-caption" class="calendar-caption" align="center">
+      <label value="&read.only.description.label;"
+             control="item-description" class="header"/>
+      <separator class="groove" flex="1"/>
+    </hbox>
     <box orient="horizontal" flex="1">
       <textbox id="item-description"
                multiline="true"
@@ -357,8 +366,11 @@
   <!-- URL link -->
   <box id="event-grid-link-row" hidden="true" orient="vertical">
     <spacer class="default-spacer"/>
-    <calendar-caption label="&read.only.link.label;"
-                      control="url-link"/>
+    <hbox id="event-grid-link-caption" class="calendar-caption" align="center">
+      <label value="&read.only.link.label;"
+             control="url-link" class="header"/>
+      <separator class="groove" flex="1"/>
+    </hbox>
     <label id="url-link"
            class="text-link default-indent"
            onclick="launchBrowser(this.getAttribute('href'), event)"

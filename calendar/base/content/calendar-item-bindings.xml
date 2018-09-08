@@ -10,14 +10,6 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <!-- Header with a line beside it, used i.e in the event dialog -->
-  <binding id="calendar-caption" extends="xul:hbox">
-    <content align="center">
-      <xul:label xbl:inherits="value=label,control" class="header"/>
-      <xul:separator class="groove" flex="1"/>
-    </content>
-  </binding>
-
   <binding id="item-date-row" extends="xul:row">
     <content xbl:inherits="mode">
       <xul:label anonid="item-datetime-label"
