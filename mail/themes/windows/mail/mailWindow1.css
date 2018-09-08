@@ -519,10 +519,12 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     opacity: .6;
   }
 
-  .menulist-dropmarker,
-  .menulist-dropmarker[disabled="true"] {
+  .menulist-dropmarker {
     -moz-appearance: none;
+    -moz-box-align: center;
+    -moz-box-pack: center;
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+    -moz-image-region: auto;
     -moz-context-properties: fill;
     fill: currentColor;
     margin-top: 0;

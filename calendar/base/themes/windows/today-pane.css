@@ -49,6 +49,17 @@
   max-width: 18px;
 }
 
+#miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#miniday-dropdown-button > .toolbarbutton-menu-dropmarker > .dropmarker-icon {
+  width: 9px;
+  height: 7px;
+}
+
 #today-none-box {
   border-top: 1px solid ThreeDShadow;
 }
