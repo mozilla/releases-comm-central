@@ -450,19 +450,6 @@
 
   <!-- Message Pane Widgets -->
 
-  <!-- mail-toggle-headerfield: Non-email addrs headers which have a toggle
-       associated with them (i.e. the subject).
-       Use headerValue to set the header value. -->
-  <binding id="mail-toggle-headerfield">
-    <content>
-      <xul:textbox class="headerValue" anonid="headerValue" flex="1" readonly="true"/>
-    </content>
-
-    <implementation>
-      <property name="headerValue" onset="return document.getAnonymousElementByAttribute(this, 'anonid', 'headerValue').value = val;"/>
-    </implementation>
-  </binding>
-
   <!-- mail-headerfield: presents standard text header name & value pairs. Don't use this for email addresses.
        use headerValue to set the header value. -->
   <binding id="mail-headerfield">
