@@ -2530,10 +2530,10 @@
           <![CDATA[
             if (!aCounts || !aCounts[1])
               return false;
-            let expl = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummarySubfoldersSummary");
+            let expl = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label");
             let sumString = document.getElementById("bundle_messenger")
                                     .getFormattedString("subfoldersExplanation", [aCounts[0], aCounts[1]], 2);
-            expl.setAttribute("subfolders", sumString);
+            expl.setAttribute("value", sumString);
             document.getAnonymousNodes(this)[0].appendChild(expl);
             return true;
           ]]>
@@ -2562,14 +2562,6 @@
     <content>
       <xul:hbox>
         <xul:label anonid="location" xbl:inherits="value=location"/>
-      </xul:hbox>
-    </content>
-  </binding>
-
-  <binding id="folderSummary-subfoldersSummary">
-    <content>
-      <xul:hbox>
-        <xul:label anonid="subfolders" xbl:inherits="value=subfolders"/>
       </xul:hbox>
     </content>
   </binding>
