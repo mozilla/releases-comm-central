@@ -91,44 +91,6 @@ char
 
 // end of copied code which needs fixed....
 
-/////////////////////////////////////////////////////////////////////////////////////////
-// Implementation of nsMsgSMIMEComposeFields
-/////////////////////////////////////////////////////////////////////////////////////////
-
-NS_IMPL_ISUPPORTS(nsMsgSMIMEComposeFields, nsIMsgSMIMECompFields)
-
-nsMsgSMIMEComposeFields::nsMsgSMIMEComposeFields()
-:mSignMessage(false), mAlwaysEncryptMessage(false)
-{
-}
-
-nsMsgSMIMEComposeFields::~nsMsgSMIMEComposeFields()
-{
-}
-
-NS_IMETHODIMP nsMsgSMIMEComposeFields::SetSignMessage(bool value)
-{
-  mSignMessage = value;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgSMIMEComposeFields::GetSignMessage(bool *_retval)
-{
-  *_retval = mSignMessage;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgSMIMEComposeFields::SetRequireEncryptMessage(bool value)
-{
-  mAlwaysEncryptMessage = value;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgSMIMEComposeFields::GetRequireEncryptMessage(bool *_retval)
-{
-  *_retval = mAlwaysEncryptMessage;
-  return NS_OK;
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Implementation of nsMsgComposeSecure
@@ -137,6 +99,7 @@ NS_IMETHODIMP nsMsgSMIMEComposeFields::GetRequireEncryptMessage(bool *_retval)
 NS_IMPL_ISUPPORTS(nsMsgComposeSecure, nsIMsgComposeSecure)
 
 nsMsgComposeSecure::nsMsgComposeSecure()
+:mSignMessage(false), mAlwaysEncryptMessage(false)
 {
   /* member initializers and constructor code */
   mMultipartSignedBoundary  = 0;
@@ -160,6 +123,31 @@ nsMsgComposeSecure::~nsMsgComposeSecure()
 
   PR_FREEIF(mMultipartSignedBoundary);
 }
+
+NS_IMETHODIMP nsMsgComposeSecure::SetSignMessage(bool value)
+{
+  mSignMessage = value;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgComposeSecure::GetSignMessage(bool *_retval)
+{
+  *_retval = mSignMessage;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgComposeSecure::SetRequireEncryptMessage(bool value)
+{
+  mAlwaysEncryptMessage = value;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgComposeSecure::GetRequireEncryptMessage(bool *_retval)
+{
+  *_retval = mAlwaysEncryptMessage;
+  return NS_OK;
+}
+
 
 NS_IMETHODIMP nsMsgComposeSecure::RequiresCryptoEncapsulation(nsIMsgIdentity * aIdentity, nsIMsgCompFields * aCompFields, bool * aRequiresEncryptionWork)
 {
@@ -278,36 +266,9 @@ nsresult nsMsgComposeSecure::ExtractEncryptionState(nsIMsgIdentity * aIdentity, 
   NS_ENSURE_ARG_POINTER(aSignMessage);
   NS_ENSURE_ARG_POINTER(aEncrypt);
 
-  nsCOMPtr<nsISupports> securityInfo;
-  if (aComposeFields)
-    aComposeFields->GetSecurityInfo(getter_AddRefs(securityInfo));
+  this->GetSignMessage(aSignMessage);
+  this->GetRequireEncryptMessage(aEncrypt);
 
-  if (securityInfo) // if we were given security comp fields, use them.....
-  {
-    nsCOMPtr<nsIMsgSMIMECompFields> smimeCompFields = do_QueryInterface(securityInfo);
-    if (smimeCompFields)
-    {
-      smimeCompFields->GetSignMessage(aSignMessage);
-      smimeCompFields->GetRequireEncryptMessage(aEncrypt);
-      return NS_OK;
-    }
-  }
-
-  // get the default info from the identity....
-  int32_t ep = 0;
-  nsresult testrv = aIdentity->GetIntAttribute("encryptionpolicy", &ep);
-  if (NS_FAILED(testrv)) {
-    *aEncrypt = false;
-  }
-  else {
-    *aEncrypt = (ep > 0);
-  }
-
-  testrv = aIdentity->GetBoolAttribute("sign_mail", aSignMessage);
-  if (NS_FAILED(testrv))
-  {
-    *aSignMessage = false;
-  }
   return NS_OK;
 }
 

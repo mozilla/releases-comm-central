@@ -15,11 +15,59 @@ interface nsIOutputStream;
 [scriptable, uuid(245f2adc-410e-4bdb-91e2-a7bb42d61787)]
 interface nsIMsgComposeSecure : nsISupports
 {
-    // requiresCryptoEncapsulation --> returns true if the current message send requires us to go through
-    // some encryption work. In the case of false, you can disregard the compose secure object.
+    /**
+     * Set to true if the outgoing message shall be signed.
+     */
+    attribute boolean signMessage;
+
+    /**
+     * Set to true if the outgoing message shall be encrypted.
+     */
+    attribute boolean requireEncryptMessage;
+
+    /***************************************************************************
+     * The following functions are called during message creation by nsMsgSend,
+     * after the message source is completely prepared.
+     ***************************************************************************/
+
+    /**
+     * Determine if encryption and/or signing is required.
+     *
+     * @param aIdentity   - The sender's identity
+     * @param compFields  - Attributes of the composed message
+     *
+     * @return - Returns true if the creation of the message requires us to go through
+     *           some encryption work, and false otherwise.
+    */
     boolean requiresCryptoEncapsulation(in nsIMsgIdentity aIdentity, in nsIMsgCompFields aCompFields);
 
+    /**
+     * Start encryption work. Called before the encrypted data is processed.
+     *
+     * @param aStream     - Output stream that takes the resulting data
+     * @param aRecipients - RFC 2047-encoded list of all recipients (To:, Cc:, Bcc:, ... fields), separated by "," or ", "
+     *                      Recipients contain name and email addresses, just like they will be put into the message headers
+     * @param compFields  - Attributes of the composed message
+     * @param aIdentity   - The sender's identity
+     * @param sendReport  - Report feedback to the user
+     * @param aIsDraft    - True if send operation saves draft/template/etc., false if message is really sent (or sent later)
+     */
     void beginCryptoEncapsulation(in nsIOutputStream aStream, in string aRecipients, in nsIMsgCompFields aCompFields, in nsIMsgIdentity aIdentity, in nsIMsgSendReport sendReport, in boolean aIsDraft);
-    void finishCryptoEncapsulation(in boolean aAbort, in nsIMsgSendReport sendReport);
+
+    /**
+     * Process a part of the message data. Called multiple times, usually for every
+     * line of the data to be encrypted
+     *
+     * @param aBuf  - Buffer holding the data to be processed
+     * @param aLen  - Length of the buffer (number of characters)
+     */
     void mimeCryptoWriteBlock(in string aBuf, in long aLen);
+
+    /**
+     * End encryption work. Called after the encrypted data is processed.
+     *
+     * @param aAbort      - True if the send operation was aborted
+     * @param sendReport  - Report feedback to the user
+     */
+    void finishCryptoEncapsulation(in boolean aAbort, in nsIMsgSendReport sendReport);
 };

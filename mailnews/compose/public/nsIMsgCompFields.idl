@@ -7,6 +7,7 @@
 
 interface nsIMsgAttachment;
 interface nsISimpleEnumerator;
+interface nsIMsgComposeSecure;
 
 /**
  * A collection of headers and other attributes for building a mail message.
@@ -92,6 +93,8 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
    */
   attribute boolean needToCheckCharset;
 
-  attribute nsISupports securityInfo;
+  /**
+   * Object implementing encryption/signing functionality (e.g. S/MIME, PGP/MIME)
+   */
+  attribute nsIMsgComposeSecure composeSecure;
 };
-

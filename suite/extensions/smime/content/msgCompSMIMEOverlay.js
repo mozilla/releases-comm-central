@@ -26,14 +26,14 @@ function onComposerLoad()
   if (gSMFields || !gMsgCompose || !gMsgCompose.compFields)
     return;
 
-  gMsgCompose.compFields.securityInfo = null;
+  gMsgCompose.compFields.composeSecure = null;
 
-  gSMFields = Cc["@mozilla.org/messenger-smime/composefields;1"]
-                .createInstance(Ci.nsIMsgSMIMECompFields);
+  gSMFields = Cc["@mozilla.org/messengercompose/composesecure;1"]
+                .createInstance(Ci.nsIMsgComposeSecure);
   if (!gSMFields)
     return;
 
-  gMsgCompose.compFields.securityInfo = gSMFields;
+  gMsgCompose.compFields.composeSecure = gSMFields;
 
   // Set up the initial security state.
   gSMFields.requireEncryptMessage =
@@ -264,7 +264,7 @@ function onComposerSendMessage()
 
   try
   {
-    if (!gMsgCompose.compFields.securityInfo.requireEncryptMessage)
+    if (!gMsgCompose.compFields.composeSecure.requireEncryptMessage)
       return;
 
     Cc["@mozilla.org/messenger-smime/smimejshelper;1"]

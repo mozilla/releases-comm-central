@@ -91,9 +91,9 @@
   "@mozilla.org/messengercompose/composefields;1"
 
 #define NS_MSGCOMPFIELDS_CID                    \
-{ /* 6D222BA0-BD46-11d2-8293-000000000000 */      \
- 0x6d222ba0, 0xbd46, 0x11d2,                      \
- {0x82, 0x93, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}}
+{ /* e64b0f51-0d7b-4e2f-8c60-3862ee8c174f */      \
+ 0xe64b0f51, 0x0d7b, 0x4e2f,                      \
+ {0x8c, 0x60, 0x38, 0x62, 0xee, 0x8c, 0x17, 0x4f}}
 
 //
 // nsMsgAttachment

@@ -658,16 +658,16 @@ NS_IMETHODIMP nsMsgCompFields::ConvertBodyToPlainText()
   return rv;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetSecurityInfo(nsISupports ** aSecurityInfo)
+NS_IMETHODIMP nsMsgCompFields::GetComposeSecure(nsIMsgComposeSecure ** aComposeSecure)
 {
-  NS_ENSURE_ARG_POINTER(aSecurityInfo);
-  NS_IF_ADDREF(*aSecurityInfo = mSecureCompFields);
+  NS_ENSURE_ARG_POINTER(aComposeSecure);
+  NS_IF_ADDREF(*aComposeSecure = mSecureCompFields);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetSecurityInfo(nsISupports * aSecurityInfo)
+NS_IMETHODIMP nsMsgCompFields::SetComposeSecure(nsIMsgComposeSecure * aComposeSecure)
 {
-  mSecureCompFields = aSecurityInfo;
+  mSecureCompFields = aComposeSecure;
   return NS_OK;
 }
 

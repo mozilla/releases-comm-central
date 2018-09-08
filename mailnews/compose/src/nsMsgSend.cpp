@@ -1175,7 +1175,7 @@ nsresult nsMsgComposeAndSend::BeginCryptoEncapsulation ()
 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgComposeSecure> secureCompose;
-  secureCompose = do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
+  rv = mCompFields->GetComposeSecure(getter_AddRefs(secureCompose));
   // it's not an error scenario of there is secure compose
   if (NS_FAILED(rv))
     return NS_OK;
@@ -2752,10 +2752,10 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
   mCompFields->SetBodyIsAsciiOnly(fields->GetBodyIsAsciiOnly());
   mCompFields->SetForceMsgEncoding(fields->GetForceMsgEncoding());
 
-  nsCOMPtr<nsISupports> secInfo;
-  fields->GetSecurityInfo(getter_AddRefs(secInfo));
+  nsCOMPtr<nsIMsgComposeSecure> compSec;
+  fields->GetComposeSecure(getter_AddRefs(compSec));
 
-  mCompFields->SetSecurityInfo(secInfo);
+  mCompFields->SetComposeSecure(compSec);
 
   bool needToCheckCharset;
   fields->GetNeedToCheckCharset(&needToCheckCharset);
@@ -3058,8 +3058,10 @@ nsMsgComposeAndSend::Init(
     rv = pPrefBranch->GetIntPref(PREF_MAIL_MESSAGE_WARNING_SIZE, (int32_t *) &mMessageWarningSize);
   }
 
-  nsCOMPtr<nsIMsgComposeSecure> secureCompose
-    = do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
+  nsCOMPtr<nsIMsgComposeSecure> secureCompose;
+  rv = fields->GetComposeSecure(getter_AddRefs(secureCompose));
+
+
   // It's not an error scenario if there is no secure compose.
   // The S/MIME extension may be unavailable.
   if (NS_SUCCEEDED(rv) && secureCompose)

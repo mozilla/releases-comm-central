@@ -14,6 +14,7 @@
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
 #include "nsString.h"
+#include "nsIMsgComposeSecure.h"
 
 struct nsMsgRecipient
 {
@@ -164,7 +165,7 @@ protected:
   nsCString   m_DefaultCharacterSet;
   bool        m_needToCheckCharset;
 
-  nsCOMPtr<nsISupports> mSecureCompFields;
+  nsCOMPtr<nsIMsgComposeSecure> mSecureCompFields;
   nsCOMPtr<msgIWritableStructuredHeaders> mStructuredHeaders;
 };
 
