@@ -2429,14 +2429,14 @@
                 gFolderTreeView.getLevel(folderIndex) == 0 &&
                 !gFolderTreeView.getServerNameAdded(folderIndex))
             {
-              let loc = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummaryLocation");
+              let loc = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label");
               let midPath = "";
               let midFolder = aFolder.parent;
               while (aFolder.server.rootFolder != midFolder) {
                 midPath = midFolder.name + " - " + midPath;
                 midFolder = midFolder.parent;
               }
-              loc.setAttribute("location", aFolder.server.prettyName + " - " + midPath + aFolder.name);
+              loc.setAttribute("value", aFolder.server.prettyName + " - " + midPath + aFolder.name);
               document.getAnonymousNodes(this)[0].appendChild(loc);
               return true;
             }
@@ -2447,8 +2447,8 @@
                 ((aFolder.server instanceof Ci.nsINntpIncomingServer) &&
                  !(aFolder.flags & Ci.nsMsgFolderFlags.Virtual) &&
                  aFolder.server.abbreviate) && !aFolder.isServer) {
-              let loc = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummaryLocation");
-              loc.setAttribute("location", aFolder.name);
+              let loc = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label");
+              loc.setAttribute("value", aFolder.name);
               document.getAnonymousNodes(this)[0].appendChild(loc);
               return true;
             }
@@ -2490,14 +2490,6 @@
         ]]>
       </constructor>
     </implementation>
-  </binding>
-
-  <binding id="folderSummary-location">
-    <content>
-      <xul:hbox>
-        <xul:label anonid="location" xbl:inherits="value=location"/>
-      </xul:hbox>
-    </content>
   </binding>
 
   <binding id="folderSummary-message">
