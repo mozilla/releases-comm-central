@@ -625,7 +625,6 @@ window[sizemode="maximized"] statusbarpanel.statusbar-resizerpanel {
 /* Status panel */
 
 statuspanel {
-  -moz-binding: url("chrome://messenger/content/tabmail.xml#statuspanel");
   position: fixed;
   margin-top: -3em;
   left: 0;
@@ -640,7 +639,8 @@ statuspanel:-moz-locale-dir(rtl):not([mirror]) {
   right: 0;
 }
 
-statuspanel[label=""] {
+statuspanel[label=""],
+statuspanel:not([label]) {
   opacity: 0;
   pointer-events: none;
 }
