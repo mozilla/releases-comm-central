@@ -29,11 +29,15 @@
 #include "nsMemory.h"
 #include "nsCRTGlue.h"
 #include <ctype.h>
+#include "mozilla/dom/Element.h"
 #include "mozilla/mailnews/Services.h"
 #include "mozilla/Services.h"
 #include "mozilla/Unused.h"
+#include "nsIContentIterator.h"
+#include "nsIDocument.h"
 #include "nsIMIMEInfo.h"
 #include "nsIMsgHeaderParser.h"
+#include "nsIMutableArray.h"
 #include "nsIRandomGenerator.h"
 #include "nsID.h"
 
@@ -1767,4 +1771,35 @@ void GetSerialiserFlags(const char* charset, bool* flowed, bool* delsp, bool* fo
     if (*flowed)
       *delsp = true;
   }
+}
+
+already_AddRefed<nsIArray>
+GetEmbeddedObjects(nsIDocument* aDocument)
+{
+  nsCOMPtr<nsIMutableArray> nodes = do_CreateInstance(NS_ARRAY_CONTRACTID);
+  if (NS_WARN_IF(!nodes)) {
+    return nullptr;
+  }
+
+  nsCOMPtr<nsIContentIterator> iter = NS_NewContentIterator();
+  iter->Init(aDocument->GetRootElement());
+
+  // Loop through the content iterator for each content node.
+  while (!iter->IsDone()) {
+    nsINode* node = iter->GetCurrentNode();
+    if (node->IsElement()) {
+      mozilla::dom::Element* element = node->AsElement();
+
+      // See if it's an image or also include all links.
+      // Let mail decide which link to send or not
+      if (element->IsAnyOfHTMLElements(nsGkAtoms::img, nsGkAtoms::a) ||
+          (element->IsHTMLElement(nsGkAtoms::body) &&
+           element->HasAttr(kNameSpaceID_None, nsGkAtoms::background))) {
+        nodes->AppendElement(node);
+      }
+    }
+    iter->Next();
+  }
+
+  return nodes.forget();
 }

@@ -69,8 +69,6 @@
                   oncommand="EditorTestSelection()"/>
         <menuitem label="&testTableLayoutCmd.label;"
                   oncommand="EditorTestTableLayout()"/>
-        <menuitem label="&showEmbeddedCmd.label;"
-                  oncommand="EditorShowEmbeddedObjects()"/>
         <menuitem label="&dumpContentCmd.label;"
                   oncommand="EditorDumpContent()"/>
         <menuitem label="&testDocumentCmd.label;"

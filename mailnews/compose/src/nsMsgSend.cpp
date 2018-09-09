@@ -1431,13 +1431,11 @@ nsMsgComposeAndSend::GetMultipartRelatedCount(bool forceToBeCalculated /*=false*
   mMultipartRelatedAttachmentCount = 0;
   if (mEditor)
   {
-    nsCOMPtr<nsIEditorMailSupport> mailEditor (do_QueryInterface(mEditor));
-    if (!mailEditor)
+    nsCOMPtr<nsIDocument> document;
+    mEditor->GetDocument(getter_AddRefs(document));
+    if (!document)
       return 0;
-
-    rv = mailEditor->GetEmbeddedObjects(getter_AddRefs(mEmbeddedObjectList));
-    if (NS_FAILED(rv))
-      return 0;
+    mEmbeddedObjectList = GetEmbeddedObjects(document);
   }
   if (!mEmbeddedObjectList)
     return 0;

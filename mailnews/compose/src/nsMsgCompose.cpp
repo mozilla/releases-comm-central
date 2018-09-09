@@ -299,16 +299,18 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
  */
 nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
 {
-  nsCOMPtr<nsIArray> aNodeList;
   uint32_t numNodes;
   uint32_t i;
 
-  nsCOMPtr<nsIEditorMailSupport> mailEditor (do_QueryInterface(m_editor));
-  if (!mailEditor)
+  if (!m_editor)
     return NS_ERROR_FAILURE;
 
-  nsresult rv = mailEditor->GetEmbeddedObjects(getter_AddRefs(aNodeList));
-  if (NS_FAILED(rv) || !aNodeList)
+  nsCOMPtr<nsIDocument> document;
+  m_editor->GetDocument(getter_AddRefs(document));
+  if (!document)
+    return NS_ERROR_FAILURE;
+  nsCOMPtr<nsIArray> aNodeList = GetEmbeddedObjects(document);
+  if (!aNodeList)
     return NS_ERROR_FAILURE;
 
   if (NS_FAILED(aNodeList->GetLength(&numNodes)))
@@ -316,7 +318,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
 
   nsCString curDraftIdURL;
 
-  rv = m_compFields->GetDraftId(getter_Copies(curDraftIdURL));
+  nsresult rv = m_compFields->GetDraftId(getter_Copies(curDraftIdURL));
 
   // Skip if no draft id (probably a new draft msg).
   if (NS_SUCCEEDED(rv) && mMsgSend && !curDraftIdURL.IsEmpty())
@@ -441,15 +443,22 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
 nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
 {
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIArray> aNodeList;
   uint32_t count;
   uint32_t i;
 
   if (!aEditor)
     return NS_ERROR_FAILURE;
 
-  rv = aEditor->GetEmbeddedObjects(getter_AddRefs(aNodeList));
-  if (NS_FAILED(rv) || !aNodeList)
+  nsCOMPtr<nsIEditor> editor = do_QueryInterface(aEditor);
+  if (!editor)
+    return NS_ERROR_FAILURE;
+
+  nsCOMPtr<nsIDocument> document;
+  editor->GetDocument(getter_AddRefs(document));
+  if (!document)
+    return NS_ERROR_FAILURE;
+  nsCOMPtr<nsIArray> aNodeList = GetEmbeddedObjects(document);
+  if (!aNodeList)
     return NS_ERROR_FAILURE;
 
   if (NS_FAILED(aNodeList->GetLength(&count)))

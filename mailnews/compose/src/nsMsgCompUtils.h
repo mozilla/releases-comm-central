@@ -12,6 +12,8 @@
 #include "nsIMsgSend.h"
 #include "nsIMsgCompUtils.h"
 
+class nsIArray;
+class nsIDocument;
 class nsIPrompt;
 
 #define ANY_SERVER "anyfolder://"
@@ -33,6 +35,8 @@ public:
 private:
   virtual ~nsMsgCompUtils();
 };
+
+already_AddRefed<nsIArray> GetEmbeddedObjects(nsIDocument* aDocument);
 
 PR_BEGIN_EXTERN_C
 
@@ -134,7 +138,6 @@ void GetFolderURIFromUserPrefs(nsMsgDeliverMode   aMode, nsIMsgIdentity *identit
 
 // Check if we should use format=flowed
 void GetSerialiserFlags(const char *charset, bool *flowed, bool *delsp, bool *formatted, bool *disallowBreaks);
-
 
 PR_END_EXTERN_C
 

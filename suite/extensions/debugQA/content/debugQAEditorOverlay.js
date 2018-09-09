@@ -215,18 +215,6 @@ function EditorTestTableLayout()
   dump("From nsITableLayout: Number of rows="+rowCount+" Number of Columns="+maxColCount+"\n****** End of Table Layout Test *****\n\n");
 }
 
-function EditorShowEmbeddedObjects()
-{
-  dump("\nEmbedded Objects:\n");
-  try {
-    var objectArray = GetCurrentEditor().getEmbeddedObjects();
-    dump(objectArray.length + " embedded objects\n");
-    // FIXME nsIDOMNode has been removed.
-    // for (let i = 0; i < objectArray.length; ++i)
-    //   dump(objectArray.queryElementAt(i, Ci.nsIDOMNode) + "\n");
-  } catch(e) {}
-}
-
 function EditorUnitTests()
 {
   dump("Running Unit Tests\n");
