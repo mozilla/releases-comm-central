@@ -465,7 +465,9 @@ calItemBase.prototype = {
                     name: paramName,
                     value: parameters[paramName]
                 };
-            }
+            },
+
+            QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
         };
     },
 
