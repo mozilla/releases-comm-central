@@ -414,7 +414,6 @@ private:
   // biff
   void  PeriodicBiff();
   void  SendSetBiffIndicatorEvent(nsMsgBiffState newState);
-  bool  CheckNewMail();
 
   // folder opening and listing header functions
   void FolderHeaderDump(uint32_t *msgUids, uint32_t msgCount);
@@ -657,7 +656,6 @@ private:
   nsCOMPtr<nsIStringBundle> m_bundle;
 
   bool m_notifySearchHit;
-  bool m_checkForNewMailDownloadsHeaders;
   bool m_needNoop;
   bool m_idle;
   bool m_useIdle;

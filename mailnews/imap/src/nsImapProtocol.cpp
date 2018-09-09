@@ -474,7 +474,6 @@ nsImapProtocol::nsImapProtocol() : nsMsgProtocol(nullptr),
   m_flagChangeCount = 0;
   m_lastCheckTime = PR_Now();
 
-  m_checkForNewMailDownloadsHeaders = true;  // this should be on by default
   m_hierarchyNameState = kNoOperationInProgress;
   m_discoveryStatus = eContinue;
 
@@ -4449,14 +4448,6 @@ void nsImapProtocol::SendSetBiffIndicatorEvent(nsMsgBiffState newState)
 {
     if (m_imapMailFolderSink)
       m_imapMailFolderSink->SetBiffStateAndUpdate(newState);
-}
-
-// We get called to see if there is mail waiting for us at the server, even if it may have been
-// read elsewhere. We just want to know if we should download headers or not.
-
-bool nsImapProtocol::CheckNewMail()
-{
-  return m_checkForNewMailDownloadsHeaders;
 }
 
 /* static */ void nsImapProtocol::LogImapUrl(const char *logMsg, nsIImapUrl *imapUrl)
