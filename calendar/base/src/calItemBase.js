@@ -453,6 +453,8 @@ calItemBase.prototype = {
         }
         let parameters = this.mPropertyParams[propName];
         return { // nsISimpleEnumerator
+            QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+
             mParamNames: Object.keys(parameters),
             hasMoreElements: function() {
                 return (this.mParamNames.length > 0);
@@ -465,9 +467,7 @@ calItemBase.prototype = {
                     name: paramName,
                     value: parameters[paramName]
                 };
-            },
-
-            QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+            }
         };
     },
 
