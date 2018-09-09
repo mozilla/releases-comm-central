@@ -150,14 +150,11 @@ function addMsgToFolderAndCheckContent(folder, test) {
 
   // Now check that the content hasn't been loaded
   if (test.checkDenied) {
-    if (test.checkForAllowed(mozmill.getMail3PaneController()
-            .window.content.document.getElementById("testelement")))
+    if (test.checkForAllowed(mc.window.content.document.getElementById("testelement"))) {
       throw new Error(test.type + " has not been blocked in message content as expected.");
-  }
-  else {
-    if (!test.checkForAllowed(mozmill.getMail3PaneController()
-             .window.content.document.getElementById("testelement")))
-      throw new Error(test.type + " has been unexpectedly blocked in message content.");
+    }
+  } else if (!test.checkForAllowed(mc.window.content.document.getElementById("testelement"))) {
+    throw new Error(test.type + " has been unexpectedly blocked in message content.");
   }
 
   ++gMsgNo;
@@ -188,7 +185,7 @@ function checkComposeWindow(test, replyType, loadAllowed) {
 /**
  * Check remote content in stand-alone message window, and reload
  */
- function checkStandaloneMessageWindow(test, loadAllowed) {
+function checkStandaloneMessageWindow(test, loadAllowed) {
   plan_for_new_window("mail:messageWindow");
   // Open it
   set_open_message_behavior("NEW_WINDOW");
@@ -291,9 +288,9 @@ function checkAllowFeedMsg(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  if (!test.checkForAllowed(mozmill.getMail3PaneController()
-           .window.content.document.getElementById("testelement")))
+  if (!test.checkForAllowed(mc.window.content.document.getElementById("testelement"))) {
     throw new Error(test.type + " has been unexpectedly blocked in feed message content.");
+  }
 
   ++gMsgNo;
 }
@@ -321,10 +318,9 @@ function checkAllowForSenderWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  if (!test.checkForAllowed(mozmill.getMail3PaneController()
-           .window.content.document.getElementById("testelement")))
-    throw new Error(test.type + " has been unexpectedly blocked for sender=" +
-                    authorEmailAddress);
+  if (!test.checkForAllowed(mc.window.content.document.getElementById("testelement"))) {
+    throw new Error(`${test.type} has been unexpectedly blocked for sender=${authorEmailAddress}`);
+  }
 
   // Clean up after ourselves, and make sure that worked as expected.
   Services.perms.remove(uri, "image");
@@ -346,8 +342,7 @@ function checkAllowForHostsWithPerms(test) {
   assert_equals(msgDbHdr, msgHdr);
   assert_selected_and_displayed(gMsgNo);
 
-  let src = mozmill.getMail3PaneController().window.content.document
-                   .getElementById("testelement").src;
+  let src = mc.window.content.document.getElementById("testelement").src;
 
   if (!src.startsWith("http"))
     return; // just test http in this test
@@ -400,13 +395,12 @@ function test_generalContentPolicy() {
         // We do the first test which is the one with the image.
 
         // Add the site to the whitelist.
-        let src = mozmill.getMail3PaneController().window.content.document
-                         .getElementById("testelement").src;
+        let src = mc.window.content.document.getElementById("testelement").src;
 
         let uri = Services.io.newURI(src);
         Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
-        assert_true(Services.perms.testPermission(uri, "image") ==
-                    Services.perms.ALLOW_ACTION);
+        assert_equals(Services.perms.testPermission(uri, "image"),
+                      Services.perms.ALLOW_ACTION);
 
         // Check allowed in reply window
         checkComposeWindow(TESTS[i], true, true);
@@ -416,8 +410,8 @@ function test_generalContentPolicy() {
 
         // Clean up after ourselves, and make sure that worked as expected.
         Services.perms.remove(uri, "image");
-        assert_true(Services.perms.testPermission(uri, "image") ==
-                    Services.perms.UNKNOWN_ACTION);
+        assert_equals(Services.perms.testPermission(uri, "image"),
+                      Services.perms.UNKNOWN_ACTION);
       }
 
       // Check denied in standalone message window
@@ -466,13 +460,11 @@ function putHTMLOnClipboard(html) {
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  let wapper = Cc["@mozilla.org/supports-string;1"]
-   .createInstance(Ci.nsISupportsString);
+  let wapper = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
   wapper.data = html;
   trans.setTransferData("text/html", wapper, wapper.data.length * 2);
 
-  Services.clipboard.setData(trans, null,
-    Ci.nsIClipboard.kGlobalClipboard);
+  Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
 }
 
 function subtest_insertImageIntoReplyForward(aReplyType) {
