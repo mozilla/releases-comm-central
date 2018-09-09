@@ -5,12 +5,20 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
+ChromeUtils.import("resource:///modules/extensionSupport.jsm");
 
 window.addEventListener("load", function() {
   let prefWindow = document.getElementById("MailPreferences");
   if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
     let radio =
       document.getAnonymousElementByAttribute(prefWindow, "pane", "paneChat");
+    if (radio.selected)
+      prefWindow.showPane(document.getElementById("paneGeneral"));
+    radio.hidden = true;
+  }
+  if (!ExtensionSupport.loadedLegacyExtensions.has("{e2fda1a4-762b-4020-b5ad-a41df1933103}")) {
+    let radio =
+      document.getAnonymousElementByAttribute(prefWindow, "pane", "paneLightning");
     if (radio.selected)
       prefWindow.showPane(document.getElementById("paneGeneral"));
     radio.hidden = true;
