@@ -6,6 +6,8 @@
   padding-inline-start: 1px;
   padding-inline-end: 2px;
   padding-bottom: 3px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 @media (-moz-windows-classic) {
@@ -60,8 +62,6 @@ treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
 
 .attachmentColumnHeader {
   list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach) {

@@ -4,6 +4,11 @@
 
 /* ::::: message column icons ::::: */
 
+.treecol-image image {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 treecol.treecol-image:hover:active {
   padding-inline-start: 1px;
 }
@@ -58,8 +63,6 @@ treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
 .attachmentColumnHeader {
   list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
   padding-inline-end: 2px;
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
