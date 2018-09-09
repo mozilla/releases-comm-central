@@ -260,7 +260,8 @@ function wait_for_compose_window(aController) {
 
   let editor = replyWindow.window.document.querySelector("editor");
 
-  if (editor.webNavigation.busyFlags != Ci.nsIDocShell.BUSY_FLAGS_NONE) {
+  if (editor.webNavigation.QueryInterface(Ci.nsIDocShell).busyFlags !=
+        Ci.nsIDocShell.BUSY_FLAGS_NONE) {
     let editorObserver = {
       editorLoaded: false,
 
