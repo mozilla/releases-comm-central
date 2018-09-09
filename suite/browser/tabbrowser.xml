@@ -106,11 +106,6 @@
       <field name="mURIFixup" readonly="true">
         Cc["@mozilla.org/docshell/urifixup;1"].getService(Ci.nsIURIFixup);
       </field>
-      <field name="mFaviconService" readonly="true">
-        Cc["@mozilla.org/browser/favicon-service;1"]
-          .getService(Ci.nsIFaviconService)
-          .QueryInterface(Ci.mozIAsyncFavicons);
-      </field>
       <field name="mIOService" readonly="true">
         Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
       </field>
@@ -803,22 +798,18 @@
             let browser = this.getBrowserForTab(aTab);
             browser.mIconURL = aURI instanceof Ci.nsIURI ? aURI.spec : aURI;
 
-            if (aURI && this.mFaviconService) {
-              if (!(aURI instanceof Ci.nsIURI))
+            if (aURI) {
+              if (!(aURI instanceof Ci.nsIURI)) {
                 aURI = makeURI(aURI);
+              }
 
               // We do not serialize the principal from within nsSessionStore.js,
               // hence if aLoadingPrincipal is null we default to the
               // systemPrincipal which will allow the favicon to load.
-              let loadingPrincipal = aLoadingPrincipal
-                ? aLoadingPrincipal
-                : Services.scriptSecurityManager.getSystemPrincipal();
-              let loadType = PrivateBrowsingUtils.isWindowPrivate(window)
-                ? this.mFaviconService.FAVICON_LOAD_PRIVATE
-                : this.mFaviconService.FAVICON_LOAD_NON_PRIVATE;
+              let loadingPrincipal = aLoadingPrincipal ||
+                Services.scriptSecurityManager.getSystemPrincipal();
 
-              this.mFaviconService.setAndFetchFaviconForPage(
-                browser.currentURI, aURI, false, loadType, null, loadingPrincipal);
+              PlacesUIUtils.loadFavicon(browser, loadingPrincipal, aURI);
             }
 
             let sizedIconUrl = browser.mIconURL || "";
@@ -907,12 +898,9 @@
         <parameter name="aURI"/>
         <body>
           <![CDATA[
-            if (this.mFaviconService) {
-              if (!(aURI instanceof Ci.nsIURI))
-                aURI = makeURI(aURI);
-              return this.mFaviconService.isFailedFavicon(aURI);
-            }
-            return null;
+            if (!(aURI instanceof Ci.nsIURI))
+              aURI = makeURI(aURI);
+            return PlacesUtils.favicons.isFailedFavicon(aURI);
           ]]>
         </body>
       </method>
@@ -924,22 +912,22 @@
         <parameter name="aLoadingPrincipal"/>
         <body>
           <![CDATA[
-            var iconURL = this.buildFavIconString(aURI);
-            if (this.mFaviconService) {
-              var iconURI = this.mIOService.newURI(iconURL);
-              var faviconFlags = this.usePrivateBrowsing ?
-                  this.mFaviconService.FAVICON_LOAD_PRIVATE :
-                  this.mFaviconService.FAVICON_LOAD_NON_PRIVATE;
-              var loadingPrincipal = aLoadingPrincipal ||
-                                     this.mSecMan.getSystemPrincipal();
+            let iconURL = this.buildFavIconString(aURI);
+            let iconURI = this.mIOService.newURI(iconURL);
+            let faviconFlags = this.usePrivateBrowsing ?
+              PlacesUtils.favicons.FAVICON_LOAD_PRIVATE
+              : PlacesUtils.favicons.FAVICON_LOAD_NON_PRIVATE;
+            let loadingPrincipal = aLoadingPrincipal ||
+              Services.scriptSecurityManager.getSystemPrincipal();
 
-              this.mFaviconService
-                  .setAndFetchFaviconForPage(aURI, iconURI, false,
-                                             faviconFlags, null,
-                                             loadingPrincipal);
-              if (this.mFaviconService.isFailedFavicon(aURI))
-                return;
+            PlacesUtils.favicons
+             .setAndFetchFaviconForPage(aURI, iconURI, false, faviconFlags,
+                                        null,
+                                        loadingPrincipal);
+            if (PlacesUtils.favicons.isFailedFavicon(aURI)) {
+               return;
             }
+
             aElt.setAttribute(aAttr, iconURL);
           ]]>
         </body>
@@ -949,10 +937,8 @@
         <parameter name="aURI"/>
         <body>
           <![CDATA[
-            if (this.mFaviconService) {
-              let uri = this.mIOService.newURI(aURI);
-              this.mFaviconService.addFailedFavicon(uri);
-            }
+            let uri = this.mIOService.newURI(aURI);
+            PlacesUtils.favicons.addFailedFavicon(uri);
           ]]>
         </body>
       </method>
