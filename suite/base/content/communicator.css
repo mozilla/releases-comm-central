@@ -313,3 +313,17 @@ datepicker[type="popup"] {
 datepicker[type="grid"] {
   -moz-binding: url("chrome://communicator/content/bindings/datetimepicker.xml#datepicker-grid");
 }
+
+/******* numberbox *******/
+textbox[type="number"] {
+  -moz-binding: url("chrome://communicator/content/bindings/numberbox.xml#numberbox");
+}
+
+/******* spinbuttons *******/
+spinbuttons {
+  -moz-binding: url("chrome://communicator/content/bindings/spinbuttons.xml#spinbuttons");
+}
+
+.spinbuttons-button {
+  -moz-user-focus: ignore;
+}

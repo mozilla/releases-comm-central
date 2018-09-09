@@ -21,7 +21,9 @@ classic.jar:
   skin/classic/communicator/customizeToolbar.css                        (mac/communicator/customizeToolbar.css)
   skin/classic/communicator/config.css                                  (mac/communicator/config.css)
   skin/classic/communicator/datetimepicker.css                          (mac/communicator/datetimepicker.css)
+  skin/classic/communicator/numberbox.css                               (mac/communicator/numberbox.css)
   skin/classic/communicator/preferences.css                             (mac/communicator/preferences.css)
+  skin/classic/communicator/spinbuttons.css                             (mac/communicator/spinbuttons.css)
   skin/classic/communicator/toolbar.css                                 (mac/communicator/toolbar.css)
   skin/classic/communicator/viewSourceOverlay.css                       (mac/communicator/viewSourceOverlay.css)
   skin/classic/communicator/console/console-error-caret.gif             (mac/communicator/console/console-error-caret.gif)
@@ -72,11 +74,15 @@ classic.jar:
   skin/classic/communicator/datetimepicker.css                          (communicator/datetimepicker.css)
 #ifdef MOZ_WIDGET_GTK
   skin/classic/communicator/communicator.css                            (linux/communicator/communicator.css)
+  skin/classic/communicator/numberbox.css                               (linux/communicator/numberbox.css)
   skin/classic/communicator/preferences.css                             (linux/communicator/preferences.css)
   skin/classic/communicator/scrollbars.css                              (linux/communicator/scrollbars.css)
+  skin/classic/communicator/spinbuttons.css                             (linux/communicator/spinbuttons.css)
 #else
   skin/classic/communicator/communicator.css                            (communicator/communicator.css)
+  skin/classic/communicator/numberbox.css                               (communicator/numberbox.css)
   skin/classic/communicator/preferences.css                             (communicator/preferences.css)
+  skin/classic/communicator/spinbuttons.css                             (communicator/spinbuttons.css)
 #endif
   skin/classic/communicator/toolbar.css                                 (communicator/toolbar.css)
   skin/classic/communicator/viewSourceOverlay.css                       (communicator/viewSourceOverlay.css)
