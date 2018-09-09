@@ -301,10 +301,6 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
   padding-bottom: 3px;
 }
 
-#status-bar:-moz-lwtheme {
-  padding-bottom: 1px;
-}
-
 treechildren::-moz-tree-row {
   min-height: 18px;
 }
@@ -729,30 +725,27 @@ menulist > menupopup:not([type="folder"]) > menuseparator {
 
 statusbar {
   -moz-appearance: statusbar;
-  border-top: 1px solid ThreeDLightShadow;
-  border-left: 1px solid ThreeDShadow;
-  border-right: 1px solid ThreeDHighlight;
-  border-bottom: 1px solid ThreeDHighlight;
-  background-color: -moz-Dialog;
   min-height: 22px;
 }
 
+statusbar:-moz-lwtheme {
+  -moz-appearance: none;
+}
+
+statusbar:-moz-lwtheme-brighttext {
+  --tabs-border-color: hsla(0,0%,60%,.4);
+}
+
 statusbarpanel {
-  -moz-appearance: statusbarpanel;
+  -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;
-  border-left: 1px solid ThreeDHighlight;
-  border-top: 1px solid ThreeDHighlight;
-  border-right: 1px solid ThreeDShadow;
-  border-bottom: 1px solid ThreeDShadow;
+  border-inline-end: 1px solid ThreeDLightShadow;
   padding: 0 4px;
 }
 
-statusbarpanel:not(.statusbar-resizerpanel):-moz-lwtheme {
-  -moz-appearance: none;
-  border-top-style: none;
-  border-bottom-style: none;
-  border-inline-start-style: none;
+statusbarpanel:-moz-lwtheme {
+  border-inline-end-color: var(--tabs-border-color);
 }
 
 .statusbar-resizerpanel {
@@ -760,18 +753,18 @@ statusbarpanel:not(.statusbar-resizerpanel):-moz-lwtheme {
   -moz-box-pack: end;
   -moz-appearance: resizerpanel;
   padding: 0;
-  border: none;
-}
-
-statusbar:-moz-lwtheme {
-  -moz-appearance: none;
-  background: none;
-  border-style: none;
+  border-inline-end-width: 0;
 }
 
 statusbarpanel label {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+@media (-moz-windows-classic) {
+  statusbarpanel:not(:-moz-lwtheme) {
+    -moz-appearance: statusbarpanel;
+  }
 }
 
 /* Status panel */
