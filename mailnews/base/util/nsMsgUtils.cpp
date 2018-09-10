@@ -68,6 +68,10 @@
 #include "nsReadLine.h"
 #include "nsICharsetDetectionObserver.h"
 #include "nsICharsetDetector.h"
+#include "nsIStringCharsetDetector.h"
+#include "nsCyrillicDetector.h"
+#include "nsUniversalDetector.h"
+#include "nsUdetXPCOMWrapper.h"
 #include "nsILineInputStream.h"
 #include "nsIParserUtils.h"
 #include "nsICharsetConverterManager.h"
@@ -81,6 +85,7 @@
 #include "nsIChannel.h"
 #include "nsIURIMutator.h"
 #include "mozilla/Unused.h"
+#include "mozilla/Preferences.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -1891,20 +1896,17 @@ NS_IMPL_ISUPPORTS(CharsetDetectionObserver, nsICharsetDetectionObserver)
 NS_MSG_BASE nsresult
 MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
 {
-  // First try the universal charset detector
-  nsCOMPtr<nsICharsetDetector> detector
-    = do_CreateInstance(NS_CHARSET_DETECTOR_CONTRACTID_BASE
-                        "universal_charset_detector");
-  if (!detector) {
-    // No universal charset detector, try the default charset detector
-    nsString detectorName;
-    NS_GetLocalizedUnicharPreferenceWithDefault(nullptr, "intl.charset.detector",
-                                                EmptyString(), detectorName);
-    if (!detectorName.IsEmpty()) {
-      nsAutoCString detectorContractID;
-      detectorContractID.AssignLiteral(NS_CHARSET_DETECTOR_CONTRACTID_BASE);
-      AppendUTF16toUTF8(detectorName, detectorContractID);
-      detector = do_CreateInstance(detectorContractID.get());
+  nsCOMPtr<nsICharsetDetector> detector;
+  nsAutoCString detectorName;
+  Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
+  if (!detectorName.IsEmpty()) {
+    // We recognize one of the three magic strings for the following languages.
+    if (detectorName.EqualsLiteral("ruprob")) {
+      detector = new nsRUProbDetector();
+    } else if (detectorName.EqualsLiteral("ukprob")) {
+      detector = new nsUKProbDetector();
+    } else if (detectorName.EqualsLiteral("ja_parallel_state_machine")) {
+      detector = new nsJAPSMDetector();
     }
   }
 
