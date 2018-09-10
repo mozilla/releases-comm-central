@@ -33,22 +33,15 @@ function Startup()
 
   // Start the spell checker module.
   try {
-    // TxtSrv Filter Contract Id
-    var filterContractId;
     var skipBlockQuotes = window.arguments[1];
     var enableSelectionChecking = window.arguments[2];
 
-    if (skipBlockQuotes)
-      filterContractId = "@mozilla.org/editor/txtsrvfiltermail;1";
-    else
-      filterContractId = "@mozilla.org/editor/txtsrvfilter;1";
-
-    gSpellChecker.setFilter(Cc[filterContractId].createInstance(Ci.nsITextServicesFilter));
+    gSpellChecker.setFilterType(skipBlockQuotes ?
+                                Ci.nsIEditorSpellCheck.FILTERTYPE_MAIL :
+                                Ci.nsIEditorSpellCheck.FILTERTYPE_NORMAL);
     gSpellChecker.InitSpellChecker(editor, enableSelectionChecking, spellCheckStarted);
-
-  }
-  catch(ex) {
-   dump("*** Exception error: InitSpellChecker\n");
+  } catch(ex) {
+    dump("*** Exception error: InitSpellChecker\n");
     window.close();
     return;
   }
