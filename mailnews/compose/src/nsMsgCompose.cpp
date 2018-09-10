@@ -70,7 +70,6 @@
 #include "mozilla/ErrorResult.h"
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
-#include "mozilla/dom/HTMLLinkElement.h"
 #include "mozilla/dom/Selection.h"
 #include "nsStreamConverter.h"
 #include "nsIObserverService.h"
@@ -251,13 +250,10 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
     return false;
 
   RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromNode(element);
-  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromNode(element);
   RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(element);
 
   if (image)
     image->GetSrc(objURL);
-  else if (link)
-    link->GetHref(objURL);
   else if (anchor)
     anchor->GetHref(objURL);
   else

@@ -76,7 +76,6 @@
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLBodyElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
-#include "mozilla/dom/HTMLLinkElement.h"
 #include "nsIMutableArray.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
@@ -1285,7 +1284,6 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(Element *domElement, nsMsgAttachmentD
   // We're only interested in body, image, link and anchors which are all
   // elements. Let's see what we have.
   RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromNode(domElement);
-  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromNode(domElement);
   RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(domElement);
   RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromNode(domElement);
 
@@ -1342,19 +1340,6 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(Element *domElement, nsMsgAttachmentD
     LossyCopyUTF16toASCII(tName, attachment->m_realName);
     image->GetLongDesc(tDesc);
     attachment->m_description = NS_LossyConvertUTF16toASCII(tDesc); // XXX i18n
-  }
-  else if (link)        // Is this a link?
-  {
-    nsString    tUrl;
-
-    // Create the URI
-    link->GetHref(tUrl);
-    if (tUrl.IsEmpty())
-      return NS_OK;
-    nsAutoCString turlC;
-    CopyUTF16toUTF8(tUrl, turlC);
-    if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC)))
-      return NS_OK;
   }
   else if (anchor)
   {
@@ -1806,7 +1791,6 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
 
       // We know the types of objects this element can be, let's see what we come up with.
       RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromNode(domSaveArray[j].element);
-      RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromNode(domSaveArray[j].element);
       RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(domSaveArray[j].element);
       RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromNode(domSaveArray[j].element);
 
@@ -1816,11 +1800,6 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       {
         anchor->GetHref(domURL);
         anchor->SetHref(newSpec, rv2);
-      }
-      else if (link)
-      {
-        link->GetHref(domURL);
-        link->SetHref(newSpec, rv2);
       }
       else if (image)
       {
@@ -1852,7 +1831,6 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
 
     // We know the types of objects this element can be, let's see what we come up with.
     RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromNode(domSaveArray[i].element);
-    RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromNode(domSaveArray[i].element);
     RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(domSaveArray[i].element);
     RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromNode(domSaveArray[i].element);
 
@@ -1861,8 +1839,6 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     IgnoredErrorResult rv2;
     if (anchor) {
       anchor->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
-    } else if (link) {
-      link->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
     } else if (image) {
       image->SetSrc(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
     }
