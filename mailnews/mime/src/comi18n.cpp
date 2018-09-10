@@ -4,13 +4,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "comi18n.h"
+#include "nsICharsetDetector.h"
 #include "nsIStringCharsetDetector.h"
+#include "nsCyrillicDetector.h"
+#include "nsUniversalDetector.h"
+#include "nsUdetXPCOMWrapper.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgMimeCID.h"
 #include "nsIMimeConverter.h"
+#include "mozilla/Preferences.h"
 
+using namespace mozilla;
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN PUBLIC INTERFACE
@@ -33,28 +39,54 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                                         eatContinuations, result);
 }
 
+class nsJAStringPSMDetector : public nsXPCOMStringDetector
+{
+public:
+  nsJAStringPSMDetector()
+    : nsXPCOMStringDetector() {}
+};
+
+class nsRUStringProbDetector : public nsCyrXPCOMStringDetector
+{
+  public:
+    nsRUStringProbDetector()
+      : nsCyrXPCOMStringDetector(5, gCyrillicCls, gRussian) {}
+};
+
+class nsUKStringProbDetector : public nsCyrXPCOMStringDetector
+{
+  public:
+    nsUKStringProbDetector()
+      : nsCyrXPCOMStringDetector(5, gCyrillicCls, gUkrainian) {}
+};
+
 // UTF-8 utility functions.
 //detect charset soly based on aBuf. return in aCharset
 nsresult
 MIME_detect_charset(const char *aBuf, int32_t aLength, const char** aCharset)
 {
   nsresult res = NS_ERROR_UNEXPECTED;
-  nsString detector_name;
   *aCharset = nullptr;
+  nsCOMPtr<nsIStringCharsetDetector> detector;
+  nsAutoCString detectorName;
+  Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
 
-  NS_GetLocalizedUnicharPreferenceWithDefault(nullptr, "intl.charset.detector", EmptyString(), detector_name);
+  if (!detectorName.IsEmpty()) {
+    // We recognize one of the three magic strings for the following languages.
+    if (detectorName.EqualsLiteral("ruprob")) {
+      detector = new nsRUStringProbDetector();
+    } else if (detectorName.EqualsLiteral("ukprob")) {
+      detector = new nsUKStringProbDetector();
+    } else if (detectorName.EqualsLiteral("ja_parallel_state_machine")) {
+      detector = new nsJAStringPSMDetector();
+    }
+  }
 
-  if (!detector_name.IsEmpty()) {
-    nsAutoCString detector_contractid;
-    detector_contractid.AssignLiteral(NS_STRCDETECTOR_CONTRACTID_BASE);
-    detector_contractid.Append(NS_ConvertUTF16toUTF8(detector_name));
-    nsCOMPtr<nsIStringCharsetDetector> detector = do_CreateInstance(detector_contractid.get(), &res);
-    if (NS_SUCCEEDED(res)) {
-      nsDetectionConfident oConfident;
-      res = detector->DoIt(aBuf, aLength, aCharset, oConfident);
-      if (NS_SUCCEEDED(res) && (eBestAnswer == oConfident || eSureAnswer == oConfident)) {
-        return NS_OK;
-      }
+  if (detector) {
+    nsDetectionConfident oConfident;
+    res = detector->DoIt(aBuf, aLength, aCharset, oConfident);
+    if (NS_SUCCEEDED(res) && (eBestAnswer == oConfident || eSureAnswer == oConfident)) {
+      return NS_OK;
     }
   }
   return res;
