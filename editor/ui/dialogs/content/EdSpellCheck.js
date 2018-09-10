@@ -23,7 +23,7 @@ function Startup()
   }
 
   // Get the spellChecker shell
-  gSpellChecker = Cc['@mozilla.org/editor/editorspellchecker;1'].createInstance(Ci.nsIEditorSpellCheck);
+  gSpellChecker = Cu.createSpellChecker();
   if (!gSpellChecker)
   {
     dump("SpellChecker not found!!!\n");
