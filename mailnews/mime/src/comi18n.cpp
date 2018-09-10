@@ -38,6 +38,13 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
 nsresult
 MIME_detect_charset(const char *aBuf, int32_t aLength, const char** aCharset)
 {
+#if 1
+  return NS_ERROR_UNEXPECTED;
+#else
+  // Temporarily removed due to removal of XPCOM interface
+  // NS_STRCDETECTOR_CONTRACTID_BASE "@mozilla.org/intl/stringcharsetdetect;1?type=" along with classes
+  // nsJAStringPSMDetector, nsRUStringProbDetector, nsUKStringProbDetector
+  // in bug 1488659.
   nsresult res = NS_ERROR_UNEXPECTED;
   nsString detector_name;
   *aCharset = nullptr;
@@ -58,6 +65,7 @@ MIME_detect_charset(const char *aBuf, int32_t aLength, const char** aCharset)
     }
   }
   return res;
+#endif
 }
 
 } /* end of extern "C" */
