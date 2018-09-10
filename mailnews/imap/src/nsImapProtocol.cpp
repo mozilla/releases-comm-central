@@ -80,6 +80,7 @@
 using namespace mozilla;
 
 LazyLogModule IMAP("IMAP");
+LazyLogModule IMAP_CS("IMAP_CS");
 
 #define ONE_SECOND ((uint32_t)1000)    // one second
 
@@ -4134,27 +4135,74 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
     m_flagState->GetNumberOfMessages(&added);
     deleted = m_flagState->NumberOfDeletedMessages();
     bool flagStateEmpty = !added;
-    // Figure out if we need to do any kind of sync.
-    bool needFolderSync = (flagStateEmpty || added == deleted) && (!UseCondStore() ||
-      (GetServerStateParser().fHighestModSeq != mFolderLastModSeq) ||
-      (GetShowDeletedMessages() &&
-         GetServerStateParser().NumberOfMessages() != mFolderTotalMsgCount));
+    bool useCS = UseCondStore();
 
     // Figure out if we need to do a full sync (UID Fetch Flags 1:*),
     // a partial sync using CHANGEDSINCE, or a sync from the previous
     // highwater mark.
 
-    // if the folder doesn't know about the highest uid, or the flag state
-    // is empty, and we're not using CondStore, we need a full sync.
-    bool needFullFolderSync = !mFolderHighestUID || (flagStateEmpty && !UseCondStore());
+    // If the folder doesn't know about the highest uid, or the flag state
+    // is empty, and we're not using CondStore, we definitely need a full sync.
+    //
+    // Print to log items affecting needFullFolderSync:
+    MOZ_LOG(IMAP_CS, LogLevel::Debug,
+            ("Do full sync?: mFolderHighestUID=%" PRIu32 ", added=%" PRId32 ", useCS=%s",
+             mFolderHighestUID, added, useCS ? "true" : "false"));
+    bool needFullFolderSync = !mFolderHighestUID || (flagStateEmpty && !useCS);
+    bool needFolderSync = false;
+
+    if (!needFullFolderSync)
+    {
+      // Figure out if we need to do a non-highwater mark sync.
+      // Set needFolderSync true when at least 1 of these 3 cases is true:
+      // 1. Have no uids in flag array or all flag elements are marked deleted AND
+      // not using CONDSTORE.
+      // 2. Have no uids in flag array or all flag elements are marked deleted AND
+      // using "just mark as deleted" and EXISTS response count differs from
+      // stored message count for folder.
+      // 3. Using CONDSTORE and highest MODSEQ response is not equal to stored
+      // mod seq for folder.
+
+      // Print to log items affecting needFolderSync:
+      MOZ_LOG(IMAP_CS, LogLevel::Debug,
+              ("1. Do a sync?: added=%" PRId32 ", deleted=%" PRId32 ", useCS=%s",
+               added, deleted,  useCS ? "true" : "false"));
+      MOZ_LOG(IMAP_CS, LogLevel::Debug,
+              ("2. Do a sync?: ShowDeletedMsgs=%s, exists=%" PRId32 ", mFolderTotalMsgCount=%" PRId32 "",
+               GetShowDeletedMessages() ? "true" : "false", GetServerStateParser().NumberOfMessages(),
+               mFolderTotalMsgCount));
+      MOZ_LOG(IMAP_CS, LogLevel::Debug,
+              ("3. Do a sync?: fHighestModSeq=%" PRIu64 ", mFolderLastModSeq=%" PRIu64 "",
+               GetServerStateParser().fHighestModSeq,  mFolderLastModSeq));
+
+      needFolderSync =
+        (
+          (flagStateEmpty || added == deleted) &&
+          (
+            !useCS
+            ||
+            (GetShowDeletedMessages() &&
+             GetServerStateParser().NumberOfMessages() != mFolderTotalMsgCount)
+          )
+        )
+        ||
+        (useCS && GetServerStateParser().fHighestModSeq != mFolderLastModSeq);
+    }
+    MOZ_LOG(IMAP_CS, LogLevel::Debug, ("needFullFolderSync=%s, needFolderSync=%s",
+            needFullFolderSync ? "true" : "false", needFolderSync ? "true" : "false"));
 
     if (needFullFolderSync || needFolderSync)
     {
       nsCString idsToFetch("1:*");
       char fetchModifier[40] = "";
-      if (!needFullFolderSync && !GetShowDeletedMessages() && UseCondStore())
+      if (!needFullFolderSync && !GetShowDeletedMessages() && useCS)
+      {
+        m_flagState->StartCapture();
+        MOZ_LOG(IMAP_CS, LogLevel::Debug, ("Doing UID fetch 1:* (CHANGEDSINCE %" PRIu64 ")",
+                mFolderLastModSeq));
         PR_snprintf(fetchModifier, sizeof(fetchModifier), " (CHANGEDSINCE %llu)",
                     mFolderLastModSeq);
+      }
       else
         m_flagState->SetPartialUIDFetch(false);
 
@@ -4166,13 +4214,79 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
         // to see if some other client may have done an expunge.
         if (m_flagState->GetPartialUIDFetch())
         {
-          if (m_flagState->NumberOfDeletedMessages() +
-              mFolderTotalMsgCount != GetServerStateParser().NumberOfMessages())
+          uint32_t numExists = GetServerStateParser().NumberOfMessages();
+          uint32_t numPrevExists = mFolderTotalMsgCount;
+
+          if (MOZ_LOG_TEST(IMAP_CS, LogLevel::Debug))
           {
-            // sanity check failed - fall back to full flag sync
+            int32_t addedByPartialFetch;
+            m_flagState->GetNumberOfMessages(&addedByPartialFetch);
+            MOZ_LOG(IMAP_CS, LogLevel::Debug, ("Sanity, deleted=%" PRId32 ", numPrevExists=%" PRIu32 ", numExists=%" PRIu32 "",
+                    m_flagState->NumberOfDeletedMessages(), numPrevExists,  numExists));
+            MOZ_LOG(IMAP_CS, LogLevel::Debug, ("Sanity, addedByPartialFetch=%" PRId32 "",
+                    addedByPartialFetch));
+          }
+
+          // Determine the number of new UIDs just fetched that are greater than
+          // the saved highest UID for the folder. numToCheck will contain the
+          // number of UIDs just fetched and, of course, not all are new.
+          uint32_t numNewUIDs = 0;
+          uint32_t numToCheck = m_flagState->GetNumAdded();
+          bool flagChangeDetected = false;
+          MOZ_LOG(IMAP_CS, LogLevel::Debug, ("numToCheck=%" PRIu32 "", numToCheck));
+          if (numToCheck && mFolderHighestUID)
+          {
+            uint32_t uid;
+            int32_t topIndex;
+            m_flagState->GetNumberOfMessages(&topIndex);
+            do {
+              topIndex--;
+              m_flagState->GetUidOfMessage(topIndex, &uid);
+              if (uid && uid != nsMsgKey_None)
+              {
+                if (uid > mFolderHighestUID)
+                {
+                  numNewUIDs++;
+                  MOZ_LOG(IMAP_CS, LogLevel::Debug, ("numNewUIDs=%" PRIu32 ", Added new UID=%" PRIu32 "",
+                       numNewUIDs ,uid));
+                  numToCheck--;
+                }
+                else
+                {
+                  // Just a flag change on an existing UID. No more new UIDs
+                  // will be found. This does not detect an expunged message.
+                  flagChangeDetected = true;
+                  MOZ_LOG(IMAP_CS, LogLevel::Debug, ("Not new uid = %" PRIu32 "", uid));
+                  break;
+                }
+              }
+            } while(numToCheck);
+          }
+
+          // Another client expunged at least one message if the number of new
+          // UIDs is not equal to the observed change in the number of messages
+          // existing in the folder.
+          bool expungeHappened = numNewUIDs != (numExists - numPrevExists);
+          if (expungeHappened)
+          {
+            // Sanity check failed - need full fetch to remove expunged msgs.
+            MOZ_LOG(IMAP_CS, LogLevel::Debug,
+                    ("Other client expunged msgs, do full fetch to remove expunged msgs"));
             m_flagState->Reset();
             m_flagState->SetPartialUIDFetch(false);
             FetchMessage(NS_LITERAL_CSTRING("1:*"), kFlags);
+          }
+          else if (numNewUIDs == 0)
+          {
+            // Nothing has been expunged and no new UIDs, so if just a flag
+            // change on existing message(s), avoid unneeded fetch of flags for
+            // messages with UIDs at and above uid (see var uid above) when
+            // "highwater mark" fetch occurs below.
+            if (mFolderHighestUID && flagChangeDetected)
+            {
+              MOZ_LOG(IMAP_CS, LogLevel::Debug, ("Avoid unneeded fetches after just flag changes"));
+              GetServerStateParser().ResetHighestRecordedUID();
+            }
           }
         }
         int32_t numDeleted = m_flagState->NumberOfDeletedMessages();
@@ -4192,12 +4306,15 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
     }
     else
     {
+      // Obtain the highest (highwater mark) UID seen since the last UIDVALIDITY
+      // response occurred (associated with the most recent SELECT for the folder).
       uint32_t highestRecordedUID = GetServerStateParser().HighestRecordedUID();
       // if we're using CONDSTORE, and the parser hasn't seen any UIDs, use
-      // the highest UID we've seen from the folder.
-      if (UseCondStore() && !highestRecordedUID)
+      // the highest UID previously seen and saved for the folder instead.
+      if (useCS && !highestRecordedUID)
         highestRecordedUID = mFolderHighestUID;
-
+      MOZ_LOG(IMAP_CS, LogLevel::Debug, ("Check for new messages above UID=%" PRIu32 "",
+              highestRecordedUID));
       AppendUid(fetchStr, highestRecordedUID + 1);
       fetchStr.AppendLiteral(":*");
       FetchMessage(fetchStr, kFlags);      // only new messages please

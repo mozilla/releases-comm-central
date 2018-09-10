@@ -97,6 +97,7 @@ static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
 
 extern mozilla::LazyLogModule gAutoSyncLog; // defined in nsAutoSyncManager.cpp
 extern mozilla::LazyLogModule IMAP;         // defined in nsImapProtocol.cpp
+extern mozilla::LazyLogModule IMAP_CS;      // For CONDSTORE, defined in nsImapProtocol.cpp
 
 #define MAILNEWS_CUSTOM_HEADERS "mailnews.customHeaders"
 
@@ -2649,6 +2650,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(nsIImapProtocol* aProtocol
       dbFolderInfo->GetImapUidValidity(&imapUIDValidity);
       uint64_t mailboxHighestModSeq;
       aSpec->GetHighestModSeq(&mailboxHighestModSeq);
+      MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
+              ("UpdateImapMailboxInfo(): Store highest MODSEQ=%" PRIu64 " for folder=%s",
+               mailboxHighestModSeq, m_onlineFolderName.get()));
       char intStrBuf[40];
       PR_snprintf(intStrBuf, sizeof(intStrBuf), "%llu",  mailboxHighestModSeq);
       dbFolderInfo->SetCharProperty(kModSeqPropertyName, nsDependentCString(intStrBuf));
@@ -2743,6 +2747,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(nsIImapProtocol* aProtocol
     {
       dbFolderInfo->SetImapUidValidity(folderValidity);
       // need to forget highest mod seq when uid validity rolls.
+      MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
+              ("UpdateImapMailboxInfo(): UIDVALIDITY changed, reset highest MODSEQ and UID for folder=%s",
+               m_onlineFolderName.get()));
       dbFolderInfo->SetCharProperty(kModSeqPropertyName, EmptyCString());
       dbFolderInfo->SetUint32Property(kHighestRecordedUIDPropertyName, 0);
     }
@@ -3172,7 +3179,12 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(nsIImapProtocol *aProtocol
   if (dbFolderInfo)
   {
     if (m_curMsgUid > highestUID)
+    {
+      MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
+              ("NormalEndHeaderParseStream(): Store new highest UID=%" PRIu32 " for folder=%s",
+               m_curMsgUid, m_onlineFolderName.get()));
       dbFolderInfo->SetUint32Property(kHighestRecordedUIDPropertyName, m_curMsgUid);
+    }
   }
 
   if (m_isGmailServer)
@@ -4933,6 +4945,9 @@ nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
         {
           char intStrBuf[40];
           PR_snprintf(intStrBuf, sizeof(intStrBuf), "%llu",  aHighestModSeq);
+          MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
+                  ("NotifyMessageFlags(): Store highest MODSEQ=%" PRIu64 " for folder=%s",
+                   aHighestModSeq, m_onlineFolderName.get()));
           dbFolderInfo->SetCharProperty(kModSeqPropertyName, nsDependentCString(intStrBuf));
         }
         if (msgDeleted)

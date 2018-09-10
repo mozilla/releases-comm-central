@@ -3276,6 +3276,11 @@ uint32_t nsImapServerResponseParser::HighestRecordedUID()
   return fHighestRecordedUID;
 }
 
+void nsImapServerResponseParser::ResetHighestRecordedUID()
+{
+  fHighestRecordedUID = 0;
+}
+
 bool nsImapServerResponseParser::IsNumericString(const char *string)
 {
   int i;

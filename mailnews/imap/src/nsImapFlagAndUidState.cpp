@@ -87,6 +87,8 @@ nsImapFlagAndUidState::nsImapFlagAndUidState(int32_t numberOfMessages)
   fSupportedUserFlags = 0;
   fNumberDeleted = 0;
   fPartialUIDFetch = true;
+  fStartCapture = false;
+  fNumAdded = 0;
 }
 
 nsImapFlagAndUidState::~nsImapFlagAndUidState()
@@ -119,6 +121,8 @@ NS_IMETHODIMP nsImapFlagAndUidState::Reset()
   fUids.Clear();
   fFlags.Clear();
   fPartialUIDFetch = true;
+  fStartCapture = false;
+  fNumAdded = 0;
   PR_CExitMonitor(this);
   return NS_OK;
 }
@@ -161,6 +165,14 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidFlagPair(uint32_t uid, imapMessageFla
     int32_t sizeToGrowBy = zeroBasedIndex - fUids.Length() + 1;
     fUids.InsertElementsAt(fUids.Length(), sizeToGrowBy, 0);
     fFlags.InsertElementsAt(fFlags.Length(), sizeToGrowBy, 0);
+    if (fStartCapture)
+    {
+      // A new partial (CONDSTORE/CHANGEDSINCE) fetch response is occurring
+      // so need to start the count of number of uid/flag combos added.
+      fNumAdded = 0;
+      fStartCapture = false;
+    }
+    fNumAdded++;
   }
 
   fUids[zeroBasedIndex] = uid;
