@@ -100,14 +100,8 @@
       <field name="mSessionStore" readonly="true">
         Cc["@mozilla.org/suite/sessionstore;1"].getService(Ci.nsISessionStore);
       </field>
-      <field name="mPrefs" readonly="true">
-        Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefBranch);
-      </field>
       <field name="mURIFixup" readonly="true">
         Cc["@mozilla.org/docshell/urifixup;1"].getService(Ci.nsIURIFixup);
-      </field>
-      <field name="mIOService" readonly="true">
-        Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
       </field>
       <field name="mTabBox" readonly="true">
         document.getAnonymousElementByAttribute(this, "anonid", "tabbox");
@@ -232,7 +226,7 @@
           var h = win.innerHeight;
 
           if (tab == this.mCurrentTab || h == 0 ||
-              !this.mPrefs.getBoolPref("browser.tabs.tooltippreview.enable")) {
+              !Services.prefs.getBoolPref("browser.tabs.tooltippreview.enable")) {
             return true;
           }
 
@@ -246,15 +240,15 @@
           label.width = 0;
           aPopup.setAttribute("tabpreview", "true");
 
-          var canvasW = this.mPrefs.getIntPref("browser.tabs.tooltippreview.width");
+          var canvasW = Services.prefs.getIntPref("browser.tabs.tooltippreview.width");
           var canvasH = Math.round(canvasW * h / w);
           canvas.width = canvasW;
           canvas.height = canvasH;
           canvas.parentNode.hidden = false;
 
-          var bgColor = this.mPrefs.getBoolPref("browser.display.use_system_colors") ?
+          var bgColor = Services.prefs.getBoolPref("browser.display.use_system_colors") ?
                         "Window" :
-                        this.mPrefs.getCharPref("browser.display.background_color");
+                        Services.prefs.getCharPref("browser.display.background_color");
           if (b.contentDocument instanceof ImageDocument &&
               !(b.contentDocument.imageRequest.imageStatus &
                 Ci.imgIRequest.STATUS_ERROR)) {
@@ -853,8 +847,8 @@
               aURI = this.mURIFixup.createExposableURI(aURI);
             } catch (e) {
             }
-            return (aURI && this.mPrefs.getBoolPref("browser.chrome.site_icons") &&
-                    this.mPrefs.getBoolPref("browser.chrome.favicons") &&
+            return (aURI && Services.prefs.getBoolPref("browser.chrome.site_icons") &&
+                    Services.prefs.getBoolPref("browser.chrome.favicons") &&
                     ("schemeIs" in aURI) && (aURI.schemeIs("http") || aURI.schemeIs("https")));
           ]]>
         </body>
@@ -909,7 +903,7 @@
         <body>
           <![CDATA[
             let iconURL = this.buildFavIconString(aURI);
-            let iconURI = this.mIOService.newURI(iconURL);
+            let iconURI = Services.io.newURI(iconURL);
             let faviconFlags = this.usePrivateBrowsing ?
               PlacesUtils.favicons.FAVICON_LOAD_PRIVATE
               : PlacesUtils.favicons.FAVICON_LOAD_NON_PRIVATE;
@@ -933,7 +927,7 @@
         <parameter name="aURI"/>
         <body>
           <![CDATA[
-            let uri = this.mIOService.newURI(aURI);
+            let uri = Services.io.newURI(aURI);
             PlacesUtils.favicons.addFailedFavicon(uri);
           ]]>
         </body>
@@ -1087,8 +1081,8 @@
                     this.savedBrowsers.length :
                     this.mSessionStore.getClosedTabCount(window)) == 0);
                 menuitem.hidden = (this.usePrivateBrowsing ||
-                                   this.mPrefs.getIntPref("browser.sessionstore.max_tabs_undo") <= 0) &&
-                                  this.mPrefs.getIntPref("browser.tabs.max_tabs_undo") <= 0;
+                                   Services.prefs.getIntPref("browser.sessionstore.max_tabs_undo") <= 0) &&
+                                  Services.prefs.getIntPref("browser.tabs.max_tabs_undo") <= 0;
               }
               else
                 menuitem.setAttribute("disabled", tbattr.includes("tabbrowser-multiple") && !isMultiple ||
@@ -1200,8 +1194,8 @@
         <body>
           <![CDATA[
             if (event.button != 1 || event.target.localName != 'tab' ||
-                (this.mPrefs.getBoolPref("middlemouse.contentLoadURL") &&
-                !this.mPrefs.getBoolPref("general.autoScroll")))
+                (Services.prefs.getBoolPref("middlemouse.contentLoadURL") &&
+                !Services.prefs.getBoolPref("general.autoScroll")))
               return;
 
             this.removeTab(event.target);
@@ -1227,7 +1221,7 @@
             var rel = link.rel;
             var type = link.type;
             var isIcon = /(?:^|\s)icon(?:\s|$)/i.test(rel) &&
-                         this.mPrefs.getBoolPref("browser.chrome.site_icons");
+                         Services.prefs.getBoolPref("browser.chrome.site_icons");
             if (isIcon) {
              var iconUri = this.getLinkIconURI(link);
              if (iconUri)
@@ -1248,7 +1242,7 @@
               return;
 
             try {
-              let feedURI = this.mIOService.newURI(href, targetDoc.characterSet);
+              let feedURI = Services.io.newURI(href, targetDoc.characterSet);
               if (!/^https?$/.test(feedURI.scheme)) {
                 return;
               }
@@ -1281,7 +1275,7 @@
         <body><![CDATA[
           var targetDoc = aLink.ownerDocument;
           // Make a URI out of our href.
-          var uri = this.mIOService.newURI(aLink.href, targetDoc.characterSet);
+          var uri = Services.io.newURI(aLink.href, targetDoc.characterSet);
 
           // Verify that the load of this icon is legal.
           // Some error or special pages can load their favicon.
@@ -1427,7 +1421,7 @@
 
             params.focusNewTab = params.inBackground != null ?
                 !params.inBackground :
-                !this.mPrefs.getBoolPref("browser.tabs.loadInBackground");
+                !Services.prefs.getBoolPref("browser.tabs.loadInBackground");
 
             return this.addTab(aURI, params);
          ]]>
@@ -1618,7 +1612,7 @@
 
             this.mStrip.collapsed = false;
 
-            this.mPrefs.setBoolPref("browser.tabs.forceHide", false);
+            Services.prefs.setBoolPref("browser.tabs.forceHide", false);
 
             // wire up a progress listener for the new browser object.
             var position = this.tabs.length - 1;
@@ -1664,8 +1658,8 @@
             // an external application or bookmark, i.e. somewhere other
             // than the current tab.
             if ((aRelatedToCurrent || aReferrerURI ||
-                 this.mPrefs.getBoolPref("browser.tabs.insertAllTabsAfterCurrent")) &&
-                this.mPrefs.getBoolPref("browser.tabs.insertRelatedAfterCurrent")) {
+                 Services.prefs.getBoolPref("browser.tabs.insertAllTabsAfterCurrent")) &&
+                Services.prefs.getBoolPref("browser.tabs.insertRelatedAfterCurrent")) {
               var lastRelatedIndex = this.mLastRelatedIndex ||
                                      this.tabContainer.selectedIndex;
               this.moveTabTo(t, ++lastRelatedIndex);
@@ -1697,7 +1691,7 @@
 
             if (numTabs > 1) {
               const closeOtherTabsPref = "browser.tabs.warnOnCloseOther";
-              var shouldPrompt = this.mPrefs.getBoolPref(closeOtherTabsPref);
+              var shouldPrompt = Services.prefs.getBoolPref(closeOtherTabsPref);
               var reallyClose = true;
 
               if (shouldPrompt) {
@@ -1721,7 +1715,7 @@
                 reallyClose = (buttonPressed == 0);
                 //don't set the pref unless they press OK and it's false
                 if (reallyClose && !warnOnClose.value)
-                  this.mPrefs.setBoolPref(closeOtherTabsPref, false);
+                  Services.prefs.setBoolPref(closeOtherTabsPref, false);
               }
 
               if (reallyClose) {
@@ -1878,7 +1872,7 @@
                 l++;
                 // fall through
               case 2:
-                if (this.mPrefs.getBoolPref("browser.tabs.autoHide"))
+                if (Services.prefs.getBoolPref("browser.tabs.autoHide"))
                   this.mStrip.collapsed = true;
             }
 
@@ -1952,11 +1946,11 @@
             // Save the tab for undo.
             // Even though we navigate to about:blank, it costs more RAM than
             // really closing the tab.  The pref controls how far you can undo
-            var maxUndoDepth = this.mPrefs.getIntPref("browser.tabs.max_tabs_undo");
+            var maxUndoDepth = Services.prefs.getIntPref("browser.tabs.max_tabs_undo");
             var oldSH = oldBrowser.webNavigation.sessionHistory;
             var inOnLoad = oldBrowser.docShell.isExecutingOnLoadHandler;
             var isPopup = oldBrowser.contentWindow.opener &&
-                          !this.mPrefs.getBoolPref("browser.tabs.cache_popups");
+                          !Services.prefs.getBoolPref("browser.tabs.cache_popups");
             if (maxUndoDepth <= 0 || aParams.disableUndo || inOnLoad || isPopup || this.isBrowserEmpty(oldBrowser)) {
               // Undo is disabled/tab is blank.  Kill the browser for real.
               // Because of the way XBL works (fields just set JS
@@ -2395,7 +2389,7 @@
               return;
 
             getShortcutOrURIAndPostData(url).then(data => {
-              var bgLoad = this.mPrefs.getBoolPref("browser.tabs.loadInBackground");
+              var bgLoad = Services.prefs.getBoolPref("browser.tabs.loadInBackground");
               if (aEvent.shiftKey)
                 bgLoad = !bgLoad;
 
@@ -2674,7 +2668,7 @@
             return null;
 
           var tab;
-          if (this.mPrefs.getIntPref("browser.tabs.loadGroup") == 0) {
+          if (Services.prefs.getIntPref("browser.tabs.loadGroup") == 0) {
             var oldCount = this.tabs.length;
             this.appendGroup(aGroup);
             tab = this.tabs[oldCount];
@@ -3010,7 +3004,7 @@
 
               case "nsPref:changed":
                 if (aData == "browser.tabs.max_tabs_undo") {
-                  maxUndoDepth = Math.max(0, this.mPrefs.getIntPref(aData));
+                  maxUndoDepth = Math.max(0, Services.prefs.getIntPref(aData));
                   break;
                 }
 
@@ -3090,8 +3084,8 @@
           this.mTabListeners[0] = tabListener;
           this.mTabFilters[0] = filter;
 
-          if (!this.mPrefs.getBoolPref("browser.tabs.autoHide") &&
-              !this.mPrefs.getBoolPref("browser.tabs.forceHide") &&
+          if (!Services.prefs.getBoolPref("browser.tabs.autoHide") &&
+              !Services.prefs.getBoolPref("browser.tabs.forceHide") &&
               window.toolbar.visible)
             this.mStrip.collapsed = false;
 
@@ -3099,8 +3093,8 @@
           t.setAttribute("label", this.mStringBundle.getString("tabs.untitled"));
           t.setAttribute("crop", "end");
           t.className = "tabbrowser-tab";
-          t.style.maxWidth = this.mPrefs.getIntPref("browser.tabs.tabMaxWidth") + "px";
-          t.style.minWidth = this.mPrefs.getIntPref("browser.tabs.tabMinWidth") + "px";
+          t.style.maxWidth = Services.prefs.getIntPref("browser.tabs.tabMaxWidth") + "px";
+          t.style.minWidth = Services.prefs.getIntPref("browser.tabs.tabMinWidth") + "px";
           t.width = 0;
           t.flex = 100;
           t.setAttribute("validate", "never");
@@ -3110,7 +3104,7 @@
           var os = Cc["@mozilla.org/observer-service;1"]
                      .getService(Ci.nsIObserverService);
           os.addObserver(this, "browser:purge-session-history");
-          this.mPrefs.addObserver("browser.tabs.max_tabs_undo", this);
+          Services.prefs.addObserver("browser.tabs.max_tabs_undo", this);
 
           var onclick = this.getAttribute("oncontentclick");
           if (onclick)
@@ -3136,7 +3130,7 @@
           var os = Cc["@mozilla.org/observer-service;1"]
                      .getService(Ci.nsIObserverService);
           os.removeObserver(this, "browser:purge-session-history");
-          this.mPrefs.removeObserver("browser.tabs.max_tabs_undo", this);
+          Services.prefs.removeObserver("browser.tabs.max_tabs_undo", this);
           this.savedBrowsers.forEach(function(aTabData) {
             delete aTabData.browserData;
           });
@@ -3312,8 +3306,8 @@
           var tab = this.firstChild;
           // set the tabstrip's minWidth too, otherwise it immediately overflows
           this.arrowScrollbox.style.minWidth =
-          tab.style.minWidth = this.mPrefs.getIntPref("browser.tabs.tabMinWidth") + "px";
-          tab.style.maxWidth = this.mPrefs.getIntPref("browser.tabs.tabMaxWidth") + "px";
+          tab.style.minWidth = Services.prefs.getIntPref("browser.tabs.tabMinWidth") + "px";
+          tab.style.maxWidth = Services.prefs.getIntPref("browser.tabs.tabMaxWidth") + "px";
           window.addEventListener("resize", this);
         ]]>
       </constructor>
@@ -3323,10 +3317,6 @@
           window.removeEventListener("resize", this);
         ]]>
       </destructor>
-
-      <field name="mPrefs" readonly="true">
-        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
-      </field>
 
       <field name="arrowScrollboxWidth">0</field>
 
@@ -3437,7 +3427,7 @@
         <body>
           <![CDATA[
             // Javascript does not have a logical XOR operator.
-            if (aEvent.shiftKey != this.mPrefs.getBoolPref("browser.tabs.mouseScrollAdvancesTab")) {
+            if (aEvent.shiftKey != Services.prefs.getBoolPref("browser.tabs.mouseScrollAdvancesTab")) {
               this.advanceSelectedTab(aEvent.detail < 0 ? -1 : 1);
               aEvent.stopPropagation();
             }
