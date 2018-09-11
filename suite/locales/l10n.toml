@@ -49,7 +49,7 @@ locales = [
     l10n = "{l}editor/ui/**"
 
 [[paths]]
-    reference = "services/sync/locales/en-US/**"
+    reference = "{mozilla}/services/sync/locales/en-US/**"
     l10n = "{l}services/sync/**"
 
 [[includes]]
