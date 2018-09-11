@@ -13,6 +13,7 @@ interface imIAccount;
 interface prplIAccount;
 interface prplIProtocol;
 interface nsIScriptError;
+interface nsITransportSecurityInfo;
 
 /*
  * Used to join chat rooms.
@@ -149,6 +150,9 @@ interface prplIAccount: nsISupports {
    * SSL/certificate error when connecting to it. This is only valid when
    * connectionErrorReason is one of ERROR_CERT_*. */
   readonly attribute AUTF8String connectionTarget;
+  /* When a certificate error occurs, the nsITransportSecurityInfo error of
+   * the socket. This should only be set when connectionTarget is set. */
+  readonly attribute nsITransportSecurityInfo secInfo;
 
   /* Possible connection error reasons:
      ERROR_NETWORK_ERROR and ERROR_ENCRYPTION_ERROR are not fatal and

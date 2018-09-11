@@ -283,10 +283,10 @@ urlListener.prototype =
     return true;
   },
 
-  informUserOfCertError(socketInfo, status, targetSite) {
+  informUserOfCertError(socketInfo, secInfo, targetSite) {
     var params = {
       exceptionAdded: false,
-      sslStatus: status,
+      securityInfo: secInfo,
       prefetchCert: true,
       location: targetSite,
     };

@@ -850,13 +850,13 @@ function SSLErrorHandler(thisTry, logger) {
 }
 SSLErrorHandler.prototype =
 {
-  processCertError(socketInfo, status, targetSite) {
+  processCertError(socketInfo, secInfo, targetSite) {
     this._log.error("Got Cert error for " + targetSite);
 
     if (!status)
       return true;
 
-    let cert = status.QueryInterface(Ci.nsISSLStatus).serverCert;
+    let cert = secInfo.serverCert;
     let flags = 0;
 
     let parts = targetSite.split(":");

@@ -616,11 +616,11 @@ BadCertHandler.prototype = {
                                           "nsIInterfaceRequestor"]),
 };
 
-function InformUserOfCertError(socketInfo, status, targetSite)
+function InformUserOfCertError(socketInfo, secInfo, targetSite)
 {
   let params = {
     exceptionAdded : false,
-    sslStatus : status,
+    securityInfo : secInfo,
     prefetchCert: true,
     location : targetSite
   };

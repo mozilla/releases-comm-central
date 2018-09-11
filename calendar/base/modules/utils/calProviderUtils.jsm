@@ -177,7 +177,7 @@ var calprovider = {
             this.timer = null;
         }
 
-        notifyCertProblem(socketInfo, status, targetSite) {
+        notifyCertProblem(socketInfo, secInfo, targetSite) {
             // Unfortunately we can't pass js objects using the window watcher, so
             // we'll just take the first available calendar window. We also need to
             // do this on a timer so that the modal window doesn't block the
@@ -189,7 +189,7 @@ var calprovider = {
                 notify: function(timer) {
                     let params = {
                         exceptionAdded: false,
-                        sslStatus: status,
+                        securityInfo: secInfo,
                         prefetchCert: true,
                         location: targetSite
                     };

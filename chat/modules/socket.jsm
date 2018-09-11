@@ -36,7 +36,7 @@
  *   connectTimeout (default is no timeout)
  *   readWriteTimeout (default is no timeout)
  *   disconnected
- *   sslStatus
+ *   secInfo
  *
  * Users should "subclass" this object, i.e. set their .__proto__ to be it. And
  * then implement:
@@ -130,8 +130,8 @@ var Socket = {
   connectTimeout: 0,
   readWriteTimeout: 0,
 
-  // A nsISSLStatus instance giving details about the certificate error.
-  sslStatus: null,
+  // A nsITransportSecurityInfo instance giving details about the certificate error.
+  secInfo: null,
 
   /*
    *****************************************************************************
@@ -533,8 +533,8 @@ var Socket = {
    */
   // Called when there's an error, return true to suppress the modal alert.
   // Whatever this function returns, NSS will close the connection.
-  notifyCertProblem: function(aSocketInfo, aStatus, aTargetSite) {
-    this.sslStatus = aStatus;
+  notifyCertProblem: function(aSocketInfo, aSecInfo, aTargetSite) {
+    this.secInfo = aSecInfo;
     return true;
   },
 

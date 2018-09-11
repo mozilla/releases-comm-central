@@ -50,8 +50,8 @@ var GenericAccountPrototype = {
   get connectionErrorReason() { return this._connectionErrorReason; },
 
   /*
-   * Convert a socket's nsISSLStatus into a prplIAccount connection error. Store
-   * the nsISSLStatus and the connection location on the account so the
+   * Convert a socket's nsITransportSecurityInfo into a prplIAccount connection error. Store
+   * the nsITransportSecurityInfo and the connection location on the account so the
    * certificate exception dialog can access the information.
    */
   handleBadCertificate: function(aSocket, aIsSslError) {
@@ -60,25 +60,25 @@ var GenericAccountPrototype = {
     if (aIsSslError)
       return Ci.prplIAccount.ERROR_ENCRYPTION_ERROR;
 
-    let sslStatus = this._sslStatus = aSocket.sslStatus;
-    if (!sslStatus)
+    let secInfo = this._secInfo = aSocket.secInfo;
+    if (!secInfo)
       return Ci.prplIAccount.ERROR_CERT_NOT_PROVIDED;
 
-    if (sslStatus.isUntrusted) {
-      if (sslStatus.serverCert &&
-          sslStatus.serverCert.isSelfSigned)
+    if (secInfo.isUntrusted) {
+      if (secInfo.serverCert &&
+          secInfo.serverCert.isSelfSigned)
         return Ci.prplIAccount.ERROR_CERT_SELF_SIGNED;
       return Ci.prplIAccount.ERROR_CERT_UNTRUSTED;
     }
 
-    if (sslStatus.isNotValidAtThisTime) {
-      if (sslStatus.serverCert &&
-          sslStatus.serverCert.validity.notBefore < Date.now() * 1000)
+    if (secInfo.isNotValidAtThisTime) {
+      if (secInfo.serverCert &&
+          secInfo.serverCert.validity.notBefore < Date.now() * 1000)
         return Ci.prplIAccount.ERROR_CERT_NOT_ACTIVATED;
       return Ci.prplIAccount.ERROR_CERT_EXPIRED;
     }
 
-    if (sslStatus.isDomainMismatch)
+    if (secInfo.isDomainMismatch)
       return Ci.prplIAccount.ERROR_CERT_HOSTNAME_MISMATCH;
 
     // XXX ERROR_CERT_FINGERPRINT_MISMATCH
@@ -87,8 +87,8 @@ var GenericAccountPrototype = {
   },
   _connectionTarget: "",
   get connectionTarget() { return this._connectionTarget; },
-  _sslStatus: null,
-  get sslStatus() { return this._sslStatus; },
+  _secInfo: null,
+  get secInfo() { return this._secInfo; },
 
   reportConnected: function() {
     this.imAccount.observe(this, "account-connected", null);
@@ -96,7 +96,7 @@ var GenericAccountPrototype = {
   reportConnecting: function(aConnectionStateMsg) {
     // Delete any leftover errors from the previous connection.
     delete this._connectionTarget;
-    delete this._sslStatus;
+    delete this._secInfo;
 
     if (!this.connecting)
       this.imAccount.observe(this, "account-connecting", null);

@@ -224,7 +224,7 @@ var gAccountManager = {
     // Open the Gecko SSL exception dialog.
     let params = {
       exceptionAdded: false,
-      sslStatus: prplAccount.sslStatus,
+      securityInfo: prplAccount.secInfo,
       prefetchCert: true,
       location: prplAccount.connectionTarget
     };
