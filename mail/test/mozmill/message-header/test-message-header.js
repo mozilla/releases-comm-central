@@ -24,14 +24,9 @@ var folder, folderMore;
 var gInterestingMessage;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
-  let abh = collector.getModule('address-book-helpers');
-  abh.installInto(module);
-  let dh = collector.getModule('dom-helpers');
-  dh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   folder = create_folder("MessageWindowA");
   folderMore = create_folder("MesageHeaderMoreButton");
@@ -164,77 +159,95 @@ function test_add_tag_with_really_long_label() {
 let headersToTest = [
 {
   headerName: "Subject",
-  headerValueElement: "mc.a('expandedsubjectBox', {class: 'headerValue'})",
-  expectedName: "mc.e('expandedsubjectLabel').value + ': ' + " +
-                "headerValueElement.textContent",
+  headerValueElement: function(mc) {
+                      return mc.a("expandedsubjectBox", {class: "headerValue"}); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandedsubjectLabel").value + ": " +
+                headerValueElement.textContent; },
   expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
 },
 {
   headerName: "Content-Base",
-  headerValueElement: "mc.a('expandedcontent-baseBox', {class: 'headerValue text-link headerValueUrl'})",
-  expectedName: "mc.e('expandedcontent-baseLabel').value + ': ' + " +
-                "headerValueElement.textContent",
+  headerValueElement: function(mc) {
+                      return mc.a("expandedcontent-baseBox", {class: "headerValue text-link headerValueUrl"}); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandedcontent-baseLabel").value + ": " +
+                headerValueElement.textContent; },
   expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
 },
 {
   headerName: "From",
-  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                      "mc.a('expandedfromBox', {tagName: 'mail-emailaddress'})," +
-                      "'class', 'emailDisplayButton')",
-  expectedName: "mc.e('expandedfromLabel').value + ': ' + " +
-                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  headerValueElement: function(mc) {
+                      return mc.window.document.getAnonymousElementByAttribute(
+                      mc.a("expandedfromBox", {tagName: "mail-emailaddress"}),
+                      "class", "emailDisplayButton"); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandedfromLabel").value + ": " +
+                headerValueElement.parentNode.getAttribute("fullAddress"); },
   expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
 },
 {
   headerName: "To",
-  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                      "mc.a('expandedtoBox', {tagName: 'mail-emailaddress'})," +
-                      "'class', 'emailDisplayButton')",
-  expectedName: "mc.e('expandedtoLabel').value + ': ' + " +
-                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  headerValueElement: function(mc) {
+                      return mc.window.document.getAnonymousElementByAttribute(
+                      mc.a("expandedtoBox", {tagName: "mail-emailaddress"}),
+                      "class", "emailDisplayButton"); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandedtoLabel").value + ": " +
+                headerValueElement.parentNode.getAttribute("fullAddress"); },
   expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
 },
 {
   headerName: "Cc",
-  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                      "mc.a('expandedccBox', {tagName: 'mail-emailaddress'})," +
-                      "'class', 'emailDisplayButton')",
-  expectedName: "mc.e('expandedccLabel').value + ': ' + " +
-                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  headerValueElement: function(mc) {
+                      return mc.window.document.getAnonymousElementByAttribute(
+                      mc.a("expandedccBox", {tagName: "mail-emailaddress"}),
+                      "class", "emailDisplayButton"); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandedccLabel").value + ": " +
+                headerValueElement.parentNode.getAttribute("fullAddress"); },
   expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
 },
 {
   headerName: "Bcc",
-  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                      "mc.a('expandedbccBox', {tagName: 'mail-emailaddress'})," +
-                      "'class', 'emailDisplayButton')",
-  expectedName: "mc.e('expandedbccLabel').value + ': ' + " +
-                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  headerValueElement: function(mc) {
+                      return mc.window.document.getAnonymousElementByAttribute(
+                      mc.a("expandedbccBox", {tagName: "mail-emailaddress"}),
+                      "class", "emailDisplayButton"); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandedbccLabel").value + ": " +
+                headerValueElement.parentNode.getAttribute("fullAddress"); },
   expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
 },
 {
   headerName: "Reply-To",
-  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                      "mc.a('expandedreply-toBox', {tagName: 'mail-emailaddress'})," +
-                      "'class', 'emailDisplayButton')",
-  expectedName: "mc.e('expandedreply-toLabel').value + ': ' + " +
-                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  headerValueElement: function(mc) {
+                      return mc.window.document.getAnonymousElementByAttribute(
+                      mc.a("expandedreply-toBox", {tagName: "mail-emailaddress"}),
+                      "class", "emailDisplayButton"); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandedreply-toLabel").value + ": " +
+                headerValueElement.parentNode.getAttribute("fullAddress"); },
   expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
 },
 {
   headerName: "Newsgroups",
-  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                      "mc.a('expandednewsgroupsBox', {tagName: 'mail-newsgroup'})," +
-                      "'class', 'newsgrouplabel')",
-  expectedName: "mc.e('expandednewsgroupsLabel').value + ': ' + " +
-                "headerValueElement.parentNode.parentNode.getAttribute('newsgroup')",
+  headerValueElement: function(mc) {
+                      return mc.window.document.getAnonymousElementByAttribute(
+                      mc.a("expandednewsgroupsBox", {tagName: "mail-newsgroup"}),
+                      "class", "newsgrouplabel"); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandednewsgroupsLabel").value + ": " +
+                headerValueElement.parentNode.parentNode.getAttribute("newsgroup"); },
   expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
 },
 {
   headerName: "Tags",
-  headerValueElement: "mc.a('expandedtagsBox', {class: 'tagvalue blc-FF0000'})",
-  expectedName: "mc.e('expandedtagsLabel').value + ': ' + " +
-                "headerValueElement.getAttribute('value')",
+  headerValueElement: function(mc) {
+                      return mc.a("expandedtagsBox", {class: "tagvalue blc-FF0000"}); },
+  expectedName: function(mc, headerValueElement) {
+                return mc.e("expandedtagsLabel").value + ": " +
+                headerValueElement.getAttribute("value"); },
   expectedRole: Ci.nsIAccessibleRole.ROLE_LABEL
 }
 ];
@@ -252,23 +265,22 @@ let gAccService = Cc["@mozilla.org/accessibilityService;1"].
  *                              for details.
  */
 function verify_header_a11y(aHeaderInfo) {
-  // XXX Don't use eval here.
-  let headerValueElement = eval(aHeaderInfo.headerValueElement);
+  let headerValueElement = aHeaderInfo.headerValueElement(mc);
+  assert_not_equals(headerValueElement, null,
+                    `element not found for header '${aHeaderInfo.headerName}'`);
 
-  let headerAccessible = gAccService.getAccessibleFor(headerValueElement);
-  if (headerAccessible.role != aHeaderInfo.expectedRole) {
-    throw new Error("role for " + aHeaderInfo.headerName + " was " +
-                    headerAccessible.role + "; should have been " +
-                    aHeaderInfo.expectedRole);
-  }
+  let headerAccessible;
+  mc.waitFor(() => (headerAccessible = gAccService.getAccessibleFor(headerValueElement)) != null,
+    `didn't find accessible element for header '${aHeaderInfo.headerName}'`);
 
-  // XXX Don't use eval here.
-  let expectedName = eval(aHeaderInfo.expectedName);
-  if (headerAccessible.name != expectedName) {
-    throw new Error("headerAccessible.name for " + aHeaderInfo.headerName +
-                    " was '" + headerAccessible.name + "'; expected '" +
-                    expectedName + "'");
-  }
+  assert_equals(headerAccessible.role, aHeaderInfo.expectedRole,
+    `role for ${aHeaderInfo.headerName} was ${headerAccessible.role}; ` +
+    `should have been ${aHeaderInfo.expectedRole}`);
+
+  let expectedName = aHeaderInfo.expectedName(mc, headerValueElement);
+  assert_equals(headerAccessible.name, expectedName,
+    `headerAccessible.name for ${aHeaderInfo.headerName} ` +
+    `was '${headerAccessible.name}'; expected '${expectedName}'`);
 }
 
 /**
