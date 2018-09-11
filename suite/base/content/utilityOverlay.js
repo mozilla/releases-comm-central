@@ -1807,16 +1807,12 @@ function subscribeToFeed(href, event) {
   if (w) {
     var browser = w.getBrowser();
     charset = browser.characterSet;
-  }
-  else
+  } else {
     // When calling this function without any open navigator window
     charset = document.characterSet;
-  var feedURI = makeURI(href, charset);
+  }
+  let feedURI = makeURI(href, charset);
 
-  // Use the feed scheme so X-Moz-Is-Feed will be set
-  // The value doesn't matter
-  if (/^https?/.test(feedURI.scheme))
-    href = "feed:" + href;
   openUILink(href, event, false, true);
 }
 
