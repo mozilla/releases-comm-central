@@ -27,7 +27,7 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                            bool override_charset, bool eatContinuations,
                            nsACString &result);
 
-nsresult MIME_detect_charset(const char *aBuf, int32_t aLength, const char** aCharset);
+nsresult MIME_detect_charset(const char *aBuf, int32_t aLength, nsACString& aCharset);
 
 #ifdef __cplusplus
 } /* extern "C" */

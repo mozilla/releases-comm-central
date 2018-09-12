@@ -4,13 +4,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "comi18n.h"
+#include "nsICharsetDetector.h"
 #include "nsIStringCharsetDetector.h"
+#include "nsCyrillicDetector.h"
+#include "nsUniversalDetector.h"
+#include "nsUdetXPCOMWrapper.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgMimeCID.h"
 #include "nsIMimeConverter.h"
+#include "mozilla/Preferences.h"
 
+using namespace mozilla;
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN PUBLIC INTERFACE
@@ -35,29 +41,70 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
 
 // UTF-8 utility functions.
 //detect charset soly based on aBuf. return in aCharset
-nsresult
-MIME_detect_charset(const char *aBuf, int32_t aLength, const char** aCharset)
+class CharsetDetectionObserver : public nsICharsetDetectionObserver
 {
-  nsresult res = NS_ERROR_UNEXPECTED;
-  nsString detector_name;
-  *aCharset = nullptr;
+public:
+  NS_DECL_ISUPPORTS
+  CharsetDetectionObserver() {};
+  NS_IMETHOD Notify(const char* aCharset, nsDetectionConfident aConf) override
+  {
+    mCharset.AssignASCII(aCharset);
+    mConf = aConf;
+    return NS_OK;
+  };
+  void GetDetectedCharset(nsACString& aCharset) { aCharset = mCharset; }
+  nsDetectionConfident GetDetectionConfident() { return mConf; }
 
-  NS_GetLocalizedUnicharPreferenceWithDefault(nullptr, "intl.charset.detector", EmptyString(), detector_name);
+private:
+  virtual ~CharsetDetectionObserver() {}
+  nsCString mCharset;
+  nsDetectionConfident mConf;
+};
 
-  if (!detector_name.IsEmpty()) {
-    nsAutoCString detector_contractid;
-    detector_contractid.AssignLiteral(NS_STRCDETECTOR_CONTRACTID_BASE);
-    detector_contractid.Append(NS_ConvertUTF16toUTF8(detector_name));
-    nsCOMPtr<nsIStringCharsetDetector> detector = do_CreateInstance(detector_contractid.get(), &res);
-    if (NS_SUCCEEDED(res)) {
-      nsDetectionConfident oConfident;
-      res = detector->DoIt(aBuf, aLength, aCharset, oConfident);
-      if (NS_SUCCEEDED(res) && (eBestAnswer == oConfident || eSureAnswer == oConfident)) {
+nsresult
+MIME_detect_charset(const char *aBuf, int32_t aLength, nsACString& aCharset)
+{
+  nsresult rv = NS_ERROR_UNEXPECTED;
+  nsCOMPtr<nsICharsetDetector> detector;
+  nsAutoCString detectorName;
+  Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
+
+  if (!detectorName.IsEmpty()) {
+    // We recognize one of the three magic strings for the following languages.
+    if (detectorName.EqualsLiteral("ruprob")) {
+      detector = new nsRUProbDetector();
+    } else if (detectorName.EqualsLiteral("ukprob")) {
+      detector = new nsUKProbDetector();
+    } else if (detectorName.EqualsLiteral("ja_parallel_state_machine")) {
+      detector = new nsJAPSMDetector();
+    }
+  }
+
+  if (detector) {
+    nsAutoCString buffer;
+
+    RefPtr<CharsetDetectionObserver> observer = new CharsetDetectionObserver();
+
+    rv = detector->Init(observer);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsDetectionConfident oConfident;
+    bool dontFeed = false;
+    rv = detector->DoIt(aBuf, aLength, &dontFeed);
+    if (NS_SUCCEEDED(rv)) {
+      rv = detector->Done();
+      NS_ENSURE_SUCCESS(rv, rv);
+      oConfident = observer->GetDetectionConfident();
+      if (oConfident == eBestAnswer || oConfident == eSureAnswer) {
+        observer->GetDetectedCharset(aCharset);
         return NS_OK;
+      } else {
+        // No luck after all.
+        rv = NS_ERROR_UNEXPECTED;
       }
     }
   }
-  return res;
+  return rv;
 }
 
 } /* end of extern "C" */

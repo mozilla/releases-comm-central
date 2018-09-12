@@ -1881,10 +1881,10 @@ public:
   CharsetDetectionObserver() {};
   NS_IMETHOD Notify(const char* aCharset, nsDetectionConfident aConf) override
   {
-    mCharset = aCharset;
+    mCharset.AssignASCII(aCharset);
     return NS_OK;
   };
-  const char *GetDetectedCharset() { return mCharset.get(); }
+  void GetDetectedCharset(nsACString& aCharset) { aCharset = mCharset; }
 
 private:
   virtual ~CharsetDetectionObserver() {}
@@ -1939,7 +1939,7 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
     rv = detector->Done();
     NS_ENSURE_SUCCESS(rv, rv);
 
-    aCharset = observer->GetDetectedCharset();
+    observer->GetDetectedCharset(aCharset);
   } else {
     // no charset detector available, check the BOM
     char sniffBuf[3];

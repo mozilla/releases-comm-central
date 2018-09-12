@@ -383,7 +383,7 @@ static int
 MimeInlineText_open_dam(char *line, int32_t length, MimeObject *obj)
 {
   MimeInlineText *text = (MimeInlineText *) obj;
-  const char* detectedCharset = nullptr;
+  nsAutoCString detectedCharset;
   nsresult res = NS_OK;
   int status = 0;
   int32_t i;
@@ -391,20 +391,20 @@ MimeInlineText_open_dam(char *line, int32_t length, MimeObject *obj)
   if (text->curDamOffset <= 0) {
     //there is nothing in dam, use current line for detection
     if (length > 0) {
-      res = MIME_detect_charset(line, length, &detectedCharset);
+      res = MIME_detect_charset(line, length, detectedCharset);
     }
   } else {
     //we have stuff in dam, use the one
-    res = MIME_detect_charset(text->lineDamBuffer, text->curDamOffset, &detectedCharset);
+    res = MIME_detect_charset(text->lineDamBuffer, text->curDamOffset, detectedCharset);
   }
 
   //set the charset for this obj
-  if (NS_SUCCEEDED(res) && detectedCharset && *detectedCharset)  {
+  if (NS_SUCCEEDED(res) && !detectedCharset.IsEmpty()) {
     PR_FREEIF(text->charset);
-    text->charset = strdup(detectedCharset);
+    text->charset = ToNewCString(detectedCharset);
 
     //update MsgWindow charset if we are instructed to do so
-    if (text->needUpdateMsgWinCharset && *text->charset)
+    if (text->needUpdateMsgWinCharset && text->charset)
       SetMailCharacterSetToMsgWindow(obj, text->charset);
   }
 
