@@ -4202,10 +4202,8 @@ SessionStoreSHistoryListener.prototype = {
   ss: null,
   tab: null,
   OnHistoryNewEntry: function(aNewURI) { },
-  OnHistoryGoBack: function(aBackURI) { return true; },
-  OnHistoryGoForward: function(aForwardURI) { return true; },
-  OnHistoryGotoIndex: function(aIndex, aGotoURI) { return true; },
-  OnHistoryPurge: function(aNumEntries) { return true; },
+  OnHistoryGotoIndex: function(aIndex, aGotoURI) { },
+  OnHistoryPurge: function(aNumEntries) { },
   OnHistoryReload: function(aReloadURI, aReloadFlags) {
     // On reload, we want to make sure that session history loads the right
     // URI. In order to do that, we will just call restoreTab. That will remove
@@ -4214,12 +4212,7 @@ SessionStoreSHistoryListener.prototype = {
     // Returning false will stop the load that docshell is attempting.
     return false;
   },
-  OnLengthChanged(aCount) {
-    // Ignore, the method is implemented so that XPConnect doesn't throw!
-  },
-  OnIndexChanged(aIndex) {
-    // Ignore, the method is implemented so that XPConnect doesn't throw!
-  },
+  OnHistoryReplaceEntry: function(aIndex) { },
 }
 
 
