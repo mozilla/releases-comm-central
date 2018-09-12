@@ -1367,10 +1367,11 @@ function cmdTestDisplay(e)
         var sampleUser = {TYPE: "IRCUser",
                           encodedName: "ircmonkey", canonicalName: "ircmonkey",
                           unicodeName: "IRCMonkey", viewName: "IRCMonkey",
-                          host: "", name: "chatzilla"};
+                          host: "", name: "IRCMonkey"};
         var sampleChannel = {TYPE: "IRCChannel",
                              encodedName: "#mojo", canonicalName: "#mojo",
-                             unicodeName: "#Mojo", viewName: "#Mojo"};
+                             unicodeName: "#Mojo", viewName: "#Mojo",
+                             name: "#Mojo"};
 
         function test (from, to)
         {
