@@ -17,13 +17,13 @@ job-defaults:
         balrog-action: submit-toplevel
         require-mirrors: true
         archive-domain:
-           by-release-level:
-              production: archive.mozilla.org
-              staging: ftp.stage.mozaws.net
+            by-release-level:
+                production: archive.mozilla.org
+                staging: ftp.stage.mozaws.net
         download-domain:
-           by-release-level:
-              production: download.mozilla.org
-              staging: bouncer-bouncer-releng.stage.mozaws.net
+            by-release-level:
+                production: download.mozilla.org
+                staging: bouncer-bouncer-releng.stage.mozaws.net
 
 jobs:
     thunderbird:
