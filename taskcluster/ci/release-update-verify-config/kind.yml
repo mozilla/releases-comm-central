@@ -29,17 +29,17 @@ job-defaults:
         app-name: mail
         branch-prefix: comm
         archive-prefix:
-            by-project:
+            by-release-level:
                 try-comm-central: "http://ftp.stage.mozaws.net/pub"
-                default: "https://archive.mozilla.org/pub"
+                production: "https://archive.mozilla.org/pub"
         previous-archive-prefix:
-            by-project:
+            by-release-level:
                 try-comm-central: "https://archive.mozilla.org/pub"
-                default: null
+                production: null
         aus-server:
-            by-project:
+            by-release-level:
                 try-comm-central: "https://aus5.stage.mozaws.net"
-                default: "https://aus5.mozilla.org"
+                production: "https://aus5.mozilla.org"
         # This is overridden for devedition to exclude 58.0b1
         # because of the special case added by
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1419189

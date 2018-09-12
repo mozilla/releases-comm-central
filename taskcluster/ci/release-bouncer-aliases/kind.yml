@@ -15,17 +15,17 @@ kind-dependencies:
 job-defaults:
     description: Update bouncer aliases job
     worker-type:
-        by-project:
+        by-release-level:
             comm-(beta|esr.*): scriptworker-prov-v1/tb-bouncer-v1
-            default: scriptworker-prov-v1/tb-bouncer-dev
+            production: scriptworker-prov-v1/tb-bouncer-dev
     worker:
         implementation: bouncer-aliases
     scopes:
-        by-project:
+        by-release-level:
             comm-(beta|esr.*):
                 - project:comm:thunderbird:releng:bouncer:action:aliases
                 - project:comm:thunderbird:releng:bouncer:server:production
-            default:
+            production:
                 - project:comm:thunderbird:releng:bouncer:action:aliases
                 - project:comm:thunderbird:releng:bouncer:server:staging
     run-on-projects: []

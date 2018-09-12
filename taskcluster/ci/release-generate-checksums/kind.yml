@@ -61,11 +61,11 @@ jobs:
             build_type: opt
         run:
             extra-config:
-                by-project:
+                by-release-level:
                     comm-(beta|esr.*):
                         stage_product: "thunderbird"
                         bucket_name: "net-mozaws-prod-delivery-archive"
-                    default:
+                    production:
                         stage_product: "thunderbird"
                         bucket_name: "net-mozaws-stage-delivery-archive"
         treeherder:
