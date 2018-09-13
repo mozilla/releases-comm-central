@@ -450,52 +450,6 @@
 
   <!-- Message Pane Widgets -->
 
-  <!-- mail-headerfield: presents standard text header name & value pairs. Don't use this for email addresses.
-       use headerValue to set the header value. -->
-  <binding id="mail-headerfield">
-    <content>
-      <xul:description class="headerValue" anonid="headerValue"
-                       flex="1" readonly="true" context="copyPopup"
-                       role="textbox" aria-readonly="true"/>
-    </content>
-
-    <implementation>
-      <property name="headerValue">
-        <setter>
-          <![CDATA[
-          let valueNode = document.getAnonymousElementByAttribute(this,
-                                                                  "anonid",
-                                                                  "headerValue");
-
-          // Since the control attribute points to the <mail-headerfield>
-          // element rather than the XUL <textbox>, screen readers don't know to
-          // automagically prepend the label when reading the textbox, so we
-          // force this.  Furthermore, at least on Mac, there is no
-          // JS labelElement property at all, so we skip this.  We get away
-          // with it because there's no screen reader support on the Mac.
-          if ("labelElement" in this) {
-            let ariaLabel = this.labelElement.value + ": " + val;
-            valueNode.setAttribute("aria-label", ariaLabel);
-          }
-
-          return valueNode.textContent = val;
-          ]]>
-        </setter>
-      </property>
-    </implementation>
-  </binding>
-
-  <binding id="mail-urlfield" extends="chrome://messenger/content/mailWidgets.xml#mail-headerfield">
-    <content>
-      <xul:description
-                 onclick="if (event.button != 2)
-                            openUILink(encodeURI(event.target.textContent), event);"
-                 class="headerValue text-link headerValueUrl"
-                 anonid="headerValue" flex="1" readonly="true"
-                 role="textbox" aria-readonly="true" context="copyUrlPopup"/>
-    </content>
-  </binding>
-
   <binding id="mail-emailheaderfield">
     <content>
       <xul:mail-emailaddress class="headerValue" containsEmail="true"

@@ -72,6 +72,8 @@ function setupModule(module) {
   // async openings.
   let contactPanel = mc.eid('editContactPanel').getNode();
   contactPanel.setAttribute("animate", false);
+
+  test_a11y_attrs.__force_skip__ = true; // disabled for now, see bug 1489748
 }
 
 function teardownModule(module) {
@@ -162,7 +164,7 @@ let headersToTest = [
 {
   headerName: "Subject",
   headerValueElement: function(mc) {
-                      return mc.a("expandedsubjectBox", {class: "headerValue"}); },
+                      return mc.e("expandedsubjectBox", {class: "headerValue"}); },
   expectedName: function(mc, headerValueElement) {
                 return mc.e("expandedsubjectLabel").value + ": " +
                 headerValueElement.textContent; },

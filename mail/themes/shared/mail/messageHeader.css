@@ -34,7 +34,7 @@
 
 /* ::::: expanded header pane ::::: */
 
-#expandedsubjectBox > .headerValue {
+#expandedsubjectBox {
   font-weight: bold;
 }
 

@@ -1674,7 +1674,7 @@ function CreateFilter(aHeaderNode, aMessage)
 {
   let nodeIsAddress = aHeaderNode.hasAttribute("emailAddress");
   let nodeValue = nodeIsAddress ? aHeaderNode.getAttribute("emailAddress") :
-                                  document.getAnonymousNodes(aHeaderNode)[0].textContent;
+                                  aHeaderNode.textContent;
   let folder = aMessage ? aMessage.folder : null;
   top.MsgFilters(nodeValue, folder, aHeaderNode.getAttribute("headerName"));
 }
