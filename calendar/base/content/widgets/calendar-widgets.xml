@@ -48,6 +48,10 @@
     </implementation>
    </binding>
 
+  <!-- this binding directly extends to a checkbox but is visualized as
+       a treenode in a treecontrol-->
+  <binding id="treenode-checkbox" extends="chrome://global/content/bindings/checkbox.xml#checkbox"/>
+
   <!-- this binding directly extends to a xul:box element and enriches this with some functionality: It is designed
       to be displayed only 1) in given application modes (e.g "task" mode, "calendar" mode) and 2) only in relation
       to the "checked" attribute of command or a checkbox control.
@@ -56,7 +60,7 @@
     - The attribute "broadcaster" points to the id of a broadcaster that is supposed to be notified (by the application)
       as soon as the mode changes. When this happens the modebox" will be notified and will check if it should
       collapse itself or not.
-    - The attribute "refcontrol" points to a control either a "command", "checkbox" or other
+    - The attribute "refcontrol" points to a control either a "command", "checkbox" or a "treenode-checkbox" or other
       elements that support a "checked" attribute that is often used to denote whether a modebox is supposed to be
       displayed or not. If "refcontrol" is set to the id of a command you can there set the oncommend attribute like:
       "oncommand='document.getElementById('my-mode-pane').togglePane(event)'. In case it is a checkbox element or derived
@@ -78,7 +82,8 @@
           }
           if (this.hasAttribute("refcontrol")) {
               this.mRefControl = document.getElementById(this.getAttribute("refcontrol"));
-              if (this.mRefControl && (this.mRefControl.localName == "checkbox")) {
+              if (this.mRefControl && ((this.mRefControl.localName == "treenode-checkbox") ||
+                                    (this.mRefControl.localName == "checkbox"))) {
                   this.mControlHandler = {
                       binding: this,
                       handleEvent: function(aEvent, aHandled) {
