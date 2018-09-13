@@ -18,14 +18,14 @@ job-defaults:
     description: mark release as shipped in Ship-It
     worker-type:
         by-release-level:
-            comm-(beta|esr.*): scriptworker-prov-v1/tb-shipit-v1
-            production: scriptworker-prov-v1/tb-shipit-dev
+            production: scriptworker-prov-v1/tb-shipit-v1
+            staging: scriptworker-prov-v1/tb-shipit-dev
     worker:
         implementation: shipit-shipped
     scopes:
         by-release-level:
-            comm-(beta|esr.*): ['project:comm:thunderbird:releng:ship-it:production']
-            production: ['project:comm:thunderbird:releng:ship-it:staging']
+            production: ['project:comm:thunderbird:releng:ship-it:production']
+            staging: ['project:comm:thunderbird:releng:ship-it:staging']
     run-on-projects: []
     shipping-phase: ship
 

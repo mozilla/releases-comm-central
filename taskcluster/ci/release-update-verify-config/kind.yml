@@ -30,15 +30,15 @@ job-defaults:
         branch-prefix: comm
         archive-prefix:
             by-release-level:
-                try-comm-central: "http://ftp.stage.mozaws.net/pub"
+                staging: "http://ftp.stage.mozaws.net/pub"
                 production: "https://archive.mozilla.org/pub"
         previous-archive-prefix:
             by-release-level:
-                try-comm-central: "https://archive.mozilla.org/pub"
+                staging: "https://archive.mozilla.org/pub"
                 production: null
         aus-server:
             by-release-level:
-                try-comm-central: "https://aus5.stage.mozaws.net"
+                staging: "https://aus5.stage.mozaws.net"
                 production: "https://aus5.mozilla.org"
         # This is overridden for devedition to exclude 58.0b1
         # because of the special case added by
