@@ -400,6 +400,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   -moz-appearance: none !important;
+  list-style-image: none;
   margin-left: 0;
   margin-right: 0;
 }
