@@ -35,6 +35,7 @@
 #include "nsAbBaseCID.h"
 #include "nsCOMPtr.h"
 #include "mozITXTToHTMLConv.h"
+#include "nsIEditor.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsIMsgWindow.h"
 #include "nsTextFormatter.h"
@@ -45,7 +46,6 @@
 #include "nsISmtpUrl.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
-#include "nsIEditorMailSupport.h"
 #include "nsIDocumentEncoder.h"    // for editor output flags
 #include "nsILoadGroup.h"
 #include "nsMsgSendReport.h"

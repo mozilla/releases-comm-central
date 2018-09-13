@@ -24,7 +24,7 @@
 #include "nsTextFormatter.h"
 #include "nsIPlaintextEditor.h"
 #include "nsIHTMLEditor.h"
-#include "nsIEditorMailSupport.h"
+#include "nsIEditor.h"
 #include "plstr.h"
 #include "prmem.h"
 #include "nsIDocShell.h"
@@ -64,6 +64,7 @@
 #include "nsITextToSubURI.h"
 #include "nsIAbManager.h"
 #include "nsCRT.h"
+#include "mozilla/HTMLEditor.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
@@ -436,7 +437,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
    That will prevent us to attach data not specified by the user or not present in the
    original message.
 */
-nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
+nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditor *aEditor)
 {
   nsresult rv = NS_OK;
   uint32_t count;
@@ -445,12 +446,8 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
   if (!aEditor)
     return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIEditor> editor = do_QueryInterface(aEditor);
-  if (!editor)
-    return NS_ERROR_FAILURE;
-
   nsCOMPtr<nsIDocument> document;
-  editor->GetDocument(getter_AddRefs(document));
+  aEditor->GetDocument(getter_AddRefs(document));
   if (!document)
     return NS_ERROR_FAILURE;
   nsCOMPtr<nsIArray> aNodeList = GetEmbeddedObjects(document);
@@ -644,9 +641,8 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
   //
 
   // Now, insert it into the editor...
-  nsCOMPtr<nsIHTMLEditor> htmlEditor (do_QueryInterface(m_editor));
+  RefPtr<HTMLEditor> htmlEditor = m_editor->AsHTMLEditor();
   nsCOMPtr<nsIPlaintextEditor> textEditor (do_QueryInterface(m_editor));
-  nsCOMPtr<nsIEditorMailSupport> mailEditor (do_QueryInterface(m_editor));
   int32_t reply_on_top = 0;
   bool sig_bottom = true;
   m_identity->GetReplyOnTop(&reply_on_top);
@@ -701,25 +697,25 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
                                       NS_LITERAL_STRING("moz-cite-prefix"));
     }
 
-    if (!aBuf.IsEmpty() && mailEditor)
+    if (!aBuf.IsEmpty())
     {
       // This leaves the caret at the right place to insert a bottom signature.
       if (aHTMLEditor) {
         nsAutoString body(aBuf);
         remove_plaintext_tag(body);
-        mailEditor->InsertAsCitedQuotation(body,
+        htmlEditor->InsertAsCitedQuotation(body,
                                            mCiteReference,
                                            true,
                                            getter_AddRefs(nodeInserted));
       } else {
-        mailEditor->InsertAsQuotation(aBuf,
+        htmlEditor->InsertAsQuotation(aBuf,
                                       getter_AddRefs(nodeInserted));
       }
     }
 
     mInsertingQuotedContent = false;
 
-    (void)TagEmbeddedObjects(mailEditor);
+    (void)TagEmbeddedObjects(m_editor);
 
     if (!aSignature.IsEmpty())
     {
@@ -727,9 +723,9 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       if( sigOnTop )
         MoveToBeginningOfDocument();
 
-      if (aHTMLEditor && htmlEditor)
+      if (aHTMLEditor)
         htmlEditor->InsertHTML(aSignature);
-      else if (htmlEditor)
+      else
       {
         textEditor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature,
@@ -742,7 +738,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
   }
   else
   {
-    if (aHTMLEditor && htmlEditor)
+    if (aHTMLEditor)
     {
       mInsertingQuotedContent = true;
       if (isForwarded && Substring(aBuf, 0, sizeof(MIME_FORWARD_HTML_PREFIX)-1)
@@ -769,7 +765,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       // contain unsanitized remote content), tag any embedded objects
       // with moz-do-not-send=true so they don't get attached upon send.
       if (isForwarded || mType == nsIMsgCompType::EditAsNew)
-        (void)TagEmbeddedObjects(mailEditor);
+        (void)TagEmbeddedObjects(m_editor);
 
       if (!aSignature.IsEmpty())
       {
@@ -789,7 +785,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       else
         m_editor->EndOfDocument();
     }
-    else if (htmlEditor)
+    else
     {
       bool sigOnTopInserted = false;
       if (isForwarded && sigOnTop && !aSignature.IsEmpty())
@@ -843,12 +839,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
           NS_ENSURE_SUCCESS(rv, rv);
         }
 
-        if (mailEditor) {
-          rv = mailEditor->InsertTextWithQuotations(aBuf);
-        } else {
-          // Will we ever get here?
-          rv = textEditor->InsertText(aBuf);
-        }
+        rv = htmlEditor->InsertTextWithQuotations(aBuf);
         NS_ENSURE_SUCCESS(rv, rv);
 
         if (isForwarded) {
@@ -3111,17 +3102,14 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
         textEditor->InsertText(mCitePrefix);
     }
 
-    nsCOMPtr<nsIEditorMailSupport> mailEditor (do_QueryInterface(aEditor));
-    if (mailEditor)
-    {
-      if (aHTMLEditor) {
-        nsAutoString body(mMsgBody);
-        remove_plaintext_tag(body);
-        mailEditor->InsertAsCitedQuotation(body, EmptyString(), true,
-                                           getter_AddRefs(nodeInserted));
-      } else {
-        mailEditor->InsertAsQuotation(mMsgBody, getter_AddRefs(nodeInserted));
-      }
+    RefPtr<mozilla::HTMLEditor> htmlEditor = aEditor->AsHTMLEditor();
+    if (aHTMLEditor) {
+      nsAutoString body(mMsgBody);
+      remove_plaintext_tag(body);
+      htmlEditor->InsertAsCitedQuotation(body, EmptyString(), true,
+                                         getter_AddRefs(nodeInserted));
+    } else {
+      htmlEditor->InsertAsQuotation(mMsgBody, getter_AddRefs(nodeInserted));
     }
     compose->SetInsertingQuotedContent(false);
   }

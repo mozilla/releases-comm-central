@@ -25,7 +25,7 @@
 // Forward declares
 class QuotingOutputStreamListener;
 class nsMsgComposeSendListener;
-class nsIEditorMailSupport;
+class nsIEditor;
 class nsIRDFService;
 class nsIArray;
 struct nsMsgMailList;
@@ -58,7 +58,7 @@ protected:
                                                      const char * originalPath,
                                                      mozilla::dom::Element * element);
   nsresult                      ResetUrisForEmbeddedObjects();
-  nsresult                      TagEmbeddedObjects(nsIEditorMailSupport *aMailEditor);
+  nsresult                      TagEmbeddedObjects(nsIEditor *aEditor);
 
   nsCString                     mQuoteCharset;
   nsCString                     mOriginalMsgURI; // used so we can mark message disposition flags after we send the message
