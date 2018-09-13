@@ -2586,11 +2586,11 @@ NS_IMETHODIMP nsAddrDatabase::EnumerateCards(nsIAbDirectory *directory, nsISimpl
 
 NS_IMETHODIMP nsAddrDatabase::GetMailingListsFromDB(nsIAbDirectory *parentDir)
 {
-  nsCOMPtr<nsIAbDirectory>    resultList;
-  nsIMdbTableRowCursor*       rowCursor = nullptr;
-  nsCOMPtr<nsIMdbRow> currentRow;
-  mdb_pos                     rowPos;
-  bool                        done = false;
+  nsCOMPtr<nsIAbDirectory> resultList;
+  nsIMdbTableRowCursor*    rowCursor = nullptr;
+  nsCOMPtr<nsIMdbRow>      currentRow;
+  mdb_pos                  rowPos;
+  bool                     done = false;
 
   if (!m_mdbEnv)
     return NS_ERROR_NULL_POINTER;
