@@ -767,7 +767,7 @@ MozMillController.prototype.startUserShutdown = function (timeout, restart) {
 
 /* Select the specified option and trigger the relevant events of the element.*/
 MozMillController.prototype.select = function (el, indx, option, value) {
-  element = el.getNode();
+  var element = el.getNode();
   if (!element){
     throw new Error("Could not find element " + el.getInfo());
     return false;
@@ -817,7 +817,7 @@ MozMillController.prototype.select = function (el, indx, option, value) {
   }
   //if we have a xul menulist select accordingly
   else if (element.localName.toLowerCase() == "menulist") {
-    ownerDoc = element.ownerDocument;
+    var ownerDoc = element.ownerDocument;
     // Unwrap the XUL element's XPCNativeWrapper
     if (element.namespaceURI.toLowerCase() == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul") {
       element = utils.unwrapNode(element);

@@ -585,7 +585,7 @@
                      multiline="true"
                      rows="12"/>
           </tabpanel>
-          <tabpanel id="event-grid-tabpanel-attachements">
+          <tabpanel id="event-grid-tabpanel-attachments">
             <vbox flex="1">
               <richlistbox id="attachment-link"
                            seltype="single"

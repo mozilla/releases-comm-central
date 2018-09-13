@@ -157,8 +157,6 @@ function handleAddingAttachment(controller, url) {
             /id("commonDialog")/anon({"anonid":"buttons"})/{"dlgtype":"accept"}
         `));
     });
-
-    wait_for_modal_dialog("commonDialog");
 }
 
 /**
@@ -600,7 +598,6 @@ function findEventsInNode(node, eventNodes) {
  *                          starttime - Date object
  *                          enddate - Date object
  *                          endtime - Date object
- *                          timezone - false for local, true for set timezone
  *                          repeat - reccurrence value, one of none/daily/weekly/
  *                                   every.weekday/bi.weekly/
  *                                   monthly/yearly
@@ -669,12 +666,6 @@ function setData(dialog, iframe, data) {
         ${innerFrame}/id("event-grid-todo-status-row")/
         id("event-grid-todo-status-picker-box")/id("completed-date-picker")/${dateInput}
     `);
-    let percentCompleteInput = iframeLookup(`
-        ${innerFrame}/id("event-grid-todo-status-row")/
-        id("event-grid-todo-status-picker-box")/id("percent-complete-textbox")/
-        anon({"class":"textbox-input-box numberbox-input-box"})/
-        anon({"anonid":"input"})
-    `);
     let dateFormatter = cal.getDateFormatter();
     // wait for input elements' values to be populated
     sleep();
@@ -707,13 +698,6 @@ function setData(dialog, iframe, data) {
     // all-day
     if (data.allday != undefined && isEvent) {
         dialog.check(iframeId("event-all-day"), data.allday);
-    }
-
-    // timezone
-    if (data.timezone != undefined) {
-        let menuitem = iframeId("options-timezones-menuitem");
-        menuitem.getNode().setAttribute("checked", data.timezone);
-        dialog.click(menuitem);
     }
 
     // startdate
@@ -764,10 +748,7 @@ function setData(dialog, iframe, data) {
 
     // description
     if (data.description != undefined) {
-        let descField = iframeLookup(`
-            ${innerFrame}/id("event-grid-description-row")/id("item-description")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `);
+        let descField = iframeId("item-description");
         descField.getNode().value = data.description;
     }
 
@@ -806,7 +787,7 @@ function setData(dialog, iframe, data) {
         (currentStatus == "NEEDS-ACTION" ||
          currentStatus == "IN-PROCESS" ||
          currentStatus == "COMPLETED")) {
-        percentCompleteInput.getNode().value = data.percent;
+        iframeId("percent-complete-textbox").getNode().value = data.percent;
     }
 
     // free/busy
@@ -821,6 +802,7 @@ function setData(dialog, iframe, data) {
         if (data.attachment.add != undefined) {
             handleAddingAttachment(dialog, data.attachment.add);
             dialog.click(eid("button-url"));
+            wait_for_modal_dialog("commonDialog");
         }
         if (data.attachment.delete != undefined) {
             dialog.click(iframeLookup(`

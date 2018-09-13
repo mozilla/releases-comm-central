@@ -449,7 +449,7 @@ def prettifyFilename(path, tail_segs_desired=1):
     return '/'.join(parts[-tail_segs_desired:])
 
 def prettyPrintException(e):
-    print '  EXCEPTION:', e.get('message', 'no message!')
+    print '  EXCEPTION:', e.get('message', 'no message!').encode('utf-8')
     print '    at:', prettifyFilename(e.get('fileName', 'nonesuch')), 'line', e.get('lineNumber', 0)
     if 'stack' in e:
         for line in e['stack'].splitlines():

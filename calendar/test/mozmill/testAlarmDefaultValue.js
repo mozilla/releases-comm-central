@@ -69,7 +69,7 @@ function testDefaultAlarms() {
 
         // Check if the "custom" item was selected
         task.assertDOMProperty(taskid("item-alarm"), "value", "custom");
-        reminderDetailsVisible = taskpath(`
+        let reminderDetailsVisible = taskpath(`
             //*[@id="reminder-details"]/
             *[local-name()="label" and (not(@hidden) or @hidden="false")]
         `);

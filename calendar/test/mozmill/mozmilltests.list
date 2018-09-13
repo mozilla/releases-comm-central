@@ -1,6 +1,9 @@
 cal-recurrence
 invitations
+recurrenceRotated
 testAlarmDefaultValue.js
 testBasicFunctionality.js
 testLocalICS.js
+testTimezones.js
 testTodayPane.js
+views

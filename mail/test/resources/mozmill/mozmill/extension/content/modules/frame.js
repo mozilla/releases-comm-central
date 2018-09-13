@@ -110,7 +110,7 @@ var loadFile = function(path, collector) {
     var loader = new securableModule.Loader({
       rootPaths: [ios.newFileURI(file.parent).spec],
       defaultPrincipal: "system",
-      globals : { mozmill, elementslib, persistsed, Cc, Ci, Cu }
+      globals : { mozmill, elementslib, persisted, Cc, Ci, Cu }
     });
     if (modules != undefined) {
         loader.modules = modules;

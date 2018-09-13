@@ -6,7 +6,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
 var helpersForController, invokeEventDialog, createCalendar;
-var deleteCalendars, switchToView;
+var deleteCalendars, switchToView, setData;
 var EVENT_BOX, CANVAS_BOX;
 
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
@@ -21,6 +21,7 @@ function setupModule(module) {
         createCalendar,
         deleteCalendars,
         switchToView,
+        setData,
         EVENT_BOX,
         CANVAS_BOX
     } = collector.getModule("calendar-utils"));
@@ -32,34 +33,30 @@ function setupModule(module) {
 }
 
 function testUTF8() {
-    let eventDialog = '/id("calendar-event-dialog-inner")/id("event-grid")/id("event-grid-rows")';
-
     controller.click(eid("calendar-tab-button"));
     switchToView(controller, "day");
 
     // create new event
     let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
     invokeEventDialog(controller, eventBox, (event, iframe) => {
-        let { lookup: eventlookup, eid: eventid } = helpersForController(event);
+        let { eid: eventid } = helpersForController(event);
+        let { lookup: iframeLookup, eid: iframeId } = helpersForController(iframe);
 
         // fill in name, location, description
-        let titleTextBox = eventlookup(`
-            ${eventDialog}/id("event-grid-title-row")/id("item-title")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `);
-        event.waitForElement(titleTextBox);
-        event.type(titleTextBox, UTF8STRING);
-        event.type(eventlookup(`
-            ${eventDialog}/id("event-grid-location-row")/id("item-location")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `), UTF8STRING);
-        event.type(eventlookup(`
-            ${eventDialog}/id("event-grid-description-row")/id("item-description")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `), UTF8STRING);
+        setData(event, iframe, { title: UTF8STRING, location: UTF8STRING, description: UTF8STRING });
 
-        // select category
-        event.select(eventid("item-categories"), null, UTF8STRING);
+        let menuitem = iframeLookup(`
+            /id("calendar-event-dialog-inner")/id("event-grid")/
+            id("event-grid-rows")/id("event-grid-category-color-row")/
+            id("event-grid-category-box")/id("item-categories")/
+            id("item-categories-popup")/[2]
+        `);
+
+        event.click(iframeId("item-categories"));
+        menuitem.getNode().click();
+        menuitem.getNode().setAttribute("checked", "true"); // When in doubt, cheat.
+        event.waitFor(() => iframeId("item-categories").getNode().label == UTF8STRING);
+        iframeId("item-categories-popup").getNode().hidePopup();
 
         // save
         event.click(eventid("button-saveandclose"));
@@ -69,24 +66,13 @@ function testUTF8() {
     let eventPath = `/{"tooltip":"itemTooltip","calendar":"${UTF8STRING.toLowerCase()}"}`;
     eventBox = lookupEventBox("day", EVENT_BOX, null, 1, 8, eventPath);
     invokeEventDialog(controller, eventBox, (event, iframe) => {
-        let { lookup: eventlookup, eid: eventid } = helpersForController(event);
+        let { eid: iframeId } = helpersForController(iframe);
 
         // check values
-        titleTextBox = eventlookup(`
-            ${eventDialog}/id("event-grid-title-row")/id("item-title")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `);
-        event.waitForElement(titleTextBox);
-        event.assertValue(titleTextBox, UTF8STRING);
-        event.assertValue(eventlookup(`
-            ${eventDialog}/id("event-grid-location-row")/id("item-location")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `), UTF8STRING);
-        event.assertValue(eventlookup(`
-            ${eventDialog}/id("event-grid-description-row")/id("item-description")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `), UTF8STRING);
-        event.assertValue(eventid("item-categories"), UTF8STRING);
+        event.assertValue(iframeId("item-title"), UTF8STRING);
+        event.assertValue(iframeId("item-location"), UTF8STRING);
+        event.assertValue(iframeId("item-description"), UTF8STRING);
+        event.assertJS(() => iframeId("item-categories").getNode().querySelector(`menuitem[label="${UTF8STRING}"][checked]`));
 
         // escape the event window
         event.keypress(null, "VK_ESCAPE", {});

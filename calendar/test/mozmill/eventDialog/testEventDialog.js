@@ -5,12 +5,14 @@
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+
 var plan_for_modal_dialog, wait_for_modal_dialog;
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
-var handleAddingAttachment, acceptSendingNotificationMail, handleOccurrencePrompt;
+var handleAddingAttachment, handleOccurrencePrompt;
+var goToDate, setData;
 var CALENDARNAME, TIMEOUT_MODAL_DIALOG;
-
-var utils = require("../shared-modules/utils");
 
 var eventTitle = "Event";
 var eventLocation = "Location";
@@ -28,8 +30,9 @@ function setupModule(module) {
         createCalendar,
         deleteCalendars,
         handleAddingAttachment,
-        acceptSendingNotificationMail,
         handleOccurrencePrompt,
+        goToDate,
+        setData,
         CALENDARNAME,
         TIMEOUT_MODAL_DIALOG
     } = collector.getModule("calendar-utils"));
@@ -40,18 +43,13 @@ function setupModule(module) {
 }
 
 function testEventDialog() {
+    let dateFormatter = cal.getDateFormatter();
     // paths
     let monthView = `
         /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/
         id("month-view")
-    `;
-    let miniMonth = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
-        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
-        id("ltnSidebar")/id("minimonth-pane")/{"align":"center"}/
-        id("calMinimonthBox")/id("calMinimonth")/
     `;
     let eventDialog = `
         /id("calendar-event-dialog-inner")/id("event-grid")/id("event-grid-rows")/
@@ -70,122 +68,92 @@ function testEventDialog() {
     controller.click(eid("calendar-tab-button"));
     controller.waitThenClick(eid("calendar-month-view-button"));
 
-    // pick year
-    controller.click(lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})
-    `));
-    controller.waitThenClick(lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-header"})/
-        anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
-        [0]/{"value":"2009"}
-    `));
-
-    // pick month
-    controller.waitThenClick(lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})
-    `));
-
-    controller.waitThenClick(lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-header"})/
-        anon({"anonid":"minmonth-popupset"})/anon({"anonid":"months-popup"})/
-        [0]/{"index":"0"}
-    `));
-
-    // pick day
-    controller.waitThenClick(lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}
-    `));
+    goToDate(controller, 2009, 1, 1);
     sleep();
 
     // create new event
     let now = new Date();
     let hour = now.getHours();
     let startHour = hour == 23 ? hour : (hour + 1) % 24;
-    let ampm = "";
-    // check that the start time is correct
-    // next full hour except last hour hour of the day
-    if (now.toLocaleTimeString().match(/AM|PM/)) {
-        ampm = (hour >= 12 ? " PM" : " AM");
-        startHour = startHour % 12;
-        if (startHour == 0) {
-            startHour = 12;
-        }
-    }
-    let startTime = startHour + ":00" + ampm;
-    let endTime = ((startHour + 1) % 24) + ":00" + ampm;
+
+    let nextHour = cal.dtz.now();
+    nextHour.resetTo(2009, 0, 1, startHour, 0, 0, cal.dtz.floating);
+    let startTime = dateFormatter.formatTime(nextHour);
+    nextHour.resetTo(2009, 0, 1, (startHour + 1) % 24, 0, 0, cal.dtz.floating);
+    let endTime = dateFormatter.formatTime(nextHour);
 
     controller.mainMenu.click("#ltnNewEvent");
     invokeEventDialog(controller, null, (event, iframe) => {
-        let { lookup: eventlookup, eid: eventid } = helpersForController(event);
+        let { eid: eventid } = helpersForController(event);
+        let { lookup: iframeLookup, eid: iframeId } = helpersForController(iframe);
 
-        let startTimeInput = eventlookup(`
-            ${eventDialog}/id("event-grid-startdate-row")/
-            id("event-grid-startdate-picker-box")/id("event-starttime")/
+        let timeInput = `
             anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/
-            anon({"class":"timepicker-box-class"})/id("timepicker-text")/
-            anon({"class":"menulist-editable-box moz-input-box"})/
+            anon({"class":"timepicker-box-class"})/
+            anon({"class":"timepicker-text-class"})/anon({"flex":"1"})/
             anon({"anonid":"input"})
+        `;
+        let startTimeInput = iframeLookup(`
+            /id("calendar-event-dialog-inner")/id("event-grid")/id("event-grid-rows")/
+            id("event-grid-startdate-row")/
+            id("event-grid-startdate-picker-box")/id("event-starttime")/${timeInput}
         `);
+
         event.waitForElement(startTimeInput);
         event.assertValue(startTimeInput, startTime);
 
         // check selected calendar
-        event.assertNode(eventlookup(`
-            ${eventDialog}/id("event-grid-category-color-row")/
-            id("event-grid-category-box")/id("item-calendar")/[0]/
-            {"selected":"true","label":"${CALENDARNAME}"}
-        `));
+        event.assertValue(iframeId("item-calendar"), CALENDARNAME);
 
         // fill in name, location, description
-        event.type(eventlookup(`
-            ${eventDialog}/id("event-grid-title-row")/id("item-title")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `), eventTitle);
-
-        event.type(eventlookup(`
-            ${eventDialog}/id("event-grid-location-row")/id("item-location")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `), eventLocation);
-
-        event.type(eventlookup(`
-            ${eventDialog}/id("event-grid-description-row")/
-            id("item-description")/anon({"anonid":"moz-input-box"})/
-            anon({"anonid":"input"})
-        `), eventDescription);
-
-        // set category
-        let categories = utils.getProperty("chrome://calendar/locale/categories.properties", "categories2");
-        let category = categories.split(",")[4]; // pick 4th value in a comma-separated list
-        event.select(eventid("item-categories"), null, category);
-
-        // repeat daily
-        event.click(eventid("repeat-daily-menuitem"));
-
-        // add reminder
-        event.click(eventid("reminder-5minutes-menuitem"));
+        setData(event, iframe, {
+            title: eventTitle,
+            location: eventLocation,
+            description: eventDescription,
+            category: "Clients",
+            repeat: "daily"
+        });
+        event.click(iframeId("item-alarm"));
+        event.click(iframeId("reminder-5minutes-menuitem"));
+        event.waitFor(() => iframeId("item-alarm").getNode().label == "5 minutes before");
+        iframeId("item-alarm-menupopup").getNode().hidePopup();
 
         // add an attendee and verify added
+        event.click(iframeId("event-grid-tab-attendees"));
+
         plan_for_modal_dialog("Calendar:EventDialog:Attendees", handleAttendees);
-        event.click(eventid("button-attendees"));
+        event.click(eventid("options-attendees-menuitem"));
         wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
-        event.assertValue(eventid("attendee-list"), eventAttendee);
+        event.assertNode(iframeLookup(`
+            ${eventDialog}/id("event-grid-tabbox")/id("event-grid-tabpanels")/
+            id("event-grid-tabpanel-attendees")/[0]/[1]/id("item-attendees-box")/
+            {"class":"item-attendees-row"}/{"class":"item-attendees-cell"}/
+            {"class":"item-attendees-cell-label","value":"${eventAttendee}"}
+        `));
+        event.click(iframeId("notify-attendees-checkbox"));
+        event.waitFor(() => !iframeId("notify-attendees-checkbox").getNode().checked);
 
         // make it private and verify label visible
-        event.click(eventid("button-privacy"));
+        let toolbarbutton = eventid("button-privacy");
+        let rect = toolbarbutton.getNode().getBoundingClientRect();
+        event.click(toolbarbutton, rect.width - 5, 5);
         event.click(eventid("event-privacy-private-menuitem"));
-        let label = eventid("status-privacy-private-box");
-        event.assertJS(event.window.getComputedStyle(label.getNode()).getPropertyValue("visibility") == "visible");
+        event.waitFor(() => !eventid("status-privacy-private-box").getNode().hasAttribute("collapsed"));
+        eventid("event-privacy-menupopup").getNode().hidePopup();
 
         // add attachment and verify added
+        event.click(iframeId("event-grid-tab-attachments"));
+
         handleAddingAttachment(event, eventUrl);
         event.click(eventid("button-url"));
-        event.assertNode(eventlookup(`
-            ${eventDialog}/id("event-grid-attachment-row")/
-            id("attachment-link")/{"label":"mozilla.org"}
+        wait_for_modal_dialog("commonDialog");
+        event.assertNode(iframeLookup(`
+            ${eventDialog}/id("event-grid-tabbox")/id("event-grid-tabpanels")/
+            id("event-grid-tabpanel-attachments")/{"flex":"1"}/
+            id("attachment-link")/[0]/{"value":"mozilla.org"}
         `));
 
         // save
-        acceptSendingNotificationMail(event);
         event.click(eventid("button-saveandclose"));
     });
 
@@ -220,8 +188,8 @@ function testEventDialog() {
 
     // 31st of January is Saturday so there's four more full rows to check
     let date = 4;
-    for (row = 1; row < 5; row++) {
-        for (col = 0; col < 7; col++) {
+    for (let row = 1; row < 5; row++) {
+        for (let col = 0; col < 7; col++) {
             controller.assertNode(lookup(
                 eventBox.replace("rowNumber", row).replace("columnNumber", col)
             ));
@@ -249,8 +217,8 @@ function testEventDialog() {
         eventBox.replace("rowNumber", "0").replace("columnNumber", "6")
     ));
 
-    for (row = 1; row < 5; row++) {
-        for (col = 0; col < 7; col++) {
+    for (let row = 1; row < 5; row++) {
+        for (let col = 0; col < 7; col++) {
             controller.assertNode(lookup(
                 eventBox.replace("rowNumber", row).replace("columnNumber", col)
             ));
@@ -275,8 +243,8 @@ function testEventDialog() {
         eventBox.replace("rowNumber", "0").replace("columnNumber", "6")
     ));
 
-    for (row = 1; row < 5; row++) {
-        for (col = 0; col < 7; col++) {
+    for (let row = 1; row < 5; row++) {
+        for (let col = 0; col < 7; col++) {
             controller.assertNodeNotExist(lookup(
                 eventBox.replace("rowNumber", row).replace("columnNumber", col)
             ));
@@ -288,9 +256,8 @@ function handleAttendees(attendees) {
     let { lookup: attendeeslookup } = helpersForController(attendees);
 
     let input = attendeeslookup(`
-        /id("calendar-event-dialog-attendees-v2")/[6]/[0]/id("attendees-list")/
-        anon({"anonid":"listbox"})/[1]/[1]/anon({"anonid":"input"})/
-        {"anonid":"moz-input-box"}/anon({"anonid":"input"})
+        /id("calendar-event-dialog-attendees-v2")/{"flex":"1"}/
+        id("attendees-container")/id("attendees-list")/[1]/[2]/[0]
     `);
     attendees.waitForElement(input);
     attendees.type(input, eventAttendee);
@@ -303,7 +270,7 @@ function handleAttendees(attendees) {
 function checkIcon(eventBox, row, col) {
     let icon = lookup((`
         ${eventBox}/anon({"anonid":"category-box-stack"})/
-        anon({"align": "right"})/anon({"class":"alarm-icons-box"})/
+        anon({"align": "center"})/anon({"class":"alarm-icons-box"})/
         anon({"class": "reminder-icon"})
     `).replace("rowNumber", row).replace("columnNumber", col));
 
@@ -311,32 +278,36 @@ function checkIcon(eventBox, row, col) {
 }
 
 function checkTooltip(monthView, row, col, date, startTime, endTime) {
-    controller.mouseOver(lookup((`
+    controller.mouseOver(lookup(`
         ${monthView}/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/
-        anon({"anonid":"monthgridrows"})/[rowNumber]/[columnNumber]/
+        anon({"anonid":"monthgridrows"})/[${row}]/[${col}]/
         {"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}
-    `).replace("rowNumber", row).replace("columnNumber", col)));
+    `));
 
     // check title
     let eventName = lookup(`
         /id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/
         {"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[0]/[1]
     `);
-    controller.assertJS(eventName.getNode().textContent == eventTitle);
+    controller.waitFor(() => eventName.getNode().textContent == eventTitle);
 
     // check date and time
-    // date-time string contains strings formatted in operating system language
-    // so check numeric values only
     let dateTime = lookup(`
         /id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/
         {"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[2]/[1]
-    `).getNode().textContent;
+    `);
 
-    controller.assertJS(
-        dateTime.includes(date) &&
-        dateTime.includes(startTime) &&
-        dateTime.includes(endTime)
-    );
+    let formatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "full" });
+    let startDate = formatter.format(new Date(2009, 0, date));
+
+    controller.waitFor(() => {
+        let text = dateTime.getNode().textContent;
+        dump(`${text}\n`);
+        return text.includes(`${startDate} ${startTime} – `);
+    });
+
+    // This could be on the next day if it is 00:00.
+    controller.assertJS(() => dateTime.getNode().textContent.endsWith(endTime));
 }
 
 function teardownTest(module) {

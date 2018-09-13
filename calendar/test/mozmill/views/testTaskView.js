@@ -6,9 +6,8 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
+var setData;
 var CALENDARNAME;
-
-var utils = require("../shared-modules/utils");
 
 var TITLE = "Task";
 var DESCRIPTION = "1. Do A\n2. Do B";
@@ -16,12 +15,12 @@ var percentComplete = "50";
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
-
     ({
         helpersForController,
         invokeEventDialog,
         createCalendar,
         deleteCalendars,
+        setData,
         CALENDARNAME
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule();
@@ -39,7 +38,6 @@ function testTaskView() {
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("calendarDisplayDeck")/id("calendar-task-box")/
     `;
-    let taskDialog = '/id("calendar-task-dialog")/id("event-grid")/id("event-grid-rows")';
     let treeChildren = `
         ${taskView}/[1]/id("calendar-task-tree")/
         anon({"anonid":"calendar-task-tree"})/{"tooltip":"taskTreeTooltip"}
@@ -71,11 +69,11 @@ function testTaskView() {
 
     // add task
     controller.type(lookup(`
-        ${taskView}/id("task-addition-box")/id("view-task-edit-field")/
+        ${taskView}/id("task-addition-box")/[0]/id("view-task-edit-field")/
         anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
     `), TITLE);
     controller.keypress(lookup(`
-        ${taskView}/id("task-addition-box")/id("view-task-edit-field")/
+        ${taskView}/id("task-addition-box")/[0]/id("view-task-edit-field")/
         anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
     `), "VK_RETURN", {});
 
@@ -94,37 +92,13 @@ function testTaskView() {
     // left where the checkbox is located
     controller.doubleClick(lookup(treeChildren), 50, 0);
     invokeEventDialog(controller, null, (task, iframe) => {
-        let { lookup: tasklookup, eid: taskid } = helpersForController(task);
+        let { eid: taskid } = helpersForController(task);
+        let { eid: iframeId } = helpersForController(iframe);
 
         // verify calendar
-        task.waitForElement(tasklookup(`
-            ${taskDialog}/id("event-grid-category-color-row")/
-            id("event-grid-category-box")/id("item-calendar")/[0]/
-            {"selected":"true","label":"${CALENDARNAME}"}
-        `));
+        controller.assertValue(iframeId("item-calendar"), CALENDARNAME);
 
-        // add description, mark needs action and add percent complete
-        task.type(tasklookup(`
-            ${taskDialog}/id("event-grid-description-row")/id("item-description")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-        `), DESCRIPTION);
-        task.click(taskid("todo-status-needsaction-menuitem"));
-
-        // delete default 0 percent complete
-        task.keypress(tasklookup(`
-            ${taskDialog}/id("event-grid-todo-status-row")/
-            id("event-grid-todo-status-picker-box")/
-            id("percent-complete-textbox")/
-            anon({"class":"textbox-input-box numberbox-input-box"})/
-            anon({"anonid":"input"})
-        `), "VK_DELETE", {});
-        task.type(tasklookup(`
-            ${taskDialog}/id("event-grid-todo-status-row")/
-            id("event-grid-todo-status-picker-box")/
-            id("percent-complete-textbox")/
-            anon({"class":"textbox-input-box numberbox-input-box"})/
-            anon({"anonid":"input"})
-        `), percentComplete);
+        setData(task, iframe, { status: "needs-action", percent: percentComplete, description: DESCRIPTION });
 
         // save
         task.click(taskid("button-saveandclose"));
@@ -136,8 +110,10 @@ function testTaskView() {
         id("calendar-task-details-description")/
         anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
     `), DESCRIPTION);
-    let status = utils.getProperty("chrome://calendar/locale/calendar.properties", "taskDetailsStatusNeedsAction");
-    controller.assertValue(eid("calendar-task-details-status"), status);
+    controller.assertValue(eid("calendar-task-details-status"), "Needs Action");
+
+    // This is a hack.
+    taskTreeNode.getTaskAtRow(0).calendar.setProperty("capabilities.priority.supported", true);
 
     // set high priority and verify it in detail pane
     controller.click(eid("task-actions-priority"));
@@ -156,27 +132,28 @@ function testTaskView() {
     let toolTipPriority = lookup(toolTipGrid + "[1]/[2]/[1]");
     let toolTipStatus = lookup(toolTipGrid + "[1]/[3]/[1]");
     let toolTipComplete = lookup(toolTipGrid + "[1]/[4]/[1]");
-    let priority = utils.getProperty("chrome://calendar/locale/calendar.properties", "highPriority");
 
     controller.assertJSProperty(toolTipName, "textContent", TITLE);
     controller.assertJSProperty(toolTipCalendar, "textContent", CALENDARNAME);
-    controller.assertJSProperty(toolTipPriority, "textContent", priority);
-    controller.assertJS(toolTipStatus.getNode().textContent.toLowerCase() == status.toLowerCase());
+    controller.assertJSProperty(toolTipPriority, "textContent", "High");
+    controller.assertJSProperty(toolTipStatus, "textContent", "Needs Action");
     controller.assertJSProperty(toolTipComplete, "textContent", percentComplete + "%");
 
     // mark completed, verify
     controller.click(eid("task-actions-markcompleted"));
     sleep();
 
-    status = utils.getProperty("chrome://calendar/locale/calendar.properties", "taskDetailsStatusCompleted");
     toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
-    controller.assertJS(toolTipStatus.getNode().textContent.toLowerCase() == status.toLowerCase());
+    controller.assertJSProperty(toolTipStatus, "textContent", "Completed");
 
     // delete task, verify
     controller.click(eid("task-context-menu-delete"));
     controller.click(eid("calendar-delete-task-button"));
-    let countAfterDelete = taskTreeNode.mTaskArray.length;
-    controller.assertJS(countAfter - 1 == countAfterDelete);
+    let countAfterDelete;
+    controller.waitFor(() => {
+        countAfterDelete = taskTreeNode.mTaskArray.length;
+        return countAfter - 1 == countAfterDelete;
+    });
 }
 
 function teardownTest(module) {
