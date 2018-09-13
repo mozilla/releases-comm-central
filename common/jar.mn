@@ -1,3 +1,4 @@
 messenger.jar:
     content/messenger/overlayBindings.css (content/overlayBindings.css)
     content/messenger/overlayBindings.xml (content/overlayBindings.xml)
+    content/messenger/customElements.js   (content/customElements.js)

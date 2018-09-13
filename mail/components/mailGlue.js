@@ -129,6 +129,18 @@ MailGlue.prototype = {
           new LightweightThemeConsumer(aSubject.document);
         }
       }, {once: true});
+
+      // Set up our custom elements.
+      aSubject.addEventListener("DOMDocElementInserted", () => {
+        let doc = aSubject.document;
+        if (doc.nodePrincipal.isSystemPrincipal && (
+            doc.contentType == "application/vnd.mozilla.xul+xml" ||
+            doc.contentType == "application/xhtml+xml"
+        )) {
+          Services.scriptloader.loadSubScript(
+            "chrome://messenger/content/customElements.js", doc.ownerGlobal);
+        }
+      }, {once: true});
       break;
     }
   },
