@@ -3402,14 +3402,19 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyName(nsAString& name)
   return GetName(name);
 }
 
+// -1: not retrieved yet, 1: English, 0: non-English.
+static int isEnglish = -1;
+
 static bool
 nonEnglishApp()
 {
-  nsAutoCString locale;
-  mozilla::intl::LocaleService::GetInstance()->GetAppLocaleAsLangTag(locale);
-
-  return !(locale.EqualsLiteral("en") ||
-           StringBeginsWith(locale, NS_LITERAL_CSTRING("en-")));
+  if (isEnglish == -1) {
+    nsAutoCString locale;
+    mozilla::intl::LocaleService::GetInstance()->GetAppLocaleAsLangTag(locale);
+    isEnglish = (locale.EqualsLiteral("en") ||
+                 StringBeginsWith(locale, NS_LITERAL_CSTRING("en-"))) ? 1 : 0;
+  }
+  return isEnglish ? false : true;
 }
 
 static bool
@@ -3421,6 +3426,26 @@ hasTrashName(const nsAString& name)
          (name.LowerCaseEqualsLiteral("deleted") && nonEnglishApp());
 }
 
+static bool
+hasDraftsName(const nsAString& name)
+{
+  // Some IMAP providers call the folder "Draft". If the application is non-English,
+  // we want to use the localised name instead.
+  return name.LowerCaseEqualsLiteral("drafts") ||
+         (name.LowerCaseEqualsLiteral("draft") && nonEnglishApp());
+}
+
+static bool
+hasSentName(const nsAString& name)
+{
+  // Some IMAP providers call the folder for sent messages "Outbox". That IMAP
+  // folder is not related to Thunderbird's local folder for queued messages.
+  // If we find such a folder with the 'SentMail' flag, we can safely localize
+  // its name if the application is non-English.
+  return name.LowerCaseEqualsLiteral("sent") ||
+         (name.LowerCaseEqualsLiteral("outbox") && nonEnglishApp());
+}
+
 NS_IMETHODIMP nsMsgDBFolder::SetPrettyName(const nsAString& name)
 {
   nsresult rv;
@@ -3428,9 +3453,9 @@ NS_IMETHODIMP nsMsgDBFolder::SetPrettyName(const nsAString& name)
   //Set pretty name only if special flag is set and if it the default folder name
   if (mFlags & nsMsgFolderFlags::Inbox && name.LowerCaseEqualsLiteral("inbox"))
     rv = SetName(kLocalizedInboxName);
-  else if (mFlags & nsMsgFolderFlags::SentMail && name.LowerCaseEqualsLiteral("sent"))
+  else if (mFlags & nsMsgFolderFlags::SentMail && hasSentName(name))
     rv = SetName(kLocalizedSentName);
-  else if (mFlags & nsMsgFolderFlags::Drafts && name.LowerCaseEqualsLiteral("drafts"))
+  else if (mFlags & nsMsgFolderFlags::Drafts && hasDraftsName(name))
     rv = SetName(kLocalizedDraftsName);
   else if (mFlags & nsMsgFolderFlags::Templates && name.LowerCaseEqualsLiteral("templates"))
     rv = SetName(kLocalizedTemplatesName);
