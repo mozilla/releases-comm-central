@@ -1,10 +1,10 @@
 [
- {
+  {
     "size": 151815288,
     "digest": "7787b85373bf69714d6afc2d362f8004851050227c48c324818b52d5c995d04bab7fa06d9b17032c14380e0a976b58839b927f0d7a943a3e1797887823076e01",
     "algorithm": "sha512",
-    "filename": "gcc.tar.xz",
     "visibility": "public",
+    "filename": "gcc.tar.xz",
     "unpack": true
   },
   {
@@ -16,10 +16,10 @@
     "unpack": true
   },
   {
-    "version": "rustc 1.24.0 (123456789 2018-02-15) repack",
-    "size": 199629912,
-    "digest": "8d2b7bbd45951e782eff7c8deb8bb58d0cb79d745651466a17daabeede4d6f48342bc5e532b2ca7bd6cf290b02f7cc001a07f8de143542a39711503623e087ae",
+    "size": 135289236,
+    "digest": "ecd5847c0e7b05d71b58e251c5ba9ab13c5156bf54676b8a64f86cdd94df09b2dedab738a1f34b15b22c87b7af3e73997cc85f323c922ace92ec5395255227ca",
     "algorithm": "sha512",
+    "visibility": "public",
     "filename": "rustc.tar.xz",
     "unpack": true
   },
