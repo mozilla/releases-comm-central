@@ -2860,10 +2860,10 @@ SessionStoreService.prototype = {
     var shEntry = Cc["@mozilla.org/browser/session-history-entry;1"]
                     .createInstance(Ci.nsISHEntry);
 
-    shEntry.setURI(this._getURIFromString(aEntry.url));
+    shEntry.URI = this._getURIFromString(aEntry.url);
     shEntry.title = aEntry.title || aEntry.url;
     if (aEntry.subframe)
-      shEntry.setIsSubFrame(aEntry.subframe || false);
+      shEntry.isSubFrame = aEntry.subframe || false;
     shEntry.loadType = Ci.nsIDocShellLoadInfo.loadHistory;
     if (aEntry.contentType)
       shEntry.contentType = aEntry.contentType;
