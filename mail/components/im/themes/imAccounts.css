@@ -158,7 +158,7 @@ richlistitem[state="connecting"] .accountStateIcon {
   list-style-image: url("chrome://global/skin/icons/loading.png");
 }
 richlistitem[error="true"] .accountStateIcon {
-  list-style-image: url("chrome://global/skin/icons/warning-16.png");
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
 }
 
 

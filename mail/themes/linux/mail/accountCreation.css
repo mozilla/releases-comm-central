@@ -41,7 +41,7 @@ menulist[disabled="true"] > .menulist-dropmarker {
 .warningicon {
   width: 16px;
   height: 16px;
-  background: url("chrome://global/skin/icons/warning-16.png") no-repeat;
+  background: url("chrome://global/skin/icons/warning.svg") no-repeat;
 }
 
 .insecureLarry {
@@ -215,7 +215,8 @@ menulist[editable="true"] > .menulist-dropmarker {
 }
 
 #status_area[status=error] #status_img_before {
-  background: url("moz-icon://stock/gtk-dialog-warning?size=menu") no-repeat;
+  background: url("chrome://global/skin/icons/warning.svg") no-repeat;
+  background-position-y: 1px;
   width: 16px;
   height: 16px;
 }

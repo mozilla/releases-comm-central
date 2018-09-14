@@ -202,7 +202,7 @@ activity-warning .statusText {
 }
 
 .warningIconBox image {
-  list-style-image: url(chrome://global/skin/icons/Warning.png);
+  list-style-image: url(chrome://messenger/skin/activity/warning.png);
 }
 
 image.syncMail {

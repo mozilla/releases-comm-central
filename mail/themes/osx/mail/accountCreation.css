@@ -31,7 +31,7 @@
 .warningicon {
   width: 16px;
   height: 16px;
-  background: url("chrome://global/skin/icons/warning-16.png") no-repeat;
+  background: url("chrome://global/skin/icons/warning.svg") no-repeat;
 }
 
 .insecureLarry {
@@ -194,7 +194,8 @@ menulist {
 }
 
 #status_area[status=error] #status_img_before {
-  background: url("chrome://global/skin/icons/warning-16.png") no-repeat;
+  background: url("chrome://global/skin/icons/warning.svg") no-repeat;
+  background-position-y: 1px;
   width: 16px;
   height: 16px;
   margin-right: 1em;

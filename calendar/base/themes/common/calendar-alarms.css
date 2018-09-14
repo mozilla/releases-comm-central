@@ -56,12 +56,12 @@
 
 #reminder-notifications > notification {
     background-color: transparent;
+    border-width: 0;
 }
-#reminder-notifications > notification > .notification-inner {
-    border: 0;
-}
-#reminder-notifications > notification[type="warning"] {
-    list-style-image: url(chrome://global/skin/icons/Warning.png);
+#reminder-notifications > notification[type="warning"] > hbox > .messageImage {
+    width: 32px;
+    height: 32px;
+    fill: #ffbf00;
 }
 
 #reminder-actions-caption,
