@@ -342,9 +342,6 @@
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
 #endif
 
-; download progress for downloads
-@RESPATH@/components/DownloadsStartup.js
-
 ; Protocol/Content handling
 @RESPATH@/components/nsSMTPProtocolHandler.js
 @RESPATH@/components/nsSMTPProtocolHandler.manifest

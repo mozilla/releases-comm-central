@@ -36,7 +36,6 @@ XPIDL_MODULE = 'mailcompsbase'
 
 EXTRA_COMPONENTS += [
     'aboutRedirector.js',
-    'DownloadsStartup.js',
     'mailComponents.manifest',
     'mailContentHandler.js',
     'mailGlue.js',
