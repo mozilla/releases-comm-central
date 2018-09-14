@@ -321,19 +321,30 @@ NS_IMETHODIMP nsMsgMaildirStore::SetSummaryFileValid(nsIMsgFolder *aFolder,
 NS_IMETHODIMP nsMsgMaildirStore::DeleteFolder(nsIMsgFolder *aFolder)
 {
   NS_ENSURE_ARG_POINTER(aFolder);
+  bool exists;
 
-  // Delete Maildir structure
+  // Delete the Maildir itself.
   nsCOMPtr<nsIFile> pathFile;
   nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = pathFile->Remove(true); // recursive
-  AddDirectorySeparator(pathFile);
-  bool exists;
+  exists = false;
   pathFile->Exists(&exists);
-  if (exists)
-    pathFile->Remove(true);
-  return rv;
+  if (exists) {
+    rv = pathFile->Remove(true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Delete any subfolders (.sbd-suffixed directories).
+  AddDirectorySeparator(pathFile);
+  exists = false;
+  pathFile->Exists(&exists);
+  if (exists) {
+    rv = pathFile->Remove(true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMaildirStore::RenameFolder(nsIMsgFolder *aFolder,

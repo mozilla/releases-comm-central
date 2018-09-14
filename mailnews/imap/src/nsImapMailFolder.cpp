@@ -1443,7 +1443,6 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow *aMsgWindow, nsIUrlListe
       } // if we fetched an imap server
     } // if emptying trash on exit which is done through the account manager.
 
-    nsCOMPtr<nsIMsgDatabase> trashDB;
     if (WeAreOffline())
     {
       nsCOMPtr <nsIMsgDatabase> trashDB;
@@ -1460,12 +1459,7 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow *aMsgWindow, nsIUrlListe
       }
       return rv;
     }
-    nsCOMPtr <nsIDBFolderInfo> transferInfo;
-    rv = trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
-    rv = trashFolder->Delete(); // delete summary spec
-    trashFolder->SetDBTransferInfo(transferInfo);
 
-    trashFolder->SetSizeOnDisk(0);
     nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1511,7 +1505,17 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow *aMsgWindow, nsIUrlListe
       }
     }
 
-    // The trash folder has effectively been deleted
+    nsCOMPtr <nsIDBFolderInfo> transferInfo;
+    rv = trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
+    NS_ENSURE_SUCCESS(rv, rv);
+    // Bulk-delete all the messages by deleting the msf file and storage.
+    // This is a little kludgy.
+    rv = trashFolder->Delete();
+    NS_ENSURE_SUCCESS(rv, rv);
+    trashFolder->SetDBTransferInfo(transferInfo);
+    trashFolder->SetSizeOnDisk(0);
+
+    // The trash folder has effectively been deleted.
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
     if (notifier)
       notifier->NotifyFolderDeleted(trashFolder);
@@ -1523,41 +1527,9 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow *aMsgWindow, nsIUrlListe
 
 NS_IMETHODIMP nsImapMailFolder::Delete()
 {
-  nsresult rv;
-  if (!mDatabase)
-  {
-    // Check if anyone has this db open. If so, do a force closed.
-    nsCOMPtr<nsIMsgDBService> msgDBService = do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    msgDBService->CachedDBForFolder(this, getter_AddRefs(mDatabase));
-  }
-  if (mDatabase)
-  {
-    mDatabase->ForceClosed();
-    mDatabase = nullptr;
-  }
+  nsresult rv = nsMsgDBFolder::Delete();
 
-  nsCOMPtr<nsIFile> path;
-  rv = GetFilePath(getter_AddRefs(path));
-  if (NS_SUCCEEDED(rv))
-  {
-    nsCOMPtr<nsIFile> summaryLocation;
-    rv = GetSummaryFileLocation(path, getter_AddRefs(summaryLocation));
-    if (NS_SUCCEEDED(rv))
-    {
-      bool exists = false;
-      rv = summaryLocation->Exists(&exists);
-      if (NS_SUCCEEDED(rv) && exists)
-      {
-        rv = summaryLocation->Remove(false);
-        if (NS_FAILED(rv))
-          NS_WARNING("failed to remove imap summary file");
-      }
-    }
-  }
-  if (mPath)
-    mPath->Remove(false);
-  // should notify nsIMsgFolderListeners about the folder getting deleted...
+  // Should notify nsIMsgFolderListeners about the folder getting deleted?
   return rv;
 }
 

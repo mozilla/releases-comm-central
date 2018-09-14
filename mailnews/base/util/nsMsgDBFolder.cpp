@@ -3614,7 +3614,31 @@ NS_IMETHODIMP nsMsgDBFolder::GetShowDeletedMessages(bool *showDeletedMessages)
 
 NS_IMETHODIMP nsMsgDBFolder::Delete()
 {
-  return NS_OK;
+  ForceDBClosed();
+
+  // Delete the .msf file.
+  // NOTE: this doesn't remove .msf files in subfolders, but
+  // both nsMsgBrkMBoxStore::DeleteFolder() and
+  // nsMsgMaildirStore::DeleteFolder() will remove those .msf files
+  // as a side-effect of deleting the .sbd directory.
+  nsCOMPtr<nsIFile> summaryFile;
+  nsresult rv = GetSummaryFile(getter_AddRefs(summaryFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  bool exists = false;
+  summaryFile->Exists(&exists);
+  if (exists) {
+    rv = summaryFile->Remove(false);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Ask the msgStore to delete the actual storage (mbox, maildir or whatever
+  // else may be supported in future).
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = msgStore->DeleteFolder(this);
+
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::DeleteSubFolders(nsIArray *folders,

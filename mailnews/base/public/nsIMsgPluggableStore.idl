@@ -51,8 +51,8 @@ interface nsIMsgPluggableStore : nsISupports {
   nsIMsgFolder createFolder(in nsIMsgFolder aParent, in AString aFolderName);
 
   /**
-   * Delete the passed in folder. This is a real delete, not a move
-   * to the trash folder.
+   * Delete storage for a folder and its subfolders, if any.
+   * This is a real delete, not a move to the trash folder.
    *
    * @param aFolder folder to delete
    */

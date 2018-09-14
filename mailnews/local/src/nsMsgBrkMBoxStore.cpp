@@ -300,26 +300,30 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::SetSummaryFileValid(nsIMsgFolder *aFolder,
 NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteFolder(nsIMsgFolder *aFolder)
 {
   NS_ENSURE_ARG_POINTER(aFolder);
-  //Delete mailbox
+  bool exists;
+
+  // Delete mbox file.
   nsCOMPtr<nsIFile> pathFile;
   nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  pathFile->Remove(false);
-
-  bool isDirectory = false;
-  pathFile->IsDirectory(&isDirectory);
-  if (!isDirectory)
-  {
-    nsAutoString leafName;
-    pathFile->GetLeafName(leafName);
-    leafName.AppendLiteral(FOLDER_SUFFIX);
-    pathFile->SetLeafName(leafName);
+  exists = false;
+  pathFile->Exists(&exists);
+  if (exists) {
+    rv = pathFile->Remove(false);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
-  isDirectory = false;
-  pathFile->IsDirectory(&isDirectory);
-  //If this is a directory, then remove it.
-  return isDirectory ? pathFile->Remove(true) : NS_OK;
+
+  // Delete any subfolders (.sbd-suffixed directories).
+  AddDirectorySeparator(pathFile);
+  exists = false;
+  pathFile->Exists(&exists);
+  if (exists) {
+    rv = pathFile->Remove(true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder *aFolder,

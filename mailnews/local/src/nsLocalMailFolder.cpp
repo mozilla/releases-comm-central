@@ -643,8 +643,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIMsgWindow *msgWindow,
   if (NS_SUCCEEDED(rv))
   {
     uint32_t flags;
-    nsCString trashUri;
-    trashFolder->GetURI(trashUri);
     trashFolder->GetFlags(&flags);
     int32_t totalMessages = 0;
     rv = trashFolder->GetTotalMessages(true, &totalMessages);
@@ -737,43 +735,6 @@ nsresult nsMsgLocalMailFolder::IsChildOfTrash(bool *result)
 
     thisFolder = parentFolder;
   }
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgLocalMailFolder::Delete()
-{
-  nsresult rv;
-  nsCOMPtr<nsIMsgDBService> msgDBService = do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  msgDBService->CachedDBForFolder(this, getter_AddRefs(mDatabase));
-  if (mDatabase)
-  {
-    mDatabase->ForceClosed();
-    mDatabase = nullptr;
-  }
-
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-
-  rv = server->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr <nsIFile> summaryFile;
-  rv = GetSummaryFile(getter_AddRefs(summaryFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  //Clean up .sbd folder if it exists.
-  // Remove summary file.
-  rv = summaryFile->Remove(false);
-  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "Could not delete msg summary file");
-
-  rv = msgStore->DeleteFolder(this);
-  if (rv == NS_ERROR_FILE_NOT_FOUND ||
-      rv == NS_ERROR_FILE_TARGET_DOES_NOT_EXIST)
-    rv = NS_OK; // virtual folders do not have a msgStore file
   return rv;
 }
 

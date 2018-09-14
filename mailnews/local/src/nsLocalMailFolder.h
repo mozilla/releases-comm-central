@@ -125,7 +125,6 @@ public:
   NS_IMETHOD Compact(nsIUrlListener *aListener, nsIMsgWindow *aMsgWindow) override;
   NS_IMETHOD CompactAll(nsIUrlListener *aListener, nsIMsgWindow *aMsgWindow, bool aCompactOfflineAlso) override;
   NS_IMETHOD EmptyTrash(nsIMsgWindow *msgWindow, nsIUrlListener *aListener) override;
-  NS_IMETHOD Delete () override;
   NS_IMETHOD DeleteSubFolders(nsIArray *folders, nsIMsgWindow *msgWindow) override;
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD Rename (const nsAString& aNewName, nsIMsgWindow *msgWindow) override;

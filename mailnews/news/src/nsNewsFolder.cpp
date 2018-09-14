@@ -486,41 +486,8 @@ NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
 
 NS_IMETHODIMP nsMsgNewsFolder::Delete()
 {
-  nsresult rv = GetDatabase();
-
-  if(NS_SUCCEEDED(rv))
-  {
-    mDatabase->ForceClosed();
-    mDatabase = nullptr;
-  }
-
-  nsCOMPtr<nsIFile> folderPath;
-  rv = GetFilePath(getter_AddRefs(folderPath));
-
-  if (NS_SUCCEEDED(rv))
-  {
-    nsCOMPtr<nsIFile> summaryPath;
-    rv = GetSummaryFileLocation(folderPath, getter_AddRefs(summaryPath));
-    if (NS_SUCCEEDED(rv))
-    {
-      bool exists = false;
-      rv = folderPath->Exists(&exists);
-
-      if (NS_SUCCEEDED(rv) && exists)
-        rv = folderPath->Remove(false);
-
-      if (NS_FAILED(rv))
-        NS_WARNING("Failed to remove News Folder");
-
-      rv = summaryPath->Exists(&exists);
-
-      if (NS_SUCCEEDED(rv) && exists)
-        rv = summaryPath->Remove(false);
-
-      if (NS_FAILED(rv))
-        NS_WARNING("Failed to remove News Folder Summary File");
-    }
-  }
+  nsresult rv = nsMsgDBFolder::Delete();
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr <nsINntpIncomingServer> nntpServer;
   rv = GetNntpServer(getter_AddRefs(nntpServer));
