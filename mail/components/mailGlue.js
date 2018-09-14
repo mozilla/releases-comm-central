@@ -9,9 +9,12 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
-ChromeUtils.import("resource:///modules/distribution.js");
-ChromeUtils.import("resource:///modules/mailMigrator.js");
-ChromeUtils.import("resource:///modules/extensionSupport.jsm");
+const { TBDistCustomizer } = ChromeUtils.import("resource:///modules/distribution.js", null);
+const { MailMigrator } = ChromeUtils.import("resource:///modules/mailMigrator.js", null);
+const {
+  ExtensionSupport,
+  extensionDefaults,
+} = ChromeUtils.import("resource:///modules/extensionSupport.jsm", null);
 const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm", null);
 
 // lazy module getters
@@ -71,7 +74,7 @@ MailGlue.prototype = {
       "Thunderbird-internal-BrowserConsole",
       {
         chromeURLs: [ "chrome://devtools/content/webconsole/browserconsole.xul" ],
-        onLoadWindow: _setupBrowserConsole
+        onLoadWindow: _setupBrowserConsole,
       });
 
     function _setupToolbox(domWindow) {
@@ -83,7 +86,7 @@ MailGlue.prototype = {
       "Thunderbird-internal-Toolbox",
       {
         chromeURLs: [ "chrome://devtools/content/framework/toolbox-process-window.xul" ],
-        onLoadWindow: _setupToolbox
+        onLoadWindow: _setupToolbox,
       });
 
     ActorManagerParent.addActors(ACTORS);
@@ -145,7 +148,7 @@ MailGlue.prototype = {
     }
   },
 
-  //nsIMailGlue implementation
+  // nsIMailGlue implementation
   sanitize: function MG_sanitize(aParentWindow) {
     this._sanitizer.sanitize(aParentWindow);
   },
@@ -196,7 +199,7 @@ MailGlue.prototype = {
       sidebar_text: "rgb(249, 249, 250)",
       author: vendorShortName,
     }, {
-      useInDarkMode: true
+      useInDarkMode: true,
     });
   },
 
@@ -215,7 +218,7 @@ MailGlue.prototype = {
     });
   },
 
-  _detectNewSideloadedAddons: async function () {
+  async _detectNewSideloadedAddons() {
     let newSideloadedAddons = await AddonManagerPrivate.getNewSideloads();
     this._offertToEnableAddons(newSideloadedAddons);
   },
@@ -225,7 +228,7 @@ MailGlue.prototype = {
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
     if (WINTASKBAR_CONTRACTID in Cc &&
         Cc[WINTASKBAR_CONTRACTID].getService(Ci.nsIWinTaskbar).available) {
-      ChromeUtils.import("resource:///modules/windowsJumpLists.js");
+      const { WinTaskbarJumpList } = ChromeUtils.import("resource:///modules/windowsJumpLists.js", null);
       WinTaskbarJumpList.startup();
     }
 
@@ -256,8 +259,7 @@ MailGlue.prototype = {
       // If we didn't have an open 3 pane window, try and open one.
       Services.ww.openWindow(null, "chrome://messenger/content/", "_blank",
                              "chrome,dialog=no,all",
-                             { type: "contentTab",
-                               tabParams: tabParams });
+                             { type: "contentTab", tabParams });
       linkHandled.data = true;
     }
   },

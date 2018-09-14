@@ -17,8 +17,7 @@ var MigrationWizard = {
   _migrator: null,
   _autoMigrate: null,
 
-  init: function ()
-  {
+  init() {
     Services.obs.addObserver(this, "Migration:Started");
     Services.obs.addObserver(this, "Migration:ItemBeforeMigrate");
     Services.obs.addObserver(this, "Migration:ItemAfterMigrate");
@@ -43,12 +42,10 @@ var MigrationWizard = {
     // Behavior alert! If we were given a migrator already, then we are going to perform migration
     // with that migrator, skip the wizard screen where we show all of the migration sources and
     // jump right into migration.
-    if (this._migrator)
-    {
-      if (this._migrator.sourceHasMultipleProfiles)
+    if (this._migrator) {
+      if (this._migrator.sourceHasMultipleProfiles) {
         this._wiz.goTo("selectProfile");
-      else
-      {
+      } else {
         var sourceProfiles = this._migrator.sourceProfiles;
         this._selectedProfile = sourceProfiles
           .queryElementAt(0, nsISupportsString).data;
@@ -57,8 +54,7 @@ var MigrationWizard = {
     }
   },
 
-  uninit: function ()
-  {
+  uninit() {
     Services.obs.removeObserver(this, "Migration:Started");
     Services.obs.removeObserver(this, "Migration:ItemBeforeMigrate");
     Services.obs.removeObserver(this, "Migration:ItemAfterMigrate");
@@ -67,29 +63,28 @@ var MigrationWizard = {
   },
 
   // 1 - Import Source
-  onImportSourcePageShow: function ()
-  {
+  onImportSourcePageShow() {
     this._wiz.canRewind = false;
     this._wiz.canAdvance = false;
 
     // Figure out what source apps are are available to import from:
     var group = document.getElementById("importSourceGroup");
-    for (var i = 0; i < group.childNodes.length; ++i) {
-      var suffix = group.childNodes[i].id;
+    for (let childNode of group.childNodes) {
+      let suffix = childNode.id;
       if (suffix != "nothing") {
         var contractID = kProfileMigratorContractIDPrefix + suffix;
         var migrator = Cc[contractID].createInstance(kIMig);
         if (!migrator.sourceExists) {
-          group.childNodes[i].hidden = true;
+          childNode.hidden = true;
           if (this._source == suffix) this._source = null;
         }
       }
     }
 
     var firstNonDisabled = null;
-    for (var i = 0; i < group.childNodes.length; ++i) {
-    if (!group.childNodes[i].hidden && !group.childNodes[i].disabled) {
-        firstNonDisabled = group.childNodes[i];
+    for (let childNode of group.childNodes) {
+      if (!childNode.hidden && !childNode.disabled) {
+        firstNonDisabled = childNode;
         break;
       }
     }
@@ -105,8 +100,7 @@ var MigrationWizard = {
     }
   },
 
-  onImportSourcePageAdvanced: function ()
-  {
+  onImportSourcePageAdvanced() {
     var newSource = document.getElementById("importSourceGroup").selectedItem.id;
 
     if (newSource == "nothing") {
@@ -140,8 +134,7 @@ var MigrationWizard = {
   },
 
   // 2 - [Profile Selection]
-  onSelectProfilePageShow: function ()
-  {
+  onSelectProfilePageShow() {
     // Disabling this for now, since we ask about import sources in automigration
     // too and don't want to disable the back button
     // if (this._autoMigrate)
@@ -166,14 +159,12 @@ var MigrationWizard = {
     profiles.selectedItem = this._selectedProfile ? document.getElementById(this._selectedProfile) : profiles.firstChild;
   },
 
-  onSelectProfilePageRewound: function ()
-  {
+  onSelectProfilePageRewound() {
     var profiles = document.getElementById("profiles");
     this._selectedProfile = profiles.selectedItem.id;
   },
 
-  onSelectProfilePageAdvanced: function ()
-  {
+  onSelectProfilePageAdvanced() {
     var profiles = document.getElementById("profiles");
     this._selectedProfile = profiles.selectedItem.id;
 
@@ -183,8 +174,7 @@ var MigrationWizard = {
   },
 
   // 3 - ImportItems
-  onImportItemsPageShow: function ()
-  {
+  onImportItemsPageShow() {
     var dataSources = document.getElementById("dataSources");
     while (dataSources.hasChildNodes())
       dataSources.lastChild.remove();
@@ -205,8 +195,7 @@ var MigrationWizard = {
     }
   },
 
-  onImportItemsPageAdvanced: function ()
-  {
+  onImportItemsPageAdvanced() {
     var dataSources = document.getElementById("dataSources");
     this._itemsFlags = 0;
     for (var i = 0; i < dataSources.childNodes.length; ++i) {
@@ -216,8 +205,7 @@ var MigrationWizard = {
     }
   },
 
-  onImportItemCommand: function (aEvent)
-  {
+  onImportItemCommand(aEvent) {
     var items = document.getElementById("dataSources");
     var checkboxes = items.getElementsByTagName("checkbox");
 
@@ -233,8 +221,7 @@ var MigrationWizard = {
   },
 
   // 4 - Migrating
-  onMigratingPageShow: function ()
-  {
+  onMigratingPageShow() {
     this._wiz.getButton("cancel").disabled = true;
     this._wiz.canRewind = false;
     this._wiz.canAdvance = false;
@@ -249,19 +236,16 @@ var MigrationWizard = {
     setTimeout(this.onMigratingMigrate, 0, this);
   },
 
-  onMigratingMigrate: function (aOuter)
-  {
+  onMigratingMigrate(aOuter) {
     aOuter._migrator.migrate(aOuter._itemsFlags, aOuter._autoMigrate, aOuter._selectedProfile);
   },
 
-  _listItems: function (aID)
-  {
+  _listItems(aID) {
     var items = document.getElementById(aID);
     while (items.hasChildNodes())
       items.lastChild.remove();
 
     var bundle = document.getElementById("bundle");
-    var itemID;
     for (var i = 0; i < 16; ++i) {
       var itemID = (this._itemsFlags >> i) & 0x1 ? Math.pow(2, i) : 0;
       if (itemID > 0) {
@@ -270,8 +254,7 @@ var MigrationWizard = {
         try {
           label.setAttribute("value", "- " + bundle.getString(itemID + "_" + this._source));
           items.appendChild(label);
-        }
-        catch (e) {
+        } catch (e) {
           // if the block above throws, we've enumerated all the import data types we
           // currently support and are now just wasting time, break.
           break;
@@ -280,24 +263,25 @@ var MigrationWizard = {
     }
   },
 
-  observe: function (aSubject, aTopic, aData)
-  {
+  observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     case "Migration:Started":
       dump("*** started\n");
       break;
-    case "Migration:ItemBeforeMigrate":
+    case "Migration:ItemBeforeMigrate": {
       dump("*** before " + aData + "\n");
-      var label = document.getElementById(aData + "_migrated");
+      let label = document.getElementById(aData + "_migrated");
       if (label)
         label.setAttribute("style", "font-weight: bold");
       break;
-    case "Migration:ItemAfterMigrate":
+    }
+    case "Migration:ItemAfterMigrate": {
       dump("*** after " + aData + "\n");
-      var label = document.getElementById(aData + "_migrated");
+      let label = document.getElementById(aData + "_migrated");
       if (label)
         label.removeAttribute("style");
       break;
+    }
     case "Migration:Ended":
       dump("*** done\n");
       if (this._autoMigrate) {
@@ -305,28 +289,25 @@ var MigrationWizard = {
         this._wiz.canAdvance = true;
         this._wiz.advance();
         setTimeout(window.close, 5000);
-      }
-      else {
+      } else {
         this._wiz.canAdvance = true;
         var nextButton = this._wiz.getButton("next");
         nextButton.click();
       }
       break;
     case "Migration:Progress":
-      document.getElementById('progressBar').value = aData;
+      document.getElementById("progressBar").value = aData;
       break;
     }
   },
 
-  onDonePageShow: function ()
-  {
+  onDonePageShow() {
     this._wiz.getButton("cancel").disabled = true;
     this._wiz.canRewind = false;
     this._listItems("doneItems");
   },
 
-  onBack: function ()
-  {
+  onBack() {
     if (this._wiz.onFirstPage) {
       if (window.arguments[3])
         window.arguments[3].closeMigration = false;
@@ -336,12 +317,11 @@ var MigrationWizard = {
     }
   },
 
-  onCancel: function ()
-  {
+  onCancel() {
     // If .closeMigration is false, the user clicked Back button,
     // then do not change its value.
     if (window.arguments[3] && ("closeMigration" in window.arguments[3]) &&
         (window.arguments[3].closeMigration !== false))
       window.arguments[3].closeMigration = true;
-  }
+  },
 };

@@ -51,22 +51,18 @@ mailnews/extensions/*
 mail/app/**
 mail/base/**
 mail/branding/**
+mail/components/activity/**
+mail/components/cloudfile/**
+mail/components/compose/**
+mail/components/im/**
+mail/components/newmailaccount/**
+mail/components/search/**
 mail/config/**
 mail/extensions/**
 mail/installer/**
 mail/locales/**
 mail/test/**
 mail/themes/**
-
-# mail/components exclusions
-mail/components/*
-!mail/components/about-support
-!mail/components/accountcreation
-!mail/components/addrbook
-!mail/components/devtools
-!mail/components/downloads
-!mail/components/extensions
-!mail/components/preferences
 
 # calendar/ exclusions
 

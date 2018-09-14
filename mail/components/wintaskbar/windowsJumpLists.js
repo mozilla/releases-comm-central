@@ -7,14 +7,14 @@ var EXPORTED_SYMBOLS = ["WinTaskbarJumpList"];
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const { toXPCOMArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 
 // Prefs
 var PREF_TASKBAR_BRANCH    = "mail.taskbar.lists.";
 var PREF_TASKBAR_ENABLED   = "enabled";
 var PREF_TASKBAR_TASKS     = "tasks.enabled";
 
-XPCOMUtils.defineLazyGetter(this, "_stringBundle", function () {
+XPCOMUtils.defineLazyGetter(this, "_stringBundle", function() {
   return Services.strings
                  .createBundle("chrome://messenger/locale/taskbar.properties");
 });
@@ -37,18 +37,18 @@ function _getString(aName) {
 var gTasks = [
   // Write new message
   {
-    get title()       { return _getString("taskbar.tasks.composeMessage.label"); },
+    get title() { return _getString("taskbar.tasks.composeMessage.label"); },
     get description() { return _getString("taskbar.tasks.composeMessage.description"); },
-    args:             "-compose",
-    iconIndex:        2, // Write message icon
+    args: "-compose",
+    iconIndex: 2, // Write message icon
   },
 
   // Open address book
   {
-    get title()       { return _getString("taskbar.tasks.openAddressBook.label"); },
+    get title() { return _getString("taskbar.tasks.openAddressBook.label"); },
     get description() { return _getString("taskbar.tasks.openAddressBook.description"); },
-    args:             "-addressbook",
-    iconIndex:        3, // Open address book icon
+    args: "-addressbook",
+    iconIndex: 3, // Open address book icon
   },
 ];
 
@@ -214,7 +214,7 @@ var WinTaskbarJumpList = {
   observe: function WTBJL_observe(aSubject, aTopic, aData) {
     switch (aTopic) {
       case "nsPref:changed":
-        if (this._enabled == true && !_prefs.getBoolPref(PREF_TASKBAR_ENABLED))
+        if (this._enabled && !_prefs.getBoolPref(PREF_TASKBAR_ENABLED))
           this._deleteActiveJumpList();
         this._refreshPrefs();
         this.update();

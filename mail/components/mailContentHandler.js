@@ -17,7 +17,7 @@ mailContentHandler.prototype = {
       if (outer)
         throw Cr.NS_ERROR_NO_AGGREGATION;
       return gMailContentHandler.QueryInterface(iid);
-    }
+    },
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIContentHandler]),
@@ -37,8 +37,7 @@ mailContentHandler.prototype = {
              .getService(Ci.nsIWebNavigationInfo)
              .isTypeSupported(aContentType, null))
         throw NS_ERROR_WONT_HANDLE_CONTENT;
-    }
-    catch (e) {
+    } catch (e) {
       throw NS_ERROR_WONT_HANDLE_CONTENT;
     }
 
@@ -65,7 +64,7 @@ mailContentHandler.prototype = {
 
   lockFactory: function mch_lock(lock) {
     // No-op.
-  }
+  },
 };
 var gMailContentHandler = new mailContentHandler();
 

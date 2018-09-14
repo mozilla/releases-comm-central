@@ -39,14 +39,14 @@ AboutRedirector.prototype = {
     return name.toLowerCase();
   },
 
-  getURIFlags: function(aURI) {
+  getURIFlags(aURI) {
     let name = this._getModuleName(aURI);
     if (!(name in this._redirMap))
       throw Cr.NS_ERROR_ILLEGAL_VALUE;
     return this._redirMap[name].flags;
   },
 
-  newChannel: function(aURI, aLoadInfo) {
+  newChannel(aURI, aLoadInfo) {
     let name = this._getModuleName(aURI);
     if (!(name in this._redirMap))
       throw Cr.NS_ERROR_ILLEGAL_VALUE;
@@ -61,7 +61,7 @@ AboutRedirector.prototype = {
     }
 
     return channel;
-  }
+  },
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([AboutRedirector]);
