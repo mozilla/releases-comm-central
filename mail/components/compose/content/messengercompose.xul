@@ -58,6 +58,10 @@
   <stringbundle id="charsetBundle"      src="chrome://communicator/content/labelsencodings.properties"/>
 </stringbundleset>
 
+<linkset>
+  <link rel="localization" href="toolkit/main-window/findbar.ftl"/>
+</linkset>
+
 <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
 <script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
 <script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>

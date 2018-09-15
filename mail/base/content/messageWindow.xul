@@ -75,6 +75,10 @@
     <stringbundle id="bundle_read_smime" src="chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"/>
   </stringbundleset>
 
+  <linkset>
+    <link rel="localization" href="toolkit/main-window/findbar.ftl"/>
+  </linkset>
+
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger/content/shareglue.js"/>
   <script type="application/javascript" src="chrome://messenger/content/commandglue.js"/>
