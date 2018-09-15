@@ -3,7 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-. ${_topsrcdir}/$MOZ_BUILD_APP/../comm-confvars.sh
+export moztopsrcdir=${srcdir}
+export commtopsrcdir=${srcdir}/comm
+export mozreltopsrcdir=.
+export commreltopsrcdir=comm
+export commtopobjdir=${_objdir}/comm
+tmpscript=`$PYTHON -c 'import os, tempfile; print tempfile.mktemp(prefix="subscript.").replace(os.sep, "/")'` || exit 1
+m4 "${srcdir}/build/autoconf/subconfigure.m4" \
+    "${srcdir}/build/autoconf/altoptions.m4" \
+    "${srcdir}/${MOZ_BUILD_APP}/configure.in" > $tmpscript
+. $tmpscript
+rm -f $tmpscript
 
 MOZ_APP_BASENAME=SeaMonkey
 MOZ_APP_VENDOR=Mozilla
