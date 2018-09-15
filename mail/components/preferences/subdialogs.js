@@ -257,9 +257,15 @@ SubDialog.prototype = {
     this._overlay.style.opacity = "0.01";
   },
 
-  _onLoad(aEvent) {
+  async _onLoad(aEvent) {
     if (aEvent.target.contentWindow.location == "about:blank") {
       return;
+    }
+
+    // In order to properly calculate the sizing of the subdialog, we need to
+    // ensure that all of the l10n is done.
+    if (aEvent.target.contentDocument.l10n) {
+      await aEvent.target.contentDocument.l10n.ready;
     }
 
     // Do this on load to wait for the CSS to load and apply before calculating the size.

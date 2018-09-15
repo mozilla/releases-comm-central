@@ -412,9 +412,22 @@ richlistbox:focus > richlistitem[selected="true"] {
   color: var(--in-content-selected-text) !important;
 }
 
+#messengerLanguagesDialogPane {
+  min-height: 360px;
+}
+
 #defaultMessengerLanguage {
   margin-inline-start: 0;
   min-width: 20em;
+}
+
+#availableLocales {
+  margin: 0;
+  margin-inline-end: 4px;
+}
+
+.add-browser-language {
+  margin: 0 4px;
 }
 
 /**

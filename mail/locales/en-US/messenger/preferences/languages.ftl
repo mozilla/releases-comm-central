@@ -10,6 +10,17 @@ languages-customize-movedown =
     .label = Move Down
     .accesskey = D
 
+languages-customize-remove =
+    .label = Remove
+    .accesskey = R
+
+languages-customize-select-language =
+    .placeholder = Select a language to add…
+
+languages-customize-add =
+    .label = Add
+    .accesskey = A
+
 messenger-languages-window =
     .title = { -brand-short-name } Language Settings
     .style = width: 40em

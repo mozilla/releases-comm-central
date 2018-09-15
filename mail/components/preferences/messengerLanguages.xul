@@ -5,9 +5,8 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/"?>
-<?xml-stylesheet href="chrome://browser/skin/preferences/preferences.css"?>
 
-<dialog id="BrowserLanguagesDialog" type="child" class="prefwindow"
+<dialog id="MessengerLanguagesDialog" type="child" class="prefwindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         data-l10n-id="messenger-languages-window"
         data-l10n-attrs="title, style"
@@ -21,27 +20,42 @@
     <link rel="localization" href="messenger/preferences/languages.ftl"/>
   </linkset>
 
-  <script type="application/javascript" src="chrome://messnger/content/utilityOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
   <script type="application/javascript" src="chrome://messenger/content/preferences/messengerLanguages.js"/>
 
-  <description data-l10n-id="messenger-languages-description"/>
+  <vbox id="messengerLanguagesDialogPane"
+        class="prefpane largeDialogContainer"
+        flex="1">
+    <description data-l10n-id="messenger-languages-description"/>
 
-  <grid flex="1">
-    <columns>
-      <column flex="1"/>
-      <column/>
-    </columns>
-    <rows>
-      <row flex="1">
-        <vbox>
-          <richlistbox id="activeLocales" flex="1"/>
-        </vbox>
-        <vbox>
-          <button id="up" disabled="true" data-l10n-id="languages-customize-moveup"/>
-          <button id="down" disabled="true" data-l10n-id="languages-customize-movedown"/>
-        </vbox>
-      </row>
-    </rows>
-  </grid>
+    <grid flex="1">
+      <columns>
+        <column flex="1"/>
+        <column/>
+      </columns>
+      <rows>
+        <row flex="1">
+            <richlistbox id="requestedLocales" flex="1"/>
+          <vbox>
+            <button id="up" disabled="true" data-l10n-id="languages-customize-moveup"/>
+            <button id="down" disabled="true" data-l10n-id="languages-customize-movedown"/>
+            <button id="remove" disabled="true" data-l10n-id="languages-customize-remove"/>
+          </vbox>
+        </row>
+        <row>
+          <menulist id="availableLocales"
+                    class="available-locales-list"
+                    data-l10n-id="languages-customize-select-language"
+                    data-l10n-attrs="placeholder">
+            <menupopup/>
+          </menulist>
+          <button id="add"
+                  class="add-browser-language"
+                  data-l10n-id="languages-customize-add"
+                  disabled="true"/>
+        </row>
+      </rows>
+    </grid>
+    <separator/>
+  </vbox>
 </dialog>
