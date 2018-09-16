@@ -92,9 +92,8 @@ function help_test_display_name(message, field, expectedValue) {
   be_in_folder(folder);
   let curMessage = select_click_row(message);
 
-  let value = mc.window.document.getAnonymousElementByAttribute(
-    mc.a("expanded"+field+"Box", {tagName: "mail-emailaddress"}),
-    "class", "emaillabel").value;
+  let value = mc.a("expanded"+field+"Box", {tagName: "mail-emailaddress"})
+                .querySelector(".emaillabel").value;
 
   if (value != expectedValue)
     throw new Error("got '"+value+"' but expected '"+expectedValue+"'");

@@ -883,43 +883,6 @@
     </implementation>
   </binding>
 
-  <binding id="mail-emailaddress">
-    <content>
-      <xul:hbox anonid="emailValue" class="emailDisplayButton"
-                xbl:inherits="hascard,aria-label" align="center"
-                context="emailAddressPopup" popup="emailAddressPopup"
-                flex="1" role="textbox" aria-readonly="true">
-        <xul:label class="emaillabel" anonid="emaillabel"
-                   xbl:inherits="value=label,crop"/>
-        <xul:image class="emailStar" anonid="emailStar"
-                   context="emailAddressPopup"
-                   onmousedown="event.preventDefault();"
-                   onclick="onClickEmailStar(event, this.parentNode.parentNode);"
-                   xbl:inherits="hascard,tooltiptext=tooltipstar,chatStatus"/>
-        <xul:image class="emailPresence" anonid="emailPresence"
-                   onmousedown="event.preventDefault();"
-                   onclick="onClickEmailPresence(event, this.parentNode.parentNode);"
-                   xbl:inherits="chatStatus,tooltiptext=presenceTooltip"/>
-      </xul:hbox>
-    </content>
-
-    <implementation>
-      <property name="label"      onset="this.getPart('emailValue').setAttribute('label',val); return val;"
-                                  onget="return this.getPart('emailValue').getAttribute('label');"/>
-      <property name="crop"       onset="this.getPart('emailValue').setAttribute('crop',val); return val;"
-                                  onget="return this.getPart('emailValue').getAttribute('crop');"/>
-      <property name="disabled"   onset="this.getPart('emailValue').setAttribute('disabled',val); return val;"
-                                  onget="return this.getPart('emailValue').getAttribute('disabled');"/>
-
-      <method name="getPart">
-        <parameter name="aPartId"/>
-        <body><![CDATA[
-          return document.getAnonymousElementByAttribute(this, "anonid", aPartId);
-        ]]></body>
-      </method>
-    </implementation>
-  </binding>
-
   <binding id="mail-messageids-headerfield">
     <content>
       <xul:hbox class="headerNameBox" align="start" pack="end">

@@ -25,6 +25,11 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 var folder, folderMore;
 var gInterestingMessage;
 
+/**
+ * Wraps a call to querySelector in an elib.Elem.
+ */
+const getElement = (elem, query) => new elib.Elem(elem.querySelector(query));
+
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
@@ -374,7 +379,12 @@ function test_clicking_star_opens_inline_contact_editor()
   wait_for_message_display_completion(mc);
   // Make sure the star is clicked, and we add the
   // new contact to our address book
-  let toDescription = mc.a('expandedtoBox', {class: "headerValue"});
+  let toDescription = mc.window.document.getAnonymousElementByAttribute(
+                        mc.window.document.getElementById("expandedtoBox"),
+                        "anonid",
+                        "emailAddresses"
+                      );
+
 
   // Ensure that the inline contact editing panel is not open
   let contactPanel = mc.eid('editContactPanel').getNode();
@@ -388,7 +398,7 @@ function test_clicking_star_opens_inline_contact_editor()
 
   // Click on the star, and ensure that the inline contact
   // editing panel opens
-  mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
+  mc.click(getElement(lastAddr, ".emailStar"));
   mc.waitFor(() => contactPanel.state == "open",
              () => ("Timeout waiting for contactPanel to open; state=" +
                     contactPanel.state));
@@ -461,7 +471,11 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
 
   // Make sure the star is clicked, and we add the
   // new contact to our address book
-  let toDescription = mc.a('expandedtoBox', {class: "headerValue"});
+  let toDescription = mc.window.document.getAnonymousElementByAttribute(
+                        mc.window.document.getElementById("expandedtoBox"),
+                        "anonid",
+                        "emailAddresses"
+                      );
 
   // Ensure that the inline contact editing panel is not open
   let contactPanel = mc.eid('editContactPanel').getNode();
@@ -476,7 +490,7 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
 
   // Click on the star, and ensure that the inline contact
   // editing panel opens
-  mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
+  mc.click(getElement(lastAddr, ".emailStar"));
   mc.waitFor(() => contactPanel.state == "open",
              () => ("Timeout waiting for contactPanel to open; state=" +
                     contactPanel.state));
@@ -523,7 +537,7 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
   ml.addressLists.appendElement(card);
 
   // Re-open the inline contact editing panel
-  mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
+  mc.click(getElement(lastAddr, ".emailStar"));
   mc.waitFor(() => contactPanel.state == "open",
              () => ("Timeout waiting for contactPanel to open; state=" +
                     contactPanel.state));
@@ -545,7 +559,7 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
   ml.deleteCards(cardArray);
 
   // Re-open the inline contact editing panel
-  mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
+  mc.click(getElement(lastAddr, ".emailStar"));
   mc.waitFor(() => contactPanel.state == "open",
              () => ("Timeout waiting for contactPanel to open; state=" +
                     contactPanel.state));
@@ -643,7 +657,11 @@ function test_more_widget() {
   assert_selected_and_displayed(mc, curMessage);
 
   // get the description element containing the addresses
-  let toDescription = mc.a('expandedtoBox', {class: "headerValue"});
+  let toDescription = mc.window.document.getAnonymousElementByAttribute(
+                        mc.window.document.getElementById("expandedtoBox"),
+                        "anonid",
+                        "emailAddresses"
+                      );
 
   subtest_more_widget_display(toDescription);
   subtest_more_widget_click(toDescription);
@@ -691,7 +709,11 @@ function test_show_all_header_mode() {
   assert_selected_and_displayed(mc, curMessage);
 
   // get the description element containing the addresses
-  let toDescription = mc.a('expandedtoBox', {class: "headerValue"});
+  let toDescription = mc.window.document.getAnonymousElementByAttribute(
+                        mc.window.document.getElementById("expandedtoBox"),
+                        "anonid",
+                        "emailAddresses"
+                      );
 
   change_to_header_normal_mode();
   subtest_more_widget_display(toDescription);
@@ -813,7 +835,7 @@ function subtest_more_widget_star_click(toDescription) {
   let view = mc.e('expandedHeaderView');
   view.scrollTop = view.scrollHeight - view.clientHeight;
 
-  mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
+  mc.click(getElement(lastAddr, ".emailStar"));
   if (lastAddr.getAttribute('hascard') == 'false') {
     throw new Error("address not updated after clicking star");
   }
@@ -865,7 +887,11 @@ function test_more_widget_with_disabled_more(){
   }
 
   // get the description element containing the addresses
-  let toDescription = mc.a('expandedtoBox', {class: "headerValue"});
+  let toDescription = mc.window.document.getAnonymousElementByAttribute(
+                        mc.window.document.getElementById("expandedtoBox"),
+                        "anonid",
+                        "emailAddresses"
+                      );
 
   // test that we actually have more lines than the 3 we know are filled
   let newNumLines = help_get_num_lines(toDescription);
