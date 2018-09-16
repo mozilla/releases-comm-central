@@ -44,14 +44,6 @@ mail-multi-emailHeaderField {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#mail-multi-emailHeaderField");
 }
 
-mail-newsgroup {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#mail-newsgroup");
-}
-
-mail-newsgroups-headerfield {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#mail-newsgroups-headerfield");
-}
-
 mail-tagfield[collapsed="true"] {
   display: none;
 }

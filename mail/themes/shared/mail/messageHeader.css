@@ -105,6 +105,15 @@ toolbarpaletteitem #hdrDummyReplyButton {
   margin-inline-start: 8px;
 }
 
+.headerValueBox {
+  overflow: visible;
+}
+
+mail-newsgroups-headerfield.headerValueBox {
+  padding: .1em 0;
+  margin-bottom: 4px;
+}
+
 .headerValueBox[singleline="true"] > .headerValue[containsEmail="true"] {
   white-space: nowrap;
 }
