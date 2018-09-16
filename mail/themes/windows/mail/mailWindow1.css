@@ -649,8 +649,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
-:root[lwt-tree] #folderTree treecol,
-:root[lwt-tree] #folderTree treecolpicker {
+:root[lwt-tree] #folderTree[hidecolumnpicker="false"] treecol,
+:root[lwt-tree] #folderTree[hidecolumnpicker="false"] treecolpicker {
   -moz-appearance: none;
   color: inherit;
   padding-top: 2px;

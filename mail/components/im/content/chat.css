@@ -19,7 +19,6 @@ imcontact {
 .startChatBubble, .closeConversationButton {
   cursor: pointer;
   -moz-user-focus: ignore;
-  color: initial;
 }
 
 .startChatBubble {
