@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozXULElement, openUILink */
+/* global MozXULElement, openUILink, onClickEmailStar, onClickEmailPresence */
 
 class MozMailHeaderfield extends MozXULElement {
   connectedCallback() {
@@ -73,6 +73,130 @@ class MozMailHeaderfieldTags extends MozXULElement {
   }
 }
 
+class MozMailEmailaddress extends MozXULElement {
+  static get observedAttributes() {
+    return [
+      "hascard",
+      "aria-label",
+      "label",
+      "crop",
+      "tooltipstar",
+      "chatStatus",
+      "presenceTooltip",
+    ];
+  }
+
+  connectedCallback() {
+    this.classList.add("emailDisplayButton");
+    this.setAttribute("context", "emailAddressPopup");
+    this.setAttribute("popup", "emailAddressPopup");
+
+    const label = document.createElement("label");
+    label.classList.add("emaillabel");
+
+    const emailStarImage = document.createElement("image");
+    emailStarImage.classList.add("emailStar");
+    emailStarImage.setAttribute("context", "emailAddressPopup");
+
+    const emailPresenceImage = document.createElement("image");
+    emailPresenceImage.classList.add("emailPresence");
+
+    this.appendChild(label);
+    this.appendChild(emailStarImage);
+    this.appendChild(emailPresenceImage);
+
+    this._areChildrenAppended = true;
+
+    this._update();
+    this._setupEventListeners();
+  }
+
+  attributeChangedCallback() {
+    this._update();
+  }
+
+  set label(val) {
+    this.setAttribute("label", val);
+    return val;
+  }
+
+  get label() {
+    return this.getAttribute("label");
+  }
+
+  set crop(val) {
+    this.setAttribute("crop", val);
+    return val;
+  }
+
+  get crop() {
+    return this.getAttribute("crop");
+  }
+
+  set disabled(val) {
+    this.setAttribute("disabled", val);
+    return val;
+  }
+
+  get disabled() {
+    return this.getAttribute("disabled");
+  }
+
+  _update() {
+    if (!this.isConnected || !this._areChildrenAppended) {
+      return;
+    }
+
+    const emailLabel = this.querySelector(".emaillabel");
+    const emailStarImage = this.querySelector(".emailStar");
+    const emailPresenceImage = this.querySelector(".emailPresence");
+
+    this._updateNodeAttributes(emailLabel, "crop");
+    this._updateNodeAttributes(emailLabel, "value", "label");
+
+    this._updateNodeAttributes(emailStarImage, "hascard");
+    this._updateNodeAttributes(emailStarImage, "chatStatus");
+    this._updateNodeAttributes(emailStarImage, "tooltiptext", "tooltipstar");
+
+    this._updateNodeAttributes(emailPresenceImage, "chatStatus");
+    this._updateNodeAttributes(
+      emailPresenceImage, "tooltiptext", "presenceTooltip"
+    );
+  }
+
+  _updateNodeAttributes(attrNode, attr, mappedAttr) {
+    mappedAttr = mappedAttr || attr;
+
+    if (this.hasAttribute(mappedAttr)) {
+      attrNode.setAttribute(attr, this.getAttribute(mappedAttr));
+    } else {
+      attrNode.removeAttribute(attr);
+    }
+  }
+
+  _setupEventListeners() {
+    const emailStarImage = this.querySelector(".emailStar");
+    const emailPresenceImage = this.querySelector(".emailPresence");
+
+    emailStarImage.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+    });
+
+    emailStarImage.addEventListener("click", (event) => {
+      onClickEmailStar(event, this);
+    });
+
+    emailPresenceImage.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+    });
+
+    emailPresenceImage.addEventListener("click", (event) => {
+      onClickEmailPresence(event, this);
+    });
+  }
+}
+
 customElements.define("mail-headerfield", MozMailHeaderfield);
 customElements.define("mail-urlfield", MozMailUrlfield);
 customElements.define("mail-tagfield", MozMailHeaderfieldTags);
+customElements.define("mail-emailaddress", MozMailEmailaddress);

@@ -1465,16 +1465,17 @@ function findEmailNodeFromPopupNode(elt, popup)
 
 function hideEmailNewsPopup(addressNode)
 {
+  addressNode = addressNode.closest("mail-emailaddress");
   // highlight the emailBox/newsgroupBox
   addressNode.removeAttribute("selected");
 }
 
 function setupEmailAddressPopup(emailAddressNode)
 {
-  var emailAddressPlaceHolder = document.getElementById("emailAddressPlaceHolder");
-  var emailAddress = emailAddressNode.getPart("emaillabel").value;
+  emailAddressNode = emailAddressNode.closest("mail-emailaddress");
   emailAddressNode.setAttribute("selected", "true");
-  emailAddressPlaceHolder.setAttribute("label", emailAddress);
+  var emailAddressPlaceHolder = document.getElementById("emailAddressPlaceHolder");
+  emailAddressPlaceHolder.setAttribute("label", emailAddressNode.label);
 
   if (emailAddressNode.cardDetails && emailAddressNode.cardDetails.card) {
     document.getElementById("addToAddressBookItem").setAttribute("hidden", true);
@@ -1575,6 +1576,7 @@ function onClickEmailPresence(event, emailAddressNode)
  */
 function AddContact(emailAddressNode)
 {
+  emailAddressNode = emailAddressNode.closest("mail-emailaddress");
   // When we collect an address, it updates the AB which sends out
   // notifications to update the UI. In the add case we don't want to update
   // the UI so that accidentally double-clicking on the star doesn't lead
@@ -1598,6 +1600,7 @@ function AddContact(emailAddressNode)
 
 function EditContact(emailAddressNode)
 {
+  emailAddressNode = emailAddressNode.closest("mail-emailaddress");
   if (emailAddressNode.cardDetails.card)
     editContactInlineUI.showEditContactPanel(emailAddressNode.cardDetails,
                                              emailAddressNode);
@@ -1612,6 +1615,7 @@ function EditContact(emailAddressNode)
  */
 function SendMailToNode(addressNode, aEvent)
 {
+  addressNode = addressNode.closest("mail-emailaddress");
   let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
                  .createInstance(Ci.nsIMsgCompFields);
   let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
@@ -1652,6 +1656,7 @@ function SendMailToNode(addressNode, aEvent)
  */
 function CopyEmailNewsAddress(addressNode, aIncludeName = false)
 {
+  addressNode = addressNode.closest("mail-emailaddress");
   let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
                     .getService(Ci.nsIClipboardHelper);
   let address = addressNode.getAttribute(aIncludeName ? "fullAddress"
@@ -1672,6 +1677,7 @@ function CopyEmailNewsAddress(addressNode, aIncludeName = false)
  */
 function CreateFilter(aHeaderNode, aMessage)
 {
+  aHeaderNode = aHeaderNode.closest("mail-emailaddress");
   let nodeIsAddress = aHeaderNode.hasAttribute("emailAddress");
   let nodeValue = nodeIsAddress ? aHeaderNode.getAttribute("emailAddress") :
                                   aHeaderNode.textContent;

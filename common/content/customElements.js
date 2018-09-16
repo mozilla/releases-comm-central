@@ -11,4 +11,3 @@ for (let script of [
 ]) {
   Services.scriptloader.loadSubScript(script, window);
 }
-
