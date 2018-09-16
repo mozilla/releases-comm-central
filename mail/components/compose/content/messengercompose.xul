@@ -2081,34 +2081,37 @@
                      notificationside="bottom"/>
   </hbox>
 
-  <statusbar id="status-bar" class="chromeclass-status">
+  <hbox id="status-bar" class="statusbar chromeclass-status">
     <statusbarpanel id="statusText" flex="1"/>
-    <statusbarpanel id="statusbar-progresspanel"
-                    class="statusbarpanel-progress"
-                    collapsed="true">
+    <hbox id="statusbar-progresspanel"
+          class="statusbarpanel statusbarpanel-progress"
+          collapsed="true">
       <html:progress id="compose-progressmeter" class="progressmeter-statusbar" value="0" max="100"/>
-    </statusbarpanel>
-    <statusbarpanel class="statusbarpanel-iconic"
-                    collapsed="true"
-                    id="signing-status"
-                    oncommand="showMessageComposeSecurityStatus();">
+    </hbox>
+    <hbox id="signing-status"
+          class="statusbarpanel statusbarpanel-iconic"
+          collapsed="true"
+          oncommand="showMessageComposeSecurityStatus();">
       <image/>
-    </statusbarpanel>
-    <statusbarpanel class="statusbarpanel-iconic"
-                    collapsed="true"
-                    id="encryption-status"
-                    oncommand="showMessageComposeSecurityStatus();">
+    </hbox>
+    <hbox id="encryption-status"
+          class="statusbarpanel statusbarpanel-iconic"
+          collapsed="true"
+          oncommand="showMessageComposeSecurityStatus();">
       <image/>
-    </statusbarpanel>
+    </hbox>
     <statusbarpanel id="encodingStatusPanel" tooltiptext="&encodingStatusPanel.tooltip;"/>
-    <statusbarpanel id="spellCheckStatusPanel">
+    <hbox id="spellCheckStatusPanel" class="statusbarpanel">
       <toolbarbutton id="languageStatusButton"
                      tooltiptext="&languageStatusButton.tooltip;"
                      oncommand="showPopupById('languageMenuList',
                                               'languageStatusButton',
                                               'before_start');">
       </toolbarbutton>
-    </statusbarpanel>
-  </statusbar>
+    </hbox>
+    <hbox class="statusbarpanel statusbar-resizerpanel">
+      <resizer dir="bottomend"/>
+    </hbox>
+  </hbox>
 
 </window>

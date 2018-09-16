@@ -32,12 +32,15 @@
     </vbox>
   </hbox>
   <browser type="content" src="about:blank" id="requestFrame" flex="1"/>
-  <statusbar>
+  <hbox class="statusbar">
     <statusbarpanel id="security-display" crop="end" flex="1"/>
     <statusbarpanel id="security-status" crop="end" collapsed="true"/>
-    <statusbarpanel class="statusbarpanel-progress" collapsed="true" id="statusbar-status">
+    <hbox id="statusbar-status" class="statusbarpanel statusbarpanel-progress" collapsed="true">
       <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
-    </statusbarpanel>
+    </hbox>
     <statusbarpanel id="security-button" class="statusbarpanel-iconic"/>
-  </statusbar>
+    <hbox class="statusbarpanel statusbar-resizerpanel">
+      <resizer dir="bottomend"/>
+    </hbox>
+  </hbox>
 </window>

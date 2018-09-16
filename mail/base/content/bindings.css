@@ -82,11 +82,3 @@ spinbuttons {
 .spinbuttons-button {
   -moz-user-focus: ignore;
 }
-
-statusbar {
-  -moz-binding: url("chrome://messenger/content/generalBindings.xml#statusbar");
-}
-
-statusbarpanel {
-  -moz-binding: url("chrome://messenger/content/generalBindings.xml#statusbarpanel");
-}

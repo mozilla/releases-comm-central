@@ -373,14 +373,17 @@
   </vbox> <!-- appcontent -->
 </hbox><!-- sidebar-parent -->
 
-    <!-- Some of this is from globarOverlay.xul -->
-    <statusbar class="chromeclass-status" id="status-bar">
+    <!-- Some of this is from globalOverlay.xul -->
+    <hbox class="statusbar chromeclass-status" id="status-bar">
       <statusbarpanel id="component-bar"/>
-      <statusbarpanel id="structToolbar" flex="1" pack="end">
-	    <label id="structSpacer" value="" flex="1"/>
-      </statusbarpanel>
-      <statusbarpanel class="statusbarpanel-iconic" id="offline-status"/>
-    </statusbar>
+      <hbox id="structToolbar" class="statusbarpanel" flex="1" pack="end">
+        <label id="structSpacer" value="" flex="1"/>
+      </hbox>
+      <statusbarpanel id="offline-status" class="statusbarpanel-iconic"/>
+      <hbox class="statusbarpanel statusbar-resizerpanel">
+        <resizer dir="bottomend"/>
+      </hbox>
+    </hbox>
 
 
 

@@ -576,14 +576,13 @@
 
   <!-- the iframe is inserted here dynamically in the "load" handler function -->
 
-  <statusbar class="chromeclass-status" id="status-bar">
-    <statusbarpanel id="status-text"
-                    flex="1"/>
-    <statusbarpanel id="status-privacy"
-                    align="center"
-                    flex="1"
-                    collapsed="true"
-                    pack="start">
+  <hbox id="status-bar" class="statusbar chromeclass-status">
+    <hbox id="status-privacy"
+          class="statusbarpanel"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start">
       <label value="&event.statusbarpanel.privacy.label;"/>
       <hbox id="status-privacy-public-box" privacy="PUBLIC">
         <label value="&event.menu.options.privacy.public.label;"/>
@@ -594,12 +593,13 @@
       <hbox id="status-privacy-private-box" privacy="PRIVATE">
         <label value="&event.menu.options.privacy.private.label;"/>
       </hbox>
-    </statusbarpanel>
-    <statusbarpanel id="status-priority"
-                    align="center"
-                    flex="1"
-                    collapsed="true"
-                    pack="start">
+    </hbox>
+    <hbox id="status-priority"
+          class="statusbarpanel"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start">
       <label value="&event.priority2.label;"/>
       <image id="image-priority-low"
              class="cal-statusbar-1"
@@ -613,12 +613,13 @@
              class="cal-statusbar-1"
              collapsed="true"
              value="high"/>
-    </statusbarpanel>
-    <statusbarpanel id="status-status"
-                    align="center"
-                    flex="1"
-                    collapsed="true"
-                    pack="start">
+    </hbox>
+    <hbox id="status-status"
+          class="statusbarpanel"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start">
       <label value="&task.status.label;"/>
       <label id="status-status-tentative-label"
              value="&newevent.status.tentative.label;"
@@ -629,13 +630,13 @@
       <label id="status-status-cancelled-label"
              value="&newevent.eventStatus.cancelled.label;"
              hidden="true"/>
-    </statusbarpanel>
-    <statusbarpanel id="status-freebusy"
-                    class="event-only"
-                    align="center"
-                    flex="1"
-                    collapsed="true"
-                    pack="start">
+    </hbox>
+    <hbox id="status-freebusy"
+          class="statusbarpanel event-only"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start">
       <label value="&event.statusbarpanel.freebusy.label;"/>
       <label id="status-freebusy-free-label"
              value="&event.freebusy.legend.free;"
@@ -643,6 +644,9 @@
       <label id="status-freebusy-busy-label"
              value="&event.freebusy.legend.busy;"
              hidden="true"/>
-    </statusbarpanel>
-  </statusbar>
+    </hbox>
+    <hbox class="statusbarpanel statusbar-resizerpanel">
+      <resizer dir="bottomend"/>
+    </hbox>
+  </hbox>
 </dialog>

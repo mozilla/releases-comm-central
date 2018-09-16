@@ -742,7 +742,7 @@ treechildren::-moz-tree-cell-text(dummy) {
       background-clip: padding-box;
     }
 
-    #messengerWindow[sizemode=normal] statusbar {
+    #messengerWindow[sizemode=normal] .statusbar {
       margin-top: -1px;
       border: 1px solid var(--glassShadowColor);
       border-top-color: threedshadow;

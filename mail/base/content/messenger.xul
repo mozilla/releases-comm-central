@@ -788,11 +788,11 @@
 
   <notificationbox id="mail-notification-box" notificationside="bottom"/>
   <statuspanel id="statusbar-display"/>
-  <statusbar id="status-bar" class="chromeclass-status">
+  <hbox id="status-bar" class="statusbar chromeclass-status">
 #include mainStatusbar.inc
     <statusbarpanel id="unreadMessageCount"/>
     <statusbarpanel id="totalMessageCount"/>
-  </statusbar>
+  </hbox>
 
 </window>
 

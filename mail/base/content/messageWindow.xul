@@ -231,7 +231,10 @@
             hidden="true"/>
   </panel>
 
-  <statusbar class="chromeclass-status" id="status-bar">
+  <hbox id="status-bar" class="statusbar chromeclass-status">
 #include mainStatusbar.inc
-  </statusbar>
+    <hbox class="statusbarpanel statusbar-resizerpanel">
+      <resizer dir="bottomend"/>
+    </hbox>
+  </hbox>
 </window>

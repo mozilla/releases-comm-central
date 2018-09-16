@@ -215,14 +215,14 @@
     <modevbox id="today-pane-panel" />
   </hbox>
 
-  <statusbar id="status-bar">
+  <hbox id="status-bar">
     <!-- event/task in tab statusbarpanels -->
-    <statusbarpanel id="status-privacy"
-                    class="event-dialog"
-                    align="center"
-                    flex="1"
-                    collapsed="true"
-                    pack="start">
+    <hbox id="status-privacy"
+          class="statusbarpanel event-dialog"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start">
       <label value="&event.statusbarpanel.privacy.label;"/>
       <hbox id="status-privacy-public-box" privacy="PUBLIC">
         <label value="&event.menu.options.privacy.public.label;"/>
@@ -233,13 +233,13 @@
       <hbox id="status-privacy-private-box" privacy="PRIVATE">
         <label value="&event.menu.options.privacy.private.label;"/>
       </hbox>
-    </statusbarpanel>
-    <statusbarpanel id="status-priority"
-                    class="event-dialog"
-                    align="center"
-                    flex="1"
-                    collapsed="true"
-                    pack="start">
+    </hbox>
+    <hbox id="status-priority"
+          class="statusbarpanel event-dialog"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start">
       <label value="&event.priority2.label;"/>
       <image id="image-priority-low"
              class="cal-statusbar-1"
@@ -253,13 +253,13 @@
              class="cal-statusbar-1"
              collapsed="true"
              value="high"/>
-    </statusbarpanel>
-    <statusbarpanel id="status-status"
-                    class="event-dialog"
-                    align="center"
-                    flex="1"
-                    collapsed="true"
-                    pack="start">
+    </hbox>
+    <hbox id="status-status"
+          class="statusbarpanel event-dialog"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start">
       <label value="&task.status.label;"/>
       <label id="status-status-tentative-label"
              value="&newevent.status.tentative.label;"
@@ -270,13 +270,13 @@
       <label id="status-status-cancelled-label"
              value="&newevent.eventStatus.cancelled.label;"
              hidden="true"/>
-    </statusbarpanel>
-    <statusbarpanel id="status-freebusy"
-                    class="event-only event-dialog"
-                    align="center"
-                    flex="1"
-                    collapsed="true"
-                    pack="start">
+    </hbox>
+    <hbox id="status-freebusy"
+          class="statusbarpanel event-only event-dialog"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start">
       <label value="&event.statusbarpanel.freebusy.label;"/>
       <label id="status-freebusy-free-label"
              value="&event.freebusy.legend.free;"
@@ -284,10 +284,11 @@
       <label id="status-freebusy-busy-label"
              value="&event.freebusy.legend.busy;"
              hidden="true"/>
-    </statusbarpanel>
+    </hbox>
     <!-- end event/task in tab statusbarpanels -->
-    <statusbarpanel id="calendar-show-todaypane-panel"
-                    pack="center">
+    <hbox id="calendar-show-todaypane-panel"
+          class="statusbarpanel"
+          pack="center">
       <toolbarbutton id="calendar-status-todaypane-button"
                      todaypane="true"
                      type="checkbox"
@@ -295,14 +296,18 @@
                      tooltiptext="&calendar.todaypane.button.tooltip;"
                      observes="calendar_toggle_todaypane_command"
                      command="calendar_toggle_todaypane_command"/>
-    </statusbarpanel>
-    <statusbarpanel id="calendar-invitations-panel"
-                    insertbefore="unreadMessageCount,totalMessageCount"
-                    oncommand="openInvitationsDialog()">
+    </hbox>
+    <hbox id="calendar-invitations-panel"
+          class="statusbarpanel"
+          insertbefore="unreadMessageCount,totalMessageCount"
+          oncommand="openInvitationsDialog()">
       <label id="calendar-invitations-label"
              class="text-link"
              onclick="openInvitationsDialog()"
              onkeypress="if (event.key == 'Enter') { openInvitationsDialog(); }"/>
-    </statusbarpanel>
-  </statusbar>
+    </hbox>
+    <hbox class="statusbarpanel statusbar-resizerpanel">
+      <resizer dir="bottomend"/>
+    </hbox>
+  </hbox>
 </overlay>

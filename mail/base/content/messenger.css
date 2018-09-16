@@ -605,7 +605,7 @@ preftab:root /* override :root */ {
 /* Status bar */
 
 %ifdef XP_MACOSX
-statusbar {
+.statusbar {
   padding-right: 14px;
 }
 
@@ -613,7 +613,7 @@ statusbar {
   display: none;
 }
 %else
-window[sizemode="maximized"] statusbarpanel.statusbar-resizerpanel {
+window[sizemode="maximized"] .statusbar-resizerpanel {
   visibility: collapse;
 }
 %endif

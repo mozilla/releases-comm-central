@@ -661,7 +661,7 @@ button[type="menu-button"] > dropmarker {
   padding-top: 1px;
 }
 
-statusbar {
+.statusbar {
   min-width: 1px; /* DON'T DELETE!
   Prevents hiding of scrollbars in browser when window is made smaller.*/
   min-height: 15px !important;
@@ -672,20 +672,21 @@ statusbar {
   text-shadow: rgba(255, 255, 255, 0.4) 0 1px;
 }
 
-statusbarpanel {
+statusbarpanel,
+.statusbarpanel {
   -moz-box-align: center;
   -moz-box-pack: center;
   padding: 0 4px;
 }
 
-statusbar:-moz-lwtheme {
+.statusbar:-moz-lwtheme {
   -moz-appearance: none;
   background: none;
   border-style: none;
   text-shadow: inherit;
 }
 
-statusbar:-moz-lwtheme-brighttext {
+.statusbar:-moz-lwtheme-brighttext {
   --tabs-border-color: hsla(0,0%,60%,.4);
 }
 

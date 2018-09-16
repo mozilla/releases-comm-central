@@ -701,20 +701,21 @@ menulist[editable="true"] > .menulist-dropmarker {
 
 /* Status bar */
 
-statusbar {
+.statusbar {
   -moz-appearance: statusbar;
   min-height: 22px;
 }
 
-statusbar:-moz-lwtheme {
+.statusbar:-moz-lwtheme {
   -moz-appearance: none;
 }
 
-statusbar:-moz-lwtheme-brighttext {
+.statusbar:-moz-lwtheme-brighttext {
   --tabs-border-color: hsla(0,0%,60%,.4);
 }
 
-statusbarpanel {
+statusbarpanel,
+.statusbarpanel {
   -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;

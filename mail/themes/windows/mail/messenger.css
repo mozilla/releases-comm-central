@@ -731,20 +731,21 @@ menulist > menupopup:not([type="folder"]) > menuseparator {
 
 /* Status bar */
 
-statusbar {
+.statusbar {
   -moz-appearance: statusbar;
   min-height: 22px;
 }
 
-statusbar:-moz-lwtheme {
+.statusbar:-moz-lwtheme {
   -moz-appearance: none;
 }
 
-statusbar:-moz-lwtheme-brighttext {
+.statusbar:-moz-lwtheme-brighttext {
   --tabs-border-color: hsla(0,0%,60%,.4);
 }
 
-statusbarpanel {
+statusbarpanel,
+.statusbarpanel {
   -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;
@@ -752,7 +753,8 @@ statusbarpanel {
   padding: 0 4px;
 }
 
-statusbarpanel:-moz-lwtheme {
+statusbarpanel:-moz-lwtheme,
+.statsubarpanel:-moz-lwtheme {
   border-inline-end-color: var(--tabs-border-color);
 }
 
@@ -762,11 +764,6 @@ statusbarpanel:-moz-lwtheme {
   -moz-appearance: resizerpanel;
   padding: 0;
   border-inline-end-width: 0;
-}
-
-statusbarpanel label {
-  margin-top: 0;
-  margin-bottom: 0;
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
@@ -780,7 +777,8 @@ statusbarpanel label {
 }
 
 @media (-moz-windows-classic) {
-  statusbarpanel:not(:-moz-lwtheme) {
+  statusbarpanel:not(:-moz-lwtheme),
+  .statusbarpanel:not(:-moz-lwtheme) {
     -moz-appearance: statusbarpanel;
   }
 }
