@@ -1236,14 +1236,14 @@ nsresult nsParseMailMessageState::InternSubject (struct message_header *header)
         edited the subject line by hand?)
      */
   nsCString modifiedSubject;
-  if (NS_MsgStripRE(nsDependentCString(key), modifiedSubject))
+  bool strippedRE = NS_MsgStripRE(nsDependentCString(key), modifiedSubject);
+  if (strippedRE)
     flags |= nsMsgMessageFlags::HasRe;
   else
     flags &= ~nsMsgMessageFlags::HasRe;
   m_newMsgHdr->SetFlags(flags); // this *does not* update the mozilla-status header in the local folder
 
-  // Condense the subject text into as few MIME-2 encoded words as possible.
-  m_newMsgHdr->SetSubject(modifiedSubject.IsEmpty() ? key : modifiedSubject.get());
+  m_newMsgHdr->SetSubject(strippedRE ? modifiedSubject.get() : key);
 
   return NS_OK;
 }

@@ -536,14 +536,15 @@ nsNNTPNewsgroupList::ParseLine(char *line, uint32_t * message_number)
     // ### should call IsHeaderRead here...
     /* strip "Re: " */
     nsCString modifiedSubject;
-    if (NS_MsgStripRE(nsDependentCString(subject), modifiedSubject))
+    bool strippedRE = NS_MsgStripRE(nsDependentCString(subject), modifiedSubject);
+    if (strippedRE)
       (void) newMsgHdr->OrFlags(nsMsgMessageFlags::HasRe, &flags);
 
     // this will make sure read flags agree with newsrc
     if (! (flags & nsMsgMessageFlags::Read))
       rv = newMsgHdr->OrFlags(nsMsgMessageFlags::New, &flags);
 
-    rv = newMsgHdr->SetSubject(modifiedSubject.IsEmpty() ? subject : modifiedSubject.get());
+    rv = newMsgHdr->SetSubject(strippedRE ? modifiedSubject.get() : subject);
 
     if (NS_FAILED(rv))
       return rv;
@@ -1055,15 +1056,15 @@ nsNNTPNewsgroupList::AddHeader(const char *header, const char *value)
     // ### should call IsHeaderRead here...
     /* strip "Re: " */
     nsCString modifiedSubject;
-    if (NS_MsgStripRE(nsDependentCString(subject), modifiedSubject))
+    bool strippedRE = NS_MsgStripRE(nsDependentCString(subject), modifiedSubject);
+    if (strippedRE)
       // this will make sure read flags agree with newsrc
      (void) m_newMsgHdr->OrFlags(nsMsgMessageFlags::HasRe, &flags);
 
     if (! (flags & nsMsgMessageFlags::Read))
       rv = m_newMsgHdr->OrFlags(nsMsgMessageFlags::New, &flags);
 
-    rv = m_newMsgHdr->SetSubject(modifiedSubject.IsEmpty() ? subject :
-      modifiedSubject.get());
+    rv = m_newMsgHdr->SetSubject(strippedRE ? modifiedSubject.get() : subject);
   }
   else if (PL_strcmp(header, "message-id") == 0)
   {
