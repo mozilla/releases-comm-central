@@ -16,7 +16,7 @@ class nsIPrefService;
 class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase
 {
 public:
-  NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS_INHERITED
 
   nsSeamonkeyProfileMigrator();
 

@@ -28,7 +28,7 @@ class nsAbMDBDirProperty: public nsIAbMDBDirectory, public nsAbDirProperty
 public:
   nsAbMDBDirProperty(void);
 
-  NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIABMDBDIRECTORY
 
 protected:
