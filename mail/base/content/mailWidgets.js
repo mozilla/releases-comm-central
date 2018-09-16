@@ -73,6 +73,50 @@ class MozMailHeaderfieldTags extends MozXULElement {
   }
 }
 
+class MozMailNewsgroup extends MozXULElement {
+  connectedCallback() {
+    this.classList.add("emailDisplayButton");
+    this.setAttribute("context", "newsgroupPopup");
+    this.setAttribute("popup", "newsgroupPopup");
+  }
+}
+
+class MozMailNewsgroupsHeaderfield extends MozXULElement {
+  connectedCallback() {
+    this.classList.add("headerValueBox");
+    this.mNewsgroups = [];
+  }
+
+  addNewsgroupView(aNewsgroup) {
+    this.mNewsgroups.push(aNewsgroup);
+  }
+
+  buildViews() {
+    for (let i = 0; i < this.mNewsgroups.length; i++) {
+      const newNode = document.createElement("mail-newsgroup");
+      if (i > 0) {
+        const textNode = document.createElement("text");
+        textNode.setAttribute("value", ",");
+        textNode.setAttribute("class", "newsgroupSeparator");
+        this.appendChild(textNode);
+      }
+
+      newNode.textContent = this.mNewsgroups[i];
+      newNode.setAttribute("newsgroup", this.mNewsgroups[i]);
+      this.appendChild(newNode);
+    }
+  }
+
+  clearHeaderValues() {
+    this.mNewsgroups = [];
+    while (this.hasChildNodes()) {
+      this.lastChild.remove();
+    }
+  }
+}
+
 customElements.define("mail-headerfield", MozMailHeaderfield);
 customElements.define("mail-urlfield", MozMailUrlfield);
 customElements.define("mail-tagfield", MozMailHeaderfieldTags);
+customElements.define("mail-newsgroup", MozMailNewsgroup);
+customElements.define("mail-newsgroups-headerfield", MozMailNewsgroupsHeaderfield);

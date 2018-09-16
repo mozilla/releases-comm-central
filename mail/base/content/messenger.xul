@@ -235,24 +235,24 @@
   <tooltip id="attachmentListTooltip"/>
 
   <menupopup id="newsgroupPopup" position="after_start" class="newsgroupPopup"
-             onpopupshowing="setupNewsgroupPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup')); goUpdateCommand('cmd_createFilterFromPopup')"
-             onpopuphiding="hideEmailNewsPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'));">
+             onpopupshowing="setupNewsgroupPopup(document.popupNode); goUpdateCommand('cmd_createFilterFromPopup')"
+             onpopuphiding="hideEmailNewsPopup(document.popupNode);">
       <menuitem id="newsgroupPlaceHolder"
                 disabled="true"/>
       <menuseparator/>
       <menuitem id="sendMessageToNewsgroupItem" label="&SendMessageTo.label;"
                 accesskey="&SendMessageTo.accesskey;"
-                oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'), event)"/>
+                oncommand="SendMailToNode(document.popupNode, event)"/>
       <menuitem id="copyNewsgroupNameItem" label="&CopyNewsgroupName.label;"
                 accesskey="&CopyNewsgroupName.accesskey;"
-                oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
+                oncommand="CopyEmailNewsAddress(document.popupNode)"/>
       <menuitem id="copyNewsgroupURLItem" label="&CopyNewsgroupURL.label;"
                 accesskey="&CopyNewsgroupURL.accesskey;"
-                oncommand="CopyNewsgroupURL(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
+                oncommand="CopyNewsgroupURL(document.popupNode)"/>
       <menuseparator id="subscribeToNewsgroupSeparator"/>
       <menuitem id="subscribeToNewsgroupItem" label="&SubscribeToNewsgroup.label;"
                 accesskey="&SubscribeToNewsgroup.accesskey;"
-                oncommand="SubscribeToNewsgroup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
+                oncommand="SubscribeToNewsgroup(document.popupNode)"/>
   </menupopup>
 
   <menupopup id="pageContextMenu"
