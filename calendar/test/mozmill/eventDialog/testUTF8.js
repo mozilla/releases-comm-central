@@ -72,7 +72,7 @@ function testUTF8() {
         event.assertValue(iframeId("item-title"), UTF8STRING);
         event.assertValue(iframeId("item-location"), UTF8STRING);
         event.assertValue(iframeId("item-description"), UTF8STRING);
-        event.assertJS(() => iframeId("item-categories").getNode().querySelector(`menuitem[label="${UTF8STRING}"][checked]`));
+        event.assert(() => iframeId("item-categories").getNode().querySelector(`menuitem[label="${UTF8STRING}"][checked]`));
 
         // escape the event window
         event.keypress(null, "VK_ESCAPE", {});

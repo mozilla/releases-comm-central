@@ -307,7 +307,7 @@ function checkTooltip(monthView, row, col, date, startTime, endTime) {
     });
 
     // This could be on the next day if it is 00:00.
-    controller.assertJS(() => dateTime.getNode().textContent.endsWith(endTime));
+    controller.assert(() => dateTime.getNode().textContent.endsWith(endTime));
 }
 
 function teardownTest(module) {

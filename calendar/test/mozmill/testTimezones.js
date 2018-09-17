@@ -52,10 +52,10 @@ function testTimezones2_CreateEvents() {
     goToDate(controller, 2009, 1, 1);
 
     // create weekly recurring events in all TIMEZONES
-    let times = [[4, 30], [4, 30], [3, 0], [3, 0], [9, 0], [14, 0], [19, 45], [1, 30]];
+    let times = [[4, 30], [5, 0], [3, 0], [3, 0], [9, 0], [14, 0], [19, 45], [1, 30]];
     let time = new Date();
     for (let i = 0; i < TIMEZONES.length; i++) {
-        let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, i + 8);
+        let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, i + 11);
         invokeEventDialog(controller, eventBox, (event, iframe) => {
             time.setHours(times[i][0]);
             time.setMinutes(times[i][1]);
@@ -333,7 +333,7 @@ function verify(controller, dates, timezones, times) {
                 viewForward(controller, 1);
             }
 
-            controller.assertJS(() => eventNodes.some(node => Math.abs(timeY - node) < allowedDifference));
+            controller.assert(() => eventNodes.some(node => Math.abs(timeY - node) < allowedDifference));
         }
     }
 }

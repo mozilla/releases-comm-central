@@ -714,8 +714,9 @@ function setData(dialog, iframe, data) {
     // starttime
     if (data.starttime != undefined && data.starttime.constructor.name == "Date") {
         let starttime = dateFormatter.formatTime(cal.dtz.jsDateToDateTime(data.starttime, cal.dtz.floating));
-        startTimeInput.getNode().value = starttime;
-        sleep();
+        dialog.click(startTimeInput);
+        dialog.keypress(startTimeInput, "a", { accelKey: true });
+        dialog.type(startTimeInput, starttime);
     }
 
     // enddate
@@ -731,7 +732,9 @@ function setData(dialog, iframe, data) {
     // endtime
     if (data.endtime != undefined && data.endtime.constructor.name == "Date") {
         let endtime = dateFormatter.formatTime(cal.dtz.jsDateToDateTime(data.endtime, cal.dtz.floating));
-        endTimeInput.getNode().value = endtime;
+        dialog.click(endTimeInput);
+        dialog.keypress(endTimeInput, "a", { accelKey: true });
+        dialog.type(endTimeInput, endtime);
     }
 
     // recurrence
