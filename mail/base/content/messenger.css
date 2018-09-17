@@ -56,10 +56,6 @@ mail-newsgroups-headerfield {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#mail-newsgroups-headerfield");
 }
 
-mail-tagfield {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#mail-headerfield-tags");
-}
-
 mail-tagfield[collapsed="true"] {
   display: none;
 }
