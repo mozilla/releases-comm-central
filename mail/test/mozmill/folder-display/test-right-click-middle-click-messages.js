@@ -399,18 +399,18 @@ function _middle_click_on_expanded_thread_root_helper(aBackground) {
  *
  * @param aTests an array of test names
  */
+var global = this;
 function _generate_background_foreground_tests(aTests) {
-  let self = this;
   for (let test of aTests) {
-    let helperFunc = this["_" + test + "_helper"];
-    this["test_" + test + "_background"] = function() {
+    let helperFunc = global["_" + test + "_helper"];
+    global["test_" + test + "_background"] = function() {
       set_context_menu_background_tabs(true);
-      helperFunc.apply(self, [true]);
+      helperFunc(true);
       reset_context_menu_background_tabs();
     };
-    this["test_" + test + "_foreground"] = function() {
+    global["test_" + test + "_foreground"] = function() {
       set_context_menu_background_tabs(false);
-      helperFunc.apply(self, [false]);
+      helperFunc(false);
       reset_context_menu_background_tabs();
     };
   }

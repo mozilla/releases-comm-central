@@ -723,7 +723,7 @@ function subtest_search_button_disabled_cases(w) {
 
   // Case 3:  Search input has text, no providers selected
   // Make sure no provider checkboxes are checked.
-  inputs = w.window.document.querySelectorAll('input[type="checkbox"]:checked');
+  let inputs = w.window.document.querySelectorAll('input[type="checkbox"]:checked');
   for (input of inputs) {
     mc.click(new elib.Elem(input));
   }

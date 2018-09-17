@@ -109,7 +109,7 @@ function test_account_name() {
     .createIncomingServer(null, "example.nntp.invalid", "nntp")
     .QueryInterface(Ci.nsINntpIncomingServer);
 
-  identity = MailServices.accounts.createIdentity();
+  let identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox2@example.invalid";
 
   let nntpAccount = MailServices.accounts.createAccount();

@@ -18,7 +18,7 @@ var gContentWindow = null;
 var gJSObject = null;
 var gTabDoc = null;
 var gOldStartPage = null;
-var gOldCrashReporterEnabled = null;
+var gOldPluginCrashDocPage = null;
 var crashReporter = null;
 var kPluginId = "test-plugin";
 var kStartPagePref = "mailnews.start_page.override_url";
@@ -46,12 +46,8 @@ function setupModule(module) {
   try {
     crashReporter = Cc["@mozilla.org/toolkit/crash-reporter;1"]
                       .getService(Ci.nsICrashReporter);
-    // Force the crash reporter to be enabled, but record its old setting.
-    gOldCrashReporterEnabled = crashReporter.enabled;
-
-    if (!crashReporter.enabled) {
-      crashReporter.enabled = true;
-    }
+    // The crash reporter must be enabled.
+    assert_true(crashReporter.enabled, "Mandatory Crash reporter is not enabled");
   } catch (e) {
     // Crashreporter is not working.
   }
@@ -81,9 +77,6 @@ function setupModule(module) {
 };
 
 function teardownModule(module) {
-  if (crashReporter)
-    crashReporter.enabled = gOldCrashReporterEnabled;
-
   Services.prefs.setCharPref(kStartPagePref, gOldStartPage);
   Services.prefs.setCharPref(kPluginCrashDocPref, gOldPluginCrashDocPage);
 }

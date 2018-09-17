@@ -38,7 +38,7 @@ function setupModule(module) {
 }
 
 function test_mail_account_setup() {
-  awc = wait_for_existing_window("mail:autoconfig");
+  let awc = wait_for_existing_window("mail:autoconfig");
 
   // Input user's account information
   awc.e("realname").focus();

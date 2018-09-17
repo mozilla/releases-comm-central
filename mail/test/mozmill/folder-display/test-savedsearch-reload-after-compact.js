@@ -14,8 +14,6 @@ var MODULE_NAME = "test-savedsearch-reload-after-compact";
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
 
-var folderInbox, folderVirtual;
-
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');
   fdh.installInto(module);
@@ -28,7 +26,7 @@ function setupModule(module) {
  * search over the inbox and the folder. Then, compact folders.
  */
 function test_setup_virtual_folder_and_compact() {
-  otherFolder = create_folder("otherFolder");
+  let otherFolder = create_folder("otherFolder");
   let [msgSet] = make_new_sets_in_folder(otherFolder, [{count: 2}]);
 
   /**
@@ -42,8 +40,8 @@ function test_setup_virtual_folder_and_compact() {
   let curMessage = select_click_row(0);
   press_delete();
 
-  folderVirtual = create_virtual_folder([inboxFolder, otherFolder], {},
-                                        true, "SavedSearch");
+  let folderVirtual = create_virtual_folder([inboxFolder, otherFolder], {},
+                                            true, "SavedSearch");
 
   be_in_folder(folderVirtual);
   curMessage = select_click_row(0);

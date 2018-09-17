@@ -165,7 +165,7 @@ function test_folder_flag_changes() {
   select_click_row(0);
   archive_selected_messages();
 
-  smartArchiveFolder = get_smart_folder_named("Archives");
+  let smartArchiveFolder = get_smart_folder_named("Archives");
   let archiveScope = "|" + smartArchiveFolder.msgDatabase.dBFolderInfo
                      .getCharProperty("searchFolderUri") + "|";
   // We should have both this account, and a folder corresponding
@@ -189,7 +189,7 @@ function test_folder_flag_changes() {
   rootFolder = inboxFolder.server.rootFolder;
   let localArchiveFolder = rootFolder.getChildNamed("Archives");
   let allDescendants = localArchiveFolder.descendants;
-  desiredScope = "|" + localArchiveFolder.URI + "|";
+  let desiredScope = "|" + localArchiveFolder.URI + "|";
   for (let folder of fixIterator(allDescendants, Ci.nsIMsgFolder)) {
     desiredScope += folder.URI + "|";
   }

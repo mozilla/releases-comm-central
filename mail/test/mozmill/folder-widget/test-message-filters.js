@@ -31,14 +31,11 @@ function setupModule(module)
   // we need one message to select and open
   make_new_sets_in_folder(folderA, [{count: 1}]);
 
-  server = setupLocalServer(NNTP_PORT);
+  setupLocalServer(NNTP_PORT);
 
   // Note, the uri is for hostname "invalid" which is the original uri. See
   // setupProtocolTest parameters.
   var prefix = "news://invalid:"+NNTP_PORT+"/";
-
-  // Test - group subscribe listing
-  test = "news:*";
 
   if (mc.mozmillModule.isMac) {
     test_customize_toolbar_doesnt_double_get_mail_menu.__force_skip__ = true;
@@ -59,7 +56,7 @@ function test_message_filter_shows_newsgroup_server()
   let filterc = wait_for_new_window("mailnews:filterlist");
   wait_for_window_focused(filterc.window);
 
-  popup = filterc.eid("serverMenuPopup");
+  let popup = filterc.eid("serverMenuPopup");
   filterc.assertNode(popup);
   filterc.click(popup);
 

@@ -24,13 +24,13 @@ function setupModule(module) {
   folder = create_folder("MessageSizeA");
 
   // Create messages with sizes in the byte, KB, and MB ranges.
-  bytemsg = create_message({body: {body: " "}});
+  let bytemsg = create_message({body: {body: " "}});
 
-  kbstring = "x ".repeat(1024/2);
-  kbmsg = create_message({body: {body: kbstring}});
+  let kbstring = "x ".repeat(1024/2);
+  let kbmsg = create_message({body: {body: kbstring}});
 
-  mbstring = kbstring.repeat(1024);
-  mbmsg = create_message({body: {body: mbstring}});
+  let mbstring = kbstring.repeat(1024);
+  let mbmsg = create_message({body: {body: mbstring}});
 
   add_message_to_folder(folder, bytemsg);
   add_message_to_folder(folder, kbmsg);

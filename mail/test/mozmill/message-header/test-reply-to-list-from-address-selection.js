@@ -14,30 +14,22 @@ var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers',
                        'window-helpers', 'compose-helpers'];
 
-var folderHelper = null;
-var windowindowHelperelper = null;
-var composeHelper = null;
-
 var testFolder = null;
 var msgHdr = null;
 var replyToListWindow = null;
 
 var identityString1 = "tinderbox_correct_identity@foo.invalid";
 
-var setupModule = function (module) {
-
-  folderHelper = collector.getModule('folder-display-helpers');
-  folderHelper.installInto(module);
-  windowHelper = collector.getModule('window-helpers');
-  windowHelper.installInto(module);
-  composeHelper = collector.getModule('compose-helpers');
-  composeHelper.installInto(module);
+function setupModule(module) {
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   addIdentitiesAndFolder();
   addMessageToFolder(testFolder);
 }
 
-var addMessageToFolder = function (aFolder) {
+function addMessageToFolder(aFolder) {
   var msgId = Cc["@mozilla.org/uuid-generator;1"]
                 .getService(Ci.nsIUUIDGenerator)
                 .generateUUID() + "@mozillamessaging.invalid";
@@ -70,7 +62,7 @@ var addMessageToFolder = function (aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-var addIdentitiesAndFolder = function() {
+function addIdentitiesAndFolder() {
   let identity2 = MailServices.accounts.createIdentity();
   //identity.fullName = "Tinderbox_Identity1";
   identity2.email="tinderbox_identity1@foo.invalid";
@@ -96,7 +88,7 @@ function test_Reply_To_List_From_Address() {
   let curMessage = select_click_row(0);
   assert_selected_and_displayed(mc, curMessage);
 
-  replyToListWindow = composeHelper.open_compose_with_reply_to_list();
+  replyToListWindow = open_compose_with_reply_to_list();
 
   var identityList = replyToListWindow.e("msgIdentity");
 

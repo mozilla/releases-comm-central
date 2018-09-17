@@ -20,7 +20,7 @@ var setupModule = function(module) {
   fdh.installInto(module);
 
   folder = create_folder("Test");
-  thread1 = create_thread(10);
+  let thread1 = create_thread(10);
   add_sets_to_folders([folder], [thread1]);
 };
 

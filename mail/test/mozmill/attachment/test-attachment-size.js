@@ -331,10 +331,8 @@ function help_test_attachment_size(index) {
 
   let expectedSizes = messages[index].attachmentSizes;
   for (let i = 0; i < expectedSizes.length; i++) {
-    if(expectedSizes[i] == null) {
-      unknownSize = true;
+    if (expectedSizes[i] == null)
       check_no_attachment_size(i);
-    }
     else
       check_attachment_size(i, expectedSizes[i]);
   }

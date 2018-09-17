@@ -102,16 +102,17 @@ function test_account_actions() {
   open_advanced_settings(function(amc) {
     subtest_check_account_actions(amc, imapAccount.key, true, true, true);
   });
+
   // NNTP (News) account: can't be default, can be removed.
   open_advanced_settings(function(amc) {
     subtest_check_account_actions(amc, nntpAccount.key, false, true, true);
   });
+
   // Local Folders account: can't be removed, can't be default.
-  localFoldersAccount = MailServices.accounts.FindAccountForServer(MailServices.accounts.localFoldersServer);
+  var localFoldersAccount = MailServices.accounts.FindAccountForServer(MailServices.accounts.localFoldersServer);
   open_advanced_settings(function(amc) {
     subtest_check_account_actions(amc, localFoldersAccount.key, false, false, true);
   });
-
   // SMTP server row: can't be removed, can't be default.
   open_advanced_settings(function(amc) {
     subtest_check_account_actions(amc, null, false, false, true);

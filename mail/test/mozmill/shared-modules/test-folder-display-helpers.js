@@ -164,7 +164,7 @@ function setupModule() {
   //  to be invoked after our specific named listener.)
   frame.events.addListener("fail", function(obj) {
       // normalize nsIExceptions so they look like JS exceptions...
-      rawex = obj.exception;
+      let rawex = obj.exception;
       if (obj.exception != null &&
           (obj.exception instanceof Ci.nsIException)) {
         obj.exception = {

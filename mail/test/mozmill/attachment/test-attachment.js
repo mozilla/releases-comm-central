@@ -21,6 +21,7 @@ ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;
+var messages;
 
 var textAttachment =
   "One of these days... people like me will rise up and overthrow you, and " +

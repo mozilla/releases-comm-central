@@ -21,7 +21,7 @@ function setupModule(module) {
 
   folder = create_folder("PaneFocus");
   let msg1 = create_thread(1);
-  thread = create_thread(3);
+  let thread = create_thread(3);
   let msg2 = create_thread(1);
   add_sets_to_folders([folder], [msg1, thread, msg2]);
 

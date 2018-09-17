@@ -95,9 +95,9 @@ function internal_check_delivery_format(editDraft) {
   // Select our wanted format.
   if (!mc.mozmillModule.isMac) {
     cwc.click(cwc.eid("optionsMenu"));
-    formatMenu = cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"),
-                                             [ { id: "outputFormatMenu" },
-                                               { id: "format_both" } ]);
+    cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"),
+                                [ { id: "outputFormatMenu" },
+                                  { id: "format_both" } ]);
   } else {
     // On OS X the main menu seems not accessible for clicking from mozmill.
     assert_true(cwc.e("outputFormatMenu").getAttribute("oncommand").startsWith("OutputFormatMenuSelect("));

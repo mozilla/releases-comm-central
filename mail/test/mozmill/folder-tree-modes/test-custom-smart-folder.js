@@ -21,7 +21,7 @@ var smartParentNameB="My Smart Folder B";
 
 var rootFolder;
 var inboxSubfolder, subfolderA, subfolderB;
-var smartInboxFolder;
+var smartFolderInbox;
 var smartFolderA;
 
 var nsMsgFolderFlags = Ci.nsMsgFolderFlags;

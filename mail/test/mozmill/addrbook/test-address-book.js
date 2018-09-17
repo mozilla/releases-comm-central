@@ -11,7 +11,7 @@
 var MODULE_NAME = 'test-address-book';
 
 var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['address-book-helpers', 'folder-display-helpers',
+var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers",
                        'compose-helpers', 'window-helpers',
                        'prompt-helpers'];
 
@@ -20,25 +20,14 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var abController = null;
-var addrBook1, addrBook2, addrBook3, addrBook4;
+var addrBook1, addrBook2, addrBook3, addrBook4, ldapBook;
 var mListA, mListB, mListC, mListD, mListE;
-var windowHelper;
 
 function setupModule(module)
 {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-
-  let abh = collector.getModule('address-book-helpers');
-  abh.installInto(module);
-
-  let ch = collector.getModule('compose-helpers');
-  ch.installInto(module);
-
-  let ph = collector.getModule('prompt-helpers');
-  ph.installInto(module);
-
-  windowHelper = collector.getModule('window-helpers');
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // Open the address book main window
   abController = open_address_book_window();
@@ -127,7 +116,7 @@ function test_persist_collapsed_and_expanded_states()
   set_address_book_collapsed(addrBook2);
 
   // Now close and re-open the address book
-  abController.window.close();
+  close_address_book_window(abController);
   abController = open_address_book_window();
 
   assert_true(is_address_book_collapsed(addrBook2));
@@ -140,7 +129,7 @@ function test_persist_collapsed_and_expanded_states()
   set_address_book_expanded(addrBook2);
 
   // Now close and re-open the address book
-  abController.window.close();
+  close_address_book_window(abController);
   abController = open_address_book_window();
 
   assert_true(!is_address_book_collapsed(addrBook2));
@@ -353,7 +342,7 @@ function test_writing_to_mailing_list() {
 
   // Assuming we've made it this far, now we just plan for the compose
   // window...
-  windowHelper.plan_for_new_window("msgcompose");
+  plan_for_new_window("msgcompose");
   // ... and click the "Write" button
   abController.click(abController.eid("button-newmessage"));
   let composeWin = wait_for_compose_window(abController);

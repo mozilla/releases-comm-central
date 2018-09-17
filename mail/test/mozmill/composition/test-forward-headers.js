@@ -17,7 +17,6 @@ var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-help
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var composeHelper = null;
 var cwc = null; // compose window controller
 var folder;
 var gDrafts;
@@ -25,7 +24,7 @@ var gDrafts;
 var setupModule = function (module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  composeHelper = collector.getModule("compose-helpers");
+  let composeHelper = collector.getModule("compose-helpers");
   composeHelper.installInto(module);
   let wh = collector.getModule("window-helpers");
   wh.installInto(module);
@@ -33,7 +32,7 @@ var setupModule = function (module) {
   mh.installInto(module);
 
   folder = create_folder("Test");
-  thread1 = create_thread(10);
+  let thread1 = create_thread(10);
   add_sets_to_folders([folder], [thread1]);
 
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);

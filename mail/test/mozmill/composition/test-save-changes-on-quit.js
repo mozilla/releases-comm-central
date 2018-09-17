@@ -128,7 +128,7 @@ function test_can_quit_on_changes() {
   // Trigger the quit-application-request notification
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
 
-  promptState = gMockPromptService.promptState;
+  let promptState = gMockPromptService.promptState;
   assert_not_equals(null, promptState, "Expected a confirmEx prompt");
 
   assert_equals("confirmEx", promptState.method);

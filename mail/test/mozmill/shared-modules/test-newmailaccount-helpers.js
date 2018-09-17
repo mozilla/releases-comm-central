@@ -192,7 +192,7 @@ var gConsoleListener = {
   },
 
   wait: function() {
-    self = this;
+    let self = this;
     mc.waitFor(function() {
       return self.sawMsg;
     },

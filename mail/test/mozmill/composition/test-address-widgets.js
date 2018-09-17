@@ -17,6 +17,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
 var cwc = null; // compose window controller
 var accountPOP3 = null;
 var accountNNTP = null;
+var originalAccountCount;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -27,6 +28,9 @@ function setupModule(module) {
   // up for this test.
   let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   accountPOP3 = MailServices.accounts.FindAccountForServer(server);
+
+  // There may be pre-existing accounts from other tests.
+  originalAccountCount = MailServices.accounts.allServers.length;
 };
 
 function teardownModule(module) {
@@ -67,15 +71,12 @@ function check_nntp_address_types() {
 }
 
 function add_NNTP_account() {
-  // There may be pre-existing accounts from other tests.
-  originalAccountCount = MailServices.accounts.allServers.length;
-
   // Create a NNTP server
   let nntpServer = MailServices.accounts
     .createIncomingServer(null, "example.nntp.invalid", "nntp")
     .QueryInterface(Ci.nsINntpIncomingServer);
 
-  identity = MailServices.accounts.createIdentity();
+  let identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox2@example.invalid";
 
   accountNNTP = MailServices.accounts.createAccount();

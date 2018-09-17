@@ -14,24 +14,14 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers",
                          "window-helpers", "compose-helpers"];
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-
-var folderHelper = null;
-var windowindowHelperelper = null;
-var composeHelper = null;
-
 var folder = null;
 
-var setupModule = function(module) {
-  folderHelper = collector.getModule("folder-display-helpers");
-  folderHelper.installInto(module);
-  windowHelper = collector.getModule("window-helpers");
-  windowHelper.installInto(module);
-  composeHelper = collector.getModule("compose-helpers");
-  composeHelper.installInto(module);
+function setupModule(module) {
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
-  folder = folderHelper.create_folder("Forward Content Testing");
+  folder = create_folder("Forward Content Testing");
   add_message_to_folder(folder, create_message({
     subject: "something like <foo@example>",
     body: {body: "Testing bug 397021!"},

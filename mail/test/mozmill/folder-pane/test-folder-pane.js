@@ -40,7 +40,11 @@ function test_all_folders_toggle_folder_open_state() {
   let accounts = 2;
   assert_folder_tree_view_row_count(accounts);
 
-  let inbox = trash = outbox = archives = folderPaneA = 1;
+  let inbox = 1;
+  let trash = 1;
+  let outbox = 1;
+  let archives = 1;
+  let folderPaneA = 1;
   // Create archives folder - this is ugly, but essentially the same as
   // what mailWindowOverlay.js does. We can't use the built-in helper
   // method to create the folder because we need the archive flag to get
@@ -49,8 +53,8 @@ function test_all_folders_toggle_folder_open_state() {
   // creating the storage, which sends the notification.
   let rdfService = Cc['@mozilla.org/rdf/rdf-service;1']
                      .getService(Ci.nsIRDFService);
-  folder = rdfService.GetResource(pop3Server.rootFolder.URI + "/Archives").
-           QueryInterface(Ci.nsIMsgFolder);
+  let folder = rdfService.GetResource(pop3Server.rootFolder.URI + "/Archives")
+                         .QueryInterface(Ci.nsIMsgFolder);
   folder.setFlag(Ci.nsMsgFolderFlags.Archive);
   folder.createStorageIfMissing(null);
   // After creating Archives, account should have expanded

@@ -417,7 +417,6 @@ async function test_bad_session_file_simple() {
 }
 
 function test_clean_shutdown_session_persistence_simple() {
-
   // open a few more 3pane windows
   for (var i = 0; i < 3; ++i) {
     open3PaneWindow();
@@ -429,7 +428,7 @@ function test_clean_shutdown_session_persistence_simple() {
 
   // close all the 3pane windows
   let lastWindowState = null;
-  enumerator = Services.wm.getEnumerator("mail:3pane");
+  let enumerator = Services.wm.getEnumerator("mail:3pane");
   while (enumerator.hasMoreElements()) {
     let window = enumerator.getNext();
     if (!enumerator.hasMoreElements())

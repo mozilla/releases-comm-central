@@ -35,6 +35,8 @@ var folderDisplayHelper;
 var mc;
 var windowHelper;
 
+var testHelperModule;
+
 function setupModule() {
   folderDisplayHelper = collector.getModule('folder-display-helpers');
   mc = folderDisplayHelper.mc;

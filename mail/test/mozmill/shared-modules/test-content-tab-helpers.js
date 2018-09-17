@@ -32,7 +32,7 @@ var _originalBlocklistURL = null;
 
 // logHelper (and therefore folderDisplayHelper) exports
 var mark_failure;
-var gMockExtProtocolSvcReg;
+var gMockExtProtSvcReg;
 
 function setupModule() {
   folderDisplayHelper = collector.getModule('folder-display-helpers');
