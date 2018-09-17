@@ -2306,10 +2306,12 @@ nsSmtpProtocol::GetUsernamePassword(nsACString &aUsername,
     nsCString hostname;
     rv = smtpServer->GetHostname(hostname);
     NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoString hostnameUTF16;
+    CopyASCIItoUTF16(hostname, hostnameUTF16);
 
     const char16_t *formatStrings[] =
     {
-      NS_ConvertASCIItoUTF16(hostname).get(),
+      hostnameUTF16.get(),
       nullptr
     };
 
