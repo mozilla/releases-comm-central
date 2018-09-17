@@ -7,6 +7,8 @@
  * called from the context of an open composer.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-newmsg-compose-identity";
 
 var RELATIVE_ROOT = "../shared-modules";

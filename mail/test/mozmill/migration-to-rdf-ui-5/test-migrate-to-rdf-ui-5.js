@@ -7,6 +7,8 @@
  * button to the mail toolbar, and that we've collapsed the main menu.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-migrate-to-rdf-ui-5";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];

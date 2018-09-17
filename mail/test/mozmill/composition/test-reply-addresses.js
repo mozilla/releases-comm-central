@@ -10,6 +10,8 @@
 
 // make SOLO_TEST=composition/test-reply-addresses.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-reply-addresses";
 
 var RELATIVE_ROOT = "../shared-modules";

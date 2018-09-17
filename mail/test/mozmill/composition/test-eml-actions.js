@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=composition/test-eml-actions.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-eml-actions";
 
 var RELATIVE_ROOT = "../shared-modules";

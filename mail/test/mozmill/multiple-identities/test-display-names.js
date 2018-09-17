@@ -6,6 +6,9 @@
  * Test that we can open and close a standalone message display window from the
  *  folder pane.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-display-names";
 
 var RELATIVE_ROOT = "../shared-modules";

@@ -6,6 +6,8 @@
  * Tests Filelink URL insertion behaviours in compose windows.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-cloudfile-attachment-urls';
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=message-header/test-return-receipt.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-return-receipt";
 
 var RELATIVE_ROOT = "../shared-modules";

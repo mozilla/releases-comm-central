@@ -6,6 +6,8 @@
  * Test that the close message window on delete option works.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-close-window-on-delete';
 
 var RELATIVE_ROOT = '../shared-modules';

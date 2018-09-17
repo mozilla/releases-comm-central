@@ -6,6 +6,9 @@
  * Test that message reloads happen properly when the message pane is hidden,
  * and then made visible again.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-message-reloads";
 
 var RELATIVE_ROOT = "../shared-modules";

@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=message-header/test-phishing-bar.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-phishing-bar";
 
 var RELATIVE_ROOT = "../shared-modules";

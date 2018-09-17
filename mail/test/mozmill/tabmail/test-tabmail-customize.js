@@ -6,6 +6,8 @@
  * Tests customization features of the tabs toolbar.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-tabmail-customize";
 
 var RELATIVE_ROOT = "../shared-modules";

@@ -9,6 +9,8 @@
 
 // make SOLO_TEST=composition/test-charset-upgrade.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-charset-upgrade";
 
 var RELATIVE_ROOT = "../shared-modules";

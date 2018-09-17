@@ -6,6 +6,8 @@
  * Tests that the cloudfile notifications work as they should.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-cloudfile-notifications';
 
 var RELATIVE_ROOT = '../shared-modules';

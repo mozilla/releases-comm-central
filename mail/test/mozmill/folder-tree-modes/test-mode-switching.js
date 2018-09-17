@@ -8,6 +8,8 @@
  * can be toggled properly.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-mode-switching";
 
 var RELATIVE_ROOT = "../shared-modules";

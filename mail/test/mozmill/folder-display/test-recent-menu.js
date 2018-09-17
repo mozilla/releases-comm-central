@@ -7,6 +7,9 @@
  * that they get updated when messages are moved to folders, and
  * don't get updated when we archive.
  */
+
+"use strict";
+
 ChromeUtils.import("resource:///modules/MailUtils.js");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 

@@ -10,6 +10,9 @@
  * because in many cases we are explicitly setting focus back after the thread
  * tree gains focus.
  */
+
+"use strict";
+
 var MODULE_NAME = 'test-tabs-simple';
 
 var RELATIVE_ROOT = '../shared-modules';

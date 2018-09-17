@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=folder-display/test-watch-ignore-thread.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-watch-ignore-thread";
 
 var RELATIVE_ROOT = "../shared-modules";

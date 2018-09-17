@@ -10,6 +10,8 @@
  * New checks can be added to it as needed.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-account-settings-infrastructure";
 
 var RELATIVE_ROOT = "../shared-modules";

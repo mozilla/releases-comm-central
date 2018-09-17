@@ -7,6 +7,8 @@
  * changes, and that persistence works (to a first approximation).
  */
 
+"use strict";
+
 var MODULE_NAME = "test-folder-pane-visibility";
 
 var RELATIVE_ROOT = "../shared-modules";

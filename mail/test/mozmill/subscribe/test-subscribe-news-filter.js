@@ -4,6 +4,8 @@
 
 /* Test that the subscribe window for news servers has working autocomplete. */
 
+"use strict";
+
 var MODULE_NAME = "test-subscribe-news-filter";
 
 var RELATIVE_ROOT = "../shared-modules";

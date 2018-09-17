@@ -12,6 +12,8 @@
  *   mode
  */
 
+"use strict";
+
 var MODULE_NAME = "test-display-message-with-folder-modes";
 
 var RELATIVE_ROOT = "../shared-modules";

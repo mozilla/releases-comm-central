@@ -7,6 +7,9 @@
  * Test that the size column of in the message list is formatted properly (e.g.
    0.1 KB, 1.2 KB, 12.3 KB, 123 KB, and likewise for MB and GB).
  */
+
+"use strict";
+
 var MODULE_NAME = 'test-message-size';
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -9,6 +9,8 @@
 
 // mozmake SOLO_TEST=composition/test-forward-rfc822-attach.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-forward-rfc822-attach";
 
 var RELATIVE_ROOT = "../shared-modules";

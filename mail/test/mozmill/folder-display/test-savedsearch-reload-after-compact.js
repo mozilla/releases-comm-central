@@ -7,6 +7,8 @@
  * of local folders.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-savedsearch-reload-after-compact";
 
 var RELATIVE_ROOT = '../shared-modules';

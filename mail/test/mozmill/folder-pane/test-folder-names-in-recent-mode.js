@@ -5,6 +5,9 @@
 /**
  * Test that the folder names have account name appended when in "recent" view.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-folder-names-in-recent-mode";
 
 var RELATIVE_ROOT = "../shared-modules";

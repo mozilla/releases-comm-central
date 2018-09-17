@@ -6,6 +6,8 @@
  * Tests the manager for attachment storage services
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-attachments-pane';
 
 var RELATIVE_ROOT = '../shared-modules';

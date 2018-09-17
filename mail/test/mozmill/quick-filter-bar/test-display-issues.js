@@ -9,6 +9,8 @@
  * the unit test machines (see also testing/machine-configuration.json).
  */
 
+"use strict";
+
 var MODULE_NAME = "test-display-issues";
 
 var RELATIVE_ROOT = '../shared-modules';

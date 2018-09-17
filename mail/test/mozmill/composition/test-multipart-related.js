@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=composition/test-multipart-related.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-multipart-related";
 
 var RELATIVE_ROOT = "../shared-modules";

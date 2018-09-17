@@ -8,6 +8,8 @@
  * is rebuilt because a folder has become newly unread.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-unread-folders";
 
 var RELATIVE_ROOT = "../shared-modules";

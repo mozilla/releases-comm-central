@@ -9,6 +9,8 @@
  * selects the text entered in the quick filter bar.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-keyboard-interface';
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=message-window/test-vcard-actions.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-vcard-actions";
 
 var RELATIVE_ROOT = "../shared-modules";

@@ -7,6 +7,8 @@
  * when mail.advance_on_spacebar is true (default).
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-spacehit';
 
 var RELATIVE_ROOT = '../shared-modules';

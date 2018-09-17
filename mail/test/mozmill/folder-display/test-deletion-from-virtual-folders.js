@@ -6,6 +6,8 @@
  * Test that deleting messages works from a virtual folder.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-deletion-from-virtual-folders';
 
 var RELATIVE_ROOT = '../shared-modules';

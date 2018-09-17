@@ -11,6 +11,8 @@
 
 // make SOLO_TEST=content-policy/test-js-content-policy.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = 'test-js-content-policy';
 
 var RELATIVE_ROOT = '../shared-modules';

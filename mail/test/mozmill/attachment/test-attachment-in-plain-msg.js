@@ -4,6 +4,8 @@
 
 // make SOLO_TEST=attachment/test-attachment-in-plain-msg.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-attachment-in-plain-msg";
 
 var RELATIVE_ROOT = "../shared-modules";

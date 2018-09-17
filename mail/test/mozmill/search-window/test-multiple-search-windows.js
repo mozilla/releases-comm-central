@@ -7,6 +7,8 @@
  * times.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-multiple-search-windows';
 
 var RELATIVE_ROOT = '../shared-modules';

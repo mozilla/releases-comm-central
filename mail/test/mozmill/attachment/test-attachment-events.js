@@ -6,6 +6,8 @@
  * Ensures that attachment events are fired properly
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-attachment-events';
 
 var RELATIVE_ROOT = '../shared-modules';

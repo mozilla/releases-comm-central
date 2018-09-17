@@ -6,6 +6,9 @@
  * Test that opening new folder and message tabs has the expected result and
  *  that closing them doesn't break anything.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-folder-toolbar";
 
 var RELATIVE_ROOT = "../shared-modules";

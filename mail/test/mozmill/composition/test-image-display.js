@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=composition/test-image-display.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-image-display";
 
 var RELATIVE_ROOT = "../shared-modules";

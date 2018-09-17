@@ -8,6 +8,8 @@
  * properly, opening the right folders.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-smart-folders";
 
 var RELATIVE_ROOT = "../shared-modules";

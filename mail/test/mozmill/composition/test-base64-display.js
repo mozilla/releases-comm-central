@@ -8,6 +8,8 @@
 
 // mozmake SOLO_TEST=composition/test-base64-display.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-base64-display.js";
 
 var RELATIVE_ROOT = "../shared-modules";

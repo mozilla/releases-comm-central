@@ -7,6 +7,8 @@
  * to messages by loading their URIs.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-exposed-in-content-tabs';
 
 var RELATIVE_ROOT = '../shared-modules';

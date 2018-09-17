@@ -6,6 +6,8 @@
  * Tests the get an account (account provisioning) workflow.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-newmailaccount';
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -6,6 +6,8 @@
  * Checks various attachments display correctly
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-attachment';
 
 var RELATIVE_ROOT = '../shared-modules';

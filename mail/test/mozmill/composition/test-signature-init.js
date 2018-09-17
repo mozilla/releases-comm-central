@@ -7,6 +7,8 @@
  * under various circumstances.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-signature-init';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['compose-helpers',

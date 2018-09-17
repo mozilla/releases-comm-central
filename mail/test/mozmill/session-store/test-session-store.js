@@ -7,6 +7,8 @@
  * folder-display/test-message-pane-visibility.js.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-session-store";
 
 var RELATIVE_ROOT = "../shared-modules";

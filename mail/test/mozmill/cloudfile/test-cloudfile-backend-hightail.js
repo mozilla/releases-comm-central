@@ -6,6 +6,8 @@
  * Tests the Hightail Bigfile backend.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-cloudfile-backend-hightail';
 
 var RELATIVE_ROOT = '../shared-modules';

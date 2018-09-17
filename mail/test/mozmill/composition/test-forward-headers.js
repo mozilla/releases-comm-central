@@ -7,6 +7,8 @@
  * set properly when forwarding messages.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-forward-headers";
 
 var RELATIVE_ROOT = "../shared-modules";

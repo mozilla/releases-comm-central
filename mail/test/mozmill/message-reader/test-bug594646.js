@@ -9,6 +9,8 @@
  * that it hasn't been UTF-8 mojibake'd.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-bug594646";
 
 var RELATIVE_ROOT = "../shared-modules";

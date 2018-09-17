@@ -7,6 +7,9 @@
  * messages without a backing view are those opened from the command line or
  * desktop search integration results.
  */
+
+"use strict";
+
 var MODULE_NAME = 'test-opening-messages-without-a-backing-view';
 
 var RELATIVE_ROOT = '../shared-modules';

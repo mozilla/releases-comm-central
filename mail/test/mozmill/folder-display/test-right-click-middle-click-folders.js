@@ -7,6 +7,8 @@
  * selections... on folders!
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-right-click-middle-click-folders';
 
 var RELATIVE_ROOT = '../shared-modules';

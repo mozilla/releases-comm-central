@@ -6,6 +6,8 @@
  * Tests attachment handling functionality of the message compose window.
  */
 
+"use strict";
+
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 

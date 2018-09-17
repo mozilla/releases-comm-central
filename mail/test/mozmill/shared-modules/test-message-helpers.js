@@ -6,6 +6,8 @@
  * Helpers to deal with message (nsIMsgDBHdr) parsing.
  */
 
+"use strict";
+
 var MODULE_NAME = "message-helpers";
 
 var frame = {};

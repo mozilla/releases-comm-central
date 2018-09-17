@@ -9,6 +9,9 @@
  *  this both for tabs that have ever been opened in the foreground, and tabs
  *  that haven't (and thus might have fake selections).
  */
+
+"use strict";
+
 var MODULE_NAME = 'test-deletion-with-multiple-displays';
 
 var RELATIVE_ROOT = '../shared-modules';

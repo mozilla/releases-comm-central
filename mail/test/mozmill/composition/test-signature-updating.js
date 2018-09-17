@@ -14,12 +14,12 @@
 // mail.identity.id2.htmlSigFormat = true
 // mail.identity.id2.htmlSigText   = "Tinderboxpushlog is the new <b>hotness!</b>"
 
+"use strict";
+
 var MODULE_NAME = "test-signature-updating";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller

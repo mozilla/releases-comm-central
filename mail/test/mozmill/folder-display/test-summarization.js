@@ -17,6 +17,8 @@
  * - The difference between thread summary and multi-message summary.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-summarization';
 
 var RELATIVE_ROOT = '../shared-modules';

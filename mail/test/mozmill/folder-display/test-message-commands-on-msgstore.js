@@ -8,6 +8,9 @@
  * markings on the messages are stored in the msgStore, not only in the database.
  * For now, it checks for bug 840418.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-message-commands-on-msgstore";
 
 var RELATIVE_ROOT = "../shared-modules";

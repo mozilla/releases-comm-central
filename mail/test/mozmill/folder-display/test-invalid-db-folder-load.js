@@ -8,6 +8,8 @@
  * Also, check that rebuilding the index on a loaded folder reloads the folder.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-invalid-db-folder-load';
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -6,6 +6,8 @@
  * Tests the image insertion dialog functionality.
  */
 
+"use strict";
+
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 

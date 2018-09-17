@@ -7,6 +7,8 @@
  * when certain special or invalid values are entered into the fields.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-account-values";
 
 var RELATIVE_ROOT = "../shared-modules";

@@ -9,6 +9,8 @@
  * should be turned back on again.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-dns-prefetch";
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -7,6 +7,8 @@
  * services
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-cloudfile-manager';
 
 var RELATIVE_ROOT = '../shared-modules';

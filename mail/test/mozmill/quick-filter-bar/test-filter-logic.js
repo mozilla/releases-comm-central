@@ -9,6 +9,8 @@
 
 // make SOLO_TEST=quick-filter-bar/test-filter-logic.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = 'test-filter-logic';
 
 var RELATIVE_ROOT = '../shared-modules';

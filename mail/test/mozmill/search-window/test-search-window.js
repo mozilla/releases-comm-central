@@ -6,6 +6,9 @@
  * Tests:
  * - https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c96 first para
  */
+
+"use strict";
+
 var MODULE_NAME = 'test-search-window';
 
 var RELATIVE_ROOT = '../shared-modules';

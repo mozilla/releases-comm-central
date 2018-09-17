@@ -9,6 +9,8 @@
 
 // make SOLO_TEST=composition/test-drafts.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-drafts";
 
 var RELATIVE_ROOT = "../shared-modules";

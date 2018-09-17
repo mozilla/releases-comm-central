@@ -5,6 +5,9 @@
 /*
  * Test that we can add a tag to a message without messing up the header.
  */
+
+"use strict";
+
 var MODULE_NAME = 'test-header-toolbar';
 
 var RELATIVE_ROOT = '../shared-modules';

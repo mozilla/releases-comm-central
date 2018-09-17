@@ -5,6 +5,9 @@
 /*
  * Test that cycling through the focus of the 3pane's panes works correctly.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-pane-focus";
 
 var RELATIVE_ROOT = "../shared-modules";

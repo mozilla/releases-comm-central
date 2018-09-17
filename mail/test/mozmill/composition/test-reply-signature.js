@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=composition/test-reply-signature.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-reply-signature";
 
 var RELATIVE_ROOT = "../shared-modules";

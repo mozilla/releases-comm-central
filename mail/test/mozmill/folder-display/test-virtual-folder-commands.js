@@ -5,6 +5,9 @@
 /*
  * Test that commands on virtual folders work properly.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-virtual-folder-commands";
 
 var RELATIVE_ROOT = '../shared-modules';

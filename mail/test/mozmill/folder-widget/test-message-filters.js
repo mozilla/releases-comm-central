@@ -5,6 +5,9 @@
 /*
  * Test various properties of the message filters.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-message-filters";
 
 var RELATIVE_ROOT = "../shared-modules";

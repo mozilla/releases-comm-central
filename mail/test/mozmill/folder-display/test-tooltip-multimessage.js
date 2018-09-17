@@ -6,6 +6,8 @@
  * This just tests that tooltips work properly in the multimessage <browser>
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-tooltip-multimessage';
 
 var RELATIVE_ROOT = '../shared-modules';

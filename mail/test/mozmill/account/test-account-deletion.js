@@ -6,6 +6,8 @@
  * This test checks proper deletion of an account from the Account manager.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-account-deletion";
 
 var RELATIVE_ROOT = "../shared-modules";

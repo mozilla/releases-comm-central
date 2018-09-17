@@ -5,6 +5,8 @@
 /* Test that the menubar can be set to "autohide". This should only have an
    effect on Windows. */
 
+"use strict";
+
 var MODULE_NAME = "test-autohide-menubar";
 
 var RELATIVE_ROOT = "../shared-modules";

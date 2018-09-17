@@ -9,6 +9,8 @@
 
 // make SOLO_TEST=composition/test-send-format.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-send-format";
 
 var RELATIVE_ROOT = "../shared-modules";

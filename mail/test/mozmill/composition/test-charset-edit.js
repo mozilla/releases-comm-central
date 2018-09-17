@@ -9,6 +9,8 @@
 
 // make SOLO_TEST=composition/test-charset-edit.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-charset-edit";
 
 var RELATIVE_ROOT = "../shared-modules";

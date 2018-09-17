@@ -9,6 +9,8 @@
  * - displaying the message in an existing folder tab
  */
 
+"use strict";
+
 var MODULE_NAME = "test-displaying-messages-in-folder-tabs";
 
 var RELATIVE_ROOT = "../shared-modules";

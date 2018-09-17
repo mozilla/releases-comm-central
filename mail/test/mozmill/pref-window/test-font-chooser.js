@@ -10,6 +10,8 @@
  * font.name-list.<style>.<language>.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-font-chooser";
 
 var RELATIVE_ROOT = "../shared-modules";

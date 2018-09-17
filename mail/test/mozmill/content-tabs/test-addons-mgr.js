@@ -4,6 +4,8 @@
 
 // make SOLO_TEST=content-tabs/test-addons-mgr.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-addons-mgr";
 
 var RELATIVE_ROOT = "../shared-modules";

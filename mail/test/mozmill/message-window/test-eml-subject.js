@@ -6,6 +6,8 @@
  * Tests that opening an .eml file with empty subject works.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-eml-subject";
 
 var RELATIVE_ROOT = "../shared-modules";

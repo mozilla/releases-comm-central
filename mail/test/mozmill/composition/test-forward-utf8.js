@@ -8,6 +8,8 @@
 
 // mozmake SOLO_TEST=composition/test-forward-utf8.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-forward-utf8";
 
 var RELATIVE_ROOT = "../shared-modules";

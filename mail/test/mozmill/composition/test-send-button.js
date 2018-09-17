@@ -6,6 +6,8 @@
  * Tests proper enabling of send buttons depending on addresses input.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-send-button";
 
 var RELATIVE_ROOT = "../shared-modules";

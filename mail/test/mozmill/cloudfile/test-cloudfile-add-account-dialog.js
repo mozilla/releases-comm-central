@@ -6,6 +6,8 @@
  * Tests the 'Set up a Filelink Account' dialog
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-cloudfile-add-account-dialog';
 
 var RELATIVE_ROOT = '../shared-modules';

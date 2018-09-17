@@ -6,6 +6,8 @@
  * Checks if plugins are enabled in messages correctly or not.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-plugins-policy';
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -15,6 +15,9 @@
  *   repeatedly.)
  * - reusing an existing window to show another message
  */
+
+"use strict";
+
 var MODULE_NAME = 'test-opening-messages';
 
 var RELATIVE_ROOT = '../shared-modules';

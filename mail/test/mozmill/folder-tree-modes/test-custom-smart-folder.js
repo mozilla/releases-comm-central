@@ -7,6 +7,9 @@
  * Tests for custom folder tree modes. The test mode is provided by the test
  * extension in the test-extension subdirectory.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-custom-smart-folder";
 
 var RELATIVE_ROOT = "../shared-modules";

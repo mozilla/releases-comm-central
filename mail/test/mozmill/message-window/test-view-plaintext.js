@@ -8,6 +8,8 @@
 
 // mozmake SOLO_TEST=message-window/test-view-plaintext.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-view-plaintext";
 
 var RELATIVE_ROOT = "../shared-modules";

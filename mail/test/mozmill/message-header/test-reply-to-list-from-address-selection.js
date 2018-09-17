@@ -6,6 +6,8 @@
  *  Test for the most suitable identity in From address for reply-to-list
  */
 
+"use strict";
+
 var MODULE_NAME = "test-reply-to-list-from-address-selection";
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=content-policy/test-view-source.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-view-source";
 
 var RELATIVE_ROOT = "../shared-modules";

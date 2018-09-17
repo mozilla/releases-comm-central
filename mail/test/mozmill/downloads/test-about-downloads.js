@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=downloads/test-about-downloads.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-about-downloads";
 
 var RELATIVE_ROOT = "../shared-modules";

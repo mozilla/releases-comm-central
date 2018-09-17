@@ -6,6 +6,9 @@
  * Test that the display names in email addresses are correctly shown in the
  * thread pane.
  */
+
+"use strict";
+
 var MODULE_NAME = "test-display-name";
 
 var RELATIVE_ROOT = "../shared-modules";

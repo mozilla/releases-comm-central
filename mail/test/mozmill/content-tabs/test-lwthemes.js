@@ -7,6 +7,8 @@
  * works correctly.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-lwthemes";
 
 var RELATIVE_ROOT = "../shared-modules";

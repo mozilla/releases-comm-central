@@ -8,6 +8,8 @@
  * extension in the test-extension subdirectory.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-custom-folder-tree-mode";
 
 var RELATIVE_ROOT = "../shared-modules";

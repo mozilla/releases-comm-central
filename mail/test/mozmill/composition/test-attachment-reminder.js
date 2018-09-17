@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=composition/test-attachment-reminder.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-attachment-reminder";
 
 var RELATIVE_ROOT = "../shared-modules";

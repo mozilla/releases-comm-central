@@ -7,6 +7,8 @@
  * Helpers to deal with the preferences window.
  */
 
+"use strict";
+
 var MODULE_NAME = "pref-window-helpers";
 
 var RELATIVE_ROOT = "../shared-modules";

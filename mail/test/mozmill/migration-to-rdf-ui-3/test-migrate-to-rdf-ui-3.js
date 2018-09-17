@@ -7,6 +7,8 @@
  * property from the folderPaneBox, but that we still persist width.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-migrate-to-rdf-ui-3";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];

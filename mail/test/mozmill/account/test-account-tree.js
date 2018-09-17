@@ -6,6 +6,8 @@
  * This test checks proper operation of the account tree in the Account manager.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-account-tree";
 
 var RELATIVE_ROOT = "../shared-modules";

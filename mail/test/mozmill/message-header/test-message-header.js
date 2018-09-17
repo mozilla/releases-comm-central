@@ -9,6 +9,8 @@
 
 // make SOLO_TEST=message-header/test-message-header.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = 'test-message-header';
 
 var RELATIVE_ROOT = '../shared-modules';

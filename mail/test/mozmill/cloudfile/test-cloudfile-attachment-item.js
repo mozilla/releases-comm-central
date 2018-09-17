@@ -6,6 +6,8 @@
  * Tests Filelink attachment item behaviour.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-cloudfile-attachment-item';
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -6,6 +6,8 @@
  * Tests that forwarded content is ok.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-forwarded-content";
 
 var RELATIVE_ROOT = "../shared-modules";

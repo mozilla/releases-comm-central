@@ -22,6 +22,8 @@
 
 // make SOLO_TEST=composition/test-reply-multipart-charset.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-reply-multipart-charset";
 
 var RELATIVE_ROOT = "../shared-modules";

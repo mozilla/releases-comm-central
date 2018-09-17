@@ -7,6 +7,8 @@
  * updated in mailing lists that that contact belongs to.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-update-mailing-list';
 
 var RELATIVE_ROOT = '../shared-modules';

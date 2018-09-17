@@ -8,6 +8,8 @@
 
 // make SOLO_TEST=message-header/test-reply-identity.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-reply-identity";
 
 var RELATIVE_ROOT = "../shared-modules";

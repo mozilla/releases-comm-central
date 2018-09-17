@@ -8,6 +8,8 @@
  * there don't influence the results here.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-folder-pane';
 
 var RELATIVE_ROOT = '../shared-modules';

@@ -9,6 +9,8 @@
 
 // make SOLO_TEST=composition/test-draft-identity.js mozmill-one
 
+"use strict";
+
 var MODULE_NAME = "test-draft-identity";
 
 var RELATIVE_ROOT = "../shared-modules";

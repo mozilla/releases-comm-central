@@ -6,6 +6,8 @@
  * Test tabmail behaviour when tabs close.
  */
 
+"use strict";
+
 var MODULE_NAME = "test-tabmail-closing";
 
 var RELATIVE_ROOT = "../shared-modules";

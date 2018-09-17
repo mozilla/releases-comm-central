@@ -8,13 +8,12 @@
  * XXX: Still need to check remote content in messages.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-cookies';
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ['window-helpers', 'content-tab-helpers', 'folder-display-helpers'];
-
-var mozmill = {}; ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", mozmill);
-var elementslib = {}; ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.

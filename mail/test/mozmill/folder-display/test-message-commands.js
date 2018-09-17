@@ -7,6 +7,9 @@
  * that can't be tested with xpcshell tests because they're handling in the
  * front end - which is why Archive is the only command currently tested.
  */
+
+"use strict";
+
 var MODULE_NAME = 'test-message-commands';
 
 var RELATIVE_ROOT = '../shared-modules';

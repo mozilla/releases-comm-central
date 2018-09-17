@@ -7,6 +7,8 @@
  * states are updated as appropriate.
  */
 
+"use strict";
+
 var MODULE_NAME = 'test-toggle-bar';
 
 var RELATIVE_ROOT = '../shared-modules';
