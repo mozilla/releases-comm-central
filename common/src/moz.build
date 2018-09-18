@@ -13,7 +13,5 @@ SOURCES += [
     'nsCommonModule.cpp',
     'nsComponentManagerExtra.cpp',
 ]
-LOCAL_INCLUDES += [
-    '/%s/toolkit/xre' % CONFIG['mozreltopsrcdir'],
-]
+
 FINAL_LIBRARY = 'xul'
