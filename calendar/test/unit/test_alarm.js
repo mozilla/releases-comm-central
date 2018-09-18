@@ -118,6 +118,19 @@ function test_email_alarm() {
     alarm.clearAttendees();
     equal(alarm.getAttendees({}).length, 0);
 
+    // Make sure attendees are correctly folded/imported
+    alarm.icalString = dedent`
+        BEGIN:VALARM
+        ACTION:EMAIL
+        TRIGGER;VALUE=DURATION:-PT5M
+        ATTENDEE:mailto:test@example.com
+        ATTENDEE:mailto:test@example.com
+        ATTENDEE:mailto:test2@example.com
+        END:VALARM
+    `;
+    equal(alarm.icalString.match(/ATTENDEE:mailto:test@example.com/g).length, 1);
+    equal(alarm.icalString.match(/ATTENDEE:mailto:test2@example.com/g).length, 1);
+
     // TODO test attachments
     dump("Done\n");
 }
@@ -186,6 +199,19 @@ function test_audio_alarm() {
     alarm.clearAttachments();
     addedAttachments = alarm.getAttachments({});
     equal(addedAttachments.length, 0);
+
+    // AUDIO alarms should only be allowing one attachment, and folding any with the same value
+    alarm.icalString = dedent`
+        BEGIN:VALARM
+        ACTION:AUDIO
+        TRIGGER;VALUE=DURATION:-PT5M
+        ATTACH:Basso
+        UID:28F8007B-FE56-442E-917C-1F4E48DD406A
+        X-APPLE-DEFAULT-ALARM:TRUE
+        ATTACH:Basso
+        END:VALARM
+    `;
+    equal(alarm.icalString.match(/ATTACH:Basso/g).length, 1);
 
     dump("Done\n");
 }
