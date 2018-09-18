@@ -1940,8 +1940,7 @@ function GetFileFromString(aString)
 
 function CopyImage()
 {
-  var param = Cc["@mozilla.org/embedcomp/command-params;1"]
-                .createInstance(Ci.nsICommandParams);
+  var param = Cu.createCommandParams();
   param.setLongValue("imageCopy",
                      Ci.nsIContentViewerEdit.COPY_IMAGE_ALL);
   document.commandDispatcher.getControllerForCommand("cmd_copyImage")

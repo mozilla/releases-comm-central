@@ -302,7 +302,7 @@ function IsHTMLSourceChanged()
 function newCommandParams()
 {
   try {
-    return Cc["@mozilla.org/embedcomp/command-params;1"].createInstance(Ci.nsICommandParams);
+    return Cu.createCommandParams();
   }
   catch(e) { dump("error thrown in newCommandParams: "+e+"\n"); }
   return null;

@@ -55,8 +55,7 @@ function goCopyImage() {
   }
   // A mailbox/imap URL then... copy only data then since the HTML data is
   // not that useful for pasting when the image won't be resolved.
-  let param = Cc["@mozilla.org/embedcomp/command-params;1"]
-                .createInstance(Ci.nsICommandParams);
+  let param = Cu.createCommandParams();
   param.setLongValue("imageCopy",
                      Ci.nsIContentViewerEdit.COPY_IMAGE_DATA);
   document.commandDispatcher.getControllerForCommand("cmd_copyImage")
