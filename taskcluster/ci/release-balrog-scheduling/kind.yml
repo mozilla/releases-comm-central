@@ -5,6 +5,7 @@
 loader: taskgraph.loader.transform:loader
 
 transforms:
+    - taskgraph.transforms.release:run_on_releases
     - taskgraph.transforms.release_deps:transforms
     - taskgraph.transforms.scriptworker:add_balrog_scopes
     - taskgraph.transforms.task:transforms
@@ -27,26 +28,30 @@ jobs:
         worker:
             product: thunderbird
             publish-rules:
-                by-project:
-                    comm-beta: [43]
-                    comm-esr60: [820]
-                    default: []
+                by-release-level:
+                    production:
+                        by-release-type:
+                            beta: [43]
+                            esr60: [820]
+                            default: []
+                    staging:
+                        by-release-type:
+                            beta: [43]
+                            esr60: [820]
+                            default: []
         treeherder:
             platform: thunderbird-release/opt
             symbol: Rel(BS)
             tier: 1
             kind: build
-    # FIXME: (Bug 1487172) This task should only run on esr60-like branches
     thunderbird-bz2:
         description: Schedule Thunderbird publishing in balrog (bz2)
         name: release-thunderbird_schedule_publishing_in_balrog-bz2
         shipping-product: thunderbird
+        run-on-releases: [esr60]
         worker:
             product: thunderbird
-            publish-rules:
-                by-project:
-                    comm-esr60: [516]
-                    default: []
+            publish-rules: [516]
             blob-suffix: -bz2
         treeherder:
             platform: thunderbird-release/opt

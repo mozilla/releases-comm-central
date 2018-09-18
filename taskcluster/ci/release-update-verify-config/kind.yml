@@ -46,16 +46,19 @@ job-defaults:
         # The devedition override can be removed after 58.0b1
         # is behind a watershed
         include-version:
-            by-project:
-                comm-beta: beta
-                default: beta
+            by-release-type:
+                beta: beta
+                esr60: nonbeta
+                nightly: beta
+                default: null
         last-watershed:
-            by-project:
-                comm-beta:
+            by-release-type:
+                beta:
                     by-platform:
                         win64.*: "60.0b7"
                         default: "56.0b3"
-                comm-esr60: "52.0"
+                esr60: "52.0"
+                nightly: "default"
                 default: null
 
 jobs:
@@ -73,13 +76,14 @@ jobs:
             platform: linux-i686
             updater-platform: linux-x86_64
             channel:
-                by-project:
-                    comm-beta: "beta-localtest"
-                    comm-esr.*: "release-localtest"
-                    default: "default"
+                by-release-type:
+                    beta: "beta-localtest"
+                    esr60: "release-localtest"
+                    nightly: "default"
+                    default: null
             mar-channel-id-override:
-                by-project:
-                    comm-beta: beta
+                by-release-type:
+                    beta: beta
                     default: null
 
     thunderbird-linux64:
@@ -96,13 +100,14 @@ jobs:
             platform: linux-x86_64
             updater-platform: linux-x86_64
             channel:
-                by-project:
-                    comm-beta: "beta-localtest"
-                    comm-esr.*: "release-localtest"
-                    default: "default"
+                by-release-type:
+                    beta: "beta-localtest"
+                    esr60: "release-localtest"
+                    nightly: "default"
+                    default: null
             mar-channel-id-override:
-                by-project:
-                    comm-beta: beta
+                by-release-type:
+                    beta: beta
                     default: null
 
     thunderbird-macosx64:
@@ -119,13 +124,14 @@ jobs:
             platform: mac
             updater-platform: linux-x86_64
             channel:
-                by-project:
-                    comm-beta: "beta-localtest"
-                    comm-esr.*: "release-localtest"
-                    default: "default"
+                by-release-type:
+                    beta: "beta-localtest"
+                    esr60: "release-localtest"
+                    nightly: "default"
+                    default: null
             mar-channel-id-override:
-                by-project:
-                    comm-beta: beta
+                by-release-type:
+                    beta: beta
                     default: null
 
     thunderbird-win32:
@@ -142,13 +148,14 @@ jobs:
             platform: win32
             updater-platform: linux-x86_64
             channel:
-                by-project:
-                    comm-beta: "beta-localtest"
-                    default: "default"
+                by-release-type:
+                    beta: "beta-localtest"
+                    esr60: "release-localtest"
+                    nightly: "default"
+                    default: null
             mar-channel-id-override:
-                by-project:
-                    comm-beta: beta
-                    try-comm-central: beta
+                by-release-type:
+                    beta: beta
                     default: null
 
     thunderbird-win64:
@@ -165,11 +172,12 @@ jobs:
             platform: win64
             updater-platform: linux-x86_64
             channel:
-                by-project:
-                    comm-beta: "beta-localtest"
-                    comm-esr.*: "release-localtest"
-                    default: "default"
+                by-release-type:
+                    beta: "beta-localtest"
+                    esr60: "release-localtest"
+                    nightly: "default"
+                    default: null
             mar-channel-id-override:
-                by-project:
-                    comm-beta: beta
+                by-release-type:
+                    beta: beta
                     default: null

@@ -36,9 +36,10 @@ job-defaults:
             NO_BBCONFIG: "1"
             BUILD_TOOLS_REPO: https://hg.mozilla.org/build/tools
             CHANNEL:
-                by-project:
-                    comm-beta: "beta-localtest"
-                    comm-esr.*: "release-localtest"
+                by-release-type:
+                    beta: "beta-localtest"
+                    esr60: "release-localtest"
+                    nightly: "nightly"
                     default: "default"
     extra:
         chunks: 12
