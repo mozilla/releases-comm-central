@@ -20,12 +20,12 @@ jobs:
     - linux64-llvm-dsymutil
     - linux64-node
     - linux64-rust
-    - linux64-rust-1.19
+    - linux64-rust-1.28
     - linux64-rust-macos
     - linux64-sccache
     - win64-cbindgen
     - win64-clang-cl
     - win64-node
     - win64-rust
-    - win64-rust-1.19
+    - win64-rust-1.28
     - win64-sccache
