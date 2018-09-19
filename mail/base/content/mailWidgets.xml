@@ -2192,7 +2192,7 @@
         <parameter name="event"/>
         <body>
           <![CDATA[
-            this.boxObject.openMenu(false);
+            this.openMenu(false);
           ]]>
         </body>
       </method>

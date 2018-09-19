@@ -1278,8 +1278,8 @@
       <property name="open" onget="return this.hasAttribute('open');">
         <setter>
           <![CDATA[
-            if (this.boxObject instanceof MenuBoxObject)
-              this.boxObject.openMenu(val);
+            if (this.hasMenu())
+              this.openMenu(val);
             return val;
           ]]>
         </setter>

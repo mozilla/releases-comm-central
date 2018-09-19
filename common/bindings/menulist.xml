@@ -177,11 +177,11 @@
               if (document.commandDispatcher.focusedElement != this.inputField)
                   this.inputField.focus();
 
-              this.menuBoxObject.activeChild = null;
+              this.activeChild = null;
               if (this.selectedItem)
                   // Not ready for auto-setting the active child in hierarchies yet.
                   // For now, only do this when the outermost menupopup opens.
-                  this.menuBoxObject.activeChild = this.mSelectedInternal;
+                  this.activeChild = this.mSelectedInternal;
           }
       ]]></handler>
 
