@@ -568,11 +568,6 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
     // Check if this actually is an instance of a recurring event
     if (items.every(item => item == item.parentItem)) {
         type = MODIFY_PARENT;
-    } else if (items.every(item => item.parentItem.recurrenceInfo.getExceptionFor(item.recurrenceId))) {
-        // If the user wants to edit an occurrence which is already an exception
-        // always edit this single item.
-        // XXX  Why? I think its ok to ask also for exceptions.
-        type = MODIFY_OCCURRENCE;
     } else if (aItem && items.length) {
         // Prompt the user. Setting modal blocks the dialog until it is closed. We
         // use rv to pass our return value.
