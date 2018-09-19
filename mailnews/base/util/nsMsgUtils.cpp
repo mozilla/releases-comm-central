@@ -2047,7 +2047,7 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue)
 nsCString MsgExtractQueryPart(const nsACString& spec, const char* queryToExtract)
 {
   nsCString queryPart;
-  int32_t queryIndex = nsPromiseFlatCString(spec).Find(queryToExtract);
+  int32_t queryIndex = PromiseFlatCString(spec).Find(queryToExtract);
   if (queryIndex == kNotFound)
     return queryPart;
 

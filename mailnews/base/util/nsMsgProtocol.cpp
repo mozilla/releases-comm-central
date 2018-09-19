@@ -958,7 +958,7 @@ nsresult nsMsgProtocol::DoNtlmStep1(const nsACString &username, const nsAString 
         return rv;
 
     m_authModule->Init(nullptr, 0, nullptr, NS_ConvertUTF8toUTF16(username).get(),
-                       nsPromiseFlatString(password).get());
+                       PromiseFlatString(password).get());
 
     void *outBuf;
     uint32_t outBufLen;
