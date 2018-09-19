@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported recurrenceRule2String, splitRecurrenceRules, checkRecurrenceRule */
+/* exported recurrenceRule2String, splitRecurrenceRules, checkRecurrenceRule
+ *          countOccurrences
+ */
 
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
-this.EXPORTED_SYMBOLS = ["recurrenceRule2String", "splitRecurrenceRules", "checkRecurrenceRule"];
+this.EXPORTED_SYMBOLS = [
+    "recurrenceRule2String", "splitRecurrenceRules", "checkRecurrenceRule",
+    "countOccurrences"
+];
 
 /**
  * This function takes the recurrence info passed as argument and creates a
@@ -405,4 +410,73 @@ function checkRecurrenceRule(aRule, aArray) {
         }
     }
     return false;
+}
+
+/**
+ * Counts the occurrences of the parent item if any of a provided item
+ *
+ * @param  {(calIEvent|calIToDo)}  aItem  item to count for
+ * @returns {(number|null)}               number of occurrences or null if the
+ *                                          passed item's parent item isn't a
+ *                                          recurring item or its recurrence is
+ *                                          infinite
+ */
+function countOccurrences(aItem) {
+    let occCounter = null;
+    let recInfo = aItem.parentItem.recurrenceInfo;
+    if (recInfo &&
+        recInfo.isFinite) {
+        occCounter = 0;
+        let excCounter = 0;
+        let byCount = false;
+        let ritems = recInfo.getRecurrenceItems({});
+        for (let ritem of ritems) {
+            if (ritem instanceof Ci.calIRecurrenceRule) {
+                if (ritem.isByCount) {
+                    occCounter = occCounter + ritem.count;
+                    byCount = true;
+                } else {
+                    // the rule is limited by as an until date
+                    let from = aItem.parentItem.startDate.clone();
+                    let until = aItem.parentItem.endDate.clone();
+                    if (until.compare(ritem.untilDate) == -1) {
+                        until = ritem.untilDate.clone();
+                    }
+
+                    let exceptionIds = recInfo.getExceptionIds({});
+                    for (let exceptionId of exceptionIds) {
+                        let recur = recInfo.getExceptionFor(exceptionId);
+                        if (from.compare(recur.startDate) == 1) {
+                            from = recur.startDate.clone();
+                        }
+                        if (until.compare(recur.endDate) == -1) {
+                            until = recur.endDate.clone();
+                        }
+                    }
+
+                    // we add an extra day at beginning and end, so we don't
+                    // neeed to take care of any timezone conversion
+                    from.addDuration(cal.createDuration("-P1D"));
+                    until.addDuration(cal.createDuration("P1D"));
+
+                    let occurrences = recInfo.getOccurrences(from, until, 0, {});
+                    occCounter = occCounter + occurrences.length;
+                }
+            } else if (ritem instanceof Ci.calIRecurrenceDate) {
+                if (ritem.isNegative) {
+                    // this is an exdate
+                    excCounter++;
+                } else {
+                    // this is an (additional) rdate
+                    occCounter++;
+                }
+            }
+        }
+
+        if (byCount) {
+            // for a rrule by count, we still need to substract exceptions if any
+            occCounter = occCounter - excCounter;
+        }
+    }
+    return occCounter;
 }

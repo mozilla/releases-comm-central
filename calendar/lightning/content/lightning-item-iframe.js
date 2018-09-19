@@ -19,7 +19,8 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {
     recurrenceRule2String,
     splitRecurrenceRules,
-    checkRecurrenceRule
+    checkRecurrenceRule,
+    countOccurrences
 } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
@@ -3225,11 +3226,19 @@ function onCommandDeleteItem() {
         eventDialogCalendarObserver.cancel();
         if (window.calendarItem.parentItem.recurrenceInfo && window.calendarItem.recurrenceId) {
             // if this is a single occurrence of a recurring item
-            let newItem = window.calendarItem.parentItem.clone();
-            newItem.recurrenceInfo.removeOccurrenceAt(window.calendarItem.recurrenceId);
-
-            gMainWindow.doTransaction("modify", newItem, newItem.calendar,
-                                      window.calendarItem.parentItem, deleteListener);
+            if (countOccurrences(window.calendarItem) == 1) {
+                // this is the last occurrence, hence we delete the parent item
+                // to not leave a parent item without children in the calendar
+                gMainWindow.doTransaction("delete", window.calendarItem.parentItem,
+                                          window.calendarItem.calendar, null,
+                                          deleteListener);
+            } else {
+                // we just need to remove the occurrence
+                let newItem = window.calendarItem.parentItem.clone();
+                newItem.recurrenceInfo.removeOccurrenceAt(window.calendarItem.recurrenceId);
+                gMainWindow.doTransaction("modify", newItem, newItem.calendar,
+                                          window.calendarItem.parentItem, deleteListener);
+            }
         } else {
             gMainWindow.doTransaction("delete", window.calendarItem, window.calendarItem.calendar,
                                       null, deleteListener);

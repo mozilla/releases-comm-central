@@ -10,6 +10,7 @@
  */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+const { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
@@ -115,23 +116,45 @@ var calendarViewController = {
         // are readonly.
         let occurrences = aOccurrences.filter(item => cal.acl.isCalendarWritable(item.calendar));
 
+        // we check how many occurrences the parent item has
+        let parents = new Map();
+        for (let occ of occurrences) {
+            if (!parents.has(occ.id)) {
+                parents.set(occ.id, countOccurrences(occ));
+            }
+        }
+
+        let promptUser = !aDoNotConfirm;
+        let previousResponse = 0;
         for (let itemToDelete of occurrences) {
-            if (aUseParentItems) {
+            if (parents.get(itemToDelete.id) == -1) {
+                // we have scheduled the master item for deletion in a previous
+                // loop already
+                continue;
+            }
+            if (aUseParentItems ||
+                parents.get(itemToDelete.id) == 1 ||
+                previousResponse == 3) {
                 // Usually happens when ctrl-click is used. In that case we
                 // don't need to ask the user if he wants to delete an
                 // occurrence or not.
+                // if an occurrence is the only one of a series or the user
+                // decided so before, we delete the series, too.
                 itemToDelete = itemToDelete.parentItem;
-            } else if (!aDoNotConfirm && occurrences.length == 1) {
-                // Only give the user the selection if only one occurrence is
-                // selected. Otherwise he will get a dialog for each occurrence
-                // he deletes.
+                parents.set(itemToDelete.id, -1);
+            } else if (promptUser) {
                 let [targetItem, , response] = promptOccurrenceModification(itemToDelete, false, "delete");
                 if (!response) {
                     // The user canceled the dialog, bail out
                     break;
                 }
-
                 itemToDelete = targetItem;
+
+                // if we have multiple items and the user decided already for one
+                // item whether to delete the occurrence or the entire series,
+                // we apply that decission also to subsequent items
+                previoiusResponse = response;
+                promptUser = false;
             }
 
             // Now some dirty work: Make sure more than one occurrence can be
