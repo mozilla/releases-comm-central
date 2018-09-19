@@ -3,19 +3,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['alertHook'];
+this.EXPORTED_SYMBOLS = ["alertHook"];
 
 var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
                                             "nsIActivityWarning", "init");
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // This module provides a link between the send later service and the activity
 // manager.
-var alertHook =
-{
+var alertHook = {
   get activityMgr() {
     delete this.activityMgr;
     return this.activityMgr = Cc["@mozilla.org/activity-manager;1"]
@@ -37,7 +35,7 @@ var alertHook =
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgUserFeedbackListener]),
 
-  onAlert: function (aMessage, aUrl) {
+  onAlert(aMessage, aUrl) {
     // Create a new warning.
     let warning = new nsActWarning(aMessage, this.activityMgr, "");
 
@@ -46,9 +44,9 @@ var alertHook =
       warning.contextType = "incomingServer";
       warning.contextDisplayText = aUrl.server.prettyName;
       warning.contextObj = aUrl.server;
-    }
-    else
+    } else {
       warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
+    }
 
     this.activityMgr.addActivity(warning);
 
@@ -57,24 +55,21 @@ var alertHook =
     try {
       if (!aUrl || !aUrl.msgWindow)
         return true;
-    }
-    // nsIMsgMailNewsUrl.msgWindow will throw on a null pointer, so that's
-    // what we're handling here.
-    catch (ex) {
+    } catch (ex) {
+      // nsIMsgMailNewsUrl.msgWindow will throw on a null pointer, so that's
+      // what we're handling here.
       if (ex instanceof Ci.nsIException &&
           ex.result == Cr.NS_ERROR_INVALID_POINTER) {
         return true;
-      } else {
-        throw ex;
       }
+      throw ex;
     }
 
     try {
       this.alertService
           .showAlertNotification("chrome://branding/content/icon48.png",
                                  this.brandShortName, aMessage);
-    }
-    catch (ex) {
+    } catch (ex) {
       // XXX On Linux, if libnotify isn't supported, showAlertNotification
       // can throw an error, so fall-back to the old method of modal dialogs.
       return false;
@@ -83,9 +78,9 @@ var alertHook =
     return true;
   },
 
-  init: function() {
+  init() {
     // We shouldn't need to remove the listener as we're not being held by
     // anyone except by the send later instance.
     MailServices.mailSession.addUserFeedbackListener(this);
-  }
+  },
 };

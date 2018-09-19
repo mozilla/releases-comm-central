@@ -7,7 +7,7 @@
  */
 
 // Ensure the activity modules are loaded for this window.
-ChromeUtils.import("resource:///modules/activity/activityModules.js");
+ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 ChromeUtils.import("resource:///modules/attachmentChecker.js");
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 ChromeUtils.import("resource:///modules/mimeParser.jsm");

@@ -5,23 +5,13 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-////////////////////////////////////////////////////////////////////////////////
-//// Constants
+const ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xul";
+const PREF_FLASH_COUNT = "messenger.activity.manager.flashCount";
 
-var ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xul";
-var PREF_FLASH_COUNT = "messenger.activity.manager.flashCount";
-
-////////////////////////////////////////////////////////////////////////////////
-//// nsActivityManagerUI class
-
-function nsActivityManagerUI()
-{}
+function nsActivityManagerUI() {}
 
 nsActivityManagerUI.prototype = {
   classID: Components.ID("5fa5974e-09cb-40cc-9696-643f8a8d9a06"),
-
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsIActivityManagerUI
 
   show: function show(aWindowContext, aID) {
     // First we see if it is already visible
@@ -48,21 +38,12 @@ nsActivityManagerUI.prototype = {
     return (null != this.recentWindow);
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsActivityManagerUI
-
   get recentWindow() {
     return Services.wm.getMostRecentWindow("Activity:Manager");
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsISupports
-
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityManagerUI])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityManagerUI]),
 };
-
-////////////////////////////////////////////////////////////////////////////////
-//// Module
 
 var components = [nsActivityManagerUI];
 var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

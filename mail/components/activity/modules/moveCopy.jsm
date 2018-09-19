@@ -3,21 +3,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['moveCopyModule'];
+this.EXPORTED_SYMBOLS = ["moveCopyModule"];
 
-var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
-                                            "nsIActivityProcess", "init");
 var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
                                           "nsIActivityEvent", "init");
-var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
-                                            "nsIActivityWarning", "init");
 var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 
 // This module provides a link between the move/copy code and the activity
 // manager.
@@ -43,19 +38,19 @@ var moveCopyModule =
       .createBundle("chrome://messenger/locale/activity.properties");
   },
 
-  getString: function(stringName) {
+  getString(stringName) {
     try {
-      return this.bundle.GetStringFromName(stringName)
+      return this.bundle.GetStringFromName(stringName);
     } catch (e) {
       this.log.error("error trying to get a string called: " + stringName);
-      throw(e);
+      throw e;
     }
   },
 
-  msgAdded : function(aMsg) {
+  msgAdded(aMsg) {
   },
 
-  msgsDeleted : function(aMsgList) {
+  msgsDeleted(aMsgList) {
     this.log.info("in msgsDeleted");
 
     let count = aMsgList.length;
@@ -66,21 +61,20 @@ var moveCopyModule =
     // get the folder of the deleted messages
     let folder = aMsgList.queryElementAt(0, Ci.nsIMsgDBHdr).folder;
 
-    let activities = this.activityMgr.getActivities({})
+    let activities = this.activityMgr.getActivities({});
     if (activities.length > 0 &&
-        activities[activities.length-1].id == this.lastMessage.id &&
+        activities[activities.length - 1].id == this.lastMessage.id &&
         this.lastMessage.type == "deleteMail" &&
-        this.lastMessage.folder == folder.prettyName)
-    {
+        this.lastMessage.folder == folder.prettyName) {
       displayCount += this.lastMessage.count;
       this.activityMgr.removeActivity(this.lastMessage.id);
     }
 
     this.lastMessage = {};
     let displayText = PluralForm.get(displayCount, this.getString("deletedMessages2"));
-    displayText = displayText.replace("#1", displayCount)
+    displayText = displayText.replace("#1", displayCount);
     this.lastMessage.count = displayCount;
-    displayText = displayText.replace("#2", folder.prettyName)
+    displayText = displayText.replace("#2", folder.prettyName);
     this.lastMessage.folder = folder.prettyName;
 
     let statusText = folder.server.prettyName;
@@ -95,8 +89,7 @@ var moveCopyModule =
     event.iconClass = "deleteMail";
     this.lastMessage.type = event.iconClass;
 
-    for (let i = 0; i < count; i++)
-    {
+    for (let i = 0; i < count; i++) {
       let msgHdr = aMsgList.queryElementAt(i, Ci.nsIMsgDBHdr);
       event.addSubject(msgHdr.messageId);
     }
@@ -104,7 +97,7 @@ var moveCopyModule =
     this.lastMessage.id = this.activityMgr.addActivity(event);
   },
 
-  msgsMoveCopyCompleted : function(aMove, aSrcMsgList, aDestFolder) {
+  msgsMoveCopyCompleted(aMove, aSrcMsgList, aDestFolder) {
     try {
       this.log.info("in msgsMoveCopyCompleted");
 
@@ -120,24 +113,20 @@ var moveCopyModule =
 
       let activities = this.activityMgr.getActivities({});
       if (activities.length > 0 &&
-          activities[activities.length-1].id == this.lastMessage.id &&
+          activities[activities.length - 1].id == this.lastMessage.id &&
           this.lastMessage.type == (aMove ? "moveMail" : "copyMail") &&
           this.lastMessage.sourceFolder == folder.prettyName &&
-          this.lastMessage.destFolder == aDestFolder.prettyName)
-      {
+          this.lastMessage.destFolder == aDestFolder.prettyName) {
         displayCount += this.lastMessage.count;
         this.activityMgr.removeActivity(this.lastMessage.id);
       }
 
-      let statusText = '';
-      if (folder.server != aDestFolder.server)
-      {
+      let statusText = "";
+      if (folder.server != aDestFolder.server) {
         statusText = this.getString("fromServerToServer");
         statusText = statusText.replace("#1", folder.server.prettyName);
         statusText = statusText.replace("#2", aDestFolder.server.prettyName);
-      }
-      else
-      {
+      } else {
         statusText = folder.server.prettyName;
       }
 
@@ -150,11 +139,11 @@ var moveCopyModule =
         displayText = PluralForm.get(displayCount,
                                      this.getString("copiedMessages"));
 
-      displayText = displayText.replace("#1", displayCount)
+      displayText = displayText.replace("#1", displayCount);
       this.lastMessage.count = displayCount;
-      displayText = displayText.replace("#2", folder.prettyName)
+      displayText = displayText.replace("#2", folder.prettyName);
       this.lastMessage.sourceFolder = folder.prettyName;
-      displayText = displayText.replace("#3", aDestFolder.prettyName)
+      displayText = displayText.replace("#3", aDestFolder.prettyName);
       this.lastMessage.destFolder = aDestFolder.prettyName;
 
       // create an activity event
@@ -166,21 +155,20 @@ var moveCopyModule =
       event.iconClass = aMove ? "moveMail" : "copyMail";
       this.lastMessage.type = event.iconClass;
 
-      for (let i = 0; i < count; i++)
-      {
+      for (let i = 0; i < count; i++) {
         let msgHdr = aSrcMsgList.queryElementAt(i, Ci.nsIMsgDBHdr);
         event.addSubject(msgHdr.messageId);
       }
       this.lastMessage.id = this.activityMgr.addActivity(event);
     } catch (e) {
-      this.log.error("Exception: " + e)
+      this.log.error("Exception: " + e);
     }
   },
 
-  folderAdded: function(aFolder) {
+  folderAdded(aFolder) {
   },
 
-  folderDeleted : function(aFolder) {
+  folderDeleted(aFolder) {
     let server;
     try {
       // When a new account is created we get this notification with an empty named
@@ -189,8 +177,7 @@ var moveCopyModule =
       server = aFolder.server;
       // If the account has been removed, we're going to ignore this notification.
       MailServices.accounts.FindServer(server.username, server.hostName, server.type);
-    }
-    catch(ex) {return;}
+    } catch (ex) { return; }
 
     let displayText;
     let statusText = server.prettyName;
@@ -219,7 +206,7 @@ var moveCopyModule =
     this.lastFolder.event = this.activityMgr.addActivity(event);
   },
 
-  folderMoveCopyCompleted: function(aMove, aSrcFolder, aDestFolder) {
+  folderMoveCopyCompleted(aMove, aSrcFolder, aDestFolder) {
     this.log.info("in folderMoveCopyCompleted, aMove = " + aMove);
 
     let displayText;
@@ -228,18 +215,15 @@ var moveCopyModule =
     else
       displayText = this.getString("copiedFolder");
 
-    displayText = displayText.replace('#1', aSrcFolder.prettyName);
-    displayText = displayText.replace('#2', aDestFolder.prettyName);
+    displayText = displayText.replace("#1", aSrcFolder.prettyName);
+    displayText = displayText.replace("#2", aDestFolder.prettyName);
 
-    let statusText = '';
-    if (aSrcFolder.server != aDestFolder.server)
-    {
+    let statusText = "";
+    if (aSrcFolder.server != aDestFolder.server) {
       statusText = this.getString("fromServerToServer");
       statusText = statusText.replace("#1", aSrcFolder.server.prettyName);
       statusText = statusText.replace("#2", aDestFolder.server.prettyName);
-    }
-    else
-    {
+    } else {
       statusText = aSrcFolder.server.prettyName;
     }
     // create an activity event
@@ -256,22 +240,19 @@ var moveCopyModule =
     this.activityMgr.addActivity(event);
   },
 
-  folderRenamed: function(aOrigFolder, aNewFolder) {
-    this.log.info("in folderRenamed, aOrigFolder = "+ aOrigFolder.prettyName+", aNewFolder = "+
-             aNewFolder.prettyName);
+  folderRenamed(aOrigFolder, aNewFolder) {
+    this.log.info("in folderRenamed, aOrigFolder = " + aOrigFolder.prettyName +
+                  ", aNewFolder = " + aNewFolder.prettyName);
 
     let displayText;
     let statusText = aNewFolder.server.prettyName;
 
     // Display a different message depending on whether we moved the folder
     // to the trash or actually renamed the folder.
-    if (aNewFolder.isSpecialFolder(nsMsgFolderFlags.Trash, true))
-    {
+    if (aNewFolder.isSpecialFolder(nsMsgFolderFlags.Trash, true)) {
       displayText = this.getString("movedFolderToTrash");
       displayText = displayText.replace("#1", aOrigFolder.prettyName);
-    }
-    else
-    {
+    } else {
       displayText = this.getString("renamedFolder");
       displayText = displayText.replace("#1", aOrigFolder.prettyName);
       displayText = displayText.replace("#2", aNewFolder.prettyName);
@@ -294,7 +275,7 @@ var moveCopyModule =
     this.activityMgr.addActivity(event);
   },
 
-  itemEvent: function(aItem, aEvent, aData, aString) {
+  itemEvent(aItem, aEvent, aData, aString) {
     if (aEvent == "UnincorporatedMessageMoved") {
       let srcFolder = aItem.QueryInterface(Ci.nsIMsgFolder);
       let msgHdr = aData.QueryInterface(Ci.nsIMsgDBHdr);
@@ -310,24 +291,20 @@ var moveCopyModule =
 
         let activities = this.activityMgr.getActivities({});
         if (activities.length > 0 &&
-            activities[activities.length-1].id == this.lastMessage.id &&
+            activities[activities.length - 1].id == this.lastMessage.id &&
             this.lastMessage.type == "moveMail" &&
             this.lastMessage.sourceFolder == srcFolder.prettyName &&
-            this.lastMessage.destFolder == destFolder.prettyName)
-        {
+            this.lastMessage.destFolder == destFolder.prettyName) {
           displayCount += this.lastMessage.count;
           this.activityMgr.removeActivity(this.lastMessage.id);
         }
 
-        let statusText = '';
-        if (srcFolder.server != destFolder.server)
-        {
+        let statusText = "";
+        if (srcFolder.server != destFolder.server) {
           statusText = this.getString("fromServerToServer");
           statusText = statusText.replace("#1", srcFolder.server.prettyName);
           statusText = statusText.replace("#2", destFolder.server.prettyName);
-        }
-        else
-        {
+        } else {
           statusText = srcFolder.server.prettyName;
         }
 
@@ -336,11 +313,11 @@ var moveCopyModule =
         displayText = PluralForm.get(displayCount,
                                      this.getString("movedMessages"));
 
-        displayText = displayText.replace("#1", displayCount)
+        displayText = displayText.replace("#1", displayCount);
         this.lastMessage.count = displayCount;
-        displayText = displayText.replace("#2", srcFolder.prettyName)
+        displayText = displayText.replace("#2", srcFolder.prettyName);
         this.lastMessage.sourceFolder = srcFolder.prettyName;
-        displayText = displayText.replace("#3", destFolder.prettyName)
+        displayText = displayText.replace("#3", destFolder.prettyName);
         this.lastMessage.destFolder = destFolder.prettyName;
 
         // create an activity event
@@ -355,12 +332,12 @@ var moveCopyModule =
         event.addSubject(msgHdr.messageId);
         this.lastMessage.id = this.activityMgr.addActivity(event);
       } catch (e) {
-        this.log.error("Exception: " + e)
+        this.log.error("Exception: " + e);
       }
     }
   },
 
-  init: function() {
+  init() {
     // XXX when do we need to remove ourselves?
     MailServices.mfn.addListener(this,
                                  MailServices.mfn.msgsDeleted |
@@ -369,5 +346,5 @@ var moveCopyModule =
                                  MailServices.mfn.folderMoveCopyCompleted |
                                  MailServices.mfn.folderRenamed |
                                  MailServices.mfn.itemEvent);
-  }
-}
+  },
+};

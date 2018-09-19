@@ -3,19 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['autosyncModule'];
+this.EXPORTED_SYMBOLS = ["autosyncModule"];
 
 var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
                                             "nsIActivityProcess", "init");
 var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
                                           "nsIActivityEvent", "init");
-var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
-                                            "nsIActivityWarning", "init");
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 
 var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
 
@@ -31,8 +27,8 @@ var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
 var autosyncModule =
 {
 
-  _inQFolderList : [],
-  _running : false,
+  _inQFolderList: [],
+  _running: false,
   _syncInfoPerFolder: new Map(),
   _syncInfoPerServer: new Map(),
   _lastMessage: new Map(),
@@ -60,20 +56,20 @@ var autosyncModule =
       .createBundle("chrome://messenger/locale/activity.properties");
   },
 
-  getString: function(stringName) {
+  getString(stringName) {
     try {
-      return this.bundle.GetStringFromName(stringName)
+      return this.bundle.GetStringFromName(stringName);
     } catch (e) {
       this.log.error("error trying to get a string called: " + stringName);
-      throw(e);
+      throw e;
     }
   },
 
-  createSyncMailProcess : function(folder) {
+  createSyncMailProcess(folder) {
     try {
       // create an activity process for this folder
       let msg = this.bundle.formatStringFromName("autosyncProcessDisplayText",
-                                                 [folder.prettyName], 1)
+                                                 [folder.prettyName], 1);
       let process = new nsActProcess(msg, this.autoSyncManager);
       // we want to use default auto-sync icon
       process.iconClass = "syncMail";
@@ -81,7 +77,7 @@ var autosyncModule =
       // group processes under folder's imap account
       process.contextType = "account";
       process.contextDisplayText = this.bundle.formatStringFromName("autosyncContextDisplayText",
-                                        [folder.server.prettyName], 1)
+                                        [folder.server.prettyName], 1);
 
 
       process.contextObj = folder.server;
@@ -89,11 +85,11 @@ var autosyncModule =
       return process;
     } catch (e) {
       this.log.error("createSyncMailProcess: " + e);
-      throw(e);
+      throw e;
     }
   },
 
-  createSyncMailEvent : function(syncItem) {
+  createSyncMailEvent(syncItem) {
     try {
       // extract the relevant parts
       let process = syncItem.activity;
@@ -120,7 +116,7 @@ var autosyncModule =
       // setting these values are informational only.
       event.contextType = process.contextType;
       event.contextDisplayText = this.bundle.formatStringFromName("autosyncContextDisplayText",
-                                        [folder.server.prettyName], 1)
+                                        [folder.server.prettyName], 1);
       event.contextObj = process.contextObj;
       event.iconClass = "syncMail";
 
@@ -133,21 +129,21 @@ var autosyncModule =
       return event;
     } catch (e) {
       this.log.error("createSyncMailEvent: " + e);
-      throw(e);
+      throw e;
     }
   },
 
-  onStateChanged : function(running) {
+  onStateChanged(running) {
     try {
       this._running = running;
       this.log.info("OnStatusChanged: " + (running ? "running" : "sleeping") + "\n");
     } catch (e) {
       this.log.error("onStateChanged: " + e);
-      throw(e);
+      throw e;
     }
   },
 
-  onFolderAddedIntoQ : function(queue, folder) {
+  onFolderAddedIntoQ(queue, folder) {
     try {
       if (folder instanceof Ci.nsIMsgFolder &&
           queue == nsIAutoSyncMgrListener.PriorityQueue) {
@@ -163,14 +159,14 @@ var autosyncModule =
                          activity: process,
                          percentComplete: 0,
                          totalDownloaded: 0,
-                         pendingMsgCount: imapFolder.autoSyncStateObj.pendingMessageCount
+                         pendingMsgCount: imapFolder.autoSyncStateObj.pendingMessageCount,
                        };
 
         // if this is the first folder of this server in the queue, then set the sync start time
         // for activity event
         if (!this._syncInfoPerServer.has(folder.server)) {
           this._syncInfoPerServer.set(folder.server, { startTime: Date.now(),
-                                                       totalDownloads: 0
+                                                       totalDownloads: 0,
                                                      });
         }
 
@@ -180,10 +176,10 @@ var autosyncModule =
       }
     } catch (e) {
       this.log.error("onFolderAddedIntoQ: " + e);
-      throw(e);
+      throw e;
     }
   },
-  onFolderRemovedFromQ : function(queue, folder) {
+  onFolderRemovedFromQ(queue, folder) {
     try {
       if (folder instanceof Ci.nsIMsgFolder &&
           queue == nsIAutoSyncMgrListener.PriorityQueue) {
@@ -197,15 +193,13 @@ var autosyncModule =
         let syncItem = this._syncInfoPerFolder.get(folder.URI);
         let process = syncItem.activity;
         let canceled = false;
-        if (process instanceof Ci.nsIActivityProcess)
-        {
+        if (process instanceof Ci.nsIActivityProcess) {
           canceled = (process.state == Ci.nsIActivityProcess.STATE_CANCELED);
           process.state = Ci.nsIActivityProcess.STATE_COMPLETED;
 
           try {
             this.activityMgr.removeActivity(process.id);
-          }
-          catch(e) {
+          } catch (e) {
             // It is OK to end up here; If the folder is queued and the
             // message get manually downloaded by the user, we might get
             // a folder removed notification even before a download
@@ -222,10 +216,8 @@ var autosyncModule =
         // if this is the last folder of this server in the queue
         // create a sync event and clean the sync start time
         let found = false;
-        for (let value of this._syncInfoPerFolder.values())
-        {
-          if (value.syncFolder.server == folder.server)
-          {
+        for (let value of this._syncInfoPerFolder.values()) {
+          if (value.syncFolder.server == folder.server) {
             found = true;
             break;
           }
@@ -246,10 +238,10 @@ var autosyncModule =
       }
     } catch (e) {
       this.log.error("onFolderRemovedFromQ: " + e);
-      throw(e);
+      throw e;
     }
   },
-  onDownloadStarted : function(folder, numOfMessages, totalPending) {
+  onDownloadStarted(folder, numOfMessages, totalPending) {
     try {
       if (folder instanceof Ci.nsIMsgFolder) {
         this.log.info("OnDownloadStarted (" + numOfMessages + "/" + totalPending + "): " +
@@ -274,7 +266,7 @@ var autosyncModule =
           syncItem.totalDownloaded += numOfMessages;
 
           process.state = Ci.nsIActivityProcess.STATE_INPROGRESS;
-          let percent = (syncItem.totalDownloaded/syncItem.pendingMsgCount)*100;
+          let percent = (syncItem.totalDownloaded / syncItem.pendingMsgCount) * 100;
           if (percent > syncItem.percentComplete)
             syncItem.percentComplete = percent;
 
@@ -293,11 +285,11 @@ var autosyncModule =
       }
     } catch (e) {
       this.log.error("onDownloadStarted: " + e);
-      throw(e);
+      throw e;
     }
   },
 
-  onDownloadCompleted : function(folder) {
+  onDownloadCompleted(folder) {
     try {
       if (folder instanceof Ci.nsIMsgFolder) {
         this.log.info("OnDownloadCompleted: " + folder.prettyName + " of " +
@@ -312,31 +304,31 @@ var autosyncModule =
       }
     } catch (e) {
       this.log.error("onDownloadCompleted: " + e);
-      throw(e);
+      throw e;
     }
   },
 
-  onDownloadError : function(folder) {
+  onDownloadError(folder) {
     if (folder instanceof Ci.nsIMsgFolder) {
       this.log.error("OnDownloadError: " + folder.prettyName + " of " +
                      folder.server.prettyName + "\n");
     }
   },
 
-  onDiscoveryQProcessed : function (folder, numOfHdrsProcessed, leftToProcess) {
+  onDiscoveryQProcessed(folder, numOfHdrsProcessed, leftToProcess) {
     this.log.info("onDiscoveryQProcessed: Processed " + numOfHdrsProcessed + "/" +
-                  (leftToProcess+numOfHdrsProcessed) + " of " + folder.prettyName + "\n");
+                  (leftToProcess + numOfHdrsProcessed) + " of " + folder.prettyName + "\n");
   },
 
-  onAutoSyncInitiated : function (folder) {
+  onAutoSyncInitiated(folder) {
       this.log.info("onAutoSyncInitiated: " + folder.prettyName + " of " +
                     folder.server.prettyName + " has been updated.\n");
   },
 
-  init: function() {
+  init() {
     // XXX when do we need to remove ourselves?
-    this.log.info('initing');
+    this.log.info("initing");
     Cc["@mozilla.org/imap/autosyncmgr;1"]
       .getService(Ci.nsIAutoSyncManager).addListener(this);
   },
-}
+};

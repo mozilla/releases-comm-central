@@ -22,7 +22,7 @@
     <implementation>
       <constructor>
        <![CDATA[
-          this.setAttribute('contextDisplayText', this.contextDisplayText);
+          this.setAttribute("contextDisplayText", this.contextDisplayText);
         ]]>
       </constructor>
       <field name="contextType">
@@ -43,7 +43,7 @@
         <setter>
           <![CDATA[
             this._contextDisplayText = val;
-            document.getAnonymousElementByAttribute(this, "anonid", "contextlbl").setAttribute("value", val)
+            document.getAnonymousElementByAttribute(this, "anonid", "contextlbl").setAttribute("value", val);
           ]]>
         </setter>
       </property>
@@ -65,12 +65,9 @@
       <method name="retry">
         <body>
           <![CDATA[
-            let activityManager = Cc["@mozilla.org/activity-manager;1"]
-                                    .getService(Ci.nsIActivityManager);
-
-            let processes = activityManager
-                                  .getProcessesByContext(this.contextType,
-                                                         this.contextObj, {});
+            /* globals activityManager */
+            let processes = activityManager.getProcessesByContext(this.contextType,
+                                                                  this.contextObj, {});
             for (let process of processes) {
               if (process.retryHandler)
                 process.retryHandler.retry(process);
@@ -106,17 +103,16 @@
     <implementation implements="nsIActivityListener">
       <constructor>
        <![CDATA[
+        /* globals activityManager */
         ChromeUtils.import("resource:///modules/templateUtils.js", this);
         try {
-          ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-          let activityManager = Cc["@mozilla.org/activity-manager;1"]
-                                  .getService(Ci.nsIActivityManager);
+          const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 
           // fetch the activity and set the base attributes
-          let actID = this.getAttribute('actID');
+          let actID = this.getAttribute("actID");
           this._activity = activityManager.getActivity(actID);
           this._activity.addListener(this);
-          this.setAttribute('iconclass', this._activity.iconClass);
+          this.setAttribute("iconclass", this._activity.iconClass);
           this.log = Log4Moz.getConfiguredLogger("activity-base");
 
           this.text = {
@@ -178,11 +174,11 @@
       <property name="isOrphan">
         <getter>
         <![CDATA[
+          /* globals activityManager */
           try {
-           let activity = activityManager.getActivity(this._activity.id);
-           return false;
-          }
-          catch(e) {
+            activityManager.getActivity(this._activity.id);
+            return false;
+          } catch (e) {
             // happens when the given activity is already removed form
             //   the activity manager. Returning true indicates that the
             //   XBL doesn't have any associated activity - orphan.
@@ -222,8 +218,8 @@
         <parameter name="visible"/>
         <body>
           <![CDATA[
-            document.getAnonymousElementByAttribute(this, "anonid",
-             anonid).setAttribute('hidden', !visible);
+            document.getAnonymousElementByAttribute(this, "anonid", anonid)
+                    .setAttribute("hidden", !visible);
           ]]>
         </body>
       </method>
@@ -231,8 +227,9 @@
         <parameter name="time"/>
         <body>
           <![CDATA[
+            ChromeUtils.import("resource://gre/modules/Services.jsm");
             const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-              dateStyle: "long", timeStyle: "short"
+              dateStyle: "long", timeStyle: "short",
             });
 
             // Get the end time to display
@@ -265,34 +262,33 @@
                                  this._activity.lastStatusText,
                                  this._activity.workUnitComplete,
                                  this._activity.totalWorkUnits);
-         }
-         catch(e) {
+         } catch (e) {
             this.log.error("Exception constructing activity-process: " + e);
-            throw(e)
+            throw e;
          }
         ]]>
       </constructor>
       <property name="displayText">
         <getter>
           <![CDATA[
-            return this.getAttribute('displayText');
+            return this.getAttribute("displayText");
           ]]>
         </getter>
         <setter>
           <![CDATA[
-            this.setAttribute('displayText', val);
+            this.setAttribute("displayText", val);
           ]]>
         </setter>
       </property>
       <property name="statusText">
         <getter>
           <![CDATA[
-            return this.getAttribute('statusText');
+            return this.getAttribute("statusText");
           ]]>
         </getter>
         <setter>
           <![CDATA[
-            this.setAttribute('statusText', val);
+            this.setAttribute("statusText", val);
           ]]>
         </setter>
       </property>
@@ -308,7 +304,7 @@
         <getter>
           <![CDATA[
             return this._activity.state == Ci.nsIActivityProcess.STATE_COMPLETED ||
-                   this._activity.state == Ci.nsIActivityProcess.STATE_CANCELED
+                   this._activity.state == Ci.nsIActivityProcess.STATE_CANCELED;
           ]]>
         </getter>
       </property>
@@ -317,8 +313,7 @@
         <![CDATA[
           try {
            return (this._activity.cancelHandler != null);
-          }
-          catch(e) {
+          } catch (e) {
             // In normal conditions, we shouldn't endup here. This can only
             // happen if the XBL is orphan - associated activity has been
             // deleted but XBL stays alive.
@@ -332,8 +327,7 @@
         <![CDATA[
           try {
            return (this._activity.pauseHandler != null);
-          }
-          catch(e) {
+          } catch (e) {
             // In normal conditions, we shouldn't endup here. This can only
             // happen if the XBL is orphan - associated activity has been
             // deleted but XBL stays alive.
@@ -347,8 +341,7 @@
         <![CDATA[
           try {
            return (this._activity.retryHandler != null);
-          }
-          catch(e) {
+          } catch (e) {
             // In normal conditions, we shouldn't endup here. This can only
             // happen if the XBL is orphan - associated activity has been
             // deleted but XBL stays alive.
@@ -373,7 +366,7 @@
           let displayText = this.displayText;
           let statusText = this.statusText;
 
-          switch(this._activity.state) {
+          switch (this._activity.state) {
             case Ci.nsIActivityProcess.STATE_INPROGRESS:
               hideCancelBut = !this.canCancel;
               hidePauseBut = !this.canPause;
@@ -445,12 +438,11 @@
             if (aTotalWorkUnits == 0) {
               element.setAttribute("mode", "undetermined");
               element.setAttribute("value", 0);
-            }
-            else {
+            } else {
               let _percentComplete = 100.0 * aWorkUnitsComplete /
                                      aTotalWorkUnits;
               element.setAttribute("mode", "determined");
-              element.setAttribute('value', _percentComplete);
+              element.setAttribute("value", _percentComplete);
             }
             this.statusText = aStatusText;
           ]]>
@@ -472,8 +464,7 @@
             if (hidePauseBut) {
               this.setVisibility("button_pause", !hidePauseBut);
               this.setVisibility("button_resume", !hideResumeBut);
-            }
-            else {
+            } else {
               this.setVisibility("button_pause", this.paused);
               this.setVisibility("button_resume", !this.paused);
             }
@@ -563,41 +554,40 @@
           this.statusText =  this._activity.statusText;
           this.completionTime = this._activity.completionTime;
           this.setVisibility("button_undo", this._activity.undoHandler);
-        }
-        catch(e) {
+        } catch (e) {
           this.log.error("Exception constructing activity-event: " + e);
-          throw(e)
+          throw e;
         }
         ]]>
       </constructor>
        <property name="displayText">
         <getter>
           <![CDATA[
-            return this.getAttribute('displayText');
+            return this.getAttribute("displayText");
           ]]>
         </getter>
         <setter>
           <![CDATA[
-            this.setAttribute('displayText', val);
+            this.setAttribute("displayText", val);
           ]]>
         </setter>
       </property>
       <property name="statusText">
         <getter>
           <![CDATA[
-            return this.getAttribute('statusText');
+            return this.getAttribute("statusText");
           ]]>
         </getter>
         <setter>
           <![CDATA[
-            this.setAttribute('statusText', val);
+            this.setAttribute("statusText", val);
           ]]>
         </setter>
       </property>
       <property name="completionTime">
         <getter>
           <![CDATA[
-            return this.getAttribute('completionTime');
+            return this.getAttribute("completionTime");
           ]]>
         </getter>
         <setter>
@@ -613,8 +603,7 @@
         <![CDATA[
           try {
            return (this._activity.undoHandler != null);
-          }
-          catch(e) {
+          } catch (e) {
             // In normal conditions, we shouldn't endup here. This can only
             // happen if the XBL is orphan - associated activity has been
             // deleted but XBL stays alive.
@@ -674,41 +663,40 @@
           this.dateTime = this._activity.time;
           this.recoveryTipText =  this._activity.recoveryTipText;
           this.setVisibility("button_recover", this._activity.recoveryHandler);
-        }
-        catch(e) {
+        } catch (e) {
           this.log.error("Exception constructing activity-warning: " + e);
-          throw(e)
+          throw e;
         }
         ]]>
       </constructor>
        <property name="displayText">
         <getter>
           <![CDATA[
-            return this.getAttribute('displayText');
+            return this.getAttribute("displayText");
           ]]>
         </getter>
         <setter>
           <![CDATA[
-            this.setAttribute('displayText', val);
+            this.setAttribute("displayText", val);
           ]]>
         </setter>
       </property>
       <property name="recoveryTipText">
         <getter>
           <![CDATA[
-            return this.getAttribute('recoveryTipText');
+            return this.getAttribute("recoveryTipText");
           ]]>
         </getter>
         <setter>
           <![CDATA[
-            this.setAttribute('recoveryTipText', val);
+            this.setAttribute("recoveryTipText", val);
           ]]>
         </setter>
       </property>
       <property name="dateTime">
         <getter>
           <![CDATA[
-            return this.getAttribute('dateTime');
+            return this.getAttribute("dateTime");
           ]]>
         </getter>
         <setter>
@@ -723,8 +711,7 @@
         <![CDATA[
           try {
            return (this._activity.recoveryHandler != null);
-          }
-          catch(e) {
+          } catch (e) {
             // In normal conditions, we shouldn't endup here. This can only
             // happen if the XBL is orphan - associated activity has been
             // deleted but XBL stays alive.

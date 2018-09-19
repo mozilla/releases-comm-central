@@ -9,15 +9,12 @@ var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
                                             "nsIActivityProcess", "init");
 var nsActEvent   = Components.Constructor("@mozilla.org/activity-event;1",
                                             "nsIActivityEvent", "init");
-var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
-                                            "nsIActivityWarning", "init");
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-ChromeUtils.import("resource:///modules/gloda/public.js");
-ChromeUtils.import("resource:///modules/gloda/indexer.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js", null);
+const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.js", null);
 
 /**
  * Gloda message indexer feedback.
@@ -41,23 +38,22 @@ var glodaIndexerActivity =
       .createBundle("chrome://messenger/locale/activity.properties");
   },
 
-  getString: function(stringName) {
+  getString(stringName) {
     try {
       return this.bundle.GetStringFromName(stringName);
     } catch (e) {
       this.log.error("error trying to get a string called: " + stringName);
-      throw(e);
+      throw e;
     }
   },
 
-  init: function() {
+  init() {
     // Register a listener with the Gloda indexer that receives notifications
     // about Gloda indexing status.  We wrap the listener in this function so we
     // can set |this| to the GlodaIndexerActivity object inside the listener.
-    function listenerWrapper(...aArgs)
-    {
+    function listenerWrapper(...aArgs) {
       glodaIndexerActivity.listener(...aArgs);
-    };
+    }
     GlodaIndexer.addListener(listenerWrapper);
   },
 
@@ -79,20 +75,15 @@ var glodaIndexerActivity =
    */
   currentJob: null,
 
-  listener: function(aStatus, aFolder, aJobNumber, aItemNumber,
-                     aTotalItemNum, aJobType)
-  {
+  listener(aStatus, aFolder, aJobNumber, aItemNumber, aTotalItemNum, aJobType) {
     this.log.debug("Gloda Indexer Folder/Status: " + aFolder + "/" + aStatus);
     this.log.debug("Gloda Indexer Job: " + aJobNumber);
     this.log.debug("Gloda Indexer Item: " + aItemNumber + "/" + aTotalItemNum);
 
-    if (aStatus == Gloda.kIndexerIdle)
-    {
+    if (aStatus == Gloda.kIndexerIdle) {
       if (this.currentJob)
         this.onJobCompleted();
-    }
-    else
-    {
+    } else {
       // If the job numbers have changed, the indexer has finished the job
       // we were previously tracking, so convert the corresponding process
       // into an event and start a new process to track the new job.
@@ -111,7 +102,7 @@ var glodaIndexerActivity =
     }
   },
 
-  onJobBegun: function(aFolder, aJobNumber, aTotalItemNum, aJobType) {
+  onJobBegun(aFolder, aJobNumber, aTotalItemNum, aJobType) {
     let displayText =
       aFolder ? this.getString("indexingFolder").replace("#1", aFolder)
               : this.getString("indexing");
@@ -125,7 +116,7 @@ var glodaIndexerActivity =
     this.currentJob = {
       folder:       aFolder,
       jobNumber:    aJobNumber,
-      process:      process,
+      process,
       startTime:    new Date(),
       totalItemNum: aTotalItemNum,
       jobType:      aJobType,
@@ -134,7 +125,7 @@ var glodaIndexerActivity =
     this.activityMgr.addActivity(process);
   },
 
-  onJobProgress: function(aFolder, aItemNumber, aTotalItemNum) {
+  onJobProgress(aFolder, aItemNumber, aTotalItemNum) {
     this.currentJob.process.state = Ci.nsIActivityProcess.STATE_INPROGRESS;
     // The total number of items being processed in the job can change, as can
     // the folder being processed, since we sometimes get notified about a job
@@ -147,8 +138,7 @@ var glodaIndexerActivity =
       statusText = aFolder ? this.getString("indexingFolderStatusVague")
                                .replace("#1", aFolder)
                            : this.getString("indexingStatusVague");
-    }
-    else {
+    } else {
       let percentComplete =
         aTotalItemNum == 0 ? 100 : parseInt(aItemNumber / aTotalItemNum * 100);
       // Note: we must replace the folder name placeholder last; otherwise,
@@ -166,7 +156,7 @@ var glodaIndexerActivity =
     this.currentJob.process.setProgress(statusText, aItemNumber, aTotalItemNum);
   },
 
-  onJobCompleted: function() {
+  onJobCompleted() {
     this.currentJob.process.state = Ci.nsIActivityProcess.STATE_COMPLETED;
 
     this.activityMgr.removeActivity(this.currentJob.process.id);
@@ -194,7 +184,7 @@ var glodaIndexerActivity =
                           .replace("#2", this.currentJob.folder);
 
       let endTime = new Date();
-      let secondsElapsed = parseInt((endTime - this.currentJob.startTime)/1000);
+      let secondsElapsed = parseInt((endTime - this.currentJob.startTime) / 1000);
 
       let statusText = PluralForm.get(secondsElapsed,
                                       this.getString("indexedFolderStatus"))
@@ -218,6 +208,6 @@ var glodaIndexerActivity =
     }
 
     this.currentJob = null;
-  }
+  },
 
 };

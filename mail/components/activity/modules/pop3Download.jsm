@@ -3,20 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['pop3DownloadModule'];
+this.EXPORTED_SYMBOLS = ["pop3DownloadModule"];
 
-var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
-                                            "nsIActivityProcess", "init");
 var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
                                           "nsIActivityEvent", "init");
-var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
-                                            "nsIActivityWarning", "init");
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 
 // This module provides a link between the pop3 service code and the activity
 // manager.
@@ -45,16 +40,16 @@ var pop3DownloadModule =
       .createBundle("chrome://messenger/locale/activity.properties");
   },
 
-  getString: function(stringName) {
+  getString(stringName) {
     try {
-      return this.bundle.GetStringFromName(stringName)
+      return this.bundle.GetStringFromName(stringName);
     } catch (e) {
       this.log.error("error trying to get a string called: " + stringName);
-      throw(e);
+      throw e;
     }
   },
 
-  onDownloadStarted : function(aFolder) {
+  onDownloadStarted(aFolder) {
     this.log.info("in onDownloadStarted");
 
     let displayText =
@@ -80,11 +75,11 @@ var pop3DownloadModule =
     this._mostRecentActivityForFolder.set(aFolder.URI, downloadItem);
   },
 
-  onDownloadProgress : function(aFolder, aNumMsgsDownloaded, aTotalMsgs) {
+  onDownloadProgress(aFolder, aNumMsgsDownloaded, aTotalMsgs) {
     this.log.info("in onDownloadProgress");
   },
 
-  onDownloadCompleted : function(aFolder, aNumMsgsDownloaded) {
+  onDownloadCompleted(aFolder, aNumMsgsDownloaded) {
     this.log.info("in onDownloadCompleted");
 
     // Remove activity if there was any.
@@ -96,13 +91,12 @@ var pop3DownloadModule =
       this.activityMgr.removeActivity(recentActivity.eventID);
 
     let displayText;
-    if (aNumMsgsDownloaded > 0)
-    {
+    if (aNumMsgsDownloaded > 0) {
       displayText = PluralForm.get(aNumMsgsDownloaded, this.getString("pop3EventStatusText"));
       displayText = displayText.replace("#1", aNumMsgsDownloaded);
-    }
-    else
+    } else {
       displayText = this.getString("pop3EventStatusTextNoMsgs");
+    }
 
     let statusText = aFolder.server.prettyName;
 
@@ -129,8 +123,8 @@ var pop3DownloadModule =
       }
     }
   },
-  init: function() {
+  init() {
     // XXX when do we need to remove ourselves?
     MailServices.pop3.addListener(this);
-  }
+  },
 };

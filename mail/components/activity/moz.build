@@ -19,13 +19,13 @@ EXTRA_COMPONENTS += [
 ]
 
 EXTRA_JS_MODULES.activity += [
-    'modules/activityModules.js',
-    'modules/alertHook.js',
-    'modules/autosync.js',
-    'modules/glodaIndexer.js',
-    'modules/moveCopy.js',
-    'modules/pop3Download.js',
-    'modules/sendLater.js',
+    'modules/activityModules.jsm',
+    'modules/alertHook.jsm',
+    'modules/autosync.jsm',
+    'modules/glodaIndexer.jsm',
+    'modules/moveCopy.jsm',
+    'modules/pop3Download.jsm',
+    'modules/sendLater.jsm',
 ]
 
 JAR_MANIFESTS += ['jar.mn']

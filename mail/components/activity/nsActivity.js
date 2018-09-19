@@ -3,23 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 
-////////////////////////////////////////////////////////////////////////////////
-//// Constants
+// Base class for nsActivityProcess and nsActivityEvent objects
 
-////////////////////////////////////////////////////////////////////////////////
-//// Base class for nsActivityProcess and nsActivityEvent objects
-
-function nsActivity()
-{
+function nsActivity() {
   this._initLogging();
   this._listeners = [];
   this._subjects = [];
 }
 
 nsActivity.prototype = {
-
   id: -1,
   bindingName: "",
   iconClass: "",
@@ -31,15 +25,15 @@ nsActivity.prototype = {
   context: "",
   contextObj: null,
 
-  _initLogging: function () {
+  _initLogging() {
     this.log = Log4Moz.getConfiguredLogger("nsActivity");
   },
 
-  addListener: function(aListener) {
+  addListener(aListener) {
     this._listeners.push(aListener);
   },
 
-  removeListener: function(aListener) {
+  removeListener(aListener) {
     for (let i = 0; i < this._listeners.length; i++) {
       if (this._listeners[i] == aListener) {
         this._listeners.splice(i, 1);
@@ -48,11 +42,11 @@ nsActivity.prototype = {
     }
   },
 
-  addSubject: function(aSubject) {
+  addSubject(aSubject) {
     this._subjects.push(aSubject);
   },
 
-  getSubjects: function(aCount) {
+  getSubjects(aCount) {
     let list = this._subjects.slice();
 
     aCount.value = list.length;
@@ -60,11 +54,7 @@ nsActivity.prototype = {
   },
 };
 
-////////////////////////////////////////////////////////////////////////////////
-//// nsActivityProcess class
-
-function nsActivityProcess()
-{
+function nsActivityProcess() {
   nsActivity.call(this);
   this.bindingName = "activity-process";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
@@ -73,9 +63,6 @@ function nsActivityProcess()
 nsActivityProcess.prototype = {
   __proto__: nsActivity.prototype,
   classID: Components.ID("B2C036A3-F7CE-401C-95EE-9C21505167FD"),
-
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsIActivityProcess
 
   percentComplete: -1,
   lastStatusText: "",
@@ -87,7 +74,7 @@ nsActivityProcess.prototype = {
   _retryHandler: null,
   _state: Ci.nsIActivityProcess.STATE_INPROGRESS,
 
-  init: function(aDisplayText, aInitiator) {
+  init(aDisplayText, aInitiator) {
     this.displayText = aDisplayText;
     this.initiator = aInitiator;
   },
@@ -146,20 +133,18 @@ nsActivityProcess.prototype = {
     for (let value of this._listeners) {
       try {
         value.onStateChanged(this, oldState);
-      }
-      catch(e) {
-        this.log.error("Exception thrown by onStateChanged listener: "+ e);
+      } catch (e) {
+        this.log.error("Exception thrown by onStateChanged listener: " + e);
       }
     }
   },
 
-  setProgress: function(aStatusText, aWorkUnitsComplete, aTotalWorkUnits) {
+  setProgress(aStatusText, aWorkUnitsComplete, aTotalWorkUnits) {
     if (aTotalWorkUnits == 0) {
       this.percentComplete = -1;
       this.workUnitComplete = 0;
       this.totalWorkUnits = 0;
-    }
-    else {
+    } else {
       this.percentComplete = parseInt(100.0 * aWorkUnitsComplete / aTotalWorkUnits);
       this.workUnitComplete = aWorkUnitsComplete;
       this.totalWorkUnits = aTotalWorkUnits;
@@ -171,8 +156,7 @@ nsActivityProcess.prototype = {
       try {
         value.onProgressChanged(this, aStatusText, aWorkUnitsComplete,
                                 aTotalWorkUnits);
-      }
-      catch(e) {
+      } catch (e) {
         this.log.error("Exception thrown by onProgressChanged listener: " + e);
       }
     }
@@ -190,8 +174,7 @@ nsActivityProcess.prototype = {
     for (let value of this._listeners) {
       try {
         value.onHandlerChanged(this);
-      }
-      catch(e) {
+      } catch (e) {
         this.log.error("Exception thrown by onHandlerChanged listener: " + e);
       }
     }
@@ -225,17 +208,10 @@ nsActivityProcess.prototype = {
     }
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsISupports
-
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityProcess, Ci.nsIActivity])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityProcess, Ci.nsIActivity]),
 };
 
-///////////////////////////////////////////////////////////////////////////////
-//// nsActivityEvent class
-
-function nsActivityEvent()
-{
+function nsActivityEvent() {
   nsActivity.call(this);
   this.bindingName = "activity-event";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
@@ -245,23 +221,19 @@ nsActivityEvent.prototype = {
   __proto__: nsActivity.prototype,
   classID: Components.ID("87AAEB20-89D9-4B95-9542-3BF72405CAB2"),
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsIActivityEvent
-
   statusText: "",
   startTime: 0,
   completionTime: 0,
   _undoHandler: null,
 
-  init: function(aDisplayText, aInitiator, aStatusText, aStartTime,
-                 aCompletionTime) {
+  init(aDisplayText, aInitiator, aStatusText, aStartTime, aCompletionTime) {
     this.displayText = aDisplayText;
     this.statusText = aStatusText;
     this.startTime = aStartTime;
     if (aCompletionTime)
       this.completionTime = aCompletionTime;
     else
-      this.completionTime = Date.now()
+      this.completionTime = Date.now();
     this.initiator = aInitiator;
     this._completionTime = aCompletionTime;
   },
@@ -280,17 +252,10 @@ nsActivityEvent.prototype = {
     }
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsISupports
-
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityEvent, Ci.nsIActivity])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityEvent, Ci.nsIActivity]),
 };
 
-///////////////////////////////////////////////////////////////////////////////
-//// nsActivityWarning class
-
-function nsActivityWarning()
-{
+function nsActivityWarning() {
   nsActivity.call(this);
   this.bindingName = "activity-warning";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
@@ -300,14 +265,11 @@ nsActivityWarning.prototype = {
   __proto__: nsActivity.prototype,
   classID: Components.ID("968BAC9E-798B-4952-B384-86B21B8CC71E"),
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsIActivityWarning
-
   recoveryTipText: "",
   _time: 0,
   _recoveryHandler: null,
 
-  init: function(aWarningText, aInitiator, aRecoveryTipText) {
+  init(aWarningText, aInitiator, aRecoveryTipText) {
     this.displayText = aWarningText;
     this.initiator = aInitiator;
     this.recoveryTipText = aRecoveryTipText;
@@ -332,14 +294,8 @@ nsActivityWarning.prototype = {
     return this._time;
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsISupports
-
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityWarning, Ci.nsIActivity])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityWarning, Ci.nsIActivity]),
 };
-
-///////////////////////////////////////////////////////////////////////////////
-//// Module
 
 var components = [nsActivityProcess, nsActivityEvent, nsActivityWarning];
 var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

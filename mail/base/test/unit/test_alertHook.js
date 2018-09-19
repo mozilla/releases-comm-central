@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/activity/alertHook.js");
+ChromeUtils.import("resource:///modules/activity/alertHook.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
 alertHook.init();

@@ -25,7 +25,7 @@
 /* globals goUpdateCommand */
 
 // Ensure the activity modules are loaded for this window.
-ChromeUtils.import("resource:///modules/activity/activityModules.js");
+ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");

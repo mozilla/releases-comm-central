@@ -4,22 +4,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 
-////////////////////////////////////////////////////////////////////////////////
-//// Constants
-
-////////////////////////////////////////////////////////////////////////////////
-//// nsActivityManager class
-
-function nsActivityManager()
-{}
+function nsActivityManager() {}
 
 nsActivityManager.prototype = {
   classID: Components.ID("8aa5972e-19cb-41cc-9696-645f8a8d1a06"),
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsIActivityManager
   log: Log4Moz.getConfiguredLogger("nsActivityManager"),
   _listeners: [],
   _processCount: 0,
@@ -37,7 +28,7 @@ nsActivityManager.prototype = {
     return count;
   },
 
-  getProcessesByContext: function(aContextType, aContextObj, aCount) {
+  getProcessesByContext(aContextType, aContextObj, aCount) {
     let list = [];
     for (let activity of this._activities.values()) {
       if (activity instanceof Ci.nsIActivityProcess &&
@@ -59,7 +50,7 @@ nsActivityManager.prototype = {
     return this._idCounter++;
   },
 
-  addActivity: function (aActivity) {
+  addActivity(aActivity) {
     try {
       this.log.info("adding Activity");
       // get the next valid id for this activity
@@ -72,9 +63,8 @@ nsActivityManager.prototype = {
       for (let value of this._listeners) {
         try {
           value.onAddedActivity(id, aActivity);
-        }
-        catch(e) {
-          this.log.error("Exception calling onAddedActivity" + e)
+        } catch (e) {
+          this.log.error("Exception calling onAddedActivity" + e);
         }
       }
       return id;
@@ -82,11 +72,11 @@ nsActivityManager.prototype = {
       // for some reason exceptions don't end up on the console if we don't
       // explicitly log them.
       this.log.error("Exception: " + e);
-      throw(e);
+      throw e;
     }
   },
 
-  removeActivity: function (aID) {
+  removeActivity(aID) {
     let activity = this.getActivity(aID);
 
     // make sure that the activity is not in-progress state
@@ -101,14 +91,13 @@ nsActivityManager.prototype = {
     for (let value of this._listeners) {
       try {
         value.onRemovedActivity(aID);
-      }
-      catch(e) {
+      } catch (e) {
         // ignore the exception
       }
     }
   },
 
-  cleanUp: function () {
+  cleanUp() {
     // Get the list of aIDs.
     this.log.info("cleanUp\n");
     for (let [id, activity] of this._activities) {
@@ -121,35 +110,35 @@ nsActivityManager.prototype = {
             state != Ci.nsIActivityProcess.STATE_WAITINGFORINPUT &&
             state != Ci.nsIActivityProcess.STATE_WAITINGFORRETRY)
           this.removeActivity(id);
-      }
-      else
+      } else {
         this.removeActivity(id);
+      }
     }
   },
 
-  getActivity: function(aID) {
+  getActivity(aID) {
     if (!this._activities.has(aID))
       throw Cr.NS_ERROR_NOT_AVAILABLE;
     return this._activities.get(aID);
   },
 
-  containsActivity: function (aID) {
+  containsActivity(aID) {
     return this._activities.has(aID);
   },
 
-  getActivities: function(aCount) {
+  getActivities(aCount) {
     let list = [...this._activities.values()];
 
     aCount.value = list.length;
     return list;
   },
 
-  addListener: function(aListener) {
+  addListener(aListener) {
     this.log.info("addListener\n");
     this._listeners.push(aListener);
   },
 
-  removeListener: function(aListener) {
+  removeListener(aListener) {
     this.log.info("removeListener\n");
     for (let i = 0; i < this._listeners.length; i++) {
       if (this._listeners[i] == aListener)
@@ -157,14 +146,8 @@ nsActivityManager.prototype = {
     }
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsISupports
-
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityManager])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityManager]),
 };
-
-////////////////////////////////////////////////////////////////////////////////
-//// Module
 
 var components = [nsActivityManager];
 var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
