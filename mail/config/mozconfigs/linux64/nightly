@@ -2,8 +2,6 @@
 . "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
 
-unset ENABLE_CLANG_PLUGIN
-
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-profiling
 
