@@ -159,7 +159,8 @@ typeAheadFind.prototype = {
       return true;
 
     // Don't start a find if the focus is on a form element.
-    if (ChromeUtils.getClassName(element) === "XULElement" ||
+    if ((element.nodeType == element.ELEMENT_NODE &&
+         element.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul") ||
         ChromeUtils.getClassName(element) === "HTMLEmbedElement" ||
         ChromeUtils.getClassName(element) === "HTMLObjectElement" ||
         ChromeUtils.getClassName(element) === "HTMLSelectElement" ||

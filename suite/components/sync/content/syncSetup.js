@@ -649,7 +649,7 @@ var gSyncSetup = {
       Weave.Svc.Prefs.reset("serverURL");
     } else {
       // Prevent double selection upon using down key.
-      control.menuBoxObject.activeChild = null;
+      control.activeChild = null;
       control.editable = true;
       control.value = "";
     }
