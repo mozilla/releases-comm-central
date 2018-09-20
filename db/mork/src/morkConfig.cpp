@@ -19,10 +19,7 @@
 
 void mork_assertion_signal(const char* inMessage)
 {
-#if defined(MORK_WIN) || defined(MORK_MAC)
-  // asm { int 3 }
   NS_ERROR(inMessage);
-#endif /*MORK_WIN*/
 }
 
 #ifdef MORK_PROVIDE_STDLIB
