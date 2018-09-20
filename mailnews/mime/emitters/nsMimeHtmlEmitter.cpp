@@ -18,7 +18,7 @@
 #include "nsMimeTypes.h"
 #include "prtime.h"
 #include "prprf.h"
-#include "nsIStringEnumerator.h"
+#include "nsStringEnumerator.h"
 #include "nsServiceManagerUtils.h"
 // hack: include this to fix opening news attachments.
 #include "nsINntpUrl.h"
@@ -35,7 +35,7 @@
  * A helper class to implement nsIUTF8StringEnumerator
  */
 
-class nsMimeStringEnumerator final : public nsIUTF8StringEnumerator {
+class nsMimeStringEnumerator final : public nsStringEnumeratorBase {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIUTF8STRINGENUMERATOR
@@ -45,13 +45,15 @@ public:
   template<class T>
   nsCString* Append(T value) { return mValues.AppendElement(value); }
 
+  using nsStringEnumeratorBase::GetNext;
+
 protected:
   ~nsMimeStringEnumerator() {}
   nsTArray<nsCString> mValues;
   uint32_t mCurrentIndex; // consumers expect first-in first-out enumeration
 };
 
-NS_IMPL_ISUPPORTS(nsMimeStringEnumerator, nsIUTF8StringEnumerator)
+NS_IMPL_ISUPPORTS(nsMimeStringEnumerator, nsIUTF8StringEnumerator, nsIStringEnumerator)
 
 NS_IMETHODIMP
 nsMimeStringEnumerator::HasMore(bool *result)

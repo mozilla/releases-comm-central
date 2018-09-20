@@ -11,6 +11,7 @@
 #include "nsIMsgThread.h"
 #include "nsMsgMimeCID.h"
 #include "mozilla/Attributes.h"
+#include "nsStringEnumerator.h"
 
 using namespace mozilla::mailnews;
 
@@ -990,11 +991,13 @@ NS_IMETHODIMP nsMsgHdr::GetIsKilled(bool *isKilled)
 #include "nsIStringEnumerator.h"
 #include "nsAutoPtr.h"
 #define NULL_MORK_COLUMN 0
-class nsMsgPropertyEnumerator : public nsIUTF8StringEnumerator
+class nsMsgPropertyEnumerator : public nsStringEnumeratorBase
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIUTF8STRINGENUMERATOR
+
+  using nsStringEnumeratorBase::GetNext;
 
   explicit nsMsgPropertyEnumerator(nsMsgHdr* aHdr);
   void PrefetchNext();
@@ -1037,7 +1040,7 @@ nsMsgPropertyEnumerator::~nsMsgPropertyEnumerator()
   mRowCellCursor = nullptr;
 }
 
-NS_IMPL_ISUPPORTS(nsMsgPropertyEnumerator, nsIUTF8StringEnumerator)
+NS_IMPL_ISUPPORTS(nsMsgPropertyEnumerator, nsIUTF8StringEnumerator, nsIStringEnumerator)
 
 NS_IMETHODIMP nsMsgPropertyEnumerator::GetNext(nsACString& aItem)
 {

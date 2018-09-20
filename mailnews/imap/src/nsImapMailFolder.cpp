@@ -83,7 +83,7 @@
 #include "nsAutoSyncManager.h"
 #include "nsIMsgFilterCustomAction.h"
 #include "nsMsgReadStateTxn.h"
-#include "nsIStringEnumerator.h"
+#include "nsStringEnumerator.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsMsgLineBuffer.h"
 #include "mozilla/Logging.h"
@@ -6335,7 +6335,7 @@ NS_IMETHODIMP nsImapMailFolder::GetOtherUsersWithAccess(
   return GetFolderACL()->GetOtherUsers(aResult);
 }
 
-class AdoptUTF8StringEnumerator final : public nsIUTF8StringEnumerator
+class AdoptUTF8StringEnumerator final : public nsStringEnumeratorBase
 {
 public:
   explicit AdoptUTF8StringEnumerator(nsTArray<nsCString>* array) :
@@ -6344,6 +6344,9 @@ public:
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIUTF8STRINGENUMERATOR
+
+  using nsStringEnumeratorBase::GetNext;
+
 private:
   ~AdoptUTF8StringEnumerator()
   {
@@ -6354,7 +6357,7 @@ private:
   uint32_t             mIndex;
 };
 
-NS_IMPL_ISUPPORTS(AdoptUTF8StringEnumerator, nsIUTF8StringEnumerator)
+NS_IMPL_ISUPPORTS(AdoptUTF8StringEnumerator, nsIUTF8StringEnumerator, nsIStringEnumerator)
 
 NS_IMETHODIMP
 AdoptUTF8StringEnumerator::HasMore(bool *aResult)
