@@ -65,8 +65,11 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
 }
 
 .calview-tabs {
+    -moz-box-align: stretch;
+    padding-left: 0;
+    padding-right: 0;
     margin-bottom: 0;
-    padding: 0;
+    position: static;
 }
 
 tab[calview] {
@@ -76,6 +79,7 @@ tab[calview] {
 
 tab[calview][selected="true"] {
     background-color: #fff;
+    color: inherit;
 }
 
 tab[calview] > .tab-middle {
