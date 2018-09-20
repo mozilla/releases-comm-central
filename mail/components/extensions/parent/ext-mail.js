@@ -629,6 +629,11 @@ class Tab extends TabBase {
     return windowTracker.getId(this.window);
   }
 
+  /** Returns the attention state of the tab. */
+  get attention() {
+    return false;
+  }
+
   /** Returns the article state of the tab. */
   get isArticle() {
     return false;
