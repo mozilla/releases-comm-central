@@ -3384,18 +3384,24 @@ NS_IMETHODIMP nsMsgCompose::RememberQueuedDisposition()
   if (mMsgSend)
   {
     mMsgSend->GetMessageKey(&msgKey);
-    nsAutoCString msgUri(m_folderName);
     nsCString identityKey;
 
     m_identity->GetKey(identityKey);
 
-    int32_t insertIndex = StringBeginsWith(msgUri, NS_LITERAL_CSTRING("mailbox")) ? 7 : 4;
-    msgUri.InsertLiteral("-message", insertIndex); // "mailbox/imap: -> "mailbox/imap-message:"
-    msgUri.Append('#');
-    msgUri.AppendInt(msgKey);
-    nsCOMPtr <nsIMsgDBHdr> msgHdr;
-    rv = GetMsgDBHdrFromURI(msgUri.get(), getter_AddRefs(msgHdr));
+    nsCOMPtr<nsIRDFService> rdfService(do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
     NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr <nsIRDFResource> resource;
+    rv = rdfService->GetResource(m_folderName, getter_AddRefs(resource));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(resource, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr <nsIMsgDBHdr> msgHdr;
+    rv = folder->GetMessageHeader(msgKey, getter_AddRefs(msgHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+
     uint32_t pseudoHdrProp = 0;
     msgHdr->GetUint32Property("pseudoHdr", &pseudoHdrProp);
     if (pseudoHdrProp)
