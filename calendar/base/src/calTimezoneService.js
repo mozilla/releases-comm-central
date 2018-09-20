@@ -16,6 +16,9 @@ function calStringEnumerator(stringArray) {
 }
 calStringEnumerator.prototype = {
     // nsIUTF8StringEnumerator:
+    [Symbol.iterator]: function() {
+        return this.mStringArray.values();
+    },
     hasMore: function() {
         return (this.mIndex < this.mStringArray.length);
     },

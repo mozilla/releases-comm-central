@@ -149,6 +149,9 @@ calWcapSession.prototype = {
         }
         return { // nsIUTF8StringEnumerator:
             m_index: 0,
+            [Symbol.iterator]: function() {
+                return tzids.values();
+            },
             getNext: function() {
                 if (this.m_index >= tzids) {
                     cal.ASSERT(false, "calWcapSession::timezoneIds enumerator!");

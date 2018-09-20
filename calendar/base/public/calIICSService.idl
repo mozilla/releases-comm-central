@@ -15,7 +15,6 @@ interface calITimezone;
 interface calITimezoneProvider;
 
 interface calIIcalProperty;
-interface nsIUTF8StringEnumerator;
 interface nsIInputStream;
 
 /**

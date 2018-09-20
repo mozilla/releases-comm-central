@@ -17,8 +17,10 @@ function StringEnumerator(iterator) {
   this._next = undefined;
 }
 StringEnumerator.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIUTF8StringEnumerator]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIUTF8StringEnumerator]),
+  [Symbol.iterator]: function () {
+    return this;
+  },
   _setNext: function () {
     if (this._next !== undefined)
       return;
