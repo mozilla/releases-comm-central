@@ -119,7 +119,7 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor)
       Object.keys(delegator).forEach(name => {log.debug("delegator has key " + name);});
 
       // jsMethods contains the methods that may be targets of the C++ delegation to JS.
-      let jsMethods = Object.getPrototypeOf(delegator.jsDelegate.wrappedJSObject);
+      let jsMethods = Object.getPrototypeOf(jsDelegate);
       for (let name in jsMethods)
       {
         log.debug("processing jsDelegate method: " + name);
