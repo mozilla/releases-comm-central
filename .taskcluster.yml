@@ -12,6 +12,12 @@ tasks:
       ownerEmail: {$if: '"@" in push.owner', then: '${push.owner}', else: '${push.owner}@noreply.mozilla.org'}
       # ensure there's no trailing `/` on the repo URL
       repoUrl: {$if: 'repository.url[-1] == "/"', then: {$eval: 'repository.url[:-1]'}, else: {$eval: 'repository.url'}}
+      # Hardcode cron push info for now, so that we can transition to using real values without breaking callers of Chain of Trust
+      _pushId: {$if: 'tasks_for == "cron"', then: '-1', else: {$eval: 'push.pushlog_id'}}
+      # action tasks can fail because of no pushdate or push comment information in context, so include them in
+      # hardcodes (even though they don't use these variables)
+      _pushDate: {$if: 'tasks_for == "cron" || tasks_for == "action"', then: '0', else: {$eval: 'push.pushdate'}}
+      _pushComment: {$if: 'tasks_for == "cron" || tasks_for == "action"', then: '', else: {$eval: 'push.comment'}}
     in:
       taskId: {$if: 'tasks_for != "action"', then: '${as_slugid("decision")}'}
       taskGroupId:
@@ -70,7 +76,10 @@ tasks:
                 then: "notify.email.${ownerEmail}.on-exception"
             else:
               - $if: 'tasks_for == "action"'
-                then: "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.actions.$ownTaskId"
+                then:
+                - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-failed"
+                - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-exception"
+                - "index.comm.v2.${repository.project}.pushlog-id.${_pushId}.actions.${ownTaskId}"
                 else: "index.comm.v2.${repository.project}.latest.taskgraph.decision-${cron.job_name}"
 
       scopes:
@@ -78,6 +87,7 @@ tasks:
         then:
           - 'assume:repo:${repoUrl[8:]}:branch:default'
           - 'queue:route:notify.email.${ownerEmail}.*'
+          - 'in-tree:hook-action:project-comm/in-tree-action-${repository.level}-*'
         else:
           $if: 'tasks_for == "action"'
           then:
@@ -103,18 +113,17 @@ tasks:
               COMM_HEAD_REPOSITORY: '${repoUrl}'
               COMM_HEAD_REF: '${push.revision}'
               COMM_HEAD_REV: '${push.revision}'
-              HG_STORE_PATH: /buillds/worker/checkouts/hg-store
+              HG_STORE_PATH: /builds/worker/checkouts/hg-store
               TASKCLUSTER_CACHES: /builds/worker/checkouts
             - $if: 'tasks_for != "action"'
               then:
                 # scriptworker expects an environment variable named GECKO_COMMIT_MSG,
                 # see: https://github.com/mozilla-releng/scriptworker/blob/master/scriptworker/task.py
-                GECKO_COMMIT_MSG: '${push.comment}'
+                GECKO_COMMIT_MSG: '${_pushComment}'
             - $if: 'tasks_for == "action"'
               then:
-                ACTION_TASK_GROUP_ID: '${ownTaskId}'
-                ACTION_TASK_ID: {$json: {$eval: 'taskId'}}
-                ACTION_TASK: {$json: {$eval: 'task'}}
+                ACTION_TASK_GROUP_ID: '${action.taskGroupId}' # taskGroupId of the target task
+                ACTION_TASK_ID: {$json: {$eval: 'taskId'}}    # taskId of the target task (JSON-encoded)
                 ACTION_INPUT: {$json: {$eval: 'input'}}
                 ACTION_CALLBACK: '${action.cb_name}'
                 ACTION_PARAMETERS: {$json: {$eval: 'parameters'}}
