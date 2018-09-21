@@ -380,6 +380,12 @@ nsMsgCopyService::FindRequest(nsISupports* aSupport,
   for (uint32_t i = 0; i < cnt; i++)
   {
     copyRequest = m_copyRequests.ElementAt(i);
+    if (copyRequest->m_srcSupport.get() == aSupport &&
+        copyRequest->m_dstFolder.get() == dstFolder)
+      break;
+
+    // When copying folders the notification of the message copy serves as a
+    // proxy for the folder copy. Check for that here.
     if (copyRequest->m_requestType == nsCopyFoldersType)
     {
         // If the src is different then check next request.
@@ -415,9 +421,6 @@ nsMsgCopyService::FindRequest(nsISupports* aSupport,
         if (copyRequest->m_dstFolderName == folderName)
           break;
     }
-    else if (copyRequest->m_srcSupport.get() == aSupport &&
-        copyRequest->m_dstFolder.get() == dstFolder)
-        break;
     else
         copyRequest = nullptr;
   }

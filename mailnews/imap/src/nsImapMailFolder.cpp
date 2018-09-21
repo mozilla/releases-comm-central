@@ -5459,12 +5459,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
           nsCOMPtr<nsIMsgFolder> srcFolder = do_QueryInterface(m_copyState->m_srcSupport);
           if (srcFolder)
           {
-            nsCOMPtr<nsIMsgFolder> destFolder;
-            nsString srcName;
-            srcFolder->GetName(srcName);
-            GetChildNamed(srcName, getter_AddRefs(destFolder));
-            if (destFolder)
-              copyService->NotifyCompletion(m_copyState->m_srcSupport, destFolder, aExitCode);
+            copyService->NotifyCompletion(m_copyState->m_srcSupport, this, aExitCode);
           }
           m_copyState = nullptr;
         }
