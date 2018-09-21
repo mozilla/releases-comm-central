@@ -56,7 +56,7 @@ add_task(async function calendarInfo_test() {
     }];
     let useOSLocaleFormat = Preferences.get("intl.regional_prefs.use_os_locales", false);
     let osprefs = Cc["@mozilla.org/intl/ospreferences;1"].getService(Ci.mozIOSPreferences);
-    let appLocale = Services.locale.getAppLocalesAsBCP47()[0];
+    let appLocale = Services.locale.appLocalesAsBCP47[0];
     let rsLocale = osprefs.getRegionalPrefsLocales()[0];
 
     let i = 0;
