@@ -65,7 +65,12 @@ tabpanels {
  */
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down,
+.tabmail-arrowscrollbox > stack > .scrollbutton-down {
+  -moz-appearance: none;
+  padding: 3px !important;
+  border-style: none !important;
+}
+
 .tabmail-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down > .toolbarbutton-icon {
   -moz-appearance: none;

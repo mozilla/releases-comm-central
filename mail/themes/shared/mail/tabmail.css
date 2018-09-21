@@ -250,7 +250,7 @@
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {
   color: inherit;
-  list-style-image: url("chrome://messenger/skin/icons/arrow-left.svg");
+  list-style-image: url("chrome://messenger/skin/icons/arrow-left.svg") !important;
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);

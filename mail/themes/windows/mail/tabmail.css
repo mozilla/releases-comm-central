@@ -65,10 +65,10 @@ tabpanels {
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {
   -moz-appearance: none;
-  border-style: none;
-  padding: 0 3px;
-  margin: 0;
-  margin-inline-end: 1px;
+  border-style: none !important;
+  padding: 0 3px !important;
+  margin: 0 !important;
+  margin-inline-end: 1px !important;
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up[disabled],
@@ -78,8 +78,8 @@ tabpanels {
 
 .tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
 .tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-locale-dir(ltr) {
-  margin-inline-start: 1px;
-  margin-inline-end: 0;
+  margin-inline-start: 1px !important;
+  margin-inline-end: 0 !important;
 }
 
 /**

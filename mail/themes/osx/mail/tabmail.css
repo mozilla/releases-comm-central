@@ -120,8 +120,8 @@ tabmail > tabbox > tabpanels {
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-  padding: 0 4px;
-  margin: 0 0 1px;
+  padding: 0 4px !important;
+  margin: 0 0 1px !important;
 }
 
 .tabmail-arrowscrollbox >

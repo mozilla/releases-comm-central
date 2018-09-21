@@ -328,8 +328,8 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   min-height: 24px;
   min-width: 32px;
   margin: 4px 1px;
-  padding: 1px 6px;
-  color: inherit;
+  padding: 1px 6px !important;
+  color: inherit !important;
 }
 
 .toolbarbutton-1[type="menu-button"] {
