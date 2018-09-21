@@ -32,12 +32,12 @@ jobs:
                     production:
                         by-release-type:
                             beta: [43]
-                            esr60: [820]
+                            release: [820]
                             default: []
                     staging:
                         by-release-type:
                             beta: [43]
-                            esr60: [729]
+                            release: [729]
                             default: []
         treeherder:
             platform: thunderbird-release/opt

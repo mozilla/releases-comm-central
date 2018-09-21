@@ -48,7 +48,7 @@ job-defaults:
         include-version:
             by-release-type:
                 beta: beta
-                esr60: nonbeta
+                release: nonbeta
                 nightly: beta
                 default: null
         last-watershed:
@@ -57,7 +57,10 @@ job-defaults:
                     by-platform:
                         win64.*: "60.0b7"
                         default: "56.0b3"
-                esr60: "52.0"
+                release:
+                    by-platform:
+                        win64.*: "60.0"
+                        default: "52.0"
                 nightly: "default"
                 default: null
 
@@ -78,7 +81,7 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    esr60: "release-localtest"
+                    release: "release-localtest"
                     nightly: "default"
                     default: null
             mar-channel-id-override:
@@ -102,7 +105,7 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    esr60: "release-localtest"
+                    release: "release-localtest"
                     nightly: "default"
                     default: null
             mar-channel-id-override:
@@ -126,7 +129,7 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    esr60: "release-localtest"
+                    release: "release-localtest"
                     nightly: "default"
                     default: null
             mar-channel-id-override:
@@ -150,7 +153,7 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    esr60: "release-localtest"
+                    release: "release-localtest"
                     nightly: "default"
                     default: null
             mar-channel-id-override:
@@ -174,7 +177,7 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    esr60: "release-localtest"
+                    release: "release-localtest"
                     nightly: "default"
                     default: null
             mar-channel-id-override:

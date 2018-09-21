@@ -38,7 +38,7 @@ job-defaults:
             CHANNEL:
                 by-release-type:
                     beta: "beta-localtest"
-                    esr60: "release-localtest"
+                    release: "release-localtest"
                     nightly: "nightly"
                     default: "default"
     extra:
