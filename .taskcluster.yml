@@ -77,9 +77,9 @@ tasks:
             else:
               - $if: 'tasks_for == "action"'
                 then:
-                - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-failed"
-                - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-exception"
-                - "index.comm.v2.${repository.project}.pushlog-id.${_pushId}.actions.${ownTaskId}"
+                  - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-failed"
+                  - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-exception"
+                  - "index.comm.v2.${repository.project}.pushlog-id.${_pushId}.actions.${ownTaskId}"
                 else: "index.comm.v2.${repository.project}.latest.taskgraph.decision-${cron.job_name}"
 
       scopes:
@@ -122,8 +122,8 @@ tasks:
                 GECKO_COMMIT_MSG: '${_pushComment}'
             - $if: 'tasks_for == "action"'
               then:
-                ACTION_TASK_GROUP_ID: '${action.taskGroupId}' # taskGroupId of the target task
-                ACTION_TASK_ID: {$json: {$eval: 'taskId'}}    # taskId of the target task (JSON-encoded)
+                ACTION_TASK_GROUP_ID: '${action.taskGroupId}'  # taskGroupId of the target task
+                ACTION_TASK_ID: {$json: {$eval: 'taskId'}}     # taskId of the target task (JSON-encoded)
                 ACTION_INPUT: {$json: {$eval: 'input'}}
                 ACTION_CALLBACK: '${action.cb_name}'
                 ACTION_PARAMETERS: {$json: {$eval: 'parameters'}}
