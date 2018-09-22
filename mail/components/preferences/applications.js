@@ -77,30 +77,6 @@ function getLocalHandlerApp(aFile) {
   return localHandlerApp;
 }
 
-/**
- * An enumeration of items in a JS array.
- *
- * FIXME: use ArrayConverter once it lands (bug 380839).
- *
- * @constructor
- */
-function ArrayEnumerator(aItems) {
-  this._index = 0;
-  this._contents = aItems;
-}
-
-ArrayEnumerator.prototype = {
-  _index: 0,
-
-  hasMoreElements() {
-    return this._index < this._contents.length;
-  },
-
-  getNext() {
-    return this._contents[this._index++];
-  },
-};
-
 // ------------------
 // HandlerInfoWrapper
 
@@ -115,29 +91,33 @@ ArrayEnumerator.prototype = {
  *
  * We don't implement all the original nsIHandlerInfo functionality,
  * just the stuff that the prefpane needs.
- *
- * In theory, all of the custom functionality in this wrapper should get
- * pushed down into nsIHandlerInfo eventually.
  */
-function HandlerInfoWrapper(aType, aHandlerInfo) {
-  this._type = aType;
-  this.wrappedHandlerInfo = aHandlerInfo;
-}
+class HandlerInfoWrapper {
+  constructor(type, handlerInfo) {
+    this.type = type;
+    this.wrappedHandlerInfo = handlerInfo;
 
-HandlerInfoWrapper.prototype = {
-  // The wrapped nsIHandlerInfo object.  In general, this object is private,
-  // but there are a couple cases where callers access it directly for things
-  // we haven't (yet?) implemented, so we make it a public property.
-  wrappedHandlerInfo: null,
+    // A plugin that can handle this type, if any.
+    //
+    // Note: just because we have one doesn't mean it *will* handle the type.
+    // That depends on whether or not the type is in the list of types for which
+    // plugin handling is disabled.
+    this.pluginName = "";
 
-  // --------------
-  // nsIHandlerInfo
-
-  // The MIME type or protocol scheme.
-  _type: null,
-  get type() {
-    return this._type;
-  },
+    // Whether or not this type is only handled by a plugin or is also handled
+    // by some user-configured action as specified in the handler info object.
+    //
+    // Note: we can't just check if there's a handler info object for this type,
+    // because OS and user configuration is mixed up in the handler info object,
+    // so we always need to retrieve it for the OS info and can't tell whether
+    // it represents only OS-default information or user-configured information.
+    //
+    // FIXME: once handler info records are broken up into OS-provided records
+    // and user-configured records, stop using this boolean flag and simply
+    // check for the presence of a user-configured record to determine whether
+    // or not this type is only handled by a plugin.  Filed as bug 395142.
+    this.handledOnlyByPlugin = false;
+  }
 
   get description() {
     if (this.wrappedHandlerInfo.description)
@@ -149,11 +129,11 @@ HandlerInfoWrapper.prototype = {
                      .getFormattedString("fileEnding", [extension]);
     }
     return this.type;
-  },
+  }
 
   get preferredApplicationHandler() {
     return this.wrappedHandlerInfo.preferredApplicationHandler;
-  },
+  }
 
   set preferredApplicationHandler(aNewValue) {
     this.wrappedHandlerInfo.preferredApplicationHandler = aNewValue;
@@ -161,21 +141,20 @@ HandlerInfoWrapper.prototype = {
     // Make sure the preferred handler is in the set of possible handlers.
     if (aNewValue)
       this.addPossibleApplicationHandler(aNewValue);
-  },
+  }
 
   get possibleApplicationHandlers() {
     return this.wrappedHandlerInfo.possibleApplicationHandlers;
-  },
+  }
 
   addPossibleApplicationHandler(aNewHandler) {
-    try {
-      /* eslint-disable mozilla/use-includes-instead-of-indexOf */
-      if (this.possibleApplicationHandlers.indexOf(0, aNewHandler) != -1)
+    var possibleApps = this.possibleApplicationHandlers.enumerate();
+    while (possibleApps.hasMoreElements()) {
+      if (possibleApps.getNext().equals(aNewHandler))
         return;
-      /* eslint-enable mozilla/use-includes-instead-of-indexOf */
-    } catch (e) { }
+    }
     this.possibleApplicationHandlers.appendElement(aNewHandler);
-  },
+  }
 
   removePossibleApplicationHandler(aHandler) {
     var defaultApp = this.preferredApplicationHandler;
@@ -186,19 +165,23 @@ HandlerInfoWrapper.prototype = {
       this.preferredApplicationHandler = null;
     }
 
-    try {
-      var handlerIdx = this.possibleApplicationHandlers.indexOf(0, aHandler);
-      this.possibleApplicationHandlers.removeElementAt(handlerIdx);
-    } catch (e) { }
-  },
+    var handlers = this.possibleApplicationHandlers;
+    for (var i = 0; i < handlers.length; ++i) {
+      var handler = handlers.queryElementAt(i, Ci.nsIHandlerApp);
+      if (handler.equals(aHandler)) {
+        handlers.removeElementAt(i);
+        break;
+      }
+    }
+  }
 
   get hasDefaultHandler() {
     return this.wrappedHandlerInfo.hasDefaultHandler;
-  },
+  }
 
   get defaultDescription() {
     return this.wrappedHandlerInfo.defaultDescription;
-  },
+  }
 
   // What to do with content of this type.
   get preferredAction() {
@@ -221,7 +204,7 @@ HandlerInfoWrapper.prototype = {
     }
 
     return this.wrappedHandlerInfo.preferredAction;
-  },
+  }
 
   set preferredAction(aNewValue) {
     // We don't modify the preferred action if the new action is to use a plugin
@@ -231,7 +214,7 @@ HandlerInfoWrapper.prototype = {
 
     if (aNewValue != kActionUsePlugin)
       this.wrappedHandlerInfo.preferredAction = aNewValue;
-  },
+  }
 
   get alwaysAskBeforeHandling() {
     // If this type is handled only by a plugin, we can't trust the value
@@ -253,14 +236,11 @@ HandlerInfoWrapper.prototype = {
       return true;
 
     return this.wrappedHandlerInfo.alwaysAskBeforeHandling;
-  },
+  }
 
   set alwaysAskBeforeHandling(aNewValue) {
     this.wrappedHandlerInfo.alwaysAskBeforeHandling = aNewValue;
-  },
-
-  // -----------
-  // nsIMIMEInfo
+  }
 
   // The primary file extension associated with this type, if any.
   //
@@ -275,35 +255,11 @@ HandlerInfoWrapper.prototype = {
     } catch (ex) {}
 
     return null;
-  },
-
-  // ---------------
-  // Plugin Handling
-
-  // A plugin that can handle this type, if any.
-  //
-  // Note: just because we have one doesn't mean it *will* handle the type.
-  // That depends on whether or not the type is in the list of types for which
-  // plugin handling is disabled.
-  plugin: null,
-
-  // Whether or not this type is only handled by a plugin or is also handled
-  // by some user-configured action as specified in the handler info object.
-  //
-  // Note: we can't just check if there's a handler info object for this type,
-  // because OS and user configuration is mixed up in the handler info object,
-  // so we always need to retrieve it for the OS info and can't tell whether
-  // it represents only OS-default information or user-configured information.
-  //
-  // FIXME: once handler info records are broken up into OS-provided records
-  // and user-configured records, stop using this boolean flag and simply
-  // check for the presence of a user-configured record to determine whether
-  // or not this type is only handled by a plugin.  Filed as bug 395142.
-  handledOnlyByPlugin: undefined,
+  }
 
   get isDisabledPluginType() {
     return this._getDisabledPluginTypes().includes(this.type);
-  },
+  }
 
   _getDisabledPluginTypes() {
     var types = "";
@@ -313,8 +269,11 @@ HandlerInfoWrapper.prototype = {
 
     // Only split if the string isn't empty so we don't end up with an array
     // containing a single empty string.
-    return types ? types.split(",") : [];
-  },
+    if (types != "")
+      return types.split(",");
+
+    return [];
+  }
 
   disablePluginType() {
     var disabledPluginTypes = this._getDisabledPluginTypes();
@@ -327,7 +286,7 @@ HandlerInfoWrapper.prototype = {
 
     // Update the category manager so existing browser windows update.
     Services.catMan.deleteCategoryEntry("Gecko-Content-Viewers", this.type, false);
-  },
+  }
 
   enablePluginType() {
     var disabledPluginTypes = this._getDisabledPluginTypes();
@@ -344,29 +303,29 @@ HandlerInfoWrapper.prototype = {
       "@mozilla.org/content/plugin/document-loader-factory;1",
       false, true
     );
-  },
+  }
 
   // -------
   // Storage
 
   store() {
     gHandlerService.store(this.wrappedHandlerInfo);
-  },
+  }
 
   remove() {
     gHandlerService.remove(this.wrappedHandlerInfo);
-  },
+  }
 
   // -----
   // Icons
 
   get smallIcon() {
     return this._getIcon(16);
-  },
+  }
 
   get largeIcon() {
     return this._getIcon(32);
-  },
+  }
 
   _getIcon(aSize) {
     if (this.primaryExtension)
@@ -378,8 +337,8 @@ HandlerInfoWrapper.prototype = {
     // FIXME: consider returning some generic icon when we can't get a URL for
     // one (for example in the case of protocol schemes).  Filed as bug 395141.
     return null;
-  },
-};
+  }
+}
 
 var gApplicationsTabController = {
   mInitialized: false,
@@ -949,32 +908,28 @@ var gApplicationsPane = {
    * to know about it even if it isn't enabled, since we're going to give
    * the user an option to enable it.
    *
-   * I'll also note that my reading of nsPluginTag::RegisterWithCategoryManager
-   * suggests that enabledPlugin is only determined during registration
-   * and does not get updated when plugin.disable_full_page_plugin_for_types
-   * changes (unless modification of that preference spawns reregistration).
-   * So even if we could use enabledPlugin to get the plugin that would be used,
-   * we'd still need to check the pref ourselves to find out if it's enabled.
+   * Also note that enabledPlugin does not get updated when
+   * plugin.disable_full_page_plugin_for_types changes, so even if we could use
+   * enabledPlugin to get the plugin that would be used, we'd still need to
+   * check the pref ourselves to find out if it's enabled.
    */
   _loadPluginHandlers() {
-    for (let i = 0; i < navigator.plugins.length; ++i) {
-      let plugin = navigator.plugins[i];
-      for (let j = 0; j < plugin.length; ++j) {
-        let type = plugin[j].type;
+    "use strict";
 
-        let handlerInfoWrapper;
-        if (type in this._handledTypes)
-          handlerInfoWrapper = this._handledTypes[type];
-        else {
-          let wrappedHandlerInfo =
-            gMIMEService.getFromTypeAndExtension(type, null);
-          handlerInfoWrapper = new HandlerInfoWrapper(type, wrappedHandlerInfo);
-          handlerInfoWrapper.handledOnlyByPlugin = true;
-          this._handledTypes[type] = handlerInfoWrapper;
-        }
+    let mimeTypes = navigator.mimeTypes;
 
-        handlerInfoWrapper.plugin = plugin;
+    for (let mimeType of mimeTypes) {
+      let handlerInfoWrapper;
+      if (mimeType.type in this._handledTypes) {
+        handlerInfoWrapper = this._handledTypes[mimeType.type];
+      } else {
+        let wrappedHandlerInfo =
+          gMIMEService.getFromTypeAndExtension(mimeType.type, null);
+        handlerInfoWrapper = new HandlerInfoWrapper(mimeType.type, wrappedHandlerInfo);
+        handlerInfoWrapper.handledOnlyByPlugin = true;
+        this._handledTypes[mimeType.type] = handlerInfoWrapper;
       }
+      handlerInfoWrapper.pluginName = mimeType.enabledPlugin.name;
     }
   },
 
@@ -1469,6 +1424,14 @@ var gApplicationsPane = {
 
   // -------
   // Changes
+
+  // Whether or not we are currently storing the action selected by the user.
+  // We use this to suppress notification-triggered updates to the list when
+  // we make changes that may spawn such updates, specifically when we change
+  // the action for the feed type, which results in feed preference updates,
+  // which spawn "pref changed" notifications that would otherwise cause us
+  // to rebuild the view unnecessarily.
+  _storingAction: false,
 
   onSelectAction(aActionItem) {
     this._storingAction = true;
