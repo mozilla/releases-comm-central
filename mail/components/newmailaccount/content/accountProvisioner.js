@@ -117,7 +117,7 @@ var EmailAccountProvisioner = {
    * Returns the language that the user currently accepts.
    */
   get userLanguage() {
-    return Services.locale.getRequestedLocale();
+    return Services.locale.requestedLocale;
   },
 
   /**

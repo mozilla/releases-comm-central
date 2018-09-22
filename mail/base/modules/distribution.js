@@ -132,7 +132,7 @@ XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini",
 
 XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale",
   function TBDistCustomizer_get__locale() {
-    return Services.locale.getRequestedLocale();
+    return Services.locale.requestedLocale;
 });
 
 function enumToObject(UTF8Enumerator) {

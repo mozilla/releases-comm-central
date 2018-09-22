@@ -378,13 +378,13 @@ var MailMigrator = {
         if (Services.prefs.prefHasUserValue(MATCHOS_LOCALE_PREF) ||
             Services.prefs.prefHasUserValue(SELECTED_LOCALE_PREF)) {
           if (Services.prefs.getBoolPref(MATCHOS_LOCALE_PREF, false)) {
-            Services.locale.setRequestedLocales([]);
+            Services.locale.requestedLocales = [];
           } else {
             let locale = Services.prefs.getComplexValue(SELECTED_LOCALE_PREF,
               Ci.nsIPrefLocalizedString);
             if (locale) {
               try {
-                Services.locale.setRequestedLocales([locale.data]);
+                Services.locale.requestedLocales = [locale.data];
               } catch (e) { /* Don't panic if the value is not a valid locale code. */ }
             }
           }

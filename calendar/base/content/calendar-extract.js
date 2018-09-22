@@ -90,7 +90,7 @@ var calendarExtract = {
         let date = new Date(message.date / 1000);
         let time = (new Date()).getTime();
 
-        let locale = Services.locale.getRequestedLocale();
+        let locale = Services.locale.requestedLocale;
         let dayStart = Preferences.get("calendar.view.daystarthour", 6);
         let extractor;
 

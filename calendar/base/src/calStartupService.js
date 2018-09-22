@@ -62,7 +62,7 @@ calStartupService.prototype = {
         // Localization service
         let locales = {
             startup: function(aCompleteListener) {
-                let packaged = Services.locale.getPackagedLocales();
+                let packaged = Services.locale.packagedLocales;
                 let fileSrc = new FileSource(
                     "calendar", packaged,
                     "resource://calendar/chrome/calendar-{locale}/locale/{locale}/"

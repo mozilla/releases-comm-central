@@ -495,7 +495,7 @@ var gAdvancedPane = {
   getBundleForLocales(newLocales) {
     let locales = Array.from(new Set([
       ...newLocales,
-      ...Services.locale.getRequestedLocales(),
+      ...Services.locale.requestedLocales,
       Services.locale.lastFallbackLocale,
     ]));
     function generateContexts(resourceIds) {
@@ -508,7 +508,7 @@ var gAdvancedPane = {
   },
 
   initMessengerLocale() {
-    let localeCodes = Services.locale.getAvailableLocales();
+    let localeCodes = Services.locale.availableLocales;
     let localeNames = Services.intl.getLocaleDisplayNames(undefined, localeCodes);
     let locales = localeCodes.map((code, i) => ({code, name: localeNames[i]}));
     locales.sort((a, b) => a.name > b.name);
@@ -523,7 +523,7 @@ var gAdvancedPane = {
     let menulist = document.getElementById("defaultMessengerLanguage");
     let menupopup = menulist.querySelector("menupopup");
     menupopup.appendChild(fragment);
-    menulist.value = Services.locale.getRequestedLocale();
+    menulist.value = Services.locale.requestedLocale;
 
     document.getElementById("messengerLanguagesBox").hidden = false;
   },
@@ -537,14 +537,14 @@ var gAdvancedPane = {
   /* Show or hide the confirm change message bar based on the updated ordering. */
   messengerLanguagesClosed() {
     let requesting = this.gMessengerLanguagesDialog.requestedLocales;
-    let requested = Services.locale.getRequestedLocales();
+    let requested = Services.locale.requestedLocales;
     let defaultMessengerLanguage = document.getElementById("defaultMessengerLanguage");
     if (requesting && requesting.join(",") != requested.join(",")) {
       gAdvancedPane.showConfirmLanguageChangeMessageBar(requesting);
       defaultMessengerLanguage.value = requesting[0];
       return;
     }
-    defaultMessengerLanguage.value = Services.locale.getRequestedLocale();
+    defaultMessengerLanguage.value = Services.locale.requestedLocale;
     gAdvancedPane.hideConfirmLanguageChangeMessageBar();
   },
 
@@ -579,7 +579,7 @@ var gAdvancedPane = {
       return;
     }
     let locales = localesString.split(",");
-    Services.locale.setRequestedLocales(locales);
+    Services.locale.requestedLocales = locales;
 
     // Restart with the new locale.
     let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(Ci.nsISupportsPRBool);
@@ -592,13 +592,13 @@ var gAdvancedPane = {
   /* Show or hide the confirm change message bar based on the new locale. */
   onMessengerLanguageChange(event) {
     let locale = event.target.value;
-    if (locale == Services.locale.getRequestedLocale()) {
+    if (locale == Services.locale.requestedLocale) {
       this.hideConfirmLanguageChangeMessageBar();
       return;
     }
     let locales = Array.from(new Set([
       locale,
-      ...Services.locale.getRequestedLocales(),
+      ...Services.locale.requestedLocales,
     ]).values());
     this.showConfirmLanguageChangeMessageBar(locales);
   },

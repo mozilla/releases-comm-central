@@ -156,7 +156,7 @@ MailGlue.prototype = {
   _onProfileStartup: function MailGlue__onProfileStartup() {
     TBDistCustomizer.applyPrefDefaults();
 
-    let locales = Services.locale.getPackagedLocales();
+    let locales = Services.locale.packagedLocales;
     const appSource = new FileSource("app", locales, "resource:///localization/{locale}/");
     L10nRegistry.registerSource(appSource);
 
