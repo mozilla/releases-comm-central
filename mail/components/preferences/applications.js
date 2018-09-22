@@ -36,6 +36,13 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
+XPCOMUtils.defineLazyServiceGetters(this, {
+  gCategoryManager: ["@mozilla.org/categorymanager;1", "nsICategoryManager"],
+  gHandlerService: ["@mozilla.org/uriloader/handler-service;1", "nsIHandlerService"],
+  gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
+});
+
+
 // ---------
 // Utilities
 
@@ -122,12 +129,6 @@ HandlerInfoWrapper.prototype = {
   // but there are a couple cases where callers access it directly for things
   // we haven't (yet?) implemented, so we make it a public property.
   wrappedHandlerInfo: null,
-
-  // -----------------
-  // Convenience Utils
-
-  _handlerSvc: Cc["@mozilla.org/uriloader/handler-service;1"]
-                 .getService(Ci.nsIHandlerService),
 
   // --------------
   // nsIHandlerInfo
@@ -349,11 +350,11 @@ HandlerInfoWrapper.prototype = {
   // Storage
 
   store() {
-    this._handlerSvc.store(this.wrappedHandlerInfo);
+    gHandlerService.store(this.wrappedHandlerInfo);
   },
 
   remove() {
-    this._handlerSvc.remove(this.wrappedHandlerInfo);
+    gHandlerService.remove(this.wrappedHandlerInfo);
   },
 
   // -----
@@ -838,14 +839,6 @@ var gApplicationsPane = {
   _list: null,
   _filter: null,
 
-  _mimeSvc: Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService),
-
-  _helperAppSvc: Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
-                   .getService(Ci.nsIExternalHelperAppService),
-
-  _handlerSvc: Cc["@mozilla.org/uriloader/handler-service;1"]
-                 .getService(Ci.nsIHandlerService),
-
   // ----------------------------
   // Initialization & Destruction
 
@@ -974,7 +967,7 @@ var gApplicationsPane = {
           handlerInfoWrapper = this._handledTypes[type];
         else {
           let wrappedHandlerInfo =
-            this._mimeSvc.getFromTypeAndExtension(type, null);
+            gMIMEService.getFromTypeAndExtension(type, null);
           handlerInfoWrapper = new HandlerInfoWrapper(type, wrappedHandlerInfo);
           handlerInfoWrapper.handledOnlyByPlugin = true;
           this._handledTypes[type] = handlerInfoWrapper;
@@ -989,7 +982,7 @@ var gApplicationsPane = {
    * Load the set of handlers defined by the application datastore.
    */
   _loadApplicationHandlers() {
-    var wrappedHandlerInfos = this._handlerSvc.enumerate();
+    var wrappedHandlerInfos = gHandlerService.enumerate();
     while (wrappedHandlerInfos.hasMoreElements()) {
       let wrappedHandlerInfo =
         wrappedHandlerInfos.getNext().QueryInterface(Ci.nsIHandlerInfo);
