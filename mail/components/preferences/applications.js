@@ -96,6 +96,7 @@ class HandlerInfoWrapper {
   constructor(type, handlerInfo) {
     this.type = type;
     this.wrappedHandlerInfo = handlerInfo;
+    this.disambiguateDescription = false;
 
     // A plugin that can handle this type, if any.
     //
@@ -129,6 +130,22 @@ class HandlerInfoWrapper {
                      .getFormattedString("fileEnding", [extension]);
     }
     return this.type;
+  }
+
+  /**
+   * Describe, in a human-readable fashion, the type represented by the given
+   * handler info object.  Normally this is just the description, but if more
+   * than one object presents the same description, "disambiguateDescription"
+   * is set and we annotate the duplicate descriptions with the type itself
+   * to help users distinguish between those types.
+   */
+  get typeDescription() {
+    if (this.disambiguateDescription) {
+      return this._prefsBundle.getFormattedString(
+        "typeDetailsWithTypeAndExt", [this.description, this.type]);
+    }
+
+    return this.description;
   }
 
   get preferredApplicationHandler() {
@@ -782,11 +799,11 @@ var gApplicationsPane = {
   // that match that string.
   _visibleTypes: [],
 
-  // A count of the number of times each visible type description appears.
-  // We use these counts to determine whether or not to annotate descriptions
-  // with their types to distinguish duplicate descriptions from each other.
-  // A hash of integer counts, indexed by string description.
-  _visibleTypeDescriptionCount: new Map(),
+  // Map whose keys are string descriptions and values are references to the
+  // first visible HandlerInfoWrapper that has this description. We use this
+  // to determine whether or not to annotate descriptions with their types to
+  // distinguish duplicate descriptions from each other.
+  _visibleDescriptions: new Map(),
 
 
   // -----------------------------------
@@ -959,9 +976,9 @@ var gApplicationsPane = {
   // View Construction
 
   _rebuildVisibleTypes() {
-    // Reset the list of visible types and the visible type description counts.
+    // Reset the list of visible types and the visible type description.
     this._visibleTypes.length = 0;
-    this._visibleTypeDescriptionCount.clear();
+    this._visibleDescriptions.clear();
 
     // Get the preferences that help determine what types to show.
     var showPlugins = Services.prefs.getBoolPref(PREF_SHOW_PLUGINS_IN_LIST);
@@ -990,9 +1007,20 @@ var gApplicationsPane = {
       // We couldn't find any reason to exclude the type, so include it.
       this._visibleTypes.push(handlerInfo);
 
-      let descCount = this._visibleTypeDescriptionCount.has(handlerInfo.description) ?
-        (this._visibleTypeDescriptionCount.get(handlerInfo.description) + 1) : 1;
-      this._visibleTypeDescriptionCount.set(handlerInfo.description, descCount);
+      let otherHandlerInfo = this._visibleDescriptions
+                                 .get(handlerInfo.description);
+      if (!otherHandlerInfo) {
+        // This is the first type with this description that we encountered
+        // while rebuilding the _visibleTypes array this time. Make sure the
+        // flag is reset so we won't add the type to the description.
+        handlerInfo.disambiguateDescription = false;
+        this._visibleDescriptions.set(handlerInfo.description, handlerInfo);
+      } else {
+        // There is at least another type with this description. Make sure we
+        // add the type to the description on both HandlerInfoWrapper objects.
+        handlerInfo.disambiguateDescription = true;
+        otherHandlerInfo.disambiguateDescription = true;
+      }
     }
   },
 
@@ -1012,7 +1040,7 @@ var gApplicationsPane = {
     for (let visibleType of visibleTypes) {
       let item = document.createElement("richlistitem");
       item.setAttribute("type", visibleType.type);
-      item.setAttribute("typeDescription", this._describeType(visibleType));
+      item.setAttribute("typeDescription", visibleType.typeDescription);
       item.setAttribute("shortTypeDescription", visibleType.description);
       item.setAttribute("shortTypeDetails", this._typeDetails(visibleType));
       if (visibleType.smallIcon)
@@ -1035,28 +1063,8 @@ var gApplicationsPane = {
 
   _matchesFilter(aType) {
     var filterValue = this._filter.value.toLowerCase();
-    return this._describeType(aType).toLowerCase().includes(filterValue) ||
+    return aType.typeDescription.toLowerCase().includes(filterValue) ||
            this._describePreferredAction(aType).toLowerCase().includes(filterValue);
-  },
-
-  /**
-   * Describe, in a human-readable fashion, the type represented by the given
-   * handler info object.  Normally this is just the description provided by
-   * the info object, but if more than one object presents the same description,
-   * then we annotate the duplicate descriptions with the type itself to help
-   * users distinguish between those types.
-   *
-   * @param aHandlerInfo {nsIHandlerInfo} the type being described
-   * @return {string} a description of the type
-   */
-  _describeType(aHandlerInfo) {
-    let details = this._typeDetails(aHandlerInfo);
-
-    if (details)
-      return this._prefsBundle.getFormattedString("typeDescriptionWithDetails",
-                                                  [aHandlerInfo.description,
-                                                   details]);
-    return aHandlerInfo.description;
   },
 
   /**
@@ -1078,7 +1086,7 @@ var gApplicationsPane = {
     }
     exts.sort();
     exts = exts.join(", ");
-    if (this._visibleTypeDescriptionCount.has(aHandlerInfo.description)) {
+    if (this._visibleDescriptions.has(aHandlerInfo.description)) {
       if (exts)
         return this._prefsBundle.getFormattedString("typeDetailsWithTypeAndExt",
                                                     [aHandlerInfo.type,
@@ -1395,8 +1403,8 @@ var gApplicationsPane = {
     var t = this;
 
     function sortByType(a, b) {
-      return t._describeType(a).toLowerCase()
-              .localeCompare(t._describeType(b).toLowerCase());
+      return a.typeDescription.toLowerCase()
+              .localeCompare(b.typeDescription.toLowerCase());
     }
 
     function sortByAction(a, b) {
