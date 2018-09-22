@@ -224,7 +224,6 @@ menupopup[type="folder"] {
 /* Set additional backgrounds alignment relative to toolbox.
    This rule needs to be in content to avoid CSP issues. */
 #LW-background-box:-moz-lwtheme,
-#status-bar:-moz-lwtheme,
 #ab-toolbox:-moz-lwtheme,
 #compose-toolbox:-moz-lwtheme {
   background-image: var(--lwt-additional-images);
@@ -232,11 +231,11 @@ menupopup[type="folder"] {
   background-repeat: var(--lwt-background-tiling);
 }
 
-:root[lwthemefooter="true"] #status-bar:-moz-lwtheme {
-  background-repeat: no-repeat;
-  background-position: bottom left;
+#status-bar:-moz-lwtheme {
+  background-repeat: no-repeat, var(--lwt-background-tiling);
+  background-position: bottom right, var(--lwt-background-alignment);
   background-color: var(--lwt-accent-color);
-  background-image: var(--lwt-footer-image);
+  background-image: var(--lwt-header-image), var(--lwt-additional-images);
 }
 
 /* AppButton support */
