@@ -1049,6 +1049,9 @@ var gApplicationsPane = {
   },
 
   rebuildView() {
+    let lastSelectedType = this._list.selectedItem &&
+                           this._list.selectedItem.getAttribute("type");
+
     // Clear the list of entries.
     while (this._list.childNodes.length > 1)
       this._list.lastChild.remove();
@@ -1075,9 +1078,11 @@ var gApplicationsPane = {
       }
 
       this._list.appendChild(item);
-    }
 
-    this._selectLastSelectedType();
+      if (visibleType.type === lastSelectedType) {
+        this._list.selectedItem = item;
+      }
+    }
   },
 
   _matchesFilter(aType) {
@@ -1197,25 +1202,6 @@ var gApplicationsPane = {
         Cu.reportError("No description for action " + aHandlerInfo.preferredAction + " found!");
         return "";
     }
-  },
-
-  _selectLastSelectedType() {
-    // If the list is disabled by the pref.downloads.disable_button.edit_actions
-    // preference being locked, then don't select the type, as that would cause
-    // it to appear selected, with a different background and an actions menu
-    // that makes it seem like you can choose an action for the type.
-    if (this._list.disabled)
-      return;
-
-    var lastSelectedType = this._list.getAttribute("lastSelectedType");
-    if (!lastSelectedType)
-      return;
-
-    let item = this._list.querySelector('[type="' + lastSelectedType + '"]');
-    if (!item)
-      return;
-
-    this._list.selectedItem = item;
   },
 
   /**
@@ -1657,14 +1643,6 @@ var gApplicationsPane = {
         onSelectionDone();
       });
     }
-  },
-
-  // Mark which item in the list was last selected so we can reselect it
-  // when we rebuild the list or when the user returns to the prefpane.
-  onSelectionChanged() {
-    if (this._list.selectedItem)
-      this._list.setAttribute("lastSelectedType",
-                              this._list.selectedItem.getAttribute("type"));
   },
 
   confirmDelete(aEvent) {

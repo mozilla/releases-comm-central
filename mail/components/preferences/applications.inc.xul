@@ -102,9 +102,8 @@
 
           <separator class="thin"/>
 
-          <richlistbox id="handlersView" orient="vertical" persist="lastSelectedType"
-                       preference="pref.downloads.disable_button.edit_actions"
-                       onselect="gApplicationsPane.onSelectionChanged();">
+          <richlistbox id="handlersView"
+                       preference="pref.downloads.disable_button.edit_actions">
             <listheader equalsize="always" style="border: 0; padding: 0; -moz-appearance: none;">
               <treecol id="typeColumn" label="&typeColumn.label;" value="type"
                        accesskey="&typeColumn.accesskey;" persist="sortDirection"
