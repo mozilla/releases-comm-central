@@ -7,8 +7,10 @@ AB_CD = $(MOZ_UI_LOCALE)
 GRE_MILESTONE = $(shell $(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build Milestone)
 MOZ_BUILDID = $(shell $(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
 
+
 DEFINES += \
   -DTHUNDERBIRD_ICO='"$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/messengerWindow.ico"' \
+  -DTB_MAILBIFF_ICO='"$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/newmail.ico"' \
    $(NULL)
 
 # Build a binary bootstrapping with XRE_main

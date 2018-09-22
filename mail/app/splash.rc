@@ -5,7 +5,7 @@
 #include <windows.h>
 #include "nsNativeAppSupportWin.h"
 
-1 24 "thunderbird.exe.manifest" 
+1 24 "thunderbird.exe.manifest"
 
 STRINGTABLE DISCARDABLE
 BEGIN
@@ -17,7 +17,7 @@ IDI_APPLICATION ICON THUNDERBIRD_ICO
 
 // For some reason IDI_MAILBIFF needs to be larger than the value of IDI_APPLICATION for static builds
 #define IDI_MAILBIFF 32576
-IDI_MAILBIFF  ICON  "../../mailnews/build/newmail.ico"
+IDI_MAILBIFF  ICON  TB_MAILBIFF_ICO
 
 // Windows taskbar icons
 #define IDI_WRITE_MESSAGE 32577
