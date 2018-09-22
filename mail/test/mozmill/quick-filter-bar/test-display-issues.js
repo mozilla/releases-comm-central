@@ -16,19 +16,23 @@ var MODULE_NAME = "test-display-issues";
 var RELATIVE_ROOT = '../shared-modules';
 
 var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                       'quick-filter-bar-helper'];
+                       "quick-filter-bar-helper", "dom-helpers"];
 
 var folder;
 var setUnstarred, setStarred;
+var gOriginalPaneWidth;
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
-  collector.getModule('window-helpers').installInto(module);
-  collector.getModule('quick-filter-bar-helper').installInto(module);
-  collector.getModule("dom-helpers").installInto(module);
-
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
   folder = create_folder("QuickFilterBarDisplayIssues");
   be_in_folder(folder);
+  // Let's check window sizes as we will restore back to them after the end of the test.
+  assert_equals(mc.window.outerWidth, 1024, "Main window didn't meet the expected width");
+  assert_equals(mc.window.outerHeight, 768, "Main window didn't meet the expected height");
+  let folderPaneBox = mc.e("folderPaneBox");
+  gOriginalPaneWidth = folderPaneBox.width;
 }
 
 function wait_for_resize(width) {
@@ -159,4 +163,6 @@ function teardownModule() {
   //            default window size.
   resize_to(1024, 768);
   collapse_panes(mc.e("folderpane_splitter"), false);
+  let folderPaneBox = mc.e("folderPaneBox");
+  folderPaneBox.width = gOriginalPaneWidth;
 }
