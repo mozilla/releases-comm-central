@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var cIFI = Components.interfaces.calIFreeBusyInterval;
-var freebusy = Components.classes["@mozilla.org/calendar/freebusy-service;1"]
-                         .getService(Components.interfaces.calIFreeBusyService);
+var freebusy = Cc["@mozilla.org/calendar/freebusy-service;1"].getService(Ci.calIFreeBusyService);
 
 function run_test() {
     do_calendar_startup(really_run_test);
@@ -35,7 +33,7 @@ function test_found() {
             ok(!this.called);
             this.called = true;
 
-            let interval = new cal.provider.FreeBusyInterval(aCalId, cIFI.BUSY, aStart, aEnd);
+            let interval = new cal.provider.FreeBusyInterval(aCalId, Ci.calIFreeBusyInterval.BUSY, aStart, aEnd);
             aListener.onResult(null, [interval]);
         }
     };
@@ -55,7 +53,7 @@ function test_found() {
             equal(result.length, 1);
             equal(result[0].interval.start.icalString, "20120101T010101");
             equal(result[0].interval.end.icalString, "20120102T010101");
-            equal(result[0].freeBusyType, cIFI.BUSY);
+            equal(result[0].freeBusyType, Ci.calIFreeBusyInterval.BUSY);
 
             equal(result.length, 1);
             ok(provider2.called);
@@ -67,7 +65,8 @@ function test_found() {
     freebusy.getFreeBusyIntervals("email",
                                   cal.createDateTime("20120101T010101"),
                                   cal.createDateTime("20120102T010101"),
-                                  cIFI.BUSY_ALL, listener);
+                                  Ci.calIFreeBusyInterval.BUSY_ALL,
+                                  listener);
 }
 
 function test_failure() {
@@ -78,7 +77,7 @@ function test_failure() {
         getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
             ok(!this.called);
             this.called = true;
-            aListener.onResult({ status: Components.results.NS_ERROR_FAILURE }, "notFound");
+            aListener.onResult({ status: Cr.NS_ERROR_FAILURE }, "notFound");
         }
     };
 
@@ -98,7 +97,7 @@ function test_failure() {
     freebusy.getFreeBusyIntervals("email",
                                   cal.createDateTime("20120101T010101"),
                                   cal.createDateTime("20120102T010101"),
-                                  cIFI.BUSY_ALL,
+                                  Ci.calIFreeBusyInterval.BUSY_ALL,
                                   listener);
 }
 
@@ -116,7 +115,7 @@ function test_cancel() {
                     dump("Cancelling freebusy query...");
                     operation.cancel();
                 }
-            }, Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
+            }, Ci.nsIEventTarget.DISPATCH_NORMAL);
 
             // No listener call, we emulate a long running search
             // Do return the operation though
@@ -125,7 +124,7 @@ function test_cancel() {
 
         isPending: true,
         cancelCalled: false,
-        status: Components.results.NS_OK,
+        status: Cr.NS_OK,
         cancel: function() {
             this.cancelCalled = true;
         },
@@ -148,7 +147,7 @@ function test_cancel() {
     let operation = freebusy.getFreeBusyIntervals("email",
                                                   cal.createDateTime("20120101T010101"),
                                                   cal.createDateTime("20120102T010101"),
-                                                  cIFI.BUSY_ALL,
+                                                  Ci.calIFreeBusyInterval.BUSY_ALL,
                                                   listener);
 }
 

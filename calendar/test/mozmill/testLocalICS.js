@@ -68,10 +68,10 @@ function testLocalICS() {
     `));
 
     // Verify in file.
-    let fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-                            .createInstance(Components.interfaces.nsIFileInputStream);
-    let cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
-                            .createInstance(Components.interfaces.nsIConverterInputStream);
+    let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+                    .createInstance(Ci.nsIFileInputStream);
+    let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+                    .createInstance(Ci.nsIConverterInputStream);
 
     // Wait a moment until file is written.
     controller.waitFor(() => calendarFile.exists());

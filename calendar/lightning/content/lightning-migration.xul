@@ -22,8 +22,7 @@
     <script type="application/javascript" src="chrome://calendar/content/calendar-migration-dialog.js"/>
     <script type="application/javascript"><![CDATA[
         function checkOld() {
-            var calMgr = Components.classes["@mozilla.org/calendar/manager;1"]
-                                   .getService(Components.interfaces.calICalendarManager);
+            var calMgr = Cc["@mozilla.org/calendar/manager;1"].getService(Ci.calICalendarManager);
             var cals = calMgr.getCalendars({});
             if (!cals.length) {
                 // There are no calendars, so we are running for the first time

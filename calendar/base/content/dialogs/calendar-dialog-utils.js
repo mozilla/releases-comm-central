@@ -219,7 +219,7 @@ function matchCustomReminderToMenuitem(reminder) {
     let defaultAlarmType = getDefaultAlarmType();
     let reminderList = document.getElementById("item-alarm");
     let reminderPopup = reminderList.firstChild;
-    if (reminder.related != Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE &&
+    if (reminder.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE &&
         reminder.offset &&
         reminder.action == defaultAlarmType) {
         // Exactly one reminder thats not absolute, we may be able to match up
@@ -537,7 +537,7 @@ function updateLink() {
 
         // Only show if its either an internal protcol handler, or its external
         // and there is an external app for the scheme
-        handler = cal.wrapInstance(handler, Components.interfaces.nsIExternalProtocolHandler);
+        handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
         hideOrShow(!handler || handler.externalAppExistsForScheme(uri.scheme));
 
         setTimeout(() => {
@@ -707,7 +707,7 @@ function adaptScheduleAgent(aItem) {
         aItem.calendar.getProperty("capabilities.autoschedule.supported")) {
         let identity = aItem.calendar.getProperty("imip.identity");
         let orgEmail = identity &&
-                       identity.QueryInterface(Components.interfaces.nsIMsgIdentity).email;
+                       identity.QueryInterface(Ci.nsIMsgIdentity).email;
         let organizerAction = aItem.organizer && orgEmail &&
                               aItem.organizer.id == "mailto:" + orgEmail;
         if (aItem.calendar.getProperty("forceEmailScheduling")) {

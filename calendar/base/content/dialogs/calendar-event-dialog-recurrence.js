@@ -49,10 +49,10 @@ function onLoad() {
             // Deal with the rules
             if (rules.length > 0) {
                 // We only handle 1 rule currently
-                rule = cal.wrapInstance(rules[0], Components.interfaces.calIRecurrenceRule);
+                rule = cal.wrapInstance(rules[0], Ci.calIRecurrenceRule);
             }
         } catch (ex) {
-            Components.utils.reportError(ex);
+            Cu.reportError(ex);
         }
     }
     if (!rule) {
@@ -742,7 +742,7 @@ function changeOrderForElements(aPropKey, aPropParams) {
         let msg = "The key " + aPropKey + " in calendar-event-dialog.prop" +
                   "erties has incorrect number of params. Expected " +
                   aPropParams.length + " params.";
-        Components.utils.reportError(msg + " " + ex);
+        Cu.reportError(msg + " " + ex);
         return;
     }
 

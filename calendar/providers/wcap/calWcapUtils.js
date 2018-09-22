@@ -34,12 +34,11 @@ function initLogging() {
         if (logFileName) {
             try {
                 // set up file:
-                let logFile = Components.classes["@mozilla.org/file/local;1"]
-                                        .createInstance(Components.interfaces.nsIFile);
+                let logFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
                 logFile.initWithPath(logFileName);
                 // create output stream:
-                let logFileStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
-                                              .createInstance(Components.interfaces.nsIFileOutputStream);
+                let logFileStream = Cc["@mozilla.org/network/file-output-stream;1"]
+                                      .createInstance(Ci.nsIFileOutputStream);
                 logFileStream.init(logFile,
                                    0x02 /* PR_WRONLY */ |
                                    0x08 /* PR_CREATE_FILE */ |
@@ -110,7 +109,7 @@ function log(msg, context, bForce) {
                 initLogging.mLogFilestream.write(str, str.length);
             } catch (exc) { // catching any io errors here:
                 let err = "error writing log file: " + errorToString(exc);
-                Components.utils.reportError(exc);
+                Cu.reportError(exc);
                 Services.console.logStringMessage(err);
                 dump(err + "\n\n");
             }
@@ -123,11 +122,10 @@ function log(msg, context, bForce) {
 
 function logWarning(err, context) {
     let msg = errorToString(err);
-    let scriptError = Components.classes["@mozilla.org/scripterror;1"]
-                                .createInstance(Components.interfaces.nsIScriptError);
+    let scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
     scriptError.init(log("warning: " + msg, context, true),
                      null, null, 0, 0,
-                     Components.interfaces.nsIScriptError.warningFlag,
+                     Ci.nsIScriptError.warningFlag,
                      "component javascript");
     Services.console.logMessage(scriptError);
     return msg;
@@ -135,7 +133,7 @@ function logWarning(err, context) {
 
 function logError(err, context) {
     let msg = errorToString(err);
-    Components.utils.reportError(log("error: " + msg + "\nstack:\n" + cal.STACK(10), context, true));
+    Cu.reportError(log("error: " + msg + "\nstack:\n" + cal.STACK(10), context, true));
     return msg;
 }
 
@@ -143,8 +141,8 @@ function logError(err, context) {
 
 function getCalendarSearchService() {
     if (!getCalendarSearchService.m_obj) {
-        getCalendarSearchService.m_obj = Components.classes["@mozilla.org/calendar/calendarsearch-service;1"]
-                                                   .getService(Components.interfaces.calICalendarSearchService);
+        getCalendarSearchService.m_obj = Cc["@mozilla.org/calendar/calendarsearch-service;1"]
+                                           .getService(Ci.calICalendarSearchService);
     }
     return getCalendarSearchService.m_obj;
 }

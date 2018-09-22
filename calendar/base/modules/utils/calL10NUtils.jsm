@@ -38,7 +38,7 @@ function _getString(aComponent, aBundleName, aStringName, aParams=[]) {
         }
     } catch (ex) {
         let msg = `Failed to read '${aStringName}' from ${propName}.`;
-        Components.utils.reportError(`${msg} Error: ${ex}`);
+        Cu.reportError(`${msg} Error: ${ex}`);
         return aStringName;
     }
 }
@@ -148,9 +148,9 @@ var call10n = {
      * @return {nsICollation}       A new locale collator
      */
     createLocaleCollator: function() {
-        return Components.classes["@mozilla.org/intl/collation-factory;1"]
-                         .getService(Components.interfaces.nsICollationFactory)
-                         .CreateCollation();
+        return Cc["@mozilla.org/intl/collation-factory;1"]
+                 .getService(Ci.nsICollationFactory)
+                 .CreateCollation();
     },
 
     /**

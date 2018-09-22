@@ -213,7 +213,7 @@ var calendarItemTabType = {
         } else if (aTab.mode.type == "calendarTask") {
             strName = aArgs.calendarEvent.title ? "editTaskDialog" : "newTaskDialog";
         } else {
-            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+            throw Cr.NS_ERROR_NOT_IMPLEMENTED;
         }
         // name is "New Event", "Edit Task", etc.
         let name = cal.l10n.getCalString(strName);
@@ -779,7 +779,7 @@ function moveEventToolbox(aDestination) {
 function checkCalendarBinaryComponent() {
     // Don't even get started if we are running ical.js or the binary component
     // was successfully loaded.
-    if ("@mozilla.org/calendar/datetime;1" in Components.classes ||
+    if ("@mozilla.org/calendar/datetime;1" in Cc ||
         Preferences.get("calendar.icaljs", false)) {
         return;
     }

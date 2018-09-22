@@ -138,9 +138,7 @@ function run_test() {
 }
 
 function initializeAlarmService() {
-    alarmObserver.service = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                                       .getService(Components.interfaces.calIAlarmService)
-                                       .wrappedJSObject;
+    alarmObserver.service = Cc["@mozilla.org/calendar/alarm-service;1"].getService(Ci.calIAlarmService).wrappedJSObject;
     ok(!alarmObserver.service.mStarted);
     alarmObserver.service.startup(null);
     ok(alarmObserver.service.mStarted);

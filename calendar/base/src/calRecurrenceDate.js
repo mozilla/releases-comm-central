@@ -9,10 +9,7 @@ function calRecurrenceDate() {
 }
 
 var calRecurrenceDateClassID = Components.ID("{806b6423-3aaa-4b26-afa3-de60563e9cec}");
-var calRecurrenceDateInterfaces = [
-    Components.interfaces.calIRecurrenceItem,
-    Components.interfaces.calIRecurrenceDate
-];
+var calRecurrenceDateInterfaces = [Ci.calIRecurrenceItem, Ci.calIRecurrenceDate];
 calRecurrenceDate.prototype = {
     isMutable: true,
 
@@ -34,7 +31,7 @@ calRecurrenceDate.prototype = {
 
     ensureMutable: function() {
         if (!this.isMutable) {
-            throw Components.results.NS_ERROR_OBJECT_IS_MUTABLE;
+            throw Cr.NS_ERROR_OBJECT_IS_MUTABLE;
         }
     },
 
@@ -87,7 +84,7 @@ calRecurrenceDate.prototype = {
         let prop = cal.getIcsService().createIcalPropertyFromString(val);
         let propName = prop.propertyName;
         if (propName != "RDATE" && propName != "EXDATE") {
-            throw Components.results.NS_ERROR_ILLEGAL_VALUE;
+            throw Cr.NS_ERROR_ILLEGAL_VALUE;
         }
 
         this.icalProperty = prop;
@@ -103,8 +100,7 @@ calRecurrenceDate.prototype = {
         if (prop.propertyName == "RDATE") {
             this.mIsNegative = false;
             if (prop.getParameter("VALUE") == "PERIOD") {
-                let period = Components.classes["@mozilla.org/calendar/period;1"]
-                                       .createInstance(Components.interfaces.calIPeriod);
+                let period = Cc["@mozilla.org/calendar/period;1"].createInstance(Ci.calIPeriod);
                 period.icalString = prop.valueAsIcalString;
                 this.mDate = period.start;
             } else {

@@ -31,8 +31,8 @@ calSleepMonitor.prototype = {
     start: function() {
         this.stop();
         this.expected = Date.now() + this.interval;
-        this.timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-        this.timer.initWithCallback(this.callback.bind(this), this.interval, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE);
+        this.timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+        this.timer.initWithCallback(this.callback.bind(this), this.interval, Ci.nsITimer.TYPE_REPEATING_PRECISE);
     },
     stop: function() {
         if (this.timer) {

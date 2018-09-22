@@ -43,8 +43,8 @@ calIcsSerializer.prototype = {
 
         // Convert the javascript string to an array of bytes, using the
         // UTF8 encoder
-        let convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
-                                   .createInstance(Components.interfaces.nsIConverterOutputStream);
+        let convStream = Cc["@mozilla.org/intl/converter-output-stream;1"]
+                           .createInstance(Ci.nsIConverterOutputStream);
         convStream.init(aStream, "UTF-8");
 
         convStream.writeString(str);

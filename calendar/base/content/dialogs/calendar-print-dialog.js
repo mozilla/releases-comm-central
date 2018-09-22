@@ -42,8 +42,7 @@ function loadCalendarPrintDialog() {
     let layoutList = document.getElementById("layout-field");
     for (let { data } of Services.catMan.enumerateCategory("cal-print-formatters")) {
         let contractid = Services.catMan.getCategoryEntry("cal-print-formatters", data);
-        let formatter = Components.classes[contractid]
-                                  .getService(Components.interfaces.calIPrintFormatter);
+        let formatter = Cc[contractid].getService(Ci.calIPrintFormatter);
         // Use the contractid as value
         layoutList.appendItem(formatter.name, contractid);
     }
@@ -175,17 +174,17 @@ function getPrintSettings(receiverFunc) {
 function getFilter(settings) {
     let filter = 0;
     if (settings.printTasks) {
-        filter |= Components.interfaces.calICalendar.ITEM_FILTER_TYPE_TODO;
+        filter |= Ci.calICalendar.ITEM_FILTER_TYPE_TODO;
         if (settings.printCompletedTasks) {
-            filter |= Components.interfaces.calICalendar.ITEM_FILTER_COMPLETED_ALL;
+            filter |= Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
         } else {
-            filter |= Components.interfaces.calICalendar.ITEM_FILTER_COMPLETED_NO;
+            filter |= Ci.calICalendar.ITEM_FILTER_COMPLETED_NO;
         }
     }
 
     if (settings.printEvents) {
-        filter |= Components.interfaces.calICalendar.ITEM_FILTER_TYPE_EVENT |
-                  Components.interfaces.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
+        filter |= Ci.calICalendar.ITEM_FILTER_TYPE_EVENT |
+                  Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
     }
     return filter;
 }
@@ -226,7 +225,7 @@ function refreshHtml(finishFunc) {
                 convStream.close();
             }
         } catch (e) {
-            Components.utils.reportError("Calendar print dialog:refreshHtml: " + e);
+            Cu.reportError("Calendar print dialog:refreshHtml: " + e);
         }
 
         printContent = "data:text/html," + encodeURIComponent(printContent);

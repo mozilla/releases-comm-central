@@ -87,13 +87,13 @@ function copyToClipboard(aCalendarItemArray=null, aCutMode=false) {
     }
 
     let icsSerializer = Cc["@mozilla.org/calendar/ics-serializer;1"]
-                        .createInstance(Ci.calIIcsSerializer);
+                          .createInstance(Ci.calIIcsSerializer);
     icsSerializer.addItems(targetItems, targetItems.length);
     let icsString = icsSerializer.serializeToString();
 
     let clipboard = Services.clipboard;
     let trans = Cc["@mozilla.org/widget/transferable;1"]
-                .createInstance(Ci.nsITransferable);
+                  .createInstance(Ci.nsITransferable);
 
     if (trans && clipboard) {
         // Register supported data flavors
@@ -103,7 +103,7 @@ function copyToClipboard(aCalendarItemArray=null, aCutMode=false) {
 
         // Create the data objects
         let icsWrapper = Cc["@mozilla.org/supports-string;1"]
-                         .createInstance(Ci.nsISupportsString);
+                           .createInstance(Ci.nsISupportsString);
         icsWrapper.data = icsString;
 
         // Add data objects to transferable
@@ -161,7 +161,7 @@ function pasteFromClipboard() {
         case "text/calendar":
         case "text/unicode": {
             let icsParser = Cc["@mozilla.org/calendar/ics-parser;1"]
-                           .createInstance(Ci.calIIcsParser);
+                              .createInstance(Ci.calIIcsParser);
             try {
                 icsParser.parseString(data);
             } catch (e) {

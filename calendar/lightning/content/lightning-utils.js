@@ -49,13 +49,13 @@ function ltnInitMailIdentitiesRow() {
     } else {
         identities = MailServices.accounts.allIdentities;
     }
-    for (let identity of fixIterator(identities, Components.interfaces.nsIMsgIdentity)) {
+    for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
         addMenuItem(menuPopup, identity.identityName, identity.key);
     }
     try {
         let sel = gCalendar.getProperty("imip.identity");
         if (sel) {
-            sel = sel.QueryInterface(Components.interfaces.nsIMsgIdentity);
+            sel = sel.QueryInterface(Ci.nsIMsgIdentity);
         }
         menuListSelectItem("email-identity-menulist", sel ? sel.key : "none");
     } catch (exc) {

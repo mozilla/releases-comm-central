@@ -86,8 +86,7 @@ ltn.invitation = {
         let doc = cal.xml.parseFile("chrome://lightning/content/lightning-invitation.xhtml");
         let formatter = cal.getDateFormatter();
 
-        let linkConverter = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                                      .getService(Components.interfaces.mozITXTToHTMLConv);
+        let linkConverter = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
 
         let field = function(aField, aContentText, aConvert) {
             let descr = doc.getElementById("imipHtml-" + aField + "-descr");
@@ -101,18 +100,18 @@ ltn.invitation = {
                 doc.getElementById("imipHtml-" + aField + "-row").hidden = false;
                 if (aConvert) {
                     // we convert special characters first to not mix up html conversion
-                    let mode = Components.interfaces.mozITXTToHTMLConv.kEntities;
+                    let mode = Ci.mozITXTToHTMLConv.kEntities;
                     let contentText = linkConverter.scanTXT(aContentText, mode);
                     try {
                         // kGlyphSubstitution may lead to unexpected results when used in scanHTML
-                        mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
-                               Components.interfaces.mozITXTToHTMLConv.kGlyphSubstitution +
-                               Components.interfaces.mozITXTToHTMLConv.kURLs;
+                        mode = Ci.mozITXTToHTMLConv.kStructPhrase +
+                               Ci.mozITXTToHTMLConv.kGlyphSubstitution +
+                               Ci.mozITXTToHTMLConv.kURLs;
                         // eslint-disable-next-line no-unsanitized/property
                         content.innerHTML = linkConverter.scanHTML(contentText, mode);
                     } catch (e) {
-                        mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
-                               Components.interfaces.mozITXTToHTMLConv.kURLs;
+                        mode = Ci.mozITXTToHTMLConv.kStructPhrase +
+                               Ci.mozITXTToHTMLConv.kURLs;
                         // eslint-disable-next-line no-unsanitized/property
                         content.innerHTML = linkConverter.scanHTML(contentText, mode);
                     }
@@ -154,7 +153,7 @@ ltn.invitation = {
 
             // Show removed instances
             for (let exc of aEvent.recurrenceInfo.getRecurrenceItems({})) {
-                if (exc instanceof Components.interfaces.calIRecurrenceDate) {
+                if (exc instanceof Ci.calIRecurrenceDate) {
                     if (exc.isNegative) {
                         // This is an EXDATE
                         let excDate = exc.date.getInTimezone(kDefaultTimezone);
@@ -496,8 +495,8 @@ ltn.invitation = {
      * @return {String}            the converted string
      */
     convertFromUnicode: function(aCharset, aSrc) {
-        let unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                         .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+        let unicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                                 .createInstance(Ci.nsIScriptableUnicodeConverter);
         unicodeConverter.charset = aCharset;
         return unicodeConverter.ConvertFromUnicode(aSrc);
     },
@@ -515,9 +514,7 @@ ltn.invitation = {
                            .encodeMimePartIIStr_UTF8(aHeader,
                                                      aIsEmail,
                                                      fieldNameLen,
-                                                     Components.interfaces
-                                                               .nsIMimeConverter
-                                                               .MIME_ENCODED_WORD_SIZE);
+                                                     Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE);
     },
 
     /**

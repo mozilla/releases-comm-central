@@ -38,7 +38,7 @@ calFreeBusyListener.prototype = {
                     this.opGroup.notifyCompleted();
                 }
             }
-            let opStatus = aOperation ? aOperation.status : Components.results.NS_OK;
+            let opStatus = aOperation ? aOperation.status : Cr.NS_OK;
             if (Components.isSuccessCode(opStatus) &&
                 aResult && Array.isArray(aResult)) {
                 this.notifyResult(aResult);
@@ -74,9 +74,9 @@ calFreeBusyService.prototype = {
 
     // calIFreeBusyService:
     addProvider: function(aProvider) {
-        this.mProviders.add(aProvider.QueryInterface(Components.interfaces.calIFreeBusyProvider));
+        this.mProviders.add(aProvider.QueryInterface(Ci.calIFreeBusyProvider));
     },
     removeProvider: function(aProvider) {
-        this.mProviders.delete(aProvider.QueryInterface(Components.interfaces.calIFreeBusyProvider));
+        this.mProviders.delete(aProvider.QueryInterface(Ci.calIFreeBusyProvider));
     }
 };

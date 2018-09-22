@@ -20,13 +20,11 @@ calProtocolHandler.prototype = {
     get protocolFlags() { return this.mHttpProtocol.protocolFlags; },
 
     newURI: function(aSpec, anOriginalCharset, aBaseURI) {
-        return Components.classes["@mozilla.org/network/standard-url-mutator;1"]
-                         .createInstance(Components.interfaces.nsIStandardURLMutator)
-                         .init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD,
-                               this.mHttpProtocol.defaultPort,
-                               aSpec, anOriginalCharset, aBaseURI)
-                         .finalize()
-                         .QueryInterface(Components.interfaces.nsIStandardURL);
+        return Cc["@mozilla.org/network/standard-url-mutator;1"]
+            .createInstance(Ci.nsIStandardURLMutator)
+            .init(Ci.nsIStandardURL.URLTYPE_STANDARD, this.mHttpProtocol.defaultPort, aSpec, anOriginalCharset, aBaseURI)
+            .finalize()
+            .QueryInterface(Ci.nsIStandardURL);
     },
 
     newChannel: function(aUri) {
@@ -44,8 +42,8 @@ calProtocolHandler.prototype = {
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                     Ci.nsIContentPolicy.TYPE_OTHER);
         }
         channel.originalURI = aUri;
         return channel;

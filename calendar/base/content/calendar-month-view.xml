@@ -80,8 +80,8 @@
                 if (!val.startDate.isDate) {
                     let icon = document.getAnonymousElementByAttribute(this, "anonid", "item-icon");
                     let label = document.getAnonymousElementByAttribute(this, "anonid", "item-label");
-                    let formatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                              .getService(Components.interfaces.calIDateTimeFormatter);
+                    let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                                      .getService(Ci.calIDateTimeFormatter);
                     let timezone = this.calendarView ? this.calendarView.mTimezone
                                                      : cal.dtz.defaultTimezone;
                     let parentDate = this.parentBox.date;
@@ -200,7 +200,7 @@
         <parameter name="aDate"/>
         <body><![CDATA[
             if (!aDate) {
-                throw Components.results.NS_ERROR_NULL_POINTER;
+                throw Cr.NS_ERROR_NULL_POINTER;
             }
 
             // Remove all the old events
@@ -506,7 +506,7 @@
         <parameter name="aTopic"/>
         <parameter name="aPreference"/>
         <body><![CDATA[
-            aSubject.QueryInterface(Components.interfaces.nsIPrefBranch);
+            aSubject.QueryInterface(Ci.nsIPrefBranch);
 
             switch (aPreference) {
                 case "calendar.previousweeks.inview":
@@ -754,7 +754,7 @@
             }
 
             if (!this.mStartDate || !this.mEndDate) {
-                throw Components.results.NS_ERROR_FAILURE;
+                throw Cr.NS_ERROR_FAILURE;
             }
 
             // Days that are not in the main month on display are displayed with

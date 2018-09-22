@@ -136,8 +136,7 @@ add_task(async function getItipHeader_test() {
     let i = 0;
     for (let test of data) {
         i++;
-        let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                                 .createInstance(Components.interfaces.calIItipItem);
+        let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
         let item = getIcs();
         let sender;
         if (test.input.method || test.input.method == "") {
@@ -369,11 +368,9 @@ add_task(async function createInvitationOverlay_test() {
                     break;
             }
         }
-        let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                                 .createInstance(Components.interfaces.calIItipItem);
+        let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
         itipItem.init(item);
-        let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                               .createInstance(Components.interfaces.calIIcsParser);
+        let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
         parser.parseString(item);
         let dom = ltn.invitation.createInvitationOverlay(parser.getItems({})[0], itipItem);
         let observed = dom.getElementById(test.expected.node).innerHTML;
@@ -400,11 +397,9 @@ add_task(async function compareInvitationOverlay_test() {
                 item = item.replace(new RegExp(regex), aInput[prop]);
             }
         }
-        let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                                 .createInstance(Components.interfaces.calIItipItem);
+        let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
         itipItem.init(item);
-        let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                               .createInstance(Components.interfaces.calIIcsParser);
+        let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
         parser.parseString(item);
         let dom = ltn.invitation.createInvitationOverlay(parser.getItems({})[0], itipItem);
         return cal.xml.serializeDOM(dom);
@@ -645,8 +640,7 @@ add_task(async function getHeaderSection_test() {
         identity.doBcc = test.input.identity.doBcc || (test.input.identity.bcc);
         identity.doBccList = test.input.identity.bcc || null;
 
-        let composeUtils = Components.classes["@mozilla.org/messengercompose/computils;1"]
-                                     .createInstance(Components.interfaces.nsIMsgCompUtils);
+        let composeUtils = Cc["@mozilla.org/messengercompose/computils;1"].createInstance(Ci.nsIMsgCompUtils);
         let messageId = composeUtils.msgGenerateMessageId(identity);
 
         let header = ltn.invitation.getHeaderSection(messageId, identity,

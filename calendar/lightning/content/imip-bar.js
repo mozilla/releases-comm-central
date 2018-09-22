@@ -87,8 +87,7 @@ var ltnImipBar = {
                 if (!subject) {
                     let sinkProps = msgWindow.msgHeaderSink.properties;
                     // This property was set by lightningTextCalendarConverter.js
-                    itipItem = sinkProps.getPropertyAsInterface("itipItem",
-                                                                Components.interfaces.calIItipItem);
+                    itipItem = sinkProps.getPropertyAsInterface("itipItem", Ci.calIItipItem);
                     msgOverlay = sinkProps.getPropertyAsAUTF8String("msgOverlay");
                 }
             } catch (e) {
@@ -215,12 +214,10 @@ var ltnImipBar = {
                 return false;
             }
             let author = aMsgHdr.mime2DecodedAuthor;
-            let isSentFolder = aMsgHdr.folder && aMsgHdr.folder.flags &
-                               Components.interfaces.nsMsgFolderFlags.SentMail;
+            let isSentFolder = aMsgHdr.folder && aMsgHdr.folder.flags & Ci.nsMsgFolderFlags.SentMail;
             if (author && isSentFolder) {
                 let accounts = MailServices.accounts;
-                for (let identity of fixIterator(accounts.allIdentities,
-                                                 Components.interfaces.nsIMsgIdentity)) {
+                for (let identity of fixIterator(accounts.allIdentities, Ci.nsIMsgIdentity)) {
                     if (author.includes(identity.email) && !identity.fccReplyFollowsParent) {
                         return true;
                     }
@@ -386,7 +383,7 @@ var ltnImipBar = {
                 try {
                     aActionFunc(opListener, aParticipantStatus, aExtResponse);
                 } catch (exc) {
-                    Components.utils.reportError(exc);
+                    Cu.reportError(exc);
                 }
                 return true;
             }
@@ -459,15 +456,15 @@ var ltnImipBar = {
             let response;
             if (aResponse) {
                 if (aResponse == "AUTO" || aResponse == "NONE" || aResponse == "USER") {
-                    response = { responseMode: Components.interfaces.calIItipItem[aResponse] };
+                    response = { responseMode: Ci.calIItipItem[aResponse] };
                 }
                 // Open an extended response dialog to enable the user to add a comment, make a
                 // counterproposal, delegate the event or interact in another way.
                 // Instead of a dialog, this might be implemented as a separate container inside the
                 // imip-overlay as proposed in bug 458578
             }
-            let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
-                                   .getService(Components.interfaces.calIDeletedItems);
+            let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"]
+                           .getService(Ci.calIDeletedItems);
             let items = ltnImipBar.itipItem.getItemList({});
             if (items && items.length) {
                 let delTime = delmgr.getDeletedDate(items[0].id);

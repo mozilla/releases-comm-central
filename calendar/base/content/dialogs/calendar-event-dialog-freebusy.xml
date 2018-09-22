@@ -164,11 +164,8 @@
             date.isDate = false;
 
             if (!this.mDateFormatter) {
-                this.mDateFormatter =
-                    Components.classes[
-                        "@mozilla.org/calendar/datetime-formatter;1"]
-                            .getService(
-                                Components.interfaces.calIDateTimeFormatter);
+                this.mDateFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                                        .getService(Ci.calIDateTimeFormatter);
             }
 
             // First set the formatted date string as title
@@ -625,14 +622,12 @@
             let numHours = this.mEndHour - this.mStartHour;
             this.mState = new Array(this.mRange * numHours);
             for (let i = 0; i < this.mState.length; i++) {
-                this.mState[i] = Components.interfaces.calIFreeBusyInterval.UNKNOWN;
+                this.mState[i] = Ci.calIFreeBusyInterval.UNKNOWN;
             }
 
             let step_in_minutes = Math.floor(60 * this.mZoomFactor / 100);
-            let formatter = Components.classes[
-                "@mozilla.org/calendar/datetime-formatter;1"]
-                    .getService(
-                        Components.interfaces.calIDateTimeFormatter);
+            let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                              .getService(Ci.calIDateTimeFormatter);
             let date = cal.dtz.jsDateToDateTime(new Date());
             date.hour = this.mStartHour;
             date.minute = 0;
@@ -700,7 +695,7 @@
 
                 // First of all set all state slots to 'free'
                 for (let i = 0; i < this.mState.length; i++) {
-                    this.mState[i] = Components.interfaces.calIFreeBusyInterval.FREE;
+                    this.mState[i] = Ci.calIFreeBusyInterval.FREE;
                 }
 
                 // Iterate all incoming freebusy entries
@@ -795,7 +790,7 @@
             } else {
                 // First of all set all state slots to 'unknown'
                 for (let i = 0; i < this.mState.length; i++) {
-                    this.mState[i] = Components.interfaces.calIFreeBusyInterval.UNKNOWN;
+                    this.mState[i] = Ci.calIFreeBusyInterval.UNKNOWN;
                 }
             }
 
@@ -811,16 +806,16 @@
             for (let i = 0; i < hours.childNodes.length; i++) {
                 let hour = hours.childNodes[i];
                 switch (this.mState[i + this.mOffset]) {
-                    case Components.interfaces.calIFreeBusyInterval.FREE:
+                    case Ci.calIFreeBusyInterval.FREE:
                         hour.setAttribute("state", "free");
                         break;
-                    case Components.interfaces.calIFreeBusyInterval.BUSY:
+                    case Ci.calIFreeBusyInterval.BUSY:
                         hour.setAttribute("state", "busy");
                         break;
-                    case Components.interfaces.calIFreeBusyInterval.BUSY_TENTATIVE:
+                    case Ci.calIFreeBusyInterval.BUSY_TENTATIVE:
                         hour.setAttribute("state", "busy_tentative");
                         break;
-                    case Components.interfaces.calIFreeBusyInterval.BUSY_UNAVAILABLE:
+                    case Ci.calIFreeBusyInterval.BUSY_UNAVAILABLE:
                         hour.setAttribute("state", "busy_unavailable");
                         break;
                     default:
@@ -1155,13 +1150,13 @@
                             let request = fbService.getFreeBusyIntervals(calid,
                                                                          start,
                                                                          end,
-                                                                         Components.interfaces.calIFreeBusyInterval.BUSY_ALL,
+                                                                         Ci.calIFreeBusyInterval.BUSY_ALL,
                                                                          listener);
                             if (request && request.isPending) {
                                 this.mPendingRequests.push(request);
                             }
                         } catch (ex) {
-                            Components.utils.reportError(ex);
+                            Cu.reportError(ex);
                         }
                     }
                 }

@@ -238,8 +238,8 @@
                                   .getAttribute("checked") == "true");
 
           this.mTimezone = cal.dtz.defaultTimezone;
-          let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                                       .getService(Components.interfaces.calIAlarmService);
+          let alarmService = Cc["@mozilla.org/calendar/alarm-service;1"]
+                               .getService(Ci.calIAlarmService);
           alarmService.addObserver(this.mObserver);
           this.setAttribute("type", this.type);
           this.mResizeHandler = () => {
@@ -262,8 +262,8 @@
           if (this.mCalendar) {
               this.mCalendar.removeObserver(this.mObserver);
           }
-          let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                                       .getService(Components.interfaces.calIAlarmService);
+          let alarmService = Cc["@mozilla.org/calendar/alarm-service;1"]
+                               .getService(Ci.calIAlarmService);
           alarmService.removeObserver(this.mObserver);
           this.viewBroadcaster.removeEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
           Services.prefs.removeObserver("calendar.", this.mPrefObserver);
@@ -483,7 +483,7 @@
                 cancel: function() {
                     this.calView.mLog.info("Refresh cancelled for calendar " + this.calId);
                     this.cancelled = true;
-                    let operation = cal.wrapInstance(this.operation, Components.interfaces.calIOperation);
+                    let operation = cal.wrapInstance(this.operation, Ci.calIOperation);
                     if (operation && operation.isPending) {
                         operation.cancel();
                         this.operation = null;
@@ -535,7 +535,7 @@
                                                            this.calView.startDate,
                                                            this.calView.queryEndDate,
                                                            this);
-                    operation = cal.wrapInstance(operation, Components.interfaces.calIOperation);
+                    operation = cal.wrapInstance(operation, Ci.calIOperation);
                     if (operation && operation.isPending) {
                         this.operation = operation;
                         this.calView.mPendingRefreshJobs.set(this.calId, this);
@@ -551,7 +551,7 @@
         <parameter name="aCalendar"/>
         <body><![CDATA[
             /* This method must be implemented in subclasses. */
-            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+            throw Cr.NS_ERROR_NOT_IMPLEMENTED;
         ]]></body>
       </method>
 

@@ -19,18 +19,14 @@ function calAlarmMonitor() {
     this.wrappedJSObject = this;
     this.mAlarms = [];
 
-    this.mSound = Components.classes["@mozilla.org/sound;1"]
-                            .createInstance(Components.interfaces.nsISound);
+    this.mSound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
 
     Services.obs.addObserver(this, "alarm-service-startup");
     Services.obs.addObserver(this, "alarm-service-shutdown");
 }
 
 var calAlarmMonitorClassID = Components.ID("{4b7ae030-ed79-11d9-8cd6-0800200c9a66}");
-var calAlarmMonitorInterfaces = [
-    Components.interfaces.nsIObserver,
-    Components.interfaces.calIAlarmServiceObserver
-];
+var calAlarmMonitorInterfaces = [Ci.nsIObserver, Ci.calIAlarmServiceObserver];
 calAlarmMonitor.prototype = {
     mAlarms: null,
 
@@ -49,15 +45,15 @@ calAlarmMonitor.prototype = {
         classDescription: "Calendar Alarm Monitor",
         classID: calAlarmMonitorClassID,
         interfaces: calAlarmMonitorInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
+        flags: Ci.nsIClassInfo.SINGLETON
     }),
 
     /**
      * nsIObserver
      */
     observe: function(aSubject, aTopic, aData) {
-        let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                                     .getService(Components.interfaces.calIAlarmService);
+        let alarmService = Cc["@mozilla.org/calendar/alarm-service;1"]
+                             .getService(Ci.calIAlarmService);
         switch (aTopic) {
             case "alarm-service-startup":
                 alarmService.addObserver(this);

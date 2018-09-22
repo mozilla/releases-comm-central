@@ -12,8 +12,7 @@ function really_run_test() {
 }
 
 function test_freebusy() {
-    let icsService = Components.classes["@mozilla.org/calendar/ics-service;1"]
-                               .getService(Components.interfaces.calIICSService);
+    let icsService = Cc["@mozilla.org/calendar/ics-service;1"].getService(Ci.calIICSService);
 
     // Bug 415987 - FREEBUSY decoding does not support comma-separated entries
     // (https://bugzilla.mozilla.org/show_bug.cgi?id=415987)
@@ -33,8 +32,7 @@ function test_freebusy() {
 }
 
 function test_period() {
-    let period = Components.classes["@mozilla.org/calendar/period;1"]
-                           .createInstance(Components.interfaces.calIPeriod);
+    let period = Cc["@mozilla.org/calendar/period;1"].createInstance(Ci.calIPeriod);
 
     period.start = cal.createDateTime("20120101T010101");
     period.end = cal.createDateTime("20120101T010102");

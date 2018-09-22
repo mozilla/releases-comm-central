@@ -43,7 +43,7 @@ var calalarms = {
                 // You can't have an alarm if the entryDate doesn't exist.
                 aItem.entryDate = cal.dtz.now();
             }
-            alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_START;
+            alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
             alarm.offset = alarmOffset;
 
             // Default to a display alarm, unless the calendar doesn't support

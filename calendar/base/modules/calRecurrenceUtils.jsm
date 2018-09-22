@@ -57,7 +57,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
     recurrenceInfo = recurrenceInfo.clone();
     let rrules = splitRecurrenceRules(recurrenceInfo);
     if (rrules[0].length == 1) {
-        let rule = cal.wrapInstance(rrules[0][0], Components.interfaces.calIRecurrenceRule);
+        let rule = cal.wrapInstance(rrules[0][0], Ci.calIRecurrenceRule);
         // Currently we allow only for BYDAY, BYMONTHDAY, BYMONTH rules.
         let byparts = [
             "BYSECOND", "BYMINUTE", /* "BYDAY", */ "BYHOUR", /* "BYMONTHDAY", */

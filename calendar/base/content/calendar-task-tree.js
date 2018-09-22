@@ -168,7 +168,7 @@ function contextChangeTaskProgress(aEvent, aProgress) {
         startBatchTransaction();
         let tasks = getSelectedTasks(aEvent);
         for (let task of tasks) {
-            let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
+            let newTask = task.clone().QueryInterface(Ci.calITodo);
             newTask.percentComplete = aProgress;
             switch (aProgress) {
                 case 0:
@@ -220,7 +220,7 @@ function contextChangeTaskPriority(aEvent, aPriority) {
         startBatchTransaction();
         let tasks = getSelectedTasks(aEvent);
         for (let task of tasks) {
-            let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
+            let newTask = task.clone().QueryInterface(Ci.calITodo);
             newTask.priority = aPriority;
             doTransaction("modify", newTask, newTask.calendar, task, null);
         }

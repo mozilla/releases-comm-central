@@ -11,8 +11,8 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
  * provider.
  */
 function openLocalCalendar() {
-    const nsIFilePicker = Components.interfaces.nsIFilePicker;
-    let picker = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    const nsIFilePicker = Ci.nsIFilePicker;
+    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     picker.init(window, cal.l10n.getCalString("Open"), nsIFilePicker.modeOpen);
     let wildmat = "*.ics";
     let description = cal.l10n.getCalString("filterIcs", [wildmat]);

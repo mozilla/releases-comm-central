@@ -40,7 +40,7 @@ class ListenerSet extends Set {
                 observer[func](...args);
             } catch (exc) {
                 let stack = exc.stack || (exc.location ? exc.location.formattedStack : null);
-                Components.utils.reportError(exc + "\nSTACK: " + stack);
+                Cu.reportError(exc + "\nSTACK: " + stack);
             }
         }
     }
@@ -105,7 +105,7 @@ class OperationGroup {
 
         this.mCancelFunc = aCancelFunc;
         this.mSubOperations = [];
-        this.mStatus = Components.results.NS_OK;
+        this.mStatus = Cr.NS_OK;
     }
 
     get id() { return this.mId; }
@@ -135,7 +135,7 @@ class OperationGroup {
         }
     }
 
-    cancel(aStatus=Components.interfaces.calIErrors.OPERATION_CANCELLED) {
+    cancel(aStatus=Ci.calIErrors.OPERATION_CANCELLED) {
         if (this.isPending) {
             this.notifyCompleted(aStatus);
             let cancelFunc = this.mCancelFunc;
@@ -146,7 +146,7 @@ class OperationGroup {
             let subOperations = this.mSubOperations;
             this.mSubOperations = [];
             for (let operation of subOperations) {
-                operation.cancel(Components.interfaces.calIErrors.OPERATION_CANCELLED);
+                operation.cancel(Ci.calIErrors.OPERATION_CANCELLED);
             }
         }
     }
@@ -283,15 +283,15 @@ var caldata = {
         //           XPCOM (like COM, like UNO, ...) defines that QueryInterface *only* needs to return
         //           the very same pointer for nsISupports during its lifetime.
         if (!aIID) {
-            aIID = Components.interfaces.nsISupports;
+            aIID = Ci.nsISupports;
         }
-        let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
-                             .createInstance(Components.interfaces.nsISupportsInterfacePointer);
+        let sip1 = Cc["@mozilla.org/supports-interface-pointer;1"]
+                     .createInstance(Ci.nsISupportsInterfacePointer);
         sip1.data = aObject;
         sip1.dataIID = aIID;
 
-        let sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
-                             .createInstance(Components.interfaces.nsISupportsInterfacePointer);
+        let sip2 = Cc["@mozilla.org/supports-interface-pointer;1"]
+                     .createInstance(Ci.nsISupportsInterfacePointer);
         sip2.data = aOtherObject;
         sip2.dataIID = aIID;
         return sip1.data == sip2.data;

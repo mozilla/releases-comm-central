@@ -75,8 +75,8 @@ calIcsParser.prototype = {
                     state.items.push(parent);
                 }
                 if (item.id in fakedParents) {
-                    let rdate = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
-                                          .createInstance(Components.interfaces.calIRecurrenceDate);
+                    let rdate = Cc["@mozilla.org/calendar/recurrence-date;1"]
+                                  .createInstance(Ci.calIRecurrenceDate);
                     rdate.date = item.recurrenceId;
                     parent.recurrenceInfo.appendRecurrenceItem(rdate);
                     // we'll keep the parentless-API until we switch over using itip-process for import (e.g. in dnd code)
@@ -89,9 +89,9 @@ calIcsParser.prototype = {
             if (Object.keys(state.tzErrors).length > 0) {
                 // Use an alert rather than a prompt because problems may appear in
                 // remote subscribed calendars the user cannot change.
-                if (Components.classes["@mozilla.org/alerts-service;1"]) {
-                    let notifier = Components.classes["@mozilla.org/alerts-service;1"]
-                                             .getService(Components.interfaces.nsIAlertsService);
+                if (Cc["@mozilla.org/alerts-service;1"]) {
+                    let notifier = Cc["@mozilla.org/alerts-service;1"]
+                                     .getService(Ci.nsIAlertsService);
                     let title = cal.l10n.getCalString("TimezoneErrorsAlertTitle");
                     let text = cal.l10n.getCalString("TimezoneErrorsSeeConsole");
                     try {
@@ -107,7 +107,7 @@ calIcsParser.prototype = {
             self.mComponents = self.mComponents.concat(state.extraComponents);
 
             if (aAsyncParsing) {
-                aAsyncParsing.onParsingComplete(Components.results.NS_OK, self);
+                aAsyncParsing.onParsingComplete(Cr.NS_OK, self);
             }
         });
     },
@@ -294,7 +294,7 @@ parserState.prototype = {
         if (this.listener) {
             // If we have a listener, we are doing this asynchronously. Go ahead
             // and use the thread manager to dispatch the above runner
-            Services.tm.currentThread.dispatch(runner, Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
+            Services.tm.currentThread.dispatch(runner, Ci.nsIEventTarget.DISPATCH_NORMAL);
         } else {
             // No listener means synchonous. Just run the runner instead
             runner.run();

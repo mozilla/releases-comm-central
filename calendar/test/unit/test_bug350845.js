@@ -33,7 +33,7 @@ function run_test() {
     // More enumerator
     let enume = event.getParameterEnumerator("X-FOO");
     ok(enume.hasMoreElements());
-    let xbar = enume.getNext().QueryInterface(Components.interfaces.nsIProperty);
+    let xbar = enume.getNext().QueryInterface(Ci.nsIProperty);
     equal(xbar.name, "X-BAR");
     equal(xbar.value, "FNORD");
     ok(!enume.hasMoreElements());

@@ -30,7 +30,7 @@ var calitip = {
     getSequence: function(aItem) {
         let seq = null;
 
-        let wrappedItem = cal.wrapInstance(aItem, Components.interfaces.calIAttendee);
+        let wrappedItem = cal.wrapInstance(aItem, Ci.calIAttendee);
         if (wrappedItem) {
             seq = wrappedItem.getProperty("RECEIVED-SEQUENCE");
         } else if (aItem) {
@@ -67,7 +67,7 @@ var calitip = {
     getStamp: function(aItem) {
         let dtstamp = null;
 
-        let wrappedItem = cal.wrapInstance(aItem, Components.interfaces.calIAttendee);
+        let wrappedItem = cal.wrapInstance(aItem, Ci.calIAttendee);
         if (wrappedItem) {
             let stamp = wrappedItem.getProperty("RECEIVED-DTSTAMP");
             if (stamp) {
@@ -181,7 +181,7 @@ var calitip = {
         itipItem.isSend = false;
 
         // XXX Get these from preferences
-        itipItem.autoResponse = Components.interfaces.calIItipItem.USER;
+        itipItem.autoResponse = Ci.calIItipItem.USER;
 
         if (imipMethod && imipMethod.length != 0 && imipMethod.toLowerCase() != "nomethod") {
             itipItem.receivedMethod = imipMethod.toUpperCase();
@@ -199,8 +199,8 @@ var calitip = {
 
         let writableCalendars = cal.getCalendarManager().getCalendars({}).filter(isWritableCalendar);
         if (writableCalendars.length > 0) {
-            let compCal = Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
-                                    .createInstance(Components.interfaces.calICompositeCalendar);
+            let compCal = Cc["@mozilla.org/calendar/calendar;1?type=composite"]
+                            .createInstance(Ci.calICompositeCalendar);
             writableCalendars.forEach(compCal.addCalendar, compCal);
             itipItem.targetCalendar = compCal;
         }
@@ -218,7 +218,7 @@ var calitip = {
      */
     getCompleteText: function(aStatus, aOperationType) {
         let text = "";
-        const cIOL = Components.interfaces.calIOperationListener;
+        const cIOL = Ci.calIOperationListener;
         if (Components.isSuccessCode(aStatus)) {
             switch (aOperationType) {
                 case cIOL.ADD: text = cal.l10n.getLtnString("imipAddedItemToCal2"); break;
@@ -288,7 +288,7 @@ var calitip = {
             let disallow = foundItems[0].getProperty("X-MICROSOFT-DISALLOW-COUNTER");
             disallowedCounter = disallow && disallow == "TRUE";
         }
-        if (rc == Components.interfaces.calIErrors.CAL_IS_READONLY) {
+        if (rc == Ci.calIErrors.CAL_IS_READONLY) {
             // No writable calendars, tell the user about it
             data.label = cal.l10n.getLtnString("imipBarNotWritable");
         } else if (Components.isSuccessCode(rc) && !actionFunc) {
@@ -322,8 +322,8 @@ var calitip = {
             } else if (itipItem.receivedMethod == "REPLY") {
                 // The item has been previously removed from the available calendars or the calendar
                 // containing the item is not available
-                let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
-                                       .getService(Components.interfaces.calIDeletedItems);
+                let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"]
+                               .getService(Ci.calIDeletedItems);
                 let delTime = null;
                 let items = itipItem.getItemList({});
                 if (items && items.length) {
@@ -455,8 +455,8 @@ var calitip = {
      */
     getMessageSender: function(aMsgHdr) {
         let author = (aMsgHdr && aMsgHdr.author) || "";
-        let compFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                                   .createInstance(Components.interfaces.nsIMsgCompFields);
+        let compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                           .createInstance(Ci.nsIMsgCompFields);
         let addresses = compFields.splitRecipients(author, true, {});
         if (addresses.length != 1) {
             cal.LOG("No unique email address for lookup in message.\r\n" + cal.STACK(20));
@@ -503,7 +503,7 @@ var calitip = {
                 // identity.
                 let allIdentities = actMgr.allIdentities;
                 if (allIdentities.length > 0) {
-                    identity = allIdentities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+                    identity = allIdentities.queryElementAt(0, Ci.nsIMsgIdentity);
                 } else {
                     // If there are no identities at all, we cannot get a recipient.
                     return null;
@@ -513,7 +513,7 @@ var calitip = {
         } else {
             // Build a map of usable email addresses
             for (let i = 0; i < identities.length; i++) {
-                let identity = identities.queryElementAt(i, Components.interfaces.nsIMsgIdentity);
+                let identity = identities.queryElementAt(i, Ci.nsIMsgIdentity);
                 emailMap[identity.email.toLowerCase()] = true;
             }
         }
@@ -662,17 +662,17 @@ var calitip = {
                 // same ID, this simplifies our searching, we can just look for Item[0].id
                 let itemList = itipItem.getItemList({});
                 if (!itipItem.targetCalendar) {
-                    optionsFunc(itipItem, Components.interfaces.calIErrors.CAL_IS_READONLY);
+                    optionsFunc(itipItem, Ci.calIErrors.CAL_IS_READONLY);
                 } else if (itemList.length > 0) {
                     ItipItemFinderFactory.findItem(itemList[0].id, itipItem, optionsFunc);
                 } else if (optionsFunc) {
-                    optionsFunc(itipItem, Components.results.NS_OK);
+                    optionsFunc(itipItem, Cr.NS_OK);
                 }
                 break;
             }
             default: {
                 if (optionsFunc) {
-                    optionsFunc(itipItem, Components.results.NS_ERROR_NOT_IMPLEMENTED);
+                    optionsFunc(itipItem, Cr.NS_ERROR_NOT_IMPLEMENTED);
                 }
                 break;
             }
@@ -716,11 +716,11 @@ var calitip = {
                 let clonedItem = aItem.clone();
                 let exdates = [];
                 for (let ritem of clonedItem.recurrenceInfo.getRecurrenceItems({})) {
-                    let wrappedRItem = cal.wrapInstance(ritem, Components.interfaces.calIRecurrenceDate);
+                    let wrappedRItem = cal.wrapInstance(ritem, Ci.calIRecurrenceDate);
                     if (ritem.isNegative &&
                         wrappedRItem &&
                         !aOriginalItem.recurrenceInfo.getRecurrenceItems({}).some((recitem) => {
-                            let wrappedR = cal.wrapInstance(recitem, Components.interfaces.calIRecurrenceDate);
+                            let wrappedR = cal.wrapInstance(recitem, Ci.calIRecurrenceDate);
                             return recitem.isNegative &&
                                    wrappedR &&
                                    wrappedR.date.compare(wrappedRItem.date) == 0;
@@ -736,7 +736,7 @@ var calitip = {
                         // xxx todo: support multiple
                         aItem = aOriginalItem.recurrenceInfo.getOccurrenceFor(exdates[0].date);
                         aOriginalItem = null;
-                        aOpType = Components.interfaces.calIOperationListener.DELETE;
+                        aOpType = Ci.calIOperationListener.DELETE;
                     }
                 }
             }
@@ -786,7 +786,7 @@ var calitip = {
             if (aItem.organizer) {
                 let origInvitedAttendee = (aOriginalItem && aOriginalItem.getAttendeeById(invitedAttendee.id));
 
-                if (aOpType == Components.interfaces.calIOperationListener.DELETE) {
+                if (aOpType == Ci.calIOperationListener.DELETE) {
                     // in case the attendee has just deleted the item, we want to send out a DECLINED REPLY:
                     origInvitedAttendee = invitedAttendee;
                     invitedAttendee = invitedAttendee.clone();
@@ -850,14 +850,14 @@ var calitip = {
             aItem.getProperty("STATUS") == "CANCELLED") {
             if (calitip.getSequence(aItem) > 0) {
                 // make sure we send a cancellation and not an request
-                aOpType = Components.interfaces.calIOperationListener.DELETE;
+                aOpType = Ci.calIOperationListener.DELETE;
             } else {
                 // don't send an invitation, if the event was newly created and has status cancelled
                 return;
             }
         }
 
-        if (aOpType == Components.interfaces.calIOperationListener.DELETE) {
+        if (aOpType == Ci.calIOperationListener.DELETE) {
             sendMessage(aItem, "CANCEL", aItem.getAttendees({}), autoResponse);
             return;
         } // else ADD, MODIFY:
@@ -1023,8 +1023,7 @@ var calitip = {
      * @return {calIItipItem}            The copied and modified item
      */
     getModifiedItipItem: function(aItipItem, aItems=[], aProps={}) {
-        let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                                 .createInstance(Components.interfaces.calIItipItem);
+        let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
         let serializedItems = "";
         for (let item of aItems) {
             serializedItems += cal.item.serialize(item);
@@ -1096,7 +1095,7 @@ var calitip = {
      */
     isInvitation: function(aItem) {
         let isInvitation = false;
-        let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
+        let calendar = cal.wrapInstance(aItem.calendar, Ci.calISchedulingSupport);
         if (calendar) {
             isInvitation = calendar.isInvitation(aItem);
         }
@@ -1112,7 +1111,7 @@ var calitip = {
      *                                                or TENTATIVE
      */
     isOpenInvitation: function(aItem) {
-        let wrappedItem = cal.wrapInstance(aItem, Components.interfaces.calIAttendee);
+        let wrappedItem = cal.wrapInstance(aItem, Ci.calIAttendee);
         if (!wrappedItem) {
             aItem = calitip.getInvitedAttendee(aItem);
         }
@@ -1178,7 +1177,7 @@ var calitip = {
             aCalendar = aItem.calendar;
         }
         let invitedAttendee = null;
-        let calendar = cal.wrapInstance(aCalendar, Components.interfaces.calISchedulingSupport);
+        let calendar = cal.wrapInstance(aCalendar, Ci.calISchedulingSupport);
         if (calendar) {
             invitedAttendee = calendar.getInvitedAttendee(aItem);
         }
@@ -1196,8 +1195,8 @@ var calitip = {
     getAttendeesBySender: function(aAttendees, aEmailAddress) {
         let attendees = [];
         // we extract the email address to make it work also for a raw header value
-        let compFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                                   .createInstance(Components.interfaces.nsIMsgCompFields);
+        let compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                           .createInstance(Ci.nsIMsgCompFields);
         let addresses = compFields.splitRecipients(aEmailAddress, true, {});
         if (addresses.length == 1) {
             let searchFor = cal.email.prependMailTo(addresses[0]);
@@ -1220,7 +1219,7 @@ var calitip = {
  * @param {calIItipItem} itipItemItem           The received iTIP item
  */
 function setReceivedInfo(item, itipItemItem) {
-    let wrappedItem = cal.wrapInstance(item, Components.interfaces.calIAttendee);
+    let wrappedItem = cal.wrapInstance(item, Ci.calIAttendee);
     item.setProperty(wrappedItem ? "RECEIVED-SEQUENCE"
                                  : "X-MOZ-RECEIVED-SEQUENCE",
                                  String(calitip.getSequence(itipItemItem)));
@@ -1378,9 +1377,9 @@ function createOrganizer(aCalendar) {
  * @return {Boolean}                        True, if the message could be sent
  */
 function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
-    let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
+    let calendar = cal.wrapInstance(aItem.calendar, Ci.calISchedulingSupport);
     if (calendar) {
-        if (calendar.QueryInterface(Components.interfaces.calISchedulingSupport)
+        if (calendar.QueryInterface(Ci.calISchedulingSupport)
                     .canNotify(aMethod, aItem)) {
             // provider will handle that, so we return - we leave it also to the provider to
             // deal with user canceled notifications (if possible), so set the return value
@@ -1397,11 +1396,10 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     if (!transport) { // can only send if there's a transport for the calendar
         return false;
     }
-    transport = transport.QueryInterface(Components.interfaces.calIItipTransport);
+    transport = transport.QueryInterface(Ci.calIItipTransport);
 
     let _sendItem = function(aSendToList, aSendItem) {
-        let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                                 .createInstance(Ci.calIItipItem);
+        let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
         itipItem.init(cal.item.serialize(aSendItem));
         itipItem.responseMethod = aMethod;
         itipItem.targetCalendar = aSendItem.calendar;
@@ -1628,7 +1626,7 @@ ItipItemFinder.prototype = {
     },
 
     processFoundItems: function() {
-        let rc = Components.results.NS_OK;
+        let rc = Cr.NS_OK;
         const method = this.mItipItem.receivedMethod.toUpperCase();
         let actionMethod = method;
         let operations = [];
@@ -1874,7 +1872,7 @@ ItipItemFinder.prototype = {
                     break;
                 }
                 default:
-                    rc = Components.results.NS_ERROR_NOT_IMPLEMENTED;
+                    rc = Cr.NS_ERROR_NOT_IMPLEMENTED;
                     break;
             }
         } else { // not found:
@@ -1930,7 +1928,7 @@ ItipItemFinder.prototype = {
                     case "COUNTER": // the item has been previously removed form the calendar
                         break;
                     default:
-                        rc = Components.results.NS_ERROR_NOT_IMPLEMENTED;
+                        rc = Cr.NS_ERROR_NOT_IMPLEMENTED;
                         break;
                 }
             }

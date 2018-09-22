@@ -35,7 +35,7 @@ var gAlarmsPane = {
         if (aFileURL) {
             let fph = Services.io
                          .getProtocolHandler("file")
-                         .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+                         .QueryInterface(Ci.nsIFileProtocolHandler);
             return fph.getFileFromURLSpec(aFileURL);
         } else {
             return null;
@@ -72,21 +72,19 @@ var gAlarmsPane = {
      * Opens a filepicker to open a local sound for the alarm.
      */
     browseAlarm: function() {
-        const nsIFilePicker = Components.interfaces.nsIFilePicker;
-        let picker = Components.classes["@mozilla.org/filepicker;1"]
-                               .createInstance(nsIFilePicker);
+        let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
         let bundlePreferences = document.getElementById("bundleCalendarPreferences");
         let title = bundlePreferences.getString("Open");
         let wildmat = "*.wav";
         let label = bundlePreferences.getFormattedString("filterWav", [wildmat], 1);
 
-        picker.init(window, title, nsIFilePicker.modeOpen);
+        picker.init(window, title, Ci.nsIFilePicker.modeOpen);
         picker.appendFilter(label, wildmat);
-        picker.appendFilters(nsIFilePicker.filterAll);
+        picker.appendFilters(Ci.nsIFilePicker.filterAll);
 
         picker.open(rv => {
-            if (rv != nsIFilePicker.returnOK || !picker.file) {
+            if (rv != Ci.nsIFilePicker.returnOK || !picker.file) {
                 return;
             }
             document.getElementById("calendar.alarms.soundURL").value = picker.fileURL.spec;
@@ -100,8 +98,7 @@ var gAlarmsPane = {
      */
     previewAlarm: function() {
         let soundUrl = document.getElementById("alarmSoundFileField").value;
-        let soundIfc = Components.classes["@mozilla.org/sound;1"]
-                                 .createInstance(Components.interfaces.nsISound);
+        let soundIfc = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
         let url;
         try {
             soundIfc.init();

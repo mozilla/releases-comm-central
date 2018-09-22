@@ -11,7 +11,7 @@ var NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
 
 
 function NYI() {
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 }
 
 function ItipChannel(URI) {
@@ -39,7 +39,7 @@ ItipChannel.prototype = {
     },
 
     isPending: function() { return true; },
-    status: Components.results.NS_OK,
+    status: Cr.NS_OK,
     cancel: function(status) { this.status = status; },
     suspend: NYI,
     resume: NYI,
@@ -57,11 +57,10 @@ ItipProtocolHandler.prototype = {
     isSecure: false,
     newURI: function(spec, charSet, baseURI) {
         dump("Creating new URI for " + spec + "\n");
-        return Components.classes["@mozilla.org/network/standard-url-mutator;1"]
-                         .createInstance(Ci.nsIStandardURLMutator)
-                         .init(Ci.nsIStandardURL.URLTYPE_STANDARD, 0,
-                               spec, charSet, baseURI)
-                         .finalize();
+        return Cc["@mozilla.org/network/standard-url-mutator;1"]
+                 .createInstance(Ci.nsIStandardURLMutator)
+                 .init(Ci.nsIStandardURL.URLTYPE_STANDARD, 0, spec, charSet, baseURI)
+                 .finalize();
     },
 
     newChannel: function(URI) {

@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    let ssvc = Components.classes["@mozilla.org/calendar/startup-service;1"]
-                         .getService(Components.interfaces.nsIObserver);
+    let ssvc = Cc["@mozilla.org/calendar/startup-service;1"].getService(Ci.nsIObserver);
 
     let first = {
         startup: function(aListener) {

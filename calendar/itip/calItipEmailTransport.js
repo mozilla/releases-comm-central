@@ -241,13 +241,13 @@ calItipEmailTransport.prototype = {
                 }
                 let toList = toMap.join(", ");
                 let composeUtils = Cc["@mozilla.org/messengercompose/computils;1"]
-                                   .createInstance(Ci.nsIMsgCompUtils);
+                                     .createInstance(Ci.nsIMsgCompUtils);
                 let messageId = composeUtils.msgGenerateMessageId(identity);
                 let mailFile = this._createTempImipFile(toList, aSubject, aBody, aItipItem, identity, messageId);
                 if (mailFile) {
                     // compose fields for message: from/to etc need to be specified both here and in the file
                     let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                                        .createInstance(Ci.nsIMsgCompFields);
+                                          .createInstance(Ci.nsIMsgCompFields);
                     composeFields.characterSet = "UTF-8";
                     composeFields.to = toList;
                     let mailfrom = (identity.fullName.length ? identity.fullName + " <" + identity.email + ">" : identity.email);
@@ -274,8 +274,7 @@ calItipEmailTransport.prototype = {
                     //           "@mozilla.org/messengercompose/composesendlistener;1"
                     //           and/or "chrome://messenger/content/messengercompose/sendProgress.xul"
                     // i.e. bug 432662
-                    let msgSend = Cc["@mozilla.org/messengercompose/send;1"]
-                                  .createInstance(Ci.nsIMsgSend);
+                    let msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(Ci.nsIMsgSend);
                     msgSend.sendMessageFile(identity,
                                             account.key,
                                             composeFields,
@@ -312,7 +311,7 @@ calItipEmailTransport.prototype = {
         try {
             let itemList = aItipItem.getItemList({});
             let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"]
-                             .createInstance(Ci.calIIcsSerializer);
+                               .createInstance(Ci.calIIcsSerializer);
             serializer.addItems(itemList, itemList.length);
             let methodProp = cal.getIcsService().createIcalProperty("METHOD");
             methodProp.value = aItipItem.responseMethod;
@@ -360,7 +359,7 @@ calItipEmailTransport.prototype = {
                                   parseInt("0600", 8));
 
             let outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
-                               .createInstance(Ci.nsIFileOutputStream);
+                                 .createInstance(Ci.nsIFileOutputStream);
             // Let's write the file - constants from file-utils.js
             const MODE_WRONLY = 0x02;
             const MODE_CREATE = 0x08;

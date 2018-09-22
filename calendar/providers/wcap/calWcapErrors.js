@@ -6,7 +6,7 @@
  *          errorToString
  */
 
-var NS_ERROR_INVALID_ARG = Components.results.NS_ERROR_INVALID_ARG;
+var NS_ERROR_INVALID_ARG = Cr.NS_ERROR_INVALID_ARG;
 
 //
 // Common netwerk errors:
@@ -28,7 +28,7 @@ function getResultCode(err) {
         return NS_OK;
     }
     if (isNaN(err)) {
-        return (err instanceof nsIException ? err.result : Components.results.NS_ERROR_FAILURE);
+        return (err instanceof nsIException ? err.result : Cr.NS_ERROR_FAILURE);
     }
     return err;
 }
@@ -339,29 +339,29 @@ function errorToString(err) {
             return "NS_OK";
         case NS_ERROR_INVALID_ARG:
             return "NS_ERROR_INVALID_ARG";
-        case Components.results.NS_ERROR_NO_INTERFACE:
+        case Cr.NS_ERROR_NO_INTERFACE:
             return "NS_ERROR_NO_INTERFACE";
-        case Components.results.NS_ERROR_NOT_IMPLEMENTED:
+        case Cr.NS_ERROR_NOT_IMPLEMENTED:
             return "NS_ERROR_NOT_IMPLEMENTED";
-        case Components.results.NS_ERROR_NOT_AVAILABLE:
+        case Cr.NS_ERROR_NOT_AVAILABLE:
             return "NS_ERROR_NOT_AVAILABLE";
-        case Components.results.NS_ERROR_FAILURE:
+        case Cr.NS_ERROR_FAILURE:
             return "NS_ERROR_FAILURE";
-        case Components.results.NS_ERROR_BASE:
+        case Cr.NS_ERROR_BASE:
             return "NS_ERROR_BASE";
-        case Components.results.NS_ERROR_NOT_INITIALIZED:
+        case Cr.NS_ERROR_NOT_INITIALIZED:
             return "NS_ERROR_NOT_INITIALIZED";
-        case Components.results.NS_ERROR_ALREADY_INITIALIZED:
+        case Cr.NS_ERROR_ALREADY_INITIALIZED:
             return "NS_ERROR_ALREADY_INITIALIZED";
-        case Components.results.NS_ERROR_NULL_POINTER:
+        case Cr.NS_ERROR_NULL_POINTER:
             return "NS_ERROR_NULL_POINTER";
-        case Components.results.NS_ERROR_ABORT:
+        case Cr.NS_ERROR_ABORT:
             return "NS_ERROR_ABORT";
-        case Components.results.NS_ERROR_UNEXPECTED:
+        case Cr.NS_ERROR_UNEXPECTED:
             return "NS_ERROR_UNEXPECTED";
-        case Components.results.NS_ERROR_OUT_OF_MEMORY:
+        case Cr.NS_ERROR_OUT_OF_MEMORY:
             return "NS_ERROR_OUT_OF_MEMORY";
-        case Components.results.NS_ERROR_ILLEGAL_VALUE:
+        case Cr.NS_ERROR_ILLEGAL_VALUE:
             return "NS_ERROR_ILLEGAL_VALUE";
         default:
             // probe for WCAP error:

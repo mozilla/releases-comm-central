@@ -42,7 +42,7 @@
             if (aDayStartHour * 60 < this.mStartMin ||
                 aDayStartHour > aDayEndHour ||
                 aDayEndHour * 60 > this.mEndMin) {
-                throw Components.results.NS_ERROR_INVALID_ARG;
+                throw Cr.NS_ERROR_INVALID_ARG;
             }
             if (this.mDayStartHour != aDayStartHour ||
                 this.mDayEndHour != aDayEndHour) {
@@ -640,8 +640,8 @@
             configBox.removeAttribute("hidden");
             let minSize = configBox.getOptimalMinSize();
             configBox.setAttribute("hidden", "true");
-            this.mMinDuration = Components.classes["@mozilla.org/calendar/duration;1"]
-                                              .createInstance(Components.interfaces.calIDuration);
+            this.mMinDuration = Cc["@mozilla.org/calendar/duration;1"]
+                                  .createInstance(Ci.calIDuration);
             this.mMinDuration.minutes = Math.trunc(minSize / this.mPixPerMin);
 
             let theMin = this.mStartMin;
@@ -1802,7 +1802,7 @@
         <body><![CDATA[
             if (!cal.acl.isCalendarWritable(aOccurrence.calendar) ||
                 !cal.acl.userCanModifyItem(aOccurrence) ||
-                (aOccurrence.calendar instanceof Components.interfaces.calISchedulingSupport && aOccurrence.calendar.isInvitation(aOccurrence)) ||
+                (aOccurrence.calendar instanceof Ci.calISchedulingSupport && aOccurrence.calendar.isInvitation(aOccurrence)) ||
                 aOccurrence.calendar.getProperty("capabilities.events.supported") === false) {
                 return;
             }
@@ -1987,7 +1987,7 @@
         <body><![CDATA[
             if (aDayStartMin < this.mStartMin || aDayStartMin > aDayEndMin ||
                 aDayEndMin > this.mEndMin) {
-                throw Components.results.NS_ERROR_INVALID_ARG;
+                throw Cr.NS_ERROR_INVALID_ARG;
             }
             if (this.mDayStartMin != aDayStartMin || this.mDayEndMin != aDayEndMin) {
                 this.mDayStartMin = aDayStartMin;
@@ -2641,7 +2641,7 @@
         <parameter name="aTopic"/>
         <parameter name="aPreference"/>
         <body><![CDATA[
-            aSubject.QueryInterface(Components.interfaces.nsIPrefBranch);
+            aSubject.QueryInterface(Ci.nsIPrefBranch);
             switch (aPreference) {
                 case "calendar.view.daystarthour":
                     this.setDayStartEndMinutes(aSubject.getIntPref(aPreference) * 60,
@@ -3786,7 +3786,7 @@
             }
             if (aDayStartMin < this.mStartMin || aDayStartMin > aDayEndMin ||
                 aDayEndMin > this.mEndMin) {
-                throw Components.results.NS_ERROR_INVALID_ARG;
+                throw Cr.NS_ERROR_INVALID_ARG;
             }
             if (this.mDayStartMin != aDayStartMin ||
                 this.mDayEndMin != aDayEndMin) {
@@ -3806,7 +3806,7 @@
         <body><![CDATA[
             if (aVisibleMinutes <= 0 ||
                 aVisibleMinutes > (this.mEndMin - this.mStartMin)) {
-                throw Components.results.NS_ERROR_INVALID_ARG;
+                throw Cr.NS_ERROR_INVALID_ARG;
             }
             if (this.mVisibleMinutes != aVisibleMinutes) {
                 this.mVisibleMinutes = aVisibleMinutes;

@@ -24,15 +24,14 @@ function launchBrowser(url, event) {
     // XXX: We likely will want to do this using nsIURLs in the future to
     //      prevent sneaky nasty escaping issues, but this is fine for now.
     if (!url.startsWith("http")) {
-        Components.utils.reportError("launchBrowser: " +
-                                     "Invalid URL provided: " + url +
-                                     " Only http:// and https:// URLs are valid.");
+        Cu.reportError("launchBrowser: Invalid URL provided: " + url +
+                       " Only http:// and https:// URLs are valid.");
         return;
     }
 
-    Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-              .getService(Components.interfaces.nsIExternalProtocolService)
-              .loadURI(Services.io.newURI(url));
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+        .getService(Ci.nsIExternalProtocolService)
+        .loadURI(Services.io.newURI(url));
 
     // Make sure that any default click handlers don't do anything, we have taken
     // care of all processing

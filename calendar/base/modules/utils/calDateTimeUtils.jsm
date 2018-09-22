@@ -119,7 +119,7 @@ var caldtz = {
         } else if (cal.item.isToDo(aItem)) {
             return "entryDate";
         }
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     /**
@@ -132,7 +132,7 @@ var caldtz = {
         } else if (cal.item.isToDo(aItem)) {
             return "dueDate";
         }
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     /**

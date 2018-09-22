@@ -480,8 +480,8 @@ function openAttachment(aAttachmentId) {
     let attachments = item.getAttachments({})
                           .filter(aAttachment => aAttachment.hashId == aAttachmentId);
     if (attachments.length && attachments[0].uri && attachments[0].uri.spec != "about:blank") {
-        let externalLoader = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-                             .getService(Ci.nsIExternalProtocolService);
-        externalLoader.loadURI(attachments[0].uri);
+        Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+          .getService(Ci.nsIExternalProtocolService)
+          .loadURI(attachments[0].uri);
     }
 }

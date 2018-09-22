@@ -20,19 +20,19 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 //
 
 // constants:
-var NS_OK = Components.results.NS_OK;
-var NS_ERROR_UNEXPECTED = Components.results.NS_ERROR_UNEXPECTED;
-var nsIException = Components.interfaces.nsIException;
-var calIWcapSession = Components.interfaces.calIWcapSession;
-var calIWcapCalendar = Components.interfaces.calIWcapCalendar;
-var calIWcapErrors = Components.interfaces.calIWcapErrors;
-var calICalendar = Components.interfaces.calICalendar;
-var calIItemBase = Components.interfaces.calIItemBase;
-var calIOperationListener = Components.interfaces.calIOperationListener;
-var calIFreeBusyProvider = Components.interfaces.calIFreeBusyProvider;
-var calIFreeBusyInterval = Components.interfaces.calIFreeBusyInterval;
-var calICalendarSearchProvider = Components.interfaces.calICalendarSearchProvider;
-var calIErrors = Components.interfaces.calIErrors;
+var NS_OK = Cr.NS_OK;
+var NS_ERROR_UNEXPECTED = Cr.NS_ERROR_UNEXPECTED;
+var nsIException = Ci.nsIException;
+var calIWcapSession = Ci.calIWcapSession;
+var calIWcapCalendar = Ci.calIWcapCalendar;
+var calIWcapErrors = Ci.calIWcapErrors;
+var calICalendar = Ci.calICalendar;
+var calIItemBase = Ci.calIItemBase;
+var calIOperationListener = Ci.calIOperationListener;
+var calIFreeBusyProvider = Ci.calIFreeBusyProvider;
+var calIFreeBusyInterval = Ci.calIFreeBusyInterval;
+var calICalendarSearchProvider = Ci.calICalendarSearchProvider;
+var calIErrors = Ci.calIErrors;
 
 // some string resources:
 var g_privateItemTitle;

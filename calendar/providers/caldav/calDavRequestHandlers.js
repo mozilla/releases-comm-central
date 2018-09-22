@@ -23,8 +23,7 @@ function etagsHandler(aCalendar, aBaseUri, aChangeLogListener) {
     this.calendar = aCalendar;
     this.baseUri = aBaseUri;
     this.changeLogListener = aChangeLogListener;
-    this._reader = Components.classes["@mozilla.org/saxparser/xmlreader;1"]
-                             .createInstance(Components.interfaces.nsISAXXMLReader);
+    this._reader = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(Ci.nsISAXXMLReader);
     this._reader.contentHandler = this;
     this._reader.errorHandler = this;
     this._reader.parseAsync(null);
@@ -56,7 +55,7 @@ etagsHandler.prototype = {
      * @see nsIStreamListener
      */
     onStartRequest: function(request, context) {
-        let httpchannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
         let responseStatus;
         try {
@@ -72,10 +71,9 @@ etagsHandler.prototype = {
             this._reader.onStartRequest(request, context);
         } else {
             cal.LOG("CalDAV: Error fetching item etags");
-            this.calendar.reportDavError(Components.interfaces.calIErrors.DAV_REPORT_ERROR);
+            this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR);
             if (this.calendar.isCached && this.changeLogListener) {
-                this.changeLogListener.onResult({ status: Components.results.NS_ERROR_FAILURE },
-                                                Components.results.NS_ERROR_FAILURE);
+                this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
             }
             this._reader = null;
         }
@@ -144,8 +142,7 @@ etagsHandler.prototype = {
             multiget.doMultiGet();
         } else {
             if (this.calendar.isCached && this.changeLogListener) {
-                this.changeLogListener.onResult({ status: Components.results.NS_OK },
-                                                Components.results.NS_OK);
+                this.changeLogListener.onResult({ status: Cr.NS_OK }, Cr.NS_OK);
             }
 
             if (needsRefresh) {
@@ -281,8 +278,7 @@ function webDavSyncHandler(aCalendar, aBaseUri, aChangeLogListener) {
     this.calendar = aCalendar;
     this.baseUri = aBaseUri;
     this.changeLogListener = aChangeLogListener;
-    this._reader = Components.classes["@mozilla.org/saxparser/xmlreader;1"]
-                             .createInstance(Components.interfaces.nsISAXXMLReader);
+    this._reader = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(Ci.nsISAXXMLReader);
     this._reader.contentHandler = this;
     this._reader.errorHandler = this;
     this._reader.parseAsync(null);
@@ -356,8 +352,7 @@ webDavSyncHandler.prototype = {
         }, () => {
             // Something went wrong with the OAuth token, notify failure
             if (this.calendar.isCached && this.changeLogListener) {
-                this.changeLogListener.onResult({ status: Components.results.NS_ERROR_NOT_AVAILABLE },
-                                                Components.results.NS_ERROR_NOT_AVAILABLE);
+                this.changeLogListener.onResult({ status: Cr.NS_ERROR_NOT_AVAILABLE }, Cr.NS_ERROR_NOT_AVAILABLE);
             }
         }, false);
     },
@@ -366,7 +361,7 @@ webDavSyncHandler.prototype = {
      * @see nsIStreamListener
      */
     onStartRequest: function(request, context) {
-        let httpchannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
         let responseStatus;
         try {
@@ -392,10 +387,9 @@ webDavSyncHandler.prototype = {
             this.calendar.safeRefresh(this.changeLogListener);
         } else {
             cal.WARN("CalDAV: Error doing webdav sync: " + responseStatus);
-            this.calendar.reportDavError(Components.interfaces.calIErrors.DAV_REPORT_ERROR);
+            this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR);
             if (this.calendar.isCached && this.changeLogListener) {
-                this.changeLogListener.onResult({ status: Components.results.NS_ERROR_FAILURE },
-                                                Components.results.NS_ERROR_FAILURE);
+                this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
             }
             this._reader = null;
         }
@@ -453,10 +447,9 @@ webDavSyncHandler.prototype = {
     endDocument: function() {
         if (this.unhandledErrors) {
             this.calendar.superCalendar.endBatch();
-            this.calendar.reportDavError(Components.interfaces.calIErrors.DAV_REPORT_ERROR);
+            this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR);
             if (this.calendar.isCached && this.changeLogListener) {
-                this.changeLogListener.onResult({ status: Components.results.NS_ERROR_FAILURE },
-                                                Components.results.NS_ERROR_FAILURE);
+                this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
             }
             return;
         }
@@ -651,8 +644,7 @@ function multigetSyncHandler(aItemsNeedFetching, aCalendar, aBaseUri, aNewSyncTo
     this.listener = aListener;
     this.newSyncToken = aNewSyncToken;
     this.changeLogListener = aChangeLogListener;
-    this._reader = Components.classes["@mozilla.org/saxparser/xmlreader;1"]
-                             .createInstance(Components.interfaces.nsISAXXMLReader);
+    this._reader = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(Ci.nsISAXXMLReader);
     this._reader.contentHandler = this;
     this._reader.errorHandler = this;
     this._reader.parseAsync(null);
@@ -718,8 +710,7 @@ multigetSyncHandler.prototype = {
         }, () => {
             // Something went wrong with the OAuth token, notify failure
             if (this.calendar.isCached && this.changeLogListener) {
-                this.changeLogListener.onResult({ status: Components.results.NS_ERROR_NOT_AVAILABLE },
-                                                Components.results.NS_ERROR_NOT_AVAILABLE);
+                this.changeLogListener.onResult({ status: Cr.NS_ERROR_NOT_AVAILABLE }, Cr.NS_ERROR_NOT_AVAILABLE);
             }
         }, false);
     },
@@ -728,7 +719,7 @@ multigetSyncHandler.prototype = {
      * @see nsIStreamListener
      */
     onStartRequest: function(request, context) {
-        let httpchannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
         let responseStatus;
         try {
@@ -791,8 +782,7 @@ multigetSyncHandler.prototype = {
         }
         if (this.itemsNeedFetching.length > 0) {
             cal.LOG("CalDAV: Still need to fetch " + this.itemsNeedFetching.length + " elements.");
-            this._reader = Components.classes["@mozilla.org/saxparser/xmlreader;1"]
-                                     .createInstance(Components.interfaces.nsISAXXMLReader);
+            this._reader = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(Ci.nsISAXXMLReader);
             this._reader.contentHandler = this;
             this._reader.errorHandler = this;
             this._reader.parseAsync(null);
@@ -803,12 +793,11 @@ multigetSyncHandler.prototype = {
                     this.requestHandler.doMultiGet();
                 }
             };
-            this.timer = Components.classes["@mozilla.org/timer;1"]
-                                   .createInstance(Components.interfaces.nsITimer);
+            this.timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
             this.timer.initWithCallback(
                 timerCallback,
                 0,
-                Components.interfaces.nsITimer.TYPE_ONE_SHOT
+                Ci.nsITimer.TYPE_ONE_SHOT
             );
         }
     },

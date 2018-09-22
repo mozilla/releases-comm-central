@@ -54,7 +54,7 @@ calRelation.prototype = {
             try {
                 icalatt.setParameter(key, value);
             } catch (e) {
-                if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
                     // Illegal values should be ignored, but we could log them if
                     // the user has enabled logging.
                     cal.LOG("Warning: Invalid relation property value " + key + "=" + value);
@@ -91,7 +91,7 @@ calRelation.prototype = {
     set icalString(val) {
         let prop = cal.getIcsService().createIcalPropertyFromString(val);
         if (prop.propertyName != "RELATED-TO") {
-            throw Components.results.NS_ERROR_ILLEGAL_VALUE;
+            throw Cr.NS_ERROR_ILLEGAL_VALUE;
         }
         this.icalProperty = prop;
         return val;

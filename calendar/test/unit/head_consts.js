@@ -22,7 +22,7 @@ updateAppInfo();
 (function() {
     let manager = Cc["@mozilla.org/component-manager-extra;1"].getService(Ci.nsIComponentManagerExtra);
 
-    let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);
+    let bindir = Services.dirsvc.get("CurProcD", Ci.nsIFile);
     if (!AppConstants.NIGHTLY_BUILD) {
         bindir.append("distribution");
     }
@@ -44,14 +44,13 @@ updateAppInfo();
 
     // Make sure to load the backend loader as early as possible, as xpcshell doesn't have the
     // normal app flow with profile-after-change et al.
-    Components.classes["@mozilla.org/calendar/backend-loader;1"].getService();
+    Cc["@mozilla.org/calendar/backend-loader;1"].getService();
 })();
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTimezone) {
-    let date = Cc["@mozilla.org/calendar/datetime;1"]
-               .createInstance(Ci.calIDateTime);
+    let date = Cc["@mozilla.org/calendar/datetime;1"].createInstance(Ci.calIDateTime);
     date.resetTo(aYear,
                aMonth,
                aDay,
@@ -65,8 +64,7 @@ function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTim
 
 function createEventFromIcalString(icalString) {
     if (/^BEGIN:VCALENDAR/.test(icalString)) {
-        let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                               .createInstance(Components.interfaces.calIIcsParser);
+        let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
         parser.parseString(icalString);
         let items = parser.getItems({});
         cal.ASSERT(items.length == 1);
@@ -79,15 +77,13 @@ function createEventFromIcalString(icalString) {
 }
 
 function createTodoFromIcalString(icalString) {
-    let todo = Cc["@mozilla.org/calendar/todo;1"]
-               .createInstance(Ci.calITodo);
+    let todo = Cc["@mozilla.org/calendar/todo;1"].createInstance(Ci.calITodo);
     todo.icalString = icalString;
     return todo;
 }
 
 function getMemoryCal() {
-    return Cc["@mozilla.org/calendar/calendar;1?type=memory"]
-             .createInstance(Ci.calISyncWriteCalendar);
+    return Cc["@mozilla.org/calendar/calendar;1?type=memory"].createInstance(Ci.calISyncWriteCalendar);
 }
 
 function getStorageCal() {
@@ -101,13 +97,10 @@ function getStorageCal() {
     let uri = Services.io.newFileURI(db);
 
     // Make sure timezone service is initialized
-    Components.classes["@mozilla.org/calendar/timezone-service;1"]
-              .getService(Components.interfaces.calIStartupService)
-              .startup(null);
+    Cc["@mozilla.org/calendar/timezone-service;1"].getService(Ci.calIStartupService).startup(null);
 
     // create storage calendar
-    let stor = Cc["@mozilla.org/calendar/calendar;1?type=storage"]
-              .createInstance(Ci.calISyncWriteCalendar);
+    let stor = Cc["@mozilla.org/calendar/calendar;1?type=storage"].createInstance(Ci.calISyncWriteCalendar);
     stor.uri = uri;
     stor.id = cal.getUUID();
     return stor;
@@ -292,8 +285,7 @@ function do_calendar_startup(callback) {
         }
     };
 
-    let startupService = Components.classes["@mozilla.org/calendar/startup-service;1"]
-                                   .getService(Components.interfaces.nsISupports).wrappedJSObject;
+    let startupService = Cc["@mozilla.org/calendar/startup-service;1"].getService(Ci.nsISupports).wrappedJSObject;
 
     if (startupService.started) {
         callback();

@@ -37,7 +37,7 @@ add_test(function test_registration() {
 
     // Register an observer to test it.
     let registered = false, unregistered = false, deleted = false, readOnly = false;
-    let mgrobs = cal.createAdapter(Components.interfaces.calICalendarManagerObserver, {
+    let mgrobs = cal.createAdapter(Ci.calICalendarManagerObserver, {
         onCalendarRegistered: function(aCalendar) {
             if (aCalendar.id == memory.id) {
                 registered = true;
@@ -54,7 +54,7 @@ add_test(function test_registration() {
             }
         }
     });
-    let calobs = cal.createAdapter(Components.interfaces.calIObserver, {
+    let calobs = cal.createAdapter(Ci.calIObserver, {
         onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
             equal(aCalendar.id, memory.id);
             equal(aName, "readOnly");
@@ -132,12 +132,12 @@ add_test(function test_calobserver() {
     let calcounter, allcounter;
 
     // These observers will end up counting calls which we will use later on
-    let calobs = cal.createAdapter(Components.interfaces.calIObserver, {
+    let calobs = cal.createAdapter(Ci.calIObserver, {
         onAddItem: () => calcounter.addItem++,
         onModifyItem: () => calcounter.modifyItem++,
         onDeleteItem: () => calcounter.deleteItem++
     });
-    let allobs = cal.createAdapter(Components.interfaces.calIObserver, {
+    let allobs = cal.createAdapter(Ci.calIObserver, {
         onAddItem: () => allcounter.addItem++,
         onModifyItem: () => allcounter.modifyItem++,
         onDeleteItem: () => allcounter.deleteItem++
@@ -223,7 +223,6 @@ add_test(function test_removeModes() {
 
     // For better readability
     const SHOULD_DELETE = true, SHOULD_NOT_DELETE = false;
-    const cICM = Components.interfaces.calICalendarManager;
 
     let calmgr = cal.getCalendarManager();
     let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
@@ -236,7 +235,7 @@ add_test(function test_removeModes() {
     checkCounts([], SHOULD_NOT_DELETE, 1);
     checkCounts(["unsubscribe"], SHOULD_NOT_DELETE, 0);
     checkCounts(["unsubscribe", "delete"], SHOULD_DELETE, 0);
-    checkCounts(["unsubscribe", "delete"], SHOULD_NOT_DELETE, 0, cICM.REMOVE_NO_DELETE);
+    checkCounts(["unsubscribe", "delete"], SHOULD_NOT_DELETE, 0, Ci.calICalendarManager.REMOVE_NO_DELETE);
     checkCounts(["delete"], SHOULD_DELETE, 0);
 
     run_next_test();

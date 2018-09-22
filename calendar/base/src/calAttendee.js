@@ -18,7 +18,7 @@ calAttendee.prototype = {
 
     modify: function() {
         if (this.mImmutable) {
-            throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
+            throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
     },
 
@@ -95,7 +95,7 @@ calAttendee.prototype = {
         }
 
         if (!this.id) {
-            throw Components.results.NS_ERROR_NOT_INITIALIZED;
+            throw Cr.NS_ERROR_NOT_INITIALIZED;
         }
         icalatt.valueAsIcalString = this.id;
         for (let i = 0; i < this.icalAttendeePropMap.length; i++) {
@@ -104,7 +104,7 @@ calAttendee.prototype = {
                 try {
                     icalatt.setParameter(prop.ics, this[prop.cal]);
                 } catch (e) {
-                    if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                    if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
                         // Illegal values should be ignored, but we could log them if
                         // the user has enabled logging.
                         cal.LOG("Warning: Invalid attendee parameter value " + prop.ics + "=" + this[prop.cal]);
@@ -118,7 +118,7 @@ calAttendee.prototype = {
             try {
                 icalatt.setParameter(key, value);
             } catch (e) {
-                if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
                     // Illegal values should be ignored, but we could log them if
                     // the user has enabled logging.
                     cal.LOG("Warning: Invalid attendee parameter value " + key + "=" + value);
@@ -137,7 +137,7 @@ calAttendee.prototype = {
     set icalString(val) {
         let prop = cal.getIcsService().createIcalPropertyFromString(val);
         if (prop.propertyName != "ORGANIZER" && prop.propertyName != "ATTENDEE") {
-            throw Components.results.NS_ERROR_ILLEGAL_VALUE;
+            throw Cr.NS_ERROR_ILLEGAL_VALUE;
         }
         this.icalProperty = prop;
         return val;

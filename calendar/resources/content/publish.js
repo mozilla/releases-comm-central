@@ -111,7 +111,7 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
     };
     aProgressDialog.onStartUpload();
     let oldCalendar = CalendarPublishObject.calendar;
-    oldCalendar.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS,
+    oldCalendar.getItems(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
                          0, null, null, getListener);
 }
 
@@ -126,8 +126,8 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
                                                  null,
                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                  null,
-                                                 Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                 Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                 Ci.nsIContentPolicy.TYPE_OTHER);
     if (icsURL.schemeIs("webcal")) {
         icsURL.scheme = "http";
     }
@@ -138,29 +138,27 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     switch (icsURL.scheme) {
         case "http":
         case "https":
-            channel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
+            channel = channel.QueryInterface(Ci.nsIHttpChannel);
             break;
         case "ftp":
-            channel = channel.QueryInterface(Components.interfaces.nsIFTPChannel);
+            channel = channel.QueryInterface(Ci.nsIFTPChannel);
             break;
         case "file":
-            channel = channel.QueryInterface(Components.interfaces.nsIFileChannel);
+            channel = channel.QueryInterface(Ci.nsIFileChannel);
             break;
         default:
             dump("No such scheme\n");
             return;
     }
 
-    let uploadChannel = channel.QueryInterface(Components.interfaces.nsIUploadChannel);
+    let uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
     uploadChannel.notificationCallbacks = notificationCallbacks;
 
-    storageStream = Components.classes["@mozilla.org/storagestream;1"]
-                                  .createInstance(Components.interfaces.nsIStorageStream);
+    storageStream = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
     storageStream.init(32768, 0xffffffff, null);
     outputStream = storageStream.getOutputStream(0);
 
-    let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
-                               .createInstance(Components.interfaces.calIIcsSerializer);
+    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(Ci.calIIcsSerializer);
     serializer.addItems(aItemArray, aItemArray.length);
     // Outlook requires METHOD:PUBLISH property:
     let methodProp = cal.getIcsService().createIcalProperty("METHOD");
@@ -185,12 +183,12 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
 var notificationCallbacks = {
     // nsIInterfaceRequestor interface
     getInterface: function(iid, instance) {
-        if (iid.equals(Components.interfaces.nsIAuthPrompt)) {
+        if (iid.equals(Ci.nsIAuthPrompt)) {
             // use the window watcher service to get a nsIAuthPrompt impl
             return Services.ww.getNewAuthPrompter(null);
         }
 
-        throw Components.results.NS_ERROR_NO_INTERFACE;
+        throw Cr.NS_ERROR_NO_INTERFACE;
     }
 };
 
@@ -207,7 +205,7 @@ var publishingListener = {
         let channel;
         let requestSucceeded;
         try {
-            channel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
+            channel = request.QueryInterface(Ci.nsIHttpChannel);
             requestSucceeded = channel.requestSucceeded;
         } catch (e) {
             // Don't fail if it is not a http channel, will be handled below

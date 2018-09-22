@@ -59,8 +59,7 @@ function serializeEvent_test() {
     }
 
     // serialize the event again and check whether the attendees still are in shape
-    let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
-                               .createInstance(Components.interfaces.calIIcsSerializer);
+    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(Ci.calIIcsSerializer);
     serializer.addItems([event], [event].length);
     let serialized = ics_unfoldline(serializer.serializeToString());
     for (let id of expectedIds) {

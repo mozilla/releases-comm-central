@@ -142,10 +142,8 @@ Extractor.prototype = {
                 }
             }
         } else {
-            let spellclass = "@mozilla.org/spellchecker/engine;1";
-            let mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
-            let spellchecker = Components.classes[spellclass]
-                                         .getService(mozISpellCheckingEngine);
+            let spellchecker = Cc["@mozilla.org/spellchecker/engine;1"]
+                                 .getService(Ci.mozISpellCheckingEngine);
 
             let arr = {};
             let cnt = {};
@@ -989,8 +987,7 @@ Extractor.prototype = {
             for (let idx = vals.length - 1; idx >= 0; idx--) {
                 if (vals[idx].trim() == "") {
                     vals.splice(idx, 1);
-                    Components.utils.reportError("[calExtract] Faulty extraction pattern " +
-                                                 value + " for " + name);
+                    Cu.reportError("[calExtract] Faulty extraction pattern " + value + " for " + name);
                 }
             }
 
@@ -1042,8 +1039,7 @@ Extractor.prototype = {
             for (let idx = vals.length - 1; idx >= 0; idx--) {
                 if (vals[idx].trim() == "") {
                     vals.splice(idx, 1);
-                    Components.utils.reportError("[calExtract] Faulty extraction pattern " +
-                                                 value + " for " + name);
+                    Cu.reportError("[calExtract] Faulty extraction pattern " + value + " for " + name);
                 }
             }
 
@@ -1107,8 +1103,7 @@ Extractor.prototype = {
         // correctness checking
         for (i = 1; i <= count; i++) {
             if (positions[i] === undefined) {
-                Components.utils.reportError("[calExtract] Faulty extraction pattern " + name +
-                                             ", missing parameter #" + i);
+                Cu.reportError("[calExtract] Faulty extraction pattern " + name + ", missing parameter #" + i);
             }
         }
         return positions;

@@ -7,12 +7,10 @@ function run_test() {
 }
 
 function check_delmgr_call(aFunc) {
-    const mISSC = Components.interfaces.mozIStorageStatementCallback;
-    let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
-                           .getService(Components.interfaces.calIDeletedItems);
+    let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
     return new Promise((resolve, reject) => {
         delmgr.wrappedJSObject.completedNotifier.handleCompletion = (aReason) => {
-            if (aReason == mISSC.REASON_FINISHED) {
+            if (aReason == Ci.mozIStorageStatementCallback.REASON_FINISHED) {
                 resolve();
             } else {
                 reject(aReason);
@@ -24,8 +22,7 @@ function check_delmgr_call(aFunc) {
 
 add_task(async function test_deleted_items() {
     let calmgr = cal.getCalendarManager();
-    let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
-                           .getService(Components.interfaces.calIDeletedItems);
+    let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
     // No items have been deleted, retrieving one should return null.
     equal(delmgr.getDeletedDate("random"), null);
     equal(delmgr.getDeletedDate("random", "random"), null);

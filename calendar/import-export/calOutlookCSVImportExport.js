@@ -115,8 +115,8 @@ calOutlookCSVImporter.prototype = {
      *   If the parse is cancelled, a zero length array is returned.
      */
     importFromStream: function(aStream, aCount) {
-        let scriptableInputStream = Components.classes["@mozilla.org/scriptableinputstream;1"]
-                                              .createInstance(Components.interfaces.nsIScriptableInputStream);
+        let scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"]
+                                      .createInstance(Ci.nsIScriptableInputStream);
         scriptableInputStream.init(aStream);
         let str = scriptableInputStream.read(-1);
 
@@ -468,8 +468,8 @@ calOutlookCSVExporter.prototype = {
             line = line.map(value => `"${String(value).replace(/"/g, '""')}"`);
             str = line.join(",") + exportLineEnding;
 
-            let converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                      .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+            let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                              .createInstance(Ci.nsIScriptableUnicodeConverter);
             converter.charset = "UTF-8";
             str = converter.ConvertFromUnicode(str);
 

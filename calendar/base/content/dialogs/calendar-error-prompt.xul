@@ -24,7 +24,7 @@
 
     <script type="application/javascript"><![CDATA[
         function loadErrorPrompt() {
-            var args = window.arguments[0].QueryInterface(Components.interfaces.nsIDialogParamBlock);
+            var args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
             document.getElementById("general-text").value = args.GetString(0);
             document.getElementById("error-code").value = args.GetString(1);
             document.getElementById("error-description").value = args.GetString(2);

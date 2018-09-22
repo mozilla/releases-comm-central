@@ -9,7 +9,7 @@ function run_test() {
 }
 
 function test_listener_set() {
-    let set = new cal.data.ListenerSet(Components.interfaces.calIOperationListener);
+    let set = new cal.data.ListenerSet(Ci.calIOperationListener);
     let listener1Id = null;
     let listener2Id = null;
 
@@ -55,7 +55,7 @@ function test_listener_set() {
 }
 
 function test_observer_set() {
-    let set = new cal.data.ObserverSet(Components.interfaces.calIObserver);
+    let set = new cal.data.ObserverSet(Ci.calIObserver);
     let listenerCountBegin1 = 0;
     let listenerCountBegin2 = 0;
     let listenerCountEnd1 = 0;
@@ -116,7 +116,7 @@ function test_operation_group() {
     let group = new cal.data.OperationGroup();
     ok(group.id.endsWith("-0"));
     ok(group.isPending);
-    equal(group.status, Components.results.NS_OK);
+    equal(group.status, Cr.NS_OK);
     ok(group.isEmpty);
 
     let operation = {
@@ -130,9 +130,9 @@ function test_operation_group() {
     group.add(operation);
     ok(!group.isEmpty);
 
-    group.notifyCompleted(Components.results.NS_ERROR_FAILURE);
+    group.notifyCompleted(Cr.NS_ERROR_FAILURE);
     ok(!group.isPending);
-    equal(group.status, Components.results.NS_ERROR_FAILURE);
+    equal(group.status, Cr.NS_ERROR_FAILURE);
     strictEqual(calledOperationCancel, null);
 
     group.remove(operation);
@@ -145,7 +145,7 @@ function test_operation_group() {
     group.add(operation);
 
     group.cancel();
-    equal(group.status, Components.interfaces.calIErrors.OPERATION_CANCELLED);
-    equal(calledOperationCancel, Components.interfaces.calIErrors.OPERATION_CANCELLED);
+    equal(group.status, Ci.calIErrors.OPERATION_CANCELLED);
+    equal(calledOperationCancel, Ci.calIErrors.OPERATION_CANCELLED);
     ok(calledCancel);
 }

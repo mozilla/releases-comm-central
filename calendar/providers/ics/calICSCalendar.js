@@ -17,8 +17,8 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
 //
 // XXX Should do locks, so that external changes are not overwritten.
 
-var calICalendar = Components.interfaces.calICalendar;
-var calIErrors = Components.interfaces.calIErrors;
+var calICalendar = Ci.calICalendar;
+var calIErrors = Ci.calIErrors;
 
 function icsNSResolver(prefix) {
     const ns = { D: "DAV:" }; // eslint-disable-line id-length
@@ -40,13 +40,13 @@ function calICSCalendar() {
 }
 var calICSCalendarClassID = Components.ID("{f8438bff-a3c9-4ed5-b23f-2663b5469abf}");
 var calICSCalendarInterfaces = [
-    Components.interfaces.calICalendarProvider,
-    Components.interfaces.calICalendar,
-    Components.interfaces.calISchedulingSupport,
-    Components.interfaces.nsIStreamListener,
-    Components.interfaces.nsIStreamLoaderObserver,
-    Components.interfaces.nsIChannelEventSink,
-    Components.interfaces.nsIInterfaceRequestor,
+    Ci.calICalendarProvider,
+    Ci.calICalendar,
+    Ci.calISchedulingSupport,
+    Ci.nsIStreamListener,
+    Ci.nsIStreamLoaderObserver,
+    Ci.nsIChannelEventSink,
+    Ci.nsIInterfaceRequestor,
 ];
 calICSCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
@@ -63,8 +63,8 @@ calICSCalendar.prototype = {
     locked: false,
 
     initICSCalendar: function() {
-        this.mMemoryCalendar = Components.classes["@mozilla.org/calendar/calendar;1?type=memory"]
-                                         .createInstance(Components.interfaces.calICalendar);
+        this.mMemoryCalendar = Cc["@mozilla.org/calendar/calendar;1?type=memory"]
+                                 .createInstance(Ci.calICalendar);
 
         this.mMemoryCalendar.superCalendar = this;
         this.mObserver = new calICSObserver(this);
@@ -110,10 +110,10 @@ calICSCalendar.prototype = {
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-        let wHttpChannel = cal.wrapInstance(channel, Components.interfaces.nsIHttpChannel);
-        let wFileChannel = cal.wrapInstance(channel, Components.interfaces.nsIFileChannel);
+                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                     Ci.nsIContentPolicy.TYPE_OTHER);
+        let wHttpChannel = cal.wrapInstance(channel, Ci.nsIHttpChannel);
+        let wFileChannel = cal.wrapInstance(channel, Ci.nsIFileChannel);
 
         if (wHttpChannel) {
             this.mHooks = new httpHooks(this);
@@ -143,7 +143,7 @@ calICSCalendar.prototype = {
     },
 
     prepareChannel: function(aChannel, aForceRefresh) {
-        aChannel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
+        aChannel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
         aChannel.notificationCallbacks = this;
 
         // Allow the hook to do its work, like a performing a quick check to
@@ -157,27 +157,27 @@ calICSCalendar.prototype = {
         if (this.mMemoryCalendar) {
             this.mMemoryCalendar.removeObserver(this.mObserver);
         }
-        this.mMemoryCalendar = Components.classes["@mozilla.org/calendar/calendar;1?type=memory"]
-                                         .createInstance(Components.interfaces.calICalendar);
+        this.mMemoryCalendar = Cc["@mozilla.org/calendar/calendar;1?type=memory"]
+                                 .createInstance(Ci.calICalendar);
         this.mMemoryCalendar.uri = this.mUri;
         this.mMemoryCalendar.superCalendar = this;
     },
 
     doRefresh: function(aForce) {
-        let prbForce = Components.classes["@mozilla.org/supports-PRBool;1"]
-                                 .createInstance(Components.interfaces.nsISupportsPRBool);
+        let prbForce = Cc["@mozilla.org/supports-PRBool;1"]
+                         .createInstance(Ci.nsISupportsPRBool);
         prbForce.data = aForce;
 
         let channel = Services.io.newChannelFromURI2(this.mUri,
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                     Ci.nsIContentPolicy.TYPE_OTHER);
         this.prepareChannel(channel, aForce);
 
-        let streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"]
-                                     .createInstance(Components.interfaces.nsIStreamLoader);
+        let streamLoader = Cc["@mozilla.org/network/stream-loader;1"]
+                             .createInstance(Ci.nsIStreamLoader);
 
         // Lock other changes to the item list.
         this.lock();
@@ -195,14 +195,14 @@ calICSCalendar.prototype = {
     // nsIChannelEventSink implementation
     asyncOnChannelRedirect: function(aOldChannel, aNewChannel, aFlags, aCallback) {
         this.prepareChannel(aNewChannel, true);
-        aCallback.onRedirectVerifyCallback(Components.results.NS_OK);
+        aCallback.onRedirectVerifyCallback(Cr.NS_OK);
     },
 
     // nsIStreamLoaderObserver impl
     // Listener for download. Parse the downloaded file
 
     onStreamComplete: function(loader, ctxt, status, resultLength, result) {
-        let forceRefresh = ctxt.QueryInterface(Components.interfaces.nsISupportsPRBool).data;
+        let forceRefresh = ctxt.QueryInterface(Ci.nsISupportsPRBool).data;
         let cont = false;
 
         if (Components.isSuccessCode(status)) {
@@ -253,8 +253,8 @@ calICSCalendar.prototype = {
         // Wrap parsing in a try block. Will ignore errors. That's a good thing
         // for non-existing or empty files, but not good for invalid files.
         // That's why we put them in readOnly mode
-        let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                               .createInstance(Components.interfaces.calIIcsParser);
+        let parser = Cc["@mozilla.org/calendar/ics-parser;1"]
+                       .createInstance(Ci.calIIcsParser);
         let self = this;
         let listener = { // calIIcsParsingListener
             onParsingComplete: function(rc, parser_) {
@@ -289,7 +289,7 @@ calICSCalendar.prototype = {
         this.lock();
         try {
             if (!this.mUri) {
-                throw Components.results.NS_ERROR_FAILURE;
+                throw Cr.NS_ERROR_FAILURE;
             }
             // makeBackup will call doWriteICS
             this.makeBackup(this.doWriteICS);
@@ -315,16 +315,15 @@ calICSCalendar.prototype = {
                                                                  null,
                                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                                  null,
-                                                                 Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                                 Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+                                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                                 Ci.nsIContentPolicy.TYPE_OTHER);
 
                     // Allow the hook to add things to the channel, like a
                     // header that checks etags
                     let notChanged = self.mHooks.onBeforePut(channel);
                     if (notChanged) {
                         channel.notificationCallbacks = self;
-                        let uploadChannel = channel.QueryInterface(
-                            Components.interfaces.nsIUploadChannel);
+                        let uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
 
                         // Serialize
                         let icsStream = this.serializer.serializeToInputStream();
@@ -361,8 +360,8 @@ calICSCalendar.prototype = {
                 this.serializer.addItems(aItems, aCount);
             }
         };
-        listener.serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
-                                        .createInstance(Components.interfaces.calIIcsSerializer);
+        listener.serializer = Cc["@mozilla.org/calendar/ics-serializer;1"]
+                                .createInstance(Ci.calIIcsSerializer);
         for (let comp of this.unmappedComponents) {
             listener.serializer.addComponent(comp);
         }
@@ -395,9 +394,8 @@ calICSCalendar.prototype = {
     onDataAvailable: function(request, ctxt, inStream, sourceOffset, count) {
         // All data must be consumed. For an upload channel, there is
         // no meaningfull data. So it gets read and then ignored
-        let scriptableInputStream =
-            Components.classes["@mozilla.org/scriptableinputstream;1"]
-                      .createInstance(Components.interfaces.nsIScriptableInputStream);
+        let scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"]
+                                      .createInstance(Ci.nsIScriptableInputStream);
         scriptableInputStream.init(inStream);
         scriptableInputStream.read(-1);
     },
@@ -406,7 +404,7 @@ calICSCalendar.prototype = {
         let httpChannel;
         let requestSucceeded = false;
         try {
-            httpChannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
+            httpChannel = request.QueryInterface(Ci.nsIHttpChannel);
             requestSucceeded = httpChannel.requestSucceeded;
         } catch (e) {
             // This may fail if it was not a http channel, handled later on.
@@ -780,13 +778,13 @@ calICSCalendar.prototype = {
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-        channel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
+                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                     Ci.nsIContentPolicy.TYPE_OTHER);
+        channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
         channel.notificationCallbacks = this;
 
-        let downloader = Components.classes["@mozilla.org/network/downloader;1"]
-                                   .createInstance(Ci.nsIDownloader);
+        let downloader = Cc["@mozilla.org/network/downloader;1"]
+                           .createInstance(Ci.nsIDownloader);
 
         let self = this;
         let listener = {
@@ -905,7 +903,7 @@ function httpHooks(calendar) {
 
 httpHooks.prototype = {
     onBeforeGet: function(aChannel, aForceRefresh) {
-        let httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
         httpchannel.setRequestHeader("Accept", "text/calendar,text/plain;q=0.8,*/*;q=0.5", false);
 
         if (this.mEtag && !aForceRefresh) {
@@ -921,7 +919,7 @@ httpHooks.prototype = {
     },
 
     onAfterGet: function(aChannel, aForceRefresh) {
-        let httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
         let responseStatus = 0;
         let responseStatusCategory = 0;
 
@@ -975,7 +973,7 @@ httpHooks.prototype = {
 
     onBeforePut: function(aChannel) {
         if (this.mEtag) {
-            let httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+            let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
 
             // Apache doesn't work correctly with if-match on a PUT method,
             // so use the webdav header
@@ -985,7 +983,7 @@ httpHooks.prototype = {
     },
 
     onAfterPut: function(aChannel, aRespFunc) {
-        let httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
         try {
             this.mEtag = httpchannel.getResponseHeader("ETag");
             aRespFunc();
@@ -1023,9 +1021,8 @@ httpHooks.prototype = {
                                                            this);
             etagChannel.setRequestHeader("Depth", "0", false);
             etagChannel.requestMethod = "PROPFIND";
-            let streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"]
-                                         .createInstance(Components.interfaces
-                                         .nsIStreamLoader);
+            let streamLoader = Cc["@mozilla.org/network/stream-loader;1"]
+                                 .createInstance(Ci.nsIStreamLoader);
 
             cal.provider.sendHttpRequest(streamLoader, etagChannel, etagListener);
         }
@@ -1037,10 +1034,10 @@ httpHooks.prototype = {
     onStatus: function(aRequest, aContext, aStatus, aStatusArg) {},
 
     getInterface: function(aIid) {
-        if (aIid.equals(Components.interfaces.nsIProgressEventSink)) {
+        if (aIid.equals(Ci.nsIProgressEventSink)) {
             return this;
         } else {
-            throw Components.results.NS_ERROR_NO_INTERFACE;
+            throw Cr.NS_ERROR_NO_INTERFACE;
         }
     }
 };
@@ -1061,7 +1058,7 @@ fileHooks.prototype = {
      *     other cases
      */
     onAfterGet: function(aChannel, aForceRefresh) {
-        let filechannel = aChannel.QueryInterface(Components.interfaces.nsIFileChannel);
+        let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
         if (this.mtime) {
             let newMtime = filechannel.file.lastModifiedTime;
             if (this.mtime == newMtime && !aForceRefresh) {
@@ -1077,7 +1074,7 @@ fileHooks.prototype = {
     },
 
     onBeforePut: function(aChannel) {
-        let filechannel = aChannel.QueryInterface(Components.interfaces.nsIFileChannel);
+        let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
         if (this.mtime && this.mtime != filechannel.file.lastModifiedTime) {
             return false;
         } else {
@@ -1086,7 +1083,7 @@ fileHooks.prototype = {
     },
 
     onAfterPut: function(aChannel, aRespFunc) {
-        let filechannel = aChannel.QueryInterface(Components.interfaces.nsIFileChannel);
+        let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
         this.mtime = filechannel.file.lastModifiedTime;
         aRespFunc();
         return true;

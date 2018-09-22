@@ -364,7 +364,7 @@
               return;
           }
           let item = this.occurrence;
-          let isInvitation = item.calendar instanceof Components.interfaces.calISchedulingSupport && item.calendar.isInvitation(item);
+          let isInvitation = item.calendar instanceof Ci.calISchedulingSupport && item.calendar.isInvitation(item);
           if (!cal.acl.isCalendarWritable(item.calendar) || !cal.acl.userCanModifyItem(item) || isInvitation) {
               return;
           }

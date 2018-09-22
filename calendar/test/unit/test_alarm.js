@@ -89,7 +89,7 @@ function test_email_alarm() {
     equal(alarm.summary, "summary");
 
     // Set an offset of some sort
-    alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_START;
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
     alarm.offset = cal.createDuration();
 
     // Check for at least one attendee
@@ -138,7 +138,7 @@ function test_email_alarm() {
 function test_audio_alarm() {
     dump("Testing AUDIO alarms...");
     let alarm = cal.createAlarm();
-    alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
     alarm.alarmDate = cal.createDateTime();
     // Set ACTION to AUDIO, make sure this was not rejected
     alarm.action = "AUDIO";
@@ -310,7 +310,7 @@ function test_repeat() {
 
     // Check repeatDate
     alarm = cal.createAlarm();
-    alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
     alarm.alarmDate = cal.createDateTime();
     alarm.repeat = 1;
     alarm.repeatOffset = cal.createDuration();
@@ -434,7 +434,7 @@ function test_immutable() {
         try {
             alarm[prop] = propMap[prop];
         } catch (e) {
-            equal(e.result, Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE);
+            equal(e.result, Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
             continue;
         }
         do_throw("Attribute " + prop + " was writable while item was immutable");
@@ -600,16 +600,16 @@ function test_strings() {
     // the string itself.
     let alarm = cal.createAlarm();
     alarm.action = "DISPLAY";
-    alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
     alarm.alarmDate = cal.createDateTime();
     alarm.toString();
 
-    alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_START;
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
     alarm.offset = cal.createDuration();
     alarm.toString();
     alarm.toString(cal.createTodo());
 
-    alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_END;
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
     alarm.offset = cal.createDuration();
     alarm.toString();
     alarm.toString(cal.createTodo());

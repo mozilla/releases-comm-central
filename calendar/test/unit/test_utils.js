@@ -120,7 +120,7 @@ function test_OperationGroup() {
 
     ok(group.isEmpty);
     ok(group.id.endsWith("-0"));
-    equal(group.status, Components.results.NS_OK);
+    equal(group.status, Cr.NS_OK);
     equal(group.isPending, true);
 
     let completedOp = { isPending: false };
@@ -152,7 +152,7 @@ function test_OperationGroup() {
 
     group.cancel();
 
-    equal(group.status, Components.interfaces.calIErrors.OPERATION_CANCELLED);
+    equal(group.status, Ci.calIErrors.OPERATION_CANCELLED);
     ok(!group.isPending);
     ok(cancelCalled);
     ok(pendingOp2.cancelCalled);

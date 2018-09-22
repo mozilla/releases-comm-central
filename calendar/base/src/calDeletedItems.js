@@ -25,9 +25,9 @@ function calDeletedItems() {
 
 var calDeletedItemsClassID = Components.ID("{8e6799af-e7e9-4e6c-9a82-a2413e86d8c3}");
 var calDeletedItemsInterfaces = [
-    Components.interfaces.calIDeletedItems,
-    Components.interfaces.nsIObserver,
-    Components.interfaces.calIObserver
+    Ci.calIDeletedItems,
+    Ci.nsIObserver,
+    Ci.calIObserver
 ];
 calDeletedItems.prototype = {
 
@@ -38,7 +38,7 @@ calDeletedItems.prototype = {
         contractID: "@mozilla.org/calendar/deleted-items-manager;1",
         classDescription: "Database containing information about deleted items",
         interfaces: calDeletedItemsInterfaces,
-        flags: Components.interfaces.nsIClassInfo.SINGLETON
+        flags: Ci.nsIClassInfo.SINGLETON
     }),
 
     DB_SCHEMA_VERSION: 1,

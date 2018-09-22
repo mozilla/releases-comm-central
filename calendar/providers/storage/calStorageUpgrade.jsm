@@ -192,7 +192,7 @@ function backupDB(db, currentVersion) {
         let backupPath = cal.provider.getCalendarDirectory();
         backupPath.append("backup");
         if (!backupPath.exists()) {
-            backupPath.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
+            backupPath.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
         }
 
         // Create a backup file and notify the user via WARN, since LOG will not
@@ -222,7 +222,7 @@ function upgradeDB(db) {
                     " to v" + DB_SCHEMA_VERSION);
             upgrade["v" + DB_SCHEMA_VERSION](db, version);
         } else if (version > DB_SCHEMA_VERSION) {
-            throw Components.interfaces.calIErrors.STORAGE_UNKNOWN_SCHEMA_ERROR;
+            throw Ci.calIErrors.STORAGE_UNKNOWN_SCHEMA_ERROR;
         }
     } else {
         cal.LOG("Storage: Creating tables from scratch");
@@ -613,7 +613,7 @@ function migrateToIcalString(tblData, tblName, userFuncName, oldColumns, db) {
  * @return              An array with the arguments as js values.
  */
 function mapStorageArgs(storArgs) {
-    const mISVA = Components.interfaces.mozIStorageValueArray;
+    const mISVA = Ci.mozIStorageValueArray;
     let mappedArgs = [];
     for (let i = 0; i < storArgs.numEntries; i++) {
         switch (storArgs.getTypeOfIndex(i)) {
@@ -1121,7 +1121,7 @@ upgrade.v16 = function(db, version) {
                         alarm.offset = cal.createDuration();
                         alarm.offset.inSeconds = aOffset;
                     } else if (aAlarmTime) {
-                        alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
+                        alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
                         let alarmDate = cal.createDateTime();
                         alarmDate.nativeTime = aAlarmTime;
                         if (aTzId == "floating") {
@@ -1551,8 +1551,8 @@ upgrade.v22 = function(db, version) {
 
                     let ritem;
                     if (aType == "x-date") {
-                        ritem = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
-                                          .createInstance(Components.interfaces.calIRecurrenceDate);
+                        ritem = Cc["@mozilla.org/calendar/recurrence-date;1"]
+                                  .createInstance(Ci.calIRecurrenceDate);
                         ritem.date = textToDate(aDates);
                         ritem.isNegative = !!aIsNegative;
                     } else {

@@ -6,8 +6,8 @@
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 function loadCalendars() {
-    const calendarManager = Components.classes["@mozilla.org/calendar/manager;1"]
-                                    .getService(Components.interfaces.calICalendarManager);
+    const calendarManager = Cc["@mozilla.org/calendar/manager;1"]
+                              .getService(Ci.calICalendarManager);
     let listbox = document.getElementById("calendar-list");
     let composite = cal.view.getCompositeCalendar(window.opener);
     let selectedIndex = 0;

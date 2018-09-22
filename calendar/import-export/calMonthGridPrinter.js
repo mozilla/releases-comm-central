@@ -88,8 +88,8 @@ calMonthPrinter.prototype = {
 
         // Stream out the resulting HTML
         let html = cal.xml.serializeDOM(document);
-        let convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
-                                   .createInstance(Components.interfaces.nsIConverterOutputStream);
+        let convStream = Cc["@mozilla.org/intl/converter-output-stream;1"]
+                           .createInstance(Ci.nsIConverterOutputStream);
         convStream.init(aStream, "UTF-8");
         convStream.writeString(html);
     },

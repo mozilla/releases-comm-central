@@ -162,7 +162,7 @@ function test_alarm() {
     let alarm = cal.createAlarm();
 
     alarm.action = "DISPLAY";
-    alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
     alarm.alarmDate = cal.createDateTime();
 
     e.addAlarm(alarm);

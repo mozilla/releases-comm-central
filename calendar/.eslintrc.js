@@ -5,9 +5,6 @@ module.exports = {
         "../../toolkit/.eslintrc.js"
     ],
     "rules": {
-        // Awaiting bug 1458367.
-        "mozilla/use-cc-etc": "off",
-
         // Enforce one true brace style (opening brace on the same line)
         // Allow single line (for now) because of the vast number of changes needed
         "brace-style": [2, "1tbs", { allowSingleLine: true }],

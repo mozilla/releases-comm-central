@@ -54,10 +54,10 @@ calStartupService.prototype = {
      */
     getStartupOrder: function() {
         let self = this;
-        let tzService = Components.classes["@mozilla.org/calendar/timezone-service;1"]
-                                  .getService(Components.interfaces.calITimezoneService);
-        let calMgr = Components.classes["@mozilla.org/calendar/manager;1"]
-                               .getService(Components.interfaces.calICalendarManager);
+        let tzService = Cc["@mozilla.org/calendar/timezone-service;1"]
+                          .getService(Ci.calITimezoneService);
+        let calMgr = Cc["@mozilla.org/calendar/manager;1"]
+                       .getService(Ci.calICalendarManager);
 
         // Localization service
         let locales = {
@@ -68,10 +68,10 @@ calStartupService.prototype = {
                     "resource://calendar/chrome/calendar-{locale}/locale/{locale}/"
                 );
                 L10nRegistry.registerSource(fileSrc);
-                aCompleteListener.onResult(null, Components.results.NS_OK);
+                aCompleteListener.onResult(null, Cr.NS_OK);
             },
             shutdown: function(aCompleteListener) {
-                aCompleteListener.onResult(null, Components.results.NS_OK);
+                aCompleteListener.onResult(null, Cr.NS_OK);
             }
         };
 
@@ -80,7 +80,7 @@ calStartupService.prototype = {
             startup: function(aCompleteListener) {
                 self.started = true;
                 Services.obs.notifyObservers(null, "calendar-startup-done");
-                aCompleteListener.onResult(null, Components.results.NS_OK);
+                aCompleteListener.onResult(null, Cr.NS_OK);
             },
             shutdown: function(aCompleteListener) {
                 // Argh, it would have all been so pretty! Since we just reverse
@@ -88,7 +88,7 @@ calStartupService.prototype = {
                 // other shutdown calls. For lack of pretty code, I'm
                 // leaving this out! Users can still listen to xpcom-shutdown.
                 self.started = false;
-                aCompleteListener.onResult(null, Components.results.NS_OK);
+                aCompleteListener.onResult(null, Cr.NS_OK);
             }
         };
 

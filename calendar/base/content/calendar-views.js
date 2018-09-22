@@ -353,11 +353,10 @@ function scheduleMidnightUpdate(aRefreshCallback) {
                     if (this.mTimer) {
                         this.mTimer.cancel();
                     } else {
-                        this.mTimer = Components.classes["@mozilla.org/timer;1"]
-                                                .createInstance(Components.interfaces.nsITimer);
+                        this.mTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
                     }
                     this.mTimer.initWithCallback(udCallback, 10 * 1000,
-                                                 Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                                                 Ci.nsITimer.TYPE_ONE_SHOT);
                 }
             }
         };
@@ -369,8 +368,7 @@ function scheduleMidnightUpdate(aRefreshCallback) {
         window.addEventListener("unload", () => {
             Services.obs.removeObserver(wakeObserver, "wake_notification");
         });
-        gMidnightTimer = Components.classes["@mozilla.org/timer;1"]
-                                   .createInstance(Components.interfaces.nsITimer);
+        gMidnightTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     }
     gMidnightTimer.initWithCallback(udCallback, msUntilTomorrow, gMidnightTimer.TYPE_ONE_SHOT);
 }

@@ -252,12 +252,12 @@ interface calIWcapCalendar : calICalendar
 //     calIOperation defineAccessControl(
 //         in string userId, in unsigned long accessControlBits,
 //         in calIGenericOperationListener listener);
-    
+
 //     /**
 //      * To reset a user's access control definition to the default ones
 //      * that everybody is granted.
 //      * In case the user has no specific access control definition,
-//      * Components.results.NS_ERROR_INVALID_ARG is thrown.
+//      * Cr.NS_ERROR_INVALID_ARG is thrown.
 //      *
 //      * @param userId user id
 //      * @param listener called when access control bits have been updated

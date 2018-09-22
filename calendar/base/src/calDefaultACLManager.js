@@ -27,8 +27,8 @@ calDefaultACLManager.prototype = {
     },
     getCalendarEntry: function(aCalendar, aListener) {
         let entry = this._getCalendarEntryCached(aCalendar);
-        aListener.onOperationComplete(aCalendar, Components.results.NS_OK,
-                                      Components.interfaces.calIOperationListener.GET,
+        aListener.onOperationComplete(aCalendar, Cr.NS_OK,
+                                      Ci.calIOperationListener.GET,
                                       null,
                                       entry);
     },

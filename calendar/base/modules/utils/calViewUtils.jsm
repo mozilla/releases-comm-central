@@ -154,14 +154,14 @@ var calview = {
      */
     getCompositeCalendar: function(aWindow) {
         if (typeof aWindow._compositeCalendar == "undefined") {
-            let comp = aWindow._compositeCalendar = Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
-                                                              .createInstance(Components.interfaces.calICompositeCalendar);
+            let comp = aWindow._compositeCalendar = Cc["@mozilla.org/calendar/calendar;1?type=composite"]
+                                                      .createInstance(Ci.calICompositeCalendar);
             comp.prefPrefix = "calendar-main";
 
             if (typeof aWindow.gCalendarStatusFeedback != "undefined") {
                 // If we are in a window that has calendar status feedback, set
                 // up our status observer.
-                let chromeWindow = aWindow.QueryInterface(Components.interfaces.nsIDOMChromeWindow);
+                let chromeWindow = aWindow.QueryInterface(Ci.nsIDOMChromeWindow);
                 comp.setStatusObserver(aWindow.gCalendarStatusFeedback, chromeWindow);
             }
         }

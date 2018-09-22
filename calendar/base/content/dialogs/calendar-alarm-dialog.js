@@ -17,8 +17,8 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
  */
 function getAlarmService() {
     if (!("mAlarmService" in window)) {
-        window.mAlarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                                         .getService(Components.interfaces.calIAlarmService);
+        window.mAlarmService = Cc["@mozilla.org/calendar/alarm-service;1"]
+                                 .getService(Ci.calIAlarmService);
     }
     return window.mAlarmService;
 }
@@ -217,7 +217,7 @@ function getDuration(aMinutes) {
  * @returns {Boolean}
  */
 function aboveSnoozeLimit(aDuration) {
-    const LIMIT = Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
+    const LIMIT = Ci.calIAlarmService.MAX_SNOOZE_MONTHS;
 
     let currentTime = cal.dtz.now().getInTimezone(cal.dtz.UTC);
     let limitTime = currentTime.clone();

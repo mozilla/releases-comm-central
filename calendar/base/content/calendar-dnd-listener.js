@@ -31,9 +31,9 @@ var itemConversion = {
         cal.alarms.setDefaultValues(aItem);
 
         let messenger = Cc["@mozilla.org/messenger;1"]
-                        .createInstance(Ci.nsIMessenger);
+                          .createInstance(Ci.nsIMessenger);
         let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"]
-                             .createInstance(Ci.nsISyncStreamListener);
+                               .createInstance(Ci.nsISyncStreamListener);
         messenger.messageServiceFromURI(msgUri).streamMessage(msgUri,
                                                               streamListener,
                                                               null,
@@ -215,7 +215,7 @@ calDNDBaseObserver.prototype = {
 
     onDrop: function(aEvent, aTransferData, aDragSession) {
         let transferable = Cc["@mozilla.org/widget/transferable;1"]
-                           .createInstance(Ci.nsITransferable);
+                             .createInstance(Ci.nsITransferable);
         transferable.init(null);
         transferable.addDataFlavor("text/calendar");
         transferable.addDataFlavor("text/x-moz-url");
@@ -558,7 +558,7 @@ calTaskButtonDNDObserver.prototype = {
  */
 function invokeEventDragSession(aItem, aXULBox) {
     let transfer = Cc["@mozilla.org/widget/transferable;1"]
-                   .createInstance(Ci.nsITransferable);
+                     .createInstance(Ci.nsITransferable);
     transfer.init(null);
     transfer.addDataFlavor("text/calendar");
 
@@ -587,24 +587,23 @@ function invokeEventDragSession(aItem, aXULBox) {
 
     // Also set some normal data-types, in case we drag into another app
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"]
-                     .createInstance(Ci.calIIcsSerializer);
+                       .createInstance(Ci.calIIcsSerializer);
     serializer.addItems([aItem], 1);
 
     let supportsString = Cc["@mozilla.org/supports-string;1"]
-                         .createInstance(Ci.nsISupportsString);
+                           .createInstance(Ci.nsISupportsString);
     supportsString.data = serializer.serializeToString();
     transfer.setTransferData("text/calendar", supportsString, supportsString.data.length * 2);
     transfer.setTransferData("text/unicode", supportsString, supportsString.data.length * 2);
 
     let action = Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
-    let mutArray = Cc["@mozilla.org/array;1"]
-                   .createInstance(Ci.nsIMutableArray);
+    let mutArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     mutArray.appendElement(transfer);
     aXULBox.sourceObject = aItem;
     try {
         cal.getDragService().invokeDragSession(aXULBox, "", mutArray, action);
     } catch (e) {
-        if (e.result != Components.results.NS_ERROR_FAILURE) {
+        if (e.result != Cr.NS_ERROR_FAILURE) {
             // Pressing Escape on some platforms results in NS_ERROR_FAILURE
             // being thrown. Catch this exception, but throw anything else.
             throw e;

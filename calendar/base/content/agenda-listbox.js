@@ -636,7 +636,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
 
         cancel: function() {
             this.cancelled = true;
-            let operation = cal.wrapInstance(this.operation, Components.interfaces.calIOperation);
+            let operation = cal.wrapInstance(this.operation, Ci.calIOperation);
             if (operation && operation.isPending) {
                 operation.cancel();
                 this.operation = null;
@@ -681,7 +681,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
             let filter = this.calendar.ITEM_FILTER_CLASS_OCCURRENCES |
                          this.calendar.ITEM_FILTER_TYPE_EVENT;
             let operation = this.calendar.getItems(filter, 0, aStart, aEnd, this);
-            operation = cal.wrapInstance(operation, Components.interfaces.calIOperation);
+            operation = cal.wrapInstance(operation, Ci.calIOperation);
             if (operation && operation.isPending) {
                 this.operation = operation;
                 this.agendaListbox.mPendingRefreshJobs.set(this.calId, this);
@@ -1114,8 +1114,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
             Services.obs.removeObserver(wakeObserver, "wake_notification");
         });
 
-        gEventTimer = Components.classes["@mozilla.org/timer;1"]
-                                   .createInstance(Components.interfaces.nsITimer);
+        gEventTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     }
     gEventTimer.initWithCallback(udCallback, aMsUntil, gEventTimer.TYPE_ONE_SHOT);
 }

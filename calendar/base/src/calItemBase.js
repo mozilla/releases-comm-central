@@ -125,7 +125,7 @@ calItemBase.prototype = {
     },
     set parentItem(value) {
         if (this.mImmutable) {
-            throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
+            throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
         return (this.mParentItem = cal.unwrapInstance(value));
     },
@@ -165,7 +165,7 @@ calItemBase.prototype = {
      */
     modify: function() {
         if (this.mImmutable) {
-            throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
+            throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
         this.mDirty = true;
     },
@@ -207,7 +207,7 @@ calItemBase.prototype = {
         }
 
         for (let propValue of this.mProperties.values()) {
-            if (propValue instanceof Components.interfaces.calIDateTime &&
+            if (propValue instanceof Ci.calIDateTime &&
                 propValue.isMutable) {
                 propValue.makeImmutable();
             }
@@ -272,7 +272,7 @@ calItemBase.prototype = {
 
         cloned.mProperties = new Map();
         for (let [name, value] of this.mProperties.entries()) {
-            if (value instanceof Components.interfaces.calIDateTime) {
+            if (value instanceof Ci.calIDateTime) {
                 value = value.clone();
             }
 
@@ -580,7 +580,7 @@ calItemBase.prototype = {
     removeAttachment: function(aAttachment) {
         this.modify();
         for (let attIndex in this.mAttachments) {
-            if (cal.data.compareObjects(this.mAttachments[attIndex], aAttachment, Components.interfaces.calIAttachment)) {
+            if (cal.data.compareObjects(this.mAttachments[attIndex], aAttachment, Ci.calIAttachment)) {
                 this.modify();
                 this.mAttachments.splice(attIndex, 1);
                 break;
@@ -656,7 +656,7 @@ calItemBase.prototype = {
     },
     set calendar(calendar) {
         if (this.mImmutable) {
-            throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
+            throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
         this.mHashId = null; // recompute hashId
         this.mCalendar = calendar;
@@ -699,10 +699,10 @@ calItemBase.prototype = {
 
     // attribute AUTF8String icalString;
     get icalString() {
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
     set icalString(str) {
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     /**
@@ -758,7 +758,7 @@ calItemBase.prototype = {
         for (let i = 0; i < propmap.length; i++) {
             let prop = propmap[i];
             let val = icalcomp[prop.ics];
-            if (val != null && val != Components.interfaces.calIIcalComponent.INVALID_VALUE) {
+            if (val != null && val != Ci.calIIcalComponent.INVALID_VALUE) {
                 this.setProperty(prop.cal, val);
             }
         }
@@ -776,7 +776,7 @@ calItemBase.prototype = {
         for (let i = 0; i < propmap.length; i++) {
             let prop = propmap[i];
             let val = this.getProperty(prop.cal);
-            if (val != null && val != Components.interfaces.calIIcalComponent.INVALID_VALUE) {
+            if (val != null && val != Ci.calIIcalComponent.INVALID_VALUE) {
                 icalcomp[prop.ics] = val;
             }
         }
@@ -913,10 +913,10 @@ calItemBase.prototype = {
 
     // attribute calIIcalComponent icalComponent;
     get icalComponent() {
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
     set icalComponent(val) {
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     // attribute PRUint32 generation;
@@ -986,7 +986,7 @@ calItemBase.prototype = {
     // void getAlarms(out PRUint32 count, [array, size_is(count), retval] out calIAlarm aAlarms);
     getAlarms: function(aCount) {
         if (typeof aCount != "object") {
-            throw Components.results.NS_ERROR_XPC_NEED_OUT_OBJECT;
+            throw Cr.NS_ERROR_XPC_NEED_OUT_OBJECT;
         }
 
         if (!this.mAlarms && this.mIsProxy) {
@@ -1015,7 +1015,7 @@ calItemBase.prototype = {
                 // Trigger the icalComponent getter to make sure the alarm is valid.
                 aAlarm.icalComponent; // eslint-disable-line no-unused-expressions
             } catch (e) {
-                throw Components.results.NS_ERROR_INVALID_ARG;
+                throw Cr.NS_ERROR_INVALID_ARG;
             }
         }
 
@@ -1029,7 +1029,7 @@ calItemBase.prototype = {
         this.modify();
         this.mAlarms = this.getAlarms({});
         for (let i = 0; i < this.mAlarms.length; i++) {
-            if (cal.data.compareObjects(this.mAlarms[i], aAlarm, Components.interfaces.calIAlarm)) {
+            if (cal.data.compareObjects(this.mAlarms[i], aAlarm, Ci.calIAlarm)) {
                 this.mAlarms.splice(i, 1);
                 break;
             }

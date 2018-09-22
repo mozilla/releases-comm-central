@@ -10,7 +10,7 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 // Usually the backend loader gets loaded via profile-after-change, but in case
 // a calendar component hooks in earlier, its very likely it will use calUtils.
 // Getting the service here will load if its not already loaded
-Components.classes["@mozilla.org/calendar/backend-loader;1"].getService();
+Cc["@mozilla.org/calendar/backend-loader;1"].getService();
 
 // The calendar console instance
 var gCalendarConsole = new ConsoleAPI({
@@ -24,55 +24,55 @@ var cal = {
     // These functions exist to reduce boilerplate code for creating instances
     // as well as getting services and other (cached) objects.
     createEvent: _instance("@mozilla.org/calendar/event;1",
-                           Components.interfaces.calIEvent,
+                           Ci.calIEvent,
                            "icalString"),
     createTodo: _instance("@mozilla.org/calendar/todo;1",
-                          Components.interfaces.calITodo,
+                          Ci.calITodo,
                           "icalString"),
     createDateTime: _instance("@mozilla.org/calendar/datetime;1",
-                              Components.interfaces.calIDateTime,
+                              Ci.calIDateTime,
                               "icalString"),
     createDuration: _instance("@mozilla.org/calendar/duration;1",
-                              Components.interfaces.calIDuration,
+                              Ci.calIDuration,
                               "icalString"),
     createAttendee: _instance("@mozilla.org/calendar/attendee;1",
-                              Components.interfaces.calIAttendee,
+                              Ci.calIAttendee,
                               "icalString"),
     createAttachment: _instance("@mozilla.org/calendar/attachment;1",
-                                Components.interfaces.calIAttachment,
+                                Ci.calIAttachment,
                                 "icalString"),
     createAlarm: _instance("@mozilla.org/calendar/alarm;1",
-                           Components.interfaces.calIAlarm,
+                           Ci.calIAlarm,
                            "icalString"),
     createRelation: _instance("@mozilla.org/calendar/relation;1",
-                              Components.interfaces.calIRelation,
+                              Ci.calIRelation,
                               "icalString"),
     createRecurrenceDate: _instance("@mozilla.org/calendar/recurrence-date;1",
-                                    Components.interfaces.calIRecurrenceDate,
+                                    Ci.calIRecurrenceDate,
                                     "icalString"),
     createRecurrenceRule: _instance("@mozilla.org/calendar/recurrence-rule;1",
-                                    Components.interfaces.calIRecurrenceRule,
+                                    Ci.calIRecurrenceRule,
                                     "icalString"),
     createRecurrenceInfo: _instance("@mozilla.org/calendar/recurrence-info;1",
-                                    Components.interfaces.calIRecurrenceInfo,
+                                    Ci.calIRecurrenceInfo,
                                     "item"),
 
     getCalendarManager: _service("@mozilla.org/calendar/manager;1",
-                                 Components.interfaces.calICalendarManager),
+                                 Ci.calICalendarManager),
     getIcsService: _service("@mozilla.org/calendar/ics-service;1",
-                            Components.interfaces.calIICSService),
+                            Ci.calIICSService),
     getTimezoneService: _service("@mozilla.org/calendar/timezone-service;1",
-                                 Components.interfaces.calITimezoneService),
+                                 Ci.calITimezoneService),
     getCalendarSearchService: _service("@mozilla.org/calendar/calendarsearch-service;1",
-                                       Components.interfaces.calICalendarSearchProvider),
+                                       Ci.calICalendarSearchProvider),
     getFreeBusyService: _service("@mozilla.org/calendar/freebusy-service;1",
-                                 Components.interfaces.calIFreeBusyService),
+                                 Ci.calIFreeBusyService),
     getWeekInfoService: _service("@mozilla.org/calendar/weekinfo-service;1",
-                                 Components.interfaces.calIWeekInfoService),
+                                 Ci.calIWeekInfoService),
     getDateFormatter: _service("@mozilla.org/calendar/datetime-formatter;1",
-                               Components.interfaces.calIDateTimeFormatter),
+                               Ci.calIDateTimeFormatter),
     getDragService: _service("@mozilla.org/widget/dragservice;1",
-                             Components.interfaces.nsIDragService),
+                             Ci.nsIDragService),
 
     /**
      * The calendar console instance
@@ -142,10 +142,10 @@ var cal = {
 
         let string = `Assert failed: ${aMessage}\n ${cal.STACK(0, 1)}`;
         if (aCritical) {
-            let rescode = aCritical === true ? Components.results.NS_ERROR_UNEXPECTED : aCritical;
+            let rescode = aCritical === true ? Cr.NS_ERROR_UNEXPECTED : aCritical;
             throw new Components.Exception(string, rescode);
         } else {
-            Components.utils.reportError(string);
+            Cu.reportError(string);
         }
     },
 
@@ -243,7 +243,7 @@ var cal = {
     postPone: function(func) {
         if (this.threadingEnabled) {
             Services.tm.currentThread.dispatch({ run: func },
-                                               Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
+                                               Ci.nsIEventTarget.DISPATCH_NORMAL);
         } else {
             func();
         }
@@ -312,8 +312,7 @@ var cal = {
      * @return {String}         The generated UUID
      */
     getUUID: function() {
-        let uuidGen = Components.classes["@mozilla.org/uuid-generator;1"]
-                                .getService(Components.interfaces.nsIUUIDGenerator);
+        let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
         // generate uuids without braces to avoid problems with
         // CalDAV servers that don't support filenames with {}
         return uuidGen.generateUUID().toString().replace(/[{}]/g, "");
@@ -451,7 +450,7 @@ XPCOMUtils.defineLazyModuleGetter(cal, "xml", "resource://calendar/modules/utils
  */
 function _service(cid, iid) {
     return function() {
-        return Components.classes[cid].getService(iid);
+        return Cc[cid].getService(iid);
     };
 }
 
@@ -467,7 +466,7 @@ function _service(cid, iid) {
  */
 function _instance(cid, iid, prop) {
     return function(propval) {
-        let thing = Components.classes[cid].createInstance(iid);
+        let thing = Cc[cid].createInstance(iid);
         if (propval) {
             thing[prop] = propval;
         }

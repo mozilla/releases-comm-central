@@ -201,8 +201,8 @@
         <body><![CDATA[
             this.mOccurrence = aItem;
             this.setAttribute("status", aItem.status);
-            let dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                          .getService(Components.interfaces.calIDateTimeFormatter);
+            let dateFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                                  .getService(Ci.calIDateTimeFormatter);
 
             let periodStartDate = aPeriod.start.clone();
             periodStartDate.isDate = true;

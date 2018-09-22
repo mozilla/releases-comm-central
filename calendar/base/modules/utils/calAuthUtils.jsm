@@ -93,7 +93,7 @@ var calauth = {
             let port = aChannel.URI.port;
             if (port == -1) {
                 let handler = Services.io.getProtocolHandler(aChannel.URI.scheme)
-                                         .QueryInterface(Components.interfaces.nsIProtocolHandler);
+                                         .QueryInterface(Ci.nsIProtocolHandler);
                 port = handler.defaultPort;
             }
             hostRealm.passwordRealm = aChannel.URI.host + ":" + port + " (" + aAuthInfo.realm + ")";
@@ -166,8 +166,8 @@ var calauth = {
             gAuthCache.planForAuthInfo(hostKey);
 
             let queuePrompt = function() {
-                let asyncprompter = Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
-                                              .getService(Components.interfaces.nsIMsgAsyncPrompter);
+                let asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"]
+                                      .getService(Ci.nsIMsgAsyncPrompter);
                 asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
             };
 
@@ -199,7 +199,7 @@ var calauth = {
         if (typeof aUsername != "object" ||
             typeof aPassword != "object" ||
             typeof aSavePassword != "object") {
-            throw new Components.Exception("", Components.results.NS_ERROR_XPC_NEED_OUT_OBJECT);
+            throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
         }
 
         let prompter = Services.ww.getNewPrompter(null);
@@ -271,8 +271,8 @@ var calauth = {
         try {
             let logins = Services.logins.findLogins({}, origin, null, aRealm);
 
-            let newLoginInfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
-                                         .createInstance(Components.interfaces.nsILoginInfo);
+            let newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                                 .createInstance(Ci.nsILoginInfo);
             newLoginInfo.init(origin, null, aRealm, aUsername, aPassword, "", "");
             if (logins.length > 0) {
                 Services.logins.modifyLogin(logins[0], newLoginInfo);
@@ -282,7 +282,7 @@ var calauth = {
         } catch (exc) {
             // Only show the message if its not an abort, which can happen if
             // the user canceled the master password dialog
-            cal.ASSERT(exc.result == Components.results.NS_ERROR_ABORT, exc);
+            cal.ASSERT(exc.result == Cr.NS_ERROR_ABORT, exc);
         }
     },
 
@@ -299,7 +299,7 @@ var calauth = {
         cal.ASSERT(aUsername);
 
         if (typeof aPassword != "object") {
-            throw new Components.Exception("", Components.results.NS_ERROR_XPC_NEED_OUT_OBJECT);
+            throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
         }
 
         let origin = this._ensureOrigin(aOrigin);

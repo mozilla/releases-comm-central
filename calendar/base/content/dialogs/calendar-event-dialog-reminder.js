@@ -263,7 +263,7 @@ function onReminderSelected() {
             actionType.value = reminder.action;
 
             // Absolute/relative things
-            if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE) {
+            if (reminder.related == Ci.calIAlarm.ALARM_RELATED_ABSOLUTE) {
                 relationType.value = "absolute";
 
                 // Date
@@ -289,9 +289,9 @@ function onReminderSelected() {
 
                 // Origin
                 let origin;
-                if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_START) {
+                if (reminder.related == Ci.calIAlarm.ALARM_RELATED_START) {
                     origin = "START";
-                } else if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_END) {
+                } else if (reminder.related == Ci.calIAlarm.ALARM_RELATED_END) {
                     origin = "END";
                 }
 
@@ -343,9 +343,9 @@ function updateReminder(event) {
 
     if (relationItem.value == "relative") {
         if (origin == "START") {
-            reminder.related = Components.interfaces.calIAlarm.ALARM_RELATED_START;
+            reminder.related = Ci.calIAlarm.ALARM_RELATED_START;
         } else if (origin == "END") {
-            reminder.related = Components.interfaces.calIAlarm.ALARM_RELATED_END;
+            reminder.related = Ci.calIAlarm.ALARM_RELATED_END;
         }
 
         // Set up offset, taking units and before/after into account
@@ -355,7 +355,7 @@ function updateReminder(event) {
         offset.isNegative = (relation == "before");
         reminder.offset = offset;
     } else if (relationItem.value == "absolute") {
-        reminder.related = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
+        reminder.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
 
         if (absDate.value) {
             reminder.alarmDate = cal.dtz.jsDateToDateTime(absDate.value,

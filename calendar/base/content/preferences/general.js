@@ -15,8 +15,8 @@ var gCalendarGeneralPane = {
      * values set in prefs.
      */
     init: function() {
-        let formatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                  .getService(Components.interfaces.calIDateTimeFormatter);
+        let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                          .getService(Ci.calIDateTimeFormatter);
 
         let dateFormattedLong = formatter.formatDateLong(cal.dtz.now());
         let dateFormattedShort = formatter.formatDateShort(cal.dtz.now());

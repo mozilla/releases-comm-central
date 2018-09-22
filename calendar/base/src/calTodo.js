@@ -21,9 +21,9 @@ function calTodo() {
 
 var calTodoClassID = Components.ID("{7af51168-6abe-4a31-984d-6f8a3989212d}");
 var calTodoInterfaces = [
-    Components.interfaces.calIItemBase,
-    Components.interfaces.calITodo,
-    Components.interfaces.calIInternalShallowCopy
+    Ci.calIItemBase,
+    Ci.calITodo,
+    Ci.calIInternalShallowCopy
 ];
 calTodo.prototype = {
     __proto__: calItemBase.prototype,
@@ -145,7 +145,7 @@ calTodo.prototype = {
                             try {
                                 icalprop.setParameter(paramName, propBucket[paramName]);
                             } catch (e) {
-                                if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                                if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
                                     // Illegal values should be ignored, but we could log them if
                                     // the user has enabled logging.
                                     cal.LOG("Warning: Invalid todo parameter value " + paramName + "=" + propBucket[paramName]);
@@ -171,7 +171,7 @@ calTodo.prototype = {
         if (todo.componentType != "VTODO") {
             todo = todo.getFirstSubcomponent("VTODO");
             if (!todo) {
-                throw Components.results.NS_ERROR_INVALID_ARG;
+                throw Cr.NS_ERROR_INVALID_ARG;
             }
         }
 

@@ -36,9 +36,7 @@ async function commonInitCalendar() {
     getViewDeck().addEventListener("itemselect", calendarController.onSelectionChanged, true);
 
     // Start alarm service
-    Components.classes["@mozilla.org/calendar/alarm-service;1"]
-              .getService(Components.interfaces.calIAlarmService)
-              .startup();
+    Cc["@mozilla.org/calendar/alarm-service;1"].getService(Ci.calIAlarmService).startup();
     document.getElementById("calsidebar_splitter").addEventListener("command", onCalendarViewResize);
     window.addEventListener("resize", onCalendarViewResize, true);
 
@@ -146,7 +144,7 @@ var calendarWindowPrefs = {
                 }
             }
         } else if (aTopic == "domwindowopened") {
-            let win = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
+            let win = aSubject.QueryInterface(Ci.nsIDOMWindow);
             win.addEventListener("load", () => {
                 let attributeValue = Preferences.get("calendar.view.useSystemColors", false) && "true";
                 setElementValue(win.document.documentElement, attributeValue, "systemcolors");

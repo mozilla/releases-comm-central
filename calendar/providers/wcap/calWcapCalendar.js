@@ -21,9 +21,9 @@ var calWcapCalendarClassID = Components.ID("{cf4d93e5-af79-451a-95f3-109055b32ef
 var calWcapCalendarInterfaces = [
     calIWcapCalendar,
     calICalendar,
-    Components.interfaces.calISchedulingSupport,
-    Components.interfaces.calIChangeLog,
-    Components.interfaces.calICalendarProvider,
+    Ci.calISchedulingSupport,
+    Ci.calIChangeLog,
+    Ci.calICalendarProvider,
 ];
 calWcapCalendar.prototype = {
     __proto__: cal.provider.BaseClass.prototype,
@@ -59,9 +59,9 @@ calWcapCalendar.prototype = {
         }
         this.__proto__.__proto__.notifyError.apply(
             this,
-            err instanceof Components.interfaces.nsIException
+            err instanceof Ci.nsIException
             ? [err.result, err.message]
-            : [isNaN(err) ? Components.results.NS_ERROR_FAILURE : err, msg]);
+            : [isNaN(err) ? Cr.NS_ERROR_FAILURE : err, msg]);
     },
     notifyError: function(err, msg) {
         this.notifyError_(err, msg, this);
@@ -363,14 +363,14 @@ calWcapCalendar.prototype = {
     },
 
     defineAccessControl: function(userId, accessControlBits) {
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     resetAccessControl: function(userId) {
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     getAccessControlDefinitions: function(out_count, out_users, out_accessControlBits) {
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     }
 };

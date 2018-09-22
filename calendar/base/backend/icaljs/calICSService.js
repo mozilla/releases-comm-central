@@ -282,7 +282,7 @@ calIcalComponent.prototype = {
     get priority() {
         // If there is no value for this integer property, then we must return
         // the designated INVALID_VALUE.
-        const INVALID_VALUE = Components.interfaces.calIIcalComponent.INVALID_VALUE;
+        const INVALID_VALUE = Ci.calIIcalComponent.INVALID_VALUE;
         let prop = this.innerObject.getFirstProperty("priority");
         let val = prop ? prop.getFirstValue() : null;
         return (val === null ? INVALID_VALUE : val);
@@ -427,8 +427,8 @@ calIcalComponent.prototype = {
     },
 
     serializeToICSStream: function() {
-        let unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                         .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+        let unicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                                 .createInstance(Ci.nsIScriptableUnicodeConverter);
         unicodeConverter.charset = "UTF-8";
         return unicodeConverter.convertToInputStream(this.innerObject.toString());
     }
@@ -455,7 +455,7 @@ calICSService.prototype = {
         try {
             let worker = new ChromeWorker("resource://calendar/calendar-js/calICSService-worker.js");
             worker.onmessage = function(event) {
-                let rc = Components.results.NS_ERROR_FAILURE;
+                let rc = Cr.NS_ERROR_FAILURE;
                 let icalComp = null;
                 try {
                     rc = event.data.rc;
@@ -471,13 +471,13 @@ calICSService.prototype = {
             };
             worker.onerror = function(event) {
                 cal.ERROR("[calICSService] Error in parser worker: " + event.message);
-                listener.onParsingComplete(Components.results.NS_ERROR_FAILURE, null);
+                listener.onParsingComplete(Cr.NS_ERROR_FAILURE, null);
             };
             worker.postMessage(serialized);
         } catch (e) {
             // If an error occurs above, the calling code will hang. Catch the exception just in case
             cal.ERROR("[calICSService] Error starting parsing worker: " + e);
-            listener.onParsingComplete(Components.results.NS_ERROR_FAILURE, null);
+            listener.onParsingComplete(Cr.NS_ERROR_FAILURE, null);
         }
     },
 

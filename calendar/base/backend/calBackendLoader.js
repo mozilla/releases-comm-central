@@ -45,7 +45,7 @@ calBackendLoader.prototype = {
 
             // Register the icaljs components. We used to unregisterFactory, but this caused all
             // sorts of problems. Just registering over it seems to work quite fine.
-            let registrar = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+            let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
             for (let [contractID, classID] of Object.entries(contracts)) {
                 let newClassID = Components.ID(classID);
                 let newFactory = lazyFactoryFor(scope, newClassID);

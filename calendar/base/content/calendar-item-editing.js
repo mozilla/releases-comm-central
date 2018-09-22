@@ -471,7 +471,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
     // ask the provide if this item is an invitation. if this is the case
     // we'll open the summary dialog since the user is not allowed to change
     // the details of the item.
-    let wrappedCalendar = cal.wrapInstance(calendar, Components.interfaces.calISchedulingSupport);
+    let wrappedCalendar = cal.wrapInstance(calendar, Ci.calISchedulingSupport);
     let isInvitation = wrappedCalendar && wrappedCalendar.isInvitation(calendarItem);
 
     // open the dialog modeless
@@ -585,7 +585,7 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
             break;
         case MODIFY_FOLLOWING:
             // TODO tbd in a different bug
-            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+            throw Cr.NS_ERROR_NOT_IMPLEMENTED;
         case MODIFY_OCCURRENCE:
             pastItems = items;
             break;
@@ -608,10 +608,9 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
  * @return      The calITransactionManager service.
  */
 function getTransactionMgr() {
-    return Components.classes["@mozilla.org/calendar/transactionmanager;1"]
-                     .getService(Components.interfaces.calITransactionManager);
+    return Cc["@mozilla.org/calendar/transactionmanager;1"]
+             .getService(Ci.calITransactionManager);
 }
-
 
 /**
  * Create and commit a transaction with the given arguments to the transaction

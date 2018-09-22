@@ -33,7 +33,7 @@
         <getter><![CDATA[
             if (!this.mCompositeCalendar) {
                 throw Components.Exception("Calendar list has no composite calendar yet",
-                                           Components.results.NS_ERROR_NOT_INITIALIZED);
+                                           Cr.NS_ERROR_NOT_INITIALIZED);
             }
             return this.mCompositeCalendar;
         ]]></getter>
@@ -60,7 +60,7 @@
             // Setting calendars externally is not wanted. This is done internally
             // in the compositeCalendar setter.
             throw Components.Exception("Seting calendars on type='full' is not supported",
-                                       Components.results.NS_ERROR_NOT_IMPLEMENTED);
+                                       Cr.NS_ERROR_NOT_IMPLEMENTED);
         ]]></setter>
       </property>
 
@@ -361,9 +361,8 @@
       <property name="compositeCalendar">
         <getter><![CDATA[
             if (!this.mCompositeCalendar) {
-                this.mCompositeCalendar =
-                    Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
-                              .createInstance(Components.interfaces.calICompositeCalendar);
+                this.mCompositeCalendar = Cc["@mozilla.org/calendar/calendar;1?type=composite"]
+                                            .createInstance(Ci.calICompositeCalendar);
             }
 
             return this.mCompositeCalendar;
@@ -371,7 +370,7 @@
         <setter><![CDATA[
             if (this.mCompositeCalendar) {
                 throw Components.Exception("A composite calendar has already been set",
-                                           Components.results.NS_ERROR_ALREADY_INITIALIZED);
+                                           Cr.NS_ERROR_ALREADY_INITIALIZED);
             }
             this.mCompositeCalendar = val;
             this.mCompositeCalendar.addObserver(this.compositeObserver);
@@ -819,7 +818,7 @@
 
             let dragCalId = dataTransfer.getData("application/x-moz-calendarID");
 
-            return (aOrientation != Components.interfaces.nsITreeView.DROP_ON &&
+            return (aOrientation != Ci.nsITreeView.DROP_ON &&
                     dragCalId != null);
         ]]></body>
       </method>

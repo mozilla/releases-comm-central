@@ -547,7 +547,7 @@
                 if (aCol != null) {
                     let content = aCol.element.getAttribute("itemproperty");
                     if (content == "completed") {
-                        let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
+                        let newTask = task.clone().QueryInterface(Ci.calITodo);
                         newTask.isCompleted = !task.completedDate;
                         doTransaction("modify", newTask, newTask.calendar, task, null);
                     }
@@ -784,8 +784,8 @@
 
             // Helper function to display datetimes
             _formatDateTime: function(aDateTime) {
-                let dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                              .getService(Components.interfaces.calIDateTimeFormatter);
+                let dateFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                                      .getService(Ci.calIDateTimeFormatter);
 
                 // datetime is from todo object, it is not a javascript date
                 if (aDateTime && aDateTime.isValid) {

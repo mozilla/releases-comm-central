@@ -49,8 +49,7 @@ add_task(async function formatDate_test() {
         let zone = (test.input.timezone == "floating") ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
         let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-        let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                    .getService(Components.interfaces.calIDateTimeFormatter);
+        let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(Ci.calIDateTimeFormatter);
         let formatted = dtFormatter.formatDate(date);
         ok(
             test.expected.includes(formatted),
@@ -133,8 +132,7 @@ add_task(async function formatDateShort_test() {
         let zone = (test.input.timezone == "floating") ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
         let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-        let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                    .getService(Components.interfaces.calIDateTimeFormatter);
+        let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(Ci.calIDateTimeFormatter);
 
         let formatted = dtFormatter.formatDateShort(date);
         ok(
@@ -218,8 +216,7 @@ add_task(async function formatDateLong_test() {
         let zone = (test.input.timezone == "floating") ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
         let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-        let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                    .getService(Components.interfaces.calIDateTimeFormatter);
+        let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(Ci.calIDateTimeFormatter);
 
         let formatted = dtFormatter.formatDateLong(date);
         ok(
@@ -303,8 +300,7 @@ add_task(async function formatDateWithoutYear_test() {
         let zone = (test.input.timezone == "floating") ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
         let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-        let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                    .getService(Components.interfaces.calIDateTimeFormatter);
+        let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(Ci.calIDateTimeFormatter);
 
         equal(dtFormatter.formatDateWithoutYear(date), test.expected, "(test #" + i + ")");
     }
@@ -363,8 +359,7 @@ add_task(async function formatTime_test() {
         let zone = (test.input.timezone == "floating") ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
         let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-        let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                    .getService(Components.interfaces.calIDateTimeFormatter);
+        let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(Ci.calIDateTimeFormatter);
 
         let formatted = dtFormatter.formatTime(date);
         ok(

@@ -546,7 +546,7 @@ function test_interface() {
                          "RDATE:20020401T114500Z\r\n");
 
     let rinfo = item.recurrenceInfo;
-    ok(cal.data.compareObjects(rinfo.item, item, Components.interfaces.calIEvent));
+    ok(cal.data.compareObjects(rinfo.item, item, Ci.calIEvent));
 
     // getRecurrenceItems
     let ritems = rinfo.getRecurrenceItems({});
@@ -598,13 +598,13 @@ function test_interface() {
 
     ok(cal.data.compareObjects(ritems[2],
                           rinfo.getRecurrenceItemAt(0),
-                          Components.interfaces.calIRecurrenceItem));
+                          Ci.calIRecurrenceItem));
     ok(cal.data.compareObjects(ritems[0],
                           rinfo.getRecurrenceItemAt(1),
-                          Components.interfaces.calIRecurrenceItem));
+                          Ci.calIRecurrenceItem));
     ok(cal.data.compareObjects(ritems[1],
                           rinfo.getRecurrenceItemAt(2),
-                          Components.interfaces.calIRecurrenceItem));
+                          Ci.calIRecurrenceItem));
 
 
     // deleteRecurrenceItem
@@ -621,7 +621,7 @@ function test_interface() {
     rinfo.insertRecurrenceItemAt(ritems[1], 1);
     ok(cal.data.compareObjects(ritems[1],
                           rinfo.getRecurrenceItemAt(1),
-                          Components.interfaces.calIRecurrenceItem));
+                          Ci.calIRecurrenceItem));
     rinfo.deleteRecurrenceItem(ritems[1]);
 
     // isFinite = true

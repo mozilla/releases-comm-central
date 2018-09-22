@@ -206,7 +206,7 @@
         <parameter name="aItem"/>
         <parameter name="aStatus"/>
         <body><![CDATA[
-            let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
+            let calendar = cal.wrapInstance(aItem.calendar, Ci.calISchedulingSupport);
             if (calendar) {
                 let att = calendar.getInvitedAttendee(aItem);
                 if (att) {

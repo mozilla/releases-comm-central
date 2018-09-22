@@ -18,8 +18,8 @@ calListFormatter.prototype = {
     get name() { return cal.l10n.getCalString("formatListName"); },
 
     formatToHtml: function(aStream, aStart, aEnd, aCount, aItems, aTitle) {
-        let htmlexporter = Components.classes["@mozilla.org/calendar/export;1?type=htmllist"]
-                                     .createInstance(Components.interfaces.calIExporter);
+        let htmlexporter = Cc["@mozilla.org/calendar/export;1?type=htmllist"]
+                             .createInstance(Ci.calIExporter);
         htmlexporter.exportToStream(aStream, aCount, aItems, aTitle);
     }
 };

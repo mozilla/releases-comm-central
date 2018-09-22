@@ -37,12 +37,12 @@ calRecurrenceInfo.prototype = {
      */
     ensureBaseItem: function() {
         if (!this.mBaseItem) {
-            throw Components.results.NS_ERROR_NOT_INITIALIZED;
+            throw Cr.NS_ERROR_NOT_INITIALIZED;
         }
     },
     ensureMutable: function() {
         if (this.mImmutable) {
-            throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
+            throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
     },
     ensureSortedRecurrenceRules: function() {
@@ -161,7 +161,7 @@ calRecurrenceInfo.prototype = {
         this.ensureBaseItem();
 
         if (aIndex < 0 || aIndex >= this.mRecurrenceItems.length) {
-            throw Components.results.NS_ERROR_INVALID_ARG;
+            throw Cr.NS_ERROR_INVALID_ARG;
         }
 
         return this.mRecurrenceItems[aIndex];
@@ -185,7 +185,7 @@ calRecurrenceInfo.prototype = {
         this.ensureMutable();
 
         if (aIndex < 0 || aIndex >= this.mRecurrenceItems.length) {
-            throw Components.results.NS_ERROR_INVALID_ARG;
+            throw Cr.NS_ERROR_INVALID_ARG;
         }
 
         if (this.mRecurrenceItems[aIndex].isNegative) {
@@ -201,16 +201,16 @@ calRecurrenceInfo.prototype = {
         // Because xpcom objects can be wrapped in various ways, testing for
         // mere == sometimes returns false even when it should be true.  Use
         // the interface pointer returned by sip to avoid that problem.
-        let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
-                            .createInstance(Components.interfaces.nsISupportsInterfacePointer);
+        let sip1 = Cc["@mozilla.org/supports-interface-pointer;1"]
+                     .createInstance(Ci.nsISupportsInterfacePointer);
         sip1.data = aItem;
-        sip1.dataIID = Components.interfaces.calIRecurrenceItem;
+        sip1.dataIID = Ci.calIRecurrenceItem;
 
         let pos;
         if ((pos = this.mRecurrenceItems.indexOf(sip1.data)) > -1) {
             this.deleteRecurrenceItemAt(pos);
         } else {
-            throw Components.results.NS_ERROR_INVALID_ARG;
+            throw Cr.NS_ERROR_INVALID_ARG;
         }
     },
 
@@ -220,7 +220,7 @@ calRecurrenceInfo.prototype = {
         this.ensureSortedRecurrenceRules();
 
         if (aIndex < 0 || aIndex > this.mRecurrenceItems.length) {
-            throw Components.results.NS_ERROR_INVALID_ARG;
+            throw Cr.NS_ERROR_INVALID_ARG;
         }
 
         if (aItem.isNegative) {
@@ -293,8 +293,8 @@ calRecurrenceInfo.prototype = {
             // If in a loop at least one rid is valid (i.e not an exception, not
             // an exdate, is after aTime), then remember the lowest one.
             for (let i = 0; i < this.mPositiveRules.length; i++) {
-                let rDateInstance = cal.wrapInstance(this.mPositiveRules[i], Components.interfaces.calIRecurrenceDate);
-                let rRuleInstance = cal.wrapInstance(this.mPositiveRules[i], Components.interfaces.calIRecurrenceRule);
+                let rDateInstance = cal.wrapInstance(this.mPositiveRules[i], Ci.calIRecurrenceDate);
+                let rRuleInstance = cal.wrapInstance(this.mPositiveRules[i], Ci.calIRecurrenceRule);
                 if (rDateInstance) {
                     // RDATEs are special. there is only one date in this rule,
                     // so no need to search anything.
@@ -603,8 +603,8 @@ calRecurrenceInfo.prototype = {
         this.ensureBaseItem();
         this.ensureMutable();
 
-        let rdate = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
-                              .createInstance(Components.interfaces.calIRecurrenceDate);
+        let rdate = Cc["@mozilla.org/calendar/recurrence-date;1"]
+                      .createInstance(Ci.calIRecurrenceDate);
         rdate.isNegative = true;
         rdate.date = aRecurrenceId.clone();
 
@@ -619,7 +619,7 @@ calRecurrenceInfo.prototype = {
         this.ensureSortedRecurrenceRules();
 
         for (let i = 0; i < this.mRecurrenceItems.length; i++) {
-            let rdate = cal.wrapInstance(this.mRecurrenceItems[i], Components.interfaces.calIRecurrenceDate);
+            let rdate = cal.wrapInstance(this.mRecurrenceItems[i], Ci.calIRecurrenceDate);
             if (rdate) {
                 if (rdate.isNegative && rdate.date.compare(aRecurrenceId) == 0) {
                     return this.deleteRecurrenceItemAt(i);
@@ -627,7 +627,7 @@ calRecurrenceInfo.prototype = {
             }
         }
 
-        throw Components.results.NS_ERROR_INVALID_ARG;
+        throw Cr.NS_ERROR_INVALID_ARG;
     },
 
     //
@@ -670,12 +670,12 @@ calRecurrenceInfo.prototype = {
         if (anItem.parentItem.calendar != this.mBaseItem.calendar &&
             anItem.parentItem.id != this.mBaseItem.id) {
             cal.ERROR("recurrenceInfo::addException: item parentItem != this.mBaseItem (calendar/id)!");
-            throw Components.results.NS_ERROR_INVALID_ARG;
+            throw Cr.NS_ERROR_INVALID_ARG;
         }
 
         if (anItem.recurrenceId == null) {
             cal.ERROR("recurrenceInfo::addException: item with null recurrenceId!");
-            throw Components.results.NS_ERROR_INVALID_ARG;
+            throw Cr.NS_ERROR_INVALID_ARG;
         }
 
         let itemtoadd;
@@ -739,11 +739,11 @@ calRecurrenceInfo.prototype = {
         let rdates = {};
 
         // take RDATE's and EXDATE's into account.
-        const kCalIRecurrenceDate = Components.interfaces.calIRecurrenceDate;
+        const kCalIRecurrenceDate = Ci.calIRecurrenceDate;
         let ritems = this.getRecurrenceItems({});
         for (let ritem of ritems) {
             let rDateInstance = cal.wrapInstance(ritem, kCalIRecurrenceDate);
-            let rRuleInstance = cal.wrapInstance(ritem, Components.interfaces.calIRecurrenceRule);
+            let rRuleInstance = cal.wrapInstance(ritem, Ci.calIRecurrenceRule);
             if (rDateInstance) {
                 ritem = rDateInstance;
                 let date = ritem.date;

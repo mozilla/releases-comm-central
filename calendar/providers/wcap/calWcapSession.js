@@ -108,8 +108,8 @@ var calWcapSessionInterfaces = [
     calIWcapSession,
     calIFreeBusyProvider,
     calICalendarSearchProvider,
-    Components.interfaces.calITimezoneProvider,
-    Components.interfaces.calICalendarManagerObserver
+    Ci.calITimezoneProvider,
+    Ci.calICalendarManagerObserver
 ];
 calWcapSession.prototype = {
     classID: calWcapSessionClassID,
@@ -155,7 +155,7 @@ calWcapSession.prototype = {
             getNext: function() {
                 if (this.m_index >= tzids) {
                     cal.ASSERT(false, "calWcapSession::timezoneIds enumerator!");
-                    throw Components.results.NS_ERROR_UNEXPECTED;
+                    throw Cr.NS_ERROR_UNEXPECTED;
                 }
                 return tzids[this.m_index++];
             },
@@ -182,7 +182,7 @@ calWcapSession.prototype = {
     getServerTime: function(localTime) {
         if (this.m_serverTimeDiff === null) {
             throw new Components.Exception("early run into getServerTime()!",
-                                           Components.results.NS_ERROR_NOT_AVAILABLE);
+                                           Cr.NS_ERROR_NOT_AVAILABLE);
         }
         let ret = (localTime ? localTime.clone() : getTime());
         ret.addDuration(this.m_serverTimeDiff);
@@ -310,8 +310,8 @@ calWcapSession.prototype = {
                             } catch (e) {
                                 // User might have cancelled the master password prompt, or password saving
                                 // could be disabled. That is ok, throw for everything else.
-                                if (e.result != Components.results.NS_ERROR_ABORT &&
-                                    e.result != Components.results.NS_ERROR_NOT_AVAILABLE) {
+                                if (e.result != Cr.NS_ERROR_ABORT &&
+                                    e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
                                     throw e;
                                 }
                             }
@@ -618,7 +618,7 @@ calWcapSession.prototype = {
                                 throw oprequest.status;
                             }
                             if (result.length < 1) {
-                                throw Components.results.NS_ERROR_UNEXPECTED;
+                                throw Cr.NS_ERROR_UNEXPECTED;
                             }
                             for (let calendar of result) {
                                 // user may have dangling users referred in his subscription list, so

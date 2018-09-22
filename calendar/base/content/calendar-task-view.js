@@ -23,9 +23,8 @@ var taskDetailsView = {
             return flag;
         }
 
-        let dateFormatter =
-            Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-            .getService(Components.interfaces.calIDateTimeFormatter);
+        let dateFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                              .getService(Ci.calIDateTimeFormatter);
 
         let item = document.getElementById("calendar-task-tree").currentTask;
         if (displayElement("calendar-task-details-container", item != null) &&
@@ -411,8 +410,8 @@ function taskViewOnLoad() {
 function taskViewCopyLink(linkNode) {
     if (linkNode) {
         let linkAddress = linkNode.value;
-        let clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                  .getService(Components.interfaces.nsIClipboardHelper);
+        let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
+                          .getService(Ci.nsIClipboardHelper);
         clipboard.copyString(linkAddress);
     }
 }

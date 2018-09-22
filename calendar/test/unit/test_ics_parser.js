@@ -18,8 +18,7 @@ function really_run_test() {
 }
 
 function test_props_comps() {
-    let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                           .createInstance(Components.interfaces.calIIcsParser);
+    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     let str = [
         "BEGIN:VCALENDAR",
         "X-WR-CALNAME:CALNAME",
@@ -44,21 +43,19 @@ function test_props_comps() {
 }
 
 function test_failures() {
-    let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                           .createInstance(Components.interfaces.calIIcsParser);
+    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
 
     do_test_pending();
     parser.parseString("BOGUS", null, {
         onParsingComplete: function(rc, opparser) {
             dump("Note: The previous error message is expected ^^\n");
-            equal(rc, Components.results.NS_ERROR_FAILURE);
+            equal(rc, Cr.NS_ERROR_FAILURE);
             do_test_finished();
         }
     });
 
     // No real error here, but there is a message...
-    parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                       .createInstance(Components.interfaces.calIIcsParser);
+    parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     let str = [
         "BEGIN:VWORLD",
         "BEGIN:VEVENT",
@@ -72,8 +69,7 @@ function test_failures() {
 }
 
 function test_fake_parent() {
-    let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                           .createInstance(Components.interfaces.calIIcsParser);
+    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
 
     let str = [
         "BEGIN:VCALENDAR",
@@ -108,8 +104,7 @@ function test_fake_parent() {
 }
 
 function test_async() {
-    let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                           .createInstance(Components.interfaces.calIIcsParser);
+    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     let str = [
         "BEGIN:VCALENDAR",
         "BEGIN:VTODO",
@@ -151,10 +146,8 @@ function test_timezone() {
 }
 
 function test_roundtrip() {
-    let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                           .createInstance(Components.interfaces.calIIcsParser);
-    let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
-                               .createInstance(Components.interfaces.calIIcsSerializer);
+    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(Ci.calIIcsSerializer);
     let str = [
         "BEGIN:VCALENDAR",
         "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN",
@@ -183,8 +176,7 @@ function test_roundtrip() {
                 str.split("\r\n").sort().join("\r\n"));
 
     // Test parseFromStream
-    parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                       .createInstance(Components.interfaces.calIIcsParser);
+    parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     let stream = serializer.serializeToInputStream();
 
     parser.parseFromStream(stream);
@@ -203,10 +195,8 @@ function test_roundtrip() {
     equal(everything.join("\r\n"), str.split("\r\n").concat([""]).sort().join("\r\n"));
 
     // Test serializeToStream/parseFromStream
-    parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                       .createInstance(Components.interfaces.calIIcsParser);
-    let pipe = Components.classes["@mozilla.org/pipe;1"]
-                         .createInstance(Components.interfaces.nsIPipe);
+    parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0, null);
 
     serializer.serializeToStream(pipe.outputStream);

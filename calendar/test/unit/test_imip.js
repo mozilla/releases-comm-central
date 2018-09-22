@@ -10,9 +10,7 @@ Services.scriptloader.loadSubScript(
     calItipEmailTransport);
 
 function itipItemForTest(title, seq) {
-    let itipItem = Components
-            .classes["@mozilla.org/calendar/itip-item;1"]
-            .createInstance(Components.interfaces.calIItipItem);
+    let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
     itipItem.init([
         "BEGIN:VCALENDAR",
         "METHOD:REQUEST",

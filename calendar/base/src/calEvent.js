@@ -18,9 +18,9 @@ function calEvent() {
 }
 var calEventClassID = Components.ID("{974339d5-ab86-4491-aaaf-2b2ca177c12b}");
 var calEventInterfaces = [
-    Components.interfaces.calIItemBase,
-    Components.interfaces.calIEvent,
-    Components.interfaces.calIInternalShallowCopy
+    Ci.calIItemBase,
+    Ci.calIEvent,
+    Ci.calIInternalShallowCopy
 ];
 calEvent.prototype = {
     __proto__: calItemBase.prototype,
@@ -107,7 +107,7 @@ calEvent.prototype = {
                             try {
                                 icalprop.setParameter(paramName, propBucket[paramName]);
                             } catch (e) {
-                                if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                                if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
                                     // Illegal values should be ignored, but we could log them if
                                     // the user has enabled logging.
                                     cal.LOG("Warning: Invalid event parameter value " + paramName + "=" + propBucket[paramName]);
@@ -133,7 +133,7 @@ calEvent.prototype = {
         if (event.componentType != "VEVENT") {
             event = event.getFirstSubcomponent("VEVENT");
             if (!event) {
-                throw Components.results.NS_ERROR_INVALID_ARG;
+                throw Cr.NS_ERROR_INVALID_ARG;
             }
         }
 

@@ -18,7 +18,7 @@ var gCalendarStatusFeedback = {
     mStatusBar: null,
     mStatusProgressPanel: null,
     mThrobber: null,
-    mProgressMode: Components.interfaces.calIStatusObserver.NO_PROGRESS,
+    mProgressMode: Ci.calIStatusObserver.NO_PROGRESS,
     mCurIndex: 0,
     mInitialized: false,
     mCalendars: {},
@@ -45,9 +45,9 @@ var gCalendarStatusFeedback = {
     },
 
     startMeteors: function(aProgressMode, aCalendarCount) {
-        if (aProgressMode != Components.interfaces.calIStatusObserver.NO_PROGRESS) {
+        if (aProgressMode != Ci.calIStatusObserver.NO_PROGRESS) {
             if (!this.mInitialized) {
-                Components.utils.reportError("StatusObserver has not been initialized!");
+                Cu.reportError("StatusObserver has not been initialized!");
                 return;
             }
             this.mCalendars = {};
@@ -58,7 +58,7 @@ var gCalendarStatusFeedback = {
             }
             this.mProgressMode = aProgressMode;
             this.mStatusProgressPanel.removeAttribute("collapsed");
-            if (this.mProgressMode == Components.interfaces.calIStatusObserver.DETERMINED_PROGRESS) {
+            if (this.mProgressMode == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
                 this.mStatusBar.value = 0;
                 let commonStatus = cal.l10n.getCalString("gettingCalendarInfoCommon");
                 this.showStatusString(commonStatus);
@@ -73,8 +73,8 @@ var gCalendarStatusFeedback = {
         if (!this.mInitialized) {
             return;
         }
-        if (this.spinning != Components.interfaces.calIStatusObserver.NO_PROGRESS) {
-            this.mProgressMode = Components.interfaces.calIStatusObserver.NO_PROGRESS;
+        if (this.spinning != Ci.calIStatusObserver.NO_PROGRESS) {
+            this.mProgressMode = Ci.calIStatusObserver.NO_PROGRESS;
             this.mStatusProgressPanel.collapsed = true;
             this.mStatusBar.value = 0;
             this.mCalendarCount = 0;
@@ -89,8 +89,8 @@ var gCalendarStatusFeedback = {
         if (!this.mInitialized) {
             return;
         }
-        if (this.spinning != Components.interfaces.calIStatusObserver.NO_PROGRESS) {
-            if (this.spinning == Components.interfaces.calIStatusObserver.DETERMINED_PROGRESS) {
+        if (this.spinning != Ci.calIStatusObserver.NO_PROGRESS) {
+            if (this.spinning == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
                 if (!this.mCalendars[aCalendar.id] || this.mCalendars[aCalendar.id] === undefined) {
                     this.mCalendars[aCalendar.id] = true;
                     this.mStatusBar.value = parseInt(this.mStatusBar.value, 10) + this.mCalendarStep;
