@@ -599,6 +599,14 @@ nsLDAPConnection::OnLookupComplete(nsICancelable *aRequest,
     return rv;
 }
 
+NS_IMETHODIMP
+nsLDAPConnection::OnLookupByTypeComplete(nsICancelable      *aRequest,
+                                         nsIDNSByTypeRecord *aRes,
+                                         nsresult            aStatus)
+{
+  return NS_OK;
+}
+
 nsLDAPConnectionRunnable::nsLDAPConnectionRunnable(int32_t aOperationID,
                                                    nsILDAPOperation *aOperation,
                                                    nsLDAPConnection *aConnection)
