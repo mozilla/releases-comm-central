@@ -25,7 +25,7 @@ var tests = [
   setup,
   function* copyFolder1() {
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
-    let folders = new Array;
+    let folders = [];
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
@@ -33,7 +33,7 @@ var tests = [
   },
   function* copyFolder2() {
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
-    let folders = new Array;
+    let folders = [];
     folders.push(gEmptyLocal2);
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
@@ -78,8 +78,8 @@ var tests = [
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
     listMessages(folder2);
     listMessages(localAccountUtils.inboxFolder);
-    Assert.notEqual(folder1, null);
-    Assert.notEqual(folder2, null);
+    Assert.ok(folder1 !== null);
+    Assert.ok(folder2 !== null);
     // folder 1 and 2 should each now have 2 messages in them.
     Assert.equal(folderCount(folder1), 2);
     Assert.equal(folderCount(folder2), 2);
@@ -94,20 +94,16 @@ function folderCount(folder)
 {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let count = 0;
-  while (enumerator.hasMoreElements())
-  {
+  for (let hdr of fixIterator(enumerator, Ci.nsIMsgDBHdr)) {
     count++;
-    let hdr = enumerator.getNext();
   }
   return count;
 }
 
 function setup() {
   setupIMAPPump();
-  gEmptyLocal1 = localAccountUtils.incomingServer
-                                  .rootFolder.createLocalSubfolder("empty 1");
-  gEmptyLocal2 = localAccountUtils.incomingServer
-                                  .rootFolder.createLocalSubfolder("empty 2");
+  gEmptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
+  gEmptyLocal2 = localAccountUtils.rootFolder.createLocalSubfolder("empty 2");
 
   // these hacks are required because we've created the inbox before
   // running initial folder discovery, and adding the folder bails
@@ -144,10 +140,9 @@ function listMessages(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
   dump("listing messages for " + folder.prettyName + "\n");
-  while(enumerator.hasMoreElements())
+  for (let hdr of fixIterator(enumerator, Ci.nsIMsgDBHdr))
   {
     msgCount++;
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     dump(msgCount + ": " + hdr.subject + "\n");
   }
 }
