@@ -19,8 +19,6 @@
 #include "nsImapUtils.h"
 #include "nsIMAPNamespace.h"
 #include "nsIDocShell.h"
-#include "mozilla/net/ReferrerPolicy.h"
-#include "nsDocShellLoadInfo.h"
 #include "nsIRDFService.h"
 #include "nsRDFCID.h"
 #include "nsIProgressEventSink.h"
@@ -620,17 +618,15 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
     nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
     if (NS_SUCCEEDED(rv) && docShell)
     {
-      RefPtr<nsDocShellLoadInfo> loadInfo;
       // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
       // treat this load as if it were a user click event. Then the dispatching stuff will be much
       // happier.
-      if (aImapAction == nsImapUrl::nsImapOpenMimePart)
-      {
-        loadInfo = new nsDocShellLoadInfo();
-        loadInfo->SetLoadType(LOAD_LINK);
-      }
-
-      rv = docShell->LoadURI(url, loadInfo, nsIWebNavigation::LOAD_FLAGS_NONE, false);
+      rv = docShell->LoadURI(url,
+                             nullptr,
+                             aImapAction == nsImapUrl::nsImapOpenMimePart
+                               ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
+                               : nsIWebNavigation::LOAD_FLAGS_NONE,
+                             false);
     }
     else
     {

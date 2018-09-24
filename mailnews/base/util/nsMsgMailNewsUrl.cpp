@@ -791,11 +791,10 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetMimeHeaders(nsIMimeHeaders *mimeHeaders)
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
-                                        nsDocShellLoadInfo* loadInfo,
                                         uint32_t aLoadFlags)
 {
   NS_ENSURE_ARG_POINTER(docShell);
-  return docShell->LoadURI(this, loadInfo, aLoadFlags, false);
+  return docShell->LoadURI(this, nullptr, aLoadFlags, false);
 }
 
 #define SAVE_BUF_SIZE FILE_IO_BUFFER_SIZE

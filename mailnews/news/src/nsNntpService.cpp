@@ -22,8 +22,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsINntpIncomingServer.h"
 #include "nsIDocShell.h"
-#include "mozilla/net/ReferrerPolicy.h"
-#include "nsDocShellLoadInfo.h"
 #include "mozIDOMWindow.h"
 #include "nsIMsgSearchSession.h"
 #include "nsMailDirServiceDefs.h"
@@ -306,17 +304,15 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI *aUrl,
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
   if (NS_SUCCEEDED(rv))
   {
-    RefPtr<nsDocShellLoadInfo> loadInfo;
     // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
-    if (mOpenAttachmentOperation)
-    {
-      loadInfo = new nsDocShellLoadInfo();
-      loadInfo->SetLoadType(LOAD_LINK);
-    }
-
-    rv = docShell->LoadURI(aUrl, loadInfo, nsIWebNavigation::LOAD_FLAGS_NONE, false);
+    rv = docShell->LoadURI(aUrl,
+                           nullptr,
+                           mOpenAttachmentOperation
+                             ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
+                             : nsIWebNavigation::LOAD_FLAGS_NONE,
+                           false);
   }
   else
   {
@@ -447,11 +443,7 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(const char *aContentType,
 
     nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
     if (NS_SUCCEEDED(rv) && docShell)
-    {
-      RefPtr<nsDocShellLoadInfo> loadInfo = new nsDocShellLoadInfo();
-      loadInfo->SetLoadType(LOAD_LINK);
-      return docShell->LoadURI(url, loadInfo, nsIWebNavigation::LOAD_FLAGS_NONE, false);
-    }
+      return docShell->LoadURI(url, nullptr, nsIWebNavigation::LOAD_FLAGS_IS_LINK, false);
     else
       return RunNewsUrl(url, aMsgWindow, aDisplayConsumer);
   }

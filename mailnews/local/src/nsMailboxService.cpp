@@ -21,8 +21,6 @@
 #include "nsMsgUtils.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsNetUtil.h"
-#include "mozilla/net/ReferrerPolicy.h"
-#include "nsDocShellLoadInfo.h"
 #include "nsIWebNavigation.h"
 #include "prprf.h"
 #include "nsIMsgHdr.h"
@@ -233,16 +231,15 @@ nsresult nsMailboxService::FetchMessage(const char* aMessageURI,
   // if we were given a docShell, run the url in the docshell..otherwise just run it normally.
   if (NS_SUCCEEDED(rv) && docShell)
   {
-    RefPtr<nsDocShellLoadInfo> loadInfo;
     // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
-    if (mailboxAction == nsIMailboxUrl::ActionFetchPart)
-    {
-      loadInfo = new nsDocShellLoadInfo();
-      loadInfo->SetLoadType(LOAD_LINK);
-    }
-    rv = docShell->LoadURI(url, loadInfo, nsIWebNavigation::LOAD_FLAGS_NONE, false);
+    rv = docShell->LoadURI(url,
+                           nullptr,
+                           mailboxAction == nsIMailboxUrl::ActionFetchPart
+                             ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
+                             : nsIWebNavigation::LOAD_FLAGS_NONE,
+                           false);
   }
   else
     rv = RunMailboxUrl(url, aDisplayConsumer);
@@ -363,13 +360,10 @@ NS_IMETHODIMP nsMailboxService::OpenAttachment(const char *aContentType,
   // if we were given a docShell, run the url in the docshell..otherwise just run it normally.
   if (NS_SUCCEEDED(rv) && docShell)
   {
-    RefPtr<nsDocShellLoadInfo> loadInfo;
     // DIRTY LITTLE HACK --> since we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
-    loadInfo = new nsDocShellLoadInfo();
-    loadInfo->SetLoadType(LOAD_LINK);
-    return docShell->LoadURI(URL, loadInfo, nsIWebNavigation::LOAD_FLAGS_NONE, false);
+    return docShell->LoadURI(URL, nullptr, nsIWebNavigation::LOAD_FLAGS_IS_LINK, false);
   }
   return RunMailboxUrl(URL, aDisplayConsumer);
 
