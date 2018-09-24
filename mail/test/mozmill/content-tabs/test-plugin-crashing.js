@@ -133,8 +133,7 @@ var PluginCrashObserver = {
       return;
 
     try {
-      this.removeMinidump(
-        aSubject.QueryInterface(Ci.nsIPropertyBag2));
+      this.removeMinidump(aSubject.QueryInterface(Ci.nsIPropertyBag2));
     } catch (ex) {
       Cu.reportError(ex);
       frame.events.fail({exception: ex, test: frame.events.currentTest});
@@ -155,11 +154,32 @@ var PluginCrashObserver = {
     let extraFile = profD.clone();
     extraFile.append(crashId + ".extra");
 
+    // Retry deletion until crash reporter releases the file.
+    function remove_locked_file(aFile) {
+      function try_removal(aFile) {
+        try {
+          // Yield to the event loop while waiting for the file to get unlocked.
+          mc.sleep(0);
+          aFile.remove(false);
+        } catch (e) {
+          if (e.result == Cr.NS_ERROR_FILE_IS_LOCKED)
+            return false;
+
+          throw e;
+        }
+        return true;
+      }
+
+      mc.waitFor(() => try_removal(aFile) === true,
+                 `File ${aFile.leafName} couldn't be removed due to a lock`, 20000, 250);
+      assert_false(aFile.exists());
+    }
+
     if (dumpFile.exists())
-      dumpFile.remove(false);
+      remove_locked_file(dumpFile);
 
     if (extraFile.exists())
-      extraFile.remove(false);
+      remove_locked_file(extraFile);
   }
 }
 
