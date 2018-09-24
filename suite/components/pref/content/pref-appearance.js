@@ -96,7 +96,7 @@ function NumberLocales_Load()
       .getService(Ci.mozIOSPreferences);
 
   let appLocale = Services.locale.appLocalesAsBCP47[0];
-  let rsLocale = osprefs.getRegionalPrefsLocales()[0];
+  let rsLocale = osprefs.regionalPrefsLocales[0];
   let names = Services.intl.getLocaleDisplayNames(undefined, [appLocale, rsLocale]);
 
   let appLocaleRadio = document.getElementById("appLocale");
