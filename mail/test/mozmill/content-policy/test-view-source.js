@@ -28,14 +28,6 @@ function setupModule(module) {
   }
 
   folder = create_folder("viewsource");
-
-  // Bug 805374 removed the charsetMenu from view source.
-  // Enable this test again when bug 940907 is fixed.
-  test_view_source_reload.__force_skip__ = true;
-
-  // Skip on mac, as we can't click the (native) menus to make it work.
-  if (mc.mozmillModule.isMac)
-    test_view_source_reload.__force_skip__ = true;
 }
 
 function addToFolder(aSubject, aBody, aFolder) {
@@ -90,8 +82,12 @@ function test_view_source_reload() {
 
   let doc = vsc.e("content").contentDocument; // keep a ref to the latin1 doc
 
+  // Click the new window to make it receive further events properly.
+  vsc.click(vsc.eid("content"));
+
+  vsc.click(vsc.eid("menu_view"));
   vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"),
-    [{id: "charsetMenu"}, {label: "Unicode (UTF-8)"}]);
+    [{id: "charsetMenu"}, {label: "Unicode"}]);
 
   vsc.waitFor(() => vsc.e("content").contentDocument != doc &&
                     vsc.e("content").contentDocument.querySelector("pre") != null,
@@ -104,4 +100,6 @@ function test_view_source_reload() {
 
   close_window(vsc);
 }
+// Skip on Mac, as we can't click the (native) menus to make it work.
+test_view_source_reload.EXCLUDED_PLATFORMS = ["darwin"];
 

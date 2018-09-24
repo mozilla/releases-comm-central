@@ -36,10 +36,6 @@ function setupModule(module)
   // Note, the uri is for hostname "invalid" which is the original uri. See
   // setupProtocolTest parameters.
   var prefix = "news://invalid:"+NNTP_PORT+"/";
-
-  if (mc.mozmillModule.isMac) {
-    test_customize_toolbar_doesnt_double_get_mail_menu.__force_skip__ = true;
-  }
 }
 
 /*
@@ -124,6 +120,7 @@ function test_customize_toolbar_doesnt_double_get_mail_menu()
 
   check_getAllNewMsgMenu();
 }
+test_customize_toolbar_doesnt_double_get_mail_menu.EXCLUDED_PLATFORMS = ["darwin"];
 
 /* A helper function that opens up the new filter dialog (assuming that the
  * main filters dialog is already open), creates a simple filter, and then
