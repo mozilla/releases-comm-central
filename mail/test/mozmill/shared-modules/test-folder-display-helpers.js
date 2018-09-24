@@ -92,6 +92,11 @@ var mark_failure;
 // the windowHelper module
 var windowHelper;
 
+
+// Default size of the main Thunderbird window in which the tests will run.
+var gDefaultWindowWidth = 1024;
+var gDefaultWindowHeight = 768;
+
 var initialized = false;
 function setupModule() {
   if (initialized)
@@ -259,13 +264,15 @@ function setupModule() {
 function installInto(module) {
   setupModule();
 
-  // force the window to be a nice size we all can love.
-  // note that we can't resize a window larger than the display it lives on!
+  // Force the window to be a nice size we all can love.
+  // Note that we can't resize a window larger than the display it lives on!
   // (I think the inner window is actually limited to the display size, so since
   // resizeTo operates on outerWidth/outerHeight, their limit is actually
-  // screen size + window border size)
-  if (mc.window.outerWidth != 1024 || mc.window.outerHeight != 768)
-    mc.window.resizeTo(1024, 768);
+  // screen size + window border size.)
+  if (mc.window.outerWidth != gDefaultWindowWidth ||
+      mc.window.outerHeight != gDefaultWindowHeight) {
+    restore_default_window_size();
+  }
 
   // now copy everything into the module they provided to us...
   let us = collector.getModule('folder-display-helpers');
@@ -2830,9 +2837,10 @@ var kWideMailLayout = 1;
 var kVerticalMailLayout = 2;
 
 /**
- * Assert that the current mail pane layout is shown
+ * Assert that the expected mail pane layout is shown.
+ *
+ * @param aLayout  layout code
  */
-
 function assert_pane_layout(aLayout) {
   let actualPaneLayout = Services.prefs.getIntPref("mail.pane_config.dynamic");
   if (actualPaneLayout != aLayout)
@@ -2841,11 +2849,30 @@ function assert_pane_layout(aLayout) {
 }
 
 /**
- * Change that the current mail pane layout
+ * Change the current mail pane layout.
+ *
+ * @param aLayout  layout code
  */
-
 function set_pane_layout(aLayout) {
   Services.prefs.setIntPref("mail.pane_config.dynamic", aLayout);
+}
+
+/*
+ * Check window sizes of the main Tb window whether they are at the default values.
+ * Some tests change the window size so need to be sure what size they start with.
+ */
+function assert_default_window_size() {
+  assert_equals(mc.window.outerWidth, gDefaultWindowWidth,
+                "Main window didn't meet the expected width");
+  assert_equals(mc.window.outerHeight, gDefaultWindowHeight,
+                "Main window didn't meet the expected height");
+}
+
+/**
+ * Restore window to nominal dimensions; saving the size was not working out.
+ */
+function restore_default_window_size() {
+  windowHelper.resize_to(mc, gDefaultWindowWidth, gDefaultWindowHeight);
 }
 
 /** exported from messageInjection */

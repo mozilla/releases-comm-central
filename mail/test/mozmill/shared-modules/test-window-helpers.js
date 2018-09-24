@@ -91,6 +91,8 @@ function installInto(module) {
   module.plan_for_observable_event = plan_for_observable_event;
   module.wait_for_observable_event = wait_for_observable_event;
 
+  module.resize_to = resize_to;
+
   module.augment_controller = augment_controller;
 }
 
@@ -808,6 +810,25 @@ function wait_for_observable_event(aTopic) {
   }
 }
 
+/**
+ * Resize given window to new dimensions.
+ *
+ * @param aController  window controller
+ * @param aWidth       the requested window width
+ * @param aHeight      the requested window height
+ */
+function resize_to(aController, aWidth, aHeight) {
+  mark_action("test", "resize_to", [aWidth, "x", aHeight]);
+  aController.window.resizeTo(aWidth, aHeight);
+  // Give the event loop a spin in order to let the reality of an asynchronously
+  // interacting window manager have its impact. This still may not be
+  // sufficient.
+  aController.sleep(0);
+  aController.waitFor(() => (aController.window.outerWidth == aWidth) &&
+                            (aController.window.outerHeight == aHeight),
+                      "Timeout waiting for resize (is the screen resolution at least 1280 x 1024?)",
+                      10000, 50);
+}
 
 /**
  * Methods to augment every controller that passes through augment_controller.

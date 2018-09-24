@@ -891,9 +891,7 @@ function test_toolbar_collapse_and_expand() {
     let mode = toolbar.getAttribute("mode");
 
     // Get really big, so that we can figure out how big we actually want to be.
-    mc.window.resizeTo(1200, 600);
-    // spin the event loop once
-    mc.sleep(0);
+    resize_to(mc, 1200, gDefaultWindowHeight);
 
     let fromWidth = mc.e("expandedfromRow").clientWidth;
 
@@ -909,9 +907,7 @@ function test_toolbar_collapse_and_expand() {
 
     // And resize to half way between the big and small widths, so that we
     //  can toggle the mode to force the overflow.
-    mc.window.resizeTo((bigWidth + smallWidth) / 2, 600);
-    // spin the event loop once
-    mc.sleep(0);
+    resize_to(mc, Math.round((bigWidth + smallWidth) / 2), gDefaultWindowHeight);
 
     // Make sure we are too small to contain the buttons and from line, so
     //  we will be tall.
@@ -932,17 +928,13 @@ function test_toolbar_collapse_and_expand() {
       throw new Error("The header box should have returned to its original size!");
 
     // And make our window big to achieve the same effect as the just icons mode.
-    mc.window.resizeTo(1200, 600);
-    // spin the event loop once
-    mc.sleep(0);
+    resize_to(mc, 1200, gDefaultWindowHeight);
     mc.waitFor(() => expandedHeadersTopBox.clientHeight == shortHeight,
                "The header box should have returned to its wide size!")
   }
   finally {
-    // restore window to nominal dimensions; saving was not working out
-    //  See also: quick-filter-bar/test-display-issues.js if we change the
-    //            default window size.
-    mc.window.resizeTo(1024, 768);
+    // restore window to nominal dimensions
+    restore_default_window_size();
   }
 }
 

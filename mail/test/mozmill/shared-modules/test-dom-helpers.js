@@ -229,4 +229,6 @@ function collapse_panes(aElement, aShouldBeCollapsed) {
       }
     }
   }
+  // Spin the event loop once to let other window elements redraw.
+  mc.sleep(50);
 }

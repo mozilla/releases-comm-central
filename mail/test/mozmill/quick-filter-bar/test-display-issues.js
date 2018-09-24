@@ -15,39 +15,32 @@ var MODULE_NAME = "test-display-issues";
 
 var RELATIVE_ROOT = '../shared-modules';
 
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                        "quick-filter-bar-helper", "dom-helpers"];
 
 var folder;
 var setUnstarred, setStarred;
 var gOriginalPaneWidth;
 
+var gEnlargedWindowWidth = 1260;
+var gShrunkenWindowWidth = 600;
+
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
+
   folder = create_folder("QuickFilterBarDisplayIssues");
   be_in_folder(folder);
-  // Let's check window sizes as we will restore back to them after the end of the test.
-  assert_equals(mc.window.outerWidth, 1024, "Main window didn't meet the expected width");
-  assert_equals(mc.window.outerHeight, 768, "Main window didn't meet the expected height");
+
+  // Let's check window dimensions so we can enlarge from them.
+  assert_default_window_size();
+  assert_true(gEnlargedWindowWidth > gDefaultWindowWidth,
+              "Main window too large for the test logic");
+
+  // Store folder pane width that we will change temporarily.
   let folderPaneBox = mc.e("folderPaneBox");
   gOriginalPaneWidth = folderPaneBox.width;
-}
-
-function wait_for_resize(width) {
-  mc.waitFor(() => (mc.window.outerWidth == width),
-             "Timeout waiting for resize (is the screen resolution 1280 x 1024?)", 1000, 50);
-}
-
-function resize_to(width, height) {
-  mark_action("test", "resize_to", [width, "x", height]);
-  mc.window.resizeTo(width, height);
-  // Give the event loop a spin in order to let the reality of an asynchronously
-  //  interacting window manager have its impact.  This still may not be
-  //  sufficient.
-  mc.sleep(0);
-  wait_for_resize(width);
 }
 
 /**
@@ -74,11 +67,7 @@ function test_buttons_collapse_and_expand() {
                  "shrunk?", qfbCollapsy.getAttribute("shrink")]);
   }
 
-  function assertCollapsed(width) {
-    // It's possible the window hasn't actually resized yet, so double-check and
-    // spin if needed.
-    wait_for_resize(width);
-
+  function assertCollapsed() {
     // The bar should be shrunken and the button should be the same size as its
     // image!
     if (qfbCollapsy.getAttribute("shrink") != "true")
@@ -86,11 +75,7 @@ function test_buttons_collapse_and_expand() {
     if (qfbExemplarLabel.clientWidth != 0)
       throw new Error("The exemplar label should be collapsed!");
   }
-  function assertExpanded(width) {
-    // It's possible the window hasn't actually resized yet, so double-check and
-    // spin if needed.
-    wait_for_resize(width);
-
+  function assertExpanded() {
     // The bar should not be shrunken and the button should be smaller than its
     // label!
     if (qfbCollapsy.hasAttribute("shrink"))
@@ -102,33 +87,26 @@ function test_buttons_collapse_and_expand() {
   logState("entry");
 
   // -- GIANT!
-  resize_to(1260, 600);
+  resize_to(mc, gEnlargedWindowWidth, gDefaultWindowHeight);
   // Right, so resizeTo caps us at the display size limit, so we may end up
   // smaller than we want.  So let's turn off the folder pane too.
   collapse_panes(mc.e("folderpane_splitter"), true);
-
-  // spin the event loop once
-  mc.sleep(50);
   logState("giant");
-  assertExpanded(1260);
+  assertExpanded();
   // NOTE! 1260 is actually not much above what's needed to get the
   // expanded qfb.
 
   // -- tiny.
   collapse_panes(mc.e("folderpane_splitter"), false);
-  resize_to(600, 600);
-  // spin the event loop once
-  mc.sleep(0);
+  resize_to(mc, gShrunkenWindowWidth, gDefaultWindowHeight);
   logState("tiny");
-  assertCollapsed(600);
+  assertCollapsed();
 
   // -- GIANT again!
-  resize_to(1260, 600);
+  resize_to(mc, gEnlargedWindowWidth, gDefaultWindowHeight);
   collapse_panes(mc.e("folderpane_splitter"), true);
-  // spin the event loop once
-  mc.sleep(50);
   logState("giant again!");
-  assertExpanded(1260);
+  assertExpanded();
 }
 
 function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
@@ -140,8 +118,7 @@ function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
   set_pane_layout(kVerticalMailLayout);
 
   // Make our window nice and wide.
-  resize_to(1200, 600);
-  wait_for_resize(1200);
+  resize_to(mc, gEnlargedWindowWidth, gDefaultWindowHeight);
 
   // Now expand the folder pane to cause the QFB buttons to shrink
   let folderPaneBox = mc.e("folderPaneBox");
@@ -158,10 +135,8 @@ function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
 }
 
 function teardownModule() {
-  // restore window to nominal dimensions; saving was not working out
-  //  See also: message-header/test-message-header.js if we change the
-  //            default window size.
-  resize_to(1024, 768);
+  // Restore the window to original layout.
+  restore_default_window_size();
   collapse_panes(mc.e("folderpane_splitter"), false);
   let folderPaneBox = mc.e("folderPaneBox");
   folderPaneBox.width = gOriginalPaneWidth;
