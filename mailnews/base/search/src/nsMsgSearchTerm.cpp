@@ -1078,9 +1078,11 @@ nsresult nsMsgSearchTerm::MatchRfc2047String(const nsACString &rfc2047string,
 {
   NS_ENSURE_ARG_POINTER(pResult);
 
-  nsCOMPtr<nsIMimeConverter> mimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID);
+  nsresult rv;
+  nsCOMPtr<nsIMimeConverter> mimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
   nsAutoString stringToMatch;
-  nsresult rv = mimeConverter->DecodeMimeHeader(
+  rv = mimeConverter->DecodeMimeHeader(
     PromiseFlatCString(rfc2047string).get(), charset, charsetOverride, false,
     stringToMatch);
   NS_ENSURE_SUCCESS(rv, rv);

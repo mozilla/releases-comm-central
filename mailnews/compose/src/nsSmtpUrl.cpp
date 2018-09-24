@@ -206,9 +206,11 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char * searchPart)
     } // while we still have part of the url to parse...
   } // if rest && *rest
 
+  nsresult rv;
   // Get a global converter
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-    do_GetService(NS_MIME_CONVERTER_CONTRACTID);
+    do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Now unescape everything, and mime-decode the things that can be encoded.
   UnescapeAndConvert(mimeConverter, escapedToPart, m_toPart);
