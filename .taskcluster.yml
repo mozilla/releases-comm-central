@@ -71,16 +71,15 @@ tasks:
               - "index.comm.v2.${repository.project}.revision.${push.revision}.taskgraph.decision"
               - "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision"
               - "notify.email.${ownerEmail}.on-failed"
-              - $if: '"mozilla@hocat.ca" in ownerEmail'
-                # Until taskcluster is ready for general consumption, don't report exceptions from taskcluster.
-                then: "notify.email.${ownerEmail}.on-exception"
+              - "notify.email.${ownerEmail}.on-exception"
             else:
-              - $if: 'tasks_for == "action"'
-                then:
-                  - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-failed"
-                  - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-exception"
-                  - "index.comm.v2.${repository.project}.pushlog-id.${_pushId}.actions.${ownTaskId}"
-                else: "index.comm.v2.${repository.project}.latest.taskgraph.decision-${cron.job_name}"
+              $if: 'tasks_for == "action"'
+              then:
+                - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-failed"
+                - "notify.email.taskcluster-notifications+action-task@mozilla.com.on-exception"
+                - "index.comm.v2.${repository.project}.pushlog-id.${_pushId}.actions.${ownTaskId}"
+              else:
+                - "index.comm.v2.${repository.project}.latest.taskgraph.decision-${cron.job_name}"
 
       scopes:
         $if: 'tasks_for == "hg-push"'
