@@ -708,10 +708,8 @@ function markDefaultServer(newDefault, oldDefault) {
   if (oldDefault == newDefault)
     return;
 
-  let accountTreeNodes = document.getElementById("account-tree-children")
-                                 .childNodes;
-  for (let i = 0; i < accountTreeNodes.length; i++) {
-    let accountNode = accountTreeNodes[i];
+  let accountTree = document.getElementById("account-tree-children");
+  for (let accountNode of accountTree.childNodes) {
     if (newDefault && newDefault == accountNode._account) {
       let props = accountNode.firstChild.firstChild.getAttribute("properties");
       accountNode.firstChild.firstChild
@@ -723,6 +721,30 @@ function markDefaultServer(newDefault, oldDefault) {
       accountNode.firstChild.firstChild.setAttribute("properties", props);
     }
   }
+}
+
+/**
+ * Sets the name of the account rowitem in the tree pane.
+ *
+ * @param aAccountKey   the key of the account to change
+ * @param aAccountNode  the node on which to change the label
+ * @param aLabel        the value of the label to set
+ */
+function setAccountLabel(aAccountKey, aAccountNode, aLabel) {
+  if (!aAccountNode) {
+    // We can't use the current tree selection to determine the current account,
+    // because this function may be called when the selection
+    // is already on another tree item (account) than the one we want to change.
+    // So find the proper node using the account key.
+    let accountTree = document.getElementById("account-tree-children");
+    for (let accountNode of accountTree.childNodes) {
+      if (("_account" in accountNode) && (accountNode._account.key == aAccountKey)) {
+        aAccountNode = accountNode.firstChild.firstChild;
+        break;
+      }
+    }
+  }
+  aAccountNode.setAttribute("label", aLabel);
 }
 
 /**
@@ -1621,7 +1643,7 @@ var gAccountTree = {
           kidtreeitem.appendChild(kidtreerow);
           var kidtreecell = document.createElement("treecell");
           kidtreerow.appendChild(kidtreecell);
-          kidtreecell.setAttribute("label", panel.string);
+          setAccountLabel(null, kidtreecell, panel.string);
           kidtreeitem.setAttribute("PageTag", panel.src);
           kidtreeitem._account = account;
         }

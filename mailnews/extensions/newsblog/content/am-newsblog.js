@@ -5,7 +5,7 @@
 
 ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 
-var gServer, gUpdateEnabled, gUpdateValue, gBiffUnits,
+var gAccount, gUpdateEnabled, gUpdateValue, gBiffUnits,
     gAutotagEnable, gAutotagUsePrefix, gAutotagPrefix;
 
 function onInit(aPageId, aServerId) {
@@ -23,7 +23,7 @@ function onInit(aPageId, aServerId) {
   title.setAttribute("title", titleValue);
   document.title = titleValue;
 
-  let optionsAcct = FeedUtils.getOptionsAcct(gServer);
+  let optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
   document.getElementById("doBiff").checked = optionsAcct.doBiff;
 
   gUpdateEnabled = document.getElementById("updateEnabled");
@@ -49,14 +49,14 @@ function onInit(aPageId, aServerId) {
 }
 
 function onPreInit(account, accountValues) {
-  gServer = account.incomingServer;
+  gAccount = account;
 }
 
 function setPrefs(aNode) {
-  let optionsAcct =  FeedUtils.getOptionsAcct(gServer);
+  let optionsAcct =  FeedUtils.getOptionsAcct(gAccount.incomingServer);
   switch (aNode.id) {
     case "doBiff":
-      FeedUtils.pauseFeedFolderUpdates(gServer.rootFolder, !aNode.checked, true);
+      FeedUtils.pauseFeedFolderUpdates(gAccount.incomingServer.rootFolder, !aNode.checked, true);
       break;
     case "updateEnabled":
     case "updateValue":
@@ -83,5 +83,5 @@ function setPrefs(aNode) {
       break;
   }
 
-  FeedUtils.setOptionsAcct(gServer, optionsAcct);
+  FeedUtils.setOptionsAcct(gAccount.incomingServer, optionsAcct);
 }

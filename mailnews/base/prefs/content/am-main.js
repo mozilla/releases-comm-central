@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var gAccount;
+
 function onInit(aPageId, aServerId)
 {
   var accountName = document.getElementById("server.prettyName");
@@ -23,6 +25,7 @@ function onInit(aPageId, aServerId)
 
 function onPreInit(account, accountValues)
 {
+  gAccount = account;
   loadSMTPServerList();
 }
 
@@ -32,24 +35,23 @@ function manageIdentities()
   // UI. This ensures that the changes are reflected in the identity list dialog
   // onSave();
 
-  var account = parent.getCurrentAccount();
-  if (!account)
+  if (!gAccount)
     return;
 
   var accountName = document.getElementById("server.prettyName").value;
 
-  var args = { account: account, accountName: accountName, result: false };
+  var args = { account: gAccount, accountName: accountName, result: false };
 
   // save the current identity settings so they show up correctly
   // if the user just changed them in the manage identities dialog
-  var identity = account.defaultIdentity;
+  var identity = gAccount.defaultIdentity;
   saveIdentitySettings(identity);
 
   window.openDialog("am-identities-list.xul", "", "chrome,modal,resizable=no,centerscreen", args);
 
   if (args.result) {
     // now re-initialize the default identity settings in case they changed
-    identity = account.defaultIdentity; // refetch the default identity in case it changed
+    identity = gAccount.defaultIdentity; // Refetch the default identity in case it changed.
     initIdentityValues(identity);
   }
 

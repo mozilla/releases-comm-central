@@ -33,6 +33,7 @@
     <label value="&accountName.label;" control="server.prettyName"
            accesskey="&accountName.accesskey;"/>
     <textbox wsm_persist="true" size="30" id="server.prettyName"
+             onblur="parent.setAccountLabel(gAccount.key, null, this.value);"
              prefstring="mail.server.%serverkey%.name"/>
   </hbox>
 

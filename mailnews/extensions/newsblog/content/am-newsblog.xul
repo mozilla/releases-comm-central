@@ -46,6 +46,7 @@
       <textbox id="server.prettyName"
                wsm_persist="true"
                size="30"
+               onblur="parent.setAccountLabel(gAccount.key, null, this.value);"
                prefstring="mail.server.%serverkey%.name"/>
     </hbox>
 
@@ -121,7 +122,7 @@
     <hbox align="center">
       <button label="&manageSubscriptions.label;"
               accesskey="&manageSubscriptions.accesskey;"
-              oncommand="openSubscriptionsDialog(gServer.rootFolder);"/>
+              oncommand="openSubscriptionsDialog(gAccount.incomingServer.rootFolder);"/>
       <spacer flex="1"/>
     </hbox>
 

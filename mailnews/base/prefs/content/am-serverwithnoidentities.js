@@ -5,7 +5,7 @@
 
 ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
-var gServer;
+var gAccount;
 var gOriginalStoreType;
 
 /**
@@ -23,7 +23,8 @@ function clickStoreTypeMenu(aStoreTypeElement) {
   let response = { newRootFolder: null };
   // Send 'response' as an argument to converterDialog.xhtml.
   window.openDialog("converterDialog.xhtml","mailnews:mailstoreconverter",
-                    "modal,centerscreen,width=800,height=180", gServer,
+                    "modal,centerscreen,width=800,height=180",
+                    gAccount.incomingServer,
                     aStoreTypeElement.value, response);
   changeStoreType(response);
 }
@@ -65,7 +66,7 @@ function onInit(aPageId, aServerId) {
 }
 
 function onPreInit(account, accountValues) {
-  gServer = account.incomingServer;
+  gAccount = account;
 }
 
 function onSave()
