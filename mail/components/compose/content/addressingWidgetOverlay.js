@@ -273,16 +273,16 @@ function awSetInputAndPopupValue(inputElem, inputValue, popupElem, popupValue, r
 }
 
 function _awSetInputAndPopup(inputValue, popupValue, parentNode, templateNode) {
-    top.MAX_RECIPIENTS++;
+  top.MAX_RECIPIENTS++;
 
-    var newNode = templateNode.cloneNode(true);
-    parentNode.appendChild(newNode); // we need to insert the new node before we set the value of the select element!
+  var newNode = templateNode.cloneNode(true);
+  parentNode.appendChild(newNode); // we need to insert the new node before we set the value of the select element!
 
-    var input = newNode.getElementsByTagName(awInputElementName());
-    var select = newNode.getElementsByTagName(awSelectElementName());
+  var input = newNode.getElementsByTagName(awInputElementName());
+  var select = newNode.getElementsByTagName(awSelectElementName());
 
-    if (input && input.length == 1 && select && select.length == 1)
-      awSetInputAndPopupValue(input[0], inputValue, select[0], popupValue, top.MAX_RECIPIENTS);
+  if (input && input.length == 1 && select && select.length == 1)
+    awSetInputAndPopupValue(input[0], inputValue, select[0], popupValue, top.MAX_RECIPIENTS);
 }
 
 function awSetInputAndPopup(inputValue, popupValue, parentNode, templateNode) {

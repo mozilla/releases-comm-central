@@ -547,60 +547,60 @@ var gSendListener = {
 
 // all progress notifications are done through the nsIWebProgressListener implementation...
 var progressListener = {
-    onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
-        document.getElementById("compose-progressmeter").setAttribute("mode", "undetermined");
-        document.getElementById("statusbar-progresspanel").collapsed = false;
-      }
+  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
+      document.getElementById("compose-progressmeter").setAttribute("mode", "undetermined");
+      document.getElementById("statusbar-progresspanel").collapsed = false;
+    }
 
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-        gSendOperationInProgress = false;
-        gSaveOperationInProgress = false;
-        document.getElementById("compose-progressmeter").setAttribute("mode", "normal");
-        document.getElementById("compose-progressmeter").setAttribute("value", 0);
-        document.getElementById("statusbar-progresspanel").collapsed = true;
-        document.getElementById("statusText").setAttribute("label", "");
-      }
-    },
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+      gSendOperationInProgress = false;
+      gSaveOperationInProgress = false;
+      document.getElementById("compose-progressmeter").setAttribute("mode", "normal");
+      document.getElementById("compose-progressmeter").setAttribute("value", 0);
+      document.getElementById("statusbar-progresspanel").collapsed = true;
+      document.getElementById("statusText").setAttribute("label", "");
+    }
+  },
 
-    onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
-      // Calculate percentage.
-      var percent;
-      if (aMaxTotalProgress > 0) {
-        percent = Math.round((aCurTotalProgress * 100) / aMaxTotalProgress);
-        if (percent > 100)
-          percent = 100;
+  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
+    // Calculate percentage.
+    var percent;
+    if (aMaxTotalProgress > 0) {
+      percent = Math.round((aCurTotalProgress * 100) / aMaxTotalProgress);
+      if (percent > 100)
+        percent = 100;
 
-        document.getElementById("compose-progressmeter").removeAttribute("mode");
+      document.getElementById("compose-progressmeter").removeAttribute("mode");
 
-        // Advance progress meter.
-        document.getElementById("compose-progressmeter").setAttribute("value", percent);
-      } else {
-        // Progress meter should be barber-pole in this case.
-        document.getElementById("compose-progressmeter").setAttribute("mode", "undetermined");
-      }
-    },
+      // Advance progress meter.
+      document.getElementById("compose-progressmeter").setAttribute("value", percent);
+    } else {
+      // Progress meter should be barber-pole in this case.
+      document.getElementById("compose-progressmeter").setAttribute("mode", "undetermined");
+    }
+  },
 
-    onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
-      // we can ignore this notification
-    },
+  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
+    // we can ignore this notification
+  },
 
-    onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
-      // Looks like it's possible that we get call while the document has been already delete!
-      // therefore we need to protect ourself by using try/catch
-      try {
-        let statusText = document.getElementById("statusText");
-        if (statusText)
-          statusText.setAttribute("label", aMessage);
-      } catch (ex) {}
-    },
+  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
+    // Looks like it's possible that we get call while the document has been already delete!
+    // therefore we need to protect ourself by using try/catch
+    try {
+      let statusText = document.getElementById("statusText");
+      if (statusText)
+        statusText.setAttribute("label", aMessage);
+    } catch (ex) {}
+  },
 
-    onSecurityChange(aWebProgress, aRequest, state) {
-      // we can ignore this notification
-    },
+  onSecurityChange(aWebProgress, aRequest, state) {
+    // we can ignore this notification
+  },
 
-    QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                            "nsISupportsWeakReference"]),
+  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
+                                          "nsISupportsWeakReference"]),
 };
 
 var defaultController = {
@@ -5432,151 +5432,151 @@ function hideIrrelevantAddressingOptions(aAccountKey) {
 }
 
 function LoadIdentity(startup) {
-    var identityElement = document.getElementById("msgIdentity");
-    var prevIdentity = gCurrentIdentity;
+  var identityElement = document.getElementById("msgIdentity");
+  var prevIdentity = gCurrentIdentity;
 
-    if (identityElement) {
-        var idKey = identityElement.selectedItem.getAttribute("identitykey");
-        gCurrentIdentity = MailServices.accounts.getIdentity(idKey);
+  if (identityElement) {
+    var idKey = identityElement.selectedItem.getAttribute("identitykey");
+    gCurrentIdentity = MailServices.accounts.getIdentity(idKey);
 
-        let accountKey = null;
-        // Set the account key value on the menu list.
-        if (identityElement.selectedItem) {
-          accountKey = identityElement.selectedItem.getAttribute("accountkey");
-          identityElement.setAttribute("accountkey", accountKey);
-          hideIrrelevantAddressingOptions(accountKey);
+    let accountKey = null;
+    // Set the account key value on the menu list.
+    if (identityElement.selectedItem) {
+      accountKey = identityElement.selectedItem.getAttribute("accountkey");
+      identityElement.setAttribute("accountkey", accountKey);
+      hideIrrelevantAddressingOptions(accountKey);
+    }
+
+    let maxRecipients = awGetMaxRecipients();
+    for (let i = 1; i <= maxRecipients; i++) {
+      let params = JSON.parse(awGetInputElement(i).searchParam);
+      params.idKey = idKey;
+      params.accountKey = accountKey;
+      awGetInputElement(i).searchParam = JSON.stringify(params);
+    }
+
+    if (!startup && prevIdentity && idKey != prevIdentity.key) {
+      var prevReplyTo = prevIdentity.replyTo;
+      var prevCc = "";
+      var prevBcc = "";
+      var prevReceipt = prevIdentity.requestReturnReceipt;
+      var prevDSN = prevIdentity.DSN;
+      var prevAttachVCard = prevIdentity.attachVCard;
+
+      if (prevIdentity.doCc)
+        prevCc += prevIdentity.doCcList;
+
+      if (prevIdentity.doBcc)
+        prevBcc += prevIdentity.doBccList;
+
+      var newReplyTo = gCurrentIdentity.replyTo;
+      var newCc = "";
+      var newBcc = "";
+      var newReceipt = gCurrentIdentity.requestReturnReceipt;
+      var newDSN = gCurrentIdentity.DSN;
+      var newAttachVCard = gCurrentIdentity.attachVCard;
+
+      if (gCurrentIdentity.doCc)
+        newCc += gCurrentIdentity.doCcList;
+
+      if (gCurrentIdentity.doBcc)
+        newBcc += gCurrentIdentity.doBccList;
+
+      var needToCleanUp = false;
+      var msgCompFields = gMsgCompose.compFields;
+
+      if (!gReceiptOptionChanged &&
+          prevReceipt == msgCompFields.returnReceipt &&
+          prevReceipt != newReceipt) {
+        msgCompFields.returnReceipt = newReceipt;
+        document.getElementById("returnReceiptMenu").setAttribute("checked", msgCompFields.returnReceipt);
+      }
+
+      if (!gDSNOptionChanged &&
+          prevDSN == msgCompFields.DSN &&
+          prevDSN != newDSN) {
+        msgCompFields.DSN = newDSN;
+        document.getElementById("dsnMenu").setAttribute("checked", msgCompFields.DSN);
+      }
+
+      if (!gAttachVCardOptionChanged &&
+          prevAttachVCard == msgCompFields.attachVCard &&
+          prevAttachVCard != newAttachVCard) {
+        msgCompFields.attachVCard = newAttachVCard;
+        document.getElementById("cmd_attachVCard").setAttribute("checked", msgCompFields.attachVCard);
+      }
+
+      if (newReplyTo != prevReplyTo) {
+        needToCleanUp = true;
+        if (prevReplyTo != "")
+          awRemoveRecipients(msgCompFields, "addr_reply", prevReplyTo);
+        if (newReplyTo != "")
+          awAddRecipients(msgCompFields, "addr_reply", newReplyTo);
+      }
+
+      let toAddrs = new Set(msgCompFields.splitRecipients(
+        msgCompFields.to, true, {}));
+      let ccAddrs = new Set(msgCompFields.splitRecipients(
+        msgCompFields.cc, true, {}));
+
+      if (newCc != prevCc) {
+        needToCleanUp = true;
+        if (prevCc)
+          awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
+        if (newCc) {
+          // Ensure none of the Ccs are already in To.
+          let cc2 = msgCompFields.splitRecipients(newCc, true, {});
+          newCc = cc2.filter(x => !toAddrs.has(x)).join(", ");
+          awAddRecipients(msgCompFields, "addr_cc", newCc);
         }
+      }
 
-        let maxRecipients = awGetMaxRecipients();
-        for (let i = 1; i <= maxRecipients; i++) {
-          let params = JSON.parse(awGetInputElement(i).searchParam);
-          params.idKey = idKey;
-          params.accountKey = accountKey;
-          awGetInputElement(i).searchParam = JSON.stringify(params);
+      if (newBcc != prevBcc) {
+        needToCleanUp = true;
+        if (prevBcc)
+          awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
+        if (newBcc) {
+          // Ensure none of the Bccs are already in To or Cc.
+          let bcc2 = msgCompFields.splitRecipients(newBcc, true, {});
+          let toCcAddrs = new Set([...toAddrs, ...ccAddrs]);
+          newBcc = bcc2.filter(x => !toCcAddrs.has(x)).join(", ");
+          awAddRecipients(msgCompFields, "addr_bcc", newBcc);
         }
+      }
 
-        if (!startup && prevIdentity && idKey != prevIdentity.key) {
-          var prevReplyTo = prevIdentity.replyTo;
-          var prevCc = "";
-          var prevBcc = "";
-          var prevReceipt = prevIdentity.requestReturnReceipt;
-          var prevDSN = prevIdentity.DSN;
-          var prevAttachVCard = prevIdentity.attachVCard;
+      if (needToCleanUp)
+        awCleanupRows();
 
-          if (prevIdentity.doCc)
-            prevCc += prevIdentity.doCcList;
+      try {
+        gMsgCompose.identity = gCurrentIdentity;
+      } catch (ex) {
+        dump("### Cannot change the identity: " + ex + "\n");
+      }
 
-          if (prevIdentity.doBcc)
-            prevBcc += prevIdentity.doBccList;
+      var event = document.createEvent("Events");
+      event.initEvent("compose-from-changed", false, true);
+      document.getElementById("msgcomposeWindow").dispatchEvent(event);
 
-          var newReplyTo = gCurrentIdentity.replyTo;
-          var newCc = "";
-          var newBcc = "";
-          var newReceipt = gCurrentIdentity.requestReturnReceipt;
-          var newDSN = gCurrentIdentity.DSN;
-          var newAttachVCard = gCurrentIdentity.attachVCard;
+      gComposeNotificationBar.clearIdentityWarning();
+    }
 
-          if (gCurrentIdentity.doCc)
-            newCc += gCurrentIdentity.doCcList;
+    if (!startup) {
+      if (getPref("mail.autoComplete.highlightNonMatches"))
+        document.getElementById("addressCol2#1").highlightNonMatches = true;
 
-          if (gCurrentIdentity.doBcc)
-            newBcc += gCurrentIdentity.doBccList;
+      // Only do this if we aren't starting up...
+      // It gets done as part of startup already.
+      addRecipientsToIgnoreList(gCurrentIdentity.fullAddress);
 
-          var needToCleanUp = false;
-          var msgCompFields = gMsgCompose.compFields;
-
-          if (!gReceiptOptionChanged &&
-              prevReceipt == msgCompFields.returnReceipt &&
-              prevReceipt != newReceipt) {
-            msgCompFields.returnReceipt = newReceipt;
-            document.getElementById("returnReceiptMenu").setAttribute("checked", msgCompFields.returnReceipt);
-          }
-
-          if (!gDSNOptionChanged &&
-              prevDSN == msgCompFields.DSN &&
-              prevDSN != newDSN) {
-            msgCompFields.DSN = newDSN;
-            document.getElementById("dsnMenu").setAttribute("checked", msgCompFields.DSN);
-          }
-
-          if (!gAttachVCardOptionChanged &&
-              prevAttachVCard == msgCompFields.attachVCard &&
-              prevAttachVCard != newAttachVCard) {
-            msgCompFields.attachVCard = newAttachVCard;
-            document.getElementById("cmd_attachVCard").setAttribute("checked", msgCompFields.attachVCard);
-          }
-
-          if (newReplyTo != prevReplyTo) {
-            needToCleanUp = true;
-            if (prevReplyTo != "")
-              awRemoveRecipients(msgCompFields, "addr_reply", prevReplyTo);
-            if (newReplyTo != "")
-              awAddRecipients(msgCompFields, "addr_reply", newReplyTo);
-          }
-
-          let toAddrs = new Set(msgCompFields.splitRecipients(
-            msgCompFields.to, true, {}));
-          let ccAddrs = new Set(msgCompFields.splitRecipients(
-            msgCompFields.cc, true, {}));
-
-          if (newCc != prevCc) {
-            needToCleanUp = true;
-            if (prevCc)
-              awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
-            if (newCc) {
-              // Ensure none of the Ccs are already in To.
-              let cc2 = msgCompFields.splitRecipients(newCc, true, {});
-              newCc = cc2.filter(x => !toAddrs.has(x)).join(", ");
-              awAddRecipients(msgCompFields, "addr_cc", newCc);
-            }
-          }
-
-          if (newBcc != prevBcc) {
-            needToCleanUp = true;
-            if (prevBcc)
-              awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
-            if (newBcc) {
-              // Ensure none of the Bccs are already in To or Cc.
-              let bcc2 = msgCompFields.splitRecipients(newBcc, true, {});
-              let toCcAddrs = new Set([...toAddrs, ...ccAddrs]);
-              newBcc = bcc2.filter(x => !toCcAddrs.has(x)).join(", ");
-              awAddRecipients(msgCompFields, "addr_bcc", newBcc);
-            }
-          }
-
-          if (needToCleanUp)
-            awCleanupRows();
-
-          try {
-            gMsgCompose.identity = gCurrentIdentity;
-          } catch (ex) {
-            dump("### Cannot change the identity: " + ex + "\n");
-          }
-
-          var event = document.createEvent("Events");
-          event.initEvent("compose-from-changed", false, true);
-          document.getElementById("msgcomposeWindow").dispatchEvent(event);
-
-          gComposeNotificationBar.clearIdentityWarning();
-        }
-
-      if (!startup) {
-          if (getPref("mail.autoComplete.highlightNonMatches"))
-            document.getElementById("addressCol2#1").highlightNonMatches = true;
-
-          // Only do this if we aren't starting up...
-          // It gets done as part of startup already.
-          addRecipientsToIgnoreList(gCurrentIdentity.fullAddress);
-
-          // If the From field is editable, reset the address from the identity.
-          if (identityElement.editable) {
-            identityElement.value = identityElement.selectedItem.value;
-            identityElement.inputField.placeholder = getComposeBundle().getFormattedString(
-              "msgIdentityPlaceholder", [identityElement.selectedItem.value]
-            );
-          }
+      // If the From field is editable, reset the address from the identity.
+      if (identityElement.editable) {
+        identityElement.value = identityElement.selectedItem.value;
+        identityElement.inputField.placeholder = getComposeBundle().getFormattedString(
+          "msgIdentityPlaceholder", [identityElement.selectedItem.value]
+        );
       }
     }
+  }
 }
 
 function MakeFromFieldEditable(ignoreWarning) {
