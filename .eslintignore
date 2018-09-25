@@ -52,7 +52,6 @@ mail/app/**
 mail/base/**
 mail/branding/**
 mail/components/cloudfile/**
-mail/components/compose/**
 mail/components/im/**
 mail/components/newmailaccount/**
 mail/components/search/**
