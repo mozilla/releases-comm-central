@@ -158,9 +158,11 @@ NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString& aPrincipalSpec)
     }
   }
 
-  spec += NS_LITERAL_CSTRING("?number=");
-  spec.Append(messageKey);
-  PR_Free(messageKey);
+  if (messageKey) {
+    spec += NS_LITERAL_CSTRING("?number=");
+    spec.Append(messageKey);
+    PR_Free(messageKey);
+  }
 
   aPrincipalSpec.Assign(spec);
   return NS_OK;
