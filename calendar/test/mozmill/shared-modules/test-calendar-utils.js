@@ -216,7 +216,7 @@ function goToDate(controller, year, month, day) {
     let { eid, lookup } = helpersForController(controller);
 
     let miniMonth = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("ltnSidebar")/id("minimonth-pane")/{"align":"center"}/
         id("calMinimonthBox")/id("calMinimonth")
@@ -351,7 +351,7 @@ function invokeEventDialog(controller, clickBox, body) {
  */
 function getEventBoxPath(controller, view, option, row, column, hour) {
     let viewDeck = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")
     `;
@@ -463,7 +463,7 @@ function createCalendar(controller, name) {
     manager.registerCalendar(calendar);
 
     let calendarTree = lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
         id("calendar-listtree-pane")/id("calendar-list-tree-widget")

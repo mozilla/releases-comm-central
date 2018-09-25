@@ -30,7 +30,7 @@ function testTodayPane() {
     // paths
     let panels = `
         /id("messengerWindow")/id("tabmail-container")/
-        id("tabmail")/id("tabpanelcontainer")
+        id("tabmail")/id("tabmail-tabbox")/id("tabpanelcontainer")
     `;
     let miniMonth = `
         ${panels}/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/

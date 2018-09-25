@@ -272,7 +272,7 @@ function verify(controller, dates, timezones, times) {
     let { lookup } = helpersForController(controller);
 
     let dayView = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/
         id("day-view")

@@ -263,13 +263,6 @@
     -  otherwise.
     -->
   <binding id="tabmail">
-    <content>
-      <xul:tabbox anonid="tabbox" class="tabmail-tabbox" flex="1" eventnode="document" tabcontainer="tabmail-tabs">
-        <!-- Remember, user of this binding, you need to provide tabpanels!  -->
-        <children includes="tabpanels"/>
-      </xul:tabbox>
-    </content>
-
     <implementation implements="nsIController, nsIWebProgressListener, nsIWebProgressListener2">
       <constructor>
         window.controllers.insertControllerAt(0, this);
@@ -279,6 +272,9 @@
       <destructor>
         window.controllers.removeController(this);
       </destructor>
+      <field name="tabbox" readonly="true">
+        this.getElementsByTagName("tabbox").item(0)
+      </field>
       <field name="currentTabInfo">
         null
       </field>
@@ -539,7 +535,6 @@
           }
 
           let oldTab = this._mostRecentTabInfo = this.currentTabInfo;
-          let oldPanel = this.panelContainer.selectedPanel;
 
           let disregardOpener = ("disregardOpener" in aArgs)
                                 && aArgs.disregardOpener;
@@ -569,23 +564,37 @@
               tab.panel = document.createElementNS(
                 "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
                 tab.mode.tabType.perTabPanel);
-            }
-            else {
+            } else {
               tab.panel = tab.mode.tabType.perTabPanel(tab);
             }
             this.panelContainer.appendChild(tab.panel);
-            if (!background)
+            if (!background) {
               this.panelContainer.selectedPanel = tab.panel;
+            }
+          } else {
+            if (!background) {
+              this.panelContainer.selectedPanel = tab.mode.tabType.panel;
+            }
+            t.linkedPanel = tab.mode.tabType.panelId;
           }
-          else if (!background)
-            this.panelContainer.selectedPanel = tab.mode.tabType.panel;
 
           // Make sure the new panel is marked selected.
-          oldPanel.removeAttribute("selected");
+          let oldPanel = [...this.panelContainer.children].find(p => p.hasAttribute("selected"));
+          if (oldPanel) {
+            oldPanel.removeAttribute("selected");
+          }
           this.panelContainer.selectedPanel.setAttribute("selected", "true");
 
           let tabOpenFunc = tab.mode.openTab || tab.mode.tabType.openTab;
           tabOpenFunc.apply(tab.mode.tabType, [tab, aArgs]);
+          if (!t.linkedPanel) {
+            if (!tab.panel.id) {
+              // No id set. Create our own.
+              tab.panel.id = "unnamedTab" + Math.random().toString().substring(2);
+              console.warn(`Tab mode ${aTabModeName} should set an id on the first argument of openTab.`);
+            }
+            t.linkedPanel = tab.panel.id;
+          }
 
           let restoreState = this._restoringTabState;
           for (let tabMonitor of this.tabMonitors) {
@@ -1230,15 +1239,14 @@
                 this.saveCurrentTabState();
 
               let oldTab = this.currentTabInfo;
-              let oldPanel = this.panelContainer.selectedPanel;
+              let oldPanel = [...this.panelContainer.children].find(p => p.hasAttribute("selected"));
               let tab = this.currentTabInfo =
                 this.tabInfo[this.tabContainer.selectedIndex];
 
-              this.panelContainer.selectedPanel = tab.panel ||
-                                                  tab.mode.tabType.panel;
-
               // Update the selected attribute on the current and old tab panel.
-              oldPanel.removeAttribute("selected");
+              if (oldPanel) {
+                oldPanel.removeAttribute("selected");
+              }
               this.panelContainer.selectedPanel.setAttribute("selected", "true");
 
               let showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
@@ -2013,7 +2021,7 @@
       </field>
 
       <field name="tabbox" readonly="true">
-        document.getAnonymousElementByAttribute(this, "anonid", "tabbox");
+        this.tabmail.tabbox;
       </field>
 
       <field name="arrowScrollboxWidth">0</field>
@@ -2082,6 +2090,32 @@
           }
           return val;
         ]]></setter>
+      </property>
+
+      <property name="selectedIndex">
+        <getter>
+        <![CDATA[
+          return this.__proto__.__proto__.__lookupGetter__("selectedIndex").call(this);
+        ]]>
+        </getter>
+
+        <setter>
+        <![CDATA[
+          let tab = this.getItemAtIndex(val);
+          let alreadySelected = tab && tab.selected;
+
+          this.__proto__.__proto__.__lookupSetter__("selectedIndex").call(this, val);
+
+          if (!alreadySelected) {
+            // Fire an onselect event for the tabs element.
+            var event = document.createEvent("Events");
+            event.initEvent("select", true, true);
+            this.dispatchEvent(event);
+          }
+
+          return val;
+        ]]>
+        </setter>
       </property>
 
       <method name="_updateCloseButtons">

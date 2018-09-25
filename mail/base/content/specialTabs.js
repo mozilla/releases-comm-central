@@ -701,6 +701,7 @@ var specialTabs = {
       toolbox.setAttribute("id", "contentTabToolbox" + this.lastBrowserId);
       toolbox.firstChild.setAttribute("id", "contentTabToolbar" + this.lastBrowserId);
 
+      aTab.panel.setAttribute("id", "contentTabWrapper" + this.lastBrowserId);
       aTab.panel.appendChild(clone);
       aTab.root = clone;
 
@@ -1165,6 +1166,7 @@ var specialTabs = {
       toolbox.setAttribute("id", "chromeTabToolbox" + this.lastBrowserId);
       toolbox.firstChild.setAttribute("id", "chromeTabToolbar" + this.lastBrowserId);
 
+      aTab.panel.setAttribute("id", "chromeTabWrapper" + this.lastBrowserId);
       aTab.panel.appendChild(clone);
 
       // Start setting up the browser.

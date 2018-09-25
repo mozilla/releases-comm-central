@@ -108,7 +108,7 @@ function testWeeklyWithExceptionRecurrence() {
 
     viewForward(controller, 1);
     let tuesPath = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/
         id("day-view")/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
@@ -151,7 +151,7 @@ function testWeeklyWithExceptionRecurrence() {
     goToDate(controller, 2009, 1, 5);
 
     tuesPath = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/
         id("week-view")/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/

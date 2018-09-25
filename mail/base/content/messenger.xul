@@ -354,7 +354,7 @@
             tabtoolbar="tabbar-toolbar">
             <tab selected="true" validate="never" type="folder"
                  maxwidth="250" width="0" minwidth="100" flex="100"
-                 class="tabmail-tab" crop="end"/>
+                 class="tabmail-tab" crop="end" linkedpanel="mailContent"/>
       </tabs>
 
       <!-- Use of this element for extensions is deprecated! Current
@@ -400,6 +400,7 @@
          the XBL binding will choke when it finds a child of tabmail that is
          not a tabpanels node. -->
     <tabmail id="tabmail" flex="1" panelcontainer="tabpanelcontainer" tabcontainer="tabmail-tabs">
+     <tabbox id="tabmail-tabbox" flex="1" eventnode="document" tabcontainer="tabmail-tabs">
       <tabpanels id="tabpanelcontainer" flex="1" class="plain" selectedIndex="0">
 
         <!-- mailContent is the container used for the "wide" layout. Normally,
@@ -660,6 +661,7 @@
         </box> <!-- end of mailContent -->
 #include ../../components/im/content/chat-messenger.inc
       </tabpanels>
+     </tabbox>
     </tabmail>
     <vbox id="contentTab" collapsed="true">
       <vbox flex="1" class="contentTabInstance">

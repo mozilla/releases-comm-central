@@ -34,7 +34,7 @@ function setupModule(module) {
 function testTaskView() {
     // paths
     let taskView = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("calendarDisplayDeck")/id("calendar-task-box")/
     `;
@@ -52,7 +52,7 @@ function testTaskView() {
 
     // make sure that testing calendar is selected
     let calendarTree = lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
         id("calendar-listtree-pane")/id("calendar-list-tree-widget")

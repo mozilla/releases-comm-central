@@ -66,6 +66,7 @@ var preferencesTabType = {
     clone.setAttribute("id", "preferencesTab" + this.lastBrowserId);
     clone.setAttribute("collapsed", false);
 
+    aTab.panel.setAttribute("id", "preferencesTabWrapper" + this.lastBrowserId);
     aTab.panel.appendChild(clone);
 
     // Start setting up the browser.

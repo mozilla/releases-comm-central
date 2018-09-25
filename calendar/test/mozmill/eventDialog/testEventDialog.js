@@ -46,7 +46,7 @@ function testEventDialog() {
     let dateFormatter = cal.getDateFormatter();
     // paths
     let monthView = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
         id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/
         id("month-view")

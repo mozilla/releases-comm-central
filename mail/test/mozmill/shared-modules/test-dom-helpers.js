@@ -85,8 +85,11 @@ function element_visible_recursive(aElem) {
   let parent = aElem.parentNode;
   if (parent == null)
     return true;
+
+  // #tabpanelcontainer and its parent #tabmail-tabbox have the same selectedPanel.
+  // Don't ask me why, it's just the way it is.
   if (("selectedPanel" in parent) &&
-      parent.selectedPanel != aElem)
+      parent.selectedPanel != aElem && aElem.id != "tabpanelcontainer")
     return false;
   return element_visible_recursive(parent);
 }

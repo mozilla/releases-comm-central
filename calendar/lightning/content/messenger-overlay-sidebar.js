@@ -196,6 +196,7 @@ var calendarItemTabType = {
             clone.setAttribute("class", "calendar-task-dialog-tab");
         }
 
+        aTab.panel.setAttribute("id", "calendarItemTabWrapper" + this.idNumber);
         aTab.panel.appendChild(clone);
 
         // Set up the iframe and store the iframe's id.  The iframe's

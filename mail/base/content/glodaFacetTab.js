@@ -11,6 +11,7 @@ ChromeUtils.import("resource:///modules/gloda/msg_search.js");
 var glodaFacetTabType = {
   name: "glodaFacet",
   perTabPanel: "vbox",
+  lastTabId: 0,
   strings:
     new StringBundle("chrome://messenger/locale/glodaFacetView.properties"),
   modes: {
@@ -28,6 +29,7 @@ var glodaFacetTabType = {
                         .firstChild
                         .cloneNode(true);
 
+    aTab.panel.setAttribute("id", "glodaTab" + this.lastTabId);
     aTab.panel.appendChild(clone);
     aTab.iframe = aTab.panel.querySelector("iframe");
 
@@ -74,6 +76,8 @@ var glodaFacetTabType = {
     aTab.iframe.contentWindow.addEventListener("load", xulLoadHandler, {capture: false, once: true});
     aTab.iframe.setAttribute("src",
       "chrome://messenger/content/glodaFacetViewWrapper.xul");
+
+    this.lastTabId++;
   },
   closeTab: function glodaFacetTabType_closeTab(aTab) {
   },

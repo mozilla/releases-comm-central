@@ -30,7 +30,7 @@ function setupModule(module) {
 function testSmokeTest() {
     let dateFormatter = cal.getDateFormatter();
     let path = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")
     `;
 
