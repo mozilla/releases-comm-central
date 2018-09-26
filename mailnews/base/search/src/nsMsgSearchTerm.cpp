@@ -358,7 +358,6 @@ int32_t NS_MsgGetStatusValueFromName(char *name)
 nsMsgSearchTerm::nsMsgSearchTerm()
 {
     // initialize this to zero
-    m_value.string=nullptr;
     m_value.attribute=0;
     m_value.u.priority=0;
     m_attribute = nsMsgSearchAttrib::Default;
@@ -399,8 +398,6 @@ nsMsgSearchTerm::nsMsgSearchTerm (nsMsgSearchAttribValue attrib,
 
 nsMsgSearchTerm::~nsMsgSearchTerm ()
 {
-  if (IS_STRING_ATTRIBUTE (m_attribute) && m_value.string)
-    free(m_value.string);
 }
 
 NS_IMPL_ISUPPORTS(nsMsgSearchTerm, nsIMsgSearchTerm)
@@ -433,21 +430,21 @@ NS_IMPL_ISUPPORTS(nsMsgSearchTerm, nsIMsgSearchTerm)
 
 nsresult nsMsgSearchTerm::OutputValue(nsCString &outputStr)
 {
-  if (IS_STRING_ATTRIBUTE(m_attribute) && m_value.string)
+  if (IS_STRING_ATTRIBUTE(m_attribute) && !m_value.utf8String.IsEmpty())
   {
     bool    quoteVal = false;
     // need to quote strings with ')' and strings starting with '"' or ' '
     // filter code will escape quotes
-    if (PL_strchr(m_value.string, ')') ||
-        (m_value.string[0] == ' ') ||
-        (m_value.string[0] == '"'))
+    if (m_value.utf8String.FindChar(')') != kNotFound ||
+        (m_value.utf8String.First() == ' ') ||
+        (m_value.utf8String.First() == '"'))
     {
       quoteVal = true;
       outputStr += "\"";
     }
-    if (PL_strchr(m_value.string, '"'))
+    if (m_value.utf8String.FindChar('"') != kNotFound)
     {
-      char *escapedString = nsMsgSearchTerm::EscapeQuotesInStr(m_value.string);
+      char *escapedString = nsMsgSearchTerm::EscapeQuotesInStr(m_value.utf8String.get());
       if (escapedString)
       {
         outputStr += escapedString;
@@ -457,7 +454,7 @@ nsresult nsMsgSearchTerm::OutputValue(nsCString &outputStr)
     }
     else
     {
-      outputStr += m_value.string;
+      outputStr += m_value.utf8String;
     }
     if (quoteVal)
       outputStr += "\"";
@@ -603,10 +600,8 @@ nsresult nsMsgSearchTerm::ParseValue(char *inStream)
     if (quoteVal && inStream[valueLen - 1] == '"')
       valueLen--;
 
-    m_value.string = (char *) PR_Malloc(valueLen + 1);
-    PL_strncpy(m_value.string, inStream, valueLen + 1);
-    m_value.string[valueLen] = '\0';
-    CopyUTF8toUTF16(mozilla::MakeSpan(m_value.string, valueLen), m_value.utf16String);
+    m_value.utf8String.Assign(inStream, valueLen);
+    CopyUTF8toUTF16(mozilla::MakeSpan(inStream, valueLen), m_value.utf16String);
   }
   else
   {
@@ -732,8 +727,8 @@ nsresult nsMsgSearchTerm::DeStreamNew (char *inStream, int16_t /*length*/)
     nsAutoCString keyword("$label");
     m_value.attribute = m_attribute = nsMsgSearchAttrib::Keywords;
     keyword.Append('0' + m_value.u.label);
-    m_value.string = PL_strdup(keyword.get());
-    CopyUTF8toUTF16(mozilla::MakeStringSpan(m_value.string), m_value.utf16String);
+    m_value.utf8String = keyword;
+    CopyUTF8toUTF16(keyword, m_value.utf16String);
   }
   return NS_OK;
 }
@@ -933,7 +928,7 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm *scope, uint64_t offse
   // Small hack so we don't look all through a message when someone has
   // specified "BODY IS foo". ### Since length is in lines, this is not quite right.
   if ((length > 0) && (m_operator == nsMsgSearchOp::Is || m_operator == nsMsgSearchOp::Isnt))
-    length = PL_strlen (m_value.string);
+    length = m_value.utf8String.Length();
 
   nsMsgBodyHandler * bodyHan  = new nsMsgBodyHandler (scope, length, msg, db);
   if (!bodyHan)
@@ -958,7 +953,7 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm *scope, uint64_t offse
   // bug fix #314637: for stateful charsets like ISO-2022-JP, we don't
   // want to decode quoted printable since it contains '='.
   bool isQuotedPrintable = !nsMsgI18Nstateful_charset(folderCharset) &&
-    (PL_strchr (m_value.string, '=') == nullptr);
+    (m_value.utf8String.FindChar('=') == kNotFound);
 
   nsCString compare;
   nsCString charset;
@@ -1018,7 +1013,7 @@ nsresult nsMsgSearchTerm::InitializeAddressBook()
     rv = mDirectory->GetURI(uri);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    if (!uri.Equals(m_value.string))
+    if (!uri.Equals(m_value.utf8String))
       // clear out the directory....we are no longer pointing to the right one
       mDirectory = nullptr;
   }
@@ -1027,7 +1022,7 @@ nsresult nsMsgSearchTerm::InitializeAddressBook()
     nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = abManager->GetDirectory(nsDependentCString(m_value.string), getter_AddRefs(mDirectory));
+    rv = abManager->GetDirectory(m_value.utf8String, getter_AddRefs(mDirectory));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -1446,10 +1441,10 @@ nsresult nsMsgSearchTerm::MatchJunkScoreOrigin(const char *aJunkScoreOrigin, boo
   switch (m_operator)
   {
   case nsMsgSearchOp::Is:
-    matches = aJunkScoreOrigin && !strcmp(aJunkScoreOrigin, m_value.string);
+    matches = aJunkScoreOrigin && m_value.utf8String.Equals(aJunkScoreOrigin);
     break;
   case nsMsgSearchOp::Isnt:
-    matches = !aJunkScoreOrigin || strcmp(aJunkScoreOrigin, m_value.string);
+    matches = !aJunkScoreOrigin || !m_value.utf8String.Equals(aJunkScoreOrigin);
     break;
   default:
     rv = NS_ERROR_FAILURE;
@@ -1572,8 +1567,8 @@ nsresult nsMsgSearchTerm::MatchKeyword(const nsACString& keywordList, bool *pRes
       m_operator == nsMsgSearchOp::Contains)
   {
     nsCString keywordString(keywordList);
-    const uint32_t kKeywordLen = PL_strlen(m_value.string);
-    const char* matchStart = PL_strstr(keywordString.get(), m_value.string);
+    const uint32_t kKeywordLen = m_value.utf8String.Length();
+    const char* matchStart = PL_strstr(keywordString.get(), m_value.utf8String.get());
     while (matchStart)
     {
       // For a real match, matchStart must be the start of the keywordList or
@@ -1587,7 +1582,7 @@ nsresult nsMsgSearchTerm::MatchKeyword(const nsACString& keywordList, bool *pRes
         return NS_OK;
       }
       // no match yet, so search on
-      matchStart = PL_strstr(matchEnd, m_value.string);
+      matchStart = PL_strstr(matchEnd, m_value.utf8String.get());
     }
     // keyword not found
     *pResult = m_operator == nsMsgSearchOp::DoesntContain;
@@ -1627,7 +1622,7 @@ nsresult nsMsgSearchTerm::MatchKeyword(const nsACString& keywordList, bool *pRes
       }
 
       // Does this valid tag key match our search term?
-      matches = keywordArray[i].Equals(m_value.string);
+      matches = keywordArray[i].Equals(m_value.utf8String);
 
       // Is or Isn't partly determined on a single unmatched token
       if (!matches)
@@ -1731,7 +1726,7 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchCustom(nsIMsgDBHdr* aHdr, bool *pResult)
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (customTerm)
-    return customTerm->Match(aHdr, nsDependentCString(m_value.string),
+    return customTerm->Match(aHdr, m_value.utf8String,
                              m_operator, pResult);
   *pResult = false;     // default to no match if term is missing
   return NS_ERROR_FAILURE; // missing custom term
@@ -2042,7 +2037,7 @@ nsresult nsMsgResultElement::AssignValues (nsIMsgSearchValue *src, nsMsgSearchVa
       NS_ASSERTION(IS_STRING_ATTRIBUTE(dst->attribute), "assigning non-string result");
       nsString unicodeString;
       rv = src->GetStr(unicodeString);
-      dst->string = ToNewUTF8String(unicodeString);
+      CopyUTF16toUTF8(unicodeString, dst->utf8String);
       dst->utf16String = unicodeString;
     }
     else

@@ -168,7 +168,6 @@ interface nsMsgSearchBooleanOp {
 
 %{C++
 #include "nsString.h"
-
 typedef struct nsMsgSearchValue
 {
     nsMsgSearchAttribValue attribute;
@@ -185,7 +184,8 @@ typedef struct nsMsgSearchValue
       uint32_t junkStatus;
       uint32_t junkPercent;
     } u;
-    char *string;
+    // We keep two versions of the string to avoid conversion at "search time".
+    nsCString utf8String;
     nsString utf16String;
 } nsMsgSearchValue;
 %}
