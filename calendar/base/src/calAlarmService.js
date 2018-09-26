@@ -229,12 +229,9 @@ calAlarmService.prototype = {
 
         /* Tell people that we're alive so they can start monitoring alarms.
          */
-        /*
-         * Temporarily removed, see bug 1492095,
         let notifier = Components.classes["@mozilla.org/embedcomp/appstartup-notifier;1"]
                                  .getService(Components.interfaces.nsIObserver);
         notifier.observe(null, "alarm-service-startup", null);
-         */
 
         cal.getCalendarManager().addObserver(this.calendarManagerObserver);
 
@@ -285,12 +282,9 @@ calAlarmService.prototype = {
         }
 
         /* tell people that we're no longer running */
-        /*
-         * Temporarily removed, see bug 1492095,
         let notifier = Components.classes["@mozilla.org/embedcomp/appstartup-notifier;1"]
                                  .getService(Components.interfaces.nsIObserver);
         notifier.observe(null, "alarm-service-shutdown", null);
-         */
 
         if (this.mUpdateTimer) {
             this.mUpdateTimer.cancel();
