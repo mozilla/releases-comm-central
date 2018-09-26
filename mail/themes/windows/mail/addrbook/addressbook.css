@@ -40,7 +40,7 @@
 #CardTitle {
   font-size: 150%;
   font-weight: bold;
-  border-bottom: 2px solid -moz-FieldText;
+  border-bottom: 2px solid currentColor;
   min-width: 120px;
   margin: 0;
 }
@@ -112,63 +112,6 @@ toolbox > toolbar:last-of-type {
     border-top: 0;
     border-bottom: 1px solid #a9b1b8;
   }
-}
-
-:root[lwt-tree] #dirTree {
-  background-color: var(--sidebar-background-color);
-  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
-}
-
-:root[lwt-tree-brighttext] #dirTree {
-  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
-}
-
-:root[lwt-tree] #dirTree treechildren::-moz-tree-image,
-:root[lwt-tree] #dirTree treechildren::-moz-tree-twisty,
-:root[lwt-tree] #dirTree treechildren::-moz-tree-cell-text {
-  color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #folderTree treechildren::-moz-tree-row(current, focus) {
-  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
-  outline: none;
-}
-
-:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(current, focus) {
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
-}
-
-:root[lwt-tree] #dirTree treechildren::-moz-tree-row(hover),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-row(hover, current),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-row(hover, selected),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-row(selected),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-row(selected, focus),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-row(selected, current, focus) {
-  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-  outline: none;
-}
-
-:root[lwt-tree-brighttext] #dirTree treechildren::-moz-tree-row(hover),
-:root[lwt-tree-brighttext] #dirTree treechildren::-moz-tree-row(hover, current),
-:root[lwt-tree-brighttext] #dirTree treechildren::-moz-tree-row(hover, selected),
-:root[lwt-tree-brighttext] #dirTree treechildren::-moz-tree-row(selected),
-:root[lwt-tree-brighttext] #dirTree treechildren::-moz-tree-row(selected, focus),
-:root[lwt-tree-brighttext] #dirTree treechildren::-moz-tree-row(selected, current, focus) {
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-}
-
-:root[lwt-tree] #dirTree treechildren::-moz-tree-image(hover),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-image(selected),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-image(selected, focus),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-twisty(hover),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-twisty(selected),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-twisty(selected, focus),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-cell-text(hover),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-cell-text(selected),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 /* Don't use the listbox appearance as that gives us a blue-grey top border

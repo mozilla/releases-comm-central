@@ -91,6 +91,12 @@ treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
 
 /* ::::: results pane ::::: */
 
+:root[lwt-tree] #abResultsBox {
+  background-color: var(--sidebar-background-color);
+  background-image: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));
+  color: var(--sidebar-text-color);
+}
+
 treechildren::-moz-tree-image(GeneratedName) {
   margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
@@ -128,7 +134,7 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
   padding-inline-start: 20px;
   padding-inline-end: 2px;
   min-width: 30px;
-  margin: 0px;
+  margin: 0;
 }
 
 .CardViewLink {
@@ -155,7 +161,7 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
 }
 
 html|a {
-  padding-inline-start: 0px;
+  padding-inline-start: 0;
   padding-inline-end: 2px;
   border: none !important;
   text-decoration: underline;

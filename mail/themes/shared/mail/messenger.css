@@ -78,6 +78,93 @@ toolbar[printpreview="true"] {
                     transparent calc(100% - 4px));
 }
 
+:root[lwt-tree] tree,
+:root[lwt-tree] #folderPane-toolbar {
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] tree {
+  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
+}
+
+:root[lwt-tree-brighttext] tree {
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+}
+
+:root[lwt-tree] #folderPane-toolbar {
+  background-image: none;
+  border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree-brighttext] #folderPane-toolbar {
+  border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+}
+
+:root[lwt-tree] treechildren::-moz-tree-image,
+:root[lwt-tree] treechildren::-moz-tree-twisty,
+:root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged),
+:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text {
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] treechildren::-moz-tree-image(hover),
+:root[lwt-tree] treechildren::-moz-tree-twisty(hover),
+:root[lwt-tree] treechildren::-moz-tree-image(selected),
+:root[lwt-tree] treechildren::-moz-tree-twisty(selected),
+:root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged, hover),
+:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text(hover),
+:root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
+:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+:root[lwt-tree] treechildren::-moz-tree-line {
+  border-color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] treechildren::-moz-tree-line(selected) {
+  border-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+:root[lwt-tree] treecol:not([hideheader="true"]),
+:root[lwt-tree] treecolpicker:not([hideheader="true"]) {
+  -moz-appearance: none;
+  color: inherit;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree] treecol {
+  border-inline-end: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree-brighttext] treecol,
+:root[lwt-tree-brighttext] treecolpicker {
+  border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+}
+
+:root[lwt-tree-brighttext] treecol {
+  border-inline-end-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+}
+
+:root[lwt-tree] treecol:hover,
+:root[lwt-tree] treecolpicker:hover {
+  background-color: hsla(0,0%,60%,.4);
+}
+
+:root[lwt-tree-brighttext] treecol:hover,
+:root[lwt-tree-brighttext] treecolpicker:hover {
+  background-color: rgba(249,249,250,.2);
+}
+
+/* ..... column picker ..... */
+
+.tree-columnpicker-icon  {
+  list-style-image: url(chrome://messenger/skin/icons/columnpicker.svg);
+}
+
 /* :::::: throbber :::::::::: */
 
 #throbber-box {

@@ -34,38 +34,6 @@
   border-bottom: 1px solid ThreeDShadow;
 }
 
-:root[lwt-tree] #dirTree {
-  background-color: var(--sidebar-background-color);
-  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
-}
-
-:root[lwt-tree-brighttext] #dirTree {
-  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
-}
-
-:root[lwt-tree] #dirTree treechildren::-moz-tree-image,
-:root[lwt-tree] #dirTree treechildren::-moz-tree-twisty,
-:root[lwt-tree] #dirTree treechildren::-moz-tree-cell-text {
-  color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #dirTree treechildren::-moz-tree-row(selected) {
-  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-}
-
-:root[lwt-tree-brighttext] #dirTree treechildren::-moz-tree-row(selected) {
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-}
-
-:root[lwt-tree] #dirTree treechildren::-moz-tree-image(selected),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-twisty(selected),
-:root[lwt-tree] #dirTree treechildren::-moz-tree-cell-text(selected) {
-
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
-}
-
 /* ::::: splitters ::::: */
 
 #dirTree-splitter {
@@ -125,7 +93,7 @@
 #CardTitle {
   font-size: 150%;
   font-weight: bold;
-  border-bottom: 2px solid -moz-FieldText;
+  border-bottom: 2px solid currentColor;
   min-width: 120px;
   margin: 0px;
 }

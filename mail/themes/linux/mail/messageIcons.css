@@ -2,23 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* ::::: message column icons ::::: */
-
-.treecol-image image {
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-treecol.treecol-image:hover:active {
-  padding-inline-start: 1px;
-}
-
-/* ..... column picker ..... */
-
-.tree-columnpicker-icon  {
-  list-style-image: url(chrome://messenger/skin/icons/columnpicker.svg);
-}
-
 /* ..... thread column ..... */
 
 .threadColumnHeader {

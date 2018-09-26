@@ -2,26 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-.treecol-image image {
-  padding-inline-start: 1px;
-  padding-inline-end: 2px;
-  padding-bottom: 3px;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-@media (-moz-windows-classic) {
-  .treecol-image image {
-    padding-bottom: 2px;
-  }
-}
-
-/* ..... column picker ..... */
-
-.tree-columnpicker-icon  {
-  list-style-image: url(chrome://messenger/skin/icons/columnpicker.svg);
-}
-
 /* ..... thread column ..... */
 
 .threadColumnHeader {

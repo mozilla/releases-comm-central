@@ -4,11 +4,6 @@
 
 /* ..... thread column ..... */
 
-.treecol-image image {
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
 .threadColumnHeader {
   list-style-image: url(chrome://messenger/skin/icons/thread-col.svg);
 }
@@ -43,6 +38,7 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
   -moz-image-region: rect(0 48px 16px 32px);
 }
 
+:root[lwt-tree-brighttext] treechildren::-moz-tree-image(unreadButtonColHeader),
 treechildren::-moz-tree-image(unreadButtonColHeader, focus, selected) {
   -moz-image-region: rect(16px 48px 32px 32px);
 }
@@ -105,6 +101,7 @@ treechildren::-moz-tree-image(flaggedCol) {
   -moz-image-region: rect(0 48px 16px 32px);
 }
 
+:root[lwt-tree-brighttext] treechildren::-moz-tree-image(flaggedCol),
 treechildren::-moz-tree-image(flaggedCol, focus, selected) {
   -moz-image-region: rect(16px 48px 32px 32px);
 }
@@ -216,12 +213,6 @@ treechildren::-moz-tree-image(threadCol, ignore) {
 treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
   list-style-image: url(chrome://messenger/skin/icons/message-closed-kill.png) !important;
   -moz-image-region: auto !important;
-}
-
-/* ..... column picker ..... */
-
-.tree-columnpicker-icon  {
-  list-style-image: url(chrome://messenger/skin/icons/columnpicker.svg);
 }
 
 @media (min-resolution: 2dppx) {

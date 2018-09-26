@@ -848,3 +848,58 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 #button-chat-accounts {
   list-style-image: url("chrome://messenger/skin/icons/accounts.svg");
 }
+
+:root[lwt-tree] #contextPane {
+  background-color: var(--sidebar-background-color);
+  border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] #nicklist,
+:root[lwt-tree] .conv-nicklist-header,
+:root[lwt-tree] .conv-logs-header-label {
+  background-color: var(--sidebar-background-color);
+  border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree-brighttext] #nicklist,
+:root[lwt-tree-brighttext] .conv-nicklist-header,
+:root[lwt-tree-brighttext] .conv-logs-header-label {
+  border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+}
+
+:root[lwt-tree] #participantCount {
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] .conv-nicklist.theme-listbox > richlistitem {
+  color: var(--sidebar-text-color);
+  box-shadow: none;
+}
+
+:root[lwt-tree] .conv-nicklist.theme-listbox > richlistitem[selected="true"],
+:root[lwt-tree] .conv-nicklist.theme-listbox:focus > richlistitem[current="true"],
+:root[lwt-tree] .conv-nicklist.theme-listbox:focus > richlistitem[selected="true"] {
+  background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  background-image: none;
+  border-color: var(--sidebar-border-color, hsla(0,0%,80%,.3));
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+:root[lwt-tree-brighttext] .conv-nicklist.theme-listbox > richlistitem[selected="true"],
+:root[lwt-tree-brighttext] .conv-nicklist.theme-listbox:focus > richlistitem[current="true"],
+:root[lwt-tree-brighttext] .conv-nicklist.theme-listbox:focus > richlistitem[selected="true"] {
+  background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+}
+
+:root[lwt-tree] .conv-nicklist.theme-listbox > richlistitem[inactive]:not([selected]) > label {
+  color: var(--sidebar-text-color) !important;
+  opacity: .5;
+}
+
+:root[lwt-tree] #nicklist > richlistitem[inactive][selected] > label,
+:root[lwt-tree] #nicklist:focus > richlistitem[inactive][selected] > label {
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
+}

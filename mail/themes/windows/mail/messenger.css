@@ -309,6 +309,14 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
   padding-bottom: 3px;
 }
 
+.treecol-image image {
+  padding-inline-start: 1px;
+  padding-inline-end: 2px;
+  padding-bottom: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 treechildren::-moz-tree-row {
   min-height: 18px;
 }
@@ -471,6 +479,32 @@ treechildren::-moz-tree-indentation {
       -moz-outline-radius: 3px;
     }
   }
+}
+
+:root[lwt-tree] treechildren::-moz-tree-row(current, focus) {
+  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
+  outline: none;
+}
+
+:root[lwt-tree-brighttext] treechildren::-moz-tree-row(current, focus) {
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
+}
+
+:root[lwt-tree] treechildren::-moz-tree-row(hover),
+:root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected),
+:root[lwt-tree]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
+:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
+  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  outline: none;
+}
+
+:root[lwt-tree-brighttext] treechildren::-moz-tree-row(hover),
+:root[lwt-tree-brighttext] #threadTree treechildren::-moz-tree-row(untagged, selected),
+:root[lwt-tree-brighttext]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
+:root[lwt-tree-brighttext] tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }
 
 /* Give menupopup[type="folder"] a menu look */

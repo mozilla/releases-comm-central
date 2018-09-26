@@ -1422,7 +1422,9 @@ nsMsgDBView::GetRowProperties(int32_t index,
 
   nsCString keywordProperty;
   FetchRowKeywords(index, msgHdr, keywordProperty);
-  if (!keywordProperty.IsEmpty())
+  if (keywordProperty.IsEmpty())
+    properties.AppendLiteral(" untagged");
+  else
     AppendKeywordProperties(keywordProperty, properties, false);
 
   // Give the custom column handlers a chance to style the row.
@@ -1553,7 +1555,9 @@ nsMsgDBView::GetCellProperties(int32_t aRow,
 
   nsCString keywords;
   FetchRowKeywords(aRow, msgHdr, keywords);
-  if (!keywords.IsEmpty())
+  if (keywords.IsEmpty())
+    properties.AppendLiteral(" untagged");
+  else
     AppendKeywordProperties(keywords, properties, true);
 
   // This is a double fetch of the keywords property since we also fetch

@@ -689,7 +689,7 @@
 
     <splitter id="dirTree-splitter" collapse="before" persist="state"/>
 
-    <vbox flex="1" minwidth="100">
+    <vbox id="abResultsBox" flex="1" minwidth="100">
       <description id="localResultsOnlyMessage"
                    value="&localResultsOnlyMessage.label;"/>
       <vbox id="blankResultsPaneMessageBox"

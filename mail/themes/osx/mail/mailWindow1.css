@@ -83,68 +83,6 @@
   }
 }
 
-:root[lwt-tree] #folderTree,
-:root[lwt-tree] #folderPane-toolbar {
-  background: var(--sidebar-background-color);
-  color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #folderTree {
-  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
-}
-
-:root[lwt-tree-brighttext] #folderTree {
-  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
-}
-
-:root[lwt-tree] #folderPane-toolbar {
-  border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
-}
-
-:root[lwt-tree-brighttext] #folderPane-toolbar {
-  border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
-}
-
-:root[lwt-tree] #folderTree treechildren::-moz-tree-image,
-:root[lwt-tree] #folderTree treechildren::-moz-tree-twisty,
-:root[lwt-tree] #folderTree treechildren::-moz-tree-cell-text {
-  color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #folderTree treechildren::-moz-tree-row(selected) {
-  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-}
-
-:root[lwt-tree-brighttext] #folderTree treechildren::-moz-tree-row(selected) {
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-}
-
-:root[lwt-tree] #folderTree treechildren::-moz-tree-image(selected),
-:root[lwt-tree] #folderTree treechildren::-moz-tree-twisty(selected),
-:root[lwt-tree] #folderTree treechildren::-moz-tree-cell-text(selected) {
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
-}
-
-:root[lwt-tree] #folderTree[hidecolumnpicker="false"] treecol,
-:root[lwt-tree] #folderTree[hidecolumnpicker="false"] treecolpicker {
-  -moz-appearance: none;
-  color: inherit;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
-}
-
-:root[lwt-tree] #folderTree treecol {
-  border-inline-end: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
-}
-
-:root[lwt-tree-brighttext] #folderTree treecol,
-:root[lwt-tree-brighttext] #folderTree treecolpicker {
-  border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
-}
-
 /* ::::: group rows ::::: */
 
 treechildren::-moz-tree-row(dummy)  {
