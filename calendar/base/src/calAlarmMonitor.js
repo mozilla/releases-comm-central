@@ -21,6 +21,9 @@ function calAlarmMonitor() {
 
     this.mSound = Components.classes["@mozilla.org/sound;1"]
                             .createInstance(Components.interfaces.nsISound);
+
+    Services.obs.addObserver(this, "alarm-service-startup");
+    Services.obs.addObserver(this, "alarm-service-shutdown");
 }
 
 var calAlarmMonitorClassID = Components.ID("{4b7ae030-ed79-11d9-8cd6-0800200c9a66}");

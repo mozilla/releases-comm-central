@@ -11,8 +11,8 @@ this.NSGetFactory = (cid) => {
         "resource://calendar/calendar-js/calCachedCalendar.js",
 
         "resource://calendar/calendar-js/calAlarm.js",
-        "resource://calendar/calendar-js/calAlarmService.js",
         "resource://calendar/calendar-js/calAlarmMonitor.js",
+        "resource://calendar/calendar-js/calAlarmService.js",
         "resource://calendar/calendar-js/calAttendee.js",
         "resource://calendar/calendar-js/calAttachment.js",
         "resource://calendar/calendar-js/calCalendarManager.js",
@@ -39,7 +39,7 @@ this.NSGetFactory = (cid) => {
     }
 
     let components = [
-        calAlarm, calAlarmService, calAlarmMonitor, calAttendee, calAttachment, calCalendarManager,
+        calAlarm, calAlarmMonitor, calAlarmService, calAttendee, calAttachment, calCalendarManager,
         calCalendarSearchService, calDateTimeFormatter, calDeletedItems, calEvent, calFreeBusyService,
         calIcsParser, calIcsSerializer, calItipItem, calProtocolHandlerWebcal,
         calProtocolHandlerWebcals, calRecurrenceDate, calRecurrenceInfo, calRelation,

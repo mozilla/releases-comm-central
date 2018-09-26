@@ -227,11 +227,10 @@ calAlarmService.prototype = {
         Services.obs.addObserver(this, "xpcom-shutdown");
         Services.obs.addObserver(this, "wake_notification");
 
-        /* Tell people that we're alive so they can start monitoring alarms.
-         */
-        let notifier = Components.classes["@mozilla.org/embedcomp/appstartup-notifier;1"]
-                                 .getService(Components.interfaces.nsIObserver);
-        notifier.observe(null, "alarm-service-startup", null);
+        // Make sure the alarm monitor is alive so it's observing the notification.
+        Cc["@mozilla.org/calendar/alarm-monitor;1"].getService(Ci.calIAlarmServiceObserver);
+        // Tell people that we're alive so they can start monitoring alarms.
+        Services.obs.notifyObservers(null, "alarm-service-startup");
 
         cal.getCalendarManager().addObserver(this.calendarManagerObserver);
 
@@ -281,10 +280,8 @@ calAlarmService.prototype = {
             return;
         }
 
-        /* tell people that we're no longer running */
-        let notifier = Components.classes["@mozilla.org/embedcomp/appstartup-notifier;1"]
-                                 .getService(Components.interfaces.nsIObserver);
-        notifier.observe(null, "alarm-service-shutdown", null);
+        // Tell people that we're no longer running.
+        Services.obs.notifyObservers(null, "alarm-service-shutdown");
 
         if (this.mUpdateTimer) {
             this.mUpdateTimer.cancel();
