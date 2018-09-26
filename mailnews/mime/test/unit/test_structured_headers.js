@@ -121,14 +121,18 @@ add_task(async function check_raw() {
   headers.setHeader("unabashed-random-header", false);
   let headerList = ["Date", "Content-Description", "Subject",
     "Unabashed-Random-Header"];
-  for (let value of headers.headerNames) {
+  let enumerator = headers.headerNames;
+  while (enumerator.hasMore()) {
+    let value = enumerator.getNext();
     Assert.equal(value.toLowerCase(), headerList.shift().toLowerCase());
   }
 
   // Check that copying works
   let moreHeaders = new StructuredHeaders();
   moreHeaders.addAllHeaders(headers);
-  for (let value of headers.headerNames) {
+  enumerator = headers.headerNames;
+  while (enumerator.hasMore()) {
+    let value = enumerator.getNext();
     Assert.equal(moreHeaders.getHeader(value), headers.getHeader(value));
   }
   headers.deleteHeader("Date");
@@ -151,7 +155,9 @@ add_task(async function check_nsIMimeHeaders() {
     "FCC", "BCC", "X-Identity-Key", "Message-ID", "Date", "From",
     "X-Mozilla-Draft-Info", "User-Agent", "MIME-Version", "To", "Subject",
     "Content-Type", "Content-Transfer-Encoding"];
-  for (let value of headers.headerNames) {
+  let enumerator = headers.headerNames;
+  while (enumerator.hasMore()) {
+    let value = enumerator.getNext();
     Assert.equal(value.toLowerCase(), headerList.shift().toLowerCase());
   }
 });
