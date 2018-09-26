@@ -130,6 +130,12 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
         'toolkit.telemetry.prompted': 999,
         }
 
+    menubar_preferences = {
+        # Many tests operate items in the main menu, so keep it shown
+        # until they are migrated to appmenu.
+        'mail.main_menu.collapse_by_default': False,
+    }
+
     # Dummied up local accounts to stop the account wizard
     account_preferences = {
         'mail.account.account1.server' :  "server1",
@@ -184,6 +190,12 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
         kwargs['profile'] = self.get_profile_dir()
         super(ThunderTestProfile, self).__init__(*args, **kwargs)
         self.set_preferences(self.preferences)
+
+        if (wrapper is not None and hasattr(wrapper, "DEFAULT_MENUBAR")
+            and wrapper.DEFAULT_MENUBAR):
+            pass
+        else:
+            self.set_preferences(self.menubar_preferences)
 
         if (wrapper is not None and hasattr(wrapper, "NO_ACCOUNTS")
             and wrapper.NO_ACCOUNTS):

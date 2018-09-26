@@ -90,18 +90,15 @@ function test_customize_toolbar_doesnt_double_get_mail_menu()
    */
   function check_getAllNewMsgMenu() {
     wait_for_window_focused(mc.window);
-    mc.click(mc.eid("menu_File"), 5, 5);
-    wait_for_popup_to_open(mc.e("menu_FilePopup"));
+    mc.click(mc.eid("button-appmenu"), 5, 5);
+    let popups = mc.click_menus_in_sequence(mc.e("appmenu-popup"),
+                                            [ { id: "appmenu_File" },
+                                              { id: "appmenu_getNewMsgFor" } ], true);
 
-    let menu = mc.eid("menu_getAllNewMsg");
-    mc.click(menu, 5, 5);
-    wait_for_popup_to_open(mc.e("menu_getAllNewMsgPopup"));
-
-    assert_equals(menu.node.itemCount, 5,
+    assert_equals(popups[popups.length - 1].children.length, 5,
                   "Incorrect number of items for GetNewMessages before customization");
 
-    close_popup(mc, mc.eid("menu_getAllNewMsgPopup"));
-    close_popup(mc, mc.eid("menu_FilePopup"));
+    mc.close_popup_sequence(popups);
   }
 
   check_getAllNewMsgMenu();

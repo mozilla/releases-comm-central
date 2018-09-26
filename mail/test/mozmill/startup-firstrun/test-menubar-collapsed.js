@@ -32,7 +32,7 @@ function test_main_menu_collapsed() {
   };
   Services.obs.addObserver(observer, "mail-startup-done");
 
-  // Since no accounts were set up, and the account provisoner was disabled
+  // Since no accounts were set up, and the account provisioner was disabled
   // in prefs.js, the wizard will show up. Find it, and close it. This will
   // cause mail-startup-done to eventually be fired.
   let wizard = wait_for_existing_window("mail:autoconfig");

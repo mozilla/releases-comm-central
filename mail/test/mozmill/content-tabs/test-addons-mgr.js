@@ -51,8 +51,9 @@ function test_open_addons_with_url() {
  */
 function test_addon_prefs() {
   // Open Add-on Options.
-  mc.click(mc.eid("tasksMenu"));
-  let popups = mc.click_menus_in_sequence(mc.e("taskPopup"), [ { id: "addonsManager_prefs" } ], true);
+  mc.click(mc.eid("button-appmenu"));
+  let popups = mc.click_menus_in_sequence(mc.e("appmenu-popup"), [ { id: "appmenu_addons" } ], true);
+
   let foundAddon = false;
   plan_for_modal_dialog("mozmill-prefs", function (controller) {
      // Add |mc.sleep(1000);| here to see the popup dialog.
@@ -74,5 +75,3 @@ function test_addon_prefs() {
   wait_for_modal_dialog();
   wait_for_window_close();
 }
-// The test operates the main menu which is not accessible from MozMill on Mac.
-test_addon_prefs.EXCLUDED_PLATFORMS = ["darwin"];

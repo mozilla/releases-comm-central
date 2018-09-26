@@ -2875,6 +2875,19 @@ function restore_default_window_size() {
   windowHelper.resize_to(mc, gDefaultWindowWidth, gDefaultWindowHeight);
 }
 
+/**
+ * Toggle visibility of the Main menu bar.
+ *
+ * @param aEnabled {boolean}  Whether the menu should be shown or not.
+ */
+function toggle_main_menu(aEnabled = true) {
+  let menubar = mc.e("mail-toolbar-menubar2");
+  let state = menubar.getAttribute("autohide") != "true";
+  menubar.setAttribute("autohide", !aEnabled);
+  mc.sleep(0);
+  return state;
+}
+
 /** exported from messageInjection */
 var make_new_sets_in_folders;
 var make_new_sets_in_folder;

@@ -17,6 +17,7 @@ var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 
 var menuFolder;
+var menuState;
 
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -30,8 +31,7 @@ function setupModule(module) {
   make_new_sets_in_folder(menuFolder, [{count: 1}]);
 
   // Make the menubar not autohide by default.
-  let menubar = mc.e("mail-toolbar-menubar2");
-  menubar.setAttribute("autohide", false);
+  menuState = toggle_main_menu(true);
 }
 
 /**
@@ -110,3 +110,7 @@ function test_autohidden_menubar_address_book() {
   help_test_autohide(abc, menubar);
 }
 test_autohidden_menubar_address_book.EXCLUDED_PLATFORMS = ["darwin", "linux"];
+
+function teardownModule() {
+  toggle_main_menu(menuState);
+}

@@ -112,27 +112,23 @@ var MailMigrator = {
 
     let xulStore = Services.xulStore;
 
+    let newProfile = (currentUIVersion == 0);
+    if (newProfile) {
+      // Collapse the main menu by default if the override pref
+      // "mail.main_menu.collapse_by_default" is set to true.
+      if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default")) {
+        xulStore.setValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide", "true");
+      }
+
+      // Set to current version to skip all the migration below.
+      currentUIVersion = UI_VERSION;
+    }
+
     try {
       // UI versions below 5 could only exist in an old profile with localstore.rdf
       // file used for the XUL store. Since TB55 this file is no longer read.
       // Since UI version 5, the xulstore.json file is being used, so we only
       // support those version here, see bug 1371898.
-
-      // However, there's a tiny left-over. For new profiles (running the entire
-      // migration) we need to autohide the menubar.
-
-      // In UI version 5, we add the AppMenu button to the mail toolbar and
-      // collapse the main menu by default if the user has no accounts
-      // set up (and the override pref "mail.main_menu.collapse_by_default"
-      // is set to true). Checking for 0 accounts is a hack, because we can't
-      // think of any better way of determining whether this profile is new
-      // or not.
-      if (currentUIVersion < 5) {
-        if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default") &&
-            MailServices.accounts.accounts.length == 0) {
-          xulStore.setValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide", "true");
-        }
-      }
 
       // In UI version 6, we move the otherActionsButton button to the
       // header-view-toolbar.
@@ -186,8 +182,9 @@ var MailMigrator = {
         }
       }
 
+      // This one is needed also in all new profiles.
       // Add an expanded entry for All Address Books.
-      if (currentUIVersion < 10) {
+      if (currentUIVersion < 10 || newProfile) {
         const DIR_TREE_FILE = "directoryTree.json";
 
         // If the file exists, read its contents, prepend the "All ABs" URI

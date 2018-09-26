@@ -12,6 +12,8 @@ import sys
 
 # We don't want any accounts for these tests.
 NO_ACCOUNTS = True
+# Do not force enable main menu bar (keep the default).
+DEFAULT_MENUBAR = True
 
 def on_profile_created(profiledir):
     """
