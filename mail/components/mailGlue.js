@@ -195,8 +195,9 @@ MailGlue.prototype = {
       popup_border: "#27272b",
       toolbar_field_text: "rgb(249, 249, 250)",
       toolbar_field_border: "rgba(249, 249, 250, 0.2)",
-      sidebar: "#19191a",
+      sidebar: "#38383D",
       sidebar_text: "rgb(249, 249, 250)",
+      sidebar_border: "rgba(255, 255, 255, 0.2)",
       author: vendorShortName,
     }, {
       useInDarkMode: true,
