@@ -6330,48 +6330,6 @@ NS_IMETHODIMP nsImapMailFolder::GetOtherUsersWithAccess(
   return GetFolderACL()->GetOtherUsers(aResult);
 }
 
-class AdoptUTF8StringEnumerator final : public nsStringEnumeratorBase
-{
-public:
-  explicit AdoptUTF8StringEnumerator(nsTArray<nsCString>* array) :
-    mStrings(array), mIndex(0)
-  {}
-
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIUTF8STRINGENUMERATOR
-
-  using nsStringEnumeratorBase::GetNext;
-
-private:
-  ~AdoptUTF8StringEnumerator()
-  {
-    delete mStrings;
-  }
-
-  nsTArray<nsCString>* mStrings;
-  uint32_t             mIndex;
-};
-
-NS_IMPL_ISUPPORTS(AdoptUTF8StringEnumerator, nsIUTF8StringEnumerator, nsIStringEnumerator)
-
-NS_IMETHODIMP
-AdoptUTF8StringEnumerator::HasMore(bool *aResult)
-{
-  *aResult = mIndex < mStrings->Length();
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-AdoptUTF8StringEnumerator::GetNext(nsACString& aResult)
-{
-  if (mIndex >= mStrings->Length())
-    return NS_ERROR_UNEXPECTED;
-
-  aResult.Assign((*mStrings)[mIndex]);
-  ++mIndex;
-  return NS_OK;
-}
-
 nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsIUTF8StringEnumerator** aResult)
 {
   nsTArray<nsCString>* resultArray = new nsTArray<nsCString>;
@@ -6380,8 +6338,7 @@ nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsIUTF8StringEnumerator** aResult)
   }
 
   // enumerator will free resultArray
-  *aResult = new AdoptUTF8StringEnumerator(resultArray);
-  return NS_OK;
+  return NS_NewAdoptingUTF8StringEnumerator(aResult, resultArray);
 }
 
 nsresult nsImapMailFolder::GetPermissionsForUser(const nsACString& otherUser,
