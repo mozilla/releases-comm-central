@@ -232,11 +232,10 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
         iframe.setAttribute("id", "lightning-item-panel-iframe");
         iframe.setAttribute("flex", "1");
 
-        let dialog = document.getElementById("calendar-event-dialog");
         let statusbar = document.getElementById("status-bar");
 
         // Note: iframe.contentWindow is undefined before the iframe is inserted here.
-        dialog.insertBefore(iframe, statusbar);
+        document.documentElement.insertBefore(iframe, statusbar);
 
         // Move the args so they are positioned relative to the iframe,
         // for the window dialog just as they are for the tab.
@@ -255,6 +254,40 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
         if (typeof ToolbarIconColor !== "undefined") {
             ToolbarIconColor.init();
         }
+
+        // Enlarge the dialog window so the iframe content fits, and prevent it
+        // getting smaller. We don't know the minimum size of the content unless
+        // it's overflowing, so don't attempt to enforce what we don't know.
+        let docEl = document.documentElement;
+        let overflowListener = () => {
+            let { scrollWidth, scrollHeight } = iframe.contentDocument.documentElement;
+            let { clientWidth, clientHeight } = iframe;
+
+            let diffX = scrollWidth - clientWidth;
+            let diffY = scrollHeight - clientHeight;
+            // If using a scaled screen resolution, rounding might cause
+            // scrollWidth/scrollHeight to be 1px larger than
+            // clientWidth/clientHeight, so we check for a difference
+            // greater than 1 here, not 0.
+            if (diffX > 1) {
+                window.resizeBy(diffX, 0);
+                docEl.setAttribute("minwidth", docEl.getAttribute("width"));
+            }
+            if (diffY > 1) {
+                window.resizeBy(0, diffY);
+                docEl.setAttribute("minheight", docEl.getAttribute("height"));
+            }
+            if (docEl.hasAttribute("minwidth") && docEl.hasAttribute("minheight")) {
+                iframe.contentWindow.removeEventListener("resize", overflowListener);
+            }
+        };
+        iframe.contentWindow.addEventListener("load", () => {
+            // This is the first listener added, but it should run after all the others,
+            // so that they can properly set up the layout they might need.
+            // Push to the end of the event queue.
+            setTimeout(overflowListener, 0);
+        }, { once: true });
+        iframe.contentWindow.addEventListener("resize", overflowListener);
     }
 
     // event or task
@@ -262,8 +295,12 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
     gConfig.isEvent = cal.item.isEvent(calendarItem);
 
     // for tasks in a window dialog, set the dialog id for CSS selection, etc.
-    if (!gTabmail && !gConfig.isEvent) {
-        setDialogId(document.documentElement, "calendar-task-dialog");
+    if (!gTabmail) {
+        if (gConfig.isEvent) {
+            setDialogId(document.documentElement, "calendar-event-dialog");
+        } else {
+            setDialogId(document.documentElement, "calendar-task-dialog");
+        }
     }
 
     // timezones enabled

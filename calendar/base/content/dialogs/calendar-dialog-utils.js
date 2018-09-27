@@ -40,7 +40,6 @@ function dispose() {
     if (args.job && args.job.dispose) {
         args.job.dispose();
     }
-    resetDialogId(document.documentElement);
 }
 
 /**
@@ -51,23 +50,8 @@ function dispose() {
  * @param aNewId                The new ID as String.
  */
 function setDialogId(aDialog, aNewId) {
-    aDialog.setAttribute("originalId", aDialog.getAttribute("id"));
     aDialog.setAttribute("id", aNewId);
-    applyPersitedProperties(aDialog);
-}
-
-/**
- * Sets the Dialog id back to previously stored one,
- * so that the persisted values are correctly saved.
- *
- * @param aDialog               The Dialog which is to be restored.
- */
-function resetDialogId(aDialog) {
-    let id = aDialog.getAttribute("originalId");
-    if (id != "") {
-        aDialog.setAttribute("id", id);
-    }
-    aDialog.removeAttribute("originalId");
+    applyPersistedProperties(aDialog);
 }
 
 /**
@@ -77,7 +61,7 @@ function resetDialogId(aDialog) {
  *
  * @param aDialog               The Dialog to apply the property values for
  */
-function applyPersitedProperties(aDialog) {
+function applyPersistedProperties(aDialog) {
     let xulStore = Services.xulStore;
     // first we need to detect which properties are persisted
     let persistedProps = aDialog.getAttribute("persist") || "";
@@ -85,11 +69,26 @@ function applyPersitedProperties(aDialog) {
         return;
     }
     let propNames = persistedProps.split(" ");
+    let { outerWidth: width, outerHeight: height } = aDialog;
+    let doResize = false;
     // now let's apply persisted values if applicable
     for (let propName of propNames) {
         if (xulStore.hasValue(aDialog.baseURI, aDialog.id, propName)) {
-            aDialog.setAttribute(propName, xulStore.getValue(aDialog.baseURI, aDialog.id, propName));
+            let propValue = xulStore.getValue(aDialog.baseURI, aDialog.id, propName);
+            if (propName == "width") {
+                width = propValue;
+                doResize = true;
+            } else if (propName == "height") {
+                height = propValue;
+                doResize = true;
+            } else {
+                aDialog.setAttribute(propName, propValue);
+            }
         }
+    }
+
+    if (doResize) {
+        aDialog.ownerGlobal.resizeTo(width, height);
     }
 }
 
