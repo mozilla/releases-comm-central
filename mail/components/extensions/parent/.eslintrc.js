@@ -1,6 +1,7 @@
 "use strict";
+/* eslint-env node */
 
-module.exports = { // eslint-disable-line no-undef
+module.exports = {
   "globals": {
     // From toolkit/components/extensions/parent/.eslintrc.js.
     "CONTAINER_STORE": true,
@@ -24,13 +25,14 @@ module.exports = { // eslint-disable-line no-undef
     "isValidCookieStoreId": true,
 
     // These are defined in ext-mail.js.
-    "tabGetSender": true,
-    "makeWidgetId": true,
-    "getTabBrowser": true,
-    "WindowEventManager": true,
-    "tabTracker": true,
-    "windowTracker": true,
+    "ExtensionError": true,
     "Tab": true,
     "Window": true,
+    "WindowEventManager": true,
+    "getTabBrowser": true,
+    "makeWidgetId": true,
+    "tabGetSender": true,
+    "tabTracker": true,
+    "windowTracker": true,
   },
 };
