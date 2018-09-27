@@ -1,4 +1,22 @@
 {
+  "browserAction": {
+    "url": "chrome://messenger/content/parent/ext-browserAction.js",
+    "schema": "chrome://messenger/content/schemas/browserAction.json",
+    "scopes": ["addon_parent"],
+    "manifest": ["browser_action"],
+    "paths": [
+      ["browserAction"]
+    ]
+  },
+  "composeAction": {
+    "url": "chrome://messenger/content/parent/ext-composeAction.js",
+    "schema": "chrome://messenger/content/schemas/composeAction.json",
+    "scopes": ["addon_parent"],
+    "manifest": ["compose_action"],
+    "paths": [
+      ["composeAction"]
+    ]
+  },
   "legacy": {
     "url": "chrome://messenger/content/parent/ext-legacy.js",
     "schema": "chrome://messenger/content/schemas/legacy.json",

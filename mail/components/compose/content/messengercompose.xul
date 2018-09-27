@@ -570,6 +570,8 @@
   <key id="insertlinkkb" key="&insertLinkCmd2.key;" observes="cmd_link" modifiers="accel"/>
 </keyset>
 
+<popupset id="mainPopupSet"/>
+
 <!-- Reorder Attachments Panel -->
 <panel id="reorderAttachmentsPanel"
        orient="vertical"

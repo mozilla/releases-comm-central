@@ -6,4 +6,9 @@ EXTRA_COMPONENTS += [
     'extensions-mail.manifest',
 ]
 
+EXTRA_JS_MODULES += [
+    'ExtensionPopups.jsm',
+    'ExtensionToolbarButtons.jsm',
+]
+
 JAR_MANIFESTS += ['jar.mn']

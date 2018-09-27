@@ -219,6 +219,10 @@ var ExtensionSupport = {
     return true;
   },
 
+  get openWindows() {
+    return openWindowList.values();
+  },
+
   _windowListener: {
     // nsIWindowMediatorListener functions
     onOpenWindow(xulWindow) {
