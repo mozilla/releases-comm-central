@@ -7,7 +7,3 @@ EXTRA_COMPONENTS += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
-
-XPCSHELL_TESTS_MANIFESTS += [
-    'test/xpcshell/xpcshell.ini',
-]

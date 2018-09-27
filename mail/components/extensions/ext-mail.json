@@ -1,12 +1,4 @@
 {
-  "addressBook": {
-    "url": "chrome://messenger/content/parent/ext-addressBook.js",
-    "schema": "chrome://messenger/content/schemas/addressBook.json",
-    "scopes": ["addon_parent"],
-    "paths": [
-      ["addressBooks"], ["contacts"], ["mailingLists"]
-    ]
-  },
   "legacy": {
     "url": "chrome://messenger/content/parent/ext-legacy.js",
     "schema": "chrome://messenger/content/schemas/legacy.json",
