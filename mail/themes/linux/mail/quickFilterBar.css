@@ -49,6 +49,11 @@
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
+#quick-filter-bar-tab-bar > .qfb-tag-button {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 #qfb-sticky {
   list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
 }

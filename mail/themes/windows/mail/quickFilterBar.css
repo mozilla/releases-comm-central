@@ -83,6 +83,13 @@
   padding-bottom: 0 !important;
 }
 
+#quick-filter-bar-tab-bar > .qfb-tag-button {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
 #qfb-sticky {
   list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
 }

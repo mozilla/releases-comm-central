@@ -329,6 +329,10 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   min-width: 32px;
   margin: 4px 1px;
   padding: 1px 6px !important;
+}
+
+.toolbarbutton-1:not(.qfb-tag-button),
+.toolbarbutton-menubutton-button {
   color: inherit !important;
 }
 

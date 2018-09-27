@@ -896,9 +896,9 @@ var TagFacetingFilter = {
         let color = tag.color;
         // everybody always gets to be an qfb-tag-button.
         if (color)
-          button.setAttribute("class", "qfb-tag-button lc-" + color.substr(1));
+          button.setAttribute("class", "toolbarbutton-1 qfb-tag-button lc-" + color.substr(1));
         else
-          button.setAttribute("class", "qfb-tag-button");
+          button.setAttribute("class", "toolbarbutton-1 qfb-tag-button");
         tagbar.appendChild(button);
       }
     }
