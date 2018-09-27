@@ -731,24 +731,10 @@ icalcomponent* icalparser_add_line(icalparser* parser,
 
 	parser->level++;
 	str = parser_get_next_value(end,&end, value_kind);
-	    
 
-        comp_kind = icalenum_string_to_component_kind(str);
+    comp_kind = icalenum_string_to_component_kind(str);
 
-
-        if (comp_kind == ICAL_NO_COMPONENT){
-
-
-	    c = icalcomponent_new(ICAL_XLICINVALID_COMPONENT);
-	    insert_error(c,str,"Parse error in component name",
-			 ICAL_XLICERRORTYPE_COMPONENTPARSEERROR);
-        }
-
-	if (comp_kind != ICAL_X_COMPONENT) {
-	    c  =  icalcomponent_new(comp_kind);
-	} else {
-	    c  =  icalcomponent_new_x(str);
-	}
+    c  =  icalcomponent_new(comp_kind);
 
 	if (c == 0){
 	    c = icalcomponent_new(ICAL_XLICINVALID_COMPONENT);

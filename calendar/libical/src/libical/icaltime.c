@@ -517,20 +517,20 @@ struct icaltimetype icaltime_from_string(const char* str)
     size = strlen(str);
     
     if ((size == 15) || (size == 19)) { /* floating time with/without separators*/
-	tt.is_utc = 0;
-	tt.is_date = 0;
+        tt.is_utc = 0;
+        tt.is_date = 0;
     } else if ((size == 16) || (size == 20)) { /* UTC time, ends in 'Z'*/
-	if ((str[15] != 'Z') && (str[19] != 'Z'))
-	    goto FAIL;
+        if ((str[size-1] != 'Z'))
+            goto FAIL;
 
-	tt.is_utc = 1;
-	tt.zone = icaltimezone_get_utc_timezone();
-	tt.is_date = 0;
+        tt.is_utc = 1;
+        tt.zone = icaltimezone_get_utc_timezone();
+        tt.is_date = 0;
     } else if ((size == 8) || (size == 10)) { /* A DATE */
-	tt.is_utc = 0;
-	tt.is_date = 1;
+        tt.is_utc = 0;
+        tt.is_date = 1;
     } else { /* error */
-	goto FAIL;
+        goto FAIL;
     }
 
     if (tt.is_date == 1){
