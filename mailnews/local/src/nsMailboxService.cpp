@@ -607,7 +607,8 @@ NS_IMETHODIMP nsMailboxService::NewChannel2(nsIURI *aURI,
   rv = protocol->SetLoadInfo(aLoadInfo);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return CallQueryInterface(protocol, _retval);
+  protocol.forget(_retval);
+  return NS_OK;
 }
 
 nsresult nsMailboxService::DisplayMessageForPrinting(const char* aMessageURI,

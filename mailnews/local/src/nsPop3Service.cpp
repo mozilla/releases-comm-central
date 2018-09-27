@@ -518,7 +518,8 @@ NS_IMETHODIMP nsPop3Service::NewChannel2(nsIURI *aURI,
 
   protocol->SetUsername(realUserName.get());
 
-  return CallQueryInterface(protocol, _retval);
+  protocol.forget(_retval);
+  return NS_OK;
 }
 
 

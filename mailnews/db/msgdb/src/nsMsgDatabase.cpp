@@ -3031,7 +3031,9 @@ nsMsgDatabase::GetFilterEnumerator(nsIArray *searchTerms, bool aReverse,
   NS_ENSURE_TRUE(e, NS_ERROR_OUT_OF_MEMORY);
   nsresult rv = e->InitSearchSession(searchTerms, m_folder);
   NS_ENSURE_SUCCESS(rv, rv);
-  return CallQueryInterface(e.get(), aResult);
+
+  e.forget(aResult);
+  return NS_OK;
 }
 
 NS_IMETHODIMP

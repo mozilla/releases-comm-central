@@ -1009,7 +1009,9 @@ calIcalComponent::SerializeToICSStream(nsIInputStream **aStreamResult)
     // it's one of libical's ring buffers
     rv = aStringStream->SetData(icalstr, -1);
     NS_ENSURE_SUCCESS(rv, rv);
-    return CallQueryInterface(aStringStream, aStreamResult);
+
+    aStringStream.forget(aStreamResult);
+    return NS_OK;
 }
 
 nsresult

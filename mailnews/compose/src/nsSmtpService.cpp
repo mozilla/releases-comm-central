@@ -228,7 +228,8 @@ nsresult NS_MsgLoadSmtpUrl(nsIURI * aUrl, nsISupports * aConsumer, nsIRequest **
   rv = smtpProtocol->LoadUrl(aUrl, aConsumer);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return CallQueryInterface(smtpProtocol.get(), aRequest);
+  smtpProtocol.forget(aRequest);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsSmtpService::VerifyLogon(nsISmtpServer *aServer,
