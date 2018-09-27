@@ -27,6 +27,8 @@
 #include "nsArrayUtils.h"
 #include "nsUnicharUtils.h"
 #include "mozilla/DebugOnly.h"
+#include "nsIObserverService.h"
+#include "mozilla/Services.h"
 
 nsAbMDBDirectory::nsAbMDBDirectory(void):
      nsAbMDBDirProperty(),
@@ -662,10 +664,17 @@ NS_IMETHODIMP nsAbMDBDirectory::AddCard(nsIAbCard* card, nsIAbCard **addedCard)
   if (NS_FAILED(rv) || !mDatabase)
     return NS_ERROR_FAILURE;
 
-  if (m_IsMailList)
+  if (m_IsMailList) {
     rv = mDatabase->CreateNewListCardAndAddToDB(this, m_dbRowID, card, true /* notify */);
-  else
+  } else {
     rv = mDatabase->CreateNewCardAndAddToDB(card, true, this);
+    nsCOMPtr<nsIObserverService> observerService = mozilla::services::GetObserverService();
+    if (observerService) {
+      nsAutoCString thisUID;
+      this->GetUID(thisUID);
+      observerService->NotifyObservers(card, "addrbook-contact-created", NS_ConvertUTF8toUTF16(thisUID).get());
+    }
+  }
   NS_ENSURE_SUCCESS(rv, rv);
 
   mDatabase->Commit(nsAddrDBCommitType::kLargeCommit);
@@ -687,6 +696,14 @@ NS_IMETHODIMP nsAbMDBDirectory::ModifyCard(nsIAbCard *aModifiedCard)
 
   rv = mDatabase->EditCard(aModifiedCard, true, this);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIObserverService> observerService = mozilla::services::GetObserverService();
+  if (observerService) {
+    nsAutoCString thisUID;
+    this->GetUID(thisUID);
+    observerService->NotifyObservers(aModifiedCard, "addrbook-contact-updated", NS_ConvertUTF8toUTF16(thisUID).get());
+  }
+
   return mDatabase->Commit(nsAddrDBCommitType::kLargeCommit);
 }
 
@@ -731,6 +748,12 @@ NS_IMETHODIMP nsAbMDBDirectory::DropCard(nsIAbCard* aCard, bool needToCopyCard)
     }
     // since we didn't copy the card, we don't have to notify that it was inserted
     mDatabase->CreateNewListCardAndAddToDB(this, m_dbRowID, newCard, false /* notify */);
+    nsCOMPtr<nsIObserverService> observerService = mozilla::services::GetObserverService();
+    if (observerService) {
+      nsAutoCString thisUID;
+      this->GetUID(thisUID);
+      observerService->NotifyObservers(newCard, "addrbook-list-member-added", NS_ConvertUTF8toUTF16(thisUID).get());
+    }
   }
   else {
     mDatabase->CreateNewCardAndAddToDB(newCard, true /* notify */, this);
