@@ -1230,7 +1230,7 @@ nsMsgDBView::LoadMessageByUrl(const char *aUrl)
 }
 
 NS_IMETHODIMP
-nsMsgDBView::SelectionChanged()
+nsMsgDBView::SelectionChangedXPCOM()
 {
   // If the currentSelection changed then we have a message to display -
   // not if we are in the middle of deleting rows.
@@ -5646,7 +5646,7 @@ nsMsgDBView::ToggleExpansion(nsMsgViewIndex index,
     rv = CollapseByIndex(threadIndex, numChanged);
 
   // If we collaps/uncollapse a thread, this changes the selected URIs.
-  SelectionChanged();
+  SelectionChangedXPCOM();
   return rv;
 }
 
@@ -5750,7 +5750,7 @@ nsMsgDBView::ExpandAll()
   if (mTree)
     mTree->EndUpdateBatch();
 
-  SelectionChanged();
+  SelectionChangedXPCOM();
   return NS_OK;
 }
 
@@ -5818,7 +5818,7 @@ nsMsgDBView::CollapseAll()
       CollapseByIndex(i, &numExpanded);
   }
 
-  SelectionChanged();
+  SelectionChangedXPCOM();
   return NS_OK;
 }
 

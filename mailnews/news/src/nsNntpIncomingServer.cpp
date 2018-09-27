@@ -1930,7 +1930,7 @@ nsNntpIncomingServer::CycleHeader(nsTreeColumn* col)
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::SelectionChanged()
+nsNntpIncomingServer::SelectionChangedXPCOM()
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

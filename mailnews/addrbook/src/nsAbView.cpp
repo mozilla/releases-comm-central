@@ -508,7 +508,7 @@ nsresult nsAbView::RefreshTree()
     // Although the selection hasn't changed, the card that is selected may need
     // to be displayed differently, therefore pretend that the selection has
     // changed to force that update.
-    SelectionChanged();
+    SelectionChangedXPCOM();
   }
 
   return rv;
@@ -550,7 +550,7 @@ nsresult nsAbView::InvalidateTree(int32_t row)
     return mTree->InvalidateRow(row);
 }
 
-NS_IMETHODIMP nsAbView::SelectionChanged()
+NS_IMETHODIMP nsAbView::SelectionChangedXPCOM()
 {
   if (mAbViewListener && !mSuppressSelectionChange) {
     nsresult rv = mAbViewListener->OnSelectionChanged();
@@ -1103,7 +1103,7 @@ NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item, const char *pro
   // to be displayed differently, therefore pretend that the selection has
   // changed to force that update.
   if (cardWasSelected)
-    SelectionChanged();
+    SelectionChangedXPCOM();
 
   return NS_OK;
 }

@@ -1185,7 +1185,7 @@ nsSubscribableServer::CycleHeader(nsTreeColumn *aCol)
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::SelectionChanged()
+nsSubscribableServer::SelectionChangedXPCOM()
 {
   return NS_OK;
 }
