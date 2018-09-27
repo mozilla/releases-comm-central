@@ -52,6 +52,7 @@ protected:
   bool     m_IsMailList;
 
   nsCString mURI;
+  nsCString mUID;
   nsCString mQueryString;
   nsCString mURINoQuery;
   bool mIsValidURI;

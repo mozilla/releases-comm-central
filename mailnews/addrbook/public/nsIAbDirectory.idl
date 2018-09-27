@@ -70,6 +70,12 @@ interface nsIAbDirectory : nsIAbCollection {
   // The filename for address books within this directory.
   readonly attribute ACString fileName;
 
+  /**
+   * A 128-bit unique identifier for this directory.
+   */
+  readonly attribute AUTF8String UID;
+  [noscript] void setUID(in AUTF8String aUID);
+
   // The URI of the address book
   readonly attribute ACString URI;
 

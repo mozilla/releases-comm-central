@@ -110,6 +110,12 @@ interface nsIAbCard : nsIAbItem {
   attribute AUTF8String localId;
 
   /**
+   * A 128-bit unique identifier for this card.
+   */
+  readonly attribute AUTF8String UID;
+  [noscript] void setUID(in AUTF8String aUID);
+
+  /**
    * A list of all the properties that this card has as an enumerator, whose
    * members are all nsIProperty objects.
    */
@@ -287,6 +293,7 @@ interface nsIAbCard : nsIAbItem {
 
 %{C++
 // A nice list of properties for the benefit of C++ clients
+#define kUIDProperty                "UID"
 #define kFirstNameProperty          "FirstName"
 #define kLastNameProperty           "LastName"
 #define kDisplayNameProperty        "DisplayName"

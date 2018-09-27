@@ -208,6 +208,7 @@ interface nsIAddrDatabase : nsIAddrDBAnnouncer {
   [noscript] readonly attribute nsIMdbRow newListRow;
   [noscript] void addCardRowToDB(in nsIMdbRow newRow);
   [noscript] void addLdifListMember(in nsIMdbRow row, in string value);
+  [noscript] void addUID(in nsIMdbRow row, in string value);
   [noscript] void addFirstName(in nsIMdbRow row, in string value);
   [noscript] void addLastName(in nsIMdbRow row, in string value);
   [noscript] void addPhoneticFirstName(in nsIMdbRow row, in string value);

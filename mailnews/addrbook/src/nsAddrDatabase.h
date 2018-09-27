@@ -67,6 +67,9 @@ public:
   NS_IMETHOD AddCardRowToDB(nsIMdbRow *newRow) override;
   NS_IMETHOD AddLdifListMember(nsIMdbRow* row, const char * value) override;
 
+  NS_IMETHOD AddUID(nsIMdbRow * row, const char * value) override
+  { return AddCharStringColumn(row, m_UIDColumnToken, value); }
+
   NS_IMETHOD AddFirstName(nsIMdbRow * row, const char * value) override
   { return AddCharStringColumn(row, m_FirstNameColumnToken, value); }
 
@@ -343,6 +346,7 @@ protected:
   mdb_scope      m_ListRowScopeToken;
   mdb_scope      m_DataRowScopeToken;
 
+  mdb_token      m_UIDColumnToken;
   mdb_token      m_FirstNameColumnToken;
   mdb_token      m_LastNameColumnToken;
   mdb_token      m_PhoneticFirstNameColumnToken;
