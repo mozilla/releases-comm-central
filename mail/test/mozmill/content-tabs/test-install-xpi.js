@@ -117,6 +117,7 @@ function test_install_corrupt_xpi() {
   close_notification_box();
 }
 
+test_install_xpi_offer.__force_skip__ = true; // disabled, see bug 1494215
 function test_install_xpi_offer() {
   click_install_link_and_wait_for_alert("installlink");
 
@@ -141,6 +142,7 @@ function test_xpinstall_disabled() {
   click_notification_box_action_in_current_tab();
 }
 
+test_xpinstall_actually_install.__force_skip__ = true; // disabled, see bug 1494215
 function test_xpinstall_actually_install() {
   click_install_link_and_wait_for_alert("installlink");
 
