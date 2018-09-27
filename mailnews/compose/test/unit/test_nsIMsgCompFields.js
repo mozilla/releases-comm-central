@@ -10,8 +10,8 @@ var nsMsgCompFields = Components.Constructor(
 
 function check_headers(enumerator, container) {
   let checkValues = new Set(container.map(header => header.toLowerCase()));
-  while (enumerator.hasMore()) {
-    let value = enumerator.getNext().toLowerCase();
+  for (let value of enumerator) {
+    value = value.toLowerCase();
     Assert.ok(checkValues.has(value));
     checkValues.delete(value);
   }

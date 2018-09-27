@@ -19,7 +19,7 @@ function StringEnumerator(iterator) {
 StringEnumerator.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIUTF8StringEnumerator]),
   [Symbol.iterator]: function () {
-    return this;
+    return this._iterator;
   },
   _setNext: function () {
     if (this._next !== undefined)
@@ -179,9 +179,7 @@ MimeWritableStructuredHeaders.prototype = {
   },
 
   addAllHeaders: function (aHeaders) {
-    let headerList = aHeaders.headerNames;
-    while (headerList.hasMore()) {
-      let header = headerList.getNext();
+    for (let header of aHeaders.headerNames) {
       this.setHeader(header, aHeaders.getHeader(header));
     }
   },
