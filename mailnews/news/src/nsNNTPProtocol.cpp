@@ -1141,12 +1141,15 @@ nsNNTPProtocol::LoadUrlInternal(nsIProxyInfo* aProxyInfo)
 {
   m_proxyRequest = nullptr;
 
-  nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_nntpServer);
+  nsresult rv;
+  nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_nntpServer, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCString hostName;
   int32_t port = 0;
   int32_t socketType;
 
-  nsresult rv = server->GetRealHostName(hostName);
+  rv = server->GetRealHostName(hostName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = m_url->GetPort(&port);
