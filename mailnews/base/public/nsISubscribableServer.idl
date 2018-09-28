@@ -7,16 +7,8 @@
 
 interface nsIMsgWindow;
 interface nsIMsgIncomingServer;
-interface nsIRDFResource;
-interface nsIRDFNode;
-interface nsISimpleEnumerator;
 interface nsITreeView;
-
-[scriptable, uuid(61a08c3a-1dd2-11b2-b64f-c4b2de1cf129)]
-interface nsISubscribeDataSource : nsISupports {
-    readonly attribute boolean hasObservers;
-    void NotifyObservers(in nsIRDFResource subject, in nsIRDFResource property, in nsIRDFNode object, in boolean isAssert, in boolean isChange);
-};
+interface nsIUTF8StringEnumerator;
 
 /**
  * A listener to receive notification of the subscribable folders of a server.
@@ -66,13 +58,12 @@ interface nsISubscribableServer : nsISupports {
   AString getLeafName(in AUTF8String path);
 
   /**
-   * Returns the children underneath the specified uri (path).
+   * Returns the children uris underneath the specified uri (path).
    *
    * @param  aPath  The server's uri; If this is null or empty, then the
    *                root server uri will be used.
-   * @return        Enumerator containing the children.
    */
-  nsISimpleEnumerator getChildren(in AUTF8String aPath);
+  nsIUTF8StringEnumerator getChildURIs(in AUTF8String aPath);
   // if path is null, use the root
   AUTF8String getFirstChildURI(in AUTF8String path);
 

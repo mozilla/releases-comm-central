@@ -6,18 +6,16 @@
 #include "nsSubscribableServer.h"
 #include "nsIMsgIncomingServer.h"
 #include "prmem.h"
-#include "rdf.h"
-#include "nsRDFCID.h"
 #include "nsIServiceManager.h"
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"
 #include "nsCOMArray.h"
 #include "nsArrayEnumerator.h"
+#include "nsStringEnumerator.h"
 #include "nsServiceManagerUtils.h"
 #include "nsTreeColumns.h"
 #include "mozilla/dom/DataTransfer.h"
 
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 nsSubscribableServer::nsSubscribableServer(void)
 {
@@ -30,25 +28,7 @@ nsSubscribableServer::nsSubscribableServer(void)
 nsresult
 nsSubscribableServer::Init()
 {
-    nsresult rv;
-
-    rv = EnsureRDFService();
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = mRDFService->GetResource(NS_LITERAL_CSTRING(NC_NAMESPACE_URI "child"),
-                                  getter_AddRefs(kNC_Child));
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = mRDFService->GetResource(NS_LITERAL_CSTRING(NC_NAMESPACE_URI "Subscribed"),
-                                  getter_AddRefs(kNC_Subscribed));
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = mRDFService->GetLiteral(u"true", getter_AddRefs(kTrueLiteral));
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = mRDFService->GetLiteral(u"false", getter_AddRefs(kFalseLiteral));
-    NS_ENSURE_SUCCESS(rv,rv);
-    return NS_OK;
+  return NS_OK;
 }
 
 nsSubscribableServer::~nsSubscribableServer(void)
@@ -108,9 +88,6 @@ nsSubscribableServer::SetAsSubscribed(const nsACString &path)
     node->isSubscribable = true;
     node->isSubscribed = true;
 
-    rv = NotifyChange(node, kNC_Subscribed, node->isSubscribed);
-    NS_ENSURE_SUCCESS(rv,rv);
-
     return rv;
 }
 
@@ -135,8 +112,6 @@ nsSubscribableServer::AddTo(const nsACString& aName, bool aAddAsSubscribed,
 
     if (aChangeIfExists) {
         node->isSubscribed = aAddAsSubscribed;
-        rv = NotifyChange(node, kNC_Subscribed, node->isSubscribed);
-        NS_ENSURE_SUCCESS(rv,rv);
     }
 
     node->isSubscribable = aSubscribable;
@@ -174,8 +149,6 @@ nsSubscribableServer::SetState(const nsACString &aPath, bool aState,
     else {
         node->isSubscribed = aState;
         *aStateChanged = true;
-        rv = NotifyChange(node, kNC_Subscribed, node->isSubscribed);
-        NS_ENSURE_SUCCESS(rv,rv);
 
         // Repaint the tree row to show/clear the check mark.
         if (mTree) {
@@ -186,147 +159,6 @@ nsSubscribableServer::SetState(const nsACString &aPath, bool aState,
         }
     }
     return NS_OK;
-}
-
-void
-nsSubscribableServer::BuildURIFromNode(SubscribeTreeNode *node, nsACString &uri)
-{
-    if (node->parent) {
-        BuildURIFromNode(node->parent, uri);
-        if (node->parent == mTreeRoot) {
-            uri += "/";
-        }
-        else {
-            uri += mDelimiter;
-        }
-    }
-
-    uri += node->name;
-    return;
-}
-
-nsresult
-nsSubscribableServer::NotifyAssert(SubscribeTreeNode *subjectNode, nsIRDFResource *property, SubscribeTreeNode *objectNode)
-{
-    nsresult rv;
-
-    bool hasObservers = true;
-    rv = EnsureSubscribeDS();
-    NS_ENSURE_SUCCESS(rv,rv);
-    rv = mSubscribeDS->GetHasObservers(&hasObservers);
-    NS_ENSURE_SUCCESS(rv,rv);
-    // no need to do all this work, there are no observers
-    if (!hasObservers) {
-        return NS_OK;
-    }
-
-    nsAutoCString subjectUri;
-    BuildURIFromNode(subjectNode, subjectUri);
-
-    // we could optimize this, since we know that objectUri == subjectUri + mDelimiter + object->name
-    // is it worth it?
-    nsAutoCString objectUri;
-    BuildURIFromNode(objectNode, objectUri);
-
-    nsCOMPtr <nsIRDFResource> subject;
-    nsCOMPtr <nsIRDFResource> object;
-
-    rv = EnsureRDFService();
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = mRDFService->GetResource(subjectUri, getter_AddRefs(subject));
-    NS_ENSURE_SUCCESS(rv,rv);
-    rv = mRDFService->GetResource(objectUri, getter_AddRefs(object));
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = Notify(subject, property, object, true, false);
-    NS_ENSURE_SUCCESS(rv,rv);
-    return NS_OK;
-}
-
-nsresult
-nsSubscribableServer::EnsureRDFService()
-{
-    nsresult rv;
-
-    if (!mRDFService) {
-        mRDFService = do_GetService(kRDFServiceCID, &rv);
-        NS_ASSERTION(NS_SUCCEEDED(rv) && mRDFService, "failed to get rdf service");
-        NS_ENSURE_SUCCESS(rv,rv);
-        if (!mRDFService) return NS_ERROR_FAILURE;
-    }
-    return NS_OK;
-}
-
-nsresult
-nsSubscribableServer::NotifyChange(SubscribeTreeNode *subjectNode, nsIRDFResource *property, bool value)
-{
-    nsresult rv;
-    nsCOMPtr <nsIRDFResource> subject;
-
-    bool hasObservers = true;
-    rv = EnsureSubscribeDS();
-    NS_ENSURE_SUCCESS(rv,rv);
-    rv = mSubscribeDS->GetHasObservers(&hasObservers);
-    NS_ENSURE_SUCCESS(rv,rv);
-    // no need to do all this work, there are no observers
-    if (!hasObservers) {
-        return NS_OK;
-    }
-
-    nsAutoCString subjectUri;
-    BuildURIFromNode(subjectNode, subjectUri);
-
-    rv = EnsureRDFService();
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = mRDFService->GetResource(subjectUri, getter_AddRefs(subject));
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    if (value) {
-        rv = Notify(subject,property,kTrueLiteral,false,true);
-    }
-    else {
-        rv = Notify(subject,property,kFalseLiteral,false,true);
-    }
-
-    NS_ENSURE_SUCCESS(rv,rv);
-    return NS_OK;
-}
-
-nsresult
-nsSubscribableServer::EnsureSubscribeDS()
-{
-    nsresult rv = NS_OK;
-
-    if (!mSubscribeDS) {
-        nsCOMPtr<nsIRDFDataSource> ds;
-
-        rv = EnsureRDFService();
-        NS_ENSURE_SUCCESS(rv,rv);
-
-        rv = mRDFService->GetDataSource("rdf:subscribe", getter_AddRefs(ds));
-        NS_ENSURE_SUCCESS(rv,rv);
-        if (!ds) return NS_ERROR_FAILURE;
-
-        mSubscribeDS = do_QueryInterface(ds, &rv);
-        NS_ENSURE_SUCCESS(rv,rv);
-        if (!mSubscribeDS) return NS_ERROR_FAILURE;
-    }
-    return NS_OK;
-}
-
-nsresult
-nsSubscribableServer::Notify(nsIRDFResource *subject, nsIRDFResource *property, nsIRDFNode *object, bool isAssert, bool isChange)
-{
-    nsresult rv = NS_OK;
-
-    rv = EnsureSubscribeDS();
-    NS_ENSURE_SUCCESS(rv,rv);
-
-    rv = mSubscribeDS->NotifyObservers(subject, property, object, isAssert, isChange);
-    NS_ENSURE_SUCCESS(rv,rv);
-    return rv;
 }
 
 NS_IMETHODIMP
@@ -543,9 +375,6 @@ nsSubscribableServer::AddChildNode(SubscribeTreeNode *parent, const char *name, 
         parent->firstChild = *child;
         parent->lastChild = *child;
 
-        rv = NotifyAssert(parent, kNC_Child, *child);
-        NS_ENSURE_SUCCESS(rv,rv);
-
         return NS_OK;
     }
 
@@ -589,8 +418,6 @@ nsSubscribableServer::AddChildNode(SubscribeTreeNode *parent, const char *name, 
                 (*child)->prevSibling->nextSibling = (*child);
             }
 
-            rv = NotifyAssert(parent, kNC_Child, *child);
-            NS_ENSURE_SUCCESS(rv,rv);
             return NS_OK;
         }
         current = current->nextSibling;
@@ -621,8 +448,6 @@ nsSubscribableServer::AddChildNode(SubscribeTreeNode *parent, const char *name, 
     parent->lastChild->nextSibling = *child;
     parent->lastChild = *child;
 
-    rv = NotifyAssert(parent, kNC_Child, *child);
-    NS_ENSURE_SUCCESS(rv,rv);
     return NS_OK;
 }
 
@@ -771,14 +596,14 @@ nsSubscribableServer::GetFirstChildURI(const nsACString &aPath,
     // no children
     if (!node->firstChild) return NS_ERROR_FAILURE;
 
-    BuildURIFromNode(node->firstChild, aResult);
+    aResult.Assign(node->firstChild->path);
 
     return NS_OK;
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::GetChildren(const nsACString &aPath,
-                                  nsISimpleEnumerator **aResult)
+nsSubscribableServer::GetChildURIs(const nsACString &aPath,
+                                   nsIUTF8StringEnumerator **aResult)
 {
     SubscribeTreeNode *node = nullptr;
     nsresult rv = FindAndCreateNode(aPath, &node);
@@ -788,49 +613,35 @@ nsSubscribableServer::GetChildren(const nsACString &aPath,
     if (!node)
       return NS_ERROR_FAILURE;
 
-    nsAutoCString uriPrefix;
     NS_ASSERTION(mTreeRoot, "no tree root!");
     if (!mTreeRoot)
       return NS_ERROR_UNEXPECTED;
 
-    uriPrefix = mTreeRoot->name; // the root's name is the server uri
-    uriPrefix += "/";
-    if (!aPath.IsEmpty()) {
-        uriPrefix += aPath;
-        uriPrefix += mDelimiter;
-    }
-
-    // we inserted them in reverse alphabetical order.
-    // so pull them out in reverse to get the right order
-    // in the subscribe dialog
+    // We inserted them in reverse alphabetical order.
+    // So pull them out in reverse to get the right order
+    // in the subscribe dialog.
     SubscribeTreeNode *current = node->lastChild;
     // return failure if there are no children.
     if (!current)
       return NS_ERROR_FAILURE;
 
-    nsCOMArray<nsIRDFResource> result;
+    nsTArray<nsCString> *result = new nsTArray<nsCString>;
 
     while (current) {
-        nsAutoCString uri;
-        uri = uriPrefix;
         NS_ASSERTION(current->name, "no name");
         if (!current->name)
           return NS_ERROR_FAILURE;
 
-        uri += current->name;
-
-        nsCOMPtr <nsIRDFResource> res;
-        rv = EnsureRDFService();
-        NS_ENSURE_SUCCESS(rv,rv);
-
-        // todo, is this creating nsMsgFolders?
-        mRDFService->GetResource(uri, getter_AddRefs(res));
-        result.AppendObject(res);
+        result->AppendElement(current->path);
 
         current = current->prevSibling;
     }
 
-    return NS_NewArrayEnumerator(aResult, result, NS_GET_IID(nsIRDFResource));
+    rv = NS_NewAdoptingUTF8StringEnumerator(aResult, result);
+    if (NS_FAILED(rv))
+      delete result;
+
+    return rv;
 }
 
 NS_IMETHODIMP

@@ -48,8 +48,7 @@ SOURCES += [
     'nsMsgXFVirtualFolderDBView.cpp',
     'nsSpamSettings.cpp',
     'nsStatusBarBiffManager.cpp',
-    'nsSubscribableServer.cpp',
-    'nsSubscribeDataSource.cpp',
+    'nsSubscribableServer.cpp'
 ]
 
 if CONFIG['NS_PRINTING']:

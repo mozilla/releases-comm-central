@@ -2649,12 +2649,12 @@ nsImapIncomingServer::GetFirstChildURI(const nsACString &path, nsACString &aResu
 
 
 NS_IMETHODIMP
-nsImapIncomingServer::GetChildren(const nsACString &aPath,
-                                  nsISimpleEnumerator **aResult)
+nsImapIncomingServer::GetChildURIs(const nsACString &aPath,
+                                   nsIUTF8StringEnumerator **aResult)
 {
   nsresult rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv,rv);
-  return mInner->GetChildren(aPath, aResult);
+  return mInner->GetChildURIs(aPath, aResult);
 }
 
 nsresult

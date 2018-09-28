@@ -246,16 +246,6 @@
 { 0x8510876a, 0x1dd2, 0x11b2,     \
 { 0x82, 0x53, 0x91, 0xf7, 0x1b, 0x34, 0x8a, 0x25 }}
 
-//
-// nsSubscribeDataSource
-//
-#define NS_SUBSCRIBEDATASOURCE_CONTRACTID \
-  NS_RDF_DATASOURCE_CONTRACTID_PREFIX "subscribe"
-
-#define NS_SUBSCRIBEDATASOURCE_CID \
-{ 0x00e89c82, 0x1dd2, 0x11b2,      \
-{ 0x9a, 0x1c, 0xe7, 0x59, 0x95, 0xd7, 0xd5, 0x95 }}
-
 #define NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID \
   "@mozilla.org/messenger/localfoldercompactor;1"
 
