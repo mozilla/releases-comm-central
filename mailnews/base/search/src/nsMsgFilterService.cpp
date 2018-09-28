@@ -526,10 +526,15 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
 {
   nsresult rv;
   do { // error management block, break if unable to continue with filter.
+    // 'm_curFolder' can be reset asynchronously by the copy service
+    // calling OnStopCopy(). So take a local copy here and use it throughout the
+    // function.
+    nsCOMPtr<nsIMsgFolder> curFolder = m_curFolder;
     if (!m_curFilter)
       break; // Maybe not an error, we just need to call RunNextFilter();
-    if (!m_curFolder)
+    if (!curFolder)
       break; // Maybe not an error, we just need to call AdvanceToNextFolder();
+
     BREAK_IF_FALSE(m_searchHitHdrs, "No search headers object");
     // we're going to log the filter actions before firing them because some actions are async
     bool loggingEnabled = false;
@@ -586,12 +591,12 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
         // and we rely on the listener getting called to continue the filter application.
         // This means we're going to end up firing off the delete, and then subsequently
         // issuing a search for the next filter, which will block until the delete finishes.
-        m_curFolder->DeleteMessages(m_searchHitHdrs, m_msgWindow, false, false, nullptr, false /*allow Undo*/ );
+        curFolder->DeleteMessages(m_searchHitHdrs, m_msgWindow, false, false, nullptr, false /*allow Undo*/ );
 
         // don't allow any more filters on this message
         m_stopFiltering.AppendElements(m_searchHits);
         for (uint32_t i = 0; i < m_searchHits.Length(); i++)
-          m_curFolder->OrProcessingFlags(m_searchHits[i], nsMsgProcessingFlags::FilterToMove);
+          curFolder->OrProcessingFlags(m_searchHits[i], nsMsgProcessingFlags::FilterToMove);
         //if we are deleting then we couldn't care less about applying remaining filter actions
         m_nextAction = numActions;
         break;
@@ -605,7 +610,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
       case nsMsgFilterAction::CopyToFolder:
       {
         nsCString uri;
-        m_curFolder->GetURI(uri);
+        curFolder->GetURI(uri);
         if (!actionTargetFolderUri.IsEmpty() &&
             !uri.Equals(actionTargetFolderUri))
         {
@@ -646,11 +651,11 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           {
             m_stopFiltering.AppendElements(m_searchHits);
             for (uint32_t i = 0; i < m_searchHits.Length(); i++)
-              m_curFolder->OrProcessingFlags(m_searchHits[i],
+              curFolder->OrProcessingFlags(m_searchHits[i],
                                              nsMsgProcessingFlags::FilterToMove);
           }
 
-          rv = copyService->CopyMessages(m_curFolder, m_searchHitHdrs,
+          rv = copyService->CopyMessages(curFolder, m_searchHitHdrs,
               destIFolder, actionType == nsMsgFilterAction::MoveToFolder,
               this, m_msgWindow, false);
           CONTINUE_IF_FAILURE(rv, "CopyMessages failed");
@@ -664,13 +669,13 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           // crud, no listener support here - we'll probably just need to go on and apply
           // the next filter, and, in the imap case, rely on multiple connection and url
           // queueing to stay out of trouble
-        m_curFolder->MarkMessagesRead(m_searchHitHdrs, true);
+        curFolder->MarkMessagesRead(m_searchHitHdrs, true);
         break;
       case nsMsgFilterAction::MarkUnread:
-        m_curFolder->MarkMessagesRead(m_searchHitHdrs, false);
+        curFolder->MarkMessagesRead(m_searchHitHdrs, false);
         break;
       case nsMsgFilterAction::MarkFlagged:
-        m_curFolder->MarkMessagesFlagged(m_searchHitHdrs, true);
+        curFolder->MarkMessagesFlagged(m_searchHitHdrs, true);
         break;
       case nsMsgFilterAction::KillThread:
       case nsMsgFilterAction::WatchThread:
@@ -718,14 +723,14 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
         {
           nsMsgLabelValue filterLabel;
           filterAction->GetLabel(&filterLabel);
-          m_curFolder->SetLabelForMessages(m_searchHitHdrs, filterLabel);
+          curFolder->SetLabelForMessages(m_searchHitHdrs, filterLabel);
         }
         break;
       case nsMsgFilterAction::AddTag:
         {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
-          m_curFolder->AddKeywordsToMessages(m_searchHitHdrs, keyword);
+          curFolder->AddKeywordsToMessages(m_searchHitHdrs, keyword);
         }
         break;
       case nsMsgFilterAction::JunkScore:
@@ -734,13 +739,13 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           int32_t junkScore;
           filterAction->GetJunkScore(&junkScore);
           junkScoreStr.AppendInt(junkScore);
-          m_curFolder->SetJunkScoreForMessages(m_searchHitHdrs, junkScoreStr);
+          curFolder->SetJunkScoreForMessages(m_searchHitHdrs, junkScoreStr);
         }
         break;
       case nsMsgFilterAction::Forward:
         {
           nsCOMPtr<nsIMsgIncomingServer> server;
-          rv = m_curFolder->GetServer(getter_AddRefs(server));
+          rv = curFolder->GetServer(getter_AddRefs(server));
           CONTINUE_IF_FAILURE(rv, "Could not get server");
           nsCString forwardTo;
           filterAction->GetStrValue(forwardTo);
@@ -768,7 +773,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           CONTINUE_IF_FALSE(!replyTemplateUri.IsEmpty(), "Empty reply template URI");
 
           nsCOMPtr<nsIMsgIncomingServer> server;
-          rv = m_curFolder->GetServer(getter_AddRefs(server));
+          rv = curFolder->GetServer(getter_AddRefs(server));
           CONTINUE_IF_FAILURE(rv, "Could not get server");
 
           nsCOMPtr<nsIMsgComposeService> compService = do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
@@ -791,7 +796,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
         break;
       case nsMsgFilterAction::DeleteFromPop3Server:
         {
-          nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_curFolder);
+          nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(curFolder);
           CONTINUE_IF_FALSE(localFolder, "Current folder not a local folder");
           // This action ignores the deleteMailLeftOnServer preference
           rv = localFolder->MarkMsgsOnPop3Server(m_searchHitHdrs, POP3_FORCE_DEL);
@@ -813,20 +818,20 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
               CONTINUE_IF_FALSE(partialMsgs, "Could not create partialMsgs array");
               partialMsgs->AppendElement(msgHdr);
               m_stopFiltering.AppendElement(m_searchHits[msgIndex]);
-              m_curFolder->OrProcessingFlags(m_searchHits[msgIndex],
+              curFolder->OrProcessingFlags(m_searchHits[msgIndex],
                                              nsMsgProcessingFlags::FilterToMove);
             }
           }
           if (partialMsgs)
           {
-            m_curFolder->DeleteMessages(partialMsgs, m_msgWindow, true, false, nullptr, false);
+            curFolder->DeleteMessages(partialMsgs, m_msgWindow, true, false, nullptr, false);
             CONTINUE_IF_FAILURE(rv, "Delete messages failed");
           }
         }
         break;
       case nsMsgFilterAction::FetchBodyFromPop3Server:
         {
-          nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_curFolder);
+          nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(curFolder);
           CONTINUE_IF_FALSE(localFolder, "current folder not local");
           nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
           CONTINUE_IF_FAILURE(rv, "Could not create messages array");
@@ -843,7 +848,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           messages->GetLength(&msgsToFetch);
           if (msgsToFetch > 0)
           {
-            rv = m_curFolder->DownloadMessagesForOffline(messages, m_msgWindow);
+            rv = curFolder->DownloadMessagesForOffline(messages, m_msgWindow);
             CONTINUE_IF_FAILURE(rv, "DownloadMessagesForOffline failed");
           }
         }
