@@ -11,7 +11,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
 var plan_for_modal_dialog, wait_for_modal_dialog;
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
 var handleAddingAttachment, handleOccurrencePrompt;
-var goToDate, setData;
+var goToDate, setData, lookupEventBox;
 var CALENDARNAME, TIMEOUT_MODAL_DIALOG;
 
 var eventTitle = "Event";
@@ -33,6 +33,7 @@ function setupModule(module) {
         handleOccurrencePrompt,
         goToDate,
         setData,
+        lookupEventBox,
         CALENDARNAME,
         TIMEOUT_MODAL_DIALOG
     } = collector.getModule("calendar-utils"));
@@ -158,13 +159,11 @@ function testEventDialog() {
     });
 
     // catch and dismiss alarm
-    controller.waitFor(() => mozmill.utils.getWindows("Calendar:AlarmWindow").length > 0);
-    let alarm = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:AlarmWindow")[0]);
-    let { lookup: alarmlookup } = helpersForController(alarm);
-
-    // dismiss all button, label in .dtd file, bug #504635
-    alarm.waitThenClick(alarmlookup('/id("calendar-alarm-dialog")/id("alarm-actionbar")/[1]'));
-    controller.waitFor(() => mozmill.utils.getWindows("Calendar:AlarmWindow").length == 0);
+    plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
+        let { lookup: alarmlookup } = helpersForController(alarm);
+        alarm.waitThenClick(alarmlookup('/id("calendar-alarm-dialog")/id("alarm-actionbar")/[1]'));
+    });
+    wait_for_modal_dialog("Calendar:AlarmWindow");
 
     // verify event and alarm icon visible every day of the month and check tooltip
     // 1st January is Thursday so there's three days to check in the first row
@@ -172,19 +171,19 @@ function testEventDialog() {
         eventBox.replace("rowNumber", "0").replace("columnNumber", "4")
     ));
     checkIcon(eventBox, "0", "4");
-    checkTooltip(monthView, "0", "4", "1", startTime, endTime);
+    checkTooltip(monthView, 0, 4, 1, startTime, endTime);
 
     controller.assertNode(lookup(
         eventBox.replace("rowNumber", "0").replace("columnNumber", "5")
     ));
     checkIcon(eventBox, "0", "5");
-    checkTooltip(monthView, "0", "5", "2", startTime, endTime);
+    checkTooltip(monthView, 0, 5, 2, startTime, endTime);
 
     controller.assertNode(lookup(
         eventBox.replace("rowNumber", "0").replace("columnNumber", "6")
     ));
     checkIcon(eventBox, "0", "6");
-    checkTooltip(monthView, "0", "6", "3", startTime, endTime);
+    checkTooltip(monthView, 0, 6, 3, startTime, endTime);
 
     // 31st of January is Saturday so there's four more full rows to check
     let date = 4;
@@ -278,31 +277,28 @@ function checkIcon(eventBox, row, col) {
 }
 
 function checkTooltip(monthView, row, col, date, startTime, endTime) {
-    controller.mouseOver(lookup(`
-        ${monthView}/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/
-        anon({"anonid":"monthgridrows"})/[${row}]/[${col}]/
-        {"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}
-    `));
+    let item = lookupEventBox(
+        "month", null, row + 1, col + 1, null,
+        `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`
+    );
+
+    let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")';
+    let toolTipNode = lookup(toolTip).getNode();
+    toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item.getNode() });
 
     // check title
-    let eventName = lookup(`
-        /id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/
-        {"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[0]/[1]
-    `);
-    controller.waitFor(() => eventName.getNode().textContent == eventTitle);
+    let toolTipGrid = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/';
+    let eventName = lookup(`${toolTipGrid}/[1]/[0]/[1]`);
+    controller.assert(() => eventName.getNode().textContent == eventTitle);
 
     // check date and time
-    let dateTime = lookup(`
-        /id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/
-        {"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[2]/[1]
-    `);
+    let dateTime = lookup(`${toolTipGrid}/[1]/[2]/[1]`);
 
     let formatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "full" });
     let startDate = formatter.format(new Date(2009, 0, date));
 
-    controller.waitFor(() => {
+    controller.assert(() => {
         let text = dateTime.getNode().textContent;
-        dump(`${text}\n`);
         return text.includes(`${startDate} ${startTime} – `);
     });
 
