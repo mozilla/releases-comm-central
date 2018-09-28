@@ -1052,7 +1052,7 @@
          if (image)
            aItem.firstChild.setAttribute("src", "chrome://messenger/skin/" + image + ".png");
          else
-           aItem.firstChild.removeAttribute("image");
+           aItem.firstChild.removeAttribute("src");
        ]]>
        </body>
      </method>
@@ -1125,6 +1125,7 @@
          var style = "color: hsl(" + color + ", 100%, 40%);";
          item.colorStyle = style;
          item.setAttribute("style", style);
+         item.setAttribute("align", "center");
          if (!this._isBuddyActive(name))
            item.setAttribute("inactive", "true");
          item.color = color;
