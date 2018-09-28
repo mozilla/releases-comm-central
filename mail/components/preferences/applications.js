@@ -30,6 +30,8 @@ var kActionUsePlugin = 5;
 // was set by us to a custom handler icon and CSS should not try to override it.
 var APP_ICON_ATTR_NAME = "appHandlerIcon";
 
+var gNodeToObjectMap = new WeakMap();
+
 // CloudFile account tools used by gCloudFileTab.
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -77,8 +79,46 @@ function getLocalHandlerApp(aFile) {
   return localHandlerApp;
 }
 
-// ------------------
-// HandlerInfoWrapper
+/**
+ * This is associated to <richlistitem> elements in the handlers view.
+ */
+class HandlerListItem {
+  static forNode(node) {
+    return gNodeToObjectMap.get(node);
+  }
+
+  constructor(handlerInfoWrapper) {
+    this.handlerInfoWrapper = handlerInfoWrapper;
+    this.node = document.createElement("richlistitem");
+    gNodeToObjectMap.set(this.node, this);
+
+    this.node.setAttribute("type", this.handlerInfoWrapper.type);
+    this.node.setAttribute("shortTypeDescription",
+                           this.handlerInfoWrapper.typeDescription);
+    this.node.setAttribute("shortTypeDetails",
+                           gApplicationsPane._typeDetails(this.handlerInfoWrapper));
+    if (this.handlerInfoWrapper.smallIcon) {
+      this.node.setAttribute("typeIcon", this.handlerInfoWrapper.smallIcon);
+    } else {
+      this.node.removeAttribute("typeIcon");
+    }
+
+    this.refreshAction();
+  }
+
+  refreshAction() {
+    this.node.setAttribute("actionDescription",
+                           this.handlerInfoWrapper.actionDescription);
+    if (this.handlerInfoWrapper.actionIconClass) {
+      this.node.setAttribute(APP_ICON_ATTR_NAME,
+                             this.handlerInfoWrapper.actionIconClass);
+      this.node.removeAttribute("actionIcon");
+    } else {
+      this.node.removeAttribute(APP_ICON_ATTR_NAME);
+      this.node.setAttribute("actionIcon", this.handlerInfoWrapper.actionIcon);
+    }
+  }
+}
 
 /**
  * This object wraps nsIHandlerInfo with some additional functionality
@@ -1143,7 +1183,8 @@ var gApplicationsPane = {
 
   rebuildView() {
     let lastSelectedType = this._list.selectedItem &&
-                           this._list.selectedItem.getAttribute("type");
+                           HandlerListItem.forNode(this._list.selectedItem)
+                           .handlerInfoWrapper.type;
 
     // Clear the list of entries.
     while (this._list.childNodes.length > 1)
@@ -1155,23 +1196,11 @@ var gApplicationsPane = {
       visibleTypes = visibleTypes.filter(this._matchesFilter, this);
 
     for (let visibleType of visibleTypes) {
-      let item = document.createElement("richlistitem");
-      item.setAttribute("type", visibleType.type);
-      item.setAttribute("typeDescription", visibleType.typeDescription);
-      item.setAttribute("shortTypeDescription", visibleType.description);
-      item.setAttribute("shortTypeDetails", this._typeDetails(visibleType));
-      if (visibleType.smallIcon)
-        item.setAttribute("typeIcon", visibleType.smallIcon);
-      item.setAttribute("actionDescription", visibleType.actionDescription);
-
-      if (!this._setIconClassForPreferredAction(visibleType, item)) {
-        item.setAttribute("actionIcon", visibleType.actionIcon);
-      }
-
-      this._list.appendChild(item);
+      let item = new HandlerListItem(visibleType);
+      this._list.appendChild(item.node);
 
       if (visibleType.type === lastSelectedType) {
-        this._list.selectedItem = item;
+        this._list.selectedItem = item.node;
       }
     }
   },
@@ -1547,10 +1576,7 @@ var gApplicationsPane = {
     handlerInfo.handledOnlyByPlugin = false;
 
     // Update the action label and image to reflect the new preferred action.
-    typeItem.setAttribute("actionDescription", handlerInfo.actionDescription);
-    if (!this._setIconClassForPreferredAction(handlerInfo, typeItem)) {
-      typeItem.setAttribute("actionIcon", handlerInfo.actionIcon);
-    }
+    HandlerListItem.forNode(typeItem).refreshAction();
   },
 
   manageApp(aEvent) {
@@ -1567,10 +1593,7 @@ var gApplicationsPane = {
       this.rebuildActionsMenu();
 
       // Update the richlistitem too. Will be visible when selecting another row.
-      typeItem.setAttribute("actionDescription", handlerInfo.actionDescription);
-      if (!this._setIconClassForPreferredAction(handlerInfo, typeItem)) {
-        typeItem.setAttribute("actionIcon", handlerInfo.actionIcon);
-      }
+      HandlerListItem.forNode(typeItem).refreshAction();
     };
 
     gSubDialog.open(
@@ -1688,21 +1711,6 @@ var gApplicationsPane = {
       delete this._handledTypes[typeItem.type];
       typeItem.remove();
     }
-  },
-
-  _setIconClassForPreferredAction(aHandlerInfo, aElement) {
-    // If this returns true, the attribute that CSS sniffs for was set to something
-    // so you shouldn't manually set an icon URI.
-    // This removes the existing actionIcon attribute if any, even if returning false.
-    aElement.removeAttribute("actionIcon");
-
-    if (aHandlerInfo.actionIconClass) {
-      aElement.setAttribute(APP_ICON_ATTR_NAME, aHandlerInfo.actionIconClass);
-      return true;
-    }
-
-    aElement.removeAttribute(APP_ICON_ATTR_NAME);
-    return false;
   },
 
   _getIconURLForHandlerApp(aHandlerApp) {
