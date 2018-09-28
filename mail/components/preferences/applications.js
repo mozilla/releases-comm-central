@@ -205,6 +205,66 @@ class HandlerInfoWrapper {
     }
   }
 
+  get actionIconClass() {
+    if (this.alwaysAskBeforeHandling) {
+      return "ask";
+    }
+
+    switch (this.preferredAction) {
+      case Ci.nsIHandlerInfo.saveToDisk:
+        return "save";
+
+      case Ci.nsIHandlerInfo.handleInternally:
+        if (this instanceof InternalHandlerInfoWrapper) {
+          return "ask";
+        }
+
+      case kActionUsePlugin:
+        return "plugin";
+    }
+
+    return "";
+  }
+
+  get actionIcon() {
+    switch (this.preferredAction) {
+      case Ci.nsIHandlerInfo.useSystemDefault:
+        return this.iconURLForSystemDefault;
+
+      case Ci.nsIHandlerInfo.useHelperApp:
+        let preferredApp = this.preferredApplicationHandler;
+        if (gApplicationsPane.isValidHandlerApp(preferredApp)) {
+          return gApplicationsPane._getIconURLForHandlerApp(preferredApp);
+        }
+      // Explicit fall-through
+
+      // This should never happen, but if preferredAction is set to some weird
+      // value, then fall back to the generic application icon.
+      default:
+        return ICON_URL_APP;
+    }
+  }
+
+  get iconURLForSystemDefault() {
+    // Handler info objects for MIME types on some OSes implement a property bag
+    // interface from which we can get an icon for the default app, so if we're
+    // dealing with a MIME type on one of those OSes, then try to get the icon.
+    if (this.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo &&
+        this.wrappedHandlerInfo instanceof Ci.nsIPropertyBag) {
+      try {
+        let url = this.wrappedHandlerInfo.getProperty("defaultApplicationIconURL");
+        if (url) {
+          return url + "?size=16";
+        }
+      } catch (ex) { }
+    }
+
+    // If this isn't a MIME type object on an OS that supports retrieving
+    // the icon, or if we couldn't retrieve the icon for some other reason,
+    // then use a generic icon.
+    return ICON_URL_APP;
+  }
+
   get preferredApplicationHandler() {
     return this.wrappedHandlerInfo.preferredApplicationHandler;
   }
@@ -1105,8 +1165,7 @@ var gApplicationsPane = {
       item.setAttribute("actionDescription", visibleType.actionDescription);
 
       if (!this._setIconClassForPreferredAction(visibleType, item)) {
-        item.setAttribute("actionIcon",
-                          this._getIconURLForPreferredAction(visibleType));
+        item.setAttribute("actionIcon", visibleType.actionIcon);
       }
 
       this._list.appendChild(item);
@@ -1248,7 +1307,7 @@ var gApplicationsPane = {
                                                        [handlerInfo.defaultDescription]);
       defaultMenuItem.setAttribute("label", label);
       defaultMenuItem.setAttribute("tooltiptext", handlerInfo.defaultDescription);
-      defaultMenuItem.setAttribute("image", this._getIconURLForSystemDefault(handlerInfo));
+      defaultMenuItem.setAttribute("image", handlerInfo.iconURLForSystemDefault);
 
       menuPopup.appendChild(defaultMenuItem);
     }
@@ -1272,7 +1331,8 @@ var gApplicationsPane = {
       label = this._prefsBundle.getFormattedString("useApp", [label]);
       menuItem.setAttribute("label", label);
       menuItem.setAttribute("tooltiptext", label);
-      menuItem.setAttribute("image", this._getIconURLForHandlerApp(possibleApp));
+      menuItem.setAttribute("image", gApplicationsPane
+                            ._getIconURLForHandlerApp(possibleApp));
 
       // Attach the handler app object to the menu item so we can use it
       // to make changes to the datastore when the user selects the item.
@@ -1489,8 +1549,7 @@ var gApplicationsPane = {
     // Update the action label and image to reflect the new preferred action.
     typeItem.setAttribute("actionDescription", handlerInfo.actionDescription);
     if (!this._setIconClassForPreferredAction(handlerInfo, typeItem)) {
-      typeItem.setAttribute("actionIcon",
-                            this._getIconURLForPreferredAction(handlerInfo));
+      typeItem.setAttribute("actionIcon", handlerInfo.actionIcon);
     }
   },
 
@@ -1510,8 +1569,7 @@ var gApplicationsPane = {
       // Update the richlistitem too. Will be visible when selecting another row.
       typeItem.setAttribute("actionDescription", handlerInfo.actionDescription);
       if (!this._setIconClassForPreferredAction(handlerInfo, typeItem)) {
-        typeItem.setAttribute("actionIcon",
-                              this._getIconURLForPreferredAction(handlerInfo));
+        typeItem.setAttribute("actionIcon", handlerInfo.actionIcon);
       }
     };
 
@@ -1638,40 +1696,13 @@ var gApplicationsPane = {
     // This removes the existing actionIcon attribute if any, even if returning false.
     aElement.removeAttribute("actionIcon");
 
-    if (aHandlerInfo.alwaysAskBeforeHandling) {
-      aElement.setAttribute(APP_ICON_ATTR_NAME, "ask");
+    if (aHandlerInfo.actionIconClass) {
+      aElement.setAttribute(APP_ICON_ATTR_NAME, aHandlerInfo.actionIconClass);
       return true;
     }
 
-    switch (aHandlerInfo.preferredAction) {
-      case Ci.nsIHandlerInfo.saveToDisk:
-        aElement.setAttribute(APP_ICON_ATTR_NAME, "save");
-        return true;
-
-      case Ci.nsIHandlerInfo.handleInternally:
-        break;
-
-      case kActionUsePlugin:
-        aElement.setAttribute(APP_ICON_ATTR_NAME, "plugin");
-        return true;
-    }
     aElement.removeAttribute(APP_ICON_ATTR_NAME);
     return false;
-  },
-
-  _getIconURLForPreferredAction(aHandlerInfo) {
-    switch (aHandlerInfo.preferredAction) {
-      case Ci.nsIHandlerInfo.useSystemDefault:
-        return this._getIconURLForSystemDefault(aHandlerInfo);
-
-      case Ci.nsIHandlerInfo.useHelperApp:
-        let preferredApp = aHandlerInfo.preferredApplicationHandler;
-        if (gApplicationsPane.isValidHandlerApp(preferredApp))
-          return this._getIconURLForHandlerApp(preferredApp);
-    }
-    // This should never happen, but if preferredAction is set to some weird
-    // value, then fall back to the generic application icon.
-    return ICON_URL_APP;
   },
 
   _getIconURLForHandlerApp(aHandlerApp) {
@@ -1711,27 +1742,30 @@ var gApplicationsPane = {
 
     return /^https?/.test(uri.scheme) ? uri.resolve("/favicon.ico") : "";
   },
-
-  _getIconURLForSystemDefault(aHandlerInfo) {
-    // Handler info objects for MIME types on some OSes implement a property bag
-    // interface from which we can get an icon for the default app, so if we're
-    // dealing with a MIME type on one of those OSes, then try to get the icon.
-    if ("wrappedHandlerInfo" in aHandlerInfo) {
-      let wrappedHandlerInfo = aHandlerInfo.wrappedHandlerInfo;
-
-      if (wrappedHandlerInfo instanceof Ci.nsIMIMEInfo &&
-          wrappedHandlerInfo instanceof Ci.nsIPropertyBag) {
-        try {
-          let url = wrappedHandlerInfo.getProperty("defaultApplicationIconURL");
-          if (url)
-            return url + "?size=16";
-        } catch (ex) { }
-      }
-    }
-
-    // If this isn't a MIME type object on an OS that supports retrieving
-    // the icon, or if we couldn't retrieve the icon for some other reason,
-    // then use a generic icon.
-    return ICON_URL_APP;
-  },
 };
+
+/**
+ * InternalHandlerInfoWrapper provides a basic mechanism to create an internal
+ * mime type handler that can be enabled/disabled in the applications preference
+ * menu.
+ */
+class InternalHandlerInfoWrapper extends HandlerInfoWrapper {
+  constructor(mimeType) {
+    super(mimeType, gMIMEService.getFromTypeAndExtension(mimeType, null));
+  }
+
+  // Override store so we so we can notify any code listening for registration
+  // or unregistration of this handler.
+  store() {
+    super.store();
+    Services.obs.notifyObservers(null, this._handlerChanged);
+  }
+
+  get enabled() {
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  }
+
+  get description() {
+    return gApplicationsPane._prefsBundle.getString(this._appPrefLabel);
+  }
+}
