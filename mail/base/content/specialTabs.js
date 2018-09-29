@@ -145,9 +145,9 @@ tabProgressListener.prototype =
         aMessage);
   },
   onSecurityChange: function tPL_onSecurityChange(aWebProgress, aRequest,
-                                                  aState) {
+                                                  aOldState, aState, aContentBlockingLogJSON) {
     if (this.mProgressListener)
-      this.mProgressListener.onSecurityChange(aWebProgress, aRequest, aState);
+      this.mProgressListener.onSecurityChange(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON);
   },
   onRefreshAttempted: function tPL_OnRefreshAttempted(aWebProgress, aURI,
                                                       aDelay, aSameURI) {

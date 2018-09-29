@@ -115,7 +115,7 @@ var progressListener = {
   onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage)
   {
   },
-  onSecurityChange: function(aWebProgress, aRequest, state)
+  onSecurityChange: function(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON)
   {
   },
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
