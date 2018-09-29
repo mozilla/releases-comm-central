@@ -24,8 +24,12 @@ job-defaults:
         implementation: shipit-shipped
     scopes:
         by-release-level:
-            production: ['project:comm:thunderbird:releng:ship-it:production']
-            staging: ['project:comm:thunderbird:releng:ship-it:staging']
+            production:
+                - project:comm:thunderbird:releng:ship-it:production
+                - project:comm:thunderbird:releng:ship-it:action:mark-as-shipped
+            staging:
+                - project:comm:thunderbird:releng:ship-it:staging
+                - project:comm:thunderbird:releng:ship-it:action:mark-as-shipped
     run-on-projects: []
     shipping-phase: ship
 
