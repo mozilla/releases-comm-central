@@ -2285,7 +2285,7 @@ function addAttachment(attachment, cloudProvider) {
                 }
             }
         } else if (attachment.uri.schemeIs("file")) {
-            image.setAttribute("src", "moz-icon://" + attachment.uri);
+            image.setAttribute("src", "moz-icon://" + attachment.uri.spec);
         } else {
             let leafName = attachment.getParameter("FILENAME");
             let providerType = attachment.getParameter("PROVIDER");
@@ -2299,7 +2299,17 @@ function addAttachment(attachment, cloudProvider) {
                 let provider = cloudFileAccounts.getProviderForType(providerType);
                 image.setAttribute("src", provider.iconClass);
             } else {
-                image.setAttribute("src", "moz-icon://dummy.html");
+                let iconSrc = attachment.uri.spec.length ? attachment.uri.spec : "dummy.html";
+                if (attachment.formatType) {
+                    iconSrc = "goat?contentType=" + attachment.formatType;
+                } else {
+                    // let's try to auto-detect
+                    let parts = iconSrc.substr(attachment.uri.scheme.length + 2).split("/");
+                    if (parts.length) {
+                        iconSrc = parts[parts.length - 1];
+                    }
+                }
+                image.setAttribute("src", "moz-icon://" + iconSrc);
             }
         }
 

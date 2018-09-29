@@ -191,6 +191,18 @@ function onLoad() {
 
                 let icon = attachment.getElementsByTagName("image")[0];
                 let iconSrc = aAttachment.uri.spec.length ? aAttachment.uri.spec : "dummy.html";
+                if (aAttachment.uri && !aAttachment.uri.schemeIs("file")) {
+                    // using an uri directly with e.g. a http scheme wouldn't render any icon
+                    if (aAttachment.formatType) {
+                        iconSrc = "goat?contentType=" + aAttachment.formatType;
+                    } else {
+                        // let's try to auto-detect
+                        let parts = iconSrc.substr(aAttachment.uri.scheme.length + 2).split("/");
+                        if (parts.length) {
+                            iconSrc = parts[parts.length - 1];
+                        }
+                    }
+                }
                 icon.setAttribute("src", "moz-icon://" + iconSrc);
 
                 document.getElementById("item-attachment-cell").appendChild(attachment);
