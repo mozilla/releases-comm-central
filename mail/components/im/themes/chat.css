@@ -314,6 +314,8 @@ imcontact[aliasing] .contactDisplayName {
 .userIconHolder {
   max-width: 48px;
   max-height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   width: 48px;
   height: 48px;
 }
@@ -330,14 +332,20 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 .statusTypeIcon {
-  margin: 0 0;
+  margin: 32px 0 0;
   width: 16px;
   height: 16px;
+  max-width: 16px;
+  max-height: 16px;
   min-height: 16px;
   min-width: 16px;
   -moz-appearance: none;
   background-color: transparent;
   border: none;
+}
+
+.userIconHolder[userIcon] + .statusTypeIcon {
+  margin-inline-start: 32px;
 }
 
 .statusTypeIcon[typing] {
@@ -346,6 +354,92 @@ imcontact[aliasing] .contactDisplayName {
 
 .statusTypeIcon[typed] {
   list-style-image: url('chrome://chat/skin/typed-16.png');
+}
+
+#statusTypeIcon[status="available"],
+#statusTypeAvailable,
+.statusTypeIcon[status="available"],
+#imStatusAvailable,
+#appmenu_imStatusAvailable,
+richlistitem[state="connected"] .accountStateIcon {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0 16px 16px 0);
+}
+
+#statusTypeIcon[status="idle"],
+.statusTypeIcon[status="idle"] {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0 32px 16px 16px);
+}
+
+#statusTypeIcon[status="offline"],
+#statusTypeIcon[status="invisible"],
+#statusTypeOffline,
+.statusTypeIcon[status="offline"],
+.statusTypeIcon[status="invisible"],
+#imStatusOffline,
+#appmenu_imStatusOffline,
+richlistitem[state="disconnected"] .accountStateIcon {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0 48px 16px 32px);
+}
+
+#statusTypeIcon[status="unavailable"],
+#statusTypeIcon[status="away"],
+#statusTypeUnavailable,
+.statusTypeIcon[status="unavailable"],
+.statusTypeIcon[status="away"],
+#imStatusUnavailable,
+#appmenu_imStatusUnavailable {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0 64px 16px 48px);
+}
+
+@media (min-resolution: 1.1dppx) {
+  #statusTypeIcon[status="available"],
+  #statusTypeAvailable,
+  .statusTypeIcon[status="available"],
+  #imStatusAvailable,
+  #appmenu_imStatusAvailable,
+  richlistitem[state="connected"] .accountStateIcon {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0 32px 32px 0);
+  }
+
+  #statusTypeIcon[status="idle"],
+  .statusTypeIcon[status="idle"] {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0 64px 32px 32px);
+  }
+
+  #statusTypeIcon[status="offline"],
+  #statusTypeIcon[status="invisible"],
+  #statusTypeOffline,
+  .statusTypeIcon[status="offline"],
+  .statusTypeIcon[status="invisible"],
+  #imStatusOffline,
+  #appmenu_imStatusOffline,
+  richlistitem[state="disconnected"] .accountStateIcon {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0 96px 32px 64px);
+  }
+
+  #statusTypeIcon[status="unavailable"],
+  #statusTypeIcon[status="away"],
+  #statusTypeUnavailable,
+  .statusTypeIcon[status="unavailable"],
+  .statusTypeIcon[status="away"],
+  #imStatusUnavailable,
+  #appmenu_imStatusUnavailable {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0 128px 32px 96px);
+  }
+
+  .prplIcon,
+  #statusTypeIcon .button-icon {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .statusMessage {
@@ -411,15 +505,10 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 .prplIcon {
-  margin: 0 1px 16px -16px !important;
-}
-
-.statusTypeIcon {
-  margin: 32px 0 0;
-}
-
-.userIconHolder[userIcon] + .statusTypeIcon {
-  margin-left: 32px;
+  margin-top: 0 !important;
+  margin-inline-end: 1px !important;
+  margin-bottom: 16px -16px !important;
+  margin-inline-start: -16px !important;
 }
 
 .conv-messages {

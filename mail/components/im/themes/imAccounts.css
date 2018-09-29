@@ -148,12 +148,6 @@ richlistitem[dragover="up"] {
   height: 16px;
 }
 
-richlistitem[state="connected"] .accountStateIcon {
-  list-style-image: url("chrome://chat/skin/available-16.png");
-}
-richlistitem[state="disconnected"] .accountStateIcon {
-  list-style-image: url("chrome://chat/skin/offline-16.png");
-}
 richlistitem[state="connecting"] .accountStateIcon {
   list-style-image: url("chrome://global/skin/icons/loading.png");
 }
@@ -225,24 +219,3 @@ richlistitem[error="true"] .accountStateIcon {
   border: none;
 }
 %endif
-
-#statusTypeIcon[status="available"],
-#statusTypeAvailable {
-  list-style-image: url('chrome://chat/skin/available-16.png');
-}
-
-#statusTypeIcon[status="unavailable"],
-#statusTypeIcon[status="away"],
-#statusTypeUnavailable {
-  list-style-image: url('chrome://chat/skin/away-16.png');
-}
-
-#statusTypeIcon[status="offline"],
-#statusTypeIcon[status="invisible"],
-#statusTypeOffline {
-  list-style-image: url('chrome://chat/skin/offline-16.png');
-}
-
-#statusTypeIcon[status="idle"] {
-  list-style-image: url('chrome://chat/skin/idle-16.png');
-}

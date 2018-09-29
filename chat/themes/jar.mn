@@ -4,15 +4,11 @@
 
 chat.jar:
 % skin chat classic/1.0 %skin/classic/chat/
-	skin/classic/chat/available-16.png
 	skin/classic/chat/available.png
-	skin/classic/chat/away-16.png
 	skin/classic/chat/away.png
-	skin/classic/chat/idle-16.png
 	skin/classic/chat/idle.png
 	skin/classic/chat/mobile-16.png
 	skin/classic/chat/mobile.png
-	skin/classic/chat/offline-16.png
 	skin/classic/chat/offline.png
 	skin/classic/chat/typing-16.png
 	skin/classic/chat/typed-16.png

@@ -183,45 +183,6 @@
   }
 }
 
-#statusTypeIcon[status="available"],
-#statusTypeAvailable,
-.statusTypeIcon[status="available"],
-#imStatusAvailable,
-#appmenu_imStatusAvailable,
-richlistitem[state="connected"] .accountStateIcon {
-  list-style-image: url("chrome://messenger/skin/icons/status.png");
-  -moz-image-region: rect(0 16px 16px 0);
-}
-
-#statusTypeIcon[status="idle"],
-.statusTypeIcon[status="idle"] {
-  list-style-image: url("chrome://messenger/skin/icons/status.png");
-  -moz-image-region: rect(0 32px 16px 16px);
-}
-
-#statusTypeIcon[status="offline"],
-#statusTypeIcon[status="invisible"],
-#statusTypeOffline,
-.statusTypeIcon[status="offline"],
-.statusTypeIcon[status="invisible"],
-#imStatusOffline,
-#appmenu_imStatusOffline,
-richlistitem[state="disconnected"] .accountStateIcon {
-  list-style-image: url("chrome://messenger/skin/icons/status.png");
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
-#statusTypeIcon[status="unavailable"],
-#statusTypeIcon[status="away"],
-#statusTypeUnavailable,
-.statusTypeIcon[status="unavailable"],
-.statusTypeIcon[status="away"],
-#imStatusUnavailable,
-#appmenu_imStatusUnavailable {
-  list-style-image: url("chrome://messenger/skin/icons/status.png");
-  -moz-image-region: rect(0 64px 16px 48px);
-}
-
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   :root:not([lwt-tree]) #listPaneBox {
     background-color: rgb(238, 243, 250);

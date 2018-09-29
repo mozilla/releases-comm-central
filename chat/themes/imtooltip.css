@@ -2,31 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://chat/skin/status.css");
-
 .displayNameMessageBox {
   margin-left: 4px;
   margin-top: 2px;
 }
 
-.statusTypeIcon {
-  margin: 32px 0 0;
-  max-width: 16px;
-  max-height: 16px;
-  min-width: 16px;
-  min-height: 16px;
-  width: 16px;
-  height: 16px;
-  background-color: transparent;
-  border: none;
-}
-
 .statusTypeIcon[left][status="chat"] {
   list-style-image: url('chrome://chat/skin/chat-left-16.png') !important;
-}
-
-.userIconHolder[userIcon] + .statusTypeIcon {
-  margin-left: 32px;
 }
 
 .tooltipBuddies {
@@ -69,24 +51,6 @@
   margin-left: 3px;
 }
 
-.userIconHolder {
-  border: 2px solid rgba(0, 0, 0, 0.15);
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-.userIcon,
-.userIconHolder {
-  max-width: 48px;
-  max-height: 48px;
-  min-width: 48px;
-  min-height: 48px;
-  width: 48px;
-  height: 48px;
-}
-
-.userIcon:not([src]),
-.statusTypeIcon:not([status]),
-.userIconHolder:not([userIcon]) {
+.statusTypeIcon:not([status]) {
   display: none;
 }

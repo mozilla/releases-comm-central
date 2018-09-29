@@ -169,6 +169,7 @@ classic.jar:
   skin/classic/messenger/icons/connecting.png                 (mail/icons/connecting.png)
   skin/classic/messenger/icons/notloading.png                 (mail/icons/notloading.png)
   skin/classic/messenger/icons/status.png                     (mail/icons/status.png)
+  skin/classic/messenger/icons/status@2x.png                  (mail/icons/status@2x.png)
   skin/classic/messenger/icons/status-small.png               (mail/icons/status-small.png)
   skin/classic/messenger/accountcentral/read-messages.png     (mail/accountcentral/read-messages.png)
   skin/classic/messenger/accountcentral/write-message.png     (mail/accountcentral/write-message.png)
