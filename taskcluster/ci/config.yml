@@ -1,5 +1,7 @@
 trust-domain: comm
 project-repo-param-prefix: comm_
+product-dir: comm/mail
+
 treeherder:
     group-names:
         'X': 'Xpcshell tests'
