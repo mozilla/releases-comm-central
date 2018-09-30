@@ -3769,6 +3769,8 @@ nsMsgComposeAndSend::GetMessageId(nsACString& aMessageId)
 NS_IMETHODIMP
 nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
 {
+  nsresult rv;
+
   // This is one per copy so make sure we clean this up first.
   mCopyObj = nullptr;
 
@@ -3780,9 +3782,6 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
     mComposeBundle->GetStringFromName("copyMessageFailed", msg);
 
   SetStatusMessage(msg);
-  nsCOMPtr<nsIPrompt> prompt;
-  nsresult rv = GetDefaultPrompt(getter_AddRefs(prompt));
-  NS_ENSURE_SUCCESS(rv, rv);
 
   if (NS_FAILED(aStatus))
   {
@@ -3864,6 +3863,10 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
     nsString dialogTitle, buttonLabelRetry;
     bundle->GetStringFromName("SaveDialogTitle", dialogTitle);
     bundle->GetStringFromName("buttonLabelRetry2", buttonLabelRetry);
+
+    nsCOMPtr<nsIPrompt> prompt;
+    rv = GetDefaultPrompt(getter_AddRefs(prompt));
+    NS_ENSURE_SUCCESS(rv, rv);
     prompt->ConfirmEx(dialogTitle.get(), msg.get(), buttonFlags, buttonLabelRetry.get(),
                       nullptr, nullptr, nullptr, &showCheckBox, &buttonPressed);
     if (buttonPressed == 0)
