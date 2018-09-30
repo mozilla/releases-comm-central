@@ -1452,7 +1452,7 @@ var gFolderTreeView = {
     let oldCount = this._rowMap ? this._rowMap.length : null;
     this._rowMap = newRowMap;
 
-    this._treeElement.dispatchEvent(new Event("mapRebuild",
+    this._treeElement.dispatchEvent(new Event("mapRebuild",  // Introduced in bug 474822 for add-ons.
       { bubbles: true, cancelable: false }));
 
     if (this._tree)
@@ -1470,6 +1470,9 @@ var gFolderTreeView = {
           this.selection.toggleSelect(index);
       }
     }
+
+    this._treeElement.dispatchEvent(new Event("folder-tree-rebuilt",
+      { bubbles: true, cancelable: false }));
   },
 
   _sortedAccounts: function ftv_getSortedAccounts() {

@@ -64,7 +64,7 @@ function assert_folder_for_msg_hdr(aMsgHdr, aFolder) {
  * Switch to the smart folder mode.
  */
 function test_switch_to_smart_folders() {
-  mc.folderTreeView.mode = "smart";
+  set_folder_mode(mc.folderTreeView, "smart");
 
   // The smart inbox may not have been created at setupModule time, so get it
   // now
@@ -236,7 +236,7 @@ function assert_uri_not_found(folderURI, scopeList)
  * Move back to the all folders mode.
  */
 function test_switch_to_all_folders() {
-  mc.folderTreeView.mode = "all";
+  set_folder_mode(mc.folderTreeView, "all");
 }
 
 function teardownModule() {

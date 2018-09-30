@@ -48,7 +48,7 @@ function setupModule(module) {
  * Switch to the all folders mode.
  */
 function test_switch_to_all_folders() {
-  mc.folderTreeView.mode = "all";
+  set_folder_mode(mc.folderTreeView, "all");
   be_in_folder(inboxFolder);
 }
 
@@ -56,7 +56,7 @@ function test_switch_to_all_folders() {
  * Switch to the unread folder mode.
  */
 function test_switch_to_unread_folders() {
-  mc.folderTreeView.mode = "unread";
+  set_folder_mode(mc.folderTreeView, "unread");
 }
 
 /**

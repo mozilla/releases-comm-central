@@ -364,7 +364,7 @@ function teardownImporter(customTeardown) {
     if (mc.folderTreeView.mode != "all") {
       mark_action("fdh", "teardown",
                   ["resetting folderTreeView mode", mc.folderTreeView.mode]);
-      mc.folderTreeView.mode = "all";
+      set_folder_mode(mc.folderTreeView, "all");
     }
 
     // - Make sure the message pane is visible.
@@ -394,7 +394,7 @@ function teardownImporter(customTeardown) {
  */
 function create_folder(aFolderName, aSpecialFlags) {
   let folder = testHelperModule.make_empty_folder(aFolderName, aSpecialFlags);
-  mc.folderTreeView.mode = "all";
+  set_folder_mode(mc.folderTreeView, "all");
   return folder;
 }
 
@@ -404,7 +404,7 @@ function create_folder(aFolderName, aSpecialFlags) {
  */
 function create_virtual_folder(...aArgs) {
   let folder = testHelperModule.make_virtual_folder(...aArgs);
-  mc.folderTreeView.mode = "all";
+  set_folder_mode(mc.folderTreeView, "all");
   return folder;
 }
 
@@ -2886,6 +2886,24 @@ function toggle_main_menu(aEnabled = true) {
   menubar.setAttribute("autohide", !aEnabled);
   mc.sleep(0);
   return state;
+}
+
+/**
+ * Switches the folder mode in the folder tree view.
+ *
+ * @param aTree      The folder tree view object
+ * @param aMode      Mode name to switch to
+ * @param aFunction  (optional) Function to use for the mode switching instead of aTree.mode
+ */
+function set_folder_mode(aTree, aMode, aFunction) {
+  let foldersRebuilt = false;
+  aTree._treeElement.addEventListener("folder-tree-rebuilt", () => foldersRebuilt = true,
+                                      { once: true });
+  if (aFunction)
+    aFunction(aMode);
+  else
+    aTree.mode = aMode;
+  mc.waitFor(() => foldersRebuilt);
 }
 
 /** exported from messageInjection */

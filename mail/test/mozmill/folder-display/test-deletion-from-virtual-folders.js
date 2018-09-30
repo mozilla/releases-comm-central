@@ -222,7 +222,7 @@ function test_delete_last_message_from_virtual_folder_closes_message_displays() 
  */
 function test_open_first_message_in_smart_inbox() {
   // Switch to smart folders
-  mc.folderTreeView.mode = "smart";
+  set_folder_mode(mc.folderTreeView, "smart");
   // Select the smart inbox
   folder = get_smart_folder_named("Inbox");
   be_in_folder(folder);
@@ -311,5 +311,5 @@ function test_delete_last_message_from_smart_inbox_closes_message_displays() {
  * Switch back to the all folders mode for further tests.
  */
 function test_switch_back_to_all_folders_mode() {
-  mc.folderTreeView.mode = "all";
+  set_folder_mode(mc.folderTreeView, "all");
 }

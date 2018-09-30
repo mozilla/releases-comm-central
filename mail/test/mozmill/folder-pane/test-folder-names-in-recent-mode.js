@@ -57,7 +57,7 @@ function test_folder_names_in_recent_view_mode() {
   make_new_sets_in_folder(fDup2, [{count: 2}]);
   make_new_sets_in_folder(fDup3, [{count: 3}]);
 
-  mc.window.gFolderTreeView.mode = "recent_compact";
+  set_folder_mode(mc.folderTreeView, "recent_compact");
 
   // Check displayed folder names. In Recent mode the folders are sorted alphabetically
   assert_folder_at_index_as(0, "duplicatedName - Local Folders (1)");
@@ -74,6 +74,6 @@ function test_folder_names_in_recent_view_mode() {
 }
 
 function teardownModule() {
-  mc.window.gFolderTreeView.mode = "all";
+  set_folder_mode(mc.folderTreeView, "all");
   assert_folder_tree_view_row_count(7);
 }
