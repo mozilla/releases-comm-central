@@ -33,7 +33,7 @@ var kTestModeID = "testmode";
  * Switch to the mode and verify that it displays correctly.
  */
 function test_switch_to_test_mode() {
-  set_folder_mode(mc.folderTreeView, kTestModeID);
+  mc.folderTreeView.mode = kTestModeID;
   assert_folder_mode(kTestModeID);
   assert_folder_visible(gInbox);
 }
@@ -61,5 +61,5 @@ function test_open_new_window_with_custom_mode() {
  * Switch back to all folders.
  */
 function test_switch_to_all_folders() {
-  set_folder_mode(mc.folderTreeView, "all");
+  mc.folderTreeView.mode = "all";
 }

@@ -64,7 +64,7 @@ function setupModule(module) {
  * Switch to the smart folder mode, get the smart inbox.
  */
 function test_switch_to_smart_folder_mode() {
-  set_folder_mode(mc.folderTreeView, "smart");
+  mc.folderTreeView.mode = "smart";
   assert_folder_mode("smart");
 
   smartFolderA = get_smart_folder_named(smartParentNameA);
@@ -164,7 +164,7 @@ function test_smart_subfolder() {
  */
 function test_return_to_all_folders() {
   assert_folder_mode("smart");
-  set_folder_mode(mc.folderTreeView, "all");
+  mc.folderTreeView.mode = "all";
   assert_folder_mode("all");
 }
 

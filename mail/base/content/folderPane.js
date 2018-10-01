@@ -1470,9 +1470,6 @@ var gFolderTreeView = {
           this.selection.toggleSelect(index);
       }
     }
-
-    this._treeElement.dispatchEvent(new Event("folder-tree-rebuilt",
-      { bubbles: true, cancelable: false }));
   },
 
   _sortedAccounts: function ftv_getSortedAccounts() {

@@ -16,6 +16,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var rootFolder;
+var inboxFolder;
 var unreadFolder;
 var favoriteFolder;
 var toggle_menu;
@@ -39,10 +40,11 @@ function setupModule(module) {
   // Create one folder with unread messages and one favorite folder.
   inboxFolder.createSubfolder("UnreadFolder", null);
   unreadFolder = inboxFolder.getChildNamed("UnreadFolder");
-  make_new_sets_in_folder(unreadFolder, [{count: 1}]);
 
   inboxFolder.createSubfolder("FavoriteFolder", null);
   favoriteFolder = inboxFolder.getChildNamed("FavoriteFolder");
+
+  make_new_sets_in_folder(unreadFolder, [{count: 1}]);
   favoriteFolder.flags |= Ci.nsMsgFolderFlags.Favorite;
 
   toggle_menu = mc.e("menu_compactFolderView");
@@ -134,9 +136,9 @@ function toggle_compact_in_menu() {
 function subtest_switch_to_all_folders(aViaMenu) {
   const mode = "all";
   if (aViaMenu)
-    set_folder_mode(tree, mode, select_mode_in_menu);
+    select_mode_in_menu(mode);
   else
-    set_folder_mode(tree, mode);
+    tree.mode = mode;
 
   assert_mode_selected(mode);
   assert_compact_state(false, true);
@@ -152,33 +154,33 @@ function subtest_switch_to_all_folders(aViaMenu) {
 function subtest_switch_to_unread_folders(aViaMenu) {
   const mode = "unread";
   if (aViaMenu) {
-    set_folder_mode(tree, mode, select_mode_in_menu);
+    select_mode_in_menu(mode);
     // We came from "favorites_compact" so just toggling to "unread"
     // in UI produces "unread_compact".
     assert_mode_selected(mode + "_compact");
     // OK, now turn "compact" off.
-    set_folder_mode(tree, null, toggle_compact_in_menu);
+    toggle_compact_in_menu();
   } else {
-    set_folder_mode(tree, mode);
+    tree.mode = mode;
   }
 
   assert_mode_selected(mode);
   assert_compact_state(false, false);
 
   // Mode is hierarchical, parent folders are shown.
-  assert_folder_visible(rootFolder);
+  assert_folder_visible(inboxFolder.server.rootFolder);
   assert_folder_visible(inboxFolder);
   assert_folder_visible(unreadFolder);
   assert_folder_not_visible(favoriteFolder);
 
   if (aViaMenu)
-    set_folder_mode(tree, null, toggle_compact_in_menu);
+    toggle_compact_in_menu();
   else
-    set_folder_mode(tree, mode + "_compact");
+    tree.mode = mode + "_compact";
 
   assert_mode_selected(mode + "_compact");
   // In compact mode parent folders are not shown.
-  assert_folder_not_visible(rootFolder);
+  assert_folder_not_visible(inboxFolder.server.rootFolder);
   assert_folder_not_visible(inboxFolder);
   assert_folder_visible(unreadFolder);
   assert_folder_not_visible(favoriteFolder);
@@ -195,28 +197,28 @@ function subtest_switch_to_favorite_folders(aViaMenu) {
     // in UI produces "favorite_compact".
     assert_mode_selected(mode + "_compact");
     // OK, now turn "compact" off.
-    set_folder_mode(tree, null, toggle_compact_in_menu);
+    toggle_compact_in_menu();
   } else {
-    set_folder_mode(tree, mode);
+    tree.mode = mode;
   }
 
   assert_mode_selected(mode);
   assert_compact_state(false, false);
 
   // Mode is hierarchical, parent folders are shown.
-  assert_folder_visible(rootFolder);
+  assert_folder_visible(inboxFolder.server.rootFolder);
   assert_folder_visible(inboxFolder);
   assert_folder_not_visible(unreadFolder);
   assert_folder_visible(favoriteFolder);
 
   if (aViaMenu)
-    set_folder_mode(tree, null, toggle_compact_in_menu);
+    toggle_compact_in_menu();
   else
-    set_folder_mode(tree, mode + "_compact");
+    tree.mode = mode + "_compact";
 
   assert_mode_selected(mode + "_compact");
   // In compact mode parent folders are not shown.
-  assert_folder_not_visible(rootFolder);
+  assert_folder_not_visible(inboxFolder.server.rootFolder);
   assert_folder_not_visible(inboxFolder);
   assert_folder_not_visible(unreadFolder);
   assert_folder_visible(favoriteFolder);
@@ -228,9 +230,9 @@ function subtest_switch_to_favorite_folders(aViaMenu) {
 function subtest_switch_to_recent_folders(aViaMenu) {
   const mode = "recent_compact";
   if (aViaMenu)
-    set_folder_mode(tree, "recent", select_mode_in_menu);
+    select_mode_in_menu("recent");
   else
-    set_folder_mode(tree, mode);
+    tree.mode = mode;
 
   assert_mode_selected(mode);
   assert_compact_state(true, true);
@@ -246,9 +248,9 @@ function subtest_switch_to_recent_folders(aViaMenu) {
 function subtest_switch_to_smart_folders(aViaMenu) {
   const mode = "smart";
   if (aViaMenu)
-    set_folder_mode(tree, mode, select_mode_in_menu);
+    select_mode_in_menu(mode);
   else
-    set_folder_mode(tree, mode);
+    tree.mode = mode;
 
   assert_mode_selected(mode);
   assert_compact_state(false, true);
@@ -278,7 +280,7 @@ function test_toggling_modes() {
 }
 
 function teardownModule() {
-  set_folder_mode(tree, "all");
+  tree.mode = "all";
   inboxFolder.propagateDelete(unreadFolder, true, null);
   inboxFolder.propagateDelete(favoriteFolder, true, null);
   toggle_main_menu(menu_state);

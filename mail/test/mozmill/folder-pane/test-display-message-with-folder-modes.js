@@ -66,7 +66,7 @@ function test_display_message_with_folder_not_present_in_current_folder_mode() {
   be_in_folder(inboxFolder);
 
   // Move to favorite folders. This folder isn't currently a favorite folder
-  set_folder_mode(mc.folderTreeView, "favorite");
+  mc.folderTreeView.mode = "favorite";
   assert_folder_not_visible(folder);
   assert_folder_not_visible(inboxFolder);
   assert_folder_not_visible(inbox2Folder);
@@ -96,7 +96,7 @@ function test_display_message_with_folder_present_in_current_folder_mode() {
 
   // Switch to favorite folders. Check that the folder is now in the view, as is
   // the dummy folder
-  set_folder_mode(mc.folderTreeView, "favorite");
+  mc.folderTreeView.mode = "favorite";
   assert_folder_visible(folder);
   assert_folder_visible(dummyFolder);
   // Also their parent folder should be visible.
@@ -124,14 +124,14 @@ function test_display_message_in_smart_folder_mode_works() {
   // Clear the message selection, otherwise msgHdr will still be displayed and
   // display_message_in_folder_tab(msgHdr) will be a no-op.
   select_none();
-  set_folder_mode(mc.folderTreeView, "all");
+  mc.folderTreeView.mode = "all";
 
   // Switch to the dummy folder, otherwise msgHdr will be in the view and the
   // display message in folder tab logic will simply select the message without
   // bothering to expand any folders.
   be_in_folder(dummyFolder);
 
-  set_folder_mode(mc.folderTreeView, "smart");
+  mc.folderTreeView.mode = "smart";
 
   let rootFolder = folder.server.rootFolder;
   // Check that the folder is actually the child of the account root
@@ -191,7 +191,7 @@ function test_display_inbox_message_in_smart_folder_mode_works() {
  * Move back to the all folders mode.
  */
 function test_switch_to_all_folders() {
-  set_folder_mode(mc.folderTreeView, "all");
+  mc.folderTreeView.mode = "all";
   assert_folder_tree_view_row_count(10);
 }
 
