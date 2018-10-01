@@ -13,7 +13,9 @@ ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "BrowserToolboxProcess", "resource://devtools/client/framework/ToolboxProcess.jsm");
-ChromeUtils.defineModuleGetter(this, "ScratchpadManager","resource://devtools/client/scratchpad/scratchpad-manager.jsm");
+ChromeUtils.defineModuleGetter(this, "ScratchpadManager", "resource://devtools/client/scratchpad/scratchpad-manager.jsm");
+ChromeUtils.defineModuleGetter(this, "ExtensionParent", "resource://gre/modules/ExtensionParent.jsm");
+ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/extensionSupport.jsm");
 Object.defineProperty(this, "HUDService", {
   get: function HUDService_getter() {
     let { devtools } = ChromeUtils.import("resource://devtools/shared/Loader.jsm", null);
@@ -3740,22 +3742,44 @@ async function initAddonPrefsMenu(aMenupopup) {
   }
 
   // Enumerate all enabled addons with URL to XUL document with prefs.
-  let addonsFound = await AddonManager.getAddonsByTypes(["extension"]);
-  addonsFound = addonsFound.filter(addon => !addon.userDisabled && !addon.appDisabled &&
-                                            !addon.softDisabled && addon.optionsURL &&
-                                            (addon.optionsType === null || addon.optionsType == 3));
+  let addonsFound = [];
+  for (let addon of await AddonManager.getAddonsByTypes(["extension"])) {
+    if (addon.userDisabled || addon.appDisabled || addon.softDisabled) {
+      continue;
+    }
+    if (addon.optionsURL && (addon.optionsType === null || addon.optionsType == 3)) {
+      addonsFound.push({
+        addon,
+        optionsURL: addon.optionsURL,
+        optionsOpenInTab: addon.optionsType == 3,
+      });
+    }
+    if (ExtensionSupport.loadedLegacyExtensions.has(addon.id)) {
+      let webextension = ExtensionParent.GlobalManager.getExtension(addon.id);
+      let legacy = webextension.manifest.legacy;
+      if (typeof legacy == "boolean" || !legacy.options || !legacy.options.page) {
+        continue;
+      }
+      addonsFound.push({
+        addon,
+        optionsURL: legacy.options.page,
+        optionsOpenInTab: legacy.options.open_in_tab,
+      });
+    }
+  }
 
   // Populate the menu with addon names and icons.
   // Note: Having the following code in the getAddonsByTypes() async callback
   // above works on Windows and Linux but doesn't work on Mac, see bug 1419145.
   if (addonsFound.length > 0) {
-    addonsFound.sort((a,b) => a.name.localeCompare(b.name));
-    for (let addon of addonsFound) {
+    addonsFound.sort((a, b) => a.addon.name.localeCompare(b.addon.name));
+    for (let { addon, optionsURL, optionsOpenInTab } of addonsFound) {
       let newItem = document.createElement("menuitem");
       newItem.setAttribute("label", addon.name);
-      newItem.setAttribute("value", addon.optionsURL);
-      if (addon.optionsType)
-        newItem.setAttribute("optionsType", addon.optionsType);
+      newItem.setAttribute("value", optionsURL);
+      if (optionsOpenInTab) {
+        newItem.setAttribute("optionsType", "tab");
+      }
       let iconURL = addon.iconURL || addon.icon64URL;
       if (iconURL) {
         newItem.setAttribute("class", "menuitem-iconic");

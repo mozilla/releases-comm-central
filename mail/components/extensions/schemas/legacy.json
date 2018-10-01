@@ -6,8 +6,30 @@
         "$extend": "WebExtensionManifest",
         "properties": {
           "legacy": {
-            "type": "boolean",
-            "optional": true
+            "optional": true,
+            "choices": [
+              {
+                "type": "boolean",
+                "optional": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "page": {
+                        "type": "string"
+                      },
+                      "open_in_tab": {
+                        "type": "boolean",
+                        "optional": true
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       }
