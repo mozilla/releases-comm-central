@@ -3838,6 +3838,7 @@ nsImapProtocol::PostLineDownLoadEvent(const char *line, uint32_t uidOfMessage)
 void nsImapProtocol::HandleMessageDownLoadLine(const char *line, bool isPartialLine,
                                                char *lineCopy)
 {
+  NS_ENSURE_TRUE_VOID(line);
   NS_ASSERTION(lineCopy == nullptr || !PL_strcmp(line, lineCopy),
                "line and lineCopy must contain the same string");
   const char *messageLine = line;
