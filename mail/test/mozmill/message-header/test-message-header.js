@@ -390,8 +390,8 @@ function test_clicking_star_opens_inline_contact_editor()
   // editing panel opens
   mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
   mc.waitFor(() => contactPanel.state == "open",
-             "Timeout waiting for contactPanel to open; state=" +
-             contactPanel.state);
+             () => ("Timeout waiting for contactPanel to open; state=" +
+                    contactPanel.state));
   contactPanel.hidePopup();
 }
 
@@ -478,8 +478,8 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
   // editing panel opens
   mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
   mc.waitFor(() => contactPanel.state == "open",
-             "Timeout waiting for contactPanel to open; state=" +
-             contactPanel.state);
+             () => ("Timeout waiting for contactPanel to open; state=" +
+                    contactPanel.state));
 
   let abDrop = mc.eid('editContactAddressBookList').getNode();
   let warningMsg = mc.eid('contactMoveDisabledText').getNode();
@@ -525,8 +525,8 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
   // Re-open the inline contact editing panel
   mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
   mc.waitFor(() => contactPanel.state == "open",
-             "Timeout waiting for contactPanel to open; state=" +
-             contactPanel.state);
+             () => ("Timeout waiting for contactPanel to open; state=" +
+                    contactPanel.state));
 
   // The dropdown should be disabled now
   assert_true(abDrop.disabled);
@@ -547,8 +547,8 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
   // Re-open the inline contact editing panel
   mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
   mc.waitFor(() => contactPanel.state == "open",
-             "Timeout waiting for contactPanel to open; state=" +
-             contactPanel.state);
+             () => ("Timeout waiting for contactPanel to open; state=" +
+                    contactPanel.state));
 
   // Ensure that the address book dropdown is not disabled
   assert_true(!abDrop.disabled);

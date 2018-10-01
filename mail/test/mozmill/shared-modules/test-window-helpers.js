@@ -980,8 +980,8 @@ var AugmentEverybodyWith = {
     click_menus_in_sequence: function _click_menus(aRootPopup, aActions, aKeepOpen) {
       if (aRootPopup.state != "open") { // handle "showing"
         utils.waitFor(() => aRootPopup.state == "open",
-                      "Popup never opened! id=" + aRootPopup.id +
-                      ", state=" + aRootPopup.state);
+                      () => ("Popup never opened! id=" + aRootPopup.id +
+                             ", state=" + aRootPopup.state));
       }
       // These popups sadly do not close themselves, so we need to keep track
       // of them so we can make sure they end up closed.
@@ -1052,9 +1052,9 @@ var AugmentEverybodyWith = {
         if (newPopup) {
           curPopup = newPopup;
           closeStack.push(curPopup);
-          utils.waitFor(function() { return curPopup.state == "open"; },
-                        "Popup never opened at action depth " + iAction +
-                        "; id=" + curPopup.id + ", state=" + curPopup.state,
+          utils.waitFor(() => curPopup.state == "open",
+                        () => ("Popup never opened at action depth " + iAction +
+                               "; id=" + curPopup.id + ", state=" + curPopup.state),
                         5000, 50);
         }
       }
@@ -1079,9 +1079,9 @@ var AugmentEverybodyWith = {
         let curPopup = aCloseStack.pop();
         if (curPopup.state == "open")
           this.keypress(new elib.Elem(curPopup), "VK_ESCAPE", {});
-        utils.waitFor(function() { return curPopup.state == "closed"; },
-                      "Popup did not close! id=" + curPopup.id +
-                      ", state=" +  curPopup.state, 5000, 50);
+        utils.waitFor(() => curPopup.state == "closed",
+                      () => ("Popup did not close! id=" + curPopup.id +
+                             ", state=" + curPopup.state), 5000, 50);
       }
     },
 

@@ -407,6 +407,15 @@ TimeoutError.prototype.name = 'TimeoutError';
 
 /**
  * Waits for the callback evaluates to true
+ *
+ * @param callback    Function that returns true when the waiting thould end.
+ * @param message {string or function}  A message to throw if the callback didn't
+ *                                      succeed until the timeout. Use a function
+ *                                      if the message is to show some object state
+ *                                      after the end of the wait (not before wait).
+ * @param timeout     Milliseconds to wait until callback succeeds.
+ * @param interval    Milliseconds to 'sleep' between checks of callback.
+ * @param thisObject (optional) 'this' to be passed into the callback.
  */
 function waitFor(callback, message, timeout, interval, thisObject) {
   timeout = timeout || 5000;
@@ -430,8 +439,17 @@ function waitFor(callback, message, timeout, interval, thisObject) {
   hwindow.clearInterval(timeoutInterval);
 
   if (self.counter >= timeout) {
-    message = message || "waitFor: Timeout exceeded for '" + callback + "'";
-    throw new TimeoutError(message);
+    let messageText;
+    if (message) {
+      if (typeof(message) === "function")
+        messageText = message();
+      else
+        messageText = message;
+    } else {
+      messageText = "waitFor: Timeout exceeded for '" + callback + "'";
+    }
+
+    throw new TimeoutError(messageText);
   }
 
   return true;

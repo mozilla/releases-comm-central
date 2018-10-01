@@ -1359,7 +1359,7 @@ MozMillAsyncTest.prototype.run = function () {
 
   utils.waitFor(function() {
     return this._done == true;
-  }, "MozMillAsyncTest timed out. Done is " + this._done, 500, 100);
+  }, () => ("MozMillAsyncTest timed out. Done is " + this._done), 500, 100);
 
   return true;
 }

@@ -167,7 +167,8 @@ function test_save_attachment_files_in_list() {
 
   let length = attachmentFileNames.length;
   mc.waitFor(() => downloadsView.count == length,
-             "Timeout waiting for saving three attachment files; downloadsView.count=" + downloadsView.count);
+             () => ("Timeout waiting for saving three attachment files; " +
+                    "downloadsView.count=" + downloadsView.count));
 
   assert_equals(length, list.childNodes.length);
   assert_equals(downloadsView.count, list.childNodes.length);

@@ -161,7 +161,7 @@ function checkJsInFeedContent() {
   mc.waitFor(() => mc.window.content.wrappedJSObject.location.href == feedUrl &&
                    mc.window.content.wrappedJSObject.document &&
                    mc.window.content.wrappedJSObject.document.querySelector("body") != null,
-             "Timeout waiting for remote feed doc to load; url=" + mc.window.content.wrappedJSObject.location);
+             () => ("Timeout waiting for remote feed doc to load; url=" + mc.window.content.wrappedJSObject.location));
 
   if (!mc.window.content.wrappedJSObject.jsIsTurnedOn)
     throw new Error("JS is turned off for remote feed content - it should be on.");
@@ -205,8 +205,8 @@ function checkJsInFeedTab() {
   mc.waitFor(() => mc.window.content.wrappedJSObject.location.href == feedUrl &&
                    mc.window.content.wrappedJSObject.document &&
                    mc.window.content.wrappedJSObject.document.querySelector("body") != null,
-             "Timeout waiting for remote feed doc to load; url=" +
-              mc.window.content.wrappedJSObject.location);
+             () => ("Timeout waiting for remote feed doc to load; url=" +
+                    mc.window.content.wrappedJSObject.location));
 
   if (!mc.window.content.wrappedJSObject.jsIsTurnedOn)
     throw new Error("JS is turned off for remote feed content - it should be on.");
