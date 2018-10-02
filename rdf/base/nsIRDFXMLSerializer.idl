@@ -27,5 +27,5 @@ interface nsIRDFXMLSerializer : nsISupports
      * @param aPrefix the attribute namespace prefix
      * @param aURI the namespace URI
      */
-    [noscript] void addNameSpace(in nsAtomPtr aPrefix, in DOMString aURI);
+    [noscript] void addNameSpace(in nsAtomPtr aPrefix, in AString aURI);
 };
