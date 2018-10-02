@@ -21,8 +21,8 @@
 #include "nsNSSComponent.h"
 #include "nsNSSHelper.h"
 #include "nsServiceManagerUtils.h"
-#include "pkix/Result.h"
-#include "pkix/pkixtypes.h"
+#include "mozpkix/Result.h"
+#include "mozpkix/pkixtypes.h"
 #include "smime.h"
 
 using namespace mozilla;

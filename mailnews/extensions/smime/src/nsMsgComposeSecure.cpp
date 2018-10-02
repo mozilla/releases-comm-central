@@ -26,7 +26,7 @@
 #include "nsNSSComponent.h"
 #include "nsServiceManagerUtils.h"
 #include "nspr.h"
-#include "pkix/Result.h"
+#include "mozpkix/Result.h"
 #include "nsNSSCertificate.h"
 
 using namespace mozilla::mailnews;

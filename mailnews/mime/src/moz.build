@@ -75,8 +75,7 @@ LOCAL_INCLUDES += [
     '/%s/extensions/universalchardet/src/xpcom' % CONFIG['mozreltopsrcdir'],
     '/%s/intl/chardet' % CONFIG['mozreltopsrcdir'],
     '/%s/security/certverifier' % CONFIG['mozreltopsrcdir'],
-    '/%s/security/manager/ssl' % CONFIG['mozreltopsrcdir'],
-    '/%s/security/pkix/include' % CONFIG['mozreltopsrcdir'],
+    '/%s/security/manager/ssl' % CONFIG['mozreltopsrcdir']
 ]
 
 EXTRA_COMPONENTS += [
