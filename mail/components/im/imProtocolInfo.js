@@ -4,7 +4,7 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-function imProtocolInfo() { }
+function imProtocolInfo() {}
 
 imProtocolInfo.prototype = {
 
@@ -19,7 +19,7 @@ imProtocolInfo.prototype = {
   // IM accounts.
   get canLoginAtStartUp() { return false; },
   get canDuplicate() { return false; },
-  getDefaultServerPort: () =>  0,
+  getDefaultServerPort: () => 0,
   get canGetMessages() { return false; },
   get canGetIncomingMessages() { return false; },
   get defaultDoBiff() { return false; },
@@ -29,7 +29,7 @@ imProtocolInfo.prototype = {
   classDescription: "IM Msg Protocol Info implementation",
   classID: Components.ID("{13118758-dad2-418c-a03d-1acbfed0cd01}"),
   contractID: "@mozilla.org/messenger/protocol/info;1?type=im",
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgProtocolInfo])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgProtocolInfo]),
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([imProtocolInfo]);

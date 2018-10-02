@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
+const {
+  EmptyEnumerator,
+  XPCOMUtils,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm", null);
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
 
-function imIncomingServer() { }
+function imIncomingServer() {}
 
 imIncomingServer.prototype = {
   get wrappedJSObject() { return this; },
@@ -35,11 +38,11 @@ imIncomingServer.prototype = {
     this._key = aKey;
     this._prefBranch = Services.prefs.getBranch("mail.server." + aKey + ".");
   },
-  equals: function (aServer) {
+  equals(aServer) {
     return "wrappedJSObject" in aServer && aServer.wrappedJSObject == this;
   },
 
-  clearAllValues: function() {
+  clearAllValues() {
     Services.accounts.deleteAccount(this.imAccount.id);
     this._prefBranch.deleteBranch("");
     delete this._prefBranch;
@@ -59,14 +62,14 @@ imIncomingServer.prototype = {
   },
 
   // Removes files created by this account.
-  removeFiles: function() {
+  removeFiles() {
     Services.logs.deleteLogFolderForAccount(this.imAccount);
   },
 
   // called by nsMsgAccountManager while deleting an account:
-  forgetSessionPassword: function() { },
+  forgetSessionPassword() {},
 
-  forgetPassword: function() {
+  forgetPassword() {
     // Password is cleared in imAccount.remove()
     // TODO: this may need to be implemented here as a separate function
     // once IM accounts support changing username/hostname.
@@ -78,7 +81,7 @@ imIncomingServer.prototype = {
     return protocol + " - " + this.imAccount.name;
   },
 
-  //XXX Flo: I don't think constructedPrettyName is visible in the UI
+  // XXX Flo: I don't think constructedPrettyName is visible in the UI
   get constructedPrettyName() { return "constructedPrettyName FIXME"; },
   get realHostName() { return this.hostName; },
   set realHostName(aValue) {},
@@ -87,7 +90,7 @@ imIncomingServer.prototype = {
   accountManagerChrome: "am-im.xul",
 
 
-  //FIXME need a new imIIncomingService iface + classinfo for these 3 properties :(
+  // FIXME need a new imIIncomingService iface + classinfo for these 3 properties :(
   get password() { return this.imAccount.password; },
   set password(aPassword) {
     this.imAccount.password = aPassword;
@@ -110,7 +113,7 @@ imIncomingServer.prototype = {
   },
 
   // This is used for user-visible advanced preferences.
-  setUnicharValue: function(aPrefName, aValue) {
+  setUnicharValue(aPrefName, aValue) {
     if (aPrefName == "autojoin")
       this.autojoin = aValue;
     else if (aPrefName == "alias")
@@ -120,7 +123,7 @@ imIncomingServer.prototype = {
     else
       this.imAccount.setString(aPrefName, aValue);
   },
-  getUnicharValue: function(aPrefName) {
+  getUnicharValue(aPrefName) {
     if (aPrefName == "autojoin")
       return this.autojoin;
     if (aPrefName == "alias")
@@ -136,10 +139,10 @@ imIncomingServer.prototype = {
       return this._getDefault(aPrefName);
     }
   },
-  setBoolValue: function(aPrefName, aValue) {
+  setBoolValue(aPrefName, aValue) {
     this.imAccount.setBool(aPrefName, aValue);
   },
-  getBoolValue: function(aPrefName) {
+  getBoolValue(aPrefName) {
     try {
       let prefName =
         "messenger.account." + this.imAccount.id + ".options." + aPrefName;
@@ -148,10 +151,10 @@ imIncomingServer.prototype = {
       return this._getDefault(aPrefName);
     }
   },
-  setIntValue: function(aPrefName, aValue) {
+  setIntValue(aPrefName, aValue) {
     this.imAccount.setInt(aPrefName, aValue);
   },
-  getIntValue: function(aPrefName) {
+  getIntValue(aPrefName) {
     try {
       let prefName =
         "messenger.account." + this.imAccount.id + ".options." + aPrefName;
@@ -161,7 +164,7 @@ imIncomingServer.prototype = {
     }
   },
   _defaultOptionValues: null,
-  _getDefault: function(aPrefName) {
+  _getDefault(aPrefName) {
     if (this._defaultOptionValues)
       return this._defaultOptionValues[aPrefName];
 
@@ -183,10 +186,10 @@ imIncomingServer.prototype = {
   },
 
   // the "Char" type will be used only for "imAccount" and internally.
-  setCharValue: function(aPrefName, aValue) {
+  setCharValue(aPrefName, aValue) {
     this._prefBranch.setCharPref(aPrefName, aValue);
   },
-  getCharValue: function(aPrefName) {
+  getCharValue(aPrefName) {
     try {
       return this._prefBranch.getCharPref(aPrefName);
     } catch (x) {
@@ -215,17 +218,17 @@ imIncomingServer.prototype = {
     this._prefBranch.setCharPref("hostname", aHostName);
   },
 
-  writeToFolderCache: function() { },
-  closeCachedConnections: function() { },
+  writeToFolderCache() {},
+  closeCachedConnections() {},
 
   // Shutdown the server instance so at least disconnect from the server.
-  shutdown: function() {
+  shutdown() {
     // Ensure this account has not been destroyed already.
     if (this.imAccount.prplAccount)
       this.imAccount.disconnect();
   },
 
-  setFilterList: function() { },
+  setFilterList() {},
 
   get canBeDefaultServer() { return false; },
 
@@ -237,14 +240,14 @@ imIncomingServer.prototype = {
   get spamSettings() {
     return {
       level: 0,
-      initialize: function(aServer) {},
-      QueryInterface: ChromeUtils.generateQI([Ci.nsISpamSettings])
+      initialize(aServer) {},
+      QueryInterface: ChromeUtils.generateQI([Ci.nsISpamSettings]),
     };
   },
 
   // nsMsgDBFolder.cpp crashes in HandleAutoCompactEvent if this doesn't exist:
   msgStore: {
-    supportsCompaction: false
+    supportsCompaction: false,
   },
 
   get serverURI() { return "im://" + this.imAccount.protocol.id + "/" + this.imAccount.name; },
@@ -262,11 +265,11 @@ imIncomingServer.prototype = {
       get name() { return this.server.prettyName + " name"; }, // never displayed?
       // used in the folder pane tree, if we don't hide the IM accounts:
       get abbreviatedName() { return this.server.prettyName + "abbreviatedName"; },
-      AddFolderListener: function() {},
-      RemoveFolderListener: function() {},
+      AddFolderListener() {},
+      RemoveFolderListener() {},
       descendants: Cc["@mozilla.org/array;1"]
                   .createInstance(Ci.nsIArray),
-      ListDescendants: function(descendants) {},
+      ListDescendants(descendants) {},
       getFlag: () => false,
       getFolderWithFlags: aFlags => null,
       getFoldersWithFlags: aFlags =>
@@ -275,8 +278,8 @@ imIncomingServer.prototype = {
       get subFolders() { return EmptyEnumerator; },
       getStringProperty: aPropertyName => "",
       getNumUnread: aDeep => 0,
-      Shutdown: function() {},
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgFolder])
+      Shutdown() {},
+      QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgFolder]),
     });
   },
 
@@ -290,7 +293,7 @@ imIncomingServer.prototype = {
   classDescription: "IM Msg Incoming Server implementation",
   classID: Components.ID("{9dd7f36b-5960-4f0a-8789-f5f516bd083d}"),
   contractID: "@mozilla.org/messenger/server;1?type=im",
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgIncomingServer])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgIncomingServer]),
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([imIncomingServer]);

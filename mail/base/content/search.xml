@@ -233,7 +233,7 @@
               };
               if (Services.prefs.getBoolPref("mail.chat.enabled")) {
                 if (!("GlodaIMSearcher" in window))
-                  ChromeUtils.import("resource:///modules/search_im.js");
+                  ChromeUtils.import("resource:///modules/search_im.jsm");
                 args.IMSearcher = new GlodaIMSearcher(null, searchString);
               }
               tabmail.openTab("glodaFacet", args);

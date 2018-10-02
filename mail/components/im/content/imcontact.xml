@@ -220,15 +220,15 @@
            return;
 
          if (Services.focus.activeWindow == document.defaultView)
-           finishAliasing(true);
+           this.finishAliasing(true);
        ]]>
      </handler>
 
      <handler event="mousedown">
        <![CDATA[
-         if (!this.hasAttribute("aliasing") && canOpenConversation() &&
+         if (!this.hasAttribute("aliasing") && this.canOpenConversation() &&
              event.originalTarget.getAttribute("anonid") == "startChatBubble") {
-           openConversation();
+           this.openConversation();
            event.preventDefault();
          }
        ]]>
@@ -236,10 +236,10 @@
 
      <handler event="click">
        <![CDATA[
-         if (!this.hasAttribute("aliasing") && canOpenConversation() &&
+         if (!this.hasAttribute("aliasing") && this.canOpenConversation() &&
              event.detail == 2 &&
              event.originalTarget.getAttribute("anonid") != "expander")
-           openConversation();
+           this.openConversation();
        ]]>
      </handler>
     </handlers>

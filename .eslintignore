@@ -52,7 +52,6 @@ mail/app/**
 mail/base/**
 mail/branding/**
 mail/components/cloudfile/**
-mail/components/im/**
 mail/components/newmailaccount/**
 mail/components/search/**
 mail/config/**
@@ -61,6 +60,9 @@ mail/installer/**
 mail/locales/**
 mail/test/**
 mail/themes/**
+
+# prefs files
+mail/components/im/all-im.js
 
 # calendar/ exclusions
 

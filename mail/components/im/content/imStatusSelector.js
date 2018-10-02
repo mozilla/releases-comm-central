@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+// chat/modules/imTextboxUtils.jsm
+/* globals TextboxSpellChecker */
+
+var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm", null);
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
 
 var statusSelector = {
   observe: function ss_observe(aSubject, aTopic, aMsg) {
@@ -164,8 +168,7 @@ var statusSelector = {
       if (newStatus != Ci.imIStatusInfo.STATUS_UNKNOWN ||
           elt.value != elt.getAttribute("value"))
         Services.core.globalUserStatus.setStatus(newStatus, elt.value);
-    }
-    else if ("_statusTypeBeforeEditing" in this) {
+    } else if ("_statusTypeBeforeEditing" in this) {
       this.displayStatusType(this._statusTypeBeforeEditing);
       delete this._statusTypeBeforeEditing;
       delete this._statusTypeEditing;
@@ -287,5 +290,5 @@ var statusSelector = {
   unload: function ss_unload() {
     for (let event of statusSelector._events)
       Services.obs.removeObserver(statusSelector, event);
-   }
+   },
 };

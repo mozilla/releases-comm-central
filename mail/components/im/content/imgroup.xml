@@ -74,7 +74,7 @@
         }
         let last = end == 0 ? this : this.contacts[end - 1];
         this.parentNode.insertBefore(contactElt, last.nextSibling);
-        contactElt.build(aContact);//, this);
+        contactElt.build(aContact);
         contactElt.group = this;
         this.contacts.splice(end, 0, contactElt);
         this.contactsById[aContact.id] = contactElt;
@@ -153,8 +153,7 @@
           this.removeAttribute("closed");
           this.setAttribute("aria-expanded", "true");
           this._updateClosedState(false);
-        }
-        else {
+        } else {
           this.setAttribute("closed", "true");
           this.setAttribute("aria-expanded", "false");
           this._updateClosedState(true);

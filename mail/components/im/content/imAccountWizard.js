@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
+// chat/content/imAccountOptionsHelper.js
+/* globals accountOptionsHelper */
+
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
@@ -18,7 +21,11 @@ var accountWizard = {
     var protos = [];
     for (let proto of this.getProtocols())
       protos.push(proto);
-    protos.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    protos.sort((a, b) => {
+      if (a.name < b.name)
+        return -1;
+      return a.name > b.name ? 1 : 0;
+    });
     protos.forEach(function(proto) {
       let image = document.createElement("image");
       image.setAttribute("src", proto.iconBaseURI + "icon.png");
@@ -124,8 +131,7 @@ var accountWizard = {
       usernameInfo =
         bundle.getFormattedString("accountUsernameInfoWithDescription",
                                   [emptyText, this.proto.name]);
-    }
-    else {
+    } else {
       usernameInfo =
         bundle.getFormattedString("accountUsernameInfo", [this.proto.name]);
     }
@@ -255,19 +261,19 @@ var accountWizard = {
       switch (opt.type) {
       case opt.typeBool:
         if (val != opt.getBool())
-          this.prefs.push({opt: opt, name: name, value: !!val});
+          this.prefs.push({opt, name, value: !!val});
         break;
       case opt.typeInt:
         if (val != opt.getInt())
-          this.prefs.push({opt: opt, name: name, value: val});
+          this.prefs.push({opt, name, value: val});
         break;
       case opt.typeString:
         if (val != opt.getString())
-          this.prefs.push({opt: opt, name: name, value: val});
+          this.prefs.push({opt, name, value: val});
         break;
       case opt.typeList:
         if (val != opt.getListDefault())
-          this.prefs.push({opt: opt, name: name, value: val});
+          this.prefs.push({opt, name, value: val});
         break;
       default:
         throw "unknown preference type " + opt.type;
@@ -291,7 +297,7 @@ var accountWizard = {
     for (let i = 0; i < this.prefs.length; ++i) {
       let option = this.prefs[i];
       let opt = option.opt;
-      switch(opt.type) {
+      switch (opt.type) {
       case opt.typeBool:
         acc.setBool(option.name, option.value);
         break;
@@ -355,7 +361,7 @@ var accountWizard = {
     return undefined;
   },
 
-  getIter: function*(aEnumerator) {
+  * getIter(aEnumerator) {
     while (aEnumerator.hasMoreElements())
       yield aEnumerator.getNext();
   },
@@ -384,8 +390,7 @@ var accountWizard = {
       elt.removeAttribute("closed");
       if (elt.flexWhenOpened)
         elt.flex = elt.flexWhenOpened;
-    }
-    else {
+    } else {
       elt.setAttribute("closed", "true");
       if (elt.flex) {
         elt.flexWhenOpened = elt.flex;
@@ -397,7 +402,7 @@ var accountWizard = {
   /* Check for correctness and set URL for the "Get more protocols..."-link
    *  Stripped down code from preferences/themes.js
    */
-  setGetMoreProtocols: function (){
+  setGetMoreProtocols() {
     let prefURL = PREF_EXTENSIONS_GETMOREPROTOCOLSURL;
     var getMore = document.getElementById("getMoreProtocols");
     var showGetMore = false;
@@ -408,15 +413,14 @@ var accountWizard = {
         var getMoreURL = Services.urlFormatter.formatURLPref(prefURL);
         getMore.setAttribute("getMoreURL", getMoreURL);
         showGetMore = getMoreURL != "about:blank";
-      }
-      catch (e) { }
+      } catch (e) {}
     }
     getMore.hidden = !showGetMore;
   },
 
-  openURL: function (aURL) {
+  openURL(aURL) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(Services.io.newURI(aURL));
-  }
+  },
 };

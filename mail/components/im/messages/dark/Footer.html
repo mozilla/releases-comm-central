@@ -7,8 +7,7 @@ const p_border_top = "1px solid hsla(#, 100%, 80%, 0.4)";
 const p_background = "-moz-linear-gradient(top, hsla(#, 100%, 80%, 0.3), hsla(#, 100%, 80%, 0.1) 30px)";
 const nick_background = "-moz-linear-gradient(top, hsla(#, 100%, 80%, 0.3), hsla(#, 100%, 80%, 0.1) 1em)";
 
-function setColors(target)
-{
+function setColors(target) {
   var senderColor = target.getAttribute("data-senderColor");
 
   if (!senderColor)
@@ -26,8 +25,7 @@ function setColors(target)
   target.style.background = p_background.replace(/#/g, senderHue);
 }
 
-function checkNewText(target)
-{
+function checkNewText(target) {
   if (target.tagName == "P" && target.className != "event-messages")
     setColors(target);
 

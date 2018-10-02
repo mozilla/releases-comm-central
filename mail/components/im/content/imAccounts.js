@@ -2,8 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+// mail/base/content/nsDragAndDrop.js
+/* globals FlavourSet, TransferData */
+// imStatusSelector.js
+/* globals statusSelector */
+
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
@@ -22,7 +27,7 @@ var events = [
   "account-connect-error",
   "autologin-processed",
   "status-changed",
-  "network:offline-status-changed"
+  "network:offline-status-changed",
 ];
 
 var gAccountManager = {
@@ -110,23 +115,19 @@ var gAccountManager = {
       // manager window anymore, close it.
       this.close();
       return;
-    }
-    else if (aTopic == "autologin-processed") {
+    } else if (aTopic == "autologin-processed") {
       var notification = document.getElementById("accountsNotificationBox")
                                  .getNotificationWithValue("autoLoginStatus");
       if (notification)
         notification.close();
       return;
-    }
-    else if (aTopic == "network:offline-status-changed") {
+    } else if (aTopic == "network:offline-status-changed") {
       this.setOffline(aData == "offline");
       return;
-    }
-    else if (aTopic == "status-changed") {
+    } else if (aTopic == "status-changed") {
       this.setOffline(aObject.statusType == Ci.imIStatusInfo.STATUS_OFFLINE);
       return;
-    }
-    else if (aTopic == "account-list-updated") {
+    } else if (aTopic == "account-list-updated") {
       this._updateAccountList();
       return;
     }
@@ -136,14 +137,13 @@ var gAccountManager = {
 
     if (aTopic == "account-added") {
       document.getElementById("accountsDesk").selectedIndex = 1;
-      var elt = document.createElement("richlistitem");
+      let elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(aObject);
       if (this.accountList.getRowCount() == 1)
         this.accountList.selectedIndex = 0;
-    }
-    else if (aTopic == "account-removed") {
-      var elt = document.getElementById(aObject.id);
+    } else if (aTopic == "account-removed") {
+      let elt = document.getElementById(aObject.id);
       elt.destroy();
       if (!elt.selected) {
         elt.remove();
@@ -164,21 +164,19 @@ var gAccountManager = {
       if (selectedIndex == count)
         --selectedIndex;
       this.accountList.selectedIndex = selectedIndex;
-    }
-    else if (aTopic == "account-updated") {
+    } else if (aTopic == "account-updated") {
       document.getElementById(aObject.id).build(aObject);
       this.disableCommandItems();
-    }
-    else if (aTopic == "account-connect-progress")
+    } else if (aTopic == "account-connect-progress") {
       document.getElementById(aObject.id).updateConnectionState();
-    else if (aTopic == "account-connect-error")
+    } else if (aTopic == "account-connect-error") {
       document.getElementById(aObject.id).updateConnectionError();
-    else {
+    } else {
       const stateEvents = {
         "account-connected": "connected",
         "account-connecting": "connecting",
         "account-disconnected": "disconnected",
-        "account-disconnecting": "disconnecting"
+        "account-disconnecting": "disconnecting",
       };
       if (aTopic in stateEvents) {
         let elt = document.getElementById(aObject.id);
@@ -188,10 +186,8 @@ var gAccountManager = {
         if (aTopic == "account-connecting") {
           elt.removeAttribute("error");
           elt.updateConnectionState();
-        }
-        else {
-          if (aTopic == "account-connected")
-            elt.refreshConnectedLabel();
+        } else if (aTopic == "account-connected") {
+          elt.refreshConnectedLabel();
         }
 
         elt.setAttribute("state", stateEvents[aTopic]);
@@ -226,7 +222,7 @@ var gAccountManager = {
       exceptionAdded: false,
       securityInfo: prplAccount.secInfo,
       prefetchCert: true,
-      location: prplAccount.connectionTarget
+      location: prplAccount.connectionTarget,
     };
     window.openDialog("chrome://pippki/content/exceptionDialog.xul", "",
                       "chrome,centerscreen,modal", params);
@@ -240,7 +236,7 @@ var gAccountManager = {
       let m = dbgMsg.message;
       let time = new Date(m.timeStamp);
       const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-        dateStyle: "short", timeStyle: "long"
+        dateStyle: "short", timeStyle: "long",
       });
       time = dateTimeFormatter.format(time);
       let level = dbgMsg.logLevel;
@@ -253,7 +249,7 @@ var gAccountManager = {
       else if (level == dbgMsg.LEVEL_LOG)
         level = "LOG  ";
       else
-        level = "DEBUG"
+        level = "DEBUG";
       return "[" + time + "] " + level + " (@ " + m.sourceLine +
              " " + m.sourceName + ":" + m.lineNumber + ")\n" +
              m.errorMessage;
@@ -306,12 +302,11 @@ var gAccountManager = {
     if (win) {
       win.focus();
       win.selectServer(server);
-    }
-    else {
+    } else {
       window.openDialog("chrome://messenger/content/AccountManager.xul",
                         "AccountManager",
                         "chrome,centerscreen,modal,titlebar,resizable",
-                        { server: server, selectPage: null });
+                        { server, selectPage: null });
     }
   },
   autologin: function am_autologin() {
@@ -321,7 +316,7 @@ var gAccountManager = {
   close: function am_close() {
     // If a modal dialog is opened, we can't close this window now
     if (this.modalDialog)
-      setTimeout(function() { window.close();}, 0);
+      setTimeout(function() { window.close(); }, 0);
     else
       window.close();
   },
@@ -372,7 +367,7 @@ var gAccountManager = {
         connect: !account.disconnected,
         disconnect: account.disconnected || account.disconnecting,
         cancelReconnection: !targetElt.hasAttribute("reconnectPending"),
-        accountsItemsSeparator: account.disconnecting
+        accountsItemsSeparator: account.disconnecting,
       };
       for (let name in hiddenItems)
         document.getElementById("context_" + name).hidden = hiddenItems[name];
@@ -433,7 +428,6 @@ var gAccountManager = {
           (target.localName != "button" ||
            /^(dis)?connect$/.test(target.getAttribute("anonid"))))
         this.selectedItem.buttons.proceedDefaultAction();
-      return;
     }
   },
 
@@ -492,7 +486,7 @@ var gAccountManager = {
     var connectNowButton = {
       accessKey: bundle.getString("accountsManager.notification.button.accessKey"),
       callback: this.processAutoLogin,
-      label: bundle.getString("accountsManager.notification.button.label")
+      label: bundle.getString("accountsManager.notification.button.label"),
     };
     var label;
 
@@ -565,7 +559,7 @@ var gAccountManager = {
     else
       this.accountList.removeAttribute("offline");
     this.disableCommandItems();
-  }
+  },
 };
 
 
@@ -577,13 +571,7 @@ var gAMDragAndDrop = {
   // A preference already exists to define scroll speed, let's use it.
   get SCROLL_SPEED() {
     delete this.SCROLL_SPEED;
-    try {
-      this.SCROLL_SPEED =
-        Services.prefs.getIntPref("toolkit.scrollbox.scrollIncrement");
-    }
-    catch (e) {
-      this.SCROLL_SPEED = 20;
-    }
+    this.SCROLL_SPEED = Services.prefs.getIntPref("toolkit.scrollbox.scrollIncrement", 20);
     return this.SCROLL_SPEED;
   },
 
@@ -627,8 +615,7 @@ var gAMDragAndDrop = {
       if (previousItem)
         previousItem.style.borderBottom = "none";
       accountElement.setAttribute("dragover", "up");
-    }
-    else {
+    } else {
       if (("_accountElement" in this) &&
           this._accountElement == accountElement &&
           accountElement.getAttribute("dragover") == "up")
@@ -703,7 +690,7 @@ var gAMDragAndDrop = {
     flavours.appendFlavour(this.ACCOUNT_MIME_TYPE,
                            "nsIDOMXULSelectControlItemElement");
     return flavours;
-  }
+  },
 };
 
 window.addEventListener("DOMContentLoaded", () => { gAccountManager.load(); });

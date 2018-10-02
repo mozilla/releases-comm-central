@@ -21,7 +21,7 @@ this.EXPORTED_SYMBOLS = [
 ];
 
 var kEmoticonsThemePref = "messenger.options.emoticonsTheme";
-var kThemeFile = "theme.js";
+var kThemeFile = "theme.json";
 
 Object.defineProperty(this, "gTheme", {
   configurable: true,

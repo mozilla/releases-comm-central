@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
 
 var autoJoinPref = "autoJoin";
 
@@ -81,7 +81,7 @@ var joinChat = {
 
       row.setAttribute("align", "baseline");
       sep.parentNode.insertBefore(row, sep);
-      joinChat._fields.push({field: field, textbox: textbox});
+      joinChat._fields.push({field, textbox});
     }
 
     window.sizeToContent();
@@ -93,9 +93,9 @@ var joinChat = {
       let val = field.textbox.value.trim();
       if (!val && field.field.required) {
         field.textbox.focus();
-        //FIXME: why isn't the return false enough?
+        // FIXME: why isn't the return false enough?
         throw "Some required fields are empty!";
-        return false;
+        // return false;
       }
       if (val)
         values.setValue(field.field.identifier, val);
@@ -122,7 +122,7 @@ var joinChat = {
       if (mailWindow) {
         mailWindow.focus();
         let tabmail = mailWindow.document.getElementById("tabmail");
-        tabmail.openTab("chat", {convType: "focus", conv: conv});
+        tabmail.openTab("chat", {convType: "focus", conv});
       }
     }
 
@@ -149,5 +149,5 @@ var joinChat = {
     }
 
     return true;
-  }
+  },
 };

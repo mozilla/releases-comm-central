@@ -5,19 +5,19 @@
 this.EXPORTED_SYMBOLS = ["GlodaIMSearcher"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/gloda/public.js");
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js", null);
 
 /**
  * How much time boost should a 'score point' amount to?  The authoritative,
  *  incontrivertible answer, across all time and space, is a week.
  *  Note that gloda stores conversation timestamps in seconds.
  */
-var FUZZSCORE_TIMESTAMP_FACTOR = 60 * 60 * 24 * 7;
+// var FUZZSCORE_TIMESTAMP_FACTOR = 60 * 60 * 24 * 7;
 
-var RANK_USAGE =
-  "glodaRank(matchinfo(imConversationsText), 1.0, 2.0, 2.0, 1.5, 1.5)";
+// var RANK_USAGE =
+//   "glodaRank(matchinfo(imConversationsText), 1.0, 2.0, 2.0, 1.5, 1.5)";
 
-var DASCORE ="imConversations.time";
+var DASCORE = "imConversations.time";
 //  "(((" + RANK_USAGE + ") * " +
 //    FUZZSCORE_TIMESTAMP_FACTOR +
 //   ") + imConversations.time)";
@@ -88,8 +88,7 @@ function identityFunc(x) {
 function oneLessMaxZero(x) {
   if (x <= 1)
     return 0;
-  else
-    return x - 1;
+  return x - 1;
 }
 
 function reduceSum(accum, curValue) {
@@ -146,9 +145,9 @@ function scoreOffsets(aMessage, aContext) {
   //  because of the extra arguments map parses.  curse you, map!
   let offsetNums =
     aContext.stashedColumns[aMessage.id][0].split(" ").map(x => parseInt(x));
-  for (let i=0; i < offsetNums.length; i += 4) {
+  for (let i = 0; i < offsetNums.length; i += 4) {
     let columnIndex = offsetNums[i];
-    let termIndex = offsetNums[i+1];
+    let termIndex = offsetNums[i + 1];
     columnTermIncidence[columnIndex][termIndex]++;
   }
 
@@ -241,7 +240,7 @@ GlodaIMSearcher.prototype = {
       }
 
       addTerm(aSearchString.substring(0, spaceIndex));
-      aSearchString = aSearchString.substring(spaceIndex+1);
+      aSearchString = aSearchString.substring(spaceIndex + 1);
     }
 
     return terms;
@@ -254,7 +253,7 @@ GlodaIMSearcher.prototype = {
       limitClauseAlreadyIncluded: true,
       // osets is 0-based column number 4 (volatile to column changes)
       // save the offset column for extra analysis
-      stashColumns: [6]
+      stashColumns: [6],
     });
 
     let fulltextQueryString = "";
@@ -301,14 +300,14 @@ GlodaIMSearcher.prototype = {
     return this.collection;
   },
 
-  sortBy: '-dascore',
+  sortBy: "-dascore",
 
   onItemsAdded: function GlodaIMSearcher_onItemsAdded(aItems, aCollection) {
     let newScores = Gloda.scoreNounItems(
       aItems,
       {
         terms: this.fulltextTerms,
-        stashedColumns: aCollection.stashedColumns
+        stashedColumns: aCollection.stashedColumns,
       },
       [scoreOffsets]);
     if (this.scores)
@@ -333,5 +332,5 @@ GlodaIMSearcher.prototype = {
     this.completed = true;
     if (this.listener)
       this.listener.onQueryCompleted(aCollection);
-  }
+  },
 };

@@ -4,8 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["Notifications"];
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
 ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
@@ -17,14 +16,14 @@ Cu.importGlobalProperties(["DOMParser"]);
 var kTimeToWaitForMoreMsgs = 3;
 
 var Notifications = {
-  get ellipsis () {
+  get ellipsis() {
     let ellipsis = "[\u2026]";
 
     try {
       ellipsis =
         Services.prefs.getComplexValue("intl.ellipsis",
                                        Ci.nsIPrefLocalizedString).data;
-    } catch (e) { }
+    } catch (e) {}
     return ellipsis;
   },
 
@@ -41,7 +40,7 @@ var Notifications = {
   // timeout Id for the set timeout for showing notification.
   _timeoutId: null,
 
-  _showMessageNotification: function(aMessage, aCounter = 0) {
+  _showMessageNotification(aMessage, aCounter = 0) {
     // We are about to show the notification, so let's play the notification sound.
     // We play the sound if the user is away from TB window or even away from chat tab.
     let win = Services.wm.getMostRecentWindow("mail:3pane");
@@ -148,13 +147,13 @@ var Notifications = {
     this._msgCounter = 0;
   },
 
-  init: function() {
+  init() {
     Services.obs.addObserver(Notifications, "new-directed-incoming-message");
     Services.obs.addObserver(Notifications, "alertclickcallback");
   },
 
   _notificationPrefName: "mail.chat.show_desktop_notifications",
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "new-directed-incoming-message" &&
         Services.prefs.getBoolPref(this._notificationPrefName)) {
       // If this is the first message, we show the notification and
@@ -193,9 +192,9 @@ var Notifications = {
         clearTimeout(this._timeoutId);
         this._timeoutId = setTimeout(function() {
             Notifications._showMessageNotification(Notifications._heldMessage,
-                                                   Notifications._msgCounter)
+                                                   Notifications._msgCounter);
           }, kTimeToWaitForMoreMsgs * 1000);
       }
     }
-  }
+  },
 };

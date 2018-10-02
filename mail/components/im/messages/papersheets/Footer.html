@@ -11,8 +11,7 @@ const bg_color = "background-color: hsl(#, 100%, 98%);";
 var body = document.getElementById("ibcontent");
 
 
-function setColors(target)
-{
+function setColors(target) {
   var senderColor = target.getAttribute("data-senderColor");
 
   if (senderColor) {
@@ -31,16 +30,13 @@ function setColors(target)
   if (body.scrollHeight <= screen.height) {
     if (senderHue) {
       body.setAttribute("style", bg_color.replace("#", senderHue));
-    }
-    else if (target.classList.contains("outgoing")) {
+    } else if (target.classList.contains("outgoing")) {
       body.className = "outgoing-color";
       body.removeAttribute("style");
-    }
-    else if (target.classList.contains("incoming")) {
+    } else if (target.classList.contains("incoming")) {
       body.className = "incoming-color";
       body.removeAttribute("style");
-    }
-    else if (target.classList.contains("event")) {
+    } else if (target.classList.contains("event")) {
       body.className = "event-color";
       body.removeAttribute("style");
     }
@@ -48,8 +44,7 @@ function setColors(target)
 }
 
 
-function checkNewText(target)
-{
+function checkNewText(target) {
   if (target.tagName == "DIV")
     setColors(target);
   else if (target.tagName == "P" && target.className == "event") {

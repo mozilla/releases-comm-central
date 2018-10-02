@@ -20,7 +20,7 @@ messenger.jar:
     content/messenger/chat/imContextMenu.js              (content/imContextMenu.js)
     content/messenger/chat/imStatusSelector.js           (content/imStatusSelector.js)
     content/messenger/chat/imcontact.xml                 (content/imcontact.xml)
-*   content/messenger/chat/imconversation.xml            (content/imconversation.xml)
+    content/messenger/chat/imconversation.xml            (content/imconversation.xml)
     content/messenger/chat/imconv.xml                    (content/imconv.xml)
     content/messenger/chat/imgroup.xml                   (content/imgroup.xml)
 % skin messenger-messagestyles classic/1.0 %skin/classic/messenger/messages/
@@ -189,7 +189,7 @@ messenger.jar:
 	skin/classic/messenger/messages/simple/Variants/Normal.css   (messages/simple/Variants/Normal.css)
 	skin/classic/messenger/messages/simple/Variants/Dark.css     (messages/simple/Variants/Dark.css)
 % skin messenger-emoticons classic/1.0 %skin/classic/messenger/smileys/
-	skin/classic/messenger/smileys/theme.js              (smileys/theme.js)
+	skin/classic/messenger/smileys/theme.json            (smileys/theme.json)
 	skin/classic/messenger/smileys/angry.png             (smileys/angry.png)
 	skin/classic/messenger/smileys/confused.png          (smileys/confused.png)
 	skin/classic/messenger/smileys/cool.png              (smileys/cool.png)

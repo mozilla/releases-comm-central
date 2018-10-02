@@ -164,8 +164,7 @@
             color = buddy.color;
             buddy.removeAttribute("inactive");
             this._activeBuddies[name] = true;
-          }
-          else {
+          } else {
             // Buddy no longer in the room
             color = this._computeColor(name);
           }
@@ -240,18 +239,16 @@
           if (aMsg.match(/^\/(?:say)? ?$/)) {
             this.resetInput();
             return;
-          }
-          else if (aMsg.match(/^\/(?:say)? .*/))
+          } else if (aMsg.match(/^\/(?:say)? .*/)) {
             aMsg = aMsg.slice(aMsg.indexOf(" ") + 1);
-          else if (Services.cmd.executeCommand(aMsg, this._conv.target,
-                                               convToFocus)) {
+          } else if (Services.cmd.executeCommand(aMsg, this._conv.target,
+                                                 convToFocus)) {
             this._conv.sendTyping("");
             this.resetInput();
             if (convToFocus.value)
               chatHandler.focusConversation(convToFocus.value);
             return;
-          }
-          else if (account.protocol.slashCommandsNative && account.connected) {
+          } else if (account.protocol.slashCommandsNative && account.connected) {
             let cmd = aMsg.match(/^\/[^ ]+/);
             if (cmd && cmd != "/me") {
               this._conv.systemMessage(
@@ -277,9 +274,8 @@
               if ("fontFamily" in style)
                 msg = "<font face=\"" + style.fontFamily + "\">" + msg + "</font>";
               // MSN doesn't support font size info in messages...
-            }
-            else if (proto == "prpl-aim" || proto == "prpl-icq") {
-              let styleAttributes = ""
+            } else if (proto == "prpl-aim" || proto == "prpl-icq") {
+              let styleAttributes = "";
               if ("color" in style)
                 styleAttributes += " color=\"" + style.color + "\"";
               if ("fontFamily" in style)
@@ -291,7 +287,7 @@
                 else if (size < 0)
                   size = 2;
                 else if (size < 3)
-                  size = 3
+                  size = 3;
                 else if (size < 7)
                   size = 4;
                 else if (size < 15)
@@ -305,8 +301,7 @@
               }
               if (styleAttributes)
                 msg = "<font" + styleAttributes + ">" + msg + "</font>";
-            }
-            else {
+            } else {
               let styleProperties = [];
               if ("color" in style)
                 styleProperties.push("color: " + style.color);
@@ -320,17 +315,16 @@
             }
           }
           this._conv.sendMsg(msg);
-        }
-        else {
+        } else {
           msg = account.HTMLEscapePlainText ? msg : aMsg;
 
           if (account.noNewlines) {
             // 'Illegal operation on WrappedNative prototype object' if the this
             // object is not specified (since this._conv implements nsIClassInfo)
             msg.split("\n").forEach(this._conv.sendMsg, this._conv);
-          }
-          else
+          } else {
             this._conv.sendMsg(msg);
+          }
         }
         // reset the textbox to its original size
         this.resetInput();
@@ -365,10 +359,10 @@
      <method name="calculateTextboxDefaultHeight">
       <body>
       <![CDATA[
-        let totalSpace = parseInt(window.getComputedStyle(this, null)
+        let totalSpace = parseInt(window.getComputedStyle(this)
                                         .getPropertyValue("height"));
         let textbox = this.editor;
-        let textboxStyle = window.getComputedStyle(textbox, null);
+        let textboxStyle = window.getComputedStyle(textbox);
         let lineHeight = parseInt(textboxStyle.getPropertyValue("line-height"));
 
         // Compute the overhead size.
@@ -474,8 +468,7 @@
           if (text == this._beforeTabComplete) {
             // Nothing to undo, so let backspace act normally.
             delete this._completions;
-          }
-          else {
+          } else {
             event.preventDefault();
 
             // First undo the comma separating multiple nicks or the suffix.
@@ -569,8 +562,7 @@
               if (!completions.includes(name))
                 completions.push(name);
             }
-          }
-          else {
+          } else {
             // If it's not a command, the only thing we can complete is a nick.
             if (!this._conv.isChat)
               return;
@@ -696,9 +688,9 @@
               // even if there are alternatives), only show the list of
               // completions on the next <tab> press.
               this._shouldListCompletionsLater = completionsList;
-            }
-            else
+            } else {
               this._conv.systemMessage(completionsList);
+            }
           }
 
           let suffix = (isFirstWord ? firstWordSuffix : "");
@@ -709,17 +701,16 @@
             // Only one possible completion? Apply it! :-)
             completion = this._completions[this._completionsIndex++];
             this._completionsIndex %= this._completions.length;
-          }
-          else {
+          } else {
             // We have several possible completions, attempt to find a common prefix.
             let maxLength = Math.min(firstCompletion.length, lastCompletion.length);
             let i = 0;
             while (i < maxLength && firstCompletion[i] == lastCompletion[i])
               ++i;
 
-            if (i)
+            if (i) {
               completion = firstCompletion.substring(0, i);
-            else {
+            } else {
               // Include this case so that secondNick is applied anyway,
               // in case a completion is added by another tab press.
               completion = word;
@@ -738,9 +729,9 @@
           }
 
           this.addString(completion);
-        }
-        else if (this._completions)
+        } else if (this._completions) {
           delete this._completions;
+        }
 
         if (event.keyCode != 13)
           return;
@@ -750,9 +741,9 @@
           // a line break inserted in the textbox if sendMsg throws.
           event.preventDefault();
           this.sendMsg(text);
-        }
-        else if (!event.shiftKey)
+        } else if (!event.shiftKey) {
           this.addString("\n");
+        }
       ]]>
       </body>
      </method>
@@ -804,8 +795,7 @@
          if (left == Ci.prplIConversation.NO_TYPING_LIMIT || !text.length) {
            charCounter.setAttribute("value", "");
            inputBox.removeAttribute("invalidInput");
-         }
-         else {
+         } else {
            // 200 is a 'magic' constant to avoid showing big numbers.
            charCounter.setAttribute("value", (left < 200 ? left : ""));
 
@@ -862,7 +852,7 @@
         // Check whether we can increase the height without hiding the status bar
         // (ensure the min-height property on the top part of this dialog)
         let topBox = this.getElt("conv-top");
-        let topBoxStyle = window.getComputedStyle(topBox, null);
+        let topBoxStyle = window.getComputedStyle(topBox);
         let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
         let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
         let deck = textbox.parentNode;
@@ -874,8 +864,7 @@
           // Hide a possible vertical scrollbar.
           input.style.overflowY = "hidden";
           deck.height = newDeckHeight;
-        }
-        else {
+        } else {
           input.style.overflowY = "";
           // Set it to the maximum possible value.
           deck.height = oldDeckHeight + (topSize - topMinSize);
@@ -894,12 +883,11 @@
           this.calculateTextboxDefaultHeight();
           textbox.parentNode.height = textbox.defaultHeight +
                                       this._TEXTBOX_VERTICAL_OVERHEAD;
-        }
-        else {
+        } else {
           // Used in case the browser is already on its min-height, resize the
           // textbox to avoid hiding the status bar.
           let convTop = this.getElt("conv-top");
-          let convTopStyle = window.getComputedStyle(convTop, null);
+          let convTopStyle = window.getComputedStyle(convTop);
           let convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
           let convTopMinHeight =
             parseInt(convTopStyle.getPropertyValue("min-height"));
@@ -932,11 +920,8 @@
      <parameter name="event"/>
       <body>
       <![CDATA[
-#ifndef XP_MACOSX
-        var accelKeyPressed = event.ctrlKey;
-#else
-        var accelKeyPressed = event.metaKey;
-#endif
+        var accelKeyPressed = AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
+
         // 118 is the decimal code for "v" character, 13 keyCode for "return" key
         if (((accelKeyPressed && event.charCode != 118) || event.altKey) &&
             event.keyCode != 13)
@@ -1243,7 +1228,7 @@
      <method name="getShowNickModifier">
        <body>
        <![CDATA[
-         return (function (aNode) {
+         return (function(aNode) {
            if (!("_showNickRegExp" in this)) {
              if (!("_showNickList" in this)) {
                this._showNickList = {};
@@ -1260,8 +1245,7 @@
                // XXX Ideally we would use unicode word boundaries:
                // http://www.unicode.org/reports/tr29/#Word_Boundaries
                this._showNickRegExp = new RegExp("\\W(?:" + nicks + ")\\W");
-             }
-             else {
+             } else {
                // nobody, disable...
                this._showNickRegExp = {exec: () => null};
                return 0;
@@ -1289,9 +1273,9 @@
                let buddy = this.buddies.get(nick);
                elt.setAttribute("style", buddy.colorStyle);
                elt.setAttribute("data-nickColor", buddy.color);
-             }
-             else
+             } else {
                elt.setAttribute("data-left", "true");
+             }
              nickNode.parentNode.replaceChild(elt, nickNode);
              elt.textContent = nick;
              result += 2;
@@ -1306,7 +1290,6 @@
        <body>
        <![CDATA[
           let cti = document.getElementById("conv-top-info");
-          let statusMessage = this.getElt("statusMessage");
           if (this._conv.topicSettable)
             cti.setAttribute("topicEditable", "true");
           else
@@ -1316,8 +1299,7 @@
           if (topic) {
             cti.setAttribute("statusTooltiptext", topic);
             cti.removeAttribute("noTopic");
-          }
-          else {
+          } else {
             topic = this._conv.noTopicString;
             cti.setAttribute("noTopic", "true");
             cti.setAttribute("statusTooltiptext", topic);
@@ -1357,7 +1339,7 @@
 
           let name = this._currentTypingName;
           if (!this._currentTypingName)
-            name = this._conv.title;//.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
+            name = this._conv.title; // .replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
           if (typingState == Ci.prplIConvIM.TYPING) {
             cti.setAttribute("typing", "true");
             let typingMsg = this.bundle.formatStringFromName("chat.contactIsTyping",
@@ -1366,8 +1348,7 @@
             cti.setAttribute("statusTooltiptext", typingMsg);
             cti.setAttribute("statusMessage",
                              this.bundle.GetStringFromName("chat.isTyping"));
-          }
-          else if (typingState == Ci.prplIConvIM.TYPED) {
+          } else if (typingState == Ci.prplIConvIM.TYPED) {
             cti.setAttribute("typed", "true");
 
             let typedMsg = this.bundle.formatStringFromName("chat.contactHasStoppedTyping",
@@ -1438,16 +1419,15 @@
             this.updateTopic();
             cti.setAttribute("status", "chat");
             cti.setAttribute("displayName", this._conv.title);
-          }
-          else {
+          } else {
             let displayName = this._conv.title;
             let statusText = "";
             let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
 
             let buddy = this._conv.buddy;
-            if (!buddy || !buddy.account.connected)
+            if (!buddy || !buddy.account.connected) {
               cti.removeAttribute("userIcon");
-            else {
+            } else {
               displayName = buddy.displayName;
               statusText = buddy.statusText;
               statusType = buddy.statusType;
@@ -1541,7 +1521,7 @@
            return;
          }
 
-         switch(aTopic) {
+         switch (aTopic) {
          case "new-text":
            if (this.loaded)
              this.addMsg(aSubject);
@@ -1644,7 +1624,7 @@
        <setter>
          <![CDATA[
            if (this._conv && val)
-             throw("Already initialized");
+             throw "Already initialized";
            if (!val) {
              // this conversation has probably been moved to another
              // tab. Forget the prplConversation so that it isn't

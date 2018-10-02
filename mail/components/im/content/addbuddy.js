@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
 
 var addBuddy = {
   onload: function ab_onload() {
@@ -34,5 +34,5 @@ var addBuddy = {
     let account = Services.accounts.getAccountById(this.getValue("accountlist"));
     let group = document.getElementById("chatBundle").getString("defaultGroup");
     account.addBuddy(Services.tags.createTag(group), this.getValue("name"));
-  }
+  },
 };

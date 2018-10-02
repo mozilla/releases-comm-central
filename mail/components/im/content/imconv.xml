@@ -132,8 +132,7 @@
           this.setAttribute("unreadTargetedCount", "0");
           this.removeAttribute("unread");
           this.removeAttribute("attention");
-        }
-        else {
+        } else {
           let unreadCount = this.conv.unreadIncomingMessageCount;
           let directedMessages = unreadCount;
           if (unreadCount) {
@@ -164,8 +163,7 @@
             this.setAttribute("status", "left");
           else
             this.removeAttribute("status");
-        }
-        else {
+        } else {
           let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
           let buddy = this.conv.buddy;
           if (buddy && buddy.account.connected)
@@ -206,8 +204,7 @@
         if (this.log) {
           this.hidden = true;
           delete this.log;
-        }
-        else {
+        } else {
           this.remove();
           delete this.conv;
         }
@@ -243,7 +240,7 @@
         // If a character was typed or the accel+v copy shortcut was used,
         // focus the input box and resend the key event.
         if (aEvent.charCode != 0 && !aEvent.altKey &&
-            (accelKeyPressed && aEvent.charCode == 'v'.charCodeAt(0) ||
+            (accelKeyPressed && aEvent.charCode == "v".charCodeAt(0) ||
              !aEvent.ctrlKey && !aEvent.metaKey)) {
           this.convView.focus();
 
@@ -260,7 +257,7 @@
        <![CDATA[
          let anonid = event.originalTarget.getAttribute("anonid");
          if (anonid == "closeConversationButton") {
-           closeConversation();
+           this.closeConversation();
            event.stopPropagation();
            event.preventDefault();
          }

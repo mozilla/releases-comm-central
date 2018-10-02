@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// chat/content/imAccountOptionsHelper.js
+/* globals accountOptionsHelper */
+
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var autoJoinPref = "autoJoin";
 
-function onPreInit(aAccount, aAccountValue)
-{
+function onPreInit(aAccount, aAccountValue) {
   account.init(aAccount.incomingServer.wrappedJSObject.imAccount);
 }
 
@@ -25,8 +27,7 @@ var account = {
     if (this.proto.noPassword) {
       passwordBox.hidden = true;
       password.removeAttribute("wsm_persist");
-    }
-    else {
+    } else {
       passwordBox.hidden = false;
       try {
         // Should we force layout here to ensure password.value works?
@@ -68,17 +69,17 @@ var account = {
     attributes[Ci.prplIPref.typeBool] = [
       {name: "wsm_persist", value: "true"},
       {name: "preftype", value: "bool"},
-      {name: "genericattr", value: "true"}
+      {name: "genericattr", value: "true"},
     ];
     attributes[Ci.prplIPref.typeInt] = [
       {name: "wsm_persist", value: "true"},
       {name: "preftype", value: "int"},
-      {name: "genericattr", value: "true"}
+      {name: "genericattr", value: "true"},
     ];
     attributes[Ci.prplIPref.typeString] = attributes[Ci.prplIPref.typeList] = [
       {name: "wsm_persist", value: "true"},
       {name: "preftype", value: "wstring"},
-      {name: "genericattr", value: "true"}
+      {name: "genericattr", value: "true"},
     ];
     let haveOptions =
       accountOptionsHelper.addOptions("server.", this.getProtoOptions(),
@@ -90,8 +91,8 @@ var account = {
       // otherwise setFormElementValue from AccountManager.js sets
       // properties that don't exist when restoring values.
       document.getElementById("protoSpecific").getBoundingClientRect();
-    }
-    else if (!haveOptions)
+    } else if (!haveOptions) {
       advanced.hidden = true;
-  }
+    }
+  },
 };

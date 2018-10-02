@@ -4,8 +4,8 @@
 
 this.EXPORTED_SYMBOLS = ["allContacts", "onlineContacts", "ChatCore"];
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var allContacts = {};
@@ -14,12 +14,12 @@ var onlineContacts = {};
 var ChatCore = {
   initialized: false,
   _initializing: false,
-  init: function() {
+  init() {
     if (this._initializing)
       return;
     this._initializing = true;
 
-    ChromeUtils.import("resource:///modules/index_im.js");
+    ChromeUtils.import("resource:///modules/index_im.jsm", null);
 
     Services.obs.addObserver(this, "browser-request");
     Services.obs.addObserver(this, "contact-signed-on");
@@ -33,10 +33,10 @@ var ChatCore = {
     Cc["@mozilla.org/messenger/msgAsyncPrompter;1"]
       .getService(Ci.nsIMsgAsyncPrompter)
       .queueAsyncAuthPrompt("im", false, {
-      onPromptStartAsync: function(callback) {
+      onPromptStartAsync(callback) {
         callback.onAuthResult(this.onPromptStart());
       },
-      onPromptStart: function() {
+      onPromptStart() {
         Services.core.init();
 
         // Find the accounts that exist in the im account service but
@@ -68,7 +68,7 @@ var ChatCore = {
           mgr.notifyServerLoaded(inServer);
         }
 
-        Services.tags.getTags().forEach(function (aTag) {
+        Services.tags.getTags().forEach(function(aTag) {
           aTag.getContacts().forEach(function(aContact) {
             let name = aContact.preferredBuddy.normalizedName;
             allContacts[name] = aContact;
@@ -80,11 +80,11 @@ var ChatCore = {
         ChatCore._initializing = false;
         return true;
       },
-      onPromptAuthAvailable: function() { },
-      onPromptCanceled: function() { }
+      onPromptAuthAvailable() {},
+      onPromptCanceled() {},
     });
   },
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "browser-request") {
       Services.ww.openWindow(null,
                              "chrome://chat/content/browserRequest.xul",
@@ -109,7 +109,6 @@ var ChatCore = {
 
     if (aTopic == "contact-removed") {
       delete allContacts[aSubject.preferredBuddy.normalizedName];
-      return;
     }
-  }
+  },
 };

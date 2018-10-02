@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This file is loaded in messenger.xul.
+/* globals gatherTextUnder, goUpdateGlobalEditMenuItems, makeURLAbsolute, Services */
+
 var gChatContextMenu = null;
 
 function imContextMenu(aXulMenu) {
@@ -23,7 +26,7 @@ function imContextMenu(aXulMenu) {
     this.ellipsis =
       Services.prefs.getComplexValue("intl.ellipsis",
                                      Ci.nsIPrefLocalizedString).data;
-  } catch (e) { }
+  } catch (e) {}
 
   // Initialize new menu.
   this.initMenu(aXulMenu);
@@ -31,7 +34,7 @@ function imContextMenu(aXulMenu) {
 
 // Prototype for nsContextMenu "class."
 imContextMenu.prototype = {
-  cleanup: function() {
+  cleanup() {
     let elt = document.getElementById("context-sep-messageactions").nextSibling;
     // remove the action menuitems added last time we opened the popup
     while (elt && elt.localName != "menuseparator") {
@@ -97,7 +100,7 @@ imContextMenu.prototype = {
   },
 
   // Set various context menu attributes based on the state of the world.
-  setTarget: function (aNode) {
+  setTarget(aNode) {
 
     // Initialize contextual info.
     this.onLink            = false;
@@ -111,7 +114,6 @@ imContextMenu.prototype = {
     // First, do checks for nodes that never have children.
     // Second, bubble out, looking for items of interest that can have children.
     // Always pick the innermost link, background image, etc.
-    const XMLNS = "http://www.w3.org/XML/1998/namespace";
     var elem = this.target;
     while (elem) {
       if (elem.nodeType == Node.ELEMENT_NODE) {
@@ -138,7 +140,7 @@ imContextMenu.prototype = {
                   parent instanceof HTMLLinkElement ||
                   parent.getAttributeNS("http://www.w3.org/1999/xlink", "type") == "simple")
                 realLink = parent;
-            } catch (e) { }
+            } catch (e) {}
           }
 
           // Remember corresponding element.
@@ -156,23 +158,20 @@ imContextMenu.prototype = {
   },
 
   // Returns true if clicked-on link targets a resource that can be saved.
-  isLinkSaveable: function(aLink) {
-    return this.linkProtocol && !(
-             this.linkProtocol == "mailto"     ||
-             this.linkProtocol == "javascript" ||
-             this.linkProtocol == "news"       ||
-             this.linkProtocol == "snews"      );
+  isLinkSaveable(aLink) {
+    return this.linkProtocol &&
+      !["mailto", "javascript", "news", "snews"].includes(this.linkProtocol);
   },
 
   // Open linked-to URL in a new window.
-  openLink: function (aURI) {
+  openLink(aURI) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"].
     getService(Ci.nsIExternalProtocolService).
     loadURI(aURI || this.linkURI, window);
   },
 
   // Generate email address and put it on clipboard.
-  copyEmail: function() {
+  copyEmail() {
     // Copy the comma-separated list of email addresses only.
     // There are other ways of embedding email addresses in a mailto:
     // link, but such complex parsing is beyond us.
@@ -187,11 +186,8 @@ imContextMenu.prototype = {
     // in case the address is not ASCII.
     try {
       var characterSet = this.target.ownerDocument.characterSet;
-      const textToSubURI = Cc["@mozilla.org/intl/texttosuburi;1"].
-                           getService(Ci.nsITextToSubURI);
-      addresses = textToSubURI.unEscapeURIForUI(characterSet, addresses);
-    }
-    catch(ex) {
+      addresses = Services.textToSubURI.unEscapeURIForUI(characterSet, addresses);
+    } catch (ex) {
       // Do nothing.
     }
 
@@ -200,12 +196,11 @@ imContextMenu.prototype = {
     clipboard.copyString(addresses);
   },
 
-  ///////////////
-  // Utilities //
-  ///////////////
+  // ---------
+  // Utilities
 
   // Show/hide one item (specified via name or the item element itself).
-  showItem: function(aItemOrId, aShow) {
+  showItem(aItemOrId, aShow) {
     var item = aItemOrId.constructor == String ?
       document.getElementById(aItemOrId) : aItemOrId;
     if (item)
@@ -213,7 +208,7 @@ imContextMenu.prototype = {
   },
 
   // Temporary workaround for DOM api not yet implemented by XUL nodes.
-  cloneNode: function(aItem) {
+  cloneNode(aItem) {
     // Create another element like the one we're cloning.
     var node = document.createElement(aItem.tagName);
 
@@ -229,7 +224,7 @@ imContextMenu.prototype = {
   },
 
   // Generate fully qualified URL for clicked-on link.
-  getLinkURL: function() {
+  getLinkURL() {
     var href = this.link.href;
     if (href)
       return href;
@@ -246,18 +241,17 @@ imContextMenu.prototype = {
     return makeURLAbsolute(this.link.baseURI, href);
   },
 
-  getLinkURI: function() {
+  getLinkURI() {
     try {
       return Services.io.newURI(this.linkURL);
-    }
-    catch (ex) {
-     // e.g. empty URL string
+    } catch (ex) {
+      // e.g. empty URL string
     }
 
     return null;
   },
 
-  getLinkProtocol: function() {
+  getLinkProtocol() {
     if (this.linkURI)
       return this.linkURI.scheme; // can be |undefined|
 
@@ -265,7 +259,7 @@ imContextMenu.prototype = {
   },
 
   // Get text of link.
-  linkText: function() {
+  linkText() {
     var text = gatherTextUnder(this.link);
     if (text == "") {
       text = this.link.getAttribute("title");
@@ -280,7 +274,7 @@ imContextMenu.prototype = {
   },
 
   // Get selected text. Only display the first 15 chars.
-  isTextSelection: function() {
+  isTextSelection() {
     // Get 16 characters, so that we can trim the selection if it's greater
     // than 15 chars
     var selectedText = getBrowserSelection(16);
@@ -289,15 +283,15 @@ imContextMenu.prototype = {
       return false;
 
     if (selectedText.length > 15)
-      selectedText = selectedText.substr(0,15) + this.ellipsis;
+      selectedText = selectedText.substr(0, 15) + this.ellipsis;
 
     return true;
   },
 
   // Returns true if anything is selected.
-  isContentSelection: function() {
+  isContentSelection() {
     return !document.commandDispatcher.focusedWindow.getSelection().isCollapsed;
-  }
+  },
 };
 
 /**
