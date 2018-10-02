@@ -1,43 +1,59 @@
 [
   {
-    "size": 151815288,
-    "digest": "7787b85373bf69714d6afc2d362f8004851050227c48c324818b52d5c995d04bab7fa06d9b17032c14380e0a976b58839b927f0d7a943a3e1797887823076e01",
+    "size": 134518160,
+    "digest": "1c4133eeb89cc9d90cdb9a148d302ea96dce0348bc147469534905b6e10b4bd60a70a3e51b78d656d3b2b30bb6c25d3a563688f6412124eb95ab3455549322ee",
+    "filename": "rustc.tar.xz",
     "algorithm": "sha512",
     "visibility": "public",
-    "filename": "gcc.tar.xz",
+    "unpack": true
+  },
+  {
+    "size": 12071528,
+    "digest": "31400857bac402d1ea10517e8f02522af4980ef55e50bf4ef96be9db0a555427687ed90834547a522098f921d303f4b31657661a71f334d236a444c0e2169d1f",
+    "filename": "node.tar.xz",
+    "algorithm": "sha512",
+    "visibility": "public",
     "unpack": true
   },
   {
     "size": 11189216,
     "digest": "18bc52b0599b1308b667e282abb45f47597bfc98a5140cfcab8da71dacf89dd76d0dee22a04ce26fe7ad1f04e2d6596991f9e5b01fd2aaaab5542965f596b0e6",
-    "algorithm": "sha512",
     "filename": "gtk3.tar.xz",
+    "algorithm": "sha512",
+    "visibility": "public",
     "setup": "setup.sh",
     "unpack": true
   },
   {
-    "size": 134518160,
-    "digest": "1c4133eeb89cc9d90cdb9a148d302ea96dce0348bc147469534905b6e10b4bd60a70a3e51b78d656d3b2b30bb6c25d3a563688f6412124eb95ab3455549322ee",
-    "algorithm": "sha512",
-    "visibility": "public",
-    "filename": "rustc.tar.xz",
-    "unpack": true
-  },
-  {
-    "version": "sccache rev 69334a26ba65fc88e3934271a2ce6781c51b445e",
-    "size": 2191380,
-    "digest": "7bbe53cda3f608826dc6a0266e648cd2ea09c88ef93edf87d582b41185b72740667e2c7bf6e9b2b911fb2915cbfb985e528598c7b3153092ad27d5e937342df7",
-    "algorithm": "sha512",
-    "visibility": "public",
+    "size": 3366452,
+    "digest": "75ecb5e957dc505c94164b96139b7414012caedccc90f4be6ffe02ebceca11bd46204ab3c981a299225ee603bdcd49e264f087ff2194b8445294bb5c64a859df",
     "filename": "sccache2.tar.xz",
+    "algorithm": "sha512",
+    "visibility": "public",
     "unpack": true
   },
   {
-    "version": "clang + llvm 3.9.0, built from SVN r290136",
-    "size": 166261192,
-    "digest": "52f3fc23f0f5c98050f8b0ac7c92a6752d067582a16f712a5a58074be98975d594f9e36249fc2be7f1cc2ca6d509c663faaf2bea66f949243cc1f41651638ba6",
+    "size": 1856976,
+    "digest": "290caa333f418011f479deeb8b669493cbf3d1397c730453cea569b5185a6cec913d34990a651f7cad38e72512beb16ff9222e2933d222d752d5c8343cce9e80",
+    "filename": "cbindgen.tar.xz",
     "algorithm": "sha512",
+    "visibility": "public",
+    "unpack": true
+  },
+  {
+    "size": 292320660,
+    "digest": "e020808520438186c9004e1756eb8cf5595d1c5b0dd8d4a6ddc82da4fcad9c0af9e6b6ab46f2ba0231081ea674d882a2874d7fd56cd679fd6594189379232113",
     "filename": "clang.tar.xz",
+    "algorithm": "sha512",
+    "visibility": "public",
+    "unpack": true
+  },
+  {
+    "size": 172572812,
+    "digest": "6a7c0b66490db2d3b99c9dbed9f9f6185a15a04a80aa715f7acde693143d0770e46d09b35b8bad35295fbd8d925ef46bbebc6ea455c15e4c38f3ce54497d5117",
+    "filename": "gcc.tar.xz",
+    "algorithm": "sha512",
+    "visibility": "public",
     "unpack": true
   }
 ]
