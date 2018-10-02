@@ -77,6 +77,8 @@ function test_upload_cancel_repeat() {
 
     assert_can_cancel_upload(cw, provider, listener, file);
   }
+
+  close_compose_window(cw);
 }
 
 /**
@@ -101,10 +103,13 @@ function test_upload_multiple_and_cancel() {
     listener.onStartRequest(null, null);
   };
 
-  cw.window.attachToCloud(provider);
+  add_cloud_attachments(cw, provider, false);
 
-  for (let i = files.length - 1; i >= 0; --i)
+  for (let i = files.length - 1; i >= 0; --i) {
     assert_can_cancel_upload(cw, provider, listener, files[i]);
+  }
+
+  close_compose_window(cw);
 }
 
 /**

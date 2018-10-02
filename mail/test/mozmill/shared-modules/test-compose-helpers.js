@@ -51,6 +51,7 @@ function installInto(module) {
   module.create_msg_attachment = create_msg_attachment;
   module.add_attachments = add_attachments;
   module.add_attachment = add_attachments;
+  module.add_cloud_attachments = add_cloud_attachments;
   module.delete_attachment = delete_attachment;
   module.get_compose_body = get_compose_body;
   module.type_in_composer = type_in_composer;
@@ -354,12 +355,14 @@ function create_msg_attachment(aUrl, aSize) {
 }
 
 /**
- * Add an attachment to the compose window
- * @param aComposeWindow the composition window in question
- * @param aUrl the URL for this attachment (either a file URL or a web URL)
- * @param aSize (optional) the file size of this attachment, in bytes
+ * Add an attachment to the compose window.
+ *
+ * @param aController  the controller of the composition window in question
+ * @param aUrl         the URL for this attachment (either a file URL or a web URL)
+ * @param aSize (optional)  the file size of this attachment, in bytes
+ * @param aWaitAdded (optional)  True to wait for the attachments to be fully added, false otherwise.
  */
-function add_attachments(aComposeWindow, aUrls, aSizes) {
+function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
   if (!Array.isArray(aUrls))
     aUrls = [aUrls];
 
@@ -372,7 +375,56 @@ function add_attachments(aComposeWindow, aUrls, aSizes) {
     attachments.push(create_msg_attachment(url, aSizes[i]));
   }
 
-  aComposeWindow.window.AddAttachments(attachments);
+  let attachmentsDone = false;
+  function collectAddedAttachments(event) {
+    folderDisplayHelper.assert_equals(event.detail.length, attachments.length);
+    attachmentsDone = true;
+  }
+
+  let bucket = aController.e("attachmentBucket");
+  if (aWaitAdded)
+    bucket.addEventListener("attachments-added", collectAddedAttachments, { once: true });
+  aController.window.AddAttachments(attachments);
+  if (aWaitAdded)
+    aController.waitFor(() => attachmentsDone, "Attachments adding didn't finish");
+  aController.sleep(0);
+}
+
+/**
+ * Add a cloud (filelink) attachment to the compose window.
+ *
+ * @param aController    The controller of the composition window in question.
+ * @param aProvider      The provider account to upload to, with files to be uploaded.
+ * @param aWaitUploaded (optional)  True to wait for the attachments to be uploaded, false otherwise.
+ */
+function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
+  let bucket = aController.e("attachmentBucket");
+
+  let attachmentsSubmitted = false;
+  function uploadAttachments(event) {
+    attachmentsSubmitted = true;
+    if (aWaitUploaded) {
+      // event.detail contains an array of nsIMsgAttachment objects that were uploaded.
+      attachmentCount = event.detail.length;
+      for (let attachment of event.detail) {
+        let item = bucket.findItemForAttachment(attachment);
+        item.addEventListener("attachment-uploaded", collectUploadedAttachments, { once: true });
+      }
+    }
+  }
+
+  let attachmentCount = 0;
+  function collectUploadedAttachments(event) {
+    attachmentCount--;
+  }
+
+  bucket.addEventListener("attachments-uploading", uploadAttachments, { once: true });
+  aController.window.attachToCloud(aProvider);
+  aController.waitFor(() => attachmentsSubmitted, "Couldn't attach attachments for upload");
+  if (aWaitUploaded) {
+    aController.waitFor(() => attachmentCount == 0, "Attachments uploading didn't finish");
+  }
+  aController.sleep(0);
 }
 
 /**

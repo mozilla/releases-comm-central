@@ -115,13 +115,14 @@ function assert_can_cancel_uploads(aController, aProvider, aFiles) {
 
   // Go backwards through the file list, ensuring that we can cancel the
   // last file, all the way to the first.
-  for (let i = aFiles.length - 1; i >= 0; --i)
+  for (let i = aFiles.length - 1; i >= 0; --i) {
     aProvider.cancelFileUpload(aFiles[i]);
+  }
 
   aController.waitFor(function() {
     return fileListenerMap.length == aFiles.length &&
            fileListenerMap.every(function(aMapping) {
-             return aMapping.cancelled
+             return aMapping.cancelled;
            })
   }, "Timed out waiting for cancellation to occur");
 }

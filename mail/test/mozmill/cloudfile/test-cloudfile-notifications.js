@@ -18,8 +18,6 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'prompt-helpers',
                        'notificationbox-helpers'];
 
-//var controller = {};
-//ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
 ChromeUtils.import('resource://gre/modules/Services.jsm');
 
 var maxSize, oldInsertNotificationPref;
@@ -180,14 +178,15 @@ function test_link_insertion_notification_single() {
   provider.init("aKey");
 
   let cwc = open_compose_new_mail(mc);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider);
 
   assert_upload_notification_displayed(cwc, true);
   close_upload_notification(cwc);
 
   Services.prefs.setBoolPref(kInsertNotificationPref, false);
   gMockFilePicker.returnFiles = collectFiles(['./data/testFile2'], __file__);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider);
+
   assert_upload_notification_displayed(cwc, false);
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 
@@ -205,7 +204,7 @@ function test_link_insertion_notification_multiple() {
   provider.init("aKey");
 
   let cwc = open_compose_new_mail(mc);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider);
 
   assert_upload_notification_displayed(cwc, true);
   close_upload_notification(cwc);
@@ -213,7 +212,8 @@ function test_link_insertion_notification_multiple() {
   Services.prefs.setBoolPref(kInsertNotificationPref, false);
   gMockFilePicker.returnFiles = collectFiles(['./data/testFile3',
                                               './data/testFile4'], __file__);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider);
+
   assert_upload_notification_displayed(cwc, false);
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 
@@ -238,9 +238,10 @@ function test_link_insertion_goes_away_on_error() {
       aListener.onStopRequest(null, null,
                               Ci.nsIMsgCloudFileProvider.uploadErr);
     }, 500);
-  }
+  };
+
   let cwc = open_compose_new_mail(mc);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
@@ -272,7 +273,8 @@ function test_no_offer_on_conversion() {
   };
 
   let cw = open_compose_new_mail();
-  cw.window.attachToCloud(provider);
+  add_cloud_attachments(cw, provider, false);
+
   assert_cloudfile_notification_displayed(cw, false);
   // Now convert the file back into a normal attachment
   select_attachments(cw, 0);
@@ -357,7 +359,7 @@ function test_privacy_warning_notification() {
     }, 500);
   }
   let cwc = open_compose_new_mail(mc);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider);
 
   assert_upload_notification_displayed(cwc, true);
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
@@ -371,7 +373,7 @@ function test_privacy_warning_notification() {
   // And now upload some more files. We shouldn't get the warning again.
   gMockFilePicker.returnFiles = collectFiles(['./data/testFile3',
                                               './data/testFile4'], __file__);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider, false);
   assert_privacy_warning_notification_displayed(cwc, false);
 
   close_compose_window(cwc);
@@ -398,7 +400,7 @@ function test_privacy_warning_notification_no_persist() {
     }, 500);
   }
   let cwc = open_compose_new_mail(mc);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
@@ -439,7 +441,7 @@ function test_privacy_warning_notification_open_after_close() {
     }, 500);
   }
   let cwc = open_compose_new_mail(mc);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
@@ -457,7 +459,7 @@ function test_privacy_warning_notification_open_after_close() {
 
   gMockFilePicker.returnFiles = collectFiles(['./data/testFile3',
                                               './data/testFile4'], __file__);
-  cwc.window.attachToCloud(provider);
+  add_cloud_attachments(cwc, provider);
 
   assert_upload_notification_displayed(cwc, true);
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
