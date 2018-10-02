@@ -105,7 +105,10 @@ nsMsgAccount::createIncomingServer()
   NS_ENSURE_SUCCESS(rv, rv);
 
   // store the server in this structure
-  return SetIncomingServer(server);
+  m_incomingServer = server;
+  accountManager->NotifyServerLoaded(server);
+
+  return NS_OK;
 }
 
 

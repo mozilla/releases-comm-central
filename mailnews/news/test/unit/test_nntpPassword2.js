@@ -38,11 +38,15 @@ add_task(async function () {
   Services.prefs.setCharPref("mail.identity.id1.useremail",
                              "testnntp@localhost");
   Services.prefs.setBoolPref("mail.identity.id1.valid", true);
+  Services.prefs.setCharPref("mail.server.server1.directory-rel",
+                             "[ProfD]Mail/Local Folders");
   Services.prefs.setCharPref("mail.server.server1.hostname",
                              "Local Folders");
   Services.prefs.setCharPref("mail.server.server1.name", "Local Folders");
   Services.prefs.setCharPref("mail.server.server1.type", "none");
   Services.prefs.setCharPref("mail.server.server1.userName", "nobody");
+  Services.prefs.setCharPref("mail.server.server2.directory-rel",
+                             "[ProfD]News/invalid");
   Services.prefs.setCharPref("mail.server.server2.hostname", "invalid");
   Services.prefs.setCharPref("mail.server.server2.name",
                              "testnntp on localhost");
