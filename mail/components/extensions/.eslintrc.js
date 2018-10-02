@@ -1,6 +1,7 @@
 "use strict";
+/* eslint-env node */
 
-module.exports = { // eslint-disable-line no-undef
+module.exports = {
   "globals": {
     // These are defined in the WebExtension script scopes by ExtensionCommon.jsm.
     // From toolkit/components/extensions/.eslintrc.js.
