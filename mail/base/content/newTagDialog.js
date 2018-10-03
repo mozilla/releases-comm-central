@@ -46,7 +46,7 @@ function initializeForEditing(aTagKey)
   document.documentElement.setAttribute("ondialogaccept", "return onOKEditTag();");
 
   // extract the color and name for the current tag
-  document.getElementById("tagColorPicker").color = MailServices.tags.getColorForKey(aTagKey);
+  document.getElementById("tagColorPicker").value = MailServices.tags.getColorForKey(aTagKey);
   dialog.nameField.value = MailServices.tags.getTagForKey(aTagKey);
 }
 
@@ -71,7 +71,7 @@ function onOKEditTag()
     MailServices.tags.setTagForKey(dialog.editTagKey, dialog.nameField.value);
   }
 
-  MailServices.tags.setColorForKey(dialog.editTagKey, document.getElementById("tagColorPicker").color);
+  MailServices.tags.setColorForKey(dialog.editTagKey, document.getElementById("tagColorPicker").value);
   return dialog.okCallback();
 }
 
@@ -88,7 +88,7 @@ function onOKNewTag()
     alertForExistingTag();
     return false;
   }
-  return dialog.okCallback(name, document.getElementById("tagColorPicker").color);
+  return dialog.okCallback(name, document.getElementById("tagColorPicker").value);
 }
 
 /**

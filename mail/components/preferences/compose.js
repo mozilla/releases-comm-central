@@ -25,6 +25,8 @@ var gComposePane = {
 
     this.initAbDefaultStartupDir();
 
+    this.setButtonColors();
+
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
       let preference = document.getElementById("mail.preferences.compose.selectedTabIndex");
@@ -104,6 +106,13 @@ var gComposePane = {
       // Choose item meaning there is no default startup directory any more.
       dirList.value = "";
     }
+  },
+
+  setButtonColors() {
+    document.getElementById("textColorButton").value =
+      document.getElementById("msgcompose.text_color").value;
+    document.getElementById("backgroundColorButton").value =
+      document.getElementById("msgcompose.background_color").value;
   },
 
   setDefaultStartupDir(aDirURI) {
@@ -192,6 +201,8 @@ var gComposePane = {
      try {
        document.getElementById("msgcompose.background_color").reset();
      } catch (ex) {}
+
+     this.setButtonColors();
   },
 
   startupDirListener: {

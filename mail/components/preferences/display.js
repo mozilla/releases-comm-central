@@ -31,6 +31,9 @@ var gDisplayPane = {
 
     this.mInitialized = true;
 
+    document.getElementById("citationmenu").value =
+      document.getElementById("mail.citation_color").value;
+
     this.mTagListBox = document.getElementById("tagList");
     this.buildTagList();
   },

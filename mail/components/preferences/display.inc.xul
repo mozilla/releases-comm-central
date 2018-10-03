@@ -152,7 +152,7 @@
                 </menupopup>
               </menulist>
               <label value="&quotedTextColor.label;" accesskey="&quotedTextColor.accesskey;" control="citationmenu"/>
-              <colorpicker type="button" id="citationmenu" palettename="standard" preference="mail.citation_color"/>
+              <html:input type="color" id="citationmenu" preference="mail.citation_color"/>
             </hbox>
           </groupbox>
 

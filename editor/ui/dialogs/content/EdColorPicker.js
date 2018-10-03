@@ -111,7 +111,7 @@ function Startup()
 
   // Set initial color in input field and in the colorpicker
   SetCurrentColor(gColor);
-  gDialog.ColorPicker.initColor(gColor);
+  gDialog.ColorPicker.value = gColor;
 
   // Use last-picked colors passed in, or those persistent on dialog
   if (TextType)
@@ -163,15 +163,9 @@ function Startup()
   SetWindowLocation();
 }
 
-function ChangePalette(palette)
-{
-  gDialog.ColorPicker.setAttribute("palettename", palette);
-  window.sizeToContent();
-}
-
 function SelectColor()
 {
-  var color = gDialog.ColorPicker.color;
+  var color = gDialog.ColorPicker.value;
   if (color)
     SetCurrentColor(color);
 }

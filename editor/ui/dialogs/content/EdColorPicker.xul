@@ -10,6 +10,7 @@
 
 <dialog title="&windowTitle.label;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml"
     onload="Startup()"
     ondialogaccept="return onAccept();"
     ondialogcancel="return onCancelColor();">
@@ -28,19 +29,13 @@
       <radio id="CellRadio"  label="&cell.label;"  accesskey="&cell.accessKey;"/>
   </radiogroup>
   </hbox>
-  <colorpicker id="ColorPicker" palettename="standard"
-    persist="palettename"
+  <label value="&chooseColor1.label;"/>
+  <html:input type="color" id="ColorPicker"
     onclick="SetDefaultToOk();"
     ondblclick="if (onAccept()) window.close();"
     onkeypress="SelectColorByKeypress(event);"
-    onselect="SelectColor();"/>
-<!-- Web palette is not implemented???
-  <hbox align="center">
-    <label value="&palette.label;"/>
-    <radio id="StandardPalette" label="&standardPalette.label;" oncommand="ChangePalette('standard')"/>
-    <radio id="WebPalette" label="&webPalette.label;" oncommand="ChangePalette('web')"/>
-  </hbox>
--->
+    onchange="SelectColor();"/>
+
   <spacer class="spacer"/>
   <vbox flex="1">
     <button id="LastPickedButton" crop="right" oncommand="SelectLastPickedColor();">
@@ -49,8 +44,7 @@
                   persist="LastTextColor LastBackgroundColor"/>
       <label value="&lastPickedColor.label;" accesskey="&lastPickedColor.accessKey;" flex="1" style="text-align: center;"/>
     </button>
-    <label value="&setColor1.label;"/>
-    <label value="&setColor2.label;" accesskey="&setColor2.accessKey;" control="ColorInput"/>
+    <label value="&chooseColor2.label;" accesskey="&chooseColor2.accessKey;" control="ColorInput"/>
     <label value="&setColorExample.label;"/>
     <hbox align="center" flex="1=">
       <textbox id="ColorInput" style="width: 8em" oninput="SetColorSwatch(); SetDefaultToOk();"/>

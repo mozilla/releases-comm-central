@@ -136,10 +136,10 @@
 
             <hbox align="center">
               <label control="textColorButton" value="&fontColor.label;" accesskey="&fontColor.accesskey;"/>
-              <colorpicker type="button" id="textColorButton" preference="msgcompose.text_color"/>
+              <html:input type="color" id="textColorButton" preference="msgcompose.text_color"/>
               <separator orient="vertical" class="thin"/>
               <label control="backgroundColorButton" value="&bgColor.label;" accesskey="&bgColor.accesskey;"/>
-              <colorpicker type="button" id="backgroundColorButton" preference="msgcompose.background_color"/>
+              <html:input type="color" id="backgroundColorButton" preference="msgcompose.background_color"/>
               <spacer flex="1"/>
               <button label="&restoreHTMLDefaults.label;" accesskey="&restoreHTMLDefaults.accesskey;"
                       oncommand="gComposePane.restoreHTMLDefaults();"/>

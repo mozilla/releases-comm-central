@@ -12,8 +12,10 @@
 
 <prefwindow id="ColorsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            xmlns:html="http://www.w3.org/1999/xhtml"
             title="&colorsDialog.title;"
             dlgbuttons="accept,cancel"
+            onload="init()"
 #ifdef XP_MACOSX
             style="width: &window.macWidth; !important;">
 #else
@@ -21,6 +23,18 @@
 #endif
 
   <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
+  <script type="application/javascript"><![CDATA[
+    function init() {
+      document.getElementById("foregroundtextmenu").value =
+        document.getElementById("browser.display.foreground_color").value;
+      document.getElementById("backgroundmenu").value =
+        document.getElementById("browser.display.background_color").value;
+      document.getElementById("unvisitedlinkmenu").value =
+        document.getElementById("browser.anchor_color").value;
+      document.getElementById("visitedlinkmenu").value =
+        document.getElementById("browser.visited_color").value;
+    }
+  ]]></script>
   <prefpane id="ColorsDialogPane">
 
     <preferences>
@@ -39,14 +53,12 @@
         <hbox align="center">
           <label value="&textColor.label;" accesskey="&textColor.accesskey;" control="foregroundtextmenu"/>
           <spacer flex="1"/>
-          <colorpicker type="button" id="foregroundtextmenu" palettename="standard"
-                       preference="browser.display.foreground_color"/>
+          <html:input type="color" id="foregroundtextmenu" preference="browser.display.foreground_color"/>
         </hbox>
         <hbox align="center" style="margin-top: 5px">
           <label value="&backgroundColor.label;" accesskey="&backgroundColor.accesskey;" control="backgroundmenu"/>
           <spacer flex="1"/>
-          <colorpicker type="button" id="backgroundmenu" palettename="standard"
-                       preference="browser.display.background_color"/>
+          <html:input type="color" id="backgroundmenu" preference="browser.display.background_color"/>
         </hbox>
         <separator class="thin"/>
         <hbox align="center">
@@ -60,14 +72,12 @@
         <hbox align="center">
           <label value="&linkColor.label;" accesskey="&linkColor.accesskey;" control="unvisitedlinkmenu"/>
           <spacer flex="1"/>
-          <colorpicker type="button" id="unvisitedlinkmenu" palettename="standard"
-                       preference="browser.anchor_color"/>
+          <html:input type="color" id="unvisitedlinkmenu" preference="browser.anchor_color"/>
         </hbox>
         <hbox align="center" style="margin-top: 5px">
           <label value="&visitedLinkColor.label;" accesskey="&visitedLinkColor.accesskey;" control="visitedlinkmenu"/>
           <spacer flex="1"/>
-          <colorpicker type="button" id="visitedlinkmenu" palettename="standard"
-                       preference="browser.visited_color"/>
+          <html:input type="color" id="visitedlinkmenu" preference="browser.visited_color"/>
         </hbox>
         <separator class="thin"/>
         <hbox align="center">
