@@ -751,9 +751,12 @@ var calitip = {
                               " provided for responseMode attribute in argument aExtResponse." +
                               " Falling back to USER mode.\r\n" + cal.STACK(20));
             }
-        } else {
-            // let's log something useful to notify addon developers or find any missing pieces in
-            // the conversions
+        } else if ((aOriginalItem && aOriginalItem.getAttendees({}).length) ||
+                   aItem.getAttendees({}).length) {
+            // let's log something useful to notify addon developers or find any
+            // missing pieces in the conversions if the current or original item
+            // has attendees - the latter is to prevent logging if creating events
+            // by click and slide in day or week views
             cal.LOG("cal.itip.checkAndSend: no response mode provided, " +
                     "falling back to USER mode.\r\n" + cal.STACK(20));
         }
