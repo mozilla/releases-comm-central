@@ -161,6 +161,10 @@ label.label {
     margin: 5px 0;
 }
 
+#event-grid-tabbox #notify-options {
+    padding: 0px 9px;
+}
+
 /*--------------------------------------------------------------------
  *   Event dialog keep duration button
  *-------------------------------------------------------------------*/

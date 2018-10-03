@@ -329,6 +329,8 @@ function onLoad() {
     // store the initial date value for datepickers in New Task dialog
     window.initialStartDateValue = args.initialStartDateValue;
 
+    window.attendeeTabLabel = document.getElementById("event-grid-tab-attendees").label;
+    window.attachmentTabLabel = document.getElementById("event-grid-tab-attachments").label;
     // we store the array of attendees in the window.
     // clone each existing attendee since we still suffer
     // from the 'lost x-properties'-bug.
@@ -1912,6 +1914,13 @@ function editAttendees() {
             }
             savedWindow.organizer = organizer;
         }
+
+        // if a participant was added or removed we switch to the attendee
+        // tab, so the user can see the change directly
+        let tabs = document.getElementById("event-grid-tabs");
+        let attendeeTab = document.getElementById("event-grid-tab-attendees");
+        tabs.selectedItem = attendeeTab;
+
         let duration = endTime.subtractDate(startTime);
         startTime = startTime.clone();
         endTime = endTime.clone();
@@ -2083,6 +2092,11 @@ function attachURL() {
                 let attachment = cal.createAttachment();
                 attachment.uri = Services.io.newURI(result.value);
                 addAttachment(attachment);
+                // we switch to the attachment tab if it is not already displayed
+                // to allow the user to see the attachment was added
+                let tabs = document.getElementById("event-grid-tabs");
+                let attachTab = document.getElementById("event-grid-tab-attachments");
+                tabs.selectedItem = attachTab;
             } catch (e) {
                 // TODO We might want to show a warning instead of just not
                 // adding the file
@@ -3598,6 +3612,23 @@ function updateAttachment() {
     if (!gNewItemUI) {
         setElementValue("cmd_attach_url", !hasAttachments && "true", "disabled");
     }
+
+    // update the attachment tab label to make the number of (uri) attachments visible
+    // even if another tab is displayed
+    let attachments = Object.values(gAttachMap).filter(aAtt => aAtt.uri);
+    let attachmentTab = document.getElementById("event-grid-tab-attachments");
+    if (attachments.length) {
+        let trailingColon = "";
+        let newLabel = window.attachmentTabLabel;
+        if (newLabel.endsWith(":")) {
+            trailingColon = ":";
+            newLabel = newLabel.substring(0, newLabel.length - 1);
+        }
+        attachmentTab.label = newLabel + " (" + attachments.length + ")" + trailingColon;
+    } else {
+        attachmentTab.label = window.attachmentTabLabel;
+    }
+
     sendMessage({
         command: "updateConfigState",
         argument: { attachUrlCommand: hasAttachments }
@@ -3669,9 +3700,11 @@ function updateAttendees() {
     // sending email invitations currently only supported for events
     let attendeeTab = document.getElementById("event-grid-tab-attendees");
     let attendeePanel = document.getElementById("event-grid-tabpanel-attendees");
+    let notifyOptions = document.getElementById("notify-options");
     if (cal.item.isEvent(window.calendarItem)) {
         attendeeTab.removeAttribute("collapsed");
         attendeePanel.removeAttribute("collapsed");
+        notifyOptions.removeAttribute("collapsed");
 
         if (window.organizer && window.organizer.id) {
             document.getElementById("item-organizer-row").removeAttribute("collapsed");
@@ -3711,6 +3744,20 @@ function updateAttendees() {
             setBooleanAttribute("item-organizer-row", "collapsed", true);
         }
         setupAttendees();
+
+        // update the attendee tab label to make the number of attendees
+        // visible even if another tab is displayed
+        if (window.attendees.length) {
+            let trailingColon = "";
+            let newLabel = window.attendeeTabLabel;
+            if (newLabel.endsWith(":")) {
+                trailingColon = ":";
+                newLabel = newLabel.substring(0, newLabel.length - 1);
+            }
+            attendeeTab.label = newLabel + " (" + window.attendees.length + ")" + trailingColon;
+        } else {
+            attendeeTab.label = window.attendeeTabLabel;
+        }
     } else {
         attendeeTab.setAttribute("collapsed", "true");
         attendeePanel.setAttribute("collapsed", "true");

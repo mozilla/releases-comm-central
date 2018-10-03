@@ -620,26 +620,30 @@
                       onclick="attendeeClick(event)"
                       disable-on-readonly="true"/>
               </hbox>
-              <hbox id="notify-options" align="center">
-                <checkbox id="notify-attendees-checkbox"
-                          label="&event.attendees.notify.label;"
-                          accesskey="&event.attendees.notify.accesskey;"
-                          oncommand="changeUndiscloseCheckboxStatus();"
-                          pack="start"/>
-                <checkbox id="undisclose-attendees-checkbox"
-                          label="&event.attendees.notifyundisclosed.label;"
-                          accesskey="&event.attendees.notifyundisclosed.accesskey;"
-                          tooltiptext="&event.attendees.notifyundisclosed.tooltip;"
-                          pack="start"/>
-                <checkbox id="disallow-counter-checkbox"
-                          label="&event.attendees.disallowcounter.label;"
-                          accesskey="&event.attendees.disallowcounter.accesskey;"
-                          tooltiptext="&event.attendees.disallowcounter.tooltip;"
-                          pack="start"/>
-              </hbox>
             </vbox>
           </tabpanel>
         </tabpanels>
+        <hbox id="notify-options"
+              dialog-type="event"
+              align="center"
+              collapsed="true"
+              disable-on-readonly="true">
+          <checkbox id="notify-attendees-checkbox"
+                    label="&event.attendees.notify.label;"
+                    accesskey="&event.attendees.notify.accesskey;"
+                    oncommand="changeUndiscloseCheckboxStatus();"
+                    pack="start"/>
+          <checkbox id="undisclose-attendees-checkbox"
+                    label="&event.attendees.notifyundisclosed.label;"
+                    accesskey="&event.attendees.notifyundisclosed.accesskey;"
+                    tooltiptext="&event.attendees.notifyundisclosed.tooltip;"
+                    pack="start"/>
+          <checkbox id="disallow-counter-checkbox"
+                    label="&event.attendees.disallowcounter.label;"
+                    accesskey="&event.attendees.disallowcounter.accesskey;"
+                    tooltiptext="&event.attendees.disallowcounter.tooltip;"
+                    pack="start"/>
+         </hbox>
       </tabbox>
 
       <separator id="event-grid-link-separator"
