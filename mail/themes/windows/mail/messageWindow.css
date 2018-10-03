@@ -58,14 +58,6 @@
   border-bottom: 4px solid highlight;
 }
 
-@media (-moz-windows-compositor) {
-  #status-bar {
-    -moz-appearance: none;
-    border-style: none;
-    border-top: 1px solid ThreeDShadow;
-  }
-}
-
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu {
     -moz-appearance: menuitem;

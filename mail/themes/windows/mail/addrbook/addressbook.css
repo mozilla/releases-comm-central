@@ -210,12 +210,3 @@ toolbox > toolbar:last-of-type {
     --toolbox-border-bottom-color: #aabccf;
   }
 }
-
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-
-  #status-bar {
-    -moz-appearance: none;
-    border-style: none;
-    border-top: 1px solid ThreeDShadow;
-  }
-}

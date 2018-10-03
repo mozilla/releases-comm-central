@@ -722,7 +722,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     }
 
     #messengerWindow[sizemode=normal] statusbar {
-      -moz-appearance: none;
       margin-top: -1px;
       border: 1px solid var(--glassShadowColor);
       border-top-color: threedshadow;
