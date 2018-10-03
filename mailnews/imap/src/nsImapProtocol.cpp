@@ -1032,14 +1032,15 @@ private:
 class nsImapCancelProxy : public mozilla::Runnable {
 public:
   explicit nsImapCancelProxy(nsICancelable *aProxyRequest)
-    : mozilla::Runnable("nsImapCancelProxy"), m_proxyRequest(aProxyRequest) {
+    : mozilla::Runnable("nsImapCancelProxy"), mRequest(aProxyRequest) {
   }
   NS_IMETHOD Run() {
-    m_proxyRequest->Cancel(NS_BINDING_ABORTED);
+    if (mRequest)
+      mRequest->Cancel(NS_BINDING_ABORTED);
     return NS_OK;
   }
 private:
-  nsCOMPtr<nsICancelable> m_proxyRequest;
+  nsCOMPtr<nsICancelable> mRequest;
 };
 
 NS_IMETHODIMP nsImapProtocol::Run()
