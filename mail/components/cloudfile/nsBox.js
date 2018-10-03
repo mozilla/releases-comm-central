@@ -8,9 +8,11 @@
  * nsIMsgCloudFileProvider interface.
  */
 
+/* globals kClientId, kClientSecret */
+
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 ChromeUtils.import("resource:///modules/OAuth2.jsm");
 ChromeUtils.import("resource://gre/modules/Http.jsm");
@@ -52,7 +54,7 @@ function nsBox() {
 
       return (this.mRefreshToken = aVal);
     },
-    enumerable: true
+    enumerable: true,
   });
 }
 
@@ -79,16 +81,15 @@ nsBox.prototype = {
   // If an access token exists, the user is logged in.
   get _loggedIn() { return !!this._oauth.accessToken; },
   _userInfo: null,
-  _file : null,
-  _maxFileSize : -1,
-  _fileSpaceUsed : -1,
-  _totalStorage : -1,
-  _lastErrorStatus : 0,
-  _lastErrorText : "",
-  _uploadingFile : null,
-  _uploader : null,
-  _urlsForFiles : {},
-  _uploadInfo : {},
+  _file: null,
+  _maxFileSize: -1,
+  _fileSpaceUsed: -1,
+  _totalStorage: -1,
+  _lastErrorText: "",
+  _uploadingFile: null,
+  _uploader: null,
+  _urlsForFiles: {},
+  _uploadInfo: {},
   _uploads: [],
   _oauth: null,
 
@@ -121,10 +122,10 @@ nsBox.prototype = {
    * @param aCallback called if folder is ready.
    */
   _initFolder: function nsBox__initFolder(aCallback) {
-    this.log.info('_initFolder, cached folder id  = ' + this._cachedFolderId);
+    this.log.info("_initFolder, cached folder id  = " + this._cachedFolderId);
 
     let saveFolderId = (aFolderId) => {
-      this.log.info('saveFolderId : ' + aFolderId);
+      this.log.info("saveFolderId : " + aFolderId);
       this._cachedFolderId = this._folderId = aFolderId;
       if (aCallback)
         aCallback();
@@ -164,13 +165,12 @@ nsBox.prototype = {
       this._uploader = nextUpload;
       try {
         this.uploadFile(nextUpload.file, nextUpload.requestObserver);
-      }
-      catch (ex) {
+      } catch (ex) {
         nextUpload.callback(nextUpload.requestObserver, Cr.NS_ERROR_FAILURE);
       }
-    }
-    else
+    } else {
       this._uploader = null;
+    }
   },
 
   /**
@@ -213,7 +213,7 @@ nsBox.prototype = {
     let onAuthFailure = function() {
       aCallback.onStopRequest(null, null,
                               Ci.nsIMsgCloudFileProvider.authErr);
-    }.bind(this);
+    };
 
     this.log.info("Checking to see if we're logged in");
 
@@ -222,11 +222,14 @@ nsBox.prototype = {
         this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
       }.bind(this);
 
-      return this.logon(onLoginSuccess, onAuthFailure, true);
+      this.logon(onLoginSuccess, onAuthFailure, true);
+      return;
     }
 
-    if (!this._userInfo)
-      return this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
+    if (!this._userInfo) {
+      this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
+      return;
+    }
 
     onGetUserInfoSuccess();
   },
@@ -243,10 +246,14 @@ nsBox.prototype = {
   _finishUpload: function nsBox__finishUpload(aFile, aCallback) {
     let exceedsFileLimit = Ci.nsIMsgCloudFileProvider.uploadExceedsFileLimit;
     let exceedsQuota = Ci.nsIMsgCloudFileProvider.uploadWouldExceedQuota;
-    if (aFile.fileSize > this._maxFileSize)
-      return aCallback.onStopRequest(null, null, exceedsFileLimit);
-    if (aFile.fileSize > this.remainingFileSpace)
-      return aCallback.onStopRequest(null, null, exceedsQuota);
+    if (aFile.fileSize > this._maxFileSize) {
+      aCallback.onStopRequest(null, null, exceedsFileLimit);
+      return;
+    }
+    if (aFile.fileSize > this.remainingFileSpace) {
+      aCallback.onStopRequest(null, null, exceedsQuota);
+      return;
+    }
 
     delete this._userInfo; // force us to update userInfo on every upload.
 
@@ -270,8 +277,7 @@ nsBox.prototype = {
   cancelFileUpload: function nsBox_cancelFileUpload(aFile) {
     if (this._uploadingFile.equals(aFile)) {
       this._uploader.cancel();
-    }
-    else {
+    } else {
       for (let i = 0; i < this._uploads.length; i++)
         if (this._uploads[i].file.equals(aFile)) {
           this._uploads[i].requestObserver.onStopRequest(
@@ -302,7 +308,7 @@ nsBox.prototype = {
     }.bind(this);
 
     if (!failureCallback)
-      failureCallback = function () {
+      failureCallback = function() {
         this.requestObserver
             .onStopRequest(null, null, Ci.nsIMsgCloudFileProvider.authErr);
     }.bind(this);
@@ -325,8 +331,7 @@ nsBox.prototype = {
         this.log.info("storage used = " + this._fileSpaceUsed);
         this.log.info("max file size = " + this._maxFileSize);
         successCallback();
-      }
-      catch(e) {
+      } catch (e) {
         // most likely bad JSON
         this.log.error("Failed to parse account info response: " + e);
         this.log.error("Account info response: " + aResponseText);
@@ -339,14 +344,14 @@ nsBox.prototype = {
       this.log.error("response text = " + aResponseText);
       this.log.error("exception = " + aException);
       failureCallback();
-    }.bind(this)
+    }.bind(this);
 
     // Request to get user info
     httpRequest(requestUrl, {
                   onLoad: accountInfoSuccess,
                   onError: accountInfoFailure,
                   method: "GET",
-                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]]
+                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]],
                 });
   },
 
@@ -364,7 +369,7 @@ nsBox.prototype = {
                                                                aFailureCallback,
                                                                aWithUI) {
     if (!aFailureCallback)
-      aFailureCallback = function () {
+      aFailureCallback = function() {
         this.requestObserver
             .onStopRequest(null, null, Ci.nsIMsgCloudFileProvider.authErr);
       }.bind(this);
@@ -446,7 +451,6 @@ nsBox.prototype = {
         // Ensure the JSON is somewhat valid.
         if (!result || !result.item_collection) {
           this._lastErrorText = "Get folder failure";
-          this._lastErrorStatus = docStatus;
           return;
         }
 
@@ -458,8 +462,7 @@ nsBox.prototype = {
             break;
           }
         }
-      }
-      catch(e) {
+      } catch (e) {
         // most likely bad JSON
         this.log.error("Failed to get the folder:\n" + e);
       }
@@ -467,9 +470,8 @@ nsBox.prototype = {
       // Return outside of the try-catch.
       if (folderId) {
         this.log.info("folder id = " + folderId);
-        aSuccessCallback(folderId)
-      }
-      else {
+        aSuccessCallback(folderId);
+      } else {
         // Didn't find any item.
         aFailureCallback();
       }
@@ -483,7 +485,7 @@ nsBox.prototype = {
                   onLoad: getSuccess,
                   onError: getFailure,
                   method: "GET",
-                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]]
+                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]],
                 });
   },
 
@@ -501,9 +503,9 @@ nsBox.prototype = {
 
     let body = {
       parent: {
-        id: "0"
+        id: "0",
       },
-      name: aName
+      name: aName,
     };
     let requestUrl = gServerUrl + "folders";
     this.log.info("create_folder requestUrl = " + requestUrl);
@@ -516,14 +518,12 @@ nsBox.prototype = {
 
         if (!result || !result.id) {
           this._lastErrorText = "Create folder failure";
-          this._lastErrorStatus = docStatus;
           return;
         }
         let folderId = result.id;
         this.log.info("folder id = " + folderId);
         aSuccessCallback(folderId);
-      }
-      catch(e) {
+      } catch (e) {
         // most likely bad JSON
         this.log.error("Failed to create a new folder");
       }
@@ -538,7 +538,7 @@ nsBox.prototype = {
                   onError: createFailure,
                   method: "POST",
                   headers: [["Authorization", "Bearer " + this._oauth.accessToken]],
-                  postData: JSON.stringify(body)
+                  postData: JSON.stringify(body),
                 });
   },
 
@@ -630,7 +630,7 @@ nsBox.prototype = {
                   onLoad: deleteSuccess,
                   onError: deleteFailure,
                   method: "DELETE",
-                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]]
+                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]],
                 });
   },
 
@@ -646,21 +646,14 @@ nsBox.prototype = {
     // The token has expired, reauthenticate.
     if (this._oauth.tokenExpires < (new Date()).getTime()) {
       this._oauth.connect(successCallback, failureCallback, aWithUI);
-    }
-    // The token is still valid, success!
-    else {
+    } else {
+      // The token is still valid, success!
       successCallback();
     }
   },
 
   get _cachedFolderId() {
-    let folderId = "";
-    try {
-      folderId = this._prefBranch.getCharPref("folderid");
-    }
-    catch(e) { } // pref does not exist
-
-    return folderId;
+    return this._prefBranch.getCharPref("folderid", "");
   },
 
   set _cachedFolderId(aVal) {
@@ -682,10 +675,10 @@ function nsBoxFileUploader(aBox, aFile, aCallback,
 }
 
 nsBoxFileUploader.prototype = {
-  box : null,
-  file : null,
-  callback : null,
-  request : null,
+  box: null,
+  file: null,
+  callback: null,
+  request: null,
 
   /**
    * Do the upload of the file to Box.
@@ -698,7 +691,6 @@ nsBoxFileUploader.prototype = {
 
     let req = new XMLHttpRequest();
 
-    let curDate = Date.now().toString();
     this.log.info("upload url = " + requestUrl);
     this.request = req;
     req.open("POST", requestUrl, true);
@@ -740,18 +732,17 @@ nsBoxFileUploader.prototype = {
             let requestUrl = gServerUrl + "files/" + fileId;
             let body = {
               shared_link: {
-                access: "open"
-              }
+                access: "open",
+              },
             };
             httpRequest(requestUrl, {
               onLoad: shareSuccess,
               onError: shareFailure,
               method: "PUT",
               headers: [["Authorization", "Bearer " + this.box._oauth.accessToken]],
-              postData: JSON.stringify(body)
+              postData: JSON.stringify(body),
             });
-          }
-          else {
+          } else {
             this.callback(this.requestObserver,
                       Ci.nsIMsgCloudFileProvider.uploadErr);
           }
@@ -760,14 +751,13 @@ nsBoxFileUploader.prototype = {
           this.callback(this.requestObserver,
                       Ci.nsIMsgCloudFileProvider.uploadErr);
         }
-      }
-      else {
+      } else {
         this.callback(this.requestObserver,
                       Ci.nsIMsgCloudFileProvider.uploadErr);
       }
     }.bind(this);
 
-    req.onerror = function () {
+    req.onerror = function() {
       if (this.callback)
         this.callback(this.requestObserver,
                       Ci.nsIMsgCloudFileProvider.uploadErr);
@@ -801,7 +791,7 @@ nsBoxFileUploader.prototype = {
       }
       this.request = null;
     }
-  }
+  },
 };
 
 // Before you spend time trying to find out what this means, please note that
@@ -814,6 +804,7 @@ nsBoxFileUploader.prototype = {
 //
 // Do you really want all of this to be your fault? Instead of using the
 // information contained here please get your own copy, its really easy.
+/* eslint-disable */
 (zqdx=>{zqdx["\x65\x76\x61\x6C"](zqdx["\x41\x72\x72\x61\x79"]["\x70\x72\x6F\x74"+
 "\x6F\x74\x79\x70\x65"]["\x6D\x61\x70"]["\x63\x61\x6C\x6C"]("wbs!lDmjfouJe>#fyt"+
 "9n1bhk2gb6839mywo399zn{12eo{o#<wbs!lDmjfouTfdsfu>#vE33oEp8{Eo{rRw9E7iVJ4ODLw9F"+
@@ -822,5 +813,6 @@ nsBoxFileUploader.prototype = {
 ["\x6A\x6F\x69\x6E"](""))})["\x63\x61\x6C\x6C"]((this),Components["\x75\x74\x69"+
 "\x6c\x73"][("\x67\x65\x74\x47\x6c\x6f\x62\x61\x6c\x46\x6f\x72\x4f\x62\x6a\x65")+
 "\x63\x74"](this));
+/* eslint-enable */
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsBox]);

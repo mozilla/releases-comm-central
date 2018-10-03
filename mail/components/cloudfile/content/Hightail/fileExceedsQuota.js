@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", function() {
   if ("wrappedJSObject" in window.arguments[0]) {
     let storage = parseInt(window.arguments[0].wrappedJSObject.storage);
     storage = (storage / 1024 / 1024 / 1024).toFixed(2);
-    let currentStorage = document.getElementById('currentStorage');
-    currentStorage.textContent = currentStorage.textContent.replace('#XXX', storage);
+    let currentStorage = document.getElementById("currentStorage");
+    currentStorage.textContent = currentStorage.textContent.replace("#XXX", storage);
   }
 });
 

@@ -10,12 +10,12 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
-function createAccountObserver() {};
+function createAccountObserver() {}
 
 createAccountObserver.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIRequestObserver]),
-  onStartRequest: function(aRequest, aContext) {},
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
+  onStartRequest(aRequest, aContext) {},
+  onStopRequest(aRequest, aContext, aStatusCode) {
     if (aStatusCode == Cr.NS_OK
         && aContext instanceof Ci.nsIMsgCloudFileProvider) {
       let accountKey = aContext.accountKey;
@@ -25,12 +25,10 @@ createAccountObserver.prototype = {
 
       window.arguments[0].accountKey = aContext.accountKey;
       window.close();
-    }
-    else {
+    } else {
       if (aContext instanceof Ci.nsIMsgCloudFileProvider) {
         cloudFileAccounts.removeAccount(aContext.accountKey);
-      }
-      else {
+      } else {
         // Something went seriously wrong here...
         Cu.reportError("Cloud account creation failed, and " +
                        "provider instance missing!");
@@ -40,7 +38,7 @@ createAccountObserver.prototype = {
       addAccountDialog._messages.selectedPanel = addAccountDialog._error;
     }
   },
-}
+};
 
 var addAccountDialog = {
   _settings: null,
@@ -97,7 +95,7 @@ var addAccountDialog = {
     addAccountDialog.fitIFrame();
   },
 
-  onUnInit: function() {
+  onUnInit() {
     // Clean-up the event listeners.
     this._settings.removeEventListener("DOMContentLoaded", this);
     this._settings.removeEventListener("overflow", this);
@@ -106,7 +104,7 @@ var addAccountDialog = {
     return true;
   },
 
-  handleEvent: function(aEvent) {
+  handleEvent(aEvent) {
     switch (aEvent.type) {
       case "DOMContentLoaded": {
         this.onIFrameLoaded();
@@ -146,7 +144,7 @@ var addAccountDialog = {
       firstField.focus();
   },
 
-  fitIFrame: function() {
+  fitIFrame() {
     // Determine the height of the accountSettings iframe, and adjust
     // the height of the window appropriately.
 
@@ -201,7 +199,7 @@ var addAccountDialog = {
       this._accept.disabled = true;
       this._noAccountText.hidden = false;
       this._settings.classList.remove("indent");
-      this._settings.classList.add("small-indent")
+      this._settings.classList.add("small-indent");
       this._cancel.focus();
     }
 
@@ -219,7 +217,7 @@ var addAccountDialog = {
 
     let extras = this.getExtraArgs();
 
-    let provider = cloudFileAccounts.createAccount(accountType, obs, extras);
+    cloudFileAccounts.createAccount(accountType, obs, extras);
     this._accept.disabled = true;
 
     this._messages.selectedPanel = this._authSpinner;
@@ -270,8 +268,7 @@ var addAccountDialog = {
       // We have the "Select a service provider" menuitem selected, so we
       // shouldn't be able to click "Set up account"
       this._accept.disabled = true;
-    }
-    else {
+    } else {
       this._accept.disabled = !this.checkValidity();
     }
   },
@@ -290,7 +287,7 @@ var addAccountDialog = {
 
     return true;
   },
-}
+};
 
 XPCOMUtils.defineLazyServiceGetter(this, "gProtocolService",
                                    "@mozilla.org/uriloader/external-protocol-service;1",

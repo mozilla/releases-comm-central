@@ -10,7 +10,7 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 Cu.importGlobalProperties(["XMLHttpRequest"]);
@@ -52,28 +52,28 @@ nsHightail.prototype = {
   _password: "",
   _loggedIn: false,
   _userInfo: null,
-  _file : null,
+  _file: null,
   _folderId: "",
   _requestDate: null,
   _successCallback: null,
   _request: null,
-  _maxFileSize : -1,
-  _fileSpaceUsed : -1,
-  _availableStorage : -1,
-  _totalStorage : -1,
-  _lastErrorStatus : 0,
-  _lastErrorText : "",
-  _uploadingFile : null,
-  _uploader : null,
-  _urlsForFiles : {},
-  _uploadInfo : {},
+  _maxFileSize: -1,
+  _fileSpaceUsed: -1,
+  _availableStorage: -1,
+  _totalStorage: -1,
+  _lastErrorStatus: 0,
+  _lastErrorText: "",
+  _uploadingFile: null,
+  _uploader: null,
+  _urlsForFiles: {},
+  _uploadInfo: {},
   _uploads: [],
 
   /**
    * Used by our testing framework to override the URLs that this component
    * communicates to.
    */
-  overrideUrls: function(aNumUrls, aUrls) {
+  overrideUrls(aNumUrls, aUrls) {
     gServerUrl = aUrls[0];
   },
 
@@ -84,7 +84,7 @@ nsHightail.prototype = {
    * @param aAccountKey the account key to initialize this
    *                    nsIMsgCloudFileProvider with.
    */
-  init: function(aAccountKey) {
+  init(aAccountKey) {
     this._accountKey = aAccountKey;
     this._prefBranch = Services.prefs.getBranch("mail.cloud_files.accounts." +
                                                 aAccountKey + ".");
@@ -98,11 +98,11 @@ nsHightail.prototype = {
    *
    * @param aCallback called if folder is ready.
    */
-  _initFolder: function(aCallback) {
-    this.log.info('_initFolder');
+  _initFolder(aCallback) {
+    this.log.info("_initFolder");
 
     let saveFolderId = function(aFolderId) {
-      this.log.info('saveFolderId');
+      this.log.info("saveFolderId");
       this._folderId = aFolderId;
       if (aCallback)
         aCallback();
@@ -139,7 +139,7 @@ nsHightail.prototype = {
    *                         stop states of a request.
    * @param aStatus the status of the request.
    */
-  _uploaderCallback: function(aRequestObserver, aStatus) {
+  _uploaderCallback(aRequestObserver, aStatus) {
     aRequestObserver.onStopRequest(null, null, aStatus);
 
     this._uploadingFile = null;
@@ -151,14 +151,13 @@ nsHightail.prototype = {
       this._uploader = nextUpload;
       try {
         this.uploadFile(nextUpload.file, nextUpload.requestObserver);
-      }
-      catch (ex) {
+      } catch (ex) {
         // I'd like to pass ex.result, but that doesn't seem to be defined.
         nextUpload.callback(nextUpload.requestObserver, Cr.NS_ERROR_FAILURE);
       }
-    }
-    else
+    } else {
       this._uploader = null;
+    }
   },
 
   /**
@@ -168,7 +167,7 @@ nsHightail.prototype = {
    * @param aCallback an nsIRequestObserver for monitoring the start and
    *                  stop states of the upload procedure.
    */
-  uploadFile: function(aFile, aCallback) {
+  uploadFile(aFile, aCallback) {
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
@@ -198,7 +197,7 @@ nsHightail.prototype = {
     let onAuthFailure = function() {
       aCallback.onStopRequest(null, null,
                               Ci.nsIMsgCloudFileProvider.authErr);
-    }.bind(this);
+    };
 
     this.log.info("Checking to see if we're logged in");
 
@@ -207,11 +206,14 @@ nsHightail.prototype = {
         this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
       }.bind(this);
 
-      return this.logon(onLoginSuccess, onAuthFailure, true);
+      this.logon(onLoginSuccess, onAuthFailure, true);
+      return;
     }
 
-    if (!this._userInfo)
-      return this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
+    if (!this._userInfo) {
+      this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
+      return;
+    }
 
     onGetUserInfoSuccess();
   },
@@ -225,14 +227,19 @@ nsHightail.prototype = {
    * @param aCallback the nsIRequestObserver for monitoring the start and stop
    *                  states of the upload procedure.
    */
-  _finishUpload: function(aFile, aCallback) {
-    if (aFile.fileSize > 2147483648)
-      return this._fileExceedsLimit(aCallback, '2GB', 0);
-    if (aFile.fileSize > this._maxFileSize)
-      return this._fileExceedsLimit(aCallback, 'Limit', 0);
-    if (aFile.fileSize > this._availableStorage)
-      return this._fileExceedsLimit(aCallback, 'Quota',
-                                    aFile.fileSize + this._fileSpaceUsed);
+  _finishUpload(aFile, aCallback) {
+    if (aFile.fileSize > 2147483648) {
+      this._fileExceedsLimit(aCallback, "2GB", 0);
+      return;
+    }
+    if (aFile.fileSize > this._maxFileSize) {
+      this._fileExceedsLimit(aCallback, "Limit", 0);
+      return;
+    }
+    if (aFile.fileSize > this._availableStorage) {
+      this._fileExceedsLimit(aCallback, "Quota", aFile.fileSize + this._fileSpaceUsed);
+      return;
+    }
 
     delete this._userInfo; // force us to update userInfo on every upload.
 
@@ -254,7 +261,7 @@ nsHightail.prototype = {
    * @param aCallback the nsIRequestObserver for monitoring the start and stop
    *                  states of the upload procedure.
    */
-  _fileExceedsLimit: function(aCallback, aType, aStorageSize) {
+  _fileExceedsLimit(aCallback, aType, aStorageSize) {
     let cancel = Ci.nsIMsgCloudFileProvider.uploadCanceled;
 
     let args = {storage: aStorageSize};
@@ -273,13 +280,12 @@ nsHightail.prototype = {
    *
    * @param aFile the nsIFile being uploaded.
    */
-  cancelFileUpload: function(aFile) {
+  cancelFileUpload(aFile) {
     this.log.info("in cancel upload");
     if (this._uploadingFile != null && this._uploader != null &&
         this._uploadingFile.equals(aFile)) {
       this._uploader.cancel();
-    }
-    else {
+    } else {
       for (let i = 0; i < this._uploads.length; i++)
         if (this._uploads[i].file.equals(aFile)) {
           this._uploads[i].requestObserver.onStopRequest(
@@ -297,7 +303,7 @@ nsHightail.prototype = {
    * @param aSuccessCallback called if token refresh is successful.
    * @param aFailureCallback called if token refresh fails.
    */
-  _handleStaleToken: function(aSuccessCallback, aFailureCallback) {
+  _handleStaleToken(aSuccessCallback, aFailureCallback) {
     this.log.info("Handling a stale token.");
     this._loggedIn = false;
     this._cachedAuthToken = "";
@@ -320,7 +326,7 @@ nsHightail.prototype = {
    * @param failureCallback a callback fired if retrieving profile information
    *                        fails.
    */
-  _getUserInfo: function(successCallback, failureCallback) {
+  _getUserInfo(successCallback, failureCallback) {
     this.log.info("getting user info");
     let args = "?email=" + this._userName + "&";
 
@@ -358,17 +364,17 @@ nsHightail.prototype = {
         if (storage) {
           this._fileSpaceUsed = parseInt(storage.currentUsage);
           this._availableStorage = parseInt(storage.storageQuota) - this._fileSpaceUsed;
-        }
-        else
+        } else {
           this._availableStorage = parseInt(account.availableStorage);
+        }
 
         this._maxFileSize = docResponse.type == "BAS" ? 52428800 : (parseInt(account.maxFileSize));
         this.log.info("available storage = " + this._availableStorage + " max file size = " + this._maxFileSize);
 
         successCallback();
-      }
-      else
+      } else {
         failureCallback();
+      }
     }.bind(this);
 
     req.onerror = function() {
@@ -389,7 +395,7 @@ nsHightail.prototype = {
    *
    * @param aFile the nsIFile to get the URL for.
    */
-  urlForFile: function(aFile) {
+  urlForFile(aFile) {
     return this._urlsForFiles[aFile.path];
   },
 
@@ -402,7 +408,7 @@ nsHightail.prototype = {
    * @param aListener an nsIRequestObserver for monitoring the start and stop
    *                  states of fetching profile information.
    */
-  refreshUserInfo: function(aWithUI, aListener) {
+  refreshUserInfo(aWithUI, aListener) {
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
@@ -411,12 +417,12 @@ nsHightail.prototype = {
     // Let's define some reusable callback functions...
     let onGetUserInfoSuccess = function() {
       aListener.onStopRequest(null, null, Cr.NS_OK);
-    }
+    };
 
     let onAuthFailure = function() {
       aListener.onStopRequest(null, null,
                               Ci.nsIMsgCloudFileProvider.authErr);
-    }
+    };
 
     // If we're not logged in, attempt to login, and then attempt to
     // get user info if logging in is successful.
@@ -426,21 +432,20 @@ nsHightail.prototype = {
         this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
       }.bind(this);
 
-      return this.logon(onLoginSuccess, onAuthFailure, aWithUI);
+      this.logon(onLoginSuccess, onAuthFailure, aWithUI);
+      return;
     }
 
     // If we're logged in, attempt to get user info.
     if (!this._userInfo)
-      return this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
-
+      this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
   },
 
   /**
    * Creates an account for a user.  Note that, currently, this function is
    * not being used by the UI.
    */
-  createNewAccount: function(aEmailAddress, aPassword,aFirstName, aLastName,
-                             aRequestObserver) {
+  createNewAccount(aEmailAddress, aPassword, aFirstName, aLastName, aRequestObserver) {
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
@@ -457,8 +462,7 @@ nsHightail.prototype = {
         this.log.info("request status = " + req + " response = " +
                       req.responseText);
         aRequestObserver.onStopRequest(null, null, Cr.NS_OK);
-      }
-      else {
+      } else {
         let docResponse = JSON.parse(req.responseText);
         this._lastErrorText = docResponse.errorStatus.message;
         this._lastErrorStatus = docResponse.errorStatus.code;
@@ -487,9 +491,7 @@ nsHightail.prototype = {
    * @param aNotFoundCallback called if folder is not found
    * @param aFoundCallback called if folder is found
    */
-  _findFolder: function(aFolderName, aParentFolderId, aNotFoundCallback,
-                        aFoundCallback) {
-
+  _findFolder(aFolderName, aParentFolderId, aNotFoundCallback, aFoundCallback) {
     this.log.info("Find folder: " + aFolderName);
 
     let checkChildFolders = function(folders) {
@@ -520,8 +522,8 @@ nsHightail.prototype = {
    * @param aNotFoundCallback called if folder is not found
    * @param aFoundCallback called if folder is found
    */
-  _checkFolderExist: function(aFolderId, aFoundCallback, aNotFoundCallback) {
-    this.log.info('checkFolderExist');
+  _checkFolderExist(aFolderId, aFoundCallback, aNotFoundCallback) {
+    this.log.info("checkFolderExist");
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
@@ -541,8 +543,7 @@ nsHightail.prototype = {
 
         if (aFoundCallback && docResponse.folders)
           aFoundCallback(docResponse.folders);
-      }
-      else {
+      } else {
         this._lastErrorText = docResponse.errorStatus.message;
         this._lastErrorStatus = docResponse.errorStatus.code;
         if (this._lastErrorStatus == 400 && this._lastErrorText == "Not Found" && aNotFoundCallback)
@@ -569,7 +570,7 @@ nsHightail.prototype = {
    * @param aParent id of parent folder
    * @param aSuccessCallback called when folder is created
    */
-  _createFolder: function(aName, aParent, aSuccessCallback) {
+  _createFolder(aName, aParent, aSuccessCallback) {
     this.log.info("Create folder: " + aName);
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
@@ -578,7 +579,7 @@ nsHightail.prototype = {
 
     let req = new XMLHttpRequest();
 
-    req.open("POST", gServerUrl + kFolderPath.replace(/\/$/, '') + args + kUrlTail, true);
+    req.open("POST", gServerUrl + kFolderPath.replace(/\/$/, "") + args + kUrlTail, true);
 
     req.onload = function() {
       let docResponse = JSON.parse(req.responseText);
@@ -587,9 +588,8 @@ nsHightail.prototype = {
                       req.responseText);
 
         if (aSuccessCallback)
-          aSuccessCallback(docResponse.id)
-      }
-      else {
+          aSuccessCallback(docResponse.id);
+      } else {
         this._lastErrorText = docResponse.errorStatus.message;
         this._lastErrorStatus = docResponse.errorStatus.code;
       }
@@ -614,7 +614,7 @@ nsHightail.prototype = {
    * @param aRequestObserver an nsIRequestObserver for monitoring the start and
    *                         stop states of the login procedure.
    */
-  createExistingAccount: function(aRequestObserver) {
+  createExistingAccount(aRequestObserver) {
      // XXX: replace this with a better function
     let successCb = function(aResponseText, aRequest) {
       aRequestObserver.onStopRequest(null, this, Cr.NS_OK);
@@ -634,7 +634,7 @@ nsHightail.prototype = {
    *
    * @param aError an error to get the URL for.
    */
-  providerUrlForError: function(aError) {
+  providerUrlForError(aError) {
     if (aError == Ci.nsIMsgCloudFileProvider.uploadExceedsFileLimit)
       return "http://www.hightail.com";
     return "";
@@ -663,7 +663,7 @@ nsHightail.prototype = {
    * @param aCallback an nsIRequestObserver for monitoring the start and stop
    *                  states of the delete procedure.
    */
-  deleteFile: function(aFile, aCallback) {
+  deleteFile(aFile, aCallback) {
     this.log.info("Deleting a file");
 
     if (Services.io.offline) {
@@ -711,7 +711,7 @@ nsHightail.prototype = {
           let onTokenRefreshFailure = function() {
             aCallback.onStopRequest(null, null,
                                     Ci.nsIMsgCloudFileProvider.authErr);
-          }
+          };
           this._handleStaleToken(onTokenRefresh, onTokenRefreshFailure);
           return;
         }
@@ -719,8 +719,8 @@ nsHightail.prototype = {
         this.log.error("Server has returned a failure on our delete request.");
         this.log.error("Error code: " + deleteInfo.errorStatus.code);
         this.log.error("Error message: " + deleteInfo.errorStatus.message);
-        //aCallback.onStopRequest(null, null,
-        //                        Ci.nsIMsgCloudFileProvider.uploadErr);
+        // aCallback.onStopRequest(null, null,
+        //                         Ci.nsIMsgCloudFileProvider.uploadErr);
         return;
       }
 
@@ -745,7 +745,7 @@ nsHightail.prototype = {
    *                  the password prompt if no password exists.  If so,
    *                  returns the empty string if no password exists.
    */
-  getPassword: function(aUsername, aNoPrompt) {
+  getPassword(aUsername, aNoPrompt) {
     this.log.info("Getting password for user: " + aUsername);
 
     if (aNoPrompt)
@@ -768,7 +768,7 @@ nsHightail.prototype = {
     // Use the service name in the prompt text
     let serverUrl = gServerUrl;
     let userPos = gServerUrl.indexOf("//") + 2;
-    let userNamePart = encodeURIComponent(this._userName) + '@';
+    let userNamePart = encodeURIComponent(this._userName) + "@";
     serverUrl = gServerUrl.substr(0, userPos) + userNamePart + gServerUrl.substr(userPos);
     let messengerBundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties");
@@ -788,7 +788,7 @@ nsHightail.prototype = {
   /**
    * Clears any saved Hightail passwords for this instance's account.
    */
-  clearPassword: function() {
+  clearPassword() {
     let logins = Services.logins.findLogins({}, gServerUrl, null, gServerUrl);
     for (let loginInfo of logins)
       if (loginInfo.username == this._userName)
@@ -803,7 +803,7 @@ nsHightail.prototype = {
    * @aparam aWithUI a boolean for whether or not we should prompt for a password
    *                 if no auth token is currently stored.
    */
-  logon: function(successCallback, failureCallback, aWithUI) {
+  logon(successCallback, failureCallback, aWithUI) {
     this.log.info("Logging in, aWithUI = " + aWithUI);
     if (this._password == undefined || !this._password)
       this._password = this.getPassword(this._userName, !aWithUI);
@@ -828,16 +828,14 @@ nsHightail.prototype = {
         if (this._cachedAuthToken) {
           this._loggedIn = true;
           successCallback();
-        }
-        else {
+        } else {
           this.clearPassword();
           this._loggedIn = false;
           this._lastErrorText = docResponse.errorStatus.message;
           this._lastErrorStatus = docResponse.errorStatus.code;
           failureCallback();
         }
-      }
-      else {
+      } else {
         this.clearPassword();
         failureCallback();
       }
@@ -879,17 +877,15 @@ function nsHightailFileUploader(aHightail, aFile, aCallback, aRequestObserver) {
 }
 
 nsHightailFileUploader.prototype = {
-  hightail : null,
-  file : null,
-  callback : null,
-  _request : null,
+  hightail: null,
+  file: null,
+  callback: null,
+  _request: null,
 
   /**
    * Kicks off the upload procedure for this uploader.
    */
-  startUpload: function() {
-    let curDate = Date.now().toString();
-
+  startUpload() {
     this.requestObserver.onStartRequest(null, null);
 
     let onSuccess = function() {
@@ -910,7 +906,7 @@ nsHightailFileUploader.prototype = {
    * @param successCallback the callback fired if getting the URL is successful
    * @param failureCallback the callback fired if getting the URL fails
    */
-  _prepareToSend: function(successCallback, failureCallback) {
+  _prepareToSend(successCallback, failureCallback) {
     let req = new XMLHttpRequest();
 
     req.open("POST", gServerUrl + kFolderInitUploadPath + "?" + kUrlTail, true);
@@ -926,8 +922,7 @@ nsHightailFileUploader.prototype = {
         this.log.info("file id = " + this._urlInfo.fileId);
         this.log.info("upload url = " + this._urlInfo.uploadUrl[0]);
         successCallback();
-      }
-      else {
+      } else {
         this.log.error("Preparing to send failed!");
         this.log.error("Response was: " + response);
         this.hightail._lastErrorText = req.responseText;
@@ -950,7 +945,7 @@ nsHightailFileUploader.prototype = {
    * Once we've got the URL to upload the file to, this function actually does
    * the upload of the file to Hightail.
    */
-  _uploadFile: function() {
+  _uploadFile() {
     let req = new XMLHttpRequest();
 
     let curDate = Date.now().toString();
@@ -966,13 +961,13 @@ nsHightailFileUploader.prototype = {
         } catch (ex) {
           this.log.error(ex);
         }
-      }
-      else
+      } else {
         this.callback(this.requestObserver,
                       Ci.nsIMsgCloudFileProvider.uploadErr);
+      }
     }.bind(this);
 
-    req.onerror = function () {
+    req.onerror = function() {
       this.cleanupTempFile();
       if (this.callback)
         this.callback(this.requestObserver,
@@ -981,7 +976,7 @@ nsHightailFileUploader.prototype = {
 
     req.setRequestHeader("Date", curDate);
     let boundary = "------" + curDate;
-    let contentType = "multipart/form-data; boundary="+ boundary;
+    let contentType = "multipart/form-data; boundary=" + boundary;
     req.setRequestHeader("Content-Type", contentType);
 
     let fileContents = "--" + boundary +
@@ -1054,7 +1049,7 @@ nsHightailFileUploader.prototype = {
   /**
    * Cancels the upload request for the file associated with this Uploader.
    */
-  cancel: function() {
+  cancel() {
     this.log.info("in uploader cancel");
     this.callback(this.requestObserver, Ci.nsIMsgCloudFileProvider.uploadCanceled);
     delete this.callback;
@@ -1072,7 +1067,7 @@ nsHightailFileUploader.prototype = {
    * Once the file is uploaded, if we want to get a sharing URL back, we have
    * to send a "commit" request - which this function does.
    */
-  _commitSend: function() {
+  _commitSend() {
     this.log.info("commit sending file " + this._urlInfo.fileId);
     let req = new XMLHttpRequest();
     let args = "?name=" + this.file.leafName +
@@ -1107,15 +1102,14 @@ nsHightailFileUploader.prototype = {
         this.hightail._lastErrorText = uploadInfo.errorStatus.message;
         this.hightail._lastErrorStatus = uploadInfo.errorStatus.code;
         failed();
-      }
-      else if (uploadInfo.clickableDownloadUrl) {
+      } else if (uploadInfo.clickableDownloadUrl) {
         // We need a kludge here because Hightail is returning URLs without the scheme...
         let url = this._ensureScheme(uploadInfo.clickableDownloadUrl);
         this.hightail._urlsForFiles[this.file.path] = url;
         succeed();
-      }
-      else
+      } else {
         this._findDownloadUrl(uploadInfo.id, succeed, failed);
+      }
     }.bind(this);
 
     req.setRequestHeader("X-Auth-Token", this.hightail._cachedAuthToken + " ");
@@ -1130,11 +1124,11 @@ nsHightailFileUploader.prototype = {
    *
    * @param aURL to ensure a scheme with
    */
-  _ensureScheme: function(aURL) {
+  _ensureScheme(aURL) {
     try {
-      let scheme = Services.io.extractScheme(aURL);
+      Services.io.extractScheme(aURL);
       return aURL;
-    } catch(e) {
+    } catch (e) {
       // If we got NS_ERROR_MALFORMED_URI back, there's no scheme here.
       if (e.result == Cr.NS_ERROR_MALFORMED_URI)
         return "https://" + aURL;
@@ -1150,7 +1144,7 @@ nsHightailFileUploader.prototype = {
    * @param aSuccessCallback called if url is found
    * @param aFailureCallback called if url is not found
    */
-  _findDownloadUrl: function(aFileId, aSuccessCallback, aFailureCallback) {
+  _findDownloadUrl(aFileId, aSuccessCallback, aFailureCallback) {
     let req = new XMLHttpRequest();
 
     req.open("GET", gServerUrl + kFolderFilePath + aFileId, true);
@@ -1184,19 +1178,19 @@ nsHightailFileUploader.prototype = {
   /**
    * Creates and returns a temporary file on the local file system.
    */
-  getTempFile: function(leafName) {
+  getTempFile(leafName) {
     let tempfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-    tempfile.append(leafName)
+    tempfile.append(leafName);
     tempfile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0666", 8));
     // do whatever you need to the created file
-    return tempfile.clone()
+    return tempfile.clone();
   },
 
   /**
    * Cleans up any temporary files that this nsHightailFileUploader may have
    * created.
    */
-  cleanupTempFile: function() {
+  cleanupTempFile() {
     if (this._bufStream)
       this._bufStream.close();
     if (this._fstream)
