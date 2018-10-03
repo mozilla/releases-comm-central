@@ -15,12 +15,12 @@
 [scriptable, uuid(97bfa970-8222-4c3f-bbe8-42141e4c7982)]
 interface nsISidebar : nsISupports
 {
-    void addPanel(in DOMString aTitle, in DOMString aContentURL,
-                  in DOMString aCustomizeURL);
-    void addPersistentPanel(in DOMString aTitle, in DOMString aContentURL,
-                            in DOMString aCustomizeURL);
-    void addSearchEngine(in DOMString engineURL, in DOMString iconURL,
-                         in DOMString suggestedTitle, in DOMString suggestedCategory);
-    void AddSearchProvider(in DOMString aDescriptionURL);
-    unsigned long IsSearchProviderInstalled(in DOMString aSearchURL);
+    void addPanel(in AString aTitle, in AString aContentURL,
+                  in AString aCustomizeURL);
+    void addPersistentPanel(in AString aTitle, in AString aContentURL,
+                            in AString aCustomizeURL);
+    void addSearchEngine(in AString engineURL, in AString iconURL,
+                         in AString suggestedTitle, in AString suggestedCategory);
+    void AddSearchProvider(in AString aDescriptionURL);
+    unsigned long IsSearchProviderInstalled(in AString aSearchURL);
 };
