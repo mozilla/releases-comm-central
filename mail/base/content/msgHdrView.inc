@@ -371,7 +371,7 @@
                                     <row id="expandedreferencesRow" collapsed="true">
                                       <label id="expandedreferencesLabel" class="headerName"
                                              value="&referencesField4.label;"
-                                             control="expandedReferencesBox"/>
+                                             control="expandedreferencesBox"/>
                                       <mail-messageids-headerfield id="expandedreferencesBox"
                                                                    flex="1"/>
                                     </row>
