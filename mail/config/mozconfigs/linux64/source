@@ -4,3 +4,8 @@
 # our script for generating it. This allows us to run configure without any
 # extra dependencies on specific toolchains, e.g. gtk3.
 . "$topsrcdir/build/mozconfig.no-compile"
+
+# mozconfig.no-compile does not remove nodejs requirement.
+# The source mozconfig for FF includes the following:
+ac_add_options --disable-nodejs
+unset NODEJS
