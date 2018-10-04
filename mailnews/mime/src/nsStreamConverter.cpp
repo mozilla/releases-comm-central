@@ -853,8 +853,6 @@ nsStreamConverter::OnDataAvailable(nsIRequest     *request,
                                    uint64_t       sourceOffset,
                                    uint32_t       aLength)
 {
-  NS_ENSURE_TRUE(aIStream, NS_ERROR_NULL_POINTER);
-
   nsresult        rc=NS_OK;     // should this be an error instead?
   uint32_t        readLen = aLength;
   uint32_t        written;
@@ -885,6 +883,7 @@ const char output[] = "\
     return NS_ERROR_FAILURE;
   }
 
+  NS_ENSURE_TRUE(aIStream, NS_ERROR_NULL_POINTER);
   char *buf = (char *)PR_Malloc(aLength);
   if (!buf)
     return NS_ERROR_OUT_OF_MEMORY; /* we couldn't allocate the object */
