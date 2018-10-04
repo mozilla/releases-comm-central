@@ -24,6 +24,7 @@ var setupModule = function(module) {
   add_sets_to_folders([folder], [thread1]);
 };
 
+test_tooltips.__force_skip__ = true;  // See bug 1496353
 function test_tooltips() {
   // Trigger the message summary. This is needed otherwise we cannot compute the
   // style of aHTMLTooltip in mailWindow.js
