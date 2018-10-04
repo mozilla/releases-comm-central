@@ -853,6 +853,8 @@ nsStreamConverter::OnDataAvailable(nsIRequest     *request,
                                    uint64_t       sourceOffset,
                                    uint32_t       aLength)
 {
+  NS_ENSURE_TRUE(aIStream, NS_ERROR_NULL_POINTER);
+
   nsresult        rc=NS_OK;     // should this be an error instead?
   uint32_t        readLen = aLength;
   uint32_t        written;
