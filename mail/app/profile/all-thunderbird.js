@@ -373,6 +373,9 @@ pref("network.protocol-handler.warn-external.ftp", false);
 pref("network.hosts.smtp_server",           "mail");
 pref("network.hosts.pop_server",            "mail");
 
+// Temporary fix for bug 1496524.
+pref("csp.skip_about_page_has_csp_assert", true);
+
 pref("security.warn_entering_secure", false);
 pref("security.warn_entering_weak", false);
 pref("security.warn_leaving_secure", false);
