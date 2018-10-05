@@ -4210,12 +4210,12 @@ nsMsgCompose::LoadDataFromFile(nsIFile *file, nsString &sigData,
  * images loaded into the editor are available on send.
  */
 nsresult
-nsMsgCompose::ReplaceFileURLs(nsAutoString &aData)
+nsMsgCompose::ReplaceFileURLs(nsString &aData)
 {
   int32_t fPos;
   int32_t offset = -1;  // We're using RFind(), so offset -1 is from the very right.
 
-  // XXX This code is rather incompelte since it looks for "file://" even
+  // XXX This code is rather incomplete since it looks for "file://" even
   // outside tags.
   while ((fPos = aData.RFind("file://", true, offset)) != kNotFound) {
     bool quoted = false;
@@ -4253,7 +4253,9 @@ nsMsgCompose::ReplaceFileURLs(nsAutoString &aData)
     if (NS_SUCCEEDED(rv)) {
       aData.Replace(fPos, end - fPos, dataURL);
     }
-    offset = fPos;
+    if (fPos == 0)
+      break;
+    offset = fPos - 1;
   }
   return NS_OK;
 }

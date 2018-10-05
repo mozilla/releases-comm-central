@@ -92,7 +92,7 @@ protected:
   nsresult MoveToAboveQuote(void);
   nsresult MoveToBeginningOfDocument(void);
   nsresult MoveToEndOfDocument(void);
-  nsresult ReplaceFileURLs(nsAutoString &sigData);
+  nsresult ReplaceFileURLs(nsString &sigData);
   nsresult DataURLForFileURL(const nsAString &aFileURL, nsAString &aDataURL);
 
 // 3 = To, Cc, Bcc
