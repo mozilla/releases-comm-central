@@ -236,18 +236,11 @@ void nsAppleMailImportMail::FindAccountMailDirs(nsIFile *aRoot, nsIMutableArray 
 
   bool hasMore = false;
   while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) && hasMore) {
-
     // get the next file entry
     nsCOMPtr<nsIFile> currentEntry;
-    {
-      nsCOMPtr<nsISupports> rawSupports;
-      directoryEnumerator->GetNext(getter_AddRefs(rawSupports));
-      if (!rawSupports)
-        continue;
-      currentEntry = do_QueryInterface(rawSupports);
-      if (!currentEntry)
-        continue;
-    }
+    directoryEnumerator->GetNextFile(getter_AddRefs(currentEntry));
+    if (!currentEntry)
+      continue;
 
     // make sure it's a directory
     bool isDirectory = false;
@@ -335,12 +328,8 @@ nsresult nsAppleMailImportMail::AddMboxDir(nsIFile *aFolder, nsIMutableArray *aM
       if (dirEnumerator) {
         bool hasMore = false;
         while (NS_SUCCEEDED(dirEnumerator->HasMoreElements(&hasMore)) && hasMore) {
-          nsCOMPtr<nsISupports> rawSupports;
-          dirEnumerator->GetNext(getter_AddRefs(rawSupports));
-          if (!rawSupports)
-            continue;
-
-          nsCOMPtr<nsIFile> file(do_QueryInterface(rawSupports));
+          nsCOMPtr<nsIFile> file;
+          dirEnumerator->GetNextFile(getter_AddRefs(file));
           if (file) {
             bool isFile = false;
             file->IsFile(&isFile);
@@ -401,18 +390,11 @@ nsresult nsAppleMailImportMail::FindMboxDirs(nsIFile *aFolder, nsIMutableArray *
 
   bool hasMore = false;
   while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) && hasMore) {
-
     // get the next file entry
     nsCOMPtr<nsIFile> currentEntry;
-    {
-      nsCOMPtr<nsISupports> rawSupports;
-      directoryEnumerator->GetNext(getter_AddRefs(rawSupports));
-      if (!rawSupports)
-        continue;
-      currentEntry = do_QueryInterface(rawSupports);
-      if (!currentEntry)
-        continue;
-    }
+    directoryEnumerator->GetNextFile(getter_AddRefs(currentEntry));
+    if (!currentEntry)
+      continue;
 
     // we only care about directories...
     if (NS_FAILED(currentEntry->IsDirectory(&isDir)) || !isDir)
@@ -537,15 +519,9 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
     while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) && hasMore) {
       // get the next file entry
       nsCOMPtr<nsIFile> currentEntry;
-      {
-        nsCOMPtr<nsISupports> rawSupports;
-        directoryEnumerator->GetNext(getter_AddRefs(rawSupports));
-        if (!rawSupports)
-          continue;
-        currentEntry = do_QueryInterface(rawSupports);
-        if (!currentEntry)
-          continue;
-      }
+      directoryEnumerator->GetNextFile(getter_AddRefs(currentEntry));
+      if (!currentEntry)
+        continue;
 
       // make sure it's an .emlx file
       bool isFile = false;

@@ -64,10 +64,9 @@ nsresult nsMsgMaildirStore::AddSubFolders(nsIMsgFolder *parent, nsIFile *path,
   while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) &&
          hasMore)
   {
-    nsCOMPtr<nsISupports> aSupport;
-    directoryEnumerator->GetNext(getter_AddRefs(aSupport));
-    nsCOMPtr<nsIFile> currentFile(do_QueryInterface(aSupport, &rv));
-    if (currentFile) {
+    nsCOMPtr<nsIFile> currentFile;
+    rv = directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
+    if (NS_SUCCEEDED(rv) && currentFile) {
       nsAutoString leafName;
       currentFile->GetLeafName(leafName);
       bool isDirectory = false;
@@ -1259,10 +1258,8 @@ void MaildirStoreParser::TimerCallback(nsITimer *aTimer, void *aClosure)
     delete parser;
     return;
   }
-  nsCOMPtr<nsISupports> aSupport;
-  parser->m_directoryEnumerator->GetNext(getter_AddRefs(aSupport));
-  nsresult rv;
-  nsCOMPtr<nsIFile> currentFile(do_QueryInterface(aSupport, &rv));
+  nsCOMPtr<nsIFile> currentFile;
+  nsresult rv = parser->m_directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
   NS_ENSURE_SUCCESS_VOID(rv);
   parser->ParseNextMessage(currentFile);
   // ### TODO - what if this fails?

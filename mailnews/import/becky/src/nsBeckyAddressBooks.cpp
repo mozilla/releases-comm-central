@@ -161,12 +161,9 @@ nsBeckyAddressBooks::HasAddressBookFile(nsIFile *aDirectory)
   NS_ENSURE_SUCCESS(rv, false);
 
   bool more;
-  nsCOMPtr<nsISupports> entry;
   while (NS_SUCCEEDED(entries->HasMoreElements(&more)) && more) {
-    rv = entries->GetNext(getter_AddRefs(entry));
-    NS_ENSURE_SUCCESS(rv, false);
-
-    nsCOMPtr<nsIFile> file = do_QueryInterface(entry, &rv);
+    nsCOMPtr<nsIFile> file;
+    rv = entries->GetNextFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, false);
     if (IsAddressBookFile(file))
       return true;
@@ -193,12 +190,9 @@ nsBeckyAddressBooks::CountAddressBookSize(nsIFile *aDirectory)
 
   uint32_t total = 0;
   bool more;
-  nsCOMPtr<nsISupports> entry;
   while (NS_SUCCEEDED(entries->HasMoreElements(&more)) && more) {
-    rv = entries->GetNext(getter_AddRefs(entry));
-    NS_ENSURE_SUCCESS(rv, 0);
-
-    nsCOMPtr<nsIFile> file = do_QueryInterface(entry, &rv);
+    nsCOMPtr<nsIFile> file;
+    rv = entries->GetNextFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, 0);
 
     int64_t size;
@@ -249,12 +243,9 @@ nsBeckyAddressBooks::CollectAddressBooks(nsIFile *aTarget,
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool more;
-  nsCOMPtr<nsISupports> entry;
   while (NS_SUCCEEDED(entries->HasMoreElements(&more)) && more) {
-    rv = entries->GetNext(getter_AddRefs(entry));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIFile> file = do_QueryInterface(entry, &rv);
+    nsCOMPtr<nsIFile> file;
+    rv = entries->GetNextFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
 
     bool isDirectory = false;
@@ -323,13 +314,10 @@ nsBeckyAddressBooks::ImportAddressBook(nsIImportABDescriptor *aSource,
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool more;
-  nsCOMPtr<nsISupports> entry;
   nsAutoString error;
   while (NS_SUCCEEDED(entries->HasMoreElements(&more)) && more) {
-    rv = entries->GetNext(getter_AddRefs(entry));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIFile> file = do_QueryInterface(entry, &rv);
+    nsCOMPtr<nsIFile> file;
+    rv = entries->GetNextFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (!IsAddressBookFile(file))

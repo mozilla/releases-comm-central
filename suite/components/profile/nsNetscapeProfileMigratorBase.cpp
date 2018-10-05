@@ -462,7 +462,6 @@ nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir,
   rv = destDir->Exists(&exists);
   if (NS_SUCCEEDED(rv) && !exists)
     rv = destDir->Create(nsIFile::DIRECTORY_TYPE, 0775);
-
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDirectoryEnumerator> dirIterator;
@@ -470,15 +469,9 @@ nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir,
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasMore = false;
-  rv = dirIterator->HasMoreElements(&hasMore);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIFile> dirEntry;
-
-  while (hasMore) {
-    nsCOMPtr<nsISupports> supports;
-    rv = dirIterator->GetNext(getter_AddRefs(supports));
-    dirEntry = do_QueryInterface(supports);
+  while (NS_SUCCEEDED(dirIterator->HasMoreElements(&hasMore)) && hasMore) {
+    nsCOMPtr<nsIFile> dirEntry;
+    rv = dirIterator->GetNextFile(getter_AddRefs(dirEntry));
     if (NS_SUCCEEDED(rv) && dirEntry) {
       rv = dirEntry->IsDirectory(&isDir);
       if (NS_SUCCEEDED(rv)) {
@@ -510,9 +503,6 @@ nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir,
         }
       }
     }
-    rv = dirIterator->HasMoreElements(&hasMore);
-    if (NS_FAILED(rv))
-      return rv;
   }
 
   return rv;

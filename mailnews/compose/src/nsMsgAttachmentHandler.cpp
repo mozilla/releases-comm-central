@@ -32,7 +32,6 @@
 #include "nsNativeCharsetUtils.h"
 #include "nsComposeStrings.h"
 #include "nsIZipWriter.h"
-#include "nsIDirectoryEnumerator.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "nsIPrincipal.h"

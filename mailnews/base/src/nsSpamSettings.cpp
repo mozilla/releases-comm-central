@@ -28,7 +28,6 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsISimpleEnumerator.h"
-#include "nsIDirectoryEnumerator.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbManager.h"
 #include "nsIMsgAccountManager.h"

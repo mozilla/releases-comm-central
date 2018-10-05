@@ -212,11 +212,8 @@ nsBeckyMail::CollectMailboxesInDirectory(nsIFile *aDirectory,
 
   bool more;
   while (NS_SUCCEEDED(entries->HasMoreElements(&more)) && more) {
-    nsCOMPtr<nsISupports> entry;
-    rv = entries->GetNext(getter_AddRefs(entry));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIFile> file = do_QueryInterface(entry, &rv);
+    nsCOMPtr<nsIFile> file;
+    rv = entries->GetNextFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoString name;

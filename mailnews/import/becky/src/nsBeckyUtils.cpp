@@ -86,11 +86,9 @@ nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile **aLocation)
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool more;
-  nsCOMPtr<nsISupports> entry;
   while (NS_SUCCEEDED(entries->HasMoreElements(&more)) && more) {
-    rv = entries->GetNext(getter_AddRefs(entry));
-
-    nsCOMPtr<nsIFile> file = do_QueryInterface(entry, &rv);
+    nsCOMPtr<nsIFile> file;
+    rv = entries->GetNextFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
 
     bool isDirectory = false;

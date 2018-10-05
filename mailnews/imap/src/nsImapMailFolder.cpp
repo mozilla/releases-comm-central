@@ -1,4 +1,5 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode:
+ C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -71,6 +72,7 @@
 #include "nsIMsgComposeService.h"
 #include "nsMsgCompCID.h"
 #include "nsDirectoryServiceDefs.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsIMsgIdentity.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsNativeCharsetUtils.h"
@@ -122,21 +124,16 @@ nsresult RecursiveCopy(nsIFile* srcDir, nsIFile* destDir)
     rv = destDir->Create(nsIFile::DIRECTORY_TYPE, 0775);
   if (NS_FAILED(rv)) return rv;
 
-  bool hasMore = false;
+
   nsCOMPtr<nsIDirectoryEnumerator> dirIterator;
   rv = srcDir->GetDirectoryEntries(getter_AddRefs(dirIterator));
   if (NS_FAILED(rv)) return rv;
 
-  rv = dirIterator->HasMoreElements(&hasMore);
-  if (NS_FAILED(rv)) return rv;
-
-  nsCOMPtr<nsIFile> dirEntry;
-
-  while (hasMore)
+  bool hasMore = false;
+  while (NS_SUCCEEDED(dirIterator->HasMoreElements(&hasMore)) && hasMore)
   {
-    nsCOMPtr<nsISupports> supports;
-    rv = dirIterator->GetNext(getter_AddRefs(supports));
-    dirEntry = do_QueryInterface(supports);
+    nsCOMPtr<nsIFile> dirEntry;
+    rv = dirIterator->GetNextFile(getter_AddRefs(dirEntry));
     if (NS_SUCCEEDED(rv) && dirEntry)
     {
       rv = dirEntry->IsDirectory(&isDir);
@@ -162,8 +159,6 @@ nsresult RecursiveCopy(nsIFile* srcDir, nsIFile* destDir)
       }
 
     }
-    rv = dirIterator->HasMoreElements(&hasMore);
-    if (NS_FAILED(rv)) return rv;
   }
 
   return rv;
@@ -430,13 +425,11 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile *path)
   bool more = false;
   if (children)
     children->HasMoreElements(&more);
-  nsCOMPtr<nsIFile> currentFolderPath;
 
   while (more)
   {
-    nsCOMPtr<nsISupports> supports;
-    rv = children->GetNext(getter_AddRefs(supports));
-    currentFolderPath = do_QueryInterface(supports);
+    nsCOMPtr<nsIFile> currentFolderPath;
+    rv = children->GetNextFile(getter_AddRefs(currentFolderPath));
     if (NS_FAILED(rv) || !currentFolderPath)
       break;
     rv = children->HasMoreElements(&more);

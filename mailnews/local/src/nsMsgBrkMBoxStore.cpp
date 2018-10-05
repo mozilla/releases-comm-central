@@ -15,6 +15,7 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
+#include "nsIDirectoryEnumerator.h"
 #include "nsIMsgHdr.h"
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
@@ -1039,9 +1040,8 @@ nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent, nsCOMPtr<nsIFile> &path,
   while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) &&
          hasMore)
   {
-    nsCOMPtr<nsISupports> aSupport;
-    directoryEnumerator->GetNext(getter_AddRefs(aSupport));
-    nsCOMPtr<nsIFile> currentFile(do_QueryInterface(aSupport, &rv));
+    nsCOMPtr<nsIFile> currentFile;
+    directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
     if (currentFile)
       currentDirEntries.AppendObject(currentFile);
   }
