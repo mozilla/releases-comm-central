@@ -36,7 +36,6 @@
 #include "nsILineInputStream.h"
 
 #include "nsIMsgWindow.h"
-#include "nsIPrompt.h"
 #include "nsIWindowWatcher.h"
 
 #include "nsNetUtil.h"
@@ -45,7 +44,6 @@
 #include "nsNetCID.h"
 #include "nsINntpUrl.h"
 
-#include "nsIInterfaceRequestor.h"
 #include "nsArrayEnumerator.h"
 #include "nsNewsDownloader.h"
 #include "nsIStringBundle.h"

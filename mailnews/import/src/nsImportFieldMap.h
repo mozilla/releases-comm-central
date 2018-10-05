@@ -11,7 +11,7 @@
 #include "nsIAddrDatabase.h" // For SetFieldValue() arguments
 #include "nsTArray.h"
 #include "nsString.h"
-
+#include "nsIStringBundle.h"
 
 ////////////////////////////////////////////////////////////////////////
 

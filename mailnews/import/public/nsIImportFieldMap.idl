@@ -20,7 +20,6 @@ interface nsIAddrDatabase;
 %{C++
 class nsIMdbRow;
 %}
-interface nsIAbCard;
 
 [scriptable, uuid(deee9264-1fe3-47b1-b745-47b22de454e2)]
 interface nsIImportFieldMap : nsISupports

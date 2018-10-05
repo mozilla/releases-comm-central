@@ -5,8 +5,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIAbCard;
-
 /**
  * nsIAbAddressCollector is the interface to the address collecter service.
  * It will save and update the supplied addresses into the address book

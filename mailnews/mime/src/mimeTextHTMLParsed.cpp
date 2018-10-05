@@ -26,7 +26,6 @@
 #include "nsIDocument.h"
 #include "nsIDocumentEncoder.h"
 #include "mozilla/ErrorResult.h"
-#include "nsIPrefBranch.h"
 #include "mimethtm.h"
 
 #define MIME_SUPERCLASS mimeInlineTextHTMLClass

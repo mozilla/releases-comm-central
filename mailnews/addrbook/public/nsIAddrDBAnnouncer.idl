@@ -4,9 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsIAbCard.idl"
-#include "nsIAbDirectory.idl"
 
+
+interface nsIAbCard;
+interface nsIAbDirectory;
 interface nsIAddrDBListener;
 
 [scriptable, uuid(166b19a1-1235-4613-9601-816dedc48c9e)]

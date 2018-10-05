@@ -28,9 +28,6 @@
 #include "nsNntpMockChannel.h"
 #include "nsAutoPtr.h"
 
-class nsINntpUrl;
-class nsIMsgMailNewsUrl;
-
 /* get some implementation from nsMsgIncomingServer */
 class nsNntpIncomingServer : public nsMsgIncomingServer,
                              public nsINntpIncomingServer,

@@ -8,13 +8,10 @@
 #include "nsIAbDirectory.idl"
 
 interface nsIFile;
-interface nsIMdbTableRowCursor;
-interface nsIMdbEnv;
 [ptr] native nsIMdbRow (nsIMdbRow);
 %{C++
 class nsIMdbRow;
 %}
-interface nsIArray;
 interface nsISimpleEnumerator;
 
 %{C++

@@ -34,7 +34,6 @@
 #include "nsMsgUtils.h"
 #include "prprf.h"
 #include "prmem.h"
-#include "nsISeekableStream.h"
 #include "nsMsgSearchCore.h"
 #include "nsMailHeaders.h"
 #include "nsIMsgMailSession.h"

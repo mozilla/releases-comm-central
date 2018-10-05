@@ -14,6 +14,8 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIImapIncomingServer.h"
+#include "nsIImapMailFolderSink.h"
+#include "nsIImapMessageSink.h"
 #include "nsIImapServerSink.h"
 #include "nsIImapMockChannel.h"
 #include "nsImapUtils.h"

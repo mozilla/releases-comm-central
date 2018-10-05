@@ -11,12 +11,12 @@
 #include "nsString.h"
 #include "nsIFile.h"
 #include "nsIImportService.h"
+#include "nsIOutputStream.h"
 
 class nsIMsgSend;
 class nsIMsgCompFields;
 class nsIMsgIdentity;
 class nsIMsgSendListener;
-class nsIIOService;
 
 #include "nsIMsgSend.h"
 #include "nsNetUtil.h"

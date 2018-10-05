@@ -8,7 +8,7 @@
 
 #include "mimemsig.h"
 
-class nsICMSMessage;
+class nsICMSMessage; // for function arguments in mimemcms.h
 
 /* The MimeMultipartSignedCMS class implements a multipart/signed MIME
    container with protocol=application/x-CMS-signature, which passes the

@@ -9,7 +9,6 @@
 interface mozIDOMWindowProxy;
 interface nsIAbDirectory;
 interface nsIAbCard;
-interface nsIAbDirectoryProperties;
 interface nsIFile;
 interface nsISimpleEnumerator;
 interface nsIAbBooleanExpression;

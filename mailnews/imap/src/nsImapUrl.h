@@ -10,11 +10,6 @@
 #include "nsIImapUrl.h"
 #include "nsCOMPtr.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsIImapMockChannel.h" // for the mockChannel attribute from .idl
-#include "nsIImapMailFolderSink.h" // for the imapMailFolderSink attribute from .idl
-#include "nsIImapServerSink.h" // for the imapServerSink attribute from .idl
-#include "nsIImapMessageSink.h" // for the imapMessageSink attribute from .idl
-
 #include "nsWeakPtr.h"
 #include "nsIFile.h"
 #include "mozilla/Mutex.h"

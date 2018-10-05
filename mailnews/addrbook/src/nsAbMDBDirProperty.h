@@ -14,10 +14,7 @@
 
 #include "nsIAbMDBDirectory.h"
 #include "nsAbDirProperty.h"
-#include "nsIAbCard.h"
 #include "nsCOMPtr.h"
-#include "nsDirPrefs.h"
-#include "nsIAddrDatabase.h"
 
  /*
   * Address Book Directory

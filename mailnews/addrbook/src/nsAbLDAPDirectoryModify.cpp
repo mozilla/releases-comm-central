@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbLDAPDirectoryModify.h"
+#include "nsAbLDAPListenerBase.h"
 #include "nsILDAPMessage.h"
 #include "nsILDAPConnection.h"
 #include "nsILDAPErrors.h"

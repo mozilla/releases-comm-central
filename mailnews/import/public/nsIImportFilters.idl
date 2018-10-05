@@ -9,7 +9,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIMsgAccount;
 interface nsIFile;
 
 [scriptable, uuid(f2680ccf-d110-4b5b-954d-e072d4a16129)]
@@ -24,9 +23,3 @@ interface nsIImportFilters : nsISupports
   */
   boolean  Import( out wstring aError);
 };
-
-
-
-%{ C++
-
-%}

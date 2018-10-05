@@ -9,8 +9,6 @@
 #include <Foundation/NSString.h>
 #include "nsString.h"
 
-class nsAbCardProperty;
-
 NSString *WrapString(const nsString &aString);
 void AppendToString(const NSString *aString, nsString &aResult);
 void AssignToString(const NSString *aString, nsString &aResult);

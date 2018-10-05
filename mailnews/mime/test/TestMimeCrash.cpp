@@ -1,8 +1,5 @@
 // This is a crash test for Bug 556351
 
-#include "nsIServiceManager.h"
-#include "nsIComponentManager.h"
-#include "nsIComponentRegistrar.h"
 #include "nsCOMPtr.h"
 #include "nsIMimeConverter.h"
 #include "nsServiceManagerUtils.h"

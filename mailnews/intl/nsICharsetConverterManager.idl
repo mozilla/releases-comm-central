@@ -15,8 +15,6 @@
 #define NS_CHARSETCONVERTERMANAGER_CONTRACTID "@mozilla.org/charset-converter-manager;1"
 %}
 
-interface nsIUTF8StringEnumerator;
-
 [scriptable, uuid(a0550d46-8d9c-47dd-acc7-c083620dff12)]
 interface nsICharsetConverterManager : nsISupports
 {

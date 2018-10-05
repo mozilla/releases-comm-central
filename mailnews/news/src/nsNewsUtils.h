@@ -9,8 +9,6 @@
 #include "nsString.h"
 #include "MailNewsTypes2.h"
 
-class nsIMsgNewsFolder;
-
 #define kNewsRootURI "news:/"
 #define kNntpRootURI "nntp:/"
 #define kNewsMessageRootURI "news-message:/"

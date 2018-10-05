@@ -30,12 +30,9 @@
 #include "nsTObserverArray.h"
 #include "nsSimpleEnumerator.h"
 
-class ListContext;
-class nsMsgKeySet;
 class nsMsgThread;
 class nsMsgDatabase;
 class nsIMsgThread;
-class nsIDBFolderInfo;
 
 const int32_t kMsgDBVersion = 1;
 

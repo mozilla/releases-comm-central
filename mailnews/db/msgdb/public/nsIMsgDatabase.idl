@@ -29,7 +29,6 @@
 
 interface nsIMutableArray;
 interface nsIMsgDatabase;
-interface nsIMsgDBView;
 interface nsIDBChangeListener;
 interface nsIMsgDBHdr;
 interface nsISimpleEnumerator;

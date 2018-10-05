@@ -29,11 +29,6 @@
 
 class nsByteArray;
 class nsOutputFileStream;
-class nsIOFileStream;
-class nsInputFileStream;
-class nsIMsgFilter;
-class MSG_FolderInfoMail;
-class nsIMsgFilterList;
 class nsIMsgFolder;
 
 /* Used for the various things that parse RFC822 headers...

@@ -204,10 +204,6 @@
 typedef struct MimeObject      MimeObject;
 typedef struct MimeObjectClass MimeObjectClass;
 
-#ifdef ENABLE_SMIME
-class nsICMSMessage;
-#endif // ENABLE_SMIME
-
 /* (I don't pretend to understand this.) */
 #define cpp_stringify_noop_helper(x)#x
 #define cpp_stringify(x) cpp_stringify_noop_helper(x)

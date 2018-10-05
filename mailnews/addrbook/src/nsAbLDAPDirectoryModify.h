@@ -6,11 +6,8 @@
 #ifndef nsAbLDAPDirectoryModify_h__
 #define nsAbLDAPDirectoryModify_h__
 
-#include "nsAbLDAPListenerBase.h"
 #include "nsIAbLDAPDirectory.h"
 #include "nsIArray.h"
-
-class nsILDAPURL;
 
 class nsAbLDAPDirectoryModify
 {

@@ -10,7 +10,6 @@
 #include "nsICharsetConverterManager.h"
 #include "nsIStringBundle.h"
 #include "nsTArray.h"
-#include "nsStringEnumerator.h"
 #include "mozilla/Services.h"
 
 #include "nsComponentManagerUtils.h"

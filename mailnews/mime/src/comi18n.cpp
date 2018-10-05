@@ -5,7 +5,6 @@
 
 #include "comi18n.h"
 #include "nsICharsetDetector.h"
-#include "nsIStringCharsetDetector.h"
 #include "nsCyrillicDetector.h"
 #include "nsUniversalDetector.h"
 #include "nsUdetXPCOMWrapper.h"

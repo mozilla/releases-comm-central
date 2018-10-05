@@ -9,13 +9,14 @@
 #include "mozilla/Attributes.h"
 #include "nsMsgDatabase.h"
 #include "nsMsgMessageFlags.h"
-#include "nsIFile.h"
 #include "nsTArray.h"
 
+#include "nsIDBChangeListener.h"
+#include "nsIMsgOfflineImapOperation.h"
+#include "nsISimpleEnumerator.h"
+#include "nsIFile.h"
+
 // This is the subclass of nsMsgDatabase that handles local mail messages.
-class nsIOFileStream;
-class nsIFile;
-class nsOfflineImapOperation;
 
 class nsMailDatabase : public nsMsgDatabase
 {

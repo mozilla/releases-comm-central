@@ -3,10 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #include "nsISupports.idl"
-#include "nsIAbCard.idl"
-#include "nsIAbDirectory.idl"
 
-interface nsIAddrDBAnnouncer;
+interface nsIAbCard;
+interface nsIAbDirectory;
 
 [scriptable, uuid(5d7e5a7a-1ac9-46dc-abfd-758c98be26e9)]
 interface nsIAddrDBListener : nsISupports {

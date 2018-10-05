@@ -25,7 +25,6 @@ struct Token;
 class TokenEnumeration;
 class TokenAnalyzer;
 class nsIMsgWindow;
-class nsIMimeHeaders;
 class nsIUTF8StringEnumerator;
 struct BaseToken;
 struct CorpusToken;

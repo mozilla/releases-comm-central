@@ -6,9 +6,6 @@
 #include "nsISupports.idl"
 
 interface nsIWebProgressListener;
-interface nsILDAPURL;
-interface nsILDAPConnection;
-interface nsILDAPOperation;
 interface nsIAbLDAPDirectory;
 
 /**
