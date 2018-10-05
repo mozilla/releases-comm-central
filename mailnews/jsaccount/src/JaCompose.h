@@ -46,9 +46,11 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_MSGIOVERRIDE
 
-  NS_FORWARD_NSIMSGCOMPOSE(DELEGATE_JS(nsIMsgCompose, mJsIMsgCompose)->)
-  NS_FORWARD_NSIMSGSENDLISTENER(DELEGATE_JS(nsIMsgSendListener, mJsIMsgSendListener)->)
-  NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(nsIInterfaceRequestor, mJsIInterfaceRequestor)->)
+  NS_FORWARD_NSIMSGCOMPOSE(DELEGATE_JS(mJsIMsgCompose, mMethods, mCppBase)->)
+  NS_FORWARD_NSIMSGSENDLISTENER(DELEGATE_JS(mJsIMsgSendListener, mMethods, mCppBase.get())->)
+  NS_FORWARD_NSIINTERFACEREQUESTOR(
+    DELEGATE_JS(mJsIInterfaceRequestor, mMethods,
+      (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))->)
 
   JaCppComposeDelegator();
 

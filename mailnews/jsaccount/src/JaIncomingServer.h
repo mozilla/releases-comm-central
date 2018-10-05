@@ -50,8 +50,10 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_MSGIOVERRIDE
 
-  NS_FORWARD_NSIMSGINCOMINGSERVER(DELEGATE_JS(nsIMsgIncomingServer, mJsIMsgIncomingServer)->)
-  NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(nsIInterfaceRequestor, mJsIInterfaceRequestor)->)
+  // use mCppBase as a raw pointer where possible
+  NS_FORWARD_NSIMSGINCOMINGSERVER(DELEGATE_JS(mJsIMsgIncomingServer, mMethods, mCppBase)->)
+  NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(mJsIInterfaceRequestor, mMethods,
+    (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))->)
 
   JaCppIncomingServerDelegator();
 

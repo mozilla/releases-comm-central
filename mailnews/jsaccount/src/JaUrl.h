@@ -76,8 +76,10 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_MSGIOVERRIDE
 
-  NS_FORWARD_NSIMSGMESSAGEURL(DELEGATE_JS(nsIMsgMessageUrl, mJsIMsgMessageUrl)->)
-  NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(nsIInterfaceRequestor, mJsIInterfaceRequestor)->)
+  NS_FORWARD_NSIMSGMESSAGEURL(DELEGATE_JS(mJsIMsgMessageUrl, mMethods,
+    (nsCOMPtr<nsIMsgMessageUrl>(do_QueryInterface(mCppBase))))->)
+  NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(mJsIInterfaceRequestor, mMethods,
+    (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))->)
 
   JaCppUrlDelegator();
 

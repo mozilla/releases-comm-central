@@ -64,18 +64,23 @@ public:
   // Note that we do not support override of RDF methods.
   NS_FORWARD_NSIRDFRESOURCE(JaBaseCppMsgFolder::)
   NS_FORWARD_NSIRDFNODE(JaBaseCppMsgFolder::)
-  NS_FORWARD_NSIMSGFOLDER(DELEGATE_JS(nsIMsgFolder, mJsIMsgFolder)->)
+  NS_FORWARD_NSIMSGFOLDER(
+    DELEGATE_JS(mJsIMsgFolder, mMethods, mCppBase)->)
   NS_FORWARD_NSIDBCHANGELISTENER(
-    DELEGATE_JS(nsIDBChangeListener, mJsIDBChangeListener)->)
-  NS_FORWARD_NSIURLLISTENER(DELEGATE_JS(nsIUrlListener, mJsIUrlListener)->)
+    DELEGATE_JS(mJsIDBChangeListener, mMethods,
+      (nsCOMPtr<nsIDBChangeListener>(do_QueryInterface(mCppBase))))->)
+  NS_FORWARD_NSIURLLISTENER(
+    DELEGATE_JS(mJsIUrlListener, mMethods,
+      (nsCOMPtr<nsIUrlListener>(do_QueryInterface(mCppBase))))->)
   NS_FORWARD_NSIJUNKMAILCLASSIFICATIONLISTENER(
-      DELEGATE_JS(nsIJunkMailClassificationListener,
-                  mJsIJunkMailClassificationListener)->)
+    DELEGATE_JS(mJsIJunkMailClassificationListener, mMethods,
+      (nsCOMPtr<nsIJunkMailClassificationListener>(do_QueryInterface(mCppBase))))->)
   NS_FORWARD_NSIMSGTRAITCLASSIFICATIONLISTENER(
-      DELEGATE_JS(nsIMsgTraitClassificationListener,
-                  mJsIMsgTraitClassificationListener)->)
+    DELEGATE_JS(mJsIMsgTraitClassificationListener, mMethods,
+      (nsCOMPtr<nsIMsgTraitClassificationListener>(do_QueryInterface(mCppBase))))->)
   NS_FORWARD_NSIINTERFACEREQUESTOR(
-      DELEGATE_JS(nsIInterfaceRequestor, mJsIInterfaceRequestor)->)
+    DELEGATE_JS(mJsIInterfaceRequestor, mMethods,
+      (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))->)
 
   JaCppMsgFolderDelegator();
 

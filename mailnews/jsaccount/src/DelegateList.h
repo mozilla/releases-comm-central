@@ -36,18 +36,17 @@ protected:
 
 /*
  * This macro is used in forwarding functions.
- *   _interface: the interface being forwarded.
  *   _jsdelegate: the name of the JS pointer that implements a particular
  *                interface.
+ *   _jsmethods:  the DelegateList object
+ *   _cppbase:    the C++ base instance (used when call not delegated to js)
  *
- * You must follow the naming convention:
- *   1) use mCppBase as the name of the C++ base class instance.
- *   2) use mMethod as the name of the DelegateList object.
  **/
 
-#define DELEGATE_JS(_interface, _jsdelegate) (\
-    _jsdelegate && mMethods && \
-    mMethods->Contains(nsLiteralCString(__FUNCTION__)) ? \
-       _jsdelegate : nsCOMPtr<_interface>(do_QueryInterface(mCppBase)))
+#define DELEGATE_JS(_jsdelegate, _jsmethods, _cppbase) (\
+    _jsdelegate && _jsmethods && \
+    _jsmethods->Contains(nsLiteralCString(__FUNCTION__)) ? \
+       _jsdelegate : (_cppbase))
+
 
 #endif
