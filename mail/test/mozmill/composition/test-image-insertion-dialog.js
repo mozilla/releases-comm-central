@@ -30,6 +30,7 @@ function setupModule(module) {
   kh.installInto(module);
 }
 
+test_image_insertion_dialog_persist.__force_skip__ = true;  // See bug 1496704.
 function test_image_insertion_dialog_persist() {
   let cwc = open_compose_new_mail();
 
