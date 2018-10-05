@@ -170,7 +170,7 @@ MimePartBufferWrite (MimePartBufferData *data,
     nsCOMPtr <nsIFile> tmpFile;
     nsresult rv = nsMsgCreateTempFile("nsma", getter_AddRefs(tmpFile));
     NS_ENSURE_SUCCESS(rv, MIME_UNABLE_TO_OPEN_TMP_FILE);
-    data->file_buffer = do_QueryInterface(tmpFile);
+    data->file_buffer = tmpFile;
 
     rv = MsgNewBufferedFileOutputStream(getter_AddRefs(data->output_file_stream), data->file_buffer, PR_WRONLY | PR_CREATE_FILE, 00600);
     NS_ENSURE_SUCCESS(rv, MIME_UNABLE_TO_OPEN_TMP_FILE);
@@ -201,7 +201,7 @@ MimePartBufferWrite (MimePartBufferData *data,
         nsCOMPtr <nsIFile> tmpFile;
         rv = nsMsgCreateTempFile("nsma", getter_AddRefs(tmpFile));
         NS_ENSURE_SUCCESS(rv, MIME_UNABLE_TO_OPEN_TMP_FILE);
-        data->file_buffer = do_QueryInterface(tmpFile);
+        data->file_buffer = tmpFile;
 
       }
 

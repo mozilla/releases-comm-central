@@ -53,7 +53,7 @@ nsURLFetcher::nsURLFetcher()
   mOnStopRequestProcessed = false;
   mIsFile=false;
   nsURLFetcherStreamConsumer *consumer = new nsURLFetcherStreamConsumer(this);
-  mConverter = do_QueryInterface(consumer);
+  mConverter = consumer;
 }
 
 nsURLFetcher::~nsURLFetcher()

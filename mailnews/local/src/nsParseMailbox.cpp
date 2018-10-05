@@ -1680,6 +1680,7 @@ nsParseNewMailState::Init(nsIMsgFolder *serverFolder, nsIMsgFolder *downloadFold
                           nsIMsgWindow *aMsgWindow, nsIMsgDBHdr *aHdr,
                           nsIOutputStream *aOutputStream)
 {
+  NS_ENSURE_ARG_POINTER(serverFolder);
   nsresult rv;
   Clear();
   m_rootFolder = serverFolder;
@@ -1695,11 +1696,9 @@ nsParseNewMailState::Init(nsIMsgFolder *serverFolder, nsIMsgFolder *downloadFold
     rv = msgDBService->OpenFolderDB(downloadFolder, false,
                                     getter_AddRefs(m_mailDB));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr <nsIMsgFolder> rootMsgFolder = do_QueryInterface(serverFolder, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = rootMsgFolder->GetServer(getter_AddRefs(server));
+  rv = serverFolder->GetServer(getter_AddRefs(server));
   if (NS_SUCCEEDED(rv))
   {
     rv = server->GetFilterList(aMsgWindow, getter_AddRefs(m_filterList));
@@ -1710,7 +1709,7 @@ nsParseNewMailState::Init(nsIMsgFolder *serverFolder, nsIMsgFolder *downloadFold
     // we'll use that server's filters as well.
     nsCOMPtr <nsIMsgFolder> deferredToRootFolder;
     server->GetRootMsgFolder(getter_AddRefs(deferredToRootFolder));
-    if (rootMsgFolder != deferredToRootFolder)
+    if (serverFolder != deferredToRootFolder)
     {
       nsCOMPtr <nsIMsgIncomingServer> deferredToServer;
       deferredToRootFolder->GetServer(getter_AddRefs(deferredToServer));
@@ -1918,11 +1917,10 @@ void nsParseNewMailState::ApplyFilters(bool *pMoved, nsIMsgWindow *msgWindow, ui
   {
     nsCOMPtr<nsIMsgDBHdr> msgHdr = m_newMsgHdr;
     nsCOMPtr<nsIMsgFolder> downloadFolder = m_downloadFolder;
-    nsCOMPtr <nsIMsgFolder> rootMsgFolder = do_QueryInterface(m_rootFolder);
-    if (rootMsgFolder)
+    if (m_rootFolder)
     {
       if (!downloadFolder)
-        rootMsgFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox,
+        m_rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox,
                                           getter_AddRefs(downloadFolder));
       if (downloadFolder)
         downloadFolder->GetURI(m_inboxUri);

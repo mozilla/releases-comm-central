@@ -231,8 +231,7 @@ nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin)
 
   window->GetDocShell()->SetAppType(nsIDocShell::APP_TYPE_MAIL);
 
-  nsCOMPtr<nsIDocShellTreeItem> docShellAsItem =
-    do_QueryInterface(window->GetDocShell());
+  nsCOMPtr<nsIDocShellTreeItem> docShellAsItem =  window->GetDocShell();
   NS_ENSURE_TRUE(docShellAsItem, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
@@ -267,9 +266,8 @@ nsMsgPrintEngine::ShowWindow(bool aShow)
   NS_ENSURE_TRUE(mWindow, NS_ERROR_NOT_INITIALIZED);
 
   nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(mWindow);
-  nsCOMPtr <nsIDocShellTreeItem> treeItem =
-    do_QueryInterface(window->GetDocShell(), &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
+  nsCOMPtr<nsIDocShellTreeItem> treeItem = window->GetDocShell();
+  NS_ENSURE_TRUE(treeItem, NS_ERROR_NULL_POINTER);
 
   nsCOMPtr <nsIDocShellTreeOwner> treeOwner;
   rv = treeItem->GetTreeOwner(getter_AddRefs(treeOwner));
@@ -358,7 +356,7 @@ nsMsgPrintEngine::ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify)
     }
     if (mPrintPromptService)
     {
-      nsCOMPtr<mozIDOMWindowProxy> domWin(do_QueryInterface(mParentWindow));
+      nsCOMPtr<mozIDOMWindowProxy> domWin = mParentWindow;
       if (!domWin)
       {
         domWin = mWindow;

@@ -351,7 +351,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::IsUrlType(uint32_t type, bool *isType)
 NS_IMETHODIMP nsMsgMailNewsUrl::SetSearchSession(nsIMsgSearchSession *aSearchSession)
 {
   if (aSearchSession)
-    m_searchSession = do_QueryInterface(aSearchSession);
+    m_searchSession = aSearchSession;
   return NS_OK;
 }
 

@@ -786,8 +786,7 @@ already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(nsIS
   nsIDocShell *shell = NS_CP_GetDocShellFromContext(aRequestingContext);
   if (!shell)
     return nullptr;
-  nsCOMPtr<nsIDocShellTreeItem> docShellTreeItem(do_QueryInterface(shell, &rv));
-  NS_ENSURE_SUCCESS(rv, nullptr);
+  nsCOMPtr<nsIDocShellTreeItem> docShellTreeItem(shell);
 
   nsCOMPtr<nsIDocShellTreeItem> rootItem;
   rv = docShellTreeItem->GetSameTypeRootTreeItem(getter_AddRefs(rootItem));
@@ -843,8 +842,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   nsCOMPtr<nsIDocShell> docShell = frameLoader->GetDocShell(mozilla::IgnoreErrors());
   NS_ENSURE_TRUE(docShell, NS_ERROR_INVALID_POINTER);
 
-  nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(do_QueryInterface(docShell, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(docShell);
 
   // what sort of docshell is this?
   int32_t itemType;
@@ -896,8 +894,8 @@ nsMsgContentPolicy::GetRootDocShellForContext(nsISupports *aRequestingContext,
   nsresult rv;
 
   nsIDocShell *shell = NS_CP_GetDocShellFromContext(aRequestingContext);
-  nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(do_QueryInterface(shell, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(shell, NS_ERROR_NULL_POINTER);
+  nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(shell);
 
   nsCOMPtr<nsIDocShellTreeItem> rootItem;
   rv = docshellTreeItem->GetRootTreeItem(getter_AddRefs(rootItem));
@@ -926,8 +924,7 @@ nsMsgContentPolicy::GetOriginatingURIForContext(nsISupports *aRequestingContext,
     *aURI = nullptr;
     return NS_OK;
   }
-  nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(do_QueryInterface(shell, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(shell);
 
   nsCOMPtr<nsIDocShellTreeItem> rootItem;
   rv = docshellTreeItem->GetSameTypeRootTreeItem(getter_AddRefs(rootItem));

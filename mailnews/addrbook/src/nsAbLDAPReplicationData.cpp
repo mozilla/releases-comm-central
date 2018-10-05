@@ -385,11 +385,7 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate)
             Done(false);
             return rv;
         }
-        mBackupReplicationFile = do_QueryInterface(clone, &rv);
-        if(NS_FAILED(rv))  {
-            Done(false);
-            return rv;
-        }
+        mBackupReplicationFile = clone;
         rv = mBackupReplicationFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0777);
         if(NS_FAILED(rv))  {
             Done(false);

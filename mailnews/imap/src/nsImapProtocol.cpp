@@ -743,9 +743,8 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer)
       // See the comment in nsMsgMailNewsUrl::GetLoadGroup.
       nsCOMPtr<nsILoadGroup> loadGroup;
       mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup)); // get the message pane load group
-      nsCOMPtr<nsIRequest> ourRequest = do_QueryInterface(m_mockChannel);
       if (loadGroup)
-        loadGroup->AddRequest(ourRequest, nullptr /* context isupports */);
+        loadGroup->AddRequest(m_mockChannel, nullptr /* context isupports */);
     }
 
     if (m_mockChannel)
@@ -1608,8 +1607,7 @@ bool nsImapProtocol::ProcessCurrentURL()
       // to run the folder load url and get off this crazy merry-go-round.
       if (m_channelListener)
       {
-        nsCOMPtr<nsIRequest> request = do_QueryInterface(m_mockChannel);
-        m_channelListener->OnStartRequest(request, m_channelContext);
+        m_channelListener->OnStartRequest(m_mockChannel, m_channelContext);
       }
       return false;
     }
@@ -1644,8 +1642,7 @@ bool nsImapProtocol::ProcessCurrentURL()
   // happens to be using
   if (m_channelListener) // ### not sure we want to do this if rerunning url...
   {
-    nsCOMPtr<nsIRequest> request = do_QueryInterface(m_mockChannel);
-    m_channelListener->OnStartRequest(request, m_channelContext);
+    m_channelListener->OnStartRequest(m_mockChannel, m_channelContext);
   }
   // If we haven't received the greeting yet, we need to make sure we strip
   // it out of the input before we start to do useful things...
@@ -1681,11 +1678,9 @@ bool nsImapProtocol::ProcessCurrentURL()
           if (GetServerStateParser().LastCommandSuccessful())
           {
             nsCOMPtr<nsISupports> secInfo;
-            nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport, &rv);
-            if (NS_FAILED(rv))
-              return false;
 
-            rv = strans->GetSecurityInfo(getter_AddRefs(secInfo));
+            NS_ENSURE_TRUE(m_transport, false);
+            rv = m_transport->GetSecurityInfo(getter_AddRefs(secInfo));
 
             if (NS_SUCCEEDED(rv) && secInfo)
             {
@@ -1799,14 +1794,13 @@ bool nsImapProtocol::ProcessCurrentURL()
 // happens to be using
   if (m_channelListener)
   {
-      nsCOMPtr<nsIRequest> request = do_QueryInterface(m_mockChannel);
-      NS_ASSERTION(request, "no request");
-      if (request) {
+      NS_ASSERTION(m_mockChannel, "no request");
+      if (m_mockChannel) {
         nsresult status;
-        request->GetStatus(&status);
+        m_mockChannel->GetStatus(&status);
         if (!GetServerStateParser().LastCommandSuccessful() && NS_SUCCEEDED(status))
           status = NS_MSG_ERROR_IMAP_COMMAND_FAILED;
-        rv = m_channelListener->OnStopRequest(request, m_channelContext, status);
+        rv = m_channelListener->OnStopRequest(m_mockChannel, m_channelContext, status);
       }
   }
   bool suspendUrl = false;
@@ -3818,8 +3812,7 @@ nsImapProtocol::PostLineDownLoadEvent(const char *line, uint32_t uidOfMessage)
         NS_ASSERTION(count == byteCount, "IMAP channel pipe couldn't buffer entire write");
         if (NS_SUCCEEDED(rv))
         {
-          nsCOMPtr<nsIRequest> request = do_QueryInterface(m_mockChannel);
-          m_channelListener->OnDataAvailable(request, m_channelContext, m_channelInputStream, 0, count);
+          m_channelListener->OnDataAvailable(m_mockChannel, m_channelContext, m_channelInputStream, 0, count);
         }
         // else some sort of explosion?
       }
@@ -4763,14 +4756,10 @@ bool nsImapProtocol::DeathSignalReceived()
   // ### need to make sure we clear pseudo interrupted status appropriately.
   if (!GetPseudoInterrupted() && m_mockChannel)
   {
-    nsCOMPtr<nsIRequest> request = do_QueryInterface(m_mockChannel);
-    if (request)
-    {
-      nsresult returnValue;
-      request->GetStatus(&returnValue);
-      if (NS_FAILED(returnValue))
-        return false;
-    }
+    nsresult returnValue;
+    m_mockChannel->GetStatus(&returnValue);
+    if (NS_FAILED(returnValue))
+      return false;
   }
 
   // Check the other way of cancelling.
@@ -9009,10 +8998,9 @@ nsImapCacheStreamListener::OnStartRequest(nsIRequest *request, nsISupports * aCt
   }
   nsCOMPtr<nsILoadGroup> loadGroup;
   mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
-  nsCOMPtr<nsIRequest> ourRequest = do_QueryInterface(mChannelToUse);
   if (loadGroup)
-    loadGroup->AddRequest(ourRequest, nullptr /* context isupports */);
-  return mListener->OnStartRequest(ourRequest, aCtxt);
+    loadGroup->AddRequest(mChannelToUse, nullptr /* context isupports */);
+  return mListener->OnStartRequest(mChannelToUse, aCtxt);
 }
 
 NS_IMETHODIMP
@@ -9355,7 +9343,7 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew, nsIApp
         if (NS_SUCCEEDED(rv))
         {
           rv = tee->Init(m_channelListener, out, nullptr);
-          m_channelListener = do_QueryInterface(tee);
+          m_channelListener = tee;
         }
         else
           NS_WARNING("IMAP Protocol failed to open output stream to Necko cache");

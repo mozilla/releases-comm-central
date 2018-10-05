@@ -1851,13 +1851,7 @@ InMemoryDataSource::VisitAllSubjects(rdfITripleVisitor *aVisitor)
     nsresult rv = NS_OK;
     for (auto iter = mForwardArcs.Iter(); !iter.Done(); iter.Next()) {
         auto entry = static_cast<Entry*>(iter.Get());
-        nsresult rv2;
-        nsCOMPtr<nsIRDFNode> subject = do_QueryInterface(entry->mNode, &rv2);
-        if (NS_FAILED(rv2)) {
-            NS_WARNING("QI to nsIRDFNode failed");
-            continue;
-        }
-        rv = aVisitor->Visit(subject, nullptr, nullptr, true);
+        rv = aVisitor->Visit(entry->mNode, nullptr, nullptr, true);
         if (NS_FAILED(rv) || rv == NS_RDF_STOP_VISIT) {
             break;
         }
@@ -1880,12 +1874,7 @@ InMemoryDataSource::VisitAllTriples(rdfITripleVisitor *aVisitor)
     for (auto iter = mForwardArcs.Iter(); !iter.Done(); iter.Next()) {
         auto entry = static_cast<Entry*>(iter.Get());
 
-        nsresult rv2;
-        nsCOMPtr<nsIRDFNode> subject = do_QueryInterface(entry->mNode, &rv2);
-        if (NS_FAILED(rv2)) {
-            NS_WARNING("QI to nsIRDFNode failed");
-
-        } else if (entry->mAssertions->mHashEntry) {
+        if (entry->mAssertions->mHashEntry) {
             for (auto iter = entry->mAssertions->u.hash.mPropertyHash->Iter();
                  !iter.Done();
                  iter.Next()) {
@@ -1893,9 +1882,9 @@ InMemoryDataSource::VisitAllTriples(rdfITripleVisitor *aVisitor)
                 Assertion* assertion = entry->mAssertions;
                 while (assertion) {
                     NS_ASSERTION(!assertion->mHashEntry, "shouldn't have to hashes");
-                    rv = aVisitor->Visit(subject, assertion->u.as.mProperty,
-                                                  assertion->u.as.mTarget,
-                                                  assertion->u.as.mTruthValue);
+                    rv = aVisitor->Visit(entry->mNode, assertion->u.as.mProperty,
+                                                       assertion->u.as.mTarget,
+                                                       assertion->u.as.mTruthValue);
                     if (NS_FAILED(rv)) {
                         goto end;
                     }
@@ -1910,9 +1899,9 @@ InMemoryDataSource::VisitAllTriples(rdfITripleVisitor *aVisitor)
             Assertion* assertion = entry->mAssertions;
             while (assertion) {
                 NS_ASSERTION(!assertion->mHashEntry, "shouldn't have to hashes");
-                rv = aVisitor->Visit(subject, assertion->u.as.mProperty,
-                                              assertion->u.as.mTarget,
-                                              assertion->u.as.mTruthValue);
+                rv = aVisitor->Visit(entry->mNode, assertion->u.as.mProperty,
+                                                   assertion->u.as.mTarget,
+                                                   assertion->u.as.mTruthValue);
                 if (NS_FAILED(rv) || rv == NS_RDF_STOP_VISIT) {
                     goto end;
                 }

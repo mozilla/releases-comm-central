@@ -121,7 +121,7 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(bool doNewMailNotification /* = fals
       {
         nsMoveCoalescerCopyListener *copyListener = new nsMoveCoalescerCopyListener(this, destFolder);
         if (copyListener)
-          listener = do_QueryInterface(copyListener);
+          listener = copyListener;
       }
       rv = copySvc->CopyMessages(m_sourceFolder, messages, destFolder, true,
                                  listener, m_msgWindow, false /*allowUndo*/);
@@ -213,8 +213,7 @@ NS_IMETHODIMP nsMoveCoalescerCopyListener::OnStopCopy(nsresult aStatus)
         nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         nsCOMPtr <nsIURI> url;
-        nsCOMPtr <nsIUrlListener> listener = do_QueryInterface(m_coalescer);
-        rv = imapService->SelectFolder(m_destFolder, listener, nullptr, getter_AddRefs(url));
+        rv = imapService->SelectFolder(m_destFolder, m_coalescer, nullptr, getter_AddRefs(url));
       }
     }
     else // give junk filters a chance to run on new msgs in destination local folder

@@ -1509,7 +1509,7 @@ mime_parse_stream_complete(nsMIMESession *stream)
         int64_t fileSize;
         nsCOMPtr<nsIFile> tempFileCopy;
         mdd->messageBody->m_tmpFile->Clone(getter_AddRefs(tempFileCopy));
-        mdd->messageBody->m_tmpFile = do_QueryInterface(tempFileCopy);
+        mdd->messageBody->m_tmpFile = tempFileCopy;
         tempFileCopy = nullptr;
         mdd->messageBody->m_tmpFile->GetFileSize(&fileSize);
         uint32_t bodyLen = 0;
@@ -2063,7 +2063,7 @@ mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers)
   if (!tmpFile)
     return MIME_OUT_OF_MEMORY;
 
-  mdd->tmpFile = do_QueryInterface(tmpFile);
+  mdd->tmpFile = tmpFile;
 
   newAttachment->m_tmpFile = mdd->tmpFile;
 

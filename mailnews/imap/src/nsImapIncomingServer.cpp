@@ -634,10 +634,7 @@ nsresult nsImapIncomingServer::DoomUrlIfChannelHasError(nsIImapUrl *aImapUrl, bo
     if (NS_SUCCEEDED(aImapUrl->GetMockChannel(getter_AddRefs(mockChannel))) && mockChannel)
     {
       nsresult requestStatus;
-      nsCOMPtr<nsIRequest> request = do_QueryInterface(mockChannel);
-      if (!request)
-        return NS_ERROR_FAILURE;
-      request->GetStatus(&requestStatus);
+      mockChannel->GetStatus(&requestStatus);
       if (NS_FAILED(requestStatus))
       {
         nsresult res;
@@ -693,14 +690,9 @@ nsImapIncomingServer::ConnectionTimeOut(nsIImapProtocol* aConnection)
 
   if (PR_Now() - lastActiveTimeStamp >= cacheTimeoutLimits)
   {
-      nsCOMPtr<nsIImapProtocol> aProtocol(do_QueryInterface(aConnection,
-                                                            &rv));
-      if (NS_SUCCEEDED(rv) && aProtocol)
-      {
-        RemoveConnection(aConnection);
-        aProtocol->TellThreadToDie(false);
-        retVal = true;
-      }
+    RemoveConnection(aConnection);
+    aConnection->TellThreadToDie(false);
+    retVal = true;
   }
   return retVal;
 }

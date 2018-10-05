@@ -672,7 +672,7 @@ MimeMultipartRelated_parse_child_line (MimeObject *obj,
     nsCOMPtr <nsIFile> file;
     rv = nsMsgCreateTempFile("nsma", getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, -1);
-    relobj->file_buffer = do_QueryInterface(file);
+    relobj->file_buffer = file;
 
     rv = MsgNewBufferedFileOutputStream(getter_AddRefs(relobj->output_file_stream), relobj->file_buffer, PR_WRONLY | PR_CREATE_FILE, 00600);
     NS_ENSURE_SUCCESS(rv, -1);
@@ -699,7 +699,7 @@ MimeMultipartRelated_parse_child_line (MimeObject *obj,
         nsCOMPtr <nsIFile> file;
         rv = nsMsgCreateTempFile("nsma", getter_AddRefs(file));
         NS_ENSURE_SUCCESS(rv, -1);
-        relobj->file_buffer = do_QueryInterface(file);
+        relobj->file_buffer = file;
       }
 
       nsresult rv = MsgNewBufferedFileOutputStream(getter_AddRefs(relobj->output_file_stream), relobj->file_buffer, PR_WRONLY | PR_CREATE_FILE, 00600);

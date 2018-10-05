@@ -691,7 +691,6 @@ char *MsgMapiListContext::ConvertBodyToMapiFormat (nsIMsgDBHdr *hdr)
   if (!folder)
     return nullptr;
 
-  nsCOMPtr <nsIInputStream> inputStream;
   nsCOMPtr <nsIFile> localFile;
   folder->GetFilePath(getter_AddRefs(localFile));
 
@@ -700,58 +699,55 @@ char *MsgMapiListContext::ConvertBodyToMapiFormat (nsIMsgDBHdr *hdr)
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   rv = fileStream->Init(localFile,  PR_RDONLY, 0664, false);  //just have to read the messages
-  inputStream = do_QueryInterface(fileStream);
+  NS_ENSURE_SUCCESS(rv, nullptr);
 
-  if (inputStream)
+  nsCOMPtr <nsILineInputStream> fileLineStream = do_QueryInterface(fileStream);
+  if (!fileLineStream)
+    return nullptr;
+
+  // ### really want to skip past headers...
+  uint64_t messageOffset;
+  uint32_t lineCount;
+  hdr->GetMessageOffset(&messageOffset);
+  hdr->GetLineCount(&lineCount);
+  nsCOMPtr <nsISeekableStream> seekableStream = do_QueryInterface(fileStream);
+  seekableStream->Seek(PR_SEEK_SET, messageOffset);
+  bool hasMore = true;
+  nsAutoCString curLine;
+
+  while (hasMore) // advance past message headers
   {
-    nsCOMPtr <nsILineInputStream> fileLineStream = do_QueryInterface(inputStream);
-    if (!fileLineStream)
-      return nullptr;
-    // ### really want to skip past headers...
-    uint64_t messageOffset;
-    uint32_t lineCount;
-    hdr->GetMessageOffset(&messageOffset);
-    hdr->GetLineCount(&lineCount);
-    nsCOMPtr <nsISeekableStream> seekableStream = do_QueryInterface(inputStream);
-    seekableStream->Seek(PR_SEEK_SET, messageOffset);
-    bool hasMore = true;
-    nsAutoCString curLine;
-    nsresult rv = NS_OK;
-    while (hasMore) // advance past message headers
-    {
-      nsresult rv = fileLineStream->ReadLine(curLine, &hasMore);
-      if (NS_FAILED(rv) || EMPTY_MESSAGE_LINE(curLine))
-        break;
-    }
-    uint32_t msgSize;
-    hdr->GetMessageSize(&msgSize);
-    if (msgSize > kBufLen)
-      msgSize = kBufLen - 1;
-    // this is too big, since it includes the msg hdr size...oh well
-    char *body = (char*) CoTaskMemAlloc (msgSize + 1);
-
-    if (!body)
-      return nullptr;
-    int32_t bytesCopied = 0;
-    for (hasMore = TRUE; lineCount > 0 && hasMore && NS_SUCCEEDED(rv); lineCount--)
-    {
-      rv = fileLineStream->ReadLine(curLine, &hasMore);
-      if (NS_FAILED(rv))
-        break;
-      curLine.Append(CRLF);
-      // make sure we have room left
-      if (bytesCopied + curLine.Length() < msgSize)
-      {
-        strcpy(body + bytesCopied, curLine.get());
-        bytesCopied += curLine.Length();
-      }
-    }
-    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("ConvertBodyToMapiFormat size=%x allocated size %x body = %100.100s\n",
-        bytesCopied, msgSize + 1, (char *) body) );
-    body[bytesCopied] = '\0';   // rhp - fix last line garbage...
-    return body;
+    nsresult rv = fileLineStream->ReadLine(curLine, &hasMore);
+    if (NS_FAILED(rv) || EMPTY_MESSAGE_LINE(curLine))
+      break;
   }
-  return nullptr;
+  uint32_t msgSize;
+  hdr->GetMessageSize(&msgSize);
+  if (msgSize > kBufLen)
+    msgSize = kBufLen - 1;
+  // this is too big, since it includes the msg hdr size...oh well
+  char *body = (char*) CoTaskMemAlloc (msgSize + 1);
+
+  if (!body)
+    return nullptr;
+  int32_t bytesCopied = 0;
+  for (hasMore = TRUE; lineCount > 0 && hasMore && NS_SUCCEEDED(rv); lineCount--)
+  {
+    rv = fileLineStream->ReadLine(curLine, &hasMore);
+    if (NS_FAILED(rv))
+      break;
+    curLine.Append(CRLF);
+    // make sure we have room left
+    if (bytesCopied + curLine.Length() < msgSize)
+    {
+      strcpy(body + bytesCopied, curLine.get());
+      bytesCopied += curLine.Length();
+    }
+  }
+  MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("ConvertBodyToMapiFormat size=%x allocated size %x body = %100.100s\n",
+      bytesCopied, msgSize + 1, (char *) body) );
+  body[bytesCopied] = '\0';   // rhp - fix last line garbage...
+  return body;
 }
 
 

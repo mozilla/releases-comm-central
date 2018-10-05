@@ -2028,8 +2028,7 @@ nsresult nsMsgDatabase::RemoveHeaderFromThread(nsMsgHdr *msgHdr)
   ret = GetThreadContainingMsgHdr(msgHdr, getter_AddRefs(thread));
   if (NS_SUCCEEDED(ret) && thread)
   {
-    nsCOMPtr <nsIDBChangeAnnouncer> announcer = do_QueryInterface(this);
-    ret = thread->RemoveChildHdr(msgHdr, announcer);
+    ret = thread->RemoveChildHdr(msgHdr, this);
   }
   return ret;
 }
@@ -4562,9 +4561,7 @@ nsresult nsMsgDatabase::ThreadNewHdr(nsMsgHdr* newHdr, bool &newThread)
 nsresult nsMsgDatabase::AddToThread(nsMsgHdr *newHdr, nsIMsgThread *thread, nsIMsgDBHdr *inReplyTo, bool threadInThread)
 {
   // don't worry about real threading yet.
-  nsCOMPtr <nsIDBChangeAnnouncer> announcer = do_QueryInterface(this);
-
-  return thread->AddChild(newHdr, inReplyTo, threadInThread, announcer);
+  return thread->AddChild(newHdr, inReplyTo, threadInThread, this);
 }
 
 nsMsgHdr * nsMsgDatabase::GetMsgHdrForReference(nsCString &reference)

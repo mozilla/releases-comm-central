@@ -2204,8 +2204,7 @@ nsresult nsImapService::GetImapConnectionAndLoadUrl(nsIImapUrl *aImapUrl,
 
   if (aURL)
   {
-    nsCOMPtr<nsIURI> msgUrlUri = do_QueryInterface(msgUrl);
-    msgUrlUri.forget(aURL);
+    msgUrl.forget(aURL);
   }
 
   if (NS_SUCCEEDED(rv) && aMsgIncomingServer)
@@ -2595,16 +2594,15 @@ NS_IMETHODIMP nsImapService::NewURI(const nsACString &aSpec,
       nsCOMPtr<nsIImapMessageSink> msgSink = do_QueryInterface(folder);
       (void) aImapUrl->SetImapMessageSink(msgSink);
 
-      nsCOMPtr<nsIMsgFolder> msgFolder = do_QueryInterface(folder);
-      (void) SetImapUrlSink(msgFolder, aImapUrl);
+      (void) SetImapUrlSink(folder, aImapUrl);
 
       nsCString messageIdString;
       aImapUrl->GetListOfMessageIds(messageIdString);
       if (!messageIdString.IsEmpty())
       {
         bool useLocalCache = false;
-        msgFolder->HasMsgOffline(strtoul(messageIdString.get(), nullptr, 10),
-                                 &useLocalCache);
+        folder->HasMsgOffline(strtoul(messageIdString.get(), nullptr, 10),
+                              &useLocalCache);
         mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
       }
     }

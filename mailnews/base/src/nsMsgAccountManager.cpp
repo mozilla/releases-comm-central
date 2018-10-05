@@ -1600,96 +1600,91 @@ nsMsgAccountManager::CleanupOnExit()
       server->GetType(type);
       if (root)
       {
-        nsCOMPtr<nsIMsgFolder> folder;
-        folder = do_QueryInterface(root);
-        if (folder)
+        nsString passwd;
+        bool serverRequiresPasswordForAuthentication = true;
+        bool isImap = type.EqualsLiteral("imap");
+        if (isImap)
         {
-          nsString passwd;
-          bool serverRequiresPasswordForAuthentication = true;
-          bool isImap = type.EqualsLiteral("imap");
+          server->GetServerRequiresPasswordForBiff(&serverRequiresPasswordForAuthentication);
+          server->GetPassword(passwd);
+        }
+        if (!isImap || (isImap && (!serverRequiresPasswordForAuthentication || !passwd.IsEmpty())))
+        {
+          nsCOMPtr<nsIUrlListener> urlListener;
+          nsCOMPtr<nsIMsgAccountManager> accountManager =
+                   do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+          if (NS_FAILED(rv))
+            continue;
+
           if (isImap)
-          {
-            server->GetServerRequiresPasswordForBiff(&serverRequiresPasswordForAuthentication);
-            server->GetPassword(passwd);
-          }
-          if (!isImap || (isImap && (!serverRequiresPasswordForAuthentication || !passwd.IsEmpty())))
-          {
-            nsCOMPtr<nsIUrlListener> urlListener;
-            nsCOMPtr<nsIMsgAccountManager> accountManager =
-                     do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-            if (NS_FAILED(rv))
-              continue;
+            urlListener = do_QueryInterface(accountManager, &rv);
 
-            if (isImap)
-              urlListener = do_QueryInterface(accountManager, &rv);
-
-            if (isImap && cleanupInboxOnExit)
+          if (isImap && cleanupInboxOnExit)
+          {
+            nsCOMPtr<nsISimpleEnumerator> enumerator;
+            rv = root->GetSubFolders(getter_AddRefs(enumerator));
+            if (NS_SUCCEEDED(rv))
             {
-              nsCOMPtr<nsISimpleEnumerator> enumerator;
-              rv = folder->GetSubFolders(getter_AddRefs(enumerator));
-              if (NS_SUCCEEDED(rv))
+              bool hasMore;
+              while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) &&
+                     hasMore)
               {
-                bool hasMore;
-                while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) &&
-                       hasMore)
+                nsCOMPtr<nsISupports> item;
+                enumerator->GetNext(getter_AddRefs(item));
+
+                nsCOMPtr<nsIMsgFolder> inboxFolder(do_QueryInterface(item));
+                if (!inboxFolder)
+                  continue;
+
+                uint32_t flags;
+                inboxFolder->GetFlags(&flags);
+                if (flags & nsMsgFolderFlags::Inbox)
                 {
-                  nsCOMPtr<nsISupports> item;
-                  enumerator->GetNext(getter_AddRefs(item));
-
-                  nsCOMPtr<nsIMsgFolder> inboxFolder(do_QueryInterface(item));
-                  if (!inboxFolder)
-                    continue;
-
-                  uint32_t flags;
-                  inboxFolder->GetFlags(&flags);
-                  if (flags & nsMsgFolderFlags::Inbox)
-                  {
-                    rv = inboxFolder->Compact(urlListener, nullptr /* msgwindow */);
-                    if (NS_SUCCEEDED(rv))
-                      accountManager->SetFolderDoingCleanupInbox(inboxFolder);
-                    break;
-                  }
+                  rv = inboxFolder->Compact(urlListener, nullptr /* msgwindow */);
+                  if (NS_SUCCEEDED(rv))
+                    accountManager->SetFolderDoingCleanupInbox(inboxFolder);
+                  break;
                 }
               }
             }
+          }
 
+          if (emptyTrashOnExit)
+          {
+            rv = root->EmptyTrash(nullptr, urlListener);
+            if (isImap && NS_SUCCEEDED(rv))
+              accountManager->SetFolderDoingEmptyTrash(root);
+          }
+
+          if (isImap && urlListener)
+          {
+            nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
+
+            bool inProgress = false;
+            if (cleanupInboxOnExit)
+            {
+              int32_t loopCount = 0; // used to break out after 5 seconds
+              accountManager->GetCleanupInboxInProgress(&inProgress);
+              while (inProgress && loopCount++ < 5000)
+              {
+                accountManager->GetCleanupInboxInProgress(&inProgress);
+                PR_CEnterMonitor(root);
+                PR_CWait(root, PR_MicrosecondsToInterval(1000UL));
+                PR_CExitMonitor(root);
+                NS_ProcessPendingEvents(thread, PR_MicrosecondsToInterval(1000UL));
+              }
+            }
             if (emptyTrashOnExit)
             {
-              rv = folder->EmptyTrash(nullptr, urlListener);
-              if (isImap && NS_SUCCEEDED(rv))
-                accountManager->SetFolderDoingEmptyTrash(folder);
-            }
-
-            if (isImap && urlListener)
-            {
-              nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
-
-              bool inProgress = false;
-              if (cleanupInboxOnExit)
-              {
-                int32_t loopCount = 0; // used to break out after 5 seconds
-                accountManager->GetCleanupInboxInProgress(&inProgress);
-                while (inProgress && loopCount++ < 5000)
-                {
-                  accountManager->GetCleanupInboxInProgress(&inProgress);
-                  PR_CEnterMonitor(folder);
-                  PR_CWait(folder, PR_MicrosecondsToInterval(1000UL));
-                  PR_CExitMonitor(folder);
-                  NS_ProcessPendingEvents(thread, PR_MicrosecondsToInterval(1000UL));
-                }
-              }
-              if (emptyTrashOnExit)
+              accountManager->GetEmptyTrashInProgress(&inProgress);
+              int32_t loopCount = 0;
+              while (inProgress && loopCount++ < 5000)
               {
                 accountManager->GetEmptyTrashInProgress(&inProgress);
-                int32_t loopCount = 0;
-                while (inProgress && loopCount++ < 5000)
-                {
-                  accountManager->GetEmptyTrashInProgress(&inProgress);
-                  PR_CEnterMonitor(folder);
-                  PR_CWait(folder, PR_MicrosecondsToInterval(1000UL));
-                  PR_CExitMonitor(folder);
-                  NS_ProcessPendingEvents(thread, PR_MicrosecondsToInterval(1000UL));
-                }
+                PR_CEnterMonitor(root);
+                PR_CWait(root, PR_MicrosecondsToInterval(1000UL));
+                PR_CExitMonitor(root);
+                NS_ProcessPendingEvents(thread, PR_MicrosecondsToInterval(1000UL));
               }
             }
           }
@@ -2321,13 +2316,11 @@ nsMsgAccountManager::CreateLocalMailAccount()
   // under <profile dir>/Mail/Local Folders or
   // <"mail.directory" pref>/Local Folders
   nsCOMPtr <nsIFile> mailDir;
-  nsCOMPtr <nsIFile> localFile;
   bool dirExists;
 
   // we want <profile>/Mail
   rv = NS_GetSpecialDirectory(NS_APP_MAIL_50_DIR, getter_AddRefs(mailDir));
   if (NS_FAILED(rv)) return rv;
-  localFile = do_QueryInterface(mailDir);
 
   rv = mailDir->Exists(&dirExists);
   if (NS_SUCCEEDED(rv) && !dirExists)
@@ -2335,7 +2328,7 @@ nsMsgAccountManager::CreateLocalMailAccount()
   if (NS_FAILED(rv)) return rv;
 
   // set the default local path for "none"
-  rv = server->SetDefaultLocalPath(localFile);
+  rv = server->SetDefaultLocalPath(mailDir);
   if (NS_FAILED(rv)) return rv;
 
   // Create an account when valid server values are established.
@@ -2893,7 +2886,7 @@ void VirtualFolderChangeListener::ProcessUpdateEvent(nsIMsgFolder *virtFolder,
   virtDB->Commit(nsMsgDBCommitType::kLargeCommit);
 }
 
-nsresult nsMsgAccountManager::GetVirtualFoldersFile(nsCOMPtr<nsIFile>& file)
+nsresult nsMsgAccountManager::GetVirtualFoldersFile(nsCOMPtr<nsIFile>& aFile)
 {
   nsCOMPtr<nsIFile> profileDir;
   nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR, getter_AddRefs(profileDir));
@@ -2901,7 +2894,7 @@ nsresult nsMsgAccountManager::GetVirtualFoldersFile(nsCOMPtr<nsIFile>& file)
 
   rv = profileDir->AppendNative(nsDependentCString("virtualFolders.dat"));
   if (NS_SUCCEEDED(rv))
-    file = do_QueryInterface(profileDir, &rv);
+    aFile = profileDir;
   return rv;
 }
 

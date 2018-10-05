@@ -546,30 +546,28 @@ NS_IMETHODIMP
 nsNntpCacheStreamListener::OnStartRequest(nsIRequest *request, nsISupports * aCtxt)
 {
   nsCOMPtr <nsILoadGroup> loadGroup;
-  nsCOMPtr <nsIRequest> ourRequest = do_QueryInterface(mChannelToUse);
 
   NS_ASSERTION(mChannelToUse, "null channel in OnStartRequest");
   if (mChannelToUse)
     mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
   if (loadGroup)
-    loadGroup->AddRequest(ourRequest, nullptr /* context isupports */);
-  return (mListener) ? mListener->OnStartRequest(ourRequest, aCtxt) : NS_OK;
+    loadGroup->AddRequest(mChannelToUse, nullptr /* context isupports */);
+  return (mListener) ? mListener->OnStartRequest(mChannelToUse, aCtxt) : NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpCacheStreamListener::OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsresult aStatus)
 {
-  nsCOMPtr <nsIRequest> ourRequest = do_QueryInterface(mChannelToUse);
   nsresult rv = NS_OK;
   NS_ASSERTION(mListener, "this assertion is for Bug 531794 comment 7");
   if (mListener)
-    mListener->OnStopRequest(ourRequest, aCtxt, aStatus);
+    mListener->OnStopRequest(mChannelToUse, aCtxt, aStatus);
   nsCOMPtr <nsILoadGroup> loadGroup;
   NS_ASSERTION(mChannelToUse, "null channel in OnStopRequest");
   if (mChannelToUse)
     mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
   if (loadGroup)
-    loadGroup->RemoveRequest(ourRequest, nullptr, aStatus);
+    loadGroup->RemoveRequest(mChannelToUse, nullptr, aStatus);
 
   // clear out mem cache entry so we're not holding onto it.
   if (mRunningUrl)
@@ -589,8 +587,7 @@ NS_IMETHODIMP
 nsNntpCacheStreamListener::OnDataAvailable(nsIRequest *request, nsISupports * aCtxt, nsIInputStream * aInStream, uint64_t aSourceOffset, uint32_t aCount)
 {
     NS_ENSURE_STATE(mListener);
-    nsCOMPtr <nsIRequest> ourRequest = do_QueryInterface(mChannelToUse);
-    return mListener->OnDataAvailable(ourRequest, aCtxt, aInStream, aSourceOffset, aCount);
+    return mListener->OnDataAvailable(mChannelToUse, aCtxt, aInStream, aSourceOffset, aCount);
 }
 
 NS_IMETHODIMP nsNNTPProtocol::GetOriginalURI(nsIURI* *aURI)
@@ -784,8 +781,8 @@ nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew, nsIApplic
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = tee->Init(m_channelListener, outStream, nullptr);
-      m_channelListener = do_QueryInterface(tee);
       NS_ENSURE_SUCCESS(rv, rv);
+      m_channelListener = tee;
     }
     else
     {

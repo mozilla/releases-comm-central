@@ -42,9 +42,8 @@ bool MsgStrategyComparatorAdaptor::Equals(const nsMsgKey& a, const nsMsgKey& b) 
     nsresult rv = NS_OK;
     nsAutoSyncStrategyDecisionType decision = nsAutoSyncStrategyDecisions::Same;
 
-    nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(mFolder);
     if (mStrategy)
-      rv = mStrategy->Sort(folder, hdrA, hdrB, &decision);
+      rv = mStrategy->Sort(mFolder, hdrA, hdrB, &decision);
 
     if (NS_SUCCEEDED(rv))
       return (decision == nsAutoSyncStrategyDecisions::Same);
@@ -67,9 +66,8 @@ bool MsgStrategyComparatorAdaptor::LessThan(const nsMsgKey& a, const nsMsgKey& b
     nsresult rv = NS_OK;
     nsAutoSyncStrategyDecisionType decision = nsAutoSyncStrategyDecisions::Same;
 
-    nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(mFolder);
     if (mStrategy)
-      rv = mStrategy->Sort(folder, hdrA, hdrB, &decision);
+      rv = mStrategy->Sort(mFolder, hdrA, hdrB, &decision);
 
     if (NS_SUCCEEDED(rv))
       return (decision == nsAutoSyncStrategyDecisions::Lower);

@@ -1420,7 +1420,7 @@ nsMsgLocalMailFolder::InitCopyState(nsISupports* aSupport,
   mCopyState->m_msgWindow = msgWindow;
   rv = messages->GetLength(&mCopyState->m_totalMsgCount);
   if (listener)
-    mCopyState->m_listener = do_QueryInterface(listener, &rv);
+    mCopyState->m_listener = listener;
   mCopyState->m_copyingMultipleMessages = false;
   mCopyState->m_wholeMsgInStream = false;
 
@@ -2819,7 +2819,7 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports *message,
   nsCOMPtr<nsIMsgDBHdr> msgHdr(do_QueryInterface(message, &rv));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
 
-  mCopyState->m_message = do_QueryInterface(msgHdr, &rv);
+  mCopyState->m_message = msgHdr;
 
   nsCOMPtr<nsIMsgFolder> srcFolder(do_QueryInterface(mCopyState->m_srcSupport, &rv));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);

@@ -236,7 +236,7 @@ nsMsgFilterService::ThrowAlertMsg(const char*aMsgName, nsIMsgWindow *aMsgWindow)
 {
   nsString alertString;
   nsresult rv = GetStringFromBundle(aMsgName, alertString);
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryInterface(aMsgWindow));
+  nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
   if (!msgWindow) {
     nsCOMPtr<nsIMsgMailSession> mailSession ( do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
     if (NS_SUCCEEDED(rv))

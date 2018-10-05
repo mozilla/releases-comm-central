@@ -227,7 +227,7 @@ GetNodeLocation(nsINode *inChild, nsCOMPtr<nsINode> *outParent, int32_t *outOffs
   nsresult result = NS_ERROR_NULL_POINTER;
   if (inChild && outParent && outOffset)
   {
-    nsCOMPtr<nsINode> inChild2 = do_QueryInterface(inChild);
+    nsCOMPtr<nsINode> inChild2 = inChild;
     *outParent = inChild2->GetParentNode();
     if (*outParent)
     {
@@ -585,7 +585,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
       selection->Collapse(parent, offset + 1);
   }
   if (divElem) {
-    nsCOMPtr<Element> divElem2 = do_QueryInterface(divElem);
+    RefPtr<Element> divElem2 = divElem;
     IgnoredErrorResult rv2;
     divElem2->SetAttribute(NS_LITERAL_STRING("class"), classStr, rv2);
   }
@@ -1016,8 +1016,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams *aParams,
     nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(aWindow);
     NS_ENSURE_TRUE(window, NS_ERROR_FAILURE);
 
-    nsCOMPtr<nsIDocShellTreeItem> treeItem =
-      do_QueryInterface(window->GetDocShell());
+    nsCOMPtr<nsIDocShellTreeItem> treeItem = window->GetDocShell();
     nsCOMPtr<nsIDocShellTreeOwner> treeOwner;
     rv = treeItem->GetTreeOwner(getter_AddRefs(treeOwner));
     if (NS_FAILED(rv)) return rv;
@@ -5633,7 +5632,7 @@ nsMsgCompose::MoveToAboveQuote(void)
   nsAutoString tagLocalName;
   attributeName.AssignLiteral("class");
 
-  nsCOMPtr<nsINode> rootElement2 = do_QueryInterface(rootElement);
+  RefPtr<nsINode> rootElement2 = rootElement;
   node = rootElement2->GetFirstChild();
   while (node) {
     nsCOMPtr<Element> element = do_QueryInterface(node);
@@ -5725,7 +5724,7 @@ nsMsgCompose::MoveToEndOfDocument(void)
     return rv;
   }
 
-  nsCOMPtr<nsINode> rootElement2 = do_QueryInterface(rootElement);
+  RefPtr<nsINode> rootElement2 = rootElement;
   lastNode = rootElement2->GetLastChild();
   if (!lastNode) {
     return NS_ERROR_NULL_POINTER;
@@ -5767,7 +5766,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
   nsCOMPtr<nsINode> tempNode;
   nsAutoString tagLocalName;
 
-  nsCOMPtr<nsINode> rootElement2 = do_QueryInterface(rootElement);
+  RefPtr<nsINode> rootElement2 = rootElement;
   lastNode = rootElement2->GetLastChild();
   if (lastNode)
   {

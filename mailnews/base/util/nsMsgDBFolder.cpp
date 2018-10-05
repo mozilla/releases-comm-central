@@ -3063,19 +3063,15 @@ NS_IMETHODIMP nsMsgDBFolder::SetParent(nsIMsgFolder *aParent)
   if (aParent)
   {
     nsresult rv;
-    nsCOMPtr<nsIMsgFolder> parentMsgFolder = do_QueryInterface(aParent, &rv);
-    if (NS_SUCCEEDED(rv))
-    {
-      // servers do not have parents, so we must not be a server
-      mIsServer = false;
-      mIsServerIsValid = true;
+    // servers do not have parents, so we must not be a server
+    mIsServer = false;
+    mIsServerIsValid = true;
 
-      // also set the server itself while we're here.
-      nsCOMPtr<nsIMsgIncomingServer> server;
-      rv = parentMsgFolder->GetServer(getter_AddRefs(server));
-      if (NS_SUCCEEDED(rv) && server)
-        mServer = do_GetWeakReference(server);
-    }
+    // also set the server itself while we're here.
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = aParent->GetServer(getter_AddRefs(server));
+    if (NS_SUCCEEDED(rv) && server)
+      mServer = do_GetWeakReference(server);
   }
   return NS_OK;
 }

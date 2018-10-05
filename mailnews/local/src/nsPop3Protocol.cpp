@@ -484,7 +484,7 @@ nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
   m_currentAuthMethod = POP3_AUTH_MECH_UNDEFINED;
   m_needToRerunUrl = false;
 
-  m_url = do_QueryInterface(aURL);
+  m_url = aURL;
 
   m_lineStreamBuffer = new nsMsgLineStreamBuffer(OUTPUT_BUFFER_SIZE, true);
 
@@ -700,11 +700,10 @@ void nsPop3Protocol::SetUsername(const char* name)
 
 nsresult nsPop3Protocol::RerunUrl()
 {
-  nsCOMPtr<nsIURI> url = do_QueryInterface(m_url);
   ClearFlag(POP3_PASSWORD_FAILED);
   m_pop3Server->SetRunningProtocol(nullptr);
   Cleanup();
-  return LoadUrl(url, nullptr);
+  return LoadUrl(m_url, nullptr);
 }
 
 Pop3StatesEnum nsPop3Protocol::GetNextPasswordObtainState()

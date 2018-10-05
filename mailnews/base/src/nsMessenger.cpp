@@ -247,7 +247,7 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin, nsIMsgWindow *aMs
     nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWin);
 
     nsIDocShell *docShell = win->GetDocShell();
-    nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(do_QueryInterface(docShell));
+    nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(docShell);
     NS_ENSURE_TRUE(docShellAsItem, NS_ERROR_FAILURE);
 
     nsCOMPtr<nsIDocShellTreeItem> rootDocShellAsItem;
@@ -1616,7 +1616,7 @@ nsMessenger::GetLastDisplayedMessageUri(nsACString& aLastDisplayedMessageUri)
 
 nsSaveMsgListener::nsSaveMsgListener(nsIFile* aFile, nsMessenger *aMessenger, nsIUrlListener *aListener)
 {
-  m_file = do_QueryInterface(aFile);
+  m_file = aFile;
   m_messenger = aMessenger;
   mListener = aListener;
   mUrlHasStopped = false;
@@ -2100,11 +2100,9 @@ nsMessenger::GetLastSaveDirectory(nsIFile **aLastSaveDir)
 nsresult
 nsMessenger::SetLastSaveDirectory(nsIFile *aLocalFile)
 {
+  NS_ENSURE_ARG_POINTER(aLocalFile);
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  nsCOMPtr <nsIFile> file = do_QueryInterface(aLocalFile, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
   // if the file is a directory, just use it for the last dir chosen
@@ -2112,14 +2110,14 @@ nsMessenger::SetLastSaveDirectory(nsIFile *aLocalFile)
   // IsDirectory() will return error on saving a file, as the
   // file doesn't exist yet.
   bool isDirectory;
-  rv = file->IsDirectory(&isDirectory);
+  rv = aLocalFile->IsDirectory(&isDirectory);
   if (NS_SUCCEEDED(rv) && isDirectory) {
     rv = prefBranch->SetComplexValue(MESSENGER_SAVE_DIR_PREF_NAME, NS_GET_IID(nsIFile), aLocalFile);
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else {
     nsCOMPtr <nsIFile> parent;
-    rv = file->GetParent(getter_AddRefs(parent));
+    rv = aLocalFile->GetParent(getter_AddRefs(parent));
     NS_ENSURE_SUCCESS(rv,rv);
 
     rv = prefBranch->SetComplexValue(MESSENGER_SAVE_DIR_PREF_NAME, NS_GET_IID(nsIFile), parent);

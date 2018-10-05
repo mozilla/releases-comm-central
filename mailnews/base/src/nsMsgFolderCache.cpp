@@ -340,7 +340,7 @@ nsresult nsMsgFolderCache::AddCacheElement(const nsACString& key, nsIMdbRow *row
 {
   nsMsgFolderCacheElement *cacheElement = new nsMsgFolderCacheElement;
   NS_ENSURE_TRUE(cacheElement, NS_ERROR_OUT_OF_MEMORY);
-  nsCOMPtr<nsIMsgFolderCacheElement> folderCacheEl(do_QueryInterface(cacheElement));
+  nsCOMPtr<nsIMsgFolderCacheElement> folderCacheEl = cacheElement;
 
   cacheElement->SetMDBRow(row);
   cacheElement->SetOwningCache(this);

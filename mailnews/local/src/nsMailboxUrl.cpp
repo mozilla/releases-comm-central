@@ -405,8 +405,8 @@ nsresult nsMailboxUrl::ParseUrl()
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr <nsIFile> fileURLFile;
     fileURL->GetFile(getter_AddRefs(fileURLFile));
-    m_filePath = do_QueryInterface(fileURLFile, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_TRUE(fileURLFile, NS_ERROR_NULL_POINTER);
+    m_filePath = fileURLFile;
   }
 
   GetPathQueryRef(m_file);

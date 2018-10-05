@@ -1997,7 +1997,7 @@ nsMsgComposeAndSend::AddCompFieldLocalAttachments()
           NS_ENSURE_SUCCESS(rv, rv);
           nsCOMPtr <nsIFile> fileURLFile;
           fileURL->GetFile(getter_AddRefs(fileURLFile));
-          m_attachments[newLoc]->mTmpFile = do_QueryInterface(fileURLFile);
+          m_attachments[newLoc]->mTmpFile = fileURLFile;
           m_attachments[newLoc]->mDeleteFile = false;
           if (m_attachments[newLoc]->mURL)
           {
@@ -3357,7 +3357,7 @@ nsMsgComposeAndSend::DeliverFileAsMail()
     nsCOMPtr<nsIMsgStatusFeedback> msgStatus (do_QueryInterface(mSendProgress));
     // if the sendProgress isn't set, let's use the member variable.
     if (!msgStatus)
-      msgStatus = do_QueryInterface(mStatusFeedback);
+      msgStatus = mStatusFeedback;
 
     nsCOMPtr<nsIURI> runningUrl;
     rv = smtpService->SendMailMessage(mTempFile, buf, mUserIdentity, mCompFields->GetFrom(),

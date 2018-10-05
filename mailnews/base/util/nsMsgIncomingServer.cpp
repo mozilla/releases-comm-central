@@ -240,9 +240,7 @@ NS_IMETHODIMP nsMsgIncomingServer::WriteToFolderCache(nsIMsgFolderCache *folderC
   nsresult rv = NS_OK;
   if (m_rootFolder)
   {
-    nsCOMPtr <nsIMsgFolder> msgFolder = do_QueryInterface(m_rootFolder, &rv);
-    if (NS_SUCCEEDED(rv) && msgFolder)
-      rv = msgFolder->WriteToFolderCache(folderCache, true /* deep */);
+    rv = m_rootFolder->WriteToFolderCache(folderCache, true /* deep */);
   }
   return rv;
 }

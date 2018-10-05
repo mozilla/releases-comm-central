@@ -400,11 +400,10 @@ nsresult nsMsgSearchSession::DoNextSearch()
   if (scope->m_attribute == nsMsgSearchScope::onlineMail ||
     (scope->m_attribute == nsMsgSearchScope::news && scope->m_searchServer))
   {
-    nsCOMPtr<nsIMsgSearchAdapter> adapter = do_QueryInterface(scope->m_adapter);
-    if (adapter)
+    if (scope->m_adapter)
     {
       m_runningUrl.Truncate();
-      adapter->GetEncoding(getter_Copies(m_runningUrl));
+      scope->m_adapter->GetEncoding(getter_Copies(m_runningUrl));
     }
     NS_ENSURE_STATE(!m_runningUrl.IsEmpty());
     return GetNextUrl();

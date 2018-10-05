@@ -715,8 +715,7 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
   }
 
   // check if we're just verifying the ability to logon
-  nsCOMPtr<nsISmtpUrl> smtpUrl = do_QueryInterface(m_runningURL, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISmtpUrl> smtpUrl = m_runningURL;
   bool verifyingLogon = false;
   smtpUrl->GetVerifyLogon(&verifyingLogon);
   if (verifyingLogon)
@@ -2188,8 +2187,7 @@ nsresult
 nsSmtpProtocol::GetPassword(nsString &aPassword)
 {
     nsresult rv;
-    nsCOMPtr<nsISmtpUrl> smtpUrl = do_QueryInterface(m_runningURL, &rv);
-    NS_ENSURE_SUCCESS(rv,rv);
+    nsCOMPtr<nsISmtpUrl> smtpUrl = m_runningURL;
 
     nsCOMPtr<nsISmtpServer> smtpServer;
     rv = smtpUrl->GetSmtpServer(getter_AddRefs(smtpServer));
@@ -2281,8 +2279,7 @@ nsSmtpProtocol::GetUsernamePassword(nsACString &aUsername,
                                     nsAString &aPassword)
 {
     nsresult rv;
-    nsCOMPtr<nsISmtpUrl> smtpUrl = do_QueryInterface(m_runningURL, &rv);
-    NS_ENSURE_SUCCESS(rv,rv);
+    nsCOMPtr<nsISmtpUrl> smtpUrl = m_runningURL;
 
     nsCOMPtr<nsISmtpServer> smtpServer;
     rv = smtpUrl->GetSmtpServer(getter_AddRefs(smtpServer));

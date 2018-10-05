@@ -1032,8 +1032,7 @@ nsMimeBaseEmitter::Complete()
     NS_ASSERTION(NS_SUCCEEDED(rv2), "Available failed");
     if (bytesInStream)
     {
-      nsCOMPtr<nsIRequest> request = do_QueryInterface(mChannel);
-      mOutListener->OnDataAvailable(request, mURL, mInputStream, 0, std::min(bytesInStream, uint64_t(PR_UINT32_MAX)));
+      mOutListener->OnDataAvailable(mChannel, mURL, mInputStream, 0, std::min(bytesInStream, uint64_t(PR_UINT32_MAX)));
     }
   }
 

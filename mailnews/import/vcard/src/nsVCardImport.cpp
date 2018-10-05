@@ -229,7 +229,7 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
   if (NS_FAILED(rv) || !isFile)
     return NS_ERROR_FAILURE;
 
-  m_fileLoc = do_QueryInterface(pLoc);
+  m_fileLoc = pLoc;
 
   /* Build an address book descriptor based on the file passed in! */
   nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));

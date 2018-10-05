@@ -73,7 +73,7 @@ bool nsImportEncodeScan::InitEncodeScan(bool appleSingleEncode, nsIFile *fileLoc
   CleanUpEncodeScan();
   m_isAppleSingle = appleSingleEncode;
   m_encodeScanState = kBeginAppleSingle;
-  m_pInputFile = do_QueryInterface(fileLoc);
+  m_pInputFile = fileLoc;
   m_useFileName = pName;
   m_pBuf = pBuf;
   m_bufSz = sz;

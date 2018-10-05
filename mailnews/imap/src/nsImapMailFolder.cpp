@@ -430,19 +430,18 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile *path)
   bool more = false;
   if (children)
     children->HasMoreElements(&more);
-  nsCOMPtr<nsIFile> dirEntry;
+  nsCOMPtr<nsIFile> currentFolderPath;
 
   while (more)
   {
     nsCOMPtr<nsISupports> supports;
     rv = children->GetNext(getter_AddRefs(supports));
-    dirEntry = do_QueryInterface(supports);
-    if (NS_FAILED(rv) || !dirEntry)
+    currentFolderPath = do_QueryInterface(supports);
+    if (NS_FAILED(rv) || !currentFolderPath)
       break;
     rv = children->HasMoreElements(&more);
     if (NS_FAILED(rv)) return rv;
 
-    nsCOMPtr <nsIFile> currentFolderPath = do_QueryInterface(dirEntry);
     currentFolderPath->GetLeafName(currentFolderNameStr);
     if (nsShouldIgnoreFile(currentFolderNameStr))
       continue;
@@ -2941,8 +2940,7 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(nsIImapProtocol *aProtocol, nsIImap
       inputStream->ShareData(msgHdrs, strlen(msgHdrs));
       GetMessageHeader(msgKey, getter_AddRefs(msgHdr));
       if (msgHdr) {
-        nsCOMPtr<nsIInputStream> stream(do_QueryInterface(inputStream));
-        GetMsgPreviewTextFromStream(msgHdr, stream);
+        GetMsgPreviewTextFromStream(msgHdr, inputStream);
       }
       continue;
     }
@@ -3230,7 +3228,7 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr *message)
     m_copyState->m_tmpFile = nullptr;
   }
   if (message)
-    m_copyState->m_message = do_QueryInterface(message, &rv);
+    m_copyState->m_message = message;
 
   rv = GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR,
                                        "nscpmsg.txt",
@@ -6632,9 +6630,7 @@ nsresult nsImapMailFolder::DisplayStatusMsg(nsIImapUrl *aImapUrl, const nsAStrin
     mockChannel->GetProgressEventSink(getter_AddRefs(progressSink));
     if (progressSink)
     {
-        nsCOMPtr<nsIRequest> request = do_QueryInterface(mockChannel);
-        if (!request) return NS_ERROR_FAILURE;
-      progressSink->OnStatus(request, nullptr, NS_OK, PromiseFlatString(msg).get());      // XXX i18n message
+      progressSink->OnStatus(mockChannel, nullptr, NS_OK, PromiseFlatString(msg).get());      // XXX i18n message
     }
   }
   return NS_OK;
@@ -6696,13 +6692,11 @@ nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
         mockChannel->GetProgressEventSink(getter_AddRefs(progressSink));
         if (progressSink)
         {
-            nsCOMPtr<nsIRequest> request = do_QueryInterface(mockChannel);
-            if (!request) return NS_ERROR_FAILURE;
-            progressSink->OnProgress(request, nullptr,
+            progressSink->OnProgress(mockChannel, nullptr,
                                      aCurrentProgress,
                                      aMaxProgress);
             if (aMessage)
-              progressSink->OnStatus(request, nullptr, NS_OK, aMessage); // XXX i18n message
+              progressSink->OnStatus(mockChannel, nullptr, NS_OK, aMessage); // XXX i18n message
         }
       }
     }
@@ -8100,6 +8094,7 @@ nsImapMailFolder::CopyStreamMessage(nsIMsgDBHdr* message,
                                     nsIMsgWindow *aMsgWindow,
                                     bool isMove)
 {
+  NS_ENSURE_ARG_POINTER(message);
   if (!m_copyState)
     MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("CopyStreamMessage failed with null m_copyState"));
   NS_ENSURE_TRUE(m_copyState, NS_ERROR_NULL_POINTER);
@@ -8119,11 +8114,8 @@ nsImapMailFolder::CopyStreamMessage(nsIMsgDBHdr* message,
     MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("CopyStreaMessage failed in copyStreamListener->Init"));
   if (NS_FAILED(rv)) return rv;
 
-  nsCOMPtr<nsIMsgDBHdr> msgHdr(do_QueryInterface(message, &rv));
-  if (NS_FAILED(rv)) return rv;
-
   nsCString uri;
-  srcFolder->GetUriForMsg(msgHdr, uri);
+  srcFolder->GetUriForMsg(message, uri);
 
   if (!m_copyState->m_msgService)
     rv = GetMessageServiceFromURI(uri, getter_AddRefs(m_copyState->m_msgService));
@@ -8274,8 +8266,8 @@ nsImapMailFolder::InitCopyState(nsISupports* srcSupport,
   m_copyState->m_selectedState = selectedState;
   m_copyState->m_msgWindow = msgWindow;
   if (listener)
-    m_copyState->m_listener = do_QueryInterface(listener, &rv);
-  return rv;
+    m_copyState->m_listener = listener;
+  return NS_OK;
 }
 
 nsresult

@@ -524,12 +524,10 @@ nsMsgAttachmentHandler::PickCharset()
   if (!m_charset.IsEmpty() || !m_type.LowerCaseEqualsLiteral(TEXT_PLAIN))
     return NS_OK;
 
-  nsCOMPtr<nsIFile> tmpFile =
-    do_QueryInterface(mTmpFile);
-  if (!tmpFile)
+  if (!mTmpFile)
     return NS_OK;
 
-  return MsgDetectCharsetFromFile(tmpFile, m_charset);
+  return MsgDetectCharsetFromFile(mTmpFile, m_charset);
 }
 
 static nsresult
@@ -577,7 +575,7 @@ nsMsgAttachmentHandler::SnarfMsgAttachment(nsMsgCompFields *compFields)
     nsCOMPtr <nsIFile> tmpFile;
     rv = nsMsgCreateTempFile("nsmail.tmp", getter_AddRefs(tmpFile));
     NS_ENSURE_SUCCESS(rv, rv);
-    mTmpFile = do_QueryInterface(tmpFile);
+    mTmpFile = tmpFile;
     mDeleteFile = true;
     mCompFields = compFields;
     m_type = MESSAGE_RFC822;
@@ -641,10 +639,6 @@ nsMsgAttachmentHandler::SnarfMsgAttachment(nsMsgCompFields *compFields)
         mimeConverter->SetOriginalMsgURI(nullptr);
       }
 
-      nsCOMPtr<nsIStreamListener> convertedListener = do_QueryInterface(m_mime_parser, &rv);
-      if (NS_FAILED(rv))
-        goto done;
-
       nsCOMPtr<nsIURI> aURL;
       rv = messageService->GetUrlForUri(uri.get(), getter_AddRefs(aURL), nullptr);
       if (NS_FAILED(rv))
@@ -672,7 +666,7 @@ nsMsgAttachmentHandler::SnarfMsgAttachment(nsMsgCompFields *compFields)
         goto done;
 
       nsCOMPtr<nsIURI> dummyNull;
-      rv = messageService->DisplayMessage(uri.get(), convertedListener, nullptr, nullptr, nullptr,
+      rv = messageService->DisplayMessage(uri.get(), m_mime_parser, nullptr, nullptr, nullptr,
                                           getter_AddRefs(dummyNull));
     }
   }
@@ -719,7 +713,7 @@ nsMsgAttachmentHandler::SnarfAttachment(nsMsgCompFields *compFields)
   nsCOMPtr <nsIFile> tmpFile;
   nsresult rv = nsMsgCreateTempFile("nsmail.tmp", getter_AddRefs(tmpFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  mTmpFile = do_QueryInterface(tmpFile);
+  mTmpFile = tmpFile;
   mDeleteFile = true;
 
   rv = MsgNewBufferedFileOutputStream(getter_AddRefs(mOutFile), mTmpFile, -1, 00600);
@@ -804,7 +798,7 @@ nsMsgAttachmentHandler::ConvertToZipFile(nsILocalFileMac *aSourceFile)
   nsCOMPtr <nsIFile> tmpFile;
   rv = nsMsgCreateTempFile(zippedName.get(), getter_AddRefs(tmpFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  mEncodedWorkingFile = do_QueryInterface(tmpFile);
+  mEncodedWorkingFile = tmpFile;
 
   // point our URL at the zipped temp file
   NS_NewFileURI(getter_AddRefs(mURL), mEncodedWorkingFile);
@@ -888,7 +882,7 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
     nsCOMPtr <nsIFile> tmpFile;
     nsresult rv = nsMsgCreateTempFile("appledouble", getter_AddRefs(tmpFile));
     if (NS_SUCCEEDED(rv))
-      mEncodedWorkingFile = do_QueryInterface(tmpFile);
+      mEncodedWorkingFile = tmpFile;
     if (!mEncodedWorkingFile)
     {
       PR_FREEIF(separator);
@@ -1102,7 +1096,7 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
   {
     nsCOMPtr <nsIFile> tmpFile;
     mTmpFile->Clone(getter_AddRefs(tmpFile));
-    mTmpFile = do_QueryInterface(tmpFile);
+    mTmpFile = tmpFile;
   }
   mRequest = nullptr;
 
@@ -1238,7 +1232,7 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
           {
             nsCOMPtr <nsIFile> tmpFile;
             mTmpFile->Clone(getter_AddRefs(tmpFile));
-            mTmpFile = do_QueryInterface(tmpFile);
+            mTmpFile = tmpFile;
           }
 
         }

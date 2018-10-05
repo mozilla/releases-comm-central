@@ -334,7 +334,7 @@ nsMsgGroupThread *nsMsgGroupView::AddHdrToThread(nsIMsgDBHdr *msgHdr,
   if (!foundThread)
   {
     foundThread = CreateGroupThread(m_db);
-    msgThread = do_QueryInterface(foundThread);
+    msgThread = foundThread;
     m_groupsTable.Put(hashKey, msgThread);
     if (GroupViewUsesDummyRow())
     {

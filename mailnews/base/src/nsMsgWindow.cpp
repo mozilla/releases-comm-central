@@ -335,7 +335,7 @@ NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy * aWindow)
   if (win)
     docShell = win->GetDocShell();
 
-  nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(do_QueryInterface(docShell));
+  nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(docShell);
 
   if(docShellAsItem)
   {

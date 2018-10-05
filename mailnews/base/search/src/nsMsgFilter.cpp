@@ -793,7 +793,6 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(nsIMsgRuleAction *filterAct
       {
         nsCString localRootURI;
         nsCOMPtr <nsIMsgFolder> destIMsgFolder;
-        nsCOMPtr <nsIMsgFolder> localMailRootMsgFolder = do_QueryInterface(localMailRoot);
         localMailRoot->GetURI(localRootURI);
         nsCString destFolderUri;
         destFolderUri.Assign(localRootURI);
@@ -817,7 +816,7 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(nsIMsgRuleAction *filterAct
           rv = NS_MsgEscapeEncodeURLPath(unicodeStr, moveValue);
         }
         destFolderUri.Append(moveValue);
-        localMailRootMsgFolder->GetChildWithURI (destFolderUri, true, false /*caseInsensitive*/, getter_AddRefs(destIMsgFolder));
+        localMailRoot->GetChildWithURI(destFolderUri, true, false /*caseInsensitive*/, getter_AddRefs(destIMsgFolder));
 
         if (destIMsgFolder)
         {

@@ -447,7 +447,7 @@ nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr *msgHdr,
       if (!viewThread)
         return NS_ERROR_OUT_OF_MEMORY;
 
-      thread = do_QueryInterface(viewThread);
+      thread = viewThread;
     }
     else
     {
