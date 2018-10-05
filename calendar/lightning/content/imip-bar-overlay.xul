@@ -23,10 +23,16 @@
 
     <vbox id="messagepanebox">
       <vbox id="singlemessage" insertbefore="msgHeaderView">
-        <lightning-notification-bar id="imip-bar"
-                                    collapsed="true"
-                                    insertbefore="msgHeaderView"
-                                    label="&lightning.imipbar.description;">
+        <hbox id="imip-bar"
+              class="lightning-notification-bar"
+              collapsed="true"
+              insertbefore="msgHeaderView"
+              label="&lightning.imipbar.description;">
+          <image/>
+          <description class="msgNotificationBarText"
+                       flex="1">
+            &lightning.imipbar.description;
+          </description>
 
           <!-- Some Toolbox implementation notes:
              -
@@ -308,7 +314,7 @@
               </toolbarbutton>
             </toolbar>
           </toolbox>
-        </lightning-notification-bar>
+        </hbox>
       </vbox>
     </vbox>
 </overlay>

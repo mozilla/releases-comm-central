@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-lightning-notification-bar {
-  -moz-binding: url(chrome://lightning/content/lightning-widgets.xml#lightning-notification-bar);
-}
-
 #calendar-task-tree-detail > calendar-task-tree {
   -moz-binding: url(chrome://calendar/content/calendar-task-tree.xml#calendar-task-tree-todaypane);
 }

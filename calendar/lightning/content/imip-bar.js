@@ -7,6 +7,21 @@ const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUti
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
+ * Provides shortcuts to set label and collapsed attribute of imip-bar node.
+ */
+const imipBar = {
+    get bar() {
+        return document.querySelector(".lightning-notification-bar");
+    },
+    set label(val) {
+        this.bar.querySelector(".msgNotificationBarText").textContent = val;
+    },
+    set collapsed(val) {
+        this.bar.collapsed = val;
+    }
+};
+
+/**
  * This bar lives inside the message window.
  * Its lifetime is the lifetime of the main thunderbird message window.
  */
@@ -89,9 +104,8 @@ var ltnImipBar = {
             let imipMethod = gMessageDisplay.displayedMessage.getStringProperty("imip_method");
             cal.itip.initItemFromMsgData(itipItem, imipMethod, gMessageDisplay.displayedMessage);
 
-            let imipBar = document.getElementById("imip-bar");
-            imipBar.setAttribute("collapsed", "false");
-            imipBar.setAttribute("label", cal.itip.getMethodText(itipItem.receivedMethod));
+            imipBar.collapsed = false;
+            imipBar.label = cal.itip.getMethodText(itipItem.receivedMethod);
 
             ltnImipBar.msgOverlay = msgOverlay;
 
@@ -103,7 +117,7 @@ var ltnImipBar = {
      * Hide the imip bar and reset the itip item.
      */
     resetBar: function() {
-        document.getElementById("imip-bar").collapsed = true;
+        imipBar.collapsed = true;
         ltnImipBar.resetButtons();
 
         // Clear our iMIP/iTIP stuff so it doesn't contain stale information.
@@ -185,7 +199,6 @@ var ltnImipBar = {
      *                      in subscribed calendars
      */
     setupOptions: function(itipItem, rc, actionFunc, foundItems) {
-        let imipBar = document.getElementById("imip-bar");
         let data = cal.itip.getOptionsText(itipItem, rc, actionFunc, foundItems);
 
         if (Components.isSuccessCode(rc)) {
@@ -232,7 +245,7 @@ var ltnImipBar = {
             }
         }
 
-        imipBar.setAttribute("label", data.label);
+        imipBar.label = data.label;
         // let's reset all buttons first
         ltnImipBar.resetButtons();
         // now we update the visible items - buttons are hidden by default
@@ -360,7 +373,7 @@ var ltnImipBar = {
                         }
                         // For now, we just state the status for the user something very simple
                         let label = cal.itip.getCompleteText(aStatus, aOperationType);
-                        imipBar.setAttribute("label", label);
+                        imipBar.label = label;
 
                         if (!Components.isSuccessCode(aStatus)) {
                             cal.showError(label);
@@ -380,7 +393,6 @@ var ltnImipBar = {
             return false;
         }
 
-        let imipBar = document.getElementById("imip-bar");
         if (aParticipantStatus == null) {
             aParticipantStatus = "";
         }
@@ -416,18 +428,13 @@ var ltnImipBar = {
                             oldVersion: parsedProposal.result == "OLDVERSION" ||
                                         parsedProposal.result == "NOTLATESTUPDATE",
                             onReschedule: () => {
-                                imipBar.setAttribute(
-                                    "label",
-                                    cal.l10n.getLtnString("imipBarCounterPreviousVersionText")
-                                );
+                                imipBar.label =
+                                    cal.l10n.getLtnString("imipBarCounterPreviousVersionText");
                                 // TODO: should we hide the buttons in this case, too?
                             }
                         };
                     } else {
-                        imipBar.setAttribute(
-                            "label",
-                            cal.l10n.getLtnString("imipBarCounterErrorText")
-                        );
+                        imipBar.label = cal.l10n.getLtnString("imipBarCounterErrorText");
                         ltnImipBar.resetButtons();
                         if (proposingAttendee) {
                             cal.LOG(parsedProposal.result.descr);
