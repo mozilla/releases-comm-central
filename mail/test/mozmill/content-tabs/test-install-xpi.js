@@ -56,17 +56,6 @@ var setupModule = function (module) {
   cth.installInto(module);
 };
 
-function close_xpinstall_dialog(xpidlg) {
- xpidlg.window.document.documentElement.cancelDialog();
-}
-
-function accept_xpinstall_dialog(xpidlg) {
-  // The install dialog has a count down that we must wait for before
-  // proceeding.
-  mc.sleep(5500);
-  xpidlg.window.document.documentElement.getButton('accept').doCommand();
-}
-
 function click_notification_box_action_in_current_tab() {
   let actionButton = gNotificationBox.currentNotification.querySelector("button");
   mc.click(new elib.Elem(actionButton));
@@ -117,14 +106,14 @@ function test_install_corrupt_xpi() {
   close_notification_box();
 }
 
-test_install_xpi_offer.__force_skip__ = true; // disabled, see bug 1494215
 function test_install_xpi_offer() {
   click_install_link_and_wait_for_alert("installlink");
 
-  // which we want to click on!
-  plan_for_modal_dialog("Addons:Install", close_xpinstall_dialog);
+  // This brings up a second notification, which we ignore.
+  AlertWatcher.planForAlert(mc);
   click_notification_box_action_in_current_tab();
-  wait_for_modal_dialog("Addons:Install", 50000);
+  AlertWatcher.waitForAlert(mc);
+  close_notification_box();
 
   // After closing the dialog we need to give just a little extra time
   // before we do things.
@@ -142,18 +131,19 @@ function test_xpinstall_disabled() {
   click_notification_box_action_in_current_tab();
 }
 
-test_xpinstall_actually_install.__force_skip__ = true; // disabled, see bug 1494215
 function test_xpinstall_actually_install() {
   click_install_link_and_wait_for_alert("installlink");
 
-  // which we want to click on!
-  plan_for_modal_dialog("Addons:Install", accept_xpinstall_dialog);
-  // and this time we get an alert as well.
+  // This brings up a second notification, which we click on.
   AlertWatcher.planForAlert(mc);
   click_notification_box_action_in_current_tab();
-  wait_for_modal_dialog("Addons:Install", 50000);
-
   AlertWatcher.waitForAlert(mc);
+
+  // This brings up a third notification, which we ignore.
+  AlertWatcher.planForAlert(mc);
+  click_notification_box_action_in_current_tab();
+  AlertWatcher.waitForAlert(mc);
+
   close_notification_box();
   close_tab(gNewTab);
 }

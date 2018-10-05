@@ -1356,20 +1356,18 @@ var specialTabs = {
     Services.obs.addObserver(this.xpInstallObserver, "addon-install-disabled");
     Services.obs.addObserver(this.xpInstallObserver, "addon-install-blocked");
     Services.obs.addObserver(this.xpInstallObserver, "addon-install-failed");
+    Services.obs.addObserver(this.xpInstallObserver, "addon-install-confirmation");
     Services.obs.addObserver(this.xpInstallObserver, "addon-install-complete");
   },
 
   onunload: function () {
     window.removeEventListener("unload", specialTabs.onunload);
 
-    Services.obs.removeObserver(specialTabs.xpInstallObserver,
-                                "addon-install-disabled");
-    Services.obs.removeObserver(specialTabs.xpInstallObserver,
-                                "addon-install-blocked");
-    Services.obs.removeObserver(specialTabs.xpInstallObserver,
-                                "addon-install-failed");
-    Services.obs.removeObserver(specialTabs.xpInstallObserver,
-                                "addon-install-complete");
+    Services.obs.removeObserver(specialTabs.xpInstallObserver, "addon-install-disabled");
+    Services.obs.removeObserver(specialTabs.xpInstallObserver, "addon-install-blocked");
+    Services.obs.removeObserver(specialTabs.xpInstallObserver, "addon-install-failed");
+    Services.obs.removeObserver(specialTabs.xpInstallObserver, "addon-install-confirmation");
+    Services.obs.removeObserver(specialTabs.xpInstallObserver, "addon-install-complete");
   },
 
   xpInstallObserver: {
@@ -1468,6 +1466,48 @@ var specialTabs = {
           }
         }
         break;
+      case "addon-install-confirmation":
+        let acceptInstallation = () => {
+          for (let install of installInfo.installs)
+            install.install();
+          installInfo = null;
+        };
+
+        let cancelInstallation = () => {
+          if (installInfo) {
+            for (let install of installInfo.installs) {
+              // The notification may have been closed because the add-ons got
+              // cancelled elsewhere, only try to cancel those that are still
+              // pending install.
+              if (install.state != AddonManager.STATE_CANCELLED)
+                install.cancel();
+            }
+          }
+        };
+
+        messageString = messengerBundle.getString("addonConfirmInstall.message");
+        messageString = PluralForm.get(installInfo.installs.length, messageString);
+        messageString = messageString.replace("#1", brandShortName);
+        messageString = messageString.replace("#2", installInfo.installs.length);
+        messageString += " " + installInfo.installs.map(ii => ii.name).join(", ");
+
+        buttons = [{
+          label: messengerBundle.getString("addonConfirmInstall.installButton.label"),
+          accessKey: messengerBundle.getString("addonConfirmInstall.installButton.accesskey"),
+          callback: acceptInstallation,
+        }, {
+          label: messengerBundle.getString("addonConfirmInstall.cancelButton.label"),
+          accessKey: messengerBundle.getString("addonConfirmInstall.cancelButton.accesskey"),
+          callback: cancelInstallation,
+        }];
+
+        if (notificationBox)
+          notificationBox.appendNotification(messageString,
+                                             notificationID,
+                                             iconURL,
+                                             notificationBox.PRIORITY_WARNING_MEDIUM,
+                                             buttons);
+        break;
       case "addon-install-complete":
         let needsRestart = installInfo.installs.some(function(i) {
             return i.addon.pendingOperations != AddonManager.PENDING_NONE;
@@ -1483,8 +1523,10 @@ var specialTabs = {
               BrowserUtils.restartApplication();
             }
           }];
-        }
-        else {
+        } else if (browser.currentURI.spec == "about:addons") {
+          messageString = messengerBundle.getString("addonsInstalled");
+          buttons = [];
+        } else {
           messageString = messengerBundle.getString("addonsInstalled");
           buttons = [{
             label: messengerBundle.getString("addonInstallManage"),
