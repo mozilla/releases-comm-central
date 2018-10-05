@@ -740,7 +740,7 @@
   </panel>
 
   <notificationbox id="mail-notification-box" notificationside="bottom"/>
-  <statuspanel id="statusbar-display"/>
+  <statuspanel id="statusbar-display" label=""/>
   <statusbar id="status-bar" class="chromeclass-status">
 #include mainStatusbar.inc
     <statusbarpanel id="unreadMessageCount"/>

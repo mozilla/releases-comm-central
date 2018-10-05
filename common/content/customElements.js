@@ -8,7 +8,6 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 for (let script of [
   "chrome://messenger/content/mailWidgets.js",
-  "chrome://messenger/content/statuspanel.js",
 ]) {
   Services.scriptloader.loadSubScript(script, window);
 }
