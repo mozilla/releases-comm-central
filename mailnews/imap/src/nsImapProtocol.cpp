@@ -4659,46 +4659,35 @@ void nsImapProtocol::Log(const char *logSubName, const char *extraInfo, const ch
 // In 4.5, this posted an event back to libmsg and blocked until it got a response.
 // We may still have to do this.It would be nice if we could preflight this value,
 // but we may not always know when we'll need it.
-uint32_t nsImapProtocol::GetMessageSize(const char * messageId,
-                                        bool idsAreUids)
+uint32_t nsImapProtocol::GetMessageSize(const char * messageId, bool idsAreUids)
 {
   const char *folderFromParser = GetServerStateParser().GetSelectedMailboxName();
-  if (folderFromParser && messageId)
-  {
-    char *id = (char *)PR_CALLOC(strlen(messageId) + 1);
-    char *folderName;
-    uint32_t size;
+  if (!folderFromParser || !messageId || !m_runningUrl || !m_hostSessionList)
+    return 0;
 
-    PL_strcpy(id, messageId);
+  char *folderName = nullptr;
+  uint32_t size;
 
-    nsIMAPNamespace *nsForMailbox = nullptr;
-        m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(), folderFromParser,
-            nsForMailbox);
+  nsIMAPNamespace *nsForMailbox = nullptr;
+  m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
+                                                   folderFromParser,
+                                                   nsForMailbox);
 
+  m_runningUrl->AllocateCanonicalPath(folderFromParser,
+                                      nsForMailbox
+                                        ? nsForMailbox->GetDelimiter()
+                                        : kOnlineHierarchySeparatorUnknown,
+                                      &folderName);
 
-    if (nsForMailbox)
-          m_runningUrl->AllocateCanonicalPath(
-              folderFromParser, nsForMailbox->GetDelimiter(),
-              &folderName);
-    else
-       m_runningUrl->AllocateCanonicalPath(
-          folderFromParser,kOnlineHierarchySeparatorUnknown,
-          &folderName);
+  if (folderName && m_imapMessageSink)
+    m_imapMessageSink->GetMessageSizeFromDB(messageId, &size);
 
-    if (id && folderName)
-    {
-      if (m_imapMessageSink)
-          m_imapMessageSink->GetMessageSizeFromDB(id, &size);
-    }
-    PR_FREEIF(id);
-    PR_FREEIF(folderName);
+  PR_FREEIF(folderName);
 
-    uint32_t rv = 0;
-    if (!DeathSignalReceived())
-      rv = size;
-    return rv;
-  }
-  return 0;
+  if (DeathSignalReceived())
+    size = 0;
+
+  return size;
 }
 
 // message id string utility functions
