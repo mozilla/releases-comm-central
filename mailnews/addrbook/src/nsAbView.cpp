@@ -838,6 +838,9 @@ nsCString getQuery(nsCOMPtr<nsIAbDirectory> aDir)
 
 NS_IMETHODIMP nsAbView::OnItemAdded(nsISupports *parentDir, nsISupports *item)
 {
+  if (!mDirectory)  // No address book selected.
+    return NS_OK;
+
   nsresult rv;
   nsCOMPtr <nsIAbDirectory> directory = do_QueryInterface(parentDir, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
