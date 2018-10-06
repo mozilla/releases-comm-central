@@ -1,4 +1,3 @@
-#if 0
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,38 +13,35 @@
  * - gPrefBase: the base for preferences that are stored
  * - gStreamListener: an nsIStreamListener to read message text
  */
-#endif
 
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+/* exported SearchSupport */
+
+var EXPORTED_SYMBOLS = ["SearchIntegration"];
+
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var PERM_DIRECTORY = parseInt("0755", 8);
-var PERM_FILE = parseInt("0644", 8);
+var PERM_DIRECTORY = 0o755;
+var PERM_FILE = 0o644;
 
-var SearchSupport =
-{
+var SearchIntegration = null;
+
+var SearchSupport = {
   /**
    * URI of last folder indexed. Kept in sync with the pref
    */
   __lastFolderIndexedUri: null,
-  set _lastFolderIndexedUri(uri)
-  {
+  set _lastFolderIndexedUri(uri) {
     this._prefBranch.setCharPref("lastFolderIndexedUri", uri);
     this.__lastFolderIndexedUri = uri;
   },
-  get _lastFolderIndexedUri()
-  {
+  get _lastFolderIndexedUri() {
     // If we don't know about it, get it from the pref branch
-    if (this.__lastFolderIndexedUri === null)
-    {
-      this.__lastFolderIndexedUri = "";
-      try {
-        this.__lastFolderIndexedUri =
-          this._prefBranch.getCharPref("lastFolderIndexedUri");
-      } catch (ex) {}
+    if (this.__lastFolderIndexedUri === null) {
+      this.__lastFolderIndexedUri = this._prefBranch.getCharPref("lastFolderIndexedUri", "");
     }
     return this.__lastFolderIndexedUri;
   },
@@ -59,18 +55,16 @@ var SearchSupport =
    * Messenger object, used primarily to get message URIs
    */
   __messenger: null,
-  get _messenger()
-  {
+  get _messenger() {
     if (!this.__messenger)
       this.__messenger = Cc["@mozilla.org/messenger;1"]
                          .createInstance(Ci.nsIMessenger);
     return this.__messenger;
   },
 
-  /// The preferences branch to use
+  // The preferences branch to use
   __prefBranch: null,
-  get _prefBranch()
-  {
+  get _prefBranch() {
     if (!this.__prefBranch)
       this.__prefBranch = Services.prefs.getBranch(this._prefBase);
     return this.__prefBranch;
@@ -92,13 +86,11 @@ var SearchSupport =
    * Whether the preference is enabled. The module might be in a state where
    * the preference is on but "enabled" is false, so take care of that.
    */
-  get prefEnabled()
-  {
+  get prefEnabled() {
     // Don't cache the value
     return this._prefBranch.getBoolPref("enable");
   },
-  set prefEnabled(aEnabled)
-  {
+  set prefEnabled(aEnabled) {
     if (this.prefEnabled != aEnabled)
       this._prefBranch.setBoolPref("enable", aEnabled);
   },
@@ -107,13 +99,11 @@ var SearchSupport =
    * Whether the first run has occurred. This will be used to determine if
    * a dialog box needs to be displayed.
    */
-  get firstRunDone()
-  {
+  get firstRunDone() {
     // Don't cache this value either
     return this._prefBranch.getBoolPref("firstRunDone");
   },
-  set firstRunDone(aAlwaysTrue)
-  {
+  set firstRunDone(aAlwaysTrue) {
     this._prefBranch.setBoolPref("firstRunDone", true);
   },
 
@@ -122,23 +112,18 @@ var SearchSupport =
    * Kept in sync with the pref
    */
   _globalReindexTime: null,
-  set globalReindexTime(aTime)
-  {
+  set globalReindexTime(aTime) {
     this._globalReindexTime = aTime;
     // Set the pref as well
     this._prefBranch.setCharPref("global_reindex_time", "" + aTime);
   },
-  get globalReindexTime()
-  {
-    if (!this._globalReindexTime)
-    {
+  get globalReindexTime() {
+    if (!this._globalReindexTime) {
       // Try getting the time from the preferences
       try {
         this._globalReindexTime = parseInt(this._prefBranch
                                     .getCharPref("global_reindex_time"));
-      }
-      catch (e)
-      {
+      } catch (e) {
         // We don't have it defined, so set it (Unix time, in seconds)
         this._globalReindexTime = parseInt(Date.now() / 1000);
         this._prefBranch.setCharPref("global_reindex_time",
@@ -157,19 +142,16 @@ var SearchSupport =
    * Reference to timer object
    */
   __timer: null,
-  get _timer()
-  {
+  get _timer() {
     if (!this.__timer)
       this.__timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     return this.__timer;
   },
 
-  _cancelTimer: function()
-  {
+  _cancelTimer() {
     try {
       this._timer.cancel();
-    }
-    catch (ex) {}
+    } catch (ex) {}
   },
 
   /**
@@ -184,8 +166,7 @@ var SearchSupport =
    * files for non-existent messages.
    */
   _enabled: null,
-  set enabled(aEnable)
-  {
+  set enabled(aEnable) {
     // Nothing to do if there's no change in state
     if (this._enabled == aEnable)
       return;
@@ -195,8 +176,7 @@ var SearchSupport =
 
     this._removeObservers();
 
-    if (aEnable)
-    {
+    if (aEnable) {
       // This stuff we always need to do
       MailServices.mfn.addListener(this._msgFolderListener,
         MailServices.mfn.msgAdded |
@@ -212,8 +192,7 @@ var SearchSupport =
       let idleService = Cc["@mozilla.org/widget/idleservice;1"]
                           .getService(Ci.nsIIdleService);
       idleService.addIdleObserver(this, this._idleThresholdSecs);
-    }
-    else
+    } else {
       // We want to observe moves, deletes and renames in case we're disabled
       // If we don't, we'll have no idea the support files exist later
       MailServices.mfn.addListener(this._msgFolderListener,
@@ -223,27 +202,25 @@ var SearchSupport =
         MailServices.mfn.folderDeleted |
         MailServices.mfn.folderMoveCopyCompleted |
         MailServices.mfn.folderRenamed);
+    }
 
     this._enabled = aEnable;
   },
-  get enabled()
-  {
+  get enabled() {
     return this._enabled;
   },
 
   /**
    * Remove whatever observers are present. This is done while switching states
    */
-  _removeObservers: function()
-  {
+  _removeObservers() {
     if (this.enabled === null)
       return;
 
     MailServices.mfn.removeListener(this._msgFolderListener);
 
-    if (this.enabled)
-    {
-      Services.obs.removeObserver(this, "MsgMsgDisplayed", false);
+    if (this.enabled) {
+      Services.obs.removeObserver(this, "MsgMsgDisplayed");
       let idleService = Cc["@mozilla.org/widget/idleservice;1"]
                           .getService(Ci.nsIIdleService);
       idleService.removeIdleObserver(this, this._idleThresholdSecs);
@@ -257,8 +234,7 @@ var SearchSupport =
   /**
    * Init function -- this should be called from the component's init function
    */
-  _initSupport: function search_init_support(enabled)
-  {
+  _initSupport(enabled) {
     this._log.info("Search integration running in " +
                    (enabled ? "active" : "backoff") + " mode");
     this.enabled = enabled;
@@ -296,28 +272,23 @@ var SearchSupport =
    * It resets lastFolderIndexedUri to an empty string, then yield returns null
    * once iteration across all folders is complete.
    */
-  _foldersToIndexGenerator: function* search_find_next_folder()
-  {
+  _foldersToIndexGenerator: function* search_find_next_folder() {
     let servers = MailServices.accounts.allServers;
 
     // Stores whether we're after the last folder indexed or before that --
     // if the last folder indexed is empty, this needs to be true initially
     let afterLastFolderIndexed = (this._lastFolderIndexedUri.length == 0);
 
-    for (var server of fixIterator(servers, Ci.nsIMsgIncomingServer))
-    {
+    for (var server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
       let allFolders = server.rootFolder.descendants;
-      let numFolders = allFolders.length;
       this._log.debug("in find next folder, lastFolderIndexedUri = " +
                       this._lastFolderIndexedUri);
 
-      for (var folder of fixIterator(allFolders, Ci.nsIMsgFolder))
-      {
+      for (var folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
         let searchPath = this._getSearchPathForFolder(folder);
         searchPath.leafName = searchPath.leafName + ".mozmsgs";
         // If after the last folder indexed, definitely index this
-        if (afterLastFolderIndexed)
-        {
+        if (afterLastFolderIndexed) {
           // Create the folder if it doesn't exist, so that we don't hit the
           // condition below later
           if (!searchPath.exists())
@@ -326,14 +297,11 @@ var SearchSupport =
           yield folder;
           // We're back after yielding -- set the last folder indexed
           this._lastFolderIndexedUri = folder.URI;
-        }
-        else
-        {
+        } else {
           // If a folder's entire corresponding search results folder is
           // missing, we need to index it, and force a reindex of all the
           // messages in it
-          if (!searchPath.exists())
-          {
+          if (!searchPath.exists()) {
             this._log.debug("using folder " + folder.URI + " because " +
                             "corresponding search folder does not exist");
             // Create the folder, so that next time we're checking we don't hit
@@ -342,9 +310,8 @@ var SearchSupport =
             folder.setStringProperty(this._hdrIndexedProperty,
                                      "" + (Date.now() / 1000));
             yield folder;
-          }
-          // folder may need reindexing for other reasons
-          else if (this._pathNeedsReindexing(searchPath)) {
+          } else if (this._pathNeedsReindexing(searchPath)) {
+            // folder may need reindexing for other reasons
             folder.setStringProperty(this._hdrIndexedProperty,
                                      "" + (Date.now() / 1000));
             yield folder;
@@ -364,21 +331,17 @@ var SearchSupport =
   },
 
   __foldersToIndex: null,
-  get _foldersToIndex()
-  {
+  get _foldersToIndex() {
     if (!this.__foldersToIndex)
       this.__foldersToIndex = this._foldersToIndexGenerator();
     return this.__foldersToIndex;
   },
 
-  _findNextHdrToIndex: function search_find_next_header()
-  {
-    try
-    {
+  _findNextHdrToIndex() {
+    try {
       let reindexTime = this._getLastReindexTime(this._currentFolderToIndex);
       this._log.debug("Reindex time for this folder is " + reindexTime);
-      if (!this._headerEnumerator)
-      {
+      if (!this._headerEnumerator) {
         //  we need to create search terms for messages to index
         let searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
                               .createInstance(Ci.nsIMsgSearchSession);
@@ -392,7 +355,7 @@ var SearchSupport =
         searchTerm.booleanAnd = false; // actually don't care here
         searchTerm.attrib = nsMsgSearchAttrib.Uint32HdrProperty;
         searchTerm.op = nsMsgSearchOp.IsLessThan;
-        value = searchTerm.value;
+        let value = searchTerm.value;
         value.attrib = searchTerm.attrib;
         searchTerm.hdrProperty = this._hdrIndexedProperty;
         value.status = reindexTime;
@@ -403,30 +366,27 @@ var SearchSupport =
       }
 
       // iterate over the folder finding the next message to index
-      while (this._headerEnumerator.hasMoreElements())
-      {
+      while (this._headerEnumerator.hasMoreElements()) {
         let msgHdr = this._headerEnumerator.getNext()
                          .QueryInterface(Ci.nsIMsgDBHdr);
 
         // Check if the file exists. If it does, then assume indexing to be
         // complete for this file
-        if (this._getSupportFile(msgHdr).exists())
-        {
+        if (this._getSupportFile(msgHdr).exists()) {
           this._log.debug("Message time not set but file exists; setting " +
                           "time to " + reindexTime);
           msgHdr.setUint32Property(this._hdrIndexedProperty, reindexTime);
-        }
-        else
-        {
+        } else {
           return [msgHdr, reindexTime];
         }
       }
+    } catch (ex) {
+      this._log.debug("Error while finding next header: " + ex);
     }
-    catch(ex) { this._log.debug("Error while finding next header: " + ex); }
 
     // If we couldn't find any headers to index, null out the enumerator
     this._headerEnumerator = null;
-    if (! (this._currentFolderToIndex.flags & Ci.nsMsgFolderFlags.Inbox))
+    if (!(this._currentFolderToIndex.flags & Ci.nsMsgFolderFlags.Inbox))
       this._currentFolderToIndex.msgDatabase = null;
     return null;
   },
@@ -435,8 +395,7 @@ var SearchSupport =
    * Get the last reindex time for this folder. This will be whichever's
    * greater, the global reindex time or the folder reindex time
    */
-  _getLastReindexTime: function search_get_last_reindex_time(aFolder)
-  {
+  _getLastReindexTime(aFolder) {
     let reindexTime = this.globalReindexTime;
 
     // Check if this folder has a separate string property set
@@ -444,11 +403,11 @@ var SearchSupport =
     try {
       folderReindexTime = this._currentFolderToIndex
         .getStringProperty(this._hdrIndexedProperty);
+    } catch (e) {
+      folderReindexTime = "";
     }
-    catch (e) { folderReindexTime = ""; }
 
-    if (folderReindexTime.length > 0)
-    {
+    if (folderReindexTime.length > 0) {
       let folderReindexTimeInt = parseInt(folderReindexTime);
       if (folderReindexTimeInt > reindexTime)
         reindexTime = folderReindexTimeInt;
@@ -467,8 +426,7 @@ var SearchSupport =
    * to index, it resets the last folder indexed URI so that the sweep can
    * be restarted
    */
-  _continueSweep: function search_continue_sweep()
-  {
+  _continueSweep() {
     let msgHdrAndReindexTime = null;
 
     if (this.__backgroundIndexingDone)
@@ -488,14 +446,13 @@ var SearchSupport =
       // from indexing of existing messages
       this.__backgroundIndexingDone = true;
 
-    if (!msgHdrAndReindexTime)
-    {
+    if (!msgHdrAndReindexTime) {
       this._log.debug("reached end of folder");
       if (this._currentFolderToIndex)
         this._currentFolderToIndex = null;
-    }
-    else
+    } else {
       this._queueMessage(msgHdrAndReindexTime[0], msgHdrAndReindexTime[1]);
+    }
 
     // Restart the timer, and call ourselves
     this._cancelTimer();
@@ -507,8 +464,7 @@ var SearchSupport =
   /**
    * A simple wrapper to make "this" be right for _continueSweep
    */
-  _wrapContinueSweep: function search_wrap_continue_sweep()
-  {
+  _wrapContinueSweep() {
     SearchIntegration._continueSweep();
   },
 
@@ -519,55 +475,38 @@ var SearchSupport =
    * - msg displayed observer, queues the message if necessary
    * - pref observer, to see if the preference has been poked
    */
-  observe: function search_observe(aSubject, aTopic, aData)
-  {
-    if (aTopic == "idle")
-    {
-      this._log.debug("Idle detected, continuing sweep")
+  observe(aSubject, aTopic, aData) {
+    if (aTopic == "idle") {
+      this._log.debug("Idle detected, continuing sweep");
       this._continueSweep();
-    }
-    else if (aTopic == "back")
-    {
-      this._log.debug("Non-idle, so suspending sweep")
+    } else if (aTopic == "back") {
+      this._log.debug("Non-idle, so suspending sweep");
       this._cancelTimer();
-    }
-    else if (aTopic == "MsgMsgDisplayed")
-    {
+    } else if (aTopic == "MsgMsgDisplayed") {
       this._log.debug("topic = " + aTopic + " uri = " + aData);
       let msgHdr = this._messenger.msgHdrFromURI(aData);
       let reindexTime = this._getLastReindexTime(msgHdr.folder);
       this._log.debug("Reindex time for this folder is " + reindexTime);
-      if (msgHdr.getUint32Property(this._hdrIndexedProperty) < reindexTime)
-      {
+      if (msgHdr.getUint32Property(this._hdrIndexedProperty) < reindexTime) {
         // Check if the file exists. If it does, then assume indexing to be
         // complete for this file
-        if (this._getSupportFile(msgHdr).exists())
-        {
+        if (this._getSupportFile(msgHdr).exists()) {
           this._log.debug("Message time not set but file exists; setting " +
                           " time to " + reindexTime);
           msgHdr.setUint32Property(this._hdrIndexedProperty, reindexTime);
-        }
-        else
-        {
+        } else {
           this._queueMessage(msgHdr, reindexTime);
         }
       }
-    }
-    else if (aTopic == "nsPref:changed" && aData == "enable")
-    {
+    } else if (aTopic == "nsPref:changed" && aData == "enable") {
       let prefEnabled = this.prefEnabled;
       // Search integration turned on
-      if (prefEnabled && this.register())
-      {
+      if (prefEnabled && this.register()) {
         this.enabled = true;
-      }
-      // Search integration turned off
-      else if (!prefEnabled && this.deregister())
-      {
+      } else if (!prefEnabled && this.deregister()) {
+        // Search integration turned off
         this.enabled = false;
-      }
-      else
-      {
+      } else {
         // The call to register or deregister has failed.
         // This is a hack to handle this case
         let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
@@ -578,9 +517,8 @@ var SearchSupport =
     }
   },
 
-  /// Handle failure to register or deregister
-  _handleRegisterFailure: function search_handle_register_failure(enabled)
-  {
+  // Handle failure to register or deregister
+  _handleRegisterFailure(enabled) {
     // Remove ourselves from the observer list, flip the pref,
     // and add ourselves back
     this._prefBranch.removeObserver("enable", this);
@@ -592,8 +530,7 @@ var SearchSupport =
    * This object gets notifications for new/moved/copied/deleted messages/folders
    */
   _msgFolderListener: {
-    msgAdded: function(aMsg)
-    {
+    msgAdded(aMsg) {
       SearchIntegration._log.info("in msgAdded");
       // The message already being there is an expected case
       let file = SearchIntegration._getSupportFile(aMsg);
@@ -602,12 +539,10 @@ var SearchSupport =
           SearchIntegration._getLastReindexTime(aMsg.folder));
     },
 
-    msgsDeleted: function(aMsgs)
-    {
+    msgsDeleted(aMsgs) {
       SearchIntegration._log.info("in msgsDeleted");
       let count = aMsgs.length;
-      for (let i = 0; i < count; i++)
-      {
+      for (let i = 0; i < count; i++) {
         let file = SearchIntegration._getSupportFile(
                      aMsgs.queryElementAt(i, Ci.nsIMsgDBHdr));
         if (file.exists())
@@ -615,29 +550,26 @@ var SearchSupport =
       }
     },
 
-    msgsMoveCopyCompleted: function(aMove, aSrcMsgs, aDestFolder)
-    {
+    msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder) {
       SearchIntegration._log.info("in msgsMoveCopyCompleted, aMove = " + aMove);
       // Forget about copies if disabled
       if (!aMove && !this.enabled)
         return;
 
       let count = aSrcMsgs.length;
-      for (let i = 0; i < count; i++)
-      {
+      for (let i = 0; i < count; i++) {
         let srcFile = SearchIntegration._getSupportFile(
                         aSrcMsgs.queryElementAt(i, Ci.nsIMsgDBHdr));
-        if (srcFile && srcFile.exists())
-        {
+        if (srcFile && srcFile.exists()) {
           let destFile = SearchIntegration._getSearchPathForFolder(aDestFolder);
           destFile.leafName = destFile.leafName + ".mozmsgs";
-          if (!destFile.exists())
-          {
+          if (!destFile.exists()) {
             try {
               // create the directory, if it doesn't exist
               destFile.create(Ci.nsIFile.DIRECTORY_TYPE, PERM_DIRECTORY);
+            } catch (ex) {
+              SearchIntegration._log.warn(ex);
             }
-            catch(ex) {SearchIntegration._log.warn(ex);}
           }
           SearchIntegration._log.debug("dst file path = " + destFile.path);
           SearchIntegration._log.debug("src file path = " + srcFile.path);
@@ -651,8 +583,7 @@ var SearchSupport =
       }
     },
 
-    folderDeleted: function(aFolder)
-    {
+    folderDeleted(aFolder) {
       SearchIntegration._log.info("in folderDeleted, folder name = " +
                                   aFolder.prettyName);
       let srcFile = SearchIntegration._getSearchPathForFolder(aFolder);
@@ -661,8 +592,7 @@ var SearchSupport =
         srcFile.remove(true);
     },
 
-    folderMoveCopyCompleted: function(aMove, aSrcFolder, aDestFolder)
-    {
+    folderMoveCopyCompleted(aMove, aSrcFolder, aDestFolder) {
       SearchIntegration._log.info("in folderMoveCopyCompleted, aMove = " +
                                   aMove);
 
@@ -676,8 +606,7 @@ var SearchSupport =
       destFile.leafName += ".sbd";
       SearchIntegration._log.debug("src file path = " + srcFile.path);
       SearchIntegration._log.debug("dst file path = " + destFile.path);
-      if (srcFile.exists())
-      {
+      if (srcFile.exists()) {
         // We're not going to copy if we aren't in active mode
         if (aMove)
           srcFile.moveTo(destFile, "");
@@ -686,8 +615,7 @@ var SearchSupport =
       }
     },
 
-    folderRenamed: function(aOrigFolder, aNewFolder)
-    {
+    folderRenamed(aOrigFolder, aNewFolder) {
       SearchIntegration._log.info("in folderRenamed, aOrigFolder = " +
                                   aOrigFolder.prettyName +
                                   ", aNewFolder = " + aNewFolder.prettyName);
@@ -700,28 +628,24 @@ var SearchSupport =
         srcFile.moveTo(null, destName);
     },
 
-    itemEvent: function(aItem, aEvent, aData, aString)
-    {
+    itemEvent(aItem, aEvent, aData, aString) {
       SearchIntegration._log.info("in itemEvent, aItem = " + aItem +
                                   ", aEvent = " + aEvent +
                                   ", aData = " + aData +
                                   ", aString = " + aString);
-    }
+    },
   },
 
   /*
    * Support functions to queue/generate files
    */
-  _queueMessage: function search_queue_message(msgHdr, reindexTime)
-  {
-    if (this._msgHdrsToIndex.push([msgHdr, reindexTime]) == 1)
-    {
+  _queueMessage(msgHdr, reindexTime) {
+    if (this._msgHdrsToIndex.push([msgHdr, reindexTime]) == 1) {
       this._log.info("generating support file for id = " + msgHdr.messageId);
       this._streamListener.startStreaming(msgHdr, reindexTime);
+    } else {
+      this._log.info("queueing support file generation for id = " + msgHdr.messageId);
     }
-    else
-      this._log.info("queueing support file generation for id = " +
-                     msgHdr.messageId);
   },
 
   /**
@@ -731,8 +655,7 @@ var SearchSupport =
    * @param aFile the file passed in by the command line
    * @return the nsIMsgDBHdr corresponding to the file passed in
    */
-  handleResult: function search_handle_result(aFile)
-  {
+  handleResult(aFile) {
     // The file path has two components -- the search path, which needs to be
     // converted into a folder, and the message ID.
     let searchPath = aFile.parent;
@@ -748,11 +671,9 @@ var SearchSupport =
     return folder.msgDatabase.getMsgHdrForMessageID(messageID);
   },
 
-  _getSupportFile: function search_get_support_file(msgHdr)
-  {
+  _getSupportFile(msgHdr) {
     let folder = msgHdr.folder;
-    if (folder)
-    {
+    if (folder) {
       let messageId = encodeURIComponent(msgHdr.messageId);
       this._log.debug("encoded message id = " + messageId);
       let file = this._getSearchPathForFolder(folder);
@@ -769,36 +690,32 @@ var SearchSupport =
    * implementations
    */
   _streamListenerBase: {
-    /// Output file
+    // Output file
     _outputFile: null,
 
-    /// Stream to use to write to the output file
+    // Stream to use to write to the output file
     __outputStream: null,
-    set _outputStream(stream)
-    {
+    set _outputStream(stream) {
       if (this.__outputStream)
         this.__outputStream.close();
       this.__outputStream = stream;
     },
-    get _outputStream()
-    {
+    get _outputStream() {
       return this.__outputStream;
     },
 
-    /// Reference to message header
+    // Reference to message header
     _msgHdr: null,
 
-    /// Reindex time for this message header
+    // Reindex time for this message header
     _reindexTime: null,
 
     QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
-    /// "Finish" function, cleans up behind itself if unsuccessful
-    _onDoneStreaming: function search_on_done_streaming(successful)
-    {
+    // "Finish" function, cleans up behind itself if unsuccessful
+    _onDoneStreaming(successful) {
       this._outputStream = null;
-      if (!successful && this._msgHdr)
-      {
+      if (!successful && this._msgHdr) {
         let file = SearchIntegration._getSupportFile(this._msgHdr);
         if (file && file.exists())
           file.remove(false);
@@ -806,21 +723,17 @@ var SearchSupport =
       // should we try to delete the file on disk in case not successful?
       SearchIntegration._msgHdrsToIndex.shift();
 
-      if (SearchIntegration._msgHdrsToIndex.length > 0)
-      {
-        [msgHdr, reindexTime] = SearchIntegration._msgHdrsToIndex[0];
+      if (SearchIntegration._msgHdrsToIndex.length > 0) {
+        let [msgHdr, reindexTime] = SearchIntegration._msgHdrsToIndex[0];
         this.startStreaming(msgHdr, reindexTime);
       }
     },
 
-    /// "Start" function
-    startStreaming: function search_start_streaming(msgHdr, reindexTime)
-    {
-      try
-      {
+    // "Start" function
+    startStreaming(msgHdr, reindexTime) {
+      try {
         let folder = msgHdr.folder;
-        if (folder)
-        {
+        if (folder) {
           let messageId = encodeURIComponent(msgHdr.messageId);
           SearchIntegration._log.info("generating support file, id = " +
                                       messageId);
@@ -828,13 +741,13 @@ var SearchSupport =
 
           file.leafName = file.leafName + ".mozmsgs";
           SearchIntegration._log.debug("file leafname = " + file.leafName);
-          if (!file.exists())
-          {
+          if (!file.exists()) {
             try {
               // create the directory, if it doesn't exist
               file.create(Ci.nsIFile.DIRECTORY_TYPE, PERM_DIRECTORY);
+            } catch (ex) {
+              this._log.error(ex);
             }
-            catch(ex) { this._log.error(ex); }
           }
 
           file.appendRelativePath(messageId + SearchIntegration._fileExt);
@@ -846,28 +759,23 @@ var SearchSupport =
           this._msgHdr = msgHdr;
           this._outputFile = file;
           this._reindexTime = reindexTime;
-          try
-          {
+          try {
             // XXX For now, try getting the messages from the server. This has
             // to be improved so that we don't generate any excess network
             // traffic
             msgService.streamMessage(uri, this, null, null, false, "", false);
-          }
-          catch (ex)
-          {
+          } catch (ex) {
             // This is an expected case, in case we're offline
             SearchIntegration._log.warn("StreamMessage unsuccessful for id = " +
                                         messageId);
             this._onDoneStreaming(false);
           }
         }
-      }
-      catch (ex)
-      {
+      } catch (ex) {
         SearchIntegration._log.error(ex);
         this._onDoneStreaming(false);
       }
-    }
+    },
   },
 
   /**
@@ -876,8 +784,7 @@ var SearchSupport =
    * gets everything
    */
   _log: null,
-  _initLogging: function search_init_logging()
-  {
+  _initLogging() {
     let formatter = new Log4Moz.BasicFormatter();
   let root = Log4Moz.repository.rootLogger;
     root.level = Log4Moz.Level.Debug;
@@ -887,26 +794,28 @@ var SearchSupport =
     let enableConsoleLogging = false;
     let enableDumpLogging = false;
 
-    try
-    {
+    try {
       enableConsoleLogging = this._prefBranch.getBoolPref("logging.console");
       enableDumpLogging = this._prefBranch.getBoolPref("logging.dump");
-    }
-    catch (ex) {}
+    } catch (ex) {}
 
-    if (enableConsoleLogging)
-    {
+    if (enableConsoleLogging) {
       let capp = new Log4Moz.ConsoleAppender(formatter);
       capp.level = Log4Moz.Level.Warn;
       this._log.addAppender(capp);
     }
-    if (enableDumpLogging)
-    {
+    if (enableDumpLogging) {
       let dapp = new Log4Moz.DumpAppender(formatter);
       dapp.level = Log4Moz.Level.All;
       this._log.addAppender(dapp);
     }
 
     this._log.info("Logging initialized");
-  }
+  },
 };
+
+if (AppConstants.platform == "win") {
+  Services.scriptloader.loadSubScript("chrome://messenger/content/WinSearchIntegration.js");
+} else if (AppConstants.platform == "macosx") {
+  Services.scriptloader.loadSubScript("chrome://messenger/content/SpotlightIntegration.js");
+}

@@ -519,7 +519,7 @@ function LoadPostAccountWizard()
 
       // Next, try loading the search integration module
       // We'll get a null SearchIntegration if we don't have one
-      ChromeUtils.import("resource:///modules/SearchIntegration.js");
+      ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
 
       // Show the default client dialog only if
       // EITHER: we have at least one account, and we aren't already the default

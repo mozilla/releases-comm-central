@@ -5,17 +5,15 @@
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     DIRS += ['mdimporter']
-    EXTRA_PP_JS_MODULES += ['SpotlightIntegration.js']
 elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     DIRS += ['wsenable']
     SOURCES += ['nsMailWinSearchHelper.cpp']
-    EXTRA_PP_JS_MODULES += ['WinSearchIntegration.js']
     FINAL_LIBRARY = 'mailcomps'
 
 DIRS += ['public']
 
-EXTRA_PP_JS_MODULES += [
-    'SearchIntegration.js',
+EXTRA_JS_MODULES += [
+    'SearchIntegration.jsm',
 ]
 
 JAR_MANIFESTS += ['jar.mn']

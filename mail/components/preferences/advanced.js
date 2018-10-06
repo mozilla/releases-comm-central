@@ -55,7 +55,7 @@ var gAdvancedPane = {
     // Search integration -- check whether we should hide or disable integration
     let hideSearchUI = false;
     let disableSearchUI = false;
-    ChromeUtils.import("resource:///modules/SearchIntegration.js");
+    ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
     if (SearchIntegration) {
       if (SearchIntegration.osVersionTooLow)
         hideSearchUI = true;

@@ -45,7 +45,7 @@ function handleIndexerResult(aFile) {
 
   // Use the search integration module to convert the indexer result into a
   // message header
-  ChromeUtils.import("resource:///modules/SearchIntegration.js");
+  ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
   let msgHdr = SearchIntegration.handleResult(aFile);
 
   // If we found a message header, open it, otherwise throw an exception

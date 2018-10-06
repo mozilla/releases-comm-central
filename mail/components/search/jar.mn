@@ -3,6 +3,12 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-        searchplugins/                                              (searchplugins/**)
+    searchplugins/                            (searchplugins/**)
+#ifdef XP_MACOSX
+    content/messenger/SpotlightIntegration.js (content/SpotlightIntegration.js)
+#endif
+#ifdef XP_WIN
+    content/messenger/WinSearchIntegration.js (content/WinSearchIntegration.js)
+#endif
 
 % resource search-plugins %searchplugins/
