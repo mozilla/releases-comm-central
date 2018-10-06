@@ -404,7 +404,7 @@ nsContextMenu.prototype = {
       "mailContext-sep-afterTagAddNew", "mailContext-sep-afterTagRemoveAll",
       "mailContext-sep-afterMarkAllRead", "mailContext-sep-afterMarkFlagged",
       "mailContext-sep-afterMarkMenu", "mailContext-afterWatchThread",
-      "mailContext-sep-edit",
+      "mailContext-sep-edit", "mailContext-sep-editTemplate",
       "mailContext-sep-copy", "mailContext-sep-reportPhishing",
       "mailContext-sep-undo", "mailContext-sep-clipboard",
       "mailContext-spell-suggestions-separator", "mailContext-spell-separator",
