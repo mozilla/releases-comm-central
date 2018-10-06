@@ -2,25 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 
 // Get a configured logger for this component.
 // To debug, set mail.provider.logging.dump (or .console)="All"
 var gLog = Log4Moz.getConfiguredLogger("mail.provider");
 var stringBundle = new StringBundle("chrome://messenger/locale/newmailaccount/accountProvisioner.properties");
 
-var isOSX = (Services.appinfo.OS == 'Darwin');
-
 var RETRY_TIMEOUT = 5000; // 5 seconds
 var CONNECTION_TIMEOUT = 15000; // 15 seconds
 
-function isAccel (event) { return isOSX && event.metaKey || event.ctrlKey; }
+function isAccel(event) {
+  return AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
+}
 
 /**
  * Get the localstorage for this page in a way that works in chrome.
@@ -47,8 +48,7 @@ function splitName(str) {
   let i = str.lastIndexOf(" ");
   if (i >= 1)
     return [str.substring(0, i), str.substring(i + 1)];
-  else
-    return [str, ""];
+  return [str, ""];
 }
 
 /**
@@ -62,7 +62,7 @@ function splitName(str) {
 function insertHTMLReplacement(aTextContainer, aTextNode, aPlaceholder, aReplacement) {
   if (aTextNode.textContent.includes(aPlaceholder)) {
     let placeIndex = aTextNode.textContent.indexOf(aPlaceholder);
-    let restNode = aTextNode.splitText(placeIndex+aPlaceholder.length);
+    let restNode = aTextNode.splitText(placeIndex + aPlaceholder.length);
     aTextContainer.insertBefore(aReplacement, restNode);
     let placeholderNode = aTextNode.splitText(placeIndex);
     placeholderNode.remove();
@@ -294,7 +294,7 @@ var EmailAccountProvisioner = {
       try {
         let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
         name = userInfo.fullname;
-      } catch(e) {
+      } catch (e) {
         // nsIUserInfo may not be implemented on all platforms, and name might
         // not be available even if it is.
       }
@@ -348,7 +348,7 @@ var EmailAccountProvisioner = {
         resultsGroup = resultsGroup.parentElement;
       }
       if (!resultsGroup)
-        throw("Unexpected error finding resultsGroup.");
+        throw "Unexpected error finding resultsGroup.";
 
       // Return if we're already expanded
       if (resultsGroup.classList.contains("expanded"))
@@ -472,7 +472,7 @@ var EmailAccountProvisioner = {
     let [firstname, lastname] = splitName(name);
     let selectedProviderList =
       [...document.querySelectorAll(".provider input:checked")];
-    let providerList = selectedProviderList.map(node => node.value).join(',');
+    let providerList = selectedProviderList.map(node => node.value).join(",");
 
     let request = new XMLHttpRequest();
     request.open("GET", EmailAccountProvisioner.suggestFromName +
@@ -480,11 +480,11 @@ var EmailAccountProvisioner = {
       "&last_name=" + encodeURIComponent(lastname) +
       "&providers=" + encodeURIComponent(providerList) +
       "&version=2");
-    request.onload = function () {
+    request.onload = function() {
       let data;
       try {
         data = JSON.parse(request.responseText);
-      } catch(e) {};
+      } catch (e) {}
       EmailAccountProvisioner.onSearchResults(data);
     };
     request.onerror = () => {
@@ -494,7 +494,7 @@ var EmailAccountProvisioner = {
     request.ontimeout = () => {
       gLog.info("Timeout of XMLHttpRequest fetching address data.");
       EmailAccountProvisioner.showSearchError();
-    }
+    };
     request.onloadend = function() {
       // Also called if we timeout.
       let firstAndLastName = document.getElementById("FirstAndLastName");
@@ -514,7 +514,7 @@ var EmailAccountProvisioner = {
    */
   onAddressSelected: function EAP_onAddressSelected(aTarget) {
     gLog.info("An address was selected by the user.");
-    let provider = EmailAccountProvisioner.providers[aTarget.dataset["provider"]];
+    let provider = EmailAccountProvisioner.providers[aTarget.dataset.provider];
 
     // Replace the variables in the url.
     let url = provider.api;
@@ -528,7 +528,7 @@ var EmailAccountProvisioner = {
     let data = storedData[provider.id];
     delete data.provider;
     for (let name in data) {
-      url += (url.indexOf("?") == -1 ? "?" : "&") +
+      url += (!url.includes("?") ? "?" : "&") +
               name + "=" + encodeURIComponent(data[name]);
     }
 
@@ -539,9 +539,9 @@ var EmailAccountProvisioner = {
     tabmail.openTab("accountProvisionerTab", {
       contentPage: url,
       realName: (firstName + " " + lastName).trim(),
-      email: email,
+      email,
       searchEngine: provider.search_engine,
-      onLoad: function (aEvent, aBrowser) {
+      onLoad(aEvent, aBrowser) {
         window.close();
       },
     });
@@ -568,7 +568,7 @@ var EmailAccountProvisioner = {
 
     // If there's a timeout ID for waking the account provisioner, clear it.
     if (this._loadProviderRetryId) {
-      window.clearTimeout(this._loadProviderRetryId)
+      window.clearTimeout(this._loadProviderRetryId);
       this._loadProviderRetryId = null;
     }
 
@@ -583,7 +583,7 @@ var EmailAccountProvisioner = {
       let data;
       try {
         data = JSON.parse(request.responseText);
-      } catch(e) {};
+      } catch (e) {}
       EmailAccountProvisioner.populateProviderList(data);
     };
     request.onerror = () => {
@@ -605,7 +605,7 @@ var EmailAccountProvisioner = {
     };
     request.timeout = CONNECTION_TIMEOUT;
     request.ontimeout = () => {
-      glog.info("Timeout of XMLHttpRequest fetching provider list.");
+      gLog.info("Timeout of XMLHttpRequest fetching provider list.");
       request.onError();
     };
     request.send(null);
@@ -627,7 +627,7 @@ var EmailAccountProvisioner = {
       if (!fieldExists)
         gLog.error("A provider did not have the field " + aField
                    + ", and will be skipped.");
-    };
+    }
 
     return result;
   },
@@ -661,7 +661,7 @@ var EmailAccountProvisioner = {
       // Let's go through the array of languages for this provider, and
       // check to see if at least one of them matches the user's language.
       // If so, we'll show / select this provider by default.
-      let supportsSomeUserLang = provider.languages.some(function (x) {
+      let supportsSomeUserLang = provider.languages.some(function(x) {
         return x == "*" || x == EmailAccountProvisioner.userLanguage;
       });
 
@@ -701,8 +701,7 @@ var EmailAccountProvisioner = {
         providerCheckbox.setAttribute("checked", "true");
         providerEntry.style.display = "inline-block";
         providerList.appendChild(providerEntry);
-      }
-      else {
+      } else {
         providerEntry.classList.add("otherLanguage");
         otherLangProviders.push(providerEntry);
       }
@@ -773,7 +772,7 @@ var EmailAccountProvisioner = {
       a = document.createElement("a");
       a.setAttribute("href", provider.tos_url);
       a.setAttribute("class", "tos external " + provider.id);
-      a.appendChild(document.createTextNode(stringBundle.get('tos')));
+      a.appendChild(document.createTextNode(stringBundle.get("tos")));
       providerList.appendChild(a);
 
       span = document.createElement("span");
@@ -801,12 +800,12 @@ var EmailAccountProvisioner = {
    * Something went wrong during search.  Show a generic error.  In the future,
    * we might want to show something a bit more descriptive.
    */
-  showSearchError: function() {
+  showSearchError() {
     for (let node of document.getElementById("notifications").children) {
       node.style.display = "none";
     }
     for (let node of document.querySelectorAll("#notifications .error")) {
-      node.style.display = "block"
+      node.style.display = "block";
       node.getBoundingClientRect();
       node.classList.add("showWithFade");
     }
@@ -816,7 +815,7 @@ var EmailAccountProvisioner = {
    * Once we've received search results from the server, create some
    * elements to display those results, and inject them into the DOM.
    */
-  onSearchResults: function(data) {
+  onSearchResults(data) {
     gLog.info("Got back search results");
 
     // Empty any old results.
@@ -850,7 +849,7 @@ var EmailAccountProvisioner = {
         gLog.error("Got a result back for a provider that was not "
                    + "in the original providerList: " + aResult.provider);
 
-      let providerSelected = selectedProviders.indexOf(aResult.provider) != -1;
+      let providerSelected = selectedProviders.includes(aResult.provider);
 
       if (!providerSelected)
         gLog.error("Got a result back for a provider that the user did "
@@ -903,11 +902,11 @@ var EmailAccountProvisioner = {
         //   Or if the provider's price is 0, use "Free".
         let priceStr;
         if (address.price && address.price != "0")
-          priceStr = stringBundle.get("price", [address.price])
+          priceStr = stringBundle.get("price", [address.price]);
         else if (address.price && address.price == "0")
           priceStr = stringBundle.get("free");
         else if (provider.price && provider.price != "0")
-          priceStr = stringBundle.get("price", [provider.price])
+          priceStr = stringBundle.get("price", [provider.price]);
         else
           priceStr = stringBundle.get("free");
 
@@ -986,7 +985,7 @@ var EmailAccountProvisioner = {
   beOffline: function EAP_beOffline() {
     let offlineMsg = stringBundle.get("cannotConnect");
     let element = document.getElementById("cannotConnectMessage");
-    if(!element.hasChildNodes()) {
+    if (!element.hasChildNodes()) {
       element.appendChild(document.createTextNode(offlineMsg));
     }
     element.style.display = "block";
@@ -1005,8 +1004,8 @@ var EmailAccountProvisioner = {
     element.textContent = "";
     this.searchEnabled(true);
     gLog.info("Email Account Provisioner is in online mode.");
-  }
-}
+  },
+};
 
 
 XPCOMUtils.defineLazyGetter(EmailAccountProvisioner, "storage", function() {

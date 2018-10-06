@@ -51,7 +51,6 @@ mailnews/extensions/*
 mail/app/**
 mail/base/**
 mail/branding/**
-mail/components/newmailaccount/**
 mail/components/search/**
 mail/config/**
 mail/extensions/**
