@@ -36,3 +36,7 @@ hbox button {
   min-height: 19px; /* aqua size for small buttons */
   font: message-box;
 }
+
+:root[toolboxId="mail-toolbox"] #showTitlebar {
+  display: -moz-box;
+}
