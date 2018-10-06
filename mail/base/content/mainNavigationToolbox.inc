@@ -655,10 +655,12 @@
                       command="cmd_openMessage"
                       accesskey="&openMessageWindowCmd.accesskey;"
                       key="key_openMessage"/>
-            <menuitem id="openConversationMenuitem" label="&openConversationCmd.label;"
+#ifdef MAIN_WINDOW
+            <menuitem id="openConversationMenuitem" label="&openInConversationCmd.label;"
                       command="cmd_openConversation"
-                      accesskey="&openConversationCmd.accesskey;"
+                      accesskey="&openInConversationCmd.accesskey;"
                       key="key_openConversation"/>
+#endif
             <menu id="openFeedMessage"
                   label="&openFeedMessage1.label;"
                   accesskey="&openFeedMessage1.accesskey;">
@@ -683,7 +685,9 @@
                           oncommand="FeedMessageHandler.onOpenPref = 2"/>
               </menupopup>
             </menu>
+#ifdef MAIN_WINDOW
             <menuseparator id="messageAfterOpenMsgSeparator"/>
+#endif
             <menu id="msgAttachmentMenu"
                   label="&openAttachmentListCmd.label;"
                   accesskey="&openAttachmentListCmd.accesskey;"

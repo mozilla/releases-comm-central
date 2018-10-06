@@ -84,7 +84,7 @@
   <key id="key_killThread" key="&killThreadMenu.key;"                oncommand="goDoCommand('cmd_killThread')" />
   <key id="key_killSubthread" key="&killSubthreadMenu.key;"          oncommand="goDoCommand('cmd_killSubthread')" modifiers="shift" />
   <key id="key_openMessage" key="&openMessageWindowCmd.key;"         oncommand="goDoCommand('cmd_openMessage')" modifiers="accel"/>
-  <key id="key_openConversation" key="&openConversationCmd.key;"     oncommand="goDoCommand('cmd_openConversation')" modifiers="accel, shift"/>
+  <key id="key_openConversation" key="&openInConversationCmd.key;"   oncommand="goDoCommand('cmd_openConversation')" modifiers="accel, shift"/>
 #ifdef XP_MACOSX
   <key id="key_moveToFolderAgain" key="&moveToFolderAgainCmd.key;"   oncommand="goDoCommand('cmd_moveToFolderAgain')" modifiers="alt, accel"/>
 #else

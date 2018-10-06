@@ -896,10 +896,12 @@
                       label="&openMessageWindowCmd.label;"
                       key="key_openMessage"
                       command="cmd_openMessage"/>
+#ifdef MAIN_WINDOW
             <menuitem id="appmenu_openConversationMenuitem"
-                      label="&openConversationCmd.label;"
+                      label="&openInConversationCmd.label;"
                       key="key_openConversation"
                       command="cmd_openConversation"/>
+#endif
             <menu id="appmenu_openFeedMessage"
                   label="&openFeedMessage1.label;">
               <menupopup id="appmenu_openFeedMessagePopup">
@@ -920,7 +922,9 @@
                           oncommand="FeedMessageHandler.onOpenPref = 2"/>
               </menupopup>
             </menu>
+#ifdef MAIN_WINDOW
             <menuseparator id="appmenu_messageAfterOpenMsgSeparator"/>
+#endif
             <menu id="appmenu_tagMenu"
                   label="&tagMenu.label;"
                   command="cmd_tag">

@@ -209,10 +209,12 @@
                                                    class="toolbarbutton-1 msgHeaderView-button">
                                       <menupopup id="otherActionsPopup"
                                                  onpopupshowing="onShowOtherActionsPopup();">
+#ifdef MAIN_WINDOW
                                         <menuitem id="otherActionsOpenConversation"
                                                   label="&otherActionsOpenConversation1.label;"
                                                   accesskey="&otherActionsOpenConversation1.accesskey;"
                                                   oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);"/>
+#endif
                                         <menuitem id="otherActionsOpenInNewWindow"
                                                   label="&otherActionsOpenInNewWindow1.label;"
                                                   accesskey="&otherActionsOpenInNewWindow1.accesskey;"
