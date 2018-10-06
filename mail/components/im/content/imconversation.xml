@@ -27,7 +27,7 @@
             </xul:vbox>
           </xul:notificationbox>
         </xul:hbox>
-        <xul:splitter class="splitter" anonid="splitter-bottom"/>
+        <xul:splitter class="splitter" anonid="splitter-bottom" orient="vertical"/>
         <hbox anonid="convStatusContainer" class="conv-status-container" hidden="true">
           <xul:description anonid="convStatus" class="plain conv-status" crop="end" />
         </hbox>
