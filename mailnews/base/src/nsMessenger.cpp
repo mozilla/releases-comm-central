@@ -2422,7 +2422,7 @@ public:
   nsresult PrepareForAttachmentDelete();
 
 private:
-  static int SortAttachmentsByPartId(const void * aLeft, const void * aRight, void *);
+  static int SortAttachmentsByPartId(const void * aLeft, const void * aRight);
 
 public:
   uint32_t        mCount;
@@ -2485,7 +2485,7 @@ nsAttachmentState::PrepareForAttachmentDelete()
   // after:  1.2, 1.3, 1.4.1.2, 1.11
 
   // sort
-  NS_QuickSort(mAttachmentArray, mCount, sizeof(msgAttachment), SortAttachmentsByPartId, nullptr);
+  qsort(mAttachmentArray, mCount, sizeof(msgAttachment), SortAttachmentsByPartId);
 
   // remove duplicates and sub-items
   int nCompare;
@@ -2512,7 +2512,7 @@ nsAttachmentState::PrepareForAttachmentDelete()
 }
 
 int
-nsAttachmentState::SortAttachmentsByPartId(const void * aLeft, const void * aRight, void *)
+nsAttachmentState::SortAttachmentsByPartId(const void * aLeft, const void * aRight)
 {
   msgAttachment & attachLeft  = *((msgAttachment*) aLeft);
   msgAttachment & attachRight = *((msgAttachment*) aRight);

@@ -29,10 +29,6 @@
  * SUCH DAMAGE.
  */
 
-/* We need this because Solaris' version of qsort is broken and
- * causes array bounds reads.
- */
-
 #ifndef _MDB_
 #include "mdb.h"
 #endif

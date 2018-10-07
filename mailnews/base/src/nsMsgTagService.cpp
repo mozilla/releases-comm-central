@@ -31,14 +31,14 @@ static bool gMigratingKeys = false;
 
 // comparison functions for nsQuickSort
 static int
-CompareMsgTagKeys(const void* aTagPref1, const void* aTagPref2, void* aData)
+CompareMsgTagKeys(const void* aTagPref1, const void* aTagPref2)
 {
   return strcmp(*static_cast<const char* const*>(aTagPref1),
                 *static_cast<const char* const*>(aTagPref2));
 }
 
 static int
-CompareMsgTags(const void* aTagPref1, const void* aTagPref2, void* aData)
+CompareMsgTags(const void* aTagPref1, const void* aTagPref2)
 {
   // Sort nsMsgTag objects by ascending order, using their ordinal or key.
   // The "smallest" value will be first in the sorted array,
@@ -354,7 +354,7 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount, nsIMsgTag ***aTagArr
   rv = m_tagPrefBranch->GetChildList("", &prefCount, &prefList);
   NS_ENSURE_SUCCESS(rv, rv);
   // sort them by key for ease of processing
-  NS_QuickSort(prefList, prefCount, sizeof(char*), CompareMsgTagKeys, nullptr);
+  qsort(prefList, prefCount, sizeof(char*), CompareMsgTagKeys);
 
   // build an array of nsIMsgTag elements from the orderered list
   // it's at max the same size as the preflist, but usually only about half
@@ -409,8 +409,7 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount, nsIMsgTag ***aTagArr
   NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(prefCount, prefList);
 
   // sort the non-null entries by ordinal
-  NS_QuickSort(tagArray, currentTagIndex, sizeof(nsMsgTag*), CompareMsgTags,
-               nullptr);
+  qsort(tagArray, currentTagIndex, sizeof(nsMsgTag*), CompareMsgTags);
 
   // All done, now return the values (the idl's size_is(count) parameter
   // ensures that the array is cut accordingly).
