@@ -27,27 +27,20 @@
 
 /* Use on Win7 and up default theme a dark text color when selected focus */
 @media (-moz-windows-default-theme) {
-    .calendar-task-tree > treechildren::-moz-tree-cell-text(selected, focus),
-    .calendar-task-tree > treechildren::-moz-tree-cell-text(duetoday, selected, focus),
-    .calendar-task-tree > treechildren::-moz-tree-cell-text(future, selected, focus),
-    .calendar-task-tree > treechildren::-moz-tree-cell-text(completed, selected, focus) {
-        color: -moz-FieldText;
-    }
-
     .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
-        border-color: green;
+        border-color: green !important;
     }
 
     .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus) {
-        color: white;
+        color: white !important;
     }
 
     .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
-        border-color: red;
+        border-color: red !important;
     }
 
     .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus) {
-        color: white;
+        color: white !important;
     }
 
     @media (-moz-os-version: windows-win7) {

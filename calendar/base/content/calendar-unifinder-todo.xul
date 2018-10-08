@@ -38,7 +38,7 @@
                             persist="visible-columns ordinals widths sort-active sort-direction"
                             context="taskitem-context-menu"/>
         <textbox id="unifinder-task-edit-field"
-                 class="task-edit-field"
+                 class="task-edit-field themeableSearchBox"
                  onfocus="taskEdit.onFocus(event)"
                  onblur="taskEdit.onBlur(event)"
                  onkeypress="taskEdit.onKeyPress(event)"/>

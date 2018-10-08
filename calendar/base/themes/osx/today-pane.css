@@ -12,28 +12,6 @@
   text-shadow: none;
 }
 
-.today-pane-cycler {
-  border-radius: 2px;
-  margin: 1px;
-}
-
-.today-pane-cycler:hover {
-  background-color: hsla(0,0%,0%,0.1);
-}
-
-.today-pane-cycler:-moz-lwtheme:hover {
-  background-color: hsla(0,0%,100%,0.2);
-}
-
-.miniday-nav-buttons {
-  list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
-}
-
-#previous-day-button:-moz-locale-dir(ltr),
-#next-day-button:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
-}
-
 .today-closebutton > .toolbarbutton-text {
    display: none;
 }
@@ -50,11 +28,6 @@
   background: linear-gradient(hsl(0, 0%, 93%), hsl(0, 0%, 83%));
 }
 
-#agenda-toolbar {
-  background-color: -moz-dialog;
-  color: -moz-dialogtext;
-}
-
 @media (-moz-mac-yosemite-theme) {
   #today-pane-panel:not(:-moz-lwtheme):-moz-window-inactive {
     background-color: hsl(0, 0%, 97%);
@@ -63,10 +36,11 @@
   #mini-day-image:-moz-window-inactive {
     background: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 95%));
   }
+}
 
-  #agenda-toolbar:-moz-window-inactive {
-    background-color: hsl(0, 0%, 97%);
-  }
+:root[lwt-tree] #mini-day-image,
+:root[lwt-tree] #mini-day-image:-moz-window-inactive {
+  background: none;
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
@@ -84,4 +58,8 @@
 #today-pane-splitter {
   min-height: 9px;
   border-top: 1px solid #b8b8b8;
+}
+
+#miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
+  -moz-appearance: none;
 }

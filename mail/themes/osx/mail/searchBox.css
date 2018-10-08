@@ -8,7 +8,8 @@
   --toolbar-field-focus-border-color: -moz-mac-focusring;
 }
 
-.searchBox {
+.searchBox,
+.themeableSearchBox {
   margin-top: 3px;
   margin-bottom: 2px;
   -moz-appearance: none !important;
@@ -30,13 +31,13 @@
 }
 
 .searchBox:hover,
-#view-task-edit-field:hover,
-#unifinder-task-edit-field:hover {
+.themeableSearchBox:hover {
   border-color: hsla(240,5%,5%,.35);
   box-shadow: 0 1px 6px rgba(0,0,0,.1);
 }
 
-.searchBox[focused="true"] {
+.searchBox[focused="true"],
+.themeableSearchBox[focused="true"] {
   border-color: -moz-mac-focusring;
   box-shadow: var(--focus-ring-box-shadow);
 }

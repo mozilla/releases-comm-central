@@ -32,11 +32,8 @@
   padding: 1px 2px 0 !important;
 }
 
-#calendar-status-todaypane-button:hover {
-  border-color: ThreeDShadow;
-}
-
 #calendar-status-todaypane-button[hideLabel] > stack {
+  margin-top: -1px;
   margin-inline-start: 5px;
 }
 

@@ -53,6 +53,38 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   -moz-user-focus: normal;
 }
 
+:root[lwt-tree] .view-navigation-button {
+  -moz-appearance: none;
+  -moz-user-focus: normal;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+}
+
+:root[lwt-tree] .view-navigation-button:not([disabled="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  color: inherit;
+}
+
+:root[lwt-tree-brighttext] .view-navigation-button:not([disabled="true"]):hover {
+  background: rgba(255, 255, 255, .25);
+  border-color: rgba(255, 255, 255, .5);
+}
+
+:root[lwt-tree] .view-navigation-button:not([disabled="true"]):hover:active {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  transition-duration: 10ms;
+}
+
+:root[lwt-tree-brighttext] .view-navigation-button:not([disabled="true"]):hover:active {
+  background: rgba(255, 255, 255, .4);
+  border-color: rgba(255, 255, 255, .7);
+  box-shadow: rgba(255, 255, 255, .4) inset;
+}
+
 .view-navigation-button[disabled="true"] {
   opacity: .3;
 }

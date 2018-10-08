@@ -19,3 +19,14 @@
     min-height: 92px;
     margin: 0;
 }
+
+:root[lwt-tree] #unifinder-searchBox {
+    background-color: var(--toolbar-bgcolor);
+    background-image: linear-gradient(var(--sidebar-border-color) 1px, transparent 1px);
+    color: var(--toolbar-color);
+    border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree-brighttext] #unifinder-searchBox {
+    border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+}

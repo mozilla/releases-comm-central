@@ -23,11 +23,13 @@
   padding-top: 1px;
 }
 
-.searchBox > hbox {
+.searchBox > hbox,
+.themeableSearchBox > hbox {
   -moz-box-ordinal-group: 1;
 }
 
-.searchBox > .textbox-input-box {
+.searchBox > .textbox-input-box,
+.themeableSearchBox > .textbox-input-box {
   -moz-box-ordinal-group: 2;
 }
 
@@ -72,8 +74,7 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 }
 
 .searchBox,
-#view-task-edit-field,
-#unifinder-task-edit-field {
+.themeableSearchBox {
   -moz-appearance: none;
   background-clip: padding-box;
   border: 1px solid hsla(240,5%,5%,.25);
@@ -89,8 +90,7 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 
 @media (-moz-windows-default-theme: 0) {
   .searchBox:not(:-moz-lwtheme):not([focused="true"]),
-  #view-task-edit-field:not(:-moz-lwtheme):not([focused="true"]),
-  #unifinder-task-edit-field:not(:-moz-lwtheme):not([focused="true"]) {
+  .themeableSearchBox:not(:-moz-lwtheme):not([focused="true"]) {
     border-color: ThreeDShadow;
   }
 }
@@ -104,15 +104,13 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 }
 
 .searchBox:hover,
-#view-task-edit-field:hover,
-#unifinder-task-edit-field:hover {
+.themeableSearchBox:hover {
   border-color: hsla(240,5%,5%,.35);
   box-shadow: 0 1px 6px rgba(0,0,0,.1);
 }
 
 .searchBox[focused="true"],
-#view-task-edit-field[focused="true"],
-#unifinder-task-edit-field[focused="true"]  {
+.themeableSearchBox[focused="true"] {
   border-color: Highlight;
 }
 

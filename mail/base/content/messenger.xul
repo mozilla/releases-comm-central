@@ -703,7 +703,7 @@
           <toolbar id="dummycontenttoolbar" class="contentTabToolbar">
             <toolbarspacer/>
             <toolbaritem class="contentTabAddress" align="center">
-              <hbox class="themeableSearchBox searchBox" align="center">
+              <hbox class="themeableSearchBox" align="center">
                 <image class="contentTabSecurity"/>
                 <description class="contentTabUrlbar"/>
               </hbox>

@@ -18,16 +18,8 @@ calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readon
     list-style-image: url(chrome://calendar-common/skin/icons/locked.svg);
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readonly, selected) {
-    list-style-image: url(chrome://calendar-common/skin/icons/locked-selected.svg);
-}
-
 calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfailed) {
     list-style-image: url(chrome://calendar-common/skin/icons/warn.svg);
-}
-
-calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfailed, selected) {
-    list-style-image: url(chrome://calendar-common/skin/icons/warn-selected.svg);
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-cell-text(disabled) {

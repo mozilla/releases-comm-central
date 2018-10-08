@@ -73,13 +73,11 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
 }
 
 radio[calview] {
-    color: #2e4e73;
     padding-top: 4px;
 }
 
 radio[calview][selected="true"] {
     background-color: #fff;
-    color: inherit;
 }
 
 radio[calview] > .tab-middle {

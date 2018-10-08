@@ -13,75 +13,33 @@
     margin-bottom: 1px;
 }
 
-.calendar-task-tree > treechildren::-moz-tree-row(selected, focus) {
-    background-color: Highlight;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-cell-text(selected, focus) {
-    color: HighlightText;
-}
-
 .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress) {
-    color: green;
+    color: green !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
-    background-color: green;
+    background-color: green !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus) {
-    color: HighlightText;
+    color: HighlightText !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue) {
-    color: red;
+    color: red !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
-    background-color: red;
+    background-color: red !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus) {
-    color: HighlightText;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-cell-text(duetoday) {
-    color: WindowText;
-    font-weight: bold;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-row(duetoday, selected, focus) {
-    background-color: Highlight;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-cell-text(duetoday, selected, focus) {
-    color: HighlightText;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-cell-text(future) {
-    color: WindowText;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-row(future, selected, focus) {
-    background-color: Highlight;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-cell-text(future, selected, focus) {
-    color: HighlightText;
+    color: HighlightText !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(completed) {
     text-decoration: line-through;
     font-style: italic;
-    color: WindowText;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-row(completed, selected, focus) {
-    background-color: Highlight;
-}
-
-.calendar-task-tree > treechildren::-moz-tree-cell-text(completed, selected, focus) {
-    color: HighlightText;
 }
 
 .calendar-task-tree-col-priority {

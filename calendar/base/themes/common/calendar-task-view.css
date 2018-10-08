@@ -26,6 +26,25 @@
     border-bottom: 1px solid ThreeDShadow;
 }
 
+:root[lwt-tree] #task-addition-box {
+    background-color: var(--toolbar-bgcolor);
+    background-image: linear-gradient(var(--sidebar-border-color) 1px, transparent 1px);
+    color: var(--toolbar-color);
+    border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree] #calendar-task-details-container {
+    background-color: var(--toolbar-bgcolor);
+    background-image: none;
+    color: var(--toolbar-color);
+    border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+}
+
+:root[lwt-tree-brighttext] #task-addition-box,
+:root[lwt-tree-brighttext] #calendar-task-details-container {
+    border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+}
+
 #calendar-task-details-description {
     -moz-appearance: textfield;
     border: 1px solid;
@@ -36,8 +55,8 @@
 
 .task-details-name {
     text-align: right;
-    background-color: transparent;
-    border: none;
+    color: windowtext;
+    opacity: 0.5; /* lower contrast */
 }
 
 .item-date-row > .selectable-label {
@@ -49,6 +68,8 @@
 
 #calendar-task-details-grid > rows > .item-date-row > .headline {
     font-weight: normal;
+    color: windowtext;
+    opacity: 0.5; /* lower contrast */
 }
 
 #calendar-task-details-attachment-row {
@@ -61,8 +82,14 @@
 
 .task-details-value {
     text-align: left;
-    background-color: transparent;
-    border: none;
+    color: WindowText;
+}
+
+:root[lwt-tree] .task-details-name,
+:root[lwt-tree] .task-details-value,
+:root[lwt-tree] .item-date-row > .selectable-label,
+:root[lwt-tree] #calendar-task-details-grid > rows > .item-date-row > .headline {
+    color: inherit;
 }
 
 #calendar-task-tree {
@@ -72,6 +99,10 @@
 #calendar-task-tree-detail {
     border-top: 1px solid ThreeDShadow;
     margin: 3px 0;
+}
+
+:root[lwt-tree] #calendar-task-tree-detail {
+    border-top-color: var(--sidebar-border-color);
 }
 
 #view-task-edit-field {
@@ -134,6 +165,38 @@ window[toolboxId="task-actions-toolbox"] #modelist menuitem:first-child {
     -moz-context-properties: fill, fill-opacity;
     fill: currentColor;
     fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+:root[lwt-tree] #calendar-add-task-button {
+    -moz-appearance: none;
+    -moz-user-focus: normal;
+    border: 1px solid transparent;
+    border-radius: var(--toolbarbutton-border-radius);
+}
+
+:root[lwt-tree] #calendar-add-task-button:not([disabled="true"]):hover {
+    background: var(--toolbarbutton-hover-background);
+    border-color: var(--toolbarbutton-hover-bordercolor);
+    box-shadow: var(--toolbarbutton-hover-boxshadow);
+    color: inherit;
+}
+
+:root[lwt-tree-brighttext] #calendar-add-task-button:not([disabled="true"]):hover {
+    background: rgba(255, 255, 255, .25);
+    border-color: rgba(255, 255, 255, .5);
+}
+
+:root[lwt-tree] #calendar-add-task-button:not([disabled="true"]):hover:active {
+    background: var(--toolbarbutton-active-background);
+    border-color: var(--toolbarbutton-active-bordercolor);
+    box-shadow: var(--toolbarbutton-active-boxshadow);
+    transition-duration: 10ms;
+}
+
+:root[lwt-tree-brighttext] #calendar-add-task-button:not([disabled="true"]):hover:active {
+    background: rgba(255, 255, 255, .4);
+    border-color: rgba(255, 255, 255, .7);
+    box-shadow: rgba(255, 255, 255, .4) inset;
 }
 
 #calendar-add-task-button > .toolbarbutton-text {

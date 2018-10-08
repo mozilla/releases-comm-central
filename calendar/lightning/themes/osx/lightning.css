@@ -28,16 +28,14 @@
 /* Lightning sidebar background in calendar and task mode */
 #ltnSidebar {
   background-color: -moz-field;
+  border-inline-end: 1px solid #8B8B8B;
+  margin-inline-end: -3px !important;
 }
 
 /* Today pane button in status bar */
 #calendar-status-todaypane-button,
 #calendar-status-todaypane-button[checked="true"] {
   padding: 0 2px !important;
-}
-
-#calendar-status-todaypane-button:hover {
-  border-color: ThreeDDarkShadow;
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
@@ -94,11 +92,6 @@
   border-inline-start: 1px solid #8B8B8B;
   margin-inline-end: -2px;
   position: relative;
-}
-
-#ltnSidebar {
-  border-inline-end: 1px solid #8B8B8B;
-  margin-inline-end: -3px !important;
 }
 
 /* ::: imip button icons ::: */

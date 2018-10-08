@@ -79,6 +79,16 @@ window[systemcolors] {
     --viewDropshadowBackground: Highlight !important;
 }
 
+:root[lwt-tree] #calendar-nav-control {
+    background-color: var(--lwt-accent-color);
+    background-image: var(--lwt-header-image);
+    color: var(--lwt-text-color);
+
+    --calview-tabline-color: var(--tab-line-color, --calview-tabline-color);
+    --calview-border-color: var(--sidebar-border-color);
+    --calview-border-bottom-color: var(--sidebar-border-color);
+}
+
 /* Core */
 calendar-category-box:not([categories]) {
     display: none;
@@ -906,6 +916,7 @@ radio[calview] {
     padding: 3px 6px;
     -moz-user-focus: normal;
     background-color: transparent;
+    color: inherit;
     font-size: 14px;
 }
 
@@ -919,10 +930,24 @@ radio[calview][selected="true"] {
                       var(--calview-tabline-color) 2px, transparent 2px);
     border-bottom-width: 0;
     padding-bottom: 4px;
+    color: ButtonText;
 }
 
 radio[calview]:not([selected=true]):hover {
     background-color: rgba(0,0,0,.1);
+}
+
+:root[lwt-tree-brighttext] radio[calview]:not([selected=true]):hover {
+    background-color: rgba(249,249,250,.3);
+}
+
+:root[lwt-tree] #view-tabs > radio[calview][selected="true"] {
+    background-color: var(--toolbar-bgcolor);
+    color: var(--toolbar-color);
+}
+
+:root[lwt-tree] .navigation-bottombox {
+    background-color: var(--toolbar-bgcolor) !important;
 }
 
 radio[calview] > .tab-middle {
@@ -932,7 +957,7 @@ radio[calview] > .tab-middle {
 .view-header {
     font-weight: normal;
     font-size: 14px;
-    color: ButtonText;
+    color: inherit;
 }
 
 .view-header[type="end"] {
@@ -962,8 +987,40 @@ radio[calview] > .tab-middle {
     -moz-appearance: toolbarbutton;
     margin-inline-start: 2px;
     margin-inline-end: 2px;
-    color: ButtonText;
+    color: inherit;
     font-size: 14px;
+}
+
+:root[lwt-tree] .today-navigation-button {
+  -moz-appearance: none;
+  -moz-user-focus: normal;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+}
+
+:root[lwt-tree] .today-navigation-button:not([disabled="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  color: inherit;
+}
+
+:root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover {
+  background: rgba(255, 255, 255, .25);
+  border-color: rgba(255, 255, 255, .5);
+}
+
+:root[lwt-tree] .today-navigation-button:not([disabled="true"]):hover:active {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  transition-duration: 10ms;
+}
+
+:root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover:active {
+  background: rgba(255, 255, 255, .4);
+  border-color: rgba(255, 255, 255, .7);
+  box-shadow: rgba(255, 255, 255, .4) inset;
 }
 
 .view-navigation-button > .toolbarbutton-text {

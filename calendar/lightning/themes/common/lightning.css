@@ -28,6 +28,11 @@
     -moz-image-region: auto;
 }
 
+:root[lwt-tree] #ltnSidebar {
+    background-color: var(--sidebar-background-color);
+    color: var(--sidebar-text-color);
+}
+
 /* avoids contributing to the min width when Lightning is not selected */
 #calendarTabPanel:not([selected]) {
   visibility: collapse;
@@ -42,6 +47,30 @@
   -moz-appearance: none;
   border-radius: var(--toolbarbutton-border-radius);
   border: 1px solid transparent;
+}
+
+#calendar-status-todaypane-button:hover {
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+}
+
+:root[lwthemetextcolor="bright"] #calendar-status-todaypane-button:hover {
+  background: rgba(255, 255, 255, .25);
+  border-color: rgba(255, 255, 255, .5);
+}
+
+#calendar-status-todaypane-button:hover:active {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  transition-duration: 10ms;
+}
+
+:root[lwthemetextcolor="bright"] #calendar-status-todaypane-button:hover:active {
+  background: rgba(255, 255, 255, .4);
+  border-color: rgba(255, 255, 255, .7);
+  box-shadow: rgba(255, 255, 255, .4) inset;
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {

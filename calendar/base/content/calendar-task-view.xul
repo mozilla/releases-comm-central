@@ -32,14 +32,14 @@
                          observes="calendar_new_todo_command"/>
           <textbox id="view-task-edit-field"
                    flex="1"
-                   class="task-edit-field"
+                   class="task-edit-field themeableSearchBox"
                    onfocus="taskEdit.onFocus(event)"
                    onblur="taskEdit.onBlur(event)"
                    onkeypress="taskEdit.onKeyPress(event)"/>
         </box>
         <box align="center" flex="1">
           <textbox id="task-text-filter-field"
-                   class="searchBox"
+                   class="themeableSearchBox"
                    type="search"
                    flex="1"
                    placeholder=""

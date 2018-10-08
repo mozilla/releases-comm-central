@@ -20,10 +20,6 @@
   height: 33px;
 }
 
-.today-pane-cycler {
-  padding-inline-end: 0 !important;
-}
-
 .today-subpane {
   border-bottom-color: ThreeDShadow;
 }
@@ -36,22 +32,12 @@
   max-width: 19px;
 }
 
-#next-day-button > .toolbarbutton-icon {
-  -moz-appearance: button-arrow-next;
-}
-
-#previous-day-button > .toolbarbutton-icon {
-  -moz-appearance: button-arrow-previous;
-}
-
 #today-button {
-  -moz-context-properties: fill;
-  fill: currentColor;
   max-width: none;
 }
 
-#miniday-dropdown-button {
-  max-width: 18px;
+#miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
+  -moz-appearance: none;
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {

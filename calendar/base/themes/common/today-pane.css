@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:root[lwt-tree-brighttext] #today-pane-panel {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4));
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .7));
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4)) inset;
+}
+
 .today-subpane {
   border-bottom-style: solid;
   border-bottom-width: 1px;
@@ -37,9 +45,30 @@
 }
 
 .today-pane-cycler {
+  -moz-appearance: none;
+  border-radius: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
   -moz-context-properties: fill;
   fill: currentColor;
   list-style-image: url("chrome://calendar-common/skin/view-cycler.svg");
+}
+
+.today-pane-cycler:hover {
+  background-color: hsla(0,0%,0%,.1);
+  color: inherit;
+}
+
+.today-pane-cycler:hover:active {
+  background-color: hsla(0,0%,0%,.2);
+}
+
+.today-pane-cycler:-moz-lwtheme-brighttext:hover {
+  background-color: hsla(0,0%,100%,.2);
+}
+
+.today-pane-cycler:-moz-lwtheme-brighttext:hover:active {
+  background-color: hsla(0,0%,100%,.3);
 }
 
 .today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
@@ -56,6 +85,21 @@
 #today-pane-panel:-moz-lwtheme > vbox {
   text-shadow: none;
   background-color: -moz-Dialog;
+}
+
+:root[lwt-tree] #today-pane-panel > vbox {
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] #agenda-panel > vbox,
+:root[lwt-tree] #today-pane-splitter,
+:root[lwt-tree] #todo-tab-panel {
+  background-color: var(--lwt-accent-color);
+}
+
+:root[lwt-tree] .today-subpane {
+  border-bottom-color: var(--sidebar-border-color);
 }
 
 #today-minimonth-box {
@@ -91,13 +135,43 @@
   margin-top: 2px;
   min-width: 19px;
   -moz-user-focus: normal;
+  -moz-context-properties: fill, fill-opacity;
+  list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+.miniday-nav-buttons,
+#miniday-dropdown-button {
+  -moz-appearance: none;
+  -moz-user-focus: normal;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+}
+
+.miniday-nav-buttons:not([disabled="true"]):hover,
+#miniday-dropdown-button:not([disabled="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  color: inherit;
+}
+
+.miniday-nav-buttons:not([disabled="true"]):hover:active,
+#miniday-dropdown-button:not([disabled="true"]):hover:active {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  transition-duration: 10ms;
+}
+
+#previous-day-button:-moz-locale-dir(ltr),
+#next-day-button:-moz-locale-dir(rtl) {
+  transform: scaleX(-1);
 }
 
 #today-button {
   list-style-image: url("chrome://calendar-common/skin/widgets/nav-today.svg");
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 .miniday-nav-buttons[disabled] {
@@ -109,18 +183,27 @@
 }
 
 #miniday-dropdown-button {
+  max-width: 18px;
   margin: 2px;
   -moz-user-focus: normal;
 }
 
 #miniday-dropdown-button > .toolbarbutton-icon,
 #miniday-dropdown-button > .toolbarbutton-text,
-  .miniday-nav-buttons > .toolbarbutton-text  {
+.miniday-nav-buttons > .toolbarbutton-text {
   display: none;
 }
 
 #miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
-    padding-inline-start: 0;
+  padding-inline-start: 0;
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#miniday-dropdown-button > .toolbarbutton-menu-dropmarker > .dropmarker-icon {
+  width: 9px;
+  height: 7px;
 }
 
 #agenda-toolbar {
@@ -131,6 +214,31 @@
 #todaypane-new-event-button {
   -moz-user-focus: normal;
   list-style-image: url(chrome://calendar-common/skin/icons/newevent.svg);
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+:root[lwt-tree] #todaypane-new-event-button {
+  -moz-appearance: none;
+  -moz-user-focus: normal;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+  margin: 2px 3px 1px;
+}
+
+:root[lwt-tree] #todaypane-new-event-button:not([disabled="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  color: inherit;
+}
+
+:root[lwt-tree] #todaypane-new-event-button:not([disabled="true"]):hover:active {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  transition-duration: 10ms;
 }
 
 #todaypane-new-event-button > .toolbarbutton-text {
@@ -142,6 +250,12 @@
   -moz-user-focus: normal;
   margin: 3px 0 0;
   border-top: 1px solid ThreeDShadow;
+}
+
+:root[lwt-tree] #agenda-listbox {
+  border-top-color: var(--sidebar-border-color);
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
 }
 
 agenda-checkbox-richlist-item {
@@ -180,26 +294,22 @@ agenda-allday-richlist-item {
 
 .agenda-container-box[selected="true"],
 .agenda-allday-container-box[selected="true"],
-.agenda-checkbox[selected="true"],
 .agenda-container-box[selected="true"][current="true"],
-.agenda-allday-container-box[selected="true"][current="true"],
-.agenda-checkbox[selected="true"][current="true"] {
+.agenda-allday-container-box[selected="true"][current="true"] {
   background-color: #FDF5A0;
   color: #000000;
 }
 
 .agenda-container-box[current="true"],
 .agenda-alldaycontainer-box[current="true"],
-.agenda-checkbox[current="true"],
 .agenda-container-box[selected="true"][current="true"][disabled="true"],
-.agenda-allday-container-box[selected="true"][current="true"][disabled="true"],
-.agenda-checkbox[selected="true"][current="true"][disabled="true"] {
+.agenda-allday-container-box[selected="true"][current="true"][disabled="true"] {
   background-color: #DFEAF4;
+  color: #000000;
 }
 
 .agenda-container-box[selected="true"][disabled="true"],
-.agenda-allday-container-box[selected="true"][disabled="true"],
-.agenda-checkbox[selected="true"][disabled="true"] {
+.agenda-allday-container-box[selected="true"][disabled="true"] {
   color: -moz-dialogText;
   background-color: -moz-dialog;
 }
@@ -209,11 +319,11 @@ agenda-allday-richlist-item {
 }
 
 .agenda-event-title {
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 .agenda-event-start {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .agenda-new-date {

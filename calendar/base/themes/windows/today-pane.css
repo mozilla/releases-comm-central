@@ -36,37 +36,8 @@
   }
 }
 
-.miniday-nav-buttons {
-  list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
-}
-
-#previous-day-button:-moz-locale-dir(ltr),
-#next-day-button:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
-}
-
-#miniday-dropdown-button {
-  max-width: 18px;
-}
-
-#miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-#miniday-dropdown-button > .toolbarbutton-menu-dropmarker > .dropmarker-icon {
-  width: 9px;
-  height: 7px;
-}
-
 #today-none-box {
   border-top: 1px solid ThreeDShadow;
-}
-
-.today-pane-cycler {
-  padding-inline-start: 5px;
-  padding-inline-end: 5px;
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {

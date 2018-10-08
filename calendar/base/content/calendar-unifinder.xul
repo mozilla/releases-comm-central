@@ -51,7 +51,7 @@
         <box align="center" flex="1">
           <label control="unifinder-search-field" value="&calendar.search.options.searchfor;"/>
           <textbox id="unifinder-search-field"
-                   class="searchBox"
+                   class="themeableSearchBox"
                    type="search"
                    oncommand="refreshEventTree();"
                    flex="1"/>
