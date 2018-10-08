@@ -211,7 +211,7 @@ function onLoad()
 
 function viewCertHelper(parent, cert) {
   Services.ww.openWindow(parent, "chrome://pippki/content/certViewer.xul",
-                         "_blank", "centerscreen,chrome,titlebar", cert);}
+                         "_blank", "centerscreen,chrome,titlebar", cert);
 }
 
 function viewSignatureCert()
