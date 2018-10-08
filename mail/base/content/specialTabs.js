@@ -694,6 +694,12 @@ var specialTabs = {
       // First clone the page and set up the basics.
       let clone = document.getElementById("contentTab").firstChild.cloneNode(true);
 
+      const findbar = document.createElement("findbar");
+      // Adding browserid to findbar so that browser property can be set
+      // in findbar custom element.
+      findbar.setAttribute("browserid", "dummycontentbrowser");
+      clone.appendChild(findbar);
+
       clone.setAttribute("id", "contentTab" + this.lastBrowserId);
       clone.setAttribute("collapsed", false);
 
