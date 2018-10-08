@@ -507,7 +507,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
 .prplIcon {
   margin-top: 0 !important;
   margin-inline-end: 1px !important;
-  margin-bottom: 16px -16px !important;
+  margin-bottom: 16px !important;
   margin-inline-start: -16px !important;
 }
 
