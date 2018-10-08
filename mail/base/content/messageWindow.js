@@ -1048,8 +1048,6 @@ var MessageWindowController =
       case "cmd_previousFlaggedMsg":
       case "cmd_findAgain":
       case "cmd_findPrevious":
-      case "cmd_goForward":
-      case "cmd_goBack":
       case "cmd_applyFiltersToSelection":
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
