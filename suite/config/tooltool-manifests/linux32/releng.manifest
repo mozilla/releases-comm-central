@@ -1,7 +1,7 @@
 [
   {
-    "size": 134518160,
-    "digest": "1c4133eeb89cc9d90cdb9a148d302ea96dce0348bc147469534905b6e10b4bd60a70a3e51b78d656d3b2b30bb6c25d3a563688f6412124eb95ab3455549322ee",
+    "size": 134735156,
+    "digest": "5ecfcb20466ed214e93e8c7fa9d4f17771e8982e12eff64e77c6585db8da27710f59336a3b6eb759a1ae93b9e3e5b8353d37e96eaf14a0417693409491f3f192",
     "filename": "rustc.tar.xz",
     "algorithm": "sha512",
     "visibility": "public",

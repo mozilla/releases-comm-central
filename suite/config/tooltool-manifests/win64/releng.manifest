@@ -48,8 +48,8 @@
     "unpack": true
   },
   {
-    "size": 132426742,
-    "digest": "8ea0864c29dfbabcda9c526d99c70dc92e335904235730d1ce2c3ed9a0173710ffcbd99692a361ad23dad672bb19a335164b5c1c9e990e77eba4bbe2663ff0cf",
+    "size": 131739654,
+    "digest": "4e0e3d1f280513d32487fcf8478d2a3391715c3496c99e58ef5033cc3c5a747f6ef12b36312d26dd2007a763eb1a79c6427df43e78bbfa3711475d34b596c7f2",
     "filename": "rustc.tar.bz2",
     "algorithm": "sha512",
     "visibility": "public",
