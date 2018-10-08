@@ -13,30 +13,33 @@
 %facetViewDTD;
 ]>
 <html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:html="http://www.w3.org/1999/xhtml"
-    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    version="-//W3C//DTD XHTML 1.1//EN" xml:lang="en"
-    dir="&locale.dir;">
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      version="-//W3C//DTD XHTML 1.1//EN"
+      dir="&locale.dir;">
 <head>
   <!-- XBL bindings CSS -->
   <link rel="stylesheet"
-      href="chrome://messenger/content/glodaFacetBindings.css"
-      type="text/css"></link>
+        href="chrome://messenger/content/glodaFacetBindings.css"
+        type="text/css"/>
   <link rel="stylesheet" media="screen" type="text/css"
         href="chrome://messenger/skin/tagColors.css"/>
   <!-- Themes -->
   <link rel="stylesheet"
-      href="chrome://messenger/skin/glodaFacetView.css"
-      type="text/css"></link>
+        href="chrome://messenger/skin/glodaFacetView.css"
+        type="text/css"/>
+  <!-- Custom elements -->
+  <script type="application/javascript"
+          src="chrome://messenger/content/glodaFacet.js"></script>
   <!-- Global Context -->
   <script type="application/javascript"
-      src="chrome://messenger/content/glodaFacetView.js"></script>
+          src="chrome://messenger/content/glodaFacetView.js"></script>
   <!-- Libs -->
   <script type="application/javascript"
-      src="chrome://messenger/content/protovis-r2.6-modded.js"></script>
+          src="chrome://messenger/content/protovis-r2.6-modded.js"></script>
   <!-- Facet Binding Stuff that doesn't belong in XBL -->
   <script type="application/javascript"
-      src="chrome://messenger/content/glodaFacetVis.js"></script>
+          src="chrome://messenger/content/glodaFacetVis.js"></script>
 </head>
 <body id="body" onload="reachOutAndTouchFrame()"
       onkeypress="if (event.keyCode == event.DOM_VK_ESCAPE) document.getElementById('popup-menu').hide();"
@@ -62,13 +65,13 @@
         <div id="main-column">
           <div id="header">
             <div id="date-toggle" class="date-toggle" tabindex="0" role="button"
-               onclick="FacetContext.toggleTimeline()"
-               onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.toggleTimeline(); event.preventDefault() }"/>
+                 onclick="FacetContext.toggleTimeline()"
+                 onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.toggleTimeline(); event.preventDefault() }"/>
             <div id="search-value"/>
             <div id="query-explanation"/>
           </div>
           <div id="data-column">
-            <div id="facet-date" class="facetious" type="date" />
+            <facet-date id="facet-date" class="facetious" type="date"/>
             <div class="results" id="results" type="message" />
             <div class="loading" id="showLoading">
               <span class="loading">

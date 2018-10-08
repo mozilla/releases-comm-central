@@ -22,10 +22,6 @@
   -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#facet-boolean-filtered');
 }
 
-.facetious[type="date"] {
-  -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#facet-date');
-}
-
 .results[type="message"] {
   -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#results-message');
 }

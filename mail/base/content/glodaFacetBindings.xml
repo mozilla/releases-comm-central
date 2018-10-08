@@ -1265,58 +1265,6 @@
   </handlers>
 </binding>
 
-<binding id="facet-date">
-  <content>
-    <html:div class="facet date-wrapper">
-      <html:h2 anonid="name"></html:h2>
-      <!-- we need to do this because of something protovis is doing where
-           it attempts to re-interpret the text and the html namespace no
-           longer exists in that context. -->
-      <html:div anonid="canvas" class="date-vis-frame"></html:div>
-      <html:div class="facet-date-zoom-out" onclick="FacetContext.zoomOut()"
-                role="image"/>
-    </html:div>
-  </content>
-  <implementation>
-    <constructor><![CDATA[
-      this.canvasNode = document.getAnonymousElementByAttribute(
-                                   this, "anonid", "canvas");
-      this.vis = null;
-      if ("faceter" in this)
-        this.build(true);
-    ]]></constructor>
-    <field name="canUpdate" readonly="true">true</field>
-    <method name="build">
-      <parameter name="aDoSize" />
-      <body><![CDATA[
-        if (!this.vis) {
-          this.vis = new DateFacetVis(this, this.canvasNode);
-          this.vis.build();
-        }
-        else {
-          while (this.canvasNode.hasChildNodes())
-            this.canvasNode.lastChild.remove();
-          if (aDoSize)
-            this.vis.build()
-          else
-            this.vis.rebuild();
-        }
-      ]]></body>
-    </method>
-    <method name="brushItems">
-      <parameter name="aItems" />
-      <body><![CDATA[
-        this.vis.hoverItems(aItems);
-      ]]></body>
-    </method>
-    <method name="clearBrushedItems">
-      <body><![CDATA[
-        this.vis.clearHover();
-      ]]></body>
-    </method>
-  </implementation>
-</binding>
-
 <!-- ===== Results ===== -->
 
 <binding id="results-message">
