@@ -19,14 +19,6 @@ var activityObject = {
     this._activitiesView.selectAll();
   },
 
-  // An object to monitor nsActivityManager operations. This class acts as
-  // binding layer between nsActivityManager and nsActivityManagerUI objects.
-
-  /**
-   * Note: The prototype for this function is set at the bottom of this file.
-   */
-  ActivityMgrListener() {},
-
   // Utility Functions for Activity binding management
 
   /**
@@ -279,8 +271,10 @@ var activityObject = {
   },
 };
 
+// An object to monitor nsActivityManager operations. This class acts as
+// binding layer between nsActivityManager and nsActivityManagerUI objects.
+activityObject.ActivityMgrListener = function() {};
 activityObject.ActivityMgrListener.prototype = {
-
   onAddedActivity(aID, aActivity) {
     activityObject._activityLogger.info(`added activity: ${aID} ${aActivity}`);
     if (!activityObject._ignoreNotifications)
