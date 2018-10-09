@@ -818,3 +818,18 @@ statusbarpanel label {
   */
   margin-left: 1em;
 }
+
+.contentTabInstance {
+  background-color: -moz-dialog;
+}
+
+.contentTabInstance > findbar {
+  background-color: -moz-dialog;
+  color: -moz-DialogText;
+  text-shadow: none;
+}
+
+.contentTabInstance > findbar:-moz-lwtheme {
+  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-color, -moz-DialogText);
+}

@@ -708,3 +708,20 @@ statusbar:-moz-lwtheme-brighttext {
   border-top-left-radius: .3em;
   margin-left: 1em;
 }
+
+.contentTabInstance {
+  background-color: -moz-dialog;
+}
+
+.contentTabInstance > findbar {
+  background: linear-gradient(#e8e8e8, #d0d0d0) repeat-x;
+  border-top: 1px solid #888;
+  color: -moz-DialogText;
+  text-shadow: none;
+}
+
+.contentTabInstance > findbar:-moz-lwtheme {
+  background-color: var(--toolbar-bgcolor);
+  background-image: none;
+  color: var(--toolbar-color, -moz-DialogText);
+}

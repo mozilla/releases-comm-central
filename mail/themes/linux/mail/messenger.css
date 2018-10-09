@@ -768,3 +768,18 @@ button[type="menu-button"] {
 .button-menubutton-dropmarker {
   margin-inline-end: 3px;
 }
+
+.contentTabInstance {
+  background-color: -moz-dialog;
+}
+
+.contentTabInstance > findbar {
+  background-color: -moz-dialog;
+  color: -moz-DialogText;
+  text-shadow: none;
+}
+
+.contentTabInstance > findbar:-moz-lwtheme {
+  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-color, -moz-DialogText);
+}
