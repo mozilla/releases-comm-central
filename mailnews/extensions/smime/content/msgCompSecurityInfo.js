@@ -260,7 +260,6 @@ const certificateUsageEmailRecipient         = 0x0020;
 
 // A map from the name of a certificate usage to the value of the usage.
 const certificateUsages = {
-  certificateUsageEmailSigner,
   certificateUsageEmailRecipient,
 };
 
