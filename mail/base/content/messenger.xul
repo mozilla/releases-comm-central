@@ -235,24 +235,24 @@
   <tooltip id="attachmentListTooltip"/>
 
   <menupopup id="newsgroupPopup" position="after_start" class="newsgroupPopup"
-             onpopupshowing="setupNewsgroupPopup(document.popupNode); goUpdateCommand('cmd_createFilterFromPopup')"
-             onpopuphiding="hideEmailNewsPopup(document.popupNode);">
+             onpopupshowing="setupNewsgroupPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup')); goUpdateCommand('cmd_createFilterFromPopup')"
+             onpopuphiding="hideEmailNewsPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'));">
       <menuitem id="newsgroupPlaceHolder"
                 disabled="true"/>
       <menuseparator/>
       <menuitem id="sendMessageToNewsgroupItem" label="&SendMessageTo.label;"
                 accesskey="&SendMessageTo.accesskey;"
-                oncommand="SendMailToNode(document.popupNode, event)"/>
+                oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'), event)"/>
       <menuitem id="copyNewsgroupNameItem" label="&CopyNewsgroupName.label;"
                 accesskey="&CopyNewsgroupName.accesskey;"
-                oncommand="CopyEmailNewsAddress(document.popupNode)"/>
+                oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
       <menuitem id="copyNewsgroupURLItem" label="&CopyNewsgroupURL.label;"
                 accesskey="&CopyNewsgroupURL.accesskey;"
-                oncommand="CopyNewsgroupURL(document.popupNode)"/>
+                oncommand="CopyNewsgroupURL(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
       <menuseparator id="subscribeToNewsgroupSeparator"/>
       <menuitem id="subscribeToNewsgroupItem" label="&SubscribeToNewsgroup.label;"
                 accesskey="&SubscribeToNewsgroup.accesskey;"
-                oncommand="SubscribeToNewsgroup(document.popupNode)"/>
+                oncommand="SubscribeToNewsgroup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup'))"/>
   </menupopup>
 
   <menupopup id="pageContextMenu"

@@ -345,13 +345,13 @@
                                       <label id="expandednewsgroupsLabel" class="headerName"
                                              value="&newsgroupsField4.label;"
                                              control="expandednewsgroupsBox"/>
-                                      <mail-newsgroups-headerfield id="expandednewsgroupsBox" flex="1"/>
+                                      <mail-newsgroups-headerfield id="expandednewsgroupsBox"/>
                                     </row>
                                     <row id="expandedfollowup-toRow" collapsed="true">
                                       <label id="expandedfollowup-toLabel" class="headerName"
                                              value="&followupToField4.label;"
                                              control="expandedfollowup-toBox"/>
-                                      <mail-newsgroups-headerfield id="expandedfollowup-toBox" flex="1"/>
+                                      <mail-newsgroups-headerfield id="expandedfollowup-toBox"/>
                                     </row>
                                     <row id="expandeddateRow" collapsed="true">
                                       <label id="expandeddateLabel" class="headerName"
