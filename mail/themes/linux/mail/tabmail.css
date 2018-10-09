@@ -26,6 +26,11 @@
   color: -moz-menubartext;
 }
 
+:root[tabsintitlebar][sizemode=normal] #mail-toolbar-menubar2[autohide=true] ~
+  #tabs-toolbar > #tabbar-toolbar {
+  margin-inline-start: 40px;
+}
+
 #tabpanelcontainer:-moz-lwtheme {
   color: inherit;
 }
