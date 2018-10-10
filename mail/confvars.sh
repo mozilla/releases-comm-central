@@ -3,18 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-export moztopsrcdir=${srcdir}
-export commtopsrcdir=${srcdir}/comm
-export mozreltopsrcdir=.
-export commreltopsrcdir=comm
-export commtopobjdir=${_objdir}/comm
-tmpscript=`$PYTHON -c 'import os, tempfile; print tempfile.mktemp(prefix="subscript.").replace(os.sep, "/")'` || exit 1
-m4 "${srcdir}/build/autoconf/subconfigure.m4" \
-   "${srcdir}/build/autoconf/altoptions.m4" \
-   "${srcdir}/${MOZ_BUILD_APP}/configure.in" > $tmpscript
-. $tmpscript
-rm -f $tmpscript
-
 MOZ_APP_BASENAME=Thunderbird
 MOZ_APP_NAME=thunderbird
 MOZ_UPDATER=1
@@ -25,11 +13,8 @@ if test "$OS_ARCH" = "WINNT"; then
   fi
 fi
 
-MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt
-MOZ_APP_VERSION=`cat $MOZ_APP_VERSION_TXT`
-MOZ_APP_VERSION_DISPLAY_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version_display.txt
-MOZ_APP_VERSION_DISPLAY=`cat $MOZ_APP_VERSION_DISPLAY_TXT`
-THUNDERBIRD_VERSION=$MOZ_APP_VERSION
+MOZ_APP_VERSION=$THUNDERBIRD_VERSION
+MOZ_APP_VERSION_DISPLAY=$THUNDERBIRD_VERSION_DISPLAY
 
 BROWSER_CHROME_URL=chrome://messenger/content/messengercompose/messengercompose.xul
 
