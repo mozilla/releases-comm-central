@@ -7,5 +7,5 @@ DIRS += ['locales']
 
 JAR_MANIFESTS += ['jar.mn']
 
-include('../../../mail/branding/branding-common.mozbuild')
+include('../branding-common.mozbuild')
 ThunderbirdBranding()
