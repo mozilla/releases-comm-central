@@ -7,6 +7,8 @@
  * non-local builds.
  */
 
+/* globals Services */
+
 var DevelopmentHelpers = {
   init() {
     this.quickRestart = this.quickRestart.bind(this);

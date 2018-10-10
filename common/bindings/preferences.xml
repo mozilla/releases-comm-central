@@ -720,6 +720,7 @@
       <property name="lastSelected"
                 onget="return this.getAttribute('lastSelected');">
         <setter>
+          /* globals Services */
           this.setAttribute("lastSelected", val);
           Services.xulStore.persist(this, "lastSelected");
           return val;

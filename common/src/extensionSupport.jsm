@@ -7,7 +7,7 @@
  * into the application.
  */
 
-this.EXPORTED_SYMBOLS = [ "extensionDefaults", "ExtensionSupport" ];
+this.EXPORTED_SYMBOLS = ["ExtensionSupport"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 // ChromeUtils.import("resource://gre/modules/Deprecated.jsm") - needed for warning.
@@ -18,18 +18,6 @@ ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var extensionHooks = new Map();
 var openWindowList;
-
-/**
- * Reads preferences from addon provided locations (defaults/preferences/*.js)
- * and stores them in the default preferences branch.
- */
-function extensionDefaults() {
-  // Fetch enabled non-bootstrapped add-ons.
-  let enabledAddons = Services.dirsvc.get("XREExtDL", Ci.nsISimpleEnumerator);
-  for (let addonFile of fixIterator(enabledAddons, Ci.nsIFile)) {
-    loadAddonPrefs(addonFile);
-  }
-}
 
 var ExtensionSupport = {
   loadedLegacyExtensions: new Set(),

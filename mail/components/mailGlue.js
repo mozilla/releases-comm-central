@@ -13,7 +13,6 @@ ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
 ChromeUtils.import("resource:///modules/MailMigrator.jsm");
 const {
   ExtensionSupport,
-  extensionDefaults,
 } = ChromeUtils.import("resource:///modules/extensionSupport.jsm", null);
 const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm", null);
 
@@ -61,7 +60,6 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "final-ui-startup");
     Services.obs.addObserver(this, "mail-startup-done");
     Services.obs.addObserver(this, "handle-xul-text-link");
-    Services.obs.addObserver(this, "profile-after-change");
     Services.obs.addObserver(this, "chrome-document-global-created");
 
     // Inject scripts into some devtools windows.
@@ -99,7 +97,6 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "final-ui-startup");
     Services.obs.removeObserver(this, "mail-startup-done");
     Services.obs.removeObserver(this, "handle-xul-text-link");
-    Services.obs.removeObserver(this, "profile-after-change");
     Services.obs.removeObserver(this, "chrome-document-global-created");
 
     ExtensionSupport.unregisterWindowListener("Thunderbird-internal-Toolbox");
@@ -120,9 +117,6 @@ MailGlue.prototype = {
       break;
     case "handle-xul-text-link":
       this._handleLink(aSubject, aData);
-      break;
-    case "profile-after-change":
-      extensionDefaults(); // extensionSupport.jsm
       break;
     case "chrome-document-global-created":
       // Set up lwt, but only if the "lightweightthemes" attr is set on the root
