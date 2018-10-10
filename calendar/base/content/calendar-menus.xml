@@ -83,7 +83,7 @@
         ]]></body>
       </method>
     </implementation>
-   </binding>
+  </binding>
 
   <binding id="task-progress-menupopup" extends="chrome://calendar/content/calendar-menus.xml#task-menupopup">
     <content>
@@ -125,7 +125,7 @@
           this.changeMenuByPropertyName();
       ]]></constructor>
     </implementation>
-   </binding>
+  </binding>
 
   <binding id="task-priority-menupopup" extends="chrome://calendar/content/calendar-menus.xml#task-menupopup">
     <content>
@@ -161,5 +161,5 @@
           this.changeMenuByPropertyName();
       ]]></constructor>
     </implementation>
-   </binding>
+  </binding>
 </bindings>

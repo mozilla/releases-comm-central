@@ -46,7 +46,7 @@
         ]]></body>
       </method>
     </implementation>
-   </binding>
+  </binding>
 
   <!-- this binding directly extends to a xul:box element and enriches this with some functionality: It is designed
       to be displayed only 1) in given application modes (e.g "task" mode, "calendar" mode) and 2) only in relation
