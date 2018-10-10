@@ -24,10 +24,10 @@ ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var nsMsgViewIndex_None = 0xffffffff;
-ChromeUtils.import('resource:///modules/MailConsts.js');
+ChromeUtils.import('resource:///modules/MailConsts.jsm');
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import('resource:///modules/MailUtils.js');
-ChromeUtils.import('resource:///modules/mailViewManager.js');
+ChromeUtils.import('resource:///modules/MailUtils.jsm');
+ChromeUtils.import('resource:///modules/MailViewManager.jsm');
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var FILE_LOAD_PATHS = [

@@ -39,7 +39,7 @@ function resolveURIInternal(aCmdLine, aArgument) {
 
 function handleIndexerResult(aFile) {
   // Do this here because xpcshell isn't too happy with this at startup
-  ChromeUtils.import("resource:///modules/MailUtils.js");
+  ChromeUtils.import("resource:///modules/MailUtils.jsm");
   // Make sure the folder tree is initialized
   MailUtils.discoverFolders();
 

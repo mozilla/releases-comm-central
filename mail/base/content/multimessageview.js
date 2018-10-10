@@ -6,7 +6,7 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/gloda/gloda.js");
 ChromeUtils.import("resource:///modules/gloda/connotent.js");
 ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
-ChromeUtils.import("resource:///modules/displayNameUtils.js");
+ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/templateUtils.js");
 
@@ -232,7 +232,7 @@ MultiMessageSummary.prototype = {
 
     let authorNode = document.createElement("span");
     authorNode.classList.add("author");
-    authorNode.textContent = FormatDisplayNameList(
+    authorNode.textContent = DisplayNameUtils.formatDisplayNameList(
       message.mime2DecodedAuthor, "from"
     );
 

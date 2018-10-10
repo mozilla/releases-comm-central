@@ -6,9 +6,13 @@ ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/StringBundle.js");
 
-var EXPORTED_SYMBOLS = [
-  "GetCardForEmail", "FormatDisplayName", "FormatDisplayNameList",
-];
+var EXPORTED_SYMBOLS = ["DisplayNameUtils"];
+
+var DisplayNameUtils = {
+  formatDisplayName,
+  formatDisplayNameList,
+  getCardForEmail,
+};
 
 // XXX: Maybe the strings for this file should go in a separate bundle?
 var gMessengerBundle = new StringBundle(
@@ -24,7 +28,7 @@ var gMessengerBundle = new StringBundle(
  * @param aEmailAddress The address to look for.
  * @return An object with two properties, .book and .card.
  */
-function GetCardForEmail(aEmailAddress) {
+function getCardForEmail(aEmailAddress) {
   // Email address is searched for in any of the address books that support
   // the cardForEmailAddress function.
   // Future expansion could be to domain matches
@@ -67,11 +71,11 @@ function _getIdentityForAddress(aEmailAddress) {
  * @param aCard              The address book card, if any.
  * @return The formatted display name, or null.
  */
-function FormatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard)
+function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard)
 {
   var displayName = null;
   var identity = _getIdentityForAddress(aEmailAddress);
-  var card = aCard || GetCardForEmail(aEmailAddress).card;
+  var card = aCard || getCardForEmail(aEmailAddress).card;
 
   // If this address is one of the user's identities...
   if (identity) {
@@ -108,17 +112,17 @@ function FormatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard)
 
 /**
  * Format the display name from a list of addresses. First, try using
- * FormatDisplayName, then fall back to the header's display name or the
+ * formatDisplayName, then fall back to the header's display name or the
  * address.
  *
  * @param aHeaderValue  The decoded header value (e.g. mime2DecodedAuthor).
  * @param aContext      The context of the header field (e.g. "to", "from").
  * @return The formatted display name.
  */
-function FormatDisplayNameList(aHeaderValue, aContext) {
+function formatDisplayNameList(aHeaderValue, aContext) {
   let addresses = MailServices.headerParser.parseDecodedHeader(aHeaderValue);
   if (addresses.length > 0) {
-    let displayName = FormatDisplayName(addresses[0].email,
+    let displayName = formatDisplayName(addresses[0].email,
                                         addresses[0].name, aContext);
     if (displayName)
       return displayName;

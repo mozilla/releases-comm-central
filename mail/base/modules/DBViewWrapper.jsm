@@ -5,8 +5,8 @@
 this.EXPORTED_SYMBOLS = ['DBViewWrapper', 'IDBViewWrapperListener'];
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/mailViewManager.js");
-ChromeUtils.import("resource:///modules/searchSpec.js");
+ChromeUtils.import("resource:///modules/MailViewManager.jsm");
+ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
 
 var nsMsgFolderFlags = Ci.nsMsgFolderFlags;

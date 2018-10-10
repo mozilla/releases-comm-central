@@ -8,7 +8,7 @@
 
 /* :::::::: Constants and Helpers ::::::::::::::: */
 
-this.EXPORTED_SYMBOLS = ["mailInstrumentationManager"];
+this.EXPORTED_SYMBOLS = ["MailInstrumentation"];
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
@@ -20,7 +20,7 @@ Cu.importGlobalProperties(["XMLHttpRequest"]);
 
 /* :::::::: The Module ::::::::::::::: */
 
-var mailInstrumentationManager =
+var MailInstrumentation =
 {
   // JS object containing the current state object
   _currentState: null,
@@ -39,36 +39,36 @@ var mailInstrumentationManager =
 
   observe: function (aSubject, aTopic, aState) {
     if (aTopic == "mail:composeSendSucceeded")
-      mailInstrumentationManager.addEvent("msgSent", true);
+      MailInstrumentation.addEvent("msgSent", true);
     else if (aTopic == "mail:setAsDefault")
-      mailInstrumentationManager.addEvent("setAsDefault", true);
+      MailInstrumentation.addEvent("setAsDefault", true);
 
   },
   msgAdded: function (aMsg) {
     MailServices.mfn.removeListener(this);
     this._mfnListener = false;
-    mailInstrumentationManager.addEvent("msgDownloaded", true);
+    MailInstrumentation.addEvent("msgDownloaded", true);
   },
 
   _accountsChanged: function() {
     // check if there are at least two accounts - one is local folders account
     if (Services.prefs.getCharPref("mail.accountmanager.accounts").includes(',', 1)) {
-      mailInstrumentationManager.addEvent("accountAdded", true);
-      mailInstrumentationManager._removeObserver(
+      MailInstrumentation.addEvent("accountAdded", true);
+      MailInstrumentation._removeObserver(
         "mail.accountmanager.accounts",
-        mailInstrumentationManager._accountsChanged);
+        MailInstrumentation._accountsChanged);
 
     }
   },
   _smtpServerAdded: function() {
-    mailInstrumentationManager.addEvent("smtpServerAdded", true);
-    mailInstrumentationManager._removeObserver("mail.smtpservers",
-      mailInstrumentationManager._smtpServerAdded);
+    MailInstrumentation.addEvent("smtpServerAdded", true);
+    MailInstrumentation._removeObserver("mail.smtpservers",
+      MailInstrumentation._smtpServerAdded);
   },
   _userOptedIn: function() {
     try {
       if (Services.prefs.getBoolPref("mail.instrumentation.userOptedIn"))
-        mailInstrumentationManager._postStateObject();
+        MailInstrumentation._postStateObject();
     } catch (ex) {logException(ex);}
   },
 

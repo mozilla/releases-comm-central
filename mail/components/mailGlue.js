@@ -9,8 +9,8 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
-const { TBDistCustomizer } = ChromeUtils.import("resource:///modules/distribution.js", null);
-const { MailMigrator } = ChromeUtils.import("resource:///modules/mailMigrator.js", null);
+ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
+ChromeUtils.import("resource:///modules/MailMigrator.jsm");
 const {
   ExtensionSupport,
   extensionDefaults,
@@ -40,7 +40,7 @@ let ACTORS = {
 /**
  * Glue code that should be executed before any windows are opened. Any
  * window-independent helper methods (a la nsBrowserGlue.js) should go in
- * MailUtils.js instead.
+ * MailUtils.jsm instead.
  */
 
 function MailGlue() {

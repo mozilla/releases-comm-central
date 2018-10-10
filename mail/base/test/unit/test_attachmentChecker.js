@@ -7,14 +7,14 @@
  * Test suite for the attachmentChecker class
  *
  * Currently tested:
- * - GetAttachmentKeywords function.
+ * - getAttachmentKeywords function.
  */
 
 // make xpcshell-tests TEST_PATH=mail/base/test/unit/test_attachmentChecker.js
 
 // Globals
 
-ChromeUtils.import("resource:///modules/attachmentChecker.js");
+ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
 
 /*
  * UTILITIES
@@ -36,9 +36,9 @@ function assert_equal(aA, aB, aWhy)
  * TESTS
  */
 
-function test_GetAttachmentKeywords(desc, mailData, keywords, expected)
+function test_getAttachmentKeywords(desc, mailData, keywords, expected)
 {
-  let result = GetAttachmentKeywords(mailData, keywords);
+  let result = AttachmentChecker.getAttachmentKeywords(mailData, keywords);
   assert_equal(result, expected, desc + " not equal!");
 }
 
@@ -82,7 +82,7 @@ function run_test()
     if (typeof(tests[i]) == "function")
       tests[i]();
     else
-      test_GetAttachmentKeywords.apply(null, tests[i]);
+      test_getAttachmentKeywords.apply(null, tests[i]);
 
   do_test_finished();
 };

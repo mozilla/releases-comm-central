@@ -30,7 +30,7 @@ var nsMailNewsCommandLineHandler =
    */
   handle: function nsMailNewsCommandLineHandler_handle(aCommandLine) {
     // Do this here because xpcshell isn't too happy with this at startup
-    ChromeUtils.import("resource:///modules/MailUtils.js");
+    ChromeUtils.import("resource:///modules/MailUtils.jsm");
     // -mail <URL>
     let mailURL = null;
     try {

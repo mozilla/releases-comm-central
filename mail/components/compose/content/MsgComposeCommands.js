@@ -10,13 +10,13 @@
 
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-const { GetAttachmentKeywords } = ChromeUtils.import("resource:///modules/attachmentChecker.js", null);
+ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm", null);
 const { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm", null);
 const { fixIterator, toArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.js");
+ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -2237,7 +2237,7 @@ function attachmentNotificationSupressed() {
           AttachmentElementHasItems());
 }
 
-var attachmentWorker = new Worker("resource:///modules/attachmentChecker.js");
+var attachmentWorker = new Worker("resource:///modules/AttachmentChecker.jsm");
 
 // The array of currently found keywords. Or null if keyword detection wasn't
 // run yet so we don't know.
@@ -6479,7 +6479,7 @@ var gAttachmentNotifier = {
       mailData = subject + " " + mailData;
 
     if (!async)
-      return GetAttachmentKeywords(mailData, keywordsInCsv);
+      return AttachmentChecker.getAttachmentKeywords(mailData, keywordsInCsv);
 
     attachmentWorker.postMessage([mailData, keywordsInCsv]);
     return null;

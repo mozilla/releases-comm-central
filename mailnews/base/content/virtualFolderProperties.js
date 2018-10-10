@@ -17,7 +17,7 @@ ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.js");
+ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 function onLoad()
 {

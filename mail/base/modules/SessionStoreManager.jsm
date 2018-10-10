@@ -8,7 +8,7 @@
 
 /* :::::::: Constants and Helpers ::::::::::::::: */
 
-this.EXPORTED_SYMBOLS = ["sessionStoreManager"];
+this.EXPORTED_SYMBOLS = ["SessionStoreManager"];
 
 ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -22,7 +22,7 @@ var SESSION_AUTO_SAVE_DEFAULT_MS = 300000; // 5 minutes
 
 /* :::::::: The Module ::::::::::::::: */
 
-var sessionStoreManager =
+var SessionStoreManager =
 {
   _initialized: false,
 
@@ -133,7 +133,7 @@ var sessionStoreManager =
   _saveStateObject: function ssm_saveStateObject(aStateObj)
   {
     if (!this.store) {
-      Cu.reportError("sessionStoreManager: could not create data store from file");
+      Cu.reportError("SessionStoreManager: could not create data store from file");
       return;
     }
 
@@ -185,7 +185,7 @@ var sessionStoreManager =
 
   _sessionAutoSaveTimerCallback: function ssm_sessionAutoSaveTimerCallback()
   {
-    sessionStoreManager._saveState();
+    SessionStoreManager._saveState();
   },
 
 /* ........ Observer Notification Handler ................*/

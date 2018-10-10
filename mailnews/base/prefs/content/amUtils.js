@@ -5,7 +5,7 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.js");
+ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 function BrowseForLocalFolders()

@@ -59,7 +59,7 @@ function test_mail_account_setup() {
   plan_for_window_close(awc);
   awc.e("create_button").click();
 
-  let events = mc.window.mailInstrumentationManager._currentState.events;
+  let events = mc.window.MailInstrumentation._currentState.events;
   wait_for_window_close();
 
   // we expect to have accountAdded and smtpServerAdded events.

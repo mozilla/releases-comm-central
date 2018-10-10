@@ -4,8 +4,8 @@
 
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 ChromeUtils.import("resource:///modules/errUtils.js");
-ChromeUtils.import("resource:///modules/quickFilterManager.js");
-ChromeUtils.import("resource:///modules/searchSpec.js");
+ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
+ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Proper Code

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/mailViewManager.js");
+ChromeUtils.import("resource:///modules/MailViewManager.jsm");
 
-// these constants are now authoritatively defined in mailViewManager.js (above)
+// these constants are now authoritatively defined in MailViewManager.jsm (above)
 // tag views have kViewTagMarker + their key as value
 var kViewItemAll         = MailViewConstants.kViewItemAll;
 var kViewItemUnread      = MailViewConstants.kViewItemUnread;

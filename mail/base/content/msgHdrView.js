@@ -9,7 +9,7 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/displayNameUtils.js");
+ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/gloda/utils.js");
 var {Status: statusUtils} =
@@ -1283,7 +1283,7 @@ function updateEmailAddressNode(emailAddressNode, address)
 
 function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
   // If we haven't been given specific details, search for a card.
-  var cardDetails = aCardDetails || GetCardForEmail(aEmailAddress);
+  var cardDetails = aCardDetails || DisplayNameUtils.getCardForEmail(aEmailAddress);
   aDocumentNode.cardDetails = cardDetails;
 
   if (!cardDetails.card) {
@@ -1347,10 +1347,12 @@ function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
   if (aDocumentNode.hasAttribute("updatingUI"))
     return;
 
-  var displayName = FormatDisplayName(aEmailAddress,
-                                      aDocumentNode.getAttribute("displayName"),
-                                      aDocumentNode.getAttribute("headerName"),
-                                      aDocumentNode.cardDetails.card);
+  var displayName = DisplayNameUtils.formatDisplayName(
+    aEmailAddress,
+    aDocumentNode.getAttribute("displayName"),
+    aDocumentNode.getAttribute("headerName"),
+    aDocumentNode.cardDetails.card
+  );
 
   if (gShowCondensedEmailAddresses && displayName) {
     aDocumentNode.setAttribute("tooltiptext", aEmailAddress);
@@ -1394,10 +1396,12 @@ function UpdateExtraAddressProcessing(aAddressData, aDocumentNode, aAction,
         aDocumentNode.cardDetails.card &&
         aItem.hasEmailAddress(aAddressData.emailAddress)) {
       aDocumentNode.cardDetails.card = aItem;
-      var displayName = FormatDisplayName(aAddressData.emailAddress,
-                                          aDocumentNode.getAttribute("displayName"),
-                                          aDocumentNode.getAttribute("headerName"),
-                                          aDocumentNode.cardDetails.card);
+      var displayName = DisplayNameUtils.formatDisplayName(
+        aAddressData.emailAddress,
+        aDocumentNode.getAttribute("displayName"),
+        aDocumentNode.getAttribute("headerName"),
+        aDocumentNode.cardDetails.card
+      );
 
       if (gShowCondensedEmailAddresses && displayName) {
         aDocumentNode.setAttribute("label", displayName);
@@ -1490,40 +1494,6 @@ function setupEmailAddressPopup(emailAddressNode)
     document.getElementById("editContactItem").setAttribute("hidden", true);
     document.getElementById("viewContactItem").setAttribute("hidden", true);
   }
-}
-
-/**
- * Returns an object with two properties, book and card. If the email address
- * is found in the address books, then the book will contain an nsIAbDirectory,
- * and card will contain an nsIAbCard. If the email address is not found, both
- * items will contain null.
- *
- * @param emailAddress  address to look for
- * @return              an object with two properties, .book and .card
- */
-function getCardForEmail(emailAddress)
-{
-  // Email address is searched for in any of the address books that support
-  // the cardForEmailAddress function.
-  // Future expansion could be to domain matches
-
-  var books = MailServices.ab.directories;
-
-  var result = { book: null, card: null };
-
-  while (!result.card && books.hasMoreElements()) {
-    var ab = books.getNext().QueryInterface(nsIAbDirectory);
-    try {
-      var card = ab.cardForEmailAddress(emailAddress);
-      if (card) {
-        result.book = ab;
-        result.card = card;
-      }
-    }
-    catch (ex) { }
-  }
-
-  return result;
 }
 
 function onClickEmailStar(event, emailAddressNode)

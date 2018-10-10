@@ -602,7 +602,7 @@ pref("font.size.fixed.el", 12);
 #endif
 
 // Since different versions of Windows need different settings, we'll handle
-// this in mailMigrator.js.
+// this in MailMigrator.jsm.
 
 // Linux, in other words.  Other OSes may wish to override.
 #ifdef UNIX_BUT_NOT_MAC

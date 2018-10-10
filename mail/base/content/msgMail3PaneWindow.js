@@ -8,14 +8,14 @@ ChromeUtils.import("resource:///modules/errUtils.js");
 ChromeUtils.import("resource:///modules/folderUtils.jsm");
 ChromeUtils.import("resource:///modules/IOUtils.js");
 ChromeUtils.import("resource:///modules/jsTreeSelection.js");
-ChromeUtils.import("resource:///modules/MailConsts.js");
-ChromeUtils.import("resource:///modules/mailInstrumentation.js");
+ChromeUtils.import("resource:///modules/MailConsts.jsm");
+ChromeUtils.import("resource:///modules/MailInstrumentation.jsm");
 ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
-ChromeUtils.import("resource:///modules/sessionStoreManager.js");
-ChromeUtils.import("resource:///modules/summaryFrameManager.js");
-ChromeUtils.import("resource:///modules/MailUtils.js");
+ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
+ChromeUtils.import("resource:///modules/SummaryFrameManager.jsm");
+ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/Color.jsm");
@@ -396,7 +396,7 @@ function OnLoadMessenger()
 
   // This needs to be before we throw up the account wizard on first run.
   try {
-    mailInstrumentationManager.init();
+    MailInstrumentation.init();
   } catch(ex) {logException(ex);}
 
   // - initialize tabmail system
@@ -459,7 +459,7 @@ function LoadPostAccountWizard()
   MigrateJunkMailSettings();
   MigrateFolderViews();
   MigrateOpenMessageBehavior();
-  ChromeUtils.import("resource:///modules/mailMigrator.js");
+  ChromeUtils.import("resource:///modules/MailMigrator.jsm");
   MailMigrator.migratePostAccountWizard();
 
   accountManager.setSpecialFolders();
@@ -630,7 +630,7 @@ function OnUnloadMessenger()
     gRightMouseButtonSavedSelection = null;
   }
 
-  sessionStoreManager.unloadingWindow(window);
+  SessionStoreManager.unloadingWindow(window);
 
   TabsInTitlebar.uninit();
 
@@ -654,7 +654,7 @@ function OnUnloadMessenger()
 
   OnMailWindowUnload();
   try {
-    mailInstrumentationManager.uninit();
+    MailInstrumentation.uninit();
   } catch (ex) {logException(ex);}
 }
 
@@ -681,7 +681,7 @@ function getWindowStateForSessionPersistence()
  * @return true if the restoration was successful, false otherwise.
  */
 async function atStartupRestoreTabs(aDontRestoreFirstTab) {
-  let state = await sessionStoreManager.loadingWindow(window);
+  let state = await SessionStoreManager.loadingWindow(window);
   if (state) {
     let tabsState = state.tabs;
     let tabmail = document.getElementById("tabmail");
@@ -690,7 +690,7 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
 
   // it's now safe to load extra Tabs.
   setTimeout(loadExtraTabs, 0);
-  sessionStoreManager._restored = true;
+  SessionStoreManager._restored = true;
   Services.obs.notifyObservers(window, "mail-tabs-session-restored");
   return state ? true : false;
 }

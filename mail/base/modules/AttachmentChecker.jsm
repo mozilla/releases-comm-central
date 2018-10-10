@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["GetAttachmentKeywords"];
+this.EXPORTED_SYMBOLS = ["AttachmentChecker"];
+
+var AttachmentChecker = {
+  getAttachmentKeywords,
+};
 
 /**
  * Check whether the character is a CJK character or not.
@@ -31,7 +35,7 @@ function IsCJK(code)
  *
  * @return the (possibly-empty) list of attachment keywords in this message
  **/
-function GetAttachmentKeywords(mailData,keywordsInCsv)
+function getAttachmentKeywords(mailData,keywordsInCsv)
 {
   // The empty string would get split to an array of size 1.  Avoid that...
   var keywordsArray = (keywordsInCsv) ? keywordsInCsv.split(",") : [];
@@ -91,9 +95,8 @@ function GetAttachmentKeywords(mailData,keywordsInCsv)
   return keywordsFound;
 }
 
-var onmessage = function(event)
-{
-  var keywordsFound = GetAttachmentKeywords(event.data[0], event.data[1]);
+var onmessage = function(event) {
+  var keywordsFound = AttachmentChecker.getAttachmentKeywords(event.data[0], event.data[1]);
   postMessage(keywordsFound);
 };
 

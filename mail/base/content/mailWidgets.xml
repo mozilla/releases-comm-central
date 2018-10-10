@@ -2412,7 +2412,7 @@
     <implementation>
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource:///modules/MailUtils.js");
+          ChromeUtils.import("resource:///modules/MailUtils.jsm");
           ChromeUtils.import("resource://gre/modules/Services.jsm", this);
 
           if (!this.Services.prefs.getBoolPref("mail.biff.alert.show_preview"))

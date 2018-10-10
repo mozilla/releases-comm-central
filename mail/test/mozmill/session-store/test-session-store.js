@@ -18,7 +18,7 @@ var controller = {};
 ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
 
 ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-ChromeUtils.import("resource:///modules/sessionStoreManager.js");
+ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folderA, folderB;
@@ -36,7 +36,7 @@ var asyncFileWriteDelayMS = 3000;
  */
 function readFile() {
   try {
-    let data = IOUtils.loadFileToString(sessionStoreManager.sessionFile);
+    let data = IOUtils.loadFileToString(SessionStoreManager.sessionFile);
     if (data)
       return JSON.parse(data);
   }
@@ -50,7 +50,7 @@ function readFile() {
 
 function waitForFileRefresh() {
   controller.sleep(kSaveDelayMs);
-  utils.waitFor(() => sessionStoreManager.sessionFile.exists(),
+  utils.waitFor(() => SessionStoreManager.sessionFile.exists(),
                 "session file should exist");
   controller.sleep(asyncFileWriteDelayMS);
 }
@@ -86,7 +86,7 @@ function setupModule(module) {
   folderB = create_folder("SessionStoreB");
   make_new_sets_in_folder(folderB, [{count: 3}]);
 
-  sessionStoreManager.stopPeriodicSave();
+  SessionStoreManager.stopPeriodicSave();
 
   // Opt out of calendar promotion so we don't show the "ligthing now
   // integrated" notification bar (which gives us unexpected heights).
@@ -101,7 +101,7 @@ function teardownModule(module) {
 
 function test_periodic_session_persistence_simple() {
   // delete the session file if it exists
-  let sessionFile = sessionStoreManager.sessionFile;
+  let sessionFile = SessionStoreManager.sessionFile;
   if (sessionFile.exists())
     sessionFile.remove(false);
 
@@ -114,7 +114,7 @@ function test_periodic_session_persistence_simple() {
 
   // if periodic session persistence is working, the file should be
   // re-created
-  sessionStoreManager._saveState();
+  SessionStoreManager._saveState();
   waitForFileRefresh();
 }
 
@@ -122,16 +122,16 @@ function test_periodic_nondirty_session_persistence() {
   // This changes state.
   be_in_folder(folderB);
 
-  sessionStoreManager._saveState();
+  SessionStoreManager._saveState();
   waitForFileRefresh();
 
   // delete the session file
-  let sessionFile = sessionStoreManager.sessionFile;
+  let sessionFile = SessionStoreManager.sessionFile;
   sessionFile.remove(false);
 
   // Since the state of the session hasn't changed since last _saveState(),
   // the session file should not be re-created.
-  sessionStoreManager._saveState();
+  SessionStoreManager._saveState();
   controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
 
   utils.waitFor(() => !sessionFile.exists(),
@@ -146,7 +146,7 @@ function test_single_3pane_periodic_session_persistence() {
   let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
   let state = mail3PaneWindow.getWindowStateForSessionPersistence();
 
-  sessionStoreManager._saveState();
+  SessionStoreManager._saveState();
   waitForFileRefresh();
 
   // load the saved state from disk
@@ -369,7 +369,7 @@ function test_multiple_3pane_periodic_session_persistence() {
   while (enumerator.hasMoreElements())
     state.push(enumerator.getNext().getWindowStateForSessionPersistence());
 
-  sessionStoreManager._saveState();
+  SessionStoreManager._saveState();
   waitForFileRefresh();
 
   // load the saved state from disk
@@ -397,22 +397,22 @@ function test_multiple_3pane_periodic_session_persistence() {
 async function test_bad_session_file_simple() {
   // forcefully write a bad session file
   let data = "BAD SESSION FILE";
-  let fos = FileUtils.openSafeFileOutputStream(sessionStoreManager.sessionFile);
+  let fos = FileUtils.openSafeFileOutputStream(SessionStoreManager.sessionFile);
   fos.write(data, data.length);
   FileUtils.closeSafeFileOutputStream(fos);
 
   // tell the session store manager to try loading the bad session file.
   // NOTE: periodic session persistence is not enabled in this test
-  sessionStoreManager._store = null;
-  await sessionStoreManager._loadSessionFile();
+  SessionStoreManager._store = null;
+  await SessionStoreManager._loadSessionFile();
 
   // since the session file is bad, the session store manager's state field
   // should be null
-  assert_false(sessionStoreManager._initialState,
+  assert_false(SessionStoreManager._initialState,
                "saved state is bad so state object should be null");
 
   // The bad session file should now not exist.
-  utils.waitFor(() => !sessionStoreManager.sessionFile.exists(),
+  utils.waitFor(() => !SessionStoreManager.sessionFile.exists(),
                 "session file should now not exist");
 }
 
