@@ -268,7 +268,7 @@
                    oncommand="openAddonsMgr();">
           <menupopup id="appmenu_addonPrefs"
                      onpopupshowing="initAddonPrefsMenu(this);"
-                     oncommand="openAddonPrefs(event.target.value, event.target.getAttribute('optionsType'));">
+                     oncommand="openAddonPrefs(event.target.getAttribute('value'), event.target.getAttribute('optionsType'));">
             <menuitem label="&addons.label;" oncommand="openAddonsMgr(); event.stopPropagation();"/>
             <menuseparator class="appmenu-menuseparator"/>
             <menuitem label="&addonNoPrefs.label;" disabled="true"/>

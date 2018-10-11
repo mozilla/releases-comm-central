@@ -832,7 +832,7 @@
 #endif
           <menupopup id="addonPrefs"
                      onpopupshowing="initAddonPrefsMenu(this);"
-                     oncommand="openAddonPrefs(event.target.value, event.target.getAttribute('optionsType'));">
+                     oncommand="openAddonPrefs(event.target.getAttribute('value'), event.target.getAttribute('optionsType'));">
             <menuitem label="&addonNoPrefs.label;" disabled="true"/>
           </menupopup>
         </menu>
