@@ -8,6 +8,10 @@
  * Tabmail Tabs
  */
 
+#tabs-toolbar {
+  padding-top: var(--space-above-tabbar);
+}
+
 #tabs-toolbar:not(:-moz-lwtheme) {
   color: #333;
   text-shadow: 0 1px rgba(255, 255, 255, 0.4);
@@ -69,6 +73,12 @@
 
 .tabmail-tab:focus > .tab-stack > .tab-content > .tab-label-container {
   box-shadow: var(--focus-ring-box-shadow);
+}
+
+:root[tabsintitlebar][extradragspace] .tabmail-tab::after,
+:root[tabsintitlebar][extradragspace] .tabmail-tab::before {
+  margin-top: 0;
+  margin-bottom: var(--tab-toolbar-overlap);
 }
 
 #tabmail-tabs {

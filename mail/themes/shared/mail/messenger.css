@@ -11,6 +11,8 @@
   --autocomplete-popup-border-color: ThreeDShadow;
   --autocomplete-popup-highlight-background: Highlight;
   --autocomplete-popup-highlight-color: HighlightText;
+  /* Note: Setting this to 0 (without px) breaks CSS calculations for OSX. */
+  --space-above-tabbar: 0px;
 }
 
 :root:-moz-lwtheme {
@@ -24,6 +26,10 @@
 :root[lwt-popup-brighttext] {
   --urlbar-popup-url-color: #0a84ff;
   --urlbar-popup-action-color: #30e60b;
+}
+
+:root[extradragspace][tabsintitlebar]:not([inFullscreen]) {
+  --space-above-tabbar: 8px;
 }
 
 description.error {

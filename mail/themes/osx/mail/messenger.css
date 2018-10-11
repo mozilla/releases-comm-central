@@ -570,8 +570,12 @@ notification[value="addon-install-complete"] > button:active:hover {
 
 /* ::::: Tabs in Titlebar :::::: */
 
-#messengerWindow[tabsintitlebar="true"] > #titlebar {
-  min-height: 30px;
+/**
+ * For tabs in titlebar on OS X, we stretch the titlebar down so that the
+ * tabstrip can overlap it.
+ */
+#messengerWindow[tabsintitlebar] > #titlebar {
+  min-height: calc(var(--tab-min-height) + var(--space-above-tabbar));
 }
 
 #messengerWindow[tabsintitlebar="true"]:not(:-moz-lwtheme) > #titlebar {
