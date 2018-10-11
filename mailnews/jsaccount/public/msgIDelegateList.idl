@@ -15,5 +15,5 @@
 interface msgIDelegateList : nsISupports
 {
   /// Method name to delegate to JavaScript.
-  void add(in string aMethod);
+  void add(in ACString aMethod);
 };

@@ -58,7 +58,7 @@ NS_IMETHODIMP
 JaCppComposeDelegator::GetMethodsToDelegate(msgIDelegateList** aDelegateList)
 {
   if (!mDelegateList)
-    mDelegateList = new DelegateList("mozilla::mailnews::JaCppComposeDelegator::");
+    mDelegateList = new DelegateList();
   mMethods = &(mDelegateList->mMethods);
   NS_ADDREF(*aDelegateList = mDelegateList);
   return NS_OK;

@@ -52,7 +52,7 @@ NS_IMETHODIMP JaCppAbDirectoryDelegator::SetMethodsToDelegate(msgIDelegateList* 
 NS_IMETHODIMP JaCppAbDirectoryDelegator::GetMethodsToDelegate(msgIDelegateList** aDelegateList)
 {
   if (!mDelegateList)
-    mDelegateList = new DelegateList("mozilla::mailnews::JaCppAbDirectoryDelegator::");
+    mDelegateList = new DelegateList();
   mMethods = &(mDelegateList->mMethods);
   NS_ADDREF(*aDelegateList = mDelegateList);
   return NS_OK;

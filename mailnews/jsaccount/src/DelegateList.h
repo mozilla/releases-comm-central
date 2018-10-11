@@ -21,14 +21,11 @@ class DelegateList : public msgIDelegateList
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_MSGIDELEGATELIST
-  explicit DelegateList(const char *aWindowsPrefix) :
-    mPrefix(aWindowsPrefix)
-  { }
+  DelegateList() { }
   nsDataHashtable<nsCStringHashKey, bool> mMethods;
 
 protected:
   virtual ~DelegateList() { }
-  nsCString mPrefix; // Windows decorated method prefix.
 };
 
 } // namespace mailnews
@@ -45,7 +42,7 @@ protected:
 
 #define DELEGATE_JS(_jsdelegate, _jsmethods, _cppbase) (\
     _jsdelegate && _jsmethods && \
-    _jsmethods->Contains(nsLiteralCString(__FUNCTION__)) ? \
+    _jsmethods->Contains(nsLiteralCString(__func__)) ? \
        _jsdelegate : (_cppbase))
 
 

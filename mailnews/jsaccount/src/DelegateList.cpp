@@ -15,17 +15,9 @@ namespace mailnews {
 
 NS_IMPL_ISUPPORTS(DelegateList, msgIDelegateList)
 
-NS_IMETHODIMP DelegateList::Add(const char *aMethodName)
+NS_IMETHODIMP DelegateList::Add(const nsACString& aMethodName)
 {
-  // __FUNCTION__ is the undecorated function name in gcc, but decorated in
-  // Windows. __func__ will resolve this when supported in VS 2015.
-  nsCString prettyFunction;
-#if defined (_MSC_VER)
-  prettyFunction.Append(mPrefix);
-#endif
-  prettyFunction.Append(nsDependentCString(aMethodName));
-
-  mMethods.Put(prettyFunction, true);
+  mMethods.Put(aMethodName, true);
   return NS_OK;
 }
 
