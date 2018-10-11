@@ -381,12 +381,12 @@
       <method name="_resolveListByName">
         <parameter name="value"/>
         <body><![CDATA[
-              let entries = MailServices.headerParser.makeFromDisplayAddress(value);
-              return entries.length ? this._findListInAddrBooks(entries[0].name) : null;
-          ]]></body>
-    </method>
+            let entries = MailServices.headerParser.makeFromDisplayAddress(value);
+            return entries.length ? this._findListInAddrBooks(entries[0].name) : null;
+        ]]></body>
+      </method>
 
-    <method name="_findListInAddrBooks">
+      <method name="_findListInAddrBooks">
         <parameter name="entryname"/>
         <body><![CDATA[
             let allAddressBooks = MailServices.ab.directories;
@@ -418,96 +418,94 @@
             }
             return null;
         ]]></body>
-    </method>
+      </method>
 
-    <method name="_getListEntriesInt">
+      <method name="_getListEntriesInt">
         <parameter name="mailingList"/>
         <parameter name="attendees"/>
         <parameter name="allListsUri"/>
         <body><![CDATA[
-              let addressLists = mailingList.addressLists;
-              for (let i = 0; i < addressLists.length; i++) {
-                  let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
-                  let thisId = abCard.primaryEmail;
-                  if (abCard.displayName.length > 0) {
-                      let rCn = abCard.displayName;
-                      if (rCn.includes(",")) {
-                          rCn = '"' + rCn + '"';
-                      }
-                      thisId = rCn + " <" + thisId + ">";
-                  }
-                  if (attendees.some(att => att == thisId)) {
-                      continue;
-                  }
+            let addressLists = mailingList.addressLists;
+            for (let i = 0; i < addressLists.length; i++) {
+                let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
+                let thisId = abCard.primaryEmail;
+                if (abCard.displayName.length > 0) {
+                    let rCn = abCard.displayName;
+                    if (rCn.includes(",")) {
+                        rCn = '"' + rCn + '"';
+                    }
+                    thisId = rCn + " <" + thisId + ">";
+                }
+                if (attendees.some(att => att == thisId)) {
+                    continue;
+                }
 
-                  if (abCard.displayName.length > 0) {
-                      let list = this._findListInAddrBooks(abCard.displayName);
-                      if (list) {
-                          if (allListsUri.some(uri => uri == list.URI)) {
-                              continue;
-                          }
-                          allListsUri.push(list.URI);
+                if (abCard.displayName.length > 0) {
+                    let list = this._findListInAddrBooks(abCard.displayName);
+                    if (list) {
+                        if (allListsUri.some(uri => uri == list.URI)) {
+                            continue;
+                        }
+                        allListsUri.push(list.URI);
 
-                          this._getListEntriesInt(list, attendees, allListsUri);
+                        this._getListEntriesInt(list, attendees, allListsUri);
 
-                          continue;
-                      }
-                  }
+                        continue;
+                    }
+                }
 
-                  attendees.push(thisId);
-              }
+                attendees.push(thisId);
+            }
 
-              return attendees;
-          ]]></body>
-    </method>
+            return attendees;
+        ]]></body>
+      </method>
 
-    <method name="_getListEntries">
+      <method name="_getListEntries">
         <parameter name="mailingList"/>
         <body><![CDATA[
+            let attendees = [];
+            let allListsUri = [];
 
-              let attendees = [];
-              let allListsUri = [];
+            allListsUri.push(mailingList.URI);
 
-              allListsUri.push(mailingList.URI);
+            this._getListEntriesInt(mailingList, attendees, allListsUri);
 
-              this._getListEntriesInt(mailingList, attendees, allListsUri);
+            return attendees;
+        ]]></body>
+      </method>
 
-              return attendees;
-
-          ]]></body>
-    </method>
-
-    <method name="_fillListItemWithEntry">
+      <method name="_fillListItemWithEntry">
         <parameter name="listitem"/>
         <parameter name="entry"/>
         <parameter name="rowNumber"/>
         <body><![CDATA[
-              let newAttendee = this.createAttendee(entry);
-              let input = listitem.querySelector(".textbox-addressingWidget");
-              input.removeAttribute("disabled");
+            let newAttendee = this.createAttendee(entry);
+            let input = listitem.querySelector(".textbox-addressingWidget");
+            input.removeAttribute("disabled");
 
-              input.attendee = newAttendee;
-              input.value = entry;
-              input.setAttribute("value", entry);
-              input.setAttribute("dirty", "true");
-              if (input.getAttribute("focused") != "") {
-                  input.removeAttribute("focused");
-              }
+            input.attendee = newAttendee;
+            input.value = entry;
+            input.setAttribute("value", entry);
+            input.setAttribute("dirty", "true");
+            if (input.getAttribute("focused") != "") {
+                input.removeAttribute("focused");
+            }
 
-              let roleStatusIcon = listitem.querySelector(".status-icon");
-              roleStatusIcon.removeAttribute("disabled");
-              roleStatusIcon.setAttribute("class", "role-icon");
-              roleStatusIcon.setAttribute("role", newAttendee.role);
+            let roleStatusIcon = listitem.querySelector(".status-icon");
+            roleStatusIcon.removeAttribute("disabled");
+            roleStatusIcon.setAttribute("class", "role-icon");
+            roleStatusIcon.setAttribute("role", newAttendee.role);
 
-              let userTypeIcon = listitem.querySelector(".usertype-icon");
-              userTypeIcon.removeAttribute("disabled");
-              userTypeIcon.setAttribute("cutype", newAttendee.userType);
-          ]]></body>
-    </method>
+            let userTypeIcon = listitem.querySelector(".usertype-icon");
+            userTypeIcon.removeAttribute("disabled");
+            userTypeIcon.setAttribute("cutype", newAttendee.userType);
+        ]]></body>
+      </method>
 
-    <method name="resolvePotentialList">
-      <parameter name="aInput"/>
-      <body><![CDATA[
+      <method name="resolvePotentialList">
+        <parameter name="aInput"/>
+        <body><![CDATA[
             let fieldValue = aInput.value;
             if (aInput.id.length > 0 && fieldValue.length > 0) {
                 let mailingList = this._resolveListByName(fieldValue);
@@ -570,43 +568,43 @@
         ]]></body>
       </method>
 
-     <method name="updateTooltip">
-      <parameter name="targetIcon"/>
-      <body><![CDATA[
-          // Function setting the tooltip of attendeeicons based on their role
-          if (targetIcon.classList.contains("role-icon")) {
-              let role = targetIcon.getAttribute("role");
-              // Set tooltip for rolenames
+      <method name="updateTooltip">
+        <parameter name="targetIcon"/>
+        <body><![CDATA[
+            // Function setting the tooltip of attendeeicons based on their role
+            if (targetIcon.classList.contains("role-icon")) {
+                let role = targetIcon.getAttribute("role");
+                // Set tooltip for rolenames
 
-              const roleMap = {
-                  "REQ-PARTICIPANT": "required",
-                  "OPT-PARTICIPANT": "optional",
-                  "NON-PARTICIPANT": "nonparticipant",
-                  "CHAIR": "chair"
-              };
+                const roleMap = {
+                    "REQ-PARTICIPANT": "required",
+                    "OPT-PARTICIPANT": "optional",
+                    "NON-PARTICIPANT": "nonparticipant",
+                    "CHAIR": "chair"
+                };
 
-              let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
-              let tooltip = cal.l10n.getString("calendar-event-dialog-attendees",
-                                               roleNameString,
-                                               role in roleMap ? []: [role]);
-              targetIcon.setAttribute("tooltiptext", tooltip);
-          } else if (targetIcon.classList.contains("usertype-icon")) {
-              let cutype = targetIcon.getAttribute("cutype");
-              const cutypeMap = {
-                  INDIVIDUAL: "individual",
-                  GROUP: "group",
-                  RESOURCE: "resource",
-                  ROOM: "room",
-                  // I've decided UNKNOWN will not be handled.
-              };
+                let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
+                let tooltip = cal.l10n.getString("calendar-event-dialog-attendees",
+                                                 roleNameString,
+                                                 role in roleMap ? []: [role]);
+                targetIcon.setAttribute("tooltiptext", tooltip);
+            } else if (targetIcon.classList.contains("usertype-icon")) {
+                let cutype = targetIcon.getAttribute("cutype");
+                const cutypeMap = {
+                    INDIVIDUAL: "individual",
+                    GROUP: "group",
+                    RESOURCE: "resource",
+                    ROOM: "room",
+                    // I've decided UNKNOWN will not be handled.
+                };
 
-              let cutypeString = "event.attendee.usertype." + (cutype in cutypeMap ? cutypeMap[cutype] : "unknown");
-              let tooltip = cal.l10n.getString("calendar-event-dialog-attendees",
-                                               cutypeString,
-                                               cutype in cutypeMap ? [] : [cutype]);
-              targetIcon.setAttribute("tooltiptext", tooltip);
-          }
-      ]]></body>
+                let cutypeString = "event.attendee.usertype." + (cutype in cutypeMap ? cutypeMap[cutype] : "unknown");
+                let tooltip = cal.l10n.getString("calendar-event-dialog-attendees",
+                                                 cutypeString,
+                                                 cutype in cutypeMap ? [] : [cutype]);
+                targetIcon.setAttribute("tooltiptext", tooltip);
+            }
+        ]]></body>
       </method>
 
       <property name="documentSize">
