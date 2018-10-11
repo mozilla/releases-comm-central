@@ -37,6 +37,6 @@ hbox button {
   font: message-box;
 }
 
-:root[toolboxId="mail-toolbox"] #showTitlebar {
+:root[toolboxId="mail-toolbox"] #titlebarSettings {
   display: -moz-box;
 }

@@ -14,5 +14,6 @@
 <!ENTITY restoreDefaultSet.label  "Restore Default Set">
 <!ENTITY addNewToolbar.label      "Add New Toolbar">
 <!ENTITY showTitlebar.label       "Show Title Bar">
+<!ENTITY extraDragSpace.label     "Add Drag Space">
 <!ENTITY saveChanges.label        "Done">
 <!ENTITY undoChanges.label        "Undo Changes">
