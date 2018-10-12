@@ -129,8 +129,8 @@ nsMsgSearchBoolExpression::leftToRightAddTerm(nsIMsgSearchTerm * newTerm, char *
 
 // returns true or false depending on what the current expression evaluates to.
 bool nsMsgSearchBoolExpression::OfflineEvaluate(nsIMsgDBHdr *msgToMatch, const char *defaultCharset,
-  nsIMsgSearchScopeTerm *scope, nsIMsgDatabase *db, const char *headers,
-  uint32_t headerSize, bool Filtering)
+  nsIMsgSearchScopeTerm *scope, nsIMsgDatabase *db, const nsACString& headers,
+  bool Filtering)
 {
     bool result = true;    // always default to false positives
     bool isAnd;
@@ -138,7 +138,7 @@ bool nsMsgSearchBoolExpression::OfflineEvaluate(nsIMsgDBHdr *msgToMatch, const c
     if (m_term) // do we contain just a search term?
     {
       nsMsgSearchOfflineMail::ProcessSearchTerm(msgToMatch, m_term,
-        defaultCharset, scope, db, headers, headerSize, Filtering, &result);
+        defaultCharset, scope, db, headers, Filtering, &result);
       return result;
     }
 
@@ -149,7 +149,7 @@ bool nsMsgSearchBoolExpression::OfflineEvaluate(nsIMsgDBHdr *msgToMatch, const c
     if (m_leftChild)
     {
         result = m_leftChild->OfflineEvaluate(msgToMatch, defaultCharset,
-          scope, db, headers, headerSize, Filtering);
+          scope, db, headers, Filtering);
         if ( (result && !isAnd) || (!result && isAnd))
           return result;
     }
@@ -159,7 +159,7 @@ bool nsMsgSearchBoolExpression::OfflineEvaluate(nsIMsgDBHdr *msgToMatch, const c
     // means the outcome depends entirely on the rightChild.
     if (m_rightChild)
         result = m_rightChild->OfflineEvaluate(msgToMatch, defaultCharset,
-          scope, db, headers, headerSize, Filtering);
+          scope, db, headers, Filtering);
 
     return result;
 }
@@ -308,12 +308,11 @@ nsMsgSearchOfflineMail::MatchTermsForFilter(nsIMsgDBHdr *msgToMatch,
                                             const char *defaultCharset,
                                             nsIMsgSearchScopeTerm * scope,
                                             nsIMsgDatabase * db,
-                                            const char * headers,
-                                            uint32_t headerSize,
+                                            const nsACString& headers,
                                             nsMsgSearchBoolExpression ** aExpressionTree,
                                             bool *pResult)
 {
-    return MatchTerms(msgToMatch, termList, defaultCharset, scope, db, headers, headerSize, true, aExpressionTree, pResult);
+    return MatchTerms(msgToMatch, termList, defaultCharset, scope, db, headers, true, aExpressionTree, pResult);
 }
 
 // static method which matches a header against a list of search terms.
@@ -327,7 +326,7 @@ nsMsgSearchOfflineMail::MatchTermsForSearch(nsIMsgDBHdr *msgToMatch,
                                             bool *pResult)
 {
 
-    return MatchTerms(msgToMatch, termList, defaultCharset, scope, db, nullptr, 0, false, aExpressionTree, pResult);
+    return MatchTerms(msgToMatch, termList, defaultCharset, scope, db, EmptyCString(), false, aExpressionTree, pResult);
 }
 
 nsresult nsMsgSearchOfflineMail::ConstructExpressionTree(nsIArray *termList,
@@ -393,8 +392,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
                                             const char *defaultCharset,
                                             nsIMsgSearchScopeTerm * scope,
                                             nsIMsgDatabase * db,
-                                            const char * headers,
-                                            uint32_t headerSize,
+                                            const nsACString& headers,
                                             bool Filtering,
                                             bool *pResult)
 {
@@ -643,8 +641,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
             msgToMatch->GetMessageOffset(&messageOffset);
             err = aTerm->MatchArbitraryHeader(scope, lineCount,charset,
                                               charsetOverride, msgToMatch, db,
-                                              headers, headerSize, Filtering,
-                                              &result);
+                                              headers, Filtering, &result);
           }
           else {
             err = NS_ERROR_INVALID_ARG; // ### was SearchError_InvalidAttribute
@@ -661,8 +658,7 @@ nsresult nsMsgSearchOfflineMail::MatchTerms(nsIMsgDBHdr *msgToMatch,
                                             const char *defaultCharset,
                                             nsIMsgSearchScopeTerm * scope,
                                             nsIMsgDatabase * db,
-                                            const char * headers,
-                                            uint32_t headerSize,
+                                            const nsACString& headers,
                                             bool Filtering,
                                             nsMsgSearchBoolExpression ** aExpressionTree,
                                             bool *pResult)
@@ -683,7 +679,7 @@ nsresult nsMsgSearchOfflineMail::MatchTerms(nsIMsgDBHdr *msgToMatch,
   // evaluate the expression tree and return the result
   *pResult = (*aExpressionTree)
     ?  (*aExpressionTree)->OfflineEvaluate(msgToMatch,
-                 defaultCharset, scope, db, headers, headerSize, Filtering)
+                 defaultCharset, scope, db, headers, Filtering)
     :true;  // vacuously true...
 
   return NS_OK;

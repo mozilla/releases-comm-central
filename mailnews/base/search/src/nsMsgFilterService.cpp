@@ -1065,7 +1065,7 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter()
       CONTINUE_IF_FALSE(msgHdr, "null msgHdr");
 
       bool matched;
-      rv = m_curFilter->MatchHdr(msgHdr, m_curFolder, m_curFolderDB, nullptr, 0, &matched);
+      rv = m_curFilter->MatchHdr(msgHdr, m_curFolder, m_curFolderDB, EmptyCString(), &matched);
       if (NS_SUCCEEDED(rv) && matched)
       {
         // In order to work with nsMsgFilterAfterTheFact::ApplyFilter we initialize

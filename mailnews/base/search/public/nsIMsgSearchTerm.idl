@@ -93,20 +93,18 @@ interface nsIMsgSearchTerm : nsISupports {
      * @param aCharset The charset to apply to un-labeled non-UTF-8 data.
      * @param aCharsetOverride If true, aCharset is used instead of any
      *                         charset labeling other than UTF-8.
-     *
-     * N.B. This is noscript because headers is a null-separated list of
-     * strings, which is not scriptable.
+     * @param aMsg The nsIMsgDBHdr of the message
+     * @param aDb The message database containing aMsg
+     * @param aHeaders A null-separated list of message headers.
+     * @param aForFilters Whether this is a filter or a search operation.
      */
-    [noscript]
     boolean matchArbitraryHeader(in nsIMsgSearchScopeTerm aScopeTerm,
                                  in unsigned long aLength,
                                  in string aCharset,
                                  in boolean aCharsetOverride,
                                  in nsIMsgDBHdr aMsg,
                                  in nsIMsgDatabase aDb,
-                                 //[array, size_is(headerLength)] in string headers,
-                                 in string aHeaders,
-                                 in unsigned long aHeaderLength,
+                                 in ACString aHeaders,
                                  in boolean aForFilters);
 
     /**

@@ -82,13 +82,9 @@ interface nsIMsgFilter : nsISupports {
 
     attribute nsIMsgSearchScopeTerm scope;
 
-    // Marking noscript because "headers" is actually a null-separated
-    // list of headers, which is not scriptable.
-    [noscript] void MatchHdr(in nsIMsgDBHdr msgHdr, in nsIMsgFolder folder,
-                  in nsIMsgDatabase db,
-                  in string headers,
-                  //                  [array, size_is(headerSize)] in string headers,
-                  in unsigned long headerSize, out boolean result);
+    boolean MatchHdr(in nsIMsgDBHdr msgHdr, in nsIMsgFolder folder,
+                     in nsIMsgDatabase db,
+                     in ACString headers);  // null-separated list of headers
 
 
     /*

@@ -273,8 +273,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
                                    nsIMsgDBHdr *msgHdr,
                                    nsIMsgFolder *folder,
                                    nsIMsgDatabase *db,
-                                   const char*headers,
-                                   uint32_t headersSize,
+                                   const nsACString& headers,
                                    nsIMsgFilterHitNotify *listener,
                                    nsIMsgWindow *msgWindow)
 {
@@ -304,7 +303,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
         bool result;
 
         filter->SetScope(scope);
-        matchTermStatus = filter->MatchHdr(msgHdr, folder, db, headers, headersSize, &result);
+        matchTermStatus = filter->MatchHdr(msgHdr, folder, db, headers, &result);
         filter->SetScope(nullptr);
         if (NS_SUCCEEDED(matchTermStatus) && result && listener)
         {

@@ -693,8 +693,8 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHitFail(nsIMsgRuleAction *aFilterAction,
 
 NS_IMETHODIMP
 nsMsgFilter::MatchHdr(nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder,
-                      nsIMsgDatabase *db, const char *headers,
-                      uint32_t headersSize, bool *pResult)
+                      nsIMsgDatabase *db, const nsACString& headers,
+                      bool *pResult)
 {
   NS_ENSURE_ARG_POINTER(folder);
   NS_ENSURE_ARG_POINTER(msgHdr);
@@ -702,7 +702,7 @@ nsMsgFilter::MatchHdr(nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder,
   nsCString folderCharset;
   folder->GetCharset(folderCharset);
   nsresult rv = nsMsgSearchOfflineMail::MatchTermsForFilter(msgHdr, m_termList,
-                  folderCharset.get(),  m_scope,  db,  headers,  headersSize, &m_expressionTree, pResult);
+                  folderCharset.get(), m_scope, db, headers, &m_expressionTree, pResult);
   return rv;
 }
 

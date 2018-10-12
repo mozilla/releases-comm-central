@@ -65,8 +65,7 @@ public:
     // determine if the end result is true or false.
   bool OfflineEvaluate(nsIMsgDBHdr *msgToMatch,
           const char *defaultCharset, nsIMsgSearchScopeTerm *scope,
-          nsIMsgDatabase *db, const char *headers, uint32_t headerSize,
-          bool Filtering);
+          nsIMsgDatabase *db, const nsACString& headers, bool Filtering);
 
     // assuming the expression is for online
     // searches, determine the length of the

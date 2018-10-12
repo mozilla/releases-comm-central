@@ -1177,14 +1177,12 @@ nsNNTPNewsgroupList::CallFilters()
     if (filterCount)
     {
       rv = m_filterList->ApplyFiltersToHdr(nsMsgFilterType::NewsRule,
-          m_newMsgHdr, folder, m_newsDB, fullHeaders.get(),
-          fullHeaders.Length(), this, m_msgWindow);
+          m_newMsgHdr, folder, m_newsDB, fullHeaders, this, m_msgWindow);
     }
     if (serverFilterCount)
     {
       rv = m_serverFilterList->ApplyFiltersToHdr(nsMsgFilterType::NewsRule,
-          m_newMsgHdr, folder, m_newsDB, fullHeaders.get(),
-          fullHeaders.Length(), this, m_msgWindow);
+          m_newMsgHdr, folder, m_newsDB, fullHeaders, this, m_msgWindow);
     }
 
     NS_ENSURE_SUCCESS(rv,rv);

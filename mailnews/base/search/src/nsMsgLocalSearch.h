@@ -40,8 +40,7 @@ public:
                                          const char *defaultCharset,
                                          nsIMsgSearchScopeTerm *scope,
                                          nsIMsgDatabase * db,
-                                         const char * headers,
-                                         uint32_t headerSize,
+                                         const nsACString& headers,
                                          nsMsgSearchBoolExpression ** aExpressionTree,
                      bool *pResult);
 
@@ -60,8 +59,7 @@ public:
                                const char *defaultCharset,
                                nsIMsgSearchScopeTerm * scope,
                                nsIMsgDatabase * db,
-                               const char * headers,
-                               uint32_t headerSize,
+                               const nsACString& headers,
                                bool Filtering,
                  bool *pResult);
 protected:
@@ -71,8 +69,7 @@ protected:
                                 const char *defaultCharset,
                                 nsIMsgSearchScopeTerm *scope,
                                 nsIMsgDatabase * db,
-                                const char * headers,
-                                uint32_t headerSize,
+                                const nsACString& headers,
                                 bool ForFilters,
                                 nsMsgSearchBoolExpression ** aExpressionTree,
                 bool *pResult);

@@ -69,17 +69,11 @@ interface nsIMsgFilterList : nsISupports {
     attribute nsIFile defaultFile;
     void saveToDefaultFile();
 
-
-    // marking noscript because headers is a null-separated list
-    // of strings, which is not scriptable
-    [noscript]
     void applyFiltersToHdr(in nsMsgFilterTypeType filterType,
                            in nsIMsgDBHdr msgHdr,
                            in nsIMsgFolder folder,
                            in nsIMsgDatabase db,
-                           in string headers,
-                           //[array, size_is(headerSize)] in string headers,
-                           in unsigned long headerSize,
+                           in ACString headers,  // null-separated list of headers
                            in nsIMsgFilterHitNotify listener,
                            in nsIMsgWindow msgWindow);
 
