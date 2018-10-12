@@ -10,7 +10,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="tooltip" extends="chrome://global/content/bindings/popup.xml#tooltip">
+  <binding id="tooltip" extends="chrome://global/content/bindings/popup.xml#panel">
     <content noautohide="true" orient="vertical">
       <children>
         <xul:label class="tooltip-label" xbl:inherits="xbl:text=label" flex="1"/>
