@@ -32,10 +32,6 @@ mail-messageids-headerfield {
   -moz-user-focus: normal;
 }
 
-mail-emailheaderfield {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#mail-emailheaderfield");
-}
-
 mail-multi-emailHeaderField {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#mail-multi-emailHeaderField");
 }

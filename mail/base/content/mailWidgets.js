@@ -249,6 +249,20 @@ class MozMailEmailaddress extends MozXULElement {
   }
 }
 
+class MozMailEmailheaderfield extends MozXULElement {
+  connectedCallback() {
+    this._mailEmailAddress = document.createElement("mail-emailaddress");
+    this._mailEmailAddress.classList.add("headerValue");
+    this._mailEmailAddress.setAttribute("containsEmail", "true");
+
+    this.appendChild(this._mailEmailAddress);
+  }
+
+  get emailAddressNode() {
+    return this._mailEmailAddress;
+  }
+}
+
 class MozTreecolImage extends customElements.get("treecol") {
   static get observedAttributes() {
     return ["src"];
@@ -288,4 +302,5 @@ customElements.define("mail-newsgroup", MozMailNewsgroup);
 customElements.define("mail-newsgroups-headerfield", MozMailNewsgroupsHeaderfield);
 customElements.define("mail-messageid", MozMailMessageid);
 customElements.define("mail-emailaddress", MozMailEmailaddress);
+customElements.define("mail-emailheaderfield", MozMailEmailheaderfield);
 customElements.define("treecol-image", MozTreecolImage, { extends: "treecol" });

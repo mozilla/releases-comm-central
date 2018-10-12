@@ -448,20 +448,6 @@
     </handlers>
   </binding>
 
-  <!-- Message Pane Widgets -->
-
-  <binding id="mail-emailheaderfield">
-    <content>
-      <xul:mail-emailaddress class="headerValue" containsEmail="true"
-                             anonid="emailAddressNode"/>
-    </content>
-
-    <implementation>
-      <property name="emailAddressNode" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'emailAddressNode');"
-        readonly="true"/>
-    </implementation>
-  </binding>
-
   <!-- multi-emailHeaderField: presents multiple emailheaderfields with a toggle -->
   <binding id="mail-multi-emailHeaderField">
     <content>
