@@ -199,14 +199,6 @@ treechildren::-moz-tree-cell-text(dummy) {
         background-color: #d1d1d1;
       }
 
-      :root[sizemode=normal][tabsintitlebar] {
-        border-top: 1px solid -moz-win-accentcolor;
-      }
-
-      :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
-        border-top-color: rgba(0,0,0,.2);
-      }
-
       :root[tabsintitlebar] #navigation-toolbox {
         margin-top: -1px;
       }
@@ -216,12 +208,21 @@ treechildren::-moz-tree-cell-text(dummy) {
       }
 
       @media (-moz-windows-accent-color-in-titlebar: 0) {
+        :root[sizemode=normal][tabsintitlebar] {
+          border-top: 1px solid rgba(0,0,0,.7);
+        }
+        :root[sizemode=normal][tabsintitlebar][always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
+          border-top-color: -moz-win-accentcolor;
+        }
         :root[tabsintitlebar]:not(:-moz-window-inactive):not(:-moz-lwtheme) {
           background-color: #a8cbdb;
         }
       }
 
       @media (-moz-windows-accent-color-in-titlebar) {
+        :root[sizemode=normal][tabsintitlebar] {
+          border-top: 1px solid -moz-win-accentcolor;
+        }
         :root[tabsintitlebar]:not(:-moz-window-inactive):not(:-moz-lwtheme) {
           background-color: -moz-win-accentcolor;
         }
@@ -230,6 +231,10 @@ treechildren::-moz-tree-cell-text(dummy) {
           #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme) {
           color: -moz-win-accentcolortext;
         }
+      }
+
+      :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
+        border-top-color: rgba(0,0,0,.3);
       }
     }
 

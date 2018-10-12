@@ -24,6 +24,72 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
 });
 
+// Copied from M-C's TelemetryEnvironment.jsm
+ChromeUtils.defineModuleGetter(this, "ctypes",
+                               "resource://gre/modules/ctypes.jsm");
+/**
+ * Gets the service pack and build information on Windows platforms. The initial version
+ * was copied from nsUpdateService.js.
+ *
+ * @return An object containing the service pack major and minor versions, along with the
+ *         build number.
+ */
+function getWindowsVersionInfo() {
+  const UNKNOWN_VERSION_INFO = {servicePackMajor: null, servicePackMinor: null, buildNumber: null};
+
+  if (AppConstants.platform !== "win") {
+    return UNKNOWN_VERSION_INFO;
+  }
+
+  const BYTE = ctypes.uint8_t;
+  const WORD = ctypes.uint16_t;
+  const DWORD = ctypes.uint32_t;
+  const WCHAR = ctypes.char16_t;
+  const BOOL = ctypes.int;
+
+  // This structure is described at:
+  // http://msdn.microsoft.com/en-us/library/ms724833%28v=vs.85%29.aspx
+  const SZCSDVERSIONLENGTH = 128;
+  const OSVERSIONINFOEXW = new ctypes.StructType("OSVERSIONINFOEXW",
+      [
+      {dwOSVersionInfoSize: DWORD},
+      {dwMajorVersion: DWORD},
+      {dwMinorVersion: DWORD},
+      {dwBuildNumber: DWORD},
+      {dwPlatformId: DWORD},
+      {szCSDVersion: ctypes.ArrayType(WCHAR, SZCSDVERSIONLENGTH)},
+      {wServicePackMajor: WORD},
+      {wServicePackMinor: WORD},
+      {wSuiteMask: WORD},
+      {wProductType: BYTE},
+      {wReserved: BYTE},
+      ]);
+
+  let kernel32 = ctypes.open("kernel32");
+  try {
+    let GetVersionEx = kernel32.declare("GetVersionExW",
+                                        ctypes.winapi_abi,
+                                        BOOL,
+                                        OSVERSIONINFOEXW.ptr);
+    let winVer = OSVERSIONINFOEXW();
+    winVer.dwOSVersionInfoSize = OSVERSIONINFOEXW.size;
+
+    if (0 === GetVersionEx(winVer.address())) {
+      throw ("Failure in GetVersionEx (returned 0)");
+    }
+
+    return {
+      servicePackMajor: winVer.wServicePackMajor,
+      servicePackMinor: winVer.wServicePackMinor,
+      buildNumber: winVer.dwBuildNumber,
+    };
+  } catch (e) {
+    return UNKNOWN_VERSION_INFO;
+  } finally {
+    kernel32.close();
+  }
+}
+
 /* This is where functions related to the 3 pane window are kept */
 
 // from MailNewsTypes.h
@@ -354,6 +420,11 @@ function OnLoadMessenger()
       // Default to black for foreground text.
       if (!windowFrameColor.isContrastRatioAcceptable(new Color(0, 0, 0))) {
         document.documentElement.setAttribute("darkwindowframe", "true");
+      }
+    } else if (AppConstants.isPlatformAndVersionAtLeast("win", "10")) {
+      // 17763 is the build number of Windows 10 version 1809
+      if (getWindowsVersionInfo().buildNumber < 17763) {
+        document.documentElement.setAttribute("always-use-accent-color-for-window-border", "");
       }
     }
   }
