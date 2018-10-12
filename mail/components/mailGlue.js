@@ -134,7 +134,7 @@ MailGlue.prototype = {
       }, {once: true});
 
       // Set up our custom elements.
-      aSubject.addEventListener("DOMDocElementInserted", () => {
+      aSubject.addEventListener("DOMWindowCreated", () => {
         let doc = aSubject.document;
         if (doc.nodePrincipal.isSystemPrincipal && (
             doc.contentType == "application/vnd.mozilla.xul+xml" ||
