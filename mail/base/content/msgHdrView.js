@@ -169,19 +169,18 @@ function initializeHeaderViewTables()
   // Iterate over each header in our header list arrays and create header entries
   // for each one. These header entries are then stored in the appropriate header
   // table.
-  var index;
-  for (index = 0; index < gExpandedHeaderList.length; index++) {
-    var headerName = gExpandedHeaderList[index].name;
-    gExpandedHeaderView[headerName] =
-      new createHeaderEntry("expanded", gExpandedHeaderList[index]);
+  for (let header of gExpandedHeaderList) {
+    gExpandedHeaderView[header.name] = new createHeaderEntry("expanded", header);
   }
 
-  var extraHeaders =
+  let extraHeaders =
     Services.prefs.getCharPref("mailnews.headers.extraExpandedHeaders").split(" ");
-  for (index = 0; index < extraHeaders.length; index++) {
-    var extraHeader = extraHeaders[index];
-    gExpandedHeaderView[extraHeader.toLowerCase()] =
-      new HeaderView(extraHeader, extraHeader);
+  for (let extraHeaderName of extraHeaders) {
+    if (!extraHeaderName.trim()) {
+      continue;
+    }
+    gExpandedHeaderView[extraHeaderName.toLowerCase()] =
+      new HeaderView(extraHeaderName, extraHeaderName);
   }
 
   if (Services.prefs.getBoolPref("mailnews.headers.showOrganization")) {
@@ -1011,12 +1010,13 @@ function updateHeaderValue(aHeaderEntry, aHeaderValue)
  * Create the DOM nodes (aka "View") for a non-standard header and insert them
  * into the grid.  Create and return the corresponding headerEntry object.
  *
- * @param {String} headerName  name of the header we're adding, all lower-case;
- *                             used to construct element ids
+ * @param {String} headerName  name of the header we're adding, used to
+ *                             construct the element IDs (in lower case)
  * @param {String} label       name of the header as displayed in the UI
  */
 function HeaderView(headerName, label)
 {
+  headerName = headerName.toLowerCase();
   let rowId = "expanded" + headerName + "Row";
   let idName = "expanded" + headerName + "Box";
   let newHeaderNode;
