@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testBiweeklyRecurrenceRotated";
+var MODULE_NAME = "testBiweeklyRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
@@ -29,19 +29,22 @@ function setupModule(module) {
         createCalendar,
         menulistSelect
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule(controller);
+    collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
 
     createCalendar(controller, CALENDARNAME);
-    // rotate view
-    controller.mainMenu.click("#ltnViewRotated");
-    controller.waitFor(() => eid("day-view").getNode().orient == "horizontal");
 }
 
 function testBiweeklyRecurrence() {
+    controller.click(eid("calendar-tab-button"));
+    switchToView(controller, "day");
     goToDate(controller, 2009, 1, 31);
 
-    // Create biweekly event.
+    // rotate view
+    controller.mainMenu.click("#ltnViewRotated");
+    controller.waitFor(() => eid("day-view").getNode().orient == "horizontal");
+
+    // create biweekly event
     let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
@@ -50,26 +53,30 @@ function testBiweeklyRecurrence() {
         event.click(eventid("button-saveandclose"));
     });
 
-    // Check day view.
+    // check day view
     for (let i = 0; i < 4; i++) {
-        controller.waitForElement(lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH));
+        controller.waitForElement(
+            lookupEventBox("day", EVENT_BOX, null, 1, HOUR, EVENTPATH)
+        );
         viewForward(controller, 14);
     }
 
-    // Check week view.
+    // check week view
     switchToView(controller, "week");
     goToDate(controller, 2009, 1, 31);
 
     for (let i = 0; i < 4; i++) {
-        controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH));
+        controller.waitForElement(
+            lookupEventBox("week", EVENT_BOX, null, 7, HOUR, EVENTPATH)
+        );
         viewForward(controller, 2);
     }
 
-    // Check multiweek view.
+    // check multiweek view
     switchToView(controller, "multiweek");
     goToDate(controller, 2009, 1, 31);
 
-    // Always two occurrences in view, 1st and 3rd or 2nd and 4th week.
+    // always two occurrences in view, 1st and 3rd or 2nd and 4th week
     for (let i = 0; i < 5; i++) {
         controller.waitForElement(
             lookupEventBox("multiweek", EVENT_BOX, i % 2 + 1, 7, null, EVENTPATH)
@@ -80,7 +87,7 @@ function testBiweeklyRecurrence() {
         viewForward(controller, 1);
     }
 
-    // Check month view.
+    // check month view
     switchToView(controller, "month");
     goToDate(controller, 2009, 1, 31);
 
@@ -97,19 +104,18 @@ function testBiweeklyRecurrence() {
     controller.waitForElement(lookupEventBox("month", EVENT_BOX, 2, 7, null, EVENTPATH));
     controller.assertNode(lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH));
 
-    // Delete event.
+    // delete event
     let box = lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH);
     controller.click(box);
-    handleOccurrencePrompt(controller, eid("month-view"), "delete", true);
+    handleOccurrencePrompt(controller, eid("month-view"), "delete", true, false);
     controller.waitForElementNotPresent(box);
+
+    // reset view
+    switchToView(controller, "day");
+    controller.mainMenu.click("#ltnViewRotated");
+    controller.waitFor(() => eid("day-view").getNode().orient == "vertical");
 }
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
-    // Reset view.
-    switchToView(controller, "day");
-    if (eid("day-view").getNode().orient == "horizontal") {
-        controller.mainMenu.click("#ltnViewRotated");
-    }
-    controller.waitFor(() => eid("day-view").getNode().orient == "vertical");
 }

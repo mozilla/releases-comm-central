@@ -4,55 +4,56 @@
 
 var MODULE_NAME = "testLocalICS";
 var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var TIMEOUT_MODAL_DIALOG, CANVAS_BOX, EVENT_BOX;
-var helpersForController, invokeEventDialog, deleteCalendars, handleNewCalendarWizard;
-var setData;
 var plan_for_modal_dialog, wait_for_modal_dialog;
+var helpersForController, invokeEventDialog, switchToView, deleteCalendars;
+var handleNewCalendarWizard, setData;
+var CANVAS_BOX, EVENT_BOX, TIMEOUT_MODAL_DIALOG;
 
 const HOUR = 8;
 var calendarName, calendarTitle, calendarFile;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
-
+    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
+        collector.getModule("window-helpers"));
     ({
-        TIMEOUT_MODAL_DIALOG,
-        CANVAS_BOX,
-        EVENT_BOX,
         helpersForController,
         invokeEventDialog,
+        switchToView,
         deleteCalendars,
-        handleNewCalendarWizard
+        handleNewCalendarWizard,
+        setData,
+        CANVAS_BOX,
+        EVENT_BOX,
+        TIMEOUT_MODAL_DIALOG
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule(controller);
+    collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
 
-    ({ setData } = collector.getModule("item-editing-helpers"));
-    collector.getModule("item-editing-helpers").setupModule(module);
-
-    ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
-
-    // Unique name needed as deleting a calendar only unsubscribes from it and
+    // unique name needed as deleting a calendar only unsubscribes from it and
     // if same file were used on next testrun then previously created event
-    // would show up.
+    // would show up
     calendarName = calendarTitle = (new Date()).getTime() + "";
     calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     calendarFile.append(calendarName + ".ics");
 }
 
 function testLocalICS() {
+    controller.click(eid("calendar-tab-button"));
+    switchToView(controller, "day");
+
     plan_for_modal_dialog("Calendar:NewCalendarWizard", (wizard) => {
         handleNewCalendarWizard(wizard, calendarName, { network: { format: "ics" } });
     });
     controller.mainMenu.click("#ltnNewCalendar");
     wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
 
-    // Create new event.
-    let box = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
+    // create new event
+    let box = lookupEventBox("day", CANVAS_BOX, undefined, 1, HOUR);
     invokeEventDialog(controller, box, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
@@ -62,21 +63,20 @@ function testLocalICS() {
         event.click(eventid("button-saveandclose"));
     });
 
-    // Assert presence in view.
-    controller.waitForElement(lookupEventBox("day", EVENT_BOX, null, 1, null, `
-        /{"tooltip":"itemTooltip","calendar":"${calendarName.toLowerCase()}"}
-    `));
+    // assert presence in view
+    let eventPath = `/{"tooltip":"itemTooltip","calendar":"${calendarName}"}`;
+    controller.waitForElement(lookupEventBox("day", EVENT_BOX, null, 1, HOUR, eventPath));
 
-    // Verify in file.
+    // verify in file
     let fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
                             .createInstance(Components.interfaces.nsIFileInputStream);
     let cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
                             .createInstance(Components.interfaces.nsIConverterInputStream);
 
-    // Wait a moment until file is written.
+    // wait a moment until file is written
     controller.waitFor(() => calendarFile.exists());
 
-    // Read the calendar file and check for the summary.
+    // read the calendar file and check for the summary
     fstream.init(calendarFile, -1, 0, 0);
     cstream.init(fstream, "UTF-8", 0, 0);
 

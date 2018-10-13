@@ -2,76 +2,95 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testMonthView";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
+var MODULE_REQUIRES = ["calendar-utils"];
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
-var CALENDARNAME, EVENT_BOX, CANVAS_BOX, MONTH_VIEW, EVENTPATH;
-var helpersForController, switchToView, invokeEventDialog, getEventDetails, createCalendar;
-var deleteCalendars, goToDate, lookupEventBox;
-var helpersForEditUI, setData;
+var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
+var goToDate, setData, lookupEventBox;
+var CALENDARNAME, CANVAS_BOX, EVENT_BOX;
 
-const TITLE1 = "Month View Event";
-const TITLE2 = "Month View Event Changed";
-const DESC = "Month View Event Description";
+var TITLE1 = "Month View Event";
+var TITLE2 = "Month View Event Changed";
+var DESC = "Month View Event Description";
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
-        CALENDARNAME,
-        EVENT_BOX,
-        CANVAS_BOX,
-        MONTH_VIEW,
-        EVENTPATH,
         helpersForController,
-        switchToView,
         invokeEventDialog,
-        getEventDetails,
         createCalendar,
         deleteCalendars,
         goToDate,
-        lookupEventBox
+        setData,
+        lookupEventBox,
+        CALENDARNAME,
+        CANVAS_BOX,
+        EVENT_BOX
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule(controller);
+    collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
-
-    ({
-        helpersForEditUI,
-        setData
-    } = collector.getModule("item-editing-helpers"));
-    collector.getModule("item-editing-helpers").setupModule(module);
 
     createCalendar(controller, CALENDARNAME);
 }
 
 function testMonthView() {
     let dateFormatter = cal.getDateFormatter();
+    // paths
+    let monthView = `
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
+        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
+        id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/
+        id("month-view")
+    `;
 
-    switchToView(controller, "month");
+    controller.click(eid("calendar-tab-button"));
+    controller.waitThenClick(eid("calendar-month-view-button"));
+
     goToDate(controller, 2009, 1, 1);
 
-    // Verify date.
+    // verify date
     let day = lookup(`
-        ${MONTH_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/
+        ${monthView}/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/
         anon({"anonid":"monthgridrows"})/[0]/{"selected":"true"}
     `);
     controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
 
-    // Create event.
-    // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
-    let hour = new Date().getHours(); // Remember time at click.
+    // create event
+    // Thursday of 2009-01-01 should be the selected box in the first row with default settings
+    let hour = new Date().getHours(); // remember time at click
     let eventBox = lookupEventBox("month", CANVAS_BOX, 1, 5);
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
-        let { getDateTimePicker } = helpersForEditUI(iframe);
+        let { lookup: iframeLookup } = helpersForController(iframe);
 
-        let startTimeInput = getDateTimePicker("STARTTIME");
-        let startDateInput = getDateTimePicker("STARTDATE");
+        let innerFrame = '/id("calendar-event-dialog-inner")/id("event-grid")/id("event-grid-rows")/';
+        let dateInput = `
+            anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/
+            anon({"class":"menulist-editable-box textbox-input-box"})/
+            anon({"anonid":"input"})
+        `;
+        let timeInput = `
+            anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/
+            anon({"class":"timepicker-box-class"})/
+            anon({"class":"timepicker-text-class"})/anon({"flex":"1"})/
+            anon({"anonid":"input"})
+        `;
+        let startId = "event-starttime";
 
-        // Check that the start time is correct.
-        // Next full hour except last hour hour of the day.
+        let startTimeInput = iframeLookup(`
+            ${innerFrame}/id("event-grid-startdate-row")/
+            id("event-grid-startdate-picker-box")/id("${startId}")/${timeInput}
+        `);
+        let startDateInput = iframeLookup(`
+            ${innerFrame}/id("event-grid-startdate-row")/
+            id("event-grid-startdate-picker-box")/id("${startId}")/
+            anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/${dateInput}
+        `);
+
+        // check that the start time is correct
+        // next full hour except last hour hour of the day
         let nextHour = hour == 23 ? hour : (hour + 1) % 24;
         let someDate = cal.dtz.now();
         someDate.resetTo(2009, 0, 1, nextHour, 0, 0, cal.dtz.floating);
@@ -79,39 +98,48 @@ function testMonthView() {
         event.assertValue(startTimeInput, dateFormatter.formatTime(someDate));
         event.assertValue(startDateInput, dateFormatter.formatDateShort(someDate));
 
-        // Fill in title, description and calendar.
-        setData(event, iframe, {
-            title: TITLE1,
-            description: DESC,
-            calendar: CALENDARNAME
-        });
+        // fill in title, description and calendar
+        setData(event, iframe, { title: TITLE1, description: DESC, calendar: CALENDARNAME });
 
         // save
         event.click(eventid("button-saveandclose"));
     });
 
-    // If it was created successfully, it can be opened.
-    eventBox = lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH);
+    // if it was created successfully, it can be opened
+    eventBox = lookupEventBox(
+        "month", EVENT_BOX, 1, 5, null,
+        `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`
+    );
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
-        // Change title and save changes.
+        // change title and save changes
         setData(event, iframe, { title: TITLE2 });
         event.click(eventid("button-saveandclose"));
     });
 
-    // Check if name was saved.
-    let eventName = lookupEventBox("month", EVENT_BOX, 1, 5, null,
-        `${EVENTPATH}/${getEventDetails("month")}/anon({"flex":"1"})/anon({"anonid":"event-name"})`
+    // check if name was saved
+    let eventName = lookupEventBox(
+        "month", EVENT_BOX, 1, 5, null,
+        `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}/
+        anon({"flex":"1"})/[0]/anon({"anonid":"event-container"})/
+        {"class":"calendar-event-selection"}/anon({"anonid":"eventbox"})/
+        {"class":"calendar-event-details"}/{"flex":"1"}/anon({"anonid":"event-name"})`
     );
 
     controller.waitForElement(eventName);
     controller.assertValue(eventName, TITLE2);
 
-    // Delete event.
-    controller.click(eventBox);
+    // delete event
+    controller.click(lookupEventBox(
+        "month", EVENT_BOX, 1, 5, null,
+        `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`
+    ));
     controller.keypress(eid("month-view"), "VK_DELETE", {});
-    controller.waitForElementNotPresent(eventBox);
+    controller.waitForElementNotPresent(lookupEventBox(
+        "month", EVENT_BOX, 1, 5, null,
+        `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`
+    ));
 }
 
 function teardownTest(module) {

@@ -2,57 +2,59 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testTaskView";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
-var CALENDARNAME, CALENDAR_PANEL, TASK_VIEW;
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
 var setData;
+var CALENDARNAME;
 
-const TITLE = "Task";
-const DESCRIPTION = "1. Do A\n2. Do B";
-const PERCENTCOMPLETE = "50";
+var TITLE = "Task";
+var DESCRIPTION = "1. Do A\n2. Do B";
+var percentComplete = "50";
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
-        CALENDARNAME,
-        CALENDAR_PANEL,
-        TASK_VIEW,
         helpersForController,
         invokeEventDialog,
         createCalendar,
-        deleteCalendars
+        deleteCalendars,
+        setData,
+        CALENDARNAME
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule(controller);
+    collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
-
-    ({ setData } = collector.getModule("item-editing-helpers"));
-    collector.getModule("item-editing-helpers").setupModule(module);
 
     createCalendar(controller, CALENDARNAME);
 }
 
-// Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
-// checked.
+// mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
+// checked
 function testTaskView() {
     // paths
-    let treeChildren = `
-        ${TASK_VIEW}/[1]/id("calendar-task-tree")/anon({"anonid":"calendar-task-tree"})/
-        {"tooltip":"taskTreeTooltip"}
+    let taskView = `
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
+        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
+        id("calendarDisplayDeck")/id("calendar-task-box")/
     `;
-    let taskTree = TASK_VIEW + '[1]/id("calendar-task-tree")';
+    let treeChildren = `
+        ${taskView}/[1]/id("calendar-task-tree")/
+        anon({"anonid":"calendar-task-tree"})/{"tooltip":"taskTreeTooltip"}
+    `;
+    let taskTree = taskView + '[1]/id("calendar-task-tree")';
     let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("taskTreeTooltip")';
     let toolTipGrid = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/';
 
-    // Open task view.
+    // open task view
     controller.click(eid("task-tab-button"));
     sleep();
 
-    // Make sure that testing calendar is selected.
+    // make sure that testing calendar is selected
     let calendarTree = lookup(`
-        ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
+        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
+        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
+        id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
         id("calendar-listtree-pane")/id("calendar-list-tree-widget")
     `).getNode();
 
@@ -65,57 +67,55 @@ function testTaskView() {
     let taskTreeNode = lookup(taskTree).getNode();
     let countBefore = taskTreeNode.mTaskArray.length;
 
-    // Add task.
-    let taskInput= lookup(`
-        ${TASK_VIEW}/id("task-addition-box")/[0]/id("view-task-edit-field")/
+    // add task
+    controller.type(lookup(`
+        ${taskView}/id("task-addition-box")/[0]/id("view-task-edit-field")/
         anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-    `);
-    controller.type(taskInput, TITLE);
-    controller.keypress(taskInput, "VK_RETURN", {});
+    `), TITLE);
+    controller.keypress(lookup(`
+        ${taskView}/id("task-addition-box")/[0]/id("view-task-edit-field")/
+        anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
+    `), "VK_RETURN", {});
 
-    // Verify added.
+    // verify added
     let countAfter;
     controller.waitFor(() => {
         countAfter = taskTreeNode.mTaskArray.length;
         return countBefore + 1 == countAfter;
-    }, "Added Task did not appear");
+    });
 
-    // Last added task is automatically selected so verify detail window data.
+    // last added task is automatically selected so verify detail window data
     controller.assertJSProperty(eid("calendar-task-details-title"), "textContent", TITLE);
 
-    // Open added task
-    // Doubleclick on completion checkbox is ignored as opening action, so don't
-    // click at immediate left where the checkbox is located.
+    // open added task
+    // doubleclick on completion checkbox is ignored as opening action, so don't click at immediate
+    // left where the checkbox is located
     controller.doubleClick(lookup(treeChildren), 50, 0);
     invokeEventDialog(controller, null, (task, iframe) => {
         let { eid: taskid } = helpersForController(task);
         let { eid: iframeId } = helpersForController(iframe);
 
-        // Verify calendar.
+        // verify calendar
         controller.assertValue(iframeId("item-calendar"), CALENDARNAME);
 
-        setData(task, iframe, {
-            status: "needs-action",
-            percent: PERCENTCOMPLETE,
-            description: DESCRIPTION
-        });
+        setData(task, iframe, { status: "needs-action", percent: percentComplete, description: DESCRIPTION });
 
         // save
         task.click(taskid("button-saveandclose"));
     });
 
-    // Verify description and status in details pane.
+    // verify description and status in details pane
     controller.assertValue(lookup(`
-        ${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/
-        id("calendar-task-details-description")/anon({"anonid":"moz-input-box"})/
-        anon({"anonid":"input"})
+        ${taskView}/{"flex":"1"}/id("calendar-task-details-container")/
+        id("calendar-task-details-description")/
+        anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
     `), DESCRIPTION);
     controller.assertValue(eid("calendar-task-details-status"), "Needs Action");
 
     // This is a hack.
     taskTreeNode.getTaskAtRow(0).calendar.setProperty("capabilities.priority.supported", true);
 
-    // Set high priority and verify it in detail pane.
+    // set high priority and verify it in detail pane
     controller.click(eid("task-actions-priority"));
     sleep();
     controller.click(eid("priority-1-menuitem"));
@@ -123,7 +123,7 @@ function testTaskView() {
     let priorityNode = eid("calendar-task-details-priority-high");
     controller.assertNotDOMProperty(priorityNode, "hidden");
 
-    // Verify that tooltip shows status, priority and percent complete.
+    // verify that tooltip shows status, priority and percent complete
     let toolTipNode = lookup(toolTip).getNode();
     toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
 
@@ -137,16 +137,16 @@ function testTaskView() {
     controller.assertJSProperty(toolTipCalendar, "textContent", CALENDARNAME);
     controller.assertJSProperty(toolTipPriority, "textContent", "High");
     controller.assertJSProperty(toolTipStatus, "textContent", "Needs Action");
-    controller.assertJSProperty(toolTipComplete, "textContent", PERCENTCOMPLETE + "%");
+    controller.assertJSProperty(toolTipComplete, "textContent", percentComplete + "%");
 
-    // Mark completed, verify.
+    // mark completed, verify
     controller.click(eid("task-actions-markcompleted"));
     sleep();
 
     toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
     controller.assertJSProperty(toolTipStatus, "textContent", "Completed");
 
-    // Delete task and verify.
+    // delete task, verify
     controller.click(eid("task-context-menu-delete"));
     controller.click(eid("calendar-delete-task-button"));
     let countAfterDelete;

@@ -8,7 +8,7 @@
 
 var MODULE_NAME = "testAlarmDefaultValue";
 var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "content-tab-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "keyboard-helpers"];
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
@@ -26,10 +26,9 @@ function setupModule(module) {
         openLightningPrefs,
         menulistSelect
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule(controller);
-    Object.assign(module, helpersForController(controller));
-
+    collector.getModule("calendar-utils").setupModule();
     collector.getModule("content-tab-helpers").installInto(module);
+    Object.assign(module, helpersForController(controller));
 }
 
 function testDefaultAlarms() {
@@ -41,62 +40,68 @@ function testDefaultAlarms() {
     let expectedEventReminder = alarmString("reminderCustomTitle", [unitString, originStringEvent]);
     let expectedTaskReminder = alarmString("reminderCustomTitle", [unitString, originStringTask]);
 
-    let detailPath = `
-        //*[@id="reminder-details"]/*[local-name()="label" and (not(@hidden) or @hidden="false")]
-    `;
-
-    // Configure the lightning preferences.
+    // Configure the lightning preferences
     openLightningPrefs(handlePrefDialog, controller);
 
-    // Create New Event.
+    // Create New Event
     controller.click(eid("newMsgButton-calendar-menuitem"));
 
-    // Set up the event dialog controller.
+    // Set up the event dialog controller
     invokeEventDialog(controller, null, (event, iframe) => {
         let { xpath: eventpath, eid: eventid } = helpersForController(event);
 
-        // Check if the "custom" item was selected.
+        // Check if the "custom" item was selected
         event.assertDOMProperty(eventid("item-alarm"), "value", "custom");
-        let reminderDetailsVisible = eventpath(detailPath);
+        let reminderDetailsVisible = eventpath(`
+            //*[@id="reminder-details"]/
+            *[local-name()="label" and (not(@hidden) or @hidden="false")]
+        `);
         event.assertDOMProperty(reminderDetailsVisible, "value", expectedEventReminder);
 
-        // Close the event dialog.
+        // Close the event dialog
         event.window.close();
     });
 
-    // Create New Task.
+    // Create New Task
     controller.click(eid("newMsgButton-task-menuitem"));
     invokeEventDialog(controller, null, (task, iframe) => {
         let { xpath: taskpath, eid: taskid } = helpersForController(task);
 
-        // Check if the "custom" item was selected.
+        // Check if the "custom" item was selected
         task.assertDOMProperty(taskid("item-alarm"), "value", "custom");
-        let reminderDetailsVisible = taskpath(detailPath);
+        let reminderDetailsVisible = taskpath(`
+            //*[@id="reminder-details"]/
+            *[local-name()="label" and (not(@hidden) or @hidden="false")]
+        `);
         task.assertDOMProperty(reminderDetailsVisible, "value", expectedTaskReminder);
 
-        // Close the task dialog.
+        // Close the task dialog
         task.window.close();
     });
 }
 
 function handlePrefDialog(tab) {
-    // Click on the alarms tab.
+    // Click on the alarms tab
     content_tab_e(tab, "calPreferencesTabAlarms").click();
 
-    // Turn on alarms for events and tasks.
+    // Turn on alarms for events and tasks
     menulistSelect(content_tab_eid(tab, "eventdefalarm"), "1", controller);
     menulistSelect(content_tab_eid(tab, "tododefalarm"), "1", controller);
 
-    // Selects "days" as a unit.
+    // Selects "days" as a unit
     menulistSelect(content_tab_eid(tab, "tododefalarmunit"), "days", controller);
     menulistSelect(content_tab_eid(tab, "eventdefalarmunit"), "days", controller);
 
-    // Sets default alarm length for events to DEFVALUE.
+    // Sets default alarm length for events to DEFVALUE
     let eventdefalarmlen = content_tab_eid(tab, "eventdefalarmlen");
-    replaceText(eventdefalarmlen, DEFVALUE.toString());
+    controller.click(eventdefalarmlen);
+    controller.keypress(eventdefalarmlen, "a", { accelKey: true });
+    controller.type(eventdefalarmlen, DEFVALUE.toString());
 
     let tododefalarmlen = content_tab_eid(tab, "tododefalarmlen");
-    replaceText(tododefalarmlen, DEFVALUE.toString());
+    controller.click(tododefalarmlen);
+    controller.keypress(tododefalarmlen, "a", { accelKey: true });
+    controller.type(tododefalarmlen, DEFVALUE.toString());
 }
 
 function teardownTest(module) {

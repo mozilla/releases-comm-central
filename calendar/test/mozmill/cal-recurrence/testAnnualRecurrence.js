@@ -28,16 +28,20 @@ function setupModule(module) {
         createCalendar,
         menulistSelect
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule(controller);
+    collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
 
     createCalendar(controller, CALENDARNAME);
 }
 
 function testAnnualRecurrence() {
+    controller.click(eid("calendar-tab-button"));
+    sleep();
+
+    switchToView(controller, "day");
     goToDate(controller, STARTYEAR, 1, 1);
 
-    // Create yearly recurring all-day event.
+    // create yearly recurring all-day event
     let eventBox = lookupEventBox("day", ALLDAY, null, 1, null);
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
@@ -54,27 +58,35 @@ function testAnnualRecurrence() {
 
         // day view
         switchToView(controller, "day");
-        controller.waitForElement(lookupEventBox("day", ALLDAY, null, 1, null, EVENTPATH));
+        controller.waitForElement(
+            lookupEventBox("day", ALLDAY, null, 1, null, EVENTPATH)
+        );
 
         // week view
         switchToView(controller, "week");
-        controller.waitForElement(lookupEventBox("week", ALLDAY, null, column, null, EVENTPATH));
+        controller.waitForElement(
+            lookupEventBox("week", ALLDAY, null, column, null, EVENTPATH)
+        );
 
         // multiweek view
         switchToView(controller, "multiweek");
-        controller.waitForElement(lookupEventBox("multiweek", ALLDAY, 1, column, null, EVENTPATH));
+        controller.waitForElement(
+            lookupEventBox("multiweek", ALLDAY, 1, column, null, EVENTPATH)
+        );
 
         // month view
         switchToView(controller, "month");
-        controller.waitForElement(lookupEventBox("month", ALLDAY, 1, column, null, EVENTPATH));
+        controller.waitForElement(
+            lookupEventBox("month", ALLDAY, 1, column, null, EVENTPATH)
+        );
     }
 
-    // Delete event.
+    // delete event
     goToDate(controller, checkYears[0], 1, 1);
     switchToView(controller, "day");
     let box = getEventBoxPath("day", ALLDAY, null, 1, null) + EVENTPATH;
     controller.click(lookup(box));
-    handleOccurrencePrompt(controller, eid("day-view"), "delete", true);
+    handleOccurrencePrompt(controller, eid("day-view"), "delete", true, false);
     controller.waitForElementNotPresent(lookup(box));
 }
 

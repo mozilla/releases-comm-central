@@ -4,14 +4,14 @@
 
 var MODULE_NAME = "testWeeklyNRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
+var REC_DLG_ACCEPT, REC_DLG_DAYS;
 var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
 var invokeEventDialog, viewForward, deleteCalendars, createCalendar, menulistSelect;
-var REC_DLG_ACCEPT, REC_DLG_DAYS;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 
 const HOUR = 8;
@@ -24,6 +24,8 @@ function setupModule(module) {
         EVENTPATH,
         EVENT_BOX,
         CANVAS_BOX,
+        REC_DLG_ACCEPT,
+        REC_DLG_DAYS,
         helpersForController,
         handleOccurrencePrompt,
         switchToView,
@@ -34,14 +36,8 @@ function setupModule(module) {
         createCalendar,
         menulistSelect
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule(controller);
+    collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
-
-    ({
-        REC_DLG_ACCEPT,
-        REC_DLG_DAYS
-    } = collector.getModule("item-editing-helpers"));
-    collector.getModule("item-editing-helpers").setupModule(module);
 
     ({ plan_for_modal_dialog, wait_for_modal_dialog } =
         collector.getModule("window-helpers")
@@ -51,9 +47,11 @@ function setupModule(module) {
 }
 
 function testWeeklyNRecurrence() {
+    controller.click(eid("calendar-tab-button"));
+    switchToView(controller, "day");
     goToDate(controller, 2009, 1, 5);
 
-    // Create weekly recurring event.
+    // create weekly recurring event
     let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
@@ -66,49 +64,59 @@ function testWeeklyNRecurrence() {
         event.click(eventid("button-saveandclose"));
     });
 
-    // Check day view.
-    let box = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+    // check day view
+    let box = getEventBoxPath("day", EVENT_BOX, undefined, 1, HOUR) + EVENTPATH;
     // Monday, Tuesday, Wednesday, Thursday
     for (let i = 0; i < 4; i++) {
-        controller.waitForElement(box);
+        controller.waitForElement(lookup(box));
         viewForward(controller, 1);
     }
 
-    // Not Friday.
-    controller.waitForElementNotPresent(box);
+    // Not Friday
+    sleep();
+    controller.assertNodeNotExist(lookup(box));
     viewForward(controller, 1);
 
     // Not Saturday as only 4 occurrences are set.
-    controller.waitForElementNotPresent(box);
+    sleep();
+    controller.assertNodeNotExist(lookup(box));
 
-    // Check week view.
+    // check week view
     switchToView(controller, "week");
 
     // Monday, Tuesday, Wednesday, Thursday
     for (let i = 2; i < 6; i++) {
-        controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, i, null, EVENTPATH));
+        controller.waitForElement(
+            lookupEventBox("week", EVENT_BOX, null, i, HOUR, EVENTPATH)
+        );
     }
 
     // Saturday
-    controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH));
+    controller.assertNodeNotExist(
+        lookupEventBox("week", EVENT_BOX, null, 7, HOUR, EVENTPATH)
+    );
 
-    // Check multiweek view.
+    // check multiweek view
     switchToView(controller, "multiweek");
     checkMultiWeekView("multiweek");
 
-    // Check month view.
+    // check month view
     switchToView(controller, "month");
     checkMultiWeekView("month");
 
-    // Delete event.
-    box = lookupEventBox("month", EVENT_BOX, 2, 2, null, EVENTPATH);
-    controller.click(box);
-    handleOccurrencePrompt(controller, eid("month-view"), "delete", true);
-    controller.waitForElementNotPresent(box);
+    // delete event
+    box = getEventBoxPath("month", EVENT_BOX, 2, 2, HOUR) + EVENTPATH;
+    controller.click(lookup(box));
+    handleOccurrencePrompt(controller, eid("month-view"), "delete", true, false);
+    controller.waitForElementNotPresent(lookup(box));
 }
 
 function setRecurrence(recurrence) {
-    let { sleep: recsleep, lookup: reclookup, eid: recid } = helpersForController(recurrence);
+    let {
+        sleep: recsleep,
+        lookup: reclookup,
+        eid: recid,
+    } = helpersForController(recurrence);
 
     // weekly
     recurrence.waitForElement(recid("period-list"));
@@ -121,37 +129,44 @@ function setRecurrence(recurrence) {
     let thu = cal.l10n.getDateFmtString("day.5.Mmm");
     let sat = cal.l10n.getDateFmtString("day.7.Mmm");
 
-    // Starting from Monday so it should be checked. We have to wait a little,
+    // starting from Monday so it should be checked. We have to wait a little,
     // because the checkedstate is set in background by JS.
     recurrence.waitFor(() => {
         return recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`));
     }, 30000);
-    // Check Tuesday, Wednesday, Thursday and Saturday too.
+    // check Tuesday, Wednesday, Thursday and Saturday too
     recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${tue}"}`));
     recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`));
     recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${thu}"}`));
     recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${sat}"}`));
 
-    // Set number of recurrences.
+    // set number of occurrences
     recurrence.click(recid("recurrence-range-for"));
     let ntimesField = recid("repeat-ntimes-count");
     ntimesField.getNode().value = "4";
 
-    // Close dialog.
+    // close dialog
     recurrence.click(reclookup(REC_DLG_ACCEPT));
 }
 
 function checkMultiWeekView(view) {
-    // In month view event starts from 2nd row.
+    // make sure, the view has time to load
+    sleep();
+
+    // In month view event starts from 2nd row
     let week = view == "month" ? 2 : 1;
 
     // Monday, Tuesday, Wednesday, Thursday
     for (let i = 2; i < 6; i++) {
-        controller.assertNode(lookupEventBox(view, EVENT_BOX, week, i, null, EVENTPATH));
+        controller.assertNode(
+            lookupEventBox(view, EVENT_BOX, week, i, null, EVENTPATH)
+        );
     }
 
     // Saturday
-    controller.assertNodeNotExist(lookupEventBox(view, EVENT_BOX, week, 7, null, EVENTPATH));
+    controller.assertNodeNotExist(
+        getEventBoxPath(view, EVENT_BOX, week, 7, null, EVENTPATH)
+    );
 }
 
 function teardownTest(module) {
