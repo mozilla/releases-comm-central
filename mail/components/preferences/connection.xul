@@ -15,7 +15,7 @@
             title="&connectionsDialog.title;"
             dlgbuttons="accept,cancel"
             onbeforeaccept="return gConnectionsDialog.beforeAccept();"
-            onload="gConnectionsDialog.checkForSystemProxy();"
+            onload="gConnectionsDialog.checkForSystemProxy(); gConnectionsDialog.initDnsOverHttpsUI();"
 #ifdef XP_MACOSX
             style="width: &window.macWidth; !important;">
 #else
@@ -176,7 +176,6 @@
       <textbox id="networkDnsOverHttpsUrl"
                flex="1"
                preference="network.trr.uri"
-               placeholder="https://doh.example.com/dns-query"
                onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsUri()"/>
     </hbox>
     <separator/>

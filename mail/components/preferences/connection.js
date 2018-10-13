@@ -191,4 +191,9 @@ var gConnectionsDialog = {
     // turn an empty string into `undefined` to clear the pref back to the default
     return uriString.length ? uriString : undefined;
   },
+
+  initDnsOverHttpsUI() {
+    let input = document.getElementById("networkDnsOverHttpsUrl");
+    input.placeholder = document.getElementById("network.trr.uri").defaultValue;
+  },
 };
