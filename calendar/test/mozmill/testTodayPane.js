@@ -4,160 +4,102 @@
 
 var MODULE_NAME = "testTodayPane";
 var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
 
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
-var CALENDARNAME;
+var CALENDARNAME, CANVAS_BOX, DAY_VIEW, LABELDAYBOX, TODAY_BUTTON, TODAY_PANE, AGENDA_LISTBOX;
+var helpersForController, invokeEventDialog, viewForward, createCalendar;
+var deleteCalendars;
+var setData;
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
+        CALENDARNAME,
+        CANVAS_BOX,
+        DAY_VIEW,
+        LABELDAYBOX,
+        TODAY_BUTTON,
+        TODAY_PANE,
+        AGENDA_LISTBOX,
         helpersForController,
         invokeEventDialog,
+        viewForward,
         createCalendar,
-        deleteCalendars,
-        CALENDARNAME
+        deleteCalendars
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule();
+    collector.getModule("calendar-utils").setupModule(controller);
     Object.assign(module, helpersForController(controller));
+
+    ({ setData } = collector.getModule("item-editing-helpers"));
+    collector.getModule("item-editing-helpers").setupModule(module);
 
     createCalendar(controller, CALENDARNAME);
 }
 
 function testTodayPane() {
-    // paths
-    let panels = `
-        /id("messengerWindow")/id("tabmail-container")/
-        id("tabmail")/id("tabmail-tabbox")/id("tabpanelcontainer")
-    `;
-    let miniMonth = `
-        ${panels}/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/
-        id("minimonth-pane")
-    `;
-    let dayView = `
-        ${panels}/id("calendarTabPanel")/id("calendarContent")/
-        id("calendarDisplayDeck")/id("calendar-view-box")/
-        id("view-deck")/id("day-view")
-    `;
-    let dayPath = `
-        ${dayView}/anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/
-        anon({"anonid":"labeldaybox"})/{"flex":"1"}
-    `;
-    let eventName = `
-        id("calendar-event-dialog-inner")/id("event-grid")/
-        id("event-grid-rows")/id("event-grid-title-row")/id("item-title")/
-        anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
-    `;
+    let createEvent = (hour, name) => {
+        let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, hour);
+        invokeEventDialog(controller, eventBox, (event, iframe) => {
+            let { eid: eventid } = helpersForController(event);
 
-    // open calendar view
-    controller.click(eid("calendar-tab-button"));
-    controller.waitThenClick(eid("calendar-day-view-button"));
+            setData(event, iframe, { title: name });
+            event.click(eventid("button-saveandclose"));
+        });
+    };
 
-    // go to today and verify date
-    controller.waitThenClick(lookup(`
-        ${miniMonth}/{"align":"center"}/id("calMinimonthBox")/id("calMinimonth")/
-        anon({"anonid":"minimonth-header"})/anon({"anonid":"today-button"})
-    `));
+    // Go to today and verify date.
+    let dayPath = `${DAY_VIEW}/${LABELDAYBOX}/{"flex":"1"}`;
+    controller.waitThenClick(lookup(TODAY_BUTTON));
     controller.assertJS(lookup(dayPath).getNode().mDate.icalString == getIsoDate());
 
     // Create event 6 hours from now, if this is tomorrow then at 23 today.
     // Doubleclick only triggers new event dialog on visible boxes, so scrolling
     // may be needed by default visible time is 08:00 - 17:00, box of 17th hour
-    // is out of view
+    // is out of view.
     let hour = (new Date()).getHours();
     let startHour = (hour < 18 ? hour + 6 : 23);
-    let view = lookup(dayView).getNode();
+    let view = lookup(DAY_VIEW).getNode();
 
     if (startHour < 8 || startHour > 16) {
         view.scrollToMinute(60 * startHour);
     }
 
-    invokeEventDialog(controller, lookup(`
-        ${dayView}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-        anon({"anonid":"daybox"})/{"class":"calendar-event-column-even"}/
-        anon({"anonid":"boxstack"})/anon({"anonid":"bgbox"})/[${startHour}]
-    `), (event, iframe) => {
-        let { lookup: iframelookup } = helpersForController(iframe);
-        let { eid: eventid } = helpersForController(event);
+    createEvent(startHour, "Today's Event");
 
-        let eventNameElement = iframelookup(eventName);
-        event.waitForElement(eventNameElement);
-        event.type(eventNameElement, "Today's Event");
-        event.click(eventid("button-saveandclose"));
-    });
-
-    // reset view
+    // Reset view.
     view.scrollToMinute(60 * 8);
 
-    // go to tomorrow and add an event
-    controller.click(eid("next-view-button"));
-    invokeEventDialog(controller, lookup(`
-        ${dayView}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-        anon({"anonid":"daybox"})/{"class":"calendar-event-column-even"}/
-        anon({"anonid":"boxstack"})/anon({"anonid":"bgbox"})/[9]
-    `), (event, iframe) => {
-        let { lookup: iframelookup } = helpersForController(iframe);
-        let { eid: eventid } = helpersForController(event);
+    // Go to tomorrow and add an event.
+    viewForward(controller, 1);
+    createEvent(9, "Tomorrow's Event");
 
-        let eventNameElement = iframelookup(eventName);
-        event.waitForElement(eventNameElement);
-        event.type(eventNameElement, "Tomorrow's Event");
-        event.click(eventid("button-saveandclose"));
-    });
+    // Go 5 days forward and add an event.
+    viewForward(controller, 5);
+    createEvent(9, "Future Event");
 
-    // go 5 days forward and add an event
-    for (let i = 0; i < 5; i++) {
-        controller.click(eid("next-view-button"));
-    }
-    sleep();
-
-    invokeEventDialog(controller, lookup(`
-        ${dayView}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-        anon({"anonid":"daybox"})/{"class":"calendar-event-column-even"}/
-        anon({"anonid":"boxstack"})/anon({"anonid":"bgbox"})/[9]
-    `), (event, iframe) => {
-        let { lookup: iframelookup } = helpersForController(iframe);
-        let { eid: eventid } = helpersForController(event);
-
-        let eventNameElement = iframelookup(eventName);
-        event.waitForElement(eventNameElement);
-        event.type(eventNameElement, "Future's Event");
-        event.click(eventid("button-saveandclose"));
-    });
-
-    // go to mail tab
+    // Go to mail tab.
     controller.click(lookup(`
-        /id("messengerWindow")/id("navigation-toolbox")/id("tabs-toolbar")/
-        id("tabmail-tabs")/[0]/
-        anon({"class":"tab-stack"})/{"class":"tab-background"}/
-        {"class":"tab-line"}
+        /id("messengerWindow")/id("navigation-toolbox")/id("tabs-toolbar")/id("tabmail-tabs")/[0]
     `));
     sleep();
 
-    // verify today pane open
-    controller.assertNotDOMProperty(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")
-    `), "collapsed");
+    // Verify today pane open.
+    controller.assertNotDOMProperty(lookup(TODAY_PANE), "collapsed");
 
-    // verify today pane's date
+    // Verify today pane's date.
     controller.assertValue(eid("datevalue-label"), (new Date()).getDate());
 
-    // tomorrow and soon are collapsed by default
-    controller.click(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/[3]/id("agenda-listbox")/id("tomorrow-header")/
+    let expandArrow = `
         anon({"anonid":"agenda-checkbox-widget"})/anon({"class":"checkbox-check"})
-    `));
-    controller.click(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/[3]/id("agenda-listbox")/id("nextweek-header")/
-        anon({"anonid":"agenda-checkbox-widget"})/anon({"class":"checkbox-check"})
-    `));
+    `;
+    // Tomorrow and soon are collapsed by default.
+    controller.click(lookup(`${AGENDA_LISTBOX}/id("tomorrow-header")/${expandArrow}`));
+    controller.click(lookup(`${AGENDA_LISTBOX}/id("nextweek-header")/${expandArrow}`));
     sleep();
 
-    // verify events shown in today pane
+    // Verify events shown in today pane.
     let now = new Date();
     now.setHours(startHour);
     now.setMinutes(0);
@@ -165,112 +107,69 @@ function testTodayPane() {
     let probeDate = cal.dtz.jsDateToDateTime(now, dtz);
     let dateFormatter = cal.getDateFormatter();
     let startTime = dateFormatter.formatTime(probeDate);
-    controller.assertText(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[2]/
-        anon({"anonid":"agenda-container-box"})/
-        anon({"anonid":"agenda-description"})/[0]/
-        anon({"anonid":"agenda-event-start"})/
-    `), startTime + " Today's Event");
+
+    let eventStart = `
+        anon({"anonid":"agenda-container-box"})/anon({"anonid":"agenda-description"})/[0]/
+        anon({"anonid":"agenda-event-start"})
+    `;
+    controller.assertText(lookup(
+        `${AGENDA_LISTBOX}/[2]/${eventStart}`), startTime + " Today's Event"
+    );
 
     let tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 9, 0);
     probeDate = cal.dtz.jsDateToDateTime(tomorrow, dtz);
     startTime = dateFormatter.formatTime(probeDate);
-    controller.assertText(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[4]/
-        anon({"anonid":"agenda-container-box"})/
-        anon({"anonid":"agenda-description"})/[0]/
-        anon({"anonid":"agenda-event-start"})/
-    `), startTime + " Tomorrow's Event");
+    controller.assertText(lookup(
+        `${AGENDA_LISTBOX}/[4]/${eventStart}`), startTime + " Tomorrow's Event"
+    );
 
     let future = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 6, 9, 0);
     probeDate = cal.dtz.jsDateToDateTime(future, dtz);
     startTime = dateFormatter.formatDateTime(probeDate);
 
-    // Future event's start time
+    // Future event's start time.
+    controller.assertText(lookup(`${AGENDA_LISTBOX}/[6]/${eventStart}`), startTime);
+
+    // Future event's title.
     controller.assertText(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/
-        {"flex":"1"}/id("agenda-listbox")/[6]/anon({"anonid":"agenda-container-box"})/
-        anon({"anonid":"agenda-description"})/[0]/anon({"anonid":"agenda-event-start"})
-     `), startTime);
+        ${AGENDA_LISTBOX}/[6]/anon({"anonid":"agenda-container-box"})/
+        anon({"anonid":"agenda-description"})/anon({"anonid":"agenda-event-title"})
+    `), "Future Event");
 
-    // Future event's title
-    controller.assertText(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/[1]/
-        id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[6]/
-        anon({"anonid":"agenda-container-box"})/
-        anon({"anonid":"agenda-description"})/
-        anon({"anonid":"agenda-event-title"})
-    `), "Future's Event");
-
-    // delete events
-    controller.click(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[2]
-    `));
+    // Delete events.
+    controller.click(lookup(`${AGENDA_LISTBOX}/[2]`));
 
     controller.keypress(eid("agenda-listbox"), "VK_DELETE", {});
-    controller.waitForElementNotPresent(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[6]
-    `));
+    controller.waitForElementNotPresent(lookup(`${AGENDA_LISTBOX}/[6]`));
 
-    controller.click(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[3]
-    `));
+    controller.click(lookup(`${AGENDA_LISTBOX}/[3]`));
     controller.keypress(eid("agenda-listbox"), "VK_DELETE", {});
-    controller.waitForElementNotPresent(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[5]
-    `));
+    controller.waitForElementNotPresent(lookup(`${AGENDA_LISTBOX}/[5]`));
 
-    controller.click(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[4]
-    `));
+    controller.click(lookup(`${AGENDA_LISTBOX}/[4]`));
     controller.keypress(eid("agenda-listbox"), "VK_DELETE", {});
-    controller.waitForElementNotPresent(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[4]
-    `));
+    controller.waitForElementNotPresent(lookup(`${AGENDA_LISTBOX}/[4]`));
 
-    // hide and verify today pane hidden
+    // Hide and verify today pane hidden.
     controller.click(eid("calendar-status-todaypane-button"));
     controller.assertNode(lookup(`
         /id("messengerWindow")/id("tabmail-container")/{"collapsed":"true"}
     `));
 
-    // reset today pane
+    // Reset today pane.
     controller.click(eid("calendar-status-todaypane-button"));
-    controller.assertNotDOMProperty(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")
-    `), "collapsed");
-    controller.click(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/[3]/id("agenda-listbox")/id("tomorrow-header")/
-        anon({"anonid":"agenda-checkbox-widget"})/anon({"class":"checkbox-check"})
-    `));
-    controller.click(lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/[3]/id("agenda-listbox")/id("nextweek-header")/
-        anon({"anonid":"agenda-checkbox-widget"})/anon({"class":"checkbox-check"})
-    `));
+    controller.assertNotDOMProperty(lookup(TODAY_PANE), "collapsed");
+    controller.click(lookup(`${AGENDA_LISTBOX}/id("tomorrow-header")/${expandArrow}`));
+    controller.click(lookup(`${AGENDA_LISTBOX}/id("nextweek-header")/${expandArrow}`));
     sleep();
 
-    // verify tomorrow and soon collapsed
+    // Verify tomorrow and soon collapsed.
     tomorrow = lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[1]/
-        anon({"class":"agenda-checkbox treenode-checkbox"})
+        ${AGENDA_LISTBOX}/[1]/anon({"class":"agenda-checkbox treenode-checkbox"})
     `).getNode();
 
     let soon = lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
-        [1]/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")/[2]/
-        anon({"class":"agenda-checkbox treenode-checkbox"})
+        ${AGENDA_LISTBOX}/[2]/anon({"class":"agenda-checkbox treenode-checkbox"})
     `).getNode();
 
     // TODO This is failing, which might actually be an error in our code!

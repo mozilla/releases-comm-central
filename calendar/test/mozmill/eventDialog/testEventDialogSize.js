@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var MODULE_NAME = "testEventDialogSize";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
@@ -10,6 +11,7 @@ var CALENDARNAME;
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+const SMALL_TOLERANCE = 5;
 const LARGE_TOLERANCE = 10;
 
 function setupModule(module) {
@@ -21,7 +23,7 @@ function setupModule(module) {
         deleteCalendars,
         CALENDARNAME,
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule();
+    collector.getModule("calendar-utils").setupModule(controller);
     Object.assign(module, helpersForController(controller));
 
     createCalendar(controller, CALENDARNAME);
@@ -136,8 +138,8 @@ function checkLargeEnough(outer, inner) {
     let iframeNode = outerId("lightning-item-panel-iframe").getNode();
     let { scrollWidth, scrollHeight } = inner.window.document.documentElement;
     outer.waitFor(() => {
-        return (iframeNode.clientWidth + 1 >= scrollWidth) &&
-            (iframeNode.clientHeight + 1 >= scrollHeight);
+        return (iframeNode.clientWidth + SMALL_TOLERANCE >= scrollWidth) &&
+            (iframeNode.clientHeight + SMALL_TOLERANCE >= scrollHeight);
     });
     dump(`Dialog is ${outer.window.outerWidth} by ${outer.window.outerHeight}\n`);
 }

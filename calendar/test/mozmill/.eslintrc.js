@@ -19,6 +19,8 @@ module.exports = {
         sleep: true,
         getEventBoxPath: true,
         lookupEventBox: true,
+        iframeLookup: true,
+        getDateTimePicker: true,
     },
     rules: {
         // Allow mozmill test methods to be used without warning
