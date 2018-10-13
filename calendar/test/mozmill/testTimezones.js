@@ -4,10 +4,12 @@
 
 var MODULE_NAME = "testTimezones";
 var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
 
-var helpersForController, invokeEventDialog, switchToView, goToDate, setData;
-var findEventsInNode, viewForward, viewBack, CANVAS_BOX, TIMEOUT_MODAL_DIALOG;
+var TIMEOUT_MODAL_DIALOG, CANVAS_BOX, DAY_VIEW;
+var helpersForController, invokeEventDialog, switchToView, goToDate;
+var findEventsInNode, viewForward, viewBack;
+var setData;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 
 var DATES = [
@@ -25,21 +27,25 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
+        TIMEOUT_MODAL_DIALOG,
+        CANVAS_BOX,
+        DAY_VIEW,
         helpersForController,
         invokeEventDialog,
         switchToView,
         goToDate,
-        setData,
         findEventsInNode,
         viewForward,
-        viewBack,
-        CANVAS_BOX,
-        TIMEOUT_MODAL_DIALOG
+        viewBack
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule();
+    collector.getModule("calendar-utils").setupModule(controller);
     Object.assign(module, helpersForController(controller));
 
-    ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
+    ({ setData } = collector.getModule("item-editing-helpers"));
+    collector.getModule("item-editing-helpers").setupModule(module);
+
+    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
+        collector.getModule("window-helpers"));
 }
 
 function testTimezones1_SetGMT() {
@@ -47,11 +53,9 @@ function testTimezones1_SetGMT() {
 }
 
 function testTimezones2_CreateEvents() {
-    controller.click(eid("calendar-tab-button"));
-    switchToView(controller, "day");
     goToDate(controller, 2009, 1, 1);
 
-    // create weekly recurring events in all TIMEZONES
+    // Create weekly recurring events in all TIMEZONES.
     let times = [[4, 30], [5, 0], [3, 0], [3, 0], [9, 0], [14, 0], [19, 45], [1, 30]];
     let time = new Date();
     for (let i = 0; i < TIMEZONES.length; i++) {
@@ -60,10 +64,10 @@ function testTimezones2_CreateEvents() {
             time.setHours(times[i][0]);
             time.setMinutes(times[i][1]);
 
-            // set timezone
+            // Set timezone.
             setTimezone(event, TIMEZONES[i]);
 
-            // set title and repeat
+            // Set title and repeat.
             setData(event, iframe, { title: TIMEZONES[i], repeat: "weekly", starttime: time });
 
             // save
@@ -271,19 +275,13 @@ function verify(controller, dates, timezones, times) {
 
     let { lookup } = helpersForController(controller);
 
-    let dayView = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
-        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
-        id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/
-        id("day-view")
-    `;
     let dayStack = `
-        ${dayView}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
+        ${DAY_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
         anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/
         anon({"anonid":"topbox"})/{"flex":"1"}
     `;
     let timeLine = `
-        ${dayView}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
+        ${DAY_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
         anon({"anonid":"timebar"})/anon({"anonid":"topbox"})
     `;
     let allowedDifference = 3;
@@ -298,7 +296,7 @@ function verify(controller, dates, timezones, times) {
     for (let [selectedYear, selectedMonth, selectedDay, selectedTime] of datetimes()) {
         goToDate(controller, selectedYear, selectedMonth, selectedDay);
 
-        // find event with timezone tz
+        // Find event with timezone tz.
         for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
             let [correctHour, minutes, day] = selectedTime[tzIdx];
 

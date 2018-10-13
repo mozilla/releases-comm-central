@@ -2,77 +2,71 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var MODULE_NAME = "testEventDialog";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
+var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX;
+var helpersForController, handleOccurrencePrompt, goToDate, lookupEventBox;
+var invokeEventDialog, checkAlarmIcon, deleteCalendars, createCalendar;
+var EVENT_TABPANELS, ATTENDEES_ROW;
+var helpersForEditUI, setData;
 var plan_for_modal_dialog, wait_for_modal_dialog;
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
-var handleAddingAttachment, handleOccurrencePrompt;
-var goToDate, setData, lookupEventBox;
-var CALENDARNAME, TIMEOUT_MODAL_DIALOG;
 
-var eventTitle = "Event";
-var eventLocation = "Location";
-var eventDescription = "Event Description";
-var eventAttendee = "foo@bar.com";
-var eventUrl = "http://mozilla.org";
+const EVENTTITLE = "Event";
+const EVENTLOCATION = "Location";
+const EVENTDESCRIPTION = "Event Description";
+const EVENTATTENDEE = "foo@bar.com";
+const EVENTURL = "http://mozilla.org/";
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({ plan_for_modal_dialog, wait_for_modal_dialog } =
         collector.getModule("window-helpers"));
     ({
+        TIMEOUT_MODAL_DIALOG,
+        CALENDARNAME,
+        EVENTPATH,
+        EVENT_BOX,
         helpersForController,
-        invokeEventDialog,
-        createCalendar,
-        deleteCalendars,
-        handleAddingAttachment,
         handleOccurrencePrompt,
         goToDate,
-        setData,
         lookupEventBox,
-        CALENDARNAME,
-        TIMEOUT_MODAL_DIALOG
+        invokeEventDialog,
+        checkAlarmIcon,
+        deleteCalendars,
+        createCalendar
     } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule();
+    collector.getModule("calendar-utils").setupModule(controller);
     Object.assign(module, helpersForController(controller));
+
+    ({
+        EVENT_TABPANELS,
+        ATTENDEES_ROW,
+        helpersForEditUI,
+        setData
+    } = collector.getModule("item-editing-helpers"));
+    collector.getModule("item-editing-helpers").setupModule(module);
 
     createCalendar(controller, CALENDARNAME);
 }
 
 function testEventDialog() {
     let dateFormatter = cal.getDateFormatter();
-    // paths
-    let monthView = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
-        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
-        id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/
-        id("month-view")
-    `;
-    let eventDialog = `
-        /id("calendar-event-dialog-inner")/id("event-grid")/id("event-grid-rows")/
-    `;
 
-    let eventBox = `
-        ${monthView}/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/
-        anon({"anonid":"monthgridrows"})/[rowNumber]/[columnNumber]/
-        {"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}/
-        anon({"flex":"1"})/[0]/anon({"anonid":"event-container"})/
-        {"class":"calendar-event-selection"}/anon({"anonid":"eventbox"})/
-        {"class":"calendar-event-details"}
-    `;
-
-    // open month view
-    controller.click(eid("calendar-tab-button"));
+    // Open month view.
     controller.waitThenClick(eid("calendar-month-view-button"));
 
     goToDate(controller, 2009, 1, 1);
-    sleep();
 
-    // create new event
+    // Create new event.
+    controller.mainMenu.click("#ltnNewEvent");
+
+    // Check that the start time is correct -
+    // next full hour except last hour of the day.
     let now = new Date();
     let hour = now.getHours();
     let startHour = hour == 23 ? hour : (hour + 1) % 24;
@@ -83,74 +77,61 @@ function testEventDialog() {
     nextHour.resetTo(2009, 0, 1, (startHour + 1) % 24, 0, 0, cal.dtz.floating);
     let endTime = dateFormatter.formatTime(nextHour);
 
-    controller.mainMenu.click("#ltnNewEvent");
     invokeEventDialog(controller, null, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
-        let { lookup: iframeLookup, eid: iframeId } = helpersForController(iframe);
+        let { eid: iframeId } = helpersForController(iframe);
+        let { iframeLookup, getDateTimePicker } = helpersForEditUI(iframe);
 
-        let timeInput = `
-            anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/
-            anon({"class":"timepicker-box-class"})/
-            anon({"class":"timepicker-text-class"})/anon({"flex":"1"})/
-            anon({"anonid":"input"})
-        `;
-        let startTimeInput = iframeLookup(`
-            /id("calendar-event-dialog-inner")/id("event-grid")/id("event-grid-rows")/
-            id("event-grid-startdate-row")/
-            id("event-grid-startdate-picker-box")/id("event-starttime")/${timeInput}
-        `);
+        // First check all standard-values are set correctly.
+        let startTimeInput = getDateTimePicker("STARTTIME");
 
         event.waitForElement(startTimeInput);
         event.assertValue(startTimeInput, startTime);
 
-        // check selected calendar
+        // Check selected calendar.
         event.assertValue(iframeId("item-calendar"), CALENDARNAME);
 
-        // fill in name, location, description
+        // Check standard title.
+        let defTitle = cal.calGetString("calendar", "newEvent");
+        event.assertValue(eventid("item-title"), defTitle);
+
+        // Prepare category.
+        let categories = cal.calGetString("categories", "categories2");
+        // Pick 4th value in a comma-separated list.
+        let category = categories.split(",")[4];
+
+        // Fill in the rest of the values.
         setData(event, iframe, {
-            title: eventTitle,
-            location: eventLocation,
-            description: eventDescription,
-            category: "Clients",
-            repeat: "daily"
+            title: EVENTTITLE,
+            location: EVENTLOCATION,
+            description: EVENTDESCRIPTION,
+            categories: [category],
+            repeat: "daily",
+            reminder: "5minutes",
+            privacy: "private",
+            attachment: { add: EVENTURL },
+            attendees: { add: EVENTATTENDEE }
         });
-        event.click(iframeId("item-alarm"));
-        event.click(iframeId("reminder-5minutes-menuitem"));
-        event.waitFor(() => iframeId("item-alarm").getNode().label == "5 minutes before");
-        iframeId("item-alarm-menupopup").getNode().hidePopup();
 
-        // add an attendee and verify added
-        event.click(iframeId("event-grid-tab-attendees"));
+        // Verify attendee added.
+        let attendeeLabel = iframeLookup(`
+            ${ATTENDEES_ROW}/{"class":"item-attendees-cell"}/{"class":"item-attendees-cell-label"}
+        `);
 
-        plan_for_modal_dialog("Calendar:EventDialog:Attendees", handleAttendees);
-        event.click(eventid("options-attendees-menuitem"));
-        wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
-        event.assertNode(iframeLookup(`
-            ${eventDialog}/id("event-grid-tabbox")/id("event-grid-tabpanels")/
-            id("event-grid-tabpanel-attendees")/[0]/[1]/id("item-attendees-box")/
-            {"class":"item-attendees-row"}/{"class":"item-attendees-cell"}/
-            {"class":"item-attendees-cell-label","value":"${eventAttendee}"}
-        `));
-        event.click(iframeId("notify-attendees-checkbox"));
+        event.click(eventid("event-grid-tab-attendees"));
+        event.assertValue(attendeeLabel, EVENTATTENDEE);
         event.waitFor(() => !iframeId("notify-attendees-checkbox").getNode().checked);
 
-        // make it private and verify label visible
-        let toolbarbutton = eventid("button-privacy");
-        let rect = toolbarbutton.getNode().getBoundingClientRect();
-        event.click(toolbarbutton, rect.width - 5, 5);
-        event.click(eventid("event-privacy-private-menuitem"));
-        event.waitFor(() => !eventid("status-privacy-private-box").getNode().hasAttribute("collapsed"));
+        // Verify private label visible.
+        event.waitFor(
+            () => !eventid("status-privacy-private-box").getNode().hasAttribute("collapsed")
+        );
         eventid("event-privacy-menupopup").getNode().hidePopup();
 
-        // add attachment and verify added
+        // Add attachment and verify added.
         event.click(iframeId("event-grid-tab-attachments"));
-
-        handleAddingAttachment(event, eventUrl);
-        event.click(eventid("button-url"));
-        wait_for_modal_dialog("commonDialog");
         event.assertNode(iframeLookup(`
-            ${eventDialog}/id("event-grid-tabbox")/id("event-grid-tabpanels")/
-            id("event-grid-tabpanel-attachments")/{"flex":"1"}/
+            ${EVENT_TABPANELS}/id("event-grid-tabpanel-attachments")/{"flex":"1"}/
             id("attachment-link")/[0]/{"value":"mozilla.org"}
         `));
 
@@ -158,140 +139,83 @@ function testEventDialog() {
         event.click(eventid("button-saveandclose"));
     });
 
-    // catch and dismiss alarm
+    // Catch and dismiss alarm.
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
         let { lookup: alarmlookup } = helpersForController(alarm);
-        alarm.waitThenClick(alarmlookup('/id("calendar-alarm-dialog")/id("alarm-actionbar")/[1]'));
+        alarm.waitThenClick(alarmlookup(`
+            /id("calendar-alarm-dialog")/id("alarm-actionbar")/[1]`
+        ));
     });
-    wait_for_modal_dialog("Calendar:AlarmWindow");
+    wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
-    // verify event and alarm icon visible every day of the month and check tooltip
-    // 1st January is Thursday so there's three days to check in the first row
-    controller.assertNode(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "4")
-    ));
-    checkIcon(eventBox, "0", "4");
-    checkTooltip(monthView, 0, 4, 1, startTime, endTime);
+    // Verify event and alarm icon visible every day of the month and check tooltip.
+    // 1st January is Thursday so there's three days to check in the first row.
+    let date = 1;
+    for (col = 5; col <= 7; col++) {
+        controller.waitForElement(lookupEventBox("month", EVENT_BOX, 1, col, null, EVENTPATH));
+        checkAlarmIcon(controller, "month", 1, col);
+        checkTooltip(1, col, date, startTime, endTime);
+        date++;
+    }
 
-    controller.assertNode(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "5")
-    ));
-    checkIcon(eventBox, "0", "5");
-    checkTooltip(monthView, 0, 5, 2, startTime, endTime);
-
-    controller.assertNode(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "6")
-    ));
-    checkIcon(eventBox, "0", "6");
-    checkTooltip(monthView, 0, 6, 3, startTime, endTime);
-
-    // 31st of January is Saturday so there's four more full rows to check
-    let date = 4;
-    for (let row = 1; row < 5; row++) {
-        for (let col = 0; col < 7; col++) {
-            controller.assertNode(lookup(
-                eventBox.replace("rowNumber", row).replace("columnNumber", col)
-            ));
-            checkIcon(eventBox, row, col);
-            checkTooltip(monthView, row, col, date, startTime, endTime);
+    // 31st of January is Saturday so there's four more full rows to check.
+    for (let row = 2; row <= 5; row++) {
+        for (let col = 1; col <= 7; col++) {
+            controller.assertNode(lookupEventBox("month", EVENT_BOX, row, col, null, EVENTPATH));
+            checkAlarmIcon(controller, "month", row, col);
+            checkTooltip(row, col, date, startTime, endTime);
             date++;
         }
     }
 
-    // delete and verify deleted 2nd Jan
-    controller.click(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "5")
-    ));
+    // Delete and verify deleted 2nd Jan.
+    controller.click(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
     let elemToDelete = eid("month-view");
-    handleOccurrencePrompt(controller, elemToDelete, "delete", false, false);
-    controller.waitForElementNotPresent(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "5")
-    ));
+    handleOccurrencePrompt(controller, elemToDelete, "delete", false);
+    controller.waitForElementNotPresent(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
 
-    // verify all others still exist
-    controller.assertNode(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "4")
-    ));
-    controller.assertNode(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "6")
-    ));
+    // Verify all others still exist.
+    controller.assertNode(lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH));
+    controller.assertNode(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
 
-    for (let row = 1; row < 5; row++) {
-        for (let col = 0; col < 7; col++) {
-            controller.assertNode(lookup(
-                eventBox.replace("rowNumber", row).replace("columnNumber", col)
-            ));
+    for (let row = 2; row <= 5; row++) {
+        for (let col = 1; col <= 7; col++) {
+            controller.assertNode(lookupEventBox("month", EVENT_BOX, row, col, null, EVENTPATH));
         }
     }
 
-    // delete series by deleting 3rd January and confirming to delete all
-    controller.click(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "6")
-    ));
+    // Delete series by deleting 3rd January and confirming to delete all.
+    controller.click(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
     elemToDelete = eid("month-view");
-    handleOccurrencePrompt(controller, elemToDelete, "delete", true, false);
+    handleOccurrencePrompt(controller, elemToDelete, "delete", true);
 
-    // verify all deleted
-    controller.waitForElementNotPresent(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "4")
-    ));
-    controller.assertNodeNotExist(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "5")
-    ));
-    controller.assertNodeNotExist(lookup(
-        eventBox.replace("rowNumber", "0").replace("columnNumber", "6")
-    ));
+    // Verify all deleted.
+    controller.waitForElementNotPresent(lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH));
+    controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
+    controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
 
-    for (let row = 1; row < 5; row++) {
-        for (let col = 0; col < 7; col++) {
-            controller.assertNodeNotExist(lookup(
-                eventBox.replace("rowNumber", row).replace("columnNumber", col)
+    for (let row = 2; row <= 5; row++) {
+        for (let col = 1; col <= 7; col++) {
+            controller.assertNodeNotExist(lookupEventBox(
+                "month", EVENT_BOX, row, col, null, EVENTPATH
             ));
         }
     }
 }
 
-function handleAttendees(attendees) {
-    let { lookup: attendeeslookup } = helpersForController(attendees);
-
-    let input = attendeeslookup(`
-        /id("calendar-event-dialog-attendees-v2")/{"flex":"1"}/
-        id("attendees-container")/id("attendees-list")/[1]/[2]/[0]
-    `);
-    attendees.waitForElement(input);
-    attendees.type(input, eventAttendee);
-    attendees.click(attendeeslookup(`
-        /id("calendar-event-dialog-attendees-v2")/anon({"anonid":"buttons"})/
-        {"dlgtype":"accept"}
-    `));
-}
-
-function checkIcon(eventBox, row, col) {
-    let icon = lookup((`
-        ${eventBox}/anon({"anonid":"category-box-stack"})/
-        anon({"align": "center"})/anon({"class":"alarm-icons-box"})/
-        anon({"class": "reminder-icon"})
-    `).replace("rowNumber", row).replace("columnNumber", col));
-
-    controller.assertJS(icon.getNode().getAttribute("value") == "DISPLAY");
-}
-
-function checkTooltip(monthView, row, col, date, startTime, endTime) {
-    let item = lookupEventBox(
-        "month", null, row + 1, col + 1, null,
-        `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`
-    );
+function checkTooltip(row, col, date, startTime, endTime) {
+    let item = lookupEventBox("month", null, row, col, null, EVENTPATH);
 
     let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")';
     let toolTipNode = lookup(toolTip).getNode();
     toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item.getNode() });
 
-    // check title
+    // Check title.
     let toolTipGrid = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/';
     let eventName = lookup(`${toolTipGrid}/[1]/[0]/[1]`);
-    controller.assert(() => eventName.getNode().textContent == eventTitle);
+    controller.assert(() => eventName.getNode().textContent == EVENTTITLE);
 
-    // check date and time
+    // Check date and time.
     let dateTime = lookup(`${toolTipGrid}/[1]/[2]/[1]`);
 
     let formatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "full" });
@@ -299,6 +223,7 @@ function checkTooltip(monthView, row, col, date, startTime, endTime) {
 
     controller.assert(() => {
         let text = dateTime.getNode().textContent;
+        dump(`${text} / ${startDate} ${startTime} -\n`);
         return text.includes(`${startDate} ${startTime} – `);
     });
 

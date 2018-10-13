@@ -7,7 +7,6 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "pref-window-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var frame = {};
@@ -21,76 +20,126 @@ var TIMEOUT_MODAL_DIALOG = 30000;
 var TIMEOUT_MONTHCHANGE = 10000;
 var CALENDARNAME = "Mozmill";
 
-// these are used in EventBox lookup.
-var EVENT_BOX = 0; // Use when you need an event box
-var CANVAS_BOX = 1; // Use when you need a calendar canvas box
-var ALLDAY = 2; // Use when you need an allday canvas or event box
+// These are used in EventBox lookup.
+var EVENT_BOX = 0; // Use when you need an event box.
+var CANVAS_BOX = 1; // Use when you need a calendar canvas box.
+var ALLDAY = 2; // Use when you need an allday canvas or event box.
 
-// Lookup paths and path-snippets
-var EVENTPATH = `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`;
-var REC_DLG_ACCEPT = `
-        /id("calendar-event-dialog-recurrence")
-        /anon({"anonid":"buttons"})/{"dlgtype":"accept"}
+// Lookup paths and path-snippets.
+var CALENDAR_PANEL = `
+    /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
+    id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")
 `;
-var REC_DLG_DAYS = `
-        /id("calendar-event-dialog-recurrence")
-        /id("recurrence-pattern-groupbox")/id("recurrence-pattern-grid")
-        /id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")
-        /id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")
-        /anon({"anonid":"mainbox"})
+var VIEWDECK = `
+    ${CALENDAR_PANEL}/id("calendarDisplayDeck")/id("calendar-view-box")/
+    id("view-deck")
 `;
-var REC_DLG_UNTIL_INPUT = `
-        /id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/
-        id("recurrence-duration")/id("recurrence-range-until-box")/
-        id("repeat-until-date")/anon({"class":"datepicker-box-class"})/
-        {"class":"datepicker-text-class"}/
-        anon({"class":"menulist-editable-box textbox-input-box"})/
-        anon({"anonid":"input"})
+var DAY_VIEW = `${VIEWDECK}/id("day-view")`;
+var WEEK_VIEW = `${VIEWDECK}/id("week-view")`;
+// Multiday-view-day-box of day and week view.
+var DAYBOX = `
+    anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})
+`;
+// Multiday-view-label-day-box of day and week view.
+var LABELDAYBOX = `
+    anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/anon({"anonid":"labeldaybox"})
+`;
+var MULTIWEEK_VIEW = `${VIEWDECK}/id("multiweek-view")`;
+var MONTH_VIEW = `${VIEWDECK}/id("month-view")`;
+var TASK_VIEW = `${CALENDAR_PANEL}/id("calendarDisplayDeck")/id("calendar-task-box")/`;
+
+var MINIMONTH = `
+    ${CALENDAR_PANEL}/id("ltnSidebar")/id("minimonth-pane")/{"align":"center"}/
+    id("calMinimonthBox")/id("calMinimonth")
+`;
+var TODAY_BUTTON = `
+    ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"today-button"})
+`;
+var CALENDARLIST = `
+    ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
+    id("calendar-listtree-pane")/id("calendar-list-tree-widget")/
+    anon({"anonid":"tree"})/anon({"anonid":"treechildren"})
+`;
+var TODAY_PANE = `
+    /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")
+`;
+var AGENDA_LISTBOX = `
+    ${TODAY_PANE}/{"flex":"1"}/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")
+`;
+
+var EVENTPATH = `
+    /{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}
+`;
+// Used after "${EVENTPATH}/${getEventDetials([view])}/".
+var ALARM_ICON_PATH = `
+    anon({"anonid":"category-box-stack"})/anon({"align":"center"})/
+    anon({"anonid":"alarm-icons-box"})/anon({"class":"reminder-icon"})
 `;
 
 var plan_for_modal_dialog, wait_for_modal_dialog, open_pref_tab;
 
-function setupModule() {
+function setupModule(controller) {
     ({ plan_for_modal_dialog, wait_for_modal_dialog } =
         collector.getModule("window-helpers"));
 
-    // this setup is needed for pref-win-helpers. For some reason, the automatic
+    // This setup is needed for pref-win-helpers. For some reason, the automatic
     // loading of modules in shared modules does not setup the module correctly.
     collector.getModule("folder-display-helpers").setupModule();
 
     ({ open_pref_tab } = collector.getModule("pref-window-helpers"));
     collector.getModule("pref-window-helpers").setupModule();
+
+    // For our tests, we assume that Sunday is start of week.
+    Services.prefs.setIntPref("calendar.week.start", 0);
+
+    // We are in calendarTests, so we make sure, calendar-tab with day-view is displayed.
+    let { eid } = helpersForController(controller);
+    controller.click(eid("calendar-tab-button"));
+    switchToView(controller, "day");
 }
 
 function installInto(module) {
-    // copy constants into module
+    // Copy constants into module.
     module.SHORT_SLEEP = SHORT_SLEEP;
     module.MID_SLEEP = MID_SLEEP;
     module.TIMEOUT_MODAL_DIALOG = TIMEOUT_MODAL_DIALOG;
     module.CALENDARNAME = CALENDARNAME;
+    module.CALENDAR_PANEL = CALENDAR_PANEL;
+    module.VIEWDECK = VIEWDECK;
+    module.DAY_VIEW = DAY_VIEW;
+    module.WEEK_VIEW = WEEK_VIEW;
+    module.DAYBOX = DAYBOX;
+    module.LABELDAYBOX = LABELDAYBOX;
+    module.MULTIWEEK_VIEW = MULTIWEEK_VIEW;
+    module.MONTH_VIEW = MONTH_VIEW;
+    module.TASK_VIEW = TASK_VIEW;
+    module.MINIMONTH = MINIMONTH;
+    module.TODAY_BUTTON = TODAY_BUTTON;
+    module.CALENDARLIST = CALENDARLIST;
+    module.TODAY_PANE = TODAY_PANE;
+    module.AGENDA_LISTBOX = AGENDA_LISTBOX;
     module.EVENTPATH = EVENTPATH;
+    module.ALARM_ICON_PATH = ALARM_ICON_PATH;
     module.EVENT_BOX = EVENT_BOX;
     module.CANVAS_BOX = CANVAS_BOX;
     module.ALLDAY = ALLDAY;
-    module.REC_DLG_ACCEPT = REC_DLG_ACCEPT;
-    module.REC_DLG_DAYS = REC_DLG_DAYS;
-    module.REC_DLG_UNTIL_INPUT = REC_DLG_UNTIL_INPUT;
-    // Now copy helper functions
+
+    // Now copy helper functions.
     module.helpersForController = helpersForController;
-    module.acceptSendingNotificationMail = acceptSendingNotificationMail;
-    module.handleAddingAttachment = handleAddingAttachment;
+    module.setupLightning = setupLightning;
     module.handleOccurrencePrompt = handleOccurrencePrompt;
     module.switchToView = switchToView;
     module.goToDate = goToDate;
     module.invokeEventDialog = invokeEventDialog;
     module.getEventBoxPath = getEventBoxPath;
+    module.getEventDetails = getEventDetails;
+    module.checkAlarmIcon = checkAlarmIcon;
     module.viewForward = viewForward;
     module.viewBack = viewBack;
     module.deleteCalendars = deleteCalendars;
     module.createCalendar = createCalendar;
     module.handleNewCalendarWizard = handleNewCalendarWizard;
     module.findEventsInNode = findEventsInNode;
-    module.setData = setData;
     module.openLightningPrefs = openLightningPrefs;
     module.menulistSelect = menulistSelect;
 }
@@ -109,12 +158,16 @@ function helpersForController(controller) {
         lookupEventBox: (view, option, row, column, hour, extra = "/") => {
             let path = getEventBoxPath(controller, view, option, row, column, hour);
             return new elementslib.Lookup(controller.window.document, selector(path + extra));
+        },
+        replaceText: (textbox, text) => {
+            controller.keypress(textbox, "a", { accelKey: true });
+            controller.type(textbox, text);
         }
     };
 }
 
 /**
- * make sure, the current view has finished loading
+ * Make sure, the current view has finished loading.
  *
  * @param controller        Mozmill window controller
  */
@@ -128,53 +181,17 @@ function ensureViewLoaded(controller) {
 }
 
 /**
- * Accept to send notification email with event to attendees
- *
- * @param controller        Mozmill window controller
- */
-function acceptSendingNotificationMail(controller) {
-    plan_for_modal_dialog("commonDialog", (dialog) => {
-        let { lookup: cdlglookup } = helpersForController(dialog);
-        dialog.waitThenClick(cdlglookup(`
-            /id("commonDialog")/anon({"anonid":"buttons"})/{"dlgtype":"accept"}
-        `));
-    });
-
-    wait_for_modal_dialog("commonDialog");
-}
-
-/**
- * Add an attachment with url
- *
- * @param controller        Mozmill window controller
- */
-function handleAddingAttachment(controller, url) {
-    plan_for_modal_dialog("commonDialog", (attachment) => {
-        let { lookup: cdlglookup, eid: cdlgid } = helpersForController(attachment);
-        attachment.waitForElement(cdlgid("loginTextbox"));
-        cdlgid("loginTextbox").getNode().value = url;
-        attachment.click(cdlglookup(`
-            /id("commonDialog")/anon({"anonid":"buttons"})/{"dlgtype":"accept"}
-        `));
-    });
-}
-
-/**
- * open and click the appropriate button on the recurrence-Prompt Dialog
+ * Open and click the appropriate button on the recurrence-Prompt Dialog.
  *
  * @param controller      Mozmill window controller
- * @param element         Mozmill element which will open the dialog
- * @param mode            action to exec on element (delete OR modify)
- * @param selectParent    true if all occurrences should be deleted
- * @param attendees       Whether there are attendees that can be notified or not
+ * @param element         Mozmill element which will open the dialog.
+ * @param mode            Action to exec on element (delete OR modify).
+ * @param selectParent    true if all occurrences should be deleted.
  */
-function handleOccurrencePrompt(controller, element, mode, selectParent, attendees) {
+function handleOccurrencePrompt(controller, element, mode, selectParent) {
     controller.waitForElement(element);
     plan_for_modal_dialog("Calendar:OccurrencePrompt", (dialog) => {
         let { eid: dlgid } = helpersForController(dialog);
-        if (attendees) {
-            acceptSendingNotificationMail();
-        }
         if (selectParent) {
             dialog.waitThenClick(dlgid("accept-parent-button"));
         } else {
@@ -190,7 +207,7 @@ function handleOccurrencePrompt(controller, element, mode, selectParent, attende
 }
 
 /**
- * Switch to a view and make sure it's displayed
+ * Switch to a view and make sure it's displayed.
  *
  * @param controller        Mozmill window controller
  * @param view              day, week, multiweek or month
@@ -205,7 +222,7 @@ function switchToView(controller, view) {
 }
 
 /**
- * Go to a specific date using minimonth
+ * Go to a specific date using minimonth.
  *
  * @param controller    Main window controller
  * @param year          Four-digit year
@@ -215,20 +232,12 @@ function switchToView(controller, view) {
 function goToDate(controller, year, month, day) {
     let { eid, lookup } = helpersForController(controller);
 
-    let miniMonth = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
-        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
-        id("ltnSidebar")/id("minimonth-pane")/{"align":"center"}/
-        id("calMinimonthBox")/id("calMinimonth")
-    `;
-
     let activeYear = lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-header"})/
-        anon({"anonid":"yearcell"})
+        ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})
     `).getNode().getAttribute("label");
 
     let activeMonth = lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})
+        ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})
     `).getNode().getAttribute("selectedIndex");
 
     let yearDifference = activeYear - year;
@@ -237,19 +246,17 @@ function goToDate(controller, year, month, day) {
     if (yearDifference != 0) {
         let direction = yearDifference > 0 ? "up" : "down";
         let scrollArrow = lookup(`
-            ${miniMonth}/anon({"anonid":"minimonth-header"})/
-            anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
-            {"class":"autorepeatbutton-${direction}"}`);
+            ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/
+            anon({"anonid":"years-popup"})/{"class":"autorepeatbutton-${direction}"}`);
 
-        // pick year
+        // Pick year.
         controller.click(lookup(`
-            ${miniMonth}/anon({"anonid":"minimonth-header"})/
-            anon({"anonid":"yearcell"})
+            ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})
         `));
 
         let getYearListitem = function(aYear) {
             return lookup(`
-                ${miniMonth}/anon({"anonid":"minimonth-header"})/
+                ${MINIMONTH}/anon({"anonid":"minimonth-header"})/
                 anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
                 {"label":"${aYear}"}
             `);
@@ -272,21 +279,20 @@ function goToDate(controller, year, month, day) {
 
     if (monthDifference != 0) {
         controller.waitForEvents.init(eid("calMinimonth"), ["monthchange"]);
-        // pick month
+        // Pick month.
         controller.click(lookup(`
-            ${miniMonth}/anon({"anonid":"minimonth-header"})/
-            anon({"anonid":"monthheader"})/[${activeMonth}]
+            ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})/
+            [${activeMonth}]
         `));
         controller.waitThenClick(lookup(`
-            ${miniMonth}/anon({"anonid":"minimonth-header"})/
-            anon({"anonid":"minmonth-popupset"})/anon({"anonid":"months-popup"})/
-            {"index":"${month - 1}"}
+            ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/
+            anon({"anonid":"months-popup"})/{"index":"${month - 1}"}
         `));
         controller.waitForEvents.wait(TIMEOUT_MONTHCHANGE);
     }
 
     let lastDayInFirstRow = lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[3]/[15]
+        ${MINIMONTH}/anon({"anonid":"minimonth-calendar"})/[3]/[15]
     `).getNode().innerHTML;
 
     let positionOfFirst = 7 - lastDayInFirstRow;
@@ -295,7 +301,7 @@ function goToDate(controller, year, month, day) {
 
     // pick day
     controller.click(lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[${(dateRow + 1) * 2 + 1}]/
+        ${MINIMONTH}/anon({"anonid":"minimonth-calendar"})/[${(dateRow + 1) * 2 + 1}]/
         [${(dateColumn + 1) * 2 + 1}]
     `));
     ensureViewLoaded(controller);
@@ -324,8 +330,7 @@ function invokeEventDialog(controller, clickBox, body) {
     let iframe = eventController.window.document.getElementById("lightning-item-panel-iframe");
 
     eventController.waitFor(() => {
-        return iframe.contentWindow.onLoad &&
-               iframe.contentWindow.onLoad.hasLoaded;
+        return iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded;
     }, "event-dialog did not load in time", 10000);
 
     // We can't use a full mozmill controller on an iframe, but we need
@@ -334,60 +339,54 @@ function invokeEventDialog(controller, clickBox, body) {
 
     body(eventController, mockIframeController);
 
-    // Wait for close
+    // Wait for close.
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 }
 
 /**
- * Gets the path for an event box
+ * Gets the path for an event box.
  *
  * @param controller    main window controller
  * @param view          day, week, multiweek or month
  * @param option        CANVAS_BOX or ALLDAY for creating event, EVENT_BOX for existing event
- * @param row           only used in multiweek and month view, 1-based index of a row
+ * @param row           Only used in multiweek and month view, 1-based index of a row.
  * @param column        1-based index of a column
- * @param hour          index of hour box
+ * @param hour          Only used in day and week view, index of hour box.
  * @returns             path string
  */
 function getEventBoxPath(controller, view, option, row, column, hour) {
-    let viewDeck = `
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
-        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
-        id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")
-    `;
-
-    let path = `${viewDeck}/id("${view}-view")`;
-
+    let path = `${VIEWDECK}/id("${view}-view")`;
 
     if ((view == "day" || view == "week") && option == ALLDAY) {
         return path + `
             /anon({"anonid":"mainbox"})/anon({"anonid":"headerbox"})/
-            anon({"anonid":"headerdaybox"})/
-            [${column - 1}]
+            anon({"anonid":"headerdaybox"})/[${column - 1}]
         `;
     } else if (view == "day" || view == "week") {
         path += `
-            /anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-            anon({"anonid":"daybox"})/[${column - 1}]/
-            anon({"anonid":"boxstack"})
+            /anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/
+            [${column - 1}]/anon({"anonid":"boxstack"})
         `;
 
         if (option == CANVAS_BOX) {
             path += `/anon({"anonid":"bgbox"})/[${hour}]`;
         } else {
-            path += '/anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}';
+            path += `
+                /anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}
+            `;
         }
 
         return path;
     } else {
         path += `
             /anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/
-            anon({"anonid":"monthgridrows"})/[${row - 1}]/
-            [${column - 1}]
+            anon({"anonid":"monthgridrows"})/[${row - 1}]/[${column - 1}]
         `;
 
         if (option == CANVAS_BOX) {
-            path += '/anon({"anonid":"day-items"})';
+            path += `
+                /anon({"anonid":"day-items"})
+            `;
         }
 
         return path;
@@ -395,10 +394,46 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
 }
 
 /**
- * Moves the view n times forward
+ * Gets the path snippet for event-details. This is different for day/week and
+ * multiweek/month view.
+ *
+ * @param view          day, week, multiweek or month
+ */
+function getEventDetails(view) {
+    if (view == "day" || view == "week") {
+        return `
+            anon({"flex":"1"})/anon({"anonid":"event-container"})/
+            {"class":"calendar-event-selection"}/anon({"anonid":"eventbox"})/
+            {"class":"calendar-event-details"}
+        `;
+    } else {
+        return `
+            anon({"flex":"1"})/[0]/anon({"anonid":"event-container"})/
+            {"class":"calendar-event-selection"}/anon({"anonid":"eventbox"})/
+            {"class":"calendar-event-details"}
+        `;
+    }
+}
+
+/**
+ * Checks if Alarm-Icon is shown on a given Event-Box.
+ *
+ * @param view          day, week, multiweek or month
+ * @param row           Only used in multiweek and month view, 1-based index of a row.
+ * @param column        1-based index of a column
+ */
+function checkAlarmIcon(controller, view, row, column) {
+    let { lookupEventBox } = helpersForController(controller);
+    controller.assertNode(lookupEventBox(view, EVENT_BOX, row, column, null, `
+        ${EVENTPATH}/${getEventDetails([view])}/${ALARM_ICON_PATH}
+    `));
+}
+
+/**
+ * Moves the view n times forward.
  *
  * @param controller    Mozmill window controller
- * @param n             how many times next button in view is clicked
+ * @param n             How many times next button in view is clicked.
  */
 function viewForward(controller, n) {
     let { eid, sleep } = helpersForController(controller);
@@ -411,10 +446,10 @@ function viewForward(controller, n) {
 }
 
 /**
- * Moves the view n times back
+ * Moves the view n times back.
  *
  * @param controller    Mozmill window controller
- * @param n             how many times previous button in view is clicked
+ * @param n             How many times previous button in view is clicked.
  */
 function viewBack(controller, n) {
     let { eid, sleep } = helpersForController(controller);
@@ -427,7 +462,7 @@ function viewBack(controller, n) {
 }
 
 /**
- * Deletes all calendars with given name
+ * Deletes all calendars with given name.
  *
  * @param controller    Mozmill window controller
  * @param name          calendar name
@@ -446,7 +481,7 @@ function deleteCalendars(controller, name) {
 }
 
 /**
- * Creates local calendar with given name and select it in calendars list
+ * Creates local calendar with given name and select it in calendars list.
  *
  * @param controller    Mozmill window controller
  * @param name          calendar name
@@ -463,9 +498,7 @@ function createCalendar(controller, name) {
     manager.registerCalendar(calendar);
 
     let calendarTree = lookup(`
-        /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
-        id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/
-        id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
+        ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
         id("calendar-listtree-pane")/id("calendar-list-tree-widget")
     `).getNode();
 
@@ -477,7 +510,7 @@ function createCalendar(controller, name) {
 }
 
 /**
- * Handles the "Create New Calendar" Wizard
+ * Handles the "Create New Calendar" Wizard.
  *
  * @param wizard            wizard dialog controller
  * @param name              calendar name
@@ -495,17 +528,16 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
         data = {};
     }
 
-    // choose network calendar if any network data is set.
+    // Choose network calendar if any network data is set.
     if (data.network) {
         let remoteOption = wizardlookup(`
-            /id("calendar-wizard")/{"pageid":"initialPage"}/
-            id("calendar-type")/{"value":"remote"}
+            /id("calendar-wizard")/{"pageid":"initialPage"}/id("calendar-type")/{"value":"remote"}
         `);
         wizard.waitForElement(remoteOption);
         wizard.radio(remoteOption);
         dlgButton("next").doCommand();
 
-        // choose format
+        // Choose format.
         if (data.network.format == undefined) {
             data.network.format = "ics";
         }
@@ -516,7 +548,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
         wizard.waitForElement(formatOption);
         wizard.radio(formatOption);
 
-        // enter location
+        // Enter location.
         if (data.network.location == undefined) {
             let calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
             calendarFile.append(name + ".ics");
@@ -524,12 +556,11 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
             data.network.location = fileURI.prePath + fileURI.pathQueryRef;
         }
         wizard.type(wizardlookup(`
-            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/
-            {"align":"center"}/id("calendar-uri")/
-            anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
+            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/{"align":"center"}/
+            id("calendar-uri")/anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), data.network.location);
 
-        // choose offline support
+        // Choose offline support.
         if (data.network.offline == undefined) {
             data.network.offline = true;
         }
@@ -537,24 +568,24 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
         wizard.waitFor(() => !dlgButton("next").disabled);
         dlgButton("next").doCommand();
     } else {
-        // local calendar is default
+        // Local calendar is default.
         dlgButton("next").doCommand();
     }
-    // set calendar Name
+    // Set calendar Name.
     wizard.waitForElement(wizardId("calendar-name"));
-    // not on all platforms setting the value activates the next button
-    // so we need to type in case the field is empty
+    // Not on all platforms setting the value activates the next button,
+    // so we need to type in case the field is empty.
     if (wizardId("calendar-name").getNode().value == "") {
         wizard.type(wizardId("calendar-name"), name);
-    } // else the name is already filled in from URI
+    } // Else the name is already filled in from URI.
 
-    // set reminder Option
+    // Set reminder Option.
     if (data.showReminders == undefined) {
         data.showReminders = true;
     }
     wizard.check(wizardId("fire-alarms"), data.showReminders);
 
-    // set eMail Account
+    // Set eMail Account.
     if (data.eMail == undefined) {
         data.eMail = "none";
     }
@@ -567,10 +598,10 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
 }
 
 /**
- * Retrieves array of all calendar-event-box elements in node
+ * Retrieves array of all calendar-event-box elements in node.
  *
- * @param node          node to be searched
- * @param eventNodes    array where to put resultíng nodes
+ * @param node          Node to be searched.
+ * @param eventNodes    Array where to put resulting nodes.
  */
 function findEventsInNode(node, eventNodes) {
     if (node.tagName == "calendar-event-box") {
@@ -582,249 +613,15 @@ function findEventsInNode(node, eventNodes) {
     }
 }
 
-/**
- * Helper function to enter event/task dialog data
- *
- * @param dialog        event/task dialog controller
- * @param iframe        event/task dialog iframe controller
- * @param data          dataset object
- *                          title - event/task title
- *                          location - event/task location
- *                          description - event/task description
- *                          category - category label
- *                          calendar - calendar the item should be in
- *                          allday - boolean value
- *                          startdate - Date object
- *                          starttime - Date object
- *                          enddate - Date object
- *                          endtime - Date object
- *                          repeat - reccurrence value, one of none/daily/weekly/
- *                                   every.weekday/bi.weekly/
- *                                   monthly/yearly
- *                                   (custom is not supported)
- *                          reminder - reminder option index (custom not supp.)
- *                          priority - none/low/normal/high
- *                          privacy - public/confidential/private
- *                          status - none/tentative/confirmed/canceled for events
- *                                   none/needs-action/in-process/completed/cancelled for tasks
- *                          completed - Date object for tasks
- *                          percent - percent complete for tasks
- *                          freebusy - free/busy
- *                          attachment.add - url to add
- *                          attachment.remove - label of url to remove (without http://)
- */
-function setData(dialog, iframe, data) {
-    let { eid, sleep } = helpersForController(dialog);
-    let { lookup: iframeLookup, eid: iframeId } = helpersForController(iframe);
-
-    let eventIframe = '/id("calendar-event-dialog-inner")/id("event-grid")/id("event-grid-rows")/';
-    let taskIframe = '/id("calendar-task-dialog-inner")/id("event-grid")/id("event-grid-rows")/';
-    let innerFrame;
-    let isEvent = true;
-
-    // see if it's an event dialog
-    try {
-        iframeLookup(eventIframe).getNode();
-        innerFrame = eventIframe;
-    } catch (error) {
-        innerFrame = taskIframe;
-        isEvent = false;
-    }
-
-    let dateInput = `
-        anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/
-        anon({"class":"menulist-editable-box textbox-input-box"})/
-        anon({"anonid":"input"})
-    `;
-    let timeInput = `
-        anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/
-        anon({"class":"timepicker-box-class"})/
-        anon({"class":"timepicker-text-class"})/anon({"flex":"1"})/
-        anon({"anonid":"input"})
-    `;
-    let startId = isEvent ? "event-starttime" : "todo-entrydate";
-    let startDateInput = iframeLookup(`
-        ${innerFrame}/id("event-grid-startdate-row")/
-        id("event-grid-startdate-picker-box")/id("${startId}")/
-        anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/${dateInput}
-    `);
-    let endId = isEvent ? "event-endtime" : "todo-duedate";
-    let endDateInput = iframeLookup(`
-        ${innerFrame}id("event-grid-enddate-row")/[1]/
-        id("event-grid-enddate-picker-box")/id("${endId}")/
-        anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/${dateInput}
-    `);
-    let startTimeInput = iframeLookup(`
-        ${innerFrame}/id("event-grid-startdate-row")/
-        id("event-grid-startdate-picker-box")/id("${startId}")/${timeInput}
-    `);
-    let endTimeInput = iframeLookup(`
-        ${innerFrame}/id("event-grid-enddate-row")/[1]/
-        id("event-grid-enddate-picker-box")/id("${endId}")/${timeInput}
-    `);
-    let completedDateInput = iframeLookup(`
-        ${innerFrame}/id("event-grid-todo-status-row")/
-        id("event-grid-todo-status-picker-box")/id("completed-date-picker")/${dateInput}
-    `);
-    let dateFormatter = cal.getDateFormatter();
-    // wait for input elements' values to be populated
-    sleep();
-
-    // title
-    if (data.title != undefined) {
-        // we need to set directly here in case there is already a title.
-        // accelKey+a won't work in all OS
-        iframeId("item-title").getNode().value = data.title;
-    }
-
-    // location
-    if (data.location != undefined) {
-        // see comment above
-        iframeId("item-location").getNode().value = data.location;
-    }
-
-    // category
-    // TODO: needs adjustment for the menulist-panel now used for categories.
-    // will be fixed with Bug 984044
-    if (data.category != undefined) {
-        menulistSelect(iframeId("item-categories"), data.category, dialog);
-    }
-
-    // calendar
-    if (data.calendar != undefined) {
-        menulistSelect(iframeId("item-calendar"), data.calendar, dialog);
-    }
-
-    // all-day
-    if (data.allday != undefined && isEvent) {
-        dialog.check(iframeId("event-all-day"), data.allday);
-    }
-
-    // startdate
-    if (data.startdate != undefined && data.startdate.constructor.name == "Date") {
-        let startdate = dateFormatter.formatDateShort(cal.dtz.jsDateToDateTime(data.startdate, cal.dtz.floating));
-
-        if (!isEvent) {
-            dialog.check(iframeId("todo-has-entrydate"), true);
-        }
-        dialog.keypress(startDateInput, "a", { accelKey: true });
-        dialog.type(startDateInput, startdate);
-    }
-
-    // starttime
-    if (data.starttime != undefined && data.starttime.constructor.name == "Date") {
-        let starttime = dateFormatter.formatTime(cal.dtz.jsDateToDateTime(data.starttime, cal.dtz.floating));
-        dialog.click(startTimeInput);
-        dialog.keypress(startTimeInput, "a", { accelKey: true });
-        dialog.type(startTimeInput, starttime);
-    }
-
-    // enddate
-    if (data.enddate != undefined && data.enddate.constructor.name == "Date") {
-        let enddate = dateFormatter.formatDateShort(cal.dtz.jsDateToDateTime(data.enddate, cal.dtz.floating));
-        if (!isEvent) {
-            dialog.check(iframeId("todo-has-duedate"), true);
-        }
-        dialog.keypress(endDateInput, "a", { accelKey: true });
-        dialog.type(endDateInput, enddate);
-    }
-
-    // endtime
-    if (data.endtime != undefined && data.endtime.constructor.name == "Date") {
-        let endtime = dateFormatter.formatTime(cal.dtz.jsDateToDateTime(data.endtime, cal.dtz.floating));
-        dialog.click(endTimeInput);
-        dialog.keypress(endTimeInput, "a", { accelKey: true });
-        dialog.type(endTimeInput, endtime);
-    }
-
-    // recurrence
-    if (data.repeat != undefined) {
-        menulistSelect(iframeId("item-repeat"), data.repeat, dialog);
-    }
-
-    // reminder
-    // TODO: menulistSelect does not work here, because menuitems have no value.
-    // will be fixed with Bug 984044
-    if (data.reminder != undefined) {
-        menulistSelect(iframeId("item-alarm"), data.reminder, dialog);
-    }
-
-    // description
-    if (data.description != undefined) {
-        let descField = iframeId("item-description");
-        descField.getNode().value = data.description;
-    }
-
-    // priority
-    if (data.priority != undefined) {
-        dialog.mainMenu.click(`#options-priority-${data.priority}-label`);
-    }
-
-    // privacy
-    if (data.privacy != undefined) {
-        dialog.mainMenu.click(`#options-privacy-${data.privacy}-menuitem`);
-    }
-
-    // status
-    if (data.status != undefined) {
-        if (isEvent) {
-            dialog.mainMenu.click(`#options-status-${data.status}-menuitem`);
-        } else {
-            menulistSelect(iframeId("todo-status"), data.status.toUpperCase(), dialog);
-        }
-    }
-
-    let currentStatus = iframeId("todo-status").getNode().value;
-
-    // completed on
-    if (data.completed != undefined && data.completed.constructor.name == "Date" && !isEvent) {
-        let completeddate = dateFormatter.formatDateShort(cal.dtz.jsDateToDateTime(data.completed, cal.dtz.floating));
-
-        if (currentStatus == "COMPLETED") {
-            completedDateInput.getNode().value = completeddate;
-        }
-    }
-
-    // percent complete
-    if (data.percent != undefined &&
-        (currentStatus == "NEEDS-ACTION" ||
-         currentStatus == "IN-PROCESS" ||
-         currentStatus == "COMPLETED")) {
-        iframeId("percent-complete-textbox").getNode().value = data.percent;
-    }
-
-    // free/busy
-    if (data.freebusy != undefined) {
-        dialog.mainMenu.click(`#options-freebusy-${data.freebusy}-menuitem`);
-    }
-
-    // attachment
-    // TODO: Needs fixing,
-    // will be fixed with Bug 984044
-    if (data.attachment != undefined) {
-        if (data.attachment.add != undefined) {
-            handleAddingAttachment(dialog, data.attachment.add);
-            dialog.click(eid("button-url"));
-            wait_for_modal_dialog("commonDialog");
-        }
-        if (data.attachment.delete != undefined) {
-            dialog.click(iframeLookup(`
-                ${innerFrame}/id("event-grid-attachment-row")/id("attachment-link")/
-                {"label":"${data.attachment.delete}"}
-            `));
-            dialog.keypress(iframeId("attachment-link"), "VK_DELETE", {});
-        }
-    }
-    dialog.click(iframeId("item-title"));
-    sleep();
-}
-
 function openLightningPrefs(aCallback, aParentController) {
-    // Since the Lightning pane is added after load, asking for it with open_pref_tab won't work. Cheat instead.
+    // Since the Lightning pane is added after load, asking for it with open_pref_tab won't work.
+    // Cheat instead.
     let tab = open_pref_tab("paneGeneral");
     tab.browser.contentDocument.querySelector('#category-box radio[pane="paneLightning"]').click();
-    utils.waitFor(() => tab.browser.contentDocument.documentElement.currentPane.id == "paneLightning",
-                  "Timed out waiting for prefpane paneLightning to load.");
+    utils.waitFor(
+        () => tab.browser.contentDocument.documentElement.currentPane.id == "paneLightning",
+        "Timed out waiting for prefpane paneLightning to load."
+    );
     aCallback(tab);
 }
 
