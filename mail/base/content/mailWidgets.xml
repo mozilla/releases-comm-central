@@ -1068,26 +1068,6 @@
     </implementation>
   </binding>
 
-  <binding id="mail-messageid">
-    <content context="messageIdContext" onclick="MessageIdClick(this, event);">
-      <xul:label anonid="messageIdValue" class="messageIdDisplayButton"
-                 xbl:inherits="value=label"/>
-      <xul:image class="messageIdDisplayImage" anonid="messageIdImage"/>
-    </content>
-
-    <implementation>
-      <property name="label"      onset="this.getPart().setAttribute('label',val); return val;"
-                                  onget="return this.getPart('messageIdValue').getAttribute('label');"/>
-
-      <method name="getPart">
-        <parameter name="aPartId"/>
-        <body><![CDATA[
-          return document.getAnonymousElementByAttribute(this, "anonid", 'messageIdValue');
-        ]]></body>
-      </method>
-    </implementation>
-  </binding>
-
   <binding id="search-menulist-abstract" name="searchMenulistAbstract" extends="xul:box">
     <content>
       <xul:menulist class="search-menulist" xbl:inherits="flex,disabled" oncommand="this.parentNode.onSelect(event)">

@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozXULElement, openUILink */
+/* global MozXULElement, openUILink, MessageIdClick */
 
 class MozMailHeaderfield extends MozXULElement {
   connectedCallback() {
@@ -116,8 +116,47 @@ class MozMailNewsgroupsHeaderfield extends MozXULElement {
   }
 }
 
+class MozMailMessageid extends MozXULElement {
+  static get observedAttributes() {
+    return ["label"];
+  }
+
+  connectedCallback() {
+    this.classList.add("messageIdDisplayButton");
+    this.setAttribute("context", "messageIdContext");
+    this._updateAttributes();
+
+    this.addEventListener("click", (event) => {
+      MessageIdClick(this, event);
+    });
+  }
+
+  attributeChangedCallback() {
+    this._updateAttributes();
+  }
+
+  _updateAttributes() {
+    this.textContent = this.label || "";
+  }
+
+  set label(val) {
+    if (val == null) {
+      this.removeAttribute("label");
+    } else {
+      this.setAttribute("label", val);
+    }
+
+    return val;
+  }
+
+  get label() {
+    return this.getAttribute("label");
+  }
+}
+
 customElements.define("mail-headerfield", MozMailHeaderfield);
 customElements.define("mail-urlfield", MozMailUrlfield);
 customElements.define("mail-tagfield", MozMailHeaderfieldTags);
 customElements.define("mail-newsgroup", MozMailNewsgroup);
 customElements.define("mail-newsgroups-headerfield", MozMailNewsgroupsHeaderfield);
+customElements.define("mail-messageid", MozMailMessageid);
