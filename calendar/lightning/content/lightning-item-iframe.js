@@ -2452,7 +2452,7 @@ function attachmentClick(aEvent) {
         item = item.parentNode;
     }
 
-    for (let node of event.target.children) {
+    for (let node of aEvent.target.children) {
         if (item.localName == "richlistitem" || node.id == "attachment-popup-attachPage") {
             showElement(node);
         } else {
