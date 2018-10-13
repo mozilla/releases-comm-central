@@ -971,3 +971,15 @@ toolbar[mode="text"] toolbarbutton.chevron > .toolbarbutton-icon {
 #feedsButton:hover {
   -moz-image-region: rect(16px 32px 32px 16px);
 }
+
+/* Need to set fixed width to stop the zoom display from changing size and moving around the zoom buttons */
+#zoomLevel-display {
+  width:60px;
+  max-width:60px;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.zoom-button-align{
+  padding-bottom: 3px;
+}

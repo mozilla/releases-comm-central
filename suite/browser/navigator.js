@@ -44,6 +44,83 @@ var gIgnoreFocus = false;
 var gIgnoreClick = false;
 var gURIFixup = null;
 
+// Listeners for updating zoom value in status bar
+const ZoomListeners =
+{
+
+  // Identifies the setting in the content prefs database.
+  name: "browser.content.full-zoom",
+
+  QueryInterface:
+  XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
+                         Components.interfaces.nsIContentPrefObserver,
+                         Components.interfaces.nsIContentPrefCallback2,
+                         Components.interfaces.nsISupportsWeakReference,
+                         Components.interfaces.nsISupports]),
+
+  init: function ()
+  {
+    Cc["@mozilla.org/content-pref/service;1"]
+    .getService(Ci.nsIContentPrefService2)
+    .addObserverForName(this.name, this);
+
+    Services.prefs.addObserver("browser.zoom.", this, true);
+    this.updateVisibility();
+  },
+
+  destroy: function ()
+  {
+    Cc["@mozilla.org/content-pref/service;1"]
+    .getService(Ci.nsIContentPrefService2)
+    .removeObserverForName(this.name, this);
+
+    Services.prefs.removeObserver("browser.zoom.", this);
+  },
+
+  observe: function (aSubject, aTopic, aData)
+  {
+    if (aTopic == "nsPref:changed"){
+      switch (aData) {
+        case "browser.zoom.siteSpecific":
+          updateZoomStatus();
+          break;
+        case "browser.zoom.showZoomStatusPanel":
+          this.updateVisibility();
+          break;
+      }
+    }
+  },
+
+  updateVisibility: function()
+  {
+    let hidden = !Services.prefs.getBoolPref("browser.zoom.showZoomStatusPanel");
+    document.getElementById("zoomOut-button").setAttribute('hidden', hidden);
+    document.getElementById("zoomIn-button").setAttribute('hidden', hidden);
+    document.getElementById("zoomLevel-display").setAttribute('hidden', hidden);
+  },
+
+  onContentPrefSet: function (aGroup, aName, aValue)
+  {
+    updateZoomStatus();
+  },
+
+  onContentPrefRemoved: function (aGroup, aName)
+  {
+    updateZoomStatus();
+  },
+
+  handleResult: function(aPref)
+  {
+    updateZoomStatus();
+  },
+
+  onLocationChange: function(aURI)
+  {
+    // Make sure zoom values loaded before updating
+    window.setTimeout(updateZoomStatus(), 0);
+  }
+};
+
 var gInitialPages = new Set([
   "about:blank",
   "about:privatebrowsing",
@@ -985,6 +1062,9 @@ function Startup()
     // initialize the session-restore service
     setTimeout(InitSessionStoreCallback, 0);
   }
+
+  ZoomListeners.init();
+  gBrowser.addTabsProgressListener(ZoomListeners);
 
   window.addEventListener("MozAfterPaint", DelayedStartup);
 }
@@ -3283,6 +3363,24 @@ function openCertManager()
 function onViewSecurityContextMenu()
 {
   document.getElementById("viewCertificate").disabled = !getCert();
+}
+
+function updateZoomStatus() {
+  let newLabel = Math.round(ZoomManager.zoom * 100) + " %";
+  let zoomStatusElement = document.getElementById("zoomLevel-display");
+  if (zoomStatusElement.getAttribute('label') != newLabel){
+    zoomStatusElement.setAttribute('label', newLabel);
+  }
+}
+
+function zoomIn() {
+  FullZoom.enlarge();
+  updateZoomStatus();
+}
+
+function zoomOut() {
+  FullZoom.reduce();
+  updateZoomStatus();
 }
 
 /**

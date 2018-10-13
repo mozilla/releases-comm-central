@@ -544,6 +544,11 @@
     <statusbarpanel class="statusbarpanel-progress" id="statusbar-progresspanel" collapsed="true">
       <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>
     </statusbarpanel>
+    <statusbarpanel class="statusbarpanel-iconic-text zoom-button-align" id="zoomOut-button" label="[-]"
+                    oncommand="zoomOut();"/>
+    <statusbarpanel class="statusbarpanel-iconic-text" id="zoomLevel-display" label="" oncommand="zoomReset();"/>
+    <statusbarpanel class="statusbarpanel-iconic-text zoom-button-align" id="zoomIn-button" label="[+]"
+                    oncommand="zoomIn();"/>
     <statusbarpanel id="popupIcon" class="statusbarpanel-iconic" hidden="true"
                     oncommand="StatusbarViewPopupManager()"
                     tooltiptext="&popupIcon.tooltiptext;"

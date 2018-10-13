@@ -24,15 +24,15 @@
   </keyset>
 
   <commandset id="viewZoomCommands">
-    <command id="cmd_zoomReduce"  oncommand="FullZoom.reduce();"/>
-    <command id="cmd_zoomEnlarge" oncommand="FullZoom.enlarge();"/>
-    <command id="cmd_zoomReset"   oncommand="FullZoom.reset();"/>
-    <command id="cmd_zoomOther"   oncommand="FullZoom.setOther();"/>
-    <command id="cmd_fullZoomToggle" oncommand="ZoomManager.toggleZoom();"/>
+    <command id="cmd_zoomReduce"  oncommand="zoomReduce();"/>
+    <command id="cmd_zoomEnlarge" oncommand="zoomEnlarge();"/>
+    <command id="cmd_zoomReset"   oncommand="zoomReset();"/>
+    <command id="cmd_zoomOther"   oncommand="zoomSetOther();"/>
+    <command id="cmd_fullZoomToggle" oncommand="zoomToggle();"/>
   </commandset>
 
   <menu id="menu_zoom">
-    <menupopup id="menu_zoomPopup" onpopupshowing="updateZoomMenu();" oncommand="FullZoom.zoom(event.target.value / 100);">
+    <menupopup id="menu_zoomPopup" onpopupshowing="updateZoomMenu();" oncommand="zoomSet(event.target.value / 100);">
       <menuitem id="menu_zoomReduce"
                 key="key_zoomReduce"
                 label="&zoomReduceCmd.label;"

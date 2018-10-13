@@ -260,6 +260,8 @@ nsBrowserStatusHandler.prototype =
       this.stopButton.disabled = true;
       this.stopMenu.setAttribute('disabled', 'true');
       this.stopContext.setAttribute('disabled', 'true');
+
+      ZoomListeners.onLocationChange(getBrowser().currentURI);
     }
   },
 
@@ -341,8 +343,10 @@ nsBrowserStatusHandler.prototype =
 
       // When background tab comes into foreground or loading a new page
       // (aRequest set), might want to update zoom.
-      if (FullZoom.updateBackgroundTabs || aRequest)
+      if (FullZoom.updateBackgroundTabs || aRequest){
         FullZoom.onLocationChange(getBrowser().currentURI, !aRequest, browser);
+        ZoomListeners.onLocationChange(getBrowser().currentURI);
+      }
     }
     UpdateBackForwardButtons();
 

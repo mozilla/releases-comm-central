@@ -450,3 +450,33 @@ function openZoomDialog() {
   }
   return o.zoomOK;
 }
+
+function zoomEnlarge() {
+  FullZoom.enlarge();
+  updateZoomStatus();
+}
+
+function zoomReduce() {
+  FullZoom.reduce();
+  updateZoomStatus();
+}
+
+function zoomReset() {
+  FullZoom.reset();
+  updateZoomStatus();
+}
+
+function zoomSetOther() {
+  FullZoom.setOther();
+  updateZoomStatus();
+}
+
+function zoomToggle() {
+  ZoomManager.toggleZoom();
+  updateZoomStatus();
+}
+
+function zoomSet(aValue) {
+  FullZoom.zoom(aValue)
+  updateZoomStatus();
+}
