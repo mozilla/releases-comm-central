@@ -845,7 +845,7 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
   return new Promise(resolve => {
     fp.open(rv => {
       dialogResult.filepickerClick = rv;
-      if (rv == nsIFilePicker.returnOK && fp.file) {
+      if (rv != nsIFilePicker.returnCancel && fp.file) {  // Allow OK and replace.
         // reset urlstring to new save location
         dialogResult.resultingURIString = fileHandler.getURLSpecFromFile(fp.file);
         dialogResult.resultingLocalFile = fp.file;
