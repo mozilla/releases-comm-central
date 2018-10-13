@@ -462,14 +462,15 @@ richlistbox:focus > richlistitem[selected="true"] {
   min-width: 66ch;
 }
 
-.dialogBox > .groupbox-title {
+.dialogTitleBar {
   padding: 3.5px 0;
   background-color: #f1f1f1;
   border-bottom: 1px solid #c1c1c1;
 }
 
 .dialogTitle {
-  font-size: .9em;
+  font-size: 1.026em;
+  font-weight: 600;
   text-align: center;
 }
 
@@ -480,12 +481,8 @@ richlistbox:focus > richlistitem[selected="true"] {
   min-height: auto;
 }
 
-.dialogBox > .groupbox-body {
-  -moz-appearance: none;
-  padding: 20px;
-}
-
 .dialogFrame {
+  margin: 20px;
   -moz-box-flex: 1;
   /* Default dialog dimensions */
   height: 12em;

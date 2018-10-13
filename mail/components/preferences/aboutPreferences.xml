@@ -43,22 +43,19 @@
                   pack="center"
                   topmost="true"
                   hidden="true">
-            <xul:groupbox class="dialogBox"
-                          orient="vertical"
-                          pack="end"
-                          role="dialog"
-                          aria-labelledby="dialogTitle">
-              <xul:caption class="titlebar"
-                           flex="1"
-                           align="center">
-                <xul:label class="dialogTitle" flex="1"></xul:label>
-                <xul:button class="dialogClose close-icon"
-                            aria-label="&preferencesCloseButton.label;"/>
-              </xul:caption>
-              <xul:browser class="dialogFrame"
-                           autoscroll="false"
-                           disablehistory="true"/>
-            </xul:groupbox>
+          <xul:vbox class="dialogBox"
+                    pack="end"
+                    role="dialog"
+                    aria-labelledby="dialogTitle">
+            <xul:hbox class="dialogTitleBar" align="center">
+              <xul:label class="dialogTitle" flex="1"/>
+              <xul:button class="dialogClose close-icon"
+                          aria-label="&preferencesCloseButton.label;"/>
+            </xul:hbox>
+            <xul:browser class="dialogFrame"
+                         autoscroll="false"
+                         disablehistory="true"/>
+            </xul:vbox>
         </xul:vbox>
       </xul:stack>
       <xul:hbox anonid="dlg-buttons" class="prefWindow-dlgbuttons"
