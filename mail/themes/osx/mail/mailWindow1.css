@@ -83,10 +83,6 @@
   }
 }
 
-treechildren::-moz-tree-cell-text(imapdeleted) {
-  text-decoration: line-through;
-}
-
 :root[lwt-tree] #folderTree,
 :root[lwt-tree] #folderPane-toolbar {
   background: var(--sidebar-background-color);

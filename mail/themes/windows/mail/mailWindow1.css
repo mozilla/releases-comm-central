@@ -51,10 +51,6 @@ treechildren::-moz-tree-cell-text(dummy) {
   font-weight: bold;
 }
 
-treechildren::-moz-tree-cell-text(imapdeleted) {
-  text-decoration: line-through;
-}
-
 #correspondentCol {
   padding-inline-start: 20px;
 }
