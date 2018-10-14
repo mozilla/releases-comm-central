@@ -3728,7 +3728,7 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char *aMsgID, nsresult aS
       bool deleteDraft;
       msgCompose->GetDeleteDraft(&deleteDraft);
       if (deleteDraft)
-        RemoveCurrentDraftMessage(msgCompose, false);
+        RemoveCurrentDraftMessage(msgCompose, false, true);
     }
     else
     {
@@ -3812,7 +3812,7 @@ nsMsgComposeSendListener::OnStopCopy(nsresult aStatus)
         msgCompose->NotifyStateListeners(nsIMsgComposeNotificationType::SaveInFolderDone, aStatus);
         // Remove the current draft msg when saving as draft/template is done.
         msgCompose->SetDeleteDraft(true);
-        RemoveCurrentDraftMessage(msgCompose, true);
+        RemoveCurrentDraftMessage(msgCompose, true, false);
       }
       else
       {
@@ -3821,7 +3821,7 @@ nsMsgComposeSendListener::OnStopCopy(nsresult aStatus)
             mDeliverMode == nsIMsgSend::nsMsgDeliverBackground)
         {
           msgCompose->SetDeleteDraft(true);
-          RemoveCurrentDraftMessage(msgCompose, true);
+          RemoveCurrentDraftMessage(msgCompose, true, true);
         }
         msgCompose->CloseWindow();
       }
@@ -3855,7 +3855,7 @@ nsMsgComposeSendListener::GetMsgFolder(nsIMsgCompose *compObj, nsIMsgFolder **ms
 }
 
 nsresult
-nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool calledByCopy)
+nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool calledByCopy, bool isSend)
 {
   nsresult rv;
   nsCOMPtr <nsIMsgCompFields> compFields = nullptr;
@@ -3892,6 +3892,9 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
         uint32_t flags;
         msgFolder->GetFlags(&flags);
         if (!(flags & (nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Templates)))
+          break;
+        // Never delete a template when sending.
+        if (isSend && (flags & nsMsgFolderFlags::Templates))
           break;
 
         // Only remove if the message is actually in the db. It might have only
