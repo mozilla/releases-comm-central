@@ -19,6 +19,7 @@ class MozMailHeaderfield extends MozXULElement {
 class MozMailUrlfield extends MozMailHeaderfield {
   connectedCallback() {
     super.connectedCallback();
+    this.setAttribute("context", "copyUrlPopup");
     this.classList.add("text-link", "headerValueUrl");
     this.addEventListener("click", (event) => {
       if (event.button != 2) {
