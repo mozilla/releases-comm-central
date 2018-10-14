@@ -132,8 +132,8 @@ function onPreInit(account, accountValues)
    "prefPanel-synchronization" : "prefPanel-diskspace";
 
   var prefBundle = document.getElementById("bundle_prefs");
-  var headertitle = document.getElementById("headertitle");
-  headertitle.setAttribute('title',prefBundle.getString(titleStringID));
+  document.querySelector("#headertitle > .dialogheader-title")
+          .setAttribute("value", prefBundle.getString(titleStringID));
   document.title = prefBundle.getString(titleStringID);
 
   if (gServerType == "pop3") {
