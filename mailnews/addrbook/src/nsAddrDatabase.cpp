@@ -153,7 +153,8 @@ NS_IMPL_ISUPPORTS(nsAddrDatabase, nsIAddrDatabase, nsIAddrDBAnnouncer)
 NS_IMETHODIMP nsAddrDatabase::AddListener(nsIAddrDBListener *listener)
 {
   NS_ENSURE_ARG_POINTER(listener);
-  return m_ChangeListeners.AppendElement(listener) ? NS_OK : NS_ERROR_FAILURE;
+  m_ChangeListeners.AppendElement(listener);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAddrDatabase::RemoveListener(nsIAddrDBListener *listener)

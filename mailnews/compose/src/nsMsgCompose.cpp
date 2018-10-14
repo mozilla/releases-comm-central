@@ -1125,14 +1125,14 @@ nsMsgCompose::RegisterStateListener(nsIMsgComposeStateListener *aStateListener)
 {
   NS_ENSURE_ARG_POINTER(aStateListener);
 
-  return mStateListeners.AppendElement(aStateListener) ? NS_OK : NS_ERROR_FAILURE;
+  mStateListeners.AppendElement(aStateListener);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgCompose::UnregisterStateListener(nsIMsgComposeStateListener *aStateListener)
 {
   NS_ENSURE_ARG_POINTER(aStateListener);
-
   return mStateListeners.RemoveElement(aStateListener) ? NS_OK : NS_ERROR_FAILURE;
 }
 
@@ -1140,7 +1140,8 @@ nsMsgCompose::UnregisterStateListener(nsIMsgComposeStateListener *aStateListener
 NS_IMETHODIMP nsMsgCompose::AddMsgSendListener( nsIMsgSendListener *aMsgSendListener )
 {
   NS_ENSURE_ARG_POINTER(aMsgSendListener);
-  return mExternalSendListeners.AppendElement(aMsgSendListener) ? NS_OK : NS_ERROR_FAILURE;
+  mExternalSendListeners.AppendElement(aMsgSendListener);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgCompose::RemoveMsgSendListener( nsIMsgSendListener *aMsgSendListener )

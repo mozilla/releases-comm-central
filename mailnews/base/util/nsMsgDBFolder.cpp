@@ -3048,11 +3048,14 @@ nsMsgDBFolder::GetNumSubFolders(uint32_t *aResult)
 
 NS_IMETHODIMP nsMsgDBFolder::AddFolderListener(nsIFolderListener * listener)
 {
-  return mListeners.AppendElement(listener) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+  NS_ENSURE_ARG_POINTER(listener);
+  mListeners.AppendElement(listener);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::RemoveFolderListener(nsIFolderListener * listener)
 {
+  NS_ENSURE_ARG_POINTER(listener);
   mListeners.RemoveElement(listener);
   return NS_OK;
 }
