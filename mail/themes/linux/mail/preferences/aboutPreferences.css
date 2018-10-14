@@ -42,6 +42,10 @@ textbox[type="number"] {
   background-color: var(--in-content-box-background);
 }
 
+.sidebar-footer-label {
+  font-size: 1em;
+}
+
 /**
  * Dialog
  */

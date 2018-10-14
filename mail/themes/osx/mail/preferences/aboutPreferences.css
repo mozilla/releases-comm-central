@@ -86,6 +86,10 @@ radio[pane][selected] {
   margin-inline-end: 8px !important;
 }
 
+.sidebar-footer-label {
+  font-size: 1.224em;
+}
+
 /**
  * Dialog
  */

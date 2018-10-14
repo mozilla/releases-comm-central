@@ -61,7 +61,6 @@ tabpanel > hbox > description {
   border-bottom: none;
   padding: 54px 0 0;
   margin: 0;
-  min-height: 100vh;
 }
 
 radio[pane] {

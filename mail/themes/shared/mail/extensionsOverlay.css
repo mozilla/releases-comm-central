@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #nav-header,
-#categories {
+#category-box {
   background-color: #ebebef;
 }
 
@@ -23,4 +23,12 @@
 
 #categories {
   padding-top: 0;
+}
+
+#preferencesButton {
+ margin-bottom: 36px;
+}
+
+.sidebar-footer-button.help-button {
+  display: none;
 }

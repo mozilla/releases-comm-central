@@ -21,6 +21,10 @@ caption {
   background-color: transparent;
 }
 
+.sidebar-footer-label {
+  font-size: 1.125em;
+}
+
 /**
  * Dialog
  */

@@ -3,6 +3,7 @@
 messenger.jar:
 % content messagebody %content/messagebody/ contentaccessible=yes
 % content messenger %content/messenger/
+% override chrome://browser/skin/preferences/in-content/general.svg chrome://mozapps/skin/extensions/utilities.svg
 % override chrome://global/content/nsDragAndDrop.js chrome://messenger/content/nsDragAndDrop.js
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
 #ifndef MOZILLA_OFFICIAL
