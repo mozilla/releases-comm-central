@@ -41,3 +41,5 @@
 <!ENTITY allowHWAccel.accesskey                 "e">
 <!ENTITY blockAutoRefresh.label                 "Warn me when websites try to redirect or reload the page">
 <!ENTITY blockAutoRefresh.accesskey             "W">
+
+<!ENTITY showZoomStatusPanel.label              "Show zoom controls in the status bar">

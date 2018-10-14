@@ -84,3 +84,6 @@
 <!ENTITY viewCertificate.accesskey   "C">
 <!ENTITY viewCertManager.label       "Open Certificate Manager">
 <!ENTITY viewCertManager.accesskey   "M">
+
+<!ENTITY zoomIn.tooltiptext          "Larger">
+<!ENTITY zoomOut.tooltiptext         "Smaller">

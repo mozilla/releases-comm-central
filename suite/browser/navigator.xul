@@ -545,10 +545,12 @@
       <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>
     </statusbarpanel>
     <statusbarpanel class="statusbarpanel-iconic-text zoom-button-align" id="zoomOut-button" label="[-]"
-                    oncommand="zoomOut();"/>
+                    oncommand="zoomOut();"
+                    tooltiptext="&zoomOut.tooltiptext;"/>
     <statusbarpanel class="statusbarpanel-iconic-text" id="zoomLevel-display" label="" oncommand="zoomReset();"/>
     <statusbarpanel class="statusbarpanel-iconic-text zoom-button-align" id="zoomIn-button" label="[+]"
-                    oncommand="zoomIn();"/>
+                    oncommand="zoomIn();"
+                    tooltiptext="&zoomIn.tooltiptext;"/>
     <statusbarpanel id="popupIcon" class="statusbarpanel-iconic" hidden="true"
                     oncommand="StatusbarViewPopupManager()"
                     tooltiptext="&popupIcon.tooltiptext;"

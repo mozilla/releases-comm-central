@@ -52,6 +52,9 @@
       <preference id="accessibility.blockautorefresh"
                   name="accessibility.blockautorefresh"
                   type="bool"/>
+      <preference id="browser.zoom.showZoomStatusPanel"
+                  name="browser.zoom.showZoomStatusPanel"
+                  type="bool"/>
     </preferences>
 
     <description>&pref.content.description;</description>
@@ -132,6 +135,9 @@
                 label="&blockAutoRefresh.label;"
                 accesskey="&blockAutoRefresh.accesskey;"
                 preference="accessibility.blockautorefresh"/>
+      <checkbox id="showZoomStatusPanel"
+                label="&showZoomStatusPanel.label;"
+                preference="browser.zoom.showZoomStatusPanel"/>
     </vbox>
 
   </prefpane>
