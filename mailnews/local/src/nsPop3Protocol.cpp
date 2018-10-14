@@ -2324,7 +2324,7 @@ int32_t nsPop3Protocol::SendPassword()
   {
     MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("PASS password")));
     cmd = "PASS ";
-    cmd += passwordUTF8.get();
+    cmd += passwordUTF8;
   }
   else
   {
