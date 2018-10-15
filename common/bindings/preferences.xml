@@ -744,6 +744,7 @@
         <![CDATA[
           var radio = document.createElement("radio");
           radio.setAttribute("pane", aPaneElement.id);
+          radio.setAttribute("value", aPaneElement.id);
           radio.setAttribute("label", aPaneElement.label);
           // Expose preference group choice to accessibility APIs as an unchecked list item
           // The parent group is exposed to accessibility APIs as a list
