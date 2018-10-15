@@ -47,6 +47,31 @@ gStrings.mailExt =
   let placeholder = textbox.getAttribute("placeholder");
   placeholder = placeholder.replace("addons.mozilla.org", "addons.thunderbird.net");
   textbox.setAttribute("placeholder", placeholder);
+
+  // Tell the world about legacy extensions.
+  let alertContainer = document.createElement("vbox");
+  alertContainer.id = "tb-legacy-extensions-notice";
+  alertContainer.className = "alert-container";
+
+  let alert = document.createElement("vbox");
+  alert.className = "alert";
+
+  let description = document.createElement("description");
+  let messageString = gStrings.mailExt.GetStringFromName("legacyInfo") + " ";
+  messageString = messageString.replace("#1", gStrings.brandShortName);
+  messageString = messageString.replace("#2", Services.appinfo.version);
+  description.textContent = messageString;
+
+  let label = document.createElement("label");
+  label.className = "text-link plain";
+  label.href = "https://www.example.com/";
+  label.value = gStrings.mailExt.GetStringFromName("legacyLearnMore");
+
+  description.appendChild(label);
+  alert.appendChild(description);
+  alertContainer.appendChild(alert);
+
+  gListView.node.insertBefore(alertContainer, document.getElementById("legacy-extensions-notice"));
 })();
 
 window._oldSortElements = window.sortElements;
