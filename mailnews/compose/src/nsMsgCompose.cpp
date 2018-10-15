@@ -1124,7 +1124,6 @@ NS_IMETHODIMP
 nsMsgCompose::RegisterStateListener(nsIMsgComposeStateListener *aStateListener)
 {
   NS_ENSURE_ARG_POINTER(aStateListener);
-
   mStateListeners.AppendElement(aStateListener);
   return NS_OK;
 }
