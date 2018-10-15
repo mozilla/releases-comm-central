@@ -30,7 +30,7 @@ SummaryFrameManager.prototype = {
   /**
    * Clear the summary frame.
    */
-  clear: function() {
+  clear() {
     this.loadAndCallback("about:blank");
   },
 
@@ -43,7 +43,7 @@ SummaryFrameManager.prototype = {
    * @param aCallback the callback to run when the URL has loaded; this function
    *        is passed a single boolean indicating if the URL was changed
    */
-  loadAndCallback: function(aUrl, aCallback) {
+  loadAndCallback(aUrl, aCallback) {
     this.url = aUrl;
     if (this.pendingOrLoadedUrl != aUrl) {
       // We're changing the document. Stash the callback that we want to call
@@ -52,26 +52,22 @@ SummaryFrameManager.prototype = {
       this.callback = null; // clear it
       this.iframe.contentDocument.location.href = aUrl;
       this.pendingOrLoadedUrl = aUrl;
-    }
-    else {
+    } else if (!this.pendingCallback) {
       // We're being called, but the document has been set already -- either
       // we've already received the DOMContentLoaded event, in which case we can
       // just call the callback directly, or we're still loading in which case
       // we should just wait for the dom event handler, but update the callback.
 
-      if (!this.pendingCallback) {
-        this.callback = aCallback;
-        if (this.callback) {
-          this.callback(false);
-        }
+      this.callback = aCallback;
+      if (this.callback) {
+        this.callback(false);
       }
-      else {
-        this.pendingCallback = aCallback;
-      }
+    } else {
+      this.pendingCallback = aCallback;
     }
   },
 
-  _onLoad: function(event) {
+  _onLoad(event) {
     try {
       // Make sure we're responding to the summary frame being loaded, and not
       // some subnode.
@@ -83,13 +79,12 @@ SummaryFrameManager.prototype = {
       this.pendingCallback = null;
       if (this.pendingOrLoadedUrl != this.iframe.contentDocument.location.href)
         Cu.reportError(
-          "Please do not load stuff in the multimessage browser directly, "+
+          "Please do not load stuff in the multimessage browser directly, " +
           "use the SummaryFrameManager instead.");
       else if (this.callback)
         this.callback(true);
-    }
-    catch (e) {
+    } catch (e) {
       Cu.reportError(e);
     }
-  }
+  },
 };

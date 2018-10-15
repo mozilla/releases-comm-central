@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This file uses eval, but really shouldn't. See bug 1498497.
+/* eslint-disable no-eval */
+
 this.EXPORTED_SYMBOLS = ["TBDistCustomizer"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var DISTRIBUTION_CUSTOMIZATION_COMPLETE_TOPIC =
-  "distribution-customization-complete";
-
 var TBDistCustomizer = {
-  applyPrefDefaults: function TBDistCustomizer_applyPrefDefaults() {
+  applyPrefDefaults() {
     this._prefDefaultsApplied = true;
     if (!this._ini) {
       return;
@@ -21,13 +21,13 @@ var TBDistCustomizer = {
 
     // The global section, and several of its fields, is required
     // Function exits if this section and its fields are not present
-    if (!sections["Global"]) {
+    if (!sections.Global) {
       return;
     }
 
     // Get the keys in the "Global" section  of the ini file
     let globalPrefs = enumToObject(this._ini.getKeys("Global"));
-    if (!(globalPrefs["id"] && globalPrefs["version"] && globalPrefs["about"])) {
+    if (!(globalPrefs.id && globalPrefs.version && globalPrefs.about)) {
       return;
     }
 
@@ -46,7 +46,7 @@ var TBDistCustomizer = {
     }
     defaults.setStringPref("distribution.about", partnerAbout);
 
-    if (sections["Preferences"]) {
+    if (sections.Preferences) {
       let keys = this._ini.getKeys("Preferences");
       while (keys.hasMore()) {
         let key = keys.getNext();
@@ -84,7 +84,7 @@ var TBDistCustomizer = {
     let localizedStr = Cc["@mozilla.org/pref-localizedstring;1"]
                          .createInstance(Ci.nsIPrefLocalizedString);
 
-    if (sections["LocalizablePreferences"]) {
+    if (sections.LocalizablePreferences) {
       let keys = this._ini.getKeys("LocalizablePreferences");
       while (keys.hasMore()) {
         let key = keys.getNext();
@@ -112,33 +112,30 @@ var TBDistCustomizer = {
         }
       }
     }
-    return true;
-  }
+  },
 };
 
-XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini",
-  function TBDistCustomizer_get__ini() {
-    let ini = null;
-    let iniFile = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
-    iniFile.append("distribution");
-    iniFile.append("distribution.ini");
-    if (iniFile.exists()) {
-      ini = Cc["@mozilla.org/xpcom/ini-parser-factory;1"]
-              .getService(Ci.nsIINIParserFactory)
-              .createINIParser(iniFile);
-    }
-    return ini;
+XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini", function() {
+  let ini = null;
+  let iniFile = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
+  iniFile.append("distribution");
+  iniFile.append("distribution.ini");
+  if (iniFile.exists()) {
+    ini = Cc["@mozilla.org/xpcom/ini-parser-factory;1"]
+            .getService(Ci.nsIINIParserFactory)
+            .createINIParser(iniFile);
+  }
+  return ini;
 });
 
-XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale",
-  function TBDistCustomizer_get__locale() {
-    return Services.locale.requestedLocale;
+XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale", function() {
+  return Services.locale.requestedLocale;
 });
 
 function enumToObject(UTF8Enumerator) {
   let ret = {};
   while (UTF8Enumerator.hasMore()) {
-    ret[UTF8Enumerator.getNext()] = 1
+    ret[UTF8Enumerator.getNext()] = 1;
   }
   return ret;
 }

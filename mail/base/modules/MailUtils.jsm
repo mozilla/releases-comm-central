@@ -4,7 +4,10 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {
+  fixIterator,
+  toXPCOMArray,
+} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource:///modules/MailConsts.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -17,22 +20,20 @@ var MC = MailConsts;
  * third-party code. Some functions are aimed at code that doesn't have a
  * window context, while others can be used anywhere.
  */
-var MailUtils =
-{
+var MailUtils = {
   /**
    * Discover all folders. This is useful during startup, when you have code
    * that deals with folders and that executes before the main 3pane window is
    * open (the folder tree wouldn't have been initialized yet).
    */
-  discoverFolders: function MailUtils_discoverFolders() {
+  discoverFolders() {
     let servers = MailServices.accounts.allServers;
     for (let server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
       // Bug 466311 Sometimes this can throw file not found, we're unsure
       // why, but catch it and log the fact.
       try {
         server.rootFolder.subFolders;
-      }
-      catch (ex) {
+      } catch (ex) {
         Services.console.logStringMessage("Discovering folders for account failed with " +
                                           "exception: " + ex);
       }
@@ -51,8 +52,7 @@ var MailUtils =
    * @returns the nsIMsgFolder corresponding to aFile, or null if the folder
    *          isn't found
    */
-  getFolderForFileInProfile:
-      function MailUtils_getFolderForFileInProfile(aFile) {
+  getFolderForFileInProfile(aFile) {
     let folders = MailServices.accounts.allFolders;
 
     for (let folder of fixIterator(folders, Ci.nsIMsgFolder)) {
@@ -73,18 +73,16 @@ var MailUtils =
    *          aCheckFolderAttributes is true and the folder doesn't have a
    *          parent or is a server
    */
-  getFolderForURI: function MailUtils_getFolderForURI(aFolderURI,
-                       aCheckFolderAttributes) {
+  getFolderForURI(aFolderURI, aCheckFolderAttributes) {
     let folder = null;
-    let rdfService = Cc['@mozilla.org/rdf/rdf-service;1']
+    let rdfService = Cc["@mozilla.org/rdf/rdf-service;1"]
                        .getService(Ci.nsIRDFService);
     folder = rdfService.GetResource(aFolderURI);
     // This is going to QI the folder to an nsIMsgFolder as well
     if (folder && folder instanceof Ci.nsIMsgFolder) {
       if (aCheckFolderAttributes && !(folder.parent || folder.isServer))
         return null;
-    }
-    else {
+    } else {
       return null;
     }
 
@@ -111,8 +109,7 @@ var MailUtils =
    *                   - if no 3pane windows are open, a standalone window is
    *                     opened instead of a tab
    */
-  displayMessage: function MailUtils_displayMessage(aMsgHdr,
-                      aViewWrapperToClone, aTabmail) {
+  displayMessage(aMsgHdr, aViewWrapperToClone, aTabmail) {
     this.displayMessages([aMsgHdr], aViewWrapperToClone, aTabmail);
   },
 
@@ -124,7 +121,7 @@ var MailUtils =
    * @param aConfirmMsg: message ID
    * @param aLiitingPref: the name of the pref to retrieve the limit from
    */
-  confirmAction: function (aNumMessages, aConfirmTitle, aConfirmMsg, aLimitingPref) {
+  confirmAction(aNumMessages, aConfirmTitle, aConfirmMsg, aLimitingPref) {
     let openWarning = Services.prefs.getIntPref(aLimitingPref);
     if ((openWarning > 1) && (aNumMessages >= openWarning)) {
       let bundle = Services.strings.createBundle(
@@ -158,21 +155,18 @@ var MailUtils =
    *                   - if no 3pane windows are open, standalone windows are
    *                     opened instead of tabs
    */
-  displayMessages: function MailUtils_displayMessages(aMsgHdrs,
-                       aViewWrapperToClone, aTabmail) {
+  displayMessages(aMsgHdrs, aViewWrapperToClone, aTabmail) {
     let openMessageBehavior = Services.prefs.getIntPref(
                                   "mail.openMessageBehavior");
 
     if (openMessageBehavior == MC.OpenMessageBehavior.NEW_WINDOW) {
       this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
-    }
-    else if (openMessageBehavior == MC.OpenMessageBehavior.EXISTING_WINDOW) {
+    } else if (openMessageBehavior == MC.OpenMessageBehavior.EXISTING_WINDOW) {
       // Try reusing an existing window. If we can't, fall back to opening new
       // windows
       if (aMsgHdrs.length > 1 || !this.openMessageInExistingWindow(aMsgHdrs[0]))
         this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
-    }
-    else if (openMessageBehavior == MC.OpenMessageBehavior.NEW_TAB) {
+    } else if (openMessageBehavior == MC.OpenMessageBehavior.NEW_TAB) {
       let mail3PaneWindow = null;
       if (!aTabmail) {
         // Try opening new tabs in a 3pane window
@@ -188,16 +182,16 @@ var MailUtils =
           return;
         for (let [i, msgHdr] of aMsgHdrs.entries())
           // Open all the tabs in the background, except for the last one
-          aTabmail.openTab("message", {msgHdr: msgHdr,
-              viewWrapperToClone: aViewWrapperToClone,
-              background: (i < (aMsgHdrs.length - 1)),
-              disregardOpener: (aMsgHdrs.length > 1),
+          aTabmail.openTab("message", {
+            msgHdr,
+            viewWrapperToClone: aViewWrapperToClone,
+            background: (i < (aMsgHdrs.length - 1)),
+            disregardOpener: (aMsgHdrs.length > 1),
           });
 
         if (mail3PaneWindow)
           mail3PaneWindow.focus();
-      }
-      else {
+      } else {
         // We still haven't found a tabmail, so we'll need to open new windows
         this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
       }
@@ -213,9 +207,7 @@ var MailUtils =
    * @returns true if an existing window was found and the message header was
    *          displayed, false otherwise
    */
-  openMessageInExistingWindow:
-      function MailUtils_openMessageInExistingWindow(aMsgHdr,
-                                                     aViewWrapperToClone) {
+  openMessageInExistingWindow(aMsgHdr, aViewWrapperToClone) {
     let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
     if (messageWindow) {
       messageWindow.displayMessage(aMsgHdr, aViewWrapperToClone);
@@ -231,8 +223,7 @@ var MailUtils =
    * @param [aViewWrapperToClone] a DB view wrapper to clone for the message
    *                              window
    */
-  openMessageInNewWindow:
-      function MailUtils_openMessageInNewWindow(aMsgHdr, aViewWrapperToClone) {
+  openMessageInNewWindow(aMsgHdr, aViewWrapperToClone) {
     // It sucks that we have to go through XPCOM for this
     let args = {msgHdr: aMsgHdr, viewWrapperToClone: aViewWrapperToClone};
     args.wrappedJSObject = args;
@@ -251,9 +242,7 @@ var MailUtils =
    * @param [aViewWrapperToClone] a DB view wrapper to clone for each message
    *                              window
    */
-   openMessagesInNewWindows:
-       function MailUtils_openMessagesInNewWindows(aMsgHdrs,
-                                                   aViewWrapperToClone) {
+  openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone) {
     if (this.confirmAction(aMsgHdrs.length, "openWindowWarningTitle",
                            "openWindowWarningConfirmation",
                            "mailnews.open_window_warning"))
@@ -270,14 +259,12 @@ var MailUtils =
    *
    * @param aMsgHdr the message header to display
    */
-  displayMessageInFolderTab: function MailUtils_displayMessageInFolderTab(
-                                 aMsgHdr) {
+  displayMessageInFolderTab(aMsgHdr) {
     // Try opening new tabs in a 3pane window
     let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
     if (mail3PaneWindow) {
       mail3PaneWindow.MsgDisplayMessageInFolderTab(aMsgHdr);
-    }
-    else {
+    } else {
       let args = {msgHdr: aMsgHdr};
       args.wrappedJSObject = args;
       Services.ww.openWindow(null,
@@ -337,11 +324,7 @@ var MailUtils =
    *     managed to set the values on all folders, false means we encountered a
    *     problem.
    */
-  setStringPropertyOnFolderAndDescendents:
-      function MailUtils_setStringPropertyOnFolderAndDescendents(aPropertyName,
-                                                                 aPropertyValue,
-                                                                 aFolder,
-                                                                 aCallback) {
+  setStringPropertyOnFolderAndDescendents(aPropertyName, aPropertyValue, aFolder, aCallback) {
     // We need to add the base folder as it does not get added by ListDescendants.
     let allFolders = toXPCOMArray([aFolder], Ci.nsIMutableArray);
     // - get all the descendants
@@ -370,8 +353,7 @@ var MailUtils =
           if (aCallback)
             aCallback(true);
         }
-      }
-      catch (ex) {
+      } catch (ex) {
         // Any type of exception kills the generator.
         timer.cancel();
         if (aCallback)

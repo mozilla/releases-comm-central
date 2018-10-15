@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/StringBundle.js");
 
@@ -37,9 +37,8 @@ function getCardForEmail(aEmailAddress) {
     try {
       let card = book.cardForEmailAddress(aEmailAddress);
       if (card)
-        return { book: book, card: card };
-    }
-    catch (ex) {}
+        return { book, card };
+    } catch (ex) {}
   }
 
   return { book: null, card: null };
@@ -71,8 +70,7 @@ function _getIdentityForAddress(aEmailAddress) {
  * @param aCard              The address book card, if any.
  * @return The formatted display name, or null.
  */
-function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard)
-{
+function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard) {
   var displayName = null;
   var identity = _getIdentityForAddress(aEmailAddress);
   var card = aCard || getCardForEmail(aEmailAddress).card;
@@ -100,7 +98,7 @@ function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard)
   // value from the message header).
   if (card) {
     // getProperty may return a "1" or "0" string, we want a boolean
-    if (card.getProperty("PreferDisplayName", true) != false)
+    if (card.getProperty("PreferDisplayName", "1") == "1")
       displayName = card.displayName || null;
 
     // Note: aHeaderDisplayName is not used as a fallback as confusion could be

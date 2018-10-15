@@ -2,12 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Session Storage and Restoration
- */
-
-/* :::::::: Constants and Helpers ::::::::::::::: */
-
 this.EXPORTED_SYMBOLS = ["SessionStoreManager"];
 
 ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
@@ -20,10 +14,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
  */
 var SESSION_AUTO_SAVE_DEFAULT_MS = 300000; // 5 minutes
 
-/* :::::::: The Module ::::::::::::::: */
-
-var SessionStoreManager =
-{
+var SessionStoreManager = {
   _initialized: false,
 
   /**
@@ -54,8 +45,7 @@ var SessionStoreManager =
   /**
    * The JSONFile store object.
    */
-  get store()
-  {
+  get store() {
     if (this._store)
       return this._store;
 
@@ -65,8 +55,7 @@ var SessionStoreManager =
   /**
    * Gets the nsIFile used for session storage.
    */
-  get sessionFile()
-  {
+  get sessionFile() {
     let sessionFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
     sessionFile.append("session.json");
     return sessionFile;
@@ -77,8 +66,7 @@ var SessionStoreManager =
    * the last 3 pane window was closed (e.g., on the mac, closing the last
    * window doesn't shut down the app).
    */
-  async _init()
-  {
+  async _init() {
     await this._loadSessionFile();
 
     // we listen for "quit-application-granted" instead of
@@ -95,8 +83,7 @@ var SessionStoreManager =
    * Loads the session file into _initialState. This should only be called by
    * _init and a unit test.
    */
-  async _loadSessionFile()
-  {
+  async _loadSessionFile() {
     if (!this.sessionFile.exists())
       return;
 
@@ -112,8 +99,7 @@ var SessionStoreManager =
   /**
    * Opens the windows that were open in the previous session.
    */
-  _openOtherRequiredWindows: function ssm_openOtherRequiredWindows(aWindow)
-  {
+  _openOtherRequiredWindows(aWindow) {
     // XXX we might want to display a restore page and let the user decide
     // whether to restore the other windows, just like Firefox does.
 
@@ -130,8 +116,7 @@ var SessionStoreManager =
   /**
    * Writes the state object to disk.
    */
-  _saveStateObject: function ssm_saveStateObject(aStateObj)
-  {
+  _saveStateObject(aStateObj) {
     if (!this.store) {
       Cu.reportError("SessionStoreManager: could not create data store from file");
       return;
@@ -153,19 +138,17 @@ var SessionStoreManager =
   /**
    * @return an empty state object that can be populated with window states.
    */
-  _createStateObject: function ssm_createStateObject()
-  {
+  _createStateObject() {
     return {
       rev: 0,
-      windows: []
+      windows: [],
     };
   },
 
   /**
    * Writes the state of all currently open 3pane windows to disk.
    */
-  _saveState: function ssm_saveState()
-  {
+  _saveState() {
     let state = this._createStateObject();
 
     // XXX we'd like to support other window types in future, but for now
@@ -181,16 +164,13 @@ var SessionStoreManager =
     this._saveStateObject(state);
   },
 
-/* ........ Timer Callback ................*/
-
-  _sessionAutoSaveTimerCallback: function ssm_sessionAutoSaveTimerCallback()
-  {
+  // Timer Callback
+  _sessionAutoSaveTimerCallback() {
     SessionStoreManager._saveState();
   },
 
-/* ........ Observer Notification Handler ................*/
-
-  observe: function ssm_observe(aSubject, aTopic, aData) {
+  // Observer Notification Handler
+  observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     // This is observed before any windows start unloading if something other
     // than the last 3pane window closing requested the application be
@@ -208,7 +188,7 @@ var SessionStoreManager =
     }
   },
 
-/* ........ Public API ................*/
+  // Public API
 
   /**
    * Called by each 3pane window instance when it loads.
@@ -216,8 +196,7 @@ var SessionStoreManager =
    * @return a window state object if aWindow was opened as a result of a
    *         session restoration, null otherwise.
    */
-  async loadingWindow(aWindow)
-  {
+  async loadingWindow(aWindow) {
     let firstWindow = !this._initialized || this._shutdownStateSaved;
     if (firstWindow)
       await this._init();
@@ -247,8 +226,7 @@ var SessionStoreManager =
    * last 3pane window, its state is persisted. The last 3pane window unloads
    * first before the "quit-application-granted" event is generated.
    */
-  unloadingWindow: function ssm_unloadingWindow(aWindow)
-  {
+  unloadingWindow(aWindow) {
     if (!this._shutdownStateSaved) {
       // determine whether aWindow is the last open window
       let lastWindow = true;
@@ -278,8 +256,7 @@ var SessionStoreManager =
   /**
    * Stops periodic session persistence.
    */
-  stopPeriodicSave: function ssm_stopPeriodicSave()
-  {
+  stopPeriodicSave() {
     if (this._sessionAutoSaveTimer) {
       this._sessionAutoSaveTimer.cancel();
 
@@ -291,8 +268,7 @@ var SessionStoreManager =
   /**
    * Starts periodic session persistence.
    */
-  startPeriodicSave: function ssm_startPeriodicSave()
-  {
+  startPeriodicSave() {
     if (!this._sessionAutoSaveTimer) {
       this._sessionAutoSaveTimer = Cc["@mozilla.org/timer;1"]
                                    .createInstance(Ci.nsITimer);
@@ -302,5 +278,5 @@ var SessionStoreManager =
                                    this._sessionAutoSaveTimerIntervalMS,
                                    Ci.nsITimer.TYPE_REPEATING_SLACK);
     }
-  }
+  },
 };

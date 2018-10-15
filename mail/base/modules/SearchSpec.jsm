@@ -2,19 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['SearchSpec'];
+this.EXPORTED_SYMBOLS = ["SearchSpec"];
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
-var nsIMsgLocalMailFolder = Ci.nsIMsgLocalMailFolder;
-var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-
-var NS_MSG_SEARCH_INTERRUPTED = 0x00550002;
 
 /**
  * Wrapper abstraction around a view's search session.  This is basically a
@@ -37,7 +29,7 @@ SearchSpec.prototype = {
   /**
    * Clone this SearchSpec; intended to be used by DBViewWrapper.clone().
    */
-  clone: function SearchSpec_clone(aViewWrapper) {
+  clone(aViewWrapper) {
     let doppel = new SearchSpec(aViewWrapper);
 
     // we can just copy the terms since we never mutate them
@@ -88,14 +80,13 @@ SearchSpec.prototype = {
    *  caused us to introduce this method.  (We want the DB View's OnDone method
    *  to run before our listener, as it may do important work.)
    */
-  associateView: function SearchSpec_associateView(aDBView) {
+  associateView(aDBView) {
     if (this.hasSearchTerms) {
       this.updateSession();
 
       if (this.owner.isSynthetic) {
         this.owner._syntheticView.search(new FilteringSyntheticListener(this));
-      }
-      else {
+      } else {
         if (!this._sessionListener)
           this._sessionListener = new SearchSpecListener(this);
 
@@ -110,10 +101,9 @@ SearchSpec.prototype = {
         this.owner.searching = true;
         this.session.search(this.owner.listener.msgWindow);
       }
-    }
-    // if it's synthetic but we have no search terms, hook the output of the
-    //  synthetic view directly up to the search nsIMsgDBView
-    else if (this.owner.isSynthetic) {
+    } else if (this.owner.isSynthetic) {
+      // If it's synthetic but we have no search terms, hook the output of the
+      // synthetic view directly up to the search nsIMsgDBView.
       let owner = this.owner;
       owner.searching = true;
       this.owner._syntheticView.search(
@@ -125,7 +115,7 @@ SearchSpec.prototype = {
    * Stop any active search and stop the db view being a search listener (if it
    *  is one).
    */
-  dissociateView: function SearchSpec_dissociateView(aDBView) {
+  dissociateView(aDBView) {
     // If we are currently searching, interrupt the search.  This will
     //  immediately notify the listeners that the search is done with and
     //  clear the searching flag for us.
@@ -151,8 +141,7 @@ SearchSpec.prototype = {
    * @param aTerms The search terms
    * @param aCloneTerms Do we need to clone the terms?
    */
-  _flattenGroupifyTerms: function SearchSpec__flattenGroupifyTerms(aTerms,
-                                                                   aCloneTerms){
+  _flattenGroupifyTerms(aTerms, aCloneTerms) {
     let iTerm = 0, term;
     let outTerms = aCloneTerms ? [] : aTerms;
     for (term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
@@ -173,8 +162,7 @@ SearchSpec.prototype = {
         term.beginsGrouping = true;
         term.endsGrouping = false;
         term.booleanAnd = true;
-      }
-      else {
+      } else {
         term.beginsGrouping = false;
         term.endsGrouping = false;
       }
@@ -198,7 +186,7 @@ SearchSpec.prototype = {
    * @param aTerms The search terms
    * @param aCloneTerms Do we need to clone the terms?
    */
-  _groupifyTerms: function SearchSpec__groupifyTerms(aTerms, aCloneTerms) {
+  _groupifyTerms(aTerms, aCloneTerms) {
     let term;
     let outTerms = aCloneTerms ? [] : aTerms;
     let inGroup = false;
@@ -210,10 +198,9 @@ SearchSpec.prototype = {
           return this._flattenGroupifyTerms(aTerms, aCloneTerms);
         else if (term.endsGrouping)
           inGroup = false;
-      }
-      // If we're not in a group, the boolean must be AND.  It's okay for a group
-      // to start.
-      else {
+      } else {
+        // If we're not in a group, the boolean must be AND.  It's okay for a group
+        // to start.
         // If it's not an AND then it needs to be in a group and we use the other
         //  function to take care of it.  (This function can't back up...)
         if (!term.booleanAnd)
@@ -317,7 +304,7 @@ SearchSpec.prototype = {
     return this._userTerms;
   },
 
-  clear: function SearchSpec_clear() {
+  clear() {
     if (this.hasSearchTerms) {
       this._viewTerms = null;
       this._virtualFolderTerms = null;
@@ -352,40 +339,28 @@ SearchSpec.prototype = {
    *  terms gets wrapped into a group which is boolean anded together with
    *  everything else.
    */
-  updateSession: function SearchSpec_applySearch() {
+  updateSession() {
     let session = this.session;
 
     // clear out our current terms and scope
     session.searchTerms.clear();
     session.clearScopes();
 
-    // the scope logic needs to know if any terms look at the body attribute.
-    let haveBodyTerm = false;
-
     // -- apply terms
     if (this._virtualFolderTerms) {
-      for (let term of fixIterator(this._virtualFolderTerms,
-                                   nsIMsgSearchTerm)) {
-        if (term.attrib == nsMsgSearchAttrib.Body)
-          haveBodyTerm = true;
+      for (let term of fixIterator(this._virtualFolderTerms, Ci.nsIMsgSearchTerm)) {
         session.appendTerm(term);
       }
     }
 
     if (this._viewTerms) {
-      for (let term of fixIterator(this._viewTerms,
-                                   nsIMsgSearchTerm)) {
-        if (term.attrib == nsMsgSearchAttrib.Body)
-          haveBodyTerm = true;
+      for (let term of fixIterator(this._viewTerms, Ci.nsIMsgSearchTerm)) {
         session.appendTerm(term);
       }
     }
 
     if (this._userTerms) {
-      for (let term of fixIterator(this._userTerms,
-                                   nsIMsgSearchTerm)) {
-        if (term.attrib == nsMsgSearchAttrib.Body)
-          haveBodyTerm = true;
+      for (let term of fixIterator(this._userTerms, Ci.nsIMsgSearchTerm)) {
         session.appendTerm(term);
       }
     }
@@ -396,12 +371,12 @@ SearchSpec.prototype = {
     if (this.owner.isSynthetic) {
       // We don't want to pass in a folder, and we don't want to use the
       //  allSearchableGroups scope, so we cheat and use AddDirectoryScopeTerm.
-      session.addDirectoryScopeTerm(nsMsgSearchScope.offlineMail);
+      session.addDirectoryScopeTerm(Ci.nsMsgSearchScope.offlineMail);
       return;
     }
 
     let filtering = this._userTerms != null || this._viewTerms != null;
-    let validityManager = Cc['@mozilla.org/mail/search/validityManager;1']
+    let validityManager = Cc["@mozilla.org/mail/search/validityManager;1"]
                             .getService(Ci.nsIMsgSearchValidityManager);
     for (let folder of this.owner._underlyingFolders) {
       // we do not need to check isServer here because _underlyingFolders
@@ -411,26 +386,26 @@ SearchSpec.prototype = {
       let serverScope = folder.server.searchScope;
       // If we're offline, or this is a local folder, or there's no separate
       //  online scope, use server scope.
-      if (Services.io.offline || (serverScope == nsMsgSearchScope.offlineMail) ||
-                                 (folder instanceof nsIMsgLocalMailFolder))
+      if (Services.io.offline || (serverScope == Ci.nsMsgSearchScope.offlineMail) ||
+                                 (folder instanceof Ci.nsIMsgLocalMailFolder)) {
         scope = serverScope;
-      else {
+      } else {
         // we need to test the validity in online and offline tables
         let onlineValidityTable = validityManager.getTable(serverScope);
 
         let offlineScope;
-        if (folder.flags & nsMsgFolderFlags.Offline)
-          offlineScope = nsMsgSearchScope.offlineMail;
+        if (folder.flags & Ci.nsMsgFolderFlags.Offline)
+          offlineScope = Ci.nsMsgSearchScope.offlineMail;
         else
           // The onlineManual table is used for local search when there is no
           //  body available.
-          offlineScope = nsMsgSearchScope.onlineManual;
+          offlineScope = Ci.nsMsgSearchScope.onlineManual;
 
         let offlineValidityTable = validityManager.getTable(offlineScope);
         let offlineAvailable = true;
         let onlineAvailable = true;
         for (let term of fixIterator(session.searchTerms,
-                                     nsIMsgSearchTerm)) {
+                                     Ci.nsIMsgSearchTerm)) {
           if (!term.matchAll) {
             // for custom terms, we need to getAvailable from the custom term
             if (term.attrib == Ci.nsMsgSearchAttrib.Custom) {
@@ -438,11 +413,10 @@ SearchSpec.prototype = {
               if (customTerm) {
                 offlineAvailable = customTerm.getAvailable(offlineScope, term.op);
                 onlineAvailable = customTerm.getAvailable(serverScope, term.op);
-              }
-              else // maybe an extension with a custom term was unloaded?
+              } else { // maybe an extension with a custom term was unloaded?
                 Cu.reportError("Custom search term " + term.customId + " missing");
-            }
-            else {
+              }
+            } else {
               if (!offlineValidityTable.getAvailable(term.attrib, term.op))
                 offlineAvailable = false;
               if (!onlineValidityTable.getAvailable(term.attrib, term.op))
@@ -464,30 +438,30 @@ SearchSpec.prototype = {
     }
   },
 
-  prettyStringOfSearchTerms: function(aSearchTerms) {
+  prettyStringOfSearchTerms(aSearchTerms) {
     if (aSearchTerms == null)
-      return '      (none)\n';
+      return "      (none)\n";
 
-    let s = '';
+    let s = "";
 
-    for (let term of fixIterator(aSearchTerms, nsIMsgSearchTerm)) {
-      s += '      ' + term.termAsString + '\n';
+    for (let term of fixIterator(aSearchTerms, Ci.nsIMsgSearchTerm)) {
+      s += "      " + term.termAsString + "\n";
     }
 
     return s;
   },
 
-  prettyString: function() {
-    let s = '  Search Terms:\n';
-    s += '    Virtual Folder Terms:\n';
+  prettyString() {
+    let s = "  Search Terms:\n";
+    s += "    Virtual Folder Terms:\n";
     s += this.prettyStringOfSearchTerms(this._virtualFolderTerms);
-    s += '    View Terms:\n';
+    s += "    View Terms:\n";
     s += this.prettyStringOfSearchTerms(this._viewTerms);
-    s += '    User Terms:\n';
+    s += "    User Terms:\n";
     s += this.prettyStringOfSearchTerms(this._userTerms);
-    s += '    Scope (Folders):\n';
+    s += "    Scope (Folders):\n";
     for (let folder of this.owner._underlyingFolders) {
-      s += '      ' + folder.prettyName + '\n';
+      s += "      " + folder.prettyName + "\n";
     }
     return s;
   },
@@ -501,7 +475,7 @@ function SearchSpecListener(aSearchSpec) {
   this.searchSpec = aSearchSpec;
 }
 SearchSpecListener.prototype = {
-  onNewSearch: function SearchSpecListener_onNewSearch() {
+  onNewSearch() {
     // searching should already be true by the time this happens.  if it's not,
     //  it means some code is poking at the search session.  bad!
     if (!this.searchSpec.owner.searching) {
@@ -510,11 +484,11 @@ SearchSpecListener.prototype = {
     }
   },
 
-  onSearchHit: function SearchSpecListener_onSearchHit(aMsgHdr, aFolder) {
+  onSearchHit(aMsgHdr, aFolder) {
     // this method is never invoked!
   },
 
-  onSearchDone: function SearchSpecListener_onSearchDone(aStatus) {
+  onSearchDone(aStatus) {
     this.searchSpec.owner.searching = false;
   },
 };
@@ -533,20 +507,19 @@ function FilteringSyntheticListener(aSearchSpec) {
     this.searchSpec.owner.dbView.QueryInterface(Ci.nsIMsgSearchNotify);
 }
 FilteringSyntheticListener.prototype = {
-  onNewSearch: function FilteringSyntheticListener_onNewSearch() {
+  onNewSearch() {
     this.searchSpec.owner.searching = true;
     this.dbView.onNewSearch();
   },
-  onSearchHit:
-      function FilteringSyntheticListener_onSearchHit(aMsgHdr, aFolder) {
+  onSearchHit(aMsgHdr, aFolder) {
     // We don't need to worry about msgDatabase opening the database.
     // It is (obviously) already open, and presumably gloda is already on the
     //  hook to perform the cleanup (assuming gloda is backing this search).
     if (this.session.MatchHdr(aMsgHdr, aFolder.msgDatabase))
       this.dbView.onSearchHit(aMsgHdr, aFolder);
   },
-  onSearchDone: function FilteringSyntheticListener_OnSearchDone(aStatus) {
+  onSearchDone(aStatus) {
     this.searchSpec.owner.searching = false;
     this.dbView.onSearchDone(aStatus);
-  }
+  },
 };

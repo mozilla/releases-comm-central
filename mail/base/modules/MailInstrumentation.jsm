@@ -12,7 +12,7 @@ this.EXPORTED_SYMBOLS = ["MailInstrumentation"];
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
-ChromeUtils.import("resource:///modules/errUtils.js");
+const { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -20,8 +20,7 @@ Cu.importGlobalProperties(["XMLHttpRequest"]);
 
 /* :::::::: The Module ::::::::::::::: */
 
-var MailInstrumentation =
-{
+var MailInstrumentation = {
   // JS object containing the current state object
   _currentState: null,
 
@@ -37,22 +36,22 @@ var MailInstrumentation =
   // if true, we need to remove our observers in uninit.
   _observersRegistered: false,
 
-  observe: function (aSubject, aTopic, aState) {
+  observe(aSubject, aTopic, aState) {
     if (aTopic == "mail:composeSendSucceeded")
       MailInstrumentation.addEvent("msgSent", true);
     else if (aTopic == "mail:setAsDefault")
       MailInstrumentation.addEvent("setAsDefault", true);
 
   },
-  msgAdded: function (aMsg) {
+  msgAdded(aMsg) {
     MailServices.mfn.removeListener(this);
     this._mfnListener = false;
     MailInstrumentation.addEvent("msgDownloaded", true);
   },
 
-  _accountsChanged: function() {
+  _accountsChanged() {
     // check if there are at least two accounts - one is local folders account
-    if (Services.prefs.getCharPref("mail.accountmanager.accounts").includes(',', 1)) {
+    if (Services.prefs.getCharPref("mail.accountmanager.accounts").includes(",", 1)) {
       MailInstrumentation.addEvent("accountAdded", true);
       MailInstrumentation._removeObserver(
         "mail.accountmanager.accounts",
@@ -60,23 +59,25 @@ var MailInstrumentation =
 
     }
   },
-  _smtpServerAdded: function() {
+  _smtpServerAdded() {
     MailInstrumentation.addEvent("smtpServerAdded", true);
     MailInstrumentation._removeObserver("mail.smtpservers",
       MailInstrumentation._smtpServerAdded);
   },
-  _userOptedIn: function() {
+  _userOptedIn() {
     try {
       if (Services.prefs.getBoolPref("mail.instrumentation.userOptedIn"))
         MailInstrumentation._postStateObject();
-    } catch (ex) {logException(ex);}
+    } catch (ex) {
+      logException(ex);
+    }
   },
 
   /**
    * Loads the last saved state. This should only be called by
    * _init and a unit test.
    */
-  _loadState: function minst_loadState() {
+  _loadState() {
     let data = Services.prefs.getCharPref("mail.instrumentation.lastNotificationSent");
     if (data) {
       try {
@@ -91,7 +92,7 @@ var MailInstrumentation =
   /**
    * Writes the state object to disk.
    */
-  _postStateObject: function minst_postStateObject() {
+  _postStateObject() {
     // Getting defaultAccount will throw an exception if no account is set up.
     // This method runs for the smtp server before the account has been set up.
     if (MailServices.accounts.accounts.length == 0)
@@ -126,23 +127,23 @@ var MailInstrumentation =
   /**
    * @return an empty state object that can be populated with window states.
    */
-  _createStateObject: function minst_createStateObject() {
+  _createStateObject() {
     return {
       rev: 0,
       userEmailHash: "",
       // these will be a tuple, time stamp and answer, indexed by question key.
-      events: new Object,
+      events: {},
     };
   },
   // Convert each hashed byte into 2-hex strings, then combine them.
-  _bytesAsHex: function minst_bytesAsHex(bytes) {
+  _bytesAsHex(bytes) {
     return Array.from(bytes).
       map(byte => ("0" + byte.charCodeAt().toString(16)).slice(-2)).join("");
   },
   /**
    * Return sha-256 hash of the passed in e-mail address
    */
-  _hashEmailAddress: function minst_hashEmailAddress(address) {
+  _hashEmailAddress(address) {
     let ch = Cc["@mozilla.org/security/hash;1"]
                .createInstance(Ci.nsICryptoHash);
     ch.init(ch.SHA256);
@@ -156,7 +157,7 @@ var MailInstrumentation =
     return this._bytesAsHex(hashedData);
   },
 
-  _postData: function minst_postData() {
+  _postData() {
     let req = new XMLHttpRequest();
     let url = Services.prefs.getCharPref("mail.instrumentation.postUrl");
     if (!url.length)
@@ -167,21 +168,21 @@ var MailInstrumentation =
     req.onload = this._onLoad;
     req.send(dataToPost);
   },
-  _onError: function minst_onError(e) {
+  _onError(e) {
     logException(e);
   },
-  _onLoad: function minst_onLoad() {
+  _onLoad() {
     Services.prefs.setCharPref("mail.instrumentation.lastNotificationSent",
                                this._lastStateString);
   },
   // keeps track of whether or not we've removed the observer for a given
   // pref name.
-  _prefsObserved : new Map(),
-  _addObserver : function(pref, observer) {
+  _prefsObserved: new Map(),
+  _addObserver(pref, observer) {
     Services.prefs.addObserver(pref, observer);
     this._prefsObserved.set(pref, true);
   },
-  _removeObserver : function(pref, observer) {
+  _removeObserver(pref, observer) {
     if (this._prefsObserved.has(pref)) {
       Services.prefs.removeObserver(pref, observer);
       this._prefsObserved.set(pref, false);
@@ -191,7 +192,7 @@ var MailInstrumentation =
   /**
    * This is called to initialize the instrumentation.
    */
-  init: function minst_init() {
+  init() {
     // If we're done with instrumentation, or this is not a first run,
     // we should just return immediately.
     if (!Services.prefs.getBoolPref("mail.instrumentation.askUser"))
@@ -211,7 +212,7 @@ var MailInstrumentation =
     this._observersRegistered = true;
     this._mfnListener = true;
   },
-  uninit: function() {
+  uninit() {
     if (!this._observersRegistered)
       return;
     Services.obs.removeObserver(this, "mail:composeSendSucceeded");
@@ -225,16 +226,18 @@ var MailInstrumentation =
   /**
    * This adds an event to the current state, if it doesn't exist.
    */
-  addEvent: function minst_addEvent(aEventKey, aData) {
+  addEvent(aEventKey, aData) {
     try {
       if (!(aEventKey in this._currentState.events)) {
-        let newEvent = new Object;
+        let newEvent = {};
         newEvent.time = Date.now();
         newEvent.data = aData;
         this._currentState.events[aEventKey] = newEvent;
         this._postStateObject();
       }
-    } catch(ex) {logException(ex);}
+    } catch (ex) {
+      logException(ex);
+    }
   },
 };
 

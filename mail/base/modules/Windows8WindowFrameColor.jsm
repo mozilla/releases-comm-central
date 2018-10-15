@@ -6,14 +6,12 @@
 
 this.EXPORTED_SYMBOLS = ["Windows8WindowFrameColor"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const { WindowsRegistry } = ChromeUtils.import("resource://gre/modules/WindowsRegistry.jsm", null);
+ChromeUtils.import("resource://gre/modules/WindowsRegistry.jsm");
 
 var Windows8WindowFrameColor = {
   _windowFrameColor: null,
 
-  get: function() {
+  get() {
     if (this._windowFrameColor)
       return this._windowFrameColor;
 
@@ -32,7 +30,7 @@ var Windows8WindowFrameColor = {
     // Zero-pad the number just to make sure that it is 8 digits.
     customizationColorHex = ("00000000" + customizationColorHex).substr(-8);
     let customizationColorArray = customizationColorHex.match(/../g);
-    let [unused, fgR, fgG, fgB] = customizationColorArray.map(val => parseInt(val, 16));
+    let [, fgR, fgG, fgB] = customizationColorArray.map(val => parseInt(val, 16));
     let colorizationColorBalance = WindowsRegistry.readRegKey(HKCU, dwmKey,
                                                               "ColorizationColorBalance");
     if (colorizationColorBalance == undefined) {

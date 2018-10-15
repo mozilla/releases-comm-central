@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['MailViewManager', 'MailViewConstants'];
-
-var nsMsgSearchScope  = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp     = Ci.nsMsgSearchOp;
-
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
+this.EXPORTED_SYMBOLS = ["MailViewManager", "MailViewConstants"];
 
 /**
  * Put the MailViewConstants in an object so we can export them to
@@ -56,7 +50,7 @@ var MailViewManager = {
    * - index: The index to assign to the view.
    * - makeTerms: A function to invoke that returns a list of search terms.
    */
-  defineView: function MailViewManager_defineView(aViewDef) {
+  defineView(aViewDef) {
     this._views[aViewDef.index] = aViewDef;
   },
 
@@ -66,18 +60,18 @@ var MailViewManager = {
    *  a performance perspective, but they will change enough to make stale
    *  caches a potential issue.
    */
-  _wrapCustomView: function MailViewManager_wrapCustomView(aCustomViewIndex) {
+  _wrapCustomView(aCustomViewIndex) {
     let mailView = this._customMailViews.getMailViewAt(aCustomViewIndex);
     return {
       name: mailView.prettyName, // since the user created it it's localized
       index: aCustomViewIndex,
-      makeTerms: function(aSession, aData) {
+      makeTerms(aSession, aData) {
         return mailView.searchTerms;
-      }
+      },
     };
   },
 
-  _findCustomViewByName: function MailViewManager_findCustomViewByName(aName) {
+  _findCustomViewByName(aName) {
     let count = this._customMailViews.mailViewCount;
     for (let i = 0; i < count; i++) {
       let mailView = this._customMailViews.getMailViewAt(i);
@@ -97,75 +91,73 @@ var MailViewManager = {
    *      of a custom view.  The string case is mainly intended for testing
    *      purposes.
    */
-  getMailViewByIndex: function MailViewManager_getMailViewByIndex(aViewIndex) {
+  getMailViewByIndex(aViewIndex) {
     if (typeof(aViewIndex) == "string")
       return this._findCustomViewByName(aViewIndex);
     if (aViewIndex < MailViewConstants.kViewItemFirstCustom)
       return this._views[aViewIndex];
-    else
-      return this._wrapCustomView(aViewIndex -
-                                  MailViewConstants.kViewItemFirstCustom);
+    return this._wrapCustomView(aViewIndex - MailViewConstants.kViewItemFirstCustom);
   },
 };
 
 MailViewManager.defineView({
   name: "all mail", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemAll,
-  makeTerms: function(aSession, aData) {
+  makeTerms(aSession, aData) {
     return null;
-  }
+  },
 });
 
 MailViewManager.defineView({
   name: "new mail / unread", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemUnread,
-  makeTerms: function(aSession, aData) {
+  makeTerms(aSession, aData) {
     let term = aSession.createTerm();
     let value = term.value;
 
-    value.status = nsMsgMessageFlags.Read;
-    value.attrib = nsMsgSearchAttrib.MsgStatus;
+    value.status = Ci.nsMsgMessageFlags.Read;
+    value.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
     term.value = value;
-    term.attrib = nsMsgSearchAttrib.MsgStatus;
-    term.op = nsMsgSearchOp.Isnt;
+    term.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
+    term.op = Ci.nsMsgSearchOp.Isnt;
     term.booleanAnd = true;
 
     return [term];
-  }
+  },
 });
 
 MailViewManager.defineView({
   name: "tags", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemTags,
-  makeTerms: function(aSession, aKeyword) {
+  makeTerms(aSession, aKeyword) {
     let term = aSession.createTerm();
     let value = term.value;
 
     value.str = aKeyword;
-    value.attrib = nsMsgSearchAttrib.Keywords;
+    value.attrib = Ci.nsMsgSearchAttrib.Keywords;
     term.value = value;
-    term.attrib = nsMsgSearchAttrib.Keywords;
-    term.op = nsMsgSearchOp.Contains;
+    term.attrib = Ci.nsMsgSearchAttrib.Keywords;
+    term.op = Ci.nsMsgSearchOp.Contains;
     term.booleanAnd = true;
 
     return [term];
-  }
+  },
 });
 
 MailViewManager.defineView({
   name: "not deleted", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemNotDeleted,
-  makeTerms: function(aSession, aKeyword) {
+  makeTerms(aSession, aKeyword) {
     let term = aSession.createTerm();
     let value = term.value;
 
-    value.status = nsMsgMessageFlags.IMAPDeleted;
-    value.attrib = nsMsgSearchAttrib.MsgStatus;
+    value.status = Ci.nsMsgMessageFlags.IMAPDeleted;
+    value.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
     term.value = value;
-    term.attrib = nsMsgSearchAttrib.MsgStatus;
-    term.op = nsMsgSearchOp.Isnt;
+    term.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
+    term.op = Ci.nsMsgSearchOp.Isnt;
     term.booleanAnd = true;
 
     return [term];
-  }
+  },
 });

@@ -9,20 +9,17 @@ ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/errUtils.js");
+const {
+  logException,
+  logObject,
+} = ChromeUtils.import("resource:///modules/errUtils.js", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/SearchSpec.jsm");
-
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
 
 // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
 // but this should really just be exposed on the main Gloda public interface.
-ChromeUtils.import("resource:///modules/gloda/indexer.js");
+const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.js", null);
 // we need to be able to create gloda message searcher instances for upsells:
-ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+const { GlodaMsgSearcher } = ChromeUtils.import("resource:///modules/gloda/msg_search.js", null);
 
 
 /**
@@ -54,13 +51,11 @@ function QuickFilterState(aTemplateState, aJsonedState) {
   if (aJsonedState) {
     this.filterValues = aJsonedState.filterValues;
     this.visible = aJsonedState.visible;
-  }
-  else if (aTemplateState) {
+  } else if (aTemplateState) {
     this.filterValues = QuickFilterManager.propagateValues(
                           aTemplateState.filterValues);
     this.visible = aTemplateState.visible;
-  }
-  else {
+  } else {
     this.filterValues = QuickFilterManager.getDefaultValues();
     this.visible = FILTER_VISIBILITY_DEFAULT;
   }
@@ -87,7 +82,7 @@ QuickFilterState.prototype = {
    * @param [aNoChange=false] Is this actually a change for the purposes of
    *     lastFilterAttr purposes?
    */
-  getFilterValue: function MFS_getFilterValue(aName, aNoChange) {
+  getFilterValue(aName, aNoChange) {
     if (!aNoChange)
       this._lastFilterAttr = aName;
     return this.filterValues[aName];
@@ -101,7 +96,7 @@ QuickFilterState.prototype = {
    * @param [aNoChange=false] Is this actually a change for the purposes of
    *     lastFilterAttr purposes?
    */
-  setFilterValue: function MFS_setFilterValue(aName, aValue, aNoChange) {
+  setFilterValue(aName, aValue, aNoChange) {
     if (aValue == null) {
       delete this.filterValues[aName];
       return;
@@ -127,7 +122,7 @@ QuickFilterState.prototype = {
    *
    * @return true if we relaxed the state, false if there was nothing to relax.
    */
-  userHitEscape: function MFS_userHitEscape() {
+  userHitEscape() {
     if (this._lastFilterAttr) {
       // it's possible the UI state the last attribute has already been cleared,
       //  in which case we want to fall through...
@@ -145,19 +140,19 @@ QuickFilterState.prototype = {
    * Clear the state without going through any undo-ish steps like
    *  |userHitEscape| tries to do.
    */
-  clear: function MFS_clear() {
+  clear() {
     QuickFilterManager.clearAllFilterValues(this.filterValues);
   },
 
   /**
    * Create the search terms appropriate to the current filter states.
    */
-  createSearchTerms: function MFS_createSearchTerms(aTermCreator) {
+  createSearchTerms(aTermCreator) {
     return QuickFilterManager.createSearchTerms(this.filterValues,
                                                 aTermCreator);
   },
 
-  persistToObj: function MFS_persistToObj() {
+  persistToObj() {
     return {
       filterValues: this.filterValues,
       visible: this.visible,
@@ -224,15 +219,14 @@ function QuickFilterSearchListener(aFolderDisplay, aFilterer, aFilterDef,
                                 Ci.nsIMsgSearchSession.allNotifications);
 }
 QuickFilterSearchListener.prototype = {
-  onNewSearch: function QuickFilterSearchListener_onNewSearch() {
+  onNewSearch() {
     this.started = true;
     let curState = (this.filterDef.name in this.filterer.filterValues) ?
                      this.filterer.filterValues[this.filterDef.name] : null;
     this.scratch = this.listener.onSearchStart(curState);
   },
 
-  onSearchHit: function QuickFilterSearchListener_onSearchHit(aMsgHdr,
-                                                              aFolder) {
+  onSearchHit(aMsgHdr, aFolder) {
     // GC sanity demands that we trigger a GC if we have seen a large number
     //  of headers.  Because we are driven by the search mechanism which likes
     //  to time-slice when it has a lot of messages on its plate, it is
@@ -245,14 +239,13 @@ QuickFilterSearchListener.prototype = {
 
     try {
       this.listener.onSearchMessage(this.scratch, aMsgHdr, aFolder);
-    }
-    catch (ex) {
+    } catch (ex) {
       logException(ex);
       logObject(this.scratch, "scratch object");
     }
   },
 
-  onSearchDone: function QuickFilterSearchListener_onSearchDone(aStatus) {
+  onSearchDone(aStatus) {
     // it's possible we will see the tail end of an existing search. ignore.
     if (!this.started)
       return;
@@ -388,7 +381,7 @@ var QuickFilterManager = {
    *     that and the user installs you knowing what's what, that is also cool,
    *     we just can't do it in core for now.
    */
-  defineFilter: function MFM_defineFilter(aFilterDef) {
+  defineFilter(aFilterDef) {
     this.filterDefs.push(aFilterDef);
     this.filterDefsByName[aFilterDef.name] = aFilterDef;
   },
@@ -400,7 +393,7 @@ var QuickFilterManager = {
    *
    * @param aName The name of the filter to kill.
    */
-  killFilter: function MFM_killFilter(aName) {
+  killFilter(aName) {
     let filterDef = this.filterDefsByName[aName];
     this.filterDefs.splice(this.filterDefs.indexOf(filterDef), 1);
     delete this.filterDefsByName[aName];
@@ -413,7 +406,7 @@ var QuickFilterManager = {
    * @param aTemplValues A set of existing filterValues.
    * @return The new filterValues state.
    */
-  propagateValues: function MFM_propagateValues(aTemplValues) {
+  propagateValues(aTemplValues) {
     let values = {};
     let sticky = ("sticky" in aTemplValues) ? aTemplValues.sticky : false;
 
@@ -424,9 +417,8 @@ var QuickFilterManager = {
         let newValue = filterDef.propagateState(curValue, sticky);
         if (newValue != null)
           values[filterDef.name] = newValue;
-      }
-      // always propagate the value if sticky and there was no handler
-      else if (sticky) {
+      } else if (sticky) {
+        // Always propagate the value if sticky and there was no handler.
         if (filterDef.name in aTemplValues)
           values[filterDef.name] = aTemplValues[filterDef.name];
       }
@@ -439,7 +431,7 @@ var QuickFilterManager = {
    *
    * @return Thew new filterValues state.
    */
-  getDefaultValues: function MFM_getDefaultValues() {
+  getDefaultValues() {
     let values = {};
     for (let filterDef of this.filterDefs) {
       if ("getDefaults" in filterDef) {
@@ -457,7 +449,7 @@ var QuickFilterManager = {
    * @return true if we actually cleared some state, false if there was nothing
    *     to clear.
    */
-  clearFilterValue: function MFM_clearFilterValue(aFilterName, aValues) {
+  clearFilterValue(aFilterName, aValues) {
     let filterDef = this.filterDefsByName[aFilterName];
     if (!("clearState" in filterDef)) {
       if (aFilterName in aValues) {
@@ -484,7 +476,7 @@ var QuickFilterManager = {
    * @return true if we actually cleared something, false if there was nothing
    *     to clear.
    */
-  clearAllFilterValues: function MFM_clearFilterValues(aFilterValues) {
+  clearAllFilterValues(aFilterValues) {
     let didClearSomething = false;
     for (let filterDef of this.filterDefs) {
       if (this.clearFilterValue(filterDef.name, aFilterValues))
@@ -499,8 +491,7 @@ var QuickFilterManager = {
    * We only invoke appendTerms on filters that have state in aFilterValues,
    * as per the contract.
    */
-  createSearchTerms: function MFM_createSearchTerms(aFilterValues,
-                                                    aTermCreator) {
+  createSearchTerms(aFilterValues, aTermCreator) {
     let searchTerms = [], listeners = [];
     for (let filterName in aFilterValues) {
       let filterValue = aFilterValues[filterName];
@@ -510,13 +501,12 @@ var QuickFilterManager = {
           filterDef.appendTerms(aTermCreator, searchTerms, filterValue);
         if (listener)
           listeners.push([listener, filterDef]);
-      }
-      catch(ex) {
+      } catch (ex) {
         logException(ex);
       }
     }
     return searchTerms.length ? [searchTerms, listeners] : [null, listeners];
-  }
+  },
 };
 
 /**
@@ -525,12 +515,12 @@ var QuickFilterManager = {
 QuickFilterManager.defineFilter({
   name: "sticky",
   domId: "qfb-sticky",
-  appendTerms: function(aTermCreator, aTerms, aFilterValue) {
+  appendTerms(aTermCreator, aTerms, aFilterValue) {
   },
   /**
    * This should not cause an update, otherwise default logic.
    */
-  onCommand: function(aState, aNode, aEvent, aDocument) {
+  onCommand(aState, aNode, aEvent, aDocument) {
     let checked = aNode.checked ? true : null;
     return [checked, false];
   },
@@ -542,18 +532,18 @@ QuickFilterManager.defineFilter({
 QuickFilterManager.defineFilter({
   name: "unread",
   domId: "qfb-unread",
-  appendTerms: function(aTermCreator, aTerms, aFilterValue) {
+  appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
     term = aTermCreator.createTerm();
-    term.attrib = nsMsgSearchAttrib.MsgStatus;
+    term.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
     value = term.value;
     value.attrib = term.attrib;
-    value.status = nsMsgMessageFlags.Read;
+    value.status = Ci.nsMsgMessageFlags.Read;
     term.value = value;
-    term.op = aFilterValue ? nsMsgSearchOp.Isnt : nsMsgSearchOp.Is;
+    term.op = aFilterValue ? Ci.nsMsgSearchOp.Isnt : Ci.nsMsgSearchOp.Is;
     term.booleanAnd = true;
     aTerms.push(term);
-  }
+  },
 });
 
 /**
@@ -562,18 +552,18 @@ QuickFilterManager.defineFilter({
 QuickFilterManager.defineFilter({
   name: "starred",
   domId: "qfb-starred",
-  appendTerms: function(aTermCreator, aTerms, aFilterValue) {
+  appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
     term = aTermCreator.createTerm();
-    term.attrib = nsMsgSearchAttrib.MsgStatus;
+    term.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
     value = term.value;
     value.attrib = term.attrib;
-    value.status = nsMsgMessageFlags.Marked;
+    value.status = Ci.nsMsgMessageFlags.Marked;
     term.value = value;
-    term.op = aFilterValue ? nsMsgSearchOp.Is : nsMsgSearchOp.Isnt;
+    term.op = aFilterValue ? Ci.nsMsgSearchOp.Is : Ci.nsMsgSearchOp.Isnt;
     term.booleanAnd = true;
     aTerms.push(term);
-  }
+  },
 });
 
 /**
@@ -582,7 +572,7 @@ QuickFilterManager.defineFilter({
 QuickFilterManager.defineFilter({
   name: "addrBook",
   domId: "qfb-inaddrbook",
-  appendTerms: function(aTermCreator, aTerms, aFilterValue) {
+  appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
     let enumerator = MailServices.ab.directories;
     let firstBook = true;
@@ -597,7 +587,7 @@ QuickFilterManager.defineFilter({
         value.attrib = term.attrib;
         value.str = addrbook.URI;
         term.value = value;
-        term.op = aFilterValue ? nsMsgSearchOp.IsInAB : nsMsgSearchOp.IsntInAB;
+        term.op = aFilterValue ? Ci.nsMsgSearchOp.IsInAB : Ci.nsMsgSearchOp.IsntInAB;
         // It's an AND if we're the first book (so the boolean affects the
         //  group as a whole.)
         // It's the negation of whether we're filtering otherwise; demorgans.
@@ -609,7 +599,7 @@ QuickFilterManager.defineFilter({
     }
     if (term)
       term.endsGrouping = true;
-  }
+  },
 });
 
 /**
@@ -630,7 +620,7 @@ var TagFacetingFilter = {
    * @return true if the constaint is only on has tags/does not have tags,
    *     false if there are specific tag constraints in play.
    */
-  isSimple: function(aFilterValue) {
+  isSimple(aFilterValue) {
     // it's the simple case if the value is just a boolean
     if (typeof(aFilterValue) != "object")
       return true;
@@ -653,7 +643,7 @@ var TagFacetingFilter = {
    *  (depending on mode), but it cannot have any of the tags marked for
    *  exclusion.
    */
-  appendTerms: function TFF_appendTerms(aTermCreator, aTerms, aFilterValue) {
+  appendTerms(aTermCreator, aTerms, aFilterValue) {
     if (aFilterValue == null)
       return null;
 
@@ -675,8 +665,7 @@ var TagFacetingFilter = {
       // we need to perform faceting if the value is literally true.
       if (aFilterValue === true)
         return this;
-    }
-    else {
+    } else {
       let firstIncludeClause = true, firstExcludeClause = true;
       let lastIncludeTerm = null;
       term = null;
@@ -694,7 +683,7 @@ var TagFacetingFilter = {
           value.str = key;
           term.value = value;
           if (shouldFilter) {
-            term.op = nsMsgSearchOp.Contains;
+            term.op = Ci.nsMsgSearchOp.Contains;
             // AND for the group. Inside the group we also want AND if the
             // mode is set to "All of".
             term.booleanAnd = firstIncludeClause || (mode === "AND");
@@ -702,9 +691,8 @@ var TagFacetingFilter = {
             aTerms.push(term);
             firstIncludeClause = false;
             lastIncludeTerm = term;
-          }
-          else {
-            term.op = nsMsgSearchOp.DoesntContain;
+          } else {
+            term.op = Ci.nsMsgSearchOp.DoesntContain;
             // you need to not include all of the tags marked excluded.
             term.booleanAnd = true;
             term.beginsGrouping = firstExcludeClause;
@@ -734,26 +722,26 @@ var TagFacetingFilter = {
         }
 
         // (extend in the exclusions)
-        excludeTerms[excludeTerms.length-1].endsGrouping = true;
+        excludeTerms[excludeTerms.length - 1].endsGrouping = true;
         aTerms.push.apply(aTerms, excludeTerms);
       }
     }
     return null;
   },
 
-  onSearchStart: function(aCurState) {
+  onSearchStart(aCurState) {
     // this becomes aKeywordMap; we want to start with an empty one
     return {};
   },
-  onSearchMessage: function(aKeywordMap, aMsgHdr, aFolder) {
+  onSearchMessage(aKeywordMap, aMsgHdr, aFolder) {
     let keywords = aMsgHdr.getStringProperty("keywords");
-    let keywordList = keywords.split(' ');
+    let keywordList = keywords.split(" ");
     for (let iKeyword = 0; iKeyword < keywordList.length; iKeyword++) {
       let keyword = keywordList[iKeyword];
       aKeywordMap[keyword] = null;
     }
   },
-  onSearchDone: function(aCurState, aKeywordMap, aStatus) {
+  onSearchDone(aCurState, aKeywordMap, aStatus) {
     // we are an async operation; if the user turned off the tag facet already,
     //  then leave that state intact...
     if (aCurState == null)
@@ -775,12 +763,12 @@ var TagFacetingFilter = {
   /**
    * We need to clone our state if it's an object to avoid bad sharing.
    */
-  propagateState: function(aOld, aSticky) {
+  propagateState(aOld, aSticky) {
     // stay disabled when disabled, get disabled when not sticky
     if (aOld == null || !aSticky)
       return null;
     if (this.isSimple(aOld))
-      return aOld ? true : false; // could be an object, need to convert.
+      return !!aOld; // could be an object, need to convert.
     return shallowObjCopy(aOld);
   },
 
@@ -789,7 +777,7 @@ var TagFacetingFilter = {
    * - We collapse our expando if we get unchecked.
    * - We want to initiate a faceting pass if we just got checked.
    */
-  onCommand: function(aState, aNode, aEvent, aDocument) {
+  onCommand(aState, aNode, aEvent, aDocument) {
     let checked = aNode.checked ? true : null;
     if (!checked)
       aDocument.getElementById("quick-filter-bar-tab-bar").collapsed = true;
@@ -799,7 +787,7 @@ var TagFacetingFilter = {
     return [checked, true];
   },
 
-  domBindExtra: function(aDocument, aMuxer, aNode) {
+  domBindExtra(aDocument, aMuxer, aNode) {
     // Tag filtering mode menu (All of/Any of)
     function commandHandler(aEvent) {
       let filterValue = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
@@ -810,9 +798,8 @@ var TagFacetingFilter = {
       "ValueChange", commandHandler);
   },
 
-  reflectInDOM: function TFF_reflectInDOM(aNode, aFilterValue,
-                                          aDocument, aMuxer) {
-    aNode.checked = aFilterValue ? true : false;
+  reflectInDOM(aNode, aFilterValue, aDocument, aMuxer) {
+    aNode.checked = !!aFilterValue;
     if ((aFilterValue != null) &&
         (typeof(aFilterValue) == "object"))
       this._populateTagBar(aFilterValue, aDocument, aMuxer);
@@ -820,7 +807,7 @@ var TagFacetingFilter = {
       aDocument.getElementById("quick-filter-bar-tab-bar").collapsed = true;
   },
 
-  _populateTagBar: function TFF__populateTagMenu(aState, aDocument, aMuxer) {
+  _populateTagBar(aState, aDocument, aMuxer) {
     let tagbar = aDocument.getElementById("quick-filter-bar-tab-bar");
     let keywordMap = aState.tags;
 
@@ -839,7 +826,7 @@ var TagFacetingFilter = {
       state.tags[tagKey] = aEvent.target.checked ? true : null;
       aEvent.target.removeAttribute("inverted");
       aMuxer.updateSearch();
-    };
+    }
 
     function rightClickHandler(aEvent) {
       // Only do something if this is a right-click, otherwise commandHandler
@@ -913,7 +900,7 @@ QuickFilterManager.defineFilter(TagFacetingFilter);
 QuickFilterManager.defineFilter({
   name: "attachment",
   domId: "qfb-attachment",
-  appendTerms: function(aTermCreator, aTerms, aFilterValue) {
+  appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
     term = aTermCreator.createTerm();
     term.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
@@ -921,10 +908,10 @@ QuickFilterManager.defineFilter({
     value.attrib = term.attrib;
     value.status = Ci.nsMsgMessageFlags.Attachment;
     term.value = value;
-    term.op = aFilterValue ? nsMsgSearchOp.Is : nsMsgSearchOp.Isnt;
+    term.op = aFilterValue ? Ci.nsMsgSearchOp.Is : Ci.nsMsgSearchOp.Isnt;
     term.booleanAnd = true;
     aTerms.push(term);
-  }
+  },
 });
 
 /**
@@ -951,7 +938,7 @@ var MessageTextFilter = {
    * @param aSearchString The phrase to parse up.
    * @return A list of terms.
    */
-  _parseSearchString: function MTF__parseSearchString(aSearchString) {
+  _parseSearchString(aSearchString) {
     aSearchString = aSearchString.trim();
     let terms = [];
 
@@ -997,7 +984,7 @@ var MessageTextFilter = {
    *  sender and recipient enabled, we build:
    * ("foo" sender OR "foo" recipient) AND ("bar" sender OR "bar" recipient)
    */
-  appendTerms: function(aTermCreator, aTerms, aFilterValue) {
+  appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
 
     if (aFilterValue.text) {
@@ -1018,7 +1005,7 @@ var MessageTextFilter = {
             value.attrib = tfDef.attrib;
             value.str = phrase;
             term.value = value;
-            term.op = nsMsgSearchOp.Contains;
+            term.op = Ci.nsMsgSearchOp.Contains;
             // AND for the group, but OR inside the group
             term.booleanAnd = firstClause;
             term.beginsGrouping = firstClause;
@@ -1031,23 +1018,23 @@ var MessageTextFilter = {
       }
     }
   },
-  getDefaults: function() {
+  getDefaults() {
     let states = {};
     for (let name in this._defaultStates) {
       states[name] = this._defaultStates[name];
     }
     return {
       text: null,
-      states: states,
+      states,
     };
   },
-  propagateState: function(aOld, aSticky) {
+  propagateState(aOld, aSticky) {
     return {
       text: aSticky ? aOld.text : null,
       states: shallowObjCopy(aOld.states),
     };
   },
-  clearState: function(aState) {
+  clearState(aState) {
     let hadState = Boolean(aState.text);
     aState.text = null;
     return [aState, hadState];
@@ -1058,7 +1045,7 @@ var MessageTextFilter = {
    *  add a special down keypress handler that escapes the textbox into the
    *  thread pane.
    */
-  domBindExtra: function MessageTextFilter_domBind(aDocument, aMuxer, aNode) {
+  domBindExtra(aDocument, aMuxer, aNode) {
     // -- platform-dependent placeholder setup
     aNode.setAttribute(
       "placeholder",
@@ -1078,9 +1065,6 @@ var MessageTextFilter = {
         // ...so explicitly select the current index.
         threadPane.view.selection.select(threadPane.currentIndex);
         return false;
-      }
-      // - Enter when upsell is actively proposed...
-      else if (aEvent.keyCode == aEvent.DOM_VK_RETURN) {
       }
       return true;
     });
@@ -1110,7 +1094,7 @@ var MessageTextFilter = {
     }
   },
 
-  onCommand: function(aState, aNode, aEvent, aDocument) {
+  onCommand(aState, aNode, aEvent, aDocument) {
     let text = aNode.value.length ? aNode.value : null;
     if (text == aState.text) {
       let upsell = aDocument.getElementById("qfb-text-search-upsell");
@@ -1118,7 +1102,7 @@ var MessageTextFilter = {
         upsell.hidePopup();
         let tabmail = aDocument.getElementById("tabmail");
         tabmail.openTab("glodaFacet", {
-                          searcher: new GlodaMsgSearcher(null, aState.text)
+                          searcher: new GlodaMsgSearcher(null, aState.text),
                         });
       }
       return [aState, false];
@@ -1130,9 +1114,7 @@ var MessageTextFilter = {
     return [aState, true];
   },
 
-  reflectInDOM: function MessageTextFilter_reflectInDOM(aNode, aFilterValue,
-                                                        aDocument, aMuxer,
-                                                        aFromPFP) {
+  reflectInDOM(aNode, aFilterValue, aDocument, aMuxer, aFromPFP) {
     if (aFromPFP == "nosale") {
       let panel = aDocument.getElementById("qfb-text-search-upsell");
       if (panel.state != "closed")
@@ -1149,7 +1131,7 @@ var MessageTextFilter = {
       if (panel.state == "closed" &&
           aDocument.commandDispatcher.focusedElement == aNode.inputField) {
         let filterBar = aDocument.getElementById("quick-filter-bar");
-        //panel.sizeTo(filterBar.clientWidth - 20, filterBar.clientHeight - 20);
+        // panel.sizeTo(filterBar.clientWidth - 20, filterBar.clientHeight - 20);
         panel.openPopup(filterBar, "after_end", -7, 7, false, true);
       }
       return;
@@ -1184,9 +1166,7 @@ var MessageTextFilter = {
    * In order to do our upsell we need to know when we are not getting any
    *  results.
    */
-  postFilterProcess: function MessageTextFilter_postFilterProcess(aState,
-                                                                  aViewWrapper,
-                                                                  aFiltering) {
+  postFilterProcess(aState, aViewWrapper, aFiltering) {
     // If we're not filtering, not filtering on text, there are results, or
     //  gloda is not enabled so upselling makes no sense, then bail.
     // (Currently we always return "nosale" to make sure our panel is closed;
@@ -1207,7 +1187,7 @@ var MessageTextFilter = {
   textFilterDefs: {},
   /** maps dom id to text filter def */
   textFilterDefsByDomId: {},
-  defineTextFilter: function MessageTextFilter_defineTextFilter(aTextDef) {
+  defineTextFilter(aTextDef) {
     this.textFilterDefs[aTextDef.name] = aTextDef;
     this.textFilterDefsByDomId[aTextDef.domId] = aTextDef;
     if (aTextDef.defaultState)
@@ -1222,25 +1202,25 @@ QuickFilterManager.textBoxDomId = "qfb-qs-textbox";
 MessageTextFilter.defineTextFilter({
   name: "sender",
   domId: "qfb-qs-sender",
-  attrib: nsMsgSearchAttrib.Sender,
+  attrib: Ci.nsMsgSearchAttrib.Sender,
   defaultState: true,
 });
 MessageTextFilter.defineTextFilter({
   name: "recipients",
   domId: "qfb-qs-recipients",
-  attrib: nsMsgSearchAttrib.ToOrCC,
+  attrib: Ci.nsMsgSearchAttrib.ToOrCC,
   defaultState: true,
 });
 MessageTextFilter.defineTextFilter({
   name: "subject",
   domId: "qfb-qs-subject",
-  attrib: nsMsgSearchAttrib.Subject,
+  attrib: Ci.nsMsgSearchAttrib.Subject,
   defaultState: true,
 });
 MessageTextFilter.defineTextFilter({
   name: "body",
   domId: "qfb-qs-body",
-  attrib: nsMsgSearchAttrib.Body,
+  attrib: Ci.nsMsgSearchAttrib.Body,
   defaultState: false,
 });
 
@@ -1253,7 +1233,7 @@ function ResultsLabelFolderDisplayListener(aMuxer) {
   this.muxer = aMuxer;
 }
 ResultsLabelFolderDisplayListener.prototype = {
-  _update: function ResultsLabelFolderDisplayListener__update(aFolderDisplay) {
+  _update(aFolderDisplay) {
     let filterer = aFolderDisplay._tabInfo._ext.quickFilter;
     if (!filterer)
       return;
@@ -1270,17 +1250,17 @@ ResultsLabelFolderDisplayListener.prototype = {
       this.muxer.reflectFiltererState(filterer, aFolderDisplay, "results");
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  //// FolderDisplayListener
+  // ---------------------
+  // FolderDisplayListener
 
   // We want to make sure that anything that would change the count of displayed
   //  messages causes us to update our displayed value.
 
-  onMessageCountsChanged: function(aFolderDisplay) {
+  onMessageCountsChanged(aFolderDisplay) {
     this._update(aFolderDisplay);
   },
 
-  onMessagesRemoved: function(aFolderDisplay) {
+  onMessagesRemoved(aFolderDisplay) {
     this._update(aFolderDisplay);
   },
 };
@@ -1291,21 +1271,21 @@ ResultsLabelFolderDisplayListener.prototype = {
 QuickFilterManager.defineFilter({
   name: "results",
   domId: "qfb-results-label",
-  appendTerms: function(aTermCreator, aTerms, aFilterValue) {
+  appendTerms(aTermCreator, aTerms, aFilterValue) {
   },
 
   /**
    * Our state is meaningless; we implement this to avoid clearState ever
    *  thinking we were a facet.
    */
-  clearState: function(aState) {
+  clearState(aState) {
     return [null, false];
   },
 
   /**
    * We never have any state to propagate!
    */
-  propagateState: function(aOld, aSticky) {
+  propagateState(aOld, aSticky) {
     return null;
   },
 
@@ -1313,21 +1293,18 @@ QuickFilterManager.defineFilter({
    * Hook us up as a folder display listener so we can get information on when
    * the counts change.
    */
-  domBindExtra: function MessageTextFilter_domBind(aDocument, aMuxer, aNode) {
+  domBindExtra(aDocument, aMuxer, aNode) {
     aDocument.defaultView.FolderDisplayListenerManager.registerListener(
       new ResultsLabelFolderDisplayListener(aMuxer));
   },
-  reflectInDOM: function MessageTextFilter_reflectInDOM(aNode, aFilterValue,
-                                                        aDocument) {
+  reflectInDOM(aNode, aFilterValue, aDocument) {
     if (aFilterValue == null) {
       aNode.value = "";
       aNode.style.visibility = "hidden";
-    }
-    else if (aFilterValue == 0) {
+    } else if (aFilterValue == 0) {
       aNode.value = aNode.getAttribute("noresultsstring");
       aNode.style.visibility = "visible";
-    }
-    else {
+    } else {
       let fmtstring = aNode.getAttribute("somefmtstring");
 
       aNode.value = PluralForm.get(aFilterValue, fmtstring)
@@ -1343,8 +1320,7 @@ QuickFilterManager.defineFilter({
    *  to implement propagateState since the state they store would be pretty
    *  expensive.)
    */
-  postFilterProcess: function TFF_postFilterProcess(aState, aViewWrapper,
-                                                    aFiltering) {
+  postFilterProcess(aState, aViewWrapper, aFiltering) {
     return [aFiltering ? aViewWrapper.dbView.numMsgsInView : null, true, false];
   },
 });

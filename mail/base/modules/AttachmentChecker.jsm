@@ -13,17 +13,14 @@ var AttachmentChecker = {
  *
  * @return true if it is a CJK character.
  */
-function IsCJK(code)
-{
+function IsCJK(code) {
   if (code >= 0x2000 && code <= 0x9fff) {
     // Hiragana, Katakana and Kanaji
     return true;
-  }
-  else if (code >= 0xac00 && code <= 0xd7ff) {
+  } else if (code >= 0xac00 && code <= 0xd7ff) {
     // Hangul
     return true;
-  }
-  else if (code >= 0xf900 && code <= 0xffff) {
+  } else if (code >= 0xf900 && code <= 0xffff) {
     // Hiragana, Katakana and Kanaji
     return true;
   }
@@ -35,16 +32,14 @@ function IsCJK(code)
  *
  * @return the (possibly-empty) list of attachment keywords in this message
  **/
-function getAttachmentKeywords(mailData,keywordsInCsv)
-{
+function getAttachmentKeywords(mailData, keywordsInCsv) {
   // The empty string would get split to an array of size 1.  Avoid that...
   var keywordsArray = (keywordsInCsv) ? keywordsInCsv.split(",") : [];
 
-  function escapeRegxpSpecials(inputString)
-  {
+  function escapeRegxpSpecials(inputString) {
     const specials = [".", "\\", "^", "$", "*", "+", "?", "|",
-                      "(", ")" , "[", "]", "{", "}"];
-    var re = new RegExp("(\\"+specials.join("|\\")+")", "g");
+                      "(", ")", "[", "]", "{", "}"];
+    var re = new RegExp("(\\" + specials.join("|\\") + ")", "g");
     inputString = inputString.replace(re, "\\$1");
     return inputString.replace(" ", "\\s+");
   }
@@ -61,10 +56,10 @@ function getAttachmentKeywords(mailData,keywordsInCsv)
     // space delimited.
     if (keywordsArray[i].charAt(0) == ".") { // like .pdf
       // For this case we want to match the whole document name.
-      var start = "(([^\\s]*)\\b)";
-      var end = IsCJK(kw.charCodeAt(kw.length - 1)) ? "" : "(\\s|$)";
-      var re = new RegExp(start + kw + end, "ig");
-      var matching = mailData.match(re);
+      let start = "(([^\\s]*)\\b)";
+      let end = IsCJK(kw.charCodeAt(kw.length - 1)) ? "" : "(\\s|$)";
+      let re = new RegExp(start + kw + end, "ig");
+      let matching = mailData.match(re);
       if (matching) {
         for (var j = 0; j < matching.length; j++) {
           // Ignore the match if it was in a URL.
@@ -77,12 +72,11 @@ function getAttachmentKeywords(mailData,keywordsInCsv)
           }
         }
       }
-    }
-    else {
-      var start = IsCJK(kw.charCodeAt(0)) ? "" : ("((^|\\s)\\S*)");
-      var end = IsCJK(kw.charCodeAt(kw.length - 1)) ? "" : "(" + NOT_W + "|$)";
-      var re = new RegExp(start + kw + end, "ig");
-      var matching;
+    } else {
+      let start = IsCJK(kw.charCodeAt(0)) ? "" : ("((^|\\s)\\S*)");
+      let end = IsCJK(kw.charCodeAt(kw.length - 1)) ? "" : "(" + NOT_W + "|$)";
+      let re = new RegExp(start + kw + end, "ig");
+      let matching;
       while ((matching = re.exec(mailData)) !== null) {
         // Ignore the match if it was in a URL.
         if (!(/^(https?|ftp):\/\//i.test(matching[0].trim()))) {
@@ -95,6 +89,9 @@ function getAttachmentKeywords(mailData,keywordsInCsv)
   return keywordsFound;
 }
 
+// This file is also used as a Worker.
+/* exported onmessage */
+/* globals postMessage */
 var onmessage = function(event) {
   var keywordsFound = AttachmentChecker.getAttachmentKeywords(event.data[0], event.data[1]);
   postMessage(keywordsFound);

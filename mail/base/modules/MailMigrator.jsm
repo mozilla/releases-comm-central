@@ -12,19 +12,14 @@
 var EXPORTED_SYMBOLS = ["MailMigrator"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/IOUtils.js");
-
-ChromeUtils.defineModuleGetter(this, "LoginHelper",
-                               "resource://gre/modules/LoginHelper.jsm");
 
 var MailMigrator = {
   /**
    * Switch the given fonts to the given encodings, but only if the current fonts
    * are defaults.
    */
-  _switchDefaultFonts: function MailMigrator__switchDefaultFonts(aFonts,
-                                                                 aEncodings) {
+  _switchDefaultFonts(aFonts, aEncodings) {
     for (let encoding of aEncodings) {
       let serifPref = "font.name.serif." + encoding;
       let sansPref = "font.name.sans-serif." + encoding;
@@ -59,7 +54,7 @@ var MailMigrator = {
    * Migrate to ClearType fonts (Cambria, Calibri and Consolas) on Windows Vista
    * and above.
    */
-  migrateToClearTypeFonts: function MailMigrator_migrateToClearTypeFonts() {
+  migrateToClearTypeFonts() {
     // Windows...
     if ("@mozilla.org/windows-registry-key;1" in Cc) {
       // Only migrate on Vista (Windows version 6.0) and above
@@ -94,18 +89,15 @@ var MailMigrator = {
    * Determine if the UI has been upgraded in a way that requires us to reset
    * some user configuration.  If so, performs the resets.
    */
-  _migrateUI: function() {
+  /* eslint-disable complexity */
+  _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
     const UI_VERSION = 17;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const MESSENGERCOMPOSE_DOCURL = "chrome://messenger/content/messengercompose/messengercompose.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
-    let currentUIVersion = 0;
-
-    try {
-      currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF);
-    } catch(ex) {}
+    let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
     if (currentUIVersion >= UI_VERSION)
       return;
@@ -136,7 +128,7 @@ var MailMigrator = {
         let cs = xulStore.getValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset");
         if (cs && !cs.includes("otherActionsButton")) {
           // Put the otherActionsButton button at the end.
-          cs = cs + "," + "otherActionsButton";
+          cs = cs + ",otherActionsButton";
           xulStore.setValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset", cs);
         }
       }
@@ -151,8 +143,7 @@ var MailMigrator = {
             Services.prefs.clearUserPref("privacy.donottrackheader.enabled");
             Services.prefs.clearUserPref("privacy.donottrackheader.value");
           }
-        }
-        catch (ex) {}
+        } catch (ex) {}
       }
 
       // In UI version 8, we change from boolean browser.display.use_document_colors
@@ -171,7 +162,7 @@ var MailMigrator = {
         try {
           detector = Services.prefs.getComplexValue("intl.charset.detector",
                                                     Ci.nsIPrefLocalizedString).data;
-        } catch (ex) { }
+        } catch (ex) {}
         if (!(detector == "" ||
               detector == "ja_parallel_state_machine" ||
               detector == "ruprob" ||
@@ -196,8 +187,7 @@ var MailMigrator = {
           data = data.substring(1, data.length - 1);
         }
 
-        data = "[" + "\"moz-abdirectory://?\"" +
-               ((data.length > 0) ? ("," + data) : "") + "]";
+        data = "[\"moz-abdirectory://?\"" + ((data.length > 0) ? ("," + data) : "") + "]";
 
         IOUtils.saveStringToFile(DIR_TREE_FILE, data);
       }
@@ -228,7 +218,7 @@ var MailMigrator = {
       // encoded as chrome URIs.
       if (currentUIVersion < 14) {
         let permissionsDB =
-          Services.dirsvc.get("ProfD",Ci.nsIFile);
+          Services.dirsvc.get("ProfD", Ci.nsIFile);
         permissionsDB.append("permissions.sqlite");
         let db = Services.storage.openDatabase(permissionsDB);
 
@@ -341,18 +331,19 @@ var MailMigrator = {
       // Update the migration version.
       Services.prefs.setIntPref(UI_VERSION_PREF, UI_VERSION);
 
-    } catch(e) {
+    } catch (e) {
       Cu.reportError("Migrating from UI version " + currentUIVersion + " to " +
                      UI_VERSION + " failed. Error message was: " + e + " -- " +
                      "Will reattempt on next start.");
     }
   },
+  /* eslint-enable complexity */
 
   /**
    * Perform any migration work that needs to occur after the Account Wizard
    * has had a chance to appear.
    */
-  migratePostAccountWizard: function MailMigrator_migratePostAccountWizard() {
+  migratePostAccountWizard() {
     this.migrateToClearTypeFonts();
   },
 
@@ -360,7 +351,7 @@ var MailMigrator = {
    * Perform any migration work that needs to occur once the user profile has
    * been loaded.
    */
-  migrateAtProfileStartup: function MailMigrator_migrateAtProfileStartup() {
+  migrateAtProfileStartup() {
     this._migrateUI();
   },
 };

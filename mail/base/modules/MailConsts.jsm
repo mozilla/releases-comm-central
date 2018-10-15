@@ -9,8 +9,7 @@
 
 var EXPORTED_SYMBOLS = ["MailConsts"];
 
-var MailConsts =
-{
+var MailConsts = {
   /**
    * Determine how to open a message when it is double-clicked or selected and
    * Enter pressed. The preference to set this is mail.openMessageBehavior.
@@ -35,6 +34,6 @@ var MailConsts =
      * rest in the background. If no 3-pane window is open, the message is
      * opened in a new standalone window.
      */
-    NEW_TAB: 2
-  }
+    NEW_TAB: 2,
+  },
 };

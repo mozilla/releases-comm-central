@@ -29,8 +29,7 @@ MsgHdrSyntheticView.prototype = {
    * aSearchListener. Since we already have the result with us, this is
    * synchronous.
    */
-  search: function MsgHdrSyntheticView_search(aSearchListener,
-                                              aCompletionCallback) {
+  search(aSearchListener, aCompletionCallback) {
     this.searchListener = aSearchListener;
     this.completionCallback = aCompletionCallback;
     aSearchListener.onNewSearch();
@@ -42,7 +41,7 @@ MsgHdrSyntheticView.prototype = {
   /**
    * Aborts or completes the search -- we do not make a distinction.
    */
-  abortSearch: function MsgHdrSyntheticView_abortSearch() {
+  abortSearch() {
     if (this.searchListener)
       this.searchListener.onSearchDone(Cr.NS_OK);
     if (this.completionCallback)
@@ -54,11 +53,10 @@ MsgHdrSyntheticView.prototype = {
   /**
    * Helper function used by |DBViewWrapper.getMsgHdrForMessageID|.
    */
-  getMsgHdrForMessageID: function MsgHdrSyntheticView_getMsgHdrForMessageID(
-      aMessageId) {
+  getMsgHdrForMessageID(aMessageId) {
     if (this.msgHdr.messageId == aMessageId)
       return this.msgHdr;
 
     return null;
-  }
+  },
 };
