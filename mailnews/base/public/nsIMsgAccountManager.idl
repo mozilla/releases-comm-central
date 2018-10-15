@@ -170,6 +170,15 @@ interface nsIMsgAccountManager : nsISupports {
    */
   void LoadAccounts();
 
+  /**
+   * When the server for an account could not be loaded, typically because the
+   * extension providing it could not be loaded, it is deactivated for a period
+   * of time as documented in nsIMsgAccount.idl. The server is normally only
+   * rechecked at startup but this function can be used to recheck all servers
+   * at any time to avoid having to restart to reactivate an account.
+   */
+  void ReactivateAccounts();
+
   void setSpecialFolders();
 
   void loadVirtualFolders();

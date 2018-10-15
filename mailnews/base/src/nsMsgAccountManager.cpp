@@ -1402,6 +1402,22 @@ nsMsgAccountManager::LoadAccounts()
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgAccountManager::ReactivateAccounts()
+{
+  for (nsIMsgAccount* account : m_accounts) {
+    // This will error out if the account already has its server, or
+    // if this isn't the account that the extension is trying to reactivate.
+    if (NS_SUCCEEDED(account->CreateServer())) {
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      account->GetIncomingServer(getter_AddRefs(server));
+      // This triggers all of the notifications required by the UI.
+      account->SetIncomingServer(server);
+    }
+  }
+  return NS_OK;
+}
+
 // this routine goes through all the identities and makes sure
 // that the special folders for each identity have the
 // correct special folder flags set, e.g, the Sent folder has
