@@ -16,9 +16,6 @@ var gLightningPane = {
         ltnPrefs.addEventListener("select", gLightningPane.tabSelectionChanged.bind(this));
         this.mInitialized = true;
 
-        let categoryButton = document.querySelector('#category-box radio[pane="paneLightning"]');
-        categoryButton.label = document.getElementById("paneLightning").label;
-
         let elements = document.querySelectorAll("#paneLightning preference");
         for (let element of elements) {
             element.updateElements();
