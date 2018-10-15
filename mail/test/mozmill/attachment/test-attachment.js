@@ -368,8 +368,8 @@ function test_selected_attachments_are_cleared() {
 
   // Select both the attachments.
   let attachmentList = mc.e("attachmentList");
-  assert_equals(attachmentList.selectedItems.length, 0,
-                "We had selected items on first load, when we shouldn't have!");
+  assert_equals(attachmentList.selectedItems.length, 1,
+                "On first load the first item should be selected");
 
   // We can just click on the first element, but the second one needs a
   // ctrl-click (or cmd-click for those Mac-heads among us).
@@ -388,8 +388,8 @@ function test_selected_attachments_are_cleared() {
   // Expand the attachment list again.
   mc.click(mc.eid("attachmentToggle"));
 
-  assert_equals(attachmentList.selectedItems.length, 0,
-                "We had selected items after loading a new message!");
+  assert_equals(attachmentList.selectedItems.length, 1,
+                "After loading a new message the first item should be selected");
 }
 
 function test_attachment_toolbar_customize() {
