@@ -17,7 +17,7 @@
    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
    xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="textbox" extends="xul:box" role="xul:textbox">
+  <binding id="textbox">
 
     <content>
       <children/>
@@ -28,7 +28,7 @@
       </xul:moz-input-box>
     </content>
 
-    <implementation implements="nsIDOMXULTextBoxElement, nsIDOMXULLabeledControlElement">
+    <implementation implements="nsIDOMXULLabeledControlElement">
       <!-- nsIDOMXULLabeledControlElement -->
       <field name="crop">""</field>
       <field name="image">""</field>
