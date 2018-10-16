@@ -16,10 +16,6 @@
   color: var(--toolbar-color, inherit);
 }
 
-#ab-toolbox > toolbar:-moz-lwtheme {
-  background-color: var(--toolbar-bgcolor);
-}
-
 #ab-toolbox:-moz-lwtheme::after {
   content: "";
   display: -moz-box;

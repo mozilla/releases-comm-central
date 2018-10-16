@@ -110,7 +110,6 @@
 #compose-toolbox:-moz-lwtheme {
   -moz-appearance: none;
   position: relative;
-  background-color: none;
   color: var(--toolbar-color, inherit);
 }
 
@@ -123,10 +122,6 @@
   width: -moz-available;
   height: 1px;
   border-bottom: 1px solid var(--tabs-border-color, transparent);
-}
-
-#compose-toolbox > toolbar:-moz-lwtheme {
-  background-color: var(--toolbar-bgcolor);
 }
 
 #composeContentBox {
