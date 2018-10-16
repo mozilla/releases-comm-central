@@ -667,6 +667,13 @@
       <vbox flex="1" class="contentTabInstance">
         <toolbox id="dummycontenttoolbox" class="contentTabToolbox">
           <toolbar id="dummycontenttoolbar" class="contentTabToolbar">
+            <toolbarspacer/>
+            <toolbaritem class="contentTabAddress" align="center">
+              <hbox class="searchBox" align="center">
+                <image class="contentTabSecurity"/>
+                <description class="contentTabUrlbar"/>
+              </hbox>
+            </toolbaritem>
           </toolbar>
         </toolbox>
         <notificationbox flex="1" notificationside="top">

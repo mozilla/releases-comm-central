@@ -350,8 +350,27 @@
   display: none;
 }
 
-.contentTabToolbar {
-  height: 0;
-  min-height: 0;
-  padding: 0;
+.contentTabSecurity {
+  height: 20px;
+  width: 20px;
+  margin-inline-end: 5px;
+  background-repeat: no-repeat;
+}
+
+.contentTabSecurity[level="high"],
+.contentTabSecurity[level="low"] {
+  background-image: url("chrome://messenger/skin/icons/secure.png");
+}
+
+.contentTabSecurity[level="broken"] {
+  background-image: url("chrome://messenger/skin/icons/insecure.png");
+}
+
+.contentTabSecurity[loading="true"] {
+  background-image: url("chrome://global/skin/icons/loading.png");
+  background-position: 4px 2px;
+}
+
+.contentTabUrlbar {
+  margin: 0;
 }

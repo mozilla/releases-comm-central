@@ -72,6 +72,12 @@ tabProgressListener.prototype =
         this.mBrowser.mIconURL = null;
 
       var location = aLocationURI ? aLocationURI.spec : "";
+      if (aLocationURI && !aLocationURI.schemeIs("about")) {
+        this.mTab.urlbar.textContent = location;
+        this.mTab.root.removeAttribute("collapsed");
+      } else {
+        this.mTab.root.setAttribute("collapsed", "false");
+      }
 
       // Set the reload command only if this is a report that is coming in about
       // the top-level content location change.
@@ -113,6 +119,7 @@ tabProgressListener.prototype =
         aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
       if (!this.mBlank) {
         this.mTab.title = specialTabs.contentTabType.loadingTabString;
+        this.mTab.security.setAttribute("loading", "true");
         tabmail.setTabBusy(this.mTab, true);
         tabmail.setTabTitle(this.mTab);
       }
@@ -124,6 +131,7 @@ tabProgressListener.prototype =
     else if (aStateFlags & nsIWebProgressListener.STATE_STOP &&
              aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
       this.mBlank = false;
+      this.mTab.security.removeAttribute("loading");
       tabmail.setTabBusy(this.mTab, false);
       tabmail.setTabTitle(this.mTab);
 
@@ -148,6 +156,34 @@ tabProgressListener.prototype =
                                                   aOldState, aState, aContentBlockingLogJSON) {
     if (this.mProgressListener)
       this.mProgressListener.onSecurityChange(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON);
+
+    const wpl = Ci.nsIWebProgressListener;
+    const wpl_security_bits = wpl.STATE_IS_SECURE |
+                              wpl.STATE_IS_BROKEN |
+                              wpl.STATE_IS_INSECURE |
+                              wpl.STATE_SECURE_HIGH |
+                              wpl.STATE_SECURE_MED |
+                              wpl.STATE_SECURE_LOW;
+    let level = "";
+    switch (aState & wpl_security_bits) {
+      case wpl.STATE_IS_SECURE | wpl.STATE_SECURE_HIGH:
+        level = "high";
+        break;
+      case wpl.STATE_IS_SECURE | wpl.STATE_SECURE_MED:
+      case wpl.STATE_IS_SECURE | wpl.STATE_SECURE_LOW:
+        level = "low";
+        break;
+      case wpl.STATE_IS_BROKEN:
+        level = "broken";
+        break;
+    }
+    if (level) {
+      this.mTab.security.setAttribute("level", level);
+      this.mTab.security.hidden = false;
+    } else {
+      this.mTab.security.hidden = true;
+      this.mTab.security.removeAttribute("level");
+    }
   },
   onRefreshAttempted: function tPL_OnRefreshAttempted(aWebProgress, aURI,
                                                       aDelay, aSameURI) {
@@ -714,6 +750,9 @@ var specialTabs = {
       // Start setting up the browser.
       aTab.browser = aTab.panel.querySelector("browser");
       aTab.toolbar = aTab.panel.querySelector(".contentTabToolbar");
+      aTab.security = aTab.panel.querySelector(".contentTabSecurity");
+      aTab.urlbar = aTab.panel.querySelector(".contentTabUrlbar");
+      aTab.urlbar.textContent = aArgs.contentPage;
 
       ExtensionParent.apiManager.emit("extension-browser-inserted", aTab.browser);
 

@@ -113,3 +113,8 @@ tabpanels {
 .alltabs-item > .menu-iconic-left {
   visibility: visible !important;
 }
+
+/* Content Tabs */
+.contentTabAddress {
+  height: 32px;
+}

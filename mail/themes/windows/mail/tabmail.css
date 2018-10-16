@@ -142,6 +142,11 @@ tabpanels {
   display: none;
 }
 
+/* Content Tabs */
+.contentTabAddress {
+  height: 34px;
+}
+
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   @media (-moz-windows-glass: 0) {
     :root[tabsintitlebar][sizemode=normal] #mail-toolbar-menubar2[autohide=true][inactive] ~

@@ -182,3 +182,8 @@ tabmail > tabbox > tabpanels {
     list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
   }
 }
+
+/* Content Tabs */
+.contentTabAddress {
+  height: 31px;
+}
