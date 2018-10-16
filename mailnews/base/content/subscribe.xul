@@ -63,7 +63,7 @@
                      id="namefieldlabel" control="namefield"/>
               <textbox id="namefield" flex="1" type="search" timeout="300"
                        aria-controls="subscribeTree"
-                       oncommand="Search();"/>
+                       oninput="Search();"/>
             </row>
           </rows>
         </grid>
