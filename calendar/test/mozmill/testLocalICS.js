@@ -86,7 +86,6 @@ function testLocalICS() {
 
     controller.assertJS(str.value.includes("SUMMARY:" + calendarTitle));
 }
-testLocalICS.EXCLUDED_PLATFORMS = ["linux"];
 
 function teardownTest(module) {
     deleteCalendars(controller, calendarName);

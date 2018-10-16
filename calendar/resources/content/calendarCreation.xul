@@ -57,15 +57,10 @@
                 </row>
                 <row align="center">
                     <label value="&calendarproperties.location.label;" control="calendar-uri"/>
-                    <!--  Due to bug 128066, dropping urls here doesn't trigger
-                          events. To work around, we use the dragexit handler,
-                          which is triggered. Unfortunately, the more logical
-                          choice of drag'n'drop doesn't work here either.-->
                     <textbox id="calendar-uri"
                              required="true"
                              type="search"
-                             oncommand="checkRequired();"
-                             ondragexit="checkRequired();"/>
+                             oninput="checkRequired();"/>
                 </row>
                 <row>
                      <label/>
