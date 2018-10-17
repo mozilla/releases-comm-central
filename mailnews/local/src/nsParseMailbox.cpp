@@ -1928,12 +1928,12 @@ void nsParseNewMailState::ApplyFilters(bool *pMoved, nsIMsgWindow *msgWindow, ui
       if (m_filterList)
         (void) m_filterList->
           ApplyFiltersToHdr(nsMsgFilterType::InboxRule, msgHdr, downloadFolder,
-                            m_mailDB, nsDependentCString(headers, headersSize), this, msgWindow);
+                            m_mailDB, nsDependentCSubstring(headers, headersSize), this, msgWindow);
       if (!m_msgMovedByFilter && m_deferredToServerFilterList)
       {
         (void) m_deferredToServerFilterList->
           ApplyFiltersToHdr(nsMsgFilterType::InboxRule, msgHdr, downloadFolder,
-                            m_mailDB, nsDependentCString(headers, headersSize), this, msgWindow);
+                            m_mailDB, nsDependentCSubstring(headers, headersSize), this, msgWindow);
       }
     }
   }
