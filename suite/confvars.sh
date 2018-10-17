@@ -48,18 +48,3 @@ fi
 # Include the DevTools client, not just the server (which is the default)
 MOZ_DEVTOOLS=all
 
-# Bundled extensions ChatZilla DOM Inspector and debugQA
-MOZ_IRC=
-MOZ_DOMINSPECTOR=
-
-if [[ $MOZ_APP_VERSION == *a* ]]; then
-  MOZ_DEBUGQA=
-fi
-
-if [[ $MOZ_IRC == 1 ]]; then
-  MOZ_EXTENSIONS_DEFAULT='irc'
-fi
-
-if [[ $MOZ_DOMINSPECTOR == 1 ]]; then
-  MOZ_EXTENSIONS_DEFAULT+=' inspector'
-fi

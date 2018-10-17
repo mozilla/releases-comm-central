@@ -26,6 +26,45 @@ def toolkit_configure(is_comm):
     else:
         return '../mozilla/toolkit/moz.configure'
 
+# Building extensions is disabled by default.
+# Bug 1231349 needs to be fixed first for l10n builds.
+# Set desired defaults to True from False when the l10n bug is fixed.
+
+# =========================================================
+# = ChatZilla extension
+# =========================================================
+option('--enable-irc', default=False,
+       help='Enable building of the ChatZilla IRC extension')
+
+@depends_if('--enable-irc')
+def irc(arg):
+    return True
+
+set_config('MOZ_IRC', irc)
+
+# =========================================================
+# = DOM Inspector extension
+# =========================================================
+option('--enable-dominspector', default=False,
+       help='Enable building of the DOM Inspector extension')
+
+@depends_if('--enable-dominspector')
+def dominspector(arg):
+    return True
+
+set_config('MOZ_DOMINSPECTOR', dominspector)
+
+# =========================================================
+# = DebugQA extension
+# =========================================================
+option('--enable-debugqa', default=False,
+       help='Enable building of the DebugQA extension')
+
+@depends_if('--enable-debugqa')
+def debugqa(arg):
+    return True
+
+set_config('MOZ_DEBUGQA', debugqa)
 
 include('../mailnews/moz.configure')
 include(toolkit_configure)
