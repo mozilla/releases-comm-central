@@ -7,6 +7,7 @@
  */
 var CompactTheme = {
   get styleSheet() {
+    // Change getter into a read/write property.
     delete this.styleSheet;
     for (let styleSheet of document.styleSheets) {
       if (styleSheet.href == "chrome://messenger/skin/compacttheme.css") {
@@ -63,6 +64,9 @@ var CompactTheme = {
 
   uninit() {
     Services.obs.removeObserver(this, "lightweight-theme-styling-update");
+    // If the getter still exists, remove it.
+    if (Object.getOwnPropertyDescriptor(this, "styleSheet").get)
+      delete this.styleSheet;
     this.styleSheet = null;
   }
 };
