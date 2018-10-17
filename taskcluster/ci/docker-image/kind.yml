@@ -17,5 +17,6 @@ jobs:
     - fetch
     - image_builder
     - lint
+    - periodic-updates
     - toolchain-build
     - update-verify
