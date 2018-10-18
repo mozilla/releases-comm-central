@@ -318,7 +318,7 @@ var MimeTypeNoun = {
       let rangePairs = [];
       // If there are no arguments then we want to fall back to the 'in'
       //  constraint which matches on any attachment.
-      if (aArguments.length == 0)
+      if (!aArguments || aArguments.length == 0)
         return this._inConstraintHelper(aAttrDef, []);
 
       for (let iArg = 0; iArg < aArguments.length; iArg++) {
