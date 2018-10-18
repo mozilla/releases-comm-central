@@ -3618,13 +3618,11 @@ function updateAttachment() {
     let attachments = Object.values(gAttachMap).filter(aAtt => aAtt.uri);
     let attachmentTab = document.getElementById("event-grid-tab-attachments");
     if (attachments.length) {
-        let trailingColon = "";
-        let newLabel = window.attachmentTabLabel;
-        if (newLabel.endsWith(":")) {
-            trailingColon = ":";
-            newLabel = newLabel.substring(0, newLabel.length - 1);
-        }
-        attachmentTab.label = newLabel + " (" + attachments.length + ")" + trailingColon;
+        attachmentTab.label = cal.l10n.getString(
+            "calendar-event-dialog",
+            "attachmentsTabLabel",
+            [attachments.length]
+        );
     } else {
         attachmentTab.label = window.attachmentTabLabel;
     }
@@ -3748,13 +3746,11 @@ function updateAttendees() {
         // update the attendee tab label to make the number of attendees
         // visible even if another tab is displayed
         if (window.attendees.length) {
-            let trailingColon = "";
-            let newLabel = window.attendeeTabLabel;
-            if (newLabel.endsWith(":")) {
-                trailingColon = ":";
-                newLabel = newLabel.substring(0, newLabel.length - 1);
-            }
-            attendeeTab.label = newLabel + " (" + window.attendees.length + ")" + trailingColon;
+            attendeeTab.label = cal.l10n.getString(
+                "calendar-event-dialog",
+                "attendeesTabLabel",
+                [window.attendees.length]
+            );
         } else {
             attendeeTab.label = window.attendeeTabLabel;
         }
