@@ -371,6 +371,10 @@
   background-position: 4px 2px;
 }
 
+.contentTabAddress * {
+  -moz-user-select: text;
+}
+
 .contentTabUrlbar {
   margin: 0;
 }
