@@ -131,7 +131,7 @@ enum nsAbWinType
 class nsAbWinHelperGuard
 {
 public :
-    nsAbWinHelperGuard(uint32_t aType) ;
+    explicit nsAbWinHelperGuard(uint32_t aType) ;
     ~nsAbWinHelperGuard(void) ;
 
     nsAbWinHelper *operator ->(void) { return mHelper ; }

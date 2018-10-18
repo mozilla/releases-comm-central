@@ -65,7 +65,7 @@ public:
                        hdrMax // utility value
                      };
 
-  CMapiMessageHeaders(const char* headers = 0) { Assign(headers); }
+  explicit CMapiMessageHeaders(const char* headers = 0) { Assign(headers); }
   ~CMapiMessageHeaders();
   void Assign(const char* headers);
 
@@ -112,7 +112,7 @@ private:
 
   class write_to_stream {
   public:
-    write_to_stream(nsIOutputStream *pDst) : m_pDst(pDst), m_rv(NS_OK) {}
+    explicit write_to_stream(nsIOutputStream *pDst) : m_pDst(pDst), m_rv(NS_OK) {}
     void operator () (const CHeaderField* f);
     inline operator nsresult() const { return m_rv; }
   private:
@@ -123,7 +123,7 @@ private:
   // Search helper
   class fname_equals {
   public:
-    fname_equals(const char* search) : m_search(search) {}
+    explicit fname_equals(const char* search) : m_search(search) {}
     inline bool operator () (const CHeaderField* f) const { return stricmp(f->fname(), m_search) == 0; }
   private:
     const char* m_search;
@@ -148,7 +148,7 @@ private:
 
 class CMapiMessage {
 public:
-  CMapiMessage(LPMESSAGE  lpMsg);
+  explicit CMapiMessage(LPMESSAGE lpMsg);
   ~CMapiMessage();
 
   // Attachments

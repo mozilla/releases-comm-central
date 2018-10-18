@@ -54,7 +54,9 @@ BOOL nsWabAddressBook::LoadWabLibrary(void)
         }
     }
     if (keyHandle) { RegCloseKey(keyHandle) ; }
-    mLibrary = LoadLibrary( (lstrlen(wabDLLPath)) ? wabDLLPath : WAB_DLL_NAME );
+    mLibrary = LoadLibraryW((lstrlen(wabDLLPath))
+      ? NS_ConvertASCIItoUTF16(wabDLLPath).get()
+      : NS_ConvertASCIItoUTF16(WAB_DLL_NAME).get());
     if (!mLibrary) { return FALSE ; }
     ++ mLibUsage ;
     mWABOpen = reinterpret_cast<LPWABOPEN>(GetProcAddress(mLibrary, "WABOpen")) ;

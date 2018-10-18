@@ -140,7 +140,7 @@ void RegisterProxy()
     proxyPath += "\\";
     proxyPath += MAPI_PROXY_DLL_NAME;
 
-    h = LoadLibrary(proxyPath.get());
+    h = LoadLibraryW(NS_ConvertASCIItoUTF16(proxyPath).get());
     if (h == NULL)
         return;
 
@@ -175,7 +175,7 @@ void UnRegisterProxy()
     proxyPath += "\\";
     proxyPath += MAPI_PROXY_DLL_NAME;
 
-    h = LoadLibrary(proxyPath.get());
+    h = LoadLibraryW(NS_ConvertASCIItoUTF16(proxyPath).get());
     if (h == NULL)
         return;
 

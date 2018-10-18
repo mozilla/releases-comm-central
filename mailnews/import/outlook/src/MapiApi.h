@@ -159,7 +159,7 @@ private:
 class CMapiFolder {
 public:
   CMapiFolder();
-  CMapiFolder(const CMapiFolder *pCopyFrom);
+  explicit CMapiFolder(const CMapiFolder *pCopyFrom);
   CMapiFolder(const char16_t *pDisplayName, ULONG cbEid, LPENTRYID lpEid, int depth, LONG oType = MAPI_FOLDER);
   ~CMapiFolder();
 
@@ -219,7 +219,7 @@ private:
 
 class CMsgStore {
 public:
-  CMsgStore(ULONG cbEid = 0, LPENTRYID lpEid = NULL);
+  explicit CMsgStore(ULONG cbEid = 0, LPENTRYID lpEid = NULL);
   ~CMsgStore();
 
   void    SetEntryID(ULONG cbEid, LPENTRYID lpEid);
