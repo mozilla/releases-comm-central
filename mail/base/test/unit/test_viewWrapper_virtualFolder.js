@@ -11,13 +11,7 @@
  * We could test all these things, but my patch is way behind schedule...
  */
 
-load("../../../../mailnews/resources/logHelper.js");
-load("../../../../mailnews/resources/asyncTestUtils.js");
-
-load("../../../../mailnews/resources/messageGenerator.js");
-load("../../../../mailnews/resources/messageModifier.js");
-load("../../../../mailnews/resources/messageInjection.js");
-
+/* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils();
 
@@ -50,8 +44,7 @@ function* test_virtual_folder_single_load_no_pred() {
 function* test_virtual_folder_single_load_simple_pred() {
   let viewWrapper = make_view_wrapper();
 
-  let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
-    {subject: "foo"}, {}]);
+  let [folderOne, oneSubjFoo] = make_folder_with_sets([{subject: "foo"}, {}]);
 
   let virtFolder = make_virtual_folder([folderOne],
                                        {subject: "foo"});
@@ -70,7 +63,7 @@ function* test_virtual_folder_single_load_complex_pred() {
 
   let whoBar = make_person_with_word_in_name("bar");
 
-  let [folderOne, oneSubjOnly, oneFromOnly, oneBoth, oneNone] =
+  let [folderOne, , , oneBoth] =
     make_folder_with_sets([{subject: "foo"}, {from: whoBar},
                            {subject: "foo", from: whoBar}, {}]);
 
@@ -91,16 +84,13 @@ function* test_virtual_folder_single_load_complex_pred() {
 function* test_virtual_folder_single_load_after_load() {
   let viewWrapper = make_view_wrapper();
 
-  let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
-    {subject: "foo"}, {}]);
-  let virtOne = make_virtual_folder([folderOne],
-                                    {subject: "foo"});
+  let [folderOne, oneSubjFoo] = make_folder_with_sets([{subject: "foo"}, {}]);
+  let virtOne = make_virtual_folder([folderOne], {subject: "foo"});
   yield async_view_open(viewWrapper, virtOne);
   verify_messages_in_view([oneSubjFoo], viewWrapper);
 
   // use "bar" instead of "foo" to make sure constraints are properly changing
-  let [folderTwo, twoSubjBar, twoNopers] = make_folder_with_sets([
-    {subject: "bar"}, {}]);
+  let [folderTwo, twoSubjBar] = make_folder_with_sets([{subject: "bar"}, {}]);
   let virtTwo = make_virtual_folder([folderTwo],
                                     {subject: "bar"});
   yield async_view_open(viewWrapper, virtTwo);
@@ -160,10 +150,8 @@ function* test_virtual_folder_multi_sortorder_persistence() {
 function* test_virtual_folder_multi_load_simple_pred() {
   let viewWrapper = make_view_wrapper();
 
-  let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
-    {subject: "foo"}, {}]);
-  let [folderTwo, twoSubjFoo, twoNopers] = make_folder_with_sets([
-    {subject: "foo"}, {}]);
+  let [folderOne, oneSubjFoo] = make_folder_with_sets([{subject: "foo"}, {}]);
+  let [folderTwo, twoSubjFoo] = make_folder_with_sets([{subject: "foo"}, {}]);
 
   let virtFolder = make_virtual_folder([folderOne, folderTwo],
                                        {subject: "foo"});
@@ -182,10 +170,10 @@ function* test_virtual_folder_multi_load_complex_pred() {
 
   let whoBar = make_person_with_word_in_name("bar");
 
-  let [folderOne, oneSubjOnly, oneFromOnly, oneBoth, oneNone] =
+  let [folderOne, , , oneBoth] =
     make_folder_with_sets([{subject: "foo"}, {from: whoBar},
                            {subject: "foo", from: whoBar}, {}]);
-  let [folderTwo, twoSubjOnly, twoFromOnly, twoBoth, twoNone] =
+  let [folderTwo, , , twoBoth] =
     make_folder_with_sets([{subject: "foo"}, {from: whoBar},
                            {subject: "foo", from: whoBar}, {}]);
 
@@ -237,15 +225,13 @@ function* test_virtual_folder_multi_load_alotta_folders_simple_pred() {
 function* test_virtual_folder_multi_load_after_load() {
   let viewWrapper = make_view_wrapper();
 
-  let [foldersOne, oneSubjFoo, oneNopers] = make_folders_with_sets(2, [
-    {subject: "foo"}, {}]);
+  let [foldersOne, oneSubjFoo] = make_folders_with_sets(2, [{subject: "foo"}, {}]);
   let virtOne = make_virtual_folder(foldersOne, {subject: "foo"});
   yield async_view_open(viewWrapper, virtOne);
   verify_messages_in_view([oneSubjFoo], viewWrapper);
 
   // use "bar" instead of "foo" to make sure constraints are properly changing
-  let [foldersTwo, twoSubjBar, twoNopers] = make_folders_with_sets(3, [
-    {subject: "bar"}, {}]);
+  let [foldersTwo, twoSubjBar] = make_folders_with_sets(3, [{subject: "bar"}, {}]);
   let virtTwo = make_virtual_folder(foldersTwo,
                                     {subject: "bar"});
   yield async_view_open(viewWrapper, virtTwo);
@@ -267,15 +253,13 @@ function* test_virtual_folder_multi_load_after_load() {
 function* test_virtual_folder_combo_load_after_load() {
   let viewWrapper = make_view_wrapper();
 
-  let [foldersOne, oneSubjFoo, oneNopers] = make_folders_with_sets(1, [
-    {subject: "foo"}, {}]);
+  let [foldersOne, oneSubjFoo] = make_folders_with_sets(1, [{subject: "foo"}, {}]);
   let virtOne = make_virtual_folder(foldersOne, {subject: "foo"});
   yield async_view_open(viewWrapper, virtOne);
   verify_messages_in_view([oneSubjFoo], viewWrapper);
 
   // use "bar" instead of "foo" to make sure constraints are properly changing
-  let [foldersTwo, twoSubjBar, twoNopers] = make_folders_with_sets(3, [
-    {subject: "bar"}, {}]);
+  let [foldersTwo, twoSubjBar] = make_folders_with_sets(3, [{subject: "bar"}, {}]);
   let virtTwo = make_virtual_folder(foldersTwo,
                                     {subject: "bar"});
   yield async_view_open(viewWrapper, virtTwo);
@@ -312,10 +296,8 @@ function* test_virtual_folder_filters_out_servers() {
 function* test_virtual_folder_underlying_folder_deleted() {
   let viewWrapper = make_view_wrapper();
 
-  let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
-    {subject: "foo"}, {}]);
-  let [folderTwo, twoSubjFoo, twoNopers] = make_folder_with_sets([
-    {subject: "foo"}, {}]);
+  let [folderOne] = make_folder_with_sets([{subject: "foo"}, {}]);
+  let [folderTwo, twoSubjFoo] = make_folder_with_sets([{subject: "foo"}, {}]);
 
   let virtFolder = make_virtual_folder([folderOne, folderTwo],
                                        {subject: "foo"});
@@ -334,7 +316,7 @@ function* test_virtual_folder_underlying_folder_deleted() {
   // now the view wrapper should have closed itself.
   Assert.equal(null, viewWrapper.displayedFolder);
   // This fails because virtFolder.parent is null, not sure why
-  //virtFolder.parent.propagateDelete(virtFolder, true, null);
+  // virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /* ===== Virtual Folder, Mail Views ===== */
@@ -347,7 +329,7 @@ function* test_virtual_folder_underlying_folder_deleted() {
 function* test_virtual_folder_mail_views_unread(aNumFolders) {
   let viewWrapper = make_view_wrapper();
 
-  let [folders, fooOne, fooTwo, nopeOne, nopeTwo] = make_folders_with_sets(
+  let [folders, fooOne, fooTwo] = make_folders_with_sets(
     aNumFolders, [{subject: "foo 1"}, {subject: "foo 2"}, {}, {}]);
   let virtFolder = make_virtual_folder(folders, {subject: "foo"});
 
@@ -357,8 +339,7 @@ function* test_virtual_folder_mail_views_unread(aNumFolders) {
   verify_messages_in_view([fooOne, fooTwo], viewWrapper);
 
   // add some more things (unread!), make sure they appear.
-  let [fooThree, nopeThree] = make_new_sets_in_folders(folders,
-    [{subject: "foo 3"}, {}]);
+  let [fooThree] = make_new_sets_in_folders(folders, [{subject: "foo 3"}, {}]);
   verify_messages_in_view([fooOne, fooTwo, fooThree], viewWrapper);
 
   // make some things read, make sure they disappear. (after a refresh)
@@ -382,15 +363,13 @@ function* test_virtual_folder_mail_views_unread(aNumFolders) {
 function* test_virtual_folder_mail_new_handling() {
   let viewWrapper = make_view_wrapper();
 
-  let [folders, fooOne, fooTwo] = make_folders_with_sets(
-    1, [{subject: "foo 1"}, {subject: "foo 2"}]);
+  let [folders] = make_folders_with_sets(1, [{subject: "foo 1"}, {subject: "foo 2"}]);
   let folder = folders[0];
   let virtFolder = make_virtual_folder(folders, {subject: "foo"});
 
   yield async_view_open(viewWrapper, folder);
 
-  let [fooThree, nopeThree] = make_new_sets_in_folders(folders,
-    [{subject: "foo 3"}, {}]);
+  make_new_sets_in_folders(folders, [{subject: "foo 3"}, {}]);
 
   if (!virtFolder.hasNewMessages)
     do_throw("saved search should have new messages!");

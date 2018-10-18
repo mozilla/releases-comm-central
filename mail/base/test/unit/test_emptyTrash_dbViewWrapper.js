@@ -1,10 +1,4 @@
-load("../../../../mailnews/resources/logHelper.js");
-load("../../../../mailnews/resources/asyncTestUtils.js");
-
-load("../../../../mailnews/resources/messageGenerator.js");
-load("../../../../mailnews/resources/messageModifier.js");
-load("../../../../mailnews/resources/messageInjection.js");
-
+/* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils({mode: "imap", offline: false});
 
@@ -41,7 +35,7 @@ function* test_empty_trash() {
 
 var tests = [
   test_real_folder_load_and_move_to_trash,
-  test_empty_trash
+  test_empty_trash,
 ];
 
 function run_test() {
