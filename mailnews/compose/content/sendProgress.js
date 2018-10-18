@@ -21,8 +21,8 @@ var progressListener = {
     {
       if (aStateFlags & Ci.nsIWebProgressListener.STATE_START)
       {
-        // Put progress meter in undetermined mode.
-        dialog.progress.setAttribute("mode", "undetermined");
+        // Set no value to progress meter when undetermined.
+        dialog.progress.removeAttribute("value");
       }
 
       if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
@@ -38,7 +38,6 @@ var progressListener = {
 
         // Put progress meter at 100%.
         dialog.progress.setAttribute("value", 100);
-        dialog.progress.setAttribute("mode", "normal");
         var percentMsg = gSendProgressStringBundle.getFormattedString("percentMsg", [100]);
         dialog.progressText.setAttribute("value", percentMsg);
 
@@ -56,21 +55,17 @@ var progressListener = {
         if (percent > 100)
           percent = 100;
 
-        dialog.progress.removeAttribute("mode");
-
         // Advance progress meter.
-        dialog.progress.setAttribute("value", percent);
+        dialog.progress.value = percent;
 
         // Update percentage label on progress meter.
         var percentMsg = gSendProgressStringBundle.getFormattedString("percentMsg", [percent]);
-        dialog.progressText.setAttribute("value", percentMsg);
+        dialog.progressText.value = percentMsg;
       }
       else
       {
-        // Progress meter should be barber-pole in this case.
-        dialog.progress.setAttribute("mode", "undetermined");
-        // Update percentage label on progress meter.
-        dialog.progressText.setAttribute("value", "");
+        // Progress meter should show no value in this case.
+        dialog.progress.removeAttribute("value");
       }
     },
 

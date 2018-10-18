@@ -15,6 +15,7 @@
 
 <dialog id="removeAccountDialog"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&dialogTitle;"
         width="600"
         buttons="accept,disclosure,cancel"
@@ -76,7 +77,7 @@
       <deck id="status">
         <vbox align="center">
           <label>&progressPending;</label>
-          <progressmeter mode="undetermined"/>
+          <html:progress max="100"/>
         </vbox>
         <label id="success">&progressSuccess;</label>
         <label id="failure">&progressFailure;</label>

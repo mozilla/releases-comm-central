@@ -1883,15 +1883,18 @@ var FeedSubscriptions = {
     if (el.getAttribute("collapsed")) {
       el.removeAttribute("collapsed");
     }
-
-    if (aID == "progressMeter") {
-      el.setAttribute("mode", aValue == "?" ? "undetermined" : "determined");
+    if (el.hidden) {
+      el.hidden = false;
     }
 
-    if (aID == "statusText") {
+    if (aID == "progressMeter") {
+      if (aValue == "?") {
+        el.removeAttribute("value");
+      } else {
+        el.value = aValue;
+      }
+    } else if (aID == "statusText") {
       el.textContent = aValue;
-    } else {
-      el.value = aValue;
     }
 
     el = document.getElementById("validationText");
@@ -1911,7 +1914,7 @@ var FeedSubscriptions = {
 
   clearStatusInfo() {
     document.getElementById("statusText").textContent = "";
-    document.getElementById("progressMeter").collapsed = true;
+    document.getElementById("progressMeter").hidden = true;
     document.getElementById("validationText").collapsed = true;
     document.getElementById("addCertException").collapsed = true;
   },

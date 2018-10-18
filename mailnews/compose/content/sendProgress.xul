@@ -10,6 +10,7 @@
 
 <dialog id="sendProgress"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&sendDialog.title;"
         style="width: 56ch;"
         onload="onLoad();"
@@ -39,7 +40,7 @@
           <hbox pack="end">
             <label value="&progress.label;"/>
           </hbox>
-          <progressmeter id="dialog.progress" mode="normal" value="0"/>
+          <html:progress id="dialog.progress" value="0" max="100"/>
           <hbox pack="end">
             <label id="dialog.progressText"/>
           </hbox>

@@ -14,6 +14,7 @@
 <dialog
   id="folderPropertiesDialog"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   title="&folderProps.windowtitle.label;"
   buttons="accept,cancel"
   onload="folderPropsOnLoad();" style="width: 56ch;"
@@ -203,7 +204,7 @@
           <row align="center">
             <label value="&folderQuotaStatus.label;"/>
             <hbox align="center">
-              <progressmeter id="quotaPercentageBar" mode="determined" value="0%"/>
+              <html:progress id="quotaPercentageBar" value="0" max="100"/>
               <label id="quotaPercentUsed"/>
             </hbox>
           </row>

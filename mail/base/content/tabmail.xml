@@ -1406,11 +1406,11 @@
             statusFeedback.showProgress(0);
             if (typeof(aThinkingState) == "string")
               statusFeedback.showStatusString(aThinkingState);
-            gStatusBar.setAttribute("mode","undetermined");
+            gStatusBar.removeAttribute("value");
           }
           else {
             statusFeedback.showProgress(0);
-            gStatusBar.setAttribute("mode", "normal");
+            gStatusBar.value = 0;
           }
         ]]></body>
       </method>

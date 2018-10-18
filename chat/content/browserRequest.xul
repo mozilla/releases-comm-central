@@ -9,6 +9,7 @@
 <!DOCTYPE window>
 <window id="browserRequest"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         buttons=","
         onload="loadRequestedUrl()"
         onclose="reportUserClosed()"
@@ -35,7 +36,7 @@
     <statusbarpanel id="security-display" crop="end" flex="1"/>
     <statusbarpanel id="security-status" crop="end" collapsed="true"/>
     <statusbarpanel class="statusbarpanel-progress" collapsed="true" id="statusbar-status">
-      <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>
+      <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
     </statusbarpanel>
     <statusbarpanel id="security-button" class="statusbarpanel-iconic"/>
   </statusbar>

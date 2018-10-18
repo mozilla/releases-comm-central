@@ -14,6 +14,7 @@
 
 <dialog id="subscribeWindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&subscribeDialog.title;"
         style="width: 44em; height: 33em;"
         persist="width height screenX screenY"
@@ -152,7 +153,7 @@
         <hbox id="statusContainerBox">
            <statusbarpanel id="statusText" crop="right" flex="1"/>
            <statusbarpanel class="statusbarpanel-progress" collapsed="true" id="statusbar-progresspanel">
-             <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>
+             <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
            </statusbarpanel>
          </hbox>
          <hbox/>

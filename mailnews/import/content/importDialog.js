@@ -127,7 +127,7 @@ async function ImportDialogOKButton()
   var deck = document.getElementById("stateDeck");
   var header = document.getElementById("header");
   var progressMeterEl = document.getElementById("progressMeter");
-  progressMeterEl.mode = "determined";
+  progressMeterEl.value = 0;
   var progressStatusEl = document.getElementById("progressStatus");
   var progressTitleEl = document.getElementById("progressTitle");
 
@@ -213,7 +213,7 @@ async function ImportDialogOKButton()
 
             progressStatusEl.setAttribute("label", "");
             progressTitleEl.setAttribute("label", meterText);
-            progressMeterEl.mode = "undetermined";
+            progressMeterEl.removeAttribute("value");
 
             deck.selectedIndex = 2;
             return true;

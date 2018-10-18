@@ -12,6 +12,7 @@
 <bindings id="conversationBindings"
           xmlns="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="conversation">
@@ -22,13 +23,13 @@
             <xul:vbox flex="1">
               <xul:browser anonid="browser" type="content" browser-type="conversation" flex="1"
                            xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup"/>
-              <xul:progressmeter anonid="browserProgress" hidden="true"/>
+              <html:progress anonid="browserProgress" hidden="hidden"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>
             </xul:vbox>
           </xul:notificationbox>
         </xul:hbox>
         <xul:splitter class="splitter" anonid="splitter-bottom" orient="vertical"/>
-        <hbox anonid="convStatusContainer" class="conv-status-container" hidden="true">
+        <hbox anonid="convStatusContainer" class="conv-status-container" hidden="hidden">
           <xul:description anonid="convStatus" class="plain conv-status" crop="end" />
         </hbox>
         <xul:stack anonid="conv-bottom" class="conv-bottom">

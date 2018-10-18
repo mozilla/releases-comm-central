@@ -397,10 +397,9 @@ nsMsgStatusFeedback.prototype =
         percentage = currentProgress / progressCount;
       }
 
-      if (!percentage)
-        this._progressBar.setAttribute("mode", "undetermined");
-      else {
-        this._progressBar.setAttribute("mode", "determined");
+      if (!percentage) {
+        this._progressBar.removeAttribute("value");
+      } else {
         this._progressBar.value = percentage;
         this._progressBar.label = Math.round(percentage) + "%";
       }
@@ -411,7 +410,6 @@ nsMsgStatusFeedback.prototype =
     }
     else {
       // Stop the bar spinning as we're not doing anything now.
-      this._progressBar.setAttribute("mode", "determined");
       this._progressBar.value = 0;
       this._progressBar.label = "";
 

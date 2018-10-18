@@ -484,7 +484,7 @@
           <hbox id="ProgressContainer" align="begin">
             <label id="PhotoStatus"/>
             <spacer flex="2"/>
-            <progressmeter id="PhotoDownloadProgress" value="0" mode="determined" hidden="true" flex="1"/>
+            <html:progress id="PhotoDownloadProgress" value="0" max="100" hidden="hidden" flex="1"/>
           </hbox>
         </vbox>
       </hbox>

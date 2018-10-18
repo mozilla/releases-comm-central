@@ -26,6 +26,7 @@
         title="&feedSubscriptions.label;"
         windowtype="Mail:News-BlogSubscriptions"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns:nc="http://home.netscape.com/NC-rdf#"
         persist="width height screenX screenY sizemode"
@@ -237,10 +238,10 @@
               label="&certmgr.addException.label;"
               accesskey="&certmgr.addException.accesskey;"
               oncommand="FeedSubscriptions.addCertExceptionDialog();"/>
-      <progressmeter id="progressMeter"
-                     collapsed="true"
-                     mode="determined"
-                     value="0"/>
+      <html:progress id="progressMeter"
+                     hidden="hidden"
+                     value="0"
+                     max="100"/>
     </hbox>
 
     <hbox align="end">

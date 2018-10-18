@@ -51,7 +51,7 @@ var gStatusFeedback = {
       this.progressMeterVisible = true;
     }
 
-    document.getElementById("statusbar-icon").setAttribute("mode", "undetermined");
+    document.getElementById("statusbar-icon").removeAttribute("value");
   },
   stopMeteors: function()
   {

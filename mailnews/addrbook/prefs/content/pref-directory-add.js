@@ -89,7 +89,7 @@ var progressListener = {
   {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
       // start the spinning
-      gProgressMeter.setAttribute("mode", "undetermined");
+      gProgressMeter.removeAttribute("value");
       gProgressText.value = gReplicationBundle.getString(aStatus ?
                                                          "replicationStarted" :
                                                          "changesStarted");
@@ -163,8 +163,7 @@ function EndDownload(aStatus)
     gReplicationBundle.getString("downloadButton.accesskey");
 
   // stop the spinning
-  gProgressMeter.setAttribute("mode", "normal");
-  gProgressMeter.setAttribute("value", "100");
+  gProgressMeter.value = 100;
   gProgressMeter.hidden = true;
 
   gDownloadInProgress = false;

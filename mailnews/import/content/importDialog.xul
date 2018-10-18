@@ -14,6 +14,7 @@
 
 <window xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="OnLoadImportDialog()"
 #ifdef XP_MACOSX
         style="width: &window.macWidth; !important;"
@@ -115,7 +116,7 @@
         <caption id="progressTitle" label="&title.label;"/>
         <label class="indent" id="progressStatus" value="&processing.label;"/>
         <vbox class="box-padded">
-          <progressmeter id="progressMeter" mode="determined" value="5"/>
+          <html:progress id="progressMeter" value="5" max="100"/>
         </vbox>
       </groupbox>
     </vbox>

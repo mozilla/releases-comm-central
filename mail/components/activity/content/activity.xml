@@ -15,6 +15,7 @@
 <bindings id="activityBindings"
           xmlns="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="activity-group"
@@ -413,8 +414,7 @@
           if (hideProgressMeter) {
             let meter = document.getAnonymousElementByAttribute(this, "anonid",
                                                                 "progressmeter");
-            meter.setAttribute("mode", "determined");
-            meter.setAttribute("value", 0);
+            meter.value = 0;
           }
 
           // Update Status text and Display Text Areas
@@ -436,13 +436,11 @@
               document.getAnonymousElementByAttribute(this, "anonid",
                                                       "progressmeter");
             if (aTotalWorkUnits == 0) {
-              element.setAttribute("mode", "undetermined");
-              element.setAttribute("value", 0);
+              element.removeAttribute("value");
             } else {
               let _percentComplete = 100.0 * aWorkUnitsComplete /
                                      aTotalWorkUnits;
-              element.setAttribute("mode", "determined");
-              element.setAttribute("value", _percentComplete);
+              element.value = _percentComplete;
             }
             this.statusText = aStatusText;
           ]]>
@@ -506,9 +504,9 @@
                        crop="center" flex="2" class="displayText"/>
           <xul:hbox>
             <xul:vbox flex="1">
-              <xul:progressmeter mode="normal" value="0" flex="1"
-                                 anonid="progressmeter"
-                                 xbl:inherits="value=progress,mode=progressmode"/>
+              <html:progress value="0" max="100" flex="1"
+                             anonid="progressmeter"
+                             xbl:inherits="value=progress"/>
             </xul:vbox>
             <xul:button class="resume mini-button"
                         tooltiptext="&cmd.resume.label;"

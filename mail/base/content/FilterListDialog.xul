@@ -15,6 +15,7 @@
 <window id="filterListDialog"
   xmlns:nc="http://home.netscape.com/NC-rdf#"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   windowtype="mailnews:filterlist"
   style="width: 45em; height: 31em;"
   onload="onLoad();"
@@ -176,7 +177,7 @@
   <statusbar class="chromeclass-status" id="status-bar">
     <statusbarpanel id="statusText" flex="1" crop="right"/>
     <statusbarpanel class="statusbarpanel-progress" collapsed="true" id="statusbar-progresspanel">
-      <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>
+      <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
     </statusbarpanel>
   </statusbar>
 

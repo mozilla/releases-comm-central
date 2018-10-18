@@ -549,15 +549,14 @@ var gSendListener = {
 var progressListener = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
-      document.getElementById("compose-progressmeter").setAttribute("mode", "undetermined");
+      document.getElementById("compose-progressmeter").removeAttribute("value");
       document.getElementById("statusbar-progresspanel").collapsed = false;
     }
 
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       gSendOperationInProgress = false;
       gSaveOperationInProgress = false;
-      document.getElementById("compose-progressmeter").setAttribute("mode", "normal");
-      document.getElementById("compose-progressmeter").setAttribute("value", 0);
+      document.getElementById("compose-progressmeter").value = 0;
       document.getElementById("statusbar-progresspanel").collapsed = true;
       document.getElementById("statusText").setAttribute("label", "");
     }
@@ -571,13 +570,11 @@ var progressListener = {
       if (percent > 100)
         percent = 100;
 
-      document.getElementById("compose-progressmeter").removeAttribute("mode");
-
       // Advance progress meter.
-      document.getElementById("compose-progressmeter").setAttribute("value", percent);
+      document.getElementById("compose-progressmeter").value = percent;
     } else {
       // Progress meter should be barber-pole in this case.
-      document.getElementById("compose-progressmeter").setAttribute("mode", "undetermined");
+      document.getElementById("compose-progressmeter").removeAttribute("value");
     }
   },
 

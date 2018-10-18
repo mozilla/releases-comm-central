@@ -150,7 +150,7 @@
                       <browser id="conv-log-browser" type="content" browser-type="conversation"
                                contextmenu="chatConversationContextMenu" flex="1"
                                tooltip="imTooltip"/>
-                      <progressmeter id="log-browserProgress" hidden="true"/>
+                      <html:progress id="log-browserProgress" max="100" hidden="true"/>
                       <findbar id="log-findbar" browserid="conv-log-browser"/>
                     </vbox>
                   </deck>

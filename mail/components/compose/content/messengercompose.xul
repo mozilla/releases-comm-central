@@ -37,6 +37,7 @@
 
 <window id="msgcomposeWindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:nc="http://home.netscape.com/NC-rdf#"
         onunload="ComposeUnload()"
         onload="ComposeLoad()"
@@ -2086,7 +2087,7 @@
     <statusbarpanel id="statusbar-progresspanel"
                     class="statusbarpanel-progress"
                     collapsed="true">
-      <progressmeter id="compose-progressmeter" class="progressmeter-statusbar" mode="normal" value="0"/>
+      <html:progress id="compose-progressmeter" class="progressmeter-statusbar" value="0" max="100"/>
     </statusbarpanel>
     <statusbarpanel class="statusbarpanel-iconic"
                     collapsed="true"

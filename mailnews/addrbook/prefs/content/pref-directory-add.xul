@@ -10,6 +10,7 @@
 <dialog id="addDirectory"
         style="width: &newDirectoryWidth;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="Startup();"
         onunload="onUnload();"
         buttons="accept,cancel"
@@ -95,7 +96,7 @@
               <description id="downloadWarningMsg" hidden="true" class="error"/>
               <description id="replicationProgressText" hidden="true"/>
 
-              <progressmeter id="replicationProgressMeter" mode="normal" value="0" hidden="true"/>
+              <html:progress id="replicationProgressMeter" value="0" max="100" hidden="hidden"/>
           </vbox>
           <grid>
              <columns>

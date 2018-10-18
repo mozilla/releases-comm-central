@@ -8,6 +8,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         style="padding: 20px; width: 350px"
         onload="onLoad()"
         buttons="cancel"
@@ -21,7 +22,7 @@
     <separator class="thin" />
   </vbox>
 
-  <progressmeter id="shutdown_progressmeter" mode="determined" />
+  <html:progress id="shutdown_progressmeter" max="100" />
 
   <vbox align="center">
     <label id="shutdownTask_label" value="" />
