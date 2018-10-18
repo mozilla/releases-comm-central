@@ -165,7 +165,6 @@ pref("extensions.getAddons.recommended.url", "https://services.addons.thunderbir
 pref("extensions.getAddons.search.browseURL", "https://addons.thunderbird.net/%LOCALE%/%APP%/search/?q=%TERMS%");
 pref("extensions.getAddons.search.url", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/%MAX_RESULTS%/%OS%/%VERSION%/%COMPATIBILITY_MODE%?src=thunderbird");
 pref("extensions.webservice.discoverURL", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/discovery/pane/%VERSION%/%OS%");
-pref("extensions.getAddons.themes.browseURL", "https://addons.thunderbird.net/%LOCALE%/thunderbird/themes/?src=thunderbird");
 pref("extensions.getAddons.siteRegExp", "^https://.*addons\\.thunderbird\\.net");
 
 // Blocklist preferences
