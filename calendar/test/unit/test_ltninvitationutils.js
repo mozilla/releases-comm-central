@@ -510,9 +510,13 @@ add_task(async function compareInvitationOverlay_test() {
             ]
         }
     }];
-    // we make sure that the Europe/Berlin timezone and long datetime format is set
+    // make sure that the Europe/Berlin timezone and long datetime format is set
+    // and to use the app locale to avoid test failures when running locally on
+    // an OS with a regional setting other than en-US
     let dateformat = Preferences.get("calendar.date.format", 0);
     let tzlocal = Preferences.get("calendar.timezone.local", "Europe/Berlin");
+    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
+    Preferences.set("intl.regional_prefs.use_os_locales", false);
     Preferences.set("calendar.date.format", 0);
     Preferences.set("calendar.timezone.local", "Europe/Berlin");
     let i = 0;
@@ -549,6 +553,7 @@ add_task(async function compareInvitationOverlay_test() {
     // let's reset setting
     Preferences.set("calendar.date.format", dateformat);
     Preferences.set("calendar.timezone.local", tzlocal);
+    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
 });
 
 add_task(async function getHeaderSection_test() {
@@ -1030,6 +1035,11 @@ add_task(async function parseCounter_test() {
     }];
     /* eslint-enable object-curly-newline */
 
+    // make sure to use the app locale to avoid test failures when running
+    // locally on an OS with a regional setting other than en-US
+    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
+    Preferences.set("intl.regional_prefs.use_os_locales", false);
+
     let getItem = function(aProperties) {
         let item = getIcs(true);
 
@@ -1137,4 +1147,6 @@ add_task(async function parseCounter_test() {
         ok(missingProps.length == 0, "(test #" + i + ": differences: check for unexpectedly " +
                                      "missing properties " + missingProps + ")");
     }
+
+    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
 });

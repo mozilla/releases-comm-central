@@ -34,8 +34,11 @@ add_task(async function formatDate_test() {
 
     let dateformat = Preferences.get("calendar.date.format", 0);
     let tzlocal = Preferences.get("calendar.timezone.local", "Pacific/Fakaofo");
+    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
+    // make sure to use the app locale to avoid test failures when running
+    // locally on an OS with a regional setting other than en-US
+    Preferences.set("intl.regional_prefs.use_os_locales", false);
     Preferences.set("calendar.timezone.local", "Pacific/Fakaofo");
-
 
     let tzs = cal.getTimezoneService();
 
@@ -57,6 +60,7 @@ add_task(async function formatDate_test() {
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
     Preferences.set("calendar.date.format", dateformat);
+    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
 });
 
 add_task(async function formatDateShort_test() {
@@ -112,6 +116,10 @@ add_task(async function formatDateShort_test() {
 
     let dateformat = Preferences.get("calendar.date.format", 0);
     let tzlocal = Preferences.get("calendar.timezone.local", "Pacific/Fakaofo");
+    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
+    // make sure to use the app locale to avoid test failures when running
+    // locally on an OS with a regional setting other than en-US
+    Preferences.set("intl.regional_prefs.use_os_locales", false);
     Preferences.set("calendar.timezone.local", "Pacific/Fakaofo");
     // we make sure to have set long format
     Preferences.set("calendar.date.format", 0);
@@ -137,6 +145,7 @@ add_task(async function formatDateShort_test() {
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
     Preferences.set("calendar.date.format", dateformat);
+    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
 });
 
 add_task(async function formatDateLong_test() {
@@ -192,6 +201,10 @@ add_task(async function formatDateLong_test() {
 
     let dateformat = Preferences.get("calendar.date.format", 0);
     let tzlocal = Preferences.get("calendar.timezone.local", "Pacific/Fakaofo");
+    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
+    // make sure to use the app locale to avoid test failures when running
+    // locally on an OS with a regional setting other than en-US
+    Preferences.set("intl.regional_prefs.use_os_locales", false);
     Preferences.set("calendar.timezone.local", "Pacific/Fakaofo");
     // we make sure to have set short format
     Preferences.set("calendar.date.format", 1);
@@ -217,6 +230,7 @@ add_task(async function formatDateLong_test() {
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
     Preferences.set("calendar.date.format", dateformat);
+    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
 });
 
 add_task(async function formatDateWithoutYear_test() {
@@ -272,6 +286,10 @@ add_task(async function formatDateWithoutYear_test() {
 
     let dateformat = Preferences.get("calendar.date.format", 0);
     let tzlocal = Preferences.get("calendar.timezone.local", "Pacific/Fakaofo");
+    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
+    // make sure to use the app locale to avoid test failures when running
+    // locally on an OS with a regional setting other than en-US
+    Preferences.set("intl.regional_prefs.use_os_locales", false);
     Preferences.set("calendar.timezone.local", "Pacific/Fakaofo");
     // we make sure to have set short format
     Preferences.set("calendar.date.format", 1);
@@ -293,6 +311,7 @@ add_task(async function formatDateWithoutYear_test() {
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
     Preferences.set("calendar.date.format", dateformat);
+    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
 });
 
 add_task(async function formatTime_test() {
@@ -329,6 +348,10 @@ add_task(async function formatTime_test() {
     }];
 
     let tzlocal = Preferences.get("calendar.timezone.local", "Pacific/Fakaofo");
+    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
+    // make sure to use the app locale to avoid test failures when running
+    // locally on an OS with a regional setting other than en-US
+    Preferences.set("intl.regional_prefs.use_os_locales", false);
     Preferences.set("calendar.timezone.local", "Pacific/Fakaofo");
 
     let tzs = cal.getTimezoneService();
@@ -351,4 +374,5 @@ add_task(async function formatTime_test() {
     }
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
+    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
 });
