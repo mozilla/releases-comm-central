@@ -776,25 +776,13 @@ var calendarController2 = {
 
 /**
  * Inserts the command controller into the document. On Lightning, also make
- * sure that it is inserted before the conflicting thunderbird command
+ * sure that it is inserted before the conflicting Thunderbird command
  * controller.
  */
 function injectCalendarCommandController() {
-    // We need to put our new command controller *before* the one that
-    // gets installed by thunderbird. Since we get called pretty early
-    // during startup we need to install the function below as a callback
-    // that periodically checks when the original thunderbird controller
-    // gets alive. Please note that setTimeout with a value of 0 means that
-    // we leave the current thread in order to re-enter the message loop.
-
-    let tbController = top.DefaultController;
-    if (tbController) {
-        calendarController.defaultController = tbController;
-        top.controllers.insertControllerAt(0, calendarController);
-        document.commandDispatcher.updateCommands("calendar_commands");
-    } else {
-        setTimeout(injectCalendarCommandController, 0);
-    }
+    calendarController.defaultController = document.getElementById("tabmail");
+    top.controllers.insertControllerAt(0, calendarController);
+    document.commandDispatcher.updateCommands("calendar_commands");
 }
 
 /**
