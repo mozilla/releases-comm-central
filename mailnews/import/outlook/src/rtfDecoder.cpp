@@ -107,7 +107,7 @@ struct GlobalState {
   unsigned int pcdata_a_codepage;
   Pcdata_state pcdata_a_state;
 
-  GlobalState(std::istream& s)
+  explicit GlobalState(std::istream& s)
     : stream(s), codepage(CP_ACP), deff(-1), pcdata_a_state(pcdsno)
   {
     LocalState st;
@@ -145,7 +145,7 @@ class Lexem {
 public:
   enum Type {ltGroupBegin, ltGroupEnd, ltKeyword, ltPCDATA_A, ltPCDATA_W,
              ltBDATA, ltEOF, ltError};
-  Lexem(Type t=ltError) : m_type(t) {}
+  explicit Lexem(Type t=ltError) : m_type(t) {}
   Lexem(Lexem& from)
   {
     switch (m_type = from.m_type) {
