@@ -331,7 +331,7 @@ toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
 
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button {
-  color: inherit;
+  color: inherit !important;
 }
 
 .toolbarbutton-1:-moz-lwtheme {
