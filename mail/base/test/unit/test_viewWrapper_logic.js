@@ -1,11 +1,6 @@
-load("../../../../mailnews/resources/logHelper.js");
-load("../../../../mailnews/resources/asyncTestUtils.js");
 load("../../../../mailnews/resources/abSetup.js");
 
-load("../../../../mailnews/resources/messageGenerator.js");
-load("../../../../mailnews/resources/messageModifier.js");
-load("../../../../mailnews/resources/messageInjection.js");
-
+/* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils();
 
@@ -13,7 +8,7 @@ initViewWrapperTestUtils();
  * Verify that flipping between threading and grouped by sort settings properly
  *  clears the other flag.  (Because they're mutually exclusive, you see.)
  */
-function* test_threading_grouping_mutual_exclusion () {
+function* test_threading_grouping_mutual_exclusion() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -85,7 +80,7 @@ function* test_sort_primary() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder, msgSet] = make_folder_with_sets(1);
+  let [folder] = make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
   viewWrapper.sort(Ci.nsMsgViewSortType.byDate,
@@ -110,7 +105,7 @@ function* test_sort_secondary_explicit() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder, msgSet] = make_folder_with_sets(1);
+  let [folder] = make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
   viewWrapper.sort(Ci.nsMsgViewSortType.byAuthor,
@@ -148,7 +143,7 @@ function* test_sort_secondary_implicit() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder, msgSet] = make_folder_with_sets(1);
+  let [folder] = make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
   viewWrapper.magicSort(Ci.nsMsgViewSortType.bySubject,
@@ -185,7 +180,7 @@ function* test_sort_group_by_sort() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder, msgSet] = make_folder_with_sets(1);
+  let [folder] = make_folder_with_sets(1);
   yield async_view_open(viewWrapper, folder);
 
   // - start out by being in an illegal (for group-by-sort) sort mode and

@@ -1,8 +1,10 @@
+// This file uses eval, but really shouldn't. See bug 1498497.
+/* eslint-disable no-eval */
+
 ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-function run_test()
-{
+function run_test() {
   do_test_pending();
 
   Services.locale.requestedLocales = ["en-US"];
@@ -25,9 +27,6 @@ function run_test()
 
   registerCleanupFunction(function() {
     // Remove the distribution.ini file
-    let iniFile = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
-    iniFile.append("distribution");
-    iniFile.append("distribution.ini");
     if (iniFile.exists())
       iniFile.remove(true);
   });
@@ -61,8 +60,7 @@ function run_test()
   let aboutLocale;
   try {
     aboutLocale = testIni.getString("Global", "about.en-US");
-  }
-  catch (e) {
+  } catch (e) {
     Cu.reportError(e);
   }
 

@@ -2,10 +2,38 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
-ChromeUtils.import("resource:///modules/MailViewManager.jsm");
-ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
+const {
+  DBViewWrapper,
+  IDBViewWrapperListener,
+} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm", null);
+const {
+  MailViewManager,
+  MailViewConstants,
+} = ChromeUtils.import("resource:///modules/MailViewManager.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {
+  VirtualFolderHelper,
+} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js", null);
+const {
+  toXPCOMArray,
+} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+
+// Only load these files if we're an XPCShell test. This file is also included by
+// MozMill tests (mail/test/mozmill/shared-modules/test-folder-display-helpers.js).
+if (Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment)
+                                            .exists("XPCSHELL_TEST_PROFILE_DIR")) {
+  /* import-globals-from ../../../../../mailnews/test/resources/logHelper.js */
+  load("../../../../mailnews/resources/logHelper.js");
+  /* import-globals-from ../../../../../mailnews/test/resources/asyncTestUtils.js */
+  load("../../../../mailnews/resources/asyncTestUtils.js");
+
+  /* import-globals-from ../../../../../mailnews/test/resources/messageGenerator.js */
+  load("../../../../mailnews/resources/messageGenerator.js");
+  /* import-globals-from ../../../../../mailnews/test/resources/messageModifier.js */
+  load("../../../../mailnews/resources/messageModifier.js");
+  /* import-globals-from ../../../../../mailnews/test/resources/messageInjection.js */
+  load("../../../../mailnews/resources/messageInjection.js");
+}
 
 var gInbox;
 
@@ -61,24 +89,24 @@ function assert_bit_not_set(aWhat, aBit, aWhy) {
 }
 
 var gFakeCommandUpdater = {
-  updateCommandStatus : function() {
+  updateCommandStatus() {
   },
 
-  displayMessageChanged : function(aFolder, aSubject, aKeywords) {
+  displayMessageChanged(aFolder, aSubject, aKeywords) {
   },
 
-  summarizeSelection: function () {
+  summarizeSelection() {
   },
 
-  updateNextMessageAfterDelete : function() {
-  }
+  updateNextMessageAfterDelete() {
+  },
 };
 
 var gMockViewWrapperListener = {
   __proto__: IDBViewWrapperListener.prototype,
   shouldUseMailViews: true,
   shouldDeferMessageDisplayUntilAfterServerConnect: false,
-  shouldMarkMessagesReadOnLeavingFolder : function(aMsgFolder) {
+  shouldMarkMessagesReadOnLeavingFolder(aMsgFolder) {
       return Services.prefs
                      .getBoolPref("mailnews.mark_message_read." +
                                   aMsgFolder.server.type);
@@ -89,7 +117,7 @@ var gMockViewWrapperListener = {
   threadPaneCommandUpdater: gFakeCommandUpdater,
   // event handlers
   allMessagesLoadedEventCount: 0,
-  onMessagesLoaded: function(aAll) {
+  onMessagesLoaded(aAll) {
     if (!aAll)
       return;
     this.allMessagesLoadedEventCount++;
@@ -100,9 +128,9 @@ var gMockViewWrapperListener = {
   },
 
   messagesRemovedEventCount: 0,
-  onMessagesRemoved: function() {
+  onMessagesRemoved() {
     this.messagesRemovedEventCount++;
-  }
+  },
 };
 
 function punt() {
@@ -122,13 +150,13 @@ var VWTU_testHelper = {
   active_real_folders: [],
   active_virtual_folders: [],
 
-  onVirtualFolderCreated: function(aVirtualFolder) {
+  onVirtualFolderCreated(aVirtualFolder) {
     this.active_virtual_folders.push(aVirtualFolder);
   },
 
-  postTest: function () {
+  postTest() {
     // close all the views we opened
-    this.active_view_wrappers.forEach(function (wrapper) {
+    this.active_view_wrappers.forEach(function(wrapper) {
       wrapper.close();
     });
     // verify that the notification helper has no outstanding listeners.
@@ -149,10 +177,10 @@ var VWTU_testHelper = {
       do_throw(msg);
     }
     // force the folder to forget about the message database
-    this.active_virtual_folders.forEach(function (folder) {
+    this.active_virtual_folders.forEach(function(folder) {
       folder.msgDatabase = null;
     });
-    this.active_real_folders.forEach(function (folder) {
+    this.active_real_folders.forEach(function(folder) {
       folder.msgDatabase = null;
     });
 
@@ -162,7 +190,7 @@ var VWTU_testHelper = {
 
     gMockViewWrapperListener.allMessagesLoadedEventCount = 0;
   },
-  onTimeout: function () {
+  onTimeout() {
     dump("-----------------------------------------------------------\n");
     dump("Active things at time of timeout:\n");
     for (let folder of this.active_real_folders) {
@@ -176,7 +204,7 @@ var VWTU_testHelper = {
       dump("Active view wrapper " + i + "\n");
       dump_view_state(viewWrapper);
     }
-  }
+  },
 };
 
 function make_view_wrapper() {
@@ -308,7 +336,6 @@ function dump_view_contents(aViewWrapper) {
   dump("********* Current View Contents\n");
   for (let iViewIndex = 0; iViewIndex < rowCount; iViewIndex++) {
     let level = treeView.getLevel(iViewIndex);
-    let viewFlags = dbView.viewFlags;
     let flags = dbView.getFlagsAt(iViewIndex);
     let msgHdr = dbView.getMsgHdrAt(iViewIndex);
 
@@ -317,7 +344,7 @@ function dump_view_contents(aViewWrapper) {
       s += treeView.isContainerOpen(iViewIndex) ? "- " : "+ ";
     else
       s += ". ";
-    //s += treeView.getCellText(iViewIndex, )
+    // s += treeView.getCellText(iViewIndex, )
     if (flags & MSG_VIEW_FLAG_DUMMY)
       s += "dummy: ";
     s += dbView.cellTextForColumn(iViewIndex, "subject");
@@ -379,7 +406,7 @@ function dump_view_state(aViewWrapper, aDoNotDumpContents) {
  * @param aViewWrapper The DBViewWrapper whose contents you want to validate.
  */
 function verify_messages_in_view(aSynSets, aViewWrapper) {
-  if (!('length' in aSynSets))
+  if (!("length" in aSynSets))
     aSynSets = [aSynSets];
 
   // - Iterate over all the message sets, retrieving the message header.  Use
@@ -404,9 +431,8 @@ function verify_messages_in_view(aSynSets, aViewWrapper) {
     //  twice, which is also why we do an 'in' test and not a value test.
     if (uri in synMessageURIs) {
       synMessageURIs[uri] = null;
-    }
-    // the view is showing a message that should not be shown, explode.
-    else {
+    } else {
+      // the view is showing a message that should not be shown, explode.
       dump("The view is showing the following message header and should not" +
            " be:\n");
       dump_message_header(msgHdr);
@@ -448,7 +474,6 @@ function verify_empty_view(aViewWrapper) {
  *  something less eccentric is certainly the way that should be tested.
  */
 function verify_view_level_histogram(aExpectedHisto, aViewWrapper) {
-  let dbView = aViewWrapper.dbView;
   let treeView = aViewWrapper.dbView.QueryInterface(Ci.nsITreeView);
   let rowCount = treeView.rowCount;
 

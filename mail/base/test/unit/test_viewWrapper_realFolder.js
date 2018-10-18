@@ -4,13 +4,7 @@
  *  newsgroup specific.)
  */
 
-load("../../../../mailnews/resources/logHelper.js");
-load("../../../../mailnews/resources/asyncTestUtils.js");
-
-load("../../../../mailnews/resources/messageGenerator.js");
-load("../../../../mailnews/resources/messageModifier.js");
-load("../../../../mailnews/resources/messageInjection.js");
-
+/* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils();
 
@@ -149,8 +143,7 @@ function* test_real_folder_threading_grouped_by_sort() {
   // create some messages that belong to the 'in this week' bucket when sorting
   //  by date and grouping by date.
   const count = 5;
-  let [folder, messageSet] = make_folder_with_sets([
-    {count: count, age: {days: 2}, age_incr: {mins: 1}}]);
+  let [folder] = make_folder_with_sets([{count, age: {days: 2}, age_incr: {mins: 1}}]);
 
   // group-by-sort sorted by date
   yield async_view_open(viewWrapper, folder);
@@ -344,23 +337,23 @@ function* test_real_folder_mail_views_tags() {
 
   // setup the initial set with the tag
   let [folder, setOne, setTwo] = make_folder_with_sets(2);
-  setOne.addTag('$label1');
+  setOne.addTag("$label1");
 
   // open, apply mail view constraint, see those messages
   yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(viewWrapper, MailViewConstants.kViewItemTags, '$label1');
+  yield async_view_set_mail_view(viewWrapper, MailViewConstants.kViewItemTags, "$label1");
   verify_messages_in_view(setOne, viewWrapper);
 
   // add some more with the tag
-  setTwo.addTag('$label1');
+  setTwo.addTag("$label1");
 
   // make sure they showed up
   yield async_view_refresh(viewWrapper); // QUICKSEARCH-VIEW-LIMITATION-REMOVE
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // remove them all
-  setOne.removeTag('$label1');
-  setTwo.removeTag('$label1');
+  setOne.removeTag("$label1");
+  setTwo.removeTag("$label1");
 
   // make sure they all disappeared. #3
   yield async_view_refresh(viewWrapper);
@@ -383,7 +376,7 @@ function* test_real_folder_mail_views_custom_recent_mail() {
   let viewWrapper = make_view_wrapper();
 
   // create a set that meets the threshold and a set that does not
-  let [folder, setRecent, setOld] = make_folder_with_sets([
+  let [folder, setRecent] = make_folder_with_sets([
     {age: {mins: 0}},
     {age: {days: 2}, age_incr: {mins: 1}},
   ]);
@@ -394,7 +387,7 @@ function* test_real_folder_mail_views_custom_recent_mail() {
   verify_messages_in_view(setRecent, viewWrapper);
 
   // add two more sets, one that meets, and one that doesn't. #2
-  let [setMoreRecent, setMoreOld] = make_new_sets_in_folder(folder, [
+  let [setMoreRecent] = make_new_sets_in_folder(folder, [
     {age: {mins: 0}},
     {age: {days: 2, hours: 1}, age_incr: {mins: 1}},
   ]);
@@ -410,7 +403,7 @@ function* test_real_folder_mail_views_custom_last_5_days() {
   let viewWrapper = make_view_wrapper();
 
   // create a set that meets the threshold and a set that does not
-  let [folder, setRecent, setOld] = make_folder_with_sets([
+  let [folder, setRecent] = make_folder_with_sets([
     {age: {days: 2}, age_incr: {mins: 1}},
     {age: {days: 6}, age_incr: {mins: 1}},
   ]);
@@ -421,7 +414,7 @@ function* test_real_folder_mail_views_custom_last_5_days() {
   verify_messages_in_view(setRecent, viewWrapper);
 
   // add two more sets, one that meets, and one that doesn't. #2
-  let [setMoreRecent, setMoreOld] = make_new_sets_in_folder(folder, [
+  let [setMoreRecent] = make_new_sets_in_folder(folder, [
     {age: {mins: 0}},
     {age: {days: 5, hours: 1}, age_incr: {mins: 1}},
   ]);
@@ -460,20 +453,18 @@ function* test_real_folder_mail_views_custom_not_junk() {
 function* test_real_folder_mail_views_custom_has_attachments() {
   let viewWrapper = make_view_wrapper();
 
-  let attachSetDef = {attachments: [{filename: 'foo.png',
-                                     contentType: 'image/png',
-                                     encoding: 'base64', charset: null,
-                                     body: 'YWJj\n', format: null}]};
+  let attachSetDef = {attachments: [{filename: "foo.png",
+                                     contentType: "image/png",
+                                     encoding: "base64", charset: null,
+                                     body: "YWJj\n", format: null}]};
   let noAttachSetDef = {};
 
-  let [folder, setNoAttach, setAttach] =
-    make_folder_with_sets([noAttachSetDef, attachSetDef]);
+  let [folder, , setAttach] = make_folder_with_sets([noAttachSetDef, attachSetDef]);
   yield async_view_open(viewWrapper, folder);
   yield async_view_set_mail_view(viewWrapper, "Has Attachments");
   verify_messages_in_view(setAttach, viewWrapper);
 
-  let [setMoreAttach, setMoreNoAttach] =
-    make_new_sets_in_folder(folder, [attachSetDef, noAttachSetDef]);
+  let [setMoreAttach] = make_new_sets_in_folder(folder, [attachSetDef, noAttachSetDef]);
   verify_messages_in_view([setAttach, setMoreAttach], viewWrapper);
 }
 

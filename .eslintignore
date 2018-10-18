@@ -50,7 +50,6 @@ mailnews/extensions/*
 # mail exclusions
 mail/app/**
 mail/base/content/**
-mail/base/test/**
 mail/branding/**
 mail/config/**
 mail/extensions/**
