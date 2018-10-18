@@ -10,8 +10,8 @@
 #include "prio.h"
 
 class nsMsgFileStream final : public nsIInputStream,
-                                  public nsIOutputStream,
-                                  public nsISeekableStream
+                              public nsIOutputStream,
+                              public nsISeekableStream
 {
 public:
   nsMsgFileStream();
@@ -23,6 +23,7 @@ public:
   NS_IMETHOD ReadSegments(nsWriteSegmentFun aWriter, void * aClosure, uint32_t aCount, uint32_t *_retval) override;
   NS_DECL_NSIOUTPUTSTREAM
   NS_DECL_NSISEEKABLESTREAM
+  NS_DECL_NSITELLABLESTREAM
 
   nsresult InitWithFile(nsIFile *localFile);
 protected:
