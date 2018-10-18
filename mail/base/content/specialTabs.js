@@ -767,14 +767,6 @@ var specialTabs = {
 
       aTab.browser.setAttribute("id", "contentTabBrowser" + this.lastBrowserId);
 
-      // The click handler that keeps tabs within Thunderbird is not preserved when the Add-ons Manager
-      // loads some new URLs, so we add it back in here for the Themes browsing page.
-      let themesBrowseURL = Services.urlFormatter.formatURLPref("extensions.getAddons.themes.browseURL");
-      let addonRegExp = Services.prefs.getCharPref("extensions.getAddons.siteRegExp");
-      if (aArgs.contentPage === themesBrowseURL) {
-        aArgs.clickHandler = "specialTabs.siteClickHandler(event, new RegExp(\"" + addonRegExp + "\"));";
-      }
-
       aTab.clickHandler = "clickHandler" in aArgs && aArgs.clickHandler ?
                           aArgs.clickHandler :
                           "specialTabs.defaultClickHandler(event);";
