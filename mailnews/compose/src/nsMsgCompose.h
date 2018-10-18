@@ -219,7 +219,8 @@ public:
   // nsIWebProgressListener interface
   NS_DECL_NSIWEBPROGRESSLISTENER
 
-  nsresult    RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool calledByCopy, bool isSend);
+  nsresult    RemoveDraftOrTemplate(nsIMsgCompose *compObj, nsCString msgURI, bool isSaveTemplate);
+  nsresult    RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool calledByCopy, bool isSaveTemplate);
   nsresult    GetMsgFolder(nsIMsgCompose *compObj, nsIMsgFolder **msgFolder);
 
 private:

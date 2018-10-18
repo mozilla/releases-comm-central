@@ -63,6 +63,7 @@ public:
     MSG_MESSAGE_ID_HEADER_ID,
     MSG_X_TEMPLATE_HEADER_ID,
     MSG_DRAFT_ID_HEADER_ID,
+    MSG_TEMPLATE_ID_HEADER_ID,
     MSG_CONTENT_LANGUAGE_ID,
     MSG_CREATOR_IDENTITY_KEY_ID,
 
@@ -128,6 +129,7 @@ public:
   const char* GetTemplateName() {return GetAsciiHeader(MSG_X_TEMPLATE_HEADER_ID);}
 
   const char* GetDraftId() {return GetAsciiHeader(MSG_DRAFT_ID_HEADER_ID);}
+  const char* GetTemplateId() {return GetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID);}
 
   const char* GetContentLanguage() {return GetAsciiHeader(MSG_CONTENT_LANGUAGE_ID);}
 

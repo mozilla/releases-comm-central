@@ -3728,7 +3728,7 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char *aMsgID, nsresult aS
       bool deleteDraft;
       msgCompose->GetDeleteDraft(&deleteDraft);
       if (deleteDraft)
-        RemoveCurrentDraftMessage(msgCompose, false, true);
+        RemoveCurrentDraftMessage(msgCompose, false, false);
     }
     else
     {
@@ -3812,7 +3812,7 @@ nsMsgComposeSendListener::OnStopCopy(nsresult aStatus)
         msgCompose->NotifyStateListeners(nsIMsgComposeNotificationType::SaveInFolderDone, aStatus);
         // Remove the current draft msg when saving as draft/template is done.
         msgCompose->SetDeleteDraft(true);
-        RemoveCurrentDraftMessage(msgCompose, true, false);
+        RemoveCurrentDraftMessage(msgCompose, true, mDeliverMode == nsIMsgSend::nsMsgSaveAsTemplate);
       }
       else
       {
@@ -3821,7 +3821,7 @@ nsMsgComposeSendListener::OnStopCopy(nsresult aStatus)
             mDeliverMode == nsIMsgSend::nsMsgDeliverBackground)
         {
           msgCompose->SetDeleteDraft(true);
-          RemoveCurrentDraftMessage(msgCompose, true, true);
+          RemoveCurrentDraftMessage(msgCompose, true, false);
         }
         msgCompose->CloseWindow();
       }
@@ -3855,7 +3855,116 @@ nsMsgComposeSendListener::GetMsgFolder(nsIMsgCompose *compObj, nsIMsgFolder **ms
 }
 
 nsresult
-nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool calledByCopy, bool isSend)
+nsMsgComposeSendListener::RemoveDraftOrTemplate(nsIMsgCompose *compObj, nsCString msgURI, bool isSaveTemplate)
+{
+  nsresult rv;
+  nsCOMPtr<nsIMsgFolder> msgFolder;
+  nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
+  rv = GetMsgDBHdrFromURI(msgURI.get(), getter_AddRefs(msgDBHdr));
+  NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveDraftOrTemplate can't get msg header DB interface pointer");
+  if (NS_SUCCEEDED(rv) && msgDBHdr)
+  {
+    do { // Break on failure or removal not needed.
+      // Get the folder for the message resource.
+      rv = msgDBHdr->GetFolder(getter_AddRefs(msgFolder));
+      NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveDraftOrTemplate can't get msg folder interface pointer");
+      if (NS_FAILED(rv) || !msgFolder)
+        break;
+
+      // Only do this if it's a drafts or templates folder.
+      uint32_t flags;
+      msgFolder->GetFlags(&flags);
+      if (!(flags & (nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Templates)))
+        break;
+      // Only delete a template when saving a new one, never delete a template when sending.
+      if (!isSaveTemplate && (flags & nsMsgFolderFlags::Templates))
+        break;
+
+      // Only remove if the message is actually in the db. It might have only
+      // been in the use cache.
+      nsMsgKey key;
+      rv = msgDBHdr->GetMessageKey(&key);
+      if (NS_FAILED(rv))
+        break;
+      nsCOMPtr<nsIMsgDatabase> db;
+      msgFolder->GetMsgDatabase(getter_AddRefs(db));
+      if (!db)
+        break;
+      bool containsKey = false;
+      db->ContainsKey(key, &containsKey);
+      if (!containsKey)
+        break;
+
+      // Build the msg array.
+      nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+      NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveDraftOrTemplate can't allocate array");
+      if (NS_FAILED(rv) || !messageArray)
+        break;
+      rv = messageArray->AppendElement(msgDBHdr);
+      NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveDraftOrTemplate can't append msg header to array");
+      if (NS_FAILED(rv))
+        break;
+
+      // Ready to delete the msg.
+      rv = msgFolder->DeleteMessages(messageArray, nullptr, true, false, nullptr, false /*allowUndo*/);
+      NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveDraftOrTemplate can't delete message");
+    } while(false);
+  }
+  else
+  {
+    // If we get here we have the case where the draft folder is on the server and
+    // it's not currently open (in thread pane), so draft msgs are saved to the server
+    // but they're not in our local DB. In this case, GetMsgDBHdrFromURI() will never
+    // find the msg. If the draft folder is a local one then we'll not get here because
+    // the draft msgs are saved to the local folder and are in local DB. Make sure the
+    // msg folder is imap.  Even if we get here due to DB errors (worst case), we should
+    // still try to delete msg on the server because that's where the master copy of the
+    // msgs are stored, if draft folder is on the server.
+    // For local case, since DB is bad we can't do anything with it anyway so it'll be
+    // noop in this case.
+    rv = GetMsgFolder(compObj, getter_AddRefs(msgFolder));
+    if (NS_SUCCEEDED(rv) && msgFolder)
+    {
+      nsCOMPtr <nsIMsgImapMailFolder> imapFolder = do_QueryInterface(msgFolder);
+      NS_ASSERTION(imapFolder, "The draft folder MUST be an imap folder in order to mark the msg delete!");
+      if (NS_SUCCEEDED(rv) && imapFolder)
+      {
+        // Only do this if it's a drafts or templates folder.
+        uint32_t flags;
+        msgFolder->GetFlags(&flags);
+        if (!(flags & (nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Templates)))
+          return NS_OK;
+        // Only delete a template when saving a new one, never delete a template when sending.
+        if (!isSaveTemplate && (flags & nsMsgFolderFlags::Templates))
+          return NS_OK;
+
+        const char * str = PL_strchr(msgURI.get(), '#');
+        NS_ASSERTION(str, "Failed to get current draft id url");
+        if (str)
+        {
+          nsAutoCString srcStr(str+1);
+          nsresult err;
+          nsMsgKey messageID = srcStr.ToInteger(&err);
+          if (messageID != nsMsgKey_None)
+          {
+            rv = imapFolder->StoreImapFlags(kImapMsgDeletedFlag, true,
+                                            &messageID, 1, nullptr);
+          }
+        }
+      }
+    }
+  }
+
+  return rv;
+}
+
+/**
+ * Remove the current draft message since a new one will be saved.
+ * When we're coming to save a template, also delete the original template.
+ * This is necessary since auto-save doesn't delete the original template.
+ */
+nsresult
+nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool calledByCopy, bool isSaveTemplate)
 {
   nsresult rv;
   nsCOMPtr <nsIMsgCompFields> compFields = nullptr;
@@ -3866,109 +3975,25 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
     return rv;
 
   nsCString curDraftIdURL;
-  nsMsgKey newUid = 0;
-  nsCString newDraftIdURL;
-  nsCOMPtr<nsIMsgFolder> msgFolder;
-
   rv = compFields->GetDraftId(getter_Copies(curDraftIdURL));
   NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't get draft id");
 
   // Skip if no draft id (probably a new draft msg).
-  if (NS_SUCCEEDED(rv) && !curDraftIdURL.IsEmpty())
-  {
-    nsCOMPtr <nsIMsgDBHdr> msgDBHdr;
-    rv = GetMsgDBHdrFromURI(curDraftIdURL.get(), getter_AddRefs(msgDBHdr));
-    NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't get msg header DB interface pointer.");
-    if (NS_SUCCEEDED(rv) && msgDBHdr)
-    {
-      do { // Break on failure or removal not needed.
-        // Get the folder for the message resource.
-        rv = msgDBHdr->GetFolder(getter_AddRefs(msgFolder));
-        NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't get msg folder interface pointer.");
-        if (NS_FAILED(rv) || !msgFolder)
-          break;
+  if (NS_SUCCEEDED(rv) && !curDraftIdURL.IsEmpty()) {
+    rv = RemoveDraftOrTemplate(compObj, curDraftIdURL, isSaveTemplate);
+    if (NS_FAILED(rv))
+      NS_WARNING("Removing current draft failed");
+  }
 
-        // Only do this if it's a drafts or templates folder.
-        uint32_t flags;
-        msgFolder->GetFlags(&flags);
-        if (!(flags & (nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Templates)))
-          break;
-        // Never delete a template when sending.
-        if (isSend && (flags & nsMsgFolderFlags::Templates))
-          break;
-
-        // Only remove if the message is actually in the db. It might have only
-        // been in the use cache.
-        nsMsgKey key;
-        rv = msgDBHdr->GetMessageKey(&key);
-        if (NS_FAILED(rv))
-          break;
-        nsCOMPtr<nsIMsgDatabase> db;
-        msgFolder->GetMsgDatabase(getter_AddRefs(db));
-        if (!db)
-          break;
-        bool containsKey = false;
-        db->ContainsKey(key, &containsKey);
-        if (!containsKey)
-          break;
-
-        // Build the msg array.
-        nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-        NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't allocate array.");
-        if (NS_FAILED(rv) || !messageArray)
-          break;
-        rv = messageArray->AppendElement(msgDBHdr);
-        NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't append msg header to array.");
-        if (NS_FAILED(rv))
-          break;
-
-        // Ready to delete the msg.
-        rv = msgFolder->DeleteMessages(messageArray, nullptr, true, false, nullptr, false /*allowUndo*/);
-        NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't delete message.");
-      } while(false);
-    }
-    else
-    {
-      // If we get here we have the case where the draft folder
-      // is on the server and
-      // it's not currently open (in thread pane), so draft
-      // msgs are saved to the server
-      // but they're not in our local DB. In this case,
-      // GetMsgDBHdrFromURI() will never
-      // find the msg. If the draft folder is a local one
-      // then we'll not get here because
-      // the draft msgs are saved to the local folder and
-      // are in local DB. Make sure the
-      // msg folder is imap.  Even if we get here due to
-      // DB errors (worst case), we should
-      // still try to delete msg on the server because
-      // that's where the master copy of the
-      // msgs are stored, if draft folder is on the server.
-      // For local case, since DB is bad
-      // we can't do anything with it anyway so it'll be
-      // noop in this case.
-      rv = GetMsgFolder(compObj, getter_AddRefs(msgFolder));
-      if (NS_SUCCEEDED(rv) && msgFolder)
-      {
-        nsCOMPtr <nsIMsgImapMailFolder> imapFolder = do_QueryInterface(msgFolder);
-        NS_ASSERTION(imapFolder, "The draft folder MUST be an imap folder in order to mark the msg delete!");
-        if (NS_SUCCEEDED(rv) && imapFolder)
-        {
-          const char * str = PL_strchr(curDraftIdURL.get(), '#');
-          NS_ASSERTION(str, "Failed to get current draft id url");
-          if (str)
-          {
-            nsAutoCString srcStr(str+1);
-            nsresult err;
-            nsMsgKey messageID = srcStr.ToInteger(&err);
-            if (messageID != nsMsgKey_None)
-            {
-              rv = imapFolder->StoreImapFlags(kImapMsgDeletedFlag, true,
-                                              &messageID, 1, nullptr);
-            }
-          }
-        }
-      }
+  if (isSaveTemplate) {
+    nsCString templateIdURL;
+    rv = compFields->GetTemplateId(getter_Copies(templateIdURL));
+    if (NS_SUCCEEDED(rv) && !templateIdURL.Equals(curDraftIdURL)) {
+      // Above we deleted an auto-saved draft, so here we need to delete
+      // the original template.
+      rv = RemoveDraftOrTemplate(compObj, templateIdURL, isSaveTemplate);
+      if (NS_FAILED(rv))
+        NS_WARNING("Removing original template failed");
     }
   }
 
@@ -3976,6 +4001,7 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
   // regardless whether or not the exiting msg can be deleted.
   if (calledByCopy)
   {
+    nsMsgKey newUid = 0;
     nsCOMPtr<nsIMsgFolder> savedToFolder;
     nsCOMPtr<nsIMsgSend> msgSend;
     rv = compObj->GetMessageSend(getter_AddRefs(msgSend));
@@ -3996,9 +4022,12 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
       savedToFolder->GetFlags(&folderFlags);
       if (folderFlags & (nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Templates))
       {
+        nsCString newDraftIdURL;
         rv = savedToFolder->GenerateMessageURI(newUid, newDraftIdURL);
         NS_ENSURE_SUCCESS(rv, rv);
         compFields->SetDraftId(newDraftIdURL.get());
+        if (isSaveTemplate)
+          compFields->SetTemplateId(newDraftIdURL.get());
       }
     }
   }

@@ -50,6 +50,7 @@ static HeaderInfo kHeaders[] = {
   { "Message-Id", true },
   { "X-Template", true },
   { nullptr, false }, // DRAFT_ID
+  { nullptr, false }, // TEMPLATE_ID
   { "Content-Language", true },
   { nullptr, false } // CREATOR IDENTITY KEY
 };
@@ -357,6 +358,17 @@ NS_IMETHODIMP nsMsgCompFields::SetDraftId(const char *value)
 NS_IMETHODIMP nsMsgCompFields::GetDraftId(char **_retval)
 {
   *_retval = strdup(GetAsciiHeader(MSG_DRAFT_ID_HEADER_ID));
+  return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+}
+
+NS_IMETHODIMP nsMsgCompFields::SetTemplateId(const char *value)
+{
+  return SetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID, value);
+}
+
+NS_IMETHODIMP nsMsgCompFields::GetTemplateId(char **_retval)
+{
+  *_retval = strdup(GetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 

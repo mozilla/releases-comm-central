@@ -4148,6 +4148,9 @@ function ComposeCanClose() {
         // and the user hasn't explicitly saved it.
         if (!gEditingDraft && gAutoSaveKickedIn)
           RemoveDraft();
+        // Remove auto-saved draft created during "edit template".
+        if (gMsgCompose.compFields.templateId && gAutoSaveKickedIn)
+          RemoveDraft();
         break;
     }
   }

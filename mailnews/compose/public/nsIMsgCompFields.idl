@@ -40,6 +40,7 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
 
   attribute AString templateName;
   attribute string  draftId;
+  attribute string  templateId;
 
   attribute boolean returnReceipt;
   attribute long receiptHeaderType;

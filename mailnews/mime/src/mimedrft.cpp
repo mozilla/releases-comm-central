@@ -1686,8 +1686,10 @@ mime_parse_stream_complete(nsMIMESession *stream)
         // overwritten when saving the template again.
         // Note that always setting the draft ID here would cause drafts to be
         // overwritten when edited "as new", which is undesired.
-        if (msgComposeType == nsIMsgCompType::EditTemplate)
+        if (msgComposeType == nsIMsgCompType::EditTemplate) {
           fields->SetDraftId(mdd->url_name);
+          fields->SetTemplateId(mdd->url_name);  // Remember original template ID.
+        }
 
         if (convertToPlainText)
           fields->ConvertBodyToPlainText();
