@@ -63,7 +63,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgPluggableStore.h"
 #include "../../base/src/MailnewsLoadContextInfo.h"
-#include "nsDocShellLoadState.h"
 
 #define PREF_MAIL_ROOT_IMAP "mail.root.imap"            // old - for backward compatibility only
 #define PREF_MAIL_ROOT_IMAP_REL "mail.root.imap-rel"
@@ -624,13 +623,12 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
       // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
       // treat this load as if it were a user click event. Then the dispatching stuff will be much
       // happier.
-      RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-      loadState->SetURI(url);
-      loadState->SetLoadFlags(aImapAction == nsImapUrl::nsImapOpenMimePart
-                                ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
-                                : nsIWebNavigation::LOAD_FLAGS_NONE);
-      loadState->SetFirstParty(false);
-      rv = docShell->LoadURI(loadState);
+      rv = docShell->LoadURI(url,
+                             nullptr,
+                             aImapAction == nsImapUrl::nsImapOpenMimePart
+                               ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
+                               : nsIWebNavigation::LOAD_FLAGS_NONE,
+                             false);
     }
     else
     {
@@ -1060,11 +1058,7 @@ nsresult nsImapService::GetMessageFromUrl(nsIImapUrl *aImapUrl,
   if (NS_SUCCEEDED(rv) && docShell)
   {
     NS_ASSERTION(!aConvertDataToText, "can't convert to text when using docshell");
-    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-    loadState->SetURI(url);
-    loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
-    loadState->SetFirstParty(false);
-    rv = docShell->LoadURI(loadState);
+    rv = docShell->LoadURI(url, nullptr, nsIWebNavigation::LOAD_FLAGS_NONE, false);
   }
   else
   {

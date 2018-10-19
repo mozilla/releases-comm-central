@@ -26,7 +26,6 @@
 #include "nsIMsgHdr.h"
 #include "nsIFileURL.h"
 #include "mozilla/RefPtr.h"
-#include "nsDocShellLoadState.h"
 #include "nsIRDFService.h"
 
 nsMailboxService::nsMailboxService()
@@ -235,13 +234,12 @@ nsresult nsMailboxService::FetchMessage(const char* aMessageURI,
     // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
-    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-    loadState->SetURI(url);
-    loadState->SetLoadFlags(mailboxAction == nsIMailboxUrl::ActionFetchPart
-                              ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
-                              : nsIWebNavigation::LOAD_FLAGS_NONE);
-    loadState->SetFirstParty(false);
-    rv = docShell->LoadURI(loadState);
+    rv = docShell->LoadURI(url,
+                           nullptr,
+                           mailboxAction == nsIMailboxUrl::ActionFetchPart
+                             ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
+                             : nsIWebNavigation::LOAD_FLAGS_NONE,
+                           false);
   }
   else
     rv = RunMailboxUrl(url, aDisplayConsumer);
@@ -365,11 +363,7 @@ NS_IMETHODIMP nsMailboxService::OpenAttachment(const char *aContentType,
     // DIRTY LITTLE HACK --> since we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
-    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-    loadState->SetURI(URL);
-    loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_IS_LINK);
-    loadState->SetFirstParty(false);
-    return docShell->LoadURI(loadState);
+    return docShell->LoadURI(URL, nullptr, nsIWebNavigation::LOAD_FLAGS_IS_LINK, false);
   }
   return RunMailboxUrl(URL, aDisplayConsumer);
 
