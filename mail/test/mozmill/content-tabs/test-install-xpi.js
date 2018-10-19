@@ -22,30 +22,8 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 // so we get the right path for the resources.
 var url = collector.addHttpResource('../content-tabs/html', 'content-tabs');
 
+var gDocument;
 var gNewTab;
-var gNotificationBox;
-
-var ALERT_TIMEOUT = 50000;
-
-var AlertWatcher = {
-  planForAlert: function(aController) {
-    this.alerted = false;
-    aController.window.document.addEventListener("AlertActive",
-                                                 this.alertActive);
-  },
-  waitForAlert: function(aController) {
-    if (!this.alerted) {
-      aController.waitFor(() => this.alerted, "Timeout waiting for alert",
-                          ALERT_TIMEOUT, 100);
-    }
-    aController.window.document.removeEventListener("AlertActive",
-                                                    this.alertActive);
-  },
-  alerted: false,
-  alertActive: function() {
-    AlertWatcher.alerted = true;
-  }
-};
 
 var setupModule = function (module) {
   let wh = collector.getModule('window-helpers');
@@ -54,96 +32,72 @@ var setupModule = function (module) {
   fdh.installInto(module);
   let cth = collector.getModule('content-tab-helpers');
   cth.installInto(module);
+
+  gDocument = mc.window.document;
+  gNewTab = open_content_tab_with_url(url + "installxpi.html",
+      "specialTabs.siteClickHandler(event, new RegExp('^" + url + "'));");
 };
 
-function click_notification_box_action_in_current_tab() {
-  let actionButton = gNotificationBox.currentNotification.querySelector("button");
-  mc.click(new elib.Elem(actionButton));
-}
+var teardownModule = function(module) {
+  mc.tabmail.closeTab(gNewTab);
+};
 
-function close_notification_box() {
-  gNotificationBox.currentNotification.close();
-}
+function waitForNotification(id, buttonToClick, callback) {
+  let path = `
+    /id("messengerWindow")/id("mainPopupSet")/id("notification-popup")/id("${id}-notification")
+  `.trim();
+  let notification = new elib.Lookup(gDocument, path);
+  let button = new elib.Lookup(gDocument, `${path}/anon({"anonid":"${buttonToClick}"})`);
 
-function click_install_link_and_wait_for_alert(link) {
-  // Clicking the link will bring up a notification box...
-  AlertWatcher.planForAlert(mc);
-  mc.click(new elib.Elem(mc.tabmail.getBrowserForSelectedTab().contentDocument
-                           .getElementById(link)));
-  AlertWatcher.waitForAlert(mc);
-
-  // Just give other events time to clear
-  mc.sleep(1000);
-}
-
-function test_setup() {
-  gNewTab =
-    open_content_tab_with_url(url + "installxpi.html",
-      "specialTabs.siteClickHandler(event, new RegExp('^" + url + "'));");
-
-  // make the animation only take one frame
-  gNotificationBox =
-    mc.tabmail.selectedTab.panel.querySelector("notificationbox");
-  gNotificationBox.slideSteps = 1;
+  mc.waitForElement(notification);
+  // Give the UI some time to settle.
+  mc.sleep(500);
+  if (callback) {
+    callback();
+  }
+  mc.click(button);
+  mc.waitForElementNotPresent(notification);
 }
 
 function test_install_corrupt_xpi() {
   // This install with give us a corrupt xpi warning.
-  click_install_link_and_wait_for_alert("corruptlink");
-
-  // Clicking the install button will close the current notification and open
-  // the corrupt notification.
-  AlertWatcher.planForAlert(mc);
-  click_notification_box_action_in_current_tab();
-  AlertWatcher.waitForAlert(mc);
-
-  // Now check this matches, avoiding l10n issues for now.
-  if (gNotificationBox.currentNotification.priority !=
-      gNotificationBox.PRIORITY_CRITICAL_HIGH)
-    throw new Error("Unexpected priority used for notification. Wrong Notification? Priority used was: " + gNotificationBox.currentNotification.priority);
-
-  // We're done with this test, close the box.
-  close_notification_box();
+  mc.click(content_tab_eid(gNewTab, "corruptlink"));
+  waitForNotification("addon-install-blocked", "button");
+  waitForNotification("addon-install-failed", "button");
 }
 
 function test_install_xpi_offer() {
-  click_install_link_and_wait_for_alert("installlink");
-
-  // This brings up a second notification, which we ignore.
-  AlertWatcher.planForAlert(mc);
-  click_notification_box_action_in_current_tab();
-  AlertWatcher.waitForAlert(mc);
-  close_notification_box();
-
-  // After closing the dialog we need to give just a little extra time
-  // before we do things.
-  mc.sleep(100);
+  mc.click(content_tab_eid(gNewTab, "installlink"));
+  waitForNotification("addon-install-blocked", "button");
+  waitForNotification("addon-install-confirmation", "secondarybutton");
 }
 
 function test_xpinstall_disabled() {
   Services.prefs.setBoolPref("xpinstall.enabled", false);
 
-  // Try installation again - this time we'll get an install has been disabled
-  // message.
-  click_install_link_and_wait_for_alert("installlink");
+  // Try installation again - this time we'll get an install has been disabled message.
+  mc.click(content_tab_eid(gNewTab, "installlink"));
+  waitForNotification("xpinstall-disabled", "secondarybutton");
 
-  // tell it to enable installation!
-  click_notification_box_action_in_current_tab();
+  Services.prefs.clearUserPref("xpinstall.enabled");
 }
 
 function test_xpinstall_actually_install() {
-  click_install_link_and_wait_for_alert("installlink");
+  mc.click(content_tab_eid(gNewTab, "installlink"));
+  waitForNotification("addon-install-blocked", "button");
+  waitForNotification("addon-install-confirmation", "button");
+  waitForNotification("addon-installed", "button");
+}
 
-  // This brings up a second notification, which we click on.
-  AlertWatcher.planForAlert(mc);
-  click_notification_box_action_in_current_tab();
-  AlertWatcher.waitForAlert(mc);
-
-  // This brings up a third notification, which we ignore.
-  AlertWatcher.planForAlert(mc);
-  click_notification_box_action_in_current_tab();
-  AlertWatcher.waitForAlert(mc);
-
-  close_notification_box();
-  close_tab(gNewTab);
+function test_xpinstall_webext_actually_install() {
+  mc.click(content_tab_eid(gNewTab, "installwebextlink"));
+  waitForNotification("addon-install-blocked", "button");
+  waitForNotification("addon-webext-permissions", "button", () => {
+    let intro = new elib.ID(gDocument, "addon-webext-perm-intro");
+    mc.assertNotDOMProperty(intro, "hidden", "true");
+    let permissionList = new elib.ID(gDocument, "addon-webext-perm-list");
+    mc.assertNotDOMProperty(permissionList, "hidden", "true");
+    mc.assert(() => permissionList.getNode().childElementCount == 1);
+  });
+  waitForNotification("addon-installed", "button");
 }
