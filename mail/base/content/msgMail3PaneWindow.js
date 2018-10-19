@@ -26,7 +26,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
   let tmp = {};
-  ChromeUtils.import("resource://gre/modules/PopupNotifications.jsm", tmp);
+  ChromeUtils.import("resource:///modules/GlobalPopupNotifications.jsm", tmp);
   try {
     // Hide all notifications while the URL is being edited and the address bar
     // has focus, including the virtual focus in the results popup.

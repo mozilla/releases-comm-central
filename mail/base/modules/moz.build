@@ -8,6 +8,7 @@ EXTRA_JS_MODULES += [
     'DBViewWrapper.jsm',
     'DisplayNameUtils.jsm',
     'ExtensionsUI.jsm',
+    'GlobalPopupNotifications.jsm',
     'MailConsts.jsm',
     'MailInstrumentation.jsm',
     'MailMigrator.jsm',
