@@ -1,7 +1,6 @@
 component {8cc51368-6aa0-43e8-b762-bde9b9fd828c} aboutRedirector.js
 # Each addition here should be coupled with a corresponding addition in
 # aboutRedirector.js.
-contract @mozilla.org/network/protocol/about;1?what=newaddon {8cc51368-6aa0-43e8-b762-bde9b9fd828c}
 contract @mozilla.org/network/protocol/about;1?what=newserror {8cc51368-6aa0-43e8-b762-bde9b9fd828c}
 contract @mozilla.org/network/protocol/about;1?what=rights {8cc51368-6aa0-43e8-b762-bde9b9fd828c}
 contract @mozilla.org/network/protocol/about;1?what=support {8cc51368-6aa0-43e8-b762-bde9b9fd828c}
