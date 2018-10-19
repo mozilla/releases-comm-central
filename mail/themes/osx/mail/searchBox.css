@@ -11,14 +11,21 @@
 .searchBox {
   margin-top: 3px;
   margin-bottom: 2px;
-  -moz-appearance: none;
-  background-clip: padding-box;
+  -moz-appearance: none !important;
   border: 1px solid hsla(240,5%,5%,.25);
   border-radius: 3px;
   box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  font: icon;
+  font: icon !important;
   height: 24px;
-  padding: 1px 4px;
+  padding: 1px 4px !important;
+  padding-inline-start: 19px !important;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.8;
+  background-clip: padding-box;
+  background-image: url("chrome://global/skin/icons/search-textbox.svg");
+  background-repeat: no-repeat;
+  background-position: 5px center;
   -moz-box-align: center;
 }
 
@@ -76,26 +83,6 @@
   border-color: var(--toolbar-field-focus-border-color);
   box-shadow: 0 0 0 1px var(--toolbar-field-focus-border-color) inset,
               0 0 0 1px var(--toolbar-field-focus-border-color);
-}
-
-.searchBox > .textbox-input-box:before {
-  /* Because of bug 853415, we need to ordinal this to the first position: */
-  -moz-box-ordinal-group: 0;
-  content: '';
-  display: block;
-  -moz-box-align: center;
-  width: 16px;
-  height: 16px;
-  margin-inline-end: 4px;
-  background-image: url(chrome://messenger/skin/icons/search-glass.svg);
-  background-size: 16px 16px;
-  -moz-context-properties: fill;
-  fill: currentColor;
-  opacity: 0.5;
-}
-
-.searchBox:-moz-locale-dir(rtl) > .textbox-input-box:before {
-  transform: scaleX(-1);
 }
 
 .remote-gloda-search-container {
