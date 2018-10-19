@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = [];
+this.EXPORTED_SYMBOLS = ["ExtensionsUI"];
 
 const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";
 const BRAND_PROPERTIES = "chrome://branding/locale/brand.properties";
@@ -13,6 +13,7 @@ const HTML_NS = "http://www.w3.org/1999/xhtml";
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
+  AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
   ExtensionData: "resource://gre/modules/Extension.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -617,6 +618,21 @@ var gXPInstallObserver = {
       notification.remove();
     }
   },
+
+  async _checkForSideloaded(browser) {
+    let sideloaded = await AddonManagerPrivate.getNewSideloads();
+    for (let addon of sideloaded) {
+      let strings = this._buildStrings({
+        addon,
+        permissions: addon.userPermissions,
+        type: "sideload",
+      });
+      let answer = await this.showPermissionsPrompt(browser, strings, addon.iconURL);
+      if (answer) {
+        await addon.enable();
+      }
+    }
+  },
 };
 
 Services.obs.addObserver(gXPInstallObserver, "addon-install-disabled");
@@ -630,3 +646,11 @@ Services.obs.addObserver(gXPInstallObserver, "webextension-permission-prompt");
 Services.obs.addObserver(gXPInstallObserver, "webextension-update-permissions");
 Services.obs.addObserver(gXPInstallObserver, "webextension-install-notify");
 Services.obs.addObserver(gXPInstallObserver, "webextension-optional-permission-prompt");
+
+var ExtensionsUI = {
+  checkForSideloadedExtensions() {
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
+    let tabmail = win.document.getElementById("tabmail");
+    gXPInstallObserver._checkForSideloaded(tabmail.selectedBrowser);
+  },
+};
