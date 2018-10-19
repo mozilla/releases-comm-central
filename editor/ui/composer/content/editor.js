@@ -2490,7 +2490,7 @@ function getColorAndSetColorWell(ColorPickerID, ColorWellID)
 //-----------------------------------------------------------------------------------
 function IsSpellCheckerInstalled()
 {
-  return "@mozilla.org/spellchecker;1" in Cc;
+  return true;  // Always installed.
 }
 
 //-----------------------------------------------------------------------------------
