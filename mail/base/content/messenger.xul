@@ -63,6 +63,7 @@
   -  3-pane view inside of tabs.
   -->
 <window id="messengerWindow"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:svg="http://www.w3.org/2000/svg"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&titledefault.label;@PRE_RELEASE_SUFFIX@"
@@ -305,6 +306,36 @@
   <tooltip id="aHTMLTooltip" page="true"/>
   <tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
 
+  <panel id="notification-popup"
+         type="arrow"
+         position="after_start"
+         orient="vertical"
+         noautofocus="true"
+         role="alert"/>
+
+  <popupnotification id="addon-progress-notification" hidden="true">
+    <popupnotificationcontent orient="vertical">
+      <progressmeter id="addon-progress-notification-progressmeter"/>
+      <label id="addon-progress-notification-progresstext" crop="end"/>
+    </popupnotificationcontent>
+  </popupnotification>
+
+  <popupnotification id="addon-install-confirmation-notification" hidden="true">
+    <popupnotificationcontent id="addon-install-confirmation-content" orient="vertical"/>
+  </popupnotification>
+
+  <popupnotification id="addon-webext-permissions-notification" hidden="true">
+    <popupnotificationcontent class="addon-webext-perm-notification-content" orient="vertical">
+      <description id="addon-webext-perm-text" class="addon-webext-perm-text"/>
+      <label id="addon-webext-perm-intro" class="addon-webext-perm-text"/>
+      <html:ul id="addon-webext-perm-list" class="addon-webext-perm-list"/>
+    </popupnotificationcontent>
+  </popupnotification>
+
+  <popupnotification id="addon-installed-notification" hidden="true">
+    <popupnotificationcontent class="addon-installed-notification-content" orient="vertical"/>
+  </popupnotification>
+
 #include editContactPanel.inc
 #include ../../components/im/content/chat-menu.inc
 </popupset>
@@ -361,6 +392,15 @@
            extensions should add to #mail-toolbox and add a toolbar item to
            #tabbar-toolbar below. -->
       <hbox id="tabmail-buttons"/>
+
+      <box id="notification-popup-box"
+           align="center"
+           hidden="true">
+        <image id="addons-notification-icon"
+               src="chrome://mozapps/skin/extensions/extensionGeneric-16.svg"
+               class="notification-anchor-icon install-icon"
+               role="button"/>
+      </box>
 
       <toolbar id="tabbar-toolbar" toolboxid="mail-toolbox"
                context="toolbar-context-menu"

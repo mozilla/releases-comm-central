@@ -7,6 +7,7 @@ EXTRA_JS_MODULES += [
     'AttachmentChecker.jsm',
     'DBViewWrapper.jsm',
     'DisplayNameUtils.jsm',
+    'ExtensionsUI.jsm',
     'MailConsts.jsm',
     'MailInstrumentation.jsm',
     'MailMigrator.jsm',

@@ -1140,6 +1140,8 @@
         ]]></setter>
       </property>
 
+      <property name="selectedBrowser" onget="return this.getBrowserForSelectedTab();" />
+
       <!-- getBrowserForSelectedTab is required as some toolkit functions
            require a getBrowser() function. -->
       <method name="getBrowserForSelectedTab">

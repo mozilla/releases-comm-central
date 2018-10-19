@@ -24,6 +24,26 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
 });
 
+XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
+  let tmp = {};
+  ChromeUtils.import("resource://gre/modules/PopupNotifications.jsm", tmp);
+  try {
+    // Hide all notifications while the URL is being edited and the address bar
+    // has focus, including the virtual focus in the results popup.
+    // We also have to hide notifications explicitly when the window is
+    // minimized because of the effects of the "noautohide" attribute on Linux.
+    // This can be removed once bug 545265 and bug 1320361 are fixed.
+    let shouldSuppress = () => window.windowState == window.STATE_MINIMIZED;
+    return new tmp.PopupNotifications(document.getElementById("tabmail"),
+                                      document.getElementById("notification-popup"),
+                                      document.getElementById("notification-popup-box"),
+                                      { shouldSuppress });
+  } catch (ex) {
+    Cu.reportError(ex);
+    return null;
+  }
+});
+
 // Copied from M-C's TelemetryEnvironment.jsm
 ChromeUtils.defineModuleGetter(this, "ctypes",
                                "resource://gre/modules/ctypes.jsm");
