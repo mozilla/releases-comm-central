@@ -50,7 +50,6 @@
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
 #include "nsContentUtils.h"
-#include "nsDocShellLoadState.h"
 
 // mail
 #include "nsIMsgMailNewsUrl.h"
@@ -591,11 +590,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy *aWin, const nsACString& aURL)
   AddMsgUrlToNavigateHistory(aURL);
   mNavigatingToUri.Truncate();
   mLastDisplayURI = aURL; // Remember the last uri we displayed.
-  RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-  loadState->SetURI(uri);
-  loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
-  loadState->SetFirstParty(true);
-  return mDocShell->LoadURI(loadState);
+  return mDocShell->LoadURI(uri, nullptr, nsIWebNavigation::LOAD_FLAGS_NONE, true);
 }
 
 NS_IMETHODIMP nsMessenger::SaveAttachmentToFile(nsIFile *aFile,
