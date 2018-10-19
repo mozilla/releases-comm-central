@@ -208,7 +208,7 @@ toolbar:not(.inline-toolbar):not(.contentTabToolbar):not(:-moz-lwtheme) {
 .inline-toolbar,
 .contentTabToolbar {
   -moz-appearance: none;
-  min-height: 0;
+  min-height: 15px;
   padding: 0;
 }
 
