@@ -5,9 +5,15 @@
 
 this.EXPORTED_SYMBOLS = [];
 
+const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";
+const BRAND_PROPERTIES = "chrome://branding/locale/brand.properties";
+const DEFAULT_EXTENSION_ICON = "chrome://mozapps/skin/extensions/extensionGeneric.svg";
+const HTML_NS = "http://www.w3.org/1999/xhtml";
+
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
+  ExtensionData: "resource://gre/modules/Extension.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
@@ -15,10 +21,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 XPCOMUtils.defineLazyGetter(this, "addonsBundle", function() {
-  return new StringBundle("chrome://messenger/locale/addons.properties");
+  return new StringBundle(ADDONS_PROPERTIES);
 });
 XPCOMUtils.defineLazyGetter(this, "brandBundle", function() {
-  return new StringBundle("chrome://branding/locale/brand.properties");
+  return new StringBundle(BRAND_PROPERTIES);
 });
 
 function getNotification(id, browser) {
@@ -59,6 +65,7 @@ function removeNotificationOnEnd(notification, installs) {
 
 var gXPInstallObserver = {
   pendingInstalls: new WeakMap(),
+  pendingNotifications: new WeakMap(),
 
   showInstallConfirmation(browser, installInfo, height = undefined) {
     let document = browser.ownerDocument;
@@ -179,9 +186,125 @@ var gXPInstallObserver = {
     removeNotificationOnEnd(popup, installInfo.installs);
   },
 
+  async showPermissionsPrompt(browser, strings, icon) {
+    let window = browser.ownerGlobal;
+
+    // Wait for any pending prompts in this window to complete before
+    // showing the next one.
+    let pending;
+    while ((pending = this.pendingNotifications.get(window))) {
+      await pending;
+    }
+
+    let promise = new Promise(resolve => {
+      function eventCallback(topic) {
+        let doc = this.browser.ownerDocument;
+        if (topic == "showing") {
+          let textEl = doc.getElementById("addon-webext-perm-text");
+          textEl.textContent = strings.text;
+          textEl.hidden = !strings.text;
+
+          let listIntroEl = doc.getElementById("addon-webext-perm-intro");
+          listIntroEl.textContent = strings.listIntro;
+          listIntroEl.hidden = (strings.msgs.length == 0);
+
+          let list = doc.getElementById("addon-webext-perm-list");
+          while (list.firstChild) {
+            list.firstChild.remove();
+          }
+
+          for (let msg of strings.msgs) {
+            let item = doc.createElementNS(HTML_NS, "li");
+            item.textContent = msg;
+            list.appendChild(item);
+          }
+        } else if (topic == "swapping") {
+          return true;
+        }
+        if (topic == "removed") {
+          Services.tm.dispatchToMainThread(() => {
+            resolve(false);
+          });
+        }
+        return false;
+      }
+
+      let popupOptions = {
+        hideClose: true,
+        popupIconURL: icon || DEFAULT_EXTENSION_ICON,
+        persistent: true,
+        eventCallback,
+        name: strings.addonName,
+        removeOnDismissal: true,
+      };
+
+      let action = {
+        label: strings.acceptText,
+        accessKey: strings.acceptKey,
+        callback: () => {
+          resolve(true);
+        },
+      };
+      let secondaryActions = [
+        {
+          label: strings.cancelText,
+          accessKey: strings.cancelKey,
+          callback: () => {
+            resolve(false);
+          },
+        },
+      ];
+
+      showNotification(browser, "addon-webext-permissions", strings.header,
+                       "addons-notification-icon", action, secondaryActions, popupOptions);
+    });
+
+    this.pendingNotifications.set(window, promise);
+    promise.finally(() => this.pendingNotifications.delete(window));
+    return promise;
+  },
+
+  showInstallNotification(browser, addon) {
+    let window = browser.ownerGlobal;
+
+    let brandBundle = window.document.getElementById("bundle_brand");
+    let appName = brandBundle.getString("brandShortName");
+
+    let message = addonsBundle.getFormattedString("addonPostInstall.message1",
+                                                  ["<>", appName]);
+    return new Promise(resolve => {
+      let action = {
+        label: addonsBundle.getString("addonPostInstall.okay.label"),
+        accessKey: addonsBundle.getString("addonPostInstall.okay.key"),
+        callback: resolve,
+      };
+
+      let icon = DEFAULT_EXTENSION_ICON;
+      if (addon.isWebExtension) {
+        icon = AddonManager.getPreferredIconURL(addon, 32, window) || icon;
+      }
+
+      let options = {
+        hideClose: true,
+        timeout: Date.now() + 30000,
+        popupIconURL: icon,
+        eventCallback(topic) {
+          if (topic == "dismissed") {
+            resolve();
+          }
+        },
+        name: addon.name,
+      };
+
+      showNotification(browser, "addon-installed", message, "addons-notification-icon",
+                       action, null, options);
+    });
+  },
+
+  /* eslint-disable complexity */
   observe(subject, topic, data) {
     let installInfo = subject.wrappedJSObject;
-    let browser = installInfo.browser;
+    let browser = installInfo.browser || installInfo.target;
     let window = browser.ownerGlobal;
 
     const anchorID = "addons-notification-icon";
@@ -389,28 +512,105 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-complete": {
-        let secondaryActions = null;
-        let numAddons = installInfo.installs.length;
+        this.showInstallNotification(browser, installInfo.installs[0].addon);
+        break;
+      }
+      case "webextension-permission-prompt": {
+        let {info} = subject.wrappedJSObject;
 
-        if (numAddons == 1) {
-          messageString = addonsBundle.getFormattedString("addonInstalled",
-                                                          [installInfo.installs[0].name]);
-        } else {
-          messageString = addonsBundle.getString("addonsGenericInstalled");
-          messageString = PluralForm.get(numAddons, messageString);
-          messageString = messageString.replace("#1", numAddons);
+        // Dismiss the progress notification.  Note that this is bad if
+        // there are multiple simultaneous installs happening, see
+        // bug 1329884 for a longer explanation.
+        let progressNotification = getNotification("addon-progress", browser);
+        if (progressNotification) {
+          progressNotification.remove();
         }
-        action = null;
 
-        options.removeOnDismissal = true;
-        options.persistent = false;
+        info.unsigned = info.addon.signedState <= AddonManager.SIGNEDSTATE_MISSING;
+        if (info.unsigned && Cu.isInAutomation &&
+            Services.prefs.getBoolPref("extensions.ui.ignoreUnsigned", false)) {
+          info.unsigned = false;
+        }
 
-        showNotification(browser, notificationID, messageString, anchorID,
-                         action, secondaryActions, options);
+        let strings = this._buildStrings(info);
+
+        // If this is an update with no promptable permissions, just apply it
+        if (info.type == "update" && strings.msgs.length == 0) {
+          info.resolve();
+          return;
+        }
+
+        let icon = info.unsigned ? "chrome://global/skin/icons/warning.svg" : info.icon;
+
+        this.showPermissionsPrompt(browser, strings, icon).then(answer => {
+          if (answer) {
+            info.resolve();
+          } else {
+            info.reject();
+          }
+        });
+        break;
+      }
+      case "webextension-update-permissions": {
+        let {info} = subject.wrappedJSObject;
+        info.type = "update";
+        let strings = this._buildStrings(info);
+
+        // If we don't prompt for any new permissions, just apply it.
+        if (strings.msgs.length == 0) {
+          info.resolve();
+        }
+
+        this.showPermissionsPrompt(browser, strings, info.addon.iconURL).then(answer => {
+          if (answer) {
+            info.resolve();
+          } else {
+            info.reject();
+          }
+        });
+        break;
+      }
+      case "webextension-install-notify": {
+        let {addon, callback} = subject.wrappedJSObject;
+        this.showInstallNotification(browser, addon).then(() => {
+          if (callback) {
+            callback();
+          }
+        });
+        break;
+      }
+      case "webextension-optional-permission-prompt": {
+        let {name, icon, permissions, resolve} = subject.wrappedJSObject;
+        let strings = this._buildStrings({
+          type: "optional",
+          addon: {name},
+          permissions,
+        });
+
+        // If we don't have any promptable permissions, just proceed
+        if (strings.msgs.length == 0) {
+          resolve(true);
+          return;
+        }
+        resolve(this.showPermissionsPrompt(browser, strings, icon));
         break;
       }
     }
   },
+  /* eslint-enable complexity */
+
+  // Create a set of formatted strings for a permission prompt
+  _buildStrings(info) {
+    // This bundle isn't the same as addonsBundle.
+    let bundle = Services.strings.createBundle(ADDONS_PROPERTIES);
+    let appName = brandBundle.getString("brandShortName");
+    let info2 = Object.assign({appName}, info);
+
+    let strings = ExtensionData.formatPermissionStrings(info2, bundle);
+    strings.addonName = info.addon.name;
+    return strings;
+  },
+
   _removeProgressNotification(browser) {
     let notification = getNotification("addon-progress", browser);
     if (notification) {
@@ -426,3 +626,7 @@ Services.obs.addObserver(gXPInstallObserver, "addon-install-started");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-failed");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-confirmation");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-complete");
+Services.obs.addObserver(gXPInstallObserver, "webextension-permission-prompt");
+Services.obs.addObserver(gXPInstallObserver, "webextension-update-permissions");
+Services.obs.addObserver(gXPInstallObserver, "webextension-install-notify");
+Services.obs.addObserver(gXPInstallObserver, "webextension-optional-permission-prompt");

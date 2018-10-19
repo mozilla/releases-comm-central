@@ -172,6 +172,9 @@ pref("extensions.blocklist.url", "https://blocklists.settings.services.mozilla.c
 pref("extensions.blocklist.detailsURL", "https://blocked.cdn.mozilla.net/");
 pref("extensions.blocklist.itemURL", "https://blocked.cdn.mozilla.net/%blockID%.html");
 
+// Show new install UI with permission lists
+pref("extensions.webextPermissionPrompts", true);
+
 // 1 = allow "Man In The Middle" (local proxy, web filter, etc.) for certificate
 //     pinning checks.
 pref("security.cert_pinning.enforcement_level", 1);
