@@ -11,8 +11,6 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 :root {
-  --toolbarHighlight: rgba(255, 255, 255, .4);
-
   --tab-min-height: 30px;
   --tabs-border-color: rgba(0,0,0,.3);
   --tabline-color: highlight;
@@ -26,7 +24,6 @@
 
   --toolbarbutton-border-radius: 2px;
   --toolbarbutton-icon-fill-opacity: .85;
-  --toolbarbutton-text-color: #222;
   --toolbarbutton-hover-background: rgba(255, 255, 255, .5) linear-gradient(rgba(255, 255, 255, .5), transparent);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
   --toolbarbutton-header-bordercolor: rgba(0, 0, 0, .25);
@@ -62,6 +59,22 @@ toolbar[brighttext] {
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #45a1ff);
 }
 
+#FindToolbar:-moz-lwtheme,
+.contentTabToolbox:-moz-lwtheme,
+#ab-toolbox > toolbar:-moz-lwtheme,
+.mail-toolbox > toolbar:-moz-lwtheme,
+#compose-toolbox > toolbar:-moz-lwtheme,
+#navigation-toolbox > toolbar:-moz-lwtheme {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, .1));
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, .1));
+
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(0, 0, 0, .15));
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(0, 0, 0, .15));
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(0, 0, 0, .15)) inset;
+
+  --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, .2));
+}
+
 .contentTabToolbox[brighttext],
 #header-view-toolbar[brighttext],
 #ab-toolbox > toolbar[brighttext],
@@ -71,33 +84,15 @@ toolbar[brighttext] {
 #headers-box > toolbar[brighttext],
 #FormatToolbox > toolbar[brighttext],
 :root[lwt-tree-brighttext] #folderPane-toolbar {
-  --toolbarbutton-text-color: #fff;
-  --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
-  --toolbarbutton-hover-bordercolor: rgba(255, 255, 255, .5);
-  --toolbarbutton-header-bordercolor: rgba(255, 255, 255, .25);
-
-  --toolbarbutton-active-background: rgba(255, 255, 255, .4);
-  --toolbarbutton-active-bordercolor: rgba(255, 255, 255, .7);
-  --toolbarbutton-active-boxshadow: 0 0 0 1px rgba(255, 255, 255, .4) inset;
-
-  --toolbarbutton-checkedhover-backgroundcolor: rgba(255, 255, 255, .5);
-}
-
-#FindToolbar:-moz-lwtheme,
-.contentTabToolbox:-moz-lwtheme,
-#ab-toolbox > toolbar:-moz-lwtheme,
-.mail-toolbox > toolbar:-moz-lwtheme,
-#compose-toolbox > toolbar:-moz-lwtheme,
-#navigation-toolbox > toolbar:-moz-lwtheme {
-  --toolbarbutton-text-color: currentColor;
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, .2));
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
+  --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
 
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(70%, 70%, 70%, .25));
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(0, 0, 0, .3));
-  --toolbarbutton-active-boxshadow: 0 0 2px var(--lwt-toolbarbutton-active-background, rgba(0, 0, 0, .6)) inset;
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4));
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .7));
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4)) inset;
 
-  --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background, rgba(85%, 85%, 85%, .25));
+  --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
 }
 
 /* Hide the titlebar explicitly on versions of GTK+ where
