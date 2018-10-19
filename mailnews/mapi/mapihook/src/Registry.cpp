@@ -9,7 +9,7 @@
 #include "nsString.h"
 #include "Registry.h"
 
-#define MAPI_PROXY_DLL_NAME   "MapiProxy.dll"
+#define MAPI_PROXY_DLL_NAME   u"MapiProxy.dll"
 #define MAPI_STARTUP_ARG      " /MAPIStartUp"
 #define MAX_SIZE              2048
 
@@ -121,26 +121,26 @@ void RegisterProxy()
     HINSTANCE h = NULL;
     ProxyServer *RegisterFunc = NULL;
 
-    char szModule[MAX_SIZE];
-    char *pTemp = NULL;
+    WCHAR szModule[MAX_SIZE];
+    WCHAR *pTemp = NULL;
 
     HMODULE hModule = GetModuleHandle(NULL);
-    DWORD dwResult  = ::GetModuleFileName(hModule, szModule,
-                                          sizeof(szModule)/sizeof(char));
+    DWORD dwResult  = ::GetModuleFileNameW(hModule, szModule,
+                                           sizeof(szModule)/sizeof(WCHAR));
     if (dwResult == 0)
         return;
 
-    pTemp = strrchr(szModule, '\\');
+    pTemp = wcsrchr(szModule, L'\\');
     if (pTemp == NULL)
         return;
 
     *pTemp = '\0';
-    nsAutoCString proxyPath(szModule);
+    nsAutoString proxyPath(szModule);
 
-    proxyPath += "\\";
+    proxyPath += u"\\";
     proxyPath += MAPI_PROXY_DLL_NAME;
 
-    h = LoadLibraryW(NS_ConvertASCIItoUTF16(proxyPath).get());
+    h = LoadLibraryW(proxyPath.get());
     if (h == NULL)
         return;
 
@@ -156,26 +156,26 @@ void UnRegisterProxy()
     HINSTANCE h = NULL;
     ProxyServer *UnRegisterFunc = NULL;
 
-    char szModule[MAX_SIZE];
-    char *pTemp = NULL;
+    WCHAR szModule[MAX_SIZE];
+    WCHAR *pTemp = NULL;
 
     HMODULE hModule = GetModuleHandle(NULL);
-    DWORD dwResult  = ::GetModuleFileName(hModule, szModule,
-                                          sizeof(szModule)/sizeof(char));
+    DWORD dwResult  = ::GetModuleFileNameW(hModule, szModule,
+                                           sizeof(szModule)/sizeof(WCHAR));
     if (dwResult == 0)
         return;
 
-    pTemp = strrchr(szModule, '\\');
+    pTemp = wcsrchr(szModule, L'\\');
     if (pTemp == NULL)
         return;
 
     *pTemp = '\0';
-    nsAutoCString proxyPath(szModule);
+    nsAutoString proxyPath(szModule);
 
-    proxyPath += "\\";
+    proxyPath += u"\\";
     proxyPath += MAPI_PROXY_DLL_NAME;
 
-    h = LoadLibraryW(NS_ConvertASCIItoUTF16(proxyPath).get());
+    h = LoadLibraryW(proxyPath.get());
     if (h == NULL)
         return;
 

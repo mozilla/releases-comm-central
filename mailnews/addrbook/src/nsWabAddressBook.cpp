@@ -13,6 +13,7 @@ using namespace mozilla;
 static LazyLogModule gWabAddressBookLog("WABAddressBook");
 
 #define PRINTF(args) MOZ_LOG(gWabAddressBookLog, mozilla::LogLevel::Debug, args)
+#define WAB_DLL_NAMEW L"" WAB_DLL_NAME
 
 HMODULE nsWabAddressBook::mLibrary = NULL ;
 int32_t nsWabAddressBook::mLibUsage = 0 ;
@@ -23,21 +24,22 @@ LPADRBOOK nsWabAddressBook::mRootBook = NULL ;
 BOOL nsWabAddressBook::LoadWabLibrary(void)
 {
     if (mLibrary) { ++ mLibUsage ; return TRUE ; }
+
     // We try to fetch the location of the WAB DLL from the registry
-    TCHAR wabDLLPath [MAX_PATH] ;
+    WCHAR wabDLLPath [MAX_PATH] ;
     DWORD keyType = 0 ;
     ULONG byteCount = sizeof(wabDLLPath) ;
     HKEY keyHandle = NULL ;
     wabDLLPath [MAX_PATH - 1] = 0 ;
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, WAB_DLL_PATH_KEY, 0, KEY_READ, &keyHandle) == ERROR_SUCCESS) {
-        RegQueryValueEx(keyHandle, "", NULL, &keyType, (LPBYTE) wabDLLPath, &byteCount) ;
+        RegQueryValueExW(keyHandle, L"", NULL, &keyType, (LPBYTE) wabDLLPath, &byteCount) ;
         if (keyType == REG_EXPAND_SZ) {
             // Expand the environment variables
-            DWORD bufferSize = ExpandEnvironmentStrings(wabDLLPath, NULL, 0);
+            DWORD bufferSize = ExpandEnvironmentStringsW(wabDLLPath, NULL, 0);
             if (bufferSize && bufferSize < MAX_PATH) {
-                TCHAR tmp[MAX_PATH];
-                ExpandEnvironmentStrings(wabDLLPath, tmp, bufferSize);
-                _tcscpy(wabDLLPath, tmp);
+                WCHAR tmp[MAX_PATH];
+                ExpandEnvironmentStringsW(wabDLLPath, tmp, bufferSize);
+                wcscpy(wabDLLPath, tmp);
             }
             else {
                 return FALSE;
@@ -45,18 +47,16 @@ BOOL nsWabAddressBook::LoadWabLibrary(void)
         }
     }
     else {
-        if (GetSystemDirectory(wabDLLPath, MAX_PATH)) {
-            _tcsncat(wabDLLPath, WAB_DLL_NAME,
-                     std::min(_tcslen(WAB_DLL_NAME), MAX_PATH - _tcslen(wabDLLPath) - 1));
+        if (GetSystemDirectoryW(wabDLLPath, MAX_PATH)) {
+            wcsncat(wabDLLPath, WAB_DLL_NAMEW,
+                     std::min(wcslen(WAB_DLL_NAMEW), MAX_PATH - wcslen(wabDLLPath) - 1));
         }
         else {
             return FALSE;
         }
     }
     if (keyHandle) { RegCloseKey(keyHandle) ; }
-    mLibrary = LoadLibraryW((lstrlen(wabDLLPath))
-      ? NS_ConvertASCIItoUTF16(wabDLLPath).get()
-      : NS_ConvertASCIItoUTF16(WAB_DLL_NAME).get());
+    mLibrary = LoadLibraryW((lstrlenW(wabDLLPath)) ? wabDLLPath : WAB_DLL_NAMEW);
     if (!mLibrary) { return FALSE ; }
     ++ mLibUsage ;
     mWABOpen = reinterpret_cast<LPWABOPEN>(GetProcAddress(mLibrary, "WABOpen")) ;
