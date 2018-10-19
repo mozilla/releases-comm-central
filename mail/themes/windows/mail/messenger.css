@@ -150,6 +150,11 @@ toolbar[brighttext] {
   -moz-box-flex: 1; /* make menu items expand to fill toolbar height */
 }
 
+menubar > menu[disabled="true"]:-moz-lwtheme {
+  color: inherit;
+  opacity: .4;
+}
+
 /* ::::: Toolbar customization ::::: */
 
 .toolbarpaletteitem-box[type="spacer"],
