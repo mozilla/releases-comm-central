@@ -27,6 +27,7 @@
 #include "mozilla/Services.h"
 #include "nsProxyRelease.h"
 #include "mozilla/Encoding.h"
+#include "nsDocShellLoadState.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 {
@@ -794,7 +795,12 @@ NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
                                         uint32_t aLoadFlags)
 {
   NS_ENSURE_ARG_POINTER(docShell);
-  return docShell->LoadURI(this, nullptr, aLoadFlags, false);
+  RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
+  loadState->SetURI(this);
+  loadState->SetLoadFlags(aLoadFlags);
+  loadState->SetLoadType(MAKE_LOAD_TYPE(LOAD_NORMAL, aLoadFlags));
+  loadState->SetFirstParty(false);
+  return docShell->LoadURI(loadState);
 }
 
 #define SAVE_BUF_SIZE FILE_IO_BUFFER_SIZE

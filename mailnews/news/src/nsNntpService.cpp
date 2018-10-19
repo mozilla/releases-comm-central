@@ -43,6 +43,7 @@
 #include "nsIInputStream.h"
 #include "nsIURIMutator.h"
 #include "nsTArray.h"
+#include "nsDocShellLoadState.h"
 
 #include "../../base/src/MailnewsLoadContextInfo.h"
 
@@ -307,12 +308,15 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI *aUrl,
     // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
-    rv = docShell->LoadURI(aUrl,
-                           nullptr,
-                           mOpenAttachmentOperation
-                             ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
-                             : nsIWebNavigation::LOAD_FLAGS_NONE,
-                           false);
+    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
+    loadState->SetURI(aUrl);
+    loadState->SetLoadFlags(mOpenAttachmentOperation
+                              ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
+                              : nsIWebNavigation::LOAD_FLAGS_NONE);
+    if (mOpenAttachmentOperation)
+      loadState->SetLoadType(LOAD_LINK);
+    loadState->SetFirstParty(false);
+    rv = docShell->LoadURI(loadState);
   }
   else
   {
@@ -442,10 +446,16 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(const char *aContentType,
       msgUrl->RegisterListener(aUrlListener);
 
     nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
-    if (NS_SUCCEEDED(rv) && docShell)
-      return docShell->LoadURI(url, nullptr, nsIWebNavigation::LOAD_FLAGS_IS_LINK, false);
-    else
+    if (NS_SUCCEEDED(rv) && docShell) {
+      RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
+      loadState->SetURI(url);
+      loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_IS_LINK);
+      loadState->SetLoadType(LOAD_LINK);
+      loadState->SetFirstParty(false);
+      return docShell->LoadURI(loadState);
+    } else {
       return RunNewsUrl(url, aMsgWindow, aDisplayConsumer);
+    }
   }
   return NS_OK;
 }
