@@ -460,7 +460,12 @@ var gXPInstallObserver = {
 
           let error = (host || install.error == 0) ? "addonInstallError" : "addonLocalInstallError";
           let args;
-          if (install.error < 0) {
+
+          // Temporarily replace the usual warning message with this more-likely one.
+          if (install.error == AddonManager.ERROR_CORRUPT_FILE) {
+            error += "Legacy";
+            args = [brandShortName, Services.appinfo.version];
+          } else if (install.error != 0) {
             error += install.error;
             args = [brandShortName, install.name];
           } else if (install.addon.blocklistState == Ci.nsIBlocklistService.STATE_BLOCKED) {
