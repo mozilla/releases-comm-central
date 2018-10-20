@@ -1289,33 +1289,30 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
   // we don't aggregate bcc, as we only generate it locally,
   // and we don't use multiple lines
 
-  sender     = (m_from.length          ? &m_from :
-  m_sender.length        ? &m_sender :
-  m_envelope_from.length ? &m_envelope_from :
-  0);
-  recipient  = (to.length         ? &to :
-  cc.length         ? &cc :
-  m_newsgroups.length ? &m_newsgroups :
-  0);
-  ccList     = (cc.length ? &cc : 0);
-  bccList    = (m_bccList.length    ? &m_bccList    : 0);
-  subject    = (m_subject.length    ? &m_subject    : 0);
-  id         = (m_message_id.length ? &m_message_id : 0);
-  references = (m_references.length ? &m_references : 0);
-  statush    = (m_status.length     ? &m_status     : 0);
-  mozstatus  = (m_mozstatus.length  ? &m_mozstatus  : 0);
-  mozstatus2 = (m_mozstatus2.length  ? &m_mozstatus2  : 0);
-  date       = (m_date.length       ? &m_date :
-  m_envelope_date.length ? &m_envelope_date :
-  0);
+  sender       = (m_from.length          ? &m_from          :
+                  m_sender.length        ? &m_sender        :
+                  m_envelope_from.length ? &m_envelope_from : 0);
+  recipient    = (to.length              ? &to              :
+                  cc.length              ? &cc              :
+                  m_newsgroups.length    ? &m_newsgroups    : 0);
+  ccList       = (cc.length              ? &cc              : 0);
+  bccList      = (m_bccList.length       ? &m_bccList       : 0);
+  subject      = (m_subject.length       ? &m_subject       : 0);
+  id           = (m_message_id.length    ? &m_message_id    : 0);
+  references   = (m_references.length    ? &m_references    : 0);
+  statush      = (m_status.length        ? &m_status        : 0);
+  mozstatus    = (m_mozstatus.length     ? &m_mozstatus     : 0);
+  mozstatus2   = (m_mozstatus2.length    ? &m_mozstatus2    : 0);
+  date         = (m_date.length          ? &m_date          :
+                  m_envelope_date.length ? &m_envelope_date : 0);
   deliveryDate = (m_delivery_date.length ? &m_delivery_date : 0);
-  priority   = (m_priority.length   ? &m_priority   : 0);
-  keywords   =  (m_keywords.length   ? &m_keywords  : 0);
-  mdn_dnt     = (m_mdn_dnt.length    ? &m_mdn_dnt    : 0);
-  inReplyTo = (m_in_reply_to.length ? &m_in_reply_to : 0);
-  replyTo = (m_replyTo.length ? &m_replyTo : 0);
-  content_type = (m_content_type.length ? &m_content_type : 0);
-  account_key = (m_account_key.length ? &m_account_key :0);
+  priority     = (m_priority.length      ? &m_priority      : 0);
+  keywords     = (m_keywords.length      ? &m_keywords      : 0);
+  mdn_dnt      = (m_mdn_dnt.length       ? &m_mdn_dnt       : 0);
+  inReplyTo    = (m_in_reply_to.length   ? &m_in_reply_to   : 0);
+  replyTo      = (m_replyTo.length       ? &m_replyTo       : 0);
+  content_type = (m_content_type.length  ? &m_content_type  : 0);
+  account_key  = (m_account_key.length   ? &m_account_key   : 0);
 
   if (mozstatus)
   {
@@ -1529,49 +1526,62 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
         // Therefore, the fall-thru order for 'Received' is:
         // Received: -> Delivery-date: -> date
         // 'Date' uses:
-        // date -> PR_Now()
+        // date -> 'Received' -> PR_Now()
         //
         // date is:
         // Date: -> m_envelope_date
 
         uint32_t rcvTimeSecs = 0;
+        PRTime datePRTime = 0;
         if (date)
-        {  // Date:
-          PRTime resultTime;
-          PRStatus timeStatus = PR_ParseTimeString (date->value, false, &resultTime);
-          if (PR_SUCCESS == timeStatus)
+        {
+          // Date:
+          if (PR_ParseTimeString(date->value, false, &datePRTime) == PR_SUCCESS)
           {
-            m_newMsgHdr->SetDate(resultTime);
-            PRTime2Seconds(resultTime, &rcvTimeSecs);
+            // Convert to seconds as default value for 'Received'.
+            PRTime2Seconds(datePRTime, &rcvTimeSecs);
           }
           else
+          {
             NS_WARNING("PR_ParseTimeString of date failed in FinalizeHeader().");
+          }
         }
-        else
-        {  // PR_Now()
-          // If there was some problem parsing the Date header *AND* we
-          // couldn't get a valid envelope date, use now as the time.
-          // PR_ParseTimeString won't touch resultTime unless it succeeds.
-          // This doesn't affect local (POP3) messages, because we use the envelope
-          // date if there's no Date: header, but it will affect IMAP msgs
-          // w/o a Date: hdr or Received: headers.
-          PRTime resultTime = PR_Now();
-          m_newMsgHdr->SetDate(resultTime);
-        }
-        if (m_receivedTime != 0)
-        {  // Upgrade 'Received' to Received: ?
+        if (m_receivedTime)
+        {
+          // Upgrade 'Received' to Received: ?
           PRTime2Seconds(m_receivedTime, &rcvTimeSecs);
+          if (datePRTime == 0)
+            datePRTime = m_receivedTime;
         }
         else if (deliveryDate)
-        {  // Upgrade 'Received' to Delivery-date: ?
+        {
+          // Upgrade 'Received' to Delivery-date: ?
           PRTime resultTime;
-          PRStatus timeStatus = PR_ParseTimeString (deliveryDate->value, false, &resultTime);
-          if (PR_SUCCESS == timeStatus)
+          if (PR_ParseTimeString(deliveryDate->value, false, &resultTime) == PR_SUCCESS)
+          {
             PRTime2Seconds(resultTime, &rcvTimeSecs);
-          else // TODO/FIXME: We need to figure out what to do in this case!
+            if (datePRTime == 0)
+              datePRTime = resultTime;
+          }
+          else
+          {
+            // TODO/FIXME: We need to figure out what to do in this case!
             NS_WARNING("PR_ParseTimeString of delivery date failed in FinalizeHeader().");
+          }
         }
         m_newMsgHdr->SetUint32Property("dateReceived", rcvTimeSecs);
+
+        if (datePRTime == 0)
+        {
+          // If there was some problem parsing the Date header *AND* we
+          // couldn't get a valid envelope date *AND* we couldn't get a valid
+          // Received: header date, use now as the time.
+          // This doesn't affect local (POP3) messages, because we use the
+          // envelope date if there's no Date: header, but it will affect IMAP
+          // msgs w/o a Date: header or Received: headers.
+          datePRTime = PR_Now();
+        }
+        m_newMsgHdr->SetDate(datePRTime);
 
         if (priority)
           m_newMsgHdr->SetPriorityString(priority->value);
