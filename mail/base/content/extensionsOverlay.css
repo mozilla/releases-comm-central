@@ -12,6 +12,21 @@
   height: 50px;
 }
 
+#tb-legacy-extensions-notice {
+  -moz-box-align: start;
+  margin-inline-start: 32px;
+  margin-bottom: 8px;
+}
+
+#tb-legacy-extensions-notice > .alert {
+  width: 664px;
+  padding: 4px;
+}
+
+#tb-legacy-extensions-notice > .alert > description {
+  margin: 0;
+}
+
 .addon[status="installed"] {
   -moz-binding: url("chrome://messenger/content/extensions.xml#thunderbird-addon-generic");
 }
