@@ -8,7 +8,11 @@
 # =========================================================
 # = Lightning extension
 # =========================================================
-option('--enable-calendar',
+@depends(application)
+def calendar_default(app):
+    return app[0].endswith('/suite')
+
+option('--enable-calendar', default=calendar_default,
        help='Enable building of the Lightning calendar extension')
 
 
