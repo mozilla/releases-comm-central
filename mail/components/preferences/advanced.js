@@ -498,13 +498,13 @@ var gAdvancedPane = {
       ...Services.locale.requestedLocales,
       Services.locale.lastFallbackLocale,
     ]));
-    function generateContexts(resourceIds) {
-      return L10nRegistry.generateContexts(locales, resourceIds);
+    function generateBundles(resourceIds) {
+      return L10nRegistry.generateBundles(locales, resourceIds);
     }
     return new Localization([
       "messenger/preferences/preferences.ftl",
       "branding/brand.ftl",
-    ], generateContexts);
+    ], generateBundles);
   },
 
   initMessengerLocale() {
