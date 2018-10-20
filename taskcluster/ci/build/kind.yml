@@ -43,9 +43,7 @@ job-defaults:
             - comm/testing
             - comm/.taskcluster.yml
             - comm/AUTHORS
-            - comm/comm-confvars.sh
             - comm/moz.build
-            - comm/moz.configure
     run:
         mozconfig-variant:
             by-release-type:
