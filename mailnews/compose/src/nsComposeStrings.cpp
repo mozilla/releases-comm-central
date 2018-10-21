@@ -39,8 +39,6 @@ const char* errorStringNameForErrorCode(nsresult aCode)
       return "postFailed";
     case NS_ERROR_QUEUED_DELIVERY_FAILED:
       return "errorQueuedDeliveryFailed";
-    case NS_ERROR_SEND_FAILED:
-      return "sendFailed";
     case NS_ERROR_SMTP_SERVER_ERROR:
       return "smtpServerError";
     case NS_MSG_UNABLE_TO_SEND_LATER:
@@ -108,7 +106,7 @@ const char* errorStringNameForErrorCode(nsresult aCode)
     case NS_ERROR_SMTP_AUTH_NOT_SUPPORTED:
       return "smtpAuthenticationNotSupported";
     case NS_ERROR_ILLEGAL_LOCALPART:
-      return "illegalLocalPart";
+      return "errorIllegalLocalPart";
     default:
       return "sendFailed";
   }

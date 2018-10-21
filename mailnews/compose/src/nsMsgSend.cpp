@@ -82,6 +82,7 @@
 #include "mozIDOMWindow.h"
 #include "mozilla/Preferences.h"
 #include "nsIURIMutator.h"
+#include "nsINSSErrorsService.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -3132,6 +3133,7 @@ NS_IMETHODIMP nsMsgComposeAndSend::SendDeliveryCallback(nsIURI *aUrl, bool inIsN
           aExitCode = NS_ERROR_SMTP_SEND_FAILED_REFUSED;
           break;
         case NS_ERROR_NET_INTERRUPT:
+        case NS_ERROR_ABORT:
           aExitCode = NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
           break;
         case NS_ERROR_NET_TIMEOUT:
@@ -3142,8 +3144,6 @@ NS_IMETHODIMP nsMsgComposeAndSend::SendDeliveryCallback(nsIURI *aUrl, bool inIsN
             // nothing to do, just keep the code
           break;
         default:
-          if (aExitCode != NS_ERROR_ABORT && !NS_IS_MSG_ERROR(aExitCode))
-            aExitCode = NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON;
           break;
       }
 #ifdef __GNUC__
@@ -3493,7 +3493,6 @@ nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI * aUri, nsresult aExitCode,
     const char* exitString = errorStringNameForErrorCode(aExitCode);
     nsString eMsg;
     if (aExitCode == NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER ||
-        aExitCode == NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON ||
         aExitCode == NS_ERROR_SMTP_SEND_FAILED_REFUSED ||
         aExitCode == NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED ||
         aExitCode == NS_ERROR_SMTP_SEND_FAILED_TIMEOUT ||
@@ -3505,12 +3504,43 @@ nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI * aUri, nsresult aExitCode,
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL ||
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL ||
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT ||
-        aExitCode == NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS) {
+        aExitCode == NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS)
+    {
+      // Print basic SMTP error with the server name encoded.
       FormatStringWithSMTPHostNameByName(exitString, eMsg);
-    } else {
-      mComposeBundle->GetStringFromName(exitString, eMsg);
     }
-
+    else
+    {
+      nsCOMPtr<nsINSSErrorsService> nsserr = do_GetService(NS_NSS_ERRORS_SERVICE_CONTRACTID);
+      if (nsserr &&  NS_SUCCEEDED(nsserr->GetErrorMessage(aExitCode, eMsg)))
+      {
+        // This is a server security issue as determined by the Mozilla platform.
+        // To the Mozilla security message string, appended a string having
+        // additional information with the server name encoded.
+        nsString securityMsg;
+        FormatStringWithSMTPHostNameByName("smtpSecurityIssue", securityMsg);
+        eMsg.Append('\n');
+        eMsg.Append(securityMsg);
+      }
+      else if (PL_strcmp(exitString, "sendFailed"))
+      {
+        // Not the default string. A mailnews error occurred that does not
+        // require the server name to be encoded. Just print the descriptive
+        // string.
+        mComposeBundle->GetStringFromName(exitString, eMsg);
+      }
+      else
+      {
+        // Encode the error code in first string. Then append a supplemental
+        // string that encodes the server name.
+        nsString tmpStr;
+        mComposeBundle->GetStringFromName("sendFailedUnexpected", tmpStr);
+        nsTextFormatter::ssprintf(eMsg, tmpStr.get(), static_cast<uint32_t>(aExitCode));
+        FormatStringWithSMTPHostNameByName("smtpSendFailedUnknownReason", tmpStr);
+        eMsg.Append('\n');
+        eMsg.Append(tmpStr);
+      }
+    }
     Fail(aExitCode, eMsg.get(), &aExitCode);
     NotifyListenerOnStopSending(nullptr, aExitCode, nullptr, nullptr);
     return;

@@ -282,7 +282,6 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
     switch (currError)
     {
       case NS_BINDING_ABORTED:
-      case NS_ERROR_SEND_FAILED:
       case NS_ERROR_SEND_FAILED_BUT_NNTP_OK:
       case NS_MSG_FAILED_COPY_OPERATION:
       case NS_MSG_UNABLE_TO_SEND_LATER:
