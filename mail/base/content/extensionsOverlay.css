@@ -14,7 +14,8 @@
 
 #tb-legacy-extensions-notice {
   -moz-box-align: start;
-  margin-inline-start: 32px;
+  margin-left: 32px;
+  margin-right: 32px;
   margin-bottom: 8px;
 }
 
