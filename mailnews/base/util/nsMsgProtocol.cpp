@@ -41,6 +41,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/SlicedInputStream.h"
 #include "nsContentSecurityManager.h"
+#include "nsPrintfCString.h"
 
 #undef PostMessage // avoid to collision with WinUser.h
 
@@ -353,28 +354,29 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl, nsresult aStatu
   case NS_ERROR_NET_INTERRUPT:
      errorString = u"netInterruptError";
      break;
+  case NS_ERROR_OFFLINE:
+     // Don't alert when offline as that is already displayed in the UI.
+     return;
   default:
-     // Leave the string as nullptr.
-     break;
+     nsPrintfCString msg("Unexpected status passed to ShowAlertMessage: %" PRIx32,
+                         static_cast<uint32_t>(aStatus));
+     NS_WARNING(msg.get());
+     return;
   }
 
-  NS_ASSERTION(errorString, "unknown error, but don't alert user.");
-  if (errorString)
+  nsString errorMsg;
+  errorMsg.Adopt(FormatStringWithHostNameByName(errorString, aMsgUrl));
+  if (errorMsg.IsEmpty())
   {
-    nsString errorMsg;
-    errorMsg.Adopt(FormatStringWithHostNameByName(errorString, aMsgUrl));
-    if (errorMsg.IsEmpty())
-    {
-      errorMsg.AssignLiteral(u"[StringID ");
-      errorMsg.Append(errorString);
-      errorMsg.AppendLiteral(u"?]");
-    }
-
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID);
-    if (mailSession)
-      mailSession->AlertUser(errorMsg, aMsgUrl);
+    errorMsg.AssignLiteral(u"[StringID ");
+    errorMsg.Append(errorString);
+    errorMsg.AppendLiteral(u"?]");
   }
+
+  nsCOMPtr<nsIMsgMailSession> mailSession =
+    do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+  if (mailSession)
+    mailSession->AlertUser(errorMsg, aMsgUrl);
 }
 
 // stop binding is a "notification" informing us that the stream associated with aURL is going away.
