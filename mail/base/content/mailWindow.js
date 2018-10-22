@@ -739,14 +739,15 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams) {
   let tabmail = document.getElementById("tabmail");
   let matchingIndex = -1;
   if (tabmail) {
-    let openURI = makeURI(aURI);
-    let tabInfo = tabmail.tabInfo;
-
     // about:preferences should be opened through openPreferencesTab().
-    if (openURI = "about:preferences") {
+    if (aURI == "about:preferences") {
       openPreferencesTab();
       return;
     }
+
+    let openURI = makeURI(aURI);
+    let tabInfo = tabmail.tabInfo;
+
     // Check if we already have the same URL open in a content tab.
     for (let tabIndex = 0; tabIndex < tabInfo.length; tabIndex++) {
       if (tabInfo[tabIndex].mode.name == "contentTab") {
