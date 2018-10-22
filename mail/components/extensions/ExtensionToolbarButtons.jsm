@@ -186,7 +186,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
 
     if (button && popupURL && enabled) {
       let popup = ViewPopup.for(this.extension, window) || this.getPopup(window, popupURL);
-      popup.viewNode.openPopup(button);
+      popup.viewNode.openPopup(button, "bottomcenter topleft", 0, 0);
     } else {
       this.emit("click");
     }
