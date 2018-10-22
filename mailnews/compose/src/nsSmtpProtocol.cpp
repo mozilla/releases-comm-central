@@ -105,7 +105,6 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode,
       nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
       break;
     case NS_ERROR_SMTP_SERVER_ERROR:
-    case NS_ERROR_TCP_READ_ERROR:
     case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1:
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:

@@ -3500,7 +3500,6 @@ nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI * aUri, nsresult aExitCode,
         aExitCode == NS_ERROR_SMTP_AUTH_FAILURE ||
         aExitCode == NS_ERROR_SMTP_AUTH_GSSAPI ||
         aExitCode == NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED ||
-        aExitCode == NS_ERROR_SMTP_AUTH_NOT_SUPPORTED ||
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL ||
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL ||
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT ||

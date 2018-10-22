@@ -37,8 +37,6 @@ const char* errorStringNameForErrorCode(nsresult aCode)
       return "errorSendingMessage";
     case NS_ERROR_POST_FAILED:
       return "postFailed";
-    case NS_ERROR_QUEUED_DELIVERY_FAILED:
-      return "errorQueuedDeliveryFailed";
     case NS_ERROR_SMTP_SERVER_ERROR:
       return "smtpServerError";
     case NS_MSG_UNABLE_TO_SEND_LATER:
@@ -47,22 +45,14 @@ const char* errorStringNameForErrorCode(nsresult aCode)
       return "communicationsError";
     case NS_ERROR_BUT_DONT_SHOW_ALERT:
       return "dontShowAlert";
-    case NS_ERROR_TCP_READ_ERROR:
-      return "tcpReadError";
     case NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS:
       return "couldNotGetUsersMailAddress2";
     case NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY:
       return "couldNotGetSendersIdentity";
     case NS_ERROR_MIME_MPART_ATTACHMENT_ERROR:
       return "mimeMpartAttachmentError";
-    case NS_MSG_FAILED_COPY_OPERATION:
-      return "failedCopyOperation";
     case NS_ERROR_NNTP_NO_CROSS_POSTING:
       return "nntpNoCrossPosting";
-    case NS_MSG_CANCELLING:
-      return "msgCancelling";
-    case NS_ERROR_SEND_FAILED_BUT_NNTP_OK:
-      return "sendFailedButNntpOk";
     case NS_MSG_ERROR_READING_FILE:
       return "errorReadingFile";
     case NS_MSG_ERROR_ATTACHING_FILE:
@@ -103,8 +93,6 @@ const char* errorStringNameForErrorCode(nsresult aCode)
       return "smtpAuthGssapi";
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:
       return "smtpAuthMechNotSupported";
-    case NS_ERROR_SMTP_AUTH_NOT_SUPPORTED:
-      return "smtpAuthenticationNotSupported";
     case NS_ERROR_ILLEGAL_LOCALPART:
       return "errorIllegalLocalPart";
     default:
