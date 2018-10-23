@@ -36,6 +36,8 @@ var Files =
   "../../../data/multipart-base64-2",
   "../../../data/bug132340",
   "../../../data/bad-charset.eml",
+  "../../../data/HTML-with-split-tag1.eml",
+  "../../../data/HTML-with-split-tag2.eml",
 
   // Base64 encoded bodies.
   "../../../data/01-plaintext.eml",
@@ -137,6 +139,14 @@ var Tests =
   { value: "bodyOfAttachedMessagePläin", op: Contains, count: 2 },
   { value: "bodyOfAttachedMessageHTML", op: Contains, count: 1 },
   { value: "bodyOfAttachedMessägeHTML", op: Contains, count: 1 },
+
+  // Test that we don't find anything in HTML tags.
+  { value: "ShouldNotFindThis", op: Contains, count: 0 },
+  { value: "ShouldntFindThisEither", op: Contains, count: 0 },
+  { value: "ShouldntFindHref", op: Contains, count: 0 },
+  { value: "ShouldNotFindAcrossLines", op: Contains, count: 0 },
+  { value: "ShouldFindThisAgain", op: Contains, count: 2 },
+  { value: "ShouldFind AcrossLines", op: Contains, count: 2 },
 ];
 
 function fixFile(file) {
