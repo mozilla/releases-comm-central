@@ -18,47 +18,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src chrome:"/>
     <title>&newsError.title;</title>
     <link rel="stylesheet" href="chrome://global/skin/netError.css" type="text/css" media="all" />
     <!-- If the location of the favicon is changed here, the FAVICON_ERRORPAGE_URL symbol in
          toolkit/components/places/src/nsFaviconService.h should be updated. -->
     <link rel="icon" type="image/png" id="favicon" href="chrome://global/skin/icons/warning.svg"/>
-    <script type="application/javascript"><![CDATA[
-      // Error url must be formatted like this:
-      //   about:newserror?r=response&m=messageid&k=messagekey&f=folderuri
-      // "r" is required; "m" and "f" are optional, but "k" always comes with "m".
-
-      var folderUri;
-
-      function removeExpired() {
-        document.location.href = folderUri + "?list-ids";
-      }
-
-      function initPage() {
-        let uri = document.documentURI;
-        let query = uri.slice(uri.indexOf("?")+1);
-        let params = {};
-        for (let piece of query.split("&")) {
-          let [key, value] = piece.split("=");
-          params[key] = decodeURIComponent(value);
-        }
-
-        document.getElementById("ngResp").textContent = params.r;
-
-        if ("m" in params) {
-          document.getElementById("msgId").textContent = params.m;
-          document.getElementById("msgKey").textContent = params.k;
-        } else {
-          document.getElementById("messageIdDesc").hidden = true;
-        }
-
-        if ("f" in params) {
-          folderUri = params.f;
-        } else {
-          document.getElementById("errorTryAgain").hidden = true;
-        }
-      }
-    ]]></script>
   </head>
 
   <body dir="&locale.dir;">
@@ -80,9 +45,8 @@
       </div>
       <!-- This button really means "remove all expired articles", but we use
            the "errorTryAgain" id to piggyback on toolkit's CSS. -->
-      <button id="errorTryAgain"
-              onclick="removeExpired();">&removeExpiredArticles.title;</button>
+      <button id="errorTryAgain">&removeExpiredArticles.title;</button>
     </div>
-    <script type="application/javascript">initPage();</script>
+    <script type="application/javascript" src="chrome://messenger/content/newsError.js"/>
   </body>
 </html>

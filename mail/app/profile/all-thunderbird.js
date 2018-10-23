@@ -375,8 +375,9 @@ pref("network.protocol-handler.warn-external.ftp", false);
 pref("network.hosts.smtp_server",           "mail");
 pref("network.hosts.pop_server",            "mail");
 
-// Temporary fix for bug 1496524.
-pref("csp.skip_about_page_has_csp_assert", true);
+// Temporarily add 'preferences' and 'newserror' to the list of about: pages that do not have a CSP specified.
+// The list should be kept in sync with the one in m-c/modules/libpref/init/all.js. See bug 1495983.
+pref("csp.about_uris_without_csp", "preferences,newserror,blank,printpreview,srcdoc,about,addons,cache-entry,config,crashes,debugging,devtools,downloads,home,memory,networking,newtab,performance,plugins,policies,profiles,restartrequired,searchreset,serviceworkers,sessionrestore,support,sync-log,telemetry,url-classifier,webrtc,welcomeback");
 
 pref("security.warn_entering_secure", false);
 pref("security.warn_entering_weak", false);

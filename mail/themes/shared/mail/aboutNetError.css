@@ -110,6 +110,7 @@ button:disabled {
   color: InfoText;
   padding: 10px;
   border: 1px solid #c1c1c1;
+  display: none;
 }
 
 /* Custom styling for 'blacklist' error class */

@@ -122,6 +122,7 @@ ul {
   color: #000000;
   padding: 10px;
   border-radius: 10px;
+  display: none;
 }
 
 /* Custom styling for 'blacklist' error class */
