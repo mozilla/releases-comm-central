@@ -49,8 +49,7 @@ job-defaults:
             by-release-type:
                 beta: beta
                 release: nonbeta
-                nightly: beta
-                default: null
+                default: beta
         last-watershed:
             by-release-type:
                 beta:
@@ -61,8 +60,7 @@ job-defaults:
                     by-platform:
                         win64.*: "60.0"
                         default: "52.0"
-                nightly: "default"
-                default: null
+                default: "default"
 
 jobs:
     thunderbird-linux:
@@ -82,8 +80,7 @@ jobs:
                 by-release-type:
                     beta: "beta-localtest"
                     release: "release-localtest"
-                    nightly: "default"
-                    default: null
+                    default: "default"
             mar-channel-id-override:
                 by-release-type:
                     beta: beta
@@ -106,8 +103,7 @@ jobs:
                 by-release-type:
                     beta: "beta-localtest"
                     release: "release-localtest"
-                    nightly: "default"
-                    default: null
+                    default: "default"
             mar-channel-id-override:
                 by-release-type:
                     beta: beta
@@ -130,8 +126,7 @@ jobs:
                 by-release-type:
                     beta: "beta-localtest"
                     release: "release-localtest"
-                    nightly: "default"
-                    default: null
+                    default: "default"
             mar-channel-id-override:
                 by-release-type:
                     beta: beta
@@ -154,8 +149,7 @@ jobs:
                 by-release-type:
                     beta: "beta-localtest"
                     release: "release-localtest"
-                    nightly: "default"
-                    default: null
+                    default: "default"
             mar-channel-id-override:
                 by-release-type:
                     beta: beta
@@ -178,8 +172,7 @@ jobs:
                 by-release-type:
                     beta: "beta-localtest"
                     release: "release-localtest"
-                    nightly: "default"
-                    default: null
+                    default: "default"
             mar-channel-id-override:
                 by-release-type:
                     beta: beta

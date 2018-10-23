@@ -46,3 +46,11 @@ job-defaults:
             - comm/comm-confvars.sh
             - comm/moz.build
             - comm/moz.configure
+    run:
+        # Note: These settings are only honored by nightly (i.e. shipping) builds
+        update-channel:
+            by-release-type:
+                nightly: nightly
+                beta: beta
+                release.*: release
+                default: null

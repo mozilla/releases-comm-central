@@ -30,12 +30,10 @@
 config = {
     "comm-central": {
         "repo_path": 'comm-central',
-        "update_channel": "nightly",
     },
     "comm-beta": {
         "enable_release_promotion": True,
         'repo_path': 'releases/comm-beta',
-        'update_channel': 'beta',
         'platform_overrides': {
             'linux': {
                 'mozconfig_variant': 'release',
@@ -51,28 +49,12 @@ config = {
             },
             'win64': {
                 'mozconfig_variant': 'release',
-            },
-            'linux-debug': {
-                'update_channel': 'default',
-            },
-            'linux64-debug': {
-                'update_channel': 'default',
-            },
-            'macosx64-debug': {
-                'update_channel': 'default',
-            },
-            'win32-debug': {
-                'update_channel': 'default',
-            },
-            'win64-debug': {
-                'update_channel': 'default',
             },
         },
     },
     "comm-esr60": {
         "enable_release_promotion": True,
         'repo_path': 'releases/comm-esr60',
-        'update_channel': 'release',
         'platform_overrides': {
             'linux': {
                 'mozconfig_variant': 'release',
@@ -89,25 +71,9 @@ config = {
             'win64': {
                 'mozconfig_variant': 'release',
             },
-            'linux-debug': {
-                'update_channel': 'default',
-            },
-            'linux64-debug': {
-                'update_channel': 'default',
-            },
-            'macosx64-debug': {
-                'update_channel': 'default',
-            },
-            'win32-debug': {
-                'update_channel': 'default',
-            },
-            'win64-debug': {
-                'update_channel': 'default',
-            },
         },
     },
     'try-comm-central': {
         'repo_path': 'try-comm-central',
     },
-
 }
