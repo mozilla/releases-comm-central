@@ -333,9 +333,7 @@
   </popupnotification>
 
   <popupnotification id="addon-installed-notification" hidden="true">
-    <popupnotificationcontent class="addon-installed-notification-content" orient="vertical">
-      <description id="addon-installed-restart-text" class="addon-installed-restart-text"/>
-    </popupnotificationcontent>
+    <popupnotificationcontent class="addon-installed-notification-content" orient="vertical"/>
   </popupnotification>
 
 #include editContactPanel.inc

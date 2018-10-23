@@ -20,32 +20,12 @@ this.legacy = class extends ExtensionAPI {
   async register() {
     this.extension.legacyLoaded = true;
 
-    let state = {
-      id: this.extension.id,
-      pendingOperation: null,
-      version: this.extension.version,
-    };
     if (ExtensionSupport.loadedLegacyExtensions.has(this.extension.id)) {
-      state = ExtensionSupport.loadedLegacyExtensions.get(this.extension.id);
-      let versionComparison = Services.vc.compare(this.extension.version, state.version);
-      if (versionComparison > 0) {
-        state.pendingOperation = "upgrade";
-        ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
-      } else if (versionComparison < 0) {
-        state.pendingOperation = "downgrade";
-        ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
-      }
-      console.log(`Legacy WebExtension ${this.extension.id} has already been loaded in this run, refusing to do so again. Please restart.`);
+      console.log(`Legacy WebExtension ${this.extension.id} has already been loaded in this run, refusing to do so again. Please restart`);
       return;
     }
+    ExtensionSupport.loadedLegacyExtensions.add(this.extension.id);
 
-    ExtensionSupport.loadedLegacyExtensions.set(this.extension.id, state);
-    if (["ADDON_INSTALL", "ADDON_ENABLE"].includes(this.extension.startupReason)) {
-      state.pendingOperation = this.extension.startupReason.substring(6).toLowerCase();
-      console.log(`Legacy WebExtension ${this.extension.id} loading for other reason than startup (${this.extension.startupReason}), refusing to load immediately.`);
-      ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
-      return;
-    }
 
     let extensionRoot;
     if (this.extension.rootURI instanceof Ci.nsIJARURI) {
