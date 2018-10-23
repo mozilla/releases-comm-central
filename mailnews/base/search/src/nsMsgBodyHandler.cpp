@@ -74,7 +74,6 @@ void nsMsgBodyHandler::Initialize()
 {
   // Default transformations for local message search and MAPI access
   m_stripHeaders = true;
-  m_stripHtml = true;
   m_partIsHtml = false;
   m_base64part = false;
   m_isMultipart = false;
@@ -128,6 +127,12 @@ int32_t nsMsgBodyHandler::GetNextLine (nsCString &buf, nsCString &charset)
     m_base64part = false;
     // And reapply our transformations...
     outLength = ApplyTransformations(buf, buf.Length(), eatThisLine, buf);
+  }
+
+  // Process aggregated HTML.
+  if (!m_isMultipart && m_partIsHtml) {
+    StripHtml(buf);
+    outLength = buf.Length();
   }
 
   charset = m_partCharset;
@@ -293,10 +298,15 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
         eatThisLine = false;
       }
     }
-    else
+    else if (!m_partIsHtml)
     {
       buf.Truncate();
       eatThisLine = true; // We have no content...
+    }
+
+    if (m_partIsHtml)
+    {
+      StripHtml(buf);
     }
 
     // Reset all assumed headers
@@ -320,21 +330,17 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
     return 0;
   }
 
-  if (m_base64part)
+  // Accumulate base64 parts and HTML parts for later decoding or tag stripping.
+  if (m_base64part || m_partIsHtml)
   {
-    // We need to keep track of all lines to parse base64encoded...
+    if (m_partIsHtml && ! m_base64part)  // Replace newline in HTML with a space.
+      buf.Append(' ');
     buf.Append(line.get());
     eatThisLine = true;
     return buf.Length();
   }
 
-  // ... but there's no point if we're not parsing base64.
   buf.Assign(line);
-  if (m_stripHtml && m_partIsHtml)
-  {
-    StripHtml (buf);
-  }
-
   return buf.Length();
 }
 

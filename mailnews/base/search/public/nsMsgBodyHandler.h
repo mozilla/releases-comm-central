@@ -38,7 +38,6 @@ public:
   int32_t GetNextLine(nsCString &buf, nsCString &charset);
 
   // Transformations
-  void SetStripHtml (bool strip) { m_stripHtml = strip; }
   void SetStripHeaders (bool strip) { m_stripHeaders = strip; }
 
 protected:
@@ -90,7 +89,6 @@ protected:
   // Transformations
   // With the exception of m_isMultipart, these all apply to the various parts
   bool m_stripHeaders;    // true if we're supposed to strip of message headers
-  bool m_stripHtml;       // true if we're supposed to strip off HTML tags
   bool m_pastMsgHeaders;  // true if we've already skipped over the message headers
   bool m_pastPartHeaders; // true if we've already skipped over the part headers
   bool m_partIsHtml;      // true if the Content-type header claims text/html
