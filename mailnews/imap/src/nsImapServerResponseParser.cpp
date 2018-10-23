@@ -185,6 +185,9 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
     if (commandToken && ContinueParse())
       PreProcessCommandToken(commandToken, aCurrentCommand);
 
+    // For checking expected response to IDLE command below.
+    bool untagged = false;
+
     if (ContinueParse())
     {
       ResetLexAnalyzer();
@@ -209,6 +212,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
             else if (!inIdle && !fCurrentCommandFailed && !aGreetingWithCapability)
               AdvanceToNextToken();
           }
+          untagged = true;
         }
 
         // command continuation request [RFC3501, Sec. 7.5]
@@ -241,7 +245,29 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
       // fWaitingForMoreClientInput so we don't lose that information....
       if ((fNextToken && *fNextToken == '+') || inIdle)
       {
-        fWaitingForMoreClientInput = true;
+        if (inIdle && !((fNextToken && *fNextToken == '+') || untagged))
+        {
+          // IDLE "response" + will not be "eaten" as described above since it
+          // is not an authentication response. So if IDLE response does not
+          // begin with '+' (continuation) or '*' (untagged and probably useful
+          // response) then something is wrong and it is probably a tagged
+          // NO or BAD due to transient error or bad configuration of the server.
+          if (!PL_strcmp(fCurrentCommandTag, fNextToken))
+          {
+            response_tagged();
+          }
+          else
+          {
+            // Expected tag doesn't match the received tag. Not good, start over.
+            response_fatal();
+          }
+          // Show an alert notication containing the server response to bad IDLE.
+          fServerConnection.AlertUserEventFromServer(fCurrentLine, true);
+        }
+        else
+        {
+          fWaitingForMoreClientInput = true;
+        }
       }
       // if we aren't still waiting for more input....
       else if (!fWaitingForMoreClientInput && !aGreetingWithCapability)
@@ -259,7 +285,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
           // a failed command may change the eIMAPstate
           ProcessBadCommand(commandToken);
           if (fReportingErrors && !aIgnoreBadAndNOResponses)
-            fServerConnection.AlertUserEventFromServer(fCurrentLine);
+            fServerConnection.AlertUserEventFromServer(fCurrentLine, false);
         }
       }
     }
