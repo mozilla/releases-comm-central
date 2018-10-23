@@ -87,7 +87,7 @@ const restricted = new Set(["url", "favIconUrl", "title"]);
  * An EventManager for the tabs.onUpdated listener.
  */
 class TabsUpdateFilterEventManager extends EventManager {
-  constructor(context) {
+  constructor({ context }) {
     let { extension } = context;
     let { tabManager } = extension;
 
@@ -361,7 +361,7 @@ this.tabs = class extends ExtensionAPI {
           },
         }).api(),
 
-        onUpdated: new TabsUpdateFilterEventManager(context).api(),
+        onUpdated: new TabsUpdateFilterEventManager({ context }).api(),
 
         async create(createProperties) {
           let window = createProperties.windowId === null

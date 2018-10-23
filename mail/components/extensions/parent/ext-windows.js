@@ -11,12 +11,22 @@ this.windows = class extends ExtensionAPI {
 
     return {
       windows: {
-        onCreated: new WindowEventManager(context, "windows.onCreated", "domwindowopened", (fire, window) => {
-          fire.async(windowManager.convert(window));
+        onCreated: new WindowEventManager({
+          context,
+          name: "windows.onCreated",
+          event: "domwindowopened",
+          listener: (fire, window) => {
+            fire.async(windowManager.convert(window));
+          },
         }).api(),
 
-        onRemoved: new WindowEventManager(context, "windows.onRemoved", "domwindowclosed", (fire, window) => {
-          fire.async(windowTracker.getId(window));
+        onRemoved: new WindowEventManager({
+          context,
+          name: "windows.onRemoved",
+          event: "domwindowclosed",
+          listener: (fire, window) => {
+            fire.async(windowTracker.getId(window));
+          },
         }).api(),
 
         onFocusChanged: new EventManager({

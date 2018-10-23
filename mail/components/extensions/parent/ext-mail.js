@@ -180,14 +180,18 @@ class WindowTracker extends WindowTrackerBase {
  *        The listener function to call when a DOM event is received.
  */
 global.WindowEventManager = class extends EventManager {
-  constructor(context, name, event, listener) {
-    super(context, name, fire => {
-      let listener2 = listener.bind(null, fire);
+  constructor({ context, name, event, listener }) {
+    super({
+      context,
+      name,
+      listener: (fire) => {
+        let listener2 = listener.bind(null, fire);
 
-      windowTracker.addListener(event, listener2);
-      return () => {
-        windowTracker.removeListener(event, listener2);
-      };
+        windowTracker.addListener(event, listener2);
+        return () => {
+          windowTracker.removeListener(event, listener2);
+        };
+      },
     });
   }
 };
