@@ -858,7 +858,10 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
                                   certificateUsageEmailRecipient,
                                   mozilla::pkix::Now(),
                                   nullptr, nullptr,
-                                  builtChain) != mozilla::pkix::Success)) {
+                                  builtChain,
+                                  // Only local checks can run on the main thread.
+                                  CertVerifier::FLAG_LOCAL_ONLY)
+                       != mozilla::pkix::Success)) {
       // not suitable for encryption, so unset cert and clear pref
       mSelfEncryptionCert = nullptr;
       mEncryptionCertDBKey.Truncate();
@@ -876,7 +879,10 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
                                   certificateUsageEmailSigner,
                                   mozilla::pkix::Now(),
                                   nullptr, nullptr,
-                                  builtChain) != mozilla::pkix::Success)) {
+                                  builtChain,
+                                  // Only local checks can run on the main thread.
+                                  CertVerifier::FLAG_LOCAL_ONLY)
+                       != mozilla::pkix::Success)) {
       // not suitable for signing, so unset cert and clear pref
       mSelfSigningCert = nullptr;
       mSigningCertDBKey.Truncate();
@@ -1184,6 +1190,7 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
                                nullptr /*XXX pinarg*/,
                                nullptr /*hostname*/,
                                unusedCertChain,
+                               // Only local checks can run on the main thread.
                                CertVerifier::FLAG_LOCAL_ONLY);
     if (result == mozilla::pkix::Success) {
       break;

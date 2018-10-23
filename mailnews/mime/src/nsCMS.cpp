@@ -244,7 +244,9 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData, uint32_
                                Now(),
                                nullptr /*XXX pinarg*/,
                                nullptr /*hostname*/,
-                               builtChain);
+                               builtChain,
+                               // Only local checks can run on the main thread.
+                               CertVerifier::FLAG_LOCAL_ONLY);
     if (result != mozilla::pkix::Success) {
       MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
              ("nsCMSMessage::CommonVerifySignature - signing cert not trusted now\n"));
