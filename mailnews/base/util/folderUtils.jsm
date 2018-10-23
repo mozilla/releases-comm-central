@@ -7,8 +7,7 @@
  */
 
 this.EXPORTED_SYMBOLS = ["getFolderProperties", "getSpecialFolderString",
-                          "getFolderFromUri", "allAccountsSorted",
-                          "getMostRecentFolders", "folderNameCompare"];
+                         "allAccountsSorted", "getMostRecentFolders", "folderNameCompare"];
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
@@ -106,16 +105,6 @@ function getFolderProperties(aFolder, aOpen) {
   properties.push("imapShared-" + aFolder.imapShared);
 
   return properties.join(" ");
-}
-
-/**
- * Returns a folder for a particular uri
- *
- * @param aUri  the rdf uri of the folder to return
- */
-function getFolderFromUri(aUri) {
-  return Cc["@mozilla.org/mail/folder-lookup;1"].
-         getService(Ci.nsIFolderLookupService).getFolderById(aUri);
 }
 
 /**
