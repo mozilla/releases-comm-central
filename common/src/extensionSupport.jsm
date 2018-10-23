@@ -3,12 +3,13 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Helper functions for use by entensions that should ease them plug
+ * Helper functions for use by extensions that should ease them plug
  * into the application.
  */
 
 this.EXPORTED_SYMBOLS = ["ExtensionSupport"];
 
+ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 // ChromeUtils.import("resource://gre/modules/Deprecated.jsm") - needed for warning.
 ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
@@ -17,10 +18,56 @@ var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm"
 ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var extensionHooks = new Map();
+var legacyExtensions = new Map();
 var openWindowList;
 
 var ExtensionSupport = {
-  loadedLegacyExtensions: new Set(),
+  /**
+   * A Map-like object which tracks legacy extension status. The "has" method
+   * returns only active extensions for compatibility with existing code.
+   */
+  loadedLegacyExtensions: {
+    set(id, state) {
+      legacyExtensions.set(id, state);
+    },
+    get(id) {
+      return legacyExtensions.get(id);
+    },
+    has(id) {
+      if (!legacyExtensions.has(id))
+        return false;
+
+      let state = legacyExtensions.get(id);
+      return !["install", "enable"].includes(state.pendingOperation);
+    },
+    hasAnyState(id) {
+      return legacyExtensions.has(id);
+    },
+    _maybeDelete(id, newPendingOperation) {
+      if (!legacyExtensions.has(id))
+        return;
+
+      let state = legacyExtensions.get(id);
+      if (state.pendingOperation == "enable" && newPendingOperation == "disable") {
+        legacyExtensions.delete(id);
+        this.notifyObservers(state);
+      } else if (state.pendingOperation == "install" && newPendingOperation == "uninstall") {
+        legacyExtensions.delete(id);
+        this.notifyObservers(state);
+      }
+    },
+    notifyObservers(state) {
+      let wrappedState = { wrappedJSObject: state };
+      Services.obs.notifyObservers(wrappedState, "legacy-addon-status-changed");
+    },
+    // AddonListener
+    onDisabled(ev) {
+      this._maybeDelete(ev.id, "disable");
+    },
+    onUninstalled(ev) {
+      this._maybeDelete(ev.id, "uninstall");
+    },
+  },
 
   loadAddonPrefs(addonFile) {
     function setPref(preferDefault, name, value) {
@@ -307,3 +354,5 @@ var ExtensionSupport = {
     return extensionHooks.size;
   },
 };
+
+AddonManager.addAddonListener(ExtensionSupport.loadedLegacyExtensions);
