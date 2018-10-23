@@ -7,7 +7,13 @@
  *  Original author: Kent James
  */
 
-/* import-globals-from resources/viewWrapperTestUtils.js */
+load("../../../../mailnews/resources/logHelper.js");
+load("../../../../mailnews/resources/asyncTestUtils.js");
+
+load("../../../../mailnews/resources/messageGenerator.js");
+load("../../../../mailnews/resources/messageModifier.js");
+load("../../../../mailnews/resources/messageInjection.js");
+
 load("resources/viewWrapperTestUtils.js");
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -45,7 +51,8 @@ MailServices.filters.addCustomTerm(gCustomSearchTermSubject);
 function* test_virtual_folder_single_load_custom_pred() {
   let viewWrapper = make_view_wrapper();
 
-  let [folderOne, oneSubjFoo] = make_folder_with_sets([{subject: "foo"}, {}]);
+  let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
+    {subject: "foo"}, {}]);
 
   yield wait_for_message_injection();
 

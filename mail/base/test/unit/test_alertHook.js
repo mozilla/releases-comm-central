@@ -15,9 +15,10 @@ var gAlertShown = false;
 var mockAlertsService = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAlertsService]),
 
-  showAlertNotification(imageUrl, title, text, textClickable, cookie, alertListener, name) {
+  showAlertNotification: function(imageUrl, title, text, textClickable, cookie,
+                                  alertListener, name) {
     gAlertShown = true;
-  },
+  }
 };
 
 var gMsgWindow = {};
@@ -28,7 +29,7 @@ var mailnewsURL = {
       return gMsgWindow;
 
     throw Cr.NS_ERROR_INVALID_POINTER;
-  },
+  }
 };
 
 function run_test() {
