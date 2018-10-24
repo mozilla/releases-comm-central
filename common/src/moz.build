@@ -14,4 +14,8 @@ SOURCES += [
     'nsComponentManagerExtra.cpp',
 ]
 
+LOCAL_INCLUDES += [
+  '/%s/netwerk/base' % CONFIG['mozreltopsrcdir']
+]
+
 FINAL_LIBRARY = 'xul'
