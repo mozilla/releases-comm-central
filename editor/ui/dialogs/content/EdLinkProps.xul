@@ -38,7 +38,7 @@
       </vbox>
     </groupbox>
 
-    <groupbox id="LinkURLBox"><caption label="&LinkURLBox.label;"/>
+    <groupbox id="LinkURLBox"><caption>&LinkURLBox.label;</caption>
       <vbox id="LinkLocationBox">
         <label control="hrefInput"
                accesskey="&LinkURLEditField2.accessKey;"

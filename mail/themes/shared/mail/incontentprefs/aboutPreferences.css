@@ -25,9 +25,10 @@
   width: 240px;
 }
 
-caption label {
+caption {
+  font-size: 1.14em;
   font-weight: 600;
-  margin: 0 !important;
+  margin: 4px 0 !important;
 }
 
 #preferencesContainer {
@@ -364,6 +365,11 @@ tabs {
  * Font dialog menulist fixes
  */
 
+#selectLangs {
+  font-weight: normal;
+  font-size: .877em;
+}
+
 #defaultFontType,
 #serif,
 #sans-serif,
@@ -375,17 +381,11 @@ tabs {
  * toolkit element overrides
  */
 
-groupbox {
-  -moz-appearance: none;
-  border: none;
-  margin: 0;
-  padding: 0;
-}
-
-caption,
-tabpanels caption {
-  -moz-appearance: none;
-  margin: 0;
+groupbox label:not(.menu-accel):not(.menu-iconic-accel):not(.menu-text):not(.menu-iconic-text):not(.menulist-label):not(.indent):not(.learnMore):not(.tail-with-learn-more),
+groupbox description {
+  /* !important needed to override toolkit !important rule */
+  margin-inline-start: 0 !important;
+  margin-inline-end: 0 !important;
 }
 
 richlistbox {

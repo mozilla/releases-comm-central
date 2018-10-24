@@ -55,7 +55,7 @@
     <separator class="thin"/>
 
     <groupbox>
-      <caption label="&serverSettings.label;"/>
+      <caption>&serverSettings.label;</caption>
       <checkbox id="doBiff"
                 label="&biffAll.label;"
                 accesskey="&biffAll.accesskey;"
@@ -65,7 +65,7 @@
     <separator class="thin"/>
 
     <groupbox>
-      <caption label="&newFeedSettings.label;"/>
+      <caption>&newFeedSettings.label;</caption>
 
       <hbox align="center">
         <checkbox id="updateEnabled"
@@ -131,7 +131,7 @@
     <separator class="thin"/>
 
     <groupbox>
-      <caption label="&messageStorage.label;"/>
+      <caption>&messageStorage.label;</caption>
 
       <checkbox id="server.emptyTrashOnExit"
                 wsm_persist="true"

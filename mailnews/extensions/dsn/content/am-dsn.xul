@@ -23,7 +23,7 @@
 
   <groupbox>
 
-    <caption label="&pane.title;"/>
+    <caption>&pane.title;</caption>
 
     <hbox id="prefChoices" align="center">
       <radiogroup id="identity.dsn_use_custom_prefs"

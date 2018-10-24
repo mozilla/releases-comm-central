@@ -68,7 +68,7 @@
         </preferences>
 
         <groupbox>
-            <caption label="&pref.mainbox.label;"/>
+            <caption>&pref.mainbox.label;</caption>
             <vbox align="left">
               <hbox align="center">
                 <label value="&pref.dateformat.label;"
@@ -90,7 +90,7 @@
         </groupbox>
 
         <groupbox>
-            <caption label="&pref.timezones.caption;"/>
+            <caption>&pref.timezones.caption;</caption>
             <hbox align="center">
                 <label value="&pref.timezones.label;"
                        accesskey="&pref.timezones.accesskey;"
@@ -103,7 +103,7 @@
         </groupbox>
 
         <groupbox id="defaults-itemtype-groupbox">
-            <caption id="defaults-itemtype-caption" label="&pref.defaults.label;"/>
+            <caption id="defaults-itemtype-caption">&pref.defaults.label;</caption>
             <hbox id="defaults-itemtype-box" align="top">
                 <menulist id="defaults-itemtype-menulist"
                           flex="1"
@@ -263,7 +263,7 @@
         </groupbox>
 
         <groupbox>
-            <caption label="&pref.calendar.todaypane.agenda.caption;"/>
+            <caption>&pref.calendar.todaypane.agenda.caption;</caption>
             <hbox align="center">
                 <label value="&pref.soondays2.label;"
                        accesskey="&pref.soondays2.accesskey;"
@@ -287,7 +287,7 @@
         </groupbox>
 
         <groupbox id="systemColorsGroupbox">
-            <caption label="&pref.accessibility.label;"/>
+            <caption>&pref.accessibility.label;</caption>
             <hbox align="center">
                 <checkbox id="systemColors" pack="end"
                           label="&pref.systemcolors.label;"
@@ -297,7 +297,7 @@
         </groupbox>
 
         <groupbox>
-            <caption label="&pref.eventsandtasks.label;"/>
+            <caption>&pref.eventsandtasks.label;</caption>
             <hbox align="center">
                 <checkbox id="tabedit" pack="end"
                           label="&pref.editInTab.label;"

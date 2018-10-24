@@ -63,7 +63,7 @@
     </vbox>
     <spacer class="smallspacer"/>
     <groupbox align="start">
-      <caption label="&pageColorHeader;"/>
+      <caption>&pageColorHeader;</caption>
       <radiogroup id="useCustomColors"
                   preference="editor.use_custom_colors">
         <radio id="defaultColorsRadio"

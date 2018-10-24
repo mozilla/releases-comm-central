@@ -27,7 +27,7 @@
     </hbox>
 
     <groupbox id="offline.titlebox" hidefor="movemail,pop3,none,rss">
-      <caption label="&syncGroupTitle.label;"/>
+      <caption>&syncGroupTitle.label;</caption>
 
     <checkbox hidefor="movemail,pop3,nntp,none"
               id="offline.folders" label="&allFoldersOffline2.label;"
@@ -51,7 +51,7 @@
     </groupbox>
 
     <groupbox id="diskspace.titlebox">
-      <caption label="&diskspaceGroupTitle.label;" hidefor="movemail,pop3,none,rss"/>
+      <caption hidefor="movemail,pop3,none,rss">&diskspaceGroupTitle.label;</caption>
 
     <description hidefor="pop3,nntp,movemail,none,rss">&doNotDownloadImap.label;</description>
     <description hidefor="pop3,imap,movemail,none,rss">&doNotDownloadNntp.label;</description>

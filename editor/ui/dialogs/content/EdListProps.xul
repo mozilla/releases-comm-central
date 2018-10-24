@@ -27,7 +27,7 @@
   <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox flex="1"><caption label="&ListType.label;"/>
+  <groupbox flex="1"><caption>&ListType.label;</caption>
     <menulist id="ListType" oncommand="SelectListType()">
       <menupopup>
         <menuitem label="&none.value;"/>
@@ -42,7 +42,7 @@
   <!-- message text and list items are set in JS
        text value should be identical to string with id=BulletStyle in editor.properties
   -->
-  <groupbox flex="1"><caption id="BulletStyleLabel" label="&bulletStyle.label;"/>
+  <groupbox flex="1"><caption id="BulletStyleLabel">&bulletStyle.label;</caption>
     <menulist class="MinWidth10em" id="BulletStyle" oncommand="SelectBulletStyle()">
       <menupopup/>
     </menulist>

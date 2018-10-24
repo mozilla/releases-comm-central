@@ -55,7 +55,7 @@
         <tabpanel orient="vertical">
           <!-- Fonts and Colors -->
           <groupbox id="fontsGroup">
-            <caption label="&fontsAndColors1.label;"/>
+            <caption>&fontsAndColors1.label;</caption>
 
             <grid id="fontsGrid">
               <columns>
@@ -121,6 +121,7 @@
           </groupbox>
 
           <groupbox>
+            <caption>&displayWidth.label;</caption>
             <hbox>
               <checkbox id="displayGlyph"
                         label="&convertEmoticons.label;"
@@ -128,7 +129,6 @@
                         accesskey="&convertEmoticons.accesskey;"/>
               <spacer flex="1"/>
             </hbox>
-            <caption label="&displayWidth.label;"/>
 
             <separator class="thin"/>
 
@@ -184,7 +184,7 @@
         <!-- Advanced -->
         <tabpanel orient="vertical">
           <groupbox>
-            <caption label="&reading.caption;"/>
+            <caption>&reading.caption;</caption>
 
             <vbox>
               <hbox>
@@ -246,7 +246,7 @@
           </groupbox>
 
           <groupbox>
-            <caption label="&display.caption;"/>
+            <caption>&display.caption;</caption>
 
             <hbox>
               <checkbox id="showCondensedAddresses"

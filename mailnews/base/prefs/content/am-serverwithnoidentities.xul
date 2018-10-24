@@ -42,7 +42,7 @@
   <separator class="thin"/>
 
   <groupbox>
-    <caption label="&messageStorage.label;"/>
+    <caption>&messageStorage.label;</caption>
 
     <vbox align="start">
       <checkbox wsm_persist="true" id="server.emptyTrashOnExit"

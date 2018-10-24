@@ -22,7 +22,8 @@
     <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
     <broadcaster id="args" value=""/>
 
-    <groupbox><caption label="&documentTitleTitle.label;"/>
+    <groupbox>
+        <caption>&documentTitleTitle.label;</caption>
         <label id="EnterTitleLabel"/>
         <textbox id="TitleInput" oninput="TitleChanged();"/>
         <description id="TitleHelp" class="wrap" style="width:1em" />

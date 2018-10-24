@@ -28,7 +28,7 @@
   <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox><caption label="&Settings.label;" accesskey="&Settings.accesskey;"/>
+  <groupbox><caption accesskey="&Settings.accesskey;">&Settings.label;</caption>
     <grid><columns><column/><column/></columns>
       <rows>
         <row align="center">

@@ -786,3 +786,16 @@ button[type="menu-button"] {
   background-color: var(--toolbar-bgcolor);
   color: var(--toolbar-color, -moz-DialogText);
 }
+
+/* ::::: groupbox ::::: */
+
+groupbox {
+  -moz-appearance: groupbox;
+  margin: 5px;
+  padding: 5px;
+}
+
+caption {
+  margin-bottom: 2px;
+  font-weight: bold;
+}

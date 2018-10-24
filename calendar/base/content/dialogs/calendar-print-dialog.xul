@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://calendar/content/datetimepickers/datetimepickers.css" type="text/css"?>
 
 <!DOCTYPE dialog [
@@ -32,7 +33,7 @@
   <hbox id="firstHbox" flex="1">
     <vbox id="groupboxVbox">
       <groupbox id="settingsGroup">
-        <caption label="&calendar.print.settingsGroup.label;"/>
+        <caption>&calendar.print.settingsGroup.label;</caption>
 
         <grid>
           <columns>
@@ -66,7 +67,7 @@
       </groupbox>
 
       <groupbox id="what-to-print-group">
-        <caption label="&calendar.print.range.label;"/>
+        <caption>&calendar.print.range.label;</caption>
         <grid id="grid-events-and-tasks">
           <columns id="columns-for-events-and-tasks">
             <column id="column-event">
@@ -114,7 +115,7 @@
         </radiogroup>
       </groupbox>
       <groupbox id="optionsGroup" label="&calendar.print.optionsGroup.label;">
-        <caption label="&calendar.print.optionsGroup.label;"/>
+        <caption>&calendar.print.optionsGroup.label;</caption>
         <checkbox id="tasks-with-no-due-date" label="&calendar.print.taskswithnoduedate.label;" checked="true" oncommand="refreshHtml();"/>
         <checkbox id="completed-tasks" label="&calendar.print.completedtasks.label;" checked="true" oncommand="refreshHtml();"/>
       </groupbox>

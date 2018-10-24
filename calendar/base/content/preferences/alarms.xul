@@ -62,7 +62,7 @@
         </preferences>
 
         <groupbox>
-            <caption label="&pref.alarmgoesoff.label;"/>
+            <caption>&pref.alarmgoesoff.label;</caption>
             <grid id="alarm-sound-grid">
                 <columns id="alarm-sound-columns">
                     <column id="alarm-sound-label-column"/>
@@ -119,7 +119,7 @@
         </groupbox>
 
         <groupbox>
-            <caption label="&pref.calendar.alarms.defaults.label;"/>
+            <caption>&pref.calendar.alarms.defaults.label;</caption>
             <grid>
                 <columns>
                     <column flex="1"/>

@@ -33,7 +33,7 @@
     </preferences>
 
     <groupbox>
-      <caption label="&sendMail.title;"/>
+      <caption>&sendMail.title;</caption>
 
       <checkbox id="autoDowngrade"
                 label="&autoDowngrade.label;"

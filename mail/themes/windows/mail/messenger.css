@@ -845,3 +845,22 @@ statusbarpanel label {
   background-color: var(--toolbar-bgcolor);
   color: var(--toolbar-color, -moz-DialogText);
 }
+
+/* ::::: groupbox ::::: */
+
+groupbox {
+  -moz-appearance: groupbox;
+  border: 2px groove ThreeDFace;
+  border-radius: 3px;
+  margin: 3px;
+  padding: 3px 3px 6px;
+}
+
+caption {
+  margin: -5px 6px 6px;
+  font-weight: bold;
+}
+
+tabpanels caption {
+  -moz-appearance: tabpanel;
+}

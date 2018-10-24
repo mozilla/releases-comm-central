@@ -27,7 +27,7 @@
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
   <broadcaster id="args" value=""/>
-  <groupbox><caption label="&size.label;"/>
+  <groupbox><caption>&size.label;</caption>
     <grid>
       <columns>
         <column flex="1"/>

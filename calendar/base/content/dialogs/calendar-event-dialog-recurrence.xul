@@ -5,6 +5,7 @@
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/content/bindings.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-daypicker.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
@@ -34,8 +35,7 @@
 
   <!-- recurrence pattern -->
   <groupbox id="recurrence-pattern-groupbox">
-    <caption id="recurrence-pattern-caption"
-             label="&event.recurrence.pattern.label;"/>
+    <caption id="recurrence-pattern-caption">&event.recurrence.pattern.label;</caption>
     <grid id="recurrence-pattern-grid">
       <columns id="recurrence-pattern-columns">
         <column id="recurrence-pattern-description-column"/>
@@ -456,8 +456,7 @@
 
   <!-- range of recurrence -->
   <groupbox id="recurrence-range-groupbox">
-    <caption id="recurrence-range-caption"
-             label="&event.recurrence.range.label;"/>
+    <caption id="recurrence-range-caption">&event.recurrence.range.label;</caption>
     <vbox>
       <radiogroup id="recurrence-duration"
                   oncommand="updateRecurrenceControls()">
@@ -509,8 +508,7 @@
 
   <!-- preview -->
   <groupbox id="preview-border" flex="1">
-    <caption id="recurrence-preview-label"
-             label="&event.recurrence.preview.label;"/>
+    <caption id="recurrence-preview-label">&event.recurrence.preview.label;</caption>
     <recurrence-preview id="recurrence-preview" flex="1"/>
   </groupbox>
 </dialog>

@@ -310,3 +310,17 @@ tree.list {
 .progressitem[progress="failed"] {
   list-style-image: url("chrome://editor/skin/icons/progress-failed.gif");
 }
+
+/* ::::: groupbox ::::: */
+
+groupbox {
+  -moz-appearance: groupbox;
+  padding: 0 8px 5px;
+  margin: 6px;
+}
+
+caption {
+  padding-bottom: 5px;
+  font: caption;
+  font-weight: bold;
+}

@@ -45,7 +45,7 @@
     </menulist>
   </groupbox>
 
-  <groupbox><caption label="&InputSettings.label;"/>
+  <groupbox><caption>&InputSettings.label;</caption>
     <grid><columns><column/><column/></columns>
       <rows>
         <row align="center">

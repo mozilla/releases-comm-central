@@ -63,7 +63,7 @@
 
   <vbox flex="1">
     <groupbox>
-      <caption label="&contextDesc.label;"/>
+      <caption>&contextDesc.label;</caption>
       <grid>
         <columns>
           <column/>

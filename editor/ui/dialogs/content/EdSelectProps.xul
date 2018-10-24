@@ -43,7 +43,7 @@
 
     <hbox flex="1">
       <deck flex="1" id="SelectDeck" index="0">
-        <groupbox flex="1"><caption label="&Select.label;"/>
+        <groupbox flex="1"><caption>&Select.label;</caption>
           <grid flex="1"><columns><column flex="1"/><column/></columns>
             <rows>
               <row align="center">
@@ -74,7 +74,7 @@
           </grid>
         </groupbox>
 
-        <groupbox flex="1"><caption label="&OptGroup.label;"/>
+        <groupbox flex="1"><caption>&OptGroup.label;</caption>
           <grid flex="1"><columns><column flex="1"/><column/></columns>
             <rows>
               <row align="center">
@@ -89,7 +89,7 @@
           </grid>
         </groupbox>
 
-        <groupbox flex="1"><caption label="&Option.label;"/>
+        <groupbox flex="1"><caption>&Option.label;</caption>
           <grid flex="1"><columns><column flex="1"/><column/></columns>
             <rows>
               <row align="center">

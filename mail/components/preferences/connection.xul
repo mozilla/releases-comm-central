@@ -55,7 +55,7 @@
     <script type="application/javascript" src="chrome://messenger/content/preferences/connection.js"/>
 
     <groupbox>
-      <caption label="&proxyTitle.label;"/>
+      <caption>&proxyTitle.label;</caption>
 
       <radiogroup id="networkProxyType" preference="network.proxy.type"
                   onsyncfrompreference="return gConnectionsDialog.readProxyType();">

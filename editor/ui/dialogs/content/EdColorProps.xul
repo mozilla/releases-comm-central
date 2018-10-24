@@ -29,7 +29,7 @@
   <broadcaster id="args" value=""/>
 
   <groupbox align="start">
-    <caption label="&pageColors.label;"/>
+    <caption>&pageColors.label;</caption>
     <radiogroup id="PageColorGroup">
       <radio id="DefaultColorsRadio" label="&defaultColorsRadio.label;" oncommand="UseDefaultColors()"
         accesskey="&defaultColorsRadio.accessKey;"

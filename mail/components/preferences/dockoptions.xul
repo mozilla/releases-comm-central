@@ -30,7 +30,7 @@
                 accesskey="&bounceSystemDockIcon.accesskey;"/>
       <separator class="thin"/>
       <groupbox flex="1">
-        <caption label="&dockIconBadge.label;"/>
+        <caption>&dockIconBadge.label;</caption>
         <separator class="thin"/>
         <label value="&dockIconShow.label;"/>
         <radiogroup id="dockCount"

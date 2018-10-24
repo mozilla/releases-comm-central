@@ -736,3 +736,17 @@ statusbar:-moz-lwtheme-brighttext {
 .contentTabAddress * {
   text-shadow: none;
 }
+
+/* ::::: groupbox ::::: */
+
+groupbox {
+  -moz-appearance: groupbox;
+  padding: 0 8px 5px;
+  margin: 6px;
+}
+
+caption {
+  padding-bottom: 5px;
+  font: caption;
+  font-weight: bold;
+}

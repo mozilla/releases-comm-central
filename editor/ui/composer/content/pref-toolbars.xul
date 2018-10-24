@@ -96,7 +96,7 @@
     </preferences>
 
     <groupbox orient="horizontal">
-      <caption label="&composition.caption;"/>
+      <caption>&composition.caption;</caption>
       <vbox flex="1">
         <checkbox id="showNew"
                   label="&new.label;"
@@ -151,7 +151,7 @@
     </groupbox>
 
     <groupbox orient="horizontal">
-      <caption label="&formatting.caption;"/>
+      <caption>&formatting.caption;</caption>
       <vbox flex="1">
         <checkbox id="showSmaller"
                   label="&smaller.label;"

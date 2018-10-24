@@ -40,7 +40,7 @@
   </tabbox>
   <spacer class="spacer"/>
   <groupbox>
-    <caption label="&options.label;"/>
+    <caption>&options.label;</caption>
     <hbox>
       <radiogroup id="optionMode" oncommand="updateMode();">
         <radio label="&optionInline.label;"

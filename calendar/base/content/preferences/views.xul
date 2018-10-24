@@ -75,7 +75,7 @@
         </preferences>
 
         <groupbox>
-            <caption label="&pref.calendar.view.allview.caption;"/>
+            <caption>&pref.calendar.view.allview.caption;</caption>
             <hbox>
                 <hbox align="center" flex="1">
                     <label value="&pref.weekstarts.label;"
@@ -106,7 +106,7 @@
         </groupbox>
 
         <groupbox>
-            <caption label="&pref.calendar.view.workweek.caption;"/>
+            <caption>&pref.calendar.view.workweek.caption;</caption>
             <label value="&pref.daysoff.label;"/>
             <hbox>
                 <checkbox id="dayoff0"
@@ -155,7 +155,7 @@
         </groupbox>
 
         <groupbox>
-            <caption label="&pref.calendar.view.dayandweekviews.caption;"/>
+            <caption>&pref.calendar.view.dayandweekviews.caption;</caption>
             <grid>
                 <columns>
                     <column/>
@@ -279,7 +279,7 @@
         </groupbox>
 
         <groupbox id="viewsMultiweekGroupbox">
-            <caption label="&pref.calendar.view.multiweekview.caption;"/>
+            <caption>&pref.calendar.view.multiweekview.caption;</caption>
             <hbox align="center">
                 <label value="&pref.numberofweeks.label;"
                        accesskey="&pref.numberofweeks.accesskey;"
