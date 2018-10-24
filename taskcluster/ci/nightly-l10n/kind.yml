@@ -19,6 +19,8 @@ kind-dependencies:
     - repackage-signing
     - toolchain
 
+primary-dependency: build
+
 only-for-build-platforms:
     - linux64-nightly/opt
     - linux-nightly/opt

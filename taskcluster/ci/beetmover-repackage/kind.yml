@@ -2,7 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-loader: taskgraph.loader.single_dep:loader
+loader: taskgraph.loader.multi_dep:loader
+
+group-by: single-locale
 
 transforms:
     - taskgraph.transforms.name_sanity:transforms
@@ -13,10 +15,18 @@ transforms:
     - comm_taskgraph:beetmover_add_langpack
 
 kind-dependencies:
+    - build
+    - build-signing
+    - repackage
     - repackage-signing
+    - nightly-l10n
+    - nightly-l10n-signing
+    - repackage-l10n
     - repackage-signing-l10n
 
-fake-multi-dep: true
+primary-dependency:
+    - repackage-signing-l10n
+    - repackage-signing
 
 only-for-build-platforms:
     - linux-nightly/opt
