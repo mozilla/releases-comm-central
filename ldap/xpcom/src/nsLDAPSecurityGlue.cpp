@@ -11,6 +11,7 @@
 #include "nsNetCID.h"
 #include "nsISocketProvider.h"
 #include "nsISSLSocketControl.h"
+#include "nsTLSSocketProvider.h"
 #include "nsString.h"
 #include "nsMemory.h"
 #include "plstr.h"
@@ -153,12 +154,8 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     socketClosure->sessionClosure = sessionClosure;
 
     // Add the NSPR layer for SSL provided by PSM to this socket.
-    //
-    tlsSocketProvider = do_GetService(NS_STARTTLSSOCKETPROVIDER_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) {
-        NS_ERROR("nsLDAPSSLConnect(): unable to get socket provider service");
-        goto close_socket_and_exit_with_error;
-    }
+    tlsSocketProvider = new nsTLSSocketProvider();
+
     // XXXdmose: Note that hostlist can be a list of hosts (in the
     // current XPCOM SDK code, it will always be a list of IP
     // addresses).  Because of this, we need to use
