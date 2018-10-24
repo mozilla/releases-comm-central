@@ -24,7 +24,7 @@ macosx64/debug:
             - builds/releng_base_mac_64_cross_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: cross-debug
-        mozconfig-variant: cross-debug
+        mozconfig-variant: debug
         tooltool-downloads: internal
     toolchains:
         - linux64-cbindgen
