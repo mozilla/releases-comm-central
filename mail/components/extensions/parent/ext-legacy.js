@@ -5,6 +5,7 @@
 ChromeUtils.defineModuleGetter(this, "ChromeManifest", "resource:///modules/ChromeManifest.jsm");
 ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/extensionSupport.jsm");
 ChromeUtils.defineModuleGetter(this, "Overlays", "resource:///modules/Overlays.jsm");
+ChromeUtils.defineModuleGetter(this, "XPIInternal", "resource://gre/modules/addons/XPIProvider.jsm");
 
 Cu.importGlobalProperties(["fetch"]);
 
@@ -20,12 +21,51 @@ this.legacy = class extends ExtensionAPI {
   async register() {
     this.extension.legacyLoaded = true;
 
+    let state = {
+      id: this.extension.id,
+      pendingOperation: null,
+      version: this.extension.version,
+    };
     if (ExtensionSupport.loadedLegacyExtensions.has(this.extension.id)) {
-      console.log(`Legacy WebExtension ${this.extension.id} has already been loaded in this run, refusing to do so again. Please restart`);
+      state = ExtensionSupport.loadedLegacyExtensions.get(this.extension.id);
+      let versionComparison = Services.vc.compare(this.extension.version, state.version);
+      if (versionComparison > 0) {
+        state.pendingOperation = "upgrade";
+        ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
+      } else if (versionComparison < 0) {
+        state.pendingOperation = "downgrade";
+        ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
+      }
+      console.log(`Legacy WebExtension ${this.extension.id} has already been loaded in this run, refusing to do so again. Please restart.`);
       return;
     }
-    ExtensionSupport.loadedLegacyExtensions.add(this.extension.id);
 
+    ExtensionSupport.loadedLegacyExtensions.set(this.extension.id, state);
+    if (this.extension.startupReason == "ADDON_INSTALL") {
+      // Usually, sideloaded extensions are disabled when they first appear,
+      // but for MozMill to run calendar tests, we disable this.
+      let scope = XPIInternal.XPIStates.findAddon(this.extension.id).location.scope;
+      let autoDisableScopes = Services.prefs.getIntPref("extensions.autoDisableScopes");
+
+      // If the extension was just installed from the distribution folder,
+      // it's in the profile extensions folder. We don't want to disable it.
+      let isDistroAddon = Services.prefs.getBoolPref(
+        "extensions.installedDistroAddon." + this.extension.id, false
+      );
+
+      if (!isDistroAddon && (scope & autoDisableScopes)) {
+        state.pendingOperation = "install";
+        console.log(`Legacy WebExtension ${this.extension.id} loading for other reason than startup (${this.extension.startupReason}), refusing to load immediately.`);
+        ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
+        return;
+      }
+    }
+    if (this.extension.startupReason == "ADDON_ENABLE") {
+      state.pendingOperation = "enable";
+      console.log(`Legacy WebExtension ${this.extension.id} loading for other reason than startup (${this.extension.startupReason}), refusing to load immediately.`);
+      ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
+      return;
+    }
 
     let extensionRoot;
     if (this.extension.rootURI instanceof Ci.nsIJARURI) {

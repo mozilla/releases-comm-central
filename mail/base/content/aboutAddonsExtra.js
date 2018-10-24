@@ -126,55 +126,127 @@ gDetailView._oldDetailUpdateState = gDetailView.updateState;
 gDetailView.updateState = function() {
   this._oldDetailUpdateState();
 
-  let pending = this._addon.pendingOperations;
-
-  let warningContainer = document.getElementById("warning-container");
-  let warning = document.getElementById("detail-warning");
-  let warningLink = document.getElementById("detail-warning-link");
   let restartButton = document.getElementById("restart-btn");
   let undoButton = document.getElementById("undo-btn");
 
   if (ExtensionSupport.loadedLegacyExtensions.has(this._addon.id)) {
     this.node.setAttribute("active", "true");
-    this.node.removeAttribute("pending");
   }
 
-  if (ExtensionSupport.loadedLegacyExtensions.has(this._addon.id) &&
-      (this._addon.userDisabled || pending & AddonManager.PENDING_UNINSTALL)) {
-    this.node.setAttribute("notification", "warning");
+  if (ExtensionSupport.loadedLegacyExtensions.hasAnyState(this._addon.id, true)) {
+    let { stringName, undoCommand, version } = getTrueState(this._addon, "gDetailView._addon");
 
-    let stringName = this._addon.userDisabled ? "warnLegacyDisable" : "warnLegacyUninstall";
-    warning.textContent = gStrings.mailExt.formatStringFromName(
-      stringName, [this._addon.name, gStrings.brandShortName], 2
-    );
+    if (stringName) {
+      this.node.setAttribute("notification", "warning");
+      this.node.removeAttribute("pending");
 
-    warningLink.hidden = true;
+      let warningContainer = document.getElementById("warning-container");
+      let warning = document.getElementById("detail-warning");
+      document.getElementById("detail-warning-link").hidden = true;
+      warning.textContent = gStrings.mailExt.formatStringFromName(
+        stringName, [this._addon.name, gStrings.brandShortName], 2
+      );
 
-    if (!restartButton) {
-      restartButton = document.createElement("button");
-      restartButton.id = "restart-btn";
-      restartButton.className = "button-link restart-btn";
-      restartButton.setAttribute("label", gStrings.mailExt.GetStringFromName("warnLegacyRestartButton"));
-      restartButton.setAttribute("oncommand", "BrowserUtils.restartApplication()");
-      warningContainer.insertBefore(restartButton, warningContainer.lastElementChild);
+      if (version) {
+        document.getElementById("detail-version").value = version;
+      }
+
+      if (!restartButton) {
+        restartButton = document.createElement("button");
+        restartButton.id = "restart-btn";
+        restartButton.className = "button-link restart-btn";
+        restartButton.setAttribute(
+          "label", gStrings.mailExt.GetStringFromName("warnLegacyRestartButton")
+        );
+        restartButton.setAttribute("oncommand", "BrowserUtils.restartApplication()");
+        warningContainer.insertBefore(restartButton, warningContainer.lastElementChild);
+      }
+      restartButton.hidden = false;
+      if (undoCommand) {
+        if (!undoButton) {
+          undoButton = document.createElement("button");
+          undoButton.className = "button-link undo-btn";
+          undoButton.setAttribute(
+            "label", gStrings.mailExt.GetStringFromName("warnLegacyUndoButton")
+          );
+          // We shouldn't really attach non-anonymous content to anonymous content, but we can.
+          warningContainer.insertBefore(undoButton, warningContainer.lastElementChild);
+        }
+        undoButton.setAttribute("oncommand", undoCommand);
+        undoButton.hidden = false;
+      } else if (undoButton) {
+        undoButton.hidden = true;
+      }
+      return;
     }
-    restartButton.hidden = false;
+  }
 
-    if (!undoButton) {
-      undoButton = document.createElement("button");
-      undoButton.id = "undo-btn";
-      undoButton.className = "button-link undo-btn";
-      undoButton.setAttribute("label", gStrings.mailExt.GetStringFromName("warnLegacyUndoButton"));
-      warningContainer.insertBefore(undoButton, warningContainer.lastElementChild);
-    }
-    if (this._addon.userDisabled) {
-      undoButton.setAttribute("oncommand", "gDetailView._addon.enable()");
-    } else {
-      undoButton.setAttribute("oncommand", "gDetailView._addon.cancelUninstall()");
-    }
-    undoButton.hidden = false;
-  } else if (restartButton) { // If one exists, so does the other.
+  if (restartButton) {
     restartButton.hidden = true;
+  }
+  if (undoButton) {
     undoButton.hidden = true;
   }
 };
+
+/**
+ * Update the UI when things change.
+ */
+function statusChangedObserver(subject, topic, data) {
+  let { id } = subject.wrappedJSObject;
+
+  if (gViewController.currentViewObj == gListView) {
+    let listItem = gListView.getListItemForID(id);
+    if (listItem) {
+      setTimeout(() => listItem._updateState());
+    }
+  } else if (gViewController.currentViewObj == gDetailView) {
+    setTimeout(() => gDetailView.updateState());
+  }
+}
+Services.obs.addObserver(statusChangedObserver, "legacy-addon-status-changed");
+window.addEventListener("unload", () => {
+  Services.obs.removeObserver(statusChangedObserver, "legacy-addon-status-changed");
+});
+
+/**
+ * The true status of legacy extensions, which AddonManager doesn't know
+ * about because it thinks all extensions are restartless.
+ *
+ * @return An object of three properties:
+ *         stringName: a string to display to the user, from extensionsOverlay.properties.
+ *         undoCommand: code to run, should the user want to return to the previous state.
+ *         version: the current version of the extension.
+ */
+function getTrueState(addon, addonRef) {
+  let state = ExtensionSupport.loadedLegacyExtensions.get(addon.id);
+  let returnObject = {};
+
+  if (addon.pendingOperations & AddonManager.PENDING_UNINSTALL &&
+      ExtensionSupport.loadedLegacyExtensions.has(addon.id)) {
+    returnObject.stringName = "warnLegacyUninstall";
+    returnObject.undoCommand = `${addonRef}.cancelUninstall()`;
+
+  } else if (state.pendingOperation == "install") {
+    returnObject.stringName = "warnLegacyInstall";
+    returnObject.undoCommand = `${addonRef}.uninstall()`;
+
+  } else if (addon.userDisabled) {
+    returnObject.stringName = "warnLegacyDisable";
+    returnObject.undoCommand = `${addonRef}.enable()`;
+
+  } else if (state.pendingOperation == "enable") {
+    returnObject.stringName = "warnLegacyEnable";
+    returnObject.undoCommand = `${addonRef}.disable()`;
+
+  } else if (state.pendingOperation == "upgrade") {
+    returnObject.stringName = "warnLegacyUpgrade";
+    returnObject.version = state.version;
+
+  } else if (state.pendingOperation == "downgrade") {
+    returnObject.stringName = "warnLegacyDowngrade";
+    returnObject.version = state.version;
+  }
+
+  return returnObject;
+}
