@@ -250,7 +250,7 @@ Section "-InstallStartCleanup"
   ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
 
   ; Remove the updates directory
-  ${CleanUpdateDirectories} "Thunderbird" "Thunderbird\updates"
+  ${CleanUpdateDirectories} "Thunderbird" "Mozilla\updates"
 
   ; Upgrade the copies of the MAPI DLL's
   ${UpgradeMapiDLLs}
@@ -360,6 +360,12 @@ Section "-Application" APP_IDX
   ; Default for creating Desktop shortcut (1 = create, 0 = don't create)
   ${If} $AddDesktopSC == ""
     StrCpy $AddDesktopSC "1"
+  ${EndIf}
+
+  ${CreateUpdateDir} "Mozilla"
+  ${If} ${Errors}
+    Pop $0
+    ${LogMsg} "** ERROR Failed to create update directory: $0"
   ${EndIf}
 
   ${LogHeader} "Adding Registry Entries"
