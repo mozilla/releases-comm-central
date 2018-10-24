@@ -13,7 +13,7 @@ linux64/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build check-test]
+        actions: [build, check-test]
         config-paths:
             - comm/mozharness
         config:
@@ -50,7 +50,7 @@ linux64-nightly/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build check-test]
+        actions: [build, check-test]
         config-paths:
             - comm/mozharness
         config:
@@ -81,7 +81,7 @@ linux64/debug:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build check-test]
+        actions: [build, check-test]
         config-paths:
             - comm/mozharness
         config:
@@ -114,7 +114,7 @@ linux/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build check-test]
+        actions: [build, check-test]
         config-paths:
             - comm/mozharness
         config:
@@ -151,7 +151,7 @@ linux-nightly/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build check-test]
+        actions: [build, check-test]
         config-paths:
             - comm/mozharness
         config:
@@ -182,7 +182,7 @@ linux/debug:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build check-test]
+        actions: [build, check-test]
         config-paths:
             - comm/mozharness
         config:

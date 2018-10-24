@@ -42,7 +42,7 @@ job-defaults:
         config: []
         config-paths:
             - comm/mozharness
-        actions: [create-virtualenv collect-individual-checksums create-big-checksums create-summary]
+        actions: [create-virtualenv, collect-individual-checksums, create-big-checksums, create-summary]
         options:
             - "version={version}"
             - "build-number={build_number}"
