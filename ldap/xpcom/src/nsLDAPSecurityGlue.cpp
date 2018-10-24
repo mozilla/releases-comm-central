@@ -8,7 +8,8 @@
 #include "nsCOMPtr.h"
 #include "nsIServiceManager.h"
 #include "nsIInterfaceRequestor.h"
-#include "nsNetCID.h"
+#include "nsISocketProviderService.h"
+#include "nsSocketProviderService.h"
 #include "nsISocketProvider.h"
 #include "nsISSLSocketControl.h"
 #include "nsString.h"
@@ -18,6 +19,9 @@
 #include "ldappr.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
+
+using namespace mozilla;
+using namespace net;
 
 // LDAP per-session data structure.
 //
@@ -95,9 +99,10 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     nsLDAPSSLSocketClosure *socketClosure = nullptr;
     nsLDAPSSLSessionClosure *sessionClosure;
     int intfd = -1;
-    nsCOMPtr <nsISupports> securityInfo;
-    nsCOMPtr <nsISocketProvider> tlsSocketProvider;
-    nsCOMPtr <nsISSLSocketControl> sslSocketControl;
+    nsCOMPtr<nsISupports> securityInfo;
+    nsCOMPtr<nsISocketProvider> tlsSocketProvider;
+    nsCOMPtr<nsISSLSocketControl> sslSocketControl;
+    nsCOMPtr<nsISocketProviderService> sps;
     nsresult rv;
 
     // Ensure secure option is set.  Also, clear secure bit in options
@@ -153,12 +158,12 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     socketClosure->sessionClosure = sessionClosure;
 
     // Add the NSPR layer for SSL provided by PSM to this socket.
-    //
-    tlsSocketProvider = do_GetService(NS_STARTTLSSOCKETPROVIDER_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) {
-        NS_ERROR("nsLDAPSSLConnect(): unable to get socket provider service");
-        goto close_socket_and_exit_with_error;
+    sps = nsSocketProviderService::GetOrCreate();
+    if (!sps || NS_FAILED(sps->GetSocketProvider("starttls", getter_AddRefs(tlsSocketProvider)))) {
+      NS_ERROR("nsLDAPSSLConnect(): unable to get starttls socket provider");
+      goto close_socket_and_exit_with_error;
     }
+
     // XXXdmose: Note that hostlist can be a list of hosts (in the
     // current XPCOM SDK code, it will always be a list of IP
     // addresses).  Because of this, we need to use
