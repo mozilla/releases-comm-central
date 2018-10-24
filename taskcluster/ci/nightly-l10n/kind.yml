@@ -133,7 +133,5 @@ job-template:
                     - single_locale/tc_win64.py
                     - single_locale/thunderbird.py
                     - taskcluster_nightly.py
-        options:
-            - revision=$GECKO_HEAD_REV
         actions: [clone-locales, list-locales, setup, repack, summary]
         script: mozharness/scripts/desktop_l10n.py
