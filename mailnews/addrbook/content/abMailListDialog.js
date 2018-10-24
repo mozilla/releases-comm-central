@@ -25,15 +25,6 @@ function getLoadContext() {
   return window.docShell.QueryInterface(Ci.nsILoadContext);
 }
 
-function awHandleKeyPress(element, event)
-{
-  // allow dialog to close on enter if focused textbox has no value
-  if (element.value != "" && event.keyCode == KeyEvent.DOM_VK_RETURN) {
-    event.stopPropagation();
-    event.preventDefault();
-  }
-}
-
 function mailingListExists(listname)
 {
   if (MailServices.ab.mailListNameExists(listname))
