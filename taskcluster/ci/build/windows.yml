@@ -24,7 +24,8 @@ win32/opt:
             - builds/taskcluster_base_thunderbird.py
             - builds/taskcluster_base_windows.py
             - builds/taskcluster_base_win32.py
-            - builds/taskcluster_sub_win32/opt.py
+        extra-config:
+            stage_platform: win32
     toolchains:
         - win64-cbindgen
         - win64-clang-cl
@@ -64,8 +65,9 @@ win32-nightly/opt:
             - builds/taskcluster_base_thunderbird.py
             - builds/taskcluster_base_windows.py
             - builds/taskcluster_base_win32.py
-            - builds/taskcluster_sub_win32/opt.py
             - taskcluster_nightly.py
+        extra-config:
+            stage_platform: win32
     toolchains:
         - win64-cbindgen
         - win64-clang-cl
@@ -99,6 +101,7 @@ win32/debug:
             - builds/taskcluster_base_windows.py
             - builds/taskcluster_base_win32.py
             - builds/taskcluster_sub_win32/debug.py
+        mozconfig-variant: debug
     toolchains:
         - win64-cbindgen
         - win64-clang-cl
@@ -131,7 +134,8 @@ win64/opt:
             - builds/taskcluster_base_thunderbird.py
             - builds/taskcluster_base_windows.py
             - builds/taskcluster_base_win64.py
-            - builds/taskcluster_sub_win64/opt.py
+        extra-config:
+            stage_platform: win64
     toolchains:
         - win64-cbindgen
         - win64-clang-cl
@@ -171,8 +175,9 @@ win64-nightly/opt:
             - builds/taskcluster_base_thunderbird.py
             - builds/taskcluster_base_windows.py
             - builds/taskcluster_base_win64.py
-            - builds/taskcluster_sub_win64/opt.py
             - taskcluster_nightly.py
+        extra-config:
+            stage_platform: win64
     toolchains:
         - win64-cbindgen
         - win64-clang-cl
@@ -205,6 +210,7 @@ win64/debug:
             - builds/taskcluster_base_windows.py
             - builds/taskcluster_base_win64.py
             - builds/taskcluster_sub_win64/debug.py
+        mozconfig-variant: debug
     toolchains:
         - win64-cbindgen
         - win64-clang-cl

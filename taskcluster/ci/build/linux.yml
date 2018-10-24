@@ -89,6 +89,7 @@ linux64/debug:
             - builds/releng_base_linux_64_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
+        mozconfig-variant: debug
         need-xvfb: true
     toolchains:
         - linux64-cbindgen
@@ -189,6 +190,7 @@ linux/debug:
             - builds/releng_base_linux_32_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
+        mozconfig-variant: debug
         need-xvfb: true
     toolchains:
         - linux64-cbindgen

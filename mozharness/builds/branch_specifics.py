@@ -34,44 +34,10 @@ config = {
     "comm-beta": {
         "enable_release_promotion": True,
         'repo_path': 'releases/comm-beta',
-        'platform_overrides': {
-            'linux': {
-                'mozconfig_variant': 'release',
-            },
-            'linux64': {
-                'mozconfig_variant': 'release',
-            },
-            'macosx64': {
-                'mozconfig_variant': 'release',
-            },
-            'win32': {
-                'mozconfig_variant': 'release',
-            },
-            'win64': {
-                'mozconfig_variant': 'release',
-            },
-        },
     },
     "comm-esr60": {
         "enable_release_promotion": True,
         'repo_path': 'releases/comm-esr60',
-        'platform_overrides': {
-            'linux': {
-                'mozconfig_variant': 'release',
-            },
-            'linux64': {
-                'mozconfig_variant': 'release',
-            },
-            'macosx64': {
-                'mozconfig_variant': 'release',
-            },
-            'win32': {
-                'mozconfig_variant': 'release',
-            },
-            'win64': {
-                'mozconfig_variant': 'release',
-            },
-        },
     },
     'try-comm-central': {
         'repo_path': 'try-comm-central',

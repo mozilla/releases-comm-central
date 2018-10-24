@@ -47,6 +47,11 @@ job-defaults:
             - comm/moz.build
             - comm/moz.configure
     run:
+        mozconfig-variant:
+            by-release-type:
+                beta: beta
+                release.*: release
+                default: nightly
         # Note: These settings are only honored by nightly (i.e. shipping) builds
         update-channel:
             by-release-type:
