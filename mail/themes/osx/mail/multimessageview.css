@@ -29,7 +29,7 @@
 }
 
 .toolbarbutton-1.msgHeaderView-button {
-  color: -moz-DialogText;
+  color: -moz-DialogText !important;
   background-color: white;
 }
 

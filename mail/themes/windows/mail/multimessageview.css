@@ -34,7 +34,7 @@
 }
 
 .toolbarbutton-1.msgHeaderView-button {
-  color: -moz-dialogtext;
+  color: -moz-DialogText !important;
 }
 
 @media (-moz-windows-default-theme) {
