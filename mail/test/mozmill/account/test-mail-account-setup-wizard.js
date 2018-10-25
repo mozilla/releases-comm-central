@@ -188,7 +188,6 @@ function test_bad_password_uses_old_settings() {
     }
   });
 }
-test_bad_password_uses_old_settings.EXCLUDED_PLATFORMS = ["linux"];
 
 function test_remember_password() {
   remember_password_test(true);
