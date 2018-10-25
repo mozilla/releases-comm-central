@@ -60,11 +60,11 @@ function closeDialog() {
 
 var progressDialog = {
     onStartUpload: function() {
-        document.getElementById("publish-progressmeter").setAttribute("mode", "undetermined");
+        document.getElementById("publish-progressmeter").removeAttribute("value");
     },
 
     onStopUpload: function() {
-        document.getElementById("publish-progressmeter").setAttribute("mode", "determined");
+        document.getElementById("publish-progressmeter").setAttribute("value", "0");
     }
 };
 progressDialog.wrappedJSObject = progressDialog;

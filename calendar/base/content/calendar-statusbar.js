@@ -59,8 +59,6 @@ var gCalendarStatusFeedback = {
             this.mProgressMode = aProgressMode;
             this.mStatusProgressPanel.removeAttribute("collapsed");
             if (this.mProgressMode == Components.interfaces.calIStatusObserver.DETERMINED_PROGRESS) {
-                this.mStatusBar.removeAttribute("collapsed");
-                this.mStatusBar.setAttribute("mode", "determined");
                 this.mStatusBar.value = 0;
                 let commonStatus = cal.l10n.getCalString("gettingCalendarInfoCommon");
                 this.showStatusString(commonStatus);
@@ -78,7 +76,6 @@ var gCalendarStatusFeedback = {
         if (this.spinning != Components.interfaces.calIStatusObserver.NO_PROGRESS) {
             this.mProgressMode = Components.interfaces.calIStatusObserver.NO_PROGRESS;
             this.mStatusProgressPanel.collapsed = true;
-            this.mStatusBar.setAttribute("mode", "normal");
             this.mStatusBar.value = 0;
             this.mCalendarCount = 0;
             this.showStatusString("");
