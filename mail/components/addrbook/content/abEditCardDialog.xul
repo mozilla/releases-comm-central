@@ -11,6 +11,7 @@
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/abCard.dtd">
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   id="abcardWindow"
   onload="OnLoadEditCard()"
   ondialogaccept="return EditCardOKButton();"
