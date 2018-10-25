@@ -509,8 +509,10 @@
 @RESPATH@/components/PresentationControlService.js
 
 ; Phishing Protection
+
 ; Modules
 @RESPATH@/modules/*
+@RESPATH@/actors/*
 
 @RESPATH@/components/nsURLClassifier.manifest
 @RESPATH@/components/nsUrlClassifierHashCompleter.js
