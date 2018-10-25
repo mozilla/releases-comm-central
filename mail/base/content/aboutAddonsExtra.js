@@ -64,7 +64,7 @@ gStrings.mailExt =
 
   let label = document.createElement("label");
   label.className = "text-link plain";
-  label.href = "https://www.example.com/";
+  label.href = "https://support.mozilla.org/kb/unable-install-add-on-extension-theme-thunderbird";
   label.value = gStrings.mailExt.GetStringFromName("legacyLearnMore");
 
   description.appendChild(label);
