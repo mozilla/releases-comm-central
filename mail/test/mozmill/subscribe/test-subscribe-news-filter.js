@@ -31,7 +31,6 @@ function test_subscribe_newsgroup_filter() {
   open_subscribe_window_from_context_menu(rootFolder, filter_test_helper);
   shutdownNNTPServer(remoteServer);
 }
-test_subscribe_newsgroup_filter.EXCLUDED_PLATFORMS = ["linux"];
 
 /**
  * Helper function (callback), needed because the subscribe window is modal.
