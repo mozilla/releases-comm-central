@@ -9,67 +9,56 @@
 <?xml-stylesheet href="chrome://calendar/skin/dialogOverlay.css" type="text/css"?>
 
 <!-- DTD File with all strings specific to the calendar -->
-<!DOCTYPE dialog
-[
-    <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
-    <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
+<!DOCTYPE dialog [
+  <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
+  <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
 ]>
 
+<dialog id="calendar-publishwindow"
+        title="&calendar.publish.dialog.title;"
+        windowtype="Calendar:PublishDialog"
+        buttons="accept,cancel"
+        ondialogaccept="return onOKCommand();"
+        ondialogcancel="return true;"
+        onload="loadCalendarPublishDialog()"
+        persist="screenX screenY"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:nc="http://home.netscape.com/NC-rdf#">
 
-<dialog
-   id="calendar-publishwindow"
-   title="&calendar.publish.dialog.title;"
-   windowtype="Calendar:PublishDialog"
-   buttons="accept,cancel"
-   ondialogaccept="return onOKCommand();"
-   ondialogcancel="return true;"
-   onload="loadCalendarPublishDialog()"
-   persist="screenX screenY"
-   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-   xmlns:html="http://www.w3.org/1999/xhtml"
-   xmlns:nc="http://home.netscape.com/NC-rdf#">
+  <!-- Javascript includes -->
+  <script type="application/javascript" src="chrome://calendar/content/publishDialog.js"/>
+  <script type="application/javascript">
+    var publishButtonLabel = "&calendar.publish.publish.button;";
+    var closeButtonLabel = "&calendar.publish.close.button;";
+  </script>
 
+  <!-- Data used in JS from dtd -->
+  <keyset id="dialogKeys"/>
 
-   <!-- Javascript includes -->
-   <script type="application/javascript" src="chrome://calendar/content/publishDialog.js"/>
+  <!-- The dialog -->
 
-   <script type="application/javascript" >
-   var publishButtonLabel = "&calendar.publish.publish.button;" ;
-   var closeButtonLabel = "&calendar.publish.close.button;" ;
-   </script>
-
-   <!-- Data used in JS from dtd -->
-
-   <keyset id="dialogKeys"/>
-
-   <!-- The dialog -->
-
-   <!-- dialog-box: from dialogOverlay.xul -->
-
-   <vbox id="dialog-box" flex="1">
-         <grid>
-                <columns>
-                    <column />
-                    <column flex="1"/>
-                </columns>
-
-                <rows>
-
-                    <!-- Remote Path -->
-                    <row align="center">
-                        <hbox class="field-label-box-class" pack="end">
-                            <label control="publish-remotePath-textbox">&calendar.publish.url.label;</label>
-                        </hbox>
-                        <textbox flex="1" id="publish-remotePath-textbox" oninput="checkURLField()"/>
-                    </row>
-                    <row align="center">
-                        <hbox class="field-label-box-class" pack="end"/>
-                        <description>&calendar.publish.example.url.description;</description>
-                    </row>
-
-                  </rows>
-               </grid>
-					<html:progress id="publish-progressmeter" value="0" max="100"/>
-   </vbox> <!-- dialog-box -->
-
+  <!-- dialog-box: from dialogOverlay.xul -->
+  <vbox id="dialog-box" flex="1">
+    <grid>
+      <columns>
+        <column />
+        <column flex="1"/>
+      </columns>
+      <rows>
+        <!-- Remote Path -->
+        <row align="center">
+          <hbox class="field-label-box-class" pack="end">
+            <label control="publish-remotePath-textbox">&calendar.publish.url.label;</label>
+          </hbox>
+          <textbox flex="1" id="publish-remotePath-textbox" oninput="checkURLField()"/>
+        </row>
+        <row align="center">
+          <hbox class="field-label-box-class" pack="end"/>
+          <description>&calendar.publish.example.url.description;</description>
+        </row>
+      </rows>
+    </grid>
+    <html:progress id="publish-progressmeter" value="0" max="100"/>
+  </vbox><!-- dialog-box -->
 </dialog>
