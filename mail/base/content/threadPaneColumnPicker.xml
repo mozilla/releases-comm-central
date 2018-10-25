@@ -24,7 +24,7 @@
     - since we had to override everything save for the accessibleType anyways.
     -->
   <binding id="threadPaneColumnPicker" display="xul:button" role="xul:button"
-           extends="chrome://global/content/bindings/tree.xml#tree-base">
+           extends="chrome://global/content/bindings/general.xml#basecontrol">
     <content>
       <xul:image class="tree-columnpicker-icon"/>
       <xul:menupopup anonid="popup">
