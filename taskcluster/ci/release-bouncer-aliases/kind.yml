@@ -43,8 +43,8 @@ jobs:
                     thunderbird-beta-latest-ssl: installer-ssl
                     thunderbird-beta-latest: installer
                 comm-esr60:
-                    thunderbird-esr-next-latest-ssl: installer-ssl
-                    thunderbird-esr-next-latest: installer
+                    thunderbird-latest-ssl: installer-ssl
+                    thunderbird-latest: installer
                 default: {}
         shipping-product: thunderbird
         treeherder:
