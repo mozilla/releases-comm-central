@@ -241,11 +241,13 @@ function test_attachment_name_click() {
 
   // Ensure the open dialog appears when clicking on the attachment name and
   // that the attachment list doesn't expand.
+  /* Disabled, see bug 1500420.
   plan_for_modal_dialog("unknownContentType", function() {});
   mc.click(mc.eid("attachmentName"));
   wait_for_modal_dialog("unknownContentType");
   assert_true(attachmentList.collapsed, "Attachment list should not expand " +
               "when clicking on attachmentName!");
+  */
 }
 
 /**
