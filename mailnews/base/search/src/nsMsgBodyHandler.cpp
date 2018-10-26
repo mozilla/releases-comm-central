@@ -344,7 +344,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
   return buf.Length();
 }
 
-void nsMsgBodyHandler::StripHtml (nsCString &pBufInOut)
+void nsMsgBodyHandler::StripHtml(nsCString &pBufInOut)
 {
   char *pBuf = (char*) PR_Malloc (pBufInOut.Length() + 1);
   if (pBuf)
@@ -355,14 +355,15 @@ void nsMsgBodyHandler::StripHtml (nsCString &pBufInOut)
     bool inTag = false;
     while (*pWalkInOut) // throw away everything inside < >
     {
-      if (!inTag)
+      if (!inTag) {
         if (*pWalkInOut == '<')
           inTag = true;
         else
           *pWalk++ = *pWalkInOut;
-        else
-          if (*pWalkInOut == '>')
-            inTag = false;
+      } else {
+        if (*pWalkInOut == '>')
+          inTag = false;
+      }
       pWalkInOut++;
     }
     *pWalk = 0; // null terminator
