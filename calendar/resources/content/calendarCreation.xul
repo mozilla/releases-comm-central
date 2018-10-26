@@ -7,8 +7,8 @@
 <?xml-stylesheet href="chrome://calendar-common/skin/calendar-creation-wizard.css" type="text/css"?>
 
 <!DOCTYPE dialog [
-    <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" > %dtd1;
-    <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
+  <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" > %dtd1;
+  <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
 ]>
 
 <wizard id="calendar-wizard"
@@ -19,110 +19,110 @@
         onwizardfinish=""
         persist="screenX screenY">
 
-   <script type="application/javascript" src="chrome://calendar/content/calendarCreation.js"/>
+  <script type="application/javascript" src="chrome://calendar/content/calendarCreation.js"/>
 
-   <wizardpage pageid="initialPage"
-               next="locationPage"
-               label="&wizard.label;"
-               description="&wizard.description;"
-               onpageshow="checkRequired();"
-               onpageadvanced="onInitialAdvance();">
-        <description>&initialpage.description;</description>
-        <radiogroup id="calendar-type">
-            <radio value="local" label="&initialpage.computer.label;" selected="true"/>
-            <radio value="remote" label="&initialpage.network.label;"/>
-        </radiogroup>
-   </wizardpage>
+  <wizardpage pageid="initialPage"
+              next="locationPage"
+              label="&wizard.label;"
+              description="&wizard.description;"
+              onpageshow="checkRequired();"
+              onpageadvanced="onInitialAdvance();">
+    <description>&initialpage.description;</description>
+    <radiogroup id="calendar-type">
+      <radio value="local" label="&initialpage.computer.label;" selected="true"/>
+      <radio value="remote" label="&initialpage.network.label;"/>
+    </radiogroup>
+  </wizardpage>
 
-   <wizardpage pageid="locationPage"
-               next="customizePage"
-               label="&wizard.label;"
-               onpageshow="initLocationPage();"
-               onpageadvanced="return prepareCreateCalendar();"
-               description="&wizard.description;">
-        <description>&locationpage.description;</description>
-        <grid>
-            <columns>
-                <column/>
-                <column flex="1"/>
-            </columns>
-            <rows>
-                <row>
-                    <label value="&calendarproperties.format.label;" control="calendar-format"/>
-                    <radiogroup id="calendar-format" onselect="onSelectProvider(this.value)">
-                        <radio value="ics" label="&calendarproperties.webdav.label;" selected="true" />
-                        <radio value="caldav" label="&calendarproperties.caldav.label;"/>
-                        <radio id="wcap-radio" value="wcap" label="&calendarproperties.wcap.label;"/>
-                    </radiogroup>
-                </row>
-                <row align="center">
-                    <label value="&calendarproperties.location.label;" control="calendar-uri"/>
-                    <textbox id="calendar-uri"
-                             required="true"
-                             type="search"
-                             oninput="checkRequired();"/>
-                </row>
-                <row>
-                     <label/>
-                     <checkbox id="cache"
-                               checked="true"
-                               label="&calendarproperties.cache3.label;"/>
-                </row>
-                <notificationbox id="location-notifications" flex="1"/>
-                <!--
-                <description>&locationpage.login.description;</description>
-                <row align="center">
-                    <label value="&locationpage.username.label;" control="calendar-username"/>
-                    <textbox id="calendar-username"/>
-                </row>
-                <row align="center">
-                    <label value="&locationpage.password.label;" control="calendar-password"/>
-                    <textbox id="calendar-password"/>
-                </row>
-                -->
-            </rows>
-        </grid>
-   </wizardpage>
+  <wizardpage pageid="locationPage"
+              next="customizePage"
+              label="&wizard.label;"
+              onpageshow="initLocationPage();"
+              onpageadvanced="return prepareCreateCalendar();"
+              description="&wizard.description;">
+    <description>&locationpage.description;</description>
+    <grid>
+      <columns>
+        <column/>
+        <column flex="1"/>
+      </columns>
+      <rows>
+        <row>
+          <label value="&calendarproperties.format.label;" control="calendar-format"/>
+          <radiogroup id="calendar-format" onselect="onSelectProvider(this.value)">
+            <radio value="ics" label="&calendarproperties.webdav.label;" selected="true" />
+            <radio value="caldav" label="&calendarproperties.caldav.label;"/>
+            <radio id="wcap-radio" value="wcap" label="&calendarproperties.wcap.label;"/>
+          </radiogroup>
+        </row>
+        <row align="center">
+          <label value="&calendarproperties.location.label;" control="calendar-uri"/>
+          <textbox id="calendar-uri"
+                   required="true"
+                   type="search"
+                   oninput="checkRequired();"/>
+        </row>
+        <row>
+          <label/>
+          <checkbox id="cache"
+                    checked="true"
+                    label="&calendarproperties.cache3.label;"/>
+        </row>
+        <notificationbox id="location-notifications" flex="1"/>
+        <!--
+        <description>&locationpage.login.description;</description>
+        <row align="center">
+          <label value="&locationpage.username.label;" control="calendar-username"/>
+          <textbox id="calendar-username"/>
+        </row>
+        <row align="center">
+          <label value="&locationpage.password.label;" control="calendar-password"/>
+          <textbox id="calendar-password"/>
+        </row>
+        -->
+      </rows>
+    </grid>
+  </wizardpage>
 
-   <wizardpage pageid="customizePage"
-               description="&custompage.shortdescription;"
-               label="&wizard.label;"
-               next="finishPage"
-               onpageshow="initCustomizePage();"
-               onpageadvanced="doCreateCalendar();">
-        <description>&custompage.longdescription;</description>
-        <grid>
-            <columns>
-                <column/>
-                <column flex="1"/>
-            </columns>
-            <rows id="customize-rows">
-                <row id="customize-name-row" align="center">
-                    <label value="&calendarproperties.name.label;" control="calendar-name"/>
-                    <textbox id="calendar-name"
-                             required="true" oninput="checkRequired();"/>
-                </row>
-                <row id="customize-color-row" align="center">
-                    <label value="&calendarproperties.color.label;" control="calendar-color"/>
-                    <hbox align="center">
-                        <html:input id="calendar-color"
-                                    class="small-margin"
-                                    type="color"
-                                    palettename="standard"/>
-                    </hbox>
-                </row>
-                <row id="customize-suppressAlarms-row" align="center">
-                    <label value="&calendarproperties.firealarms.label;:" control="fire-alarms"/>
-                    <checkbox id="fire-alarms" checked="true" class="checkbox-no-label"/>
-                </row>
-            </rows>
-        </grid>
-   </wizardpage>
+  <wizardpage pageid="customizePage"
+              description="&custompage.shortdescription;"
+              label="&wizard.label;"
+              next="finishPage"
+              onpageshow="initCustomizePage();"
+              onpageadvanced="doCreateCalendar();">
+    <description>&custompage.longdescription;</description>
+    <grid>
+      <columns>
+        <column/>
+        <column flex="1"/>
+      </columns>
+      <rows id="customize-rows">
+        <row id="customize-name-row" align="center">
+          <label value="&calendarproperties.name.label;" control="calendar-name"/>
+          <textbox id="calendar-name"
+                   required="true" oninput="checkRequired();"/>
+        </row>
+        <row id="customize-color-row" align="center">
+          <label value="&calendarproperties.color.label;" control="calendar-color"/>
+          <hbox align="center">
+            <html:input id="calendar-color"
+                        class="small-margin"
+                        type="color"
+                        palettename="standard"/>
+          </hbox>
+        </row>
+        <row id="customize-suppressAlarms-row" align="center">
+          <label value="&calendarproperties.firealarms.label;:" control="fire-alarms"/>
+          <checkbox id="fire-alarms" checked="true" class="checkbox-no-label"/>
+        </row>
+      </rows>
+    </grid>
+  </wizardpage>
 
-   <wizardpage pageid="finishPage"
-               description="&finishpage.shortdescription;"
-               label="&wizard.label;"
-               onpageshow="setCanRewindFalse();">
-        <description>&finishpage.longdescription;</description>
-   </wizardpage>
+  <wizardpage pageid="finishPage"
+              description="&finishpage.shortdescription;"
+              label="&wizard.label;"
+              onpageshow="setCanRewindFalse();">
+    <description>&finishpage.longdescription;</description>
+  </wizardpage>
 </wizard>
