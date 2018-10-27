@@ -764,12 +764,17 @@ button[type="menu-button"] {
   -moz-appearance: dualbutton;
 }
 
+.button-menubutton-button {
+  margin: 0;
+}
+
 .button-menubutton-dropmarker {
   -moz-appearance: toolbarbutton-dropdown !important;
 }
 
 .button-menubutton-dropmarker {
-  margin-inline-end: 3px;
+  margin-left: 3px;
+  margin-right: 3px;
 }
 
 .contentTabInstance {

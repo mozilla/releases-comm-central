@@ -647,8 +647,12 @@ button[type="menu-button"] > button {
   margin: 1px;
 }
 
+.dropmarker-icon {
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+}
+
 button[type="menu-button"] > dropmarker {
-  margin-inline-end: -2px;
+  margin-inline-end: -7px;
 }
 
 /* Status bar */
