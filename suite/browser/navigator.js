@@ -52,11 +52,11 @@ const ZoomListeners =
   name: "browser.content.full-zoom",
 
   QueryInterface:
-  XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
-                         Components.interfaces.nsIContentPrefObserver,
-                         Components.interfaces.nsIContentPrefCallback2,
-                         Components.interfaces.nsISupportsWeakReference,
-                         Components.interfaces.nsISupports]),
+  XPCOMUtils.generateQI([Ci.nsIObserver,
+                         Ci.nsIContentPrefObserver,
+                         Ci.nsIContentPrefCallback2,
+                         Ci.nsISupportsWeakReference,
+                         Ci.nsISupports]),
 
   init: function ()
   {

@@ -974,8 +974,8 @@ toolbar[mode="text"] toolbarbutton.chevron > .toolbarbutton-icon {
 
 /* Need to set fixed width to stop the zoom display from changing size and moving around the zoom buttons */
 #zoomLevel-display {
-  width:60px;
-  max-width:60px;
+  width: 60px;
+  max-width: 60px;
   margin-left: 0px;
   margin-right: 0px;
 }
