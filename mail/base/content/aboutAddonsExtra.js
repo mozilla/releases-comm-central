@@ -25,14 +25,14 @@ gStrings.mailExt =
 
   let backButton = document.createElement("toolbarbutton");
   backButton.setAttribute("id", "back-btn");
-  backButton.setAttribute("class", "nav-button header-button");
+  backButton.setAttribute("class", "nav-button");
   backButton.setAttribute("command", "cmd_back");
   backButton.setAttribute("tooltiptext", gStrings.mailExt.GetStringFromName("cmdBackTooltip"));
   backButton.setAttribute("disabled", "true");
 
   let forwardButton = document.createElement("toolbarbutton");
   forwardButton.setAttribute("id", "forward-btn");
-  forwardButton.setAttribute("class", "nav-button header-button");
+  forwardButton.setAttribute("class", "nav-button");
   forwardButton.setAttribute("command", "cmd_forward");
   forwardButton.setAttribute("tooltiptext", gStrings.mailExt.GetStringFromName("cmdForwardTooltip"));
   forwardButton.setAttribute("disabled", "true");

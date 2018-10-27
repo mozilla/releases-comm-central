@@ -8,12 +8,27 @@
 }
 
 .nav-button {
+  -moz-appearance: none;
   list-style-image: url(chrome://messenger/skin/icons/navigation.svg);
   margin-top: 15px;
   margin-bottom: 10px;
-  border-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
   -moz-context-properties: fill;
   fill: currentColor;
+}
+
+.nav-button[disabled="true"] > .toolbarbutton-icon {
+  opacity: 0.4;
+}
+
+.nav-button:not([disabled="true"]):hover {
+  background-color: #bebebe;
+  cursor: pointer;
+}
+
+.nav-button > .toolbarbutton-text {
+  display: none;
 }
 
 #back-btn:-moz-locale-dir(rtl),
