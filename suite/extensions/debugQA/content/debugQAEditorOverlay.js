@@ -26,12 +26,6 @@ function EditorGetHTML()
   } catch (e) {}
 }
 
-function EditorDumpContent()
-{
-  dump("==============  Content Tree: ================\n");
-  GetCurrentEditor().dumpContentTree();
-}
-
 function EditorInsertText(textToInsert)
 {
   GetCurrentEditor().insertText(textToInsert);
@@ -213,14 +207,6 @@ function EditorTestTableLayout()
   rowCount = editor.getTableRowCount(table);
   maxColCount = editor.getTableColumnCount(table);
   dump("From nsITableLayout: Number of rows="+rowCount+" Number of Columns="+maxColCount+"\n****** End of Table Layout Test *****\n\n");
-}
-
-function EditorUnitTests()
-{
-  dump("Running Unit Tests\n");
-  var numTests       = { value:0 };
-  var numTestsFailed = { value:0 };
-  GetCurrentEditor().debugUnitTests(numTests, numTestsFailed);
 }
 
 function EditorTestDocument()

@@ -17,8 +17,6 @@
 <!ENTITY testSelectionCmd.label "Test Selection">
 <!ENTITY testTableLayoutCmd.label "Test Table Layout">
 <!ENTITY testDocumentCmd.label "Test Document">
-<!ENTITY dumpContentCmd.label "Dump Content Tree">
-<!ENTITY runUnitTestsCmd.label "Run Unit Tests">
 <!ENTITY dumpUndoStack.label "Dump Undo Stack">
 <!ENTITY dumpRedoStack.label "Dump Redo Stack">
 <!ENTITY executeJSTransactionViaTxmgr.label "Execute JS Transaction Via Transaction Manager">
