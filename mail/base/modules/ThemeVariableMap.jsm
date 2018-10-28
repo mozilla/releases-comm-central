@@ -96,6 +96,8 @@ const ThemeVariableMap = [
       const {r, g, b, a} = rgbaChannels;
       if (!_isTextColorDark(r, g, b)) {
         element.setAttribute("lwt-tree-brighttext", "true");
+      } else {
+        element.removeAttribute("lwt-tree-brighttext");
       }
 
       return `rgba(${r}, ${g}, ${b}, ${a})`;
