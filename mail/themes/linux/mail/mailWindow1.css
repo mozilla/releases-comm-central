@@ -68,6 +68,14 @@ treechildren::-moz-tree-cell-text(dummy) {
   color: var(--sidebar-text-color);
 }
 
+:root[lwt-tree] #folderTree {
+  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
+}
+
+:root[lwt-tree-brighttext] #folderTree {
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+}
+
 :root[lwt-tree] #folderPane-toolbar {
   border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
 }
