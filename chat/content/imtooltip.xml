@@ -422,7 +422,8 @@
            return false;
 
          // Reset tooltip.
-         let largeTooltip = document.getElementById("largeTooltip");
+         let largeTooltip = document.getAnonymousElementByAttribute(this, "id",
+                                                                    "largeTooltip");
          largeTooltip.hidden = false;
          this.removeAttribute("label");
 

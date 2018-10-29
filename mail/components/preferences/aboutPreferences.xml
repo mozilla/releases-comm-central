@@ -24,7 +24,7 @@
              role="dialog">
       <xul:stack flex="1">
         <xul:hbox id="prefBox" flex="1">
-          <xul:vbox id="category-box">
+          <xul:vbox id="pref-category-box">
             <xul:radiogroup anonid="selector" orient="vertical" class="paneSelector chromeclass-toolbar"
                             role="listbox"/> <!-- Expose to accessibility APIs as a listbox -->
             <xul:spacer flex="1"/>

@@ -97,7 +97,11 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
   // Now open the advanced dialog.
   mc.click(content_tab_eid(prefTab, "advancedFonts"));
   let fontc = wait_for_frame_load(
-    content_tab_e(prefTab, "dialogOverlay-0").querySelector("browser"),
+    prefTab.browser.contentDocument
+           .getAnonymousElementByAttribute(
+             prefTab.browser.contentDocument.documentElement, "id",
+             "dialogOverlay-0")
+           .querySelector("browser"),
     "chrome://messenger/content/preferences/fonts.xul"
   );
 

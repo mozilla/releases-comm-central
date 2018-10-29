@@ -20,7 +20,7 @@
   position: relative;
 }
 
-#category-box {
+#pref-category-box {
   background-color: #ebebef;
   width: 240px;
 }
@@ -140,7 +140,7 @@ radio[pane][selected] > .radio-check {
 }
 
 @media (max-width: 830px) {
-  #category-box {
+  #pref-category-box {
     width: 118px;
   }
 
