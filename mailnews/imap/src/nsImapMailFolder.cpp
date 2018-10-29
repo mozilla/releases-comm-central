@@ -8302,7 +8302,7 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
   {
     // Now, parse the temp file to (optionally) copy to
     // the offline store for the cur folder.
-    nsMsgLineStreamBuffer *inputStreamBuffer =
+    RefPtr<nsMsgLineStreamBuffer> inputStreamBuffer =
       new nsMsgLineStreamBuffer(FILE_IO_BUFFER_SIZE, true, false);
     int64_t fileSize;
     srcFile->GetFileSize(&fileSize);
@@ -8368,7 +8368,6 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
       notifier->NotifyMsgsClassified(messages, false, false);
     inputStream->Close();
     inputStream = nullptr;
-    delete inputStreamBuffer;
   }
   if (offlineStore)
     offlineStore->Close();

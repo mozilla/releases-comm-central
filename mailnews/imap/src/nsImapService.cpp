@@ -2051,9 +2051,10 @@ nsresult nsImapService::OfflineAppendFromFile(nsIFile *aFile,
         if (NS_SUCCEEDED(rv) && inputStream)
         {
           // now, copy the temp file to the offline store for the dest folder.
-          nsMsgLineStreamBuffer *inputStreamBuffer = new nsMsgLineStreamBuffer(FILE_IO_BUFFER_SIZE,
-                                                                               true,    // allocate new lines
-                                                                               false);  // leave CRLFs on the returned string
+          RefPtr<nsMsgLineStreamBuffer> inputStreamBuffer =
+            new nsMsgLineStreamBuffer(FILE_IO_BUFFER_SIZE,
+                                      true,    // allocate new lines
+                                      false);  // leave CRLFs on the returned string
           int64_t fileSize;
           aFile->GetFileSize(&fileSize);
           uint32_t bytesWritten;
@@ -2099,7 +2100,6 @@ nsresult nsImapService::OfflineAppendFromFile(nsIFile *aFile,
           inputStream->Close();
           inputStream = nullptr;
           aListener->OnStopRunningUrl(aUrl, NS_OK);
-          delete inputStreamBuffer;
         }
         offlineStore->Close();
       }

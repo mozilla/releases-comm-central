@@ -345,7 +345,7 @@ private:
   nsCString             m_serverKey;
   nsCString             m_realHostName;
   char                  *m_dataOutputBuf;
-  nsMsgLineStreamBuffer * m_inputStreamBuffer;
+  RefPtr<nsMsgLineStreamBuffer> m_inputStreamBuffer;
   uint32_t              m_allocatedSize; // allocated size
   uint32_t        m_totalDataSize; // total data size
   uint32_t        m_curReadIndex;  // current read index

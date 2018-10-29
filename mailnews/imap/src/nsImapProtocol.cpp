@@ -575,7 +575,6 @@ nsImapProtocol::~nsImapProtocol()
   PR_Free(m_fetchBodyIdList);
 
   PR_Free(m_dataOutputBuf);
-  delete m_inputStreamBuffer;
 
   // **** We must be out of the thread main loop function
   NS_ASSERTION(!m_imapThreadIsRunning, "Oops, thread is still running.\n");

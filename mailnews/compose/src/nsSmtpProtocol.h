@@ -128,7 +128,7 @@ private:
     int32_t m_previousResponseCode;
     int32_t m_continuationResponse;
     nsCString m_responseText;   /* text returned from Smtp server */
-    nsMsgLineStreamBuffer *m_lineStreamBuffer; // used to efficiently extract lines from the incoming data stream
+    RefPtr<nsMsgLineStreamBuffer> m_lineStreamBuffer; // used to efficiently extract lines from the incoming data stream
 
     nsTArray<nsCString> m_addresses;
     uint32_t       m_addressesLeft;

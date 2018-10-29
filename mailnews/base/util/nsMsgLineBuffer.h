@@ -70,6 +70,8 @@ class nsIInputStream;
 class NS_MSG_BASE nsMsgLineStreamBuffer
 {
 public:
+  NS_INLINE_DECL_REFCOUNTING(nsMsgLineStreamBuffer)
+
   // aBufferSize -- size of the buffer you want us to use for buffering stream data
   // aEndOfLinetoken -- The delimiter string to be used for determining the end of line. This
   //              allows us to parse platform specific end of line endings by making it
@@ -83,7 +85,6 @@ public:
   //            lines are terminated with a CR only, you need to set aLineToken to CR ('\r')
   nsMsgLineStreamBuffer(uint32_t aBufferSize, bool aAllocateNewLines,
                         bool aEatCRLFs = true, char aLineToken = '\n'); // specify the size of the buffer you want the class to use....
-  virtual ~nsMsgLineStreamBuffer();
 
   // Caller must free the line returned using PR_Free
   // aEndOfLinetoken -- delimiter used to denote the end of a line.
@@ -93,6 +94,8 @@ public:
   nsresult GrowBuffer(int32_t desiredSize);
   void ClearBuffer();
   bool NextLineAvailable();
+private:
+  virtual ~nsMsgLineStreamBuffer();
 protected:
   bool m_eatCRLFs;
   bool m_allocateNewLines;

@@ -202,7 +202,7 @@ private:
 
   nsCOMPtr<nsIAsyncInputStream> mDisplayInputStream;
   nsCOMPtr<nsIAsyncOutputStream> mDisplayOutputStream;
-  nsMsgLineStreamBuffer   * m_lineStreamBuffer; // used to efficiently extract lines from the incoming data stream
+  RefPtr<nsMsgLineStreamBuffer> m_lineStreamBuffer; // used to efficiently extract lines from the incoming data stream
   // the nsINntpURL that is currently running
   nsCOMPtr<nsINntpUrl> m_runningURL;
   bool        m_connectionBusy;

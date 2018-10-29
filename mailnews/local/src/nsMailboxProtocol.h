@@ -72,7 +72,7 @@ private:
   nsCOMPtr<nsIStreamListener> m_mailboxParser;
 
   // Local state for the current operation
-  nsMsgLineStreamBuffer   * m_lineStreamBuffer; // used to efficiently extract lines from the incoming data stream
+  RefPtr<nsMsgLineStreamBuffer> m_lineStreamBuffer; // used to efficiently extract lines from the incoming data stream
 
   // Generic state information -- What state are we in? What state do we want to go to
   // after the next response? What was the last response code? etc.
