@@ -262,7 +262,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
 
     service.InsertLiteral("ldap@", 0);
 
-    nsCOMPtr<nsIAuthModule> authModule = 
+    nsCOMPtr<nsIAuthModule> authModule =
       nsIAuthModule::CreateInstance("sasl-gssapi");
 
     rv = mOperation->SaslBind(service, mSaslMechanism, authModule);
