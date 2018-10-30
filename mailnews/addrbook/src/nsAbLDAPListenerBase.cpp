@@ -8,6 +8,7 @@
 #include "nsIWindowMediator.h"
 #include "mozIDOMWindow.h"
 #include "nsIAuthPrompt.h"
+#include "nsIAuthModule.h"
 #include "nsIStringBundle.h"
 #include "nsILDAPMessage.h"
 #include "nsILDAPErrors.h"

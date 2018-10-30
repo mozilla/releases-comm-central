@@ -13,7 +13,6 @@
 #include "nsISmtpUrl.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsMsgLineBuffer.h"
-#include "nsIAuthModule.h"
 #include "nsIProtocolProxyCallback.h"
 #include "MailNewsTypes2.h" // for nsMsgSocketType
 

@@ -15,6 +15,7 @@
 #include "nsString.h"
 #include "nsIMutableArray.h"
 #include "nsLDAPConnection.h"
+#include "nsIAuthModule.h"
 
 // 97a479d0-9a44-47c6-a17a-87f9b00294bb
 #define NS_LDAPOPERATION_CID \
