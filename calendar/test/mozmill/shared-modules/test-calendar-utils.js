@@ -617,7 +617,9 @@ function openLightningPrefs(aCallback, aParentController) {
     // Since the Lightning pane is added after load, asking for it with open_pref_tab won't work.
     // Cheat instead.
     let tab = open_pref_tab("paneGeneral");
-    tab.browser.contentDocument.querySelector('#pref-category-box radio[pane="paneLightning"]').click();
+    let categoryBox = tab.browser.contentDocument.getAnonymousElementByAttribute(
+        tab.browser.contentDocument.documentElement, "id", "pref-category-box");
+    categoryBox.querySelector('radio[pane="paneLightning"]').click();
     utils.waitFor(
         () => tab.browser.contentDocument.documentElement.currentPane.id == "paneLightning",
         "Timed out waiting for prefpane paneLightning to load."
