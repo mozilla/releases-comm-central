@@ -1166,22 +1166,14 @@ nsNntpIncomingServer::Unsubscribe(const char16_t *aUnicharName)
   rv = GetRootMsgFolder(getter_AddRefs(serverFolder));
   if (NS_FAILED(rv))
     return rv;
-
   if (!serverFolder)
     return NS_ERROR_FAILURE;
 
-  // to handle non-ASCII newsgroup names, we store them internally as escaped.
-  // so we need to escape and encode the name, in order to find it.
-  nsAutoCString escapedName;
-  rv = NS_MsgEscapeEncodeURLPath(nsDependentString(aUnicharName), escapedName);
-
-  nsCOMPtr <nsIMsgFolder> newsgroupFolder;
-  rv = serverFolder->FindSubFolder(escapedName,
+  nsCOMPtr<nsIMsgFolder> newsgroupFolder;
+  rv = serverFolder->GetChildNamed(nsDependentString(aUnicharName),
                                    getter_AddRefs(newsgroupFolder));
-
   if (NS_FAILED(rv))
     return rv;
-
   if (!newsgroupFolder)
     return NS_ERROR_FAILURE;
 

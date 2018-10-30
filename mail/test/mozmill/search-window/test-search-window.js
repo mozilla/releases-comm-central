@@ -261,7 +261,7 @@ function test_close_search_window() {
  *  has the right contents.
  */
 function test_verify_saved_search() {
-  let savedFolder = folder.findSubFolder("SearchSaved");
+  let savedFolder = folder.getChildNamed("SearchSaved");
   if (savedFolder == null)
     throw new Error("Saved folder did not show up.");
 

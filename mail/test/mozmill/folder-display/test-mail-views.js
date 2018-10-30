@@ -71,7 +71,7 @@ function subtest_save_mail_view(savc) {
 
 function test_verify_saved_mail_view() {
   // - make sure the folder got created
-  savedFolder = baseFolder.findSubFolder(baseFolder.prettyName + "-Important");
+  savedFolder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
   if (!savedFolder)
     throw new Error("MailViewA-Important was not created!");
 

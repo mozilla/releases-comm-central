@@ -134,7 +134,7 @@ function _open_first_message() {
 
 
 function test_open_first_message_in_virtual_folder() {
-  folder = baseFolder.findSubFolder(baseFolder.prettyName + "-Important");
+  folder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
   if (!folder)
     throw new Error("DeletionFromVirtualFoldersA-Important was not created!");
 
