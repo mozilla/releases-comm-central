@@ -118,7 +118,14 @@ function testTaskView() {
     // Set high priority and verify it in detail pane.
     controller.click(eid("task-actions-priority"));
     sleep();
-    controller.click(eid("priority-1-menuitem"));
+    controller.click(lookup(
+        `${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/
+        id("calendar-task-details")/id("calendar-task-details-grid")/
+        id("calendar-task-details-rows")/
+        id("calendar-task-details-priority-row")/{"flex":"1"}/
+        id("other-actions-box")/id("task-actions-toolbox")/id("task-actions-toolbar")/
+        id("task-actions-priority")/id("task-actions-priority-menupopup")/
+        anon({"class":"popup-internal-box"})/anon({"id":"priority-1-menuitem"})`));
     sleep();
     let priorityNode = eid("calendar-task-details-priority-high");
     controller.assertNotDOMProperty(priorityNode, "hidden");
