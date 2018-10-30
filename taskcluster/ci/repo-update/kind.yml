@@ -5,44 +5,44 @@
 loader: taskgraph.loader.transform:loader
 
 transforms:
-   - taskgraph.transforms.repo_update:transforms
-   - taskgraph.transforms.task:transforms
+    - taskgraph.transforms.repo_update:transforms
+    - taskgraph.transforms.task:transforms
 
 
 job-defaults:
-   worker:
-      env:
-         DO_BLOCKLIST:
-            by-project:
-               comm-central: "1"
-               comm-esr60: "1"
-               comm-beta: "1"
-               default: ""
-         USE_MOZILLA_CENTRAL: ""
+    worker:
+        env:
+            DO_BLOCKLIST:
+                by-project:
+                    comm-central: "1"
+                    comm-esr60: "1"
+                    comm-beta: "1"
+                    default: ""
+            USE_MOZILLA_CENTRAL: ""
 
 
 jobs:
-   blocklist-update:
-      name: periodic_file_update
-      description: Blocklist update
-      run-on-projects: []  # Only run via cron
-      treeherder:
-         kind: build
-         platform: linux64/opt
-         symbol: pfu
-         tier: 1
-      worker-type: aws-provisioner-v1/gecko-{level}-b-linux
-      worker:
-         implementation: docker-worker
-         os: linux
-         docker-image: {in-tree: periodic-updates}
-         max-run-time: 3600  # Max 1hr, takes ~5mins in testing
-         env:
-            PRODUCT: thunderbird
-            REVIEWERS: "rjl"
-         command:
-            - /runme.sh
-         taskcluster-proxy: true
+    blocklist-update:
+        name: periodic_file_update
+        description: Blocklist update
+        run-on-projects: []  # Only run via cron
+        treeherder:
+            kind: build
+            platform: linux64/opt
+            symbol: pfu
+            tier: 1
+        worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+        worker:
+            implementation: docker-worker
+            os: linux
+            docker-image: {in-tree: periodic-updates}
+            max-run-time: 3600  # Max 1hr, takes ~5mins in testing
+            env:
+                PRODUCT: thunderbird
+                REVIEWERS: "rjl"
+            command:
+                - /runme.sh
+            taskcluster-proxy: true
 
-      scopes:
-         - secrets:get:project/comm/thunderbird/releng/build/level-{level}/arc-phabricator-token
+        scopes:
+            - secrets:get:project/comm/thunderbird/releng/build/level-{level}/arc-phabricator-token
