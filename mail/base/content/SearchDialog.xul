@@ -129,14 +129,14 @@
               onkeydown="ThreadPaneKeyDown(event);"
               onselect="ThreadPaneSelectionChanged();">
           <treecols id="threadCols" pickertooltiptext="&columnChooser2.tooltip;">
-            <treecol id="threadCol" persist="hidden ordinal" fixed="true" cycler="true"
+            <treecol id="threadCol" is="treecol-image" persist="hidden ordinal" fixed="true" cycler="true"
                      class="treecol-image threadColumnHeader" currentView="unthreaded"
                      label="&threadColumn.label;" tooltiptext="&threadColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
             <treecol id="subjectCol" persist="hidden ordinal width" flex="7" ignoreincolumnpicker="true"
                      label="&subjectColumn.label;" tooltiptext="&subjectColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
-            <treecol id="junkStatusCol" persist="hidden ordinal width" fixed="true" cycler="true"
+            <treecol id="junkStatusCol" is="treecol-image" persist="hidden ordinal width" fixed="true" cycler="true"
                      class="treecol-image junkStatusHeader"
                      label="&junkStatusColumn.label;" tooltiptext="&junkStatusColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
@@ -151,7 +151,7 @@
             <treecol id="correspondentCol" persist="hidden ordinal width" flex="4"
                      label="&correspondentColumn.label;" tooltiptext="&correspondentColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
-            <treecol id="unreadButtonColHeader" persist="hidden ordinal" fixed="true" cycler="true"
+            <treecol id="unreadButtonColHeader" is="treecol-image" persist="hidden ordinal" fixed="true" cycler="true"
                      class="treecol-image readColumnHeader"
                      label="&readColumn.label;" tooltiptext="&readColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
@@ -164,7 +164,7 @@
             <treecol id="sizeCol" persist="hidden ordinal width" flex="1" hidden="true"
                      label="&sizeColumn.label;" tooltiptext="&sizeColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
-            <treecol id="flaggedCol" persist="hidden ordinal" fixed="true" cycler="true" hidden="true"
+            <treecol id="flaggedCol" is="treecol-image" persist="hidden ordinal" fixed="true" cycler="true" hidden="true"
                      class="treecol-image flagColumnHeader"
                      label="&starredColumn.label;" tooltiptext="&starredColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
