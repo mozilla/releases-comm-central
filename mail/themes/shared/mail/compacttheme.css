@@ -8,33 +8,22 @@
 
 :root:-moz-lwtheme {
   --toolbar-color: var(--chrome-color);
-  --toolbar-bgcolor: var(--chrome-secondary-background-color);
   --toolbar-non-lwt-bgcolor: var(--toolbar-bgcolor);
   --toolbar-non-lwt-textcolor: var(--chrome-color);
   --toolbar-non-lwt-bgimage: none;
   --lwt-toolbar-field-border-color: hsla(240,5%,5%,.25);
 
   --toolbarbutton-icon-fill-opacity: .7;
-
-  --tab-line-color: #0a84ff;
 }
 
 :root:-moz-lwtheme-brighttext {
   /* Chrome */
   --chrome-background-color: hsl(240, 5%, 5%);
   --chrome-color: rgb(249, 249, 250);
-  --chrome-secondary-background-color: hsl(240, 1%, 20%);
-  --toolbox-border-bottom-color: hsla(240, 5%, 5%, .1);
-  --chrome-nav-bar-controls-border-color: hsla(240, 5%, 5%, .3);
 
   /* Toolbar buttons */
   --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
   --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
-
-  /* Search bars */
-  --lwt-toolbar-field-background-color: rgb(71, 71, 73);
-  --lwt-toolbar-field-color: var(--chrome-color);
-  --urlbar-separator-color: #5F6670;
 
   /* !important to override LightweightThemeManager.addBuiltInTheme in
      mailGlue.js */
@@ -46,20 +35,11 @@
 }
 
 :root:-moz-lwtheme-darktext {
-  --lwt-toolbar-field-background-color: #fff;
-
   --chrome-background-color: #e3e4e6;
   --chrome-color: #18191a;
-  --chrome-secondary-background-color: #f5f6f7;
-  --toolbox-border-bottom-color: #ccc;
-  --chrome-nav-bar-controls-border-color: #ccc;
 
   /* composer header fields bottom border */
   --composer-header-border-color: #aaa;
-}
-
-toolbar[brighttext] .toolbarbutton-1 {
-  fill: rgb(249, 249, 250);
 }
 
 /* Change the base colors for the mail chrome */
@@ -70,11 +50,8 @@ toolbar[brighttext] .toolbarbutton-1 {
   color: var(--chrome-color);
 }
 
-findbar,
-.mail-toolbox,
-.contentTabToolbox,
 #msgHeaderView {
-  background-color: var(--chrome-secondary-background-color) !important;
+  background-color: var(--toolbar-bgcolor) !important;
   background-image: none !important;
   color: var(--chrome-color);
 }
@@ -126,14 +103,6 @@ findbar,
   background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
   color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
   border-color: var(--toolbar-field-focus-border-color);
-}
-
-/* Search bar*/
-#searchInput:not([focused="true"]),
-#IMSearchInput:not([focused="true"]),
-#peopleSearchInput:not([focused="true"]),
-.remote-gloda-search:not([focused="true"]) {
-  border-color: var(--chrome-nav-bar-controls-border-color);
 }
 
 /* Composer header box styling */
