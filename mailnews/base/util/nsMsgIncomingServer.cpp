@@ -44,7 +44,6 @@
 #include "nsILoginManager.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgMdnGenerator.h"
-#include "nsMsgFolderFlags.h"
 #include "nsMsgUtils.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgSearchTerm.h"

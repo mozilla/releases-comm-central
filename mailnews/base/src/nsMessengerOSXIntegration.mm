@@ -12,7 +12,6 @@
 #include "nsIMsgIdentity.h"
 #include "nsIMsgAccount.h"
 #include "nsIMsgFolder.h"
-#include "nsMsgFolderFlags.h"
 #include "nsMsgDBFolder.h"
 #include "nsCOMPtr.h"
 #include "nsMsgBaseCID.h"
