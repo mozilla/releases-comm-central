@@ -915,9 +915,7 @@ function loadStartFolder(initialUri)
             if (isLoginAtStartUpEnabled)
             {
                 //now find Inbox
-                var outNumFolders = new Object();
-                const kInboxFlag = Ci.nsMsgFolderFlags.Inbox;
-                var inboxFolder = rootMsgFolder.getFolderWithFlags(kInboxFlag);
+                var inboxFolder = rootMsgFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
                 if (!inboxFolder) return;
 
                 startFolder = inboxFolder;

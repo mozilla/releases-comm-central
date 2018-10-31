@@ -298,9 +298,8 @@ function CheckForMessageIdInFolder(folder, messageId)
                    "messageId=" + messageId);
   }
 
-  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   if (!MailServices.mailSession.IsFolderOpenInWindow(folder) &&
-      !(folder.flags & (nsMsgFolderFlags.Trash | nsMsgFolderFlags.Inbox)))
+      !(folder.flags & (Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Inbox)))
   {
     folder.msgDatabase = null;
   }
@@ -344,8 +343,7 @@ function fillFolderPaneContextMenu(aEvent)
   var numSelected = folders.length;
 
   function checkIsVirtualFolder(folder) {
-    const kVirtualFlag = Ci.nsMsgFolderFlags.Virtual;
-    return folder.flags & kVirtualFlag;
+    return folder.getFlag(Ci.nsMsgFolderFlags.Virtual);
   }
   var haveAnyVirtualFolders = folders.some(checkIsVirtualFolder);
 
@@ -365,7 +363,7 @@ function fillFolderPaneContextMenu(aEvent)
 
     // All feed account folders, besides Trash, are subscribable.
     if (folder.server.type == "rss" &&
-        !(folder.flags & nsMsgFolderFlags.Trash))
+        !(folder.getFlag(Ci.nsMsgFolderFlags.Trash)))
       return true;
 
     // We only want the subscribe item on the account nodes.
@@ -379,7 +377,7 @@ function fillFolderPaneContextMenu(aEvent)
 
   function checkIsNewsgroup(folder) {
     return !folder.isServer && folder.server.type == "nntp" &&
-           !folder.getFlag(nsMsgFolderFlags.Virtual);
+           !folder.getFlag(Ci.nsMsgFolderFlags.Virtual);
   }
   var haveOnlyNewsgroups = folders.every(checkIsNewsgroup);
 
@@ -389,10 +387,10 @@ function fillFolderPaneContextMenu(aEvent)
   var haveOnlyMailFolders = folders.every(checkIsMailFolder);
 
   function checkCanGetMessages(folder) {
-    const kTrashFlag = Ci.nsMsgFolderFlags.Trash;
     return (folder.isServer && (folder.server.type != "none")) ||
            checkIsNewsgroup(folder) ||
-           ((folder.server.type == "rss") && !folder.isSpecialFolder(kTrashFlag, true) &&
+           ((folder.server.type == "rss") &&
+            !folder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true) &&
              !checkIsVirtualFolder(folder));
   }
   var selectedFoldersThatCanGetMessages = folders.filter(checkCanGetMessages);
@@ -492,7 +490,7 @@ function fillFolderPaneContextMenu(aEvent)
 
   // --- Set up the delete folder menu item.
   function checkCanDeleteFolder(folder) {
-    if (folder.isSpecialFolder(nsMsgFolderFlags.Junk, false))
+    if (folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false))
       return CanRenameDeleteJunkMail(folder.URI);
     return folder.deletable;
   }
@@ -507,8 +505,7 @@ function fillFolderPaneContextMenu(aEvent)
 
   // --- Set up the compact folder menu item.
   function checkCanCompactFolder(folder) {
-    const kVirtualFlag = Ci.nsMsgFolderFlags.Virtual;
-    return folder.canCompact && !(folder.flags & kVirtualFlag) &&
+    return folder.canCompact && !(folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) &&
            folder.isCommandEnabled("cmd_compactFolder");
   }
   var haveOnlyCompactableFolders = folders.every(checkCanCompactFolder);
@@ -525,10 +522,9 @@ function fillFolderPaneContextMenu(aEvent)
                numSelected == 1 && !folders[0].isServer);
   if (numSelected == 1 && !folders[0].isServer)
   {
-    const kFavoriteFlag = Ci.nsMsgFolderFlags.Favorite;
      // Adjust the checked state on the menu item.
     document.getElementById("folderPaneContext-favoriteFolder")
-            .setAttribute("checked", folders[0].getFlag(kFavoriteFlag));
+            .setAttribute("checked", folders[0].getFlag(Ci.nsMsgFolderFlags.Favorite));
   }
 
   // --- Set up the empty trash menu item.

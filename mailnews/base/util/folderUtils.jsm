@@ -18,25 +18,24 @@ ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
  * @param aFolder  the nsIMsgFolder whose special type should be returned
  */
 function getSpecialFolderString(aFolder) {
-  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   let flags = aFolder.flags;
-  if (flags & nsMsgFolderFlags.Inbox)
+  if (flags & Ci.nsMsgFolderFlags.Inbox)
     return "Inbox";
-  if (flags & nsMsgFolderFlags.Trash)
+  if (flags & Ci.nsMsgFolderFlags.Trash)
     return "Trash";
-  if (flags & nsMsgFolderFlags.Queue)
+  if (flags & Ci.nsMsgFolderFlags.Queue)
     return "Outbox";
-  if (flags & nsMsgFolderFlags.SentMail)
+  if (flags & Ci.nsMsgFolderFlags.SentMail)
     return "Sent";
-  if (flags & nsMsgFolderFlags.Drafts)
+  if (flags & Ci.nsMsgFolderFlags.Drafts)
     return "Drafts";
-  if (flags & nsMsgFolderFlags.Templates)
+  if (flags & Ci.nsMsgFolderFlags.Templates)
     return "Templates";
-  if (flags & nsMsgFolderFlags.Junk)
+  if (flags & Ci.nsMsgFolderFlags.Junk)
     return "Junk";
-  if (flags & nsMsgFolderFlags.Archive)
+  if (flags & Ci.nsMsgFolderFlags.Archive)
     return "Archive";
-  if (flags & nsMsgFolderFlags.Virtual)
+  if (flags & Ci.nsMsgFolderFlags.Virtual)
     return "Virtual";
   return "none";
 }

@@ -104,7 +104,6 @@ function folderPropsOKButton()
 {
   if (gMsgFolder)
   {
-    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     // set charset attributes
     var folderCharsetList = document.getElementById("folderCharsetList");
 
@@ -122,14 +121,14 @@ function folderPropsOKButton()
 
     if(document.getElementById("offline.selectForOfflineFolder").checked ||
       document.getElementById("offline.selectForOfflineNewsgroup").checked)
-      gMsgFolder.setFlag(nsMsgFolderFlags.Offline);
+      gMsgFolder.setFlag(Ci.nsMsgFolderFlags.Offline);
     else
-      gMsgFolder.clearFlag(nsMsgFolderFlags.Offline);
+      gMsgFolder.clearFlag(Ci.nsMsgFolderFlags.Offline);
 
     if(document.getElementById("folderCheckForNewMessages").checked)
-      gMsgFolder.setFlag(nsMsgFolderFlags.CheckNew);
+      gMsgFolder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
     else
-      gMsgFolder.clearFlag(nsMsgFolderFlags.CheckNew);
+      gMsgFolder.clearFlag(Ci.nsMsgFolderFlags.CheckNew);
 
     let glodaCheckbox = document.getElementById("folderIncludeInGlobalSearch");
     if (!glodaCheckbox.hidden) {
@@ -194,7 +193,6 @@ function folderPropsOnLoad()
 //  name.focusTextField();
   }
 
-  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   const serverType = window.arguments[0].serverType;
 
   // Do this first, because of gloda we may want to override some of the hidden
@@ -221,7 +219,7 @@ function folderPropsOnLoad()
     if (gMsgFolder.canRename)
       document.getElementById("name").removeAttribute("readonly");
 
-    if (gMsgFolder.flags & nsMsgFolderFlags.Offline) {
+    if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Offline)) {
 
       if(serverType == "imap" || serverType == "pop3")
         document.getElementById("offline.selectForOfflineFolder").checked = true;
@@ -245,14 +243,15 @@ function folderPropsOnLoad()
     document.getElementById("folderCharsetOverride").checked = gMsgFolder.charsetOverride;
 
     // set check for new mail checkbox
-    document.getElementById("folderCheckForNewMessages").checked = gMsgFolder.flags & nsMsgFolderFlags.CheckNew;
+    document.getElementById("folderCheckForNewMessages").checked =
+      gMsgFolder.getFlag(Ci.nsMsgFolderFlags.CheckNew);
 
     // if gloda indexing is off, hide the related checkbox
     var glodaCheckbox = document.getElementById("folderIncludeInGlobalSearch");
     var glodaEnabled = Services.prefs
       .getBoolPref("mailnews.database.global.indexer.enabled");
-    if (!glodaEnabled || (gMsgFolder.flags & (nsMsgFolderFlags.Queue |
-                                              nsMsgFolderFlags.Newsgroup))) {
+    if (!glodaEnabled || (gMsgFolder.flags & (Ci.nsMsgFolderFlags.Queue |
+                                              Ci.nsMsgFolderFlags.Newsgroup))) {
       glodaCheckbox.hidden = true;
     } else {
       // otherwise, the user can choose whether this file gets indexed
@@ -338,14 +337,13 @@ function hideShowControls(serverType)
 
   if (gMsgFolder)
   {
-    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     // Hide "check for new mail" checkbox if this is an Inbox.
-    if (gMsgFolder.flags & nsMsgFolderFlags.Inbox)
+    if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Inbox))
       document.getElementById("folderCheckForNewMessages").hidden = true;
     // Retention policy doesn't apply to Drafts/Templates/Outbox.
-    if (gMsgFolder.isSpecialFolder(nsMsgFolderFlags.Drafts |
-                                   nsMsgFolderFlags.Templates |
-                                   nsMsgFolderFlags.Queue, true))
+    if (gMsgFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts |
+                                   Ci.nsMsgFolderFlags.Templates |
+                                   Ci.nsMsgFolderFlags.Queue, true))
       document.getElementById("Retention").hidden = true;
   }
 }

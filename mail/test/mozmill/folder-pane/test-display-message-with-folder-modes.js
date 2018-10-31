@@ -85,10 +85,10 @@ function test_display_message_with_folder_not_present_in_current_folder_mode() {
  */
 function test_display_message_with_folder_present_in_current_folder_mode() {
   // Mark the folder as a favorite
-  folder.flags |= Ci.nsMsgFolderFlags.Favorite;
+  folder.setFlag(Ci.nsMsgFolderFlags.Favorite);
   // Also mark the dummy folder as a favorite, in preparation for
   // test_display_message_in_smart_folder_mode_works
-  dummyFolder.flags |= Ci.nsMsgFolderFlags.Favorite;
+  dummyFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
   // Make sure the folder doesn't appear in the favorite folder mode just
   // because it was selected last before switching
@@ -112,8 +112,8 @@ function test_display_message_with_folder_present_in_current_folder_mode() {
   assert_selected_and_displayed(msgHdr);
 
   // Now unset the flags so that we don't affect later tests.
-  folder.flags &= ~Ci.nsMsgFolderFlags.Favorite;
-  dummyFolder.flags &= ~Ci.nsMsgFolderFlags.Favorite;
+  folder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  dummyFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
 }
 
 /**

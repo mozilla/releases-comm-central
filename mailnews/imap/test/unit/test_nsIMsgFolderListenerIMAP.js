@@ -162,7 +162,7 @@ var gTestArray =
     // Make sure the offline flag is not set for any of the folders
     [gIMAPInbox, gIMAPFolder2, gIMAPFolder3].forEach(function (folder)
     {
-      folder.flags &= ~Ci.nsMsgFolderFlags.Offline;
+      folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
     });
     copyFileMessage(gMsgFile1, gMsgId1, gIMAPInbox)
   },

@@ -131,30 +131,28 @@ function subtest_folder_operations(root) {
 
   // Test - FoldersWithFlag
 
-  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
+  folder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
+  Assert.ok(folder.getFlag(Ci.nsMsgFolderFlags.CheckNew));
+  Assert.ok(!folder.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  folder.setFlag(nsMsgFolderFlags.CheckNew);
-  Assert.ok(folder.getFlag(nsMsgFolderFlags.CheckNew));
-  Assert.ok(!folder.getFlag(nsMsgFolderFlags.Offline));
+  folder.setFlag(Ci.nsMsgFolderFlags.Offline);
+  Assert.ok(folder.getFlag(Ci.nsMsgFolderFlags.CheckNew));
+  Assert.ok(folder.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  folder.setFlag(nsMsgFolderFlags.Offline);
-  Assert.ok(folder.getFlag(nsMsgFolderFlags.CheckNew));
-  Assert.ok(folder.getFlag(nsMsgFolderFlags.Offline));
+  folder.toggleFlag(Ci.nsMsgFolderFlags.CheckNew);
+  Assert.ok(!folder.getFlag(Ci.nsMsgFolderFlags.CheckNew));
+  Assert.ok(folder.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  folder.toggleFlag(nsMsgFolderFlags.CheckNew);
-  Assert.ok(!folder.getFlag(nsMsgFolderFlags.CheckNew));
-  Assert.ok(folder.getFlag(nsMsgFolderFlags.Offline));
+  folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
+  Assert.ok(!folder.getFlag(Ci.nsMsgFolderFlags.CheckNew));
+  Assert.ok(!folder.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  folder.clearFlag(nsMsgFolderFlags.Offline);
-  Assert.ok(!folder.getFlag(nsMsgFolderFlags.CheckNew));
-  Assert.ok(!folder.getFlag(nsMsgFolderFlags.Offline));
+  folder.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  folder2.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  folder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
+  folder2.setFlag(Ci.nsMsgFolderFlags.Offline);
 
-  folder.setFlag(nsMsgFolderFlags.Favorite);
-  folder2.setFlag(nsMsgFolderFlags.Favorite);
-  folder.setFlag(nsMsgFolderFlags.CheckNew);
-  folder2.setFlag(nsMsgFolderFlags.Offline);
-
-  Assert.equal(root.getFolderWithFlags(nsMsgFolderFlags.CheckNew),
+  Assert.equal(root.getFolderWithFlags(Ci.nsMsgFolderFlags.CheckNew),
                folder);
 
   // Test - Move folders around

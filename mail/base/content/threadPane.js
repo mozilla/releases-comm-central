@@ -136,11 +136,10 @@ function HandleColumnClick(columnID)
 
 function ThreadPaneDoubleClick()
 {
-  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-  if (IsSpecialFolderSelected(nsMsgFolderFlags.Drafts, true)) {
+  if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Drafts, true)) {
     MsgComposeDraftMessage();
   }
-  else if(IsSpecialFolderSelected(nsMsgFolderFlags.Templates, true)) {
+  else if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Templates, true)) {
     ComposeMessage(Ci.nsIMsgCompType.Template,
                    Ci.nsIMsgCompFormat.Default,
                    gFolderDisplay.displayedFolder,

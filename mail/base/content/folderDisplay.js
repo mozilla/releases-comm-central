@@ -10,9 +10,6 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 var gFolderDisplay = null;
 var gMessageDisplay = null;
 
-var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-
 /**
  * Maintains a list of listeners for all FolderDisplayWidget instances in this
  *  window.  The assumption is that because of our multiplexed tab
@@ -547,8 +544,6 @@ FolderDisplayWidget.prototype = {
    *  figure out the best column state for the current folder.
    */
   _getDefaultColumnsForCurrentFolder: function(aDoNotInherit) {
-    const InboxFlag = Ci.nsMsgFolderFlags.Inbox;
-
     // If the view is synthetic, try asking it for its default columns. If it
     // fails, just return nothing, since most synthetic views don't care about
     // columns anyway.
@@ -575,14 +570,14 @@ FolderDisplayWidget.prototype = {
       this.view.isVirtual ||
       this.view.isMultiFolder ||
       this.view.isNewsFolder ||
-      this.displayedFolder.flags & InboxFlag;
+      this.displayedFolder.getFlag(Ci.nsMsgFolderFlags.Inbox);
 
     // Try and grab the inbox for this account's settings.  we may not be able
     //  to, in which case we just won't inherit.  (It ends up the same since the
     //  inbox is obviously not customized in this case.)
     if (!doNotInherit) {
       let inboxFolder =
-        this.displayedFolder.rootFolder.getFolderWithFlags(InboxFlag);
+        this.displayedFolder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
       if (inboxFolder) {
         let state = this._depersistColumnStatesFromDbFolderInfo(
                       inboxFolder.msgDatabase.dBFolderInfo);
@@ -1905,7 +1900,7 @@ FolderDisplayWidget.prototype = {
         currentIndex != -1 &&
         this.view.isCollapsedThreadAtIndex(currentIndex) &&
         !(this.view.dbView.getFlagsAt(currentIndex) &
-          nsMsgMessageFlags.Read)) {
+          Ci.nsMsgMessageFlags.Read)) {
       viewIndex = currentIndex;
     }
     else {
@@ -2001,7 +1996,7 @@ FolderDisplayWidget.prototype = {
   get selectedMessageIsImap() {
     let message = this.selectedMessage;
     return Boolean(message && message.folder &&
-                   message.folder.flags & nsMsgFolderFlags.ImapBox);
+                   message.folder.flags & Ci.nsMsgFolderFlags.ImapBox);
   },
 
   /**
@@ -2011,7 +2006,7 @@ FolderDisplayWidget.prototype = {
   get selectedMessageIsNews() {
     let message = this.selectedMessage;
     return Boolean(message && message.folder &&
-                   (message.folder.flags & nsMsgFolderFlags.Newsgroup));
+                   (message.folder.flags & Ci.nsMsgFolderFlags.Newsgroup));
   },
 
   /**
@@ -2048,7 +2043,7 @@ FolderDisplayWidget.prototype = {
   get selectedMessageSubthreadIgnored() {
     let message = this.selectedMessage;
     return Boolean(message && message.folder &&
-                   (message.flags & nsMsgMessageFlags.Ignored));
+                   (message.flags & Ci.nsMsgMessageFlags.Ignored));
   },
 
   /**

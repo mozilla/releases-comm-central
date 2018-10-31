@@ -1,14 +1,9 @@
 load("../../../../resources/messageGenerator.js");
 
 var gMessages = [];
-var nsMsgSearchScope  = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp     = Ci.nsMsgSearchOp;
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
 
-var kSetCount = 13;
-var kNumExpectedMatches = 10;
+const kSetCount = 13;
+const kNumExpectedMatches = 10;
 
 function setupGlobals()
 {
@@ -52,33 +47,33 @@ function run_test() {
 
   searchTerm.beginsGrouping = true;
   searchTerm.booleanAnd = true;
-  searchTerm.attrib = nsMsgSearchAttrib.FolderFlag;
-  searchTerm.op = nsMsgSearchOp.Is;
+  searchTerm.attrib = Ci.nsMsgSearchAttrib.FolderFlag;
+  searchTerm.op = Ci.nsMsgSearchOp.Is;
   let value = searchTerm.value;
-  value.status = nsMsgFolderFlags.Mail;
-  value.attrib = nsMsgSearchAttrib.FolderFlag;
+  value.status = Ci.nsMsgFolderFlags.Mail;
+  value.attrib = Ci.nsMsgSearchAttrib.FolderFlag;
   searchTerm.value = value;
   searchTerms.appendElement(searchTerm);
 
   searchTerm = searchSession.createTerm();
   searchTerm.booleanAnd = true;
-  searchTerm.attrib = nsMsgSearchAttrib.FolderFlag;
-  searchTerm.op = nsMsgSearchOp.Isnt;
+  searchTerm.attrib = Ci.nsMsgSearchAttrib.FolderFlag;
+  searchTerm.op = Ci.nsMsgSearchOp.Isnt;
   value = searchTerm.value;
-  value.status = nsMsgFolderFlags.ImapBox;
-  value.attrib = nsMsgSearchAttrib.FolderFlag;
+  value.status = Ci.nsMsgFolderFlags.ImapBox;
+  value.attrib = Ci.nsMsgSearchAttrib.FolderFlag;
   searchTerm.value = value;
   searchTerm.endsGrouping = true;
   searchTerms.appendElement(searchTerm);
 
   searchTerm = searchSession.createTerm();
   searchTerm.booleanAnd = true;
-  searchTerm.attrib = nsMsgSearchAttrib.HdrProperty;
+  searchTerm.attrib = Ci.nsMsgSearchAttrib.HdrProperty;
   searchTerm.hdrProperty = "gloda-id";
-  searchTerm.op = nsMsgSearchOp.IsEmpty;
+  searchTerm.op = Ci.nsMsgSearchOp.IsEmpty;
   value = searchTerm.value;
   value.str = "gloda-id";
-  value.attrib = nsMsgSearchAttrib.HdrProperty;
+  value.attrib = Ci.nsMsgSearchAttrib.HdrProperty;
   searchTerm.value = value;
   searchTerms.appendElement(searchTerm);
 

@@ -50,7 +50,7 @@ function setup() {
   // Set up nsIMsgFolderListener to get the header when it's received
   MailServices.mfn.addListener(msgFolderListener, MailServices.mfn.msgAdded);
 
-  IMAPPump.inbox.flags &= ~Ci.nsMsgFolderFlags.Offline;
+  IMAPPump.inbox.clearFlag(Ci.nsMsgFolderFlags.Offline);
 }
 
 function verifyContentLength() {

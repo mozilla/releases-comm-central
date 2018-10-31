@@ -20,8 +20,6 @@ if (typeof FeedMessageHandler != "object")
 
 var kDefaultMode = "all";
 
-var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-
 /**
  * This file contains the controls and functions for the folder pane.
  * The following definitions will be useful to know:
@@ -724,7 +722,7 @@ var gFolderTreeView = {
         if (targetFolder == folder.parent)
           return false;
         // Don't allow dragging of virtual folders across accounts.
-        if ((folder.flags & nsMsgFolderFlags.Virtual) &&
+        if ((folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) &&
             folder.server != targetFolder.server)
           return false;
         // Don't allow parent to be dropped on its ancestors.
@@ -1165,7 +1163,7 @@ var gFolderTreeView = {
                                                Ci.nsIMsgFolder)) {
           folders.push(folderWithFlag);
           // Add sub-folders of Sent and Archive to the result.
-          if (deep && (aFolderFlag & (nsMsgFolderFlags.SentMail | nsMsgFolderFlags.Archive)))
+          if (deep && (aFolderFlag & (Ci.nsMsgFolderFlags.SentMail | Ci.nsMsgFolderFlags.Archive)))
             this.addSubFolders(folderWithFlag, folders);
         }
       }
@@ -1203,7 +1201,7 @@ var gFolderTreeView = {
     if (flag && subFolders.length == 1) {
       let folderItem = new ftvItem(subFolders[0]);
       folderItem._level = 0;
-      if (flag & nsMsgFolderFlags.Inbox)
+      if (flag & Ci.nsMsgFolderFlags.Inbox)
         folderItem.__defineGetter__("children", () => []);
       if (position == undefined)
         map.push(folderItem);
@@ -1252,7 +1250,7 @@ var gFolderTreeView = {
       child._parent = smartFolderItem;
       // don't show sub-folders of the inbox, but I think Archives/Sent, etc
       // should have the sub-folders.
-      if (flag & nsMsgFolderFlags.Inbox)
+      if (flag & Ci.nsMsgFolderFlags.Inbox)
         child.__defineGetter__("children", () => []);
       // If we have consecutive children with the same server, then both
       // should display as folder - server.
@@ -1281,7 +1279,7 @@ var gFolderTreeView = {
         newFolder = parentFolder.createLocalSubfolder(newName);
       else
         newFolder = parentFolder.addSubfolder(newName);
-      newFolder.setFlag(nsMsgFolderFlags.Virtual);
+      newFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
       // provide a way to make the top level folder just a container, not
       // a search folder
       let type = this._modes["smart"].getSmartFolderTypeByName(newName);
@@ -1650,7 +1648,7 @@ var gFolderTreeView = {
 
         let favRootFolders = [];
         let filterFavorite = function filterFavorite(aFolder) {
-          return aFolder.getFolderWithFlags(nsMsgFolderFlags.Favorite) != null;
+          return aFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Favorite) != null;
         }
         for (let acct of accounts) {
           let rootFolder = acct.incomingServer.rootFolder;
@@ -1684,7 +1682,7 @@ var gFolderTreeView = {
       generateMap: function(ftv) {
         let faves = [];
         for (let folder of ftv._enumerateFolders) {
-          if (folder.getFlag(nsMsgFolderFlags.Favorite))
+          if (folder.getFlag(Ci.nsMsgFolderFlags.Favorite))
             faves.push(new ftvItem(folder));
         }
 
@@ -1805,14 +1803,14 @@ var gFolderTreeView = {
        * session.
        */
       _flagNameList: [
-        [nsMsgFolderFlags.Inbox, "Inbox", false, true],
-        [nsMsgFolderFlags.Drafts, "Drafts", false, true],
-        [nsMsgFolderFlags.SentMail, "Sent", true, true],
-        [nsMsgFolderFlags.Trash, "Trash", true, true],
-        [nsMsgFolderFlags.Templates, "Templates", false, true],
-        [nsMsgFolderFlags.Archive, "Archives", true, true],
-        [nsMsgFolderFlags.Junk, "Junk", false, true],
-        [nsMsgFolderFlags.Queue, "Outbox", true, true]
+        [Ci.nsMsgFolderFlags.Inbox, "Inbox", false, true],
+        [Ci.nsMsgFolderFlags.Drafts, "Drafts", false, true],
+        [Ci.nsMsgFolderFlags.SentMail, "Sent", true, true],
+        [Ci.nsMsgFolderFlags.Trash, "Trash", true, true],
+        [Ci.nsMsgFolderFlags.Templates, "Templates", false, true],
+        [Ci.nsMsgFolderFlags.Archive, "Archives", true, true],
+        [Ci.nsMsgFolderFlags.Junk, "Junk", false, true],
+        [Ci.nsMsgFolderFlags.Queue, "Outbox", true, true]
       ],
 
       /**
@@ -2099,7 +2097,7 @@ var gFolderTreeView = {
       newChild = new ftv_SmartItem(aItem);
       newChild._level = 0;
       while (newChildIndex < this.rowCount) {
-        if (this._rowMap[newChildIndex]._folder.flags & aFlag) {
+        if (this._rowMap[newChildIndex]._folder.getFlag(aFlag)) {
           // This type of folder seems to already exist, so replace the row
           // with a smartFolder.
           this._addSmartFoldersForFlag(this._rowMap, this._sortedAccounts(),
@@ -2123,7 +2121,7 @@ var gFolderTreeView = {
       sortFolderItems(parent._children);
       newChild.useServerNameOnly = true;
     }
-    if (aItem.flags & nsMsgFolderFlags.Inbox)
+    if (aItem.getFlag(Ci.nsMsgFolderFlags.Inbox))
       newChild.__defineGetter__("children", () => []);
     if (parent)
       this._addChildToView(parent, parentIndex, newChild);
@@ -2188,7 +2186,7 @@ var gFolderTreeView = {
       // Expanding the parent is sufficient to add the folder to the view,
       // because either we knew about it, or we will have added a child item
       // for it above.
-      if (newChild._folder.flags & nsMsgFolderFlags.SpecialUse) {
+      if (newChild._folder.getFlag(Ci.nsMsgFolderFlags.SpecialUse)) {
         this._toggleRow(parentIndex, false);
         return;
       }
@@ -2406,7 +2404,7 @@ ftvItem.prototype = {
 
     // From folderUtils.jsm
     let properties = getFolderProperties(this._folder, this.open);
-    if (this._folder.getFlag(nsMsgFolderFlags.Virtual)) {
+    if (this._folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
       properties += " specialFolder-Smart";
       // a second possibility for customized smart folders
       properties += " specialFolder-" + this._folder.name.replace(/\s+/g, "");
@@ -2520,7 +2518,7 @@ var gFolderTreeController = {
       return;
     }
 
-    if (folder.flags & nsMsgFolderFlags.Virtual) {
+    if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
       this.editVirtualFolder(folder);
       return;
     }
@@ -2619,18 +2617,18 @@ var gFolderTreeController = {
     let folder = folders[0];
 
     // For newsgroups, "delete" means "unsubscribe".
-    if (folder.server.type == "nntp" && !folder.getFlag(nsMsgFolderFlags.Virtual)) {
+    if (folder.server.type == "nntp" && !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
       MsgUnsubscribe(folders);
       return;
     }
 
-    var canDelete = (folder.isSpecialFolder(nsMsgFolderFlags.Junk, false)) ?
+    var canDelete = (folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false)) ?
       CanRenameDeleteJunkMail(folder.URI) : folder.deletable;
 
     if (!canDelete)
       throw new Error("Can't delete folder: " + folder.name);
 
-    if (folder.flags & nsMsgFolderFlags.Virtual) {
+    if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
       let confirmation = gFolderTreeView.messengerBundle
                                         .getString("confirmSavedSearchDeleteMessage");
       let title = gFolderTreeView.messengerBundle
@@ -2669,7 +2667,7 @@ var gFolderTreeController = {
           folder.parent.isServer) {
         let subFolders = gFolderTreeView
                            ._allFoldersWithFlag(gFolderTreeView._sortedAccounts(),
-                            nsMsgFolderFlags.Trash, false);
+                            Ci.nsMsgFolderFlags.Trash, false);
         for (let trash of subFolders)
           trash.emptyTrash(msgWindow, null);
       }
@@ -2687,7 +2685,7 @@ var gFolderTreeController = {
   emptyJunk: function ftc_emptyJunk(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
 
-    if (!folder || !folder.getFlag(nsMsgFolderFlags.Junk))
+    if (!folder || !folder.getFlag(Ci.nsMsgFolderFlags.Junk))
       return;
 
     if (!this._checkConfirmationPrompt("emptyJunk", folder))
@@ -2856,7 +2854,7 @@ ftv_SmartItem.prototype = {
         if (!smartMode.isSmartFolder(folder)) {
           this._children.push(new ftv_SmartItem(folder));
         }
-        else if (folder.flags & nsMsgFolderFlags.Inbox) {
+        else if (folder.getFlag(Ci.nsMsgFolderFlags.Inbox)) {
           let subIter = fixIterator(folder.subFolders, Ci.nsIMsgFolder);
           for (let subfolder of subIter) {
             if (!smartMode.isSmartFolder(subfolder))

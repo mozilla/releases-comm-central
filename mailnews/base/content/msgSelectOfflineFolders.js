@@ -17,7 +17,7 @@ var gSelectOffline = {
       if (this._folder.isServer)
         return " isServer-true";
 
-      if (this._folder.getFlag(nsMsgFolderFlags.Offline))
+      if (this._folder.getFlag(Ci.nsMsgFolderFlags.Offline))
         properties += " synchronize-true";
 
       return properties;
@@ -87,9 +87,9 @@ var gSelectOffline = {
 
     // Save our current state for rollback, if necessary.
     if (!this._rollbackMap.has(folder))
-      this._rollbackMap.set(folder, folder.getFlag(nsMsgFolderFlags.Offline));
+      this._rollbackMap.set(folder, folder.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-    folder.toggleFlag(nsMsgFolderFlags.Offline);
+    folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
     gFolderTreeView._tree.invalidateRow(aRow);
   },
 
@@ -100,8 +100,8 @@ var gSelectOffline = {
   onCancel: function() {
     gFolderTreeView.unload();
     for (let [folder, value] of this._rollbackMap) {
-      if (value != folder.getFlag(nsMsgFolderFlags.Offline))
-        folder.toggleFlag(nsMsgFolderFlags.Offline);
+      if (value != folder.getFlag(Ci.nsMsgFolderFlags.Offline))
+        folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
     }
   }
 };

@@ -21,8 +21,6 @@ var trashFolder;
 var trashSubfolder;
 var inboxSet;
 
-var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
@@ -34,7 +32,7 @@ function setupModule(module) {
   inboxSubfolder = inboxFolder.getChildNamed("UnreadFoldersA");
 
   trashFolder = inboxFolder.server.rootFolder.getFolderWithFlags(
-    nsMsgFolderFlags.Trash);
+    Ci.nsMsgFolderFlags.Trash);
   trashFolder.createSubfolder("UnreadFoldersB", null);
   trashSubfolder = trashFolder.getChildNamed("UnreadFoldersB");
 

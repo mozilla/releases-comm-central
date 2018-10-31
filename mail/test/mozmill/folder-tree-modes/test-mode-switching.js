@@ -45,7 +45,7 @@ function setupModule(module) {
   favoriteFolder = inboxFolder.getChildNamed("FavoriteFolder");
 
   make_new_sets_in_folder(unreadFolder, [{count: 1}]);
-  favoriteFolder.flags |= Ci.nsMsgFolderFlags.Favorite;
+  favoriteFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
   toggle_menu = mc.e("menu_compactFolderView");
   toggle_appmenu = mc.e("appmenu_compactFolderView");
