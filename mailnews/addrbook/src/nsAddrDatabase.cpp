@@ -2429,14 +2429,14 @@ nsAddrDBEnumerator::GetNext(nsISupports **aResult)
 
   if (!mDbTable || !mDb->GetEnv())
   {
-      return NS_ERROR_NULL_POINTER;
+    return NS_ERROR_NULL_POINTER;
   }
 
   if (!mRowCursor)
   {
-       mDbTable->GetTableRowCursor(mDb->GetEnv(), -1,
-                                   getter_AddRefs(mRowCursor));
-       NS_ENSURE_TRUE(mRowCursor, NS_ERROR_FAILURE);
+    mDbTable->GetTableRowCursor(mDb->GetEnv(), -1,
+                                getter_AddRefs(mRowCursor));
+    NS_ENSURE_TRUE(mRowCursor, NS_ERROR_FAILURE);
   }
 
   nsCOMPtr<nsIAbCard> resultCard;
