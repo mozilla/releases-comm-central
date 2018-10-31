@@ -757,6 +757,12 @@ NS_IMETHODIMP nsAbMDBDirectory::DropCard(nsIAbCard* aCard, bool needToCopyCard)
   }
   else {
     mDatabase->CreateNewCardAndAddToDB(newCard, true /* notify */, this);
+    nsCOMPtr<nsIObserverService> observerService = mozilla::services::GetObserverService();
+    if (observerService) {
+      nsAutoCString thisUID;
+      this->GetUID(thisUID);
+      observerService->NotifyObservers(newCard, "addrbook-contact-created", NS_ConvertUTF8toUTF16(thisUID).get());
+    }
   }
   mDatabase->Commit(nsAddrDBCommitType::kLargeCommit);
   return NS_OK;
