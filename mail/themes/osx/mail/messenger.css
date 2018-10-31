@@ -647,7 +647,7 @@ button[type="menu-button"] > button {
   margin: 1px;
 }
 
-.dropmarker-icon {
+button .dropmarker-icon {
   list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
 }
 
