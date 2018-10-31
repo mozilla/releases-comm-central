@@ -18,8 +18,8 @@
 <!ENTITY htmlComposeHeader.label              "HTML">
 <!ENTITY font.label                           "Font:">
 <!ENTITY font.accesskey                       "n">
-<!ENTITY size.label                           "Size:">
-<!ENTITY size.accesskey                       "z">
+<!ENTITY fontSize.label                       "Size:">
+<!ENTITY fontSize.accesskey                   "z">
 <!ENTITY useReaderDefaults.label              "Use reader's default colors">
 <!ENTITY useReaderDefaults.accesskey          "d">
 <!ENTITY fontColor.label                      "Text Color:">
