@@ -2872,7 +2872,8 @@ function ComposeStartup(aParams) {
             addCommandObserver(gMsgEditorCreationObserver, "obs_documentCreated");
 
     // Load empty page to create the editor.
-    editorElement.webNavigation.loadURI("about:blank", 0, null, null, null);
+    editorElement.webNavigation.loadURI("about:blank", 0, null, null, null,
+      Services.scriptSecurityManager.getSystemPrincipal());
   } catch (e) {
     Cu.reportError(e);
   }

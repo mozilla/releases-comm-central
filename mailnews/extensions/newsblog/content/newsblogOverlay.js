@@ -222,7 +222,8 @@ var FeedMessageHandler = {
             .loadURI(uri);
         } else if (aWhere.messagepane) {
           let loadFlag = getBrowser().webNavigation.LOAD_FLAGS_NONE;
-          getBrowser().webNavigation.loadURI(url, loadFlag, null, null, null);
+          getBrowser().webNavigation.loadURI(url, loadFlag, null, null, null,
+            Services.scriptSecurityManager.getSystemPrincipal());
         } else if (aWhere.tab) {
           openContentTab(url, "tab", "^");
         } else if (aWhere.window) {

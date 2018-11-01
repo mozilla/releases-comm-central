@@ -406,11 +406,12 @@ function EditorLoadUrl(url)
 {
   try {
     if (url)
-      GetCurrentEditorElement().webNavigation.loadURI(url,                // uri string
-         Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,  // load flags
-         null,                                                            // referrer
-         null,                                                            // post-data stream
-         null);
+      GetCurrentEditorElement().webNavigation.loadURI(url,  // uri string
+         Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,       // load flags
+         null,                                              // referrer
+         null,                                              // post-data stream
+         null,
+         Services.scriptSecurityManager.getSystemPrincipal());
   } catch (e) { dump(" EditorLoadUrl failed: "+e+"\n"); }
 }
 

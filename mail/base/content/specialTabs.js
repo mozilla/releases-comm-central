@@ -816,7 +816,10 @@ var specialTabs = {
       // Now start loading the content.
       aTab.title = this.loadingTabString;
 
-      aTab.browser.loadURI(aArgs.contentPage);
+      let params = {
+        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      }
+      aTab.browser.loadURI(aArgs.contentPage, params);
 
       this.lastBrowserId++;
     },
@@ -1238,7 +1241,10 @@ var specialTabs = {
 
       // Now start loading the content.
       aTab.title = this.loadingTabString;
-      aTab.browser.loadURI(aArgs.chromePage);
+      let params = {
+        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      };
+      aTab.browser.loadURI(aArgs.chromePage, params);
 
       this.lastBrowserId++;
     },
