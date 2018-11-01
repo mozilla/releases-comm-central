@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<blocklist lastupdate="1536186868443" xmlns="http://www.mozilla.org/2006/addons-blocklist">
+<blocklist lastupdate="1538996335645" xmlns="http://www.mozilla.org/2006/addons-blocklist">
   <emItems>
     <emItem blockID="i334" id="{0F827075-B026-42F3-885D-98981EE7B1AE}">
       <prefs/>
@@ -2229,6 +2229,26 @@
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
+    <emItem blockID="3108c151-9f25-4eca-8d80-a2fbb2d9bd07" id="updater-pro-unlisted@mozilla.com">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="54b3e69a-40ae-4be5-b7cf-cf51c526dcfb" id="/^((\{c9226c62-9948-4038-b247-2b95a921135b\})|(\{5de34d4f-b891-4575-b54b-54c53b4e6418\})|(\{9f7ac3be-8f1c-47c6-8ebe-655b29eb7f21\})|(\{bb33ccaf-e279-4253-8946-cfae19a35aa4\}))$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="c651780e-c185-4d6c-b509-d34673c158a3" id="Safe@vietbacsecurity.com">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="89d714f6-9f35-4107-b8af-a16777f66337" id="admin@vietbacsecurity.com">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="dd5b0fa4-48fd-4bf6-943d-34de125bf502" id="{80869932-37ba-4dd4-8dfe-2ef30a2067cc}">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
   </emItems>
   <pluginItems>
     <pluginItem blockID="p1054">
@@ -2241,15 +2261,15 @@
       <infoURL>https://get.adobe.com/shockwave/</infoURL>
       <versionRange maxVersion="12.2.0.162" minVersion="0" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
-    <pluginItem blockID="832dc9ff-3314-4df2-abcf-7bd65a645371">
-      <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
-      <infoURL>https://get.adobe.com/flashplayer/</infoURL>
-      <versionRange maxVersion="27.0.0.159" minVersion="0" severity="0" vulnerabilitystatus="1"/>
-    </pluginItem>
     <pluginItem blockID="49b843cc-a8fc-4ede-be0c-a0da56d0214f" os="Linux">
       <match exp="libflashplayer\.so" name="filename"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
-      <versionRange maxVersion="27.0.0.159" minVersion="0" severity="0" vulnerabilitystatus="1"/>
+      <versionRange maxVersion="30.0.0.113" minVersion="0" severity="0" vulnerabilitystatus="1"/>
+    </pluginItem>
+    <pluginItem blockID="832dc9ff-3314-4df2-abcf-7bd65a645371">
+      <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
+      <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+      <versionRange maxVersion="30.0.0.113" minVersion="0" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
   </pluginItems>
   <gfxItems>
