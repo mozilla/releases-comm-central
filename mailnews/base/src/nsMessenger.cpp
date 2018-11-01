@@ -595,6 +595,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy *aWin, const nsACString& aURL)
   loadState->SetURI(uri);
   loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
   loadState->SetFirstParty(true);
+  loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
   return mDocShell->LoadURI(loadState);
 }
 

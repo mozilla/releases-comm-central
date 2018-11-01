@@ -28,6 +28,7 @@
 #include "nsProxyRelease.h"
 #include "mozilla/Encoding.h"
 #include "nsDocShellLoadState.h"
+#include "nsContentUtils.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 {
@@ -800,6 +801,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
   loadState->SetLoadFlags(aLoadFlags);
   loadState->SetLoadType(MAKE_LOAD_TYPE(LOAD_NORMAL, aLoadFlags));
   loadState->SetFirstParty(false);
+  loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
   return docShell->LoadURI(loadState);
 }
 

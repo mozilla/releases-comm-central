@@ -44,6 +44,7 @@
 #include "nsIURIMutator.h"
 #include "nsTArray.h"
 #include "nsDocShellLoadState.h"
+#include "nsContentUtils.h"
 
 #include "../../base/src/MailnewsLoadContextInfo.h"
 
@@ -316,6 +317,7 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI *aUrl,
     if (mOpenAttachmentOperation)
       loadState->SetLoadType(LOAD_LINK);
     loadState->SetFirstParty(false);
+    loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
     rv = docShell->LoadURI(loadState);
   }
   else
@@ -452,6 +454,7 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(const char *aContentType,
       loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_IS_LINK);
       loadState->SetLoadType(LOAD_LINK);
       loadState->SetFirstParty(false);
+      loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
       return docShell->LoadURI(loadState);
     } else {
       return RunNewsUrl(url, aMsgWindow, aDisplayConsumer);

@@ -64,6 +64,7 @@
 #include "nsIMsgPluggableStore.h"
 #include "../../base/src/MailnewsLoadContextInfo.h"
 #include "nsDocShellLoadState.h"
+#include "nsContentUtils.h"
 
 #define PREF_MAIL_ROOT_IMAP "mail.root.imap"            // old - for backward compatibility only
 #define PREF_MAIL_ROOT_IMAP_REL "mail.root.imap-rel"
@@ -632,6 +633,7 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
       if (aImapAction == nsImapUrl::nsImapOpenMimePart)
         loadState->SetLoadType(LOAD_LINK);
       loadState->SetFirstParty(false);
+      loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
       rv = docShell->LoadURI(loadState);
     }
     else
@@ -1066,6 +1068,7 @@ nsresult nsImapService::GetMessageFromUrl(nsIImapUrl *aImapUrl,
     loadState->SetURI(url);
     loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
     loadState->SetFirstParty(false);
+    loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
     rv = docShell->LoadURI(loadState);
   }
   else
