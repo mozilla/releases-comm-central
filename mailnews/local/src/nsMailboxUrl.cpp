@@ -416,11 +416,18 @@ nsresult nsMailboxUrl::ParseUrl()
 nsresult nsMailboxUrl::SetSpecInternal(const nsACString &aSpec)
 {
   nsresult rv = nsMsgMailNewsUrl::SetSpecInternal(aSpec);
-  // Do not try to parse URLs of the form
-  // mailbox://user@domain@server/folder?number=nn since this will fail.
-  // Check for format lacking absolute path.
-  if (NS_SUCCEEDED(rv) && PromiseFlatCString(aSpec).Find("///") != kNotFound)
-    rv = ParseUrl();
+  if (NS_SUCCEEDED(rv)) {
+    // Do not try to parse URLs of the form
+    // mailbox://user@domain@server/folder?number=nn since this will fail.
+    // Check for format lacking absolute path.
+    if (PromiseFlatCString(aSpec).Find("///") != kNotFound) {
+      rv = ParseUrl();
+    } else {
+      // We still need to parse the search part to populate
+      // m_messageKey etc.
+      ParseSearchPart();
+    }
+  }
   return rv;
 }
 
