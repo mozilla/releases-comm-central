@@ -15,6 +15,7 @@
 #include "nsIURIContentListener.h"
 #include "nsIMimeMiscStatus.h"
 #include "nsWeakReference.h"
+#include "nsIWeakReferenceUtils.h"
 #include "nsIInterfaceRequestor.h"
 
 class nsMsgWindow : public nsIMsgWindow,

@@ -19,6 +19,7 @@
 #include "nsIURL.h"
 #include "nsIFile.h"
 #include "nsWeakReference.h"
+#include "nsIWeakReferenceUtils.h"
 #include "nsIMsgFilterList.h"
 #include "nsIUrlListener.h"
 #include "nsIMsgHdr.h"

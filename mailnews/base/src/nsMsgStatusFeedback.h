@@ -14,6 +14,7 @@
 #include "nsIProgressEventSink.h"
 #include "nsIStringBundle.h"
 #include "nsWeakReference.h"
+#include "nsIWeakReferenceUtils.h"
 
 class nsMsgStatusFeedback : public nsIMsgStatusFeedback,
                             public nsIProgressEventSink,

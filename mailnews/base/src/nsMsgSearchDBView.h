@@ -13,6 +13,7 @@
 #include "nsMsgXFViewThread.h"
 #include "nsCOMArray.h"
 #include "mozilla/UniquePtr.h"
+#include "nsIWeakReferenceUtils.h"
 
 class nsMsgSearchDBView : public nsMsgGroupView,
                           public nsIMsgCopyServiceListener,

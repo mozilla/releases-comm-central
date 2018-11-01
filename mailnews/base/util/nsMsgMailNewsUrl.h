@@ -23,7 +23,7 @@
 #include "nsICacheEntry.h"
 #include "nsICacheSession.h"
 #include "nsIMimeMiscStatus.h"
-#include "nsWeakReference.h"
+#include "nsIWeakReferenceUtils.h"
 #include "nsString.h"
 #include "nsIURIMutator.h"
 

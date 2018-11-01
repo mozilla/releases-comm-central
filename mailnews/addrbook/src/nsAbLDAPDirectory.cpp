@@ -34,6 +34,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
+#include "nsIWeakReference.h"
 
 #define kDefaultMaxHits 100
 

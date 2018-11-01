@@ -26,7 +26,6 @@
 #include "MailNewsTypes.h"
 #include "nsIMessengerWindowService.h"
 #include "prprf.h"
-#include "nsIWeakReference.h"
 #include "nsIStringBundle.h"
 #include "nsIAlertsService.h"
 #include "nsIPrefService.h"

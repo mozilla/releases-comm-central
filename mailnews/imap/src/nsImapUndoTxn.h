@@ -15,7 +15,7 @@
 #include "nsTArray.h"
 #include "nsIMsgOfflineImapOperation.h"
 #include "nsCOMPtr.h"
-#include "nsWeakReference.h"
+#include "nsIWeakReferenceUtils.h"
 #include "nsCOMArray.h"
 
 class nsImapMoveCopyMsgTxn : public nsMsgTxn, nsIUrlListener

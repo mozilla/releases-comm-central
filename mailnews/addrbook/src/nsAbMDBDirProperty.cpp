@@ -12,6 +12,7 @@
 #include "nsArrayUtils.h"
 #include "mdb.h"
 #include "nsComponentManagerUtils.h"
+#include "nsIWeakReference.h"
 
 nsAbMDBDirProperty::nsAbMDBDirProperty(void)
   : nsAbDirProperty()

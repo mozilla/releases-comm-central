@@ -11,6 +11,7 @@
 #include "nsIXULWindow.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
+#include "nsIWeakReference.h"
 #include "nsIMimeStreamConverter.h"
 #include "nsInterfaceHashtable.h"
 

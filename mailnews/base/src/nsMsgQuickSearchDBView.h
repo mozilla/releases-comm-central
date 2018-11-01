@@ -12,7 +12,7 @@
 #include "nsIMsgSearchSession.h"
 #include "nsCOMArray.h"
 #include "nsIMsgHdr.h"
-
+#include "nsIWeakReferenceUtils.h"
 
 class nsMsgQuickSearchDBView : public nsMsgThreadedDBView, public nsIMsgSearchNotify
 {

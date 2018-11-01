@@ -16,7 +16,6 @@
 #include "nsCycleCollectionParticipant.h"
 #include "nsDataHashtable.h"
 #include "nsIInterfaceRequestor.h"
-#include "nsWeakReference.h"
 #include "nsNetUtil.h"
 #include "nsIDBChangeListener.h"
 #include "nsIUrlListener.h"
