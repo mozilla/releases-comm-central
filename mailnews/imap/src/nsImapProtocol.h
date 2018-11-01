@@ -28,7 +28,7 @@
 #include "nsImapFlagAndUidState.h"
 #include "nsIMAPNamespace.h"
 #include "nsTArray.h"
-#include "nsWeakPtr.h"
+#include "nsIWeakReferenceUtils.h"
 #include "nsMsgLineBuffer.h" // we need this to use the nsMsgLineStreamBuffer helper class...
 #include "nsIInputStream.h"
 #include "nsIMsgIncomingServer.h"

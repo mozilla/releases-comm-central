@@ -1185,9 +1185,9 @@ nsMsgComposeService::RegisterComposeDocShell(nsIDocShell *aDocShell,
   nsresult rv;
 
   // add the msg compose / dom window mapping to our hash table
-  nsCOMPtr<nsIWeakReference> weakDocShell = do_GetWeakReference(aDocShell, &rv);
+  nsWeakPtr weakDocShell = do_GetWeakReference(aDocShell, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
-  nsCOMPtr<nsIWeakReference> weakMsgComposePtr = do_GetWeakReference(aComposeObject);
+  nsWeakPtr weakMsgComposePtr = do_GetWeakReference(aComposeObject);
   NS_ENSURE_SUCCESS(rv,rv);
   mOpenComposeWindows.Put(weakDocShell, weakMsgComposePtr);
 
@@ -1200,7 +1200,7 @@ nsMsgComposeService::UnregisterComposeDocShell(nsIDocShell *aDocShell)
   NS_ENSURE_ARG_POINTER(aDocShell);
 
   nsresult rv;
-  nsCOMPtr<nsIWeakReference> weakDocShell = do_GetWeakReference(aDocShell, &rv);
+  nsWeakPtr weakDocShell = do_GetWeakReference(aDocShell, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
   mOpenComposeWindows.Remove(weakDocShell);
@@ -1220,10 +1220,10 @@ nsMsgComposeService::GetMsgComposeForDocShell(nsIDocShell *aDocShell,
 
   // get the weak reference for our dom window
   nsresult rv;
-  nsCOMPtr<nsIWeakReference> weakDocShell = do_GetWeakReference(aDocShell, &rv);
+  nsWeakPtr weakDocShell = do_GetWeakReference(aDocShell, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIWeakReference> weakMsgComposePtr;
+  nsWeakPtr weakMsgComposePtr;
 
   if (!mOpenComposeWindows.Get(weakDocShell,
                                getter_AddRefs(weakMsgComposePtr)))

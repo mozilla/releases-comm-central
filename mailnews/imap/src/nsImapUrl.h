@@ -10,7 +10,7 @@
 #include "nsIImapUrl.h"
 #include "nsCOMPtr.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsWeakPtr.h"
+#include "nsIWeakReferenceUtils.h"
 #include "nsIFile.h"
 #include "mozilla/Mutex.h"
 

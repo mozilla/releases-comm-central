@@ -17,7 +17,7 @@
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
 #include "nsIDBChangeListener.h"
-#include "nsWeakPtr.h"
+#include "nsIWeakReferenceUtils.h"
 #include "nsIMsgWindow.h"
 #include "nsImapMoveCoalescer.h"
 #include "nsAutoPtr.h"

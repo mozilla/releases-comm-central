@@ -26,7 +26,6 @@
 #include "plstr.h"
 #include "rdf.h"
 #include "nsCOMPtr.h"
-#include "nsWeakPtr.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsIObserver.h"
 #include "nsIObserverService.h"

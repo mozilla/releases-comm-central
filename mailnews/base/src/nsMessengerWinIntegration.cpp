@@ -649,7 +649,7 @@ void nsMessengerWinIntegration::FillToolTipInfo()
   nsAutoString toolTipText;
   nsAutoString animatedAlertText;
   nsCOMPtr<nsIMsgFolder> folder;
-  nsCOMPtr<nsIWeakReference> weakReference;
+  nsWeakPtr weakReference;
   int32_t numNewMessages = 0;
 
   uint32_t count = 0;
@@ -732,7 +732,7 @@ nsresult nsMessengerWinIntegration::GetFirstFolderWithNewMail(nsACString& aFolde
   NS_ENSURE_TRUE(mFoldersWithNewMail, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIMsgFolder> folder;
-  nsCOMPtr<nsIWeakReference> weakReference;
+  nsWeakPtr weakReference;
   int32_t numNewMessages = 0;
 
   uint32_t count = 0;
@@ -846,7 +846,7 @@ nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, const n
   // if we got new mail show a icon in the system tray
   if (aProperty.Equals(kBiffState) && mFoldersWithNewMail)
   {
-    nsCOMPtr<nsIWeakReference> weakFolder = do_GetWeakReference(aItem);
+    nsWeakPtr weakFolder = do_GetWeakReference(aItem);
     uint32_t indexInNewArray;
     nsresult rv = mFoldersWithNewMail->IndexOf(0, weakFolder, &indexInNewArray);
     bool folderFound = NS_SUCCEEDED(rv);

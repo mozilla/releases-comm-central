@@ -8,7 +8,7 @@
 #include "MailNewsTypes.h"
 #include "nsIAutoSyncState.h"
 #include "nsIUrlListener.h"
-#include "nsWeakPtr.h"
+#include "nsIWeakReferenceUtils.h"
 #include "nsTHashtable.h"
 #include "nsHashKeys.h"
 #include "nsTArray.h"

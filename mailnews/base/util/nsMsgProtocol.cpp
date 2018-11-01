@@ -1097,7 +1097,7 @@ public:
 protected:
   virtual ~nsMsgProtocolStreamProvider() {}
 
-  nsCOMPtr<nsIWeakReference> mMsgProtocol;
+  nsWeakPtr mMsgProtocol;
   nsCOMPtr<nsIInputStream>  mInStream;
 };
 
@@ -1119,7 +1119,7 @@ public:
 protected:
   virtual ~nsMsgFilePostHelper() {}
   nsCOMPtr<nsIOutputStream> mOutStream;
-  nsCOMPtr<nsIWeakReference> mProtInstance;
+  nsWeakPtr mProtInstance;
 };
 
 NS_IMPL_ISUPPORTS(nsMsgFilePostHelper, nsIStreamListener, nsIRequestObserver)

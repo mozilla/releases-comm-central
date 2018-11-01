@@ -15,7 +15,7 @@
 #include "nsTArray.h"
 #include "nsCOMPtr.h"
 #include "nsIFolderListener.h"
-#include "nsWeakPtr.h"
+#include "nsIWeakReferenceUtils.h"
 
 class nsLocalUndoFolderListener;
 

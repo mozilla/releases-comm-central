@@ -17,7 +17,6 @@
 #include "nsInterfaceHashtable.h"
 #include "nspr.h"
 #include "nsWeakReference.h"
-#include "nsWeakPtr.h"
 #include "nsIDNSListener.h"
 #include "nsICancelable.h"
 #include "nsIRequest.h"

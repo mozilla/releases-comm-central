@@ -456,7 +456,7 @@ void nsMessengerUnixIntegration::FillToolTipInfo()
   uint32_t count = 0;
   NS_ENSURE_SUCCESS_VOID(mFoldersWithNewMail->GetLength(&count));
 
-  nsCOMPtr<nsIWeakReference> weakReference;
+  nsWeakPtr weakReference;
   nsCOMPtr<nsIMsgFolder> folder = nullptr;
   nsCOMPtr<nsIMsgFolder> folderWithNewMail = nullptr;
 
@@ -563,7 +563,7 @@ nsresult nsMessengerUnixIntegration::GetFirstFolderWithNewMail(nsACString& aFold
   NS_ENSURE_TRUE(mFoldersWithNewMail, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIMsgFolder> folder;
-  nsCOMPtr<nsIWeakReference> weakReference;
+  nsWeakPtr weakReference;
 
   uint32_t count = 0;
   nsresult rv = mFoldersWithNewMail->GetLength(&count);
@@ -676,7 +676,7 @@ nsMessengerUnixIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, const 
   // if we got new mail show an icon in the system tray
   if (aProperty.Equals(kBiffState) && mFoldersWithNewMail)
   {
-    nsCOMPtr<nsIWeakReference> weakFolder = do_GetWeakReference(aItem);
+    nsWeakPtr weakFolder = do_GetWeakReference(aItem);
     uint32_t indexInNewArray;
     nsresult rv = mFoldersWithNewMail->IndexOf(0, weakFolder, &indexInNewArray);
     bool folderFound = NS_SUCCEEDED(rv);

@@ -17,7 +17,7 @@
 #include "nsITimer.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgShutdown.h"
-#include "nsWeakPtr.h"
+#include "nsIWeakReferenceUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 // This is the listener class for the send operation. We have to create this class
