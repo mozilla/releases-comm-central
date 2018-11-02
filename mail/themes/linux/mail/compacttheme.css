@@ -9,10 +9,6 @@
   -moz-appearance: none !important;
 }
 
-#mail-menubar {
-  color: var(--chrome-color);
-}
-
 #mail-menubar > menu:not([open]) {
   color: inherit;
 }

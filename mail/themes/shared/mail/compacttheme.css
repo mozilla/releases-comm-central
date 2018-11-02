@@ -7,9 +7,9 @@
    there are overrides for each platform in their compacttheme.css files. */
 
 :root:-moz-lwtheme {
-  --toolbar-color: var(--chrome-color);
+  --toolbar-color: var(--lwt-text-color);
   --toolbar-non-lwt-bgcolor: var(--toolbar-bgcolor);
-  --toolbar-non-lwt-textcolor: var(--chrome-color);
+  --toolbar-non-lwt-textcolor: var(--lwt-text-color);
   --toolbar-non-lwt-bgimage: none;
   --lwt-toolbar-field-border-color: hsla(240,5%,5%,.25);
 
@@ -17,10 +17,6 @@
 }
 
 :root:-moz-lwtheme-brighttext {
-  /* Chrome */
-  --chrome-background-color: hsl(240, 5%, 5%);
-  --chrome-color: rgb(249, 249, 250);
-
   /* Toolbar buttons */
   --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
   --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
@@ -35,25 +31,15 @@
 }
 
 :root:-moz-lwtheme-darktext {
-  --chrome-background-color: #e3e4e6;
-  --chrome-color: #18191a;
-
   /* composer header fields bottom border */
   --composer-header-border-color: #aaa;
 }
 
-/* Change the base colors for the mail chrome */
-
 #headers-box,
-#navigation-toolbox {
-  background-color: var(--chrome-background-color);
-  color: var(--chrome-color);
-}
-
 #msgHeaderView {
   background-color: var(--toolbar-bgcolor) !important;
   background-image: none !important;
-  color: var(--chrome-color);
+  color: var(--lwt-text-color);
 }
 
 /* Let the message headers use the theme colors */
@@ -72,8 +58,8 @@
 
 /* Quick-Filter-Bar */
 #quick-filter-bar:-moz-lwtheme {
-  background-color: var(--chrome-background-color);
-  color: var(--chrome-color);
+  background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
 }
 #quick-filter-bar:-moz-lwtheme-brighttext {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
@@ -126,7 +112,7 @@
 textbox.textbox-addressingWidget,
 .dummy-row-cell:not(:first-child) {
   border-bottom-color: var(--composer-header-border-color) !important;
-  color: var(--chrome-color);
+  color: var(--lwt-text-color);
 }
 
 #msgIdentity:hover,

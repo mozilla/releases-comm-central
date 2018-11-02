@@ -6,7 +6,7 @@
 
 /* Get rid of 1px bright strip at the top of window */
 #messengerWindow[tabsintitlebar] #titlebar-content {
-  background: var(--chrome-background-color);
+  background: var(--lwt-accent-color);
 }
 
 #tabs-toolbar:-moz-lwtheme-brighttext {
@@ -43,7 +43,7 @@
 
 #compose-toolbar-sizer {
   background-image: none;
-  background-color: var(--chrome-background-color);
+  background-color: var(--lwt-accent-color);
 }
 
 .tabmail-tab[selected="true"] {
