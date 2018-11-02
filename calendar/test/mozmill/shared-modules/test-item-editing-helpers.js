@@ -504,7 +504,7 @@ function addAttendees(dialog, innerFrame, attendeesString) {
     let { eid: dlgid } = helpersForController(dialog);
 
     let attendees = attendeesString.split(",");
-    for (var attendee of attendees) {
+    for (let attendee of attendees) {
         let calAttendee = innerFrame.window.attendees.find(
             aAtt => aAtt.id == `mailto:${attendee}`
         );
@@ -538,7 +538,7 @@ function deleteAttendees(event, innerFrame, attendeesString) {
 
     // Now delete the attendees.
     let attendees = attendeesString.split(",");
-    for (var attendee of attendees) {
+    for (let attendee of attendees) {
         let attendeeToDelete = iframeLookup(`${ATTENDEES_ROW}/{"attendeeid":"mailto:${attendee}"}`);
         // Unfortunately the context menu of the attendees is not working in
         // Mozmill tests. Thus we have to use the JS-functions.

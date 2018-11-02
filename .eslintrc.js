@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-env node */
 
 module.exports = {
   "root": true,
@@ -43,6 +42,11 @@ module.exports = {
     "files": "**/*.*html",
     "rules": {
       "eol-last": "off",
+    },
+  }, {
+    "files": "**/.eslintrc.js",
+    "env": {
+      "node": true,
     },
   }],
 };

@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = { // eslint-disable-line no-undef
+module.exports = {
   "globals": {
     "Abortable": true,
     "AccountConfig": true,
