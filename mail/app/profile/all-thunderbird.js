@@ -844,6 +844,12 @@ pref("mail.save_msg_filename_underscores_for_space", false);
 pref("security.sandbox.content.level", 0);
 #endif
 
+#if defined(NIGHTLY_BUILD) && defined(XP_MACOSX) && defined(MOZ_SANDBOX)
+// Start the Mac sandbox immediately during child process startup instead
+// of when messaged by the parent after the message loop is running.
+pref("security.sandbox.content.mac.earlyinit", false);
+#endif
+
 // Enable FIDO U2F
 pref("security.webauth.u2f", true);
 

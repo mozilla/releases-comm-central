@@ -41,6 +41,10 @@
 #include "FuzzerDefs.h"
 #endif
 
+#if defined(XP_MACOSX) && defined(MOZ_CONTENT_SANDBOX)
+#include "mozilla/Sandbox.h"
+#endif
+
 #ifdef MOZ_LINUX_32_SSE2_STARTUP_ERROR
 #include <cpuid.h>
 #include "mozilla/Unused.h"
@@ -261,6 +265,16 @@ uint32_t gBlocklistInitFlags = eDllBlocklistInitFlagDefault;
 int main(int argc, char* argv[], char* envp[])
 {
   mozilla::TimeStamp start = mozilla::TimeStamp::Now();
+
+#if defined(XP_MACOSX) && defined(MOZ_CONTENT_SANDBOX)
+  if (argc > 1 && IsArg(argv[1], "contentproc")) {
+    std::string err;
+    if (!mozilla::EarlyStartMacSandboxIfEnabled(argc, argv, err)) {
+      Output("Sandbox error: %s\n", err.c_str());
+      MOZ_CRASH("Sandbox initialization failed");
+    }
+  }
+#endif
 
 #ifdef MOZ_BROWSER_CAN_BE_CONTENTPROC
   // We are launching as a content process, delegate to the appropriate
