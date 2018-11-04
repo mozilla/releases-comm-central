@@ -79,7 +79,7 @@ urlListener.prototype =
 
   OnStopRunningUrl: function(aUrl, aExitCode)
   {
-    var folderSummaryInfoEl = document.getElementById('folderSummaryInfo');
+    let folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
     folderSummaryInfoEl.parseFolder(this.mFolder, null, {});
     gPendingPreviewFetchRequests--;
 
@@ -93,11 +93,8 @@ urlListener.prototype =
 function onAlertLoad()
 {
   prefillAlertInfo();
-  // read out our initial settings from prefs.
-  try
-  {
-    gOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
-  } catch (ex) {}
+
+  gOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
 
   // bogus call to make sure the window is moved offscreen until we are ready for it.
   resizeAlert(true);

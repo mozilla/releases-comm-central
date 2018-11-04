@@ -10,6 +10,7 @@ for (let script of [
   "chrome://messenger/content/mailWidgets.js",
   "chrome://messenger/content/generalBindings.js",
   "chrome://messenger/content/statuspanel.js",
+  "chrome://messenger/content/foldersummary.js",
 ]) {
   Services.scriptloader.loadSubScript(script, window);
 }

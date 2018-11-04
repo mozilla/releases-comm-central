@@ -15,6 +15,7 @@ messenger.jar:
     content/messenger/extensions.xml                (content/extensions.xml)
     content/messenger/extensionsOverlay.css         (content/extensionsOverlay.css)
     content/messenger/folderDisplay.js              (content/folderDisplay.js)
+    content/messenger/foldersummary.js              (content/foldersummary.js)
     content/messenger/mailWindowOverlay.js          (content/mailWindowOverlay.js)
     content/messenger/mail-compacttheme.js          (content/mail-compacttheme.js)
 *   content/messenger/messageWindow.xul             (content/messageWindow.xul)

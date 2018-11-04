@@ -15,6 +15,7 @@
         onload="onAlertLoad()">
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+  <script type="application/javascript" src="chrome://messenger/content/foldersummary.js"/>
   <script type="application/javascript" src="chrome://messenger/content/newmailalert.js"/>
 
   <stack id="alertContainer" mousethrough="always">
@@ -26,7 +27,7 @@
       <vbox id="alertTextBox">
         <label id="alertTitle"/>
         <separator id="alertGroove" class="groove"/>
-        <folderSummary id="folderSummaryInfo" mousethrough="never"/>
+        <folder-summary id="folderSummaryInfo" mousethrough="never"/>
       </vbox>
     </hbox>
 

@@ -504,7 +504,7 @@
 
          // Use the default content tooltip.
          largeTooltip.hidden = true;
-         return fillInPageTooltip(elt);
+         return false;
        ]]>
      </handler>
      <handler event="popuphiding">

@@ -300,10 +300,10 @@
   </menupopup>
 
   <tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
-  <tooltip id="folderpopup" class="folderSummaryPopup"/>
+  <tooltip id="folderpopup" is="folder-tooltip" onpopupshowing="return this.folderpopupShowing(event);"
+           onpopuphiding="this.folderpopupHiding(event);"/>
 
   <tooltip id="aHTMLTooltip" page="true"/>
-  <tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
 
   <panel id="notification-popup"
          type="arrow"
