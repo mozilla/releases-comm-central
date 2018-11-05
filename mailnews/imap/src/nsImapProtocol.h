@@ -381,6 +381,7 @@ private:
   nsString m_password;
   // Set to the result of nsImapServer::PromptPassword
   nsresult    m_passwordStatus;
+  bool        m_passwordObtained;
 
   bool         m_imapThreadIsRunning;
   void ImapThreadMainLoop(void);
