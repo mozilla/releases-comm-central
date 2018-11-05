@@ -880,15 +880,10 @@ statusbarpanel:-moz-lwtheme,
   background-image: linear-gradient(transparent 40px, -moz-dialog 40px);
 }
 
-.contentTabInstance > findbar {
-  background-color: -moz-dialog;
-  color: -moz-DialogText;
-  text-shadow: none;
-}
-
-.contentTabInstance > findbar:-moz-lwtheme {
+findbar {
   background-color: var(--toolbar-bgcolor);
-  color: var(--toolbar-color, -moz-DialogText);
+  color: var(--toolbar-color);
+  text-shadow: none;
 }
 
 /* ::::: groupbox ::::: */

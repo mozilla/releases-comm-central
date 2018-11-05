@@ -9,6 +9,10 @@
   --lwt-additional-images: none;
   --lwt-background-alignment: right top;
   --lwt-background-tiling: no-repeat;
+
+  --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
+  --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
+  --toolbar-color: var(--toolbar-non-lwt-textcolor);
 }
 
 #ab-toolbox:-moz-lwtheme {
