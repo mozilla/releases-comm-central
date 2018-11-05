@@ -24,7 +24,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
 
       if (!configLocation.exists() || !configLocation.isReadable()) {
         errorCallback("local file not found");
-        return;
+        return new Abortable();
       }
       var contents =
         readURLasUTF8(Services.io.newFileURI(configLocation));
@@ -33,6 +33,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
         domParser.parseFromString(contents, "text/xml"))));
     } catch (e) { errorCallback(e); }
   // }));
+  return new Abortable();
 }
 
 /**
