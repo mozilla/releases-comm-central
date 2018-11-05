@@ -7,7 +7,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
 var CALENDARNAME, CALENDAR_PANEL, TASK_VIEW;
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
+var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
 var setData;
 
 const TITLE = "Task";
@@ -23,6 +23,7 @@ function setupModule(module) {
         helpersForController,
         invokeEventDialog,
         createCalendar,
+        closeAllEventDialogs,
         deleteCalendars
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule(controller);
@@ -165,4 +166,5 @@ function testTaskView() {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }

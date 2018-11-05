@@ -8,7 +8,7 @@ var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers
 
 var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
 var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
-var invokeEventDialog, deleteCalendars, createCalendar, menulistSelect;
+var invokeEventDialog, closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
 var REC_DLG_ACCEPT;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 
@@ -23,12 +23,13 @@ function setupModule(module) {
         EVENT_BOX,
         CANVAS_BOX,
         helpersForController,
-        invokeEventDialog,
-        createCalendar,
-        deleteCalendars,
+        handleOccurrencePrompt,
         switchToView,
         goToDate,
-        handleOccurrencePrompt,
+        invokeEventDialog,
+        closeAllEventDialogs,
+        deleteCalendars,
+        createCalendar,
         menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule(controller);
@@ -135,4 +136,5 @@ function setRecurrence(recurrence) {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }

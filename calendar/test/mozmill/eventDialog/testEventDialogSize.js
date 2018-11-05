@@ -6,7 +6,7 @@ var MODULE_NAME = "testEventDialogSize";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
+var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
 var CALENDARNAME;
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -20,6 +20,7 @@ function setupModule(module) {
         helpersForController,
         invokeEventDialog,
         createCalendar,
+        closeAllEventDialogs,
         deleteCalendars,
         CALENDARNAME,
     } = collector.getModule("calendar-utils"));
@@ -129,6 +130,7 @@ function testTaskDialog() {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }
 
 // Check the dialog is resized large enough to hold the iframe.

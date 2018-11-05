@@ -10,7 +10,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
 
 var CALENDARNAME, CANVAS_BOX, EVENT_BOX, WEEK_VIEW, EVENTPATH;
 var helpersForController, switchToView, invokeEventDialog, getEventDetails, createCalendar;
-var deleteCalendars, goToDate, lookupEventBox;
+var closeAllEventDialogs, deleteCalendars, goToDate, lookupEventBox;
 var helpersForEditUI, setData;
 
 var TITLE1 = "Week View Event";
@@ -30,6 +30,7 @@ function setupModule(module) {
         invokeEventDialog,
         getEventDetails,
         createCalendar,
+        closeAllEventDialogs,
         deleteCalendars,
         goToDate,
         lookupEventBox
@@ -112,4 +113,5 @@ function testWeekView() {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }

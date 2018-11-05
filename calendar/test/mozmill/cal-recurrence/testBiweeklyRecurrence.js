@@ -7,8 +7,8 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
 var CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
-var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
-var invokeEventDialog, viewForward, createCalendar, deleteCalendars, menulistSelect;
+var helpersForController, handleOccurrencePrompt, switchToView, goToDate, invokeEventDialog;
+var viewForward, closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
 
 const HOUR = 8;
 
@@ -25,6 +25,7 @@ function setupModule(module) {
         goToDate,
         invokeEventDialog,
         viewForward,
+        closeAllEventDialogs,
         deleteCalendars,
         createCalendar,
         menulistSelect
@@ -103,4 +104,5 @@ function testBiweeklyRecurrence() {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }

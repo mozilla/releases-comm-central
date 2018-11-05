@@ -9,8 +9,8 @@ var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
-var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
-var invokeEventDialog, viewForward, deleteCalendars, createCalendar, menulistSelect;
+var helpersForController, handleOccurrencePrompt, switchToView, goToDate, invokeEventDialog;
+var viewForward, closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
 var REC_DLG_DAYS, REC_DLG_ACCEPT, REC_DLG_UNTIL_INPUT;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 
@@ -32,6 +32,7 @@ function setupModule(module) {
         goToDate,
         invokeEventDialog,
         viewForward,
+        closeAllEventDialogs,
         deleteCalendars,
         createCalendar,
         menulistSelect
@@ -200,4 +201,5 @@ function checkMultiWeekView(view) {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }

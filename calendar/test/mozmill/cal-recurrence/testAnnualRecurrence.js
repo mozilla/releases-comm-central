@@ -7,8 +7,8 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
 var CALENDARNAME, EVENTPATH, ALLDAY;
-var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
-var invokeEventDialog, deleteCalendars, createCalendar, menulistSelect;
+var helpersForController, handleOccurrencePrompt, switchToView, goToDate, invokeEventDialog;
+var closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
 
 const STARTYEAR = 1950;
 const EPOCH = 1970;
@@ -24,6 +24,7 @@ function setupModule(module) {
         switchToView,
         goToDate,
         invokeEventDialog,
+        closeAllEventDialogs,
         deleteCalendars,
         createCalendar,
         menulistSelect
@@ -80,4 +81,5 @@ function testAnnualRecurrence() {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }

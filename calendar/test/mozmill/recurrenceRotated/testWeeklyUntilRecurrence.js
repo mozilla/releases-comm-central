@@ -10,7 +10,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
 
 var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
 var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
-var invokeEventDialog, viewForward, deleteCalendars, createCalendar, menulistSelect;
+var invokeEventDialog, viewForward, closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
 var REC_DLG_DAYS, REC_DLG_ACCEPT, REC_DLG_UNTIL_INPUT;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 
@@ -32,6 +32,7 @@ function setupModule(module) {
         goToDate,
         invokeEventDialog,
         viewForward,
+        closeAllEventDialogs,
         deleteCalendars,
         createCalendar,
         menulistSelect
@@ -209,4 +210,5 @@ function teardownTest(module) {
         controller.mainMenu.click("#ltnViewRotated");
     }
     controller.waitFor(() => eid("day-view").getNode().orient == "vertical");
+    closeAllEventDialogs();
 }

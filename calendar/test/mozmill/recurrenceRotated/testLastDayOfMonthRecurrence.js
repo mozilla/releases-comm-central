@@ -8,7 +8,7 @@ var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers
 
 var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
 var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
-var invokeEventDialog, deleteCalendars, createCalendar, menulistSelect;
+var invokeEventDialog, closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
 var REC_DLG_ACCEPT;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 
@@ -25,6 +25,7 @@ function setupModule(module) {
         helpersForController,
         invokeEventDialog,
         createCalendar,
+        closeAllEventDialogs,
         deleteCalendars,
         switchToView,
         goToDate,
@@ -143,4 +144,5 @@ function teardownTest(module) {
         controller.mainMenu.click("#ltnViewRotated");
     }
     controller.waitFor(() => eid("day-view").getNode().orient == "vertical");
+    closeAllEventDialogs();
 }

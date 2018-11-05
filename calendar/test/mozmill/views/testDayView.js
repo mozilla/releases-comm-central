@@ -10,7 +10,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
 
 var CALENDARNAME, CANVAS_BOX, EVENT_BOX, DAY_VIEW, LABELDAYBOX, EVENTPATH;
 var helpersForController, invokeEventDialog, getEventDetails, createCalendar;
-var deleteCalendars, goToDate, lookupEventBox;
+var closeAllEventDialogs, deleteCalendars, goToDate, lookupEventBox;
 var helpersForEditUI, setData;
 
 const TITLE1 = "Day View Event";
@@ -30,6 +30,7 @@ function setupModule(module) {
         invokeEventDialog,
         getEventDetails,
         createCalendar,
+        closeAllEventDialogs,
         deleteCalendars,
         goToDate,
         lookupEventBox
@@ -107,4 +108,5 @@ function testDayView() {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }

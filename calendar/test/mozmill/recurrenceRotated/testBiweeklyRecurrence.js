@@ -8,7 +8,7 @@ var MODULE_REQUIRES = ["calendar-utils"];
 
 var CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
 var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
-var invokeEventDialog, viewForward, createCalendar, deleteCalendars, menulistSelect;
+var invokeEventDialog, viewForward, createCalendar, closeAllEventDialogs, deleteCalendars, menulistSelect;
 
 const HOUR = 8;
 
@@ -25,6 +25,7 @@ function setupModule(module) {
         goToDate,
         invokeEventDialog,
         viewForward,
+        closeAllEventDialogs,
         deleteCalendars,
         createCalendar,
         menulistSelect
@@ -112,4 +113,5 @@ function teardownTest(module) {
         controller.mainMenu.click("#ltnViewRotated");
     }
     controller.waitFor(() => eid("day-view").getNode().orient == "vertical");
+    closeAllEventDialogs();
 }

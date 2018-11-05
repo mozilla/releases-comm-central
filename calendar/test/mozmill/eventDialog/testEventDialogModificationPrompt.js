@@ -10,7 +10,8 @@ var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers",
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 var CALENDARNAME, EVENT_BOX, CANVAS_BOX, EVENTPATH;
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars, goToDate;
+var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
+var goToDate;
 var setData;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 var mark_failure;
@@ -35,6 +36,7 @@ function setupModule(module) {
         helpersForController,
         invokeEventDialog,
         createCalendar,
+        closeAllEventDialogs,
         deleteCalendars,
         goToDate
     } = collector.getModule("calendar-utils"));
@@ -147,6 +149,7 @@ function teardownTest(module) {
         mark_failure(["Save Prompt unexpectedly appeared on: ", failPoints.first,
             failPoints.second, failPoints.third]);
     }
+    closeAllEventDialogs();
 }
 
 function handleSavePrompt(controller) {

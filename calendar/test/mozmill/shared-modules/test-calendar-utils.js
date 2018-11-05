@@ -76,10 +76,10 @@ var ALARM_ICON_PATH = `
     anon({"anonid":"alarm-icons-box"})/anon({"class":"reminder-icon"})
 `;
 
-var plan_for_modal_dialog, wait_for_modal_dialog, open_pref_tab;
+var plan_for_modal_dialog, wait_for_modal_dialog, close_window, open_pref_tab;
 
 function setupModule(controller) {
-    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
+    ({ plan_for_modal_dialog, wait_for_modal_dialog, close_window } =
         collector.getModule("window-helpers"));
 
     // This setup is needed for pref-win-helpers. For some reason, the automatic
@@ -136,6 +136,7 @@ function installInto(module) {
     module.checkAlarmIcon = checkAlarmIcon;
     module.viewForward = viewForward;
     module.viewBack = viewBack;
+    module.closeAllEventDialogs = closeAllEventDialogs;
     module.deleteCalendars = deleteCalendars;
     module.createCalendar = createCalendar;
     module.handleNewCalendarWizard = handleNewCalendarWizard;
@@ -459,6 +460,15 @@ function viewBack(controller, n) {
         sleep(SHORT_SLEEP);
     }
     ensureViewLoaded(controller);
+}
+
+/**
+ * Closes all EventDialogs that may remain open after a failed test
+ */
+function closeAllEventDialogs() {
+    for (let win of mozmill.utils.getWindows("Calendar:EventDialog")) {
+        close_window(win);
+    }
 }
 
 /**

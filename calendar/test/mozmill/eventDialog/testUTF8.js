@@ -9,7 +9,7 @@ var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var EVENT_BOX, CANVAS_BOX;
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
+var helpersForController, invokeEventDialog, closeAllEventDialogs, createCalendar, deleteCalendars;
 var setData;
 
 var UTF8STRING = " 💣 💥  ☣  ";
@@ -21,6 +21,7 @@ function setupModule(module) {
         CANVAS_BOX,
         helpersForController,
         invokeEventDialog,
+        closeAllEventDialogs,
         createCalendar,
         deleteCalendars
     } = collector.getModule("calendar-utils"));
@@ -74,4 +75,5 @@ function testUTF8() {
 function teardownTest(module) {
     deleteCalendars(controller, UTF8STRING);
     Preferences.reset("calendar.categories.names");
+    closeAllEventDialogs();
 }

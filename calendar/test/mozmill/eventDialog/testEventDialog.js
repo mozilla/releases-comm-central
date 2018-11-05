@@ -11,7 +11,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
 
 var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX;
 var helpersForController, handleOccurrencePrompt, goToDate, lookupEventBox;
-var invokeEventDialog, checkAlarmIcon, deleteCalendars, createCalendar;
+var invokeEventDialog, checkAlarmIcon, closeAllEventDialogs, deleteCalendars, createCalendar;
 var EVENT_TABPANELS, ATTENDEES_ROW;
 var helpersForEditUI, setData;
 var plan_for_modal_dialog, wait_for_modal_dialog;
@@ -37,6 +37,7 @@ function setupModule(module) {
         lookupEventBox,
         invokeEventDialog,
         checkAlarmIcon,
+        closeAllEventDialogs,
         deleteCalendars,
         createCalendar
     } = collector.getModule("calendar-utils"));
@@ -233,4 +234,5 @@ function checkTooltip(row, col, date, startTime, endTime) {
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
+    closeAllEventDialogs();
 }
