@@ -43,6 +43,7 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Services.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/Preferences.h"
 #include "nsINetAddr.h"
 #include "nsIProxyInfo.h"
 
@@ -1564,7 +1565,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
     m_urlErrorState = NS_ERROR_SMTP_PASSWORD_UNDEFINED;
     return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
-  NS_ConvertUTF16toUTF8 passwordUTF8(password);
+  nsAutoCString passwordUTF8 = NS_ConvertUTF16toUTF8(password);
   MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP AuthLoginStep2"));
 
   if (!passwordUTF8.IsEmpty())
@@ -1625,10 +1626,23 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
       rv = DoNtlmStep2(m_responseText, response);
       PR_snprintf(buffer, sizeof(buffer), "%.512s" CRLF, response.get());
     }
-    else if (m_currentAuthMethod == SMTP_AUTH_PLAIN_ENABLED ||
-             m_currentAuthMethod == SMTP_AUTH_LOGIN_ENABLED)
+    else if (m_currentAuthMethod == SMTP_AUTH_PLAIN_ENABLED)
     {
-      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("PLAIN/LOGIN auth, step 2"));
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("PLAIN auth, step 2"));
+      if (passwordUTF8.Length() > 255)
+        passwordUTF8.Truncate(255);
+      char *base64Str = PL_Base64Encode(passwordUTF8.get(), passwordUTF8.Length(), nullptr);
+      // Base64 encoding of 255 bytes gives 340 bytes.
+      PR_snprintf(buffer, sizeof(buffer), "%s" CRLF, base64Str);
+      free(base64Str);
+    }
+    else if (m_currentAuthMethod == SMTP_AUTH_LOGIN_ENABLED)
+    {
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("LOGIN auth, step 2"));
+      bool useLatin1 =
+        mozilla::Preferences::GetBool("mail.smtp_login_pop3_user_pass_auth_is_latin1", true);
+      if (useLatin1)
+        passwordUTF8 = NS_LossyConvertUTF16toASCII(password);  // Don't use UTF-8 after all.
       if (passwordUTF8.Length() > 255)
         passwordUTF8.Truncate(255);
       char *base64Str = PL_Base64Encode(passwordUTF8.get(), passwordUTF8.Length(), nullptr);
