@@ -54,7 +54,7 @@ function onLoad() {
                         (cal.acl.userCanModifyItem(item) ||
                          (calendar &&
                           item.calendar.isInvitation(item) &&
-                          cal.userCanRespondToInvitation(item))));
+                          cal.acl.userCanRespondToInvitation(item))));
     if (!window.readOnly && calendar) {
         let attendee = calendar.getInvitedAttendee(item);
         if (attendee) {
