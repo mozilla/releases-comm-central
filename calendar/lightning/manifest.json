@@ -14,7 +14,8 @@
   "applications": {
     "gecko": {
       "id": "@XPI_EM_ID@",
-      "strict_min_version": "@THUNDERBIRD_VERSION@"
+      "strict_min_version": "@THUNDERBIRD_VERSION@",
+      "strict_max_version": "@THUNDERBIRD_MAXVERSION@"
     }
   },
   "icons": {
