@@ -481,6 +481,19 @@ treechildren::-moz-tree-indentation {
   }
 }
 
+@media (-moz-windows-classic) {
+  treecol[hideheader="true"],
+  treecolpicker[hideheader="true"] {
+    border-width: 0;
+  }
+
+  :root[lwt-tree] treecol:not([hideheader="true"]),
+  :root[lwt-tree] treecolpicker:not([hideheader="true"]) {
+    border-top-width: 0;
+    border-inline-start-width: 0;
+  }
+}
+
 :root[lwt-tree] treechildren::-moz-tree-row(current, focus) {
   border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
   outline: none;
