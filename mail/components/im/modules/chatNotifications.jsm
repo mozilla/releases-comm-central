@@ -66,9 +66,7 @@ var Notifications = {
         let parser = new DOMParser();
         let doc = parser.parseFromString(aMessage.displayMessage, "text/html");
         let body = doc.querySelector("body");
-        let encoder =
-          Cc["@mozilla.org/layout/documentEncoder;1?type=text/plain"]
-           .createInstance(Ci.nsIDocumentEncoder);
+        let encoder = Cu.createDocumentEncoder("text/plain");
         encoder.init(doc, "text/plain", 0);
         encoder.setNode(body);
         messageText = encoder.encodeToString().replace(/\s+/g, " ");

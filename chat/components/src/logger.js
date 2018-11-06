@@ -218,9 +218,7 @@ LogWriter.prototype = {
     let div = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
     div.innerHTML = aString.replace(/\r?\n/g, "<br/>").replace(/<br>/gi, "<br/>");
     const type = "text/plain";
-    let encoder =
-      Cc["@mozilla.org/layout/documentEncoder;1?type=" + type]
-        .createInstance(Ci.nsIDocumentEncoder);
+    let encoder = Cu.createDocumentEncoder(type);
     encoder.init(doc, type, 0);
     encoder.setContainerNode(div);
     encoder.setNodeFixup({fixupNode: function(aNode, aSerializeKids) {

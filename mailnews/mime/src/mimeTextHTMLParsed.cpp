@@ -97,8 +97,8 @@ MimeInlineTextHTMLParsed_parse_eof(MimeObject *obj, bool abort_p)
     return -1;
 
   // Serialize it back to HTML source again.
-  nsCOMPtr<nsIDocumentEncoder> encoder = do_CreateInstance(
-    "@mozilla.org/layout/documentEncoder;1?type=text/html");
+  nsCOMPtr<nsIDocumentEncoder> encoder = do_createDocumentEncoder("text/html");
+  NS_ENSURE_TRUE(encoder, -1);
   uint32_t aFlags = nsIDocumentEncoder::OutputRaw |
                     nsIDocumentEncoder::OutputDisallowLineBreaking;
   rv = encoder->Init(document, NS_LITERAL_STRING("text/html"), aFlags);

@@ -653,9 +653,7 @@ function _serializeDOMObject(aDocument, aInitFunction)
   // text/html too in the future.
   const type = "text/plain";
 
-  let encoder =
-    Cc["@mozilla.org/layout/documentEncoder;1?type=" + type]
-      .createInstance(Ci.nsIDocumentEncoder);
+  let encoder = Cu.createDocumentEncoder(type);
   encoder.init(aDocument, type, Ci.nsIDocumentEncoder.OutputPreformatted);
   aInitFunction(encoder);
   let result = encoder.encodeToString();
