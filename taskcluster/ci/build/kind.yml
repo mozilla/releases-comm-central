@@ -47,7 +47,7 @@ job-defaults:
     run:
         mozconfig-variant:
             by-release-type:
-                beta: beta
+                beta: release
                 release.*: release
                 default: nightly
         # Note: These settings are only honored by nightly (i.e. shipping) builds
