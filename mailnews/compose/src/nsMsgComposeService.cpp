@@ -327,8 +327,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
 
   nsCOMPtr<nsIDocument> domDocument(contentViewer->GetDocument());
 
-  nsCOMPtr<nsIDocumentEncoder> docEncoder(do_CreateInstance(NS_HTMLCOPY_ENCODER_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIDocumentEncoder> docEncoder = do_createHTMLCopyEncoder();
 
   rv = docEncoder->Init(domDocument, NS_LITERAL_STRING("text/html"), 0);
   NS_ENSURE_SUCCESS(rv, rv);
