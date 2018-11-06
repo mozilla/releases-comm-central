@@ -149,3 +149,13 @@ textbox.textbox-addressingWidget[focused="true"] {
   background: #0a84ff;
   color: #fff;
 }
+
+/* Make the new mail indicator better visible on dark theme */
+#folderTree:-moz-lwtheme-brighttext
+  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
+#folderTree:-moz-lwtheme-brighttext
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+#folderTree:-moz-lwtheme-brighttext
+  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+  color: #0aa5ff !important;
+}
