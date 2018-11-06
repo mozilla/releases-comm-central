@@ -601,7 +601,7 @@ nsresult nsMsgSearchTerm::ParseValue(char *inStream)
       valueLen--;
 
     m_value.utf8String.Assign(inStream, valueLen);
-    CopyUTF8toUTF16(mozilla::MakeSpan(inStream, valueLen), m_value.utf16String);
+    CopyUTF8toUTF16(m_value.utf8String, m_value.utf16String);
   }
   else
   {
