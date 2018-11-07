@@ -208,7 +208,7 @@
               <hbox class="message-bar-content" align="center" flex="1">
                 <description class="message-bar-description" flex="1"/>
                 <button class="message-bar-button"
-                        oncommand="gAdvancedPane.confirmLanguageChange()"/>
+                        oncommand="gAdvancedPane.confirmLanguageChange(event)"/>
               </hbox>
             </hbox>
           </groupbox>

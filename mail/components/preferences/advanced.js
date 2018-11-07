@@ -573,7 +573,7 @@ var gAdvancedPane = {
   },
 
   /* Confirm the locale change and restart the Thunderbird in the new locale. */
-  confirmLanguageChange() {
+  confirmLanguageChange(event) {
     let localesString = (event.target.getAttribute("locales") || "").trim();
     if (!localesString || localesString.length == 0) {
       return;
