@@ -11,8 +11,6 @@
   --toolbar-non-lwt-textcolor: var(--lwt-text-color);
   --toolbar-non-lwt-bgimage: none;
   --lwt-toolbar-field-border-color: hsla(240,5%,5%,.25);
-
-  --toolbarbutton-icon-fill-opacity: .7;
 }
 
 :root:-moz-lwtheme-brighttext {
