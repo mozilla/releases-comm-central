@@ -209,7 +209,8 @@ pref("lightweightThemes.selectedThemeID", "default-theme@mozilla.org", sticky);
 
 pref("lightweightThemes.update.enabled", true);
 
-pref("xpinstall.whitelist.add", "addons.thunderbird.net");
+// Built-in default permissions.
+pref("permissions.manager.defaultsUrl", "resource://app/defaults/permissions");
 
 pref("general.smoothScroll", true);
 #ifdef UNIX_BUT_NOT_MAC
