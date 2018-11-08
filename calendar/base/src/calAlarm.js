@@ -598,10 +598,10 @@ calAlarm.prototype = {
         this.ensureMutable();
         let name = aName.toUpperCase();
         if (name in this.promotedProps) {
-            if (this.promotedProps[name] !== true) {
-                this[this.promotedProps[name]] = aValue;
-            } else {
+            if (this.promotedProps[name] === true) {
                 cal.WARN(`Attempted to set complex property ${name} to a simple value ${aValue}`);
+            } else {
+                this[this.promotedProps[name]] = aValue;
             }
         } else {
             this.mProperties.set(name, aValue);
