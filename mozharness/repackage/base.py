@@ -4,4 +4,5 @@ config = {
     "installer-tag": "comm/mail/installer/windows/app.tag",
     "sfx-stub": "comm/other-licenses/7zstub/thunderbird/7zSD.sfx",
     "stub-installer-tag": "",
+    "wsx-stub": "",
 }
