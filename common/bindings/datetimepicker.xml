@@ -488,9 +488,10 @@
 
             var numberOrder = /^(\D*)\s*(\d+)(\D*)(\d+)(\D*)(\d+)\s*(\D*)$/;
 
-            var locale = Intl.DateTimeFormat().resolvedOptions().locale + "-u-ca-gregory-nu-latn";
+            var locale = Services.locale.regionalPrefsLocales[0] + "-u-ca-gregory-nu-latn";
+            var dtf = new Services.intl.DateTimeFormat(locale, { timeStyle: "long" });
 
-            var pmTime = new Date(2000, 0, 1, 16, 7, 9).toLocaleTimeString(locale);
+            var pmTime = dtf.format(new Date(2000, 0, 1, 16, 7, 9));
             var numberFields = pmTime.match(numberOrder);
             if (numberFields) {
               this._separatorFirst.value = numberFields[3];
@@ -501,7 +502,7 @@
                 this.pmIndicator = numberFields[1] || numberFields[7];
             }
 
-            var amTime = new Date(2000, 0, 1, 1, 7, 9).toLocaleTimeString(locale);
+            var amTime = dtf.format(new Date(2000, 0, 1, 1, 7, 9));
             numberFields = amTime.match(numberOrder);
             if (numberFields) {
               this.hourLeadingZero = (numberFields[2].length > 1);
@@ -776,9 +777,10 @@
 
             var numberOrder = /^(\D*)\s*(\d+)(\D*)(\d+)(\D*)(\d+)\s*(\D*)$/;
 
-            var locale = Intl.DateTimeFormat().resolvedOptions().locale + "-u-ca-gregory-nu-latn";
+            var locale = Services.locale.regionalPrefsLocales[0] + "-u-ca-gregory-nu-latn";
+            var dtf = new Services.intl.DateTimeFormat(locale, { dateStyle: "short" });
 
-            var dt = new Date(2002, 9, 4).toLocaleDateString(locale);
+            var dt = dtf.format(new Date(2002, 9, 4));
             var numberFields = dt.match(numberOrder);
             if (numberFields) {
               this._separatorFirst.value = numberFields[3];
@@ -1006,9 +1008,9 @@
       <method name="_init">
         <body>
           <![CDATA[
-            var locale = Intl.DateTimeFormat().resolvedOptions().locale + "-u-ca-gregory";
-            var dtfMonth = Intl.DateTimeFormat(locale, {month: "long", timeZone: "UTC"});
-            var dtfWeekday = Intl.DateTimeFormat(locale, {weekday: "narrow"});
+            var locale = Services.locale.regionalPrefsLocales[0] + "-u-ca-gregory";
+            var dtfMonth = new Services.intl.DateTimeFormat(locale, {month: "long", timeZone: "UTC"});
+            var dtfWeekday = new Services.intl.DateTimeFormat(locale, {weekday: "narrow"});
 
             var monthLabel = this.monthField.firstChild;
             var tempDate = new Date(Date.UTC(2005, 0, 1));
