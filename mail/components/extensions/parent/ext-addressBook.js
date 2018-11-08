@@ -28,7 +28,7 @@ const hiddenProperties = [
  * @implements {nsIAbListener}
  * @implements {nsIObserver}
  */
- var cache = new class extends EventEmitter {
+var cache = new class extends EventEmitter {
   _makeContactNode(contact, parent) {
     contact.QueryInterface(Ci.nsIAbCard);
     return {
