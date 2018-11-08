@@ -7,7 +7,40 @@
 @media (-moz-windows-accent-color-in-titlebar) {
   :root[tabsintitlebar]:not(:-moz-window-inactive) {
     background-color: -moz-win-accentcolor;
+  }
+
+  :root[tabsintitlebar] .titlebar-button:not(:-moz-window-inactive) {
+    stroke: -moz-win-accentcolortext;
+  }
+
+  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive) {
+    color: var(--lwt-text-color) !important;
+    background-color: var(--lwt-accent-color) !important;
+  }
+
+  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive)::after,
+  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive)::before {
+    border-image: none;
+    background-color: var(--lwt-accent-color);
+    border-color: rgba(24, 25, 26, .3);
+    opacity: 1;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive):-moz-lwtheme-brighttext::after,
+  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive):-moz-lwtheme-brighttext::before {
+    border-color: rgba(249, 249, 250, .3);
+  }
+
+  :root[tabsintitlebar] .tabmail-tab > .tab-stack > .tab-background {
+    border-top-style: none !important;
+  }
+
+  :root[tabsintitlebar] #tabbar-toolbar .toolbarbutton-1:not(:-moz-window-inactive) {
     color: -moz-win-accentcolortext;
+    fill: -moz-win-accentcolortext;
+    fill-opacity: .7;
   }
 }
 
