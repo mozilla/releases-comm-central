@@ -14,8 +14,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/JXON.js");
 
 function fetchConfigFromDisk(domain, successCallback, errorCallback) {
-  // Disabled, see bug 1499316.
-  // return new TimeoutAbortable(runAsync(function() {
+  return new TimeoutAbortable(runAsync(function() {
     try {
       // <TB installdir>/isp/example.com.xml
       var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
@@ -24,7 +23,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
 
       if (!configLocation.exists() || !configLocation.isReadable()) {
         errorCallback("local file not found");
-        return new Abortable();
+        return;
       }
       var contents =
         readURLasUTF8(Services.io.newFileURI(configLocation));
@@ -32,8 +31,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
       successCallback(readFromXML(JXON.build(
         domParser.parseFromString(contents, "text/xml"))));
     } catch (e) { errorCallback(e); }
-  // }));
-  return new Abortable();
+  }));
 }
 
 /**
