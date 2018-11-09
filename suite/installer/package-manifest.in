@@ -321,8 +321,6 @@
 #endif
 @RESPATH@/components/TooltipTextProvider.js
 @RESPATH@/components/TooltipTextProvider.manifest
-@RESPATH@/components/txEXSLTRegExFunctions.js
-@RESPATH@/components/txEXSLTRegExFunctions.manifest
 @RESPATH@/components/UnifiedComplete.js
 @RESPATH@/components/WebContentConverter.js
 @RESPATH@/components/WebVTT.manifest
