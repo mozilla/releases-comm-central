@@ -75,9 +75,15 @@ pref("app.update.certs.2.issuerName", "CN=thawte SSL CA - G2,O=\"thawte, Inc.\",
 pref("app.update.certs.2.commonName", "aus5.mozilla.org");
 
 // If set to true, the Update Service will automatically download updates when
-// app updates are enabled per the app.update.enabled preference and if the user
-// can apply updates.
-pref("app.update.auto", true);
+// user can apply updates. This pref is no longer used on Windows, except as the
+// default value to migrate to the new location that this data is now stored
+// (which is in a file in the update directory). Because of this, this pref
+// should no longer be used directly. Instead,
+// nsIUpdateService::getAutoUpdateIsEnabled and
+// nsIUpdateService::setAutoUpdateIsEnabled should be used.
+#ifndef XP_WIN
+ pref("app.update.auto", true);
+#endif
 
 // If set to true, the Update Service will present no UI for any event.
 pref("app.update.silent", false);

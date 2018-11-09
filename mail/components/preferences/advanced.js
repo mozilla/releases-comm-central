@@ -14,6 +14,12 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 ChromeUtils.import("resource://gre/modules/Localization.jsm");
 
+XPCOMUtils.defineLazyServiceGetters(this, {
+  gAUS: ["@mozilla.org/updates/update-service;1", "nsIApplicationUpdateService"],
+});
+
+const AUTO_UPDATE_CHANGED_TOPIC = "auto-update-config-change";
+
 var gAdvancedPane = {
   mPane: null,
   mInitialized: false,
@@ -22,6 +28,11 @@ var gAdvancedPane = {
   requestingLocales: null,
 
   init() {
+    function setEventListener(aId, aEventType, aCallback) {
+      document.getElementById(aId)
+        .addEventListener(aEventType, aCallback.bind(gAdvancedPane));
+    }
+
     this.mPane = document.getElementById("paneAdvanced");
     this.updateCompactOptions();
     this.mBundle = document.getElementById("bundlePreferences");
@@ -90,6 +101,23 @@ var gAdvancedPane = {
     }
 
     if (AppConstants.MOZ_UPDATER) {
+      gAppUpdater = new appUpdater(); // eslint-disable-line no-global-assign
+      if (Services.policies && !Services.policies.isAllowed("appUpdate")) {
+          document.getElementById("updateAllowDescription").hidden = true;
+          document.getElementById("updateRadioGroup").hidden = true;
+        if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
+          document.getElementById("useService").hidden = true;
+        }
+      } else {
+        // Start with no option selected since we are still reading the value
+        document.getElementById("autoDesktop").removeAttribute("selected");
+        document.getElementById("manualDesktop").removeAttribute("selected");
+        // Start reading the correct value from the disk
+        this.updateReadPrefs();
+        setEventListener("updateRadioGroup", "command",
+                         gAdvancedPane.updateWritePrefs);
+      }
+
       let distroId = Services.prefs.getCharPref("distribution.id", "");
       if (distroId) {
         let distroVersion = Services.prefs.getCharPref("distribution.version");
@@ -103,6 +131,25 @@ var gAdvancedPane = {
           let distroField = document.getElementById("distribution");
           distroField.value = distroAbout;
           distroField.style.display = "block";
+        }
+      }
+
+      if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
+        // Check to see if the maintenance service is installed.
+        // If it isn't installed, don't show the preference at all.
+        let installed;
+        try {
+          let wrk = Cc["@mozilla.org/windows-registry-key;1"]
+                    .createInstance(Ci.nsIWindowsRegKey);
+          wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
+                   "SOFTWARE\\Mozilla\\MaintenanceService",
+                   wrk.ACCESS_READ | wrk.WOW64_64);
+          installed = wrk.readIntValue("Installed");
+          wrk.close();
+        } catch (e) {
+        }
+        if (installed != 1) {
+          document.getElementById("useService").hidden = true;
         }
       }
 
@@ -139,8 +186,13 @@ var gAdvancedPane = {
           }
         }
       }
+      // Initialize Application section.
 
-      gAppUpdater = new appUpdater(); // eslint-disable-line no-global-assign
+      // Listen for window unload so we can remove our preference observers.
+      window.addEventListener("unload", this);
+
+      Services.obs.addObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
+
     }
 
     this.mInitialized = true;
@@ -262,64 +314,54 @@ var gAdvancedPane = {
   },
 
   /**
-   * Selects the item of the radiogroup based on the pref values and locked
-   * states.
-   *
-   * UI state matrix for update preference conditions
-   *
-   * UI Components:                              Preferences
-   * Radiogroup                                  i   = app.update.auto
+   * Selects the correct item in the update radio group
    */
-  updateReadPrefs() {
-    let autoPref = document.getElementById("app.update.auto");
-    let radiogroup = document.getElementById("updateRadioGroup");
-
-    if (autoPref.value)
-      radiogroup.value = "auto";      // Automatically install updates
-    else
-      radiogroup.value = "checkOnly"; // Check, but let me choose
-
-    let canCheck = Cc["@mozilla.org/updates/update-service;1"].
-                     getService(Ci.nsIApplicationUpdateService).
-                     canCheckForUpdates;
-
-    // canCheck is false if the binary platform or OS version is not known.
-    // A locked pref is sufficient to disable the radiogroup.
-    radiogroup.disabled = !canCheck || autoPref.locked;
-
-    if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
-      // Check to see if the maintenance service is installed.
-      // If it is don't show the preference at all.
-      let installed;
+  async updateReadPrefs() {
+    if (AppConstants.MOZ_UPDATER &&
+        (!Services.policies || Services.policies.isAllowed("appUpdate"))) {
+      let radiogroup = document.getElementById("updateRadioGroup");
+      radiogroup.disabled = true;
       try {
-        let wrk = Cc["@mozilla.org/windows-registry-key;1"]
-                    .createInstance(Ci.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-                 "SOFTWARE\\Mozilla\\MaintenanceService",
-                 wrk.ACCESS_READ | wrk.WOW64_64);
-        installed = wrk.readIntValue("Installed");
-        wrk.close();
-      } catch (e) { }
-      if (installed != 1) {
-        document.getElementById("useService").hidden = true;
+        let enabled = await gAUS.getAutoUpdateIsEnabled();
+        radiogroup.value = enabled;
+        radiogroup.disabled = false;
+      } catch (error) {
+        Cu.reportError(error);
       }
     }
   },
 
   /**
-   * Sets the pref values based on the selected item of the radiogroup.
+   * Writes the value of the update radio group to the disk
    */
-  updateWritePrefs() {
-    let autoPref = document.getElementById("app.update.auto");
-    let radiogroup = document.getElementById("updateRadioGroup");
-    switch (radiogroup.value) {
-      case "auto":      // Automatically install updates
-        autoPref.value = true;
-        break;
-      case "checkOnly": // Check, but but let me choose
-        autoPref.value = false;
-        break;
+  async updateWritePrefs() {
+    if (AppConstants.MOZ_UPDATER &&
+        (!Services.policies || Services.policies.isAllowed("appUpdate"))) {
+      let radiogroup = document.getElementById("updateRadioGroup");
+      let updateAutoValue = (radiogroup.value == "true");
+      radiogroup.disabled = true;
+      try {
+        await gAUS.setAutoUpdateIsEnabled(updateAutoValue);
+        radiogroup.disabled = false;
+      } catch (error) {
+        Cu.reportError(error);
+        await this.updateReadPrefs();
+        await this.reportUpdatePrefWriteError(error);
+      }
     }
+  },
+
+  async reportUpdatePrefWriteError(error) {
+    let [title, message] = await document.l10n.formatValues([
+      {id: "update-pref-write-failure-title"},
+      {id: "update-pref-write-failure-message", args: {path: error.path}},
+    ]);
+
+    // Set up the Ok Button
+    let buttonFlags = (Services.prompt.BUTTON_POS_0 *
+                       Services.prompt.BUTTON_TITLE_OK);
+    Services.prompt.confirmEx(window, title, message, buttonFlags,
+                              null, null, null, null, {});
   },
 
   showUpdates() {
@@ -602,4 +644,34 @@ var gAdvancedPane = {
     ]).values());
     this.showConfirmLanguageChangeMessageBar(locales);
   },
+
+  destroy() {
+    window.removeEventListener("unload", this);
+
+    Services.obs.removeObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
+  },
+
+  // nsISupports
+
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+
+  // nsIObserver
+
+  async observe(aSubject, aTopic, aData) {
+    if (aTopic == AUTO_UPDATE_CHANGED_TOPIC) {
+      if (aData != "true" && aData != "false") {
+        throw new Error("Invalid preference value for app.update.auto");
+      }
+      document.getElementById("updateRadioGroup").value = aData;
+    }
+  },
+
+  // EventListener
+
+  handleEvent(aEvent) {
+    if (aEvent.type == "unload") {
+      this.destroy();
+    }
+  },
+
 };

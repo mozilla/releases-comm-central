@@ -79,9 +79,6 @@
                   type="bool"/>
 #ifdef MOZ_UPDATER
       <!-- Update tab -->
-      <preference id="app.update.auto"
-                  name="app.update.auto"
-                  type="bool"/>
       <preference id="app.update.disable_button.showUpdateHistory"
                   name="app.update.disable_button.showUpdateHistory"
                   type="bool"/>
@@ -473,12 +470,13 @@
             </vbox>
             <separator/>
             <radiogroup id="updateRadioGroup"
-                        align="start"
-                        oncommand="gAdvancedPane.updateWritePrefs();">
-              <radio value="auto"
+                        align="start">
+              <radio id="autoDesktop"
+                     value="true"
                      label="&updateAuto.label;"
                      accesskey="&updateAuto.accesskey;"/>
-              <radio value="checkOnly"
+              <radio id="manualDesktop"
+                     value="false"
                      label="&updateCheck.label;"
                      accesskey="&updateCheck.accesskey;"/>
             </radiogroup>
