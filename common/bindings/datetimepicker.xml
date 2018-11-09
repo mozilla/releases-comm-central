@@ -149,6 +149,7 @@
       </method>
 
       <constructor>
+        ChromeUtils.import("resource://gre/modules/Services.jsm");
         this._init();
 
         var cval = this.getAttribute("value");
