@@ -7,6 +7,10 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gConnectionsDialog = {
   beforeAccept() {
+    if (document.getElementById("customDnsOverHttpsUrlRadio").selected) {
+      Services.prefs.setStringPref("network.trr.uri", document.getElementById("customDnsOverHttpsInput").value);
+    }
+
     var proxyTypePref = document.getElementById("network.proxy.type");
     if (proxyTypePref.value == 2) {
       this.doAutoconfigURLFixup();
@@ -184,16 +188,24 @@ var gConnectionsDialog = {
     return trrModeCheckbox.checked ? 2 : 0;
   },
 
-  writeDnsOverHttpsUri() {
-    // called to update pref with user input
-    let input = document.getElementById("networkDnsOverHttpsUrl");
-    let uriString = input.value.trim();
-    // turn an empty string into `undefined` to clear the pref back to the default
-    return uriString.length ? uriString : undefined;
+  updateDnsOverHttpsUI() {
+    // Disable the custom url input box if the parent checkbox and custom radio
+    // button attached to it is not selected.
+    // Disable the custom radio button if the parent checkbox is not selected.
+    let parentCheckbox = document.getElementById("networkDnsOverHttps");
+    let customDnsOverHttpsUrlRadio = document.getElementById("customDnsOverHttpsUrlRadio");
+    let customDnsOverHttpsInput = document.getElementById("customDnsOverHttpsInput");
+    customDnsOverHttpsInput.disabled = !parentCheckbox.checked || !customDnsOverHttpsUrlRadio.selected;
+    customDnsOverHttpsUrlRadio.disabled = !parentCheckbox.checked;
   },
 
   initDnsOverHttpsUI() {
-    let input = document.getElementById("networkDnsOverHttpsUrl");
-    input.placeholder = document.getElementById("network.trr.uri").defaultValue;
+    let defaultDnsOverHttpsUrlRadio = document.getElementById("defaultDnsOverHttpsUrlRadio");
+    let defaultPrefUrl = document.getElementById("network.trr.uri").defaultValue;
+    document.getElementById("defaultDnsOverHttpsUrlLabel").setAttribute("value", "(" + defaultPrefUrl + ")");
+    defaultDnsOverHttpsUrlRadio.value = defaultPrefUrl;
+    let radioGroup = document.getElementById("DnsOverHttpsUrlRadioGroup");
+    radioGroup.selectedIndex = document.getElementById("network.trr.uri").hasUserValue ? 1 : 0;
+    this.updateDnsOverHttpsUI();
   },
 };

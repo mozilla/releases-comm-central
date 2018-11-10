@@ -49,6 +49,7 @@
       <preference id="network.proxy.socks_remote_dns"    name="network.proxy.socks_remote_dns"    type="bool"/>
       <preference id="network.trr.mode"                  name="network.trr.mode"                  type="int"/>
       <preference id="network.trr.uri"                   name="network.trr.uri"                   type="string"/>
+      <preference id="network.trr.custom_uri"            name="network.trr.custom_uri"            type="string"/>
       <preference id="signon.autologin.proxy"            name="signon.autologin.proxy"            type="bool"/>
     </preferences>
 
@@ -167,17 +168,31 @@
               accesskey="&dnsOverHttps.accesskey;"
               preference="network.trr.mode"
               onsyncfrompreference="return gConnectionsDialog.readDnsOverHttpsMode();"
-              onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsMode()"/>
-    <hbox class="indent" flex="1" align="center">
-      <label control="networkDnsOverHttpsUrl"
-             label="&dnsOverHttpsUrl.label;"
-             accesskey="&dnsOverHttpsUrl.accesskey;"
-             tooltiptext="&dnsOverHttpsUrl.tooltip;"/>
-      <textbox id="networkDnsOverHttpsUrl"
-               flex="1"
-               preference="network.trr.uri"
-               onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsUri()"/>
-    </hbox>
+              onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsMode();"
+              oncommand="gConnectionsDialog.updateDnsOverHttpsUI();"/>
+    <vbox class="indent" flex="1">
+      <radiogroup id="DnsOverHttpsUrlRadioGroup" orient="vertical">
+        <hbox>
+          <radio id="defaultDnsOverHttpsUrlRadio"
+                 label="&dnsOverHttpsUrlDefault.label;"
+                 accesskey="&dnsOverHttpsUrlDefault.accesskey;"
+                 tooltiptext="&dnsOverHttpsUrlDefault.tooltip;"
+                 preference="network.trr.uri"
+                 oncommand="gConnectionsDialog.updateDnsOverHttpsUI();"/>
+          <label id="defaultDnsOverHttpsUrlLabel"/>
+        </hbox>
+        <hbox>
+          <radio id="customDnsOverHttpsUrlRadio"
+                 label="&dnsOverHttpsUrlCustom.label;"
+                 accesskey="&dnsOverHttpsUrlCustom.accesskey;"
+                 tooltiptext="&dnsOverHttpsUrlCustom.tooltip;"
+                 oncommand="gConnectionsDialog.updateDnsOverHttpsUI();"/>
+          <textbox id="customDnsOverHttpsInput"
+                   flex="1"
+                   preference="network.trr.custom_uri"/>
+        </hbox>
+      </radiogroup>
+    </vbox>
     <separator/>
   </prefpane>
 </prefwindow>
