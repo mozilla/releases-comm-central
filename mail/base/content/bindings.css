@@ -45,6 +45,7 @@ toolbarpaletteitem[place="palette"] {
 
 notificationbox {
   -moz-binding: url("chrome://messenger/content/notificationbox.xml#notificationbox");
+  -moz-box-orient: vertical;
 }
 
 button[type="menu-button"] {
