@@ -8,7 +8,7 @@
  * If you would like to change anything in ical.js, it is required to do so
  * upstream first.
  *
- * Current ical.js git revision: f4fb1b9564f990f7b718253f2251bb30f58c9a5a (v1.2.0)
+ * Current ical.js git revision: 3f219e04f238bcad6c964e8d93b21de49e5f5047 (v1.3.0)
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -32,7 +32,7 @@ function unwrapSingle(type, val) {
         return val.wrappedJSObject.innerObject;
     } else {
         ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-        Components.utils.reportError("Unknown " + (type.icalclass || type) + " passed at " + cal.STACK(10));
+        Cu.reportError("Unknown " + (type.icalclass || type) + " passed at " + cal.STACK(10));
         return null;
     }
 }
@@ -79,6 +79,66 @@ ICAL.newLineChar = '\r\n';
  * @namespace
  */
 ICAL.helpers = {
+  /**
+   * Compiles a list of all referenced TZIDs in all subcomponents and
+   * removes any extra VTIMEZONE subcomponents. In addition, if any TZIDs
+   * are referenced by a component, but a VTIMEZONE does not exist,
+   * an attempt will be made to generate a VTIMEZONE using ICAL.TimezoneService.
+   *
+   * @param {ICAL.Component} vcal     The top-level VCALENDAR component.
+   * @return {ICAL.Component}         The ICAL.Component that was passed in.
+   */
+  updateTimezones: function(vcal) {
+    var allsubs, properties, vtimezones, reqTzid, i, tzid;
+
+    if (!vcal || vcal.name !== "vcalendar") {
+      //not a top-level vcalendar component
+      return vcal;
+    }
+
+    //Store vtimezone subcomponents in an object reference by tzid.
+    //Store properties from everything else in another array
+    allsubs = vcal.getAllSubcomponents();
+    properties = [];
+    vtimezones = {};
+    for (i = 0; i < allsubs.length; i++) {
+      if (allsubs[i].name === "vtimezone") {
+        tzid = allsubs[i].getFirstProperty("tzid").getFirstValue();
+        vtimezones[tzid] = allsubs[i];
+      } else {
+        properties = properties.concat(allsubs[i].getAllProperties());
+      }
+    }
+
+    //create an object with one entry for each required tz
+    reqTzid = {};
+    for (i = 0; i < properties.length; i++) {
+      if ((tzid = properties[i].getParameter("tzid"))) {
+        reqTzid[tzid] = true;
+      }
+    }
+
+    //delete any vtimezones that are not on the reqTzid list.
+    for (i in vtimezones) {
+      if (vtimezones.hasOwnProperty(i) && !reqTzid[i]) {
+        vcal.removeSubcomponent(vtimezones[i]);
+      }
+    }
+
+    //create any missing, but registered timezones
+    for (i in reqTzid) {
+      if (
+        reqTzid.hasOwnProperty(i) &&
+        !vtimezones[i] &&
+        ICAL.TimezoneService.has(i)
+      ) {
+        vcal.addSubcomponent(ICAL.TimezoneService.get(i).component);
+      }
+    }
+
+    return vcal;
+  },
+
   /**
    * Checks if the given type is of the number type and also NaN.
    *
@@ -1073,7 +1133,7 @@ ICAL.design = (function() {
     },
     timestamp: icalValues['date-time'],
     "language-tag": {
-      matches: /^[a-zA-Z0-9\-]+$/ // Could go with a more strict regex here
+      matches: /^[a-zA-Z0-9-]+$/ // Could go with a more strict regex here
     }
   });
 
@@ -1425,7 +1485,8 @@ ICAL.stringify = (function() {
       result += stringify.property(props[propIdx], designSet) + LINE_ENDING;
     }
 
-    var comps = component[2];
+    // Ignore subcomponents if none exist, e.g. in vCard.
+    var comps = component[2] || [];
     var compIdx = 0;
     var compLen = comps.length;
 
@@ -2915,6 +2976,22 @@ ICAL.Property = (function() {
       } else {
         return undefined;
       }
+    },
+
+    /**
+     * Gets first parameter on the property.
+     *
+     * @param {String}        name   Property name (lowercase)
+     * @return {String}        Property value
+     */
+    getFirstParameter: function(name) {
+      var parameters = this.getParameter(name);
+
+      if (Array.isArray(parameters)) {
+        return parameters[0];
+      }
+
+      return parameters;
     },
 
     /**
@@ -5641,6 +5718,12 @@ ICAL.TimezoneService = (function() {
           return this._time[attr];
         },
         set: function setTimeAttr(val) {
+          // Check if isDate will be set and if was not set to normalize date.
+          // This avoids losing days when seconds, minutes and hours are zeroed
+          // what normalize will do when time is a date.
+          if (attr === "isDate" && val && !this._time.isDate) {
+            this.adjust(0, 0, 0, 0);
+          }
           this._cachedUnixTime = null;
           this._pendingNormalization = true;
           this._time[attr] = val;
@@ -6210,21 +6293,21 @@ ICAL.TimezoneService = (function() {
    *
    * @class
    * @alias ICAL.Recur
-   * @param {Object} data                       An object with members of the recurrence
-   * @param {ICAL.Recur.frequencyValues} freq   The frequency value
-   * @param {Number=} data.interval             The INTERVAL value
-   * @param {ICAL.Time.weekDay=} data.wkst      The week start value
-   * @param {ICAL.Time=} data.until             The end of the recurrence set
-   * @param {Number=} data.count                The number of occurrences
-   * @param {Array.<Number>=} data.bysecond     The seconds for the BYSECOND part
-   * @param {Array.<Number>=} data.byminute     The minutes for the BYMINUTE part
-   * @param {Array.<Number>=} data.byhour       The hours for the BYHOUR part
-   * @param {Array.<String>=} data.byday        The BYDAY values
-   * @param {Array.<Number>=} data.bymonthday   The days for the BYMONTHDAY part
-   * @param {Array.<Number>=} data.byyearday    The days for the BYYEARDAY part
-   * @param {Array.<Number>=} data.byweekno     The weeks for the BYWEEKNO part
-   * @param {Array.<Number>=} data.bymonth      The month for the BYMONTH part
-   * @param {Array.<Number>=} data.bysetpos     The positionals for the BYSETPOS part
+   * @param {Object} data                               An object with members of the recurrence
+   * @param {ICAL.Recur.frequencyValues=} data.freq     The frequency value
+   * @param {Number=} data.interval                     The INTERVAL value
+   * @param {ICAL.Time.weekDay=} data.wkst              The week start value
+   * @param {ICAL.Time=} data.until                     The end of the recurrence set
+   * @param {Number=} data.count                        The number of occurrences
+   * @param {Array.<Number>=} data.bysecond             The seconds for the BYSECOND part
+   * @param {Array.<Number>=} data.byminute             The minutes for the BYMINUTE part
+   * @param {Array.<Number>=} data.byhour               The hours for the BYHOUR part
+   * @param {Array.<String>=} data.byday                The BYDAY values
+   * @param {Array.<Number>=} data.bymonthday           The days for the BYMONTHDAY part
+   * @param {Array.<Number>=} data.byyearday            The days for the BYYEARDAY part
+   * @param {Array.<Number>=} data.byweekno             The weeks for the BYWEEKNO part
+   * @param {Array.<Number>=} data.bymonth              The month for the BYMONTH part
+   * @param {Array.<Number>=} data.bysetpos             The positionals for the BYSETPOS part
    */
   ICAL.Recur = function icalrecur(data) {
     this.wrappedJSObject = this;
@@ -6414,21 +6497,21 @@ ICAL.TimezoneService = (function() {
     /**
      * Sets up the current instance using members from the passed data object.
      *
-     * @param {Object} data                       An object with members of the recurrence
-     * @param {ICAL.Recur.frequencyValues} freq   The frequency value
-     * @param {Number=} data.interval             The INTERVAL value
-     * @param {ICAL.Time.weekDay=} data.wkst      The week start value
-     * @param {ICAL.Time=} data.until             The end of the recurrence set
-     * @param {Number=} data.count                The number of occurrences
-     * @param {Array.<Number>=} data.bysecond     The seconds for the BYSECOND part
-     * @param {Array.<Number>=} data.byminute     The minutes for the BYMINUTE part
-     * @param {Array.<Number>=} data.byhour       The hours for the BYHOUR part
-     * @param {Array.<String>=} data.byday        The BYDAY values
-     * @param {Array.<Number>=} data.bymonthday   The days for the BYMONTHDAY part
-     * @param {Array.<Number>=} data.byyearday    The days for the BYYEARDAY part
-     * @param {Array.<Number>=} data.byweekno     The weeks for the BYWEEKNO part
-     * @param {Array.<Number>=} data.bymonth      The month for the BYMONTH part
-     * @param {Array.<Number>=} data.bysetpos     The positionals for the BYSETPOS part
+     * @param {Object} data                               An object with members of the recurrence
+     * @param {ICAL.Recur.frequencyValues=} data.freq     The frequency value
+     * @param {Number=} data.interval                     The INTERVAL value
+     * @param {ICAL.Time.weekDay=} data.wkst              The week start value
+     * @param {ICAL.Time=} data.until                     The end of the recurrence set
+     * @param {Number=} data.count                        The number of occurrences
+     * @param {Array.<Number>=} data.bysecond             The seconds for the BYSECOND part
+     * @param {Array.<Number>=} data.byminute             The minutes for the BYMINUTE part
+     * @param {Array.<Number>=} data.byhour               The hours for the BYHOUR part
+     * @param {Array.<String>=} data.byday                The BYDAY values
+     * @param {Array.<Number>=} data.bymonthday           The days for the BYMONTHDAY part
+     * @param {Array.<Number>=} data.byyearday            The days for the BYYEARDAY part
+     * @param {Array.<Number>=} data.byweekno             The weeks for the BYWEEKNO part
+     * @param {Array.<Number>=} data.bymonth              The month for the BYMONTH part
+     * @param {Array.<Number>=} data.bysetpos             The positionals for the BYSETPOS part
      */
     fromData: function(data) {
       for (var key in data) {
@@ -6443,6 +6526,10 @@ ICAL.TimezoneService = (function() {
         } else {
           this[key] = data[key];
         }
+      }
+
+      if (this.interval && typeof this.interval != "number") {
+        optionDesign.INTERVAL(this.interval, this);
       }
 
       if (this.wkst && typeof this.wkst != "number") {
@@ -6512,7 +6599,7 @@ ICAL.TimezoneService = (function() {
         }
       }
       if (this.until) {
-        str += ';UNTIL=' + this.until.toString();
+        str += ';UNTIL=' + this.until.toICALString();
       }
       if ('wkst' in this && this.wkst !== ICAL.Time.DEFAULT_WEEK_START) {
         str += ';WKST=' + ICAL.Recur.numericDayToIcalDay(this.wkst);
@@ -6614,14 +6701,13 @@ ICAL.TimezoneService = (function() {
     },
 
     UNTIL: function(value, dict, fmtIcal) {
-      if (fmtIcal) {
-        if (value.length > 10) {
-          dict.until = ICAL.design.icalendar.value['date-time'].fromICAL(value);
-        } else {
-          dict.until = ICAL.design.icalendar.value.date.fromICAL(value);
-        }
+      if (value.length > 10) {
+        dict.until = ICAL.design.icalendar.value['date-time'].fromICAL(value);
       } else {
-        dict.until = ICAL.Time.fromString(value);
+        dict.until = ICAL.design.icalendar.value.date.fromICAL(value);
+      }
+      if (!fmtIcal) {
+        dict.until = ICAL.Time.fromString(dict.until);
       }
     },
 
@@ -6668,21 +6754,21 @@ ICAL.TimezoneService = (function() {
    * Creates a new {@link ICAL.Recur} instance using members from the passed
    * data object.
    *
-   * @param {Object} aData                      An object with members of the recurrence
-   * @param {ICAL.Recur.frequencyValues} freq   The frequency value
-   * @param {Number=} aData.interval            The INTERVAL value
-   * @param {ICAL.Time.weekDay=} aData.wkst     The week start value
-   * @param {ICAL.Time=} aData.until            The end of the recurrence set
-   * @param {Number=} aData.count               The number of occurrences
-   * @param {Array.<Number>=} aData.bysecond    The seconds for the BYSECOND part
-   * @param {Array.<Number>=} aData.byminute    The minutes for the BYMINUTE part
-   * @param {Array.<Number>=} aData.byhour      The hours for the BYHOUR part
-   * @param {Array.<String>=} aData.byday       The BYDAY values
-   * @param {Array.<Number>=} aData.bymonthday  The days for the BYMONTHDAY part
-   * @param {Array.<Number>=} aData.byyearday   The days for the BYYEARDAY part
-   * @param {Array.<Number>=} aData.byweekno    The weeks for the BYWEEKNO part
-   * @param {Array.<Number>=} aData.bymonth     The month for the BYMONTH part
-   * @param {Array.<Number>=} aData.bysetpos    The positionals for the BYSETPOS part
+   * @param {Object} aData                              An object with members of the recurrence
+   * @param {ICAL.Recur.frequencyValues=} aData.freq    The frequency value
+   * @param {Number=} aData.interval                    The INTERVAL value
+   * @param {ICAL.Time.weekDay=} aData.wkst             The week start value
+   * @param {ICAL.Time=} aData.until                    The end of the recurrence set
+   * @param {Number=} aData.count                       The number of occurrences
+   * @param {Array.<Number>=} aData.bysecond            The seconds for the BYSECOND part
+   * @param {Array.<Number>=} aData.byminute            The minutes for the BYMINUTE part
+   * @param {Array.<Number>=} aData.byhour              The hours for the BYHOUR part
+   * @param {Array.<String>=} aData.byday               The BYDAY values
+   * @param {Array.<Number>=} aData.bymonthday          The days for the BYMONTHDAY part
+   * @param {Array.<Number>=} aData.byyearday           The days for the BYYEARDAY part
+   * @param {Array.<Number>=} aData.byweekno            The weeks for the BYWEEKNO part
+   * @param {Array.<Number>=} aData.bymonth             The month for the BYMONTH part
+   * @param {Array.<Number>=} aData.bysetpos            The positionals for the BYSETPOS part
    */
   ICAL.Recur.fromData = function(aData) {
     return new ICAL.Recur(aData);
@@ -8684,7 +8770,9 @@ ICAL.Event = (function() {
    * @param {Boolean} options.strictExceptions
    *          When true, will verify exceptions are related by their UUID
    * @param {Array<ICAL.Component|ICAL.Event>} options.exceptions
-   *          Exceptions to this event, either as components or events
+   *          Exceptions to this event, either as components or events. If not
+   *            specified exceptions will automatically be set in relation of
+   *            component's parent
    */
   function Event(component, options) {
     if (!(component instanceof ICAL.Component)) {
@@ -8708,6 +8796,12 @@ ICAL.Event = (function() {
 
     if (options && options.exceptions) {
       options.exceptions.forEach(this.relateException, this);
+    } else if (this.component.parent && !this.isRecurrenceException()) {
+      this.component.parent.getAllSubcomponents('vevent').forEach(function(event) {
+        if (event.hasProperty('recurrence-id')) {
+          this.relateException(event);
+        }
+      }, this);
     }
   }
 
@@ -8784,7 +8878,11 @@ ICAL.Event = (function() {
      * @return {Boolean}        True, when exception is within range
      */
     modifiesFuture: function() {
-      var range = this.component.getFirstPropertyValue('range');
+      if (!this.component.hasProperty('recurrence-id')) {
+        return false;
+      }
+
+      var range = this.component.getFirstProperty('recurrence-id').getParameter('range');
       return range === this.THISANDFUTURE;
     },
 
@@ -9005,7 +9103,8 @@ ICAL.Event = (function() {
 
     /**
      * The end date. This can be the result directly from the property, or the
-     * end date calculated from start date and duration.
+     * end date calculated from start date and duration. Setting the property
+     * will remove any duration properties.
      * @type {ICAL.Time}
      */
     get endDate() {
@@ -9023,14 +9122,17 @@ ICAL.Event = (function() {
     },
 
     set endDate(value) {
+      if (this.component.hasProperty('duration')) {
+        this.component.removeProperty('duration');
+      }
       this._setTime('dtend', value);
     },
 
     /**
      * The duration. This can be the result directly from the property, or the
-     * duration calculated from start date and end date.
+     * duration calculated from start date and end date. Setting the property
+     * will remove any `dtend` properties.
      * @type {ICAL.Duration}
-     * @readonly
      */
     get duration() {
       var duration = this._firstProp('duration');
@@ -9038,6 +9140,14 @@ ICAL.Event = (function() {
         return this.endDate.subtractDate(this.startDate);
       }
       return duration;
+    },
+
+    set duration(value) {
+      if (this.component.hasProperty('dtend')) {
+        this.component.removeProperty('dtend');
+      }
+
+      this._setProp('duration', value);
     },
 
     /**
