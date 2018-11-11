@@ -10,7 +10,7 @@ interface nsIFile;
 
 webidl Element;
 
-[scriptable, uuid(5a00c44b-e3bd-4769-b021-a83c8212a794)]
+[scriptable, uuid(d7a19d24-9c98-4f88-b11e-52fa8c39ceea)]
 interface nsIShellService : nsISupports
 {
   /**
@@ -57,10 +57,13 @@ interface nsIShellService : nsISupports
    *                      a background image from which to source the
    *                      background image.
    * @param aPosition     How to place the image on the desktop
+   * @param aImageName    The image name. Equivalent to the leaf name of the
+   *                      location.href.
    */
 
   void setDesktopBackground(in Element aElement,
-                            in long aPosition);
+                            in long aPosition,
+                            in ACString aImageName);
 
   /**
    * Flags for positioning/sizing of the Desktop Background image.

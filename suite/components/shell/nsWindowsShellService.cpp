@@ -591,7 +591,8 @@ WriteBitmap(nsIFile* aFile, imgIContainer* aImage)
 
 NS_IMETHODIMP
 nsWindowsShellService::SetDesktopBackground(dom::Element* aElement,
-                                            int32_t aPosition)
+                                            int32_t aPosition,
+                                            const nsACString& aImageName)
 {
   nsCOMPtr<nsIContent> content(do_QueryInterface(aElement));
   if (!aElement || !aElement->IsHTMLElement(nsGkAtoms::img)) {

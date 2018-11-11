@@ -120,7 +120,8 @@ nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme)
 
 NS_IMETHODIMP
 nsMacShellService::SetDesktopBackground(Element* aElement,
-                                        int32_t aPosition)
+                                        int32_t aPosition,
+                                        const nsACString& aImageName)
 {
   // Note: We don't support aPosition on OS X.
 
@@ -136,17 +137,6 @@ nsMacShellService::SetDesktopBackground(Element* aElement,
   if (!docURI)
     return NS_ERROR_FAILURE;
 
-  // Get the desired image file name:
-  nsCOMPtr<nsIURL> imageURL(do_QueryInterface(imageURI));
-  if (!imageURL)
-  {
-    // XXXmano (bug 300293): Non-URL images (e.g. the data: protocol) are not
-    // yet supported. What filename should we take here?
-    return NS_ERROR_NOT_IMPLEMENTED;
-  }
-
-  nsAutoCString fileName;
-  imageURL->GetFileName(fileName);
   nsCOMPtr<nsIProperties> fileLocator
     (do_GetService("@mozilla.org/file/directory_service;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -158,7 +148,7 @@ nsMacShellService::SetDesktopBackground(Element* aElement,
     return NS_ERROR_OUT_OF_MEMORY;
 
   nsAutoString fileNameUnicode;
-  CopyUTF8toUTF16(fileName, fileNameUnicode);
+  CopyUTF8toUTF16(aImageName, fileNameUnicode);
 
   // and add the image file name itself:
   mBackgroundFile->Append(fileNameUnicode);

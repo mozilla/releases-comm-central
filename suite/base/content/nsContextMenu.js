@@ -992,8 +992,11 @@ nsContextMenu.prototype = {
   },
 
   setDesktopBackground: function() {
+    let url = (new URL(this.target.ownerDocument.location.href)).pathname;
+    let imageName = url.substr(url.lastIndexOf("/") + 1);
     openDialog("chrome://communicator/content/setDesktopBackground.xul",
-               "_blank", "chrome,modal,titlebar,centerscreen", this.target);
+               "_blank", "chrome,modal,titlebar,centerscreen", this.target,
+               imageName);
   },
 
   // Save URL of clicked-on frame.
