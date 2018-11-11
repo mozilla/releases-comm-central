@@ -532,14 +532,14 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 #compose-toolbox {
   -moz-appearance: none;
   background-color: var(--toolbar-bgcolor);
-  border-bottom: 1px solid var(--toolbox-border-bottom-color);
+  border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
 @media (-moz-windows-default-theme) {
   @media (-moz-os-version: windows-win8),
          (-moz-os-version: windows-win10) {
     #compose-toolbox:not(:-moz-lwtheme) {
-      --toolbox-border-bottom-color: #c2c2c2;
+      --chrome-content-separator-color: #c2c2c2;
     }
   }
 }

@@ -33,7 +33,7 @@
 
 #compose-toolbox {
   background-color: var(--toolbar-bgcolor);
-  border-bottom: 1px solid var(--toolbox-border-bottom-color);
+  border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
 /** Stock icons for the menu items. */

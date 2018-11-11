@@ -56,14 +56,14 @@
 #ab-toolbox {
   -moz-appearance: none;
   background-color: var(--toolbar-bgcolor);
-  border-bottom: 1px solid var(--toolbox-border-bottom-color);
+  border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
 @media (-moz-windows-default-theme) {
   @media (-moz-os-version: windows-win8),
          (-moz-os-version: windows-win10) {
     #ab-toolbox:not(:-moz-lwtheme) {
-      --toolbox-border-bottom-color: #c2c2c2;
+      --chrome-content-separator-color: #c2c2c2;
     }
   }
 }
@@ -155,6 +155,6 @@ toolbox > toolbar:last-of-type {
   #ab-toolbox:not(:-moz-lwtheme) {
     color: black;
     text-shadow: 0 0 .7em white, 0 0 .7em white, 0 1px 0 rgba(255, 255, 255, .4);
-    --toolbox-border-bottom-color: #aabccf;
+    --chrome-content-separator-color: #aabccf;
   }
 }

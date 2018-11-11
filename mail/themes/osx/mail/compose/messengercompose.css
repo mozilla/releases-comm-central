@@ -18,7 +18,7 @@
   top: 100%;
   margin-top: -1px;
   height: 1px;
-  border-bottom: 1px solid var(--toolbox-border-bottom-color);
+  border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
 #attachments-box[empty] > #attachmentBucket:focus {

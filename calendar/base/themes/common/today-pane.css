@@ -29,7 +29,7 @@
   -moz-appearance: none;
   background-color: var(--toolbar-bgcolor, -moz-Dialog);
   background-image: var(--toolbar-bgimage, none);
-  border-bottom: 1px solid var(--toolbox-border-bottom-color, ThreeDShadow);
+  border-bottom: 1px solid var(--chrome-content-separator-color, ThreeDShadow);
 }
 
 #today-pane-panel:-moz-lwtheme > sidebarheader {

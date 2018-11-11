@@ -32,7 +32,7 @@
   content: "";
   display: -moz-box;
   height: 1px;
-  border-bottom: 1px solid var(--toolbox-border-bottom-color);
+  border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
 .mail-toolbox > toolbar {

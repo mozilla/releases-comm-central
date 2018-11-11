@@ -20,7 +20,7 @@
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
-  --toolbox-border-bottom-color: ThreeDShadow;
+  --chrome-content-separator-color: ThreeDShadow;
 
   --toolbarbutton-border-radius: 2px;
   --toolbarbutton-icon-fill-opacity: .85;
@@ -828,6 +828,7 @@ findbar {
 findbar:-moz-lwtheme {
   background-color: var(--lwt-accent-color);
   background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor));
+  border-top-color: var(--chrome-content-separator-color);
 }
 
 /* ::::: groupbox ::::: */

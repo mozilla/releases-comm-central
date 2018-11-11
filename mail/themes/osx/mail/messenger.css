@@ -20,7 +20,7 @@
   --toolbar-non-lwt-bgimage: none;
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
-  --toolbox-border-bottom-color: hsl(0, 0%, 60%);
+  --chrome-content-separator-color: hsl(0, 0%, 60%);
 
   --toolbarbutton-border-radius: 3px;
   --toolbarbutton-icon-fill-opacity: .85;
@@ -107,11 +107,11 @@ toolbar[brighttext] {
 @media (-moz-mac-yosemite-theme) {
   :root:not(:-moz-lwtheme) {
     --tabs-border-color: rgba(0,0,0,.2);
-    --toolbox-border-bottom-color: hsl(0, 0%, 68%);
+    --chrome-content-separator-color: hsl(0, 0%, 68%);
   }
   :root:not(:-moz-lwtheme):-moz-window-inactive {
     --tabs-border-color: rgba(0,0,0,.05);
-    --toolbox-border-bottom-color: hsl(0, 0%, 85%);
+    --chrome-content-separator-color: hsl(0, 0%, 85%);
   }
 }
 
@@ -734,6 +734,7 @@ findbar {
 findbar:-moz-lwtheme {
   background-color: var(--lwt-accent-color);
   background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor));
+  border-top-color: var(--chrome-content-separator-color);
   color: var(--toolbar-color);
 }
 

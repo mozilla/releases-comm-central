@@ -187,5 +187,5 @@
 
 /* Quick-Filter-Bar */
 #quick-filter-bar-expando {
-  border-bottom-color: var(--toolbox-border-bottom-color);
+  border-bottom-color: var(--chrome-content-separator-color);
 }

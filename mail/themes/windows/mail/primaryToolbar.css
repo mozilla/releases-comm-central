@@ -159,7 +159,7 @@
   content: "";
   display: -moz-box;
   height: 1px;
-  border-bottom: 1px solid var(--toolbox-border-bottom-color);
+  border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
 .mail-toolbox > toolbar:-moz-lwtheme,
@@ -825,7 +825,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 @media (-moz-windows-glass) {
   .mail-toolbox:not(:-moz-lwtheme)::after,
   .contentTabToolbox:not(:-moz-lwtheme)::after {
-    --toolbox-border-bottom-color: #aabccf;
+    --chrome-content-separator-color: #aabccf;
   }
 
   #tabs-toolbar {
@@ -934,6 +934,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 
   .mail-toolbox:not(:-moz-lwtheme)::after,
   .contentTabToolbox:not(:-moz-lwtheme)::after {
-    --toolbox-border-bottom-color: #c2c2c2;
+    --chrome-content-separator-color: #c2c2c2;
   }
 }

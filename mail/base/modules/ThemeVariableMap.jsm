@@ -47,7 +47,7 @@ const ThemeVariableMap = [
   ["--lwt-toolbar-vertical-separator", {
     lwtProperty: "toolbar_vertical_separator",
   }],
-  ["--toolbox-border-bottom-color", {
+  ["--chrome-content-separator-color", {
     lwtProperty: "toolbar_bottom_separator",
   }],
   ["--lwt-toolbarbutton-icon-fill", {
