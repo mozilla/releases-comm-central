@@ -52,7 +52,7 @@ function close_notification_box_in_current_tab() {
 }
 
 function currentLwTheme() {
-  return mc.window.LightWeightThemeWebInstaller._manager.currentThemeForDisplay;
+  return mc.window.LightWeightThemeWebInstaller._manager.currentThemeWithPersistedData;
 }
 
 /**
