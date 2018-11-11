@@ -37,6 +37,8 @@ var DirPaneController =
       case "cmd_delete":
       case "button_delete":
       case "cmd_properties":
+      case "cmd_printcard":
+      case "cmd_printcardpreview":
       case "cmd_newlist":
         return true;
       default:
@@ -94,6 +96,9 @@ var DirPaneController =
         // Else return true to enable deletion (default).
         return true;
       }
+      case "cmd_printcard":
+      case "cmd_printcardpreview":
+        return (GetSelectedCardIndex() != -1);
       case "cmd_properties":
         return (getSelectedDirectoryURI() != null);
       case "cmd_newlist":
@@ -106,6 +111,8 @@ var DirPaneController =
   doCommand: function(command)
   {
     switch (command) {
+      case "cmd_printcard":
+      case "cmd_printcardpreview":
       case "cmd_selectAll":
         SendCommandToResultsPane(command);
         break;
