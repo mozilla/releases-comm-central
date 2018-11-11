@@ -20,6 +20,7 @@
 #include "nsIPrefBranch.h"
 #include "nsString.h"
 #include "nsUnicharUtils.h"
+#include "nsNativeCharsetUtils.h"
 #include "nsIMsgAttachment.h"
 #include "nsIMsgCompFields.h"
 #include "nsIMsgComposeParams.h"
@@ -29,7 +30,6 @@
 #include "nsIMsgComposeService.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
-#include "nsMsgI18N.h"
 #include "msgMapi.h"
 #include "msgMapiHook.h"
 #include "msgMapiSupport.h"
@@ -478,9 +478,8 @@ nsresult nsMapiHook::HandleAttachments (nsIMsgCompFields * aCompFields, int32_t 
                 if (aIsUnicode)
                     wholeFileName.Assign(aFiles[i].lpszFileName);
                 else
-                    nsMsgI18NConvertToUnicode(nsMsgI18NFileSystemCharset(),
-                                              nsDependentCString((char *) aFiles[i].lpszFileName),
-                                              wholeFileName);
+                    NS_CopyNativeToUnicode(nsDependentCString((char *) aFiles[i].lpszFileName),
+                                           wholeFileName);
                 // need to find the last '\' and find the leafname from that.
                 int32_t lastSlash = wholeFileName.RFindChar(char16_t('\\'));
                 if (lastSlash != kNotFound)
@@ -597,16 +596,12 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
 
   MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("to: %s cc: %s bcc: %s \n", NS_ConvertUTF16toUTF8(To).get(), NS_ConvertUTF16toUTF8(Cc).get(), NS_ConvertUTF16toUTF8(Bcc).get()));
 
-  nsAutoCString platformCharSet;
   // set subject
   if (aMessage->lpszSubject)
   {
     nsAutoString Subject ;
-    if (platformCharSet.IsEmpty())
-      platformCharSet = nsMsgI18NFileSystemCharset();
-    rv = nsMsgI18NConvertToUnicode(platformCharSet,
-                                   nsDependentCString((char *) aMessage->lpszSubject),
-                                   Subject);
+    rv = NS_CopyNativeToUnicode(nsDependentCString((char *) aMessage->lpszSubject),
+                                Subject);
     if (NS_FAILED(rv)) return rv;
     aCompFields->SetSubject(Subject);
   }
@@ -619,11 +614,8 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
   if (aMessage->lpszNoteText)
   {
     nsAutoString Body ;
-    if (platformCharSet.IsEmpty())
-      platformCharSet = nsMsgI18NFileSystemCharset();
-    rv = nsMsgI18NConvertToUnicode(platformCharSet,
-                                   nsDependentCString((char *) aMessage->lpszNoteText),
-                                   Body);
+    rv = NS_CopyNativeToUnicode(nsDependentCString((char *) aMessage->lpszNoteText),
+                                Body);
     if (NS_FAILED(rv)) return rv ;
     if (Body.IsEmpty() || Body.Last() != '\n')
       Body.AppendLiteral(CRLF);
