@@ -47,6 +47,13 @@ notificationbox {
   -moz-binding: url("chrome://messenger/content/notificationbox.xml#notificationbox");
   -moz-box-orient: vertical;
 }
+.notificationbox-stack {
+  overflow: -moz-hidden-unscrollable;
+}
+
+notification {
+  -moz-binding: url("chrome://messenger/content/notificationbox.xml#notification");
+}
 
 button[type="menu-button"] {
   -moz-binding: url("chrome://messenger/content/menubutton.xml#menu-button");
