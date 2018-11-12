@@ -248,7 +248,7 @@ function goToDate(controller, year, month, day) {
         let direction = yearDifference > 0 ? "up" : "down";
         let scrollArrow = lookup(`
             ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/
-            anon({"anonid":"years-popup"})/{"class":"autorepeatbutton-${direction}"}`);
+            anon({"anonid":"years-popup"})/{"class":"scrollbutton-${direction}"}`);
 
         // Pick year.
         controller.click(lookup(`
