@@ -110,9 +110,10 @@
         <xul:menupopup anonid="years-popup" position="after_start"
                        onpopupshowing="moveYears('reset', 0); event.stopPropagation();"
                        onpopuphidden="firePopupListHidden();">
-          <xul:autorepeatbutton class="autorepeatbutton-up"
-                                orient="vertical"
-                                oncommand="moveYears('up', 1);"/>
+          <xul:toolbarbutton class="scrollbutton-up"
+                             orient="vertical"
+                             onmouseenter="startScroll('up', 1);"
+                             onmouseout="stopScroll();"/>
           <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
           <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
           <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
@@ -122,9 +123,10 @@
           <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
           <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
           <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:autorepeatbutton class="autorepeatbutton-down"
-                                orient="vertical"
-                                oncommand="moveYears('down', 1);"/>
+          <xul:toolbarbutton class="scrollbutton-down"
+                             orient="vertical"
+                             onmouseenter="startScroll('down', 1);"
+                             onmouseout="stopScroll();"/>
         </xul:menupopup>
       </xul:popupset>
     </content>
@@ -269,6 +271,22 @@
         ]]></body>
       </method>
 
+      <method name="startScroll">
+        <parameter name="direction"/>
+        <parameter name="scrollOffset"/>
+        <body><![CDATA[
+            this.scrollInterval = setInterval(() => {
+                this.moveYears(direction, scrollOffset);
+            }, 50);
+        ]]></body>
+      </method>
+
+      <method name="stopScroll">
+        <body><![CDATA[
+            clearInterval(this.scrollInterval);
+        ]]></body>
+      </method>
+
       <method name="moveYears">
         <parameter name="direction"/>
         <parameter name="scrollOffset"/>
@@ -306,7 +324,7 @@
             }
 
             // Go through all visible years and set the new value. Be sure to
-            // skip the autorepeatbuttons.
+            // skip the scrollbuttons.
             for (let i = 1; i < years.length - 1; i++) {
                 let value = parseInt(years[i].getAttribute("label"), 10) + offset;
                 years[i].setAttribute("label", value);
