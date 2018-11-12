@@ -671,7 +671,7 @@ function moveCurrentFilter(motion)
  * Redraws the list of filters. Takes the search box value into account.
  *
  * This function should perform very fast even in case of high number of filters.
- * Therefore there are some optimizations (e.g. listelement.children[] instead of
+ * Therefore there are some optimizations (e.g. listelement.itemChildren[] instead of
  * list.getItemAtIndex()), that favour speed vs. semantical perfection.
  */
 function rebuildFilterList()
@@ -728,8 +728,8 @@ function rebuildFilterList()
 
     if (listitemCount > listitemIndex) {
       // If there is a free existing listitem, reuse it.
-      // Use .children[] instead of .getItemAtIndex() as it is much faster.
-      listitem = gFilterListbox.children[listitemIndex];
+      // Use .itemChildren[] instead of .getItemAtIndex() as it is much faster.
+      listitem = gFilterListbox.itemChildren[listitemIndex];
       nameCell = listitem.firstChild;
       enabledCell = nameCell.nextSibling;
     }

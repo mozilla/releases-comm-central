@@ -437,7 +437,7 @@ var gAccountManager = {
       return;
 
     // Create the new preference value from the richlistbox list
-    let items = accountList.children;
+    let items = accountList.itemChildren;
     let selectedID = accountList.selectedItem.id;
     let array = [];
     for (let i in items)
