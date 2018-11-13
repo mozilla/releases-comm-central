@@ -29,6 +29,7 @@ messenger.jar:
     content/messenger/msgViewNavigation.js          (content/msgViewNavigation.js)
     content/messenger/mailWidgets.xml               (content/mailWidgets.xml)
     content/messenger/mailWidgets.js                (content/mailWidgets.js)
+    content/messenger/customElements.js             (content/customElements.js)
     content/messenger/customizeToolbar.css          (../../common/src/customizeToolbar.css)
     content/messenger/customizeToolbar.js           (../../common/src/customizeToolbar.js)
 *   content/messenger/customizeToolbar.xul          (../../common/src/customizeToolbar.xul)
