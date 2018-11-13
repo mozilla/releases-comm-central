@@ -701,13 +701,6 @@ button[type="menu-button"] > dropmarker {
   text-shadow: rgba(255, 255, 255, 0.4) 0 1px;
 }
 
-statusbarpanel,
-.statusbarpanel {
-  -moz-box-align: center;
-  -moz-box-pack: center;
-  padding: 0 4px;
-}
-
 .statusbar:-moz-lwtheme {
   -moz-appearance: none;
   background: none;

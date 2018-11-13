@@ -192,6 +192,17 @@ toolbar[printpreview="true"] {
   color: var(--lwt-text-color, inherit);
 }
 
+statusbarpanel,
+.statusbarpanel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  padding: 0 4px;
+}
+
 /* ::::: online/offline icons ::::: */
 
 #offline-status {

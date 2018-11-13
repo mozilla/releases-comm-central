@@ -794,10 +794,7 @@ menulist > menupopup:not([type="folder"]) > menuseparator {
 statusbarpanel,
 .statusbarpanel {
   -moz-appearance: none;
-  -moz-box-align: center;
-  -moz-box-pack: center;
   border-inline-end: 1px solid ThreeDLightShadow;
-  padding: 0 4px;
 }
 
 statusbarpanel:-moz-lwtheme,

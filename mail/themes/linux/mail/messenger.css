@@ -752,9 +752,6 @@ menulist[editable="true"] > .menulist-dropmarker {
 statusbarpanel,
 .statusbarpanel {
   -moz-appearance: none;
-  -moz-box-align: center;
-  -moz-box-pack: center;
-  padding: 0 4px;
 }
 
 .statusbar-resizerpanel {
