@@ -21,6 +21,15 @@
     </content>
 
     <implementation>
+      <constructor><![CDATA[
+        // This block needs to be kept in sync with the parent constructor in
+        // toolkit/content/widgets/menulist.xml.
+        this.mSelectedInternal = null;
+        this.mAttributeObserver = null;
+        this.setInitialSelection();
+
+        this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
+      ]]></constructor>
       <method name="_selectInputFieldValueInList">
         <body><![CDATA[
             if (this.hasAttribute("disableautoselect"))

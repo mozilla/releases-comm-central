@@ -1235,19 +1235,24 @@ EmailConfigWizard.prototype =
     var menuitem = menulist.selectedItem;
     if (menuitem && menuitem.serverKey) {
       // an existing server has been selected from the dropdown
-      menulist.editable = false;
+      menulist.removeAttribute("editable");
       _hide("outgoing_port");
       _hide("outgoing_ssl");
       _hide("outgoing_authMethod");
+      this.onChangedManualEdit();
     } else {
       // new server, with hostname, port etc.
-      menulist.editable = true;
+      menulist.setAttribute("editable", "true");
       _show("outgoing_port");
       _show("outgoing_ssl");
       _show("outgoing_authMethod");
-    }
 
-    this.onChangedManualEdit();
+      // We cannot rely on the editable menulist binding being
+      // attached immediately.
+      menulist.addEventListener("bindingattached", () => {
+        this.onChangedManualEdit();
+      }, { once: true });
+    }
   },
 
   onChangedManualEdit() {
