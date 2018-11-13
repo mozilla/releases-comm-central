@@ -37,9 +37,8 @@
                 "default": false
               },
               "default_area": {
-                "description": "Defines the location the browserAction will appear by default.  The default location is navbar.",
+                "description": "Currently unused.",
                 "type": "string",
-                "enum": [],
                 "optional": true
               }
             },
