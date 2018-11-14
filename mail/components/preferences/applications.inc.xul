@@ -57,20 +57,6 @@
                oncommand="gApplicationsPane.onDelete();"/>
     </commandset>
 
-    <commandset id="cloudFileCommandSet">
-      <commandset id="cloudFileCommandSetUpdate"
-                  commandupdater="true"
-                  events="focus"
-                  oncommandupdate="CommandUpdate_CloudFile()"/>
-      <command id="cmd_addCloudfileAccount"
-               oncommand="goDoCommand('cmd_addCloudfileAccount');"/>
-      <command id="cmd_removeCloudfileAccount"
-               oncommand="goDoCommand('cmd_removeCloudfileAccount');"/>
-      <command id="cmd_reauthCloudfileAccount"
-               oncommand="goDoCommand('cmd_reauthCloudfileAccount');"/>
-
-    </commandset>
-
     <keyset id="appPaneKeyset">
       <key keycode="VK_BACK" modifiers="any" command="cmd_delete"/>
       <key keycode="VK_DELETE" modifiers="any" command="cmd_delete"/>
@@ -176,13 +162,17 @@
                 </richlistbox>
                 <separator class="thin"/>
                 <hbox>
-                  <button id="addCloudFileAccount" flex="1" label="&addCloudFileAccount1.label;"
+                  <button id="addCloudFileAccount"
+                          flex="1"
+                          label="&addCloudFileAccount1.label;"
                           accesskey="&addCloudFileAccount1.accesskey;"
-                          command="cmd_addCloudfileAccount"/>
-                  <button id="removeCloudFileAccount" flex="1"
+                          oncommand="gCloudFileTab.addCloudFileAccount();"/>
+                  <button id="removeCloudFileAccount"
+                          flex="1"
+                          disabled="true"
                           label="&removeCloudFileAccount.label;"
                           accesskey="&removeCloudFileAccount.accesskey;"
-                          command="cmd_removeCloudfileAccount"/>
+                          oncommand="gCloudFileTab.removeCloudFileAccount();"/>
                 </hbox>
               </vbox>
               <vbox flex="1">
@@ -209,7 +199,10 @@
                     <description id="authMessage">&authRequired.description;</description>
                     <hbox>
                       <spring flex="1"/>
-                        <button command="cmd_reauthCloudfileAccount" label="&authRequired.button.label;" accesskey="&authRequired.button.accesskey;"/>
+                        <button id="reauthCloudFileAccount"
+                                label="&authRequired.button.label;"
+                                accesskey="&authRequired.button.accesskey;"
+                                oncommand="gCloudFileTab.authSelected();"/>
                       <spring flex="1"/>
                      </hbox>
                     <spacer flex="1"/>

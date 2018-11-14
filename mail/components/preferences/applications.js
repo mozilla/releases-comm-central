@@ -7,8 +7,6 @@
 /* globals ICON_URL_APP */
 // mail/base/content/contentAreaClick.js
 /* globals openLinkExternally */
-// toolkit/content/globalOverlay.js
-/* globals goUpdateCommand */
 
 // ------------------------------
 // Constants & Enumeration Values
@@ -43,7 +41,6 @@ XPCOMUtils.defineLazyServiceGetters(this, {
   gHandlerService: ["@mozilla.org/uriloader/handler-service;1", "nsIHandlerService"],
   gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
 });
-
 
 // ---------
 // Utilities
@@ -560,67 +557,6 @@ var gApplicationsTabController = {
 
 };
 
-var gCloudFileController = {
-  commands: {
-    cmd_addCloudfileAccount: {
-      isEnabled() {
-        return true;
-      },
-      doCommand() {
-        gCloudFileTab.addCloudFileAccount();
-      },
-    },
-
-    cmd_removeCloudfileAccount: {
-      isEnabled() {
-        let listbox = document.getElementById("cloudFileView");
-        return listbox.selectedCount > 0;
-      },
-      doCommand() {
-        gCloudFileTab.removeCloudFileAccount();
-      },
-    },
-
-    cmd_reauthCloudfileAccount: {
-      isEnabled() {
-        return true;
-      },
-      doCommand() {
-        gCloudFileTab.authSelected();
-      },
-    },
-
-  },
-
-  supportsCommand(aCommand) {
-    return (aCommand in this.commands);
-  },
-
-  isCommandEnabled(aCommand) {
-    if (!this.supportsCommand(aCommand))
-      return false;
-    return this.commands[aCommand].isEnabled();
-  },
-
-  doCommand(aCommand) {
-    if (!this.supportsCommand(aCommand))
-      return;
-
-    let cmd = this.commands[aCommand];
-
-    if (!cmd.isEnabled())
-      return;
-
-    cmd.doCommand();
-  },
-  onEvent(event) {},
-};
-
-function CommandUpdate_CloudFile() {
-  goUpdateCommand("cmd_removeCloudfileAccount");
-  goUpdateCommand("cmd_addCloudfileAccount");
-}
-
 var gCloudFileTab = {
   _initialized: false,
   _list: null,
@@ -643,37 +579,32 @@ var gCloudFileTab = {
       return;
 
     this._list = document.getElementById("cloudFileView");
+    this._removeAccountButton = document.getElementById("removeCloudFileAccount");
     this._settingsDeck = document.getElementById("cloudFileSettingsDeck");
     this._defaultPanel = document.getElementById("cloudFileDefaultPanel");
     this._settingsPanelWrap = document.getElementById("cloudFileSettingsWrapper");
     this._loadingPanel = document.getElementById("cloudFileLoadingPanel");
     this._authErrorPanel = document.getElementById("cloudFileAuthErrorPanel");
 
-    top.controllers.appendController(gCloudFileController);
-
     this.rebuildView();
 
-    if (this._list.itemCount > 0)
+    if (this._list.itemCount > 0) {
       this._list.selectedIndex = 0;
+      this._removeAccountButton.disabled = false;
+    }
 
     window.addEventListener("unload", this, {capture: false, once: true});
-
-    // We need to defer the command updating a bit otherwise it will happen too early.
-    window.addEventListener("load", () => {
-      setTimeout(CommandUpdate_CloudFile, 0);
-    }, {capture: false, once: true});
 
     this.updateThreshold();
 
     this._initialized = true;
   },
 
-  destroy: function CFT_destroy() {
+  destroy() {
     // Remove any controllers or observers here.
-    top.controllers.removeController(gCloudFileController);
   },
 
-  makeRichListItemForAccount: function CFT_makeRichListItemForAccount(aAccount) {
+  makeRichListItemForAccount(aAccount) {
     let rli = document.createElement("richlistitem");
     rli.value = aAccount.accountKey;
     rli.setAttribute("value", aAccount.accountKey);
@@ -703,13 +634,13 @@ var gCloudFileTab = {
     return rli;
   },
 
-  clearEntries: function CFT_clearEntries() {
+  clearEntries() {
     // Clear the list of entries.
     while (this._list.hasChildNodes())
       this._list.lastChild.remove();
   },
 
-  rebuildView: function CFT_rebuildView() {
+  rebuildView() {
     this.clearEntries();
     let accounts = cloudFileAccounts.accounts;
 
@@ -737,7 +668,7 @@ var gCloudFileTab = {
     }
   },
 
-  requestUserInfoForItem: function CFT_requestUserInfoForItem(aItem, aWithUI) {
+  requestUserInfoForItem(aItem, aWithUI) {
     let accountKey = aItem.value;
     let account = cloudFileAccounts.getAccount(accountKey);
 
@@ -763,7 +694,7 @@ var gCloudFileTab = {
     account.refreshUserInfo(aWithUI, observer);
   },
 
-  onUserInfoRequestDone: function CFT_onUserInfoRequestDone(aAccountKey) {
+  onUserInfoRequestDone(aAccountKey) {
     this.updateRichListItem(aAccountKey);
 
     if (this._list.selectedItem &&
@@ -771,7 +702,7 @@ var gCloudFileTab = {
       this._showAccountInfo(aAccountKey);
   },
 
-  updateRichListItem: function CFT_updateRichListItem(aAccountKey) {
+  updateRichListItem(aAccountKey) {
     let accountInfo = this._accountCache[aAccountKey];
     if (!accountInfo)
       return;
@@ -781,7 +712,7 @@ var gCloudFileTab = {
     this._mapResultToState(item, result);
   },
 
-  _mapResultToState: function CFT__mapResultToState(aItem, aResult) {
+  _mapResultToState(aItem, aResult) {
     let itemState = "no-connection";
 
     if (aResult == Cr.NS_OK)
@@ -795,10 +726,10 @@ var gCloudFileTab = {
     aItem.setAttribute("state", itemState);
   },
 
-
-  onSelectionChanged: function CFT_onSelectionChanged() {
+  onSelectionChanged() {
     // Get the selected item
     let selection = this._list.selectedItem;
+    this._removeAccountButton.disabled = !selection;
     if (!selection)
       return;
 
@@ -808,13 +739,13 @@ var gCloudFileTab = {
     this._showAccountInfo(accountKey);
   },
 
-  _showAccountInfo: function CFT__showAccountInfo(aAccountKey) {
+  _showAccountInfo(aAccountKey) {
     let account = this._accountCache[aAccountKey].account;
     let result = this._accountCache[aAccountKey].result;
 
-    if (result == Cr.NS_ERROR_NOT_AVAILABLE)
+    if (result == Cr.NS_ERROR_NOT_AVAILABLE) {
       this._settingsDeck.selectedPanel = this._loadingPanel;
-    else if (result == Cr.NS_OK) {
+    } else if (result == Cr.NS_OK) {
       this._settingsDeck.selectedPanel = this._settingsPanelWrap;
       this._showAccountManagement(account);
     } else if (result == Ci.nsIMsgCloudFileProvider.authErr) {
@@ -824,7 +755,7 @@ var gCloudFileTab = {
     }
   },
 
-  _showAccountManagement: function CFT__showAccountManagement(aProvider) {
+  _showAccountManagement(aProvider) {
     let iframe = document.createElement("iframe");
 
     iframe.setAttribute("src", aProvider.managementURL);
@@ -839,38 +770,35 @@ var gCloudFileTab = {
     this._settings = iframe;
 
     // When the iframe loads, populate it with the provider.
-    this._settings.contentWindow.addEventListener("load",
-      function loadProvider() {
-        try {
-          iframe.contentWindow
-                .wrappedJSObject
-                .onLoadProvider(aProvider);
-        } catch (e) {
-          Cu.reportError(e);
-        }
-      }, {capture: false, once: true});
+    this._settings.contentWindow.addEventListener("load", function() {
+      try {
+        iframe.contentWindow
+              .wrappedJSObject
+              .onLoadProvider(aProvider);
+      } catch (e) {
+        Cu.reportError(e);
+      }
+    }, {capture: false, once: true});
 
     // When the iframe (or any subcontent) fires the DOMContentLoaded event,
     // attach the _onClickLink handler to any anchor elements that we can find.
-    this._settings.contentWindow.addEventListener("DOMContentLoaded",
-      function addClickListeners(e) {
-        let doc = e.originalTarget;
-        let links = doc.getElementsByTagName("a");
+    this._settings.contentWindow.addEventListener("DOMContentLoaded", function(e) {
+      let doc = e.originalTarget;
+      let links = doc.getElementsByTagName("a");
 
-        for (let link of links)
-          link.addEventListener("click", gCloudFileTab._onClickLink);
-      }, {capture: false, once: true});
-
-    CommandUpdate_CloudFile();
+      for (let link of links) {
+        link.addEventListener("click", gCloudFileTab._onClickLink);
+      }
+    }, {capture: false, once: true});
   },
 
-  _onClickLink: function CFT__onClickLink(aEvent) {
+  _onClickLink(aEvent) {
     aEvent.preventDefault();
     let href = aEvent.target.getAttribute("href");
     openLinkExternally(href);
   },
 
-  authSelected: function CFT_authSelected() {
+  authSelected() {
     let item = this._list.selectedItem;
 
     if (!item)
@@ -879,7 +807,7 @@ var gCloudFileTab = {
     this.requestUserInfoForItem(item, true);
   },
 
-  addCloudFileAccount: function CFT_addCloudFileAccount() {
+  addCloudFileAccount() {
     let accountKey = cloudFileAccounts.addAccountDialog();
     if (!accountKey)
       return;
@@ -887,9 +815,10 @@ var gCloudFileTab = {
     this.rebuildView();
     let newItem = this._list.querySelector("richlistitem[value='" + accountKey + "']");
     this._list.selectItem(newItem);
+    this._removeAccountButton.disabled = false;
   },
 
-  removeCloudFileAccount: function CFT_removeCloudFileAccount() {
+  removeCloudFileAccount() {
     // Get the selected account key
     let selection = this._list.selectedItem;
     if (!selection)
@@ -908,29 +837,28 @@ var gCloudFileTab = {
       this.rebuildView();
       this._settingsDeck.selectedPanel = this._defaultPanel;
       delete this._accountCache[accountKey];
-      // For some reason, the focus event isn't fired, so I think
-      // we have to update the buttons manually...
-      CommandUpdate_CloudFile();
+
+      this._removeAccountButton.disabled = (this._list.selectedCount == 0);
     }
   },
 
-  handleEvent: function CFT_handleEvent(aEvent) {
+  handleEvent(aEvent) {
     if (aEvent.type == "unload")
       this.destroy();
   },
 
-  readThreshold: function CFT_readThreshold() {
+  readThreshold() {
     let pref = document.getElementById("mail.compose.big_attachments.threshold_kb");
     return pref.value / 1024;
   },
 
-  writeThreshold: function CFT_writeThreshold() {
+  writeThreshold() {
     let threshold = document.getElementById("cloudFileThreshold");
     let intValue = parseInt(threshold.value, 10);
     return isNaN(intValue) ? 0 : intValue * 1024;
   },
 
-  updateThreshold: function CFT_updateThreshold() {
+  updateThreshold() {
     document.getElementById("cloudFileThreshold").disabled =
     !document.getElementById("enableThreshold").checked;
   },
@@ -961,7 +889,6 @@ var gApplicationsPane = {
   // to determine whether or not to annotate descriptions with their types to
   // distinguish duplicate descriptions from each other.
   _visibleDescriptions: new Map(),
-
 
   // -----------------------------------
   // Convenience & Performance Shortcuts
@@ -1686,9 +1613,9 @@ var gApplicationsPane = {
     aEvent.stopPropagation();
     if (Services.prompt.confirm(null,
                                 this._prefsBundle.getString("confirmDeleteTitle"),
-                                this._prefsBundle.getString("confirmDeleteText")))
+                                this._prefsBundle.getString("confirmDeleteText"))) {
       this.onDelete(aEvent);
-    else {
+    } else {
       // They hit cancel, so return them to the previously selected item.
       let menu = document.getAnonymousElementByAttribute(this._list.selectedItem,
                                                          "class", "actionsMenu");
