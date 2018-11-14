@@ -375,17 +375,13 @@
             }
         ]]></body>
       </method>
+    </implementation>
 
-      </implementation>
-
-      <handlers>
-          <handler event="bindingattached" action="this.initialize();"/>
-
-          <handler event="blur" phase="capturing"><![CDATA[
-              this.parseTextBoxDate(true);
-          ]]></handler>
-      </handlers>
-
+    <handlers>
+      <handler event="blur" phase="capturing"><![CDATA[
+          this.parseTextBoxDate(true);
+      ]]></handler>
+    </handlers>
   </binding>
 
   <binding id="datepicker-forever" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datepicker">
@@ -632,11 +628,9 @@
             this.kTextBox.select();
         ]]></body>
       </method>
-
     </implementation>
 
     <handlers>
-      <handler event="bindingattached" action="this.initialize();"/>
       <handler event="blur" phase="capturing"><![CDATA[
           this.parseTextBoxTime(true);
       ]]></handler>
@@ -1339,10 +1333,6 @@
         ]]></body>
       </method>
     </implementation>
-
-    <handlers>
-      <handler event="bindingattached" action="this.initialize();"/>
-    </handlers>
   </binding>
 
   <binding id="datetimepicker" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base"
@@ -1436,11 +1426,6 @@
         ]]></body>
       </method>
     </implementation>
-
-    <handlers>
-      <handler event="bindingattached" action="this.initialize();"/>
-    </handlers>
-
   </binding>
 
   <binding id="datetimepicker-base" extends="chrome://global/content/bindings/general.xml#basecontrol"
