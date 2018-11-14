@@ -25,7 +25,7 @@ function onUnload(aEvent) {
 function appUpdater()
 {
   this.updateDeck = document.getElementById("updateDeck");
-  this.promiseAutoUpdateSetting = null;
+  this.promiseAutoUpdateSetting;
 
   // Hide the update deck when there is already an update window open to avoid
   // syncing issues between them.
@@ -251,10 +251,10 @@ appUpdater.prototype =
         return;
       }
 
-      if (this.promiseAutoUpdateSetting == null) {
-        this.promiseAutoUpdateSetting = this.aus.getAutoUpdateIsEnabled();
+      if (!gAppUpdater.promiseAutoUpdateSetting) {
+        gAppUpdater.promiseAutoUpdateSetting = gAppUpdater.aus.getAutoUpdateIsEnabled();
       }
-      this.promiseAutoUpdateSetting.then(updateAuto => {
+      gAppUpdater.promiseAutoUpdateSetting.then(updateAuto => {
         if (updateAuto) { // automatically download and install
           gAppUpdater.startDownload();
         } else { // ask
