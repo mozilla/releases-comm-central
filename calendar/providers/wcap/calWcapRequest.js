@@ -193,7 +193,6 @@ function calWcapNetworkRequest(url, respFunc, bLogging) {
 }
 var calWcapNetworkRequestClassID = Components.ID("{e3c62b37-83cf-41ec-9872-0af9f952430a}");
 var calWcapNetworkRequestInterfaces = [
-    Components.interfaces.nsIUnicharStreamLoaderObserver,
     Components.interfaces.nsIInterfaceRequestor,
     Components.interfaces.nsIChannelEventSink,
     Components.interfaces.calIOperation,
@@ -242,28 +241,7 @@ calWcapNetworkRequest.prototype = {
         aCallback.onRedirectVerifyCallback(Components.results.NS_OK);
     },
 
-    /**
-     * @see nsIUnicharStreamLoaderObserver
-     */
-    onDetermineCharset: function(loader, context, firstSegment, length) {
-        let channel = null;
-        if (loader) {
-            channel = loader.channel;
-        }
-        let charset = null;
-        if (channel) {
-            charset = channel.contentCharset;
-        }
-        if (!charset || charset.length == 0) {
-            charset = "UTF-8";
-        }
-        return charset;
-    },
-
-    /**
-     * @see nsIUnicharStreamLoaderObserver
-     */
-    onStreamComplete: function(aLoader, aContext, aStatus, unicharData) {
+    onStreamComplete: function(aLoader, aContext, aStatus, aResultLength, aResult) {
         this.m_loader = null;
 
         if (LOG_LEVEL > 0 && this.m_bLogging) {
@@ -274,22 +252,26 @@ calWcapNetworkRequest.prototype = {
             return;
         }
 
-        if (LOG_LEVEL > 2 && this.m_bLogging) {
-            log("contentCharset = " + aLoader.charset + "\nrequest result:\n" + unicharData, this);
-        }
+        let httpChannel = aLoader.request.QueryInterface(Ci.nsIHttpChannel);
+        let encoding = httpChannel.contentCharset || "utf-8";
+        let result = aResultLength
+                   ? new TextDecoder(encoding).decode(Uint8Array.from(aResult))
+                   : "";
 
-        let httpChannel = aLoader.channel.QueryInterface(Components.interfaces.nsIHttpChannel);
+        if (LOG_LEVEL > 2 && this.m_bLogging) {
+            log("contentCharset = " + encoding + "\nrequest result:\n" + result, this);
+        }
         switch (httpChannel.responseStatus / 100) {
             case 2: /* 2xx codes */
                 // Everything worked out, we are done
-                this.execRespFunc(aStatus, unicharData);
+                this.execRespFunc(aStatus, aResult);
                 break;
             default: {
                 // Something else went wrong
                 let error = "A request Error Occurred. Status Code: " +
                             httpChannel.responseStatus + " " +
                             httpChannel.responseStatusText + " Body: " +
-                            unicharData;
+                            result;
                 this.execRespFunc(Components.Exception(error, NS_BINDING_FAILED));
                 break;
             }
@@ -407,13 +389,11 @@ function issueNetworkRequest(parentRequest, respFunc, url, bLogging) {
         channel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
         channel.redirectionLimit = 3;
         channel.notificationCallbacks = netRequest;
-        let loader = Components.classes["@mozilla.org/network/unichar-stream-loader;1"]
-                               .createInstance(Components.interfaces.nsIUnicharStreamLoader);
+        let loader = cal.provider.createStreamLoader();
         netRequest.m_loader = loader;
 
         log("opening channel.", netRequest);
-        loader.init(netRequest,
-                    Components.interfaces.nsIUnicharStreamLoader.DEFAULT_SEGMENT_SIZE);
+        loader.init(netRequest);
         channel.asyncOpen(loader, null);
     } catch (exc) {
         netRequest.execRespFunc(exc);

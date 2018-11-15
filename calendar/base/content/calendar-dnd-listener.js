@@ -291,8 +291,7 @@ calDNDBaseObserver.prototype = {
             case "application/x-moz-file-promise":
             case "text/x-moz-url": {
                 let uri = Services.io.newURI(data.toString());
-                let loader = Cc["@mozilla.org/network/unichar-stream-loader;1"]
-                             .createInstance(Ci.nsIUnicharStreamLoader);
+                let loader = cal.provider.createStreamLoader();
                 let channel = Services.io.newChannelFromURI2(
                     uri,
                     null,
@@ -306,28 +305,20 @@ calDNDBaseObserver.prototype = {
                 let self = this;
 
                 let listener = {
-                    // nsIUnicharStreamLoaderObserver:
-                    onDetermineCharset: function(aLoader, context, firstSegment, aLength) {
-                        let charset = null;
-                        if (aLoader && aLoader.channel) {
-                            charset = channel.contentCharset;
-                        }
-                        if (!charset || charset.length == 0) {
-                            charset = "UTF-8";
-                        }
-                        return charset;
-                    },
-
-                    onStreamComplete: function(aLoader, context, status, unicharString) {
+                    onStreamComplete: function(aLoader, aContext, aStatus, aResultLength, aResult) {
                         let parser = Cc["@mozilla.org/calendar/ics-parser;1"]
                                      .createInstance(Ci.calIIcsParser);
-                        parser.parseString(unicharString);
+                        let encoding = channel.contentCharset || "utf-8";
+                        let result = aResultLength
+                                   ? new TextDecoder(encoding).decode(Uint8Array.from(aResult))
+                                   : "";
+                        parser.parseString(result);
                         self.onDropItems(parser.getItems({}).concat(parser.getParentlessItems({})));
                     }
                 };
 
                 try {
-                    loader.init(listener, Ci.nsIUnicharStreamLoader.DEFAULT_SEGMENT_SIZE);
+                    loader.init(listener);
                     channel.asyncOpen(loader, null);
                 } catch (e) {
                     cal.ERROR(e);
