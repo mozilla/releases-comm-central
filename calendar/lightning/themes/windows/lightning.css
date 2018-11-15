@@ -125,20 +125,3 @@
                       linear-gradient(-moz-dialog, -moz-dialog);
   }
 }
-
-menupopup[anonid="years-popup"] .scrollbutton-up,
-menupopup[anonid="years-popup"] .scrollbutton-down {
-  -moz-appearance: none;
-  border: 1px solid transparent;
-  padding: 1px;
-}
-
-menupopup[anonid="years-popup"] .scrollbutton-up:not([disabled="true"]):hover,
-menupopup[anonid="years-popup"] .scrollbutton-down:not([disabled="true"]):hover {
-  margin: 1px;
-  border: 1px inset ThreeDFace;
-  padding-top: 2px;
-  padding-bottom: 1px;
-  padding-inline-start: 2px;
-  padding-inline-end: 1px;
-}
