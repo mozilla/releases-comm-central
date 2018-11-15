@@ -6,6 +6,8 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", nul
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm", null);
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
+var xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
+var MIME_TEXT_XML = "text/xml; charset=utf-8";
 
 /**
  * This is a handler for the etag request in calDavCalendar.js' getUpdatedItem.
