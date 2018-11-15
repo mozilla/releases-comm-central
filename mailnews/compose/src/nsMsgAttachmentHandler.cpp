@@ -34,6 +34,7 @@
 #include "nsIZipWriter.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
+#include "mozilla/Preferences.h"
 #include "nsIPrincipal.h"
 #include "nsIURIMutator.h"
 
@@ -851,20 +852,14 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
     {
       nsAutoCString ext;
       rv = fileUrl->GetFileExtension(ext);
-      if (NS_SUCCEEDED(rv) && !ext.IsEmpty())
-      {
-        sendResourceFork =
-        PL_strcasecmp(ext.get(), "TXT") &&
-        PL_strcasecmp(ext.get(), "JPG") &&
-        PL_strcasecmp(ext.get(), "GIF") &&
-        PL_strcasecmp(ext.get(), "TIF") &&
-        PL_strcasecmp(ext.get(), "HTM") &&
-        PL_strcasecmp(ext.get(), "HTML") &&
-        PL_strcasecmp(ext.get(), "ART") &&
-        PL_strcasecmp(ext.get(), "XUL") &&
-        PL_strcasecmp(ext.get(), "XML") &&
-        PL_strcasecmp(ext.get(), "CSS") &&
-        PL_strcasecmp(ext.get(), "JS");
+      if (NS_SUCCEEDED(rv) && !ext.IsEmpty()) {
+        // Check the preference to see whether AppleDouble was requested for this extension.
+        nsAutoCString extensionWhitelist;
+        mozilla::Preferences::GetCString("mailnews.extensions_using_appledouble", extensionWhitelist);
+        if (extensionWhitelist.IsEmpty() ||
+            (!extensionWhitelist.Equals("*") &&
+             extensionWhitelist.Find(ext, /* ignoreCase = */ true) == kNotFound))
+          sendResourceFork = false;  // Ignore resource fork and don't use AppleDouble.
       }
     }
   }
@@ -983,13 +978,6 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
   }
   else
   {
-    if ( sendResourceFork )
-    {
-      // For now, just do the encoding, but in the old world we would ask the
-      // user about doing this conversion
-      printf("...we could ask the user about this conversion, but for now, nahh..\n");
-    }
-
     bool      useDefault;
     char      *macType, *macEncoding;
     if (m_type.IsEmpty() || m_type.LowerCaseEqualsLiteral(TEXT_PLAIN))

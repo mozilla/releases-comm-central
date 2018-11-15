@@ -284,6 +284,14 @@ pref("mailnews.reply_in_default_charset",   false);
 // don't fallback from <charset> to UTF-8 even if some characters are not found in <charset>.
 // those characters will be crippled.
 pref("mailnews.disable_fallback_to_utf8.ISO-2022-JP", false);
+
+// AppleDouble is causing problems with some webmail clients and Microsoft mail servers
+// rejecting a MIME part of multipart/appledouble. Mac uses resource forks less and less
+// so we only use AppleDouble if the file has no extension or its extension is whitelisted below.
+// "" (default) - AppleDouble won't be used if the file has an extension
+// "*" - AppleDouble will always be used
+// Comma-separated list of extensions for which to use AppleDouble, for example "doc,xls" (not-case sensitive).
+pref("mailnews.extensions_using_appledouble", "");
 pref("mailnews.localizedRe",                "chrome://messenger-region/locale/region.properties");
 
 pref("mailnews.search_date_format",        "chrome://messenger/locale/messenger.properties");
