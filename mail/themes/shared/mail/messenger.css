@@ -215,20 +215,6 @@ statusbarpanel,
   list-style-image: url("chrome://messenger/skin/icons/offline.png");
 }
 
-/* ::::: Notifications ::::: */
-
-notification {
-  padding-bottom: 2px;
-}
-
-notification[type="warning"] {
-  background: #ffc;
-}
-
-notification[value="draftMsgContent"] .messageImage {
-  list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
-}
-
 /* ::::: searchTermOverlay ::::: */
 
 #searchTermList > richlistitem[highlight = "true"] {

@@ -296,7 +296,7 @@
   font-weight: bold;
 }
 
-#attachmentNotificationBox > notification[image="null"] .messageImage {
+#attachmentNotificationBox > xbl-notification[image="null"] .messageImage {
   background-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 

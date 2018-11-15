@@ -54,11 +54,11 @@
     overflow-y: visible;
 }
 
-#reminder-notifications > notification {
+#reminder-notifications > xbl-notification {
     background-color: transparent;
     border-width: 0;
 }
-#reminder-notifications > notification[type="warning"] > hbox > .messageImage {
+#reminder-notifications > xbl-notification[type="warning"] > hbox > .messageImage {
     width: 32px;
     height: 32px;
     fill: #ffbf00;

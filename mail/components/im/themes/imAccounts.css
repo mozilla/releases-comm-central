@@ -11,7 +11,7 @@
 }
 
 %ifndef XP_MACOSX
-notification > hbox {
+xbl-notification > hbox {
   border: none !important;
   border-bottom: 1px solid ThreeDShadow !important;
 }

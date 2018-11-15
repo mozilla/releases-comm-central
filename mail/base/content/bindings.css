@@ -4,6 +4,7 @@
 
 @import url("chrome://global/skin/textbox.css");
 @import url("chrome://messenger/skin/numberbox.css");
+@import url("chrome://messenger/skin/xbl-notification.css");
 @import url("chrome://messenger/skin/spinbuttons.css");
 @import url("chrome://messenger/skin/datetimepicker.css");
 @import url("chrome://messenger/content/menulist.css");
@@ -51,7 +52,7 @@ notificationbox {
   overflow: -moz-hidden-unscrollable;
 }
 
-notification {
+xbl-notification {
   -moz-binding: url("chrome://messenger/content/notificationbox.xml#notification");
 }
 

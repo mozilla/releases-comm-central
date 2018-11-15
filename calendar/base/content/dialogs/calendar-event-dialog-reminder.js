@@ -169,7 +169,7 @@ function setupMaxReminders() {
     setElementValue("reminder-new-button", cond && "true", "disabled");
 
     if (!setupMaxReminders.notification) {
-        let notification = createXULElement("notification");
+        let notification = createXULElement("xbl-notification");
         let localeErrorString =
             cal.l10n.getString("calendar-alarms",
                                getItemBundleStringName("reminderErrorMaxCountReached"),
