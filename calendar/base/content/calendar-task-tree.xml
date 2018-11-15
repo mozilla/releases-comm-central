@@ -1112,39 +1112,6 @@
           if (!item || item.calendar.readOnly) {
               return;
           }
-
-          let tree = document.getAnonymousElementByAttribute(this, "anonid", "calendar-task-tree");
-
-          // let's build the drag region
-          let region = null;
-          try {
-              region = Components.classes["@mozilla.org/gfx/region;1"].createInstance(Components.interfaces.nsIScriptableRegion);
-              region.init();
-              let treeBox = tree.treeBox;
-              let bodyBox = treeBox.treeBody.boxObject;
-              let sel = tree.view.selection;
-
-              let rowX = bodyBox.x;
-              let rowY = bodyBox.y;
-              let rowHeight = treeBox.rowHeight;
-              let rowWidth = bodyBox.width;
-
-              // add a rectangle for each visible selected row
-              for (let i = treeBox.getFirstVisibleRow(); i <= treeBox.getLastVisibleRow(); i++) {
-                  if (sel.isSelected(i)) {
-                      region.unionRect(rowX, rowY, rowWidth, rowHeight);
-                  }
-                  rowY = rowY + rowHeight;
-              }
-
-              // and finally, clip the result to be sure we don't spill over...
-              if (!region.isEmpty()) {
-                  region.intersectRect(bodyBox.x, bodyBox.y, bodyBox.width, bodyBox.height);
-              }
-          } catch (ex) {
-              cal.ASSERT(false, "Error while building selection region: " + ex + "\n");
-              region = null;
-          }
           invokeEventDragSession(item, event.target);
       ]]></handler>
     </handlers>
