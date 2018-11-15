@@ -8,7 +8,7 @@
 #include "nsAddrDatabase.h"
 #include "nsIOutputStream.h"
 #include "nsNetUtil.h"
-#include "nsMsgI18N.h"
+#include "nsNativeCharsetUtils.h"
 #include "nsIStringBundle.h"
 #include "nsMsgUtils.h"
 #include "nsAppDirectoryServiceDefs.h"
@@ -730,11 +730,10 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory,
       if (NS_FAILED(bundle->GetStringFromID(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID, columnName)))
         columnName.AppendInt(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID);
 
-      rv = nsMsgI18NConvertFromUnicode(useUTF8 ? NS_LITERAL_CSTRING("UTF-8") :
-                                                 nsMsgI18NFileSystemCharset(),
-                                       columnName,
-                                       revisedName);
-      NS_ENSURE_SUCCESS(rv,rv);
+      if (useUTF8)
+        CopyUTF16toUTF8(columnName, revisedName);
+      else
+        NS_CopyUnicodeToNative(columnName, revisedName);
 
       rv = outputStream->Write(revisedName.get(),
                                revisedName.Length(),
@@ -823,16 +822,10 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory,
                 newValue.Append(u'"');
               }
 
-              rv = nsMsgI18NConvertFromUnicode(useUTF8 ? NS_LITERAL_CSTRING("UTF-8") :
-                                                         nsMsgI18NFileSystemCharset(),
-                                               newValue,
-                                               valueCStr);
-              NS_ENSURE_SUCCESS(rv,rv);
-
-              if (NS_FAILED(rv)) {
-                NS_ERROR("failed to convert string to system charset.  use LDIF");
-                valueCStr = "?";
-              }
+              if (useUTF8)
+                CopyUTF16toUTF8(newValue, valueCStr);
+              else
+                NS_CopyUnicodeToNative(newValue, valueCStr);
 
               length = valueCStr.Length();
               if (length) {

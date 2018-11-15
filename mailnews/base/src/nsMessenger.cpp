@@ -69,7 +69,6 @@
 #include "nsIMimeMiscStatus.h"
 // compose
 #include "nsMsgCompCID.h"
-#include "nsMsgI18N.h"
 #include "nsNativeCharsetUtils.h"
 
 // draft/folders/sendlater/etc
@@ -1852,20 +1851,13 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsISupports* aSupport,
     ConvertBufToPlainText(utf16Buffer, false, false, false, false);
 
     nsCString outCString;
-    rv = nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(),
-      utf16Buffer, outCString, true);
-    if (rv == NS_ERROR_UENC_NOMAPPING) {
-      // If we can't encode with the preferred charset, use UTF-8.
-      CopyUTF16toUTF8(utf16Buffer, outCString);
-      rv = NS_OK;
-    }
-    if (NS_SUCCEEDED(rv))
-    {
-      uint32_t writeCount;
-      rv = m_outputStream->Write(outCString.get(), outCString.Length(), &writeCount);
-      if (outCString.Length() != writeCount)
-        rv = NS_ERROR_FAILURE;
-    }
+    // NS_CopyUnicodeToNative() doesn't return an error, so we have no choice but to
+    // always use UTF-8.
+    CopyUTF16toUTF8(utf16Buffer, outCString);
+    uint32_t writeCount;
+    rv = m_outputStream->Write(outCString.get(), outCString.Length(), &writeCount);
+    if (outCString.Length() != writeCount)
+      rv = NS_ERROR_FAILURE;
   }
 
   if (m_outputStream)

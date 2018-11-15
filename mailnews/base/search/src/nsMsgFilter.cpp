@@ -19,6 +19,7 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgSearchValue.h"
 #include "nsMsgI18N.h"
+#include "nsNativeCharsetUtils.h"
 #include "nsIMutableArray.h"
 #include "nsIOutputStream.h"
 #include "nsIStringBundle.h"
@@ -747,12 +748,9 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(nsIMsgRuleAction *filterAct
       if (filterVersion == k45Version)
       {
         nsAutoString unicodeStr;
-        nsresult rv = nsMsgI18NConvertToUnicode(nsMsgI18NFileSystemCharset(),
-                                                originalServerPath,
-                                                unicodeStr);
-        NS_ENSURE_SUCCESS(rv, rv);
+        NS_CopyNativeToUnicode(originalServerPath, unicodeStr);
 
-        rv = CopyUTF16toMUTF7(unicodeStr, originalServerPath);
+        nsresult rv = CopyUTF16toMUTF7(unicodeStr, originalServerPath);
         NS_ENSURE_SUCCESS(rv, rv);
       }
 
@@ -810,9 +808,7 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(nsIMsgRuleAction *filterAct
         if (filterVersion == k45Version)
         {
           nsAutoString unicodeStr;
-          rv = nsMsgI18NConvertToUnicode(nsMsgI18NFileSystemCharset(),
-                                         moveValue, unicodeStr);
-          NS_ENSURE_SUCCESS(rv, rv);
+          NS_CopyNativeToUnicode(moveValue, unicodeStr);
           rv = NS_MsgEscapeEncodeURLPath(unicodeStr, moveValue);
         }
         destFolderUri.Append(moveValue);

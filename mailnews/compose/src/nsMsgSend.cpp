@@ -2486,27 +2486,16 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
       if (NS_FAILED(status))
       {
         nsString errorMsg;
-        nsresult rv = nsMsgI18NConvertToUnicode(nsMsgI18NFileSystemCharset(),
-                                                m_attachments[i]->m_realName,
-                                                attachmentFileName);
-        if (attachmentFileName.IsEmpty() && m_attachments[i]->mURL) {
-          nsCString asciiSpec;
-          m_attachments[i]->mURL->GetAsciiSpec(asciiSpec);
-          attachmentFileName.AssignASCII(asciiSpec.get());
-          rv = NS_OK;
-        }
-        if (NS_SUCCEEDED(rv))
-        {
-          nsCOMPtr<nsIStringBundle> bundle;
-          const char16_t *params[] = { attachmentFileName.get() };
-          mComposeBundle->FormatStringFromName("errorAttachingFile",
-                                               params, 1,
-                                               errorMsg);
-          mSendReport->SetMessage(nsIMsgSendReport::process_Current, errorMsg.get(), false);
-          mSendReport->SetError(nsIMsgSendReport::process_Current,
-                                NS_MSG_ERROR_ATTACHING_FILE,
-                                false);
-        }
+        NS_CopyNativeToUnicode(m_attachments[i]->m_realName, attachmentFileName);
+        nsCOMPtr<nsIStringBundle> bundle;
+        const char16_t *params[] = { attachmentFileName.get() };
+        mComposeBundle->FormatStringFromName("errorAttachingFile",
+                                             params, 1,
+                                             errorMsg);
+        mSendReport->SetMessage(nsIMsgSendReport::process_Current, errorMsg.get(), false);
+        mSendReport->SetError(nsIMsgSendReport::process_Current,
+                              NS_MSG_ERROR_ATTACHING_FILE,
+                              false);
         return NS_MSG_ERROR_ATTACHING_FILE;
       }
       if (m_be_synchronous_p)
