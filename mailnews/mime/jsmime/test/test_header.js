@@ -361,6 +361,9 @@ suite('headerparser', function () {
       ["<(c3)a(c4)@(c5)b(c6).(c7)d(c8)> (c9(c10)c11)(c12)",
         [{name: "(c9(c10)c11) (c12)", email: "a@b.d"}]],
       ["(c3)a(c4)@(c5)b(c6).(c7)d(c8)(c9(c10)c11)(c12)", [{name: "c12", email: "a@b.d"}]],
+      // Collapse extraneous whitespace.
+      ["Friend \"<friend@huhu.com>\"                                \t <ws@example.com>",
+        [{name: "Friend <friend@huhu.com>", email: "ws@example.com"}]],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {

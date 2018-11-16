@@ -821,13 +821,17 @@ function parseAddressingHeader(header, doRFC2047) {
                  addrSpec.substring(addrSpec.lastIndexOf("@"));
     }
 
+    // Replace consecutive whitespace in the name with a single whitespace.
+    displayName = displayName.replace(/\s\s+/g, " ");
+
     if (displayName === '' && lastComment !== '') {
       // Take last comment content as the display-name.
       let offset = lastComment[0] === ' ' ? 2 : 1;
       displayName = lastComment.substr(offset, lastComment.length - offset - 1);
     }
-    if (displayName !== '' || addrSpec !== '')
+    if (displayName !== '' || addrSpec !== '') {
       addrlist.push({name: displayName, email: addrSpec});
+    }
     // Clear pending flags and variables.
     name = localPart = address = lastComment = '';
     inAngle = inComment = needsSpace = false;
