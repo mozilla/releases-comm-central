@@ -202,6 +202,7 @@ function crash_plugin() {
 function test_can_crash_plugin() {
   assert_true(crash_plugin());
 }
+test_can_crash_plugin.EXCLUDED_PLATFORMS = ["linux"];
 
 /* Test to check that if a plugin crashes, and the plugin's
  * <object> is too small to display a message, then a
@@ -216,6 +217,7 @@ function test_crashed_plugin_notification_bar() {
   assert_true(crash_plugin());
   NotificationWatcher.waitForNotification(mc);
 }
+test_crashed_plugin_notification_bar.EXCLUDED_PLATFORMS = ["linux"];
 
 /* Test that if a plugin crashes, and the plugin's <object>
  * is large enough to display a message, it'll display the
@@ -278,3 +280,5 @@ function test_crashed_plugin_notification_inline() {
   assert_tab_has_title(helpTab, "Plugin Crashed Help");
   mc.tabmail.closeTab(helpTab);
 }
+test_crashed_plugin_notification_inline.EXCLUDED_PLATFORMS = ["linux"];
+
