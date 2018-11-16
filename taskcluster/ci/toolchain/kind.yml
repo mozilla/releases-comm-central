@@ -9,6 +9,7 @@ kind-dependencies:
     - fetch
 
 jobs:
+    - linux64-binutils
     - linux64-cbindgen
     - linux64-cctools-port
     - linux64-clang
