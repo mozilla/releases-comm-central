@@ -9,8 +9,7 @@
             "optional": true,
             "choices": [
               {
-                "type": "boolean",
-                "optional": true
+                "type": "boolean"
               },
               {
                 "type": "object",
