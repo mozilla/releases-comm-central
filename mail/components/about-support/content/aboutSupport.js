@@ -100,6 +100,7 @@ var snapshotFormatters = {
 
     if (Services.policies) {
       let policiesText = "";
+      let aboutPolicies = "about:policies";
       switch (data.policiesStatus) {
         case Services.policies.INACTIVE:
           policiesText = strings.GetStringFromName("policies.inactive");
@@ -107,15 +108,17 @@ var snapshotFormatters = {
 
         case Services.policies.ACTIVE:
           policiesText = strings.GetStringFromName("policies.active");
+          aboutPolicies += "#active";
           break;
 
         default:
           policiesText = strings.GetStringFromName("policies.error");
+          aboutPolicies += "#errors";
           break;
       }
 
       if (data.policiesStatus != Services.policies.INACTIVE) {
-        let activePolicies = $.new("a", policiesText, null, {href: "about:policies"});
+        let activePolicies = $.new("a", policiesText, null, {href: aboutPolicies});
         $("policies-status").appendChild(activePolicies);
       } else {
         $("policies-status").textContent = policiesText;
@@ -1244,14 +1247,54 @@ function onShowPrivateDataChange(aCheckbox) {
  * Set up event listeners for buttons.
  */
 function setupEventListeners() {
-  $("show-update-history-button").addEventListener("click", function(event) {
-    var prompter = Cc["@mozilla.org/updates/update-prompt;1"].createInstance(Ci.nsIUpdatePrompt);
+  let button = $("show-update-history-button");
+  if (button) {
+    button.addEventListener("click", function(event) {
+      var prompter = Cc["@mozilla.org/updates/update-prompt;1"].createInstance(Ci.nsIUpdatePrompt);
       prompter.showUpdateHistory(window);
-  });
+    });
+  }
 /* not used by TB
-  $("reset-box-button").addEventListener("click", function(event) {
-    ResetProfile.openConfirmationDialog(window);
+  button = $("reset-box-button");
+  if (button) {
+    button.addEventListener("click", function(event) {
+      ResetProfile.openConfirmationDialog(window);
+    });
+  }
+*/
+  button = $("restart-in-safe-mode-button");
+  if (button) {
+    button.addEventListener("click", function(event) {
+      if (Services.obs.enumerateObservers("restart-in-safe-mode").hasMoreElements()) {
+        Services.obs.notifyObservers(null, "restart-in-safe-mode");
+      } else {
+        safeModeRestart();
+      }
+    });
+  }
+  button = $("verify-place-integrity-button");
+  if (button) {
+    button.addEventListener("click", function(event) {
+      PlacesDBUtils.checkAndFixDatabase().then((tasksStatusMap) => {
+        let logs = [];
+        for (let [key, value] of tasksStatusMap) {
+          logs.push(`> Task: ${key}`);
+          let prefix = value.succeeded ? "+ " : "- ";
+          logs = logs.concat(value.logs.map(m => `${prefix}${m}`));
+        }
+        $("verify-place-result").style.display = "block";
+        $("verify-place-result").classList.remove("no-copy");
+        $("verify-place-result").textContent = logs.join("\n");
+      });
+    });
+  }
+
+  // added for TB
+  $("send-via-email").addEventListener("click", function(event) {
+    sendViaEmail();
   });
+  // end of TB addition
+/* not used by TB
   $("copy-raw-data-to-clipboard").addEventListener("click", function(event) {
     copyRawDataToClipboard(this);
   });
@@ -1259,27 +1302,7 @@ function setupEventListeners() {
   $("copy-to-clipboard").addEventListener("click", function(event) {
     copyContentsToClipboard();
   });
-  // added for TB
-  $("send-via-email").addEventListener("click", function(event) {
-    sendViaEmail();
-  });
-  // end of TB addition
   $("profile-dir-button").addEventListener("click", function(event) {
     openProfileDirectory();
-  });
-  $("restart-in-safe-mode-button").addEventListener("click", function(event) {
-    if (Services.obs.enumerateObservers("restart-in-safe-mode").hasMoreElements()) {
-      Services.obs.notifyObservers(null, "restart-in-safe-mode");
-    } else {
-      safeModeRestart();
-    }
-  });
-  $("verify-place-integrity-button").addEventListener("click", function(event) {
-    PlacesDBUtils.checkAndFixDatabase(function(aLog) {
-      let msg = aLog.join("\n");
-      $("verify-place-result").style.display = "block";
-      $("verify-place-result").classList.remove("no-copy");
-      $("verify-place-result").textContent = msg;
-    });
   });
 }
