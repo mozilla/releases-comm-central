@@ -13,9 +13,6 @@ if test "$OS_ARCH" = "WINNT"; then
   fi
 fi
 
-MOZ_APP_VERSION=$THUNDERBIRD_VERSION
-MOZ_APP_VERSION_DISPLAY=$THUNDERBIRD_VERSION_DISPLAY
-
 BROWSER_CHROME_URL=chrome://messenger/content/messengercompose/messengercompose.xul
 
 MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/mail/branding/nightly
