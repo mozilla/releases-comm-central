@@ -12,14 +12,14 @@ const JSIRC_ERR_OFFLINE   = "JSIRCE:OFFLINE";
 const JSIRC_ERR_PAC_LOADING = "JSIRCE:PAC_LOADING";
 
 const JSIRCV3_SUPPORTED_CAPS = [
-    //"account-notify",
+    "account-notify",
     //"account-tag",
     "away-notify",
     //"batch",
     //"cap-notify",
     "chghost",
     //"echo-message",
-    //"extended-join",
+    "extended-join",
     //"invite-notify",
     //"labeled-response",
     //"message-tags",
@@ -1739,6 +1739,8 @@ CIRCServer.prototype.on330 =
 function serv_330(e)
 {
     e.user = new CIRCUser(this, null, e.params[2]);
+    var account = (e.params[3] == "*" ? null : e.params[3]);
+    this.users[e.user.canonicalName].account = account;
 
     e.destObject = this.parent;
     e.set = "network";
@@ -2569,6 +2571,14 @@ function serv_join(e)
     e.user = new CIRCChanUser(e.channel, e.user.unicodeName, null,
                               undefined, true);
 
+    if (e.params[2] && e.params[3])
+    {
+        var account = (e.params[2] == "*" ? null : e.params[2]);
+        var desc = e.decodeParam([3], e.user);
+        this.users[e.user.canonicalName].account = account;
+        this.users[e.user.canonicalName].desc = desc;
+    }
+
     if (userIsMe(e.user))
     {
         var delayFn1 = function(t) {
@@ -2626,6 +2636,15 @@ function serv_join(e)
 
     e.destObject = e.channel;
     e.set = "channel";
+
+    return true;
+}
+
+CIRCServer.prototype.onAccount =
+function serv_acct(e)
+{
+    var account = (e.params[1] == "*" ? null : e.params[1]);
+    this.users[e.user.canonicalName].account = account;
 
     return true;
 }
@@ -3516,6 +3535,7 @@ function CIRCUser(parent, unicodeName, encodedName, name, host)
     this.name = name;
     this.host = host;
     this.desc = "";
+    this.account = null;
     this.connectionHost = null;
     this.isAway = false;
     this.modestr = this.parent.parent.INITIAL_UMODE;
