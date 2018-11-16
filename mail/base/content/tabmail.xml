@@ -451,8 +451,32 @@
           //  event to ensure we have an accurate title.  We assume the tab
           //  contents will set themselves up correctly.
           if (this.tabInfo.length == 0) {
-            let firstTab = {mode: this.defaultTabMode, busy: false,
-                            canClose: false, thinking: false, _ext: {}};
+            let firstTab = {
+              mode: this.defaultTabMode,
+              busy: false,
+              canClose: false,
+              thinking: false,
+              _ext: {},
+              get linkedBrowser() {
+                // This is a hack to make Marionette work. It needs a linkedBrowser
+                // from the first tab before it will start. Because linkedBrowser is
+                // implemented as a getter, it's ignored by anything that
+                // JSON-serializes this tab.
+                let browserFunc = this.mode.getBrowser || this.mode.tabType.getBrowser;
+                let browser = browserFunc ? browserFunc.call(this.mode.tabType, this) : null;
+
+                if (browser && !("permanentKey" in browser)) {
+                  // The permanentKey property is a unique Object, thus allowing this
+                  // browser to be stored in a WeakMap.
+                  // Use the JSM global to create the permanentKey, so that if the
+                  // permanentKey is held by something after this window closes, it
+                  // doesn't keep the window alive.
+                  browser.permanentKey = new (Cu.getGlobalForObject(Services).Object);
+                }
+
+                return browser;
+              },
+            };
             firstTab.mode.tabs.push(firstTab);
 
             this.tabInfo[0] = this.currentTabInfo = firstTab;

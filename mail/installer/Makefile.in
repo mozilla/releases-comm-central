@@ -198,3 +198,7 @@ PLATFORM_SOURCE_STAMP = $(firstword $(shell hg -R "$(moztopsrcdir)" parent --tem
 PLATFORM_SOURCE_REPO = $(shell hg -R "$(moztopsrcdir)" showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/https:/")
 make-sourcestamp-file::
 	@echo "$(PLATFORM_SOURCE_REPO)/rev/$(PLATFORM_SOURCE_STAMP)" >> $(MOZ_SOURCESTAMP_FILE)
+
+ifdef ENABLE_MARIONETTE
+DEFINES += -DENABLE_MARIONETTE=1
+endif
