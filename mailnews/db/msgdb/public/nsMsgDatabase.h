@@ -273,14 +273,14 @@ protected:
   bool    MatchDbName(nsIFile *dbName);  // returns TRUE if they match
 
   // Flag handling routines
-  virtual nsresult SetKeyFlag(nsMsgKey key, bool set, uint32_t flag,
-                              nsIDBChangeListener *instigator = NULL);
-  virtual nsresult SetMsgHdrFlag(nsIMsgDBHdr *msgHdr, bool set, uint32_t flag,
+  virtual nsresult SetKeyFlag(nsMsgKey key, bool set, nsMsgMessageFlagType flag,
+                              nsIDBChangeListener *instigator = nullptr);
+  virtual nsresult SetMsgHdrFlag(nsIMsgDBHdr *msgHdr, bool set, nsMsgMessageFlagType flag,
                                  nsIDBChangeListener *instigator);
 
   virtual bool    SetHdrFlag(nsIMsgDBHdr *, bool bSet, nsMsgMessageFlagType flag);
   virtual bool    SetHdrReadFlag(nsIMsgDBHdr *, bool pRead);
-  virtual uint32_t GetStatusFlags(nsIMsgDBHdr *msgHdr, uint32_t origFlags);
+  virtual uint32_t GetStatusFlags(nsIMsgDBHdr *msgHdr, nsMsgMessageFlagType origFlags);
   // helper function which doesn't involve thread object
 
   virtual nsresult RemoveHeaderFromDB(nsMsgHdr *msgHdr);

@@ -2074,7 +2074,7 @@ nsresult nsMsgDatabase::IsRead(nsMsgKey key, bool *pRead)
   return rv;
 }
 
-uint32_t  nsMsgDatabase::GetStatusFlags(nsIMsgDBHdr *msgHdr, uint32_t origFlags)
+uint32_t nsMsgDatabase::GetStatusFlags(nsIMsgDBHdr *msgHdr, nsMsgMessageFlagType origFlags)
 {
   uint32_t  statusFlags = origFlags;
   bool    isRead = true;
@@ -2552,8 +2552,8 @@ nsresult nsMsgDatabase::IsMDNSent(nsMsgKey key, bool *pSent)
 }
 
 
-nsresult  nsMsgDatabase::SetKeyFlag(nsMsgKey key, bool set, uint32_t flag,
-                                     nsIDBChangeListener *instigator)
+nsresult nsMsgDatabase::SetKeyFlag(nsMsgKey key, bool set, nsMsgMessageFlagType flag,
+                                   nsIDBChangeListener *instigator)
 {
   nsresult rv;
   nsCOMPtr <nsIMsgDBHdr> msgHdr;
@@ -2562,32 +2562,21 @@ nsresult  nsMsgDatabase::SetKeyFlag(nsMsgKey key, bool set, uint32_t flag,
   if (NS_FAILED(rv) || !msgHdr)
     return NS_MSG_MESSAGE_NOT_FOUND; // XXX return rv?
 
-  uint32_t oldFlags;
-  msgHdr->GetFlags(&oldFlags);
-
-  SetHdrFlag(msgHdr, set, flag);
-
-  uint32_t flags;
-  (void)msgHdr->GetFlags(&flags);
-
-  if (oldFlags == flags)
-    return NS_OK;
-
-  return NotifyHdrChangeAll(msgHdr, oldFlags, flags, instigator);
+  return SetMsgHdrFlag(msgHdr, set, flag, instigator);
 }
 
-nsresult nsMsgDatabase::SetMsgHdrFlag(nsIMsgDBHdr *msgHdr, bool set, uint32_t flag, nsIDBChangeListener *instigator)
+nsresult nsMsgDatabase::SetMsgHdrFlag(nsIMsgDBHdr *msgHdr, bool set,
+                                      nsMsgMessageFlagType flag,
+                                      nsIDBChangeListener *instigator)
 {
   uint32_t oldFlags;
-  msgHdr->GetFlags(&oldFlags);
+  (void)msgHdr->GetFlags(&oldFlags);
 
-  SetHdrFlag(msgHdr, set, flag);
+  if (!SetHdrFlag(msgHdr, set, flag))
+    return NS_OK;
 
   uint32_t flags;
   (void)msgHdr->GetFlags(&flags);
-
-  if (oldFlags == flags)
-    return NS_OK;
 
   return NotifyHdrChangeAll(msgHdr, oldFlags, flags, instigator);
 }
