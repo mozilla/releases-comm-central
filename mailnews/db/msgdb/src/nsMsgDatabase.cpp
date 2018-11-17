@@ -2009,14 +2009,14 @@ NS_IMETHODIMP nsMsgDatabase::DeleteHeader(nsIMsgDBHdr *msg, nsIDBChangeListener 
 NS_IMETHODIMP
 nsMsgDatabase::UndoDelete(nsIMsgDBHdr *aMsgHdr)
 {
-    if (aMsgHdr)
-    {
-        nsMsgHdr* msgHdr = static_cast<nsMsgHdr*>(aMsgHdr);  // closed system, so this is ok
-        // force deleted flag, so SetHdrFlag won't bail out because  deleted flag isn't set
-        msgHdr->m_flags |= nsMsgMessageFlags::Expunged;
-        SetHdrFlag(msgHdr, false, nsMsgMessageFlags::Expunged); // clear deleted flag in db
-    }
-    return NS_OK;
+  if (aMsgHdr)
+  {
+    // Force deleted flag, so SetHdrFlag won't bail out because deleted flag isn't set.
+    uint32_t result;
+    aMsgHdr->OrFlags(nsMsgMessageFlags::Expunged, &result);
+    SetHdrFlag(aMsgHdr, false, nsMsgMessageFlags::Expunged);  // Clear deleted flag in db.
+  }
+  return NS_OK;
 }
 
 nsresult nsMsgDatabase::RemoveHeaderFromThread(nsMsgHdr *msgHdr)
@@ -2059,7 +2059,7 @@ nsresult nsMsgDatabase::RemoveHeaderFromDB(nsMsgHdr *msgHdr)
     ret = m_mdbAllMsgHeadersTable->CutRow(GetEnv(), row);
     row->CutAllColumns(GetEnv());
   }
-  msgHdr->m_initedValues = 0; // invalidate cached values.
+  msgHdr->ClearCachedValues();
   return ret;
 }
 
@@ -3452,8 +3452,10 @@ NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify)
   NS_ENSURE_ARG_POINTER(newHdr);
   nsMsgHdr* hdr = static_cast<nsMsgHdr*>(newHdr);          // closed system, cast ok
   bool newThread;
-  bool hasKey;
-  ContainsKey(hdr->m_messageKey, &hasKey);
+  bool hasKey = false;
+  nsMsgKey msgKey = nsMsgKey_None;
+  (void)hdr->GetMessageKey(&msgKey);
+  (void)ContainsKey(msgKey, &hasKey);
   if (hasKey)
   {
     NS_ERROR("adding hdr that already exists");
@@ -3528,7 +3530,7 @@ NS_IMETHODIMP nsMsgDatabase::CopyHdrFromExistingHdr(nsMsgKey key, nsIMsgDBHdr *e
     {
       // we may have gotten the header from a cache - calling SetRow
       // basically invalidates any cached values, so invalidate them.
-      destMsgHdr->m_initedValues = 0;
+      destMsgHdr->ClearCachedValues();
       if(addHdrToDB)
         err = AddNewHdrToDB(destMsgHdr, true);
       if (NS_SUCCEEDED(err) && newHdr)
@@ -4767,7 +4769,8 @@ nsresult nsMsgDatabase::AddNewThread(nsMsgHdr *msgHdr)
   nsMsgThread *threadHdr = nullptr;
 
   nsCString subject;
-  nsMsgKey threadKey = msgHdr->m_messageKey;
+  nsMsgKey threadKey;
+  msgHdr->GetMessageKey(&threadKey);
   // can't have a thread with key 1 since that's the table id of the all msg hdr table,
   // so give it kTableKeyForThreadOne (0xfffffffe).
   if (threadKey == kAllMsgHdrsTableKey)
@@ -4996,9 +4999,8 @@ nsresult nsMsgDatabase::DumpContents()
   keys->GetLength(&numKeys);
   for (i = 0; i < numKeys; i++) {
     key = keys->m_keys[i];
-    nsIMsgDBHdr *msg = NULL;
-    rv = GetMsgHdrForKey(key, &msg);
-    nsMsgHdr* msgHdr = static_cast<nsMsgHdr*>(msg);      // closed system, cast ok
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
+    rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
     if (NS_SUCCEEDED(rv))
     {
       nsCString author;
@@ -5008,7 +5010,6 @@ nsresult nsMsgDatabase::DumpContents()
       msgHdr->GetAuthor(getter_Copies(author));
       msgHdr->GetSubject(getter_Copies(subject));
       printf("hdr key = %u, author = %s subject = %s\n", key, author.get(), subject.get());
-      NS_RELEASE(msgHdr);
     }
   }
   nsTArray<nsMsgKey> threads;
@@ -5798,24 +5799,25 @@ nsMsgDatabase::UpdateHdrInCache(const char *aSearchFolderUri, nsIMsgDBHdr *aHdr,
   nsresult err = GetSearchResultsTable(aSearchFolderUri, true, getter_AddRefs(table));
   NS_ENSURE_SUCCESS(err, err);
   nsMsgKey key;
-  aHdr->GetMessageKey(&key);
+  err = aHdr->GetMessageKey(&key);
   nsMsgHdr* msgHdr = static_cast<nsMsgHdr*>(aHdr);  // closed system, so this is ok
-  if (NS_SUCCEEDED(err) && m_mdbStore && msgHdr->m_mdbRow)
+  nsIMdbRow* hdrRow = msgHdr->GetMDBRow();
+  if (NS_SUCCEEDED(err) && m_mdbStore && hdrRow)
   {
     if (!aAdd)
     {
-      table->CutRow(m_mdbEnv, msgHdr->m_mdbRow);
+      table->CutRow(m_mdbEnv, hdrRow);
     }
     else
     {
       mdbOid rowId;
-      msgHdr->m_mdbRow->GetOid(m_mdbEnv, &rowId);
+      hdrRow->GetOid(m_mdbEnv, &rowId);
       mdb_pos insertPos = FindInsertIndexInSortedTable(table, rowId.mOid_Id);
       uint32_t rowCount;
       table->GetCount(m_mdbEnv, &rowCount);
-      table->AddRow(m_mdbEnv, msgHdr->m_mdbRow);
+      table->AddRow(m_mdbEnv, hdrRow);
       mdb_pos newPos;
-      table->MoveRow(m_mdbEnv, msgHdr->m_mdbRow, rowCount, insertPos, &newPos);
+      table->MoveRow(m_mdbEnv, hdrRow, rowCount, insertPos, &newPos);
     }
   }
 

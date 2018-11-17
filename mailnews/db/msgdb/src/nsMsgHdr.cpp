@@ -1025,7 +1025,7 @@ nsMsgPropertyEnumerator::nsMsgPropertyEnumerator(nsMsgHdr* aHdr)
   if (aHdr &&
       (mdbRow = aHdr->GetMDBRow()) &&
       (m_hdr = aHdr) &&
-      (mdb = aHdr->m_mdb) &&
+      (mdb = aHdr->GetMdb()) &&
       (m_mdbEnv = mdb->m_mdbEnv) &&
       (m_mdbStore = mdb->m_mdbStore))
   {

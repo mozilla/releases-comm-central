@@ -20,25 +20,16 @@ class nsMsgHdr : public nsIMsgDBHdr {
 public:
     NS_DECL_NSIMSGDBHDR
     friend class nsMsgDatabase;
-    friend class nsMsgPropertyEnumerator; // accesses m_mdb
+    friend class nsImapMailDatabase;
+    friend class nsMsgPropertyEnumerator;
+    friend class nsMsgThread;
+
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
     // nsMsgHdr methods:
     nsMsgHdr(nsMsgDatabase *db, nsIMdbRow *dbRow);
 
-    virtual nsresult    GetRawFlags(uint32_t *result);
-    void                Init();
-    virtual nsresult    InitCachedValues();
-    virtual nsresult    InitFlags();
-    void                ClearCachedValues() {m_initedValues = 0;}
-
     NS_DECL_ISUPPORTS
-
-    nsIMdbRow   *GetMDBRow() {return m_mdbRow;}
-    bool        IsParentOf(nsIMsgDBHdr *possibleChild);
-    bool        IsAncestorOf(nsIMsgDBHdr *possibleChild);
-    bool        IsAncestorKilled(uint32_t ancestorsToCheck);
-    void        ReparentInThread(nsIMsgThread *thread);
 
     size_t SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOfFun) const
     {
@@ -50,7 +41,26 @@ public:
     }
 
 protected:
-  virtual ~nsMsgHdr();
+    nsIMdbRow*       GetMDBRow() { return m_mdbRow; }
+    void             ReleaseMDBRow() { NS_IF_RELEASE(m_mdbRow); }
+    nsMsgDatabase*   GetMdb() { return m_mdb; }
+    void             ClearCachedValues() { m_initedValues = 0; }
+
+    virtual nsresult GetRawFlags(uint32_t *result);
+
+    bool             IsParentOf(nsIMsgDBHdr *possibleChild);
+    bool             IsAncestorOf(nsIMsgDBHdr *possibleChild);
+
+private:
+    virtual ~nsMsgHdr();
+
+    void             Init();
+    virtual nsresult InitFlags();
+    virtual nsresult InitCachedValues();
+
+    bool             IsAncestorKilled(uint32_t ancestorsToCheck);
+    void             ReparentInThread(nsIMsgThread *thread);
+
     nsresult SetStringColumn(const char *str, mdb_token token);
     nsresult SetUInt32Column(uint32_t value, mdb_token token);
     nsresult GetUInt32Column(mdb_token token, uint32_t *pvalue, uint32_t defaultValue = 0);
@@ -63,11 +73,11 @@ protected:
                                  bool acceptNonDelimitedReferences);
 
     nsMsgKey    m_threadId;
-    nsMsgKey    m_messageKey;   // news: article number, mail mbox offset, imap uid...
+    nsMsgKey    m_messageKey;   // news: article number, local mail: key, imap: uid...
     nsMsgKey    m_threadParent; // message this is a reply to, in thread.
     PRTime      m_date;
     uint32_t    m_messageSize;  // lines for news articles, bytes for mail messages
-    uint32_t    m_statusOffset; // offset in a local mail message of the mozilla status hdr
+    uint32_t    m_statusOffset; // offset in a local mail message of the x-mozilla-status header
     uint32_t    m_flags;
     // avoid parsing references every time we want one
     nsTArray<nsCString> m_references;
@@ -82,4 +92,3 @@ protected:
 };
 
 #endif
-
