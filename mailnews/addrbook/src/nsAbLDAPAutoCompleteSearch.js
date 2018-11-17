@@ -208,8 +208,8 @@ nsAbLDAPAutoCompleteSearch.prototype = {
         acDirURI = Services.prefs.getCharPref("ldap_2.autoComplete.directoryServer");
     }
 
-    if (!acDirURI) {
-      // No directory to search, send a no match and return.
+    if (!acDirURI || Services.io.offline) {
+      // No directory to search or we are offline, send a no match and return.
       aListener.onSearchResult(this, this._result);
       return;
     }
