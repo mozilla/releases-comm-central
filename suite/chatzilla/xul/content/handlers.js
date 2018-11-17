@@ -1874,17 +1874,28 @@ function my_341 (e)
 CIRCNetwork.prototype.onInvite = /* invite message */
 function my_invite (e)
 {
-    client.munger.getRule(".inline-buttons").enabled = true;
-    this.display(getMsg(MSG_INVITE_YOU, [e.user.unicodeName, e.user.name,
-                                         e.user.host,
-                                         e.channel.unicodeName,
-                                         e.channel.unicodeName,
-                                         e.channel.getURL()]),
-                 "INVITE");
-    client.munger.getRule(".inline-buttons").enabled = false;
+    var invitee = e.params[1];
+    if (invitee == e.server.me.unicodeName)
+    {
+        client.munger.getRule(".inline-buttons").enabled = true;
+        this.display(getMsg(MSG_INVITE_YOU, [e.user.unicodeName, e.user.name,
+                                             e.user.host,
+                                             e.channel.unicodeName,
+                                             e.channel.unicodeName,
+                                             e.channel.getURL()]),
+                     "INVITE");
+        client.munger.getRule(".inline-buttons").enabled = false;
 
-    if ("messages" in e.channel)
-        e.channel.join();
+        if ("messages" in e.channel)
+            e.channel.join();
+    }
+    else
+    {
+        this.display(getMsg(MSG_INVITE_SOMEONE, [e.user.unicodeName,
+                                                 invitee,
+                                                 e.channel.unicodeName]),
+                     "INVITE");
+    }
 }
 
 CIRCNetwork.prototype.on433 = /* nickname in use */
