@@ -766,9 +766,16 @@ nsBeckyFilters::CollectServers()
   nsCOMPtr<nsIMsgAccount> defaultAccount;
   rv = accountManager->GetDefaultAccount(getter_AddRefs(defaultAccount));
   NS_ENSURE_SUCCESS(rv, rv);
+  if (defaultAccount)
+    return defaultAccount->GetIncomingServer(getter_AddRefs(mServer));
 
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  return defaultAccount->GetIncomingServer(getter_AddRefs(mServer));
+  // We can also import filters into the Local Folders account.
+  rv = accountManager->GetLocalFoldersServer(getter_AddRefs(mServer));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!mServer)
+    return NS_ERROR_UNEXPECTED;
+
+  return NS_OK;
 }
 
 nsresult

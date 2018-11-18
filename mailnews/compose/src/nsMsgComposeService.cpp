@@ -615,7 +615,7 @@ nsMsgComposeService::GetDefaultIdentity(nsIMsgIdentity **_retval)
   rv = accountManager->GetDefaultAccount(getter_AddRefs(defaultAccount));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return defaultAccount->GetDefaultIdentity(_retval);
+  return defaultAccount ? defaultAccount->GetDefaultIdentity(_retval) : NS_OK;
 }
 
 /* readonly attribute boolean logComposePerformance; */

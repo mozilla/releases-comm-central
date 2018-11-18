@@ -3675,7 +3675,7 @@ nsMsgAccountManager::GetSortOrder(nsIMsgIncomingServer* aServer, int32_t* aSortO
   if (NS_SUCCEEDED(rv) && defaultAccount) {
     nsCOMPtr<nsIMsgIncomingServer> defaultServer;
     rv = m_defaultAccount->GetIncomingServer(getter_AddRefs(defaultServer));
-    if (NS_SUCCEEDED(rv) && defaultServer && (aServer == defaultServer)) {
+    if (NS_SUCCEEDED(rv) && (aServer == defaultServer)) {
       *aSortOrder = 0;
       return NS_OK;
     }

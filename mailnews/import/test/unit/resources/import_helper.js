@@ -26,7 +26,7 @@ function GenericImportHelper(aModuleType, aModuleSearchString, aFile)
   this.mModuleType = aModuleType;
   this.mModuleSearchString = aModuleSearchString;
   this.mInterface = this._findInterface();
-  Assert.notEqual(this.mInterface, null);
+  Assert.ok(this.mInterface !== null);
 
   this.mFile = aFile; // checked in the beginImport method
 }
@@ -233,7 +233,7 @@ AbImportHelper.prototype =
     try {
       // make sure an address book was created
       var newAb = this.getAbByName(this.mAbName);
-      Assert.notEqual(newAb, null);
+      Assert.ok(newAb !== null);
       Assert.ok(newAb instanceof Ci.nsIAbDirectory &&
                 newAb.childCards instanceof Ci.nsISimpleEnumerator);
       // get the imported card(s) and check each one

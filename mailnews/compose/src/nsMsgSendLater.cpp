@@ -516,6 +516,8 @@ nsMsgSendLater::CompleteMailFileSend()
   nsCOMPtr<nsIMsgIdentity> identity;
   nsresult rv = GetIdentityFromKey(mIdentityKey, getter_AddRefs(identity));
   NS_ENSURE_SUCCESS(rv,rv);
+  if (!identity)
+    return NS_ERROR_UNEXPECTED;
 
   // If for some reason the tmp file didn't get created, we've failed here
   bool created;
@@ -637,6 +639,8 @@ nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus)
   nsCOMPtr<nsIMsgIdentity> identity;
   rv = GetIdentityFromKey(identityKey.get(), getter_AddRefs(identity));
   NS_ENSURE_SUCCESS(rv, rv);
+  if (!identity)
+    return NS_ERROR_UNEXPECTED;
 
   // Notify that we're just about to start sending this message
   NotifyListenersOnMessageStartSending(mTotalSendCount, mMessagesToSend.Count(),
@@ -1447,14 +1451,17 @@ nsMsgSendLater::GetIdentityFromKey(const char *aKey, nsIMsgIdentity  **aIdentity
     }
   }
 
-  // if no aKey, or we failed to find the identity from the key
+  // If no aKey, or we failed to find the identity from the key
   // use the identity from the default account.
   nsCOMPtr<nsIMsgAccount> defaultAccount;
   rv = accountManager->GetDefaultAccount(getter_AddRefs(defaultAccount));
   NS_ENSURE_SUCCESS(rv,rv);
 
-  rv = defaultAccount->GetDefaultIdentity(aIdentity);
-  NS_ENSURE_SUCCESS(rv,rv);
+  if (defaultAccount)
+    rv = defaultAccount->GetDefaultIdentity(aIdentity);
+  else
+    *aIdentity = nullptr;
+
   return rv;
 }
 

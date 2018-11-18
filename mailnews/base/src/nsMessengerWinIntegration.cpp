@@ -1039,7 +1039,8 @@ nsMessengerWinIntegration::SetupInbox()
 
   nsCOMPtr <nsIMsgAccount> account;
   rv = accountManager->GetDefaultAccount(getter_AddRefs(account));
-  if (NS_FAILED(rv)) {
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!account) {
     // this can happen if we launch mail on a new profile
     // we don't have a default account yet
     mDefaultAccountMightHaveAnInbox = false;
