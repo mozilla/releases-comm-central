@@ -1254,9 +1254,12 @@ function ComposeStartup(aParams)
 
   // An identity with no email is likely not valid.
   if (!params.identity || !params.identity.email) {
+    let identities;
     // no pre selected identity, so use the default account
-    var identities = gAccountManager.defaultAccount.identities;
-    if (identities.length == 0)
+    let defaultAccount = gAccountManager.defaultAccount;
+    if (defaultAccount)
+      identities = defaultAccount.identities;
+    if (!identities || identities.length == 0)
       identities = gAccountManager.allIdentities;
     params.identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
   }

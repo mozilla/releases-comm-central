@@ -847,10 +847,14 @@ function IsSendUnsentMsgsEnabled(folderResource)
   if (folders.length > 0)
     identity = getIdentityForServer(folders[0].server);
 
-  if (!identity)
-    identity = Cc["@mozilla.org/messenger/account-manager;1"]
-                 .getService(Ci.nsIMsgAccountManager)
-                 .defaultAccount.defaultIdentity;
+  if (!identity) {
+    let defaultAccount = MailServices.accounts.defaultAccount;
+    if (defaultAccount)
+      identity = defaultAccount.defaultIdentity;
+
+    if (!identity)
+      return false;
+  }
 
   return msgSendLater.hasUnsentMessages(identity);
 }

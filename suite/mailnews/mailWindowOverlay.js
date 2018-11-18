@@ -548,10 +548,12 @@ function InitNewMsgMenu(aPopup)
   var folder = GetFirstSelectedMsgFolder();
   if (folder)
     identity = getIdentityForServer(folder.server);
-  if (!identity)
-    identity = Cc["@mozilla.org/messenger/account-manager;1"]
-                 .getService(Ci.nsIMsgAccountManager)
-                 .defaultAccount.defaultIdentity;
+  if (!identity) {
+    defaultAccount = MailServices.accounts.defaultAccount;
+    if (defaultAccount)
+      identity = defaultAccount.defaultIdentity;
+  }
+
   // If the identity is not found, use the mail.html_compose pref to
   // determine the message compose type (HTML or PlainText).
   var composeHTML = identity ? identity.composeHtml
@@ -1524,18 +1526,13 @@ function getDestinationFolder(preselectedFolder, server)
         // get default account and set its incoming server as parent folder
         if (!verifyCreateSubfolders)
         {
-            try {
-                var defaultFolder = GetDefaultAccountRootFolder();
-                var checkCreateSubfolders = null;
-                if (defaultFolder)
-                    checkCreateSubfolders = defaultFolder.canCreateSubfolders;
+            var defaultFolder = GetDefaultAccountRootFolder();
+            var checkCreateSubfolders = null;
+            if (defaultFolder)
+                checkCreateSubfolders = defaultFolder.canCreateSubfolders;
 
-                if (checkCreateSubfolders)
-                    destinationFolder = defaultFolder;
-
-            } catch (e) {
-                dump ("Exception: defaultAccount Not Available\n");
-            }
+            if (checkCreateSubfolders)
+                destinationFolder = defaultFolder;
         }
     }
     else
@@ -2329,13 +2326,9 @@ function PromptMessagesOffline(aPrefix)
 
 function GetDefaultAccountRootFolder()
 {
-  try {
-    var account = accountManager.defaultAccount;
-    var defaultServer = account.incomingServer;
-    var defaultFolder = defaultServer.rootMsgFolder;
-    return defaultFolder;
-  }
-  catch (ex) {
+  var account = accountManager.defaultAccount;
+  if (account) {
+    return account.incomingServer.rootMsgFolder;
   }
   return null;
 }
