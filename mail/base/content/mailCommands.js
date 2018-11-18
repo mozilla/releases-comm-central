@@ -41,10 +41,7 @@ function getBestIdentity(identities, optionalHint, useDefault = false) {
 
   // Still no matches? Give up and pick the default or the first one.
   if (useDefault) {
-    let defaultAccount = null;
-    try {
-      defaultAccount = accountManager.defaultAccount;
-    } catch (ex) {}
+    let defaultAccount = accountManager.defaultAccount;
     if (defaultAccount && defaultAccount.defaultIdentity)
       return defaultAccount.defaultIdentity;
   }

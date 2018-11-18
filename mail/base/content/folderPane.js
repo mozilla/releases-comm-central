@@ -2465,6 +2465,9 @@ var gFolderTreeController = {
         folder = GetDefaultAccountRootFolder();
     }
 
+    if (!folder)
+      return;
+
     let dualUseFolders = true;
     if (folder.server instanceof Ci.nsIImapIncomingServer)
       dualUseFolders = folder.server.dualUseFolders;
@@ -2723,9 +2726,10 @@ var gFolderTreeController = {
    * @param aParent - the folder to run the search terms on
    */
   newVirtualFolder(aName, aSearchTerms, aParent) {
-    let folder = aParent || gFolderTreeView.getSelectedFolders()[0];
+    let folder = aParent || gFolderTreeView.getSelectedFolders()[0] ||
+                 GetDefaultAccountRootFolder();
     if (!folder)
-      folder = GetDefaultAccountRootFolder();
+      return;
 
     let name = folder.prettyName;
     if (aName)

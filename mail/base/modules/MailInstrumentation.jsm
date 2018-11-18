@@ -93,20 +93,13 @@ var MailInstrumentation = {
    * Writes the state object to disk.
    */
   _postStateObject() {
-    // Getting defaultAccount will throw an exception if no account is set up.
     // This method runs for the smtp server before the account has been set up.
     if (MailServices.accounts.accounts.length == 0)
       return;
 
-    let defaultAccount;
-    try {
-      defaultAccount = MailServices.accounts.defaultAccount;
-    } catch (e) {
-      // Only report this failure if there are some accounts but fetching
-      // the default one failed. That is a problem.
-      logException(e);
+    let defaultAccount = MailServices.accounts.defaultAccount;
+    if (!defaultAccount)
       return;
-    }
 
       if (!this._currentState.userEmailHash) {
         let identity = defaultAccount.defaultIdentity;

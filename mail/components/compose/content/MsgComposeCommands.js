@@ -2749,12 +2749,16 @@ function ComposeStartup(aParams) {
     }
 
     if (!params.identity || !params.identity.email) {
+      let identity = null;
       // No preset identity and no match, so use the default account.
-      let identity = MailServices.accounts.defaultAccount.defaultIdentity;
-      if (!identity) {
-        let identities = MailServices.accounts.allIdentities;
-        if (identities.length > 0)
-          identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
+      let defaultAccount = MailServices.accounts.defaultAccount;
+      if (defaultAccount) {
+        identity = defaultAccount.defaultIdentity;
+        if (!identity) {
+          let identities = MailServices.accounts.allIdentities;
+          if (identities.length > 0)
+            identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
+        }
       }
       params.identity = identity;
     }

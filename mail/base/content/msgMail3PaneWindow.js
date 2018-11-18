@@ -213,14 +213,13 @@ function SelectServer(server) {
 var gThreePaneIncomingServerListener = {
     onServerLoaded(server) {},
     onServerUnloaded(server) {
-      let defaultServer;
-      try {
-        defaultServer = accountManager.defaultAccount.incomingServer;
-      } catch (e) {
+      let defaultAccount = accountManager.defaultAccount;
+      if (!defaultAccount) {
        // If there is no default server we have nothing to do.
        return;
       }
 
+      let defaultServer = defaultAccount.incomingServer;
       var selectedFolders = GetSelectedMsgFolders();
       for (var i = 0; i < selectedFolders.length; i++) {
         if (ServerContainsFolder(server, selectedFolders[i])) {
@@ -580,11 +579,10 @@ function LoadPostAccountWizard() {
     var nsIShellService = Ci.nsIShellService;
     if (nsIShellService) {
       var shellService;
-      var defaultAccount;
       try {
         shellService = Cc["@mozilla.org/mail/shell-service;1"].getService(nsIShellService);
-        defaultAccount = accountManager.defaultAccount;
       } catch (ex) {}
+      let defaultAccount = accountManager.defaultAccount;
 
       // Next, try loading the search integration module
       // We'll get a null SearchIntegration if we don't have one
@@ -849,11 +847,9 @@ function loadStartFolder(initialUri) {
         if (initialUri) {
             startFolder = MailUtils.getFolderForURI(initialUri);
         } else {
-            try {
-                var defaultAccount = accountManager.defaultAccount;
-            } catch (x) {
-                return; // exception caused by no default account, ignore it.
-            }
+            let defaultAccount = accountManager.defaultAccount;
+            if (!defaultAccount)
+                return;
 
             defaultServer = defaultAccount.incomingServer;
             var rootMsgFolder = defaultServer.rootMsgFolder;
@@ -1216,11 +1212,8 @@ function MigrateJunkMailSettings() {
   if (!junkMailSettingsVersion) {
     // Get the default account, check to see if we have values for our
     // globally migrated prefs.
-    var defaultAccount;
-    try {
-      defaultAccount = accountManager.defaultAccount;
-    } catch (ex) {}
-    if (defaultAccount && defaultAccount.incomingServer) {
+    let defaultAccount = accountManager.defaultAccount;
+    if (defaultAccount) {
       // we only care about
       var prefix = "mail.server." + defaultAccount.incomingServer.key + ".";
       if (Services.prefs.prefHasUserValue(prefix + "manualMark")) {
