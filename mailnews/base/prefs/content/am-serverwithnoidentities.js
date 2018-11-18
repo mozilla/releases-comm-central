@@ -5,7 +5,7 @@
 
 ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
-var gAccount;
+var gServer;
 var gOriginalStoreType;
 
 /**
@@ -23,8 +23,7 @@ function clickStoreTypeMenu(aStoreTypeElement) {
   let response = { newRootFolder: null };
   // Send 'response' as an argument to converterDialog.xhtml.
   window.openDialog("converterDialog.xhtml","mailnews:mailstoreconverter",
-                    "modal,centerscreen,width=800,height=180",
-                    gAccount.incomingServer,
+                    "modal,centerscreen,width=800,height=180", gServer,
                     aStoreTypeElement.value, response);
   changeStoreType(response);
 }
@@ -53,7 +52,6 @@ function changeStoreType(aResponse) {
 }
 
 function onInit(aPageId, aServerId) {
-
   // UI for account store type
   let storeTypeElement = document.getElementById("server.storeTypeMenulist");
   // set the menuitem to match the account
@@ -61,12 +59,16 @@ function onInit(aPageId, aServerId) {
                                .getAttribute("value");
   let targetItem = storeTypeElement.getElementsByAttribute("value", currentStoreID);
   storeTypeElement.selectedItem = targetItem[0];
+  // Disable store type change if store has not been used yet.
+  storeTypeElement.setAttribute("disabled",
+    gServer.getBoolValue("canChangeStoreType") ?
+      "false" : !Services.prefs.getBoolPref("mail.store_conversion_enabled"));
   // Initialise 'gOriginalStoreType' to the item that was originally selected.
   gOriginalStoreType = storeTypeElement.value;
 }
 
 function onPreInit(account, accountValues) {
-  gAccount = account;
+  gServer = account.incomingServer;
 }
 
 function onSave()
