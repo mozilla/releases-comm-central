@@ -63,8 +63,7 @@ function run_test()
   // Just make sure this doesn't throw an exception, because we did remove the
   // default account.
   let defaultAccount = MailServices.accounts.defaultAccount;
-  // GetDefaultAccount should have thrown an exception for null account.
-  Assert.notEqual(defaultAccount, null);
+  Assert.equal(defaultAccount, null);
 
   // Remove an account, and verify that the account list pref looks OK:
   let server = MailServices.accounts.getIncomingServer("server4");

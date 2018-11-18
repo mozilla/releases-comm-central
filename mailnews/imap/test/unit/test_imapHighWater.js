@@ -48,13 +48,13 @@ function run_test()
   localAccount.addIdentity(identity);
   localAccount.defaultIdentity = identity;
   localAccount.incomingServer = localAccountUtils.incomingServer;
-  MailServices.accounts.defaultAccount = localAccount;
 
   // Let's also have another account, using the same identity
   let imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(identity);
   imapAccount.defaultIdentity = identity;
   imapAccount.incomingServer = gIMAPIncomingServer;
+  MailServices.accounts.defaultAccount = imapAccount;
 
   // pref tuning: one connection only, turn off notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);

@@ -224,10 +224,12 @@
             let identitiesRaw = MailServices.accounts
               .getIdentitiesForServer(gFilterList.folder.server);
             let identities = Array.from(this.fixIterator(identitiesRaw,
-                                          Ci.nsIMsgIdentity));
+                                                         Ci.nsIMsgIdentity));
 
-            if (!identities.length) // typically if this is Local Folders
-              identities.push(MailServices.accounts.defaultAccount.defaultIdentity);
+            if (identities.length == 0) { // typically if this is Local Folders
+              if (MailServices.accounts.defaultAccount)
+                identities.push(MailServices.accounts.defaultAccount.defaultIdentity);
+            }
 
             let templateFound = false;
             let foldersScanned = [];

@@ -43,13 +43,13 @@ function run_test() {
   localAccount.addIdentity(identity);
   localAccount.defaultIdentity = identity;
   localAccount.incomingServer = localAccountUtils.incomingServer;
-  MailServices.accounts.defaultAccount = localAccount;
 
   // Let's also have another account, using the same identity
   let imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(identity);
   imapAccount.defaultIdentity = identity;
   imapAccount.incomingServer = gImapServer;
+  MailServices.accounts.defaultAccount = imapAccount;
 
   // Get the folder list...
   gImapServer.performExpand(null);

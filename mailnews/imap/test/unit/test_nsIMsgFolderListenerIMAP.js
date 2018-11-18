@@ -208,13 +208,13 @@ function run_test()
   localAccount.addIdentity(identity);
   localAccount.defaultIdentity = identity;
   localAccount.incomingServer = localAccountUtils.incomingServer;
-  MailServices.accounts.defaultAccount = localAccount;
 
   // Let's also have another account, using the same identity
   let imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(identity);
   imapAccount.defaultIdentity = identity;
   imapAccount.incomingServer = gIMAPIncomingServer;
+  MailServices.accounts.defaultAccount = imapAccount;
 
   // The server doesn't support more than one connection
   Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);

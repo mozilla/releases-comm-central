@@ -755,7 +755,7 @@ function onSetDefault(event) {
   if (event.target.getAttribute("disabled") == "true")
     return;
 
-  let previousDefault = getDefaultAccount();
+  let previousDefault = MailServices.accounts.defaultAccount;
   MailServices.accounts.defaultAccount = currentAccount;
   markDefaultServer(currentAccount, previousDefault);
 
@@ -822,7 +822,7 @@ function onRemoveAccount(event) {
   // Either the default account was deleted so there is a new one
   // or the default account was not changed. Either way, there is
   // no need to unmark the old one.
-  markDefaultServer(getDefaultAccount(), null);
+  markDefaultServer(MailServices.accounts.defaultAccount, null);
 }
 
 function saveAccount(accountValues, account)
@@ -979,7 +979,7 @@ function updateItems(tree, account, addAccountItem, setDefaultItem, removeItem) 
     // problem. Either way, we don't want the user to act on it.
     let server = account.incomingServer;
 
-    if (account != getDefaultAccount() &&
+    if (account != MailServices.accounts.defaultAccount &&
         server.canBeDefaultServer && account.identities.length > 0)
       canSetDefault = true;
 
@@ -1435,18 +1435,6 @@ function getCurrentAccount()
 }
 
 /**
- * Returns the default account without throwing exception if there is none.
- * The account manager can be opened even if there are no account yet.
- */
-function getDefaultAccount() {
-  try {
-    return MailServices.accounts.defaultAccount;
-  } catch (e) {
-    return null; // No default account yet.
-  }
-}
-
-/**
  * Get the array of persisted form elements for the given page.
  */
 function getPageFormElements() {
@@ -1659,7 +1647,7 @@ var gAccountTree = {
       treeitem._account = account;
     }
 
-    markDefaultServer(getDefaultAccount(), null);
+    markDefaultServer(MailServices.accounts.defaultAccount, null);
 
     // Now add the outgoing server node.
     var treeitem = document.createElement("treeitem");
