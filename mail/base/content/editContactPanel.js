@@ -13,23 +13,23 @@ var editContactInlineUI = {
   _writeable: true,
   _blockedCommands: ["cmd_close"],
 
-  _blockCommands: function () {
+  _blockCommands() {
     for (var i = 0; i < this._blockedCommands; ++i) {
       var elt = document.getElementById(this._blockedCommands[i]);
       // make sure not to permanetly disable this item
       if (elt.hasAttribute("wasDisabled"))
         continue;
 
-      if (elt.getAttribute("disabled") == "true")
+      if (elt.getAttribute("disabled") == "true") {
         elt.setAttribute("wasDisabled", "true");
-      else {
+      } else {
         elt.setAttribute("wasDisabled", "false");
         elt.setAttribute("disabled", "true");
       }
     }
   },
 
-  _restoreCommandsState: function () {
+  _restoreCommandsState() {
     for (var i = 0; i < this._blockedCommands; ++i) {
       var elt = document.getElementById(this._blockedCommands[i]);
       if (elt.getAttribute("wasDisabled") != "true")
@@ -40,17 +40,17 @@ var editContactInlineUI = {
     document.getElementById("contactMoveDisabledText").collapsed = true;
   },
 
-  onPopupHidden: function (aEvent) {
+  onPopupHidden(aEvent) {
     if (aEvent.target == this.panel)
       this._restoreCommandsState();
   },
 
-  onPopupShown: function (aEvent) {
+  onPopupShown(aEvent) {
     if (aEvent.target == this.panel)
       document.getElementById("editContactName").focus();
   },
 
-  onKeyPress: function (aEvent, aHandleOnlyReadOnly) {
+  onKeyPress(aEvent, aHandleOnlyReadOnly) {
     // Escape should just close this panel
     if (aEvent.keyCode == KeyEvent.DOM_VK_ESCAPE) {
       this.panel.hidePopup();
@@ -84,13 +84,13 @@ var editContactInlineUI = {
     return this.panel = element;
   },
 
-  showEditContactPanel: function showEditContactPanel(aCardDetails, aAnchorElement) {
+  showEditContactPanel(aCardDetails, aAnchorElement) {
     this._cardDetails = aCardDetails;
     let position = "after_start";
     this._doShowEditContactPanel(aAnchorElement, position);
   },
 
-  _doShowEditContactPanel: function (aAnchorElement, aPosition) {
+  _doShowEditContactPanel(aAnchorElement, aPosition) {
     this._blockCommands(); // un-done in the popuphiding handler.
     var bundle = document.getElementById("bundle_editContact");
 
@@ -120,8 +120,7 @@ var editContactInlineUI = {
     if (this._writeable) {
       nameElement.removeAttribute("readonly");
       nameElement.class = "editContactTextbox";
-    }
-    else {
+    } else {
       nameElement.readOnly = true;
       nameElement.class = "plain";
     }
@@ -165,7 +164,7 @@ var editContactInlineUI = {
     this.panel.openPopup(aAnchorElement, aPosition, -1, -1);
   },
 
-  editDetails: function() {
+  editDetails() {
     this.saveChanges();
 
     window.openDialog("chrome://messenger/content/addressbook/abEditCardDialog.xul",
@@ -176,7 +175,7 @@ var editContactInlineUI = {
 
   },
 
-  deleteContact: function() {
+  deleteContact() {
     if (this._cardDetails.book.readOnly)
       return; /* double check we can delete this */
 
@@ -196,7 +195,7 @@ var editContactInlineUI = {
     MailServices.ab.getDirectory(this._cardDetails.book.URI).deleteCards(cardArray);
   },
 
-  saveChanges: function() {
+  saveChanges() {
     // If we're a popup dialog, just hide the popup and return
     if (!this._writeable) {
       this.panel.hidePopup();
@@ -221,8 +220,7 @@ var editContactInlineUI = {
     if (this._cardDetails.book.hasCard(this._cardDetails.card)) {
       // Address book wasn't changed.
       this._cardDetails.book.modifyCard(this._cardDetails.card);
-    }
-    else {
+    } else {
       // We changed address books for the card.
 
       // Add it to the chosen address book...
@@ -236,5 +234,5 @@ var editContactInlineUI = {
     }
 
     this.panel.hidePopup();
-  }
-}
+  },
+};

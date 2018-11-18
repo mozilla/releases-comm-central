@@ -97,7 +97,6 @@
   <script type="application/javascript" src="chrome://messenger/content/editContactPanel.js"/>
   <script type="application/javascript" src="chrome://messenger/content/toolbarIconColor.js"/>
   <script type="application/javascript" src="chrome://messenger/content/msgHdrView.js"/>
-  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
   <script type="application/javascript" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>

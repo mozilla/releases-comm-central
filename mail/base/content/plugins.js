@@ -17,8 +17,7 @@ if (AppConstants.MOZ_CRASHREPORTER) {
                                      "nsICrashReporter");
 }
 
-function getPluginInfo(pluginElement)
-{
+function getPluginInfo(pluginElement) {
   var tagMimetype;
   var pluginsPage;
   if (pluginElement instanceof HTMLAppletElement) {
@@ -49,7 +48,7 @@ function getPluginInfo(pluginElement)
     }
   }
 
-  return {mimetype: tagMimetype, pluginsPage: pluginsPage};
+  return {mimetype: tagMimetype, pluginsPage};
 }
 
 /**
@@ -66,22 +65,22 @@ function formatURL(aFormat, aIsPref) {
 }
 
 var gPluginHandler = {
-  addEventListeners: function ph_addEventListeners(browser) {
+  addEventListeners(browser) {
     // Note that the XBL binding is untrusted
     browser.addEventListener("PluginBindingAttached", gPluginHandler, true, true);
-    browser.addEventListener("PluginCrashed",         gPluginHandler, true);
-    browser.addEventListener("PluginOutdated",        gPluginHandler, true);
-    browser.addEventListener("NewPluginInstalled",    gPluginHandler, true);
+    browser.addEventListener("PluginCrashed", gPluginHandler, true);
+    browser.addEventListener("PluginOutdated", gPluginHandler, true);
+    browser.addEventListener("NewPluginInstalled", gPluginHandler, true);
   },
 
-  removeEventListeners: function ph_removeEventListeners(browser) {
+  removeEventListeners(browser) {
     browser.removeEventListener("PluginBindingAttached", gPluginHandler);
     browser.removeEventListener("PluginCrashed", gPluginHandler);
     browser.removeEventListener("PluginOutdated", gPluginHandler);
     browser.removeEventListener("NewPluginInstalled", gPluginHandler);
   },
 
-  getPluginUI: function (plugin, anonId) {
+  getPluginUI(plugin, anonId) {
     return plugin.ownerDocument.getAnonymousElementByAttribute(plugin, "anonid", anonId);
   },
 
@@ -92,7 +91,7 @@ var gPluginHandler = {
   },
 
   // Map the plugin's name to a filtered version more suitable for user UI.
-  makeNicePluginName : function ph_makeNicePluginName(aName, aFilename) {
+  makeNicePluginName(aName, aFilename) {
     if (aName == "Shockwave Flash")
       return "Adobe Flash";
 
@@ -104,7 +103,7 @@ var gPluginHandler = {
   /**
    * Update the visibility of the plugin overlay.
    */
-  setVisibility : function (plugin, overlay, shouldShow) {
+  setVisibility(plugin, overlay, shouldShow) {
     overlay.classList.toggle("visible", shouldShow);
   },
 
@@ -116,7 +115,7 @@ var gPluginHandler = {
    * This function will handle showing or hiding the overlay.
    * @returns true if the plugin is invisible.
    */
-  shouldShowOverlay : function (plugin, overlay) {
+  shouldShowOverlay(plugin, overlay) {
     // If the overlay size is 0, we haven't done layout yet. Presume that
     // plugins are visible until we know otherwise.
     if (overlay.scrollWidth == 0) {
@@ -161,7 +160,7 @@ var gPluginHandler = {
     return true;
   },
 
-  addLinkClickCallback: function ph_addLinkClickCallback(linkNode, callbackName, ...callbackArgs) {
+  addLinkClickCallback(linkNode, callbackName, ...callbackArgs) {
     // XXX just doing (callback)(arg) was giving a same-origin error. bug?
     let self = this;
     linkNode.addEventListener("click",
@@ -191,7 +190,7 @@ var gPluginHandler = {
   },
 
   // Helper to get the binding handler type from a plugin object
-  _getBindingType : function(plugin) {
+  _getBindingType(plugin) {
     if (!(plugin instanceof Ci.nsIObjectLoadingContent))
       return null;
 
@@ -218,10 +217,9 @@ var gPluginHandler = {
     }
   },
 
-  handleEvent : function ph_handleEvent(event) {
+  handleEvent(event) {
     let self = gPluginHandler;
     let plugin = event.target;
-    let doc = plugin.ownerDocument;
 
     // We're expecting the target to be a plugin.
     if (!(plugin instanceof Ci.nsIObjectLoadingContent))
@@ -284,7 +282,7 @@ var gPluginHandler = {
     }
   },
 
-  newPluginInstalled : function(event) {
+  newPluginInstalled(event) {
     // browser elements are anonymous so we can't just use target.
     var browser = event.originalTarget;
 
@@ -293,12 +291,12 @@ var gPluginHandler = {
   },
 
   // Callback for user clicking on a disabled plugin
-  managePlugins: function ph_managePlugins(aEvent) {
+  managePlugins(aEvent) {
     openAddonsMgr("addons://list/plugin");
   },
 
   // Callback for user clicking "submit a report" link
-  submitReport : function ph_submitReport(pluginDumpID, browserDumpID, plugin) {
+  submitReport(pluginDumpID, browserDumpID, plugin) {
     let keyVals = {};
     if (plugin) {
       let userComment = this.getPluginUI(plugin, "submitComment").value.trim();
@@ -307,32 +305,30 @@ var gPluginHandler = {
       if (this.getPluginUI(plugin, "submitURLOptIn").checked)
         keyVals.PluginContentURL = plugin.ownerDocument.URL;
     }
-    var curBrowser = document.getElementById('tabmail').getBrowserForSelectedTab();
     this.CrashSubmit.submit(pluginDumpID, { extraExtraKeyVals: keyVals });
     if (browserDumpID)
       this.CrashSubmit.submit(browserDumpID);
   },
 
   // Callback for user clicking a "reload page" link
-  reloadPage: function ph_reloadPage(browser) {
+  reloadPage(browser) {
     browser.reload();
   },
 
   // Callback for user clicking the help icon
-  openPluginCrashHelpPage: function ph_openHelpPage() {
+  openPluginCrashHelpPage() {
     // Grab the plugin crash support URL
     let url = Services.urlFormatter.formatURLPref("plugins.crash.supportUrl");
     // Now open up a content tab to display it in
-    let tabmail = document.getElementById('tabmail');
+    let tabmail = document.getElementById("tabmail");
     tabmail.openTab("contentTab", {contentPage: url,
                                    background: false});
   },
 
   // Event listener for blocklisted/outdated/carbonFailure plugins.
-  pluginUnavailable: function(plugin, eventType) {
-    var tabmail = document.getElementById('tabmail');
-    let browser = tabmail.getBrowserForDocument(plugin.ownerDocument
-                                                .defaultView).browser;
+  pluginUnavailable(plugin, eventType) {
+    var tabmail = document.getElementById("tabmail");
+    let browser = tabmail.getBrowserForDocument(plugin.ownerGlobal).browser;
 
     var notificationBox = getNotificationBox(browser.contentWindow);
 
@@ -356,8 +352,7 @@ var gPluginHandler = {
       return true;
     }
 
-    function carbonFailurePluginsRestartBrowser()
-    {
+    function carbonFailurePluginsRestartBrowser() {
       // Notify all windows that an application quit has been requested.
       let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].
                          createInstance(Ci.nsISupportsPRBool);
@@ -375,7 +370,7 @@ var gPluginHandler = {
     let messengerBundle = document.getElementById("bundle_messenger");
 
     let notifications = {
-      PluginBlocklisted : {
+      PluginBlocklisted: {
         barID: "blocked-plugins",
         iconURL: "chrome://messenger/skin/icons/pluginBlocked.svg",
         message: messengerBundle.getString("blockedpluginsMessage.title"),
@@ -383,13 +378,13 @@ var gPluginHandler = {
           label: messengerBundle.getString("blockedpluginsMessage.infoButton.label"),
           accessKey: messengerBundle.getString("blockedpluginsMessage.infoButton.accesskey"),
           popup: null,
-          callback: showBlocklistInfo
+          callback: showBlocklistInfo,
         },
         {
           label: messengerBundle.getString("blockedpluginsMessage.searchButton.label"),
           accessKey: messengerBundle.getString("blockedpluginsMessage.searchButton.accesskey"),
           popup: null,
-          callback: showOutdatedPluginsInfo
+          callback: showOutdatedPluginsInfo,
         }],
       },
       PluginOutdated: {
@@ -400,9 +395,9 @@ var gPluginHandler = {
           label: messengerBundle.getString("outdatedpluginsMessage.updateButton.label"),
           accessKey: messengerBundle.getString("outdatedpluginsMessage.updateButton.accesskey"),
           popup: null,
-          callback: showOutdatedPluginsInfo
+          callback: showOutdatedPluginsInfo,
         }],
-      }
+      },
     };
     if (AppConstants.platform == "macosx") {
       notifications["npapi-carbon-event-model-failure"] = {
@@ -413,9 +408,9 @@ var gPluginHandler = {
           label: messengerBundle.getString("carbonFailurePluginsMessage.restartButton.label"),
           accessKey: messengerBundle.getString("carbonFailurePluginsMessage.restartButton.accesskey"),
           popup: null,
-          callback: carbonFailurePluginsRestartBrowser
+          callback: carbonFailurePluginsRestartBrowser,
         }],
-      }
+      };
     }
 
     // If there is already an outdated plugin notification then do nothing
@@ -442,16 +437,14 @@ var gPluginHandler = {
     if (eventType == "PluginBlocklisted") {
       if (blockedNotification)
         return;
-    }
-    else if (eventType == "PluginOutdated") {
+    } else if (eventType == "PluginOutdated") {
       if (Services.prefs.getBoolPref("plugins.hide_infobar_for_outdated_plugin"))
         return;
 
       // Cancel any notification about blocklisted plugins.
       if (blockedNotification)
         blockedNotification.close();
-    }
-    else if (eventType == "PluginNotFound") {
+    } else if (eventType == "PluginNotFound") {
       return;
     }
 
@@ -463,7 +456,7 @@ var gPluginHandler = {
 
   // Crashed-plugin observer. Notified once per plugin crash, before events
   // are dispatched to individual plugin instances.
-  pluginCrashed : function(subject, topic, data) {
+  pluginCrashed(subject, topic, data) {
     let propertyBag = subject;
     if (!(propertyBag instanceof Ci.nsIPropertyBag2) ||
         !(propertyBag instanceof Ci.nsIWritablePropertyBag2))
@@ -486,7 +479,7 @@ var gPluginHandler = {
 
   // Crashed-plugin event listener. Called for every instance of a
   // plugin in content.
-  pluginInstanceCrashed: function (plugin, aEvent) {
+  pluginInstanceCrashed(plugin, aEvent) {
     if (!(aEvent instanceof PluginCrashedEvent))
       return;
 
@@ -499,7 +492,7 @@ var gPluginHandler = {
     let browserDumpID   = aEvent.browserDumpID;
 
     let messengerBundle = document.getElementById("bundle_messenger");
-    let tabmail = document.getElementById('tabmail');
+    let tabmail = document.getElementById("tabmail");
 
     // Remap the plugin name to a more user-presentable form.
     pluginName = this.makeNicePluginName(pluginName, pluginFilename);
@@ -523,15 +516,13 @@ var gPluginHandler = {
       // Determine which message to show regarding crash reports.
       if (submittedReport) { // submitReports && !doPrompt, handled in observer
         status = "submitted";
-      }
-      else if (!submitReports && !doPrompt) {
+      } else if (!submitReports && !doPrompt) {
         status = "noSubmit";
-      }
-      else { // doPrompt
+      } else { // doPrompt
         status = "please";
         // XXX can we make the link target actually be blank?
         this.getPluginUI(plugin, "submitButton").addEventListener("click",
-          function (event) {
+          function(event) {
             if (event.button != 0 || !event.isTrusted)
               return;
             this.submitReport(pluginDumpID, browserDumpID, plugin);
@@ -560,7 +551,7 @@ var gPluginHandler = {
         let observer = {
           QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
                                                   Ci.nsISupportsWeakReference]),
-          observe : function(subject, topic, data) {
+          observe(subject, topic, data) {
             let propertyBag = subject;
             if (!(propertyBag instanceof Ci.nsIPropertyBag2))
               return;
@@ -570,9 +561,9 @@ var gPluginHandler = {
             statusDiv.setAttribute("status", data);
           },
 
-          handleEvent : function(event) {
+          handleEvent(event) {
               // Not expected to be called, just here for the closure.
-          }
+          },
         };
 
         // Use a weak reference, so we don't have to remove it...
@@ -612,11 +603,10 @@ var gPluginHandler = {
       // enough to serve as in-content notification.
       hideNotificationBar();
       doc.mozNoPluginCrashedNotification = true;
-    } else {
+    } else if (!doc.mozNoPluginCrashedNotification) {
       // If another plugin on the page was large enough to show our UI, we don't
       // want to show a notification bar.
-      if (!doc.mozNoPluginCrashedNotification)
-        showNotificationBar(pluginDumpID, browserDumpID);
+      showNotificationBar(pluginDumpID, browserDumpID);
     }
 
     function hideNotificationBar() {
@@ -644,14 +634,14 @@ var gPluginHandler = {
         label: reloadLabel,
         accessKey: reloadKey,
         popup: null,
-        callback: function() { browser.reload(); },
+        callback() { browser.reload(); },
       }];
       if (AppConstants.MOZ_CRASHREPORTER) {
         let submitButton = {
           label: submitLabel,
           accessKey: submitKey,
           popup: null,
-            callback: function() { gPluginHandler.submitReport(pluginDumpID, browserDumpID); },
+            callback() { gPluginHandler.submitReport(pluginDumpID, browserDumpID); },
         };
         if (pluginDumpID)
           buttons.push(submitButton);
@@ -677,6 +667,6 @@ var gPluginHandler = {
       });
     }
 
-  }
+  },
 };
 

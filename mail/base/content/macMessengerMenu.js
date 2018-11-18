@@ -51,8 +51,7 @@ function PrefWindowObserver() {
  * If Preference window was already opened, this will select General pane before
  * opening Dock Options sub-dialog.
  */
-function openDockOptions()
-{
+function openDockOptions() {
   let win = Services.wm.getMostRecentWindow("Mail:Preferences");
 
   if (win) {
@@ -69,8 +68,7 @@ function openDockOptions()
 /**
  * Open a new window for writing a new message
  */
-function writeNewMessageDock()
-{
+function writeNewMessageDock() {
   // Default identity will be used as sender for the new message.
   MailServices.compose.OpenComposeWindow(null, null, null,
     Ci.nsIMsgCompType.New,
@@ -80,15 +78,12 @@ function writeNewMessageDock()
 /**
  * Open the address book window
  */
-function openAddressBookDock()
-{
+function openAddressBookDock() {
   let win = Services.wm.getMostRecentWindow("mail:addressbook");
   if (win) {
     win.focus();
   } else {
-    let ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].
-                                getService(Ci.nsIWindowWatcher);
-    ww.openWindow(null, "chrome://messenger/content/addressbook/addressbook.xul", null,
-                  "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar", null);
+    Services.ww.openWindow(null, "chrome://messenger/content/addressbook/addressbook.xul", null,
+                           "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar", null);
   }
 }

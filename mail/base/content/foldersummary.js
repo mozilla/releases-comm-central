@@ -41,7 +41,7 @@ class MozFolderSummary extends MozXULElement {
     let msgDatabase;
     try {
       msgDatabase = folder.msgDatabase;
-    } catch(e) {
+    } catch (e) {
       // The database for this folder may be missing (e.g. outdated/missing .msf),
       // so just skip this folder.
       return false;
@@ -66,7 +66,7 @@ class MozFolderSummary extends MozXULElement {
       // now get the database
       try {
         msgDatabase = folder.msgDatabase;
-      } catch(e) {
+      } catch (e) {
         // The database for this folder may be missing (e.g. outdated/missing .msf),
         // then just skip this folder.
         continue;

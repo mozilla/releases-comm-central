@@ -12,39 +12,35 @@ function getBrowserURL() {
 }
 
 // update menu items that rely on focus
-function goUpdateGlobalEditMenuItems()
-{
-  goUpdateCommand('cmd_undo');
-  goUpdateCommand('cmd_redo');
-  goUpdateCommand('cmd_cut');
-  goUpdateCommand('cmd_copy');
-  goUpdateCommand('cmd_paste');
-  goUpdateCommand('cmd_selectAll');
-  goUpdateCommand('cmd_delete');
+function goUpdateGlobalEditMenuItems() {
+  goUpdateCommand("cmd_undo");
+  goUpdateCommand("cmd_redo");
+  goUpdateCommand("cmd_cut");
+  goUpdateCommand("cmd_copy");
+  goUpdateCommand("cmd_paste");
+  goUpdateCommand("cmd_selectAll");
+  goUpdateCommand("cmd_delete");
   if (gShowBiDi)
-    goUpdateCommand('cmd_switchTextDirection');
+    goUpdateCommand("cmd_switchTextDirection");
 }
 
 // update menu items that rely on the current selection
-function goUpdateSelectEditMenuItems()
-{
-  goUpdateCommand('cmd_cut');
-  goUpdateCommand('cmd_copy');
-  goUpdateCommand('cmd_delete');
-  goUpdateCommand('cmd_selectAll');
+function goUpdateSelectEditMenuItems() {
+  goUpdateCommand("cmd_cut");
+  goUpdateCommand("cmd_copy");
+  goUpdateCommand("cmd_delete");
+  goUpdateCommand("cmd_selectAll");
 }
 
 // update menu items that relate to undo/redo
-function goUpdateUndoEditMenuItems()
-{
-  goUpdateCommand('cmd_undo');
-  goUpdateCommand('cmd_redo');
+function goUpdateUndoEditMenuItems() {
+  goUpdateCommand("cmd_undo");
+  goUpdateCommand("cmd_redo");
 }
 
 // update menu items that depend on clipboard contents
-function goUpdatePasteMenuItems()
-{
-  goUpdateCommand('cmd_paste');
+function goUpdatePasteMenuItems() {
+  goUpdateCommand("cmd_paste");
 }
 
 function goCopyImage() {
@@ -64,49 +60,45 @@ function goCopyImage() {
 }
 
 // update Find As You Type menu items, they rely on focus
-function goUpdateFindTypeMenuItems()
-{
-  goUpdateCommand('cmd_findTypeText');
-  goUpdateCommand('cmd_findTypeLinks');
+function goUpdateFindTypeMenuItems() {
+  goUpdateCommand("cmd_findTypeText");
+  goUpdateCommand("cmd_findTypeLinks");
 }
 
 // Gather all descendent text under given document node.
-function gatherTextUnder ( root )
-{
+function gatherTextUnder(root) {
   var text = "";
   var node = root.firstChild;
   var depth = 1;
-  while ( node && depth > 0 ) {
+  while (node && depth > 0) {
     // See if this node is text.
-    if ( node.nodeType == Node.TEXT_NODE ) {
+    if (node.nodeType == Node.TEXT_NODE) {
       // Add this text to our collection.
       text += " " + node.data;
-    } else if ( node instanceof HTMLImageElement ) {
+    } else if (node instanceof HTMLImageElement) {
       // If it has an alt= attribute, add that.
-      var altText = node.getAttribute( "alt" );
-      if ( altText && altText != "" ) {
+      var altText = node.getAttribute("alt");
+      if (altText && altText != "") {
         text += " " + altText;
       }
     }
     // Find next node to test.
     // First, see if this node has children.
-    if ( node.hasChildNodes() ) {
+    if (node.hasChildNodes()) {
       // Go to first child.
       node = node.firstChild;
       depth++;
-    } else {
+    } else if (node.nextSibling) {
       // No children, try next sibling.
-      if ( node.nextSibling ) {
-        node = node.nextSibling;
-      } else {
-        // Last resort is a sibling of an ancestor.
-        while ( node && depth > 0 ) {
-          node = node.parentNode;
-          depth--;
-          if ( node.nextSibling ) {
-            node = node.nextSibling;
-            break;
-          }
+      node = node.nextSibling;
+    } else {
+      // Last resort is a sibling of an ancestor.
+      while (node && depth > 0) {
+        node = node.parentNode;
+        depth--;
+        if (node.nextSibling) {
+          node = node.nextSibling;
+          break;
         }
       }
     }
@@ -114,14 +106,12 @@ function gatherTextUnder ( root )
   // Strip leading and trailing whitespace.
   text = text.trim();
   // Compress remaining whitespace.
-  text = text.replace( /\s+/g, " " );
+  text = text.replace(/\s+/g, " ");
   return text;
 }
 
-function GenerateValidFilename(filename, extension)
-{
-  if (filename) // we have a title; let's see if it's usable
-  {
+function GenerateValidFilename(filename, extension) {
+  if (filename) { // we have a title; let's see if it's usable
     // clean up the filename to make it usable and
     // then trim whitespace from beginning and end
     filename = validateFileName(filename).trim();
@@ -131,8 +121,7 @@ function GenerateValidFilename(filename, extension)
   return null;
 }
 
-function validateFileName(aFileName)
-{
+function validateFileName(aFileName) {
   var re = /[\/]+/g;
   if (navigator.appVersion.includes("Windows")) {
     re = /[\\\/\|]+/g;
@@ -140,9 +129,9 @@ function validateFileName(aFileName)
     aFileName = aFileName.replace(/[\*\:\?]+/g, " ");
     aFileName = aFileName.replace(/[\<]+/g, "(");
     aFileName = aFileName.replace(/[\>]+/g, ")");
-  }
-  else if (navigator.appVersion.includes("Macintosh"))
+  } else if (navigator.appVersion.includes("Macintosh")) {
     re = /[\:\/]+/g;
+  }
 
   if (Services.prefs.getBoolPref("mail.save_msg_filename_underscores_for_space"))
     aFileName = aFileName.replace(/ /g, "_");
@@ -150,16 +139,14 @@ function validateFileName(aFileName)
   return aFileName.replace(re, "_");
 }
 
-function goToggleToolbar( id, elementID )
-{
-  var toolbar = document.getElementById( id );
-  var element = document.getElementById( elementID );
-  if ( toolbar )
-  {
+function goToggleToolbar(id, elementID) {
+  var toolbar = document.getElementById(id);
+  var element = document.getElementById(elementID);
+  if (toolbar) {
     var isHidden = toolbar.getAttribute("hidden") == "true";
     toolbar.setAttribute("hidden", !isHidden);
-    if ( element )
-      element.setAttribute("checked", isHidden)
+    if (element)
+      element.setAttribute("checked", isHidden);
     Services.xulStore.persist(toolbar, "hidden");
     Services.xulStore.persist(element, "checked");
   }
@@ -171,35 +158,32 @@ function goToggleToolbar( id, elementID )
  *
  * @param splitterId the splliter that should be toggled
  */
-function togglePaneSplitter(splitterId)
-{
+function togglePaneSplitter(splitterId) {
   var splitter = document.getElementById(splitterId);
   var state = splitter.getAttribute("state");
   if (state == "collapsed")
     splitter.setAttribute("state", "open");
   else
-    splitter.setAttribute("state", "collapsed")
+    splitter.setAttribute("state", "collapsed");
 }
 
 // openUILink handles clicks on UI elements that cause URLs to load.
 // Firefox and SeaMonkey have a function with the same name,
 // so extensions can use this everywhere to open links.
 // We currently only react to left click in Thunderbird.
-function openUILink(url, event)
-{
+function openUILink(url, event) {
   if (!event.button) {
     PlacesUtils.history.insert({
       url,
       visits: [{
-        date: new Date()
-      }]
+        date: new Date(),
+      }],
     }).catch(Cu.reportError);
     messenger.launchExternalURL(url);
   }
 }
 
-function openWhatsNew()
-{
+function openWhatsNew() {
   openContentTab(Services.urlFormatter.formatURLPref("mailnews.start_page.override_url"));
 }
 
@@ -209,14 +193,13 @@ function openWhatsNew()
  * @param query the string to search for
  * @param engine (optional) the search engine to use
  */
-function openWebSearch(query, engine)
-{
+function openWebSearch(query, engine) {
   Services.search.init({
-    onInitComplete: function() {
+    onInitComplete() {
       if (!engine)
         engine = Services.search.currentEngine;
       openLinkExternally(engine.getSubmission(query).uri.spec);
-    }
+    },
   });
 }
 
@@ -228,8 +211,7 @@ function openWebSearch(query, engine)
  * @param where 'tab' to open in a new tab (default) or 'window' to open in a
  *        new window
  */
-function openTab(tabType, tabParams, where)
-{
+function openTab(tabType, tabParams, where) {
   if (where != "window") {
     let tabmail = document.getElementById("tabmail");
     if (!tabmail) {
@@ -251,7 +233,7 @@ function openTab(tabType, tabParams, where)
   // here because there's no 3pane.
   window.openDialog("chrome://messenger/content/", "_blank",
                     "chrome,dialog=no,all", null,
-                    { tabType: tabType, tabParams: tabParams });
+                    { tabType, tabParams });
 }
 
 /**
@@ -264,13 +246,12 @@ function openTab(tabType, tabParams, where)
  *        siteClickHandler for determining whether a link should be opened in
  *        Thunderbird or passed to the system
  */
-function openContentTab(url, where, handlerRegExp)
-{
+function openContentTab(url, where, handlerRegExp) {
   let clickHandler = null;
   if (handlerRegExp)
     clickHandler = "specialTabs.siteClickHandler(event, new RegExp(\"" + handlerRegExp + "\"));";
 
-  openTab("contentTab", {contentPage: url, clickHandler: clickHandler}, where);
+  openTab("contentTab", {contentPage: url, clickHandler}, where);
 }
 
 /**
@@ -280,18 +261,17 @@ function openContentTab(url, where, handlerRegExp)
  * @param tabID      ID of tab to select on the prefpane.
  * @param otherArgs  other prefpane specific arguments.
  */
-function openPreferencesTab(paneID, tabID, otherArgs)
-{
+function openPreferencesTab(paneID, tabID, otherArgs) {
   let url = "about:preferences";
   let params = {
     contentPage: url,
-    paneID: paneID,
-    tabID: tabID,
-    otherArgs: otherArgs,
-    onLoad: function(aEvent, aBrowser) {
+    paneID,
+    tabID,
+    otherArgs,
+    onLoad(aEvent, aBrowser) {
       let prefWindow = aBrowser.contentDocument.getElementById("MailPreferences");
       aBrowser.contentWindow.selectPaneAndTab(prefWindow, paneID, tabID, otherArgs);
-    }
+    },
   };
   openTab("preferencesTab", params);
 }

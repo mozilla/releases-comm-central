@@ -19,8 +19,7 @@ var gSystemIntegrationDialog = {
 
   _searchCheckbox: null,
 
-  onLoad: function()
-  {
+  onLoad() {
     // Makes Services and SearchIntegration accessible via this.Services
     // and this.SearchIntegration.
     ChromeUtils.import("resource://gre/modules/Services.jsm", this);
@@ -73,8 +72,7 @@ var gSystemIntegrationDialog = {
       this.Services.prefs.getBoolPref("mail.shell.checkDefaultClient");
 
     // Search integration - check whether we should show/disable integration options
-    if (this.SearchIntegration)
-    {
+    if (this.SearchIntegration) {
       this._searchCheckbox.checked = this.SearchIntegration.prefEnabled;
       // On Windows, do not offer the option on startup as it does not perform well.
       if ((this.Services.appinfo.OS == "WINNT") && !calledFromPrefs &&
@@ -83,14 +81,12 @@ var gSystemIntegrationDialog = {
         // Even if the user wasn't presented the choice,
         // we do not want to ask again automatically.
         this.SearchIntegration.firstRunDone = true;
-      } else {
+      } else if (!this.SearchIntegration.osVersionTooLow) {
         // Hide/disable the options if the OS does not support them.
-        if (!this.SearchIntegration.osVersionTooLow) {
-          this._searchCheckbox.hidden = false;
-          if (this.SearchIntegration.osComponentsNotRunning) {
-            this._searchCheckbox.checked = false;
-            this._searchCheckbox.disabled = true;
-          }
+        this._searchCheckbox.hidden = false;
+        if (this.SearchIntegration.osComponentsNotRunning) {
+          this._searchCheckbox.checked = false;
+          this._searchCheckbox.disabled = true;
         }
       }
     }
@@ -102,8 +98,7 @@ var gSystemIntegrationDialog = {
    * @param aSetAsDefault  If true, set TB as the default application for the
    *                       checked actions (mail/news/rss). Otherwise do nothing.
    */
-  onDialogClose: function(aSetAsDefault)
-  {
+  onDialogClose(aSetAsDefault) {
     // In all cases, save the user's decision for "always check at startup".
     this._shellSvc.shouldCheckDefaultClient = this._startupCheckbox.checked;
 
@@ -149,5 +144,5 @@ var gSystemIntegrationDialog = {
       this.SearchIntegration.prefEnabled = this._searchCheckbox.checked;
 
     return true;
-  }
+  },
 };

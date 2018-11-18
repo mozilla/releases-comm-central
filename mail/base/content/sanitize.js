@@ -9,21 +9,18 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 function Sanitizer() {}
 Sanitizer.prototype = {
   // warning to the caller: this one may raise an exception (e.g. bug #265028)
-  clearItem: function (aItemName)
-  {
+  clearItem(aItemName) {
     if (this.items[aItemName].canClear)
       this.items[aItemName].clear();
   },
 
-  canClearItem: function (aItemName)
-  {
+  canClearItem(aItemName) {
     return this.items[aItemName].canClear;
   },
 
   prefDomain: "",
 
-  getNameFromPreference: function (aPreferenceName)
-  {
+  getNameFromPreference(aPreferenceName) {
     return aPreferenceName.substr(this.prefDomain.length);
   },
 
@@ -33,8 +30,7 @@ Sanitizer.prototype = {
    * @returns  null if everything's fine;  an object in the form
    *           { itemName: error, ... } on (partial) failure
    */
-  sanitize: function ()
-  {
+  sanitize() {
     var branch = Services.prefs.getBranch(this.prefDomain);
     var errors = null;
 
@@ -55,7 +51,7 @@ Sanitizer.prototype = {
         // about items that could not be sanitized
         try {
           item.clear();
-        } catch(er) {
+        } catch (er) {
           if (!errors)
             errors = {};
           errors[itemName] = er;
@@ -71,32 +67,27 @@ Sanitizer.prototype = {
   // and can optionally specify a specific range.  If timespan is not ignored,
   // and range is not set, sanitize() will use the value of the timespan
   // pref to determine a range
-  ignoreTimespan : true,
-  range : null,
+  ignoreTimespan: true,
+  range: null,
 
   items: {
     cache: {
-      clear: function ()
-      {
+      clear() {
         try {
           // Cache doesn't consult timespan, nor does it have the
           // facility for timespan-based eviction.  Wipe it.
-          let cache = Cc["@mozilla.org/netwerk/cache-storage-service;1"]
-                        .getService(Ci.nsICacheStorageService);
-          cache.clear();
+          Services.cache2.clear();
         } catch (ex) {}
 
       },
 
-      get canClear()
-      {
+      get canClear() {
         return true;
-      }
+      },
     },
 
     cookies: {
-      clear: function ()
-      {
+      clear() {
         if (this.range) {
           // Iterate through the cookies and delete any created after our cutoff.
           var cookiesEnum = Services.cookies.enumerator;
@@ -108,8 +99,7 @@ Sanitizer.prototype = {
               Services.cookies.remove(cookie.host, cookie.name, cookie.path,
                                       false, cookie.originAttributes);
           }
-        }
-        else {
+        } else {
           // Remove everything
           Services.cookies.removeAll();
         }
@@ -152,41 +142,36 @@ Sanitizer.prototype = {
 
       },
 
-      get canClear()
-      {
+      get canClear() {
         return true;
-      }
+      },
     },
 
     history: {
-      clear: function ()
-      {
+      clear() {
         if (this.range)
           PlacesUtils.history.removeVisitsByTimeframe(this.range[0], this.range[1]);
         else
           PlacesUtils.history.clear();
 
         try {
-          var os = Cc["@mozilla.org/observer-service;1"]
-                     .getService(Ci.nsIObserverService);
-          os.notifyObservers(null, "browser:purge-session-history");
-        } catch (e) { }
+          Services.obs.notifyObservers(null, "browser:purge-session-history");
+        } catch (e) {}
 
         try {
           var predictor = Cc["@mozilla.org/network/predictor;1"]
                             .getService(Ci.nsINetworkPredictor);
           predictor.reset();
-        } catch (e) { }
+        } catch (e) {}
       },
 
-      get canClear()
-      {
+      get canClear() {
         // bug 347231: Always allow clearing history due to dependencies on
         // the browser:purge-session-history notification. (like error console)
         return true;
-      }
+      },
     },
-  }
+  },
 };
 
 // "Static" members
@@ -206,7 +191,7 @@ Sanitizer.TIMESPAN_TODAY      = 4;
 // in the uSec-since-epoch format that PRTime likes.  If we should
 // clear everything, return null.  Use ts if it is defined; otherwise
 // use the timeSpan pref.
-Sanitizer.getClearRange = function (ts) {
+Sanitizer.getClearRange = function(ts) {
   if (ts === undefined)
     ts = Sanitizer.prefs.getIntPref("timeSpan");
   if (ts === Sanitizer.TIMESPAN_EVERYTHING)
@@ -238,8 +223,7 @@ Sanitizer.getClearRange = function (ts) {
 };
 
 Sanitizer._prefs = null;
-Sanitizer.__defineGetter__("prefs", function()
-{
+Sanitizer.__defineGetter__("prefs", function() {
   return Sanitizer._prefs ? Sanitizer._prefs
     : Sanitizer._prefs = Services.prefs
                                  .getBranch(Sanitizer
@@ -247,8 +231,7 @@ Sanitizer.__defineGetter__("prefs", function()
 });
 
 // Shows sanitization UI
-Sanitizer.showUI = function(aParentWindow)
-{
+Sanitizer.showUI = function(aParentWindow) {
   Services.ww.openWindow(AppConstants.platform == "macosx" ? null : aParentWindow,
                          "chrome://messenger/content/sanitize.xul",
                          "Sanitize",
@@ -260,14 +243,12 @@ Sanitizer.showUI = function(aParentWindow)
  * Deletes privacy sensitive data in a batch, optionally showing the
  * sanitize UI, according to user preferences
  */
-Sanitizer.sanitize = function(aParentWindow)
-{
+Sanitizer.sanitize = function(aParentWindow) {
   Sanitizer.showUI(aParentWindow);
 };
 
 // this is called on startup and shutdown, to perform pending sanitizations
-Sanitizer._checkAndSanitize = function()
-{
+Sanitizer._checkAndSanitize = function() {
   const prefs = Sanitizer.prefs;
   if (prefs.getBoolPref(Sanitizer.prefShutdown) &&
       !prefs.prefHasUserValue(Sanitizer.prefDidShutdown)) {

@@ -60,7 +60,7 @@ nsContextMenu.prototype = {
    * the world, then determine which context menu items to show based on
    * those properties.
    */
-  initMenu : function CM_initMenu(aPopup, aIsShift) {
+  initMenu(aPopup, aIsShift) {
     this.menu = aPopup;
 
     // Get contextual info.
@@ -92,7 +92,7 @@ nsContextMenu.prototype = {
     // All items must have been hidden.
     this.shouldDisplay = false;
   },
-  initItems : function CM_initItems() {
+  initItems() {
     this.initPageMenuSeparator();
     this.initSaveItems();
     this.initClipboardItems();
@@ -102,13 +102,13 @@ nsContextMenu.prototype = {
     this.initSpellingItems();
     this.initSeparators();
   },
-  addDictionaries: function CM_addDictionaries() {
+  addDictionaries() {
     openDictionaryList();
   },
-  initPageMenuSeparator: function CM_initPageMenuSeparator() {
+  initPageMenuSeparator() {
     this.showItem("page-menu-separator", this.hasPageMenu);
   },
-  initSpellingItems: function CM_initSpellingItems() {
+  initSpellingItems() {
     let canSpell = gSpellChecker.canSpellCheck;
     let onMisspelling = gSpellChecker.overMisspelling;
     this.showItem("mailContext-spell-check-enabled", canSpell);
@@ -149,11 +149,11 @@ nsContextMenu.prototype = {
       this.showItem("mailContext-spell-add-dictionaries-main", false);
     }
   },
-  initSaveItems : function CM_initSaveItems() {
+  initSaveItems() {
     this.showItem("mailContext-savelink", this.onSaveableLink);
     this.showItem("mailContext-saveimage", this.onLoadedImage);
   },
-  initClipboardItems : function CM_initClipboardItems() {
+  initClipboardItems() {
     // Copy depends on whether there is selected text.
     // Enabling this context menu item is now done through the global
     // command updating system.
@@ -196,12 +196,12 @@ nsContextMenu.prototype = {
       }
 
       searchTheWeb.label = bundle.getFormattedString(key, [
-        Services.search.currentEngine.name, abbrSelection
+        Services.search.currentEngine.name, abbrSelection,
       ]);
       searchTheWeb.value = selection;
     }
   },
-  initMediaPlayerItems: function CM_initMediaPlayerItems() {
+  initMediaPlayerItems() {
     let onMedia = this.onVideo || this.onAudio;
     // Several mutually exclusive items.... play/pause, mute/unmute, show/hide
     this.showItem("mailContext-media-play", onMedia && this.target.paused);
@@ -217,7 +217,7 @@ nsContextMenu.prototype = {
       this.setItemAttr("mailContext-media-unmute", "disabled", hasError);
     }
   },
-  initBrowserItems: function CM_initBrowserItems() {
+  initBrowserItems() {
     // Work out if we are a context menu on a special item e.g. an image, link
     // etc.
     let notOnSpecialItem = !(this.inMessageArea || this.isContentSelected ||
@@ -234,10 +234,8 @@ nsContextMenu.prototype = {
     this.showItem("mailContext-reload", notOnSpecialItem);
 
     let loadedProtocol = "";
-    if (this.target &&
-        this.target.ownerDocument.defaultView.top.location)
-      loadedProtocol = this.target.ownerDocument.defaultView.top
-                           .location.protocol;
+    if (this.target && this.target.ownerGlobal.top.location)
+      loadedProtocol = this.target.ownerGlobal.top.location.protocol;
 
     // Only show open in browser if we're not on a special item and we're not
     // on an about: or chrome: protocol - for these protocols the browser is
@@ -254,7 +252,8 @@ nsContextMenu.prototype = {
                   this.onLink && !this.onMailtoLink &&
                   this.linkProtocol != "about" && this.linkProtocol != "chrome");
   },
-  initMessageItems: function CM_initMessageItems() {
+  /* eslint-disable complexity */
+  initMessageItems() {
     // If we're not in a message related tab, we're just going to bulk hide most
     // items as this simplifies the logic below.
     if (!this.inMessageArea) {
@@ -273,7 +272,7 @@ nsContextMenu.prototype = {
         "mailContext-watchThread",
         "mailContext-tags", "mailContext-mark", "mailContext-saveAs",
         "mailContext-printpreview", "mailContext-print", "mailContext-delete",
-        "downloadSelected", "mailContext-reportPhishingURL"
+        "downloadSelected", "mailContext-reportPhishingURL",
       ];
       for (let i = 0; i < messageTabSpecificItems.length; ++i)
         this.showItem(messageTabSpecificItems[i], false);
@@ -388,15 +387,16 @@ nsContextMenu.prototype = {
     // there isn't a message loaded in the message pane), a right-click is done
     // in the thread pane. This function will disable enable the 'Delete
     // Message' menu item.
-    goUpdateCommand('cmd_delete');
+    goUpdateCommand("cmd_delete");
 
-    this.showItem('downloadSelected',
+    this.showItem("downloadSelected",
                   this.numSelectedMessages > 1 && !this.hideMailItems);
 
     this.showItem("mailContext-reportPhishingURL",
                   !this.inThreadPane && this.onLink && !this.onMailtoLink);
   },
-  initSeparators: function CM_initSeparators() {
+  /* eslint-enable complexity */
+  initSeparators() {
     const mailContextSeparators = [
       "mailContext-sep-open-browser", "mailContext-sep-link",
       "mailContext-sep-open", "mailContext-sep-open2",
@@ -418,7 +418,8 @@ nsContextMenu.prototype = {
    * Set the nsContextMenu properties based on the selected node and
    * its ancestors.
    */
-  setTarget : function CM_setTarget(aNode) {
+  /* eslint-disable complexity */
+  setTarget(aNode) {
     // Clear any old spellchecking items from the menu, this used to
     // be in the menu hiding code but wasn't getting called in all
     // situations. Here, we can ensure it gets cleaned up any time the
@@ -495,7 +496,7 @@ nsContextMenu.prototype = {
           gSpellChecker.initFromEvent(document.popupRangeParent, document.popupRangeOffset);
         }
       } else if (editFlags & (SpellCheckHelper.CONTENTEDITABLE)) {
-        let targetWin = this.target.ownerDocument.defaultView;
+        let targetWin = this.target.ownerGlobal;
         let editingSession = targetWin.QueryInterface(Ci.nsIInterfaceRequestor)
                                       .getInterface(Ci.nsIWebNavigation)
                                       .QueryInterface(Ci.nsIInterfaceRequestor)
@@ -571,8 +572,9 @@ nsContextMenu.prototype = {
         (this.target.namespaceURI == NS_MathML))
       this.onMathML = true;
   },
+  /* eslint-enable complexity */
 
-  setMessageTargets: function CM_setMessageTargets(aNode) {
+  setMessageTargets(aNode) {
     let tabmail = document.getElementById("tabmail");
     if (tabmail) {
       // Not all tabs are message tabs - if we're in a tab mode that is in
@@ -580,8 +582,7 @@ nsContextMenu.prototype = {
       // tab.
       this.inMessageArea = tabmail.selectedTab.mode.name in mailTabType.modes;
       this.inStandaloneWindow = false;
-    }
-    else {
+    } else {
       // Assume that if we haven't got a tabmail item, then we're in standalone
       // window
       this.inMessageArea = true;
@@ -615,9 +616,8 @@ nsContextMenu.prototype = {
    *         The desired CSS property
    * @return the value of the property
    */
-  getComputedStyle: function CM_getComputedStyle(aElem, aProp) {
-    return aElem.ownerDocument.defaultView.getComputedStyle(aElem, "")
-                .getPropertyValue(aProp);
+  getComputedStyle(aElem, aProp) {
+    return aElem.ownerGlobal.getComputedStyle(aElem).getPropertyValue(aProp);
   },
 
   /**
@@ -626,9 +626,8 @@ nsContextMenu.prototype = {
    * @return a "url"-type computed style attribute value, with the "url(" and
    *         ")" stripped.
    */
-  getComputedURL: function CM_getComputedURL(aElem, aProp) {
-    var url = aElem.ownerDocument.defaultView.getComputedStyle(aElem, "")
-                   .getPropertyCSSValue(aProp);
+  getComputedURL(aElem, aProp) {
+    var url = aElem.ownerGlobal.getComputedStyle(aElem).getPropertyCSSValue(aProp);
     return (url.primitiveType == CSSPrimitiveValue.CSS_URI) ? url.getStringValue() : null;
   },
 
@@ -638,7 +637,7 @@ nsContextMenu.prototype = {
    * @return true if the protocol can be persisted and if the target has
    *         permission to link to the URL, false if not
    */
-  isLinkSaveable : function CM_isLinkSaveable() {
+  isLinkSaveable() {
     try {
       const nsIScriptSecurityManager =
         Ci.nsIScriptSecurityManager;
@@ -661,14 +660,14 @@ nsContextMenu.prototype = {
   /**
    * Save URL of clicked-on link.
    */
-  saveLink : function CM_saveLink() {
+  saveLink() {
     saveURL(this.linkURL, this.linkText(), null, true, null, null, document);
   },
 
   /**
    * Save a clicked-on image.
    */
-  saveImage : function CM_saveImage() {
+  saveImage() {
     saveURL(this.imageURL, null, "SaveImageTitle", false, null, null, document);
   },
 
@@ -676,7 +675,7 @@ nsContextMenu.prototype = {
    * Extract email addresses from a mailto: link and put them on the
    * clipboard.
    */
-  copyEmail : function CM_copyEmail() {
+  copyEmail() {
     // Copy the comma-separated list of email addresses only.
     // There are other ways of embedding email addresses in a mailto:
     // link, but such complex parsing is beyond us.
@@ -696,11 +695,8 @@ nsContextMenu.prototype = {
     // Let's try to unescape it using a character set.
     try {
       var characterSet = this.target.ownerDocument.characterSet;
-      const textToSubURI = Cc["@mozilla.org/intl/texttosuburi;1"]
-                             .getService(Ci.nsITextToSubURI);
-      addresses = textToSubURI.unEscapeURIForUI(characterSet, addresses);
-    }
-    catch(ex) {
+      addresses = Services.textToSubURI.unEscapeURIForUI(characterSet, addresses);
+    } catch (ex) {
       // Do nothing.
     }
 
@@ -709,9 +705,8 @@ nsContextMenu.prototype = {
     clipboard.copyString(addresses);
   },
 
-  ///////////////
-  // Utilities //
-  ///////////////
+  // ---------
+  // Utilities
 
   /**
    * Set a DOM node's hidden property by passing in the node's id or the
@@ -721,7 +716,7 @@ nsContextMenu.prototype = {
    * @param aShow
    *        true to show, false to hide
    */
-  showItem : function CM_showItem(aItemOrId, aShow) {
+  showItem(aItemOrId, aShow) {
     var item = aItemOrId.constructor == String ? document.getElementById(aItemOrId) : aItemOrId;
     item.hidden = !aShow;
   },
@@ -733,7 +728,7 @@ nsContextMenu.prototype = {
    * @param aItemOrId  A DOM node or the id of a DOM node
    * @param aEnabled   True to enable the element, false to disable.
    */
-  enableItem: function CM_enableItem(aItemOrId, aEnabled) {
+  enableItem(aItemOrId, aEnabled) {
     var item = aItemOrId.constructor == String ? document.getElementById(aItemOrId) : aItemOrId;
     item.disabled = !aEnabled;
   },
@@ -748,7 +743,7 @@ nsContextMenu.prototype = {
    *              decide whether to display the element. If false, we'll hide
    *              the item no matter what messages are selected.
    */
-  setSingleSelection: function CM_setSingleSelection(aID, aShow) {
+  setSingleSelection(aID, aShow) {
     let show = (aShow != undefined) ? aShow : true;
     this.showItem(aID, this.numSelectedMessages == 1 && !this.hideMailItems &&
                   show && !this.onPlayableMedia);
@@ -766,7 +761,7 @@ nsContextMenu.prototype = {
    * @param  aVal
    *         The value to set the attribute to, or null to remove the attribute
    */
-  setItemAttr : function CM_setItemAttr(aId, aAttr, aVal) {
+  setItemAttr(aId, aAttr, aVal) {
     var elem = document.getElementById(aId);
     if (elem) {
       if (aVal == null) {
@@ -784,17 +779,17 @@ nsContextMenu.prototype = {
    * resolving an XLink URL by hand.
    * @return the string absolute URL for the clicked-on link
    */
-  getLinkURL : function CM_getLinkURL() {
+  getLinkURL() {
     if (this.link.href) {
       return this.link.href;
     }
-    var href = this.link.getAttributeNS("http://www.w3.org/1999/xlink","href");
+    var href = this.link.getAttributeNS("http://www.w3.org/1999/xlink", "href");
     if (!href || (href.trim() == "")) {
        // Without this we try to save as the current doc,
        // for example, HTML case also throws if empty.
       throw "Empty href";
     }
-    href = this.makeURLAbsolute(this.link.baseURI,href);
+    href = this.makeURLAbsolute(this.link.baseURI, href);
     return href;
   },
 
@@ -802,7 +797,7 @@ nsContextMenu.prototype = {
    * Generate a URI object from the linkURL spec
    * @return an nsIURI if possible, or null if not
    */
-  getLinkURI: function CM_getLinkURI() {
+  getLinkURI() {
     try {
       return Services.io.newURI(this.linkURL);
     } catch (ex) {
@@ -815,7 +810,7 @@ nsContextMenu.prototype = {
    * Get the scheme for the clicked-on linkURI, if present.
    * @return a scheme, possibly undefined, or null if there's no linkURI
    */
-  getLinkProtocol: function CM_getLinkProtocol() {
+  getLinkProtocol() {
     if (this.linkURI)
       return this.linkURI.scheme; // can be |undefined|
 
@@ -826,7 +821,7 @@ nsContextMenu.prototype = {
    * Get some text, any text, for the clicked-on link.
    * @return the link text, title, alt, href, or "" if everything fails
    */
-  linkText : function CM_linkText() {
+  linkText() {
     var text = gatherTextUnder(this.link);
     if (!text || (text.trim() == "")) {
       text = this.link.getAttribute("title");
@@ -852,7 +847,7 @@ nsContextMenu.prototype = {
    * Determines whether the focused window has something selected.
    * @return true if there is a selection, false if not
    */
-  isContentSelection : function CM_isContentSelection() {
+  isContentSelection() {
     return !document.commandDispatcher.focusedWindow.getSelection().isCollapsed;
   },
 
@@ -861,10 +856,9 @@ nsContextMenu.prototype = {
    * of the threadpane by looking for a parent node with id="threadTree".
    * @return true if the popupNode is a child of the threadpane, otherwise false
    */
-  popupNodeIsInThreadPane: function CM_popupNodeIsInThreadPane(aNode) {
+  popupNodeIsInThreadPane(aNode) {
     var node = aNode;
-    while (node)
-    {
+    while (node) {
       if (node.id == "threadTree")
         return true;
 
@@ -881,7 +875,7 @@ nsContextMenu.prototype = {
    *         The possibly-relative URL string
    * @return The string absolute URL
    */
-  makeURLAbsolute : function CM_makeURLAbsolute(aBase, aUrl) {
+  makeURLAbsolute(aBase, aUrl) {
     // Construct nsIURL.
     var baseURI  = Services.io.newURI(aBase);
 
@@ -894,7 +888,7 @@ nsContextMenu.prototype = {
    *         The DOM node to check
    * @return true for textboxes, false for other elements
    */
-  isTargetATextBox : function CM_isTargetATextBox(aNode) {
+  isTargetATextBox(aNode) {
     if (aNode instanceof HTMLInputElement)
       return (aNode.type == "text" || aNode.type == "password");
 
@@ -907,7 +901,7 @@ nsContextMenu.prototype = {
    *
    * @param aSeparatorID  The id of the separator element.
    */
-  hideIfAppropriate: function CM_hideIfAppropriate(aSeparatorID) {
+  hideIfAppropriate(aSeparatorID) {
     this.showItem(aSeparatorID, this.shouldShowSeparator(aSeparatorID));
   },
 
@@ -918,7 +912,7 @@ nsContextMenu.prototype = {
    *         The id of the separator element
    * @return true if the separator should be shown, false if not
    */
-  shouldShowSeparator : function CM_shouldShowSeparator(aSeparatorID) {
+  shouldShowSeparator(aSeparatorID) {
     var separator = document.getElementById(aSeparatorID);
     if (separator) {
       var sibling = separator.previousSibling;
@@ -936,7 +930,7 @@ nsContextMenu.prototype = {
    *
    * @param aPopup  The menu to check.
    */
-  checkLastSeparator: function CM_checkLastSeparator(aPopup) {
+  checkLastSeparator(aPopup) {
     let sibling = aPopup.lastChild;
     while (sibling) {
       if (sibling.getAttribute("hidden") != "true") {
@@ -946,39 +940,38 @@ nsContextMenu.prototype = {
           sibling.setAttribute("hidden", true);
           return;
         }
-        else
-          return;
+        return;
       }
       sibling = sibling.previousSibling;
     }
   },
 
-  openInBrowser: function CM_openInBrowser() {
-    let url = this.target.ownerDocument.defaultView.top.location.href;
+  openInBrowser() {
+    let url = this.target.ownerGlobal.top.location.href;
     PlacesUtils.history.insert({
       url,
       visits: [{
-        date: new Date()
-      }]
+        date: new Date(),
+      }],
     }).catch(Cu.reportError);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(Services.io.newURI(url));
   },
 
-  openLinkInBrowser: function CM_openLinkInBrowser() {
+  openLinkInBrowser() {
     PlacesUtils.history.insert({
       url: this.linkURL,
       visits: [{
-        date: new Date()
-      }]
+        date: new Date(),
+      }],
     }).catch(Cu.reportError);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(this.linkURI);
   },
 
-  mediaCommand : function CM_mediaCommand(command) {
+  mediaCommand(command) {
     var media = this.target;
 
     switch (command) {
@@ -997,5 +990,5 @@ nsContextMenu.prototype = {
       // XXX hide controls & show controls don't work in emails as Javascript is
       // disabled. May want to consider later for RSS feeds.
     }
-  }
+  },
 };

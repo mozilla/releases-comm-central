@@ -8,8 +8,7 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-function init(aEvent)
-{
+function init(aEvent) {
   if (aEvent.target != document)
     return;
 
@@ -29,14 +28,12 @@ function init(aEvent)
         var distroField = document.getElementById("distribution");
         distroField.value = distroAbout;
         distroField.style.display = "block";
-      }
-      catch (ex) {
+      } catch (ex) {
         // Pref is unset
         Cu.reportError(ex);
       }
     }
-  }
-  catch (e) {
+  } catch (e) {
     // Pref is unset
   }
 
@@ -93,9 +90,7 @@ function init(aEvent)
 
 // This function is used to open about: tabs. The caller should ensure the url
 // is only an about: url.
-function openAboutTab(url)
-{
-  let tabmail;
+function openAboutTab(url) {
   // Check existing windows
   let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
   if (mailWindow) {
@@ -113,10 +108,9 @@ function openAboutTab(url)
                       tabParams: {contentPage: url, clickHandler: "specialTabs.aboutClickHandler(event);"} });
 }
 
-function openUILink(url, event)
-{
+function openUILink(url, event) {
   if (!event.button) {
-    let m = ("messenger" in window) ? messenger :
+    let m = ("messenger" in window) ? window.messenger :
       Cc["@mozilla.org/messenger;1"]
         .createInstance(Ci.nsIMessenger);
     m.launchExternalURL(url);

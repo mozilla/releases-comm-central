@@ -6,7 +6,7 @@ ChromeUtils.import("resource:///modules/StringBundle.js");
 
 var gSearchBundle;
 
-var gStatusBar = document.getElementById('statusbar-icon');
+var gStatusBar = document.getElementById("statusbar-icon");
 
 var gGlodaCompleteStrings = new StringBundle("chrome://messenger/locale/glodaComplete.properties");
 
@@ -32,10 +32,10 @@ var gGlodaCompleteStrings = new StringBundle("chrome://messenger/locale/glodaCom
 var GlodaSearchBoxTabMonitor = {
   monitorName: "glodaSearchBox",
 
-  onTabTitleChanged: function() {
+  onTabTitleChanged() {
   },
 
-  onTabOpened: function GSBTM_onTabOpened(aTab, aFirstTab, aOldTab) {
+  onTabOpened(aTab, aFirstTab, aOldTab) {
     aTab._ext.glodaSearchBox = {
       value: (aTab.mode.name === "glodaFacet") ? aTab.searchString : "",
     };
@@ -48,7 +48,7 @@ var GlodaSearchBoxTabMonitor = {
     }
   },
 
-  onTabSwitched: function (aTab, aOldTab) {
+  onTabSwitched(aTab, aOldTab) {
     let searchInput = document.getElementById("searchInput");
     if (!searchInput) // customized out of the way
       return;
@@ -63,6 +63,6 @@ var GlodaSearchBoxTabMonitor = {
     let desiredValue = aTab._ext.glodaSearchBox.value || "";
     if (searchInput.value != desiredValue)
       searchInput.value = desiredValue;
-  }
+  },
 };
 

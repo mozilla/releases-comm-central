@@ -39,7 +39,7 @@ function ActiveSingularConstraint(aFaceter, aRanged) {
   this.clear();
 }
 ActiveSingularConstraint.prototype = {
-  _makeQuery: function() {
+  _makeQuery() {
     // have the faceter make the query and the invert decision for us if it
     //  implements the makeQuery method.
     if ("makeQuery" in this.faceter) {
@@ -72,7 +72,7 @@ ActiveSingularConstraint.prototype = {
    *     constraint because we have flipped whether we are inclusive or
    *     exclusive and have thrown away some constraints as a result.
    */
-  constrain: function(aInclusive, aGroupValues) {
+  constrain(aInclusive, aGroupValues) {
     if (aInclusive == this.inclusive) {
       this.groupValues = this.groupValues.concat(aGroupValues);
       this._makeQuery();
@@ -92,7 +92,7 @@ ActiveSingularConstraint.prototype = {
    *
    * @return true if we are no longer constrained at all.
    */
-  relax: function(aInclusive, aGroupValues) {
+  relax(aInclusive, aGroupValues) {
     if (aInclusive != this.inclusive)
       throw new Error("You can't relax a constraint that isn't possible.");
 
@@ -119,7 +119,7 @@ ActiveSingularConstraint.prototype = {
   /**
    * Clear the constraint so that the next call to adjust initializes it.
    */
-  clear: function() {
+  clear() {
     this.inclusive = null;
     this.groupValues = null;
     this.query = null;
@@ -128,21 +128,21 @@ ActiveSingularConstraint.prototype = {
   /**
    * Filter the items against our constraint.
    */
-  sieve: function(aItems) {
+  sieve(aItems) {
     let query = this.query;
     let expectedResult = !this.invertQuery;
     return aItems.filter(item => query.test(item) == expectedResult);
   },
-  isIncludedGroup: function(aGroupValue) {
+  isIncludedGroup(aGroupValue) {
     if (!this.inclusive)
       return false;
     return this.groupValues.includes(aGroupValue);
   },
-  isExcludedGroup: function(aGroupValue) {
+  isExcludedGroup(aGroupValue) {
     if (this.inclusive)
       return false;
     return this.groupValues.includes(aGroupValue);
-  }
+  },
 };
 
 function ActiveNonSingularConstraint(aFaceter, aRanged) {
@@ -154,7 +154,7 @@ function ActiveNonSingularConstraint(aFaceter, aRanged) {
   this.clear();
 }
 ActiveNonSingularConstraint.prototype = {
-  _makeQuery: function(aInclusive, aGroupValues) {
+  _makeQuery(aInclusive, aGroupValues) {
     // have the faceter make the query and the invert decision for us if it
     //  implements the makeQuery method.
     if ("makeQuery" in this.faceter) {
@@ -183,7 +183,7 @@ ActiveNonSingularConstraint.prototype = {
    *  just append the new values to the existing set of values.  If it is not
    *  the same, we replace them.
    */
-  constrain: function(aInclusive, aGroupValues) {
+  constrain(aInclusive, aGroupValues) {
     let groupIdAttr = this.attrDef.objectNounDef.isPrimitive ? null
                         : this.facetDef.groupIdAttr;
     let idMap = aInclusive ? this.includedGroupIds
@@ -211,7 +211,7 @@ ActiveNonSingularConstraint.prototype = {
    *
    * @return true if we are no longer constrained at all.
    */
-  relax: function(aInclusive, aGroupValues) {
+  relax(aInclusive, aGroupValues) {
     let groupIdAttr = this.attrDef.objectNounDef.isPrimitive ? null
                         : this.facetDef.groupIdAttr;
     let idMap = aInclusive ? this.includedGroupIds
@@ -234,8 +234,7 @@ ActiveNonSingularConstraint.prototype = {
         this.includeQuery = null;
       else
         this.excludeQuery = null;
-    }
-    else {
+    } else {
       let [query, invertQuery] = this._makeQuery(aInclusive, valList);
       if (aInclusive && !invertQuery)
         this.includeQuery = query;
@@ -254,7 +253,7 @@ ActiveNonSingularConstraint.prototype = {
   /**
    * Clear the constraint so that the next call to adjust initializes it.
    */
-  clear: function() {
+  clear() {
     this.includeQuery = null;
     this.includedGroupIds = {};
     this.includedGroupValues = [];
@@ -266,20 +265,20 @@ ActiveNonSingularConstraint.prototype = {
   /**
    * Filter the items against our constraint.
    */
-  sieve: function(aItems) {
+  sieve(aItems) {
     let includeQuery = this.includeQuery;
     let excludeQuery = this.excludeQuery;
     return aItems.filter(item => (!includeQuery || includeQuery.test(item)) &&
                                  (!excludeQuery || !excludeQuery.test(item)));
   },
-  isIncludedGroup: function(aGroupValue) {
+  isIncludedGroup(aGroupValue) {
     let valId = aGroupValue[this.facetDef.groupIdAttr];
     return (valId in this.includedGroupIds);
   },
-  isExcludedGroup: function(aGroupValue) {
+  isExcludedGroup(aGroupValue) {
     let valId = aGroupValue[this.facetDef.groupIdAttr];
     return (valId in this.excludedGroupIds);
-  }
+  },
 };
 
 var FacetContext = {
@@ -327,7 +326,7 @@ var FacetContext = {
    * we return the appropriate one.
    */
   get fullSet() {
-    return (this._sortBy == '-dascore' ?
+    return (this._sortBy == "-dascore" ?
             this._relevantSortedItems :
             this._dateSortedItems);
   },
@@ -339,14 +338,14 @@ var FacetContext = {
     else
       scores = Gloda.scoreNounItems(items);
     let scoredItems = items.map(function(item, index) { return [scores[index], item]; });
-    scoredItems.sort((a, b) => b[0]-a[0]);
+    scoredItems.sort((a, b) => b[0] - a[0]);
     this._relevantSortedItems = scoredItems.map(scoredItem => scoredItem[1]);
 
     this._dateSortedItems =
-      this._relevantSortedItems.concat().sort((a, b) => b.date-a.date);
+      this._relevantSortedItems.concat().sort((a, b) => b.date - a.date);
   },
 
-  initialBuild: function() {
+  initialBuild() {
     let queryExplanation = document.getElementById("query-explanation");
     if (this.searcher)
       queryExplanation.setFulltext(this.searcher);
@@ -360,9 +359,9 @@ var FacetContext = {
     this.everFaceted = false;
     this._activeConstraints = {};
     if (this.searcher)
-      this._sortBy = '-dascore';
+      this._sortBy = "-dascore";
     else
-      this._sortBy = '-date';
+      this._sortBy = "-date";
     this.fullSet = this._removeDupes(this._collection.items.concat());
     if ("IMCollection" in this)
       this.fullSet = this.fullSet.concat(this.IMCollection.items);
@@ -382,7 +381,7 @@ var FacetContext = {
    * of doing that is just to cull (from the display) messages with have the
    * Message-ID of a message already displayed.
    */
-  _removeDupes: function(aItems) {
+  _removeDupes(aItems) {
     let deduped = [];
     let msgIdsSeen = {};
     for (let item of aItems) {
@@ -400,7 +399,7 @@ var FacetContext = {
    * @param aNewSet the set of items to facet.
    * @param aCallback the callback to invoke when faceting is completed.
    */
-  build: function(aNewSet, aCallback) {
+  build(aNewSet, aCallback) {
     this._activeSet = aNewSet;
     this._callbackOnFacetComplete = aCallback;
     this.facetDriver.go(this._activeSet, this.facetingCompleted, this);
@@ -412,7 +411,7 @@ var FacetContext = {
    *  number of rows we believe the user can easily scan, this may also be
    *  impacted by layout concerns (since we want to avoid scrolling).
    */
-  planLayout: function() {
+  planLayout() {
     // XXX arbitrary!
     this.maxDisplayRows = 8;
     this.maxMessagesToShow = 10;
@@ -421,7 +420,7 @@ var FacetContext = {
   /**
    * Clean up the UI in preparation for a new query to come in.
    */
-  _resetUI: function() {
+  _resetUI() {
     for (let faceter of this.faceters) {
       if (faceter.xblNode && !faceter.xblNode.explicit)
         faceter.xblNode.remove();
@@ -430,14 +429,14 @@ var FacetContext = {
     }
   },
 
-  _groupCountComparator: function(a, b) {
+  _groupCountComparator(a, b) {
     return b.groupCount - a.groupCount;
   },
   /**
    * Tells the UI about all the facets when notified by the |facetDriver| when
    *  it is done faceting everything.
    */
-  facetingCompleted: function() {
+  facetingCompleted() {
     this.planLayout();
 
     let uiFacets = document.getElementById("facets");
@@ -478,15 +477,14 @@ var FacetContext = {
         }
 
         faceter.xblNode = uiFacets.addFacet(faceter.type, faceter.attrDef, {
-          faceter: faceter,
+          faceter,
           facetDef: faceter.facetDef,
           orderedGroups: faceter.orderedGroups,
           maxDisplayRows: this.maxDisplayRows,
-          explicit: false
+          explicit: false,
         });
       }
-    }
-    else {
+    } else {
       for (let faceter of this.faceters) {
         // Do not bother with un-displayed facets, or that are locked by a
         //  constraint.  But do bother if the widget can be updated without
@@ -498,10 +496,9 @@ var FacetContext = {
         // hide things that have 0/1 groups now and are not constrained and not
         //  explicit
         if (faceter.groupCount <= 1 && !faceter.constraint &&
-            (!faceter.xblNode.explicit || faceter.type == "date"))
+            (!faceter.xblNode.explicit || faceter.type == "date")) {
           faceter.xblNode.style.display = "none";
-        // otherwise, update
-        else {
+        } else { // otherwise, update
           faceter.xblNode.orderedGroups = faceter.orderedGroups;
           faceter.xblNode.build(false);
           faceter.xblNode.style.display = "block";
@@ -509,7 +506,7 @@ var FacetContext = {
       }
     }
 
-    if (! this._timelineShown)
+    if (!this._timelineShown)
       this._hideTimeline(true);
 
     this._showResults();
@@ -521,8 +518,7 @@ var FacetContext = {
     }
   },
 
-  _showResults: function()
-  {
+  _showResults() {
     let results = document.getElementById("results");
     let numMessageToShow = Math.min(this.maxMessagesToShow * this._numPages,
                                     this._activeSet.length);
@@ -537,8 +533,7 @@ var FacetContext = {
     if (this._activeSet.length == 0) {
       showEmpty.style.display = "block";
       dateToggle.style.display = "none";
-    }
-    else {
+    } else {
       showEmpty.style.display = "none";
       dateToggle.style.display = "block";
     }
@@ -550,22 +545,20 @@ var FacetContext = {
       showMore.style.display = "none";
   },
 
-  showMore: function() {
+  showMore() {
     this._numPages += 1;
     this._showResults();
-    let results = document.getElementById("results");
   },
 
-
-  zoomOut: function() {
-    let facetDate = document.getElementById('facet-date');
-    this.removeFacetConstraint(facetDate.faceter, true, facetDate.vis.constraints)
+  zoomOut() {
+    let facetDate = document.getElementById("facet-date");
+    this.removeFacetConstraint(facetDate.faceter, true, facetDate.vis.constraints);
     facetDate.setAttribute("zoomedout", "true");
   },
 
-  toggleTimeline: function() {
+  toggleTimeline() {
     try {
-      this._timelineShown = ! this._timelineShown;
+      this._timelineShown = !this._timelineShown;
       if (this._timelineShown)
         this._showTimeline();
       else
@@ -575,7 +568,7 @@ var FacetContext = {
     }
   },
 
-  _showTimeline: function() {
+  _showTimeline() {
     let facetDate = document.getElementById("facet-date");
     if (facetDate.style.display == "none") {
       facetDate.style.display = "inherit";
@@ -595,7 +588,7 @@ var FacetContext = {
     Services.prefs.setBoolPref("gloda.facetview.hidetimeline", false);
   },
 
-  _hideTimeline: function(immediate) {
+  _hideTimeline(immediate) {
     let facetDate = document.getElementById("facet-date");
     if (immediate)
       facetDate.style.display = "none";
@@ -618,7 +611,7 @@ var FacetContext = {
   _brushedGroup: null,
   _brushedItems: null,
   _brushTimeout: null,
-  hoverFacet: function(aFaceter, aAttrDef, aGroupValue, aGroupItems) {
+  hoverFacet(aFaceter, aAttrDef, aGroupValue, aGroupItems) {
     // bail if we are already brushing this item
     if (this._brushedFacet == aFaceter && this._brushedGroup == aGroupValue)
       return;
@@ -633,7 +626,7 @@ var FacetContext = {
                                     this._HOVER_STABILITY_DURATION_MS, this);
 
   },
-  _timeoutHover: function() {
+  _timeoutHover() {
     this._brushTimeout = null;
     for (let faceter of this.faceters) {
       if (faceter == this._brushedFacet || !faceter.xblNode)
@@ -645,10 +638,10 @@ var FacetContext = {
         faceter.xblNode.clearBrushedItems();
     }
   },
-  _timeoutHoverWrapper: function(aThis) {
+  _timeoutHoverWrapper(aThis) {
     aThis._timeoutHover();
   },
-  unhoverFacet: function(aFaceter, aAttrDef, aGroupValue, aGroupItems) {
+  unhoverFacet(aFaceter, aAttrDef, aGroupValue, aGroupItems) {
     // have we already brushed from some other source already?  ignore then.
     if (this._brushedFacet != aFaceter || this._brushedGroup != aGroupValue)
       return;
@@ -692,8 +685,7 @@ var FacetContext = {
    *     a singular constraint flips its inclusive state and throws away
    *     constraints.
    */
-  addFacetConstraint: function(aFaceter, aInclusive, aGroupValues,
-                               aRanged, aNukeExisting, aCallback) {
+  addFacetConstraint(aFaceter, aInclusive, aGroupValues, aRanged, aNukeExisting, aCallback) {
     let attrName = aFaceter.attrDef.attributeName;
 
     let constraint;
@@ -704,8 +696,7 @@ var FacetContext = {
       needToSieveAll = true;
       if (aNukeExisting)
         constraint.clear();
-    }
-    else {
+    } else {
       let constraintClass = aFaceter.attrDef.singular ? ActiveSingularConstraint
                               : ActiveNonSingularConstraint;
       constraint = this._activeConstraints[attrName] =
@@ -744,8 +735,7 @@ var FacetContext = {
    *     to be rebuilt, so be aware if you are trying to do any cool animation
    *     that might no longer make sense.
    */
-  removeFacetConstraint: function(aFaceter, aInclusive, aGroupValues,
-                                  aCallback) {
+  removeFacetConstraint(aFaceter, aInclusive, aGroupValues, aCallback) {
     let attrName = aFaceter.attrDef.attributeName;
     let constraint = this._activeConstraints[attrName];
 
@@ -767,7 +757,7 @@ var FacetContext = {
    * Sieve the items from the underlying collection against all constraints,
    *  returning the value.
    */
-  _sieveAll: function() {
+  _sieveAll() {
     let items = this.fullSet;
 
     for (let elem in this._activeConstraints) {
@@ -777,7 +767,7 @@ var FacetContext = {
     return items;
   },
 
-  toggleFulltextCriteria: function() {
+  toggleFulltextCriteria() {
     this.tab.searcher.andTerms = !this.tab.searcher.andTerms;
     this._resetUI();
     this.collection = this.tab.searcher.getCollection(this);
@@ -786,11 +776,11 @@ var FacetContext = {
   /**
    * Show the active message set in a glodaList tab.
    */
-  showActiveSetInTab: function() {
+  showActiveSetInTab() {
     let tabmail = this.rootWin.document.getElementById("tabmail");
     tabmail.openTab("glodaList", {
       collection: Gloda.explicitCollection(Gloda.NOUN_MESSAGE, this.activeSet),
-      title: this.tab.title
+      title: this.tab.title,
     });
   },
 
@@ -801,7 +791,7 @@ var FacetContext = {
    *     result the user wants to see in more details.
    * @param {Boolean} [aBackground] Whether it should be in the background.
    */
-  showConversationInTab: function(aResultMessage, aBackground) {
+  showConversationInTab(aResultMessage, aBackground) {
     let tabmail = this.rootWin.document.getElementById("tabmail");
     let message = aResultMessage.message;
     if ("IMCollection" in this &&
@@ -810,15 +800,15 @@ var FacetContext = {
         convType: "log",
         conv: message,
         searchTerm: aResultMessage.firstMatchText,
-        background: aBackground
+        background: aBackground,
       });
       return;
     }
     tabmail.openTab("glodaList", {
       conversation: message.conversation,
-      message: message,
+      message,
       title: message.conversation.subject,
-      background: aBackground
+      background: aBackground,
     });
   },
 
@@ -828,28 +818,28 @@ var FacetContext = {
    * @param {GlodaMessage} aMessage The message to show.
    * @param {Boolean} [aBackground] Whether it should be in the background.
    */
-  showMessageInTab: function(aMessage, aBackground) {
+  showMessageInTab(aMessage, aBackground) {
     let tabmail = this.rootWin.document.getElementById("tabmail");
     let msgHdr = aMessage.folderMessage;
     if (!msgHdr)
       throw new Error("Unable to translate gloda message to message header.");
     tabmail.openTab("message", {
-      msgHdr: msgHdr,
-      background: aBackground
+      msgHdr,
+      background: aBackground,
     });
   },
 
-  onItemsAdded: function(aItems, aCollection) {
+  onItemsAdded(aItems, aCollection) {
   },
-  onItemsModified: function(aItems, aCollection) {
+  onItemsModified(aItems, aCollection) {
   },
-  onItemsRemoved: function(aItems, aCollection) {
+  onItemsRemoved(aItems, aCollection) {
   },
-  onQueryCompleted: function(aCollection) {
+  onQueryCompleted(aCollection) {
     if (this.tab.query.completed &&
         (!("IMQuery" in this.tab) || this.tab.IMQuery.completed))
       this.initialBuild();
-  }
+  },
 };
 
 /**
@@ -881,8 +871,7 @@ function reachOutAndTouchFrame() {
       FacetContext.IMSearcher = aTab.IMSearcher;
       aTab.IMSearcher.listener = FacetContext;
     }
-  }
-  else {
+  } else {
     FacetContext.searcher = null;
     aTab.collection.listener = FacetContext;
   }
@@ -897,7 +886,7 @@ function reachOutAndTouchFrame() {
 
 function clickOnBody(event) {
   if (event.bubbles) {
-    document.getElementById('popup-menu').hide();
+    document.getElementById("popup-menu").hide();
   }
   return 0;
 }

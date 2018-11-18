@@ -17,8 +17,7 @@ var gPhishingDetector = {
   mCheckForMismatchedHosts: true,
   mDisallowFormActions: true,
 
-  shutdown: function()
-  {
+  shutdown() {
   },
 
   /**
@@ -26,8 +25,7 @@ var gPhishingDetector = {
    * Initialize the black and white list url tables.
    * Update the local tables if necessary.
    */
-  init: function()
-  {
+  init() {
     ChromeUtils.import("resource:///modules/hostnameUtils.jsm", this);
 
     this.mCheckForIPAddresses = Services.prefs.getBoolPref("mail.phishing.detection.ipaddresses");
@@ -45,8 +43,7 @@ var gPhishingDetector = {
    * @return asynchronously calls gMessageNotificationBar.setPhishingMsg if the message
    *         is identified as a scam.
    */
-  analyzeMsgForPhishingURLs: function (aUrl)
-  {
+  analyzeMsgForPhishingURLs(aUrl) {
     if (!aUrl || !Services.prefs.getBoolPref("mail.phishing.detection.enabled"))
       return;
 
@@ -56,7 +53,7 @@ var gPhishingDetector = {
       var folder = aUrl.folder;
 
       // Ignore nntp and RSS messages.
-      if (folder.server.type == 'nntp' || folder.server.type == 'rss')
+      if (folder.server.type == "nntp" || folder.server.type == "rss")
         return;
 
       // Also ignore messages in Sent/Drafts/Templates/Outbox.
@@ -71,21 +68,17 @@ var gPhishingDetector = {
     }
 
     // extract the link nodes in the message and analyze them, looking for suspicious URLs...
-    var linkNodes = document.getElementById('messagepane').contentDocument.links;
+    var linkNodes = document.getElementById("messagepane").contentDocument.links;
     for (var index = 0; index < linkNodes.length; index++)
       this.analyzeUrl(linkNodes[index].href, gatherTextUnder(linkNodes[index]));
 
     // extract the action urls associated with any form elements in the message and analyze them.
-    let formNodes = document.getElementById('messagepane').contentDocument.querySelectorAll("form[action]");
+    let formNodes = document.getElementById("messagepane").contentDocument.querySelectorAll("form[action]");
 
-    if (this.mDisallowFormActions && formNodes.length > 0)
-    {
+    if (this.mDisallowFormActions && formNodes.length > 0) {
       gMessageNotificationBar.setPhishingMsg();
-    }
-    else
-    {
-      for (index = 0; index < formNodes.length; index++)
-      {
+    } else {
+      for (index = 0; index < formNodes.length; index++) {
         this.analyzeUrl(formNodes[index].action);
       }
     }
@@ -100,8 +93,7 @@ var gPhishingDetector = {
    * @return asynchronously calls gMessageNotificationBar.setPhishingMsg if the link node
    *         contains a phishing URL.
    */
-  analyzeUrl: function (aUrl, aLinkText)
-  {
+  analyzeUrl(aUrl, aLinkText) {
     if (!aUrl)
       return;
 
@@ -109,12 +101,13 @@ var gPhishingDetector = {
     // make sure relative link urls don't make us bail out
     try {
       hrefURL = Services.io.newURI(aUrl);
-    } catch(ex) { return; }
+    } catch (ex) {
+      return;
+    }
 
     // only check for phishing urls if the url is an http or https link.
     // this prevents us from flagging imap and other internally handled urls
-    if (hrefURL.schemeIs('http') || hrefURL.schemeIs('https'))
-    {
+    if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
       // The link is not suspicious if the visible text is the same as the URL,
       // even if the URL is an IP address. URLs are commonly surrounded by
       // < > or "" (RFC2396E) - so strip those from the link text before comparing.
@@ -125,19 +118,16 @@ var gPhishingDetector = {
       // If the link text and url differs by something other than a trailing
       // slash, do some further checks.
       if (aLinkText && aLinkText != aUrl &&
-          aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, ""))
-      {
-        if (this.mCheckForIPAddresses)
-        {
+          aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, "")) {
+        if (this.mCheckForIPAddresses) {
           let unobscuredHostNameValue = this.isLegalIPAddress(hrefURL.host, true);
           if (unobscuredHostNameValue)
             failsStaticTests = !this.isLegalLocalIPAddress(unobscuredHostNameValue);
         }
 
-        if (!failsStaticTests && this.mCheckForMismatchedHosts)
-        {
+        if (!failsStaticTests && this.mCheckForMismatchedHosts) {
           failsStaticTests = (aLinkText &&
-            this.misMatchedHostWithLinkText(hrefURL, aLinkText))
+            this.misMatchedHostWithLinkText(hrefURL, aLinkText));
         }
       }
       // We don't use dynamic checks anymore. The old implementation was removed
@@ -153,8 +143,7 @@ var gPhishingDetector = {
    * as a phish.
    * @param aPhishingURL the url we want to report back as a phishing attack
    */
-   reportPhishingURL: function(aPhishingURL)
-   {
+   reportPhishingURL(aPhishingURL) {
      let reportUrl = Services.urlFormatter.formatURLPref(
        "browser.safebrowsing.reportPhishURL");
      reportUrl += "&url=" + encodeURIComponent(aPhishingURL);
@@ -173,15 +162,13 @@ var gPhishingDetector = {
    *
    * @return true if aHrefURL.host does NOT match the host of the link node text
    */
-  misMatchedHostWithLinkText: function(aHrefURL, aLinkNodeText)
-  {
+  misMatchedHostWithLinkText(aHrefURL, aLinkNodeText) {
     // gatherTextUnder puts a space between each piece of text it gathers,
     // so strip the spaces out (see bug 326082 for details).
     aLinkNodeText = aLinkNodeText.replace(/ /g, "");
 
     // Only worry about http: and https: urls.
-    if (/^https?:/.test(aLinkNodeText))
-    {
+    if (/^https?:/.test(aLinkNodeText)) {
       let linkTextURI = Services.io.newURI(aLinkNodeText);
 
       // Compare the base domain of the href and the link text.
@@ -206,8 +193,7 @@ var gPhishingDetector = {
    * @param aUrl the url
    * @return true if the link should be allowed to load
    */
-  warnOnSuspiciousLinkClick: function(aUrl)
-  {
+  warnOnSuspiciousLinkClick(aUrl) {
     // If the loaded message has *not* been flagged as a scam...
     if (!gMessageNotificationBar.isShowingPhishingNotification())
       return true; // ...allow the link to load.
@@ -216,11 +202,12 @@ var gPhishingDetector = {
     // make sure relative link urls don't make us bail out
     try {
       hrefURL = Services.io.newURI(aUrl);
-    } catch(ex) { return false; }
+    } catch (ex) {
+      return false;
+    }
 
     // only prompt for http and https urls
-    if (hrefURL.schemeIs('http') || hrefURL.schemeIs('https'))
-    {
+    if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
       // unobscure the host name in case it's an encoded ip address..
       let unobscuredHostNameValue = this.isLegalIPAddress(hrefURL.host, true)
         || hrefURL.host;
@@ -240,5 +227,5 @@ var gPhishingDetector = {
     }
 
     return true; // allow the link to load
-  }
+  },
 };

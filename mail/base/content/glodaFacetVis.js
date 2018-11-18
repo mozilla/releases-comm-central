@@ -19,12 +19,12 @@ function DateFacetVis(aBinding, aCanvasNode) {
   this.attrDef = this.faceter.attrDef;
 }
 DateFacetVis.prototype = {
-  build: function() {
+  build() {
     let resultsBarRect = document.getElementById("results").getBoundingClientRect();
     this.allowedSpace = resultsBarRect.right - resultsBarRect.left;
     this.render();
   },
-  rebuild: function() {
+  rebuild() {
     this.render();
   },
 
@@ -56,14 +56,14 @@ DateFacetVis.prototype = {
    *     before you pass it in.
    * @return An object with attributes:
    */
-  makeIdealScaleGivenSpace: function(aPixels) {
+  makeIdealScaleGivenSpace(aPixels) {
     let facet = this.faceter;
     // build a scale and have it grow the edges based on the span
     let scale = pv.Scales.dateTime(facet.oldest, facet.newest);
 
     const Span = pv.Scales.DateTimeScale.Span;
-    const MS_MIN = 60*1000, MS_HOUR = 60*MS_MIN, MS_DAY = 24*MS_HOUR,
-          MS_WEEK = 7*MS_DAY, MS_MONTHISH = 31*MS_DAY, MS_YEARISH = 366*MS_DAY;
+    const MS_MIN = 60 * 1000, MS_HOUR = 60 * MS_MIN, MS_DAY = 24 * MS_HOUR,
+          MS_WEEK = 7 * MS_DAY, MS_MONTHISH = 31 * MS_DAY, MS_YEARISH = 366 * MS_DAY;
     const roughMap = {};
     roughMap[Span.DAYS] = MS_DAY;
     roughMap[Span.WEEKS] = MS_WEEK;
@@ -117,7 +117,7 @@ DateFacetVis.prototype = {
       // We should not hit the null member of the array...
       label: [{ year: "numeric" }, { year: "2-digit" }, null],
       boost: (span == Span.YEARS),
-      noFringe: (span == Span.YEARS)
+      noFringe: (span == Span.YEARS),
     });
     // add month spans if we are days or weeks...
     if (spandex < 2) {
@@ -125,7 +125,7 @@ DateFacetVis.prototype = {
         rules: scale.ruleValues(Span.MONTHS, true),
         // try to use the full month, falling back to the short month
         label: [{ month: "long" }, { month: "short" }, null],
-        boost: false
+        boost: false,
       });
     }
     // add week spans if our granularity is days...
@@ -136,37 +136,32 @@ DateFacetVis.prototype = {
       //  enough, display both the date and the day of the week
       if (numDays <= this._MAX_DAY_COUNT_LABEL_DISPLAY) {
         labelTiers.push({
-          rules: rules,
+          rules,
           label: [{ day: "numeric" }, null],
-          boost: true, noFringe: true
+          boost: true, noFringe: true,
         });
         labelTiers.push({
-          rules: rules,
+          rules,
           label: [{ weekday: "short" }, null],
-          boost: true, noFringe: true
+          boost: true, noFringe: true,
         });
-      }
-      // show the weeks since we're at greater than a day time-scale
-      else {
+      } else {
+        // show the weeks since we're at greater than a day time-scale
         labelTiers.push({
           rules: scale.ruleValues(Span.WEEKS, true),
           // labeling weeks is nonsensical; no one understands ISO weeks
           //  numbers.
           label: [null],
-          boost: false
+          boost: false,
         });
       }
     }
 
-    return {
-      scale: scale, span: span, rules: rules, barPixBudget: barPixBudget,
-      labelTiers: labelTiers
-    };
+    return { scale, span, rules, barPixBudget, labelTiers };
   },
 
-  render: function() {
-    let {scale: scale, span: span, rules: rules, barPixBudget: barPixBudget,
-         labelTiers: labelTiers} =
+  render() {
+    let { scale, span, rules, barPixBudget, labelTiers } =
       this.makeIdealScaleGivenSpace(this.allowedSpace);
 
     barPixBudget = Math.floor(barPixBudget);
@@ -178,7 +173,7 @@ DateFacetVis.prototype = {
     let width = barPix * (rules.length - 1);
 
     let totalAxisLabelHeight = 0;
-    let isRTL = window.getComputedStyle(this.binding, null).direction == "rtl";
+    let isRTL = window.getComputedStyle(this.binding).direction == "rtl";
 
     // we need to do some font-metric calculations, so create a canvas...
     let fontMetricCanvas = document.createElement("canvas");
@@ -240,7 +235,6 @@ DateFacetVis.prototype = {
     }
 
     let barWidth = barPix - this._BAR_SPACING_PX;
-    let barSpacing = this._BAR_SPACING_PX;
 
     width = barPix * (rules.length - 1);
     // we ideally want this to be the same size as the max rows translates to...
@@ -276,8 +270,7 @@ DateFacetVis.prototype = {
       .event("click", function(d) {
           dis.constraints = [[d.startDate, d.endDate]];
           dis.binding.setAttribute("zoomedout", "false");
-          FacetContext.addFacetConstraint(faceter, true, dis.constraints,
-                                          true, true);
+          FacetContext.addFacetConstraint(faceter, true, dis.constraints, true, true);
         }
       );
 
@@ -303,8 +296,7 @@ DateFacetVis.prototype = {
         .event("click", function(d) {
           dis.constraints = [[d[3], d[4]]];
           dis.binding.setAttribute("zoomedout", "false");
-          FacetContext.addFacetConstraint(faceter, true, dis.constraints,
-                                          true, true)
+          FacetContext.addFacetConstraint(faceter, true, dis.constraints, true, true);
         });
 
       if (labelTier.displayLabel) {
@@ -321,7 +313,7 @@ DateFacetVis.prototype = {
     vis.render();
   },
 
-  hoverItems: function(aItems) {
+  hoverItems(aItems) {
     let itemToBin = this.itemToBin;
     let bins = this.emptyBins.concat();
     for (let item of aItems) {
@@ -332,7 +324,7 @@ DateFacetVis.prototype = {
     this.vis.render();
   },
 
-  clearHover: function() {
+  clearHover() {
     this.hotBars.data(this.emptyBins);
     this.vis.render();
   },
@@ -343,7 +335,7 @@ DateFacetVis.prototype = {
    *  array of buckets with a linear scan of items and a calculation of what
    *  bucket they should be placed in.
    */
-  binBySpan: function(aScale, aSpan, aRules, aItems) {
+  binBySpan(aScale, aSpan, aRules, aItems) {
     let bins = [];
     let maxBinSize = 0;
     let binCount = aRules.length - 1;
@@ -358,7 +350,7 @@ DateFacetVis.prototype = {
     //  rounding, but I doubt it's worth it.
     let binMap = {};
     for (let iRule = 0; iRule < binCount; iRule++) {
-      let binStartDate = aRules[iRule], binEndDate = aRules[iRule+1];
+      let binStartDate = aRules[iRule], binEndDate = aRules[iRule + 1];
       binMap[binStartDate.valueOf().toString()] = iRule;
       bins.push({items: [],
                  startDate: binStartDate,
@@ -379,6 +371,6 @@ DateFacetVis.prototype = {
     }
 
     return [bins, maxBinSize];
-  }
+  },
 
 };

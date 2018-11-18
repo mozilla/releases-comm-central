@@ -17,10 +17,10 @@ var glodaFacetTabType = {
   modes: {
     glodaFacet: {
       // this is what get exposed on the tab for icon purposes
-      type: "glodaSearch"
-    }
+      type: "glodaSearch",
+    },
   },
-  openTab: function glodaFacetTabType_openTab(aTab, aArgs) {
+  openTab(aTab, aArgs) {
     // we have no browser until our XUL document loads
     aTab.browser = null;
 
@@ -43,8 +43,7 @@ var glodaFacetTabType = {
 
       aTab.title = this.strings.get("glodaFacetView.tab.query.label");
       aTab.searchString = null;
-    }
-    else if ("searcher" in aArgs) {
+    } else if ("searcher" in aArgs) {
       aTab.searcher = aArgs.searcher;
       aTab.collection = aTab.searcher.getCollection();
       aTab.query = aTab.searcher.query;
@@ -58,8 +57,7 @@ var glodaFacetTabType = {
       aTab.searchInputValue = aTab.searchString = searchString;
       aTab.title = searchString ? searchString
                    : this.strings.get("glodaFacetView.tab.search.label");
-    }
-    else if ("collection" in aArgs) {
+    } else if ("collection" in aArgs) {
       aTab.collection = aArgs.collection;
 
       aTab.title = this.strings.get("glodaFacetView.tab.query.label");
@@ -79,16 +77,16 @@ var glodaFacetTabType = {
 
     this.lastTabId++;
   },
-  closeTab: function glodaFacetTabType_closeTab(aTab) {
+  closeTab(aTab) {
   },
-  saveTabState: function glodaFacetTabType_saveTabState(aTab) {
+  saveTabState(aTab) {
     // nothing to do; we are not multiplexed
   },
-  showTab: function glodaFacetTabType_showTab(aTab) {
+  showTab(aTab) {
     // nothing to do; we are not multiplexed
   },
-  getBrowser: function(aTab) {
+  getBrowser(aTab) {
     return aTab.browser;
-  }
+  },
 };
 

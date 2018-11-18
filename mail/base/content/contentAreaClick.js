@@ -16,35 +16,27 @@
   ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
   ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-  function hRefForClickEvent(aEvent, aDontCheckInputElement)
-  {
+  function hRefForClickEvent(aEvent, aDontCheckInputElement) {
     var href;
     var isKeyCommand = (aEvent.type == "command");
     var target =
       isKeyCommand ? document.commandDispatcher.focusedElement : aEvent.target;
 
     if (target instanceof HTMLAnchorElement ||
-        target instanceof HTMLAreaElement   ||
-        target instanceof HTMLLinkElement)
-    {
+        target instanceof HTMLAreaElement ||
+        target instanceof HTMLLinkElement) {
       if (target.hasAttribute("href"))
         href = target.href;
-    }
-    else if (target instanceof HTMLImageElement &&
-             target.hasAttribute("overflowing"))
-    {
+    } else if (target instanceof HTMLImageElement &&
+               target.hasAttribute("overflowing")) {
       // Return if an image is zoomed, otherwise fall through to see if it has
       // a link node.
       return href;
-    }
-    else if (!aDontCheckInputElement && ((target instanceof HTMLInputElement) ||
-                                         (target instanceof HTMLButtonElement)))
-    {
+    } else if (!aDontCheckInputElement && ((target instanceof HTMLInputElement) ||
+                                           (target instanceof HTMLButtonElement))) {
       if (target.form && target.form.action)
         href = target.form.action;
-    }
-    else
-    {
+    } else {
       // We may be nested inside of a link node.
       var linkNode = aEvent.originalTarget;
       while (linkNode && !(linkNode instanceof HTMLAnchorElement))
@@ -57,16 +49,14 @@
     return href;
   }
 
-function messagePaneOnResize(aEvent)
-{
+function messagePaneOnResize(aEvent) {
   // Scale any overflowing images, exclude http content.
   let browser = getBrowser();
   let doc = browser && browser.contentDocument ? browser.contentDocument : null;
   if (!doc || doc.URL.startsWith("http") || !doc.images)
     return;
 
-  for (let img of doc.images)
-  {
+  for (let img of doc.images) {
     if (img.clientWidth - doc.body.offsetWidth >= 0 &&
         (img.clientWidth <= img.naturalWidth || !img.naturalWidth))
       img.setAttribute("overflowing", true);
@@ -82,8 +72,7 @@ function messagePaneOnResize(aEvent)
  * @param HTMLElement aTargetNode - the element node.
  * @return                        - true if link pointing to anchor.
  */
-function isLinkToAnchorOnPage(aTargetNode)
-{
+function isLinkToAnchorOnPage(aTargetNode) {
   let url = aTargetNode.ownerDocument.URL;
   if (!url.startsWith("http"))
     return false;
@@ -105,8 +94,7 @@ function isLinkToAnchorOnPage(aTargetNode)
 
 // Called whenever the user clicks in the content area,
 // should always return true for click to go through.
-function contentAreaClick(aEvent)
-{
+function contentAreaClick(aEvent) {
   let target = aEvent.target;
 
   // If we've loaded a web page url, and the element's or its ancestor's href
@@ -172,8 +160,7 @@ function contentAreaClick(aEvent)
  *
  * @param url  A url string or an nsIURI containing the url to open.
  */
-function openLinkExternally(url)
-{
+function openLinkExternally(url) {
   let uri = url;
   if (!(uri instanceof Ci.nsIURI))
     uri = Services.io.newURI(url);
@@ -183,7 +170,7 @@ function openLinkExternally(url)
     url, // accepts both string and nsIURI
     visits: [{
       date: new Date(),
-    }]
+    }],
   }).catch(Cu.reportError);
 
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]

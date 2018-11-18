@@ -49,7 +49,7 @@ mailnews/extensions/*
 
 # mail exclusions
 mail/app/**
-mail/base/content/**
+mail/base/content/protovis-r2.6-modded.js
 mail/branding/**
 mail/config/**
 mail/extensions/**

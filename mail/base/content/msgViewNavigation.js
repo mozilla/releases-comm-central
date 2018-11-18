@@ -8,10 +8,9 @@
 ChromeUtils.import("resource:///modules/folderUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-function GetSubFoldersInFolderPaneOrder(folder)
-{
+function GetSubFoldersInFolderPaneOrder(folder) {
   var subFolders = folder.subFolders;
-  var msgFolders = Array();
+  var msgFolders = [];
 
   // get all the subfolders
   while (subFolders.hasMoreElements()) {
@@ -28,8 +27,7 @@ function GetSubFoldersInFolderPaneOrder(folder)
   return msgFolders;
 }
 
-function FindNextChildFolder(aParent, aAfter)
-{
+function FindNextChildFolder(aParent, aAfter) {
   // Search the child folders of aParent for unread messages
   // but in the case that we are working up from the current folder
   // we need to skip up to and including the current folder
@@ -65,8 +63,7 @@ function FindNextChildFolder(aParent, aAfter)
   return null;
 }
 
-function FindNextFolder()
-{
+function FindNextFolder() {
   // look for the next folder, this will only look on the current account
   // and below us, in the folder pane
   // note use of gDBView restricts this function to message folders
@@ -78,7 +75,7 @@ function FindNextFolder()
   // didn't find folder in children
   // go up to the parent, and start at the folder after the current one
   // unless we are at a server, in which case bail out.
-  for (folder = gDBView.msgFolder; !folder.isServer; ) {
+  for (folder = gDBView.msgFolder; !folder.isServer;) {
 
     var parent = folder.parent;
     folder = FindNextChildFolder(parent, folder);
@@ -115,8 +112,7 @@ function FindNextFolder()
   return null;
 }
 
-function GetRootFoldersInFolderPaneOrder()
-{
+function GetRootFoldersInFolderPaneOrder() {
   let accounts = allAccountsSorted(false);
 
   let serversMsgFolders = [];
@@ -126,8 +122,7 @@ function GetRootFoldersInFolderPaneOrder()
   return serversMsgFolders;
 }
 
-function CrossFolderNavigation(type)
-{
+function CrossFolderNavigation(type) {
   // do cross folder navigation for next unread message/thread and message history
   if (type != nsMsgNavigationType.nextUnreadMessage &&
       type != nsMsgNavigationType.nextUnreadThread &&
@@ -136,8 +131,7 @@ function CrossFolderNavigation(type)
     return;
 
   if (type == nsMsgNavigationType.nextUnreadMessage ||
-      type == nsMsgNavigationType.nextUnreadThread)
-  {
+      type == nsMsgNavigationType.nextUnreadThread) {
     var nextMode = Services.prefs.getIntPref("mailnews.nav_crosses_folders");
     // 0: "next" goes to the next folder, without prompting
     // 1: "next" goes to the next folder, and prompts (the default)
@@ -148,10 +142,8 @@ function CrossFolderNavigation(type)
       return;
 
     var folder = FindNextFolder();
-    if (folder && (gDBView.msgFolder.URI != folder.URI))
-    {
-      if (nextMode == 1)
-      {
+    if (folder && (gDBView.msgFolder.URI != folder.URI)) {
+      if (nextMode == 1) {
         let promptText = document.getElementById("bundle_messenger")
                                  .getFormattedString("advanceNextPrompt",
                                                      [folder.name], 1);
@@ -163,13 +155,15 @@ function CrossFolderNavigation(type)
       gFolderDisplay.pushNavigation(type, true);
       SelectFolder(folder.URI);
     }
-  }
-  else
-  {
+  } else {
     // if no message is loaded, relPos should be 0, to
     // go back to the previously loaded message
-    var relPos = (type == nsMsgNavigationType.forward)
-      ? 1 : ((gMessageDisplay.displayedMessage) ? -1 : 0);
+    var relPos = 0;
+    if (type == nsMsgNavigationType.forward) {
+      relPos = 1;
+    } else if (gMessageDisplay.displayedMessage) {
+      relPos = -1;
+    }
     var folderUri = messenger.getFolderUriAtNavigatePos(relPos);
     var msgHdr = messenger.msgHdrFromURI(messenger.getMsgUriAtNavigatePos(relPos));
     gStartMsgKey = msgHdr.messageKey;
@@ -180,8 +174,7 @@ function CrossFolderNavigation(type)
   }
 }
 
-function GoNextMessage(type, startFromBeginning)
-{
+function GoNextMessage(type, startFromBeginning) {
   if (!gFolderDisplay.navigate(type))
     CrossFolderNavigation(type);
 

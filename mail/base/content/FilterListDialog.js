@@ -26,72 +26,62 @@ var gRunFiltersButton = null;
 var gFilterBundle = null;
 
 var msgMoveMotion = {
-  Up     : 0,
-  Down   : 1,
-  Top    : 2,
-  Bottom : 3
-}
+  Up: 0,
+  Down: 1,
+  Top: 2,
+  Bottom: 3,
+};
 
 var gStatusFeedback = {
-  progressMeterVisible : false,
+  progressMeterVisible: false,
 
-  showStatusString: function(status)
-  {
+  showStatusString(status) {
     document.getElementById("statusText").setAttribute("value", status);
   },
-  startMeteors: function()
-  {
+  startMeteors() {
     // change run button to be a stop button
     gRunFiltersButton.setAttribute("label", gRunFiltersButton.getAttribute("stoplabel"));
     gRunFiltersButton.setAttribute("accesskey", gRunFiltersButton.getAttribute("stopaccesskey"));
 
-    if (!this.progressMeterVisible)
-    {
-      document.getElementById('statusbar-progresspanel').removeAttribute('collapsed');
+    if (!this.progressMeterVisible) {
+      document.getElementById("statusbar-progresspanel").removeAttribute("collapsed");
       this.progressMeterVisible = true;
     }
 
     document.getElementById("statusbar-icon").removeAttribute("value");
   },
-  stopMeteors: function()
-  {
+  stopMeteors() {
     try {
       // change run button to be a stop button
       gRunFiltersButton.setAttribute("label", gRunFiltersButton.getAttribute("runlabel"));
       gRunFiltersButton.setAttribute("accesskey", gRunFiltersButton.getAttribute("runaccesskey"));
 
-      if (this.progressMeterVisible)
-      {
-        document.getElementById('statusbar-progresspanel').collapsed = true;
+      if (this.progressMeterVisible) {
+        document.getElementById("statusbar-progresspanel").collapsed = true;
         this.progressMeterVisible = true;
       }
-    }
-    catch (ex) {
+    } catch (ex) {
       // can get here if closing window when running filters
     }
   },
-  showProgress: function(percentage)
-  {
+  showProgress(percentage) {
   },
-  closeWindow: function()
-  {
-  }
+  closeWindow() {
+  },
 };
 
 var filterEditorQuitObserver = {
-  observe: function(aSubject, aTopic, aData)
-  {
+  observe(aSubject, aTopic, aData) {
     // Check whether or not we want to veto the quit request (unless another
     // observer already did.
     if (aTopic == "quit-application-requested" &&
         (aSubject instanceof Ci.nsISupportsPRBool) &&
         !aSubject.data)
       aSubject.data = !onFilterClose();
-  }
-}
+  },
+};
 
-function onLoad()
-{
+function onLoad() {
     gFilterListMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                              .createInstance(Ci.nsIMsgWindow);
     gFilterListMsgWindow.domWindow = window;
@@ -132,8 +122,7 @@ function processWindowArguments(aArguments) {
   if (!gServerMenu._folder ||
       (("folder" in aArguments) &&
       (aArguments.folder != gServerMenu._folder) &&
-      (aArguments.folder.rootFolder != gServerMenu._folder)))
-  {
+      (aArguments.folder.rootFolder != gServerMenu._folder))) {
     let wantedFolder;
     if ("folder" in aArguments)
       wantedFolder = aArguments.folder;
@@ -171,8 +160,7 @@ function processWindowArguments(aArguments) {
  * @param aArguments  An object of arguments having the same format
  *                    as window.arguments[0].
  */
-function refresh(aArguments)
-{
+function refresh(aArguments) {
   // As we really don't know what has changed, clear the search box
   // undonditionally so that the changed/added filters are surely visible.
   resetSearchBox();
@@ -180,8 +168,7 @@ function refresh(aArguments)
   processWindowArguments(aArguments);
 }
 
-function CanRunFiltersAfterTheFact(aServer)
-{
+function CanRunFiltersAfterTheFact(aServer) {
   // filter after the fact is implement using search
   // so if you can't search, you can't filter after the fact
   return aServer.canSearchMessages;
@@ -193,8 +180,7 @@ function CanRunFiltersAfterTheFact(aServer)
  * @param msgFolder The nsIMsgFolder server containing filters
  *                  (or a folder for NNTP server).
  */
-function setFilterFolder(msgFolder)
-{
+function setFilterFolder(msgFolder) {
   if (!msgFolder || msgFolder == gServerMenu._folder)
     return;
 
@@ -294,8 +280,7 @@ function setRunFolder(aFolder) {
  *
  * @param aFilterItem  an item (row) of the filter list to be toggled
  */
-function toggleFilter(aFilterItem, aSetForEvent)
-{
+function toggleFilter(aFilterItem, aSetForEvent) {
   let filter = aFilterItem._filter;
   if (filter.unparseable && !filter.enabled) {
     Services.prompt.alert(window, null, gFilterBundle.getString("cannotEnableFilter"));
@@ -340,14 +325,12 @@ function selectFilter(aFilter) {
  * Returns the currently selected filter. If multiple filters are selected,
  * returns the first one. If none are selected, returns null.
  */
-function currentFilter()
-{
+function currentFilter() {
   let currentItem = gFilterListbox.selectedItem;
   return currentItem ? currentItem._filter : null;
 }
 
-function onEditFilter()
-{
+function onEditFilter() {
   if (gEditButton.disabled)
     return;
 
@@ -370,8 +353,7 @@ function onEditFilter()
  * Handler function for the 'New...' buttons.
  * Opens the filter dialog for creating a new filter.
  */
-function onNewFilter()
-{
+function onNewFilter() {
   calculatePositionAndShowCreateFilterDialog({});
 }
 
@@ -379,8 +361,7 @@ function onNewFilter()
  * Handler function for the 'Copy...' button.
  * Opens the filter dialog for copying the selected filter.
  */
-function onCopyToNewFilter()
-{
+function onCopyToNewFilter() {
   if (gCopyToNewButton.disabled)
     return;
 
@@ -402,8 +383,7 @@ function onCopyToNewFilter()
  *              It will be augmented with the insertion position
  *              and global filters list properties by this function.
  */
-function calculatePositionAndShowCreateFilterDialog(args)
-{
+function calculatePositionAndShowCreateFilterDialog(args) {
   let selectedFilter = currentFilter();
   // If no filter is selected use the first position.
   let position = 0;
@@ -441,8 +421,7 @@ function calculatePositionAndShowCreateFilterDialog(args)
  * Delete selected filters.
  *  'Selected' is not to be confused with active (checkbox checked)
  */
-function onDeleteFilter()
-{
+function onDeleteFilter() {
   if (gDeleteButton.disabled)
     return;
 
@@ -450,13 +429,13 @@ function onDeleteFilter()
   if (!items.length)
     return;
 
-  let checkValue = {value:false};
+  let checkValue = {value: false};
   if ((Services.prefs.getBoolPref("mailnews.filters.confirm_delete")) &&
       (Services.prompt.confirmEx(window, null,
                                  gFilterBundle.getString("deleteFilterConfirmation"),
                                  Services.prompt.STD_YES_NO_BUTTONS,
-                                 '', '', '',
-                                 gFilterBundle.getString('dontWarnAboutDeleteCheckbox'),
+                                 "", "", "",
+                                 gFilterBundle.getString("dontWarnAboutDeleteCheckbox"),
                                  checkValue)))
     return;
 
@@ -536,7 +515,7 @@ function moveFilter(motion) {
   var relativeStep = 0;
   var moveFilterNative = null;
 
-  switch(motion) {
+  switch (motion) {
     case msgMoveMotion.Top:
       if (selectedFilter) {
         gCurrentFilterList.removeFilter(selectedFilter);
@@ -590,22 +569,19 @@ function moveFilter(motion) {
   rebuildFilterList();
 }
 
-function viewLog()
-{
+function viewLog() {
   var args = {filterList: gCurrentFilterList};
 
   window.openDialog("chrome://messenger/content/viewLog.xul", "FilterLog", "chrome,modal,titlebar,resizable,centerscreen", args);
 }
 
-function onFilterUnload()
-{
+function onFilterUnload() {
   gCurrentFilterList.saveToDefaultFile();
   Services.obs.removeObserver(filterEditorQuitObserver,
                               "quit-application-requested");
 }
 
-function onFilterClose()
-{
+function onFilterClose() {
   if (gRunFiltersButton.getAttribute("label") ==
       gRunFiltersButton.getAttribute("stoplabel")) {
     let promptTitle = gFilterBundle.getString("promptTitle");
@@ -616,7 +592,7 @@ function onFilterClose()
     let result = Services.prompt.confirmEx(window, promptTitle, promptMsg,
                (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
                (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1),
-               continueButtonLabel, stopButtonLabel, null, null, {value:0});
+               continueButtonLabel, stopButtonLabel, null, null, {value: 0});
 
     if (result)
       gFilterListMsgWindow.StopUrls();
@@ -627,8 +603,7 @@ function onFilterClose()
   return true;
 }
 
-function runSelectedFilters()
-{
+function runSelectedFilters() {
   // if run button has "stop" label, do stop.
   if (gRunFiltersButton.getAttribute("label") ==
       gRunFiltersButton.getAttribute("stoplabel")) {
@@ -657,8 +632,7 @@ function runSelectedFilters()
   MailServices.filters.applyFiltersToFolders(filterList, folders, gFilterListMsgWindow);
 }
 
-function moveCurrentFilter(motion)
-{
+function moveCurrentFilter(motion) {
   let filter = currentFilter();
   if (!filter)
     return;
@@ -674,8 +648,7 @@ function moveCurrentFilter(motion)
  * Therefore there are some optimizations (e.g. listelement.itemChildren[] instead of
  * list.getItemAtIndex()), that favour speed vs. semantical perfection.
  */
-function rebuildFilterList()
-{
+function rebuildFilterList() {
   // Get filters that match the search box.
   let aTempFilterList = onFindFilter();
 
@@ -689,8 +662,7 @@ function rebuildFilterList()
     if (activeElement == gSearchBox) {
       searchBoxFocus = true;
       break;
-    }
-    else if (activeElement.id) {
+    } else if (activeElement.id) {
       searchBoxFocus = false;
       break;
     }
@@ -732,9 +704,7 @@ function rebuildFilterList()
       listitem = gFilterListbox.itemChildren[listitemIndex];
       nameCell = listitem.firstChild;
       enabledCell = nameCell.nextSibling;
-    }
-    else
-    {
+    } else {
       // If there are not enough listitems in the list, create a new one.
       listitem = document.createElement("richlistitem");
       listitem.setAttribute("align", "center");
@@ -781,8 +751,7 @@ function rebuildFilterList()
     gFilterListbox.focus();
 }
 
-function updateViewPosition(firstVisibleRowIndex)
-{
+function updateViewPosition(firstVisibleRowIndex) {
   if (firstVisibleRowIndex == -1)
     firstVisibleRowIndex = gFilterListbox.getIndexOfFirstVisibleRow();
 
@@ -810,8 +779,7 @@ function updateViewPosition(firstVisibleRowIndex)
  *  - edit only for single filters
  *  - delete / run only for one or more selected filters
  */
-function updateButtons()
-{
+function updateButtons() {
     var numFiltersSelected = gFilterListbox.selectedItems.length;
     var oneFilterSelected = (numFiltersSelected == 1);
 
@@ -854,8 +822,7 @@ function updateButtons()
  * @param   nsIMsgFolder aFolder - selected folder, from window args
  * @returns an nsIMsgFolder where the filter is defined
  */
-function getFilterFolderForSelection(aFolder)
-{
+function getFilterFolderForSelection(aFolder) {
   let rootFolder = aFolder && aFolder.server ? aFolder.server.rootFolder : null;
   if (rootFolder && rootFolder.isServer && rootFolder.server.canHaveFilters)
     return (aFolder.server.type == "nntp") ? aFolder : rootFolder;
@@ -870,8 +837,7 @@ function getFilterFolderForSelection(aFolder)
  *
  * @returns an nsIMsgIncomingServer
  */
-function getServerThatCanHaveFilters()
-{
+function getServerThatCanHaveFilters() {
     let defaultIncomingServer = MailServices.accounts.defaultAccount.incomingServer;
     // Check to see if default server can have filters.
     if (defaultIncomingServer.canHaveFilters)
@@ -880,9 +846,7 @@ function getServerThatCanHaveFilters()
     // If it cannot, check all accounts to find a server
     // that can have filters.
     let allServers = MailServices.accounts.allServers;
-    for (let currentServer of fixIterator(allServers,
-                                          Ci.nsIMsgIncomingServer))
-    {
+    for (let currentServer of fixIterator(allServers, Ci.nsIMsgIncomingServer)) {
       if (currentServer.canHaveFilters)
         return currentServer;
     }
@@ -890,8 +854,7 @@ function getServerThatCanHaveFilters()
     return null;
 }
 
-function onFilterClick(event)
-{
+function onFilterClick(event) {
     // we only care about button 0 (left click) events
     if (event.button != 0) {
       return;
@@ -900,8 +863,7 @@ function onFilterClick(event)
     toggleFilter(this.parentNode, !this.checked);
 }
 
-function onFilterDoubleClick(event)
-{
+function onFilterDoubleClick(event) {
     // we only care about button 0 (left click) events
     if (event.button != 0)
       return;
@@ -909,8 +871,7 @@ function onFilterDoubleClick(event)
     onEditFilter();
 }
 
-function onFilterListKeyPress(aEvent)
-{
+function onFilterListKeyPress(aEvent) {
   if (aEvent.keyCode) {
     switch (aEvent.keyCode) {
       case KeyEvent.DOM_VK_INSERT:
@@ -926,8 +887,7 @@ function onFilterListKeyPress(aEvent)
           onEditFilter();
         break;
     }
-  }
-  else if (!aEvent.ctrlKey && !aEvent.altKey && !aEvent.metaKey) {
+  } else if (!aEvent.ctrlKey && !aEvent.altKey && !aEvent.metaKey) {
     switch (aEvent.charCode) {
       case KeyEvent.DOM_VK_SPACE:
         for (let item of gFilterListbox.selectedItems) {
@@ -951,9 +911,8 @@ function onFilterListKeyPress(aEvent)
             Otherwise false. In the future this may be extended to match
             other filter attributes.
  */
-function filterSearchMatch(aFilter, aKeyword)
-{
-  return (aFilter.filterName.toLocaleLowerCase().includes(aKeyword))
+function filterSearchMatch(aFilter, aKeyword) {
+  return (aFilter.filterName.toLocaleLowerCase().includes(aKeyword));
 }
 
 /**
@@ -961,8 +920,7 @@ function filterSearchMatch(aFilter, aKeyword)
  * @return  Uses the search term in search box, to produce an array of
  *          row (filter) numbers (indexes) that match the search term.
  */
-function onFindFilter()
-{
+function onFindFilter() {
   let keyWord = gSearchBox.value.toLocaleLowerCase();
 
   // If searchbox is empty, just return and let rebuildFilterList
@@ -990,8 +948,7 @@ function onFindFilter()
  *                 do not reset the box. If this is null,
  *                 reset unconditionally.
  */
-function resetSearchBox(aFilter)
-{
+function resetSearchBox(aFilter) {
   let keyword = gSearchBox.value.toLocaleLowerCase();
   if (keyword && (!aFilter || !filterSearchMatch(aFilter, keyword)))
     gSearchBox.reset();
@@ -1000,8 +957,7 @@ function resetSearchBox(aFilter)
 /**
  * Display "1 item",  "11 items" or "4 of 10" if list is filtered via search box.
  */
-function updateCountBox()
-{
+function updateCountBox() {
   let countBox = document.getElementById("countBox");
   let sum = gCurrentFilterList.filterCount;
   let len = gFilterListbox.itemCount;

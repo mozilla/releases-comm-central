@@ -67,7 +67,7 @@ var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
  * Iterate over the array until we hit the end or the maximum length,
  * whichever comes first.
  */
-LimitIterator.prototype[ITERATOR_SYMBOL] = function*() {
+LimitIterator.prototype[ITERATOR_SYMBOL] = function* () {
   let length = this.length;
   for (let i = 0; i < length; i++)
     yield this._array[i];
@@ -96,7 +96,7 @@ MultiMessageSummary.prototype = {
    *
    * @param aSummarizer The summarizer object.
    */
-  registerSummarizer: function(aSummarizer) {
+  registerSummarizer(aSummarizer) {
     this._summarizers[aSummarizer.name] = aSummarizer;
     aSummarizer.onregistered(this);
   },
@@ -108,7 +108,7 @@ MultiMessageSummary.prototype = {
    * @param aMsgHdr The nsIMsgDBHdr.
    * @param aNode   The related DOM node.
    */
-  mapMsgToNode: function(aMsgHdr, aNode) {
+  mapMsgToNode(aMsgHdr, aNode) {
     let key = aMsgHdr.messageKey + aMsgHdr.folder.URI;
     this._msgNodes[key] = aNode;
   },
@@ -116,7 +116,7 @@ MultiMessageSummary.prototype = {
   /**
    * Clear all the content from the summary.
    */
-  clear: function() {
+  clear() {
     this._listener = null;
     this._glodaQuery = null;
     this._msgNodes = {};
@@ -139,7 +139,7 @@ MultiMessageSummary.prototype = {
    * @param [aListener] A listener to be notified when the summary starts and
    *                    finishes.
    */
-  summarize: function(aType, aMessages, aListener) {
+  summarize(aType, aMessages, aListener) {
     this.clear();
 
     this._listener = aListener;
@@ -171,7 +171,7 @@ MultiMessageSummary.prototype = {
    * @param title    The title for the heading.
    * @param subtitle A smaller subtitle for the heading.
    */
-  setHeading: function(title, subtitle) {
+  setHeading(title, subtitle) {
     let titleNode = document.getElementById("summary_title");
     let subtitleNode = document.getElementById("summary_subtitle");
     titleNode.textContent = title || "";
@@ -191,7 +191,7 @@ MultiMessageSummary.prototype = {
    *                        snippet; defaults to undefined (let Gloda decide)
    * @return A DOM node for the summary item.
    */
-  makeSummaryItem: function(aMsgOrThread, aOptions) {
+  makeSummaryItem(aMsgOrThread, aOptions) {
     let message, thread, numUnread, isStarred, tags;
     if (aMsgOrThread instanceof Ci.nsIMsgDBHdr) {
       thread = null;
@@ -201,8 +201,7 @@ MultiMessageSummary.prototype = {
       isStarred = message.isFlagged;
 
       tags = this._getTagsForMsg(message);
-    }
-    else {
+    } else {
       thread = aMsgOrThread;
       message = thread[0];
 
@@ -226,7 +225,7 @@ MultiMessageSummary.prototype = {
                     '<div class="item_summary">' +
                       '<div class="item_header"/>' +
                       '<div class="snippet"/>' +
-                    '</div>';
+                    "</div>";
 
     let itemHeaderNode = row.querySelector(".item_header");
 
@@ -264,8 +263,7 @@ MultiMessageSummary.prototype = {
         countNode.textContent = countStr;
         itemHeaderNode.appendChild(countNode);
       }
-    }
-    else {
+    } else {
       let dateNode = document.createElement("span");
       dateNode.classList.add("date", "right");
       dateNode.textContent = makeFriendlyDateAgo(new Date(message.date / 1000));
@@ -317,7 +315,7 @@ MultiMessageSummary.prototype = {
    *
    * @param aNoticeText The text to show in the notice.
    */
-  showNotice: function(aNoticeText) {
+  showNotice(aNoticeText) {
     let notice = document.getElementById("notice");
     notice.textContent = aNoticeText;
     notice.classList.remove("hidden");
@@ -331,7 +329,7 @@ MultiMessageSummary.prototype = {
    * @param aMsgHdr The msgHdr whose tags we want.
    * @return An array of nsIMsgTag objects.
    */
-  _getTagsForMsg: function(aMsgHdr) {
+  _getTagsForMsg(aMsgHdr) {
     let keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
     let allTags = MailServices.tags.getAllTags({});
 
@@ -346,7 +344,7 @@ MultiMessageSummary.prototype = {
    * @param aTags An array (or any iterable) of nsIMsgTag objects.
    * @param aTagsNode The DOM node to contain the list of tags.
    */
-  _addTagNodes: function(aTags, aTagsNode) {
+  _addTagNodes(aTags, aTagsNode) {
     // Make sure the tags are sorted in their natural order.
     let sortedTags = [...aTags];
     sortedTags.sort(function(a, b) {
@@ -373,7 +371,7 @@ MultiMessageSummary.prototype = {
    *
    * @param aMessages A LimitIterator of the messages to calculate the size of.
    */
-  _computeSize: function(aMessages) {
+  _computeSize(aMessages) {
     let numBytes = 0;
     for (let msgHdr of aMessages)
       numBytes += msgHdr.messageSize; // XXX do something about news?
@@ -389,7 +387,7 @@ MultiMessageSummary.prototype = {
    * Adjust the position of the top of the main content so that it fits below
    * the heading.
    */
-  _adjustHeadingSize: function() {
+  _adjustHeadingSize() {
     let content = document.getElementById("content");
     let heading = document.getElementById("heading");
     let buttonbox = document.getElementById("header-view-toolbox");
@@ -401,11 +399,11 @@ MultiMessageSummary.prototype = {
   },
 
   // These are listeners for the gloda collections.
-  onItemsAdded: function(aItems) {},
-  onItemsModified: function(aItems) {
+  onItemsAdded(aItems) {},
+  onItemsModified(aItems) {
     this._processItems(aItems);
   },
-  onItemsRemoved: function(aItems) {},
+  onItemsRemoved(aItems) {},
 
   /**
    * Given a set of items from a gloda collection, process them and update
@@ -413,7 +411,7 @@ MultiMessageSummary.prototype = {
    *
    * @param aItems Contents of a gloda collection.
    */
-  _processItems: function(aItems) {
+  _processItems(aItems) {
     let knownMessageNodes = new Map();
 
     for (let glodaMsg of aItems) {
@@ -457,12 +455,11 @@ MultiMessageSummary.prototype = {
     }
   },
 
-  onQueryCompleted: function(aCollection) {
+  onQueryCompleted(aCollection) {
     // If we need something that's just available from GlodaMessages, this is
     // where we'll get it initially.
     if (this._listener)
       this._listener.onLoadCompleted();
-    return;
   },
 };
 
@@ -495,7 +492,7 @@ ThreadSummarizer.prototype = {
    *
    * @param aContext The MultiMessageSummary object holding this summarizer.
    */
-  onregistered: function(aContext) {
+  onregistered(aContext) {
     this.context = aContext;
   },
 
@@ -505,7 +502,7 @@ ThreadSummarizer.prototype = {
    * @param aMessages A LimitIterator of the messages to summarize.
    * @return An array of the messages actually summarized.
    */
-  summarize: function(aMessages) {
+  summarize(aMessages) {
     let messageList = document.getElementById("message_list");
 
     // Remove all ignored messages from summarization.
@@ -596,7 +593,7 @@ MultipleSelectionSummarizer.prototype = {
    *
    * @param aContext The MultiMessageSummary object holding this summarizer.
    */
-  onregistered: function(aContext) {
+  onregistered(aContext) {
     this.context = aContext;
   },
 
@@ -605,7 +602,7 @@ MultipleSelectionSummarizer.prototype = {
    *
    * @param aMessages The messages to summarize.
    */
-  summarize: function(aMessages) {
+  summarize(aMessages) {
     let messageList = document.getElementById("message_list");
 
     let threads = this._buildThreads(aMessages);
@@ -664,7 +661,7 @@ MultipleSelectionSummarizer.prototype = {
    * @param aMessages The messages to group.
    * @return An array of arrays of messages, grouped by thread.
    */
-  _buildThreads: function(aMessages) {
+  _buildThreads(aMessages) {
     // First, we group the messages in threads and count the threads.
     let threads = [];
     let threadMap = {};

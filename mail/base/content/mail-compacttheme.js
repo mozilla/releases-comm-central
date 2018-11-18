@@ -68,5 +68,5 @@ var CompactTheme = {
     if (Object.getOwnPropertyDescriptor(this, "styleSheet").get)
       delete this.styleSheet;
     this.styleSheet = null;
-  }
+  },
 };

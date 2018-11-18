@@ -94,10 +94,10 @@
         ]]>
       </destructor>
 
-      <field name="_prefObserver">({
+      <field name="_prefObserver"><![CDATA[
+      ({
         inputSearch: this,
-        observe: function(subject, topic, data)
-        {
+        observe(subject, topic, data) {
           ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           if (topic == "nsPref:changed") {
@@ -114,24 +114,21 @@
         },
 
         QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-        });
-      </field>
+      });
+      ]]></field>
       <field name="glodaCompleter">null</field>
       <property name="menupopup" readonly="true">
         <getter><![CDATA[
-          return document.getAnonymousElementByAttribute(
-                   this, 'anonid', 'quick-search-menupopup');
+          return document.getAnonymousElementByAttribute(this, "anonid", "quick-search-menupopup");
         ]]></getter>
       </property>
 
       <property name="state">
         <getter><![CDATA[
-          return {
-            'string': this.value
-          };
+          return { string: this.value };
         ]]></getter>
         <setter><![CDATA[
-          this.value = val['string'];
+          this.value = val.string;
         ]]></setter>
       </property>
 
@@ -140,7 +137,7 @@
       ({
         inputSearch: this,
 
-        onDrop: function (aEvent, aXferData, aDragSession) {
+        onDrop(aEvent, aXferData, aDragSession) {
           try {
             if (aXferData.data) {
               this.inputSearch.focus();
@@ -154,11 +151,11 @@
           }
         },
 
-        getSupportedFlavours: function () {
+        getSupportedFlavours() {
           var flavourSet = new FlavourSet();
           flavourSet.appendFlavour("text/unicode");
           return flavourSet;
-        }
+        },
       })
       ]]></field>
 
@@ -171,7 +168,7 @@
           if (aTopic == "autocomplete-did-enter-text" && aSubject == this) {
             let selectedIndex = this.popup.selectedIndex;
             let curResult = this.glodaCompleter.curResult;
-            if (! curResult)
+            if (!curResult)
               return; // autocomplete didn't even finish.
             let row = curResult.getObjectAt(selectedIndex);
             if (row == null)
@@ -195,9 +192,9 @@
               } else if (row.nounDef.name == "identity") {
                 theQuery = theQuery.involves(row.item);
               }
-              theQuery.orderBy('-date');
+              theQuery.orderBy("-date");
               document.getElementById("tabmail").openTab("glodaFacet", {
-                query: theQuery
+                query: theQuery,
               });
             }
           }
@@ -227,9 +224,9 @@
                 // this tab and starting over
                 tabmail.closeTab();
               }
-              this.value = ''; // clear our value, to avoid persistence
+              this.value = ""; // clear our value, to avoid persistence
               let args = {
-                searcher: new GlodaMsgSearcher(null, searchString)
+                searcher: new GlodaMsgSearcher(null, searchString),
               };
               if (Services.prefs.getBoolPref("mail.chat.enabled")) {
                 if (!("GlodaIMSearcher" in window))

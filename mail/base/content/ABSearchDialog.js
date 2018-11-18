@@ -27,10 +27,10 @@ var gDeleteCmd;
 var gSearchPhoneticName = "false";
 
 var gSearchAbViewListener = {
-  onSelectionChanged: function() {
+  onSelectionChanged() {
     UpdateCardView();
   },
-  onCountChanged: function(aTotal) {
+  onCountChanged(aTotal) {
     let statusText;
     if (aTotal == 0) {
       statusText = gAddressBookBundle.getString("noMatchFound");
@@ -41,11 +41,10 @@ var gSearchAbViewListener = {
     }
 
     gStatusText.setAttribute("label", statusText);
-  }
+  },
 };
 
-function searchOnLoad()
-{
+function searchOnLoad() {
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
 
@@ -72,36 +71,31 @@ function searchOnLoad()
   onMore(null);
 }
 
-function searchOnUnload()
-{
+function searchOnUnload() {
   CloseAbView();
 }
 
-function disableCommands()
-{
+function disableCommands() {
   gPropertiesCmd.setAttribute("disabled", "true");
   gComposeCmd.setAttribute("disabled", "true");
   gDeleteCmd.setAttribute("disabled", "true");
 }
 
-function initializeSearchWindowWidgets()
-{
+function initializeSearchWindowWidgets() {
   gSearchStopButton = document.getElementById("search-button");
   gPropertiesCmd = document.getElementById("cmd_properties");
   gComposeCmd = document.getElementById("cmd_compose");
   gDeleteCmd = document.getElementById("cmd_deleteCard");
-  gStatusText = document.getElementById('statusText');
+  gStatusText = document.getElementById("statusText");
   disableCommands();
   // matchAll doesn't make sense for address book search
   hideMatchAllItem();
 }
 
-function onSearchStop()
-{
+function onSearchStop() {
 }
 
-function onAbSearchReset(event)
-{
+function onAbSearchReset(event) {
   disableCommands();
   CloseAbView();
 
@@ -109,62 +103,55 @@ function onAbSearchReset(event)
   gStatusText.setAttribute("label", "");
 }
 
-function SelectDirectory(aURI)
-{
+function SelectDirectory(aURI) {
   var selectedAB = aURI;
 
   if (!selectedAB)
     selectedAB = kPersonalAddressbookURI;
 
   // set popup with address book names
-  var abPopup = document.getElementById('abPopup');
-  if ( abPopup )
+  var abPopup = document.getElementById("abPopup");
+  if (abPopup)
     abPopup.value = selectedAB;
 
   setSearchScope(GetScopeForDirectoryURI(selectedAB));
 }
 
-function GetScopeForDirectoryURI(aURI)
-{
+function GetScopeForDirectoryURI(aURI) {
   var directory = MailServices.ab.getDirectory(aURI);
   var booleanAnd = gSearchBooleanRadiogroup.selectedItem.value == "and";
 
   if (directory.isRemote) {
     if (booleanAnd)
       return nsMsgSearchScope.LDAPAnd;
-    else
-      return nsMsgSearchScope.LDAP;
+    return nsMsgSearchScope.LDAP;
   }
-  else {
-    if (booleanAnd)
-      return nsMsgSearchScope.LocalABAnd;
-    else
-      return nsMsgSearchScope.LocalAB;
+
+  if (booleanAnd) {
+    return nsMsgSearchScope.LocalABAnd;
   }
+  return nsMsgSearchScope.LocalAB;
 }
 
-function onEnterInSearchTerm()
-{
+function onEnterInSearchTerm() {
   // on enter
   // if not searching, start the search
   // if searching, stop and then start again
   if (gSearchStopButton.getAttribute("label") == gSearchBundle.getString("labelForSearchButton")) {
      onSearch();
-  }
-  else {
+  } else {
      onSearchStop();
      onSearch();
   }
 }
 
-function onSearch()
-{
+function onSearch() {
     gStatusText.setAttribute("label", "");
     disableCommands();
 
     gSearchSession.clearScopes();
 
-    var currentAbURI = document.getElementById('abPopup').getAttribute('value');
+    var currentAbURI = document.getElementById("abPopup").getAttribute("value");
 
     gSearchSession.addDirectoryScopeTerm(GetScopeForDirectoryURI(currentAbURI));
     saveSearchTerms(gSearchSession.searchTerms, gSearchSession);
@@ -186,9 +173,10 @@ function onSearch()
       switch (searchTerm.attrib) {
        case nsMsgSearchAttrib.Name:
          if (gSearchPhoneticName != "true")
-           attrs = ["DisplayName","FirstName","LastName","NickName","_AimScreenName"];
+           attrs = ["DisplayName", "FirstName", "LastName", "NickName", "_AimScreenName"];
          else
-           attrs = ["DisplayName","FirstName","LastName","NickName","_AimScreenName","PhoneticFirstName","PhoneticLastName"];
+           attrs = ["DisplayName", "FirstName", "LastName", "NickName",
+                    "_AimScreenName", "PhoneticFirstName", "PhoneticLastName"];
          break;
        case nsMsgSearchAttrib.DisplayName:
          attrs = ["DisplayName"];
@@ -197,7 +185,7 @@ function onSearch()
          attrs = ["PrimaryEmail"];
          break;
        case nsMsgSearchAttrib.PhoneNumber:
-         attrs = ["HomePhone","WorkPhone","FaxNumber","PagerNumber","CellularNumber"];
+         attrs = ["HomePhone", "WorkPhone", "FaxNumber", "PagerNumber", "CellularNumber"];
          break;
        case nsMsgSearchAttrib.Organization:
          attrs = ["Company"];
@@ -277,7 +265,7 @@ function onSearch()
       // (it's either all "and"s or all "or"s)
       var max_attrs = attrs.length;
 
-      for (var j=0;j<max_attrs;j++) {
+      for (var j = 0; j < max_attrs; j++) {
        // append the term(s) to the searchUri
        searchUri += "(" + attrs[j] + "," + opStr + "," + encodeABTermValue(searchTerm.value.str) + ")";
       }
@@ -288,39 +276,33 @@ function onSearch()
 }
 
 // used to toggle functionality for Search/Stop button.
-function onSearchButton(event)
-{
+function onSearchButton(event) {
     if (event.target.label == gSearchBundle.getString("labelForSearchButton"))
         onSearch();
     else
         onSearchStop();
 }
 
-function GetAbViewListener()
-{
+function GetAbViewListener() {
   return gSearchAbViewListener;
 }
 
-function onProperties()
-{
+function onProperties() {
   if (!gPropertiesCmd.hasAttribute("disabled"))
     AbEditSelectedCard();
 }
 
-function onCompose()
-{
+function onCompose() {
   if (!gComposeCmd.hasAttribute("disabled"))
     AbNewMessage();
 }
 
-function onDelete()
-{
+function onDelete() {
   if (!gDeleteCmd.hasAttribute("disabled"))
     AbDelete();
 }
 
-function AbResultsPaneKeyPress(event)
-{
+function AbResultsPaneKeyPress(event) {
   switch (event.keyCode) {
   case KeyEvent.DOM_VK_RETURN:
     onProperties();
@@ -331,13 +313,11 @@ function AbResultsPaneKeyPress(event)
   }
 }
 
-function AbResultsPaneDoubleClick(card)
-{
+function AbResultsPaneDoubleClick(card) {
   AbEditCard(card);
 }
 
-function UpdateCardView()
-{
+function UpdateCardView() {
   disableCommands();
   let numSelected = GetNumSelectedCards();
 

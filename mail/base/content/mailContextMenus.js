@@ -15,8 +15,7 @@ var mailtolength = 7;
  * (onpopuphiding).
  * @param tree the tree element to restore selection for
  */
-function RestoreSelectionWithoutContentLoad(tree)
-{
+function RestoreSelectionWithoutContentLoad(tree) {
   if (gRightMouseButtonSavedSelection) {
     let view = gRightMouseButtonSavedSelection.view;
     // restore the selection
@@ -42,8 +41,7 @@ function RestoreSelectionWithoutContentLoad(tree)
  * on a non-selected row doesn't move the selection.
  * @param event the onpopuphiding event
  */
-function mailContextOnPopupHiding(aEvent)
-{
+function mailContextOnPopupHiding(aEvent) {
   // Don't do anything if it's a submenu's onpopuphiding that's just bubbling
   // up to the top.
   if (aEvent.target != aEvent.currentTarget)
@@ -55,8 +53,7 @@ function mailContextOnPopupHiding(aEvent)
     RestoreSelectionWithoutContentLoad(GetThreadTree());
 }
 
-function fillMailContextMenu(event)
-{
+function fillMailContextMenu(event) {
   // If the popupshowing was for a submenu, we don't need to do anything.
   if (event.target != event.currentTarget)
     return true;
@@ -71,12 +68,12 @@ function fillMailContextMenu(event)
     }
   }
 
-  goUpdateCommand('cmd_killThread');
-  goUpdateCommand('cmd_killSubthread');
-  goUpdateCommand('cmd_watchThread');
+  goUpdateCommand("cmd_killThread");
+  goUpdateCommand("cmd_killSubthread");
+  goUpdateCommand("cmd_watchThread");
 
-  goUpdateCommand('cmd_printpreview');
-  goUpdateCommand('cmd_print');
+  goUpdateCommand("cmd_printpreview");
+  goUpdateCommand("cmd_print");
 
   updateCheckedStateForIgnoreAndWatchThreadCmds();
 
@@ -96,8 +93,7 @@ function fillMailContextMenu(event)
  * Set the message id to show as label in the context menu item designated
  * for that purpose.
  */
-function FillMessageIdContextMenu(messageIdNode)
-{
+function FillMessageIdContextMenu(messageIdNode) {
   var msgId = messageIdNode.getAttribute("messageid");
   document.getElementById("messageIdContext-messageIdTarget")
           .setAttribute("label", msgId);
@@ -113,16 +109,14 @@ function FillMessageIdContextMenu(messageIdNode)
           .hidden = !gFolderDisplay.selectedMessageIsNews;
 }
 
-function CopyMessageId(messageId)
-{
+function CopyMessageId(messageId) {
    var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
                      .getService(Ci.nsIClipboardHelper);
 
    clipboard.copyString(messageId);
 }
 
-function GetMessageIdFromNode(messageIdNode, cleanMessageId)
-{
+function GetMessageIdFromNode(messageIdNode, cleanMessageId) {
   var messageId  = messageIdNode.getAttribute("messageid");
 
   // remove < and >
@@ -138,17 +132,13 @@ function GetMessageIdFromNode(messageIdNode, cleanMessageId)
  * (%mid is replaced by the message id).
  * @param messageId the message id to open
  */
-function OpenBrowserWithMessageId(messageId)
-{
+function OpenBrowserWithMessageId(messageId) {
   var browserURL = Services.prefs.getComplexValue("mailnews.messageid_browser.url",
                                                   Ci.nsIPrefLocalizedString).data;
   browserURL = browserURL.replace(/%mid/, messageId);
-  try
-  {
+  try {
     messenger.launchExternalURL(browserURL);
-  }
-  catch (ex)
-  {
+  } catch (ex) {
     Cu.reportError("Failed to open message-id in browser; " +
                    "browserURL=" + browserURL);
   }
@@ -161,8 +151,7 @@ function OpenBrowserWithMessageId(messageId)
  * message if found.
  * @param messageId the message id to open
  */
-function OpenMessageForMessageId(messageId)
-{
+function OpenMessageForMessageId(messageId) {
   let startServer = msgWindow.openFolder.server;
 
   window.setCursor("wait");
@@ -171,19 +160,16 @@ function OpenMessageForMessageId(messageId)
   let messageHeader = CheckForMessageIdInFolder(msgWindow.openFolder, messageId);
 
   // if message id not found in current folder search in all folders
-  if (!messageHeader)
-  {
+  if (!messageHeader) {
     let allServers = MailServices.accounts.allServers;
 
     messageHeader = SearchForMessageIdInSubFolder(startServer.rootFolder, messageId);
 
-    for (let i = 0; i < allServers.length && !messageHeader; i++)
-    {
+    for (let i = 0; i < allServers.length && !messageHeader; i++) {
       let currentServer =
         allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       if (currentServer && startServer != currentServer &&
-          currentServer.canSearchMessages && !currentServer.isDeferredTo)
-      {
+          currentServer.canSearchMessages && !currentServer.isDeferredTo) {
         messageHeader = SearchForMessageIdInSubFolder(currentServer.rootFolder, messageId);
       }
     }
@@ -192,10 +178,9 @@ function OpenMessageForMessageId(messageId)
 
   // if message id was found open corresponding message
   // else show error message
-  if (messageHeader)
+  if (messageHeader) {
     OpenMessageByHeader(messageHeader, Services.prefs.getBoolPref("mailnews.messageid.openInNewWindow"));
-  else
-  {
+  } else {
     let messageIdStr = "<" + messageId + ">";
     let bundle = document.getElementById("bundle_messenger");
     let errorTitle = bundle.getString("errorOpenMessageForMessageIdTitle");
@@ -206,43 +191,32 @@ function OpenMessageForMessageId(messageId)
   }
 }
 
-function OpenMessageByHeader(messageHeader, openInNewWindow)
-{
+function OpenMessageByHeader(messageHeader, openInNewWindow) {
   var folder    = messageHeader.folder;
   var folderURI = folder.URI;
 
-  if (openInNewWindow)
-  {
+  if (openInNewWindow) {
     window.openDialog("chrome://messenger/content/messageWindow.xul",
                       "_blank", "all,chrome,dialog=no,status,toolbar",
                       messageHeader);
-  }
-  else
-  {
+  } else {
     if (msgWindow.openFolder != folderURI)
       gFolderTreeView.selectFolder(folder);
 
     var tree = null;
-    var wintype = document.documentElement.getAttribute('windowtype');
-    if (wintype != "mail:messageWindow")
-    {
+    let wintype = document.documentElement.getAttribute("windowtype");
+    if (wintype != "mail:messageWindow") {
       tree = GetThreadTree();
       tree.view.selection.clearSelection();
     }
 
-    try
-    {
+    try {
       gDBView.selectMsgByKey(messageHeader.messageKey);
-    }
-    catch(e)
-    { // message not in the thread pane
-      try
-      {
+    } catch (e) { // message not in the thread pane
+      try {
         goDoCommand("cmd_viewAllMsgs");
         gDBView.selectMsgByKey(messageHeader.messageKey);
-      }
-      catch(e)
-      {
+      } catch (e) {
          dump("select messagekey " + messageHeader.messageKey +
               " failed in folder " + folder.URI);
       }
@@ -255,8 +229,7 @@ function OpenMessageByHeader(messageHeader, openInNewWindow)
 
 // search for message by message id in given folder and its subfolders
 // return message header if message was found
-function SearchForMessageIdInSubFolder(folder, messageId)
-{
+function SearchForMessageIdInSubFolder(folder, messageId) {
   var messageHeader;
   var subFolders = folder.subFolders;
 
@@ -265,8 +238,7 @@ function SearchForMessageIdInSubFolder(folder, messageId)
     messageHeader = CheckForMessageIdInFolder(folder, messageId);
 
   // search subfolders recursively
-  while (subFolders.hasMoreElements() && !messageHeader)
-  {
+  while (subFolders.hasMoreElements() && !messageHeader) {
     // search in current folder
     var currentFolder =
       subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
@@ -284,36 +256,30 @@ function SearchForMessageIdInSubFolder(folder, messageId)
  * Check folder for corresponding message to given message id.
  * @return the message header if message was found
  */
-function CheckForMessageIdInFolder(folder, messageId)
-{
+function CheckForMessageIdInFolder(folder, messageId) {
   var messageDatabase = folder.msgDatabase;
   var messageHeader;
-  try
-  {
+  try {
     messageHeader = messageDatabase.getMsgHdrForMessageID(messageId);
-  }
-  catch (ex)
-  {
+  } catch (ex) {
     Cu.reportError("Failed to find message-id in folder; " +
                    "messageId=" + messageId);
   }
 
   if (!MailServices.mailSession.IsFolderOpenInWindow(folder) &&
-      !(folder.flags & (Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Inbox)))
-  {
+      !(folder.flags & (Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Inbox))) {
     folder.msgDatabase = null;
   }
 
   return messageHeader;
 }
 
-function folderPaneOnPopupHiding()
-{
+function folderPaneOnPopupHiding() {
   RestoreSelectionWithoutContentLoad(document.getElementById("folderTree"));
 }
 
-function fillFolderPaneContextMenu(aEvent)
-{
+/* eslint-disable complexity */
+function fillFolderPaneContextMenu(aEvent) {
   let target = document.popupNode;
   // If a column header was clicked, show the column picker.
   if (target.localName == "treecol") {
@@ -399,14 +365,10 @@ function fillFolderPaneContextMenu(aEvent)
   if (numSelected != 1) {
     ShowMenuItem("folderPaneContext-settings", false);
     ShowMenuItem("folderPaneContext-properties", false);
-  }
-  else if (selectedServers.length != 1)
-  {
+  } else if (selectedServers.length != 1) {
     ShowMenuItem("folderPaneContext-settings", false);
     ShowMenuItem("folderPaneContext-properties", true);
-  }
-  else
-  {
+  } else {
     ShowMenuItem("folderPaneContext-properties", false);
     ShowMenuItem("folderPaneContext-settings", true);
   }
@@ -461,8 +423,7 @@ function fillFolderPaneContextMenu(aEvent)
     // XXX: Can't offline imap create folders nowadays?
     EnableMenuItem("folderPaneContext-new", folders[0].server.type != "imap" ||
                                             MailOfflineMgr.isOnline());
-    if (showNewFolderItem)
-    {
+    if (showNewFolderItem) {
       if (folders[0].isServer || specialFolder == "Inbox")
         SetMenuItemLabel("folderPaneContext-new",
                          bundle.getString("newFolder"));
@@ -470,8 +431,7 @@ function fillFolderPaneContextMenu(aEvent)
         SetMenuItemLabel("folderPaneContext-new",
                          bundle.getString("newSubfolder"));
     }
-  }
-  else {
+  } else {
     ShowMenuItem("folderPaneContext-new", false);
   }
 
@@ -483,8 +443,7 @@ function fillFolderPaneContextMenu(aEvent)
                  (specialFolder == "Junk" && CanRenameDeleteJunkMail(folders[0].URI)));
     EnableMenuItem("folderPaneContext-rename",
                    !folders[0].isServer && folders[0].isCommandEnabled("cmd_renameFolder"));
-  }
-  else {
+  } else {
     ShowMenuItem("folderPaneContext-rename", false);
   }
 
@@ -520,8 +479,7 @@ function fillFolderPaneContextMenu(aEvent)
   // --- Set up favorite folder menu item.
   ShowMenuItem("folderPaneContext-favoriteFolder",
                numSelected == 1 && !folders[0].isServer);
-  if (numSelected == 1 && !folders[0].isServer)
-  {
+  if (numSelected == 1 && !folders[0].isServer) {
      // Adjust the checked state on the menu item.
     document.getElementById("folderPaneContext-favoriteFolder")
             .setAttribute("checked", folders[0].getFlag(Ci.nsMsgFolderFlags.Favorite));
@@ -564,7 +522,7 @@ function fillFolderPaneContextMenu(aEvent)
   // Set up the search menu item.
   ShowMenuItem("folderPaneContext-searchMessages",
                numSelected == 1 && !haveAnyVirtualFolders);
-  goUpdateCommand('cmd_search');
+  goUpdateCommand("cmd_search");
 
   // handle our separators
   function hideIfAppropriate(aID) {
@@ -590,28 +548,24 @@ function fillFolderPaneContextMenu(aEvent)
 
   return true;
 }
+/* eslint-enable complexity */
 
-function ShowMenuItem(id, showItem)
-{
+function ShowMenuItem(id, showItem) {
   document.getElementById(id).hidden = !showItem;
 }
 
-function EnableMenuItem(id, enableItem)
-{
+function EnableMenuItem(id, enableItem) {
   document.getElementById(id).disabled = !enableItem;
 }
 
-function SetMenuItemLabel(id, label)
-{
-  document.getElementById(id).setAttribute('label', label);
+function SetMenuItemLabel(id, label) {
+  document.getElementById(id).setAttribute("label", label);
 }
 
 // helper function used by shouldShowSeparator
-function hasAVisibleNextSibling(aNode)
-{
+function hasAVisibleNextSibling(aNode) {
   var sibling = aNode.nextSibling;
-  while (sibling)
-  {
+  while (sibling) {
     if (sibling.getAttribute("hidden") != "true"
         && sibling.localName != "menuseparator")
       return true;
@@ -620,8 +574,7 @@ function hasAVisibleNextSibling(aNode)
   return false;
 }
 
-function IsMenuItemShowing(menuID)
-{
+function IsMenuItemShowing(menuID) {
   var item = document.getElementById(menuID);
   if (item)
     return item.hidden != "true";
@@ -629,8 +582,7 @@ function IsMenuItemShowing(menuID)
 }
 
 // message pane context menu helper methods
-function addEmail()
-{
+function addEmail() {
   var url = gContextMenu.linkURL;
   var addresses = getEmail(url);
   window.openDialog("chrome://messenger/content/addressbook/abNewCardDialog.xul",
@@ -639,8 +591,7 @@ function addEmail()
                     {primaryEmail: addresses});
 }
 
-function composeEmailTo()
-{
+function composeEmailTo() {
   let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
                  .createInstance(Ci.nsIMsgCompFields);
   let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
@@ -657,30 +608,25 @@ function composeEmailTo()
 }
 
 // Extracts email address from url string
-function getEmail (url)
-{
-  var qmark = url.indexOf( "?" );
+function getEmail(url) {
+  var qmark = url.indexOf("?");
   var addresses;
 
-  if ( qmark > mailtolength )
-      addresses = url.substring( mailtolength, qmark );
+  if (qmark > mailtolength)
+    addresses = url.substring(mailtolength, qmark);
   else
-     addresses = url.substr( mailtolength );
+    addresses = url.substr(mailtolength);
   // Let's try to unescape it using a character set
   try {
     var characterSet = gContextMenu.target.ownerDocument.characterSet;
-    const textToSubURI = Cc["@mozilla.org/intl/texttosuburi;1"]
-                                 .getService(Ci.nsITextToSubURI);
-    addresses = textToSubURI.unEscapeURIForUI(characterSet, addresses);
-  }
-  catch(ex) {
+    addresses = Services.textToSubURI.unEscapeURIForUI(characterSet, addresses);
+  } catch (ex) {
     // Do nothing.
   }
   return addresses;
 }
 
-function CopyMessageUrl()
-{
+function CopyMessageUrl() {
   try {
     var hdr = gDBView.hdrForFirstSelectedMessage;
     var server = hdr.folder.server;
@@ -693,8 +639,7 @@ function CopyMessageUrl()
     var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
                       .getService(Ci.nsIClipboardHelper);
     clipboard.copyString(url);
-  }
-  catch (ex) {
-    dump("ex="+ex+"\n");
+  } catch (ex) {
+    dump("ex=" + ex + "\n");
   }
 }

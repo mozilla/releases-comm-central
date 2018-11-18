@@ -30,8 +30,10 @@ MessageDisplayWidget.prototype = {
    */
   _singleMessageDisplay: null,
   get singleMessageDisplay() {
-    // when null, assume single message display
-    return this._singleMessageDisplay != false;
+    if (this._singleMessageDisplay === null) {
+      return true;
+    }
+    return !!this._singleMessageDisplay;
   },
   set singleMessageDisplay(aSingleDisplay) {
     if (this._singleMessageDisplay != aSingleDisplay) {
@@ -44,7 +46,7 @@ MessageDisplayWidget.prototype = {
   /**
    * Set pane visibility based on this.singleMessageDisplay.
    */
-  _updateActiveMessagePane: function MessageDisplayWidget_updateMessagePane() {
+  _updateActiveMessagePane() {
     // If we're summarizing, might as well clear the message display so that
     // when we return to it, we don't display prev selected message.  If we're
     // *not* summarizing, clear the summary display so that the summary can
@@ -75,7 +77,7 @@ MessageDisplayWidget.prototype = {
    * Cleanup the MessageDisplayWidget in preparation for going away.  Called by
    *  FolderDisplayWidget's close method.
    */
-  _close: function MessageDisplayWidget_close() {
+  _close() {
     // mark ourselves inactive without doing any work.
     this._active = false;
   },
@@ -83,7 +85,7 @@ MessageDisplayWidget.prototype = {
   /**
    * @name Displayed
    */
-  //@{
+  // @{
 
   /**
    * The FolderDisplayWidget that owns us.
@@ -105,13 +107,13 @@ MessageDisplayWidget.prototype = {
    *  attachment on some mail message.
    */
   isDummy: false,
-  //@}
+  // @}
 
   /**
    * @name FolderDisplayWidget Notifications
    * @private
    */
-  //@{
+  // @{
 
   /**
    * Unit testing support variable that tracks whether a message load is in
@@ -131,7 +133,7 @@ MessageDisplayWidget.prototype = {
    * This is meant to be called immediately after a message or summary load is
    * started.
    */
-  onLoadStarted: function MessageDisplayWidget_onLoadStarted() {
+  onLoadStarted() {
     this.messageLoading = true;
     this.messageLoaded = false;
   },
@@ -140,12 +142,12 @@ MessageDisplayWidget.prototype = {
    * This is meant to be called immediately after a message or summary load is
    * completed.
    */
-  onLoadCompleted: function MessageDisplayWidget_onLoadCompleted() {
+  onLoadCompleted() {
     this.messageLoading = false;
     this.messageLoaded = true;
   },
 
-  clearDisplay: function MessageDisplayWidget_clearDisplay() {
+  clearDisplay() {
     this.displayedMessage = null;
     this.messageLoading = false;
     this.messageLoaded = false;
@@ -153,7 +155,7 @@ MessageDisplayWidget.prototype = {
     ClearMessagePane();
   },
 
-  onCreatedView: function MessageDisplayWidget_onCreatedView() {
+  onCreatedView() {
     // we need to compel setting this because nsMsgSearchDBView defaults it on
     this.folderDisplay.view.dbView.suppressMsgDisplay = !this.visible;
   },
@@ -162,8 +164,7 @@ MessageDisplayWidget.prototype = {
    * FolderDisplayWidget tells us when it is killing the view, which means our
    *  displayed message is no longer valid.
    */
-  onDestroyingView: function MessageDisplayWidget_onDestroyingView(
-      aFolderIsComingBack) {
+  onDestroyingView(aFolderIsComingBack) {
     this.displayedMessage = null;
     // The only time we want to do anything is when the folder is not coming
     //  back.  If it is coming back, we can handle things when it shows up.
@@ -177,18 +178,17 @@ MessageDisplayWidget.prototype = {
   /**
    * FolderDisplayWidget tells us when a message is being displayed.
    */
-  onDisplayingMessage: function MessageDisplayWidget_onDisplayingMessage(
-      aMsgHdr) {
+  onDisplayingMessage(aMsgHdr) {
     this.displayedMessage = aMsgHdr;
     this.onLoadStarted();
   },
-  //@}
+  // @}
 
   /**
    * @name Summarization
    * @protected
    */
-  //@{
+  // @{
 
   /**
    * FolderDisplayWidget tells us when the set of selected messages has changed.
@@ -222,8 +222,7 @@ MessageDisplayWidget.prototype = {
    *  should do nothing, false if we did not and the nsMsgDBView should use its
    *  logic to display a message.
    */
-  onSelectedMessagesChanged:
-      function MessageDisplayWidget_onSelectedMessagesChanged() {
+  onSelectedMessagesChanged() {
     // If we are not active, we should not be touching things.  pretend we are
     //  handling whatever is happening so the nsMsgDBView doesn't try and do
     //  anything.  makeActive will trigger a fake SelectionChanged notification
@@ -253,7 +252,7 @@ MessageDisplayWidget.prototype = {
    * @return true if the MessageDisplayWidget handled this event and the
    *         FolderDisplayWidget should stop processing
    */
-  onMessagesRemoved: function MessageDisplayWidget_onMessagesRemoved() {
+  onMessagesRemoved() {
   },
 
   /**
@@ -300,7 +299,7 @@ MessageDisplayWidget.prototype = {
    *  should do nothing, false if we did not and the nsMsgDBView should use its
    *  logic to display a message.
    */
-  _showSummary: function MessageDisplayWidget_showSummary(aIsCallback) {
+  _showSummary(aIsCallback) {
     // Note: if we are in this function, we already know that summaries are
     // enabled.
 
@@ -342,8 +341,7 @@ MessageDisplayWidget.prototype = {
       // break if passed empty selectedMessages, so do not use any tree row
       // count value to indicate messages (dummy rows are not messages).
       summarizeFolder(this);
-    }
-    else {
+    } else {
       // If there are some messages selected, show the multi-message summary
       // (unless this folder doesn't support summarizing selections).
       if (!this.folderDisplay.summarizeSelectionInFolder) {
@@ -355,23 +353,23 @@ MessageDisplayWidget.prototype = {
     }
     return true;
   },
-  _wrapShowSummary: function MessageDisplayWidget__wrapShowSummary(aThis) {
+  _wrapShowSummary(aThis) {
     aThis._showSummary(true);
   },
   /**
    * Just clears the _summaryStabilityTimeout attribute so we can use it as a
    *  means of checking if we are allowed to display the summary immediately.
    */
-  _clearSummaryTimer: function MessageDisplayWidget__clearSummaryTimer(aThis) {
+  _clearSummaryTimer(aThis) {
     aThis._summaryStabilityTimeout = null;
   },
-  //@}
+  // @}
 
   /**
    * @name Activity Control
    * @protected FolderDisplayWidget
    */
-  //@{
+  // @{
 
   /**
    * Called by the FolderDisplayWidget when it is being made active again and
@@ -384,7 +382,7 @@ MessageDisplayWidget.prototype = {
    *                            that you've already triggered a message load,
    *                            and that a message reload would be harmful.
    */
-  makeActive: function MessageDisplayWidget_makeActive(aDontReloadMessage) {
+  makeActive(aDontReloadMessage) {
     let wasInactive = !this._active;
     this._active = true;
 
@@ -424,10 +422,10 @@ MessageDisplayWidget.prototype = {
    * Called by the FolderDisplayWidget when it is being made inactive or no
    *  longer requires messages to be displayed.
    */
-  makeInactive: function MessageDisplayWidget_makeInactive() {
+  makeInactive() {
     this._active = false;
-  }
-  //@}
+  },
+  // @}
 };
 
 /**
@@ -498,34 +496,31 @@ MessageTabDisplayWidget.prototype = {
   set visible(aIgnored) {
   },
 
-  onSelectedMessagesChanged:
-      function MessageTabDisplayWidget_onSelectedMessagesChanged() {
+  onSelectedMessagesChanged() {
     // Look at the number of messages left in the db view. If there aren't any,
     // close the tab.
     if (this.folderDisplay.view.dbView.rowCount == 0) {
       if (!this.closing) {
         this.closing = true;
-        document.getElementById('tabmail').closeTab(
+        document.getElementById("tabmail").closeTab(
             this.folderDisplay._tabInfo, true);
       }
       return true;
     }
-    else {
-      if (!this.closing)
-        document.getElementById('tabmail').setTabTitle(
-            this.folderDisplay._tabInfo);
 
-      // The db view shouldn't do anything if we're inactive or about to close
-      if (!this.active || this.closing)
-        return true;
+    if (!this.closing)
+      document.getElementById("tabmail").setTabTitle(this.folderDisplay._tabInfo);
 
-      // No summaries in a message tab
-      this.singleMessageDisplay = true;
-      return false;
-    }
+    // The db view shouldn't do anything if we're inactive or about to close
+    if (!this.active || this.closing)
+      return true;
+
+    // No summaries in a message tab
+    this.singleMessageDisplay = true;
+    return false;
   },
 
-  onMessagesRemoved: function MessageTabDisplayWidget_onMessagesRemoved() {
+  onMessagesRemoved() {
     if (!this.folderDisplay.treeSelection)
       return true;
 
@@ -542,13 +537,13 @@ MessageTabDisplayWidget.prototype = {
    * A message tab should never ever be blank.  Close the tab if we become
    *  blank.
    */
-  clearDisplay: function MessageTabDisplayWidget_clearDisplay() {
+  clearDisplay() {
     if (!this.closing) {
       this.closing = true;
-      document.getElementById('tabmail').closeTab(this.folderDisplay._tabInfo,
+      document.getElementById("tabmail").closeTab(this.folderDisplay._tabInfo,
                                                   true);
     }
-  }
+  },
 };
 
 /**
@@ -564,9 +559,9 @@ NeverVisisbleMessageDisplayWidget.prototype = {
   get visible() {
     return false;
   },
-  onSelectedMessagesChanged: function() {
+  onSelectedMessagesChanged() {
     return false;
   },
-  _updateActiveMessagePane: function() {
+  _updateActiveMessagePane() {
   },
 };

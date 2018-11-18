@@ -113,28 +113,26 @@
               let childBoxObj = this._childNodes[i].boxObject;
               if (childBoxObj.screenY + childBoxObj.height <=
                   box.boxObject.screenY)
-                return i+1;
+                return i + 1;
             }
 
             // If we get here, we must have gone back to the beginning of the
             // list, so just return 0.
             return 0;
           }
-          else {
-            // We didn't go far enough! Keep going until we find an item at
-            // least partially on-screen.
-            for (let i = estimatedIndex; i < this._childNodes.length; i++) {
-              let childBoxObj = this._childNodes[i].boxObject;
-              if (childBoxObj.screenY + childBoxObj.height >
-                  box.boxObject.screenY > 0)
-                return i;
-            }
-
-            // If we get here, something is very wrong.
-            Cu.reportError(
-              "Couldn't get index of first visible row for attachmentlist!\n");
-            return -1;
+          // We didn't go far enough! Keep going until we find an item at
+          // least partially on-screen.
+          for (let i = estimatedIndex; i < this._childNodes.length; i++) {
+            let childBoxObj = this._childNodes[i].boxObject;
+            if (childBoxObj.screenY + childBoxObj.height >
+                box.boxObject.screenY > 0)
+              return i;
           }
+
+          // If we get here, something is very wrong.
+          Cu.reportError(
+            "Couldn't get index of first visible row for attachmentlist!\n");
+          return -1;
         ]]></body>
       </method>
       <method name="ensureIndexIsVisible">
@@ -196,10 +194,9 @@
           // Pick out some nice icons (small and large) for the attachment
           if (attachment.contentType == "text/x-moz-deleted") {
             let base = "chrome://messenger/skin/icons/";
-            item.setAttribute("image16", base+"attachment-deleted.png");
-            item.setAttribute("image32", base+"attachment-deleted-large.png");
-          }
-          else {
+            item.setAttribute("image16", base + "attachment-deleted.png");
+            item.setAttribute("image32", base + "attachment-deleted-large.png");
+          } else {
             item.setAttribute("image16", "moz-icon://" + attachment.name +
                               "?size=16&amp;contentType=" +
                               attachment.contentType);
@@ -238,8 +235,11 @@
       <!-- ///////////////// private members ///////////////// -->
 
       <field name="_childNodes" readonly="true">this.getElementsByTagName("attachmentitem")</field>
-      <property name="scrollbox" readonly="true"
-                onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'scrollbox');"/>
+      <property name="scrollbox" readonly="true">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "scrollbox");
+        ]]></getter>
+      </property>
 
       <method name="_fireOnSelect">
         <body><![CDATA[
@@ -261,8 +261,7 @@
 
           if (itemWidth == 0) // Each item takes up a full row
             return 1;
-          else
-            return Math.floor(this.scrollbox.clientWidth / itemWidth);
+          return Math.floor(this.scrollbox.clientWidth / itemWidth);
         ]]></body>
       </method>
 
@@ -413,7 +412,7 @@
           if (!this.hasAttribute("image")) {
             let icon = document.getAnonymousElementByAttribute(this, "anonid",
                                                                "icon");
-            let attr = "image"+this.imageSize;
+            let attr = "image" + this.imageSize;
             if (this.hasAttribute(attr))
               icon.setAttribute("src", this.getAttribute(attr));
           }
@@ -465,7 +464,7 @@
     <implementation>
       <constructor>
         <![CDATA[
-          this.mAddresses = new Array;
+          this.mAddresses = [];
           ChromeUtils.import("resource://gre/modules/Services.jsm");
         ]]>
       </constructor>
@@ -520,13 +519,10 @@
                 aEmailNode.setAttribute("aria-label", ariaLabel);
             }
 
-            try
-            {
+            try {
               if (("UpdateEmailNodeDetails" in top) && aAddress.emailAddress)
                 UpdateEmailNodeDetails(aAddress.emailAddress, aEmailNode);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
               dump("UpdateEmailNodeDetails failed: " + ex + "\n");
             }
           ]]>
@@ -572,15 +568,14 @@
             var i = 0;
             for (let curLine = 0, curLineWidth = 0;
                  i < this.mAddresses.length && (all || curLine < this.maxLinesBeforeMore);
-                 i++)
-            {
+                 i++) {
               let newAddressNode;
 
               // First, add a comma as long as this isn't the first address.
               if (i > 0) {
-                if (cached-- > 0)
-                  aAddressesNode.childNodes[i*2 - 1].hidden = false;
-                else {
+                if (cached-- > 0) {
+                  aAddressesNode.childNodes[i * 2 - 1].hidden = false;
+                } else {
                   this.appendComma();
                   if (this.commaNodeWidth == 0)
                     this.commaNodeWidth = this.emailAddresses.lastChild.clientWidth;
@@ -589,7 +584,7 @@
 
               // Now add an email address.
               if (cached-- > 0) {
-                newAddressNode = aAddressesNode.childNodes[i*2];
+                newAddressNode = aAddressesNode.childNodes[i * 2];
                 newAddressNode.hidden = false;
               } else {
                 newAddressNode = document.createElement("mail-emailaddress");
@@ -610,8 +605,8 @@
                 // Calculate width and lines, consider the i+1 comma node if we have to
                 // <http://www.w3.org/TR/cssom-view/#client-attributes>
                 // <https://developer.mozilla.org/en/Determining_the_dimensions_of_elements>
-                let newLineWidth = i+1 < this.mAddresses.length ?
-                                   newAddressNode.clientWidth + this.commaNodeWidth:
+                let newLineWidth = i + 1 < this.mAddresses.length ?
+                                   newAddressNode.clientWidth + this.commaNodeWidth :
                                    newAddressNode.clientWidth;
                 curLineWidth += newLineWidth;
 
@@ -626,7 +621,7 @@
                 // or if the last address would be truncated without "more"
                 if (curLine >= this.maxLinesBeforeMore &&
                     (this.maxLinesBeforeMore > 1 ||
-                     (i+1 == this.mAddresses.length && overLineWidth > 30) ||
+                     (i + 1 == this.mAddresses.length && overLineWidth > 30) ||
                      newLineWidth - overLineWidth < 30)) {
                   aAddressesNode.lastChild.hidden = true;
                   i--;
@@ -641,7 +636,7 @@
 
             // Hide any extra nodes but keep them around for later.
             cached = aAddressesNode.childNodes.length;
-            for (let j = Math.max(i*2 - 1, 0); j < cached; j++) {
+            for (let j = Math.max(i * 2 - 1, 0); j < cached; j++) {
               aAddressesNode.childNodes[j].hidden = true;
             }
 
@@ -665,12 +660,21 @@
         </body>
       </method>
 
-      <property name="emailAddresses" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'emailAddresses');"
-        readonly="true"/>
-      <property name="longEmailAddresses" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'longEmailAddresses');"
-        readonly="true"/>
-      <property name="more" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'more')"
-        readonly="true"/>
+      <property name="emailAddresses" readonly="true">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "emailAddresses");
+        ]]></getter>
+      </property>
+      <property name="longEmailAddresses" readonly="true">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "longEmailAddresses");
+        ]]></getter>
+      </property>
+      <property name="more" readonly="true">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "more");
+        ]]></getter>
+      </property>
 
       <!-- The number of lines of addresses we will display before adding a
            (more) indicator to the widget. This can be increased using the
@@ -698,8 +702,7 @@
                 headerchoice == dt.AllHeaders) {
               this.fillAddressesNode(this.emailAddresses, true);
               this.longEmailAddresses.removeAttribute("singleline");
-            }
-            else {
+            } else {
               this.fillAddressesNode(this.emailAddresses, false);
               // force a single line only in the default n=1 case
               if (this.maxLinesBeforeMore > 1)
@@ -816,7 +819,7 @@
             //
             // Fake the "All Headers" mode, so that we get a scroll bar
             // Will be reset when a new message loads
-            document.getElementById("expandedHeaderView").setAttribute("show_header_mode","all");
+            document.getElementById("expandedHeaderView").setAttribute("show_header_mode", "all");
 
             // Causes different CSS selectors to be used, which allows all
             // of the addresses to be properly displayed and wrapped.
@@ -846,8 +849,7 @@
             var numItemsToPreserve = this.maxAddressesBeforeMore * 2 - 1;
             var numItemsInNode = aParentNode.childNodes.length;
 
-            while (numItemsInNode && (numItemsInNode > numItemsToPreserve))
-            {
+            while (numItemsInNode && (numItemsInNode > numItemsToPreserve)) {
               aParentNode.lastChild.remove();
               numItemsInNode--;
             }
@@ -859,7 +861,7 @@
         <body>
           <![CDATA[
             // clear out our local state
-            this.mAddresses = new Array;
+            this.mAddresses = [];
             this.longEmailAddresses.setAttribute("singleline", "true");
             // remove anything inside of each of our labels....
             this.clearChildNodes(this.emailAddresses);
@@ -888,10 +890,16 @@
         ]]>
       </constructor>
 
-      <property name="headerValue" readonly="true"
-                onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'headerValue');"/>
-      <property name="toggleIcon" readonly="true"
-                onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'toggleIcon');"/>
+      <property name="headerValue" readonly="true">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "headerValue");
+        ]]></getter>
+      </property>
+      <property name="toggleIcon" readonly="true">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "toggleIcon");
+        ]]></getter>
+      </property>
 
       <field name="mMessageIds"/>
 
@@ -915,13 +923,10 @@
           <![CDATA[
             var showFullMessageIds = this.showFullMessageIds;
 
-            if (showFullMessageIds || aIndex == aLastId)
-            {
+            if (showFullMessageIds || aIndex == aLastId) {
               aMessageIdNode.setAttribute("label", aMessageId);
               aMessageIdNode.removeAttribute("tooltiptext");
-            }
-            else
-            {
+            } else {
               aMessageIdNode.setAttribute("label", aIndex);
               aMessageIdNode.setAttribute("tooltiptext", aMessageId);
             }
@@ -938,26 +943,20 @@
             var headerValue    = this.headerValue;
             var messageIdNodes = headerValue.childNodes;
             var numMessageIds  = this.mMessageIds.length;
-            var index = 0;
 
             while (messageIdNodes.length > numMessageIds * 2 - 1)
               headerValue.lastChild.remove();
 
             this.toggleIcon.hidden = numMessageIds <= 1;
 
-            for (var index = 0; index < numMessageIds; index++)
-            {
-              if (index * 2 <= messageIdNodes.length - 1)
-              {
+            for (var index = 0; index < numMessageIds; index++) {
+              if (index * 2 <= messageIdNodes.length - 1) {
                 this.updateMessageIdNode(messageIdNodes[index * 2], index + 1,
                                          this.mMessageIds[index], numMessageIds);
-              }
-              else
-              {
+              } else {
                 var newMessageIdNode = document.createElement("mail-messageid");
 
-                if (index)
-                {
+                if (index > 0) {
                   var textNode = document.createElement("text");
                   textNode.setAttribute("value", ", ");
                   textNode.setAttribute("class", "messageIdSeparator");
@@ -978,18 +977,15 @@
             var headerValue        = this.headerValue;
             var messageIdNodes     = headerValue.childNodes;
             var showFullMessageIds = !this.showFullMessageIds;
-            var messageIds         = this.mMessageIds
+            var messageIds         = this.mMessageIds;
 
-            for (var i = 0; i < messageIdNodes.length; i += 2)
-            {
-              if (showFullMessageIds)
-              {
+            for (var i = 0; i < messageIdNodes.length; i += 2) {
+              if (showFullMessageIds) {
                 this.toggleIcon.setAttribute("open", "true");
                 messageIdNodes[i].setAttribute("label", messageIds[i / 2]);
                 messageIdNodes[i].removeAttribute("tooltiptext");
                 headerValue.removeAttribute("singleline");
-              } else
-              {
+              } else {
                 this.toggleIcon.removeAttribute("open");
                 messageIdNodes[i].setAttribute("label", i / 2 + 1);
                 messageIdNodes[i].setAttribute("tooltiptext", messageIds[i / 2]);
@@ -1005,9 +1001,8 @@
         <body>
           <![CDATA[
             // clear out our local state
-            this.mMessageIds = new Array;
-            if (this.showFullMessageIds)
-            {
+            this.mMessageIds = [];
+            if (this.showFullMessageIds) {
               this.showFullMessageIds = false;
               this.toggleIcon.removeAttribute("open");
             }
@@ -1029,7 +1024,7 @@
       <field name="internalValue">-1</field>
       <field readonly="true" name="validityManager">
         <![CDATA[
-           Cc['@mozilla.org/mail/search/validityManager;1'].getService(Ci.nsIMsgSearchValidityManager);
+           Cc["@mozilla.org/mail/search/validityManager;1"].getService(Ci.nsIMsgSearchValidityManager);
         ]]>
       </field>
       <property name="searchScope" onget="return this.internalScope;">
@@ -1043,7 +1038,7 @@
             this.refreshList();
             var targets = this.targets;
             if (targets) {
-              for (var i=0; i< targets.length; i++) {
+              for (var i = 0; i < targets.length; i++) {
                 targets[i].searchScope = val;
               }
             }
@@ -1062,7 +1057,7 @@
             var targetIds = forAttrs.split(",");
             if (targetIds.length == 0) return null;
 
-            var targets = new Array;
+            var targets = [];
             for (let j = 0, i = 0; i < targetIds.length; i++) {
               var target = document.getElementById(targetIds[i]);
               if (target) targets[j++] = target;
@@ -1080,9 +1075,9 @@
             var optargetIds = forAttrs.split(",");
             if (optargetIds.length == 0) return null;
 
-            var optargets = new Array;
-            var j=0;
-            for (var i=0; i<optargetIds.length;i++) {
+            var optargets = [];
+            var j = 0;
+            for (var i = 0; i < optargetIds.length; i++) {
               var optarget = document.getElementById(optargetIds[i]);
               if (optarget) optargets[j++] = optarget;
             }
@@ -1103,7 +1098,7 @@
             // now notify targets of new parent's value
             var targets = this.targets;
             if (targets) {
-              for (var i=0; i < targets.length; i++) {
+              for (var i = 0; i < targets.length; i++) {
                 targets[i].parentValue = val;
               }
             }
@@ -1111,7 +1106,7 @@
             // now notify optargets of new op parent's value
             var optargets = this.optargets;
             if (optargets) {
-              for (i=0; i < optargets.length; i++) {
+              for (i = 0; i < optargets.length; i++) {
                 optargets[i].opParentValue = val;
               }
             }
@@ -1121,7 +1116,10 @@
         </setter>
       </property>
       <!-- label forwards to the internal menulist's "label" attribute -->
-      <property name="label" onget="return document.getAnonymousNodes(this)[0].selectedItem.getAttribute('label');">
+      <property name="label">
+        <getter><![CDATA[
+          return document.getAnonymousNodes(this)[0].selectedItem.getAttribute("label");
+        ]]></getter>
       </property>
       <property name="validMenuitem" readonly="true">
       <!-- Prepare menulist selection, adding a missing hidden menuitem if needed, and
@@ -1140,9 +1138,8 @@
               (!this.valueIds.includes(typedValue)) ? "true" : null);
 
             // add a hidden menulist item if value is missing
-            let menuitem = menulist.querySelector('[value="' + this.value + '"]');
-            if (!menuitem)
-            { // need to add a hidden menuitem
+            let menuitem = menulist.querySelector(`[value="${this.value}"]`);
+            if (!menuitem) { // need to add a hidden menuitem
               menuitem = menulist.appendItem(this.valueLabel, this.value);
               menuitem.hidden = true;
             }
@@ -1170,14 +1167,12 @@
               popup.lastChild.remove();
 
             var newSelection;
-            var customizePos=-1;
-            for (var i = 0; i < menuItemIds.length; ++i)
-            {
+            var customizePos = -1;
+            for (var i = 0; i < menuItemIds.length; ++i) {
               // create the menuitem
-              if (Ci.nsMsgSearchAttrib.OtherHeader == menuItemIds[i].toString())
+              if (Ci.nsMsgSearchAttrib.OtherHeader == menuItemIds[i].toString()) {
                 customizePos = i;
-              else
-              {
+              } else {
                 var menuitem = document.createElement("menuitem");
                 menuitem.setAttribute("label", menuItemStrings[i]);
                 menuitem.setAttribute("value", menuItemIds[i]);
@@ -1187,8 +1182,7 @@
                   newSelection = menuitem;
               }
             }
-            if (customizePos != -1)
-            {
+            if (customizePos != -1) {
               var separator = document.createElement("menuseparator");
               popup.appendChild(separator);
               menuitem = document.createElement("menuitem");
@@ -1212,8 +1206,7 @@
         <body>
           <![CDATA[
             var menulist = document.getAnonymousNodes(this)[0];
-            if (menulist.value == Ci.nsMsgSearchAttrib.OtherHeader)
-            {
+            if (menulist.value == Ci.nsMsgSearchAttrib.OtherHeader) {
               // Customize menuitem selected.
               let args = {};
               window.openDialog("chrome://messenger/content/CustomHeaders.xul",
@@ -1226,16 +1219,14 @@
               UpdateAfterCustomHeaderChange();
               // Find the created or chosen custom header and select it.
               if (args.selectedVal) {
-                let menuitem = menulist.querySelector('[label="' + args.selectedVal + '"]');
+                let menuitem = menulist.querySelector(`[label="${args.selectedVal}"]`);
                 this.value = menuitem.value;
               } else {
                 // Nothing was picked in the custom headers editor so just pick something
                 // instead of the current "Customize" menuitem.
                 this.value = menulist.getItemAtIndex(0).value;
               }
-            }
-            else
-            {
+            } else {
               this.value = menulist.value;
             }
           ]]>
@@ -1256,23 +1247,20 @@
       <property name="valueLabel" readonly="true">
         <getter>
           <![CDATA[
-            if (isNaN(this.value)) // is this a custom term?
-            {
+            if (isNaN(this.value)) { // is this a custom term?
               let customTerm = MailServices.filters.getCustomTerm(this.value);
               if (customTerm)
                 return customTerm.name;
-              else
-              { // The custom term may be missing after the extension that added it
-                // was disabled or removed. We need to notify the user.
-                let scriptError = Cc["@mozilla.org/scripterror;1"]
-                    .createInstance(Ci.nsIScriptError);
-                scriptError.init("Missing custom search term " + this.value,
-                    null, null, 0, 0,
-                    Ci.nsIScriptError.errorFlag,
-                    "component javascript");
-                this.Services.console.logMessage(scriptError);
-                return this.stringBundle.GetStringFromName("MissingCustomTerm");
-              }
+              // The custom term may be missing after the extension that added it
+              // was disabled or removed. We need to notify the user.
+              let scriptError = Cc["@mozilla.org/scripterror;1"]
+                  .createInstance(Ci.nsIScriptError);
+              scriptError.init("Missing custom search term " + this.value,
+                  null, null, 0, 0,
+                  Ci.nsIScriptError.errorFlag,
+                  "component javascript");
+              this.Services.console.logMessage(scriptError);
+              return this.stringBundle.GetStringFromName("MissingCustomTerm");
             }
             return this.stringBundle.GetStringFromName(
               this.validityManager.getAttributeProperty(parseInt(this.value)));
@@ -1282,12 +1270,11 @@
       <property name="valueIds" readonly="true">
         <getter>
           <![CDATA[
-            var length = new Object;
+            var length = {};
             let result = this.validityTable.getAvailableAttributes(length);
             // add any available custom search terms
             let customEnum = MailServices.filters.getCustomTerms();
-            while (customEnum && customEnum.hasMoreElements())
-            {
+            while (customEnum && customEnum.hasMoreElements()) {
               let customTerm =
                  customEnum.getNext()
                            .QueryInterface(Ci.nsIMsgSearchCustomTerm);
@@ -1303,35 +1290,30 @@
       <property name="valueStrings" readonly="true">
         <getter>
           <![CDATA[
-            let strings = new Array;
+            let strings = [];
             let ids = this.valueIds;
             let hdrsArray = null;
-            try
-            {
+            try {
               let hdrs = this.Services.prefs.getCharPref("mailnews.customHeaders");
-              hdrs = hdrs.replace(/\s+/g, "");  //remove white spaces before splitting
+              hdrs = hdrs.replace(/\s+/g, ""); // remove white spaces before splitting
               hdrsArray = hdrs.match(/[^:]+/g);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
             }
 
             let j = 0;
-            for (let i = 0; i < ids.length; i++)
-            {
-              if (isNaN(ids[i])) // Is this a custom search term?
-              {
+            for (let i = 0; i < ids.length; i++) {
+              if (isNaN(ids[i])) { // Is this a custom search term?
                 let customTerm = MailServices.filters.getCustomTerm(ids[i]);
                 if (customTerm)
                   strings[i] = customTerm.name;
                 else
                   strings[i] = "";
-              }
-              else if(ids[i] > Ci.nsMsgSearchAttrib.OtherHeader && hdrsArray)
+              } else if (ids[i] > Ci.nsMsgSearchAttrib.OtherHeader && hdrsArray) {
                 strings[i] = hdrsArray[j++];
-              else
+              } else {
                 strings[i] = this.stringBundle.GetStringFromName(
                                this.validityManager.getAttributeProperty(ids[i]));
+              }
             }
             return strings;
           ]]>
@@ -1367,23 +1349,22 @@
       <property name="valueIds" readonly="true">
         <getter>
           <![CDATA[
-            var length = new Object;
+            var length = {};
             let isCustom = isNaN(this.searchAttribute);
-            if (isCustom)
-            {
+            if (isCustom) {
               let customTerm = MailServices.filters.getCustomTerm(this.searchAttribute);
               if (customTerm)
                 return customTerm.getAvailableOperators(this.searchScope, length);
               return [Ci.nsMsgSearchOp.Contains];
             }
-            return this.validityTable.getAvailableOperators(this.searchAttribute,length);
+            return this.validityTable.getAvailableOperators(this.searchAttribute, length);
           ]]>
         </getter>
       </property>
       <property name="valueStrings" readonly="true">
         <getter>
           <![CDATA[
-            let strings = new Array;
+            let strings = [];
             let ids = this.valueIds;
             for (let i = 0; i < ids.length; i++)
               strings[i] = this.stringBundle.GetStringFromID(ids[i]);
@@ -1397,8 +1378,7 @@
             if (this.searchAttribute == val && val != Ci.nsMsgSearchAttrib.OtherHeader) return val;
             this.searchAttribute = val;
             this.refreshList(true); // don't restore the selection, since searchvalue nulls it
-            if (val == Ci.nsMsgSearchAttrib.AgeInDays)
-            {
+            if (val == Ci.nsMsgSearchAttrib.AgeInDays) {
               // We want "Age in Days" to default to "is less than".
               this.value = Ci.nsMsgSearchOp.IsLessThan;
             }
@@ -1517,7 +1497,7 @@
                 this.searchAttribute != Ci.nsMsgSearchAttrib.To &&
                 this.searchAttribute != Ci.nsMsgSearchAttrib.ToOrCC &&
                 this.searchAttribute != Ci.nsMsgSearchAttrib.AllAddresses &&
-                this.searchAttribute != Ci.nsMsgSearchAttrib.CC ) {
+                this.searchAttribute != Ci.nsMsgSearchAttrib.CC) {
               this.internalOperator = val;
               return val;
             }
@@ -1532,23 +1512,20 @@
               // otherwise, switch to the ab picker and select the PAB
               if (this.internalOperator != Ci.nsMsgSearchOp.IsntInAB &&
                   this.internalOperator != Ci.nsMsgSearchOp.IsInAB) {
-                var abs = children[4].querySelector('[value="moz-abmdbdirectory://abook.mab"]');
+                var abs = children[4].querySelector(`[value="moz-abmdbdirectory://abook.mab"]`);
                 if (abs)
                   children[4].selectedItem = abs;
                 this.setAttribute("selectedIndex", "4");
               }
-            }
-            else {
+            } else if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
+                       this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
               // if the old internalOperator wasn't
               // IsntInAB or IsInAB, and the new internalOperator isn't
               // IsntInAB or IsInAB, noop because the search value
               // wasn't an ab type, and it still isn't.
               // otherwise, switch to the textbox and clear it
-              if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
-                  this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
-                children[0].value = "";
-                this.setAttribute("selectedIndex", "0");
-              }
+              children[0].value = "";
+              this.setAttribute("selectedIndex", "0");
             }
 
             this.internalOperator = val;
@@ -1571,8 +1548,7 @@
 
             // we inherit from a deck, so just use it's index attribute
             // to hide/show widgets
-            if (isNaN(val)) // Is this a custom attribute?
-            {
+            if (isNaN(val)) { // Is this a custom attribute?
               this.setAttribute("selectedIndex", "10");
               let customHbox = document.getAnonymousNodes(this)[10];
               if (this.internalValue)
@@ -1580,51 +1556,42 @@
               // the searchAttribute attribute is intended as a selector in
               // CSS for custom search terms to bind a custom value
               customHbox.setAttribute("searchAttribute", val);
-            }
-            else if (val == Ci.nsMsgSearchAttrib.Priority)
+            } else if (val == Ci.nsMsgSearchAttrib.Priority) {
               this.setAttribute("selectedIndex", "1");
-            else if (val == Ci.nsMsgSearchAttrib.MsgStatus)
+            } else if (val == Ci.nsMsgSearchAttrib.MsgStatus) {
               this.setAttribute("selectedIndex", "2");
-            else if (val == Ci.nsMsgSearchAttrib.Date)
+            } else if (val == Ci.nsMsgSearchAttrib.Date) {
               this.setAttribute("selectedIndex", "3");
-            else if (val == Ci.nsMsgSearchAttrib.Sender) {
+            } else if (val == Ci.nsMsgSearchAttrib.Sender) {
               // since the internalOperator is null
               // this is the same as the initial state
               // the initial state for Sender isn't an ab type search
               // it's a text search, so show the textbox
               this.setAttribute("selectedIndex", "0");
-            }
-            else if (val == Ci.nsMsgSearchAttrib.Keywords) {
+            } else if (val == Ci.nsMsgSearchAttrib.Keywords) {
               this.setAttribute("selectedIndex", "5");
-            }
-            else if (val == Ci.nsMsgSearchAttrib.JunkStatus) {
+            } else if (val == Ci.nsMsgSearchAttrib.JunkStatus) {
               this.setAttribute("selectedIndex", "6");
-            }
-            else if (val == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
+            } else if (val == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
               this.setAttribute("selectedIndex", "7");
-            }
-            else if (val == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
+            } else if (val == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
               this.setAttribute("selectedIndex", "8");
-            }
-            else if (val == Ci.nsMsgSearchAttrib.AgeInDays) {
+            } else if (val == Ci.nsMsgSearchAttrib.AgeInDays) {
               let valueBox = document.getAnonymousNodes(this)[9];
               valueBox.min = -40000; // ~-100 years
               valueBox.max = 40000; // ~100 years
               this.setAttribute("selectedIndex", "9");
-            }
-            else if (val == Ci.nsMsgSearchAttrib.Size) {
+            } else if (val == Ci.nsMsgSearchAttrib.Size) {
               let valueBox = document.getAnonymousNodes(this)[9];
               valueBox.min = 0;
               valueBox.max = 1000000000;
               this.setAttribute("selectedIndex", "9");
-            }
-            else if (val == Ci.nsMsgSearchAttrib.JunkPercent) {
+            } else if (val == Ci.nsMsgSearchAttrib.JunkPercent) {
               let valueBox = document.getAnonymousNodes(this)[9];
               valueBox.min = 0;
               valueBox.max = 100;
               this.setAttribute("selectedIndex", "9");
-            }
-            else {
+            } else {
               // a normal text field
               this.setAttribute("selectedIndex", "0");
             }
@@ -1641,78 +1608,66 @@
           var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
           var children = document.getAnonymousNodes(this);
           this.searchAttribute = attrib;
-          if (isNaN(attrib)) // a custom term
-          {
+          if (isNaN(attrib)) { // a custom term
             let customHbox = document.getAnonymousNodes(this)[10];
             customHbox.setAttribute("value", val.str);
             return val;
           }
           if (attrib == nsMsgSearchAttrib.Priority) {
             var matchingPriority =
-              children[1].querySelector('[value="' + val.priority + '"]');
+              children[1].querySelector(`[value="${val.priority}"]`);
             if (matchingPriority)
               children[1].selectedItem = matchingPriority;
-          }
-          else if (attrib == nsMsgSearchAttrib.MsgStatus) {
+          } else if (attrib == nsMsgSearchAttrib.MsgStatus) {
             var matchingStatus =
-              children[2].querySelector('[value="' + val.status + '"]');
+              children[2].querySelector(`[value="${val.status}"]`);
             if (matchingStatus)
               children[2].selectedItem = matchingStatus;
-          }
-          else if (attrib == nsMsgSearchAttrib.AgeInDays)
+          } else if (attrib == nsMsgSearchAttrib.AgeInDays) {
             children[9].value = val.age;
-          else if (attrib == nsMsgSearchAttrib.Date)
+          } else if (attrib == nsMsgSearchAttrib.Date) {
             children[3].value = convertPRTimeToString(val.date);
-          else if (attrib == nsMsgSearchAttrib.Sender ||
-                   attrib == nsMsgSearchAttrib.To ||
-                   attrib == nsMsgSearchAttrib.CC ||
-                   attrib == nsMsgSearchAttrib.AllAddresses ||
-                   attrib == nsMsgSearchAttrib.ToOrCC)
-          {
+          } else if (attrib == nsMsgSearchAttrib.Sender ||
+                     attrib == nsMsgSearchAttrib.To ||
+                     attrib == nsMsgSearchAttrib.CC ||
+                     attrib == nsMsgSearchAttrib.AllAddresses ||
+                     attrib == nsMsgSearchAttrib.ToOrCC) {
             if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
                 this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
-              var abs = children[4].querySelector('[value="' + val.str + '"]');
+              var abs = children[4].querySelector(`[value="${val.str}"]`);
               if (abs)
                 children[4].selectedItem = abs;
-            }
-            else
+            } else {
               children[0].value = val.str;
-          }
-          else if (attrib == nsMsgSearchAttrib.Keywords)
-          {
-            var keywordVal = children[5].querySelector('[value="' + val.str + '"]');
-            if (keywordVal)
-            {
+            }
+          } else if (attrib == nsMsgSearchAttrib.Keywords) {
+            var keywordVal = children[5].querySelector(`[value="${val.str}"]`);
+            if (keywordVal) {
               children[5].value = val.str;
               children[5].selectedItem = keywordVal;
             }
-          }
-          else if (attrib == nsMsgSearchAttrib.JunkStatus) {
+          } else if (attrib == nsMsgSearchAttrib.JunkStatus) {
             var junkStatus =
-              children[6].querySelector('[value="' + val.junkStatus + '"]');
+              children[6].querySelector(`[value="${val.junkStatus}"]`);
             if (junkStatus)
               children[6].selectedItem = junkStatus;
-          }
-          else if (attrib == nsMsgSearchAttrib.HasAttachmentStatus) {
+          } else if (attrib == nsMsgSearchAttrib.HasAttachmentStatus) {
             var hasAttachmentStatus =
-              children[7].querySelector('[value="' + val.hasAttachmentStatus + '"]');
+              children[7].querySelector(`[value="${val.hasAttachmentStatus}"]`);
             if (hasAttachmentStatus)
               children[7].selectedItem = hasAttachmentStatus;
-          }
-          else if (attrib == nsMsgSearchAttrib.JunkScoreOrigin) {
+          } else if (attrib == nsMsgSearchAttrib.JunkScoreOrigin) {
             var junkScoreOrigin =
-              children[8].querySelector('[value="' + val.str + '"]');
+              children[8].querySelector(`[value="${val.str}"]`);
             if (junkScoreOrigin)
               children[8].selectedItem = junkScoreOrigin;
-          }
-          else if (attrib == nsMsgSearchAttrib.JunkPercent) {
+          } else if (attrib == nsMsgSearchAttrib.JunkPercent) {
             children[9].value = val.junkPercent;
-          }
-          else if (attrib == nsMsgSearchAttrib.Size) {
+          } else if (attrib == nsMsgSearchAttrib.Size) {
             children[9].value = val.size;
-          }
-          else
+          } else {
             children[0].value = val.str;
+          }
           return val;
           ]]>
         </setter>
@@ -1727,47 +1682,42 @@
 
             searchValue.attrib = searchAttribute;
             if (searchAttribute == nsMsgSearchAttrib.Priority) {
-               searchValue.priority = children[1].selectedItem.value;
-            }
-            else if (searchAttribute == nsMsgSearchAttrib.MsgStatus)
-               searchValue.status = children[2].value;
-            else if (searchAttribute == nsMsgSearchAttrib.AgeInDays)
-               searchValue.age = children[9].value;
-            else if (searchAttribute == nsMsgSearchAttrib.Date)
-               searchValue.date = convertStringToPRTime(children[3].value);
-            else if (searchAttribute == nsMsgSearchAttrib.Sender ||
-                   searchAttribute == nsMsgSearchAttrib.To ||
-                   searchAttribute == nsMsgSearchAttrib.CC ||
-                   searchAttribute == nsMsgSearchAttrib.AllAddresses ||
-                   searchAttribute == nsMsgSearchAttrib.ToOrCC)
-            {
+              searchValue.priority = children[1].selectedItem.value;
+            } else if (searchAttribute == nsMsgSearchAttrib.MsgStatus) {
+              searchValue.status = children[2].value;
+            } else if (searchAttribute == nsMsgSearchAttrib.AgeInDays) {
+              searchValue.age = children[9].value;
+            } else if (searchAttribute == nsMsgSearchAttrib.Date) {
+              searchValue.date = convertStringToPRTime(children[3].value);
+            } else if (searchAttribute == nsMsgSearchAttrib.Sender ||
+                       searchAttribute == nsMsgSearchAttrib.To ||
+                       searchAttribute == nsMsgSearchAttrib.CC ||
+                       searchAttribute == nsMsgSearchAttrib.AllAddresses ||
+                       searchAttribute == nsMsgSearchAttrib.ToOrCC) {
               if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
-                  this.internalOperator == Ci.nsMsgSearchOp.IsInAB)
+                  this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
                 searchValue.str = children[4].selectedItem.value;
-              else
+              } else {
                 searchValue.str = children[0].value;
-            }
-            else if (searchAttribute == nsMsgSearchAttrib.Keywords)
-            {
+              }
+            } else if (searchAttribute == nsMsgSearchAttrib.Keywords) {
               searchValue.str = children[5].value;
-            }
-            else if (searchAttribute == nsMsgSearchAttrib.JunkStatus)
-               searchValue.junkStatus = children[6].value;
-            else if (searchAttribute == nsMsgSearchAttrib.JunkPercent)
-               searchValue.junkPercent = children[9].value;
-            else if (searchAttribute == nsMsgSearchAttrib.Size)
-               searchValue.size = children[9].value;
-            else if (searchAttribute == nsMsgSearchAttrib.HasAttachmentStatus)
-               searchValue.status = 0x10000000;  // 0x10000000 is MSG_FLAG_ATTACHMENT;
-            else if (searchAttribute == nsMsgSearchAttrib.JunkScoreOrigin)
-               searchValue.str = children[8].value;
-            else if (isNaN(searchAttribute)) //  a custom term
-            {
+            } else if (searchAttribute == nsMsgSearchAttrib.JunkStatus) {
+              searchValue.junkStatus = children[6].value;
+            } else if (searchAttribute == nsMsgSearchAttrib.JunkPercent) {
+              searchValue.junkPercent = children[9].value;
+            } else if (searchAttribute == nsMsgSearchAttrib.Size) {
+              searchValue.size = children[9].value;
+            } else if (searchAttribute == nsMsgSearchAttrib.HasAttachmentStatus) {
+              searchValue.status = 0x10000000;  // 0x10000000 is MSG_FLAG_ATTACHMENT;
+            } else if (searchAttribute == nsMsgSearchAttrib.JunkScoreOrigin) {
+              searchValue.str = children[8].value;
+            } else if (isNaN(searchAttribute)) { // a custom term
               searchValue.attrib = nsMsgSearchAttrib.Custom;
               searchValue.str = children[10].getAttribute("value");
-            }
-            else
+            } else {
               searchValue.str = children[0].value;
+            }
           ]]>
         </body>
       </method>
@@ -1786,12 +1736,11 @@
             var children = document.getAnonymousNodes(this);
             var popupMenu = children[5].firstChild;
             let tagArray = MailServices.tags.getAllTags({});
-            for (var i = 0; i < tagArray.length; ++i)
-            {
+            for (var i = 0; i < tagArray.length; ++i) {
               var taginfo = tagArray[i];
-              var newMenuItem = document.createElement('menuitem');
-              newMenuItem.setAttribute('label', taginfo.tag);
-              newMenuItem.setAttribute('value', taginfo.key);
+              var newMenuItem = document.createElement("menuitem");
+              newMenuItem.setAttribute("label", taginfo.tag);
+              newMenuItem.setAttribute("value", taginfo.key);
               popupMenu.appendChild(newMenuItem);
               if (!i)
                 children[5].selectedItem = newMenuItem;
@@ -1805,8 +1754,8 @@
         <body>
           <![CDATA[
             var children = parentNode.childNodes;
-            var len=children.length;
-            for (var i=0; i<len; i++) {
+            var len = children.length;
+            for (var i = 0; i < len; i++) {
               var node = children[i];
               var stringTag = node.getAttribute("stringTag");
               if (stringTag) {
@@ -1925,13 +1874,13 @@
             self: this,
             tree: this.tree,
             parentNode: this.parentNode,
-            getLastVisibleRow: function getLastVisibleRow(box) {
+            getLastVisibleRow(box) {
               var f = box.getFirstVisibleRow();
               var p = box.getPageLength();
               var l = box.view.rowCount;
               return (l < f + p ? l : f + p) - 1;
             },
-            handleEvent: function handleEvent(event) {
+            handleEvent(event) {
               if (event.altKey)
                 return;
               var index;
@@ -1997,7 +1946,7 @@
                 box.ensureRowIsVisible(index);
               else
                 this.self.fire();
-            }
+            },
           })
         ]]>
       </field>
@@ -2147,7 +2096,7 @@
 
           if (this.getAttribute("disabled") != "true") {
             let self = this;
-            setTimeout(function () {
+            setTimeout(function() {
               if (self.getAttribute("active") == "true")
                 self.menu.open = true;
             }, this._menuDelay);

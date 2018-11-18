@@ -18,7 +18,7 @@ var nsMsgViewIndex_None = 0xFFFFFFFF;
 
 /* globals for a particular window */
 
-/// we have no tree view; let people know that.
+// we have no tree view; let people know that.
 var gFolderTreeView = null;
 
 var gFolderDisplay;
@@ -73,8 +73,7 @@ StandaloneFolderDisplayWidget.prototype = {
    * We never have a real treeview, so we always want to tell the view about
    *  the fake tree box so it will actually do something in NoteChange.
    */
-  onCreatedView:
-      function StandaloneMessageDisplayWidget_onCreatedView() {
+  onCreatedView() {
     this._fakeTreeBox.view = this.view.dbView;
     // Need to clear out this reference later.
     this._magicTreeSelection.view = this.view.dbView;
@@ -102,8 +101,7 @@ StandaloneFolderDisplayWidget.prototype = {
    * XXX This should ideally be the default behavior, with a 3pane subclass
    * implementing the quick-search stuff.
    */
-  onDisplayingFolder:
-      function StandaloneFolderDisplayWidget_onDisplayingFolder() {
+  onDisplayingFolder() {
     let msgDatabase = this.view.displayedFolder &&
                       this.view.displayedFolder.msgDatabase;
     if (msgDatabase) {
@@ -115,7 +113,7 @@ StandaloneFolderDisplayWidget.prototype = {
   },
 
   _superSelectedMessageUrisGetter:
-    FolderDisplayWidget.prototype.__lookupGetter__('selectedMessageUris'),
+    FolderDisplayWidget.prototype.__lookupGetter__("selectedMessageUris"),
   /**
    * Check with the message display widget to see if it has a dummy; if so, just
    *  return the dummy's URI, as the nsMsgDBView logic that our superclass uses
@@ -124,28 +122,27 @@ StandaloneFolderDisplayWidget.prototype = {
   get selectedMessageUris() {
     if (this.messageDisplay.displayedUri)
       return [this.messageDisplay.displayedUri];
-    return this._superSelectedMessageUrisGetter.call(this);
+    return this._superSelectedMessageUrisGetter();
   },
 
-  /// folder display will want to show the thread pane; we need do nothing
-  _showThreadPane: function () {},
-  _showAccountCentral: function () {},
+  // folder display will want to show the thread pane; we need do nothing
+  _showThreadPane() {},
+  _showAccountCentral() {},
 
-  _updateThreadDisplay: function () {},
+  _updateThreadDisplay() {},
 
   // we don't care about columns.
-  setColumnStates: function () {},
-  getColumnStates: function () { return {}; },
-  _depersistColumnStateFromDbFolderInfo: function () { return {}; },
-  _getDefaultColumnsForCurrentFolder: function () { return {}; },
-  _persistColumnStates: function () {},
-  _saveColumnStates: function () {},
-  _restoreColumnStates: function() {},
+  setColumnStates() {},
+  getColumnStates() { return {}; },
+  _depersistColumnStateFromDbFolderInfo() { return {}; },
+  _getDefaultColumnsForCurrentFolder() { return {}; },
+  _persistColumnStates() {},
+  _saveColumnStates() {},
+  _restoreColumnStates() {},
 
-  onMessageCountsChanged:
-      function StandaloneFolderDisplayWidget_onMessageCountsChaned() {
+  onMessageCountsChanged() {
     UpdateStatusMessageCounts();
-  }
+  },
 };
 
 /**
@@ -183,24 +180,23 @@ StandaloneMessageDisplayWidget.prototype = {
   },
   set visible(aIgnored) {
   },
-  /// We're always active
+  // We're always active
   _active: true,
   active: true,
   /**
    * Since we're always active, there's no reason for us to do anything with
    * makeActive or makeInactive.
    */
-  makeActive: function StandaloneMessageDisplayWidget_makeActive() {
+  makeActive() {
   },
 
-  makeInactive: function StandaloneMessageDisplayWidget_makeInactive() {
+  makeInactive() {
   },
 
   /**
    * Display the external message (from disk or attachment) named by the URI.
    */
-  displayExternalMessage:
-      function StandaloneMessageDisplayWidget_displayExternalMessage(aUri) {
+  displayExternalMessage(aUri) {
     this.isDummy = true;
     this.displayedUri = aUri;
     this.onDisplayingMessage(messageHeaderSink.dummyMsgHeader);
@@ -210,16 +206,15 @@ StandaloneMessageDisplayWidget.prototype = {
     this.folderDisplay.view.dbView.loadMessageByUrl(aUri);
   },
 
-  clearDisplay: function () {
+  clearDisplay() {
     this.messageLoading = false;
     this.messageLoaded = false;
   },
-  _updateActiveMessagePane: function() {
+  _updateActiveMessagePane() {
     // no-op.  the message pane is always visible.
   },
 
-  onDisplayingMessage:
-      function StandaloneMessageDisplayWidget_onDisplayingMessage(aMsgHdr) {
+  onDisplayingMessage(aMsgHdr) {
     this.__proto__.__proto__.onDisplayingMessage.call(this, aMsgHdr);
 
     // - set the window title to the message subject (and maybe the app name)
@@ -247,7 +242,7 @@ StandaloneMessageDisplayWidget.prototype = {
     this.aboutToLoadMessage = false;
   },
 
-  onSelectedMessagesChanged: function () {
+  onSelectedMessagesChanged() {
     // When switching folders, we won't have any selection for a while.
     if (!this.folderDisplay.view.dbView)
       return true;
@@ -264,8 +259,7 @@ StandaloneMessageDisplayWidget.prototype = {
     return false;
   },
 
-  onMessagesRemoved:
-      function StandaloneMessageDisplayWidget_onMessagesRemoved() {
+  onMessagesRemoved() {
     if (!this.folderDisplay.treeSelection)
       return true;
     if (this.folderDisplay.treeSelection.count == 0 &&
@@ -281,12 +275,10 @@ var messagepaneObserver = {
 
   canHandleMultipleItems: false,
 
-  onDrop: function (aEvent, aData, aDragSession)
-  {
+  onDrop(aEvent, aData, aDragSession) {
     var sourceUri = aData.data;
     if (!gFolderDisplay.selectedMessage ||
-        sourceUri != gFolderDisplay.selectedMessageUris[0])
-    {
+        sourceUri != gFolderDisplay.selectedMessageUris[0]) {
       var msgHdr = messenger.msgHdrFromURI(sourceUri);
       let originGlobal = aDragSession.sourceNode.ownerDocument.defaultValue;
       gFolderDisplay.cloneView(originGlobal.gFolderDisplay.view);
@@ -294,47 +286,40 @@ var messagepaneObserver = {
     }
   },
 
-  onDragOver: function (aEvent, aFlavour, aDragSession)
-  {
+  onDragOver(aEvent, aFlavour, aDragSession) {
     var messagepanebox = document.getElementById("messagepanebox");
     messagepanebox.setAttribute("dragover", "true");
   },
 
-  onDragExit: function (aEvent, aDragSession)
-  {
+  onDragExit(aEvent, aDragSession) {
     var messagepanebox = document.getElementById("messagepanebox");
     messagepanebox.removeAttribute("dragover");
   },
 
-  canDrop: function(aEvent, aDragSession)  //allow drop from mail:3pane window only - 4xp
-  {
+  canDrop(aEvent, aDragSession) { // allow drop from mail:3pane window only - 4xp
     var doc = aDragSession.sourceNode.ownerDocument;
     var elem = doc.getElementById("messengerWindow");
     return (elem && (elem.getAttribute("windowtype") == "mail:3pane"));
   },
 
-  getSupportedFlavours: function ()
-  {
+  getSupportedFlavours() {
     var flavourSet = new FlavourSet();
     flavourSet.appendFlavour("text/x-moz-message");
     return flavourSet;
-  }
+  },
 };
 
-function UpdateStatusMessageCounts()
-{
+function UpdateStatusMessageCounts() {
   // hook for extra toolbar items
   Services.obs.notifyObservers(window, "mail:updateStandAloneMessageCounts");
 }
 
 // we won't show the window until the onload() handler is finished
 // so we do this trick (suggested by hyatt / blaker)
-function OnLoadMessageWindow()
-{
+function OnLoadMessageWindow() {
   // Set a sane starting width/height for all resolutions on new profiles.
   // Do this before the window loads.
-  if (!document.documentElement.hasAttribute("width"))
-  {
+  if (!document.documentElement.hasAttribute("width")) {
     // Prefer 860xfull height.
     let defaultHeight = screen.availHeight;
     let defaultWidth = (screen.availWidth >= 860) ? 860 : screen.availWidth;
@@ -354,8 +339,7 @@ function OnLoadMessageWindow()
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 }
 
-function delayedOnLoadMessageWindow()
-{
+function delayedOnLoadMessageWindow() {
   HideMenus();
   ShowMenus();
   MailOfflineMgr.init();
@@ -367,13 +351,13 @@ function delayedOnLoadMessageWindow()
    *  finishes streaming when it's a dummy.
    */
   gMessageListeners.push({
-    onStartHeaders: function () {},
-    onEndHeaders: function() {
+    onStartHeaders() {},
+    onEndHeaders() {
       if (gMessageDisplay.isDummy)
         gMessageDisplay.onDisplayingMessage(messageHeaderSink.dummyMsgHeader);
       UpdateMailToolbar(".eml/message from attachment finished loading");
     },
-    onEndAttachments: function () {},
+    onEndAttachments() {},
   });
 
   InitMsgWindow();
@@ -388,7 +372,7 @@ function delayedOnLoadMessageWindow()
   var toolbox = document.getElementById("mail-toolbox");
   toolbox.customizeDone = function(aEvent) { MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar"); };
 
-  var toolbarset = document.getElementById('customToolbars');
+  var toolbarset = document.getElementById("customToolbars");
   toolbox.toolbarset = toolbarset;
 
   SetupCommandUpdateHandlers();
@@ -431,8 +415,7 @@ function actuallyLoadMessage() {
    *   1: A folder URI.  If arg 0 was an nsIURI, it may have had a folder attribute.
    *   2: The nsIMsgDBView used to open us.
    */
-  if (window.arguments && window.arguments.length)
-  {
+  if (window.arguments && window.arguments.length) {
     let msgHdr = null, originViewWrapper = null;
     // message header as an object?
     if ("wrappedJSObject" in window.arguments[0]) {
@@ -440,9 +423,8 @@ function actuallyLoadMessage() {
       msgHdr = hdrObject.msgHdr;
       if ("viewWrapperToClone" in hdrObject)
         originViewWrapper = hdrObject.viewWrapperToClone;
-    }
-    // message header as a separate param?
-    else if (window.arguments[0] instanceof Ci.nsIMsgDBHdr) {
+    } else if (window.arguments[0] instanceof Ci.nsIMsgDBHdr) {
+      // message header as a separate param?
       msgHdr = window.arguments[0];
       originViewWrapper = window.arguments.length > 1 ?
         window.arguments[1] : null;
@@ -458,16 +440,13 @@ function actuallyLoadMessage() {
           originViewWrapper.dbView.findIndexOfMsgHdr(msgHdr, true);
 
         gFolderDisplay.cloneView(originViewWrapper);
-      }
-      else {
+      } else {
         // Create a synthetic message view for the header
         let synView = new MsgHdrSyntheticView(msgHdr);
         gFolderDisplay.show(synView);
       }
       gFolderDisplay.selectMessage(msgHdr);
-    }
-    // it must be a URI for a message lacking a backing header
-    else {
+    } else { // it must be a URI for a message lacking a backing header
       // Here's how this goes.  nsMessenger::LoadURL checks out the URL we
       //  pass it, and if it sees that the URI starts with "file:" or contains
       //  "type=application/x-message-display" then it knows it needs to
@@ -503,8 +482,7 @@ function actuallyLoadMessage() {
  * @param aViewWrapperToClone [optional] a DB view wrapper to clone for the
  *                            message window
  */
-function displayMessage(aMsgHdr, aViewWrapperToClone)
-{
+function displayMessage(aMsgHdr, aViewWrapperToClone) {
   // We're about to load another message, so make sure we don't close this
   // window
   gMessageDisplay.aboutToLoadMessage = true;
@@ -519,8 +497,7 @@ function displayMessage(aMsgHdr, aViewWrapperToClone)
       aViewWrapperToClone.dbView.findIndexOfMsgHdr(aMsgHdr, true);
 
     gFolderDisplay.cloneView(aViewWrapperToClone);
-  }
-  else {
+  } else {
     // Create a synthetic message view for the header
     let synView = new MsgHdrSyntheticView(aMsgHdr);
     gFolderDisplay.show(synView);
@@ -533,33 +510,32 @@ function displayMessage(aMsgHdr, aViewWrapperToClone)
   window.focus();
 }
 
-function ShowMenus()
-{
-  var openMail3Pane_menuitem = document.getElementById('tasksMenuMail');
+function ShowMenus() {
+  var openMail3Pane_menuitem = document.getElementById("tasksMenuMail");
   if (openMail3Pane_menuitem)
     openMail3Pane_menuitem.removeAttribute("hidden");
-  openMail3Pane_menuitem = document.getElementById('appmenu_tasksMenuMail');
+  openMail3Pane_menuitem = document.getElementById("appmenu_tasksMenuMail");
   if (openMail3Pane_menuitem)
     openMail3Pane_menuitem.removeAttribute("hidden");
 }
 
-function HideMenus()
-{
+/* eslint-disable complexity */
+function HideMenus() {
   // TODO: Seems to be a lot of repetitive code.
   // Can we just fold this into an array of element IDs and loop over them?
-  var message_menuitem=document.getElementById('menu_showMessage');
+  var message_menuitem = document.getElementById("menu_showMessage");
   if (message_menuitem)
     message_menuitem.setAttribute("hidden", "true");
 
-  message_menuitem = document.getElementById('appmenu_showMessage');
+  message_menuitem = document.getElementById("appmenu_showMessage");
   if (message_menuitem)
     message_menuitem.setAttribute("hidden", "true");
 
-  var folderPane_menuitem=document.getElementById('menu_showFolderPane');
+  var folderPane_menuitem = document.getElementById("menu_showFolderPane");
   if (folderPane_menuitem)
     folderPane_menuitem.setAttribute("hidden", "true");
 
-  folderPane_menuitem = document.getElementById('appmenu_showFolderPane');
+  folderPane_menuitem = document.getElementById("appmenu_showFolderPane");
   if (folderPane_menuitem)
     folderPane_menuitem.setAttribute("hidden", "true");
 
@@ -571,27 +547,27 @@ function HideMenus()
   if (folderPaneCols_menuitem)
     folderPaneCols_menuitem.setAttribute("hidden", "true");
 
-  var showSearch_showMessage_Separator = document.getElementById('menu_showSearch_showMessage_Separator');
+  var showSearch_showMessage_Separator = document.getElementById("menu_showSearch_showMessage_Separator");
   if (showSearch_showMessage_Separator)
     showSearch_showMessage_Separator.setAttribute("hidden", "true");
 
-  var expandOrCollapseMenu = document.getElementById('menu_expandOrCollapse');
+  var expandOrCollapseMenu = document.getElementById("menu_expandOrCollapse");
   if (expandOrCollapseMenu)
     expandOrCollapseMenu.setAttribute("hidden", "true");
 
-  var menuDeleteFolder = document.getElementById('menu_deleteFolder');
+  var menuDeleteFolder = document.getElementById("menu_deleteFolder");
   if (menuDeleteFolder)
     menuDeleteFolder.hidden = true;
 
-  menuDeleteFolder = document.getElementById('appmenu_deleteFolder');
+  menuDeleteFolder = document.getElementById("appmenu_deleteFolder");
   if (menuDeleteFolder)
     menuDeleteFolder.hidden = true;
 
-  var renameFolderMenu = document.getElementById('menu_renameFolder');
+  var renameFolderMenu = document.getElementById("menu_renameFolder");
   if (renameFolderMenu)
     renameFolderMenu.setAttribute("hidden", "true");
 
-  renameFolderMenu = document.getElementById('appmenu_renameFolder');
+  renameFolderMenu = document.getElementById("appmenu_renameFolder");
   if (renameFolderMenu)
     renameFolderMenu.setAttribute("hidden", "true");
 
@@ -615,59 +591,59 @@ function HideMenus()
   if (viewFolderMenu)
     viewFolderMenu.setAttribute("hidden", "true");
 
-  var viewMessagesMenu = document.getElementById('viewMessagesMenu');
+  var viewMessagesMenu = document.getElementById("viewMessagesMenu");
   if (viewMessagesMenu)
     viewMessagesMenu.setAttribute("hidden", "true");
 
-  viewMessagesMenu = document.getElementById('appmenu_viewMessagesMenu');
+  viewMessagesMenu = document.getElementById("appmenu_viewMessagesMenu");
   if (viewMessagesMenu)
     viewMessagesMenu.setAttribute("hidden", "true");
 
-  var viewMessageViewMenu = document.getElementById('viewMessageViewMenu');
+  var viewMessageViewMenu = document.getElementById("viewMessageViewMenu");
   if (viewMessageViewMenu)
     viewMessageViewMenu.setAttribute("hidden", "true");
 
-  viewMessageViewMenu = document.getElementById('appmenu_viewMessageViewMenu');
+  viewMessageViewMenu = document.getElementById("appmenu_viewMessageViewMenu");
   if (viewMessageViewMenu)
     viewMessageViewMenu.setAttribute("hidden", "true");
 
-  var viewMessagesMenuSeparator = document.getElementById('viewMessagesMenuSeparator');
+  var viewMessagesMenuSeparator = document.getElementById("viewMessagesMenuSeparator");
   if (viewMessagesMenuSeparator)
     viewMessagesMenuSeparator.setAttribute("hidden", "true");
 
-  viewMessagesMenuSeparator = document.getElementById('appmenu_viewMessagesMenuSeparator');
+  viewMessagesMenuSeparator = document.getElementById("appmenu_viewMessagesMenuSeparator");
   if (viewMessagesMenuSeparator)
     viewMessagesMenuSeparator.setAttribute("hidden", "true");
 
-  var openMessageMenu = document.getElementById('openMessageWindowMenuitem');
+  var openMessageMenu = document.getElementById("openMessageWindowMenuitem");
   if (openMessageMenu)
     openMessageMenu.setAttribute("hidden", "true");
 
-  openMessageMenu = document.getElementById('appmenu_openMessageWindowMenuitem');
+  openMessageMenu = document.getElementById("appmenu_openMessageWindowMenuitem");
   if (openMessageMenu)
     openMessageMenu.setAttribute("hidden", "true");
 
-  var viewSortMenuSeparator = document.getElementById('viewSortMenuSeparator');
+  var viewSortMenuSeparator = document.getElementById("viewSortMenuSeparator");
   if (viewSortMenuSeparator)
     viewSortMenuSeparator.setAttribute("hidden", "true");
 
-  viewSortMenuSeparator = document.getElementById('appmenu_viewAfterThreadsSeparator');
+  viewSortMenuSeparator = document.getElementById("appmenu_viewAfterThreadsSeparator");
   if (viewSortMenuSeparator)
     viewSortMenuSeparator.setAttribute("hidden", "true");
 
-  var viewSortMenu = document.getElementById('viewSortMenu');
+  var viewSortMenu = document.getElementById("viewSortMenu");
   if (viewSortMenu)
     viewSortMenu.setAttribute("hidden", "true");
 
-  viewSortMenu = document.getElementById('appmenu_viewSortMenu');
+  viewSortMenu = document.getElementById("appmenu_viewSortMenu");
   if (viewSortMenu)
     viewSortMenu.setAttribute("hidden", "true");
 
-  var emptryTrashMenu = document.getElementById('menu_emptyTrash');
+  var emptryTrashMenu = document.getElementById("menu_emptyTrash");
   if (emptryTrashMenu)
     emptryTrashMenu.setAttribute("hidden", "true");
 
-  emptryTrashMenu = document.getElementById('appmenu_emptyTrash');
+  emptryTrashMenu = document.getElementById("appmenu_emptyTrash");
   if (emptryTrashMenu)
     emptryTrashMenu.setAttribute("hidden", "true");
 
@@ -679,68 +655,67 @@ function HideMenus()
   if (menuPropertiesSeparator)
     menuPropertiesSeparator.setAttribute("hidden", "true");
 
-  var menuProperties = document.getElementById('menu_properties');
+  var menuProperties = document.getElementById("menu_properties");
   if (menuProperties)
     menuProperties.setAttribute("hidden", "true");
 
-  menuProperties = document.getElementById('appmenu_properties');
+  menuProperties = document.getElementById("appmenu_properties");
   if (menuProperties)
     menuProperties.setAttribute("hidden", "true");
 
-  var favoriteFolder = document.getElementById('menu_favoriteFolder');
-  if (favoriteFolder)
-  {
-    favoriteFolder.setAttribute("disabled", "true");
-    favoriteFolder.setAttribute("hidden", "true");
-  }
-
-  favoriteFolder = document.getElementById('appmenu_favoriteFolder');
+  var favoriteFolder = document.getElementById("menu_favoriteFolder");
   if (favoriteFolder) {
     favoriteFolder.setAttribute("disabled", "true");
     favoriteFolder.setAttribute("hidden", "true");
   }
 
-  var compactFolderMenu = document.getElementById('menu_compactFolder');
+  favoriteFolder = document.getElementById("appmenu_favoriteFolder");
+  if (favoriteFolder) {
+    favoriteFolder.setAttribute("disabled", "true");
+    favoriteFolder.setAttribute("hidden", "true");
+  }
+
+  var compactFolderMenu = document.getElementById("menu_compactFolder");
   if (compactFolderMenu)
     compactFolderMenu.setAttribute("hidden", "true");
 
-  compactFolderMenu = document.getElementById('appmenu_compactFolder');
+  compactFolderMenu = document.getElementById("appmenu_compactFolder");
   if (compactFolderMenu)
     compactFolderMenu.setAttribute("hidden", "true");
 
-  var trashSeparator = document.getElementById('trashMenuSeparator');
+  var trashSeparator = document.getElementById("trashMenuSeparator");
   if (trashSeparator)
     trashSeparator.setAttribute("hidden", "true");
 
-  let fileMenuAfterRenameSeparator = document.getElementById('appmenu_fileMenuAfterRenameSeparator');
+  let fileMenuAfterRenameSeparator = document.getElementById("appmenu_fileMenuAfterRenameSeparator");
   if (fileMenuAfterRenameSeparator)
     fileMenuAfterRenameSeparator.setAttribute("hidden", "true");
 
-  let fileMenuAfterCompactSeparator = document.getElementById('appmenu_fileMenuAfterCompactSeparator');
+  let fileMenuAfterCompactSeparator = document.getElementById("appmenu_fileMenuAfterCompactSeparator");
   if (fileMenuAfterCompactSeparator)
     fileMenuAfterCompactSeparator.setAttribute("hidden", "true");
 
-  var goStartPageSeparator = document.getElementById('goNextSeparator');
+  var goStartPageSeparator = document.getElementById("goNextSeparator");
   if (goStartPageSeparator)
     goStartPageSeparator.hidden = true;
 
-  goStartPageSeparator = document.getElementById('appmenu_goNextSeparator');
+  goStartPageSeparator = document.getElementById("appmenu_goNextSeparator");
   if (goStartPageSeparator)
     goStartPageSeparator.hidden = true;
 
-  let goRecentlyClosedTabsSeparator = document.getElementById('goRecentlyClosedTabsSeparator');
+  let goRecentlyClosedTabsSeparator = document.getElementById("goRecentlyClosedTabsSeparator");
   if (goRecentlyClosedTabsSeparator)
     goRecentlyClosedTabsSeparator.setAttribute("hidden", "true");
 
-  goRecentlyClosedTabsSeparator = document.getElementById('appmenu_goRecentlyClosedTabsSeparator');
+  goRecentlyClosedTabsSeparator = document.getElementById("appmenu_goRecentlyClosedTabsSeparator");
   if (goRecentlyClosedTabsSeparator)
     goRecentlyClosedTabsSeparator.setAttribute("hidden", "true");
 
-  let goFolder = document.getElementById('goFolderMenu');
+  let goFolder = document.getElementById("goFolderMenu");
   if (goFolder)
     goFolder.hidden = true;
 
-  goFolder = document.getElementById('appmenu_goFolderMenu');
+  goFolder = document.getElementById("appmenu_goFolderMenu");
   if (goFolder)
     goFolder.hidden = true;
 
@@ -752,26 +727,26 @@ function HideMenus()
   if (goFolder)
     goFolder.hidden = true;
 
-  var goStartPage = document.getElementById('goStartPage');
+  var goStartPage = document.getElementById("goStartPage");
   if (goStartPage)
    goStartPage.hidden = true;
 
-  goStartPage = document.getElementById('appmenu_goStartPage');
+  goStartPage = document.getElementById("appmenu_goStartPage");
   if (goStartPage)
    goStartPage.hidden = true;
 
-  let quickFilterBar = document.getElementById('appmenu_quickFilterBar');
+  let quickFilterBar = document.getElementById("appmenu_quickFilterBar");
   if (quickFilterBar)
    quickFilterBar.hidden = true;
 
-  var menuFileClose = document.getElementById('menu_close');
-  var menuFileQuit = document.getElementById('menu_FileQuitItem');
+  var menuFileClose = document.getElementById("menu_close");
+  var menuFileQuit = document.getElementById("menu_FileQuitItem");
   if (menuFileClose && menuFileQuit)
     menuFileQuit.parentNode.replaceChild(menuFileClose, menuFileQuit);
 }
+/* eslint-enable complexity */
 
-function OnUnloadMessageWindow()
-{
+function OnUnloadMessageWindow() {
   if (gFolderDisplay._magicTreeSelection) {
     // Avoid cycle leaks.
     gFolderDisplay._magicTreeSelection.tree = null;
@@ -787,20 +762,17 @@ function OnUnloadMessageWindow()
   OnMailWindowUnload();
 }
 
-function GetSelectedMsgFolders()
-{
+function GetSelectedMsgFolders() {
   if (gFolderDisplay.displayedFolder)
     return [gFolderDisplay.displayedFolder];
   return [];
 }
 
-function GetNumSelectedMessages()
-{
+function GetNumSelectedMessages() {
   return gFolderDisplay.selectedCount;
 }
 
-function ReloadMessage()
-{
+function ReloadMessage() {
   // If the current message was loaded from a file or attachment, so the dbView
   // can't handle reloading it. Let's do it ourselves, instead.
   if (window.arguments[0] instanceof Ci.nsIURI)
@@ -810,12 +782,10 @@ function ReloadMessage()
 }
 
 // MessageWindowController object (handles commands when one of the trees does not have focus)
-var MessageWindowController =
-{
-  supportsCommand: function(command)
-  {
-    switch ( command )
-    {
+var MessageWindowController = {
+  /* eslint-disable complexity */
+  supportsCommand(command) {
+    switch (command) {
       // external messages cannot be deleted, mutated, or subjected to filtering
       case "cmd_delete":
       case "cmd_killThread":
@@ -931,11 +901,9 @@ var MessageWindowController =
     }
   },
 
-  isCommandEnabled: function(command)
-  {
+  isCommandEnabled(command) {
     let loadedFolder;
-    switch ( command )
-    {
+    switch (command) {
       case "cmd_createFilterFromPopup":
       case "cmd_createFilterFromMenu":
         loadedFolder = gFolderDisplay.displayedFolder;
@@ -1091,30 +1059,26 @@ var MessageWindowController =
     }
   },
 
-  doCommand: function(command)
-  {
+  doCommand(command) {
     // If the user invoked a key short cut then it is possible that we got here
     // for a command which is really disabled. Kick out if the command should be disabled.
     if (!this.isCommandEnabled(command))
       return;
 
-    var navigationType = nsMsgNavigationType.nextUnreadMessage;
-
-    switch (command)
-    {
-    case "cmd_getNewMessages":
-      MsgGetMessage();
-      break;
-        case "cmd_undo":
-            messenger.undo(msgWindow);
-            break;
-        case "cmd_redo":
-            messenger.redo(msgWindow);
-            break;
-        case "cmd_getMsgsForAuthAccounts":
-          MsgGetMessagesForAllAuthenticatedAccounts();
-          break;
-        case "cmd_getNextNMessages":
+    switch (command) {
+      case "cmd_getNewMessages":
+        MsgGetMessage();
+        break;
+      case "cmd_undo":
+        messenger.undo(msgWindow);
+        break;
+      case "cmd_redo":
+        messenger.redo(msgWindow);
+        break;
+      case "cmd_getMsgsForAuthAccounts":
+        MsgGetMessagesForAllAuthenticatedAccounts();
+        break;
+      case "cmd_getNextNMessages":
         MsgGetNextNMessages();
         break;
       case "cmd_archive":
@@ -1210,10 +1174,10 @@ var MessageWindowController =
         document.getElementById("FindToolbar").onFindCommand();
         break;
       case "cmd_findAgain":
-        document.getElementById("FindToolbar").onFindAgainCommand(false)
+        document.getElementById("FindToolbar").onFindAgainCommand(false);
         break;
       case "cmd_findPrevious":
-        document.getElementById("FindToolbar").onFindAgainCommand(true)
+        document.getElementById("FindToolbar").onFindAgainCommand(true);
         break;
       case "cmd_search":
         MsgSearchMessages();
@@ -1347,8 +1311,7 @@ var MessageWindowController =
         if (win) {
           win.focus();
           win.showChatTab();
-        }
-        else {
+        } else {
           window.openDialog("chrome://messenger/content/", "_blank",
                             "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
                             null, {tabType: "chat", tabParams: {}});
@@ -1356,14 +1319,13 @@ var MessageWindowController =
         break;
       }
   },
+  /* eslint-enable complexity */
 
-  onEvent: function(event)
-  {
-  }
+  onEvent(event) {
+  },
 };
 
-function performNavigation(type)
-{
+function performNavigation(type) {
   // Try to load a message by navigation type if we can find
   // the message in the same folder.
   if (gFolderDisplay.navigate(type))
@@ -1372,28 +1334,24 @@ function performNavigation(type)
   CrossFolderNavigation(type);
 }
 
-function SetupCommandUpdateHandlers()
-{
+function SetupCommandUpdateHandlers() {
   top.controllers.insertControllerAt(0, MessageWindowController);
 }
 
-function UnloadCommandUpdateHandlers()
-{
+function UnloadCommandUpdateHandlers() {
   top.controllers.removeController(MessageWindowController);
 }
 
-function getMailToolbox ()
-{
+function getMailToolbox() {
   return document.getElementById("mail-toolbox");
 }
 
-function RestoreFocusAfterHdrButton()
-{
+function RestoreFocusAfterHdrButton() {
   // set focus to the message pane
   window.content.focus();
 }
 
-function SelectFolder (aFolderUri) {
+function SelectFolder(aFolderUri) {
   gFolderDisplay.clearSelection();
   gFolderDisplay.treeSelection.currentIndex = -1;
   gFolderDisplay.show(MailUtils.getFolderForURI(aFolderUri));

@@ -14,37 +14,37 @@ var reporterListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
 
-  onStateChange: function(/*in nsIWebProgress*/ aWebProgress,
-                     /*in nsIRequest*/ aRequest,
-                     /*in unsigned long*/ aStateFlags,
-                     /*in nsresult*/ aStatus) {
+  onStateChange(/* in nsIWebProgress*/ aWebProgress,
+                /* in nsIRequest*/ aRequest,
+                /* in unsigned long*/ aStateFlags,
+                /* in nsresult*/ aStatus) {
   },
 
-  onProgressChange: function(/*in nsIWebProgress*/ aWebProgress,
-                        /*in nsIRequest*/ aRequest,
-                        /*in long*/ aCurSelfProgress,
-                        /*in long */aMaxSelfProgress,
-                        /*in long */aCurTotalProgress,
-                        /*in long */aMaxTotalProgress) {
+  onProgressChange(/* in nsIWebProgress*/ aWebProgress,
+                   /* in nsIRequest*/ aRequest,
+                   /* in long*/ aCurSelfProgress,
+                   /* in long */aMaxSelfProgress,
+                   /* in long */aCurTotalProgress,
+                   /* in long */aMaxTotalProgress) {
   },
 
-  onLocationChange: function(/*in nsIWebProgress*/ aWebProgress,
-                        /*in nsIRequest*/ aRequest,
-                        /*in nsIURI*/ aLocation) {
+  onLocationChange(/* in nsIWebProgress*/ aWebProgress,
+                   /* in nsIRequest*/ aRequest,
+                   /* in nsIURI*/ aLocation) {
     document.getElementById("headerMessage").textContent = aLocation.spec;
   },
 
-  onStatusChange: function(/*in nsIWebProgress*/ aWebProgress,
-                      /*in nsIRequest*/ aRequest,
-                      /*in nsresult*/ aStatus,
-                      /*in wstring*/ aMessage) {
+  onStatusChange(/* in nsIWebProgress*/ aWebProgress,
+                 /* in nsIRequest*/ aRequest,
+                 /* in nsresult*/ aStatus,
+                 /* in wstring*/ aMessage) {
   },
 
-  onSecurityChange: function(/*in nsIWebProgress*/ aWebProgress,
-                        /*in nsIRequest*/ aRequest,
-                        /*in unsigned long*/ aOldState,
-                        /*in unsigned long*/ aState,
-                        /*in AString*/ aContentBlockingLogJSON) {
+  onSecurityChange(/* in nsIWebProgress*/ aWebProgress,
+                   /* in nsIRequest*/ aRequest,
+                   /* in unsigned long*/ aOldState,
+                   /* in unsigned long*/ aState,
+                   /* in AString*/ aContentBlockingLogJSON) {
     const wpl_security_bits = wpl.STATE_IS_SECURE |
                               wpl.STATE_IS_BROKEN |
                               wpl.STATE_IS_INSECURE |
@@ -75,26 +75,22 @@ var reporterListener = {
     }
     this.securityButton.setAttribute("tooltiptext",
                                      browser.securityUI.tooltipText);
-  }
-}
+  },
+};
 
-function cancelRequest()
-{
+function cancelRequest() {
   reportUserClosed();
   window.close();
 }
 
-function reportUserClosed()
-{
+function reportUserClosed() {
   let request = window.arguments[0].wrappedJSObject;
   request.cancelled();
 }
 
-function loadRequestedUrl()
-{
+function loadRequestedUrl() {
   let request = window.arguments[0].wrappedJSObject;
   document.getElementById("headerMessage").textContent = request.promptText;
-  let account = request.account;
   if (request.iconURI != "")
     document.getElementById("headerImage").src = request.iconURI;
 

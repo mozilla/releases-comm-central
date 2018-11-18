@@ -22,8 +22,7 @@ function onUnload(aEvent) {
 }
 
 
-function appUpdater()
-{
+function appUpdater() {
   this.updateDeck = document.getElementById("updateDeck");
   this.promiseAutoUpdateSetting;
 
@@ -85,8 +84,7 @@ function appUpdater()
   this.checkForUpdates();
 }
 
-appUpdater.prototype =
-{
+appUpdater.prototype = {
   // true when there is an update check in progress.
   isChecking: false,
 
@@ -140,7 +138,7 @@ appUpdater.prototype =
    * @param  aChildID
    *         The id of the deck's child to select, e.g. "apply".
    */
-  selectPanel: function(aChildID) {
+  selectPanel(aChildID) {
     let panel = document.getElementById(aChildID);
 
     let button = panel.querySelector("button");
@@ -171,7 +169,7 @@ appUpdater.prototype =
   /**
    * Check for updates
    */
-  checkForUpdates: function() {
+  checkForUpdates() {
     // Clear prefs that could prevent a user from discovering available updates.
     if (Services.prefs.prefHasUserValue(PREF_APP_UPDATE_CANCELATIONS_OSX)) {
       Services.prefs.clearUserPref(PREF_APP_UPDATE_CANCELATIONS_OSX);
@@ -189,7 +187,7 @@ appUpdater.prototype =
    * Handles oncommand for the "Restart to Update" button
    * which is presented after the download has been downloaded.
    */
-  buttonRestartAfterDownload: function() {
+  buttonRestartAfterDownload() {
     if (!this.isPending && !this.isApplied) {
       return;
     }
@@ -204,17 +202,13 @@ appUpdater.prototype =
       return;
     }
 
-    let appStartup = Cc["@mozilla.org/toolkit/app-startup;1"].
-                     getService(Ci.nsIAppStartup);
-
     // If already in safe mode restart in safe mode (bug 327119)
     if (Services.appinfo.inSafeMode) {
-      appStartup.restartInSafeMode(Ci.nsIAppStartup.eAttemptQuit);
+      Services.startup.restartInSafeMode(Services.startup.eAttemptQuit);
       return;
     }
 
-    appStartup.quit(Ci.nsIAppStartup.eAttemptQuit |
-                    Ci.nsIAppStartup.eRestart);
+    Services.startup.quit(Services.startup.eAttemptQuit | Services.startup.eRestart);
   },
 
   /**
@@ -226,7 +220,7 @@ appUpdater.prototype =
     /**
      * See nsIUpdateService.idl
      */
-    onCheckComplete: function(aRequest, aUpdates, aUpdateCount) {
+    onCheckComplete(aRequest, aUpdates, aUpdateCount) {
       gAppUpdater.isChecking = false;
       gAppUpdater.update = gAppUpdater.aus.
                            selectUpdate(aUpdates, aUpdates.length);
@@ -266,13 +260,12 @@ appUpdater.prototype =
     /**
      * See nsIUpdateService.idl
      */
-    onError: function(aRequest, aUpdate) {
+    onError(aRequest, aUpdate) {
       // Errors in the update check are treated as no updates found. If the
       // update check fails repeatedly without a success the user will be
       // notified with the normal app update user interface so this is safe.
       gAppUpdater.isChecking = false;
       gAppUpdater.selectPanel("noUpdatesFound");
-      return;
     },
 
     /**
@@ -284,7 +277,7 @@ appUpdater.prototype =
   /**
    * Starts the download of an update mar.
    */
-  startDownload: function() {
+  startDownload() {
     if (!this.update)
       this.update = this.um.activeUpdate;
     this.update.QueryInterface(Ci.nsIWritablePropertyBag);
@@ -303,7 +296,7 @@ appUpdater.prototype =
   /**
    * Switches to the UI responsible for tracking the download.
    */
-  setupDownloadingUI: function() {
+  setupDownloadingUI() {
     this.downloadStatus = document.getElementById("downloadStatus");
     this.downloadStatus.value =
       DownloadUtils.getTransferTotal(0, this.update.selectedPatch.size);
@@ -311,7 +304,7 @@ appUpdater.prototype =
     this.aus.addDownloadListener(this);
   },
 
-  removeDownloadListener: function() {
+  removeDownloadListener() {
     if (this.aus) {
       this.aus.removeDownloadListener(this);
     }
@@ -320,13 +313,13 @@ appUpdater.prototype =
   /**
    * See nsIRequestObserver.idl
    */
-  onStartRequest: function(aRequest, aContext) {
+  onStartRequest(aRequest, aContext) {
   },
 
   /**
    * See nsIRequestObserver.idl
    */
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aContext, aStatusCode) {
     switch (aStatusCode) {
     case Cr.NS_ERROR_UNEXPECTED:
       if (this.update.selectedPatch.state == "download-failed" &&
@@ -347,7 +340,6 @@ appUpdater.prototype =
       this.removeDownloadListener();
       if (this.backgroundUpdateEnabled) {
         this.selectPanel("applying");
-        let update = this.um.activeUpdate;
         let self = this;
         Services.obs.addObserver(function selectPanelOnUpdate(aSubject, aTopic, aData) {
           // Update the UI when the background updater is finished
@@ -386,13 +378,13 @@ appUpdater.prototype =
   /**
    * See nsIProgressEventSink.idl
    */
-  onStatus: function(aRequest, aContext, aStatus, aStatusArg) {
+  onStatus(aRequest, aContext, aStatus, aStatusArg) {
   },
 
   /**
    * See nsIProgressEventSink.idl
    */
-  onProgress: function(aRequest, aContext, aProgress, aProgressMax) {
+  onProgress(aRequest, aContext, aProgress, aProgressMax) {
     this.downloadStatus.value =
       DownloadUtils.getTransferTotal(aProgress, aProgressMax);
   },

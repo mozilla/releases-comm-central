@@ -34,7 +34,7 @@
           span.textContent = aText;
           dis.appendChild(span);
           return span;
-        }
+        };
 
         let searchLabel = glodaFacetStrings.get(
           "glodaFacetView.search.label");
@@ -64,7 +64,7 @@
           span.textContent = aText;
           dis.appendChild(span);
           return span;
-        }
+        };
 
         let label = glodaFacetStrings.get(
           "glodaFacetView.search.label");
@@ -73,12 +73,12 @@
         let constraintStrings = [];
         for (let constraint of aMsgQuery._constraints) {
           if (constraint[0] != 1) return; // no idea what this is about
-          if (constraint[1].attributeName == 'involves') {
+          if (constraint[1].attributeName == "involves") {
             let involvesLabel = glodaFacetStrings.get(
               "glodaFacetView.constraints.query.involves.label");
-            involvesLabel = involvesLabel.replace("#1", constraint[2].value)
+            involvesLabel = involvesLabel.replace("#1", constraint[2].value);
             spanify(involvesLabel, "explanation-query-involves");
-          } else if (constraint[1].attributeName == 'tag') {
+          } else if (constraint[1].attributeName == "tag") {
             let tagLabel = glodaFacetStrings.get(
               "glodaFacetView.constraints.query.tagged.label");
             let tag = constraint[2];
@@ -90,7 +90,7 @@
             this.appendChild(tagNode);
           }
         }
-        label = label + constraintStrings.join(', '); // XXX l10n?
+        label = label + constraintStrings.join(", "); // XXX l10n?
       } catch (e) {
         logException(e);
       }
@@ -179,7 +179,7 @@
                                                                "count");
 
       let dis = this;
-      this.bubble.addEventListener("click", function (event) {
+      this.bubble.addEventListener("click", function(event) {
         return dis.bubbleClicked(event);
       }, true);
 
@@ -197,8 +197,7 @@
         if (val) {
           this.setAttribute("disabled", "true");
           this.checkbox.setAttribute("disabled", true);
-        }
-        else {
+        } else {
           this.removeAttribute("disabled");
           this.checkbox.removeAttribute("disabled");
         }
@@ -221,8 +220,7 @@
           if (!this.disabled)
             FacetContext.addFacetConstraint(this.faceter, true,
                                             this.trueGroups);
-        }
-        else {
+        } else {
           this.removeAttribute("checked");
           this.checkbox.removeAttribute("checked");
           if (!this.disabled)
@@ -253,7 +251,7 @@
         // If we do not currently have a constraint applied and there is only
         //  one (or no) group, then: disable us, but reflect the underlying
         //  state of the data (checked or non-checked)
-        if (!this.faceter.constraint && (this.orderedGroups.length <= 1)){
+        if (!this.faceter.constraint && (this.orderedGroups.length <= 1)) {
           this.disabled = true;
           let count = 0;
           if (this.orderedGroups.length) {
@@ -261,8 +259,7 @@
             if (this.orderedGroups[0][0]) {
               count = this.orderedGroups[0][1].length;
               this.checked = true;
-            }
-            else {
+            } else {
               this.checked = false;
             }
           }
@@ -280,7 +277,7 @@
         this.trueValues = [];
         this.trueGroups = [true];
         for (let groupPair of this.orderedGroups) {
-          if (groupPair[0] == true)
+          if (groupPair[0])
             this.trueValues = groupPair[1];
         }
 
@@ -389,9 +386,9 @@
         this.falseValues = [];
         let selectNodes = [];
         for (let groupPair of this.orderedGroups) {
-          if (groupPair[0] == null)
+          if (groupPair[0] === null) {
             this.falseValues.push.apply(this.falseValues, groupPair[1]);
-          else {
+          } else {
             this.trueValues.push.apply(this.trueValues, groupPair[1]);
 
             let groupValue = groupPair[0];
@@ -431,8 +428,7 @@
           this.selectedValue = "all";
           FacetContext.addFacetConstraint(this.faceter, true,
                                           this.trueGroups, false, true);
-        }
-        else {
+        } else {
           let groupValue = this.realTrueGroups[parseInt(this.filterNode.value)];
           this.selectedValue = groupValue.category;
           FacetContext.addFacetConstraint(this.faceter, true,
@@ -491,16 +487,15 @@
       <parameter name="groupValue"/>
       <parameter name="stringName"/>
       <body><![CDATA[
-        let label, labelFormat;
+        let labelFormat;
         if (stringName in facetDef.strings)
           labelFormat = facetDef.strings[stringName];
         else
           labelFormat = glodaFacetStrings.get(
-              "glodaFacetView.facets."+stringName+".fallbackLabel");
+              `glodaFacetView.facets.${stringName}.fallbackLabel`);
         if (!labelFormat.includes("#1"))
           return labelFormat;
-        else
-          return labelFormat.replace("#1", facetValue);
+        return labelFormat.replace("#1", facetValue);
       ]]></body>
     </method>
     <method name="build">
@@ -538,8 +533,6 @@
       <parameter name="delta"/>
       <body><![CDATA[
       try {
-        let parent = document.getAnonymousElementByAttribute(this,
-          "anonid", "parent");
         // We probably want something quite generic in the long term, but that
         // is way too much for now (needs to skip over invisible items, etc)
         let focused = document.activeElement;
@@ -586,7 +579,7 @@
           let label = barNode.querySelector(".bar-link").textContent;
           this.build(facetDef, label, groupValue);
           this.node.setAttribute("selected", "true");
-          var rtl = window.getComputedStyle(this, null).direction == "rtl";
+          var rtl = window.getComputedStyle(this).direction == "rtl";
           /* We show different menus if we're on an "unselected" facet value,
              or if we're on a preselected facet value, whether included or
              excluded. The variety attribute handles that through CSS */
@@ -762,8 +755,7 @@
         this.modes = ["all"];
         if (this.maxDisplayRows >= this.orderedGroups.length) {
           this.mode = "all";
-        }
-        else {
+        } else {
           // top mode must be used
           this.modes.push("top");
           this.mode = "top";
@@ -836,7 +828,7 @@
         if ("userVisibleString" in nounDef) {
           ambiguousKeyValues = {};
           for (let groupPair of useGroups) {
-            let [groupValue, groupItems] = groupPair;
+            let [groupValue] = groupPair;
 
             // skip null values, they are handled by the none special-case
             if (groupValue == null)
@@ -892,19 +884,16 @@
           if (groupValue == null) {
             label.textContent =
               glodaFacetStrings.get("glodaFacetView.facets.noneLabel");
-          }
-          // Otherwise stringify the group object
-          else {
+          } else {
+            // Otherwise stringify the group object
             let labelStr;
             if (ambiguousKeyValues) {
               labelStr = nounDef.userVisibleString(groupValue, false);
               if (ambiguousKeyValues[labelStr])
                 labelStr = nounDef.userVisibleString(groupValue, true);
-            }
-            else if ("labelFunc" in this.facetDef) {
+            } else if ("labelFunc" in this.facetDef) {
               labelStr = this.facetDef.labelFunc(groupValue);
-            }
-            else {
+            } else {
               labelStr = groupValue.toLocaleString().substring(0, 80);
             }
             label.textContent = labelStr;
@@ -916,17 +905,14 @@
             if (constraint.isIncludedGroup(groupValue)) {
               li.setAttribute("variety", "include");
               includeList.appendChild(li);
-            }
-            else if (constraint.isExcludedGroup(groupValue)) {
+            } else if (constraint.isExcludedGroup(groupValue)) {
               li.setAttribute("variety", "exclude");
               excludeList.appendChild(li);
-            }
-            else {
+            } else {
               li.setAttribute("variety", "remainder");
               remainderList.appendChild(li);
             }
-          }
-          else {
+          } else {
             li.setAttribute("variety", "remainder");
             remainderList.appendChild(li);
           }
@@ -1011,9 +997,9 @@
             top: box.top + window.pageYOffset - documentElement.clientTop,
             left: box.left + window.pageXOffset - documentElement.clientLeft,
             width: box.width,
-            height: box.height
+            height: box.height,
           };
-        };
+        }
         // figure out our origin location prior to adding the target or it
         //  will shift us down.
         let origin = getRect(aBarNode);
@@ -1053,9 +1039,9 @@
         flyingNode.style.transitionProperty = "top, left";
 
         flyingNode.addEventListener("transitionend", function() {
-          aBarNode.parentNode.removeChild(aBarNode);
+          aBarNode.remove();
           targetNode.style.display = "block";
-          flyingNode.parentNode.removeChild(flyingNode);
+          flyingNode.remove();
 
           if (aCallback)
             setTimeout(aCallback, 50);
@@ -1083,7 +1069,6 @@
       <parameter name="aVariety" />
       <body><![CDATA[
         let groupValue = aBarNode.groupValue;
-        let groupItems = aBarNode.groupItems;
         let dis = this;
         // These determine what goAnimate actually does.
         // flyAway allows us to cancel flying in the case the constraint is
@@ -1091,7 +1076,7 @@
         let flyAway = true;
 
         function goAnimate() {
-          setTimeout(function () {
+          setTimeout(function() {
             if (flyAway) {
               dis.afterListVisible(aVariety, function() {
                 dis._flyBarAway(aBarNode, aVariety, function() {
@@ -1100,7 +1085,7 @@
               });
             }
           }, 0);
-        };
+        }
 
         // Immediately apply the facet change, triggering the animation after
         //  the faceting completes.
@@ -1115,9 +1100,7 @@
           //  just make the animation a no-op.
           if (constraintGone)
             flyAway = false;
-        }
-        // include/exclude
-        else {
+        } else { // include/exclude
           let revalidate = FacetContext.addFacetConstraint(
                              this.faceter,
                              aVariety == "include",
@@ -1196,13 +1179,13 @@
             this.currentNode.removeAttribute("selected");
 
           let node = event.originalTarget;
-          while ((! (node && node.hasAttribute && node.hasAttribute("class"))) ||
+          while ((!(node && node.hasAttribute && node.hasAttribute("class"))) ||
                  (!node.classList.contains("bar") &&
                   !node.classList.contains("facet-more") &&
                   !node.classList.contains("facet-content")))
             node = node.parentNode;
 
-          if (! (node && node.hasAttribute && node.hasAttribute("class")))
+          if (!(node && node.hasAttribute && node.hasAttribute("class")))
             return false;
 
           this.currentNode = node;
@@ -1305,7 +1288,7 @@
         let totalCount = FacetContext.activeSet.length;
 
         // set the count so CSS selectors can know what the results look like
-        this.setAttribute("state", (totalCount <= 0)? "empty" : "some");
+        this.setAttribute("state", (totalCount <= 0) ? "empty" : "some");
 
         let topMessagesStr = PluralForm.get(displayCount,
                                             topMessagesPluralFormat)
@@ -1329,10 +1312,10 @@
           "glodaFacetView.results.message.openEmailAsList.tooltip"));
         showNode.onkeypress = function(event) {
           if (event.charCode == KeyEvent.DOM_VK_SPACE) {
-            FacetContext.showActiveSetInTab()
+            FacetContext.showActiveSetInTab();
             event.preventDefault();
           }
-        }
+        };
 
         let sortLabelNode = document.getAnonymousElementByAttribute(
                           this, "anonid", "sort-label");
@@ -1346,32 +1329,32 @@
 
         let dis = this;
         sortRelevanceNode.onclick = function() {
-          FacetContext.sortBy = '-dascore';
+          FacetContext.sortBy = "-dascore";
           dis.updateSortLabels();
-        }
+        };
         sortRelevanceNode.onkeypress = function(event) {
           if (event.charCode == KeyEvent.DOM_VK_SPACE) {
-            FacetContext.sortBy = '-dascore';
+            FacetContext.sortBy = "-dascore";
             dis.updateSortLabels();
             event.preventDefault();
           }
-        }
+        };
 
         let sortDateNode = document.getAnonymousElementByAttribute(
                           this, "anonid", "sort-date");
         sortDateNode.textContent = glodaFacetStrings.get(
           "glodaFacetView.results.message.sort.date");
         sortDateNode.onclick = function() {
-          FacetContext.sortBy = '-date';
+          FacetContext.sortBy = "-date";
           dis.updateSortLabels();
-        }
+        };
         sortDateNode.onkeypress = function(event) {
           if (event.charCode == KeyEvent.DOM_VK_SPACE) {
-            FacetContext.sortBy = '-date';
+            FacetContext.sortBy = "-date";
             dis.updateSortLabels();
             event.preventDefault();
           }
-        }
+        };
 
         this.updateSortLabels(FacetContext.sortBy);
 
@@ -1398,7 +1381,7 @@
         let messagesNode = document.getAnonymousElementByAttribute(
                              this, "anonid", "messages");
         let message = messagesNode.childNodes[messageIndex];
-        window.scrollTo(0, $(message).position()['top'] + $(window).scrollTop());
+        window.scrollTo(0, $(message).position().top + $(window).scrollTop());
       ]]></body>
     </method>
 
@@ -1418,7 +1401,7 @@
           sortRelevanceNode.removeAttribute("selected");
           sortDateNode.setAttribute("selected", "true");
         }
-      } catch (e ) {
+      } catch (e) {
         logException(e);
       }
       ]]></body>
@@ -1475,7 +1458,7 @@
         subject.onkeypress = function(aEvent) {
           if (aEvent.keyCode == aEvent.DOM_VK_RETURN)
             FacetContext.showConversationInTab(this,
-                                               aEvent.shiftKey == true);
+                                               aEvent.shiftKey);
         }.bind(this);
 
         // -- Content Poking
@@ -1485,11 +1468,11 @@
           subject.textContent = message.subject;
         let authorNode = anonElem("author");
         authorNode.setAttribute("title", message.from.value);
-        authorNode.textContent = message.from.contact.name
+        authorNode.textContent = message.from.contact.name;
         let toNode = anonElem("to");
         toNode.textContent = glodaFacetStrings.get("glodaFacetView.result.message.toLabel");
 
-        //anonElem("author").textContent = ;
+        // anonElem("author").textContent = ;
         anonElem("date").textContent = makeFriendlyDateAgo(message.date);
 
         // - Recipients
@@ -1500,7 +1483,7 @@
           const MAX_RECIPIENTS = 3;
           let totalRecipientCount = message.recipients.length;
           let recipientSeparator = glodaFacetStrings.get(
-              "glodaFacetView.results.message.recipientSeparator")
+            "glodaFacetView.results.message.recipientSeparator");
           for (let index in message.recipients) {
             let recipNode = document.createElement("span");
             recipNode.setAttribute("class", "message-recipient");
@@ -1522,9 +1505,9 @@
             let andNOthers = document.createElement("span");
             andNOthers.setAttribute("class", "message-recipients-andothers");
 
-            let andOthersLabel= PluralForm.get(nOthers, glodaFacetStrings.get(
-                              "glodaFacetView.results.message.andOthers"))
-                             .replace("#1", nOthers);
+            let andOthersLabel = PluralForm.get(
+              nOthers, glodaFacetStrings.get("glodaFacetView.results.message.andOthers")
+            ).replace("#1", nOthers);
 
             andNOthers.textContent = andOthersLabel;
             recipientsNode.appendChild(andNOthers);
@@ -1537,7 +1520,7 @@
         // - Starred
         let starNode = anonElem("star");
         if (message.starred) {
-          starNode.setAttribute("starred", "true")
+          starNode.setAttribute("starred", "true");
         }
 
         // - Attachments
@@ -1610,8 +1593,14 @@
               // (they indicate that JS has split a 4 bytes UTF-8 character
               // in two halves of 2 bytes each),
               // - other code points on 3 bytes.
-              return c < 0x80 ? 1 : (c < 0x800 || (c >= 0xD800 && c <= 0xDFFF)) ? 2 : 3;
-            }
+              if (c < 0x80) {
+                return 1;
+              }
+              if (c < 0x800 || (c >= 0xD800 && c <= 0xDFFF)) {
+                return 2;
+              }
+              return 3;
+            };
             let byteOffset = 0;
             let offset = 0;
             for (let match of matches) {
@@ -1659,9 +1648,9 @@
           }
 
           for (let newlineCount = 0; newlineCount < maxLineCount; newlineCount++) {
-            idxNewline = bodyText.indexOf("\n", idxNewline+1);
+            idxNewline = bodyText.indexOf("\n", idxNewline + 1);
             if (idxNewline == -1) {
-              ellipses = '';
+              ellipses = "";
               break;
             }
           }

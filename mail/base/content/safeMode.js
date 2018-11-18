@@ -28,8 +28,7 @@ function disableAddons() {
         const DEFAULT_THEME_ID = "{972ce4c6-7e08-4474-a285-3208198ce6fd}";
         if (aAddon.id == DEFAULT_THEME_ID)
           aAddon.userDisabled = false;
-      }
-      else {
+      } else {
         aAddon.userDisabled = true;
       }
     });
@@ -47,7 +46,7 @@ function onOK() {
       // disableAddons will asynchronously restart the application
       return false;
     }
-  } catch(e) {
+  } catch (e) {
   }
 
   restartApp();
