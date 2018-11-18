@@ -151,7 +151,7 @@ calItipEmailTransport.prototype = {
         try {
             this.mDefaultSmtpServer = MailServices.smtp.defaultServer;
             this.mDefaultAccount = MailServices.accounts.defaultAccount;
-            this.mDefaultIdentity = this.mDefaultAccount.defaultIdentity;
+            this.mDefaultIdentity = this.mDefaultAccount ? this.mDefaultAccount.defaultIdentity : null;
 
             if (!this.mDefaultIdentity) {
                 // If there isn't a default identity (i.e Local Folders is your
@@ -191,6 +191,9 @@ calItipEmailTransport.prototype = {
         if (!identity) { // use some default identity/account:
             identity = this.mDefaultIdentity;
             account = this.mDefaultAccount;
+            if (!account || !identity) {
+                throw new Error("sendXpcomMail: No usable account and identity found");
+            }
         }
 
         switch (aItipItem.autoResponse) {

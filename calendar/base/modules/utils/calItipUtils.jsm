@@ -490,9 +490,13 @@ var calitip = {
 
         let emailMap = {};
         if (!identities || identities.length == 0) {
+            let identity;
             // If we were not able to retrieve identities above, then we have no
-            // choice but to revert to the default identity
-            let identity = actMgr.defaultAccount.defaultIdentity;
+            // choice but to revert to the default identity.
+            let defaultAccount = actMgr.defaultAccount;
+            if (defaultAccount) {
+                identity = defaultAccount.defaultIdentity;
+            }
             if (!identity) {
                 // If there isn't a default identity (i.e Local Folders is your
                 // default identity), then go ahead and use the first available
