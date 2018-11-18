@@ -71,9 +71,13 @@ interface nsIMsgAccountManager : nsISupports {
 
   /* account list stuff */
 
-  /* defaultAccount should always be set if there are any accounts
-   * in the account manager. You can only set the defaultAccount to an
-   * account already in the account manager */
+  /**
+   * Returns the account that was marked as the default one.
+   * Only some server types can serve as default account.
+   * If there is no such account, null is returned.
+   * You can only set the defaultAccount to an
+   * account already in the account manager.
+   */
   attribute nsIMsgAccount defaultAccount;
 
   /**

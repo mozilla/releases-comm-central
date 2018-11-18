@@ -140,6 +140,16 @@ private:
 
   nsresult GetLocalFoldersPrettyName(nsString &localFoldersName);
 
+  /**
+   * Check if the given account can be the set as the default account.
+   */
+  nsresult CheckDefaultAccount(nsIMsgAccount* aAccount, bool &aCanBeDefault);
+
+  /**
+   * Find a new account that can serve as default.
+   */
+  nsresult AutosetDefaultAccount();
+
   // sets the pref for the default server
   nsresult setDefaultAccountPref(nsIMsgAccount *aDefaultAccount);
 
