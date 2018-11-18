@@ -67,14 +67,6 @@ var mailTabType = {
         this.openTab(aTab, true, new MessagePaneDisplayWidget(), true);
         // persistence and restoreTab wants to know if we are the magic first tab
         aTab.firstTab = true;
-        // Inherit the search mode from a window
-        if (window.opener &&
-            (window.opener.document.documentElement.getAttribute("windowtype") ==
-             "mail:3pane"))
-          windowToInheritFrom = window.opener;
-        else
-          windowToInheritFrom = FindOther3PaneWindow();
-
         aTab.folderDisplay.makeActive();
       },
       /**
