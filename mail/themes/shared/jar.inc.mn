@@ -69,6 +69,7 @@
   skin/classic/messenger/icons/replylist.svg                  (../shared/mail/icons/replylist.svg)
   skin/classic/messenger/icons/search-glass.svg               (../shared/mail/icons/search-glass.svg)
   skin/classic/messenger/icons/save.svg                       (../shared/mail/icons/save.svg)
+  skin/classic/messenger/icons/search-not-found.svg           (../shared/mail/icons/search-not-found.svg)
   skin/classic/messenger/icons/security.svg                   (../shared/mail/icons/security.svg)
   skin/classic/messenger/icons/send.svg                       (../shared/mail/icons/send.svg)
   skin/classic/messenger/icons/sort.svg                       (../shared/mail/icons/sort.svg)

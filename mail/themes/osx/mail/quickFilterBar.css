@@ -35,14 +35,6 @@
   }
 }
 
-#threadTree[filterActive="matches"] {
-  background: repeating-linear-gradient(to bottom, #ecf3fe 0, #ecf3fe 18px, white 18px, white 36px);
-}
-
-#threadTree[filterActive="nomatches"] {
-  background: repeating-linear-gradient(to bottom, #fff0f4, #fff0f4 18px, white 18px, white 36px);
-}
-
 #qfb-filter-label {
   color: #888;
   font-weight: bold;
@@ -58,9 +50,6 @@
 
 #quick-filter-bar-main-bar toolbarbutton {
   height: 18px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 #quick-filter-bar-main-bar toolbarbutton:not(#qfb-sticky) > .toolbarbutton-icon {
@@ -79,40 +68,11 @@
 #qfb-sticky {
   width: 18px;
   margin-inline-start: 6px !important;
-  list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
 }
 
 /* we use both IDs so we are more precise than the other # toolbarbutton rules */
 #quick-filter-bar #qfb-sticky > .toolbarbutton-text {
   margin: 0;
-}
-
-#qfb-unread {
-  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
-}
-
-#qfb-starred {
-  list-style-image: url("chrome://messenger/skin/icons/star.svg");
-}
-
-#qfb-inaddrbook {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg")
-}
-
-#qfb-tags {
-  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
-}
-
-#qfb-attachment {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
-}
-
-#quick-filter-bar[filterActive="matches"] #qfb-results-label {
-  color: green;
-}
-
-#quick-filter-bar[filterActive="nomatches"] #qfb-results-label {
-  color: #f66;
 }
 
 @media (-moz-mac-yosemite-theme) {
@@ -123,12 +83,12 @@
 }
 
 #qfb-qs-label {
-  margin-top: 0px;
+  margin-top: 0;
   margin-bottom: 3px;
   color: #6b6b6b;
 }
 
 #qfb-boolean-mode {
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
 }

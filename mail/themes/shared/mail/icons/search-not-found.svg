@@ -1,0 +1,11 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE svg [
+  <!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
+  %quickFilterBarDTD;
+]>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 28" width="400px" height="112px">
+  <text x="50" y="28" text-anchor="middle" style="font: 4px sans-serif;" fill="GrayText">&quickFilterBar.resultsLabel.none;</text>
+  <path fill="context-fill" fill-opacity="context-fill-opacity" d="M48.18.86c-3-.1-5.85 1.33-7.58 3.79-1 1.5-1.6 3.4-1.6 5.3 0 5 4.1 9 9 9 1.8 0 3.6-.6 5.2-1.6l6.2 6.2c.6.6 1.5.6 2.1 0 .6-.6.6-1.5 0-2.1l-6.2-6.3a9 9 0 0 0-2.1-12.6 9.16 9.16 0 0 0-5.02-1.7zM48 3.95c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6 2.7-6 6-6zm-2.81 4.12L47.12 10l-1.93 1.92c-.6.6.3 1.5.9.9L48 10.89l1.83 1.92c.6.59 1.49-.31.89-.9L48.9 9.99l1.92-1.92c.5-.59-.3-1.39-.89-.89L48.01 9.1l-1.92-1.92c-.74-.47-1.25.27-.9.89z"/>
+</svg>

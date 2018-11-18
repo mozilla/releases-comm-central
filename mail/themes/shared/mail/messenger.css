@@ -160,6 +160,11 @@ toolbar[printpreview="true"] {
   background-color: rgba(249,249,250,.2);
 }
 
+.toolbarbutton-1:not(.qfb-tag-button),
+.toolbarbutton-menubutton-button {
+  color: inherit !important;
+}
+
 /* ..... column picker ..... */
 
 .tree-columnpicker-icon  {

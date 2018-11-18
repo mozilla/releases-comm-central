@@ -208,7 +208,6 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button {
-  color: inherit !important;
   padding-top: 5px;
   padding-bottom: 6px;
   padding-inline-start: 4px;

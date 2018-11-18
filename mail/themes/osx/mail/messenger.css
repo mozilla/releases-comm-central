@@ -329,11 +329,6 @@ toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-.toolbarbutton-1,
-.toolbarbutton-menubutton-button {
-  color: inherit !important;
-}
-
 .toolbarbutton-1:-moz-lwtheme {
   text-shadow: inherit;
 }

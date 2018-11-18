@@ -2,13 +2,54 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* :::: Filter Buttons :::: */
+
+#quick-filter-bar-main-bar toolbarbutton {
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+#qfb-sticky {
+  list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
+}
+
+#qfb-unread {
+  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
+}
+
+#qfb-starred {
+  list-style-image: url("chrome://messenger/skin/icons/star.svg");
+}
+
+#qfb-inaddrbook {
+  list-style-image: url("chrome://messenger/skin/icons/address.svg")
+}
+
+#qfb-tags {
+  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
+}
+
+#qfb-attachment {
+  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
+}
+
 #quick-filter-bar[disabled="true"] {
   visibility: collapse;
 }
 
 #qfb-results-label {
+  color: GrayText;
   text-align: end;
   visibility: hidden;
+}
+
+#quick-filter-bar[filterActive="matches"] #qfb-results-label {
+  color: #4e9a06;
+}
+
+#quick-filter-bar[filterActive="nomatches"] #qfb-results-label {
+  color: #f66;
 }
 
 #qfb-filter-bar-spacer {
@@ -25,4 +66,11 @@
 
 #quick-filter-bar-collapsible-buttons[shrink="true"] toolbarbutton label.toolbarbutton-text {
   display: none;
+}
+
+#threadTree[filterActive="nomatches"] > .tree-stack {
+  background: url("chrome://messenger/skin/icons/search-not-found.svg") no-repeat center;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: .3;
 }

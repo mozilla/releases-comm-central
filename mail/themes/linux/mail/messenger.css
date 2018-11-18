@@ -335,11 +335,6 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   padding: 1px 6px !important;
 }
 
-.toolbarbutton-1:not(.qfb-tag-button),
-.toolbarbutton-menubutton-button {
-  color: inherit !important;
-}
-
 .toolbarbutton-1[type="menu-button"] {
   -moz-appearance: none;
 }
