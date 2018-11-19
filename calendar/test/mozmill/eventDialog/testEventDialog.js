@@ -6,12 +6,12 @@ var MODULE_NAME = "testEventDialog";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
-var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX;
-var helpersForController, handleOccurrencePrompt, goToDate, lookupEventBox;
-var invokeEventDialog, checkAlarmIcon, closeAllEventDialogs, deleteCalendars, createCalendar;
+var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
+var helpersForController, handleOccurrencePrompt, switchToView, goToDate, lookupEventBox;
+var invokeEventDialog, checkAlarmIcon, viewBack, closeAllEventDialogs, deleteCalendars;
+var createCalendar;
 var EVENT_TABPANELS, ATTENDEES_ROW;
 var helpersForEditUI, setData;
 var plan_for_modal_dialog, wait_for_modal_dialog;
@@ -21,6 +21,7 @@ const EVENTLOCATION = "Location";
 const EVENTDESCRIPTION = "Event Description";
 const EVENTATTENDEE = "foo@bar.com";
 const EVENTURL = "http://mozilla.org/";
+var firstDay;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
@@ -31,12 +32,15 @@ function setupModule(module) {
         CALENDARNAME,
         EVENTPATH,
         EVENT_BOX,
+        CANVAS_BOX,
         helpersForController,
         handleOccurrencePrompt,
+        switchToView,
         goToDate,
         lookupEventBox,
         invokeEventDialog,
         checkAlarmIcon,
+        viewBack,
         closeAllEventDialogs,
         deleteCalendars,
         createCalendar
@@ -57,26 +61,42 @@ function setupModule(module) {
 
 function testEventDialog() {
     let dateFormatter = cal.getDateFormatter();
+    let now = new Date();
+
+    // Since from other tests we may be elsewhere, make sure we start today.
+    switchToView(controller, "day");
+    goToDate(controller, now.getFullYear(), now.getMonth() + 1, now.getDate());
+    viewBack(controller, 1);
 
     // Open month view.
-    controller.waitThenClick(eid("calendar-month-view-button"));
+    switchToView(controller, "month");
+    firstDay = controller.window.currentView().startDay;
+    dump(`First day in view is: ${firstDay.year}-${firstDay.month + 1}-${firstDay.day}\n`);
 
-    goToDate(controller, 2009, 1, 1);
-
-    // Create new event.
-    controller.mainMenu.click("#ltnNewEvent");
-
-    // Check that the start time is correct -
-    // next full hour except last hour of the day.
-    let now = new Date();
+    // Setup start- & endTime.
+    // Next full hour except last hour of the day.
     let hour = now.getHours();
     let startHour = hour == 23 ? hour : (hour + 1) % 24;
 
     let nextHour = cal.dtz.now();
-    nextHour.resetTo(2009, 0, 1, startHour, 0, 0, cal.dtz.floating);
+    nextHour.resetTo(
+        firstDay.year,
+        firstDay.month,
+        firstDay.day,
+        startHour, 0, 0, cal.dtz.floating
+    );
     let startTime = dateFormatter.formatTime(nextHour);
-    nextHour.resetTo(2009, 0, 1, (startHour + 1) % 24, 0, 0, cal.dtz.floating);
+    nextHour.resetTo(
+        firstDay.year,
+        firstDay.month,
+        firstDay.day,
+        (startHour + 1) % 24, 0, 0, cal.dtz.floating
+    );
     let endTime = dateFormatter.formatTime(nextHour);
+
+    // Create new event on first day in view.
+    controller.click(lookupEventBox("month", CANVAS_BOX, 1, 1, null));
+    controller.mainMenu.click("#ltnNewEvent");
 
     invokeEventDialog(controller, null, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
@@ -100,6 +120,9 @@ function testEventDialog() {
         let categories = cal.calGetString("categories", "categories2");
         // Pick 4th value in a comma-separated list.
         let category = categories.split(",")[4];
+        // Calculate date to repeat until.
+        let untildate = firstDay.clone();
+        untildate.addDuration(cal.createDuration("P20D"));
 
         // Fill in the rest of the values.
         setData(event, iframe, {
@@ -108,6 +131,7 @@ function testEventDialog() {
             description: EVENTDESCRIPTION,
             categories: [category],
             repeat: "daily",
+            repeatuntil: cal.dtz.dateTimeToJsDate(untildate),
             reminder: "5minutes",
             privacy: "private",
             attachment: { add: EVENTURL },
@@ -120,6 +144,7 @@ function testEventDialog() {
         `);
 
         event.click(eventid("event-grid-tab-attendees"));
+        event.waitForElement(attendeeLabel);
         event.assertValue(attendeeLabel, EVENTATTENDEE);
         event.waitFor(() => !iframeId("notify-attendees-checkbox").getNode().checked);
 
@@ -149,43 +174,35 @@ function testEventDialog() {
     });
     wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
-    // Verify event and alarm icon visible every day of the month and check tooltip.
-    // 1st January is Thursday so there's three days to check in the first row.
-    let date = 1;
-    for (col = 5; col <= 7; col++) {
-        controller.waitForElement(lookupEventBox("month", EVENT_BOX, 1, col, null, EVENTPATH));
-        checkAlarmIcon(controller, "month", 1, col);
-        checkTooltip(1, col, date, startTime, endTime);
-        date++;
-    }
-
-    // 31st of January is Saturday so there's four more full rows to check.
-    for (let row = 2; row <= 5; row++) {
-        for (let col = 1; col <= 7; col++) {
-            controller.assertNode(lookupEventBox("month", EVENT_BOX, row, col, null, EVENTPATH));
+    // Verify event and alarm icon visible until endDate (3 full rows) and check tooltip.
+    for (let row = 1; row <= 3; row++) {
+        for (col = 1; col <= 7; col++) {
+            controller.waitForElement(lookupEventBox("month", EVENT_BOX, row, col, null, EVENTPATH));
             checkAlarmIcon(controller, "month", row, col);
-            checkTooltip(row, col, date, startTime, endTime);
-            date++;
+            checkTooltip(row, col, startTime, endTime);
         }
     }
+    controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 4, 1, null, EVENTPATH));
 
-    // Delete and verify deleted 2nd Jan.
+    // Delete and verify deleted 6th col in row 1.
     controller.click(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
     let elemToDelete = eid("month-view");
     handleOccurrencePrompt(controller, elemToDelete, "delete", false);
     controller.waitForElementNotPresent(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
 
     // Verify all others still exist.
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH));
+    for (let col = 1; col <= 5; col++) {
+        controller.assertNode(lookupEventBox("month", EVENT_BOX, 1, col, null, EVENTPATH));
+    }
     controller.assertNode(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
 
-    for (let row = 2; row <= 5; row++) {
+    for (let row = 2; row <= 3; row++) {
         for (let col = 1; col <= 7; col++) {
             controller.assertNode(lookupEventBox("month", EVENT_BOX, row, col, null, EVENTPATH));
         }
     }
 
-    // Delete series by deleting 3rd January and confirming to delete all.
+    // Delete series by deleting last item in row 1 and confirming to delete all.
     controller.click(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
     elemToDelete = eid("month-view");
     handleOccurrencePrompt(controller, elemToDelete, "delete", true);
@@ -195,7 +212,7 @@ function testEventDialog() {
     controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
     controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
 
-    for (let row = 2; row <= 5; row++) {
+    for (let row = 2; row <= 3; row++) {
         for (let col = 1; col <= 7; col++) {
             controller.assertNodeNotExist(lookupEventBox(
                 "month", EVENT_BOX, row, col, null, EVENTPATH
@@ -204,7 +221,7 @@ function testEventDialog() {
     }
 }
 
-function checkTooltip(row, col, date, startTime, endTime) {
+function checkTooltip(row, col, startTime, endTime) {
     let item = lookupEventBox("month", null, row, col, null, EVENTPATH);
 
     let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")';
@@ -219,8 +236,9 @@ function checkTooltip(row, col, date, startTime, endTime) {
     // Check date and time.
     let dateTime = lookup(`${toolTipGrid}/[1]/[2]/[1]`);
 
-    let formatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "full" });
-    let startDate = formatter.format(new Date(2009, 0, date));
+    let currDate = firstDay.clone();
+    currDate.addDuration(cal.createDuration(`P${7 * (row-1) + (col-1)}D`));
+    let startDate = cal.getDateFormatter().formatDate(currDate);
 
     controller.assert(() => {
         let text = dateTime.getNode().textContent;
