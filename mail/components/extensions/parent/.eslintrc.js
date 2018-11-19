@@ -33,5 +33,8 @@ module.exports = {
     "tabGetSender": true,
     "tabTracker": true,
     "windowTracker": true,
+
+    // ext-browserAction.js
+    "browserActionFor": true,
   },
 };

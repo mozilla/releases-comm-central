@@ -25,6 +25,16 @@
       ["cloudFile"]
     ]
   },
+  "commands": {
+    "url": "chrome://messenger/content/parent/ext-commands.js",
+    "schema": "chrome://messenger/content/schemas/commands.json",
+    "scopes": ["addon_parent"],
+    "events": ["uninstall"],
+    "manifest": ["commands"],
+    "paths": [
+      ["commands"]
+    ]
+  },
   "composeAction": {
     "url": "chrome://messenger/content/parent/ext-composeAction.js",
     "schema": "chrome://messenger/content/schemas/composeAction.json",

@@ -4,7 +4,23 @@
 
 ChromeUtils.defineModuleGetter(this, "ToolbarButtonAPI", "resource:///modules/ExtensionToolbarButtons.jsm");
 
+const browserActionMap = new WeakMap();
+
 this.browserAction = class extends ToolbarButtonAPI {
+  static for(extension) {
+    return browserActionMap.get(extension);
+  }
+
+  async onManifestEntry(entryName) {
+    await super.onManifestEntry(entryName);
+    browserActionMap.set(this.extension, this);
+  }
+
+  onShutdown(reason) {
+    super.onShutdown(reason);
+    browserActionMap.delete(this.extension);
+  }
+
   constructor(extension) {
     super(extension);
     this.manifest_name = "browser_action";
@@ -14,3 +30,5 @@ this.browserAction = class extends ToolbarButtonAPI {
     this.toolbarId = "mail-bar3";
   }
 };
+
+global.browserActionFor = this.browserAction.for;
