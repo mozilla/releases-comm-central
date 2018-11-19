@@ -13,7 +13,7 @@ var MODULE_NAME = "test-account-values";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                         "account-manager-helpers"];
+                       "account-manager-helpers", "keyboard-helpers"];
 
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
@@ -21,9 +21,9 @@ ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 var gPopAccount, gOriginalAccountCount;
 
 function setupModule(module) {
-  collector.getModule("window-helpers").installInto(module);
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("account-manager-helpers").installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
@@ -326,4 +326,46 @@ function subtest_check_invalid_hostname(amc, aExitSettings, aOriginalHostname)
 
     wait_for_modal_dialog("commonDialog");
   }
+}
+
+/**
+ * Bug 1426328.
+ * Check that the AM will trim user added spaces around text values.
+ */
+const badName = "trailing  space ";
+const badEmail = " leading_space@example.com";
+
+function test_trailing_spaces() {
+  open_advanced_settings(function(amc) {
+    subtest_check_trailing_spaces(amc);
+  });
+  assert_equals(gPopAccount.incomingServer.prettyName, badName.trim());
+  assert_equals(gPopAccount.defaultIdentity.email, badEmail.trim());
+}
+
+/**
+ * Check that the AM will trim user added spaces around text values
+ * when storing them into the account.
+ *
+ * @param amc  the account options controller
+ */
+function subtest_check_trailing_spaces(amc)
+{
+  let accountRow = get_account_tree_row(gPopAccount.key, null, amc);
+  click_account_tree_row(amc, accountRow);
+
+  let iframe = amc.window.document.getElementById("contentFrame");
+
+  let accountName = iframe.contentDocument.getElementById("server.prettyName");
+  let defaultAddress = iframe.contentDocument.getElementById("identity.email");
+  delete_all_existing(amc, new elib.Elem(accountName));
+  delete_all_existing(amc, new elib.Elem(defaultAddress));
+  input_value(amc, badName, new elib.Elem(accountName));
+  input_value(amc, badEmail, new elib.Elem(defaultAddress));
+
+  assert_equals(accountName.value, badName);
+  assert_equals(defaultAddress.value, badEmail);
+
+  // We really need to save the new values so click OK on the Account settings.
+  amc.window.document.documentElement.acceptDialog();
 }

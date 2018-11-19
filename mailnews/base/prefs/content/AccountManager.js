@@ -1356,7 +1356,7 @@ function getFormElementValue(formElement) {
       return null;
     }
     if ((type == "textbox") || ("value" in formElement)) {
-      return formElement.value;
+      return formElement.value.trim();
     }
     return null;
   }
