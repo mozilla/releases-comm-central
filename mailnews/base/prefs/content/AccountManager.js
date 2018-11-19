@@ -195,13 +195,13 @@ function selectServer(server, selectPageId)
   }
 
   let accountTree = document.getElementById("accounttree");
-  let index = accountTree.contentView.getIndexOfItem(pageToSelect);
+  let index = accountTree.view.getIndexOfItem(pageToSelect);
   accountTree.view.selection.select(index);
   accountTree.treeBoxObject.ensureRowIsVisible(index);
 
   let lastItem = accountNode.lastChild.lastChild;
   if (lastItem.localName == "treeitem")
-    index = accountTree.contentView.getIndexOfItem(lastItem);
+    index = accountTree.view.getIndexOfItem(lastItem);
 
   accountTree.treeBoxObject.ensureRowIsVisible(index);
 }
@@ -1038,7 +1038,7 @@ function onAccountTreeSelect(pageId, account)
     if (tree.view.selection.count < 1)
       return false;
 
-    let node = tree.contentView.getItemAtIndex(tree.currentIndex);
+    let node = tree.view.getItemAtIndex(tree.currentIndex);
     account = ("_account" in node) ? node._account : null;
 
     pageId = node.getAttribute("PageTag")

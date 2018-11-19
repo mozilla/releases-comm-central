@@ -320,14 +320,14 @@ function AddTreeItem ( name, value, treeChildrenId, attArray )
 
 function selectTreeItem(treeChildren, item)
 {
-  var index = treeChildren.parentNode.contentView.getIndexOfItem(item);
+  var index = treeChildren.parentNode.view.getIndexOfItem(item);
   treeChildren.parentNode.view.selection.select(index);
 }
 
 function getSelectedItem(tree)
 {
   if (tree.view.selection.count == 1)
-    return tree.contentView.getItemAtIndex(tree.currentIndex);
+    return tree.view.getItemAtIndex(tree.currentIndex);
   else
     return null;
 }

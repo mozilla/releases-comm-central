@@ -1854,7 +1854,7 @@
           <![CDATA[
             this.hidePopup();
             if (this.tree.currentIndex >= 0) {
-              this.setAttribute("uri", this.tree.builderView.getResourceAtIndex(this.tree.currentIndex).Value);
+              this.setAttribute("uri", this.tree.view.getResourceAtIndex(this.tree.currentIndex).Value);
               this.doCommand();
             }
           ]]>

@@ -196,5 +196,5 @@ function UpdateNode(resource, row)
 }
 
 function GetFolderResource(aTree, aIndex) {
-  return aTree.builderView.getResourceAtIndex(aIndex);
+  return aTree.view.getResourceAtIndex(aIndex);
 }

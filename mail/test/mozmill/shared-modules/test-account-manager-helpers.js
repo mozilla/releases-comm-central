@@ -93,7 +93,7 @@ function click_account_tree_row(controller, rowIndex) {
 
   // Ensure the page is fully loaded (e.g. onInit functions).
   wh.wait_for_frame_load(controller.e("contentFrame"),
-    controller.window.pageURL(tree.contentView.getItemAtIndex(rowIndex)
+    controller.window.pageURL(tree.view.getItemAtIndex(rowIndex)
                                               .getAttribute("PageTag")));
 }
 
