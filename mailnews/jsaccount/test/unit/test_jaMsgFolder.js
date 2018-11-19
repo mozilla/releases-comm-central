@@ -9,6 +9,7 @@
 // JS override classes.
 
 ChromeUtils.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
+ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var interfaces = JaBaseMsgFolderProperties.baseInterfaces;
@@ -19,9 +20,8 @@ function run_test()
   Assert.ok(server instanceof Ci.msgIOverride);
 
   // If you create a folder object directly, it will complain about not being registered.
-  // Use RDF instead.
-  let rdfService = Cc['@mozilla.org/rdf/rdf-service;1'].getService(Ci.nsIRDFService);
-  let testJaMsgFolder = rdfService.GetResource("testja://foouser@foohost/somefolder");
+  // Use folder-lookup-service instead.
+  let testJaMsgFolder = MailUtils.getOrCreateFolder("testja://foouser@foohost/somefolder");
   //let testJaMsgFolder = Cc[JaBaseMsgFolderProperties.contractID]
   //                        .createInstance(Ci.msgIOverride);
   Assert.ok(testJaMsgFolder instanceof Ci.nsIMsgFolder);

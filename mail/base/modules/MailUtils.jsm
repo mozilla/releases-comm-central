@@ -63,30 +63,29 @@ var MailUtils = {
   },
 
   /**
-   * Get the nsIMsgFolder corresponding to this URI. This uses the RDF service
-   * to do the work.
+   * Get the nsIMsgFolder corresponding to this URI.
    *
-   * @param aFolderURI the URI to convert into a folder
-   * @param aCheckFolderAttributes whether to check that the folder either has
-   *                              a parent or isn't a server
-   * @returns the nsIMsgFolder corresponding to this URI, or null if
-   *          aCheckFolderAttributes is true and the folder doesn't have a
-   *          parent or is a server
+   * @param aFolderURI the URI of the target folder
+   * @returns {nsIMsgFolder} Folder corresponding to this URI, or null if
+   *          the folder doesn't already exist.
    */
-  getFolderForURI(aFolderURI, aCheckFolderAttributes) {
-    let folder = null;
-    let rdfService = Cc["@mozilla.org/rdf/rdf-service;1"]
-                       .getService(Ci.nsIRDFService);
-    folder = rdfService.GetResource(aFolderURI);
-    // This is going to QI the folder to an nsIMsgFolder as well
-    if (folder && folder instanceof Ci.nsIMsgFolder) {
-      if (aCheckFolderAttributes && !(folder.parent || folder.isServer))
-        return null;
-    } else {
-      return null;
-    }
+  getExistingFolder(aFolderURI) {
+    let fls = Cc["@mozilla.org/mail/folder-lookup;1"]
+                .getService(Ci.nsIFolderLookupService);
+    return fls.getFolderForURL(aFolderURI);
+  },
 
-    return folder;
+  /**
+   * Get the nsIMsgFolder corresponding to this URI, or create a detached
+   * folder if it doesn't already exist.
+   *
+   * @param aFolderURI the URI of the target folder
+   * @returns {nsIMsgFolder} Folder corresponding to this URI.
+   */
+  getOrCreateFolder(aFolderURI) {
+    let fls = Cc["@mozilla.org/mail/folder-lookup;1"]
+                .getService(Ci.nsIFolderLookupService);
+    return fls.getOrCreateFolderForURL(aFolderURI);
   },
 
   /**

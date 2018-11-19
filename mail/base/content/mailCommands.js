@@ -336,7 +336,7 @@ function Subscribe(preselectedMsgFolder) {
 
 function SubscribeOKCallback(changeTable) {
   for (var serverURI in changeTable) {
-    var folder = MailUtils.getFolderForURI(serverURI, true);
+    var folder = MailUtils.getExistingFolder(serverURI);
     var server = folder.server;
     var subscribableServer =
           server.QueryInterface(Ci.nsISubscribableServer);
@@ -438,7 +438,7 @@ function SaveAsTemplate(uri) {
   if (uri) {
     let hdr = messenger.msgHdrFromURI(uri);
     let identity = getIdentityForHeader(hdr, Ci.nsIMsgCompType.Template);
-    let templates = MailUtils.getFolderForURI(identity.stationeryFolder, false);
+    let templates = MailUtils.getOrCreateFolder(identity.stationeryFolder);
     if (!templates.parent) {
       templates.setFlag(Ci.nsMsgFolderFlags.Templates);
       let isAsync = templates.server.protocolInfo.foldersCreatedAsync;

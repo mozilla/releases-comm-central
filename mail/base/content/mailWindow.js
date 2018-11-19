@@ -476,7 +476,7 @@ nsMsgWindowCommands.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgWindowCommands"]),
 
   selectFolder(folderUri) {
-    gFolderTreeView.selectFolder(MailUtils.getFolderForURI(folderUri));
+    gFolderTreeView.selectFolder(MailUtils.getOrCreateFolder(folderUri));
   },
 
   selectMessage(messageUri) {

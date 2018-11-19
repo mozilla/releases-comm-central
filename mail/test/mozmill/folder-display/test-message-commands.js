@@ -376,8 +376,8 @@ function yearly_archive(keep_structure) {
     firstArchiveUri += "/ArchiveSrc";
     lastArchiveUri += "/ArchiveSrc";
   }
-  let firstArchiveFolder =  MailUtils.getFolderForURI(firstArchiveUri);
-  let lastArchiveFolder = MailUtils.getFolderForURI(lastArchiveUri);
+  let firstArchiveFolder =  MailUtils.getOrCreateFolder(firstArchiveUri);
+  let lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
   be_in_folder(firstArchiveFolder);
   assert_true(mc.dbView.getMsgHdrAt(0).messageId == firstMsgHdrMsgId,
               "Message should have been archived to " + firstArchiveUri + ", but it isn't present there");
@@ -424,8 +424,8 @@ function monthly_archive(keep_structure) {
     firstArchiveUri += "/ArchiveSrc";
     lastArchiveUri += "/ArchiveSrc";
   }
-  let firstArchiveFolder =  MailUtils.getFolderForURI(firstArchiveUri);
-  let lastArchiveFolder = MailUtils.getFolderForURI(lastArchiveUri);
+  let firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
+  let lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
   be_in_folder(firstArchiveFolder);
   assert_true(mc.dbView.getMsgHdrAt(0).messageId == firstMsgHdrMsgId,
               "Message should have been archived to Local Folders/" +

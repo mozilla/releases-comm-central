@@ -49,6 +49,7 @@ folderLookupService.prototype = {
       let valid = false;
       try {
         folder = this._map.get(aUrl).QueryReferent(Ci.nsIMsgFolder);
+        // We don't want to return "dangling" (parentless) folders.
         valid = isValidFolder(folder);
       } catch (e) {
         // The object was deleted, so it's not valid
@@ -80,6 +81,7 @@ folderLookupService.prototype = {
         return null;
       }
     }
+    // We don't want to return "dangling" (parentless) folders.
     if (!isValidFolder(folder))
       return null;
 
@@ -90,6 +92,21 @@ folderLookupService.prototype = {
     this._map.set(aUrl, weakRef);
     return folder;
   },
+  getOrCreateFolderForURL: function (aUrl) {
+    // NOTE: this doesn't update _map, but it'll work fine and
+    // it's a transitional function we want deleted anyway.
+    let rdf = Cc["@mozilla.org/rdf/rdf-service;1"]
+                .getService(Ci.nsIRDFService);
+    try {
+      let folder = rdf.GetResource(aUrl)
+                      .QueryInterface(Ci.nsIMsgFolder);
+      return folder;
+    } catch (e) {
+      // If the QI fails, then we somehow picked up an RDF resource that isn't
+      // a folder. Return null in this case.
+      return null;
+    }
+  }
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([folderLookupService]);

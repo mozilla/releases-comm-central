@@ -69,7 +69,7 @@ function determineActionsForJunkMsgs(aFolder)
       dump('determineActionsForJunkMsgs: no spam folder found, not moving.');
     }
     else
-      actions.junkTargetFolder = MailUtils.getFolderForURI(spamFolderURI);
+      actions.junkTargetFolder = MailUtils.getOrCreateFolder(spamFolderURI);
   }
 
   return actions;

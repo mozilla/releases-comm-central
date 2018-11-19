@@ -24,7 +24,6 @@
 <bindings   id="filterBindings"
             xmlns="http://www.mozilla.org/xbl"
             xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            xmlns:nc="http://home.netscape.com/NC-rdf#"
             xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="ruleactiontype-menulist">
@@ -221,6 +220,7 @@
         <body>
           <![CDATA[
             ChromeUtils.import("resource:///modules/iteratorUtils.jsm", this);
+            ChromeUtils.import("resource:///modules/MailUtils.jsm", this);
             let identitiesRaw = MailServices.accounts
               .getIdentitiesForServer(gFilterList.folder.server);
             let identities = Array.from(this.fixIterator(identitiesRaw,
@@ -236,20 +236,12 @@
 
             for (let identity of identities) {
               let enumerator = null;
-              let msgFolder;
-              try {
-                msgFolder = Cc["@mozilla.org/rdf/rdf-service;1"]
-                              .getService(Ci.nsIRDFService)
-                              .GetResource(identity.stationeryFolder)
-                              .QueryInterface(Ci.nsIMsgFolder);
-                // If we already processed this folder, do not set enumerator
-                // so that we skip this identity.
-                if (foldersScanned.indexOf(msgFolder) == -1) {
-                  foldersScanned.push(msgFolder);
-                  enumerator = msgFolder.msgDatabase.EnumerateMessages();
-                }
-              } catch (e) {
-                // The Templates folder may not exist, that is OK.
+              let msgFolder = this.MailUtils.getExistingFolder(identity.stationeryFolder);
+              // If we already processed this folder, do not set enumerator
+              // so that we skip this identity.
+              if (msgFolder && !foldersScanned.includes(msgFolder)) {
+                foldersScanned.push(msgFolder);
+                enumerator = msgFolder.msgDatabase.EnumerateMessages();
               }
 
               if (!enumerator)
@@ -462,7 +454,7 @@
               case "movemessage":
               case "copymessage":
                 let msgFolder = actionTargetLabel ?
-                  this.MailUtils.getFolderForURI(actionTargetLabel) : null;
+                  this.MailUtils.getOrCreateFolder(actionTargetLabel) : null;
                 if (!msgFolder || !msgFolder.canFileMessages)
                   errorString = "mustSelectFolder";
                 break;

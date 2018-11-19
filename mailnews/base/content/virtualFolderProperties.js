@@ -106,7 +106,7 @@ function updateOnlineSearchState()
   var srchFolderUriArray = gSearchFolderURIs.split('|');
   if (srchFolderUriArray[0])
   {
-    var realFolder = MailUtils.getFolderForURI(srchFolderUriArray[0]);
+    var realFolder = MailUtils.getOrCreateFolder(srchFolderUriArray[0]);
     enableCheckbox =  realFolder.server.offlineSupportLevel; // anything greater than 0 is an online server like IMAP or news
   }
 
@@ -186,7 +186,7 @@ function onOK()
   if (name && uri) // create a new virtual folder
   {
     // check to see if we already have a folder with the same name and alert the user if so...
-    var parentFolder = MailUtils.getFolderForURI(uri);
+    var parentFolder = MailUtils.getOrCreateFolder(uri);
 
     // sanity check the name based on the logic used by nsMsgBaseUtils.cpp. It can't start with a '.', it can't end with a '.', '~' or ' '.
     // it can't contain a ';' or '#'.
@@ -248,7 +248,7 @@ function updateFoldersCount()
   if (folderCount > 0) {
     let folderNames = [];
     for (let folderURI of srchFolderUriArray) {
-      let folder = MailUtils.getFolderForURI(folderURI);
+      let folder = MailUtils.getOrCreateFolder(folderURI);
       let name = this.gMessengerBundle.getFormattedString("verboseFolderFormat",
         [folder.prettyName, folder.server.prettyName]);
       folderNames.push(name);

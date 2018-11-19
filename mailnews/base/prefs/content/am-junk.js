@@ -38,17 +38,17 @@ function onInit(aPageId, aServerId)
                         spamActionTargetFolder,
                         deferredToURI || aServerId,
                         document.getElementById("server.moveTargetMode").value,
-                        MailUtils.getFolderForURI(aServerId, false).server.spamSettings,
+                        MailUtils.getOrCreateFolder(aServerId).server.spamSettings,
                         moveOnSpamValue);
 
   spamActionTargetAccountElement.value = spamActionTargetAccount;
   spamActionTargetFolderElement.value = spamActionTargetFolder;
   moveOnSpamCheckbox.checked = moveOnSpamValue;
 
-  let server = MailUtils.getFolderForURI(spamActionTargetAccount, false);
+  let server = MailUtils.getOrCreateFolder(spamActionTargetAccount);
   document.getElementById("actionAccountPopup").selectFolder(server);
 
-  let folder = MailUtils.getFolderForURI(spamActionTargetFolder, true);
+  let folder = MailUtils.getExistingFolder(spamActionTargetFolder);
   document.getElementById("actionFolderPopup").selectFolder(folder);
 
   var currentArray = [];

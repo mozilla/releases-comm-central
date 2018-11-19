@@ -1045,9 +1045,9 @@ var MessageWindowController = {
         let targetURI = Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri");
         if (!targetURI)
           return false;
-        let targetFolder = MailUtils.getFolderForURI(targetURI);
-        // If parent is null, folder doesn't exist.
-        return targetFolder && targetFolder.parent;
+        let targetFolder = MailUtils.getExistingFolder(targetURI);
+        // If null, folder doesn't exist.
+        return (targetFolder !== null);
       case "cmd_applyFilters":
       case "cmd_runJunkControls":
       case "cmd_deleteJunk":
@@ -1124,7 +1124,7 @@ var MessageWindowController = {
         MsgEditTemplateMessage(null);
         break;
       case "cmd_moveToFolderAgain":
-        var folder = MailUtils.getFolderForURI(
+        var folder = MailUtils.getOrCreateFolder(
                        Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri"));
         if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move"))
           MsgMoveMessage(folder);
@@ -1354,5 +1354,5 @@ function RestoreFocusAfterHdrButton() {
 function SelectFolder(aFolderUri) {
   gFolderDisplay.clearSelection();
   gFolderDisplay.treeSelection.currentIndex = -1;
-  gFolderDisplay.show(MailUtils.getFolderForURI(aFolderUri));
+  gFolderDisplay.show(MailUtils.getExistingFolder(aFolderUri));
 }

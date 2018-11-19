@@ -753,7 +753,7 @@ FolderDisplayWidget.prototype = {
    */
   // @{
   showFolderUri(aFolderURI) {
-    return this.show(MailUtils.getFolderForURI(aFolderURI));
+    return this.show(MailUtils.getExistingFolder(aFolderURI));
   },
 
   /**

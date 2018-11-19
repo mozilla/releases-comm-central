@@ -1721,7 +1721,7 @@ var FeedUtils = {
    * @returns {String} prettyName or null  - Name or null if not a disk folder.
    */
   getFolderPrettyPath(aFolder) {
-    let msgFolder = MailUtils.getFolderForURI(aFolder.URI, true);
+    let msgFolder = MailUtils.getExistingFolder(aFolder.URI);
     if (!msgFolder) {
       // Not a real folder uri.
       return null;
@@ -1739,7 +1739,7 @@ var FeedUtils = {
     for (let i = 0; i < rawPathParts.length - 1; i++) {
       // Two or more folders deep parts here.
       folderURI += "/" + rawPathParts[i];
-      msgFolder = MailUtils.getFolderForURI(folderURI, true);
+      msgFolder = MailUtils.getExistingFolder(folderURI);
       pathParts.push(msgFolder.name);
     }
 

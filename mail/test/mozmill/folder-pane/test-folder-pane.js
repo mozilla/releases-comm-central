@@ -15,6 +15,7 @@ var MODULE_NAME = 'test-folder-pane';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers'];
 
+ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function setupModule(module) {
@@ -51,10 +52,7 @@ function test_all_folders_toggle_folder_open_state() {
   // set before the folder added notification is sent out, which means
   // creating the folder object via RDF, setting the flag, and then
   // creating the storage, which sends the notification.
-  let rdfService = Cc['@mozilla.org/rdf/rdf-service;1']
-                     .getService(Ci.nsIRDFService);
-  let folder = rdfService.GetResource(pop3Server.rootFolder.URI + "/Archives")
-                         .QueryInterface(Ci.nsIMsgFolder);
+  let folder = MailUtils.getOrCreateFolder(pop3Server.rootFolder.URI + "/Archives");
   folder.setFlag(Ci.nsMsgFolderFlags.Archive);
   folder.createStorageIfMissing(null);
   // After creating Archives, account should have expanded

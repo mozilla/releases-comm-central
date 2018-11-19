@@ -2609,7 +2609,7 @@ var GlodaMsgIndexer = {
      */
     _folderRenameHelper: function gloda_indexer_folderRenameHelper(aOrigFolder,
                                                                    aNewURI) {
-      let newFolder = MailUtils.getFolderForURI(aNewURI);
+      let newFolder = MailUtils.getOrCreateFolder(aNewURI);
       let specialFolderFlags = Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Junk;
       if (newFolder.isSpecialFolder(specialFolderFlags, true)) {
         let descendentFolders = newFolder.descendants;

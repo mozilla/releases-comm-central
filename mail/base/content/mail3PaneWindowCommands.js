@@ -550,9 +550,9 @@ var DefaultController = {
         let targetURI = Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri");
         if (!targetURI)
           return false;
-        let targetFolder = MailUtils.getFolderForURI(targetURI);
-        // If parent is null, folder doesn't exist.
-        return targetFolder && targetFolder.parent &&
+        let targetFolder = MailUtils.getExistingFolder(targetURI);
+        // If null, folder doesn't exist.
+        return (targetFolder !== null) &&
                gFolderDisplay.selectedCount > 0;
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
@@ -945,7 +945,7 @@ var DefaultController = {
           MailOfflineMgr.openOfflineAccountSettings();
           break;
       case "cmd_moveToFolderAgain":
-          var folder = MailUtils.getFolderForURI(
+          var folder = MailUtils.getOrCreateFolder(
             Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri"));
           if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move"))
             MsgMoveMessage(folder);

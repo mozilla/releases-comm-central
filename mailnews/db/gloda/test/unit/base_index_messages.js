@@ -1019,7 +1019,7 @@ function* test_folder_nuking_message_deletion() {
 
 function get_nsIMsgFolder(aFolder) {
   if (!(aFolder instanceof Ci.nsIMsgFolder))
-    return MailUtils.getFolderForURI(aFolder);
+    return MailUtils.getOrCreateFolder(aFolder);
   else
     return aFolder;
 }

@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gSynchronizeTree = null;
@@ -69,11 +70,8 @@ function selectOkButton()
 
 function selectCancelButton()
 {
-    var RDF = Cc["@mozilla.org/rdf/rdf-service;1"]
-                .getService(Ci.nsIRDFService);
     for (var resourceValue in gInitialFolderStates) {
-      var resource = RDF.GetResource(resourceValue);
-      var folder = resource.QueryInterface(Ci.nsIMsgFolder);
+      let folder = MailUtils.getExistingFolder(resourceValue);
       if (gInitialFolderStates[resourceValue])
         folder.setFlag(Ci.nsMsgFolderFlags.Offline);
       else

@@ -706,13 +706,13 @@ function GetFirstSelectedMsgFolder()
   if (!selectedFolder)
     return null;
 
-  var msgFolder = MailUtils.getFolderForURI(selectedFolder, true);
+  var msgFolder = MailUtils.getExistingFolder(selectedFolder);
   return msgFolder;
 }
 
 function SearchNewFolderOkCallback(name, uri)
 {
-  var msgFolder = MailUtils.getFolderForURI(uri, true);
+  var msgFolder = MailUtils.getExistingFolder(uri);
   var imapFolder = null;
   try
   {
@@ -745,7 +745,7 @@ function SearchNewFolderOkCallback(name, uri)
   if (!imapFolder)
   {
     var curFolder = uri+"/"+encodeURIComponent(name);
-    let folder = MailUtils.getFolderForURI(curFolder);
+    let folder = MailUtils.getOrCreateFolder(curFolder);
     gActionTargetElement.selectFolder(folder);
   }
 }

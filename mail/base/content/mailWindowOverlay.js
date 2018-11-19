@@ -601,7 +601,7 @@ function initMoveToFolderAgainMenu(aMenuItem) {
   var lastFolderURI = Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri");
   var isMove = Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move");
   if (lastFolderURI) {
-    var destMsgFolder = MailUtils.getFolderForURI(lastFolderURI);
+    var destMsgFolder = MailUtils.getOrCreateFolder(lastFolderURI);
     var bundle = document.getElementById("bundle_messenger");
     var stringName = isMove ? "moveToFolderAgain" : "copyToFolderAgain";
     aMenuItem.label = bundle.getFormattedString(stringName,
@@ -1071,7 +1071,7 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
   for (var i = curPos.value; (isBackMenu) ? i >= 0 : i < historyArray.length; i += ((isBackMenu) ? -2 : 2)) {
     navDebug("history[" + i + "] = " + historyArray[i] + "\n");
     navDebug("history[" + i + "] = " + historyArray[i + 1] + "\n");
-    folder = MailUtils.getFolderForURI(historyArray[i + 1]);
+    folder = MailUtils.getOrCreateFolder(historyArray[i + 1]);
     navDebug("folder URI = " + folder.URI + "pretty name " + folder.prettyName + "\n");
     var menuText = "";
 
@@ -1695,7 +1695,7 @@ BatchMessageMover.prototype = {
       let batch = this._currentBatch;
       let srcFolder = batch.srcFolder;
       let archiveFolderURI = batch.archiveFolderURI;
-      let archiveFolder = MailUtils.getFolderForURI(archiveFolderURI, false);
+      let archiveFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
       let dstFolder = archiveFolder;
 
       let moveArray = Cc["@mozilla.org/array;1"]
@@ -1734,7 +1734,7 @@ BatchMessageMover.prototype = {
 
       if (granularity >= Ci.nsIMsgIdentity.perYearArchiveFolders) {
         archiveFolderURI += "/" + batch.yearFolderName;
-        dstFolder = MailUtils.getFolderForURI(archiveFolderURI, false);
+        dstFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
         if (!dstFolder.parent) {
           dstFolder.createStorageIfMissing(this);
           if (isAsync)
@@ -1743,7 +1743,7 @@ BatchMessageMover.prototype = {
       }
       if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
         archiveFolderURI += "/" + batch.monthFolderName;
-        dstFolder = MailUtils.getFolderForURI(archiveFolderURI, false);
+        dstFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
         if (!dstFolder.parent) {
           dstFolder.createStorageIfMissing(this);
           if (isAsync)

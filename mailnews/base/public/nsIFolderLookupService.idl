@@ -28,6 +28,17 @@ interface nsIFolderLookupService : nsISupports
    * @param aUrl The folder URL
    */
   nsIMsgFolder getFolderForURL(in ACString aUrl);
+
+  /**
+   * Returns a folder with the given URL.
+   * Will happily create and return an invalid (unparented) folder.
+   * Will return null if aUrl is not a folder url.
+   * NOTE: don't use this for new code! It's here purely to help
+   * transition away from RDF-based folder creation.
+   *
+   * @param aUrl The folder URL
+   */
+  nsIMsgFolder getOrCreateFolderForURL(in ACString aUrl);
 };
 
 %{C++

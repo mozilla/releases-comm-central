@@ -74,7 +74,7 @@ function* saveAsTemplate() {
   let identity = MailServices.accounts
                   .getFirstIdentityForServer(IMAPPump.incomingServer);
   identity.stationeryFolder = IMAPPump.incomingServer.rootFolder.URI + "/Templates";
-  let templates = MailUtils.getFolderForURI(identity.stationeryFolder, false);
+  let templates = MailUtils.getOrCreateFolder(identity.stationeryFolder);
   // Verify that Templates folder doesn't exist, and then create it.
   Assert.equal(templates.parent, null);
   templates.setFlag(Ci.nsMsgFolderFlags.Templates);

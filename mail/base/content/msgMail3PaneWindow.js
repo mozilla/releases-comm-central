@@ -843,7 +843,7 @@ function loadStartFolder(initialUri) {
     // First get default account
     try {
         if (initialUri) {
-            startFolder = MailUtils.getFolderForURI(initialUri);
+            startFolder = MailUtils.getOrCreateFolder(initialUri);
         } else {
             let defaultAccount = accountManager.defaultAccount;
             if (!defaultAccount)
@@ -1190,7 +1190,7 @@ function GetSelectedMsgFolders() {
 }
 
 function SelectFolder(folderUri) {
-  gFolderTreeView.selectFolder(MailUtils.getFolderForURI(folderUri));
+  gFolderTreeView.selectFolder(MailUtils.getOrCreateFolder(folderUri));
 }
 
 function ReloadMessage() {

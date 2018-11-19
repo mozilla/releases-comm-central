@@ -4113,7 +4113,7 @@ function ComposeCanClose() {
     // and therefore need to be visible (to prevent user confusion)
     window.focus();
     let draftFolderURI = gCurrentIdentity.draftFolder;
-    let draftFolderName = MailUtils.getFolderForURI(draftFolderURI).prettyName;
+    let draftFolderName = MailUtils.getOrCreateFolder(draftFolderURI).prettyName;
     let result = Services.prompt
                          .confirmEx(window,
                                     getComposeBundle().getString("saveDlogTitle"),
@@ -4164,13 +4164,11 @@ function RemoveDraft() {
   try {
     var draftUri = gMsgCompose.compFields.draftId;
     var msgKey = draftUri.substr(draftUri.indexOf("#") + 1);
-    var rdf = Cc["@mozilla.org/rdf/rdf-service;1"]
-                .getService(Ci.nsIRDFService);
-
-    var folder = rdf.GetResource(gMsgCompose.savedFolderURI)
-                    .QueryInterface(Ci.nsIMsgFolder);
+    let folder = MailUtils.getExistingFolder(gMsgCompose.savedFolderURI);
+    if (!folder)
+      return;
     try {
-      if (folder.flags & Ci.nsMsgFolderFlags.Drafts) {
+      if (folder.getFlag(Ci.nsMsgFolderFlags.Drafts)) {
         var msgs = Cc["@mozilla.org/array;1"].
             createInstance(Ci.nsIMutableArray);
         msgs.appendElement(folder.GetMessageHeader(msgKey));
@@ -4178,9 +4176,12 @@ function RemoveDraft() {
       }
     } catch (ex) { // couldn't find header - perhaps an imap folder.
       var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
-      var keyArray = [];
-      keyArray[0] = msgKey;
-      imapFolder.storeImapFlags(8, true, keyArray, 1, null);
+      if (imapFolder) {
+        let keyArray = [];
+        keyArray[0] = msgKey;
+        imapFolder.storeImapFlags(Ci.nsMsgFolderFlags.Expunged,
+                                  true, keyArray, 1, null);
+      }
     }
   } catch (ex) {}
 }
@@ -5980,7 +5981,7 @@ function DisplaySaveFolderDlg(folderURI) {
   }
 
   if (showDialog) {
-    let msgfolder = MailUtils.getFolderForURI(folderURI, true);
+    let msgfolder = MailUtils.getExistingFolder(folderURI);
     if (!msgfolder)
       return;
     let checkbox = {value: 0};

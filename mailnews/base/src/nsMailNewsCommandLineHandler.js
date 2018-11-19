@@ -56,7 +56,7 @@ var nsMailNewsCommandLineHandler =
           // Make sure the folder tree is initialized
           MailUtils.discoverFolders();
 
-          let folder = MailUtils.getFolderForURI(folderURI, true);
+          let folder = MailUtils.getExistingFolder(folderURI);
           // The folder might not exist, so guard against that
           if (folder && messageID.length > 0)
             msgHdr = folder.msgDatabase.getMsgHdrForMessageID(messageID);

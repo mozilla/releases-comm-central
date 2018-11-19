@@ -114,11 +114,11 @@ function SetFolderDisplay(pickerMode, disableMode,
     var rg = selectAccountRadioElem.radioGroup;
     var folderPickedElement = document.getElementById(folderPickedField);
     var uri = folderPickedElement.getAttribute("value");
-    // Get message folder from the given uri. Second argument (false) signifies
-    // that there is no need to check for the existence of special folders as
+    // Get message folder from the given uri.
+    // There is no need to check for the existence of special folders as
     // these folders are created on demand at runtime in case of imap accounts.
     // For POP3 accounts, special folders are created at the account creation time.
-    var msgFolder = MailUtils.getFolderForURI(uri, false);
+    var msgFolder = MailUtils.getOrCreateFolder(uri);
     InitFolderDisplay(msgFolder.server.rootFolder, accountPicker);
     InitFolderDisplay(msgFolder, folderPicker);
 

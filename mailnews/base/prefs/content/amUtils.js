@@ -72,8 +72,12 @@ function checkJunkTargetFolder(aTargetURI, aIsServer)
 {
   try {
     // Does the target account exist?
-    let targetServer = MailUtils.getFolderForURI(aTargetURI + (aIsServer ? "/Junk" : ""),
-                                                 !aIsServer).server;
+    let targetServer;
+    if (aIsServer) {
+      targetServer = MailUtils.getOrCreateFolder(aTargetURI + "/Junk").server;
+    } else {
+      targetServer = MailUtils.getExistingFolder(aTargetURI).server;
+    }
 
     // If the target server has deferred storage, Junk can't be stored into it.
     if (targetServer.rootFolder != targetServer.rootMsgFolder)
@@ -99,7 +103,7 @@ function chooseJunkTargetFolder(aTargetURI, aIsServer)
   let server = null;
 
   if (aTargetURI) {
-    server = MailUtils.getFolderForURI(aTargetURI, false).server;
+    server = MailUtils.getOrCreateFolder(aTargetURI).server;
     if (!server.canCreateFoldersOnServer || !server.canSearchMessages ||
         (server.rootFolder != server.rootMsgFolder))
       server = null;

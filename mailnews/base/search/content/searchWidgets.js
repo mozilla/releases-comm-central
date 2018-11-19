@@ -131,7 +131,7 @@ class MozRuleactiontargetFolder extends MozXULElement {
     });
 
     let folder = this.menulist.value ?
-      MailUtils.getFolderForURI(this.menulist.value) :
+      MailUtils.getOrCreateFolder(this.menulist.value) :
       gFilterList.folder;
 
     // An account folder is not a move/copy target; show "Choose Folder".

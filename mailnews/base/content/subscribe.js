@@ -32,7 +32,7 @@ function SetServerTypeSpecificTextValues()
   if (!gServerURI)
     return;
 
-  let serverType = MailUtils.getFolderForURI(gServerURI, true).server.type;
+  let serverType = MailUtils.getExistingFolder(gServerURI).server.type;
 
   // set the server specific ui elements
   let subscribeLabelString = gSubscribeBundle.getString("subscribeLabel-" + serverType);
@@ -71,7 +71,7 @@ function SetUpTree(forceToServer, getOnlyNew)
   if (!gServerURI)
     return;
 
-  var server = MailUtils.getFolderForURI(gServerURI, true).server;
+  var server = MailUtils.getExistingFolder(gServerURI).server;
   try
   {
     CleanUpSearchView();
