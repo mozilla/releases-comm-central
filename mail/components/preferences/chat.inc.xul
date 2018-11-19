@@ -29,8 +29,6 @@
       <preference id="messenger.options.messagesStyle.showHeader" name="messenger.options.messagesStyle.showHeader" type="bool"/>
     </preferences>
 
-    <broadcaster id="idleReportingEnabled"/>
-
     <stringbundle id="themesBundle"
                   src="chrome://messenger/locale/preferences/messagestyle.properties"/>
 
@@ -63,7 +61,7 @@
                       accesskey="&reportIdleAfter.accesskey;"
                       preference="messenger.status.reportIdle"/>
             <textbox id="timeBeforeAway" type="number" min="1" max="720"
-                     observes="idleReportingEnabled"
+                     class="idle-reporting-enabled"
                      preference="messenger.status.timeBeforeIdle"
                      onsyncfrompreference="var elt = document.getElementById(this.getAttribute('preference'));
                                            return (elt.instantApply ? elt.valueFromPreferences : elt.value) / 60;"
@@ -74,13 +72,13 @@
             <hbox>
               <checkbox id="autoAway"
                         label="&andSetStatusToAway.label;"
-                        observes="idleReportingEnabled"
+                        class="idle-reporting-enabled"
                         accesskey="&andSetStatusToAway.accesskey;"
                         preference="messenger.status.awayWhenIdle"/>
               <spacer flex="1"/>
             </hbox>
-            <textbox id="defaultIdleAwayMessage" class="indent"
-                     observes="idleReportingEnabled"
+            <textbox id="defaultIdleAwayMessage"
+                     class="idle-reporting-enabled indent"
                      preference="messenger.status.defaultIdleAwayMessage"/>
           </vbox>
           <separator/>

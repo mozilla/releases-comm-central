@@ -76,31 +76,27 @@
         key="&accountManager.close.commandkey;" modifiers="accel,shift"/>
  </keyset>
 
- <broadcasterset>
-   <broadcaster id="contextAccountsItems"/>
- </broadcasterset>
-
  <menupopup id="accountsContextMenu"
             onpopupshowing="gAccountManager.onContextMenuShowing()">
    <menuitem id="context_connect"
              command="cmd_connect"
-             observes="contextAccountsItems"/>
+             class="im-context-account-item"/>
    <menuitem id="context_disconnect"
              command="cmd_disconnect"
-             observes="contextAccountsItems"/>
+             class="im-context-account-item"/>
    <menuitem id="context_cancelReconnection"
              command="cmd_cancelReconnection"
-             observes="contextAccountsItems"/>
+             class="im-context-account-item"/>
    <menuitem id="context_copyDebugLog"
              command="cmd_copyDebugLog"/>
    <menuseparator id="context_accountsItemsSeparator"
-                  observes="contextAccountsItems"/>
+                  class="im-context-account-item"/>
    <menuitem command="cmd_new"/>
-   <menuseparator observes="contextAccountsItems"/>
-   <menuitem command="cmd_moveup" observes="contextAccountsItems"/>
-   <menuitem command="cmd_movedown" observes="contextAccountsItems"/>
-   <menuseparator observes="contextAccountsItems"/>
-   <menuitem command="cmd_edit" observes="contextAccountsItems"/>
+   <menuseparator class="im-context-account-item"/>
+   <menuitem command="cmd_moveup" class="im-context-account-item"/>
+   <menuitem command="cmd_movedown" class="im-context-account-item"/>
+   <menuseparator class="im-context-account-item"/>
+   <menuitem command="cmd_edit" class="im-context-account-item"/>
  </menupopup>
 
  <toolbox id="mainToolbox">

@@ -360,7 +360,9 @@ var gAccountManager = {
   onContextMenuShowing: function am_onContextMenuShowing() {
     let targetElt = document.popupNode;
     let isAccount = targetElt instanceof Ci.nsIDOMXULSelectControlItemElement;
-    document.getElementById("contextAccountsItems").hidden = !isAccount;
+    document.querySelector(".im-context-account-item").forEach(e => {
+      e.hidden = !isAccount;
+    });
     if (isAccount) {
       let account = targetElt.account;
       let hiddenItems = {

@@ -13,13 +13,10 @@ var gChatPane = {
   },
 
   updateDisabledState() {
-    let broadcaster = document.getElementById("idleReportingEnabled");
-    if (document.getElementById("messenger.status.reportIdle").value) {
-      broadcaster.removeAttribute("disabled");
-      this.updateMessageDisabledState();
-    } else {
-      broadcaster.setAttribute("disabled", "true");
-    }
+    let checked = document.getElementById("messenger.status.reportIdle").value;
+    document.querySelectorAll(".idle-reporting-enabled").forEach(e => {
+      e.disabled = !checked;
+    });
   },
 
   updateMessageDisabledState() {
