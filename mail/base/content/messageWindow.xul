@@ -142,10 +142,6 @@
     <command id="cmd_close" oncommand="window.close();"/>
   </commandset>
 
-  <broadcasterset id="otherActionsButtonBroadcasters">
-     <broadcaster id="otherActionsOpenIn"/>
-  </broadcasterset>
-
   <keyset id="mailKeys">
     <key keycode="VK_ESCAPE" oncommand="window.close();"/>
 #include mainKeySet.inc

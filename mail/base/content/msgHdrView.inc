@@ -218,12 +218,10 @@
                                         <menuitem id="otherActionsOpenInNewWindow"
                                                   label="&otherActionsOpenInNewWindow1.label;"
                                                   accesskey="&otherActionsOpenInNewWindow1.accesskey;"
-                                                  observes="otherActionsOpenIn"
                                                   oncommand="MsgOpenNewWindowForMessage();"/>
                                         <menuitem id="otherActionsOpenInNewTab"
                                                   label="&otherActionsOpenInNewTab1.label;"
                                                   accesskey="&otherActionsOpenInNewTab1.accesskey;"
-                                                  observes="otherActionsOpenIn"
                                                   oncommand="OpenMessageInNewTab(event);"/>
                                         <menuitem id="viewSourceMenuItem"
                                                   label="&viewSourceMenuItem1.label;"

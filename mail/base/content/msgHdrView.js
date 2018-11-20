@@ -239,12 +239,13 @@ function OnLoadMsgHeaderPane() {
     deckElement.selectedIndex = 0;
   }
 
-  // Only offer openInTab and openInNewWindow if this window supports tabs...
-  // (i.e. is not a standalone message window), since those actions are likely
-  // to be significantly less common in that case.
-  if (document.getElementById("otherActionsOpenIn")) {
-    let opensAreHidden = !document.getElementById("tabmail");
-    document.getElementById("otherActionsOpenIn").hidden = opensAreHidden;
+  // Only offer openInTab and openInNewWindow if this window supports tabs.
+  let opensAreHidden = !document.getElementById("tabmail");
+  for (let id of ["otherActionsOpenInNewWindow", "otherActionsOpenInNewTab"]) {
+    let menu = document.getElementById(id);
+    if (menu) {  // May not be available yet.
+      menu.hidden = opensAreHidden;
+    }
   }
 
   // Dispatch an event letting any listeners know that we have loaded
