@@ -1827,6 +1827,14 @@
     <implementation>
       <field name="mOverCloseButton">false</field>
       <field name="mCorrespondingMenuitem">null</field>
+
+      <property name="linkedBrowser">
+        <getter><![CDATA[
+          let tabmail = document.getElementById("tabmail");
+          let tab = tabmail._getTabContextForTabbyThing(this, false)[1];
+          return tabmail.getBrowserForTab(tab);
+        ]]></getter>
+      </property>
     </implementation>
 
     <handlers>

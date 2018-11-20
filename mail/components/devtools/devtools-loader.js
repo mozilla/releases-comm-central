@@ -5,7 +5,6 @@
 "use strict";
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 
 function DevToolsStartup() {}
 
@@ -20,7 +19,7 @@ DevToolsStartup.prototype = {
     // We want to overwrite the -devtools flag and open the toolbox instead
     let devtoolsFlag = cmdLine.handleFlag("devtools", false);
     if (devtoolsFlag) {
-        this.handleDevToolsFlag(cmdLine);
+      this.handleDevToolsFlag(cmdLine);
     }
   },
 
@@ -34,48 +33,43 @@ DevToolsStartup.prototype = {
   },
 
   initialize() {
-    var { devtools, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm", null);
-    var { DebuggerServer } = require("devtools/server/main");
-    var { gDevTools } = require("devtools/client/framework/devtools");
+    let { devtools, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm", null);
+    let { DebuggerServer } = require("devtools/server/main");
+    let { gDevTools } = require("devtools/client/framework/devtools");
 
-    if (DebuggerServer.chromeWindowType != "mail:3pane") {
-      // Set up the server chrome window type, make sure it can't be set
-      Object.defineProperty(DebuggerServer, "chromeWindowType", {
-        get: () => "mail:3pane",
-        set: () => {},
-        configurable: true,
-      });
-    }
+    // Set up the client and server chrome window type, make sure it can't be set
+    Object.defineProperty(DebuggerServer, "chromeWindowType", {
+      get: () => "mail:3pane",
+      set: () => {},
+      configurable: true,
+    });
+    Object.defineProperty(gDevTools, "chromeWindowType", {
+      get: () => "mail:3pane",
+      set: () => {},
+      configurable: true,
+    });
 
-    if (gDevTools.chromeWindowType != "mail:3pane") {
-      // Set up the client chrome window type, make sure it can't be set
-      Object.defineProperty(gDevTools, "chromeWindowType", {
-        get: () => "mail:3pane",
-        set: () => {},
-        configurable: true,
-      });
-    }
+    // Make sure our root actor is always registered, no matter how devtools are called.
+    let devtoolsRegisterActors = DebuggerServer.registerActors.bind(DebuggerServer);
+    DebuggerServer.registerActors = function(options) {
+      devtoolsRegisterActors(options);
+      if (options.root) {
+        const { createRootActor } = require("resource:///modules/tb-root-actor.js");
+        DebuggerServer.setRootActor(createRootActor);
+      }
+    };
 
     // Make the loader visible to the debugger by default and for the already
     // loaded instance. Thunderbird now also provides the Browser Toolbox for
     // chrome debugging, which uses its own separate loader instance.
     DevToolsLoader.prototype.invisibleToDebugger = false;
     devtools.invisibleToDebugger = false;
+    DebuggerServer.allowChromeProcess = true;
 
-    if (!DebuggerServer.initialized) {
-      // Initialize and load the toolkit/browser actors
-      DebuggerServer.init();
-      DebuggerServer.registerActors({ browser: true, root: true, tab: true, windowType: "mail:3pane" });
-    }
-
-    if (!DebuggerServer.createRootActor.isMailRootActor) {
-      // Register the Thunderbird root actor
-      DebuggerServer.registerModule("resource:///modules/tb-root-actor.js", {
-        prefix: "tb-root-actor",
-        constructor: "RootActor",
-        type: { global: true },
-      });
-    }
+    // Initialize and load the toolkit/browser actors. This will also call above function to set the
+    // Thunderbird root actor
+    DebuggerServer.init();
+    DebuggerServer.registerAllActors();
   },
 };
 
