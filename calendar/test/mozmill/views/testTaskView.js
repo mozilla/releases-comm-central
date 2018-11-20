@@ -78,8 +78,8 @@ function testTaskView() {
     let countAfter;
     controller.waitFor(() => {
         countAfter = taskTreeNode.mTaskArray.length;
-        return countBefore + 1 == countAfter;
-    }, "Added Task did not appear");
+        return countAfter == (countBefore + 1);
+    }, "Added Task did not appear; countBefore=" + countBefore + ", countAfter=" + countAfter);
 
     // Last added task is automatically selected so verify detail window data.
     controller.assertJSProperty(eid("calendar-task-details-title"), "textContent", TITLE);
@@ -155,13 +155,12 @@ function testTaskView() {
     controller.assertJSProperty(toolTipStatus, "textContent", "Completed");
 
     // Delete task and verify.
-    controller.click(eid("task-context-menu-delete"));
     controller.click(eid("calendar-delete-task-button"));
-    let countAfterDelete;
+    countBefore = countAfter;
     controller.waitFor(() => {
-        countAfterDelete = taskTreeNode.mTaskArray.length;
-        return countAfter - 1 == countAfterDelete;
-    });
+        countAfter = taskTreeNode.mTaskArray.length;
+        return countAfter == (countBefore - 1);
+    }, "Task did not delete; countBefore=" + countBefore + ", countAfter=" + countAfter);
 }
 
 function teardownTest(module) {
