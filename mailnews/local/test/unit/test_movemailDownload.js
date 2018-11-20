@@ -4,7 +4,6 @@
  */
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Task.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var gPluggableStores = [

@@ -3,7 +3,6 @@
 
 ChromeUtils.import("resource://gre/modules/osfile.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Task.jsm");
 ChromeUtils.import("resource://testing-common/Assert.jsm");
 var requireCache = new Map();
 

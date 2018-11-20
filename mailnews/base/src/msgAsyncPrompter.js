@@ -4,7 +4,6 @@
 
 ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Task.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
