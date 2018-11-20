@@ -623,7 +623,6 @@ Throbber-small.gif
   @DIR_MACOS@components/nsINIProcessor.js
   @DIR_MACOS@components/nsInputListAutoComplete.js
   @DIR_MACOS@components/nsLDAPProtocolHandler.js
-  @DIR_MACOS@components/nsLivemarkService.js
   @DIR_MACOS@components/nsLoginInfo.js
   @DIR_MACOS@components/nsLoginManager.js
   @DIR_MACOS@components/nsLoginManagerPrompter.js

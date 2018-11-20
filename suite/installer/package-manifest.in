@@ -247,7 +247,6 @@
 @RESPATH@/components/PresentationControlService.js
 @RESPATH@/components/BuiltinProviders.manifest
 @RESPATH@/components/nsInputListAutoComplete.js
-@RESPATH@/components/nsLivemarkService.js
 @RESPATH@/components/nsLoginInfo.js
 @RESPATH@/components/nsLoginManager.js
 @RESPATH@/components/nsLoginManagerPrompter.js
