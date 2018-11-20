@@ -264,8 +264,9 @@ function test_store_rename(root) {
   folder3 = root.getChildNamed("newfolder3");
   root.propagateDelete(folder3, true, null);
   Assert.ok(!root.containsChildNamed("newfolder3"));
-  folder3 = root.createLocalSubfolder("newfolder3");
-  folder3SubFolder = folder3.createLocalSubfolder("newfolder3-sub");
+  folder3 = root.createLocalSubfolder("newfolder3")
+                .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder3Subfolder = folder3.createLocalSubfolder("newfolder3-sub");
   folder3.rename("folder3", null);
 
   Assert.ok(root.containsChildNamed("folder3"));
