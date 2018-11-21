@@ -667,8 +667,6 @@ function HandleAppCommandEvent(evt) {
  * Look for another 3-pane window.
  */
 function FindOther3PaneWindow() {
-  // XXX We'd like to use getZOrderDOMWindowEnumerator here, but it doesn't work
-  // on Linux
   let enumerator = Services.wm.getEnumerator("mail:3pane");
   while (enumerator.hasMoreElements()) {
     let win = enumerator.getNext();

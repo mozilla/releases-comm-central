@@ -634,32 +634,18 @@ function safeModeRestart() {
 
 function getMostRecentMailWindow() {
   let win = null;
-  if (AppConstants.platform != "win") {
-    // Platforms other than Windows have a broken z-order...
-    win = Services.wm.getMostRecentWindow("mail:3pane", true);
 
-    // If we're lucky, this isn't a popup, and we can just return this.
-    if (win && win.document.documentElement.getAttribute("chromehidden")) {
-      win = null;
-      let windowList = Services.wm.getEnumerator("mail:3pane", true);
-      // This is oldest to newest, so this gets a bit ugly.
-      while (windowList.hasMoreElements()) {
-        let nextWin = windowList.getNext();
-        if (!nextWin.document.documentElement.getAttribute("chromehidden"))
-          win = nextWin;
-      }
-    }
-  } else {
-    let windowList = Services.wm.getZOrderDOMWindowEnumerator("mail:3pane", true);
-    if (!windowList.hasMoreElements())
-      return null;
+  win = Services.wm.getMostRecentWindow("mail:3pane", true);
 
-    win = windowList.getNext();
-    while (win.document.documentElement.getAttribute("chromehidden")) {
-      if (!windowList.hasMoreElements())
-        return null;
-
-      win = windowList.getNext();
+  // If we're lucky, this isn't a popup, and we can just return this.
+  if (win && win.document.documentElement.getAttribute("chromehidden")) {
+    win = null;
+    let windowList = Services.wm.getEnumerator("mail:3pane", true);
+    // This is oldest to newest, so this gets a bit ugly.
+    while (windowList.hasMoreElements()) {
+      let nextWin = windowList.getNext();
+      if (!nextWin.document.documentElement.getAttribute("chromehidden"))
+        win = nextWin;
     }
   }
 

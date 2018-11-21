@@ -155,7 +155,7 @@ TBTabList.prototype = {
   },
 
   _getTopWindow() {
-    let winIter = Services.wm.getZOrderDOMWindowEnumerator(null, true);
+    let winIter = Services.wm.getEnumerator(null, true);
     while (winIter.hasMoreElements()) {
       let win = winIter.getNext();
       if (this._checkedWindows.has(appShellDOMWindowType(win))) {
