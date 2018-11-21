@@ -107,7 +107,6 @@
   <script type="application/javascript" src="chrome://messenger/content/mail-offline.js"/>
   <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
   <script type="application/javascript" src="chrome://messenger/content/msgViewPickerOverlay.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/plugins.js"/>
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
   <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>

@@ -15,7 +15,6 @@
 /* import-globals-from mail-compacttheme.js */
 /* import-globals-from mailTabs.js */
 /* import-globals-from mailWindow.js */
-/* import-globals-from plugins.js */
 /* import-globals-from quickFilterBar.js */
 /* import-globals-from searchBar.js */
 /* import-globals-from searchBar.js */
@@ -521,8 +520,6 @@ function OnLoadMessenger() {
                                     LightWeightThemeWebInstaller, false, true);
   }
 
-  Services.obs.addObserver(gPluginHandler.pluginCrashed, "plugin-crashed");
-
   // This also registers the contentTabType ("contentTab")
   specialTabs.openSpecialTabsOnStartup();
   preferencesTabType.initialize();
@@ -724,8 +721,6 @@ function OnUnloadMessenger() {
   MailServices.mailSession.RemoveFolderListener(folderListener);
 
   gPhishingDetector.shutdown();
-
-  Services.obs.removeObserver(gPluginHandler.pluginCrashed, "plugin-crashed");
 
   // FIX ME - later we will be able to use onload from the overlay
   OnUnloadMsgHeaderPane();
