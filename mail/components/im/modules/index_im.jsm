@@ -23,7 +23,6 @@ const {
 } = ChromeUtils.import("resource://gre/modules/Timer.jsm", null);
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
-ChromeUtils.defineModuleGetter(this, "Task", "resource://gre/modules/Task.jsm");
 ChromeUtils.defineModuleGetter(this, "AsyncShutdown",
                                "resource://gre/modules/AsyncShutdown.jsm");
 ChromeUtils.defineModuleGetter(this, "GlodaDatastore",
@@ -388,11 +387,11 @@ var GlodaIMIndexer = {
     }
 
     let conv = this._knownConversations[convId];
-    Task.spawn(function* () {
+    (async () => {
       // We need to get the log files every time, because a new log file might
       // have been started since we last got them.
       let logFiles =
-        yield Services.logs.getLogPathsForConversation(aConversation);
+        await Services.logs.getLogPathsForConversation(aConversation);
       if (!logFiles || !logFiles.length) {
         // No log files exist yet, nothing to do!
         return;
@@ -433,7 +432,7 @@ var GlodaIMIndexer = {
       for (let logFile of currentLogFiles) {
         let fileName = OS.Path.basename(logFile);
         let lastModifiedTime =
-          (yield OS.File.stat(logFile)).lastModificationDate.valueOf();
+          (await OS.File.stat(logFile)).lastModificationDate.valueOf();
         if (Object.prototype.hasOwnProperty.call(conv.convObj, fileName) &&
             conv.convObj[fileName] == lastModifiedTime) {
           // The file hasn't changed since we last indexed it, so we're done.
@@ -441,7 +440,7 @@ var GlodaIMIndexer = {
         }
 
         if (this._indexingJobPromise)
-          yield this._indexingJobPromise;
+          await this._indexingJobPromise;
         this._indexingJobPromise = new Promise(aResolve => {
           this._indexingJobCallbacks.set(convId, aResolve);
         });
@@ -453,7 +452,7 @@ var GlodaIMIndexer = {
         GlodaIndexer.indexJob(job);
       }
       conv.logFileCount = logFiles.length;
-    }.bind(this)).catch(Cu.reportError);
+    })().catch(Cu.reportError);
 
     // Now clear the job, so we can index in the future.
     this._knownConversations[convId].scheduledIndex = null;
@@ -564,9 +563,9 @@ var GlodaIMIndexer = {
    * currently being indexed is updated to the aLastModifiedTime parameter's
    * value once indexing is complete.
    * */
-  indexIMConversation: Task.async(function* (aCallbackHandle, aLogPath, aLastModifiedTime, aCache, aGlodaConv) {
-    let log = yield Services.logs.getLogFromFile(aLogPath);
-    let logConv = yield log.getConversation();
+  async indexIMConversation(aCallbackHandle, aLogPath, aLastModifiedTime, aCache, aGlodaConv) {
+    let log = await Services.logs.getLogFromFile(aLogPath);
+    let logConv = await log.getConversation();
 
     // Ignore corrupted log files.
     if (!logConv)
@@ -596,7 +595,7 @@ var GlodaIMIndexer = {
       // gloda conversation so that the existing entry gets updated. This can
       // happen if the log sweep detects that the last messages in an open
       // chat were not in fact indexed before that session was shut down.
-      let id = yield this._getIdFromPath(relativePath);
+      let id = await this._getIdFromPath(relativePath);
       if (id)
         glodaConv.id = id;
       if (aGlodaConv)
@@ -615,7 +614,7 @@ var GlodaIMIndexer = {
     this._scheduleCacheSave();
 
     return rv;
-  }),
+  },
 
   * _worker_indexIMConversation(aJob, aCallbackHandle) {
     let glodaConv = {};

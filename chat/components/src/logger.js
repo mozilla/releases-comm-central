@@ -10,7 +10,6 @@ ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 ChromeUtils.import("resource:///modules/ToLocaleFormat.jsm");
 
-ChromeUtils.import("resource://gre/modules/Task.jsm")
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
@@ -57,12 +56,12 @@ function queueFileOperation(aPath, aOperation) {
  * Note: This function creates parent directories if required.
  */
 function appendToFile(aPath, aEncodedString, aCreate) {
-  return queueFileOperation(aPath, Task.async(function* () {
-    yield OS.File.makeDir(OS.Path.dirname(aPath),
+  return queueFileOperation(aPath, async function () {
+    await OS.File.makeDir(OS.Path.dirname(aPath),
                           {ignoreExisting: true, from: OS.Constants.Path.profileDir});
-    let file = yield OS.File.open(aPath, {write: true, create: aCreate});
+    let file = await OS.File.open(aPath, {write: true, create: aCreate});
     try {
-      yield file.write(aEncodedString);
+      await file.write(aEncodedString);
     }
     finally {
       /*
@@ -71,23 +70,23 @@ function appendToFile(aPath, aEncodedString, aCreate) {
        * error and the write error will be dropped. To avoid this, we log any
        * close error here so that any write error will be propagated.
        */
-      yield file.close().catch(Cu.reportError);
+      await file.close().catch(Cu.reportError);
     }
-  }));
+  });
 }
 
 OS.File.profileBeforeChange.addBlocker(
   "Chat logger: writing all pending messages",
-  Task.async(function* () {
+  async function () {
     for (let promise of gFilePromises.values()) {
       try {
-        yield promise;
+        await promise;
       }
       catch (aError) {
         // Ignore the error, whatever queued the operation will take care of it.
       }
     }
-  })
+  }
 );
 
 
@@ -530,7 +529,7 @@ Log.prototype = {
   __proto__: ClassInfo("imILog", "Log object"),
   _entryPaths: null,
   format: "json",
-  getConversation: Task.async(function* () {
+  async getConversation() {
     /*
      * Read the set of log files asynchronously and return a promise that
      * resolves to a LogConversation instance. Even if a file contains some
@@ -547,7 +546,7 @@ Log.prototype = {
     for (let path of this._entryPaths) {
       let lines;
       try {
-        let contents = yield queueFileOperation(path, () => OS.File.read(path));
+        let contents = await queueFileOperation(path, () => OS.File.read(path));
         lines = decoder.decode(contents).split("\n");
       } catch (aError) {
         Cu.reportError("Error reading log file \"" + path + "\":\n" + aError);
@@ -607,7 +606,7 @@ Log.prototype = {
       return null;
 
     return new LogConversation(messages, properties);
-  })
+  }
 };
 
 
@@ -696,14 +695,14 @@ function Logger() { }
 Logger.prototype = {
   // Returned Promise resolves to an array of entries for the
   // log folder if it exists, otherwise null.
-  _getLogArray: Task.async(function* (aAccount, aNormalizedName) {
+  async _getLogArray(aAccount, aNormalizedName) {
     let iterator, path;
     try {
       path = OS.Path.join(getLogFolderPathForAccount(aAccount),
                           encodeName(aNormalizedName));
-      if (yield queueFileOperation(path, () => OS.File.exists(path))) {
+      if (await queueFileOperation(path, () => OS.File.exists(path))) {
         iterator = new OS.File.DirectoryIterator(path);
-        let entries = yield iterator.nextBatch();
+        let entries = await iterator.nextBatch();
         iterator.close();
         return entries;
       }
@@ -714,7 +713,7 @@ Logger.prototype = {
                      path + "\":\n" + aError);
     }
     return [];
-  }),
+  },
   getLogFromFile: function logger_getLogFromFile(aFilePath, aGroupByDay) {
     if (!aGroupByDay)
       return Promise.resolve(new Log(aFilePath));
@@ -754,7 +753,7 @@ Logger.prototype = {
     let enumerator = aGroupByDay ? DailyLogEnumerator : LogEnumerator;
     return aLogArray.length ? new enumerator(aLogArray) : EmptyEnumerator;
   },
-  getLogPathsForConversation: Task.async(function* (aConversation) {
+  async getLogPathsForConversation(aConversation) {
     let writer = gLogWritersById.get(aConversation.id);
     // Resolve to null if we haven't created a LogWriter yet for this conv, or
     // if logging is disabled (paths will be null).
@@ -764,9 +763,9 @@ Logger.prototype = {
     // Wait for any pending file operations to finish, then resolve to the paths
     // regardless of whether these operations succeeded.
     for (let path of paths)
-      yield gFilePromises.get(path);
+      await gFilePromises.get(path);
     return paths;
-  }),
+  },
   getLogsForAccountAndName: function logger_getLogsForAccountAndName(aAccount,
                                        aNormalizedName, aGroupByDay) {
     return this._getLogArray(aAccount, aNormalizedName)
@@ -777,24 +776,24 @@ Logger.prototype = {
     return this.getLogsForAccountAndName(aAccountBuddy.account,
                                          aAccountBuddy.normalizedName, aGroupByDay);
   },
-  getLogsForBuddy: Task.async(function* (aBuddy, aGroupByDay) {
+  async getLogsForBuddy(aBuddy, aGroupByDay) {
     let entries = [];
     for (let accountBuddy of aBuddy.getAccountBuddies()) {
-      entries = entries.concat(yield this._getLogArray(accountBuddy.account,
+      entries = entries.concat(await this._getLogArray(accountBuddy.account,
                                                        accountBuddy.normalizedName));
     }
     return this._getEnumerator(entries, aGroupByDay);
-  }),
-  getLogsForContact: Task.async(function* (aContact, aGroupByDay) {
+  },
+  async getLogsForContact(aContact, aGroupByDay) {
     let entries = [];
     for (let buddy of aContact.getBuddies()) {
       for (let accountBuddy of buddy.getAccountBuddies()) {
-        entries = entries.concat(yield this._getLogArray(accountBuddy.account,
+        entries = entries.concat(await this._getLogArray(accountBuddy.account,
                                                          accountBuddy.normalizedName));
       }
     }
     return this._getEnumerator(entries, aGroupByDay);
-  }),
+  },
   getLogsForConversation: function logger_getLogsForConversation(aConversation,
                                                                  aGroupByDay) {
     let name = aConversation.normalizedName;
@@ -805,18 +804,18 @@ Logger.prototype = {
   getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount) {
     return this.getLogsForAccountAndName(aAccount, ".system");
   },
-  getSimilarLogs: Task.async(function* (aLog, aGroupByDay) {
+  async getSimilarLogs(aLog, aGroupByDay) {
     let iterator = new OS.File.DirectoryIterator(OS.Path.dirname(aLog.path));
     let entries;
     try {
-      entries = yield iterator.nextBatch();
+      entries = await iterator.nextBatch();
     } catch (aError) {
       Cu.reportError("Error getting similar logs for \"" +
                      aLog.path + "\":\n" + aError);
     }
     // If there was an error, this will return an EmptyEnumerator.
     return this._getEnumerator(entries, aGroupByDay);
-  }),
+  },
 
   getLogFolderPathForAccount: function(aAccount) {
     return getLogFolderPathForAccount(aAccount);
@@ -843,13 +842,13 @@ Logger.prototype = {
                   .catch(aError => Cu.reportError("Failed to remove log folders:\n" + aError));
   },
 
-  forEach: Task.async(function* (aCallback) {
-    let getAllSubdirs = Task.async(function* (aPaths, aErrorMsg) {
+  async forEach(aCallback) {
+    let getAllSubdirs = async function (aPaths, aErrorMsg) {
       let entries = [];
       for (let path of aPaths) {
         let iterator = new OS.File.DirectoryIterator(path);
         try {
-          entries = entries.concat(yield iterator.nextBatch());
+          entries = entries.concat(await iterator.nextBatch());
         } catch (aError) {
           if (aErrorMsg)
             Cu.reportError(aErrorMsg + "\n" + aError);
@@ -860,18 +859,18 @@ Logger.prototype = {
       entries = entries.filter(aEntry => aEntry.isDir)
                        .map(aEntry => aEntry.path);
       return entries;
-    });
+    }
 
     let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
-    let prpls = yield getAllSubdirs([logsPath]);
+    let prpls = await getAllSubdirs([logsPath]);
     let accounts =
-      yield getAllSubdirs(prpls, "Error while sweeping prpl folder:");
+      await getAllSubdirs(prpls, "Error while sweeping prpl folder:");
     let logFolders =
-      yield getAllSubdirs(accounts, "Error while sweeping account folder:");
+      await getAllSubdirs(accounts, "Error while sweeping account folder:");
     for (let folder of logFolders) {
       let iterator = new OS.File.DirectoryIterator(folder);
       try {
-        yield iterator.forEach(aEntry => {
+        await iterator.forEach(aEntry => {
           if (aEntry.isDir || !aEntry.name.endsWith(".json"))
             return null;
           return aCallback.processLog(aEntry.path);
@@ -885,7 +884,7 @@ Logger.prototype = {
         iterator.close();
       }
     }
-  }),
+  },
 
   observe: function logger_observe(aSubject, aTopic, aData) {
     switch (aTopic) {

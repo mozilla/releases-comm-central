@@ -8,7 +8,6 @@ this.EXPORTED_SYMBOLS = ["commands"];
 
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "Task", "resource://gre/modules/Task.jsm");
 
 // Shortcut to get the JavaScript conversation object.
 function getConv(aConv) { return aConv.wrappedJSObject; }
@@ -277,13 +276,13 @@ var commands = [
       let pendingChats = [];
       account.requestRoomInfo({onRoomInfoAvailable: function(aRooms) {
         if (!pendingChats.length) {
-          Task.spawn(function*() {
+          (async function () {
             // pendingChats has no rooms added yet, so ensure we wait a tick.
             let t = 0;
             const kMaxBlockTime = 10; // Unblock every 10ms.
             do {
               if (Date.now() > t) {
-                yield Promise.resolve();
+                await new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
                 t = Date.now() + kMaxBlockTime;
               }
               let name = pendingChats.pop();
@@ -292,7 +291,7 @@ var commands = [
                 name + " (" + roomInfo.participantCount + ") " + roomInfo.topic,
                 {incoming: true, noLog: true});
             } while (pendingChats.length);
-          });
+          })();
         }
         pendingChats = pendingChats.concat(aRooms);
       }}, true);
