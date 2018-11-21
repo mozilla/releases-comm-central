@@ -2891,8 +2891,8 @@ function ComposeStartup(aParams) {
     if (document.getElementById("sidebar").getAttribute("src") == "")
       setTimeout(toggleAddressPicker, 0);   // do this on a delay so we don't hurt perf. on bringing up a new compose window
   }
-  gAutoSaveInterval = getPref("mail.compose.autosave") ?
-    getPref("mail.compose.autosaveinterval") * 60000 : 0;
+  gAutoSaveInterval = Services.prefs.getBoolPref("mail.compose.autosave") ?
+    Services.prefs.getIntPref("mail.compose.autosaveinterval") * 60000 : 0;
 
   if (gAutoSaveInterval)
     gAutoSaveTimeout = setTimeout(AutoSave, gAutoSaveInterval);
@@ -2951,11 +2951,7 @@ function WizCallback(state) {
 }
 
 function ComposeLoad() {
-  try {
-    var other_headers = getPref("mail.compose.other.header");
-  } catch (ex) {
-    dump("failed to get the mail.compose.other.header pref\n");
-  }
+  var other_headers = Services.prefs.getCharPref("mail.compose.other.header", "");
 
   AddMessageComposeOfflineQuitObserver();
 
@@ -3074,7 +3070,7 @@ function GetCharsetUIString() {
 
 // Add-ons can override this to customize the behavior.
 function DoSpellCheckBeforeSend() {
-  return getPref("mail.SpellCheckBeforeSend");
+  return Services.prefs.getBoolPref("mail.SpellCheckBeforeSend");
 }
 
 /**
@@ -3152,7 +3148,8 @@ function GenericSendMessage(msgType) {
     //  - the aggressive pref is set and the latest notification is still showing (implying
     //    that the message has no attachment(s) yet, message still contains some attachment
     //    keywords, and notification was not dismissed).
-    if (gManualAttachmentReminder || (getPref("mail.compose.attachment_reminder_aggressive") &&
+    if (gManualAttachmentReminder ||
+        (Services.prefs.getBoolPref("mail.compose.attachment_reminder_aggressive") &&
          document.getElementById("attachmentNotificationBox")
                  .getNotificationWithValue("attachmentReminder"))) {
       let flags = Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
@@ -3184,7 +3181,7 @@ function GenericSendMessage(msgType) {
     if (account.incomingServer.type != "nntp" && msgCompFields.newsgroups != "") {
       const kDontAskAgainPref = "mail.compose.dontWarnMail2Newsgroup";
       // default to ask user if the pref is not set
-      let dontAskAgain = getPref(kDontAskAgainPref);
+      let dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
       if (!dontAskAgain) {
         let checkbox = {value: false};
         let okToProceed = Services.prompt.confirmCheck(
@@ -3263,10 +3260,8 @@ function GenericSendMessage(msgType) {
     // Check encoding, switch to UTF-8 if the default encoding doesn't fit
     // and disable_fallback_to_utf8 isn't set for this encoding.
     if (!gMsgCompose.checkCharsetConversion(getCurrentIdentity(), fallbackCharset)) {
-      var disableFallback = false;
-      try {
-        disableFallback = getPref("mailnews.disable_fallback_to_utf8." + originalCharset);
-      } catch (e) {}
+      let disableFallback = Services.prefs
+        .getBoolPref("mailnews.disable_fallback_to_utf8." + originalCharset, false);
       if (disableFallback)
         msgCompFields.needToCheckCharset = false;
       else
@@ -3429,7 +3424,7 @@ function SendMessage() {
 }
 
 function SendMessageWithCheck() {
-  var warn = getPref("mail.warn_on_send_accel_key");
+  var warn = Services.prefs.getBoolPref("mail.warn_on_send_accel_key");
 
   if (warn) {
     let bundle = getComposeBundle();
@@ -5567,7 +5562,7 @@ function LoadIdentity(startup) {
     }
 
     if (!startup) {
-      if (getPref("mail.autoComplete.highlightNonMatches"))
+      if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches"))
         document.getElementById("addressCol2#1").highlightNonMatches = true;
 
       // Only do this if we aren't starting up...
@@ -5587,7 +5582,8 @@ function LoadIdentity(startup) {
 
 function MakeFromFieldEditable(ignoreWarning) {
   let bundle = getComposeBundle();
-  if (!ignoreWarning && !getPref("mail.compose.warned_about_customize_from")) {
+  if (!ignoreWarning &&
+      !Services.prefs.getBoolPref("mail.compose.warned_about_customize_from")) {
     var check = { value: false };
     if (Services.prompt.confirmEx(window,
           bundle.getString("customizeFromAddressTitle"),
@@ -5619,7 +5615,7 @@ function setupAutocomplete() {
     // Request that input that isn't matched be highlighted.
     // This element then gets cloned for subsequent rows, so they should
     // honor it as well.
-    if (getPref("mail.autoComplete.highlightNonMatches"))
+    if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches"))
       autoCompleteWidget.highlightNonMatches = true;
   } catch (ex) {}
 }
@@ -6287,39 +6283,33 @@ function AddRecipientsArray(aRecipientType, aAddressArray) {
 }
 
 function loadHTMLMsgPrefs() {
-  try {
-    let fontFace = getPref("msgcompose.font_face", true);
+  let fontFace = Services.prefs.getStringPref("msgcompose.font_face", "");
+  if (fontFace)
     doStatefulCommand("cmd_fontFace", fontFace);
-  } catch (e) {}
 
-  try {
-    let fontSize = getPref("msgcompose.font_size");
+  let fontSize = Services.prefs.getCharPref("msgcompose.font_size", "");
+  if (fontSize)
     EditorSetFontSize(fontSize);
-  } catch (e) {}
 
   let bodyElement = GetBodyElement();
 
-  let useDefault = getPref("msgcompose.default_colors");
+  let useDefault = Services.prefs.getBoolPref("msgcompose.default_colors");
 
-  try {
-    let textColor = (useDefault ? "" : getPref("msgcompose.text_color"));
-    if ((!bodyElement.getAttribute("text")) && textColor) {
-      bodyElement.setAttribute("text", textColor);
-      gDefaultTextColor = textColor;
-      document.getElementById("cmd_fontColor").setAttribute("state", textColor);
-      onFontColorChange();
-    }
-  } catch (e) {}
+  let textColor = (useDefault ? "" : Services.prefs.getCharPref("msgcompose.text_color", ""));
+  if ((!bodyElement.getAttribute("text")) && textColor) {
+    bodyElement.setAttribute("text", textColor);
+    gDefaultTextColor = textColor;
+    document.getElementById("cmd_fontColor").setAttribute("state", textColor);
+    onFontColorChange();
+  }
 
-  try {
-    let bgColor = (useDefault ? "" : getPref("msgcompose.background_color"));
-    if ((!bodyElement.getAttribute("bgcolor")) && bgColor) {
-      bodyElement.setAttribute("bgcolor", bgColor);
-      gDefaultBackgroundColor = bgColor;
-      document.getElementById("cmd_backgroundColor").setAttribute("state", bgColor);
-      onBackgroundColorChange();
-    }
-  } catch (e) {}
+  let bgColor = (useDefault ? "" : Services.prefs.getCharPref("msgcompose.background_color", ""));
+  if ((!bodyElement.getAttribute("bgcolor")) && bgColor) {
+    bodyElement.setAttribute("bgcolor", bgColor);
+    gDefaultBackgroundColor = bgColor;
+    document.getElementById("cmd_backgroundColor").setAttribute("state", bgColor);
+    onBackgroundColorChange();
+  }
 }
 
 function AutoSave() {
@@ -6344,7 +6334,7 @@ var gAttachmentNotifier = {
     if (this._obs)
       this.shutdown();
 
-    this.enabled = getPref("mail.compose.attachment_reminder");
+    this.enabled = Services.prefs.getBoolPref("mail.compose.attachment_reminder");
     if (!this.enabled)
       return;
 
@@ -6581,7 +6571,7 @@ function InitEditor() {
   document.getElementById("spellCheckAddDictionariesMain")
           .setAttribute("hidden", gSpellChecker.canSpellCheck);
   // Then, we enable related UI entries.
-  enableInlineSpellCheck(getPref("mail.spellcheck.inline"));
+  enableInlineSpellCheck(Services.prefs.getBoolPref("mail.spellcheck.inline"));
   gAttachmentNotifier.init(editor.document);
 
   // Listen for spellchecker changes, set document language to
@@ -6694,22 +6684,6 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
 
 function getMailToolbox() {
   return document.getElementById("compose-toolbox");
-}
-
-function getPref(aPrefName, aIsComplex) {
-  if (aIsComplex) {
-    return Services.prefs.getStringPref(aPrefName);
-  }
-  switch (Services.prefs.getPrefType(aPrefName)) {
-    case Ci.nsIPrefBranch.PREF_BOOL:
-      return Services.prefs.getBoolPref(aPrefName);
-    case Ci.nsIPrefBranch.PREF_INT:
-      return Services.prefs.getIntPref(aPrefName);
-    case Ci.nsIPrefBranch.PREF_STRING:
-      return Services.prefs.getCharPref(aPrefName);
-    default: // includes nsIPrefBranch.PREF_INVALID
-      return null;
-  }
 }
 
 /**
