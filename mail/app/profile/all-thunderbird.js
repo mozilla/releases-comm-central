@@ -737,6 +737,9 @@ pref("dom.ipc.plugins.enabled", true);
 pref("dom.ipc.plugins.nativeCursorSupport", true);
 #endif
 
+// Refer to bug 1509297 for details. For now, we disable the new UA widget to make tests pass.
+pref("dom.ua_widget.enabled", false);
+
 // plugin finder service url
 pref("pfs.datasource.url", "https://pfs.mozilla.org/plugins/PluginFinderService.
 php?mimetype=%PLUGIN_MIMETYPE%&appID=%APP_ID%&appVersion=%APP_VERSION%&clientOS=
