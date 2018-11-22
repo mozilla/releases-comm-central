@@ -6,11 +6,10 @@ var MODULE_NAME = "testTimezones";
 var RELATIVE_ROOT = "./shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
 
-var TIMEOUT_MODAL_DIALOG, CANVAS_BOX, DAY_VIEW;
+var CANVAS_BOX, DAY_VIEW;
 var helpersForController, invokeEventDialog, switchToView, goToDate;
 var findEventsInNode, viewForward, viewBack;
 var setData;
-var plan_for_modal_dialog, wait_for_modal_dialog;
 
 var DATES = [
     [2009, 1, 1], [2009, 4, 2], [2009, 4, 16], [2009, 4, 30],
@@ -27,7 +26,6 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
-        TIMEOUT_MODAL_DIALOG,
         CANVAS_BOX,
         DAY_VIEW,
         helpersForController,
@@ -43,9 +41,6 @@ function setupModule(module) {
 
     ({ setData } = collector.getModule("item-editing-helpers"));
     collector.getModule("item-editing-helpers").setupModule(module);
-
-    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
-        collector.getModule("window-helpers"));
 }
 
 function testTimezones1_SetGMT() {
@@ -64,11 +59,13 @@ function testTimezones2_CreateEvents() {
             time.setHours(times[i][0]);
             time.setMinutes(times[i][1]);
 
-            // Set timezone.
-            setTimezone(event, TIMEZONES[i]);
-
-            // Set title and repeat.
-            setData(event, iframe, { title: TIMEZONES[i], repeat: "weekly", starttime: time });
+            // Set event data.
+            setData(event, iframe, {
+                title: TIMEZONES[i],
+                repeat: "weekly",
+                starttime: time,
+                timezone: TIMEZONES[i]
+            });
 
             // save
             let { eid: eventid } = helpersForController(event);
@@ -232,38 +229,6 @@ function testTimezones10_checkAdelaide() {
 }
 
 function teardownTest(module) {
-}
-
-function setTimezone(event, timezone) {
-    let { eid: eventid } = helpersForController(event);
-
-    if (eventid("timezone-starttime").getNode().collapsed) {
-        let menuitem = eventid("options-timezones-menuitem");
-        event.click(menuitem);
-    }
-
-    plan_for_modal_dialog("Calendar:EventDialog:Timezone", eventCallback.bind(null, timezone));
-    event.waitForElement(eventid("timezone-starttime"));
-    event.click(eventid("timezone-starttime"));
-    event.click(eventid("timezone-starttime"));
-    event.waitForElement(eventid("timezone-custom-menuitem"));
-    event.click(eventid("timezone-custom-menuitem"));
-    wait_for_modal_dialog("Calendar:EventDialog:Timezone", TIMEOUT_MODAL_DIALOG);
-}
-
-function eventCallback(zone, tzcontroller) {
-    let { lookup: tzlookup, xpath: tzpath } = helpersForController(tzcontroller);
-
-    let item = tzpath(`
-        /*[name()='dialog']/*[name()='menulist'][1]/*[name()='menupopup'][1]/
-        *[@value='${zone}']
-    `);
-    tzcontroller.waitForElement(item);
-    tzcontroller.click(item);
-    tzcontroller.click(tzlookup(`
-        /id("calendar-event-dialog-timezone")/anon({"anonid":"buttons"})/
-        {"dlgtype":"accept"}
-    `));
 }
 
 function verify(controller, dates, timezones, times) {

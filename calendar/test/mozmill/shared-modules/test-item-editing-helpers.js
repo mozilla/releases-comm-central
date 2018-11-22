@@ -103,6 +103,7 @@ function installInto(module) {
     module.setCategories = setCategories;
     module.handleAddingAttachment = handleAddingAttachment;
     module.acceptSendingNotificationMail = acceptSendingNotificationMail;
+    module.setTimezone = setTimezone;
 }
 
 function helpersForEditUI(controller) {
@@ -189,6 +190,7 @@ function helpersForEditUI(controller) {
  *                      enddate - Date object
  *                      endtime - Date object
  *                      timezonedisplay - False for hidden, true for shown.
+ *                      timezone - String identifying the Timezone.
  *                      repeat - reccurrence value, one of none/daily/weekly/
  *                               every.weekday/bi.weekly/
  *                               monthly/yearly
@@ -261,6 +263,11 @@ function setData(dialog, iframe, data) {
         if (menuitem.getNode().getAttribute("checked") != data.timezonedisplay) {
             dialog.click(menuitem);
         }
+    }
+
+    // timezone
+    if (data.timezone !== undefined) {
+        setTimezone(dialog, data.timezone);
     }
 
     // startdate
@@ -481,9 +488,10 @@ function setCategories(dialog, iframe, categories) {
 }
 
 /**
- * Add an attachment with url.
+ * Add an URL attachment.
  *
  * @param controller        Mozmill window controller
+ * @param url               URL to be added
  */
 function handleAddingAttachment(controller, url) {
     let { eid } = helpersForController(controller);
@@ -500,6 +508,13 @@ function handleAddingAttachment(controller, url) {
     wait_for_modal_dialog("commonDialog", TIMEOUT_MODAL_DIALOG);
 }
 
+/**
+ * Add attendees to the event.
+ *
+ * @param dialog            The controller of the Edit Dialog.
+ * @param innerFrame        The controller of the item iframe.
+ * @param attendeesString   Comma separated list of eMail-Addresses to add.
+ */
 function addAttendees(dialog, innerFrame, attendeesString) {
     let { eid: dlgid } = helpersForController(dialog);
 
@@ -533,6 +548,13 @@ function addAttendees(dialog, innerFrame, attendeesString) {
     }
 }
 
+/**
+ * Delete attendees from the event.
+ *
+ * @param dialog            The controller of the Edit Dialog.
+ * @param innerFrame        The controller of the item iframe.
+ * @param attendeesString   Comma separated list of eMail-Addresses to delete.
+ */
 function deleteAttendees(event, innerFrame, attendeesString) {
     let { iframeLookup } = helpersForEditUI(innerFrame);
 
@@ -548,4 +570,41 @@ function deleteAttendees(event, innerFrame, attendeesString) {
         }
         event.waitForElementNotPresent(attendeeToDelete);
     }
+}
+
+/**
+ * Set the timezone for the item
+ *
+ * @param event           The controller of the Edit Dialog.
+ * @param timezone        String identifying the Timezone.
+ */
+function setTimezone(event, timezone) {
+    let { eid: eventid } = helpersForController(event);
+    let eventCallback = function(zone, tzcontroller) {
+        let { lookup: tzlookup, xpath: tzpath } = helpersForController(tzcontroller);
+
+        let item = tzpath(`
+            /*[name()='dialog']/*[name()='menulist'][1]/*[name()='menupopup'][1]/
+            *[@value='${zone}']
+        `);
+        tzcontroller.waitForElement(item);
+        tzcontroller.click(item);
+        tzcontroller.click(tzlookup(`
+            /id("calendar-event-dialog-timezone")/anon({"anonid":"buttons"})/
+            {"dlgtype":"accept"}
+        `));
+    };
+
+    if (eventid("timezone-starttime").getNode().collapsed) {
+        let menuitem = eventid("options-timezones-menuitem");
+        event.click(menuitem);
+    }
+
+    plan_for_modal_dialog("Calendar:EventDialog:Timezone", eventCallback.bind(null, timezone));
+    event.waitForElement(eventid("timezone-starttime"));
+    event.click(eventid("timezone-starttime"));
+    event.click(eventid("timezone-starttime"));
+    event.waitForElement(eventid("timezone-custom-menuitem"));
+    event.click(eventid("timezone-custom-menuitem"));
+    wait_for_modal_dialog("Calendar:EventDialog:Timezone", TIMEOUT_MODAL_DIALOG);
 }
