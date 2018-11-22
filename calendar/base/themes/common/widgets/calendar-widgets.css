@@ -70,6 +70,15 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   display: none;
 }
 
+.selected-text {
+    font-weight: bold;
+}
+
+.selected-text:not([selected="true"]),
+.unselected-text[selected="true"] {
+    visibility: hidden;
+}
+
 .categories-listbox {
     -moz-appearance: none;
     background-color: Menu;
