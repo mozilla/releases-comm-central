@@ -3,12 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/gloda/gloda.js");
-ChromeUtils.import("resource:///modules/gloda/connotent.js");
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js", null);
+var {
+  mimeMsgToContentSnippetAndMeta,
+} = ChromeUtils.import("resource:///modules/gloda/connotent.js", null);
+var { MsgHdrToMimeMessage } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js", null);
 ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/templateUtils.js");
+var {
+  PluralStringFormatter,
+  makeFriendlyDateAgo,
+} = ChromeUtils.import("resource:///modules/templateUtils.js", null);
 
 var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);

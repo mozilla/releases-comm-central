@@ -5,7 +5,25 @@
 
 /* This is where functions related to the standalone message window are kept */
 
-ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+/* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
+/* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
+/* import-globals-from ../../../mailnews/base/content/junkCommands.js */
+/* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
+/* import-globals-from commandglue.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mail-offline.js */
+/* import-globals-from mailCommands.js */
+/* import-globals-from mailCore.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from mailWindowOverlay.js */
+/* import-globals-from messageDisplay.js */
+/* import-globals-from msgHdrView.js */
+/* import-globals-from msgViewNavigation.js */
+/* import-globals-from nsDragAndDrop.js */
+/* import-globals-from phishingDetector.js */
+/* import-globals-from toolbarIconColor.js */
+
+var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js", null);
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
@@ -914,19 +932,19 @@ var MessageWindowController = {
         // fall through
       case "button_delete":
         UpdateDeleteToolbarButton();
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.deleteMsg);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.deleteMsg);
       case "cmd_shiftDelete":
       case "button_shiftDelete":
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.deleteNoTrash);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.deleteNoTrash);
       case "button_junk":
         UpdateJunkToolbarButton();
         // fall through
       case "cmd_markAsJunk":
       case "cmd_markAsNotJunk":
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.junk);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk);
       case "cmd_recalculateJunkScore":
         return gFolderDisplay.selectedMessage &&
-               gFolderDisplay.getCommandStatus(nsMsgViewCommandType.runJunkControls);
+               gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.runJunkControls);
       case "cmd_archive":
       case "button_archive":
         return gFolderDisplay.canArchiveSelectedMessages;
@@ -1028,7 +1046,7 @@ var MessageWindowController = {
       case "cmd_goBack":
         return gFolderDisplay.navigateStatus(
           (command == "cmd_goBack" || command == "button_goBack") ?
-            nsMsgNavigationType.back : nsMsgNavigationType.forward);
+            Ci.nsMsgNavigationType.back : Ci.nsMsgNavigationType.forward);
       case "cmd_search":
         loadedFolder = gFolderDisplay.displayedFolder;
         if (!loadedFolder)
@@ -1138,12 +1156,12 @@ var MessageWindowController = {
         break;
       case "button_delete":
       case "cmd_delete":
-        gFolderDisplay.doCommand(nsMsgViewCommandType.deleteMsg);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
         UpdateDeleteToolbarButton();
         break;
       case "button_shiftDelete":
       case "cmd_shiftDelete":
-        gFolderDisplay.doCommand(nsMsgViewCommandType.deleteNoTrash);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
         UpdateDeleteToolbarButton();
         break;
       case "button_junk":
@@ -1217,7 +1235,7 @@ var MessageWindowController = {
         return;
       case "cmd_markThreadAsRead":
         ClearPendingReadTimer();
-        gFolderDisplay.doCommand(nsMsgViewCommandType.markThreadRead);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.markThreadRead);
         return;
       case "cmd_markAllRead":
         MsgMarkAllRead();  // Won't run since always disabled.
@@ -1245,11 +1263,11 @@ var MessageWindowController = {
         return;
       case "cmd_downloadFlagged":
         gFolderDisplay.doCommand(
-          nsMsgViewCommandType.downloadFlaggedForOffline);
+          Ci.nsMsgViewCommandType.downloadFlaggedForOffline);
         return;
       case "cmd_downloadSelected":
         gFolderDisplay.doCommand(
-          nsMsgViewCommandType.downloadSelectedForOffline);
+          Ci.nsMsgViewCommandType.downloadSelectedForOffline);
         return;
       case "cmd_synchronizeOffline":
         MsgSynchronizeOffline();
@@ -1259,34 +1277,34 @@ var MessageWindowController = {
         return;
       case "button_next":
       case "cmd_nextUnreadMsg":
-        performNavigation(nsMsgNavigationType.nextUnreadMessage);
+        performNavigation(Ci.nsMsgNavigationType.nextUnreadMessage);
         break;
       case "cmd_nextUnreadThread":
-        performNavigation(nsMsgNavigationType.nextUnreadThread);
+        performNavigation(Ci.nsMsgNavigationType.nextUnreadThread);
         break;
       case "button_nextMsg":
       case "cmd_nextMsg":
-        performNavigation(nsMsgNavigationType.nextMessage);
+        performNavigation(Ci.nsMsgNavigationType.nextMessage);
         break;
       case "cmd_nextFlaggedMsg":
-        performNavigation(nsMsgNavigationType.nextFlagged);
+        performNavigation(Ci.nsMsgNavigationType.nextFlagged);
         break;
       case "button_previousMsg":
       case "cmd_previousMsg":
-        performNavigation(nsMsgNavigationType.previousMessage);
+        performNavigation(Ci.nsMsgNavigationType.previousMessage);
         break;
       case "button_previous":
       case "cmd_previousUnreadMsg":
-        performNavigation(nsMsgNavigationType.previousUnreadMessage);
+        performNavigation(Ci.nsMsgNavigationType.previousUnreadMessage);
         break;
       case "cmd_previousFlaggedMsg":
-        performNavigation(nsMsgNavigationType.previousFlagged);
+        performNavigation(Ci.nsMsgNavigationType.previousFlagged);
         break;
       case "cmd_goForward":
-        performNavigation(nsMsgNavigationType.forward);
+        performNavigation(Ci.nsMsgNavigationType.forward);
         break;
       case "cmd_goBack":
-        performNavigation(nsMsgNavigationType.back);
+        performNavigation(Ci.nsMsgNavigationType.back);
         break;
       case "cmd_applyFiltersToSelection":
         MsgApplyFiltersToSelection();

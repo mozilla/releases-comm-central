@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 

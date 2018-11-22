@@ -3,9 +3,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/modules/PageMenu.jsm */
+/* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
+/* import-globals-from ../../../mailnews/base/util/mailnewsMigrator.js */
+/* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
+/* import-globals-from ../../components/preferences/preferencesTab.js */
+/* import-globals-from commandglue.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from folderPane.js */
+/* import-globals-from glodaFacetTab.js */
+/* import-globals-from mail-compacttheme.js */
+/* import-globals-from mailTabs.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from plugins.js */
+/* import-globals-from quickFilterBar.js */
+/* import-globals-from searchBar.js */
+/* import-globals-from searchBar.js */
+/* import-globals-from specialTabs.js */
+/* import-globals-from toolbarIconColor.js */
+
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
-ChromeUtils.import("resource:///modules/folderUtils.jsm");
 ChromeUtils.import("resource:///modules/IOUtils.js");
 var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js", null);
 ChromeUtils.import("resource:///modules/MailConsts.jsm");
@@ -900,7 +918,9 @@ function loadStartFolder(initialUri) {
       // this is the case where we're trying to auto-subscribe to a folder.
       if (initialUri && !startFolder.parent) {
         // hack to force display of thread pane.
-        ShowingThreadPane();
+        if (IsMessagePaneCollapsed) {
+          MsgToggleMessagePane();
+        }
         messenger.loadURL(window, initialUri);
         return;
       }
@@ -1452,7 +1472,7 @@ var LightWeightThemeWebInstaller = {
       case "PreviewBrowserTheme":
       case "ResetBrowserThemePreview":
         // ignore requests from background tabs
-        if (event.target.ownerGlobal.top != content)
+        if (event.target.ownerGlobal.top != window.content)
           return;
     }
     switch (event.type) {

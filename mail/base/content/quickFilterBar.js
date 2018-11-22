@@ -2,8 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/errUtils.js");
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailWindow.js */
+
+var {
+  logException,
+  errorWithDebug,
+} = ChromeUtils.import("resource:///modules/errUtils.js", null);
 var {
   MessageTextFilter,
   QuickFilterManager,

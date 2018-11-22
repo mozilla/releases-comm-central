@@ -3,6 +3,10 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- globals fillInTags // mailWidgets.xml -->
+<!-- import-globals-from ../../../mailnews/base/content/dateFormat.js -->
+<!-- import-globals-from mailWindow.js -->
+<!-- import-globals-from SearchDialog.js -->
 
 <!DOCTYPE bindings [
 <!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd" >
@@ -1935,7 +1939,7 @@
                 default:
                   if (event.charCode > 0 && !event.ctrlKey && !event.metaKey) {
                     event.preventDefault();
-                    index = tree.keyNavigate(event);
+                    index = this.tree.keyNavigate(event);
                     if (index >= 0)
                       break;
                   }

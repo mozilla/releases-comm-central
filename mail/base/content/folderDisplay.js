@@ -2,8 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from commandglue.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
+
 ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
-ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js", null);
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -357,10 +361,10 @@ FolderDisplayWidget.prototype = {
       return;
 
     if (this.view._threadExpandAll &&
-        !(this.view.dbView.viewFlags & nsMsgViewFlagsType.kExpandAll))
+        !(this.view.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll))
       this.view.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
     if (!this.view._threadExpandAll &&
-        this.view.dbView.viewFlags & nsMsgViewFlagsType.kExpandAll)
+        this.view.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
       this.view.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
   },
   // @}
@@ -1131,7 +1135,7 @@ FolderDisplayWidget.prototype = {
     // - new messages
     // if configured to scroll to new messages, try that
     if (Services.prefs.getBoolPref("mailnews.scroll_to_new_message") &&
-        this.navigate(nsMsgNavigationType.firstNew, /* select */ false))
+        this.navigate(Ci.nsMsgNavigationType.firstNew, /* select */ false))
       return;
 
     // - last selected message
@@ -1159,7 +1163,7 @@ FolderDisplayWidget.prototype = {
 
     // - towards the newest messages, but don't select
     if (this.view.isSortedAscending && this.view.sortImpliesTemporalOrdering &&
-      this.navigate(nsMsgNavigationType.lastMessage, /* select */ false))
+      this.navigate(Ci.nsMsgNavigationType.lastMessage, /* select */ false))
       return;
 
     // - to the top, the coliseum
@@ -1864,7 +1868,7 @@ FolderDisplayWidget.prototype = {
     // the top level message is unread, just set the result manually to
     // the top level message, without using viewNavigate.
     if (summarizeSelection &&
-        aNavType == nsMsgNavigationType.nextUnreadMessage &&
+        aNavType == Ci.nsMsgNavigationType.nextUnreadMessage &&
         currentIndex != -1 &&
         this.view.isCollapsedThreadAtIndex(currentIndex) &&
         !(this.view.dbView.getFlagsAt(currentIndex) &

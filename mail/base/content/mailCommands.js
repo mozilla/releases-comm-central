@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from commandglue.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailWindow.js */
+
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
@@ -452,11 +456,19 @@ function SaveAsTemplate(uri) {
 
 function MarkSelectedMessagesRead(markRead) {
   ClearPendingReadTimer();
-  gDBView.doCommand(markRead ? nsMsgViewCommandType.markMessagesRead : nsMsgViewCommandType.markMessagesUnread);
+  gDBView.doCommand(
+    markRead ?
+    Ci.nsMsgViewCommandType.markMessagesRead :
+    Ci.nsMsgViewCommandType.markMessagesUnread
+  );
 }
 
 function MarkSelectedMessagesFlagged(markFlagged) {
-  gDBView.doCommand(markFlagged ? nsMsgViewCommandType.flagMessages : nsMsgViewCommandType.unflagMessages);
+  gDBView.doCommand(
+    markFlagged ?
+    Ci.nsMsgViewCommandType.flagMessages :
+    Ci.nsMsgViewCommandType.unflagMessages
+  );
 }
 
 function ViewPageSource(messages) {

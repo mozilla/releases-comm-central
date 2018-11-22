@@ -7,7 +7,16 @@
 // This is used in the main folder pane, but also some dialogs that need
 // to show a nice list of folders.
 
-ChromeUtils.import("resource:///modules/folderUtils.jsm");
+/* import-globals-from commandglue.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailWindow.js */
+
+var {
+  getFolderProperties,
+  allAccountsSorted,
+  getMostRecentFolders,
+  folderNameCompare,
+} = ChromeUtils.import("resource:///modules/folderUtils.jsm", null);
 var {
   fixIterator,
   toXPCOMArray,

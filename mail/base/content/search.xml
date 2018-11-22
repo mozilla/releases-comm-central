@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
   - License, v. 2.0. If a copy of the MPL was not distributed with this
   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!-- import-globals-from mailWindow.js -->
+<!-- import-globals-from nsDragAndDrop.js -->
 
 <!DOCTYPE bindings [
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
@@ -51,7 +53,6 @@
 
     <implementation implements="nsIObserver">
       <constructor><![CDATA[
-        ChromeUtils.import("resource:///modules/errUtils.js");
         ChromeUtils.import("resource://gre/modules/Services.jsm");
         ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
@@ -80,6 +81,7 @@
         if (this.hasAttribute("placeholder"))
           this.placeholder = this.getAttribute("placeholder");
         } catch (e) {
+          let { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
           logException(e, true);
         }
       ]]></constructor>
@@ -147,6 +149,7 @@
               this.inputSearch.doSearch();
             }
           } catch (e) {
+            let { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
             logException(e);
           }
         },
@@ -199,6 +202,7 @@
             }
           }
         } catch (e) {
+          let { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
           logException(e);
         }
         ]]></body>
@@ -229,13 +233,15 @@
                 searcher: new GlodaMsgSearcher(null, searchString),
               };
               if (Services.prefs.getBoolPref("mail.chat.enabled")) {
-                if (!("GlodaIMSearcher" in window))
-                  ChromeUtils.import("resource:///modules/search_im.jsm");
+                let {
+                  GlodaIMSearcher,
+                } = ChromeUtils.import("resource:///modules/search_im.jsm", null);
                 args.IMSearcher = new GlodaIMSearcher(null, searchString);
               }
               tabmail.openTab("glodaFacet", args);
             }
           } catch (e) {
+            let { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
             logException(e);
           }
         ]]>

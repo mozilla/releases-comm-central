@@ -7,11 +7,17 @@
  * message pane.
  */
 
+/* import-globals-from editContactPanel.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from messageDisplay.js */
+/* import-globals-from nsDragAndDrop.js */
+
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/gloda/utils.js");
+var { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js", null);
 var {
   Status: statusUtils,
 } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm", null);

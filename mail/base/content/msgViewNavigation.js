@@ -5,7 +5,12 @@
 
 /*  This file contains the js functions necessary to implement view navigation within the 3 pane. */
 
-ChromeUtils.import("resource:///modules/folderUtils.jsm");
+/* import-globals-from commandglue.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from messageDisplay.js */
+
+var { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function GetSubFoldersInFolderPaneOrder(folder) {
@@ -124,14 +129,14 @@ function GetRootFoldersInFolderPaneOrder() {
 
 function CrossFolderNavigation(type) {
   // do cross folder navigation for next unread message/thread and message history
-  if (type != nsMsgNavigationType.nextUnreadMessage &&
-      type != nsMsgNavigationType.nextUnreadThread &&
-      type != nsMsgNavigationType.forward &&
-      type != nsMsgNavigationType.back)
+  if (type != Ci.nsMsgNavigationType.nextUnreadMessage &&
+      type != Ci.nsMsgNavigationType.nextUnreadThread &&
+      type != Ci.nsMsgNavigationType.forward &&
+      type != Ci.nsMsgNavigationType.back)
     return;
 
-  if (type == nsMsgNavigationType.nextUnreadMessage ||
-      type == nsMsgNavigationType.nextUnreadThread) {
+  if (type == Ci.nsMsgNavigationType.nextUnreadMessage ||
+      type == Ci.nsMsgNavigationType.nextUnreadThread) {
     var nextMode = Services.prefs.getIntPref("mailnews.nav_crosses_folders");
     // 0: "next" goes to the next folder, without prompting
     // 1: "next" goes to the next folder, and prompts (the default)
@@ -159,14 +164,12 @@ function CrossFolderNavigation(type) {
     // if no message is loaded, relPos should be 0, to
     // go back to the previously loaded message
     var relPos = 0;
-    if (type == nsMsgNavigationType.forward) {
+    if (type == Ci.nsMsgNavigationType.forward) {
       relPos = 1;
     } else if (gMessageDisplay.displayedMessage) {
       relPos = -1;
     }
     var folderUri = messenger.getFolderUriAtNavigatePos(relPos);
-    var msgHdr = messenger.msgHdrFromURI(messenger.getMsgUriAtNavigatePos(relPos));
-    gStartMsgKey = msgHdr.messageKey;
     var curPos = messenger.navigatePos;
     curPos += relPos;
     messenger.navigatePos = curPos;

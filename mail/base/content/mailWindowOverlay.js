@@ -3,14 +3,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../mailnews/base/content/junkCommands.js */
+/* import-globals-from ../../../mailnews/extensions/newsblog/content/newsblogOverlay.js */
+/* import-globals-from commandglue.js */
+/* import-globals-from contentAreaClick.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mail3PaneWindowCommands.js */
+/* import-globals-from mailCommands.js */
+/* import-globals-from mailContextMenus.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from phishingDetector.js */
+
 ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-ChromeUtils.import("resource:///modules/gloda/dbview.js");
+var { GlodaSyntheticView } = ChromeUtils.import("resource:///modules/gloda/dbview.js", null);
 ChromeUtils.import("resource:///modules/MailConsts.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 
 ChromeUtils.defineModuleGetter(this, "BrowserToolboxProcess", "resource://devtools/client/framework/ToolboxProcess.jsm");
 ChromeUtils.defineModuleGetter(this, "ScratchpadManager", "resource://devtools/client/scratchpad/scratchpad-manager.jsm");
@@ -309,27 +321,27 @@ function setSortByMenuItemCheckState(id, value) {
 function InitViewSortByMenu() {
   var sortType = gFolderDisplay.view.primarySortType;
 
-  setSortByMenuItemCheckState("sortByDateMenuitem", (sortType == nsMsgViewSortType.byDate));
-  setSortByMenuItemCheckState("sortByReceivedMenuitem", (sortType == nsMsgViewSortType.byReceived));
-  setSortByMenuItemCheckState("sortByFlagMenuitem", (sortType == nsMsgViewSortType.byFlagged));
-  setSortByMenuItemCheckState("sortByOrderReceivedMenuitem", (sortType == nsMsgViewSortType.byId));
-  setSortByMenuItemCheckState("sortByPriorityMenuitem", (sortType == nsMsgViewSortType.byPriority));
-  setSortByMenuItemCheckState("sortBySizeMenuitem", (sortType == nsMsgViewSortType.bySize));
-  setSortByMenuItemCheckState("sortByStatusMenuitem", (sortType == nsMsgViewSortType.byStatus));
-  setSortByMenuItemCheckState("sortBySubjectMenuitem", (sortType == nsMsgViewSortType.bySubject));
-  setSortByMenuItemCheckState("sortByUnreadMenuitem", (sortType == nsMsgViewSortType.byUnread));
-  setSortByMenuItemCheckState("sortByTagsMenuitem", (sortType == nsMsgViewSortType.byTags));
-  setSortByMenuItemCheckState("sortByJunkStatusMenuitem", (sortType == nsMsgViewSortType.byJunkStatus));
-  setSortByMenuItemCheckState("sortByFromMenuitem", (sortType == nsMsgViewSortType.byAuthor));
-  setSortByMenuItemCheckState("sortByRecipientMenuitem", (sortType == nsMsgViewSortType.byRecipient));
-  setSortByMenuItemCheckState("sortByAttachmentsMenuitem", (sortType == nsMsgViewSortType.byAttachments));
-  setSortByMenuItemCheckState("sortByCorrespondentMenuitem", (sortType == nsMsgViewSortType.byCorrespondent));
+  setSortByMenuItemCheckState("sortByDateMenuitem", (sortType == Ci.nsMsgViewSortType.byDate));
+  setSortByMenuItemCheckState("sortByReceivedMenuitem", (sortType == Ci.nsMsgViewSortType.byReceived));
+  setSortByMenuItemCheckState("sortByFlagMenuitem", (sortType == Ci.nsMsgViewSortType.byFlagged));
+  setSortByMenuItemCheckState("sortByOrderReceivedMenuitem", (sortType == Ci.nsMsgViewSortType.byId));
+  setSortByMenuItemCheckState("sortByPriorityMenuitem", (sortType == Ci.nsMsgViewSortType.byPriority));
+  setSortByMenuItemCheckState("sortBySizeMenuitem", (sortType == Ci.nsMsgViewSortType.bySize));
+  setSortByMenuItemCheckState("sortByStatusMenuitem", (sortType == Ci.nsMsgViewSortType.byStatus));
+  setSortByMenuItemCheckState("sortBySubjectMenuitem", (sortType == Ci.nsMsgViewSortType.bySubject));
+  setSortByMenuItemCheckState("sortByUnreadMenuitem", (sortType == Ci.nsMsgViewSortType.byUnread));
+  setSortByMenuItemCheckState("sortByTagsMenuitem", (sortType == Ci.nsMsgViewSortType.byTags));
+  setSortByMenuItemCheckState("sortByJunkStatusMenuitem", (sortType == Ci.nsMsgViewSortType.byJunkStatus));
+  setSortByMenuItemCheckState("sortByFromMenuitem", (sortType == Ci.nsMsgViewSortType.byAuthor));
+  setSortByMenuItemCheckState("sortByRecipientMenuitem", (sortType == Ci.nsMsgViewSortType.byRecipient));
+  setSortByMenuItemCheckState("sortByAttachmentsMenuitem", (sortType == Ci.nsMsgViewSortType.byAttachments));
+  setSortByMenuItemCheckState("sortByCorrespondentMenuitem", (sortType == Ci.nsMsgViewSortType.byCorrespondent));
 
   var sortOrder = gFolderDisplay.view.primarySortOrder;
   var sortTypeSupportsGrouping = isSortTypeValidForGrouping(sortType);
 
-  setSortByMenuItemCheckState("sortAscending", (sortOrder == nsMsgViewSortOrder.ascending));
-  setSortByMenuItemCheckState("sortDescending", (sortOrder == nsMsgViewSortOrder.descending));
+  setSortByMenuItemCheckState("sortAscending", (sortOrder == Ci.nsMsgViewSortOrder.ascending));
+  setSortByMenuItemCheckState("sortDescending", (sortOrder == Ci.nsMsgViewSortOrder.descending));
 
   var grouped = gFolderDisplay.view.showGroupedBySort;
   var threaded = gFolderDisplay.view.showThreaded;
@@ -348,26 +360,26 @@ function InitViewSortByMenu() {
 function InitAppViewSortByMenu() {
   let sortType = gFolderDisplay.view.primarySortType;
 
-  setSortByMenuItemCheckState("appmenu_sortByDateMenuitem", (sortType == nsMsgViewSortType.byDate));
-  setSortByMenuItemCheckState("appmenu_sortByReceivedMenuitem", (sortType == nsMsgViewSortType.byReceived));
-  setSortByMenuItemCheckState("appmenu_sortByFlagMenuitem", (sortType == nsMsgViewSortType.byFlagged));
-  setSortByMenuItemCheckState("appmenu_sortByOrderReceivedMenuitem", (sortType == nsMsgViewSortType.byId));
-  setSortByMenuItemCheckState("appmenu_sortByPriorityMenuitem", (sortType == nsMsgViewSortType.byPriority));
-  setSortByMenuItemCheckState("appmenu_sortBySizeMenuitem", (sortType == nsMsgViewSortType.bySize));
-  setSortByMenuItemCheckState("appmenu_sortByStatusMenuitem", (sortType == nsMsgViewSortType.byStatus));
-  setSortByMenuItemCheckState("appmenu_sortBySubjectMenuitem", (sortType == nsMsgViewSortType.bySubject));
-  setSortByMenuItemCheckState("appmenu_sortByUnreadMenuitem", (sortType == nsMsgViewSortType.byUnread));
-  setSortByMenuItemCheckState("appmenu_sortByTagsMenuitem", (sortType == nsMsgViewSortType.byTags));
-  setSortByMenuItemCheckState("appmenu_sortByJunkStatusMenuitem", (sortType == nsMsgViewSortType.byJunkStatus));
-  setSortByMenuItemCheckState("appmenu_sortByFromMenuitem", (sortType == nsMsgViewSortType.byAuthor));
-  setSortByMenuItemCheckState("appmenu_sortByRecipientMenuitem", (sortType == nsMsgViewSortType.byRecipient));
-  setSortByMenuItemCheckState("appmenu_sortByAttachmentsMenuitem", (sortType == nsMsgViewSortType.byAttachments));
+  setSortByMenuItemCheckState("appmenu_sortByDateMenuitem", (sortType == Ci.nsMsgViewSortType.byDate));
+  setSortByMenuItemCheckState("appmenu_sortByReceivedMenuitem", (sortType == Ci.nsMsgViewSortType.byReceived));
+  setSortByMenuItemCheckState("appmenu_sortByFlagMenuitem", (sortType == Ci.nsMsgViewSortType.byFlagged));
+  setSortByMenuItemCheckState("appmenu_sortByOrderReceivedMenuitem", (sortType == Ci.nsMsgViewSortType.byId));
+  setSortByMenuItemCheckState("appmenu_sortByPriorityMenuitem", (sortType == Ci.nsMsgViewSortType.byPriority));
+  setSortByMenuItemCheckState("appmenu_sortBySizeMenuitem", (sortType == Ci.nsMsgViewSortType.bySize));
+  setSortByMenuItemCheckState("appmenu_sortByStatusMenuitem", (sortType == Ci.nsMsgViewSortType.byStatus));
+  setSortByMenuItemCheckState("appmenu_sortBySubjectMenuitem", (sortType == Ci.nsMsgViewSortType.bySubject));
+  setSortByMenuItemCheckState("appmenu_sortByUnreadMenuitem", (sortType == Ci.nsMsgViewSortType.byUnread));
+  setSortByMenuItemCheckState("appmenu_sortByTagsMenuitem", (sortType == Ci.nsMsgViewSortType.byTags));
+  setSortByMenuItemCheckState("appmenu_sortByJunkStatusMenuitem", (sortType == Ci.nsMsgViewSortType.byJunkStatus));
+  setSortByMenuItemCheckState("appmenu_sortByFromMenuitem", (sortType == Ci.nsMsgViewSortType.byAuthor));
+  setSortByMenuItemCheckState("appmenu_sortByRecipientMenuitem", (sortType == Ci.nsMsgViewSortType.byRecipient));
+  setSortByMenuItemCheckState("appmenu_sortByAttachmentsMenuitem", (sortType == Ci.nsMsgViewSortType.byAttachments));
 
   let sortOrder = gFolderDisplay.view.primarySortOrder;
   let sortTypeSupportsGrouping = isSortTypeValidForGrouping(sortType);
 
-  setSortByMenuItemCheckState("appmenu_sortAscending", (sortOrder == nsMsgViewSortOrder.ascending));
-  setSortByMenuItemCheckState("appmenu_sortDescending", (sortOrder == nsMsgViewSortOrder.descending));
+  setSortByMenuItemCheckState("appmenu_sortAscending", (sortOrder == Ci.nsMsgViewSortOrder.ascending));
+  setSortByMenuItemCheckState("appmenu_sortDescending", (sortOrder == Ci.nsMsgViewSortOrder.descending));
 
   let grouped = gFolderDisplay.view.showGroupedBySort;
   let threaded = gFolderDisplay.view.showThreaded;
@@ -384,20 +396,20 @@ function InitAppViewSortByMenu() {
 }
 
 function isSortTypeValidForGrouping(sortType) {
-  return Boolean(sortType == nsMsgViewSortType.byAccount ||
-                 sortType == nsMsgViewSortType.byAttachments ||
-                 sortType == nsMsgViewSortType.byAuthor ||
-                 sortType == nsMsgViewSortType.byCorrespondent ||
-                 sortType == nsMsgViewSortType.byDate ||
-                 sortType == nsMsgViewSortType.byFlagged ||
-                 sortType == nsMsgViewSortType.byLocation ||
-                 sortType == nsMsgViewSortType.byPriority ||
-                 sortType == nsMsgViewSortType.byReceived ||
-                 sortType == nsMsgViewSortType.byRecipient ||
-                 sortType == nsMsgViewSortType.byStatus ||
-                 sortType == nsMsgViewSortType.bySubject ||
-                 sortType == nsMsgViewSortType.byTags ||
-                 sortType == nsMsgViewSortType.byCustom);
+  return Boolean(sortType == Ci.nsMsgViewSortType.byAccount ||
+                 sortType == Ci.nsMsgViewSortType.byAttachments ||
+                 sortType == Ci.nsMsgViewSortType.byAuthor ||
+                 sortType == Ci.nsMsgViewSortType.byCorrespondent ||
+                 sortType == Ci.nsMsgViewSortType.byDate ||
+                 sortType == Ci.nsMsgViewSortType.byFlagged ||
+                 sortType == Ci.nsMsgViewSortType.byLocation ||
+                 sortType == Ci.nsMsgViewSortType.byPriority ||
+                 sortType == Ci.nsMsgViewSortType.byReceived ||
+                 sortType == Ci.nsMsgViewSortType.byRecipient ||
+                 sortType == Ci.nsMsgViewSortType.byStatus ||
+                 sortType == Ci.nsMsgViewSortType.bySubject ||
+                 sortType == Ci.nsMsgViewSortType.byTags ||
+                 sortType == Ci.nsMsgViewSortType.byCustom);
 }
 
 function InitViewMessagesMenu() {
@@ -1472,9 +1484,9 @@ function MsgDeleteMessage(reallyDelete, fromToolbar) {
 
   gFolderDisplay.hintAboutToDeleteMessages();
   if (reallyDelete)
-    gDBView.doCommand(nsMsgViewCommandType.deleteNoTrash);
+    gDBView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
   else
-    gDBView.doCommand(nsMsgViewCommandType.deleteMsg);
+    gDBView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
 }
 
 /**
@@ -1488,7 +1500,7 @@ function MsgCopyMessage(aDestFolder) {
                                       Ci.nsMsgMessageFlags.Read,
                                       "", null, msgWindow);
   } else {
-    gDBView.doCommandWithFolder(nsMsgViewCommandType.copyMessages, aDestFolder);
+    gDBView.doCommandWithFolder(Ci.nsMsgViewCommandType.copyMessages, aDestFolder);
   }
 
   Services.prefs.setCharPref("mail.last_msg_movecopy_target_uri", aDestFolder.URI);
@@ -1501,7 +1513,7 @@ function MsgCopyMessage(aDestFolder) {
  */
 function MsgMoveMessage(aDestFolder) {
   gFolderDisplay.hintAboutToDeleteMessages();
-  gDBView.doCommandWithFolder(nsMsgViewCommandType.moveMessages, aDestFolder);
+  gDBView.doCommandWithFolder(Ci.nsMsgViewCommandType.moveMessages, aDestFolder);
   Services.prefs.setCharPref("mail.last_msg_movecopy_target_uri", aDestFolder.URI);
   Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", true);
 }
@@ -2190,7 +2202,7 @@ function UpdateJunkButton() {
     return;
   let junkScore = hdr.getStringProperty("junkscore");
   let hideJunk = (junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE);
-  if (!gFolderDisplay.getCommandStatus(nsMsgViewCommandType.junk))
+  if (!gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk))
     hideJunk = true;
   if (document.getElementById("hdrJunkButton")) {
     document.getElementById("hdrJunkButton").disabled = hideJunk;

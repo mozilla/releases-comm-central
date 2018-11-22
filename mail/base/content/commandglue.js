@@ -6,8 +6,10 @@
  * Command-specific code. This stuff should be called by the widgets
  */
 
+/* import-globals-from folderDisplay.js */
+/* import-globals-from folderPane.js */
+
 var { MailViewConstants } = ChromeUtils.import("resource:///modules/MailViewManager.jsm", null);
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function UpdateMailToolbar(caller) {
@@ -25,10 +27,10 @@ function UpdateMailToolbar(caller) {
 }
 
 function isNewsURI(uri) {
-    if (!uri) {
-        return false;
-    }
-    return uri.startsWith("news:/") || uri.startsWith("news-message:/");
+  if (!uri) {
+      return false;
+  }
+  return uri.startsWith("news:/") || uri.startsWith("news-message:/");
 }
 
 function SwitchView(command) {
@@ -183,59 +185,59 @@ function ConvertSortTypeToColumnID(sortKey) {
     // In the case of None, we default to the date column
     // This appears to be the case in such instances as
     // Global search, so don't complain about it.
-    case nsMsgViewSortType.byNone:
-    case nsMsgViewSortType.byDate:
+    case Ci.nsMsgViewSortType.byNone:
+    case Ci.nsMsgViewSortType.byDate:
       columnID = "dateCol";
       break;
-    case nsMsgViewSortType.byReceived:
+    case Ci.nsMsgViewSortType.byReceived:
       columnID = "receivedCol";
       break;
-    case nsMsgViewSortType.byAuthor:
+    case Ci.nsMsgViewSortType.byAuthor:
       columnID = "senderCol";
       break;
-    case nsMsgViewSortType.byRecipient:
+    case Ci.nsMsgViewSortType.byRecipient:
       columnID = "recipientCol";
       break;
-    case nsMsgViewSortType.bySubject:
+    case Ci.nsMsgViewSortType.bySubject:
       columnID = "subjectCol";
       break;
-    case nsMsgViewSortType.byLocation:
+    case Ci.nsMsgViewSortType.byLocation:
       columnID = "locationCol";
       break;
-    case nsMsgViewSortType.byAccount:
+    case Ci.nsMsgViewSortType.byAccount:
       columnID = "accountCol";
       break;
-    case nsMsgViewSortType.byUnread:
+    case Ci.nsMsgViewSortType.byUnread:
       columnID = "unreadButtonColHeader";
       break;
-    case nsMsgViewSortType.byStatus:
+    case Ci.nsMsgViewSortType.byStatus:
       columnID = "statusCol";
       break;
-    case nsMsgViewSortType.byTags:
+    case Ci.nsMsgViewSortType.byTags:
       columnID = "tagsCol";
       break;
-    case nsMsgViewSortType.bySize:
+    case Ci.nsMsgViewSortType.bySize:
       columnID = "sizeCol";
       break;
-    case nsMsgViewSortType.byPriority:
+    case Ci.nsMsgViewSortType.byPriority:
       columnID = "priorityCol";
       break;
-    case nsMsgViewSortType.byFlagged:
+    case Ci.nsMsgViewSortType.byFlagged:
       columnID = "flaggedCol";
       break;
-    case nsMsgViewSortType.byThread:
+    case Ci.nsMsgViewSortType.byThread:
       columnID = "threadCol";
       break;
-    case nsMsgViewSortType.byId:
+    case Ci.nsMsgViewSortType.byId:
       columnID = "idCol";
       break;
-    case nsMsgViewSortType.byJunkStatus:
+    case Ci.nsMsgViewSortType.byJunkStatus:
       columnID = "junkStatusCol";
       break;
-    case nsMsgViewSortType.byAttachments:
+    case Ci.nsMsgViewSortType.byAttachments:
       columnID = "attachmentCol";
       break;
-    case nsMsgViewSortType.byCustom:
+    case Ci.nsMsgViewSortType.byCustom:
 
       // TODO: either change try() catch to if (property exists) or restore the getColumnHandler() check
       try { // getColumnHandler throws an error when the ID is not handled
@@ -246,7 +248,7 @@ function ConvertSortTypeToColumnID(sortKey) {
       }
 
       break;
-    case nsMsgViewSortType.byCorrespondent:
+    case Ci.nsMsgViewSortType.byCorrespondent:
       columnID = "correspondentCol";
       break;
     default:
@@ -257,17 +259,9 @@ function ConvertSortTypeToColumnID(sortKey) {
   return columnID;
 }
 
-var nsMsgViewSortType = Ci.nsMsgViewSortType;
-var nsMsgViewSortOrder = Ci.nsMsgViewSortOrder;
-var nsMsgViewFlagsType = Ci.nsMsgViewFlagsType;
-var nsMsgViewCommandType = Ci.nsMsgViewCommandType;
-var nsMsgViewType = Ci.nsMsgViewType;
-var nsMsgNavigationType = Ci.nsMsgNavigationType;
-
 var gDBView = null;
 var gCurViewFlags;
 var gCurSortType;
-
 
 function ChangeMessagePaneVisibility(now_hidden) {
   // We also have to disable the Message/Attachments menuitem.

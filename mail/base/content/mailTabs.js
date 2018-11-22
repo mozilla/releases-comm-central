@@ -2,10 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from commandglue.js */
+/* import-globals-from mail3PaneWindowCommands.js */
+/* import-globals-from mailContextMenus.js */
+/* import-globals-from mailWindowOverlay.js */
+/* import-globals-from messageDisplay.js */
+/* import-globals-from msgMail3PaneWindow.js */
+
 ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
-ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { getSpecialFolderString } = ChromeUtils.import("resource:///modules/folderUtils.jsm", null);
+var { MsgHdrToMimeMessage } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js", null);
 
 /**
  * Displays message "folder"s, mail "message"s, and "glodaList" results.  The

@@ -3,6 +3,9 @@
   - License, v. 2.0. If a copy of the MPL was not distributed with this
   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- import-globals-from commandglue.js -->
+<!-- import-globals-from mailWindow.js -->
+
 <!DOCTYPE bindings [
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
 %messengerDTD;
@@ -2336,7 +2339,7 @@
 
         let thumbnail = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
         thumbnail.width = Math.ceil(screen.availWidth / 5.75);
-        thumbnail.height = Math.round(width * 0.5625);
+        thumbnail.height = Math.round(thumbnail.width * 0.5625);
 
         let snippetWidth = panel.boxObject.width * .6;
         let scale = thumbnail.width / snippetWidth;

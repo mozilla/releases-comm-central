@@ -4,7 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals MozXULElement */
-/* global gFolderTreeView */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from ../../../mailnews/base/content/newmailalert.js */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");

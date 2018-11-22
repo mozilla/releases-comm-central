@@ -8,6 +8,9 @@
  *  from XBL, but also a lot because of the lack of good syntax highlighting.
  */
 
+/* import-globals-from glodaFacetView.js */
+/* import-globals-from protovis-r2.6-modded.js */
+
 /**
  * A date facet visualization abstraction.
  */

@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../mailnews/base/search/content/searchTermOverlay.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from mailWindowOverlay.js */
+/* import-globals-from messageDisplay.js */
+/* import-globals-from threadPane.js */
+
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -12,8 +20,6 @@ var gFolderDisplay;
 // Although we don't display messages, we have a message display object to
 //  simplify our code.  It's just always disabled.
 var gMessageDisplay;
-
-var nsIMsgWindow = Ci.nsIMsgWindow;
 
 var gFolderPicker;
 var gStatusFeedback;
@@ -89,10 +95,10 @@ var nsSearchResultsController = {
 
         case "cmd_delete":
         case "button_delete":
-            MsgDeleteSelectedMessages(nsMsgViewCommandType.deleteMsg);
+            MsgDeleteSelectedMessages(Ci.nsMsgViewCommandType.deleteMsg);
             return true;
         case "cmd_shiftDelete":
-            MsgDeleteSelectedMessages(nsMsgViewCommandType.deleteNoTrash);
+            MsgDeleteSelectedMessages(Ci.nsMsgViewCommandType.deleteNoTrash);
             return true;
 
         case "open_in_folder_button":
@@ -106,7 +112,7 @@ var nsSearchResultsController = {
         case "cmd_selectAll":
             // move the focus to the search results pane
             GetThreadTree().focus();
-            gFolderDisplay.doCommand(nsMsgViewCommandType.selectAll);
+            gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectAll);
             return true;
 
         default:
@@ -261,7 +267,7 @@ function initializeSearchWindowWidgets() {
     hideMatchAllItem();
 
     msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(nsIMsgWindow);
+                  .createInstance(Ci.nsIMsgWindow);
     msgWindow.domWindow = window;
     msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
@@ -490,11 +496,6 @@ function GetScopeForFolder(folder) {
 
 }
 
-var nsMsgViewSortType = Ci.nsMsgViewSortType;
-var nsMsgViewSortOrder = Ci.nsMsgViewSortOrder;
-var nsMsgViewFlagsType = Ci.nsMsgViewFlagsType;
-var nsMsgViewCommandType = Ci.nsMsgViewCommandType;
-
 function goUpdateSearchItems(commandset) {
   for (var i = 0; i < commandset.childNodes.length; i++) {
     var commandID = commandset.childNodes[i].getAttribute("id");
@@ -528,7 +529,7 @@ function MoveMessageInSearch(destFolder) {
   let destMsgFolder = MailUtils.getOrCreateFolder(destUri);
 
   gFolderDisplay.hintAboutToDeleteMessages();
-  gFolderDisplay.doCommandWithFolder(nsMsgViewCommandType.moveMessages,
+  gFolderDisplay.doCommandWithFolder(Ci.nsMsgViewCommandType.moveMessages,
                                      destMsgFolder);
 }
 

@@ -3,6 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailTabs.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from messageDisplay.js */
+
 ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -831,7 +836,7 @@ nsContextMenu.prototype = {
           if (this.link.href) {
             text = this.link.href;
           } else {
-            text = getAttributeNS("http://www.w3.org/1999/xlink", "href");
+            text = this.link.getAttributeNS("http://www.w3.org/1999/xlink", "href");
             if (text && !(text.trim() == "")) {
               text = this.makeURLAbsolute(this.link.baseURI, text);
             }

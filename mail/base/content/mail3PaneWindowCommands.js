@@ -7,6 +7,13 @@
  * consisting of folder pane, thread pane and message pane.
  */
 
+/* import-globals-from ../../components/im/content/chat-messenger.js */
+/* import-globals-from commandglue.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from msgViewNavigation.js */
+/* import-globals-from threadPane.js */
+
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -263,10 +270,10 @@ var DefaultController = {
         // fall through
       case "button_delete":
         UpdateDeleteToolbarButton();
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.deleteMsg);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.deleteMsg);
       case "cmd_shiftDelete":
       case "button_shiftDelete":
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.deleteNoTrash);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.deleteNoTrash);
       case "cmd_cancel":
         return gFolderDisplay.selectedCount == 1 &&
                gFolderDisplay.selectedMessageIsNews;
@@ -283,12 +290,12 @@ var DefaultController = {
         return false;
       case "button_junk":
         UpdateJunkToolbarButton();
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.junk);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk);
       case "cmd_killThread":
       case "cmd_killSubthread":
         return gFolderDisplay.selectedCount > 0;
       case "cmd_watchThread":
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.toggleThreadWatched);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.toggleThreadWatched);
       case "cmd_createFilterFromPopup":
       case "cmd_createFilterFromMenu":
         return gFolderDisplay.selectedCount == 1 &&
@@ -335,7 +342,7 @@ var DefaultController = {
           goSetAccessKey(command, whichText + "AccessKey");
         }
         if (numSelected > 0) {
-          if (!gFolderDisplay.getCommandStatus(nsMsgViewCommandType.cmdRequiringMsgBody))
+          if (!gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.cmdRequiringMsgBody))
             return false;
 
           // Check if we have a collapsed thread selected and are summarizing it.
@@ -357,7 +364,7 @@ var DefaultController = {
         return false;
       case "cmd_printpreview":
         if (gFolderDisplay.selectedCount == 1)
-          return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.cmdRequiringMsgBody);
+          return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.cmdRequiringMsgBody);
         return false;
       case "cmd_newMessage":
         return CanComposeMessages();
@@ -373,22 +380,22 @@ var DefaultController = {
         return gFolderDisplay.canArchiveSelectedMessages;
       case "cmd_markAsJunk":
       case "cmd_markAsNotJunk":
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.junk);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk);
       case "cmd_recalculateJunkScore":
         // We're going to take a conservative position here, because we really
         // don't want people running junk controls on folders that are not
         // enabled for junk. The junk type picks up possible dummy message headers,
         // while the runJunkControls will prevent running on XF virtual folders.
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.junk) &&
-               gFolderDisplay.getCommandStatus(nsMsgViewCommandType.runJunkControls);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk) &&
+               gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.runJunkControls);
       case "cmd_displayMsgFilters":
         return MailServices.accounts.accounts.length > 0;
       case "cmd_applyFilters":
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.applyFilters);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.applyFilters);
       case "cmd_runJunkControls":
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.runJunkControls);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.runJunkControls);
       case "cmd_deleteJunk":
-        return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.deleteJunk);
+        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.deleteJunk);
       case "button_mark":
       case "cmd_tag":
       case "cmd_addTag":
@@ -425,7 +432,7 @@ var DefaultController = {
       case "cmd_goForward":
       case "cmd_goBack":
         if (gDBView)
-          return gDBView.navigateStatus((command == "cmd_goBack" || command == "button_goBack") ? nsMsgNavigationType.back : nsMsgNavigationType.forward);
+          return gDBView.navigateStatus((command == "cmd_goBack" || command == "button_goBack") ? Ci.nsMsgNavigationType.back : Ci.nsMsgNavigationType.forward);
         return false;
       case "cmd_goStartPage":
         return document.getElementById("tabmail").selectedTab.mode.name == "folder" &&
@@ -653,7 +660,7 @@ var DefaultController = {
         //  selection incorrect.
         if (!gRightMouseButtonSavedSelection)
           gFolderDisplay.hintAboutToDeleteMessages();
-        gFolderDisplay.doCommand(nsMsgViewCommandType.deleteMsg);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
         UpdateDeleteToolbarButton();
         break;
       case "cmd_cancel":
@@ -665,7 +672,7 @@ var DefaultController = {
       case "cmd_shiftDelete":
         MarkSelectedMessagesRead(true);
         gFolderDisplay.hintAboutToDeleteMessages();
-        gFolderDisplay.doCommand(nsMsgViewCommandType.deleteNoTrash);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
         UpdateDeleteToolbarButton();
         break;
       case "cmd_deleteFolder":
@@ -681,7 +688,7 @@ var DefaultController = {
           }
         }
         // kill thread kills the thread and then does a next unread
-        GoNextMessage(nsMsgNavigationType.toggleThreadKilled, true);
+        GoNextMessage(Ci.nsMsgNavigationType.toggleThreadKilled, true);
         break;
       case "cmd_killSubthread":
         if (!gFolderDisplay.selectedMessageIsNews) {
@@ -692,43 +699,43 @@ var DefaultController = {
                     .removeTransientNotifications();
           }
         }
-        GoNextMessage(nsMsgNavigationType.toggleSubthreadKilled, true);
+        GoNextMessage(Ci.nsMsgNavigationType.toggleSubthreadKilled, true);
         break;
       case "cmd_watchThread":
-        gFolderDisplay.doCommand(nsMsgViewCommandType.toggleThreadWatched);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.toggleThreadWatched);
         break;
       case "button_next":
       case "cmd_nextUnreadMsg":
-        GoNextMessage(nsMsgNavigationType.nextUnreadMessage, true);
+        GoNextMessage(Ci.nsMsgNavigationType.nextUnreadMessage, true);
         break;
       case "cmd_nextUnreadThread":
-        GoNextMessage(nsMsgNavigationType.nextUnreadThread, true);
+        GoNextMessage(Ci.nsMsgNavigationType.nextUnreadThread, true);
         break;
       case "button_nextMsg":
       case "cmd_nextMsg":
-        GoNextMessage(nsMsgNavigationType.nextMessage, false);
+        GoNextMessage(Ci.nsMsgNavigationType.nextMessage, false);
         break;
       case "cmd_nextFlaggedMsg":
-        GoNextMessage(nsMsgNavigationType.nextFlagged, true);
+        GoNextMessage(Ci.nsMsgNavigationType.nextFlagged, true);
         break;
       case "button_previousMsg":
       case "cmd_previousMsg":
-        GoNextMessage(nsMsgNavigationType.previousMessage, false);
+        GoNextMessage(Ci.nsMsgNavigationType.previousMessage, false);
         break;
       case "button_previous":
       case "cmd_previousUnreadMsg":
-        GoNextMessage(nsMsgNavigationType.previousUnreadMessage, true);
+        GoNextMessage(Ci.nsMsgNavigationType.previousUnreadMessage, true);
         break;
       case "cmd_previousFlaggedMsg":
-        GoNextMessage(nsMsgNavigationType.previousFlagged, true);
+        GoNextMessage(Ci.nsMsgNavigationType.previousFlagged, true);
         break;
       case "button_goForward":
       case "cmd_goForward":
-        GoNextMessage(nsMsgNavigationType.forward, true);
+        GoNextMessage(Ci.nsMsgNavigationType.forward, true);
         break;
       case "button_goBack":
       case "cmd_goBack":
-        GoNextMessage(nsMsgNavigationType.back, true);
+        GoNextMessage(Ci.nsMsgNavigationType.back, true);
         break;
       case "cmd_goStartPage":
         HideMessageHeaderPane();
@@ -765,12 +772,12 @@ var DefaultController = {
         messenger.redo(msgWindow);
         break;
       case "cmd_expandAllThreads":
-        gFolderDisplay.doCommand(nsMsgViewCommandType.expandAll);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.expandAll);
         gFolderDisplay.ensureSelectionIsVisible();
         break;
       case "cmd_collapseAllThreads":
         gFolderDisplay.selectSelectedThreadRoots();
-        gFolderDisplay.doCommand(nsMsgViewCommandType.collapseAll);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
         gFolderDisplay.ensureSelectionIsVisible();
         break;
       case "cmd_renameFolder":
@@ -877,10 +884,10 @@ var DefaultController = {
         return;
       case "cmd_markThreadAsRead":
         ClearPendingReadTimer();
-        gFolderDisplay.doCommand(nsMsgViewCommandType.markThreadRead);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.markThreadRead);
         return;
       case "cmd_markAllRead":
-        gFolderDisplay.doCommand(nsMsgViewCommandType.markAllRead);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.markAllRead);
         return;
       case "button_junk":
         MsgJunk();
@@ -933,10 +940,10 @@ var DefaultController = {
         gFolderTreeController.compactFolders();
         return;
       case "cmd_downloadFlagged":
-          gFolderDisplay.doCommand(nsMsgViewCommandType.downloadFlaggedForOffline);
+          gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.downloadFlaggedForOffline);
           break;
       case "cmd_downloadSelected":
-          gFolderDisplay.doCommand(nsMsgViewCommandType.downloadSelectedForOffline);
+          gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.downloadSelectedForOffline);
           break;
       case "cmd_synchronizeOffline":
           MsgSynchronizeOffline();
@@ -961,13 +968,13 @@ var DefaultController = {
         // move the focus so the user can delete the newly selected messages, not the folder
         SetFocusThreadPane();
         // if in threaded mode, the view will expand all before selecting all
-        gFolderDisplay.doCommand(nsMsgViewCommandType.selectAll);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectAll);
         break;
       case "cmd_selectThread":
-          gFolderDisplay.doCommand(nsMsgViewCommandType.selectThread);
+          gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectThread);
           break;
       case "cmd_selectFlagged":
-        gFolderDisplay.doCommand(nsMsgViewCommandType.selectFlagged);
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
         break;
       case "cmd_fullZoomReduce":
         ZoomManager.reduce();

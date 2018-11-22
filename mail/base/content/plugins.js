@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This file is scheduled to be demolished to make way for a new hyperspace bypass.
+// See bug 1508942.
+/* eslint-disable */
+
 "use strict";
 
 /* A note to the curious: a large portion of this code was copied over from

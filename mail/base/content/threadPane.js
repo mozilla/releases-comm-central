@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from commandglue.js */
+/* import-globals-from folderDisplay.js */
+/* import-globals-from mailWindow.js */
+
 var gLastMessageUriToLoad = null;
 var gThreadPaneCommandUpdater = null;
 
@@ -117,8 +121,8 @@ function HandleColumnClick(columnID) {
     return;
   }
 
-  if (viewWrapper.primarySortType == nsMsgViewSortType[sortType] &&
-      (viewWrapper.primarySortType != nsMsgViewSortType.byCustom ||
+  if (viewWrapper.primarySortType == Ci.nsMsgViewSortType[sortType] &&
+      (viewWrapper.primarySortType != Ci.nsMsgViewSortType.byCustom ||
        curCustomColumn == columnID)) {
     MsgReverseSortThreadPane();
   } else {
@@ -164,13 +168,13 @@ function MsgSortByThread() {
 }
 
 function MsgSortThreadPane(sortName) {
-  let sortType = nsMsgViewSortType[sortName];
+  let sortType = Ci.nsMsgViewSortType[sortName];
   let grouped = gFolderDisplay.view.showGroupedBySort;
   gFolderDisplay.view._threadExpandAll =
-    Boolean(gFolderDisplay.view._viewFlags & nsMsgViewFlagsType.kExpandAll);
+    Boolean(gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll);
 
   if (!grouped) {
-    gFolderDisplay.view.sort(sortType, nsMsgViewSortOrder.ascending);
+    gFolderDisplay.view.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
     // Respect user's last expandAll/collapseAll choice, post sort direction change.
     gFolderDisplay.restoreThreadState();
     return;
@@ -189,7 +193,7 @@ function MsgSortThreadPane(sortName) {
   // So, first set the desired sortType and sortOrder, then set viewFlags in
   // batch mode, then apply it all (open a new view) with endViewUpdate().
   gFolderDisplay.view.beginViewUpdate();
-  gFolderDisplay.view._sort = [[sortType, nsMsgViewSortOrder.ascending]];
+  gFolderDisplay.view._sort = [[sortType, Ci.nsMsgViewSortOrder.ascending]];
   gFolderDisplay.view.showGroupedBySort = false;
   gFolderDisplay.view.endViewUpdate();
 
@@ -203,7 +207,7 @@ function MsgSortThreadPane(sortName) {
 function MsgReverseSortThreadPane() {
   let grouped = gFolderDisplay.view.showGroupedBySort;
   gFolderDisplay.view._threadExpandAll =
-    Boolean(gFolderDisplay.view._viewFlags & nsMsgViewFlagsType.kExpandAll);
+    Boolean(gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll);
 
   // Grouped By view is special for column click sort direction changes.
   if (grouped) {
@@ -215,7 +219,7 @@ function MsgReverseSortThreadPane() {
         gFolderDisplay.view.showGroupedBySort = false;
       else
        // Must ensure rows are collapsed and kExpandAll is unset.
-       gFolderDisplay.doCommand(nsMsgViewCommandType.collapseAll);
+       gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
     }
   }
 
@@ -314,7 +318,7 @@ function UpdateSortIndicators(sortType, sortOrder) {
 
   if (sortedColumn)
     sortedColumn.setAttribute("sortDirection",
-                              sortOrder == nsMsgViewSortOrder.ascending ?
+                              sortOrder == Ci.nsMsgViewSortOrder.ascending ?
                                 "ascending" : "descending");
 }
 

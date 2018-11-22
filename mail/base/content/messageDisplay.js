@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from mailWindow.js */
+/* import-globals-from selectionsummaries.js */
+
 /**
  * Base abstraction for message display along the line of FolderDisplayWidget,
  *  but for message display.  This really only exists to keep

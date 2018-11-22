@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
   - License, v. 2.0. If a copy of the MPL was not distributed with this
   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!-- import-globals-from glodaFacetView.js -->
 
 <bindings id="glodaFacetBindings"
           xmlns="http://www.mozilla.org/xbl"
@@ -1375,16 +1376,6 @@
       }
       ]]></body>
     </method>
-    <method name="ensureNodeVisible">
-      <parameter name="messageIndex"/>
-      <body><![CDATA[
-        let messagesNode = document.getAnonymousElementByAttribute(
-                             this, "anonid", "messages");
-        let message = messagesNode.childNodes[messageIndex];
-        window.scrollTo(0, $(message).position().top + $(window).scrollTop());
-      ]]></body>
-    </method>
-
     <method name="updateSortLabels">
       <body><![CDATA[
       try {
@@ -1473,6 +1464,9 @@
         toNode.textContent = glodaFacetStrings.get("glodaFacetView.result.message.toLabel");
 
         // anonElem("author").textContent = ;
+        let {
+          makeFriendlyDateAgo,
+        } = ChromeUtils.import("resource:///modules/templateUtils.js", null);
         anonElem("date").textContent = makeFriendlyDateAgo(message.date);
 
         // - Recipients

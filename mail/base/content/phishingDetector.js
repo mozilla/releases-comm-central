@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Dependencies:
-// gatherTextUnder from utilityOverlay.js
+/* import-globals-from mailWindowOverlay.js */
+/* import-globals-from utilityOverlay.js */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 

@@ -3,13 +3,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/content/contentAreaUtils.js */
+/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
+/* import-globals-from commandglue.js */
+/* import-globals-from mail-offline.js */
+/* import-globals-from mailCore.js */
+/* import-globals-from mailWindowOverlay.js */
+/* import-globals-from msgHdrView.js */
+/* import-globals-from msgMail3PaneWindow.js */
+/* import-globals-from utilityOverlay.js */
+
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/appIdleManager.js");
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-ChromeUtils.import("resource:///modules/gloda/public.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js", null);
 
 // This file stores variables common to mail windows
 var messenger;
@@ -663,7 +674,7 @@ nsBrowserAccess.prototype = {
 
     let tabmail = win.document.getElementById("tabmail");
     let clickHandler = null;
-    let browser = tabmail.getBrowserForDocument(content);
+    let browser = tabmail.getBrowserForDocument(window.content);
     if (browser)
       clickHandler = browser.clickHandler;
 

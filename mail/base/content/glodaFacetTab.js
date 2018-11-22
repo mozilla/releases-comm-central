@@ -4,9 +4,9 @@
 
 ChromeUtils.import("resource:///modules/StringBundle.js");
 
-ChromeUtils.import("resource:///modules/gloda/facet.js");
+var { FacetDriver } = ChromeUtils.import("resource:///modules/gloda/facet.js", null);
 // needed by search.xml to use us
-ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+var { GlodaMsgSearcher } = ChromeUtils.import("resource:///modules/gloda/msg_search.js", null);
 
 var glodaFacetTabType = {
   name: "glodaFacet",
