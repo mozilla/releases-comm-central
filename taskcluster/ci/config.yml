@@ -18,6 +18,7 @@ treeherder:
         'Fetch-URL': 'Fetch and store content'
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
+        'ms': 'Complete MAR signing'
         'rs': 'Repackage signing'
         'BMR-L10n': 'Beetmover repackages for locales'
         'c-Up': 'Balrog submission of complete updates'

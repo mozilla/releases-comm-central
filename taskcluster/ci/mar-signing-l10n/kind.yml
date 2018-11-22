@@ -6,14 +6,22 @@ loader: taskgraph.loader.single_dep:loader
 
 transforms:
     - taskgraph.transforms.name_sanity:transforms
-    - taskgraph.transforms.repackage_signing:transforms
+    - taskgraph.transforms.mar_signing:transforms
     - taskgraph.transforms.task:transforms
-    - comm_taskgraph:remove_widevine_and_stub_installer
-
 
 kind-dependencies:
     - repackage-l10n
 
 only-for-build-platforms:
+    - linux-nightly/opt
+    - linux64-nightly/opt
+    - macosx64-nightly/opt
     - win32-nightly/opt
     - win64-nightly/opt
+
+job-template:
+    shipping-phase: promote
+    treeherder-group: ms
+    description-suffix: 'mar signing'
+    required_signoffs:
+        - mar-signing

@@ -23,10 +23,12 @@ kind-dependencies:
     - nightly-l10n-signing
     - repackage-l10n
     - repackage-signing-l10n
+    - mar-signing
+    - mar-signing-l10n
 
 primary-dependency:
-    - repackage-signing-l10n
-    - repackage-signing
+    - repackage
+    - repackage-l10n
 
 only-for-build-platforms:
     - linux-nightly/opt
