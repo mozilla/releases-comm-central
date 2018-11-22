@@ -946,14 +946,6 @@ nsSubscribableServer::IsEditable(int32_t aRow, nsTreeColumn *aCol,
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::IsSelectable(int32_t aRow, nsTreeColumn *aCol,
-                                   bool *retval)
-{
-  *retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsSubscribableServer::IsSeparator(int32_t aRowIndex, bool *retval)
 {
   *retval = false;

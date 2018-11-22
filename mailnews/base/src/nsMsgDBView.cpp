@@ -1065,15 +1065,6 @@ nsMsgDBView::IsEditable(int32_t row,
 }
 
 NS_IMETHODIMP
-nsMsgDBView::IsSelectable(int32_t row,
-                          nsTreeColumn* col,
-                          bool* _retval)
-{
-  *_retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgDBView::SetCellValue(int32_t row,
                           nsTreeColumn* col,
                           const nsAString& value)

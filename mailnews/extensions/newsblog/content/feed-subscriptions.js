@@ -142,7 +142,6 @@ var FeedSubscriptions = {
     setTree(aTreebox)            { this.treeBox = aTreebox; },
     isSeparator(aRow)            { return false; },
     isSorted()                   { return false; },
-    isSelectable(aRow, aColumn)  { return false; },
     isEditable(aRow, aColumn)    { return false; },
 
     getProgressMode(aRow, aCol)  {},

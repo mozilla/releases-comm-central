@@ -548,7 +548,6 @@ function Startup()
     },
     cycleCell: function cycleCell(index, column) { itemArray[index].cycleCell(index); },
     isEditable: function isEditable(index, column) { return false; },
-    isSelectable: function isSelectable(index, column) { return false; },
     performAction: function performAction(action) { },
     performActionOnCell: function performActionOnCell(action, index, column) { }
   };

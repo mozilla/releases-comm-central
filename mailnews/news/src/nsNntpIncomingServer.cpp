@@ -1941,13 +1941,6 @@ nsNntpIncomingServer::IsEditable(int32_t row, nsTreeColumn* col, bool *_retval)
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::IsSelectable(int32_t row, nsTreeColumn* col, bool *_retval)
-{
-  *_retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsNntpIncomingServer::SetCellValue(int32_t row, nsTreeColumn* col, const nsAString& value)
 {
   return NS_ERROR_NOT_IMPLEMENTED;

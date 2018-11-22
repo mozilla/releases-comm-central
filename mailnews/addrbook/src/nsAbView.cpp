@@ -569,11 +569,6 @@ NS_IMETHODIMP nsAbView::IsEditable(int32_t row, nsTreeColumn* col, bool* _retval
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::IsSelectable(int32_t row, nsTreeColumn* col, bool* _retval)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsAbView::SetCellValue(int32_t row, nsTreeColumn* col, const nsAString& value)
 {
     return NS_ERROR_NOT_IMPLEMENTED;

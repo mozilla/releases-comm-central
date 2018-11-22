@@ -413,9 +413,6 @@ var gCookiesWindow = {
     isEditable(aIndex, aColumn) {
       return false;
     },
-    isSelectable(aIndex, aColumn) {
-      return false;
-    },
     setCellValue(aIndex, aColumn, aValue) {},
     setCellText(aIndex, aColumn, aValue) {},
     performAction(aAction) {},
