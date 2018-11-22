@@ -22,9 +22,9 @@ linux64/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
-        - linux64-gcc
         - linux64-node
         - linux64-rust
         - linux64-sccache
@@ -60,9 +60,9 @@ linux64-nightly/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
-        - linux64-gcc
         - linux64-node
         - linux64-rust
 
@@ -92,9 +92,9 @@ linux64/debug:
         mozconfig-variant: debug
         need-xvfb: true
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
-        - linux64-gcc
         - linux64-node
         - linux64-rust
         - linux64-sccache
@@ -123,9 +123,9 @@ linux/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
-        - linux64-gcc
         - linux64-node
         - linux64-rust
         - linux64-sccache
@@ -161,9 +161,9 @@ linux-nightly/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
-        - linux64-gcc
         - linux64-node
         - linux64-rust
 
@@ -193,9 +193,9 @@ linux/debug:
         mozconfig-variant: debug
         need-xvfb: true
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
-        - linux64-gcc
         - linux64-node
         - linux64-rust
         - linux64-sccache
