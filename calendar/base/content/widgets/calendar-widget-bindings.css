@@ -37,7 +37,7 @@ dragndropContainer {
    -moz-binding: url(chrome://calendar/content/widgets/calendar-widgets.xml#dragndropContainer);
 }
 
-tab[calview] {
+radio[calview] {
    -moz-binding: url(chrome://calendar/content/widgets/calendar-widgets.xml#view-tab);
 }
 

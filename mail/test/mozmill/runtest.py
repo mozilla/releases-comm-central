@@ -31,7 +31,7 @@ import mozcrash
 from time import sleep
 import imp
 
-PROFILE_DIR = os.path.join(SCRIPT_DIRECTORY, 'mozmillprofile')
+PROFILE_DIR = os.path.join('/dev/shm', 'mozmillprofile')
 SYMBOLS_PATH = None
 PLUGINS_PATH = None
 # XXX This breaks any semblance of test runner modularity, and only works

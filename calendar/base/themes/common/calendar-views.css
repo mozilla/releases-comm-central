@@ -896,8 +896,7 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
     border-bottom: 1px solid var(--calview-border-bottom-color);
 }
 
-tab[calview] {
-    -moz-appearance: none;
+radio[calview] {
     border-left: 1px solid var(--calview-border-color);
     border-right: 1px solid var(--calview-border-color);
     border-bottom: 1px solid var(--calview-border-bottom-color);
@@ -908,25 +907,29 @@ tab[calview] {
     -moz-user-focus: normal;
     background-color: transparent;
     font-size: 14px;
+
+    position: relative;
+    -moz-appearance: tab;
+    min-width: unset;
 }
 
-tab[calview]:not(:first-child) {
+radio[calview]:not(:first-child) {
     margin-inline-start: -1px;
 }
 
 
-tab[calview][selected="true"] {
+radio[calview][selected="true"] {
     background-image: linear-gradient(to bottom,
                       var(--calview-tabline-color) 2px, transparent 2px);
     border-bottom-width: 0;
     padding-bottom: 4px;
 }
 
-tab[calview]:not([selected=true]):hover {
+radio[calview]:not([selected=true]):hover {
     background-color: rgba(0,0,0,.1);
 }
 
-tab[calview] > .tab-middle {
+radio[calview] > .tab-middle {
     text-align: center;
 }
 

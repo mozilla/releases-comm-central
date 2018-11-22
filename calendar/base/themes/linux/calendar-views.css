@@ -21,16 +21,16 @@
     padding-top: 1px;
 }
 
-tab[calview] {
+radio[calview] {
     color: ButtonText;
     margin-bottom: 0;
 }
 
-tab[calview][selected="true"] {
+radio[calview][selected="true"] {
     background-color: -moz-Field;
 }
 
-tab[calview] > .tab-middle {
+radio[calview] > .tab-middle {
     margin-top: 3px;
     margin-bottom: 3px;
 }

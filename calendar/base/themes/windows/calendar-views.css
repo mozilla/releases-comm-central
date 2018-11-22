@@ -23,11 +23,11 @@
     margin-bottom: 0;
 }
 
-tab[calview] {
+radio[calview] {
     color: ButtonText;
 }
 
-tab[calview][selected="true"] {
+radio[calview][selected="true"] {
     background-color: -moz-Field;
 }
 
