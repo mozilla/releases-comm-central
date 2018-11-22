@@ -28,6 +28,7 @@ tab[calview] {
 
 tab[calview][selected="true"] {
     background-color: -moz-Field;
+    font-weight: bold;
 }
 
 tab[calview] > .tab-middle {

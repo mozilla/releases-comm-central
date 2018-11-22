@@ -29,6 +29,7 @@ tab[calview] {
 
 tab[calview][selected="true"] {
     background-color: -moz-Field;
+    font-weight: bold;
 }
 
 .navigation-inner-box > hbox {

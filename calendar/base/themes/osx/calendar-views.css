@@ -80,6 +80,7 @@ tab[calview] {
 tab[calview][selected="true"] {
     background-color: #fff;
     color: inherit;
+    font-weight: bold;
 }
 
 tab[calview] > .tab-middle {
