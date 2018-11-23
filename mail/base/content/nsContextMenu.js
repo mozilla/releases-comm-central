@@ -626,17 +626,6 @@ nsContextMenu.prototype = {
   },
 
   /**
-   * Generate a URL string from a computed style property, for things like
-   * |style="background-image:url(...)"|
-   * @return a "url"-type computed style attribute value, with the "url(" and
-   *         ")" stripped.
-   */
-  getComputedURL(aElem, aProp) {
-    var url = aElem.ownerGlobal.getComputedStyle(aElem).getPropertyCSSValue(aProp);
-    return (url.primitiveType == CSSPrimitiveValue.CSS_URI) ? url.getStringValue() : null;
-  },
-
-  /**
    * Determine whether the clicked-on link can be saved, and whether it
    * may be saved according to the ScriptSecurityManager.
    * @return true if the protocol can be persisted and if the target has
