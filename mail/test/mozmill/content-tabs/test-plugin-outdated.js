@@ -72,7 +72,6 @@ function test_outdated_plugin_notification() {
 
   Services.prefs.clearUserPref("extensions.blocklist.suppressUI");
 }
-test_outdated_plugin_notification.EXCLUDED_PLATFORMS = ["linux"];
 
 function subtest_outdated_plugin_notification() {
   // Prepare to capture the notification bar

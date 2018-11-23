@@ -165,7 +165,6 @@ function test_checkPluginsInNonMessageContent() {
   if (!isPluginLoaded(mozmill.getMail3PaneController().window.content.document))
     throw new Error("Plugin is not turned on in content in message pane - it should be.");
 }
-test_checkPluginsInNonMessageContent.EXCLUDED_PLATFORMS = ["linux"];
 
 function test_3paneWindowDeniedAgain() {
   select_click_row(0);
@@ -200,5 +199,3 @@ function test_checkContentTab() {
   if (mc.tabmail.tabContainer.childNodes.length != preCount)
     throw new Error("The content tab didn't close");
 }
-test_checkContentTab.EXCLUDED_PLATFORMS = ["linux"];
-
