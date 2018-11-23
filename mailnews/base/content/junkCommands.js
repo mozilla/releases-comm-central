@@ -286,7 +286,7 @@ function processFolderForJunk(aAll)
   if (aAll)
   {
     // need to expand all threads, so we analyze everything
-    gDBView.doCommand(nsMsgViewCommandType.expandAll);
+    gDBView.doCommand(Ci.nsMsgViewCommandType.expandAll);
     var treeView = gDBView.QueryInterface(Ci.nsITreeView);
     var count = treeView.rowCount;
     if (!count)
@@ -361,8 +361,8 @@ function JunkSelectedMessages(setAsJunk)
   if (setAsJunk && Services.prefs.getBoolPref("mailnews.ui.junk.manualMarkAsJunkMarksRead"))
     MarkSelectedMessagesRead(true);
 
-  gDBView.doCommand(setAsJunk ? nsMsgViewCommandType.junk
-                              : nsMsgViewCommandType.unjunk);
+  gDBView.doCommand(setAsJunk ? Ci.nsMsgViewCommandType.junk
+                              : Ci.nsMsgViewCommandType.unjunk);
 }
 
 /**
@@ -398,7 +398,7 @@ function deleteJunkInFolder()
   // Folder is virtual, let the view do the work (but we lose selection)
 
   // need to expand all threads, so we find everything
-  gDBView.doCommand(nsMsgViewCommandType.expandAll);
+  gDBView.doCommand(Ci.nsMsgViewCommandType.expandAll);
 
   var treeView = gDBView.QueryInterface(Ci.nsITreeView);
   var count = treeView.rowCount;
@@ -448,7 +448,7 @@ function deleteJunkInFolder()
   //
   // We'll leave no selection after the delete
   gNextMessageViewIndexAfterDelete = nsMsgViewIndex_None;
-  gDBView.doCommand(nsMsgViewCommandType.deleteMsg);
+  gDBView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
   treeSelection.clearSelection();
   ClearMessagePane();
   return numMessagesDeleted;
