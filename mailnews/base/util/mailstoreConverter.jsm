@@ -216,24 +216,25 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
       if (content.isDirectory()) {
         if (content.leafName.substr(-4) != ".sbd" && content.leafName.substr(-8) != ".mozmsgs") {
           // Assume it's a maildir, and grab the list of messages.
-          // Array to hold unsorted list of maildir msg filenames.
-          let dataArrayUnsorted = [];
-          // "cur" directory inside the maildir msg folder.
-          let cur = FileUtils.File(OS.Path.join(content.path,"cur"));
-          // Msg files inside "cur" directory.
-          let msgs = cur.directoryEntries;
+          // We sort the messages by timestamp to order the resulting
+          // mbox. Not ideal, but best we can do without parsing headers.
 
+          // XXX TODO: should use OS.File APIs for this, and probably
+          // just do it all in the worker. See:
+          // https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/OSFile.jsm/OS.File.DirectoryIterator_for_workers#Example_Sorting_files_by_last_modification_date
+          let msgFiles = [];
+          let cur = FileUtils.File(OS.Path.join(content.path,"cur"));
+          let msgs = cur.directoryEntries;
           while (msgs.hasMoreElements()) {
-            // Add filenames as integers into 'dataArrayUnsorted'.
-            // TODO: this'll break if maildir scheme changes! (eg .eml extension)
-            let msg = msgs.getNext()
-                          .QueryInterface(Ci.nsIFile);
-            dataArrayUnsorted.push(parseInt(msg.leafName));
+            let msg = msgs.getNext().QueryInterface(Ci.nsIFile);
+            msgFiles.push(msg);
           }
-          dataArrayUnsorted.sort()
-          // Add the maildir msg filenames into 'dataArray' in a sorted order.
-          for (let elem of dataArrayUnsorted) {
-            dataArray.push(elem.toString());
+          msgFiles.sort(function compare(a, b) {
+            return a.lastModifiedTime - b.lastModifiedTime;
+          });
+          // Build the list of msg files to send to the worker.
+          for (let elem of msgFiles) {
+            dataArray.push(elem.leafName.toString());
           }
         }
       }

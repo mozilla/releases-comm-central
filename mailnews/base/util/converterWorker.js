@@ -216,7 +216,7 @@ self.addEventListener("message", function(e) {
             // Create a maildir message file in 'dest/destFile/cur/'
             // and open it for writing.
             targetFile = OS.File.open(OS.Path.join(dest, destFile, "cur",
-              name.toString()), {write: true, create: true}, {});
+              name.toString() + ".eml"), {write: true, create: true}, {});
 
             // Extract the text in 'text' between 'lastPos[0]' ie the
             // index of the first "From - " match and the end of 'text'.
@@ -255,7 +255,7 @@ self.addEventListener("message", function(e) {
             // Create and open a new file in 'dest/destFile/cur'
             // to hold the next mail.
             targetFile = OS.File.open(OS.Path.join(dest, destFile, "cur",
-              name.toString()), {write: true, create: true}, {});
+              name.toString() + ".eml"), {write: true, create: true}, {});
             // Extract the text lying between consecutive indices, encode
             // it and write it.
             targetFile.write(encoder.encode(text.substring(msgPos[i],
