@@ -1789,7 +1789,7 @@
     </implementation>
   </binding>
 
-  <binding id="tabmail-tab" display="xul:box"
+  <binding id="tabmail-tab"
            extends="chrome://global/content/bindings/tabbox.xml#tab">
     <content closetabtext="&closeTab.label;" context="tabContextMenu">
       <xul:stack class="tab-stack" flex="1">
