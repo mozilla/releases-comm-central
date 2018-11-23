@@ -526,7 +526,7 @@ function addAttendees(dialog, innerFrame, attendeesString) {
         // Only add if not already present.
         if (!calAttendee) {
             plan_for_modal_dialog("Calendar:EventDialog:Attendees", (attDialog) => {
-                let { lookup: attlookup, sleep: attsleep } = helpersForController(attDialog);
+                let { lookup: attlookup } = helpersForController(attDialog);
 
                 let input = attlookup(`
                     /id("calendar-event-dialog-attendees-v2")/
@@ -535,7 +535,9 @@ function addAttendees(dialog, innerFrame, attendeesString) {
                 // As starting point is always the last entered Attendee, we have
                 // to advance to not overwrite it.
                 attDialog.keypress(input, "VK_TAB", {});
-                attsleep(SHORT_SLEEP);
+                attDialog.waitFor(() =>
+                    attDialog.window.document.activeElement.getAttribute("class") == "textbox-input"
+                );
                 attDialog.type(input, attendee);
                 attDialog.click(attlookup(`
                     /id("calendar-event-dialog-attendees-v2")/anon({"anonid":"buttons"})/
