@@ -2,18 +2,18 @@
 /*
  * Test suite for nsIMsgHeaderParser functions:
  *   extractHeaderAddressMailboxes
- *   extractHeaderAddressNames
- *   extractHeaderAddressName
+ *   extractFirstName
+ *   parseDecodedHeader
  */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   // In this array, the sub arrays consist of the following elements:
-  // 0: input string
+  // 0: input string (a comma separated list of recipients)
   // 1: expected output from extractHeaderAddressMailboxes
-  // 2: expected output from extractHeaderAddressNames
-  // 3: expected output from extractHeaderAddressName
+  // 2: list of recipient names in the string
+  // 3: first recipient name in the string
   const checks =
   [
     ["abc@foo.invalid",
@@ -45,7 +45,7 @@ function run_test() {
     ["\"Joe Q. Public\" <john.q.public@example.com>,Test <\"abc!x.yz\"@foo.invalid>, Test <test@[xyz!]>,\"Giant; \\\"Big\\\" Box\" <sysservices@example.net>",
      "john.q.public@example.com, \"abc!x.yz\"@foo.invalid, test@[xyz!], sysservices@example.net",
      "Joe Q. Public, Test, Test, Giant; \"Big\" Box",
-     // extractHeaderAddressName returns unquoted names, hence the difference.
+     // extractFirstName returns unquoted names, hence the difference.
      "Joe Q. Public" ],
     // Bug 549931
     ["Undisclosed recipients:;",
@@ -58,18 +58,19 @@ function run_test() {
   let addresses = {}, names = {}, fullAddresses = {};
   MailServices.headerParser.parseHeadersWithArray("\" \"@a a;b", addresses, names, fullAddresses);
 
-
   // Test - empty strings
 
   Assert.equal(MailServices.headerParser.extractHeaderAddressMailboxes(""), "");
-  Assert.equal(MailServices.headerParser.extractHeaderAddressNames(""), "");
-  Assert.equal(MailServices.headerParser.extractHeaderAddressName(""), "");
+  Assert.equal(MailServices.headerParser.extractFirstName(""), "");
 
   // Test - extractHeaderAddressMailboxes
 
   for (let i = 0; i < checks.length; ++i) {
     Assert.equal(MailServices.headerParser.extractHeaderAddressMailboxes(checks[i][0]), checks[i][1]);
-    Assert.equal(MailServices.headerParser.extractHeaderAddressNames(checks[i][0]), checks[i][2]);
-    Assert.equal(MailServices.headerParser.extractHeaderAddressName(checks[i][0]), checks[i][3]);
+    let names = MailServices.headerParser.parseDecodedHeader(checks[i][0])
+                                         .map(addr => addr.name || addr.email)
+                                         .join(", ");
+    Assert.equal(names, checks[i][2]);
+    Assert.equal(MailServices.headerParser.extractFirstName(checks[i][0]), checks[i][3]);
   }
 }

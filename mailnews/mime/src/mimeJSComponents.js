@@ -292,8 +292,8 @@ MimeAddressParser.prototype = {
   },
 
   extractFirstName: function (aHeader) {
-    let address = this.parseDecodedHeader(aHeader, false)[0];
-    return address.name || address.email;
+    let addresses = this.parseDecodedHeader(aHeader, false);
+    return (addresses.length > 0) ? (addresses[0].name || addresses[0].email) : "";
   },
 
   removeDuplicateAddresses: function (aAddrs, aOtherAddrs) {
@@ -414,17 +414,6 @@ MimeAddressParser.prototype = {
 
   extractHeaderAddressMailboxes: function (aLine) {
     return this.parseDecodedHeader(aLine).map(addr => addr.email).join(", ");
-  },
-
-  extractHeaderAddressNames: function (aLine) {
-    return this.parseDecodedHeader(aLine).map(addr => addr.name || addr.email)
-                                         .join(", ");
-  },
-
-  extractHeaderAddressName: function (aLine) {
-    let addrs = this.parseDecodedHeader(aLine).map(addr =>
-                 addr.name || addr.email);
-    return addrs.length == 0 ? "" : addrs[0];
   },
 
   makeMimeAddress: function (aName, aEmail) {

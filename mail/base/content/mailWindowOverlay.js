@@ -2942,7 +2942,7 @@ var gMessageNotificationBar = {
     let mdnAddr = MailServices.headerParser.extractHeaderAddressMailboxes(mdnHdr);
     let fromAddr = MailServices.headerParser.extractHeaderAddressMailboxes(fromHdr);
 
-    let authorName = MailServices.headerParser.extractHeaderAddressName(
+    let authorName = MailServices.headerParser.extractFirstName(
                        aMsgHeader.mime2DecodedAuthor) || aMsgHeader.author;
 
     // If the return receipt doesn't go to the sender address, note that in the

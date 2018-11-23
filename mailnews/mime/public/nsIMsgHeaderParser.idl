@@ -201,28 +201,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @return               A comma-separated list of just the mailbox parts
    *                       of the email-addresses.
    */
-  /* @deprecated */ ACString extractHeaderAddressMailboxes(in ACString aLine);
-
-  /**
-   * Given a string which contains a list of Header addresses, returns a
-   * comma-separated list of just the `user name' portions.  If any of
-   * the addresses doesn't have a name, then the mailbox is used instead.
-   *
-   * @param aLine          The header line to parse.
-   * @return               A comma-separated list of just the name parts
-   *                       of the addresses.
-   */
-  /* @deprecated */ AUTF8String extractHeaderAddressNames(in AUTF8String aLine);
-
-  /*
-   * Like extractHeaderAddressNames, but only returns the first name in the
-   * header if there is one. This function will return unquoted strings suitable
-   * for display.
-   *
-   * @param aLine          The header line to parse.
-   * @return               The first name found in the list.
-   */
-  /* @deprecated */ AUTF8String extractHeaderAddressName(in AUTF8String aLine);
+  ACString extractHeaderAddressMailboxes(in ACString aLine);
 
   /**
    * Given a name and email address, produce a string that is suitable for

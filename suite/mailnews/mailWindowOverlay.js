@@ -2617,7 +2617,7 @@ var gMessageNotificationBar =
     // update the allow remote content for sender string
     var mailbox = headerParser.extractHeaderAddressMailboxes(aMsgHdr.author);
     var emailAddress = mailbox || aMsgHdr.author;
-    var displayName = headerParser.extractHeaderAddressName(aMsgHdr.author);
+    var displayName = headerParser.extractFirstName(aMsgHdr.mime2DecodedAuthor);
     var brandName = this.mBrandBundle.getString("brandShortName");
     var remoteContentMsg = this.mStringBundle
                                .getFormattedString("remoteContentBarMessage",
@@ -2685,8 +2685,8 @@ var gMessageNotificationBar =
                                .extractHeaderAddressMailboxes(fromHdr);
 
     var authorName = MailServices.headerParser
-                                 .extractHeaderAddressName(
-                       aMsgHeader.mime2DecodedAuthor) || aMsgHeader.author;
+                                 .extractFirstName(aMsgHeader.mime2DecodedAuthor)
+                                 || aMsgHeader.author;
 
     var barMsg;
     // If the return receipt doesn't go to the sender address, note that in the

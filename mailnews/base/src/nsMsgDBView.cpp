@@ -2774,22 +2774,6 @@ nsMsgDBView::GetSelectedMsgHdrs(uint32_t *aLength,
 }
 
 NS_IMETHODIMP
-nsMsgDBView::GetMsgHdrsForSelection(nsIMutableArray **aResult)
-{
-  nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
-  uint32_t numIndices = selection.Length();
-
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(selection.Elements(), numIndices, messages);
-  NS_ENSURE_SUCCESS(rv, rv);
-  messages.forget(aResult);
-  return rv;
-}
-
-NS_IMETHODIMP
 nsMsgDBView::GetURIsForSelection(uint32_t *length,
                                  char ***uris)
 {
