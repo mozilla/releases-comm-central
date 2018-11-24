@@ -106,6 +106,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode,
       nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
       break;
     case NS_ERROR_SMTP_SERVER_ERROR:
+    case NS_ERROR_SMTP_SEND_NOT_ALLOWED:
     case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1:
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
@@ -261,6 +262,7 @@ nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
     m_nextState = SMTP_START_CONNECT;
     m_nextStateAfterResponse = SMTP_START_CONNECT;
     m_responseCode = 0;
+    m_responseCodeEnhanced = 0;
     m_previousResponseCode = 0;
     m_continuationResponse = -1;
     m_tlsEnabled = false;
@@ -622,13 +624,24 @@ nsresult nsSmtpProtocol::SmtpResponse(nsIInputStream * inputStream, uint32_t len
 
   m_totalAmountRead += ln;
 
+  // The expected response is in the format:
+  // <SMTP code><continuation char>(<optional ESMTP code> )<response text>
+  // e.g.: 123 1.2.3 Text
   MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info, ("SMTP Response: %s", line));
   cont_char = ' '; /* default */
+  int chars_read = 0;
   // sscanf() doesn't update m_responseCode if line doesn't start
   // with a number. That can be dangerous. So be sure to set
   // m_responseCode to 0 if no items read.
-  if (PR_sscanf(line, "%d%c", &m_responseCode, &cont_char) <= 0)
+  if (PR_sscanf(line, "%d%c%n", &m_responseCode, &cont_char, &chars_read) <= 0)
     m_responseCode = 0;
+  else if (cont_char != '-' )
+  {
+    m_responseCodeEnhanced = 0;
+    char codeClass, codeSubject, codeDetail;
+    if (PR_sscanf(line + chars_read, "%1u.%1u.%1u ", &codeClass, &codeSubject, &codeDetail) == 3)
+      m_responseCodeEnhanced = codeClass * 100 + codeSubject * 10 + codeDetail;
+  }
 
   if (m_continuationResponse == -1)
   {
@@ -636,8 +649,10 @@ nsresult nsSmtpProtocol::SmtpResponse(nsIInputStream * inputStream, uint32_t len
       m_continuationResponse = m_responseCode;
 
     // display the whole message if no valid response code or
-    // message shorter than 4 chars
-    m_responseText = (m_responseCode >= 100 && PL_strlen(line) > 3) ? line + 4 : line;
+    // message shorter than 4 chars (chars_read)
+    // For now we intentionally leave the ESMTP code in the message text
+    // as we do not handle that code so let it for the user to get some clue.
+    m_responseText = (m_responseCode >= 100 && PL_strlen(line) > 3) ? line + chars_read : line;
   }
   else
   { /* have to continue */
@@ -647,7 +662,7 @@ nsresult nsSmtpProtocol::SmtpResponse(nsIInputStream * inputStream, uint32_t len
     if (m_responseText.IsEmpty() || m_responseText.Last() != '\n')
       m_responseText += "\n";
 
-    m_responseText += (PL_strlen(line) > 3) ? line + 4 : line;
+    m_responseText += (PL_strlen(line) > 3) ? line + chars_read : line;
   }
 
   if (m_responseCode == 220 && m_responseText.Length() && !m_tlsInitiated &&
@@ -1721,7 +1736,9 @@ nsresult nsSmtpProtocol::SendMailResponse()
   if (m_responseCode/10 != 25)
   {
     nsresult errorcode;
-    if (TestFlag(SMTP_EHLO_SIZE_ENABLED))
+    if ((m_responseCodeEnhanced == 570) || (m_responseCodeEnhanced == 571))
+      errorcode = NS_ERROR_SMTP_SEND_NOT_ALLOWED;
+    else if (TestFlag(SMTP_EHLO_SIZE_ENABLED))
       errorcode = (m_responseCode == 452) ? NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED :
                   (m_responseCode == 552) ? NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2 :
                   NS_ERROR_SENDING_FROM_COMMAND;
@@ -1821,7 +1838,9 @@ nsresult nsSmtpProtocol::SendRecipientResponse()
   if (m_responseCode / 10 != 25)
   {
     nsresult errorcode;
-    if (TestFlag(SMTP_EHLO_SIZE_ENABLED))
+    if ((m_responseCodeEnhanced == 570) || (m_responseCodeEnhanced == 571))
+      errorcode = NS_ERROR_SMTP_SEND_NOT_ALLOWED;
+    else if (TestFlag(SMTP_EHLO_SIZE_ENABLED))
       errorcode = (m_responseCode == 452) ? NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED :
                   (m_responseCode == 552) ? NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2 :
                   NS_ERROR_SENDING_RCPT_COMMAND;

@@ -124,6 +124,7 @@ private:
     SmtpState m_nextState;
     SmtpState m_nextStateAfterResponse;
     int32_t m_responseCode;    /* code returned from Smtp server */
+    int32_t m_responseCodeEnhanced;    /* ESMTP code returned from SMTP server (RFC1893) */
     int32_t m_previousResponseCode;
     int32_t m_continuationResponse;
     nsCString m_responseText;   /* text returned from Smtp server */
