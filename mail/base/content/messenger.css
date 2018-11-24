@@ -73,6 +73,34 @@ searchterm {
   -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontype-menulist");
 }
 
+.ruleactiontarget[type] {
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-base");
+}
+
+.ruleactiontarget[type="movemessage"], .ruleactiontarget[type="copymessage"] {
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-folder");
+}
+
+.ruleactiontarget[type="addtagtomessage"] {
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-tag");
+}
+
+.ruleactiontarget[type="setpriorityto"] {
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-priority");
+}
+
+.ruleactiontarget[type="setjunkscore"] {
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-junkscore");
+}
+
+.ruleactiontarget[type="forwardmessage"] {
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-forwardto");
+}
+
+.ruleactiontarget[type="replytomessage"] {
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-replyto");
+}
+
 dummy.usesMailWidgets {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#dummy");
 }
