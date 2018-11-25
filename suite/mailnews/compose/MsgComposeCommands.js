@@ -1168,7 +1168,7 @@ function ComposeStartup(aParams)
 
   // Set the document language to the preference as early as possible.
   document.documentElement
-          .setAttribute("lang", getPref("spellchecker.dictionary"));
+          .setAttribute("lang", Services.prefs.getCharPref("spellchecker.dictionary"));
 
   var identityList = GetMsgIdentityElement();
 
@@ -1297,7 +1297,7 @@ function ComposeStartup(aParams)
       document.getElementById("cmd_attachVCard")
               .setAttribute("checked", gMsgCompose.compFields.attachVCard);
       document.getElementById("menu_inlineSpellCheck")
-              .setAttribute("checked", getPref("mail.spellcheck.inline"));
+              .setAttribute("checked", Services.prefs.getBoolPref("mail.spellcheck.inline"));
 
       try {
         var editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
@@ -1393,8 +1393,8 @@ function ComposeStartup(aParams)
 
   gAutoSaveKickedIn = false;
 
-  gAutoSaveInterval = getPref("mail.compose.autosave")
-    ? getPref("mail.compose.autosaveinterval") * 60000
+  gAutoSaveInterval = Services.prefs.getBoolPref("mail.compose.autosave")
+    ? Services.prefs.getIntPref("mail.compose.autosaveinterval") * 60000
     : 0;
 
   if (gAutoSaveInterval)
@@ -1448,7 +1448,7 @@ function ComposeLoad()
   sComposeMsgsBundle = document.getElementById("bundle_composeMsgs");
   sBrandBundle = document.getElementById("brandBundle");
 
-  var otherHeaders = getPref("mail.compose.other.header");
+  var otherHeaders = Services.prefs.getCharPref("mail.compose.other.header");
 
   sRDF = Cc['@mozilla.org/rdf/rdf-service;1']
            .getService(Ci.nsIRDFService);
@@ -1578,7 +1578,7 @@ function GetCharsetUIString()
 // Add-ons can override this to customize the behavior.
 function DoSpellCheckBeforeSend()
 {
-  return getPref("mail.SpellCheckBeforeSend");
+  return Services.prefs.getBoolPref("mail.SpellCheckBeforeSend");
 }
 
 function GenericSendMessage( msgType )
@@ -1647,7 +1647,7 @@ function GenericSendMessage( msgType )
         {
           const kDontAskAgainPref = "mail.compose.dontWarnMail2Newsgroup";
           // default to ask user if the pref is not set
-          var dontAskAgain = getPref(kDontAskAgainPref);
+          var dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
           if (!dontAskAgain)
           {
             var checkbox = {value:false};
@@ -1734,12 +1734,8 @@ function GenericSendMessage( msgType )
         // and disable_fallback_to_utf8 isn't set for this encoding.
         if (!gMsgCompose.checkCharsetConversion(getCurrentIdentity(), fallbackCharset))
         {
-          var disableFallback = false;
-          try
-          {
-            disableFallback = getPref("mailnews.disable_fallback_to_utf8." + originalCharset);
-          }
-          catch (e) {}
+          let disableFallback = Services.prefs
+            .getBoolPref("mailnews.disable_fallback_to_utf8." + originalCharset, false);
           if (disableFallback)
             msgCompFields.needToCheckCharset = false;
           else
@@ -1842,7 +1838,7 @@ function SendMessage()
 
 function SendMessageWithCheck()
 {
-    var warn = getPref("mail.warn_on_send_accel_key");
+    var warn = Services.prefs.getBoolPref("mail.warn_on_send_accel_key");
 
     if (warn) {
         var checkValue = {value:false};
@@ -2894,7 +2890,7 @@ function LoadIdentity(startup)
         }
 
       if (!startup) {
-          if (getPref("mail.autoComplete.highlightNonMatches"))
+          if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches"))
             document.getElementById('addressCol2#1').highlightNonMatches = true;
 
           // Only do this if we aren't starting up...
@@ -2912,16 +2908,11 @@ function setupAutocomplete()
   // this element then gets cloned for subsequent rows, so they should
   // honor it as well
   //
-  try {
-      if (getPref("mail.autoComplete.highlightNonMatches"))
-        autoCompleteWidget.highlightNonMatches = true;
+  if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches"))
+    autoCompleteWidget.highlightNonMatches = true;
 
-      if (getPref("mail.autoComplete.commentColumn"))
-        autoCompleteWidget.showCommentColumn = true;
-  } catch (ex) {
-      // if we can't get this pref, then don't show the columns (which is
-      // what the XUL defaults to)
-  }
+  if (Services.prefs.getIntPref("mail.autoComplete.commentColumn", 0) != 0)
+    autoCompleteWidget.showCommentColumn = true;
 }
 
 function subjectKeyPress(event)
@@ -3252,41 +3243,32 @@ function SwitchElementFocus(event)
 
 function loadHTMLMsgPrefs()
 {
-  var fontSize;
-  var textColor;
-  var bgColor;
-
   var fontFace = Services.prefs.getStringPref("msgcompose.font_face", "");
   doStatefulCommand("cmd_fontFace", fontFace);
 
-  try {
-    fontSize = getPref("msgcompose.font_size");
+  var fontSize = Services.prefs.getCharPref("msgcompose.font_size", "");
+  if (fontSize)
     EditorSetFontSize(fontSize);
-  } catch (e) {}
 
   var bodyElement = GetBodyElement();
 
-  try {
-    textColor = getPref("msgcompose.text_color");
-    if (!bodyElement.hasAttribute("text"))
-    {
-      bodyElement.setAttribute("text", textColor);
-      gDefaultTextColor = textColor;
-      document.getElementById("cmd_fontColor").setAttribute("state", textColor);
-      onFontColorChange();
-    }
-  } catch (e) {}
+  var textColor = Services.prefs.getCharPref("msgcompose.text_color", "");
+  if (!bodyElement.hasAttribute("text") && textColor)
+  {
+    bodyElement.setAttribute("text", textColor);
+    gDefaultTextColor = textColor;
+    document.getElementById("cmd_fontColor").setAttribute("state", textColor);
+    onFontColorChange();
+  }
 
-  try {
-    bgColor = getPref("msgcompose.background_color");
-    if (!bodyElement.hasAttribute("bgcolor"))
-    {
-      bodyElement.setAttribute("bgcolor", bgColor);
-      gDefaultBackgroundColor = bgColor;
-      document.getElementById("cmd_backgroundColor").setAttribute("state", bgColor);
-      onBackgroundColorChange();
-    }
-  } catch (e) {}
+  var bgColor = Services.prefs.getCharPref("msgcompose.background_color", "");
+  if (!bodyElement.hasAttribute("bgcolor") && bgColor)
+  {
+    bodyElement.setAttribute("bgcolor", bgColor);
+    gDefaultBackgroundColor = bgColor;
+    document.getElementById("cmd_backgroundColor").setAttribute("state", bgColor);
+    onBackgroundColorChange();
+  }
 }
 
 function AutoSave()
@@ -3346,7 +3328,7 @@ function InitEditor(editor)
 
   gMsgCompose.initEditor(editor, window.content);
   InlineSpellCheckerUI.init(editor);
-  EnableInlineSpellCheck(getPref("mail.spellcheck.inline"));
+  EnableInlineSpellCheck(Services.prefs.getBoolPref("mail.spellcheck.inline"));
   document.getElementById("menu_inlineSpellCheck").setAttribute("disabled", !InlineSpellCheckerUI.canSpellCheck);
 
   // Listen for spellchecker changes, set the document language to the
@@ -3483,25 +3465,6 @@ function MailToolboxCustomizeDone(aToolboxChanged)
 function MailToolboxCustomizeChange(aEvent)
 {
   toolboxCustomizeChange(getMailToolbox(), aEvent);
-}
-
-// Thunderbird compatibility function.
-function getPref(aPrefName, aIsComplex)
-{
-  if (aIsComplex)
-      return GetStringPref(aPrefName);
-
-  switch (Services.prefs.getPrefType(aPrefName))
-  {
-    case Ci.nsIPrefBranch.PREF_BOOL:
-      return Services.prefs.getBoolPref(aPrefName);
-    case Ci.nsIPrefBranch.PREF_INT:
-      return Services.prefs.getIntPref(aPrefName);
-    case Ci.nsIPrefBranch.PREF_STRING:
-      return Services.prefs.getCharPref(aPrefName);
-    default: // includes nsIPrefBranch.PREF_INVALID
-      return null;
-  }
 }
 
 /**
