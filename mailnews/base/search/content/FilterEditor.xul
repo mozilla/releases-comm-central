@@ -111,7 +111,7 @@
 #include searchTerm.inc
   </vbox>
 
-  <splitter id="gray_horizontal_splitter" persist="state"/>
+  <splitter id="gray_horizontal_splitter" persist="state" orient="vertical"/>
 
   <vbox flex="1">
     <label value="&filterActionDesc.label;"
