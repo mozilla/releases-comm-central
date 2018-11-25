@@ -42,16 +42,7 @@ function onLoad()
   gCount = new Object();
   var canEncrypt = new Object();
 
-  var allow_ldap_cert_fetching = false;
-
-  try {
-    if (params.compFields.securityInfo.requireEncryptMessage) {
-      allow_ldap_cert_fetching = true;
-    }
-  }
-  catch (e)
-  {
-  }
+  var allow_ldap_cert_fetching = params.smFields.requireEncryptMessage;
 
   while (true)
   {
