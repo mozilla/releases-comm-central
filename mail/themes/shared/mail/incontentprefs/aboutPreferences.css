@@ -420,13 +420,31 @@ richlistbox:focus > richlistitem[selected="true"] {
   min-width: 20em;
 }
 
+#MessengerLanguagesDialog > .dialog-button-box > .dialog-button[dlgtype="accept"] {
+  margin-inline-end: 0;
+}
+
 #availableLocales {
   margin: 0;
   margin-inline-end: 4px;
 }
 
-.add-browser-language {
-  margin: 0 4px;
+#warning-message > .message-bar-description {
+  width: 32em;
+}
+
+.add-messenger-language {
+  margin: 0;
+  margin-inline-start: 4px;
+}
+
+.action-button {
+  margin-inline-end: 0;
+}
+
+/* Menulist styles */
+.label-item {
+  font-size: .8em;
 }
 
 /**

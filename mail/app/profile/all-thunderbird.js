@@ -804,3 +804,6 @@ pref("intl.regional_prefs.use_os_locales", true);
 
 // Multi-lingual preferences
 pref("intl.multilingual.enabled", false);
+
+// We don't support yet language pack download from ATN
+pref("intl.multilingual.downloadEnabled", false);

@@ -194,7 +194,7 @@
                 <button id="manageMessengerLanguagesButton"
                         class="accessory-button"
                         data-l10n-id="manage-messenger-languages-button"
-                        oncommand="gAdvancedPane.showMessengerLanguages()"/>
+                        oncommand="gAdvancedPane.showMessengerLanguages({search: false})"/>
               </hbox>
             </vbox>
             <hbox id="confirmMessengerLanguage"

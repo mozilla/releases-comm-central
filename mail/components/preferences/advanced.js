@@ -548,9 +548,18 @@ var gAdvancedPane = {
   },
 
   initMessengerLocale() {
-    let localeCodes = Services.locale.availableLocales;
-    let localeNames = Services.intl.getLocaleDisplayNames(undefined, localeCodes);
-    let locales = localeCodes.map((code, i) => ({code, name: localeNames[i]}));
+    gAdvancedPane.setMessengerLocales(Services.locale.requestedLocale);
+  },
+
+  /**
+   * Update the available list of locales and select the locale that the user
+   * is "selecting". This could be the currently requested locale or a locale
+   * that the user would like to switch to after confirmation.
+   */
+  async setMessengerLocales(selected) {
+    let available = Services.locale.availableLocales;
+    let localeNames = Services.intl.getLocaleDisplayNames(undefined, available);
+    let locales = available.map((code, i) => ({code, name: localeNames[i]}));
     locales.sort((a, b) => a.name > b.name);
 
     let fragment = document.createDocumentFragment();
@@ -560,31 +569,50 @@ var gAdvancedPane = {
       menuitem.setAttribute("label", name);
       fragment.appendChild(menuitem);
     }
+
+    // Add an option to search for more languages if downloading is supported.
+    if (Services.prefs.getBoolPref("intl.multilingual.downloadEnabled")) {
+      let menuitem = document.createXULElement("menuitem");
+      menuitem.id = "defaultBrowserLanguageSearch";
+      menuitem.setAttribute(
+        "label", await document.l10n.formatValue("messenger-languages-search"));
+      menuitem.setAttribute("value", "search");
+      menuitem.addEventListener("command", () => {
+        gMainPane.showBrowserLanguages({search: true});
+      });
+      fragment.appendChild(menuitem);
+    }
+
     let menulist = document.getElementById("defaultMessengerLanguage");
     let menupopup = menulist.querySelector("menupopup");
+    menupopup.textContent = "";
     menupopup.appendChild(fragment);
-    menulist.value = Services.locale.requestedLocale;
+    menulist.value = selected;
 
     document.getElementById("messengerLanguagesBox").hidden = false;
   },
 
-  showMessengerLanguages() {
+  showMessengerLanguages({search}) {
+    let opts = {selected: gAdvancedPane.selectedLocales, search};
     gSubDialog.open(
       "chrome://messenger/content/preferences/messengerLanguages.xul",
-      null, this.requestingLocales, this.messengerLanguagesClosed);
+      null, opts, this.messengerLanguagesClosed);
   },
 
   /* Show or hide the confirm change message bar based on the updated ordering. */
   messengerLanguagesClosed() {
-    let requesting = this.gMessengerLanguagesDialog.requestedLocales;
-    let requested = Services.locale.requestedLocales;
-    let defaultMessengerLanguage = document.getElementById("defaultMessengerLanguage");
-    if (requesting && requesting.join(",") != requested.join(",")) {
-      gAdvancedPane.showConfirmLanguageChangeMessageBar(requesting);
-      defaultMessengerLanguage.value = requesting[0];
+    let selected = this.gMessengerLanguagesDialog.selected;
+    let active = Services.locale.appLocalesAsBCP47;
+
+    // Prepare for changing the locales if they are different than the current locales.
+    if (selected && selected.join(",") != active.join(",")) {
+      gAdvancedPane.showConfirmLanguageChangeMessageBar(selected);
+      gAdvancedPane.setMessengerLocales(selected[0]);
       return;
     }
-    defaultMessengerLanguage.value = Services.locale.requestedLocale;
+
+    // They matched, so we can reset the UI.
+    gAdvancedPane.setMessengerLocales(Services.locale.appLocaleAsBCP47);
     gAdvancedPane.hideConfirmLanguageChangeMessageBar();
   },
 
@@ -633,13 +661,14 @@ var gAdvancedPane = {
     }
 
     messageBar.hidden = false;
-    this.requestingLocales = locales;
+    this.selectedLocales = locales;
   },
 
   hideConfirmLanguageChangeMessageBar() {
     let messageBar = document.getElementById("confirmMessengerLanguage");
     messageBar.hidden = true;
-    messageBar.querySelector(".message-bar-button").removeAttribute("locales");
+    let contentContainer = messageBar.querySelector(".message-bar-content-container");
+    contentContainer.textContent = "";
     this.requestingLocales = null;
   },
 
@@ -663,10 +692,14 @@ var gAdvancedPane = {
   /* Show or hide the confirm change message bar based on the new locale. */
   onMessengerLanguageChange(event) {
     let locale = event.target.value;
-    if (locale == Services.locale.requestedLocale) {
+
+    if (locale == "search") {
+      return;
+    } else if (locale == Services.locale.appLocaleAsBCP47) {
       this.hideConfirmLanguageChangeMessageBar();
       return;
     }
+
     let locales = Array.from(new Set([
       locale,
       ...Services.locale.requestedLocales,
