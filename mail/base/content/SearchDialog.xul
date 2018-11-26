@@ -118,7 +118,7 @@
       </hbox>
     </vbox>
 
-    <splitter id="gray_horizontal_splitter" persist="state"/>
+    <splitter id="gray_horizontal_splitter" persist="state" orient="vertical"/>
 
     <vbox id="searchResults" flex="4" persist="height">
       <vbox id="searchResultListBox" flex="1">
