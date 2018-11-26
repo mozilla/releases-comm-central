@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
+@namespace html "http://www.w3.org/1999/xhtml";
 
 .dialogBox,
 #MailPreferences > prefpane {
@@ -22,7 +23,7 @@ prefpane .groupbox-title {
   margin-bottom: 0;
 }
 
-caption {
+html|h2 {
   border-bottom-width: 0;
   padding-bottom: 2px !important;
   padding-inline-start: 0;

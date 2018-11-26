@@ -14,7 +14,7 @@
 
 <vbox id="PublishSettingsInputs">
   <groupbox id="ServerSettingsBox">
-    <caption>&serverInfo.label;</caption>
+    <label class="header">&serverInfo.label;</label>
     <hbox align="center">
       <label value="&siteName.label;" accesskey="&siteName.accesskey;"
              control="SiteNameInput"/>
@@ -34,7 +34,7 @@
     <spacer class="spacer"/>
   </groupbox>
   <groupbox id="LoginSettingsBox">
-    <caption>&loginInfo.label;</caption>
+    <label class="header">&loginInfo.label;</label>
     <grid>
       <columns><column flex="1"/><column flex="3"/></columns>
       <rows>

@@ -38,7 +38,7 @@
     <separator class="thin"/>
 
     <groupbox style="width: 20em !important;" flex="1">
-      <caption>&identityTitle.label;</caption>
+      <label class="header">&identityTitle.label;</label>
       <description>&identityDesc.label;</description>
       <separator class="thin"/>
       <grid>

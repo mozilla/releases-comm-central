@@ -90,7 +90,7 @@
             <spacer flex="1"/>
           </hbox>
           <groupbox>
-            <caption>&chatNotifications.label;</caption>
+            <label><html:h2>&chatNotifications.label;</html:h2></label>
             <hbox>
               <hbox>
                 <checkbox id="desktopChatNotifications"

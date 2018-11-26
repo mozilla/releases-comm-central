@@ -28,7 +28,7 @@
   <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox><caption><label control="InputType" value="&InputType.label;" accesskey="&InputType.accesskey;"/></caption>
+  <groupbox><label class="header" control="InputType" accesskey="&InputType.accesskey;">&InputType.label;</label>
     <menulist id="InputType" oncommand="SelectInputType();">
       <menupopup>
         <menuitem label="&text.value;"/>
@@ -45,7 +45,7 @@
     </menulist>
   </groupbox>
 
-  <groupbox><caption>&InputSettings.label;</caption>
+  <groupbox><label class="header">&InputSettings.label;</label>
     <grid><columns><column/><column/></columns>
       <rows>
         <row align="center">

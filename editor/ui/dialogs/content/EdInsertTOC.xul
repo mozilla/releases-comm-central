@@ -26,7 +26,7 @@
   <spacer id="dummy" style="display:none"/>
   <broadcaster id="args" value=""/>
   <vbox flex="1">
-    <groupbox><caption>&buildToc.label;</caption>
+    <groupbox><label class="header">&buildToc.label;</label>
       <grid>
         <columns><column/><column style="min-width: 6em"/><column/></columns>
         <rows>

@@ -23,13 +23,13 @@
     <broadcaster id="args" value=""/>
 
     <groupbox>
-        <caption>&documentTitleTitle.label;</caption>
+        <label class="header">&documentTitleTitle.label;</label>
         <label id="EnterTitleLabel"/>
         <textbox id="TitleInput" oninput="TitleChanged();"/>
         <description id="TitleHelp" class="wrap" style="width:1em" />
     </groupbox>
 
-    <groupbox flex="1"><caption label="&documentCharsetTitle2.label;"/>
+    <groupbox flex="1"><label class="header">&documentCharsetTitle2.label;</label>
         <label value="&documentCharsetDesc2.label;"/>
         <tree id="CharsetTree" rows="8" hidecolumnpicker="true" onselect="SelectCharset();">
             <treecols>

@@ -6,7 +6,7 @@
       <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
       <groupbox>
-        <caption>&compositionGroupTitle.label;</caption>
+        <label class="header">&compositionGroupTitle.label;</label>
         <hbox align="center">
           <checkbox wsm_persist="true" id="identity.composeHtml" label="&useHtml.label;"
                     accesskey="&useHtml.accesskey;"
@@ -71,7 +71,7 @@
       <separator class="thin"/>
 
       <groupbox>
-        <caption>&addressingGroupTitle.label;</caption>
+        <label class="header">&addressingGroupTitle.label;</label>
 #ifndef MOZ_THUNDERBIRD
         <hbox align="center">
           <checkbox wsm_persist="true" id="identity.autocompleteToMyDomain"

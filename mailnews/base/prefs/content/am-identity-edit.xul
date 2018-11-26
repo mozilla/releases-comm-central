@@ -69,7 +69,7 @@
       <!-- Identity Settings Tab -->
       <vbox flex="1" name="settings">
         <groupbox>
-          <caption>&publicData.label;</caption>
+          <label class="header">&publicData.label;</label>
 
         <grid>
           <columns>
@@ -133,7 +133,7 @@
         </groupbox>
 
         <groupbox>
-          <caption>&privateData.label;</caption>
+          <label class="header">&privateData.label;</label>
 
           <label value="&smtpName.label;"
                  control="identity.smtpServerKey"

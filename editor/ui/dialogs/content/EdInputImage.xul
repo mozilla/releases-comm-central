@@ -39,7 +39,7 @@
       <tab id="imageAppearanceTab" label="&imageAppearanceTab.label;"/>
     </tabs>
     <tabpanels>
-      <groupbox><caption>&InputSettings.label;</caption>
+      <groupbox><label class="header">&InputSettings.label;</label>
         <grid><columns><column/><column/></columns>
           <rows>
             <row align="center">
@@ -65,7 +65,7 @@
 
   <hbox align="end">
     <groupbox id="imagePreview" orient="horizontal" flex="1">
-      <caption>&previewBox.label;</caption>
+      <label class="header">&previewBox.label;</label>
       <hbox id="preview-image-box" align="center">
         <spacer flex="1"/>
         <description id="preview-image-holder"/>

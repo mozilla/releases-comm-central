@@ -140,7 +140,7 @@
 
           <!-- Scrolling -->
           <groupbox id="scrollingGroup">
-            <caption>&scrolling.label;</caption>
+            <label><html:h2>&scrolling.label;</html:h2></label>
             <hbox>
               <checkbox id="useAutoScroll"
                         label="&useAutoScroll.label;"
@@ -159,7 +159,7 @@
 
           <!-- Date and time formatting -->
           <groupbox>
-            <caption>&dateTimeFormatting.label;</caption>
+            <label><html:h2>&dateTimeFormatting.label;</html:h2></label>
             <hbox>
             <radiogroup id="formatLocale"
                         preference="intl.regional_prefs.use_os_locales"
@@ -181,7 +181,7 @@
           </groupbox>
 
           <groupbox id="messengerLanguagesBox" hidden="true">
-            <caption>&languageSelector.label;</caption>
+            <label><html:h2>&languageSelector.label;</html:h2></label>
              <vbox align="start">
               <description flex="1"
                            controls="chooseMessengerLanguage"
@@ -208,7 +208,7 @@
 
 #ifdef HAVE_SHELL_SERVICE
           <groupbox id="systemDefaultsGroup" orient="vertical">
-            <caption>&systemIntegration.label;</caption>
+            <label><html:h2>&systemIntegration.label;</html:h2></label>
             <hbox id="checkDefaultBox" align="center">
               <checkbox id="alwaysCheckDefault"
                         preference="mail.shell.checkDefaultClient"
@@ -229,7 +229,7 @@
           </groupbox>
 #endif
           <groupbox>
-            <caption>&configEditDesc.label;</caption>
+            <label><html:h2>&configEditDesc.label;</html:h2></label>
             <vbox>
               <hbox>
                 <checkbox id="enableGloda"
@@ -275,7 +275,7 @@
         <tabpanel id="dataChoicesPanel" orient="vertical">
 #ifdef MOZ_TELEMETRY_REPORTING
           <groupbox>
-            <caption>&telemetrySection.label;</caption>
+            <label><html:h2>&telemetrySection.label;</html:h2></label>
             <description>&telemetryDesc.label;</description>
             <hbox>
               <checkbox id="submitTelemetryBox"
@@ -292,7 +292,7 @@
 #endif
 #ifdef MOZ_CRASHREPORTER
           <groupbox>
-            <caption>&crashReporterSection.label;</caption>
+            <label><html:h2>&crashReporterSection.label;</html:h2></label>
             <description>&crashReporterDesc.label;</description>
             <hbox>
               <checkbox id="submitCrashesBox"
@@ -314,7 +314,7 @@
         <tabpanel orient="vertical">
           <!-- Networking & Disk Space -->
           <groupbox>
-            <caption>&connectionsInfo.caption;</caption>
+            <label><html:h2>&connectionsInfo.caption;</html:h2></label>
             <hbox align="center">
               <description flex="1" control="catProxiesButton">&proxiesConfigure.label;</description>
               <button id="catProxiesButton" icon="network" label="&showSettings.label;"
@@ -324,7 +324,7 @@
           </groupbox>
 
           <groupbox>
-            <caption>&offlineInfo.caption;</caption>
+            <label><html:h2>&offlineInfo.caption;</html:h2></label>
             <hbox align="center">
               <description flex="1" control="offlineSettingsButton">&offlineInfo.label;</description>
               <button id="offlineSettingsButton" label="&showOffline.label;"
@@ -334,7 +334,7 @@
           </groupbox>
 
           <groupbox>
-            <caption>&Diskspace;</caption>
+            <label><html:h2>&Diskspace;</html:h2></label>
             <hbox align="center">
               <label id="actualDiskCacheSize" flex="1"/>
               <button id="clearCacheButton" icon="clear"
@@ -378,7 +378,7 @@
         <!-- Update -->
         <tabpanel orient="vertical">
           <groupbox id="updateApp">
-            <caption>&updateApp2.label;</caption>
+            <label><html:h2>&updateApp2.label;</html:h2></label>
             <hbox align="center">
               <vbox>
                 <description>

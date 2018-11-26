@@ -15,6 +15,7 @@
 
 <dialog id="FontsDialog" type="child" class="prefwindow"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            xmlns:html="http://www.w3.org/1999/xhtml"
             title="&fontsAndEncodingsDialog.title;"
             buttons="accept,cancel"
             persist="lastSelected screenX screenY"
@@ -36,11 +37,10 @@
     </linkset>
 
     <groupbox>
-      <caption>
-        <hbox align="center">
-          <label value="&language.label;" accesskey="&language.accesskey;"
-                 control="selectLangs"/>
-        </hbox>
+      <hbox align="center">
+        <label control="selectLangs">
+          <html:h2 accesskey="&language.accesskey;">&language.label;</html:h2>
+        </label>
         <menulist id="selectLangs" onsyncfrompreference="return gFontsDialog.readFontLanguageGroup();"
                   preference="font.language.group">
           <menupopup>
@@ -75,7 +75,7 @@
             <menuitem value="x-unicode"       label="&font.langGroup.other;"/>
           </menupopup>
         </menulist>
-      </caption>
+      </hbox>
 
       <separator class="thin"/>
 
@@ -246,7 +246,7 @@
     </groupbox>
 
     <groupbox>
-      <caption>&fontControl.label;</caption>
+      <label><html:h2>&fontControl.label;</html:h2></label>
 
       <hbox>
         <checkbox id="useDocumentFonts"
@@ -268,7 +268,7 @@
     </groupbox>
 
     <groupbox align="start">
-      <caption>&languagesTitle2.label;</caption>
+      <label><html:h2>&languagesTitle2.label;</html:h2></label>
 
       <label value="&composingDescription2.label;"/>
 

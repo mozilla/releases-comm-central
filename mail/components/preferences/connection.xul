@@ -12,6 +12,7 @@
 
 <prefwindow id="ConnectionsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            xmlns:html="http://www.w3.org/1999/xhtml"
             title="&connectionsDialog.title;"
             dlgbuttons="accept,cancel"
             onbeforeaccept="return gConnectionsDialog.beforeAccept();"
@@ -56,7 +57,7 @@
     <script type="application/javascript" src="chrome://messenger/content/preferences/connection.js"/>
 
     <groupbox>
-      <caption>&proxyTitle.label;</caption>
+      <label><html:h2>&proxyTitle.label;</html:h2></label>
 
       <radiogroup id="networkProxyType" preference="network.proxy.type"
                   onsyncfrompreference="return gConnectionsDialog.readProxyType();">

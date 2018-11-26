@@ -13,7 +13,8 @@
 ]>
 
 <overlay id="CalendarGeneralPaneOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
 
     <script type="application/javascript"
             src="chrome://calendar/content/preferences/general.js"/>
@@ -68,7 +69,7 @@
         </preferences>
 
         <groupbox>
-            <caption>&pref.mainbox.label;</caption>
+            <label><html:h2>&pref.mainbox.label;</html:h2></label>
             <vbox align="left">
               <hbox align="center">
                 <label value="&pref.dateformat.label;"
@@ -90,7 +91,7 @@
         </groupbox>
 
         <groupbox>
-            <caption>&pref.timezones.caption;</caption>
+            <label><html:h2>&pref.timezones.caption;</html:h2></label>
             <hbox align="center">
                 <label value="&pref.timezones.label;"
                        accesskey="&pref.timezones.accesskey;"
@@ -103,7 +104,7 @@
         </groupbox>
 
         <groupbox id="defaults-itemtype-groupbox">
-            <caption id="defaults-itemtype-caption">&pref.defaults.label;</caption>
+            <label><html:h2 id="defaults-itemtype-caption">&pref.defaults.label;</html:h2></label>
             <hbox id="defaults-itemtype-box" align="top">
                 <menulist id="defaults-itemtype-menulist"
                           flex="1"
@@ -263,7 +264,7 @@
         </groupbox>
 
         <groupbox>
-            <caption>&pref.calendar.todaypane.agenda.caption;</caption>
+            <label><html:h2>&pref.calendar.todaypane.agenda.caption;</html:h2></label>
             <hbox align="center">
                 <label value="&pref.soondays2.label;"
                        accesskey="&pref.soondays2.accesskey;"
@@ -287,7 +288,7 @@
         </groupbox>
 
         <groupbox id="systemColorsGroupbox">
-            <caption>&pref.accessibility.label;</caption>
+            <label><html:h2>&pref.accessibility.label;</html:h2></label>
             <hbox align="center">
                 <checkbox id="systemColors" pack="end"
                           label="&pref.systemcolors.label;"
@@ -297,7 +298,7 @@
         </groupbox>
 
         <groupbox>
-            <caption>&pref.eventsandtasks.label;</caption>
+            <label><html:h2>&pref.eventsandtasks.label;</html:h2></label>
             <hbox align="center">
                 <checkbox id="tabedit" pack="end"
                           label="&pref.editInTab.label;"

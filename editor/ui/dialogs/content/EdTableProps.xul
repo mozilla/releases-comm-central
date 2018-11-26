@@ -43,7 +43,7 @@
 
       <!-- TABLE PANEL -->
       <vbox>
-        <groupbox orient="horizontal"><caption>&size.label;</caption>
+        <groupbox orient="horizontal"><label class="header">&size.label;</label>
           <grid>
             <columns><column/><column/><column/><column/><column/></columns>
               <rows>
@@ -68,7 +68,7 @@
             <!-- KEEP GRID LAYOUT here since we will be adding back support for table HEIGHT via CSS -->
           </grid>
         </groupbox>
-        <groupbox><caption>&tableBorderSpacing.label;</caption>
+        <groupbox><label class="header">&tableBorderSpacing.label;</label>
         <grid>
           <columns><column/><column/><column/></columns>
           <rows>
@@ -146,7 +146,7 @@
       <!-- CELL PANEL -->
       <vbox>
         <groupbox orient="horizontal" align="center">
-          <caption>&cellSelection.label;</caption>
+          <label class="header">&cellSelection.label;</label>
           <vbox>
             <menulist id="SelectionList" oncommand="ChangeSelection(event.target.value)" flex="1">
               <menupopup>
@@ -183,7 +183,7 @@
         </groupbox>
         <hbox align="center">
           <!-- cell size groupbox -->
-          <groupbox><caption>&size.label;</caption>
+          <groupbox><label class="header">&size.label;</label>
             <grid>
               <columns><column/><column/><column flex="1"/></columns>
               <rows>
@@ -204,7 +204,7 @@
             <spacer class="bigspacer"/>
           </groupbox>
           <!-- Alignment -->
-          <groupbox><caption>&cellContentAlignment.label;</caption>
+          <groupbox><label class="header">&cellContentAlignment.label;</label>
             <grid>
               <columns><column/><column flex="1"/><column/></columns>
               <rows>

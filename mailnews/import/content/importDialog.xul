@@ -113,7 +113,7 @@
     <vbox class="wizard-box">
       <spacer flex="1"/>
       <groupbox>
-        <caption id="progressTitle">&title.label;</caption>
+        <label id="progressTitle" class="header">&title.label;</label>
         <label class="indent" id="progressStatus" value="&processing.label;"/>
         <vbox class="box-padded">
           <html:progress id="progressMeter" value="5" max="100"/>

@@ -29,7 +29,7 @@
   <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox><caption>&Settings.label;</caption>
+  <groupbox><label class="header">&Settings.label;</label>
     <grid><columns><column/><column/></columns>
       <rows>
         <row align="center">

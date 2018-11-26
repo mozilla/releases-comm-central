@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
+@namespace html "http://www.w3.org/1999/xhtml";
 
 .dialogBox,
 #MailPreferences > prefpane {
@@ -17,7 +18,7 @@ radio[pane] > .radio-label-box {
   margin-inline-end: 9px;
 }
 
-caption {
+html|h2 {
   background-color: transparent;
 }
 

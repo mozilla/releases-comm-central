@@ -49,7 +49,7 @@
 
     <hbox>
       <groupbox flex="1">
-        <caption>&color;</caption>
+        <label><html:h2>&color;</html:h2></label>
         <hbox align="center">
           <label value="&textColor.label;" accesskey="&textColor.accesskey;" control="foregroundtextmenu"/>
           <spacer flex="1"/>
@@ -68,7 +68,7 @@
       </groupbox>
 
       <groupbox flex="1">
-        <caption>&links;</caption>
+        <label><html:h2>&links;</html:h2></label>
         <hbox align="center">
           <label value="&linkColor.label;" accesskey="&linkColor.accesskey;" control="unvisitedlinkmenu"/>
           <spacer flex="1"/>

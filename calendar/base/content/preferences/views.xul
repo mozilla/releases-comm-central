@@ -11,7 +11,8 @@
 ]>
 
 <overlay id="ViewsPaneOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
 
     <script type="application/javascript"
             src="chrome://calendar/content/preferences/views.js"/>
@@ -75,7 +76,7 @@
         </preferences>
 
         <groupbox>
-            <caption>&pref.calendar.view.allview.caption;</caption>
+            <label><html:h2>&pref.calendar.view.allview.caption;</html:h2></label>
             <hbox>
                 <hbox align="center" flex="1">
                     <label value="&pref.weekstarts.label;"
@@ -106,7 +107,7 @@
         </groupbox>
 
         <groupbox>
-            <caption>&pref.calendar.view.workweek.caption;</caption>
+            <label><html:h2>&pref.calendar.view.workweek.caption;</html:h2></label>
             <label value="&pref.daysoff.label;"/>
             <hbox>
                 <checkbox id="dayoff0"
@@ -155,7 +156,7 @@
         </groupbox>
 
         <groupbox>
-            <caption>&pref.calendar.view.dayandweekviews.caption;</caption>
+            <label><html:h2>&pref.calendar.view.dayandweekviews.caption;</html:h2></label>
             <grid>
                 <columns>
                     <column/>
@@ -279,7 +280,7 @@
         </groupbox>
 
         <groupbox id="viewsMultiweekGroupbox">
-            <caption>&pref.calendar.view.multiweekview.caption;</caption>
+            <label><html:h2>&pref.calendar.view.multiweekview.caption;</html:h2></label>
             <hbox align="center">
                 <label value="&pref.numberofweeks.label;"
                        accesskey="&pref.numberofweeks.accesskey;"

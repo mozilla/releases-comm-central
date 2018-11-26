@@ -11,6 +11,7 @@
 
 <prefwindow id="DockOptionsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            xmlns:html="http://www.w3.org/1999/xhtml"
             title="&dockOptionsDialog.title;" dlgbuttons="accept,cancel"
             style="width: &window.macWidth;">
   <script type="application/javascript"
@@ -30,7 +31,7 @@
                 accesskey="&bounceSystemDockIcon.accesskey;"/>
       <separator class="thin"/>
       <groupbox flex="1">
-        <caption>&dockIconBadge.label;</caption>
+        <label><html:h2>&dockIconBadge.label;</html:h2></label>
         <separator class="thin"/>
         <label value="&dockIconShow.label;"/>
         <radiogroup id="dockCount"

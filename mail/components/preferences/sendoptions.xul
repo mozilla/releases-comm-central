@@ -16,6 +16,7 @@
 
 <prefwindow id="SendOptionsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            xmlns:html="http://www.w3.org/1999/xhtml"
             dlgbuttons="accept,cancel"
             style="min-height: 33em;"
             title="&dialog.title;">
@@ -33,7 +34,7 @@
     </preferences>
 
     <groupbox>
-      <caption>&sendMail.title;</caption>
+      <label><html:h2>&sendMail.title;</html:h2></label>
 
       <checkbox id="autoDowngrade"
                 label="&autoDowngrade.label;"

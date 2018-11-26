@@ -28,7 +28,7 @@
           src="chrome://messenger/content/SmtpServerEdit.js"/>
   <vbox id="smtpServerEditor">
     <groupbox>
-      <caption>&settings.caption;</caption>
+      <label class="header">&settings.caption;</label>
       <grid flex="1">
         <columns>
           <column/>
@@ -77,7 +77,7 @@
     <separator class="thin"/>
 
     <groupbox>
-      <caption>&security.caption;</caption>
+      <label class="header">&security.caption;</label>
 
       <grid flex="1">
         <columns>

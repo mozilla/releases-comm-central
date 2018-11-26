@@ -34,7 +34,7 @@
               accesskey="&keepFolderStructure.accesskey;"/>
 
     <groupbox flex="1">
-      <caption>&archiveExample.label;</caption>
+      <label class="header">&archiveExample.label;</label>
       <tree id="archiveTree" hidecolumnpicker="true" disabled="true" flex="1">
         <treecols>
           <treecol primary="true" hideheader="true" flex="1"

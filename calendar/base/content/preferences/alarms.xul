@@ -11,7 +11,8 @@
 ]>
 
 <overlay id="AlarmsPaneOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
 
     <script type="application/javascript"
             src="chrome://calendar/content/preferences/alarms.js"/>
@@ -62,7 +63,7 @@
         </preferences>
 
         <groupbox>
-            <caption>&pref.alarmgoesoff.label;</caption>
+            <label><html:h2>&pref.alarmgoesoff.label;</html:h2></label>
             <grid id="alarm-sound-grid">
                 <columns id="alarm-sound-columns">
                     <column id="alarm-sound-label-column"/>
@@ -119,7 +120,7 @@
         </groupbox>
 
         <groupbox>
-            <caption>&pref.calendar.alarms.defaults.label;</caption>
+            <label><html:h2>&pref.calendar.alarms.defaults.label;</html:h2></label>
             <grid>
                 <columns>
                     <column flex="1"/>

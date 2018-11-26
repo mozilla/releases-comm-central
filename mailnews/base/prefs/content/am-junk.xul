@@ -34,7 +34,7 @@
     </hbox>
 
     <groupbox>
-      <caption>&junkClassification.label;</caption>
+      <label class="header">&junkClassification.label;</label>
 
       <label hidden="true"
              id="server.spamLevel"
@@ -130,7 +130,7 @@
     </groupbox>
 
     <groupbox>
-      <caption>&junkActions.label;</caption>
+      <label class="header">&junkActions.label;</label>
 
       <checkbox id="server.moveOnSpam"
                 label="&move.label;"

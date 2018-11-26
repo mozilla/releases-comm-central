@@ -46,7 +46,7 @@
 
     <!-- Mail Content -->
     <groupbox id="mailContentGroup">
-      <caption>&captionMailContent.label;</caption>
+      <label><html:h2>&captionMailContent.label;</html:h2></label>
       <hbox id="remoteContentBox">
         <checkbox id="acceptRemoteContent"
                   preference="mailnews.message_display.disable_remote_image"
@@ -69,7 +69,7 @@
 
     <!-- Web Content -->
     <groupbox id="webContentGroup">
-      <caption>&captionWebContent.label;</caption>
+      <label><html:h2>&captionWebContent.label;</html:h2></label>
       <checkbox id="keepHistory"
                 preference="places.history.enabled"
                 label="&keepHistory.label;"

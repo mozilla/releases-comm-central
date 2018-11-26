@@ -106,7 +106,7 @@
           </groupbox>
 
           <groupbox>
-            <caption>&htmlComposeHeader.label;</caption>
+            <label><html:h2>&htmlComposeHeader.label;</html:h2></label>
             <hbox align="center">
               <label control="FontSelect" value="&font.label;" accesskey="&font.accesskey;"/>
               <menulist id="FontSelect" preference="msgcompose.font_face"
@@ -185,7 +185,7 @@
          <tabpanel orient="vertical">
            <groupbox>
               <!-- Address Autocomplete -->
-              <caption>&addressingTitle.label;</caption>
+              <label><html:h2>&addressingTitle.label;</html:h2></label>
 
               <description>&autocompleteText.label;</description>
 

@@ -99,7 +99,7 @@
     <separator class="thin"/>
 
     <groupbox hidefor="movemail">
-      <caption>&securitySettings.label;</caption>
+      <label class="header">&securitySettings.label;</label>
 
       <grid flex="1">
         <columns>
@@ -152,7 +152,7 @@
     </groupbox>
 
     <groupbox>
-      <caption>&serverSettings.label;</caption>
+      <label class="header">&serverSettings.label;</label>
       <vbox align="start">
       <checkbox wsm_persist="true"
                 id="server.loginAtStartUp"
@@ -356,7 +356,7 @@
   <!-- take out for now - bug 45079
       <hbox flex="1" hidefor="pop3,imap,movemail">
         <groupbox>
-           <caption>&abbreviate.label;</caption>
+           <label class="header">&abbreviate.label;</label>
 
            <radiogroup wsm_persist="true" id="nntp.abbreviate">
              <radio value="true"
@@ -371,7 +371,7 @@
     </groupbox>
 
     <groupbox>
-      <caption>&messageStorage.label;</caption>
+      <label class="header">&messageStorage.label;</label>
 
       <hbox align="end">
         <vbox align="start" flex="1" id="exitHandlingBox=">

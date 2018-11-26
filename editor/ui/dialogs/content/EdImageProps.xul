@@ -85,7 +85,7 @@
 
   <hbox align="end">
     <groupbox id="imagePreview" orient="horizontal" flex="1">
-      <caption>&previewBox.label;</caption>
+      <label class="header">&previewBox.label;</label>
       <hbox id="preview-image-box" align="center">
         <spacer flex="1"/>
         <description id="preview-image-holder"/>

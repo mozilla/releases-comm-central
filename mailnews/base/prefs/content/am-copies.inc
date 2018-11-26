@@ -36,7 +36,7 @@
                   pref="true" preftype="int" prefattribute="value"
                   prefstring="mail.identity.%identitykey%.tmpl_folder_picker_mode"/>
     <groupbox id="copiesGroup">
-      <caption>&sendingPrefix.label;</caption>
+      <label class="header">&sendingPrefix.label;</label>
 
       <hbox align="center">
         <checkbox wsm_persist="true" id="identity.doFcc" label="&fccMailFolder.label;"
@@ -134,7 +134,7 @@
     </groupbox>
 
     <groupbox id="archivesGroup">
-      <caption>&archivesTitle.label;</caption>
+      <label class="header">&archivesTitle.label;</label>
 
       <hbox align="center">
         <checkbox wsm_persist="true" id="identity.archiveEnabled"
@@ -196,7 +196,7 @@
     </groupbox>
 
     <groupbox id="foldersGroup">
-      <caption>&specialFolders.label;</caption>
+      <label class="header">&specialFolders.label;</label>
 
       <hbox align="center">
         <label value="&keepDrafts2.label;" control="messageDrafts"/>

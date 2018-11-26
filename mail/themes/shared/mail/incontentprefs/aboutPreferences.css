@@ -25,9 +25,8 @@
   width: 240px;
 }
 
-caption {
+html|h2 {
   font-size: 1.14em;
-  font-weight: 600;
   margin: 4px 0 !important;
 }
 

@@ -14,7 +14,7 @@
       <description>&securityHeading.label;</description>
 
       <groupbox id="signing.titlebox">
-        <caption>&signingGroupTitle.label;</caption>
+        <label class="header">&signingGroupTitle.label;</label>
 
         <label value="&signingCert.message;" control="identity.signing_cert_name"
                prefstring="mail.identity.%identitykey%.encryptionpolicy"/>
@@ -43,7 +43,7 @@
       </groupbox>
 
       <groupbox id="encryption.titlebox">
-        <caption>&encryptionGroupTitle.label;</caption>
+        <label class="header">&encryptionGroupTitle.label;</label>
 
         <label value="&encryptionCert.message;"
                control="identity.encryption_cert_name"/>
@@ -81,7 +81,7 @@
 
       <!-- Certificate manager -->
       <groupbox id="smimeCertificateManager" orient="horizontal">
-        <caption>&certificates.label;</caption>
+        <label class="header">&certificates.label;</label>
         <button id="openCertManagerButton" oncommand="openCertManager();"
                 label="&manageCerts2.label;" accesskey="&manageCerts2.accesskey;"
                 prefstring="security.disable_button.openCertManager"/>

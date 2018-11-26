@@ -26,7 +26,7 @@
 
     <groupbox>
 
-      <caption>&pane.title;</caption>
+      <label class="header">&pane.title;</label>
 
       <hbox id="prefChoices" align="center" flex="1">
         <radiogroup id="identity.use_custom_prefs" wsm_persist="true" genericattr="true"

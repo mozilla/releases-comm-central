@@ -26,7 +26,7 @@
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
   <broadcaster id="args" value=""/>
 
-  <groupbox><caption>&category.label;</caption>
+  <groupbox><label class="header">&category.label;</label>
     <radiogroup id="CatGrp" persist="category letter_index char_index">
       <radio id="AccentUpper" label="&accentUpper.label;"   oncommand="ChangeCategory(this.id)"/>
       <radio id="AccentLower" label="&accentLower.label;"   oncommand="ChangeCategory(this.id)"/>

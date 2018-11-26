@@ -35,7 +35,7 @@
 
     <!-- Recent files menu -->
     <groupbox>
-      <caption>&recentFiles.title;</caption>
+      <label class="header">&recentFiles.title;</label>
       <hbox align="center">
         <label value="&documentsInMenu.label;"
                accesskey="&documentsInMenu.accesskey;"
@@ -54,7 +54,7 @@
 
     <!-- HTML formatting on output -->
     <groupbox>
-      <caption>&savingFiles.title;</caption>
+      <label class="header">&savingFiles.title;</label>
       <checkbox id="preserveFormatting"
                 label="&preserveExisting.label;"
                 accesskey="&preserveExisting.accesskey;"
@@ -71,7 +71,7 @@
     </groupbox>
 
     <groupbox align="start">
-      <caption>&composerEditing.label;</caption>
+      <label class="header">&composerEditing.label;</label>
       <checkbox id="maintainTableStructure"
                 label="&maintainStructure.label;"
                 accesskey="&maintainStructure.accesskey;"

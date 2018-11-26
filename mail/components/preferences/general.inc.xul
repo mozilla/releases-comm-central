@@ -22,7 +22,7 @@
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 
     <groupbox>
-      <caption>&messengerStartPage.label;</caption>
+      <label><html:h2>&messengerStartPage.label;</html:h2></label>
         <hbox align="start">
           <checkbox id="mailnewsStartPageEnabled" label="&enableStartPage.label;"
                     preference="mailnews.start_page.enabled"
@@ -43,7 +43,7 @@
     </groupbox>
 
     <groupbox>
-      <caption>&defaultSearchEngine.label;</caption>
+      <label><html:h2 >&defaultSearchEngine.label;</html:h2></label>
       <hbox>
         <menulist id="defaultWebSearch">
           <menupopup id="defaultWebSearchPopup"/>
@@ -52,7 +52,7 @@
     </groupbox>
 
     <groupbox>
-      <caption>&newMessagesArrive.label;</caption>
+      <label><html:h2>&newMessagesArrive.label;</html:h2></label>
 #ifdef XP_MACOSX
       <hbox align="center">
         <description flex="1">&changeDockIconOptions.label;</description>
