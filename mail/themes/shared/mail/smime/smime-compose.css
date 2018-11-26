@@ -2,38 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* ===== msgCompSMIMEOverlay.css ========================================
+/* ===== smime-compose.css ========================================
   == Styles for the S/Mime in composer window.
   ======================================================================= */
-
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#msgcomposeWindow #signing-status {
+#signing-status,
+#encryption-status {
   list-style-image: none;
   visibility: collapse;
 }
 
-#msgcomposeWindow #encryption-status {
-  list-style-image: none;
-  visibility: collapse;
-}
-
-#msgcomposeWindow[signing="ok"] #signing-status {
+#signing-status.signing-msg {
   list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk.png");
   visibility: visible;
 }
 
-#msgcomposeWindow[signing="notok"] #signing-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk.png");
-  visibility: visible;
-}
-
-#msgcomposeWindow[crypto="ok"] #encryption-status {
+#encryption-status.encrypting-msg {
   list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk.png");
-  visibility: visible;
-}
-
-#msgcomposeWindow[crypto="notok"] #encryption-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk.png");
   visibility: visible;
 }

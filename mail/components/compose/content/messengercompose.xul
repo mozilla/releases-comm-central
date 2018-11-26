@@ -7,7 +7,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/messengercompose/messengercompose.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/smime/msgCompSMIMEOverlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/smime/smime-compose.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/compacttheme.css" type="text/css" alternate="yes" title="Light/Dark"?>
 
 <!DOCTYPE window [
@@ -390,15 +390,6 @@
 </commandset>
 
   <command id="cmd_doNotRemindForAttachments" oncommand="disableAttachmentReminder();"/>
-
-<broadcasterset id="composeBroadcasters">
-  <broadcaster id="args" value="editorType=default"/>
-  <broadcaster id="viewAddressPicker" autoCheck="false" type="checkbox" oncommand="toggleAddressPicker();"/>
-  <broadcaster id="securityStatus" crypto="" signing=""/>
-</broadcasterset>
-
-<observes element="securityStatus" attribute="crypto" />
-<observes element="securityStatus" attribute="signing" />
 
 <keyset id="tasksKeys">
   <!-- File Menu -->
@@ -1013,7 +1004,10 @@
           </menu>
           <menuitem id="menu_AddressSidebar"
                     label="&addressSidebar.label;" accesskey="&addressSidebar.accesskey;"
-                    key="key_addressSidebar" observes="viewAddressPicker"/>
+                    type="checkbox"
+                    autoCheck="false"
+                    key="key_addressSidebar"
+                    oncommand="toggleAddressPicker();"/>
           <menuitem id="menu_toggleAttachmentPane"
                     label="&toggleAttachmentPaneCmd.label;"
                     accesskey="&toggleAttachmentPaneCmd.accesskey;"
@@ -1728,7 +1722,8 @@
     <toolbarbutton class="toolbarbutton-1"
                id="button-contacts" label="&addressButton.label;"
                tooltiptext="&addressButton.tooltip;"
-               observes="viewAddressPicker"/>
+               autoCheck="false" type="checkbox"
+               oncommand="toggleAddressPicker();"/>
 
     <toolbarbutton class="toolbarbutton-1" type="menu-button"
                id="button-attach" label="&attachButton.label;"

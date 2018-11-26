@@ -196,26 +196,22 @@ function doSecurityButton()
 
 function setNoSignatureUI()
 {
-  top.document.getElementById("securityStatus").removeAttribute("signing");
-  top.document.getElementById("signing-status").collapsed = true;
+  top.document.getElementById("signing-status").classList.remove("signing-msg");
 }
 
 function setSignatureUI()
 {
-  top.document.getElementById("securityStatus").setAttribute("signing", "ok");
-  top.document.getElementById("signing-status").collapsed = false;
+  top.document.getElementById("signing-status").classList.add("signing-msg");
 }
 
 function setNoEncryptionUI()
 {
-  top.document.getElementById("securityStatus").removeAttribute("crypto");
-  top.document.getElementById("encryption-status").collapsed = true;
+  top.document.getElementById("encryption-status").classList.remove("encrypting-msg");
 }
 
 function setEncryptionUI()
 {
-  top.document.getElementById("securityStatus").setAttribute("crypto", "ok");
-  top.document.getElementById("encryption-status").collapsed = false;
+  top.document.getElementById("encryption-status").classList.add("encrypting-msg");
 }
 
 function showMessageComposeSecurityStatus()

@@ -6219,13 +6219,17 @@ function toggleAddressPicker() {
   let sidebarBox = document.getElementById("sidebar-box");
   let sidebarSplitter = document.getElementById("sidebar-splitter");
   let sidebar = document.getElementById("sidebar");
-  let viewAddressPicker = document.getElementById("viewAddressPicker");
+  let sidebarAddrMenu = document.getElementById("menu_AddressSidebar");
+  let contactsButton = document.getElementById("button-contacts");
 
   if (sidebarBox.hidden) {
     // Show contacts sidebar.
     sidebarBox.hidden = false;
     sidebarSplitter.hidden = false;
-    viewAddressPicker.setAttribute("checked", "true");
+    sidebarAddrMenu.setAttribute("checked", "true");
+    if (contactsButton) {
+      contactsButton.setAttribute("checked", "true");
+    }
 
     let sidebarUrl = sidebar.getAttribute("src");
     // If we have yet to initialize the src URL on the sidebar, then go ahead
@@ -6253,7 +6257,10 @@ function toggleAddressPicker() {
     sidebarBox.hidden = true;
     sidebarSplitter.hidden = true;
     sidebarBox.setAttribute("sidebarVisible", "false");
-    viewAddressPicker.removeAttribute("checked");
+    sidebarAddrMenu.removeAttribute("checked");
+    if (contactsButton) {
+      contactsButton.removeAttribute("checked");
+    }
 
     // If nothing is focused in the main compose frame, focus subject if empty
     // otherwise the body. If we didn't do that, focus may stay inside the closed
