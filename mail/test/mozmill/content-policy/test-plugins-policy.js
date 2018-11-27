@@ -4,6 +4,7 @@
 
 /**
  * Checks if plugins are enabled in messages correctly or not.
+ * As of bug 1508942, plugins are no longer enabled in any context.
  */
 
 "use strict";
@@ -46,10 +47,6 @@ var setupModule = function (module) {
   cth.installInto(module);
 
   folder = create_folder("pluginPolicy");
-
-  // Ensure the test plugin is enabled
-  let plugin = get_test_plugin();
-  plugin.enabledState = Ci.nsIPluginTag.STATE_ENABLED;
 };
 
 function addToFolder(aSubject, aBody, aFolder) {
@@ -162,8 +159,8 @@ function test_checkPluginsInNonMessageContent() {
 
   wait_for_message_display_completion();
 
-  if (!isPluginLoaded(mozmill.getMail3PaneController().window.content.document))
-    throw new Error("Plugin is not turned on in content in message pane - it should be.");
+  if (isPluginLoaded(mozmill.getMail3PaneController().window.content.document))
+    throw new Error("Plugin is turned on in content in message pane - it should not be.");
 }
 
 function test_3paneWindowDeniedAgain() {
@@ -191,8 +188,8 @@ function test_checkContentTab() {
 
   let newTab = open_content_tab_with_url(url + "plugin.html");
 
-  if (!isPluginLoaded(mc.tabmail.getBrowserForSelectedTab().contentDocument))
-    throw new Error("Plugin has been unexpectedly blocked in content tab");
+  if (isPluginLoaded(mc.tabmail.getBrowserForSelectedTab().contentDocument))
+    throw new Error("Plugin has been unexpectedly not blocked in content tab");
 
   mc.tabmail.closeTab(newTab);
 
