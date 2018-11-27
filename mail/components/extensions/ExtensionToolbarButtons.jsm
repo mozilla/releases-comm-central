@@ -142,7 +142,10 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
     } else {
       toolbar.appendChild(button);
     }
-    let currentSet = toolbar.getAttribute("currentset").split(",");
+    let currentSet = toolbar.hasAttribute("currentset") ?
+                     toolbar.getAttribute("currentset") :
+                     toolbar.getAttribute("defaultset");
+    currentSet = currentSet.split(",");
     if (currentSet.includes(this.id)) {
       toolbar.currentSet = currentSet.join(",");
     } else {
