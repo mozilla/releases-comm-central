@@ -95,3 +95,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 .categories-textbox {
     -moz-appearance: textfield;
 }
+
+calendar-list-tree > tree > treecols {
+  padding-inline-start: 18px;
+}
