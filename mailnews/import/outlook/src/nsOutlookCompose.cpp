@@ -279,7 +279,8 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage
   }
 
   nsCString bodyA;
-  nsMsgI18NConvertFromUnicode(nsDependentCString(msg.GetBodyCharset()), bodyW, bodyA);
+  const char *charset = msg.GetBodyCharset();
+  nsMsgI18NConvertFromUnicode(charset ? nsDependentCString(charset) : EmptyCString(), bodyW, bodyA);
 
   nsCOMPtr<nsIImportService> impService(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);

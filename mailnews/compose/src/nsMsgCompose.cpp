@@ -1295,14 +1295,13 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
   nsString contentType = (m_composeHTML) ? NS_LITERAL_STRING("text/html"):
                                            NS_LITERAL_STRING("text/plain");
   nsString msgBody;
+  const char *charset = m_compFields->GetCharacterSet();
   if (m_editor)
   {
     // Reset message body previously stored in the compose fields
     // There is 2 nsIMsgCompFields::SetBody() functions using a pointer as argument,
     // therefore a casting is required.
     m_compFields->SetBody((const char *)nullptr);
-
-    const char *charset = m_compFields->GetCharacterSet();
 
     uint32_t flags = nsIDocumentEncoder::OutputCRLineBreak |
                      nsIDocumentEncoder::OutputLFLineBreak;
@@ -1336,7 +1335,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
     bool isAsciiOnly = NS_IsAscii(static_cast<const char16_t*>(msgBody.get()));
     // Convert body to mail charset
     nsCString outCString;
-    rv = nsMsgI18NConvertFromUnicode(nsDependentCString(m_compFields->GetCharacterSet()),
+    rv = nsMsgI18NConvertFromUnicode(charset ? nsDependentCString(charset) : EmptyCString(),
                                      msgBody, outCString, true);
     if (m_compFields->GetForceMsgEncoding())
       isAsciiOnly = false;
@@ -1353,10 +1352,10 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
         {
           bool disableFallback = false;
           nsCOMPtr<nsIPrefBranch> prefBranch (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-          if (prefBranch)
+          if (prefBranch && charset)
           {
             nsCString prefName("mailnews.disable_fallback_to_utf8.");
-            prefName.Append(m_compFields->GetCharacterSet());
+            prefName.Append(charset);
             prefBranch->GetBoolPref(prefName.get(), &disableFallback);
           }
           if (!disableFallback)

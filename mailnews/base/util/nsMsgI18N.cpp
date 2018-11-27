@@ -166,9 +166,9 @@ void nsMsgI18NTextFileCharset(nsACString& aCharset)
 char * nsMsgI18NEncodeMimePartIIStr(const char *header, bool structured, const char *charset, int32_t fieldnamelen, bool usemime)
 {
   // No MIME, convert to the outgoing mail charset.
-  if (false == usemime) {
+  if (!usemime) {
     nsAutoCString convertedStr;
-    if (NS_SUCCEEDED(nsMsgI18NConvertFromUnicode(nsDependentCString(charset),
+    if (NS_SUCCEEDED(nsMsgI18NConvertFromUnicode(charset ? nsDependentCString(charset) : EmptyCString(),
                                                  NS_ConvertUTF8toUTF16(header),
                                                  convertedStr)))
       return PL_strdup(convertedStr.get());

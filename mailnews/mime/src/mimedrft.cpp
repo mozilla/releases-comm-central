@@ -349,7 +349,7 @@ CreateCompositionFields(const char        *from,
 
   if (from) {
     nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(from),
-                                    nsDependentCString(charset),
+                                    charset ? nsDependentCString(charset) : EmptyCString(),
                                     outString);
     cFields->SetFrom(outString);
   }
@@ -361,28 +361,28 @@ CreateCompositionFields(const char        *from,
 
   if (reply_to) {
     nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(reply_to),
-                                    nsDependentCString(charset),
+                                    charset ? nsDependentCString(charset) : EmptyCString(),
                                     outString);
     cFields->SetReplyTo(outString);
   }
 
   if (to) {
     nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(to),
-                                    nsDependentCString(charset),
+                                    charset ? nsDependentCString(charset) : EmptyCString(),
                                     outString);
     cFields->SetTo(outString);
   }
 
   if (cc) {
     nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(cc),
-                                    nsDependentCString(charset),
+                                    charset ? nsDependentCString(charset) : EmptyCString(),
                                     outString);
     cFields->SetCc(outString);
   }
 
   if (bcc) {
     nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(bcc),
-                                    nsDependentCString(charset),
+                                    charset ? nsDependentCString(charset) : EmptyCString(),
                                     outString);
     cFields->SetBcc(outString);
   }

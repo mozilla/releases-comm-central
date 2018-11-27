@@ -40,7 +40,9 @@ MimeHeaders_convert_header_value(MimeDisplayOptions *opt, nsCString &value,
   {
     nsAutoCString output;
     nsMsgI18NConvertRawBytesToUTF8(value,
-                                   nsDependentCString(opt->default_charset),
+                                   opt->default_charset ?
+                                     nsDependentCString(opt->default_charset) :
+                                     EmptyCString(),
                                    output);
     value.Assign(output);
     return;

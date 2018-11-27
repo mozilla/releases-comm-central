@@ -1273,9 +1273,11 @@ void CMapiMessageHeaders::CHeaderField::GetUnfoldedString(nsString& dest,
   if (m_fbody_utf8)
     CopyUTF8toUTF16(unfolded, dest);
   else
-    nsMsgI18NConvertToUnicode(nsDependentCString(fallbackCharset),
-                                                 unfolded,
-                                                 dest);
+    nsMsgI18NConvertToUnicode(fallbackCharset ?
+                                nsDependentCString(fallbackCharset) :
+                                EmptyCString(),
+                              unfolded,
+                              dest);
 }
 
 ////////////////////////////////////////
