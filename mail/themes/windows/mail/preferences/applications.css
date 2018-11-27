@@ -39,11 +39,6 @@ menuitem[appHandlerIcon="save"] {
   list-style-image: url("chrome://messenger/skin/preferences/saveFile.png");
 }
 
-richlistitem[appHandlerIcon="plugin"],
-menuitem[appHandlerIcon="plugin"] {
-  list-style-image: url("chrome://global/skin/plugins/pluginGeneric.svg");
-}
-
 .actionsMenu .menulist-icon {
   margin-inline-end: 3px;
 }

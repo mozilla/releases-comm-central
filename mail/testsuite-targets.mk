@@ -33,7 +33,6 @@ mozmill:
 	--binary=$(abspath $(BINARY)) \
 	--dir=$(commtopsrcdir)/mail/test/mozmill \
 	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
-	--plugins-path=$(ABS_DIST)/plugins \
 	--testing-modules-dir=$(topobjdir)/_tests/modules \
 	$(MOZMILL_EXTRA)
 
@@ -44,7 +43,6 @@ mozmill-one:
 	--test=$(commtopsrcdir)/mail/test/mozmill/$(solo-test) \
 	--binary=$(abspath $(BINARY)) \
 	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
-	--plugins-path=$(ABS_DIST)/plugins \
 	--testing-modules-dir=$(topobjdir)/_tests/modules \
 	$(MOZMILL_EXTRA)
 

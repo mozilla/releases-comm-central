@@ -28,6 +28,10 @@
   margin: 0;
 }
 
+#category-plugin {
+  display: none;
+}
+
 .addon[status="installed"] {
   -moz-binding: url("chrome://messenger/content/extensions.xml#thunderbird-addon-generic");
 }

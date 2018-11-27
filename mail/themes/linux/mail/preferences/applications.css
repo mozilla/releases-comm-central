@@ -35,11 +35,6 @@ menuitem[appHandlerIcon="save"] {
   list-style-image: url("moz-icon://stock/gtk-save?size=menu");
 }
 
-richlistitem[appHandlerIcon="plugin"],
-menuitem[appHandlerIcon="plugin"] {
-  list-style-image: url("chrome://global/skin/plugins/pluginGeneric.svg");
-}
-
 .actionsMenu .menulist-icon {
   margin-inline-end: 1px;
   height: 16px;

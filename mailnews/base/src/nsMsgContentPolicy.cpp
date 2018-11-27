@@ -860,8 +860,6 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     NS_ENSURE_SUCCESS(rv, rv);
     rv = docShell->SetAllowContentRetargetingOnChildren(false);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = docShell->SetAllowPlugins(false);
-    NS_ENSURE_SUCCESS(rv, rv);
 
     uint32_t sandboxFlags;
     rv = docShell->GetSandboxFlags(&sandboxFlags);
@@ -871,14 +869,15 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     NS_ENSURE_SUCCESS(rv, rv);
   }
   else {
-    // JavaScript and plugins are allowed on non-message URLs.
+    // JavaScript is allowed on non-message URLs.
     rv = docShell->SetAllowJavascript(true);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = docShell->SetAllowContentRetargetingOnChildren(true);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = docShell->SetAllowPlugins(true);
-    NS_ENSURE_SUCCESS(rv, rv);
   }
+
+  rv = docShell->SetAllowPlugins(false);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
 }
@@ -1027,20 +1026,17 @@ nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
     rv = docShell->SetAllowJavascript(false);
     NS_ASSERTION(NS_SUCCEEDED(rv),
                  "Failed to set javascript disabled on docShell");
-    // Also disable plugins if the preference requires it.
-    rv = docShell->SetAllowPlugins(false);
-    NS_ASSERTION(NS_SUCCEEDED(rv),
-                 "Failed to set plugins disabled on docShell");
   }
   else {
-    // Disable javascript and plugins are allowed on non-message URLs.
+    // Javascript is allowed on non-message URLs. Plugins are not.
     rv = docShell->SetAllowJavascript(true);
     NS_ASSERTION(NS_SUCCEEDED(rv),
                  "Failed to set javascript allowed on docShell");
-    rv = docShell->SetAllowPlugins(true);
-    NS_ASSERTION(NS_SUCCEEDED(rv),
-                 "Failed to set plugins allowed on docShell");
   }
+
+  rv = docShell->SetAllowPlugins(false);
+  NS_ASSERTION(NS_SUCCEEDED(rv),
+               "Failed to set plugins disabled on docShell");
 
   return NS_OK;
 }

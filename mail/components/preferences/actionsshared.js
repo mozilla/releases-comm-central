@@ -7,7 +7,6 @@ var FILEACTION_SAVE_TO_DISK     = 1;
 var FILEACTION_OPEN_INTERNALLY  = 2;
 var FILEACTION_OPEN_DEFAULT     = 3;
 var FILEACTION_OPEN_CUSTOM      = 4;
-var FILEACTION_OPEN_PLUGIN      = 5;
 function FileAction() {
 }
 FileAction.prototype = {
@@ -22,9 +21,6 @@ FileAction.prototype = {
   mimeInfo: null,
   customHandler: "",
   handleMode: false,
-  pluginAvailable: false,
-  pluginEnabled: false,
-  handledOnlyByPlugin: false,
 };
 
 
